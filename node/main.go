@@ -1,18 +1,15 @@
 package node
 
 import (
-	"fmt"
-	"github.com/parallelcointeam/pod/node/blockchain/indexers"
-	"github.com/parallelcointeam/pod/node/database"
-	"github.com/parallelcointeam/pod/node/limits"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"path/filepath"
-	"runtime"
-	"runtime/debug"
 	"runtime/pprof"
+
+	"github.com/parallelcointeam/pod/node/blockchain/indexers"
+	"github.com/parallelcointeam/pod/node/database"
 )
 
 const (
@@ -27,8 +24,8 @@ var (
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
 var winServiceMain func() (bool, error)
 
-// podMain is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
-func podMain(serverChan chan<- *server) error {
+// Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
+func Main(serverChan chan<- *server) error {
 	// Load configuration and parse command line.  This function also initializes logging and configures it accordingly.
 	tcfg, _, err := loadConfig()
 	if err != nil {
@@ -257,7 +254,7 @@ func loadBlockDB() (database.DB, error) {
 // 		}
 // 	}
 // 	// Work around defer not working after os.Exit()
-// 	if err := podMain(nil); err != nil {
+// 	if err := Main(nil); err != nil {
 // 		os.Exit(1)
 // 	}
 // }

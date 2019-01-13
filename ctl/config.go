@@ -1,16 +1,17 @@
-package main
+package ctl
 
 import (
 	"fmt"
-	flags "github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btcutil"
 	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	flags "github.com/jessevdk/go-flags"
+	"github.com/parallelcointeam/pod/json"
+	"github.com/parallelcointeam/pod/util"
 )
 
 const (

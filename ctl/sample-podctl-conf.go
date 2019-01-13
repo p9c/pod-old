@@ -1,4 +1,5 @@
-package main
+package ctl
+
 var samplePodCtlConf = `;;;  Directory to store data (default: ~/.pod/data)
 ;datadir=              
 ;;;  Directory to log output. (default: ~/.pod/logs)

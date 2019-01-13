@@ -1,15 +1,16 @@
-package main
+package ctl
 
 import (
 	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcjson"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/parallelcointeam/pod/json"
 )
 
 const (
@@ -40,7 +41,9 @@ func usage(errorMessage string) {
 	fmt.Fprintln(os.Stderr, showHelpMessage)
 	fmt.Fprintln(os.Stderr, listCmdMessage)
 }
-func main() {
+
+// Main is the entry point for the pod.Ctl component
+func Main() {
 	cfg, args, err := loadConfig()
 	if err != nil {
 		os.Exit(1)

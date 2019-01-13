@@ -1,4 +1,4 @@
-package main
+package ctl
 
 import (
 	"bytes"
@@ -6,11 +6,12 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/btcsuite/go-socks/socks"
-	"github.com/parallelcointeam/pod/btcjson"
 	"io/ioutil"
 	"net"
 	"net/http"
+
+	"github.com/btcsuite/go-socks/socks"
+	"github.com/parallelcointeam/pod/json"
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the proxy and TLS settings in the associated connection configuration.
