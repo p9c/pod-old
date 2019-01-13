@@ -4,13 +4,14 @@ package integration
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/integration/rpctest"
 	"runtime"
 	"testing"
 	"time"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/integration/rpctest"
 )
 
 const (

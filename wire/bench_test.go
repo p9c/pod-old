@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io/ioutil"
 	"net"
 	"os"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // genesisCoinbaseTx is the coinbase transaction for the genesis blocks for the main network, regression test network, and test network (version 3).

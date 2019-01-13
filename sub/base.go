@@ -9,7 +9,7 @@ import (
 	"net"
 	"time"
 
-	log "github.com/parallelcointeam/sub/clog"
+	log "git.parallelcoin.io/pod/clog"
 )
 
 // Implementations of common parts for node and worker

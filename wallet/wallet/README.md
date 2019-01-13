@@ -1,8 +1,4 @@
-wallet
-======
-
-[![Build Status](https://travis-ci.org/btcsuite/btcwallet.png?branch=master)]
-(https://travis-ci.org/btcsuite/btcwallet)
+# wallet
 
 ## Feature Overview
 
@@ -10,8 +6,7 @@ TODO: Flesh out this section
 
 ## Documentation
 
-[![GoDoc](https://godoc.org/github.com/parallelcointeam/mod/wallet?status.png)]
-(http://godoc.org/github.com/parallelcointeam/mod/wallet)
+[![GoDoc](https://godoc.org/github.com/parallelcointeam/mod/wallet?status.png)](http://godoc.org/github.com/parallelcointeam/mod/wallet)
 
 Full `go doc` style documentation for the project can be viewed online without
 installing this package by using the GoDoc site here:

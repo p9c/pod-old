@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/parallelcointeam/sub/clog"
+	"git.parallelcoin.io/pod/clog"
 )
 
 var (

@@ -2,11 +2,6 @@ package rpctest
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/wire"
 	"io/ioutil"
 	"net"
 	"os"
@@ -15,6 +10,12 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 const (
@@ -114,7 +115,7 @@ func New(activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
 	// If a handler for the OnFilteredBlock{Connected,Disconnected} callback callback has already been set, then create a wrapper callback which executes both the currently registered callback and the mem wallet's callback.
 	if handlers.OnFilteredBlockConnected != nil {
 		obc := handlers.OnFilteredBlockConnected
-		handlers.OnFilteredBlockConnected = func(height int32, header *wire.BlockHeader, filteredTxns []*btcutil.Tx) {
+		handlers.OnFilteredBlockConnected = func(height int32, header *wire.BlockHeader, filteredTxns []*util.Tx) {
 			wallet.IngestBlock(height, header, filteredTxns)
 			obc(height, header, filteredTxns)
 		}
@@ -156,7 +157,7 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 	}
 	h.wallet.Start()
 	// Filter transactions that pay to the coinbase associated with the wallet.
-	filterAddrs := []btcutil.Address{h.wallet.coinbaseAddr}
+	filterAddrs := []util.Address{h.wallet.coinbaseAddr}
 	if err := h.Node.LoadTxFilter(true, filterAddrs, nil); err != nil {
 		return err
 	}
@@ -233,30 +234,30 @@ func (h *Harness) connectRPCClient() error {
 }
 
 // NewAddress returns a fresh address spendable by the Harness' internal wallet. This function is safe for concurrent access.
-func (h *Harness) NewAddress() (btcutil.Address, error) {
+func (h *Harness) NewAddress() (util.Address, error) {
 	return h.wallet.NewAddress()
 }
 
 // ConfirmedBalance returns the confirmed balance of the Harness' internal wallet. This function is safe for concurrent access.
-func (h *Harness) ConfirmedBalance() btcutil.Amount {
+func (h *Harness) ConfirmedBalance() util.Amount {
 	return h.wallet.ConfirmedBalance()
 }
 
 // SendOutputs creates, signs, and finally broadcasts a transaction spending the harness' available mature coinbase outputs creating new outputs according to targetOutputs. This function is safe for concurrent access.
 func (h *Harness) SendOutputs(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount) (*chainhash.Hash, error) {
+	feeRate util.Amount) (*chainhash.Hash, error) {
 	return h.wallet.SendOutputs(targetOutputs, feeRate)
 }
 
 // SendOutputsWithoutChange creates and sends a transaction that pays to the specified outputs while observing the passed fee rate and ignoring a change output. The passed fee rate should be expressed in sat/b. This function is safe for concurrent access.
 func (h *Harness) SendOutputsWithoutChange(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount) (*chainhash.Hash, error) {
+	feeRate util.Amount) (*chainhash.Hash, error) {
 	return h.wallet.SendOutputsWithoutChange(targetOutputs, feeRate)
 }
 
 // CreateTransaction returns a fully signed transaction paying to the specified outputs while observing the desired fee rate. The passed fee rate should be expressed in satoshis-per-byte. The transaction being created can optionally include a change output indicated by the change boolean. Any unspent outputs selected as inputs for the crafted transaction are marked as unspendable in order to avoid potential double-spends by future calls to this method. If the created transaction is cancelled for any reason then the selected inputs MUST be freed via a call to UnlockOutputs. Otherwise, the locked inputs won't be returned to the pool of spendable outputs. This function is safe for concurrent access.
 func (h *Harness) CreateTransaction(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount, change bool) (*wire.MsgTx, error) {
+	feeRate util.Amount, change bool) (*wire.MsgTx, error) {
 	return h.wallet.CreateTransaction(targetOutputs, feeRate, change)
 }
 
@@ -276,16 +277,16 @@ func (h *Harness) P2PAddress() string {
 }
 
 // GenerateAndSubmitBlock creates a block whose contents include the passed transactions and submits it to the running simnet node. For generating blocks with only a coinbase tx, callers can simply pass nil instead of transactions to be mined. Additionally, a custom block version can be set by the caller. A blockVersion of -1 indicates that the current default block version should be used. An uninitialized time.Time should be used for the blockTime parameter if one doesn't wish to set a custom time. This function is safe for concurrent access.
-func (h *Harness) GenerateAndSubmitBlock(txns []*btcutil.Tx, blockVersion uint32,
-	blockTime time.Time) (*btcutil.Block, error) {
+func (h *Harness) GenerateAndSubmitBlock(txns []*util.Tx, blockVersion uint32,
+	blockTime time.Time) (*util.Block, error) {
 	return h.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(txns,
 		blockVersion, blockTime, []wire.TxOut{})
 }
 
 // GenerateAndSubmitBlockWithCustomCoinbaseOutputs creates a block whose contents include the passed coinbase outputs and transactions and submits it to the running simnet node. For generating blocks with only a coinbase tx, callers can simply pass nil instead of transactions to be mined. Additionally, a custom block version can be set by the caller. A blockVersion of -1 indicates that the current default block version should be used. An uninitialized time.Time should be used for the blockTime parameter if one doesn't wish to set a custom time. The mineTo list of outputs will be added to the coinbase; this is not checked for correctness until the block is submitted; thus, it is the caller's responsibility to ensure that the outputs are correct. If the list is empty, the coinbase reward goes to the wallet managed by the Harness. This function is safe for concurrent access.
 func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
-	txns []*btcutil.Tx, blockVersion uint32, blockTime time.Time,
-	mineTo []wire.TxOut) (*btcutil.Block, error) {
+	txns []*util.Tx, blockVersion uint32, blockTime time.Time,
+	mineTo []wire.TxOut) (*util.Block, error) {
 	h.Lock()
 	defer h.Unlock()
 	if blockVersion == ^uint32(0) {
@@ -299,7 +300,7 @@ func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 	if err != nil {
 		return nil, err
 	}
-	prevBlock := btcutil.NewBlock(mBlock)
+	prevBlock := util.NewBlock(mBlock)
 	prevBlock.SetHeight(prevBlockHeight)
 	// Create a new block including the specified transactions
 	newBlock, err := CreateBlock(prevBlock, txns, int32(blockVersion),

@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/blockchain/indexers"
-	"github.com/parallelcointeam/pod/btclog"
-	"github.com/parallelcointeam/pod/database"
-	"github.com/parallelcointeam/pod/limits"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/blockchain/indexers"
+	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/limits"
+	l "git.parallelcoin.io/pod/log"
 )
 
 const (
@@ -18,7 +19,7 @@ const (
 
 var (
 	cfg *config
-	log btclog.Logger
+	log l.Logger
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
@@ -57,7 +58,7 @@ func realMain() error {
 	}
 	cfg = tcfg
 	// Setup logging.
-	backendLogger := btclog.NewBackend(os.Stdout)
+	backendLogger := log.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
 	log = backendLogger.Logger("MAIN")
 	database.UseLogger(backendLogger.Logger("BCDB"))

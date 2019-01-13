@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 // SessionResult models the data from the session command.
 type SessionResult struct {

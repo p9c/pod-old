@@ -1,8 +1,4 @@
-// Copyright (c) 2013-2017 The btcsuite developers
-
-
-
-package main
+package wallet
 
 import (
 	"fmt"
@@ -10,14 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/wallet/chain"
+	"git.parallelcoin.io/pod/wallet/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/wallet/rpc/rpcserver"
+	"git.parallelcoin.io/pod/wtxmgr"
 	"github.com/jrick/logrotate/rotator"
-	"github.com/parallelcointeam/mod/chain"
-	"github.com/parallelcointeam/mod/rpc/legacyrpc"
-	"github.com/parallelcointeam/mod/rpc/rpcserver"
-	"github.com/parallelcointeam/mod/wallet"
-	"github.com/parallelcointeam/mod/wtxmgr"
-	"github.com/parallelcointeam/pod/btclog"
-	"github.com/parallelcointeam/pod/rpcclient"
 )
 
 // logWriter implements an io.Writer that outputs to both standard output and
@@ -42,7 +36,7 @@ var (
 	// backendLog is the logging backend used to create all subsystem loggers.
 	// The backend must not be used before the log rotator has been initialized,
 	// or data races and/or nil pointer dereferences will occur.
-	backendLog = btclog.NewBackend(logWriter{})
+	backendLog = log.NewBackend(logWriter{})
 
 	// logRotator is one of the logging outputs.  It should be closed on
 	// application shutdown.
@@ -63,7 +57,7 @@ var (
 
 // Initialize package-global logger variables.
 func init() {
-	wallet.UseLogger(walletLog)
+	UseLogger(walletLog)
 	wtxmgr.UseLogger(txmgrLog)
 	chain.UseLogger(chainLog)
 	rpcclient.UseLogger(chainLog)
@@ -73,7 +67,7 @@ func init() {
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
-var subsystemLoggers = map[string]btclog.Logger{
+var subsystemLoggers = map[string]log.Logger{
 	"DUOW": log,
 	"WLLT": walletLog,
 	"TMGR": txmgrLog,
@@ -117,7 +111,7 @@ func setLogLevel(subsystemID string, logLevel string) {
 	}
 
 	// Defaults to info if the log level is invalid.
-	level, _ := btclog.LevelFromString(logLevel)
+	level, _ := log.LevelFromString(logLevel)
 	logger.SetLevel(level)
 }
 

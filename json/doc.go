@@ -1,5 +1,5 @@
 /*
-Package btcjson provides primitives for working with the bitcoin JSON-RPC API.
+package json provides primitives for working with the bitcoin JSON-RPC API.
 
 Overview
 
@@ -81,4 +81,4 @@ The specific reason for the error can be detected by type asserting it to a *btc
 
 The second category of errors (type RPCError), on the other hand, are useful for returning errors to RPC clients.  Consequently, they are used in the previously described Response type.
 */
-package btcjson
+package json

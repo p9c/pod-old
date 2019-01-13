@@ -1,5 +1,5 @@
 // NOTE: This file is intended to house the RPC commands that are supported by a chain server, but are only available via websockets.
-package btcjson
+package json
 
 // AuthenticateCmd defines the authenticate JSON-RPC command.
 type AuthenticateCmd struct {

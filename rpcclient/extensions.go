@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
+	js "encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // FutureDebugLevelResult is a future promise to deliver the result of a DebugLevelAsync RPC invocation (or an applicable error).
@@ -23,7 +24,7 @@ func (r FutureDebugLevelResult) Receive() (string, error) {
 	}
 	// Unmashal the result as a string.
 	var result string
-	err = json.Unmarshal(res, &result)
+	err = js.Unmarshal(res, &result)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +33,7 @@ func (r FutureDebugLevelResult) Receive() (string, error) {
 
 // DebugLevelAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See DebugLevel for the blocking version and more details. NOTE: This is a pod extension.
 func (c *Client) DebugLevelAsync(levelSpec string) FutureDebugLevelResult {
-	cmd := btcjson.NewDebugLevelCmd(levelSpec)
+	cmd := json.NewDebugLevelCmd(levelSpec)
 	return c.sendCmd(cmd)
 }
 
@@ -56,7 +57,7 @@ func (r FutureCreateEncryptedWalletResult) Receive() error {
 
 // CreateEncryptedWalletAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See CreateEncryptedWallet for the blocking version and more details. NOTE: This is a btcwallet extension.
 func (c *Client) CreateEncryptedWalletAsync(passphrase string) FutureCreateEncryptedWalletResult {
-	cmd := btcjson.NewCreateEncryptedWalletCmd(passphrase)
+	cmd := json.NewCreateEncryptedWalletCmd(passphrase)
 	return c.sendCmd(cmd)
 }
 
@@ -69,14 +70,14 @@ func (c *Client) CreateEncryptedWallet(passphrase string) error {
 type FutureListAddressTransactionsResult chan *response
 
 // Receive waits for the response promised by the future and returns information about all transactions associated with the provided addresses.
-func (r FutureListAddressTransactionsResult) Receive() ([]btcjson.ListTransactionsResult, error) {
+func (r FutureListAddressTransactionsResult) Receive() ([]json.ListTransactionsResult, error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 	// Unmarshal the result as an array of listtransactions objects.
-	var transactions []btcjson.ListTransactionsResult
-	err = json.Unmarshal(res, &transactions)
+	var transactions []json.ListTransactionsResult
+	err = js.Unmarshal(res, &transactions)
 	if err != nil {
 		return nil, err
 	}
@@ -84,18 +85,18 @@ func (r FutureListAddressTransactionsResult) Receive() ([]btcjson.ListTransactio
 }
 
 // ListAddressTransactionsAsync returns an instance of a type that can be used get the result of the RPC at some future time by invoking the Receive function on the returned instance. See ListAddressTransactions for the blocking version and more details. NOTE: This is a pod extension.
-func (c *Client) ListAddressTransactionsAsync(addresses []btcutil.Address, account string) FutureListAddressTransactionsResult {
+func (c *Client) ListAddressTransactionsAsync(addresses []util.Address, account string) FutureListAddressTransactionsResult {
 	// Convert addresses to strings.
 	addrs := make([]string, 0, len(addresses))
 	for _, addr := range addresses {
 		addrs = append(addrs, addr.EncodeAddress())
 	}
-	cmd := btcjson.NewListAddressTransactionsCmd(addrs, &account)
+	cmd := json.NewListAddressTransactionsCmd(addrs, &account)
 	return c.sendCmd(cmd)
 }
 
 // ListAddressTransactions returns information about all transactions associated with the provided addresses. NOTE: This is a btcwallet extension.
-func (c *Client) ListAddressTransactions(addresses []btcutil.Address, account string) ([]btcjson.ListTransactionsResult, error) {
+func (c *Client) ListAddressTransactions(addresses []util.Address, account string) ([]json.ListTransactionsResult, error) {
 	return c.ListAddressTransactionsAsync(addresses, account).Receive()
 }
 
@@ -109,8 +110,8 @@ func (r FutureGetBestBlockResult) Receive() (*chainhash.Hash, int32, error) {
 		return nil, 0, err
 	}
 	// Unmarshal result as a getbestblock result object.
-	var bestBlock btcjson.GetBestBlockResult
-	err = json.Unmarshal(res, &bestBlock)
+	var bestBlock json.GetBestBlockResult
+	err = js.Unmarshal(res, &bestBlock)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -124,7 +125,7 @@ func (r FutureGetBestBlockResult) Receive() (*chainhash.Hash, int32, error) {
 
 // GetBestBlockAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBestBlock for the blocking version and more details. NOTE: This is a pod extension.
 func (c *Client) GetBestBlockAsync() FutureGetBestBlockResult {
-	cmd := btcjson.NewGetBestBlockCmd()
+	cmd := json.NewGetBestBlockCmd()
 	return c.sendCmd(cmd)
 }
 
@@ -144,7 +145,7 @@ func (r FutureGetCurrentNetResult) Receive() (wire.BitcoinNet, error) {
 	}
 	// Unmarshal result as an int64.
 	var net int64
-	err = json.Unmarshal(res, &net)
+	err = js.Unmarshal(res, &net)
 	if err != nil {
 		return 0, err
 	}
@@ -153,7 +154,7 @@ func (r FutureGetCurrentNetResult) Receive() (wire.BitcoinNet, error) {
 
 // GetCurrentNetAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetCurrentNet for the blocking version and more details. NOTE: This is a pod extension.
 func (c *Client) GetCurrentNetAsync() FutureGetCurrentNetResult {
-	cmd := btcjson.NewGetCurrentNetCmd()
+	cmd := json.NewGetCurrentNetCmd()
 	return c.sendCmd(cmd)
 }
 
@@ -173,7 +174,7 @@ func (r FutureGetHeadersResult) Receive() ([]wire.BlockHeader, error) {
 	}
 	// Unmarshal result as a slice of strings.
 	var result []string
-	err = json.Unmarshal(res, &result)
+	err = js.Unmarshal(res, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +203,7 @@ func (c *Client) GetHeadersAsync(blockLocators []chainhash.Hash, hashStop *chain
 	if hashStop != nil {
 		hash = hashStop.String()
 	}
-	cmd := btcjson.NewGetHeadersCmd(locators, hash)
+	cmd := json.NewGetHeadersCmd(locators, hash)
 	return c.sendCmd(cmd)
 }
 
@@ -222,7 +223,7 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 	}
 	// Unmarshal result as a JSON object.
 	var obj map[string]interface{}
-	err = json.Unmarshal(res, &obj)
+	err = js.Unmarshal(res, &obj)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -252,7 +253,7 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 
 // ExportWatchingWalletAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See ExportWatchingWallet for the blocking version and more details. NOTE: This is a btcwallet extension.
 func (c *Client) ExportWatchingWalletAsync(account string) FutureExportWatchingWalletResult {
-	cmd := btcjson.NewExportWatchingWalletCmd(&account, btcjson.Bool(true))
+	cmd := json.NewExportWatchingWalletCmd(&account, json.Bool(true))
 	return c.sendCmd(cmd)
 }
 
@@ -265,14 +266,14 @@ func (c *Client) ExportWatchingWallet(account string) ([]byte, []byte, error) {
 type FutureSessionResult chan *response
 
 // Receive waits for the response promised by the future and returns the session result.
-func (r FutureSessionResult) Receive() (*btcjson.SessionResult, error) {
+func (r FutureSessionResult) Receive() (*json.SessionResult, error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 	// Unmarshal result as a session result object.
-	var session btcjson.SessionResult
-	err = json.Unmarshal(res, &session)
+	var session json.SessionResult
+	err = js.Unmarshal(res, &session)
 	if err != nil {
 		return nil, err
 	}
@@ -285,12 +286,12 @@ func (c *Client) SessionAsync() FutureSessionResult {
 	if c.config.HTTPPostMode {
 		return newFutureError(ErrWebsocketsRequired)
 	}
-	cmd := btcjson.NewSessionCmd()
+	cmd := json.NewSessionCmd()
 	return c.sendCmd(cmd)
 }
 
 // Session returns details regarding a websocket client's current connection. This RPC requires the client to be running in websocket mode. NOTE: This is a btcsuite extension.
-func (c *Client) Session() (*btcjson.SessionResult, error) {
+func (c *Client) Session() (*json.SessionResult, error) {
 	return c.SessionAsync().Receive()
 }
 
@@ -298,15 +299,15 @@ func (c *Client) Session() (*btcjson.SessionResult, error) {
 type FutureVersionResult chan *response
 
 // Receive waits for the response promised by the future and returns the version result. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
-func (r FutureVersionResult) Receive() (map[string]btcjson.VersionResult,
+func (r FutureVersionResult) Receive() (map[string]json.VersionResult,
 	error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 	// Unmarshal result as a version result object.
-	var vr map[string]btcjson.VersionResult
-	err = json.Unmarshal(res, &vr)
+	var vr map[string]json.VersionResult
+	err = js.Unmarshal(res, &vr)
 	if err != nil {
 		return nil, err
 	}
@@ -315,11 +316,11 @@ func (r FutureVersionResult) Receive() (map[string]btcjson.VersionResult,
 
 // VersionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See Version for the blocking version and more details. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
 func (c *Client) VersionAsync() FutureVersionResult {
-	cmd := btcjson.NewVersionCmd()
+	cmd := json.NewVersionCmd()
 	return c.sendCmd(cmd)
 }
 
 // Version returns information about the server's JSON-RPC API versions. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
-func (c *Client) Version() (map[string]btcjson.VersionResult, error) {
+func (c *Client) Version() (map[string]json.VersionResult, error) {
 	return c.VersionAsync().Receive()
 }

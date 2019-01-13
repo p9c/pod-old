@@ -1,9 +1,10 @@
-package btcjson_test
+package json_test
 
 import (
 	"encoding/json"
-	"github.com/parallelcointeam/pod/btcjson"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestChainSvrCustomResults ensures any results that have custom marshalling work as intended and unmarshal code of results are as expected.
@@ -16,7 +17,7 @@ func TestChainSvrCustomResults(t *testing.T) {
 	}{
 		{
 			name: "custom vin marshal with coinbase",
-			result: &btcjson.Vin{
+			result: &json.Vin{
 				Coinbase: "021234",
 				Sequence: 4294967295,
 			},
@@ -24,10 +25,10 @@ func TestChainSvrCustomResults(t *testing.T) {
 		},
 		{
 			name: "custom vin marshal without coinbase",
-			result: &btcjson.Vin{
+			result: &json.Vin{
 				Txid: "123",
 				Vout: 1,
-				ScriptSig: &btcjson.ScriptSig{
+				ScriptSig: &json.ScriptSig{
 					Asm: "0",
 					Hex: "00",
 				},
@@ -37,7 +38,7 @@ func TestChainSvrCustomResults(t *testing.T) {
 		},
 		{
 			name: "custom vinprevout marshal with coinbase",
-			result: &btcjson.VinPrevOut{
+			result: &json.VinPrevOut{
 				Coinbase: "021234",
 				Sequence: 4294967295,
 			},
@@ -45,14 +46,14 @@ func TestChainSvrCustomResults(t *testing.T) {
 		},
 		{
 			name: "custom vinprevout marshal without coinbase",
-			result: &btcjson.VinPrevOut{
+			result: &json.VinPrevOut{
 				Txid: "123",
 				Vout: 1,
-				ScriptSig: &btcjson.ScriptSig{
+				ScriptSig: &json.ScriptSig{
 					Asm: "0",
 					Hex: "00",
 				},
-				PrevOut: &btcjson.PrevOut{
+				PrevOut: &json.PrevOut{
 					Addresses: []string{"addr1"},
 					Value:     0,
 				},

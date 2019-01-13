@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/parallelcointeam/pod/rpcclient"
 	"log"
+
+	"git.parallelcoin.io/pod/rpcclient"
 )
 
 func main() {

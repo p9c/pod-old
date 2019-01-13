@@ -2,9 +2,10 @@ package gcs_test
 
 import (
 	"encoding/binary"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
 	"math/rand"
 	"testing"
+
+	"git.parallelcoin.io/pod/util/gcs"
 )
 
 func genRandFilterElements(numElements uint) ([][]byte, error) {

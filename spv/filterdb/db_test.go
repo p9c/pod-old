@@ -7,12 +7,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/walletdb"
+	_ "git.parallelcoin.io/pod/walletdb/bdb"
 )
 
 func createTestDatabase() (func(), FilterDatabase, error) {

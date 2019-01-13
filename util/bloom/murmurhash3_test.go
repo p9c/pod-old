@@ -1,8 +1,9 @@
 package bloom_test
 
 import (
-	"github.com/parallelcointeam/pod/btcutil/bloom"
 	"testing"
+
+	"git.parallelcoin.io/pod/util/bloom"
 )
 
 // TestMurmurHash3 ensure the MurmurHash3 function produces the correct hash when given various seeds and data.

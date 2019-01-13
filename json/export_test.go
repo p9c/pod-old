@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 // TstHighestUsageFlagBit makes the internal highestUsageFlagBit parameter available to the test package.
 var TstHighestUsageFlagBit = highestUsageFlagBit

@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/walletdb"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // BlockHeaderStore is an interface that provides an abstraction for a generic

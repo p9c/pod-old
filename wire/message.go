@@ -3,9 +3,10 @@ package wire
 import (
 	"bytes"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"unicode/utf8"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // MessageHeaderSize is the number of bytes in a bitcoin message header. Bitcoin network (magic) 4 bytes + command 12 bytes + payload length 4 bytes + checksum 4 bytes.

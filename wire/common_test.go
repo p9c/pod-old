@@ -3,12 +3,13 @@ package wire
 import (
 	"bytes"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"reflect"
 	"strings"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // mainNetGenesisHash is the hash of the first block in the block chain for the main network (genesis block).

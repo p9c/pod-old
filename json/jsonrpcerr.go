@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 // Standard JSON-RPC 2.0 errors.
 var (

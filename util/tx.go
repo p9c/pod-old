@@ -1,10 +1,11 @@
-package btcutil
+package util
 
 import (
 	"bytes"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // TxIndexUnknown is the value returned for a transaction index that is unknown. This is typically because the transaction has not been inserted into a block yet.

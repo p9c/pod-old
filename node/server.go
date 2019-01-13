@@ -17,23 +17,23 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/parallelcointeam/pod/addrmgr"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/blockchain/indexers"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/bloom"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/connmgr"
-	"github.com/parallelcointeam/pod/database"
-	"github.com/parallelcointeam/pod/mempool"
-	"github.com/parallelcointeam/pod/mining"
-	"github.com/parallelcointeam/pod/mining/controller"
-	"github.com/parallelcointeam/pod/mining/cpuminer"
-	"github.com/parallelcointeam/pod/netsync"
-	"github.com/parallelcointeam/pod/peer"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/addrmgr"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/blockchain/indexers"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/connmgr"
+	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/mining"
+	"git.parallelcoin.io/pod/mining/controller"
+	"git.parallelcoin.io/pod/mining/cpuminer"
+	"git.parallelcoin.io/pod/netsync"
+	"git.parallelcoin.io/pod/node/mempool"
+	"git.parallelcoin.io/pod/peer"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/bloom"
+	"git.parallelcoin.io/pod/wire"
 )
 
 const (
@@ -437,8 +437,8 @@ func (sp *serverPeer) OnTx(_ *peer.Peer, msg *wire.MsgTx) {
 			msg.TxHash(), sp)
 		return
 	}
-	// Add the transaction to the known inventory for the peer. Convert the raw MsgTx to a btcutil.Tx which provides some convenience methods and things such as hash caching.
-	tx := btcutil.NewTx(msg)
+	// Add the transaction to the known inventory for the peer. Convert the raw MsgTx to a util.Tx which provides some convenience methods and things such as hash caching.
+	tx := util.NewTx(msg)
 	iv := wire.NewInvVect(wire.InvTypeTx, tx.Hash())
 	sp.AddKnownInventory(iv)
 	// Queue the transaction up to be handled by the sync manager and intentionally block further receives until the transaction is fully processed and known good or bad.  This helps prevent a malicious peer from queuing up a bunch of bad transactions before disconnecting (or being disconnected) and wasting memory.
@@ -448,8 +448,8 @@ func (sp *serverPeer) OnTx(_ *peer.Peer, msg *wire.MsgTx) {
 
 // OnBlock is invoked when a peer receives a block bitcoin message.  It blocks until the bitcoin block has been fully processed.
 func (sp *serverPeer) OnBlock(_ *peer.Peer, msg *wire.MsgBlock, buf []byte) {
-	// Convert the raw MsgBlock to a btcutil.Block which provides some convenience methods and things such as hash caching.
-	block := btcutil.NewBlockFromBlockAndBytes(msg, buf)
+	// Convert the raw MsgBlock to a util.Block which provides some convenience methods and things such as hash caching.
+	block := util.NewBlockFromBlockAndBytes(msg, buf)
 	// Add the block to the known inventory for the peer.
 	iv := wire.NewInvVect(wire.InvTypeBlock, block.Hash())
 	sp.AddKnownInventory(iv)
@@ -864,9 +864,9 @@ func (sp *serverPeer) enforceNodeBloomFlag(cmd string) bool {
 // OnFeeFilter is invoked when a peer receives a feefilter bitcoin message and is used by remote peers to request that no transactions which have a fee rate lower than provided value are inventoried to them.  The peer will be disconnected if an invalid fee filter value is provided.
 func (sp *serverPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 	// Check that the passed minimum fee is a valid amount.
-	if msg.MinFee < 0 || msg.MinFee > btcutil.MaxSatoshi {
+	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
 		peerLog.Debugf("Peer %v sent an invalid feefilter '%v' -- "+
-			"disconnecting", sp, btcutil.Amount(msg.MinFee))
+			"disconnecting", sp, util.Amount(msg.MinFee))
 		sp.Disconnect()
 		return
 	}
@@ -1034,7 +1034,7 @@ func (s *server) AnnounceNewTransactions(txns []*mempool.TxDesc) {
 }
 
 // Transaction has one confirmation on the main chain. Now we can mark it as no longer needing rebroadcasting.
-func (s *server) TransactionConfirmed(tx *btcutil.Tx) {
+func (s *server) TransactionConfirmed(tx *util.Tx) {
 	// Rebroadcasting is only necessary when the RPC server is active.
 	for i := range s.rpcServers {
 		if s.rpcServers[i] == nil {
@@ -2122,7 +2122,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		FetchUtxoView:  s.chain.FetchUtxoView,
 		BestHeight:     func() int32 { return s.chain.BestSnapshot().Height },
 		MedianTimePast: func() time.Time { return s.chain.BestSnapshot().MedianTime },
-		CalcSequenceLock: func(tx *btcutil.Tx, view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
+		CalcSequenceLock: func(tx *util.Tx, view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
 			return s.chain.CalcSequenceLock(tx, view, true)
 		},
 		IsDeploymentActive: s.chain.IsDeploymentActive,

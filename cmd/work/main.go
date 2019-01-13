@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	l "github.com/parallelcointeam/sub/clog"
+	l "git.parallelcoin.io/pod/clog"
 )
 
 type nodeCfg struct {

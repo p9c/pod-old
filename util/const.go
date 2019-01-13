@@ -1,5 +1,5 @@
+package util
 
-package btcutil
 const (
 	// SatoshiPerBitcent is the number of satoshi in one bitcoin cent.
 	SatoshiPerBitcent = 1e6

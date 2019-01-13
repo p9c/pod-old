@@ -1,5 +1,5 @@
+package ec
 
-package btcec
 import (
 	"bytes"
 	"crypto/aes"
@@ -11,6 +11,7 @@ import (
 	"errors"
 	"io"
 )
+
 var (
 	// ErrInvalidMAC occurs when Message Authentication Check (MAC) fails
 	// during decryption. This happens because of either invalid private key or
@@ -22,14 +23,15 @@ var (
 	// errUnsupportedCurve occurs when the first two bytes of the encrypted
 	// text aren't 0x02CA (= 712 = secp256k1, from OpenSSL).
 	errUnsupportedCurve = errors.New("unsupported curve")
-	errInvalidXLength = errors.New("invalid X length, must be 32")
-	errInvalidYLength = errors.New("invalid Y length, must be 32")
-	errInvalidPadding = errors.New("invalid PKCS#7 padding")
+	errInvalidXLength   = errors.New("invalid X length, must be 32")
+	errInvalidYLength   = errors.New("invalid Y length, must be 32")
+	errInvalidPadding   = errors.New("invalid PKCS#7 padding")
 	// 0x02CA = 714
 	ciphCurveBytes = [2]byte{0x02, 0xCA}
 	// 0x20 = 32
 	ciphCoordLength = [2]byte{0x00, 0x20}
 )
+
 // GenerateSharedSecret generates a shared secret based on a private key and a
 // public key using Diffie-Hellman key exchange (ECDH) (RFC 4753).
 // RFC5903 Section 9 states we should only return x.
@@ -37,6 +39,7 @@ func GenerateSharedSecret(privkey *PrivateKey, pubkey *PublicKey) []byte {
 	x, _ := pubkey.Curve.ScalarMult(pubkey.X, pubkey.Y, privkey.D.Bytes())
 	return x.Bytes()
 }
+
 // Encrypt encrypts data for the target public key using AES-256-CBC. It also
 // generates a private key (the pubkey of which is also in the output). The only
 // supported curve is secp256k1. The `structure' that it encodes everything into
@@ -98,6 +101,7 @@ func Encrypt(pubkey *PublicKey, in []byte) ([]byte, error) {
 	copy(out[len(out)-sha256.Size:], hm.Sum(nil)) // write checksum
 	return out, nil
 }
+
 // Decrypt decrypts data that was encrypted using the Encrypt function.
 func Decrypt(priv *PrivateKey, in []byte) ([]byte, error) {
 	// IV + Curve params/X/Y + 1 block + HMAC-256
@@ -162,6 +166,7 @@ func Decrypt(priv *PrivateKey, in []byte) ([]byte, error) {
 	mode.CryptBlocks(plaintext, in[offset:len(in)-sha256.Size])
 	return removePKCSPadding(plaintext)
 }
+
 // Implement PKCS#7 padding with block size of 16 (AES block size).
 // addPKCSPadding adds padding to a block of data
 func addPKCSPadding(src []byte) []byte {
@@ -169,6 +174,7 @@ func addPKCSPadding(src []byte) []byte {
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
 }
+
 // removePKCSPadding removes padding from data that was added with addPKCSPadding
 func removePKCSPadding(src []byte) ([]byte, error) {
 	length := len(src)

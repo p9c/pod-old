@@ -1,4 +1,4 @@
-package main
+package wallet
 
 var sampleModConf = []byte(`[Application Options]
 

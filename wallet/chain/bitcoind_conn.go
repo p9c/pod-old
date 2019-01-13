@@ -8,11 +8,11 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/wire"
 	"github.com/lightninglabs/gozmq"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/wire"
 )
 
 // BitcoindConn represents a persistent client connection to a bitcoind node

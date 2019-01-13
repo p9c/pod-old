@@ -1,16 +1,17 @@
-package btcutil
+package util
 
 import (
 	"bytes"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/btcutil/base58"
-	"github.com/parallelcointeam/pod/btcutil/bech32"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"golang.org/x/crypto/ripemd160"
 	"strings"
+
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/util/base58"
+	"git.parallelcoin.io/pod/util/bech32"
+	"golang.org/x/crypto/ripemd160"
 )
 
 // UnsupportedWitnessVerError describes an error where a segwit address being decoded has an unsupported witness version.
@@ -292,17 +293,17 @@ const (
 // AddressPubKey is an Address for a pay-to-pubkey transaction.
 type AddressPubKey struct {
 	pubKeyFormat PubKeyFormat
-	pubKey       *btcec.PublicKey
+	pubKey       *ec.PublicKey
 	pubKeyHashID byte
 }
 
 // NewAddressPubKey returns a new AddressPubKey which represents a pay-to-pubkey address.  The serializedPubKey parameter must be a valid pubkey and can be uncompressed, compressed, or hybrid.
 func NewAddressPubKey(serializedPubKey []byte, net *chaincfg.Params) (*AddressPubKey, error) {
-	pubKey, err := btcec.ParsePubKey(serializedPubKey, btcec.S256())
+	pubKey, err := ec.ParsePubKey(serializedPubKey, ec.S256())
 	if err != nil {
 		return nil, err
 	}
-	// Set the format of the pubkey.  This probably should be returned from btcec, but do it here to avoid API churn.  We already know the pubkey is valid since it parsed above, so it's safe to simply examine the leading byte to get the format.
+	// Set the format of the pubkey.  This probably should be returned from ec, but do it here to avoid API churn.  We already know the pubkey is valid since it parsed above, so it's safe to simply examine the leading byte to get the format.
 	pkFormat := PKFUncompressed
 	switch serializedPubKey[0] {
 	case 0x02, 0x03:
@@ -369,7 +370,7 @@ func (a *AddressPubKey) AddressPubKeyHash() *AddressPubKeyHash {
 }
 
 // PubKey returns the underlying public key for the address.
-func (a *AddressPubKey) PubKey() *btcec.PublicKey {
+func (a *AddressPubKey) PubKey() *ec.PublicKey {
 	return a.pubKey
 }
 

@@ -1,7 +1,3 @@
-
-
-
-
 package chain
 
 import (
@@ -9,16 +5,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wtxmgr"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wire"
+	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server
@@ -144,8 +140,8 @@ func (c *RPCClient) Stop() {
 // allows us to map an oupoint to the address in the chain that it pays to.
 // This is useful when using BIP 158 filters as they include the prev pkScript
 // rather than the full outpoint.
-func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []btcutil.Address,
-	outPoints map[wire.OutPoint]btcutil.Address) error {
+func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
+	outPoints map[wire.OutPoint]util.Address) error {
 
 	flatOutpoints := make([]*wire.OutPoint, 0, len(outPoints))
 	for ops := range outPoints {
@@ -271,7 +267,7 @@ func (c *RPCClient) FilterBlocks(
 // parseBlock parses a btcws definition of the block a tx is mined it to the
 // Block structure of the wtxmgr package, and the block index.  This is done
 // here since rpcclient doesn't parse this nicely for us.
-func parseBlock(block *btcjson.BlockDetails) (*wtxmgr.BlockMeta, error) {
+func parseBlock(block *json.BlockDetails) (*wtxmgr.BlockMeta, error) {
 	if block == nil {
 		return nil, nil
 	}
@@ -322,7 +318,7 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 	}
 }
 
-func (c *RPCClient) onRecvTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
+func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 	blk, err := parseBlock(block)
 	if err != nil {
 		// Log and drop improper notification.
@@ -342,7 +338,7 @@ func (c *RPCClient) onRecvTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
 	}
 }
 
-func (c *RPCClient) onRedeemingTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
+func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }

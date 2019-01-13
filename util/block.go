@@ -1,11 +1,12 @@
-package btcutil
+package util
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // OutOfRangeError describes an error due to accessing an element that is out of range.

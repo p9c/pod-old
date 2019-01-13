@@ -1,16 +1,14 @@
 // Copyright (c) 2016 The Decred developers
 // Copyright (c) 2017 The btcsuite developers
 
-
-
 package wallet
 
 import (
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // Note: The following common types should never reference the Wallet type.
@@ -78,10 +76,10 @@ type P2SHMultiSigOutput struct {
 	// fetching other Transactionoutput data together with the rest of the
 	// multisig info.
 	OutPoint        wire.OutPoint
-	OutputAmount    btcutil.Amount
+	OutputAmount    util.Amount
 	ContainingBlock BlockIdentity
 
-	P2SHAddress  *btcutil.AddressScriptHash
+	P2SHAddress  *util.AddressScriptHash
 	RedeemScript []byte
 	M, N         uint8           // M of N signatures required to redeem
 	Redeemer     *OutputRedeemer // nil unless spent

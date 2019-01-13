@@ -1,4 +1,4 @@
-package neutrino_test
+package spv_test
 
 import (
 	"bytes"
@@ -14,31 +14,31 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wallet/txauthor"
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btclog"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/integration/rpctest"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/integration/rpctest"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/log"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/spv"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/txauthor"
+	"git.parallelcoin.io/pod/walletdb"
+	_ "git.parallelcoin.io/pod/walletdb/bdb"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var (
-	// Try btclog.LevelInfo for output like you'd see in normal operation,
-	// or btclog.LevelTrace to help debug code. Anything but
-	// btclog.LevelOff turns on log messages from the tests themselves as
+	// Try log.LevelInfo for output like you'd see in normal operation,
+	// or log.LevelTrace to help debug code. Anything but
+	// log.LevelOff turns on log messages from the tests themselves as
 	// well. Keep in mind some log messages may not appear in order due to
 	// use of multiple query goroutines in the tests.
-	logLevel    = btclog.LevelOff
+	logLevel    = log.LevelOff
 	syncTimeout = 30 * time.Second
 	syncUpdate  = time.Second
 
@@ -172,26 +172,26 @@ var (
 	// transactions we're interested in that are in the blockchain we're
 	// following as signalled by OnBlockConnected, OnBlockDisconnected,
 	// OnRecvTx, and OnRedeemingTx.
-	ourKnownTxsByBlock = make(map[chainhash.Hash][]*btcutil.Tx)
+	ourKnownTxsByBlock = make(map[chainhash.Hash][]*util.Tx)
 
 	// ourKnownTxsByFilteredBlock lets the rescan goroutine keep track of
 	// transactions we're interested in that are in the blockchain we're
 	// following as signalled by OnFilteredBlockConnected and
 	// OnFilteredBlockDisconnected.
-	ourKnownTxsByFilteredBlock = make(map[chainhash.Hash][]*btcutil.Tx)
+	ourKnownTxsByFilteredBlock = make(map[chainhash.Hash][]*util.Tx)
 )
 
 // secSource is an implementation of btcwallet/txauthor/SecretsSource that
 // stores WitnessPubKeyHash addresses.
 type secSource struct {
-	keys    map[string]*btcec.PrivateKey
+	keys    map[string]*ec.PrivateKey
 	scripts map[string]*[]byte
 	params  *chaincfg.Params
 }
 
-func (s *secSource) add(privKey *btcec.PrivateKey) (btcutil.Address, error) {
-	pubKeyHash := btcutil.Hash160(privKey.PubKey().SerializeCompressed())
-	addr, err := btcutil.NewAddressWitnessPubKeyHash(pubKeyHash, s.params)
+func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
+	pubKeyHash := util.Hash160(privKey.PubKey().SerializeCompressed())
+	addr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, s.params)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func (s *secSource) add(privKey *btcec.PrivateKey) (btcutil.Address, error) {
 }
 
 // GetKey is required by the txscript.KeyDB interface
-func (s *secSource) GetKey(addr btcutil.Address) (*btcec.PrivateKey, bool,
+func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 	error) {
 	privKey, ok := s.keys[addr.String()]
 	if !ok {
@@ -223,7 +223,7 @@ func (s *secSource) GetKey(addr btcutil.Address) (*btcec.PrivateKey, bool,
 }
 
 // GetScript is required by the txscript.ScriptDB interface
-func (s *secSource) GetScript(addr btcutil.Address) ([]byte, error) {
+func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 	script, ok := s.scripts[addr.String()]
 	if !ok {
 		return nil, fmt.Errorf("No script for address %s", addr)
@@ -238,7 +238,7 @@ func (s *secSource) ChainParams() *chaincfg.Params {
 
 func newSecSource(params *chaincfg.Params) *secSource {
 	return &secSource{
-		keys:    make(map[string]*btcec.PrivateKey),
+		keys:    make(map[string]*ec.PrivateKey),
 		scripts: make(map[string]*[]byte),
 		params:  params,
 	}
@@ -296,7 +296,7 @@ var (
 	rescan                    *neutrino.Rescan
 	startBlock                waddrmgr.BlockStamp
 	secSrc                    *secSource
-	addr1, addr2, addr3       btcutil.Address
+	addr1, addr2, addr3       util.Address
 	script1, script2, script3 []byte
 	tx1, tx2, tx3             *wire.MsgTx
 	ourOutPoint               wire.OutPoint
@@ -309,7 +309,7 @@ func testRescan(harness *neutrinoHarness, t *testing.T) {
 	// this to test rescans and notifications.
 	modParams := harness.svc.ChainParams()
 	secSrc = newSecSource(&modParams)
-	privKey1, err := btcec.NewPrivateKey(btcec.S256())
+	privKey1, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
@@ -336,7 +336,7 @@ func testRescan(harness *neutrinoHarness, t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to send raw transaction to node: %s", err)
 	}
-	privKey2, err := btcec.NewPrivateKey(btcec.S256())
+	privKey2, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
@@ -445,9 +445,9 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 	}
 
 	// Spend the outputs we sent ourselves over two blocks.
-	inSrc := func(tx wire.MsgTx) func(target btcutil.Amount) (
-		total btcutil.Amount, inputs []*wire.TxIn,
-		inputValues []btcutil.Amount, scripts [][]byte, err error) {
+	inSrc := func(tx wire.MsgTx) func(target util.Amount) (
+		total util.Amount, inputs []*wire.TxIn,
+		inputValues []util.Amount, scripts [][]byte, err error) {
 		ourIndex := 1 << 30 // Should work on 32-bit systems
 		for i, txo := range tx.TxOut {
 			if bytes.Equal(txo.PkScript, script1) ||
@@ -455,8 +455,8 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 				ourIndex = i
 			}
 		}
-		return func(target btcutil.Amount) (total btcutil.Amount,
-			inputs []*wire.TxIn, inputValues []btcutil.Amount,
+		return func(target util.Amount) (total util.Amount,
+			inputs []*wire.TxIn, inputValues []util.Amount,
 			scripts [][]byte, err error) {
 			if ourIndex == 1<<30 {
 				err = fmt.Errorf("Couldn't find our address " +
@@ -472,8 +472,8 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 					},
 				},
 			}
-			inputValues = []btcutil.Amount{
-				btcutil.Amount(tx.TxOut[ourIndex].Value)}
+			inputValues = []util.Amount{
+				util.Amount(tx.TxOut[ourIndex].Value)}
 			scripts = [][]byte{tx.TxOut[ourIndex].PkScript}
 			err = nil
 			return
@@ -483,7 +483,7 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 	// Create another address to send to so we don't trip the rescan with
 	// the old address and we can test monitoring both OutPoint usage and
 	// receipt by addresses.
-	privKey3, err := btcec.NewPrivateKey(btcec.S256())
+	privKey3, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
@@ -600,7 +600,7 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 	// Generate a block with a nonstandard coinbase to generate a basic
 	// filter with 0 entries.
 	_, err = harness.h1.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
-		[]*btcutil.Tx{}, rpctest.BlockVersion, time.Time{},
+		[]*util.Tx{}, rpctest.BlockVersion, time.Time{},
 		[]wire.TxOut{{
 			Value:    0,
 			PkScript: []byte{},
@@ -970,7 +970,7 @@ func testRandomBlocks(harness *neutrinoHarness, t *testing.T) {
 				"blocks, filters, and filter headers.")
 		}
 	}
-	if logLevel != btclog.LevelOff {
+	if logLevel != log.LevelOff {
 		t.Logf("Finished checking %d blocks and their cfilters",
 			haveBest.Height)
 	}
@@ -982,7 +982,7 @@ func testRandomBlocks(harness *neutrinoHarness, t *testing.T) {
 
 func TestNeutrinoSync(t *testing.T) {
 	// Set up logging.
-	logger := btclog.NewBackend(os.Stdout)
+	logger := log.NewBackend(os.Stdout)
 	chainLogger := logger.Logger("CHAIN")
 	chainLogger.SetLevel(logLevel)
 	neutrino.UseLogger(chainLogger)
@@ -1164,7 +1164,7 @@ func waitForSync(t *testing.T, svc *neutrino.ChainService,
 	if err != nil {
 		return err
 	}
-	if logLevel != btclog.LevelOff {
+	if logLevel != log.LevelOff {
 		t.Logf("Syncing to %d (%s)", knownBestHeight, knownBestHash)
 	}
 	var haveBest *waddrmgr.BlockStamp
@@ -1228,7 +1228,7 @@ func waitForSync(t *testing.T, svc *neutrino.ChainService,
 		total += syncUpdate
 	}
 
-	if logLevel != btclog.LevelOff {
+	if logLevel != log.LevelOff {
 		t.Logf("Synced cfheaders to %d (%s)", haveBest.Height,
 			haveBest.Hash)
 	}
@@ -1258,7 +1258,7 @@ func waitForSync(t *testing.T, svc *neutrino.ChainService,
 			rescanMtx.RUnlock()
 			continue
 		}
-		if logLevel != btclog.LevelOff {
+		if logLevel != log.LevelOff {
 			t.Logf("Rescan caught up to block %d", rescanHeight)
 		}
 		if rescanHeight == haveBest.Height {
@@ -1325,7 +1325,7 @@ func waitForSync(t *testing.T, svc *neutrino.ChainService,
 // from the rescan. At the end, the log should match one we precomputed based
 // on the flow of the test. The rescan starts at the genesis block and the
 // notifications continue until the `quit` channel is closed.
-func startRescan(t *testing.T, svc *neutrino.ChainService, addr btcutil.Address,
+func startRescan(t *testing.T, svc *neutrino.ChainService, addr util.Address,
 	startBlock *waddrmgr.BlockStamp, quit <-chan struct{}) (
 	*neutrino.Rescan, <-chan error) {
 	rescan := svc.NewRescan(
@@ -1353,8 +1353,8 @@ func startRescan(t *testing.T, svc *neutrino.ChainService, addr btcutil.Address,
 					curBlockHeight = height - 1
 					rescanMtx.Unlock()
 				},
-				OnRecvTx: func(tx *btcutil.Tx,
-					details *btcjson.BlockDetails) {
+				OnRecvTx: func(tx *util.Tx,
+					details *json.BlockDetails) {
 					rescanMtx.Lock()
 					hash, err := chainhash.
 						NewHashFromStr(
@@ -1373,8 +1373,8 @@ func startRescan(t *testing.T, svc *neutrino.ChainService, addr btcutil.Address,
 						[]byte("rv")...)
 					rescanMtx.Unlock()
 				},
-				OnRedeemingTx: func(tx *btcutil.Tx,
-					details *btcjson.BlockDetails) {
+				OnRedeemingTx: func(tx *util.Tx,
+					details *json.BlockDetails) {
 					rescanMtx.Lock()
 					hash, err := chainhash.
 						NewHashFromStr(
@@ -1396,7 +1396,7 @@ func startRescan(t *testing.T, svc *neutrino.ChainService, addr btcutil.Address,
 				OnFilteredBlockConnected: func(
 					height int32,
 					header *wire.BlockHeader,
-					relevantTxs []*btcutil.Tx) {
+					relevantTxs []*util.Tx) {
 					rescanMtx.Lock()
 					ourKnownTxsByFilteredBlock[header.BlockHash()] =
 						relevantTxs

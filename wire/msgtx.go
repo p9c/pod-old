@@ -3,9 +3,10 @@ package wire
 import (
 	"bytes"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"strconv"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 const (

@@ -1,10 +1,9 @@
 package main
 
 import (
-	_ "github.com/parallelcointeam/pod/cmd/podctl"
-	_ "github.com/parallelcointeam/pod/node"
-	_ "github.com/parallelcointeam/pod/spv"
-	_ "github.com/parallelcointeam/pod/wallet"
+	_ "git.parallelcoin.io/pod/ctl"
+	_ "git.parallelcoin.io/pod/node"
+	_ "git.parallelcoin.io/pod/spv"
 )
 
 func main() {}

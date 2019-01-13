@@ -1,12 +1,13 @@
-package btcjson_test
+package json_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcjson"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestBtcWalletExtCmds tests all of the btcwallet extended commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
@@ -23,109 +24,109 @@ func TestBtcWalletExtCmds(t *testing.T) {
 		{
 			name: "createnewaccount",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("createnewaccount", "acct")
+				return json.NewCmd("createnewaccount", "acct")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewCreateNewAccountCmd("acct")
+				return json.NewCreateNewAccountCmd("acct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"createnewaccount","params":["acct"],"id":1}`,
-			unmarshalled: &btcjson.CreateNewAccountCmd{
+			unmarshalled: &json.CreateNewAccountCmd{
 				Account: "acct",
 			},
 		},
 		{
 			name: "dumpwallet",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("dumpwallet", "filename")
+				return json.NewCmd("dumpwallet", "filename")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewDumpWalletCmd("filename")
+				return json.NewDumpWalletCmd("filename")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"dumpwallet","params":["filename"],"id":1}`,
-			unmarshalled: &btcjson.DumpWalletCmd{
+			unmarshalled: &json.DumpWalletCmd{
 				Filename: "filename",
 			},
 		},
 		{
 			name: "importaddress",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("importaddress", "1Address", "")
+				return json.NewCmd("importaddress", "1Address", "")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewImportAddressCmd("1Address", "", nil)
+				return json.NewImportAddressCmd("1Address", "", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importaddress","params":["1Address",""],"id":1}`,
-			unmarshalled: &btcjson.ImportAddressCmd{
+			unmarshalled: &json.ImportAddressCmd{
 				Address: "1Address",
-				Rescan:  btcjson.Bool(true),
+				Rescan:  json.Bool(true),
 			},
 		},
 		{
 			name: "importaddress optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("importaddress", "1Address", "acct", false)
+				return json.NewCmd("importaddress", "1Address", "acct", false)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewImportAddressCmd("1Address", "acct", btcjson.Bool(false))
+				return json.NewImportAddressCmd("1Address", "acct", json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importaddress","params":["1Address","acct",false],"id":1}`,
-			unmarshalled: &btcjson.ImportAddressCmd{
+			unmarshalled: &json.ImportAddressCmd{
 				Address: "1Address",
 				Account: "acct",
-				Rescan:  btcjson.Bool(false),
+				Rescan:  json.Bool(false),
 			},
 		},
 		{
 			name: "importpubkey",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("importpubkey", "031234")
+				return json.NewCmd("importpubkey", "031234")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewImportPubKeyCmd("031234", nil)
+				return json.NewImportPubKeyCmd("031234", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importpubkey","params":["031234"],"id":1}`,
-			unmarshalled: &btcjson.ImportPubKeyCmd{
+			unmarshalled: &json.ImportPubKeyCmd{
 				PubKey: "031234",
-				Rescan: btcjson.Bool(true),
+				Rescan: json.Bool(true),
 			},
 		},
 		{
 			name: "importpubkey optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("importpubkey", "031234", false)
+				return json.NewCmd("importpubkey", "031234", false)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewImportPubKeyCmd("031234", btcjson.Bool(false))
+				return json.NewImportPubKeyCmd("031234", json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importpubkey","params":["031234",false],"id":1}`,
-			unmarshalled: &btcjson.ImportPubKeyCmd{
+			unmarshalled: &json.ImportPubKeyCmd{
 				PubKey: "031234",
-				Rescan: btcjson.Bool(false),
+				Rescan: json.Bool(false),
 			},
 		},
 		{
 			name: "importwallet",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("importwallet", "filename")
+				return json.NewCmd("importwallet", "filename")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewImportWalletCmd("filename")
+				return json.NewImportWalletCmd("filename")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importwallet","params":["filename"],"id":1}`,
-			unmarshalled: &btcjson.ImportWalletCmd{
+			unmarshalled: &json.ImportWalletCmd{
 				Filename: "filename",
 			},
 		},
 		{
 			name: "renameaccount",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("renameaccount", "oldacct", "newacct")
+				return json.NewCmd("renameaccount", "oldacct", "newacct")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewRenameAccountCmd("oldacct", "newacct")
+				return json.NewRenameAccountCmd("oldacct", "newacct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"renameaccount","params":["oldacct","newacct"],"id":1}`,
-			unmarshalled: &btcjson.RenameAccountCmd{
+			unmarshalled: &json.RenameAccountCmd{
 				OldAccount: "oldacct",
 				NewAccount: "newacct",
 			},
@@ -135,7 +136,7 @@ func TestBtcWalletExtCmds(t *testing.T) {
 	for i, test := range tests {
 		// Marshal the command as created by the new static command
 		// creation function.
-		marshalled, err := btcjson.MarshalCmd(testID, test.staticCmd())
+		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -154,7 +155,7 @@ func TestBtcWalletExtCmds(t *testing.T) {
 				i, test.name, err)
 		}
 		// Marshal the command as created by the generic new command creation function.
-		marshalled, err = btcjson.MarshalCmd(testID, cmd)
+		marshalled, err = json.MarshalCmd(testID, cmd)
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -166,14 +167,14 @@ func TestBtcWalletExtCmds(t *testing.T) {
 				test.marshalled)
 			continue
 		}
-		var request btcjson.Request
+		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
 			continue
 		}
-		cmd, err = btcjson.UnmarshalCmd(&request)
+		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)

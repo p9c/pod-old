@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/mod/chain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wallet/chain"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var Block100000 = wire.MsgBlock{
@@ -273,9 +273,9 @@ func TestBlockFiltererOneInOneOut(t *testing.T) {
 
 	// Add each of their single previous outpoints to the set of watched
 	// outpoints to filter for.
-	watchedOutPoints := make(map[wire.OutPoint]btcutil.Address)
-	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &btcutil.AddressWitnessPubKeyHash{}
-	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &btcutil.AddressWitnessPubKeyHash{}
+	watchedOutPoints := make(map[wire.OutPoint]util.Address)
+	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
+	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
 
 	// Construct a filter request, watching only for the outpoints above,
 	// and construct a block filterer.

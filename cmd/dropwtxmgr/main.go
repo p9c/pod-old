@@ -1,7 +1,5 @@
 // Copyright (c) 2015-2016 The btcsuite developers
 
-
-
 package main
 
 import (
@@ -11,16 +9,16 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
+	"git.parallelcoin.io/pod/wallet/wtxmgr"
 	"github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
-	"github.com/parallelcointeam/mod/wtxmgr"
-	"github.com/parallelcointeam/pod/btcutil"
 )
 
 const defaultNet = "mainnet"
 
-var datadir = btcutil.AppDataDir("mod", false)
+var datadir = util.AppDataDir("mod", false)
 
 // Flags.
 var opts = struct {

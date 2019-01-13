@@ -1,16 +1,12 @@
-
-
-
-
 package votingpool_test
 
 import (
 	"bytes"
 	"testing"
 
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
-	vp "github.com/parallelcointeam/mod/votingpool"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/hdkeychain"
+	vp "git.parallelcoin.io/pod/wallet/votingpool"
 )
 
 func TestStartWithdrawal(t *testing.T) {
@@ -45,7 +41,7 @@ func TestStartWithdrawal(t *testing.T) {
 
 	startAddr := vp.TstNewWithdrawalAddress(t, dbtx, pool, def.SeriesID, 0, 0)
 	lastSeriesID := def.SeriesID
-	dustThreshold := btcutil.Amount(1e4)
+	dustThreshold := util.Amount(1e4)
 	currentBlock := int32(vp.TstInputsBlock + vp.TstEligibleInputMinConfirmations + 1)
 	var status *vp.WithdrawalStatus
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
@@ -57,10 +53,10 @@ func TestStartWithdrawal(t *testing.T) {
 	}
 
 	// Check that all outputs were successfully fulfilled.
-	checkWithdrawalOutputs(t, status, map[string]btcutil.Amount{address1: 4e6, address2: 1e6})
+	checkWithdrawalOutputs(t, status, map[string]util.Amount{address1: 4e6, address2: 1e6})
 
-	if status.Fees() != btcutil.Amount(1e3) {
-		t.Fatalf("Wrong amount for fees; got %v, want %v", status.Fees(), btcutil.Amount(1e3))
+	if status.Fees() != util.Amount(1e3) {
+		t.Fatalf("Wrong amount for fees; got %v, want %v", status.Fees(), util.Amount(1e3))
 	}
 
 	// This withdrawal generated a single transaction with just one change
@@ -107,7 +103,7 @@ func TestStartWithdrawal(t *testing.T) {
 }
 
 func checkWithdrawalOutputs(
-	t *testing.T, wStatus *vp.WithdrawalStatus, amounts map[string]btcutil.Amount) {
+	t *testing.T, wStatus *vp.WithdrawalStatus, amounts map[string]util.Amount) {
 	fulfilled := wStatus.Outputs()
 	if len(fulfilled) != 2 {
 		t.Fatalf("Unexpected number of outputs in WithdrawalStatus; got %d, want %d",

@@ -2,12 +2,13 @@ package bloom
 
 import (
 	"encoding/binary"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
 	"math"
 	"sync"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // ln2Squared is simply the square of the natural log of 2.
@@ -194,7 +195,7 @@ func (bf *Filter) maybeAddOutpoint(pkScript []byte, outHash *chainhash.Hash, out
 }
 
 // matchTxAndUpdate returns true if the bloom filter matches data within the passed transaction, otherwise false is returned.  If the filter does match the passed transaction, it will also update the filter depending on the bloom update flags set via the loaded filter if needed. This function MUST be called with the filter lock held.
-func (bf *Filter) matchTxAndUpdate(tx *btcutil.Tx) bool {
+func (bf *Filter) matchTxAndUpdate(tx *util.Tx) bool {
 	// Check if the filter matches the hash of the transaction. This is useful for finding transactions when they appear in a block.
 	matched := bf.matches(tx.Hash()[:])
 	// Check if the filter matches any data elements in the public key scripts of any of the outputs.  When it does, add the outpoint that matched so transactions which spend from the matched transaction are also included in the filter.  This removes the burden of updating the filter for this scenario from the client. It is also more efficient on the network since it avoids the need for another filteradd message from the client and avoids some potential races that could otherwise occur.
@@ -235,7 +236,7 @@ func (bf *Filter) matchTxAndUpdate(tx *btcutil.Tx) bool {
 }
 
 // MatchTxAndUpdate returns true if the bloom filter matches data within the passed transaction, otherwise false is returned.  If the filter does match the passed transaction, it will also update the filter depending on the bloom update flags set via the loaded filter if needed. This function is safe for concurrent access.
-func (bf *Filter) MatchTxAndUpdate(tx *btcutil.Tx) bool {
+func (bf *Filter) MatchTxAndUpdate(tx *util.Tx) bool {
 	bf.mtx.Lock()
 	match := bf.matchTxAndUpdate(tx)
 	bf.mtx.Unlock()

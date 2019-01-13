@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 // GetTransactionDetailsResult models the details data from the gettransaction command. This models the "short" version of the ListTransactionsResult type, which excludes fields common to the transaction.  These common fields are instead part of the GetTransactionResult.
 type GetTransactionDetailsResult struct {

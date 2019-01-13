@@ -1,8 +1,8 @@
 package node
 
 import (
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // activeNetParams is a pointer to the parameters specific to the currently active bitcoin network.

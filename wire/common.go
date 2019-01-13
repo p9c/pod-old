@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"math"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 const (

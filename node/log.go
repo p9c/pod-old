@@ -5,20 +5,20 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.parallelcoin.io/pod/addrmgr"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/blockchain/indexers"
+	"git.parallelcoin.io/pod/connmgr"
+	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/log"
+	"git.parallelcoin.io/pod/mining"
+	"git.parallelcoin.io/pod/mining/controller"
+	"git.parallelcoin.io/pod/mining/cpuminer"
+	"git.parallelcoin.io/pod/netsync"
+	"git.parallelcoin.io/pod/node/mempool"
+	"git.parallelcoin.io/pod/peer"
+	"git.parallelcoin.io/pod/txscript"
 	"github.com/jrick/logrotate/rotator"
-	"github.com/parallelcointeam/pod/connmgr"
-	"github.com/parallelcointeam/pod/database"
-	"github.com/parallelcointeam/pod/log"
-	"github.com/parallelcointeam/pod/mempool"
-	"github.com/parallelcointeam/pod/node/addrmgr"
-	"github.com/parallelcointeam/pod/node/blockchain"
-	"github.com/parallelcointeam/pod/node/blockchain/indexers"
-	"github.com/parallelcointeam/pod/node/mining"
-	"github.com/parallelcointeam/pod/node/mining/controller"
-	"github.com/parallelcointeam/pod/node/mining/cpuminer"
-	"github.com/parallelcointeam/pod/node/netsync"
-	"github.com/parallelcointeam/pod/peer"
-	"github.com/parallelcointeam/pod/txscript"
 )
 
 // logWriter implements an io.Writer that outputs to both standard output and the write-end pipe of an initialized log rotator.
@@ -33,7 +33,7 @@ func (logWriter) Write(p []byte) (n int, err error) {
 // Loggers per subsystem.  A single backend logger is created and all subsytem loggers created from it will write to the backend.  When adding new subsystems, add the subsystem logger variable here and to the  subsystemLoggers map. Loggers can not be used before the log rotator has been initialized with a log file.  This must be performed early during application startup by calling initLogRotator.
 var (
 	// backendLog is the logging backend used to create all subsystem loggers. The backend must not be used before the log rotator has been initialized, or data races and/or nil pointer dereferences will occur.
-	backendLog = btclog.NewBackend(logWriter{})
+	backendLog = log.NewBackend(logWriter{})
 	// logRotator is one of the logging outputs.  It should be closed on application shutdown.
 	logRotator *rotator.Rotator
 	adxrLog    = backendLog.Logger("ADXR")
@@ -70,7 +70,7 @@ func init() {
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
-var subsystemLoggers = map[string]btclog.Logger{
+var subsystemLoggers = map[string]log.Logger{
 	"ADXR": adxrLog,
 	"AMGR": amgrLog,
 	"CMGR": cmgrLog,
@@ -112,7 +112,7 @@ func setLogLevel(subsystemID string, logLevel string) {
 		return
 	}
 	// Defaults to info if the log level is invalid.
-	level, _ := btclog.LevelFromString(logLevel)
+	level, _ := log.LevelFromString(logLevel)
 	logger.SetLevel(level)
 }
 

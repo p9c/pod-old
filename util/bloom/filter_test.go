@@ -3,11 +3,12 @@ package bloom_test
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/bloom"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/bloom"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // TestFilterLarge ensures a maximum sized filter can be created.
@@ -188,14 +189,14 @@ func TestFilterInsertWithTweak(t *testing.T) {
 // TestFilterInsertKey ensures inserting public keys and addresses works as expected.
 func TestFilterInsertKey(t *testing.T) {
 	secret := "5Kg1gnAjaLfKiwhhPpGS3QfRg2m6awQvaj98JCZBZQ5SuS2F15C"
-	wif, err := btcutil.DecodeWIF(secret)
+	wif, err := util.DecodeWIF(secret)
 	if err != nil {
 		t.Errorf("TestFilterInsertKey DecodeWIF failed: %v", err)
 		return
 	}
 	f := bloom.NewFilter(2, 0, 0.001, wire.BloomUpdateAll)
 	f.Add(wif.SerializePubKey())
-	f.Add(btcutil.Hash160(wif.SerializePubKey()))
+	f.Add(util.Hash160(wif.SerializePubKey()))
 	want, err := hex.DecodeString("038fc16b080000000000000001")
 	if err != nil {
 		t.Errorf("TestFilterInsertWithTweak DecodeString failed: %v\n", err)
@@ -228,7 +229,7 @@ func TestFilterBloomMatch(t *testing.T) {
 		t.Errorf("TestFilterBloomMatch DecodeString failure: %v", err)
 		return
 	}
-	tx, err := btcutil.NewTxFromBytes(strBytes)
+	tx, err := util.NewTxFromBytes(strBytes)
 	if err != nil {
 		t.Errorf("TestFilterBloomMatch NewTxFromBytes failure: %v", err)
 		return
@@ -262,7 +263,7 @@ func TestFilterBloomMatch(t *testing.T) {
 		0xc1, 0x09, 0x32, 0x48, 0x3f, 0xec, 0x93, 0xed, 0x51,
 		0xf5, 0xfe, 0x95, 0xe7, 0x25, 0x59, 0xf2, 0xcc, 0x70,
 		0x43, 0xf9, 0x88, 0xac, 0x00, 0x00, 0x00, 0x00, 0x00}
-	spendingTx, err := btcutil.NewTxFromBytes(spendingTxBytes)
+	spendingTx, err := util.NewTxFromBytes(spendingTxBytes)
 	if err != nil {
 		t.Errorf("TestFilterBloomMatch NewTxFromBytes failure: %v", err)
 		return
@@ -535,7 +536,7 @@ func TestFilterInsertP2PubKeyOnly(t *testing.T) {
 		t.Errorf("TestFilterInsertP2PubKeyOnly DecodeString failed: %v", err)
 		return
 	}
-	block, err := btcutil.NewBlockFromBytes(blockBytes)
+	block, err := util.NewBlockFromBytes(blockBytes)
 	if err != nil {
 		t.Errorf("TestFilterInsertP2PubKeyOnly NewBlockFromBytes failed: %v", err)
 		return

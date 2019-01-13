@@ -1,4 +1,4 @@
-package btcec
+package ec
 
 import "testing"
 

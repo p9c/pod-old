@@ -1,9 +1,10 @@
+package ec
 
-package btcec
 import (
 	"bytes"
 	"testing"
 )
+
 func TestPrivKeys(t *testing.T) {
 	tests := []struct {
 		name string

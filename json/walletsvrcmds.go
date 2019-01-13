@@ -1,5 +1,5 @@
 // NOTE: This file is intended to house the RPC commands that are supported by a wallet server.
-package btcjson
+package json
 
 // AddMultisigAddressCmd defines the addmutisigaddress JSON-RPC command.
 type AddMultisigAddressCmd struct {

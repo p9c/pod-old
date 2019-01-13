@@ -3,15 +3,16 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/blockchain/indexers"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/database"
-	"github.com/parallelcointeam/pod/wire"
 	"io"
 	"sync"
 	"time"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/blockchain/indexers"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var zeroHash = chainhash.Hash{}
@@ -79,7 +80,7 @@ func (bi *blockImporter) readBlock() ([]byte, error) {
 // processBlock potentially imports the block into the database.  It first deserializes the raw block while checking for errors.  Already known blocks are skipped and orphan blocks are considered errors.  Finally, it runs the block through the chain rules to ensure it follows all rules and matches up to the known checkpoint.  Returns whether the block was imported along with any potential errors.
 func (bi *blockImporter) processBlock(serializedBlock []byte) (bool, error) {
 	// Deserialize the block which includes checks for malformed blocks.
-	block, err := btcutil.NewBlockFromBytes(serializedBlock)
+	block, err := util.NewBlockFromBytes(serializedBlock)
 	if err != nil {
 		return false, err
 	}

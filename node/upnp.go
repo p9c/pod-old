@@ -24,7 +24,6 @@ package node
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Just enough UPnP to be able to forward ports
-// TODO: and just enough stupid legal mumbojumbo forcing me to put rubbish in my source code that I don't want in it, that this will be rewritten from scratch.
 
 import (
 	"bytes"

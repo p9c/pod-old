@@ -4,7 +4,7 @@
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/parallelcointeam/pod/btcjson)
 
-Package btcjson implements concrete types for marshalling to and from the bitcoin JSON-RPC API. A comprehensive suite of tests is provided to ensure proper functionality.
+package json implements concrete types for marshalling to and from the bitcoin JSON-RPC API. A comprehensive suite of tests is provided to ensure proper functionality.
 
 Although this package was primarily written for the btcsuite, it has intentionally been designed so it can be used as a standalone package for any projects needing to marshal to and from bitcoin JSON-RPC requests and responses.
 
@@ -32,5 +32,5 @@ $ go get -u github.com/parallelcointeam/pod/btcjson
 
 ## License
 
-Package btcjson is licensed under the [copyfree](http://copyfree.org) ISC
+package json is licensed under the [copyfree](http://copyfree.org) ISC
 License.

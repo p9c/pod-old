@@ -3,11 +3,12 @@ package builder
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
 	"math"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/wire"
 )
 
 const (

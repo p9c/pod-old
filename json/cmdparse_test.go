@@ -1,11 +1,12 @@
-package btcjson_test
+package json_test
 
 import (
 	"encoding/json"
-	"github.com/parallelcointeam/pod/btcjson"
 	"math"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestAssignField tests the assignField function handles supported combinations properly.
@@ -160,7 +161,7 @@ func TestAssignField(t *testing.T) {
 	for i, test := range tests {
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
-		err := btcjson.TstAssignField(1, "testField", dst, src)
+		err := json.TstAssignField(1, "testField", dst, src)
 		if err != nil {
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -186,146 +187,146 @@ func TestAssignFieldErrors(t *testing.T) {
 		name string
 		dest interface{}
 		src  interface{}
-		err  btcjson.Error
+		err  json.Error
 	}{
 		{
 			name: "general incompatible int -> string",
 			dest: string(0),
 			src:  int(0),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow source int -> dest int",
 			dest: int8(0),
 			src:  int(128),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow source int -> dest uint",
 			dest: uint8(0),
 			src:  int(256),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "int -> float",
 			dest: float32(0),
 			src:  int(256),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow source uint64 -> dest int64",
 			dest: int64(0),
 			src:  uint64(1 << 63),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow source uint -> dest int",
 			dest: int8(0),
 			src:  uint(128),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow source uint -> dest uint",
 			dest: uint8(0),
 			src:  uint(256),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "uint -> float",
 			dest: float32(0),
 			src:  uint(256),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "float -> int",
 			dest: int(0),
 			src:  float32(1.0),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow float64 -> float32",
 			dest: float32(0),
 			src:  float64(math.MaxFloat64),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> bool",
 			dest: true,
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> int",
 			dest: int8(0),
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow string -> int",
 			dest: int8(0),
 			src:  "128",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> uint",
 			dest: uint8(0),
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow string -> uint",
 			dest: uint8(0),
 			src:  "256",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> float",
 			dest: float32(0),
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "overflow string -> float",
 			dest: float32(0),
 			src:  "1.7976931348623157e+308",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> array",
 			dest: [3]int{},
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> slice",
 			dest: []int{},
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> struct",
 			dest: struct{ A int }{},
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid string -> map",
 			dest: map[string]int{},
 			src:  "foo",
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
-		err := btcjson.TstAssignField(1, "testField", dst, src)
+		err := json.TstAssignField(1, "testField", dst, src)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
 		}
-		gotErrorCode := err.(btcjson.Error).ErrorCode
+		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
@@ -342,42 +343,42 @@ func TestNewCmdErrors(t *testing.T) {
 		name   string
 		method string
 		args   []interface{}
-		err    btcjson.Error
+		err    json.Error
 	}{
 		{
 			name:   "unregistered command",
 			method: "boguscommand",
 			args:   []interface{}{},
-			err:    btcjson.Error{ErrorCode: btcjson.ErrUnregisteredMethod},
+			err:    json.Error{ErrorCode: json.ErrUnregisteredMethod},
 		},
 		{
 			name:   "too few parameters to command with required + optional",
 			method: "getblock",
 			args:   []interface{}{},
-			err:    btcjson.Error{ErrorCode: btcjson.ErrNumParams},
+			err:    json.Error{ErrorCode: json.ErrNumParams},
 		},
 		{
 			name:   "too many parameters to command with no optional",
 			method: "getblockcount",
 			args:   []interface{}{"123"},
-			err:    btcjson.Error{ErrorCode: btcjson.ErrNumParams},
+			err:    json.Error{ErrorCode: json.ErrNumParams},
 		},
 		{
 			name:   "incorrect parameter type",
 			method: "getblock",
 			args:   []interface{}{1},
-			err:    btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:    json.Error{ErrorCode: json.ErrInvalidType},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		_, err := btcjson.NewCmd(test.method, test.args...)
+		_, err := json.NewCmd(test.method, test.args...)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
 		}
-		gotErrorCode := err.(btcjson.Error).ErrorCode
+		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
@@ -394,36 +395,36 @@ func TestMarshalCmdErrors(t *testing.T) {
 		name string
 		id   interface{}
 		cmd  interface{}
-		err  btcjson.Error
+		err  json.Error
 	}{
 		{
 			name: "unregistered type",
 			id:   1,
 			cmd:  (*int)(nil),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrUnregisteredMethod},
+			err:  json.Error{ErrorCode: json.ErrUnregisteredMethod},
 		},
 		{
 			name: "nil instance of registered type",
 			id:   1,
-			cmd:  (*btcjson.GetBlockCmd)(nil),
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			cmd:  (*json.GetBlockCmd)(nil),
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "nil instance of registered type",
 			id:   []int{0, 1},
-			cmd:  &btcjson.GetBlockCountCmd{},
-			err:  btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			cmd:  &json.GetBlockCountCmd{},
+			err:  json.Error{ErrorCode: json.ErrInvalidType},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		_, err := btcjson.MarshalCmd(test.id, test.cmd)
+		_, err := json.MarshalCmd(test.id, test.cmd)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
 		}
-		gotErrorCode := err.(btcjson.Error).ErrorCode
+		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
@@ -438,59 +439,59 @@ func TestUnmarshalCmdErrors(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name    string
-		request btcjson.Request
-		err     btcjson.Error
+		request json.Request
+		err     json.Error
 	}{
 		{
 			name: "unregistered type",
-			request: btcjson.Request{
+			request: json.Request{
 				Jsonrpc: "1.0",
 				Method:  "bogusmethod",
 				Params:  nil,
 				ID:      nil,
 			},
-			err: btcjson.Error{ErrorCode: btcjson.ErrUnregisteredMethod},
+			err: json.Error{ErrorCode: json.ErrUnregisteredMethod},
 		},
 		{
 			name: "incorrect number of params",
-			request: btcjson.Request{
+			request: json.Request{
 				Jsonrpc: "1.0",
 				Method:  "getblockcount",
 				Params:  []json.RawMessage{[]byte(`"bogusparam"`)},
 				ID:      nil,
 			},
-			err: btcjson.Error{ErrorCode: btcjson.ErrNumParams},
+			err: json.Error{ErrorCode: json.ErrNumParams},
 		},
 		{
 			name: "invalid type for a parameter",
-			request: btcjson.Request{
+			request: json.Request{
 				Jsonrpc: "1.0",
 				Method:  "getblock",
 				Params:  []json.RawMessage{[]byte("1")},
 				ID:      nil,
 			},
-			err: btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err: json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name: "invalid JSON for a parameter",
-			request: btcjson.Request{
+			request: json.Request{
 				Jsonrpc: "1.0",
 				Method:  "getblock",
 				Params:  []json.RawMessage{[]byte(`"1`)},
 				ID:      nil,
 			},
-			err: btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err: json.Error{ErrorCode: json.ErrInvalidType},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		_, err := btcjson.UnmarshalCmd(&test.request)
+		_, err := json.UnmarshalCmd(&test.request)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
 		}
-		gotErrorCode := err.(btcjson.Error).ErrorCode
+		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,

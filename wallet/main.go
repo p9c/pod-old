@@ -1,4 +1,4 @@
-package main
+package wallet
 
 import (
 	"fmt"
@@ -6,38 +6,31 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
-	"runtime"
 	"sync"
 
-	"github.com/parallelcointeam/mod/chain"
-	"github.com/parallelcointeam/mod/gui"
-	"github.com/parallelcointeam/mod/rpc/legacyrpc"
-	"github.com/parallelcointeam/mod/wallet"
+	"git.parallelcoin.io/pod/wallet"
+	"git.parallelcoin.io/pod/wallet/chain"
+	"git.parallelcoin.io/pod/wallet/gui"
+	"git.parallelcoin.io/pod/wallet/rpc/legacyrpc"
 )
 
 var (
 	cfg *config
 )
 
-func main() {
-	// Use all processor cores.
-	runtime.GOMAXPROCS(runtime.NumCPU())
+// func main() {
+// 	// Use all processor cores.
+// 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	// Work around defer not working after os.Exit.
-	if err := walletMain(); err != nil {
-		os.Exit(1)
-	}
-}
+// 	// Work around defer not working after os.Exit.
+// 	if err := Main(); err != nil {
+// 		os.Exit(1)
+// 	}
+// }
 
-// walletMain is a work-around main function that is required since deferred
-// functions (such as log flushing) are not called with calls to os.Exit.
-// Instead, main runs this function and checks for a non-nil error, at which
-// point any defers have already run, and if the error is non-nil, the program
-// can be exited with an error exit status.
-func walletMain() error {
-	// Load configuration and parse command line.  This function also
-	// initializes logging and configures it accordingly.
+// Main is a work-around main function that is required since deferred functions (such as log flushing) are not called with calls to os.Exit. Instead, main runs this function and checks for a non-nil error, at which point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
+func Main() error {
+	// Load configuration and parse command line.  This function also initializes logging and configures it accordingly.
 	tcfg, _, err := loadConfig()
 	if err != nil {
 		return err

@@ -1,10 +1,11 @@
 package rpctest
 
 import (
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
 	"reflect"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/rpcclient"
 )
 
 // JoinType is an enum representing a particular type of "node join". A node join is a synchronization tool used to wait until a subset of nodes have a consistent state with respect to an attribute.

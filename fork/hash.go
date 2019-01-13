@@ -1,17 +1,18 @@
 package fork
 
 import (
+	"io"
+
 	"ekyu.moe/cryptonight"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"github.com/aead/skein"
 	x11 "github.com/bitbandi/go-x11"
 	"github.com/bitgoin/lyra2rev2"
 	"github.com/dchest/blake256"
 	"github.com/ebfe/keccak"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	gost "github.com/programmer10110/gostreebog"
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/scrypt"
-	"io"
 )
 
 // Argon2i takes bytes, generates a stribog hash as salt, generates an argon2i key, and hashes it with keccak

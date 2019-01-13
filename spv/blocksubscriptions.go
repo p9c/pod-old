@@ -1,12 +1,12 @@
 // NOTE: THIS API IS UNSTABLE AND WILL BE MOVED TO ITS OWN PACKAGE OR REFACTORED
 // OUT.
 
-package neutrino
+package spv
 
 import (
 	"fmt"
 
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // messageType describes the type of blockMessage.

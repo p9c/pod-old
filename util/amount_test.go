@@ -1,10 +1,12 @@
+package util_test
 
-package btcutil_test
 import (
 	"math"
 	"testing"
-	. "github.com/parallelcointeam/pod/btcutil"
+
+	. "git.parallelcoin.io/pod/util"
 )
+
 func TestAmountCreation(t *testing.T) {
 	tests := []struct {
 		name     string

@@ -1,6 +1,6 @@
 package cache
 
-import "github.com/parallelcointeam/pod/btcutil/gcs"
+import "git.parallelcoin.io/pod/util/gcs"
 
 // CacheableFilter is a wrapper around Filter type which provides a Size method
 // used by the cache to target certain memory usage.

@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 import (
 	"encoding/json"

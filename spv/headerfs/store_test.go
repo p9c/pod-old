@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wire"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/mod/walletdb"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 )
 
 func createTestBlockHeaderStore() (func(), walletdb.DB, string,

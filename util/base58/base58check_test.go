@@ -1,8 +1,9 @@
 package base58_test
 
 import (
-	"github.com/parallelcointeam/pod/btcutil/base58"
 	"testing"
+
+	"git.parallelcoin.io/pod/util/base58"
 )
 
 var checkEncodingStringTests = []struct {

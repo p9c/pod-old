@@ -1,10 +1,12 @@
-
 package base58_test
+
 import (
 	"bytes"
 	"testing"
-	"github.com/parallelcointeam/pod/btcutil/base58"
+
+	"git.parallelcoin.io/pod/util/base58"
 )
+
 func BenchmarkBase58Encode(b *testing.B) {
 	b.StopTimer()
 	data := bytes.Repeat([]byte{0xff}, 5000)

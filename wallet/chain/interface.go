@@ -3,11 +3,11 @@ package chain
 import (
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wtxmgr"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wire"
+	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 // BackEnds returns a list of the available back ends.
@@ -34,8 +34,8 @@ type Interface interface {
 	FilterBlocks(*FilterBlocksRequest) (*FilterBlocksResponse, error)
 	BlockStamp() (*waddrmgr.BlockStamp, error)
 	SendRawTransaction(*wire.MsgTx, bool) (*chainhash.Hash, error)
-	Rescan(*chainhash.Hash, []btcutil.Address, map[wire.OutPoint]btcutil.Address) error
-	NotifyReceived([]btcutil.Address) error
+	Rescan(*chainhash.Hash, []util.Address, map[wire.OutPoint]util.Address) error
+	NotifyReceived([]util.Address) error
 	NotifyBlocks() error
 	Notifications() <-chan interface{}
 	BackEnd() string
@@ -68,9 +68,9 @@ type (
 	// is also included to monitor for spends.
 	FilterBlocksRequest struct {
 		Blocks           []wtxmgr.BlockMeta
-		ExternalAddrs    map[waddrmgr.ScopedIndex]btcutil.Address
-		InternalAddrs    map[waddrmgr.ScopedIndex]btcutil.Address
-		WatchedOutPoints map[wire.OutPoint]btcutil.Address
+		ExternalAddrs    map[waddrmgr.ScopedIndex]util.Address
+		InternalAddrs    map[waddrmgr.ScopedIndex]util.Address
+		WatchedOutPoints map[wire.OutPoint]util.Address
 	}
 
 	// FilterBlocksResponse reports the set of all internal and external
@@ -85,7 +85,7 @@ type (
 		BlockMeta          wtxmgr.BlockMeta
 		FoundExternalAddrs map[waddrmgr.KeyScope]map[uint32]struct{}
 		FoundInternalAddrs map[waddrmgr.KeyScope]map[uint32]struct{}
-		FoundOutPoints     map[wire.OutPoint]btcutil.Address
+		FoundOutPoints     map[wire.OutPoint]util.Address
 		RelevantTxns       []*wire.MsgTx
 	}
 

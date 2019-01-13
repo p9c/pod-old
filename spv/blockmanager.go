@@ -1,6 +1,6 @@
 // NOTE: THIS API IS UNSTABLE RIGHT NOW AND WILL GO MOSTLY PRIVATE SOON.
 
-package neutrino
+package spv
 
 import (
 	"bytes"
@@ -12,16 +12,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac/headerfs"
-	"github.com/parallelcointeam/sac/headerlist"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/spv/headerfs"
+	"git.parallelcoin.io/pod/spv/headerlist"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/wire"
 )
 
 const (
@@ -83,7 +83,7 @@ type donePeerMsg struct {
 // txMsg packages a bitcoin tx message and the peer it came from together
 // so the block handler has access to that information.
 type txMsg struct {
-	tx   *btcutil.Tx
+	tx   *util.Tx
 	peer *ServerPeer
 }
 
@@ -2356,7 +2356,7 @@ func (b *blockManager) checkHeaderSanity(blockHeader *wire.BlockHeader,
 	if err != nil {
 		return err
 	}
-	stubBlock := btcutil.NewBlock(&wire.MsgBlock{
+	stubBlock := util.NewBlock(&wire.MsgBlock{
 		Header: *blockHeader,
 	})
 	err = blockchain.CheckProofOfWork(stubBlock, blockchain.CompactToBig(diff), height)

@@ -1,9 +1,10 @@
-package btcjson_test
+package json_test
 
 import (
-	"github.com/parallelcointeam/pod/btcjson"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestHelpers tests the various helper functions which create pointers to primitive types.
@@ -17,7 +18,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "bool",
 			f: func() interface{} {
-				return btcjson.Bool(true)
+				return json.Bool(true)
 			},
 			expected: func() interface{} {
 				val := true
@@ -27,7 +28,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "int",
 			f: func() interface{} {
-				return btcjson.Int(5)
+				return json.Int(5)
 			},
 			expected: func() interface{} {
 				val := int(5)
@@ -37,7 +38,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "uint",
 			f: func() interface{} {
-				return btcjson.Uint(5)
+				return json.Uint(5)
 			},
 			expected: func() interface{} {
 				val := uint(5)
@@ -47,7 +48,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "int32",
 			f: func() interface{} {
-				return btcjson.Int32(5)
+				return json.Int32(5)
 			},
 			expected: func() interface{} {
 				val := int32(5)
@@ -57,7 +58,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "uint32",
 			f: func() interface{} {
-				return btcjson.Uint32(5)
+				return json.Uint32(5)
 			},
 			expected: func() interface{} {
 				val := uint32(5)
@@ -67,7 +68,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "int64",
 			f: func() interface{} {
-				return btcjson.Int64(5)
+				return json.Int64(5)
 			},
 			expected: func() interface{} {
 				val := int64(5)
@@ -77,7 +78,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "uint64",
 			f: func() interface{} {
-				return btcjson.Uint64(5)
+				return json.Uint64(5)
 			},
 			expected: func() interface{} {
 				val := uint64(5)
@@ -87,7 +88,7 @@ func TestHelpers(t *testing.T) {
 		{
 			name: "string",
 			f: func() interface{} {
-				return btcjson.String("abc")
+				return json.String("abc")
 			},
 			expected: func() interface{} {
 				val := "abc"

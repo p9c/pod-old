@@ -1,4 +1,4 @@
-package neutrino
+package spv
 
 import (
 	"compress/bzip2"
@@ -12,17 +12,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac/cache"
-	"github.com/parallelcointeam/sac/cache/lru"
-	"github.com/parallelcointeam/sac/filterdb"
-	"github.com/parallelcointeam/sac/headerfs"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/spv/cache"
+	"git.parallelcoin.io/pod/spv/cache/lru"
+	"git.parallelcoin.io/pod/spv/filterdb"
+	"git.parallelcoin.io/pod/spv/headerfs"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var (
@@ -44,7 +44,7 @@ var (
 //
 // NOTE: copied from btcsuite/btcd/database/ffldb/interface_test.go
 func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) (
-	[]*btcutil.Block, error) {
+	[]*util.Block, error) {
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
 	if err != nil {
@@ -60,8 +60,8 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) (
 	dr := bzip2.NewReader(fi)
 
 	// Set the first block as the genesis block.
-	blocks := make([]*btcutil.Block, 0, 256)
-	genesis := btcutil.NewBlock(chaincfg.MainNetParams.GenesisBlock)
+	blocks := make([]*util.Block, 0, 256)
+	genesis := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	blocks = append(blocks, genesis)
 
 	// Load the remaining blocks.
@@ -100,7 +100,7 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) (
 		}
 
 		// Deserialize and store the block.
-		block, err := btcutil.NewBlockFromBytes(blockBytes)
+		block, err := util.NewBlockFromBytes(blockBytes)
 		if err != nil {
 			t.Errorf("Failed to parse block %v: %v", height, err)
 			return nil, err

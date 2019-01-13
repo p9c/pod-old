@@ -1,5 +1,5 @@
 /*
-Package btclog defines an interface and default implementation for subsystem logging.
+Package log defines an interface and default implementation for subsystem logging.
 
 Log level verbosity may be modified at runtime for each individual subsystem logger.
 
@@ -13,4 +13,4 @@ The following options are recognized:
 
   shortfile: Include the filename and line number in all log messages. Overrides longfile.
 */
-package btclog
+package log

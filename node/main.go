@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 
-	"github.com/parallelcointeam/pod/node/blockchain/indexers"
-	"github.com/parallelcointeam/pod/node/database"
+	"git.parallelcoin.io/pod/blockchain/indexers"
+	"git.parallelcoin.io/pod/database"
 )
 
 const (

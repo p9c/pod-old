@@ -6,10 +6,11 @@ import (
 	"bytes"
 	"encoding/hex"
 	"errors"
-	"github.com/parallelcointeam/pod/chaincfg"
 	"math"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg"
 )
 
 // TestBIP0032Vectors tests the vectors provided by [BIP32] to ensure the derivation works as intended.

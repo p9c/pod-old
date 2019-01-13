@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/mod/walletdb"
-	"github.com/parallelcointeam/mod/wtxmgr"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 const eligibleInputMinConfirmations = 100
@@ -100,7 +100,7 @@ func (c byAddress) Less(i, j int) bool {
 // and the last used address of lastSeriesID. They're reverse ordered based on
 // their address.
 func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmgr.Store, txmgrNs walletdb.ReadBucket, startAddress WithdrawalAddress,
-	lastSeriesID uint32, dustThreshold btcutil.Amount, chainHeight int32,
+	lastSeriesID uint32, dustThreshold util.Amount, chainHeight int32,
 	minConf int) ([]credit, error) {
 
 	if p.Series(lastSeriesID) == nil {
@@ -238,7 +238,7 @@ func groupCreditsByAddr(credits []wtxmgr.Credit, chainParams *chaincfg.Params) (
 // to number of confirmations, the dust threshold and that it is not
 // the charter output.
 func (p *Pool) isCreditEligible(c credit, minConf int, chainHeight int32,
-	dustThreshold btcutil.Amount) bool {
+	dustThreshold util.Amount) bool {
 	if c.Amount < dustThreshold {
 		return false
 	}

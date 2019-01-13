@@ -1,14 +1,12 @@
 // Copyright (c) 2016 The Decred developers
 // Copyright (c) 2017 The btcsuite developers
 
-
-
 package wallet
 
 import (
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/mod/walletdb"
-	"github.com/parallelcointeam/mod/wtxmgr"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 type unstableAPI struct {

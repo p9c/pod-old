@@ -1,9 +1,10 @@
-package btcjson_test
+package json_test
 
 import (
-	"github.com/parallelcointeam/pod/btcjson"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestHelpReflectInternals ensures the various help functions which deal with reflect types work as expected for various Go types.
@@ -228,14 +229,14 @@ func TestHelpReflectInternals(t *testing.T) {
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		// Ensure the description key is the expected value.
-		key := btcjson.TstReflectTypeToJSONType(xT, test.reflectType)
+		key := json.TstReflectTypeToJSONType(xT, test.reflectType)
 		if key != test.key {
 			t.Errorf("Test #%d (%s) unexpected key - got: %v, "+
 				"want: %v", i, test.name, key, test.key)
 			continue
 		}
 		// Ensure the generated example is as expected.
-		examples, isComplex := btcjson.TstReflectTypeToJSONExample(xT,
+		examples, isComplex := json.TstReflectTypeToJSONExample(xT,
 			test.reflectType, test.indentLevel, "fdk")
 		if isComplex != test.isComplex {
 			t.Errorf("Test #%d (%s) unexpected isComplex - got: %v, "+
@@ -258,14 +259,14 @@ func TestHelpReflectInternals(t *testing.T) {
 			}
 		}
 		// Ensure the generated result type help is as expected.
-		helpText := btcjson.TstResultTypeHelp(xT, test.reflectType, "fdk")
+		helpText := json.TstResultTypeHelp(xT, test.reflectType, "fdk")
 		if helpText != test.help {
 			t.Errorf("Test #%d (%s) unexpected result help - "+
 				"got: %v, want: %v", i, test.name, helpText,
 				test.help)
 			continue
 		}
-		isValid := btcjson.TstIsValidResultType(test.reflectType.Kind())
+		isValid := json.TstIsValidResultType(test.reflectType.Kind())
 		if isValid != !test.isInvalid {
 			t.Errorf("Test #%d (%s) unexpected result type validity "+
 				"- got: %v", i, test.name, isValid)
@@ -386,7 +387,7 @@ func TestResultStructHelp(t *testing.T) {
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		results := btcjson.TstResultStructHelp(xT, test.reflectType, 0)
+		results := json.TstResultStructHelp(xT, test.reflectType, 0)
 		if len(results) != len(test.expected) {
 			t.Errorf("Test #%d (%s) unexpected result length - "+
 				"got: %v, want: %v", i, test.name, len(results),
@@ -535,7 +536,7 @@ func TestHelpArgInternals(t *testing.T) {
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		help := btcjson.TstArgHelp(xT, test.reflectType, test.defaults,
+		help := json.TstArgHelp(xT, test.reflectType, test.defaults,
 			test.method)
 		if help != test.help {
 			t.Errorf("Test #%d (%s) unexpected help - got:\n%v\n"+
@@ -624,7 +625,7 @@ func TestMethodHelp(t *testing.T) {
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		help := btcjson.TestMethodHelp(xT, test.reflectType,
+		help := json.TestMethodHelp(xT, test.reflectType,
 			test.defaults, test.method, test.resultTypes)
 		if help != test.help {
 			t.Errorf("Test #%d (%s) unexpected help - got:\n%v\n"+
@@ -641,42 +642,42 @@ func TestGenerateHelpErrors(t *testing.T) {
 		name        string
 		method      string
 		resultTypes []interface{}
-		err         btcjson.Error
+		err         json.Error
 	}{
 		{
 			name:   "unregistered command",
 			method: "boguscommand",
-			err:    btcjson.Error{ErrorCode: btcjson.ErrUnregisteredMethod},
+			err:    json.Error{ErrorCode: json.ErrUnregisteredMethod},
 		},
 		{
 			name:        "non-pointer result type",
 			method:      "help",
 			resultTypes: []interface{}{0},
-			err:         btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:         json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name:        "invalid result type",
 			method:      "help",
 			resultTypes: []interface{}{(*complex64)(nil)},
-			err:         btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:         json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name:        "missing description",
 			method:      "help",
 			resultTypes: []interface{}{(*string)(nil), nil},
-			err:         btcjson.Error{ErrorCode: btcjson.ErrMissingDescription},
+			err:         json.Error{ErrorCode: json.ErrMissingDescription},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		_, err := btcjson.GenerateHelp(test.method, nil,
+		_, err := json.GenerateHelp(test.method, nil,
 			test.resultTypes...)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
 		}
-		gotErrorCode := err.(btcjson.Error).ErrorCode
+		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
@@ -693,7 +694,7 @@ func TestGenerateHelp(t *testing.T) {
 		"help--synopsis": "test",
 		"help-command":   "test",
 	}
-	help, err := btcjson.GenerateHelp("help", descs)
+	help, err := json.GenerateHelp("help", descs)
 	if err != nil {
 		t.Fatalf("GenerateHelp: unexpected error: %v", err)
 	}

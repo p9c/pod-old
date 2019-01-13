@@ -1,5 +1,5 @@
 // NOTE: This file is intended to house the RPC websocket notifications that are supported by a wallet server.
-package btcjson
+package json
 
 const (
 	// AccountBalanceNtfnMethod is the method used for account balance notifications.

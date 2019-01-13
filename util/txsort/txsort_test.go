@@ -3,11 +3,12 @@ package txsort_test
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/parallelcointeam/pod/btcutil/txsort"
-	"github.com/parallelcointeam/pod/wire"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
+
+	"git.parallelcoin.io/pod/util/txsort"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // TestSort ensures the transaction sorting works according to the BIP.

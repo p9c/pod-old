@@ -1,12 +1,13 @@
-package btcjson_test
+package json_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcjson"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestChainSvrWsNtfns tests all of the chain server websocket-specific notifications marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
@@ -22,13 +23,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "blockconnected",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("blockconnected", "123", 100000, 123456789)
+				return json.NewCmd("blockconnected", "123", 100000, 123456789)
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewBlockConnectedNtfn("123", 100000, 123456789)
+				return json.NewBlockConnectedNtfn("123", 100000, 123456789)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"blockconnected","params":["123",100000,123456789],"id":null}`,
-			unmarshalled: &btcjson.BlockConnectedNtfn{
+			unmarshalled: &json.BlockConnectedNtfn{
 				Hash:   "123",
 				Height: 100000,
 				Time:   123456789,
@@ -37,13 +38,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "blockdisconnected",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("blockdisconnected", "123", 100000, 123456789)
+				return json.NewCmd("blockdisconnected", "123", 100000, 123456789)
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewBlockDisconnectedNtfn("123", 100000, 123456789)
+				return json.NewBlockDisconnectedNtfn("123", 100000, 123456789)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"blockdisconnected","params":["123",100000,123456789],"id":null}`,
-			unmarshalled: &btcjson.BlockDisconnectedNtfn{
+			unmarshalled: &json.BlockDisconnectedNtfn{
 				Hash:   "123",
 				Height: 100000,
 				Time:   123456789,
@@ -52,13 +53,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "filteredblockconnected",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("filteredblockconnected", 100000, "header", []string{"tx0", "tx1"})
+				return json.NewCmd("filteredblockconnected", 100000, "header", []string{"tx0", "tx1"})
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewFilteredBlockConnectedNtfn(100000, "header", []string{"tx0", "tx1"})
+				return json.NewFilteredBlockConnectedNtfn(100000, "header", []string{"tx0", "tx1"})
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"filteredblockconnected","params":[100000,"header",["tx0","tx1"]],"id":null}`,
-			unmarshalled: &btcjson.FilteredBlockConnectedNtfn{
+			unmarshalled: &json.FilteredBlockConnectedNtfn{
 				Height:        100000,
 				Header:        "header",
 				SubscribedTxs: []string{"tx0", "tx1"},
@@ -67,13 +68,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "filteredblockdisconnected",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("filteredblockdisconnected", 100000, "header")
+				return json.NewCmd("filteredblockdisconnected", 100000, "header")
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewFilteredBlockDisconnectedNtfn(100000, "header")
+				return json.NewFilteredBlockDisconnectedNtfn(100000, "header")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"filteredblockdisconnected","params":[100000,"header"],"id":null}`,
-			unmarshalled: &btcjson.FilteredBlockDisconnectedNtfn{
+			unmarshalled: &json.FilteredBlockDisconnectedNtfn{
 				Height: 100000,
 				Header: "header",
 			},
@@ -81,21 +82,21 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "recvtx",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("recvtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
+				return json.NewCmd("recvtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
 			},
 			staticNtfn: func() interface{} {
-				blockDetails := btcjson.BlockDetails{
+				blockDetails := json.BlockDetails{
 					Height: 100000,
 					Hash:   "123",
 					Index:  0,
 					Time:   12345678,
 				}
-				return btcjson.NewRecvTxNtfn("001122", &blockDetails)
+				return json.NewRecvTxNtfn("001122", &blockDetails)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"recvtx","params":["001122",{"height":100000,"hash":"123","index":0,"time":12345678}],"id":null}`,
-			unmarshalled: &btcjson.RecvTxNtfn{
+			unmarshalled: &json.RecvTxNtfn{
 				HexTx: "001122",
-				Block: &btcjson.BlockDetails{
+				Block: &json.BlockDetails{
 					Height: 100000,
 					Hash:   "123",
 					Index:  0,
@@ -106,21 +107,21 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "redeemingtx",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("redeemingtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
+				return json.NewCmd("redeemingtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
 			},
 			staticNtfn: func() interface{} {
-				blockDetails := btcjson.BlockDetails{
+				blockDetails := json.BlockDetails{
 					Height: 100000,
 					Hash:   "123",
 					Index:  0,
 					Time:   12345678,
 				}
-				return btcjson.NewRedeemingTxNtfn("001122", &blockDetails)
+				return json.NewRedeemingTxNtfn("001122", &blockDetails)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"redeemingtx","params":["001122",{"height":100000,"hash":"123","index":0,"time":12345678}],"id":null}`,
-			unmarshalled: &btcjson.RedeemingTxNtfn{
+			unmarshalled: &json.RedeemingTxNtfn{
 				HexTx: "001122",
-				Block: &btcjson.BlockDetails{
+				Block: &json.BlockDetails{
 					Height: 100000,
 					Hash:   "123",
 					Index:  0,
@@ -131,13 +132,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "rescanfinished",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("rescanfinished", "123", 100000, 12345678)
+				return json.NewCmd("rescanfinished", "123", 100000, 12345678)
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewRescanFinishedNtfn("123", 100000, 12345678)
+				return json.NewRescanFinishedNtfn("123", 100000, 12345678)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"rescanfinished","params":["123",100000,12345678],"id":null}`,
-			unmarshalled: &btcjson.RescanFinishedNtfn{
+			unmarshalled: &json.RescanFinishedNtfn{
 				Hash:   "123",
 				Height: 100000,
 				Time:   12345678,
@@ -146,13 +147,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "rescanprogress",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("rescanprogress", "123", 100000, 12345678)
+				return json.NewCmd("rescanprogress", "123", 100000, 12345678)
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewRescanProgressNtfn("123", 100000, 12345678)
+				return json.NewRescanProgressNtfn("123", 100000, 12345678)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"rescanprogress","params":["123",100000,12345678],"id":null}`,
-			unmarshalled: &btcjson.RescanProgressNtfn{
+			unmarshalled: &json.RescanProgressNtfn{
 				Hash:   "123",
 				Height: 100000,
 				Time:   12345678,
@@ -161,13 +162,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "txaccepted",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("txaccepted", "123", 1.5)
+				return json.NewCmd("txaccepted", "123", 1.5)
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewTxAcceptedNtfn("123", 1.5)
+				return json.NewTxAcceptedNtfn("123", 1.5)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"txaccepted","params":["123",1.5],"id":null}`,
-			unmarshalled: &btcjson.TxAcceptedNtfn{
+			unmarshalled: &json.TxAcceptedNtfn{
 				TxID:   "123",
 				Amount: 1.5,
 			},
@@ -175,10 +176,10 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "txacceptedverbose",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("txacceptedverbose", `{"hex":"001122","txid":"123","version":1,"locktime":4294967295,"vin":null,"vout":null,"confirmations":0}`)
+				return json.NewCmd("txacceptedverbose", `{"hex":"001122","txid":"123","version":1,"locktime":4294967295,"vin":null,"vout":null,"confirmations":0}`)
 			},
 			staticNtfn: func() interface{} {
-				txResult := btcjson.TxRawResult{
+				txResult := json.TxRawResult{
 					Hex:           "001122",
 					Txid:          "123",
 					Version:       1,
@@ -187,11 +188,11 @@ func TestChainSvrWsNtfns(t *testing.T) {
 					Vout:          nil,
 					Confirmations: 0,
 				}
-				return btcjson.NewTxAcceptedVerboseNtfn(txResult)
+				return json.NewTxAcceptedVerboseNtfn(txResult)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"txacceptedverbose","params":[{"hex":"001122","txid":"123","version":1,"locktime":4294967295,"vin":null,"vout":null}],"id":null}`,
-			unmarshalled: &btcjson.TxAcceptedVerboseNtfn{
-				RawTx: btcjson.TxRawResult{
+			unmarshalled: &json.TxAcceptedVerboseNtfn{
+				RawTx: json.TxRawResult{
 					Hex:           "001122",
 					Txid:          "123",
 					Version:       1,
@@ -205,13 +206,13 @@ func TestChainSvrWsNtfns(t *testing.T) {
 		{
 			name: "relevanttxaccepted",
 			newNtfn: func() (interface{}, error) {
-				return btcjson.NewCmd("relevanttxaccepted", "001122")
+				return json.NewCmd("relevanttxaccepted", "001122")
 			},
 			staticNtfn: func() interface{} {
-				return btcjson.NewRelevantTxAcceptedNtfn("001122")
+				return json.NewRelevantTxAcceptedNtfn("001122")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"relevanttxaccepted","params":["001122"],"id":null}`,
-			unmarshalled: &btcjson.RelevantTxAcceptedNtfn{
+			unmarshalled: &json.RelevantTxAcceptedNtfn{
 				Transaction: "001122",
 			},
 		},
@@ -219,7 +220,7 @@ func TestChainSvrWsNtfns(t *testing.T) {
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		// Marshal the notification as created by the new static creation function.  The ID is nil for notifications.
-		marshalled, err := btcjson.MarshalCmd(nil, test.staticNtfn())
+		marshalled, err := json.MarshalCmd(nil, test.staticNtfn())
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -238,7 +239,7 @@ func TestChainSvrWsNtfns(t *testing.T) {
 				i, test.name, err)
 		}
 		// Marshal the notification as created by the generic new notification creation function. The ID is nil for notifications.
-		marshalled, err = btcjson.MarshalCmd(nil, cmd)
+		marshalled, err = json.MarshalCmd(nil, cmd)
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -250,14 +251,14 @@ func TestChainSvrWsNtfns(t *testing.T) {
 				test.marshalled)
 			continue
 		}
-		var request btcjson.Request
+		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
 			continue
 		}
-		cmd, err = btcjson.UnmarshalCmd(&request)
+		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)

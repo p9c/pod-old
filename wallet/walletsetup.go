@@ -1,8 +1,6 @@
 // Copyright (c) 2014-2015 The btcsuite developers
 
-
-
-package main
+package wallet
 
 import (
 	"bufio"
@@ -11,16 +9,18 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/mod/internal/legacy/keystore"
-	"github.com/parallelcointeam/mod/internal/prompt"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wallet"
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet"
+	"git.parallelcoin.io/pod/wallet/infernal/legacy/keystore"
+	"git.parallelcoin.io/pod/wallet/infernal/prompt"
+	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wire"
+
+	// generic comment for gofmt
+	_ "git.parallelcoin.io/pod/walletdb/bdb"
 )
 
 // networkDir returns the directory name of a network directory to hold wallet
@@ -60,7 +60,7 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 				continue
 			}
 
-			wif, err := btcutil.NewWIF((*btcec.PrivateKey)(privKey),
+			wif, err := util.NewWIF((*ec.PrivateKey)(privKey),
 				netParams, addr.Compressed())
 			if err != nil {
 				fmt.Printf("WARN: Failed to create wallet "+

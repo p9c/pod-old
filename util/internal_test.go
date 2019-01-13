@@ -1,12 +1,9 @@
-/*
-This test file is part of the btcutil package rather than than the btcutil_test package so it can bridge access to the internals to properly test cases which are either not possible or can't reliably be tested via the public interface. The functions are only exported while the tests are being run.
-*/
-package btcutil
+package util
 
 import (
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/btcutil/base58"
-	"github.com/parallelcointeam/pod/btcutil/bech32"
+	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/util/base58"
+	"git.parallelcoin.io/pod/util/bech32"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -61,10 +58,10 @@ func TstAddressWitnessScriptHash(version byte, program [32]byte,
 // TstAddressPubKey makes an AddressPubKey, setting the unexported fields with the parameters.
 func TstAddressPubKey(serializedPubKey []byte, pubKeyFormat PubKeyFormat,
 	netID byte) *AddressPubKey {
-	pubKey, _ := btcec.ParsePubKey(serializedPubKey, btcec.S256())
+	pubKey, _ := ec.ParsePubKey(serializedPubKey, ec.S256())
 	return &AddressPubKey{
 		pubKeyFormat: pubKeyFormat,
-		pubKey:       (*btcec.PublicKey)(pubKey),
+		pubKey:       (*ec.PublicKey)(pubKey),
 		pubKeyHashID: netID,
 	}
 }

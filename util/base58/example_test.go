@@ -2,7 +2,8 @@ package base58_test
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/btcutil/base58"
+
+	"git.parallelcoin.io/pod/util/base58"
 )
 
 // This example demonstrates how to decode modified base58 encoded data.

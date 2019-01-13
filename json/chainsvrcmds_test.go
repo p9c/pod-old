@@ -1,13 +1,14 @@
-package btcjson_test
+package json_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/wire"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // TestChainSvrCmds tests all of the chain server commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
@@ -24,231 +25,231 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "addnode",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("addnode", "127.0.0.1", btcjson.ANRemove)
+				return json.NewCmd("addnode", "127.0.0.1", json.ANRemove)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewAddNodeCmd("127.0.0.1", btcjson.ANRemove)
+				return json.NewAddNodeCmd("127.0.0.1", json.ANRemove)
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"addnode","params":["127.0.0.1","remove"],"id":1}`,
-			unmarshalled: &btcjson.AddNodeCmd{Addr: "127.0.0.1", SubCmd: btcjson.ANRemove},
+			unmarshalled: &json.AddNodeCmd{Addr: "127.0.0.1", SubCmd: json.ANRemove},
 		},
 		{
 			name: "createrawtransaction",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
+				return json.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
 					`{"456":0.0123}`)
 			},
 			staticCmd: func() interface{} {
-				txInputs := []btcjson.TransactionInput{
+				txInputs := []json.TransactionInput{
 					{Txid: "123", Vout: 1},
 				}
 				amounts := map[string]float64{"456": .0123}
-				return btcjson.NewCreateRawTransactionCmd(txInputs, amounts, nil)
+				return json.NewCreateRawTransactionCmd(txInputs, amounts, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"createrawtransaction","params":[[{"txid":"123","vout":1}],{"456":0.0123}],"id":1}`,
-			unmarshalled: &btcjson.CreateRawTransactionCmd{
-				Inputs:  []btcjson.TransactionInput{{Txid: "123", Vout: 1}},
+			unmarshalled: &json.CreateRawTransactionCmd{
+				Inputs:  []json.TransactionInput{{Txid: "123", Vout: 1}},
 				Amounts: map[string]float64{"456": .0123},
 			},
 		},
 		{
 			name: "createrawtransaction optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
+				return json.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
 					`{"456":0.0123}`, int64(12312333333))
 			},
 			staticCmd: func() interface{} {
-				txInputs := []btcjson.TransactionInput{
+				txInputs := []json.TransactionInput{
 					{Txid: "123", Vout: 1},
 				}
 				amounts := map[string]float64{"456": .0123}
-				return btcjson.NewCreateRawTransactionCmd(txInputs, amounts, btcjson.Int64(12312333333))
+				return json.NewCreateRawTransactionCmd(txInputs, amounts, json.Int64(12312333333))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"createrawtransaction","params":[[{"txid":"123","vout":1}],{"456":0.0123},12312333333],"id":1}`,
-			unmarshalled: &btcjson.CreateRawTransactionCmd{
-				Inputs:   []btcjson.TransactionInput{{Txid: "123", Vout: 1}},
+			unmarshalled: &json.CreateRawTransactionCmd{
+				Inputs:   []json.TransactionInput{{Txid: "123", Vout: 1}},
 				Amounts:  map[string]float64{"456": .0123},
-				LockTime: btcjson.Int64(12312333333),
+				LockTime: json.Int64(12312333333),
 			},
 		},
 		{
 			name: "decoderawtransaction",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("decoderawtransaction", "123")
+				return json.NewCmd("decoderawtransaction", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewDecodeRawTransactionCmd("123")
+				return json.NewDecodeRawTransactionCmd("123")
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"decoderawtransaction","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.DecodeRawTransactionCmd{HexTx: "123"},
+			unmarshalled: &json.DecodeRawTransactionCmd{HexTx: "123"},
 		},
 		{
 			name: "decodescript",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("decodescript", "00")
+				return json.NewCmd("decodescript", "00")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewDecodeScriptCmd("00")
+				return json.NewDecodeScriptCmd("00")
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"decodescript","params":["00"],"id":1}`,
-			unmarshalled: &btcjson.DecodeScriptCmd{HexScript: "00"},
+			unmarshalled: &json.DecodeScriptCmd{HexScript: "00"},
 		},
 		{
 			name: "getaddednodeinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getaddednodeinfo", true)
+				return json.NewCmd("getaddednodeinfo", true)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetAddedNodeInfoCmd(true, nil)
+				return json.NewGetAddedNodeInfoCmd(true, nil)
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getaddednodeinfo","params":[true],"id":1}`,
-			unmarshalled: &btcjson.GetAddedNodeInfoCmd{DNS: true, Node: nil},
+			unmarshalled: &json.GetAddedNodeInfoCmd{DNS: true, Node: nil},
 		},
 		{
 			name: "getaddednodeinfo optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getaddednodeinfo", true, "127.0.0.1")
+				return json.NewCmd("getaddednodeinfo", true, "127.0.0.1")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetAddedNodeInfoCmd(true, btcjson.String("127.0.0.1"))
+				return json.NewGetAddedNodeInfoCmd(true, json.String("127.0.0.1"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getaddednodeinfo","params":[true,"127.0.0.1"],"id":1}`,
-			unmarshalled: &btcjson.GetAddedNodeInfoCmd{
+			unmarshalled: &json.GetAddedNodeInfoCmd{
 				DNS:  true,
-				Node: btcjson.String("127.0.0.1"),
+				Node: json.String("127.0.0.1"),
 			},
 		},
 		{
 			name: "getbestblockhash",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getbestblockhash")
+				return json.NewCmd("getbestblockhash")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBestBlockHashCmd()
+				return json.NewGetBestBlockHashCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getbestblockhash","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetBestBlockHashCmd{},
+			unmarshalled: &json.GetBestBlockHashCmd{},
 		},
 		{
 			name: "getblock",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblock", "123")
+				return json.NewCmd("getblock", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockCmd("123", nil, nil)
+				return json.NewGetBlockCmd("123", nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblock","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.GetBlockCmd{
+			unmarshalled: &json.GetBlockCmd{
 				Hash:      "123",
-				Verbose:   btcjson.Bool(true),
-				VerboseTx: btcjson.Bool(false),
+				Verbose:   json.Bool(true),
+				VerboseTx: json.Bool(false),
 			},
 		},
 		{
 			name: "getblock required optional1",
 			newCmd: func() (interface{}, error) {
 				// Intentionally use a source param that is more pointers than the destination to exercise that path.
-				verbosePtr := btcjson.Bool(true)
-				return btcjson.NewCmd("getblock", "123", &verbosePtr)
+				verbosePtr := json.Bool(true)
+				return json.NewCmd("getblock", "123", &verbosePtr)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockCmd("123", btcjson.Bool(true), nil)
+				return json.NewGetBlockCmd("123", json.Bool(true), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblock","params":["123",true],"id":1}`,
-			unmarshalled: &btcjson.GetBlockCmd{
+			unmarshalled: &json.GetBlockCmd{
 				Hash:      "123",
-				Verbose:   btcjson.Bool(true),
-				VerboseTx: btcjson.Bool(false),
+				Verbose:   json.Bool(true),
+				VerboseTx: json.Bool(false),
 			},
 		},
 		{
 			name: "getblock required optional2",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblock", "123", true, true)
+				return json.NewCmd("getblock", "123", true, true)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockCmd("123", btcjson.Bool(true), btcjson.Bool(true))
+				return json.NewGetBlockCmd("123", json.Bool(true), json.Bool(true))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblock","params":["123",true,true],"id":1}`,
-			unmarshalled: &btcjson.GetBlockCmd{
+			unmarshalled: &json.GetBlockCmd{
 				Hash:      "123",
-				Verbose:   btcjson.Bool(true),
-				VerboseTx: btcjson.Bool(true),
+				Verbose:   json.Bool(true),
+				VerboseTx: json.Bool(true),
 			},
 		},
 		{
 			name: "getblockchaininfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblockchaininfo")
+				return json.NewCmd("getblockchaininfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockChainInfoCmd()
+				return json.NewGetBlockChainInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getblockchaininfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetBlockChainInfoCmd{},
+			unmarshalled: &json.GetBlockChainInfoCmd{},
 		},
 		{
 			name: "getblockcount",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblockcount")
+				return json.NewCmd("getblockcount")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockCountCmd()
+				return json.NewGetBlockCountCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getblockcount","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetBlockCountCmd{},
+			unmarshalled: &json.GetBlockCountCmd{},
 		},
 		{
 			name: "getblockhash",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblockhash", 123)
+				return json.NewCmd("getblockhash", 123)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockHashCmd(123)
+				return json.NewGetBlockHashCmd(123)
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getblockhash","params":[123],"id":1}`,
-			unmarshalled: &btcjson.GetBlockHashCmd{Index: 123},
+			unmarshalled: &json.GetBlockHashCmd{Index: 123},
 		},
 		{
 			name: "getblockheader",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblockheader", "123")
+				return json.NewCmd("getblockheader", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockHeaderCmd("123", nil)
+				return json.NewGetBlockHeaderCmd("123", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblockheader","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.GetBlockHeaderCmd{
+			unmarshalled: &json.GetBlockHeaderCmd{
 				Hash:    "123",
-				Verbose: btcjson.Bool(true),
+				Verbose: json.Bool(true),
 			},
 		},
 		{
 			name: "getblocktemplate",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblocktemplate")
+				return json.NewCmd("getblocktemplate")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetBlockTemplateCmd(nil)
+				return json.NewGetBlockTemplateCmd(nil)
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getblocktemplate","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetBlockTemplateCmd{Request: nil},
+			unmarshalled: &json.GetBlockTemplateCmd{Request: nil},
 		},
 		{
 			name: "getblocktemplate optional - template request",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"]}`)
+				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"]}`)
 			},
 			staticCmd: func() interface{} {
-				template := btcjson.TemplateRequest{
+				template := json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 				}
-				return btcjson.NewGetBlockTemplateCmd(&template)
+				return json.NewGetBlockTemplateCmd(&template)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblocktemplate","params":[{"mode":"template","capabilities":["longpoll","coinbasetxn"]}],"id":1}`,
-			unmarshalled: &btcjson.GetBlockTemplateCmd{
-				Request: &btcjson.TemplateRequest{
+			unmarshalled: &json.GetBlockTemplateCmd{
+				Request: &json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 				},
@@ -257,21 +258,21 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "getblocktemplate optional - template request with tweaks",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":500,"sizelimit":100000000,"maxversion":2}`)
+				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":500,"sizelimit":100000000,"maxversion":2}`)
 			},
 			staticCmd: func() interface{} {
-				template := btcjson.TemplateRequest{
+				template := json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 					SigOpLimit:   500,
 					SizeLimit:    100000000,
 					MaxVersion:   2,
 				}
-				return btcjson.NewGetBlockTemplateCmd(&template)
+				return json.NewGetBlockTemplateCmd(&template)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblocktemplate","params":[{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":500,"sizelimit":100000000,"maxversion":2}],"id":1}`,
-			unmarshalled: &btcjson.GetBlockTemplateCmd{
-				Request: &btcjson.TemplateRequest{
+			unmarshalled: &json.GetBlockTemplateCmd{
+				Request: &json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 					SigOpLimit:   int64(500),
@@ -283,21 +284,21 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "getblocktemplate optional - template request with tweaks 2",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":true,"sizelimit":100000000,"maxversion":2}`)
+				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":true,"sizelimit":100000000,"maxversion":2}`)
 			},
 			staticCmd: func() interface{} {
-				template := btcjson.TemplateRequest{
+				template := json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 					SigOpLimit:   true,
 					SizeLimit:    100000000,
 					MaxVersion:   2,
 				}
-				return btcjson.NewGetBlockTemplateCmd(&template)
+				return json.NewGetBlockTemplateCmd(&template)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getblocktemplate","params":[{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":true,"sizelimit":100000000,"maxversion":2}],"id":1}`,
-			unmarshalled: &btcjson.GetBlockTemplateCmd{
-				Request: &btcjson.TemplateRequest{
+			unmarshalled: &json.GetBlockTemplateCmd{
+				Request: &json.TemplateRequest{
 					Mode:         "template",
 					Capabilities: []string{"longpoll", "coinbasetxn"},
 					SigOpLimit:   true,
@@ -309,15 +310,15 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "getcfilter",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getcfilter", "123",
+				return json.NewCmd("getcfilter", "123",
 					wire.GCSFilterRegular)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetCFilterCmd("123",
+				return json.NewGetCFilterCmd("123",
 					wire.GCSFilterRegular)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getcfilter","params":["123",0],"id":1}`,
-			unmarshalled: &btcjson.GetCFilterCmd{
+			unmarshalled: &json.GetCFilterCmd{
 				Hash:       "123",
 				FilterType: wire.GCSFilterRegular,
 			},
@@ -325,15 +326,15 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "getcfilterheader",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getcfilterheader", "123",
+				return json.NewCmd("getcfilterheader", "123",
 					wire.GCSFilterRegular)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetCFilterHeaderCmd("123",
+				return json.NewGetCFilterHeaderCmd("123",
 					wire.GCSFilterRegular)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getcfilterheader","params":["123",0],"id":1}`,
-			unmarshalled: &btcjson.GetCFilterHeaderCmd{
+			unmarshalled: &json.GetCFilterHeaderCmd{
 				Hash:       "123",
 				FilterType: wire.GCSFilterRegular,
 			},
@@ -341,622 +342,622 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "getchaintips",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getchaintips")
+				return json.NewCmd("getchaintips")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetChainTipsCmd()
+				return json.NewGetChainTipsCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getchaintips","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetChainTipsCmd{},
+			unmarshalled: &json.GetChainTipsCmd{},
 		},
 		{
 			name: "getconnectioncount",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getconnectioncount")
+				return json.NewCmd("getconnectioncount")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetConnectionCountCmd()
+				return json.NewGetConnectionCountCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getconnectioncount","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetConnectionCountCmd{},
+			unmarshalled: &json.GetConnectionCountCmd{},
 		},
 		{
 			name: "getdifficulty",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getdifficulty", "123")
+				return json.NewCmd("getdifficulty", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetDifficultyCmd("123")
+				return json.NewGetDifficultyCmd("123")
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getdifficulty","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.GetDifficultyCmd{Algo: "123"},
+			unmarshalled: &json.GetDifficultyCmd{Algo: "123"},
 		},
 		{
 			name: "getgenerate",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getgenerate")
+				return json.NewCmd("getgenerate")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetGenerateCmd()
+				return json.NewGetGenerateCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getgenerate","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetGenerateCmd{},
+			unmarshalled: &json.GetGenerateCmd{},
 		},
 		{
 			name: "gethashespersec",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gethashespersec")
+				return json.NewCmd("gethashespersec")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetHashesPerSecCmd()
+				return json.NewGetHashesPerSecCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"gethashespersec","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetHashesPerSecCmd{},
+			unmarshalled: &json.GetHashesPerSecCmd{},
 		},
 		{
 			name: "getinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getinfo")
+				return json.NewCmd("getinfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetInfoCmd()
+				return json.NewGetInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getinfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetInfoCmd{},
+			unmarshalled: &json.GetInfoCmd{},
 		},
 		{
 			name: "getmempoolentry",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getmempoolentry", "txhash")
+				return json.NewCmd("getmempoolentry", "txhash")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetMempoolEntryCmd("txhash")
+				return json.NewGetMempoolEntryCmd("txhash")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getmempoolentry","params":["txhash"],"id":1}`,
-			unmarshalled: &btcjson.GetMempoolEntryCmd{
+			unmarshalled: &json.GetMempoolEntryCmd{
 				TxID: "txhash",
 			},
 		},
 		{
 			name: "getmempoolinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getmempoolinfo")
+				return json.NewCmd("getmempoolinfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetMempoolInfoCmd()
+				return json.NewGetMempoolInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getmempoolinfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetMempoolInfoCmd{},
+			unmarshalled: &json.GetMempoolInfoCmd{},
 		},
 		{
 			name: "getmininginfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getmininginfo")
+				return json.NewCmd("getmininginfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetMiningInfoCmd()
+				return json.NewGetMiningInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getmininginfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetMiningInfoCmd{},
+			unmarshalled: &json.GetMiningInfoCmd{},
 		},
 		{
 			name: "getnetworkinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getnetworkinfo")
+				return json.NewCmd("getnetworkinfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetNetworkInfoCmd()
+				return json.NewGetNetworkInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getnetworkinfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetNetworkInfoCmd{},
+			unmarshalled: &json.GetNetworkInfoCmd{},
 		},
 		{
 			name: "getnettotals",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getnettotals")
+				return json.NewCmd("getnettotals")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetNetTotalsCmd()
+				return json.NewGetNetTotalsCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getnettotals","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetNetTotalsCmd{},
+			unmarshalled: &json.GetNetTotalsCmd{},
 		},
 		{
 			name: "getnetworkhashps",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getnetworkhashps")
+				return json.NewCmd("getnetworkhashps")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetNetworkHashPSCmd(nil, nil)
+				return json.NewGetNetworkHashPSCmd(nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getnetworkhashps","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetNetworkHashPSCmd{
-				Blocks: btcjson.Int(120),
-				Height: btcjson.Int(-1),
+			unmarshalled: &json.GetNetworkHashPSCmd{
+				Blocks: json.Int(120),
+				Height: json.Int(-1),
 			},
 		},
 		{
 			name: "getnetworkhashps optional1",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getnetworkhashps", 200)
+				return json.NewCmd("getnetworkhashps", 200)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetNetworkHashPSCmd(btcjson.Int(200), nil)
+				return json.NewGetNetworkHashPSCmd(json.Int(200), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getnetworkhashps","params":[200],"id":1}`,
-			unmarshalled: &btcjson.GetNetworkHashPSCmd{
-				Blocks: btcjson.Int(200),
-				Height: btcjson.Int(-1),
+			unmarshalled: &json.GetNetworkHashPSCmd{
+				Blocks: json.Int(200),
+				Height: json.Int(-1),
 			},
 		},
 		{
 			name: "getnetworkhashps optional2",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getnetworkhashps", 200, 123)
+				return json.NewCmd("getnetworkhashps", 200, 123)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetNetworkHashPSCmd(btcjson.Int(200), btcjson.Int(123))
+				return json.NewGetNetworkHashPSCmd(json.Int(200), json.Int(123))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getnetworkhashps","params":[200,123],"id":1}`,
-			unmarshalled: &btcjson.GetNetworkHashPSCmd{
-				Blocks: btcjson.Int(200),
-				Height: btcjson.Int(123),
+			unmarshalled: &json.GetNetworkHashPSCmd{
+				Blocks: json.Int(200),
+				Height: json.Int(123),
 			},
 		},
 		{
 			name: "getpeerinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getpeerinfo")
+				return json.NewCmd("getpeerinfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetPeerInfoCmd()
+				return json.NewGetPeerInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getpeerinfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetPeerInfoCmd{},
+			unmarshalled: &json.GetPeerInfoCmd{},
 		},
 		{
 			name: "getrawmempool",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getrawmempool")
+				return json.NewCmd("getrawmempool")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetRawMempoolCmd(nil)
+				return json.NewGetRawMempoolCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawmempool","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetRawMempoolCmd{
-				Verbose: btcjson.Bool(false),
+			unmarshalled: &json.GetRawMempoolCmd{
+				Verbose: json.Bool(false),
 			},
 		},
 		{
 			name: "getrawmempool optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getrawmempool", false)
+				return json.NewCmd("getrawmempool", false)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetRawMempoolCmd(btcjson.Bool(false))
+				return json.NewGetRawMempoolCmd(json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawmempool","params":[false],"id":1}`,
-			unmarshalled: &btcjson.GetRawMempoolCmd{
-				Verbose: btcjson.Bool(false),
+			unmarshalled: &json.GetRawMempoolCmd{
+				Verbose: json.Bool(false),
 			},
 		},
 		{
 			name: "getrawtransaction",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getrawtransaction", "123")
+				return json.NewCmd("getrawtransaction", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetRawTransactionCmd("123", nil)
+				return json.NewGetRawTransactionCmd("123", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawtransaction","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.GetRawTransactionCmd{
+			unmarshalled: &json.GetRawTransactionCmd{
 				Txid:    "123",
-				Verbose: btcjson.Int(0),
+				Verbose: json.Int(0),
 			},
 		},
 		{
 			name: "getrawtransaction optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getrawtransaction", "123", 1)
+				return json.NewCmd("getrawtransaction", "123", 1)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetRawTransactionCmd("123", btcjson.Int(1))
+				return json.NewGetRawTransactionCmd("123", json.Int(1))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawtransaction","params":["123",1],"id":1}`,
-			unmarshalled: &btcjson.GetRawTransactionCmd{
+			unmarshalled: &json.GetRawTransactionCmd{
 				Txid:    "123",
-				Verbose: btcjson.Int(1),
+				Verbose: json.Int(1),
 			},
 		},
 		{
 			name: "gettxout",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gettxout", "123", 1)
+				return json.NewCmd("gettxout", "123", 1)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetTxOutCmd("123", 1, nil)
+				return json.NewGetTxOutCmd("123", 1, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettxout","params":["123",1],"id":1}`,
-			unmarshalled: &btcjson.GetTxOutCmd{
+			unmarshalled: &json.GetTxOutCmd{
 				Txid:           "123",
 				Vout:           1,
-				IncludeMempool: btcjson.Bool(true),
+				IncludeMempool: json.Bool(true),
 			},
 		},
 		{
 			name: "gettxout optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gettxout", "123", 1, true)
+				return json.NewCmd("gettxout", "123", 1, true)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetTxOutCmd("123", 1, btcjson.Bool(true))
+				return json.NewGetTxOutCmd("123", 1, json.Bool(true))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettxout","params":["123",1,true],"id":1}`,
-			unmarshalled: &btcjson.GetTxOutCmd{
+			unmarshalled: &json.GetTxOutCmd{
 				Txid:           "123",
 				Vout:           1,
-				IncludeMempool: btcjson.Bool(true),
+				IncludeMempool: json.Bool(true),
 			},
 		},
 		{
 			name: "gettxoutproof",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gettxoutproof", []string{"123", "456"})
+				return json.NewCmd("gettxoutproof", []string{"123", "456"})
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetTxOutProofCmd([]string{"123", "456"}, nil)
+				return json.NewGetTxOutProofCmd([]string{"123", "456"}, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettxoutproof","params":[["123","456"]],"id":1}`,
-			unmarshalled: &btcjson.GetTxOutProofCmd{
+			unmarshalled: &json.GetTxOutProofCmd{
 				TxIDs: []string{"123", "456"},
 			},
 		},
 		{
 			name: "gettxoutproof optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gettxoutproof", []string{"123", "456"},
-					btcjson.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
+				return json.NewCmd("gettxoutproof", []string{"123", "456"},
+					json.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetTxOutProofCmd([]string{"123", "456"},
-					btcjson.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
+				return json.NewGetTxOutProofCmd([]string{"123", "456"},
+					json.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettxoutproof","params":[["123","456"],` +
 				`"000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"],"id":1}`,
-			unmarshalled: &btcjson.GetTxOutProofCmd{
+			unmarshalled: &json.GetTxOutProofCmd{
 				TxIDs:     []string{"123", "456"},
-				BlockHash: btcjson.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"),
+				BlockHash: json.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"),
 			},
 		},
 		{
 			name: "gettxoutsetinfo",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("gettxoutsetinfo")
+				return json.NewCmd("gettxoutsetinfo")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetTxOutSetInfoCmd()
+				return json.NewGetTxOutSetInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"gettxoutsetinfo","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetTxOutSetInfoCmd{},
+			unmarshalled: &json.GetTxOutSetInfoCmd{},
 		},
 		{
 			name: "getwork",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getwork")
+				return json.NewCmd("getwork")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetWorkCmd(nil)
+				return json.NewGetWorkCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getwork","params":[],"id":1}`,
-			unmarshalled: &btcjson.GetWorkCmd{
+			unmarshalled: &json.GetWorkCmd{
 				Data: nil,
 			},
 		},
 		{
 			name: "getwork optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("getwork", "00112233")
+				return json.NewCmd("getwork", "00112233")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewGetWorkCmd(btcjson.String("00112233"))
+				return json.NewGetWorkCmd(json.String("00112233"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getwork","params":["00112233"],"id":1}`,
-			unmarshalled: &btcjson.GetWorkCmd{
-				Data: btcjson.String("00112233"),
+			unmarshalled: &json.GetWorkCmd{
+				Data: json.String("00112233"),
 			},
 		},
 		{
 			name: "help",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("help")
+				return json.NewCmd("help")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewHelpCmd(nil)
+				return json.NewHelpCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"help","params":[],"id":1}`,
-			unmarshalled: &btcjson.HelpCmd{
+			unmarshalled: &json.HelpCmd{
 				Command: nil,
 			},
 		},
 		{
 			name: "help optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("help", "getblock")
+				return json.NewCmd("help", "getblock")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewHelpCmd(btcjson.String("getblock"))
+				return json.NewHelpCmd(json.String("getblock"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"help","params":["getblock"],"id":1}`,
-			unmarshalled: &btcjson.HelpCmd{
-				Command: btcjson.String("getblock"),
+			unmarshalled: &json.HelpCmd{
+				Command: json.String("getblock"),
 			},
 		},
 		{
 			name: "invalidateblock",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("invalidateblock", "123")
+				return json.NewCmd("invalidateblock", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewInvalidateBlockCmd("123")
+				return json.NewInvalidateBlockCmd("123")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"invalidateblock","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.InvalidateBlockCmd{
+			unmarshalled: &json.InvalidateBlockCmd{
 				BlockHash: "123",
 			},
 		},
 		{
 			name: "ping",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("ping")
+				return json.NewCmd("ping")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewPingCmd()
+				return json.NewPingCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"ping","params":[],"id":1}`,
-			unmarshalled: &btcjson.PingCmd{},
+			unmarshalled: &json.PingCmd{},
 		},
 		{
 			name: "preciousblock",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("preciousblock", "0123")
+				return json.NewCmd("preciousblock", "0123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewPreciousBlockCmd("0123")
+				return json.NewPreciousBlockCmd("0123")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"preciousblock","params":["0123"],"id":1}`,
-			unmarshalled: &btcjson.PreciousBlockCmd{
+			unmarshalled: &json.PreciousBlockCmd{
 				BlockHash: "0123",
 			},
 		},
 		{
 			name: "reconsiderblock",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("reconsiderblock", "123")
+				return json.NewCmd("reconsiderblock", "123")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewReconsiderBlockCmd("123")
+				return json.NewReconsiderBlockCmd("123")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"reconsiderblock","params":["123"],"id":1}`,
-			unmarshalled: &btcjson.ReconsiderBlockCmd{
+			unmarshalled: &json.ReconsiderBlockCmd{
 				BlockHash: "123",
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address")
+				return json.NewCmd("searchrawtransactions", "1Address")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address", nil, nil, nil, nil, nil, nil)
+				return json.NewSearchRawTransactionsCmd("1Address", nil, nil, nil, nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address"],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(1),
-				Skip:        btcjson.Int(0),
-				Count:       btcjson.Int(100),
-				VinExtra:    btcjson.Int(0),
-				Reverse:     btcjson.Bool(false),
+				Verbose:     json.Int(1),
+				Skip:        json.Int(0),
+				Count:       json.Int(100),
+				VinExtra:    json.Int(0),
+				Reverse:     json.Bool(false),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0)
+				return json.NewCmd("searchrawtransactions", "1Address", 0)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), nil, nil, nil, nil, nil)
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), nil, nil, nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(0),
-				Count:       btcjson.Int(100),
-				VinExtra:    btcjson.Int(0),
-				Reverse:     btcjson.Bool(false),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(0),
+				Count:       json.Int(100),
+				VinExtra:    json.Int(0),
+				Reverse:     json.Bool(false),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0, 5)
+				return json.NewCmd("searchrawtransactions", "1Address", 0, 5)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), btcjson.Int(5), nil, nil, nil, nil)
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), json.Int(5), nil, nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0,5],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(5),
-				Count:       btcjson.Int(100),
-				VinExtra:    btcjson.Int(0),
-				Reverse:     btcjson.Bool(false),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(5),
+				Count:       json.Int(100),
+				VinExtra:    json.Int(0),
+				Reverse:     json.Bool(false),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0, 5, 10)
+				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), btcjson.Int(5), btcjson.Int(10), nil, nil, nil)
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), json.Int(5), json.Int(10), nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0,5,10],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(5),
-				Count:       btcjson.Int(10),
-				VinExtra:    btcjson.Int(0),
-				Reverse:     btcjson.Bool(false),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(5),
+				Count:       json.Int(10),
+				VinExtra:    json.Int(0),
+				Reverse:     json.Bool(false),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1)
+				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), btcjson.Int(5), btcjson.Int(10), btcjson.Int(1), nil, nil)
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), json.Int(5), json.Int(10), json.Int(1), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0,5,10,1],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(5),
-				Count:       btcjson.Int(10),
-				VinExtra:    btcjson.Int(1),
-				Reverse:     btcjson.Bool(false),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(5),
+				Count:       json.Int(10),
+				VinExtra:    json.Int(1),
+				Reverse:     json.Bool(false),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true)
+				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), btcjson.Int(5), btcjson.Int(10), btcjson.Int(1), btcjson.Bool(true), nil)
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), json.Int(5), json.Int(10), json.Int(1), json.Bool(true), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0,5,10,1,true],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(5),
-				Count:       btcjson.Int(10),
-				VinExtra:    btcjson.Int(1),
-				Reverse:     btcjson.Bool(true),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(5),
+				Count:       json.Int(10),
+				VinExtra:    json.Int(1),
+				Reverse:     json.Bool(true),
 				FilterAddrs: nil,
 			},
 		},
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true, []string{"1Address"})
+				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true, []string{"1Address"})
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSearchRawTransactionsCmd("1Address",
-					btcjson.Int(0), btcjson.Int(5), btcjson.Int(10), btcjson.Int(1), btcjson.Bool(true), &[]string{"1Address"})
+				return json.NewSearchRawTransactionsCmd("1Address",
+					json.Int(0), json.Int(5), json.Int(10), json.Int(1), json.Bool(true), &[]string{"1Address"})
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"searchrawtransactions","params":["1Address",0,5,10,1,true,["1Address"]],"id":1}`,
-			unmarshalled: &btcjson.SearchRawTransactionsCmd{
+			unmarshalled: &json.SearchRawTransactionsCmd{
 				Address:     "1Address",
-				Verbose:     btcjson.Int(0),
-				Skip:        btcjson.Int(5),
-				Count:       btcjson.Int(10),
-				VinExtra:    btcjson.Int(1),
-				Reverse:     btcjson.Bool(true),
+				Verbose:     json.Int(0),
+				Skip:        json.Int(5),
+				Count:       json.Int(10),
+				VinExtra:    json.Int(1),
+				Reverse:     json.Bool(true),
 				FilterAddrs: &[]string{"1Address"},
 			},
 		},
 		{
 			name: "sendrawtransaction",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("sendrawtransaction", "1122")
+				return json.NewCmd("sendrawtransaction", "1122")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSendRawTransactionCmd("1122", nil)
+				return json.NewSendRawTransactionCmd("1122", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"sendrawtransaction","params":["1122"],"id":1}`,
-			unmarshalled: &btcjson.SendRawTransactionCmd{
+			unmarshalled: &json.SendRawTransactionCmd{
 				HexTx:         "1122",
-				AllowHighFees: btcjson.Bool(false),
+				AllowHighFees: json.Bool(false),
 			},
 		},
 		{
 			name: "sendrawtransaction optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("sendrawtransaction", "1122", false)
+				return json.NewCmd("sendrawtransaction", "1122", false)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSendRawTransactionCmd("1122", btcjson.Bool(false))
+				return json.NewSendRawTransactionCmd("1122", json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"sendrawtransaction","params":["1122",false],"id":1}`,
-			unmarshalled: &btcjson.SendRawTransactionCmd{
+			unmarshalled: &json.SendRawTransactionCmd{
 				HexTx:         "1122",
-				AllowHighFees: btcjson.Bool(false),
+				AllowHighFees: json.Bool(false),
 			},
 		},
 		{
 			name: "setgenerate",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("setgenerate", true)
+				return json.NewCmd("setgenerate", true)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSetGenerateCmd(true, nil)
+				return json.NewSetGenerateCmd(true, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"setgenerate","params":[true],"id":1}`,
-			unmarshalled: &btcjson.SetGenerateCmd{
+			unmarshalled: &json.SetGenerateCmd{
 				Generate:     true,
-				GenProcLimit: btcjson.Int(-1),
+				GenProcLimit: json.Int(-1),
 			},
 		},
 		{
 			name: "setgenerate optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("setgenerate", true, 6)
+				return json.NewCmd("setgenerate", true, 6)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSetGenerateCmd(true, btcjson.Int(6))
+				return json.NewSetGenerateCmd(true, json.Int(6))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"setgenerate","params":[true,6],"id":1}`,
-			unmarshalled: &btcjson.SetGenerateCmd{
+			unmarshalled: &json.SetGenerateCmd{
 				Generate:     true,
-				GenProcLimit: btcjson.Int(6),
+				GenProcLimit: json.Int(6),
 			},
 		},
 		{
 			name: "stop",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("stop")
+				return json.NewCmd("stop")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewStopCmd()
+				return json.NewStopCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"stop","params":[],"id":1}`,
-			unmarshalled: &btcjson.StopCmd{},
+			unmarshalled: &json.StopCmd{},
 		},
 		{
 			name: "submitblock",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("submitblock", "112233")
+				return json.NewCmd("submitblock", "112233")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewSubmitBlockCmd("112233", nil)
+				return json.NewSubmitBlockCmd("112233", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"submitblock","params":["112233"],"id":1}`,
-			unmarshalled: &btcjson.SubmitBlockCmd{
+			unmarshalled: &json.SubmitBlockCmd{
 				HexBlock: "112233",
 				Options:  nil,
 			},
@@ -964,18 +965,18 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "submitblock optional",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("submitblock", "112233", `{"workid":"12345"}`)
+				return json.NewCmd("submitblock", "112233", `{"workid":"12345"}`)
 			},
 			staticCmd: func() interface{} {
-				options := btcjson.SubmitBlockOptions{
+				options := json.SubmitBlockOptions{
 					WorkID: "12345",
 				}
-				return btcjson.NewSubmitBlockCmd("112233", &options)
+				return json.NewSubmitBlockCmd("112233", &options)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"submitblock","params":["112233",{"workid":"12345"}],"id":1}`,
-			unmarshalled: &btcjson.SubmitBlockCmd{
+			unmarshalled: &json.SubmitBlockCmd{
 				HexBlock: "112233",
-				Options: &btcjson.SubmitBlockOptions{
+				Options: &json.SubmitBlockOptions{
 					WorkID: "12345",
 				},
 			},
@@ -983,79 +984,79 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "uptime",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("uptime")
+				return json.NewCmd("uptime")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewUptimeCmd()
+				return json.NewUptimeCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"uptime","params":[],"id":1}`,
-			unmarshalled: &btcjson.UptimeCmd{},
+			unmarshalled: &json.UptimeCmd{},
 		},
 		{
 			name: "validateaddress",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("validateaddress", "1Address")
+				return json.NewCmd("validateaddress", "1Address")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewValidateAddressCmd("1Address")
+				return json.NewValidateAddressCmd("1Address")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"validateaddress","params":["1Address"],"id":1}`,
-			unmarshalled: &btcjson.ValidateAddressCmd{
+			unmarshalled: &json.ValidateAddressCmd{
 				Address: "1Address",
 			},
 		},
 		{
 			name: "verifychain",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("verifychain")
+				return json.NewCmd("verifychain")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewVerifyChainCmd(nil, nil)
+				return json.NewVerifyChainCmd(nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"verifychain","params":[],"id":1}`,
-			unmarshalled: &btcjson.VerifyChainCmd{
-				CheckLevel: btcjson.Int32(3),
-				CheckDepth: btcjson.Int32(288),
+			unmarshalled: &json.VerifyChainCmd{
+				CheckLevel: json.Int32(3),
+				CheckDepth: json.Int32(288),
 			},
 		},
 		{
 			name: "verifychain optional1",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("verifychain", 2)
+				return json.NewCmd("verifychain", 2)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewVerifyChainCmd(btcjson.Int32(2), nil)
+				return json.NewVerifyChainCmd(json.Int32(2), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"verifychain","params":[2],"id":1}`,
-			unmarshalled: &btcjson.VerifyChainCmd{
-				CheckLevel: btcjson.Int32(2),
-				CheckDepth: btcjson.Int32(288),
+			unmarshalled: &json.VerifyChainCmd{
+				CheckLevel: json.Int32(2),
+				CheckDepth: json.Int32(288),
 			},
 		},
 		{
 			name: "verifychain optional2",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("verifychain", 2, 500)
+				return json.NewCmd("verifychain", 2, 500)
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewVerifyChainCmd(btcjson.Int32(2), btcjson.Int32(500))
+				return json.NewVerifyChainCmd(json.Int32(2), json.Int32(500))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"verifychain","params":[2,500],"id":1}`,
-			unmarshalled: &btcjson.VerifyChainCmd{
-				CheckLevel: btcjson.Int32(2),
-				CheckDepth: btcjson.Int32(500),
+			unmarshalled: &json.VerifyChainCmd{
+				CheckLevel: json.Int32(2),
+				CheckDepth: json.Int32(500),
 			},
 		},
 		{
 			name: "verifymessage",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("verifymessage", "1Address", "301234", "test")
+				return json.NewCmd("verifymessage", "1Address", "301234", "test")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewVerifyMessageCmd("1Address", "301234", "test")
+				return json.NewVerifyMessageCmd("1Address", "301234", "test")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"verifymessage","params":["1Address","301234","test"],"id":1}`,
-			unmarshalled: &btcjson.VerifyMessageCmd{
+			unmarshalled: &json.VerifyMessageCmd{
 				Address:   "1Address",
 				Signature: "301234",
 				Message:   "test",
@@ -1064,13 +1065,13 @@ func TestChainSvrCmds(t *testing.T) {
 		{
 			name: "verifytxoutproof",
 			newCmd: func() (interface{}, error) {
-				return btcjson.NewCmd("verifytxoutproof", "test")
+				return json.NewCmd("verifytxoutproof", "test")
 			},
 			staticCmd: func() interface{} {
-				return btcjson.NewVerifyTxOutProofCmd("test")
+				return json.NewVerifyTxOutProofCmd("test")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"verifytxoutproof","params":["test"],"id":1}`,
-			unmarshalled: &btcjson.VerifyTxOutProofCmd{
+			unmarshalled: &json.VerifyTxOutProofCmd{
 				Proof: "test",
 			},
 		},
@@ -1079,7 +1080,7 @@ func TestChainSvrCmds(t *testing.T) {
 	for i, test := range tests {
 		// Marshal the command as created by the new static command
 		// creation function.
-		marshalled, err := btcjson.MarshalCmd(testID, test.staticCmd())
+		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -1101,7 +1102,7 @@ func TestChainSvrCmds(t *testing.T) {
 		}
 		// Marshal the command as created by the generic new command
 		// creation function.
-		marshalled, err = btcjson.MarshalCmd(testID, cmd)
+		marshalled, err = json.MarshalCmd(testID, cmd)
 		if err != nil {
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -1113,14 +1114,14 @@ func TestChainSvrCmds(t *testing.T) {
 				test.marshalled)
 			continue
 		}
-		var request btcjson.Request
+		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
 			continue
 		}
-		cmd, err = btcjson.UnmarshalCmd(&request)
+		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -1147,21 +1148,21 @@ func TestChainSvrCmdErrors(t *testing.T) {
 	}{
 		{
 			name:       "template request with invalid type",
-			result:     &btcjson.TemplateRequest{},
+			result:     &json.TemplateRequest{},
 			marshalled: `{"mode":1}`,
 			err:        &json.UnmarshalTypeError{},
 		},
 		{
 			name:       "invalid template request sigoplimit field",
-			result:     &btcjson.TemplateRequest{},
+			result:     &json.TemplateRequest{},
 			marshalled: `{"sigoplimit":"invalid"}`,
-			err:        btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:        json.Error{ErrorCode: json.ErrInvalidType},
 		},
 		{
 			name:       "invalid template request sizelimit field",
-			result:     &btcjson.TemplateRequest{},
+			result:     &json.TemplateRequest{},
 			marshalled: `{"sizelimit":"invalid"}`,
-			err:        btcjson.Error{ErrorCode: btcjson.ErrInvalidType},
+			err:        json.Error{ErrorCode: json.ErrInvalidType},
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
@@ -1172,8 +1173,8 @@ func TestChainSvrCmdErrors(t *testing.T) {
 				"want %T", i, test.name, err, err, test.err)
 			continue
 		}
-		if terr, ok := test.err.(btcjson.Error); ok {
-			gotErrorCode := err.(btcjson.Error).ErrorCode
+		if terr, ok := test.err.(json.Error); ok {
+			gotErrorCode := err.(json.Error).ErrorCode
 			if gotErrorCode != terr.ErrorCode {
 				t.Errorf("Test #%d (%s) mismatched error code "+
 					"- got %v (%v), want %v", i, test.name,

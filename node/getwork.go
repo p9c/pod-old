@@ -5,16 +5,17 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/conformal/fastsha256"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/fork"
-	"github.com/parallelcointeam/pod/wire"
 	"math/big"
 	"math/rand"
 	"time"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/fork"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
+	"github.com/conformal/fastsha256"
 )
 
 var (
@@ -26,26 +27,26 @@ var (
 )
 
 func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
-	c := cmd.(*btcjson.GetWorkCmd)
+	c := cmd.(*json.GetWorkCmd)
 	if len(cfg.miningAddrs) == 0 {
-		return nil, &btcjson.RPCError{
-			Code: btcjson.ErrRPCInternal.Code,
+		return nil, &json.RPCError{
+			Code: json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified " +
 				"via --miningaddr",
 		}
 	}
 	if !(cfg.RegressionTest || cfg.SimNet) &&
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
-		return nil, &btcjson.RPCError{
-			Code:    btcjson.ErrRPCClientNotConnected,
+		return nil, &json.RPCError{
+			Code:    json.ErrRPCClientNotConnected,
 			Message: "Pod is not connected to network",
 		}
 	}
 	// No point in generating or accepting work before the chain is synced.
 	latestHeight := s.cfg.Chain.BestSnapshot().Height
 	if latestHeight != 0 && !s.cfg.SyncMgr.IsCurrent() {
-		return nil, &btcjson.RPCError{
-			Code:    btcjson.ErrRPCClientInInitialDownload,
+		return nil, &json.RPCError{
+			Code:    json.ErrRPCClientInInitialDownload,
 			Message: "Pod is not yet synchronised...",
 		}
 	}
@@ -88,8 +89,8 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 			errStr := fmt.Sprintf("Failed to create new block "+
 				"template: %v", err)
 			rpcsLog.Errorf(errStr)
-			return nil, &btcjson.RPCError{
-				Code:    btcjson.ErrRPCInternal.Code,
+			return nil, &json.RPCError{
+				Code:    json.ErrRPCInternal.Code,
 				Message: errStr,
 			}
 		}
@@ -128,8 +129,8 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	if err != nil {
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
 		rpcsLog.Warnf(errStr)
-		return nil, &btcjson.RPCError{
-			Code:    btcjson.ErrRPCInternal.Code,
+		return nil, &json.RPCError{
+			Code:    json.ErrRPCInternal.Code,
 			Message: errStr,
 		}
 	}
@@ -150,7 +151,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	reverseUint32Array(hash1[:])
 	reverseUint32Array(midstate[:])
 	target := bigToLEUint256(blockchain.CompactToBig(msgBlock.Header.Bits))
-	reply := &btcjson.GetWorkResult{
+	reply := &json.GetWorkResult{
 		Data:     hex.EncodeToString(data),
 		Hash1:    hex.EncodeToString(hash1[:]),
 		Midstate: hex.EncodeToString(midstate[:]),
@@ -167,15 +168,15 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	}
 	data, err := hex.DecodeString(hexData)
 	if err != nil {
-		return nil, &btcjson.RPCError{
-			Code: btcjson.ErrRPCInvalidParameter,
+		return nil, &json.RPCError{
+			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
 				"hexadecimal string (not %q)", hexData),
 		}
 	}
 	if len(data) != getworkDataLen {
-		return false, &btcjson.RPCError{
-			Code: btcjson.ErrRPCInvalidParameter,
+		return false, &json.RPCError{
+			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
 				"%d bytes (not %d)", getworkDataLen,
 				len(data)),
@@ -188,8 +189,8 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	bhBuf := bytes.NewBuffer(data[0:wire.MaxBlockHeaderPayload])
 	err = submittedHeader.Deserialize(bhBuf)
 	if err != nil {
-		return false, &btcjson.RPCError{
-			Code: btcjson.ErrRPCInvalidParameter,
+		return false, &json.RPCError{
+			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument does not "+
 				"contain a valid block header: %v", err),
 		}
@@ -204,7 +205,7 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	}
 	// Reconstruct the block using the submitted header stored block info.
 	msgBlock := state.template.Block
-	block := btcutil.NewBlock(msgBlock)
+	block := util.NewBlock(msgBlock)
 	msgBlock.Header.Timestamp = submittedHeader.Timestamp
 	msgBlock.Header.Nonce = submittedHeader.Nonce
 	msgBlock.Transactions[0].TxIn[0].SignatureScript = state.template.Block.Transactions[0].TxIn[0].SignatureScript
@@ -216,8 +217,8 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	if err != nil {
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
-			return nil, &btcjson.RPCError{
-				Code:    btcjson.ErrRPCInternal.Code,
+			return nil, &json.RPCError{
+				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while checking proof of work: %v", err),
 			}
 		}
@@ -235,8 +236,8 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	if err != nil || isOrphan {
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
-			return nil, &btcjson.RPCError{
-				Code:    btcjson.ErrRPCInternal.Code,
+			return nil, &json.RPCError{
+				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while processing block: %v", err),
 			}
 		}

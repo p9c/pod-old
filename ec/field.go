@@ -1,5 +1,5 @@
+package ec
 
-package btcec
 // References:
 //   [HAC]: Handbook of Applied Cryptography Menezes, van Oorschot, Vanstone.
 //     http://cacr.uwaterloo.ca/hac/
@@ -47,6 +47,7 @@ package btcec
 import (
 	"encoding/hex"
 )
+
 // Constants used to make the code more readable.
 const (
 	twoBitsMask   = 0x3
@@ -54,6 +55,7 @@ const (
 	sixBitsMask   = 0x3f
 	eightBitsMask = 0xff
 )
+
 // Constants related to the field representation.
 const (
 	// fieldWords is the number of words used to internally represent the
@@ -82,6 +84,7 @@ const (
 	// internal field representation.  It is used during negation.
 	fieldPrimeWordOne = 0x3ffffbf
 )
+
 // fieldVal implements optimized fixed-precision arithmetic over the
 // secp256k1 finite field.  This means all arithmetic is performed modulo
 // 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f.  It
@@ -112,11 +115,13 @@ const (
 type fieldVal struct {
 	n [10]uint32
 }
+
 // String returns the field value as a human-readable hex string.
 func (f fieldVal) String() string {
 	t := new(fieldVal).Set(&f).Normalize()
 	return hex.EncodeToString(t.Bytes()[:])
 }
+
 // Zero sets the field value to zero.  A newly created field value is already
 // set to zero.  This function can be useful to clear an existing field value
 // for reuse.
@@ -132,6 +137,7 @@ func (f *fieldVal) Zero() {
 	f.n[8] = 0
 	f.n[9] = 0
 }
+
 // Set sets the field value equal to the passed value.
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).Set(f2).Add(1) so that f = f2 + 1 where f2 is not
@@ -140,6 +146,7 @@ func (f *fieldVal) Set(val *fieldVal) *fieldVal {
 	*f = *val
 	return f
 }
+
 // SetInt sets the field value to the passed integer.  This is a convenience
 // function since it is fairly common to perform some arithemetic with small
 // native integers.
@@ -150,6 +157,7 @@ func (f *fieldVal) SetInt(ui uint) *fieldVal {
 	f.n[0] = uint32(ui)
 	return f
 }
+
 // SetBytes packs the passed 32-byte big-endian value into the internal field
 // value representation.
 // The field value is returned to support chaining.  This enables syntax like:
@@ -180,6 +188,7 @@ func (f *fieldVal) SetBytes(b *[32]byte) *fieldVal {
 	f.n[9] = uint32(b[2])>>2 | uint32(b[1])<<6 | uint32(b[0])<<14
 	return f
 }
+
 // SetByteSlice packs the passed big-endian value into the internal field value
 // representation.  Only the first 32-bytes are used.  As a result, it is up to
 // the caller to ensure numbers of the appropriate size are used or the value
@@ -195,6 +204,7 @@ func (f *fieldVal) SetByteSlice(b []byte) *fieldVal {
 	}
 	return f.SetBytes(&b32)
 }
+
 // SetHex decodes the passed big-endian hex string into the internal field value
 // representation.  Only the first 32-bytes are used.
 // The field value is returned to support chaining.  This enables syntax like:
@@ -206,6 +216,7 @@ func (f *fieldVal) SetHex(hexString string) *fieldVal {
 	bytes, _ := hex.DecodeString(hexString)
 	return f.SetByteSlice(bytes)
 }
+
 // Normalize normalizes the internal field words into the desired range and
 // performs fast modular reduction over the secp256k1 prime by making use of the
 // special form of the prime.
@@ -327,6 +338,7 @@ func (f *fieldVal) Normalize() *fieldVal {
 	f.n[9] = t9
 	return f
 }
+
 // PutBytes unpacks the field value to a 32-byte big-endian value using the
 // passed byte array.  There is a similar function, Bytes, which unpacks the
 // field value into a new array and returns that.  This version is provided
@@ -372,6 +384,7 @@ func (f *fieldVal) PutBytes(b *[32]byte) {
 	b[1] = byte((f.n[9] >> 6) & eightBitsMask)
 	b[0] = byte((f.n[9] >> 14) & eightBitsMask)
 }
+
 // Bytes unpacks the field value to a 32-byte big-endian value.  See PutBytes
 // for a variant that allows the a buffer to be passed which can be useful to
 // to cut down on the number of allocations by allowing the caller to reuse a
@@ -383,6 +396,7 @@ func (f *fieldVal) Bytes() *[32]byte {
 	f.PutBytes(b)
 	return b
 }
+
 // IsZero returns whether or not the field value is equal to zero.
 func (f *fieldVal) IsZero() bool {
 	// The value can only be zero if no bits are set in any of the words.
@@ -391,6 +405,7 @@ func (f *fieldVal) IsZero() bool {
 		f.n[5] | f.n[6] | f.n[7] | f.n[8] | f.n[9]
 	return bits == 0
 }
+
 // IsOdd returns whether or not the field value is an odd number.
 // The field value must be normalized for this function to return correct
 // result.
@@ -398,6 +413,7 @@ func (f *fieldVal) IsOdd() bool {
 	// Only odd numbers have the bottom bit set.
 	return f.n[0]&1 == 1
 }
+
 // Equals returns whether or not the two field values are the same.  Both
 // field values being compared must be normalized for this function to return
 // the correct result.
@@ -411,6 +427,7 @@ func (f *fieldVal) Equals(val *fieldVal) bool {
 		(f.n[9] ^ val.n[9])
 	return bits == 0
 }
+
 // NegateVal negates the passed value and stores the result in f.  The caller
 // must provide the magnitude of the passed value for a correct result.
 // The field value is returned to support chaining.  This enables syntax like:
@@ -446,6 +463,7 @@ func (f *fieldVal) NegateVal(val *fieldVal, magnitude uint32) *fieldVal {
 	f.n[9] = (magnitude+1)*fieldMSBMask - val.n[9]
 	return f
 }
+
 // Negate negates the field value.  The existing field value is modified.  The
 // caller must provide the magnitude of the field value for a correct result.
 // The field value is returned to support chaining.  This enables syntax like:
@@ -453,6 +471,7 @@ func (f *fieldVal) NegateVal(val *fieldVal, magnitude uint32) *fieldVal {
 func (f *fieldVal) Negate(magnitude uint32) *fieldVal {
 	return f.NegateVal(f, magnitude)
 }
+
 // AddInt adds the passed integer to the existing field value and stores the
 // result in f.  This is a convenience function since it is fairly common to
 // perform some arithemetic with small native integers.
@@ -465,6 +484,7 @@ func (f *fieldVal) AddInt(ui uint) *fieldVal {
 	f.n[0] += uint32(ui)
 	return f
 }
+
 // Add adds the passed value to the existing field value and stores the result
 // in f.
 // The field value is returned to support chaining.  This enables syntax like:
@@ -486,6 +506,7 @@ func (f *fieldVal) Add(val *fieldVal) *fieldVal {
 	f.n[9] += val.n[9]
 	return f
 }
+
 // Add2 adds the passed two field values together and stores the result in f.
 // The field value is returned to support chaining.  This enables syntax like:
 // f3.Add2(f, f2).AddInt(1) so that f3 = f + f2 + 1.
@@ -506,6 +527,7 @@ func (f *fieldVal) Add2(val *fieldVal, val2 *fieldVal) *fieldVal {
 	f.n[9] = val.n[9] + val2.n[9]
 	return f
 }
+
 // MulInt multiplies the field value by the passed int and stores the result in
 // f.  Note that this function can overflow if multiplying the value by any of
 // the individual words exceeds a max uint32.  Therefore it is important that
@@ -532,6 +554,7 @@ func (f *fieldVal) MulInt(val uint) *fieldVal {
 	f.n[9] *= ui
 	return f
 }
+
 // Mul multiplies the passed value to the existing field value and stores the
 // result in f.  Note that this function can overflow if multiplying any
 // of the individual words exceeds a max uint32.  In practice, this means the
@@ -542,6 +565,7 @@ func (f *fieldVal) MulInt(val uint) *fieldVal {
 func (f *fieldVal) Mul(val *fieldVal) *fieldVal {
 	return f.Mul2(f, val)
 }
+
 // Mul2 multiplies the passed two field values together and stores the result
 // result in f.  Note that this function can overflow if multiplying any of
 // the individual words exceeds a max uint32.  In practice, this means the
@@ -787,6 +811,7 @@ func (f *fieldVal) Mul2(val *fieldVal, val2 *fieldVal) *fieldVal {
 	f.n[9] = uint32(t9)
 	return f
 }
+
 // Square squares the field value.  The existing field value is modified.  Note
 // that this function can overflow if multiplying any of the individual words
 // exceeds a max uint32.  In practice, this means the magnitude of the field
@@ -796,6 +821,7 @@ func (f *fieldVal) Mul2(val *fieldVal, val2 *fieldVal) *fieldVal {
 func (f *fieldVal) Square() *fieldVal {
 	return f.SquareVal(f)
 }
+
 // SquareVal squares the passed value and stores the result in f.  Note that
 // this function can overflow if multiplying any of the individual words
 // exceeds a max uint32.  In practice, this means the magnitude of the field
@@ -993,6 +1019,7 @@ func (f *fieldVal) SquareVal(val *fieldVal) *fieldVal {
 	f.n[9] = uint32(t9)
 	return f
 }
+
 // Inverse finds the modular multiplicative inverse of the field value.  The
 // existing field value is modified.
 // The field value is returned to support chaining.  This enables syntax like:

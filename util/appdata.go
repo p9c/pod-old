@@ -1,4 +1,4 @@
-package btcutil
+package util
 
 import (
 	"os"

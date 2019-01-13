@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/parallelcointeam/sac/cache"
+	"git.parallelcoin.io/pod/spv/cache"
 )
 
 // elementMap is an alias for a map from a generic interface to a list.Element.

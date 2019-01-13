@@ -7,18 +7,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/btcsuite/go-socks/socks"
-	flags "github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/connmgr"
-	"github.com/parallelcointeam/pod/database"
-	_ "github.com/parallelcointeam/pod/database/ffldb"
-	"github.com/parallelcointeam/pod/fork"
-	"github.com/parallelcointeam/pod/mempool"
-	"github.com/parallelcointeam/pod/peer"
 	"io"
 	"net"
 	"os"
@@ -28,6 +16,19 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/connmgr"
+	"git.parallelcoin.io/pod/database"
+	_ "git.parallelcoin.io/pod/database/ffldb"
+	"git.parallelcoin.io/pod/fork"
+	"git.parallelcoin.io/pod/node/mempool"
+	"git.parallelcoin.io/pod/peer"
+	"git.parallelcoin.io/pod/util"
+	"github.com/btcsuite/go-socks/socks"
+	flags "github.com/jessevdk/go-flags"
 )
 
 const (
@@ -66,7 +67,7 @@ const (
 )
 
 var (
-	defaultHomeDir     = btcutil.AppDataDir("pod", false)
+	defaultHomeDir     = util.AppDataDir("pod", false)
 	defaultConfigFile  = filepath.Join(defaultHomeDir, defaultConfigFilename)
 	defaultDataDir     = filepath.Join(defaultHomeDir, defaultDataDirname)
 	knownDbTypes       = database.SupportedDrivers()
@@ -167,9 +168,9 @@ type config struct {
 	oniondial            func(string, string, time.Duration) (net.Conn, error)
 	dial                 func(string, string, time.Duration) (net.Conn, error)
 	addCheckpoints       []chaincfg.Checkpoint
-	miningAddrs          []btcutil.Address
+	miningAddrs          []util.Address
 	minerKey             []byte
-	minRelayTxFee        btcutil.Amount
+	minRelayTxFee        util.Amount
 	whitelists           []*net.IPNet
 }
 
@@ -680,7 +681,7 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 	// Validate the the minrelaytxfee.
-	cfg.minRelayTxFee, err = btcutil.NewAmount(cfg.MinRelayTxFee)
+	cfg.minRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -774,9 +775,9 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 	// Check mining addresses are valid and saved parsed versions.
-	cfg.miningAddrs = make([]btcutil.Address, 0, len(cfg.MiningAddrs))
+	cfg.miningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
-		addr, err := btcutil.DecodeAddress(strAddr, activeNetParams.Params)
+		addr, err := util.DecodeAddress(strAddr, activeNetParams.Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)

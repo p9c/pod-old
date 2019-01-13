@@ -3,11 +3,12 @@ package gcs
 import (
 	"bytes"
 	"fmt"
-	"github.com/aead/siphash"
-	"github.com/kkdai/bstream"
-	"github.com/parallelcointeam/pod/wire"
 	"io"
 	"sort"
+
+	"git.parallelcoin.io/pod/wire"
+	"github.com/aead/siphash"
+	"github.com/kkdai/bstream"
 )
 
 // Inspired by https://github.com/rasky/gcs

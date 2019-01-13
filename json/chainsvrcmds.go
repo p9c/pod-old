@@ -1,10 +1,10 @@
-// NOTE: This file is intended to house the RPC commands that are supported by a chain server.
-package btcjson
+package json
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/parallelcointeam/pod/wire"
+
+	"git.parallelcoin.io/pod/wire"
 )
 
 // AddNodeSubCmd defines the type used in the addnode JSON-RPC command for the sub command field.

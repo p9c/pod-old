@@ -2,8 +2,9 @@ package wire
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // MaxBlockLocatorsPerMsg is the maximum number of block locator hashes allowed per message.

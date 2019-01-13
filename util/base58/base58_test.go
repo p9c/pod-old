@@ -1,11 +1,13 @@
-
 package base58_test
+
 import (
 	"bytes"
 	"encoding/hex"
 	"testing"
-	"github.com/parallelcointeam/pod/btcutil/base58"
+
+	"git.parallelcoin.io/pod/util/base58"
 )
+
 var stringTests = []struct {
 	in  string
 	out string
@@ -53,6 +55,7 @@ var hexTests = []struct {
 	{"10c8511e", "Rt5zm"},
 	{"00000000000000000000", "1111111111"},
 }
+
 func TestBase58(t *testing.T) {
 	// Encode tests
 	for x, test := range stringTests {

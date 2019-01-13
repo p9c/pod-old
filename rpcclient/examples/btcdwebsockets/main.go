@@ -1,19 +1,20 @@
 package main
 
 import (
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/wire"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"time"
+
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 func main() {
 	// Only override the handlers for notifications you care about. Also note most of these handlers will only be called if you register for notifications.  See the documentation of the rpcclient NotificationHandlers type for more details about each handler.
 	ntfnHandlers := rpcclient.NotificationHandlers{
-		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*btcutil.Tx) {
+		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*util.Tx) {
 			log.Printf("Block connected: %v (%d) %v",
 				header.BlockHash(), height, header.Timestamp)
 		},
@@ -23,7 +24,7 @@ func main() {
 		},
 	}
 	// Connect to local pod RPC server using websockets.
-	podHomeDir := btcutil.AppDataDir("pod", false)
+	podHomeDir := util.AppDataDir("pod", false)
 	certs, err := ioutil.ReadFile(filepath.Join(podHomeDir, "rpc.cert"))
 	if err != nil {
 		log.Fatal(err)

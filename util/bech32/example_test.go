@@ -1,10 +1,12 @@
-
 package bech32_test
+
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcutil/bech32"
+
+	"git.parallelcoin.io/pod/util/bech32"
 )
+
 // This example demonstrates how to decode a bech32 encoded string.
 func ExampleDecode() {
 	encoded := "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
@@ -19,6 +21,7 @@ func ExampleDecode() {
 	// Decoded human-readable part: bc
 	// Decoded Data: 010e140f070d1a001912060b0d081504140311021d030c1d03040f1814060e1e160e140f070d1a001912060b0d081504140311021d030c1d03040f1814060e1e16
 }
+
 // This example demonstrates how to encode data into a bech32 string.
 func ExampleEncode() {
 	data := []byte("Test data")

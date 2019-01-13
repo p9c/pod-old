@@ -2,12 +2,13 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"reflect"
 	"testing"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // TestBlock tests the MsgBlock API.

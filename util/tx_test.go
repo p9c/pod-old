@@ -1,18 +1,20 @@
+package util_test
 
-package btcutil_test
 import (
 	"bytes"
 	"io"
 	"reflect"
 	"testing"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/btcutil"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
 	"github.com/davecgh/go-spew/spew"
 )
+
 // TestTx tests the API for Tx.
 func TestTx(t *testing.T) {
 	testTx := Block100000.Transactions[0]
-	tx := btcutil.NewTx(testTx)
+	tx := util.NewTx(testTx)
 	// Ensure we get the same data back out.
 	if msgTx := tx.MsgTx(); !reflect.DeepEqual(msgTx, testTx) {
 		t.Errorf("MsgTx: mismatched MsgTx - got %v, want %v",
@@ -40,6 +42,7 @@ func TestTx(t *testing.T) {
 		}
 	}
 }
+
 // TestNewTxFromBytes tests creation of a Tx from serialized bytes.
 func TestNewTxFromBytes(t *testing.T) {
 	// Serialize the test transaction.
@@ -51,7 +54,7 @@ func TestNewTxFromBytes(t *testing.T) {
 	}
 	testTxBytes := testTxBuf.Bytes()
 	// Create a new transaction from the serialized bytes.
-	tx, err := btcutil.NewTxFromBytes(testTxBytes)
+	tx, err := util.NewTxFromBytes(testTxBytes)
 	if err != nil {
 		t.Errorf("NewTxFromBytes: %v", err)
 		return
@@ -62,6 +65,7 @@ func TestNewTxFromBytes(t *testing.T) {
 			spew.Sdump(msgTx), spew.Sdump(testTx))
 	}
 }
+
 // TestTxErrors tests the error paths for the Tx API.
 func TestTxErrors(t *testing.T) {
 	// Serialize the test transaction.
@@ -74,7 +78,7 @@ func TestTxErrors(t *testing.T) {
 	testTxBytes := testTxBuf.Bytes()
 	// Truncate the transaction byte buffer to force errors.
 	shortBytes := testTxBytes[:4]
-	_, err = btcutil.NewTxFromBytes(shortBytes)
+	_, err = util.NewTxFromBytes(shortBytes)
 	if err != io.EOF {
 		t.Errorf("NewTxFromBytes: did not get expected error - "+
 			"got %v, want %v", err, io.EOF)

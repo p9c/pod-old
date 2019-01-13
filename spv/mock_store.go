@@ -1,13 +1,13 @@
-package neutrino
+package spv
 
 import (
 	"fmt"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac/headerfs"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/spv/headerfs"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // mockBlockHeaderStore is an implementation of the BlockHeaderStore backed by

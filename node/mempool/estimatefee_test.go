@@ -2,12 +2,13 @@ package mempool
 
 import (
 	"bytes"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/mining"
-	"github.com/parallelcointeam/pod/wire"
 	"math/rand"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/mining"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // newTestFeeEstimator creates a feeEstimator with some different parameters for testing purposes.
@@ -38,11 +39,11 @@ type estimateFeeTester struct {
 	last    *lastBlock
 }
 
-func (eft *estimateFeeTester) testTx(fee btcutil.Amount) *TxDesc {
+func (eft *estimateFeeTester) testTx(fee util.Amount) *TxDesc {
 	eft.version++
 	return &TxDesc{
 		TxDesc: mining.TxDesc{
-			Tx: btcutil.NewTx(&wire.MsgTx{
+			Tx: util.NewTx(&wire.MsgTx{
 				Version: eft.version,
 			}),
 			Height: eft.height,
@@ -58,7 +59,7 @@ func expectedFeePerKilobyte(t *TxDesc) BtcPerKilobyte {
 }
 func (eft *estimateFeeTester) newBlock(txs []*wire.MsgTx) {
 	eft.height++
-	block := btcutil.NewBlock(&wire.MsgBlock{
+	block := util.NewBlock(&wire.MsgBlock{
 		Transactions: txs,
 	})
 	block.SetHeight(eft.height)
@@ -228,7 +229,7 @@ func (eft *estimateFeeTester) round(txHistory [][]*TxDesc,
 	// generate new txs.
 	var newTxs []*TxDesc
 	for i := uint32(0); i < txPerRound; i++ {
-		newTx := eft.testTx(btcutil.Amount(rand.Intn(1000000)))
+		newTx := eft.testTx(util.Amount(rand.Intn(1000000)))
 		eft.ef.ObserveTransaction(newTx)
 		newTxs = append(newTxs, newTx)
 	}

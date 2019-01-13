@@ -1,9 +1,9 @@
-# btcec
+# ec
 
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
 [![GoDoc](https://godoc.org/github.com/parallelcointeam/pod/btcec?status.png)](http://godoc.org/github.com/parallelcointeam/pod/btcec)
 
-Package btcec implements elliptic curve cryptography needed for working with
+Package ec implements elliptic curve cryptography needed for working with
 
 Bitcoin (secp256k1 only for now). It is designed so that it may be used with the standard crypto/ecdsa packages provided with go. A comprehensive suite of test is provided to ensure proper functionality. Package btcec was originally based on work from ThePiachu which is licensed under the same terms as Go, but it has signficantly diverged since then. The btcsuite developers original is licensedunder the liberal ISC license.
 Although this package was primarily written for pod, it has intentionally been designed so it can be used as a standalone package for any projects needing to use secp256k1 elliptic curve cryptography.

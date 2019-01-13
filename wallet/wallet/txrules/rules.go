@@ -1,7 +1,5 @@
 // Copyright (c) 2016 The btcsuite developers
 
-
-
 // Package txrules provides transaction rules that should be followed by
 // transaction authors for wide mempool acceptance and quick mining.
 package txrules
@@ -9,17 +7,17 @@ package txrules
 import (
 	"errors"
 
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // DefaultRelayFeePerKb is the default minimum relay fee policy for a mempool.
-const DefaultRelayFeePerKb btcutil.Amount = 1e3
+const DefaultRelayFeePerKb util.Amount = 1e3
 
 // GetDustThreshold is used to define the amount below which output will be
 // determined as dust. Threshold is determined as 3 times the relay fee.
-func GetDustThreshold(scriptSize int, relayFeePerKb btcutil.Amount) btcutil.Amount {
+func GetDustThreshold(scriptSize int, relayFeePerKb util.Amount) util.Amount {
 	// Calculate the total (estimated) cost to the network.  This is
 	// calculated using the serialize size of the output plus the serial
 	// size of a transaction input which redeems it.  The output is assumed
@@ -30,21 +28,21 @@ func GetDustThreshold(scriptSize int, relayFeePerKb btcutil.Amount) btcutil.Amou
 		scriptSize + 148
 
 	byteFee := relayFeePerKb / 1000
-	relayFee := btcutil.Amount(totalSize) * byteFee
+	relayFee := util.Amount(totalSize) * byteFee
 	return 3 * relayFee
 }
 
 // IsDustAmount determines whether a transaction output value and script length would
 // cause the output to be considered dust.  Transactions with dust outputs are
 // not standard and are rejected by mempools with default policies.
-func IsDustAmount(amount btcutil.Amount, scriptSize int, relayFeePerKb btcutil.Amount) bool {
+func IsDustAmount(amount util.Amount, scriptSize int, relayFeePerKb util.Amount) bool {
 	return amount < GetDustThreshold(scriptSize, relayFeePerKb)
 }
 
 // IsDustOutput determines whether a transaction output is considered dust.
 // Transactions with dust outputs are not standard and are rejected by mempools
 // with default policies.
-func IsDustOutput(output *wire.TxOut, relayFeePerKb btcutil.Amount) bool {
+func IsDustOutput(output *wire.TxOut, relayFeePerKb util.Amount) bool {
 	// Unspendable outputs which solely carry data are not checked for dust.
 	if txscript.GetScriptClass(output.PkScript) == txscript.NullDataTy {
 		return false
@@ -55,7 +53,7 @@ func IsDustOutput(output *wire.TxOut, relayFeePerKb btcutil.Amount) bool {
 		return true
 	}
 
-	return IsDustAmount(btcutil.Amount(output.Value), len(output.PkScript),
+	return IsDustAmount(util.Amount(output.Value), len(output.PkScript),
 		relayFeePerKb)
 }
 
@@ -68,11 +66,11 @@ var (
 
 // CheckOutput performs simple consensus and policy tests on a transaction
 // output.
-func CheckOutput(output *wire.TxOut, relayFeePerKb btcutil.Amount) error {
+func CheckOutput(output *wire.TxOut, relayFeePerKb util.Amount) error {
 	if output.Value < 0 {
 		return ErrAmountNegative
 	}
-	if output.Value > btcutil.MaxSatoshi {
+	if output.Value > util.MaxSatoshi {
 		return ErrAmountExceedsMax
 	}
 	if IsDustOutput(output, relayFeePerKb) {
@@ -83,15 +81,15 @@ func CheckOutput(output *wire.TxOut, relayFeePerKb btcutil.Amount) error {
 
 // FeeForSerializeSize calculates the required fee for a transaction of some
 // arbitrary size given a mempool's relay fee policy.
-func FeeForSerializeSize(relayFeePerKb btcutil.Amount, txSerializeSize int) btcutil.Amount {
-	fee := relayFeePerKb * btcutil.Amount(txSerializeSize) / 1000
+func FeeForSerializeSize(relayFeePerKb util.Amount, txSerializeSize int) util.Amount {
+	fee := relayFeePerKb * util.Amount(txSerializeSize) / 1000
 
 	if fee == 0 && relayFeePerKb > 0 {
 		fee = relayFeePerKb
 	}
 
-	if fee < 0 || fee > btcutil.MaxSatoshi {
-		fee = btcutil.MaxSatoshi
+	if fee < 0 || fee > util.MaxSatoshi {
+		fee = util.MaxSatoshi
 	}
 
 	return fee

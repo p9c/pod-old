@@ -1,5 +1,5 @@
 // NOTE: This file is intended to house the RPC websocket notifications that are supported by a chain server.
-package btcjson
+package json
 
 const (
 	// BlockConnectedNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a block has been connected. NOTE: Deprecated. Use FilteredBlockConnectedNtfnMethod instead.

@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
+	js "encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 
+	"git.parallelcoin.io/pod/json"
 	"github.com/btcsuite/go-socks/socks"
-	"github.com/parallelcointeam/pod/json"
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the proxy and TLS settings in the associated connection configuration.
@@ -99,8 +99,8 @@ func sendPostRequest(marshalledJSON []byte, cfg *config) ([]byte, error) {
 		return nil, fmt.Errorf("%s", respBytes)
 	}
 	// Unmarshal the response.
-	var resp btcjson.Response
-	if err := json.Unmarshal(respBytes, &resp); err != nil {
+	var resp json.Response
+	if err := js.Unmarshal(respBytes, &resp); err != nil {
 		return nil, err
 	}
 	if resp.Error != nil {

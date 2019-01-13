@@ -3,13 +3,14 @@ package wire
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"net"
 	"reflect"
 	"testing"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // makeHeader is a convenience function to make a message header in the form of a byte slice.  It is used to force errors when reading messages.

@@ -1,11 +1,13 @@
+package ec_test
 
-package btcec_test
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/conformal/btcd/btcec"
 )
+
 // This example demonstrates signing a message with a secp256k1 private key that
 // is first parsed form raw bytes and serializing the generated signature.
 func Example_signMessage() {
@@ -34,6 +36,7 @@ func Example_signMessage() {
 	// Serialized Signature: 304402201008e236fa8cd0f25df4482dddbb622e8a8b26ef0ba731719458de3ccd93805b022032f8ebe514ba5f672466eba334639282616bb3c2f0ab09998037513d1f9e3d6d
 	// Signature Verified? true
 }
+
 // This example demonstrates verifying a secp256k1 signature against a public
 // key that is first parsed from raw bytes.  The signature is also parsed from
 // raw bytes.
@@ -71,6 +74,7 @@ func Example_verifySignature() {
 	// Output:
 	// Signature Verified? true
 }
+
 // This example demonstrates encrypting a message for a public key that is first
 // parsed from raw bytes, then decrypting it using the corresponding private key.
 func Example_encryptMessage() {
@@ -113,6 +117,7 @@ func Example_encryptMessage() {
 	// Output:
 	// test message
 }
+
 // This example demonstrates decrypting a message using a private key that is
 // first parsed from raw bytes.
 func Example_decryptMessage() {

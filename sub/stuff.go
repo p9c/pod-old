@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/parallelcointeam/sub/clog"
+	"git.parallelcoin.io/pod/clog"
 )
 
 const (

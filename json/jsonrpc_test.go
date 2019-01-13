@@ -1,10 +1,11 @@
-package btcjson_test
+package json_test
 
 import (
 	"encoding/json"
-	"github.com/parallelcointeam/pod/btcjson"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestIsValidIDType ensures the IsValidIDType function behaves as expected.
@@ -37,7 +38,7 @@ func TestIsValidIDType(t *testing.T) {
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		if btcjson.IsValidIDType(test.id) != test.isValid {
+		if json.IsValidIDType(test.id) != test.isValid {
 			t.Errorf("Test #%d (%s) valid mismatch - got %v, "+
 				"want %v", i, test.name, !test.isValid,
 				test.isValid)
@@ -53,7 +54,7 @@ func TestMarshalResponse(t *testing.T) {
 	tests := []struct {
 		name     string
 		result   interface{}
-		jsonErr  *btcjson.RPCError
+		jsonErr  *json.RPCError
 		expected []byte
 	}{
 		{
@@ -65,8 +66,8 @@ func TestMarshalResponse(t *testing.T) {
 		{
 			name:   "result with error",
 			result: nil,
-			jsonErr: func() *btcjson.RPCError {
-				return btcjson.NewRPCError(btcjson.ErrRPCBlockNotFound, "123 not found")
+			jsonErr: func() *json.RPCError {
+				return json.NewRPCError(json.ErrRPCBlockNotFound, "123 not found")
 			}(),
 			expected: []byte(`{"result":null,"error":{"code":-5,"message":"123 not found"},"id":1}`),
 		},
@@ -74,7 +75,7 @@ func TestMarshalResponse(t *testing.T) {
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		_, _ = i, test
-		marshalled, err := btcjson.MarshalResponse(testID, test.result, test.jsonErr)
+		marshalled, err := json.MarshalResponse(testID, test.result, test.jsonErr)
 		if err != nil {
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
@@ -93,22 +94,22 @@ func TestMiscErrors(t *testing.T) {
 	t.Parallel()
 	// Force an error in NewRequest by giving it a parameter type that is
 	// not supported.
-	_, err := btcjson.NewRequest(nil, "test", []interface{}{make(chan int)})
+	_, err := json.NewRequest(nil, "test", []interface{}{make(chan int)})
 	if err == nil {
 		t.Error("NewRequest: did not receive error")
 		return
 	}
 	// Force an error in MarshalResponse by giving it an id type that is not
 	// supported.
-	wantErr := btcjson.Error{ErrorCode: btcjson.ErrInvalidType}
-	_, err = btcjson.MarshalResponse(make(chan int), nil, nil)
-	if jerr, ok := err.(btcjson.Error); !ok || jerr.ErrorCode != wantErr.ErrorCode {
+	wantErr := json.Error{ErrorCode: json.ErrInvalidType}
+	_, err = json.MarshalResponse(make(chan int), nil, nil)
+	if jerr, ok := err.(json.Error); !ok || jerr.ErrorCode != wantErr.ErrorCode {
 		t.Errorf("MarshalResult: did not receive expected error - got "+
 			"%v (%[1]T), want %v (%[2]T)", err, wantErr)
 		return
 	}
 	// Force an error in MarshalResponse by giving it a result type that can't be marshalled.
-	_, err = btcjson.MarshalResponse(1, make(chan int), nil)
+	_, err = json.MarshalResponse(1, make(chan int), nil)
 	if _, ok := err.(*json.UnsupportedTypeError); !ok {
 		wantErr := &json.UnsupportedTypeError{}
 		t.Errorf("MarshalResult: did not receive expected error - got "+
@@ -121,15 +122,15 @@ func TestMiscErrors(t *testing.T) {
 func TestRPCError(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		in   *btcjson.RPCError
+		in   *json.RPCError
 		want string
 	}{
 		{
-			btcjson.ErrRPCInvalidRequest,
+			json.ErrRPCInvalidRequest,
 			"-32600: Invalid request",
 		},
 		{
-			btcjson.ErrRPCMethodNotFound,
+			json.ErrRPCMethodNotFound,
 			"-32601: Method not found",
 		},
 	}

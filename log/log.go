@@ -1,4 +1,4 @@
-package btclog
+package log
 
 import (
 	"bytes"

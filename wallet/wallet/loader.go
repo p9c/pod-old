@@ -1,7 +1,5 @@
 // Copyright (c) 2015-2016 The btcsuite developers
 
-
-
 package wallet
 
 import (
@@ -11,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/mod/internal/prompt"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/walletdb"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/infernal/prompt"
+	"git.parallelcoin.io/pod/walletdb"
 )
 
 const (

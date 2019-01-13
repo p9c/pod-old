@@ -4,9 +4,10 @@ package txsort
 
 import (
 	"bytes"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"sort"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // InPlaceSort modifies the passed transaction inputs and outputs to be sorted based on BIP 69.

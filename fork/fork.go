@@ -5,8 +5,9 @@ package fork
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"math/big"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // HardForks is the details related to a hard fork, number, name and activation height

@@ -1,8 +1,9 @@
 package wire
 
 import (
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // MsgGetCFHeaders is a message similar to MsgGetHeaders, but for committed filter headers. It allows to set the FilterType field to get headers in the chain of basic (0x00) or extended (0x01) headers.

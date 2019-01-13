@@ -1,6 +1,6 @@
 // NOTE: THIS API IS UNSTABLE RIGHT NOW.
 
-package neutrino
+package spv
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/spv/cache"
+	"git.parallelcoin.io/pod/spv/filterdb"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/wire"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac/cache"
-	"github.com/parallelcointeam/sac/filterdb"
 )
 
 var (
@@ -885,7 +885,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 // time, until one answers. If the block is found in the cache, it will be
 // returned immediately.
 func (s *ChainService) GetBlock(blockHash chainhash.Hash,
-	options ...QueryOption) (*btcutil.Block, error) {
+	options ...QueryOption) (*util.Block, error) {
 
 	// Fetch the corresponding block header from the database. If this isn't found, then we don't have the header for this so we can't request it.
 	blockHeader, height, err := s.BlockHeaders.FetchHeader(&blockHash)
@@ -924,7 +924,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// which is always called single-threadedly. We don't check the block
 	// until after the query is finished, so we can just write to it
 	// naively.
-	var foundBlock *btcutil.Block
+	var foundBlock *util.Block
 	s.queryPeers(
 		// Send a wire.GetDataMsg
 		getData,
@@ -947,11 +947,11 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				if response.BlockHash() != blockHash {
 					return
 				}
-				block := btcutil.NewBlock(response)
+				block := util.NewBlock(response)
 
-				// Only set height if btcutil hasn't
+				// Only set height if util hasn't
 				// automagically put one in.
-				if block.Height() == btcutil.BlockHeightUnknown {
+				if block.Height() == util.BlockHeightUnknown {
 					block.SetHeight(int32(height))
 				}
 

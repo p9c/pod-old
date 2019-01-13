@@ -1,13 +1,14 @@
-package btcutil_test
+package util_test
 
 import (
-	"github.com/parallelcointeam/pod/btcutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"testing"
 	"unicode"
+
+	"git.parallelcoin.io/pod/util"
 )
 
 // TestAppDataDir tests the API for AppDataDir to ensure it gives expected results for various operating systems.
@@ -105,7 +106,7 @@ func TestAppDataDir(t *testing.T) {
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
-		ret := btcutil.TstAppDataDir(test.goos, test.appName, test.roaming)
+		ret := util.TstAppDataDir(test.goos, test.appName, test.roaming)
 		if ret != test.want {
 			t.Errorf("appDataDir #%d (%s) does not match - "+
 				"expected got %s, want %s", i, test.goos, ret,

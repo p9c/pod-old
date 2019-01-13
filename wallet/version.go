@@ -1,7 +1,4 @@
-
-
-
-package main
+package wallet
 
 import (
 	"bytes"

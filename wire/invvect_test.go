@@ -2,10 +2,11 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"reflect"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // TestInvVectStringer tests the stringized output for inventory vector types.

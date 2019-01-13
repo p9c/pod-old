@@ -1,5 +1,4 @@
-// NOTE: This file is intended to house the RPC commands that are supported by a chain server with pod extensions.
-package btcjson
+package json
 
 // NodeSubCmd defines the type used in the addnode JSON-RPC command for the sub command field.
 type NodeSubCmd string

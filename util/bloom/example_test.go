@@ -2,11 +2,12 @@ package bloom_test
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/btcutil/bloom"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"math/rand"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util/bloom"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // This example demonstrates how to create a new bloom filter, add a transaction hash to it, and check if the filter matches the transaction.

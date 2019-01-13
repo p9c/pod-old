@@ -1,9 +1,10 @@
+package ec
 
-package btcec
 import (
 	"reflect"
 	"testing"
 )
+
 // TestSetInt ensures that setting a field value to various native integers
 // works as expected.
 func TestSetInt(t *testing.T) {
@@ -29,6 +30,7 @@ func TestSetInt(t *testing.T) {
 		}
 	}
 }
+
 // TestZero ensures that zeroing a field value zero works as expected.
 func TestZero(t *testing.T) {
 	f := new(fieldVal).SetInt(2)
@@ -40,6 +42,7 @@ func TestZero(t *testing.T) {
 		}
 	}
 }
+
 // TestIsZero ensures that checking if a field IsZero works as expected.
 func TestIsZero(t *testing.T) {
 	f := new(fieldVal)
@@ -58,6 +61,7 @@ func TestIsZero(t *testing.T) {
 			"(raw rawints %x)", f, f.n)
 	}
 }
+
 // TestStringer ensures the stringer returns the appropriate hex string.
 func TestStringer(t *testing.T) {
 	tests := []struct {
@@ -139,6 +143,7 @@ func TestStringer(t *testing.T) {
 		}
 	}
 }
+
 // TestNormalize ensures that normalizing the internal field words works as
 // expected.
 func TestNormalize(t *testing.T) {
@@ -305,6 +310,7 @@ func TestNormalize(t *testing.T) {
 		}
 	}
 }
+
 // TestIsOdd ensures that checking if a field value IsOdd works as expected.
 func TestIsOdd(t *testing.T) {
 	tests := []struct {
@@ -332,6 +338,7 @@ func TestIsOdd(t *testing.T) {
 		}
 	}
 }
+
 // TestEquals ensures that checking two field values for equality via Equals
 // works as expected.
 func TestEquals(t *testing.T) {
@@ -364,6 +371,7 @@ func TestEquals(t *testing.T) {
 		}
 	}
 }
+
 // TestNegate ensures that negating field values via Negate works as expected.
 func TestNegate(t *testing.T) {
 	tests := []struct {
@@ -410,6 +418,7 @@ func TestNegate(t *testing.T) {
 		}
 	}
 }
+
 // TestAddInt ensures that adding an integer to field values via AddInt works as
 // expected.
 func TestAddInt(t *testing.T) {
@@ -459,6 +468,7 @@ func TestAddInt(t *testing.T) {
 		}
 	}
 }
+
 // TestAdd ensures that adding two field values together via Add works as
 // expected.
 func TestAdd(t *testing.T) {
@@ -509,6 +519,7 @@ func TestAdd(t *testing.T) {
 		}
 	}
 }
+
 // TestAdd2 ensures that adding two field values together via Add2 works as
 // expected.
 func TestAdd2(t *testing.T) {
@@ -561,6 +572,7 @@ func TestAdd2(t *testing.T) {
 		}
 	}
 }
+
 // TestMulInt ensures that adding an integer to field values via MulInt works as
 // expected.
 func TestMulInt(t *testing.T) {
@@ -623,6 +635,7 @@ func TestMulInt(t *testing.T) {
 		}
 	}
 }
+
 // TestMul ensures that multiplying two field valuess via Mul works as expected.
 func TestMul(t *testing.T) {
 	tests := []struct {
@@ -689,6 +702,7 @@ func TestMul(t *testing.T) {
 		}
 	}
 }
+
 // TestSquare ensures that squaring field values via Square works as expected.
 func TestSquare(t *testing.T) {
 	tests := []struct {
@@ -733,6 +747,7 @@ func TestSquare(t *testing.T) {
 		}
 	}
 }
+
 // TestInverse ensures that finding the multiplicative inverse via Inverse works
 // as expected.
 func TestInverse(t *testing.T) {

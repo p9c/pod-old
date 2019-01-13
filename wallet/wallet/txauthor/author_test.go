@@ -1,21 +1,19 @@
 // Copyright (c) 2016 The btcsuite developers
 
-
-
 package txauthor_test
 
 import (
 	"testing"
 
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	. "github.com/parallelcointeam/mod/wallet/txauthor"
-	"github.com/parallelcointeam/mod/wallet/txrules"
+	"git.parallelcoin.io/pod/util"
+	. "git.parallelcoin.io/pod/wallet/txauthor"
+	"git.parallelcoin.io/pod/wallet/txrules"
+	"git.parallelcoin.io/pod/wire"
 
-	"github.com/parallelcointeam/mod/wallet/internal/txsizes"
+	"git.parallelcoin.io/pod/wallet/internal/txsizes"
 )
 
-func p2pkhOutputs(amounts ...btcutil.Amount) []*wire.TxOut {
+func p2pkhOutputs(amounts ...util.Amount) []*wire.TxOut {
 	v := make([]*wire.TxOut, 0, len(amounts))
 	for _, a := range amounts {
 		outScript := make([]byte, txsizes.P2PKHOutputSize)
@@ -26,17 +24,17 @@ func p2pkhOutputs(amounts ...btcutil.Amount) []*wire.TxOut {
 
 func makeInputSource(unspents []*wire.TxOut) InputSource {
 	// Return outputs in order.
-	currentTotal := btcutil.Amount(0)
+	currentTotal := util.Amount(0)
 	currentInputs := make([]*wire.TxIn, 0, len(unspents))
-	currentInputValues := make([]btcutil.Amount, 0, len(unspents))
-	f := func(target btcutil.Amount) (btcutil.Amount, []*wire.TxIn, []btcutil.Amount, [][]byte, error) {
+	currentInputValues := make([]util.Amount, 0, len(unspents))
+	f := func(target util.Amount) (util.Amount, []*wire.TxIn, []util.Amount, [][]byte, error) {
 		for currentTotal < target && len(unspents) != 0 {
 			u := unspents[0]
 			unspents = unspents[1:]
 			nextInput := wire.NewTxIn(&wire.OutPoint{}, nil, nil)
-			currentTotal += btcutil.Amount(u.Value)
+			currentTotal += util.Amount(u.Value)
 			currentInputs = append(currentInputs, nextInput)
-			currentInputValues = append(currentInputValues, btcutil.Amount(u.Value))
+			currentInputValues = append(currentInputValues, util.Amount(u.Value))
 		}
 		return currentTotal, currentInputs, currentInputValues, make([][]byte, len(currentInputs)), nil
 	}
@@ -47,8 +45,8 @@ func TestNewUnsignedTransaction(t *testing.T) {
 	tests := []struct {
 		UnspentOutputs   []*wire.TxOut
 		Outputs          []*wire.TxOut
-		RelayFee         btcutil.Amount
-		ChangeAmount     btcutil.Amount
+		RelayFee         util.Amount
+		ChangeAmount     util.Amount
 		InputSourceError bool
 		InputCount       int
 	}{
@@ -201,7 +199,7 @@ func TestNewUnsignedTransaction(t *testing.T) {
 				continue
 			}
 		} else {
-			changeAmount := btcutil.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
+			changeAmount := util.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
 			if test.ChangeAmount == 0 {
 				t.Errorf("Test %d: Included change output with value %v but expected no change",
 					i, changeAmount)

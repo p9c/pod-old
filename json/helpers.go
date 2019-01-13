@@ -1,4 +1,4 @@
-package btcjson
+package json
 
 // Bool is a helper routine that allocates a new bool value to store v and returns a pointer to it.  This is useful when assigning optional parameters.
 func Bool(v bool) *bool {

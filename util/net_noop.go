@@ -1,5 +1,6 @@
 // +build appengine
-package btcutil
+package util
+
 // import (
 // 	"net"
 // )

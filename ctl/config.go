@@ -9,20 +9,20 @@ import (
 	"regexp"
 	"strings"
 
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/util"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/pod/json"
-	"github.com/parallelcointeam/pod/util"
 )
 
 const (
 	// unusableFlags are the command usage flags which this utility are not able to use.  In particular it doesn't support websockets and consequently notifications.
-	unusableFlags = btcjson.UFWebsocketOnly | btcjson.UFNotification
+	unusableFlags = json.UFWebsocketOnly | json.UFNotification
 )
 
 var (
-	podHomeDir            = btcutil.AppDataDir("pod", false)
-	podctlHomeDir         = btcutil.AppDataDir("podctl", false)
-	sacHomeDir            = btcutil.AppDataDir("sac", false)
+	podHomeDir            = util.AppDataDir("pod", false)
+	podctlHomeDir         = util.AppDataDir("podctl", false)
+	sacHomeDir            = util.AppDataDir("sac", false)
 	defaultConfigFile     = filepath.Join(podctlHomeDir, "podctl.conf")
 	defaultRPCServer      = "localhost"
 	defaultRPCCertFile    = filepath.Join(podHomeDir, "rpc.cert")
@@ -37,10 +37,10 @@ func listCommands() {
 		numCategories
 	)
 	// Get a list of registered commands and categorize and filter them.
-	cmdMethods := btcjson.RegisteredCmdMethods()
+	cmdMethods := json.RegisteredCmdMethods()
 	categorized := make([][]string, numCategories)
 	for _, method := range cmdMethods {
-		flags, err := btcjson.MethodUsageFlags(method)
+		flags, err := json.MethodUsageFlags(method)
 		if err != nil {
 			// This should never happen since the method was just returned from the package, but be safe.
 			continue
@@ -49,14 +49,14 @@ func listCommands() {
 		if flags&unusableFlags != 0 {
 			continue
 		}
-		usage, err := btcjson.MethodUsageText(method)
+		usage, err := json.MethodUsageText(method)
 		if err != nil {
 			// This should never happen since the method was just returned from the package, but be safe.
 			continue
 		}
 		// Categorize the command based on the usage flags.
 		category := categoryChain
-		if flags&btcjson.UFWalletOnly != 0 {
+		if flags&json.UFWalletOnly != 0 {
 			category = categoryWallet
 		}
 		categorized[category] = append(categorized[category], usage)

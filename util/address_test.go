@@ -1,5 +1,5 @@
+package util_test
 
-package btcutil_test
 import (
 	"bytes"
 	"encoding/hex"
@@ -7,10 +7,12 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/btcutil"
+
+	"git.parallelcoin.io/pod/btcutil"
+	"git.parallelcoin.io/pod/chaincfg"
 	"golang.org/x/crypto/ripemd160"
 )
+
 func TestAddresses(t *testing.T) {
 	tests := []struct {
 		name    string

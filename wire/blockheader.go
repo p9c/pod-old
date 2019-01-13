@@ -2,10 +2,11 @@ package wire
 
 import (
 	"bytes"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/fork"
 	"io"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/fork"
 )
 
 // MaxBlockHeaderPayload is the maximum number of bytes a block header can be. Version 4 bytes + Timestamp 4 bytes + Bits 4 bytes + Nonce 4 bytes + PrevBlock and MerkleRoot hashes.

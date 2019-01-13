@@ -1,9 +1,10 @@
-package btcjson_test
+package json_test
 
 import (
 	"encoding/json"
-	"github.com/parallelcointeam/pod/btcjson"
 	"testing"
+
+	"git.parallelcoin.io/pod/json"
 )
 
 // TestPodExtCustomResults ensures any results that have custom marshalling work as intedned and unmarshal code of results are as expected.
@@ -16,7 +17,7 @@ func TestPodExtCustomResults(t *testing.T) {
 	}{
 		{
 			name: "versionresult",
-			result: &btcjson.VersionResult{
+			result: &json.VersionResult{
 				VersionString: "1.0.0",
 				Major:         1,
 				Minor:         0,

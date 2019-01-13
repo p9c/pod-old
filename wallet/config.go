@@ -1,6 +1,4 @@
-// Copyright (c) 2013-2017 The btcsuite developers
-
-package main
+package wallet
 
 import (
 	"bufio"
@@ -20,12 +18,12 @@ import (
 	"strings"
 	"time"
 
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wallet/infernal/cfgutil"
+	"git.parallelcoin.io/pod/wallet/infernal/legacy/keystore"
+	"git.parallelcoin.io/pod/wallet/netparams"
+
 	flags "github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/mod/internal/cfgutil"
-	"github.com/parallelcointeam/mod/internal/legacy/keystore"
-	"github.com/parallelcointeam/mod/netparams"
-	"github.com/parallelcointeam/mod/wallet"
-	"github.com/parallelcointeam/pod/btcutil"
 )
 
 const (
@@ -41,8 +39,8 @@ const (
 )
 
 var (
-	podDefaultCAFile   = filepath.Join(btcutil.AppDataDir("mod", false), "rpc.cert")
-	defaultAppDataDir  = btcutil.AppDataDir("mod", false)
+	podDefaultCAFile   = filepath.Join(util.AppDataDir("mod", false), "rpc.cert")
+	defaultAppDataDir  = util.AppDataDir("mod", false)
 	defaultConfigFile  = filepath.Join(defaultAppDataDir, defaultConfigFilename)
 	defaultRPCKeyFile  = filepath.Join(defaultAppDataDir, "rpc.key")
 	defaultRPCCertFile = filepath.Join(defaultAppDataDir, "rpc.cert")
@@ -264,7 +262,7 @@ func loadConfig() (*config, []string, error) {
 		ConfigFile:             cfgutil.NewExplicitString(defaultConfigFile),
 		AppDataDir:             cfgutil.NewExplicitString(defaultAppDataDir),
 		LogDir:                 defaultLogDir,
-		WalletPass:             wallet.InsecurePubPassphrase,
+		WalletPass:             InsecurePubPassphrase,
 		CAFile:                 cfgutil.NewExplicitString(""),
 		RPCKey:                 cfgutil.NewExplicitString(defaultRPCKeyFile),
 		RPCCert:                cfgutil.NewExplicitString(defaultRPCCertFile),

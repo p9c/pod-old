@@ -5,11 +5,12 @@ package integration
 import (
 	"bytes"
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/integration/rpctest"
 	"os"
 	"runtime/debug"
 	"testing"
+
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/integration/rpctest"
 )
 
 func testGetBestBlock(r *rpctest.Harness, t *testing.T) {

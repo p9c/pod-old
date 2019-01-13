@@ -1,12 +1,13 @@
-package btcutil
+package util
 
 import (
 	"bytes"
 	"errors"
-	"github.com/parallelcointeam/pod/btcec"
-	"github.com/parallelcointeam/pod/btcutil/base58"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/util/base58"
 )
 
 // ErrMalformedPrivateKey describes an error where a WIF-encoded private key cannot be decoded due to being improperly formatted.  This may occur if the byte length is incorrect or an unexpected magic number was encountered.
@@ -18,7 +19,7 @@ const compressMagic byte = 0x01
 // WIF contains the individual components described by the Wallet Import Format (WIF).  A WIF string is typically used to represent a private key and its associated address in a way that  may be easily copied and imported into or exported from wallet software.  WIF strings may be decoded into this structure by calling DecodeWIF or created with a user-provided private key by calling NewWIF.
 type WIF struct {
 	// PrivKey is the private key being imported or exported.
-	PrivKey *btcec.PrivateKey
+	PrivKey *ec.PrivateKey
 	// CompressPubKey specifies whether the address controlled by the imported or exported private key was created by hashing a compressed (33-byte) serialized public key, rather than an uncompressed (65-byte) one.
 	CompressPubKey bool
 	// netID is the bitcoin network identifier byte used when WIF encoding the private key.
@@ -26,7 +27,7 @@ type WIF struct {
 }
 
 // NewWIF creates a new WIF structure to export an address and its private key as a string encoded in the Wallet Import Format.  The compress argument specifies whether the address intended to be imported or exported was created by serializing the public key compressed rather than uncompressed.
-func NewWIF(privKey *btcec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
+func NewWIF(privKey *ec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
 	if net == nil {
 		return nil, errors.New("no network")
 	}
@@ -52,12 +53,12 @@ func DecodeWIF(wif string) (*WIF, error) {
 	var compress bool
 	// Length of base58 decoded WIF must be 32 bytes + an optional 1 byte (0x01) if compressed, plus 1 byte for netID + 4 bytes of checksum.
 	switch decodedLen {
-	case 1 + btcec.PrivKeyBytesLen + 1 + 4:
+	case 1 + ec.PrivKeyBytesLen + 1 + 4:
 		if decoded[33] != compressMagic {
 			return nil, ErrMalformedPrivateKey
 		}
 		compress = true
-	case 1 + btcec.PrivKeyBytesLen + 4:
+	case 1 + ec.PrivKeyBytesLen + 4:
 		compress = false
 	default:
 		return nil, ErrMalformedPrivateKey
@@ -65,31 +66,31 @@ func DecodeWIF(wif string) (*WIF, error) {
 	// Checksum is first four bytes of double SHA256 of the identifier byte and privKey.  Verify this matches the final 4 bytes of the decoded private key.
 	var tosum []byte
 	if compress {
-		tosum = decoded[:1+btcec.PrivKeyBytesLen+1]
+		tosum = decoded[:1+ec.PrivKeyBytesLen+1]
 	} else {
-		tosum = decoded[:1+btcec.PrivKeyBytesLen]
+		tosum = decoded[:1+ec.PrivKeyBytesLen]
 	}
 	cksum := chainhash.DoubleHashB(tosum)[:4]
 	if !bytes.Equal(cksum, decoded[decodedLen-4:]) {
 		return nil, ErrChecksumMismatch
 	}
 	netID := decoded[0]
-	privKeyBytes := decoded[1 : 1+btcec.PrivKeyBytesLen]
-	privKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), privKeyBytes)
+	privKeyBytes := decoded[1 : 1+ec.PrivKeyBytesLen]
+	privKey, _ := ec.PrivKeyFromBytes(ec.S256(), privKeyBytes)
 	return &WIF{privKey, compress, netID}, nil
 }
 
 // String creates the Wallet Import Format string encoding of a WIF structure. See DecodeWIF for a detailed breakdown of the format and requirements of a valid WIF string.
 func (w *WIF) String() string {
 	// Precalculate size.  Maximum number of bytes before base58 encoding is one byte for the network, 32 bytes of private key, possibly one extra byte if the pubkey is to be compressed, and finally four bytes of checksum.
-	encodeLen := 1 + btcec.PrivKeyBytesLen + 4
+	encodeLen := 1 + ec.PrivKeyBytesLen + 4
 	if w.CompressPubKey {
 		encodeLen++
 	}
 	a := make([]byte, 0, encodeLen)
 	a = append(a, w.netID)
 	// Pad and append bytes manually, instead of using Serialize, to avoid another call to make.
-	a = paddedAppend(btcec.PrivKeyBytesLen, a, w.PrivKey.D.Bytes())
+	a = paddedAppend(ec.PrivKeyBytesLen, a, w.PrivKey.D.Bytes())
 	if w.CompressPubKey {
 		a = append(a, compressMagic)
 	}
@@ -100,7 +101,7 @@ func (w *WIF) String() string {
 
 // SerializePubKey serializes the associated public key of the imported or exported private key in either a compressed or uncompressed format.  The serialization format chosen depends on the value of w.CompressPubKey.
 func (w *WIF) SerializePubKey() []byte {
-	pk := (*btcec.PublicKey)(&w.PrivKey.PublicKey)
+	pk := (*ec.PublicKey)(&w.PrivKey.PublicKey)
 	if w.CompressPubKey {
 		return pk.SerializeCompressed()
 	}

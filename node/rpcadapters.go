@@ -3,13 +3,13 @@ package node
 import (
 	"sync/atomic"
 
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/mempool"
-	"github.com/parallelcointeam/pod/netsync"
-	"github.com/parallelcointeam/pod/peer"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/netsync"
+	"git.parallelcoin.io/pod/node/mempool"
+	"git.parallelcoin.io/pod/peer"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // rpcPeer provides a peer for use with the RPC server and implements the rpcserverPeer interface.
@@ -166,7 +166,7 @@ func (b *rpcSyncMgr) IsCurrent() bool {
 }
 
 // SubmitBlock submits the provided block to the network after processing it locally. This function is safe for concurrent access and is part of the rpcserverSyncManager interface implementation.
-func (b *rpcSyncMgr) SubmitBlock(block *btcutil.Block, flags blockchain.BehaviorFlags) (bool, error) {
+func (b *rpcSyncMgr) SubmitBlock(block *util.Block, flags blockchain.BehaviorFlags) (bool, error) {
 	return b.syncMgr.ProcessBlock(block, flags)
 }
 

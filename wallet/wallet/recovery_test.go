@@ -4,12 +4,10 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/parallelcointeam/mod/wallet"
+	"git.parallelcoin.io/pod/wallet"
 )
 
-// Harness holds the BranchRecoveryState being tested, the recovery window being
-// used, provides access to the test object, and tracks the expected horizon
-// and next unfound values.
+// Harness holds the BranchRecoveryState being tested, the recovery window being used, provides access to the test object, and tracks the expected horizon and next unfound values.
 type Harness struct {
 	t              *testing.T
 	brs            *wallet.BranchRecoveryState
@@ -19,8 +17,7 @@ type Harness struct {
 }
 
 type (
-	// Stepper is a generic interface that performs an action or assertion
-	// against a test Harness.
+	// Stepper is a generic interface that performs an action or assertion against a test Harness.
 	Stepper interface {
 		// Apply performs an action or assertion against branch recovery
 		// state held by the Harness.  The step index is provided so

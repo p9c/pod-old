@@ -1,8 +1,8 @@
-package neutrino
+package spv
 
 import (
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // batchSpendReporter orchestrates the delivery of spend reports to

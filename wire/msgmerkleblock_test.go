@@ -3,12 +3,13 @@ package wire
 import (
 	"bytes"
 	"crypto/rand"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
 	"reflect"
 	"testing"
 	"time"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // TestMerkleBlock tests the MsgMerkleBlock API.

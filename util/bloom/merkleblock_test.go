@@ -1,14 +1,16 @@
-
 package bloom_test
+
 import (
 	"bytes"
 	"encoding/hex"
 	"testing"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/bloom"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/bloom"
+	"git.parallelcoin.io/pod/wire"
 )
+
 func TestMerkleBlock3(t *testing.T) {
 	blockStr := "0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b" +
 		"4b8b0000000000000b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdc" +
@@ -23,7 +25,7 @@ func TestMerkleBlock3(t *testing.T) {
 		t.Errorf("TestMerkleBlock3 DecodeString failed: %v", err)
 		return
 	}
-	blk, err := btcutil.NewBlockFromBytes(blockBytes)
+	blk, err := util.NewBlockFromBytes(blockBytes)
 	if err != nil {
 		t.Errorf("TestMerkleBlock3 NewBlockFromBytes failed: %v", err)
 		return

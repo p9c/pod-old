@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/blockchain"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/database"
 	"os"
 	"path/filepath"
+
+	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/database"
 )
 
 const blockDbNamePrefix = "blocks"

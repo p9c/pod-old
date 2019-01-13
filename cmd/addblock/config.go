@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	flags "github.com/jessevdk/go-flags"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/database"
-	_ "github.com/parallelcointeam/pod/database/ffldb"
-	"github.com/parallelcointeam/pod/wire"
 	"os"
 	"path/filepath"
+
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/database"
+	_ "git.parallelcoin.io/pod/database/ffldb"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
+	flags "github.com/jessevdk/go-flags"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 )
 
 var (
-	podHomeDir      = btcutil.AppDataDir("pod", false)
+	podHomeDir      = util.AppDataDir("pod", false)
 	defaultDataDir  = filepath.Join(podHomeDir, "data")
 	knownDbTypes    = database.SupportedDrivers()
 	activeNetParams = &chaincfg.MainNetParams

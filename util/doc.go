@@ -1,5 +1,5 @@
 /*
-Package btcutil provides bitcoin-specific convenience functions and types.
+Package util provides bitcoin-specific convenience functions and types.
 
 Block Overview
 
@@ -26,4 +26,4 @@ pay-to-script-hash address types. To decode/encode an address:
 	}
 	fmt.Println(addr.EncodeAddress())
 */
-package btcutil
+package util

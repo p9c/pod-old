@@ -3,17 +3,18 @@ package coinset
 import (
 	"container/list"
 	"errors"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/wire"
 	"sort"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // Coin represents a spendable transaction outpoint
 type Coin interface {
 	Hash() *chainhash.Hash
 	Index() uint32
-	Value() btcutil.Amount
+	Value() util.Amount
 	PkScript() []byte
 	NumConfs() int64
 	ValueAge() int64
@@ -27,7 +28,7 @@ type Coins interface {
 // CoinSet is a utility struct for the modifications of a set of Coins that implements the Coins interface.  To create a CoinSet, you must call NewCoinSet with nil for an empty set or a slice of coins as the initial contents. It is important to note that the all the Coins being added or removed from a CoinSet must have a constant ValueAge() during the use of the CoinSet, otherwise the cached values will be incorrect.
 type CoinSet struct {
 	coinList      *list.List
-	totalValue    btcutil.Amount
+	totalValue    util.Amount
 	totalValueAge int64
 }
 
@@ -57,7 +58,7 @@ func (cs *CoinSet) Coins() []Coin {
 }
 
 // TotalValue returns the total value of the coins in the set.
-func (cs *CoinSet) TotalValue() (value btcutil.Amount) {
+func (cs *CoinSet) TotalValue() (value util.Amount) {
 	return cs.totalValue
 }
 
@@ -129,24 +130,24 @@ var (
 )
 
 // satisfiesTargetValue checks that the totalValue is either exactly the targetValue or is greater than the targetValue by at least the minChange amount.
-func satisfiesTargetValue(targetValue, minChange, totalValue btcutil.Amount) bool {
+func satisfiesTargetValue(targetValue, minChange, totalValue util.Amount) bool {
 	return (totalValue == targetValue || totalValue >= targetValue+minChange)
 }
 
 // CoinSelector is an interface that wraps the CoinSelect method. CoinSelect will attempt to select a subset of the coins which has at least the targetValue amount.  CoinSelect is not guaranteed to return a selection of coins even if the total value of coins given is greater than the target value.
 // The exact choice of coins in the subset will be implementation specific. It is important to note that the Coins being used as inputs need to have a constant ValueAge() during the execution of CoinSelect.
 type CoinSelector interface {
-	CoinSelect(targetValue btcutil.Amount, coins []Coin) (Coins, error)
+	CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error)
 }
 
 // MinIndexCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue and prefers any number of lower indexes (as in the ordered array) over higher ones.
 type MinIndexCoinSelector struct {
 	MaxInputs       int
-	MinChangeAmount btcutil.Amount
+	MinChangeAmount util.Amount
 }
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinIndexCoinSelector struct.
-func (s MinIndexCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Coin) (Coins, error) {
+func (s MinIndexCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
 	cs := NewCoinSet(nil)
 	for n := 0; n < len(coins) && n < s.MaxInputs; n++ {
 		cs.PushCoin(coins[n])
@@ -160,11 +161,11 @@ func (s MinIndexCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Coi
 // MinNumberCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue that uses as few of the inputs as possible.
 type MinNumberCoinSelector struct {
 	MaxInputs       int
-	MinChangeAmount btcutil.Amount
+	MinChangeAmount util.Amount
 }
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinNumberCoinSelector struct.
-func (s MinNumberCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Coin) (Coins, error) {
+func (s MinNumberCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
 	sortedCoins := make([]Coin, 0, len(coins))
 	sortedCoins = append(sortedCoins, coins...)
 	sort.Sort(sort.Reverse(byAmount(sortedCoins)))
@@ -174,11 +175,11 @@ func (s MinNumberCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Co
 // MaxValueAgeCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue that has as much input value-age as possible. This would be useful in the case where you want to maximize likelihood of the inclusion of your transaction in the next mined block.
 type MaxValueAgeCoinSelector struct {
 	MaxInputs       int
-	MinChangeAmount btcutil.Amount
+	MinChangeAmount util.Amount
 }
 
 // CoinSelect will attempt to select coins using the algorithm described in the MaxValueAgeCoinSelector struct.
-func (s MaxValueAgeCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Coin) (Coins, error) {
+func (s MaxValueAgeCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
 	sortedCoins := make([]Coin, 0, len(coins))
 	sortedCoins = append(sortedCoins, coins...)
 	sort.Sort(sort.Reverse(byValueAge(sortedCoins)))
@@ -188,12 +189,12 @@ func (s MaxValueAgeCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []
 // MinPriorityCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue and whose average value-age per input is greater than MinAvgValueAgePerInput. If there is change, it must exceed MinChangeAmount to be a valid selection. When possible, MinPriorityCoinSelector will attempt to reduce the average input priority over the threshold, but no guarantees will be made as to minimality of the selection.  The selection below is almost certainly suboptimal.
 type MinPriorityCoinSelector struct {
 	MaxInputs              int
-	MinChangeAmount        btcutil.Amount
+	MinChangeAmount        util.Amount
 	MinAvgValueAgePerInput int64
 }
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinPriorityCoinSelector struct.
-func (s MinPriorityCoinSelector) CoinSelect(targetValue btcutil.Amount, coins []Coin) (Coins, error) {
+func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
 	possibleCoins := make([]Coin, 0, len(coins))
 	possibleCoins = append(possibleCoins, coins...)
 	sort.Sort(byValueAge(possibleCoins))
@@ -275,9 +276,9 @@ func (a byAmount) Len() int           { return len(a) }
 func (a byAmount) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byAmount) Less(i, j int) bool { return a[i].Value() < a[j].Value() }
 
-// SimpleCoin defines a concrete instance of Coin that is backed by a btcutil.Tx, a specific outpoint index, and the number of confirmations that transaction has had.
+// SimpleCoin defines a concrete instance of Coin that is backed by a util.Tx, a specific outpoint index, and the number of confirmations that transaction has had.
 type SimpleCoin struct {
-	Tx         *btcutil.Tx
+	Tx         *util.Tx
 	TxIndex    uint32
 	TxNumConfs int64
 }
@@ -301,8 +302,8 @@ func (c *SimpleCoin) txOut() *wire.TxOut {
 }
 
 // Value returns the value of the Coin
-func (c *SimpleCoin) Value() btcutil.Amount {
-	return btcutil.Amount(c.txOut().Value)
+func (c *SimpleCoin) Value() util.Amount {
+	return util.Amount(c.txOut().Value)
 }
 
 // PkScript returns the outpoint script of the Coin. This can be used to determine what type of script the Coin uses and extract standard addresses if possible using txscript.ExtractPkScriptAddrs for example.

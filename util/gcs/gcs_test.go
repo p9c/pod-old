@@ -3,9 +3,10 @@ package gcs_test
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
 	"math/rand"
 	"testing"
+
+	"git.parallelcoin.io/pod/util/gcs"
 )
 
 var (

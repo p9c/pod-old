@@ -1,32 +1,34 @@
+package json_test
 
-package btcjson_test
 import (
 	"testing"
-	"github.com/parallelcointeam/pod/btcjson"
+
+	"git.parallelcoin.io/pod/json"
 )
+
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		in   btcjson.ErrorCode
+		in   json.ErrorCode
 		want string
 	}{
-		{btcjson.ErrDuplicateMethod, "ErrDuplicateMethod"},
-		{btcjson.ErrInvalidUsageFlags, "ErrInvalidUsageFlags"},
-		{btcjson.ErrInvalidType, "ErrInvalidType"},
-		{btcjson.ErrEmbeddedType, "ErrEmbeddedType"},
-		{btcjson.ErrUnexportedField, "ErrUnexportedField"},
-		{btcjson.ErrUnsupportedFieldType, "ErrUnsupportedFieldType"},
-		{btcjson.ErrNonOptionalField, "ErrNonOptionalField"},
-		{btcjson.ErrNonOptionalDefault, "ErrNonOptionalDefault"},
-		{btcjson.ErrMismatchedDefault, "ErrMismatchedDefault"},
-		{btcjson.ErrUnregisteredMethod, "ErrUnregisteredMethod"},
-		{btcjson.ErrNumParams, "ErrNumParams"},
-		{btcjson.ErrMissingDescription, "ErrMissingDescription"},
+		{json.ErrDuplicateMethod, "ErrDuplicateMethod"},
+		{json.ErrInvalidUsageFlags, "ErrInvalidUsageFlags"},
+		{json.ErrInvalidType, "ErrInvalidType"},
+		{json.ErrEmbeddedType, "ErrEmbeddedType"},
+		{json.ErrUnexportedField, "ErrUnexportedField"},
+		{json.ErrUnsupportedFieldType, "ErrUnsupportedFieldType"},
+		{json.ErrNonOptionalField, "ErrNonOptionalField"},
+		{json.ErrNonOptionalDefault, "ErrNonOptionalDefault"},
+		{json.ErrMismatchedDefault, "ErrMismatchedDefault"},
+		{json.ErrUnregisteredMethod, "ErrUnregisteredMethod"},
+		{json.ErrNumParams, "ErrNumParams"},
+		{json.ErrMissingDescription, "ErrMissingDescription"},
 		{0xffff, "Unknown ErrorCode (65535)"},
 	}
 	// Detect additional error codes that don't have the stringer added.
-	if len(tests)-1 != int(btcjson.TstNumErrorCodes) {
+	if len(tests)-1 != int(json.TstNumErrorCodes) {
 		t.Errorf("It appears an error code was added without adding an " +
 			"associated stringer test")
 	}
@@ -40,19 +42,20 @@ func TestErrorCodeStringer(t *testing.T) {
 		}
 	}
 }
+
 // TestError tests the error output for the Error type.
 func TestError(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		in   btcjson.Error
+		in   json.Error
 		want string
 	}{
 		{
-			btcjson.Error{Description: "some error"},
+			json.Error{Description: "some error"},
 			"some error",
 		},
 		{
-			btcjson.Error{Description: "human-readable error"},
+			json.Error{Description: "human-readable error"},
 			"human-readable error",
 		},
 	}

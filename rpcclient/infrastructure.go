@@ -6,12 +6,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/json"
+	js "encoding/json"
 	"errors"
 	"fmt"
-	"github.com/btcsuite/go-socks/socks"
-	"github.com/btcsuite/websocket"
-	"github.com/parallelcointeam/pod/btcjson"
 	"io"
 	"io/ioutil"
 	"math"
@@ -21,6 +18,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"git.parallelcoin.io/pod/json"
+	"github.com/btcsuite/go-socks/socks"
+	"github.com/btcsuite/websocket"
 )
 
 var (
@@ -148,19 +149,19 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 	c.ntfnStateLock.Lock()
 	defer c.ntfnStateLock.Unlock()
 	switch bcmd := cmd.(type) {
-	case *btcjson.NotifyBlocksCmd:
+	case *json.NotifyBlocksCmd:
 		c.ntfnState.notifyBlocks = true
-	case *btcjson.NotifyNewTransactionsCmd:
+	case *json.NotifyNewTransactionsCmd:
 		if bcmd.Verbose != nil && *bcmd.Verbose {
 			c.ntfnState.notifyNewTxVerbose = true
 		} else {
 			c.ntfnState.notifyNewTx = true
 		}
-	case *btcjson.NotifySpentCmd:
+	case *json.NotifySpentCmd:
 		for _, op := range bcmd.OutPoints {
 			c.ntfnState.notifySpent[op] = struct{}{}
 		}
-	case *btcjson.NotifyReceivedCmd:
+	case *json.NotifyReceivedCmd:
 		for _, addr := range bcmd.Addresses {
 			c.ntfnState.notifyReceived[addr] = struct{}{}
 		}
@@ -176,13 +177,13 @@ type (
 	}
 	// rawNotification is a partially-unmarshaled JSON-RPC notification.
 	rawNotification struct {
-		Method string            `json:"method"`
-		Params []json.RawMessage `json:"params"`
+		Method string          `json:"method"`
+		Params []js.RawMessage `json:"params"`
 	}
 	// rawResponse is a partially-unmarshaled JSON-RPC response.  For this to be valid (according to JSON-RPC 1.0 spec), ID may not be nil.
 	rawResponse struct {
-		Result json.RawMessage   `json:"result"`
-		Error  *btcjson.RPCError `json:"error"`
+		Result js.RawMessage  `json:"result"`
+		Error  *json.RPCError `json:"error"`
 	}
 )
 
@@ -192,7 +193,7 @@ type response struct {
 	err    error
 }
 
-// result checks whether the unmarshaled response contains a non-nil error, returning an unmarshaled btcjson.RPCError (or an unmarshaling error) if so. If the response is not an error, the raw bytes of the request are returned for further unmashaling into specific result types.
+// result checks whether the unmarshaled response contains a non-nil error, returning an unmarshaled json.RPCError (or an unmarshaling error) if so. If the response is not an error, the raw bytes of the request are returned for further unmashaling into specific result types.
 func (r rawResponse) result() (result []byte, err error) {
 	if r.Error != nil {
 		return nil, r.Error
@@ -206,7 +207,7 @@ func (c *Client) handleMessage(msg []byte) {
 	var in inMessage
 	in.rawResponse = new(rawResponse)
 	in.rawNotification = new(rawNotification)
-	err := json.Unmarshal(msg, &in)
+	err := js.Unmarshal(msg, &in)
 	if err != nil {
 		log.Warnf("Remote server sent invalid message: %v", err)
 		return
@@ -380,7 +381,7 @@ func (c *Client) reregisterNtfns() error {
 	// Reregister the combination of all previously registered notifyspent outpoints in one command if needed.
 	nslen := len(stateCopy.notifySpent)
 	if nslen > 0 {
-		outpoints := make([]btcjson.OutPoint, 0, nslen)
+		outpoints := make([]json.OutPoint, 0, nslen)
 		for op := range stateCopy.notifySpent {
 			outpoints = append(outpoints, op)
 		}
@@ -517,7 +518,7 @@ func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	}
 	// Try to unmarshal the response as a regular JSON-RPC response.
 	var resp rawResponse
-	err = json.Unmarshal(respBytes, &resp)
+	err = js.Unmarshal(respBytes, &resp)
 	if err != nil {
 		// When the response itself isn't a valid JSON-RPC response return an error which includes the HTTP status code and raw response bytes.
 		err = fmt.Errorf("status code: %d, response: %q",
@@ -634,13 +635,13 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 // sendCmd sends the passed command to the associated server and returns a response channel on which the reply will be delivered at some point in the future.  It handles both websocket and HTTP POST mode depending on the configuration of the client.
 func (c *Client) sendCmd(cmd interface{}) chan *response {
 	// Get the method associated with the command.
-	method, err := btcjson.CmdMethod(cmd)
+	method, err := json.CmdMethod(cmd)
 	if err != nil {
 		return newFutureError(err)
 	}
 	// Marshal the command.
 	id := c.NextID()
-	marshalledJSON, err := btcjson.MarshalCmd(id, cmd)
+	marshalledJSON, err := json.MarshalCmd(id, cmd)
 	if err != nil {
 		return newFutureError(err)
 	}

@@ -2,8 +2,9 @@ package wire
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // RejectCode represents a numeric value by which a remote peer indicates why a message was rejected.

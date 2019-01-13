@@ -1,5 +1,5 @@
-package main
+package wallet
 
-import "github.com/parallelcointeam/mod/netparams"
+import "git.parallelcoin.io/pod/wallet/netparams"
 
 var activeNet = &netparams.MainNetParams

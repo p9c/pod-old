@@ -6,7 +6,7 @@ import (
 	"hash/crc32"
 	"log"
 
-	"github.com/parallelcointeam/sub/clog"
+	"git.parallelcoin.io/pod/clog"
 	"github.com/vivint/infectious"
 )
 

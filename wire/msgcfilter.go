@@ -2,8 +2,9 @@ package wire
 
 import (
 	"fmt"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
 	"io"
+
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
 )
 
 // FilterType is used to represent a filter type.

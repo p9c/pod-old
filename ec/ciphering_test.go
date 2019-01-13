@@ -1,10 +1,11 @@
+package ec
 
-package btcec
 import (
 	"bytes"
 	"encoding/hex"
 	"testing"
 )
+
 func TestGenerateSharedSecret(t *testing.T) {
 	privKey1, err := NewPrivateKey(S256())
 	if err != nil {
@@ -23,6 +24,7 @@ func TestGenerateSharedSecret(t *testing.T) {
 			secret1, secret2)
 	}
 }
+
 // Test 1: Encryption and decryption
 func TestCipheringBasic(t *testing.T) {
 	privkey, err := NewPrivateKey(S256())
@@ -42,6 +44,7 @@ func TestCipheringBasic(t *testing.T) {
 		t.Error("decrypted data doesn't match original")
 	}
 }
+
 // Test 2: Byte compatibility with Pyelliptic
 func TestCiphering(t *testing.T) {
 	pb, _ := hex.DecodeString("fe38240982f313ae5afb3e904fb8215fb11af1200592b" +

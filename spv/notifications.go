@@ -4,13 +4,13 @@
 
 // NOTE: THIS API IS UNSTABLE RIGHT NOW.
 
-package neutrino
+package spv
 
 import (
 	"errors"
 
-	"github.com/parallelcointeam/pod/addrmgr"
-	"github.com/parallelcointeam/pod/connmgr"
+	"git.parallelcoin.io/pod/addrmgr"
+	"git.parallelcoin.io/pod/connmgr"
 )
 
 type getConnCountMsg struct {

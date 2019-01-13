@@ -1,11 +1,11 @@
 package cache
 
-import "github.com/parallelcointeam/pod/btcutil"
+import "git.parallelcoin.io/pod/util"
 
-// CacheableBlock is a wrapper around the btcutil.Block type which provides a
+// CacheableBlock is a wrapper around the util.Block type which provides a
 // Size method used by the cache to target certain memory usage.
 type CacheableBlock struct {
-	*btcutil.Block
+	*util.Block
 }
 
 // Size returns size of this block in bytes.

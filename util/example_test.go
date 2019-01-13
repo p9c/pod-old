@@ -1,15 +1,18 @@
-package btcutil_test
+package util_test
+
 import (
 	"fmt"
 	"math"
-	"github.com/parallelcointeam/pod/btcutil"
+
+	"git.parallelcoin.io/pod/util"
 )
+
 func ExampleAmount() {
-	a := btcutil.Amount(0)
+	a := util.Amount(0)
 	fmt.Println("Zero Satoshi:", a)
-	a = btcutil.Amount(1e8)
+	a = util.Amount(1e8)
 	fmt.Println("100,000,000 Satoshis:", a)
-	a = btcutil.Amount(1e5)
+	a = util.Amount(1e5)
 	fmt.Println("100,000 Satoshis:", a)
 	// Output:
 	// Zero Satoshi: 0 DUO
@@ -17,25 +20,25 @@ func ExampleAmount() {
 	// 100,000 Satoshis: 0.001 DUO
 }
 func ExampleNewAmount() {
-	amountOne, err := btcutil.NewAmount(1)
+	amountOne, err := util.NewAmount(1)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(amountOne) //Output 1
-	amountFraction, err := btcutil.NewAmount(0.01234567)
+	amountFraction, err := util.NewAmount(0.01234567)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(amountFraction) //Output 2
-	amountZero, err := btcutil.NewAmount(0)
+	amountZero, err := util.NewAmount(0)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(amountZero) //Output 3
-	amountNaN, err := btcutil.NewAmount(math.NaN())
+	amountNaN, err := util.NewAmount(math.NaN())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -47,12 +50,12 @@ func ExampleNewAmount() {
 	// invalid bitcoin amount
 }
 func ExampleAmount_unitConversions() {
-	amount := btcutil.Amount(44433322211100)
-	fmt.Println("Satoshi to kDUO:", amount.Format(btcutil.AmountKiloDUO))
+	amount := util.Amount(44433322211100)
+	fmt.Println("Satoshi to kDUO:", amount.Format(util.AmountKiloDUO))
 	fmt.Println("Satoshi to DUO:", amount)
-	fmt.Println("Satoshi to MilliDUO:", amount.Format(btcutil.AmountMilliDUO))
-	fmt.Println("Satoshi to MicroDUO:", amount.Format(btcutil.AmountMicroDUO))
-	fmt.Println("Satoshi to Satoshi:", amount.Format(btcutil.AmountSatoshi))
+	fmt.Println("Satoshi to MilliDUO:", amount.Format(util.AmountMilliDUO))
+	fmt.Println("Satoshi to MicroDUO:", amount.Format(util.AmountMicroDUO))
+	fmt.Println("Satoshi to Satoshi:", amount.Format(util.AmountSatoshi))
 	// Output:
 	// Satoshi to kDUO: 444.333222111 kDUO
 	// Satoshi to DUO: 444333.222111 DUO

@@ -1,16 +1,19 @@
+package ec
 
-package btcec
 import (
 	"bytes"
 	"testing"
+
 	"github.com/davecgh/go-spew/spew"
 )
+
 type pubKeyTest struct {
 	name    string
 	key     []byte
 	format  byte
 	isValid bool
 }
+
 var pubKeyTests = []pubKeyTest{
 	// pubkey from bitcoin blockchain tx
 	// 0437cd7f8525ceed2324359c2d0ba26006d92d85
@@ -206,6 +209,7 @@ var pubKeyTests = []pubKeyTest{
 		isValid: true,
 	},
 }
+
 func TestPubKeys(t *testing.T) {
 	for _, test := range pubKeyTests {
 		pk, err := ParsePubKey(test.key, S256())

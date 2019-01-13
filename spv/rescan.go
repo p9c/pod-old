@@ -1,6 +1,6 @@
 // NOTE: THIS API IS UNSTABLE RIGHT NOW.
 
-package neutrino
+package spv
 
 import (
 	"bytes"
@@ -10,16 +10,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/sac/headerfs"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/spv/headerfs"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/util/gcs"
+	"git.parallelcoin.io/pod/util/gcs/builder"
+	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var (
@@ -41,7 +41,7 @@ type rescanOptions struct {
 
 	endBlock *waddrmgr.BlockStamp
 
-	watchAddrs  []btcutil.Address
+	watchAddrs  []util.Address
 	watchInputs []InputWithScript
 	watchList   [][]byte
 	txIdx       uint32
@@ -113,7 +113,7 @@ func EndBlock(endBlock *waddrmgr.BlockStamp) RescanOption {
 // function adds to the list of addresses being watched rather than replacing
 // the list. Each time a transaction spends to the specified address, the
 // outpoint is added to the WatchOutPoints list.
-func WatchAddrs(watchAddrs ...btcutil.Address) RescanOption {
+func WatchAddrs(watchAddrs ...util.Address) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.watchAddrs = append(ro.watchAddrs, watchAddrs...)
 	}
@@ -697,7 +697,7 @@ func (s *ChainService) notifyBlock(ro *rescanOptions,
 
 	// Find relevant transactions based on watch list. If scanning is
 	// false, we can safely assume this block has no relevant transactions.
-	var relevantTxs []*btcutil.Tx
+	var relevantTxs []*util.Tx
 	if len(ro.watchList) != 0 && scanning {
 		// If we have a non-empty watch list, then we need to see if it
 		// matches the rescan's filters, so we get the basic filter
@@ -731,7 +731,7 @@ func (s *ChainService) notifyBlock(ro *rescanOptions,
 // extractBlockMatches fetches the target block from the network, and filters
 // out any relevant transactions found within the block.
 func (s *ChainService) extractBlockMatches(ro *rescanOptions,
-	curStamp *waddrmgr.BlockStamp) ([]*btcutil.Tx, error) {
+	curStamp *waddrmgr.BlockStamp) ([]*util.Tx, error) {
 
 	// We've matched. Now we actually get the block and cycle through the
 	// transactions to see which ones are relevant.
@@ -745,13 +745,13 @@ func (s *ChainService) extractBlockMatches(ro *rescanOptions,
 	}
 
 	blockHeader := block.MsgBlock().Header
-	blockDetails := btcjson.BlockDetails{
+	blockDetails := json.BlockDetails{
 		Height: block.Height(),
 		Hash:   block.Hash().String(),
 		Time:   blockHeader.Timestamp.Unix(),
 	}
 
-	relevantTxs := make([]*btcutil.Tx, 0, len(block.Transactions()))
+	relevantTxs := make([]*util.Tx, 0, len(block.Transactions()))
 	for txIdx, tx := range block.Transactions() {
 		txDetails := blockDetails
 		txDetails.Index = txIdx
@@ -799,7 +799,7 @@ func (s *ChainService) notifyBlockWithFilter(ro *rescanOptions,
 	// Based on what we find within the block or the filter, we'll be
 	// sending out a set of notifications with transactions that are
 	// relevant to the rescan.
-	var relevantTxs []*btcutil.Tx
+	var relevantTxs []*util.Tx
 
 	// If we actually have a filter, then we'll go ahead an attempt to
 	// match the items within the filter to ensure we create any relevant
@@ -968,7 +968,7 @@ func (ro *rescanOptions) updateFilter(update *updateOptions,
 
 // spendsWatchedInput returns whether the transaction matches the filter by
 // spending a watched input.
-func (ro *rescanOptions) spendsWatchedInput(tx *btcutil.Tx) bool {
+func (ro *rescanOptions) spendsWatchedInput(tx *util.Tx) bool {
 	for _, in := range tx.MsgTx().TxIn {
 		for _, input := range ro.watchInputs {
 			if in.PreviousOutPoint == input.OutPoint {
@@ -982,7 +982,7 @@ func (ro *rescanOptions) spendsWatchedInput(tx *btcutil.Tx) bool {
 // paysWatchedAddr returns whether the transaction matches the filter by having
 // an output paying to a watched address. If that is the case, this also
 // updates the filter to watch the newly created output going forward.
-func (ro *rescanOptions) paysWatchedAddr(tx *btcutil.Tx) (bool, error) {
+func (ro *rescanOptions) paysWatchedAddr(tx *util.Tx) (bool, error) {
 	anyMatchingOutputs := false
 
 txOutLoop:
@@ -1098,7 +1098,7 @@ func (r *Rescan) Start() <-chan error {
 
 // updateOptions are a set of functional parameters for Update.
 type updateOptions struct {
-	addrs                    []btcutil.Address
+	addrs                    []util.Address
 	inputs                   []InputWithScript
 	txIDs                    []chainhash.Hash
 	rewind                   uint32
@@ -1113,7 +1113,7 @@ func defaultUpdateOptions() *updateOptions {
 }
 
 // AddAddrs adds addresses to the filter.
-func AddAddrs(addrs ...btcutil.Address) UpdateOption {
+func AddAddrs(addrs ...util.Address) UpdateOption {
 	return func(uo *updateOptions) {
 		uo.addrs = append(uo.addrs, addrs...)
 	}

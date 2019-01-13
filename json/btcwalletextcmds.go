@@ -1,5 +1,5 @@
 // NOTE: This file is intended to house the RPC commands that are supported by a wallet server with btcwallet extensions.
-package btcjson
+package json
 
 // CreateNewAccountCmd defines the createnewaccount JSON-RPC command.
 type CreateNewAccountCmd struct {
