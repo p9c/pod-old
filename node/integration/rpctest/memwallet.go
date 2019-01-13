@@ -9,6 +9,7 @@ import (
 	"git.parallelcoin.io/pod/blockchain"
 	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/ec"
 	"git.parallelcoin.io/pod/rpcclient"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
