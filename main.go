@@ -13,7 +13,6 @@ import (
 
 const (
 	showHelpMessage = "Specify -h to show available options"
-	listCmdMessage  = "Specify -l to list available commands"
 )
 
 var (
@@ -29,7 +28,6 @@ func usage(errorMessage string) {
 	fmt.Fprintf(os.Stderr, "  %s [OPTIONS] <command> <args...>\n\n",
 		appName)
 	fmt.Fprintln(os.Stderr, showHelpMessage)
-	fmt.Fprintln(os.Stderr, listCmdMessage)
 }
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
@@ -45,11 +43,7 @@ func Main() (err error) {
 	interrupt := interruptListener()
 	defer podLog.Info("Shutdown complete")
 	podLog.Infof("Version %s", version())
-	if len(args) < 1 {
-		usage("No command specified")
-		os.Exit(1)
-	}
-	podLog.Info(args)
+	_ = args
 	if interruptRequested(interrupt) {
 		return nil
 	}
