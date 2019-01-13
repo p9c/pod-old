@@ -15,13 +15,13 @@ func init() {
 // DisableLog disables all library log output.  Logging output is disabled
 // by default until either UseLogger or SetLogWriter are called.
 func DisableLog() {
-	log = log.Disabled
+	log = l.Disabled
 }
 
 // UseLogger uses a specified Logger to output package logging info.
 // This should be used in preference to SetLogWriter if the caller is also
 // using log.
-func UseLogger(logger log.Logger) {
+func UseLogger(logger l.Logger) {
 	log = logger
 }
 

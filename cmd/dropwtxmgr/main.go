@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
-	"git.parallelcoin.io/pod/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/walletdb"
+	_ "git.parallelcoin.io/pod/walletdb/bdb"
+	"git.parallelcoin.io/pod/wtxmgr"
 	"github.com/jessevdk/go-flags"
 )
 

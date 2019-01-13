@@ -92,7 +92,7 @@ func Main() {
 	// Attempt to create the appropriate command using the arguments provided by the user.
 	cmd, err := json.NewCmd(method, params...)
 	if err != nil {
-		// Show the error along with its error code when it's a json.Error as it reallistcally will always be since the NewCmd function is only supposed to return errors of that type.
+		// Show the error along with its error code when it's a json.Error as it realistically will always be since the NewCmd function is only supposed to return errors of that type.
 		if jerr, ok := err.(json.Error); ok {
 			fmt.Fprintf(os.Stderr, "%s command: %v (code: %s)\n",
 				method, err, jerr.ErrorCode)
