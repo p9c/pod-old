@@ -1,0 +1,13 @@
+<div id="settings" class="flx fcl fii">
+{{/* <Title title="Settings" /> */}}
+  <div class="flx fcl fii pdb">
+ 
+
+                <nav>
+                    <button @click="swapComponent(Ifc)"><div class="mit">Interface</div></button>
+                    <button @click="swapComponent(Network)"><div class="mit">Network</small></div></button>
+                    <button @click="swapComponent(Security)"><div class="mit">Security</div></button>
+                    <button @click="swapComponent(Mining)"><div class="mit">Mining</div></button>
+                </nav>
+                      <main :is="component" id="settingsc" :vicons="vuedata.data.icons" class="flx fii pnlbg"></main>
+                      </div></div>
