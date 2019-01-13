@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultConfigFilename = "pod.conf"
+	defaultConfigFilename = "conf"
 	defaultDataDirname    = "data"
 	defaultLogLevel       = "info"
 	defaultLogDirname     = "logs"
@@ -32,21 +32,26 @@ var (
 // runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
 var runServiceCommand func(string) error
 
-// minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
-func minUint32(a, b uint32) uint32 {
-	if a < b {
-		return a
-	}
-	return b
-}
+type nodeParams struct{}
+type walletParams struct{}
+type walletnodeParams struct{}
+type walletGUIParams struct{}
+type ctlParams struct{}
+type spvParams struct{}
 
 // config defines the configuration options for pod. See loadConfig for details on the configuration load process.
 type config struct {
-	ShowVersion bool   `short:"V" long:"version" description:"Display version information and exit"`
-	ConfigFile  string `short:"C" long:"configfile" description:"Path to configuration file"`
-	DataDir     string `short:"b" long:"datadir" description:"Directory to store data"`
-	LogDir      string `long:"logdir" description:"Directory to log output."`
-	DebugLevel  string `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
+	ShowVersion bool             `short:"V" long:"version" description:"Display version information and exit"`
+	ConfigFile  string           `short:"C" long:"configfile" description:"Path to configuration file"`
+	DataDir     string           `short:"b" long:"datadir" description:"Directory to store data"`
+	LogDir      string           `long:"logdir" description:"Directory to log output."`
+	DebugLevel  string           `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
+	Node        nodeParams       `command:"node" description:"run a core node"`
+	Wallet      walletParams     `command:"wallet" description:"run a wallet server"`
+	WalletNode  walletnodeParams `command:"walletnode" description:"run a combo core/wallet server"`
+	WalletGUI   walletGUIParams  `command:"walletgui" description:"run the full wallet GUI"`
+	Ctl         ctlParams        `command:"ctl" description:"send RPC queries to a node/wallet"`
+	Spv         spvParams        `command:"spv" description:"run the spv node"`
 }
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
@@ -180,6 +185,9 @@ func loadConfig() (*config, []string, error) {
 			fmt.Fprintln(os.Stderr, err)
 			return nil, nil, err
 		}
+	}
+	if preParser.Active != nil {
+		fmt.Println("active.name", preParser.Active.Name)
 	}
 	// Show the version and exit if the version flag was specified.
 	appName := filepath.Base(os.Args[0])
