@@ -1,7 +1,10 @@
-package main
+package node
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/jrick/logrotate/rotator"
 	"github.com/parallelcointeam/pod/addrmgr"
 	"github.com/parallelcointeam/pod/blockchain"
@@ -16,8 +19,6 @@ import (
 	"github.com/parallelcointeam/pod/netsync"
 	"github.com/parallelcointeam/pod/peer"
 	"github.com/parallelcointeam/pod/txscript"
-	"os"
-	"path/filepath"
 )
 
 // logWriter implements an io.Writer that outputs to both standard output and the write-end pipe of an initialized log rotator.

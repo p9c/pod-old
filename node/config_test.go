@@ -1,4 +1,5 @@
-package main
+package node
+
 import (
 	"io/ioutil"
 	"os"
@@ -7,10 +8,12 @@ import (
 	"runtime"
 	"testing"
 )
+
 var (
 	rpcuserRegexp = regexp.MustCompile("(?m)^rpcuser=.+$")
 	rpcpassRegexp = regexp.MustCompile("(?m)^rpcpass=.+$")
 )
+
 func TestCreateDefaultConfigFile(t *testing.T) {
 	// find out where the sample config lives
 	_, path, _, ok := runtime.Caller(0)

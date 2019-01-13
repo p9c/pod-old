@@ -1,13 +1,14 @@
-package main
+package node
 
 import (
 	"fmt"
-	"github.com/btcsuite/winsvc/eventlog"
-	"github.com/btcsuite/winsvc/mgr"
-	"github.com/btcsuite/winsvc/svc"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/btcsuite/winsvc/eventlog"
+	"github.com/btcsuite/winsvc/mgr"
+	"github.com/btcsuite/winsvc/svc"
 )
 
 const (

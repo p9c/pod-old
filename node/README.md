@@ -1,6 +1,6 @@
 ![](https://gitlab.com/parallelcoin/node/raw/master/assets/logo.png)
 
-# The Parallelcoin Pod [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/parallelcointeam/pod)
+# The Parallelcoin Node [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org) [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/parallelcointeam/pod/node)
 
 <!-- [![Build Status](https://travis-ci.org/parallelcointeam/pod.png?branch=master)](https://travis-ci.org/parallelcointeam/pod) -->
 

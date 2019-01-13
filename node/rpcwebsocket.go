@@ -1,4 +1,4 @@
-package main
+package node
 
 import (
 	"bytes"
@@ -10,6 +10,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"math"
+	"sync"
+	"time"
+
 	"github.com/btcsuite/websocket"
 	"github.com/parallelcointeam/pod/blockchain"
 	"github.com/parallelcointeam/pod/btcjson"
@@ -20,10 +25,6 @@ import (
 	"github.com/parallelcointeam/pod/txscript"
 	"github.com/parallelcointeam/pod/wire"
 	"golang.org/x/crypto/ripemd160"
-	"io"
-	"math"
-	"sync"
-	"time"
 )
 
 const (

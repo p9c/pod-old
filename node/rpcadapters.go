@@ -1,6 +1,8 @@
-package main
+package node
 
 import (
+	"sync/atomic"
+
 	"github.com/parallelcointeam/pod/blockchain"
 	"github.com/parallelcointeam/pod/btcutil"
 	"github.com/parallelcointeam/pod/chaincfg/chainhash"
@@ -8,7 +10,6 @@ import (
 	"github.com/parallelcointeam/pod/netsync"
 	"github.com/parallelcointeam/pod/peer"
 	"github.com/parallelcointeam/pod/wire"
-	"sync/atomic"
 )
 
 // rpcPeer provides a peer for use with the RPC server and implements the rpcserverPeer interface.

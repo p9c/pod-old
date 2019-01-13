@@ -1,4 +1,4 @@
-package main
+package node
 
 import (
 	"bytes"
@@ -7,6 +7,16 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math"
+	"net"
+	"runtime"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"github.com/parallelcointeam/pod/addrmgr"
 	"github.com/parallelcointeam/pod/blockchain"
 	"github.com/parallelcointeam/pod/blockchain/indexers"
@@ -24,15 +34,6 @@ import (
 	"github.com/parallelcointeam/pod/peer"
 	"github.com/parallelcointeam/pod/txscript"
 	"github.com/parallelcointeam/pod/wire"
-	"math"
-	"net"
-	"runtime"
-	"sort"
-	"strconv"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 const (

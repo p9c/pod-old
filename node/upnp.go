@@ -1,4 +1,4 @@
-package main
+package node
 
 // Upnp code taken from Taipei Torrent license is below:
 // Redistribution and use in source and binary forms, with or without

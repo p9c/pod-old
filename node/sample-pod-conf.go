@@ -1,4 +1,4 @@
-package main
+package node
 
 var samplePodConf = []byte(`[Application Options]
 ;datadir=              ;;; Directory to store data (default: /home/loki/.pod/data)
