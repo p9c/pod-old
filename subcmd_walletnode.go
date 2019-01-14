@@ -6,18 +6,6 @@ import (
 	"os"
 )
 
-type walletnodeCfg struct {
-	LaunchGroup walletCfgLaunchGroup `group:"launch options"`
-
-	NodeRPCGroup   nodeCfgRPCGroup    `group:"RPC options"`
-	NodeP2PGroup   nodeCfgP2PGroup    `group:"P2P options"`
-	NodeChainGroup nodeCfgChainGroup  `group:"Chain options"`
-	MiningGroup    nodeCfgMiningGroup `group:"Mining options"`
-
-	WalletNodeCfgGroup walletNodeCfg     `group:"node connection options"`
-	WalletRPCCfgGroup  walletRPCCfgGroup `group:"wallet RPC configuration"`
-}
-
 var walletnode walletnodeCfg
 
 func (n *walletnodeCfg) Execute(args []string) (err error) {
