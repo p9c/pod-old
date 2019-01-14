@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -18,15 +19,19 @@ type walletGUICfgLaunchGroup struct {
 }
 
 type walletGUICfg struct {
-	LaunchGroup    walletGUICfgLaunchGroup `group:"launch options"`
-	NodeP2PGroup   nodeCfgP2PGroup         `group:"P2P options"`
-	NodeChainGroup nodeCfgChainGroup       `group:"Chain options"`
+	LaunchGroup       walletGUICfgLaunchGroup `group:"launch options"`
+	NodeP2PGroup      nodeCfgP2PGroup         `group:"P2P options"`
+	NodeChainGroup    nodeCfgChainGroup       `group:"Chain options"`
+	MiningGroup       nodeCfgMiningGroup      `group:"Mining options"`
+	WalletRPCCfgGroup walletRPCCfgGroup       `group:"wallet RPC configuration"`
 }
 
 var walletGUI walletGUICfg
 
 func (n *walletGUICfg) Execute(args []string) (err error) {
 	fmt.Println("running wallet gui")
+	j, _ := json.MarshalIndent(n, "", "\t")
+	fmt.Println(string(j))
 	fmt.Println("not implemented - quitting")
 	os.Exit(1)
 	return

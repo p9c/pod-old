@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -11,16 +12,16 @@ import (
 )
 
 type nodeCfgRPCGroup struct {
-	RPCUser              string   `short:"u" long:"rpcuser" description:"Username for RPC connections"`
-	RPCPass              string   `short:"P" long:"rpcpass" default-mask:"-" description:"Password for RPC connections"`
+	RPCUser              string   `long:"rpcuser" description:"Username for RPC connections"`
+	RPCPass              string   `long:"rpcpass" default-mask:"-" description:"Password for RPC connections"`
 	RPCLimitUser         string   `long:"rpclimituser" description:"Username for limited RPC connections"`
 	RPCLimitPass         string   `long:"rpclimitpass" default-mask:"-" description:"Password for limited RPC connections"`
 	RPCListeners         []string `long:"rpclisten" description:"Add an interface/port to listen for RPC connections (default port: 11048, testnet: 21048) gives sha256d block templates"`
 	RPCCert              string   `long:"rpccert" description:"File containing the certificate file"`
 	RPCKey               string   `long:"rpckey" description:"File containing the certificate key"`
-	RPCMaxClients        int      `long:"rpcmaxclients" description:"Max number of RPC clients for standard connections"`
-	RPCMaxWebsockets     int      `long:"rpcmaxwebsockets" description:"Max number of RPC websocket connections"`
-	RPCMaxConcurrentReqs int      `long:"rpcmaxconcurrentreqs" description:"Max number of concurrent RPC requests that may be processed concurrently"`
+	RPCMaxClients        int64    `long:"rpcmaxclients" description:"Max number of RPC clients for standard connections"`
+	RPCMaxWebsockets     int64    `long:"rpcmaxwebsockets" description:"Max number of RPC websocket connections"`
+	RPCMaxConcurrentReqs int64    `long:"rpcmaxconcurrentreqs" description:"Max number of concurrent RPC requests that may be processed concurrently"`
 	RPCQuirks            bool     `long:"rpcquirks" description:"Mirror some JSON-RPC quirks of Bitcoin Core -- NOTE: Discouraged unless interoperability issues need to be worked around"`
 	DisableRPC           bool     `long:"norpc" description:"Disable built-in RPC server -- NOTE: The RPC server is disabled by default if no rpcuser/rpcpass or rpclimituser/rpclimitpass is specified"`
 	TLS                  bool     `long:"tls" description:"Enable TLS for the RPC server"`
@@ -119,6 +120,8 @@ var node nodeCfg
 
 func (n *nodeCfg) Execute(args []string) (err error) {
 	fmt.Println("running full node")
+	j, _ := json.MarshalIndent(n, "", "\t")
+	fmt.Println(string(j))
 	fmt.Println("not implemented - quitting")
 	os.Exit(1)
 	return
