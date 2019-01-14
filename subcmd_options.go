@@ -95,6 +95,7 @@ type allCfgLaunch struct {
 	LogDir      string `long:"logdir" description:"directory to log output"`
 	Profile     string `long:"profile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
 	CPUProfile  string `long:"cpuprofile" description:"write CPU profile to the specified file"`
+	DebugLevel  string `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
 }
 
 type nodeCfgMiningGroup struct {
@@ -205,35 +206,17 @@ type walletcomboRPCCfgGroup struct {
 	TLS                      bool     `long:"wallettls" description:"enable TLS for the RPC server"`
 }
 
-type nodeCfg struct {
-	Main           allCfgLaunch       `group:"general launch options"`
-	Network        networkGroup       `group:"network options"`
-	Launch         nodeLaunchGroup    `group:"node launch options"`
-	NodeRPC        nodeCfgRPCGroup    `group:"node RPC options"`
-	NodeP2P        nodeCfgP2PGroup    `group:"node P2P options"`
-	NodeChain      nodeCfgChainGroup  `group:"node chain options"`
-	NodeMining     nodeCfgMiningGroup `group:"node mining options"`
-	lookup         func(string) ([]net.IP, error)
-	oniondial      func(string, string, time.Duration) (net.Conn, error)
-	dial           func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints []chaincfg.Checkpoint
-	miningAddrs    []util.Address
-	minerKey       []byte
-	minRelayTxFee  util.Amount
-	whitelists     []*net.IPNet
-}
-
 type ctlCfg struct {
-	Main    allCfgLaunch      `group:"general launch options"`
-	Network networkGroup      `group:"ctl network options"`
-	Launch  ctlCfgLaunchGroup `group:"ctl launch options"`
-	RPC     clientRPCGroup    `group:"ctl RPC options"`
+	Launch    allCfgLaunch      `group:"general launch options"`
+	Network   networkGroup      `group:"ctl network options"`
+	CtlLaunch ctlCfgLaunchGroup `group:"ctl launch options"`
+	CtlRPC    clientRPCGroup    `group:"ctl RPC options"`
 }
 
 type explorerCfg struct {
-	Main           allCfgLaunch           `group:"general launch options"`
+	Launch         allCfgLaunch           `group:"general launch options"`
 	Network        networkGroup           `group:"network options"`
-	Launch         explorerCfgLaunchGroup `group:"explorer options"`
+	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
 	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
 	NodeRPC        nodeCfgRPCGroup        `group:"node RPC options"`
 	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
@@ -249,16 +232,34 @@ type explorerCfg struct {
 	whitelists     []*net.IPNet
 }
 
+type nodeCfg struct {
+	Launch         allCfgLaunch       `group:"general launch options"`
+	Network        networkGroup       `group:"network options"`
+	NodeLaunch     nodeLaunchGroup    `group:"node launch options"`
+	NodeRPC        nodeCfgRPCGroup    `group:"node RPC options"`
+	NodeP2P        nodeCfgP2PGroup    `group:"node P2P options"`
+	NodeChain      nodeCfgChainGroup  `group:"node chain options"`
+	NodeMining     nodeCfgMiningGroup `group:"node mining options"`
+	lookup         func(string) ([]net.IP, error)
+	oniondial      func(string, string, time.Duration) (net.Conn, error)
+	dial           func(string, string, time.Duration) (net.Conn, error)
+	addCheckpoints []chaincfg.Checkpoint
+	miningAddrs    []util.Address
+	minerKey       []byte
+	minRelayTxFee  util.Amount
+	whitelists     []*net.IPNet
+}
+
 type walletCfg struct {
-	Main         allCfgLaunch         `group:"general launch options"`
+	Launch       allCfgLaunch         `group:"general launch options"`
 	Network      networkGroup         `group:"network options"`
-	LaunchWallet walletCfgLaunchGroup `group:"launch options"`
-	WalletCfg    walletNodeCfg        `group:"wallet to node connection options"`
-	WalletRPCCfg walletRPCCfgGroup    `group:"wallet RPC configuration"`
+	WalletLaunch walletCfgLaunchGroup `group:"launch options"`
+	Wallet       walletNodeCfg        `group:"wallet to node connection options"`
+	WalletRPC    walletRPCCfgGroup    `group:"wallet RPC configuration"`
 }
 
 type walletGUICfg struct {
-	Main           allCfgLaunch           `group:"launch options"`
+	Launch         allCfgLaunch           `group:"launch options"`
 	Network        networkGroup           `group:"network options"`
 	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
 	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
@@ -266,7 +267,7 @@ type walletGUICfg struct {
 	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
 	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
 	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
-	LaunchWallet   walletCfgLaunchGroup   `group:"wallet launch options"`
+	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
 	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
 	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
 	lookup         func(string) ([]net.IP, error)
@@ -280,15 +281,15 @@ type walletGUICfg struct {
 }
 
 type walletnodeCfg struct {
-	Main           allCfgLaunch           `group:"launch options"`
-	Net            networkGroup           `group:"network options"`
+	Launch         allCfgLaunch           `group:"launch options"`
+	Network        networkGroup           `group:"network options"`
 	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
 	NodeRPCGroup   nodecomboCfgRPCGroup   `group:"node RPC options"`
 	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
 	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
-	LaunchWallet   walletCfgLaunchGroup   `group:"wallet launch options"`
-	WalletCfg      walletNodeCfg          `group:"wallet to node connection options"`
-	WalletRPCCfg   walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
+	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
+	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
+	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
 	lookup         func(string) ([]net.IP, error)
 	oniondial      func(string, string, time.Duration) (net.Conn, error)
 	dial           func(string, string, time.Duration) (net.Conn, error)
