@@ -8,7 +8,7 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/EXCCoin/exccd/limits"
+	"git.parallelcoin.io/pod/limits"
 )
 
 const (

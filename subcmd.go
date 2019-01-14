@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"strings"
 
 	_ "git.parallelcoin.io/pod/database/ffldb"
@@ -16,9 +15,9 @@ import (
 
 const (
 	defaultConfigFilename = "conf"
-	defaultDataDirname    = "data"
-	defaultLogLevel       = "info"
-	defaultLogDirname     = "logs"
+	defaultDataDirname    = "poddata"
+	defaultLogLevel       = "critical"
+	defaultLogDirname     = "podlogs"
 	defaultLogFilename    = "pod.log"
 )
 
@@ -83,16 +82,16 @@ func validLogLevel(logLevel string) bool {
 }
 
 // supportedSubsystems returns a sorted slice of the supported subsystems for logging purposes.
-func supportedSubsystems() []string {
-	// Convert the subsystemLoggers map keys to a slice.
-	subsystems := make([]string, 0, len(subsystemLoggers))
-	for subsysID := range subsystemLoggers {
-		subsystems = append(subsystems, subsysID)
-	}
-	// Sort the subsystems for stable display.
-	sort.Strings(subsystems)
-	return subsystems
-}
+// func supportedSubsystems() []string {
+// 	// Convert the subsystemLoggers map keys to a slice.
+// 	subsystems := make([]string, 0, len(subsystemLoggers))
+// 	for subsysID := range subsystemLoggers {
+// 		subsystems = append(subsystems, subsysID)
+// 	}
+// 	// Sort the subsystems for stable display.
+// 	sort.Strings(subsystems)
+// 	return subsystems
+// }
 
 // parseAndSetDebugLevels attempts to parse the specified debug level and set the levels accordingly.  An appropriate error is returned if anything is invalid.
 func parseAndSetDebugLevels(debugLevel string) error {
@@ -104,7 +103,7 @@ func parseAndSetDebugLevels(debugLevel string) error {
 			return fmt.Errorf(str, debugLevel)
 		}
 		// Change the logging level for all subsystems.
-		setLogLevels(debugLevel)
+		// setLogLevels(debugLevel)
 		return nil
 	}
 	// Split the specified string into subsystem/level pairs while detecting issues and update the log levels accordingly.
@@ -115,20 +114,20 @@ func parseAndSetDebugLevels(debugLevel string) error {
 			return fmt.Errorf(str, logLevelPair)
 		}
 		// Extract the specified subsystem and log level.
-		fields := strings.Split(logLevelPair, "=")
-		subsysID, logLevel := fields[0], fields[1]
+		// fields := strings.Split(logLevelPair, "=")
+		// subsysID, logLevel := fields[0], fields[1]
 		// Validate subsystem.
-		if _, exists := subsystemLoggers[subsysID]; !exists {
-			str := "The specified subsystem [%v] is invalid -- " +
-				"supported subsytems %v"
-			return fmt.Errorf(str, subsysID, supportedSubsystems())
-		}
+		// if _, exists := subsystemLoggers[subsysID]; !exists {
+		// 	str := "The specified subsystem [%v] is invalid -- " +
+		// 		"supported subsytems %v"
+		// 	return fmt.Errorf(str, subsysID, supportedSubsystems())
+		// }
 		// Validate log level.
-		if !validLogLevel(logLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, logLevel)
-		}
-		setLogLevel(subsysID, logLevel)
+		// if !validLogLevel(logLevel) {
+		// 	str := "The specified debug level [%v] is invalid"
+		// 	return fmt.Errorf(str, logLevel)
+		// }
+		// setLogLevel(subsysID, logLevel)
 	}
 	return nil
 }
@@ -251,12 +250,12 @@ func loadConfig() (*config, []string, error) {
 	cfg.LogDir = cleanAndExpandPath(cfg.LogDir)
 	cfg.LogDir = filepath.Join(cfg.LogDir, netName(activeNetParams))
 	// Special show command to list supported subsystems and exit.
-	if cfg.DebugLevel == "show" {
-		fmt.Println("Supported subsystems", supportedSubsystems())
-		os.Exit(0)
-	}
+	// if cfg.DebugLevel == "show" {
+	// 	fmt.Println("Supported subsystems", supportedSubsystems())
+	// 	os.Exit(0)
+	// }
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
-	initLogRotator(filepath.Join(cfg.LogDir, defaultLogFilename))
+	// initLogRotator(filepath.Join(cfg.LogDir, defaultLogFilename))
 	// Parse, validate, and set debug log level(s).
 	if err := parseAndSetDebugLevels(cfg.DebugLevel); err != nil {
 		err := fmt.Errorf("%s: %v", funcName, err.Error())
@@ -266,7 +265,7 @@ func loadConfig() (*config, []string, error) {
 	}
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
-		podLog.Warnf("%v", configFileError)
+		fmt.Printf("%v\n", configFileError)
 	}
 	return cfg, remainingArgs, nil
 }

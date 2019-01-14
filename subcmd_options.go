@@ -4,8 +4,8 @@ import (
 	"net"
 	"time"
 
+	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/util"
-	"github.com/EXCCoin/exccd/chaincfg"
 )
 
 type nodeCfgRPCGroup struct {

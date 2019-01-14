@@ -3,11 +3,11 @@ package indexers
 import l "git.parallelcoin.io/pod/log"
 
 // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
-var log l.Logger
+var log = l.Disabled
 
 // The default amount of logging is none.
 func init() {
-	DisableLog()
+	// DisableLog()
 }
 
 // DisableLog disables all library log output.  Logging output is disabled by default until either UseLogger or SetLogWriter are called.
