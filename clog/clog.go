@@ -4,10 +4,69 @@ package clog
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/logrusorgru/aurora"
 )
+
+// Joined is a channel that can be used to redirect the entire log output to another channel
+var Joined chan string
+
+// A SubSystem is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel
+type SubSystem struct {
+	Fatal chan string
+	Error chan string
+	Warn  chan string
+	Info  chan string
+	Debug chan string
+	Trace chan string
+}
+
+// NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
+func NewSubSystem(name string, level int) *SubSystem {
+	ss := SubSystem{
+		Fatal: make(chan string),
+		Error: make(chan string),
+		Warn:  make(chan string),
+		Info:  make(chan string),
+		Debug: make(chan string),
+		Trace: make(chan string),
+	}
+	go func() {
+		for {
+			select {
+			case s := <-ss.Fatal:
+				if level >= Nftl {
+					Ftl.Chan <- name + ": " + s
+				}
+			case s := <-ss.Error:
+				if level >= Nerr {
+					Err.Chan <- name + ": " + s
+				}
+			case s := <-ss.Warn:
+				if level >= Nwrn {
+					Wrn.Chan <- name + ": " + s
+				}
+			case s := <-ss.Info:
+				if level >= Ninf {
+					Inf.Chan <- name + ": " + s
+				}
+			case s := <-ss.Debug:
+				if level >= Ndbg {
+					Dbg.Chan <- name + ": " + s
+				}
+			case s := <-ss.Trace:
+				if level >= Ntrc {
+					Trc.Chan <- name + ": " + s
+				}
+			case <-Quit:
+				break
+			}
+		}
+	}()
+	return &ss
+}
 
 // Check checks if an error exists, if so, prints a log to the specified log level with a string and returns if err was nil
 func Check(err error, tag int, where string) (wasError bool) {
@@ -109,17 +168,26 @@ var (
 		Trc,
 	}
 
-	// LogLevel is a dynamically settable log level filter that excludes higher values from output
-	LogLevel = Trc.Num
-
 	// Quit signals the logger to stop
 	Quit = make(chan struct{})
+
+	// OutFile sets the output file for the logger
+	OutFile *os.File
 
 	// LogIt is the function that performs the output, can be loaded by the caller
 	LogIt = Print
 
 	color = true
 )
+
+// Disabled is a no-op print function
+func Disabled(name, txt string) {
+}
+
+// SetPrinter loads a different print function
+func SetPrinter(fn func(name, txt string)) {
+	LogIt = fn
+}
 
 // Color sets whether tags are coloured or not, 0 color
 func Color(on bool) {
@@ -129,6 +197,10 @@ func Color(on bool) {
 // GetColor returns if color is turned on
 func GetColor() bool {
 	return color
+}
+
+func init() {
+	Init()
 }
 
 // Init manually starts a clog
@@ -159,11 +231,18 @@ func Init(fn ...func(name, txt string)) bool {
 
 // Print out a formatted log message
 func Print(name, txt string) {
-	fmt.Printf("%s [%s] %s\n",
+	out := fmt.Sprintf("%s [%s] %s\n",
 		time.Now().UTC().Format("2006-01-02 15:04:05.000000 MST"),
 		name,
 		txt,
 	)
+	if OutFile != nil {
+		fmt.Fprint(OutFile, out)
+	}
+	fmt.Print(out)
+	if Joined != nil {
+		Joined <- out
+	}
 }
 
 func startChan(ch int, ready chan bool) {
@@ -176,15 +255,10 @@ func startChan(ch int, ready chan bool) {
 			done = false
 			continue
 		case txt := <-L[ch].Chan:
-			if ch <= LogLevel {
-				if color {
-					LogIt(L[ch].Name(1), txt)
-				} else {
-					LogIt(L[ch].Name(), txt)
-				}
-				if ch == Nftl {
-					panic(txt)
-				}
+			if color {
+				LogIt(L[ch].Name(1), txt)
+			} else {
+				LogIt(L[ch].Name(), txt)
 			}
 			continue
 		default:

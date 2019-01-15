@@ -15,12 +15,16 @@ var (
 )
 
 func TestClog(t *testing.T) {
-	Init()
-	Color(false)
+	Color(true)
 	done := make(chan bool)
-	LogLevel = Trc.Num
 	go tests(done)
 	<-done
+	close(done)
+	done = make(chan bool)
+	ss := NewSubSystem("TEST", Trc.Num)
+	go testSubSystem(ss, done)
+	<-done
+	close(Quit)
 }
 
 func tests(done chan bool) {
@@ -29,5 +33,15 @@ func tests(done chan bool) {
 		L[i].Chan <- txt
 	}
 	time.Sleep(time.Millisecond)
+	done <- true
+}
+
+func testSubSystem(ss *SubSystem, done chan bool) {
+	ss.Fatal <- "testing"
+	ss.Error <- "testing"
+	ss.Warn <- "testing"
+	ss.Info <- "testing"
+	ss.Debug <- "testing"
+	ss.Trace <- "testing"
 	done <- true
 }
