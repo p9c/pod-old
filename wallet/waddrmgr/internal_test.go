@@ -1,7 +1,3 @@
-
-
-
-
 /*
 This test file is part of the waddrmgr package rather than than the
 waddrmgr_test package so it can bridge access to the internals to properly test
@@ -14,7 +10,7 @@ package waddrmgr
 import (
 	"errors"
 
-	"github.com/parallelcointeam/mod/snacl"
+	"git.parallelcoin.io/pod/wallet/snacl"
 )
 
 // TstLatestMgrVersion makes the unexported latestMgrVersion variable available

@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	cfg *config
+	cfg *Config
 )
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
@@ -115,7 +115,7 @@ func Main(serverChan chan<- *server) error {
 		return nil
 	}
 	// Create server and start it.
-	server, err := newServer(cfg.Listeners, db, activeNetParams.Params, interrupt, cfg.Algo)
+	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt, cfg.Algo)
 	if err != nil {
 		// TODO: this logging could do with some beautifying.
 		podLog.Errorf("Unable to start server on %v: %v",
@@ -215,7 +215,7 @@ func loadBlockDB() (database.DB, error) {
 	// The regression test is special in that it needs a clean database for each run, so remove it now if it already exists.
 	removeRegressionDB(dbPath)
 	podLog.Infof("Loading block database from '%s'", dbPath)
-	db, err := database.Open(cfg.DbType, dbPath, activeNetParams.Net)
+	db, err := database.Open(cfg.DbType, dbPath, ActiveNetParams.Net)
 	if err != nil {
 		// Return the error if it's not because the database doesn't exist.
 		if dbErr, ok := err.(database.Error); !ok || dbErr.ErrorCode !=
@@ -227,7 +227,7 @@ func loadBlockDB() (database.DB, error) {
 		if err != nil {
 			return nil, err
 		}
-		db, err = database.Create(cfg.DbType, dbPath, activeNetParams.Net)
+		db, err = database.Create(cfg.DbType, dbPath, ActiveNetParams.Net)
 		if err != nil {
 			return nil, err
 		}

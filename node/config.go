@@ -32,48 +32,49 @@ import (
 )
 
 const (
-	defaultConfigFilename        = "pod.conf"
-	defaultDataDirname           = "data"
-	defaultLogLevel              = "info"
-	defaultLogDirname            = "logs"
-	defaultLogFilename           = "pod.log"
-	defaultMaxPeers              = 125
-	defaultBanDuration           = time.Hour * 24
-	defaultBanThreshold          = 100
-	defaultConnectTimeout        = time.Second * 30
-	defaultMaxRPCClients         = 10
-	defaultMaxRPCWebsockets      = 25
-	defaultMaxRPCConcurrentReqs  = 20
-	defaultDbType                = "ffldb"
-	defaultFreeTxRelayLimit      = 15.0
-	defaultTrickleInterval       = peer.DefaultTrickleInterval
-	defaultBlockMinSize          = 80
-	defaultBlockMaxSize          = 200000
-	defaultBlockMinWeight        = 10
-	defaultBlockMaxWeight        = 3000000
-	blockMaxSizeMin              = 1000
-	blockMaxSizeMax              = blockchain.MaxBlockBaseSize - 1000
-	blockMaxWeightMin            = 4000
-	blockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
-	defaultGenerate              = false
-	defaultMinerPort             = 11011
-	defaultMaxOrphanTransactions = 100
-	defaultMaxOrphanTxSize       = 100000
-	defaultSigCacheMaxSize       = 100000
-	// sampleConfigFilename         = "sample-pod.conf"
-	defaultTxIndex   = false
-	defaultAddrIndex = false
-	defaultAlgo      = "sha256d"
+	DefaultConfigFilename        = "pod.conf"
+	DefaultDataDirname           = "data"
+	DefaultLogLevel              = "info"
+	DefaultLogDirname            = "logs"
+	DefaultLogFilename           = "pod.log"
+	DefaultListener              = "127.0.0.1:11047"
+	DefaultMaxPeers              = 125
+	DefaultBanDuration           = time.Hour * 24
+	DefaultBanThreshold          = 100
+	DefaultConnectTimeout        = time.Second * 30
+	DefaultMaxRPCClients         = 10
+	DefaultMaxRPCWebsockets      = 25
+	DefaultMaxRPCConcurrentReqs  = 20
+	DefaultDbType                = "ffldb"
+	DefaultFreeTxRelayLimit      = 15.0
+	DefaultTrickleInterval       = peer.DefaultTrickleInterval
+	DefaultBlockMinSize          = 80
+	DefaultBlockMaxSize          = 200000
+	DefaultBlockMinWeight        = 10
+	DefaultBlockMaxWeight        = 3000000
+	BlockMaxSizeMin              = 1000
+	BlockMaxSizeMax              = blockchain.MaxBlockBaseSize - 1000
+	BlockMaxWeightMin            = 4000
+	BlockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
+	DefaultGenerate              = false
+	DefaultGenThreads            = 1
+	DefaultMinerPort             = 11011
+	DefaultMaxOrphanTransactions = 100
+	DefaultMaxOrphanTxSize       = 100000
+	DefaultSigCacheMaxSize       = 100000
+	DefaultTxIndex               = false
+	DefaultAddrIndex             = false
+	DefaultAlgo                  = "sha256d"
 )
 
 var (
-	defaultHomeDir     = util.AppDataDir("pod", false)
-	defaultConfigFile  = filepath.Join(defaultHomeDir, defaultConfigFilename)
-	defaultDataDir     = filepath.Join(defaultHomeDir, defaultDataDirname)
-	knownDbTypes       = database.SupportedDrivers()
-	defaultRPCKeyFile  = filepath.Join(defaultHomeDir, "rpc.key")
-	defaultRPCCertFile = filepath.Join(defaultHomeDir, "rpc.cert")
-	defaultLogDir      = filepath.Join(defaultHomeDir, defaultLogDirname)
+	DefaultHomeDir     = util.AppDataDir("pod", false)
+	DefaultConfigFile  = filepath.Join(DefaultHomeDir, DefaultConfigFilename)
+	DefaultDataDir     = filepath.Join(DefaultHomeDir, DefaultDataDirname)
+	KnownDbTypes       = database.SupportedDrivers()
+	DefaultRPCKeyFile  = filepath.Join(DefaultHomeDir, "rpc.key")
+	DefaultRPCCertFile = filepath.Join(DefaultHomeDir, "rpc.cert")
+	DefaultLogDir      = filepath.Join(DefaultHomeDir, DefaultLogDirname)
 )
 
 // runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
@@ -88,7 +89,7 @@ func minUint32(a, b uint32) uint32 {
 }
 
 // config defines the configuration options for pod. See loadConfig for details on the configuration load process.
-type config struct {
+type Config struct {
 	ShowVersion          bool          `short:"V" long:"version" description:"Display version information and exit"`
 	ConfigFile           string        `short:"C" long:"configfile" description:"Path to configuration file"`
 	DataDir              string        `short:"b" long:"datadir" description:"Directory to store data"`
@@ -133,7 +134,6 @@ type config struct {
 	DbType               string        `long:"dbtype" description:"Database backend to use for the Block Chain"`
 	Profile              string        `long:"profile" description:"Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536"`
 	CPUProfile           string        `long:"cpuprofile" description:"Write CPU profile to the specified file"`
-	DebugLevel           string        `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
 	Upnp                 bool          `long:"upnp" description:"Use UPnP to map our listening port outside of NAT"`
 	MinRelayTxFee        float64       `long:"minrelaytxfee" description:"The minimum transaction fee in DUO/kB to be considered a non-zero fee."`
 	FreeTxRelayLimit     float64       `long:"limitfreerelay" description:"Limit relay of transactions with no transaction fee to the given amount in thousands of bytes per minute"`
@@ -183,7 +183,7 @@ type serviceOptions struct {
 func cleanAndExpandPath(path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
-		homeDir := filepath.Dir(defaultHomeDir)
+		homeDir := filepath.Dir(DefaultHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
 	// NOTE: The os.ExpandEnv doesn't work with Windows-style %VARIABLE%, but they variables can still be expanded via POSIX-style $VARIABLE.
@@ -262,7 +262,7 @@ func parseAndSetDebugLevels(debugLevel string) error {
 
 // validDbType returns whether or not dbType is a supported database type.
 func validDbType(dbType string) bool {
-	for _, knownType := range knownDbTypes {
+	for _, knownType := range KnownDbTypes {
 		if dbType == knownType {
 			return true
 		}
@@ -355,7 +355,7 @@ func fileExists(name string) bool {
 }
 
 // newConfigParser returns a new command line flags parser.
-func newConfigParser(cfg *config, so *serviceOptions, options flags.Options) *flags.Parser {
+func newConfigParser(cfg *Config, so *serviceOptions, options flags.Options) *flags.Parser {
 	parser := flags.NewParser(cfg, options)
 	if runtime.GOOS == "windows" {
 		parser.AddGroup("Service Options", "Service Options", so)
@@ -370,38 +370,36 @@ func newConfigParser(cfg *config, so *serviceOptions, options flags.Options) *fl
 // 	3) Load configuration file overwriting defaults with any specified options
 // 	4) Parse CLI options and overwrite/add any specified options
 // The above results in pod functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
-func loadConfig() (*config, []string, error) {
+func loadConfig() (*Config, []string, error) {
 	// Default config.
-	cfg := config{
-		ConfigFile:           defaultConfigFile,
-		DebugLevel:           defaultLogLevel,
-		MaxPeers:             defaultMaxPeers,
-		BanDuration:          defaultBanDuration,
-		BanThreshold:         defaultBanThreshold,
-		RPCMaxClients:        defaultMaxRPCClients,
-		RPCMaxWebsockets:     defaultMaxRPCWebsockets,
-		RPCMaxConcurrentReqs: defaultMaxRPCConcurrentReqs,
-		DataDir:              defaultDataDir,
-		LogDir:               defaultLogDir,
-		DbType:               defaultDbType,
-		RPCKey:               defaultRPCKeyFile,
-		RPCCert:              defaultRPCCertFile,
+	cfg := Config{
+		ConfigFile:           DefaultConfigFile,
+		MaxPeers:             DefaultMaxPeers,
+		BanDuration:          DefaultBanDuration,
+		BanThreshold:         DefaultBanThreshold,
+		RPCMaxClients:        DefaultMaxRPCClients,
+		RPCMaxWebsockets:     DefaultMaxRPCWebsockets,
+		RPCMaxConcurrentReqs: DefaultMaxRPCConcurrentReqs,
+		DataDir:              DefaultDataDir,
+		LogDir:               DefaultLogDir,
+		DbType:               DefaultDbType,
+		RPCKey:               DefaultRPCKeyFile,
+		RPCCert:              DefaultRPCCertFile,
 		MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
-		FreeTxRelayLimit:     defaultFreeTxRelayLimit,
-		TrickleInterval:      defaultTrickleInterval,
-		BlockMinSize:         defaultBlockMinSize,
-		BlockMaxSize:         defaultBlockMaxSize,
-		BlockMinWeight:       defaultBlockMinWeight,
-		BlockMaxWeight:       defaultBlockMaxWeight,
+		FreeTxRelayLimit:     DefaultFreeTxRelayLimit,
+		TrickleInterval:      DefaultTrickleInterval,
+		BlockMinSize:         DefaultBlockMinSize,
+		BlockMaxSize:         DefaultBlockMaxSize,
+		BlockMinWeight:       DefaultBlockMinWeight,
+		BlockMaxWeight:       DefaultBlockMaxWeight,
 		BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
-		MaxOrphanTxs:         defaultMaxOrphanTransactions,
-		SigCacheMaxSize:      defaultSigCacheMaxSize,
-		Generate:             defaultGenerate,
+		MaxOrphanTxs:         DefaultMaxOrphanTransactions,
+		SigCacheMaxSize:      DefaultSigCacheMaxSize,
+		Generate:             DefaultGenerate,
 		GenThreads:           1,
-		MinerPort:            defaultMinerPort,
-		TxIndex:              defaultTxIndex,
-		AddrIndex:            defaultAddrIndex,
-		Algo:                 defaultAlgo,
+		TxIndex:              DefaultTxIndex,
+		AddrIndex:            DefaultAddrIndex,
+		Algo:                 DefaultAlgo,
 	}
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
@@ -435,7 +433,7 @@ func loadConfig() (*config, []string, error) {
 	var configFileError error
 	parser := newConfigParser(&cfg, &serviceOpts, flags.Default)
 	if !(preCfg.RegressionTest || preCfg.SimNet) || preCfg.ConfigFile !=
-		defaultConfigFile {
+		DefaultConfigFile {
 		if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
 			err := createDefaultConfigFile(preCfg.ConfigFile)
 			if err != nil {
@@ -468,7 +466,7 @@ func loadConfig() (*config, []string, error) {
 	}
 	// Create the home directory if it doesn't already exist.
 	funcName := "loadConfig"
-	err = os.MkdirAll(defaultHomeDir, 0700)
+	err = os.MkdirAll(DefaultHomeDir, 0700)
 	if err != nil {
 		// Show a nicer error message if it's because a symlink is linked to a directory that does not exist (probably because it's not mounted).
 		if e, ok := err.(*os.PathError); ok && os.IsExist(err) {
@@ -487,18 +485,18 @@ func loadConfig() (*config, []string, error) {
 	// Count number of network flags passed; assign active network params while we're at it
 	if cfg.TestNet3 {
 		numNets++
-		activeNetParams = &testNet3Params
+		ActiveNetParams = &testNet3Params
 		fork.IsTestnet = true
 	}
 	if cfg.RegressionTest {
 		numNets++
-		activeNetParams = &regressionNetParams
+		ActiveNetParams = &regressionNetParams
 		fork.IsTestnet = true
 	}
 	if cfg.SimNet {
 		numNets++
 		// Also disable dns seeding on the simulation test network.
-		activeNetParams = &simNetParams
+		ActiveNetParams = &simNetParams
 		cfg.DisableDNSSeed = true
 		fork.IsTestnet = true
 	}
@@ -517,7 +515,7 @@ func loadConfig() (*config, []string, error) {
 		cfg.Algo = "sha256d"
 	}
 	// Set the default policy for relaying non-standard transactions according to the default of the active network. The set configuration value takes precedence over the default value for the selected network.
-	relayNonStd := activeNetParams.RelayNonStdTxs
+	relayNonStd := ActiveNetParams.RelayNonStdTxs
 	switch {
 	case cfg.RelayNonStd && cfg.RejectNonStd:
 		str := "%s: rejectnonstd and relaynonstd cannot be used " +
@@ -534,29 +532,17 @@ func loadConfig() (*config, []string, error) {
 	cfg.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	cfg.DataDir = cleanAndExpandPath(cfg.DataDir)
-	cfg.DataDir = filepath.Join(cfg.DataDir, netName(activeNetParams))
+	cfg.DataDir = filepath.Join(cfg.DataDir, netName(ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	cfg.LogDir = cleanAndExpandPath(cfg.LogDir)
-	cfg.LogDir = filepath.Join(cfg.LogDir, netName(activeNetParams))
-	// Special show command to list supported subsystems and exit.
-	if cfg.DebugLevel == "show" {
-		fmt.Println("Supported subsystems", supportedSubsystems())
-		os.Exit(0)
-	}
+	cfg.LogDir = filepath.Join(cfg.LogDir, netName(ActiveNetParams))
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
-	initLogRotator(filepath.Join(cfg.LogDir, defaultLogFilename))
-	// Parse, validate, and set debug log level(s).
-	if err := parseAndSetDebugLevels(cfg.DebugLevel); err != nil {
-		err := fmt.Errorf("%s: %v", funcName, err.Error())
-		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, usageMessage)
-		return nil, nil, err
-	}
+	initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
 	// Validate database type.
 	if !validDbType(cfg.DbType) {
 		str := "%s: The specified database type [%v] is invalid -- " +
 			"supported types %v"
-		err := fmt.Errorf(str, funcName, cfg.DbType, knownDbTypes)
+		err := fmt.Errorf(str, funcName, cfg.DbType, KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
@@ -631,7 +617,7 @@ func loadConfig() (*config, []string, error) {
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(cfg.Listeners) == 0 {
 		cfg.Listeners = []string{
-			net.JoinHostPort("", activeNetParams.DefaultPort),
+			net.JoinHostPort("", ActiveNetParams.DefaultPort),
 		}
 	}
 	// Check to make sure limited and admin users don't have the same username
@@ -668,7 +654,7 @@ func loadConfig() (*config, []string, error) {
 		}
 		cfg.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
-			addr = net.JoinHostPort(addr, activeNetParams.RPCPort)
+			addr = net.JoinHostPort(addr, ActiveNetParams.RPCPort)
 			cfg.RPCListeners = append(cfg.RPCListeners, addr)
 		}
 	}
@@ -690,23 +676,23 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 	// Limit the max block size to a sane value.
-	if cfg.BlockMaxSize < blockMaxSizeMin || cfg.BlockMaxSize >
-		blockMaxSizeMax {
+	if cfg.BlockMaxSize < BlockMaxSizeMin || cfg.BlockMaxSize >
+		BlockMaxSizeMax {
 		str := "%s: The blockmaxsize option must be in between %d " +
 			"and %d -- parsed [%d]"
-		err := fmt.Errorf(str, funcName, blockMaxSizeMin,
-			blockMaxSizeMax, cfg.BlockMaxSize)
+		err := fmt.Errorf(str, funcName, BlockMaxSizeMin,
+			BlockMaxSizeMax, cfg.BlockMaxSize)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
 	// Limit the max block weight to a sane value.
-	if cfg.BlockMaxWeight < blockMaxWeightMin ||
-		cfg.BlockMaxWeight > blockMaxWeightMax {
+	if cfg.BlockMaxWeight < BlockMaxWeightMin ||
+		cfg.BlockMaxWeight > BlockMaxWeightMax {
 		str := "%s: The blockmaxweight option must be in between %d " +
 			"and %d -- parsed [%d]"
-		err := fmt.Errorf(str, funcName, blockMaxWeightMin,
-			blockMaxWeightMax, cfg.BlockMaxWeight)
+		err := fmt.Errorf(str, funcName, BlockMaxWeightMin,
+			BlockMaxWeightMax, cfg.BlockMaxWeight)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
@@ -726,12 +712,12 @@ func loadConfig() (*config, []string, error) {
 	cfg.BlockMinWeight = minUint32(cfg.BlockMinWeight, cfg.BlockMaxWeight)
 	switch {
 	// If the max block size isn't set, but the max weight is, then we'll set the limit for the max block size to a safe limit so weight takes precedence.
-	case cfg.BlockMaxSize == defaultBlockMaxSize &&
-		cfg.BlockMaxWeight != defaultBlockMaxWeight:
+	case cfg.BlockMaxSize == DefaultBlockMaxSize &&
+		cfg.BlockMaxWeight != DefaultBlockMaxWeight:
 		cfg.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
 	// If the max block weight isn't set, but the block size is, then we'll scale the set weight accordingly based on the max block size value.
-	case cfg.BlockMaxSize != defaultBlockMaxSize &&
-		cfg.BlockMaxWeight == defaultBlockMaxWeight:
+	case cfg.BlockMaxSize != DefaultBlockMaxSize &&
+		cfg.BlockMaxWeight == DefaultBlockMaxWeight:
 		cfg.BlockMaxWeight = cfg.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
 	// Look for illegal characters in the user agent comments.
@@ -777,7 +763,7 @@ func loadConfig() (*config, []string, error) {
 	// Check mining addresses are valid and saved parsed versions.
 	cfg.miningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
-		addr, err := util.DecodeAddress(strAddr, activeNetParams.Params)
+		addr, err := util.DecodeAddress(strAddr, ActiveNetParams.Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
@@ -785,7 +771,7 @@ func loadConfig() (*config, []string, error) {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
-		if !addr.IsForNet(activeNetParams.Params) {
+		if !addr.IsForNet(ActiveNetParams.Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			fmt.Fprintln(os.Stderr, err)
@@ -808,10 +794,10 @@ func loadConfig() (*config, []string, error) {
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = normalizeAddresses(cfg.Listeners,
-		activeNetParams.DefaultPort)
+		ActiveNetParams.DefaultPort)
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	cfg.RPCListeners = normalizeAddresses(cfg.RPCListeners,
-		activeNetParams.RPCPort)
+		ActiveNetParams.RPCPort)
 	if !cfg.DisableRPC && !cfg.TLS {
 		for _, addr := range cfg.RPCListeners {
 			if err != nil {
@@ -825,9 +811,9 @@ func loadConfig() (*config, []string, error) {
 	}
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	cfg.AddPeers = normalizeAddresses(cfg.AddPeers,
-		activeNetParams.DefaultPort)
+		ActiveNetParams.DefaultPort)
 	cfg.ConnectPeers = normalizeAddresses(cfg.ConnectPeers,
-		activeNetParams.DefaultPort)
+		ActiveNetParams.DefaultPort)
 	// --noonion and --onion do not mix.
 	if cfg.NoOnion && cfg.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may "+
@@ -986,9 +972,9 @@ func createDefaultConfigFile(destinationPath string) error {
 func podDial(addr net.Addr) (net.Conn, error) {
 	if strings.Contains(addr.String(), ".onion:") {
 		return cfg.oniondial(addr.Network(), addr.String(),
-			defaultConnectTimeout)
+			DefaultConnectTimeout)
 	}
-	return cfg.dial(addr.Network(), addr.String(), defaultConnectTimeout)
+	return cfg.dial(addr.Network(), addr.String(), DefaultConnectTimeout)
 }
 
 // podLookup resolves the IP of the given host using the correct DNS lookup function depending on the configuration options.  For example, addresses will be resolved using tor when the --proxy flag was specified unless --noonion was also specified in which case the normal system DNS resolver will be used. Any attempt to resolve a tor address (.onion) will return an error since they are not intended to be resolved outside of the tor proxy.

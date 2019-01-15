@@ -1,7 +1,3 @@
-
-
-
-
 package walletdb_test
 
 import (
@@ -9,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
 )
 
 var (

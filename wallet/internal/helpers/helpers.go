@@ -1,20 +1,18 @@
 // Copyright (c) 2016 The btcsuite developers
 
-
-
 // Package helpers provides convenience functions to simplify wallet code.  This
 // package is intended for internal wallet use only.
 package helpers
 
 import (
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/wire"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wire"
 )
 
 // SumOutputValues sums up the list of TxOuts and returns an Amount.
-func SumOutputValues(outputs []*wire.TxOut) (totalOutput btcutil.Amount) {
+func SumOutputValues(outputs []*wire.TxOut) (totalOutput util.Amount) {
 	for _, txOut := range outputs {
-		totalOutput += btcutil.Amount(txOut.Value)
+		totalOutput += util.Amount(txOut.Value)
 	}
 	return totalOutput
 }

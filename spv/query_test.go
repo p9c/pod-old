@@ -1,4 +1,4 @@
-package spv
+package neutrino
 
 import (
 	"compress/bzip2"

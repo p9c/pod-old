@@ -20,7 +20,8 @@ var (
 	cfg *config
 )
 
-func main() {
+// PreMain is the entry point for the wallet
+func PreMain() {
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 

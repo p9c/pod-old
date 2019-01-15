@@ -21,7 +21,7 @@ func dirEmpty(dirPath string) (bool, error) {
 	return len(names) == 0, nil
 }
 
-// oldPodHomeDir returns the OS specific home directory pod used prior to version 0.3.3.  This has since been replaced with btcutil.AppDataDir, but this function is still provided for the automatic upgrade path.
+// oldPodHomeDir returns the OS specific home directory pod used prior to version 0.3.3.  This has since been replaced with util.AppDataDir, but this function is still provided for the automatic upgrade path.
 func oldPodHomeDir() string {
 	// Search for Windows APPDATA first.  This won't exist on POSIX OSes.
 	appData := os.Getenv("APPDATA")
@@ -82,7 +82,7 @@ func upgradeDBPaths() error {
 func upgradeDataPaths() error {
 	// No need to migrate if the old and new home paths are the same.
 	oldHomePath := oldPodHomeDir()
-	newHomePath := defaultHomeDir
+	newHomePath := DefaultHomeDir
 	if oldHomePath == newHomePath {
 		return nil
 	}
@@ -96,8 +96,8 @@ func upgradeDataPaths() error {
 			return err
 		}
 		// Move old pod.conf into new location if needed.
-		oldConfPath := filepath.Join(oldHomePath, defaultConfigFilename)
-		newConfPath := filepath.Join(newHomePath, defaultConfigFilename)
+		oldConfPath := filepath.Join(oldHomePath, DefaultConfigFilename)
+		newConfPath := filepath.Join(newHomePath, DefaultConfigFilename)
 		if fileExists(oldConfPath) && !fileExists(newConfPath) {
 			err := os.Rename(oldConfPath, newConfPath)
 			if err != nil {
@@ -105,8 +105,8 @@ func upgradeDataPaths() error {
 			}
 		}
 		// Move old data directory into new location if needed.
-		oldDataPath := filepath.Join(oldHomePath, defaultDataDirname)
-		newDataPath := filepath.Join(newHomePath, defaultDataDirname)
+		oldDataPath := filepath.Join(oldHomePath, DefaultDataDirname)
+		newDataPath := filepath.Join(newHomePath, DefaultDataDirname)
 		if fileExists(oldDataPath) && !fileExists(newDataPath) {
 			err := os.Rename(oldDataPath, newDataPath)
 			if err != nil {

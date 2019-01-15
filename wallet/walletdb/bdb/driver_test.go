@@ -1,7 +1,3 @@
-
-
-
-
 package bdb_test
 
 import (
@@ -10,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
 )
 
 // dbType is the database type name for this driver.

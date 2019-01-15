@@ -24,6 +24,11 @@ func TestClog(t *testing.T) {
 	ss := NewSubSystem("TEST", Trc.Num)
 	go testSubSystem(ss, done)
 	<-done
+	close(done)
+	done = make(chan bool)
+	ssf := NewSubSystemf("TEST", Trc.Num)
+	go testSubSystemf(ssf, done)
+	<-done
 	close(Quit)
 }
 
@@ -43,5 +48,27 @@ func testSubSystem(ss *SubSystem, done chan bool) {
 	ss.Info <- "testing"
 	ss.Debug <- "testing"
 	ss.Trace <- "testing"
+	ss.Fatal.Print("testing1", "testing2", "'")
+	ss.Error.Print("testing1", "testing2", "'")
+	ss.Warn.Print("testing1", "testing2", "'")
+	ss.Info.Print("testing1", "testing2", "'")
+	ss.Debug.Print("testing1", "testing2", "'")
+	ss.Trace.Print("testing1", "testing2", "'")
+	done <- true
+}
+
+func testSubSystemf(ss *SubSystemf, done chan bool) {
+	ss.Fatal <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Error <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Warn <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Info <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Debug <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Trace <- Fmt{"testing %s %d", T{"test", 100}}
+	ss.Fatal.Print("%s %d", "print()", 11)
+	ss.Error.Print("%s %d", "print()", 11)
+	ss.Warn.Print("%s %d", "print()", 11)
+	ss.Info.Print("%s %d", "print()", 11)
+	ss.Debug.Print("%s %d", "print()", 11)
+	ss.Trace.Print("%s %d", "print()", 11)
 	done <- true
 }

@@ -1,14 +1,10 @@
-
-
-
-
 package votingpool
 
 import (
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/walletdb"
+	"git.parallelcoin.io/pod/util/hdkeychain"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/wire"
 )
 
 var TstLastErr = lastErr

@@ -1,13 +1,11 @@
 // Copyright (c) 2015 The btcsuite developers
 
-
-
 package zero_test
 
 import (
 	"testing"
 
-	. "github.com/parallelcointeam/mod/internal/zero"
+	. "git.parallelcoin.io/pod/wallet/internal/zero"
 )
 
 var (

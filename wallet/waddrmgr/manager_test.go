@@ -1,7 +1,5 @@
 // Copyright (c) 2014-2016 The btcsuite developers
 
-
-
 package waddrmgr_test
 
 import (
@@ -13,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/mod/snacl"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/walletdb"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/util"
+	"git.parallelcoin.io/pod/wallet/snacl"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -385,7 +383,7 @@ func testExternalAddresses(tc *testContext) bool {
 		chainParams := tc.manager.ChainParams()
 		for i := 0; i < len(expectedExternalAddrs); i++ {
 			pkHash := expectedExternalAddrs[i].addressHash
-			utilAddr, err := btcutil.NewAddressPubKeyHash(
+			utilAddr, err := util.NewAddressPubKeyHash(
 				pkHash, chainParams,
 			)
 			if err != nil {
@@ -537,7 +535,7 @@ func testInternalAddresses(tc *testContext) bool {
 		chainParams := tc.manager.ChainParams()
 		for i := 0; i < len(expectedInternalAddrs); i++ {
 			pkHash := expectedInternalAddrs[i].addressHash
-			utilAddr, err := btcutil.NewAddressPubKeyHash(
+			utilAddr, err := util.NewAddressPubKeyHash(
 				pkHash, chainParams,
 			)
 			if err != nil {
@@ -755,7 +753,7 @@ func testImportPrivateKey(tc *testContext) bool {
 	if tc.create {
 		for i, test := range tests {
 			test.expected.privKeyWIF = test.in
-			wif, err := btcutil.DecodeWIF(test.in)
+			wif, err := util.DecodeWIF(test.in)
 			if err != nil {
 				tc.t.Errorf("%s DecodeWIF #%d (%s): unexpected "+
 					"error: %v", prefix, i, test.name, err)
@@ -791,7 +789,7 @@ func testImportPrivateKey(tc *testContext) bool {
 
 			// Use the Address API to retrieve each of the expected
 			// new addresses and ensure they're accurate.
-			utilAddr, err := btcutil.NewAddressPubKeyHash(
+			utilAddr, err := util.NewAddressPubKeyHash(
 				test.expected.addressHash, chainParams)
 			if err != nil {
 				tc.t.Errorf("%s NewAddressPubKeyHash #%d (%s): "+
@@ -959,7 +957,7 @@ func testImportScript(tc *testContext) bool {
 
 			// Use the Address API to retrieve each of the expected
 			// new addresses and ensure they're accurate.
-			utilAddr, err := btcutil.NewAddressScriptHash(test.in,
+			utilAddr, err := util.NewAddressScriptHash(test.in,
 				chainParams)
 			if err != nil {
 				tc.t.Errorf("%s NewAddressScriptHash #%d (%s): "+
@@ -1048,13 +1046,13 @@ func testMarkUsed(tc *testContext) bool {
 	for i, test := range tests {
 		addrHash := test.in
 
-		var addr btcutil.Address
+		var addr util.Address
 		var err error
 		switch test.typ {
 		case addrPubKeyHash:
-			addr, err = btcutil.NewAddressPubKeyHash(addrHash, chainParams)
+			addr, err = util.NewAddressPubKeyHash(addrHash, chainParams)
 		case addrScriptHash:
-			addr, err = btcutil.NewAddressScriptHashFromHash(addrHash, chainParams)
+			addr, err = util.NewAddressScriptHashFromHash(addrHash, chainParams)
 		default:
 			panic("unreachable")
 		}
@@ -1404,7 +1402,7 @@ func testLookupAccount(tc *testContext) bool {
 	// Test account lookup for default account adddress
 	var expectedAccount uint32
 	for i, addr := range expectedAddrs {
-		addr, err := btcutil.NewAddressPubKeyHash(addr.addressHash,
+		addr, err := util.NewAddressPubKeyHash(addr.addressHash,
 			tc.manager.ChainParams())
 		if err != nil {
 			tc.t.Errorf("AddrAccount #%d: unexpected error: %v", i, err)
@@ -2140,7 +2138,7 @@ func TestScopedKeyManagerManagement(t *testing.T) {
 		t.Fatalf("addr type mismatch: expected %v, got %v",
 			waddrmgr.NestedWitnessPubKey, externalAddr[0].AddrType())
 	}
-	_, ok := externalAddr[0].Address().(*btcutil.AddressScriptHash)
+	_, ok := externalAddr[0].Address().(*util.AddressScriptHash)
 	if !ok {
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}
@@ -2151,7 +2149,7 @@ func TestScopedKeyManagerManagement(t *testing.T) {
 		t.Fatalf("addr type mismatch: expected %v, got %v",
 			waddrmgr.WitnessPubKey, internalAddr[0].AddrType())
 	}
-	_, ok = internalAddr[0].Address().(*btcutil.AddressWitnessPubKeyHash)
+	_, ok = internalAddr[0].Address().(*util.AddressWitnessPubKeyHash)
 	if !ok {
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}

@@ -18,7 +18,7 @@ const (
 	ErrInvalidFlags
 	// ErrInvalidIndex is returned when an out-of-bounds index is passed to a function.
 	ErrInvalidIndex
-	// ErrUnsupportedAddress is returned when a concrete type that implements a btcutil.Address is not a supported type.
+	// ErrUnsupportedAddress is returned when a concrete type that implements a util.Address is not a supported type.
 	ErrUnsupportedAddress
 	// ErrNotMultisigScript is returned from CalcMultiSigStats when the provided script is not a multisig script.
 	ErrNotMultisigScript

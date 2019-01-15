@@ -1,7 +1,3 @@
-
-
-
-
 // This file intended to be copied into each backend driver directory.  Each
 // driver should have their own driver_test.go file which creates a database and
 // invokes the testInterface function in this file to ensure the driver properly
@@ -16,7 +12,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/parallelcointeam/mod/walletdb/walletdbtest"
+	"git.parallelcoin.io/pod/wallet/walletdb/walletdbtest"
 )
 
 // TestInterface performs all interfaces tests for this database driver.

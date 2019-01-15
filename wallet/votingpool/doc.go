@@ -1,7 +1,3 @@
-
-
-
-
 /*
 Package votingpool provides voting pool functionality for btcwallet.
 

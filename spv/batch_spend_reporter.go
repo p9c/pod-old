@@ -1,4 +1,4 @@
-package spv
+package neutrino
 
 import (
 	"git.parallelcoin.io/pod/chaincfg/chainhash"

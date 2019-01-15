@@ -85,7 +85,7 @@ func (b *Block) Hash() *chainhash.Hash {
 	return &hash
 }
 
-// Tx returns a wrapped transaction (btcutil.Tx) for the transaction at the specified index in the Block.  The supplied index is 0 based.  That is to say, the first transaction in the block is txNum 0.  This is nearly equivalent to accessing the raw transaction (wire.MsgTx) from the underlying wire.MsgBlock, however the wrapped transaction has some helpful properties such as caching the hash so subsequent calls are more efficient.
+// Tx returns a wrapped transaction (util.Tx) for the transaction at the specified index in the Block.  The supplied index is 0 based.  That is to say, the first transaction in the block is txNum 0.  This is nearly equivalent to accessing the raw transaction (wire.MsgTx) from the underlying wire.MsgBlock, however the wrapped transaction has some helpful properties such as caching the hash so subsequent calls are more efficient.
 func (b *Block) Tx(txNum int) (*Tx, error) {
 	// Ensure the requested transaction is in range.
 	numTx := uint64(len(b.msgBlock.Transactions))
@@ -109,7 +109,7 @@ func (b *Block) Tx(txNum int) (*Tx, error) {
 	return newTx, nil
 }
 
-// Transactions returns a slice of wrapped transactions (btcutil.Tx) for all transactions in the Block.  This is nearly equivalent to accessing the raw transactions (wire.MsgTx) in the underlying wire.MsgBlock, however it instead provides easy access to wrapped versions (btcutil.Tx) of them.
+// Transactions returns a slice of wrapped transactions (util.Tx) for all transactions in the Block.  This is nearly equivalent to accessing the raw transactions (wire.MsgTx) in the underlying wire.MsgBlock, however it instead provides easy access to wrapped versions (util.Tx) of them.
 func (b *Block) Transactions() []*Tx {
 	// Return transactions if they have ALL already been generated.  This flag is necessary because the wrapped transactions are lazily generated in a sparse fashion.
 	if b.txnsGenerated {

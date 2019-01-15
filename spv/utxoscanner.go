@@ -1,4 +1,4 @@
-package spv
+package neutrino
 
 import (
 	"container/heap"
@@ -8,7 +8,7 @@ import (
 
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 )
 
 // getUtxoResult is a simple pair type holding a spend report and error.

@@ -1,7 +1,5 @@
 // Copyright (c) 2014-2017 The btcsuite developers
 
-
-
 package walletdbtest
 
 import (
@@ -9,7 +7,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/parallelcointeam/mod/walletdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 )
 
 // errSubTestFail is used to signal that a sub test returned false.

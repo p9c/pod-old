@@ -4,7 +4,7 @@
 
 // NOTE: THIS API IS UNSTABLE RIGHT NOW.
 
-package spv
+package neutrino
 
 import (
 	"errors"

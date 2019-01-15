@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/pod/rpcclient"
+	"git.parallelcoin.io/pod/json"
+	"git.parallelcoin.io/pod/rpcclient"
 )
 
 type BlockChainData struct {
-	GetInfo *btcjson.InfoWalletResult `json:"getinfo"`
+	GetInfo *json.InfoWalletResult `json:"getinfo"`
 }
 
 func (k *BlockChainData) GetBlockChainData() {

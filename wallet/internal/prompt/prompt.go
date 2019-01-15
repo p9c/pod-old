@@ -1,7 +1,5 @@
 // Copyright (c) 2015-2016 The btcsuite developers
 
-
-
 package prompt
 
 import (
@@ -12,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
-	"github.com/parallelcointeam/mod/internal/legacy/keystore"
+	"git.parallelcoin.io/pod/util/hdkeychain"
+	"git.parallelcoin.io/pod/wallet/internal/legacy/keystore"
 	"github.com/btcsuite/golangcrypto/ssh/terminal"
 )
 

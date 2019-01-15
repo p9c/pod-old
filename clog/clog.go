@@ -13,53 +13,156 @@ import (
 // Joined is a channel that can be used to redirect the entire log output to another channel
 var Joined chan string
 
+// Chan is a simple string channel
+type Chan chan string
+
+// Print is a function that shortens the invocation for pushing to a logging channel so you can call like this:
+//     log.Info.Print("string")
+// though you can always just directly do what is done here in this function, where log.Info is the channel. This is just here for completeness with the FmtChan Print, which makes a less weildy invocation by using the builtin variant arguments processing
+// This format also allows you to use comma separated list of strings, instead of using concatenation operators, it also interposes spaces between the strings
+func (c Chan) Print(s ...string) {
+	tmp := ""
+	for i := range s {
+		if i > 0 {
+			tmp += " "
+		}
+		tmp += s[i]
+	}
+	c <- tmp
+}
+
 // A SubSystem is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel
 type SubSystem struct {
-	Fatal chan string
-	Error chan string
-	Warn  chan string
-	Info  chan string
-	Debug chan string
-	Trace chan string
+	Fatal Chan
+	Error Chan
+	Warn  Chan
+	Info  Chan
+	Debug Chan
+	Trace Chan
+	Level int
+	Quit  chan struct{}
 }
 
 // NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
 func NewSubSystem(name string, level int) *SubSystem {
 	ss := SubSystem{
-		Fatal: make(chan string),
-		Error: make(chan string),
-		Warn:  make(chan string),
-		Info:  make(chan string),
-		Debug: make(chan string),
-		Trace: make(chan string),
+		Fatal: make(Chan),
+		Error: make(Chan),
+		Warn:  make(Chan),
+		Info:  make(Chan),
+		Debug: make(Chan),
+		Trace: make(Chan),
+		Level: level,
 	}
 	go func() {
 		for {
 			select {
 			case s := <-ss.Fatal:
-				if level >= Nftl {
+				if ss.Level >= Nftl {
 					Ftl.Chan <- name + ": " + s
 				}
 			case s := <-ss.Error:
-				if level >= Nerr {
+				if ss.Level >= Nerr {
 					Err.Chan <- name + ": " + s
 				}
 			case s := <-ss.Warn:
-				if level >= Nwrn {
+				if ss.Level >= Nwrn {
 					Wrn.Chan <- name + ": " + s
 				}
 			case s := <-ss.Info:
-				if level >= Ninf {
+				if ss.Level >= Ninf {
 					Inf.Chan <- name + ": " + s
 				}
 			case s := <-ss.Debug:
-				if level >= Ndbg {
+				if ss.Level >= Ndbg {
 					Dbg.Chan <- name + ": " + s
 				}
 			case s := <-ss.Trace:
-				if level >= Ntrc {
+				if ss.Level >= Ntrc {
 					Trc.Chan <- name + ": " + s
 				}
+			case <-ss.Quit:
+				break
+			case <-Quit:
+				break
+			}
+		}
+	}()
+	return &ss
+}
+
+// FmtChan is a chan for Fmt
+type FmtChan chan Fmt
+
+// Print is a shortcut to assemble an Fmt struct literal. It should be inlined by the compiler
+func (s FmtChan) Print(fmt string, items ...interface{}) {
+	s <- Fmt{fmt, items}
+}
+
+// T is a slice of interface{} for feeding to a *Printf function
+type T []interface{}
+
+// Fmt is a printf type formatter struct, it is used like this:
+//     logf.Fmt("format string %s %d", "test", 100)
+// When all parts are strings it is faster to use a SubSystem. Many types provide stringers.
+type Fmt struct {
+	Fmt   string
+	Items []interface{}
+}
+
+// A SubSystemf is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel using a Fmt struct
+type SubSystemf struct {
+	Fatal FmtChan
+	Error FmtChan
+	Warn  FmtChan
+	Info  FmtChan
+	Debug FmtChan
+	Trace FmtChan
+	Quit  chan struct{}
+	Level int
+}
+
+// NewSubSystemf creates a new clog logger that adds a prefix to the log entry for subsystem control that accepts Fmt structs
+// This system aborts the formatting process if the log is not to output anyway at the current loglevel, saving processing time
+func NewSubSystemf(name string, level int) *SubSystemf {
+	ss := SubSystemf{
+		Fatal: make(chan Fmt),
+		Error: make(chan Fmt),
+		Warn:  make(chan Fmt),
+		Info:  make(chan Fmt),
+		Debug: make(chan Fmt),
+		Trace: make(chan Fmt),
+		Level: level,
+	}
+	go func() {
+		for {
+			select {
+			case s := <-ss.Fatal:
+				if ss.Level >= Nftl {
+					Ftl.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case s := <-ss.Error:
+				if ss.Level >= Nerr {
+					Err.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case s := <-ss.Warn:
+				if ss.Level >= Nwrn {
+					Wrn.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case s := <-ss.Info:
+				if ss.Level >= Ninf {
+					Inf.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case s := <-ss.Debug:
+				if ss.Level >= Ndbg {
+					Dbg.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case s := <-ss.Trace:
+				if ss.Level >= Ntrc {
+					Trc.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+				}
+			case <-ss.Quit:
+				break
 			case <-Quit:
 				break
 			}
@@ -168,7 +271,9 @@ var (
 		Trc,
 	}
 
-	// Quit signals the logger to stop
+	// Quit signals the logger to stop. Invoke like this:
+	//     close(clog.Quit)
+	// You can call Init again to start it up again
 	Quit = make(chan struct{})
 
 	// OutFile sets the output file for the logger
@@ -199,6 +304,13 @@ func GetColor() bool {
 	return color
 }
 
+func emptyJoiner(string) {
+	// This just swallows the input and discards it
+}
+
+// Joiner is the function that will pipe the output
+var Joiner = emptyJoiner
+
 func init() {
 	Init()
 }
@@ -225,6 +337,15 @@ func Init(fn ...func(name, txt string)) bool {
 	for i := range ready {
 		<-ready[i]
 	}
+	go func() {
+		for {
+			select {
+			case s := <-Joined:
+				Joiner(s)
+			default:
+			}
+		}
+	}()
 	Dbg.Chan <- "logger started"
 	return true
 }

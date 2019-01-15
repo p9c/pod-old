@@ -1590,7 +1590,7 @@ func (s *server) peerHandler() {
 	}
 	if !cfg.DisableDNSSeed {
 		// Add peers discovered through DNS to the address manager.
-		connmgr.SeedFromDNS(activeNetParams.Params, defaultRequiredServices,
+		connmgr.SeedFromDNS(ActiveNetParams.Params, defaultRequiredServices,
 			podLookup, func(addrs []*wire.NetAddress) {
 				// Bitcoind uses a lookup of the dns seeder here. This is rather strange since the values looked up by the DNS seed lookups will vary quite a lot. to replicate this behaviour we put all addresses as having come from the first one.
 				s.addrManager.AddAddresses(addrs, addrs[0])
@@ -1897,7 +1897,7 @@ func parseListeners(addrs []string) ([]net.Addr, error) {
 func (s *server) upnpUpdateThread() {
 	// Go off immediately to prevent code duplication, thereafter we renew lease every 15 minutes.
 	timer := time.NewTimer(0 * time.Second)
-	lport, _ := strconv.ParseInt(activeNetParams.DefaultPort, 10, 16)
+	lport, _ := strconv.ParseInt(ActiveNetParams.DefaultPort, 10, 16)
 	first := true
 out:
 	for {
@@ -2113,7 +2113,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 			AcceptNonStd:         cfg.RelayNonStd,
 			FreeTxRelayLimit:     cfg.FreeTxRelayLimit,
 			MaxOrphanTxs:         cfg.MaxOrphanTxs,
-			MaxOrphanTxSize:      defaultMaxOrphanTxSize,
+			MaxOrphanTxSize:      DefaultMaxOrphanTxSize,
 			MaxSigOpCostPerTx:    blockchain.MaxBlockSigOpsCost / 4,
 			MinRelayTxFee:        cfg.minRelayTxFee,
 			MaxTxVersion:         2,
@@ -2209,7 +2209,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 				}
 				// allow nondefault ports after 50 failed tries.
 				if tries < 50 && fmt.Sprintf("%d", addr.NetAddress().Port) !=
-					activeNetParams.DefaultPort {
+					ActiveNetParams.DefaultPort {
 					continue
 				}
 				addrString := addrmgr.NetAddressKey(addr.NetAddress())
@@ -2319,10 +2319,10 @@ func initListeners(amgr *addrmgr.AddrManager, listenAddrs []string, services wir
 	}
 	var nat NAT
 	if len(cfg.ExternalIPs) != 0 {
-		defaultPort, err := strconv.ParseUint(activeNetParams.DefaultPort, 10, 16)
+		defaultPort, err := strconv.ParseUint(ActiveNetParams.DefaultPort, 10, 16)
 		if err != nil {
 			srvrLog.Errorf("Can not parse default port %s for active chain: %v",
-				activeNetParams.DefaultPort, err)
+				ActiveNetParams.DefaultPort, err)
 			return nil, nil, err
 		}
 		for _, sip := range cfg.ExternalIPs {

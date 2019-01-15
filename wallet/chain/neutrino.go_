@@ -6,17 +6,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/pod/chaincfg/chainhash"
-	"github.com/parallelcointeam/pod/rpcclient"
-	"github.com/parallelcointeam/pod/txscript"
-	"github.com/parallelcointeam/pod/wire"
-	"github.com/parallelcointeam/pod/btcutil"
-	"github.com/parallelcointeam/pod/btcutil/gcs"
-	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wtxmgr"
-	"github.com/parallelcointeam/sac"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/txscript"
+	"git.parallelcoin.io/pod/wire"
+	"git.parallelcoin.io/pod/btcutil"
+	"git.parallelcoin.io/pod/btcutil/gcs"
+	"git.parallelcoin.io/pod/btcutil/gcs/builder"
+	"git.parallelcoin.io/mod/waddrmgr"
+	"git.parallelcoin.io/mod/wtxmgr"
+	"git.parallelcoin.io/sac"
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.

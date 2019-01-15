@@ -1,4 +1,4 @@
-package spv_test
+package neutrino_test
 
 import (
 	"bytes"
@@ -17,17 +17,18 @@ import (
 	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/integration/rpctest"
 	"git.parallelcoin.io/pod/json"
 	"git.parallelcoin.io/pod/log"
-	"git.parallelcoin.io/pod/node/integration/rpctest"
 	"git.parallelcoin.io/pod/rpcclient"
+	"git.parallelcoin.io/pod/spv"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
 	"git.parallelcoin.io/pod/util/gcs/builder"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/wallet/wallet/txauthor"
-	"git.parallelcoin.io/pod/walletdb"
-	_ "git.parallelcoin.io/pod/walletdb/bdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
 	"git.parallelcoin.io/pod/wire"
 )
 

@@ -35,16 +35,10 @@ var winServiceMain func() (bool, error)
 
 // Main is the real pod main
 func Main() (err error) {
-	_, _, err = loadConfig()
-	if err != nil {
-		return err
-	}
-	// cfg = tcfg
-	// _ = args
+	_, _, _ = loadConfig()
 	// interrupt := interruptListener()
-	// defer podLog.Info("Shutdown complete")
-	// podLog.Infof("Version %s", version())
-	// _ = args
+	// defer fmt.Println("Shutdown complete")
+	// fmt.Printf("Version %s\n", version())
 	// if interruptRequested(interrupt) {
 	// 	return nil
 	// }

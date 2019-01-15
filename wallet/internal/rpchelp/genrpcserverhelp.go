@@ -1,7 +1,5 @@
 // Copyright (c) 2015 The btcsuite developers
 
-
-
 //+build generate
 
 package main
@@ -12,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/parallelcointeam/pod/btcjson"
-	"github.com/parallelcointeam/mod/internal/rpchelp"
+	"git.parallelcoin.io/pod/btcjson"
+	"git.parallelcoin.io/pod/wallet/internal/rpchelp"
 )
 
 var outputFile = func() *os.File {

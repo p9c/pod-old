@@ -1,7 +1,3 @@
-
-
-
-
 package waddrmgr_test
 
 import (
@@ -9,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/parallelcointeam/mod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 )
 
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.

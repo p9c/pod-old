@@ -8,6 +8,146 @@ import (
 	"git.parallelcoin.io/pod/util"
 )
 
+// config defines the configuration options for pod. See loadConfig for details on the configuration load process.
+type config struct {
+	General    generalCfg    `group:"general options"`
+	Network    networkGroup  `group:"network options"`
+	Ctl        ctlCfg        `command:"ctl" description:"send RPC queries to a node/wallet"`
+	Node       nodeCfg       `command:"node" description:"run a core node"`
+	Wallet     walletCfg     `command:"wallet" description:"run a wallet server"`
+	WalletNode walletnodeCfg `command:"walletnode" description:"run a combo core/wallet server"`
+	WalletGUI  walletGUICfg  `command:"walletgui" description:"run the full wallet GUI"`
+	Explorer   explorerCfg   `command:"explorer" description:"run a block explorer webserver"`
+}
+
+type generalCfg struct {
+	ShowVersion bool   `long:"version" short:"V" description:"display version information and exit"`
+	ConfigFile  string `long:"configfile" description:"path to configuration file"`
+	DataDir     string `long:"datadir" short:"d" description:"directory to store data"`
+	LogDir      string `long:"logdir" description:"directory to log output"`
+	Profile     string `long:"profile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
+	CPUProfile  string `long:"cpuprofile" description:"write CPU profile to the specified file"`
+}
+type logTopLevel struct {
+	LogLevel string `long:"debuglevel" description:"base log level applies if no other is specified"`
+}
+
+type ctlCfg struct {
+	CtlLaunch ctlCfgLaunchGroup `group:"ctl launch options"`
+	CtlRPC    clientRPCGroup    `group:"ctl RPC options"`
+}
+
+type explorerCfg struct {
+	LogBase        logTopLevel            `group:"logging options"`
+	Logging        logSubSystems          `group:"logger subsystem options"`
+	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
+	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
+	NodeRPC        nodeCfgRPCGroup        `group:"node RPC options"`
+	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
+	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
+	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
+	lookup         func(string) ([]net.IP, error)
+	oniondial      func(string, string, time.Duration) (net.Conn, error)
+	dial           func(string, string, time.Duration) (net.Conn, error)
+	addCheckpoints []chaincfg.Checkpoint
+	miningAddrs    []util.Address
+	minerKey       []byte
+	minRelayTxFee  util.Amount
+	whitelists     []*net.IPNet
+}
+
+type nodeCfg struct {
+	LogBase        logTopLevel        `group:"logging options"`
+	Logging        logSubSystems      `group:"logger subsystem options"`
+	NodeLaunch     nodeLaunchGroup    `group:"node launch options"`
+	NodeRPC        nodeCfgRPCGroup    `group:"node RPC options"`
+	NodeP2P        nodeCfgP2PGroup    `group:"node P2P options"`
+	NodeChain      nodeCfgChainGroup  `group:"node chain options"`
+	NodeMining     nodeCfgMiningGroup `group:"node mining options"`
+	lookup         func(string) ([]net.IP, error)
+	oniondial      func(string, string, time.Duration) (net.Conn, error)
+	dial           func(string, string, time.Duration) (net.Conn, error)
+	addCheckpoints []chaincfg.Checkpoint
+	miningAddrs    []util.Address
+	minerKey       []byte
+	minRelayTxFee  util.Amount
+	whitelists     []*net.IPNet
+}
+
+type walletCfg struct {
+	LogBase      logTopLevel          `group:"logging options"`
+	Logging      logSubSystems        `group:"logger subsystem options"`
+	WalletLaunch walletCfgLaunchGroup `group:"launch options"`
+	Wallet       walletNodeCfg        `group:"wallet to node connection options"`
+	WalletRPC    walletRPCCfgGroup    `group:"wallet RPC configuration"`
+}
+
+type walletGUICfg struct {
+	LogBase        logTopLevel            `group:"logging options"`
+	Logging        logSubSystems          `group:"logger subsystem options"`
+	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
+	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
+	NodeRPC        nodecomboCfgRPCGroup   `group:"node RPC options"`
+	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
+	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
+	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
+	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
+	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
+	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
+	lookup         func(string) ([]net.IP, error)
+	oniondial      func(string, string, time.Duration) (net.Conn, error)
+	dial           func(string, string, time.Duration) (net.Conn, error)
+	addCheckpoints []chaincfg.Checkpoint
+	miningAddrs    []util.Address
+	minerKey       []byte
+	minRelayTxFee  util.Amount
+	whitelists     []*net.IPNet
+}
+
+type walletnodeCfg struct {
+	LogBase        logTopLevel            `group:"logging options"`
+	Logging        logSubSystems          `group:"logger subsystem options"`
+	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
+	NodeRPCGroup   nodecomboCfgRPCGroup   `group:"node RPC options"`
+	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
+	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
+	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
+	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
+	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
+	lookup         func(string) ([]net.IP, error)
+	oniondial      func(string, string, time.Duration) (net.Conn, error)
+	dial           func(string, string, time.Duration) (net.Conn, error)
+	addCheckpoints []chaincfg.Checkpoint
+	miningAddrs    []util.Address
+	minerKey       []byte
+	minRelayTxFee  util.Amount
+	whitelists     []*net.IPNet
+}
+
+type logSubSystems struct {
+	AddrMgr    string `long:"addrmgrlog" description:"address manager log"`
+	BlockChain string `long:"blockchainlog" description:"blockchain log"`
+	Indexers   string `long:"indexlog" description:"indexers log"`
+	ConnMgr    string `long:"connmgrlog" description:"connection manager log"`
+	Database   string `long:"dblog" description:"database log"`
+	Mining     string `long:"mininglog" description:"mining log"`
+	Controller string `long:"controllerlog" description:"mining controller log"`
+	CPUMiner   string `long:"cpuminerlog" description:"cpu miner log"`
+	NetSync    string `long:"netsynclog" description:"netsync log"`
+	Node       string `long:"nodelog" description:"node log"`
+	Peer       string `long:"peerlog" description:"peer log"`
+	RPCClient  string `long:"rpcclientlog" description:"rpc client log"`
+	SPV        string `long:"spvlog" description:"light wallet log"`
+	TxScript   string `long:"txscriptlog" description:"transaction script log"`
+	Wallet     string `long:"walletlog" description:"wallet log"`
+	WChain     string `long:"wchainlog" description:"wallet chain log"`
+	LegacyRPC  string `long:"legacyrpclog" description:"legacy rpc log"`
+	RPCServer  string `long:"rpcserverlog" description:"rpc server log"`
+	TxMgr      string `long:"txmgrlog" description:"transaction manager log"`
+	VotingPool string `long:"votelog" description:"voting pool log"`
+	WTxMgr     string `long:"wtxlog" description:"wallet transaction manager log"`
+}
+
 type nodeCfgRPCGroup struct {
 	RPCUser              string   `long:"rpcuser" description:"username for RPC connections"`
 	RPCPass              string   `long:"rpcpass" default-mask:"-" description:"password for RPC connections"`
@@ -88,16 +228,6 @@ type nodeCfgChainGroup struct {
 	AddrIndex          bool          `long:"addrindex" description:"maintain a full address-based transaction index which makes the searchrawtransactions RPC available"`
 }
 
-type allCfgLaunch struct {
-	ShowVersion bool   `long:"version" description:"display version information and exit"`
-	ConfigFile  string `long:"configfile" description:"path to configuration file"`
-	DataDir     string `long:"datadir" description:"directory to store data"`
-	LogDir      string `long:"logdir" description:"directory to log output"`
-	Profile     string `long:"profile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
-	CPUProfile  string `long:"cpuprofile" description:"write CPU profile to the specified file"`
-	DebugLevel  string `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
-}
-
 type nodeCfgMiningGroup struct {
 	Algo            string   `long:"algo" description:"sets the algorithm for the CPU miner (blake14lr, cryptonight7v2, keccak, lyra2rev2, scrypt, sha256d, stribog, skein, x11, easy, random)"`
 	Generate        bool     `long:"generate" description:"generate (mine) bitcoins using the CPU"`
@@ -109,7 +239,8 @@ type nodeCfgMiningGroup struct {
 }
 
 type ctlCfgLaunchGroup struct {
-	Wallet bool `long:"wallet" description:"connect to wallet"`
+	ListCommands bool `long:"listcommands" short:"l" description:"list available commands"`
+	Wallet       bool `long:"wallet" description:"connect to wallet"`
 }
 
 type clientRPCGroup struct {
@@ -204,100 +335,6 @@ type walletcomboRPCCfgGroup struct {
 	RPCQuirks                bool     `long:"walletrpcquirks" description:"mirror some JSON-RPC quirks of Bitcoin Core -- NOTE: Discouraged unless interoperability issues need to be worked around"`
 	DisableRPC               bool     `long:"walletnorpc" description:"disable built-in RPC server -- NOTE: The RPC server is disabled by default if no rpcuser/rpcpass or rpclimituser/rpclimitpass is specified"`
 	TLS                      bool     `long:"wallettls" description:"enable TLS for the RPC server"`
-}
-
-type ctlCfg struct {
-	Launch    allCfgLaunch      `group:"general launch options"`
-	Network   networkGroup      `group:"ctl network options"`
-	CtlLaunch ctlCfgLaunchGroup `group:"ctl launch options"`
-	CtlRPC    clientRPCGroup    `group:"ctl RPC options"`
-}
-
-type explorerCfg struct {
-	Launch         allCfgLaunch           `group:"general launch options"`
-	Network        networkGroup           `group:"network options"`
-	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
-	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
-	NodeRPC        nodeCfgRPCGroup        `group:"node RPC options"`
-	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
-	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
-	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
-	lookup         func(string) ([]net.IP, error)
-	oniondial      func(string, string, time.Duration) (net.Conn, error)
-	dial           func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints []chaincfg.Checkpoint
-	miningAddrs    []util.Address
-	minerKey       []byte
-	minRelayTxFee  util.Amount
-	whitelists     []*net.IPNet
-}
-
-type nodeCfg struct {
-	Launch         allCfgLaunch       `group:"general launch options"`
-	Network        networkGroup       `group:"network options"`
-	NodeLaunch     nodeLaunchGroup    `group:"node launch options"`
-	NodeRPC        nodeCfgRPCGroup    `group:"node RPC options"`
-	NodeP2P        nodeCfgP2PGroup    `group:"node P2P options"`
-	NodeChain      nodeCfgChainGroup  `group:"node chain options"`
-	NodeMining     nodeCfgMiningGroup `group:"node mining options"`
-	lookup         func(string) ([]net.IP, error)
-	oniondial      func(string, string, time.Duration) (net.Conn, error)
-	dial           func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints []chaincfg.Checkpoint
-	miningAddrs    []util.Address
-	minerKey       []byte
-	minRelayTxFee  util.Amount
-	whitelists     []*net.IPNet
-}
-
-type walletCfg struct {
-	Launch       allCfgLaunch         `group:"general launch options"`
-	Network      networkGroup         `group:"network options"`
-	WalletLaunch walletCfgLaunchGroup `group:"launch options"`
-	Wallet       walletNodeCfg        `group:"wallet to node connection options"`
-	WalletRPC    walletRPCCfgGroup    `group:"wallet RPC configuration"`
-}
-
-type walletGUICfg struct {
-	Launch         allCfgLaunch           `group:"launch options"`
-	Network        networkGroup           `group:"network options"`
-	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
-	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
-	NodeRPC        nodecomboCfgRPCGroup   `group:"node RPC options"`
-	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
-	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
-	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
-	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
-	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
-	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
-	lookup         func(string) ([]net.IP, error)
-	oniondial      func(string, string, time.Duration) (net.Conn, error)
-	dial           func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints []chaincfg.Checkpoint
-	miningAddrs    []util.Address
-	minerKey       []byte
-	minRelayTxFee  util.Amount
-	whitelists     []*net.IPNet
-}
-
-type walletnodeCfg struct {
-	Launch         allCfgLaunch           `group:"launch options"`
-	Network        networkGroup           `group:"network options"`
-	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
-	NodeRPCGroup   nodecomboCfgRPCGroup   `group:"node RPC options"`
-	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
-	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
-	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
-	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
-	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
-	lookup         func(string) ([]net.IP, error)
-	oniondial      func(string, string, time.Duration) (net.Conn, error)
-	dial           func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints []chaincfg.Checkpoint
-	miningAddrs    []util.Address
-	minerKey       []byte
-	minRelayTxFee  util.Amount
-	whitelists     []*net.IPNet
 }
 
 // type walletSpvGUICfg struct {

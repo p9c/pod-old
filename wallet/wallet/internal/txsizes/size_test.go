@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/parallelcointeam/pod/wire"
-	. "github.com/parallelcointeam/mod/wallet/internal/txsizes"
+	. "git.parallelcoin.io/pod/wallet/wallet/internal/txsizes"
+	"git.parallelcoin.io/pod/wire"
 )
 
 const (

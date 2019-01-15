@@ -31,21 +31,6 @@ var (
 // runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
 var runServiceCommand func(string) error
 
-// config defines the configuration options for pod. See loadConfig for details on the configuration load process.
-type config struct {
-	ShowVersion bool          `short:"V" long:"version" description:"display version information and exit"`
-	ConfigFile  string        `short:"C" long:"configfile" description:"path to configuration file"`
-	DataDir     string        `short:"b" long:"datadir" description:"directory to store data"`
-	LogDir      string        `long:"logdir" description:"directory to log output"`
-	DebugLevel  string        `short:"d" long:"debuglevel" description:"logging level for all subsystems {trace, debug, info, warn, error, critical} -- you may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- use show to list available subsystems"`
-	Ctl         ctlCfg        `command:"ctl" description:"send RPC queries to a node/wallet"`
-	Node        nodeCfg       `command:"node" description:"run a core node"`
-	Wallet      walletCfg     `command:"wallet" description:"run a wallet server"`
-	WalletNode  walletnodeCfg `command:"walletnode" description:"run a combo core/wallet server"`
-	WalletGUI   walletGUICfg  `command:"walletgui" description:"run the full wallet GUI"`
-	Explorer    explorerCfg   `command:"explorer" description:"run a block explorer webserver"`
-}
-
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
 type serviceOptions struct {
 	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
@@ -81,7 +66,7 @@ func validLogLevel(logLevel string) bool {
 	return false
 }
 
-// supportedSubsystems returns a sorted slice of the supported subsystems for logging purposes.
+// // supportedSubsystems returns a sorted slice of the supported subsystems for logging purposes.
 // func supportedSubsystems() []string {
 // 	// Convert the subsystemLoggers map keys to a slice.
 // 	subsystems := make([]string, 0, len(subsystemLoggers))
@@ -93,44 +78,42 @@ func validLogLevel(logLevel string) bool {
 // 	return subsystems
 // }
 
-// parseAndSetDebugLevels attempts to parse the specified debug level and set the levels accordingly.  An appropriate error is returned if anything is invalid.
-func parseAndSetDebugLevels(debugLevel string) error {
-	// When the specified string doesn't have any delimters, treat it as the log level for all subsystems.
-	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
-		// Validate debug log level.
-		if !validLogLevel(debugLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, debugLevel)
-		}
-		// Change the logging level for all subsystems.
-		// setLogLevels(debugLevel)
-		return nil
-	}
-	// Split the specified string into subsystem/level pairs while detecting issues and update the log levels accordingly.
-	for _, logLevelPair := range strings.Split(debugLevel, ",") {
-		if !strings.Contains(logLevelPair, "=") {
-			str := "The specified debug level contains an invalid " +
-				"subsystem/level pair [%v]"
-			return fmt.Errorf(str, logLevelPair)
-		}
-		// Extract the specified subsystem and log level.
-		// fields := strings.Split(logLevelPair, "=")
-		// subsysID, logLevel := fields[0], fields[1]
-		// Validate subsystem.
-		// if _, exists := subsystemLoggers[subsysID]; !exists {
-		// 	str := "The specified subsystem [%v] is invalid -- " +
-		// 		"supported subsytems %v"
-		// 	return fmt.Errorf(str, subsysID, supportedSubsystems())
-		// }
-		// Validate log level.
-		// if !validLogLevel(logLevel) {
-		// 	str := "The specified debug level [%v] is invalid"
-		// 	return fmt.Errorf(str, logLevel)
-		// }
-		// setLogLevel(subsysID, logLevel)
-	}
-	return nil
-}
+// // parseAndSetDebugLevels attempts to parse the specified debug level and set the levels accordingly.  An appropriate error is returned if anything is invalid.
+// func parseAndSetDebugLevels(debugLevel string) error {
+// 	// When the specified string doesn't have any delimters, treat it as the log level for all subsystems.
+// 	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
+// 		// Validate debug log level.
+// 		if !validLogLevel(debugLevel) {
+// 			str := "The specified debug level [%v] is invalid"
+// 			return fmt.Errorf(str, debugLevel)
+// 		}
+// 		// Change the logging level for all subsystems.
+// 		setLogLevels(debugLevel)
+// 		return nil
+// 	}
+// 	// Split the specified string into subsystem/level pairs while detecting issues and update the log levels accordingly.
+// 	for _, logLevelPair := range strings.Split(debugLevel, ",") {
+// 		if !strings.Contains(logLevelPair, "=") {
+// 			str := "The specified debug level contains an invalid subsystem/level pair [%v]"
+// 			return fmt.Errorf(str, logLevelPair)
+// 		}
+// 		// Extract the specified subsystem and log level.
+// 		fields := strings.Split(logLevelPair, "=")
+// 		subsysID, logLevel := fields[0], fields[1]
+// 		// Validate subsystem.
+// 		if _, exists := subsystemLoggers[subsysID]; !exists {
+// 			str := "The specified subsystem [%v] is invalid -- supported subsytems %v"
+// 			return fmt.Errorf(str, subsysID, supportedSubsystems())
+// 		}
+// 		// Validate log level.
+// 		if !validLogLevel(logLevel) {
+// 			str := "The specified debug level [%v] is invalid"
+// 			return fmt.Errorf(str, logLevel)
+// 		}
+// 		setLogLevel(subsysID, logLevel)
+// 	}
+// 	return nil
+// }
 
 // filesExists reports whether the named file or directory exists.
 func fileExists(name string) bool {
@@ -161,31 +144,28 @@ func newConfigParser(cfg *config, so *serviceOptions, options flags.Options) *fl
 func loadConfig() (*config, []string, error) {
 	// Default config.
 	cfg = &config{
-		ConfigFile: defaultConfigFile,
-		DebugLevel: defaultLogLevel,
-		DataDir:    defaultDataDir,
-		LogDir:     defaultLogDir,
+		// ConfigFile: defaultConfigFile,
+		// DataDir:    defaultDataDir,
+		// LogDir:     defaultLogDir,
 	}
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
 	// Pre-parse the command line options to see if an alternative config file or the version flag was specified.  Any errors aside from the help message error can be ignored here since they will be caught by the final parse below.
 	preCfg := cfg
 	preParser := newConfigParser(preCfg, &serviceOpts, flags.HelpFlag)
-	_, err := preParser.Parse()
+	args, err := preParser.Parse()
 	if err != nil {
 		if e, ok := err.(*flags.Error); ok && e.Type == flags.ErrHelp {
 			fmt.Fprintln(os.Stderr, err)
 			return nil, nil, err
 		}
 	}
-	if preParser.Active != nil {
-		fmt.Println("active.name", preParser.Active.Name)
-	}
+	_ = args
 	// Show the version and exit if the version flag was specified.
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
 	usageMessage := fmt.Sprintf("Use %s -h to show usage", appName)
-	if preCfg.ShowVersion {
+	if preCfg.General.ShowVersion {
 		fmt.Println(appName, "version", version())
 		os.Exit(0)
 	}
@@ -200,15 +180,15 @@ func loadConfig() (*config, []string, error) {
 	// Load additional config from file.
 	var configFileError error
 	parser := newConfigParser(cfg, &serviceOpts, flags.Default)
-	if !(preCfg.ConfigFile !=
+	if !(preCfg.General.ConfigFile !=
 		defaultConfigFile) {
-		if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
-			err := createDefaultConfigFile(preCfg.ConfigFile)
+		if _, err := os.Stat(preCfg.General.ConfigFile); os.IsNotExist(err) {
+			err := createDefaultConfigFile(preCfg.General.ConfigFile)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)
 			}
 		}
-		err := flags.NewIniParser(parser).ParseFile(preCfg.ConfigFile)
+		err := flags.NewIniParser(parser).ParseFile(preCfg.General.ConfigFile)
 		if err != nil {
 			if _, ok := err.(*os.PathError); !ok {
 				fmt.Fprintf(os.Stderr, "Error parsing config file: %v\n", err)
@@ -244,25 +224,25 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
-	cfg.DataDir = cleanAndExpandPath(cfg.DataDir)
-	cfg.DataDir = filepath.Join(cfg.DataDir, netName(activeNetParams))
+	cfg.General.DataDir = cleanAndExpandPath(cfg.General.DataDir)
+	cfg.General.DataDir = filepath.Join(cfg.General.DataDir, netName(ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
-	cfg.LogDir = cleanAndExpandPath(cfg.LogDir)
-	cfg.LogDir = filepath.Join(cfg.LogDir, netName(activeNetParams))
+	cfg.General.LogDir = cleanAndExpandPath(cfg.General.LogDir)
+	cfg.General.LogDir = filepath.Join(cfg.General.LogDir, netName(ActiveNetParams))
 	// Special show command to list supported subsystems and exit.
 	// if cfg.DebugLevel == "show" {
 	// 	fmt.Println("Supported subsystems", supportedSubsystems())
 	// 	os.Exit(0)
 	// }
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
-	// initLogRotator(filepath.Join(cfg.LogDir, defaultLogFilename))
+	initLogRotator(filepath.Join(cfg.General.LogDir, defaultLogFilename))
 	// Parse, validate, and set debug log level(s).
-	if err := parseAndSetDebugLevels(cfg.DebugLevel); err != nil {
-		err := fmt.Errorf("%s: %v", funcName, err.Error())
-		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, usageMessage)
-		return nil, nil, err
-	}
+	// if err := parseAndSetDebugLevels(cfg.DebugLevel); err != nil {
+	// 	err := fmt.Errorf("%s: %v", funcName, err.Error())
+	// 	fmt.Fprintln(os.Stderr, err)
+	// 	fmt.Fprintln(os.Stderr, usageMessage)
+	// 	return nil, nil, err
+	// }
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
 		fmt.Printf("%v\n", configFileError)
@@ -278,7 +258,7 @@ func createDefaultConfigFile(destinationPath string) error {
 		return err
 	}
 	var bb bytes.Buffer
-	bb.Write(samplePodConf)
+	bb.Write([]byte("samplePodConf"))
 	dest, err := os.OpenFile(destinationPath,
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {

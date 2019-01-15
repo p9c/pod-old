@@ -5,22 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/addrmgr"
-	"git.parallelcoin.io/pod/blockchain"
-	"git.parallelcoin.io/pod/blockchain/indexers"
-	"git.parallelcoin.io/pod/connmgr"
-	"git.parallelcoin.io/pod/database"
-	"git.parallelcoin.io/pod/log"
-	"git.parallelcoin.io/pod/mining"
-	"git.parallelcoin.io/pod/mining/controller"
-	"git.parallelcoin.io/pod/mining/cpuminer"
-	"git.parallelcoin.io/pod/netsync"
-	"git.parallelcoin.io/pod/node/mempool"
-	"git.parallelcoin.io/pod/peer"
-	"git.parallelcoin.io/pod/rpcclient"
-	"git.parallelcoin.io/pod/txscript"
-	"git.parallelcoin.io/pod/wallet/chain"
-	"git.parallelcoin.io/pod/wallet/wtxmgr"
 	"github.com/jrick/logrotate/rotator"
 )
 
@@ -35,75 +19,12 @@ func (logWriter) Write(p []byte) (n int, err error) {
 
 // Loggers per subsystem.  A single backend logger is created and all subsytem loggers created from it will write to the backend.  When adding new subsystems, add the subsystem logger variable here and to the  subsystemLoggers map. Loggers can not be used before the log rotator has been initialized with a log file.  This must be performed early during application startup by calling initLogRotator.
 var (
-	// backendLog is the logging backend used to create all subsystem loggers. The backend must not be used before the log rotator has been initialized, or data races and/or nil pointer dereferences will occur.
-	backendLog = log.NewBackend(logWriter{})
 	// logRotator is one of the logging outputs.  It should be closed on application shutdown.
 	logRotator *rotator.Rotator
-	adxrLog    = backendLog.Logger("ADXR")
-	amgrLog    = backendLog.Logger("AMGR")
-	cmgrLog    = backendLog.Logger("CMGR")
-	bcdbLog    = backendLog.Logger("BCDB")
-	podLog     = backendLog.Logger("NODE")
-	chanLog    = backendLog.Logger("CHAN")
-	discLog    = backendLog.Logger("DISC")
-	indxLog    = backendLog.Logger("INDX")
-	minrLog    = backendLog.Logger("MINR")
-	peerLog    = backendLog.Logger("PEER")
-	rpcsLog    = backendLog.Logger("RPCS")
-	scrpLog    = backendLog.Logger("SCRP")
-	srvrLog    = backendLog.Logger("SRVR")
-	syncLog    = backendLog.Logger("SYNC")
-	txmpLog    = backendLog.Logger("TXMP")
-	duoLog     = backendLog.Logger("DUOW")
-	walletLog  = backendLog.Logger("WLLT")
-	txmgrLog   = backendLog.Logger("TMGR")
-	chainLog   = backendLog.Logger("CHNS")
-	grpcLog    = backendLog.Logger("GRPC")
-	btcnLog    = backendLog.Logger("DUON")
 )
 
 // Initialize package-global logger variables.
 func init() {
-	addrmgr.UseLogger(amgrLog)
-	connmgr.UseLogger(cmgrLog)
-	database.UseLogger(bcdbLog)
-	blockchain.UseLogger(podLog)
-	indexers.UseLogger(indxLog)
-	mining.UseLogger(minrLog)
-	cpuminer.UseLogger(minrLog)
-	controller.UseLogger(minrLog)
-	peer.UseLogger(peerLog)
-	txscript.UseLogger(scrpLog)
-	netsync.UseLogger(syncLog)
-	mempool.UseLogger(txmpLog)
-	wtxmgr.UseLogger(txmgrLog)
-	chain.UseLogger(chainLog)
-	rpcclient.UseLogger(chainLog)
-}
-
-// subsystemLoggers maps each subsystem identifier to its associated logger.
-var subsystemLoggers = map[string]log.Logger{
-	"ADXR": adxrLog,
-	"AMGR": amgrLog,
-	"CMGR": cmgrLog,
-	"BCDB": bcdbLog,
-	"NODE": podLog,
-	"CHAN": chanLog,
-	"DISC": discLog,
-	"INDX": indxLog,
-	"MINR": minrLog,
-	"PEER": peerLog,
-	"RPCS": rpcsLog,
-	"SCRP": scrpLog,
-	"SRVR": srvrLog,
-	"SYNC": syncLog,
-	"TXMP": txmpLog,
-	"DUOW": duoLog,
-	"WLLT": walletLog,
-	"TMGR": txmgrLog,
-	"CHNS": chainLog,
-	"GRPC": grpcLog,
-	"DUON": btcnLog,
 }
 
 // initLogRotator initializes the logging rotater to write logs to logFile and create roll files in the same directory.  It must be called before the package-global log rotater variables are used.
@@ -122,25 +43,25 @@ func initLogRotator(logFile string) {
 	logRotator = r
 }
 
-// setLogLevel sets the logging level for provided subsystem.  Invalid subsystems are ignored.  Uninitialized subsystems are dynamically created as needed.
-func setLogLevel(subsystemID string, logLevel string) {
-	// Ignore invalid subsystems.
-	logger, ok := subsystemLoggers[subsystemID]
-	if !ok {
-		return
-	}
-	// Defaults to info if the log level is invalid.
-	level, _ := log.LevelFromString(logLevel)
-	logger.SetLevel(level)
-}
+// // setLogLevel sets the logging level for provided subsystem.  Invalid subsystems are ignored.  Uninitialized subsystems are dynamically created as needed.
+// func setLogLevel(subsystemID string, logLevel string) {
+// 	// Ignore invalid subsystems.
+// 	logger, ok := subsystemLoggers[subsystemID]
+// 	if !ok {
+// 		return
+// 	}
+// 	// Defaults to info if the log level is invalid.
+// 	level, _ := log.LevelFromString(logLevel)
+// 	logger.SetLevel(level)
+// }
 
-// setLogLevels sets the log level for all subsystem loggers to the passed level.  It also dynamically creates the subsystem loggers as needed, so it can be used to initialize the logging system.
-func setLogLevels(logLevel string) {
-	// Configure all sub-systems with the new logging level.  Dynamically create loggers as needed.
-	for subsystemID := range subsystemLoggers {
-		setLogLevel(subsystemID, logLevel)
-	}
-}
+// // setLogLevels sets the log level for all subsystem loggers to the passed level.  It also dynamically creates the subsystem loggers as needed, so it can be used to initialize the logging system.
+// func setLogLevels(logLevel string) {
+// 	// Configure all sub-systems with the new logging level.  Dynamically create loggers as needed.
+// 	for subsystemID := range subsystemLoggers {
+// 		setLogLevel(subsystemID, logLevel)
+// 	}
+// }
 
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
 func directionString(inbound bool) string {

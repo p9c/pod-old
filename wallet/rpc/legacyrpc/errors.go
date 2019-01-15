@@ -3,31 +3,31 @@ package legacyrpc
 import (
 	"errors"
 
-	"github.com/parallelcointeam/pod/btcjson"
+	"git.parallelcoin.io/pod/json"
 )
 
 // TODO(jrick): There are several error paths which 'replace' various errors
-// with a more appropiate error from the btcjson package.  Create a map of
+// with a more appropiate error from the json package.  Create a map of
 // these replacements so they can be handled once after an RPC handler has
 // returned and before the error is marshaled.
 
 // Error types to simplify the reporting of specific categories of
-// errors, and their *btcjson.RPCError creation.
+// errors, and their *json.RPCError creation.
 type (
 	// DeserializationError describes a failed deserializaion due to bad
-	// user input.  It corresponds to btcjson.ErrRPCDeserialization.
+	// user input.  It corresponds to json.ErrRPCDeserialization.
 	DeserializationError struct {
 		error
 	}
 
 	// InvalidParameterError describes an invalid parameter passed by
-	// the user.  It corresponds to btcjson.ErrRPCInvalidParameter.
+	// the user.  It corresponds to json.ErrRPCInvalidParameter.
 	InvalidParameterError struct {
 		error
 	}
 
 	// ParseError describes a failed parse due to bad user input.  It
-	// corresponds to btcjson.ErrRPCParse.
+	// corresponds to json.ErrRPCParse.
 	ParseError struct {
 		error
 	}
@@ -43,38 +43,38 @@ var (
 		errors.New("minconf must be positive"),
 	}
 
-	ErrAddressNotInWallet = btcjson.RPCError{
-		Code:    btcjson.ErrRPCWallet,
+	ErrAddressNotInWallet = json.RPCError{
+		Code:    json.ErrRPCWallet,
 		Message: "address not found in wallet",
 	}
 
-	ErrAccountNameNotFound = btcjson.RPCError{
-		Code:    btcjson.ErrRPCWalletInvalidAccountName,
+	ErrAccountNameNotFound = json.RPCError{
+		Code:    json.ErrRPCWalletInvalidAccountName,
 		Message: "account name not found",
 	}
 
-	ErrUnloadedWallet = btcjson.RPCError{
-		Code:    btcjson.ErrRPCWallet,
+	ErrUnloadedWallet = json.RPCError{
+		Code:    json.ErrRPCWallet,
 		Message: "Request requires a wallet but wallet has not loaded yet",
 	}
 
-	ErrWalletUnlockNeeded = btcjson.RPCError{
-		Code:    btcjson.ErrRPCWalletUnlockNeeded,
+	ErrWalletUnlockNeeded = json.RPCError{
+		Code:    json.ErrRPCWalletUnlockNeeded,
 		Message: "Enter the wallet passphrase with walletpassphrase first",
 	}
 
-	ErrNotImportedAccount = btcjson.RPCError{
-		Code:    btcjson.ErrRPCWallet,
+	ErrNotImportedAccount = json.RPCError{
+		Code:    json.ErrRPCWallet,
 		Message: "imported addresses must belong to the imported account",
 	}
 
-	ErrNoTransactionInfo = btcjson.RPCError{
-		Code:    btcjson.ErrRPCNoTxInfo,
+	ErrNoTransactionInfo = json.RPCError{
+		Code:    json.ErrRPCNoTxInfo,
 		Message: "No information for transaction",
 	}
 
-	ErrReservedAccountName = btcjson.RPCError{
-		Code:    btcjson.ErrRPCInvalidParameter,
+	ErrReservedAccountName = json.RPCError{
+		Code:    json.ErrRPCInvalidParameter,
 		Message: "Account name is reserved by RPC server",
 	}
 )

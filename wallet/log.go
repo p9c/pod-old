@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/btclog"
+	l "git.parallelcoin.io/pod/log"
 	"git.parallelcoin.io/pod/rpcclient"
 	"git.parallelcoin.io/pod/wallet/chain"
 	"git.parallelcoin.io/pod/wallet/rpc/legacyrpc"
@@ -40,7 +40,7 @@ var (
 	// backendLog is the logging backend used to create all subsystem loggers.
 	// The backend must not be used before the log rotator has been initialized,
 	// or data races and/or nil pointer dereferences will occur.
-	backendLog = btclog.NewBackend(logWriter{})
+	backendLog = l.NewBackend(logWriter{})
 
 	// logRotator is one of the logging outputs.  It should be closed on
 	// application shutdown.
@@ -71,7 +71,7 @@ func init() {
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
-var subsystemLoggers = map[string]btclog.Logger{
+var subsystemLoggers = map[string]log.Logger{
 	"DUOW": log,
 	"WLLT": walletLog,
 	"TMGR": txmgrLog,
@@ -115,7 +115,7 @@ func setLogLevel(subsystemID string, logLevel string) {
 	}
 
 	// Defaults to info if the log level is invalid.
-	level, _ := btclog.LevelFromString(logLevel)
+	level, _ := log.LevelFromString(logLevel)
 	logger.SetLevel(level)
 }
 

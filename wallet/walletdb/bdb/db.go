@@ -1,15 +1,11 @@
-
-
-
-
 package bdb
 
 import (
 	"io"
 	"os"
 
+	"git.parallelcoin.io/pod/wallet/walletdb"
 	bolt "github.com/coreos/bbolt"
-	"github.com/parallelcointeam/mod/walletdb"
 )
 
 // convertErr converts some bolt errors to the equivalent walletdb error.

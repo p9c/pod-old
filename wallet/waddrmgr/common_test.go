@@ -1,7 +1,3 @@
-
-
-
-
 package waddrmgr_test
 
 import (
@@ -12,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parallelcointeam/pod/chaincfg"
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/walletdb"
-	_ "github.com/parallelcointeam/mod/walletdb/bdb"
+	"git.parallelcoin.io/pod/chaincfg"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/wallet/walletdb/bdb"
 )
 
 var (

@@ -1,7 +1,3 @@
-// Copyright (c) 2015 The btcsuite developers
-
-
-
 package votingpool
 
 import (
@@ -9,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
-	"github.com/parallelcointeam/mod/waddrmgr"
+	"git.parallelcoin.io/pod/util/hdkeychain"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 )
 
 func TestPoolEnsureUsedAddr(t *testing.T) {

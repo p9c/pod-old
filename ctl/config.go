@@ -20,13 +20,13 @@ const (
 )
 
 var (
-	podHomeDir            = util.AppDataDir("pod", false)
-	podctlHomeDir         = util.AppDataDir("podctl", false)
-	sacHomeDir            = util.AppDataDir("sac", false)
-	defaultConfigFile     = filepath.Join(podctlHomeDir, "podctl.conf")
-	defaultRPCServer      = "localhost"
-	defaultRPCCertFile    = filepath.Join(podHomeDir, "rpc.cert")
-	defaultWalletCertFile = filepath.Join(sacHomeDir, "rpc.cert")
+	NodeHomeDir           = util.AppDataDir("pod", false)
+	PodCtlHomeDir         = util.AppDataDir("pod/ctl", false)
+	SPVHomeDir            = util.AppDataDir("pod/spv", false)
+	DefaultConfigFile     = filepath.Join(PodCtlHomeDir, "config.ini")
+	DefaultRPCServer      = "localhost"
+	DefaultRPCCertFile    = filepath.Join(NodeHomeDir, "rpc.cert")
+	DefaultWalletCertFile = filepath.Join(SPVHomeDir, "rpc.cert")
 )
 
 // listCommands categorizes and lists all of the usable commands along with their one-line usage.
@@ -74,8 +74,8 @@ func listCommands() {
 	}
 }
 
-// config defines the configuration options for podctl. See loadConfig for details on the configuration load process.
-type config struct {
+// Config defines the configuration options for podctl. See loadConfig for details on the configuration load process.
+type Config struct {
 	ShowVersion   bool   `short:"V" long:"version" description:"Display version information and exit"`
 	ListCommands  bool   `short:"l" long:"listcommands" description:"List all of the supported commands and exit"`
 	ConfigFile    string `short:"C" long:"configfile" description:"Path to configuration file"`
@@ -127,7 +127,7 @@ func normalizeAddress(addr string, useTestNet3, useSimNet, useWallet bool) strin
 func cleanAndExpandPath(path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
-		homeDir := filepath.Dir(podctlHomeDir)
+		homeDir := filepath.Dir(PodCtlHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
 	// NOTE: The os.ExpandEnv doesn't work with Windows-style %VARIABLE%, but they variables can still be expanded via POSIX-style $VARIABLE.
@@ -141,12 +141,12 @@ func cleanAndExpandPath(path string) string {
 // 	3) Load configuration file overwriting defaults with any specified options
 // 	4) Parse CLI options and overwrite/add any specified options
 // The above results in functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
-func loadConfig() (*config, []string, error) {
+func loadConfig() (*Config, []string, error) {
 	// Default config.
-	cfg := config{
-		ConfigFile: defaultConfigFile,
-		RPCServer:  defaultRPCServer,
-		RPCCert:    defaultRPCCertFile,
+	cfg := Config{
+		ConfigFile: DefaultConfigFile,
+		RPCServer:  DefaultRPCServer,
+		RPCCert:    DefaultRPCCertFile,
 	}
 	// Pre-parse the command line options to see if an alternative config file, the version flag, or the list commands flag was specified.  Any errors aside from the help message error can be ignored here since they will be caught by the final parse below.
 	preCfg := cfg
@@ -180,9 +180,9 @@ func loadConfig() (*config, []string, error) {
 		// Use config file for RPC server to create default podctl config
 		var serverConfigPath string
 		if preCfg.Wallet {
-			serverConfigPath = filepath.Join(sacHomeDir, "sac.conf")
+			serverConfigPath = filepath.Join(SPVHomeDir, "sac.conf")
 		} else {
-			serverConfigPath = filepath.Join(podHomeDir, "pod.conf")
+			serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
 		}
 		fmt.Println("Creating default config...")
 		err := createDefaultConfigFile(preCfg.ConfigFile, serverConfigPath)
@@ -225,8 +225,8 @@ func loadConfig() (*config, []string, error) {
 		return nil, nil, err
 	}
 	// Override the RPC certificate if the --wallet flag was specified and the user did not specify one.
-	if cfg.Wallet && cfg.RPCCert == defaultRPCCertFile {
-		cfg.RPCCert = defaultWalletCertFile
+	if cfg.Wallet && cfg.RPCCert == DefaultRPCCertFile {
+		cfg.RPCCert = DefaultWalletCertFile
 	}
 	// Handle environment variable expansion in the RPC certificate path.
 	cfg.RPCCert = cleanAndExpandPath(cfg.RPCCert)

@@ -1,6 +1,6 @@
 // NOTE: THIS API IS UNSTABLE RIGHT NOW.
 
-package spv
+package neutrino
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 	"git.parallelcoin.io/pod/util"
 	"git.parallelcoin.io/pod/util/gcs"
 	"git.parallelcoin.io/pod/util/gcs/builder"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/wire"
 )
 

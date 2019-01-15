@@ -11,7 +11,7 @@ import (
 )
 
 // InPlaceSort modifies the passed transaction inputs and outputs to be sorted based on BIP 69.
-// WARNING: This function must NOT be called with published transactions since it will mutate the transaction if it's not already sorted.  This can cause issues if you mutate a tx in a block, for example, which would invalidate the block.  It could also cause cached hashes, such as in a btcutil.Tx to become invalidated.
+// WARNING: This function must NOT be called with published transactions since it will mutate the transaction if it's not already sorted.  This can cause issues if you mutate a tx in a block, for example, which would invalidate the block.  It could also cause cached hashes, such as in a util.Tx to become invalidated.
 // The function should only be used if the caller is creating the transaction or is otherwise 100% positive mutating will not cause adverse affects due to other dependencies.
 func InPlaceSort(tx *wire.MsgTx) {
 	sort.Sort(sortableInputSlice(tx.TxIn))
