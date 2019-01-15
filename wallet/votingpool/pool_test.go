@@ -1,3 +1,7 @@
+
+
+
+
 package votingpool_test
 
 import (
@@ -7,11 +11,11 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/util/hdkeychain"
-	"git.parallelcoin.io/pod/waddrmgr"
-	vp "git.parallelcoin.io/pod/wallet/votingpool"
-	"git.parallelcoin.io/pod/walletdb"
-	_ "git.parallelcoin.io/pod/walletdb/bdb"
+	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
+	vp "github.com/parallelcointeam/mod/votingpool"
+	"github.com/parallelcointeam/mod/waddrmgr"
+	"github.com/parallelcointeam/mod/walletdb"
+	_ "github.com/parallelcointeam/mod/walletdb/bdb"
 )
 
 func TestLoadPoolAndDepositScript(t *testing.T) {

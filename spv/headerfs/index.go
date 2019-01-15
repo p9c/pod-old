@@ -7,7 +7,7 @@ import (
 	"sort"
 
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 )
 
 var (

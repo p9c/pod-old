@@ -1,6 +1,6 @@
 package netparams
 
-import "git.parallelcoin.io/pod/chaincfg"
+import "github.com/parallelcointeam/pod/chaincfg"
 
 // Params is used to group parameters for various networks such as the main
 // network and test networks.

@@ -1,5 +1,7 @@
 // Copyright (c) 2015 The btcsuite developers
 
+
+
 package votingpool
 
 import (
@@ -7,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/walletdb"
+	"github.com/parallelcointeam/mod/walletdb"
 )
 
 func TestPutUsedAddrHash(t *testing.T) {

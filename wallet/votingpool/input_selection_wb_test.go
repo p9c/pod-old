@@ -1,5 +1,7 @@
 // Copyright (c) 2015-2017 The btcsuite developers
 
+
+
 package votingpool
 
 import (
@@ -8,16 +10,16 @@ import (
 	"sort"
 	"testing"
 
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/walletdb"
-	"git.parallelcoin.io/pod/wire"
-	"git.parallelcoin.io/pod/wtxmgr"
+	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+	"github.com/parallelcointeam/pod/wire"
+	"github.com/parallelcointeam/pod/btcutil"
+	"github.com/parallelcointeam/mod/walletdb"
+	"github.com/parallelcointeam/mod/wtxmgr"
 )
 
 var (
 	// random small number of satoshis used as dustThreshold
-	dustThreshold util.Amount = 1e4
+	dustThreshold btcutil.Amount = 1e4
 )
 
 func TestGetEligibleInputs(t *testing.T) {

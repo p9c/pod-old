@@ -1,4 +1,4 @@
-package wallet
+package main
 
 import "git.parallelcoin.io/pod/wallet/netparams"
 

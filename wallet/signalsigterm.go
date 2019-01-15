@@ -1,6 +1,10 @@
+// Copyright (c) 2016 The btcsuite developers
+
+
+
 // +build darwin dragonfly freebsd linux netbsd openbsd solaris
 
-package wallet
+package main
 
 import (
 	"os"

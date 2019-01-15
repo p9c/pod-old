@@ -9,10 +9,10 @@ import (
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/wallet/wtxmgr"
 	"git.parallelcoin.io/pod/wire"
-	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 // TODO: It would be good to send errors during notification creation to the rpc

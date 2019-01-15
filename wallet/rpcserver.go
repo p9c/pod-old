@@ -1,4 +1,4 @@
-package wallet
+package main
 
 import (
 	"crypto/tls"
@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet"
 	"git.parallelcoin.io/pod/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/wallet/rpc/rpcserver"
+	"git.parallelcoin.io/pod/wallet/wallet"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

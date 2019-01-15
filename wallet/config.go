@@ -1,4 +1,6 @@
-package wallet
+// Copyright (c) 2013-2017 The btcsuite developers
+
+package main
 
 import (
 	"bufio"
@@ -19,10 +21,10 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet/infernal/cfgutil"
-	"git.parallelcoin.io/pod/wallet/infernal/legacy/keystore"
+	"git.parallelcoin.io/pod/wallet/internal/cfgutil"
+	"git.parallelcoin.io/pod/wallet/internal/legacy/keystore"
 	"git.parallelcoin.io/pod/wallet/netparams"
-
+	"git.parallelcoin.io/pod/wallet/wallet"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -262,7 +264,7 @@ func loadConfig() (*config, []string, error) {
 		ConfigFile:             cfgutil.NewExplicitString(defaultConfigFile),
 		AppDataDir:             cfgutil.NewExplicitString(defaultAppDataDir),
 		LogDir:                 defaultLogDir,
-		WalletPass:             InsecurePubPassphrase,
+		WalletPass:             wallet.InsecurePubPassphrase,
 		CAFile:                 cfgutil.NewExplicitString(""),
 		RPCKey:                 cfgutil.NewExplicitString(defaultRPCKeyFile),
 		RPCCert:                cfgutil.NewExplicitString(defaultRPCCertFile),

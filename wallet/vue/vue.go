@@ -4,17 +4,16 @@ import (
 	"fmt"
 	"log"
 
-	"git.parallelcoin.io/pod/json"
-	"git.parallelcoin.io/pod/rpcclient"
+	"github.com/parallelcointeam/pod/btcjson"
+	"github.com/parallelcointeam/pod/rpcclient"
 )
 
-// BlockChainData is the response from getinfo
 type BlockChainData struct {
-	GetInfo *json.InfoWalletResult `json:"getinfo"`
+	GetInfo *btcjson.InfoWalletResult `json:"getinfo"`
 }
 
-// GetBlockChainData requests a getinfo command from the RPC
 func (k *BlockChainData) GetBlockChainData() {
+
 	connCfg := &rpcclient.ConnConfig{
 		Host:     "localhost:11046",
 		Endpoint: "ws",
@@ -34,6 +33,7 @@ func (k *BlockChainData) GetBlockChainData() {
 		log.Fatal(err)
 	}
 
+	// fmt.Println("Daaaaaaaa", info.Blocks)
 	k.GetInfo = info
 	// result := []byte(info.Result())
 	// json.Unmarshal(bytes(info), &k.GetInfo)

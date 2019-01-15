@@ -1,3 +1,7 @@
+
+
+
+
 package votingpool
 
 import (
@@ -6,11 +10,11 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"git.parallelcoin.io/pod/snacl"
-	"git.parallelcoin.io/pod/txscript"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/walletdb"
-	"git.parallelcoin.io/pod/wire"
+	"github.com/parallelcointeam/pod/txscript"
+	"github.com/parallelcointeam/pod/wire"
+	"github.com/parallelcointeam/pod/btcutil"
+	"github.com/parallelcointeam/mod/snacl"
+	"github.com/parallelcointeam/mod/walletdb"
 )
 
 // These constants define the serialized length for a given encrypted extended
@@ -51,7 +55,7 @@ type dbWithdrawalRow struct {
 	StartAddress  dbWithdrawalAddress
 	ChangeStart   dbChangeAddress
 	LastSeriesID  uint32
-	DustThreshold util.Amount
+	DustThreshold btcutil.Amount
 	Status        dbWithdrawalStatus
 }
 
@@ -68,7 +72,7 @@ type dbChangeAddress struct {
 
 type dbOutputRequest struct {
 	Addr        string
-	Amount      util.Amount
+	Amount      btcutil.Amount
 	Server      string
 	Transaction uint32
 }
@@ -84,7 +88,7 @@ type dbWithdrawalOutput struct {
 type dbOutBailmentOutpoint struct {
 	Ntxid  Ntxid
 	Index  uint32
-	Amount util.Amount
+	Amount btcutil.Amount
 }
 
 type dbChangeAwareTx struct {
@@ -95,7 +99,7 @@ type dbChangeAwareTx struct {
 type dbWithdrawalStatus struct {
 	NextInputAddr  dbWithdrawalAddress
 	NextChangeAddr dbChangeAddress
-	Fees           util.Amount
+	Fees           btcutil.Amount
 	Outputs        map[OutBailmentID]dbWithdrawalOutput
 	Sigs           map[Ntxid]TxSigs
 	Transactions   map[Ntxid]dbChangeAwareTx
@@ -394,7 +398,7 @@ func serializeSeriesRow(row *dbSeriesRow) ([]byte, error) {
 // serializeWithdrawal constructs a dbWithdrawalRow and serializes it (using
 // encoding/gob) so that it can be stored in the DB.
 func serializeWithdrawal(requests []OutputRequest, startAddress WithdrawalAddress,
-	lastSeriesID uint32, changeStart ChangeAddress, dustThreshold util.Amount,
+	lastSeriesID uint32, changeStart ChangeAddress, dustThreshold btcutil.Amount,
 	status WithdrawalStatus) ([]byte, error) {
 
 	dbStartAddr := dbWithdrawalAddress{
@@ -488,7 +492,7 @@ func deserializeWithdrawal(p *Pool, ns, addrmgrNs walletdb.ReadBucket, serialize
 	// WithdrawalStatus.Outputs later on.
 	requestsByOID := make(map[OutBailmentID]OutputRequest)
 	for i, req := range row.Requests {
-		addr, err := util.DecodeAddress(req.Addr, chainParams)
+		addr, err := btcutil.DecodeAddress(req.Addr, chainParams)
 		if err != nil {
 			return nil, newError(ErrWithdrawalStorage,
 				"cannot deserialize addr for requested output", err)

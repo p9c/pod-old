@@ -1,19 +1,21 @@
 // Copyright (c) 2016 The btcsuite developers
 
+
+
 // Package txauthor provides transaction creation code for wallets.
 package txauthor
 
 import (
 	"errors"
 
-	"git.parallelcoin.io/pod/chaincfg"
-	"git.parallelcoin.io/pod/txscript"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet/wallet/txrules"
-	"git.parallelcoin.io/pod/wire"
+	"github.com/parallelcointeam/mod/wallet/txrules"
+	"github.com/parallelcointeam/pod/btcutil"
+	"github.com/parallelcointeam/pod/chaincfg"
+	"github.com/parallelcointeam/pod/txscript"
+	"github.com/parallelcointeam/pod/wire"
 
-	h "git.parallelcoin.io/pod/wallet/infernal/helpers"
-	"git.parallelcoin.io/pod/wallet/wallet/infernal/txsizes"
+	h "github.com/parallelcointeam/mod/internal/helpers"
+	"github.com/parallelcointeam/mod/wallet/internal/txsizes"
 )
 
 // InputSource provides transaction inputs referencing spendable outputs to
@@ -21,8 +23,8 @@ import (
 // can not be satisified, this can be signaled by returning a total amount less
 // than the target or by returning a more detailed error implementing
 // InputSourceError.
-type InputSource func(target util.Amount) (total util.Amount, inputs []*wire.TxIn,
-	inputValues []util.Amount, scripts [][]byte, err error)
+type InputSource func(target btcutil.Amount) (total btcutil.Amount, inputs []*wire.TxIn,
+	inputValues []btcutil.Amount, scripts [][]byte, err error)
 
 // InputSourceError describes the failure to provide enough input value from
 // unspent transaction outputs to meet a target amount.  A typed error is used
@@ -47,8 +49,8 @@ func (insufficientFundsError) Error() string {
 type AuthoredTx struct {
 	Tx              *wire.MsgTx
 	PrevScripts     [][]byte
-	PrevInputValues []util.Amount
-	TotalInput      util.Amount
+	PrevInputValues []btcutil.Amount
+	TotalInput      btcutil.Amount
 	ChangeIndex     int // negative if no change
 }
 
@@ -75,7 +77,7 @@ type ChangeSource func() ([]byte, error)
 // InputSourceError is returned.
 //
 // BUGS: Fee estimation may be off when redeeming non-compressed P2PKH outputs.
-func NewUnsignedTransaction(outputs []*wire.TxOut, relayFeePerKb util.Amount,
+func NewUnsignedTransaction(outputs []*wire.TxOut, relayFeePerKb btcutil.Amount,
 	fetchInputs InputSource, fetchChange ChangeSource) (*AuthoredTx, error) {
 
 	targetAmount := h.SumOutputValues(outputs)
@@ -187,7 +189,7 @@ type SecretsSource interface {
 // are passed in prevPkScripts and the slice length must match the number of
 // inputs.  Private keys and redeem scripts are looked up using a SecretsSource
 // based on the previous output script.
-func AddAllInputScripts(tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []util.Amount,
+func AddAllInputScripts(tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []btcutil.Amount,
 	secrets SecretsSource) error {
 
 	inputs := tx.TxIn
@@ -261,11 +263,11 @@ func spendWitnessKeyHash(txIn *wire.TxIn, pkScript []byte,
 	// the compression type of the generated key.
 	var pubKeyHash []byte
 	if compressed {
-		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
+		pubKeyHash = btcutil.Hash160(pubKey.SerializeCompressed())
 	} else {
-		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
+		pubKeyHash = btcutil.Hash160(pubKey.SerializeUncompressed())
 	}
-	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
+	p2wkhAddr, err := btcutil.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
 		return err
 	}
@@ -313,16 +315,16 @@ func spendNestedWitnessPubKeyHash(txIn *wire.TxIn, pkScript []byte,
 
 	var pubKeyHash []byte
 	if compressed {
-		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
+		pubKeyHash = btcutil.Hash160(pubKey.SerializeCompressed())
 	} else {
-		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
+		pubKeyHash = btcutil.Hash160(pubKey.SerializeUncompressed())
 	}
 
 	// Next, we'll generate a valid sigScript that'll allow us to spend
 	// the p2sh output. The sigScript will contain only a single push of
 	// the p2wkh witness program corresponding to the matching public key
 	// of this address.
-	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
+	p2wkhAddr, err := btcutil.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
 		return err
 	}

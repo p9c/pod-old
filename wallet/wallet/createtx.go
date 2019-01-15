@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/ec"
+	"git.parallelcoin.io/pod/btcec"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/wallet/wallet/txauthor"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/wallet/wtxmgr"
 	"git.parallelcoin.io/pod/wire"
-	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 // byAmount defines the methods needed to satisify sort.Interface to
@@ -60,7 +60,7 @@ type secretSource struct {
 	addrmgrNs walletdb.ReadBucket
 }
 
-func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
+func (s secretSource) GetKey(addr util.Address) (*btcec.PrivateKey, bool, error) {
 	ma, err := s.Address(s.addrmgrNs, addr)
 	if err != nil {
 		return nil, false, err

@@ -8,8 +8,8 @@ import (
 
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 )
 
 // MakeMultiSigScript creates a multi-signature script that can be redeemed with

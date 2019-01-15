@@ -12,8 +12,8 @@ import (
 	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/util/gcs/builder"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 	"git.parallelcoin.io/pod/wire"
 )
 

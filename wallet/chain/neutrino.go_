@@ -6,17 +6,17 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/chaincfg"
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/rpcclient"
-	"git.parallelcoin.io/pod/txscript"
-	"git.parallelcoin.io/pod/wire"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/util/gcs"
-	"git.parallelcoin.io/pod/util/gcs/builder"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/wtxmgr"
-	"git.parallelcoin.io/pod/spv"
+	"github.com/parallelcointeam/pod/chaincfg"
+	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+	"github.com/parallelcointeam/pod/rpcclient"
+	"github.com/parallelcointeam/pod/txscript"
+	"github.com/parallelcointeam/pod/wire"
+	"github.com/parallelcointeam/pod/btcutil"
+	"github.com/parallelcointeam/pod/btcutil/gcs"
+	"github.com/parallelcointeam/pod/btcutil/gcs/builder"
+	"github.com/parallelcointeam/mod/waddrmgr"
+	"github.com/parallelcointeam/mod/wtxmgr"
+	"github.com/parallelcointeam/sac"
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.
@@ -317,8 +317,8 @@ func (s *NeutrinoClient) pollCFilter(hash *chainhash.Hash) (*gcs.Filter, error) 
 }
 
 // Rescan replicates the RPC client's Rescan command.
-func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
-	outPoints map[wire.OutPoint]util.Address) error {
+func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []btcutil.Address,
+	outPoints map[wire.OutPoint]btcutil.Address) error {
 
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
@@ -406,14 +406,14 @@ func (s *NeutrinoClient) NotifyBlocks() error {
 	// start a rescan without watching any addresses.
 	if !s.scanning {
 		s.clientMtx.Unlock()
-		return s.NotifyReceived([]util.Address{})
+		return s.NotifyReceived([]btcutil.Address{})
 	}
 	s.clientMtx.Unlock()
 	return nil
 }
 
 // NotifyReceived replicates the RPC client's NotifyReceived command.
-func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
+func (s *NeutrinoClient) NotifyReceived(addrs []btcutil.Address) error {
 	s.clientMtx.Lock()
 
 	// If we have a rescan running, we just need to add the appropriate
@@ -468,7 +468,7 @@ func (s *NeutrinoClient) SetStartTime(startTime time.Time) {
 // onFilteredBlockConnected sends appropriate notifications to the notification
 // channel.
 func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
-	header *wire.BlockHeader, relevantTxs []*util.Tx) {
+	header *wire.BlockHeader, relevantTxs []*btcutil.Tx) {
 	ntfn := FilteredBlockConnected{
 		Block: &wtxmgr.BlockMeta{
 			Block: wtxmgr.Block{

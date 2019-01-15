@@ -14,9 +14,9 @@ import (
 	"git.parallelcoin.io/pod/json"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/wtxmgr"
 	"git.parallelcoin.io/pod/wire"
-	"git.parallelcoin.io/pod/wtxmgr"
 )
 
 var (

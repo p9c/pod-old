@@ -1,4 +1,7 @@
-package wallet
+
+
+
+package main
 
 import (
 	"os"

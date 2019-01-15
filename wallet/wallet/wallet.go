@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/blockchain"
+	"git.parallelcoin.io/pod/btcec"
 	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/ec"
 	"git.parallelcoin.io/pod/json"
 	"git.parallelcoin.io/pod/rpcclient"
 	"git.parallelcoin.io/pod/txscript"
@@ -25,12 +25,12 @@ import (
 
 	"git.parallelcoin.io/pod/util"
 	"git.parallelcoin.io/pod/util/hdkeychain"
-	"git.parallelcoin.io/pod/waddrmgr"
 	"git.parallelcoin.io/pod/wallet/chain"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/wallet/wallet/txrules"
-	"git.parallelcoin.io/pod/walletdb"
-	"git.parallelcoin.io/pod/wtxmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/wallet/wtxmgr"
 )
 
 const (
@@ -1527,8 +1527,8 @@ func (w *Wallet) CurrentAddress(account uint32, scope waddrmgr.KeyScope) (util.A
 }
 
 // PubKeyForAddress looks up the associated public key for a P2PKH address.
-func (w *Wallet) PubKeyForAddress(a util.Address) (*ec.PublicKey, error) {
-	var pubKey *ec.PublicKey
+func (w *Wallet) PubKeyForAddress(a util.Address) (*btcec.PublicKey, error) {
+	var pubKey *btcec.PublicKey
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
 		managedAddr, err := w.Manager.Address(addrmgrNs, a)
@@ -1547,8 +1547,8 @@ func (w *Wallet) PubKeyForAddress(a util.Address) (*ec.PublicKey, error) {
 
 // PrivKeyForAddress looks up the associated private key for a P2PKH or P2PK
 // address.
-func (w *Wallet) PrivKeyForAddress(a util.Address) (*ec.PrivateKey, error) {
-	var privKey *ec.PrivateKey
+func (w *Wallet) PrivKeyForAddress(a util.Address) (*btcec.PrivateKey, error) {
+	var privKey *btcec.PrivateKey
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
 		managedAddr, err := w.Manager.Address(addrmgrNs, a)
@@ -3146,7 +3146,7 @@ func (w *Wallet) SignTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 
 			// Set up our callbacks that we pass to txscript so it can
 			// look up the appropriate keys and scripts by address.
-			getKey := txscript.KeyClosure(func(addr util.Address) (*ec.PrivateKey, bool, error) {
+			getKey := txscript.KeyClosure(func(addr util.Address) (*btcec.PrivateKey, bool, error) {
 				if len(additionalKeysByAddress) != 0 {
 					addrStr := addr.EncodeAddress()
 					wif, ok := additionalKeysByAddress[addrStr]

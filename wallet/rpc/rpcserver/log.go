@@ -20,21 +20,21 @@ import (
 
 	"google.golang.org/grpc/grpclog"
 
-	"git.parallelcoin.io/pod/log"
+	"github.com/parallelcointeam/pod/btclog"
 )
 
 // UseLogger sets the logger to use for the gRPC server.
-func UseLogger(l log.Logger) {
+func UseLogger(l btclog.Logger) {
 	grpclog.SetLogger(logger{l})
 }
 
-// logger uses a log.Logger to implement the grpclog.Logger interface.
+// logger uses a btclog.Logger to implement the grpclog.Logger interface.
 type logger struct {
-	log.Logger
+	btclog.Logger
 }
 
 // stripGrpcPrefix removes the package prefix for all logs made to the grpc
-// logger, since these are already included as the log subsystem name.
+// logger, since these are already included as the btclog subsystem name.
 func stripGrpcPrefix(logstr string) string {
 	return strings.TrimPrefix(logstr, "grpc: ")
 }

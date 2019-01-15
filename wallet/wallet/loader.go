@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/chaincfg"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/wallet/infernal/prompt"
-	"git.parallelcoin.io/pod/walletdb"
+	"git.parallelcoin.io/pod/wallet/internal/prompt"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/walletdb"
 )
 
 const (

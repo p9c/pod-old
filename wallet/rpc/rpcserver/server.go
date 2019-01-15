@@ -1,16 +1,18 @@
 // Copyright (c) 2015-2016 The btcsuite developers
 
+
+
 // Package rpcserver implements the RPC API and is used by the main package to
 // start gRPC services.
 //
 // Full documentation of the API implemented by this package is maintained in a
 // language-agnostic document:
 //
-//   https://git.parallelcoin.io/pod/blob/master/rpc/documentation/api.md
+//   https://github.com/parallelcointeam/mod/blob/master/rpc/documentation/api.md
 //
 // Any API changes must be performed according to the steps listed here:
 //
-//   https://git.parallelcoin.io/pod/blob/master/rpc/documentation/serverchanges.md
+//   https://github.com/parallelcointeam/mod/blob/master/rpc/documentation/serverchanges.md
 package rpcserver
 
 import (
@@ -23,20 +25,20 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/rpcclient"
-	"git.parallelcoin.io/pod/txscript"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/util/hdkeychain"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/wallet"
-	"git.parallelcoin.io/pod/wallet/chain"
-	"git.parallelcoin.io/pod/wallet/infernal/cfgutil"
-	"git.parallelcoin.io/pod/wallet/infernal/zero"
-	"git.parallelcoin.io/pod/wallet/netparams"
-	pb "git.parallelcoin.io/pod/wallet/rpc/walletrpc"
-	"git.parallelcoin.io/pod/walletdb"
-	"git.parallelcoin.io/pod/wire"
+	"github.com/parallelcointeam/pod/chaincfg/chainhash"
+	"github.com/parallelcointeam/pod/rpcclient"
+	"github.com/parallelcointeam/pod/txscript"
+	"github.com/parallelcointeam/pod/wire"
+	"github.com/parallelcointeam/pod/btcutil"
+	"github.com/parallelcointeam/pod/btcutil/hdkeychain"
+	"github.com/parallelcointeam/mod/chain"
+	"github.com/parallelcointeam/mod/internal/cfgutil"
+	"github.com/parallelcointeam/mod/internal/zero"
+	"github.com/parallelcointeam/mod/netparams"
+	pb "github.com/parallelcointeam/mod/rpc/walletrpc"
+	"github.com/parallelcointeam/mod/waddrmgr"
+	"github.com/parallelcointeam/mod/wallet"
+	"github.com/parallelcointeam/mod/walletdb"
 )
 
 // Public API version constants
@@ -224,7 +226,7 @@ func (s *walletServer) NextAddress(ctx context.Context, req *pb.NextAddressReque
 	*pb.NextAddressResponse, error) {
 
 	var (
-		addr util.Address
+		addr btcutil.Address
 		err  error
 	)
 	switch req.Kind {
@@ -247,7 +249,7 @@ func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPriva
 
 	defer zero.Bytes(req.Passphrase)
 
-	wif, err := util.DecodeWIF(req.PrivateKeyWif)
+	wif, err := btcutil.DecodeWIF(req.PrivateKeyWif)
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Invalid WIF-encoded private key: %v", err)
@@ -328,7 +330,7 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 	}
 
 	selectedOutputs := make([]*pb.FundTransactionResponse_PreviousOutput, 0, len(unspentOutputs))
-	var totalAmount util.Amount
+	var totalAmount btcutil.Amount
 	for _, output := range unspentOutputs {
 		selectedOutputs = append(selectedOutputs, &pb.FundTransactionResponse_PreviousOutput{
 			TransactionHash: output.OutPoint.Hash[:],
@@ -338,15 +340,15 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 			ReceiveTime:     output.ReceiveTime.Unix(),
 			FromCoinbase:    output.OutputKind == wallet.OutputKindCoinbase,
 		})
-		totalAmount += util.Amount(output.Output.Value)
+		totalAmount += btcutil.Amount(output.Output.Value)
 
-		if req.TargetAmount != 0 && totalAmount > util.Amount(req.TargetAmount) {
+		if req.TargetAmount != 0 && totalAmount > btcutil.Amount(req.TargetAmount) {
 			break
 		}
 	}
 
 	var changeScript []byte
-	if req.IncludeChangeScript && totalAmount > util.Amount(req.TargetAmount) {
+	if req.IncludeChangeScript && totalAmount > btcutil.Amount(req.TargetAmount) {
 		changeAddr, err := s.wallet.NewChangeAddress(req.Account, waddrmgr.KeyScopeBIP0044)
 		if err != nil {
 			return nil, translateError(err)

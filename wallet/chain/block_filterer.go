@@ -4,7 +4,7 @@ import (
 	"git.parallelcoin.io/pod/chaincfg"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/waddrmgr"
+	"git.parallelcoin.io/pod/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/wire"
 )
 

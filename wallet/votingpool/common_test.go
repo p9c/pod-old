@@ -1,3 +1,7 @@
+
+
+
+
 package votingpool
 
 import (
@@ -6,17 +10,17 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/log"
-	"git.parallelcoin.io/pod/waddrmgr"
-	"git.parallelcoin.io/pod/walletdb"
+	"github.com/parallelcointeam/mod/waddrmgr"
+	"github.com/parallelcointeam/mod/walletdb"
+	"github.com/parallelcointeam/pod/btclog"
 )
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Enable logging (Debug level) to aid debugging failing tests.
-	logger := log.NewBackend(os.Stdout).Logger("TEST")
-	logger.SetLevel(log.LevelDebug)
+	logger := btclog.NewBackend(os.Stdout).Logger("TEST")
+	logger.SetLevel(btclog.LevelDebug)
 	UseLogger(logger)
 }
 
