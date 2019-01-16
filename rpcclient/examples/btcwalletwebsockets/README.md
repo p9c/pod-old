@@ -8,7 +8,7 @@ This example shows how to use the rpcclient package to connect to a btcwallet RP
 The first step is to use `go get` to download and install the rpcclient package:
 
 ```bash
-$ go get github.com/parallelcointeam/pod/rpcclient
+$ go get git.parallelcoin.io/pod/rpcclient
 ```
 
 Next, modify the `main.go` source to specify the correct RPC username and password for the RPC server:
@@ -21,7 +21,7 @@ Next, modify the `main.go` source to specify the correct RPC username and passwo
 Finally, navigate to the example's directory and run it with:
 
 ```bash
-$ cd $GOPATH/src/github.com/parallelcointeam/pod/rpcclient/examples/btcwalletwebsockets
+$ cd $GOPATH/src/git.parallelcoin.io/pod/rpcclient/examples/btcwalletwebsockets
 $ go run *.go
 ```
 

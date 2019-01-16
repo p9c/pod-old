@@ -1,7 +1,0 @@
-{
-	"tls": true,
-	"network": "network",
-	"srpc": "srpc",
-	"tlspub": "tlspub",
-	"tlspri": "tlspri"
-}

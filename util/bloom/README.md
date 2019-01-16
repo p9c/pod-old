@@ -8,7 +8,7 @@ Package bloom provides an API for dealing with bitcoin-specific bloom filters. A
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/parallelcointeam/pod/bloom
+$ go get -u git.parallelcoin.io/pod/bloom
 ```
 
 ## Examples

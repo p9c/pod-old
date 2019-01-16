@@ -41,7 +41,7 @@ func main() {
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/parallelcointeam/pod/chaincfg
+$ go get -u git.parallelcoin.io/pod/chaincfg
 ```
 
 ## License

@@ -11,7 +11,7 @@ import (
 	"git.parallelcoin.io/pod/spv/headerfs"
 	"git.parallelcoin.io/pod/util/gcs"
 	"git.parallelcoin.io/pod/util/gcs/builder"
-	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/walletmain/walletdb"
 	"git.parallelcoin.io/pod/wire"
 )
 

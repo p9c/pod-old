@@ -15,9 +15,9 @@ import (
 	"git.parallelcoin.io/pod/rpcclient"
 	"git.parallelcoin.io/pod/txscript"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet/netparams"
-	"git.parallelcoin.io/pod/wallet/wallet/txauthor"
-	"git.parallelcoin.io/pod/wallet/wallet/txrules"
+	"git.parallelcoin.io/pod/walletmain/netparams"
+	"git.parallelcoin.io/pod/walletmain/wallet/txauthor"
+	"git.parallelcoin.io/pod/walletmain/wallet/txrules"
 	"git.parallelcoin.io/pod/wire"
 	"github.com/jessevdk/go-flags"
 )

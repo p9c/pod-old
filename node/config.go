@@ -32,11 +32,11 @@ import (
 )
 
 const (
-	DefaultConfigFilename        = "pod.conf"
-	DefaultDataDirname           = "data"
+	DefaultConfigFilename        = "node/conf"
+	DefaultDataDirname           = "node"
 	DefaultLogLevel              = "info"
-	DefaultLogDirname            = "logs"
-	DefaultLogFilename           = "pod.log"
+	DefaultLogDirname            = "node"
+	DefaultLogFilename           = "log"
 	DefaultListener              = "127.0.0.1:11047"
 	DefaultMaxPeers              = 125
 	DefaultBanDuration           = time.Hour * 24

@@ -22,8 +22,8 @@ import (
 	"git.parallelcoin.io/pod/spv/filterdb"
 	"git.parallelcoin.io/pod/spv/headerfs"
 	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/wallet/walletdb"
+	"git.parallelcoin.io/pod/walletmain/waddrmgr"
+	"git.parallelcoin.io/pod/walletmain/walletdb"
 	"git.parallelcoin.io/pod/wire"
 )
 

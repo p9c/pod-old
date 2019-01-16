@@ -12,131 +12,136 @@ var nodecfg nodeCfg
 
 func (n *nodeCfg) Execute(args []string) (err error) {
 	fmt.Println("running node")
-	joined := node.Config{}
-	joined.ShowVersion = cfg.General.ShowVersion
-	joined.ConfigFile = node.DefaultConfigFile
-	if cfg.General.ConfigFile != "" {
-		joined.ConfigFile = cfg.General.ConfigFile
+	// Load all defaults and from parser the remainder
+	joined := node.Config{
+		ShowVersion:          cfg.General.ShowVersion,
+		ConfigFile:           node.DefaultConfigFile, // ***
+		DataDir:              node.DefaultDataDir,    // ***
+		LogDir:               cfg.General.LogDir,
+		AddPeers:             n.NodeP2P.AddPeers,
+		ConnectPeers:         n.NodeP2P.ConnectPeers,
+		DisableListen:        n.NodeP2P.DisableListen,
+		Listeners:            []string{node.DefaultListener}, // ***
+		MaxPeers:             node.DefaultMaxPeers,           // ***
+		DisableBanning:       n.NodeP2P.DisableBanning,
+		BanDuration:          node.DefaultBanDuration,  // ***
+		BanThreshold:         node.DefaultBanThreshold, // ***
+		Whitelists:           n.NodeP2P.Whitelists,
+		RPCUser:              n.NodeRPC.RPCUser,
+		RPCPass:              n.NodeRPC.RPCPass,
+		RPCLimitUser:         n.NodeRPC.RPCLimitUser,
+		RPCLimitPass:         n.NodeRPC.RPCLimitPass,
+		RPCListeners:         n.NodeRPC.RPCListeners,
+		RPCCert:              node.DefaultRPCCertFile, // ***
+		RPCKey:               n.NodeRPC.RPCKey,
+		RPCMaxClients:        node.DefaultMaxRPCClients,        // ***
+		RPCMaxWebsockets:     node.DefaultMaxRPCWebsockets,     // ***
+		RPCMaxConcurrentReqs: node.DefaultMaxRPCConcurrentReqs, // ***
+		RPCQuirks:            n.NodeRPC.RPCQuirks,
+		DisableRPC:           n.NodeRPC.DisableRPC,
+		TLS:                  n.NodeRPC.TLS,
+		DisableDNSSeed:       n.NodeP2P.DisableDNSSeed,
+		ExternalIPs:          n.NodeP2P.ExternalIPs,
+		Proxy:                n.NodeP2P.Proxy,
+		ProxyUser:            n.NodeP2P.ProxyUser,
+		ProxyPass:            n.NodeP2P.ProxyPass,
+		OnionProxy:           n.NodeP2P.OnionProxy,
+		OnionProxyUser:       n.NodeP2P.OnionProxyUser,
+		OnionProxyPass:       n.NodeP2P.OnionProxyPass,
+		NoOnion:              n.NodeP2P.NoOnion,
+		TorIsolation:         n.NodeP2P.TorIsolation,
+		TestNet3:             cfg.Network.TestNet3,
+		RegressionTest:       cfg.Network.RegressionTest,
+		SimNet:               cfg.Network.SimNet,
+		AddCheckpoints:       n.NodeChain.AddCheckpoints,
+		DisableCheckpoints:   n.NodeChain.DisableCheckpoints,
+		DbType:               n.NodeChain.DbType,
+		Profile:              n.NodeLaunch.Profile,
+		CPUProfile:           n.NodeLaunch.CPUProfile,
+		Upnp:                 n.NodeP2P.Upnp,
+		MinRelayTxFee:        n.NodeChain.MinRelayTxFee,
+		FreeTxRelayLimit:     node.DefaultFreeTxRelayLimit, // ***
+		NoRelayPriority:      n.NodeChain.NoRelayPriority,
+		TrickleInterval:      node.DefaultTrickleInterval,       // ***
+		MaxOrphanTxs:         node.DefaultMaxOrphanTransactions, // ***
+		Algo:                 node.DefaultAlgo,                  // ***
+		Generate:             n.NodeMining.Generate,             // ***
+		GenThreads:           node.DefaultGenThreads,            // ***
+		MiningAddrs:          n.NodeMining.MiningAddrs,
+		MinerController:      n.NodeMining.MinerController,
+		MinerPort:            node.DefaultMinerPort, // ***
+		MinerPass:            n.NodeMining.MinerPass,
+		BlockMinSize:         node.DefaultBlockMinSize,   // ***
+		BlockMaxSize:         node.DefaultBlockMaxSize,   // ***
+		BlockMinWeight:       node.DefaultBlockMinWeight, // ***
+		BlockMaxWeight:       node.DefaultBlockMaxWeight, // ***
+		BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
+		UserAgentComments:    n.NodeP2P.UserAgentComments,
+		NoPeerBloomFilters:   n.NodeP2P.NoPeerBloomFilters,
+		NoCFilters:           n.NodeP2P.NoCFilters,
+		DropCfIndex:          n.NodeLaunch.DropCfIndex,
+		SigCacheMaxSize:      node.DefaultSigCacheMaxSize, // ***
+		BlocksOnly:           n.NodeP2P.BlocksOnly,
+		TxIndex:              n.NodeChain.TxIndex,
+		DropTxIndex:          n.NodeLaunch.DropTxIndex,
+		AddrIndex:            n.NodeChain.AddrIndex,
+		DropAddrIndex:        n.NodeLaunch.DropAddrIndex,
+		RelayNonStd:          n.NodeP2P.RelayNonStd,
+		RejectNonStd:         n.NodeP2P.RejectNonStd,
+		// lookup: ,
+		// oniondial: ,
+		// dial: ,
+		// addCheckpoints: ,
+		// miningAddrs: ,
+		// minerKey: ,
+		// minRelayTxFee: ,
+		// whitelists: ,
 	}
-	joined.DataDir = node.DefaultDataDir
-	if cfg.General.DataDir != "" {
-		joined.DataDir = cfg.General.DataDir
-	}
-	joined.LogDir = node.DefaultLogDir
-	if cfg.General.LogDir != "" {
-		joined.LogDir = cfg.General.LogDir
-	}
-	joined.AddPeers = n.NodeP2P.AddPeers
-	joined.ConnectPeers = n.NodeP2P.ConnectPeers
-	joined.Listeners = []string{node.DefaultListener}
-	if cfg.Node.NodeP2P.Listeners != nil {
-		joined.Listeners = cfg.Node.NodeP2P.Listeners
-	}
-	joined.DisableListen = n.NodeP2P.DisableListen
-	joined.MaxPeers = n.NodeP2P.MaxPeers
-	joined.DisableBanning = n.NodeP2P.DisableBanning
-	joined.BanDuration = node.DefaultBanDuration
-	if n.NodeP2P.BanDuration != 0 {
-		joined.BanDuration = n.NodeP2P.BanDuration
-	}
-	joined.BanThreshold = node.DefaultBanThreshold
-	if n.NodeP2P.BanThreshold != 0 {
-		joined.BanThreshold = n.NodeP2P.BanThreshold
-	}
-	joined.Whitelists = n.NodeP2P.Whitelists
-	joined.RPCUser = n.NodeRPC.RPCUser
-	joined.RPCPass = n.NodeRPC.RPCPass
-	joined.RPCLimitUser = n.NodeRPC.RPCLimitUser
-	joined.RPCLimitPass = n.NodeRPC.RPCLimitPass
-	joined.RPCListeners = []string{fmt.Sprintf("127.0.0.1:%d", node.ActiveNetParams.RPCPort)}
-	if n.NodeRPC.RPCListeners != nil {
-		joined.RPCListeners = n.NodeRPC.RPCListeners
-	}
-	joined.RPCCert = node.DefaultRPCCertFile
-	if n.NodeRPC.RPCCert != "" {
-		joined.RPCCert = n.NodeRPC.RPCCert
-	}
-	joined.RPCKey = node.DefaultRPCKeyFile
-	if n.NodeRPC.RPCKey != "" {
-		joined.RPCKey = n.NodeRPC.RPCKey
-	}
-	joined.RPCMaxClients = node.DefaultMaxRPCClients
-	if n.NodeRPC.RPCMaxClients != 0 {
-		joined.RPCMaxClients = int(n.NodeRPC.RPCMaxClients)
-	}
-	joined.RPCMaxWebsockets = node.DefaultMaxRPCWebsockets
-	if n.NodeRPC.RPCMaxWebsockets != 0 {
-		joined.RPCMaxWebsockets = int(n.NodeRPC.RPCMaxWebsockets)
-	}
-	joined.RPCMaxConcurrentReqs = node.DefaultMaxRPCConcurrentReqs
-	if n.NodeRPC.RPCMaxConcurrentReqs != 0 {
-		joined.RPCMaxConcurrentReqs = int(n.NodeRPC.RPCMaxConcurrentReqs)
-	}
-	joined.RPCQuirks = n.NodeRPC.RPCQuirks
-	joined.DisableRPC = n.NodeRPC.DisableRPC
-	joined.TLS = n.NodeRPC.TLS
-	joined.DisableDNSSeed = n.NodeP2P.DisableDNSSeed
-	joined.ExternalIPs = n.NodeP2P.ExternalIPs
-	joined.Proxy = n.NodeP2P.Proxy
-	joined.ProxyUser = n.NodeP2P.ProxyUser
-	joined.ProxyPass = n.NodeP2P.ProxyPass
-	joined.OnionProxy = n.NodeP2P.OnionProxy
-	joined.OnionProxyUser = n.NodeP2P.OnionProxy
-	joined.OnionProxyPass = n.NodeP2P.OnionProxyPass
-	joined.NoOnion = n.NodeP2P.NoOnion
-	joined.TorIsolation = n.NodeP2P.TorIsolation
-	joined.TestNet3 = cfg.Network.TestNet3
-	joined.RegressionTest = cfg.Network.RegressionTest
-	joined.SimNet = cfg.Network.SimNet
-	joined.AddCheckpoints = n.NodeChain.AddCheckpoints
-	joined.DisableCheckpoints = n.NodeChain.DisableCheckpoints
-	joined.DbType = node.DefaultDbType
-	if n.NodeChain.DbType != "" {
-		joined.DbType = n.NodeChain.DbType
-	}
-	joined.Upnp = n.NodeP2P.Upnp
-	joined.MinRelayTxFee = mempool.DefaultMinRelayTxFee.ToDUO()
-	if n.NodeChain.MinRelayTxFee != 0 {
-		joined.MinRelayTxFee = n.NodeChain.MinRelayTxFee
-	}
-	joined.FreeTxRelayLimit = node.DefaultFreeTxRelayLimit
-	if n.NodeChain.FreeTxRelayLimit != 0 {
-		joined.FreeTxRelayLimit = n.NodeChain.FreeTxRelayLimit
-	}
-	joined.TrickleInterval = node.DefaultTrickleInterval
-	if n.NodeChain.TrickleInterval != 0 {
-		joined.TrickleInterval = n.NodeChain.TrickleInterval
-	}
-	joined.MaxOrphanTxs = node.DefaultMaxOrphanTransactions
-	if n.NodeChain.MaxOrphanTxs != 0 {
-		joined.MaxOrphanTxs = n.NodeChain.MaxOrphanTxs
-	}
-	joined.Algo = node.DefaultAlgo
-	joined.Generate = node.DefaultGenerate
-	joined.GenThreads = node.DefaultGenThreads
-	//joined.=MiningAddr
-	joined.MinerController = n.NodeMining.MinerController
-	joined.MinerPort = node.DefaultMinerPort
-	//joined.=MinerPas
-	joined.BlockMinSize = node.DefaultBlockMinSize
-	joined.BlockMaxSize = node.DefaultBlockMaxSize
-	joined.BlockMinWeight = node.DefaultBlockMinWeight
-	joined.BlockMaxWeight = node.DefaultBlockMaxWeight
-	joined.BlockPrioritySize = mempool.DefaultBlockPrioritySize
-	joined.UserAgentComments = n.NodeP2P.UserAgentComments
-	joined.NoPeerBloomFilters = n.NodeP2P.NoPeerBloomFilters
-	joined.NoCFilters = n.NodeP2P.NoCFilters
-	joined.DropCfIndex = n.NodeLaunch.DropCfIndex
-	joined.SigCacheMaxSize = node.DefaultSigCacheMaxSize
-	joined.BlocksOnly = n.NodeP2P.BlocksOnly
-	joined.TxIndex = node.DefaultTxIndex
-	joined.DropTxIndex = n.NodeLaunch.DropTxIndex
-	joined.AddrIndex = node.DefaultAddrIndex
-	joined.DropAddrIndex = n.NodeLaunch.DropAddrIndex
-	joined.RelayNonStd = n.NodeP2P.RejectNonStd
-	joined.RejectNonStd = n.NodeP2P.RejectNonStd
-	joined.ShowVersion = cfg.General.ShowVersion
 
+	switch {
+	case cfg.General.ConfigFile != "":
+		joined.ConfigFile = cfg.General.ConfigFile
+	case cfg.General.DataDir != "":
+		joined.DataDir = cfg.General.DataDir
+	case n.NodeP2P.Listeners != nil:
+		joined.Listeners = n.NodeP2P.Listeners
+	case n.NodeP2P.MaxPeers != 0:
+		joined.MaxPeers = n.NodeP2P.MaxPeers
+	case n.NodeP2P.BanDuration != 0:
+		joined.BanDuration = n.NodeP2P.BanDuration
+	case n.NodeP2P.BanThreshold != 0:
+		joined.BanThreshold = n.NodeP2P.BanThreshold
+	case n.NodeRPC.RPCCert != "":
+		joined.RPCCert = n.NodeRPC.RPCCert
+	case n.NodeRPC.RPCMaxClients != 0:
+		joined.RPCMaxClients = int(n.NodeRPC.RPCMaxClients)
+	case n.NodeRPC.RPCMaxWebsockets != 0:
+		joined.RPCMaxWebsockets = int(n.NodeRPC.RPCMaxWebsockets)
+	case n.NodeRPC.RPCMaxConcurrentReqs != 0:
+		joined.RPCMaxConcurrentReqs = int(n.NodeRPC.RPCMaxConcurrentReqs)
+	case n.NodeChain.FreeTxRelayLimit != 0:
+		joined.FreeTxRelayLimit = n.NodeChain.FreeTxRelayLimit
+	case n.NodeChain.TrickleInterval != 0:
+		joined.TrickleInterval = n.NodeChain.TrickleInterval
+	case n.NodeChain.MaxOrphanTxs != 0:
+		joined.MaxOrphanTxs = n.NodeChain.MaxOrphanTxs
+	case n.NodeMining.Algo != "":
+		joined.Algo = n.NodeMining.Algo
+	case n.NodeMining.GenThreads != 0:
+		joined.GenThreads = n.NodeMining.GenThreads
+	case n.NodeMining.MinerPort != 0:
+		joined.MinerPort = n.NodeMining.MinerPort
+	case n.NodeChain.BlockMinSize != 0:
+		joined.BlockMinSize = n.NodeChain.BlockMinSize
+	case n.NodeChain.BlockMaxSize != 0:
+		joined.BlockMaxSize = n.NodeChain.BlockMaxSize
+	case n.NodeChain.BlockMinWeight != 0:
+		joined.BlockMinWeight = n.NodeChain.BlockMinWeight
+	case n.NodeChain.BlockMaxWeight != 0:
+		joined.BlockMaxWeight = n.NodeChain.BlockMaxWeight
+	case n.NodeChain.SigCacheMaxSize != 0:
+		joined.SigCacheMaxSize = n.NodeChain.SigCacheMaxSize
+	}
 	j, _ := json.MarshalIndent(joined, "", "  ")
 	fmt.Println(string(j))
 	fmt.Println(args)

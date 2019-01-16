@@ -10,7 +10,7 @@ This package has intentionally been designed so it can be used as a standalone p
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/parallelcointeam/pod/wire
+$ go get -u git.parallelcoin.io/pod/wire
 ```
 
 ## Bitcoin Message Overview

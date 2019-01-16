@@ -22,7 +22,7 @@ In addition the connection manager provides the following utilities:
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/parallelcointeam/pod/connmgr
+$ go get -u git.parallelcoin.io/pod/connmgr
 ```
 
 ## License

@@ -10,7 +10,7 @@ import (
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/util"
 	"git.parallelcoin.io/pod/util/gcs"
-	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/walletmain/waddrmgr"
 	"git.parallelcoin.io/pod/wire"
 )
 

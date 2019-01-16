@@ -6,7 +6,7 @@ import (
 	"git.parallelcoin.io/pod/blockchain"
 	"git.parallelcoin.io/pod/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/spv/headerfs"
-	"git.parallelcoin.io/pod/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/walletmain/waddrmgr"
 	"git.parallelcoin.io/pod/wire"
 )
 
