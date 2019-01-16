@@ -16,30 +16,34 @@ type walletGUICfgJoined struct {
 
 var walletgui walletGUICfg
 
+var autoUser = GenerateKey()
+var autoPass = GenerateKey()
+
 func (n *walletGUICfg) Execute(args []string) (err error) {
-	fmt.Println("running wallet with full node")
+	fmt.Println("running wallet with full node and gui")
 	joined := walletnodeCfgJoined{
 		WalletCfg: walletmain.Config{
-			ConfigFile:               walletmain.DefaultConfigFile,
-			ShowVersion:              cfg.General.ShowVersion,
-			Create:                   n.WalletLaunch.Create,
-			CreateTemp:               n.WalletLaunch.CreateTemp,
-			AppDataDir:               walletmain.DefaultAppDataDir,
-			TestNet3:                 cfg.Network.TestNet3,
-			SimNet:                   cfg.Network.SimNet,
-			NoInitialLoad:            n.WalletLaunch.NoInitialLoad,
-			LogDir:                   walletmain.DefaultLogDir,
-			Profile:                  n.WalletLaunch.Profile,
-			GUI:                      true,
-			WalletPass:               "password",
+			ConfigFile:    walletmain.DefaultConfigFile,
+			ShowVersion:   cfg.General.ShowVersion,
+			Create:        n.WalletLaunch.Create,
+			CreateTemp:    n.WalletLaunch.CreateTemp,
+			AppDataDir:    walletmain.DefaultAppDataDir,
+			TestNet3:      cfg.Network.TestNet3,
+			SimNet:        cfg.Network.SimNet,
+			NoInitialLoad: n.WalletLaunch.NoInitialLoad,
+			LogDir:        walletmain.DefaultLogDir,
+			Profile:       n.WalletLaunch.Profile,
+			GUI:           true,
+			WalletPass:    "password",
+			// managed connection between nodes
 			RPCConnect:               node.DefaultRPCListener,
 			CAFile:                   n.WalletNode.CAFile,
-			EnableClientTLS:          n.WalletNode.EnableClientTLS,
-			PodUsername:              "user",
-			PodPassword:              "pa55word",
-			Proxy:                    n.WalletNode.Proxy,
-			ProxyUser:                n.WalletNode.ProxyUser,
-			ProxyPass:                n.WalletNode.ProxyPass,
+			EnableClientTLS:          false, //n.WalletNode.EnableClientTLS,
+			PodUsername:              autoUser,
+			PodPassword:              autoPass,
+			Proxy:                    "", // n.WalletNode.Proxy,
+			ProxyUser:                "", // n.WalletNode.ProxyUser,
+			ProxyPass:                "", // n.WalletNode.ProxyPass,
 			AddPeers:                 n.WalletNode.AddPeers,
 			ConnectPeers:             n.WalletNode.ConnectPeers,
 			MaxPeers:                 n.WalletNode.MaxPeers,
@@ -71,8 +75,8 @@ func (n *walletGUICfg) Execute(args []string) (err error) {
 			BanDuration:          node.DefaultBanDuration,
 			BanThreshold:         node.DefaultBanThreshold,
 			Whitelists:           n.NodeP2P.Whitelists,
-			RPCUser:              "user",
-			RPCPass:              "pa55word",
+			RPCUser:              autoUser,
+			RPCPass:              autoPass,
 			RPCLimitUser:         "",
 			RPCLimitPass:         "",
 			RPCListeners:         []string{node.DefaultRPCListener},
@@ -81,9 +85,9 @@ func (n *walletGUICfg) Execute(args []string) (err error) {
 			RPCMaxClients:        node.DefaultMaxRPCClients,
 			RPCMaxWebsockets:     node.DefaultMaxRPCWebsockets,
 			RPCMaxConcurrentReqs: node.DefaultMaxRPCConcurrentReqs,
-			RPCQuirks:            n.NodeRPC.RPCQuirks,
-			DisableRPC:           n.NodeRPC.DisableRPC,
-			TLS:                  n.NodeRPC.TLS,
+			RPCQuirks:            false, // n.NodeRPC.RPCQuirks,
+			DisableRPC:           false, // n.NodeRPC.DisableRPC,
+			TLS:                  false,
 			DisableDNSSeed:       n.NodeP2P.DisableDNSSeed,
 			ExternalIPs:          n.NodeP2P.ExternalIPs,
 			Proxy:                n.NodeP2P.Proxy,
@@ -149,10 +153,10 @@ func (n *walletGUICfg) Execute(args []string) (err error) {
 		joined.WalletCfg.Username = n.WalletRPC.Username
 	case n.WalletRPC.Password != "":
 		joined.WalletCfg.Password = n.WalletRPC.Password
-	case n.WalletNode.PodUsername != "":
-		joined.WalletCfg.PodUsername = n.WalletNode.PodUsername
-	case n.WalletNode.PodPassword != "":
-		joined.WalletCfg.PodPassword = n.WalletNode.PodPassword
+	// case n.WalletNode.PodUsername != "":
+	// joined.WalletCfg.PodUsername = n.WalletNode.PodUsername
+	// case n.WalletNode.PodPassword != "":
+	// joined.WalletCfg.PodPassword = n.WalletNode.PodPassword
 	case cfg.General.ConfigFile != "":
 		joined.WalletCfg.ConfigFile = cfg.General.ConfigFile
 	case cfg.General.DataDir != "":
@@ -168,11 +172,11 @@ func (n *walletGUICfg) Execute(args []string) (err error) {
 		joined.WalletCfg.LegacyRPCMaxClients = n.WalletRPC.LegacyRPCMaxClients
 	case n.WalletRPC.LegacyRPCMaxWebsockets != 0:
 		joined.WalletCfg.LegacyRPCMaxWebsockets = n.WalletRPC.LegacyRPCMaxWebsockets
-		// node items
-	case n.NodeRPC.RPCUser != "":
-		joined.NodeCfg.RPCUser = n.NodeRPC.RPCUser
-	case n.NodeRPC.RPCPass != "":
-		joined.NodeCfg.RPCPass = n.NodeRPC.RPCUser
+	// node items
+	// case n.NodeRPC.RPCUser != "":
+	// joined.NodeCfg.RPCUser = n.NodeRPC.RPCUser
+	// case n.NodeRPC.RPCPass != "":
+	// joined.NodeCfg.RPCPass = n.NodeRPC.RPCUser
 	case n.NodeRPC.RPCLimitUser != "":
 		joined.NodeCfg.RPCLimitUser = n.NodeRPC.RPCLimitUser
 	case n.NodeRPC.RPCLimitPass != "":
