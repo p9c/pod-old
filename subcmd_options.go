@@ -25,8 +25,6 @@ type generalCfg struct {
 	ConfigFile  string `long:"configfile" description:"path to configuration file"`
 	DataDir     string `long:"datadir" short:"d" description:"directory to store data"`
 	LogDir      string `long:"logdir" description:"directory to log output"`
-	Profile     string `long:"profile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
-	CPUProfile  string `long:"cpuprofile" description:"write CPU profile to the specified file"`
 }
 type logTopLevel struct {
 	LogLevel string `long:"debuglevel" description:"base log level applies if no other is specified"`
@@ -266,15 +264,19 @@ type explorerCfgLaunchGroup struct {
 }
 
 type nodeLaunchGroup struct {
-	DropCfIndex   bool `long:"dropcfindex" description:"deletes the index used for committed filtering (CF) support from the database on start up and then exits."`
-	DropTxIndex   bool `long:"droptxindex" description:"deletes the hash-based transaction index from the database on start up and then exits."`
-	DropAddrIndex bool `long:"dropaddrindex" description:"deletes the address-based transaction index from the database on start up and then exits."`
+	Profile       string `long:"nodeprofile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
+	CPUProfile    string `long:"nodecpuprofile" description:"write CPU profile to the specified file"`
+	DropCfIndex   bool   `long:"dropcfindex" description:"deletes the index used for committed filtering (CF) support from the database on start up and then exits."`
+	DropTxIndex   bool   `long:"droptxindex" description:"deletes the hash-based transaction index from the database on start up and then exits."`
+	DropAddrIndex bool   `long:"dropaddrindex" description:"deletes the address-based transaction index from the database on start up and then exits."`
 }
 
 type walletCfgLaunchGroup struct {
-	Create        bool `long:"createwallet" description:"create the wallet if it does not exist"`
-	CreateTemp    bool `long:"createtemp" description:"create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir"`
-	NoInitialLoad bool `long:"noinitialload" description:"defer wallet creation/opening on startup and enable loading wallets over RPC"`
+	Profile       string `long:"walletprofile" description:"enable HTTP profiling on given port - port must be between 1024 and 65536"`
+	CPUProfile    string `long:"walletcpuprofile" description:"write CPU profile to the specified file"`
+	Create        bool   `long:"createwallet" description:"create the wallet if it does not exist"`
+	CreateTemp    bool   `long:"createtemp" description:"create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir"`
+	NoInitialLoad bool   `long:"noinitialload" description:"defer wallet creation/opening on startup and enable loading wallets over RPC"`
 }
 
 type networkGroup struct {
