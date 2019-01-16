@@ -1784,7 +1784,7 @@ func (s *server) Start() {
 	if cfg.Generate {
 		s.cpuMiner.Start()
 	}
-	if cfg.MinerController {
+	if cfg.MinerListener != "" {
 		s.minerController.Start()
 	}
 }
@@ -2174,7 +2174,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		BlockTemplateGenerator: blockTemplateGenerator,
 		MiningAddrs:            cfg.miningAddrs,
 		ProcessBlock:           s.syncManager.ProcessBlock,
-		MinerPort:              cfg.MinerPort,
+		MinerListener:          cfg.MinerListener,
 		MinerKey:               cfg.minerKey,
 		ConnectedCount:         s.ConnectedCount,
 		IsCurrent:              s.syncManager.IsCurrent,

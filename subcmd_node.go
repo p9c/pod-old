@@ -27,11 +27,11 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		BanDuration:          node.DefaultBanDuration,
 		BanThreshold:         node.DefaultBanThreshold,
 		Whitelists:           n.NodeP2P.Whitelists,
-		RPCUser:              n.NodeRPC.RPCUser,
-		RPCPass:              n.NodeRPC.RPCPass,
-		RPCLimitUser:         n.NodeRPC.RPCLimitUser,
-		RPCLimitPass:         n.NodeRPC.RPCLimitPass,
-		RPCListeners:         n.NodeRPC.RPCListeners,
+		RPCUser:              "user",
+		RPCPass:              "pa55word",
+		RPCLimitUser:         "",
+		RPCLimitPass:         "",
+		RPCListeners:         []string{node.DefaultRPCListener},
 		RPCCert:              node.DefaultRPCCertFile,
 		RPCKey:               n.NodeRPC.RPCKey,
 		RPCMaxClients:        node.DefaultMaxRPCClients,
@@ -55,7 +55,7 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		SimNet:               cfg.Network.SimNet,
 		AddCheckpoints:       n.NodeChain.AddCheckpoints,
 		DisableCheckpoints:   n.NodeChain.DisableCheckpoints,
-		DbType:               n.NodeChain.DbType,
+		DbType:               node.DefaultDbType,
 		Profile:              n.NodeLaunch.Profile,
 		CPUProfile:           n.NodeLaunch.CPUProfile,
 		Upnp:                 n.NodeP2P.Upnp,
@@ -68,9 +68,8 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		Generate:             n.NodeMining.Generate,
 		GenThreads:           node.DefaultGenThreads,
 		MiningAddrs:          n.NodeMining.MiningAddrs,
-		MinerController:      n.NodeMining.MinerController,
-		MinerPort:            node.DefaultMinerPort,
-		MinerPass:            n.NodeMining.MinerPass,
+		MinerListener:        node.DefaultMinerListener,
+		MinerPass:            "pa55word",
 		BlockMinSize:         node.DefaultBlockMinSize,
 		BlockMaxSize:         node.DefaultBlockMaxSize,
 		BlockMinWeight:       node.DefaultBlockMinWeight,
@@ -99,6 +98,14 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 	}
 
 	switch {
+	case n.NodeRPC.RPCUser != "":
+		joined.RPCUser = n.NodeRPC.RPCUser
+	case n.NodeRPC.RPCPass != "":
+		joined.RPCPass = n.NodeRPC.RPCUser
+	case n.NodeRPC.RPCLimitUser != "":
+		joined.RPCLimitUser = n.NodeRPC.RPCLimitUser
+	case n.NodeRPC.RPCLimitPass != "":
+		joined.RPCLimitPass = n.NodeRPC.RPCLimitPass
 	case cfg.General.ConfigFile != "":
 		joined.ConfigFile = cfg.General.ConfigFile
 	case cfg.General.DataDir != "":
@@ -111,6 +118,8 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		joined.BanDuration = n.NodeP2P.BanDuration
 	case n.NodeP2P.BanThreshold != 0:
 		joined.BanThreshold = n.NodeP2P.BanThreshold
+	case n.NodeRPC.RPCListeners != nil:
+		joined.RPCListeners = n.NodeRPC.RPCListeners
 	case n.NodeRPC.RPCCert != "":
 		joined.RPCCert = n.NodeRPC.RPCCert
 	case n.NodeRPC.RPCMaxClients != 0:
@@ -119,6 +128,8 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		joined.RPCMaxWebsockets = int(n.NodeRPC.RPCMaxWebsockets)
 	case n.NodeRPC.RPCMaxConcurrentReqs != 0:
 		joined.RPCMaxConcurrentReqs = int(n.NodeRPC.RPCMaxConcurrentReqs)
+	case n.NodeChain.DbType != "":
+		joined.DbType = n.NodeChain.DbType
 	case n.NodeChain.FreeTxRelayLimit != 0:
 		joined.FreeTxRelayLimit = n.NodeChain.FreeTxRelayLimit
 	case n.NodeChain.TrickleInterval != 0:
@@ -129,8 +140,8 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		joined.Algo = n.NodeMining.Algo
 	case n.NodeMining.GenThreads != 0:
 		joined.GenThreads = n.NodeMining.GenThreads
-	case n.NodeMining.MinerPort != 0:
-		joined.MinerPort = n.NodeMining.MinerPort
+	case n.NodeMining.MinerListener != "":
+		joined.MinerListener = n.NodeMining.MinerListener
 	case n.NodeChain.BlockMinSize != 0:
 		joined.BlockMinSize = n.NodeChain.BlockMinSize
 	case n.NodeChain.BlockMaxSize != 0:

@@ -34,9 +34,9 @@ type Config struct {
 	MiningAddrs []util.Address
 	// ProcessBlock defines the function to call with any solved blocks. It typically must run the provided block through the same set of rules and handling as any other block coming from the network.
 	ProcessBlock func(*util.Block, blockchain.BehaviorFlags) (bool, error)
-	// MinerPort is the port to listen for subscribe/unsubscribe and block submissions by miner worker clients
-	MinerPort uint16
-	// MinerPassword is generated from the password specified in the main configuration for miner port using Stribog hash to derive the nonce, Argon2i to expand the password, and a final pass of Keccak
+	// MinerListener is the listener that will accept miner subscriptions and such
+	MinerListener string
+	// MinerKey is generated from the password specified in the main configuration for miner port using Stribog hash to derive the nonce, Argon2i to expand the password, and a final pass of Keccak
 	MinerKey []byte
 	// ConnectedCount defines the function to use to obtain how many other peers the server is connected to.  This is used by the automatic persistent mining routine to determine whether or it should attempt mining.  This is useful because there is no point in mining when not connected to any peers since there would no be anyone to send any found blocks to.
 	ConnectedCount func() int32

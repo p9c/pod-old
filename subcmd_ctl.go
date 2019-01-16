@@ -13,11 +13,12 @@ func (n *ctlCfg) Execute(args []string) (err error) {
 	fmt.Println("running ctl")
 	joined := ctl.Config{
 		ShowVersion:   cfg.General.ShowVersion,
+		ListCommands:  cfg.Ctl.CtlLaunch.ListCommands,
 		ConfigFile:    ctl.DefaultConfigFile,
 		RPCServer:     ctl.DefaultRPCServer,
 		RPCCert:       ctl.DefaultRPCCertFile,
-		RPCUser:       n.CtlRPC.RPCUser,
-		RPCPassword:   n.CtlRPC.RPCPassword,
+		RPCUser:       defaultUser,
+		RPCPassword:   defaultPass,
 		TLS:           n.CtlRPC.TLS,
 		Proxy:         n.CtlRPC.Proxy,
 		ProxyUser:     n.CtlRPC.ProxyUser,
@@ -27,14 +28,18 @@ func (n *ctlCfg) Execute(args []string) (err error) {
 		TLSSkipVerify: n.CtlRPC.TLSSkipVerify,
 		Wallet:        n.CtlLaunch.Wallet,
 	}
-	joined.ListCommands = n.CtlLaunch.ListCommands
-	if cfg.General.ConfigFile != "" {
+	switch {
+	case n.CtlRPC.RPCUser != "":
+		joined.RPCUser = n.CtlRPC.RPCUser
+	case n.CtlRPC.RPCPassword != "":
+		joined.RPCPassword = n.CtlRPC.RPCPassword
+	case !n.CtlLaunch.ListCommands:
+		joined.ListCommands = n.CtlLaunch.ListCommands
+	case cfg.General.ConfigFile != "":
 		joined.ConfigFile = cfg.General.ConfigFile
-	}
-	if n.CtlRPC.RPCServer != "" {
+	case n.CtlRPC.RPCServer != "":
 		joined.RPCServer = n.CtlRPC.RPCServer
-	}
-	if n.CtlRPC.RPCCert != "" {
+	case n.CtlRPC.RPCCert != "":
 		joined.RPCCert = n.CtlRPC.RPCCert
 	}
 	j, _ := json.MarshalIndent(joined, "", "  ")

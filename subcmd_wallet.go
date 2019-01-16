@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"git.parallelcoin.io/pod/node"
 	"git.parallelcoin.io/pod/walletmain"
 )
 
@@ -24,11 +25,11 @@ func (n *walletCfg) Execute(args []string) (err error) {
 		Profile:                  n.WalletLaunch.Profile,
 		GUI:                      walletmain.DefaultGUI,
 		WalletPass:               "password",
-		RPCConnect:               n.WalletNode.RPCConnect,
+		RPCConnect:               node.DefaultRPCListener,
 		CAFile:                   n.WalletNode.CAFile,
 		EnableClientTLS:          n.WalletNode.EnableClientTLS,
-		PodUsername:              n.WalletNode.PodUsername,
-		PodPassword:              n.WalletNode.PodPassword,
+		PodUsername:              "user",
+		PodPassword:              "pa55word",
 		Proxy:                    n.WalletNode.Proxy,
 		ProxyUser:                n.WalletNode.ProxyUser,
 		ProxyPass:                n.WalletNode.ProxyPass,
@@ -44,12 +45,22 @@ func (n *walletCfg) Execute(args []string) (err error) {
 		LegacyRPCListeners:       n.WalletRPC.LegacyRPCListeners,
 		LegacyRPCMaxClients:      walletmain.DefaultRPCMaxClients,
 		LegacyRPCMaxWebsockets:   walletmain.DefaultRPCMaxWebsockets,
-		Username:                 n.WalletRPC.Username,
-		Password:                 n.WalletRPC.Password,
+		Username:                 "user",
+		Password:                 "pa55word",
 		ExperimentalRPCListeners: n.WalletRPC.ExperimentalRPCListeners,
 		DataDir:                  walletmain.DefaultDataDir,
 	}
 	switch {
+	case n.WalletNode.RPCConnect != "":
+		joined.RPCConnect = n.WalletNode.RPCConnect
+	case n.WalletRPC.Username != "":
+		joined.Username = n.WalletRPC.Username
+	case n.WalletRPC.Password != "":
+		joined.Password = n.WalletRPC.Password
+	case n.WalletNode.PodUsername != "":
+		joined.PodUsername = n.WalletNode.PodUsername
+	case n.WalletNode.PodPassword != "":
+		joined.PodPassword = n.WalletNode.PodPassword
 	case cfg.General.ConfigFile != "":
 		joined.ConfigFile = cfg.General.ConfigFile
 	case cfg.General.DataDir != "":

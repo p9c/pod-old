@@ -20,7 +20,7 @@ func LoadConfig() (config *Config, args []string, err error) {
 	}
 	_, err = parser.Parse()
 	if err != nil {
-		fmt.Println("pod", version())
+		// fmt.Println("pod", version())
 		fmt.Println(err.Error())
 		return
 	}

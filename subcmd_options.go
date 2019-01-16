@@ -17,7 +17,26 @@ type Config struct {
 	Wallet     walletCfg     `command:"wallet" description:"run a wallet server"`
 	WalletNode walletnodeCfg `command:"walletnode" description:"run a combo core/wallet server"`
 	WalletGUI  walletGUICfg  `command:"walletgui" description:"run the full wallet GUI"`
-	Explorer   explorerCfg   `command:"explorer" description:"run a block explorer webserver"`
+	Reset      factoryReset  `command:"reset" description:"resets to factory settings"`
+	// Explorer   explorerCfg   `command:"explorer" description:"run a block explorer webserver"`
+	Miner minerCfg `command:"miner" description:"run the kopach miner"`
+}
+
+type minerCfg struct {
+	Algo       string `long:"algo" description:"specify which algorithm to mine with"`
+	Controller string `long:"controller" description:"address of miner controller to connect to"`
+	Password   string `long:"password" description:"password for miner controller"`
+}
+
+type factoryReset struct {
+	Really     bool `long:"really" description:"confirm factory reset"`
+	Purge      bool `long:"purge" description:"delete also the data of the app"`
+	OnlyPurge  bool `long:"onlypurge" description:"delete only the data of the app"`
+	Ctl        bool `long:"ctl" description:"reset only ctl settings"`
+	Node       bool `long:"node" description:"reset only node settings"`
+	Wallet     bool `long:"wallet" description:"reset only wallet settings"`
+	WalletNode bool `long:"walletnode" description:"reset only wallet/node settings"`
+	WalletGUI  bool `long:"walletgui" description:"reset only wallet/node/gui settings"`
 }
 
 type generalCfg struct {
@@ -27,7 +46,7 @@ type generalCfg struct {
 	LogDir      string `long:"logdir" description:"directory to log output"`
 }
 type logTopLevel struct {
-	LogLevel string `long:"debuglevel" description:"base log level applies if no other is specified"`
+	LogLevel string `long:"debuglevel" description:"base log level that applies if no other is specified"`
 }
 
 type ctlCfg struct {
@@ -227,13 +246,12 @@ type nodeCfgChainGroup struct {
 }
 
 type nodeCfgMiningGroup struct {
-	Algo            string   `long:"algo" description:"sets the algorithm for the CPU miner (blake14lr, cryptonight7v2, keccak, lyra2rev2, scrypt, sha256d, stribog, skein, x11, easy, random)"`
-	Generate        bool     `long:"generate" description:"generate (mine) bitcoins using the CPU"`
-	GenThreads      int32    `long:"genthreads" description:"number of CPU threads to use with CPU miner -1 = all cores"`
-	MiningAddrs     []string `long:"miningaddr" description:"add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerport are set"`
-	MinerController bool     `long:"controller" description:"activate the miner controller"`
-	MinerPort       uint16   `long:"minerport" description:"port to listen for miner subscribers"`
-	MinerPass       string   `long:"minerpass" description:"encryption password required for miner clients to subscribe to work updates, for use over insecure connections"`
+	Algo          string   `long:"algo" description:"sets the algorithm for the CPU miner (blake14lr, cryptonight7v2, keccak, lyra2rev2, scrypt, sha256d, stribog, skein, x11, easy, random)"`
+	Generate      bool     `long:"generate" description:"generate (mine) bitcoins using the CPU"`
+	GenThreads    int32    `long:"genthreads" description:"number of CPU threads to use with CPU miner -1 = all cores"`
+	MiningAddrs   []string `long:"miningaddr" description:"add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerport are set"`
+	MinerListener string   `long:"minerlistener" description:"listen for miner work subscription requests and such"`
+	MinerPass     string   `long:"minerpass" description:"encryption password required for miner clients to subscribe to work updates, for use over insecure connections"`
 }
 
 type ctlCfgLaunchGroup struct {

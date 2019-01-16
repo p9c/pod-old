@@ -38,6 +38,7 @@ const (
 	DefaultLogDirname            = "node"
 	DefaultLogFilename           = "log"
 	DefaultListener              = "127.0.0.1:11047"
+	DefaultRPCListener           = "127.0.0.1:11048"
 	DefaultMaxPeers              = 125
 	DefaultBanDuration           = time.Hour * 24
 	DefaultBanThreshold          = 100
@@ -58,7 +59,7 @@ const (
 	BlockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
 	DefaultGenerate              = false
 	DefaultGenThreads            = 1
-	DefaultMinerPort             = 11011
+	DefaultMinerListener         = "127.0.0.1:11011"
 	DefaultMaxOrphanTransactions = 100
 	DefaultMaxOrphanTxSize       = 100000
 	DefaultSigCacheMaxSize       = 100000
@@ -144,8 +145,7 @@ type Config struct {
 	Generate             bool          `long:"generate" description:"Generate (mine) bitcoins using the CPU"`
 	GenThreads           int32         `long:"genthreads" description:"Number of CPU threads to use with CPU miner -1 = all cores"`
 	MiningAddrs          []string      `long:"miningaddr" description:"Add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerport are set"`
-	MinerController      bool          `long:"controller" description:"Activate the miner controller"`
-	MinerPort            uint16        `long:"minerport" description:"Port to listen for miner subscribers"`
+	MinerListener        string        `long:"minerlistener" description:"listen address for miner controller"`
 	MinerPass            string        `long:"minerpass" description:"Encryption password required for miner clients to subscribe to work updates, for use over insecure connections"`
 	BlockMinSize         uint32        `long:"blockminsize" description:"Mininum block size in bytes to be used when creating a block"`
 	BlockMaxSize         uint32        `long:"blockmaxsize" description:"Maximum block size in bytes to be used when creating a block"`
@@ -781,9 +781,8 @@ func loadConfig() (*Config, []string, error) {
 		cfg.miningAddrs = append(cfg.miningAddrs, addr)
 	}
 	// Ensure there is at least one mining address when the generate flag is set.
-	if (cfg.Generate || cfg.MinerController) && len(cfg.MiningAddrs) == 0 {
-		str := "%s: the generate flag is set, but there are no mining " +
-			"addresses specified "
+	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
+		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
