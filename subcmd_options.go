@@ -9,7 +9,7 @@ import (
 )
 
 // config defines the configuration options for pod. See loadConfig for details on the configuration load process.
-type config struct {
+type Config struct {
 	General    generalCfg    `group:"general options"`
 	Network    networkGroup  `group:"network options"`
 	Ctl        ctlCfg        `command:"ctl" description:"send RPC queries to a node/wallet"`
@@ -76,8 +76,8 @@ type walletCfg struct {
 	LogBase      logTopLevel          `group:"logging options"`
 	Logging      logSubSystems        `group:"logger subsystem options"`
 	WalletLaunch walletCfgLaunchGroup `group:"launch options"`
-	Wallet       walletNodeCfg        `group:"wallet to node connection options"`
 	WalletRPC    walletRPCCfgGroup    `group:"wallet RPC configuration"`
+	WalletNode   walletNodeCfg        `group:"wallet to node connection options"`
 }
 
 type walletGUICfg struct {

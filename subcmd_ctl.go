@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"git.parallelcoin.io/pod/ctl"
 )
@@ -41,6 +40,5 @@ func (n *ctlCfg) Execute(args []string) (err error) {
 	j, _ := json.MarshalIndent(joined, "", "  ")
 	fmt.Println(string(j))
 	fmt.Println(args)
-	os.Exit(1)
 	return
 }

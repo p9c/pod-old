@@ -15,28 +15,28 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 	// Load all defaults and from parser the remainder
 	joined := node.Config{
 		ShowVersion:          cfg.General.ShowVersion,
-		ConfigFile:           node.DefaultConfigFile, // ***
-		DataDir:              node.DefaultDataDir,    // ***
-		LogDir:               cfg.General.LogDir,
+		ConfigFile:           node.DefaultConfigFile,
+		DataDir:              node.DefaultDataDir,
+		LogDir:               node.DefaultLogDir,
 		AddPeers:             n.NodeP2P.AddPeers,
 		ConnectPeers:         n.NodeP2P.ConnectPeers,
 		DisableListen:        n.NodeP2P.DisableListen,
-		Listeners:            []string{node.DefaultListener}, // ***
-		MaxPeers:             node.DefaultMaxPeers,           // ***
+		Listeners:            []string{node.DefaultListener},
+		MaxPeers:             node.DefaultMaxPeers,
 		DisableBanning:       n.NodeP2P.DisableBanning,
-		BanDuration:          node.DefaultBanDuration,  // ***
-		BanThreshold:         node.DefaultBanThreshold, // ***
+		BanDuration:          node.DefaultBanDuration,
+		BanThreshold:         node.DefaultBanThreshold,
 		Whitelists:           n.NodeP2P.Whitelists,
 		RPCUser:              n.NodeRPC.RPCUser,
 		RPCPass:              n.NodeRPC.RPCPass,
 		RPCLimitUser:         n.NodeRPC.RPCLimitUser,
 		RPCLimitPass:         n.NodeRPC.RPCLimitPass,
 		RPCListeners:         n.NodeRPC.RPCListeners,
-		RPCCert:              node.DefaultRPCCertFile, // ***
+		RPCCert:              node.DefaultRPCCertFile,
 		RPCKey:               n.NodeRPC.RPCKey,
-		RPCMaxClients:        node.DefaultMaxRPCClients,        // ***
-		RPCMaxWebsockets:     node.DefaultMaxRPCWebsockets,     // ***
-		RPCMaxConcurrentReqs: node.DefaultMaxRPCConcurrentReqs, // ***
+		RPCMaxClients:        node.DefaultMaxRPCClients,
+		RPCMaxWebsockets:     node.DefaultMaxRPCWebsockets,
+		RPCMaxConcurrentReqs: node.DefaultMaxRPCConcurrentReqs,
 		RPCQuirks:            n.NodeRPC.RPCQuirks,
 		DisableRPC:           n.NodeRPC.DisableRPC,
 		TLS:                  n.NodeRPC.TLS,
@@ -60,27 +60,27 @@ func (n *nodeCfg) Execute(args []string) (err error) {
 		CPUProfile:           n.NodeLaunch.CPUProfile,
 		Upnp:                 n.NodeP2P.Upnp,
 		MinRelayTxFee:        n.NodeChain.MinRelayTxFee,
-		FreeTxRelayLimit:     node.DefaultFreeTxRelayLimit, // ***
+		FreeTxRelayLimit:     node.DefaultFreeTxRelayLimit,
 		NoRelayPriority:      n.NodeChain.NoRelayPriority,
-		TrickleInterval:      node.DefaultTrickleInterval,       // ***
-		MaxOrphanTxs:         node.DefaultMaxOrphanTransactions, // ***
-		Algo:                 node.DefaultAlgo,                  // ***
-		Generate:             n.NodeMining.Generate,             // ***
-		GenThreads:           node.DefaultGenThreads,            // ***
+		TrickleInterval:      node.DefaultTrickleInterval,
+		MaxOrphanTxs:         node.DefaultMaxOrphanTransactions,
+		Algo:                 node.DefaultAlgo,
+		Generate:             n.NodeMining.Generate,
+		GenThreads:           node.DefaultGenThreads,
 		MiningAddrs:          n.NodeMining.MiningAddrs,
 		MinerController:      n.NodeMining.MinerController,
-		MinerPort:            node.DefaultMinerPort, // ***
+		MinerPort:            node.DefaultMinerPort,
 		MinerPass:            n.NodeMining.MinerPass,
-		BlockMinSize:         node.DefaultBlockMinSize,   // ***
-		BlockMaxSize:         node.DefaultBlockMaxSize,   // ***
-		BlockMinWeight:       node.DefaultBlockMinWeight, // ***
-		BlockMaxWeight:       node.DefaultBlockMaxWeight, // ***
+		BlockMinSize:         node.DefaultBlockMinSize,
+		BlockMaxSize:         node.DefaultBlockMaxSize,
+		BlockMinWeight:       node.DefaultBlockMinWeight,
+		BlockMaxWeight:       node.DefaultBlockMaxWeight,
 		BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
 		UserAgentComments:    n.NodeP2P.UserAgentComments,
 		NoPeerBloomFilters:   n.NodeP2P.NoPeerBloomFilters,
 		NoCFilters:           n.NodeP2P.NoCFilters,
 		DropCfIndex:          n.NodeLaunch.DropCfIndex,
-		SigCacheMaxSize:      node.DefaultSigCacheMaxSize, // ***
+		SigCacheMaxSize:      node.DefaultSigCacheMaxSize,
 		BlocksOnly:           n.NodeP2P.BlocksOnly,
 		TxIndex:              n.NodeChain.TxIndex,
 		DropTxIndex:          n.NodeLaunch.DropTxIndex,

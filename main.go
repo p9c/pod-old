@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	cfg *config
+	cfg *Config
 )
 
 // usage displays the general usage when the help flag is not displayed and and an invalid command was specified.  The commandUsage function is used instead when a valid command was specified.
@@ -34,11 +34,10 @@ func usage(errorMessage string) {
 var winServiceMain func() (bool, error)
 
 // Main is the real pod main
-func Main() (err error) {
-	_, _, _ = loadConfig()
+func Main(args []string) (err error) {
+	LoadConfig()
 	// interrupt := interruptListener()
 	// defer fmt.Println("Shutdown complete")
-	// fmt.Printf("Version %s\n", version())
 	// if interruptRequested(interrupt) {
 	// 	return nil
 	// }
@@ -63,7 +62,7 @@ func main() {
 			os.Exit(0)
 		}
 	}
-	if err := Main(); err != nil {
+	if err := Main(os.Args); err != nil {
 		os.Exit(1)
 	}
 }

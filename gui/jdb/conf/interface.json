@@ -1,0 +1,9 @@
+{
+	"lang": "en",
+	"deno": "min",
+	"fiat": "min",
+	"theme": "min",
+	"ccss": "min",
+	"start": "min",
+	"tray": true
+}
