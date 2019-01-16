@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/database"
 )
 
 // headersCmd defines the configuration options for the loadheaders command.

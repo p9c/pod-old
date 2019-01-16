@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/blockchain"
-	"git.parallelcoin.io/pod/chaincfg"
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/lib/chaincfg"
+	"git.parallelcoin.io/pod/lib/blockchain"
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/database"
 )
 
 const blockDbNamePrefix = "blocks"

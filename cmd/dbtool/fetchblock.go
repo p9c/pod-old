@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/database"
 )
 
 // fetchBlockCmd defines the configuration options for the fetchblock command.

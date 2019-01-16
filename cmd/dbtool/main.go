@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	"git.parallelcoin.io/pod/database"
+	"git.parallelcoin.io/pod/lib/database"
 	flags "github.com/jessevdk/go-flags"
 )
 

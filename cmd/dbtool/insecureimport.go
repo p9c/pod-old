@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/database"
-	"git.parallelcoin.io/pod/util"
-	"git.parallelcoin.io/pod/wire"
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/database"
+	"git.parallelcoin.io/pod/lib/util"
+	"git.parallelcoin.io/pod/lib/wire"
 )
 
 // importCmd defines the configuration options for the insecureimport command.

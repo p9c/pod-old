@@ -8,15 +8,12 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"git.parallelcoin.io/pod/limits"
+	"git.parallelcoin.io/pod/lib/limits"
+	"git.parallelcoin.io/pod/run"
 )
 
 const (
 	showHelpMessage = "Specify -h to show available options"
-)
-
-var (
-	cfg *Config
 )
 
 // usage displays the general usage when the help flag is not displayed and and an invalid command was specified.  The commandUsage function is used instead when a valid command was specified.
@@ -35,7 +32,7 @@ var winServiceMain func() (bool, error)
 
 // Main is the real pod main
 func Main(args []string) (err error) {
-	LoadConfig()
+	pod.LoadConfig()
 	// interrupt := interruptListener()
 	// defer fmt.Println("Shutdown complete")
 	// if interruptRequested(interrupt) {
