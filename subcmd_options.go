@@ -109,7 +109,7 @@ type walletGUICfg struct {
 	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
 	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
 	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
-	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
+	WalletNode     walletNodeCfg          `group:"wallet to node connection options"`
 	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
 	lookup         func(string) ([]net.IP, error)
 	oniondial      func(string, string, time.Duration) (net.Conn, error)
@@ -124,12 +124,14 @@ type walletGUICfg struct {
 type walletnodeCfg struct {
 	LogBase        logTopLevel            `group:"logging options"`
 	Logging        logSubSystems          `group:"logger subsystem options"`
+	Explorer       explorerCfgLaunchGroup `group:"explorer options"`
 	NodeLaunch     nodeLaunchGroup        `group:"node launch options"`
-	NodeRPCGroup   nodecomboCfgRPCGroup   `group:"node RPC options"`
+	NodeRPC        nodecomboCfgRPCGroup   `group:"node RPC options"`
 	NodeP2P        nodeCfgP2PGroup        `group:"node P2P options"`
 	NodeChain      nodeCfgChainGroup      `group:"node chain options"`
+	NodeMining     nodeCfgMiningGroup     `group:"node mining options"`
 	WalletLaunch   walletCfgLaunchGroup   `group:"wallet launch options"`
-	Wallet         walletNodeCfg          `group:"wallet to node connection options"`
+	WalletNode     walletNodeCfg          `group:"wallet to node connection options"`
 	WalletRPC      walletcomboRPCCfgGroup `group:"wallet RPC configuration"`
 	lookup         func(string) ([]net.IP, error)
 	oniondial      func(string, string, time.Duration) (net.Conn, error)
