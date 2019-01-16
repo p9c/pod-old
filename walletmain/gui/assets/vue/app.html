@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>ParallelCoin Wallet - True Story</title>
+
+</head>
+<body>
+    <div id="app">
+    
+        <header id="header" class="fooa"><div class="flx cpt" @click="swapComponent(HomeC)" v-html="vdt.data.icons.logo"></div><div id="balance"><p>Current Balance</p><h2> bcd.data.getinfo  <span class="bold">DUO</span></h2></div></header>
+        <section id="mid">
+            <aside id="aside">
+                <nav id="nav" class="bxs">
+                    <button @click="swapComponent(HomeC)"><span v-html="vdt.data.icons.overview"></span><small>Overview</small></button>
+                    <button @click="swapComponent(SendC)"><span v-html="vdt.data.icons.send"></span><small>Send</small></button>
+                    <button @click="swapComponent(ReceiveC)"><span v-html="vdt.data.icons.receive"></span><small>Receive</small></button>
+                    <button @click="swapComponent(AddressBookC)"><span v-html="vdt.data.icons.addressbook"></span><small>Address Book</small></button>
+                    <button @click="swapComponent(HistoryC)"><span v-html="vdt.data.icons.history"></span><small>History</small></button>
+                </nav>
+            </aside>
+                      <main :is="component" id="content" :vicons="vdt.data.icons" class="scr vpage"></main>
+
+        </section>
+        <footer id="footer" class="cnt fooa">
+            <button @click="swapComponent(PeersC)" class="flc cpt" title="Peers" v-html="vdt.data.icons.peers"></button><span v-html="bcd.data.getinfo.connections"></span>
+            <button @click="swapComponent(BlocksC)" class="flc cpt" title="Blocks" v-html="vdt.data.icons.blocks"></button><span v-html="bcd.data.getinfo.blocks"></span>
+            <button @click="swapComponent(AboutC)" class="flc cpt" title="About" v-html="vdt.data.icons.about"></button>  
+            <button @click="swapComponent(HelpC)" class="flc cpt" title="Help" v-html="vdt.data.icons.help"></button>  
+            <button @click="swapComponent(SettingsC)" class="flc cpt" title="Settings" v-html="vdt.data.icons.settings"></button>  
+            <span>Balance 0.0000000 (0.0000000 unconfirmed) STATUS: Syncing... 10000 of 3030030</span>
+            <span class="netstat">
+                <div v-html="vdt.data.icons.linkoff"></div>
+                <div v-html="vdt.data.icons.link"></div>
+                <div v-html="vdt.data.icons.loading"></div>
+            </span>
+        </footer>
+     
+    </div>
+</body>
+</html>
