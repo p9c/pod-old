@@ -3,6 +3,7 @@ package pod
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"git.parallelcoin.io/pod/module/ctl"
 )
@@ -42,8 +43,18 @@ func (n *ctlCfg) Execute(args []string) (err error) {
 	case n.CtlRPC.RPCCert != "":
 		joined.RPCCert = n.CtlRPC.RPCCert
 	}
-	j, _ := json.MarshalIndent(joined, "", "  ")
-	fmt.Println(string(j))
-	fmt.Println(args)
+	if cfg.General.SaveConfig {
+		j, _ := json.MarshalIndent(joined, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(joined.ConfigFile)
+		ensureDir(joined.ConfigFile)
+		err := ioutil.WriteFile(joined.ConfigFile, j, 0600)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(j))
+	}
 	return
 }

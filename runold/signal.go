@@ -1,6 +1,7 @@
 package pod
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 )
@@ -20,19 +21,18 @@ func interruptListener() <-chan struct{} {
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.
 		select {
 		case sig := <-interruptChannel:
-			log.Infof.Print("Received signal (%s).  Shutting down...",
-				sig)
+			fmt.Printf("Received signal (%s).  Shutting down...\n", sig)
 		case <-shutdownRequestChannel:
-			log.Info <- "Shutdown requested.  Shutting down..."
+			fmt.Print("Shutdown requested.  Shutting down...\n")
 		}
 		close(c)
 		// Listen for repeated signals and display a message so the user knows the shutdown is in progress and the process is not hung.
 		for {
 			select {
 			case sig := <-interruptChannel:
-				log.Infof.Print("Received signal (%s).  Already shutting down...", sig)
+				fmt.Printf("Received signal (%s).  Already shutting down...\n", sig)
 			case <-shutdownRequestChannel:
-				log.Info <- "Shutdown requested.  Already shutting down..."
+				fmt.Printf("Shutdown requested.  Already shutting down...\n")
 			}
 		}
 	}()

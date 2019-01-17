@@ -29,8 +29,8 @@ var (
 	DefaultWalletCertFile = filepath.Join(SPVHomeDir, "rpc.cert")
 )
 
-// listCommands categorizes and lists all of the usable commands along with their one-line usage.
-func listCommands() {
+// ListCommands categorizes and lists all of the usable commands along with their one-line usage.
+func ListCommands() {
 	const (
 		categoryChain uint8 = iota
 		categoryWallet
@@ -67,8 +67,9 @@ func listCommands() {
 	categoryTitles[categoryWallet] = "Wallet Server Commands (--wallet):"
 	for category := uint8(0); category < numCategories; category++ {
 		fmt.Println(categoryTitles[category])
+		fmt.Println()
 		for _, usage := range categorized[category] {
-			fmt.Println(usage)
+			fmt.Println("  ", usage)
 		}
 		fmt.Println()
 	}
@@ -77,7 +78,7 @@ func listCommands() {
 // Config defines the configuration options for podctl. See loadConfig for details on the configuration load process.
 type Config struct {
 	ShowVersion   bool   `short:"V" long:"version" description:"Display version information and exit"`
-	ListCommands  bool   `short:"l" long:"listcommands" description:"List all of the supported commands and exit"`
+	ListCommands  bool   `short:"l" long:"Listcommands" description:"List all of the supported commands and exit"`
 	ConfigFile    string `short:"C" long:"configfile" description:"Path to configuration file"`
 	RPCUser       string `short:"u" long:"rpcuser" description:"RPC username"`
 	RPCPassword   string `short:"P" long:"rpcpass" default-mask:"-" description:"RPC password"`
@@ -173,7 +174,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Show the available commands and exit if the associated flag was specified.
 	if preCfg.ListCommands {
-		listCommands()
+		ListCommands()
 		os.Exit(0)
 	}
 	if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {

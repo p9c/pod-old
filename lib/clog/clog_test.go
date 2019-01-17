@@ -21,14 +21,10 @@ func TestClog(t *testing.T) {
 	<-done
 	close(done)
 	done = make(chan bool)
-	ss := NewSubSystem("TEST", Trc.Num)
+	ss := NewSubSystem("TEST", Ntrc)
 	go testSubSystem(ss, done)
 	<-done
 	close(done)
-	done = make(chan bool)
-	ssf := NewSubSystemf("TEST", Trc.Num)
-	go testSubSystemf(ssf, done)
-	<-done
 	close(Quit)
 }
 
@@ -48,27 +44,17 @@ func testSubSystem(ss *SubSystem, done chan bool) {
 	ss.Info <- "testing"
 	ss.Debug <- "testing"
 	ss.Trace <- "testing"
-	ss.Fatal.Print("testing1", "testing2", "'")
-	ss.Error.Print("testing1", "testing2", "'")
-	ss.Warn.Print("testing1", "testing2", "'")
-	ss.Info.Print("testing1", "testing2", "'")
-	ss.Debug.Print("testing1", "testing2", "'")
-	ss.Trace.Print("testing1", "testing2", "'")
-	done <- true
-}
-
-func testSubSystemf(ss *SubSystemf, done chan bool) {
-	ss.Fatal <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Error <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Warn <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Info <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Debug <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Trace <- Fmt{"testing %s %d", T{"test", 100}}
-	ss.Fatal.Print("%s %d", "print()", 11)
-	ss.Error.Print("%s %d", "print()", 11)
-	ss.Warn.Print("%s %d", "print()", 11)
-	ss.Info.Print("%s %d", "print()", 11)
-	ss.Debug.Print("%s %d", "print()", 11)
-	ss.Trace.Print("%s %d", "print()", 11)
+	ss.Fatal.Print("testing1", "eleventy", "'")
+	ss.Error.Print("testing1", "eleventy", "'")
+	ss.Warn.Print("testing1", "eleventy", "'")
+	ss.Info.Print("testing1", "eleventy", "'")
+	ss.Debug.Print("testing1", "eleventy", "'")
+	ss.Trace.Print("testing1", "eleventy", "'")
+	ss.Fatalf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+	ss.Errorf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+	ss.Warnf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+	ss.Infof.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+	ss.Debugf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+	ss.Tracef.Print("testing1 string[%s] number[%d]", "eleventy", 110)
 	done <- true
 }

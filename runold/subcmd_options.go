@@ -8,7 +8,7 @@ import (
 	"git.parallelcoin.io/pod/lib/util"
 )
 
-// config defines the configuration options for pod. See loadConfig for details on the configuration load process.
+// Config defines the configuration options for pod. See loadConfig for details on the configuration load process.
 type Config struct {
 	General    generalCfg    `group:"general options"`
 	Network    networkGroup  `group:"network options"`
@@ -44,6 +44,7 @@ type generalCfg struct {
 	ConfigFile  string `long:"configfile" description:"path to configuration file"`
 	DataDir     string `long:"datadir" short:"d" description:"directory to store data"`
 	LogDir      string `long:"logdir" description:"directory to log output"`
+	SaveConfig  bool   `long:"savecfg" description:"writes the current in-force configuration"`
 }
 type logTopLevel struct {
 	LogLevel string `long:"debuglevel" description:"base log level that applies if no other is specified"`

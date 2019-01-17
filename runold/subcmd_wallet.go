@@ -3,6 +3,7 @@ package pod
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"git.parallelcoin.io/pod/module/node"
 	"git.parallelcoin.io/pod/module/shell"
@@ -77,7 +78,18 @@ func (n *walletCfg) Execute(args []string) (err error) {
 	case n.WalletRPC.LegacyRPCMaxWebsockets != 0:
 		joined.LegacyRPCMaxWebsockets = n.WalletRPC.LegacyRPCMaxWebsockets
 	}
-	j, _ := json.MarshalIndent(joined, "", "  ")
-	fmt.Println(string(j))
+	if cfg.General.SaveConfig {
+		j, _ := json.MarshalIndent(joined, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(joined.ConfigFile)
+		ensureDir(joined.ConfigFile)
+		err := ioutil.WriteFile(joined.ConfigFile, j, 0600)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(j))
+	}
 	return
 }

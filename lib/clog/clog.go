@@ -5,6 +5,7 @@ package clog
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -16,43 +17,64 @@ var Joined chan string
 // Chan is a simple string channel
 type Chan chan string
 
-// Print is a function that shortens the invocation for pushing to a logging channel so you can call like this:
-//     log.Info.Print("string")
-// though you can always just directly do what is done here in this function, where log.Info is the channel. This is just here for completeness with the FmtChan Print, which makes a less weildy invocation by using the builtin variant arguments processing
-// This format also allows you to use comma separated list of strings, instead of using concatenation operators, it also interposes spaces between the strings
-func (c Chan) Print(s ...string) {
-	tmp := ""
-	for i := range s {
-		if i > 0 {
-			tmp += " "
-		}
-		tmp += s[i]
-	}
-	c <- tmp
-}
+// FmtChan is a chan for Fmt
+type FmtChan chan Fmt
 
 // A SubSystem is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel
 type SubSystem struct {
-	Fatal Chan
-	Error Chan
-	Warn  Chan
-	Info  Chan
-	Debug Chan
-	Trace Chan
-	Level int
-	Quit  chan struct{}
+	Fatal  Chan
+	Fatalf FmtChan
+	Error  Chan
+	Errorf FmtChan
+	Warn   Chan
+	Warnf  FmtChan
+	Info   Chan
+	Infof  FmtChan
+	Debug  Chan
+	Debugf FmtChan
+	Trace  Chan
+	Tracef FmtChan
+	Level  int
+	Quit   chan struct{}
+}
+
+// SetLevel sets the debug level according to a string
+func (s *SubSystem) SetLevel(level string) {
+	switch strings.ToLower(level) {
+	case "fatal":
+		s.Level = Nftl
+	case "error":
+		s.Level = Nerr
+	case "warn":
+		s.Level = Nwrn
+	case "info":
+		s.Level = Ninf
+	case "debug":
+		s.Level = Ndbg
+	case "trace":
+		s.Level = Ntrc
+	default:
+		s.Level = Ninf
+	}
 }
 
 // NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
 func NewSubSystem(name string, level int) *SubSystem {
 	ss := SubSystem{
-		Fatal: make(Chan),
-		Error: make(Chan),
-		Warn:  make(Chan),
-		Info:  make(Chan),
-		Debug: make(Chan),
-		Trace: make(Chan),
-		Level: level,
+		Fatal:  make(Chan),
+		Fatalf: make(FmtChan),
+		Error:  make(Chan),
+		Errorf: make(FmtChan),
+		Warn:   make(Chan),
+		Warnf:  make(FmtChan),
+		Info:   make(Chan),
+		Infof:  make(FmtChan),
+		Debug:  make(Chan),
+		Debugf: make(FmtChan),
+		Trace:  make(Chan),
+		Tracef: make(FmtChan),
+		Level:  level,
+		Quit:   make(chan struct{}),
 	}
 	go func() {
 		for {
@@ -81,83 +103,27 @@ func NewSubSystem(name string, level int) *SubSystem {
 				if ss.Level >= Ntrc {
 					Trc.Chan <- name + ": " + s
 				}
-			case <-ss.Quit:
-				break
-			case <-Quit:
-				break
-			}
-		}
-	}()
-	return &ss
-}
-
-// FmtChan is a chan for Fmt
-type FmtChan chan Fmt
-
-// Print is a shortcut to assemble an Fmt struct literal. It should be inlined by the compiler
-func (s FmtChan) Print(fmt string, items ...interface{}) {
-	s <- Fmt{fmt, items}
-}
-
-// T is a slice of interface{} for feeding to a *Printf function
-type T []interface{}
-
-// Fmt is a printf type formatter struct, it is used like this:
-//     logf.Fmt("format string %s %d", "test", 100)
-// When all parts are strings it is faster to use a SubSystem. Many types provide stringers.
-type Fmt struct {
-	Fmt   string
-	Items []interface{}
-}
-
-// A SubSystemf is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel using a Fmt struct
-type SubSystemf struct {
-	Fatal FmtChan
-	Error FmtChan
-	Warn  FmtChan
-	Info  FmtChan
-	Debug FmtChan
-	Trace FmtChan
-	Quit  chan struct{}
-	Level int
-}
-
-// NewSubSystemf creates a new clog logger that adds a prefix to the log entry for subsystem control that accepts Fmt structs
-// This system aborts the formatting process if the log is not to output anyway at the current loglevel, saving processing time
-func NewSubSystemf(name string, level int) *SubSystemf {
-	ss := SubSystemf{
-		Fatal: make(chan Fmt),
-		Error: make(chan Fmt),
-		Warn:  make(chan Fmt),
-		Info:  make(chan Fmt),
-		Debug: make(chan Fmt),
-		Trace: make(chan Fmt),
-		Level: level,
-	}
-	go func() {
-		for {
-			select {
-			case s := <-ss.Fatal:
+			case s := <-ss.Fatalf:
 				if ss.Level >= Nftl {
 					Ftl.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
-			case s := <-ss.Error:
+			case s := <-ss.Errorf:
 				if ss.Level >= Nerr {
 					Err.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
-			case s := <-ss.Warn:
+			case s := <-ss.Warnf:
 				if ss.Level >= Nwrn {
 					Wrn.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
-			case s := <-ss.Info:
+			case s := <-ss.Infof:
 				if ss.Level >= Ninf {
 					Inf.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
-			case s := <-ss.Debug:
+			case s := <-ss.Debugf:
 				if ss.Level >= Ndbg {
 					Dbg.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
-			case s := <-ss.Trace:
+			case s := <-ss.Tracef:
 				if ss.Level >= Ntrc {
 					Trc.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
@@ -169,6 +135,37 @@ func NewSubSystemf(name string, level int) *SubSystemf {
 		}
 	}()
 	return &ss
+}
+
+// Print is a function that shortens the invocation for pushing to a logging channel so you can call like this:
+//     log.Info.Print("string")
+// though you can always just directly do what is done here in this function, where log.Info is the channel. This is just here for completeness with the FmtChan Print, which makes a less weildy invocation by using the builtin variant arguments processing
+// This format also allows you to use comma separated list of strings, instead of using concatenation operators, it also interposes spaces between the strings
+func (c *Chan) Print(s ...string) {
+	tmp := ""
+	for i := range s {
+		if i > 0 {
+			tmp += " "
+		}
+		tmp += s[i]
+	}
+	*c <- tmp
+}
+
+// Print is a shortcut to assemble an Fmt struct literal. It should be inlined by the compiler
+func (s *FmtChan) Print(fmt string, items ...interface{}) {
+	*s <- Fmt{fmt, items}
+}
+
+// T is a slice of interface{} for feeding to a *Printf function
+type T []interface{}
+
+// Fmt is a printf type formatter struct, it is used like this:
+//     logf.Fmt("format string %s %d", "test", 100)
+// When all parts are strings it is faster to use a SubSystem. Many types provide stringers.
+type Fmt struct {
+	Fmt   string
+	Items []interface{}
 }
 
 // Check checks if an error exists, if so, prints a log to the specified log level with a string and returns if err was nil
@@ -346,7 +343,6 @@ func Init(fn ...func(name, txt string)) bool {
 			}
 		}
 	}()
-	Dbg.Chan <- "logger started"
 	return true
 }
 
@@ -385,4 +381,11 @@ func startChan(ch int, ready chan bool) {
 		default:
 		}
 	}
+}
+
+// Shutdown the application, allowing the logger a moment to clear the channels
+func Shutdown() {
+	// wait a moment to let log channel clear
+	time.Sleep(time.Millisecond * 50)
+	os.Exit(0)
 }
