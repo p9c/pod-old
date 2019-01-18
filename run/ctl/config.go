@@ -292,7 +292,11 @@ func writeDefaultConfig(cfgFile string) {
 	}
 	j = append(j, '\n')
 	log.Tracef.Print("JSON formatted config file\n%s", j)
-	ioutil.WriteFile(cfgFile, j, 0600)
+	err = ioutil.WriteFile(cfgFile, j, 0600)
+	if err != nil {
+		log.Fatalf.Print("unable to write log cofig file %s", err.Error())
+		clog.Shutdown()
+	}
 	// if we are writing default config we also want to use it
 	Config = defCfg
 }

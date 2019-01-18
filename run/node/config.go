@@ -12,6 +12,7 @@ import (
 	"git.parallelcoin.io/pod/lib/clog"
 	n "git.parallelcoin.io/pod/module/node"
 	"git.parallelcoin.io/pod/module/node/mempool"
+	"git.parallelcoin.io/pod/run/logger"
 	"github.com/tucnak/climax"
 )
 
@@ -19,6 +20,18 @@ var log = clog.NewSubSystem("Node", clog.Ninf)
 
 // Config is the default configuration native to ctl
 var Config = new(n.Config)
+
+// ConfigAndLog is the combined app and logging configuration data
+type ConfigAndLog struct {
+	Config *n.Config
+	Levels map[string]string
+}
+
+// CombinedCfg is the combined app and log levels configuration
+var CombinedCfg = ConfigAndLog{
+	Config: Config,
+	Levels: logger.Levels,
+}
 
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
@@ -64,6 +77,144 @@ var Command = climax.Command{
 			Short:    "d",
 			Usage:    "--debuglevel=trace",
 			Help:     "sets debuglevel, default info, sets the baseline for others not specified",
+			Variable: true,
+		},
+		{
+			Name:     "log-database",
+			Usage:    "--log-database",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-txscript",
+			Usage:    "--log-txscript",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-peer",
+			Usage:    "--log-peer",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-netsync",
+			Usage:    "--log-netsync",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-rpcclient",
+			Usage:    "--log-rpcclient",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "addrmgr",
+			Usage:    "--log-addrmgr",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-blockchain-indexers",
+			Usage:    "--log-blockchain-indexers",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-blockchain",
+			Usage:    "--log-blockchain",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-mining-cpuminer",
+			Usage:    "--log-mining-cpuminer",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-mining",
+			Usage:    "--log-mining",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-mining-controller",
+			Usage:    "--log-mining-controller",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-connmgr",
+			Usage:    "--log-connmgr",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-spv",
+			Usage:    "--log-spv",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-node-mempool",
+			Usage:    "--log-node-mempool",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-node",
+			Usage:    "--log-node",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-wallet",
+			Usage:    "--log-shell-wallet",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-tx",
+			Usage:    "--log-shell-tx",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-votingpool",
+			Usage:    "--log-shell-votingpool",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell",
+			Usage:    "--log-shell",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-chain",
+			Usage:    "--log-shell-chain",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-rpc-rpcserver",
+			Usage:    "--log-shell-rpc-rpcserver",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-rpc-legacyrpc",
+			Usage:    "--log-shell-rpc-legacyrpc",
+			Help:     "",
+			Variable: true,
+		},
+		{
+			Name:     "log-shell-wtxmgr",
+			Usage:    "--log-shell-wtxmgr",
+			Help:     "",
 			Variable: true,
 		},
 		{
@@ -460,48 +611,64 @@ var Command = climax.Command{
 		},
 	},
 	Handle: func(ctx climax.Context) int {
-		if dl, ok := ctx.Get("debuglevel"); ok {
+		var dl string
+		var ok bool
+		if dl, ok = ctx.Get("debuglevel"); ok {
 			log.Tracef.Print("setting debug level %s", dl)
 			log.SetLevel(dl)
+			for i := range logger.Levels {
+				logger.Levels[i] = dl
+			}
 		}
-		log.Debugf.Print("ctl version %s", n.Version())
+		log.Debugf.Print("node version %s", n.Version())
 		if ctx.Is("version") {
-			fmt.Println("pod version", n.Version())
+			fmt.Println("node version", n.Version())
 			clog.Shutdown()
 		}
 		log.Trace.Print("running command")
 
 		var cfgFile string
-		var ok bool
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = n.DefaultConfigFile
 		}
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			// then run from this config
+			writeLogCfgFile(Config.DataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				// then run from this config
+				writeLogCfgFile(Config.DataDir + "logconf")
 				configNode(&ctx, cfgFile)
 			} else {
-				log.Debug.Print("reading from", cfgFile)
+				log.Debug.Print("reading app configuration from", cfgFile)
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				log.Tracef.Print("read in config file\n%s", cfgData)
-				err = json.Unmarshal(cfgData, Config)
+				log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				err = json.Unmarshal(cfgData, CombinedCfg.Config)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				// then run from this config
+				logCfgFile := Config.DataDir + "/logconf"
+				log.Debug.Print("reading logger configuration from", logCfgFile)
+				logCfgData, err := ioutil.ReadFile(logCfgFile)
+				if err != nil {
+					log.Error.Print(err.Error())
+					clog.Shutdown()
+				}
+				log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
+				err = json.Unmarshal(logCfgData, CombinedCfg.Levels)
+				if err != nil {
+					log.Error.Print(err.Error())
+					clog.Shutdown()
+				}
 				configNode(&ctx, cfgFile)
 			}
 		}
@@ -882,6 +1049,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("rejectnonstd")
 		Config.RejectNonStd = r == "true"
 	}
+	logger.SetLogging(ctx)
 	if ctx.Is("save") {
 		log.Infof.Print("saving config file to %s", cfgFile)
 		j, err := json.MarshalIndent(Config, "", "  ")
@@ -891,9 +1059,21 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		j = append(j, '\n')
 		log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
+		writeLogCfgFile(Config.DataDir + "/logconf")
 	}
 }
 
+func writeLogCfgFile(logCfgFile string) {
+	log.Info.Print("writing log configuration file", logCfgFile)
+	j, err := json.MarshalIndent(logger.Levels, "", "  ")
+	if err != nil {
+		log.Error.Print(err.Error())
+	}
+	j = append(j, '\n')
+	log.Tracef.Print("JSON formatted logging config file\n%s", j)
+	ioutil.WriteFile(logCfgFile, j, 0600)
+
+}
 func writeDefaultConfig(cfgFile string) {
 	defCfg := defaultConfig()
 	defCfg.ConfigFile = cfgFile
