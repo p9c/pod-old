@@ -60,6 +60,7 @@ func (s *SubSystem) SetLevel(level string) {
 
 // NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
 func NewSubSystem(name string, level int) *SubSystem {
+	name = aurora.Bold(name).String()
 	ss := SubSystem{
 		Fatal:  make(Chan),
 		Fatalf: make(FmtChan),
@@ -81,51 +82,51 @@ func NewSubSystem(name string, level int) *SubSystem {
 			select {
 			case s := <-ss.Fatal:
 				if ss.Level >= Nftl {
-					Ftl.Chan <- name + ": " + s
+					Ftl.Chan <- name + " " + s
 				}
 			case s := <-ss.Error:
 				if ss.Level >= Nerr {
-					Err.Chan <- name + ": " + s
+					Err.Chan <- name + " " + s
 				}
 			case s := <-ss.Warn:
 				if ss.Level >= Nwrn {
-					Wrn.Chan <- name + ": " + s
+					Wrn.Chan <- name + " " + s
 				}
 			case s := <-ss.Info:
 				if ss.Level >= Ninf {
-					Inf.Chan <- name + ": " + s
+					Inf.Chan <- name + " " + s
 				}
 			case s := <-ss.Debug:
 				if ss.Level >= Ndbg {
-					Dbg.Chan <- name + ": " + s
+					Dbg.Chan <- name + " " + s
 				}
 			case s := <-ss.Trace:
 				if ss.Level >= Ntrc {
-					Trc.Chan <- name + ": " + s
+					Trc.Chan <- name + " " + s
 				}
 			case s := <-ss.Fatalf:
 				if ss.Level >= Nftl {
-					Ftl.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Ftl.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case s := <-ss.Errorf:
 				if ss.Level >= Nerr {
-					Err.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Err.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case s := <-ss.Warnf:
 				if ss.Level >= Nwrn {
-					Wrn.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Wrn.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case s := <-ss.Infof:
 				if ss.Level >= Ninf {
-					Inf.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Inf.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case s := <-ss.Debugf:
 				if ss.Level >= Ndbg {
-					Dbg.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Dbg.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case s := <-ss.Tracef:
 				if ss.Level >= Ntrc {
-					Trc.Chan <- name + ": " + fmt.Sprintf(s.Fmt, s.Items...)
+					Trc.Chan <- name + " " + fmt.Sprintf(s.Fmt, s.Items...)
 				}
 			case <-ss.Quit:
 				break
@@ -204,44 +205,44 @@ const (
 
 var (
 	ftlFn = func(c ...int) string {
-		out := "fatal"
+		out := "FTL"
 		if len(c) > 0 {
-			return aurora.BgRed(out).String()
+			return aurora.Bold(aurora.BgRed(out).String()).String()
 		}
 		return out
 	}
 	errFn = func(c ...int) string {
-		out := "error"
+		out := "ERR"
 		if len(c) > 0 {
-			return aurora.Red(out).String()
+			return aurora.Bold(aurora.Red(out).String()).String()
 		}
 		return out
 	}
 	wrnFn = func(c ...int) string {
-		out := "warn"
+		out := "WRN"
 		if len(c) > 0 {
-			return aurora.Brown(out).String()
+			return aurora.Bold(aurora.Brown(out).String()).String()
 		}
 		return out
 	}
 	infFn = func(c ...int) string {
-		out := "info"
+		out := "INF"
 		if len(c) > 0 {
-			return aurora.Green(out).String()
+			return aurora.Bold(aurora.Green(out).String()).String()
 		}
 		return out
 	}
 	dbgFn = func(c ...int) string {
-		out := "debug"
+		out := "DBG"
 		if len(c) > 0 {
-			return aurora.Blue(out).String()
+			return aurora.Bold(aurora.Blue(out).String()).String()
 		}
 		return out
 	}
 	trcFn = func(c ...int) string {
-		out := "trace"
+		out := "TRC"
 		if len(c) > 0 {
-			return aurora.BgBlue(out).String()
+			return aurora.Bold(aurora.BgBlue(out).String()).String()
 		}
 		return out
 	}
@@ -348,7 +349,7 @@ func Init(fn ...func(name, txt string)) bool {
 
 // Print out a formatted log message
 func Print(name, txt string) {
-	out := fmt.Sprintf("%s [%s] %s\n",
+	out := fmt.Sprintf("%s %s %s\n",
 		time.Now().UTC().Format("2006-01-02 15:04:05.000000 MST"),
 		name,
 		txt,

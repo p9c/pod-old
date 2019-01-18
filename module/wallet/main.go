@@ -13,6 +13,7 @@ import (
 	"git.parallelcoin.io/pod/module/wallet/chain"
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
+	"github.com/smallnest/rpcx/log"
 )
 
 var (
@@ -43,11 +44,11 @@ func walletMain() error {
 		return err
 	}
 	cfg = tcfg
-	defer func() {
-		if logRotator != nil {
-			logRotator.Close()
-		}
-	}()
+	// defer func() {
+	// 	if logRotator != nil {
+	// 		logRotator.Close()
+	// 	}
+	// }()
 
 	// Show version at startup.
 	log.Infof("Version %s", Version())

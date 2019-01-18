@@ -14,7 +14,8 @@ import (
 	"github.com/tucnak/climax"
 )
 
-var log = clog.NewSubSystem("Wallet", clog.Ninf)
+// Log is the main logger for wallet
+var Log = clog.NewSubSystem("pod/wallet", clog.Ninf)
 
 // Config is the default configuration native to ctl
 var Config = new(w.Config)
@@ -402,59 +403,45 @@ var Command = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			log.Tracef.Print("setting debug level %s", dl)
-			log.SetLevel(dl)
+			Log.Tracef.Print("setting debug level %s", dl)
+			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i] = dl
 			}
 		}
-		log.Debugf.Print("node version %s", w.Version())
+		Log.Debugf.Print("pod/wallet version %s", w.Version())
 		if ctx.Is("version") {
-			fmt.Println("node version", w.Version())
+			fmt.Println("pod/wallet version", w.Version())
 			clog.Shutdown()
 		}
-		log.Trace.Print("running command")
-
+		Log.Trace.Print("running command wallet")
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = w.DefaultConfigFile
 		}
 		if ctx.Is("init") {
-			log.Debugf.Print("writing default configuration to %s", cfgFile)
+			Log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
 			configNode(&ctx, cfgFile)
 		} else {
-			log.Infof.Print("loading configuration from %s", cfgFile)
+			Log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-				log.Warn.Print("configuration file does not exist, creating new one")
+				Log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
 				configNode(&ctx, cfgFile)
 			} else {
-				log.Debug.Print("reading app configuration from", cfgFile)
+				Log.Debug.Print("reading app configuration from", cfgFile)
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
-					log.Error.Print(err.Error())
+					Log.Error.Print("reading app config file", err.Error())
 					clog.Shutdown()
 				}
-				log.Tracef.Print("parsing app configuration\n%s", cfgData)
-				err = json.Unmarshal(cfgData, CombinedCfg)
+				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				err = json.Unmarshal(cfgData, &CombinedCfg)
 				if err != nil {
-					log.Error.Print(err.Error())
+					Log.Error.Print("parsing app config file", err.Error())
 					clog.Shutdown()
 				}
-				// logCfgFile := getLogConfFileName()
-				// log.Debug.Print("reading logger configuration from", logCfgFile)
-				// logCfgData, err := ioutil.ReadFile(logCfgFile)
-				// if err != nil {
-				// 	log.Error.Print(err.Error())
-				// 	clog.Shutdown()
-				// }
-				// log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
-				// err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
-				// if err != nil {
-				// 	log.Error.Print(err.Error())
-				// 	clog.Shutdown()
-				// }
 				configNode(&ctx, cfgFile)
 			}
 		}
@@ -552,7 +539,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("legacyrpcmaxclients")
 		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxClients)
 		if err != nil {
-			log.Errorf.Print("malformed legacymaxclients: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed legacymaxclients: `%s` leaving set at `%d`",
 				r, Config.LegacyRPCMaxClients)
 		}
 	}
@@ -560,7 +547,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("legacyrpcmaxwebsockets")
 		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxWebsockets)
 		if err != nil {
-			log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
 				r, Config.LegacyRPCMaxWebsockets)
 		}
 	}
@@ -593,13 +580,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
-		log.Infof.Print("saving config file to %s", cfgFile)
+		Log.Infof.Print("saving config file to %s", cfgFile)
 		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
 		if err != nil {
-			log.Error.Print(err.Error())
+			Log.Error.Print("writing app config file", err.Error())
 		}
 		j = append(j, '\n')
-		log.Tracef.Print("JSON formatted config file\n%s", j)
+		Log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
 	}
 }
@@ -609,11 +596,14 @@ func writeDefaultConfig(cfgFile string) {
 	defCfg.Wallet.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		log.Error.Print(err.Error())
+		Log.Error.Print("marshalling configuration", err.Error())
 	}
 	j = append(j, '\n')
-	log.Tracef.Print("JSON formatted config file\n%s", j)
-	ioutil.WriteFile(cfgFile, j, 0600)
+	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	err = ioutil.WriteFile(cfgFile, j, 0600)
+	if err != nil {
+		Log.Error.Print("writing app config file", err.Error())
+	}
 	// if we are writing default config we also want to use it
 	CombinedCfg = *defCfg
 }

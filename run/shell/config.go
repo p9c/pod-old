@@ -22,7 +22,8 @@ import (
 	"github.com/tucnak/climax"
 )
 
-var log = clog.NewSubSystem("Shell", clog.Ninf)
+// Log is the shell main logger
+var Log = clog.NewSubSystem("pod/shell", clog.Ninf)
 
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
@@ -628,59 +629,46 @@ var Command = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			log.Tracef.Print("setting debug level %s", dl)
-			log.SetLevel(dl)
+			Log.Tracef.Print("setting debug level %s", dl)
+			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i] = dl
 			}
 		}
-		log.Debugf.Print("node version %s", n.Version())
+		Log.Debugf.Print("pod/shell version %s", Version())
 		if ctx.Is("version") {
-			fmt.Println("node version", n.Version())
+			fmt.Println("shell version", Version(), "pod version", n.Version(), "wallet version", w.Version())
 			clog.Shutdown()
 		}
-		log.Trace.Print("running command")
+		Log.Trace.Print("running command")
 
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = DefaultConfFileName
 		}
 		if ctx.Is("init") {
-			log.Debugf.Print("writing default configuration to %s", cfgFile)
+			Log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
 			// writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
-			log.Infof.Print("loading configuration from %s", cfgFile)
+			Log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-				log.Warn.Print("configuration file does not exist, creating new one")
+				Log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
 				// writeLogCfgFile(CombinedCfg.AppDataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
-				log.Debug.Print("reading app configuration from", cfgFile)
+				Log.Debug.Print("reading app configuration from", cfgFile)
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
-					log.Error.Print(err.Error())
+					Log.Error.Print("reading app config file:", err.Error())
 					clog.Shutdown()
 				}
-				log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
 				err = json.Unmarshal(cfgData, &CombinedCfg)
 				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
-				logCfgFile := CombinedCfg.AppDataDir + "/logconf"
-				log.Debug.Print("reading logger configuration from", logCfgFile)
-				logCfgData, err := ioutil.ReadFile(logCfgFile)
-				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
-				log.Tracef.Print("parsing logger configuration from %s\n%s", logCfgFile, logCfgData)
-				err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
-				if err != nil {
-					log.Error.Print(err.Error())
+					Log.Error.Print("parsing app configuration:", err.Error())
 					clog.Shutdown()
 				}
 				configNode(&ctx, cfgFile)
@@ -719,7 +707,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("maxpeers")
 		CombinedCfg.Node.MaxPeers, err = strconv.Atoi(r)
 		if err != nil {
-			log.Error.Print(err.Error())
+			Log.Error.Print("parsing maxpeers", err.Error())
 		}
 	}
 	if ctx.Is("disablebanning") {
@@ -749,7 +737,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			bd = time.Duration(td) * 24 * time.Hour
 		}
 		if error {
-			log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanDuration, err.Error())
+			Log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanDuration, err.Error())
 		}
 		CombinedCfg.Node.BanDuration = bd
 	}
@@ -757,7 +745,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("banthreshold")
 		bt, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanThreshold, err.Error())
+			Log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanThreshold, err.Error())
 		} else {
 			CombinedCfg.Node.BanThreshold = uint32(bt)
 		}
@@ -879,7 +867,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("minrelaytxfee")
 		_, err := fmt.Sscanf(r, "%0.f", CombinedCfg.Node.MinRelayTxFee)
 		if err != nil {
-			log.Errorf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f`",
+			Log.Errorf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f`",
 				r, CombinedCfg.Node.MinRelayTxFee)
 		}
 	}
@@ -887,7 +875,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("freetxrelaylimit")
 		_, err = fmt.Sscanf(r, "%d", CombinedCfg.Node.FreeTxRelayLimit)
 		if err != nil {
-			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.FreeTxRelayLimit)
 		}
 	}
@@ -918,7 +906,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			ti = time.Duration(td) * 24 * time.Hour
 		}
 		if error {
-			log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.TrickleInterval, err.Error())
+			Log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.TrickleInterval, err.Error())
 		}
 		CombinedCfg.Node.TrickleInterval = ti
 	}
@@ -926,7 +914,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("maxorphantxs")
 		mot, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed maxorphantxs: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed maxorphantxs: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.MaxOrphanTxs)
 		} else {
 			CombinedCfg.Node.MaxOrphanTxs = mot
@@ -944,7 +932,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("genthreads")
 		gt, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.GenThreads)
 		} else {
 			CombinedCfg.Node.GenThreads = int32(gt)
@@ -966,7 +954,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("blockminsize")
 		bms, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed blockminsize: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed blockminsize: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.BlockMinSize)
 		} else {
 			CombinedCfg.Node.BlockMinSize = uint32(bms)
@@ -976,7 +964,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("blockmaxsize")
 		bms, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed blockmaxsize: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed blockmaxsize: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.BlockMaxSize)
 		} else {
 			CombinedCfg.Node.BlockMaxSize = uint32(bms)
@@ -986,7 +974,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("blockminweight")
 		bmw, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed blockminweight: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed blockminweight: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.BlockMinWeight)
 		} else {
 			CombinedCfg.Node.BlockMinWeight = uint32(bmw)
@@ -996,7 +984,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("blockmaxweight")
 		bmw, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed blockmaxweight: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed blockmaxweight: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.BlockMaxWeight)
 		} else {
 			CombinedCfg.Node.BlockMaxWeight = uint32(bmw)
@@ -1006,7 +994,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("blockprioritysize")
 		bps, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed blockprioritysize: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed blockprioritysize: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.BlockPrioritySize)
 		} else {
 			CombinedCfg.Node.BlockPrioritySize = uint32(bps)
@@ -1031,7 +1019,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("sigcachemaxsize")
 		sms, err := strconv.Atoi(r)
 		if err != nil || sms < 0 {
-			log.Errorf.Print("malformed sigcachemaxsize: `%s` leaving set at `%d`",
+			Log.Errorf.Print("malformed sigcachemaxsize: `%s` leaving set at `%d`",
 				r, CombinedCfg.Node.SigCacheMaxSize)
 		} else {
 			CombinedCfg.Node.SigCacheMaxSize = uint(sms)
@@ -1065,39 +1053,33 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
-		log.Infof.Print("saving config file to %s", cfgFile)
-		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
+		Log.Infof.Print("saving config file to %s", cfgFile)
+		j, err := json.MarshalIndent(&CombinedCfg, "", "  ")
 		if err != nil {
-			log.Error.Print(err.Error())
+			Log.Error.Print("marshalling config file:", err.Error())
 		}
 		j = append(j, '\n')
-		log.Tracef.Print("JSON formatted config file\n%s", j)
-		ioutil.WriteFile(cfgFile, j, 0600)
-		// writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
+		Log.Tracef.Print("JSON formatted config file\n%s", j)
+		err = ioutil.WriteFile(cfgFile, j, 0600)
+		if err != nil {
+			Log.Error.Print("writing config file:", err.Error())
+		}
 	}
 }
 
-// func writeLogCfgFile(logCfgFile string) {
-// 	log.Info.Print("writing log configuration file", logCfgFile)
-// 	j, err := json.MarshalIndent(logger.Levels, "", "  ")
-// 	if err != nil {
-// 		log.Error.Print(err.Error())
-// 	}
-// 	j = append(j, '\n')
-// 	log.Tracef.Print("JSON formatted logging config file\n%s", j)
-// 	ioutil.WriteFile(logCfgFile, j, 0600)
-
-// }
 func writeDefaultConfig(cfgFile string) {
 	defCfg := defaultConfig()
 	defCfg.ConfFileName = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		log.Error.Print(err.Error())
+		Log.Error.Print("marshalling default config:" + err.Error())
 	}
 	j = append(j, '\n')
-	log.Tracef.Print("JSON formatted config file\n%s", j)
-	ioutil.WriteFile(cfgFile, j, 0600)
+	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	err = ioutil.WriteFile(cfgFile, j, 0600)
+	if err != nil {
+		Log.Error.Print("writing default config:", err.Error())
+	}
 	// if we are writing default config we also want to use it
 	CombinedCfg = *defCfg
 }

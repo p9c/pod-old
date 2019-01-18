@@ -13,9 +13,10 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/rpc/rpcserver"
+	"git.parallelcoin.io/pod/module/wallet/wallet"
+	"github.com/smallnest/rpcx/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -51,7 +52,7 @@ func openRPCKeyPair() (tls.Certificate, error) {
 // possibly also the key in PEM format to the paths specified by the config.  If
 // successful, the new keypair is returned.
 func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
-	log.Infof("Generating TLS certificates...")
+	// log.Infof("Generating TLS certificates...")
 
 	// Create directories for cert and key files if they do not yet exist.
 	certDir, _ := filepath.Split(cfg.RPCCert)
@@ -87,14 +88,13 @@ func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
 		if err != nil {
 			rmErr := os.Remove(cfg.RPCCert)
 			if rmErr != nil {
-				log.Warnf("Cannot remove written certificates: %v",
-					rmErr)
+				// log.Warnf("Cannot remove written certificates: %v", rmErr)
 			}
 			return tls.Certificate{}, err
 		}
 	}
 
-	log.Info("Done generating TLS certificates")
+	// log.Info("Done generating TLS certificates")
 	return keyPair, nil
 }
 
@@ -107,7 +107,7 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 		err          error
 	)
 	if !cfg.EnableServerTLS {
-		log.Info("Server TLS is disabled.  Only legacy RPC may be used")
+		// log.Info("Server TLS is disabled.  Only legacy RPC may be used")
 	} else {
 		keyPair, err = openRPCKeyPair()
 		if err != nil {
@@ -139,9 +139,8 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 				go func() {
 					log.Infof("Experimental RPC server listening on %s",
 						lis.Addr())
-					err := server.Serve(lis)
-					log.Tracef("Finished serving expimental RPC: %v",
-						err)
+					_ = server.Serve(lis)
+					// log.Tracef("Finished serving expimental RPC: %v", err)
 				}()
 			}
 		}

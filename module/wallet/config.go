@@ -3,13 +3,10 @@ package walletmain
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
-	"regexp"
 	"runtime"
-	"sort"
 	"strings"
 
 	"git.parallelcoin.io/pod/lib/util"
@@ -171,70 +168,70 @@ func validLogLevel(logLevel string) bool {
 	return false
 }
 
-// supportedSubsystems returns a sorted slice of the supported subsystems for
-// logging purposes.
-func supportedSubsystems() []string {
-	// Convert the subsystemLoggers map keys to a slice.
-	subsystems := make([]string, 0, len(subsystemLoggers))
-	for subsysID := range subsystemLoggers {
-		subsystems = append(subsystems, subsysID)
-	}
+// // supportedSubsystems returns a sorted slice of the supported subsystems for
+// // logging purposes.
+// func supportedSubsystems() []string {
+// 	// Convert the subsystemLoggers map keys to a slice.
+// 	subsystems := make([]string, 0, len(subsystemLoggers))
+// 	for subsysID := range subsystemLoggers {
+// 		subsystems = append(subsystems, subsysID)
+// 	}
 
-	// Sort the subsytems for stable display.
-	sort.Strings(subsystems)
-	return subsystems
-}
+// 	// Sort the subsytems for stable display.
+// 	sort.Strings(subsystems)
+// 	return subsystems
+// }
 
-// parseAndSetDebugLevels attempts to parse the specified debug level and set
-// the levels accordingly.  An appropriate error is returned if anything is
-// invalid.
-func parseAndSetDebugLevels(debugLevel string) error {
-	// When the specified string doesn't have any delimters, treat it as
-	// the log level for all subsystems.
-	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
-		// Validate debug log level.
-		if !validLogLevel(debugLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, debugLevel)
-		}
+// // parseAndSetDebugLevels attempts to parse the specified debug level and set
+// // the levels accordingly.  An appropriate error is returned if anything is
+// // invalid.
+// func parseAndSetDebugLevels(debugLevel string) error {
+// 	// When the specified string doesn't have any delimters, treat it as
+// 	// the log level for all subsystems.
+// 	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
+// 		// Validate debug log level.
+// 		if !validLogLevel(debugLevel) {
+// 			str := "The specified debug level [%v] is invalid"
+// 			return fmt.Errorf(str, debugLevel)
+// 		}
 
-		// Change the logging level for all subsystems.
-		setLogLevels(debugLevel)
+// 		// Change the logging level for all subsystems.
+// 		setLogLevels(debugLevel)
 
-		return nil
-	}
+// 		return nil
+// 	}
 
-	// Split the specified string into subsystem/level pairs while detecting
-	// issues and update the log levels accordingly.
-	for _, logLevelPair := range strings.Split(debugLevel, ",") {
-		if !strings.Contains(logLevelPair, "=") {
-			str := "The specified debug level contains an invalid " +
-				"subsystem/level pair [%v]"
-			return fmt.Errorf(str, logLevelPair)
-		}
+// 	// Split the specified string into subsystem/level pairs while detecting
+// 	// issues and update the log levels accordingly.
+// 	for _, logLevelPair := range strings.Split(debugLevel, ",") {
+// 		if !strings.Contains(logLevelPair, "=") {
+// 			str := "The specified debug level contains an invalid " +
+// 				"subsystem/level pair [%v]"
+// 			return fmt.Errorf(str, logLevelPair)
+// 		}
 
-		// Extract the specified subsystem and log level.
-		fields := strings.Split(logLevelPair, "=")
-		subsysID, logLevel := fields[0], fields[1]
+// 		// Extract the specified subsystem and log level.
+// 		fields := strings.Split(logLevelPair, "=")
+// 		subsysID, logLevel := fields[0], fields[1]
 
-		// Validate subsystem.
-		if _, exists := subsystemLoggers[subsysID]; !exists {
-			str := "The specified subsystem [%v] is invalid -- " +
-				"supported subsytems %v"
-			return fmt.Errorf(str, subsysID, supportedSubsystems())
-		}
+// 		// Validate subsystem.
+// 		if _, exists := subsystemLoggers[subsysID]; !exists {
+// 			str := "The specified subsystem [%v] is invalid -- " +
+// 				"supported subsytems %v"
+// 			return fmt.Errorf(str, subsysID, supportedSubsystems())
+// 		}
 
-		// Validate log level.
-		if !validLogLevel(logLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, logLevel)
-		}
+// 		// Validate log level.
+// 		if !validLogLevel(logLevel) {
+// 			str := "The specified debug level [%v] is invalid"
+// 			return fmt.Errorf(str, logLevel)
+// 		}
 
-		setLogLevel(subsysID, logLevel)
-	}
+// 		setLogLevel(subsysID, logLevel)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // loadConfig initializes and parses the config using a config file and command
 // line options.
@@ -752,78 +749,78 @@ func loadConfig() (*Config, []string, error) {
 	return &cfg, remainingArgs, nil
 }
 
-// createDefaultConfig creates a basic config file at the given destination path.
-// For this it tries to read the config file for the RPC server (either pod or
-// sac), and extract the RPC user and password from it.
-func createDefaultConfigFile(destinationPath, serverConfigPath, serverDataDir, walletDataDir string) error {
-	// fmt.Println("server config path", serverConfigPath)
-	// Read the RPC server config
-	serverConfigFile, err := os.Open(serverConfigPath)
-	if err != nil {
-		return err
-	}
-	defer serverConfigFile.Close()
-	content, err := ioutil.ReadAll(serverConfigFile)
-	if err != nil {
-		return err
-	}
-	// content := []byte(samplePodCtlConf)
+// // createDefaultConfig creates a basic config file at the given destination path.
+// // For this it tries to read the config file for the RPC server (either pod or
+// // sac), and extract the RPC user and password from it.
+// func createDefaultConfigFile(destinationPath, serverConfigPath, serverDataDir, walletDataDir string) error {
+// 	// fmt.Println("server config path", serverConfigPath)
+// 	// Read the RPC server config
+// 	serverConfigFile, err := os.Open(serverConfigPath)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer serverConfigFile.Close()
+// 	content, err := ioutil.ReadAll(serverConfigFile)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	// content := []byte(samplePodCtlConf)
 
-	// Extract the rpcuser
-	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
-	if err != nil {
-		return err
-	}
-	userSubmatches := rpcUserRegexp.FindSubmatch(content)
-	if userSubmatches == nil {
-		// No user found, nothing to do
-		return nil
-	}
+// 	// Extract the rpcuser
+// 	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	userSubmatches := rpcUserRegexp.FindSubmatch(content)
+// 	if userSubmatches == nil {
+// 		// No user found, nothing to do
+// 		return nil
+// 	}
 
-	// Extract the rpcpass
-	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
-	if err != nil {
-		return err
-	}
-	passSubmatches := rpcPassRegexp.FindSubmatch(content)
-	if passSubmatches == nil {
-		// No password found, nothing to do
-		return nil
-	}
+// 	// Extract the rpcpass
+// 	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	passSubmatches := rpcPassRegexp.FindSubmatch(content)
+// 	if passSubmatches == nil {
+// 		// No password found, nothing to do
+// 		return nil
+// 	}
 
-	// Extract the TLS
-	TLSRegexp, err := regexp.Compile(`(?m)^\s*tls=(0|1)(?:\s|$)`)
-	if err != nil {
-		return err
-	}
-	TLSSubmatches := TLSRegexp.FindSubmatch(content)
+// 	// Extract the TLS
+// 	TLSRegexp, err := regexp.Compile(`(?m)^\s*tls=(0|1)(?:\s|$)`)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	TLSSubmatches := TLSRegexp.FindSubmatch(content)
 
-	// Create the destination directory if it does not exists
-	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
-	if err != nil {
-		return err
-	}
-	// fmt.Println("config path", destinationPath)
-	// Create the destination file and write the rpcuser and rpcpass to it
-	dest, err := os.OpenFile(destinationPath,
-		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		fmt.Println("ERROR", err)
-		return err
-	}
-	defer dest.Close()
+// 	// Create the destination directory if it does not exists
+// 	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	// fmt.Println("config path", destinationPath)
+// 	// Create the destination file and write the rpcuser and rpcpass to it
+// 	dest, err := os.OpenFile(destinationPath,
+// 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+// 	if err != nil {
+// 		fmt.Println("ERROR", err)
+// 		return err
+// 	}
+// 	defer dest.Close()
 
-	destString := fmt.Sprintf("username=%s\npassword=%s\n",
-		string(userSubmatches[1]), string(passSubmatches[1]))
-	if TLSSubmatches != nil {
-		fmt.Println("TLS is enabled but more than likely the certificates will fail verification because of the CA. Currently there is no adequate tool for this, but will be soon.")
-		destString += fmt.Sprintf("clienttls=%s\n", TLSSubmatches[1])
-	}
-	output := ";;; Defaults created from local pod/sac configuration:\n" + destString + "\n" + string(sampleModConf)
-	dest.WriteString(output)
+// 	destString := fmt.Sprintf("username=%s\npassword=%s\n",
+// 		string(userSubmatches[1]), string(passSubmatches[1]))
+// 	if TLSSubmatches != nil {
+// 		fmt.Println("TLS is enabled but more than likely the certificates will fail verification because of the CA. Currently there is no adequate tool for this, but will be soon.")
+// 		destString += fmt.Sprintf("clienttls=%s\n", TLSSubmatches[1])
+// 	}
+// 	output := ";;; Defaults created from local pod/sac configuration:\n" + destString + "\n" + string(sampleModConf)
+// 	dest.WriteString(output)
 
-	return nil
-}
+// 	return nil
+// }
 
 func copy(src, dst string) (int64, error) {
 	// fmt.Println(src, dst)
