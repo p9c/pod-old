@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
-	"time"
 
 	"git.parallelcoin.io/pod/lib/clog"
-	n "git.parallelcoin.io/pod/module/wallet"
+	w "git.parallelcoin.io/pod/module/wallet"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/logger"
 	"github.com/tucnak/climax"
@@ -19,17 +17,17 @@ import (
 var log = clog.NewSubSystem("Wallet", clog.Ninf)
 
 // Config is the default configuration native to ctl
-var Config = new(n.Config)
+var Config = new(w.Config)
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {
-	Config *n.Config
+	Wallet *w.Config
 	Levels map[string]string
 }
 
 // CombinedCfg is the combined app and log levels configuration
 var CombinedCfg = ConfigAndLog{
-	Config: Config,
+	Wallet: Config,
 	Levels: logger.Levels,
 }
 
@@ -76,315 +74,181 @@ var Command = climax.Command{
 			Name:     "debuglevel",
 			Short:    "d",
 			Usage:    "--debuglevel=trace",
-			Help:     "sets debuglevel, default info, sets the baseline for others not specified",
+			Help:     "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library basis",
 			Variable: true,
 		},
 		{
 			Name:     "log-database",
-			Usage:    "--log-database",
-			Help:     "",
+			Usage:    "--log-database=debug",
+			Help:     "sets log level for database",
 			Variable: true,
 		},
 		{
 			Name:     "log-txscript",
-			Usage:    "--log-txscript",
-			Help:     "",
+			Usage:    "--log-txscript=debug",
+			Help:     "sets log level for txscript",
 			Variable: true,
 		},
 		{
 			Name:     "log-peer",
-			Usage:    "--log-peer",
-			Help:     "",
+			Usage:    "--log-peer=debug",
+			Help:     "sets log level for peer",
 			Variable: true,
 		},
 		{
 			Name:     "log-netsync",
-			Usage:    "--log-netsync",
-			Help:     "",
+			Usage:    "--log-netsync=debug",
+			Help:     "sets log level for netsync",
 			Variable: true,
 		},
 		{
 			Name:     "log-rpcclient",
-			Usage:    "--log-rpcclient",
-			Help:     "",
+			Usage:    "--log-rpcclient=debug",
+			Help:     "sets log level for rpcclient",
 			Variable: true,
 		},
 		{
 			Name:     "addrmgr",
-			Usage:    "--log-addrmgr",
-			Help:     "",
+			Usage:    "--log-addrmgr=debug",
+			Help:     "sets log level for mgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain-indexers",
-			Usage:    "--log-blockchain-indexers",
-			Help:     "",
+			Usage:    "--log-blockchain-indexers=debug",
+			Help:     "sets log level for blockchain-indexers",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain",
-			Usage:    "--log-blockchain",
-			Help:     "",
+			Usage:    "--log-blockchain=debug",
+			Help:     "sets log level for blockchain",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-cpuminer",
-			Usage:    "--log-mining-cpuminer",
-			Help:     "",
+			Usage:    "--log-mining-cpuminer=debug",
+			Help:     "sets log level for mining-cpuminer",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining",
-			Usage:    "--log-mining",
-			Help:     "",
+			Usage:    "--log-mining=debug",
+			Help:     "sets log level for mining",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-controller",
-			Usage:    "--log-mining-controller",
-			Help:     "",
+			Usage:    "--log-mining-controller=debug",
+			Help:     "sets log level for mining-controller",
 			Variable: true,
 		},
 		{
 			Name:     "log-connmgr",
-			Usage:    "--log-connmgr",
-			Help:     "",
+			Usage:    "--log-connmgr=debug",
+			Help:     "sets log level for connmgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-spv",
-			Usage:    "--log-spv",
-			Help:     "",
+			Usage:    "--log-spv=debug",
+			Help:     "sets log level for spv",
 			Variable: true,
 		},
 		{
 			Name:     "log-node-mempool",
-			Usage:    "--log-node-mempool",
-			Help:     "",
+			Usage:    "--log-node-mempool=debug",
+			Help:     "sets log level for node-mempool",
 			Variable: true,
 		},
 		{
 			Name:     "log-node",
-			Usage:    "--log-node",
-			Help:     "",
+			Usage:    "--log-node=debug",
+			Help:     "sets log level for node",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wallet",
-			Usage:    "--log-wallet-wallet",
-			Help:     "",
+			Usage:    "--log-wallet-wallet=debug",
+			Help:     "sets log level for wallet-wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-tx",
-			Usage:    "--log-wallet-tx",
-			Help:     "",
+			Usage:    "--log-wallet-tx=debug",
+			Help:     "sets log level for wallet-tx",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-votingpool",
-			Usage:    "--log-wallet-votingpool",
-			Help:     "",
+			Usage:    "--log-wallet-votingpool=debug",
+			Help:     "sets log level for wallet-votingpool",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet",
-			Usage:    "--log-wallet",
-			Help:     "",
+			Usage:    "--log-wallet=debug",
+			Help:     "sets log level for wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-chain",
-			Usage:    "--log-wallet-chain",
-			Help:     "",
+			Usage:    "--log-wallet-chain=debug",
+			Help:     "sets log level for wallet-chain",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-rpcserver",
-			Usage:    "--log-wallet-rpc-rpcserver",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-rpcserver=debug",
+			Help:     "sets log level for wallet-rpc-rpcserver",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-legacyrpc",
-			Usage:    "--log-wallet-rpc-legacyrpc",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-legacyrpc=debug",
+			Help:     "sets log level for wallet-rpc-legacyrpc",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wtxmgr",
-			Usage:    "--log-wallet-wtxmgr",
-			Help:     "",
+			Usage:    "--log-wallet-wtxmgr=debug",
+			Help:     "sets log level for wallet-wtxmgr",
 			Variable: true,
 		},
 		{
-			Name:     "addpeers",
-			Usage:    "--addpeers=some.peer.com:11047",
-			Help:     "adds a peer to the peers database to try to connect to",
-			Variable: true,
-		},
-		{
-			Name:     "connectpeers",
-			Usage:    "--connectpeers=some.peer.com:11047",
-			Help:     "adds a peer to a connect-only whitelist",
-			Variable: true,
-		},
-		{
-			Name:     "disablelisten",
-			Usage:    "--disablelisten=true",
-			Help:     "disables the P2P listener",
-			Variable: true,
-		},
-		{
-			Name:     "listeners",
-			Short:    "S",
-			Usage:    "--listeners=127.0.0.1:11047",
-			Help:     "sets an address to listen for P2P connections",
-			Variable: true,
-		},
-		{
-			Name:     "maxpeers",
-			Usage:    "--maxpeers=100",
-			Help:     "sets max number of peers to open connections to at once",
-			Variable: true,
-		},
-		{
-			Name:     "disablebanning",
-			Usage:    "--disablebanning",
-			Help:     "disable banning of misbehaving peers",
+			Name:     "create",
+			Usage:    "--create",
+			Help:     "create a new wallet if it does not exist",
 			Variable: false,
 		},
 		{
-			Name:     "banduration",
-			Usage:    "--banduration=1h",
-			Help:     "how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1 second",
+			Name:     "createtemp",
+			Usage:    "--createtemp",
+			Help:     "create temporary wallet (pass=password), must call with --datadir",
+			Variable: false,
+		},
+		{
+			Name:     "appdatadir",
+			Usage:    "--appdatadir=/path/to/appdatadir",
+			Help:     "set app data directory for wallet, configuration and logs",
 			Variable: true,
 		},
 		{
-			Name:     "banthreshold",
-			Usage:    "--banthreshold=100",
-			Help:     "maximum allowed ban score before disconnecting and banning misbehaving peers",
+			Name:     "testnet3",
+			Usage:    "--testnet=true",
+			Help:     "use testnet",
 			Variable: true,
 		},
 		{
-			Name:     "whitelists",
-			Usage:    "--whitelists=127.0.0.1:11047",
-			Help:     "add an IP network or IP that will not be banned - eg. 192.168.1.0/24 or ::1",
+			Name:     "simnet",
+			Usage:    "--simnet=true",
+			Help:     "use simnet",
 			Variable: true,
 		},
 		{
-			Name:     "rpcuser",
-			Short:    "u",
-			Usage:    "--rpcuser=username",
-			Help:     "RPC username",
-			Variable: true,
-		},
-		{
-			Name:     "rpcpass",
-			Short:    "P",
-			Usage:    "--rpcpass=password",
-			Help:     "RPC password",
-			Variable: true,
-		},
-		{
-			Name:     "rpclimituser",
-			Short:    "u",
-			Usage:    "--rpclimituser=username",
-			Help:     "limited user RPC username",
-			Variable: true,
-		},
-		{
-			Name:     "rpclimitpass",
-			Short:    "P",
-			Usage:    "--rpclimitpass=password",
-			Help:     "limited user RPC password",
-			Variable: true,
-		},
-		{
-			Name:     "rpclisteners",
-			Short:    "s",
-			Usage:    "--rpclisteners=127.0.0.1:11048",
-			Help:     "RPC server to connect to",
-			Variable: true,
-		},
-		{
-			Name:     "rpccert",
-			Short:    "c",
-			Usage:    "--rpccert=/path/to/rpn.cert",
-			Help:     "RPC server tls certificate chain for validation",
-			Variable: true,
-		},
-		{
-			Name:     "rpckey",
-			Short:    "c",
-			Usage:    "--rpccert=/path/to/rpn.key",
-			Help:     "RPC server tls key for validation",
-			Variable: true,
-		},
-		{
-			Name:     "tls",
-			Usage:    "--tls=false",
-			Help:     "enable TLS",
-			Variable: true,
-		},
-		{
-			Name:     "disablednsseed",
-			Usage:    "--disablednsseed=false",
-			Help:     "disable dns seeding",
-			Variable: true,
-		},
-		{
-			Name:     "externalips",
-			Usage:    "--externalips=192.168.0.1:11048",
-			Help:     "set additional listeners on different address/interfaces",
-			Variable: true,
-		},
-		{
-			Name:     "proxy",
-			Usage:    "--proxy 127.0.0.1:9050",
-			Help:     "connect via SOCKS5 proxy (eg. 127.0.0.1:9050)",
-			Variable: true,
-		},
-		{
-			Name:     "proxyuser",
-			Usage:    "--proxyuser username",
-			Help:     "username for proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "proxypass",
-			Usage:    "--proxypass password",
-			Help:     "password for proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "onion",
-			Usage:    "--onion 127.0.0.1:9050",
-			Help:     "connect via onion proxy (eg. 127.0.0.1:9050)",
-			Variable: true,
-		},
-		{
-			Name:     "onionuser",
-			Usage:    "--onionuser username",
-			Help:     "username for onion proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "onionpass",
-			Usage:    "--onionpass password",
-			Help:     "password for onion proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "noonion",
-			Usage:    "--noonion=true",
-			Help:     "disable onion proxy",
-			Variable: true,
-		},
-		{
-			Name:     "torisolation",
-			Usage:    "--torisolation=true",
-			Help:     "enable tor stream isolation by randomising user credentials for each connection",
+			Name:     "noinitialload",
+			Usage:    "--noinitialload=true",
+			Help:     "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)",
 			Variable: true,
 		},
 		{
@@ -394,213 +258,137 @@ var Command = climax.Command{
 			Variable: true,
 		},
 		{
-			Name:     "skipverify",
-			Usage:    "--skipverify=false",
-			Help:     "do not verify tls certificates (not recommended!)",
-			Variable: true,
-		},
-		{
-			Name:     "addcheckpoints",
-			Usage:    "--addcheckpoints <height>:<hash>",
-			Help:     "add custom checkpoints",
-			Variable: true,
-		},
-		{
-			Name:     "disablecheckpoints",
-			Usage:    "--disablecheckpoints=true",
-			Help:     "disable all checkpoints",
-			Variable: true,
-		},
-		{
-			Name:     "dbtype",
-			Usage:    "--dbtype=ffldb",
-			Help:     "set database backend type",
-			Variable: true,
-		},
-		{
 			Name:     "profile",
-			Usage:    "--profile=127.0.0.1:3131",
-			Help:     "start HTTP profiling server on given address",
+			Usage:    "--profile=true",
+			Help:     "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536",
 			Variable: true,
 		},
 		{
-			Name:     "cpuprofile",
-			Usage:    "--cpuprofile=127.0.0.1:3232",
-			Help:     "start cpu profiling server on given address",
+			Name:     "gui",
+			Usage:    "--gui=true",
+			Help:     "launch GUI (wallet unlock is deferred to let GUI handle)",
 			Variable: true,
 		},
 		{
-			Name:     "upnp",
-			Usage:    "--upnp=true",
-			Help:     "enables the use of UPNP to establish inbound port redirections",
+			Name:     "walletpass",
+			Usage:    "--walletpass=somepassword",
+			Help:     "the public wallet password - only required if the wallet was created with one",
 			Variable: true,
 		},
 		{
-			Name:     "minrelaytxfee",
-			Usage:    "--minrelaytxfee=1",
-			Help:     "the minimum transaction fee in DUO/Kb to be considered a nonzero fee",
+			Name:     "rpcconnect",
+			Usage:    "--rpcconnect=some.address.com:11048",
+			Help:     "connect to the RPC of a parallelcoin node for chain queries",
 			Variable: true,
 		},
 		{
-			Name:     "freetxrelaylimit",
-			Usage:    "--freetxrelaylimit=100",
-			Help:     "limit amount of free transactions relayed in thousand bytes per minute",
+			Name:     "cafile",
+			Usage:    "--cafile=/path/to/cafile",
+			Help:     "file containing root certificates to authenticate TLS connections with pod",
 			Variable: true,
 		},
 		{
-			Name:     "norelaypriority",
-			Usage:    "--norelaypriority=true",
-			Help:     "do not require free or low-fee transactions to have high priority for relaying",
+			Name:     "enableclienttls",
+			Usage:    "--enableclienttls=false",
+			Help:     "enable TLS for the RPC client",
 			Variable: true,
 		},
 		{
-			Name:     "trickleinterval",
-			Usage:    "--trickleinterval=1",
-			Help:     "time in seconds between attempts to send new inventory to a connected peer",
+			Name:     "podusername",
+			Usage:    "--podusername=user",
+			Help:     "username for node RPC authentication",
 			Variable: true,
 		},
 		{
-			Name:     "maxorphantxs",
-			Usage:    "--maxorphantxs=100",
-			Help:     "set maximum number of orphans transactions to keep in memory",
+			Name:     "podpassword",
+			Usage:    "--podpassword=pa55word",
+			Help:     "password for node RPC authentication",
 			Variable: true,
 		},
 		{
-			Name:     "algo",
-			Usage:    "--algo=random",
-			Help:     "set algorithm to be used by cpu miner",
+			Name:     "proxy",
+			Usage:    "--proxy=127.0.0.1:9050",
+			Help:     "address for proxy for outbound connections",
 			Variable: true,
 		},
 		{
-			Name:     "generate",
-			Usage:    "--generate=true",
-			Help:     "set CPU miner to generate blocks",
+			Name:     "proxyuser",
+			Usage:    "--proxyuser=user",
+			Help:     "username for proxy",
 			Variable: true,
 		},
 		{
-			Name:     "genthreads",
-			Usage:    "--genthreads=-1",
-			Help:     "set number of threads to generate using CPU, -1 = all available",
+			Name:     "proxypass",
+			Usage:    "--proxypass=pa55word",
+			Help:     "password for proxy",
 			Variable: true,
 		},
 		{
-			Name:     "miningaddrs",
-			Usage:    "--miningaddrs=aoeuaoe0760oeu0",
-			Help:     "add an address to the list of addresses to make block payments to from miners",
+			Name:     "rpccert",
+			Usage:    "--rpccert=/path/to/rpccert",
+			Help:     "file containing the RPC tls certificate",
 			Variable: true,
 		},
 		{
-			Name:     "minerlistener",
-			Usage:    "--minerlistener=127.0.0.1:11011",
-			Help:     "set the port for a miner work dispatch server to listen on",
+			Name:     "rpckey",
+			Usage:    "--rpckey=/path/to/rpckey",
+			Help:     "file containing RPC tls key",
 			Variable: true,
 		},
 		{
-			Name:     "minerpass",
-			Usage:    "--minerpass=pa55word",
-			Help:     "set the encryption password to prevent leaking or MiTM attacks on miners",
+			Name:     "onetimetlskey",
+			Usage:    "--onetimetlskey=true",
+			Help:     "generate a new TLS certpair but only write certs to disk",
 			Variable: true,
 		},
 		{
-			Name:     "blockminsize",
-			Usage:    "--blockminsize=80",
-			Help:     "mininum block size in bytes to be used when creating a block",
+			Name:     "enableservertls",
+			Usage:    "--enableservertls=false",
+			Help:     "enable TLS on wallet RPC",
 			Variable: true,
 		},
 		{
-			Name:     "blockmaxsize",
-			Usage:    "--blockmaxsize=1024000",
-			Help:     "maximum block size in bytes to be used when creating a block",
+			Name:     "legacyrpclisteners",
+			Usage:    "--legacyrpclisteners=127.0.0.1:11046",
+			Help:     "add a listener for the legacy RPC",
 			Variable: true,
 		},
 		{
-			Name:     "blockminweight",
-			Usage:    "--blockminweight=500",
-			Help:     "mininum block weight to be used when creating a block",
+			Name:     "legacyrpcmaxclients",
+			Usage:    "--legacyrpcmaxclients=10",
+			Help:     "maximum number of connections for legacy RPC",
 			Variable: true,
 		},
 		{
-			Name:     "blockmaxweight",
-			Usage:    "--blockmaxweight=10000",
-			Help:     "maximum block weight to be used when creating a block",
+			Name:     "legacyrpcmaxwebsockets",
+			Usage:    "--legacyrpcmaxwebsockets=10",
+			Help:     "maximum number of websockets for legacy RPC",
 			Variable: true,
 		},
 		{
-			Name:     "blockprioritysize",
-			Usage:    "--blockprioritysize=256",
-			Help:     "size in bytes for high-priority/low-fee transactions when creating a block",
+			Name:     "username",
+			Short:    "-u",
+			Usage:    "--username=user",
+			Help:     "username for wallet RPC, used also for node if podusername is empty",
 			Variable: true,
 		},
 		{
-			Name:     "uacomment",
-			Usage:    "--uacomment=joeblogsminers",
-			Help:     "comment to add to the user agent - see BIP 14 for more information.",
+			Name:     "password",
+			Short:    "-P",
+			Usage:    "--password=pa55word",
+			Help:     "password for wallet RPC, also used for node if podpassord",
 			Variable: true,
 		},
 		{
-			Name:     "nopeerbloomfilters",
-			Usage:    "--nopeerbloomfilters=false",
-			Help:     "disable bloom filtering support",
+			Name:     "experimentalrpclisteners",
+			Usage:    "--experimentalrpclisteners=127.0.0.1:11045",
+			Help:     "enable experimental RPC service on this address",
 			Variable: true,
 		},
 		{
-			Name:     "nocfilters",
-			Usage:    "--nocfilters=false",
-			Help:     "disable committed filtering (CF) support",
-			Variable: true,
-		},
-		{
-			Name:     "dropcfindex",
-			Usage:    "--dropcfindex",
-			Help:     "deletes the index used for committed filtering (CF) support from the database on start up and then exits",
-			Variable: false,
-		},
-		{
-			Name:     "sigcachemaxsize",
-			Usage:    "--sigcachemaxsize=1000",
-			Help:     "the maximum number of entries in the signature verification cache",
-			Variable: true,
-		},
-		{
-			Name:     "blocksonly",
-			Usage:    "--blocksonly=true",
-			Help:     "do not accept transactions from remote peers",
-			Variable: true,
-		},
-		{
-			Name:     "txindex",
-			Usage:    "--txindex=true",
-			Help:     "maintain a full hash-based transaction index which makes all transactions available via the getrawtransaction RPC",
-			Variable: true,
-		},
-		{
-			Name:     "droptxindex",
-			Usage:    "--droptxindex",
-			Help:     "deletes the hash-based transaction index from the database on start up and then exits.",
-			Variable: false,
-		},
-		{
-			Name:     "addrindex",
-			Usage:    "--addrindex=true",
-			Help:     "maintain a full address-based transaction index which makes the searchrawtransactions RPC available",
-			Variable: true,
-		},
-		{
-			Name:     "dropaddrindex",
-			Usage:    "--dropaddrindex",
-			Help:     "deletes the address-based transaction index from the database on start up and then exits",
-			Variable: false,
-		},
-		{
-			Name:     "relaynonstd",
-			Usage:    "--relaynonstd=true",
-			Help:     "relay non-standard transactions regardless of the default settings for the active network",
-			Variable: true,
-		},
-		{
-			Name:     "rejectnonstd",
-			Usage:    "--rejectnonstd=false",
-			Help:     "reject non-standard transactions regardless of the default settings for the active network",
+			Name:     "datadir",
+			Usage:    "--datadir=/home/user/.pod",
+			Help:     "set the base directory for elements shared between modules",
 			Variable: true,
 		},
 	},
@@ -620,28 +408,26 @@ var Command = climax.Command{
 				logger.Levels[i] = dl
 			}
 		}
-		log.Debugf.Print("node version %s", n.Version())
+		log.Debugf.Print("node version %s", w.Version())
 		if ctx.Is("version") {
-			fmt.Println("node version", n.Version())
+			fmt.Println("node version", w.Version())
 			clog.Shutdown()
 		}
 		log.Trace.Print("running command")
 
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = n.DefaultConfigFile
+			cfgFile = w.DefaultConfigFile
 		}
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			writeLogCfgFile(Config.AppDataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				writeLogCfgFile(Config.AppDataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
 				log.Debug.Print("reading app configuration from", cfgFile)
@@ -651,24 +437,24 @@ var Command = climax.Command{
 					clog.Shutdown()
 				}
 				log.Tracef.Print("parsing app configuration\n%s", cfgData)
-				err = json.Unmarshal(cfgData, CombinedCfg.Config)
+				err = json.Unmarshal(cfgData, CombinedCfg)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				logCfgFile := Config.AppDataDir + "/logconf"
-				log.Debug.Print("reading logger configuration from", logCfgFile)
-				logCfgData, err := ioutil.ReadFile(logCfgFile)
-				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
-				log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
-				err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
-				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
+				// logCfgFile := getLogConfFileName()
+				// log.Debug.Print("reading logger configuration from", logCfgFile)
+				// logCfgData, err := ioutil.ReadFile(logCfgFile)
+				// if err != nil {
+				// 	log.Error.Print(err.Error())
+				// 	clog.Shutdown()
+				// }
+				// log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
+				// err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
+				// if err != nil {
+				// 	log.Error.Print(err.Error())
+				// 	clog.Shutdown()
+				// }
 				configNode(&ctx, cfgFile)
 			}
 		}
@@ -679,70 +465,56 @@ var Command = climax.Command{
 }
 
 func configNode(ctx *climax.Context, cfgFile string) {
-	var err error
 	// Apply all configurations specified on commandline
-	if ctx.Is("datadir") {
-		r, _ := ctx.Get("datadir")
-		Config.DataDir = r
+	if ctx.Is("create") {
+		Config.Create = true
 	}
-	if ctx.Is("addpeers") {
-		r, _ := ctx.Get("addpeers")
-		Config.AddPeers = strings.Split(r, " ")
+	if ctx.Is("createtemp") {
+		Config.CreateTemp = true
 	}
-	if ctx.Is("connectpeers") {
-		r, _ := ctx.Get("connectpeers")
-		Config.ConnectPeers = strings.Split(r, " ")
+	if ctx.Is("appdatadir") {
+		r, _ := ctx.Get("appdatadir")
+		Config.AppDataDir = r
 	}
-	if ctx.Is("maxpeers") {
-		r, _ := ctx.Get("maxpeers")
-		Config.MaxPeers, err = strconv.Atoi(r)
-		if err != nil {
-			log.Error.Print(err.Error())
-		}
+	if ctx.Is("noinitialload") {
+		r, _ := ctx.Get("noinitialload")
+		Config.NoInitialLoad = r == "true"
 	}
-	if ctx.Is("banduration") {
-		r, _ := ctx.Get("banduration")
-		error := false
-		var bd time.Duration
-		switch r[len(r)-1] {
-		case 's':
-			ts, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(ts) * time.Second
-		case 'm':
-			tm, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(tm) * time.Minute
-		case 'h':
-			th, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(th) * time.Hour
-		case 'd':
-			td, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(td) * 24 * time.Hour
-		}
-		if error {
-			log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, Config.BanDuration, err.Error())
-		}
-		Config.BanDuration = bd
+	if ctx.Is("logdir") {
+		r, _ := ctx.Get("logdir")
+		Config.LogDir = r
 	}
-	if ctx.Is("banthreshold") {
-		r, _ := ctx.Get("banthreshold")
-		bt, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, Config.BanThreshold, err.Error())
-		} else {
-			Config.BanThreshold = uint32(bt)
-		}
+	if ctx.Is("profile") {
+		r, _ := ctx.Get("profile")
+		Config.Profile = r
 	}
-	if ctx.Is("rpccert") {
-		r, _ := ctx.Get("rpccert")
-		Config.RPCCert = r
+	if ctx.Is("gui") {
+		r, _ := ctx.Get("gui")
+		Config.GUI = r == "true"
 	}
-	if ctx.Is("rpckey") {
-		r, _ := ctx.Get("rpckey")
-		Config.RPCKey = r
+	if ctx.Is("walletpass") {
+		r, _ := ctx.Get("walletpass")
+		Config.WalletPass = r
+	}
+	if ctx.Is("rpcconnect") {
+		r, _ := ctx.Get("rpcconnect")
+		Config.RPCConnect = r
+	}
+	if ctx.Is("cafile") {
+		r, _ := ctx.Get("cafile")
+		Config.CAFile = r
+	}
+	if ctx.Is("enableclienttls") {
+		r, _ := ctx.Get("enableclienttls")
+		Config.EnableClientTLS = r == "true"
+	}
+	if ctx.Is("podusername") {
+		r, _ := ctx.Get("podusername")
+		Config.PodUsername = r
+	}
+	if ctx.Is("podpassword") {
+		r, _ := ctx.Get("podpassword")
+		Config.PodPassword = r
 	}
 	if ctx.Is("proxy") {
 		r, _ := ctx.Get("proxy")
@@ -756,51 +528,85 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("proxypass")
 		Config.ProxyPass = r
 	}
+	if ctx.Is("rpccert") {
+		r, _ := ctx.Get("rpccert")
+		Config.RPCCert = r
+	}
+	if ctx.Is("rpckey") {
+		r, _ := ctx.Get("rpckey")
+		Config.RPCKey = r
+	}
+	if ctx.Is("onetimetlskey") {
+		r, _ := ctx.Get("onetimetlskey")
+		Config.OneTimeTLSKey = r == "true"
+	}
+	if ctx.Is("enableservertls") {
+		r, _ := ctx.Get("enableservertls")
+		Config.EnableServerTLS = r == "true"
+	}
+	if ctx.Is("legacyrpclisteners") {
+		r, _ := ctx.Get("legacyrpclisteners")
+		Config.LegacyRPCListeners = strings.Split(r, " ")
+	}
+	if ctx.Is("legacyrpcmaxclients") {
+		r, _ := ctx.Get("legacyrpcmaxclients")
+		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxClients)
+		if err != nil {
+			log.Errorf.Print("malformed legacymaxclients: `%s` leaving set at `%d`",
+				r, Config.LegacyRPCMaxClients)
+		}
+	}
+	if ctx.Is("legacyrpcmaxwebsockets") {
+		r, _ := ctx.Get("legacyrpcmaxwebsockets")
+		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxWebsockets)
+		if err != nil {
+			log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
+				r, Config.LegacyRPCMaxWebsockets)
+		}
+	}
+	if ctx.Is("username") {
+		r, _ := ctx.Get("username")
+		Config.Username = r
+	}
+	if ctx.Is("password") {
+		r, _ := ctx.Get("password")
+		Config.Password = r
+	}
+	if ctx.Is("experimentalrpclisteners") {
+		r, _ := ctx.Get("experimentalrpclisteners")
+		Config.ExperimentalRPCListeners = strings.Split(r, " ")
+	}
+	if ctx.Is("datadir") {
+		r, _ := ctx.Get("datadir")
+		Config.DataDir = r
+	}
 	if ctx.Is("network") {
 		r, _ := ctx.Get("network")
 		switch r {
 		case "testnet":
 			Config.TestNet3, Config.SimNet = true, false
-		case "regtest":
-			Config.TestNet3, Config.SimNet = false, false
 		case "simnet":
 			Config.TestNet3, Config.SimNet = false, true
 		default:
 			Config.TestNet3, Config.SimNet = false, false
 		}
 	}
-	if ctx.Is("profile") {
-		r, _ := ctx.Get("profile")
-		Config.Profile = r
-	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
 		log.Infof.Print("saving config file to %s", cfgFile)
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
 		if err != nil {
 			log.Error.Print(err.Error())
 		}
 		j = append(j, '\n')
 		log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
-		writeLogCfgFile(Config.DataDir + "/logconf")
 	}
 }
 
-func writeLogCfgFile(logCfgFile string) {
-	log.Info.Print("writing log configuration file", logCfgFile)
-	j, err := json.MarshalIndent(logger.Levels, "", "  ")
-	if err != nil {
-		log.Error.Print(err.Error())
-	}
-	j = append(j, '\n')
-	log.Tracef.Print("JSON formatted logging config file\n%s", j)
-	ioutil.WriteFile(logCfgFile, j, 0600)
-
-}
 func writeDefaultConfig(cfgFile string) {
 	defCfg := defaultConfig()
-	defCfg.ConfigFile = cfgFile
+	defCfg.Wallet.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log.Error.Print(err.Error())
@@ -809,22 +615,23 @@ func writeDefaultConfig(cfgFile string) {
 	log.Tracef.Print("JSON formatted config file\n%s", j)
 	ioutil.WriteFile(cfgFile, j, 0600)
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	CombinedCfg = *defCfg
 }
 
-func defaultConfig() *n.Config {
-	return &n.Config{
-		ConfigFile:             n.DefaultConfigFile,
-		DataDir:                n.DefaultDataDir,
-		AppDataDir:             n.DefaultAppDataDir,
-		LogDir:                 n.DefaultLogDir,
-		RPCKey:                 n.DefaultRPCKeyFile,
-		RPCCert:                n.DefaultRPCCertFile,
-		WalletPass:             wallet.InsecurePubPassphrase,
-		CAFile:                 "",
-		LegacyRPCMaxClients:    n.DefaultRPCMaxClients,
-		LegacyRPCMaxWebsockets: n.DefaultRPCMaxWebsockets,
-		AddPeers:               []string{},
-		ConnectPeers:           []string{},
+func defaultConfig() *ConfigAndLog {
+	return &ConfigAndLog{
+		Wallet: &w.Config{
+			ConfigFile:             w.DefaultConfigFile,
+			DataDir:                w.DefaultDataDir,
+			AppDataDir:             w.DefaultAppDataDir,
+			LogDir:                 w.DefaultLogDir,
+			RPCKey:                 w.DefaultRPCKeyFile,
+			RPCCert:                w.DefaultRPCCertFile,
+			WalletPass:             wallet.InsecurePubPassphrase,
+			CAFile:                 "",
+			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
+			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
+		},
+		Levels: logger.GetDefault(),
 	}
 }

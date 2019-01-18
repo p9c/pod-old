@@ -23,13 +23,13 @@ var Config = new(n.Config)
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {
-	Config *n.Config
+	Node   *n.Config
 	Levels map[string]string
 }
 
 // CombinedCfg is the combined app and log levels configuration
 var CombinedCfg = ConfigAndLog{
-	Config: Config,
+	Node:   Config,
 	Levels: logger.Levels,
 }
 
@@ -81,140 +81,140 @@ var Command = climax.Command{
 		},
 		{
 			Name:     "log-database",
-			Usage:    "--log-database",
-			Help:     "",
+			Usage:    "--log-database=info",
+			Help:     "sets log level for database",
 			Variable: true,
 		},
 		{
 			Name:     "log-txscript",
-			Usage:    "--log-txscript",
-			Help:     "",
+			Usage:    "--log-txscript=info",
+			Help:     "sets log level for txscript",
 			Variable: true,
 		},
 		{
 			Name:     "log-peer",
-			Usage:    "--log-peer",
-			Help:     "",
+			Usage:    "--log-peer=info",
+			Help:     "sets log level for peer",
 			Variable: true,
 		},
 		{
 			Name:     "log-netsync",
-			Usage:    "--log-netsync",
-			Help:     "",
+			Usage:    "--log-netsync=info",
+			Help:     "sets log level for netsync",
 			Variable: true,
 		},
 		{
 			Name:     "log-rpcclient",
-			Usage:    "--log-rpcclient",
-			Help:     "",
+			Usage:    "--log-rpcclient=info",
+			Help:     "sets log level for rpcclient",
 			Variable: true,
 		},
 		{
 			Name:     "addrmgr",
-			Usage:    "--log-addrmgr",
-			Help:     "",
+			Usage:    "--log-addrmgr=info",
+			Help:     "sets log level for addrmgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain-indexers",
-			Usage:    "--log-blockchain-indexers",
-			Help:     "",
+			Usage:    "--log-blockchain-indexers=info",
+			Help:     "sets log level for blockchain-indexers",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain",
-			Usage:    "--log-blockchain",
-			Help:     "",
+			Usage:    "--log-blockchain=info",
+			Help:     "sets log level for blockchain",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-cpuminer",
-			Usage:    "--log-mining-cpuminer",
-			Help:     "",
+			Usage:    "--log-mining-cpuminer=info",
+			Help:     "sets log level for mining-cpuminer",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining",
-			Usage:    "--log-mining",
-			Help:     "",
+			Usage:    "--log-mining=info",
+			Help:     "sets log level for mining",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-controller",
-			Usage:    "--log-mining-controller",
-			Help:     "",
+			Usage:    "--log-mining-controller=info",
+			Help:     "sets log level for mining-controller",
 			Variable: true,
 		},
 		{
 			Name:     "log-connmgr",
-			Usage:    "--log-connmgr",
-			Help:     "",
+			Usage:    "--log-connmgr=info",
+			Help:     "sets log level for connmgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-spv",
-			Usage:    "--log-spv",
-			Help:     "",
+			Usage:    "--log-spv=info",
+			Help:     "sets log level for spv",
 			Variable: true,
 		},
 		{
 			Name:     "log-node-mempool",
-			Usage:    "--log-node-mempool",
-			Help:     "",
+			Usage:    "--log-node-mempool=info",
+			Help:     "sets log level for node-mempool",
 			Variable: true,
 		},
 		{
 			Name:     "log-node",
-			Usage:    "--log-node",
-			Help:     "",
+			Usage:    "--log-node=info",
+			Help:     "sets log level for node",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wallet",
-			Usage:    "--log-wallet-wallet",
-			Help:     "",
+			Usage:    "--log-wallet-wallet=info",
+			Help:     "sets log level for wallet-wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-tx",
-			Usage:    "--log-wallet-tx",
-			Help:     "",
+			Usage:    "--log-wallet-tx=info",
+			Help:     "sets log level for wallet-tx",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-votingpool",
-			Usage:    "--log-wallet-votingpool",
-			Help:     "",
+			Usage:    "--log-wallet-votingpool=info",
+			Help:     "sets log level for wallet-votingpool",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet",
-			Usage:    "--log-wallet",
-			Help:     "",
+			Usage:    "--log-wallet=info",
+			Help:     "sets log level for wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-chain",
-			Usage:    "--log-wallet-chain",
-			Help:     "",
+			Usage:    "--log-wallet-chain=info",
+			Help:     "sets log level for wallet-chain",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-rpcserver",
-			Usage:    "--log-wallet-rpc-rpcserver",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-rpcserver=info",
+			Help:     "sets log level for wallet-rpc-rpcserver",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-legacyrpc",
-			Usage:    "--log-wallet-rpc-legacyrpc",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-legacyrpc=info",
+			Help:     "sets log level for wallet-rpc-legacyrpc",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wtxmgr",
-			Usage:    "--log-wallet-wtxmgr",
-			Help:     "",
+			Usage:    "--log-wallet-wtxmgr=info",
+			Help:     "sets log level for wallet-wtxmgr",
 			Variable: true,
 		},
 		{
@@ -634,14 +634,12 @@ var Command = climax.Command{
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			writeLogCfgFile(Config.DataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				writeLogCfgFile(Config.DataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
 				log.Debug.Print("reading app configuration from", cfgFile)
@@ -651,20 +649,7 @@ var Command = climax.Command{
 					clog.Shutdown()
 				}
 				log.Tracef.Print("parsing app configuration\n%s", cfgData)
-				err = json.Unmarshal(cfgData, CombinedCfg.Config)
-				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
-				logCfgFile := Config.DataDir + "/logconf"
-				log.Debug.Print("reading logger configuration from", logCfgFile)
-				logCfgData, err := ioutil.ReadFile(logCfgFile)
-				if err != nil {
-					log.Error.Print(err.Error())
-					clog.Shutdown()
-				}
-				log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
-				err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
+				err = json.Unmarshal(cfgData, CombinedCfg)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
@@ -1052,31 +1037,19 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
 		log.Infof.Print("saving config file to %s", cfgFile)
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
 		if err != nil {
 			log.Error.Print(err.Error())
 		}
 		j = append(j, '\n')
 		log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
-		writeLogCfgFile(Config.DataDir + "/logconf")
 	}
 }
 
-func writeLogCfgFile(logCfgFile string) {
-	log.Info.Print("writing log configuration file", logCfgFile)
-	j, err := json.MarshalIndent(logger.Levels, "", "  ")
-	if err != nil {
-		log.Error.Print(err.Error())
-	}
-	j = append(j, '\n')
-	log.Tracef.Print("JSON formatted logging config file\n%s", j)
-	ioutil.WriteFile(logCfgFile, j, 0600)
-
-}
 func writeDefaultConfig(cfgFile string) {
 	defCfg := defaultConfig()
-	defCfg.ConfigFile = cfgFile
+	defCfg.Node.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log.Error.Print(err.Error())
@@ -1085,37 +1058,40 @@ func writeDefaultConfig(cfgFile string) {
 	log.Tracef.Print("JSON formatted config file\n%s", j)
 	ioutil.WriteFile(cfgFile, j, 0600)
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	CombinedCfg = *defCfg
 }
 
-func defaultConfig() *n.Config {
-	return &n.Config{
-		ConfigFile:           n.DefaultConfigFile,
-		MaxPeers:             n.DefaultMaxPeers,
-		BanDuration:          n.DefaultBanDuration,
-		BanThreshold:         n.DefaultBanThreshold,
-		RPCMaxClients:        n.DefaultMaxRPCClients,
-		RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
-		RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-		DataDir:              n.DefaultDataDir,
-		LogDir:               n.DefaultLogDir,
-		DbType:               n.DefaultDbType,
-		RPCKey:               n.DefaultRPCKeyFile,
-		RPCCert:              n.DefaultRPCCertFile,
-		MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
-		FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
-		TrickleInterval:      n.DefaultTrickleInterval,
-		BlockMinSize:         n.DefaultBlockMinSize,
-		BlockMaxSize:         n.DefaultBlockMaxSize,
-		BlockMinWeight:       n.DefaultBlockMinWeight,
-		BlockMaxWeight:       n.DefaultBlockMaxWeight,
-		BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
-		MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
-		SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
-		Generate:             n.DefaultGenerate,
-		GenThreads:           1,
-		TxIndex:              n.DefaultTxIndex,
-		AddrIndex:            n.DefaultAddrIndex,
-		Algo:                 n.DefaultAlgo,
+func defaultConfig() *ConfigAndLog {
+	return &ConfigAndLog{
+		Node: &n.Config{
+			ConfigFile:           n.DefaultConfigFile,
+			MaxPeers:             n.DefaultMaxPeers,
+			BanDuration:          n.DefaultBanDuration,
+			BanThreshold:         n.DefaultBanThreshold,
+			RPCMaxClients:        n.DefaultMaxRPCClients,
+			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
+			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
+			DataDir:              n.DefaultDataDir,
+			LogDir:               n.DefaultLogDir,
+			DbType:               n.DefaultDbType,
+			RPCKey:               n.DefaultRPCKeyFile,
+			RPCCert:              n.DefaultRPCCertFile,
+			MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
+			FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
+			TrickleInterval:      n.DefaultTrickleInterval,
+			BlockMinSize:         n.DefaultBlockMinSize,
+			BlockMaxSize:         n.DefaultBlockMaxSize,
+			BlockMinWeight:       n.DefaultBlockMinWeight,
+			BlockMaxWeight:       n.DefaultBlockMaxWeight,
+			BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
+			MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
+			SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
+			Generate:             n.DefaultGenerate,
+			GenThreads:           1,
+			TxIndex:              n.DefaultTxIndex,
+			AddrIndex:            n.DefaultAddrIndex,
+			Algo:                 n.DefaultAlgo,
+		},
+		Levels: logger.GetDefault(),
 	}
 }

@@ -11,7 +11,6 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-	"time"
 
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
@@ -70,11 +69,11 @@ type Config struct {
 
 	// SPV client options
 	// UseSPV       bool          `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
-	AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
-	ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
-	MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
-	BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
-	BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
+	// AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
+	// ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
+	// MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
+	// BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
+	// BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
 
 	// RPC server options
 	//
@@ -262,8 +261,8 @@ func loadConfig() (*Config, []string, error) {
 		LegacyRPCMaxClients:    DefaultRPCMaxClients,
 		LegacyRPCMaxWebsockets: DefaultRPCMaxWebsockets,
 		DataDir:                DefaultAppDataDir,
-		AddPeers:               []string{},
-		ConnectPeers:           []string{},
+		// AddPeers:               []string{},
+		// ConnectPeers:           []string{},
 	}
 
 	// Pre-parse the command line options to see if an alternative config

@@ -1,4 +1,4 @@
-package pod
+package podutil
 
 import (
 	"crypto/rand"
@@ -17,7 +17,8 @@ func GenerateKey() string {
 	return fmt.Sprintf("%0x", key)
 }
 
-func ensureDir(fileName string) {
+// EnsureDir checks a file could be written to a path, creates the directories as needed
+func EnsureDir(fileName string) {
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
 		merr := os.MkdirAll(dirName, os.ModePerm)

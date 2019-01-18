@@ -17,6 +17,7 @@ import (
 	ww "git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/logger"
 	"git.parallelcoin.io/pod/run/node"
+	"git.parallelcoin.io/pod/run/util"
 	"git.parallelcoin.io/pod/run/wallet"
 	"github.com/tucnak/climax"
 )
@@ -94,140 +95,140 @@ var Command = climax.Command{
 		},
 		{
 			Name:     "log-database",
-			Usage:    "--log-database",
-			Help:     "",
+			Usage:    "--log-database=debug",
+			Help:     "sets log level for database",
 			Variable: true,
 		},
 		{
 			Name:     "log-txscript",
-			Usage:    "--log-txscript",
-			Help:     "",
+			Usage:    "--log-txscript=debug",
+			Help:     "sets log level for txscript",
 			Variable: true,
 		},
 		{
 			Name:     "log-peer",
-			Usage:    "--log-peer",
-			Help:     "",
+			Usage:    "--log-peer=debug",
+			Help:     "sets log level for peer",
 			Variable: true,
 		},
 		{
 			Name:     "log-netsync",
-			Usage:    "--log-netsync",
-			Help:     "",
+			Usage:    "--log-netsync=debug",
+			Help:     "sets log level for netsync",
 			Variable: true,
 		},
 		{
 			Name:     "log-rpcclient",
-			Usage:    "--log-rpcclient",
-			Help:     "",
+			Usage:    "--log-rpcclient=debug",
+			Help:     "sets log level for rpcclient",
 			Variable: true,
 		},
 		{
 			Name:     "addrmgr",
-			Usage:    "--log-addrmgr",
-			Help:     "",
+			Usage:    "--log-addrmgr=debug",
+			Help:     "sets log level for mgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain-indexers",
-			Usage:    "--log-blockchain-indexers",
-			Help:     "",
+			Usage:    "--log-blockchain-indexers=debug",
+			Help:     "sets log level for blockchain-indexers",
 			Variable: true,
 		},
 		{
 			Name:     "log-blockchain",
-			Usage:    "--log-blockchain",
-			Help:     "",
+			Usage:    "--log-blockchain=debug",
+			Help:     "sets log level for blockchain",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-cpuminer",
-			Usage:    "--log-mining-cpuminer",
-			Help:     "",
+			Usage:    "--log-mining-cpuminer=debug",
+			Help:     "sets log level for mining-cpuminer",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining",
-			Usage:    "--log-mining",
-			Help:     "",
+			Usage:    "--log-mining=debug",
+			Help:     "sets log level for mining",
 			Variable: true,
 		},
 		{
 			Name:     "log-mining-controller",
-			Usage:    "--log-mining-controller",
-			Help:     "",
+			Usage:    "--log-mining-controller=debug",
+			Help:     "sets log level for mining-controller",
 			Variable: true,
 		},
 		{
 			Name:     "log-connmgr",
-			Usage:    "--log-connmgr",
-			Help:     "",
+			Usage:    "--log-connmgr=debug",
+			Help:     "sets log level for connmgr",
 			Variable: true,
 		},
 		{
 			Name:     "log-spv",
-			Usage:    "--log-spv",
-			Help:     "",
+			Usage:    "--log-spv=debug",
+			Help:     "sets log level for spv",
 			Variable: true,
 		},
 		{
 			Name:     "log-node-mempool",
-			Usage:    "--log-node-mempool",
-			Help:     "",
+			Usage:    "--log-node-mempool=debug",
+			Help:     "sets log level for node-mempool",
 			Variable: true,
 		},
 		{
 			Name:     "log-node",
-			Usage:    "--log-node",
-			Help:     "",
+			Usage:    "--log-node=debug",
+			Help:     "sets log level for node",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wallet",
-			Usage:    "--log-wallet-wallet",
-			Help:     "",
+			Usage:    "--log-wallet-wallet=debug",
+			Help:     "sets log level for wallet-wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-tx",
-			Usage:    "--log-wallet-tx",
-			Help:     "",
+			Usage:    "--log-wallet-tx=debug",
+			Help:     "sets log level for wallet-tx",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-votingpool",
-			Usage:    "--log-wallet-votingpool",
-			Help:     "",
+			Usage:    "--log-wallet-votingpool=debug",
+			Help:     "sets log level for wallet-votingpool",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet",
-			Usage:    "--log-wallet",
-			Help:     "",
+			Usage:    "--log-wallet=debug",
+			Help:     "sets log level for wallet",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-chain",
-			Usage:    "--log-wallet-chain",
-			Help:     "",
+			Usage:    "--log-wallet-chain=debug",
+			Help:     "sets log level for wallet-chain",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-rpcserver",
-			Usage:    "--log-wallet-rpc-rpcserver",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-rpcserver=debug",
+			Help:     "sets log level for wallet-rpc-rpcserver",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-rpc-legacyrpc",
-			Usage:    "--log-wallet-rpc-legacyrpc",
-			Help:     "",
+			Usage:    "--log-wallet-rpc-legacyrpc=debug",
+			Help:     "sets log level for wallet-rpc-legacyrpc",
 			Variable: true,
 		},
 		{
 			Name:     "log-wallet-wtxmgr",
-			Usage:    "--log-wallet-wtxmgr",
-			Help:     "",
+			Usage:    "--log-wallet-wtxmgr=debug",
+			Help:     "sets log level for wallet-wtxmgr",
 			Variable: true,
 		},
 		{
@@ -647,14 +648,14 @@ var Command = climax.Command{
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
+			// writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				writeLogCfgFile(CombinedCfg.AppDataDir + "/logconf")
+				// writeLogCfgFile(CombinedCfg.AppDataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
 				log.Debug.Print("reading app configuration from", cfgFile)
@@ -1072,21 +1073,21 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		j = append(j, '\n')
 		log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
-		writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
+		// writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
 	}
 }
 
-func writeLogCfgFile(logCfgFile string) {
-	log.Info.Print("writing log configuration file", logCfgFile)
-	j, err := json.MarshalIndent(logger.Levels, "", "  ")
-	if err != nil {
-		log.Error.Print(err.Error())
-	}
-	j = append(j, '\n')
-	log.Tracef.Print("JSON formatted logging config file\n%s", j)
-	ioutil.WriteFile(logCfgFile, j, 0600)
+// func writeLogCfgFile(logCfgFile string) {
+// 	log.Info.Print("writing log configuration file", logCfgFile)
+// 	j, err := json.MarshalIndent(logger.Levels, "", "  ")
+// 	if err != nil {
+// 		log.Error.Print(err.Error())
+// 	}
+// 	j = append(j, '\n')
+// 	log.Tracef.Print("JSON formatted logging config file\n%s", j)
+// 	ioutil.WriteFile(logCfgFile, j, 0600)
 
-}
+// }
 func writeDefaultConfig(cfgFile string) {
 	defCfg := defaultConfig()
 	defCfg.ConfFileName = cfgFile
@@ -1102,14 +1103,15 @@ func writeDefaultConfig(cfgFile string) {
 }
 
 func defaultConfig() *Cfg {
+	rpcusername := podutil.GenerateKey()
+	rpcpassword := podutil.GenerateKey()
 	return &Cfg{
 		DataDir:      DefaultDataDir,
 		AppDataDir:   DefaultAppDataDir,
 		ConfFileName: DefaultConfFileName,
 		Node: &n.Config{
-			MaxPeers:             n.DefaultMaxPeers,
-			BanDuration:          n.DefaultBanDuration,
-			BanThreshold:         n.DefaultBanThreshold,
+			RPCUser:              rpcusername,
+			RPCPass:              rpcpassword,
 			RPCMaxClients:        n.DefaultMaxRPCClients,
 			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
 			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
@@ -1133,16 +1135,15 @@ func defaultConfig() *Cfg {
 			Algo:                 n.DefaultAlgo,
 		},
 		Wallet: &w.Config{
-			ConfigFile:             w.DefaultConfigFile,
+			RPCConnect:             "127.0.0.1:11048",
+			PodUsername:            rpcusername,
+			PodPassword:            rpcpassword,
 			RPCKey:                 w.DefaultRPCKeyFile,
 			RPCCert:                w.DefaultRPCCertFile,
 			WalletPass:             ww.InsecurePubPassphrase,
-			RPCConnect:             "127.0.0.1:11048",
 			EnableClientTLS:        false,
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
-			AddPeers:               []string{},
-			ConnectPeers:           []string{},
 		},
 		Levels: logger.GetDefault(),
 	}

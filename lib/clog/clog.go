@@ -204,42 +204,42 @@ const (
 
 var (
 	ftlFn = func(c ...int) string {
-		out := "FTL"
+		out := "fatal"
 		if len(c) > 0 {
 			return aurora.BgRed(out).String()
 		}
 		return out
 	}
 	errFn = func(c ...int) string {
-		out := "ERR"
+		out := "error"
 		if len(c) > 0 {
 			return aurora.Red(out).String()
 		}
 		return out
 	}
 	wrnFn = func(c ...int) string {
-		out := "ERR"
+		out := "warn"
 		if len(c) > 0 {
 			return aurora.Brown(out).String()
 		}
 		return out
 	}
 	infFn = func(c ...int) string {
-		out := "INF"
+		out := "info"
 		if len(c) > 0 {
 			return aurora.Green(out).String()
 		}
 		return out
 	}
 	dbgFn = func(c ...int) string {
-		out := "DBG"
+		out := "debug"
 		if len(c) > 0 {
 			return aurora.Blue(out).String()
 		}
 		return out
 	}
 	trcFn = func(c ...int) string {
-		out := "TRC"
+		out := "trace"
 		if len(c) > 0 {
 			return aurora.BgBlue(out).String()
 		}
