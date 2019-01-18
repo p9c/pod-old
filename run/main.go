@@ -2,6 +2,7 @@ package pod
 
 import (
 	"git.parallelcoin.io/pod/run/ctl"
+	"git.parallelcoin.io/pod/run/node"
 	"github.com/tucnak/climax"
 )
 
@@ -21,6 +22,7 @@ var PodApp = climax.Application{
 // Main is the real pod main
 func Main() (err error) {
 	PodApp.AddCommand(ctl.Command)
+	PodApp.AddCommand(node.Command)
 	PodApp.Run()
 	// interrupt = interruptListener()
 	// defer clog.Shutdown()

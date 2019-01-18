@@ -387,5 +387,6 @@ func startChan(ch int, ready chan bool) {
 func Shutdown() {
 	// wait a moment to let log channel clear
 	time.Sleep(time.Millisecond * 50)
+	close(Quit)
 	os.Exit(0)
 }

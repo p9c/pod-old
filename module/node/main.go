@@ -45,7 +45,7 @@ func Main(serverChan chan<- *server) error {
 	interrupt := interruptListener()
 	defer podLog.Info("Shutdown complete")
 	// Show version at startup.
-	podLog.Infof("Version %s", version())
+	podLog.Infof("Version %s", Version())
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
 		go func() {
