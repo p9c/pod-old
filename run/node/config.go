@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
-	"time"
 
 	"git.parallelcoin.io/pod/lib/clog"
 	n "git.parallelcoin.io/pod/module/node"
 	"git.parallelcoin.io/pod/module/node/mempool"
 	"git.parallelcoin.io/pod/run/logger"
+	"git.parallelcoin.io/pod/run/util"
 	"github.com/tucnak/climax"
 )
 
@@ -22,16 +21,16 @@ var Log = clog.NewSubSystem("pod/node", clog.Ninf)
 // Config is the default configuration native to ctl
 var Config = new(n.Config)
 
-// ConfigAndLog is the combined app and logging configuration data
-type ConfigAndLog struct {
-	Node   *n.Config
-	Levels map[string]string
+// Cfg is the combined app and logging configuration data
+type Cfg struct {
+	Node      *n.Config
+	LogLevels map[string]string
 }
 
 // CombinedCfg is the combined app and log levels configuration
-var CombinedCfg = ConfigAndLog{
-	Node:   Config,
-	Levels: logger.Levels,
+var CombinedCfg = Cfg{
+	Node:      Config,
+	LogLevels: logger.Levels,
 }
 
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
@@ -616,6 +615,7 @@ var Command = climax.Command{
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			Log.Tracef.Print("setting debug level %s", dl)
+			CombinedCfg.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i] = dl
@@ -635,13 +635,11 @@ var Command = climax.Command{
 		if ctx.Is("init") {
 			Log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			configNode(&ctx, cfgFile)
 		} else {
 			Log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				Log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				configNode(&ctx, cfgFile)
 			} else {
 				Log.Debug.Print("reading app configuration from", cfgFile)
 				cfgData, err := ioutil.ReadFile(cfgFile)
@@ -655,9 +653,9 @@ var Command = climax.Command{
 					Log.Error.Print("parsing app config file:", err.Error())
 					clog.Shutdown()
 				}
-				configNode(&ctx, cfgFile)
 			}
 		}
+		configNode(&ctx, cfgFile)
 		runNode()
 		clog.Shutdown()
 		return 0
@@ -665,19 +663,27 @@ var Command = climax.Command{
 }
 
 func configNode(ctx *climax.Context, cfgFile string) {
-	var err error
-	// Apply all configurations specified on commandline
+	if ctx.Is("debuglevel") {
+		r, _ := ctx.Get("debuglevel")
+		switch r {
+		case "fatal", "error", "info", "debug", "trace":
+			Config.DebugLevel = r
+		default:
+			Config.DebugLevel = "info"
+		}
+		Log.SetLevel(Config.DebugLevel)
+	}
 	if ctx.Is("datadir") {
 		r, _ := ctx.Get("datadir")
-		Config.DataDir = r
+		Config.DataDir = n.CleanAndExpandPath(r)
 	}
 	if ctx.Is("addpeers") {
 		r, _ := ctx.Get("addpeers")
-		Config.AddPeers = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultPort, &Config.AddPeers)
 	}
 	if ctx.Is("connectpeers") {
 		r, _ := ctx.Get("connectpeers")
-		Config.ConnectPeers = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultPort, &Config.ConnectPeers)
 	}
 	if ctx.Is("disablelisten") {
 		r, _ := ctx.Get("disablelisten")
@@ -685,13 +691,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("listeners") {
 		r, _ := ctx.Get("listeners")
-		Config.Listeners = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultPort, &Config.Listeners)
 	}
 	if ctx.Is("maxpeers") {
 		r, _ := ctx.Get("maxpeers")
-		Config.MaxPeers, err = strconv.Atoi(r)
-		if err != nil {
-			Log.Error.Print("error parsing maxpeers:", err.Error())
+		if err := podutil.ParseInteger(r, "maxpeers", &Config.MaxPeers); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("disablebanning") {
@@ -700,43 +705,22 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("banduration") {
 		r, _ := ctx.Get("banduration")
-		error := false
-		var bd time.Duration
-		switch r[len(r)-1] {
-		case 's':
-			ts, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(ts) * time.Second
-		case 'm':
-			tm, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(tm) * time.Minute
-		case 'h':
-			th, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(th) * time.Hour
-		case 'd':
-			td, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			bd = time.Duration(td) * 24 * time.Hour
+		if err := podutil.ParseDuration(r, "banduration", &Config.BanDuration); err != nil {
+			Log.Warn <- err.Error()
 		}
-		if error {
-			Log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, Config.BanDuration, err.Error())
-		}
-		Config.BanDuration = bd
 	}
 	if ctx.Is("banthreshold") {
 		r, _ := ctx.Get("banthreshold")
-		bt, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, Config.BanThreshold, err.Error())
+		bt := int(Config.BanThreshold)
+		if err := podutil.ParseInteger(r, "banthtreshold", &bt); err != nil {
+			Log.Warn <- err.Error()
 		} else {
 			Config.BanThreshold = uint32(bt)
 		}
 	}
 	if ctx.Is("whitelists") {
 		r, _ := ctx.Get("whitelists")
-		Config.Whitelists = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultPort, &Config.Whitelists)
 	}
 	if ctx.Is("rpcuser") {
 		r, _ := ctx.Get("rpcuser")
@@ -756,15 +740,15 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("rpclisteners") {
 		r, _ := ctx.Get("rpclisteners")
-		Config.RPCListeners = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultRPCPort, &Config.RPCListeners)
 	}
 	if ctx.Is("rpccert") {
 		r, _ := ctx.Get("rpccert")
-		Config.RPCCert = r
+		Config.RPCCert = n.CleanAndExpandPath(r)
 	}
 	if ctx.Is("rpckey") {
 		r, _ := ctx.Get("rpckey")
-		Config.RPCKey = r
+		Config.RPCKey = n.CleanAndExpandPath(r)
 	}
 	if ctx.Is("tls") {
 		r, _ := ctx.Get("tls")
@@ -776,11 +760,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("externalips") {
 		r, _ := ctx.Get("externalips")
-		Config.ExternalIPs = strings.Split(r, " ")
+		podutil.NormalizeAddresses(r, n.DefaultPort, &Config.ExternalIPs)
 	}
 	if ctx.Is("proxy") {
 		r, _ := ctx.Get("proxy")
-		Config.Proxy = r
+		Config.Proxy = n.NormalizeAddress(r, "9050")
 	}
 	if ctx.Is("proxyuser") {
 		r, _ := ctx.Get("proxyuser")
@@ -792,7 +776,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("onion") {
 		r, _ := ctx.Get("onion")
-		Config.OnionProxy = r
+		Config.OnionProxy = n.NormalizeAddress(r, "9050")
 	}
 	if ctx.Is("onionuser") {
 		r, _ := ctx.Get("onionuser")
@@ -837,11 +821,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("profile") {
 		r, _ := ctx.Get("profile")
-		Config.Profile = r
+		Config.Profile = n.NormalizeAddress(r, "11034")
 	}
 	if ctx.Is("cpuprofile") {
 		r, _ := ctx.Get("cpuprofile")
-		Config.CPUProfile = r
+		Config.CPUProfile = n.NormalizeAddress(r, "11033")
 	}
 	if ctx.Is("upnp") {
 		r, _ := ctx.Get("upnp")
@@ -851,16 +835,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("minrelaytxfee")
 		_, err := fmt.Sscanf(r, "%0.f", Config.MinRelayTxFee)
 		if err != nil {
-			Log.Errorf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f`",
-				r, Config.MinRelayTxFee)
+			Log.Warnf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f` err: %s", r, Config.MinRelayTxFee, err.Error())
 		}
 	}
 	if ctx.Is("freetxrelaylimit") {
 		r, _ := ctx.Get("freetxrelaylimit")
-		_, err = fmt.Sscanf(r, "%d", Config.FreeTxRelayLimit)
-		if err != nil {
-			Log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.FreeTxRelayLimit)
+		if err := podutil.ParseFloat(r, "freetxrelaylimit", &Config.FreeTxRelayLimit); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("norelaypriority") {
@@ -869,39 +850,14 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("trickleinterval") {
 		r, _ := ctx.Get("trickleinterval")
-		error := false
-		var ti time.Duration
-		switch r[len(r)-1] {
-		case 's':
-			ts, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(ts) * time.Second
-		case 'm':
-			tm, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(tm) * time.Minute
-		case 'h':
-			th, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(th) * time.Hour
-		case 'd':
-			td, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(td) * 24 * time.Hour
+		if err := podutil.ParseDuration(r, "trickleinterval", &Config.TrickleInterval); err != nil {
+			Log.Warn <- err.Error()
 		}
-		if error {
-			Log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, Config.TrickleInterval, err.Error())
-		}
-		Config.TrickleInterval = ti
 	}
 	if ctx.Is("maxorphantxs") {
 		r, _ := ctx.Get("maxorphantxs")
-		mot, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed maxorphantxs: `%s` leaving set at `%d`",
-				r, Config.MaxOrphanTxs)
-		} else {
-			Config.MaxOrphanTxs = mot
+		if err := podutil.ParseInteger(r, "maxorphantxs", &Config.MaxOrphanTxs); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("algo") {
@@ -914,10 +870,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("genthreads") {
 		r, _ := ctx.Get("genthreads")
-		gt, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.GenThreads)
+		var gt int
+		if err := podutil.ParseInteger(r, "genthreads", &gt); err != nil {
+			Log.Warn <- err.Error()
 		} else {
 			Config.GenThreads = int32(gt)
 		}
@@ -928,7 +883,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("minerlistener") {
 		r, _ := ctx.Get("minerlistener")
-		Config.MinerListener = r
+		podutil.NormalizeAddress(r, n.DefaultRPCPort, &Config.MinerListener)
 	}
 	if ctx.Is("minerpass") {
 		r, _ := ctx.Get("minerpass")
@@ -936,52 +891,32 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("blockminsize") {
 		r, _ := ctx.Get("blockminsize")
-		bms, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed blockminsize: `%s` leaving set at `%d`",
-				r, Config.BlockMinSize)
-		} else {
-			Config.BlockMinSize = uint32(bms)
+		if err := podutil.ParseUint32(r, "blockminsize", &Config.BlockMinSize); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("blockmaxsize") {
 		r, _ := ctx.Get("blockmaxsize")
-		bms, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed blockmaxsize: `%s` leaving set at `%d`",
-				r, Config.BlockMaxSize)
-		} else {
-			Config.BlockMaxSize = uint32(bms)
+		if err := podutil.ParseUint32(r, "blockmaxsize", &Config.BlockMaxSize); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("blockminweight") {
 		r, _ := ctx.Get("blockminweight")
-		bmw, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed blockminweight: `%s` leaving set at `%d`",
-				r, Config.BlockMinWeight)
-		} else {
-			Config.BlockMinWeight = uint32(bmw)
+		if err := podutil.ParseUint32(r, "blockminweight", &Config.BlockMinWeight); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("blockmaxweight") {
 		r, _ := ctx.Get("blockmaxweight")
-		bmw, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed blockmaxweight: `%s` leaving set at `%d`",
-				r, Config.BlockMaxWeight)
-		} else {
-			Config.BlockMaxWeight = uint32(bmw)
+		if err := podutil.ParseUint32(r, "blockmaxweight", &Config.BlockMaxWeight); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("blockprioritysize") {
 		r, _ := ctx.Get("blockprioritysize")
-		bps, err := strconv.Atoi(r)
-		if err != nil {
-			Log.Errorf.Print("malformed blockprioritysize: `%s` leaving set at `%d`",
-				r, Config.BlockPrioritySize)
-		} else {
-			Config.BlockPrioritySize = uint32(bps)
+		if err := podutil.ParseUint32(r, "blockmaxweight", &Config.BlockPrioritySize); err != nil {
+			Log.Warn <- err.Error()
 		}
 	}
 	if ctx.Is("uacomment") {
@@ -1001,12 +936,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if ctx.Is("sigcachemaxsize") {
 		r, _ := ctx.Get("sigcachemaxsize")
-		sms, err := strconv.Atoi(r)
-		if err != nil || sms < 0 {
-			Log.Errorf.Print("malformed sigcachemaxsize: `%s` leaving set at `%d`",
-				r, Config.SigCacheMaxSize)
+		var scms int
+		if err := podutil.ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
+			Log.Warn <- err.Error()
 		} else {
-			Config.SigCacheMaxSize = uint(sms)
+			Config.SigCacheMaxSize = uint(scms)
 		}
 	}
 	if ctx.Is("blocksonly") {
@@ -1068,9 +1002,10 @@ func writeDefaultConfig(cfgFile string) {
 	CombinedCfg = *defCfg
 }
 
-func defaultConfig() *ConfigAndLog {
-	return &ConfigAndLog{
+func defaultConfig() *Cfg {
+	return &Cfg{
 		Node: &n.Config{
+			DebugLevel:           "info",
 			ConfigFile:           n.DefaultConfigFile,
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,
@@ -1099,6 +1034,6 @@ func defaultConfig() *ConfigAndLog {
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
 		},
-		Levels: logger.GetDefault(),
+		LogLevels: logger.GetDefault(),
 	}
 }

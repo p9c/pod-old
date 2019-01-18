@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -37,6 +36,11 @@ const (
 	DefaultLogLevel              = "info"
 	DefaultLogDirname            = "node"
 	DefaultLogFilename           = "log"
+	DefaultAddress               = "127.0.0.1"
+	DefaultPort                  = "11047"
+	DefaultRPCPort               = "11048"
+	DefalutRPCAddr               = "127.0.0.1"
+	DefaultRPCServer             = "127.0.0.1:11048"
 	DefaultListener              = "127.0.0.1:11047"
 	DefaultRPCListener           = "127.0.0.1:11048"
 	DefaultMaxPeers              = 125
@@ -95,6 +99,7 @@ type Config struct {
 	ConfigFile           string        `short:"C" long:"configfile" description:"Path to configuration file"`
 	DataDir              string        `short:"b" long:"datadir" description:"Directory to store data"`
 	LogDir               string        `long:"logdir" description:"Directory to log output."`
+	DebugLevel           string        `long:"debuglevel" description:"baseline debug level for all subsystems unless specified"`
 	AddPeers             []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
 	ConnectPeers         []string      `long:"connect" description:"Connect only to the specified peers at startup"`
 	DisableListen        bool          `long:"nolisten" description:"Disable listening for incoming connections -- NOTE: Listening is automatically disabled if the --connect or --proxy options are used without also specifying listen interfaces via --listen"`
@@ -179,8 +184,8 @@ type serviceOptions struct {
 	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
 }
 
-// cleanAndExpandPath expands environment variables and leading ~ in the passed path, cleans the result, and returns it.
-func cleanAndExpandPath(path string) string {
+// CleanAndExpandPath expands environment variables and leading ~ in the passed path, cleans the result, and returns it.
+func CleanAndExpandPath(path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 		homeDir := filepath.Dir(DefaultHomeDir)
@@ -209,57 +214,6 @@ func validLogLevel(logLevel string) bool {
 	return false
 }
 
-// supportedSubsystems returns a sorted slice of the supported subsystems for logging purposes.
-func supportedSubsystems() []string {
-	// Convert the subsystemLoggers map keys to a slice.
-	subsystems := make([]string, 0, len(subsystemLoggers))
-	for subsysID := range subsystemLoggers {
-		subsystems = append(subsystems, subsysID)
-	}
-	// Sort the subsystems for stable display.
-	sort.Strings(subsystems)
-	return subsystems
-}
-
-// parseAndSetDebugLevels attempts to parse the specified debug level and set the levels accordingly.  An appropriate error is returned if anything is invalid.
-func parseAndSetDebugLevels(debugLevel string) error {
-	// When the specified string doesn't have any delimters, treat it as the log level for all subsystems.
-	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
-		// Validate debug log level.
-		if !validLogLevel(debugLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, debugLevel)
-		}
-		// Change the logging level for all subsystems.
-		setLogLevels(debugLevel)
-		return nil
-	}
-	// Split the specified string into subsystem/level pairs while detecting issues and update the log levels accordingly.
-	for _, logLevelPair := range strings.Split(debugLevel, ",") {
-		if !strings.Contains(logLevelPair, "=") {
-			str := "The specified debug level contains an invalid " +
-				"subsystem/level pair [%v]"
-			return fmt.Errorf(str, logLevelPair)
-		}
-		// Extract the specified subsystem and log level.
-		fields := strings.Split(logLevelPair, "=")
-		subsysID, logLevel := fields[0], fields[1]
-		// Validate subsystem.
-		if _, exists := subsystemLoggers[subsysID]; !exists {
-			str := "The specified subsystem [%v] is invalid -- " +
-				"supported subsytems %v"
-			return fmt.Errorf(str, subsysID, supportedSubsystems())
-		}
-		// Validate log level.
-		if !validLogLevel(logLevel) {
-			str := "The specified debug level [%v] is invalid"
-			return fmt.Errorf(str, logLevel)
-		}
-		setLogLevel(subsysID, logLevel)
-	}
-	return nil
-}
-
 // validDbType returns whether or not dbType is a supported database type.
 func validDbType(dbType string) bool {
 	for _, knownType := range KnownDbTypes {
@@ -283,8 +237,8 @@ func removeDuplicateAddresses(addrs []string) []string {
 	return result
 }
 
-// normalizeAddress returns addr with the passed default port appended if there is not already a port specified.
-func normalizeAddress(addr, defaultPort string) string {
+// NormalizeAddress returns addr with the passed default port appended if there is not already a port specified.
+func NormalizeAddress(addr, defaultPort string) string {
 	_, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		return net.JoinHostPort(addr, defaultPort)
@@ -292,10 +246,10 @@ func normalizeAddress(addr, defaultPort string) string {
 	return addr
 }
 
-// normalizeAddresses returns a new slice with all the passed peer addresses normalized with the given default port, and all duplicates removed.
-func normalizeAddresses(addrs []string, defaultPort string) []string {
+// NormalizeAddresses returns a new slice with all the passed peer addresses normalized with the given default port, and all duplicates removed.
+func NormalizeAddresses(addrs []string, defaultPort string) []string {
 	for i, addr := range addrs {
-		addrs[i] = normalizeAddress(addr, defaultPort)
+		addrs[i] = NormalizeAddress(addr, defaultPort)
 	}
 	return removeDuplicateAddresses(addrs)
 }
@@ -531,10 +485,10 @@ func loadConfig() (*Config, []string, error) {
 	}
 	cfg.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
-	cfg.DataDir = cleanAndExpandPath(cfg.DataDir)
+	cfg.DataDir = CleanAndExpandPath(cfg.DataDir)
 	cfg.DataDir = filepath.Join(cfg.DataDir, netName(ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
-	cfg.LogDir = cleanAndExpandPath(cfg.LogDir)
+	cfg.LogDir = CleanAndExpandPath(cfg.LogDir)
 	cfg.LogDir = filepath.Join(cfg.LogDir, netName(ActiveNetParams))
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
 	initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
@@ -792,10 +746,10 @@ func loadConfig() (*Config, []string, error) {
 		cfg.minerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
-	cfg.Listeners = normalizeAddresses(cfg.Listeners,
+	cfg.Listeners = NormalizeAddresses(cfg.Listeners,
 		ActiveNetParams.DefaultPort)
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
-	cfg.RPCListeners = normalizeAddresses(cfg.RPCListeners,
+	cfg.RPCListeners = NormalizeAddresses(cfg.RPCListeners,
 		ActiveNetParams.RPCPort)
 	if !cfg.DisableRPC && !cfg.TLS {
 		for _, addr := range cfg.RPCListeners {
@@ -809,9 +763,9 @@ func loadConfig() (*Config, []string, error) {
 		}
 	}
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
-	cfg.AddPeers = normalizeAddresses(cfg.AddPeers,
+	cfg.AddPeers = NormalizeAddresses(cfg.AddPeers,
 		ActiveNetParams.DefaultPort)
-	cfg.ConnectPeers = normalizeAddresses(cfg.ConnectPeers,
+	cfg.ConnectPeers = NormalizeAddresses(cfg.ConnectPeers,
 		ActiveNetParams.DefaultPort)
 	// --noonion and --onion do not mix.
 	if cfg.NoOnion && cfg.OnionProxy != "" {
