@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/module/node"
+	"github.com/tucnak/climax"
 )
 
 var defaultUser, defaultPass = "user", "pa55word"
@@ -107,4 +108,15 @@ func ParseDuration(d, name string, out *time.Duration) (err error) {
 		*out = ti
 	}
 	return
+}
+
+// GenerateFlag allows a flag to be more concisely declared
+func GenerateFlag(name, short, usage, help string, variable bool) climax.Flag {
+	return climax.Flag{
+		Name:     name,
+		Short:    short,
+		Usage:    usage,
+		Help:     help,
+		Variable: variable,
+	}
 }
