@@ -1,4 +1,4 @@
-package node
+package shell
 
 import (
 	"encoding/json"
@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/clog"
-	n "git.parallelcoin.io/pod/module/node"
-	"git.parallelcoin.io/pod/module/node/mempool"
+	n "git.parallelcoin.io/pod/module/shell"
+	"git.parallelcoin.io/pod/module/shell/wallet"
 	"git.parallelcoin.io/pod/run/logger"
 	"github.com/tucnak/climax"
 )
 
-var log = clog.NewSubSystem("Node", clog.Ninf)
+var log = clog.NewSubSystem("Shell", clog.Ninf)
 
 // Config is the default configuration native to ctl
 var Config = new(n.Config)
@@ -35,9 +35,9 @@ var CombinedCfg = ConfigAndLog{
 
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
-	Name:  "node",
-	Brief: "parallelcoin full node",
-	Help:  "distrubutes, verifies and mines blocks for the parallelcoin duo cryptocurrency, as well as optionally providing search indexes for transactions in the database",
+	Name:  "shell",
+	Brief: "parallelcoin wallet",
+	Help:  "check balances, make payments, manage contacts",
 	Flags: []climax.Flag{
 		{
 			Name:     "version",
@@ -634,14 +634,14 @@ var Command = climax.Command{
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			writeLogCfgFile(Config.DataDir + "/logconf")
+			writeLogCfgFile(Config.AppDataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				writeLogCfgFile(Config.DataDir + "/logconf")
+				writeLogCfgFile(Config.AppDataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
 				log.Debug.Print("reading app configuration from", cfgFile)
@@ -656,7 +656,7 @@ var Command = climax.Command{
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				logCfgFile := Config.DataDir + "/logconf"
+				logCfgFile := Config.AppDataDir + "/logconf"
 				log.Debug.Print("reading logger configuration from", logCfgFile)
 				logCfgData, err := ioutil.ReadFile(logCfgFile)
 				if err != nil {
@@ -693,24 +693,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("connectpeers")
 		Config.ConnectPeers = strings.Split(r, " ")
 	}
-	if ctx.Is("disablelisten") {
-		r, _ := ctx.Get("disablelisten")
-		Config.DisableListen = r == "true"
-	}
-	if ctx.Is("listeners") {
-		r, _ := ctx.Get("listeners")
-		Config.Listeners = strings.Split(r, " ")
-	}
 	if ctx.Is("maxpeers") {
 		r, _ := ctx.Get("maxpeers")
 		Config.MaxPeers, err = strconv.Atoi(r)
 		if err != nil {
 			log.Error.Print(err.Error())
 		}
-	}
-	if ctx.Is("disablebanning") {
-		r, _ := ctx.Get("disablebanning")
-		Config.DisableBanning = r == "true"
 	}
 	if ctx.Is("banduration") {
 		r, _ := ctx.Get("banduration")
@@ -748,30 +736,6 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			Config.BanThreshold = uint32(bt)
 		}
 	}
-	if ctx.Is("whitelists") {
-		r, _ := ctx.Get("whitelists")
-		Config.Whitelists = strings.Split(r, " ")
-	}
-	if ctx.Is("rpcuser") {
-		r, _ := ctx.Get("rpcuser")
-		Config.RPCUser = r
-	}
-	if ctx.Is("rpcpass") {
-		r, _ := ctx.Get("rpcpass")
-		Config.RPCPass = r
-	}
-	if ctx.Is("rpclimituser") {
-		r, _ := ctx.Get("rpclimituser")
-		Config.RPCLimitUser = r
-	}
-	if ctx.Is("rpclimitpass") {
-		r, _ := ctx.Get("rpclimitpass")
-		Config.RPCLimitPass = r
-	}
-	if ctx.Is("rpclisteners") {
-		r, _ := ctx.Get("rpclisteners")
-		Config.RPCListeners = strings.Split(r, " ")
-	}
 	if ctx.Is("rpccert") {
 		r, _ := ctx.Get("rpccert")
 		Config.RPCCert = r
@@ -779,18 +743,6 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if ctx.Is("rpckey") {
 		r, _ := ctx.Get("rpckey")
 		Config.RPCKey = r
-	}
-	if ctx.Is("tls") {
-		r, _ := ctx.Get("tls")
-		Config.TLS = r == "true"
-	}
-	if ctx.Is("disablednsseed") {
-		r, _ := ctx.Get("disablednsseed")
-		Config.DisableDNSSeed = r == "true"
-	}
-	if ctx.Is("externalips") {
-		r, _ := ctx.Get("externalips")
-		Config.ExternalIPs = strings.Split(r, " ")
 	}
 	if ctx.Is("proxy") {
 		r, _ := ctx.Get("proxy")
@@ -804,250 +756,22 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		r, _ := ctx.Get("proxypass")
 		Config.ProxyPass = r
 	}
-	if ctx.Is("onion") {
-		r, _ := ctx.Get("onion")
-		Config.OnionProxy = r
-	}
-	if ctx.Is("onionuser") {
-		r, _ := ctx.Get("onionuser")
-		Config.OnionProxyUser = r
-	}
-	if ctx.Is("onionpass") {
-		r, _ := ctx.Get("onionpass")
-		Config.OnionProxyPass = r
-	}
-	if ctx.Is("noonion") {
-		r, _ := ctx.Get("noonion")
-		Config.NoOnion = r == "true"
-	}
-	if ctx.Is("torisolation") {
-		r, _ := ctx.Get("torisolation")
-		Config.TorIsolation = r == "true"
-	}
 	if ctx.Is("network") {
 		r, _ := ctx.Get("network")
 		switch r {
 		case "testnet":
-			Config.TestNet3, Config.RegressionTest, Config.SimNet = true, false, false
+			Config.TestNet3, Config.SimNet = true, false
 		case "regtest":
-			Config.TestNet3, Config.RegressionTest, Config.SimNet = false, true, false
+			Config.TestNet3, Config.SimNet = false, false
 		case "simnet":
-			Config.TestNet3, Config.RegressionTest, Config.SimNet = false, false, true
+			Config.TestNet3, Config.SimNet = false, true
 		default:
-			Config.TestNet3, Config.RegressionTest, Config.SimNet = false, false, false
+			Config.TestNet3, Config.SimNet = false, false
 		}
-	}
-	if ctx.Is("addcheckpoints") {
-		r, _ := ctx.Get("")
-		Config.AddCheckpoints = strings.Split(r, " ")
-	}
-	if ctx.Is("disablecheckpoints") {
-		r, _ := ctx.Get("disablecheckpoints")
-		Config.DisableCheckpoints = r == "true"
-	}
-	if ctx.Is("dbtype") {
-		r, _ := ctx.Get("dbtype")
-		Config.DbType = r
 	}
 	if ctx.Is("profile") {
 		r, _ := ctx.Get("profile")
 		Config.Profile = r
-	}
-	if ctx.Is("cpuprofile") {
-		r, _ := ctx.Get("cpuprofile")
-		Config.CPUProfile = r
-	}
-	if ctx.Is("upnp") {
-		r, _ := ctx.Get("upnp")
-		Config.Upnp = r == "true"
-	}
-	if ctx.Is("minrelaytxfee") {
-		r, _ := ctx.Get("minrelaytxfee")
-		_, err := fmt.Sscanf(r, "%0.f", Config.MinRelayTxFee)
-		if err != nil {
-			log.Errorf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f`",
-				r, Config.MinRelayTxFee)
-		}
-	}
-	if ctx.Is("freetxrelaylimit") {
-		r, _ := ctx.Get("freetxrelaylimit")
-		_, err = fmt.Sscanf(r, "%d", Config.FreeTxRelayLimit)
-		if err != nil {
-			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.FreeTxRelayLimit)
-		}
-	}
-	if ctx.Is("norelaypriority") {
-		r, _ := ctx.Get("norelaypriority")
-		Config.NoRelayPriority = r == "true"
-	}
-	if ctx.Is("trickleinterval") {
-		r, _ := ctx.Get("trickleinterval")
-		error := false
-		var ti time.Duration
-		switch r[len(r)-1] {
-		case 's':
-			ts, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(ts) * time.Second
-		case 'm':
-			tm, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(tm) * time.Minute
-		case 'h':
-			th, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(th) * time.Hour
-		case 'd':
-			td, err := strconv.Atoi(r[:len(r)-1])
-			error = err != nil
-			ti = time.Duration(td) * 24 * time.Hour
-		}
-		if error {
-			log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, Config.TrickleInterval, err.Error())
-		}
-		Config.TrickleInterval = ti
-	}
-	if ctx.Is("maxorphantxs") {
-		r, _ := ctx.Get("maxorphantxs")
-		mot, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed maxorphantxs: `%s` leaving set at `%d`",
-				r, Config.MaxOrphanTxs)
-		} else {
-			Config.MaxOrphanTxs = mot
-		}
-	}
-	if ctx.Is("algo") {
-		r, _ := ctx.Get("algo")
-		Config.Algo = r
-	}
-	if ctx.Is("generate") {
-		r, _ := ctx.Get("generate")
-		Config.Generate = r == "true"
-	}
-	if ctx.Is("genthreads") {
-		r, _ := ctx.Get("genthreads")
-		gt, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.GenThreads)
-		} else {
-			Config.GenThreads = int32(gt)
-		}
-	}
-	if ctx.Is("miningaddrs") {
-		r, _ := ctx.Get("miningaddrs")
-		Config.MiningAddrs = strings.Split(r, " ")
-	}
-	if ctx.Is("minerlistener") {
-		r, _ := ctx.Get("minerlistener")
-		Config.MinerListener = r
-	}
-	if ctx.Is("minerpass") {
-		r, _ := ctx.Get("minerpass")
-		Config.MinerPass = r
-	}
-	if ctx.Is("blockminsize") {
-		r, _ := ctx.Get("blockminsize")
-		bms, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed blockminsize: `%s` leaving set at `%d`",
-				r, Config.BlockMinSize)
-		} else {
-			Config.BlockMinSize = uint32(bms)
-		}
-	}
-	if ctx.Is("blockmaxsize") {
-		r, _ := ctx.Get("blockmaxsize")
-		bms, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed blockmaxsize: `%s` leaving set at `%d`",
-				r, Config.BlockMaxSize)
-		} else {
-			Config.BlockMaxSize = uint32(bms)
-		}
-	}
-	if ctx.Is("blockminweight") {
-		r, _ := ctx.Get("blockminweight")
-		bmw, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed blockminweight: `%s` leaving set at `%d`",
-				r, Config.BlockMinWeight)
-		} else {
-			Config.BlockMinWeight = uint32(bmw)
-		}
-	}
-	if ctx.Is("blockmaxweight") {
-		r, _ := ctx.Get("blockmaxweight")
-		bmw, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed blockmaxweight: `%s` leaving set at `%d`",
-				r, Config.BlockMaxWeight)
-		} else {
-			Config.BlockMaxWeight = uint32(bmw)
-		}
-	}
-	if ctx.Is("blockprioritysize") {
-		r, _ := ctx.Get("blockprioritysize")
-		bps, err := strconv.Atoi(r)
-		if err != nil {
-			log.Errorf.Print("malformed blockprioritysize: `%s` leaving set at `%d`",
-				r, Config.BlockPrioritySize)
-		} else {
-			Config.BlockPrioritySize = uint32(bps)
-		}
-	}
-	if ctx.Is("uacomment") {
-		r, _ := ctx.Get("uacomment")
-		Config.UserAgentComments = strings.Split(r, " ")
-	}
-	if ctx.Is("nopeerbloomfilters") {
-		r, _ := ctx.Get("nopeerbloomfilters")
-		Config.NoPeerBloomFilters = r == "true"
-	}
-	if ctx.Is("nocfilters") {
-		r, _ := ctx.Get("nocfilters")
-		Config.NoCFilters = r == "true"
-	}
-	if ctx.Is("dropcfindex") {
-		Config.DropCfIndex = true
-	}
-	if ctx.Is("sigcachemaxsize") {
-		r, _ := ctx.Get("sigcachemaxsize")
-		sms, err := strconv.Atoi(r)
-		if err != nil || sms < 0 {
-			log.Errorf.Print("malformed sigcachemaxsize: `%s` leaving set at `%d`",
-				r, Config.SigCacheMaxSize)
-		} else {
-			Config.SigCacheMaxSize = uint(sms)
-		}
-	}
-	if ctx.Is("blocksonly") {
-		r, _ := ctx.Get("blocksonly")
-		Config.BlocksOnly = r == "true"
-	}
-	if ctx.Is("txindex") {
-		r, _ := ctx.Get("txindex")
-		Config.TxIndex = r == "true"
-	}
-	if ctx.Is("droptxindex") {
-		Config.DropTxIndex = true
-	}
-	if ctx.Is("addrindex") {
-		r, _ := ctx.Get("addrindex")
-		Config.AddrIndex = r == "true"
-	}
-	if ctx.Is("dropaddrindex") {
-		Config.DropAddrIndex = true
-	}
-	if ctx.Is("relaynonstd") {
-		r, _ := ctx.Get("relaynonstd")
-		Config.RelayNonStd = r == "true"
-	}
-	if ctx.Is("rejectnonstd") {
-		r, _ := ctx.Get("rejectnonstd")
-		Config.RejectNonStd = r == "true"
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
@@ -1090,32 +814,17 @@ func writeDefaultConfig(cfgFile string) {
 
 func defaultConfig() *n.Config {
 	return &n.Config{
-		ConfigFile:           n.DefaultConfigFile,
-		MaxPeers:             n.DefaultMaxPeers,
-		BanDuration:          n.DefaultBanDuration,
-		BanThreshold:         n.DefaultBanThreshold,
-		RPCMaxClients:        n.DefaultMaxRPCClients,
-		RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
-		RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-		DataDir:              n.DefaultDataDir,
-		LogDir:               n.DefaultLogDir,
-		DbType:               n.DefaultDbType,
-		RPCKey:               n.DefaultRPCKeyFile,
-		RPCCert:              n.DefaultRPCCertFile,
-		MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
-		FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
-		TrickleInterval:      n.DefaultTrickleInterval,
-		BlockMinSize:         n.DefaultBlockMinSize,
-		BlockMaxSize:         n.DefaultBlockMaxSize,
-		BlockMinWeight:       n.DefaultBlockMinWeight,
-		BlockMaxWeight:       n.DefaultBlockMaxWeight,
-		BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
-		MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
-		SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
-		Generate:             n.DefaultGenerate,
-		GenThreads:           1,
-		TxIndex:              n.DefaultTxIndex,
-		AddrIndex:            n.DefaultAddrIndex,
-		Algo:                 n.DefaultAlgo,
+		ConfigFile:             n.DefaultConfigFile,
+		DataDir:                n.DefaultDataDir,
+		AppDataDir:             n.DefaultAppDataDir,
+		LogDir:                 n.DefaultLogDir,
+		RPCKey:                 n.DefaultRPCKeyFile,
+		RPCCert:                n.DefaultRPCCertFile,
+		WalletPass:             wallet.InsecurePubPassphrase,
+		CAFile:                 "",
+		LegacyRPCMaxClients:    n.DefaultRPCMaxClients,
+		LegacyRPCMaxWebsockets: n.DefaultRPCMaxWebsockets,
+		AddPeers:               []string{},
+		ConnectPeers:           []string{},
 	}
 }

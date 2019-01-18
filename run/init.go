@@ -1,11 +1,13 @@
 package pod
 
 import (
-	c "git.parallelcoin.io/pod/module/ctl"
-	n "git.parallelcoin.io/pod/module/node"
+	"git.parallelcoin.io/pod/module/ctl"
+	"git.parallelcoin.io/pod/module/node"
+	shell "git.parallelcoin.io/pod/module/shell"
 )
 
 func init() {
-	ensureDir(c.DefaultConfigFile)
-	ensureDir(n.DefaultConfigFile)
+	ensureDir(ctl.DefaultConfigFile)
+	ensureDir(node.DefaultConfigFile)
+	ensureDir(shell.DefaultConfigFile)
 }

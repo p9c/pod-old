@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"sync"
 
-	"git.parallelcoin.io/pod/module/shell/wallet"
 	"git.parallelcoin.io/pod/module/shell/chain"
 	"git.parallelcoin.io/pod/module/shell/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/module/shell/wallet"
 )
 
 var (
@@ -50,7 +50,7 @@ func walletMain() error {
 	}()
 
 	// Show version at startup.
-	log.Infof("Version %s", version())
+	log.Infof("Version %s", Version())
 
 	if cfg.Profile != "" {
 		go func() {

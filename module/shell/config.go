@@ -32,12 +32,13 @@ const (
 
 var (
 	DefaultDataDir     = util.AppDataDir("pod", false)
-	DefaultAppDataDir  = filepath.Join(util.AppDataDir("pod", false), "wallet")
+	DefaultAppDataDir  = filepath.Join(DefaultDataDir, "shell")
 	DefaultCAFile      = filepath.Join(DefaultDataDir, "rpc.cert")
 	DefaultConfigFile  = filepath.Join(DefaultAppDataDir, DefaultConfigFilename)
 	DefaultRPCKeyFile  = filepath.Join(DefaultDataDir, "rpc.key")
 	DefaultRPCCertFile = filepath.Join(DefaultDataDir, "rpc.cert")
-	DefaultLogDir      = filepath.Join(DefaultAppDataDir, DefaultLogDirname)
+	DefaultLogFilePath = filepath.Join(DefaultAppDataDir, "log")
+	DefaultLogDir      = DefaultAppDataDir
 	DefaultGUI         = false
 )
 
