@@ -3,7 +3,7 @@ package pod
 import (
 	"git.parallelcoin.io/pod/module/ctl"
 	"git.parallelcoin.io/pod/module/node"
-	shell "git.parallelcoin.io/pod/module/shell"
+	shell "git.parallelcoin.io/pod/module/wallet"
 )
 
 func init() {

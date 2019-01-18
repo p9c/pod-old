@@ -4,6 +4,7 @@ import (
 	"git.parallelcoin.io/pod/run/ctl"
 	"git.parallelcoin.io/pod/run/node"
 	"git.parallelcoin.io/pod/run/shell"
+	"git.parallelcoin.io/pod/run/wallet"
 	"github.com/tucnak/climax"
 )
 
@@ -24,6 +25,7 @@ var PodApp = climax.Application{
 func Main() (err error) {
 	PodApp.AddCommand(ctl.Command)
 	PodApp.AddCommand(node.Command)
+	PodApp.AddCommand(wallet.Command)
 	PodApp.AddCommand(shell.Command)
 	PodApp.Run()
 	// interrupt = interruptListener()

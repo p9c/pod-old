@@ -5,30 +5,35 @@ import (
 )
 
 // Levels are the configured log level settings
-var Levels = map[string]string{
-	"log-database":            "info",
-	"log-txscript":            "info",
-	"log-peer":                "info",
-	"log-netsync":             "info",
-	"log-rpcclient":           "info",
-	"log-addrmgr":             "info",
-	"log-blockchain-indexers": "info",
-	"log-blockchain":          "info",
-	"log-mining-cpuminer":     "info",
-	"log-mining":              "info",
-	"log-mining-controller":   "info",
-	"log-connmgr":             "info",
-	"log-spv":                 "info",
-	"log-node-mempool":        "info",
-	"log-node":                "info",
-	"log-shell-wallet":        "info",
-	"log-shell-tx":            "info",
-	"log-shell-votingpool":    "info",
-	"log-shell":               "info",
-	"log-shell-chain":         "info",
-	"log-shell-rpc-rpcserver": "info",
-	"log-shell-rpc-legacyrpc": "info",
-	"log-shell-wtxmgr":        "info",
+var Levels = GetDefault()
+
+// GetDefault returns a fresh shiny new default levels map
+func GetDefault() map[string]string {
+	return map[string]string{
+		"log-database":             "info",
+		"log-txscript":             "info",
+		"log-peer":                 "info",
+		"log-netsync":              "info",
+		"log-rpcclient":            "info",
+		"log-addrmgr":              "info",
+		"log-blockchain-indexers":  "info",
+		"log-blockchain":           "info",
+		"log-mining-cpuminer":      "info",
+		"log-mining":               "info",
+		"log-mining-controller":    "info",
+		"log-connmgr":              "info",
+		"log-spv":                  "info",
+		"log-node-mempool":         "info",
+		"log-node":                 "info",
+		"log-wallet-wallet":        "info",
+		"log-wallet-tx":            "info",
+		"log-wallet-votingpool":    "info",
+		"log-wallet":               "info",
+		"log-wallet-chain":         "info",
+		"log-wallet-rpc-rpcserver": "info",
+		"log-wallet-rpc-legacyrpc": "info",
+		"log-wallet-wtxmgr":        "info",
+	}
 }
 
 // SetLogging sets the logging settings according to the provided context
@@ -93,37 +98,37 @@ func SetLogging(ctx *climax.Context) {
 		r, _ := ctx.Get("log-node")
 		Levels["log-node"] = r
 	}
-	if ctx.Is("log-shell-wallet") {
-		r, _ := ctx.Get("log-shell-wallet")
-		Levels["log-shell-wallet"] = r
+	if ctx.Is("log-wallet-wallet") {
+		r, _ := ctx.Get("log-wallet-wallet")
+		Levels["log-wallet-wallet"] = r
 	}
-	if ctx.Is("log-shell-tx") {
-		r, _ := ctx.Get("log-shell-tx")
-		Levels["log-shell-tx"] = r
+	if ctx.Is("log-wallet-tx") {
+		r, _ := ctx.Get("log-wallet-tx")
+		Levels["log-wallet-tx"] = r
 	}
-	if ctx.Is("log-shell-votingpool") {
-		r, _ := ctx.Get("log-shell-votingpool")
-		Levels["log-shell-votingpool"] = r
+	if ctx.Is("log-wallet-votingpool") {
+		r, _ := ctx.Get("log-wallet-votingpool")
+		Levels["log-wallet-votingpool"] = r
 	}
-	if ctx.Is("log-shell") {
-		r, _ := ctx.Get("log-shell")
-		Levels["log-shell"] = r
+	if ctx.Is("log-wallet") {
+		r, _ := ctx.Get("log-wallet")
+		Levels["log-wallet"] = r
 	}
-	if ctx.Is("log-shell-chain") {
-		r, _ := ctx.Get("log-shell-chain")
-		Levels["log-shell-chain"] = r
+	if ctx.Is("log-wallet-chain") {
+		r, _ := ctx.Get("log-wallet-chain")
+		Levels["log-wallet-chain"] = r
 	}
-	if ctx.Is("log-shell-rpc-rpcserver") {
-		r, _ := ctx.Get("log-shell-rpc")
-		Levels["log-shell-rpc"] = r
+	if ctx.Is("log-wallet-rpc-rpcserver") {
+		r, _ := ctx.Get("log-wallet-rpc")
+		Levels["log-wallet-rpc"] = r
 	}
-	if ctx.Is("log-shell-rpc-legacyrpc") {
-		r, _ := ctx.Get("log-shell-rpc")
-		Levels["log-shell-rpc"] = r
+	if ctx.Is("log-wallet-rpc-legacyrpc") {
+		r, _ := ctx.Get("log-wallet-rpc")
+		Levels["log-wallet-rpc"] = r
 	}
-	if ctx.Is("log-shell-wtxmgr") {
-		r, _ := ctx.Get("log-shell-wtxmgr")
-		Levels["log-shell-wtxmgr"] = r
+	if ctx.Is("log-wallet-wtxmgr") {
+		r, _ := ctx.Get("log-wallet-wtxmgr")
+		Levels["log-wallet-wtxmgr"] = r
 	}
 }
 
@@ -219,50 +224,50 @@ var debugLevels = []climax.Flag{
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-wallet",
-		Usage:    "--log-shell-wallet",
+		Name:     "log-wallet-wallet",
+		Usage:    "--log-wallet-wallet",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-tx",
-		Usage:    "--log-shell-tx",
+		Name:     "log-wallet-tx",
+		Usage:    "--log-wallet-tx",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-votingpool",
-		Usage:    "--log-shell-votingpool",
+		Name:     "log-wallet-votingpool",
+		Usage:    "--log-wallet-votingpool",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell",
-		Usage:    "--log-shell",
+		Name:     "log-wallet",
+		Usage:    "--log-wallet",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-chain",
-		Usage:    "--log-shell-chain",
+		Name:     "log-wallet-chain",
+		Usage:    "--log-wallet-chain",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-rpc-rpcserver",
-		Usage:    "--log-shell-rpc-rpcserver",
+		Name:     "log-wallet-rpc-rpcserver",
+		Usage:    "--log-wallet-rpc-rpcserver",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-rpc-legacyrpc",
-		Usage:    "--log-shell-rpc-legacyrpc",
+		Name:     "log-wallet-rpc-legacyrpc",
+		Usage:    "--log-wallet-rpc-legacyrpc",
 		Help:     "",
 		Variable: true,
 	},
 	{
-		Name:     "log-shell-wtxmgr",
-		Usage:    "--log-shell-wtxmgr",
+		Name:     "log-wallet-wtxmgr",
+		Usage:    "--log-wallet-wtxmgr",
 		Help:     "",
 		Variable: true,
 	},

@@ -8,7 +8,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/shell/waddrmgr"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 )
 
 // getUtxoResult is a simple pair type holding a spend report and error.

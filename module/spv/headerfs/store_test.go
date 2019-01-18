@@ -14,7 +14,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/module/shell/walletdb"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/lib/wire"
 	"github.com/davecgh/go-spew/spew"
 )

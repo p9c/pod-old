@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"git.parallelcoin.io/pod/module/shell/walletdb"
-	_ "git.parallelcoin.io/pod/module/shell/walletdb/bdb"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
 )
 
 func createTestIndex() (func(), *headerIndex, error) {

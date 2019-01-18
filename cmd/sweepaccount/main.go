@@ -16,9 +16,9 @@ import (
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/shell/netparams"
-	"git.parallelcoin.io/pod/module/shell/wallet/txauthor"
-	"git.parallelcoin.io/pod/module/shell/wallet/txrules"
+	"git.parallelcoin.io/pod/module/wallet/netparams"
+	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
+	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
 	"github.com/jessevdk/go-flags"
 )
 

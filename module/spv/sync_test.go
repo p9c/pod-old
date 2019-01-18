@@ -25,10 +25,10 @@ import (
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/shell/waddrmgr"
-	"git.parallelcoin.io/pod/module/shell/wallet/txauthor"
-	"git.parallelcoin.io/pod/module/shell/walletdb"
-	_ "git.parallelcoin.io/pod/module/shell/walletdb/bdb"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
 )
 
 var (

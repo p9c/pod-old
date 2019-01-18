@@ -648,7 +648,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Default RPC to listen on localhost only.
 	if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
-		addrs, err := net.LookupHost("localhost")
+		addrs, err := net.LookupHost("127.0.0.1:11048")
 		if err != nil {
 			return nil, nil, err
 		}

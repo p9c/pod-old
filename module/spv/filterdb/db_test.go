@@ -11,8 +11,8 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/util/gcs"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
-	"git.parallelcoin.io/pod/module/shell/walletdb"
-	_ "git.parallelcoin.io/pod/module/shell/walletdb/bdb"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
 )
 
 func createTestDatabase() (func(), FilterDatabase, error) {
