@@ -23,9 +23,6 @@ import (
 
 var log = clog.NewSubSystem("Shell", clog.Ninf)
 
-// Config is the default configuration native to ctl
-var Config = new(Cfg)
-
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
 	DataDir      string
@@ -35,6 +32,12 @@ type Cfg struct {
 	Wallet       *w.Config
 	Levels       map[string]string
 }
+
+var (
+	DefaultDataDir      = n.DefaultDataDir
+	DefaultAppDataDir   = filepath.Join(n.DefaultHomeDir, "shell")
+	DefaultConfFileName = filepath.Join(filepath.Join(n.DefaultHomeDir, "shell"), "conf")
+)
 
 // CombinedCfg is the combined app and log levels configuration
 var CombinedCfg = Cfg{
@@ -639,19 +642,19 @@ var Command = climax.Command{
 
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = n.DefaultConfigFile
+			cfgFile = DefaultConfFileName
 		}
 		if ctx.Is("init") {
 			log.Debugf.Print("writing default configuration to %s", cfgFile)
 			writeDefaultConfig(cfgFile)
-			writeLogCfgFile(Config.Node.DataDir + "/logconf")
+			writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
 			configNode(&ctx, cfgFile)
 		} else {
 			log.Infof.Print("loading configuration from %s", cfgFile)
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log.Warn.Print("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
-				writeLogCfgFile(Config.Node.DataDir + "/logconf")
+				writeLogCfgFile(CombinedCfg.AppDataDir + "/logconf")
 				configNode(&ctx, cfgFile)
 			} else {
 				log.Debug.Print("reading app configuration from", cfgFile)
@@ -661,19 +664,19 @@ var Command = climax.Command{
 					clog.Shutdown()
 				}
 				log.Tracef.Print("parsing app configuration\n%s", cfgData)
-				err = json.Unmarshal(cfgData, CombinedCfg)
+				err = json.Unmarshal(cfgData, &CombinedCfg)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				logCfgFile := Config.Node.DataDir + "/logconf"
+				logCfgFile := CombinedCfg.AppDataDir + "/logconf"
 				log.Debug.Print("reading logger configuration from", logCfgFile)
 				logCfgData, err := ioutil.ReadFile(logCfgFile)
 				if err != nil {
 					log.Error.Print(err.Error())
 					clog.Shutdown()
 				}
-				log.Tracef.Print("parsing logger configuration\n%s", logCfgData)
+				log.Tracef.Print("parsing logger configuration from %s\n%s", logCfgFile, logCfgData)
 				err = json.Unmarshal(logCfgData, &CombinedCfg.Levels)
 				if err != nil {
 					log.Error.Print(err.Error())
@@ -693,34 +696,34 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// Apply all configurations specified on commandline
 	if ctx.Is("datadir") {
 		r, _ := ctx.Get("datadir")
-		Config.Node.DataDir = r
+		CombinedCfg.Node.DataDir = r
 	}
 	if ctx.Is("addpeers") {
 		r, _ := ctx.Get("addpeers")
-		Config.Node.AddPeers = strings.Split(r, " ")
+		CombinedCfg.Node.AddPeers = strings.Split(r, " ")
 	}
 	if ctx.Is("connectpeers") {
 		r, _ := ctx.Get("connectpeers")
-		Config.Node.ConnectPeers = strings.Split(r, " ")
+		CombinedCfg.Node.ConnectPeers = strings.Split(r, " ")
 	}
 	if ctx.Is("disablelisten") {
 		r, _ := ctx.Get("disablelisten")
-		Config.Node.DisableListen = r == "true"
+		CombinedCfg.Node.DisableListen = r == "true"
 	}
 	if ctx.Is("listeners") {
 		r, _ := ctx.Get("listeners")
-		Config.Node.Listeners = strings.Split(r, " ")
+		CombinedCfg.Node.Listeners = strings.Split(r, " ")
 	}
 	if ctx.Is("maxpeers") {
 		r, _ := ctx.Get("maxpeers")
-		Config.Node.MaxPeers, err = strconv.Atoi(r)
+		CombinedCfg.Node.MaxPeers, err = strconv.Atoi(r)
 		if err != nil {
 			log.Error.Print(err.Error())
 		}
 	}
 	if ctx.Is("disablebanning") {
 		r, _ := ctx.Get("disablebanning")
-		Config.Node.DisableBanning = r == "true"
+		CombinedCfg.Node.DisableBanning = r == "true"
 	}
 	if ctx.Is("banduration") {
 		r, _ := ctx.Get("banduration")
@@ -745,151 +748,151 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			bd = time.Duration(td) * 24 * time.Hour
 		}
 		if error {
-			log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, Config.Node.BanDuration, err.Error())
+			log.Errorf.Print("malformed banduration `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanDuration, err.Error())
 		}
-		Config.Node.BanDuration = bd
+		CombinedCfg.Node.BanDuration = bd
 	}
 	if ctx.Is("banthreshold") {
 		r, _ := ctx.Get("banthreshold")
 		bt, err := strconv.Atoi(r)
 		if err != nil {
-			log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, Config.Node.BanThreshold, err.Error())
+			log.Errorf.Print("malformed banthreshold `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.BanThreshold, err.Error())
 		} else {
-			Config.Node.BanThreshold = uint32(bt)
+			CombinedCfg.Node.BanThreshold = uint32(bt)
 		}
 	}
 	if ctx.Is("whitelists") {
 		r, _ := ctx.Get("whitelists")
-		Config.Node.Whitelists = strings.Split(r, " ")
+		CombinedCfg.Node.Whitelists = strings.Split(r, " ")
 	}
 	if ctx.Is("rpcuser") {
 		r, _ := ctx.Get("rpcuser")
-		Config.Node.RPCUser = r
+		CombinedCfg.Node.RPCUser = r
 	}
 	if ctx.Is("rpcpass") {
 		r, _ := ctx.Get("rpcpass")
-		Config.Node.RPCPass = r
+		CombinedCfg.Node.RPCPass = r
 	}
 	if ctx.Is("rpclimituser") {
 		r, _ := ctx.Get("rpclimituser")
-		Config.Node.RPCLimitUser = r
+		CombinedCfg.Node.RPCLimitUser = r
 	}
 	if ctx.Is("rpclimitpass") {
 		r, _ := ctx.Get("rpclimitpass")
-		Config.Node.RPCLimitPass = r
+		CombinedCfg.Node.RPCLimitPass = r
 	}
 	if ctx.Is("rpclisteners") {
 		r, _ := ctx.Get("rpclisteners")
-		Config.Node.RPCListeners = strings.Split(r, " ")
+		CombinedCfg.Node.RPCListeners = strings.Split(r, " ")
 	}
 	if ctx.Is("rpccert") {
 		r, _ := ctx.Get("rpccert")
-		Config.Node.RPCCert = r
+		CombinedCfg.Node.RPCCert = r
 	}
 	if ctx.Is("rpckey") {
 		r, _ := ctx.Get("rpckey")
-		Config.Node.RPCKey = r
+		CombinedCfg.Node.RPCKey = r
 	}
 	if ctx.Is("tls") {
 		r, _ := ctx.Get("tls")
-		Config.Node.TLS = r == "true"
+		CombinedCfg.Node.TLS = r == "true"
 	}
 	if ctx.Is("disablednsseed") {
 		r, _ := ctx.Get("disablednsseed")
-		Config.Node.DisableDNSSeed = r == "true"
+		CombinedCfg.Node.DisableDNSSeed = r == "true"
 	}
 	if ctx.Is("externalips") {
 		r, _ := ctx.Get("externalips")
-		Config.Node.ExternalIPs = strings.Split(r, " ")
+		CombinedCfg.Node.ExternalIPs = strings.Split(r, " ")
 	}
 	if ctx.Is("proxy") {
 		r, _ := ctx.Get("proxy")
-		Config.Node.Proxy = r
+		CombinedCfg.Node.Proxy = r
 	}
 	if ctx.Is("proxyuser") {
 		r, _ := ctx.Get("proxyuser")
-		Config.Node.ProxyUser = r
+		CombinedCfg.Node.ProxyUser = r
 	}
 	if ctx.Is("proxypass") {
 		r, _ := ctx.Get("proxypass")
-		Config.Node.ProxyPass = r
+		CombinedCfg.Node.ProxyPass = r
 	}
 	if ctx.Is("onion") {
 		r, _ := ctx.Get("onion")
-		Config.Node.OnionProxy = r
+		CombinedCfg.Node.OnionProxy = r
 	}
 	if ctx.Is("onionuser") {
 		r, _ := ctx.Get("onionuser")
-		Config.Node.OnionProxyUser = r
+		CombinedCfg.Node.OnionProxyUser = r
 	}
 	if ctx.Is("onionpass") {
 		r, _ := ctx.Get("onionpass")
-		Config.Node.OnionProxyPass = r
+		CombinedCfg.Node.OnionProxyPass = r
 	}
 	if ctx.Is("noonion") {
 		r, _ := ctx.Get("noonion")
-		Config.Node.NoOnion = r == "true"
+		CombinedCfg.Node.NoOnion = r == "true"
 	}
 	if ctx.Is("torisolation") {
 		r, _ := ctx.Get("torisolation")
-		Config.Node.TorIsolation = r == "true"
+		CombinedCfg.Node.TorIsolation = r == "true"
 	}
 	if ctx.Is("network") {
 		r, _ := ctx.Get("network")
 		switch r {
 		case "testnet":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = true, false, false
+			CombinedCfg.Node.TestNet3, CombinedCfg.Node.RegressionTest, CombinedCfg.Node.SimNet = true, false, false
 		case "regtest":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, true, false
+			CombinedCfg.Node.TestNet3, CombinedCfg.Node.RegressionTest, CombinedCfg.Node.SimNet = false, true, false
 		case "simnet":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, false, true
+			CombinedCfg.Node.TestNet3, CombinedCfg.Node.RegressionTest, CombinedCfg.Node.SimNet = false, false, true
 		default:
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, false, false
+			CombinedCfg.Node.TestNet3, CombinedCfg.Node.RegressionTest, CombinedCfg.Node.SimNet = false, false, false
 		}
 	}
 	if ctx.Is("addcheckpoints") {
 		r, _ := ctx.Get("")
-		Config.Node.AddCheckpoints = strings.Split(r, " ")
+		CombinedCfg.Node.AddCheckpoints = strings.Split(r, " ")
 	}
 	if ctx.Is("disablecheckpoints") {
 		r, _ := ctx.Get("disablecheckpoints")
-		Config.Node.DisableCheckpoints = r == "true"
+		CombinedCfg.Node.DisableCheckpoints = r == "true"
 	}
 	if ctx.Is("dbtype") {
 		r, _ := ctx.Get("dbtype")
-		Config.Node.DbType = r
+		CombinedCfg.Node.DbType = r
 	}
 	if ctx.Is("profile") {
 		r, _ := ctx.Get("profile")
-		Config.Node.Profile = r
+		CombinedCfg.Node.Profile = r
 	}
 	if ctx.Is("cpuprofile") {
 		r, _ := ctx.Get("cpuprofile")
-		Config.Node.CPUProfile = r
+		CombinedCfg.Node.CPUProfile = r
 	}
 	if ctx.Is("upnp") {
 		r, _ := ctx.Get("upnp")
-		Config.Node.Upnp = r == "true"
+		CombinedCfg.Node.Upnp = r == "true"
 	}
 	if ctx.Is("minrelaytxfee") {
 		r, _ := ctx.Get("minrelaytxfee")
-		_, err := fmt.Sscanf(r, "%0.f", Config.Node.MinRelayTxFee)
+		_, err := fmt.Sscanf(r, "%0.f", CombinedCfg.Node.MinRelayTxFee)
 		if err != nil {
 			log.Errorf.Print("malformed minrelaytxfee: `%s` leaving set at `%0.f`",
-				r, Config.Node.MinRelayTxFee)
+				r, CombinedCfg.Node.MinRelayTxFee)
 		}
 	}
 	if ctx.Is("freetxrelaylimit") {
 		r, _ := ctx.Get("freetxrelaylimit")
-		_, err = fmt.Sscanf(r, "%d", Config.Node.FreeTxRelayLimit)
+		_, err = fmt.Sscanf(r, "%d", CombinedCfg.Node.FreeTxRelayLimit)
 		if err != nil {
 			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.Node.FreeTxRelayLimit)
+				r, CombinedCfg.Node.FreeTxRelayLimit)
 		}
 	}
 	if ctx.Is("norelaypriority") {
 		r, _ := ctx.Get("norelaypriority")
-		Config.Node.NoRelayPriority = r == "true"
+		CombinedCfg.Node.NoRelayPriority = r == "true"
 	}
 	if ctx.Is("trickleinterval") {
 		r, _ := ctx.Get("trickleinterval")
@@ -914,58 +917,58 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			ti = time.Duration(td) * 24 * time.Hour
 		}
 		if error {
-			log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, Config.Node.TrickleInterval, err.Error())
+			log.Errorf.Print("malformed trickleinterval `%s` leaving set at `%s` err: %s", r, CombinedCfg.Node.TrickleInterval, err.Error())
 		}
-		Config.Node.TrickleInterval = ti
+		CombinedCfg.Node.TrickleInterval = ti
 	}
 	if ctx.Is("maxorphantxs") {
 		r, _ := ctx.Get("maxorphantxs")
 		mot, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed maxorphantxs: `%s` leaving set at `%d`",
-				r, Config.Node.MaxOrphanTxs)
+				r, CombinedCfg.Node.MaxOrphanTxs)
 		} else {
-			Config.Node.MaxOrphanTxs = mot
+			CombinedCfg.Node.MaxOrphanTxs = mot
 		}
 	}
 	if ctx.Is("algo") {
 		r, _ := ctx.Get("algo")
-		Config.Node.Algo = r
+		CombinedCfg.Node.Algo = r
 	}
 	if ctx.Is("generate") {
 		r, _ := ctx.Get("generate")
-		Config.Node.Generate = r == "true"
+		CombinedCfg.Node.Generate = r == "true"
 	}
 	if ctx.Is("genthreads") {
 		r, _ := ctx.Get("genthreads")
 		gt, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed freetxrelaylimit: `%s` leaving set at `%d`",
-				r, Config.Node.GenThreads)
+				r, CombinedCfg.Node.GenThreads)
 		} else {
-			Config.Node.GenThreads = int32(gt)
+			CombinedCfg.Node.GenThreads = int32(gt)
 		}
 	}
 	if ctx.Is("miningaddrs") {
 		r, _ := ctx.Get("miningaddrs")
-		Config.Node.MiningAddrs = strings.Split(r, " ")
+		CombinedCfg.Node.MiningAddrs = strings.Split(r, " ")
 	}
 	if ctx.Is("minerlistener") {
 		r, _ := ctx.Get("minerlistener")
-		Config.Node.MinerListener = r
+		CombinedCfg.Node.MinerListener = r
 	}
 	if ctx.Is("minerpass") {
 		r, _ := ctx.Get("minerpass")
-		Config.Node.MinerPass = r
+		CombinedCfg.Node.MinerPass = r
 	}
 	if ctx.Is("blockminsize") {
 		r, _ := ctx.Get("blockminsize")
 		bms, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed blockminsize: `%s` leaving set at `%d`",
-				r, Config.Node.BlockMinSize)
+				r, CombinedCfg.Node.BlockMinSize)
 		} else {
-			Config.Node.BlockMinSize = uint32(bms)
+			CombinedCfg.Node.BlockMinSize = uint32(bms)
 		}
 	}
 	if ctx.Is("blockmaxsize") {
@@ -973,9 +976,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		bms, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed blockmaxsize: `%s` leaving set at `%d`",
-				r, Config.Node.BlockMaxSize)
+				r, CombinedCfg.Node.BlockMaxSize)
 		} else {
-			Config.Node.BlockMaxSize = uint32(bms)
+			CombinedCfg.Node.BlockMaxSize = uint32(bms)
 		}
 	}
 	if ctx.Is("blockminweight") {
@@ -983,9 +986,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		bmw, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed blockminweight: `%s` leaving set at `%d`",
-				r, Config.Node.BlockMinWeight)
+				r, CombinedCfg.Node.BlockMinWeight)
 		} else {
-			Config.Node.BlockMinWeight = uint32(bmw)
+			CombinedCfg.Node.BlockMinWeight = uint32(bmw)
 		}
 	}
 	if ctx.Is("blockmaxweight") {
@@ -993,9 +996,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		bmw, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed blockmaxweight: `%s` leaving set at `%d`",
-				r, Config.Node.BlockMaxWeight)
+				r, CombinedCfg.Node.BlockMaxWeight)
 		} else {
-			Config.Node.BlockMaxWeight = uint32(bmw)
+			CombinedCfg.Node.BlockMaxWeight = uint32(bmw)
 		}
 	}
 	if ctx.Is("blockprioritysize") {
@@ -1003,73 +1006,73 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		bps, err := strconv.Atoi(r)
 		if err != nil {
 			log.Errorf.Print("malformed blockprioritysize: `%s` leaving set at `%d`",
-				r, Config.Node.BlockPrioritySize)
+				r, CombinedCfg.Node.BlockPrioritySize)
 		} else {
-			Config.Node.BlockPrioritySize = uint32(bps)
+			CombinedCfg.Node.BlockPrioritySize = uint32(bps)
 		}
 	}
 	if ctx.Is("uacomment") {
 		r, _ := ctx.Get("uacomment")
-		Config.Node.UserAgentComments = strings.Split(r, " ")
+		CombinedCfg.Node.UserAgentComments = strings.Split(r, " ")
 	}
 	if ctx.Is("nopeerbloomfilters") {
 		r, _ := ctx.Get("nopeerbloomfilters")
-		Config.Node.NoPeerBloomFilters = r == "true"
+		CombinedCfg.Node.NoPeerBloomFilters = r == "true"
 	}
 	if ctx.Is("nocfilters") {
 		r, _ := ctx.Get("nocfilters")
-		Config.Node.NoCFilters = r == "true"
+		CombinedCfg.Node.NoCFilters = r == "true"
 	}
 	if ctx.Is("dropcfindex") {
-		Config.Node.DropCfIndex = true
+		CombinedCfg.Node.DropCfIndex = true
 	}
 	if ctx.Is("sigcachemaxsize") {
 		r, _ := ctx.Get("sigcachemaxsize")
 		sms, err := strconv.Atoi(r)
 		if err != nil || sms < 0 {
 			log.Errorf.Print("malformed sigcachemaxsize: `%s` leaving set at `%d`",
-				r, Config.Node.SigCacheMaxSize)
+				r, CombinedCfg.Node.SigCacheMaxSize)
 		} else {
-			Config.Node.SigCacheMaxSize = uint(sms)
+			CombinedCfg.Node.SigCacheMaxSize = uint(sms)
 		}
 	}
 	if ctx.Is("blocksonly") {
 		r, _ := ctx.Get("blocksonly")
-		Config.Node.BlocksOnly = r == "true"
+		CombinedCfg.Node.BlocksOnly = r == "true"
 	}
 	if ctx.Is("txindex") {
 		r, _ := ctx.Get("txindex")
-		Config.Node.TxIndex = r == "true"
+		CombinedCfg.Node.TxIndex = r == "true"
 	}
 	if ctx.Is("droptxindex") {
-		Config.Node.DropTxIndex = true
+		CombinedCfg.Node.DropTxIndex = true
 	}
 	if ctx.Is("addrindex") {
 		r, _ := ctx.Get("addrindex")
-		Config.Node.AddrIndex = r == "true"
+		CombinedCfg.Node.AddrIndex = r == "true"
 	}
 	if ctx.Is("dropaddrindex") {
-		Config.Node.DropAddrIndex = true
+		CombinedCfg.Node.DropAddrIndex = true
 	}
 	if ctx.Is("relaynonstd") {
 		r, _ := ctx.Get("relaynonstd")
-		Config.Node.RelayNonStd = r == "true"
+		CombinedCfg.Node.RelayNonStd = r == "true"
 	}
 	if ctx.Is("rejectnonstd") {
 		r, _ := ctx.Get("rejectnonstd")
-		Config.Node.RejectNonStd = r == "true"
+		CombinedCfg.Node.RejectNonStd = r == "true"
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
 		log.Infof.Print("saving config file to %s", cfgFile)
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
 		if err != nil {
 			log.Error.Print(err.Error())
 		}
 		j = append(j, '\n')
 		log.Tracef.Print("JSON formatted config file\n%s", j)
 		ioutil.WriteFile(cfgFile, j, 0600)
-		writeLogCfgFile(Config.Node.DataDir + "/logconf")
+		writeLogCfgFile(CombinedCfg.Node.DataDir + "/logconf")
 	}
 }
 
@@ -1095,14 +1098,14 @@ func writeDefaultConfig(cfgFile string) {
 	log.Tracef.Print("JSON formatted config file\n%s", j)
 	ioutil.WriteFile(cfgFile, j, 0600)
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	CombinedCfg = *defCfg
 }
 
 func defaultConfig() *Cfg {
 	return &Cfg{
-		DataDir:      n.DefaultDataDir,
-		AppDataDir:   filepath.Join(n.DefaultHomeDir, "shell"),
-		ConfFileName: filepath.Join(filepath.Join(n.DefaultHomeDir, "shell"), "conf"),
+		DataDir:      DefaultDataDir,
+		AppDataDir:   DefaultAppDataDir,
+		ConfFileName: DefaultConfFileName,
 		Node: &n.Config{
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,
