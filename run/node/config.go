@@ -68,7 +68,7 @@ var Command = climax.Command{
 		podutil.GenerateFlag(`listeners`, `S`, `--listeners=127.0.0.1:11047`, `sets an address to listen for P2P connections`, true),
 		podutil.GenerateFlag(`maxpeers`, ``, `--maxpeers=100`, `sets max number of peers to open connections to at once`, true),
 		podutil.GenerateFlag(`disablebanning`, ``, `--disablebanning`, `disable banning of misbehaving peers`, false),
-		podutil.GenerateFlag(`banduration`, ``, `--banduration=1h`, `how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1 second`, true),
+		podutil.GenerateFlag(`banduration`, ``, `--banduration=1h`, `how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1s`, true),
 		podutil.GenerateFlag(`banthreshold`, ``, `--banthreshold=100`, `maximum allowed ban score before disconnecting and banning misbehaving peers`, true),
 		podutil.GenerateFlag(`whitelists`, ``, `--whitelists=127.0.0.1:11047`, `add an IP network or IP that will not be banned - eg. 192.168.1.0/24 or ::1`, true),
 		podutil.GenerateFlag(`rpcuser`, `u`, `--rpcuser=username`, `RPC username`, true),
@@ -195,6 +195,8 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 
 func configNode(ctx *climax.Context, cfgFile string) {
 	var r *string
+	t := ""
+	r = &t
 	if getIfIs(ctx, "debuglevel", r) {
 		switch *r {
 		case "fatal", "error", "info", "debug", "trace":
@@ -274,7 +276,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ExternalIPs)
 	}
 	if getIfIs(ctx, "proxy", r) {
-		Config.Node.Proxy = n.NormalizeAddress(*r, "9050")
+		podutil.NormalizeAddress(*r, "9050", &Config.Node.Proxy)
 	}
 	if getIfIs(ctx, "proxyuser", r) {
 		Config.Node.ProxyUser = *r
@@ -283,7 +285,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.ProxyPass = *r
 	}
 	if getIfIs(ctx, "onion", r) {
-		Config.Node.OnionProxy = n.NormalizeAddress(*r, "9050")
+		podutil.NormalizeAddress(*r, "9050", &Config.Node.OnionProxy)
 	}
 	if getIfIs(ctx, "onionuser", r) {
 		Config.Node.OnionProxyUser = *r

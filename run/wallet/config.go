@@ -5,20 +5,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"git.parallelcoin.io/pod/lib/clog"
+	n "git.parallelcoin.io/pod/module/node"
 	w "git.parallelcoin.io/pod/module/wallet"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/logger"
+	"git.parallelcoin.io/pod/run/util"
 	"github.com/tucnak/climax"
 )
 
 // Log is the main logger for wallet
 var Log = clog.NewSubSystem("pod/wallet", clog.Ninf)
-
-// Config is the default configuration native to ctl
-var Config = new(w.Config)
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {
@@ -26,11 +24,8 @@ type ConfigAndLog struct {
 	Levels map[string]string
 }
 
-// CombinedCfg is the combined app and log levels configuration
-var CombinedCfg = ConfigAndLog{
-	Wallet: Config,
-	Levels: logger.Levels,
-}
+// Config is the combined app and log levels configuration
+var Config = defaultConfig()
 
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
@@ -38,360 +33,64 @@ var Command = climax.Command{
 	Brief: "parallelcoin wallet",
 	Help:  "check balances, make payments, manage contacts",
 	Flags: []climax.Flag{
-		{
-			Name:     "version",
-			Short:    "V",
-			Usage:    `--version`,
-			Help:     `show version number and quit`,
-			Variable: false,
-		},
-		{
-			Name:     "configfile",
-			Short:    "C",
-			Usage:    "--configfile=/path/to/conf",
-			Help:     "path to configuration file",
-			Variable: true,
-		},
-		{
-			Name:     "datadir",
-			Short:    "D",
-			Usage:    "--configfile=/path/to/conf",
-			Help:     "path to configuration file",
-			Variable: true,
-		},
-		{
-			Name:     "init",
-			Usage:    "--init",
-			Help:     "resets configuration to defaults",
-			Variable: false,
-		},
-		{
-			Name:     "save",
-			Usage:    "--save",
-			Help:     "saves current configuration",
-			Variable: false,
-		},
-		{
-			Name:     "debuglevel",
-			Short:    "d",
-			Usage:    "--debuglevel=trace",
-			Help:     "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library basis",
-			Variable: true,
-		},
-		{
-			Name:     "log-database",
-			Usage:    "--log-database=debug",
-			Help:     "sets log level for database",
-			Variable: true,
-		},
-		{
-			Name:     "log-txscript",
-			Usage:    "--log-txscript=debug",
-			Help:     "sets log level for txscript",
-			Variable: true,
-		},
-		{
-			Name:     "log-peer",
-			Usage:    "--log-peer=debug",
-			Help:     "sets log level for peer",
-			Variable: true,
-		},
-		{
-			Name:     "log-netsync",
-			Usage:    "--log-netsync=debug",
-			Help:     "sets log level for netsync",
-			Variable: true,
-		},
-		{
-			Name:     "log-rpcclient",
-			Usage:    "--log-rpcclient=debug",
-			Help:     "sets log level for rpcclient",
-			Variable: true,
-		},
-		{
-			Name:     "addrmgr",
-			Usage:    "--log-addrmgr=debug",
-			Help:     "sets log level for mgr",
-			Variable: true,
-		},
-		{
-			Name:     "log-blockchain-indexers",
-			Usage:    "--log-blockchain-indexers=debug",
-			Help:     "sets log level for blockchain-indexers",
-			Variable: true,
-		},
-		{
-			Name:     "log-blockchain",
-			Usage:    "--log-blockchain=debug",
-			Help:     "sets log level for blockchain",
-			Variable: true,
-		},
-		{
-			Name:     "log-mining-cpuminer",
-			Usage:    "--log-mining-cpuminer=debug",
-			Help:     "sets log level for mining-cpuminer",
-			Variable: true,
-		},
-		{
-			Name:     "log-mining",
-			Usage:    "--log-mining=debug",
-			Help:     "sets log level for mining",
-			Variable: true,
-		},
-		{
-			Name:     "log-mining-controller",
-			Usage:    "--log-mining-controller=debug",
-			Help:     "sets log level for mining-controller",
-			Variable: true,
-		},
-		{
-			Name:     "log-connmgr",
-			Usage:    "--log-connmgr=debug",
-			Help:     "sets log level for connmgr",
-			Variable: true,
-		},
-		{
-			Name:     "log-spv",
-			Usage:    "--log-spv=debug",
-			Help:     "sets log level for spv",
-			Variable: true,
-		},
-		{
-			Name:     "log-node-mempool",
-			Usage:    "--log-node-mempool=debug",
-			Help:     "sets log level for node-mempool",
-			Variable: true,
-		},
-		{
-			Name:     "log-node",
-			Usage:    "--log-node=debug",
-			Help:     "sets log level for node",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-wallet",
-			Usage:    "--log-wallet-wallet=debug",
-			Help:     "sets log level for wallet-wallet",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-tx",
-			Usage:    "--log-wallet-tx=debug",
-			Help:     "sets log level for wallet-tx",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-votingpool",
-			Usage:    "--log-wallet-votingpool=debug",
-			Help:     "sets log level for wallet-votingpool",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet",
-			Usage:    "--log-wallet=debug",
-			Help:     "sets log level for wallet",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-chain",
-			Usage:    "--log-wallet-chain=debug",
-			Help:     "sets log level for wallet-chain",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-rpc-rpcserver",
-			Usage:    "--log-wallet-rpc-rpcserver=debug",
-			Help:     "sets log level for wallet-rpc-rpcserver",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-rpc-legacyrpc",
-			Usage:    "--log-wallet-rpc-legacyrpc=debug",
-			Help:     "sets log level for wallet-rpc-legacyrpc",
-			Variable: true,
-		},
-		{
-			Name:     "log-wallet-wtxmgr",
-			Usage:    "--log-wallet-wtxmgr=debug",
-			Help:     "sets log level for wallet-wtxmgr",
-			Variable: true,
-		},
-		{
-			Name:     "create",
-			Usage:    "--create",
-			Help:     "create a new wallet if it does not exist",
-			Variable: false,
-		},
-		{
-			Name:     "createtemp",
-			Usage:    "--createtemp",
-			Help:     "create temporary wallet (pass=password), must call with --datadir",
-			Variable: false,
-		},
-		{
-			Name:     "appdatadir",
-			Usage:    "--appdatadir=/path/to/appdatadir",
-			Help:     "set app data directory for wallet, configuration and logs",
-			Variable: true,
-		},
-		{
-			Name:     "testnet3",
-			Usage:    "--testnet=true",
-			Help:     "use testnet",
-			Variable: true,
-		},
-		{
-			Name:     "simnet",
-			Usage:    "--simnet=true",
-			Help:     "use simnet",
-			Variable: true,
-		},
-		{
-			Name:     "noinitialload",
-			Usage:    "--noinitialload=true",
-			Help:     "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)",
-			Variable: true,
-		},
-		{
-			Name:     "network",
-			Usage:    "--network=mainnet",
-			Help:     "connect to specified network: mainnet, testnet, regtestnet or simnet",
-			Variable: true,
-		},
-		{
-			Name:     "profile",
-			Usage:    "--profile=true",
-			Help:     "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536",
-			Variable: true,
-		},
-		{
-			Name:     "gui",
-			Usage:    "--gui=true",
-			Help:     "launch GUI (wallet unlock is deferred to let GUI handle)",
-			Variable: true,
-		},
-		{
-			Name:     "walletpass",
-			Usage:    "--walletpass=somepassword",
-			Help:     "the public wallet password - only required if the wallet was created with one",
-			Variable: true,
-		},
-		{
-			Name:     "rpcconnect",
-			Usage:    "--rpcconnect=some.address.com:11048",
-			Help:     "connect to the RPC of a parallelcoin node for chain queries",
-			Variable: true,
-		},
-		{
-			Name:     "cafile",
-			Usage:    "--cafile=/path/to/cafile",
-			Help:     "file containing root certificates to authenticate TLS connections with pod",
-			Variable: true,
-		},
-		{
-			Name:     "enableclienttls",
-			Usage:    "--enableclienttls=false",
-			Help:     "enable TLS for the RPC client",
-			Variable: true,
-		},
-		{
-			Name:     "podusername",
-			Usage:    "--podusername=user",
-			Help:     "username for node RPC authentication",
-			Variable: true,
-		},
-		{
-			Name:     "podpassword",
-			Usage:    "--podpassword=pa55word",
-			Help:     "password for node RPC authentication",
-			Variable: true,
-		},
-		{
-			Name:     "proxy",
-			Usage:    "--proxy=127.0.0.1:9050",
-			Help:     "address for proxy for outbound connections",
-			Variable: true,
-		},
-		{
-			Name:     "proxyuser",
-			Usage:    "--proxyuser=user",
-			Help:     "username for proxy",
-			Variable: true,
-		},
-		{
-			Name:     "proxypass",
-			Usage:    "--proxypass=pa55word",
-			Help:     "password for proxy",
-			Variable: true,
-		},
-		{
-			Name:     "rpccert",
-			Usage:    "--rpccert=/path/to/rpccert",
-			Help:     "file containing the RPC tls certificate",
-			Variable: true,
-		},
-		{
-			Name:     "rpckey",
-			Usage:    "--rpckey=/path/to/rpckey",
-			Help:     "file containing RPC tls key",
-			Variable: true,
-		},
-		{
-			Name:     "onetimetlskey",
-			Usage:    "--onetimetlskey=true",
-			Help:     "generate a new TLS certpair but only write certs to disk",
-			Variable: true,
-		},
-		{
-			Name:     "enableservertls",
-			Usage:    "--enableservertls=false",
-			Help:     "enable TLS on wallet RPC",
-			Variable: true,
-		},
-		{
-			Name:     "legacyrpclisteners",
-			Usage:    "--legacyrpclisteners=127.0.0.1:11046",
-			Help:     "add a listener for the legacy RPC",
-			Variable: true,
-		},
-		{
-			Name:     "legacyrpcmaxclients",
-			Usage:    "--legacyrpcmaxclients=10",
-			Help:     "maximum number of connections for legacy RPC",
-			Variable: true,
-		},
-		{
-			Name:     "legacyrpcmaxwebsockets",
-			Usage:    "--legacyrpcmaxwebsockets=10",
-			Help:     "maximum number of websockets for legacy RPC",
-			Variable: true,
-		},
-		{
-			Name:     "username",
-			Short:    "-u",
-			Usage:    "--username=user",
-			Help:     "username for wallet RPC, used also for node if podusername is empty",
-			Variable: true,
-		},
-		{
-			Name:     "password",
-			Short:    "-P",
-			Usage:    "--password=pa55word",
-			Help:     "password for wallet RPC, also used for node if podpassord",
-			Variable: true,
-		},
-		{
-			Name:     "experimentalrpclisteners",
-			Usage:    "--experimentalrpclisteners=127.0.0.1:11045",
-			Help:     "enable experimental RPC service on this address",
-			Variable: true,
-		},
-		{
-			Name:     "datadir",
-			Usage:    "--datadir=/home/user/.pod",
-			Help:     "set the base directory for elements shared between modules",
-			Variable: true,
-		},
+		podutil.GenerateFlag("version", "V", `--version`, `show version number and quit`, false),
+		podutil.GenerateFlag("configfile", "C", "--configfile=/path/to/conf", "path to configuration file", true),
+		podutil.GenerateFlag("datadir", "D", "--configfile=/path/to/conf", "path to configuration file", true),
+		podutil.GenerateFlag("init", "", "--init", "resets configuration to defaults", false),
+		podutil.GenerateFlag("save", "", "--save", "saves current configuration", false),
+		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library basis", true),
+		podutil.GenerateFlag("log-database", "", "--log-database=debug", "sets log level for database", true),
+		podutil.GenerateFlag("log-txscript", "", "--log-txscript=debug", "sets log level for txscript", true),
+		podutil.GenerateFlag("log-peer", "", "--log-peer=debug", "sets log level for peer", true),
+		podutil.GenerateFlag("log-netsync", "", "--log-netsync=debug", "sets log level for netsync", true),
+		podutil.GenerateFlag("log-rpcclient", "", "--log-rpcclient=debug", "sets log level for rpcclient", true),
+		podutil.GenerateFlag("addrmgr", "", "--log-addrmgr=debug", "sets log level for mgr", true),
+		podutil.GenerateFlag("log-blockchain-indexers", "", "--log-blockchain-indexers=debug", "sets log level for blockchain-indexers", true),
+		podutil.GenerateFlag("log-blockchain", "", "--log-blockchain=debug", "sets log level for blockchain", true),
+		podutil.GenerateFlag("log-mining-cpuminer", "", "--log-mining-cpuminer=debug", "sets log level for mining-cpuminer", true),
+		podutil.GenerateFlag("log-mining", "", "--log-mining=debug", "sets log level for mining", true),
+		podutil.GenerateFlag("log-mining-controller", "", "--log-mining-controller=debug", "sets log level for mining-controller", true),
+		podutil.GenerateFlag("log-connmgr", "", "--log-connmgr=debug", "sets log level for connmgr", true),
+		podutil.GenerateFlag("log-spv", "", "--log-spv=debug", "sets log level for spv", true),
+		podutil.GenerateFlag("log-node-mempool", "", "--log-node-mempool=debug", "sets log level for node-mempool", true),
+		podutil.GenerateFlag("log-node", "", "--log-node=debug", "sets log level for node", true),
+		podutil.GenerateFlag("log-wallet-wallet", "", "--log-wallet-wallet=debug", "sets log level for wallet-wallet", true),
+		podutil.GenerateFlag("log-wallet-tx", "", "--log-wallet-tx=debug", "sets log level for wallet-tx", true),
+		podutil.GenerateFlag("log-wallet-votingpool", "", "--log-wallet-votingpool=debug", "sets log level for wallet-votingpool", true),
+		podutil.GenerateFlag("log-wallet", "", "--log-wallet=debug", "sets log level for wallet", true),
+		podutil.GenerateFlag("log-wallet-chain", "", "--log-wallet-chain=debug", "sets log level for wallet-chain", true),
+		podutil.GenerateFlag("log-wallet-rpc-rpcserver", "", "--log-wallet-rpc-rpcserver=debug", "sets log level for wallet-rpc-rpcserver", true),
+		podutil.GenerateFlag("log-wallet-rpc-legacyrpc", "", "--log-wallet-rpc-legacyrpc=debug", "sets log level for wallet-rpc-legacyrpc", true),
+		podutil.GenerateFlag("log-wallet-wtxmgr", "", "--log-wallet-wtxmgr=debug", "sets log level for wallet-wtxmgr", true),
+		podutil.GenerateFlag("create", "", "--create", "create a new wallet if it does not exist", false),
+		podutil.GenerateFlag("createtemp", "", "--createtemp", "create temporary wallet (pass=password), must call with --datadir", false),
+		podutil.GenerateFlag("appdatadir", "", "--appdatadir=/path/to/appdatadir", "set app data directory for wallet, configuration and logs", true),
+		podutil.GenerateFlag("testnet3", "", "--testnet=true", "use testnet", true),
+		podutil.GenerateFlag("simnet", "", "--simnet=true", "use simnet", true),
+		podutil.GenerateFlag("noinitialload", "", "--noinitialload=true", "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)", true),
+		podutil.GenerateFlag("network", "", "--network=mainnet", "connect to specified network: mainnet, testnet, regtestnet or simnet", true),
+		podutil.GenerateFlag("profile", "", "--profile=true", "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536", true),
+		podutil.GenerateFlag("gui", "", "--gui=true", "launch GUI (wallet unlock is deferred to let GUI handle)", true),
+		podutil.GenerateFlag("walletpass", "", "--walletpass=somepassword", "the public wallet password - only required if the wallet was created with one", true),
+		podutil.GenerateFlag("rpcconnect", "", "--rpcconnect=some.address.com:11048", "connect to the RPC of a parallelcoin node for chain queries", true),
+		podutil.GenerateFlag("cafile", "", "--cafile=/path/to/cafile", "file containing root certificates to authenticate TLS connections with pod", true),
+		podutil.GenerateFlag("enableclienttls", "", "--enableclienttls=false", "enable TLS for the RPC client", true),
+		podutil.GenerateFlag("podusername", "", "--podusername=user", "username for node RPC authentication", true),
+		podutil.GenerateFlag("podpassword", "", "--podpassword=pa55word", "password for node RPC authentication", true),
+		podutil.GenerateFlag("proxy", "", "--proxy=127.0.0.1:9050", "address for proxy for outbound connections", true),
+		podutil.GenerateFlag("proxyuser", "", "--proxyuser=user", "username for proxy", true),
+		podutil.GenerateFlag("proxypass", "", "--proxypass=pa55word", "password for proxy", true),
+		podutil.GenerateFlag("rpccert", "", "--rpccert=/path/to/rpccert", "file containing the RPC tls certificate", true),
+		podutil.GenerateFlag("rpckey", "", "--rpckey=/path/to/rpckey", "file containing RPC tls key", true),
+		podutil.GenerateFlag("onetimetlskey", "", "--onetimetlskey=true", "generate a new TLS certpair but only write certs to disk", true),
+		podutil.GenerateFlag("enableservertls", "", "--enableservertls=false", "enable TLS on wallet RPC", true),
+		podutil.GenerateFlag("legacyrpclisteners", "", "--legacyrpclisteners=127.0.0.1:11046", "add a listener for the legacy RPC", true),
+		podutil.GenerateFlag("legacyrpcmaxclients", "", "--legacyrpcmaxclients=10", "maximum number of connections for legacy RPC", true),
+		podutil.GenerateFlag("legacyrpcmaxwebsockets", "", "--legacyrpcmaxwebsockets=10", "maximum number of websockets for legacy RPC", true),
+		podutil.GenerateFlag("username", "-u", "--username=user", "username for wallet RPC, used also for node if podusername is empty", true),
+		podutil.GenerateFlag("password", "-P", "--password=pa55word", "password for wallet RPC, also used for node if podpassord", true),
+		podutil.GenerateFlag("experimentalrpclisteners", "", "--experimentalrpclisteners=127.0.0.1:11045", "enable experimental RPC service on this address", true),
+		podutil.GenerateFlag("datadir", "", "--datadir=/home/user/.pod", "set the base directory for elements shared between modules", true),
 	},
 	Examples: []climax.Example{
 		{
@@ -437,7 +136,7 @@ var Command = climax.Command{
 					clog.Shutdown()
 				}
 				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
-				err = json.Unmarshal(cfgData, &CombinedCfg)
+				err = json.Unmarshal(cfgData, &Config)
 				if err != nil {
 					Log.Error.Print("parsing app config file", err.Error())
 					clog.Shutdown()
@@ -451,137 +150,123 @@ var Command = climax.Command{
 	},
 }
 
+func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
+	if ctx.Is(name) {
+		var s string
+		s, ok = ctx.Get(name)
+		r = &s
+	}
+	return
+}
+
 func configNode(ctx *climax.Context, cfgFile string) {
-	// Apply all configurations specified on commandline
+	var r *string
+	t := ""
+	r = &t
 	if ctx.Is("create") {
-		Config.Create = true
+		Config.Wallet.Create = true
 	}
 	if ctx.Is("createtemp") {
-		Config.CreateTemp = true
+		Config.Wallet.CreateTemp = true
 	}
-	if ctx.Is("appdatadir") {
-		r, _ := ctx.Get("appdatadir")
-		Config.AppDataDir = r
+	if getIfIs(ctx, "appdatadir", r) {
+		Config.Wallet.AppDataDir = n.CleanAndExpandPath(*r)
 	}
-	if ctx.Is("noinitialload") {
-		r, _ := ctx.Get("noinitialload")
-		Config.NoInitialLoad = r == "true"
+	if getIfIs(ctx, "noinitialload", r) {
+		Config.Wallet.NoInitialLoad = *r == "true"
 	}
-	if ctx.Is("logdir") {
-		r, _ := ctx.Get("logdir")
-		Config.LogDir = r
+	if getIfIs(ctx, "logdir", r) {
+		Config.Wallet.LogDir = n.CleanAndExpandPath(*r)
 	}
-	if ctx.Is("profile") {
-		r, _ := ctx.Get("profile")
-		Config.Profile = r
+	if getIfIs(ctx, "profile", r) {
+		podutil.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
 	}
-	if ctx.Is("gui") {
-		r, _ := ctx.Get("gui")
-		Config.GUI = r == "true"
+	if getIfIs(ctx, "gui", r) {
+		Config.Wallet.GUI = *r == "true"
 	}
-	if ctx.Is("walletpass") {
-		r, _ := ctx.Get("walletpass")
-		Config.WalletPass = r
+	if getIfIs(ctx, "walletpass", r) {
+		Config.Wallet.WalletPass = *r
 	}
-	if ctx.Is("rpcconnect") {
-		r, _ := ctx.Get("rpcconnect")
-		Config.RPCConnect = r
+	if getIfIs(ctx, "rpcconnect", r) {
+		podutil.NormalizeAddress(*r, "11048", &Config.Wallet.RPCConnect)
 	}
-	if ctx.Is("cafile") {
-		r, _ := ctx.Get("cafile")
-		Config.CAFile = r
+	if getIfIs(ctx, "cafile", r) {
+		Config.Wallet.CAFile = n.CleanAndExpandPath(*r)
 	}
-	if ctx.Is("enableclienttls") {
-		r, _ := ctx.Get("enableclienttls")
-		Config.EnableClientTLS = r == "true"
+	if getIfIs(ctx, "enableclienttls", r) {
+		Config.Wallet.EnableClientTLS = *r == "true"
 	}
-	if ctx.Is("podusername") {
-		r, _ := ctx.Get("podusername")
-		Config.PodUsername = r
+	if getIfIs(ctx, "podusername", r) {
+		Config.Wallet.PodUsername = *r
 	}
-	if ctx.Is("podpassword") {
-		r, _ := ctx.Get("podpassword")
-		Config.PodPassword = r
+	if getIfIs(ctx, "podpassword", r) {
+		Config.Wallet.PodPassword = *r
 	}
-	if ctx.Is("proxy") {
-		r, _ := ctx.Get("proxy")
-		Config.Proxy = r
+	if getIfIs(ctx, "proxy", r) {
+		podutil.NormalizeAddress(*r, "11048", &Config.Wallet.Proxy)
 	}
-	if ctx.Is("proxyuser") {
-		r, _ := ctx.Get("proxyuser")
-		Config.ProxyUser = r
+	if getIfIs(ctx, "proxyuser", r) {
+		Config.Wallet.ProxyUser = *r
 	}
-	if ctx.Is("proxypass") {
-		r, _ := ctx.Get("proxypass")
-		Config.ProxyPass = r
+	if getIfIs(ctx, "proxypass", r) {
+		Config.Wallet.ProxyPass = *r
 	}
-	if ctx.Is("rpccert") {
-		r, _ := ctx.Get("rpccert")
-		Config.RPCCert = r
+	if getIfIs(ctx, "rpccert", r) {
+		Config.Wallet.RPCCert = n.CleanAndExpandPath(*r)
 	}
-	if ctx.Is("rpckey") {
-		r, _ := ctx.Get("rpckey")
-		Config.RPCKey = r
+	if getIfIs(ctx, "rpckey", r) {
+		Config.Wallet.RPCKey = n.CleanAndExpandPath(*r)
 	}
-	if ctx.Is("onetimetlskey") {
-		r, _ := ctx.Get("onetimetlskey")
-		Config.OneTimeTLSKey = r == "true"
+	if getIfIs(ctx, "onetimetlskey", r) {
+		Config.Wallet.OneTimeTLSKey = *r == "true"
 	}
-	if ctx.Is("enableservertls") {
-		r, _ := ctx.Get("enableservertls")
-		Config.EnableServerTLS = r == "true"
+	if getIfIs(ctx, "enableservertls", r) {
+		Config.Wallet.EnableServerTLS = *r == "true"
 	}
-	if ctx.Is("legacyrpclisteners") {
-		r, _ := ctx.Get("legacyrpclisteners")
-		Config.LegacyRPCListeners = strings.Split(r, " ")
+	if getIfIs(ctx, "legacyrpclisteners", r) {
+		podutil.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
 	}
-	if ctx.Is("legacyrpcmaxclients") {
-		r, _ := ctx.Get("legacyrpcmaxclients")
-		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxClients)
-		if err != nil {
-			Log.Errorf.Print("malformed legacymaxclients: `%s` leaving set at `%d`",
-				r, Config.LegacyRPCMaxClients)
+	if getIfIs(ctx, "legacyrpcmaxclients", r) {
+		var bt int
+		if err := podutil.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
+			Log.Warn <- err.Error()
+		} else {
+			Config.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
 	}
-	if ctx.Is("legacyrpcmaxwebsockets") {
-		r, _ := ctx.Get("legacyrpcmaxwebsockets")
-		_, err := fmt.Sscanf(r, "%d", Config.LegacyRPCMaxWebsockets)
+	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
+		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
 			Log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
-				r, Config.LegacyRPCMaxWebsockets)
+				r, Config.Wallet.LegacyRPCMaxWebsockets)
 		}
 	}
-	if ctx.Is("username") {
-		r, _ := ctx.Get("username")
-		Config.Username = r
+	if getIfIs(ctx, "username", r) {
+		Config.Wallet.Username = *r
 	}
-	if ctx.Is("password") {
-		r, _ := ctx.Get("password")
-		Config.Password = r
+	if getIfIs(ctx, "password", r) {
+		Config.Wallet.Password = *r
 	}
-	if ctx.Is("experimentalrpclisteners") {
-		r, _ := ctx.Get("experimentalrpclisteners")
-		Config.ExperimentalRPCListeners = strings.Split(r, " ")
+	if getIfIs(ctx, "experimentalrpclisteners", r) {
+		podutil.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
 	}
-	if ctx.Is("datadir") {
-		r, _ := ctx.Get("datadir")
-		Config.DataDir = r
+	if getIfIs(ctx, "datadir", r) {
+		Config.Wallet.DataDir = *r
 	}
-	if ctx.Is("network") {
-		r, _ := ctx.Get("network")
-		switch r {
+	if getIfIs(ctx, "network", r) {
+		switch *r {
 		case "testnet":
-			Config.TestNet3, Config.SimNet = true, false
+			Config.Wallet.TestNet3, Config.Wallet.SimNet = true, false
 		case "simnet":
-			Config.TestNet3, Config.SimNet = false, true
+			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, true
 		default:
-			Config.TestNet3, Config.SimNet = false, false
+			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, false
 		}
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
 		Log.Infof.Print("saving config file to %s", cfgFile)
-		j, err := json.MarshalIndent(CombinedCfg, "", "  ")
+		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
 			Log.Error.Print("writing app config file", err.Error())
 		}
@@ -605,7 +290,7 @@ func writeDefaultConfig(cfgFile string) {
 		Log.Error.Print("writing app config file", err.Error())
 	}
 	// if we are writing default config we also want to use it
-	CombinedCfg = *defCfg
+	Config = defCfg
 }
 
 func defaultConfig() *ConfigAndLog {
