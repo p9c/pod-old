@@ -420,7 +420,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		wc.curFileNum = oldBlockFileNum
 		wc.curOffset = oldBlockOffset
 	}()
-	log.Debugf("ROLLBACK: Rolling back to file %d, offset %d",
+	Log.Debugf.Print("ROLLBACK: Rolling back to file %d, offset %d",
 		oldBlockFileNum, oldBlockOffset)
 	// Close the current write file if it needs to be deleted.  Then delete all files that are newer than the provided rollback file while also moving the write cursor file backwards accordingly.
 	if wc.curFileNum > oldBlockFileNum {
@@ -433,7 +433,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}
 	for ; wc.curFileNum > oldBlockFileNum; wc.curFileNum-- {
 		if err := s.deleteFileFunc(wc.curFileNum); err != nil {
-			log.Warnf("ROLLBACK: Failed to delete block file "+
+			Log.Warnf.Print("ROLLBACK: Failed to delete block file "+
 				"number %d: %v", wc.curFileNum, err)
 			return
 		}
@@ -444,7 +444,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		obf, err := s.openWriteFileFunc(wc.curFileNum)
 		if err != nil {
 			wc.curFile.Unlock()
-			log.Warnf("ROLLBACK: %v", err)
+			Log.Warnf.Print("ROLLBACK: %v", err)
 			return
 		}
 		wc.curFile.file = obf
@@ -452,7 +452,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	// Truncate the to the provided rollback offset.
 	if err := wc.curFile.file.Truncate(int64(oldBlockOffset)); err != nil {
 		wc.curFile.Unlock()
-		log.Warnf("ROLLBACK: Failed to truncate file %d: %v",
+		Log.Warnf.Print("ROLLBACK: Failed to truncate file %d: %v",
 			wc.curFileNum, err)
 		return
 	}
@@ -460,7 +460,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	err := wc.curFile.file.Sync()
 	wc.curFile.Unlock()
 	if err != nil {
-		log.Warnf("ROLLBACK: Failed to sync file %d: %v",
+		Log.Warnf.Print("ROLLBACK: Failed to sync file %d: %v",
 			wc.curFileNum, err)
 		return
 	}
@@ -479,7 +479,7 @@ func scanBlockFiles(dbPath string) (int, uint32) {
 		lastFile = i
 		fileLen = uint32(st.Size())
 	}
-	log.Tracef("Scan found latest block file #%d with length %d", lastFile,
+	Log.Tracef.Print("Scan found latest block file #%d with length %d", lastFile,
 		fileLen)
 	return lastFile, fileLen
 }

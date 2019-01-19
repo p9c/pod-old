@@ -4,8 +4,8 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 )
 
 // BlockFilterer is used to iteratively scan blocks for a set of addresses of
@@ -147,7 +147,7 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 			out.PkScript, bf.Params,
 		)
 		if err != nil {
-			log.Warnf("Could not parse output script in %s:%d: %v",
+			Log.Warnf.Print("Could not parse output script in %s:%d: %v",
 				tx.TxHash(), i, err)
 			continue
 		}

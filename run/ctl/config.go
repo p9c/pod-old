@@ -12,7 +12,7 @@ import (
 )
 
 // Log is the ctl main logger
-var Log = clog.NewSubSystem("pod/ctl", clog.Nwrn)
+var Log = clog.NewSubSystem("pod/ctl", clog.Ndbg)
 
 // Config is the default configuration native to ctl
 var Config = new(c.Config)

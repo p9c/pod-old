@@ -187,9 +187,9 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			newTarget.Set(CompactToBig(newTargetBits))
 		}
 		newTargetBits = BigToCompact(newTarget)
-		log.Debugf("Difficulty retarget at block height %d, old %08x new %08x", lastNode.height+1, prevNode.bits, newTargetBits)
-		log.Tracef("Old %08x New %08x", prevNode.bits, oldTarget, newTargetBits, CompactToBig(newTargetBits))
-		log.Tracef("Actual timespan %v, adjusted timespan %v, target timespan %v",
+		Log.Debugf.Print("Difficulty retarget at block height %d, old %08x new %08x", lastNode.height+1, prevNode.bits, newTargetBits)
+		Log.Tracef.Print("Old %08x New %08x", prevNode.bits, oldTarget, newTargetBits, CompactToBig(newTargetBits))
+		Log.Tracef.Print("Actual timespan %v, adjusted timespan %v, target timespan %v",
 			actualTimespan,
 			adjustedTimespan,
 			b.chainParams.AveragingTargetTimespan)
@@ -325,7 +325,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 				time.Sleep(time.Millisecond * time.Duration(delay))
 			}
 			if l {
-				log.Debugf("mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s delayed %dms",
+				Log.Debugf.Print("mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s delayed %dms",
 					lastNode.height+1, last.bits, newTargetBits, allTimeAverage, trailTimeAverage, weighted*ttpb, counter, (1-adjustment)*100, fork.List[1].AlgoVers[algo], delay)
 				if b.chainParams.Name == "testnet" && int64(lastNode.height) < b.chainParams.TargetTimePerBlock+1 && lastNode.height > 0 {
 					time.Sleep(time.Second * time.Duration(b.chainParams.TargetTimePerBlock))

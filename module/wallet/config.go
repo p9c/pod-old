@@ -743,7 +743,7 @@ func loadConfig() (*Config, []string, error) {
 	// // succeeds.  This prevents the warning on help messages and invalid
 	// // options.
 	// if configFileError != nil {
-	// 	log.Warnf("%v", configFileError)
+	// 	Log.Warnf.Print("%v", configFileError)
 	// }
 
 	return &cfg, remainingArgs, nil

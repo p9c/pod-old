@@ -1,39 +1,38 @@
 package neutrino
 
 import (
-	"git.parallelcoin.io/pod/lib/addrmgr"
-	"git.parallelcoin.io/pod/lib/blockchain"
-	l "git.parallelcoin.io/pod/lib/log"
-	"git.parallelcoin.io/pod/lib/peer"
-	"git.parallelcoin.io/pod/lib/txscript"
+	"git.parallelcoin.io/pod/lib/clog"
 )
 
-// log is a logger that is initialized with no output filters.  This
-// means the package will not perform any logging by default until the caller
-// requests it.
-var log l.Logger
+// Log is the logger for node
+var Log = clog.NewSubSystem("pod/spv", clog.Ndbg)
 
-// The default amount of logging is none.
-func init() {
-	DisableLog()
-}
+// // log is a logger that is initialized with no output filters.  This
+// // means the package will not perform any logging by default until the caller
+// // requests it.
+// var log l.Logger
 
-// DisableLog disables all library log output.  Logging output is disabled
-// by default until either UseLogger or SetLogWriter are called.
-func DisableLog() {
-	log = l.Disabled
-}
+// // The default amount of logging is none.
+// func init() {
+// 	DisableLog()
+// }
 
-// UseLogger uses a specified Logger to output package logging info.
-// This should be used in preference to SetLogWriter if the caller is also
-// using log.
-func UseLogger(logger l.Logger) {
-	log = logger
-	blockchain.UseLogger(logger)
-	txscript.UseLogger(logger)
-	peer.UseLogger(logger)
-	addrmgr.UseLogger(logger)
-}
+// // DisableLog disables all library log output.  Logging output is disabled
+// // by default until either UseLogger or SetLogWriter are called.
+// func DisableLog() {
+// 	log = l.Disabled
+// }
+
+// // UseLogger uses a specified Logger to output package logging info.
+// // This should be used in preference to SetLogWriter if the caller is also
+// // using log.
+// func UseLogger(logger l.Logger) {
+// 	log = logger
+// 	blockchain.UseLogger(logger)
+// 	txscript.UseLogger(logger)
+// 	peer.Log=clog.NewSubSystem(logger)
+// 	addrmgr.UseLogger(logger)
+// }
 
 // logClosure is used to provide a closure over expensive logging operations so
 // don't have to be performed when the logging level doesn't warrant it.

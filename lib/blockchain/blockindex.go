@@ -70,7 +70,6 @@ type blockNode struct {
 
 // initBlockNode initializes a block node from the given header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.  It must only be called when initially creating a node.
 func initBlockNode(node *blockNode, blockHeader *wire.BlockHeader, parent *blockNode) {
-	// log.Debugf("initBlockNode %08x %064x", blockHeader.Bits, CalcWork(blockHeader.Bits))
 	*node = blockNode{
 		hash:       blockHeader.BlockHash(),
 		version:    blockHeader.Version,

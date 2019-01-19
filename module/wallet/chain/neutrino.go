@@ -14,9 +14,9 @@ import (
 	"git.parallelcoin.io/pod/lib/util/gcs"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
 	"git.parallelcoin.io/pod/lib/wire"
+	sac "git.parallelcoin.io/pod/module/spv"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
-	sac "git.parallelcoin.io/pod/module/spv"
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.
@@ -209,7 +209,7 @@ func (s *NeutrinoClient) FilterBlocks(
 			continue
 		}
 
-		log.Infof("Fetching block height=%d hash=%v",
+		Log.Infof.Print("Fetching block height=%d hash=%v",
 			blk.Height, blk.Hash)
 
 		// TODO(conner): can optimize bandwidth by only fetching
@@ -482,7 +482,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx(),
 			header.Timestamp)
 		if err != nil {
-			log.Errorf("Cannot create transaction record for "+
+			Log.Errorf.Print("Cannot create transaction record for "+
 				"relevant tx: %s", err)
 			// TODO(aakselrod): Return?
 			continue
@@ -500,7 +500,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 	// Handle RescanFinished notification if required.
 	bs, err := s.CS.BestBlock()
 	if err != nil {
-		log.Errorf("Can't get chain service's best block: %s", err)
+		Log.Errorf.Print("Can't get chain service's best block: %s", err)
 		return
 	}
 
@@ -614,7 +614,7 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 func (s *NeutrinoClient) notificationHandler() {
 	hash, height, err := s.GetBestBlock()
 	if err != nil {
-		log.Errorf("Failed to get best block from chain service: %s",
+		Log.Errorf.Print("Failed to get best block from chain service: %s",
 			err)
 		s.Stop()
 		s.wg.Done()
@@ -680,7 +680,7 @@ out:
 
 		case err := <-rescanErr:
 			if err != nil {
-				log.Errorf("Neutrino rescan ended with error: %s", err)
+				Log.Errorf.Print("Neutrino rescan ended with error: %s", err)
 			}
 
 		case s.currentBlock <- bs:

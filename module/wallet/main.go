@@ -13,7 +13,6 @@ import (
 	"git.parallelcoin.io/pod/module/wallet/chain"
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
-	"github.com/smallnest/rpcx/log"
 )
 
 var (
@@ -51,16 +50,16 @@ func walletMain() error {
 	// }()
 
 	// Show version at startup.
-	log.Infof("Version %s", Version())
+	Log.Infof.Print("Version %s", Version())
 
 	if cfg.Profile != "" {
 		go func() {
 			listenAddr := net.JoinHostPort("", cfg.Profile)
-			log.Infof("Profile server listening on %s", listenAddr)
+			Log.Infof.Print("Profile server listening on %s", listenAddr)
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
-			log.Errorf("%v", http.ListenAndServe(listenAddr, nil))
+			Log.Errorf.Print("%v", http.ListenAndServe(listenAddr, nil))
 		}()
 	}
 
@@ -72,7 +71,7 @@ func walletMain() error {
 	// created below after each is created.
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
 	if err != nil {
-		log.Errorf("Unable to create RPC servers: %v", err)
+		Log.Errorf.Print("Unable to create RPC servers: %v", err)
 		return err
 	}
 
@@ -91,7 +90,7 @@ func walletMain() error {
 		// or this will return an appropriate error.
 		_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
 		if err != nil {
-			log.Error(err)
+			Log.Error <- err.Error()
 			return err
 		}
 	}
@@ -102,23 +101,23 @@ func walletMain() error {
 	addInterruptHandler(func() {
 		err := loader.UnloadWallet()
 		if err != nil && err != wallet.ErrNotLoaded {
-			log.Errorf("Failed to close wallet: %v", err)
+			Log.Errorf.Print("Failed to close wallet: %v", err)
 		}
 	})
 	if rpcs != nil {
 		addInterruptHandler(func() {
 			// TODO: Does this need to wait for the grpc server to
 			// finish up any requests?
-			log.Warn("Stopping RPC server...")
+			Log.Warn.Print("Stopping RPC server...")
 			rpcs.Stop()
-			log.Info("RPC server shutdown")
+			Log.Info.Print("RPC server shutdown")
 		})
 	}
 	if legacyRPCServer != nil {
 		addInterruptHandler(func() {
-			log.Warn("Stopping legacy RPC server...")
+			Log.Warn.Print("Stopping legacy RPC server...")
 			legacyRPCServer.Stop()
-			log.Info("Legacy RPC server shutdown")
+			Log.Info.Print("Legacy RPC server shutdown")
 		})
 		go func() {
 			<-legacyRPCServer.RequestProcessShutdown()
@@ -126,7 +125,7 @@ func walletMain() error {
 		}()
 	}
 	<-interruptHandlersDone
-	log.Info("Shutdown complete")
+	Log.Info.Print("Shutdown complete")
 	return nil
 }
 
@@ -159,7 +158,7 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// 		filepath.Join(netDir, "neutrino.db"))
 		// 	defer spvdb.Close()
 		// 	if err != nil {
-		// 		log.Errorf("Unable to create Neutrino DB: %s", err)
+		// 		Log.Errorf.Print("Unable to create Neutrino DB: %s", err)
 		// 		continue
 		// 	}
 		// 	chainService, err = neutrino.NewChainService(
@@ -171,18 +170,18 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// 			AddPeers:     cfg.AddPeers,
 		// 		})
 		// 	if err != nil {
-		// 		log.Errorf("Couldn't create Neutrino ChainService: %s", err)
+		// 		Log.Errorf.Print("Couldn't create Neutrino ChainService: %s", err)
 		// 		continue
 		// 	}
 		// 	chainClient = chain.NewNeutrinoClient(activeNet.Params, chainService)
 		// 	err = chainClient.Start()
 		// 	if err != nil {
-		// 		log.Errorf("Couldn't start Neutrino client: %s", err)
+		// 		Log.Errorf.Print("Couldn't start Neutrino client: %s", err)
 		// 	}
 		// } else {
 		chainClient, err = startChainRPC(certs)
 		if err != nil {
-			log.Errorf("Unable to open connection to consensus RPC server: %v", err)
+			Log.Errorf.Print("Unable to open connection to consensus RPC server: %v", err)
 			continue
 		}
 		// }
@@ -241,13 +240,13 @@ func readCAFile() []byte {
 		var err error
 		certs, err = ioutil.ReadFile(cfg.CAFile)
 		if err != nil {
-			log.Warnf("Cannot open CA file: %v", err)
+			Log.Warnf.Print("Cannot open CA file: %v", err)
 			// If there's an error reading the CA file, continue
 			// with nil certs and without the client connection.
 			certs = nil
 		}
 	} else {
-		log.Info("Chain server RPC TLS is disabled")
+		Log.Info.Print("Chain server RPC TLS is disabled")
 	}
 
 	return certs
@@ -258,7 +257,7 @@ func readCAFile() []byte {
 // there is no recovery in case the server is not available or if there is an
 // authentication error.  Instead, all requests to the client will simply error.
 func startChainRPC(certs []byte) (*chain.RPCClient, error) {
-	log.Infof("Attempting RPC client connection to %v, TLS: %s", cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS))
+	Log.Infof.Print("Attempting RPC client connection to %v, TLS: %s", cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS))
 	rpcc, err := chain.NewRPCClient(activeNet.Params, cfg.RPCConnect,
 		cfg.PodUsername, cfg.PodPassword, certs, !cfg.EnableClientTLS, 0)
 	if err != nil {

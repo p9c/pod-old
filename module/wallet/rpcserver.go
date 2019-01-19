@@ -16,7 +16,6 @@ import (
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/rpc/rpcserver"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
-	"github.com/smallnest/rpcx/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -36,8 +35,7 @@ func openRPCKeyPair() (tls.Certificate, error) {
 	keyExists := !os.IsNotExist(e)
 	switch {
 	case cfg.OneTimeTLSKey && keyExists:
-		err := fmt.Errorf("one time TLS keys are enabled, but TLS key "+
-			"`%s` already exists", cfg.RPCKey)
+		err := fmt.Errorf("one time TLS keys are enabled, but TLS key `%s` already exists", cfg.RPCKey)
 		return tls.Certificate{}, err
 	case cfg.OneTimeTLSKey:
 		return generateRPCKeyPair(false)
@@ -52,7 +50,7 @@ func openRPCKeyPair() (tls.Certificate, error) {
 // possibly also the key in PEM format to the paths specified by the config.  If
 // successful, the new keypair is returned.
 func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
-	// log.Infof("Generating TLS certificates...")
+	Log.Info <- "Generating TLS certificates..."
 
 	// Create directories for cert and key files if they do not yet exist.
 	certDir, _ := filepath.Split(cfg.RPCCert)
@@ -88,13 +86,13 @@ func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
 		if err != nil {
 			rmErr := os.Remove(cfg.RPCCert)
 			if rmErr != nil {
-				// log.Warnf("Cannot remove written certificates: %v", rmErr)
+				Log.Warnf.Print("Cannot remove written certificates: %v", rmErr)
 			}
 			return tls.Certificate{}, err
 		}
 	}
 
-	// log.Info("Done generating TLS certificates")
+	Log.Info.Print("Done generating TLS certificates")
 	return keyPair, nil
 }
 
@@ -107,7 +105,7 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 		err          error
 	)
 	if !cfg.EnableServerTLS {
-		// log.Info("Server TLS is disabled.  Only legacy RPC may be used")
+		Log.Info.Print("Server TLS is disabled.  Only legacy RPC may be used")
 	} else {
 		keyPair, err = openRPCKeyPair()
 		if err != nil {
@@ -137,17 +135,16 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 			for _, lis := range listeners {
 				lis := lis
 				go func() {
-					log.Infof("Experimental RPC server listening on %s",
-						lis.Addr())
+					Log.Infof.Print("Experimental RPC server listening on %s", lis.Addr())
 					_ = server.Serve(lis)
-					// log.Tracef("Finished serving expimental RPC: %v", err)
+					Log.Tracef.Print("Finished serving expimental RPC: %v", err)
 				}()
 			}
 		}
 	}
 
 	if cfg.Username == "" || cfg.Password == "" {
-		log.Info("Legacy RPC server disabled (requires username and password)")
+		Log.Info <- "Legacy RPC server disabled (requires username and password)"
 	} else if len(cfg.LegacyRPCListeners) != 0 {
 		listeners := makeListeners(cfg.LegacyRPCListeners, legacyListen)
 		if len(listeners) == 0 {
@@ -183,8 +180,7 @@ func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.List
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil {
 			// Shouldn't happen due to already being normalized.
-			log.Errorf("`%s` is not a normalized "+
-				"listener address", addr)
+			Log.Errorf.Print("`%s` is not a normalized listener address", addr)
 			continue
 		}
 
@@ -208,7 +204,7 @@ func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.List
 		ip := net.ParseIP(host)
 		switch {
 		case ip == nil:
-			log.Warnf("`%s` is not a valid IP address", host)
+			Log.Warnf.Print("`%s` is not a valid IP address", host)
 		case ip.To4() == nil:
 			ipv6Addrs = append(ipv6Addrs, addr)
 		default:
@@ -219,7 +215,7 @@ func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.List
 	for _, addr := range ipv4Addrs {
 		listener, err := listen("tcp4", addr)
 		if err != nil {
-			log.Warnf("Can't listen on %s: %v", addr, err)
+			Log.Warnf.Print("Can't listen on %s: %v", addr, err)
 			continue
 		}
 		listeners = append(listeners, listener)
@@ -227,7 +223,7 @@ func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.List
 	for _, addr := range ipv6Addrs {
 		listener, err := listen("tcp6", addr)
 		if err != nil {
-			log.Warnf("Can't listen on %s: %v", addr, err)
+			Log.Warnf.Print("Can't listen on %s: %v", addr, err)
 			continue
 		}
 		listeners = append(listeners, listener)

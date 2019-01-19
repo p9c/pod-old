@@ -102,7 +102,7 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 	var inputs []credit
 	address := startAddress
 	for {
-		log.Debugf("Looking for eligible inputs at address %v", address.addrIdentifier())
+		Log.Debugf.Print("Looking for eligible inputs at address %v", address.addrIdentifier())
 		if candidates, ok := addrMap[address.addr.EncodeAddress()]; ok {
 			var eligibles []credit
 			for _, c := range candidates {
@@ -117,7 +117,7 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 		if err != nil {
 			return nil, newError(ErrInputSelection, "failed to get next withdrawal address", err)
 		} else if nAddr == nil {
-			log.Debugf("getEligibleInputs: reached last addr, stopping")
+			Log.Debugf.Print("getEligibleInputs: reached last addr, stopping")
 			break
 		}
 		address = *nAddr
@@ -143,7 +143,7 @@ func nextAddr(p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branc
 		}
 		if index > highestIdx {
 			seriesID++
-			log.Debugf("nextAddr(): reached last branch (%d) and highest used index (%d), "+
+			Log.Debugf.Print("nextAddr(): reached last branch (%d) and highest used index (%d), "+
 				"moving on to next series (%d)", branch, index, seriesID)
 			index = 0
 		} else {
@@ -161,7 +161,7 @@ func nextAddr(p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branc
 		// The used indices will vary between branches so sometimes we'll try to
 		// get a WithdrawalAddress that hasn't been used before, and in such
 		// cases we just need to move on to the next one.
-		log.Debugf("nextAddr(): skipping addr (series #%d, branch #%d, index #%d) as it hasn't "+
+		Log.Debugf.Print("nextAddr(): skipping addr (series #%d, branch #%d, index #%d) as it hasn't "+
 			"been used before", seriesID, branch, index)
 		return nextAddr(p, ns, addrmgrNs, seriesID, branch, index, stopSeriesID)
 	}

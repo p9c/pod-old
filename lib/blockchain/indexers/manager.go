@@ -6,6 +6,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -141,7 +142,7 @@ func (m *Manager) maybeFinishDrops(interrupt <-chan struct{}) error {
 		if !indexNeedsDrop[i] {
 			continue
 		}
-		log.Infof("Resuming %s drop", indexer.Name())
+		Log.Infof.Print("Resuming %s drop", indexer.Name())
 		err := dropIndex(m.db, indexer.Key(), indexer.Name(), interrupt)
 		if err != nil {
 			return err
@@ -269,7 +270,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 			}
 		}
 		if initialHeight != height {
-			log.Infof("Removed %d orphaned blocks from %s "+
+			Log.Infof.Print("Removed %d orphaned blocks from %s "+
 				"(heights %d to %d)", initialHeight-height,
 				indexer.Name(), height+1, initialHeight)
 		}
@@ -285,7 +286,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 			if err != nil {
 				return err
 			}
-			log.Debugf("Current %s tip (height %d, hash %v)",
+			Log.Debugf.Print("Current %s tip (height %d, hash %v)",
 				indexer.Name(), height, hash)
 			indexerHeights[i] = height
 			if height < lowestHeight {
@@ -302,9 +303,9 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 		return nil
 	}
 	// Create a progress logger for the indexing process below.
-	progressLogger := newBlockProgressLogger("Indexed", log)
+	progressLogger := newBlockProgressLogger("Indexed", clog.NewSubSystem("indexed", Log.Level))
 	// At this point, one or more indexes are behind the current best chain tip and need to be caught up, so log the details and loop through each block that needs to be indexed.
-	log.Infof("Catching up indexes from height %d to %d", lowestHeight,
+	Log.Infof.Print("Catching up indexes from height %d to %d", lowestHeight,
 		bestHeight)
 	for height := lowestHeight + 1; height <= bestHeight; height++ {
 		// Load the block for the height since it is required to index it.
@@ -345,7 +346,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 			return errInterruptRequested
 		}
 	}
-	log.Infof("Indexes caught up to height %d", bestHeight)
+	Log.Infof.Print("Indexes caught up to height %d", bestHeight)
 	return nil
 }
 
@@ -430,11 +431,11 @@ func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan s
 		return err
 	}
 	if !needsDelete {
-		log.Infof("Not dropping %s because it does not exist", idxName)
+		Log.Infof.Print("Not dropping %s because it does not exist", idxName)
 		return nil
 	}
 	// Mark that the index is in the process of being dropped so that it can be resumed on the next start if interrupted before the process is complete.
-	log.Infof("Dropping all %s entries.  This might take a while...",
+	Log.Infof.Print("Dropping all %s entries.  This might take a while...",
 		idxName)
 	err = db.Update(func(dbTx database.Tx) error {
 		indexesBucket := dbTx.Metadata().Bucket(indexTipsBucketName)
@@ -501,7 +502,7 @@ func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan s
 			}
 			if numDeleted > 0 {
 				totalDeleted += uint64(numDeleted)
-				log.Infof("Deleted %d keys (%d total) from %s",
+				Log.Infof.Print("Deleted %d keys (%d total) from %s",
 					numDeleted, totalDeleted, idxName)
 			}
 		}
@@ -535,6 +536,6 @@ func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan s
 	if err != nil {
 		return err
 	}
-	log.Infof("Dropped %s", idxName)
+	Log.Infof.Print("Dropped %s", idxName)
 	return nil
 }

@@ -14,8 +14,8 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/json"
 	"git.parallelcoin.io/pod/lib/mining"
-	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/txscript"
+	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
 )
 
@@ -180,7 +180,7 @@ func (mp *TxPool) limitNumOrphans() error {
 		mp.nextExpireScan = now.Add(orphanExpireScanInterval)
 		numOrphans := len(mp.orphans)
 		if numExpired := origNumOrphans - numOrphans; numExpired > 0 {
-			log.Debugf("Expired %d %s (remaining: %d)", numExpired,
+			Log.Debugf.Print("Expired %d %s (remaining: %d)", numExpired,
 				pickNoun(numExpired, "orphan", "orphans"),
 				numOrphans)
 		}
@@ -218,7 +218,7 @@ func (mp *TxPool) addOrphan(tx *util.Tx, tag Tag) {
 		}
 		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
 	}
-	log.Debugf("Stored orphan transaction %v (total: %d)", tx.Hash(),
+	Log.Debugf.Print("Stored orphan transaction %v (total: %d)", tx.Hash(),
 		len(mp.orphans))
 }
 
@@ -606,7 +606,7 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 		}
 		oldTotal := mp.pennyTotal
 		mp.pennyTotal += float64(serializedSize)
-		log.Tracef("rate limit: curTotal %v, nextTotal: %v, "+
+		Log.Tracef.Print("rate limit: curTotal %v, nextTotal: %v, "+
 			"limit %v", oldTotal, mp.pennyTotal,
 			mp.cfg.Policy.FreeTxRelayLimit*10*1000)
 	}
@@ -622,7 +622,7 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 	}
 	// Add to transaction pool.
 	txD := mp.addTransaction(utxoView, tx, bestHeight, txFee)
-	log.Debugf("Accepted transaction %v (pool size: %v)", txHash,
+	Log.Debugf.Print("Accepted transaction %v (pool size: %v)", txHash,
 		len(mp.pool))
 	return nil, txD, nil
 }
@@ -696,7 +696,7 @@ func (mp *TxPool) ProcessOrphans(acceptedTx *util.Tx) []*TxDesc {
 
 // ProcessTransaction is the main workhorse for handling insertion of new free-standing transactions into the memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, orphan transaction handling, and insertion into the memory pool. It returns a slice of transactions added to the mempool.  When the error is nil, the list will include the passed transaction itself along with any additional orphan transaactions that were added as a result of the passed one being accepted. This function is safe for concurrent access.
 func (mp *TxPool) ProcessTransaction(tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
-	log.Tracef("Processing transaction %v", tx.Hash())
+	Log.Tracef.Print("Processing transaction %v", tx.Hash())
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	defer mp.mtx.Unlock()

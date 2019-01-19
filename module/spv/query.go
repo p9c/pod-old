@@ -282,7 +282,7 @@ func queryChainServiceBatch(
 						uint32(queryAnswered) {
 					firstUnfinished++
 
-					log.Tracef("Query #%v already answered, "+
+					Log.Tracef.Print("Query #%v already answered, "+
 						"skipping", i)
 					continue
 				}
@@ -295,7 +295,7 @@ func queryChainServiceBatch(
 					uint32(queryWaitSubmit),
 					uint32(queryWaitResponse),
 				) {
-					log.Tracef("Query #%v already being "+
+					Log.Tracef.Print("Query #%v already being "+
 						"queried for, skipping", i)
 					continue
 				}
@@ -357,7 +357,7 @@ func queryChainServiceBatch(
 					return
 				}
 
-				log.Tracef("Query for #%v failed, moving "+
+				Log.Tracef.Print("Query for #%v failed, moving "+
 					"on: %v", handleQuery,
 					newLogClosure(func() string {
 						return spew.Sdump(queryMsgs[handleQuery])
@@ -369,7 +369,7 @@ func queryChainServiceBatch(
 				atomic.StoreUint32(&queryStates[handleQuery],
 					uint32(queryAnswered))
 
-				log.Tracef("Query #%v answered, updating state",
+				Log.Tracef.Print("Query #%v answered, updating state",
 					handleQuery)
 			}
 		}
@@ -781,7 +781,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 			"from database", blockHash)
 	}
 
-	log.Debugf("Fetching filter for height=%v, hash=%v", height, blockHash)
+	Log.Debugf.Print("Fetching filter for height=%v, hash=%v", height, blockHash)
 
 	// In addition to fetching the block header, we'll fetch the filter
 	// headers (for this particular filter type) from the database. These
@@ -862,7 +862,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// the caller requested it.
 		err := s.putFilterToCache(&blockHash, dbFilterType, filter)
 		if err != nil {
-			log.Warnf("couldn't write filter to cache: %v", err)
+			Log.Warnf.Print("couldn't write filter to cache: %v", err)
 		}
 
 		qo := defaultQueryOptions()
@@ -873,7 +873,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				return nil, err
 			}
 
-			log.Tracef("Wrote filter for block %s, type %d",
+			Log.Tracef.Print("Wrote filter for block %s, type %d",
 				blockHash, filterType)
 		}
 	}
@@ -967,7 +967,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 					block.Height(),
 					true,
 				); err != nil {
-					log.Warnf("Invalid block for %s "+
+					Log.Warnf.Print("Invalid block for %s "+
 						"received from %s -- "+
 						"disconnecting peer", blockHash,
 						sp.Addr())
@@ -997,7 +997,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// Add block to the cache before returning it.
 	err = s.BlockCache.Put(*inv, &cache.CacheableBlock{foundBlock})
 	if err != nil {
-		log.Warnf("couldn't write block to cache: %v", err)
+		Log.Warnf.Print("couldn't write block to cache: %v", err)
 	}
 
 	return foundBlock, nil
@@ -1047,7 +1047,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						"rejected by %s: %s",
 						tx.TxHash(), sp.Addr(),
 						response.Reason)
-					log.Errorf(err.Error())
+					Log.Errorf.Print(err.Error())
 					close(quit)
 				}
 			}

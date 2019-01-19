@@ -16,7 +16,7 @@ import (
 )
 
 // Log is the main logger for wallet
-var Log = clog.NewSubSystem("pod/wallet", clog.Ninf)
+var Log = clog.NewSubSystem("pod/wallet", clog.Ndbg)
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {

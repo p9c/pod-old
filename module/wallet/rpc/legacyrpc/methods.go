@@ -1396,7 +1396,7 @@ func sendPairs(w *wallet.Wallet, amounts map[string]util.Amount,
 	}
 
 	txHashStr := txHash.String()
-	log.Infof("Successfully sent transaction %v", txHashStr)
+	Log.Infof.Print("Successfully sent transaction %v", txHashStr)
 	return txHashStr, nil
 }
 

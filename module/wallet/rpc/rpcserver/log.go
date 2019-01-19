@@ -1,81 +1,26 @@
-// Copyright (c) 2015-2016 The btcsuite developers
-//
-// Permission to use, copy, modify, and distribute this software for any
-// purpose with or without fee is hereby granted, provided that the above
-// copyright notice and this permission notice appear in all copies.
-//
-// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
 package rpcserver
 
 import (
-	"os"
-	"strings"
-
-	"google.golang.org/grpc/grpclog"
-
-	"git.parallelcoin.io/pod/lib/log"
+	"git.parallelcoin.io/pod/lib/clog"
 )
 
-// UseLogger sets the logger to use for the gRPC server.
-func UseLogger(l log.Logger) {
-	grpclog.SetLogger(logger{l})
-}
+// Log is the logger for the peer package
+var Log = clog.NewSubSystem("pod/wallet/rpc/rpcserver", clog.Ndbg)
 
-// logger uses a log.Logger to implement the grpclog.Logger interface.
-type logger struct {
-	log.Logger
-}
+// // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
+// var log = l.Disabled
 
-// stripGrpcPrefix removes the package prefix for all logs made to the grpc
-// logger, since these are already included as the log subsystem name.
-func stripGrpcPrefix(logstr string) string {
-	return strings.TrimPrefix(logstr, "grpc: ")
-}
+// // The default amount of logging is none.
+// func init() {
+// 	// DisableLog()
+// }
 
-// stripGrpcPrefixArgs removes the package prefix from the first argument, if it
-// exists and is a string, returning the same arg slice after reassigning the
-// first arg.
-func stripGrpcPrefixArgs(args ...interface{}) []interface{} {
-	if len(args) == 0 {
-		return args
-	}
-	firstArgStr, ok := args[0].(string)
-	if ok {
-		args[0] = stripGrpcPrefix(firstArgStr)
-	}
-	return args
-}
+// // DisableLog disables all library log output.  Logging output is disabled by default until UseLogger is called.
+// func DisableLog() {
+// 	log = l.Disabled
+// }
 
-func (l logger) Fatal(args ...interface{}) {
-	l.Critical(stripGrpcPrefixArgs(args)...)
-	os.Exit(1)
-}
-
-func (l logger) Fatalf(format string, args ...interface{}) {
-	l.Criticalf(stripGrpcPrefix(format), args...)
-	os.Exit(1)
-}
-
-func (l logger) Fatalln(args ...interface{}) {
-	l.Critical(stripGrpcPrefixArgs(args)...)
-	os.Exit(1)
-}
-
-func (l logger) Print(args ...interface{}) {
-	l.Info(stripGrpcPrefixArgs(args)...)
-}
-
-func (l logger) Printf(format string, args ...interface{}) {
-	l.Infof(stripGrpcPrefix(format), args...)
-}
-
-func (l logger) Println(args ...interface{}) {
-	l.Info(stripGrpcPrefixArgs(args)...)
+// UseLogger uses a specified Logger to output package logging info.
+func UseLogger(logger *clog.SubSystem) {
+	Log = logger
 }

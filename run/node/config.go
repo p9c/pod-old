@@ -26,7 +26,7 @@ import (
 )
 
 // Log is thte main node logger
-var Log = clog.NewSubSystem("pod/node", clog.Ninf)
+var Log = clog.NewSubSystem("pod/node", clog.Ndbg)
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
 type serviceOptions struct {

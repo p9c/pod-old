@@ -231,7 +231,7 @@ func (c *RPCClient) FilterBlocks(
 			continue
 		}
 
-		log.Infof("Fetching block height=%d hash=%v",
+		Log.Infof.Print("Fetching block height=%d hash=%v",
 			blk.Height, blk.Hash)
 
 		rawBlock, err := c.GetBlock(&blk.Hash)
@@ -322,13 +322,13 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 	blk, err := parseBlock(block)
 	if err != nil {
 		// Log and drop improper notification.
-		log.Errorf("recvtx notification bad block: %v", err)
+		Log.Errorf.Print("recvtx notification bad block: %v", err)
 		return
 	}
 
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx(), time.Now())
 	if err != nil {
-		log.Errorf("Cannot create transaction record for relevant "+
+		Log.Errorf.Print("Cannot create transaction record for relevant "+
 			"tx: %v", err)
 		return
 	}
@@ -363,7 +363,7 @@ func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime
 func (c *RPCClient) handler() {
 	hash, height, err := c.GetBestBlock()
 	if err != nil {
-		log.Errorf("Failed to receive best block from chain server: %v", err)
+		Log.Errorf.Print("Failed to receive best block from chain server: %v", err)
 		c.Stop()
 		c.wg.Done()
 		return

@@ -19,7 +19,7 @@ import (
 )
 
 // Log is the shell main logger
-var Log = clog.NewSubSystem("pod/shell", clog.Ninf)
+var Log = clog.NewSubSystem("pod/shell", clog.Ndbg)
 
 // Cfg is the combined app and logging configuration data
 type Cfg struct {

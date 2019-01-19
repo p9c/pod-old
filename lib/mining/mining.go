@@ -218,7 +218,7 @@ func logSkippedDeps(tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
 		return
 	}
 	for _, item := range deps {
-		log.Tracef("Skipping tx %s since it depends on %s\n",
+		Log.Tracef.Print("Skipping tx %s since it depends on %s\n",
 			item.tx.Hash(), tx.Hash())
 	}
 }
@@ -334,25 +334,25 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	txSigOpCosts := make([]int64, 0, len(sourceTxns))
 	txFees = append(txFees, -1) // Updated once known
 	txSigOpCosts = append(txSigOpCosts, coinbaseSigOpCost)
-	log.Debugf("Considering %d transactions for inclusion to new block",
+	Log.Debugf.Print("Considering %d transactions for inclusion to new block",
 		len(sourceTxns))
 mempoolLoop:
 	for _, txDesc := range sourceTxns {
 		// A block can't have more than one coinbase or contain non-finalized transactions.
 		tx := txDesc.Tx
 		if blockchain.IsCoinBase(tx) {
-			log.Tracef("Skipping coinbase tx %s", tx.Hash())
+			Log.Tracef.Print("Skipping coinbase tx %s", tx.Hash())
 			continue
 		}
 		if !blockchain.IsFinalizedTransaction(tx, nextBlockHeight,
 			g.timeSource.AdjustedTime()) {
-			log.Tracef("Skipping non-finalized tx %s", tx.Hash())
+			Log.Tracef.Print("Skipping non-finalized tx %s", tx.Hash())
 			continue
 		}
 		// Fetch all of the utxos referenced by the this transaction. NOTE: This intentionally does not fetch inputs from the mempool since a transaction which depends on other transactions in the mempool must come after those dependencies in the final generated block.
 		utxos, err := g.chain.FetchUtxoView(tx)
 		if err != nil {
-			log.Warnf("Unable to fetch utxo view for tx %s: %v",
+			Log.Warnf.Print("Unable to fetch utxo view for tx %s: %v",
 				tx.Hash(), err)
 			continue
 		}
@@ -363,7 +363,7 @@ mempoolLoop:
 			entry := utxos.LookupEntry(txIn.PreviousOutPoint)
 			if entry == nil || entry.IsSpent() {
 				if !g.txSource.HaveTransaction(originHash) {
-					log.Tracef("Skipping tx %s because it "+
+					Log.Tracef.Print("Skipping tx %s because it "+
 						"references unspent output %s "+
 						"which is not available",
 						tx.Hash(), txIn.PreviousOutPoint)
@@ -398,7 +398,7 @@ mempoolLoop:
 		// Merge the referenced outputs from the input transactions to this transaction into the block utxo view.  This allows the code below to avoid a second lookup.
 		mergeUtxoView(blockUtxos, utxos)
 	}
-	log.Tracef("Priority queue len %d, dependers len %d",
+	Log.Tracef.Print("Priority queue len %d, dependers len %d",
 		priorityQueue.Len(), len(dependers))
 	// The starting block size is the size of the block header plus the max possible transaction count size, plus the size of the coinbase transaction.
 	blockWeight := uint32((blockHeaderOverhead * blockchain.WitnessScaleFactor) +
@@ -446,7 +446,7 @@ mempoolLoop:
 		blockPlusTxWeight := blockWeight + txWeight
 		if blockPlusTxWeight < blockWeight ||
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
-			log.Tracef("Skipping tx %s because it would exceed "+
+			Log.Tracef.Print("Skipping tx %s because it would exceed "+
 				"the max block weight", tx.Hash())
 			logSkippedDeps(tx, deps)
 			continue
@@ -455,14 +455,14 @@ mempoolLoop:
 		sigOpCost, err := blockchain.GetSigOpCost(tx, false,
 			blockUtxos, true, segwitActive)
 		if err != nil {
-			log.Tracef("Skipping tx %s due to error in "+
+			Log.Tracef.Print("Skipping tx %s due to error in "+
 				"GetSigOpCost: %v", tx.Hash(), err)
 			logSkippedDeps(tx, deps)
 			continue
 		}
 		if blockSigOpCost+int64(sigOpCost) < blockSigOpCost ||
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
-			log.Tracef("Skipping tx %s because it would "+
+			Log.Tracef.Print("Skipping tx %s because it would "+
 				"exceed the maximum sigops per block", tx.Hash())
 			logSkippedDeps(tx, deps)
 			continue
@@ -471,7 +471,7 @@ mempoolLoop:
 		if sortedByFee &&
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
-			log.Tracef("Skipping tx %s with feePerKB %d "+
+			Log.Tracef.Print("Skipping tx %s with feePerKB %d "+
 				"< TxMinFreeFee %d and block weight %d >= "+
 				"minBlockWeight %d", tx.Hash(), prioItem.feePerKB,
 				g.policy.TxMinFreeFee, blockPlusTxWeight,
@@ -482,7 +482,7 @@ mempoolLoop:
 		// Prioritize by fee per kilobyte once the block is larger than the priority size or there are no more high-priority transactions.
 		if !sortedByFee && (blockPlusTxWeight >= g.policy.BlockPrioritySize ||
 			prioItem.priority <= MinHighPriority) {
-			log.Tracef("Switching to sort by fees per "+
+			Log.Tracef.Print("Switching to sort by fees per "+
 				"kilobyte blockSize %d >= BlockPrioritySize "+
 				"%d || priority %.2f <= minHighPriority %.2f",
 				blockPlusTxWeight, g.policy.BlockPrioritySize,
@@ -500,7 +500,7 @@ mempoolLoop:
 		_, err = blockchain.CheckTransactionInputs(tx, nextBlockHeight,
 			blockUtxos, g.chainParams)
 		if err != nil {
-			log.Tracef("Skipping tx %s due to error in "+
+			Log.Tracef.Print("Skipping tx %s due to error in "+
 				"CheckTransactionInputs: %v", tx.Hash(), err)
 			logSkippedDeps(tx, deps)
 			continue
@@ -509,7 +509,7 @@ mempoolLoop:
 			txscript.StandardVerifyFlags, g.sigCache,
 			g.hashCache)
 		if err != nil {
-			log.Tracef("Skipping tx %s due to error in "+
+			Log.Tracef.Print("Skipping tx %s due to error in "+
 				"ValidateTransactionScripts: %v", tx.Hash(), err)
 			logSkippedDeps(tx, deps)
 			continue
@@ -523,7 +523,7 @@ mempoolLoop:
 		totalFees += prioItem.fee
 		txFees = append(txFees, prioItem.fee)
 		txSigOpCosts = append(txSigOpCosts, int64(sigOpCost))
-		log.Tracef("Adding tx %s (priority %.2f, feePerKB %.2f)",
+		Log.Tracef.Print("Adding tx %s (priority %.2f, feePerKB %.2f)",
 			prioItem.tx.Hash(), prioItem.priority, prioItem.feePerKB)
 		// Add transactions which depend on this one (and also do not have any other unsatisified dependencies) to the priority queue.
 		for _, item := range deps {
@@ -592,11 +592,11 @@ mempoolLoop:
 	block.SetHeight(nextBlockHeight)
 	err = g.chain.CheckConnectBlockTemplate(block)
 	if err != nil {
-		log.Debugf("checkconnectblocktemplate err: %s", err.Error())
+		Log.Debugf.Print("checkconnectblocktemplate err: %s", err.Error())
 		return nil, err
 	}
 	a := fork.GetAlgoName(block.MsgBlock().Header.Version, nextBlockHeight)
-	log.Debugf("Created new block template (algo %s, %d transactions, %d in fees, %d signature operations cost, %d weight, target difficulty %064x)", a, len(msgBlock.Transactions), totalFees, blockSigOpCost,
+	Log.Debugf.Print("Created new block template (algo %s, %d transactions, %d in fees, %d signature operations cost, %d weight, target difficulty %064x)", a, len(msgBlock.Transactions), totalFees, blockSigOpCost,
 		blockWeight, blockchain.CompactToBig(msgBlock.Header.Bits))
 	return &BlockTemplate{
 		Block:             &msgBlock,

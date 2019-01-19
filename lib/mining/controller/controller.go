@@ -67,7 +67,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	// Ensure the block is not stale since a new block could have shown up while the solution was being found.  Typically that condition is detected and all work on the stale block is halted to start work on a new block, but the check only happens periodically, so it is possible a block was found and submitted in between.
 	msgBlock := block.MsgBlock()
 	if !msgBlock.Header.PrevBlock.IsEqual(&c.g.BestSnapshot().Hash) {
-		log.Debugf("Block submitted via miner with previous block %s is stale", msgBlock.Header.PrevBlock)
+		Log.Debugf.Print("Block submitted via miner with previous block %s is stale", msgBlock.Header.PrevBlock)
 		return false
 	}
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
@@ -75,14 +75,14 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	if err != nil {
 		// Anything other than a rule violation is an unexpected error, so log that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
-			log.Errorf("Unexpected error while processing block submitted via miner worker: %v", err)
+			Log.Errorf.Print("Unexpected error while processing block submitted via miner worker: %v", err)
 			return false
 		}
-		log.Debugf("Block submitted via miner rejected: %v", err)
+		Log.Debugf.Print("Block submitted via miner rejected: %v", err)
 		return false
 	}
 	if isOrphan {
-		log.Debugf("Block submitted via miner is an orphan")
+		Log.Debugf.Print("Block submitted via miner is an orphan")
 		return false
 	}
 	// The block was accepted.
@@ -92,7 +92,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	prevTime := prevBlock.MsgBlock().Header.Timestamp.Unix()
 	since := block.MsgBlock().Header.Timestamp.Unix() - prevTime
 
-	log.Infof("new block height %d %s %10d %08x %v %s %ds since prev",
+	Log.Infof.Print("new block height %d %s %10d %08x %v %s %ds since prev",
 		block.Height(),
 		block.MsgBlock().BlockHashWithAlgos(block.Height()),
 		block.MsgBlock().Header.Timestamp.Unix(),
@@ -108,7 +108,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	// Choose a random extra nonce offset for this block template and worker.
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
-		log.Errorf("Unexpected error while generating random extra nonce offset: %v", err)
+		Log.Errorf.Print("Unexpected error while generating random extra nonce offset: %v", err)
 		enOffset = 0
 	}
 	header := &msgBlock.Header
@@ -155,7 +155,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (c *Controller) generateBlocks(quit chan struct{}) {
-	log.Tracef("Starting generate blocks worker")
+	Log.Tracef.Print("Starting generate blocks worker")
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second / 2)
 	defer ticker.Stop()
@@ -189,7 +189,7 @@ out:
 		c.submitBlockLock.Unlock()
 		if err != nil {
 			errStr := fmt.Sprintf("Failed to create new block template: %v", err)
-			log.Errorf(errStr)
+			Log.Errorf.Print(errStr)
 			continue
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
@@ -199,7 +199,7 @@ out:
 		}
 	}
 	c.workerWg.Done()
-	log.Tracef("Generate blocks worker done")
+	Log.Tracef.Print("Generate blocks worker done")
 }
 
 func (c *Controller) minerController() {
@@ -228,7 +228,7 @@ func (c *Controller) Start() {
 	c.wg.Add(1)
 	go c.minerController()
 	c.started = true
-	log.Info("Miner controller started")
+	Log.Info.Print("Miner controller started")
 }
 
 // Stop gracefully stops the mining process by signalling all workers, and the speed monitor to quit.  Calling this function when the miner controller has not already been started will have no effect.
@@ -241,7 +241,7 @@ func (c *Controller) Stop() {
 	close(c.quit)
 	c.wg.Wait()
 	c.started = false
-	log.Info("Miner controller stopped")
+	Log.Info.Print("Miner controller stopped")
 }
 
 // IsMining returns whether or not the miner controller has been started and is therefore currenting mining. This function is safe for concurrent access.

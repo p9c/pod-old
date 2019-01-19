@@ -48,7 +48,7 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 	select {
 	case r.resultChan <- &getUtxoResult{report, err}:
 	default:
-		log.Warnf("duplicate getutxo result delivered for "+
+		Log.Warnf.Print("duplicate getutxo result delivered for "+
 			"outpoint=%v, spend=%v, err=%v",
 			r.Input.OutPoint, report, err)
 	}
@@ -171,7 +171,7 @@ batchShutdown:
 func (s *UtxoScanner) Enqueue(input *InputWithScript,
 	birthHeight uint32) (*GetUtxoRequest, error) {
 
-	log.Debugf("Enqueuing request for %s with birth height %d",
+	Log.Debugf.Print("Enqueuing request for %s with birth height %d",
 		input.OutPoint.String(), birthHeight)
 
 	req := &GetUtxoRequest{
@@ -242,7 +242,7 @@ func (s *UtxoScanner) batchManager() {
 		// least-height request currently in the queue.
 		err := s.scanFromHeight(req.BirthHeight)
 		if err != nil {
-			log.Errorf("utxo scan failed: %v", err)
+			Log.Errorf.Print("utxo scan failed: %v", err)
 		}
 	}
 }
@@ -346,7 +346,7 @@ scanToEnd:
 		default:
 		}
 
-		log.Debugf("Fetching block height=%d hash=%s", height, hash)
+		Log.Debugf.Print("Fetching block height=%d hash=%s", height, hash)
 
 		block, err := s.cfg.GetBlock(*hash)
 		if err != nil {
@@ -360,7 +360,7 @@ scanToEnd:
 		default:
 		}
 
-		log.Debugf("Processing block height=%d hash=%s", height, hash)
+		Log.Debugf.Print("Processing block height=%d hash=%s", height, hash)
 
 		reporter.ProcessBlock(block.MsgBlock(), newReqs, height)
 	}

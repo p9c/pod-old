@@ -1,12 +1,11 @@
 package votingpool
 
 import (
-	"os"
 	"reflect"
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/lib/log"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
@@ -15,9 +14,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Enable logging (Debug level) to aid debugging failing tests.
-	logger := log.NewBackend(os.Stdout).Logger("TEST")
-	logger.SetLevel(log.LevelDebug)
-	UseLogger(logger)
+	Log.SetLevel(clog.Ndbg)
 }
 
 // TstCheckError ensures the passed error is a votingpool.Error with an error

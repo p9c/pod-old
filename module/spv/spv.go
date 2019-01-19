@@ -20,11 +20,11 @@ import (
 	"git.parallelcoin.io/pod/lib/peer"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/module/spv/cache/lru"
 	"git.parallelcoin.io/pod/module/spv/filterdb"
 	"git.parallelcoin.io/pod/module/spv/headerfs"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
 
 // These are exported variables so they can be changed by users.
@@ -210,17 +210,17 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 		// logged if the score is above the warn threshold.
 		score := sp.banScore.Int()
 		if score > warnThreshold {
-			log.Warnf("Misbehaving peer %s: %s -- ban score is %d, "+
+			Log.Warnf.Print("Misbehaving peer %s: %s -- ban score is %d, "+
 				"it was not increased this time", sp, reason, score)
 		}
 		return
 	}
 	score := sp.banScore.Increase(persistent, transient)
 	if score > warnThreshold {
-		log.Warnf("Misbehaving peer %s: %s -- ban score increased to %d",
+		Log.Warnf.Print("Misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score)
 		if score > BanThreshold {
-			log.Warnf("Misbehaving peer %s -- banning and disconnecting",
+			Log.Warnf.Print("Misbehaving peer %s -- banning and disconnecting",
 				sp)
 			sp.server.BanPeer(sp)
 			sp.Disconnect()
@@ -260,7 +260,7 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 	if peerServices&wire.SFNodeWitness != wire.SFNodeWitness ||
 		peerServices&wire.SFNodeCF != wire.SFNodeCF {
 
-		log.Infof("Disconnecting peer %v, cannot serve compact "+
+		Log.Infof.Print("Disconnecting peer %v, cannot serve compact "+
 			"filters", sp)
 		sp.Disconnect()
 		return nil
@@ -299,14 +299,14 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 // accordingly.  We pass the message down to blockmanager which will call
 // QueueMessage with any appropriate responses.
 func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
-	log.Tracef("Got inv with %d items from %s", len(msg.InvList), p.Addr())
+	Log.Tracef.Print("Got inv with %d items from %s", len(msg.InvList), p.Addr())
 	newInv := wire.NewMsgInvSizeHint(uint(len(msg.InvList)))
 	for _, invVect := range msg.InvList {
 		if invVect.Type == wire.InvTypeTx {
-			log.Tracef("Ignoring tx %s in inv from %v -- "+
+			Log.Tracef.Print("Ignoring tx %s in inv from %v -- "+
 				"SPV mode", invVect.Hash, sp)
 			if sp.ProtocolVersion() >= wire.BIP0037Version {
-				log.Infof("Peer %v is announcing "+
+				Log.Infof.Print("Peer %v is announcing "+
 					"transactions -- disconnecting", sp)
 				sp.Disconnect()
 				return
@@ -315,7 +315,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 		}
 		err := newInv.AddInvVect(invVect)
 		if err != nil {
-			log.Errorf("Failed to add inventory vector: %s", err)
+			Log.Errorf.Print("Failed to add inventory vector: %s", err)
 			break
 		}
 	}
@@ -328,7 +328,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 // OnHeaders is invoked when a peer receives a headers bitcoin
 // message.  The message is passed down to the block manager.
 func (sp *ServerPeer) OnHeaders(p *peer.Peer, msg *wire.MsgHeaders) {
-	log.Tracef("Got headers with %d items from %s", len(msg.Headers),
+	Log.Tracef.Print("Got headers with %d items from %s", len(msg.Headers),
 		p.Addr())
 	sp.server.blockManager.QueueHeaders(msg, sp)
 }
@@ -340,7 +340,7 @@ func (sp *ServerPeer) OnHeaders(p *peer.Peer, msg *wire.MsgHeaders) {
 func (sp *ServerPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
-		log.Debugf("Peer %v sent an invalid feefilter '%v' -- "+
+		Log.Debugf.Print("Peer %v sent an invalid feefilter '%v' -- "+
 			"disconnecting", sp, util.Amount(msg.MinFee))
 		sp.Disconnect()
 		return
@@ -373,7 +373,7 @@ func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
 
 	// A message that has no addresses is invalid.
 	if len(msg.AddrList) == 0 {
-		log.Errorf("Command [%s] from %s does not contain any "+
+		Log.Errorf.Print("Command [%s] from %s does not contain any "+
 			"addresses", msg.Command(), sp.Addr())
 		sp.Disconnect()
 		return
@@ -966,7 +966,7 @@ out:
 		case <-s.quit:
 			// Disconnect all peers on server shutdown.
 			state.forAllPeers(func(sp *ServerPeer) {
-				log.Tracef("Shutdown peer %s", sp)
+				Log.Tracef.Print("Shutdown peer %s", sp)
 				sp.Disconnect()
 			})
 			break out
@@ -993,7 +993,7 @@ cleanup:
 		}
 	}
 	s.wg.Done()
-	log.Tracef("Peer handler done")
+	Log.Tracef.Print("Peer handler done")
 }
 
 // addrStringToNetAddr takes an address in the form of 'host:port' or 'host'
@@ -1070,7 +1070,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 
 	// Ignore new peers if we're shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
-		log.Infof("New peer %s ignored - server is shutting down", sp)
+		Log.Infof.Print("New peer %s ignored - server is shutting down", sp)
 		sp.Disconnect()
 		return false
 	}
@@ -1078,19 +1078,19 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	// Disconnect banned peers.
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
-		log.Debugf("can't split host/port: %s", err)
+		Log.Debugf.Print("can't split host/port: %s", err)
 		sp.Disconnect()
 		return false
 	}
 	if banEnd, ok := state.banned[host]; ok {
 		if time.Now().Before(banEnd) {
-			log.Debugf("Peer %s is banned for another %v - disconnecting",
+			Log.Debugf.Print("Peer %s is banned for another %v - disconnecting",
 				host, banEnd.Sub(time.Now()))
 			sp.Disconnect()
 			return false
 		}
 
-		log.Infof("Peer %s is no longer banned", host)
+		Log.Infof.Print("Peer %s is no longer banned", host)
 		delete(state.banned, host)
 	}
 
@@ -1098,7 +1098,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 
 	// Limit max number of total peers.
 	if state.Count() >= MaxPeers {
-		log.Infof("Max peers reached [%d] - disconnecting peer %s",
+		Log.Infof.Print("Max peers reached [%d] - disconnecting peer %s",
 			MaxPeers, sp)
 		sp.Disconnect()
 		// TODO: how to handle permanent peers here?
@@ -1107,7 +1107,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	}
 
 	// Add the new peer and start it.
-	log.Debugf("New peer %s", sp)
+	Log.Debugf.Print("New peer %s", sp)
 	state.outboundGroups[addrmgr.GroupKey(sp.NA())]++
 	if sp.persistent {
 		state.persistentPeers[sp.ID()] = sp
@@ -1135,7 +1135,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 			s.connManager.Disconnect(sp.connReq.ID())
 		}
 		delete(list, sp.ID())
-		log.Debugf("Removed peer %s", sp)
+		Log.Debugf.Print("Removed peer %s", sp)
 		return
 	}
 
@@ -1158,10 +1158,10 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 func (s *ChainService) handleBanPeerMsg(state *peerState, sp *ServerPeer) {
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
-		log.Debugf("can't split ban peer %s: %s", sp.Addr(), err)
+		Log.Debugf.Print("can't split ban peer %s: %s", sp.Addr(), err)
 		return
 	}
-	log.Infof("Banned peer %s for %v", host, BanDuration)
+	Log.Infof.Print("Banned peer %s for %v", host, BanDuration)
 	state.banned[host] = time.Now().Add(BanDuration)
 }
 
@@ -1239,7 +1239,7 @@ func (s *ChainService) outboundPeerConnected(c *connmgr.ConnReq, conn net.Conn) 
 	sp := newServerPeer(s, c.Permanent)
 	p, err := peer.NewOutboundPeer(newPeerConfig(sp), c.Addr.String())
 	if err != nil {
-		log.Debugf("Cannot create outbound peer %s: %s", c.Addr, err)
+		Log.Debugf.Print("Cannot create outbound peer %s: %s", c.Addr, err)
 		s.connManager.Disconnect(c.ID())
 	}
 	sp.Peer = p

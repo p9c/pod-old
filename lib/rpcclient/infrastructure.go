@@ -209,46 +209,46 @@ func (c *Client) handleMessage(msg []byte) {
 	in.rawNotification = new(rawNotification)
 	err := js.Unmarshal(msg, &in)
 	if err != nil {
-		log.Warnf("Remote server sent invalid message: %v", err)
+		Log.Warnf.Print("Remote server sent invalid message: %v", err)
 		return
 	}
 	// JSON-RPC 1.0 notifications are requests with a null id.
 	if in.ID == nil {
 		ntfn := in.rawNotification
 		if ntfn == nil {
-			log.Warn("Malformed notification: missing " +
+			Log.Warn.Print("Malformed notification: missing " +
 				"method and parameters")
 			return
 		}
 		if ntfn.Method == "" {
-			log.Warn("Malformed notification: missing method")
+			Log.Warn.Print("Malformed notification: missing method")
 			return
 		}
 		// params are not optional: nil isn't valid (but len == 0 is)
 		if ntfn.Params == nil {
-			log.Warn("Malformed notification: missing params")
+			Log.Warn.Print("Malformed notification: missing params")
 			return
 		}
 		// Deliver the notification.
-		log.Tracef("Received notification [%s]", in.Method)
+		Log.Tracef.Print("Received notification [%s]", in.Method)
 		c.handleNotification(in.rawNotification)
 		return
 	}
 	// ensure that in.ID can be converted to an integer without loss of precision
 	if *in.ID < 0 || *in.ID != math.Trunc(*in.ID) {
-		log.Warn("Malformed response: invalid identifier")
+		Log.Warn.Print("Malformed response: invalid identifier")
 		return
 	}
 	if in.rawResponse == nil {
-		log.Warn("Malformed response: missing result and error")
+		Log.Warn.Print("Malformed response: missing result and error")
 		return
 	}
 	id := uint64(*in.ID)
-	log.Tracef("Received response for id %d (result %s)", id, in.Result)
+	Log.Tracef.Print("Received response for id %d (result %s)", id, in.Result)
 	request := c.removeRequest(id)
 	// Nothing more to do if there is no request associated with this reply.
 	if request == nil || request.responseChan == nil {
-		log.Warnf("Received unexpected reply: %s (id %d)", in.Result,
+		Log.Warnf.Print("Received unexpected reply: %s (id %d)", in.Result,
 			id)
 		return
 	}
@@ -291,7 +291,7 @@ out:
 		if err != nil {
 			// Log the error if it's not due to disconnecting.
 			if c.shouldLogReadError(err) {
-				log.Errorf("Websocket receive error from "+
+				Log.Errorf.Print("Websocket receive error from "+
 					"%s: %v", c.config.Host, err)
 			}
 			break out
@@ -301,7 +301,7 @@ out:
 	// Ensure the connection is closed.
 	c.Disconnect()
 	c.wg.Done()
-	log.Tracef("RPC client input handler done for %s", c.config.Host)
+	Log.Tracef.Print("RPC client input handler done for %s", c.config.Host)
 }
 
 // disconnectChan returns a copy of the current disconnect channel.  The channel is read protected by the client mutex, and is safe to call while the channel is being reassigned during a reconnect.
@@ -338,7 +338,7 @@ cleanup:
 		}
 	}
 	c.wg.Done()
-	log.Tracef("RPC client output handler done for %s", c.config.Host)
+	Log.Tracef.Print("RPC client output handler done for %s", c.config.Host)
 }
 
 // sendMessage sends the passed JSON to the connected server using the websocket connection.  It is backed by a buffered channel, so it will not block until the send channel is full.
@@ -364,14 +364,14 @@ func (c *Client) reregisterNtfns() error {
 	c.ntfnStateLock.Unlock()
 	// Reregister notifyblocks if needed.
 	if stateCopy.notifyBlocks {
-		log.Debugf("Reregistering [notifyblocks]")
+		Log.Debugf.Print("Reregistering [notifyblocks]")
 		if err := c.NotifyBlocks(); err != nil {
 			return err
 		}
 	}
 	// Reregister notifynewtransactions if needed.
 	if stateCopy.notifyNewTx || stateCopy.notifyNewTxVerbose {
-		log.Debugf("Reregistering [notifynewtransactions] (verbose=%v)",
+		Log.Debugf.Print("Reregistering [notifynewtransactions] (verbose=%v)",
 			stateCopy.notifyNewTxVerbose)
 		err := c.NotifyNewTransactions(stateCopy.notifyNewTxVerbose)
 		if err != nil {
@@ -385,7 +385,7 @@ func (c *Client) reregisterNtfns() error {
 		for op := range stateCopy.notifySpent {
 			outpoints = append(outpoints, op)
 		}
-		log.Debugf("Reregistering [notifyspent] outpoints: %v", outpoints)
+		Log.Debugf.Print("Reregistering [notifyspent] outpoints: %v", outpoints)
 		if err := c.notifySpentInternal(outpoints).Receive(); err != nil {
 			return err
 		}
@@ -397,7 +397,7 @@ func (c *Client) reregisterNtfns() error {
 		for addr := range stateCopy.notifyReceived {
 			addresses = append(addresses, addr)
 		}
-		log.Debugf("Reregistering [notifyreceived] addresses: %v", addresses)
+		Log.Debugf.Print("Reregistering [notifyreceived] addresses: %v", addresses)
 		if err := c.notifyReceivedInternal(addresses).Receive(); err != nil {
 			return err
 		}
@@ -414,7 +414,7 @@ var ignoreResends = map[string]struct{}{
 func (c *Client) resendRequests() {
 	// Set the notification state back up.  If anything goes wrong, disconnect the client.
 	if err := c.reregisterNtfns(); err != nil {
-		log.Warnf("Unable to re-establish notification state: %v", err)
+		Log.Warnf.Print("Unable to re-establish notification state: %v", err)
 		c.Disconnect()
 		return
 	}
@@ -439,7 +439,7 @@ func (c *Client) resendRequests() {
 		if c.Disconnected() {
 			return
 		}
-		log.Tracef("Sending command [%s] with id %d", jReq.method,
+		Log.Tracef.Print("Sending command [%s] with id %d", jReq.method,
 			jReq.id)
 		c.sendMessage(jReq.marshalledJSON)
 	}
@@ -465,7 +465,7 @@ out:
 			wsConn, err := dial(c.config)
 			if err != nil {
 				c.retryCount++
-				log.Infof("Failed to connect to %s: %v",
+				Log.Infof.Print("Failed to connect to %s: %v",
 					c.config.Host, err)
 				// Scale the retry interval by the number of retries so there is a backoff up to a max of 1 minute.
 				scaledInterval := connectionRetryInterval.Nanoseconds() * c.retryCount
@@ -473,12 +473,12 @@ out:
 				if scaledDuration > time.Minute {
 					scaledDuration = time.Minute
 				}
-				log.Infof("Retrying connection to %s in "+
+				Log.Infof.Print("Retrying connection to %s in "+
 					"%s", c.config.Host, scaledDuration)
 				time.Sleep(scaledDuration)
 				continue reconnect
 			}
-			log.Infof("Reestablished connection to RPC server %s",
+			Log.Infof.Print("Reestablished connection to RPC server %s",
 				c.config.Host)
 			// Reset the connection state and signal the reconnect happened.
 			c.wsConn = wsConn
@@ -496,13 +496,13 @@ out:
 		}
 	}
 	c.wg.Done()
-	log.Tracef("RPC client reconnect handler done for %s", c.config.Host)
+	Log.Tracef.Print("RPC client reconnect handler done for %s", c.config.Host)
 }
 
 // handleSendPostMessage handles performing the passed HTTP request, reading the result, unmarshalling it, and delivering the unmarshalled result to the provided response channel.
 func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	jReq := details.jsonRequest
-	log.Tracef("Sending command [%s] with id %d", jReq.method, jReq.id)
+	Log.Tracef.Print("Sending command [%s] with id %d", jReq.method, jReq.id)
 	httpResponse, err := c.httpClient.Do(details.httpRequest)
 	if err != nil {
 		jReq.responseChan <- &response{err: err}
@@ -556,7 +556,7 @@ cleanup:
 		}
 	}
 	c.wg.Done()
-	log.Tracef("RPC client send handler done for %s", c.config.Host)
+	Log.Tracef.Print("RPC client send handler done for %s", c.config.Host)
 }
 
 // sendPostRequest sends the passed HTTP request to the RPC server using the HTTP client associated with the client.  It is backed by a buffered channel, so it will not block until the send channel is full.
@@ -605,7 +605,7 @@ func (c *Client) sendPost(jReq *jsonRequest) {
 	httpReq.Header.Set("Content-Type", "application/json")
 	// Configure basic access authorization.
 	httpReq.SetBasicAuth(c.config.User, c.config.Pass)
-	log.Tracef("Sending command [%s] with id %d", jReq.method, jReq.id)
+	Log.Tracef.Print("Sending command [%s] with id %d", jReq.method, jReq.id)
 	c.sendPostRequest(httpReq, jReq)
 }
 
@@ -628,7 +628,7 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 		jReq.responseChan <- &response{err: err}
 		return
 	}
-	log.Tracef("Sending command [%s] with id %d", jReq.method, jReq.id)
+	Log.Tracef.Print("Sending command [%s] with id %d", jReq.method, jReq.id)
 	c.sendMessage(jReq.marshalledJSON)
 }
 
@@ -687,7 +687,7 @@ func (c *Client) doDisconnect() bool {
 	if c.disconnected {
 		return false
 	}
-	log.Tracef("Disconnecting RPC client %s", c.config.Host)
+	Log.Tracef.Print("Disconnecting RPC client %s", c.config.Host)
 	close(c.disconnect)
 	if c.wsConn != nil {
 		c.wsConn.Close()
@@ -704,7 +704,7 @@ func (c *Client) doShutdown() bool {
 		return false
 	default:
 	}
-	log.Tracef("Shutting down RPC client %s", c.config.Host)
+	Log.Tracef.Print("Shutting down RPC client %s", c.config.Host)
 	close(c.shutdown)
 	return true
 }
@@ -755,7 +755,7 @@ func (c *Client) Shutdown() {
 
 // start begins processing input and output messages.
 func (c *Client) start() {
-	log.Tracef("Starting RPC client %s", c.config.Host)
+	Log.Tracef.Print("Starting RPC client %s", c.config.Host)
 	// Start the I/O processing handlers depending on whether the client is in HTTP POST mode or the default websocket mode.
 	if c.config.HTTPPostMode {
 		c.wg.Add(1)
@@ -936,7 +936,7 @@ func New(config *ConnConfig, ntfnHandlers *NotificationHandlers) (*Client, error
 		shutdown:        make(chan struct{}),
 	}
 	if start {
-		log.Infof("Established connection to RPC server %s",
+		Log.Infof.Print("Established connection to RPC server %s",
 			config.Host)
 		close(connEstablished)
 		client.start()
@@ -973,7 +973,7 @@ func (c *Client) Connect(tries int) error {
 			continue
 		}
 		// Connection was established.  Set the websocket connection member of the client and start the goroutines necessary to run the client.
-		log.Infof("Established connection to RPC server %s",
+		Log.Infof.Print("Established connection to RPC server %s",
 			c.config.Host)
 		c.wsConn = wsConn
 		close(c.connEstablished)

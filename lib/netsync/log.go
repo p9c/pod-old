@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the netsync package
-var Log = clog.NewSubSystem("netsync", clog.Ninf)
+var Log = clog.NewSubSystem("pod/lib/netsync", clog.Ndbg)
 
 // import (
 // 	l "git.parallelcoin.io/pod/lib/log"
@@ -22,9 +22,7 @@ var Log = clog.NewSubSystem("netsync", clog.Ninf)
 // 	log = l.Disabled
 // }
 
-// // UseLogger uses a specified Logger to output package logging info.
-// // This should be used in preference to SetLogWriter if the caller is also
-// // using log.
-// func UseLogger(logger l.Logger) {
-// 	log = logger
-// }
+// UseLogger uses a specified Logger to output package logging info.
+func UseLogger(logger *clog.SubSystem) {
+	Log = logger
+}

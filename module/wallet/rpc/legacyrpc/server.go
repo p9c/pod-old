@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/json"
-	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/module/wallet/chain"
+	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"github.com/btcsuite/websocket"
 )
 
@@ -119,7 +119,7 @@ func NewServer(opts *Options, walletLoader *wallet.Loader, listeners []net.Liste
 			r.Close = true
 
 			if err := server.checkAuthHeader(r); err != nil {
-				log.Warnf("Unauthorized client connection attempt")
+				Log.Warnf.Print("Unauthorized client connection attempt")
 				jsonAuthFail(w)
 				return
 			}
@@ -139,7 +139,7 @@ func NewServer(opts *Options, walletLoader *wallet.Loader, listeners []net.Liste
 			default:
 				// If auth was supplied but incorrect, rather than simply
 				// being missing, immediately terminate the connection.
-				log.Warnf("Disconnecting improperly authorized " +
+				Log.Warnf.Print("Disconnecting improperly authorized " +
 					"websocket client")
 				jsonAuthFail(w)
 				return
@@ -147,7 +147,7 @@ func NewServer(opts *Options, walletLoader *wallet.Loader, listeners []net.Liste
 
 			conn, err := server.upgrader.Upgrade(w, r, nil)
 			if err != nil {
-				log.Warnf("Cannot websocket upgrade client %s: %v",
+				Log.Warnf.Print("Cannot websocket upgrade client %s: %v",
 					r.RemoteAddr, err)
 				return
 			}
@@ -187,9 +187,9 @@ func httpBasicAuth(username, password string) []byte {
 func (s *Server) serve(lis net.Listener) {
 	s.wg.Add(1)
 	go func() {
-		log.Infof("Listening on %s", lis.Addr())
+		Log.Infof.Print("Listening on %s", lis.Addr())
 		err := s.httpServer.Serve(lis)
-		log.Tracef("Finished serving RPC: %v", err)
+		Log.Tracef.Print("Finished serving RPC: %v", err)
 		s.wg.Done()
 	}()
 }
@@ -230,7 +230,7 @@ func (s *Server) Stop() {
 	for _, listener := range s.listeners {
 		err := listener.Close()
 		if err != nil {
-			log.Errorf("Cannot close listener `%s`: %v",
+			Log.Errorf.Print("Cannot close listener `%s`: %v",
 				listener.Addr(), err)
 		}
 	}
@@ -323,7 +323,7 @@ func throttled(threshold int64, h http.Handler) http.Handler {
 		defer atomic.AddInt64(&active, -1)
 
 		if current-1 >= threshold {
-			log.Warnf("Reached threshold of %d concurrent active clients", threshold)
+			Log.Warnf.Print("Reached threshold of %d concurrent active clients", threshold)
 			http.Error(w, "429 Too Many Requests", 429)
 			return
 		}
@@ -385,7 +385,7 @@ func (s *Server) websocketClientRead(wsc *websocketClient) {
 		_, request, err := wsc.conn.ReadMessage()
 		if err != nil {
 			if err != io.EOF && err != io.ErrUnexpectedEOF {
-				log.Warnf("Websocket receive failed from client %s: %v",
+				Log.Warnf.Print("Websocket receive failed from client %s: %v",
 					wsc.remoteAddr, err)
 			}
 			close(wsc.allRequests)
@@ -481,7 +481,7 @@ out:
 					resp, jsonErr := f()
 					mresp, err := json.MarshalResponse(req.ID, resp, jsonErr)
 					if err != nil {
-						log.Errorf("Unable to marshal response: %v", err)
+						Log.Errorf.Print("Unable to marshal response: %v", err)
 					} else {
 						_ = wsc.send(mresp)
 					}
@@ -512,13 +512,13 @@ out:
 			}
 			err := wsc.conn.SetWriteDeadline(time.Now().Add(deadline))
 			if err != nil {
-				log.Warnf("Cannot set write deadline on "+
+				Log.Warnf.Print("Cannot set write deadline on "+
 					"client %s: %v", wsc.remoteAddr, err)
 			}
 			err = wsc.conn.WriteMessage(websocket.TextMessage,
 				response)
 			if err != nil {
-				log.Warnf("Failed websocket send to client "+
+				Log.Warnf.Print("Failed websocket send to client "+
 					"%s: %v", wsc.remoteAddr, err)
 				break out
 			}
@@ -528,19 +528,19 @@ out:
 		}
 	}
 	close(wsc.quit)
-	log.Infof("Disconnected websocket client %s", wsc.remoteAddr)
+	Log.Infof.Print("Disconnected websocket client %s", wsc.remoteAddr)
 	s.wg.Done()
 }
 
 // websocketClientRPC starts the goroutines to serve JSON-RPC requests over a
 // websocket connection for a single client.
 func (s *Server) websocketClientRPC(wsc *websocketClient) {
-	log.Infof("New websocket client %s", wsc.remoteAddr)
+	Log.Infof.Print("New websocket client %s", wsc.remoteAddr)
 
 	// Clear the read deadline set before the websocket hijacked
 	// the connection.
 	if err := wsc.conn.SetReadDeadline(time.Time{}); err != nil {
-		log.Warnf("Cannot remove read deadline: %v", err)
+		Log.Warnf.Print("Cannot remove read deadline: %v", err)
 	}
 
 	// WebsocketClientRead is intentionally not run with the waitgroup
@@ -580,14 +580,14 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp, err := json.MarshalResponse(req.ID, nil, json.ErrRPCInvalidRequest)
 		if err != nil {
-			log.Errorf("Unable to marshal response: %v", err)
+			Log.Errorf.Print("Unable to marshal response: %v", err)
 			http.Error(w, "500 Internal Server Error",
 				http.StatusInternalServerError)
 			return
 		}
 		_, err = w.Write(resp)
 		if err != nil {
-			log.Warnf("Cannot write invalid request request to "+
+			Log.Warnf.Print("Cannot write invalid request request to "+
 				"client: %v", err)
 		}
 		return
@@ -612,13 +612,13 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	// Marshal and send.
 	mresp, err := json.MarshalResponse(req.ID, res, jsonErr)
 	if err != nil {
-		log.Errorf("Unable to marshal response: %v", err)
+		Log.Errorf.Print("Unable to marshal response: %v", err)
 		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	_, err = w.Write(mresp)
 	if err != nil {
-		log.Warnf("Unable to respond to client: %v", err)
+		Log.Warnf.Print("Unable to respond to client: %v", err)
 	}
 
 	if stop {

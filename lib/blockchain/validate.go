@@ -251,7 +251,6 @@ func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags Behavio
 
 // CheckProofOfWork ensures the block header bits which indicate the target difficulty is in min/max range and that the block hash is less than the target difficulty as claimed.
 func CheckProofOfWork(block *util.Block, powLimit *big.Int, height int32) error {
-	// log.Debugf("CheckProofOfWork")
 	return checkProofOfWork(&block.MsgBlock().Header, powLimit, BFNone, height)
 }
 
@@ -342,7 +341,7 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 	header := &msgBlock.Header
 	err := checkBlockHeaderSanity(header, powLimit, timeSource, flags, height, fork.IsTestnet)
 	if err != nil {
-		log.Debugf("ERROR %s", err)
+		Log.Debugf.Print("ERROR %s", err)
 		return err
 	}
 	// A block must have at least one transaction.
@@ -423,7 +422,7 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 
 // CheckBlockSanity performs some preliminary checks on a block to ensure it is sane before continuing with block processing.  These checks are context free.
 func CheckBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, DoNotCheckPow bool, height int32, testnet bool) error {
-	// log.Debugf("CheckBlockSanity")
+	// Log.Debugf.Print("CheckBlockSanity")
 	return checkBlockSanity(block, powLimit, timeSource, BFNone, DoNotCheckPow, height)
 }
 
@@ -462,7 +461,7 @@ func ExtractCoinbaseHeight(coinbaseTx *util.Tx) (int32, error) {
 
 // checkSerializedHeight checks if the signature script in the passed transaction starts with the serialized block height of wantHeight.
 func checkSerializedHeight(coinbaseTx *util.Tx, wantHeight int32) error {
-	// log.Debugf("checkSerializedHeight")
+	// Log.Debugf.Print("checkSerializedHeight")
 	serializedHeight, err := ExtractCoinbaseHeight(coinbaseTx)
 	if err != nil {
 		return err
@@ -886,7 +885,7 @@ func (b *BlockChain) CheckConnectBlockTemplate(block *util.Block) error {
 	}
 	err := checkBlockSanity(block, powLimit, b.timeSource, flags, true, block.Height())
 	if err != nil {
-		log.Debugf("ERROR %s", err.Error())
+		Log.Debugf.Print("ERROR %s", err.Error())
 		return err
 	}
 	err = b.checkBlockContext(block, tip, flags, true)

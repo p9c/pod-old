@@ -9,10 +9,10 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
+	"git.parallelcoin.io/pod/lib/wire"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
-	"git.parallelcoin.io/pod/lib/wire"
 )
 
 // TODO: It would be good to send errors during notification creation to the rpc
@@ -54,11 +54,11 @@ func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetai
 	prevOP := &details.MsgTx.TxIn[deb.Index].PreviousOutPoint
 	prev, err := w.TxStore.TxDetails(txmgrNs, &prevOP.Hash)
 	if err != nil {
-		log.Errorf("Cannot query previous transaction details for %v: %v", prevOP.Hash, err)
+		Log.Errorf.Print("Cannot query previous transaction details for %v: %v", prevOP.Hash, err)
 		return 0
 	}
 	if prev == nil {
-		log.Errorf("Missing previous transaction %v", prevOP.Hash)
+		Log.Errorf.Print("Missing previous transaction %v", prevOP.Hash)
 		return 0
 	}
 	prevOut := prev.MsgTx.TxOut[prevOP.Index]
@@ -68,7 +68,7 @@ func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetai
 		_, inputAcct, err = w.Manager.AddrAccount(addrmgrNs, addrs[0])
 	}
 	if err != nil {
-		log.Errorf("Cannot fetch account for previous output %v: %v", prevOP, err)
+		Log.Errorf.Print("Cannot fetch account for previous output %v: %v", prevOP, err)
 		inputAcct = 0
 	}
 	return inputAcct
@@ -86,7 +86,7 @@ func lookupOutputChain(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetail
 		ma, err = w.Manager.Address(addrmgrNs, addrs[0])
 	}
 	if err != nil {
-		log.Errorf("Cannot fetch account for wallet output: %v", err)
+		Log.Errorf.Print("Cannot fetch account for wallet output: %v", err)
 	} else {
 		account = ma.Account()
 		internal = ma.Internal()
@@ -100,7 +100,7 @@ func makeTxSummary(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) T
 		var buf bytes.Buffer
 		err := details.MsgTx.Serialize(&buf)
 		if err != nil {
-			log.Errorf("Transaction serialization: %v", err)
+			Log.Errorf.Print("Transaction serialization: %v", err)
 		}
 		serializedTx = buf.Bytes()
 	}
@@ -196,7 +196,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	// Sanity check: should not be currently coalescing a notification for
 	// mined transactions at the same time that an unmined tx is notified.
 	if s.currentTxNtfn != nil {
-		log.Errorf("Notifying unmined tx notification (%s) while creating notification for blocks",
+		Log.Errorf.Print("Notifying unmined tx notification (%s) while creating notification for blocks",
 			details.Hash)
 	}
 
@@ -210,14 +210,14 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	unminedTxs := []TransactionSummary{makeTxSummary(dbtx, s.wallet, details)}
 	unminedHashes, err := s.wallet.TxStore.UnminedTxHashes(dbtx.ReadBucket(wtxmgrNamespaceKey))
 	if err != nil {
-		log.Errorf("Cannot fetch unmined transaction hashes: %v", err)
+		Log.Errorf.Print("Cannot fetch unmined transaction hashes: %v", err)
 		return
 	}
 	bals := make(map[uint32]util.Amount)
 	relevantAccounts(s.wallet, bals, unminedTxs)
 	err = totalBalances(dbtx, s.wallet, bals)
 	if err != nil {
-		log.Errorf("Cannot determine balances for relevant accounts: %v", err)
+		Log.Errorf.Print("Cannot determine balances for relevant accounts: %v", err)
 		return
 	}
 	n := &TransactionNotifications{
@@ -297,7 +297,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 	unminedHashes, err := s.wallet.TxStore.UnminedTxHashes(txmgrNs)
 	if err != nil {
-		log.Errorf("Cannot fetch unmined transaction hashes: %v", err)
+		Log.Errorf.Print("Cannot fetch unmined transaction hashes: %v", err)
 		return
 	}
 	s.currentTxNtfn.UnminedTransactionHashes = unminedHashes
@@ -308,7 +308,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	}
 	err = totalBalances(dbtx, s.wallet, bals)
 	if err != nil {
-		log.Errorf("Cannot determine balances for relevant accounts: %v", err)
+		Log.Errorf.Print("Cannot determine balances for relevant accounts: %v", err)
 		return
 	}
 	s.currentTxNtfn.NewBalances = flattenBalanceMap(bals)

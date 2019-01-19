@@ -168,7 +168,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 	defer c.wg.Done()
 	defer conn.Close()
 
-	log.Info("Started listening for bitcoind block notifications via ZMQ "+
+	Log.Info.Print("Started listening for bitcoind block notifications via ZMQ "+
 		"on", c.zmqBlockHost)
 
 	for {
@@ -191,7 +191,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 				continue
 			}
 
-			log.Errorf("Unable to receive ZMQ rawblock message: %v",
+			Log.Errorf.Print("Unable to receive ZMQ rawblock message: %v",
 				err)
 			continue
 		}
@@ -205,7 +205,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			block := &wire.MsgBlock{}
 			r := bytes.NewReader(msgBytes[1])
 			if err := block.Deserialize(r); err != nil {
-				log.Errorf("Unable to deserialize block: %v",
+				Log.Errorf.Print("Unable to deserialize block: %v",
 					err)
 				continue
 			}
@@ -230,7 +230,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 				continue
 			}
 
-			log.Warnf("Received unexpected event type from "+
+			Log.Warnf.Print("Received unexpected event type from "+
 				"rawblock subscription: %v", eventType)
 		}
 	}
@@ -244,7 +244,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 	defer c.wg.Done()
 	defer conn.Close()
 
-	log.Info("Started listening for bitcoind transaction notifications "+
+	Log.Info.Print("Started listening for bitcoind transaction notifications "+
 		"via ZMQ on", c.zmqTxHost)
 
 	for {
@@ -267,7 +267,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 				continue
 			}
 
-			log.Errorf("Unable to receive ZMQ rawtx message: %v",
+			Log.Errorf.Print("Unable to receive ZMQ rawtx message: %v",
 				err)
 			continue
 		}
@@ -281,7 +281,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			tx := &wire.MsgTx{}
 			r := bytes.NewReader(msgBytes[1])
 			if err := tx.Deserialize(r); err != nil {
-				log.Errorf("Unable to deserialize "+
+				Log.Errorf.Print("Unable to deserialize "+
 					"transaction: %v", err)
 				continue
 			}
@@ -306,7 +306,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 				continue
 			}
 
-			log.Warnf("Received unexpected event type from rawtx "+
+			Log.Warnf.Print("Received unexpected event type from rawtx "+
 				"subscription: %v", eventType)
 		}
 	}

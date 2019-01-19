@@ -124,7 +124,7 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 			return nil
 		}
 
-		log.Debugf("Delivering backlog block notifications from "+
+		Log.Debugf.Print("Delivering backlog block notifications from "+
 			"height=%v, to height=%v", bestHeight, filterHeaderTip)
 
 		// Otherwise, we need to read block headers from disk to

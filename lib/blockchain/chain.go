@@ -697,12 +697,12 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	// Log the point where the chain forked and old and new best chain
 	// heads.
 	if forkNode != nil {
-		log.Infof("REORGANIZE: Chain forks at %v (height %v)", forkNode.hash,
+		Log.Infof.Print("REORGANIZE: Chain forks at %v (height %v)", forkNode.hash,
 			forkNode.height)
 	}
-	log.Infof("REORGANIZE: Old best chain head was %v (height %v)",
+	Log.Infof.Print("REORGANIZE: Old best chain head was %v (height %v)",
 		&oldBest.hash, oldBest.height)
-	log.Infof("REORGANIZE: New best chain head is %v (height %v)",
+	Log.Infof.Print("REORGANIZE: New best chain head is %v (height %v)",
 		newBest.hash, newBest.height)
 	return nil
 }
@@ -716,7 +716,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	flushIndexState := func() {
 		// Intentionally ignore errors writing updated node status to DB. If it fails to write, it's not the end of the world. If the block is valid, we flush in connectBlock and if the block is invalid, the worst that can happen is we revalidate the block after a restart.
 		if writeErr := b.Index.flushToDB(); writeErr != nil {
-			log.Warnf("Error flushing block index changes to disk: %v",
+			Log.Warnf.Print("Error flushing block index changes to disk: %v",
 				writeErr)
 		}
 	}
@@ -774,7 +774,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		return true, nil
 	}
 	if fastAdd {
-		log.Warnf("fastAdd set in the side chain case? %v\n",
+		Log.Warnf.Print("fastAdd set in the side chain case? %v\n",
 			block.Hash())
 	}
 	node.workSum = CalcWork(node.bits, node.height, node.version)
@@ -783,11 +783,11 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		// Log information about how the block is forking the chain.
 		f := b.bestChain.FindFork(node)
 		if f.hash.IsEqual(parentHash) {
-			log.Infof("FORK: Block %v forks the chain at height %d"+
+			Log.Infof.Print("FORK: Block %v forks the chain at height %d"+
 				"/block %v, but does not cause a reorganize. workSum=%d",
 				node.hash, f.height, f.hash, f.workSum)
 		} else {
-			log.Infof("EXTEND FORK: Block %v extends a side chain "+
+			Log.Infof.Print("EXTEND FORK: Block %v extends a side chain "+
 				"which forks the chain at height %d/block %v. workSum=%d",
 				node.hash, f.height, f.hash, f.workSum)
 		}
@@ -796,11 +796,11 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	// We're extending (or creating) a side chain and the cumulative work for this new side chain is more than the old best chain, so this side chain needs to become the main chain.  In order to accomplish that, find the common ancestor of both sides of the fork, disconnect the blocks that form the (now) old fork from the main chain, and attach the blocks that form the new chain to the main chain starting at the common ancenstor (the point where the chain forked).
 	detachNodes, attachNodes := b.getReorganizeNodes(node)
 	// Reorganize the chain.
-	log.Infof("REORGANIZE: Block %v is causing a reorganize.", node.hash)
+	Log.Infof.Print("REORGANIZE: Block %v is causing a reorganize.", node.hash)
 	err := b.reorganizeChain(detachNodes, attachNodes)
 	// Either getReorganizeNodes or reorganizeChain could have made unsaved changes to the block index, so flush regardless of whether there was an error. The index would only be dirty if the block failed to connect, so we can ignore any errors writing.
 	if writeErr := b.Index.flushToDB(); writeErr != nil {
-		log.Warnf("Error flushing block index changes to disk: %v", writeErr)
+		Log.Warnf.Print("Error flushing block index changes to disk: %v", writeErr)
 	}
 	return err == nil, err
 }
@@ -1187,7 +1187,7 @@ func New(config *Config) (*BlockChain, error) {
 		return nil, err
 	}
 	bestNode := b.bestChain.Tip()
-	log.Infof("Chain state (height %d, hash %v, totaltx %d, work %v)",
+	Log.Infof.Print("Chain state (height %d, hash %v, totaltx %d, work %v)",
 		bestNode.height, bestNode.hash, b.stateSnapshot.TotalTxns,
 		bestNode.workSum)
 	return &b, nil

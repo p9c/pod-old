@@ -6,7 +6,7 @@
 //  import (
 //          "flag"
 //          "fmt"
-//          "log"
+//          "git.parallelcoin.io/pod/lib/clog"
 //          "git.parallelcoin.io/pod/lib/util"
 //          "git.parallelcoin.io/pod/lib/chaincfg"
 //  )
@@ -24,7 +24,7 @@
 //          pubKeyHash := make([]byte, 20)
 //          addr, err := util.NewAddressPubKeyHash(pubKeyHash, chainParams)
 //          if err != nil {
-//                  log.Fatal(err)
+//                  Log.Fatal <- err.Error()
 //          }
 //          fmt.Println(addr)
 //  }

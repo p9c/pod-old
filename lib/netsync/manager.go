@@ -10,12 +10,12 @@ import (
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	peerpkg "git.parallelcoin.io/pod/lib/peer"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
 	"git.parallelcoin.io/pod/module/node/mempool"
-	"github.com/ethereum/go-ethereum/log"
 )
 
 const (
@@ -268,7 +268,7 @@ func (sm *SyncManager) handleNewPeerMsg(peer *peerpkg.Peer) {
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		return
 	}
-	Log.Infof.Print("New valid peer %s (%s)", peer, peer.UserAgent())
+	Log.Debugf.Print("New valid peer %s (%s)", peer, peer.UserAgent())
 	// Initialize the peer state
 	isSyncCandidate := sm.isSyncCandidate(peer)
 	sm.peerStates[peer] = &peerSyncState{
@@ -542,7 +542,7 @@ func (sm *SyncManager) fetchHeaderBlocks() {
 	for e := sm.startHeader; e != nil; e = e.Next() {
 		node, ok := e.Value.(*headerNode)
 		if !ok {
-			log.Warn("Header list node type is not a headerNode")
+			Log.Warn.Print("Header list node type is not a headerNode")
 			continue
 		}
 		iv := wire.NewInvVect(wire.InvTypeBlock, node.hash)
@@ -700,7 +700,7 @@ func (sm *SyncManager) haveInventory(invVect *wire.InvVect) (bool, error) {
 
 // handleInvMsg handles inv messages from all peers. We examine the inventory advertised by the remote peer and act accordingly.
 func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
-	log.Trace("handleInvMsg")
+	Log.Trace.Print("handleInvMsg")
 	peer := imsg.peer
 	state, exists := sm.peerStates[peer]
 	if !exists {
@@ -921,7 +921,7 @@ out:
 		}
 	}
 	sm.wg.Done()
-	log.Trace("Block handler done")
+	Log.Trace.Print("Block handler done")
 }
 
 // handleBlockchainNotification handles notifications from blockchain.  It does things such as request orphan block parents and relay accepted blocks to connected peers.
@@ -1052,7 +1052,7 @@ func (sm *SyncManager) Start() {
 	if atomic.AddInt32(&sm.started, 1) != 1 {
 		return
 	}
-	log.Trace("Starting sync manager")
+	Log.Trace.Print("Starting sync manager")
 	sm.wg.Add(1)
 	go sm.blockHandler()
 }
@@ -1110,11 +1110,11 @@ func New(config *Config) (*SyncManager, error) {
 		requestedTxns:   make(map[chainhash.Hash]struct{}),
 		requestedBlocks: make(map[chainhash.Hash]struct{}),
 		peerStates:      make(map[*peerpkg.Peer]*peerSyncState),
-		// progressLogger:  newBlockProgressLogger("Processed", log),
-		msgChan:      make(chan interface{}, config.MaxPeers*3),
-		headerList:   list.New(),
-		quit:         make(chan struct{}),
-		feeEstimator: config.FeeEstimator,
+		progressLogger:  newBlockProgressLogger("Processed", clog.NewSubSystem("blockprogress", Log.Level)),
+		msgChan:         make(chan interface{}, config.MaxPeers*3),
+		headerList:      list.New(),
+		quit:            make(chan struct{}),
+		feeEstimator:    config.FeeEstimator,
 	}
 	best := sm.chain.BestSnapshot()
 	if !config.DisableCheckpoints {
@@ -1124,7 +1124,7 @@ func New(config *Config) (*SyncManager, error) {
 			sm.resetHeaderState(&best.Hash, best.Height)
 		}
 	} else {
-		log.Info("Checkpoints are disabled")
+		Log.Info.Print("Checkpoints are disabled")
 	}
 	sm.chain.Subscribe(sm.handleBlockchainNotification)
 	return &sm, nil

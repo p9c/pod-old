@@ -18,8 +18,8 @@ import (
 	"git.parallelcoin.io/pod/lib/util/gcs"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/spv/headerfs"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 )
 
 var (
@@ -285,7 +285,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	filterHeaderHeight := s.blockManager.filterHeaderTip
 	s.blockManager.newFilterHeadersMtx.RUnlock()
 
-	log.Debugf("Waiting for filter headers (height=%v) to catch up the "+
+	Log.Debugf.Print("Waiting for filter headers (height=%v) to catch up the "+
 		"rescan start (height=%v)", filterHeaderHeight, curStamp.Height)
 
 	// We'll wait here at this point until we have enough filter headers to
@@ -340,7 +340,7 @@ filterHeaderWaitLoop:
 		}
 	}
 
-	log.Debugf("Starting rescan from known block %d (%s)", curStamp.Height,
+	Log.Debugf.Print("Starting rescan from known block %d (%s)", curStamp.Height,
 		curStamp.Hash)
 
 	// Compare the start time to the start block. If the start time is
@@ -379,13 +379,13 @@ filterHeaderWaitLoop:
 			blockReFetchTimer.Stop()
 		}
 
-		log.Infof("Setting timer to attempt to re-fetch filter for "+
+		Log.Infof.Print("Setting timer to attempt to re-fetch filter for "+
 			"hash=%v, height=%v", headerTip.BlockHash(), height)
 
 		// We'll start a timer to re-send this header so we re-process
 		// if in the case that we don't get a re-org soon afterwards.
 		blockReFetchTimer = time.AfterFunc(blockRetryInterval, func() {
-			log.Infof("Resending rescan header for block hash=%v, "+
+			Log.Infof.Print("Resending rescan header for block hash=%v, "+
 				"height=%v", headerTip.BlockHash(), height)
 
 			select {
@@ -441,7 +441,7 @@ rescanLoop:
 				// current. This is our way of doing a manual
 				// rescan.
 				if rewound {
-					log.Tracef("Rewound to block %d (%s), "+
+					Log.Tracef.Print("Rewound to block %d (%s), "+
 						"no longer current",
 						curStamp.Height, curStamp.Hash)
 
@@ -465,7 +465,7 @@ rescanLoop:
 				if header.PrevBlock != curStamp.Hash &&
 					header.BlockHash() != curStamp.Hash {
 
-					log.Debugf("Rescan got out of order "+
+					Log.Debugf.Print("Rescan got out of order "+
 						"block %s with prevblock %s, "+
 						"curHeader: %s",
 						header.BlockHash(),
@@ -484,7 +484,7 @@ rescanLoop:
 				// re-process it without any issues.
 				if header.BlockHash() != curStamp.Hash &&
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
-					log.Warnf("Missing filter header for "+
+					Log.Warnf.Print("Missing filter header for "+
 						"height=%v, skipping",
 						curStamp.Height+1)
 					continue rescanLoop
@@ -499,7 +499,7 @@ rescanLoop:
 					curStamp.Height++
 				}
 
-				log.Tracef("Rescan got block %d (%s)", curStamp.Height,
+				Log.Tracef.Print("Rescan got block %d (%s)", curStamp.Height,
 					curStamp.Hash)
 
 				// We're only scanning if the header is beyond
@@ -561,7 +561,7 @@ rescanLoop:
 				blockReFetchTimer = nil
 
 			case header := <-blockDisconnected:
-				log.Debugf("Rescan disconnect block %d (%s)\n",
+				Log.Debugf.Print("Rescan disconnect block %d (%s)\n",
 					curStamp.Height, curStamp.Hash)
 
 				// Only deal with it if it's the current block
@@ -633,7 +633,7 @@ rescanLoop:
 			// ourselves as current and follow notifications.
 			nextHeight := curStamp.Height + 1
 			if nextHeight > bestBlock.Height {
-				log.Debugf("Rescan became current at %d (%s), "+
+				Log.Debugf.Print("Rescan became current at %d (%s), "+
 					"subscribing to block notifications",
 					curStamp.Height, curStamp.Hash)
 
@@ -1244,7 +1244,7 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 	// is signaled.
 	report, err := req.Result(ro.quit)
 	if err != nil {
-		log.Debugf("Error finding spends for %s: %v",
+		Log.Debugf.Print("Error finding spends for %s: %v",
 			ro.watchInputs[0].OutPoint.String(), err)
 		return nil, err
 	}

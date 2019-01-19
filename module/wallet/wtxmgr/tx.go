@@ -7,12 +7,12 @@ import (
 	"bytes"
 	"time"
 
-	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/blockchain"
+	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
 
 // Block contains the minimum amount of data to uniquely identify any block on
@@ -362,7 +362,7 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	// If this transaction previously existed within the store as unmined,
 	// we'll need to remove it from the unmined bucket.
 	if v := existsRawUnmined(ns, rec.Hash[:]); v != nil {
-		log.Infof("Marking unconfirmed transaction %v mined in block %d",
+		Log.Infof.Print("Marking unconfirmed transaction %v mined in block %d",
 			&rec.Hash, block.Height)
 
 		if err := s.deleteUnminedTx(ns, rec); err != nil {
@@ -423,7 +423,7 @@ func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 	}
 
 	txOutAmt := util.Amount(rec.MsgTx.TxOut[index].Value)
-	log.Debugf("Marking transaction %v output %d (%v) spendable",
+	Log.Debugf.Print("Marking transaction %v output %d (%v) spendable",
 		rec.Hash, index, txOutAmt)
 
 	cred := credit{
@@ -485,7 +485,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 
 		heightsToRemove = append(heightsToRemove, it.elem.Height)
 
-		log.Infof("Rolling back %d transactions from block %v height %d",
+		Log.Infof.Print("Rolling back %d transactions from block %v height %d",
 			len(b.transactions), b.Hash, b.Height)
 
 		for i := range b.transactions {
@@ -688,7 +688,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 				return err
 			}
 
-			log.Debugf("Transaction %v spends a removed coinbase "+
+			Log.Debugf.Print("Transaction %v spends a removed coinbase "+
 				"output -- removing as well", unminedRec.Hash)
 			err = s.removeConflict(ns, &unminedRec)
 			if err != nil {

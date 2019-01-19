@@ -892,7 +892,7 @@ func (tx *transaction) StoreBlock(block *u.Block) error {
 		hash:  blockHash,
 		bytes: blockBytes,
 	})
-	log.Tracef("Added block %s to pending blocks", blockHash)
+	Log.Tracef.Print("Added block %s to pending blocks", blockHash)
 	return nil
 }
 
@@ -1191,7 +1191,7 @@ func (tx *transaction) writePendingAndCommit() error {
 	}
 	// Loop through all of the pending blocks to store and write them.
 	for _, blockData := range tx.pendingBlockData {
-		log.Tracef("Storing block %s", blockData.hash)
+		Log.Tracef.Print("Storing block %s", blockData.hash)
 		location, err := tx.db.store.writeBlock(blockData.bytes)
 		if err != nil {
 			rollback()
