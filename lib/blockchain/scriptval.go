@@ -197,6 +197,7 @@ func ValidateTransactionScripts(tx *util.Tx, utxoView *UtxoViewpoint,
 func checkBlockScripts(block *util.Block, utxoView *UtxoViewpoint,
 	scriptFlags txscript.ScriptFlags, sigCache *txscript.SigCache,
 	hashCache *txscript.HashCache) error {
+	// Log.Debug <- "checkBlockScripts"
 	// First determine if segwit is active according to the scriptFlags. If it isn't then we don't need to interact with the HashCache.
 	segwitActive := scriptFlags&txscript.ScriptVerifyWitness == txscript.ScriptVerifyWitness
 	// Collect all of the transaction inputs and required information for validation for all transactions in the block into a single slice.
@@ -204,6 +205,7 @@ func checkBlockScripts(block *util.Block, utxoView *UtxoViewpoint,
 	for _, tx := range block.Transactions() {
 		numInputs += len(tx.MsgTx().TxIn)
 	}
+	// Log.Debugf.Print("numInputs=%d", numInputs)
 	txValItems := make([]*txValidateItem, 0, numInputs)
 	for _, tx := range block.Transactions() {
 		hash := tx.Hash()
@@ -236,19 +238,23 @@ func checkBlockScripts(block *util.Block, utxoView *UtxoViewpoint,
 	}
 	// Validate all of the inputs.
 	validator := newTxValidator(utxoView, scriptFlags, sigCache, hashCache)
+	// Log.Debug <- "validating all inputs"
 	start := time.Now()
 	if err := validator.Validate(txValItems); err != nil {
 		return err
 	}
+	// Log.Debug <- "validated inputs"
 	elapsed := time.Since(start)
 	Log.Tracef.Print("block %v took %v to verify", block.Hash(), elapsed)
 	// If the HashCache is present, once we have validated the block, we no longer need the cached hashes for these transactions, so we purge them from the cache.
 	if segwitActive && hashCache != nil {
+		Log.Trace <- "purging hashcache"
 		for _, tx := range block.Transactions() {
 			if tx.MsgTx().HasWitness() {
 				hashCache.PurgeSigHashes(tx.Hash())
 			}
 		}
 	}
+	// Log.Debug <- "completed checkBlockScripts"
 	return nil
 }

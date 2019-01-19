@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2017 The btcsuite developers
 
-package wallet
+package wallettx
 
 import (
 	"git.parallelcoin.io/pod/lib/txscript"

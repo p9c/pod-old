@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the netsync package
-var Log = clog.NewSubSystem("pod/lib/netsync", clog.Ndbg)
+var Log = clog.NewSubSystem("lib/netsync", clog.Ndbg)
 
 // import (
 // 	l "git.parallelcoin.io/pod/lib/log"

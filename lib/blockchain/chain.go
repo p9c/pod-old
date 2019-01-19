@@ -345,29 +345,39 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 // This passed utxo view must have all referenced txos the block spends marked as spent and all of the new txos the block creates added to it.  In addition, the passed stxos slice must be populated with all of the information for the spent txos.  This approach is used because the connection validation that must happen prior to calling this function requires the same details, so it would be inefficient to repeat it. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	view *UtxoViewpoint, stxos []SpentTxOut) error {
+	// Log.Debug <- "connectBlock starting"
 	// Make sure it's extending the end of the best chain.
 	prevHash := &block.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(&b.bestChain.Tip().hash) {
-		return AssertError("connectBlock must be called with a block " +
-			"that extends the main chain")
+		str := "connectBlock must be called with a block " +
+			"that extends the main chain"
+		Log.Debug <- str
+		return AssertError(str)
 	}
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
-		return AssertError("connectBlock called with inconsistent " +
-			"spent transaction out information")
+		str := "connectBlock called with inconsistent " +
+			"spent transaction out information"
+		Log.Debug <- str
+		return AssertError(str)
 	}
 	// No warnings about unknown rules or versions until the chain is current.
 	if b.isCurrent() {
+		// Log.Debug <- "isCurrent"
 		// Warn if any unknown new rules are either about to activate or have already been activated.
 		if err := b.warnUnknownRuleActivations(node); err != nil {
+			// Log.Debug <- "warnUnknownRuleActivations " + err.Error()
 			return err
 		}
 	}
+	// Log.Debug <- "flushing to db"
 	// Write any block status changes to DB before updating best state.
 	err := b.Index.flushToDB()
 	if err != nil {
+		// Log.Debug <- "error flushing to db " + err.Error()
 		return err
 	}
+	// Log.Debug <- "generating new best state snapshot"
 	// Generate a new best state snapshot that will be used to update the database and later memory if all database updates are successful.
 	b.stateLock.RLock()
 	curTotalTxns := b.stateSnapshot.TotalTxns
@@ -379,50 +389,61 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		curTotalTxns+numTxns, node.CalcPastMedianTime())
 	// Atomically insert info into the database.
 	err = b.db.Update(func(dbTx database.Tx) error {
-		// Update best block state.
+		// Log.Debug <- "update best block state."
 		err := dbPutBestState(dbTx, state, node.workSum)
 		if err != nil {
+			// Log.Debug <- "dbPutBestState " + err.Error()
 			return err
 		}
-		// Add the block hash and height to the block index which tracks the main chain.
+		// Log.Debug <- "Add the block hash and height to the block index which tracks the main chain."
 		err = dbPutBlockIndex(dbTx, block.Hash(), node.height)
 		if err != nil {
+			// Log.Debug <- "dbPutBlockIndex" + err.Error()
 			return err
 		}
-		// Update the utxo set using the state of the utxo view.  This entails removing all of the utxos spent and adding the new ones created by the block.
+		// Log.Debug <- "update the utxo set using the state of the utxo view.  This entails removing all of the utxos spent and adding the new ones created by the block."
 		err = dbPutUtxoView(dbTx, view)
 		if err != nil {
+			// Log.Debug <- "dbPutUtxoView" + err.Error()
 			return err
 		}
-		// Update the transaction spend journal by adding a record for the block that contains all txos spent by it.
+		// Log.Debug <- "Update the transaction spend journal by adding a record for the block that contains all txos spent by it."
 		err = dbPutSpendJournalEntry(dbTx, block.Hash(), stxos)
 		if err != nil {
+			// Log.Debug <- "dbPutSpendJournalEntry" + err.Error()
 			return err
 		}
-		// Allow the index manager to call each of the currently active optional indexes with the block being connected so they can update themselves accordingly.
+		// Log.Debug <- "Allow the index manager to call each of the currently active optional indexes with the block being connected so they can update themselves accordingly."
 		if b.indexManager != nil {
 			err := b.indexManager.ConnectBlock(dbTx, block, stxos)
 			if err != nil {
+				// Log.Debug <- "connectBlock " + err.Error()
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
+		// Log.Debug <- "error updating database " + err.Error()
 		return err
 	}
+	// Log.Debug <- "commit"
 	// Prune fully spent entries and mark all entries in the view unmodified now that the modifications have been committed to the database.
 	view.commit()
+	// Log.Debug <- "SetTip"
 	// This node is now the end of the best chain.
 	b.bestChain.SetTip(node)
 	// Update the state for the best block.  Notice how this replaces the entire struct instead of updating the existing one.  This effectively allows the old version to act as a snapshot which callers can use freely without needing to hold a lock for the duration.  See the comments on the state variable for more details.
+	// Log.Debug <- "get stateSnapshot"
 	b.stateLock.Lock()
 	b.stateSnapshot = state
 	b.stateLock.Unlock()
 	// Notify the caller that the block was connected to the main chain. The caller would typically want to react with actions such as updating wallets.
+	// Log.Debug <- "sending notifications"
 	b.chainLock.Unlock()
 	b.sendNotification(NTBlockConnected, block)
 	b.chainLock.Lock()
+	// Log.Debug <- "sent notifications"
 	return nil
 }
 
@@ -712,6 +733,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 //    This is useful when using checkpoints.
 // This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags BehaviorFlags) (bool, error) {
+	// Log.Debug <- "connectBestChain"
 	fastAdd := flags&BFFastAdd == BFFastAdd
 	flushIndexState := func() {
 		// Intentionally ignore errors writing updated node status to DB. If it fails to write, it's not the end of the world. If the block is valid, we flush in connectBlock and if the block is invalid, the worst that can happen is we revalidate the block after a restart.
@@ -723,6 +745,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	// We are extending the main (best) chain with a new block.  This is the most common case.
 	parentHash := &block.MsgBlock().Header.PrevBlock
 	if parentHash.IsEqual(&b.bestChain.Tip().hash) {
+		Log.Trace <- "extending best chain"
 		// Skip checks if node has already been fully validated.
 		fastAdd = fastAdd || b.Index.NodeStatus(node).KnownValid()
 		// Perform several checks to verify the block can be connected to the main chain without violating any rules and without actually connecting the block.
@@ -730,21 +753,29 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		view.SetBestHash(parentHash)
 		stxos := make([]SpentTxOut, 0, countSpentOutputs(block))
 		if !fastAdd {
+			// Log.Debug <- "adding block"
 			err := b.checkConnectBlock(node, block, view, &stxos)
 			if err == nil {
+				// Log.Debug <- "block valid"
 				b.Index.SetStatusFlags(node, statusValid)
 			} else if _, ok := err.(RuleError); ok {
+				// Log.Debug <- "rule error" + er.Error()
 				b.Index.SetStatusFlags(node, statusValidateFailed)
 			} else {
+				// Log.Debug <- "block rejected"
 				return false, err
 			}
+			// Log.Debug <- "flushing index state"
 			flushIndexState()
+			// Log.Debug <- "flushed index state"
 			if err != nil {
+				// Log.Debug <- "error" + err.Error()
 				return false, err
 			}
 		}
 		// In the fast add case the code to check the block connection was skipped, so the utxo view needs to load the referenced utxos, spend them, and add the new utxos being created by this block.
 		if fastAdd {
+			// Log.Debug <- "fastAdd on"
 			err := view.fetchInputUtxos(b.db, block)
 			if err != nil {
 				return false, err
@@ -754,18 +785,24 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 				return false, err
 			}
 		}
+		// Log.Debug <- "connecting block"
 		// Connect the block to the main chain.
 		err := b.connectBlock(node, block, view, stxos)
 		if err != nil {
+			// Log.Debug <- "connect block error: " + err.Error()
 			// If we got hit with a rule error, then we'll mark that status of the block as invalid and flush the index state to disk before returning with the error.
 			if _, ok := err.(RuleError); ok {
+				// Log.Debug <- "rule error: " + er.Error()
 				b.Index.SetStatusFlags(
 					node, statusValidateFailed,
 				)
 			}
+			// Log.Debug <- "flushing index state"
 			flushIndexState()
+			// Log.Debug <- "flushed index state"
 			return false, err
 		}
+		// Log.Debug <- "connected block"
 		// If this is fast add, or this block node isn't yet marked as valid, then we'll update its status and flush the state to disk again.
 		if fastAdd || !b.Index.NodeStatus(node).KnownValid() {
 			b.Index.SetStatusFlags(node, statusValid)

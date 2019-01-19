@@ -1,4 +1,4 @@
-package neutrino
+package spv
 
 import (
 	"io/ioutil"
@@ -11,8 +11,8 @@ import (
 	"git.parallelcoin.io/pod/lib/util/gcs"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/module/spv/headerfs"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
 
 func decodeHashNoError(str string) *chainhash.Hash {

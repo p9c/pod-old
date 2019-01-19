@@ -3,6 +3,7 @@ package pod
 import (
 	"os"
 	"os/signal"
+	"runtime/trace"
 )
 
 // shutdownRequestChannel is used to initiate shutdown from one of the subsystems using the same code paths as when an interrupt signal is received.
@@ -20,6 +21,8 @@ func interruptListener() <-chan struct{} {
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.
 		select {
 		case sig := <-interruptChannel:
+			Log.Debug <- "stopping trace"
+			trace.Stop()
 			Log.Infof.Print("Received signal (%s).  Shutting down...",
 				sig)
 		case <-shutdownRequestChannel:

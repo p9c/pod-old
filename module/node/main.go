@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/pprof"
+	"runtime/trace"
 
 	"git.parallelcoin.io/pod/lib/blockchain/indexers"
 	"git.parallelcoin.io/pod/lib/database"
@@ -18,7 +19,8 @@ const (
 )
 
 var (
-	cfg *Config
+	cfg      *Config
+	StateCfg = new(StateConfig)
 )
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
@@ -40,11 +42,15 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	// }()
 	// Get a channel that will be closed when a shutdown signal has been triggered either from an OS signal such as SIGINT (Ctrl+C) or from another subsystem such as the RPC server.
 	interrupt := interruptListener()
-	defer Log.Info.Print("shutdown complete")
+	defer func() {
+		trace.Stop()
+		Log.Info.Print("shutdown complete")
+	}()
 	// Show version at startup.
 	Log.Infof.Print("version %s", Version())
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
+		Log.Info <- "profiling requested"
 		go func() {
 			listenAddr := net.JoinHostPort("", cfg.Profile)
 			Log.Infof.Print("profile server listening on %s", listenAddr)

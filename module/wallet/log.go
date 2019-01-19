@@ -5,4 +5,4 @@ import (
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("pod/wallet", clog.Ndbg)
+var Log = clog.NewSubSystem("wallet", clog.Ndbg)

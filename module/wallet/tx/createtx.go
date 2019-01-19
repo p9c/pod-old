@@ -1,7 +1,7 @@
 // Copyright (c) 2013-2017 The btcsuite developers
 // Copyright (c) 2015-2016 The btcsuite developers
 
-package wallet
+package wallettx
 
 import (
 	"fmt"

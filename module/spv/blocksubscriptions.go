@@ -1,7 +1,4 @@
-// NOTE: THIS API IS UNSTABLE AND WILL BE MOVED TO ITS OWN PACKAGE OR REFACTORED
-// OUT.
-
-package neutrino
+package spv
 
 import (
 	"fmt"

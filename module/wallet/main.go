@@ -54,7 +54,7 @@ func walletMain() error {
 
 	if cfg.Profile != "" {
 		go func() {
-			listenAddr := net.JoinHostPort("", cfg.Profile)
+			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)
 			Log.Infof.Print("Profile server listening on %s", listenAddr)
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)

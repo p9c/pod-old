@@ -1,12 +1,12 @@
 // Copyright (c) 2016 The Decred developers
 // Copyright (c) 2017 The btcsuite developers
 
-package wallet
+package wallettx
 
 import (
 	"git.parallelcoin.io/pod/lib/txscript"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
 
 // OutputSelectionPolicy describes the rules for selecting an output from the

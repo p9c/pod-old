@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the peer package
-var Log = clog.NewSubSystem("pod/wallet/rpc/rpcserver", clog.Ndbg)
+var Log = clog.NewSubSystem("wallet/rpcserver", clog.Ndbg)
 
 // // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
 // var log = l.Disabled

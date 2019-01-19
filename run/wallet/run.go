@@ -1,4 +1,4 @@
-package wallet
+package walletrun
 
 import "encoding/json"
 

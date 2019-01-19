@@ -1,6 +1,4 @@
-// NOTE: THIS API IS UNSTABLE RIGHT NOW AND WILL GO MOSTLY PRIVATE SOON.
-
-package neutrino
+package spv
 
 import (
 	"bytes"

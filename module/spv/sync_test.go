@@ -1,4 +1,4 @@
-package neutrino_test
+package spv_test
 
 import (
 	"bytes"

@@ -5,7 +5,7 @@ import (
 	"git.parallelcoin.io/pod/run/logger"
 )
 
-var Log = clog.NewSubSystem("Pod", clog.Ndbg)
+var Log = clog.NewSubSystem("pod", clog.Ndbg)
 
 // SetLoggers sets the loggers according to the current configuration
 func SetLoggers() {

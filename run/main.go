@@ -25,7 +25,7 @@ var PodApp = climax.Application{
 func Main() (err error) {
 	PodApp.AddCommand(ctl.Command)
 	PodApp.AddCommand(node.Command)
-	PodApp.AddCommand(wallet.Command)
+	PodApp.AddCommand(walletrun.Command)
 	PodApp.AddCommand(shell.Command)
 	PodApp.Run()
 	// interrupt = interruptListener()

@@ -926,11 +926,14 @@ out:
 
 // handleBlockchainNotification handles notifications from blockchain.  It does things such as request orphan block parents and relay accepted blocks to connected peers.
 func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Notification) {
+	// Log.Debug <- "handleBlockCHainNotification"
 	switch notification.Type {
 	// A block has been accepted into the block chain.  Relay it to other peers.
 	case blockchain.NTBlockAccepted:
+		// Log.Debug <- "block accepted"
 		// Don't relay if we are not current. Other peers that are current should already know about it.
 		if !sm.current() {
+			// Log.Debug <- "not current"
 			return
 		}
 		block, ok := notification.Data.(*util.Block)
@@ -943,6 +946,7 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 		sm.peerNotifier.RelayInventory(iv, block.MsgBlock().Header)
 	// A block has been connected to the main block chain.
 	case blockchain.NTBlockConnected:
+		// Log.Debug <- "block connected"
 		block, ok := notification.Data.(*util.Block)
 		if !ok {
 			Log.Warnf.Print("Chain connected notification is not a block.")
@@ -950,18 +954,27 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 		}
 		// Remove all of the transactions (except the coinbase) in the connected block from the transaction pool.  Secondly, remove any transactions which are now double spends as a result of these new transactions.  Finally, remove any transaction that is no longer an orphan. Transactions which depend on a confirmed transaction are NOT removed recursively because they are still valid.
 		for _, tx := range block.Transactions()[1:] {
+			// Log.Debugf.Print("removing tx %d", i)
 			sm.txMemPool.RemoveTransaction(tx, false)
+			// Log.Debug <- "removed transaction"
 			sm.txMemPool.RemoveDoubleSpends(tx)
+			// Log.Debug <- "removed double spends"
 			sm.txMemPool.RemoveOrphan(tx)
+			// Log.Debug <- "removed orphan"
 			sm.peerNotifier.TransactionConfirmed(tx)
+			// Log.Debug <- "notified transaction confirmed"
 			acceptedTxs := sm.txMemPool.ProcessOrphans(tx)
+			// Log.Debug <- "processed orphans"
 			sm.peerNotifier.AnnounceNewTransactions(acceptedTxs)
+			// Log.Debug <- "announced new transactions"
 		}
 		// Register block with the fee estimator, if it exists.
 		if sm.feeEstimator != nil {
+			// Log.Debug <- "registering block with fee estimator"
 			err := sm.feeEstimator.RegisterBlock(block)
 			// If an error is somehow generated then the fee estimator has entered an invalid state. Since it doesn't know how to recover, create a new one.
 			if err != nil {
+				// Log.Debug <- "creating new fee estimator"
 				sm.feeEstimator = mempool.NewFeeEstimator(
 					mempool.DefaultEstimateFeeMaxRollback,
 					mempool.DefaultEstimateFeeMinRegisteredBlocks)
@@ -969,6 +982,7 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 		}
 	// A block has been disconnected from the main block chain.
 	case blockchain.NTBlockDisconnected:
+		// Log.Debug <- "block disconnected"
 		block, ok := notification.Data.(*util.Block)
 		if !ok {
 			Log.Warnf.Print("Chain disconnected notification is not a block.")

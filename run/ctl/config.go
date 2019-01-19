@@ -8,11 +8,12 @@ import (
 
 	"git.parallelcoin.io/pod/lib/clog"
 	c "git.parallelcoin.io/pod/module/ctl"
+	"git.parallelcoin.io/pod/run/util"
 	"github.com/tucnak/climax"
 )
 
 // Log is the ctl main logger
-var Log = clog.NewSubSystem("pod/ctl", clog.Ndbg)
+var Log = clog.NewSubSystem("ctl", clog.Ndbg)
 
 // Config is the default configuration native to ctl
 var Config = new(c.Config)
@@ -23,123 +24,27 @@ var Command = climax.Command{
 	Brief: "sends RPC commands and prints the reply",
 	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
 	Flags: []climax.Flag{
-		{
-			Name:     "listcommands",
-			Short:    "l",
-			Usage:    `--listcommands`,
-			Help:     `list available commands`,
-			Variable: false,
-		},
-		{
-			Name:     "version",
-			Short:    "V",
-			Usage:    `--version`,
-			Help:     `show version number and quit`,
-			Variable: false,
-		},
-		{
-			Name:     "configfile",
-			Short:    "C",
-			Usage:    "--configfile=/path/to/conf",
-			Help:     "Path to configuration file",
-			Variable: true,
-		},
-		{
-			Name:     "init",
-			Usage:    "--init",
-			Help:     "resets configuration to defaults",
-			Variable: false,
-		},
-		{
-			Name:     "save",
-			Usage:    "--save",
-			Help:     "saves current configuration",
-			Variable: false,
-		},
-		{
-			Name:     "debuglevel",
-			Short:    "d",
-			Usage:    "--debuglevel=trace",
-			Help:     "sets debuglevel, default is error to keep stdout clean",
-			Variable: true,
-		},
+		podutil.GenerateFlag("version", "V", `--version`, `show version number and quit`, false),
+		podutil.GenerateFlag("configfile", "C", "--configfile=/path/to/conf", "Path to configuration file", true),
 
-		{
-			Name:     "rpcuser",
-			Short:    "u",
-			Usage:    "--rpcuser=username",
-			Help:     "RPC username",
-			Variable: true,
-		},
-		{
-			Name:     "rpcpass",
-			Short:    "P",
-			Usage:    "--rpcpass=password",
-			Help:     "RPC password",
-			Variable: true,
-		},
-		{
-			Name:     "rpcserver",
-			Short:    "s",
-			Usage:    "--rpcserver=127.0.0.1:11048",
-			Help:     "RPC server to connect to",
-			Variable: true,
-		},
-		{
-			Name:     "rpccert",
-			Short:    "c",
-			Usage:    "--rpccert=/path/to/rpc.cert",
-			Help:     "RPC server certificate chain for validation",
-			Variable: true,
-		},
-		{
-			Name:     "tls",
-			Usage:    "--tls=false",
-			Help:     "Enable/disable TLS",
-			Variable: true,
-		},
-		{
-			Name:     "proxy",
-			Usage:    "--proxy 127.0.0.1:9050",
-			Help:     "Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)",
-			Variable: true,
-		},
-		{
-			Name:     "proxyuser",
-			Usage:    "--proxyuser username",
-			Help:     "Username for proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "proxypass",
-			Usage:    "--proxypass password",
-			Help:     "Password for proxy server",
-			Variable: true,
-		},
-		{
-			Name:     "testnet",
-			Usage:    "--testnet=true",
-			Help:     "Connect to testnet",
-			Variable: true,
-		},
-		{
-			Name:     "simnet",
-			Usage:    "--simnet=true",
-			Help:     "Connect to the simulation test network",
-			Variable: true,
-		},
-		{
-			Name:     "skipverify",
-			Usage:    "--skipverify=false",
-			Help:     "Do not verify tls certificates (not recommended!)",
-			Variable: true,
-		},
-		{
-			Name:     "wallet",
-			Usage:    "--wallet=true",
-			Help:     "Connect to wallet",
-			Variable: true,
-		},
+		podutil.GenerateFlag("listcommands", "l", `--listcommands`, `list available commands`, false),
+		podutil.GenerateFlag("init", "", "--init", "resets configuration to defaults", false),
+		podutil.GenerateFlag("save", "", "--save", "saves current configuration", false),
+
+		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default is error to keep stdout clean", true),
+
+		podutil.GenerateFlag("rpcuser", "u", "--rpcuser=username", "RPC username", true),
+		podutil.GenerateFlag("rpcpass", "P", "--rpcpass=password", "RPC password", true),
+		podutil.GenerateFlag("rpcserver", "s", "--rpcserver=127.0.0.1:11048", "RPC server to connect to", true),
+		podutil.GenerateFlag("rpccert", "c", "--rpccert=/path/to/rpc.cert", "RPC server certificate chain for validation", true),
+		podutil.GenerateFlag("tls", "", "--tls=false", "Enable/disable TLS", false),
+		podutil.GenerateFlag("proxy", "", "--proxy 127.0.0.1:9050", "Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
+		podutil.GenerateFlag("proxyuser", "", "--proxyuser username", "Username for proxy server", true),
+		podutil.GenerateFlag("proxypass", "", "--proxypass password", "Password for proxy server", true),
+		podutil.GenerateFlag("testnet", "", "--testnet=true", "Connect to testnet", true),
+		podutil.GenerateFlag("simnet", "", "--simnet=true", "Connect to the simulation test network", true),
+		podutil.GenerateFlag("skipverify", "", "--skipverify=false", "Do not verify tls certificates (not recommended!)", true),
+		podutil.GenerateFlag("wallet", "", "--wallet=true", "Connect to wallet", true),
 	},
 	Examples: []climax.Example{
 		{

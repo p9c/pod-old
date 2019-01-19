@@ -26,12 +26,15 @@ import (
 )
 
 // Log is thte main node logger
-var Log = clog.NewSubSystem("pod/node", clog.Ndbg)
+var Log = clog.NewSubSystem("run/node", clog.Ndbg)
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
 type serviceOptions struct {
 	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
 }
+
+// StateCfg is a reference to the main node state configuration struct
+var StateCfg = n.StateCfg
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(a, b uint32) uint32 {
@@ -52,7 +55,7 @@ var usageMessage = fmt.Sprintf("use `%s help node` to show usage", appName)
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
 	Node      *n.Config
-	LogLevels map[string]string
+	logLevels map[string]*clog.SubSystem
 }
 
 // Config is the combined app and log levels configuration
@@ -140,29 +143,28 @@ var Command = climax.Command{
 
 		podutil.GenerateFlag(`debuglevel`, `d`, `--debuglevel=trace`, `sets debuglevel, default info, sets the baseline for others not specified`, true),
 
-		podutil.GenerateFlag(`log-database`, ``, `--log-database=info`, `sets log level for database`, true),
-		podutil.GenerateFlag(`log-txscript`, ``, `--log-txscript=info`, `sets log level for txscript`, true),
-		podutil.GenerateFlag(`log-peer`, ``, `--log-peer=info`, `sets log level for peer`, true),
-		podutil.GenerateFlag(`log-netsync`, ``, `--log-netsync=info`, `sets log level for netsync`, true),
-		podutil.GenerateFlag(`log-rpcclient`, ``, `--log-rpcclient=info`, `sets log level for rpcclient`, true),
-		podutil.GenerateFlag(`addrmgr`, ``, `--log-addrmgr=info`, `sets log level for addrmgr`, true),
-		podutil.GenerateFlag(`log-blockchain-indexers`, ``, `--log-blockchain-indexers=info`, `sets log level for blockchain-indexers`, true),
-		podutil.GenerateFlag(`log-blockchain`, ``, `--log-blockchain=info`, `sets log level for blockchain`, true),
-		podutil.GenerateFlag(`log-mining-cpuminer`, ``, `--log-mining-cpuminer=info`, `sets log level for mining-cpuminer`, true),
-		podutil.GenerateFlag(`log-mining`, ``, `--log-mining=info`, `sets log level for mining`, true),
-		podutil.GenerateFlag(`log-mining-controller`, ``, `--log-mining-controller=info`, `sets log level for mining-controller`, true),
-		podutil.GenerateFlag(`log-connmgr`, ``, `--log-connmgr=info`, `sets log level for connmgr`, true),
-		podutil.GenerateFlag(`log-spv`, ``, `--log-spv=info`, `sets log level for spv`, true),
-		podutil.GenerateFlag(`log-node-mempool`, ``, `--log-node-mempool=info`, `sets log level for node-mempool`, true),
-		podutil.GenerateFlag(`log-node`, ``, `--log-node=info`, `sets log level for node`, true),
-		podutil.GenerateFlag(`log-wallet-wallet`, ``, `--log-wallet-wallet=info`, `sets log level for wallet-wallet`, true),
-		podutil.GenerateFlag(`log-wallet-tx`, ``, `--log-wallet-tx=info`, `sets log level for wallet-tx`, true),
-		podutil.GenerateFlag(`log-wallet-votingpool`, ``, `--log-wallet-votingpool=info`, `sets log level for wallet-votingpool`, true),
-		podutil.GenerateFlag(`log-wallet`, ``, `--log-wallet=info`, `sets log level for wallet`, true),
-		podutil.GenerateFlag(`log-wallet-chain`, ``, `--log-wallet-chain=info`, `sets log level for wallet-chain`, true),
-		podutil.GenerateFlag(`log-wallet-rpc-rpcserver`, ``, `--log-wallet-rpc-rpcserver=info`, `sets log level for wallet-rpc-rpcserver`, true),
-		podutil.GenerateFlag(`log-wallet-rpc-legacyrpc`, ``, `--log-wallet-rpc-legacyrpc=info`, `sets log level for wallet-rpc-legacyrpc`, true),
-		podutil.GenerateFlag(`log-wallet-wtxmgr`, ``, `--log-wallet-wtxmgr=info`, `sets log level for wallet-wtxmgr`, true),
+		podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
+		podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
+		podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
+		podutil.GenerateFlag("lib-database", "", "--lib-database=info", "", true),
+		podutil.GenerateFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
+		podutil.GenerateFlag("lib-mining", "", "--lib-mining=info", "", true),
+		podutil.GenerateFlag("lib-netsync", "", "--lib-netsync=info", "", true),
+		podutil.GenerateFlag("lib-peer", "", "--lib-peer=info", "", true),
+		podutil.GenerateFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
+		podutil.GenerateFlag("lib-txscript", "", "--lib-txscript=info", "", true),
+		podutil.GenerateFlag("node", "", "--node=info", "", true),
+		podutil.GenerateFlag("node-mempool", "", "--node-mempool=info", "", true),
+		podutil.GenerateFlag("spv", "", "--spv=info", "", true),
+		podutil.GenerateFlag("wallet", "", "--wallet=info", "", true),
+		podutil.GenerateFlag("wallet-chain", "", "--wallet-chain=info", "", true),
+		podutil.GenerateFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
+		podutil.GenerateFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
+		podutil.GenerateFlag("wallet-tx", "", "--wallet-tx=info", "", true),
+		podutil.GenerateFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
+		podutil.GenerateFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
+		podutil.GenerateFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
+		podutil.GenerateFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
 	},
 	Examples: []climax.Example{
 		{
@@ -178,7 +180,7 @@ var Command = climax.Command{
 			Config.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
-				logger.Levels[i] = dl
+				logger.Levels[i].SetLevel(dl)
 			}
 		}
 		Log.Debugf.Print("pod/node version %s", n.Version())
@@ -211,7 +213,7 @@ var Command = climax.Command{
 				err = json.Unmarshal(cfgData, &Config)
 				if err != nil {
 					Log.Error.Print("parsing app config file:", err.Error())
-					clog.Shutdown()
+					writeDefaultConfig(cfgFile)
 				}
 			}
 		}
@@ -361,10 +363,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cfg.DbType = *r
 	}
 	if getIfIs(ctx, "profile", r) {
-		cfg.Profile = n.NormalizeAddress(*r, "11034")
+		var p int
+		if err = podutil.ParseInteger(*r, "profile", &p); err == nil {
+			cfg.Profile = fmt.Sprint(p)
+		}
 	}
 	if getIfIs(ctx, "cpuprofile", r) {
-		cfg.CPUProfile = n.NormalizeAddress(*r, "11033")
+		cfg.CPUProfile = *r
 	}
 	if getIfIs(ctx, "upnp", r) {
 		cfg.Upnp = *r == "true"
@@ -551,6 +556,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	// Validate profile port number
 	if cfg.Profile != "" {
+		Log.Info <- cfg.Profile
 		profilePort, err := strconv.Atoi(cfg.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
@@ -571,7 +577,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// Validate any given whitelisted IP addresses and networks.
 	if len(cfg.Whitelists) > 0 {
 		var ip net.IP
-		cfg.ActiveWhitelists = make([]*net.IPNet, 0, len(cfg.Whitelists))
+		StateCfg.ActiveWhitelists = make([]*net.IPNet, 0, len(cfg.Whitelists))
 		for _, addr := range cfg.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
@@ -595,7 +601,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 					Mask: net.CIDRMask(bits, bits),
 				}
 			}
-			cfg.ActiveWhitelists = append(cfg.ActiveWhitelists, ipnet)
+			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
 	}
 	// --addPeer and --connect do not mix.
@@ -667,7 +673,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		clog.Shutdown()
 	}
 	// Validate the the minrelaytxfee.
-	cfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
+	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -757,7 +763,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		clog.Shutdown()
 	}
 	// Check mining addresses are valid and saved parsed versions.
-	cfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
+	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
 		addr, err := util.DecodeAddress(strAddr, ActiveNetParams.Params)
 		if err != nil {
@@ -774,7 +780,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			clog.Shutdown()
 		}
-		cfg.ActiveMiningAddrs = append(cfg.ActiveMiningAddrs, addr)
+		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
@@ -786,7 +792,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 
 	}
 	if cfg.MinerPass != "" {
-		cfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
+		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = n.NormalizeAddresses(cfg.Listeners,
@@ -818,7 +824,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		clog.Shutdown()
 	}
 	// Check the checkpoints for syntax errors.
-	cfg.AddedCheckpoints, err = n.ParseCheckpoints(cfg.AddCheckpoints)
+	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -835,8 +841,8 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		clog.Shutdown()
 	}
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
-	cfg.Dial = net.DialTimeout
-	cfg.Lookup = net.LookupIP
+	StateCfg.Dial = net.DialTimeout
+	StateCfg.Lookup = net.LookupIP
 	if cfg.Proxy != "" {
 		_, _, err := net.SplitHostPort(cfg.Proxy)
 		if err != nil {
@@ -860,10 +866,10 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			Password:     cfg.ProxyPass,
 			TorIsolation: torIsolation,
 		}
-		cfg.Dial = proxy.DialTimeout
+		StateCfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
-			cfg.Lookup = func(host string) ([]net.IP, error) {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.Proxy)
 			}
 		}
@@ -885,7 +891,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
-		cfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 			proxy := &socks.Proxy{
 				Addr:         cfg.OnionProxy,
 				Username:     cfg.OnionProxyUser,
@@ -896,33 +902,36 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if cfg.Proxy != "" {
-			cfg.Lookup = func(host string) ([]net.IP, error) {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.OnionProxy)
 			}
 		}
 	} else {
-		cfg.Oniondial = cfg.Dial
+		StateCfg.Oniondial = StateCfg.Dial
 	}
 	// Specifying --noonion means the onion address dial function results in an error.
 	if cfg.NoOnion {
-		cfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
 			return nil, errors.New("tor has been disabled")
 		}
 	}
 }
 
 func writeDefaultConfig(cfgFile string) {
+	Log.Trace <- "writeDefaultConfig"
 	defCfg := DefaultConfig()
 	defCfg.Node.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		Log.Error.Print("marshalling default app config file:", err.Error())
+		Log.Error.Print(`marshalling default app config file: "` + err.Error() + `"`)
+		return
 	}
 	j = append(j, '\n')
 	Log.Tracef.Print("JSON formatted config file\n%s", j)
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
 		Log.Error.Print("writing default app config file:", err.Error())
+		return
 	}
 	// if we are writing default config we also want to use it
 	Config = defCfg
@@ -930,8 +939,12 @@ func writeDefaultConfig(cfgFile string) {
 
 // DefaultConfig is the default configuration for node
 func DefaultConfig() *Cfg {
+	user := podutil.GenerateKey()
+	pass := podutil.GenerateKey()
 	return &Cfg{
 		Node: &n.Config{
+			RPCUser:              user,
+			RPCPass:              pass,
 			Listeners:            []string{n.DefaultListener},
 			RPCListeners:         []string{n.DefaultRPCListener},
 			DebugLevel:           "info",
@@ -963,6 +976,6 @@ func DefaultConfig() *Cfg {
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
 		},
-		LogLevels: logger.GetDefault(),
+		logLevels: logger.GetDefault(),
 	}
 }

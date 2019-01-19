@@ -1,7 +1,4 @@
-// NOTE: THIS API IS UNSTABLE RIGHT NOW.
-// TODO: Add functional options to ChainService instantiation.
-
-package neutrino
+package spv
 
 import (
 	"errors"

@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("pod/node", clog.Ndbg)
+var Log = clog.NewSubSystem("node", clog.Ndbg)
 
 // UseLogger uses a specified Logger to output package logging info.
 func UseLogger(logger *clog.SubSystem) {

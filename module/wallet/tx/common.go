@@ -1,7 +1,7 @@
 // Copyright (c) 2016 The Decred developers
 // Copyright (c) 2017 The btcsuite developers
 
-package wallet
+package wallettx
 
 import (
 	"time"

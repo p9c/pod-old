@@ -1,4 +1,4 @@
-package wallet
+package wallettx
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 
 func (w *Wallet) handleChainNotifications() {
 	defer w.wg.Done()
+	Log.Debug <- "handleChainNotifications start"
 
 	chainClient, err := w.requireChainClient()
 	if err != nil {
@@ -95,7 +96,9 @@ func (w *Wallet) handleChainNotifications() {
 				go sync(w)
 			case chain.BlockConnected:
 				err = walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
-					return w.connectBlock(tx, wtxmgr.BlockMeta(n))
+					err := w.connectBlock(tx, wtxmgr.BlockMeta(n))
+					Log.Debug <- "connect block error " + err.Error()
+					return err
 				})
 				notificationName = "blockconnected"
 			case chain.BlockDisconnected:

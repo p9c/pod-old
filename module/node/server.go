@@ -1006,8 +1006,10 @@ func (s *server) AddRebroadcastInventory(iv *wire.InvVect, data interface{}) {
 
 // RemoveRebroadcastInventory removes 'iv' from the list of items to be rebroadcasted if present.
 func (s *server) RemoveRebroadcastInventory(iv *wire.InvVect) {
+	// Log.Debug <- "RemoveBroadcastInventory"
 	// Ignore if shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
+		// Log.Debug <- "ignoring due to shutdown"
 		return
 	}
 	s.modifyRebroadcastInv <- broadcastInventoryDel(iv)
@@ -1035,14 +1037,19 @@ func (s *server) AnnounceNewTransactions(txns []*mempool.TxDesc) {
 
 // Transaction has one confirmation on the main chain. Now we can mark it as no longer needing rebroadcasting.
 func (s *server) TransactionConfirmed(tx *util.Tx) {
+	// Log.Debug <- "TransactionConfirmed"
 	// Rebroadcasting is only necessary when the RPC server is active.
 	for i := range s.rpcServers {
+		// Log.Debug <- "sending to RPC servers"
 		if s.rpcServers[i] == nil {
 			return
 		}
 	}
+	// Log.Debug <- "getting new inventory vector"
 	iv := wire.NewInvVect(wire.InvTypeTx, tx.Hash())
+	// Log.Debug <- "removing broadcast inventory"
 	s.RemoveRebroadcastInventory(iv)
+	// Log.Debug <- "done TransactionConfirmed"
 }
 
 // pushTxMsg sends a tx message for the provided transaction hash to the connected peer.  An error is returned if the transaction hash is not known.
@@ -1713,6 +1720,7 @@ func (s *server) UpdatePeerHeights(latestBlkHash *chainhash.Hash, latestHeight i
 
 // rebroadcastHandler keeps track of user submitted inventories that we have sent out but have not yet made it into a block. We periodically rebroadcast them in case our peers restarted or otherwise lost track of them.
 func (s *server) rebroadcastHandler() {
+	// Log.Debug <- "starting rebroadcastHandler"
 	// Wait 5 min before first tx rebroadcast.
 	timer := time.NewTimer(5 * time.Minute)
 	pendingInvs := make(map[wire.InvVect]interface{})
@@ -1720,17 +1728,21 @@ out:
 	for {
 		select {
 		case riv := <-s.modifyRebroadcastInv:
+			// Log.Debug <- "received modify rebroadcast inventory"
 			switch msg := riv.(type) {
 			// Incoming InvVects are added to our map of RPC txs.
 			case broadcastInventoryAdd:
+				// Log.Debug <- "broadcast inventory add"
 				pendingInvs[*msg.invVect] = msg.data
 			// When an InvVect has been added to a block, we can now remove it, if it was present.
 			case broadcastInventoryDel:
+				// Log.Debug <- "broadcast inventory delete"
 				if _, ok := pendingInvs[*msg]; ok {
 					delete(pendingInvs, *msg)
 				}
 			}
 		case <-timer.C:
+			// Log.Debug <- "timer for rebroadcast handler"
 			// Any inventory we have has not made it into a block yet. We periodically resubmit them until they have.
 			for iv, data := range pendingInvs {
 				ivCopy := iv
@@ -1741,6 +1753,7 @@ out:
 				time.Duration(randomUint16Number(1800)))
 		case <-s.quit:
 			break out
+		default:
 		}
 	}
 	timer.Stop()
@@ -1749,6 +1762,7 @@ cleanup:
 	for {
 		select {
 		case <-s.modifyRebroadcastInv:
+			// Log.Debug <- "draining modifyRebroadcastInv"
 		default:
 			break cleanup
 		}
@@ -1758,8 +1772,10 @@ cleanup:
 
 // Start begins accepting connections from peers.
 func (s *server) Start() {
+	// Log.Debug <- "starting server"
 	// Already started?
 	if atomic.AddInt32(&s.started, 1) != 1 {
+		// Log.Debug <- "already started"
 		return
 	}
 	Log.Trace.Print("Starting server")
@@ -1774,11 +1790,14 @@ func (s *server) Start() {
 	}
 	if !cfg.DisableRPC {
 		s.wg.Add(1)
+		// Log.Debug <- "starting rebroadcast handler"
 		// Start the rebroadcastHandler, which ensures user tx received by the RPC server are rebroadcast until being included in a block.
 		go s.rebroadcastHandler()
 		for i := range s.rpcServers {
 			s.rpcServers[i].Start()
 		}
+	} else {
+		panic("cannot run without RPC")
 	}
 	// Start the CPU miner if generation is enabled.
 	if cfg.Generate {
@@ -2068,7 +2087,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 	// Merge given checkpoints with the default ones unless they are disabled.
 	var checkpoints []chaincfg.Checkpoint
 	if !cfg.DisableCheckpoints {
-		checkpoints = mergeCheckpoints(s.chainParams.Checkpoints, cfg.AddedCheckpoints)
+		checkpoints = mergeCheckpoints(s.chainParams.Checkpoints, StateCfg.AddedCheckpoints)
 	}
 	// Create a new block chain instance with the appropriate configuration.
 	var err error
@@ -2115,7 +2134,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 			MaxOrphanTxs:         cfg.MaxOrphanTxs,
 			MaxOrphanTxSize:      DefaultMaxOrphanTxSize,
 			MaxSigOpCostPerTx:    blockchain.MaxBlockSigOpsCost / 4,
-			MinRelayTxFee:        cfg.ActiveMinRelayTxFee,
+			MinRelayTxFee:        StateCfg.ActiveMinRelayTxFee,
 			MaxTxVersion:         2,
 		},
 		ChainParams:    chainParams,
@@ -2152,7 +2171,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		BlockMinSize:      cfg.BlockMinSize,
 		BlockMaxSize:      cfg.BlockMaxSize,
 		BlockPrioritySize: cfg.BlockPrioritySize,
-		TxMinFreeFee:      cfg.ActiveMinRelayTxFee,
+		TxMinFreeFee:      StateCfg.ActiveMinRelayTxFee,
 	}
 	blockTemplateGenerator := mining.NewBlkTmplGenerator(&policy,
 		s.chainParams, s.txMemPool, s.chain, s.timeSource,
@@ -2161,7 +2180,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		Blockchain:             s.chain,
 		ChainParams:            chainParams,
 		BlockTemplateGenerator: blockTemplateGenerator,
-		MiningAddrs:            cfg.ActiveMiningAddrs,
+		MiningAddrs:            StateCfg.ActiveMiningAddrs,
 		ProcessBlock:           s.syncManager.ProcessBlock,
 		ConnectedCount:         s.ConnectedCount,
 		IsCurrent:              s.syncManager.IsCurrent,
@@ -2172,10 +2191,10 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		Blockchain:             s.chain,
 		ChainParams:            chainParams,
 		BlockTemplateGenerator: blockTemplateGenerator,
-		MiningAddrs:            cfg.ActiveMiningAddrs,
+		MiningAddrs:            StateCfg.ActiveMiningAddrs,
 		ProcessBlock:           s.syncManager.ProcessBlock,
 		MinerListener:          cfg.MinerListener,
-		MinerKey:               cfg.ActiveMinerKey,
+		MinerKey:               StateCfg.ActiveMinerKey,
 		ConnectedCount:         s.ConnectedCount,
 		IsCurrent:              s.syncManager.IsCurrent,
 	})
@@ -2477,7 +2496,7 @@ func dynamicTickDuration(remaining time.Duration) time.Duration {
 /*	isWhitelisted returns whether the IP address is included in the whitelisted
 	networks and IPs. */
 func isWhitelisted(addr net.Addr) bool {
-	if len(cfg.ActiveWhitelists) == 0 {
+	if len(StateCfg.ActiveWhitelists) == 0 {
 		return false
 	}
 	host, _, err := net.SplitHostPort(addr.String())
@@ -2490,7 +2509,7 @@ func isWhitelisted(addr net.Addr) bool {
 		Log.Warnf.Print("Unable to parse IP '%s'", addr)
 		return false
 	}
-	for _, ipnet := range cfg.ActiveWhitelists {
+	for _, ipnet := range StateCfg.ActiveWhitelists {
 		if ipnet.Contains(ip) {
 			return true
 		}

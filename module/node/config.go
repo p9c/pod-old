@@ -93,7 +93,7 @@ func minUint32(a, b uint32) uint32 {
 	return b
 }
 
-// config defines the configuration options for pod. See loadConfig for details on the configuration load process.
+// Config defines the configuration options for pod. See loadConfig for details on the configuration load process.
 type Config struct {
 	ShowVersion          bool          `short:"V" long:"version" description:"Display version information and exit"`
 	ConfigFile           string        `short:"C" long:"configfile" description:"Path to configuration file"`
@@ -169,14 +169,18 @@ type Config struct {
 	DropAddrIndex        bool          `long:"dropaddrindex" description:"Deletes the address-based transaction index from the database on start up and then exits."`
 	RelayNonStd          bool          `long:"relaynonstd" description:"Relay non-standard transactions regardless of the default settings for the active network."`
 	RejectNonStd         bool          `long:"rejectnonstd" description:"Reject non-standard transactions regardless of the default settings for the active network."`
-	Lookup               func(string) ([]net.IP, error)
-	Oniondial            func(string, string, time.Duration) (net.Conn, error)
-	Dial                 func(string, string, time.Duration) (net.Conn, error)
-	AddedCheckpoints     []chaincfg.Checkpoint
-	ActiveMiningAddrs    []util.Address
-	ActiveMinerKey       []byte
-	ActiveMinRelayTxFee  util.Amount
-	ActiveWhitelists     []*net.IPNet
+}
+
+// StateConfig stores current state of the node
+type StateConfig struct {
+	Lookup              func(string) ([]net.IP, error)
+	Oniondial           func(string, string, time.Duration) (net.Conn, error)
+	Dial                func(string, string, time.Duration) (net.Conn, error)
+	AddedCheckpoints    []chaincfg.Checkpoint
+	ActiveMiningAddrs   []util.Address
+	ActiveMinerKey      []byte
+	ActiveMinRelayTxFee util.Amount
+	ActiveWhitelists    []*net.IPNet
 }
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
@@ -355,6 +359,7 @@ func loadConfig() (*Config, []string, error) {
 		AddrIndex:            DefaultAddrIndex,
 		Algo:                 DefaultAlgo,
 	}
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
 	// Pre-parse the command line options to see if an alternative config file or the version flag was specified.  Any errors aside from the help message error can be ignored here since they will be caught by the final parse below.
@@ -503,6 +508,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Validate profile port number
 	if cfg.Profile != "" {
+		Log.Info <- cfg.Profile
 		profilePort, err := strconv.Atoi(cfg.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
@@ -521,9 +527,9 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Validate any given whitelisted IP addresses and networks.
-	if len(cfg.ActiveWhitelists) > 0 {
+	if len(StateCfg.ActiveWhitelists) > 0 {
 		var ip net.IP
-		cfg.ActiveWhitelists = make([]*net.IPNet, 0, len(cfg.ActiveWhitelists))
+		StateCfg.ActiveWhitelists = make([]*net.IPNet, 0, len(StateCfg.ActiveWhitelists))
 		for _, addr := range cfg.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
@@ -547,7 +553,7 @@ func loadConfig() (*Config, []string, error) {
 					Mask: net.CIDRMask(bits, bits),
 				}
 			}
-			cfg.ActiveWhitelists = append(cfg.ActiveWhitelists, ipnet)
+			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
 	}
 	// --addPeer and --connect do not mix.
@@ -621,7 +627,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Validate the the minrelaytxfee.
-	cfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
+	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -715,7 +721,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Check mining addresses are valid and saved parsed versions.
-	cfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
+	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
 		addr, err := util.DecodeAddress(strAddr, ActiveNetParams.Params)
 		if err != nil {
@@ -732,7 +738,7 @@ func loadConfig() (*Config, []string, error) {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
-		cfg.ActiveMiningAddrs = append(cfg.ActiveMiningAddrs, addr)
+		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
@@ -743,7 +749,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	if cfg.MinerPass != "" {
-		cfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
+		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = NormalizeAddresses(cfg.Listeners,
@@ -776,7 +782,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Check the checkpoints for syntax errors.
-	cfg.AddedCheckpoints, err = ParseCheckpoints(cfg.AddCheckpoints)
+	StateCfg.AddedCheckpoints, err = ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -794,8 +800,8 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
-	cfg.Dial = net.DialTimeout
-	cfg.Lookup = net.LookupIP
+	StateCfg.Dial = net.DialTimeout
+	StateCfg.Lookup = net.LookupIP
 	if cfg.Proxy != "" {
 		_, _, err := net.SplitHostPort(cfg.Proxy)
 		if err != nil {
@@ -819,10 +825,10 @@ func loadConfig() (*Config, []string, error) {
 			Password:     cfg.ProxyPass,
 			TorIsolation: torIsolation,
 		}
-		cfg.Dial = proxy.DialTimeout
+		StateCfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
-			cfg.Lookup = func(host string) ([]net.IP, error) {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.Proxy)
 			}
 		}
@@ -844,7 +850,7 @@ func loadConfig() (*Config, []string, error) {
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
-		cfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 			proxy := &socks.Proxy{
 				Addr:         cfg.OnionProxy,
 				Username:     cfg.OnionProxyUser,
@@ -855,16 +861,16 @@ func loadConfig() (*Config, []string, error) {
 		}
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if cfg.Proxy != "" {
-			cfg.Lookup = func(host string) ([]net.IP, error) {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.OnionProxy)
 			}
 		}
 	} else {
-		cfg.Oniondial = cfg.Dial
+		StateCfg.Oniondial = StateCfg.Dial
 	}
 	// Specifying --noonion means the onion address dial function results in an error.
 	if cfg.NoOnion {
-		cfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
 			return nil, errors.New("tor has been disabled")
 		}
 	}
@@ -924,10 +930,11 @@ func createDefaultConfigFile(destinationPath string) error {
 // podDial connects to the address on the named network using the appropriate dial function depending on the address and configuration options.  For example, .onion addresses will be dialed using the onion specific proxy if one was specified, but will otherwise use the normal dial function (which could itself use a proxy or not).
 func podDial(addr net.Addr) (net.Conn, error) {
 	if strings.Contains(addr.String(), ".onion:") {
-		return cfg.Oniondial(addr.Network(), addr.String(),
+		return StateCfg.Oniondial(addr.Network(), addr.String(),
 			DefaultConnectTimeout)
 	}
-	return cfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
+
+	return StateCfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
 }
 
 // podLookup resolves the IP of the given host using the correct DNS lookup function depending on the configuration options.  For example, addresses will be resolved using tor when the --proxy flag was specified unless --noonion was also specified in which case the normal system DNS resolver will be used. Any attempt to resolve a tor address (.onion) will return an error since they are not intended to be resolved outside of the tor proxy.
@@ -935,5 +942,5 @@ func podLookup(host string) ([]net.IP, error) {
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)
 	}
-	return cfg.Lookup(host)
+	return StateCfg.Lookup(host)
 }

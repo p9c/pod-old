@@ -28,7 +28,7 @@ var (
 
 func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 	c := cmd.(*json.GetWorkCmd)
-	if len(cfg.ActiveMiningAddrs) == 0 {
+	if len(StateCfg.ActiveMiningAddrs) == 0 {
 		return nil, &json.RPCError{
 			Code: json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified " +
@@ -58,7 +58,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	}
 	// Choose a payment address at random.
 	rand.Seed(time.Now().UnixNano())
-	payToAddr := cfg.ActiveMiningAddrs[rand.Intn(len(cfg.ActiveMiningAddrs))]
+	payToAddr := StateCfg.ActiveMiningAddrs[rand.Intn(len(StateCfg.ActiveMiningAddrs))]
 	lastTxUpdate := s.gbtWorkState.lastTxUpdate
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	generator := s.cfg.Generator

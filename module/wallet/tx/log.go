@@ -1,13 +1,13 @@
 // Copyright (c) 2015 The btcsuite developers
 
-package wallet
+package wallettx
 
 import (
 	"git.parallelcoin.io/pod/lib/clog"
 )
 
 // Log is the logger for the peer package
-var Log = clog.NewSubSystem("pod/wallet/tx", clog.Ndbg)
+var Log = clog.NewSubSystem("wallet/tx", clog.Ndbg)
 
 // // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
 // var log = l.Disabled

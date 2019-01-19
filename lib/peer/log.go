@@ -12,7 +12,7 @@ import (
 )
 
 // Log is the logger for the peer package
-var Log = clog.NewSubSystem("pod/lib/peer", clog.Ndbg)
+var Log = clog.NewSubSystem("lib/peer", clog.Ntrc)
 
 // import (
 // 	"fmt"

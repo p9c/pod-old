@@ -22,6 +22,7 @@ type FmtChan chan Fmt
 
 // A SubSystem is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel
 type SubSystem struct {
+	Name   string
 	Fatal  Chan
 	Fatalf FmtChan
 	Error  Chan
@@ -41,6 +42,8 @@ type SubSystem struct {
 // SetLevel sets the debug level according to a string
 func (s *SubSystem) SetLevel(level string) {
 	switch strings.ToLower(level) {
+	case "off":
+		s.Level = -1
 	case "fatal":
 		s.Level = Nftl
 	case "error":
@@ -62,6 +65,7 @@ func (s *SubSystem) SetLevel(level string) {
 func NewSubSystem(name string, level int) *SubSystem {
 	name = aurora.Bold(name).String()
 	ss := SubSystem{
+		Name:   name,
 		Fatal:  make(Chan),
 		Fatalf: make(FmtChan),
 		Error:  make(Chan),
@@ -189,6 +193,8 @@ type Lvl struct {
 }
 
 const (
+	// Noff disables logging completely
+	Noff = -1
 	// Nftl is the number for fatal errors
 	Nftl = iota
 	// Nerr is the number for errors
@@ -386,8 +392,8 @@ func startChan(ch int, ready chan bool) {
 
 // Shutdown the application, allowing the logger a moment to clear the channels
 func Shutdown() {
+	close(Quit)
 	// wait a moment to let log channel clear
 	time.Sleep(time.Millisecond * 50)
-	close(Quit)
 	os.Exit(0)
 }

@@ -1,4 +1,4 @@
-package wallet_test
+package wallettx_test
 
 import (
 	"runtime"

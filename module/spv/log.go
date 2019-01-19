@@ -1,11 +1,11 @@
-package neutrino
+package spv
 
 import (
 	"git.parallelcoin.io/pod/lib/clog"
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("pod/spv", clog.Ndbg)
+var Log = clog.NewSubSystem("spv", clog.Ndbg)
 
 // // log is a logger that is initialized with no output filters.  This
 // // means the package will not perform any logging by default until the caller

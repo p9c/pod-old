@@ -1,6 +1,29 @@
 package logger
 
 import (
+	"git.parallelcoin.io/pod/lib/blockchain"
+	"git.parallelcoin.io/pod/lib/clog"
+	"git.parallelcoin.io/pod/lib/connmgr"
+	"git.parallelcoin.io/pod/lib/database"
+	"git.parallelcoin.io/pod/lib/database/ffldb"
+	"git.parallelcoin.io/pod/lib/mining"
+	"git.parallelcoin.io/pod/lib/mining/cpuminer"
+	"git.parallelcoin.io/pod/lib/netsync"
+	"git.parallelcoin.io/pod/lib/peer"
+	"git.parallelcoin.io/pod/lib/rpcclient"
+	"git.parallelcoin.io/pod/lib/txscript"
+	"git.parallelcoin.io/pod/module/node"
+	"git.parallelcoin.io/pod/module/node/mempool"
+	"git.parallelcoin.io/pod/module/spv"
+	"git.parallelcoin.io/pod/module/wallet"
+	"git.parallelcoin.io/pod/module/wallet/chain"
+	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/module/wallet/rpc/rpcserver"
+	"git.parallelcoin.io/pod/module/wallet/tx"
+	"git.parallelcoin.io/pod/module/wallet/votingpool"
+	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/module/wallet/wallet"
+	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
 	"git.parallelcoin.io/pod/run/util"
 	"github.com/tucnak/climax"
 )
@@ -9,31 +32,30 @@ import (
 var Levels = GetDefault()
 
 // GetDefault returns a fresh shiny new default levels map
-func GetDefault() map[string]string {
-	return map[string]string{
-		"log-database":             "info",
-		"log-txscript":             "info",
-		"log-peer":                 "info",
-		"log-netsync":              "info",
-		"log-rpcclient":            "info",
-		"log-addrmgr":              "info",
-		"log-blockchain-indexers":  "info",
-		"log-blockchain":           "info",
-		"log-mining-cpuminer":      "info",
-		"log-mining":               "info",
-		"log-mining-controller":    "info",
-		"log-connmgr":              "info",
-		"log-spv":                  "info",
-		"log-node-mempool":         "info",
-		"log-node":                 "info",
-		"log-wallet-wallet":        "info",
-		"log-wallet-tx":            "info",
-		"log-wallet-votingpool":    "info",
-		"log-wallet":               "info",
-		"log-wallet-chain":         "info",
-		"log-wallet-rpc-rpcserver": "info",
-		"log-wallet-rpc-legacyrpc": "info",
-		"log-wallet-wtxmgr":        "info",
+func GetDefault() map[string]*clog.SubSystem {
+	return map[string]*clog.SubSystem{
+		"lib-blockchain":      blockchain.Log,
+		"lib-connmgr":         connmgr.Log,
+		"lib-database-ffldb":  ffldb.Log,
+		"lib-database":        database.Log,
+		"lib-mining-cpuminer": cpuminer.Log,
+		"lib-mining":          mining.Log,
+		"lib-netsync":         netsync.Log,
+		"lib-peer":            peer.Log,
+		"lib-rpcclient":       rpcclient.Log,
+		"lib-txscript":        txscript.Log,
+		"node":                node.Log,
+		"node-mempool":        mempool.Log,
+		"spv":                 spv.Log,
+		"wallet":              walletmain.Log,
+		"wallet-chain":        chain.Log,
+		"wallet-legacyrpc":    legacyrpc.Log,
+		"wallet-rpcserver":    rpcserver.Log,
+		"wallet-tx":           wallettx.Log,
+		"wallet-votingpool":   votingpool.Log,
+		"wallet-waddrmgr":     waddrmgr.Log,
+		"wallet-wallet":       wallet.Log,
+		"wallet-wtxmgr":       wtxmgr.Log,
 	}
 }
 
@@ -46,104 +68,50 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	return
 }
 
-// SetLogging sets the logging settings according to the provided context
-func SetLogging(ctx *climax.Context) {
+func setIfIs(ctx *climax.Context, name string) {
 	var r *string
 	t := ""
 	r = &t
-	if getIfIs(ctx, "log-database", r) {
-		Levels["log-database"] = *r
+	if getIfIs(ctx, name, r) {
+		Levels[name].SetLevel(*r)
 	}
-	if getIfIs(ctx, "log-txscript", r) {
-		Levels["log-txscript"] = *r
+}
+
+// SetLogging sets the logging settings according to the provided context
+func SetLogging(ctx *climax.Context) {
+	for i := range Levels {
+		setIfIs(ctx, i)
 	}
-	if getIfIs(ctx, "log-peer", r) {
-		Levels["log-peer"] = *r
-	}
-	if getIfIs(ctx, "log-netsync", r) {
-		Levels["log-netsync"] = *r
-	}
-	if getIfIs(ctx, "log-rpcclient", r) {
-		Levels["log-rpcclient"] = *r
-	}
-	if getIfIs(ctx, "log-addrmgr", r) {
-		Levels["log-addrmgr"] = *r
-	}
-	if getIfIs(ctx, "log-blockchain-indexers", r) {
-		Levels["log-blockchain-indexers"] = *r
-	}
-	if getIfIs(ctx, "log-blockchain", r) {
-		Levels["log-blockchain"] = *r
-	}
-	if getIfIs(ctx, "log-mining-cpuminer", r) {
-		Levels["log-mining-cpuminer"] = *r
-	}
-	if getIfIs(ctx, "log-mining", r) {
-		Levels["log-mining"] = *r
-	}
-	if getIfIs(ctx, "log-mining-controller", r) {
-		Levels["log-mining-controller"] = *r
-	}
-	if getIfIs(ctx, "log-connmgr", r) {
-		Levels["log-connmgr"] = *r
-	}
-	if getIfIs(ctx, "log-spv", r) {
-		Levels["log-log-spv"] = *r
-	}
-	if getIfIs(ctx, "log-node-mempool", r) {
-		Levels["log-node-mempool"] = *r
-	}
-	if getIfIs(ctx, "log-node", r) {
-		Levels["log-node"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-wallet", r) {
-		Levels["log-wallet-wallet"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-tx", r) {
-		Levels["log-wallet-tx"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-votingpool", r) {
-		Levels["log-wallet-votingpool"] = *r
-	}
-	if getIfIs(ctx, "log-wallet", r) {
-		Levels["log-wallet"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-chain", r) {
-		Levels["log-wallet-chain"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-rpc", r) {
-		Levels["log-wallet-rpc"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-rpc", r) {
-		Levels["log-wallet-rpc"] = *r
-	}
-	if getIfIs(ctx, "log-wallet-wtxmgr", r) {
-		Levels["log-wallet-wtxmgr"] = *r
+}
+
+// SetAllLogging sets all the logging to a particular level
+func SetAllLogging(level string) {
+	for i := range Levels {
+		Levels[i].SetLevel(level)
 	}
 }
 
 var debugLevels = []climax.Flag{
-	podutil.GenerateFlag("log-database", "", "--log-database", "", true),
-	podutil.GenerateFlag("log-txscript", "", "--log-txscript", "", true),
-	podutil.GenerateFlag("log-peer", "", "--log-peer", "", true),
-	podutil.GenerateFlag("log-netsync", "", "--log-netsync", "", true),
-	podutil.GenerateFlag("log-rpcclient", "", "--log-rpcclient", "", true),
-	podutil.GenerateFlag("addrmgr", "", "--log-addrmgr", "", true),
-	podutil.GenerateFlag("log-blockchain-indexers", "", "--log-blockchain-indexers", "", true),
-	podutil.GenerateFlag("log-blockchain", "", "--log-blockchain", "", true),
-	podutil.GenerateFlag("log-mining-cpuminer", "", "--log-mining-cpuminer", "", true),
-	podutil.GenerateFlag("log-mining", "", "--log-mining", "", true),
-	podutil.GenerateFlag("log-mining-controller", "", "--log-mining-controller", "", true),
-	podutil.GenerateFlag("log-connmgr", "", "--log-connmgr", "", true),
-	podutil.GenerateFlag("log-spv", "", "--log-spv", "", true),
-	podutil.GenerateFlag("log-node-mempool", "", "--log-node-mempool", "", true),
-	podutil.GenerateFlag("log-node", "", "--log-node", "", true),
-	podutil.GenerateFlag("log-wallet-wallet", "", "--log-wallet-wallet", "", true),
-	podutil.GenerateFlag("log-wallet-tx", "", "--log-wallet-tx", "", true),
-	podutil.GenerateFlag("log-wallet-votingpool", "", "--log-wallet-votingpool", "", true),
-	podutil.GenerateFlag("log-wallet", "", "--log-wallet", "", true),
-	podutil.GenerateFlag("log-wallet-chain", "", "--log-wallet-chain", "", true),
-	podutil.GenerateFlag("log-wallet-rpc-rpcserver", "", "--log-wallet-rpc-rpcserver", "", true),
-	podutil.GenerateFlag("log-wallet-rpc-legacyrpc", "", "--log-wallet-rpc-legacyrpc", "", true),
-	podutil.GenerateFlag("log-wallet-wtxmgr", "", "--log-wallet-wtxmgr", "", true),
+	podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
+	podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
+	podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
+	podutil.GenerateFlag("lib-database", "", "--lib-database=info", "", true),
+	podutil.GenerateFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
+	podutil.GenerateFlag("lib-mining", "", "--lib-mining=info", "", true),
+	podutil.GenerateFlag("lib-netsync", "", "--lib-netsync=info", "", true),
+	podutil.GenerateFlag("lib-peer", "", "--lib-peer=info", "", true),
+	podutil.GenerateFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
+	podutil.GenerateFlag("lib-txscript", "", "--lib-txscript=info", "", true),
+	podutil.GenerateFlag("node", "", "--node=info", "", true),
+	podutil.GenerateFlag("node-mempool", "", "--node-mempool=info", "", true),
+	podutil.GenerateFlag("spv", "", "--spv=info", "", true),
+	podutil.GenerateFlag("wallet", "", "--wallet=info", "", true),
+	podutil.GenerateFlag("wallet-chain", "", "--wallet-chain=info", "", true),
+	podutil.GenerateFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
+	podutil.GenerateFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
+	podutil.GenerateFlag("wallet-tx", "", "--wallet-tx=info", "", true),
+	podutil.GenerateFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
+	podutil.GenerateFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
+	podutil.GenerateFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
+	podutil.GenerateFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
 }

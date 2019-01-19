@@ -744,7 +744,7 @@ func handleEstimateFee(s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 // handleGenerate handles generate commands.
 func handleGenerate(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 	// Respond with an error if there are no addresses to pay the created blocks to.
-	if len(cfg.ActiveMiningAddrs) == 0 {
+	if len(StateCfg.ActiveMiningAddrs) == 0 {
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified via --miningaddr",
@@ -1302,7 +1302,7 @@ func (state *gbtWorkState) updateBlockTemplate(s *rpcServer, useCoinbaseValue bo
 		// Choose a payment address at random if the caller requests a full coinbase as opposed to only the pertinent details needed to create their own coinbase.
 		var payAddr util.Address
 		if !useCoinbaseValue {
-			payAddr = cfg.ActiveMiningAddrs[rand.Intn(len(cfg.ActiveMiningAddrs))]
+			payAddr = StateCfg.ActiveMiningAddrs[rand.Intn(len(StateCfg.ActiveMiningAddrs))]
 		}
 		// Create a new block template that has a coinbase which anyone can redeem.  This is only acceptable because the returned block template doesn't include the coinbase, so the caller will ultimately create their own coinbase which pays to the appropriate address(es).
 		blkTemplate, err := generator.NewBlockTemplate(payAddr, state.algo)
@@ -1333,7 +1333,7 @@ func (state *gbtWorkState) updateBlockTemplate(s *rpcServer, useCoinbaseValue bo
 		// At this point, there is a saved block template and another request for a template was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.  So, update the existing block template. When the caller requires a full coinbase as opposed to only the pertinent details needed to create their own coinbase, add a payment address to the output of the coinbase of the template if it doesn't already have one.  Since this requires mining addresses to be specified via the config, an error is returned if none have been specified.
 		if !useCoinbaseValue && !template.ValidPayAddress {
 			// Choose a payment address at random.
-			payToAddr := cfg.ActiveMiningAddrs[rand.Intn(len(cfg.ActiveMiningAddrs))]
+			payToAddr := StateCfg.ActiveMiningAddrs[rand.Intn(len(StateCfg.ActiveMiningAddrs))]
 			// Update the block coinbase output of the template to pay to the randomly selected payment address.
 			pkScript, err := txscript.PayToAddrScript(payToAddr)
 			if err != nil {
@@ -1556,7 +1556,7 @@ func handleGetBlockTemplateRequest(s *rpcServer, request *json.TemplateRequest, 
 		}
 	}
 	// When a coinbase transaction has been requested, respond with an error if there are no addresses to pay the created block template to.
-	if !useCoinbaseValue && len(cfg.ActiveMiningAddrs) == 0 {
+	if !useCoinbaseValue && len(StateCfg.ActiveMiningAddrs) == 0 {
 		return nil, &json.RPCError{
 			Code: json.ErrRPCInternal.Code,
 			Message: "A coinbase transaction has been requested, " +
@@ -1967,7 +1967,7 @@ func handleGetInfo(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (re
 			DifficultySHA256D: dSHA256D,
 			DifficultyScrypt:  dScrypt,
 			TestNet:           cfg.TestNet3,
-			RelayFee:          cfg.ActiveMinRelayTxFee.ToDUO(),
+			RelayFee:          StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
 	case 1:
 		foundcount, height := 0, best.Height
@@ -2074,7 +2074,7 @@ func handleGetInfo(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (re
 			DifficultyStribog:        dStribog,
 			DifficultyKeccak:         dKeccak,
 			TestNet:                  cfg.TestNet3,
-			RelayFee:                 cfg.ActiveMinRelayTxFee.ToDUO(),
+			RelayFee:                 StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
 	}
 	return ret, nil
@@ -3078,7 +3078,7 @@ func handleSetGenerate(s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 		s.cfg.CPUMiner.Stop()
 	} else {
 		// Respond with an error if there are no addresses to pay the created blocks to.
-		if len(cfg.ActiveMiningAddrs) == 0 {
+		if len(StateCfg.ActiveMiningAddrs) == 0 {
 			return nil, &json.RPCError{
 				Code: json.ErrRPCInternal.Code,
 				Message: "No payment addresses specified " +

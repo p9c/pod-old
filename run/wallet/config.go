@@ -1,4 +1,4 @@
-package wallet
+package walletrun
 
 import (
 	"encoding/json"
@@ -16,12 +16,12 @@ import (
 )
 
 // Log is the main logger for wallet
-var Log = clog.NewSubSystem("pod/wallet", clog.Ndbg)
+var Log = clog.NewSubSystem("run/wallet", clog.Ndbg)
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {
 	Wallet *w.Config
-	Levels map[string]string
+	Levels map[string]*clog.SubSystem
 }
 
 // Config is the combined app and log levels configuration
@@ -74,29 +74,28 @@ var Command = climax.Command{
 
 		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library)", true),
 
-		podutil.GenerateFlag("log-database", "", "--log-database=debug", "sets log level for database", true),
-		podutil.GenerateFlag("log-txscript", "", "--log-txscript=debug", "sets log level for txscript", true),
-		podutil.GenerateFlag("log-peer", "", "--log-peer=debug", "sets log level for peer", true),
-		podutil.GenerateFlag("log-netsync", "", "--log-netsync=debug", "sets log level for netsync", true),
-		podutil.GenerateFlag("log-rpcclient", "", "--log-rpcclient=debug", "sets log level for rpcclient", true),
-		podutil.GenerateFlag("addrmgr", "", "--log-addrmgr=debug", "sets log level for mgr", true),
-		podutil.GenerateFlag("log-blockchain-indexers", "", "--log-blockchain-indexers=debug", "sets log level for blockchain-indexers", true),
-		podutil.GenerateFlag("log-blockchain", "", "--log-blockchain=debug", "sets log level for blockchain", true),
-		podutil.GenerateFlag("log-mining-cpuminer", "", "--log-mining-cpuminer=debug", "sets log level for mining-cpuminer", true),
-		podutil.GenerateFlag("log-mining", "", "--log-mining=debug", "sets log level for mining", true),
-		podutil.GenerateFlag("log-mining-controller", "", "--log-mining-controller=debug", "sets log level for mining-controller", true),
-		podutil.GenerateFlag("log-connmgr", "", "--log-connmgr=debug", "sets log level for connmgr", true),
-		podutil.GenerateFlag("log-spv", "", "--log-spv=debug", "sets log level for spv", true),
-		podutil.GenerateFlag("log-node-mempool", "", "--log-node-mempool=debug", "sets log level for node-mempool", true),
-		podutil.GenerateFlag("log-node", "", "--log-node=debug", "sets log level for node", true),
-		podutil.GenerateFlag("log-wallet-wallet", "", "--log-wallet-wallet=debug", "sets log level for wallet-wallet", true),
-		podutil.GenerateFlag("log-wallet-tx", "", "--log-wallet-tx=debug", "sets log level for wallet-tx", true),
-		podutil.GenerateFlag("log-wallet-votingpool", "", "--log-wallet-votingpool=debug", "sets log level for wallet-votingpool", true),
-		podutil.GenerateFlag("log-wallet", "", "--log-wallet=debug", "sets log level for wallet", true),
-		podutil.GenerateFlag("log-wallet-chain", "", "--log-wallet-chain=debug", "sets log level for wallet-chain", true),
-		podutil.GenerateFlag("log-wallet-rpc-rpcserver", "", "--log-wallet-rpc-rpcserver=debug", "sets log level for wallet-rpc-rpcserver", true),
-		podutil.GenerateFlag("log-wallet-rpc-legacyrpc", "", "--log-wallet-rpc-legacyrpc=debug", "sets log level for wallet-rpc-legacyrpc", true),
-		podutil.GenerateFlag("log-wallet-wtxmgr", "", "--log-wallet-wtxmgr=debug", "sets log level for wallet-wtxmgr", true),
+		podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
+		podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
+		podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
+		podutil.GenerateFlag("lib-database", "", "--lib-database=info", "", true),
+		podutil.GenerateFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
+		podutil.GenerateFlag("lib-mining", "", "--lib-mining=info", "", true),
+		podutil.GenerateFlag("lib-netsync", "", "--lib-netsync=info", "", true),
+		podutil.GenerateFlag("lib-peer", "", "--lib-peer=info", "", true),
+		podutil.GenerateFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
+		podutil.GenerateFlag("lib-txscript", "", "--lib-txscript=info", "", true),
+		podutil.GenerateFlag("node", "", "--node=info", "", true),
+		podutil.GenerateFlag("node-mempool", "", "--node-mempool=info", "", true),
+		podutil.GenerateFlag("spv", "", "--spv=info", "", true),
+		podutil.GenerateFlag("wallet", "", "--wallet=info", "", true),
+		podutil.GenerateFlag("wallet-chain", "", "--wallet-chain=info", "", true),
+		podutil.GenerateFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
+		podutil.GenerateFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
+		podutil.GenerateFlag("wallet-tx", "", "--wallet-tx=info", "", true),
+		podutil.GenerateFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
+		podutil.GenerateFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
+		podutil.GenerateFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
+		podutil.GenerateFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
 	},
 	Examples: []climax.Example{
 		{
@@ -111,7 +110,7 @@ var Command = climax.Command{
 			Log.Tracef.Print("setting debug level %s", dl)
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
-				logger.Levels[i] = dl
+				logger.Levels[i].SetLevel(dl)
 			}
 		}
 		Log.Debugf.Print("pod/wallet version %s", w.Version())
