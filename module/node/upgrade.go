@@ -87,9 +87,9 @@ func upgradeDataPaths() error {
 		return nil
 	}
 	// Only migrate if the old path exists and the new one doesn't.
-	if fileExists(oldHomePath) && !fileExists(newHomePath) {
+	if FileExists(oldHomePath) && !FileExists(newHomePath) {
 		// Create the new path.
-		podLog.Infof("Migrating application home path from '%s' to '%s'",
+		Log.Infof.Print("Migrating application home path from '%s' to '%s'",
 			oldHomePath, newHomePath)
 		err := os.MkdirAll(newHomePath, 0700)
 		if err != nil {
@@ -98,7 +98,7 @@ func upgradeDataPaths() error {
 		// Move old pod.conf into new location if needed.
 		oldConfPath := filepath.Join(oldHomePath, DefaultConfigFilename)
 		newConfPath := filepath.Join(newHomePath, DefaultConfigFilename)
-		if fileExists(oldConfPath) && !fileExists(newConfPath) {
+		if FileExists(oldConfPath) && !FileExists(newConfPath) {
 			err := os.Rename(oldConfPath, newConfPath)
 			if err != nil {
 				return err
@@ -107,7 +107,7 @@ func upgradeDataPaths() error {
 		// Move old data directory into new location if needed.
 		oldDataPath := filepath.Join(oldHomePath, DefaultDataDirname)
 		newDataPath := filepath.Join(newHomePath, DefaultDataDirname)
-		if fileExists(oldDataPath) && !fileExists(newDataPath) {
+		if FileExists(oldDataPath) && !FileExists(newDataPath) {
 			err := os.Rename(oldDataPath, newDataPath)
 			if err != nil {
 				return err
@@ -124,7 +124,7 @@ func upgradeDataPaths() error {
 				return err
 			}
 		} else {
-			podLog.Warnf("Not removing '%s' since it contains files "+
+			Log.Warnf.Print("Not removing '%s' since it contains files "+
 				"not created by this application.  You may "+
 				"want to manually move them or delete them.",
 				oldHomePath)

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"net"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -36,15 +37,33 @@ func EnsureDir(fileName string) {
 
 // NormalizeAddress reads and corrects an address if it is missing pieces
 func NormalizeAddress(addr, defaultPort string, out *string) {
-	*out = node.NormalizeAddress(addr, defaultPort)
+	o := node.NormalizeAddress(addr, defaultPort)
+	_, _, err := net.ParseCIDR(o)
+	if err != nil {
+		ip := net.ParseIP(addr)
+		if ip != nil {
+			out = &o
+		}
+	} else {
+		out = &o
+	}
 }
 
 // NormalizeAddresses reads and collects a space separated list of addresses contained in a string
 func NormalizeAddresses(addrs string, defaultPort string, out *[]string) {
+	O := new([]string)
 	addrS := strings.Split(addrs, " ")
-	node.NormalizeAddresses(addrS, defaultPort)
-	if len(addrS) > 0 {
-		out = &addrS
+	for i := range addrS {
+		a := addrS[i]
+		o := ""
+		NormalizeAddress(a, defaultPort, &o)
+		if o != "" {
+			*O = append(*O, o)
+		}
+	}
+	// atomically switch out if there was valid addresses
+	if len(*O) > 0 {
+		out = O
 	}
 }
 

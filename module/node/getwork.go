@@ -28,7 +28,7 @@ var (
 
 func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 	c := cmd.(*json.GetWorkCmd)
-	if len(cfg.miningAddrs) == 0 {
+	if len(cfg.ActiveMiningAddrs) == 0 {
 		return nil, &json.RPCError{
 			Code: json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified " +
@@ -58,7 +58,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	}
 	// Choose a payment address at random.
 	rand.Seed(time.Now().UnixNano())
-	payToAddr := cfg.miningAddrs[rand.Intn(len(cfg.miningAddrs))]
+	payToAddr := cfg.ActiveMiningAddrs[rand.Intn(len(cfg.ActiveMiningAddrs))]
 	lastTxUpdate := s.gbtWorkState.lastTxUpdate
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	generator := s.cfg.Generator
@@ -88,7 +88,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 		if err != nil {
 			errStr := fmt.Sprintf("Failed to create new block "+
 				"template: %v", err)
-			rpcsLog.Errorf(errStr)
+			Log.Errorf.Print(errStr)
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCInternal.Code,
 				Message: errStr,
@@ -100,7 +100,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 		state.lastGenerated = time.Now()
 		state.lastTxUpdate = lastTxUpdate
 		state.prevHash = latestHash
-		rpcsLog.Debugf("Generated block template (timestamp %v, target %064x, merkle root %s, signature script %x)", msgBlock.Header.Timestamp,
+		Log.Debugf.Print("generated block template (timestamp %v, target %064x, merkle root %s, signature script %x)", msgBlock.Header.Timestamp,
 			blockchain.CompactToBig(msgBlock.Header.Bits),
 			msgBlock.Header.MerkleRoot,
 			msgBlock.Transactions[0].TxIn[0].SignatureScript)
@@ -108,7 +108,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.  So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
 		generator.UpdateBlockTime(msgBlock)
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
-		rpcsLog.Debugf("Updated block template (timestamp %v, target %064x, merkle root %s, signature "+
+		Log.Debugf.Print("updated block template (timestamp %v, target %064x, merkle root %s, signature "+
 			"script %x)", msgBlock.Header.Timestamp,
 			blockchain.CompactToBig(msgBlock.Header.Bits),
 			msgBlock.Header.MerkleRoot,
@@ -128,7 +128,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	err := msgBlock.Header.Serialize(buf)
 	if err != nil {
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
-		rpcsLog.Warnf(errStr)
+		Log.Warn <- errStr
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInternal.Code,
 			Message: errStr,
@@ -198,8 +198,7 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	// Look up the full block for the provided data based on the merkle root.  Return false to indicate the solve failed if it's not available.
 	state := s.gbtWorkState
 	if state.template.Block.Header.MerkleRoot.String() == "" {
-		rpcsLog.Debugf("Block submitted via getwork has no matching "+
-			"template for merkle root %s",
+		Log.Debugf.Print("Block submitted via getwork has no matching template for merkle root %s",
 			submittedHeader.MerkleRoot)
 		return false, nil
 	}
@@ -222,13 +221,12 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 				Message: fmt.Sprintf("Unexpected error while checking proof of work: %v", err),
 			}
 		}
-		rpcsLog.Debugf("Block submitted via getwork does not meet the required proof of work: %v", err)
+		Log.Debugf.Print("block submitted via getwork does not meet the required proof of work: %v", err)
 		return false, nil
 	}
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	if !msgBlock.Header.PrevBlock.IsEqual(latestHash) {
-		rpcsLog.Debugf("Block submitted via getwork with previous "+
-			"block %s is stale", msgBlock.Header.PrevBlock)
+		Log.Debugf.Print("Block submitted via getwork with previous block %s is stale", msgBlock.Header.PrevBlock)
 		return false, nil
 	}
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
@@ -241,12 +239,12 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 				Message: fmt.Sprintf("Unexpected error while processing block: %v", err),
 			}
 		}
-		rpcsLog.Infof("Block submitted via getwork rejected: %v", err)
+		Log.Infof.Print("Block submitted via getwork rejected: %v", err)
 		return false, nil
 	}
 	// The block was accepted.
 	blockSha := block.Hash()
-	rpcsLog.Infof("Block submitted via getwork accepted: %s", blockSha)
+	Log.Infof.Print("Block submitted via getwork accepted: %s", blockSha)
 	return true, nil
 }
 

@@ -20,21 +20,19 @@ func interruptListener() <-chan struct{} {
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.
 		select {
 		case sig := <-interruptChannel:
-			podLog.Infof("Received signal (%s).  Shutting down...",
+			Log.Infof.Print("Received signal (%s).  Shutting down...",
 				sig)
 		case <-shutdownRequestChannel:
-			podLog.Info("Shutdown requested.  Shutting down...")
+			Log.Info <- "Shutdown requested.  Shutting down..."
 		}
 		close(c)
 		// Listen for repeated signals and display a message so the user knows the shutdown is in progress and the process is not hung.
 		for {
 			select {
 			case sig := <-interruptChannel:
-				podLog.Infof("Received signal (%s).  Already "+
-					"shutting down...", sig)
+				Log.Infof.Print("Received signal (%s).  Already shutting down...", sig)
 			case <-shutdownRequestChannel:
-				podLog.Info("Shutdown requested.  Already " +
-					"shutting down...")
+				Log.Info <- "Shutdown requested.  Already shutting down..."
 			}
 		}
 	}()

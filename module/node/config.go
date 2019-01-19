@@ -169,14 +169,14 @@ type Config struct {
 	DropAddrIndex        bool          `long:"dropaddrindex" description:"Deletes the address-based transaction index from the database on start up and then exits."`
 	RelayNonStd          bool          `long:"relaynonstd" description:"Relay non-standard transactions regardless of the default settings for the active network."`
 	RejectNonStd         bool          `long:"rejectnonstd" description:"Reject non-standard transactions regardless of the default settings for the active network."`
-	lookup               func(string) ([]net.IP, error)
-	oniondial            func(string, string, time.Duration) (net.Conn, error)
-	dial                 func(string, string, time.Duration) (net.Conn, error)
-	addCheckpoints       []chaincfg.Checkpoint
-	miningAddrs          []util.Address
-	minerKey             []byte
-	minRelayTxFee        util.Amount
-	whitelists           []*net.IPNet
+	Lookup               func(string) ([]net.IP, error)
+	Oniondial            func(string, string, time.Duration) (net.Conn, error)
+	Dial                 func(string, string, time.Duration) (net.Conn, error)
+	AddedCheckpoints     []chaincfg.Checkpoint
+	ActiveMiningAddrs    []util.Address
+	ActiveMinerKey       []byte
+	ActiveMinRelayTxFee  util.Amount
+	ActiveWhitelists     []*net.IPNet
 }
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
@@ -195,8 +195,8 @@ func CleanAndExpandPath(path string) string {
 	return filepath.Clean(os.ExpandEnv(path))
 }
 
-// validLogLevel returns whether or not logLevel is a valid debug log level.
-func validLogLevel(logLevel string) bool {
+// ValidLogLevel returns whether or not logLevel is a valid debug log level.
+func ValidLogLevel(logLevel string) bool {
 	switch logLevel {
 	case "trace":
 		fallthrough
@@ -214,8 +214,8 @@ func validLogLevel(logLevel string) bool {
 	return false
 }
 
-// validDbType returns whether or not dbType is a supported database type.
-func validDbType(dbType string) bool {
+// ValidDbType returns whether or not dbType is a supported database type.
+func ValidDbType(dbType string) bool {
 	for _, knownType := range KnownDbTypes {
 		if dbType == knownType {
 			return true
@@ -224,8 +224,8 @@ func validDbType(dbType string) bool {
 	return false
 }
 
-// removeDuplicateAddresses returns a new slice with all duplicate entries in addrs removed.
-func removeDuplicateAddresses(addrs []string) []string {
+// RemoveDuplicateAddresses returns a new slice with all duplicate entries in addrs removed.
+func RemoveDuplicateAddresses(addrs []string) []string {
 	result := make([]string, 0, len(addrs))
 	seen := map[string]struct{}{}
 	for _, val := range addrs {
@@ -251,11 +251,11 @@ func NormalizeAddresses(addrs []string, defaultPort string) []string {
 	for i, addr := range addrs {
 		addrs[i] = NormalizeAddress(addr, defaultPort)
 	}
-	return removeDuplicateAddresses(addrs)
+	return RemoveDuplicateAddresses(addrs)
 }
 
-// newCheckpointFromStr parses checkpoints in the '<height>:<hash>' format.
-func newCheckpointFromStr(checkpoint string) (chaincfg.Checkpoint, error) {
+// NewCheckpointFromStr parses checkpoints in the '<height>:<hash>' format.
+func NewCheckpointFromStr(checkpoint string) (chaincfg.Checkpoint, error) {
 	parts := strings.Split(checkpoint, ":")
 	if len(parts) != 2 {
 		return chaincfg.Checkpoint{}, fmt.Errorf("unable to parse "+
@@ -282,14 +282,14 @@ func newCheckpointFromStr(checkpoint string) (chaincfg.Checkpoint, error) {
 	}, nil
 }
 
-// parseCheckpoints checks the checkpoint strings for valid syntax ('<height>:<hash>') and parses them to chaincfg.Checkpoint instances.
-func parseCheckpoints(checkpointStrings []string) ([]chaincfg.Checkpoint, error) {
+// ParseCheckpoints checks the checkpoint strings for valid syntax ('<height>:<hash>') and parses them to chaincfg.Checkpoint instances.
+func ParseCheckpoints(checkpointStrings []string) ([]chaincfg.Checkpoint, error) {
 	if len(checkpointStrings) == 0 {
 		return nil, nil
 	}
 	checkpoints := make([]chaincfg.Checkpoint, len(checkpointStrings))
 	for i, cpString := range checkpointStrings {
-		checkpoint, err := newCheckpointFromStr(cpString)
+		checkpoint, err := NewCheckpointFromStr(cpString)
 		if err != nil {
 			return nil, err
 		}
@@ -298,8 +298,8 @@ func parseCheckpoints(checkpointStrings []string) ([]chaincfg.Checkpoint, error)
 	return checkpoints, nil
 }
 
-// filesExists reports whether the named file or directory exists.
-func fileExists(name string) bool {
+// FileExists reports whether the named file or directory exists.
+func FileExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -308,8 +308,8 @@ func fileExists(name string) bool {
 	return true
 }
 
-// newConfigParser returns a new command line flags parser.
-func newConfigParser(cfg *Config, so *serviceOptions, options flags.Options) *flags.Parser {
+// NewConfigParser returns a new command line flags parser.
+func NewConfigParser(cfg *Config, so *serviceOptions, options flags.Options) *flags.Parser {
 	parser := flags.NewParser(cfg, options)
 	if runtime.GOOS == "windows" {
 		parser.AddGroup("Service Options", "Service Options", so)
@@ -359,7 +359,7 @@ func loadConfig() (*Config, []string, error) {
 	serviceOpts := serviceOptions{}
 	// Pre-parse the command line options to see if an alternative config file or the version flag was specified.  Any errors aside from the help message error can be ignored here since they will be caught by the final parse below.
 	preCfg := cfg
-	preParser := newConfigParser(&preCfg, &serviceOpts, flags.HelpFlag)
+	preParser := NewConfigParser(&preCfg, &serviceOpts, flags.HelpFlag)
 	_, err := preParser.Parse()
 	if err != nil {
 		if e, ok := err.(*flags.Error); ok && e.Type == flags.ErrHelp {
@@ -385,7 +385,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Load additional config from file.
 	var configFileError error
-	parser := newConfigParser(&cfg, &serviceOpts, flags.Default)
+	parser := NewConfigParser(&cfg, &serviceOpts, flags.Default)
 	if !(preCfg.RegressionTest || preCfg.SimNet) || preCfg.ConfigFile !=
 		DefaultConfigFile {
 		if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
@@ -491,9 +491,9 @@ func loadConfig() (*Config, []string, error) {
 	cfg.LogDir = CleanAndExpandPath(cfg.LogDir)
 	cfg.LogDir = filepath.Join(cfg.LogDir, netName(ActiveNetParams))
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
-	initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
+	// initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
 	// Validate database type.
-	if !validDbType(cfg.DbType) {
+	if !ValidDbType(cfg.DbType) {
 		str := "%s: The specified database type [%v] is invalid -- " +
 			"supported types %v"
 		err := fmt.Errorf(str, funcName, cfg.DbType, KnownDbTypes)
@@ -521,9 +521,9 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Validate any given whitelisted IP addresses and networks.
-	if len(cfg.Whitelists) > 0 {
+	if len(cfg.ActiveWhitelists) > 0 {
 		var ip net.IP
-		cfg.whitelists = make([]*net.IPNet, 0, len(cfg.Whitelists))
+		cfg.ActiveWhitelists = make([]*net.IPNet, 0, len(cfg.ActiveWhitelists))
 		for _, addr := range cfg.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
@@ -547,7 +547,7 @@ func loadConfig() (*Config, []string, error) {
 					Mask: net.CIDRMask(bits, bits),
 				}
 			}
-			cfg.whitelists = append(cfg.whitelists, ipnet)
+			cfg.ActiveWhitelists = append(cfg.ActiveWhitelists, ipnet)
 		}
 	}
 	// --addPeer and --connect do not mix.
@@ -598,7 +598,7 @@ func loadConfig() (*Config, []string, error) {
 		cfg.DisableRPC = true
 	}
 	if cfg.DisableRPC {
-		podLog.Infof("RPC service is disabled")
+		Log.Info <- "RPC service is disabled"
 	}
 	// Default RPC to listen on localhost only.
 	if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
@@ -621,7 +621,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Validate the the minrelaytxfee.
-	cfg.minRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
+	cfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -715,7 +715,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Check mining addresses are valid and saved parsed versions.
-	cfg.miningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
+	cfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
 		addr, err := util.DecodeAddress(strAddr, ActiveNetParams.Params)
 		if err != nil {
@@ -732,7 +732,7 @@ func loadConfig() (*Config, []string, error) {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
-		cfg.miningAddrs = append(cfg.miningAddrs, addr)
+		cfg.ActiveMiningAddrs = append(cfg.ActiveMiningAddrs, addr)
 	}
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
@@ -743,7 +743,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	if cfg.MinerPass != "" {
-		cfg.minerKey = fork.Argon2i([]byte(cfg.MinerPass))
+		cfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = NormalizeAddresses(cfg.Listeners,
@@ -776,7 +776,7 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Check the checkpoints for syntax errors.
-	cfg.addCheckpoints, err = parseCheckpoints(cfg.AddCheckpoints)
+	cfg.AddedCheckpoints, err = ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -794,8 +794,8 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
-	cfg.dial = net.DialTimeout
-	cfg.lookup = net.LookupIP
+	cfg.Dial = net.DialTimeout
+	cfg.Lookup = net.LookupIP
 	if cfg.Proxy != "" {
 		_, _, err := net.SplitHostPort(cfg.Proxy)
 		if err != nil {
@@ -819,10 +819,10 @@ func loadConfig() (*Config, []string, error) {
 			Password:     cfg.ProxyPass,
 			TorIsolation: torIsolation,
 		}
-		cfg.dial = proxy.DialTimeout
+		cfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
-			cfg.lookup = func(host string) ([]net.IP, error) {
+			cfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.Proxy)
 			}
 		}
@@ -844,7 +844,7 @@ func loadConfig() (*Config, []string, error) {
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
-		cfg.oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+		cfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 			proxy := &socks.Proxy{
 				Addr:         cfg.OnionProxy,
 				Username:     cfg.OnionProxyUser,
@@ -855,22 +855,22 @@ func loadConfig() (*Config, []string, error) {
 		}
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if cfg.Proxy != "" {
-			cfg.lookup = func(host string) ([]net.IP, error) {
+			cfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, cfg.OnionProxy)
 			}
 		}
 	} else {
-		cfg.oniondial = cfg.dial
+		cfg.Oniondial = cfg.Dial
 	}
 	// Specifying --noonion means the onion address dial function results in an error.
 	if cfg.NoOnion {
-		cfg.oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+		cfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
 			return nil, errors.New("tor has been disabled")
 		}
 	}
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
-		podLog.Warnf("%v", configFileError)
+		Log.Warnf.Print("%v", configFileError)
 	}
 	return &cfg, remainingArgs, nil
 }
@@ -924,10 +924,10 @@ func createDefaultConfigFile(destinationPath string) error {
 // podDial connects to the address on the named network using the appropriate dial function depending on the address and configuration options.  For example, .onion addresses will be dialed using the onion specific proxy if one was specified, but will otherwise use the normal dial function (which could itself use a proxy or not).
 func podDial(addr net.Addr) (net.Conn, error) {
 	if strings.Contains(addr.String(), ".onion:") {
-		return cfg.oniondial(addr.Network(), addr.String(),
+		return cfg.Oniondial(addr.Network(), addr.String(),
 			DefaultConnectTimeout)
 	}
-	return cfg.dial(addr.Network(), addr.String(), DefaultConnectTimeout)
+	return cfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
 }
 
 // podLookup resolves the IP of the given host using the correct DNS lookup function depending on the configuration options.  For example, addresses will be resolved using tor when the --proxy flag was specified unless --noonion was also specified in which case the normal system DNS resolver will be used. Any attempt to resolve a tor address (.onion) will return an error since they are not intended to be resolved outside of the tor proxy.
@@ -935,5 +935,5 @@ func podLookup(host string) ([]net.IP, error) {
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)
 	}
-	return cfg.lookup(host)
+	return cfg.Lookup(host)
 }
