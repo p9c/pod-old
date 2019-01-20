@@ -7,6 +7,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	"git.parallelcoin.io/pod/lib/fork"
 	"git.parallelcoin.io/pod/lib/util"
@@ -63,9 +64,9 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 		for i := 0; i < len(b.prevOrphans[*processHash]); i++ {
 			orphan := b.prevOrphans[*processHash][i]
 			if orphan == nil {
-				Log.Warnf.Print("Found a nil entry at index %d in the "+
+				log <- cl.Warnf{"Found a nil entry at index %d in the " +
 					"orphan dependency list for block %v", i,
-					processHash)
+					processHash}
 				continue
 			}
 			// Remove the orphan from the orphan pool.
@@ -92,7 +93,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	blockHash := block.Hash()
 	hf := fork.GetCurrent(height)
 	blockHashWithAlgo := block.MsgBlock().BlockHashWithAlgos(height)
-	Log.Tracef.Print("Processing block %v", blockHashWithAlgo)
+	log <- cl.Tracef{"Processing block %v", blockHashWithAlgo}
 	var algo int32
 	switch hf {
 	case 0:
@@ -134,7 +135,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	}
 	err = checkBlockSanity(block, pl, b.timeSource, flags, DoNotCheckPow, height)
 	if err != nil {
-		Log.Debugf.Print("ERROR %s", err.Error())
+		log <- cl.Debugf{"ERROR %s", err.Error()}
 		return false, false, err
 	}
 	// Find the previous checkpoint and perform some additional checks based on the checkpoint.  This provides a few nice properties such as preventing old side chain blocks before the last checkpoint, rejecting easy to mine, but otherwise bogus, blocks that could be used to eat memory, and ensuring expected (versus claimed) proof of work requirements since the previous checkpoint are met.
@@ -171,7 +172,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		return false, false, err
 	}
 	if !prevHashExists {
-		Log.Infof.Print("Adding orphan block %v with parent %v", blockHashWithAlgo, prevHash)
+		log <- cl.Infof{"Adding orphan block %v with parent %v", blockHashWithAlgo, prevHash}
 		b.addOrphanBlock(block)
 		return false, true, nil
 	}
@@ -185,6 +186,6 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	if err != nil {
 		return false, false, err
 	}
-	Log.Debugf.Print("Accepted block %s %v, height %d", fork.GetAlgoName(block.MsgBlock().Header.Version, height), blockHashWithAlgo, height)
+	log <- cl.Debugf{"Accepted block %s %v, height %d", fork.GetAlgoName(block.MsgBlock().Header.Version, height), blockHashWithAlgo, height}
 	return isMainChain, false, nil
 }

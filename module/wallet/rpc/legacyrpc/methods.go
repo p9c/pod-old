@@ -15,6 +15,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/json"
 	"git.parallelcoin.io/pod/lib/rpcclient"
@@ -1396,7 +1397,7 @@ func sendPairs(w *wallet.Wallet, amounts map[string]util.Amount,
 	}
 
 	txHashStr := txHash.String()
-	Log.Infof.Print("Successfully sent transaction %v", txHashStr)
+	log <- cl.Infof{"Successfully sent transaction %v", txHashStr}
 	return txHashStr, nil
 }
 

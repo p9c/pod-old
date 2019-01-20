@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"time"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
@@ -362,8 +364,10 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	// If this transaction previously existed within the store as unmined,
 	// we'll need to remove it from the unmined bucket.
 	if v := existsRawUnmined(ns, rec.Hash[:]); v != nil {
-		Log.Infof.Print("Marking unconfirmed transaction %v mined in block %d",
-			&rec.Hash, block.Height)
+		log <- cl.Infof{
+			"Marking unconfirmed transaction %v mined in block %d",
+			&rec.Hash, block.Height,
+		}
 
 		if err := s.deleteUnminedTx(ns, rec); err != nil {
 			return err
@@ -423,9 +427,10 @@ func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 	}
 
 	txOutAmt := util.Amount(rec.MsgTx.TxOut[index].Value)
-	Log.Debugf.Print("Marking transaction %v output %d (%v) spendable",
-		rec.Hash, index, txOutAmt)
-
+	log <- cl.Debugf{
+		"Marking transaction %v output %d (%v) spendable",
+		rec.Hash, index, txOutAmt,
+	}
 	cred := credit{
 		outPoint: wire.OutPoint{
 			Hash:  rec.Hash,
@@ -485,8 +490,10 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 
 		heightsToRemove = append(heightsToRemove, it.elem.Height)
 
-		Log.Infof.Print("Rolling back %d transactions from block %v height %d",
-			len(b.transactions), b.Hash, b.Height)
+		log <- cl.Infof{
+			"Rolling back %d transactions from block %v height %d",
+			len(b.transactions), b.Hash, b.Height,
+		}
 
 		for i := range b.transactions {
 			txHash := &b.transactions[i]
@@ -688,8 +695,10 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 				return err
 			}
 
-			Log.Debugf.Print("Transaction %v spends a removed coinbase "+
-				"output -- removing as well", unminedRec.Hash)
+			log <- cl.Debugf{
+				"Transaction %v spends a removed coinbase output -- removing as well",
+				unminedRec.Hash,
+			}
 			err = s.removeConflict(ns, &unminedRec)
 			if err != nil {
 				return err

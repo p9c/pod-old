@@ -5,11 +5,13 @@ import (
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("node", clog.Ndbg)
+var Log = cl.NewSubSystem("node", "trace")
+var log = Log.Ch
 
-// UseLogger uses a specified Logger to output package logging info.
-func UseLogger(logger *clog.SubSystem) {
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
 	Log = logger
+	log = Log.Ch
 }
 
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).

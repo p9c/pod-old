@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sort"
 
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
@@ -164,8 +165,11 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 	if tx.ChangeIndex >= 0 && account == waddrmgr.ImportedAddrAccount {
 		changeAmount := util.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
-		Log.Warnf.Print("Spend from imported account produced change: moving"+
-			" %v from imported account into default account.", changeAmount)
+		log <- cl.Warnf{
+			"Spend from imported account produced change: " +
+				"moving %v from imported account into default account.",
+			changeAmount,
+		}
 	}
 
 	return tx, nil

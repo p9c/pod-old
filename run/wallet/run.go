@@ -1,8 +1,12 @@
 package walletrun
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	cl "git.parallelcoin.io/pod/lib/clog"
+)
 
 func runNode() {
 	j, _ := json.MarshalIndent(Config, "", "  ")
-	Log.Tracef.Print("running with configuration:\n%s", string(j))
+	log <- cl.Trc("running with configuration:\n" + string(j))
 }

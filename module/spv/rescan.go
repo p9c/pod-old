@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/json"
 	"git.parallelcoin.io/pod/lib/rpcclient"
 	"git.parallelcoin.io/pod/lib/txscript"
@@ -283,8 +284,10 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	filterHeaderHeight := s.blockManager.filterHeaderTip
 	s.blockManager.newFilterHeadersMtx.RUnlock()
 
-	Log.Debugf.Print("Waiting for filter headers (height=%v) to catch up the "+
-		"rescan start (height=%v)", filterHeaderHeight, curStamp.Height)
+	log <- cl.Debugf{
+		"Waiting for filter headers (height=%v) to catch up the rescan start (height=%v)",
+		filterHeaderHeight, curStamp.Height,
+	}
 
 	// We'll wait here at this point until we have enough filter headers to
 	// actually start walking forwards in the chain. To be able to wake up
@@ -338,8 +341,10 @@ filterHeaderWaitLoop:
 		}
 	}
 
-	Log.Debugf.Print("Starting rescan from known block %d (%s)", curStamp.Height,
-		curStamp.Hash)
+	log <- cl.Debugf{
+		"Starting rescan from known block %d (%s)",
+		curStamp.Height, curStamp.Hash,
+	}
 
 	// Compare the start time to the start block. If the start time is
 	// later, cycle through blocks until we find a block timestamp later
@@ -377,14 +382,18 @@ filterHeaderWaitLoop:
 			blockReFetchTimer.Stop()
 		}
 
-		Log.Infof.Print("Setting timer to attempt to re-fetch filter for "+
-			"hash=%v, height=%v", headerTip.BlockHash(), height)
+		log <- cl.Infof{
+			"Setting timer to attempt to re-fetch filter for hash=%v, height=%v",
+			headerTip.BlockHash(), height,
+		}
 
 		// We'll start a timer to re-send this header so we re-process
 		// if in the case that we don't get a re-org soon afterwards.
 		blockReFetchTimer = time.AfterFunc(blockRetryInterval, func() {
-			Log.Infof.Print("Resending rescan header for block hash=%v, "+
-				"height=%v", headerTip.BlockHash(), height)
+			log <- cl.Infof{
+				"Resending rescan header for block hash=%v, height=%v",
+				headerTip.BlockHash(), height,
+			}
 
 			select {
 			case blockConnected <- headerTip:
@@ -439,10 +448,10 @@ rescanLoop:
 				// current. This is our way of doing a manual
 				// rescan.
 				if rewound {
-					Log.Tracef.Print("Rewound to block %d (%s), "+
-						"no longer current",
-						curStamp.Height, curStamp.Hash)
-
+					log <- cl.Tracef{
+						"Rewound to block %d (%s), no longer current",
+						curStamp.Height, curStamp.Hash,
+					}
 					current = false
 					s.unsubscribeBlockMsgs(subscription)
 					subscription = nil
@@ -463,13 +472,12 @@ rescanLoop:
 				if header.PrevBlock != curStamp.Hash &&
 					header.BlockHash() != curStamp.Hash {
 
-					Log.Debugf.Print("Rescan got out of order "+
-						"block %s with prevblock %s, "+
-						"curHeader: %s",
+					log <- cl.Debugf{
+						"Rescan got out of order block %s with prevblock %s, curHeader: %s",
 						header.BlockHash(),
 						header.PrevBlock,
-						curStamp.Hash)
-
+						curStamp.Hash,
+					}
 					current = false
 					continue rescanLoop
 				}
@@ -482,9 +490,10 @@ rescanLoop:
 				// re-process it without any issues.
 				if header.BlockHash() != curStamp.Hash &&
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
-					Log.Warnf.Print("Missing filter header for "+
-						"height=%v, skipping",
-						curStamp.Height+1)
+					log <- cl.Warnf{
+						"Missing filter header for height=%v, skipping",
+						curStamp.Height + 1,
+					}
 					continue rescanLoop
 				}
 
@@ -497,32 +506,27 @@ rescanLoop:
 					curStamp.Height++
 				}
 
-				Log.Tracef.Print("Rescan got block %d (%s)", curStamp.Height,
-					curStamp.Hash)
-
-				// We're only scanning if the header is beyond
-				// the horizon of our start time.
+				log <- cl.Tracef{
+					"Rescan got block %d (%s)",
+					curStamp.Height, curStamp.Hash,
+				}
+				// We're only scanning if the header is beyond the horizon of our start time.
 				if !scanning {
 					scanning = ro.startTime.Before(
 						curHeader.Timestamp,
 					)
 				}
-
-				// If we're actually scanning and we have a
-				// non-empty watch list, then we'll attempt to
-				// fetch the filter from the network.
+				// If we're actually scanning and we have a non-empty watch list, then we'll attempt to fetch the filter from the network.
 				var blockFilter *gcs.Filter
 				queryOptions := NumRetries(0)
 				blockFilter, err = s.GetCFilter(
-					curStamp.Hash, wire.GCSFilterRegular,
+					curStamp.Hash,
+					wire.GCSFilterRegular,
 					queryOptions,
 				)
 
 				switch {
-				// If the block index doesn't know about
-				// this block, then it's likely we're mid
-				// re-org so we'll accept this as we
-				// account for it below.
+				// If the block index doesn't know about this block, then it's likely we're mid re-org so we'll accept this as we account for it below.
 				case err == headerfs.ErrHashNotFound:
 
 				case err != nil:
@@ -530,7 +534,6 @@ rescanLoop:
 						"filter for hash=%v: %v",
 						curStamp.Hash, err)
 				}
-
 				// If the filter is nil, then this either means
 				// that we don't have any peers to fetch this
 				// filter from, or the peer(s) that we're
@@ -559,8 +562,10 @@ rescanLoop:
 				blockReFetchTimer = nil
 
 			case header := <-blockDisconnected:
-				Log.Debugf.Print("Rescan disconnect block %d (%s)\n",
-					curStamp.Height, curStamp.Hash)
+				log <- cl.Debugf{
+					"Rescan disconnect block %d (%s)\n",
+					curStamp.Height, curStamp.Hash,
+				}
 
 				// Only deal with it if it's the current block
 				// we know about. Otherwise, it's in the
@@ -631,26 +636,24 @@ rescanLoop:
 			// ourselves as current and follow notifications.
 			nextHeight := curStamp.Height + 1
 			if nextHeight > bestBlock.Height {
-				Log.Debugf.Print("Rescan became current at %d (%s), "+
-					"subscribing to block notifications",
-					curStamp.Height, curStamp.Hash)
-
+				log <- cl.Debugf{
+					"Rescan became current at %d (%s), subscribing to block notifications",
+					curStamp.Height, curStamp.Hash,
+				}
 				current = true
-
-				// Ensure we cancel the old subscroption if
-				// we're going back to scan for missed blocks.
+				// Ensure we cancel the old subscroption if we're going back to scan for missed blocks.
 				if subscription != nil {
 					s.unsubscribeBlockMsgs(subscription)
 				}
-
 				// Subscribe to block notifications.
 				subscription, err = s.subscribeBlockMsg(
 					uint32(curStamp.Height), blockConnected,
 					blockDisconnected, nil,
 				)
 				if err != nil {
-					return fmt.Errorf("unable to register "+
-						"block subscription: %v", err)
+					return fmt.Errorf(
+						"unable to register block subscription: %v", err,
+					)
 				}
 				defer func() {
 					if subscription != nil {
@@ -1242,8 +1245,11 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 	// is signaled.
 	report, err := req.Result(ro.quit)
 	if err != nil {
-		Log.Debugf.Print("Error finding spends for %s: %v",
-			ro.watchInputs[0].OutPoint.String(), err)
+		log <- cl.Debugf{
+			"Error finding spends for %s: %v",
+			ro.watchInputs[0].OutPoint.String(),
+			err,
+		}
 		return nil, err
 	}
 

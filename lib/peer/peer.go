@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
@@ -320,15 +322,14 @@ func (p *Peer) String() string {
 // UpdateLastBlockHeight updates the last known block for the peer. This function is safe for concurrent access.
 func (p *Peer) UpdateLastBlockHeight(newHeight int32) {
 	p.statsMtx.Lock()
-	Log.Tracef.Print("Updating last block height of peer %v from %v to %v",
-		p.addr, p.lastBlock, newHeight)
+	log <- cl.Tracef{"Updating last block height of peer %v from %v to %v", p.addr, p.lastBlock, newHeight}
 	p.lastBlock = newHeight
 	p.statsMtx.Unlock()
 }
 
 // UpdateLastAnnouncedBlock updates meta-data about the last block hash this peer is known to have announced. This function is safe for concurrent access.
 func (p *Peer) UpdateLastAnnouncedBlock(blkHash *chainhash.Hash) {
-	Log.Tracef.Print("Updating last blk for peer %v, %v", p.addr, blkHash)
+	log <- cl.Tracef{"Updating last blk for peer %v, %v", p.addr, blkHash}
 	p.statsMtx.Lock()
 	p.lastAnnouncedBlock = blkHash
 	p.statsMtx.Unlock()
@@ -587,8 +588,7 @@ func (p *Peer) PushGetBlocksMsg(locator blockchain.BlockLocator, stopHash *chain
 		beginHash.IsEqual(p.prevGetBlocksBegin)
 	p.prevGetBlocksMtx.Unlock()
 	if isDuplicate {
-		Log.Tracef.Print("Filtering duplicate [getblocks] with begin "+
-			"hash %v, stop hash %v", beginHash, stopHash)
+		log <- cl.Tracef{"Filtering duplicate [getblocks] with begin hash %v, stop hash %v", beginHash, stopHash}
 		return nil
 	}
 	// Construct the getblocks request and queue it to be sent.
@@ -622,8 +622,7 @@ func (p *Peer) PushGetHeadersMsg(locator blockchain.BlockLocator, stopHash *chai
 		beginHash.IsEqual(p.prevGetHdrsBegin)
 	p.prevGetHdrsMtx.Unlock()
 	if isDuplicate {
-		Log.Tracef.Print("Filtering duplicate [getheaders] with begin hash %v",
-			beginHash)
+		log <- cl.Tracef{"Filtering duplicate [getheaders] with begin hash %v", beginHash}
 		return nil
 	}
 	// Construct the getheaders request and queue it to be sent.
@@ -653,9 +652,9 @@ func (p *Peer) PushRejectMsg(command string, code wire.RejectCode, reason string
 	msg := wire.NewMsgReject(command, code, reason)
 	if command == wire.CmdTx || command == wire.CmdBlock {
 		if hash == nil {
-			Log.Warnf.Print("Sending a reject message for command "+
-				"type %v which should have specified a hash "+
-				"but does not", command)
+			log <- cl.Warnf{"Sending a reject message for command " +
+				"type %v which should have specified a hash " +
+				"but does not", command}
 			hash = &zeroHash
 		}
 		msg.Hash = *hash
@@ -706,7 +705,7 @@ func (p *Peer) readMessage(encoding wire.MessageEncoding) (wire.Message, []byte,
 		return nil, nil, err
 	}
 	// Use closures to log expensive operations so they are only run when the logging level requires it.
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		// Debug summary of message.
 		summary := messageSummary(msg)
 		if len(summary) > 0 {
@@ -714,13 +713,13 @@ func (p *Peer) readMessage(encoding wire.MessageEncoding) (wire.Message, []byte,
 		}
 		return fmt.Sprintf("Received %v%s from %s",
 			msg.Command(), summary, p)
-	}))
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	})}
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		return spew.Sdump(msg)
-	}))
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	})}
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		return spew.Sdump(buf)
-	}))
+	})}
 	return msg, buf, nil
 }
 
@@ -731,7 +730,7 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 		return nil
 	}
 	// Use closures to log expensive operations so they are only run when the logging level requires it.
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		// Debug summary of message.
 		summary := messageSummary(msg)
 		if len(summary) > 0 {
@@ -739,11 +738,11 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 		}
 		return fmt.Sprintf("Sending %v%s to %s", msg.Command(),
 			summary, p)
-	}))
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	})}
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		return spew.Sdump(msg)
-	}))
-	Log.Tracef.Print("%v", newLogClosure(func() string {
+	})}
+	log <- cl.Tracef{"%v", newLogClosure(func() string {
 		var buf bytes.Buffer
 		_, err := wire.WriteMessageWithEncodingN(&buf, msg, p.ProtocolVersion(),
 			p.cfg.ChainParams.Net, enc)
@@ -751,7 +750,7 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 			return err.Error()
 		}
 		return spew.Sdump(buf.Bytes())
-	}))
+	})}
 	// Write the message to the peer.
 	n, err := wire.WriteMessageWithEncodingN(p.conn, msg,
 		p.ProtocolVersion(), p.cfg.ChainParams.Net, enc)
@@ -870,9 +869,7 @@ out:
 			case sccHandlerStart:
 				// Warn on unbalanced callback signalling.
 				if handlerActive {
-					Log.Warn.Print("Received handler start " +
-						"control command while a " +
-						"handler is already active")
+					log <- cl.Warn{"Received handler start control command while a handler is already active"}
 					continue
 				}
 				handlerActive = true
@@ -880,9 +877,7 @@ out:
 			case sccHandlerDone:
 				// Warn on unbalanced callback signalling.
 				if !handlerActive {
-					Log.Warn.Print("Received handler done " +
-						"control command when a " +
-						"handler is not already active")
+					log <- cl.Warn{"Received handler done control command when a handler is not already active"}
 					continue
 				}
 				// Extend active deadlines by the time it took to execute the callback.
@@ -890,8 +885,7 @@ out:
 				deadlineOffset += duration
 				handlerActive = false
 			default:
-				Log.Warnf.Print("Unsupported message command %v",
-					msg.command)
+				log <- cl.Warnf{"Unsupported message command %v", msg.command}
 			}
 		case <-stallTicker.C:
 			// Calculate the offset to apply to the deadline based on how long the handlers have taken to execute since the last tick.
@@ -905,9 +899,7 @@ out:
 				if now.Before(deadline.Add(offset)) {
 					continue
 				}
-				Log.Debugf.Print("Peer %s appears to be stalled or "+
-					"misbehaving, %s timeout -- "+
-					"disconnecting", p, command)
+				log <- cl.Debugf{"Peer %s appears to be stalled or misbehaving, %s timeout -- disconnecting", p, command}
 				p.Disconnect()
 				break
 			}
@@ -936,14 +928,14 @@ cleanup:
 			break cleanup
 		}
 	}
-	Log.Tracef.Print("Peer stall handler done for %s", p)
+	log <- cl.Tracef{"Peer stall handler done for %s", p}
 }
 
 // inHandler handles all incoming messages for the peer.  It must be run as a goroutine.
 func (p *Peer) inHandler() {
 	// The timer is stopped when a new message is received and reset after it is processed.
 	idleTimer := time.AfterFunc(idleTimeout, func() {
-		Log.Warnf.Print("Peer %s no answer for %s -- disconnecting", p, idleTimeout)
+		log <- cl.Warnf{"Peer %s no answer for %s -- disconnecting", p, idleTimeout}
 		p.Disconnect()
 	})
 out:
@@ -954,7 +946,7 @@ out:
 		if err != nil {
 			// In order to allow regression tests with malformed messages, don't disconnect the peer when we're in regression test mode and the error is one of the allowed errors.
 			if p.isAllowedReadError(err) {
-				Log.Errorf.Print("Allowed test error from %s: %v", p, err)
+				log <- cl.Errorf{"Allowed test error from %s: %v", p, err}
 				idleTimer.Reset(idleTimeout)
 				continue
 			}
@@ -962,7 +954,7 @@ out:
 			if p.shouldHandleReadError(err) {
 				errMsg := fmt.Sprintf("Can't read message from %s: %v", p, err)
 				if err != io.ErrUnexpectedEOF {
-					Log.Errorf.Print(errMsg)
+					log <- cl.Errorf{errMsg}
 				}
 				// Push a reject message for the malformed message and wait for the message to be sent before disconnecting.
 				// NOTE: Ideally this would include the command in the header if at least that much of the message was valid, but that is not currently exposed by wire, so just used malformed for the command.
@@ -984,8 +976,7 @@ out:
 		case *wire.MsgVerAck:
 			// No read lock is necessary because verAckReceived is not written to in any other goroutine.
 			if p.verAckReceived {
-				Log.Infof.Print("Already received 'verack' from peer %v -- "+
-					"disconnecting", p)
+				log <- cl.Infof{"Already received 'verack' from peer %v -- disconnecting", p}
 				break out
 			}
 			p.flagsMtx.Lock()
@@ -1104,8 +1095,7 @@ out:
 				p.cfg.Listeners.OnSendHeaders(p, msg)
 			}
 		default:
-			Log.Debugf.Print("Received unhandled message of type %v "+
-				"from %v", rmsg.Command(), p)
+			log <- cl.Debugf{"Received unhandled message of type %v from %v", rmsg.Command(), p}
 		}
 		p.stallControl <- stallControlMsg{sccHandlerDone, rmsg}
 		// A message was received so reset the idle timer.
@@ -1116,7 +1106,7 @@ out:
 	// Ensure connection is closed.
 	p.Disconnect()
 	close(p.inQuit)
-	Log.Tracef.Print("Peer input handler done for %s", p)
+	log <- cl.Tracef{"Peer input handler done for %s", p}
 }
 
 // queueHandler handles the queuing of outgoing data for the peer. This runs as a muxer for various sources of input so we can ensure that server and peer handlers will not block on us sending a message.  That data is then passed on outHandler to be actually written.
@@ -1221,7 +1211,7 @@ cleanup:
 		}
 	}
 	close(p.queueQuit)
-	Log.Tracef.Print("Peer queue handler done for %s", p)
+	log <- cl.Tracef{"Peer queue handler done for %s", p}
 }
 
 // shouldLogWriteError returns whether or not the passed error, which is expected to have come from writing to the remote peer in the outHandler, should be logged.
@@ -1261,8 +1251,7 @@ out:
 			if err != nil {
 				p.Disconnect()
 				if p.shouldLogWriteError(err) {
-					Log.Errorf.Print("Failed to send message to "+
-						"%s: %v", p, err)
+					log <- cl.Errorf{"Failed to send message to %s: %v", p, err}
 				}
 				if msg.doneChan != nil {
 					msg.doneChan <- struct{}{}
@@ -1294,7 +1283,7 @@ cleanup:
 		}
 	}
 	close(p.outQuit)
-	Log.Tracef.Print("Peer output handler done for %s", p)
+	log <- cl.Tracef{"Peer output handler done for %s", p}
 }
 
 // pingHandler periodically pings the peer.  It must be run as a goroutine.
@@ -1307,7 +1296,7 @@ out:
 		case <-pingTicker.C:
 			nonce, err := wire.RandomUint64()
 			if err != nil {
-				Log.Errorf.Print("Not sending ping to %s: %v", p, err)
+				log <- cl.Errorf{"Not sending ping to %s: %v", p, err}
 				continue
 			}
 			p.QueueMessage(wire.NewMsgPing(nonce), nil)
@@ -1361,7 +1350,7 @@ func (p *Peer) Disconnect() {
 	if atomic.AddInt32(&p.disconnect, 1) != 1 {
 		return
 	}
-	Log.Tracef.Print("Disconnecting %s", p)
+	log <- cl.Tracef{"Disconnecting %s", p}
 	if atomic.LoadInt32(&p.connected) != 0 {
 		p.conn.Close()
 	}
@@ -1395,8 +1384,8 @@ func (p *Peer) readRemoteVersionMsg() error {
 	p.versionKnown = true
 	p.services = msg.Services
 	p.flagsMtx.Unlock()
-	Log.Debugf.Print("Negotiated protocol version %d for peer %s",
-		p.protocolVersion, p)
+	log <- cl.Debugf{"Negotiated protocol version %d for peer %s",
+		p.protocolVersion, p}
 	// Updating a bunch of stats including block based stats, and the peer's time offset.
 	p.statsMtx.Lock()
 	p.lastBlock = msg.LastBlock
@@ -1508,7 +1497,7 @@ func (p *Peer) negotiateOutboundProtocol() error {
 
 // start begins processing input and output messages.
 func (p *Peer) start() error {
-	Log.Tracef.Print("Starting peer %s", p)
+	log <- cl.Tracef{"Starting peer %s", p}
 	negotiateErr := make(chan error, 1)
 	go func() {
 		if p.inbound {
@@ -1528,7 +1517,7 @@ func (p *Peer) start() error {
 		p.Disconnect()
 		return errors.New("protocol negotiation timeout")
 	}
-	Log.Debugf.Print("Connected to %s", p.Addr())
+	log <- cl.Debugf{"Connected to %s", p.Addr()}
 	// The protocol has been negotiated successfully so start processing input
 	// and output messages.
 	go p.stallHandler()
@@ -1554,7 +1543,7 @@ func (p *Peer) AssociateConnection(conn net.Conn) {
 		// Set up a NetAddress for the peer to be used with AddrManager.  We only do this inbound because outbound set this up at connection time and no point recomputing.
 		na, err := newNetAddress(p.conn.RemoteAddr(), p.services)
 		if err != nil {
-			Log.Errorf.Print("Cannot create remote net address: %v", err)
+			log <- cl.Errorf{"Cannot create remote net address: %v", err}
 			p.Disconnect()
 			return
 		}
@@ -1562,7 +1551,7 @@ func (p *Peer) AssociateConnection(conn net.Conn) {
 	}
 	go func() {
 		if err := p.start(); err != nil {
-			Log.Debugf.Print("Cannot start peer %v: %v", p, err)
+			log <- cl.Debugf{"Cannot start peer %v: %v", p, err}
 			p.Disconnect()
 		}
 	}()

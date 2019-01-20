@@ -5,6 +5,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/hdkeychain"
@@ -149,9 +150,10 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 	timestamp time.Time) {
 
 	if !rm.started {
-		Log.Infof.Print("Seed birthday surpassed, starting recovery "+
-			"of wallet from height=%d hash=%v with "+
-			"recovery-window=%d", height, *hash, rm.recoveryWindow)
+		log <- cl.Infof{
+			"Seed birthday surpassed, starting recovery of wallet from height=%d hash=%v with recovery-window=%d",
+			height, *hash, rm.recoveryWindow,
+		}
 		rm.started = true
 	}
 

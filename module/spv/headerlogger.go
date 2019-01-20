@@ -16,7 +16,7 @@ type headerProgressLogger struct {
 
 	entityType string
 
-	subsystemLogger *clog.SubSystem
+	subsystemLogger *cl.SubSystem
 	progressAction  string
 	sync.Mutex
 }
@@ -26,7 +26,7 @@ type headerProgressLogger struct {
 //  {progressAction} {numProcessed} {blocks|block} in the last {timePeriod}
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
 func newBlockProgressLogger(progressMessage string,
-	entityType string, logger *clog.SubSystem) *headerProgressLogger {
+	entityType string, logger *cl.SubSystem) *headerProgressLogger {
 
 	return &headerProgressLogger{
 		entityType:       entityType,
@@ -63,9 +63,10 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	if b.receivedLogBlocks > 1 {
 		entityStr += "s"
 	}
-	b.subsystemLogger.Infof.Print("%s %d %s in the last %s (height %d, %s)",
+	b.subsystemLogger.Ch <- cl.Infof{
+		"%s %d %s in the last %s (height %d, %s)",
 		b.progressAction, b.receivedLogBlocks, entityStr, tDuration,
-		height, timestamp)
+		height, timestamp}
 
 	b.receivedLogBlocks = 0
 	b.lastBlockLogTime = now

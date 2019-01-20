@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	util "git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/database"
 	_ "git.parallelcoin.io/pod/lib/database/ffldb"
+	util "git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
 )
 
@@ -121,7 +121,7 @@ func Example_blockStorageAndRetrieval() {
 	// and example.
 	err = db.Update(func(tx database.Tx) error {
 		genesisBlock := chaincfg.MainNetParams.GenesisBlock
-		util return tx.StoreBlock(util.NewBlock(genesisBlock))
+		return tx.StoreBlock(util.NewBlock(genesisBlock))
 	})
 	if err != nil {
 		fmt.Println(err)

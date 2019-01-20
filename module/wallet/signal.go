@@ -3,6 +3,8 @@ package walletmain
 import (
 	"os"
 	"os/signal"
+
+	cl "git.parallelcoin.io/pod/lib/clog"
 )
 
 // interruptChannel is used to receive SIGINT (Ctrl+C) signals.
@@ -50,12 +52,16 @@ func mainInterruptHandler() {
 	for {
 		select {
 		case sig := <-interruptChannel:
-			Log.Infof.Print("Received signal (%s).  Shutting down...", sig)
+			log <- cl.Infof{
+				"received signal (%s) - shutting down...", sig,
+			}
 			_ = sig
 			invokeCallbacks()
 			return
 		case <-simulateInterruptChannel:
-			Log.Info <- "Received shutdown request.  Shutting down..."
+			log <- cl.Inf(
+				"received shutdown request - shutting down...",
+			)
 			invokeCallbacks()
 			return
 

@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
@@ -14,7 +13,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Enable logging (Debug level) to aid debugging failing tests.
-	Log.SetLevel(clog.Ndbg)
+	Log.SetLevel("debug")
 }
 
 // TstCheckError ensures the passed error is a votingpool.Error with an error

@@ -2,6 +2,7 @@ package spv
 
 import (
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/wire"
 )
 
@@ -47,14 +48,13 @@ func newBatchSpendReporter() *batchSpendReporter {
 // delivered signaling that no spend was detected. If the original output could
 // not be found, a nil spend report is returned.
 func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
-	Log.Debugf.Print("Finished batch, %d unspent outpoints", len(b.requests))
+	log <- cl.Debugf{"Finished batch, %d unspent outpoints", len(b.requests)}
 
 	for outpoint, requests := range b.requests {
 		// A nil SpendReport indicates the output was not found.
 		tx, ok := b.initialTxns[outpoint]
 		if !ok {
-			Log.Warnf.Print("Unknown initial txn for getuxo request %v",
-				outpoint)
+			log <- cl.Warnf{"Unknown initial txn for getuxo request %v", outpoint}
 		}
 
 		b.notifyRequests(&outpoint, requests, tx, nil)
@@ -130,8 +130,7 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 	for _, req := range reqs {
 		outpoint := req.Input.OutPoint
 
-		Log.Debugf.Print("Adding outpoint=%s height=%d to watchlist",
-			outpoint, req.BirthHeight)
+		log <- cl.Debugf{"Adding outpoint=%s height=%d to watchlist", outpoint, req.BirthHeight}
 
 		b.requests[outpoint] = append(b.requests[outpoint], req)
 
@@ -189,8 +188,9 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			// output on the transaction. If not, we will be unable
 			// to find the initial output.
 			if op.Index >= uint32(len(txOuts)) {
-				Log.Errorf.Print("Failed to find outpoint %s -- "+
-					"invalid output index", op)
+				log <- cl.Errorf{
+					"Failed to find outpoint %s -- invalid output index", op,
+				}
 				initialTxns[op] = nil
 				continue
 			}
@@ -210,12 +210,13 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 		tx, ok := initialTxns[req.Input.OutPoint]
 		switch {
 		case !ok:
-			Log.Errorf.Print("Failed to find outpoint %s -- "+
-				"txid not found in block", req.Input.OutPoint)
+			log <- cl.Errorf{
+				"Failed to find outpoint %s -- txid not found in block",
+				req.Input.OutPoint,
+			}
 			initialTxns[req.Input.OutPoint] = nil
 		case tx != nil:
-			Log.Tracef.Print("Block %d creates output %s",
-				height, req.Input.OutPoint)
+			log <- cl.Tracef{"Block %d creates output %s", height, req.Input.OutPoint}
 		default:
 		}
 
@@ -244,8 +245,9 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 				continue
 			}
 
-			Log.Debugf.Print("UTXO %v spent by txn %v", outpoint,
-				tx.TxHash())
+			log <- cl.Debugf{
+				"UTXO %v spent by txn %v", outpoint, tx.TxHash(),
+			}
 
 			spend := &SpendReport{
 				SpendingTx:         tx,

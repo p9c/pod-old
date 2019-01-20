@@ -6,6 +6,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 )
@@ -51,8 +52,8 @@ func (b *BlockChain) verifyCheckpoint(height int32, hash *chainhash.Hash) bool {
 	if !checkpoint.Hash.IsEqual(hash) {
 		return false
 	}
-	Log.Infof.Print("Verified checkpoint at height %d/block %s", checkpoint.Height,
-		checkpoint.Hash)
+	log <- cl.Infof{"Verified checkpoint at height %d/block %s", checkpoint.Height,
+		checkpoint.Hash}
 	return true
 }
 

@@ -12,6 +12,7 @@ import (
 	"git.parallelcoin.io/pod/lib/blockchain/indexers"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/json"
 	"git.parallelcoin.io/pod/lib/mining"
 	"git.parallelcoin.io/pod/lib/txscript"
@@ -180,9 +181,9 @@ func (mp *TxPool) limitNumOrphans() error {
 		mp.nextExpireScan = now.Add(orphanExpireScanInterval)
 		numOrphans := len(mp.orphans)
 		if numExpired := origNumOrphans - numOrphans; numExpired > 0 {
-			Log.Debugf.Print("Expired %d %s (remaining: %d)", numExpired,
+			log <- cl.Debugf{"Expired %d %s (remaining: %d)", numExpired,
 				pickNoun(numExpired, "orphan", "orphans"),
-				numOrphans)
+				numOrphans}
 		}
 	}
 	// Nothing to do if adding another orphan will not cause the pool to exceed the limit.
@@ -218,8 +219,7 @@ func (mp *TxPool) addOrphan(tx *util.Tx, tag Tag) {
 		}
 		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
 	}
-	Log.Debugf.Print("Stored orphan transaction %v (total: %d)", tx.Hash(),
-		len(mp.orphans))
+	log <- cl.Debugf{"Stored orphan transaction %v (total: %d)", tx.Hash(), len(mp.orphans)}
 }
 
 // maybeAddOrphan potentially adds an orphan to the orphan pool. This function MUST be called with the mempool lock held (for writes).
@@ -228,8 +228,7 @@ func (mp *TxPool) maybeAddOrphan(tx *util.Tx, tag Tag) error {
 	// Note that the number of orphan transactions in the orphan pool is also limited, so this equates to a maximum memory used of mp.cfg.Policy.MaxOrphanTxSize * mp.cfg.Policy.MaxOrphanTxs (which is ~5MB using the default values at the time this comment was written).
 	serializedLen := tx.MsgTx().SerializeSize()
 	if serializedLen > mp.cfg.Policy.MaxOrphanTxSize {
-		str := fmt.Sprintf("orphan transaction size of %d bytes is "+
-			"larger than max allowed size of %d bytes",
+		str := fmt.Sprintf("orphan transaction size of %d bytes is larger than max allowed size of %d bytes",
 			serializedLen, mp.cfg.Policy.MaxOrphanTxSize)
 		return txRuleError(wire.RejectNonstandard, str)
 	}
@@ -606,9 +605,11 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 		}
 		oldTotal := mp.pennyTotal
 		mp.pennyTotal += float64(serializedSize)
-		Log.Tracef.Print("rate limit: curTotal %v, nextTotal: %v, "+
-			"limit %v", oldTotal, mp.pennyTotal,
-			mp.cfg.Policy.FreeTxRelayLimit*10*1000)
+		log <- cl.Tracef{"rate limit: curTotal %v, nextTotal: %v, limit %v",
+			oldTotal,
+			mp.pennyTotal,
+			mp.cfg.Policy.FreeTxRelayLimit * 10 * 1000,
+		}
 	}
 	// Verify crypto signatures for each input and reject the transaction if any don't verify.
 	err = blockchain.ValidateTransactionScripts(tx, utxoView,
@@ -622,8 +623,10 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 	}
 	// Add to transaction pool.
 	txD := mp.addTransaction(utxoView, tx, bestHeight, txFee)
-	Log.Debugf.Print("Accepted transaction %v (pool size: %v)", txHash,
-		len(mp.pool))
+	log <- cl.Debugf{"Accepted transaction %v (pool size: %v)",
+		txHash,
+		len(mp.pool),
+	}
 	return nil, txD, nil
 }
 
@@ -696,7 +699,7 @@ func (mp *TxPool) ProcessOrphans(acceptedTx *util.Tx) []*TxDesc {
 
 // ProcessTransaction is the main workhorse for handling insertion of new free-standing transactions into the memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, orphan transaction handling, and insertion into the memory pool. It returns a slice of transactions added to the mempool.  When the error is nil, the list will include the passed transaction itself along with any additional orphan transaactions that were added as a result of the passed one being accepted. This function is safe for concurrent access.
 func (mp *TxPool) ProcessTransaction(tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
-	Log.Tracef.Print("Processing transaction %v", tx.Hash())
+	log <- cl.Tracef{"Processing transaction %v", tx.Hash()}
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	defer mp.mtx.Unlock()

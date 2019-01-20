@@ -1,60 +1,70 @@
-package clog
+package cl
 
 import (
+	"io"
+	"os"
 	"testing"
-	"time"
-)
-
-var (
-	lFtl = &Ftl.Chan
-	lErr = &Err.Chan
-	lWrn = &Wrn.Chan
-	lInf = &Inf.Chan
-	lDbg = &Dbg.Chan
-	lTrc = &Trc.Chan
 )
 
 func TestClog(t *testing.T) {
-	Color(true)
-	done := make(chan bool)
-	go tests(done)
-	<-done
-	close(done)
-	done = make(chan bool)
-	ss := NewSubSystem("TEST", Ntrc)
-	go testSubSystem(ss, done)
-	<-done
-	close(done)
-	close(Quit)
-}
+	<-Started
 
-func tests(done chan bool) {
-	for i := range L {
-		txt := "testing log"
-		L[i].Chan <- txt
+	logfile, err := os.OpenFile("/tmp/clog", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		t.Fatal(err.Error())
 	}
-	time.Sleep(time.Millisecond)
-	done <- true
+	Writer = io.MultiWriter(os.Stdout, logfile)
+	defer logfile.Close()
+
+	ColorChan <- false
+
+	done := make(chan bool)
+	go tests(&Og, done)
+	<-done
+	close(done)
+
+	ss := *NewSubSystem("testsubsystem", "trace")
+
+	done = make(chan bool)
+	go tests(&ss.Ch, done)
+	<-done
+	close(done)
+
+	ColorChan <- true
+
+	done = make(chan bool)
+	go tests(&Og, done)
+	<-done
+	close(done)
+
+	done = make(chan bool)
+	go tests(&ss.Ch, done)
+	<-done
+	close(done)
+
+	ss.Close()
+
+	close(Og)
 }
 
-func testSubSystem(ss *SubSystem, done chan bool) {
-	ss.Fatal <- "testing"
-	ss.Error <- "testing"
-	ss.Warn <- "testing"
-	ss.Info <- "testing"
-	ss.Debug <- "testing"
-	ss.Trace <- "testing"
-	ss.Fatal.Print("testing1", "eleventy", "'")
-	ss.Error.Print("testing1", "eleventy", "'")
-	ss.Warn.Print("testing1", "eleventy", "'")
-	ss.Info.Print("testing1", "eleventy", "'")
-	ss.Debug.Print("testing1", "eleventy", "'")
-	ss.Trace.Print("testing1", "eleventy", "'")
-	ss.Fatalf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
-	ss.Errorf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
-	ss.Warnf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
-	ss.Infof.Print("testing1 string[%s] number[%d]", "eleventy", 110)
-	ss.Debugf.Print("testing1 string[%s] number[%d]", "eleventy", 110)
-	ss.Tracef.Print("testing1 string[%s] number[%d]", "eleventy", 110)
+func tests(ch *chan interface{}, done chan bool) {
+	*ch <- Ftl("fatal")
+	*ch <- Fatal{1, "test", Og}
+	*ch <- Fatalf{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
+	*ch <- Err("err")
+	*ch <- Error{1, "test", Og}
+	*ch <- Errorf{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
+	*ch <- Wrn("warn")
+	*ch <- Warn{1, "test", Og}
+	*ch <- Warnf{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
+	*ch <- Inf("info")
+	*ch <- Info{1, "test", Og}
+	*ch <- Infof{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
+	*ch <- Dbg("debug")
+	*ch <- Debug{1, "test", Og}
+	*ch <- Debugf{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
+	*ch <- Trc("trace")
+	*ch <- Trace{1, "test", Og}
+	*ch <- Tracef{"%d %s %v", 3, "test3", []byte{1, 2, 3}}
 	done <- true
 }

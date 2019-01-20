@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hash/crc32"
 
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 )
 
@@ -65,12 +66,12 @@ func reconcileDB(pdb *db, create bool) (database.DB, error) {
 	wc := pdb.store.writeCursor
 	if wc.curFileNum > curFileNum || (wc.curFileNum == curFileNum &&
 		wc.curOffset > curOffset) {
-		Log.Info.Print("Detected unclean shutdown - Repairing...")
-		Log.Debugf.Print("Metadata claims file %d, offset %d. Block data is "+
+		log <- cl.Info{"Detected unclean shutdown - Repairing..."}
+		log <- cl.Debugf{"Metadata claims file %d, offset %d. Block data is " +
 			"at file %d, offset %d", curFileNum, curOffset,
-			wc.curFileNum, wc.curOffset)
+			wc.curFileNum, wc.curOffset}
 		pdb.store.handleRollback(curFileNum, curOffset)
-		Log.Infof.Print("Database sync complete")
+		log <- cl.Infof{"Database sync complete"}
 	}
 	// When the write cursor position found by scanning the block files on disk is BEFORE the position the metadata believes to be true, return a corruption error.  Since sync is called after each block is written and before the metadata is updated, this should only happen in the case of missing, deleted, or truncated block files, which generally is not an easily recoverable scenario.  In the future, it might be possible to rescan and rebuild the metadata from the block files, however, that would need to happen with coordination from a higher layer since it could invalidate other metadata.
 	if wc.curFileNum < curFileNum || (wc.curFileNum == curFileNum &&
@@ -78,7 +79,7 @@ func reconcileDB(pdb *db, create bool) (database.DB, error) {
 		str := fmt.Sprintf("metadata claims file %d, offset %d, but "+
 			"block data is at file %d, offset %d", curFileNum,
 			curOffset, wc.curFileNum, wc.curOffset)
-		Log.Warnf.Print("***Database corruption detected***: %v", str)
+		log <- cl.Warnf{"***Database corruption detected***: %v", str}
 		return nil, makeDbErr(database.ErrCorruption, str, nil)
 	}
 	return pdb, nil

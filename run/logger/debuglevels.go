@@ -32,8 +32,8 @@ import (
 var Levels = GetDefault()
 
 // GetDefault returns a fresh shiny new default levels map
-func GetDefault() map[string]*clog.SubSystem {
-	return map[string]*clog.SubSystem{
+func GetDefault() map[string]*cl.SubSystem {
+	return map[string]*cl.SubSystem{
 		"lib-blockchain":      blockchain.Log,
 		"lib-connmgr":         connmgr.Log,
 		"lib-database-ffldb":  ffldb.Log,

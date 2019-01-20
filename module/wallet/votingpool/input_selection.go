@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
@@ -102,7 +103,10 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 	var inputs []credit
 	address := startAddress
 	for {
-		Log.Debugf.Print("Looking for eligible inputs at address %v", address.addrIdentifier())
+		log <- cl.Debugf{
+			"Looking for eligible inputs at address %v",
+			address.addrIdentifier(),
+		}
 		if candidates, ok := addrMap[address.addr.EncodeAddress()]; ok {
 			var eligibles []credit
 			for _, c := range candidates {
@@ -117,7 +121,9 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 		if err != nil {
 			return nil, newError(ErrInputSelection, "failed to get next withdrawal address", err)
 		} else if nAddr == nil {
-			Log.Debugf.Print("getEligibleInputs: reached last addr, stopping")
+			log <- cl.Dbg(
+				"getEligibleInputs: reached last addr, stopping",
+			)
 			break
 		}
 		address = *nAddr
@@ -143,8 +149,13 @@ func nextAddr(p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branc
 		}
 		if index > highestIdx {
 			seriesID++
-			Log.Debugf.Print("nextAddr(): reached last branch (%d) and highest used index (%d), "+
-				"moving on to next series (%d)", branch, index, seriesID)
+			log <- cl.Debugf{
+				"nextAddr(): reached last branch (%d) and highest used index (%d), " +
+					"moving on to next series (%d)",
+				branch,
+				index,
+				seriesID,
+			}
 			index = 0
 		} else {
 			index++
@@ -161,8 +172,13 @@ func nextAddr(p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branc
 		// The used indices will vary between branches so sometimes we'll try to
 		// get a WithdrawalAddress that hasn't been used before, and in such
 		// cases we just need to move on to the next one.
-		Log.Debugf.Print("nextAddr(): skipping addr (series #%d, branch #%d, index #%d) as it hasn't "+
-			"been used before", seriesID, branch, index)
+		log <- cl.Debugf{
+			"nextAddr(): skipping addr (series #%d, branch #%d, index #%d) " +
+				"as it hasn't been used before",
+			seriesID,
+			branch,
+			index,
+		}
 		return nextAddr(p, ns, addrmgrNs, seriesID, branch, index, stopSeriesID)
 	}
 	return addr, err

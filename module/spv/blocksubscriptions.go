@@ -3,6 +3,7 @@ package spv
 import (
 	"fmt"
 
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/wire"
 )
 
@@ -121,8 +122,10 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 			return nil
 		}
 
-		Log.Debugf.Print("Delivering backlog block notifications from "+
-			"height=%v, to height=%v", bestHeight, filterHeaderTip)
+		log <- cl.Debugf{
+			"Delivering backlog block notifications from height=%v, to height=%v",
+			bestHeight, filterHeaderTip,
+		}
 
 		// Otherwise, we need to read block headers from disk to
 		// deliver a backlog to the caller before we proceed. We'll use
@@ -134,8 +137,10 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 				currentHeight,
 			)
 			if err != nil {
-				return fmt.Errorf("unable to read header at "+
-					"height: %v: %v", currentHeight, err)
+				return fmt.Errorf(
+					"unable to read header at height: %v: %v",
+					currentHeight, err,
+				)
 			}
 
 			sendMsgToSubscriber(&subscription, &blockMessage{

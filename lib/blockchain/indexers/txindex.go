@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/database"
@@ -233,8 +235,7 @@ func (idx *TxIndex) Init() error {
 			highestKnown = testBlockID
 			testBlockID += increment
 		}
-		Log.Tracef.Print("Forward scan (highest known %d, next unknown %d)",
-			highestKnown, nextUnknown)
+		log <- cl.Tracef{"Forward scan (highest known %d, next unknown %d)", highestKnown, nextUnknown}
 		// No used block IDs due to new database.
 		if nextUnknown == 1 {
 			return nil
@@ -248,8 +249,7 @@ func (idx *TxIndex) Init() error {
 			} else {
 				highestKnown = testBlockID
 			}
-			Log.Tracef.Print("Binary scan (highest known %d, next "+
-				"unknown %d)", highestKnown, nextUnknown)
+			log <- cl.Tracef{"Binary scan (highest known %d, next " + "unknown %d)", highestKnown, nextUnknown}
 			if highestKnown+1 == nextUnknown {
 				break
 			}
@@ -260,7 +260,7 @@ func (idx *TxIndex) Init() error {
 	if err != nil {
 		return err
 	}
-	Log.Debugf.Print("Current internal block ID: %d", idx.curBlockID)
+	log <- cl.Debugf{"Current internal block ID: %d", idx.curBlockID}
 	return nil
 }
 

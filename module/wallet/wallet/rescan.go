@@ -3,6 +3,7 @@
 package wallet
 
 import (
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -127,9 +128,9 @@ out:
 			switch n := n.(type) {
 			case *chain.RescanProgress:
 				if curBatch == nil {
-					Log.Warnf.Print("Received rescan progress " +
-						"notification but no rescan " +
-						"currently running")
+					log <- cl.Warnf{
+						"Received rescan progress notification but no rescan currently running",
+					}
 					continue
 				}
 				w.rescanProgress <- &RescanProgressMsg{
@@ -139,9 +140,9 @@ out:
 
 			case *chain.RescanFinished:
 				if curBatch == nil {
-					Log.Warnf.Print("Received rescan finished " +
-						"notification but no rescan " +
-						"currently running")
+					log <- cl.Warnf{
+						"Received rescan finished notification but no rescan currently running",
+					}
 					continue
 				}
 				w.rescanFinished <- &RescanFinishedMsg{
@@ -168,31 +169,28 @@ out:
 	w.wg.Done()
 }
 
-// rescanProgressHandler handles notifications for partially and fully completed
-// rescans by marking each rescanned address as partially or fully synced.
+// rescanProgressHandler handles notifications for partially and fully completed rescans by marking each rescanned address as partially or fully synced.
 func (w *Wallet) rescanProgressHandler() {
 	quit := w.quitChan()
 out:
 	for {
-		// These can't be processed out of order since both chans are
-		// unbuffured and are sent from same context (the batch
-		// handler).
+		// These can't be processed out of order since both chans are unbuffured and are sent from same context (the batch handler).
 		select {
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
-			Log.Infof.Print("Rescanned through block %v (height %d)",
-				n.Hash, n.Height)
-
+			log <- cl.Infof{
+				"Rescanned through block %v (height %d)",
+				n.Hash, n.Height,
+			}
 		case msg := <-w.rescanFinished:
 			n := msg.Notification
 			addrs := msg.Addresses
 			noun := pickNoun(len(addrs), "address", "addresses")
-			Log.Infof.Print("Finished rescan for %d %s (synced to block "+
-				"%s, height %d)", len(addrs), noun, n.Hash,
-				n.Height)
-
+			log <- cl.Infof{
+				"Finished rescan for %d %s (synced to block %s, height %d)",
+				len(addrs), noun, n.Hash, n.Height,
+			}
 			go w.resendUnminedTxs()
-
 		case <-quit:
 			break out
 		}
@@ -206,7 +204,7 @@ out:
 func (w *Wallet) rescanRPCHandler() {
 	chainClient, err := w.requireChainClient()
 	if err != nil {
-		Log.Errorf.Print("rescanRPCHandler called without an RPC client")
+		log <- cl.Errorf{"rescanRPCHandler called without an RPC client"}
 		w.wg.Done()
 		return
 	}
@@ -220,14 +218,16 @@ out:
 			// Log the newly-started rescan.
 			numAddrs := len(batch.addrs)
 			noun := pickNoun(numAddrs, "address", "addresses")
-			Log.Infof.Print("Started rescan from block %v (height %d) for %d %s",
-				batch.bs.Hash, batch.bs.Height, numAddrs, noun)
-
+			log <- cl.Infof{
+				"Started rescan from block %v (height %d) for %d %s",
+				batch.bs.Hash, batch.bs.Height, numAddrs, noun,
+			}
 			err := chainClient.Rescan(&batch.bs.Hash, batch.addrs,
 				batch.outpoints)
 			if err != nil {
-				Log.Errorf.Print("Rescan for %d %s failed: %v", numAddrs,
-					noun, err)
+				log <- cl.Errorf{
+					"Rescan for %d %s failed: %v", numAddrs, noun, err,
+				}
 			}
 			batch.done(err)
 		case <-quit:

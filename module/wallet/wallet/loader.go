@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/module/wallet/internal/prompt"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
@@ -168,7 +169,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	dbPath := filepath.Join(l.dbDirPath, walletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
 	if err != nil {
-		Log.Errorf.Print("Failed to open database: %v", err)
+		log <- cl.Errorf{"Failed to open database: %v", err}
 		return nil, err
 	}
 
@@ -191,7 +192,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		// allow future calls to walletdb.Open().
 		e := db.Close()
 		if e != nil {
-			Log.Warnf.Print("Error closing database: %v", e)
+			log <- cl.Warnf{"Error closing database: %v", e}
 		}
 		return nil, err
 	}

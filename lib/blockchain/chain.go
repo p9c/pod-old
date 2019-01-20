@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/database"
@@ -345,39 +347,39 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 // This passed utxo view must have all referenced txos the block spends marked as spent and all of the new txos the block creates added to it.  In addition, the passed stxos slice must be populated with all of the information for the spent txos.  This approach is used because the connection validation that must happen prior to calling this function requires the same details, so it would be inefficient to repeat it. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	view *UtxoViewpoint, stxos []SpentTxOut) error {
-	// Log.Debug <- "connectBlock starting"
+	log <- cl.Tracef{"connectBlock starting"}
 	// Make sure it's extending the end of the best chain.
 	prevHash := &block.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(&b.bestChain.Tip().hash) {
 		str := "connectBlock must be called with a block " +
 			"that extends the main chain"
-		Log.Debug <- str
+		log <- cl.Debug{str}
 		return AssertError(str)
 	}
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
 		str := "connectBlock called with inconsistent " +
 			"spent transaction out information"
-		Log.Debug <- str
+		log <- cl.Debug{str}
 		return AssertError(str)
 	}
 	// No warnings about unknown rules or versions until the chain is current.
 	if b.isCurrent() {
-		// Log.Debug <- "isCurrent"
+		log <- cl.Tracef{"isCurrent"}
 		// Warn if any unknown new rules are either about to activate or have already been activated.
 		if err := b.warnUnknownRuleActivations(node); err != nil {
-			// Log.Debug <- "warnUnknownRuleActivations " + err.Error()
+			log <- cl.Tracef{"warnUnknownRuleActivations " + err.Error()}
 			return err
 		}
 	}
-	// Log.Debug <- "flushing to db"
+	log <- cl.Tracef{"flushing to db"}
 	// Write any block status changes to DB before updating best state.
 	err := b.Index.flushToDB()
 	if err != nil {
-		// Log.Debug <- "error flushing to db " + err.Error()
+		log <- cl.Tracef{"error flushing to db " + err.Error()}
 		return err
 	}
-	// Log.Debug <- "generating new best state snapshot"
+	log <- cl.Tracef{"generating new best state snapshot"}
 	// Generate a new best state snapshot that will be used to update the database and later memory if all database updates are successful.
 	b.stateLock.RLock()
 	curTotalTxns := b.stateSnapshot.TotalTxns
@@ -389,61 +391,61 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		curTotalTxns+numTxns, node.CalcPastMedianTime())
 	// Atomically insert info into the database.
 	err = b.db.Update(func(dbTx database.Tx) error {
-		// Log.Debug <- "update best block state."
+		log <- cl.Tracef{"update best block state."}
 		err := dbPutBestState(dbTx, state, node.workSum)
 		if err != nil {
-			// Log.Debug <- "dbPutBestState " + err.Error()
+			log <- cl.Tracef{"dbPutBestState " + err.Error()}
 			return err
 		}
-		// Log.Debug <- "Add the block hash and height to the block index which tracks the main chain."
+		log <- cl.Tracef{"Add the block hash and height to the block index which tracks the main chain."}
 		err = dbPutBlockIndex(dbTx, block.Hash(), node.height)
 		if err != nil {
-			// Log.Debug <- "dbPutBlockIndex" + err.Error()
+			log <- cl.Tracef{"dbPutBlockIndex" + err.Error()}
 			return err
 		}
-		// Log.Debug <- "update the utxo set using the state of the utxo view.  This entails removing all of the utxos spent and adding the new ones created by the block."
+		log <- cl.Tracef{"update the utxo set using the state of the utxo view.  This entails removing all of the utxos spent and adding the new ones created by the block."}
 		err = dbPutUtxoView(dbTx, view)
 		if err != nil {
-			// Log.Debug <- "dbPutUtxoView" + err.Error()
+			log <- cl.Tracef{"dbPutUtxoView" + err.Error()}
 			return err
 		}
-		// Log.Debug <- "Update the transaction spend journal by adding a record for the block that contains all txos spent by it."
+		log <- cl.Tracef{"Update the transaction spend journal by adding a record for the block that contains all txos spent by it."}
 		err = dbPutSpendJournalEntry(dbTx, block.Hash(), stxos)
 		if err != nil {
-			// Log.Debug <- "dbPutSpendJournalEntry" + err.Error()
+			log <- cl.Tracef{"dbPutSpendJournalEntry" + err.Error()}
 			return err
 		}
-		// Log.Debug <- "Allow the index manager to call each of the currently active optional indexes with the block being connected so they can update themselves accordingly."
+		log <- cl.Tracef{"Allow the index manager to call each of the currently active optional indexes with the block being connected so they can update themselves accordingly."}
 		if b.indexManager != nil {
 			err := b.indexManager.ConnectBlock(dbTx, block, stxos)
 			if err != nil {
-				// Log.Debug <- "connectBlock " + err.Error()
+				log <- cl.Tracef{"connectBlock " + err.Error()}
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		// Log.Debug <- "error updating database " + err.Error()
+		log <- cl.Tracef{"error updating database " + err.Error()}
 		return err
 	}
-	// Log.Debug <- "commit"
+	log <- cl.Tracef{"commit"}
 	// Prune fully spent entries and mark all entries in the view unmodified now that the modifications have been committed to the database.
 	view.commit()
-	// Log.Debug <- "SetTip"
+	log <- cl.Tracef{"SetTip"}
 	// This node is now the end of the best chain.
 	b.bestChain.SetTip(node)
 	// Update the state for the best block.  Notice how this replaces the entire struct instead of updating the existing one.  This effectively allows the old version to act as a snapshot which callers can use freely without needing to hold a lock for the duration.  See the comments on the state variable for more details.
-	// Log.Debug <- "get stateSnapshot"
+	log <- cl.Tracef{"get stateSnapshot"}
 	b.stateLock.Lock()
 	b.stateSnapshot = state
 	b.stateLock.Unlock()
 	// Notify the caller that the block was connected to the main chain. The caller would typically want to react with actions such as updating wallets.
-	// Log.Debug <- "sending notifications"
+	log <- cl.Tracef{"sending notifications"}
 	b.chainLock.Unlock()
 	b.sendNotification(NTBlockConnected, block)
 	b.chainLock.Lock()
-	// Log.Debug <- "sent notifications"
+	log <- cl.Tracef{"sent notifications"}
 	return nil
 }
 
@@ -718,13 +720,13 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	// Log the point where the chain forked and old and new best chain
 	// heads.
 	if forkNode != nil {
-		Log.Infof.Print("REORGANIZE: Chain forks at %v (height %v)", forkNode.hash,
-			forkNode.height)
+		log <- cl.Infof{"REORGANIZE: Chain forks at %v (height %v)", forkNode.hash,
+			forkNode.height}
 	}
-	Log.Infof.Print("REORGANIZE: Old best chain head was %v (height %v)",
-		&oldBest.hash, oldBest.height)
-	Log.Infof.Print("REORGANIZE: New best chain head is %v (height %v)",
-		newBest.hash, newBest.height)
+	log <- cl.Infof{"REORGANIZE: Old best chain head was %v (height %v)",
+		&oldBest.hash, oldBest.height}
+	log <- cl.Infof{"REORGANIZE: New best chain head is %v (height %v)",
+		newBest.hash, newBest.height}
 	return nil
 }
 
@@ -733,19 +735,19 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 //    This is useful when using checkpoints.
 // This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags BehaviorFlags) (bool, error) {
-	// Log.Debug <- "connectBestChain"
+	log <- cl.Tracef{"connectBestChain"}
 	fastAdd := flags&BFFastAdd == BFFastAdd
 	flushIndexState := func() {
 		// Intentionally ignore errors writing updated node status to DB. If it fails to write, it's not the end of the world. If the block is valid, we flush in connectBlock and if the block is invalid, the worst that can happen is we revalidate the block after a restart.
 		if writeErr := b.Index.flushToDB(); writeErr != nil {
-			Log.Warnf.Print("Error flushing block index changes to disk: %v",
-				writeErr)
+			log <- cl.Warnf{"Error flushing block index changes to disk: %v",
+				writeErr}
 		}
 	}
 	// We are extending the main (best) chain with a new block.  This is the most common case.
 	parentHash := &block.MsgBlock().Header.PrevBlock
 	if parentHash.IsEqual(&b.bestChain.Tip().hash) {
-		Log.Trace <- "extending best chain"
+		log <- cl.Trace{"extending best chain"}
 		// Skip checks if node has already been fully validated.
 		fastAdd = fastAdd || b.Index.NodeStatus(node).KnownValid()
 		// Perform several checks to verify the block can be connected to the main chain without violating any rules and without actually connecting the block.
@@ -753,29 +755,25 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		view.SetBestHash(parentHash)
 		stxos := make([]SpentTxOut, 0, countSpentOutputs(block))
 		if !fastAdd {
-			// Log.Debug <- "adding block"
 			err := b.checkConnectBlock(node, block, view, &stxos)
 			if err == nil {
-				// Log.Debug <- "block valid"
+				log <- cl.Tracef{"block valid"}
 				b.Index.SetStatusFlags(node, statusValid)
 			} else if _, ok := err.(RuleError); ok {
-				// Log.Debug <- "rule error" + er.Error()
 				b.Index.SetStatusFlags(node, statusValidateFailed)
 			} else {
-				// Log.Debug <- "block rejected"
+				log <- cl.Tracef{"block rejected"}
 				return false, err
 			}
-			// Log.Debug <- "flushing index state"
 			flushIndexState()
-			// Log.Debug <- "flushed index state"
 			if err != nil {
-				// Log.Debug <- "error" + err.Error()
+				log <- cl.Tracef{"error" + err.Error()}
 				return false, err
 			}
 		}
 		// In the fast add case the code to check the block connection was skipped, so the utxo view needs to load the referenced utxos, spend them, and add the new utxos being created by this block.
 		if fastAdd {
-			// Log.Debug <- "fastAdd on"
+			log <- cl.Tracef{"fastAdd on"}
 			err := view.fetchInputUtxos(b.db, block)
 			if err != nil {
 				return false, err
@@ -785,24 +783,21 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 				return false, err
 			}
 		}
-		// Log.Debug <- "connecting block"
+		log <- cl.Tracef{"connecting block"}
 		// Connect the block to the main chain.
 		err := b.connectBlock(node, block, view, stxos)
 		if err != nil {
-			// Log.Debug <- "connect block error: " + err.Error()
+			log <- cl.Tracef{"connect block error: " + err.Error()}
 			// If we got hit with a rule error, then we'll mark that status of the block as invalid and flush the index state to disk before returning with the error.
 			if _, ok := err.(RuleError); ok {
-				// Log.Debug <- "rule error: " + er.Error()
 				b.Index.SetStatusFlags(
 					node, statusValidateFailed,
 				)
 			}
-			// Log.Debug <- "flushing index state"
 			flushIndexState()
-			// Log.Debug <- "flushed index state"
 			return false, err
 		}
-		// Log.Debug <- "connected block"
+		log <- cl.Tracef{"connected block"}
 		// If this is fast add, or this block node isn't yet marked as valid, then we'll update its status and flush the state to disk again.
 		if fastAdd || !b.Index.NodeStatus(node).KnownValid() {
 			b.Index.SetStatusFlags(node, statusValid)
@@ -811,8 +806,8 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		return true, nil
 	}
 	if fastAdd {
-		Log.Warnf.Print("fastAdd set in the side chain case? %v\n",
-			block.Hash())
+		log <- cl.Warnf{"fastAdd set in the side chain case? %v\n",
+			block.Hash()}
 	}
 	node.workSum = CalcWork(node.bits, node.height, node.version)
 	// We're extending (or creating) a side chain, but the cumulative work for this new side chain is not enough to make it the new chain.
@@ -820,24 +815,24 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		// Log information about how the block is forking the chain.
 		f := b.bestChain.FindFork(node)
 		if f.hash.IsEqual(parentHash) {
-			Log.Infof.Print("FORK: Block %v forks the chain at height %d"+
+			log <- cl.Infof{"FORK: Block %v forks the chain at height %d" +
 				"/block %v, but does not cause a reorganize. workSum=%d",
-				node.hash, f.height, f.hash, f.workSum)
+				node.hash, f.height, f.hash, f.workSum}
 		} else {
-			Log.Infof.Print("EXTEND FORK: Block %v extends a side chain "+
+			log <- cl.Infof{"EXTEND FORK: Block %v extends a side chain " +
 				"which forks the chain at height %d/block %v. workSum=%d",
-				node.hash, f.height, f.hash, f.workSum)
+				node.hash, f.height, f.hash, f.workSum}
 		}
 		return false, nil
 	}
 	// We're extending (or creating) a side chain and the cumulative work for this new side chain is more than the old best chain, so this side chain needs to become the main chain.  In order to accomplish that, find the common ancestor of both sides of the fork, disconnect the blocks that form the (now) old fork from the main chain, and attach the blocks that form the new chain to the main chain starting at the common ancenstor (the point where the chain forked).
 	detachNodes, attachNodes := b.getReorganizeNodes(node)
 	// Reorganize the chain.
-	Log.Infof.Print("REORGANIZE: Block %v is causing a reorganize.", node.hash)
+	log <- cl.Infof{"REORGANIZE: Block %v is causing a reorganize.", node.hash}
 	err := b.reorganizeChain(detachNodes, attachNodes)
 	// Either getReorganizeNodes or reorganizeChain could have made unsaved changes to the block index, so flush regardless of whether there was an error. The index would only be dirty if the block failed to connect, so we can ignore any errors writing.
 	if writeErr := b.Index.flushToDB(); writeErr != nil {
-		Log.Warnf.Print("Error flushing block index changes to disk: %v", writeErr)
+		log <- cl.Warnf{"Error flushing block index changes to disk: %v", writeErr}
 	}
 	return err == nil, err
 }
@@ -1224,8 +1219,8 @@ func New(config *Config) (*BlockChain, error) {
 		return nil, err
 	}
 	bestNode := b.bestChain.Tip()
-	Log.Infof.Print("Chain state (height %d, hash %v, totaltx %d, work %v)",
+	log <- cl.Infof{"Chain state (height %d, hash %v, totaltx %d, work %v)",
 		bestNode.height, bestNode.hash, b.stateSnapshot.TotalTxns,
-		bestNode.workSum)
+		bestNode.workSum}
 	return &b, nil
 }

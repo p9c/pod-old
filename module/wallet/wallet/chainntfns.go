@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strings"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/module/wallet/chain"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
@@ -16,7 +18,7 @@ func (w *Wallet) handleChainNotifications() {
 
 	chainClient, err := w.requireChainClient()
 	if err != nil {
-		Log.Errorf.Print("handleChainNotifications called without RPC client")
+		log <- cl.Errorf{"handleChainNotifications called without RPC client"}
 		return
 	}
 
@@ -27,7 +29,7 @@ func (w *Wallet) handleChainNotifications() {
 		// to be out of date.
 		err := w.syncWithChain()
 		if err != nil && !w.ShuttingDown() {
-			Log.Warnf.Print("Unable to synchronize wallet to chain: %v", err)
+			log <- cl.Warnf{"Unable to synchronize wallet to chain: %v", err}
 		}
 	}
 
@@ -43,8 +45,7 @@ func (w *Wallet) handleChainNotifications() {
 		// if it doesn't match the original hash returned by
 		// the notification, to roll back and restart the
 		// rescan.
-		Log.Infof.Print("Catching up block hashes to height %d, this"+
-			" might take a while", height)
+		log <- cl.Infof{"Catching up block hashes to height %d, this might take a while", height}
 		err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
@@ -73,11 +74,12 @@ func (w *Wallet) handleChainNotifications() {
 			return nil
 		})
 		if err != nil {
-			Log.Errorf.Print("Failed to update address manager "+
-				"sync state for height %d: %v", height, err)
+			log <- cl.Errorf{
+				"Failed to update address manager sync state for height %d: %v", height, err,
+			}
 		}
 
-		Log.Info.Print("Done catching up block hashes")
+		log <- cl.Info{"Done catching up block hashes"}
 		return err
 	}
 
@@ -154,9 +156,9 @@ func (w *Wallet) handleChainNotifications() {
 				if notificationName == "blockconnected" &&
 					strings.Contains(err.Error(),
 						"couldn't get hash from database") {
-					Log.Debugf.Print(errStr, notificationName, err)
+					log <- cl.Debugf{errStr, notificationName, err}
 				} else {
-					Log.Errorf.Print(errStr, notificationName, err)
+					log <- cl.Errorf{errStr, notificationName, err}
 				}
 			}
 		case <-w.quit:
@@ -278,7 +280,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 				if err != nil {
 					return err
 				}
-				Log.Debugf.Print("Marked address %v used", addr)
+				log <- cl.Debugf{"Marked address %v used", addr}
 				continue
 			}
 
@@ -297,7 +299,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 	if block == nil {
 		details, err := w.TxStore.UniqueTxDetails(txmgrNs, &rec.Hash, nil)
 		if err != nil {
-			Log.Errorf.Print("Cannot query transaction details for notification: %v", err)
+			log <- cl.Errorf{"Cannot query transaction details for notification: %v", err}
 		}
 
 		// It's possible that the transaction was not found within the
@@ -313,7 +315,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 	} else {
 		details, err := w.TxStore.UniqueTxDetails(txmgrNs, &rec.Hash, &block.Block)
 		if err != nil {
-			Log.Errorf.Print("Cannot query transaction details for notification: %v", err)
+			log <- cl.Errorf{"Cannot query transaction details for notification: %v", err}
 		}
 
 		// We'll only notify the transaction if it was found within the

@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	l "git.parallelcoin.io/pod/lib/log"
+	"git.parallelcoin.io/pod/lib/clog"
 )
 
 // Driver defines a structure for backend drivers to use when they registered themselves as a backend which implements the DB interface.
@@ -15,7 +15,7 @@ type Driver struct {
 	// Open is the function that will be invoked with all user-specified arguments to open the database.  This function must return ErrDbDoesNotExist if the database has not already been created.
 	Open func(args ...interface{}) (DB, error)
 	// UseLogger uses a specified Logger to output package logging info.
-	UseLogger func(logger l.Logger)
+	UseLogger func(logger cl.SubSystem)
 }
 
 // driverList holds all of the registered database backends.

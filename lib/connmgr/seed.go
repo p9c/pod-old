@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/wire"
 )
 
@@ -37,11 +38,11 @@ func SeedFromDNS(chainParams *chaincfg.Params, reqServices wire.ServiceFlag,
 			randSource := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 			seedpeers, err := lookupFn(host)
 			if err != nil {
-				Log.Infof.Print("DNS discovery failed on seed %s: %v", host, err)
+				log <- cl.Infof{"DNS discovery failed on seed %s: %v", host, err}
 				return
 			}
 			numPeers := len(seedpeers)
-			Log.Infof.Print("%d addresses found from DNS seed %s", numPeers, host)
+			log <- cl.Infof{"%d addresses found from DNS seed %s", numPeers, host}
 			if numPeers == 0 {
 				return
 			}

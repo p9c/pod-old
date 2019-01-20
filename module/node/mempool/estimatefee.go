@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/mining"
 	"git.parallelcoin.io/pod/lib/util"
@@ -203,7 +205,7 @@ func (ef *FeeEstimator) RegisterBlock(block *util.Block) error {
 		blocksToConfirm := height - o.observed - 1
 		// This shouldn't happen if the fee estimator works correctly, but return an error if it does.
 		if o.mined != mining.UnminedHeight {
-			Log.Error.Print("Estimate fee: transaction ", hash.String(), " has already been mined")
+			log <- cl.Error{"Estimate fee: transaction ", hash.String(), " has already been mined"}
 			return errors.New("Transaction has already been mined")
 		}
 		// This shouldn't happen but check just in case to avoid an out-of-bounds array index later.

@@ -12,41 +12,19 @@ import (
 )
 
 // Log is the logger for the peer package
-var Log = clog.NewSubSystem("lib/peer", clog.Ntrc)
+var Log = cl.NewSubSystem("lib/peer", "trace")
+var log = Log.Ch
 
-// import (
-// 	"fmt"
-// 	"strings"
-// 	"time"
-
-// 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
-// 	l "git.parallelcoin.io/pod/lib/log"
-// 	"git.parallelcoin.io/pod/lib/txscript"
-// 	"git.parallelcoin.io/pod/lib/wire"
-// )
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
+	Log = logger
+	log = Log.Ch
+}
 
 const (
 	// maxRejectReasonLen is the maximum length of a sanitized reject reason that will be logged.
 	maxRejectReasonLen = 250
 )
-
-// // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
-// var log l.Logger
-
-// // The default amount of logging is none.
-// func init() {
-// 	DisableLog()
-// }
-
-// // DisableLog disables all library log output.  Logging output is disabled by default until UseLogger is called.
-// func DisableLog() {
-// 	log = l.Disabled
-// }
-
-// // UseLogger uses a specified Logger to output package logging info.
-// func UseLogger(logger l.Logger) {
-// 	log = logger
-// }
 
 // LogClosure is a closure that can be printed with %v to be used to generate expensive-to-create data for a detailed log level and avoid doing the work if the data isn't printed.
 type logClosure func() string

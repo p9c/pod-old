@@ -16,12 +16,19 @@ import (
 )
 
 // Log is the main logger for wallet
-var Log = clog.NewSubSystem("run/wallet", clog.Ndbg)
+var Log = cl.NewSubSystem("run/wallet", "trace")
+var log = Log.Ch
+
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
+	Log = logger
+	log = Log.Ch
+}
 
 // ConfigAndLog is the combined app and logging configuration data
 type ConfigAndLog struct {
 	Wallet *w.Config
-	Levels map[string]*clog.SubSystem
+	Levels map[string]*cl.SubSystem
 }
 
 // Config is the combined app and log levels configuration
@@ -107,50 +114,50 @@ var Command = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			Log.Tracef.Print("setting debug level %s", dl)
+			log <- cl.Tracef{"setting debug level %s", dl}
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i].SetLevel(dl)
 			}
 		}
-		Log.Debugf.Print("pod/wallet version %s", w.Version())
+		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
 		if ctx.Is("version") {
 			fmt.Println("pod/wallet version", w.Version())
-			clog.Shutdown()
+			cl.Shutdown()
 		}
-		Log.Trace.Print("running command wallet")
+		log <- cl.Trc("running command wallet")
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = w.DefaultConfigFile
 		}
 		if ctx.Is("init") {
-			Log.Debugf.Print("writing default configuration to %s", cfgFile)
+			log <- cl.Debug{"writing default configuration to", cfgFile}
 			writeDefaultConfig(cfgFile)
 			configNode(&ctx, cfgFile)
 		} else {
-			Log.Infof.Print("loading configuration from %s", cfgFile)
+			log <- cl.Info{"loading configuration from", cfgFile}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-				Log.Warn.Print("configuration file does not exist, creating new one")
+				log <- cl.Wrn("configuration file does not exist, creating new one")
 				writeDefaultConfig(cfgFile)
 				configNode(&ctx, cfgFile)
 			} else {
-				Log.Debug.Print("reading app configuration from", cfgFile)
+				log <- cl.Debug{"reading app configuration from", cfgFile}
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
-					Log.Error.Print("reading app config file", err.Error())
-					clog.Shutdown()
+					log <- cl.Error{"reading app config file", err.Error()}
+					cl.Shutdown()
 				}
-				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 				err = json.Unmarshal(cfgData, &Config)
 				if err != nil {
-					Log.Error.Print("parsing app config file", err.Error())
-					clog.Shutdown()
+					log <- cl.Error{"parsing app config file", err.Error()}
+					cl.Shutdown()
 				}
 				configNode(&ctx, cfgFile)
 			}
 		}
 		runNode()
-		clog.Shutdown()
+		cl.Shutdown()
 		return 0
 	},
 }
@@ -234,7 +241,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "legacyrpcmaxclients", r) {
 		var bt int
 		if err := podutil.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
@@ -242,8 +249,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
 		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
-			Log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
-				r, Config.Wallet.LegacyRPCMaxWebsockets)
+			log <- cl.Errorf{
+				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
+				r,
+				Config.Wallet.LegacyRPCMaxWebsockets,
+			}
 		}
 	}
 	if getIfIs(ctx, "username", r) {
@@ -270,13 +280,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
-		Log.Infof.Print("saving config file to %s", cfgFile)
+		log <- cl.Info{"saving config file to", cfgFile}
 		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
-			Log.Error.Print("writing app config file", err.Error())
+			log <- cl.Error{"writing app config file", err.Error()}
 		}
 		j = append(j, '\n')
-		Log.Tracef.Print("JSON formatted config file\n%s", j)
+		log <- cl.Trace{"JSON formatted config file\n", j}
 		ioutil.WriteFile(cfgFile, j, 0600)
 	}
 }
@@ -286,13 +296,13 @@ func writeDefaultConfig(cfgFile string) {
 	defCfg.Wallet.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		Log.Error.Print("marshalling configuration", err.Error())
+		log <- cl.Error{"marshalling configuration", err.Error()}
 	}
 	j = append(j, '\n')
-	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	log <- cl.Trace{"JSON formatted config file\n", j}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
-		Log.Error.Print("writing app config file", err.Error())
+		log <- cl.Error{"writing app config file", err.Error()}
 	}
 	// if we are writing default config we also want to use it
 	Config = defCfg

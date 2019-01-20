@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
@@ -499,8 +501,7 @@ func loadConfig() (*Config, []string, error) {
 	// initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
 	// Validate database type.
 	if !ValidDbType(cfg.DbType) {
-		str := "%s: The specified database type [%v] is invalid -- " +
-			"supported types %v"
+		str := "%s: The specified database type [%v] is invalid -- supported types %v"
 		err := fmt.Errorf(str, funcName, cfg.DbType, KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -508,7 +509,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Validate profile port number
 	if cfg.Profile != "" {
-		Log.Info <- cfg.Profile
+		log <- cl.Info{cfg.Profile}
 		profilePort, err := strconv.Atoi(cfg.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
@@ -604,27 +605,26 @@ func loadConfig() (*Config, []string, error) {
 		cfg.DisableRPC = true
 	}
 	if cfg.DisableRPC {
-		Log.Info <- "RPC service is disabled"
-	}
-	// Default RPC to listen on localhost only.
-	if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
-		addrs, err := net.LookupHost("127.0.0.1:11048")
-		if err != nil {
+		log <- cl.Info{"RPC service is disabled"}
+		// Default RPC to listen on localhost only.
+		if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
+			addrs, err := net.LookupHost("127.0.0.1:11048")
+			if err != nil {
+				return nil, nil, err
+			}
+			cfg.RPCListeners = make([]string, 0, len(addrs))
+			for _, addr := range addrs {
+				addr = net.JoinHostPort(addr, ActiveNetParams.RPCPort)
+				cfg.RPCListeners = append(cfg.RPCListeners, addr)
+			}
+		}
+		if cfg.RPCMaxConcurrentReqs < 0 {
+			str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
+			err := fmt.Errorf(str, funcName, cfg.RPCMaxConcurrentReqs)
+			fmt.Fprintln(os.Stderr, err)
+			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
-		cfg.RPCListeners = make([]string, 0, len(addrs))
-		for _, addr := range addrs {
-			addr = net.JoinHostPort(addr, ActiveNetParams.RPCPort)
-			cfg.RPCListeners = append(cfg.RPCListeners, addr)
-		}
-	}
-	if cfg.RPCMaxConcurrentReqs < 0 {
-		str := "%s: The rpcmaxwebsocketconcurrentrequests option may " +
-			"not be less than 0 -- parsed [%d]"
-		err := fmt.Errorf(str, funcName, cfg.RPCMaxConcurrentReqs)
-		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, usageMessage)
-		return nil, nil, err
 	}
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
@@ -711,11 +711,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// --addrindex and --droptxindex do not mix.
 	if cfg.AddrIndex && cfg.DropTxIndex {
-		err := fmt.Errorf("%s: the --addrindex and --droptxindex "+
-			"options may not be activated at the same time "+
-			"because the address index relies on the transaction "+
-			"index",
-			funcName)
+		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time because the address index relies on the transaction index", funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
@@ -775,8 +771,7 @@ func loadConfig() (*Config, []string, error) {
 		ActiveNetParams.DefaultPort)
 	// --noonion and --onion do not mix.
 	if cfg.NoOnion && cfg.OnionProxy != "" {
-		err := fmt.Errorf("%s: the --noonion and --onion options may "+
-			"not be activated at the same time", funcName)
+		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
@@ -792,8 +787,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if cfg.TorIsolation && cfg.Proxy == "" && cfg.OnionProxy == "" {
-		str := "%s: Tor stream isolation requires either proxy or " +
-			"onionproxy to be set"
+		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -816,8 +810,7 @@ func loadConfig() (*Config, []string, error) {
 		if cfg.TorIsolation && cfg.OnionProxy == "" &&
 			(cfg.ProxyUser != "" || cfg.ProxyPass != "") {
 			torIsolation = true
-			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
-				"overriding specified proxy user credentials")
+			fmt.Fprintln(os.Stderr, "Tor isolation set -- overriding specified proxy user credentials")
 		}
 		proxy := &socks.Proxy{
 			Addr:         cfg.Proxy,
@@ -876,7 +869,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
-		Log.Warnf.Print("%v", configFileError)
+		log <- cl.Warnf{"%v", configFileError}
 	}
 	return &cfg, remainingArgs, nil
 }

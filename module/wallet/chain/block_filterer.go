@@ -2,6 +2,7 @@ package chain
 
 import (
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -147,8 +148,9 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 			out.PkScript, bf.Params,
 		)
 		if err != nil {
-			Log.Warnf.Print("Could not parse output script in %s:%d: %v",
-				tx.TxHash(), i, err)
+			log <- cl.Warnf{
+				"Could not parse output script in %s:%d: %v", tx.TxHash(), i, err,
+			}
 			continue
 		}
 

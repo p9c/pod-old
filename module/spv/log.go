@@ -5,34 +5,14 @@ import (
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("spv", clog.Ndbg)
+var Log = cl.NewSubSystem("spv", "trace")
+var log = Log.Ch
 
-// // log is a logger that is initialized with no output filters.  This
-// // means the package will not perform any logging by default until the caller
-// // requests it.
-// var log l.Logger
-
-// // The default amount of logging is none.
-// func init() {
-// 	DisableLog()
-// }
-
-// // DisableLog disables all library log output.  Logging output is disabled
-// // by default until either UseLogger or SetLogWriter are called.
-// func DisableLog() {
-// 	log = l.Disabled
-// }
-
-// // UseLogger uses a specified Logger to output package logging info.
-// // This should be used in preference to SetLogWriter if the caller is also
-// // using log.
-// func UseLogger(logger l.Logger) {
-// 	log = logger
-// 	blockchain.UseLogger(logger)
-// 	txscript.UseLogger(logger)
-// 	peer.Log=clog.NewSubSystem(logger)
-// 	addrmgr.UseLogger(logger)
-// }
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
+	Log = logger
+	log = Log.Ch
+}
 
 // logClosure is used to provide a closure over expensive logging operations so
 // don't have to be performed when the logging level doesn't warrant it.

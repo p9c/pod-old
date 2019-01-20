@@ -8,6 +8,7 @@ import (
 
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/gcs"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
@@ -280,8 +281,10 @@ func queryChainServiceBatch(
 						uint32(queryAnswered) {
 					firstUnfinished++
 
-					Log.Tracef.Print("Query #%v already answered, "+
-						"skipping", i)
+					log <- cl.Tracef{
+						"Query #%v already answered, skipping",
+						i,
+					}
 					continue
 				}
 
@@ -293,8 +296,10 @@ func queryChainServiceBatch(
 					uint32(queryWaitSubmit),
 					uint32(queryWaitResponse),
 				) {
-					Log.Tracef.Print("Query #%v already being "+
-						"queried for, skipping", i)
+					log <- cl.Tracef{
+						"Query #%v already being queried for, skipping",
+						i,
+					}
 					continue
 				}
 
@@ -355,11 +360,12 @@ func queryChainServiceBatch(
 					return
 				}
 
-				Log.Tracef.Print("Query for #%v failed, moving "+
-					"on: %v", handleQuery,
+				log <- cl.Tracef{
+					"Query for #%v failed, moving on: %v",
+					handleQuery,
 					newLogClosure(func() string {
 						return spew.Sdump(queryMsgs[handleQuery])
-					}))
+					})}
 
 			case <-matchSignal:
 				// We got a match signal so we can mark this
@@ -367,8 +373,10 @@ func queryChainServiceBatch(
 				atomic.StoreUint32(&queryStates[handleQuery],
 					uint32(queryAnswered))
 
-				Log.Tracef.Print("Query #%v answered, updating state",
-					handleQuery)
+				log <- cl.Tracef{
+					"Query #%v answered, updating state",
+					handleQuery,
+				}
 			}
 		}
 	}
@@ -779,7 +787,10 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 			"from database", blockHash)
 	}
 
-	Log.Debugf.Print("Fetching filter for height=%v, hash=%v", height, blockHash)
+	log <- cl.Debugf{
+		"Fetching filter for height=%v, hash=%v",
+		height, blockHash,
+	}
 
 	// In addition to fetching the block header, we'll fetch the filter
 	// headers (for this particular filter type) from the database. These
@@ -860,7 +871,9 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// the caller requested it.
 		err := s.putFilterToCache(&blockHash, dbFilterType, filter)
 		if err != nil {
-			Log.Warnf.Print("couldn't write filter to cache: %v", err)
+			log <- cl.Warnf{
+				"couldn't write filter to cache: %v", err,
+			}
 		}
 
 		qo := defaultQueryOptions()
@@ -871,8 +884,10 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				return nil, err
 			}
 
-			Log.Tracef.Print("Wrote filter for block %s, type %d",
-				blockHash, filterType)
+			log <- cl.Tracef{
+				"Wrote filter for block %s, type %d",
+				blockHash, filterType,
+			}
 		}
 	}
 
@@ -965,10 +980,10 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 					block.Height(),
 					true,
 				); err != nil {
-					Log.Warnf.Print("Invalid block for %s "+
-						"received from %s -- "+
-						"disconnecting peer", blockHash,
-						sp.Addr())
+					log <- cl.Warnf{
+						"Invalid block for %s received from %s -- disconnecting peer",
+						blockHash, sp.Addr(),
+					}
 					sp.Disconnect()
 					return
 				}
@@ -995,7 +1010,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// Add block to the cache before returning it.
 	err = s.BlockCache.Put(*inv, &cache.CacheableBlock{foundBlock})
 	if err != nil {
-		Log.Warnf.Print("couldn't write block to cache: %v", err)
+		log <- cl.Warnf{"couldn't write block to cache: %v", err}
 	}
 
 	return foundBlock, nil
@@ -1045,7 +1060,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						"rejected by %s: %s",
 						tx.TxHash(), sp.Addr(),
 						response.Reason)
-					Log.Errorf.Print(err.Error())
+					log <- cl.Errorf{err.Error()}
 					close(quit)
 				}
 			}

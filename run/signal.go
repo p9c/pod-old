@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/signal"
 	"runtime/trace"
+
+	"git.parallelcoin.io/pod/lib/clog"
 )
 
 // shutdownRequestChannel is used to initiate shutdown from one of the subsystems using the same code paths as when an interrupt signal is received.
@@ -21,21 +23,20 @@ func interruptListener() <-chan struct{} {
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.
 		select {
 		case sig := <-interruptChannel:
-			Log.Debug <- "stopping trace"
+			log <- cl.Dbg("stopping trace")
 			trace.Stop()
-			Log.Infof.Print("Received signal (%s).  Shutting down...",
-				sig)
+			log <- cl.Infof{"received signal (%s) - shutting down...", sig}
 		case <-shutdownRequestChannel:
-			Log.Info <- "Shutdown requested.  Shutting down..."
+			log <- cl.Inf("shutdown requested - shutting down...")
 		}
 		close(c)
 		// Listen for repeated signals and display a message so the user knows the shutdown is in progress and the process is not hung.
 		for {
 			select {
 			case sig := <-interruptChannel:
-				Log.Infof.Print("Received signal (%s).  Already shutting down...", sig)
+				log <- cl.Infof{"received signal (%s) - already shutting down...", sig}
 			case <-shutdownRequestChannel:
-				Log.Info <- "Shutdown requested.  Already shutting down..."
+				log <- cl.Inf("shutdown requested - already shutting down...")
 			}
 		}
 	}()

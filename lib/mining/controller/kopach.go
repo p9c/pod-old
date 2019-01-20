@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 )
 
 // Address is the parameter and reply type for subscriptions
@@ -24,7 +25,7 @@ type Work struct {
 
 // Subscribe adds an address to the list of subscribers to push work to
 func (k *Kopach) Subscribe(args *Address, reply *Address) (err error) {
-	Log.Infof.Print("Subscribe called with", *args)
+	log <- cl.Infof{"Subscribe called with", *args}
 	err = errors.New("already subscribed")
 	for i := range *k {
 		if (*k)[i].Address == (*args).Address {
@@ -39,7 +40,7 @@ func (k *Kopach) Subscribe(args *Address, reply *Address) (err error) {
 
 // Unsubscribe removes an address from the list of subscribers to push work to
 func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
-	Log.Infof.Print("Unsubscribe called with", *args)
+	log <- cl.Infof{"Unsubscribe called with", *args}
 	err = errors.New("not subscribed")
 	for i := range *k {
 		if (*k)[i].Address == (*args).Address {
@@ -52,7 +53,7 @@ func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
 		}
 	}
 	err = nil
-	Log.Infof.Print("sending reply", *args)
+	log <- cl.Infof{"sending reply", *args}
 	*reply = *args
 	return
 }

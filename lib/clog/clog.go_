@@ -1,0 +1,466 @@
+package clog
+
+// Miscellaneous functions
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/logrusorgru/aurora"
+)
+
+// Joined is a channel that can be used to redirect the entire log output to another channel
+var Joined chan string
+
+// Chan is a simple string channel
+type Chan chan string
+
+// FmtChan is a chan for Fmt
+type FmtChan chan Fmt
+
+// A SubSystem is a logger that intercepts a signal, adds a 'name' prefix and passes it to the main logger channel
+type SubSystem struct {
+	Name   string
+	Fatal  Chan
+	Fatalf FmtChan
+	Error  Chan
+	Errorf FmtChan
+	Warn   Chan
+	Warnf  FmtChan
+	Info   Chan
+	Infof  FmtChan
+	Debug  Chan
+	Debugf FmtChan
+	Trace  Chan
+	Tracef FmtChan
+	Level  int
+	Reload chan int
+	Active bool
+	Quit   chan struct{}
+}
+
+// SetLevel sets the debug level according to a string
+func (s *SubSystem) SetLevel(level string) {
+	oldlevel := s.Level
+	switch strings.ToLower(level) {
+	case "off":
+		s.Level = -1
+	case "fatal":
+		s.Level = Nftl
+	case "error":
+		s.Level = Nerr
+	case "warn":
+		s.Level = Nwrn
+	case "info":
+		s.Level = Ninf
+	case "debug":
+		s.Level = Ndbg
+	case "trace":
+		s.Level = Ntrc
+	default:
+		s.Level = Ninf
+	}
+	if oldlevel != s.Level {
+		s.Reload <- s.Level
+	}
+}
+
+// NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
+func NewSubSystem(name string, level int) *SubSystem {
+	fmt.Println("NewSubSystem " + name)
+	name = aurora.Bold(name).String()
+	ss := SubSystem{
+		Name:   name,
+		Fatal:  make(Chan),
+		Fatalf: make(FmtChan),
+		Error:  make(Chan),
+		Errorf: make(FmtChan),
+		Warn:   make(Chan),
+		Warnf:  make(FmtChan),
+		Info:   make(Chan),
+		Infof:  make(FmtChan),
+		Debug:  make(Chan),
+		Debugf: make(FmtChan),
+		Trace:  make(Chan),
+		Tracef: make(FmtChan),
+		Level:  level,
+		Reload: make(chan int),
+		Active: true,
+		Quit:   make(chan struct{}),
+	}
+	chans := []*Chan{
+		&ss.Fatal,
+		&ss.Error,
+		&ss.Warn,
+		&ss.Info,
+		&ss.Debug,
+		&ss.Trace,
+	}
+	fmtchans := []*FmtChan{
+		&ss.Fatalf,
+		&ss.Errorf,
+		&ss.Warnf,
+		&ss.Infof,
+		&ss.Debugf,
+		&ss.Tracef,
+	}
+
+	for i := range chans {
+		go func(i int) {
+			s := chans[i]
+			for {
+				if ss.Active {
+					fmt.Println("chan active", i)
+					select {
+					case r := <-ss.Reload:
+						ss.Level = r
+						if ss.Level >= i {
+							for {
+								fmt.Println("chan level", i)
+								select {
+								case str := <-*s:
+									*s <- name + " " + str
+									continue
+								case r := <-ss.Reload:
+									fmt.Println("reloading")
+									ss.Level = r
+									break
+								case <-ss.Quit:
+									ss.Active = false
+									break
+								case <-Quit:
+									ss.Active = false
+									break
+								}
+							}
+						}
+						if !ss.Active {
+							break
+						}
+						continue
+					case <-ss.Quit:
+						ss.Active = false
+						break
+					case <-Quit:
+						ss.Active = false
+						break
+					}
+					if !ss.Active {
+						break
+					}
+				}
+			}
+		}(i)
+	}
+	for i := range fmtchans {
+		go func(i int) {
+			s := fmtchans[i]
+			for {
+				for ss.Active {
+					fmt.Println("fmtchan active", i)
+					select {
+					case r := <-ss.Reload:
+						ss.Level = r
+						if ss.Level >= i {
+							for {
+								fmt.Println("fmtchan level", i)
+								select {
+								case str := <-*s:
+									*s <- Fmt{name + " " + str.Fmt, str.Items}
+									continue
+								case r := <-ss.Reload:
+									fmt.Println("reloading")
+									ss.Level = r
+									break
+								case <-ss.Quit:
+									ss.Active = false
+									break
+								case <-Quit:
+									ss.Active = false
+									break
+								}
+							}
+						} else {
+							fmt.Println("level not active", i)
+						}
+						if !ss.Active {
+							break
+						}
+						continue
+					case <-ss.Quit:
+						ss.Active = false
+						break
+					case <-Quit:
+						ss.Active = false
+						break
+					default:
+					}
+					if !ss.Active {
+						break
+					}
+				}
+			}
+		}(i)
+	}
+	ss.Reload <- level
+	fmt.Println("launched SubSystem " + name)
+	return &ss
+}
+
+// Print is a function that shortens the invocation for pushing to a logging channel so you can call like this:
+//     log.Info.Print("string")
+// though you can always just directly do what is done here in this function, where log.Info is the channel. This is just here for completeness with the FmtChan Print, which makes a less weildy invocation by using the builtin variant arguments processing
+// This format also allows you to use comma separated list of strings, instead of using concatenation operators, it also interposes spaces between the strings
+func (c *Chan) Print(s ...string) {
+	tmp := ""
+	for i := range s {
+		if i > 0 {
+			tmp += " "
+		}
+		tmp += s[i]
+	}
+	*c <- tmp
+}
+
+// Print is a shortcut to assemble an Fmt struct literal. It should be inlined by the compiler
+func (s *FmtChan) Print(fmt string, items ...interface{}) {
+	*s <- Fmt{fmt, items}
+}
+
+// T is a slice of interface{} for feeding to a *Printf function
+type T []interface{}
+
+// Fmt is a printf type formatter struct, it is used like this:
+//     logf.Fmt("format string %s %d", "test", 100)
+// When all parts are strings it is faster to use a SubSystem. Many types provide stringers.
+type Fmt struct {
+	Fmt   string
+	Items []interface{}
+}
+
+// Check checks if an error exists, if so, prints a log to the specified log level with a string and returns if err was nil
+func Check(err error, tag int, where string) (wasError bool) {
+	if err != nil {
+		wasError = true
+		L[tag].Chan <- L[tag].Name() + " " + err.Error()
+		if tag == Ftl.Num {
+			panic("died")
+		}
+	}
+	return
+}
+
+// Lvl is a log level data structure
+type Lvl struct {
+	Num  int
+	Name func(c ...int) string
+	Chan chan string
+}
+
+const (
+	// Noff disables logging completely
+	Noff = -1
+	// Nftl is the number for fatal errors
+	Nftl = iota
+	// Nerr is the number for errors
+	Nerr
+	// Nwrn is the number for warnings
+	Nwrn
+	// Ninf is the number for information
+	Ninf
+	// Ndbg is the number for debugging
+	Ndbg
+	// Ntrc is the number for trace
+	Ntrc
+)
+
+var (
+	ftlFn = func(c ...int) string {
+		out := "FTL"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.BgRed(out).String()).String()
+		}
+		return out
+	}
+	errFn = func(c ...int) string {
+		out := "ERR"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.Red(out).String()).String()
+		}
+		return out
+	}
+	wrnFn = func(c ...int) string {
+		out := "WRN"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.Brown(out).String()).String()
+		}
+		return out
+	}
+	infFn = func(c ...int) string {
+		out := "INF"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.Green(out).String()).String()
+		}
+		return out
+	}
+	dbgFn = func(c ...int) string {
+		out := "DBG"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.Blue(out).String()).String()
+		}
+		return out
+	}
+	trcFn = func(c ...int) string {
+		out := "TRC"
+		if len(c) > 0 {
+			return aurora.Bold(aurora.BgBlue(out).String()).String()
+		}
+		return out
+	}
+	// Ftl is for critical/fatal errors
+	Ftl = &Lvl{0, ftlFn, nil}
+	// Err is an error that does block continuation
+	Err = &Lvl{1, errFn, nil}
+	// Wrn is is a warning of a correctable condition
+	Wrn = &Lvl{2, wrnFn, nil}
+	// Inf is is general information
+	Inf = &Lvl{3, infFn, nil}
+	// Dbg is debug level information
+	Dbg = &Lvl{4, dbgFn, nil}
+	// Trc is detailed outputs of contents of variables
+	Trc = &Lvl{5, trcFn, nil}
+
+	// L is an array of log levels that can be selected given the level number
+	L = []*Lvl{
+		Ftl,
+		Err,
+		Wrn,
+		Inf,
+		Dbg,
+		Trc,
+	}
+
+	// Quit signals the logger to stop. Invoke like this:
+	//     close(clog.Quit)
+	// You can call Init again to start it up again
+	Quit = make(chan struct{})
+
+	// OutFile sets the output file for the logger
+	OutFile *os.File
+
+	// LogIt is the function that performs the output, can be loaded by the caller
+	LogIt = Print
+
+	color = true
+)
+
+// Disabled is a no-op print function
+func Disabled(name, txt string) {
+}
+
+// SetPrinter loads a different print function
+func SetPrinter(fn func(name, txt string)) {
+	LogIt = fn
+}
+
+// Color sets whether tags are coloured or not, 0 color
+func Color(on bool) {
+	color = on
+}
+
+// GetColor returns if color is turned on
+func GetColor() bool {
+	return color
+}
+
+// func emptyJoiner(string) {
+// 	// This just swallows the input and discards it
+// }
+
+// // Joiner is the function that will pipe the output
+// var Joiner = emptyJoiner
+
+func init() {
+	Init()
+}
+
+// Init manually starts a clog
+func Init(fn ...func(name, txt string)) bool {
+	var ready []chan bool
+	Ftl.Chan = make(chan string)
+	Err.Chan = make(chan string)
+	Wrn.Chan = make(chan string)
+	Inf.Chan = make(chan string)
+	Dbg.Chan = make(chan string)
+	Trc.Chan = make(chan string)
+	// override the output function if one is given
+	if len(fn) > 0 {
+		LogIt = fn[0]
+	}
+	for range L {
+		ready = append(ready, make(chan bool))
+	}
+	for i := range L {
+		go startChan(i, ready[i])
+	}
+	for i := range ready {
+		<-ready[i]
+	}
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case s := <-Joined:
+	// 			Joiner(s)
+	// 		default:
+	// 		}
+	// 	}
+	// }()
+	return true
+}
+
+// Print out a formatted log message
+func Print(name, txt string) {
+	out := fmt.Sprintf("%s %s %s\n",
+		time.Now().UTC().Format("2006-01-02 15:04:05.000000 MST"),
+		name,
+		txt,
+	)
+	if OutFile != nil {
+		fmt.Fprint(OutFile, out)
+	}
+	fmt.Print(out)
+	if Joined != nil {
+		Joined <- out
+	}
+}
+
+func startChan(ch int, ready chan bool) {
+	L[ch].Chan = make(chan string)
+	ready <- true
+	done := true
+	for done {
+		select {
+		case <-Quit:
+			done = false
+			continue
+		case txt := <-L[ch].Chan:
+			if color {
+				LogIt(L[ch].Name(1), txt)
+			} else {
+				LogIt(L[ch].Name(), txt)
+			}
+			continue
+		default:
+		}
+	}
+}
+
+// Shutdown the application, allowing the logger a moment to clear the channels
+func Shutdown() {
+	close(Quit)
+	// wait a moment to let log channel clear
+	time.Sleep(time.Millisecond * 50)
+	os.Exit(0)
+}

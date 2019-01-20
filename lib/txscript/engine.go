@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/wire"
 )
@@ -305,12 +306,12 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 	}
 	if !v {
 		// Log interesting data.
-		Log.Tracef.Print("%v", newLogClosure(func() string {
+		log <- cl.Tracef{"%v", newLogClosure(func() string {
 			dis0, _ := vm.DisasmScript(0)
 			dis1, _ := vm.DisasmScript(1)
 			return fmt.Sprintf("scripts failed: script0: %s\n"+
 				"script1: %s", dis0, dis1)
-		}))
+		})}
 		return scriptError(ErrEvalFalse,
 			"false stack entry at end of script execution")
 	}
@@ -394,18 +395,18 @@ func (vm *Engine) Step() (done bool, err error) {
 func (vm *Engine) Execute() (err error) {
 	done := false
 	for !done {
-		Log.Tracef.Print("%v", newLogClosure(func() string {
+		log <- cl.Tracef{"%v", newLogClosure(func() string {
 			dis, err := vm.DisasmPC()
 			if err != nil {
 				return fmt.Sprintf("stepping (%v)", err)
 			}
 			return fmt.Sprintf("stepping %v", dis)
-		}))
+		})}
 		done, err = vm.Step()
 		if err != nil {
 			return err
 		}
-		Log.Tracef.Print("%v", newLogClosure(func() string {
+		log <- cl.Tracef{"%v", newLogClosure(func() string {
 			var dstr, astr string
 			// if we're tracing, dump the stacks.
 			if vm.dstack.Depth() != 0 {
@@ -415,7 +416,7 @@ func (vm *Engine) Execute() (err error) {
 				astr = "AltStack:\n" + vm.astack.String()
 			}
 			return dstr + astr
-		}))
+		})}
 	}
 	return vm.CheckErrorCondition(true)
 }

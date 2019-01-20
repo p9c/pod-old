@@ -5,4 +5,11 @@ import (
 )
 
 // Log is the logger for node
-var Log = clog.NewSubSystem("wallet", clog.Ndbg)
+var Log = cl.NewSubSystem("wallet", "trace")
+var log = Log.Ch
+
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
+	Log = logger
+	log = Log.Ch
+}

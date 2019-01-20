@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	"git.parallelcoin.io/pod/lib/wire"
 )
@@ -420,8 +421,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		wc.curFileNum = oldBlockFileNum
 		wc.curOffset = oldBlockOffset
 	}()
-	Log.Debugf.Print("ROLLBACK: Rolling back to file %d, offset %d",
-		oldBlockFileNum, oldBlockOffset)
+	log <- cl.Debugf{"ROLLBACK: Rolling back to file %d, offset %d", oldBlockFileNum, oldBlockOffset}
 	// Close the current write file if it needs to be deleted.  Then delete all files that are newer than the provided rollback file while also moving the write cursor file backwards accordingly.
 	if wc.curFileNum > oldBlockFileNum {
 		wc.curFile.Lock()
@@ -433,8 +433,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}
 	for ; wc.curFileNum > oldBlockFileNum; wc.curFileNum-- {
 		if err := s.deleteFileFunc(wc.curFileNum); err != nil {
-			Log.Warnf.Print("ROLLBACK: Failed to delete block file "+
-				"number %d: %v", wc.curFileNum, err)
+			log <- cl.Warnf{"ROLLBACK: Failed to delete block file number %d: %v", wc.curFileNum, err}
 			return
 		}
 	}
@@ -444,7 +443,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		obf, err := s.openWriteFileFunc(wc.curFileNum)
 		if err != nil {
 			wc.curFile.Unlock()
-			Log.Warnf.Print("ROLLBACK: %v", err)
+			log <- cl.Warnf{"ROLLBACK: %v", err}
 			return
 		}
 		wc.curFile.file = obf
@@ -452,16 +451,15 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	// Truncate the to the provided rollback offset.
 	if err := wc.curFile.file.Truncate(int64(oldBlockOffset)); err != nil {
 		wc.curFile.Unlock()
-		Log.Warnf.Print("ROLLBACK: Failed to truncate file %d: %v",
-			wc.curFileNum, err)
+		log <- cl.Warnf{"ROLLBACK: Failed to truncate file %d: %v",
+			wc.curFileNum, err}
 		return
 	}
 	// Sync the file to disk.
 	err := wc.curFile.file.Sync()
 	wc.curFile.Unlock()
 	if err != nil {
-		Log.Warnf.Print("ROLLBACK: Failed to sync file %d: %v",
-			wc.curFileNum, err)
+		log <- cl.Warnf{"ROLLBACK: Failed to sync file %d: %v", wc.curFileNum, err}
 		return
 	}
 }
@@ -479,8 +477,8 @@ func scanBlockFiles(dbPath string) (int, uint32) {
 		lastFile = i
 		fileLen = uint32(st.Size())
 	}
-	Log.Tracef.Print("Scan found latest block file #%d with length %d", lastFile,
-		fileLen)
+	log <- cl.Tracef{"Scan found latest block file #%d with length %d", lastFile,
+		fileLen}
 	return lastFile, fileLen
 }
 

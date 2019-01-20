@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	cl "git.parallelcoin.io/pod/lib/clog"
 )
 
 const (
@@ -144,15 +145,13 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 		switch state {
 		case ThresholdActive:
 			if !b.unknownRulesWarned {
-				Log.Warnf.Print("Unknown new rules activated (bit %d)",
-					bit)
+				log <- cl.Warnf{"Unknown new rules activated (bit %d)", bit}
 				b.unknownRulesWarned = true
 			}
 		case ThresholdLockedIn:
 			window := int32(checker.MinerConfirmationWindow())
 			activationHeight := window - (node.height % window)
-			Log.Warnf.Print("Unknown new rules are about to activate in "+
-				"%d blocks (bit %d)", activationHeight, bit)
+			log <- cl.Warnf{"Unknown new rules are about to activate in %d blocks (bit %d)", activationHeight, bit}
 		}
 	}
 	return nil
@@ -178,7 +177,7 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 // 		node = node.parent
 // 	}
 // 	if numUpgraded > unknownVerWarnNum {
-// 		Log.Warn.Print("Unknown block versions are being mined, so new " +
+// 		log <- cl.Warn{"Unknown block versions are being mined, so new " +
 // 			"rules might be in effect.  Are you running the " +
 // 			"latest version of the software?")
 // 		b.unknownVersionsWarned = true

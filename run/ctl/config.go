@@ -13,7 +13,8 @@ import (
 )
 
 // Log is the ctl main logger
-var Log = clog.NewSubSystem("ctl", clog.Ndbg)
+var Log = cl.NewSubSystem("ctl", "trace")
+var log = Log.Ch
 
 // Config is the default configuration native to ctl
 var Config = new(c.Config)
@@ -54,49 +55,70 @@ var Command = climax.Command{
 	},
 	Handle: func(ctx climax.Context) int {
 		if dl, ok := ctx.Get("debuglevel"); ok {
-			Log.Tracef.Print("setting debug level %s", dl)
+			log <- cl.Tracef{
+				"setting debug level %s", dl,
+			}
 			Log.SetLevel(dl)
 		}
-		Log.Debugf.Print("pod/ctl version %s", c.Version())
+		log <- cl.Debugf{
+			"pod/ctl version %s",
+			c.Version(),
+		}
 		if ctx.Is("version") {
 			fmt.Println("pod/ctl version", c.Version())
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 		if ctx.Is("listcommands") {
-			Log.Trace.Print("listing commands")
+			log <- cl.Trc(
+				"listing commands",
+			)
 			c.ListCommands()
 		} else {
-			Log.Trace.Print("running command")
-
+			log <- cl.Trc(
+				"running command",
+			)
 			var cfgFile string
 			var ok bool
 			if cfgFile, ok = ctx.Get("configfile"); !ok {
 				cfgFile = c.DefaultConfigFile
 			}
 			if ctx.Is("init") {
-				Log.Debugf.Print("writing default configuration to %s", cfgFile)
+				log <- cl.Debugf{
+					"writing default configuration to %s",
+					cfgFile,
+				}
 				writeDefaultConfig(cfgFile)
 				// then run from this config
 				configCtl(&ctx, cfgFile)
 			} else {
-				Log.Infof.Print("loading configuration from %s", cfgFile)
+				log <- cl.Infof{
+					"loading configuration from %s",
+					cfgFile,
+				}
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-					Log.Warn.Print("configuration file does not exist, creating new one")
+					log <- cl.Warn{
+						"configuration file does not exist, creating new one",
+					}
 					writeDefaultConfig(cfgFile)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 				} else {
-					Log.Debug.Print("reading from", cfgFile)
+					log <- cl.Debug{
+						"reading from", cfgFile,
+					}
 					cfgData, err := ioutil.ReadFile(cfgFile)
 					if err != nil {
-						Log.Error.Print(err.Error())
-						clog.Shutdown()
+						log <- cl.Err(err.Error())
+						cl.Shutdown()
 					}
-					Log.Tracef.Print("read in config file\n%s", cfgData)
+					log <- cl.Tracef{
+						"read in config file\n%s",
+						cfgData,
+					}
 					err = json.Unmarshal(cfgData, Config)
 					if err != nil {
-						Log.Error.Print(err.Error())
-						clog.Shutdown()
+						log <- cl.Err(err.Error())
+						cl.Shutdown()
 					}
 					// then run from this config
 					configCtl(&ctx, cfgFile)
@@ -104,7 +126,7 @@ var Command = climax.Command{
 			}
 		}
 		runCtl()
-		clog.Shutdown()
+		cl.Shutdown()
 		return 0
 	},
 }
@@ -114,42 +136,48 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 	if ctx.Is("rpcuser") {
 		r, _ := ctx.Get("rpcuser")
 		Config.RPCUser = r
-		Log.Tracef.Print("set %s to %s", "rpcuser", r)
+		log <- cl.Tracef{
+			"set %s to %s", "rpcuser", r,
+		}
 	}
 	if ctx.Is("rpcpass") {
 		r, _ := ctx.Get("rpcpass")
 		Config.RPCPassword = r
-		Log.Tracef.Print("set %s to %s", "rpcpass", r)
+		log <- cl.Tracef{
+			"set %s to %s", "rpcpass", r,
+		}
 	}
 	if ctx.Is("rpcserver") {
 		r, _ := ctx.Get("rpcserver")
 		Config.RPCServer = r
-		Log.Tracef.Print("set %s to %s", "rpcserver", r)
+		log <- cl.Tracef{
+			"set %s to %s", "rpcserver", r,
+		}
 	}
 	if ctx.Is("rpccert") {
 		r, _ := ctx.Get("rpccert")
 		Config.RPCCert = r
-		Log.Tracef.Print("set %s to %s", "rpccert", r)
+		log <- cl.Tracef{"set %s to %s", "rpccert", r}
 	}
 	if ctx.Is("tls") {
 		r, _ := ctx.Get("tls")
 		Config.TLS = r == "true"
-		Log.Tracef.Print("set %s to %s", "tls", r)
+		log <- cl.Tracef{"set %s to %s", "tls", r}
 	}
 	if ctx.Is("proxy") {
 		r, _ := ctx.Get("proxy")
 		Config.Proxy = r
-		Log.Tracef.Print("set %s to %s", "proxy", r)
+		log <- cl.Tracef{"set %s to %s", "proxy", r}
 	}
 	if ctx.Is("proxyuser") {
 		r, _ := ctx.Get("proxyuser")
 		Config.ProxyUser = r
-		Log.Tracef.Print("set %s to %s", "proxyuser", r)
+		log <- cl.Tracef{"set %s to %s", "proxyuser", r}
 	}
 	if ctx.Is("proxypass") {
 		r, _ := ctx.Get("proxypass")
 		Config.ProxyPass = r
-		Log.Tracef.Print("set %s to %s", "proxypass", r)
+		log <- cl.Tracef{"set %s to %s", "proxypass", r}
 	}
 	otn, osn := "false", "false"
 	if Config.TestNet3 {
@@ -167,24 +195,37 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 		Config.SimNet = sn == "true"
 	}
 	if Config.TestNet3 && Config.SimNet {
-		Log.Error.Print("cannot enable simnet and testnet at the same time. current settings testnet =", otn, "simnet =", osn)
+		log <- cl.Error{
+			"cannot enable simnet and testnet at the same time. current settings testnet =", otn,
+			"simnet =", osn,
+		}
 	}
 	if ctx.Is("skipverify") {
 		Config.TLSSkipVerify = true
-		Log.Tracef.Print("set %s to true", "skipverify")
+		log <- cl.Tracef{
+			"set %s to true", "skipverify",
+		}
 	}
 	if ctx.Is("wallet") {
 		Config.Wallet = true
-		Log.Tracef.Print("set %s to true", "wallet")
+		log <- cl.Tracef{
+			"set %s to true", "wallet",
+		}
 	}
 	if ctx.Is("save") {
-		Log.Infof.Print("saving config file to %s", cfgFile)
+		log <- cl.Infof{
+			"saving config file to %s",
+			cfgFile,
+		}
 		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
-			Log.Error.Print(err.Error())
+			log <- cl.Err(err.Error())
 		}
 		j = append(j, '\n')
-		Log.Tracef.Print("JSON formatted config file\n%s", j)
+		log <- cl.Tracef{
+			"JSON formatted config file\n%s",
+			j,
+		}
 		ioutil.WriteFile(cfgFile, j, 0600)
 	}
 }
@@ -194,14 +235,17 @@ func writeDefaultConfig(cfgFile string) {
 	defCfg.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		Log.Error.Print(err.Error())
+		log <- cl.Err(err.Error())
 	}
 	j = append(j, '\n')
-	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	log <- cl.Tracef{"JSON formatted config file\n%s", j}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
-		Log.Fatalf.Print("unable to write config file %s", err.Error())
-		clog.Shutdown()
+		log <- cl.Fatal{
+			"unable to write config file %s",
+			err.Error(),
+		}
+		cl.Shutdown()
 	}
 	// if we are writing default config we also want to use it
 	Config = defCfg

@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/blockchain"
-	"git.parallelcoin.io/pod/lib/clog"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/connmgr"
 	"git.parallelcoin.io/pod/lib/fork"
 	"git.parallelcoin.io/pod/lib/util"
@@ -26,7 +26,8 @@ import (
 )
 
 // Log is thte main node logger
-var Log = clog.NewSubSystem("run/node", clog.Ndbg)
+var Log = cl.NewSubSystem("run/node", "trace")
+var log = Log.Ch
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
 type serviceOptions struct {
@@ -55,7 +56,7 @@ var usageMessage = fmt.Sprintf("use `%s help node` to show usage", appName)
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
 	Node      *n.Config
-	logLevels map[string]*clog.SubSystem
+	logLevels map[string]*cl.SubSystem
 }
 
 // Config is the combined app and log levels configuration
@@ -176,50 +177,69 @@ var Command = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			Log.Tracef.Print("setting debug level %s", dl)
+			log <- cl.Tracef{
+				"setting debug level %s",
+				dl,
+			}
 			Config.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i].SetLevel(dl)
 			}
 		}
-		Log.Debugf.Print("pod/node version %s", n.Version())
+		log <- cl.Debugf{"pod/node version %s", n.Version()}
 		if ctx.Is("version") {
 			fmt.Println("pod/node version", n.Version())
-			clog.Shutdown()
+			cl.Shutdown()
 		}
-		Log.Trace.Print("running command")
-
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = n.DefaultConfigFile
 		}
 		if ctx.Is("init") {
-			Log.Debugf.Print("writing default configuration to %s", cfgFile)
+			log <- cl.Debugf{
+				"writing default configuration to %s",
+				cfgFile,
+			}
 			writeDefaultConfig(cfgFile)
 		} else {
-			Log.Infof.Print("loading configuration from %s", cfgFile)
+			log <- cl.Infof{
+				"loading configuration from %s",
+				cfgFile,
+			}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-				Log.Warn.Print("configuration file does not exist, creating new one")
+				log <- cl.Warn{"configuration file does not exist, creating new one"}
 				writeDefaultConfig(cfgFile)
 			} else {
-				Log.Debug.Print("reading app configuration from", cfgFile)
+				log <- cl.Debug{
+					"reading app configuration from",
+					cfgFile,
+				}
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
-					Log.Error.Print("reading app config file:", err.Error())
-					clog.Shutdown()
+					log <- cl.Error{
+						"reading app config file:",
+						err.Error(),
+					}
+					cl.Shutdown()
 				}
-				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				log <- cl.Tracef{
+					"parsing app configuration\n%s",
+					cfgData,
+				}
 				err = json.Unmarshal(cfgData, &Config)
 				if err != nil {
-					Log.Error.Print("parsing app config file:", err.Error())
+					log <- cl.Error{
+						"parsing app config file:",
+						err.Error(),
+					}
 					writeDefaultConfig(cfgFile)
 				}
 			}
 		}
 		configNode(&ctx, cfgFile)
 		runNode()
-		clog.Shutdown()
+		cl.Shutdown()
 		return 0
 	},
 }
@@ -265,7 +285,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "maxpeers", r) {
 		if err := podutil.ParseInteger(*r, "maxpeers", &cfg.MaxPeers); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "disablebanning", r) {
@@ -273,13 +293,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "banduration", r) {
 		if err := podutil.ParseDuration(*r, "banduration", &cfg.BanDuration); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "banthreshold", r) {
 		var bt int
 		if err := podutil.ParseInteger(*r, "banthtreshold", &bt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			cfg.BanThreshold = uint32(bt)
 		}
@@ -376,12 +396,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "minrelaytxfee", r) {
 		if err := podutil.ParseFloat(*r, "minrelaytxfee", &cfg.MinRelayTxFee); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "freetxrelaylimit", r) {
 		if err := podutil.ParseFloat(*r, "freetxrelaylimit", &cfg.FreeTxRelayLimit); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "norelaypriority", r) {
@@ -389,12 +409,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "trickleinterval", r) {
 		if err := podutil.ParseDuration(*r, "trickleinterval", &cfg.TrickleInterval); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "maxorphantxs", r) {
 		if err := podutil.ParseInteger(*r, "maxorphantxs", &cfg.MaxOrphanTxs); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "algo", r) {
@@ -406,7 +426,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "genthreads", r) {
 		var gt int
 		if err := podutil.ParseInteger(*r, "genthreads", &gt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			cfg.GenThreads = int32(gt)
 		}
@@ -422,27 +442,27 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "blockminsize", r) {
 		if err := podutil.ParseUint32(*r, "blockminsize", &cfg.BlockMinSize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxsize", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxsize", &cfg.BlockMaxSize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockminweight", r) {
 		if err := podutil.ParseUint32(*r, "blockminweight", &cfg.BlockMinWeight); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxweight", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxweight", &cfg.BlockMaxWeight); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockprioritysize", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxweight", &cfg.BlockPrioritySize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "uacomment", r) {
@@ -460,7 +480,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "sigcachemaxsize", r) {
 		var scms int
 		if err := podutil.ParseInteger(*r, "sigcachemaxsize", &scms); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			cfg.SigCacheMaxSize = uint(scms)
 		}
@@ -489,16 +509,25 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
-		Log.Infof.Print("saving config file to %s", cfgFile)
+		log <- cl.Infof{
+			"saving config file to %s",
+			cfgFile,
+		}
 		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
-			Log.Error.Print("saving config file:", err.Error())
+			log <- cl.Error{
+				"saving config file:",
+				err.Error(),
+			}
 		}
 		j = append(j, '\n')
-		Log.Tracef.Print("JSON formatted config file\n%s", j)
+		log <- cl.Tracef{
+			"JSON formatted config file\n%s",
+			j,
+		}
 		err = ioutil.WriteFile(cfgFile, j, 0600)
 		if err != nil {
-			Log.Error.Print("writing app config file:", err.Error())
+			log <- cl.Error{"writing app config file:", err.Error()}
 		}
 	}
 	// Service options which are only added on Windows.
@@ -529,7 +558,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	case cfg.RejectNonStd:
 		relayNonStd = false
 	case cfg.RelayNonStd:
@@ -552,18 +581,17 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, cfg.DbType, n.KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Validate profile port number
 	if cfg.Profile != "" {
-		Log.Info <- cfg.Profile
 		profilePort, err := strconv.Atoi(cfg.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
 			err := fmt.Errorf(str, funcName)
 			fmt.Fprintln(os.Stderr, err)
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 	}
 	// Don't allow ban durations that are too short.
@@ -572,7 +600,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, cfg.BanDuration)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Validate any given whitelisted IP addresses and networks.
 	if len(cfg.Whitelists) > 0 {
@@ -585,9 +613,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 				if ip == nil {
 					str := "%s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
-					Log.Error <- err.Error()
+					log <- cl.Err(err.Error())
 					fmt.Fprintln(os.Stderr, usageMessage)
-					clog.Shutdown()
+					cl.Shutdown()
 				}
 				var bits int
 				if ip.To4() == nil {
@@ -609,7 +637,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		str := "%s: the --addpeer and --connect options can not be " +
 			"mixed"
 		err := fmt.Errorf(str, funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
 	// --proxy or --connect without --listen disables listening.
@@ -631,18 +659,18 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if cfg.RPCUser == cfg.RPCLimitUser && cfg.RPCUser != "" {
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Check to make sure limited and admin users don't have the same password
 	if cfg.RPCPass == cfg.RPCLimitPass && cfg.RPCPass != "" {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the " +
 			"same password"
 		err := fmt.Errorf(str, funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// The RPC server is disabled if no username or password is provided.
 	if (cfg.RPCUser == "" || cfg.RPCPass == "") &&
@@ -650,14 +678,14 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cfg.DisableRPC = true
 	}
 	if cfg.DisableRPC {
-		Log.Info <- "RPC service is disabled"
+		log <- cl.Inf("RPC service is disabled")
 	}
 	// Default RPC to listen on localhost only.
 	if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
 		addrs, err := net.LookupHost(n.DefaultRPCListener)
 		if err != nil {
-			Log.Error <- err.Error()
-			clog.Shutdown()
+			log <- cl.Err(err.Error())
+			cl.Shutdown()
 		}
 		cfg.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
@@ -668,18 +696,18 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if cfg.RPCMaxConcurrentReqs < 0 {
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, cfg.RPCMaxConcurrentReqs)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Limit the max block size to a sane value.
 	if cfg.BlockMaxSize < n.BlockMaxSizeMin || cfg.BlockMaxSize >
@@ -687,9 +715,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, n.BlockMaxSizeMin,
 			n.BlockMaxSizeMax, cfg.BlockMaxSize)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Limit the max block weight to a sane value.
 	if cfg.BlockMaxWeight < n.BlockMaxWeightMin ||
@@ -697,17 +725,17 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, n.BlockMaxWeightMin,
 			n.BlockMaxWeightMax, cfg.BlockMaxWeight)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Limit the max orphan count to a sane vlue.
 	if cfg.MaxOrphanTxs < 0 {
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, cfg.MaxOrphanTxs)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Limit the block priority and minimum block sizes to max block size.
 	cfg.BlockPrioritySize = minUint32(cfg.BlockPrioritySize, cfg.BlockMaxSize)
@@ -729,9 +757,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
-			Log.Error <- err.Error()
+			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 
 		}
 	}
@@ -739,9 +767,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if cfg.TxIndex && cfg.DropTxIndex {
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
 			funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 
 	}
 	// --addrindex and --dropaddrindex do not mix.
@@ -749,18 +777,18 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex "+
 			"options may not be activated at the same time",
 			funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// --addrindex and --droptxindex do not mix.
 	if cfg.AddrIndex && cfg.DropTxIndex {
 		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time "+
 			"because the address index relies on the transaction index",
 			funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
@@ -769,16 +797,16 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
-			Log.Error <- err.Error()
+			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 		if !addr.IsForNet(ActiveNetParams.Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
-			Log.Error <- err.Error()
+			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
@@ -786,9 +814,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 
 	}
 	if cfg.MinerPass != "" {
@@ -805,9 +833,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			if err != nil {
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
-				Log.Error <- err.Error()
+				log <- cl.Err(err.Error())
 				fmt.Fprintln(os.Stderr, usageMessage)
-				clog.Shutdown()
+				cl.Shutdown()
 			}
 		}
 	}
@@ -819,26 +847,26 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// --noonion and --onion do not mix.
 	if cfg.NoOnion && cfg.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if cfg.TorIsolation && cfg.Proxy == "" && cfg.OnionProxy == "" {
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
-		Log.Error <- err.Error()
+		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		clog.Shutdown()
+		cl.Shutdown()
 	}
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
@@ -848,9 +876,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		if err != nil {
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, cfg.Proxy, err)
-			Log.Error <- err.Error()
+			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
@@ -880,9 +908,9 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		if err != nil {
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, cfg.OnionProxy, err)
-			Log.Error <- err.Error()
+			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			clog.Shutdown()
+			cl.Shutdown()
 		}
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if cfg.TorIsolation &&
@@ -918,19 +946,21 @@ func configNode(ctx *climax.Context, cfgFile string) {
 }
 
 func writeDefaultConfig(cfgFile string) {
-	Log.Trace <- "writeDefaultConfig"
 	defCfg := DefaultConfig()
 	defCfg.Node.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		Log.Error.Print(`marshalling default app config file: "` + err.Error() + `"`)
+		log <- cl.Error{`marshalling default app config file: "` + err.Error() + `"`}
 		return
 	}
 	j = append(j, '\n')
-	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	log <- cl.Tracef{
+		"JSON formatted config file\n%s",
+		j,
+	}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
-		Log.Error.Print("writing default app config file:", err.Error())
+		log <- cl.Error{"writing default app config file:", err.Error()}
 		return
 	}
 	// if we are writing default config we also want to use it

@@ -19,7 +19,14 @@ import (
 )
 
 // Log is the shell main logger
-var Log = clog.NewSubSystem("run/shell", clog.Ndbg)
+var Log = cl.NewSubSystem("run/shell", "trace")
+var log = Log.Ch
+
+// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
+func UseLogger(logger *cl.SubSystem) {
+	Log = logger
+	log = Log.Ch
+}
 
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
@@ -28,7 +35,7 @@ type Cfg struct {
 	ConfFileName string
 	Node         *n.Config
 	Wallet       *w.Config
-	Levels       map[string]*clog.SubSystem
+	Levels       map[string]*cl.SubSystem
 }
 
 var (
@@ -183,50 +190,66 @@ var Command = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			Log.Tracef.Print("setting debug level %s", dl)
+			log <- cl.Tracef{
+				"setting debug level %s",
+				dl,
+			}
 			Log.SetLevel(dl)
 			for i := range logger.Levels {
 				logger.Levels[i].SetLevel(dl)
 			}
 		}
-		Log.Debugf.Print("pod/shell version %s", Version())
-		if ctx.Is("version") {
-			fmt.Println("shell version", Version(), "pod version", n.Version(), "wallet version", w.Version())
-			clog.Shutdown()
+		log <- cl.Debugf{
+			"pod/shell version %s",
+			Version(),
 		}
-		Log.Trace.Print("running command shell")
+		if ctx.Is("version") {
+			fmt.Println("shell version", Version())
+			fmt.Println("pod version", n.Version())
+			fmt.Println("wallet version", w.Version())
+			cl.Shutdown()
+		}
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = DefaultConfFileName
 		}
 		if ctx.Is("init") {
-			Log.Debugf.Print("writing default configuration to %s", cfgFile)
+			log <- cl.Debugf{
+				"writing default configuration to %s", cfgFile,
+			}
 			writeDefaultConfig(cfgFile)
 			configNode(&ctx, cfgFile)
 		} else {
-			Log.Infof.Print("loading configuration from %s", cfgFile)
+			log <- cl.Infof{
+				"loading configuration from %s",
+				cfgFile,
+			}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-				Log.Warn.Print("configuration file does not exist, creating new one")
+				log <- cl.Wrn(
+					"configuration file does not exist, creating new one",
+				)
 				writeDefaultConfig(cfgFile)
 				configNode(&ctx, cfgFile)
 			} else {
-				Log.Debug.Print("reading app configuration from", cfgFile)
+				log <- cl.Debug{
+					"reading app configuration from", cfgFile,
+				}
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
-					Log.Error.Print("reading app config file:", err.Error())
-					clog.Shutdown()
+					log <- cl.Error{"reading app config file:", err.Error()}
+					cl.Shutdown()
 				}
-				Log.Tracef.Print("parsing app configuration\n%s", cfgData)
+				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 				err = json.Unmarshal(cfgData, &Config)
 				if err != nil {
-					Log.Error.Print("parsing app configuration:", err.Error())
-					clog.Shutdown()
+					log <- cl.Error{"parsing app configuration:", err.Error()}
+					cl.Shutdown()
 				}
 				configNode(&ctx, cfgFile)
 			}
 		}
 		runShell()
-		clog.Shutdown()
+		cl.Shutdown()
 		return 0
 	},
 }
@@ -272,7 +295,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "maxpeers", r) {
 		if err := podutil.ParseInteger(*r, "maxpeers", &Config.Node.MaxPeers); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "disablebanning", r) {
@@ -280,13 +303,13 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "banduration", r) {
 		if err := podutil.ParseDuration(*r, "banduration", &Config.Node.BanDuration); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "banthreshold", r) {
 		var bt int
 		if err := podutil.ParseInteger(*r, "banthtreshold", &bt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.BanThreshold = uint32(bt)
 		}
@@ -381,12 +404,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "minrelaytxfee", r) {
 		if err := podutil.ParseFloat(*r, "minrelaytxfee", &Config.Node.MinRelayTxFee); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "freetxrelaylimit", r) {
 		if err := podutil.ParseFloat(*r, "freetxrelaylimit", &Config.Node.FreeTxRelayLimit); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "norelaypriority", r) {
@@ -394,12 +417,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "trickleinterval", r) {
 		if err := podutil.ParseDuration(*r, "trickleinterval", &Config.Node.TrickleInterval); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "maxorphantxs", r) {
 		if err := podutil.ParseInteger(*r, "maxorphantxs", &Config.Node.MaxOrphanTxs); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "algo", r) {
@@ -411,7 +434,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "genthreads", r) {
 		var gt int
 		if err := podutil.ParseInteger(*r, "genthreads", &gt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.GenThreads = int32(gt)
 		}
@@ -427,27 +450,27 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "blockminsize", r) {
 		if err := podutil.ParseUint32(*r, "blockminsize", &Config.Node.BlockMinSize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxsize", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxsize", &Config.Node.BlockMaxSize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockminweight", r) {
 		if err := podutil.ParseUint32(*r, "blockminweight", &Config.Node.BlockMinWeight); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxweight", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockMaxWeight); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockprioritysize", r) {
 		if err := podutil.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockPrioritySize); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "uacomment", r) {
@@ -465,7 +488,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "sigcachemaxsize", r) {
 		var scms int
 		if err := podutil.ParseInteger(*r, "sigcachemaxsize", &scms); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.SigCacheMaxSize = uint(scms)
 		}
@@ -546,7 +569,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "legacyrpcmaxclients", r) {
 		var bt int
 		if err := podutil.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
-			Log.Warn <- err.Error()
+			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
@@ -554,8 +577,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
 		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
-			Log.Errorf.Print("malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
-				r, Config.Wallet.LegacyRPCMaxWebsockets)
+			log <- cl.Errorf{
+				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
+				r,
+				Config.Wallet.LegacyRPCMaxWebsockets,
+			}
 		}
 	}
 	if getIfIs(ctx, "username", r) {
@@ -580,16 +606,19 @@ func configNode(ctx *climax.Context, cfgFile string) {
 
 	logger.SetLogging(ctx)
 	if ctx.Is("save") {
-		Log.Infof.Print("saving config file to %s", cfgFile)
+		log <- cl.Infof{
+			"saving config file to %s",
+			cfgFile,
+		}
 		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
-			Log.Error.Print("saving config file:", err.Error())
+			log <- cl.Error{"saving config file:", err.Error()}
 		}
 		j = append(j, '\n')
-		Log.Tracef.Print("JSON formatted config file\n%s", j)
+		log <- cl.Tracef{"JSON formatted config file\n%s", j}
 		err = ioutil.WriteFile(cfgFile, j, 0600)
 		if err != nil {
-			Log.Error.Print("writing app config file:", err.Error())
+			log <- cl.Error{"writing app config file:", err.Error()}
 		}
 	}
 }
@@ -599,13 +628,13 @@ func writeDefaultConfig(cfgFile string) {
 	defCfg.ConfFileName = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		Log.Error.Print("marshalling default config:" + err.Error())
+		log <- cl.Error{"marshalling default config:" + err.Error()}
 	}
 	j = append(j, '\n')
-	Log.Tracef.Print("JSON formatted config file\n%s", j)
+	log <- cl.Tracef{"JSON formatted config file\n%s", j}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
-		Log.Error.Print("writing default config:", err.Error())
+		log <- cl.Error{"writing default config:", err.Error()}
 	}
 	// if we are writing default config we also want to use it
 	Config = defCfg

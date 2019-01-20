@@ -5,6 +5,7 @@ package wtxmgr
 
 import (
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/wire"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
@@ -31,7 +32,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		}
 	}
 
-	Log.Infof.Print("Inserting unconfirmed transaction %v", rec.Hash)
+	log <- cl.Infof{"Inserting unconfirmed transaction %v", rec.Hash}
 	v, err := valueTxRecord(rec)
 	if err != nil {
 		return err
@@ -87,8 +88,10 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 				return err
 			}
 
-			Log.Debugf.Print("Removing double spending transaction %v",
-				doubleSpend.Hash)
+			log <- cl.Debugf{
+				"Removing double spending transaction %v",
+				doubleSpend.Hash,
+			}
 			if err := s.removeConflict(ns, &doubleSpend); err != nil {
 				return err
 			}
@@ -128,8 +131,10 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 				return err
 			}
 
-			Log.Debugf.Print("Transaction %v is part of a removed conflict "+
-				"chain -- removing as well", spender.Hash)
+			log <- cl.Debugf{
+				"Transaction %v is part of a removed conflict chain -- removing as well",
+				spender.Hash,
+			}
 			if err := s.removeConflict(ns, &spender); err != nil {
 				return err
 			}

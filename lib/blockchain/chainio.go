@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -740,7 +741,7 @@ func (b *BlockChain) createChainState() error {
 	// Create a new node from the genesis block and set it as the best node.
 	genesisBlock := util.NewBlock(b.chainParams.GenesisBlock)
 	xx, _ := genesisBlock.Bytes()
-	Log.Trace.Print(hex.EncodeToString(xx))
+	log <- cl.Trace{hex.EncodeToString(xx)}
 	genesisBlock.SetHeight(0)
 	header := &genesisBlock.MsgBlock().Header
 	node := newBlockNode(header, nil)
@@ -840,13 +841,13 @@ func (b *BlockChain) initChainState() error {
 	err = b.db.View(func(dbTx database.Tx) error {
 		// Fetch the stored chain state from the database metadata. When it doesn't exist, it means the database hasn't been initialized for use with chain yet, so break out now to allow that to happen under a writable database transaction.
 		serializedData := dbTx.Metadata().Get(chainStateKeyName)
-		Log.Tracef.Print("Serialized chain state: %x", serializedData)
+		log <- cl.Tracef{"Serialized chain state: %x", serializedData}
 		state, err := deserializeBestChainState(serializedData)
 		if err != nil {
 			return err
 		}
 		// Load all of the headers from the data for the known best chain and construct the block index accordingly.  Since the number of nodes are already known, perform a single alloc for them versus a whole bunch of little ones to reduce pressure on the GC.
-		Log.Debugf.Print("Loading block index...")
+		log <- cl.Debugf{"Loading block index..."}
 		blockIndexBucket := dbTx.Metadata().Bucket(blockIndexBucketName)
 		// Determine how many blocks will be loaded into the index so we can allocate the right amount.
 		var blockCount int32
@@ -911,10 +912,10 @@ func (b *BlockChain) initChainState() error {
 		for iterNode := tip; iterNode != nil; iterNode = iterNode.parent {
 			// If this isn't already marked as valid in the index, then we'll mark it as valid now to ensure consistency once we're up and running.
 			if !iterNode.status.KnownValid() {
-				Log.Infof.Print("Block %v (height=%v) ancestor of "+
-					"chain tip not marked as valid, "+
+				log <- cl.Infof{"Block %v (height=%v) ancestor of " +
+					"chain tip not marked as valid, " +
 					"upgrading to valid for consistency",
-					iterNode.hash, iterNode.height)
+					iterNode.hash, iterNode.height}
 				b.Index.SetStatusFlags(iterNode, statusValid)
 			}
 		}

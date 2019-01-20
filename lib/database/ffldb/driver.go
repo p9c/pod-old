@@ -4,11 +4,8 @@ import (
 	"fmt"
 
 	"git.parallelcoin.io/pod/lib/database"
-	l "git.parallelcoin.io/pod/lib/log"
 	"git.parallelcoin.io/pod/lib/wire"
 )
-
-var log = l.Disabled
 
 const (
 	dbType = "ffldb"
@@ -52,17 +49,12 @@ func createDBDriver(args ...interface{}) (database.DB, error) {
 	return openDB(dbPath, network, true)
 }
 
-// useLogger is the callback provided during driver registration that sets the current logger to the provided one.
-func useLogger(logger l.Logger) {
-	log = logger
-}
 func init() {
 	// Register the driver.
 	driver := database.Driver{
-		DbType:    dbType,
-		Create:    createDBDriver,
-		Open:      openDBDriver,
-		UseLogger: useLogger,
+		DbType: dbType,
+		Create: createDBDriver,
+		Open:   openDBDriver,
 	}
 	if err := database.RegisterDriver(driver); err != nil {
 		panic(fmt.Sprintf("Failed to regiser database driver '%s': %v",

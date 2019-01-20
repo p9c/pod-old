@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/database"
 	"git.parallelcoin.io/pod/lib/database/internal/treap"
 	u "git.parallelcoin.io/pod/lib/util"
@@ -892,7 +893,7 @@ func (tx *transaction) StoreBlock(block *u.Block) error {
 		hash:  blockHash,
 		bytes: blockBytes,
 	})
-	Log.Tracef.Print("Added block %s to pending blocks", blockHash)
+	log <- cl.Tracef{"Added block %s to pending blocks", blockHash}
 	return nil
 }
 
@@ -1191,7 +1192,7 @@ func (tx *transaction) writePendingAndCommit() error {
 	}
 	// Loop through all of the pending blocks to store and write them.
 	for _, blockData := range tx.pendingBlockData {
-		Log.Tracef.Print("Storing block %s", blockData.hash)
+		log <- cl.Tracef{"Storing block %s", blockData.hash}
 		location, err := tx.db.store.writeBlock(blockData.bytes)
 		if err != nil {
 			rollback()

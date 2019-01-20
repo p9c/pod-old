@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/integration/rpctest"
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/lib/ec"
@@ -25,6 +24,7 @@ import (
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/gcs/builder"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/node/integration/rpctest"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"

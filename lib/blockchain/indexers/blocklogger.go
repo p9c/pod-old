@@ -14,7 +14,7 @@ type blockProgressLogger struct {
 	receivedLogBlocks int64
 	receivedLogTx     int64
 	lastBlockLogTime  time.Time
-	subsystemLogger   *clog.SubSystem
+	subsystemLogger   *cl.SubSystem
 	progressAction    string
 	sync.Mutex
 }
@@ -23,7 +23,7 @@ type blockProgressLogger struct {
 // The progress message is templated as follows:
 //  {progressAction} {numProcessed} {blocks|block} in the last {timePeriod}
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
-func newBlockProgressLogger(progressMessage string, logger *clog.SubSystem) *blockProgressLogger {
+func newBlockProgressLogger(progressMessage string, logger *cl.SubSystem) *blockProgressLogger {
 	return &blockProgressLogger{
 		lastBlockLogTime: time.Now(),
 		progressAction:   progressMessage,
@@ -54,9 +54,9 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 	if b.receivedLogTx == 1 {
 		txStr = "transaction "
 	}
-	b.subsystemLogger.Infof.Print("%s %6d %s in the last %s (%6d %s, height %6d, %s)",
+	b.subsystemLogger.Ch <- cl.Infof{"%s %6d %s in the last %s (%6d %s, height %6d, %s)",
 		b.progressAction, b.receivedLogBlocks, blockStr, fmt.Sprintf("%0.1fs", tDuration.Seconds()), b.receivedLogTx,
-		txStr, block.Height(), block.MsgBlock().Header.Timestamp)
+		txStr, block.Height(), block.MsgBlock().Header.Timestamp}
 	b.receivedLogBlocks = 0
 	b.receivedLogTx = 0
 	b.lastBlockLogTime = now

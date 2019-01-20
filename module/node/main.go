@@ -9,6 +9,8 @@ import (
 	"runtime/pprof"
 	"runtime/trace"
 
+	"git.parallelcoin.io/pod/lib/clog"
+
 	"git.parallelcoin.io/pod/lib/blockchain/indexers"
 	"git.parallelcoin.io/pod/lib/database"
 )
@@ -44,20 +46,20 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	interrupt := interruptListener()
 	defer func() {
 		trace.Stop()
-		Log.Info.Print("shutdown complete")
+		log <- cl.Info{"shutdown complete"}
 	}()
 	// Show version at startup.
-	Log.Infof.Print("version %s", Version())
+	log <- cl.Infof{"version %s", Version()}
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
-		Log.Info <- "profiling requested"
+		log <- cl.Info{"profiling requested"}
 		go func() {
 			listenAddr := net.JoinHostPort("", cfg.Profile)
-			Log.Infof.Print("profile server listening on %s", listenAddr)
+			log <- cl.Infof{"profile server listening on %s", listenAddr}
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
-			Log.Errorf.Print("%v", http.ListenAndServe(listenAddr, nil))
+			log <- cl.Errorf{"%v", http.ListenAndServe(listenAddr, nil)}
 		}()
 	}
 	// Write cpu profile if requested.
@@ -65,7 +67,7 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		var f *os.File
 		f, err = os.Create(cfg.CPUProfile)
 		if err != nil {
-			Log.Errorf.Print("unable to create cpu profile: %v", err)
+			log <- cl.Errorf{"unable to create cpu profile: %v", err}
 			return
 		}
 		pprof.StartCPUProfile(f)
@@ -74,7 +76,7 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	}
 	// Perform upgrades to pod as new versions require it.
 	if err = doUpgrades(); err != nil {
-		Log.Errorf.Print("%v", err)
+		log <- cl.Errorf{"%v", err}
 		return
 	}
 	// Return now if an interrupt signal was triggered.
@@ -85,12 +87,12 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	var db database.DB
 	db, err = loadBlockDB()
 	if err != nil {
-		Log.Errorf.Print("%v", err)
+		log <- cl.Errorf{"%v", err}
 		return
 	}
 	defer func() {
 		// Ensure the database is sync'd and closed on shutdown.
-		Log.Info <- "gracefully shutting down the database..."
+		log <- cl.Info{"gracefully shutting down the database..."}
 		db.Close()
 	}()
 	// Return now if an interrupt signal was triggered.
@@ -100,21 +102,21 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
 	if cfg.DropAddrIndex {
 		if err = indexers.DropAddrIndex(db, interrupt); err != nil {
-			Log.Errorf.Print("%v", err)
+			log <- cl.Errorf{"%v", err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropTxIndex {
 		if err = indexers.DropTxIndex(db, interrupt); err != nil {
-			Log.Errorf.Print("%v", err)
+			log <- cl.Errorf{"%v", err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropCfIndex {
 		if err := indexers.DropCfIndex(db, interrupt); err != nil {
-			Log.Errorf.Print("%v", err)
+			log <- cl.Errorf{"%v", err}
 			return err
 		}
 		return nil
@@ -123,14 +125,14 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt, cfg.Algo)
 	if err != nil {
 		// TODO: this logging could do with some beautifying.
-		Log.Errorf.Print("unable to start server on %v: %v", cfg.Listeners, err)
+		log <- cl.Errorf{"unable to start server on %v: %v", cfg.Listeners, err}
 		return err
 	}
 	defer func() {
-		Log.Info <- "gracefully shutting down the server..."
+		log <- cl.Info{"gracefully shutting down the server..."}
 		server.Stop()
 		server.WaitForShutdown()
-		Log.Info <- "server shutdown complete"
+		log <- cl.Info{"server shutdown complete"}
 	}()
 	server.Start()
 	if serverChan != nil {
@@ -150,7 +152,7 @@ func removeRegressionDB(dbPath string) error {
 	// Remove the old regression test database if it already exists.
 	fi, err := os.Stat(dbPath)
 	if err == nil {
-		Log.Infof.Print("removing regression test database from '%s'", dbPath)
+		log <- cl.Infof{"removing regression test database from '%s'", dbPath}
 		if fi.IsDir() {
 			err := os.RemoveAll(dbPath)
 			if err != nil {
@@ -195,10 +197,12 @@ func warnMultipleDBs() {
 	// Warn if there are extra databases.
 	if len(duplicateDbPaths) > 0 {
 		selectedDbPath := blockDbPath(cfg.DbType)
-		Log.Warnf.Print("\nThere are multiple block chain databases using different database types.\n"+
-			"You probably don't want to waste disk space by having more than one.\n"+
-			"Your current database is located at [%v].\n"+
-			"The additional database is located at %v", selectedDbPath, duplicateDbPaths)
+		log <- cl.Warnf{"\nThere are multiple block chain databases using different database types.\n" +
+			"You probably don't want to waste disk space by having more than one.\n" +
+			"Your current database is located at [%v].\n" +
+			"The additional database is located at %v",
+			selectedDbPath, duplicateDbPaths,
+		}
 	}
 }
 
@@ -206,7 +210,7 @@ func warnMultipleDBs() {
 func loadBlockDB() (database.DB, error) {
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if cfg.DbType == "memdb" {
-		Log.Info <- "creating block database in memory"
+		log <- cl.Info{"creating block database in memory"}
 		db, err := database.Create(cfg.DbType)
 		if err != nil {
 			return nil, err
@@ -218,7 +222,7 @@ func loadBlockDB() (database.DB, error) {
 	dbPath := blockDbPath(cfg.DbType)
 	// The regression test is special in that it needs a clean database for each run, so remove it now if it already exists.
 	removeRegressionDB(dbPath)
-	Log.Infof.Print("loading block database from '%s'", dbPath)
+	log <- cl.Infof{"loading block database from '%s'", dbPath}
 	db, err := database.Open(cfg.DbType, dbPath, ActiveNetParams.Net)
 	if err != nil {
 		// Return the error if it's not because the database doesn't exist.
@@ -236,7 +240,7 @@ func loadBlockDB() (database.DB, error) {
 			return nil, err
 		}
 	}
-	Log.Info <- "Block database loaded"
+	log <- cl.Info{"block database loaded"}
 	return db, nil
 }
 

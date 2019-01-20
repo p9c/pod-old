@@ -4,25 +4,14 @@ import (
 	"git.parallelcoin.io/pod/lib/clog"
 )
 
-// Log is the logger for the peer package
-var Log = clog.NewSubSystem("lib/rpcclient", clog.Ndbg)
-
-// // log is a logger that is initialized with no output filters.  This means the package will not perform any logging by default until the caller requests it.
-// var log = l.Disabled
-
-// // The default amount of logging is none.
-// func init() {
-// 	// DisableLog()
-// }
-
-// // DisableLog disables all library log output.  Logging output is disabled by default until UseLogger is called.
-// func DisableLog() {
-// 	log = l.Disabled
-// }
+// Log is the logger for the rpcclient package
+var Log = cl.NewSubSystem("rpcclient", "trace")
+var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.
-func UseLogger(logger *clog.SubSystem) {
+func UseLogger(logger *cl.SubSystem) {
 	Log = logger
+	log = Log.Ch
 }
 
 // LogClosure is a closure that can be printed with %v to be used to generate expensive-to-create data for a detailed log level and avoid doing the work if the data isn't printed.
