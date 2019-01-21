@@ -4,11 +4,10 @@ import (
 	"io"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestClog(t *testing.T) {
-	<-Started
-
 	logfile, err := os.OpenFile("/tmp/clog", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -42,12 +41,27 @@ func TestClog(t *testing.T) {
 	<-done
 	close(done)
 
+	testString := "testing closure"
+	var testClosure StringClosure = func() string {
+		time.Sleep(time.Millisecond * 100)
+		return testString
+	}
+	ss.Ch <- ss.Ftlc(testClosure)
+	ss.Ch <- ss.Errc(testClosure)
+	ss.Ch <- ss.Wrnc(testClosure)
+	ss.Ch <- ss.Infc(testClosure)
+	ss.Ch <- ss.Dbgc(testClosure)
+	ss.Ch <- ss.Trcc(testClosure)
+
+	time.Sleep(time.Second)
+
 	ss.Close()
 
 	close(Og)
 }
 
 func tests(ch *chan interface{}, done chan bool) {
+
 	*ch <- Ftl("fatal")
 	*ch <- Fatal{1, "test", Og}
 	*ch <- Fatalf{"%d %s %v", 3, "test3", []byte{1, 2, 3}}

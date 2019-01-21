@@ -17,7 +17,7 @@ import (
 const (
 	DefaultCAFilename       = "wallet.cert"
 	DefaultConfigFilename   = "conf"
-	DefaultLogLevel         = "info"
+	DefaultLogLevel         = "trace"
 	DefaultLogDirname       = ""
 	DefaultLogFilename      = "log"
 	DefaultRPCMaxClients    = 10

@@ -363,9 +363,9 @@ func queryChainServiceBatch(
 				log <- cl.Tracef{
 					"Query for #%v failed, moving on: %v",
 					handleQuery,
-					newLogClosure(func() string {
+					func() string {
 						return spew.Sdump(queryMsgs[handleQuery])
-					})}
+					}()}
 
 			case <-matchSignal:
 				// We got a match signal so we can mark this

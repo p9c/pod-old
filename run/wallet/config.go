@@ -81,6 +81,7 @@ var Command = climax.Command{
 
 		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library)", true),
 
+		podutil.GenerateFlag("lib-addrmgr", "", "--lib-addrmg=info", "", true),
 		podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
 		podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
 		podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),

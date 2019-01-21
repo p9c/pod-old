@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"git.parallelcoin.io/pod/lib/addrmgr"
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/connmgr"
@@ -34,6 +35,7 @@ var Levels = GetDefault()
 // GetDefault returns a fresh shiny new default levels map
 func GetDefault() map[string]*cl.SubSystem {
 	return map[string]*cl.SubSystem{
+		"lib-addrmgr":         addrmgr.Log,
 		"lib-blockchain":      blockchain.Log,
 		"lib-connmgr":         connmgr.Log,
 		"lib-database-ffldb":  ffldb.Log,

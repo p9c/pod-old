@@ -27,7 +27,7 @@ RUN set -o pipefail -e; AUR_USER=user; useradd -m $AUR_USER; echo "${AUR_USER}:"
     sed -i 's,#MAKEFLAGS="-j2",MAKEFLAGS="-j$(nproc)",g' /etc/makepkg.conf;\
     sed -i "s,PKGEXT='.pkg.tar.xz',PKGEXT='.pkg.tar',g" /etc/makepkg.conf;
 RUN su user -c 'yay -S --noconfirm base-devel boost boost-libs miniupnpc db4.8 openssl-1.0'
-RUN git clone https://git.parallelcoin.io/pod.git
+RUN git clone https://github.com/parallelcointeam/parallelcoin.git
 RUN cd parallelcoin/src; \
     echo "Building parallelcoind...";\
     make -j$(nproc) -f makefile.unix;\

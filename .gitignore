@@ -13,3 +13,4 @@
 ./.vscode
 
 \.vscode/
+docker/legacy/data/*

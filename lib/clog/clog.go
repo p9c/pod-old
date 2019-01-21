@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/mitchellh/colorstring"
 )
 
 // Og is the root channel that processes logging messages, so, cl.Og <- Fatalf{"format string %s %d", stringy, inty} sends to the root
-var Og = make(chan interface{})
+var Og = make(chan interface{}, 16)
+
+var wg sync.WaitGroup
+
+// StringClosure is a function that returns a string, used to defer execution of expensive logging operations
+type StringClosure func() string
 
 // Value is the generic list of things processed by the log chan
 type Value []interface{}
@@ -24,6 +30,9 @@ type Fatalf Value
 // Ftl is a log type that is just one string
 type Ftl string
 
+// Fatalc is for passing a closure when the log entry is expensive to compute
+type Fatalc StringClosure
+
 // Error is a log value that indicates level and how to interpret the interface slice
 type Error Value
 
@@ -32,6 +41,9 @@ type Errorf Value
 
 // Err is a log type that is just one string
 type Err string
+
+// Errorc is for passing a closure when the log entry is expensive to compute
+type Errorc StringClosure
 
 // Warn is a log value that indicates level and how to interpret the interface slice
 type Warn Value
@@ -42,6 +54,9 @@ type Warnf Value
 // Wrn is a log type that is just one string
 type Wrn string
 
+// Warnc is for passing a closure when the log entry is expensive to compute
+type Warnc StringClosure
+
 // Info is a log value that indicates level and how to interpret the interface slice
 type Info Value
 
@@ -50,6 +65,9 @@ type Infof Value
 
 // Inf is a log type that is just one string
 type Inf string
+
+// Infoc is for passing a closure when the log entry is expensive to compute
+type Infoc StringClosure
 
 // Debug is a log value that indicates level and how to interpret the interface slice
 type Debug Value
@@ -60,6 +78,9 @@ type Debugf Value
 // Dbg is a log type that is just one string
 type Dbg string
 
+// Debugc is for passing a closure when the log entry is expensive to compute
+type Debugc StringClosure
+
 // Trace is a log value that indicates level and how to interpret the interface slice
 type Trace Value
 
@@ -69,8 +90,12 @@ type Tracef Value
 // Trc is a log type that is just one string
 type Trc string
 
+// Tracec is for passing a closure when the log entry is expensive to compute
+type Tracec StringClosure
+
 // A SubSystem is a logger with a specific prefix name prepended  to the entry
 type SubSystem struct {
+	Name        string
 	Ch          chan interface{}
 	Level       int
 	LevelString string
@@ -81,7 +106,37 @@ func (s *SubSystem) Close() {
 	close(s.Ch)
 }
 
-// Writer is the place the
+// Ftlc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Ftlc(closure StringClosure) Fatalc {
+	return Fatalc(closure)
+}
+
+// Errc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Errc(closure StringClosure) Errorc {
+	return Errorc(closure)
+}
+
+// Wrnc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Wrnc(closure StringClosure) Warnc {
+	return Warnc(closure)
+}
+
+// Infc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Infc(closure StringClosure) Infoc {
+	return Infoc(closure)
+}
+
+// Dbgc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Dbgc(closure StringClosure) Debugc {
+	return Debugc(closure)
+}
+
+// Trcc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+func (s *SubSystem) Trcc(closure StringClosure) Tracec {
+	return Tracec(closure)
+}
+
+// Writer is the place thelogs put out
 var Writer = io.MultiWriter(os.Stdout)
 
 const (
@@ -119,34 +174,29 @@ func (s *SubSystem) SetLevel(level string) {
 const errFmt = "ERR:FMT\n  "
 
 // Color turns on and off colouring of error type tag
-var Color bool
+var Color = true
 
 // ColorChan accepts a bool and flips the state accordingly
 var ColorChan = make(chan bool)
-
-// Started will block when the logger starts
-var Started = make(chan bool)
 
 // ShuttingDown indicates if the shutdown switch has been triggered
 var ShuttingDown bool
 
 // NewSubSystem starts up a new subsystem logger
 func NewSubSystem(name, level string) (ss *SubSystem) {
+	wg.Add(1)
 	ss = new(SubSystem)
 	ss.Ch = make(chan interface{})
+	ss.Name = name
 	ss.SetLevel(level)
-	Og <- Infof{"started subsystem '%s'", name}
-
 	go func() {
 		for {
 			if ShuttingDown {
+				wg.Done()
 				break
 			}
 			select {
 			case i := <-ss.Ch:
-				if ShuttingDown {
-					break
-				}
 				n := name
 				if Color {
 					n = colorstring.Color("[bold]" + n + "[reset]")
@@ -177,6 +227,54 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				case Trc:
 					if ss.Level > _debug {
 						Og <- Trc(n+" ") + i.(Trc)
+					}
+				case Fatalc:
+					if ss.Level > _off {
+						Og <- ss.Ftlc(func() string {
+							o := n + " "
+							o += i.(Fatalc)()
+							return o
+						})
+					}
+				case Errorc:
+					if ss.Level > _fatal {
+						Og <- ss.Errc(func() string {
+							o := n + " "
+							o += i.(Errorc)()
+							return o
+						})
+					}
+				case Warnc:
+					if ss.Level > _error {
+						Og <- ss.Wrnc(func() string {
+							o := n + " "
+							o += i.(Warnc)()
+							return o
+						})
+					}
+				case Infoc:
+					if ss.Level > _warn {
+						Og <- ss.Infc(func() string {
+							o := n + " "
+							o += i.(Infoc)()
+							return o
+						})
+					}
+				case Debugc:
+					if ss.Level > _info {
+						Og <- ss.Dbgc(func() string {
+							o := n + " "
+							o += i.(Debugc)()
+							return o
+						})
+					}
+				case Tracec:
+					if ss.Level > _debug {
+						Og <- ss.Trcc(func() string {
+							o := n + " "
+							o += i.(Tracec)()
+							return o
+						})
 					}
 				case Fatal:
 					if ss.Level > _off {
@@ -211,50 +309,66 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 						Og <- append(Errorf{n + " " + i.(Errorf)[0].(string)}, i.(Errorf)[1:]...)
 					}
 				case Warnf:
-					if ss.Level > _warn {
+					if ss.Level > _error {
 						Og <- append(Warnf{n + " " + i.(Warnf)[0].(string)}, i.(Warnf)[1:]...)
 					}
 				case Infof:
-					if ss.Level > _info {
+					if ss.Level > _warn {
 						Og <- append(Infof{n + " " + i.(Infof)[0].(string)}, i.(Infof)[1:]...)
 					}
 				case Debugf:
-					if ss.Level > _debug {
+					if ss.Level > _info {
 						Og <- append(Debugf{n + " " + i.(Debugf)[0].(string)}, i.(Debugf)[1:]...)
 					}
 				case Tracef:
-					if ss.Level > _trace {
+					if ss.Level > _debug {
 						Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
 					}
 				}
+				if ShuttingDown {
+					wg.Done()
+					break
+				}
 			}
-
 		}
 	}()
+
 	return
 }
 
 func init() {
-	fmt.Fprintln(os.Stderr, "starting clog")
+	wg.Add(1)
 	go func() {
-		Started <- true
 		for {
 			var t, s string
 			select {
 			case <-Quit:
+				wg.Done()
 				ShuttingDown = true
 				break
 			case Color = <-ColorChan:
 			case i := <-Og:
+				t = time.Now().Format("2006-01-02 15:04:05.000000 MST")
 				color := Color
 				if i == "" {
 					continue
 				}
-				t = time.Now().Format("2006-01-02 15:04:05.000000 MST")
 				if color {
 					s = colorstring.Color("[reset]")
 				}
 				switch i.(type) {
+				case Fatalc:
+					s += i.(Fatalc)() + "\n"
+				case Errorc:
+					s += i.(Errorc)() + "\n"
+				case Warnc:
+					s += i.(Warnc)() + "\n"
+				case Infoc:
+					s += i.(Infoc)() + "\n"
+				case Debugc:
+					s += i.(Debugc)() + "\n"
+				case Tracec:
+					s += i.(Tracec)() + "\n"
 				case Ftl:
 					s += string(i.(Ftl)) + "\n"
 				case Err:
@@ -317,17 +431,17 @@ func init() {
 					}
 				}
 				switch i.(type) {
-				case Ftl, Fatal, Fatalf:
+				case Ftl, Fatal, Fatalf, Fatalc:
 					s = ftlTag(color) + s
-				case Err, Error, Errorf:
+				case Err, Error, Errorf, Errorc:
 					s = errTag(color) + s
-				case Wrn, Warn, Warnf:
+				case Wrn, Warn, Warnf, Warnc:
 					s = wrnTag(color) + s
-				case Inf, Info, Infof:
+				case Inf, Info, Infof, Infoc:
 					s = infTag(color) + s
-				case Dbg, Debug, Debugf:
+				case Dbg, Debug, Debugf, Debugc:
 					s = dbgTag(color) + s
-				case Trc, Trace, Tracef:
+				case Trc, Trace, Tracef, Tracec:
 					s = trcTag(color) + s
 				}
 				if color {
@@ -422,7 +536,6 @@ var Quit = make(chan struct{})
 // Shutdown the application, allowing the logger a moment to clear the channels
 func Shutdown() {
 	close(Quit)
-	// wait a moment to let log channel clear
-	time.Sleep(time.Millisecond * 50)
+	wg.Wait()
 	os.Exit(0)
 }

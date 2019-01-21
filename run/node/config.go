@@ -144,6 +144,7 @@ var Command = climax.Command{
 
 		podutil.GenerateFlag(`debuglevel`, `d`, `--debuglevel=trace`, `sets debuglevel, default info, sets the baseline for others not specified`, true),
 
+		podutil.GenerateFlag("lib-addrmgr", "", "--lib-addrmg=info", "", true),
 		podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
 		podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
 		podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
@@ -261,10 +262,10 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	r = &t
 	if getIfIs(ctx, "debuglevel", r) {
 		switch *r {
-		case "fatal", "error", "info", "debug", "trace":
+		case "fatal", "error", "warn", "info", "debug", "trace":
 			cfg.DebugLevel = *r
 		default:
-			cfg.DebugLevel = "info"
+			cfg.DebugLevel = "trace"
 		}
 		Log.SetLevel(cfg.DebugLevel)
 	}
@@ -977,7 +978,7 @@ func DefaultConfig() *Cfg {
 			RPCPass:              pass,
 			Listeners:            []string{n.DefaultListener},
 			RPCListeners:         []string{n.DefaultRPCListener},
-			DebugLevel:           "info",
+			DebugLevel:           "trace",
 			ConfigFile:           n.DefaultConfigFile,
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,

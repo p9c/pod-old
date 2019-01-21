@@ -714,12 +714,12 @@ func (p *Peer) readMessage(encoding wire.MessageEncoding) (wire.Message, []byte,
 		return fmt.Sprintf("Received %v%s from %s",
 			msg.Command(), summary, p)
 	})}
-	log <- cl.Tracef{"%v", newLogClosure(func() string {
+	log <- cl.Trc(func() string {
 		return spew.Sdump(msg)
-	})}
-	log <- cl.Tracef{"%v", newLogClosure(func() string {
+	}())
+	log <- cl.Trc(func() string {
 		return spew.Sdump(buf)
-	})}
+	}())
 	return msg, buf, nil
 }
 
@@ -739,10 +739,10 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 		return fmt.Sprintf("Sending %v%s to %s", msg.Command(),
 			summary, p)
 	})}
-	log <- cl.Tracef{"%v", newLogClosure(func() string {
+	log <- cl.Trc(func() string {
 		return spew.Sdump(msg)
-	})}
-	log <- cl.Tracef{"%v", newLogClosure(func() string {
+	}())
+	log <- cl.Trc(func() string {
 		var buf bytes.Buffer
 		_, err := wire.WriteMessageWithEncodingN(&buf, msg, p.ProtocolVersion(),
 			p.cfg.ChainParams.Net, enc)
@@ -750,7 +750,7 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 			return err.Error()
 		}
 		return spew.Sdump(buf.Bytes())
-	})}
+	}())
 	// Write the message to the peer.
 	n, err := wire.WriteMessageWithEncodingN(p.conn, msg,
 		p.ProtocolVersion(), p.cfg.ChainParams.Net, enc)

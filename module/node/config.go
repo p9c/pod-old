@@ -35,7 +35,7 @@ import (
 const (
 	DefaultConfigFilename        = "node/conf"
 	DefaultDataDirname           = "node"
-	DefaultLogLevel              = "info"
+	DefaultLogLevel              = "trace"
 	DefaultLogDirname            = "node"
 	DefaultLogFilename           = "log"
 	DefaultAddress               = "127.0.0.1"
