@@ -744,7 +744,6 @@ func (sm *SyncManager) haveInventory(invVect *wire.InvVect) (bool, error) {
 
 // handleInvMsg handles inv messages from all peers. We examine the inventory advertised by the remote peer and act accordingly.
 func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
-	log <- cl.Trc("handleInvMsg")
 	peer := imsg.peer
 	state, exists := sm.peerStates[peer]
 	if !exists {

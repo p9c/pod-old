@@ -22,6 +22,7 @@ import (
 	"git.parallelcoin.io/pod/run/logger"
 	"git.parallelcoin.io/pod/run/util"
 	"github.com/btcsuite/go-socks/socks"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )
 
@@ -56,7 +57,7 @@ var usageMessage = fmt.Sprintf("use `%s help node` to show usage", appName)
 // Cfg is the combined app and logging configuration data
 type Cfg struct {
 	Node      *n.Config
-	logLevels map[string]*cl.SubSystem
+	LogLevels map[string]string
 }
 
 // Config is the combined app and log levels configuration
@@ -951,7 +952,8 @@ func writeDefaultConfig(cfgFile string) {
 	defCfg.Node.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		log <- cl.Error{`marshalling default app config file: "` + err.Error() + `"`}
+		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
+		log <- cl.Err(spew.Sdump(defCfg))
 		return
 	}
 	j = append(j, '\n')
@@ -1007,6 +1009,6 @@ func DefaultConfig() *Cfg {
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
 		},
-		logLevels: logger.GetDefault(),
+		LogLevels: logger.GetDefaultConfig(),
 	}
 }

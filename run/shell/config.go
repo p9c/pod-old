@@ -35,7 +35,7 @@ type Cfg struct {
 	ConfFileName string
 	Node         *n.Config
 	Wallet       *w.Config
-	Levels       map[string]*cl.SubSystem
+	Levels       map[string]string
 }
 
 var (
@@ -685,6 +685,6 @@ func DefaultConfig() *Cfg {
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},
-		Levels: logger.GetDefault(),
+		Levels: logger.GetDefaultConfig(),
 	}
 }

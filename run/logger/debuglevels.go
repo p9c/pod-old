@@ -32,6 +32,35 @@ import (
 // Levels are the configured log level settings
 var Levels = GetDefault()
 
+// GetDefaultConfig returns a fresh shiny new default levels map
+func GetDefaultConfig() map[string]string {
+	return map[string]string{
+		"lib-addrmgr":         "info",
+		"lib-blockchain":      "info",
+		"lib-connmgr":         "info",
+		"lib-database-ffldb":  "info",
+		"lib-database":        "info",
+		"lib-mining-cpuminer": "info",
+		"lib-mining":          "info",
+		"lib-netsync":         "info",
+		"lib-peer":            "info",
+		"lib-rpcclient":       "info",
+		"lib-txscript":        "info",
+		"node":                "info",
+		"node-mempool":        "info",
+		"spv":                 "info",
+		"wallet":              "info",
+		"wallet-chain":        "info",
+		"wallet-legacyrpc":    "info",
+		"wallet-rpcserver":    "info",
+		"wallet-tx":           "info",
+		"wallet-votingpool":   "info",
+		"wallet-waddrmgr":     "info",
+		"wallet-wallet":       "info",
+		"wallet-wtxmgr":       "info",
+	}
+}
+
 // GetDefault returns a fresh shiny new default levels map
 func GetDefault() map[string]*cl.SubSystem {
 	return map[string]*cl.SubSystem{

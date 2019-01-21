@@ -858,7 +858,7 @@ func (b *BlockChain) initChainState() error {
 	err = b.db.View(func(dbTx database.Tx) error {
 		// Fetch the stored chain state from the database metadata. When it doesn't exist, it means the database hasn't been initialized for use with chain yet, so break out now to allow that to happen under a writable database transaction.
 		serializedData := dbTx.Metadata().Get(chainStateKeyName)
-		log <- cl.Trace{"serialized chain state:", serializedData}
+		log <- cl.Tracef{"serialized chain state: %0x", serializedData}
 		state, err := deserializeBestChainState(serializedData)
 		if err != nil {
 			return err

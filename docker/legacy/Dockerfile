@@ -44,5 +44,5 @@ WORKDIR /root
 VOLUME /data
 RUN mkdir /root/.parallelcoin
 # RUN ls -la
-CMD /usr/local/bin/parallelcoind -txindex -printtoconsole -debug -debugnet -rpcuser=user -rpcpassword=pa55word -connect=127.0.0.1:11147 -connect=seed1.parallelcoin.io
+CMD /usr/local/bin/parallelcoind -txindex -printtoconsole -debug -debugnet -rpcuser=user -rpcpassword=pa55word -connect=127.0.0.1:11047 -connect=seed1.parallelcoin.io -bind=127.0.0.1 -port=11147 -rpcport=11148
 #CMD tail -f /dev/null

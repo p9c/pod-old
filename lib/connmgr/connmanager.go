@@ -12,18 +12,18 @@ import (
 )
 
 // maxFailedAttempts is the maximum number of successive failed connection attempts after which network failure is assumed and new connections will be delayed by the configured retry duration.
-const maxFailedAttempts = 25
+const maxFailedAttempts = 16
 
 var (
 	//ErrDialNil is used to indicate that Dial cannot be nil in the configuration.
 	ErrDialNil = errors.New("config: Dial cannot be nil")
 	// maxRetryDuration is the max duration of time retrying of a persistent connection is allowed to grow to.  This is necessary since the retry logic uses a backoff mechanism which increases the interval base times
 	// the number of retries that have been done.
-	maxRetryDuration = time.Minute * 5
+	maxRetryDuration = time.Minute * 2
 	// defaultRetryDuration is the default duration of time for retrying persistent connections.
-	defaultRetryDuration = time.Second * 1
+	defaultRetryDuration = time.Second * 3
 	// defaultTargetOutbound is the default number of outbound connections to maintain.
-	defaultTargetOutbound = uint32(8)
+	defaultTargetOutbound = uint32(16)
 )
 
 // ConnState represents the state of the requested connection.
