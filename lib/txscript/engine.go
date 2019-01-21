@@ -394,18 +394,17 @@ func (vm *Engine) Step() (done bool, err error) {
 func (vm *Engine) Execute() (err error) {
 	done := false
 	for !done {
-		Log.Trcc(func() string {
-			dis, err := vm.DisasmPC()
-			if err != nil {
-				return fmt.Sprint("stepping (", err, ")")
-			}
-			return fmt.Sprint("stepping ", dis)
-		})
 		done, err = vm.Step()
 		if err != nil {
 			return err
 		}
 		Log.Trcc(func() string {
+			var o string
+			dis, err := vm.DisasmPC()
+			if err != nil {
+				o = fmt.Sprint("stepping (", err, ")")
+			}
+			o = fmt.Sprint("stepping ", dis)
 			var dstr, astr string
 			// if we're tracing, dump the stacks.
 			if vm.dstack.Depth() != 0 {
@@ -414,7 +413,7 @@ func (vm *Engine) Execute() (err error) {
 			if vm.astack.Depth() != 0 {
 				astr = "AltStack:\n" + vm.astack.String()
 			}
-			return dstr + astr
+			return o + dstr + astr
 		})
 	}
 	return vm.CheckErrorCondition(true)

@@ -126,7 +126,6 @@ var Command = climax.Command{
 			fmt.Println("pod/wallet version", w.Version())
 			cl.Shutdown()
 		}
-		log <- cl.Trc("running command wallet")
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = w.DefaultConfigFile

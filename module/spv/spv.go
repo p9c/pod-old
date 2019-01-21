@@ -1009,7 +1009,6 @@ cleanup:
 		}
 	}
 	s.wg.Done()
-	log <- cl.Trc("Peer handler done")
 }
 
 // addrStringToNetAddr takes an address in the form of 'host:port' or 'host'

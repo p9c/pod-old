@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"time"
 
-	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -248,7 +247,6 @@ func checkBlockScripts(block *util.Block, utxoView *UtxoViewpoint,
 	})
 	// If the HashCache is present, once we have validated the block, we no longer need the cached hashes for these transactions, so we purge them from the cache.
 	if segwitActive && hashCache != nil {
-		log <- cl.Trc("purging hashcache")
 		for _, tx := range block.Transactions() {
 			if tx.MsgTx().HasWitness() {
 				hashCache.PurgeSigHashes(tx.Hash())

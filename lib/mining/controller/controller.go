@@ -168,7 +168,6 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (c *Controller) generateBlocks(quit chan struct{}) {
-	log <- cl.Trc("Starting generate blocks worker")
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second / 2)
 	defer ticker.Stop()
@@ -211,7 +210,6 @@ out:
 		}
 	}
 	c.workerWg.Done()
-	log <- cl.Trc("Generate blocks worker done")
 }
 
 func (c *Controller) minerController() {

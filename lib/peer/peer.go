@@ -746,11 +746,9 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 		if len(summary) > 0 {
 			summary = " (" + summary + ")"
 		}
-		return fmt.Sprintf("Sending %v%s to %s", msg.Command(),
+		o := fmt.Sprintf("Sending %v%s to %s\n", msg.Command(),
 			summary, p)
-	})
-	log <- cl.Trc(func() string {
-		o := spew.Sdump(msg)
+		o += spew.Sdump(msg)
 		var buf bytes.Buffer
 		_, err := wire.WriteMessageWithEncodingN(&buf, msg, p.ProtocolVersion(),
 			p.cfg.ChainParams.Net, enc)
@@ -758,7 +756,7 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 			return err.Error()
 		}
 		return o + spew.Sdump(buf.Bytes())
-	}())
+	})
 	// Write the message to the peer.
 	n, err := wire.WriteMessageWithEncodingN(p.conn, msg,
 		p.ProtocolVersion(), p.cfg.ChainParams.Net, enc)

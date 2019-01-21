@@ -68,14 +68,8 @@ var Command = climax.Command{
 			cl.Shutdown()
 		}
 		if ctx.Is("listcommands") {
-			log <- cl.Trc(
-				"listing commands",
-			)
 			c.ListCommands()
 		} else {
-			log <- cl.Trc(
-				"running command",
-			)
 			var cfgFile string
 			var ok bool
 			if cfgFile, ok = ctx.Get("configfile"); !ok {

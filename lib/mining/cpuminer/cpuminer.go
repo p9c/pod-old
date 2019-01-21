@@ -88,7 +88,6 @@ func (m *CPUMiner) GetAlgo() (name string) {
 
 // speedMonitor handles tracking the number of hashes per second the mining process is performing.  It must be run as a goroutine.
 func (m *CPUMiner) speedMonitor() {
-	log <- cl.Trc("CPU miner speed monitor started")
 	var hashesPerSec float64
 	var totalHashes uint64
 	ticker := time.NewTicker(time.Second * hpsUpdateSecs)
@@ -123,7 +122,6 @@ out:
 		}
 	}
 	m.wg.Done()
-	log <- cl.Trc("CPU miner speed monitor done")
 }
 
 // submitBlock submits the passed block to network after ensuring it passes all of the consensus validation rules.
@@ -153,7 +151,6 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 		return false
 	}
 	if isOrphan {
-		log <- cl.Trc("Block submitted via CPU miner is an orphan")
 		return false
 	}
 	// The block was accepted.
@@ -256,7 +253,6 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (m *CPUMiner) generateBlocks(quit chan struct{}) {
-	log <- cl.Trc("Starting generate blocks worker")
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second * hashUpdateSecs)
 	defer ticker.Stop()
@@ -306,7 +302,6 @@ out:
 		}
 	}
 	m.workerWg.Done()
-	log <- cl.Trc("Generate blocks worker done")
 }
 
 // miningWorkerController launches the worker goroutines that are used to generate block templates and solve them.  It also provides the ability to dynamically adjust the number of running worker goroutines. It must be run as a goroutine.

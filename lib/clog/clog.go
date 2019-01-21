@@ -11,7 +11,7 @@ import (
 )
 
 // Og is the root channel that processes logging messages, so, cl.Og <- Fatalf{"format string %s %d", stringy, inty} sends to the root
-var Og = make(chan interface{}, 32)
+var Og = make(chan interface{})
 
 var wg sync.WaitGroup
 
@@ -108,32 +108,44 @@ func (s *SubSystem) Close() {
 
 // Ftlc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Ftlc(closure StringClosure) {
-	s.Ch <- Fatalc(closure)
+	if s.Level > _off {
+		s.Ch <- Fatalc(closure)
+	}
 }
 
 // Errc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Errc(closure StringClosure) {
-	s.Ch <- Errorc(closure)
+	if s.Level > _fatal {
+		s.Ch <- Errorc(closure)
+	}
 }
 
 // Wrnc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Wrnc(closure StringClosure) {
-	s.Ch <- Warnc(closure)
+	if s.Level > _error {
+		s.Ch <- Warnc(closure)
+	}
 }
 
 // Infc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Infc(closure StringClosure) {
-	s.Ch <- Infoc(closure)
+	if s.Level > _warn {
+		s.Ch <- Infoc(closure)
+	}
 }
 
 // Dbgc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Dbgc(closure StringClosure) {
-	s.Ch <- Debugc(closure)
+	if s.Level > _info {
+		s.Ch <- Debugc(closure)
+	}
 }
 
 // Trcc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Trcc(closure StringClosure) {
-	s.Ch <- Tracec(closure)
+	if s.Level > _debug {
+		s.Ch <- Tracec(closure)
+	}
 }
 
 // Writer is the place thelogs put out
@@ -191,12 +203,14 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	ss.SetLevel(level)
 	go func() {
 		for {
-			if ShuttingDown {
-				break
-			}
+			// fmt.Println("subsystem loop")
 			select {
 			case i := <-ss.Ch:
+				if ShuttingDown {
+					break
+				}
 				if i == nil {
+					fmt.Println("got nil")
 					continue
 				}
 				n := name
@@ -345,7 +359,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 
 func init() {
 	wg.Add(1)
-	go func() {
+	worker := func() {
 		for {
 			var t, s string
 			select {
@@ -354,14 +368,17 @@ func init() {
 				break
 			case Color = <-ColorChan:
 			case i := <-Og:
-				t = time.Now().Format("2006-01-02 15:04:05.000000 MST")
-				color := Color
+				if ShuttingDown {
+					break
+				}
 				if i == "" {
 					continue
 				}
+				color := Color
 				if color {
 					s = colorstring.Color("[reset]")
 				}
+				t = time.Now().Format("2006-01-02 15:04:05.000000 MST")
 				switch i.(type) {
 				case Fatalc:
 					s += i.(Fatalc)() + "\n"
@@ -456,7 +473,9 @@ func init() {
 			}
 			fmt.Fprint(Writer, t+s)
 		}
-	}()
+	}
+	go worker()
+	go worker()
 	wg.Done()
 }
 

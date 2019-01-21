@@ -256,7 +256,6 @@ func (b *blockManager) Start() {
 		return
 	}
 
-	log <- cl.Trc("Starting block manager")
 	b.wg.Add(2)
 	go b.blockHandler()
 	go b.cfHandler()
@@ -413,7 +412,6 @@ func (b *blockManager) cfHandler() {
 	// If a loop ends with a quit, we want to signal that the goroutine is
 	// done.
 	defer func() {
-		log <- cl.Trc("committed filter header handler done")
 		b.wg.Done()
 	}()
 
@@ -686,10 +684,8 @@ func (b *blockManager) getUncheckpointedCFHeaders(
 			"height %d", blockHeight, filtHeight)
 	}
 
-	// If the heights match, then we're fully synced, so we don't need to
-	// do anything from there.
+	// If the heights match, then we're fully synced, so we don't need to do anything from there.
 	if blockHeight == filtHeight {
-		log <- cl.Trc("cfheaders already caught up to blocks")
 		return nil
 	}
 

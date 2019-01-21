@@ -963,7 +963,6 @@ out:
 		}
 	}
 	sm.wg.Done()
-	log <- cl.Trc("block handler done")
 }
 
 // handleBlockchainNotification handles notifications from blockchain.  It does things such as request orphan block parents and relay accepted blocks to connected peers.

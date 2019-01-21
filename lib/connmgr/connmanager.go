@@ -259,7 +259,6 @@ out:
 		}
 	}
 	cm.wg.Done()
-	log <- cl.Trc("connection handler done")
 }
 
 // NewConnReq creates a new connection request and connects to the corresponding address.
@@ -385,7 +384,6 @@ func (cm *ConnManager) Start() {
 	if atomic.AddInt32(&cm.start, 1) != 1 {
 		return
 	}
-	log <- cl.Trc("connection manager started")
 	cm.wg.Add(1)
 	go cm.connHandler()
 	// Start all the listeners so long as the caller requested them and provided a callback to be invoked when connections are accepted.
@@ -417,7 +415,6 @@ func (cm *ConnManager) Stop() {
 		_ = listener.Close()
 	}
 	close(cm.quit)
-	log <- cl.Trc("connection manager stopped")
 }
 
 // New returns a new connection manager. Use Start to start connecting to the network.

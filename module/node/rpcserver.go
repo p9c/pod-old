@@ -3614,7 +3614,6 @@ func (s *rpcServer) Start() {
 	if atomic.AddInt32(&s.started, 1) != 1 {
 		return
 	}
-	log <- cl.Trc("starting RPC server")
 	rpcServeMux := http.NewServeMux()
 	httpServer := &http.Server{
 		Handler: rpcServeMux,

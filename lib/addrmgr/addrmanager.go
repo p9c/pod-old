@@ -160,7 +160,6 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 	}
 	// Enforce max addresses.
 	if len(a.addrNew[bucket]) > newBucketSize {
-		log <- cl.Trc("new bucket is full, expiring old")
 		a.expireNew(bucket)
 	}
 	// Add to new bucket.
@@ -452,7 +451,6 @@ func (a *AddrManager) Start() {
 	if atomic.AddInt32(&a.started, 1) != 1 {
 		return
 	}
-	log <- cl.Trc("starting address manager")
 	// Load peers we already know about from file.
 	a.loadPeers()
 	// Start the address ticker to save addresses periodically.
