@@ -174,7 +174,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 	birthHeight uint32) (*GetUtxoRequest, error) {
 
 	log <- cl.Debugf{
-		"Enqueuing request for %s with birth height %d",
+		"enqueuing request for %s with birth height %d",
 		input.OutPoint.String(), birthHeight,
 	}
 
@@ -247,7 +247,7 @@ func (s *UtxoScanner) batchManager() {
 		err := s.scanFromHeight(req.BirthHeight)
 		if err != nil {
 			log <- cl.Errorf{
-				"utxo scan failed: %v", err,
+				"UXTO scan failed: %v", err,
 			}
 		}
 	}
@@ -353,7 +353,7 @@ scanToEnd:
 		}
 
 		log <- cl.Debugf{
-			"Fetching block height=%d hash=%s", height, hash,
+			"fetching block height=%d hash=%s", height, hash,
 		}
 
 		block, err := s.cfg.GetBlock(*hash)
@@ -368,7 +368,7 @@ scanToEnd:
 		default:
 		}
 
-		log <- cl.Debugf{"Processing block height=%d hash=%s", height, hash}
+		log <- cl.Debugf{"processing block height=%d hash=%s", height, hash}
 
 		reporter.ProcessBlock(block.MsgBlock(), newReqs, height)
 	}

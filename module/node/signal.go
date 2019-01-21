@@ -23,19 +23,19 @@ func interruptListener() <-chan struct{} {
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.
 		select {
 		case sig := <-interruptChannel:
-			log <- cl.Infof{"Received signal (%s).  Shutting down...", sig}
+			log <- cl.Infof{"received signal (%s).  Shutting down...", sig}
 			trace.Stop()
 		case <-shutdownRequestChannel:
-			log <- cl.Info{"shutdown requested.  Shutting down..."}
+			log <- cl.Inf("shutdown requested.  Shutting down...")
 		}
 		close(c)
 		// Listen for repeated signals and display a message so the user knows the shutdown is in progress and the process is not hung.
 		for {
 			select {
 			case sig := <-interruptChannel:
-				log <- cl.Infof{"Received signal (%s).  Already shutting down...", sig}
+				log <- cl.Infof{"received signal (%s).  Already shutting down...", sig}
 			case <-shutdownRequestChannel:
-				log <- cl.Info{"shutdown requested.  Already shutting down..."}
+				log <- cl.Inf("shutdown requested.  Already shutting down...")
 			}
 		}
 	}()

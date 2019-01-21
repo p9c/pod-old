@@ -26,7 +26,7 @@ import (
 )
 
 // Log is thte main node logger
-var Log = cl.NewSubSystem("run/node", "trace")
+var Log = cl.NewSubSystem("run/node", "info")
 var log = Log.Ch
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
@@ -265,7 +265,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		case "fatal", "error", "warn", "info", "debug", "trace":
 			cfg.DebugLevel = *r
 		default:
-			cfg.DebugLevel = "trace"
+			cfg.DebugLevel = "info"
 		}
 		Log.SetLevel(cfg.DebugLevel)
 	}
@@ -978,7 +978,7 @@ func DefaultConfig() *Cfg {
 			RPCPass:              pass,
 			Listeners:            []string{n.DefaultListener},
 			RPCListeners:         []string{n.DefaultRPCListener},
-			DebugLevel:           "trace",
+			DebugLevel:           "info",
 			ConfigFile:           n.DefaultConfigFile,
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,

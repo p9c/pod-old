@@ -25,7 +25,7 @@ type Work struct {
 
 // Subscribe adds an address to the list of subscribers to push work to
 func (k *Kopach) Subscribe(args *Address, reply *Address) (err error) {
-	log <- cl.Infof{"Subscribe called with", *args}
+	log <- cl.Info{"Subscribe called with", *args}
 	err = errors.New("already subscribed")
 	for i := range *k {
 		if (*k)[i].Address == (*args).Address {
@@ -40,7 +40,7 @@ func (k *Kopach) Subscribe(args *Address, reply *Address) (err error) {
 
 // Unsubscribe removes an address from the list of subscribers to push work to
 func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
-	log <- cl.Infof{"Unsubscribe called with", *args}
+	log <- cl.Info{"Unsubscribe called with", *args}
 	err = errors.New("not subscribed")
 	for i := range *k {
 		if (*k)[i].Address == (*args).Address {
@@ -53,7 +53,7 @@ func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
 		}
 	}
 	err = nil
-	log <- cl.Infof{"sending reply", *args}
+	log <- cl.Info{"sending reply", *args}
 	*reply = *args
 	return
 }

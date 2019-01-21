@@ -235,7 +235,11 @@ func (idx *TxIndex) Init() error {
 			highestKnown = testBlockID
 			testBlockID += increment
 		}
-		log <- cl.Tracef{"Forward scan (highest known %d, next unknown %d)", highestKnown, nextUnknown}
+		log <- cl.Tracef{
+			"Forward scan (highest known %d, next unknown %d)",
+			highestKnown,
+			nextUnknown,
+		}
 		// No used block IDs due to new database.
 		if nextUnknown == 1 {
 			return nil
@@ -249,7 +253,11 @@ func (idx *TxIndex) Init() error {
 			} else {
 				highestKnown = testBlockID
 			}
-			log <- cl.Tracef{"Binary scan (highest known %d, next " + "unknown %d)", highestKnown, nextUnknown}
+			log <- cl.Tracef{
+				"Binary scan (highest known %d, next unknown %d)",
+				highestKnown,
+				nextUnknown,
+			}
 			if highestKnown+1 == nextUnknown {
 				break
 			}
@@ -260,7 +268,7 @@ func (idx *TxIndex) Init() error {
 	if err != nil {
 		return err
 	}
-	log <- cl.Debugf{"Current internal block ID: %d", idx.curBlockID}
+	log <- cl.Debug{"Current internal block ID:", idx.curBlockID}
 	return nil
 }
 

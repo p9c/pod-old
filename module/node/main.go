@@ -46,20 +46,20 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	interrupt := interruptListener()
 	defer func() {
 		trace.Stop()
-		log <- cl.Info{"shutdown complete"}
+		log <- cl.Inf("shutdown complete")
 	}()
 	// Show version at startup.
-	log <- cl.Infof{"version %s", Version()}
+	log <- cl.Info{"version", Version()}
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
-		log <- cl.Info{"profiling requested"}
+		log <- cl.Dbg("profiling requested")
 		go func() {
 			listenAddr := net.JoinHostPort("", cfg.Profile)
-			log <- cl.Infof{"profile server listening on %s", listenAddr}
+			log <- cl.Info{"profile server listening on", listenAddr}
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
-			log <- cl.Errorf{"%v", http.ListenAndServe(listenAddr, nil)}
+			log <- cl.Error{"profile server", http.ListenAndServe(listenAddr, nil)}
 		}()
 	}
 	// Write cpu profile if requested.
@@ -67,7 +67,7 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		var f *os.File
 		f, err = os.Create(cfg.CPUProfile)
 		if err != nil {
-			log <- cl.Errorf{"unable to create cpu profile: %v", err}
+			log <- cl.Error{"unable to create cpu profile:", err}
 			return
 		}
 		pprof.StartCPUProfile(f)
@@ -76,7 +76,7 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	}
 	// Perform upgrades to pod as new versions require it.
 	if err = doUpgrades(); err != nil {
-		log <- cl.Errorf{"%v", err}
+		log <- cl.Error{err}
 		return
 	}
 	// Return now if an interrupt signal was triggered.
@@ -87,12 +87,12 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	var db database.DB
 	db, err = loadBlockDB()
 	if err != nil {
-		log <- cl.Errorf{"%v", err}
+		log <- cl.Error{err}
 		return
 	}
 	defer func() {
 		// Ensure the database is sync'd and closed on shutdown.
-		log <- cl.Info{"gracefully shutting down the database..."}
+		log <- cl.Inf("gracefully shutting down the database...")
 		db.Close()
 	}()
 	// Return now if an interrupt signal was triggered.
@@ -102,21 +102,21 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
 	if cfg.DropAddrIndex {
 		if err = indexers.DropAddrIndex(db, interrupt); err != nil {
-			log <- cl.Errorf{"%v", err}
+			log <- cl.Error{err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropTxIndex {
 		if err = indexers.DropTxIndex(db, interrupt); err != nil {
-			log <- cl.Errorf{"%v", err}
+			log <- cl.Error{err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropCfIndex {
 		if err := indexers.DropCfIndex(db, interrupt); err != nil {
-			log <- cl.Errorf{"%v", err}
+			log <- cl.Error{err}
 			return err
 		}
 		return nil
@@ -129,10 +129,10 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		return err
 	}
 	defer func() {
-		log <- cl.Info{"gracefully shutting down the server..."}
+		log <- cl.Inf("gracefully shutting down the server...")
 		server.Stop()
 		server.WaitForShutdown()
-		log <- cl.Info{"server shutdown complete"}
+		log <- cl.Inf("server shutdown complete")
 	}()
 	server.Start()
 	if serverChan != nil {
@@ -197,11 +197,13 @@ func warnMultipleDBs() {
 	// Warn if there are extra databases.
 	if len(duplicateDbPaths) > 0 {
 		selectedDbPath := blockDbPath(cfg.DbType)
-		log <- cl.Warnf{"\nThere are multiple block chain databases using different database types.\n" +
-			"You probably don't want to waste disk space by having more than one.\n" +
-			"Your current database is located at [%v].\n" +
-			"The additional database is located at %v",
-			selectedDbPath, duplicateDbPaths,
+		log <- cl.Warnf{
+			"\nThere are multiple block chain databases using different database types.\n" +
+				"You probably don't want to waste disk space by having more than one.\n" +
+				"Your current database is located at [%v].\n" +
+				"The additional database is located at %v",
+			selectedDbPath,
+			duplicateDbPaths,
 		}
 	}
 }
@@ -210,7 +212,7 @@ func warnMultipleDBs() {
 func loadBlockDB() (database.DB, error) {
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if cfg.DbType == "memdb" {
-		log <- cl.Info{"creating block database in memory"}
+		log <- cl.Inf("creating block database in memory")
 		db, err := database.Create(cfg.DbType)
 		if err != nil {
 			return nil, err
@@ -240,7 +242,7 @@ func loadBlockDB() (database.DB, error) {
 			return nil, err
 		}
 	}
-	log <- cl.Info{"block database loaded"}
+	log <- cl.Inf("block database loaded")
 	return db, nil
 }
 

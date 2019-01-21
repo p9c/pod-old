@@ -128,9 +128,9 @@ out:
 			switch n := n.(type) {
 			case *chain.RescanProgress:
 				if curBatch == nil {
-					log <- cl.Warnf{
-						"Received rescan progress notification but no rescan currently running",
-					}
+					log <- cl.Wrn(
+						"received rescan progress notification but no rescan currently running",
+					)
 					continue
 				}
 				w.rescanProgress <- &RescanProgressMsg{
@@ -140,9 +140,9 @@ out:
 
 			case *chain.RescanFinished:
 				if curBatch == nil {
-					log <- cl.Warnf{
-						"Received rescan finished notification but no rescan currently running",
-					}
+					log <- cl.Wrn(
+						"received rescan finished notification but no rescan currently running",
+					)
 					continue
 				}
 				w.rescanFinished <- &RescanFinishedMsg{
@@ -182,7 +182,7 @@ out:
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
 			log <- cl.Infof{
-				"Rescanned through block %v (height %d)",
+				"rescanned through block %v (height %d)",
 				n.Hash,
 				n.Height,
 			}
@@ -192,7 +192,7 @@ out:
 			addrs := msg.Addresses
 			noun := pickNoun(len(addrs), "address", "addresses")
 			log <- cl.Infof{
-				"Finished rescan for %d %s (synced to block %s, height %d)",
+				"finished rescan for %d %s (synced to block %s, height %d)",
 				len(addrs),
 				noun,
 				n.Hash,
@@ -230,7 +230,7 @@ out:
 			numAddrs := len(batch.addrs)
 			noun := pickNoun(numAddrs, "address", "addresses")
 			log <- cl.Infof{
-				"Started rescan from block %v (height %d) for %d %s",
+				"started rescan from block %v (height %d) for %d %s",
 				batch.bs.Hash,
 				batch.bs.Height,
 				numAddrs,
@@ -241,7 +241,7 @@ out:
 				batch.outpoints)
 			if err != nil {
 				log <- cl.Errorf{
-					"Rescan for %d %s failed: %v",
+					"rescan for %d %s failed: %v",
 					numAddrs,
 					noun,
 					err,

@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the connmgr package
-var Log = cl.NewSubSystem("connmgr", "trace")
+var Log = cl.NewSubSystem("lib/connmgr", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

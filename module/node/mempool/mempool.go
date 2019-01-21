@@ -181,9 +181,12 @@ func (mp *TxPool) limitNumOrphans() error {
 		mp.nextExpireScan = now.Add(orphanExpireScanInterval)
 		numOrphans := len(mp.orphans)
 		if numExpired := origNumOrphans - numOrphans; numExpired > 0 {
-			log <- cl.Debugf{"Expired %d %s (remaining: %d)", numExpired,
+			log <- cl.Debugf{
+				"Expired %d %s (remaining: %d)",
+				numExpired,
 				pickNoun(numExpired, "orphan", "orphans"),
-				numOrphans}
+				numOrphans,
+			}
 		}
 	}
 	// Nothing to do if adding another orphan will not cause the pool to exceed the limit.
@@ -219,7 +222,9 @@ func (mp *TxPool) addOrphan(tx *util.Tx, tag Tag) {
 		}
 		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
 	}
-	log <- cl.Debugf{"Stored orphan transaction %v (total: %d)", tx.Hash(), len(mp.orphans)}
+	log <- cl.Debug{
+		"stored orphan transaction", tx.Hash(), "(total:", len(mp.orphans), ")",
+	}
 }
 
 // maybeAddOrphan potentially adds an orphan to the orphan pool. This function MUST be called with the mempool lock held (for writes).
@@ -605,7 +610,8 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 		}
 		oldTotal := mp.pennyTotal
 		mp.pennyTotal += float64(serializedSize)
-		log <- cl.Tracef{"rate limit: curTotal %v, nextTotal: %v, limit %v",
+		log <- cl.Tracef{
+			"rate limit: curTotal %v, nextTotal: %v, limit %v",
 			oldTotal,
 			mp.pennyTotal,
 			mp.cfg.Policy.FreeTxRelayLimit * 10 * 1000,
@@ -623,7 +629,8 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 	}
 	// Add to transaction pool.
 	txD := mp.addTransaction(utxoView, tx, bestHeight, txFee)
-	log <- cl.Debugf{"Accepted transaction %v (pool size: %v)",
+	log <- cl.Debugf{
+		"accepted transaction %v (pool size: %v)",
 		txHash,
 		len(mp.pool),
 	}
@@ -699,7 +706,7 @@ func (mp *TxPool) ProcessOrphans(acceptedTx *util.Tx) []*TxDesc {
 
 // ProcessTransaction is the main workhorse for handling insertion of new free-standing transactions into the memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, orphan transaction handling, and insertion into the memory pool. It returns a slice of transactions added to the mempool.  When the error is nil, the list will include the passed transaction itself along with any additional orphan transaactions that were added as a result of the passed one being accepted. This function is safe for concurrent access.
 func (mp *TxPool) ProcessTransaction(tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
-	log <- cl.Tracef{"Processing transaction %v", tx.Hash()}
+	log <- cl.Trace{"processing transaction", tx.Hash()}
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	defer mp.mtx.Unlock()

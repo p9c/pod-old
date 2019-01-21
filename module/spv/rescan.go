@@ -285,7 +285,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	s.blockManager.newFilterHeadersMtx.RUnlock()
 
 	log <- cl.Debugf{
-		"Waiting for filter headers (height=%v) to catch up the rescan start (height=%v)",
+		"waiting for filter headers (height=%v) to catch up the rescan start (height=%v)",
 		filterHeaderHeight, curStamp.Height,
 	}
 
@@ -342,7 +342,7 @@ filterHeaderWaitLoop:
 	}
 
 	log <- cl.Debugf{
-		"Starting rescan from known block %d (%s)",
+		"starting rescan from known block %d (%s)",
 		curStamp.Height, curStamp.Hash,
 	}
 
@@ -383,7 +383,7 @@ filterHeaderWaitLoop:
 		}
 
 		log <- cl.Infof{
-			"Setting timer to attempt to re-fetch filter for hash=%v, height=%v",
+			"setting timer to attempt to re-fetch filter for hash=%v, height=%v",
 			headerTip.BlockHash(), height,
 		}
 
@@ -391,7 +391,7 @@ filterHeaderWaitLoop:
 		// if in the case that we don't get a re-org soon afterwards.
 		blockReFetchTimer = time.AfterFunc(blockRetryInterval, func() {
 			log <- cl.Infof{
-				"Resending rescan header for block hash=%v, height=%v",
+				"resending rescan header for block hash=%v, height=%v",
 				headerTip.BlockHash(), height,
 			}
 
@@ -449,7 +449,7 @@ rescanLoop:
 				// rescan.
 				if rewound {
 					log <- cl.Tracef{
-						"Rewound to block %d (%s), no longer current",
+						"rewound to block %d (%s), no longer current",
 						curStamp.Height, curStamp.Hash,
 					}
 					current = false
@@ -473,7 +473,7 @@ rescanLoop:
 					header.BlockHash() != curStamp.Hash {
 
 					log <- cl.Debugf{
-						"Rescan got out of order block %s with prevblock %s, curHeader: %s",
+						"rescan got out of order block %s with prevblock %s, curHeader: %s",
 						header.BlockHash(),
 						header.PrevBlock,
 						curStamp.Hash,
@@ -491,7 +491,7 @@ rescanLoop:
 				if header.BlockHash() != curStamp.Hash &&
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
 					log <- cl.Warnf{
-						"Missing filter header for height=%v, skipping",
+						"missing filter header for height=%v, skipping",
 						curStamp.Height + 1,
 					}
 					continue rescanLoop
@@ -507,7 +507,7 @@ rescanLoop:
 				}
 
 				log <- cl.Tracef{
-					"Rescan got block %d (%s)",
+					"rescan got block %d (%s)",
 					curStamp.Height, curStamp.Hash,
 				}
 				// We're only scanning if the header is beyond the horizon of our start time.
@@ -563,7 +563,7 @@ rescanLoop:
 
 			case header := <-blockDisconnected:
 				log <- cl.Debugf{
-					"Rescan disconnect block %d (%s)\n",
+					"rescan disconnect block %d (%s)\n",
 					curStamp.Height, curStamp.Hash,
 				}
 
@@ -637,7 +637,7 @@ rescanLoop:
 			nextHeight := curStamp.Height + 1
 			if nextHeight > bestBlock.Height {
 				log <- cl.Debugf{
-					"Rescan became current at %d (%s), subscribing to block notifications",
+					"rescan became current at %d (%s), subscribing to block notifications",
 					curStamp.Height, curStamp.Hash,
 				}
 				current = true
@@ -1246,7 +1246,7 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 	report, err := req.Result(ro.quit)
 	if err != nil {
 		log <- cl.Debugf{
-			"Error finding spends for %s: %v",
+			"error finding spends for %s: %v",
 			ro.watchInputs[0].OutPoint.String(),
 			err,
 		}

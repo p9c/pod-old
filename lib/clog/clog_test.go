@@ -46,12 +46,12 @@ func TestClog(t *testing.T) {
 		time.Sleep(time.Millisecond * 100)
 		return testString
 	}
-	ss.Ch <- ss.Ftlc(testClosure)
-	ss.Ch <- ss.Errc(testClosure)
-	ss.Ch <- ss.Wrnc(testClosure)
-	ss.Ch <- ss.Infc(testClosure)
-	ss.Ch <- ss.Dbgc(testClosure)
-	ss.Ch <- ss.Trcc(testClosure)
+	ss.Ftlc(testClosure)
+	ss.Errc(testClosure)
+	ss.Wrnc(testClosure)
+	ss.Infc(testClosure)
+	ss.Dbgc(testClosure)
+	ss.Trcc(testClosure)
 
 	time.Sleep(time.Second)
 

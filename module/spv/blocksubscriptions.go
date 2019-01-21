@@ -123,7 +123,7 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 		}
 
 		log <- cl.Debugf{
-			"Delivering backlog block notifications from height=%v, to height=%v",
+			"delivering backlog block notifications from height=%v, to height=%v",
 			bestHeight, filterHeaderTip,
 		}
 

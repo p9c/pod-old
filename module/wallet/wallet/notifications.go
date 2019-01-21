@@ -55,11 +55,15 @@ func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetai
 	prevOP := &details.MsgTx.TxIn[deb.Index].PreviousOutPoint
 	prev, err := w.TxStore.TxDetails(txmgrNs, &prevOP.Hash)
 	if err != nil {
-		log <- cl.Errorf{"Cannot query previous transaction details for %v: %v", prevOP.Hash, err}
+		log <- cl.Errorf{
+			"cannot query previous transaction details for %v: %v", prevOP.Hash, err,
+		}
 		return 0
 	}
 	if prev == nil {
-		log <- cl.Errorf{"Missing previous transaction %v", prevOP.Hash}
+		log <- cl.Error{
+			"missing previous transaction", prevOP.Hash,
+		}
 		return 0
 	}
 	prevOut := prev.MsgTx.TxOut[prevOP.Index]
@@ -69,7 +73,9 @@ func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetai
 		_, inputAcct, err = w.Manager.AddrAccount(addrmgrNs, addrs[0])
 	}
 	if err != nil {
-		log <- cl.Errorf{"Cannot fetch account for previous output %v: %v", prevOP, err}
+		log <- cl.Errorf{
+			"cannot fetch account for previous output %v: %v", prevOP, err,
+		}
 		inputAcct = 0
 	}
 	return inputAcct
@@ -87,7 +93,8 @@ func lookupOutputChain(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetail
 		ma, err = w.Manager.Address(addrmgrNs, addrs[0])
 	}
 	if err != nil {
-		log <- cl.Errorf{"Cannot fetch account for wallet output: %v", err}
+		log <- cl.Error{
+			"cannot fetch account for wallet output:", err}
 	} else {
 		account = ma.Account()
 		internal = ma.Internal()
@@ -101,7 +108,7 @@ func makeTxSummary(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) T
 		var buf bytes.Buffer
 		err := details.MsgTx.Serialize(&buf)
 		if err != nil {
-			log <- cl.Errorf{"Transaction serialization: %v", err}
+			log <- cl.Error{"transaction serialization:", err}
 		}
 		serializedTx = buf.Bytes()
 	}
@@ -197,9 +204,10 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	// Sanity check: should not be currently coalescing a notification for
 	// mined transactions at the same time that an unmined tx is notified.
 	if s.currentTxNtfn != nil {
-		log <- cl.Errorf{
-			"Notifying unmined tx notification (%s) while creating notification for blocks",
-			details.Hash,
+		log <- cl.Error{
+			"notifying unmined tx notification (",
+			details.Hash.String(),
+			") while creating notification for blocks",
 		}
 	}
 
@@ -213,8 +221,8 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	unminedTxs := []TransactionSummary{makeTxSummary(dbtx, s.wallet, details)}
 	unminedHashes, err := s.wallet.TxStore.UnminedTxHashes(dbtx.ReadBucket(wtxmgrNamespaceKey))
 	if err != nil {
-		log <- cl.Errorf{
-			"Cannot fetch unmined transaction hashes: %v", err,
+		log <- cl.Error{
+			"cannot fetch unmined transaction hashes:", err,
 		}
 		return
 	}
@@ -222,8 +230,8 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	relevantAccounts(s.wallet, bals, unminedTxs)
 	err = totalBalances(dbtx, s.wallet, bals)
 	if err != nil {
-		log <- cl.Errorf{
-			"Cannot determine balances for relevant accounts: %v", err,
+		log <- cl.Error{
+			"cannot determine balances for relevant accounts:", err,
 		}
 		return
 	}
@@ -304,8 +312,8 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 	unminedHashes, err := s.wallet.TxStore.UnminedTxHashes(txmgrNs)
 	if err != nil {
-		log <- cl.Errorf{
-			"Cannot fetch unmined transaction hashes: %v", err,
+		log <- cl.Error{
+			"cannot fetch unmined transaction hashes:", err,
 		}
 		return
 	}
@@ -317,8 +325,8 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	}
 	err = totalBalances(dbtx, s.wallet, bals)
 	if err != nil {
-		log <- cl.Errorf{
-			"Cannot determine balances for relevant accounts: %v", err,
+		log <- cl.Error{
+			"cannot determine balances for relevant accounts:", err,
 		}
 		return
 	}

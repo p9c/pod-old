@@ -28,7 +28,7 @@ func (w *Wallet) handleChainNotifications() {
 		// to be out of date.
 		err := w.syncWithChain()
 		if err != nil && !w.ShuttingDown() {
-			log <- cl.Warnf{"Unable to synchronize wallet to chain: %v", err}
+			log <- cl.Warn{"unable to synchronize wallet to chain:", err}
 		}
 	}
 
@@ -45,7 +45,7 @@ func (w *Wallet) handleChainNotifications() {
 		// the notification, to roll back and restart the
 		// rescan.
 		log <- cl.Infof{
-			"Catching up block hashes to height %d, this might take a while",
+			"catching up block hashes to height %d, this might take a while",
 			height,
 		}
 		err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
@@ -77,12 +77,12 @@ func (w *Wallet) handleChainNotifications() {
 		})
 		if err != nil {
 			log <- cl.Errorf{
-				"Failed to update address manager sync state for height %d: %v",
+				"failed to update address manager sync state for height %d: %v",
 				height, err,
 			}
 		}
 
-		log <- cl.Inf("Done catching up block hashes")
+		log <- cl.Inf("done catching up block hashes")
 		return err
 	}
 
@@ -158,7 +158,7 @@ func (w *Wallet) handleChainNotifications() {
 			if err != nil {
 				// On out-of-sync blockconnected notifications, only
 				// send a debug message.
-				errStr := "Failed to process consensus server " +
+				errStr := "failed to process consensus server " +
 					"notification (name: `%s`, detail: `%v`)"
 				if notificationName == "blockconnected" &&
 					strings.Contains(err.Error(),
@@ -291,7 +291,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 				if err != nil {
 					return err
 				}
-				log <- cl.Debugf{"Marked address %v used", addr}
+				log <- cl.Debugf{"marked address %v used", addr}
 				continue
 			}
 
@@ -310,7 +310,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 	if block == nil {
 		details, err := w.TxStore.UniqueTxDetails(txmgrNs, &rec.Hash, nil)
 		if err != nil {
-			log <- cl.Errorf{"Cannot query transaction details for notification: %v", err}
+			log <- cl.Error{"cannot query transaction details for notification:", err}
 		}
 
 		// It's possible that the transaction was not found within the
@@ -326,7 +326,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 	} else {
 		details, err := w.TxStore.UniqueTxDetails(txmgrNs, &rec.Hash, &block.Block)
 		if err != nil {
-			log <- cl.Errorf{"Cannot query transaction details for notification: %v", err}
+			log <- cl.Error{"Cannot query transaction details for notification:", err}
 		}
 
 		// We'll only notify the transaction if it was found within the

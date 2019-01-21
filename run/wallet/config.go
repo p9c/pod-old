@@ -16,7 +16,7 @@ import (
 )
 
 // Log is the main logger for wallet
-var Log = cl.NewSubSystem("run/wallet", "trace")
+var Log = cl.NewSubSystem("run/wallet", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

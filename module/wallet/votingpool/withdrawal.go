@@ -375,7 +375,7 @@ func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
 // addOutput adds a new output to this transaction.
 func (tx *withdrawalTx) addOutput(request OutputRequest) {
 	log <- cl.Debugf{
-		"Added tx output sending %s to %s",
+		"added tx output sending %s to %s",
 		request.Amount,
 		request.Address,
 	}
@@ -387,7 +387,7 @@ func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
 	removed := tx.outputs[len(tx.outputs)-1]
 	tx.outputs = tx.outputs[:len(tx.outputs)-1]
 	log <- cl.Debugf{
-		"Removed tx output sending %s to %s",
+		"removed tx output sending %s to %s",
 		removed.amount,
 		removed.request.Address,
 	}
@@ -396,9 +396,8 @@ func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
 
 // addInput adds a new input to this transaction.
 func (tx *withdrawalTx) addInput(input credit) {
-	log <- cl.Debugf{
-		"Added tx input with amount %v",
-		input.Amount,
+	log <- cl.Debug{
+		"added tx input with amount", input.Amount,
 	}
 	tx.inputs = append(tx.inputs, input)
 }
@@ -407,9 +406,8 @@ func (tx *withdrawalTx) addInput(input credit) {
 func (tx *withdrawalTx) removeInput() credit {
 	removed := tx.inputs[len(tx.inputs)-1]
 	tx.inputs = tx.inputs[:len(tx.inputs)-1]
-	log <- cl.Debugf{
-		"Removed tx input with amount %v",
-		removed.Amount,
+	log <- cl.Debug{
+		"removed tx input with amount", removed.Amount,
 	}
 	return removed
 }
@@ -432,9 +430,8 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 	}
 	if change > 0 {
 		tx.changeOutput = wire.NewTxOut(int64(change), pkScript)
-		log <- cl.Debugf{
-			"Added change output with amount %v",
-			change,
+		log <- cl.Debug{
+			"added change output with amount", change,
 		}
 	}
 	return tx.hasChange()
@@ -584,7 +581,7 @@ func (w *withdrawal) fulfillNextRequest() error {
 	for w.current.inputTotal() < w.current.outputTotal()+fee {
 		if len(w.eligibleInputs) == 0 {
 			log <- cl.Dbg(
-				"Splitting last output because we don't have enough inputs",
+				"splitting last output because we don't have enough inputs",
 			)
 			if err := w.splitLastOutput(); err != nil {
 				return err
@@ -606,7 +603,7 @@ func (w *withdrawal) fulfillNextRequest() error {
 func (w *withdrawal) handleOversizeTx() error {
 	if len(w.current.outputs) > 1 {
 		log <- cl.Dbg(
-			"Rolling back last output because tx got too big",
+			"rolling back last output because tx got too big",
 		)
 		inputs, output, err := w.current.rollBackLastOutput()
 		if err != nil {
@@ -618,7 +615,7 @@ func (w *withdrawal) handleOversizeTx() error {
 		w.pushRequest(output.request)
 	} else if len(w.current.outputs) == 1 {
 		log <- cl.Dbg(
-			"Splitting last output because tx got too big...",
+			"splitting last output because tx got too big...",
 		)
 		w.pushInput(w.current.removeInput())
 		if err := w.splitLastOutput(); err != nil {
@@ -635,12 +632,12 @@ func (w *withdrawal) handleOversizeTx() error {
 // transaction.
 func (w *withdrawal) finalizeCurrentTx() error {
 	log <- cl.Dbg(
-		"Finalizing current transaction",
+		"finalizing current transaction",
 	)
 	tx := w.current
 	if len(tx.outputs) == 0 {
 		log <- cl.Dbg(
-			"Current transaction has no outputs, doing nothing",
+			"current transaction has no outputs, doing nothing",
 		)
 		return nil
 	}
@@ -705,7 +702,7 @@ func (w *withdrawal) maybeDropRequests() {
 	for inputAmount < outputAmount {
 		request := w.popRequest()
 		log <- cl.Infof{
-			"Not fulfilling request to send %v to %v; not enough credits.",
+			"not fulfilling request to send %v to %v; not enough credits.",
 			request.Amount,
 			request.Address,
 		}
@@ -770,18 +767,16 @@ func (w *withdrawal) splitLastOutput() error {
 
 	tx := w.current
 	output := tx.outputs[len(tx.outputs)-1]
-	log <- cl.Debugf{
-		"Splitting tx output for %s",
-		output.request,
+	log <- cl.Debug{
+		"splitting tx output for", output.request,
 	}
 	origAmount := output.amount
 	spentAmount := tx.outputTotal() + tx.calculateFee() - output.amount
 	// This is how much we have left after satisfying all outputs except the last one. IOW, all we have left for the last output, so we set that as the amount of the tx's last output.
 	unspentAmount := tx.inputTotal() - spentAmount
 	output.amount = unspentAmount
-	log <- cl.Debugf{
-		"Updated output amount to %v",
-		output.amount,
+	log <- cl.Debug{
+		"updated output amount to", output.amount,
 	}
 
 	// Create a new OutputRequest with the amount being the difference between
@@ -794,9 +789,8 @@ func (w *withdrawal) splitLastOutput() error {
 		PkScript:    request.PkScript,
 		Amount:      origAmount - output.amount}
 	w.pushRequest(newRequest)
-	log <- cl.Debugf{
-		"Created a new pending output request with amount %v",
-		newRequest.Amount,
+	log <- cl.Debug{
+		"created a new pending output request with amount", newRequest.Amount,
 	}
 
 	w.status.outputs[request.outBailmentID()].status = statusPartial
@@ -930,7 +924,7 @@ func getRawSigs(transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
 						return nil, newError(ErrKeyChain, "failed to obtain ECPrivKey", err)
 					}
 					log <- cl.Debugf{
-						"Generating raw sig for input %d of tx %s with privkey of %s",
+						"generating raw sig for input %d of tx %s with privkey of %s",
 						inputIdx,
 						ntxid,
 						pubKey.String(),
@@ -942,7 +936,7 @@ func getRawSigs(transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
 					}
 				} else {
 					log <- cl.Debugf{
-						"Not generating raw sig for input %d of %s because private key " +
+						"not generating raw sig for input %d of %s because private key " +
 							"for %s is not available: %v",
 						inputIdx,
 						ntxid,

@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the rpcclient package
-var Log = cl.NewSubSystem("rpcclient", "trace")
+var Log = cl.NewSubSystem("lib/rpcclient", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

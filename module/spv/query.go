@@ -282,8 +282,7 @@ func queryChainServiceBatch(
 					firstUnfinished++
 
 					log <- cl.Tracef{
-						"Query #%v already answered, skipping",
-						i,
+						"query #%v already answered, skipping", i,
 					}
 					continue
 				}
@@ -297,8 +296,7 @@ func queryChainServiceBatch(
 					uint32(queryWaitResponse),
 				) {
 					log <- cl.Tracef{
-						"Query #%v already being queried for, skipping",
-						i,
+						"query #%v already being queried for, skipping", i,
 					}
 					continue
 				}
@@ -360,13 +358,13 @@ func queryChainServiceBatch(
 					return
 				}
 
-				log <- cl.Tracef{
-					"Query for #%v failed, moving on: %v",
-					handleQuery,
-					func() string {
-						return spew.Sdump(queryMsgs[handleQuery])
-					}()}
-
+				Log.Trcc(func() string {
+					return fmt.Sprintf(
+						"query for #%v failed, moving on: %v",
+						handleQuery,
+						spew.Sdump(queryMsgs[handleQuery]),
+					)
+				})
 			case <-matchSignal:
 				// We got a match signal so we can mark this
 				// query a success.
@@ -374,8 +372,7 @@ func queryChainServiceBatch(
 					uint32(queryAnswered))
 
 				log <- cl.Tracef{
-					"Query #%v answered, updating state",
-					handleQuery,
+					"query #%v answered, updating state", handleQuery,
 				}
 			}
 		}
@@ -783,12 +780,13 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		return nil, err
 	}
 	if block.BlockHash() != blockHash {
-		return nil, fmt.Errorf("Couldn't get header for block %s "+
-			"from database", blockHash)
+		str := "couldn't get header for block %s from database"
+		log <- cl.Debug{str, blockHash}
+		return nil, fmt.Errorf(str, blockHash)
 	}
 
 	log <- cl.Debugf{
-		"Fetching filter for height=%v, hash=%v",
+		"fetching filter for height=%v, hash=%v",
 		height, blockHash,
 	}
 
@@ -871,8 +869,8 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// the caller requested it.
 		err := s.putFilterToCache(&blockHash, dbFilterType, filter)
 		if err != nil {
-			log <- cl.Warnf{
-				"couldn't write filter to cache: %v", err,
+			log <- cl.Warn{
+				"couldn't write filter to cache:", err,
 			}
 		}
 
@@ -1010,7 +1008,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// Add block to the cache before returning it.
 	err = s.BlockCache.Put(*inv, &cache.CacheableBlock{foundBlock})
 	if err != nil {
-		log <- cl.Warnf{"couldn't write block to cache: %v", err}
+		log <- cl.Warn{"couldn't write block to cache:", err}
 	}
 
 	return foundBlock, nil
@@ -1060,7 +1058,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						"rejected by %s: %s",
 						tx.TxHash(), sp.Addr(),
 						response.Reason)
-					log <- cl.Errorf{err.Error()}
+					log <- cl.Error{err}
 					close(quit)
 				}
 			}

@@ -149,7 +149,8 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 		)
 		if err != nil {
 			log <- cl.Warnf{
-				"Could not parse output script in %s:%d: %v", tx.TxHash(), i, err,
+				"could not parse output script in %s:%d: %v",
+				tx.TxHash(), i, err,
 			}
 			continue
 		}

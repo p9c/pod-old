@@ -7,7 +7,7 @@ import (
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("wallet/wallet", "trace")
+var Log = cl.NewSubSystem("module/wallet/wallet", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

@@ -83,7 +83,7 @@ var levelStrs = [...]string{"TRC", "DBG", "INF", "WRN", "ERR", "CRT", "OFF"}
 // returned.
 func LevelFromString(s string) (l Level, ok bool) {
 	switch strings.ToLower(s) {
-	case "trace", "trc":
+	case "info", "trc":
 		return LevelTrace, true
 	case "debug", "dbg":
 		return LevelDebug, true

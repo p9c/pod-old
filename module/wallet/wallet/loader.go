@@ -169,7 +169,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	dbPath := filepath.Join(l.dbDirPath, walletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
 	if err != nil {
-		log <- cl.Errorf{"Failed to open database: %v", err}
+		log <- cl.Error{"failed to open database:", err}
 		return nil, err
 	}
 
@@ -192,7 +192,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		// allow future calls to walletdb.Open().
 		e := db.Close()
 		if e != nil {
-			log <- cl.Warnf{"Error closing database: %v", e}
+			log <- cl.Warn{"error closing database:", e}
 		}
 		return nil, err
 	}

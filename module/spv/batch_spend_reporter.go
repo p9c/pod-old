@@ -48,13 +48,17 @@ func newBatchSpendReporter() *batchSpendReporter {
 // delivered signaling that no spend was detected. If the original output could
 // not be found, a nil spend report is returned.
 func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
-	log <- cl.Debugf{"Finished batch, %d unspent outpoints", len(b.requests)}
+	log <- cl.Debugf{
+		"finished batch, %d unspent outpoints", len(b.requests),
+	}
 
 	for outpoint, requests := range b.requests {
 		// A nil SpendReport indicates the output was not found.
 		tx, ok := b.initialTxns[outpoint]
 		if !ok {
-			log <- cl.Warnf{"Unknown initial txn for getuxo request %v", outpoint}
+			log <- cl.Warnf{
+				"unknown initial txn for getuxo request %v", outpoint,
+			}
 		}
 
 		b.notifyRequests(&outpoint, requests, tx, nil)
@@ -130,7 +134,9 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 	for _, req := range reqs {
 		outpoint := req.Input.OutPoint
 
-		log <- cl.Debugf{"Adding outpoint=%s height=%d to watchlist", outpoint, req.BirthHeight}
+		log <- cl.Debugf{
+			"adding outpoint=%s height=%d to watchlist", outpoint, req.BirthHeight,
+		}
 
 		b.requests[outpoint] = append(b.requests[outpoint], req)
 
@@ -189,7 +195,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			// to find the initial output.
 			if op.Index >= uint32(len(txOuts)) {
 				log <- cl.Errorf{
-					"Failed to find outpoint %s -- invalid output index", op,
+					"failed to find outpoint %s -- invalid output index", op,
 				}
 				initialTxns[op] = nil
 				continue
@@ -211,12 +217,14 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 		switch {
 		case !ok:
 			log <- cl.Errorf{
-				"Failed to find outpoint %s -- txid not found in block",
+				"failed to find outpoint %s -- txid not found in block",
 				req.Input.OutPoint,
 			}
 			initialTxns[req.Input.OutPoint] = nil
 		case tx != nil:
-			log <- cl.Tracef{"Block %d creates output %s", height, req.Input.OutPoint}
+			log <- cl.Tracef{
+				"block %d creates output %s", height, req.Input.OutPoint,
+			}
 		default:
 		}
 

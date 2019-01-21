@@ -103,10 +103,10 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 	var inputs []credit
 	address := startAddress
 	for {
-		log <- cl.Debugf{
-			"Looking for eligible inputs at address %v",
-			address.addrIdentifier(),
-		}
+		Log.Dbgc(func() string {
+			return "looking for eligible inputs at address" +
+				address.addrIdentifier()
+		})
 		if candidates, ok := addrMap[address.addr.EncodeAddress()]; ok {
 			var eligibles []credit
 			for _, c := range candidates {

@@ -365,7 +365,7 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	// we'll need to remove it from the unmined bucket.
 	if v := existsRawUnmined(ns, rec.Hash[:]); v != nil {
 		log <- cl.Infof{
-			"Marking unconfirmed transaction %v mined in block %d",
+			"marking unconfirmed transaction %v mined in block %d",
 			&rec.Hash, block.Height,
 		}
 
@@ -428,7 +428,7 @@ func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 
 	txOutAmt := util.Amount(rec.MsgTx.TxOut[index].Value)
 	log <- cl.Debugf{
-		"Marking transaction %v output %d (%v) spendable",
+		"marking transaction %v output %d (%v) spendable",
 		rec.Hash, index, txOutAmt,
 	}
 	cred := credit{
@@ -491,7 +491,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 		heightsToRemove = append(heightsToRemove, it.elem.Height)
 
 		log <- cl.Infof{
-			"Rolling back %d transactions from block %v height %d",
+			"rolling back %d transactions from block %v height %d",
 			len(b.transactions), b.Hash, b.Height,
 		}
 
@@ -696,7 +696,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			}
 
 			log <- cl.Debugf{
-				"Transaction %v spends a removed coinbase output -- removing as well",
+				"transaction %v spends a removed coinbase output -- removing as well",
 				unminedRec.Hash,
 			}
 			err = s.removeConflict(ns, &unminedRec)

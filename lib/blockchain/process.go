@@ -64,9 +64,10 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 		for i := 0; i < len(b.prevOrphans[*processHash]); i++ {
 			orphan := b.prevOrphans[*processHash][i]
 			if orphan == nil {
-				log <- cl.Warnf{"Found a nil entry at index %d in the " +
-					"orphan dependency list for block %v", i,
-					processHash}
+				log <- cl.Warnf{
+					"found a nil entry at index %d in the orphan dependency list for block %v",
+					i, processHash,
+				}
 				continue
 			}
 			// Remove the orphan from the orphan pool.
@@ -92,8 +93,12 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	fastAdd := flags&BFFastAdd == BFFastAdd
 	blockHash := block.Hash()
 	hf := fork.GetCurrent(height)
-	blockHashWithAlgo := block.MsgBlock().BlockHashWithAlgos(height)
-	log <- cl.Tracef{"Processing block %v", blockHashWithAlgo}
+	blockHashWithAlgo := func() string {
+		return block.MsgBlock().BlockHashWithAlgos(height).String()
+	}
+	Log.Trcc(func() string {
+		return "processing block" + blockHashWithAlgo()
+	})
 	var algo int32
 	switch hf {
 	case 0:
@@ -111,12 +116,12 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		return false, false, err
 	}
 	if exists {
-		str := fmt.Sprintf("already have block %v", blockHashWithAlgo)
+		str := fmt.Sprintf("already have block %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
 	}
 	// The block must not already exist as an orphan.
 	if _, exists := b.orphans[*blockHash]; exists {
-		str := fmt.Sprintf("already have block (orphan) %v", blockHashWithAlgo)
+		str := fmt.Sprintf("already have block (orphan) %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
 	}
 	// Perform preliminary sanity checks on the block and its transactions.
@@ -135,7 +140,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	}
 	err = checkBlockSanity(block, pl, b.timeSource, flags, DoNotCheckPow, height)
 	if err != nil {
-		log <- cl.Debugf{"ERROR %s", err.Error()}
+		log <- cl.Debug{"ERROR", err}
 		return false, false, err
 	}
 	// Find the previous checkpoint and perform some additional checks based on the checkpoint.  This provides a few nice properties such as preventing old side chain blocks before the last checkpoint, rejecting easy to mine, but otherwise bogus, blocks that could be used to eat memory, and ensuring expected (versus claimed) proof of work requirements since the previous checkpoint are met.
@@ -172,7 +177,13 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		return false, false, err
 	}
 	if !prevHashExists {
-		log <- cl.Infof{"Adding orphan block %v with parent %v", blockHashWithAlgo, prevHash}
+		Log.Infc(func() string {
+			return fmt.Sprintf(
+				"adding orphan block %v with parent %v",
+				blockHashWithAlgo(),
+				prevHash,
+			)
+		})
 		b.addOrphanBlock(block)
 		return false, true, nil
 	}
@@ -186,6 +197,16 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	if err != nil {
 		return false, false, err
 	}
-	log <- cl.Debugf{"Accepted block %s %v, height %d", fork.GetAlgoName(block.MsgBlock().Header.Version, height), blockHashWithAlgo, height}
+	Log.Dbgc(func() string {
+		return fmt.Sprintf(
+			"accepted block %s %v, height %d",
+			fork.GetAlgoName(
+				block.MsgBlock().Header.Version,
+				height,
+			),
+			blockHashWithAlgo(),
+			height,
+		)
+	})
 	return isMainChain, false, nil
 }

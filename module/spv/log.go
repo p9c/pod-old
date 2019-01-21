@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for node
-var Log = cl.NewSubSystem("spv", "trace")
+var Log = cl.NewSubSystem("module/spv", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

@@ -19,7 +19,7 @@ import (
 )
 
 // Log is the shell main logger
-var Log = cl.NewSubSystem("run/shell", "trace")
+var Log = cl.NewSubSystem("run/shell", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
@@ -275,7 +275,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		case "fatal", "error", "warn", "info", "debug", "trace":
 			Config.Node.DebugLevel = *r
 		default:
-			Config.Node.DebugLevel = "trace"
+			Config.Node.DebugLevel = "info"
 		}
 		Log.SetLevel(Config.Node.DebugLevel)
 	}

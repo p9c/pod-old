@@ -11,7 +11,7 @@ import (
 )
 
 // Og is the root channel that processes logging messages, so, cl.Og <- Fatalf{"format string %s %d", stringy, inty} sends to the root
-var Og = make(chan interface{}, 16)
+var Og = make(chan interface{}, 32)
 
 var wg sync.WaitGroup
 
@@ -107,33 +107,33 @@ func (s *SubSystem) Close() {
 }
 
 // Ftlc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Ftlc(closure StringClosure) Fatalc {
-	return Fatalc(closure)
+func (s *SubSystem) Ftlc(closure StringClosure) {
+	s.Ch <- Fatalc(closure)
 }
 
 // Errc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Errc(closure StringClosure) Errorc {
-	return Errorc(closure)
+func (s *SubSystem) Errc(closure StringClosure) {
+	s.Ch <- Errorc(closure)
 }
 
 // Wrnc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Wrnc(closure StringClosure) Warnc {
-	return Warnc(closure)
+func (s *SubSystem) Wrnc(closure StringClosure) {
+	s.Ch <- Warnc(closure)
 }
 
 // Infc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Infc(closure StringClosure) Infoc {
-	return Infoc(closure)
+func (s *SubSystem) Infc(closure StringClosure) {
+	s.Ch <- Infoc(closure)
 }
 
 // Dbgc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Dbgc(closure StringClosure) Debugc {
-	return Debugc(closure)
+func (s *SubSystem) Dbgc(closure StringClosure) {
+	s.Ch <- Debugc(closure)
 }
 
 // Trcc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
-func (s *SubSystem) Trcc(closure StringClosure) Tracec {
-	return Tracec(closure)
+func (s *SubSystem) Trcc(closure StringClosure) {
+	s.Ch <- Tracec(closure)
 }
 
 // Writer is the place thelogs put out
@@ -192,11 +192,13 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	go func() {
 		for {
 			if ShuttingDown {
-				wg.Done()
 				break
 			}
 			select {
 			case i := <-ss.Ch:
+				if i == nil {
+					continue
+				}
 				n := name
 				if Color {
 					n = colorstring.Color("[bold]" + n + "[reset]")
@@ -230,51 +232,57 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 					}
 				case Fatalc:
 					if ss.Level > _off {
-						Og <- ss.Ftlc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Fatalc)()
 							return o
-						})
+						}
+						Og <- Fatalc(fn)
 					}
 				case Errorc:
 					if ss.Level > _fatal {
-						Og <- ss.Errc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Errorc)()
 							return o
-						})
+						}
+						Og <- Errorc(fn)
 					}
 				case Warnc:
 					if ss.Level > _error {
-						Og <- ss.Wrnc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Warnc)()
 							return o
-						})
+						}
+						Og <- Warnc(fn)
 					}
 				case Infoc:
 					if ss.Level > _warn {
-						Og <- ss.Infc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Infoc)()
 							return o
-						})
+						}
+						Og <- Infoc(fn)
 					}
 				case Debugc:
 					if ss.Level > _info {
-						Og <- ss.Dbgc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Debugc)()
 							return o
-						})
+						}
+						Og <- Debugc(fn)
 					}
 				case Tracec:
 					if ss.Level > _debug {
-						Og <- ss.Trcc(func() string {
+						fn := func() string {
 							o := n + " "
 							o += i.(Tracec)()
 							return o
-						})
+						}
+						Og <- Tracec(fn)
 					}
 				case Fatal:
 					if ss.Level > _off {
@@ -326,13 +334,12 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 					}
 				}
 				if ShuttingDown {
-					wg.Done()
 					break
 				}
 			}
 		}
 	}()
-
+	wg.Done()
 	return
 }
 
@@ -343,7 +350,6 @@ func init() {
 			var t, s string
 			select {
 			case <-Quit:
-				wg.Done()
 				ShuttingDown = true
 				break
 			case Color = <-ColorChan:
@@ -451,6 +457,7 @@ func init() {
 			fmt.Fprint(Writer, t+s)
 		}
 	}()
+	wg.Done()
 }
 
 func ftlTag(color bool) string {

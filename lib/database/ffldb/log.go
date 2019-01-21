@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the ffldb package
-var Log = cl.NewSubSystem("database/ffldb", "trace")
+var Log = cl.NewSubSystem("lib/database/ffldb", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

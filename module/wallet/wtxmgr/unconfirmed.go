@@ -32,7 +32,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		}
 	}
 
-	log <- cl.Infof{"Inserting unconfirmed transaction %v", rec.Hash}
+	log <- cl.Info{"inserting unconfirmed transaction", rec.Hash}
 	v, err := valueTxRecord(rec)
 	if err != nil {
 		return err
@@ -88,9 +88,8 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 				return err
 			}
 
-			log <- cl.Debugf{
-				"Removing double spending transaction %v",
-				doubleSpend.Hash,
+			log <- cl.Debug{
+				"removing double spending transaction", doubleSpend.Hash,
 			}
 			if err := s.removeConflict(ns, &doubleSpend); err != nil {
 				return err
@@ -132,7 +131,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 			}
 
 			log <- cl.Debugf{
-				"Transaction %v is part of a removed conflict chain -- removing as well",
+				"transaction %v is part of a removed conflict chain -- removing as well",
 				spender.Hash,
 			}
 			if err := s.removeConflict(ns, &spender); err != nil {

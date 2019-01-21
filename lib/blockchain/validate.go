@@ -342,7 +342,7 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 	header := &msgBlock.Header
 	err := checkBlockHeaderSanity(header, powLimit, timeSource, flags, height, fork.IsTestnet)
 	if err != nil {
-		log <- cl.Debugf{"ERROR %s", err}
+		log <- cl.Debug{"ERROR", err}
 		return err
 	}
 	// A block must have at least one transaction.
@@ -423,7 +423,6 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 
 // CheckBlockSanity performs some preliminary checks on a block to ensure it is sane before continuing with block processing.  These checks are context free.
 func CheckBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, DoNotCheckPow bool, height int32, testnet bool) error {
-	// log <- cl.Debugf{"CheckBlockSanity"}
 	return checkBlockSanity(block, powLimit, timeSource, BFNone, DoNotCheckPow, height)
 }
 
@@ -462,7 +461,6 @@ func ExtractCoinbaseHeight(coinbaseTx *util.Tx) (int32, error) {
 
 // checkSerializedHeight checks if the signature script in the passed transaction starts with the serialized block height of wantHeight.
 func checkSerializedHeight(coinbaseTx *util.Tx, wantHeight int32) error {
-	// log <- cl.Debugf{"checkSerializedHeight"}
 	serializedHeight, err := ExtractCoinbaseHeight(coinbaseTx)
 	if err != nil {
 		return err
@@ -716,23 +714,19 @@ func CheckTransactionInputs(tx *util.Tx, txHeight int32, utxoView *UtxoViewpoint
 // The CheckConnectBlockTemplate function makes use of this function to perform the bulk of its work.  The only difference is this function accepts a node which may or may not require reorganization to connect it to the main chain whereas CheckConnectBlockTemplate creates a new node which specifically connects to the end of the current main chain and then calls this function with that node.
 // This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view *UtxoViewpoint, stxos *[]SpentTxOut) error {
-	// log <- cl.Debug{heckConnectBlock}
 	// If the side chain blocks end up in the database, a call to CheckBlockSanity should be done here in case a previous version allowed a block that is no longer valid.  However, since the implementation only currently uses memory for the side chain blocks, it isn't currently necessary. The coinbase for the Genesis block is not spendable, so just return an error now.
 	if node.hash.IsEqual(b.chainParams.GenesisHash) {
 		str := "the coinbase for the genesis block is not spendable"
-		// log <- cl.Debug{
 		return ruleError(ErrMissingTxOut, str)
 	}
 	// Ensure the view is for the node being checked.
 	parentHash := &block.MsgBlock().Header.PrevBlock
 	if !view.BestHash().IsEqual(parentHash) {
 		str := fmt.Sprintf("inconsistent view when checking block connection: best hash is %v instead of expected %v", view.BestHash(), parentHash)
-		// log <- cl.Debug{
 		return AssertError(str)
 	}
 	// BIP0030 added a rule to prevent blocks which contain duplicate transactions that 'overwrite' older transactions which are not fully spent.  See the documentation for checkBIP0030 for more details. There are two blocks in the chain which violate this rule, so the check must be skipped for those blocks.  The isBIP0030Node function is used to determine if this block is one of the two blocks that must be skipped. In addition, as of BIP0034, duplicate coinbases are no longer possible due to its requirement for including the block height in the coinbase and thus it is no longer possible to create transactions that 'overwrite' older ones.  Therefore, only enforce the rule if BIP0034 is not yet active.  This is a useful optimization because the BIP0030 check is expensive since it involves a ton of cache misses in the utxoset.
 	if !isBIP0030Node(node) && (node.height < b.chainParams.BIP0034Height) {
-		// log <- cl.Debug{sBip0030Node}
 		err := b.checkBIP0030(node, block, view)
 		if err != nil {
 			return err
@@ -741,7 +735,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 	// Load all of the utxos referenced by the inputs for all transactions in the block don't already exist in the utxo view from the database. These utxo entries are needed for verification of things such as transaction inputs, counting pay-to-script-hashes, and scripts.
 	err := view.fetchInputUtxos(b.db, block)
 	if err != nil {
-		// log <- cl.Debug{etchInputUxtos" + err.Error(}
 		return err
 	}
 	// BIP0016 describes a pay-to-script-hash type that is considered a "standard" type.  The rules for this BIP only apply to transactions after the timestamp defined by txscript.Bip16Activation.  See https://en.bitcoin.it/wiki/BIP_0016 for more details.
@@ -756,7 +749,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 	transactions := block.Transactions()
 	totalSigOpCost := 0
 	for i, tx := range transactions {
-		// log <- cl.Debugf{"checking transaction %d", i}
 		// Since the first (and only the first) transaction has already been verified to be a coinbase transaction, use i == 0 as an optimization for the flag to countP2SHSigOps for whether or not the transaction is a coinbase transaction rather than having to do a full coinbase check again.
 		sigOpCost, err := GetSigOpCost(tx, i == 0, view, enforceBIP0016,
 			enforceSegWit)
@@ -776,7 +768,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 	// Perform several checks on the inputs for each transaction.  Also accumulate the total fees.  This could technically be combined with the loop above instead of running another loop over the transactions, but by separating it we can avoid running the more expensive (though still relatively cheap as compared to running the scripts) checks against all the inputs when the signature operations are out of bounds.
 	var totalFees int64
 	for _, tx := range transactions {
-		// log <- cl.Debugf{"checking transaction %d", i}
 		txFee, err := CheckTransactionInputs(tx, node.height, view,
 			b.chainParams)
 		if err != nil {
@@ -802,7 +793,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 	}
 	expectedSatoshiOut := CalcBlockSubsidy(node.height, b.chainParams) +
 		totalFees
-	// log <- cl.Debugf{"expectedSatoshiOut=%d", expectedSatoshiOut}
 	if totalSatoshiOut > expectedSatoshiOut {
 		str := fmt.Sprintf("coinbase transaction for block pays %v "+
 			"which is more than expected value of %v",
@@ -864,25 +854,20 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 	}
 	// Now that the inexpensive checks are done and have passed, verify the transactions are actually allowed to spend the coins by running the expensive ECDSA signature check scripts.  Doing this last helps prevent CPU exhaustion attacks.
 	if runScripts {
-		// log <- cl.Debug{unning scripts...}
 		err := checkBlockScripts(block, view, scriptFlags, b.sigCache,
 			b.hashCache)
-		// log <- cl.Debug{inished running scripts}
 		if err != nil {
-			// log <- cl.Debug{rror in scripts " + err.Error(}
 			return err
 		}
 	}
 	// Update the best hash for view to include this block since all of its
 	// transactions have been connected.
 	view.SetBestHash(&node.hash)
-	// log <- cl.Debug{et best hash in view}
 	return nil
 }
 
 // CheckConnectBlockTemplate fully validates that connecting the passed block to the main chain does not violate any consensus rules, aside from the proof of work requirement. The block must connect to the current tip of the main chain. This function is safe for concurrent access.
 func (b *BlockChain) CheckConnectBlockTemplate(block *util.Block) error {
-	// log <- cl.Debug{heckConnectBlockTemplate}
 	b.chainLock.Lock()
 	defer b.chainLock.Unlock()
 	algo := block.MsgBlock().Header.Version
@@ -900,7 +885,7 @@ func (b *BlockChain) CheckConnectBlockTemplate(block *util.Block) error {
 	}
 	err := checkBlockSanity(block, powLimit, b.timeSource, flags, true, block.Height())
 	if err != nil {
-		log <- cl.Debugf{"ERROR %s", err.Error()}
+		log <- cl.Debug{"ERROR", err}
 		return err
 	}
 	err = b.checkBlockContext(block, tip, flags, true)

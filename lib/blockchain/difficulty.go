@@ -188,13 +188,23 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			newTarget.Set(CompactToBig(newTargetBits))
 		}
 		newTargetBits = BigToCompact(newTarget)
-		log <- cl.Debugf{"Difficulty retarget at block height %d, old %08x new %08x",
-			lastNode.height + 1, prevNode.bits, newTargetBits}
-		log <- cl.Tracef{"Old %08x New %08x", prevNode.bits, oldTarget, newTargetBits, CompactToBig(newTargetBits)}
-		log <- cl.Tracef{"Actual timespan %v, adjusted timespan %v, target timespan %v",
-			actualTimespan,
-			adjustedTimespan,
-			b.chainParams.AveragingTargetTimespan}
+		log <- cl.Debugf{
+			"difficulty retarget at block height %d, old %08x new %08x",
+			lastNode.height + 1,
+			prevNode.bits,
+			newTargetBits,
+		}
+		Log.Trcc(func() string {
+			return fmt.Sprintf(
+				"actual timespan %v, adjusted timespan %v, target timespan %v"+
+					"\nOld %064x\nNew %064x",
+				actualTimespan,
+				adjustedTimespan,
+				b.chainParams.AveragingTargetTimespan,
+				oldTarget,
+				CompactToBig(newTargetBits),
+			)
+		})
 		return newTargetBits, nil
 
 	case 1: // Plan 9 from Crypto Space
@@ -327,7 +337,8 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 				time.Sleep(time.Millisecond * time.Duration(delay))
 			}
 			if l {
-				log <- cl.Debugf{"mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s delayed %dms",
+				log <- cl.Debugf{
+					"mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s delayed %dms",
 					lastNode.height + 1, last.bits,
 					newTargetBits,
 					allTimeAverage,
@@ -335,8 +346,11 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 					weighted * ttpb,
 					counter,
 					(1 - adjustment) * 100, fork.List[1].AlgoVers[algo],
-					delay}
-				if b.chainParams.Name == "testnet" && int64(lastNode.height) < b.chainParams.TargetTimePerBlock+1 && lastNode.height > 0 {
+					delay,
+				}
+				if b.chainParams.Name == "testnet" &&
+					int64(lastNode.height) < b.chainParams.TargetTimePerBlock+1 &&
+					lastNode.height > 0 {
 					time.Sleep(time.Second * time.Duration(b.chainParams.TargetTimePerBlock))
 				}
 			}

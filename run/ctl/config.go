@@ -13,7 +13,7 @@ import (
 )
 
 // Log is the ctl main logger
-var Log = cl.NewSubSystem("ctl", "trace")
+var Log = cl.NewSubSystem("run/ctl", "info")
 var log = Log.Ch
 
 // Config is the default configuration native to ctl
@@ -55,14 +55,13 @@ var Command = climax.Command{
 	},
 	Handle: func(ctx climax.Context) int {
 		if dl, ok := ctx.Get("debuglevel"); ok {
-			log <- cl.Tracef{
-				"setting debug level %s", dl,
+			log <- cl.Trace{
+				"setting debug level", dl,
 			}
 			Log.SetLevel(dl)
 		}
-		log <- cl.Debugf{
-			"pod/ctl version %s",
-			c.Version(),
+		log <- cl.Debug{
+			"pod/ctl version", c.Version(),
 		}
 		if ctx.Is("version") {
 			fmt.Println("pod/ctl version", c.Version())
@@ -83,38 +82,29 @@ var Command = climax.Command{
 				cfgFile = c.DefaultConfigFile
 			}
 			if ctx.Is("init") {
-				log <- cl.Debugf{
-					"writing default configuration to %s",
-					cfgFile,
+				log <- cl.Debug{
+					"writing default configuration to", cfgFile,
 				}
 				writeDefaultConfig(cfgFile)
 				// then run from this config
 				configCtl(&ctx, cfgFile)
 			} else {
-				log <- cl.Infof{
-					"loading configuration from %s",
-					cfgFile,
+				log <- cl.Info{
+					"loading configuration from", cfgFile,
 				}
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-					log <- cl.Warn{
-						"configuration file does not exist, creating new one",
-					}
+					log <- cl.Wrn("configuration file does not exist, creating new one")
 					writeDefaultConfig(cfgFile)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 				} else {
-					log <- cl.Debug{
-						"reading from", cfgFile,
-					}
+					log <- cl.Debug{"reading from", cfgFile}
 					cfgData, err := ioutil.ReadFile(cfgFile)
 					if err != nil {
-						log <- cl.Err(err.Error())
+						log <- cl.Error{err}
 						cl.Shutdown()
 					}
-					log <- cl.Tracef{
-						"read in config file\n%s",
-						cfgData,
-					}
+					log <- cl.Trace{"read in config file\n", cfgData}
 					err = json.Unmarshal(cfgData, Config)
 					if err != nil {
 						log <- cl.Err(err.Error())

@@ -5,7 +5,7 @@ import (
 	"git.parallelcoin.io/pod/run/logger"
 )
 
-var Log = cl.NewSubSystem("pod", "trace")
+var Log = cl.NewSubSystem("pod", "info")
 var log = Log.Ch
 
 // SetLoggers sets the loggers according to the current configuration

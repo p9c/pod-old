@@ -220,7 +220,11 @@ func logSkippedDeps(tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
 		return
 	}
 	for _, item := range deps {
-		log <- cl.Tracef{"Skipping tx %s since it depends on %s\n", item.tx.Hash(), tx.Hash()}
+		log <- cl.Tracef{
+			"skipping tx %s since it depends on %s",
+			item.tx.Hash(),
+			tx.Hash(),
+		}
 	}
 }
 
@@ -298,7 +302,7 @@ func NewBlkTmplGenerator(policy *Policy, params *chaincfg.Params,
 //   -----------------------------------  --
 func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo string) (*BlockTemplate, error) {
 	if algo == "" {
-		algo = "sha256d"
+		algo = "random"
 	}
 	if algo == "random" {
 		h := g.BestSnapshot().Height
@@ -335,24 +339,33 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	txSigOpCosts := make([]int64, 0, len(sourceTxns))
 	txFees = append(txFees, -1) // Updated once known
 	txSigOpCosts = append(txSigOpCosts, coinbaseSigOpCost)
-	log <- cl.Debugf{"Considering %d transactions for inclusion to new block", len(sourceTxns)}
+	log <- cl.Debugf{
+		"considering %d transactions for inclusion to new block",
+		len(sourceTxns),
+	}
 mempoolLoop:
 	for _, txDesc := range sourceTxns {
 		// A block can't have more than one coinbase or contain non-finalized transactions.
 		tx := txDesc.Tx
 		if blockchain.IsCoinBase(tx) {
-			log <- cl.Tracef{"Skipping coinbase tx %s", tx.Hash()}
+			Log.Trcc(func() string {
+				return fmt.Sprintf("skipping coinbase tx %s", tx.Hash())
+			})
 			continue
 		}
 		if !blockchain.IsFinalizedTransaction(tx, nextBlockHeight,
 			g.timeSource.AdjustedTime()) {
-			log <- cl.Tracef{"Skipping non-finalized tx %s", tx.Hash()}
+			Log.Trcc(func() string {
+				return "skipping non-finalized tx " + tx.Hash().String()
+			})
 			continue
 		}
 		// Fetch all of the utxos referenced by the this transaction. NOTE: This intentionally does not fetch inputs from the mempool since a transaction which depends on other transactions in the mempool must come after those dependencies in the final generated block.
 		utxos, err := g.chain.FetchUtxoView(tx)
 		if err != nil {
-			log <- cl.Warnf{"Unable to fetch utxo view for tx %s: %v", tx.Hash(), err}
+			Log.Wrnc(func() string {
+				return "unable to fetch utxo view for tx " + tx.Hash().String() + ": " + err.Error()
+			})
 			continue
 		}
 		// Setup dependencies for any transactions which reference other transactions in the mempool so they can be properly ordered below.
@@ -362,10 +375,11 @@ mempoolLoop:
 			entry := utxos.LookupEntry(txIn.PreviousOutPoint)
 			if entry == nil || entry.IsSpent() {
 				if !g.txSource.HaveTransaction(originHash) {
-					log <- cl.Tracef{"Skipping tx %s because it " +
-						"references unspent output %s " +
-						"which is not available",
-						tx.Hash(), txIn.PreviousOutPoint}
+					Log.Trcc(func() string {
+						return "skipping tx %s because it references unspent output %s which is not available" +
+							tx.Hash().String() +
+							txIn.PreviousOutPoint.String()
+					})
 					continue mempoolLoop
 				}
 				// The transaction is referencing another transaction in the source pool, so setup an ordering dependency.
@@ -397,8 +411,13 @@ mempoolLoop:
 		// Merge the referenced outputs from the input transactions to this transaction into the block utxo view.  This allows the code below to avoid a second lookup.
 		mergeUtxoView(blockUtxos, utxos)
 	}
-	log <- cl.Tracef{"Priority queue len %d, dependers len %d",
-		priorityQueue.Len(), len(dependers)}
+	Log.Trcc(func() string {
+		return fmt.Sprintf(
+			"priority queue len %d, dependers len %d",
+			priorityQueue.Len(),
+			len(dependers),
+		)
+	})
 	// The starting block size is the size of the block header plus the max possible transaction count size, plus the size of the coinbase transaction.
 	blockWeight := uint32((blockHeaderOverhead * blockchain.WitnessScaleFactor) +
 		blockchain.GetTransactionWeight(coinbaseTx))
@@ -445,7 +464,9 @@ mempoolLoop:
 		blockPlusTxWeight := blockWeight + txWeight
 		if blockPlusTxWeight < blockWeight ||
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
-			log <- cl.Tracef{"Skipping tx %s because it would exceed the max block weight", tx.Hash()}
+			log <- cl.Tracef{
+				"skipping tx %s because it would exceed the max block weight", tx.Hash(),
+			}
 			logSkippedDeps(tx, deps)
 			continue
 		}
@@ -453,13 +474,19 @@ mempoolLoop:
 		sigOpCost, err := blockchain.GetSigOpCost(tx, false,
 			blockUtxos, true, segwitActive)
 		if err != nil {
-			log <- cl.Tracef{"Skipping tx %s due to error in GetSigOpCost: %v", tx.Hash(), err}
+			Log.Trcc(func() string {
+				return "skipping tx " + tx.Hash().String() +
+					"due to error in GetSigOpCost: " + err.Error()
+			})
 			logSkippedDeps(tx, deps)
 			continue
 		}
 		if blockSigOpCost+int64(sigOpCost) < blockSigOpCost ||
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
-			log <- cl.Tracef{"Skipping tx %s because it would exceed the maximum sigops per block", tx.Hash()}
+			Log.Trcc(func() string {
+				return "skipping tx " + tx.Hash().String() +
+					" because it would exceed the maximum sigops per block"
+			})
 			logSkippedDeps(tx, deps)
 			continue
 		}
@@ -467,22 +494,30 @@ mempoolLoop:
 		if sortedByFee &&
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
-			log <- cl.Tracef{"Skipping tx %s with feePerKB %d " +
-				"< TxMinFreeFee %d and block weight %d >= " +
-				"minBlockWeight %d", tx.Hash(), prioItem.feePerKB,
-				g.policy.TxMinFreeFee, blockPlusTxWeight,
-				g.policy.BlockMinWeight}
+			Log.Trcc(func() string {
+				return fmt.Sprint(
+					"skipping tx ", tx.Hash(),
+					" with feePerKB ", prioItem.feePerKB,
+					" < TxMinFreeFee ", g.policy.TxMinFreeFee,
+					" and block weight ", blockPlusTxWeight,
+					" >= minBlockWeight ", g.policy.BlockMinWeight,
+				)
+			})
 			logSkippedDeps(tx, deps)
 			continue
 		}
 		// Prioritize by fee per kilobyte once the block is larger than the priority size or there are no more high-priority transactions.
 		if !sortedByFee && (blockPlusTxWeight >= g.policy.BlockPrioritySize ||
 			prioItem.priority <= MinHighPriority) {
-			log <- cl.Tracef{"Switching to sort by fees per " +
-				"kilobyte blockSize %d >= BlockPrioritySize " +
-				"%d || priority %.2f <= minHighPriority %.2f",
-				blockPlusTxWeight, g.policy.BlockPrioritySize,
-				prioItem.priority, MinHighPriority}
+			log <- cl.Tracef{
+				"switching to sort by fees per kilobyte " +
+					"blockSize %d >= BlockPrioritySize %d ||" +
+					" priority %.2f <= minHighPriority %.2f",
+				blockPlusTxWeight,
+				g.policy.BlockPrioritySize,
+				prioItem.priority,
+				MinHighPriority,
+			}
 			sortedByFee = true
 			priorityQueue.SetLessFunc(txPQByFee)
 			// Put the transaction back into the priority queue and skip it so it is re-priortized by fees if it won't fit into the high-priority section or the priority is too low.  Otherwise this transaction will be the final one in the high-priority section, so just fall though to the code below so it is added now.
@@ -496,8 +531,11 @@ mempoolLoop:
 		_, err = blockchain.CheckTransactionInputs(tx, nextBlockHeight,
 			blockUtxos, g.chainParams)
 		if err != nil {
-			log <- cl.Tracef{"Skipping tx %s due to error in " +
-				"CheckTransactionInputs: %v", tx.Hash(), err}
+			log <- cl.Tracef{
+				"skipping tx %s due to error in CheckTransactionInputs: %v",
+				tx.Hash(),
+				err,
+			}
 			logSkippedDeps(tx, deps)
 			continue
 		}
@@ -505,8 +543,11 @@ mempoolLoop:
 			txscript.StandardVerifyFlags, g.sigCache,
 			g.hashCache)
 		if err != nil {
-			log <- cl.Tracef{"Skipping tx %s due to error in " +
-				"ValidateTransactionScripts: %v", tx.Hash(), err}
+			log <- cl.Tracef{
+				"skipping tx %s due to error in ValidateTransactionScripts: %v",
+				tx.Hash(),
+				err,
+			}
 			logSkippedDeps(tx, deps)
 			continue
 		}
@@ -519,8 +560,12 @@ mempoolLoop:
 		totalFees += prioItem.fee
 		txFees = append(txFees, prioItem.fee)
 		txSigOpCosts = append(txSigOpCosts, int64(sigOpCost))
-		log <- cl.Tracef{"Adding tx %s (priority %.2f, feePerKB %.2f)",
-			prioItem.tx.Hash(), prioItem.priority, prioItem.feePerKB}
+		log <- cl.Tracef{
+			"adding tx %s (priority %.2f, feePerKB %.2f)",
+			prioItem.tx.Hash(),
+			prioItem.priority,
+			prioItem.feePerKB,
+		}
 		// Add transactions which depend on this one (and also do not have any other unsatisified dependencies) to the priority queue.
 		for _, item := range deps {
 			// Add the transaction to the priority queue if there are no more dependencies after this one.
@@ -588,12 +633,24 @@ mempoolLoop:
 	block.SetHeight(nextBlockHeight)
 	err = g.chain.CheckConnectBlockTemplate(block)
 	if err != nil {
-		log <- cl.Debugf{"checkconnectblocktemplate err: %s", err.Error()}
+		log <- cl.Debug{"checkconnectblocktemplate err:", err}
 		return nil, err
 	}
 	a := fork.GetAlgoName(block.MsgBlock().Header.Version, nextBlockHeight)
-	log <- cl.Debugf{"Created new block template (algo %s, %d transactions, %d in fees, %d signature operations cost, %d weight, target difficulty %064x)", a, len(msgBlock.Transactions), totalFees, blockSigOpCost,
-		blockWeight, blockchain.CompactToBig(msgBlock.Header.Bits)}
+	Log.Dbgc(func() string {
+		return fmt.Sprintf(
+			"created new block template "+
+				"(algo %s, %d transactions, %d in fees, "+
+				"%d signature operations cost, %d weight, "+
+				"target difficulty %064x)",
+			a,
+			len(msgBlock.Transactions),
+			totalFees,
+			blockSigOpCost,
+			blockWeight,
+			blockchain.CompactToBig(msgBlock.Header.Bits),
+		)
+	})
 	return &BlockTemplate{
 		Block:             &msgBlock,
 		Fees:              txFees,
@@ -627,8 +684,8 @@ func (g *BlkTmplGenerator) UpdateExtraNonce(msgBlock *wire.MsgBlock, blockHeight
 		return err
 	}
 	if len(coinbaseScript) > blockchain.MaxCoinbaseScriptLen {
-		return fmt.Errorf("coinbase transaction script length "+
-			"of %d is out of range (min: %d, max: %d)",
+		return fmt.Errorf(
+			"coinbase transaction script length of %d is out of range (min: %d, max: %d)",
 			len(coinbaseScript), blockchain.MinCoinbaseScriptLen,
 			blockchain.MaxCoinbaseScriptLen)
 	}

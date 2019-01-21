@@ -35,7 +35,7 @@ import (
 const (
 	DefaultConfigFilename        = "node/conf"
 	DefaultDataDirname           = "node"
-	DefaultLogLevel              = "trace"
+	DefaultLogLevel              = "info"
 	DefaultLogDirname            = "node"
 	DefaultLogFilename           = "log"
 	DefaultAddress               = "127.0.0.1"
@@ -509,7 +509,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Validate profile port number
 	if cfg.Profile != "" {
-		log <- cl.Info{cfg.Profile}
+		log <- cl.Trace{"profiling to", cfg.Profile}
 		profilePort, err := strconv.Atoi(cfg.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
@@ -605,7 +605,7 @@ func loadConfig() (*Config, []string, error) {
 		cfg.DisableRPC = true
 	}
 	if cfg.DisableRPC {
-		log <- cl.Info{"RPC service is disabled"}
+		log <- cl.Inf("RPC service is disabled")
 		// Default RPC to listen on localhost only.
 		if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
 			addrs, err := net.LookupHost("127.0.0.1:11048")
@@ -869,7 +869,7 @@ func loadConfig() (*Config, []string, error) {
 	}
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
-		log <- cl.Warnf{"%v", configFileError}
+		log <- cl.Warn{configFileError}
 	}
 	return &cfg, remainingArgs, nil
 }
