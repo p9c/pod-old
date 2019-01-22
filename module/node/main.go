@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/pprof"
-	"runtime/trace"
 
 	"git.parallelcoin.io/pod/lib/clog"
 
@@ -45,7 +44,6 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	// Get a channel that will be closed when a shutdown signal has been triggered either from an OS signal such as SIGINT (Ctrl+C) or from another subsystem such as the RPC server.
 	interrupt := interruptListener()
 	defer func() {
-		trace.Stop()
 		log <- cl.Inf("shutdown complete")
 	}()
 	// Show version at startup.

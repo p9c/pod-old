@@ -236,7 +236,7 @@ func (idx *TxIndex) Init() error {
 			testBlockID += increment
 		}
 		log <- cl.Tracef{
-			"Forward scan (highest known %d, next unknown %d)",
+			"forward scan (highest known %d, next unknown %d)",
 			highestKnown,
 			nextUnknown,
 		}
@@ -254,7 +254,7 @@ func (idx *TxIndex) Init() error {
 				highestKnown = testBlockID
 			}
 			log <- cl.Tracef{
-				"Binary scan (highest known %d, next unknown %d)",
+				"binary scan (highest known %d, next unknown %d)",
 				highestKnown,
 				nextUnknown,
 			}

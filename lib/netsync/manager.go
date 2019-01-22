@@ -905,6 +905,7 @@ out:
 	for {
 		select {
 		case m := <-sm.msgChan:
+			// fmt.Println("m := <-sm.msgChan")
 			switch msg := m.(type) {
 			case *newPeerMsg:
 				sm.handleNewPeerMsg(msg.peer)
@@ -959,6 +960,7 @@ out:
 				log <- cl.Warnf{"invalid message type in block handler: %T", msg}
 			}
 		case <-sm.quit:
+			// fmt.Println("chan:<-sm.quit")
 			break out
 		}
 	}

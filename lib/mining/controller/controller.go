@@ -136,8 +136,10 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 		for i := uint32(0); i <= maxNonce; i++ {
 			select {
 			case <-quit:
+				// fmt.Println("chan:<-quit")
 				return false
 			case <-ticker.C:
+				// fmt.Println("chan:<-ticker.C")
 				// The current block is stale if the best block has changed.
 				best := c.g.BestSnapshot()
 				if !header.PrevBlock.IsEqual(&best.Hash) {
@@ -150,6 +152,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 				}
 				c.g.UpdateBlockTime(msgBlock)
 			case <-submissionReceived:
+				// fmt.Println("chan:<-submissionReceived")
 				// Here we will send out the updated block to subscribed client workers
 			default:
 			}
@@ -177,6 +180,7 @@ out:
 	for {
 		select {
 		case <-quit: // Quit when the miner is stopped.
+			// fmt.Println("chan:<-quit")
 			break out
 		default: // Non-blocking select to fall through
 		}
@@ -220,6 +224,7 @@ out:
 	for {
 		select {
 		case <-c.quit:
+			// fmt.Println("chan:<-c.quit")
 			close(quit)
 			break out
 		}

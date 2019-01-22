@@ -171,8 +171,12 @@ func (s *ChainService) ConnectedCount() int32 {
 
 	select {
 	case s.query <- getConnCountMsg{reply: replyChan}:
+		// fmt.Println("chan:s.query <- getConnCountMsg{reply: replyChan}")
+
 		return <-replyChan
 	case <-s.quit:
+		// fmt.Println("chan:<-s.quit")
+
 		return 0
 	}
 

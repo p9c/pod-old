@@ -14,9 +14,8 @@ import (
 const (
 	// MaxVarIntPayload is the maximum payload size for a variable length integer.
 	MaxVarIntPayload = 9
-	// binaryFreeListMaxItems is the number of buffers to keep in the free
-	// list to use for binary serialization and deserialization.
-	binaryFreeListMaxItems = 1024
+	// binaryFreeListMaxItems is the number of buffers to keep in the free list to use for binary serialization and deserialization.
+	binaryFreeListMaxItems = 2048
 )
 
 var (
@@ -36,6 +35,7 @@ func (l binaryFreeList) Borrow() []byte {
 	var buf []byte
 	select {
 	case buf = <-l:
+		// // fmt.Println("chan:buf = <-l")
 	default:
 		buf = make([]byte, 8)
 	}
@@ -46,6 +46,7 @@ func (l binaryFreeList) Borrow() []byte {
 func (l binaryFreeList) Return(buf []byte) {
 	select {
 	case l <- buf:
+		// // fmt.Println("chan:l <- buf")
 	default:
 		// Let it go to the garbage collector.
 	}

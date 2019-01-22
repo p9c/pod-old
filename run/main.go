@@ -22,17 +22,10 @@ var PodApp = climax.Application{
 }
 
 // Main is the real pod main
-func Main() (err error) {
+func Main() int {
 	PodApp.AddCommand(ctl.Command)
 	PodApp.AddCommand(node.Command)
 	PodApp.AddCommand(walletrun.Command)
 	PodApp.AddCommand(shell.Command)
-	PodApp.Run()
-	// interrupt = interruptListener()
-	// defer clog.Shutdown()
-	// if interruptRequested(interrupt) {
-	// 	return nil
-	// }
-	// <-interrupt
-	return
+	return PodApp.Run()
 }

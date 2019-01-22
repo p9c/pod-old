@@ -97,9 +97,11 @@ out:
 		select {
 		// Periodic updates from the workers with how many hashes they have performed.
 		case numHashes := <-m.updateHashes:
+			// fmt.Println("chan:numHashes := <-m.updateHashes")
 			totalHashes += numHashes
 		// Time to update the hashes per second.
 		case <-ticker.C:
+			fmt.Println("<-ticker.C")
 			curHashesPerSec := float64(totalHashes) / hpsUpdateSecs
 			if hashesPerSec == 0 {
 				hashesPerSec = curHashesPerSec
@@ -116,8 +118,10 @@ out:
 			}
 		// Request for the number of hashes per second.
 		case m.queryHashesPerSec <- hashesPerSec:
+			// fmt.Println("chan:m.queryHashesPerSec <- hashesPerSec")
 			// Nothing to do.
 		case <-m.speedMonitorQuit:
+			// fmt.Println("chan:<-m.speedMonitorQuit")
 			break out
 		}
 	}
@@ -211,8 +215,10 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 		for i := uint32(0); i <= maxNonce; i++ {
 			select {
 			case <-quit:
+				// fmt.Println("chan:<-quit")
 				return false
 			case <-ticker.C:
+				// fmt.Println("chan:<-ticker.C")
 				m.updateHashes <- hashesCompleted
 				hashesCompleted = 0
 				// The current block is stale if the best block has changed.
@@ -261,6 +267,7 @@ out:
 		// Quit when the miner is stopped.
 		select {
 		case <-quit:
+			// fmt.Println("chan:<-quit")
 			break out
 		default:
 			// Non-blocking select to fall through
@@ -325,6 +332,7 @@ out:
 		select {
 		// Update the number of running workers.
 		case <-m.updateNumWorkers:
+			// fmt.Println("chan:<-m.updateNumWorkers")
 			// No change.
 			numRunning := uint32(len(runningWorkers))
 			if m.numWorkers == numRunning {
@@ -342,6 +350,7 @@ out:
 				runningWorkers = runningWorkers[:i]
 			}
 		case <-m.quit:
+			fmt.Println("<-m.quit")
 			for _, quit := range runningWorkers {
 				close(quit)
 			}
@@ -457,6 +466,7 @@ func (m *CPUMiner) GenerateNBlocks(n uint32, algo string) ([]*chainhash.Hash, er
 		// Read updateNumWorkers in case someone tries a `setgenerate` while we're generating. We can ignore it as the `generate` RPC call only uses 1 worker.
 		select {
 		case <-m.updateNumWorkers:
+			// fmt.Println("chan:<-m.updateNumWorkers")
 		default:
 		}
 		// Grab the lock used for block submission, since the current block will be changing and this would otherwise end up building a new block template on a block that is in the process of becoming stale.

@@ -1658,25 +1658,33 @@ out:
 		select {
 		// New peers connected to the server.
 		case p := <-s.newPeers:
+			// fmt.Println("chan:p := <-s.newPeers")
 			s.handleAddPeerMsg(state, p)
 		// Disconnected peers.
 		case p := <-s.donePeers:
+			// fmt.Println("chan:p := <-s.donePeers")
 			s.handleDonePeerMsg(state, p)
 		// Block accepted in mainchain or orphan, update peer height.
 		case umsg := <-s.peerHeightsUpdate:
+			// fmt.Println("chan:umsg := <-s.peerHeightsUpdate")
 			s.handleUpdatePeerHeights(state, umsg)
 		// Peer to ban.
 		case p := <-s.banPeers:
+			// fmt.Println("chan:p := <-s.banPeers")
 			s.handleBanPeerMsg(state, p)
 		// New inventory to potentially be relayed to other peers.
 		case invMsg := <-s.relayInv:
+			// fmt.Println("chan:invMsg := <-s.relayInv")
 			s.handleRelayInvMsg(state, invMsg)
 		// Message to broadcast to all connected peers except those which are excluded by the message.
 		case bmsg := <-s.broadcast:
+			// fmt.Println("chan:bmsg := <-s.broadcast")
 			s.handleBroadcastMsg(state, &bmsg)
 		case qmsg := <-s.query:
+			// fmt.Println("chan:qmsg := <-s.query")
 			s.handleQuery(state, qmsg)
 		case <-s.quit:
+			// fmt.Println("chan:<-s.quit")
 			// Disconnect all peers on server shutdown.
 			state.forAllPeers(func(sp *serverPeer) {
 				log <- cl.Tracef{"Shutdown peer %s", sp}
@@ -1777,6 +1785,7 @@ out:
 	for {
 		select {
 		case riv := <-s.modifyRebroadcastInv:
+			// fmt.Println("chan:riv := <-s.modifyRebroadcastInv")
 			// Log<-cl.Debug{eceived modify rebroadcast inventory"
 			switch msg := riv.(type) {
 			// Incoming InvVects are added to our map of RPC txs.
@@ -1791,7 +1800,7 @@ out:
 				}
 			}
 		case <-timer.C:
-			// Log<-cl.Debug{imer for rebroadcast handler"
+			// fmt.Println("chan:<-timer.C")
 			// Any inventory we have has not made it into a block yet. We periodically resubmit them until they have.
 			for iv, data := range pendingInvs {
 				ivCopy := iv
@@ -1801,8 +1810,9 @@ out:
 			timer.Reset(time.Second *
 				time.Duration(randomUint16Number(1800)))
 		case <-s.quit:
+			// fmt.Println("chan:<-s.quit")
 			break out
-		default:
+			// default:
 		}
 	}
 	timer.Stop()
@@ -1811,7 +1821,6 @@ cleanup:
 	for {
 		select {
 		case <-s.modifyRebroadcastInv:
-			// Log<-cl.Debug{raining modifyRebroadcastInv"
 		default:
 			break cleanup
 		}
@@ -1907,10 +1916,13 @@ func (s *server) ScheduleShutdown(duration time.Duration) {
 		for {
 			select {
 			case <-done:
+				// fmt.Println("chan:<-done")
 				ticker.Stop()
 				s.Stop()
 				break out
 			case <-ticker.C:
+				// fmt.Println("chan:<-ticker.C")
+
 				remaining = remaining - tickDuration
 				if remaining < time.Second {
 					continue
@@ -1971,6 +1983,8 @@ out:
 	for {
 		select {
 		case <-timer.C:
+			// fmt.Println("chan:<-timer.C")
+
 			// TODO: pick external port  more cleverly
 			// TODO: know which ports we are listening to on an external net.
 			// TODO: if specific listen port doesn't work then ask for wildcard
@@ -1999,6 +2013,8 @@ out:
 			}
 			timer.Reset(time.Minute * 15)
 		case <-s.quit:
+			fmt.Println("<-s.quit")
+
 			break out
 		}
 	}

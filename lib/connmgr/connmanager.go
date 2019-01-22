@@ -12,7 +12,7 @@ import (
 )
 
 // maxFailedAttempts is the maximum number of successive failed connection attempts after which network failure is assumed and new connections will be delayed by the configured retry duration.
-const maxFailedAttempts = 16
+const maxFailedAttempts = 9
 
 var (
 	//ErrDialNil is used to indicate that Dial cannot be nil in the configuration.
@@ -21,9 +21,9 @@ var (
 	// the number of retries that have been done.
 	maxRetryDuration = time.Minute * 2
 	// defaultRetryDuration is the default duration of time for retrying persistent connections.
-	defaultRetryDuration = time.Second * 3
+	defaultRetryDuration = time.Second * 9
 	// defaultTargetOutbound is the default number of outbound connections to maintain.
-	defaultTargetOutbound = uint32(16)
+	defaultTargetOutbound = uint32(9)
 )
 
 // ConnState represents the state of the requested connection.
@@ -181,8 +181,10 @@ func (cm *ConnManager) connHandler() {
 	)
 out:
 	for {
+
 		select {
 		case req := <-cm.requests:
+			// fmt.Println("chan:req := <-cm.requests")
 			switch msg := req.(type) {
 			case registerPending:
 				connReq := msg.c
@@ -255,6 +257,8 @@ out:
 				cm.handleFailedConn(connReq)
 			}
 		case <-cm.quit:
+			// fmt.Println("chan:<-cm.quit")
+
 			break out
 		}
 	}
@@ -276,20 +280,26 @@ func (cm *ConnManager) NewConnReq() {
 	done := make(chan struct{})
 	select {
 	case cm.requests <- registerPending{c, done}:
+		// fmt.Println("chan:<-cm.requests <- registerPending{c, done}")
 	case <-cm.quit:
+		// fmt.Println("chan:<-cm.quit")
 		return
 	}
 	// Wait for the registration to successfully add the pending conn req to the conn manager's internal state.
 	select {
 	case <-done:
+		// fmt.Println("chan:<-done")
 	case <-cm.quit:
+		// fmt.Println("chan:<-cm.quit")
 		return
 	}
 	addr, err := cm.cfg.GetNewAddress()
 	if err != nil {
 		select {
 		case cm.requests <- handleFailed{c, err}:
+			// fmt.Println("chan:cm.requests <- handleFailed{c, err}")
 		case <-cm.quit:
+			// fmt.Println("chan:<-cm.quit")
 		}
 		return
 	}
@@ -308,13 +318,17 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		done := make(chan struct{})
 		select {
 		case cm.requests <- registerPending{c, done}:
+			// fmt.Println("chan:cm.requests <- registerPending{c, done}")
 		case <-cm.quit:
+			// fmt.Println("chan:<-cm.quit")
 			return
 		}
 		// Wait for the registration to successfully add the pending conn req to the conn manager's internal state.
 		select {
 		case <-done:
+			// fmt.Println("chan:<-done")
 		case <-cm.quit:
+			// fmt.Println("chan:<-cm.quit")
 			return
 		}
 	}
@@ -323,13 +337,17 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 	if err != nil {
 		select {
 		case cm.requests <- handleFailed{c, err}:
+			// fmt.Println("chan:cm.requests <- handleFailed{c, err}")
 		case <-cm.quit:
+			// fmt.Println("chan:<-cm.quit")
 		}
 		return
 	}
 	select {
 	case cm.requests <- handleConnected{c, conn}:
+		// fmt.Println("chan:cm.requests <- handleConnected{c, conn}")
 	case <-cm.quit:
+		// fmt.Println("chan:<-cm.quit")
 	}
 }
 
@@ -341,7 +359,9 @@ func (cm *ConnManager) Disconnect(id uint64) {
 	}
 	select {
 	case cm.requests <- handleDisconnected{id, true}:
+		// fmt.Println("chan:cm.requests <- handleDisconnected{id, true}")
 	case <-cm.quit:
+		// fmt.Println("chan:<-cm.quit")
 	}
 }
 
@@ -352,7 +372,9 @@ func (cm *ConnManager) Remove(id uint64) {
 	}
 	select {
 	case cm.requests <- handleDisconnected{id, false}:
+		// fmt.Println("chan:cm.requests <- handleDisconnected{id, false}")
 	case <-cm.quit:
+		// fmt.Println("chan:<-cm.quit")
 	}
 }
 

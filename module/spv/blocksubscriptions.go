@@ -79,10 +79,13 @@ func sendMsgToSubscriber(sub *blockSubscription, bm *blockMessage) {
 	if subChan != nil {
 		select {
 		case sub.notifyBlock <- bm:
+			// fmt.Println("chan:sub.notifyBlock <- bm")
 
 		case <-sub.quit:
+			// fmt.Println("chan:<-sub.quit")
 
 		case <-sub.intQuit:
+			// fmt.Println("chan:<-sub.intQuit")
 		}
 	}
 }
@@ -176,6 +179,8 @@ cleanup:
 	for {
 		select {
 		case <-subscription.notifyBlock:
+			// fmt.Println("chan:<-subscription.notifyBlock")
+
 		default:
 			break cleanup
 		}
@@ -196,8 +201,11 @@ func (s *blockSubscription) subscriptionHandler() {
 		if notify == nil {
 			select {
 			case <-s.quit:
+				// fmt.Println("chan:<-s.quit")
+
 				return false
 			case <-s.intQuit:
+				// fmt.Println("chan:<-s.intQuit")
 				return false
 			default:
 				return true
@@ -207,17 +215,24 @@ func (s *blockSubscription) subscriptionHandler() {
 		select {
 
 		case notify <- *next.header:
+			// fmt.Println("chan:notify <- *next.header")
+
 			next = nil
 			return true
 
 		case queueMsg := <-s.notifyBlock:
+			// fmt.Println("chan:queueMsg := <-s.notifyBlock")
 			ntfns = append(ntfns, queueMsg)
 			return true
 
 		case <-s.quit:
+			// fmt.Println("chan:<-s.quit")
+
 			return false
 
 		case <-s.intQuit:
+			// fmt.Println("chan:<-s.intQuit")
+
 			return false
 		}
 	}
@@ -250,9 +265,13 @@ func (s *blockSubscription) subscriptionHandler() {
 			} else {
 				select {
 				case next = <-s.notifyBlock:
+					// fmt.Println("chan:next = <-s.notifyBlock")
+
 				case <-s.quit:
+					// fmt.Println("chan:<-s.quit")
 					return
 				case <-s.intQuit:
+					// fmt.Println("chan:<-s.intQuit")
 					return
 				}
 			}

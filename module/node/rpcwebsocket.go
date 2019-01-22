@@ -124,6 +124,7 @@ out:
 	for {
 		select {
 		case n, ok := <-in:
+			// fmt.Println("chan:n, ok := <-in")
 			if !ok {
 				// Sender closed input channel.
 				break out
@@ -131,6 +132,7 @@ out:
 			// Either send to out immediately if skipQueue is non-nil (queue is empty) and reader is ready, or append to the queue and send later.
 			select {
 			case skipQueue <- n:
+				// fmt.Println("chan:skipQueue <- n")
 			default:
 				q = append(q, n)
 				dequeue = out
@@ -138,6 +140,7 @@ out:
 				next = q[0]
 			}
 		case dequeue <- next:
+			// fmt.Println("chan:dequeue <- next")
 			copy(q, q[1:])
 			q[len(q)-1] = nil // avoid leak
 			q = q[:len(q)-1]
@@ -148,6 +151,7 @@ out:
 				next = q[0]
 			}
 		case <-quit:
+			// fmt.Println("chan:<-quit")
 			break out
 		}
 	}
@@ -165,6 +169,7 @@ func (m *wsNotificationManager) NotifyBlockConnected(block *util.Block) {
 	// As NotifyBlockConnected will be called by the block manager and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
 	case m.queueNotification <- (*notificationBlockConnected)(block):
+		// fmt.Println("chan:m.queueNotification <- (*notificationBlockConnected)(block)")
 	case <-m.quit:
 	}
 }
@@ -174,6 +179,7 @@ func (m *wsNotificationManager) NotifyBlockDisconnected(block *util.Block) {
 	// As NotifyBlockDisconnected will be called by the block manager and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
 	case m.queueNotification <- (*notificationBlockDisconnected)(block):
+		// fmt.Println("chan:m.queueNotification <- (*notificationBlockDisconnected)(block)")
 	case <-m.quit:
 	}
 }
@@ -187,6 +193,7 @@ func (m *wsNotificationManager) NotifyMempoolTx(tx *util.Tx, isNew bool) {
 	// As NotifyMempoolTx will be called by mempool and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
 	case m.queueNotification <- n:
+		// fmt.Println("chan:m.queueNotification <- n")
 	case <-m.quit:
 	}
 }
@@ -393,6 +400,7 @@ out:
 	for {
 		select {
 		case n, ok := <-m.notificationMsgs:
+			// fmt.Println("chan:n, ok := <-m.notificationMsgs")
 			if !ok {
 				// queueHandler quit.
 				break out
@@ -467,7 +475,9 @@ out:
 				log <- cl.Wrn("unhandled notification type")
 			}
 		case m.numClients <- len(clients):
+			// fmt.Println("chan:m.numClients <- len(clients)")
 		case <-m.quit:
+			// fmt.Println("chan:<-m.quit")
 			// RPC server shutting down.
 			break out
 		}
@@ -482,7 +492,9 @@ out:
 func (m *wsNotificationManager) NumClients() (n int) {
 	select {
 	case n = <-m.numClients:
+		// fmt.Println("chan:n = <-m.numClients")
 	case <-m.quit: // Use default n (0) if server has shut down.
+		// fmt.Println("chan:<-m.quit:")
 	}
 	return
 }
@@ -972,7 +984,9 @@ func (m *wsNotificationManager) AddClient(wsc *wsClient) {
 func (m *wsNotificationManager) RemoveClient(wsc *wsClient) {
 	select {
 	case m.queueNotification <- (*notificationUnregisterClient)(wsc):
+		// fmt.Println("chan:m.queueNotification <- (*notificationUnregisterClient)(wsc)")
 	case <-m.quit:
+		// fmt.Println("chan:<-m.quit")
 	}
 }
 
@@ -1050,6 +1064,7 @@ out:
 		// Break out of the loop once the quit channel has been closed. Use a non-blocking select here so we fall through otherwise.
 		select {
 		case <-c.quit:
+			// fmt.Println("chan:<-c.quit")
 			break out
 		default:
 		}
@@ -1212,6 +1227,7 @@ out:
 		select {
 		// This channel is notified when a message is being queued to be sent across the network socket.  It will either send the message immediately if a send is not already in progress, or queue the message to be sent once the other pending messages are sent.
 		case msg := <-c.ntfnChan:
+			// fmt.Println("chan:msg := <-c.ntfnChan")
 			if !waiting {
 				c.SendMessage(msg, ntfnSentChan)
 			} else {
@@ -1220,6 +1236,7 @@ out:
 			waiting = true
 		// This channel is notified when a notification has been sent across the network socket.
 		case <-ntfnSentChan:
+			// fmt.Println("chan:<-ntfnSentChan")
 			// No longer waiting if there are no more messages in the pending messages queue.
 			next := pendingNtfns.Front()
 			if next == nil {
@@ -1238,7 +1255,9 @@ cleanup:
 	for {
 		select {
 		case <-c.ntfnChan:
+			// fmt.Println("chan:<-c.ntfnChan")
 		case <-ntfnSentChan:
+			// fmt.Println("chan:<-ntfnSentChan")
 		default:
 			break cleanup
 		}
@@ -1256,6 +1275,7 @@ out:
 		// Send any messages ready for send until the quit channel is closed.
 		select {
 		case r := <-c.sendChan:
+			// fmt.Println("chan:r := <-c.sendChan")
 			err := c.conn.WriteMessage(websocket.TextMessage, r.msg)
 			if err != nil {
 				c.Disconnect()
@@ -1265,6 +1285,7 @@ out:
 				r.doneChan <- true
 			}
 		case <-c.quit:
+			// fmt.Println("chan:<-c.quit")
 			break out
 		}
 	}
@@ -1273,6 +1294,7 @@ cleanup:
 	for {
 		select {
 		case r := <-c.sendChan:
+			// fmt.Println("chan:r := <-c.sendChan")
 			if r.doneChan != nil {
 				r.doneChan <- false
 			}
@@ -2056,6 +2078,7 @@ fetchRange:
 			// A select statement is used to stop rescans if the client requesting the rescan has disconnected.
 			select {
 			case <-wsc.quit:
+				// fmt.Println("chan:<-wsc.quit")
 				log <- cl.Debugf{
 					"stopped rescan at height %v for disconnected client",
 					blk.Height(),
@@ -2069,6 +2092,7 @@ fetchRange:
 			// Periodically notify the client of the progress completed.  Continue with next block if no progress notification is needed yet.
 			select {
 			case <-ticker.C: // fallthrough
+				// fmt.Println("chan:<-ticker.C")
 			default:
 				continue
 			}

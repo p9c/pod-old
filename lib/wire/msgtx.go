@@ -60,6 +60,7 @@ func (c scriptFreeList) Borrow(size uint64) []byte {
 	var buf []byte
 	select {
 	case buf = <-c:
+		// fmt.Println("chan:buf = <-c")
 	default:
 		buf = make([]byte, freeListMaxScriptSize)
 	}
@@ -75,6 +76,7 @@ func (c scriptFreeList) Return(buf []byte) {
 	// Return the buffer to the free list when it's not full.  Otherwise let it be garbage collected.
 	select {
 	case c <- buf:
+		// fmt.Println("chan:c <- buf")
 	default:
 		// Let it go to the garbage collector.
 	}

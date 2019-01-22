@@ -98,7 +98,7 @@ var Command = climax.Command{
 						log <- cl.Error{err}
 						cl.Shutdown()
 					}
-					log <- cl.Trace{"read in config file\n", cfgData}
+					log <- cl.Trace{"read in config file\n", string(cfgData)}
 					err = json.Unmarshal(cfgData, Config)
 					if err != nil {
 						log <- cl.Err(err.Error())
@@ -115,51 +115,58 @@ var Command = climax.Command{
 	},
 }
 
+func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
+	if ctx.Is(name) {
+		return ctx.Get(name)
+	}
+	return
+}
+
 func configCtl(ctx *climax.Context, cfgFile string) {
+	var r string
+	var ok bool
 	// Apply all configurations specified on commandline
-	if ctx.Is("rpcuser") {
-		r, _ := ctx.Get("rpcuser")
+	if r, ok = getIfIs(ctx, "debuglevel"); ok {
+		Config.DebugLevel = r
+		log <- cl.Trace{
+			"set", "debuglevel", "to", r,
+		}
+	}
+	if r, ok = getIfIs(ctx, "rpcuser"); ok {
 		Config.RPCUser = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcuser", r,
 		}
 	}
-	if ctx.Is("rpcpass") {
-		r, _ := ctx.Get("rpcpass")
+	if r, ok = getIfIs(ctx, "rpcpass"); ok {
 		Config.RPCPassword = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcpass", r,
 		}
 	}
-	if ctx.Is("rpcserver") {
-		r, _ := ctx.Get("rpcserver")
+	if r, ok = getIfIs(ctx, "rpcserver"); ok {
 		Config.RPCServer = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcserver", r,
 		}
 	}
-	if ctx.Is("rpccert") {
-		r, _ := ctx.Get("rpccert")
+	if r, ok = getIfIs(ctx, "rpccert"); ok {
 		Config.RPCCert = r
 		log <- cl.Tracef{"set %s to %s", "rpccert", r}
 	}
-	if ctx.Is("tls") {
-		r, _ := ctx.Get("tls")
+	if r, ok = getIfIs(ctx, "tls"); ok {
 		Config.TLS = r == "true"
 		log <- cl.Tracef{"set %s to %s", "tls", r}
 	}
-	if ctx.Is("proxy") {
-		r, _ := ctx.Get("proxy")
+	if r, ok = getIfIs(ctx, "proxy"); ok {
 		Config.Proxy = r
 		log <- cl.Tracef{"set %s to %s", "proxy", r}
 	}
-	if ctx.Is("proxyuser") {
-		r, _ := ctx.Get("proxyuser")
+	if r, ok = getIfIs(ctx, "proxyuser"); ok {
 		Config.ProxyUser = r
 		log <- cl.Tracef{"set %s to %s", "proxyuser", r}
 	}
-	if ctx.Is("proxypass") {
-		r, _ := ctx.Get("proxypass")
+	if r, ok = getIfIs(ctx, "proxypass"); ok {
 		Config.ProxyPass = r
 		log <- cl.Tracef{"set %s to %s", "proxypass", r}
 	}
@@ -197,8 +204,8 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	if ctx.Is("save") {
-		log <- cl.Infof{
-			"saving config file to %s",
+		log <- cl.Info{
+			"saving config file to",
 			cfgFile,
 		}
 		j, err := json.MarshalIndent(Config, "", "  ")
@@ -206,9 +213,8 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 			log <- cl.Err(err.Error())
 		}
 		j = append(j, '\n')
-		log <- cl.Tracef{
-			"JSON formatted config file\n%s",
-			j,
+		log <- cl.Trace{
+			"JSON formatted config file\n", string(j),
 		}
 		ioutil.WriteFile(cfgFile, j, 0600)
 	}
@@ -222,7 +228,7 @@ func writeDefaultConfig(cfgFile string) {
 		log <- cl.Err(err.Error())
 	}
 	j = append(j, '\n')
-	log <- cl.Tracef{"JSON formatted config file\n%s", j}
+	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
 		log <- cl.Fatal{
@@ -237,6 +243,7 @@ func writeDefaultConfig(cfgFile string) {
 
 func defaultConfig() *c.Config {
 	return &c.Config{
+		DebugLevel:    "off",
 		RPCUser:       "user",
 		RPCPassword:   "pa55word",
 		RPCServer:     c.DefaultRPCServer,

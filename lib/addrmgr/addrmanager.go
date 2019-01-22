@@ -258,10 +258,14 @@ func (a *AddrManager) addressHandler() {
 	defer dumpAddressTicker.Stop()
 out:
 	for {
+		// fmt.Println("loop:addressHandler")
 		select {
 		case <-dumpAddressTicker.C:
+			// fmt.Println("chan:<-dumpAddressTicker.C")
 			a.savePeers()
 		case <-a.quit:
+			// fmt.Println("chan:<-a.quit")
+
 			break out
 		}
 	}

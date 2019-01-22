@@ -32,6 +32,7 @@ var errInterruptRequested = errors.New("interrupt requested")
 func interruptRequested(interrupted <-chan struct{}) bool {
 	select {
 	case <-interrupted:
+		// fmt.Println("chan:<-interrupted")
 		return true
 	default:
 	}

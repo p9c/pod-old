@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"time"
 
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -34,7 +35,9 @@ type txValidator struct {
 func (v *txValidator) sendResult(result error) {
 	select {
 	case v.resultChan <- result:
+		// fmt.Println("chan:v.resultChan <- result")
 	case <-v.quitChan:
+		// fmt.Println("chan:<-v.quitChan")
 	}
 }
 
@@ -42,8 +45,10 @@ func (v *txValidator) sendResult(result error) {
 func (v *txValidator) validateHandler() {
 out:
 	for {
+		// fmt.Println("loop:validateHandler")
 		select {
 		case txVI := <-v.validateChan:
+			log <- cl.Dbg("chan:txVI := <-v.validateChan")
 			// Ensure the referenced input utxo is available.
 			txIn := txVI.txIn
 			utxo := v.utxoView.LookupEntry(txIn.PreviousOutPoint)
@@ -93,6 +98,7 @@ out:
 			// Validation succeeded.
 			v.sendResult(nil)
 		case <-v.quitChan:
+			// fmt.Println("chan:<-v.quitChan")
 			break out
 		}
 	}
@@ -129,8 +135,10 @@ func (v *txValidator) Validate(items []*txValidateItem) error {
 		}
 		select {
 		case validateChan <- item:
+			// fmt.Println("chan:validateChan <- item")
 			currentItem++
 		case err := <-v.resultChan:
+			// fmt.Println("chan:err := <-v.resultChan")
 			processedItems++
 			if err != nil {
 				close(v.quitChan)

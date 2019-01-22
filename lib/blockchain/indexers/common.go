@@ -71,6 +71,7 @@ type internalBucket interface {
 func interruptRequested(interrupted <-chan struct{}) bool {
 	select {
 	case <-interrupted:
+		// fmt.Println("chan:<-interrupted")
 		return true
 	default:
 	}

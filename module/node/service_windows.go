@@ -56,6 +56,8 @@ loop:
 	for {
 		select {
 		case c := <-r:
+			// fmt.Println("chan:c := <-r")
+
 			switch c.Cmd {
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
@@ -65,13 +67,18 @@ loop:
 				// Signal the main function to exit.
 				shutdownRequestChannel <- struct{}{}
 			default:
-				elog.Error(1, fmt.Sprintf("Unexpected control "+
-					"request #%d.", c))
+				elog.Error(1, fmt.Sprintf(
+					"Unexpected control request #%d.", c,
+				))
 			}
 		case srvr := <-serverChan:
+			// fmt.Println("chan:srvr := <-serverChan")
+
 			mainServer = srvr
 			logServiceStartOfDay(mainServer)
 		case err := <-doneChan:
+			// fmt.Println("chan:err := <-doneChan")
+
 			if err != nil {
 				elog.Error(1, err.Error())
 			}

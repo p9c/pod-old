@@ -1,10 +1,10 @@
 package fork
 
 import (
+	"crypto/sha256"
 	"io"
 
 	"ekyu.moe/cryptonight"
-	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 	"github.com/aead/skein"
 	x11 "github.com/bitbandi/go-x11"
 	"github.com/bitgoin/lyra2rev2"
@@ -60,7 +60,9 @@ func Scrypt(bytes []byte) []byte {
 
 // SHA256D takes bytes and returns a double SHA256 hash
 func SHA256D(bytes []byte) []byte {
-	return chainhash.DoubleHashB(bytes)
+	h := sha256.Sum256(bytes)
+	h = sha256.Sum256(h[:])
+	return h[:]
 }
 
 // Stribog takes bytes and returns a double GOST Stribog 256 bit hash

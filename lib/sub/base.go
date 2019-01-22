@@ -43,11 +43,13 @@ func (b *Base) Start() (err error) {
 		for {
 			select {
 			case <-b.quit:
+				// fmt.Println("chan:<-b.quit")
 				break
 			default:
 			}
 			select {
 			case msg := <-b.message:
+				// fmt.Println("chan:msg := <-b.message")
 				go b.cfg.Handler(msg)
 				continue
 			default:

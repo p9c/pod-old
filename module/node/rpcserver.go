@@ -1522,9 +1522,11 @@ func handleGetBlockTemplateLongPoll(s *rpcServer, longPollID string, useCoinbase
 	select {
 	// When the client closes before it's time to send a reply, just return now so the goroutine doesn't hang around.
 	case <-closeChan:
+		// fmt.Println("chan:<-closeChan")
 		return nil, ErrClientQuit
 	// Wait until signal received to send the reply.
 	case <-longPollChan:
+		// fmt.Println("chan:<-longPollChan")
 		// Fallthrough
 	}
 	// Get the lastest block template
@@ -3099,9 +3101,8 @@ func handleSetGenerate(s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 		// Respond with an error if there are no addresses to pay the created blocks to.
 		if len(StateCfg.ActiveMiningAddrs) == 0 {
 			return nil, &json.RPCError{
-				Code: json.ErrRPCInternal.Code,
-				Message: "No payment addresses specified " +
-					"via --miningaddr",
+				Code:    json.ErrRPCInternal.Code,
+				Message: "no payment addresses specified via --miningaddr",
 			}
 		}
 		// fmt.Println("generating with algo", s.cfg.Algo)
@@ -3117,9 +3118,10 @@ func handleSetGenerate(s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 func handleStop(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 	select {
 	case s.requestProcessShutdown <- struct{}{}:
+		// fmt.Println("chan:s.requestProcessShutdown <- struct{}{}")
 	default:
 	}
-	return "pod stopping.", nil
+	return "node stopping", nil
 }
 
 // handleSubmitBlock implements the submitblock command.

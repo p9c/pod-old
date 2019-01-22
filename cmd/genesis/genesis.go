@@ -1,5 +1,6 @@
 // Bitcoin fork genesis block generator, based on https://bitcointalk.org/index.php?topic=181981.0 hosted at https://pastebin.com/nhuuV7y9
 package main
+
 import (
 	"crypto/rand"
 	"crypto/sha256"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 	"time"
 )
+
 type transaction struct {
 	merkleHash     []byte // 32 bytes long
 	serializedData []byte
@@ -24,13 +26,16 @@ type transaction struct {
 	pubkeyScript   []byte
 	locktime       uint32
 }
+
 const coin uint64 = 10000000
+
 var (
 	op_checksig byte = 172
 	startNonce  uint32
 	unixtime    uint32
 	maxNonce    = ^uint32(0)
 )
+
 // This function reverses the bytes in a byte array
 func byteswap(buf []byte) {
 	length := len(buf)
@@ -132,7 +137,9 @@ func main() {
 		[]byte{byte(len(tx.pubkeyScript))},
 		tx.pubkeyScript,
 		uint32tobytes(tx.locktime))
-	hash1 := sha256.Sum256(tx.serializedData)
+	// hash1 := sha256.Sum256(tx.serializedData)
+	// hash2 := sha256.Sum256(hash1[:])
+	hash1 := chainhash.HashB(tx.serializedData)
 	hash2 := sha256.Sum256(hash1[:])
 	tx.merkleHash = hash2[:]
 	merkleHash := hex.EncodeToString(tx.merkleHash)

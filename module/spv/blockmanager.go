@@ -279,8 +279,11 @@ func (b *blockManager) Stop() error {
 		for {
 			select {
 			case <-done:
+				// fmt.Println("chan:<-done")
+
 				return
 			case <-ticker.C:
+				// fmt.Println("chan:<-ticker.C")
 			}
 
 			b.newHeadersSignal.Broadcast()
@@ -305,6 +308,7 @@ func (b *blockManager) NewPeer(sp *ServerPeer) {
 
 	select {
 	case b.peerChan <- &newPeerMsg{peer: sp}:
+		// fmt.Println("chan:b.peerChan <- &newPeerMsg{peer: sp}")
 	case <-b.quit:
 		return
 	}
@@ -367,7 +371,10 @@ func (b *blockManager) DonePeer(sp *ServerPeer) {
 
 	select {
 	case b.peerChan <- &donePeerMsg{peer: sp}:
+		// fmt.Println("chan:b.peerChan <- &donePeerMsg{peer: sp}")
+
 	case <-b.quit:
+		// fmt.Println("chan:<-b.quit")
 		return
 	}
 }
@@ -462,6 +469,7 @@ waitForHeaders:
 		// quit early.
 		select {
 		case <-b.quit:
+			// fmt.Println("chan:<-b.quit")
 			b.newHeadersSignal.L.Unlock()
 			return
 		default:
@@ -503,6 +511,8 @@ waitForHeaders:
 		// Quit if requested.
 		select {
 		case <-b.quit:
+			// fmt.Println("chan:<-b.quit")
+
 			return
 		default:
 		}
@@ -537,7 +547,11 @@ waitForHeaders:
 
 				select {
 				case <-time.After(QueryTimeout):
+					// fmt.Println("chan:<-time.After(QueryTimeout)")
+
 				case <-b.quit:
+					// fmt.Println("chan:<-b.quit")
+
 					return
 				}
 				continue
@@ -572,7 +586,10 @@ waitForHeaders:
 		if len(goodCheckpoints) == 0 {
 			select {
 			case <-time.After(QueryTimeout):
+				// fmt.Println("chan:<-time.After(QueryTimeout)")
+
 			case <-b.quit:
+				// fmt.Println("chan:<-b.quit")
 				return
 			}
 		}
@@ -626,6 +643,8 @@ waitForHeaders:
 			// all.
 			select {
 			case <-b.quit:
+				// fmt.Println("chan:<-b.quit")
+
 				b.newHeadersSignal.L.Unlock()
 				return
 			default:
@@ -645,7 +664,11 @@ waitForHeaders:
 
 			select {
 			case <-time.After(QueryTimeout):
+				// fmt.Println("chan:<-time.After(QueryTimeout)")
+
 			case <-b.quit:
+				// fmt.Println("chan:<-b.quit")
+
 				return
 			}
 		}
@@ -653,6 +676,8 @@ waitForHeaders:
 		// Quit if requested.
 		select {
 		case <-b.quit:
+			// fmt.Println("chan:<-b.quit")
+
 			return
 		default:
 		}
@@ -1680,15 +1705,21 @@ out:
 		case m := <-b.peerChan:
 			switch msg := m.(type) {
 			case *newPeerMsg:
+				// fmt.Println("chan:*newPeerMsg")
+
 				b.handleNewPeerMsg(candidatePeers, msg.peer)
 
 			case *invMsg:
+				// fmt.Println("chan:*invMsg")
+
 				b.handleInvMsg(msg)
 
 			case *headersMsg:
+				// fmt.Println("chan:*headersMsg")
 				b.handleHeadersMsg(msg)
 
 			case *donePeerMsg:
+				// fmt.Println("chan:*donePeerMsg")
 				b.handleDonePeerMsg(candidatePeers, msg.peer)
 
 			default:
@@ -1959,7 +1990,9 @@ func (b *blockManager) QueueInv(inv *wire.MsgInv, sp *ServerPeer) {
 
 	select {
 	case b.peerChan <- &invMsg{inv: inv, peer: sp}:
+		// fmt.Println("chan:b.peerChan <- &invMsg{inv: inv, peer: sp}")
 	case <-b.quit:
+		// fmt.Println("chan:<-b.quit")
 		return
 	}
 }
@@ -2061,7 +2094,10 @@ func (b *blockManager) QueueHeaders(headers *wire.MsgHeaders, sp *ServerPeer) {
 
 	select {
 	case b.peerChan <- &headersMsg{headers: headers, peer: sp}:
+		// fmt.Println("chan:b.peerChan <- &headersMsg{headers: headers, peer: sp}")
+
 	case <-b.quit:
+		// fmt.Println("chan:<-b.quit")
 		return
 	}
 }

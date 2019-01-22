@@ -203,9 +203,11 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	ss.SetLevel(level)
 	go func() {
 		for {
-			// fmt.Println("subsystem loop")
+			// fmt.Println("loop:NewSubSystem")
+
 			select {
 			case i := <-ss.Ch:
+				// fmt.Println("chan:i := <-ss.Ch")
 				if ShuttingDown {
 					break
 				}
@@ -347,9 +349,6 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 						Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
 					}
 				}
-				if ShuttingDown {
-					break
-				}
 			}
 		}
 	}()
@@ -360,18 +359,23 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 func init() {
 	wg.Add(1)
 	worker := func() {
+		var t, s string
 		for {
-			var t, s string
+			// fmt.Println("clog loop")
 			select {
 			case <-Quit:
+				// fmt.Println("chan:<-Quit")
 				ShuttingDown = true
 				break
 			case Color = <-ColorChan:
+				// fmt.Println("chan:Color = <-ColorChan")
 			case i := <-Og:
+				// fmt.Println("chan:i := <-Og")
 				if ShuttingDown {
 					break
 				}
-				if i == "" {
+				if i == nil {
+					fmt.Println("received nil")
 					continue
 				}
 				color := Color
@@ -470,11 +474,10 @@ func init() {
 				if color {
 					t = colorstring.Color("[light_gray]" + t + "[dark_gray]")
 				}
+				fmt.Fprint(Writer, t+s)
 			}
-			fmt.Fprint(Writer, t+s)
 		}
 	}
-	go worker()
 	go worker()
 	wg.Done()
 }

@@ -27,7 +27,7 @@ const (
 	// MaxProtocolVersion is the max protocol version the peer supports.
 	MaxProtocolVersion = wire.FeeFilterVersion
 	// DefaultTrickleInterval is the min time between attempts to send an inv message to a peer.
-	DefaultTrickleInterval = time.Second
+	DefaultTrickleInterval = time.Second * 9
 	// MinAcceptableProtocolVersion is the lowest protocol version that a connected peer may support.
 	MinAcceptableProtocolVersion = wire.MultipleAddressVersion
 	// outputBufferSize is the number of elements the output channels use.
@@ -37,11 +37,11 @@ const (
 	// maxKnownInventory is the maximum number of items to keep in the known inventory cache.
 	maxKnownInventory = 1000
 	// pingInterval is the interval of time to wait in between sending ping messages.
-	pingInterval = 2 * time.Minute
+	pingInterval = 30 * time.Second
 	// negotiateTimeout is the duration of inactivity before we timeout a peer that hasn't completed the initial version negotiation.
 	negotiateTimeout = 30 * time.Second
 	// idleTimeout is the duration of inactivity before we time out a peer.
-	idleTimeout = 60 * time.Minute
+	idleTimeout = 2 * time.Minute
 	// stallTickInterval is the interval of time between each check for stalled peers.
 	stallTickInterval = 60 * time.Second
 	// stallResponseTimeout is the base maximum amount of time messages that expect a response will wait before disconnecting the peer for stalling.  The deadlines are adjusted for callback running times and checked on each stall tick interval.
@@ -850,6 +850,7 @@ out:
 	for {
 		select {
 		case msg := <-p.stallControl:
+			// fmt.Println("chan:msg := <-p.stallControl")
 			switch msg.command {
 			case sccSendMessage:
 				// Add a deadline for the expected response message if needed.
@@ -900,6 +901,7 @@ out:
 				}
 			}
 		case <-stallTicker.C:
+			// fmt.Println("chan:<-stallTicker.C")
 			// Calculate the offset to apply to the deadline based on how long the handlers have taken to execute since the last tick.
 			now := time.Now()
 			offset := deadlineOffset
@@ -922,12 +924,14 @@ out:
 			// Reset the deadline offset for the next tick.
 			deadlineOffset = 0
 		case <-p.inQuit:
+			// fmt.Println("chan:<-p.inQuit")
 			// The stall handler can exit once both the input and output handler goroutines are done.
 			if ioStopped {
 				break out
 			}
 			ioStopped = true
 		case <-p.outQuit:
+			// fmt.Println("chan:<-p.outQuit")
 			// The stall handler can exit once both the input and output handler goroutines are done.
 			if ioStopped {
 				break out
@@ -940,6 +944,7 @@ cleanup:
 	for {
 		select {
 		case <-p.stallControl:
+			// fmt.Println("chan:<-p.stallControl")
 		default:
 			break cleanup
 		}
@@ -1133,6 +1138,7 @@ out:
 func (p *Peer) queueHandler() {
 	pendingMsgs := list.New()
 	invSendQueue := list.New()
+	// fmt.Println("trickleInterval", p.cfg.TrickleInterval)
 	trickleTicker := time.NewTicker(p.cfg.TrickleInterval)
 	defer trickleTicker.Stop()
 	// We keep the waiting flag so that we know if we have a message queued to the outHandler or not.  We could use the presence of a head of the list for this but then we have rather racy concerns about whether it has gotten it at cleanup time - and thus who sends on the message's done channel.  To avoid such confusion we keep a different flag and pendingMsgs only contains messages that we have not yet passed to outHandler.
@@ -1151,9 +1157,13 @@ out:
 	for {
 		select {
 		case msg := <-p.outputQueue:
+			// fmt.Println("chan:msg := <-p.outputQueue")
+
 			waiting = queuePacket(msg, pendingMsgs, waiting)
 		// This channel is notified when a message has been sent across the network socket.
 		case <-p.sendDoneQueue:
+			// fmt.Println("chan:<-p.sendDoneQueue")
+
 			// No longer waiting if there are no more messages in the pending messages queue.
 			next := pendingMsgs.Front()
 			if next == nil {
@@ -1164,6 +1174,8 @@ out:
 			val := pendingMsgs.Remove(next)
 			p.sendQueue <- val.(outMsg)
 		case iv := <-p.outputInvChan:
+			// fmt.Println("chan:iv := <-p.outputInvChan")
+
 			// No handshake?  They'll find out soon enough.
 			if p.VersionKnown() {
 				// If this is a new block, then we'll blast it out immediately, sipping the inv trickle queue.
@@ -1178,6 +1190,8 @@ out:
 				}
 			}
 		case <-trickleTicker.C:
+			// fmt.Println("chan:<-trickleTicker.C")
+
 			// Don't send anything if we're disconnecting or there is no queued inventory. version is known if send queue has any entries.
 			if atomic.LoadInt32(&p.disconnect) != 0 ||
 				invSendQueue.Len() == 0 {
@@ -1206,6 +1220,8 @@ out:
 					pendingMsgs, waiting)
 			}
 		case <-p.quit:
+			// fmt.Println("chan:<-p.quit")
+
 			break out
 		}
 	}
@@ -1221,6 +1237,8 @@ cleanup:
 	for {
 		select {
 		case msg := <-p.outputQueue:
+			// fmt.Println("chan:msg := <-p.outputQueue")
+
 			if msg.doneChan != nil {
 				msg.doneChan <- struct{}{}
 			}
@@ -1256,6 +1274,7 @@ out:
 	for {
 		select {
 		case msg := <-p.sendQueue:
+			// fmt.Println("chan:msg := <-p.sendQueue")
 			switch m := msg.msg.(type) {
 			case *wire.MsgPing:
 				// Only expects a pong message in later protocol versions.  Also set up statistics.
@@ -1285,6 +1304,7 @@ out:
 			}
 			p.sendDoneQueue <- struct{}{}
 		case <-p.quit:
+			// fmt.Println("chan:<-p.quit")
 			break out
 		}
 	}
@@ -1294,6 +1314,7 @@ cleanup:
 	for {
 		select {
 		case msg := <-p.sendQueue:
+			// fmt.Println("chan:msg := <-p.sendQueue")
 			if msg.doneChan != nil {
 				msg.doneChan <- struct{}{}
 			}
@@ -1314,6 +1335,7 @@ out:
 	for {
 		select {
 		case <-pingTicker.C:
+			// fmt.Println("chan:<-pingTicker.C")
 			nonce, err := wire.RandomUint64()
 			if err != nil {
 				log <- cl.Errorf{"not sending ping to %s: %v", p, err}
@@ -1520,7 +1542,7 @@ func (p *Peer) negotiateOutboundProtocol() error {
 
 // start begins processing input and output messages.
 func (p *Peer) start() error {
-	log <- cl.Trace{"starting peer", p}
+	log <- cl.Debug{"starting peer", p}
 	negotiateErr := make(chan error, 1)
 	go func() {
 		if p.inbound {
@@ -1532,11 +1554,13 @@ func (p *Peer) start() error {
 	// Negotiate the protocol within the specified negotiateTimeout.
 	select {
 	case err := <-negotiateErr:
+		// fmt.Println("chan:err := <-negotiateErr")
 		if err != nil {
 			p.Disconnect()
 			return err
 		}
 	case <-time.After(negotiateTimeout):
+		// fmt.Println("chan:<-time.After(negotiateTimeout)")
 		p.Disconnect()
 		return errors.New("protocol negotiation timeout")
 	}

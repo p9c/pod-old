@@ -80,6 +80,7 @@ type Config struct {
 	ShowVersion   bool   `short:"V" long:"version" description:"Display version information and exit"`
 	ListCommands  bool   `short:"l" long:"Listcommands" description:"List all of the supported commands and exit"`
 	ConfigFile    string `short:"C" long:"configfile" description:"Path to configuration file"`
+	DebugLevel    string `long:"debuglevel" description:" set debug level for development"`
 	RPCUser       string `short:"u" long:"rpcuser" description:"RPC username"`
 	RPCPassword   string `short:"P" long:"rpcpass" default-mask:"-" description:"RPC password"`
 	RPCServer     string `short:"s" long:"rpcserver" description:"RPC server to connect to"`
