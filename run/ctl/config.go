@@ -13,7 +13,7 @@ import (
 )
 
 // Log is the ctl main logger
-var Log = cl.NewSubSystem("run/ctl", "info")
+var Log = cl.NewSubSystem("run/ctl", "off")
 var log = Log.Ch
 
 // Config is the default configuration native to ctl
