@@ -43,11 +43,11 @@ func usage(errorMessage string) {
 }
 
 // Main is the entry point for the pod.Ctl component
-func Main() {
-	cfg, args, err := loadConfig()
-	if err != nil {
-		os.Exit(1)
-	}
+func Main(args []string, cfg *Config) {
+	// cfg, args, err := loadConfig()
+	// if err != nil {
+	// 	os.Exit(1)
+	// }
 	if len(args) < 1 {
 		usage("No command specified")
 		os.Exit(1)

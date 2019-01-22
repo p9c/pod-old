@@ -35,17 +35,17 @@ var Command = climax.Command{
 		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default is error to keep stdout clean", true),
 
 		podutil.GenerateFlag("rpcuser", "u", "--rpcuser=username", "RPC username", true),
-		podutil.GenerateFlag("rpcpass", "P", "--rpcpass=password", "RPC password", true),
+		podutil.GenerateFlag("rpcpass", "P", "--rpcpass=pa55word", "RPC password", true),
 		podutil.GenerateFlag("rpcserver", "s", "--rpcserver=127.0.0.1:11048", "RPC server to connect to", true),
 		podutil.GenerateFlag("rpccert", "c", "--rpccert=/path/to/rpc.cert", "RPC server certificate chain for validation", true),
-		podutil.GenerateFlag("tls", "", "--tls=false", "Enable/disable TLS", false),
-		podutil.GenerateFlag("proxy", "", "--proxy 127.0.0.1:9050", "Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
-		podutil.GenerateFlag("proxyuser", "", "--proxyuser username", "Username for proxy server", true),
-		podutil.GenerateFlag("proxypass", "", "--proxypass password", "Password for proxy server", true),
-		podutil.GenerateFlag("testnet", "", "--testnet=true", "Connect to testnet", true),
-		podutil.GenerateFlag("simnet", "", "--simnet=true", "Connect to the simulation test network", true),
-		podutil.GenerateFlag("skipverify", "", "--skipverify=false", "Do not verify tls certificates (not recommended!)", true),
-		podutil.GenerateFlag("wallet", "", "--wallet=true", "Connect to wallet", true),
+		podutil.GenerateFlag("tls", "", "--tls=false", "enable/disable TLS", false),
+		podutil.GenerateFlag("proxy", "", "--proxy 127.0.0.1:9050", "connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
+		podutil.GenerateFlag("proxyuser", "", "--proxyuser=username", "username for proxy server", true),
+		podutil.GenerateFlag("proxypass", "", "--proxypass=password", "password for proxy server", true),
+		podutil.GenerateFlag("testnet", "", "--testnet=true", "connect to testnet", true),
+		podutil.GenerateFlag("simnet", "", "--simnet=true", "connect to the simulation test network", true),
+		podutil.GenerateFlag("skipverify", "", "--skipverify=false", "do not verify tls certificates (not recommended!)", true),
+		podutil.GenerateFlag("wallet", "", "--wallet=true", "connect to wallet", true),
 	},
 	Examples: []climax.Example{
 		{
@@ -109,7 +109,8 @@ var Command = climax.Command{
 				}
 			}
 		}
-		runCtl()
+		log <- cl.Trace{ctx.Args}
+		runCtl(ctx.Args)
 		cl.Shutdown()
 		return 0
 	},
@@ -139,7 +140,7 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	if r, ok = getIfIs(ctx, "rpcpass"); ok {
-		Config.RPCPassword = r
+		Config.RPCPass = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcpass", r,
 		}
@@ -245,7 +246,7 @@ func defaultConfig() *c.Config {
 	return &c.Config{
 		DebugLevel:    "off",
 		RPCUser:       "user",
-		RPCPassword:   "pa55word",
+		RPCPass:       "pa55word",
 		RPCServer:     c.DefaultRPCServer,
 		RPCCert:       c.DefaultRPCCertFile,
 		TLS:           false,

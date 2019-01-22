@@ -72,7 +72,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	httpRequest.Close = true
 	httpRequest.Header.Set("Content-Type", "application/json")
 	// Configure basic access authorization.
-	httpRequest.SetBasicAuth(cfg.RPCUser, cfg.RPCPassword)
+	httpRequest.SetBasicAuth(cfg.RPCUser, cfg.RPCPass)
 	// Create the new HTTP client that is configured according to the user- specified options and submit the request.
 	httpClient, err := newHTTPClient(cfg)
 	if err != nil {
