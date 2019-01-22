@@ -53,133 +53,133 @@ var Command = climax.Command{
 	Brief: "parallelcoin combined full node and wallet",
 	Help:  "distrubutes, verifies and mines blocks for the parallelcoin duo cryptocurrency, as well as optionally providing search indexes for transactions in the database, and provides RPC and GUI interfaces for a built-in wallet",
 	Flags: []climax.Flag{
-		podutil.GenerateFlag("version", "V", `--version`, `show version number and quit`, false),
-		podutil.GenerateFlag("configfile", "C", "--configfile=/path/to/conf", "path to configuration file", true),
-		podutil.GenerateFlag("datadir", "D", "--datadir=/home/user/.pod", "set the base directory for elements shared between modules", true),
+		pu.GenFlag("version", "V", `--version`, `show version number and quit`, false),
+		pu.GenFlag("configfile", "C", "--configfile=/path/to/conf", "path to configuration file", true),
+		pu.GenFlag("datadir", "D", "--datadir=/home/user/.pod", "set the base directory for elements shared between modules", true),
 
-		podutil.GenerateFlag("init", "", "--init", "resets configuration to defaults", false),
-		podutil.GenerateFlag("save", "", "--save", "saves current configuration", false),
+		pu.GenFlag("init", "", "--init", "resets configuration to defaults", false),
+		pu.GenFlag("save", "", "--save", "saves current configuration", false),
 
-		podutil.GenerateFlag("create", "", "--create", "create a new wallet if it does not exist", false),
-		podutil.GenerateFlag("createtemp", "", "--createtemp", "create temporary wallet (pass=password), must call with --datadir", false),
+		pu.GenFlag("create", "", "--create", "create a new wallet if it does not exist", false),
+		pu.GenFlag("createtemp", "", "--createtemp", "create temporary wallet (pass=password), must call with --datadir", false),
 
-		podutil.GenerateFlag(`dropcfindex`, ``, `--dropcfindex`, `deletes the index used for committed filtering (CF) support from the database on start up and then exits`, false),
-		podutil.GenerateFlag(`droptxindex`, ``, `--droptxindex`, `deletes the hash-based transaction index from the database on start up and then exits.`, false),
-		podutil.GenerateFlag(`dropaddrindex`, ``, `--dropaddrindex`, `deletes the address-based transaction index from the database on start up and then exits`, false),
+		pu.GenFlag(`dropcfindex`, ``, `--dropcfindex`, `deletes the index used for committed filtering (CF) support from the database on start up and then exits`, false),
+		pu.GenFlag(`droptxindex`, ``, `--droptxindex`, `deletes the hash-based transaction index from the database on start up and then exits.`, false),
+		pu.GenFlag(`dropaddrindex`, ``, `--dropaddrindex`, `deletes the address-based transaction index from the database on start up and then exits`, false),
 
-		podutil.GenerateFlag(`addpeers`, ``, `--addpeers=some.peer.com:11047`, `adds a peer to the peers database to try to connect to`, true),
-		podutil.GenerateFlag(`connectpeers`, ``, `--connectpeers=some.peer.com:11047`, `adds a peer to a connect-only whitelist`, true),
-		podutil.GenerateFlag(`disablelisten`, ``, `--disablelisten=true`, `disables the P2P listener`, true),
-		podutil.GenerateFlag(`listeners`, `S`, `--listeners=127.0.0.1:11047`, `sets an address to listen for P2P connections`, true),
-		podutil.GenerateFlag(`maxpeers`, ``, `--maxpeers=100`, `sets max number of peers to open connections to at once`, true),
-		podutil.GenerateFlag(`disablebanning`, ``, `--disablebanning`, `disable banning of misbehaving peers`, false),
-		podutil.GenerateFlag(`banduration`, ``, `--banduration=1h`, `how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1s`, true),
-		podutil.GenerateFlag(`banthreshold`, ``, `--banthreshold=100`, `maximum allowed ban score before disconnecting and banning misbehaving peers`, true),
-		podutil.GenerateFlag(`whitelists`, ``, `--whitelists=127.0.0.1:11047`, `add an IP network or IP that will not be banned - eg. 192.168.1.0/24 or ::1`, true),
-		// podutil.GenerateFlag(`rpcuser`, `u`, `--rpcuser=username`, `RPC username`, true),
-		// podutil.GenerateFlag(`rpcpass`, `P`, `--rpcpass=password`, `RPC password`, true),
-		// podutil.GenerateFlag(`rpclimituser`, `u`, `--rpclimituser=username`, `limited user RPC username`, true),
-		// podutil.GenerateFlag(`rpclimitpass`, `P`, `--rpclimitpass=password`, `limited user RPC password`, true),
-		// podutil.GenerateFlag(`rpclisteners`, `s`, `--rpclisteners=127.0.0.1:11048`, `RPC server to connect to`, true),
-		// podutil.GenerateFlag(`rpccert`, `c`, `--rpccert=/path/to/rpn.cert`, `RPC server tls certificate chain for validation`, true),
-		// podutil.GenerateFlag(`rpckey`, `c`, `--rpccert=/path/to/rpn.key`, `RPC server tls key for validation`, true),
-		// podutil.GenerateFlag(`tls`, ``, `--tls=false`, `enable TLS`, true),
-		podutil.GenerateFlag(`disablednsseed`, ``, `--disablednsseed=false`, `disable dns seeding`, true),
-		podutil.GenerateFlag(`externalips`, ``, `--externalips=192.168.0.1:11048`, `set additional listeners on different address/interfaces`, true),
-		podutil.GenerateFlag(`proxy`, ``, `--proxy 127.0.0.1:9050`, `connect via SOCKS5 proxy (eg. 127.0.0.1:9050)`, true),
-		podutil.GenerateFlag(`proxyuser`, ``, `--proxyuser username`, `username for proxy server`, true),
-		podutil.GenerateFlag(`proxypass`, ``, `--proxypass password`, `password for proxy server`, true),
-		podutil.GenerateFlag(`onion`, ``, `--onion 127.0.0.1:9050`, `connect via onion proxy (eg. 127.0.0.1:9050)`, true),
-		podutil.GenerateFlag(`onionuser`, ``, `--onionuser username`, `username for onion proxy server`, true),
-		podutil.GenerateFlag(`onionpass`, ``, `--onionpass password`, `password for onion proxy server`, true),
-		podutil.GenerateFlag(`noonion`, ``, `--noonion=true`, `disable onion proxy`, true),
-		podutil.GenerateFlag(`torisolation`, ``, `--torisolation=true`, `enable tor stream isolation by randomising user credentials for each connection`, true),
-		podutil.GenerateFlag(`network`, ``, `--network=mainnet`, `connect to specified network: mainnet, testnet, regtestnet or simnet`, true),
-		podutil.GenerateFlag(`skipverify`, ``, `--skipverify=false`, `do not verify tls certificates (not recommended!)`, true),
-		podutil.GenerateFlag(`addcheckpoints`, ``, `--addcheckpoints <height>:<hash>`, `add custom checkpoints`, true),
-		podutil.GenerateFlag(`disablecheckpoints`, ``, `--disablecheckpoints=true`, `disable all checkpoints`, true),
-		podutil.GenerateFlag(`dbtype`, ``, `--dbtype=ffldb`, `set database backend type`, true),
-		podutil.GenerateFlag(`profile`, ``, `--profile=127.0.0.1:3131`, `start HTTP profiling server on given address`, true),
-		podutil.GenerateFlag(`cpuprofile`, ``, `--cpuprofile=127.0.0.1:3232`, `start cpu profiling server on given address`, true),
-		podutil.GenerateFlag(`upnp`, ``, `--upnp=true`, `enables the use of UPNP to establish inbound port redirections`, true),
-		podutil.GenerateFlag(`minrelaytxfee`, ``, `--minrelaytxfee=1`, `the minimum transaction fee in DUO/Kb to be considered a nonzero fee`, true),
-		podutil.GenerateFlag(`freetxrelaylimit`, ``, `--freetxrelaylimit=100`, `limit amount of free transactions relayed in thousand bytes per minute`, true),
-		podutil.GenerateFlag(`norelaypriority`, ``, `--norelaypriority=true`, `do not require free or low-fee transactions to have high priority for relaying`, true),
-		podutil.GenerateFlag(`trickleinterval`, ``, `--trickleinterval=1`, `time in seconds between attempts to send new inventory to a connected peer`, true),
-		podutil.GenerateFlag(`maxorphantxs`, ``, `--maxorphantxs=100`, `set maximum number of orphans transactions to keep in memory`, true),
-		podutil.GenerateFlag(`algo`, ``, `--algo=random`, `set algorithm to be used by cpu miner`, true),
-		podutil.GenerateFlag(`generate`, ``, `--generate=true`, `set CPU miner to generate blocks`, true),
-		podutil.GenerateFlag(`genthreads`, ``, `--genthreads=-1`, `set number of threads to generate using CPU, -1 = all available`, true),
-		podutil.GenerateFlag(`miningaddrs`, ``, `--miningaddrs=aoeuaoe0760oeu0`, `add an address to the list of addresses to make block payments to from miners`, true),
-		podutil.GenerateFlag(`minerlistener`, ``, `--minerlistener=127.0.0.1:11011`, `set the port for a miner work dispatch server to listen on`, true),
-		podutil.GenerateFlag(`minerpass`, ``, `--minerpass=pa55word`, `set the encryption password to prevent leaking or MiTM attacks on miners`, true),
-		podutil.GenerateFlag(`blockminsize`, ``, `--blockminsize=80`, `mininum block size in bytes to be used when creating a block`, true),
-		podutil.GenerateFlag(`blockmaxsize`, ``, `--blockmaxsize=1024000`, `maximum block size in bytes to be used when creating a block`, true),
-		podutil.GenerateFlag(`blockminweight`, ``, `--blockminweight=500`, `mininum block weight to be used when creating a block`, true),
-		podutil.GenerateFlag(`blockmaxweight`, ``, `--blockmaxweight=10000`, `maximum block weight to be used when creating a block`, true),
-		podutil.GenerateFlag(`blockprioritysize`, ``, `--blockprioritysize=256`, `size in bytes for high-priority/low-fee transactions when creating a block`, true),
-		podutil.GenerateFlag(`uacomment`, ``, `--uacomment=joeblogsminers`, `comment to add to the user agent - see BIP 14 for more information.`, true),
-		podutil.GenerateFlag(`nopeerbloomfilters`, ``, `--nopeerbloomfilters=false`, `disable bloom filtering support`, true),
-		podutil.GenerateFlag(`nocfilters`, ``, `--nocfilters=false`, `disable committed filtering (CF) support`, true),
-		podutil.GenerateFlag(`sigcachemaxsize`, ``, `--sigcachemaxsize=1000`, `the maximum number of entries in the signature verification cache`, true),
-		podutil.GenerateFlag(`blocksonly`, ``, `--blocksonly=true`, `do not accept transactions from remote peers`, true),
-		podutil.GenerateFlag(`txindex`, ``, `--txindex=true`, `maintain a full hash-based transaction index which makes all transactions available via the getrawtransaction`, true),
-		podutil.GenerateFlag(`addrindex`, ``, `--addrindex=true`, `maintain a full address-based transaction index which makes the searchrawtransactions RPC available`, true),
-		podutil.GenerateFlag(`relaynonstd`, ``, `--relaynonstd=true`, `relay non-standard transactions regardless of the default settings for the active network`, true),
-		podutil.GenerateFlag(`rejectnonstd`, ``, `--rejectnonstd=false`, `reject non-standard transactions regardless of the default settings for the active network`, true),
+		pu.GenFlag(`addpeers`, ``, `--addpeers=some.peer.com:11047`, `adds a peer to the peers database to try to connect to`, true),
+		pu.GenFlag(`connectpeers`, ``, `--connectpeers=some.peer.com:11047`, `adds a peer to a connect-only whitelist`, true),
+		pu.GenFlag(`disablelisten`, ``, `--disablelisten=true`, `disables the P2P listener`, true),
+		pu.GenFlag(`listeners`, `S`, `--listeners=127.0.0.1:11047`, `sets an address to listen for P2P connections`, true),
+		pu.GenFlag(`maxpeers`, ``, `--maxpeers=100`, `sets max number of peers to open connections to at once`, true),
+		pu.GenFlag(`disablebanning`, ``, `--disablebanning`, `disable banning of misbehaving peers`, false),
+		pu.GenFlag(`banduration`, ``, `--banduration=1h`, `how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1s`, true),
+		pu.GenFlag(`banthreshold`, ``, `--banthreshold=100`, `maximum allowed ban score before disconnecting and banning misbehaving peers`, true),
+		pu.GenFlag(`whitelists`, ``, `--whitelists=127.0.0.1:11047`, `add an IP network or IP that will not be banned - eg. 192.168.1.0/24 or ::1`, true),
+		// pu.GenFlag(`rpcuser`, `u`, `--rpcuser=username`, `RPC username`, true),
+		// pu.GenFlag(`rpcpass`, `P`, `--rpcpass=password`, `RPC password`, true),
+		// pu.GenFlag(`rpclimituser`, `u`, `--rpclimituser=username`, `limited user RPC username`, true),
+		// pu.GenFlag(`rpclimitpass`, `P`, `--rpclimitpass=password`, `limited user RPC password`, true),
+		// pu.GenFlag(`rpclisteners`, `s`, `--rpclisteners=127.0.0.1:11048`, `RPC server to connect to`, true),
+		// pu.GenFlag(`rpccert`, `c`, `--rpccert=/path/to/rpn.cert`, `RPC server tls certificate chain for validation`, true),
+		// pu.GenFlag(`rpckey`, `c`, `--rpccert=/path/to/rpn.key`, `RPC server tls key for validation`, true),
+		// pu.GenFlag(`tls`, ``, `--tls=false`, `enable TLS`, true),
+		pu.GenFlag(`disablednsseed`, ``, `--disablednsseed=false`, `disable dns seeding`, true),
+		pu.GenFlag(`externalips`, ``, `--externalips=192.168.0.1:11048`, `set additional listeners on different address/interfaces`, true),
+		pu.GenFlag(`proxy`, ``, `--proxy 127.0.0.1:9050`, `connect via SOCKS5 proxy (eg. 127.0.0.1:9050)`, true),
+		pu.GenFlag(`proxyuser`, ``, `--proxyuser username`, `username for proxy server`, true),
+		pu.GenFlag(`proxypass`, ``, `--proxypass password`, `password for proxy server`, true),
+		pu.GenFlag(`onion`, ``, `--onion 127.0.0.1:9050`, `connect via onion proxy (eg. 127.0.0.1:9050)`, true),
+		pu.GenFlag(`onionuser`, ``, `--onionuser username`, `username for onion proxy server`, true),
+		pu.GenFlag(`onionpass`, ``, `--onionpass password`, `password for onion proxy server`, true),
+		pu.GenFlag(`noonion`, ``, `--noonion=true`, `disable onion proxy`, true),
+		pu.GenFlag(`torisolation`, ``, `--torisolation=true`, `enable tor stream isolation by randomising user credentials for each connection`, true),
+		pu.GenFlag(`network`, ``, `--network=mainnet`, `connect to specified network: mainnet, testnet, regtestnet or simnet`, true),
+		pu.GenFlag(`skipverify`, ``, `--skipverify=false`, `do not verify tls certificates (not recommended!)`, true),
+		pu.GenFlag(`addcheckpoints`, ``, `--addcheckpoints <height>:<hash>`, `add custom checkpoints`, true),
+		pu.GenFlag(`disablecheckpoints`, ``, `--disablecheckpoints=true`, `disable all checkpoints`, true),
+		pu.GenFlag(`dbtype`, ``, `--dbtype=ffldb`, `set database backend type`, true),
+		pu.GenFlag(`profile`, ``, `--profile=127.0.0.1:3131`, `start HTTP profiling server on given address`, true),
+		pu.GenFlag(`cpuprofile`, ``, `--cpuprofile=127.0.0.1:3232`, `start cpu profiling server on given address`, true),
+		pu.GenFlag(`upnp`, ``, `--upnp=true`, `enables the use of UPNP to establish inbound port redirections`, true),
+		pu.GenFlag(`minrelaytxfee`, ``, `--minrelaytxfee=1`, `the minimum transaction fee in DUO/Kb to be considered a nonzero fee`, true),
+		pu.GenFlag(`freetxrelaylimit`, ``, `--freetxrelaylimit=100`, `limit amount of free transactions relayed in thousand bytes per minute`, true),
+		pu.GenFlag(`norelaypriority`, ``, `--norelaypriority=true`, `do not require free or low-fee transactions to have high priority for relaying`, true),
+		pu.GenFlag(`trickleinterval`, ``, `--trickleinterval=1`, `time in seconds between attempts to send new inventory to a connected peer`, true),
+		pu.GenFlag(`maxorphantxs`, ``, `--maxorphantxs=100`, `set maximum number of orphans transactions to keep in memory`, true),
+		pu.GenFlag(`algo`, ``, `--algo=random`, `set algorithm to be used by cpu miner`, true),
+		pu.GenFlag(`generate`, ``, `--generate=true`, `set CPU miner to generate blocks`, true),
+		pu.GenFlag(`genthreads`, ``, `--genthreads=-1`, `set number of threads to generate using CPU, -1 = all available`, true),
+		pu.GenFlag(`miningaddrs`, ``, `--miningaddrs=aoeuaoe0760oeu0`, `add an address to the list of addresses to make block payments to from miners`, true),
+		pu.GenFlag(`minerlistener`, ``, `--minerlistener=127.0.0.1:11011`, `set the port for a miner work dispatch server to listen on`, true),
+		pu.GenFlag(`minerpass`, ``, `--minerpass=pa55word`, `set the encryption password to prevent leaking or MiTM attacks on miners`, true),
+		pu.GenFlag(`blockminsize`, ``, `--blockminsize=80`, `mininum block size in bytes to be used when creating a block`, true),
+		pu.GenFlag(`blockmaxsize`, ``, `--blockmaxsize=1024000`, `maximum block size in bytes to be used when creating a block`, true),
+		pu.GenFlag(`blockminweight`, ``, `--blockminweight=500`, `mininum block weight to be used when creating a block`, true),
+		pu.GenFlag(`blockmaxweight`, ``, `--blockmaxweight=10000`, `maximum block weight to be used when creating a block`, true),
+		pu.GenFlag(`blockprioritysize`, ``, `--blockprioritysize=256`, `size in bytes for high-priority/low-fee transactions when creating a block`, true),
+		pu.GenFlag(`uacomment`, ``, `--uacomment=joeblogsminers`, `comment to add to the user agent - see BIP 14 for more information.`, true),
+		pu.GenFlag(`nopeerbloomfilters`, ``, `--nopeerbloomfilters=false`, `disable bloom filtering support`, true),
+		pu.GenFlag(`nocfilters`, ``, `--nocfilters=false`, `disable committed filtering (CF) support`, true),
+		pu.GenFlag(`sigcachemaxsize`, ``, `--sigcachemaxsize=1000`, `the maximum number of entries in the signature verification cache`, true),
+		pu.GenFlag(`blocksonly`, ``, `--blocksonly=true`, `do not accept transactions from remote peers`, true),
+		pu.GenFlag(`txindex`, ``, `--txindex=true`, `maintain a full hash-based transaction index which makes all transactions available via the getrawtransaction`, true),
+		pu.GenFlag(`addrindex`, ``, `--addrindex=true`, `maintain a full address-based transaction index which makes the searchrawtransactions RPC available`, true),
+		pu.GenFlag(`relaynonstd`, ``, `--relaynonstd=true`, `relay non-standard transactions regardless of the default settings for the active network`, true),
+		pu.GenFlag(`rejectnonstd`, ``, `--rejectnonstd=false`, `reject non-standard transactions regardless of the default settings for the active network`, true),
 
-		podutil.GenerateFlag("appdatadir", "", "--appdatadir=/path/to/appdatadir", "set app data directory for wallet, configuration and logs", true),
-		podutil.GenerateFlag("testnet3", "", "--testnet=true", "use testnet", true),
-		podutil.GenerateFlag("simnet", "", "--simnet=true", "use simnet", true),
-		podutil.GenerateFlag("noinitialload", "", "--noinitialload=true", "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)", true),
-		podutil.GenerateFlag("network", "", "--network=mainnet", "connect to specified network: mainnet, testnet, regtestnet or simnet", true),
-		podutil.GenerateFlag("profile", "", "--profile=true", "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536", true),
-		podutil.GenerateFlag("gui", "", "--gui=true", "launch GUI (wallet unlock is deferred to let GUI handle)", true),
-		podutil.GenerateFlag("walletpass", "", "--walletpass=somepassword", "the public wallet password - only required if the wallet was created with one", true),
-		// podutil.GenerateFlag("rpcconnect", "", "--rpcconnect=some.address.com:11048", "connect to the RPC of a parallelcoin node for chain queries", true),
-		podutil.GenerateFlag("cafile", "", "--cafile=/path/to/cafile", "file containing root certificates to authenticate TLS connections with pod", true),
-		// podutil.GenerateFlag("enableclienttls", "", "--enableclienttls=false", "enable TLS for the RPC client", true),
-		// podutil.GenerateFlag("podusername", "", "--podusername=user", "username for node RPC authentication", true),
-		// podutil.GenerateFlag("podpassword", "", "--podpassword=pa55word", "password for node RPC authentication", true),
-		// podutil.GenerateFlag("proxy", "", "--proxy=127.0.0.1:9050", "address for proxy for outbound connections", true),
-		// podutil.GenerateFlag("proxyuser", "", "--proxyuser=user", "username for proxy", true),
-		// podutil.GenerateFlag("proxypass", "", "--proxypass=pa55word", "password for proxy", true),
-		podutil.GenerateFlag("rpccert", "", "--rpccert=/path/to/rpccert", "file containing the RPC tls certificate", true),
-		podutil.GenerateFlag("rpckey", "", "--rpckey=/path/to/rpckey", "file containing RPC tls key", true),
-		podutil.GenerateFlag("onetimetlskey", "", "--onetimetlskey=true", "generate a new TLS certpair but only write certs to disk", true),
-		podutil.GenerateFlag("enableservertls", "", "--enableservertls=false", "enable TLS on wallet RPC", true),
-		podutil.GenerateFlag("legacyrpclisteners", "", "--legacyrpclisteners=127.0.0.1:11046", "add a listener for the legacy RPC", true),
-		podutil.GenerateFlag("legacyrpcmaxclients", "", "--legacyrpcmaxclients=10", "maximum number of connections for legacy RPC", true),
-		podutil.GenerateFlag("legacyrpcmaxwebsockets", "", "--legacyrpcmaxwebsockets=10", "maximum number of websockets for legacy RPC", true),
-		podutil.GenerateFlag("username", "-u", "--username=user", "username for wallet RPC, used also for node if podusername is empty", true),
-		podutil.GenerateFlag("password", "-P", "--password=pa55word", "password for wallet RPC, also used for node if podpassord", true),
-		podutil.GenerateFlag("experimentalrpclisteners", "", "--experimentalrpclisteners=127.0.0.1:11045", "enable experimental RPC service on this address", true),
+		pu.GenFlag("appdatadir", "", "--appdatadir=/path/to/appdatadir", "set app data directory for wallet, configuration and logs", true),
+		pu.GenFlag("testnet3", "", "--testnet=true", "use testnet", true),
+		pu.GenFlag("simnet", "", "--simnet=true", "use simnet", true),
+		pu.GenFlag("noinitialload", "", "--noinitialload=true", "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)", true),
+		pu.GenFlag("network", "", "--network=mainnet", "connect to specified network: mainnet, testnet, regtestnet or simnet", true),
+		pu.GenFlag("profile", "", "--profile=true", "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536", true),
+		pu.GenFlag("gui", "", "--gui=true", "launch GUI (wallet unlock is deferred to let GUI handle)", true),
+		pu.GenFlag("walletpass", "", "--walletpass=somepassword", "the public wallet password - only required if the wallet was created with one", true),
+		// pu.GenFlag("rpcconnect", "", "--rpcconnect=some.address.com:11048", "connect to the RPC of a parallelcoin node for chain queries", true),
+		pu.GenFlag("cafile", "", "--cafile=/path/to/cafile", "file containing root certificates to authenticate TLS connections with pod", true),
+		// pu.GenFlag("enableclienttls", "", "--enableclienttls=false", "enable TLS for the RPC client", true),
+		// pu.GenFlag("podusername", "", "--podusername=user", "username for node RPC authentication", true),
+		// pu.GenFlag("podpassword", "", "--podpassword=pa55word", "password for node RPC authentication", true),
+		// pu.GenFlag("proxy", "", "--proxy=127.0.0.1:9050", "address for proxy for outbound connections", true),
+		// pu.GenFlag("proxyuser", "", "--proxyuser=user", "username for proxy", true),
+		// pu.GenFlag("proxypass", "", "--proxypass=pa55word", "password for proxy", true),
+		pu.GenFlag("rpccert", "", "--rpccert=/path/to/rpccert", "file containing the RPC tls certificate", true),
+		pu.GenFlag("rpckey", "", "--rpckey=/path/to/rpckey", "file containing RPC tls key", true),
+		pu.GenFlag("onetimetlskey", "", "--onetimetlskey=true", "generate a new TLS certpair but only write certs to disk", true),
+		pu.GenFlag("enableservertls", "", "--enableservertls=false", "enable TLS on wallet RPC", true),
+		pu.GenFlag("legacyrpclisteners", "", "--legacyrpclisteners=127.0.0.1:11046", "add a listener for the legacy RPC", true),
+		pu.GenFlag("legacyrpcmaxclients", "", "--legacyrpcmaxclients=10", "maximum number of connections for legacy RPC", true),
+		pu.GenFlag("legacyrpcmaxwebsockets", "", "--legacyrpcmaxwebsockets=10", "maximum number of websockets for legacy RPC", true),
+		pu.GenFlag("username", "-u", "--username=user", "username for wallet RPC, used also for node if podusername is empty", true),
+		pu.GenFlag("password", "-P", "--password=pa55word", "password for wallet RPC, also used for node if podpassord", true),
+		pu.GenFlag("experimentalrpclisteners", "", "--experimentalrpclisteners=127.0.0.1:11045", "enable experimental RPC service on this address", true),
 
-		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library)", true),
+		pu.GenFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library)", true),
 
-		podutil.GenerateFlag("lib-addrmgr", "", "--lib-addrmg=info", "", true),
-		podutil.GenerateFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
-		podutil.GenerateFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
-		podutil.GenerateFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
-		podutil.GenerateFlag("lib-database", "", "--lib-database=info", "", true),
-		podutil.GenerateFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
-		podutil.GenerateFlag("lib-mining", "", "--lib-mining=info", "", true),
-		podutil.GenerateFlag("lib-netsync", "", "--lib-netsync=info", "", true),
-		podutil.GenerateFlag("lib-peer", "", "--lib-peer=info", "", true),
-		podutil.GenerateFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
-		podutil.GenerateFlag("lib-txscript", "", "--lib-txscript=info", "", true),
-		podutil.GenerateFlag("node", "", "--node=info", "", true),
-		podutil.GenerateFlag("node-mempool", "", "--node-mempool=info", "", true),
-		podutil.GenerateFlag("spv", "", "--spv=info", "", true),
-		podutil.GenerateFlag("wallet", "", "--wallet=info", "", true),
-		podutil.GenerateFlag("wallet-chain", "", "--wallet-chain=info", "", true),
-		podutil.GenerateFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
-		podutil.GenerateFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
-		podutil.GenerateFlag("wallet-tx", "", "--wallet-tx=info", "", true),
-		podutil.GenerateFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
-		podutil.GenerateFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
-		podutil.GenerateFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
-		podutil.GenerateFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
+		pu.GenFlag("lib-addrmgr", "", "--lib-addrmg=info", "", true),
+		pu.GenFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
+		pu.GenFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
+		pu.GenFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
+		pu.GenFlag("lib-database", "", "--lib-database=info", "", true),
+		pu.GenFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
+		pu.GenFlag("lib-mining", "", "--lib-mining=info", "", true),
+		pu.GenFlag("lib-netsync", "", "--lib-netsync=info", "", true),
+		pu.GenFlag("lib-peer", "", "--lib-peer=info", "", true),
+		pu.GenFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
+		pu.GenFlag("lib-txscript", "", "--lib-txscript=info", "", true),
+		pu.GenFlag("node", "", "--node=info", "", true),
+		pu.GenFlag("node-mempool", "", "--node-mempool=info", "", true),
+		pu.GenFlag("spv", "", "--spv=info", "", true),
+		pu.GenFlag("wallet", "", "--wallet=info", "", true),
+		pu.GenFlag("wallet-chain", "", "--wallet-chain=info", "", true),
+		pu.GenFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
+		pu.GenFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
+		pu.GenFlag("wallet-tx", "", "--wallet-tx=info", "", true),
+		pu.GenFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
+		pu.GenFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
+		pu.GenFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
+		pu.GenFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
 	},
 	Examples: []climax.Example{
 		// {
@@ -218,7 +218,7 @@ var Command = climax.Command{
 			log <- cl.Debugf{
 				"writing default configuration to %s", cfgFile,
 			}
-			writeDefaultConfig(cfgFile)
+			WriteDefaultConfig(cfgFile)
 			configNode(&ctx, cfgFile)
 		} else {
 			log <- cl.Infof{
@@ -229,7 +229,7 @@ var Command = climax.Command{
 				log <- cl.Wrn(
 					"configuration file does not exist, creating new one",
 				)
-				writeDefaultConfig(cfgFile)
+				WriteDefaultConfig(cfgFile)
 				configNode(&ctx, cfgFile)
 			} else {
 				log <- cl.Debug{
@@ -283,19 +283,19 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.DataDir = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "addpeers", r) {
-		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.AddPeers)
+		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.AddPeers)
 	}
 	if getIfIs(ctx, "connectpeers", r) {
-		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ConnectPeers)
+		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ConnectPeers)
 	}
 	if getIfIs(ctx, "disablelisten", r) {
 		Config.Node.DisableListen = *r == "true"
 	}
 	if getIfIs(ctx, "listeners", r) {
-		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Listeners)
+		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Listeners)
 	}
 	if getIfIs(ctx, "maxpeers", r) {
-		if err := podutil.ParseInteger(*r, "maxpeers", &Config.Node.MaxPeers); err != nil {
+		if err := pu.ParseInteger(*r, "maxpeers", &Config.Node.MaxPeers); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
@@ -303,20 +303,20 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.DisableBanning = *r == "true"
 	}
 	if getIfIs(ctx, "banduration", r) {
-		if err := podutil.ParseDuration(*r, "banduration", &Config.Node.BanDuration); err != nil {
+		if err := pu.ParseDuration(*r, "banduration", &Config.Node.BanDuration); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "banthreshold", r) {
 		var bt int
-		if err := podutil.ParseInteger(*r, "banthtreshold", &bt); err != nil {
+		if err := pu.ParseInteger(*r, "banthtreshold", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.BanThreshold = uint32(bt)
 		}
 	}
 	if getIfIs(ctx, "whitelists", r) {
-		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Whitelists)
+		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Whitelists)
 	}
 	// if getIfIs(ctx, "rpcuser", r) {
 	// 	Config.Node.RPCUser = *r
@@ -331,7 +331,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// 	Config.Node.RPCLimitPass = *r
 	// }
 	// if getIfIs(ctx, "rpclisteners", r) {
-	podutil.NormalizeAddresses(n.DefaultRPCListener, n.DefaultRPCPort, &Config.Node.RPCListeners)
+	pu.NormalizeAddresses(n.DefaultRPCListener, n.DefaultRPCPort, &Config.Node.RPCListeners)
 	// }
 	// if getIfIs(ctx, "rpccert", r) {
 	// 	Config.Node.RPCCert = n.CleanAndExpandPath(*r)
@@ -347,10 +347,10 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.DisableDNSSeed = *r == "true"
 	}
 	if getIfIs(ctx, "externalips", r) {
-		podutil.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ExternalIPs)
+		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ExternalIPs)
 	}
 	if getIfIs(ctx, "proxy", r) {
-		podutil.NormalizeAddress(*r, "9050", &Config.Node.Proxy)
+		pu.NormalizeAddress(*r, "9050", &Config.Node.Proxy)
 	}
 	if getIfIs(ctx, "proxyuser", r) {
 		Config.Node.ProxyUser = *r
@@ -359,7 +359,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.ProxyPass = *r
 	}
 	if getIfIs(ctx, "onion", r) {
-		podutil.NormalizeAddress(*r, "9050", &Config.Node.OnionProxy)
+		pu.NormalizeAddress(*r, "9050", &Config.Node.OnionProxy)
 	}
 	if getIfIs(ctx, "onionuser", r) {
 		Config.Node.OnionProxyUser = *r
@@ -404,12 +404,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.Upnp = *r == "true"
 	}
 	if getIfIs(ctx, "minrelaytxfee", r) {
-		if err := podutil.ParseFloat(*r, "minrelaytxfee", &Config.Node.MinRelayTxFee); err != nil {
+		if err := pu.ParseFloat(*r, "minrelaytxfee", &Config.Node.MinRelayTxFee); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "freetxrelaylimit", r) {
-		if err := podutil.ParseFloat(*r, "freetxrelaylimit", &Config.Node.FreeTxRelayLimit); err != nil {
+		if err := pu.ParseFloat(*r, "freetxrelaylimit", &Config.Node.FreeTxRelayLimit); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
@@ -417,12 +417,12 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.NoRelayPriority = *r == "true"
 	}
 	if getIfIs(ctx, "trickleinterval", r) {
-		if err := podutil.ParseDuration(*r, "trickleinterval", &Config.Node.TrickleInterval); err != nil {
+		if err := pu.ParseDuration(*r, "trickleinterval", &Config.Node.TrickleInterval); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "maxorphantxs", r) {
-		if err := podutil.ParseInteger(*r, "maxorphantxs", &Config.Node.MaxOrphanTxs); err != nil {
+		if err := pu.ParseInteger(*r, "maxorphantxs", &Config.Node.MaxOrphanTxs); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
@@ -434,7 +434,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "genthreads", r) {
 		var gt int
-		if err := podutil.ParseInteger(*r, "genthreads", &gt); err != nil {
+		if err := pu.ParseInteger(*r, "genthreads", &gt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.GenThreads = int32(gt)
@@ -444,33 +444,33 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.MiningAddrs = strings.Split(*r, " ")
 	}
 	if getIfIs(ctx, "minerlistener", r) {
-		podutil.NormalizeAddress(*r, n.DefaultRPCPort, &Config.Node.MinerListener)
+		pu.NormalizeAddress(*r, n.DefaultRPCPort, &Config.Node.MinerListener)
 	}
 	if getIfIs(ctx, "minerpass", r) {
 		Config.Node.MinerPass = *r
 	}
 	if getIfIs(ctx, "blockminsize", r) {
-		if err := podutil.ParseUint32(*r, "blockminsize", &Config.Node.BlockMinSize); err != nil {
+		if err := pu.ParseUint32(*r, "blockminsize", &Config.Node.BlockMinSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxsize", r) {
-		if err := podutil.ParseUint32(*r, "blockmaxsize", &Config.Node.BlockMaxSize); err != nil {
+		if err := pu.ParseUint32(*r, "blockmaxsize", &Config.Node.BlockMaxSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockminweight", r) {
-		if err := podutil.ParseUint32(*r, "blockminweight", &Config.Node.BlockMinWeight); err != nil {
+		if err := pu.ParseUint32(*r, "blockminweight", &Config.Node.BlockMinWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockmaxweight", r) {
-		if err := podutil.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockMaxWeight); err != nil {
+		if err := pu.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockMaxWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if getIfIs(ctx, "blockprioritysize", r) {
-		if err := podutil.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockPrioritySize); err != nil {
+		if err := pu.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockPrioritySize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
@@ -488,7 +488,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "sigcachemaxsize", r) {
 		var scms int
-		if err := podutil.ParseInteger(*r, "sigcachemaxsize", &scms); err != nil {
+		if err := pu.ParseInteger(*r, "sigcachemaxsize", &scms); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Node.SigCacheMaxSize = uint(scms)
@@ -535,7 +535,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.LogDir = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "profile", r) {
-		podutil.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
+		pu.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
 	}
 	if getIfIs(ctx, "gui", r) {
 		Config.Wallet.GUI = *r == "true"
@@ -544,7 +544,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.WalletPass = *r
 	}
 	// if getIfIs(ctx, "rpcconnect", r) {
-	podutil.NormalizeAddress(n.DefaultRPCListener, "11048", &Config.Wallet.RPCConnect)
+	pu.NormalizeAddress(n.DefaultRPCListener, "11048", &Config.Wallet.RPCConnect)
 	// }
 	if getIfIs(ctx, "cafile", r) {
 		Config.Wallet.CAFile = n.CleanAndExpandPath(*r)
@@ -565,11 +565,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.EnableServerTLS = *r == "true"
 	}
 	if getIfIs(ctx, "legacyrpclisteners", r) {
-		podutil.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
+		pu.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
 	}
 	if getIfIs(ctx, "legacyrpcmaxclients", r) {
 		var bt int
-		if err := podutil.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
+		if err := pu.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
 			Config.Wallet.LegacyRPCMaxClients = int64(bt)
@@ -592,7 +592,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.Password = *r
 	}
 	if getIfIs(ctx, "experimentalrpclisteners", r) {
-		podutil.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
+		pu.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
 	}
 	if getIfIs(ctx, "network", r) {
 		switch *r {
@@ -624,7 +624,21 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 }
 
-func writeDefaultConfig(cfgFile string) {
+// WriteConfig creates and writes the config file in the requested location
+func WriteConfig(cfgFile string, c *Cfg) {
+	j, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		panic(err.Error())
+	}
+	j = append(j, '\n')
+	err = ioutil.WriteFile(cfgFile, j, 0600)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+// WriteDefaultConfig creates and writes a default config to the specified path
+func WriteDefaultConfig(cfgFile string) {
 	defCfg := DefaultConfig()
 	defCfg.ConfFileName = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
@@ -643,8 +657,8 @@ func writeDefaultConfig(cfgFile string) {
 
 // DefaultConfig returns a default configuration
 func DefaultConfig() *Cfg {
-	rpcusername := podutil.GenerateKey()
-	rpcpassword := podutil.GenerateKey()
+	rpcusername := pu.GenKey()
+	rpcpassword := pu.GenKey()
 	return &Cfg{
 		DataDir:      DefaultDataDir,
 		AppDataDir:   DefaultAppDataDir,

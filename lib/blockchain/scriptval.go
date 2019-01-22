@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"time"
 
-	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -48,7 +47,7 @@ out:
 		// fmt.Println("loop:validateHandler")
 		select {
 		case txVI := <-v.validateChan:
-			log <- cl.Dbg("chan:txVI := <-v.validateChan")
+			// fmt.Println("chan:txVI := <-v.validateChan")
 			// Ensure the referenced input utxo is available.
 			txIn := txVI.txIn
 			utxo := v.utxoView.LookupEntry(txIn.PreviousOutPoint)

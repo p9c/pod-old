@@ -92,7 +92,7 @@ type Config struct {
 	TestNet3      bool   `long:"testnet" description:"Connect to testnet"`
 	SimNet        bool   `long:"simnet" description:"Connect to the simulation test network"`
 	TLSSkipVerify bool   `long:"skipverify" description:"Do not verify tls certificates (not recommended!)"`
-	Wallet        bool   `long:"wallet" description:"Connect to wallet"`
+	Wallet        string `long:"walletrpc" description:"Connect to wallet at address"`
 }
 
 // normalizeAddress returns addr with the passed default port appended if there is not already a port specified.
@@ -181,7 +181,7 @@ func loadConfig() (*Config, []string, error) {
 	if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
 		// Use config file for RPC server to create default podctl config
 		var serverConfigPath string
-		if preCfg.Wallet {
+		if preCfg.Wallet != "" {
 			serverConfigPath = filepath.Join(SPVHomeDir, "sac.conf")
 		} else {
 			serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
@@ -227,14 +227,14 @@ func loadConfig() (*Config, []string, error) {
 		return nil, nil, err
 	}
 	// Override the RPC certificate if the --wallet flag was specified and the user did not specify one.
-	if cfg.Wallet && cfg.RPCCert == DefaultRPCCertFile {
+	if cfg.Wallet != "" && cfg.RPCCert == DefaultRPCCertFile {
 		cfg.RPCCert = DefaultWalletCertFile
 	}
 	// Handle environment variable expansion in the RPC certificate path.
 	cfg.RPCCert = cleanAndExpandPath(cfg.RPCCert)
 	// Add default port to RPC server based on --testnet and --wallet flags if needed.
 	cfg.RPCServer = normalizeAddress(cfg.RPCServer, cfg.TestNet3,
-		cfg.SimNet, cfg.Wallet)
+		cfg.SimNet, cfg.Wallet != "")
 	return &cfg, remainingArgs, nil
 }
 

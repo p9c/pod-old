@@ -25,27 +25,27 @@ var Command = climax.Command{
 	Brief: "sends RPC commands and prints the reply",
 	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
 	Flags: []climax.Flag{
-		podutil.GenerateFlag("version", "V", `--version`, `show version number and quit`, false),
-		podutil.GenerateFlag("configfile", "C", "--configfile=/path/to/conf", "Path to configuration file", true),
+		pu.GenFlag("version", "V", `--version`, `show version number and quit`, false),
+		pu.GenFlag("configfile", "C", "--configfile=/path/to/conf", "Path to configuration file", true),
 
-		podutil.GenerateFlag("listcommands", "l", `--listcommands`, `list available commands`, false),
-		podutil.GenerateFlag("init", "", "--init", "resets configuration to defaults", false),
-		podutil.GenerateFlag("save", "", "--save", "saves current configuration", false),
+		pu.GenFlag("listcommands", "l", `--listcommands`, `list available commands`, false),
+		pu.GenFlag("init", "", "--init", "resets configuration to defaults", false),
+		pu.GenFlag("save", "", "--save", "saves current configuration", false),
 
-		podutil.GenerateFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default is error to keep stdout clean", true),
+		pu.GenFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default is error to keep stdout clean", true),
 
-		podutil.GenerateFlag("rpcuser", "u", "--rpcuser=username", "RPC username", true),
-		podutil.GenerateFlag("rpcpass", "P", "--rpcpass=pa55word", "RPC password", true),
-		podutil.GenerateFlag("rpcserver", "s", "--rpcserver=127.0.0.1:11048", "RPC server to connect to", true),
-		podutil.GenerateFlag("rpccert", "c", "--rpccert=/path/to/rpc.cert", "RPC server certificate chain for validation", true),
-		podutil.GenerateFlag("tls", "", "--tls=false", "enable/disable TLS", false),
-		podutil.GenerateFlag("proxy", "", "--proxy 127.0.0.1:9050", "connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
-		podutil.GenerateFlag("proxyuser", "", "--proxyuser=username", "username for proxy server", true),
-		podutil.GenerateFlag("proxypass", "", "--proxypass=password", "password for proxy server", true),
-		podutil.GenerateFlag("testnet", "", "--testnet=true", "connect to testnet", true),
-		podutil.GenerateFlag("simnet", "", "--simnet=true", "connect to the simulation test network", true),
-		podutil.GenerateFlag("skipverify", "", "--skipverify=false", "do not verify tls certificates (not recommended!)", true),
-		podutil.GenerateFlag("wallet", "", "--wallet=true", "connect to wallet", true),
+		pu.GenFlag("rpcuser", "u", "--rpcuser=username", "RPC username", true),
+		pu.GenFlag("rpcpass", "P", "--rpcpass=pa55word", "RPC password", true),
+		pu.GenFlag("rpcserver", "s", "--rpcserver=127.0.0.1:11048", "RPC server to connect to", true),
+		pu.GenFlag("rpccert", "c", "--rpccert=/path/to/rpc.cert", "RPC server certificate chain for validation", true),
+		pu.GenFlag("tls", "", "--tls=false", "enable/disable TLS", false),
+		pu.GenFlag("proxy", "", "--proxy 127.0.0.1:9050", "connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
+		pu.GenFlag("proxyuser", "", "--proxyuser=username", "username for proxy server", true),
+		pu.GenFlag("proxypass", "", "--proxypass=password", "password for proxy server", true),
+		pu.GenFlag("testnet", "", "--testnet=true", "connect to testnet", true),
+		pu.GenFlag("simnet", "", "--simnet=true", "connect to the simulation test network", true),
+		pu.GenFlag("skipverify", "", "--skipverify=false", "do not verify tls certificates (not recommended!)", true),
+		pu.GenFlag("wallet", "", "--wallet=true", "connect to wallet", true),
 	},
 	Examples: []climax.Example{
 		{
@@ -79,7 +79,7 @@ var Command = climax.Command{
 				log <- cl.Debug{
 					"writing default configuration to", cfgFile,
 				}
-				writeDefaultConfig(cfgFile)
+				WriteDefaultConfig(cfgFile)
 				// then run from this config
 				configCtl(&ctx, cfgFile)
 			} else {
@@ -88,7 +88,7 @@ var Command = climax.Command{
 				}
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 					log <- cl.Wrn("configuration file does not exist, creating new one")
-					writeDefaultConfig(cfgFile)
+					WriteDefaultConfig(cfgFile)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 				} else {
@@ -198,8 +198,8 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 			"set %s to true", "skipverify",
 		}
 	}
-	if ctx.Is("wallet") {
-		Config.Wallet = true
+	if r, ok = getIfIs(ctx, "wallet"); ok {
+		Config.Wallet = r
 		log <- cl.Tracef{
 			"set %s to true", "wallet",
 		}
@@ -221,8 +221,27 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 	}
 }
 
-func writeDefaultConfig(cfgFile string) {
-	defCfg := defaultConfig()
+// WriteConfig writes the current config in the requested location
+func WriteConfig(cfgFile string, cc *c.Config) {
+	j, err := json.MarshalIndent(cc, "", "  ")
+	if err != nil {
+		log <- cl.Err(err.Error())
+	}
+	j = append(j, '\n')
+	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
+	err = ioutil.WriteFile(cfgFile, j, 0600)
+	if err != nil {
+		log <- cl.Fatal{
+			"unable to write config file %s",
+			err.Error(),
+		}
+		cl.Shutdown()
+	}
+}
+
+// WriteDefaultConfig writes a default config in the requested location
+func WriteDefaultConfig(cfgFile string) {
+	defCfg := DefaultConfig()
 	defCfg.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -242,7 +261,7 @@ func writeDefaultConfig(cfgFile string) {
 	Config = defCfg
 }
 
-func defaultConfig() *c.Config {
+func DefaultConfig() *c.Config {
 	return &c.Config{
 		DebugLevel:    "off",
 		RPCUser:       "user",
@@ -256,6 +275,6 @@ func defaultConfig() *c.Config {
 		TestNet3:      false,
 		SimNet:        false,
 		TLSSkipVerify: false,
-		Wallet:        false,
+		Wallet:        "",
 	}
 }

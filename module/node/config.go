@@ -71,7 +71,7 @@ const (
 	DefaultSigCacheMaxSize       = 100000
 	DefaultTxIndex               = false
 	DefaultAddrIndex             = false
-	DefaultAlgo                  = "sha256d"
+	DefaultAlgo                  = "random"
 )
 
 var (

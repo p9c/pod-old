@@ -9,8 +9,8 @@ import (
 )
 
 func init() {
-	podutil.EnsureDir(ctl.DefaultConfigFile)
-	podutil.EnsureDir(node.DefaultConfigFile)
-	podutil.EnsureDir(walletmain.DefaultConfigFile)
-	podutil.EnsureDir(shell.DefaultConfFileName)
+	pu.EnsureDir(ctl.DefaultConfigFile)
+	pu.EnsureDir(node.DefaultConfigFile)
+	pu.EnsureDir(walletmain.DefaultConfigFile)
+	pu.EnsureDir(shell.DefaultConfFileName)
 }

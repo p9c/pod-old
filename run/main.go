@@ -1,6 +1,7 @@
 package pod
 
 import (
+	"git.parallelcoin.io/pod/run/conf"
 	"git.parallelcoin.io/pod/run/ctl"
 	"git.parallelcoin.io/pod/run/node"
 	"git.parallelcoin.io/pod/run/shell"
@@ -27,5 +28,6 @@ func Main() int {
 	PodApp.AddCommand(node.Command)
 	PodApp.AddCommand(walletrun.Command)
 	PodApp.AddCommand(shell.Command)
+	PodApp.AddCommand(conf.Command)
 	return PodApp.Run()
 }

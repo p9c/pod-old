@@ -1,4 +1,4 @@
-package podutil
+package pu
 
 import (
 	"crypto/rand"
@@ -17,8 +17,8 @@ import (
 
 var defaultUser, defaultPass = "user", "pa55word"
 
-// GenerateKey gets a crypto-random number and encodes it in hex for generated shared credentials
-func GenerateKey() string {
+// GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
+func GenKey() string {
 	k, _ := rand.Int(rand.Reader, big.NewInt(int64(^uint32(0))))
 	key := k.Uint64()
 	return fmt.Sprintf("%0x", key)
@@ -129,8 +129,8 @@ func ParseDuration(d, name string, out *time.Duration) (err error) {
 	return
 }
 
-// GenerateFlag allows a flag to be more concisely declared
-func GenerateFlag(name, short, usage, help string, variable bool) climax.Flag {
+// GenFlag allows a flag to be more concisely declared
+func GenFlag(name, short, usage, help string, variable bool) climax.Flag {
 	return climax.Flag{
 		Name:     name,
 		Short:    short,

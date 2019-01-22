@@ -6,8 +6,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
-	"runtime"
 	"sync"
 
 	cl "git.parallelcoin.io/pod/lib/clog"
@@ -20,36 +18,13 @@ var (
 	cfg *Config
 )
 
-// PreMain is the entry point for the wallet
-func PreMain() {
-	// Use all processor cores.
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
-	// Work around defer not working after os.Exit.
-	if err := walletMain(); err != nil {
-		os.Exit(1)
-	}
-}
-
-// walletMain is a work-around main function that is required since deferred
+// Main is a work-around main function that is required since deferred
 // functions (such as log flushing) are not called with calls to os.Exit.
 // Instead, main runs this function and checks for a non-nil error, at which
 // point any defers have already run, and if the error is non-nil, the program
 // can be exited with an error exit status.
-func walletMain() error {
-	// Load configuration and parse command line.  This function also
-	// initializes logging and configures it accordingly.
-	tcfg, _, err := loadConfig()
-	if err != nil {
-		return err
-	}
-	cfg = tcfg
-	// defer func() {
-	// 	if logRotator != nil {
-	// 		logRotator.Close()
-	// 	}
-	// }()
-
+func Main(c *Config) error {
+	cfg = c
 	// Show version at startup.
 	log <- cl.Info{"version", Version()}
 
