@@ -69,8 +69,9 @@ const (
 	DefaultMaxOrphanTransactions = 100
 	DefaultMaxOrphanTxSize       = 100000
 	DefaultSigCacheMaxSize       = 100000
-	DefaultTxIndex               = false
-	DefaultAddrIndex             = false
+	// These are set to default on because more often one wants them than not
+	DefaultTxIndex               = true
+	DefaultAddrIndex             = true
 	DefaultAlgo                  = "random"
 )
 

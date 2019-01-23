@@ -51,7 +51,7 @@ type AppConfigs struct {
 	Ctl    c.Config
 	Node   n.Config
 	Wallet w.Config
-	Shell  s.Cfg
+	Shell  shell.Cfg
 }
 
 var f = pu.GenFlag

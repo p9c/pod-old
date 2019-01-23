@@ -29,7 +29,7 @@ const (
 	// DefaultTrickleInterval is the min time between attempts to send an inv message to a peer.
 	DefaultTrickleInterval = time.Second * 9
 	// MinAcceptableProtocolVersion is the lowest protocol version that a connected peer may support.
-	MinAcceptableProtocolVersion = wire.MultipleAddressVersion
+	MinAcceptableProtocolVersion = 1
 	// outputBufferSize is the number of elements the output channels use.
 	outputBufferSize = 100
 	// invTrickleSize is the maximum amount of inventory to send in a single message when trickling inventory to remote peers.

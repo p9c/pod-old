@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"strconv"
 	"time"
+
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
 )
 
 type transaction struct {

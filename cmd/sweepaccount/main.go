@@ -20,6 +20,7 @@ import (
 	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
 	"github.com/jessevdk/go-flags"
+	"git.parallelcoin.io/pod/module/wallet/cfgutil"
 )
 
 var (

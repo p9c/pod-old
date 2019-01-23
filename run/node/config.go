@@ -86,9 +86,9 @@ var Command = climax.Command{
 
 		f("txindex","enable transaction index"),
 		f("addrindex","enable address index"),
-		t("dropcfindex", "delete committed filtering (CF) index then exit"),
-		t("droptxindex", "deletes transaction index then exit"),
-		t("dropaddrindex", "deletes the address index then exits"),
+		t("dropcfindex", "","delete committed filtering (CF) index then exit"),
+		t("droptxindex", "","deletes transaction index then exit"),
+		t("dropaddrindex", "","deletes the address index then exits"),
 
 		s("listeners","S", "sets an address to listen for P2P connections"),
 		f("externalips", "additional P2P listeners"),
@@ -122,7 +122,7 @@ var Command = climax.Command{
 		f("onion","connect via tor proxy relay"),
 		f("onionuser","username for onion proxy server"),
 		f("onionpass","password for onion proxy server"),
-		f("noonion","","--noonion=true","disable onion proxy"),
+		f("noonion","disable onion proxy"),
 		f("torisolation","use a different user/pass for each peer"),
 				
 		f("trickleinterval","time between sending inventory batches to peers"),
@@ -167,6 +167,7 @@ var Command = climax.Command{
 		s("debuglevel","d","sets log level for those unspecified below"),
 		
 		l("lib-addrmgr"), l("lib-blockchain"),l("lib-connmgr"),l("lib-database-ffldb"),l("lib-database"),l("lib-mining-cpuminer"),l("lib-mining"),l("lib-netsync"),l("lib-peer"),l("lib-rpcclient"),l("lib-txscript"),l("node"),l("node-mempool"),l("spv"),l("wallet"),l("wallet-chain"),l("wallet-legacyrpc"),l("wallet-rpcserver"),l("wallet-tx"),l("wallet-votingpool"),l("wallet-waddrmgr"),l("wallet-wallet"), l("wallet-wtxmgr"),
+	},
 	Examples: []climax.Example{
 		{
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
@@ -513,7 +514,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			"saving config file to %s",
 			cfgFile,
 		}
-		j, err := json.MarshalIndent(Config), "  ")
+		j, err := json.MarshalIndent(Config,"", "  ")
 		if err != nil {
 			log <- cl.Error{
 				"saving config file:",
@@ -948,7 +949,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 // WriteConfig writes the current config to the requested location
 func WriteConfig(cfgFile string, c *Cfg) {
 	c.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(c), "  ")
+	j, err := json.MarshalIndent(c, "","  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(c))
@@ -968,9 +969,9 @@ func WriteConfig(cfgFile string, c *Cfg) {
 
 // WriteDefaultConfig creates a default config and writes it to the requested location
 func WriteDefaultConfig(cfgFile string) {
-	defCfg := Config
+	defCfg := DefaultConfig()
 	defCfg.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(defCfg), "  ")
+	j, err := json.MarshalIndent(defCfg, "","  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(defCfg))

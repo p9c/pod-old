@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"errors"
+	"log"
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
