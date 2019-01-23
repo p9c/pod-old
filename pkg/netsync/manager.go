@@ -17,11 +17,7 @@ import (
 	peerpkg "git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/node/mempool"
-=======
 	"git.parallelcoin.io/pod/cmd/node/mempool"
->>>>>>> master
 )
 
 const (

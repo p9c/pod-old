@@ -7,19 +7,11 @@ import (
 	"os"
 
 	"git.parallelcoin.io/pod/pkg/clog"
-<<<<<<< HEAD
-	n "git.parallelcoin.io/pod/module/node"
-	w "git.parallelcoin.io/pod/module/wallet"
-	"git.parallelcoin.io/pod/cmd/wallet/netparams"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/run/util"
-=======
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/netparams"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	"git.parallelcoin.io/pod/pkg/util"
->>>>>>> master
 	"github.com/tucnak/climax"
 )
 
@@ -145,18 +137,6 @@ var Wallet = climax.Command{
 	},
 }
 
-<<<<<<< HEAD
-func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
-	if ctx.Is(name) {
-		var s string
-		s, ok = ctx.Get(name)
-		r = &s
-	}
-	return
-}
-
-=======
->>>>>>> master
 func configWallet(ctx *climax.Context, cfgFile string) {
 	log <- cl.Debug{"configuring from command line flags ", os.Args}
 	var r *string

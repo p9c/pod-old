@@ -17,11 +17,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/netsync"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/txscript"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/node/mempool"
-=======
 	"git.parallelcoin.io/pod/cmd/node/mempool"
->>>>>>> master
 	"github.com/jrick/logrotate/rotator"
 )
 

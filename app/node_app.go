@@ -17,14 +17,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/util"
-<<<<<<< HEAD
-	n "git.parallelcoin.io/pod/module/node"
-	"git.parallelcoin.io/pod/module/node/mempool"
-	"git.parallelcoin.io/pod/run/util"
-=======
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
->>>>>>> master
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"

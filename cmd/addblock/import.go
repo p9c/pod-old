@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/lib/blockchain"
-	"git.parallelcoin.io/pod/lib/blockchain/indexers"
-	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/lib/database"
-	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/pkg/database"
+	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 var zeroHash = chainhash.Hash{}

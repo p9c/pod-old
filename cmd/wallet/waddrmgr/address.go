@@ -9,13 +9,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	"git.parallelcoin.io/pod/module/wallet/zero"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	"git.parallelcoin.io/pod/cmd/wallet/zero"
->>>>>>> master
 )
 
 // AddressType represents the various address types waddrmgr is currently able

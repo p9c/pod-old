@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/lib/database"
+	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/pkg/database"
 )
 
 // fetchBlockCmd defines the configuration options for the fetchblock command.

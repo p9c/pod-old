@@ -11,15 +11,9 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/prompt"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/prompt"
 	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
->>>>>>> master
 )
 
 const (

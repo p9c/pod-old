@@ -5,11 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-<<<<<<< HEAD
-	. "git.parallelcoin.io/pod/module/wallet/tx/txsizes"
-=======
 	. "git.parallelcoin.io/pod/cmd/wallet/tx/txsizes"
->>>>>>> master
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 

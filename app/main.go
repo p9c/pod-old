@@ -2,13 +2,7 @@ package app
 
 import (
 	"git.parallelcoin.io/pod/cmd/ctl"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/cmd/conf"
 	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/shell"
-=======
-	"git.parallelcoin.io/pod/cmd/node"
->>>>>>> master
 	"github.com/tucnak/climax"
 )
 

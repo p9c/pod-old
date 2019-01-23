@@ -119,16 +119,6 @@ var CtlCommand = climax.Command{
 	},
 }
 
-<<<<<<< HEAD
-func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
-	if ctx.Is(name) {
-		return ctx.Get(name)
-	}
-	return
-}
-
-=======
->>>>>>> master
 func configCtl(ctx *climax.Context, cfgFile string) {
 	var r string
 	var ok bool

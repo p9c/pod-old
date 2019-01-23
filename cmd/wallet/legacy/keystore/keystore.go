@@ -26,11 +26,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/legacy/rename"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/legacy/rename"
->>>>>>> master
 )
 
 const (

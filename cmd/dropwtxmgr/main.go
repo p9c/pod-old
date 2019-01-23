@@ -13,11 +13,11 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 <<<<<<< HEAD
 =======
-	"git.parallelcoin.io/pod/lib/util"
+	"git.parallelcoin.io/pod/pkg/util"
 >>>>>>> parent of 4e7e6f6... commit before it kills your machine
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 =======
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"

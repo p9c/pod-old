@@ -6,19 +6,11 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/pod/pkg/util"
-<<<<<<< HEAD
-	. "git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
-	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
-	"git.parallelcoin.io/pod/pkg/wire"
-
-	"git.parallelcoin.io/pod/module/wallet/wallet/internal/txsizes"
-=======
 	. "git.parallelcoin.io/pod/cmd/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet/txrules"
 	"git.parallelcoin.io/pod/pkg/wire"
 
 	"git.parallelcoin.io/pod/cmd/wallet/wallet/internal/txsizes"
->>>>>>> master
 )
 
 func p2pkhOutputs(amounts ...util.Amount) []*wire.TxOut {

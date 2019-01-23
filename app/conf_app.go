@@ -10,10 +10,6 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/ctl"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/cmd/node"
-=======
->>>>>>> master
 	"github.com/tucnak/climax"
 )
 

@@ -18,19 +18,11 @@ import (
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/spv/cache/lru"
-	"git.parallelcoin.io/pod/module/spv/filterdb"
-	"git.parallelcoin.io/pod/module/spv/headerfs"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-=======
 	"git.parallelcoin.io/pod/cmd/spv/cache/lru"
 	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
->>>>>>> master
 )
 
 // These are exported variables so they can be changed by users.

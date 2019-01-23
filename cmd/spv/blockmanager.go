@@ -20,13 +20,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/spv/headerfs"
-	"git.parallelcoin.io/pod/module/spv/headerlist"
-=======
 	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/cmd/spv/headerlist"
->>>>>>> master
 )
 
 const (

@@ -8,13 +8,8 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/snacl"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/snacl"
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
->>>>>>> master
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 

@@ -7,11 +7,7 @@ import (
 	"sort"
 
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
->>>>>>> master
 )
 
 var (

@@ -12,21 +12,12 @@ import (
 	"git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
-	"git.parallelcoin.io/pod/module/wallet/prompt"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/wallet"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
-=======
 	"git.parallelcoin.io/pod/cmd/wallet/legacy/keystore"
 	"git.parallelcoin.io/pod/cmd/wallet/prompt"
 	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
->>>>>>> master
 )
 
 // NetworkDir returns the directory name of a network directory to hold wallet

@@ -2,10 +2,6 @@ package app
 
 import "git.parallelcoin.io/pod/pkg/util"
 
-<<<<<<< HEAD
-var AppName = "pod"
-var DefaultDataDir = util.AppDataDir(AppName, false)
-=======
 var (
 	AppName = "pod"
  	DefaultDataDir = util.AppDataDir(AppName, false)
@@ -18,4 +14,3 @@ var (
 	s = pu.GenShort
 	l = pu.GenLog
 )
->>>>>>> master

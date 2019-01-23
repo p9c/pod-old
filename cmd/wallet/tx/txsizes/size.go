@@ -6,11 +6,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/blockchain"
 	"git.parallelcoin.io/pod/pkg/wire"
 
-<<<<<<< HEAD
-	h "git.parallelcoin.io/pod/module/wallet/helpers"
-=======
 	h "git.parallelcoin.io/pod/cmd/wallet/helpers"
->>>>>>> master
 )
 
 // Worst case script and input/output size estimates.

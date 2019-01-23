@@ -6,11 +6,7 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-<<<<<<< HEAD
-	vp "git.parallelcoin.io/pod/module/wallet/votingpool"
-=======
 	vp "git.parallelcoin.io/pod/cmd/wallet/votingpool"
->>>>>>> master
 )
 
 func TestStartWithdrawal(t *testing.T) {

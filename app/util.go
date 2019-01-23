@@ -11,11 +11,7 @@ import (
 	"strings"
 	"time"
 
-<<<<<<< HEAD
-	"git.parallelcoin.io/pod/module/node"
-=======
 	"git.parallelcoin.io/pod/cmd/node"
->>>>>>> master
 	"github.com/tucnak/climax"
 )
 
@@ -214,8 +210,6 @@ func FileExists(filePath string) (bool, error) {
 	}
 	return true, nil
 }
-<<<<<<< HEAD
-=======
 
 func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
 	if ctx.Is(name) {
@@ -223,4 +217,3 @@ func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
 	}
 	return
 }
->>>>>>> master
