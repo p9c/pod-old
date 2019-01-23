@@ -492,14 +492,13 @@ func WriteDefaultConfig(cfgFile string) {
 func defaultConfig() *Configuration {
 	u := pu.GenKey()
 	p := pu.GenKey()
-	k := pu.GenKey()
 	return &Configuration{
 		NodeListeners:    []string{"127.0.0.1:11047"},
 		NodeRPCListeners: []string{"127.0.0.1:11048"},
 		WalletListeners:  []string{"127.0.0.1:11046"},
 		NodeUser:         u,
 		NodePass:         p,
-		WalletPass:       k,
+		WalletPass:       "",
 		RPCKey:           w.DefaultRPCKeyFile,
 		RPCCert:          w.DefaultRPCCertFile,
 		CAFile:           w.DefaultCAFile,

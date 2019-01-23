@@ -4,16 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"os"
-	"path/filepath"
 
 	"git.parallelcoin.io/pod/lib/clog"
 	n "git.parallelcoin.io/pod/module/node"
-	"git.parallelcoin.io/pod/module/spv"
 	w "git.parallelcoin.io/pod/module/wallet"
-	"git.parallelcoin.io/pod/module/wallet/cfgutil"
-	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
 	"git.parallelcoin.io/pod/module/wallet/netparams"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/logger"
@@ -146,7 +141,7 @@ var Command = climax.Command{
 				WriteDefaultConfig(cfgFile)
 			}
 		}
-		configNode(&ctx, cfgFile)
+		configWallet(&ctx, cfgFile)
 		runNode()
 		cl.Shutdown()
 		return 0
@@ -162,74 +157,97 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	return
 }
 
-func configNode(ctx *climax.Context, cfgFile string) {
+func configWallet(ctx *climax.Context, cfgFile string) {
+	log <- cl.Debug{"configuring from command line flags ", os.Args}
 	var r *string
 	t := ""
 	r = &t
 	if ctx.Is("create") {
+		log <- cl.Dbg("")
 		Config.Wallet.Create = true
 	}
 	if ctx.Is("createtemp") {
+		log <- cl.Dbg("")
 		Config.Wallet.CreateTemp = true
 	}
 	if getIfIs(ctx, "appdatadir", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.AppDataDir = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "noinitialload", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.NoInitialLoad = *r == "true"
 	}
 	if getIfIs(ctx, "logdir", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.LogDir = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "profile", r) {
+		log <- cl.Dbg("")
 		pu.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
 	}
 	if getIfIs(ctx, "gui", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.GUI = *r == "true"
 	}
 	if getIfIs(ctx, "walletpass", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.WalletPass = *r
 	}
 	if getIfIs(ctx, "rpcconnect", r) {
+		log <- cl.Dbg("")
 		pu.NormalizeAddress(*r, "11048", &Config.Wallet.RPCConnect)
 	}
 	if getIfIs(ctx, "cafile", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.CAFile = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "enableclienttls", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.EnableClientTLS = *r == "true"
 	}
 	if getIfIs(ctx, "podusername", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.PodUsername = *r
 	}
 	if getIfIs(ctx, "podpassword", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.PodPassword = *r
 	}
 	if getIfIs(ctx, "proxy", r) {
+		log <- cl.Dbg("")
 		pu.NormalizeAddress(*r, "11048", &Config.Wallet.Proxy)
 	}
 	if getIfIs(ctx, "proxyuser", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.ProxyUser = *r
 	}
 	if getIfIs(ctx, "proxypass", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.ProxyPass = *r
 	}
 	if getIfIs(ctx, "rpccert", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.RPCCert = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "rpckey", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.RPCKey = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "onetimetlskey", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.OneTimeTLSKey = *r == "true"
 	}
 	if getIfIs(ctx, "enableservertls", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.EnableServerTLS = *r == "true"
 	}
 	if getIfIs(ctx, "legacyrpclisteners", r) {
+		log <- cl.Dbg("")
 		pu.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
 	}
 	if getIfIs(ctx, "legacyrpcmaxclients", r) {
+		log <- cl.Dbg("")
 		var bt int
 		if err := pu.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
@@ -238,6 +256,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
+		log <- cl.Dbg("")
 		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
 			log <- cl.Errorf{
@@ -248,18 +267,23 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	if getIfIs(ctx, "username", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.Username = *r
 	}
 	if getIfIs(ctx, "password", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.Password = *r
 	}
 	if getIfIs(ctx, "experimentalrpclisteners", r) {
+		log <- cl.Dbg("")
 		pu.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
 	}
 	if getIfIs(ctx, "datadir", r) {
+		log <- cl.Dbg("")
 		Config.Wallet.DataDir = *r
 	}
 	if getIfIs(ctx, "network", r) {
+		log <- cl.Dbg("")
 		switch *r {
 		case "testnet":
 			Config.Wallet.TestNet3, Config.Wallet.SimNet = true, false
@@ -271,207 +295,6 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, false
 			w.ActiveNet = &netparams.MainNetParams
 		}
-	}
-
-	// Exit if you try to use a simulation wallet with a standard data directory.
-	if !(ctx.Is("appdatadir") || ctx.Is("datadir")) && Config.Wallet.CreateTemp {
-		fmt.Fprintln(os.Stderr, "Tried to create a temporary simulation wallet, but failed to specify data directory!")
-		os.Exit(0)
-	}
-
-	// Exit if you try to use a simulation wallet on anything other than simnet or testnet3.
-	if !Config.Wallet.SimNet && Config.Wallet.CreateTemp {
-		fmt.Fprintln(os.Stderr,
-			"Tried to create a temporary simulation wallet for network other than simnet!",
-		)
-		os.Exit(0)
-	}
-
-	// // Ensure the wallet exists or create it when the create flag is set.
-	netDir := w.NetworkDir(Config.Wallet.AppDataDir, w.ActiveNet.Params)
-	dbPath := filepath.Join(netDir, w.WalletDbName)
-
-	if ctx.Is("createtemp") && ctx.Is("create") {
-		err := fmt.Errorf("The flags --create and --createtemp can not " +
-			"be specified together. Use --help for more information.")
-		log <- cl.Error{err}
-		cl.Shutdown()
-	}
-
-	dbFileExists, err := FileExists(dbPath)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		cl.Shutdown()
-	}
-
-	if ctx.Is("createtemp") {
-		tempWalletExists := false
-
-		if dbFileExists {
-			str := fmt.Sprintf(
-				"The wallet already exists. Loading this wallet instead.",
-			)
-			fmt.Fprintln(os.Stdout, str)
-			tempWalletExists = true
-		}
-
-		if !tempWalletExists {
-			// Perform the initial wallet creation wizard.
-			if err := w.CreateSimulationWallet(Config.Wallet); err != nil {
-				log <- cl.Error{"Unable to create wallet:", err}
-			}
-		}
-	} else if ctx.Is("create") {
-		// Error if the create flag is set and the wallet already exists.
-		if dbFileExists {
-			log <- cl.Fatal{
-				"The wallet database file `%v` already exists.", dbPath,
-			}
-			cl.Shutdown()
-		}
-	}
-
-	// Ensure the data directory for the network exists.
-	if err := pu.CheckCreateDir(netDir); err != nil {
-		log <- cl.Error{err}
-		cl.Shutdown()
-	}
-
-	// Perform the initial wallet creation wizard.
-	if err := w.CreateWallet(Config.Wallet); err != nil {
-		log <- cl.Fatal{"Unable to create wallet:", err}
-		// Created successfully, so exit now with success.
-		os.Exit(0)
-	} else if !dbFileExists && !Config.Wallet.NoInitialLoad {
-		keystorePath := filepath.Join(netDir, keystore.Filename)
-		keystoreExists, err := cfgutil.FileExists(keystorePath)
-		if err != nil {
-			log <- cl.Error{err}
-			cl.Shutdown()
-		}
-		if !keystoreExists {
-			// err = fmt.Errorf("The wallet does not exist.  Run with the " +
-			// "--create option to initialize and create it...")
-			// Ensure the data directory for the network exists.
-			// fmt.Println("Existing wallet not found in", config.Wallet.ConfigFile.Value)
-			if err := pu.CheckCreateDir(netDir); err != nil {
-				log <- cl.Error{err}
-				cl.Shutdown()
-			}
-
-			// Perform the initial wallet creation wizard.
-			if err := w.CreateWallet(Config.Wallet); err != nil {
-				log <- cl.Error{"Unable to create wallet:", err}
-			}
-
-			// Created successfully, so exit now with success.
-			cl.Shutdown()
-
-		} else {
-			err = fmt.Errorf(
-				"the wallet is in legacy format - run with the --create option to import it",
-			)
-		}
-		log <- cl.Error{err}
-		cl.Shutdown()
-	}
-
-	if Config.Wallet.UseSPV {
-		spv.MaxPeers = Config.Wallet.MaxPeers
-		spv.BanDuration = Config.Wallet.BanDuration
-		spv.BanThreshold = Config.Wallet.BanThreshold
-	} else if Config.Wallet.RPCConnect == "" {
-		Config.Wallet.RPCConnect = net.JoinHostPort("localhost", w.ActiveNet.RPCClientPort)
-	}
-
-	// Add default port to connect flag if missing.
-	Config.Wallet.RPCConnect, err = cfgutil.NormalizeAddress(
-		Config.Wallet.RPCConnect, w.ActiveNet.RPCClientPort,
-	)
-	if err != nil {
-		log <- cl.Error{"invalid rpcconnect network address: %v\n", err}
-		cl.Shutdown()
-	}
-
-	if Config.Wallet.EnableClientTLS {
-		// If CAFile is unset, choose either the copy or local pod cert.
-		if !ctx.Is("cafile") {
-			Config.Wallet.CAFile = filepath.Join(Config.Wallet.AppDataDir, w.DefaultCAFilename)
-			// If the CA copy does not exist, check if we're connecting to
-			// a local pod and switch to its RPC cert if it exists.
-			certExists, err := cfgutil.FileExists(Config.Wallet.CAFile)
-			if err != nil {
-				log <- cl.Error{err}
-				cl.Shutdown()
-			}
-			if !certExists {
-				podCertExists, err := cfgutil.FileExists(w.DefaultCAFile)
-				if err != nil {
-					log <- cl.Error{err}
-				}
-				if podCertExists {
-					Config.Wallet.CAFile = w.DefaultCAFile
-				}
-			}
-		}
-	}
-
-	// Only set default RPC listeners when there are no listeners set for the experimental RPC server.  This is required to prevent the old RPC server from sharing listen addresses, since it is impossible to remove defaults from go-flags slice options without assigning specific behavior to a particular string.
-	if len(Config.Wallet.ExperimentalRPCListeners) == 0 && len(Config.Wallet.LegacyRPCListeners) == 0 {
-		addrs, err := net.LookupHost("localhost")
-		if err != nil {
-			cl.Shutdown()
-		}
-		Config.Wallet.LegacyRPCListeners = make([]string, 0, len(addrs))
-		for _, addr := range addrs {
-			addr = net.JoinHostPort(addr, w.ActiveNet.RPCServerPort)
-			Config.Wallet.LegacyRPCListeners = append(Config.Wallet.LegacyRPCListeners, addr)
-		}
-	}
-
-	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
-	Config.Wallet.LegacyRPCListeners, err = cfgutil.NormalizeAddresses(
-		Config.Wallet.LegacyRPCListeners, w.ActiveNet.RPCServerPort)
-	if err != nil {
-		fmt.Fprintf(os.Stderr,
-			"Invalid network address in legacy RPC listeners: %v\n", err)
-		cl.Shutdown()
-	}
-	Config.Wallet.ExperimentalRPCListeners, err = cfgutil.NormalizeAddresses(
-		Config.Wallet.ExperimentalRPCListeners, w.ActiveNet.RPCServerPort)
-	if err != nil {
-		fmt.Fprintf(os.Stderr,
-			"Invalid network address in RPC listeners: %v\n", err)
-		cl.Shutdown()
-	}
-
-	// Both RPC servers may not listen on the same interface/port.
-	if len(Config.Wallet.LegacyRPCListeners) > 0 && len(Config.Wallet.ExperimentalRPCListeners) > 0 {
-		seenAddresses := make(map[string]struct{}, len(Config.Wallet.LegacyRPCListeners))
-		for _, addr := range Config.Wallet.LegacyRPCListeners {
-			seenAddresses[addr] = struct{}{}
-		}
-		for _, addr := range Config.Wallet.ExperimentalRPCListeners {
-			_, seen := seenAddresses[addr]
-			if seen {
-				log <- cl.Errorf{
-					"Address `%s` may not be used as a listener address for both RPC servers", addr}
-				cl.Shutdown()
-			}
-		}
-	}
-
-	// Expand environment variable and leading ~ for filepaths.
-	Config.Wallet.CAFile = n.CleanAndExpandPath(Config.Wallet.CAFile)
-	Config.Wallet.RPCCert = n.CleanAndExpandPath(Config.Wallet.RPCCert)
-	Config.Wallet.RPCKey = n.CleanAndExpandPath(Config.Wallet.RPCKey)
-
-	// If the pod username or password are unset, use the same auth as for the client.  The two settings were previously shared for pod and client auth, so this avoids breaking backwards compatibility while allowing users to use different auth settings for pod and wallet.
-	if Config.Wallet.PodUsername == "" {
-		Config.Wallet.PodUsername = Config.Wallet.Username
-	}
-	if Config.Wallet.PodPassword == "" {
-		Config.Wallet.PodPassword = Config.Wallet.Password
 	}
 
 	// finished configuration
@@ -492,6 +315,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 
 // WriteConfig creates and writes the config file in the requested location
 func WriteConfig(cfgFile string, c *ConfigAndLog) {
+	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		panic(err.Error())
@@ -505,18 +329,19 @@ func WriteConfig(cfgFile string, c *ConfigAndLog) {
 
 // WriteDefaultConfig creates and writes a default config to the requested location
 func WriteDefaultConfig(cfgFile string) {
+	log <- cl.Dbg("writing default config")
 	defCfg := DefaultConfig()
 	defCfg.Wallet.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
-		log <- cl.Error{"marshalling configuration", err.Error()}
+		log <- cl.Error{"marshalling configuration", err}
 		panic(err)
 	}
 	j = append(j, '\n')
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
-		log <- cl.Error{"writing app config file", err.Error()}
+		log <- cl.Error{"writing app config file", err}
 		panic(err)
 	}
 	// if we are writing default config we also want to use it
@@ -525,9 +350,10 @@ func WriteDefaultConfig(cfgFile string) {
 
 // DefaultConfig returns a default configuration
 func DefaultConfig() *ConfigAndLog {
+	log <- cl.Dbg("getting default config")
 	return &ConfigAndLog{
 		Wallet: &w.Config{
-			NoInitialLoad:          true,
+			NoInitialLoad:          false,
 			ConfigFile:             w.DefaultConfigFile,
 			DataDir:                w.DefaultDataDir,
 			AppDataDir:             w.DefaultAppDataDir,

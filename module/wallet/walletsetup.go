@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
+	cl "git.parallelcoin.io/pod/lib/clog"
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
@@ -97,6 +98,8 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 // and generates the wallet accordingly.  The new wallet will reside at the
 // provided path.
 func CreateWallet(cfg *Config) error {
+	log <- cl.Dbg("CreateWallet")
+
 	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
 
@@ -119,12 +122,16 @@ func CreateWallet(cfg *Config) error {
 		}
 	}
 
+	log <- cl.Dbg("found a wallet to load")
+
 	// Start by prompting for the private passphrase.  When there is an
 	// existing keystore, the user will be promped for that passphrase,
 	// otherwise they will be prompted for a new one.
 	reader := bufio.NewReader(os.Stdin)
 	privPass, err := prompt.PrivatePass(reader, legacyKeyStore)
 	if err != nil {
+		log <- cl.Debug{err}
+		time.Sleep(time.Second * 5)
 		return err
 	}
 
@@ -175,8 +182,10 @@ func CreateWallet(cfg *Config) error {
 	// specified by the user or the default hard-coded public passphrase if
 	// the user does not want the additional public data encryption.
 	pubPass, err := prompt.PublicPass(reader, privPass,
-		[]byte(wallet.InsecurePubPassphrase), []byte(cfg.WalletPass))
+		[]byte(""), []byte(cfg.WalletPass))
 	if err != nil {
+		log <- cl.Debug{err}
+		time.Sleep(time.Second * 5)
 		return err
 	}
 
@@ -185,17 +194,21 @@ func CreateWallet(cfg *Config) error {
 	// value the user has entered which has already been validated.
 	seed, err := prompt.Seed(reader)
 	if err != nil {
+		log <- cl.Debug{err}
+		time.Sleep(time.Second * 5)
 		return err
 	}
 
-	fmt.Println("Creating the wallet...")
+	log <- cl.Dbg("Creating the wallet...")
 	w, err := loader.CreateNewWallet(pubPass, privPass, seed, time.Now())
 	if err != nil {
+		log <- cl.Debug{err}
+		time.Sleep(time.Second * 5)
 		return err
 	}
 
 	w.Manager.Close()
-	fmt.Println("The wallet has been created successfully.")
+	log <- cl.Dbg("The wallet has been created successfully.")
 	return nil
 }
 

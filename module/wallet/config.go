@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/wallet"
-	flags "github.com/jessevdk/go-flags"
 )
 
 const (
@@ -246,34 +244,34 @@ func validLogLevel(logLevel string) bool {
 // The above results in btcwallet functioning properly without any config
 // settings while still allowing the user to override settings with config files
 // and command line options.  Command line options always take precedence.
-func loadConfig() (*Config, []string, error) {
+func loadConfig(cfg *Config) (*Config, []string, error) {
 	// Default config.
-	cfg := Config{
-		ConfigFile:             DefaultConfigFile,
-		AppDataDir:             DefaultAppDataDir,
-		LogDir:                 DefaultLogDir,
-		WalletPass:             wallet.InsecurePubPassphrase,
-		CAFile:                 "",
-		RPCKey:                 DefaultRPCKeyFile,
-		RPCCert:                DefaultRPCCertFile,
-		LegacyRPCMaxClients:    DefaultRPCMaxClients,
-		LegacyRPCMaxWebsockets: DefaultRPCMaxWebsockets,
-		DataDir:                DefaultAppDataDir,
-		// AddPeers:               []string{},
-		// ConnectPeers:           []string{},
-	}
+	// cfg := Config{
+	// 	ConfigFile:             DefaultConfigFile,
+	// 	AppDataDir:             DefaultAppDataDir,
+	// 	LogDir:                 DefaultLogDir,
+	// 	WalletPass:             wallet.InsecurePubPassphrase,
+	// 	CAFile:                 "",
+	// 	RPCKey:                 DefaultRPCKeyFile,
+	// 	RPCCert:                DefaultRPCCertFile,
+	// 	LegacyRPCMaxClients:    DefaultRPCMaxClients,
+	// 	LegacyRPCMaxWebsockets: DefaultRPCMaxWebsockets,
+	// 	DataDir:                DefaultAppDataDir,
+	// 	// AddPeers:               []string{},
+	// 	// ConnectPeers:           []string{},
+	// }
 
-	// Pre-parse the command line options to see if an alternative config
-	// file or the version flag was specified.
-	preCfg := cfg
-	preParser := flags.NewParser(&preCfg, flags.Default)
-	_, err := preParser.Parse()
-	if err != nil {
-		if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
-			preParser.WriteHelp(os.Stderr)
-		}
-		return nil, nil, err
-	}
+	// // Pre-parse the command line options to see if an alternative config
+	// // file or the version flag was specified.
+	// preCfg := cfg
+	// preParser := flags.NewParser(&preCfg, flags.Default)
+	// _, err := preParser.Parse()
+	// if err != nil {
+	// 	if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
+	// 		preParser.WriteHelp(os.Stderr)
+	// 	}
+	// 	return nil, nil, err
+	// }
 
 	// Show the version and exit if the version flag was specified.
 	// funcName := "loadConfig"
@@ -287,7 +285,7 @@ func loadConfig() (*Config, []string, error) {
 
 	// Load additional config from file.
 	// var configFileError error
-	parser := flags.NewParser(&cfg, flags.Default)
+	// parser := flags.NewParser(&cfg, flags.Default)
 	// configFilePath := preCfg.ConfigFile.Value
 	// if preCfg.ConfigFile.ExplicitlySet() {
 	// 	configFilePath = cleanAndExpandPath(configFilePath)
@@ -311,12 +309,12 @@ func loadConfig() (*Config, []string, error) {
 	// }
 
 	// Parse command line options again to ensure they take precedence.
-	remainingArgs, err := parser.Parse()
+	// remainingArgs, err := parser.Parse()
 	// if err != nil {
 	// 	if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
 	// 		parser.WriteHelp(os.Stderr)
 	// 	}
-	return nil, nil, err
+	// return nil, nil, err
 	// }
 
 	// // Check deprecated aliases.  The new options receive priority when both
@@ -481,7 +479,7 @@ func loadConfig() (*Config, []string, error) {
 	// }
 
 	// // Ensure the wallet exists or create it when the create flag is set.
-	// netDir := networkDir(cfg.AppDataDir.Value, activeNet.Params)
+	// netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 	// dbPath := filepath.Join(netDir, WalletDbName)
 
 	// if cfg.CreateTemp && cfg.Create {
@@ -493,7 +491,7 @@ func loadConfig() (*Config, []string, error) {
 
 	// dbFileExists, err := cfgutil.FileExists(dbPath)
 	// if err != nil {
-	// 	fmt.Fprintln(os.Stderr, err)
+	// 	log <- cl.Error{err}
 	// 	return nil, nil, err
 	// }
 
@@ -747,7 +745,7 @@ func loadConfig() (*Config, []string, error) {
 	// 	Log.Warnf.Print("%v", configFileError)
 	// }
 
-	return &cfg, remainingArgs, nil
+	return cfg, nil, nil
 }
 
 // // createDefaultConfig creates a basic config file at the given destination path.

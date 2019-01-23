@@ -222,6 +222,7 @@ var Command = climax.Command{
 				}
 				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 				err = json.Unmarshal(cfgData, &Config)
+				log <- cl.Dbg("finished processing config file")
 				if err != nil {
 					log <- cl.Error{"parsing app configuration:", err.Error()}
 					cl.Shutdown()
@@ -245,6 +246,7 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 }
 
 func configNode(ctx *climax.Context, cfgFile string) {
+	fmt.Println("configuring from command line flags")
 	var r *string
 	t := ""
 	r = &t
