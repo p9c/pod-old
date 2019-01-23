@@ -8,10 +8,17 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
+<<<<<<< HEAD
 	vp "git.parallelcoin.io/pod/module/wallet/votingpool"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+=======
+	vp "git.parallelcoin.io/pod/cmd/wallet/votingpool"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
+>>>>>>> master
 )
 
 func TestLoadPoolAndDepositScript(t *testing.T) {

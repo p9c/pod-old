@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/node"
+=======
+	"git.parallelcoin.io/pod/cmd/node"
+>>>>>>> master
 )
 
 func runNode() {

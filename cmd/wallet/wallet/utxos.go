@@ -5,7 +5,11 @@ package wallet
 
 import (
 	"git.parallelcoin.io/pod/pkg/txscript"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+>>>>>>> master
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 

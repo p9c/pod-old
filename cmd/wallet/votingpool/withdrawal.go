@@ -16,9 +16,15 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
+>>>>>>> master
 )
 
 // Maximum tx size (in bytes). This should be the same as bitcoind's

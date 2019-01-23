@@ -7,9 +7,15 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/chain"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/chain"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
+>>>>>>> master
 )
 
 // RescanProgressMsg reports the current progress made by a rescan for a

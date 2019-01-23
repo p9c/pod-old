@@ -10,7 +10,10 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/ctl"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/cmd/node"
+=======
+>>>>>>> master
 	"github.com/tucnak/climax"
 )
 
@@ -114,6 +117,7 @@ var ConfCommand = climax.Command{
 	},
 }
 
+<<<<<<< HEAD
 func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
 	if ctx.Is(name) {
 		return ctx.Get(name)
@@ -121,6 +125,8 @@ func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
 	return
 }
 
+=======
+>>>>>>> master
 func configConf(ctx *climax.Context, cfgFile string) {
 	// First load all of the module configurations and unmarshal into their structs
 	confs := []string{

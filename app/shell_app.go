@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/pkg/clog"
+<<<<<<< HEAD
 	n "git.parallelcoin.io/pod/module/node"
 	"git.parallelcoin.io/pod/module/node/mempool"
 	ww "git.parallelcoin.io/pod/cmd/wallet/wallet"
@@ -26,17 +27,31 @@ func UseLogger(logger *cl.SubSystem) {
 	log = Log.Ch
 }
 
+=======
+	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	ww "git.parallelcoin.io/pod/cmd/wallet/wallet"
+	"git.parallelcoin.io/pod/pkg/util"
+	"github.com/tucnak/climax"
+)
+
+>>>>>>> master
 // ShellCfg is the combined app and logging configuration data
 type ShellCfg struct {
 	DataDir      string
 	AppDataDir   string
 	ConfFileName string
+<<<<<<< HEAD
 	Node         *n.Config
+=======
+	Node         *node.Config
+>>>>>>> master
 	Wallet       *walletmain.Config
 	Levels       map[string]string
 }
 
 var (
+<<<<<<< HEAD
 	DefaultDataDir      = n.DefaultDataDir
 	DefaultAppDataDir   = filepath.Join(n.DefaultHomeDir, "shell")
 	DefaultConfFileName = filepath.Join(filepath.Join(n.DefaultHomeDir, "shell"), "conf")
@@ -48,6 +63,13 @@ var f = pu.GenFlag
 var t = pu.GenTrig
 var s = pu.GenShort
 var l = pu.GenLog
+=======
+	
+)
+
+// ShellConfig is the combined app and log levels configuration
+var ShellConfig = DefaultShellConfig()
+>>>>>>> master
 
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
@@ -184,7 +206,11 @@ var Command = climax.Command{
 		}
 		if ctx.Is("version") {
 			fmt.Println("shell version", Version())
+<<<<<<< HEAD
 			fmt.Println("pod version", n.Version())
+=======
+			fmt.Println("pod version", node.Version())
+>>>>>>> master
 			fmt.Println("wallet version", walletmain.Version())
 			cl.Shutdown()
 		}
@@ -234,6 +260,7 @@ var Command = climax.Command{
 	},
 }
 
+<<<<<<< HEAD
 func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	if ctx.Is(name) {
 		var s string
@@ -243,6 +270,8 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	return
 }
 
+=======
+>>>>>>> master
 func configNode(ctx *climax.Context, cfgFile string) {
 	fmt.Println("configuring from command line flags")
 	var r *string
@@ -260,6 +289,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Log.SetLevel(Config.Node.DebugLevel)
 	}
 	if getIfIs(ctx, "datadir", r) {
+<<<<<<< HEAD
 		Config.Node.DataDir = n.CleanAndExpandPath(*r)
 	}
 	if getIfIs(ctx, "addpeers", r) {
@@ -267,12 +297,25 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 	if getIfIs(ctx, "connectpeers", r) {
 		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ConnectPeers)
+=======
+		Config.Node.DataDir = node.CleanAndExpandPath(*r)
+	}
+	if getIfIs(ctx, "addpeers", r) {
+		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.AddPeers)
+	}
+	if getIfIs(ctx, "connectpeers", r) {
+		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.ConnectPeers)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "disablelisten", r) {
 		Config.Node.DisableListen = *r == "true"
 	}
 	if getIfIs(ctx, "listeners", r) {
+<<<<<<< HEAD
 		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Listeners)
+=======
+		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.Listeners)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "maxpeers", r) {
 		if err := pu.ParseInteger(*r, "maxpeers", &Config.Node.MaxPeers); err != nil {
@@ -296,7 +339,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	if getIfIs(ctx, "whitelists", r) {
+<<<<<<< HEAD
 		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.Whitelists)
+=======
+		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.Whitelists)
+>>>>>>> master
 	}
 	// if getIfIs(ctx, "rpcuser", r) {
 	// 	Config.Node.RPCUser = *r
@@ -311,6 +358,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// 	Config.Node.RPCLimitPass = *r
 	// }
 	// if getIfIs(ctx, "rpclisteners", r) {
+<<<<<<< HEAD
 	pu.NormalizeAddresses(n.DefaultRPCListener, n.DefaultRPCPort, &Config.Node.RPCListeners)
 	// }
 	// if getIfIs(ctx, "rpccert", r) {
@@ -318,6 +366,15 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// }
 	// if getIfIs(ctx, "rpckey", r) {
 	// 	Config.Node.RPCKey = n.CleanAndExpandPath(*r)
+=======
+	pu.NormalizeAddresses(node.DefaultRPCListener, node.DefaultRPCPort, &Config.Node.RPCListeners)
+	// }
+	// if getIfIs(ctx, "rpccert", r) {
+	// 	Config.Node.RPCCert = node.CleanAndExpandPath(*r)
+	// }
+	// if getIfIs(ctx, "rpckey", r) {
+	// 	Config.Node.RPCKey = node.CleanAndExpandPath(*r)
+>>>>>>> master
 	// }
 	// if getIfIs(ctx, "tls", r) {
 	// Config.Node.TLS = *r == "true"
@@ -327,7 +384,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.DisableDNSSeed = *r == "true"
 	}
 	if getIfIs(ctx, "externalips", r) {
+<<<<<<< HEAD
 		pu.NormalizeAddresses(*r, n.DefaultPort, &Config.Node.ExternalIPs)
+=======
+		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.ExternalIPs)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "proxy", r) {
 		pu.NormalizeAddress(*r, "9050", &Config.Node.Proxy)
@@ -375,10 +436,17 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.DbType = *r
 	}
 	if getIfIs(ctx, "profile", r) {
+<<<<<<< HEAD
 		Config.Node.Profile = n.NormalizeAddress(*r, "11034")
 	}
 	if getIfIs(ctx, "cpuprofile", r) {
 		Config.Node.CPUProfile = n.NormalizeAddress(*r, "11033")
+=======
+		Config.Node.Profile = node.NormalizeAddress(*r, "11034")
+	}
+	if getIfIs(ctx, "cpuprofile", r) {
+		Config.Node.CPUProfile = node.NormalizeAddress(*r, "11033")
+>>>>>>> master
 	}
 	if getIfIs(ctx, "upnp", r) {
 		Config.Node.Upnp = *r == "true"
@@ -424,7 +492,11 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Node.MiningAddrs = strings.Split(*r, " ")
 	}
 	if getIfIs(ctx, "minerlistener", r) {
+<<<<<<< HEAD
 		pu.NormalizeAddress(*r, n.DefaultRPCPort, &Config.Node.MinerListener)
+=======
+		pu.NormalizeAddress(*r, node.DefaultRPCPort, &Config.Node.MinerListener)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "minerpass", r) {
 		Config.Node.MinerPass = *r
@@ -506,13 +578,21 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.CreateTemp = true
 	}
 	if getIfIs(ctx, "appdatadir", r) {
+<<<<<<< HEAD
 		Config.Wallet.AppDataDir = n.CleanAndExpandPath(*r)
+=======
+		Config.Wallet.AppDataDir = node.CleanAndExpandPath(*r)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "noinitialload", r) {
 		Config.Wallet.NoInitialLoad = *r == "true"
 	}
 	if getIfIs(ctx, "logdir", r) {
+<<<<<<< HEAD
 		Config.Wallet.LogDir = n.CleanAndExpandPath(*r)
+=======
+		Config.Wallet.LogDir = node.CleanAndExpandPath(*r)
+>>>>>>> master
 	}
 	if getIfIs(ctx, "profile", r) {
 		pu.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
@@ -524,10 +604,17 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		Config.Wallet.WalletPass = *r
 	}
 	// if getIfIs(ctx, "rpcconnect", r) {
+<<<<<<< HEAD
 	pu.NormalizeAddress(n.DefaultRPCListener, "11048", &Config.Wallet.RPCConnect)
 	// }
 	if getIfIs(ctx, "cafile", r) {
 		Config.Wallet.CAFile = n.CleanAndExpandPath(*r)
+=======
+	pu.NormalizeAddress(node.DefaultRPCListener, "11048", &Config.Wallet.RPCConnect)
+	// }
+	if getIfIs(ctx, "cafile", r) {
+		Config.Wallet.CAFile = node.CleanAndExpandPath(*r)
+>>>>>>> master
 	}
 	// if getIfIs(ctx, "enableclienttls", r) {
 	// 	Config.Wallet.EnableClientTLS = *r == "true"
@@ -643,6 +730,7 @@ func DefaultShellConfig() *ShellCfg {
 		DataDir:      DefaultDataDir,
 		AppDataDir:   DefaultAppDataDir,
 		ConfFileName: DefaultConfFileName,
+<<<<<<< HEAD
 		Node: &n.Config{
 			RPCUser:              rpcusername,
 			RPCPass:              rpcpassword,
@@ -667,6 +755,32 @@ func DefaultShellConfig() *ShellCfg {
 			TxIndex:              n.DefaultTxIndex,
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
+=======
+		Node: &node.Config{
+			RPCUser:              rpcusername,
+			RPCPass:              rpcpassword,
+			RPCMaxClients:        node.DefaultMaxRPCClients,
+			RPCMaxWebsockets:     node.DefaultMaxRPCWebsockets,
+			RPCMaxConcurrentReqs: node.DefaultMaxRPCConcurrentReqs,
+			DbType:               node.DefaultDbType,
+			RPCListeners:         []string{"127.0.0.1:11048"},
+			TLS:                  false,
+			MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
+			FreeTxRelayLimit:     node.DefaultFreeTxRelayLimit,
+			TrickleInterval:      node.DefaultTrickleInterval,
+			BlockMinSize:         node.DefaultBlockMinSize,
+			BlockMaxSize:         node.DefaultBlockMaxSize,
+			BlockMinWeight:       node.DefaultBlockMinWeight,
+			BlockMaxWeight:       node.DefaultBlockMaxWeight,
+			BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
+			MaxOrphanTxs:         node.DefaultMaxOrphanTransactions,
+			SigCacheMaxSize:      node.DefaultSigCacheMaxSize,
+			Generate:             node.DefaultGenerate,
+			GenThreads:           1,
+			TxIndex:              node.DefaultTxIndex,
+			AddrIndex:            node.DefaultAddrIndex,
+			Algo:                 node.DefaultAlgo,
+>>>>>>> master
 		},
 		Wallet: &walletmain.Config{
 			NoInitialLoad:          true,

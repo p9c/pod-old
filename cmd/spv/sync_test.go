@@ -24,11 +24,19 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/node/integration/rpctest"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+=======
+	"git.parallelcoin.io/pod/cmd/node/integration/rpctest"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet/txauthor"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
+>>>>>>> master
 )
 
 var (

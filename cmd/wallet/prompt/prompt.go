@@ -11,7 +11,11 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/legacy/keystore"
+>>>>>>> master
 	"github.com/btcsuite/golangcrypto/ssh/terminal"
 )
 

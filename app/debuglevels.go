@@ -89,6 +89,7 @@ func GetDefault() map[string]*cl.SubSystem {
 	}
 }
 
+<<<<<<< HEAD
 func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	if ctx.Is(name) {
 		var s string
@@ -98,6 +99,8 @@ func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
 	return
 }
 
+=======
+>>>>>>> master
 func setIfIs(ctx *climax.Context, name string) {
 	var r *string
 	t := ""

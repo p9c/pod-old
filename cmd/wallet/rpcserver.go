@@ -14,9 +14,15 @@ import (
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/util"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/rpc/rpcserver"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/cmd/wallet/rpc/rpcserver"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet"
+>>>>>>> master
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

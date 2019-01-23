@@ -9,9 +9,15 @@ import (
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/chain"
 	"git.parallelcoin.io/pod/module/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/chain"
+	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet"
+>>>>>>> master
 )
 
 var (

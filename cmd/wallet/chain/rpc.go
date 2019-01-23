@@ -14,8 +14,13 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
+>>>>>>> master
 )
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server

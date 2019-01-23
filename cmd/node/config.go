@@ -27,7 +27,11 @@ import (
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/node/mempool"
+=======
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+>>>>>>> master
 	"github.com/btcsuite/go-socks/socks"
 	flags "github.com/jessevdk/go-flags"
 )

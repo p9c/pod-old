@@ -16,10 +16,17 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
+<<<<<<< HEAD
 	"git.parallelcoin.io/pod/module/wallet/cfgutil"
 	"git.parallelcoin.io/pod/module/wallet/netparams"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
+=======
+	"git.parallelcoin.io/pod/cmd/wallet/cfgutil"
+	"git.parallelcoin.io/pod/cmd/wallet/netparams"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet/txauthor"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet/txrules"
+>>>>>>> master
 	"github.com/jessevdk/go-flags"
 )
 
