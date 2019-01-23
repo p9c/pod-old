@@ -19,33 +19,39 @@ var log = Log.Ch
 // Config is the default configuration native to ctl
 var Config = new(c.Config)
 
+var f = pu.GenFlag
+var t = pu.GenTrig
+var s = pu.GenShort
+var l = pu.GenLog
+
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
 	Name:  "ctl",
 	Brief: "sends RPC commands and prints the reply",
 	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
 	Flags: []climax.Flag{
-		pu.GenFlag("version", "V", `--version`, `show version number and quit`, false),
-		pu.GenFlag("configfile", "C", "--configfile=/path/to/conf", "Path to configuration file", true),
+		t("version", "V", "show version number and quit"),
 
-		pu.GenFlag("listcommands", "l", `--listcommands`, `list available commands`, false),
-		pu.GenFlag("init", "", "--init", "resets configuration to defaults", false),
-		pu.GenFlag("save", "", "--save", "saves current configuration", false),
+		t("listcommands", "l", "list available commands"),
+		t("init", "", "resets configuration to defaults"),
+		t("save", "", "saves current configuration"),
 
-		pu.GenFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default is error to keep stdout clean", true),
+		f("wallet", "wallet RPC address to try when given wallet RPC queries"),
+		f("rpcuser", "RPC username"),
+		s("rpcpass", "P", "RPC password"),
+		s("rpcserver", "s", "RPC server to connect to"),
+		f("tls", "enable/disable (true|false)"),
+		s("rpccert", "c", "RPC server certificate chain for validation"),
+		f("skipverify", "do not verify tls certificates"),
 
-		pu.GenFlag("rpcuser", "u", "--rpcuser=username", "RPC username", true),
-		pu.GenFlag("rpcpass", "P", "--rpcpass=pa55word", "RPC password", true),
-		pu.GenFlag("rpcserver", "s", "--rpcserver=127.0.0.1:11048", "RPC server to connect to", true),
-		pu.GenFlag("rpccert", "c", "--rpccert=/path/to/rpc.cert", "RPC server certificate chain for validation", true),
-		pu.GenFlag("tls", "", "--tls=false", "enable/disable TLS", false),
-		pu.GenFlag("proxy", "", "--proxy 127.0.0.1:9050", "connect via SOCKS5 proxy (eg. 127.0.0.1:9050)", true),
-		pu.GenFlag("proxyuser", "", "--proxyuser=username", "username for proxy server", true),
-		pu.GenFlag("proxypass", "", "--proxypass=password", "password for proxy server", true),
-		pu.GenFlag("testnet", "", "--testnet=true", "connect to testnet", true),
-		pu.GenFlag("simnet", "", "--simnet=true", "connect to the simulation test network", true),
-		pu.GenFlag("skipverify", "", "--skipverify=false", "do not verify tls certificates (not recommended!)", true),
-		pu.GenFlag("wallet", "", "--wallet=true", "connect to wallet", true),
+		s("configfile", "C", "Path to configuration file"),
+		s("debuglevel", "d", "sets logging level"),
+
+		f("proxy", "connect via SOCKS5 proxy"),
+		f("proxyuser", "username for proxy server"),
+		f("proxypass", "password for proxy server"),
+
+		f("network", "connect to (mainnet|testnet|simnet"),
 	},
 	Examples: []climax.Example{
 		{

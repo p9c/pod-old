@@ -74,105 +74,99 @@ var Command = climax.Command{
 	Help:  "distrubutes, verifies and mines blocks for the parallelcoin duo cryptocurrency, as well as optionally providing search indexes for transactions in the database",
 	Flags: []climax.Flag{
 
-		t(`version`, `V`, `show version number and quit`),
+		t("version","V","show version number and quit"),
 
-		s(`configfile`, `C`, `path to configuration file`),
-		s(`datadir`, `D`, `path to configuration file`),
+		s("configfile","C","path to configuration file"),
+		s("datadir","D","path to configuration file"),
 
-		t(`init`, ``, `resets configuration to defaults`),
-		t(`save`, ``, `saves current configuration`),
+		t("init","","resets configuration to defaults"),
+		t("save","","saves current configuration"),
 
-		t(`dropcfindex`, `deletes the index used for committed filtering (CF) support from the database on start up and then exits`),
-		(`droptxindex`, ``, `--droptxindex`, `deletes the hash-based transaction index from the database on start up and then exits.`, false),
-		(`dropaddrindex`, ``, `--dropaddrindex`, `deletes the address-based transaction index from the database on start up and then exits`, false),
+		f("network","connect to (mainnet|testnet|simnet"),
 
-		(`addpeers`, ``, `--addpeers=some.peer.com:11047`, `adds a peer to the peers database to try to connect to`, true),
-		(`connectpeers`, ``, `--connectpeers=some.peer.com:11047`, `adds a peer to a connect-only whitelist`, true),
-		(`disablelisten`, ``, `--disablelisten=true`, `disables the P2P listener`, true),
-		(`listeners`, `S`, `--listeners=127.0.0.1:11047`, `sets an address to listen for P2P connections`, true),
-		(`maxpeers`, ``, `--maxpeers=100`, `sets max number of peers to open connections to at once`, true),
-		(`disablebanning`, ``, `--disablebanning`, `disable banning of misbehaving peers`, true),
-		(`banduration`, ``, `--banduration=1h`, `how long to ban misbehaving peers - valid time units are {s, m, h},  minimum 1s`, true),
-		(`banthreshold`, ``, `--banthreshold=100`, `maximum allowed ban score before disconnecting and banning misbehaving peers`, true),
-		(`whitelists`, ``, `--whitelists=127.0.0.1:11047`, `add an IP network or IP that will not be banned - eg. 192.168.1.0/24 or ::1`, true),
-		(`rpcuser`, `u`, `--rpcuser=username`, `RPC username`, true),
-		(`rpcpass`, `P`, `--rpcpass=password`, `RPC password`, true),
-		(`rpclimituser`, `u`, `--rpclimituser=username`, `limited user RPC username`, true),
-		(`rpclimitpass`, `P`, `--rpclimitpass=password`, `limited user RPC password`, true),
-		(`rpclisteners`, `s`, `--rpclisteners=127.0.0.1:11048`, `RPC server to connect to`, true),
-		(`rpccert`, `c`, `--rpccert=/path/to/rpn.cert`, `RPC server tls certificate chain for validation`, true),
-		(`rpckey`, `c`, `--rpccert=/path/to/rpn.key`, `RPC server tls key for validation`, true),
-		(`tls`, ``, `--tls=false`, `enable TLS`, true),
-		(`disablednsseed`, ``, `--disablednsseed=false`, `disable dns seeding`, true),
-		(`externalips`, ``, `--externalips=192.168.0.1:11048`, `set additional listeners on different address/interfaces`, true),
-		(`proxy`, ``, `--proxy 127.0.0.1:9050`, `connect via SOCKS5 proxy (eg. 127.0.0.1:9050)`, true),
-		(`proxyuser`, ``, `--proxyuser username`, `username for proxy server`, true),
-		(`proxypass`, ``, `--proxypass password`, `password for proxy server`, true),
-		(`onion`, ``, `--onion 127.0.0.1:9050`, `connect via onion proxy (eg. 127.0.0.1:9050)`, true),
-		(`onionuser`, ``, `--onionuser username`, `username for onion proxy server`, true),
-		(`onionpass`, ``, `--onionpass password`, `password for onion proxy server`, true),
-		(`noonion`, ``, `--noonion=true`, `disable onion proxy`, true),
-		(`torisolation`, ``, `--torisolation=true`, `enable tor stream isolation by randomising user credentials for each connection`, true),
-		(`network`, ``, `--network=mainnet`, `connect to specified network: mainnet, testnet, regtestnet or simnet`, true),
-		(`skipverify`, ``, `--skipverify=false`, `do not verify tls certificates (not recommended!)`, true),
-		(`addcheckpoints`, ``, `--addcheckpoints <height>:<hash>`, `add custom checkpoints`, true),
-		(`disablecheckpoints`, ``, `--disablecheckpoints=true`, `disable all checkpoints`, true),
-		(`dbtype`, ``, `--dbtype=ffldb`, `set database backend type`, true),
-		(`profile`, ``, `--profile=127.0.0.1:3131`, `start HTTP profiling server on given address`, true),
-		(`cpuprofile`, ``, `--cpuprofile=127.0.0.1:3232`, `start cpu profiling server on given address`, true),
-		(`upnp`, ``, `--upnp=true`, `enables the use of UPNP to establish inbound port redirections`, true),
-		(`minrelaytxfee`, ``, `--minrelaytxfee=1`, `the minimum transaction fee in DUO/Kb to be considered a nonzero fee`, true),
-		(`freetxrelaylimit`, ``, `--freetxrelaylimit=100`, `limit amount of free transactions relayed in thousand bytes per minute`, true),
-		(`norelaypriority`, ``, `--norelaypriority=true`, `do not require free or low-fee transactions to have high priority for relaying`, true),
-		(`trickleinterval`, ``, `--trickleinterval=9`, `time in seconds between attempts to send new inventory to a connected peer`, true),
-		(`maxorphantxs`, ``, `--maxorphantxs=100`, `set maximum number of orphans transactions to keep in memory`, true),
-		(`algo`, ``, `--algo=random`, `set algorithm to be used by cpu miner`, true),
-		(`generate`, ``, `--generate=true`, `set CPU miner to generate blocks`, true),
-		(`genthreads`, ``, `--genthreads=-1`, `set number of threads to generate using CPU, -1 = all available`, true),
-		(`miningaddrs`, ``, `--miningaddrs=aoeuaoe0760oeu0`, `add an address to the list of addresses to make block payments to from miners`, true),
-		(`minerlistener`, ``, `--minerlistener=127.0.0.1:11011`, `set the port for a miner work dispatch server to listen on`, true),
-		(`minerpass`, ``, `--minerpass=pa55word`, `set the encryption password to prevent leaking or MiTM attacks on miners`, true),
-		(`blockminsize`, ``, `--blockminsize=80`, `mininum block size in bytes to be used when creating a block`, true),
-		(`blockmaxsize`, ``, `--blockmaxsize=1024000`, `maximum block size in bytes to be used when creating a block`, true),
-		(`blockminweight`, ``, `--blockminweight=500`, `mininum block weight to be used when creating a block`, true),
-		(`blockmaxweight`, ``, `--blockmaxweight=10000`, `maximum block weight to be used when creating a block`, true),
-		(`blockprioritysize`, ``, `--blockprioritysize=256`, `size in bytes for high-priority/low-fee transactions when creating a block`, true),
-		(`uacomment`, ``, `--uacomment=joeblogsminers`, `comment to add to the user agent - see BIP 14 for more information.`, true),
-		(`nopeerbloomfilters`, ``, `--nopeerbloomfilters=false`, `disable bloom filtering support`, true),
-		(`nocfilters`, ``, `--nocfilters=false`, `disable committed filtering (CF) support`, true),
-		(`sigcachemaxsize`, ``, `--sigcachemaxsize=1000`, `the maximum number of entries in the signature verification cache`, true),
-		(`blocksonly`, ``, `--blocksonly=true`, `do not accept transactions from remote peers`, true),
-		(`txindex`, ``, `--txindex=true`, `maintain a full hash-based transaction index which makes all transactions available via the getrawtransaction`, true),
-		(`addrindex`, ``, `--addrindex=true`, `maintain a full address-based transaction index which makes the searchrawtransactions RPC available`, true),
-		(`relaynonstd`, ``, `--relaynonstd=true`, `relay non-standard transactions regardless of the default settings for the active network`, true),
-		(`rejectnonstd`, ``, `--rejectnonstd=false`, `reject non-standard transactions regardless of the default settings for the active network`, true),
+		f("txindex","enable transaction index"),
+		f("addrindex","enable address index"),
+		t("dropcfindex", "delete committed filtering (CF) index then exit"),
+		t("droptxindex", "deletes transaction index then exit"),
+		t("dropaddrindex", "deletes the address index then exits"),
 
-		(`debuglevel`, `d`, `--debuglevel=trace`, `sets debuglevel, default info, sets the baseline for others not specified`, true),
+		s("listeners","S", "sets an address to listen for P2P connections"),
+		f("externalips", "additional P2P listeners"),
+		f("disablelisten","disables the P2P listener"),
+		
+		f("addpeers","adds a peer to the peers database to try to connect to"),
+		f("connectpeers","adds a peer to a connect-only whitelist"),
+		f(`maxpeers`, "sets max number of peers to connect to to at once"),
+		f(`disablebanning`, "disable banning of misbehaving peers"),
+		f("banduration","time to ban misbehaving peers (d/h/m/s)"),
+		f("banthreshold","banscore that triggers a ban"),
+		f("whitelists","addresses and networks immune to banning"),
+		
+		s("rpcuser","u", "RPC username"),
+		s("rpcpass","P", "RPC password"),
+		
+		f("rpclimituser","limited user RPC username"),
+		f("rpclimitpass","limited user RPC password"),
+		
+		s("rpclisteners","s","RPC server to connect to"),
+		
+		f("rpccert", "RPC server tls certificate chain for validation"),
+		f("rpckey","RPC server tls key for authentication"),
+		f("tls","enable TLS"),
+		f("skipverify","do not verify tls certificates"),
+				
+		f("proxy", "connect via SOCKS5 proxy server"),
+		f("proxyuser","username for proxy server"),
+		f("proxypass","password for proxy server"),
+		
+		f("onion","connect via tor proxy relay"),
+		f("onionuser","username for onion proxy server"),
+		f("onionpass","password for onion proxy server"),
+		f("noonion","","--noonion=true","disable onion proxy"),
+		f("torisolation","use a different user/pass for each peer"),
+				
+		f("trickleinterval","time between sending inventory batches to peers"),
+		f("minrelaytxfee","min fee in DUO/kb to relay transaction"),
+		f("freetxrelaylimit","limit below min fee transactions in kb/bin"),
+		f("norelaypriority","do not discriminate transactions for relaying"),
+		
+		f("nopeerbloomfilters","disable bloom filtering support"),
+		f("nocfilters","disable committed filtering (CF) support"),
+		f("blocksonly","do not accept transactions from peers"),
+		f("relaynonstd","relay nonstandard transactions"),
+		f("rejectnonstd","reject nonstandard transactions"),
+		
+		f("maxorphantxs","max number of orphan transactions to store"),
+		f("sigcachemaxsize","maximum number of signatures to store in memory"),
+		
+		f("generate","set CPU miner to generate blocks"),
+		f("genthreads","set number of threads to generate using CPU, -1 = all"),
+		f("algo","set algorithm to be used by cpu miner"),
+		f("miningaddrs","add address to pay block rewards to"),
+		f("minerlistener","address to listen for mining work subscriptions"),
+		f("minerpass","PSK to prevent snooping/spoofing of miner traffic"),
+		
+		f("addcheckpoints",`add custom checkpoints "height:hash"`),
+		f("disablecheckpoints","disable all checkpoints"),
+		
+		f("blockminsize","min block size for miners"),
+		f("blockmaxsize","max block size for miners"),
+		f("blockminweight","min block weight for miners"),
+		f("blockmaxweight","max block weight for miners"),
+		f("blockprioritysize","size in bytes of high priority blocks"),
+		
+		f("uacomment","comment to add to the P2P network user agent"),
+		f("upnp","use UPNP to automatically port forward to node"),
+		f("dbtype","set database backend type (ffldb)"),
+		f("disablednsseed","disable dns seeding"),
 
-		("lib-addrmgr", "", "--lib-addrmg=info", "", true),
-		("lib-blockchain", "", "--lib-blockchain=info", "", true),
-		("lib-connmgr", "", "--lib-connmgr=info", "", true),
-		("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
-		("lib-database", "", "--lib-database=info", "", true),
-		("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
-		("lib-mining", "", "--lib-mining=info", "", true),
-		("lib-netsync", "", "--lib-netsync=info", "", true),
-		("lib-peer", "", "--lib-peer=info", "", true),
-		("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
-		("lib-txscript", "", "--lib-txscript=info", "", true),
-		("node", "", "--node=info", "", true),
-		("node-mempool", "", "--node-mempool=info", "", true),
-		("spv", "", "--spv=info", "", true),
-		("wallet", "", "--wallet=info", "", true),
-		("wallet-chain", "", "--wallet-chain=info", "", true),
-		("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
-		("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
-		("wallet-tx", "", "--wallet-tx=info", "", true),
-		("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
-		("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
-		("wallet-wallet", "", "--wallet-wallet=info", "", true),
-		("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
-	},
+		f("profile","start HTTP profiling server on given address"),
+		f("cpuprofile","start cpu profiling server on given address"),
+		
+
+		s("debuglevel","d","sets log level for those unspecified below"),
+		
+		l("lib-addrmgr"), l("lib-blockchain"),l("lib-connmgr"),l("lib-database-ffldb"),l("lib-database"),l("lib-mining-cpuminer"),l("lib-mining"),l("lib-netsync"),l("lib-peer"),l("lib-rpcclient"),l("lib-txscript"),l("node"),l("node-mempool"),l("spv"),l("wallet"),l("wallet-chain"),l("wallet-legacyrpc"),l("wallet-rpcserver"),l("wallet-tx"),l("wallet-votingpool"),l("wallet-waddrmgr"),l("wallet-wallet"), l("wallet-wtxmgr"),
 	Examples: []climax.Example{
 		{
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
@@ -519,7 +513,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			"saving config file to %s",
 			cfgFile,
 		}
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(Config), "  ")
 		if err != nil {
 			log <- cl.Error{
 				"saving config file:",
@@ -954,7 +948,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 // WriteConfig writes the current config to the requested location
 func WriteConfig(cfgFile string, c *Cfg) {
 	c.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(c, "", "  ")
+	j, err := json.MarshalIndent(c), "  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(c))
@@ -976,7 +970,7 @@ func WriteConfig(cfgFile string, c *Cfg) {
 func WriteDefaultConfig(cfgFile string) {
 	defCfg := Config
 	defCfg.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(defCfg, "", "  ")
+	j, err := json.MarshalIndent(defCfg), "  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(defCfg))
