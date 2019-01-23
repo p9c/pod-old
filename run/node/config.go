@@ -84,11 +84,11 @@ var Command = climax.Command{
 
 		f("network", "connect to (mainnet|testnet|simnet"),
 
-		f("txindex", "enable transaction index"),
-		f("addrindex", "enable address index"),
-		t("dropcfindex", "", "delete committed filtering (CF) index then exit"),
-		t("droptxindex", "", "deletes transaction index then exit"),
-		t("dropaddrindex", "", "deletes the address index then exits"),
+		f("txindex","enable transaction index"),
+		f("addrindex","enable address index"),
+		t("dropcfindex", "","delete committed filtering (CF) index then exit"),
+		t("droptxindex", "","deletes transaction index then exit"),
+		t("dropaddrindex", "","deletes the address index then exits"),
 
 		s("listeners", "S", "sets an address to listen for P2P connections"),
 		f("externalips", "additional P2P listeners"),
@@ -116,8 +116,49 @@ var Command = climax.Command{
 		f("skipverify", "do not verify tls certificates"),
 
 		f("proxy", "connect via SOCKS5 proxy server"),
-		f("proxyuser", "username for proxy server"),
-		f("proxypass", "password for proxy server"),
+		f("proxyuser","username for proxy server"),
+		f("proxypass","password for proxy server"),
+		
+		f("onion","connect via tor proxy relay"),
+		f("onionuser","username for onion proxy server"),
+		f("onionpass","password for onion proxy server"),
+		f("noonion","disable onion proxy"),
+		f("torisolation","use a different user/pass for each peer"),
+				
+		f("trickleinterval","time between sending inventory batches to peers"),
+		f("minrelaytxfee","min fee in DUO/kb to relay transaction"),
+		f("freetxrelaylimit","limit below min fee transactions in kb/bin"),
+		f("norelaypriority","do not discriminate transactions for relaying"),
+		
+		f("nopeerbloomfilters","disable bloom filtering support"),
+		f("nocfilters","disable committed filtering (CF) support"),
+		f("blocksonly","do not accept transactions from peers"),
+		f("relaynonstd","relay nonstandard transactions"),
+		f("rejectnonstd","reject nonstandard transactions"),
+		
+		f("maxorphantxs","max number of orphan transactions to store"),
+		f("sigcachemaxsize","maximum number of signatures to store in memory"),
+		
+		f("generate","set CPU miner to generate blocks"),
+		f("genthreads","set number of threads to generate using CPU, -1 = all"),
+		f("algo","set algorithm to be used by cpu miner"),
+		f("miningaddrs","add address to pay block rewards to"),
+		f("minerlistener","address to listen for mining work subscriptions"),
+		f("minerpass","PSK to prevent snooping/spoofing of miner traffic"),
+		
+		f("addcheckpoints",`add custom checkpoints "height:hash"`),
+		f("disablecheckpoints","disable all checkpoints"),
+		
+		f("blockminsize","min block size for miners"),
+		f("blockmaxsize","max block size for miners"),
+		f("blockminweight","min block weight for miners"),
+		f("blockmaxweight","max block weight for miners"),
+		f("blockprioritysize","size in bytes of high priority blocks"),
+		
+		f("uacomment","comment to add to the P2P network user agent"),
+		f("upnp","use UPNP to automatically port forward to node"),
+		f("dbtype","set database backend type (ffldb)"),
+		f("disablednsseed","disable dns seeding"),
 
 		f("onion", "connect via tor proxy relay"),
 		f("onionuser", "username for onion proxy server"),
@@ -125,47 +166,9 @@ var Command = climax.Command{
 		f("noonion", "disable onion proxy"),
 		f("torisolation", "use a different user/pass for each peer"),
 
-		f("trickleinterval", "time between sending inventory batches to peers"),
-		f("minrelaytxfee", "min fee in DUO/kb to relay transaction"),
-		f("freetxrelaylimit", "limit below min fee transactions in kb/bin"),
-		f("norelaypriority", "do not discriminate transactions for relaying"),
-
-		f("nopeerbloomfilters", "disable bloom filtering support"),
-		f("nocfilters", "disable committed filtering (CF) support"),
-		f("blocksonly", "do not accept transactions from peers"),
-		f("relaynonstd", "relay nonstandard transactions"),
-		f("rejectnonstd", "reject nonstandard transactions"),
-
-		f("maxorphantxs", "max number of orphan transactions to store"),
-		f("sigcachemaxsize", "maximum number of signatures to store in memory"),
-
-		f("generate", "set CPU miner to generate blocks"),
-		f("genthreads", "set number of threads to generate using CPU, -1 = all"),
-		f("algo", "set algorithm to be used by cpu miner"),
-		f("miningaddrs", "add address to pay block rewards to"),
-		f("minerlistener", "address to listen for mining work subscriptions"),
-		f("minerpass", "PSK to prevent snooping/spoofing of miner traffic"),
-
-		f("addcheckpoints", `add custom checkpoints "height:hash"`),
-		f("disablecheckpoints", "disable all checkpoints"),
-
-		f("blockminsize", "min block size for miners"),
-		f("blockmaxsize", "max block size for miners"),
-		f("blockminweight", "min block weight for miners"),
-		f("blockmaxweight", "max block weight for miners"),
-		f("blockprioritysize", "size in bytes of high priority blocks"),
-
-		f("uacomment", "comment to add to the P2P network user agent"),
-		f("upnp", "use UPNP to automatically port forward to node"),
-		f("dbtype", "set database backend type (ffldb)"),
-		f("disablednsseed", "disable dns seeding"),
-
-		f("profile", "start HTTP profiling server on given address"),
-		f("cpuprofile", "start cpu profiling server on given address"),
-
-		s("debuglevel", "d", "sets log level for those unspecified below"),
-
-		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
+		s("debuglevel","d","sets log level for those unspecified below"),
+		
+		l("lib-addrmgr"), l("lib-blockchain"),l("lib-connmgr"),l("lib-database-ffldb"),l("lib-database"),l("lib-mining-cpuminer"),l("lib-mining"),l("lib-netsync"),l("lib-peer"),l("lib-rpcclient"),l("lib-txscript"),l("node"),l("node-mempool"),l("spv"),l("wallet"),l("wallet-chain"),l("wallet-legacyrpc"),l("wallet-rpcserver"),l("wallet-tx"),l("wallet-votingpool"),l("wallet-waddrmgr"),l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
 	Examples: []climax.Example{
 		{
@@ -513,7 +516,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 			"saving config file to %s",
 			cfgFile,
 		}
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(Config,"", "  ")
 		if err != nil {
 			log <- cl.Error{
 				"saving config file:",
@@ -948,7 +951,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 // WriteConfig writes the current config to the requested location
 func WriteConfig(cfgFile string, c *Cfg) {
 	c.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(c, "", "  ")
+	j, err := json.MarshalIndent(c, "","  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(c))
@@ -968,9 +971,9 @@ func WriteConfig(cfgFile string, c *Cfg) {
 
 // WriteDefaultConfig creates a default config and writes it to the requested location
 func WriteDefaultConfig(cfgFile string) {
-	defCfg := Config
+	defCfg := DefaultConfig()
 	defCfg.Node.ConfigFile = cfgFile
-	j, err := json.MarshalIndent(defCfg, "", "  ")
+	j, err := json.MarshalIndent(defCfg, "","  ")
 	if err != nil {
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
 		log <- cl.Err(spew.Sdump(defCfg))

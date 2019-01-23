@@ -3,8 +3,6 @@ package sub
 import (
 	"encoding/binary"
 	"fmt"
-
-	"git.parallelcoin.io/pod/lib/clog"
 )
 
 const (
@@ -15,15 +13,6 @@ const (
 	_debug
 	_trace
 	ipv4Format = "%d.%d.%d.%d:%d"
-)
-
-var (
-	lf = &clog.Ftl.Chan
-	le = &clog.Err.Chan
-	lw = &clog.Wrn.Chan
-	li = &clog.Inf.Chan
-	ld = &clog.Dbg.Chan
-	lt = &clog.Trc.Chan
 )
 
 // EncodedAddrToString takes a string from bytes on the prefix containing an IPv4 address (it is passed around as a string for easy comparison) and returns the format used by net.Dial
@@ -45,7 +34,7 @@ func EncodeAddrToBytes(addr string) (out []byte) {
 	o := make([]byte, 2)
 	var ou16 uint16
 	_, err := fmt.Sscanf(addr, ipv4Format, out[0], out[1], out[2], out[3], ou16)
-	if clog.Check(err, _debug, "EncodeAddrToBytes") {
+	if err != nil {
 		return []byte{}
 	}
 	binary.LittleEndian.PutUint16(o, ou16)
