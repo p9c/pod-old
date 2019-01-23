@@ -55,7 +55,7 @@ var Command = climax.Command{
 		t("init", "i", "resets configuration to defaults"),
 		t("save", "S", "saves current flags into configuration"),
 
-		f("create", "create a new wallet if it does not exist"),
+		t("create", "", "create a new wallet if it does not exist"),
 		f("createtemp", "create temporary wallet (pass=walletpass) requires --datadir"),
 
 		f("gui", "launch GUI"),

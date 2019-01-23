@@ -10,6 +10,7 @@ import (
 	c "git.parallelcoin.io/pod/module/ctl"
 	n "git.parallelcoin.io/pod/module/node"
 	w "git.parallelcoin.io/pod/module/wallet"
+	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/ctl"
 	"git.parallelcoin.io/pod/run/def"
 	"git.parallelcoin.io/pod/run/node"
@@ -498,7 +499,7 @@ func defaultConfig() *Configuration {
 		WalletListeners:  []string{"127.0.0.1:11046"},
 		NodeUser:         u,
 		NodePass:         p,
-		WalletPass:       "",
+		WalletPass:       wallet.InsecurePubPassphrase,
 		RPCKey:           w.DefaultRPCKeyFile,
 		RPCCert:          w.DefaultRPCCertFile,
 		CAFile:           w.DefaultCAFile,

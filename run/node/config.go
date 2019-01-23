@@ -223,8 +223,8 @@ var Command = climax.Command{
 					}
 					cl.Shutdown()
 				}
-				log <- cl.Tracef{
-					"parsing app configuration\n%s",
+				log <- cl.Trace{
+					"parsing app configuration",
 					cfgData,
 				}
 				err = json.Unmarshal(cfgData, &Config)
