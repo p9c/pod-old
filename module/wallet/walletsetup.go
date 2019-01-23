@@ -11,17 +11,17 @@ import (
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/wallet/wallet"
-	"git.parallelcoin.io/pod/module/wallet/internal/legacy/keystore"
-	"git.parallelcoin.io/pod/module/wallet/internal/prompt"
+	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
+	"git.parallelcoin.io/pod/module/wallet/prompt"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
 )
 
-// networkDir returns the directory name of a network directory to hold wallet
+// NetworkDir returns the directory name of a network directory to hold wallet
 // files.
-func networkDir(dataDir string, chainParams *chaincfg.Params) string {
+func NetworkDir(dataDir string, chainParams *chaincfg.Params) string {
 	netname := chainParams.Name
 
 	// For now, we must always name the testnet data directory as "testnet"
@@ -93,17 +93,17 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 	return nil
 }
 
-// createWallet prompts the user for information needed to generate a new wallet
+// CreateWallet prompts the user for information needed to generate a new wallet
 // and generates the wallet accordingly.  The new wallet will reside at the
 // provided path.
-func createWallet(cfg *Config) error {
-	dbDir := networkDir(cfg.AppDataDir, activeNet.Params)
-	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
+func CreateWallet(cfg *Config) error {
+	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
+	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
 
 	// When there is a legacy keystore, open it now to ensure any errors
 	// don't end up exiting the process after the user has spent time
 	// entering a bunch of information.
-	netDir := networkDir(cfg.AppDataDir, activeNet.Params)
+	netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 	keystorePath := filepath.Join(netDir, keystore.Filename)
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)
@@ -199,19 +199,19 @@ func createWallet(cfg *Config) error {
 	return nil
 }
 
-// createSimulationWallet is intended to be called from the rpcclient
+// CreateSimulationWallet is intended to be called from the rpcclient
 // and used to create a wallet for actors involved in simulations.
-func createSimulationWallet(cfg *Config) error {
+func CreateSimulationWallet(cfg *Config) error {
 	// Simulation wallet password is 'password'.
 	privPass := []byte("password")
 
 	// Public passphrase is the default.
 	pubPass := []byte(wallet.InsecurePubPassphrase)
 
-	netDir := networkDir(cfg.AppDataDir, activeNet.Params)
+	netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 
 	// Create the wallet.
-	dbPath := filepath.Join(netDir, walletDbName)
+	dbPath := filepath.Join(netDir, WalletDbName)
 	fmt.Println("Creating the wallet...")
 
 	// Create the wallet database backed by bolt db.
@@ -222,7 +222,7 @@ func createSimulationWallet(cfg *Config) error {
 	defer db.Close()
 
 	// Create the wallet.
-	err = wallet.Create(db, pubPass, privPass, nil, activeNet.Params, time.Now())
+	err = wallet.Create(db, pubPass, privPass, nil, ActiveNet.Params, time.Now())
 	if err != nil {
 		return err
 	}

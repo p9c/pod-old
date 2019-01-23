@@ -98,6 +98,7 @@ func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
 }
 
 func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
+	log <- cl.Trc("startRPCServers")
 	var (
 		server       *grpc.Server
 		legacyServer *legacyrpc.Server
@@ -132,7 +133,7 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 			creds := credentials.NewServerTLSFromCert(&keyPair)
 			server = grpc.NewServer(grpc.Creds(creds))
 			rpcserver.StartVersionService(server)
-			rpcserver.StartWalletLoaderService(server, walletLoader, activeNet)
+			rpcserver.StartWalletLoaderService(server, walletLoader, ActiveNet)
 			for _, lis := range listeners {
 				lis := lis
 				go func() {

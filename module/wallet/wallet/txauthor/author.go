@@ -9,10 +9,10 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
 
-	h "git.parallelcoin.io/pod/module/wallet/internal/helpers"
+	h "git.parallelcoin.io/pod/module/wallet/helpers"
 	"git.parallelcoin.io/pod/module/wallet/wallet/internal/txsizes"
 )
 

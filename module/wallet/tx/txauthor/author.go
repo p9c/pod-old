@@ -9,10 +9,10 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
-	h "git.parallelcoin.io/pod/module/wallet/internal/helpers"
+	"git.parallelcoin.io/pod/lib/wire"
+	h "git.parallelcoin.io/pod/module/wallet/helpers"
 	"git.parallelcoin.io/pod/module/wallet/tx/txsizes"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"
-	"git.parallelcoin.io/pod/lib/wire"
 )
 
 // InputSource provides transaction inputs referencing spendable outputs to

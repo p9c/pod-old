@@ -25,8 +25,8 @@ import (
 	"git.parallelcoin.io/pod/lib/ec"
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
-	"git.parallelcoin.io/pod/module/wallet/internal/legacy/rename"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/legacy/rename"
 )
 
 const (

@@ -30,13 +30,13 @@ import (
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/hdkeychain"
 	"git.parallelcoin.io/pod/lib/wire"
+	"git.parallelcoin.io/pod/module/wallet/cfgutil"
 	"git.parallelcoin.io/pod/module/wallet/chain"
-	"git.parallelcoin.io/pod/module/wallet/internal/cfgutil"
-	"git.parallelcoin.io/pod/module/wallet/internal/zero"
 	"git.parallelcoin.io/pod/module/wallet/netparams"
 	pb "git.parallelcoin.io/pod/module/wallet/rpc/walletrpc"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/module/wallet/zero"
 )
 
 // Public API version constants

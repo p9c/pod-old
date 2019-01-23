@@ -16,7 +16,7 @@ import (
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/wire"
-	"git.parallelcoin.io/pod/module/wallet/internal/cfgutil"
+	"git.parallelcoin.io/pod/module/wallet/cfgutil"
 	"git.parallelcoin.io/pod/module/wallet/netparams"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
 	"git.parallelcoin.io/pod/module/wallet/wallet/txrules"

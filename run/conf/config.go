@@ -14,7 +14,6 @@ import (
 	"git.parallelcoin.io/pod/run/def"
 	"git.parallelcoin.io/pod/run/node"
 	"git.parallelcoin.io/pod/run/shell"
-	s "git.parallelcoin.io/pod/run/shell"
 	"git.parallelcoin.io/pod/run/util"
 	"git.parallelcoin.io/pod/run/wallet"
 	"github.com/tucnak/climax"
@@ -29,6 +28,7 @@ type Configuration struct {
 	WalletListeners  []string
 	NodeUser         string
 	NodePass         string
+	WalletPass       string
 	RPCKey           string
 	RPCCert          string
 	CAFile           string
@@ -54,39 +54,42 @@ type AppConfigs struct {
 	Shell  s.Cfg
 }
 
+var f = pu.GenFlag
+var t = pu.GenTrig
+var s = pu.GenShort
+var l = pu.GenLog
+
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
 	Name:  "conf",
 	Brief: "sets configurations common across modules",
-	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
+	Help:  "automates synchronising common settings between servers and clients",
 	Flags: []climax.Flag{
-		pu.GenFlag("version", "V", `--version`, `show version number and quit`, false),
-		pu.GenFlag("init", "i", "--init", "resets configuration to defaults", false),
-		pu.GenFlag("show", "s", "--show", "prints currently configuration", false),
+		t("version", "V", "show version number and quit"),
+		t("init", "i", "resets configuration to defaults"),
+		t("show", "s", "prints currently configuration"),
 
-		pu.GenFlag("nodelistener", "", "--nodelistener=127.0.0.1:11047", "main peer to peer address for apps that connect to the parallelcoin peer to peer network", true),
-		pu.GenFlag("noderpclistener", "", "--noderpclistener=127.0.0.1:11048", "address where node listens for RPC", true),
-		pu.GenFlag("walletlistener", "", "--walletlistener=127.0.0.1:11046", "address where wallet listens for RPC", true),
+		f("nodelistener", "main peer to peer address for apps that connect to the parallelcoin peer to peer network"),
+		f("noderpclistener", "address where node listens for RPC"),
+		f("walletlistener", "address where wallet listens for RPC"),
+		s("user", "u", "username for all the things"),
+		s("pass", "P", "password for all the things"),
+		s("walletpass", "w", "public password for wallet"),
+		f("rpckey", "RPC server certificate key"),
+		f("rpccert", "RPC server certificate"),
+		f("cafile", "RPC server certificate chain for validation"),
+		f("tls", "enable/disable TLS"),
+		f("skipverify", "do not verify TLS certificates (not recommended!)"),
+		f("proxy", "connect via SOCKS5 proxy"),
+		f("proxyuser", "username for proxy"),
+		f("proxypass", "password for proxy"),
 
-		pu.GenFlag("user", "u", "--user=username", "username", true),
-		pu.GenFlag("pass", "P", "--pass=pa55word", "password", true),
-
-		pu.GenFlag("rpckey", "", "--rpccert=/path/to/rpc.key", "RPC server certificate key", true),
-		pu.GenFlag("rpccert", "", "--rpccert=/path/to/rpc.cert", "RPC server certificate", true),
-		pu.GenFlag("cafile", "", "--cafile=/path/to/cafile", "RPC server certificate chain for validation", true),
-		pu.GenFlag("tls", "", "--tls=false", "enable/disable TLS", false),
-		pu.GenFlag("skipverify", "", "--skipverify=false", "do not verify TLS certificates (not recommended!)", true),
-
-		pu.GenFlag("proxy", "", "--proxy=127.0.0.1:9050", "connect via SOCKS5 proxy", true),
-		pu.GenFlag("proxyuser", "", "--proxyuser=username", "username for proxy", true),
-		pu.GenFlag("proxypass", "", "--proxypass=password", "password for proxy", true),
-
-		pu.GenFlag("network", "", "--network=mainnet", "connect to [mainnet|testnet|regtestnet|simnet]", true),
+		f("network", "connect to [mainnet|testnet|regtestnet|simnet]"),
 	},
 	Examples: []climax.Example{
 		{
 			Usecase:     "--nodeuser=user --nodepass=pa55word",
-			Description: "set the username and password for connecting to the node RPC",
+			Description: "set the username and password for the node RPC",
 		},
 	},
 	Handle: func(ctx climax.Context) int {
@@ -265,6 +268,9 @@ func configConf(ctx *climax.Context, cfgFile string) {
 	shellCfg.Node.ProxyPass = Config.ProxyPass
 	shellCfg.Wallet.ProxyPass = Config.ProxyPass
 
+	walletCfg.Wallet.WalletPass = Config.WalletPass
+	shellCfg.Wallet.WalletPass = Config.WalletPass
+
 	var r string
 	var ok bool
 	var listeners []string
@@ -310,6 +316,12 @@ func configConf(ctx *climax.Context, cfgFile string) {
 		shellCfg.Wallet.Password = r
 		ctlCfg.RPCPass = r
 	}
+	if r, ok = getIfIs(ctx, "walletpass"); ok {
+		Config.WalletPass = r
+		walletCfg.Wallet.WalletPass = Config.WalletPass
+		shellCfg.Wallet.WalletPass = Config.WalletPass
+	}
+
 	if r, ok = getIfIs(ctx, "rpckey"); ok {
 		r = n.CleanAndExpandPath(r)
 		Config.RPCKey = r
@@ -480,12 +492,14 @@ func WriteDefaultConfig(cfgFile string) {
 func defaultConfig() *Configuration {
 	u := pu.GenKey()
 	p := pu.GenKey()
+	k := pu.GenKey()
 	return &Configuration{
 		NodeListeners:    []string{"127.0.0.1:11047"},
 		NodeRPCListeners: []string{"127.0.0.1:11048"},
 		WalletListeners:  []string{"127.0.0.1:11046"},
 		NodeUser:         u,
 		NodePass:         p,
+		WalletPass:       k,
 		RPCKey:           w.DefaultRPCKeyFile,
 		RPCCert:          w.DefaultRPCCertFile,
 		CAFile:           w.DefaultCAFile,

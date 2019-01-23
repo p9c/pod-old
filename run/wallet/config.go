@@ -4,11 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
+	"path/filepath"
 
 	"git.parallelcoin.io/pod/lib/clog"
 	n "git.parallelcoin.io/pod/module/node"
+	"git.parallelcoin.io/pod/module/spv"
 	w "git.parallelcoin.io/pod/module/wallet"
+	"git.parallelcoin.io/pod/module/wallet/cfgutil"
+	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
+	"git.parallelcoin.io/pod/module/wallet/netparams"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
 	"git.parallelcoin.io/pod/run/logger"
 	"git.parallelcoin.io/pod/run/util"
@@ -34,76 +40,64 @@ type ConfigAndLog struct {
 // Config is the combined app and log levels configuration
 var Config = DefaultConfig()
 
+var f = pu.GenFlag
+var t = pu.GenTrig
+var s = pu.GenShort
+var l = pu.GenLog
+
 // Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var Command = climax.Command{
 	Name:  "wallet",
 	Brief: "parallelcoin wallet",
 	Help:  "check balances, make payments, manage contacts",
 	Flags: []climax.Flag{
+		t("version", "V", "show version number and quit"),
 
-		pu.GenFlag("version", "V", `--version`, `show version number and quit`, false),
+		s("configfile", "C", "path to configuration file"),
+		s("datadir", "D", "set the pod base directory"),
+		f("appdatadir", "set app data directory for wallet, configuration and logs"),
 
-		pu.GenFlag("configfile", "C", "--configfile=/path/to/conf", "path to configuration file", true),
-		pu.GenFlag("datadir", "D", "--datadir=/home/user/.pod", "set the base directory for elements shared between modules", true),
+		t("init", "i", "resets configuration to defaults"),
+		t("save", "S", "saves current flags into configuration"),
 
-		pu.GenFlag("init", "", "--init", "resets configuration to defaults", false),
-		pu.GenFlag("save", "", "--save", "saves current configuration", false),
+		f("create", "create a new wallet if it does not exist"),
+		f("createtemp", "create temporary wallet (pass=walletpass) requires --datadir"),
 
-		pu.GenFlag("create", "", "--create", "create a new wallet if it does not exist", false),
-		pu.GenFlag("createtemp", "", "--createtemp", "create temporary wallet (pass=password), must call with --datadir", false),
+		f("gui", "launch GUI"),
+		f("rpcconnect", "connect to the RPC of a parallelcoin node for chain queries"),
 
-		pu.GenFlag("appdatadir", "", "--appdatadir=/path/to/appdatadir", "set app data directory for wallet, configuration and logs", true),
-		pu.GenFlag("testnet3", "", "--testnet=true", "use testnet", true),
-		pu.GenFlag("simnet", "", "--simnet=true", "use simnet", true),
-		pu.GenFlag("noinitialload", "", "--noinitialload=true", "defer wallet creation/opening on startup and enable loading wallets over RPC (default with --gui)", true),
-		pu.GenFlag("network", "", "--network=mainnet", "connect to specified network: mainnet, testnet, regtestnet or simnet", true),
-		pu.GenFlag("profile", "", "--profile=true", "enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536", true),
-		pu.GenFlag("gui", "", "--gui=true", "launch GUI (wallet unlock is deferred to let GUI handle)", true),
-		pu.GenFlag("walletpass", "", "--walletpass=somepassword", "the public wallet password - only required if the wallet was created with one", true),
-		pu.GenFlag("rpcconnect", "", "--rpcconnect=some.address.com:11048", "connect to the RPC of a parallelcoin node for chain queries", true),
-		pu.GenFlag("cafile", "", "--cafile=/path/to/cafile", "file containing root certificates to authenticate TLS connections with pod", true),
-		pu.GenFlag("enableclienttls", "", "--enableclienttls=false", "enable TLS for the RPC client", true),
-		pu.GenFlag("podusername", "", "--podusername=user", "username for node RPC authentication", true),
-		pu.GenFlag("podpassword", "", "--podpassword=pa55word", "password for node RPC authentication", true),
-		pu.GenFlag("proxy", "", "--proxy=127.0.0.1:9050", "address for proxy for outbound connections", true),
-		pu.GenFlag("proxyuser", "", "--proxyuser=user", "username for proxy", true),
-		pu.GenFlag("proxypass", "", "--proxypass=pa55word", "password for proxy", true),
-		pu.GenFlag("rpccert", "", "--rpccert=/path/to/rpccert", "file containing the RPC tls certificate", true),
-		pu.GenFlag("rpckey", "", "--rpckey=/path/to/rpckey", "file containing RPC tls key", true),
-		pu.GenFlag("onetimetlskey", "", "--onetimetlskey=true", "generate a new TLS certpair but only write certs to disk", true),
-		pu.GenFlag("enableservertls", "", "--enableservertls=false", "enable TLS on wallet RPC", true),
-		pu.GenFlag("legacyrpclisteners", "", "--legacyrpclisteners=127.0.0.1:11046", "add a listener for the legacy RPC", true),
-		pu.GenFlag("legacyrpcmaxclients", "", "--legacyrpcmaxclients=10", "maximum number of connections for legacy RPC", true),
-		pu.GenFlag("legacyrpcmaxwebsockets", "", "--legacyrpcmaxwebsockets=10", "maximum number of websockets for legacy RPC", true),
-		pu.GenFlag("username", "-u", "--username=user", "username for wallet RPC, used also for node if podusername is empty", true),
-		pu.GenFlag("password", "-P", "--password=pa55word", "password for wallet RPC, also used for node if podpassord", true),
-		pu.GenFlag("experimentalrpclisteners", "", "--experimentalrpclisteners=127.0.0.1:11045", "enable experimental RPC service on this address", true),
+		f("podusername", "username for node RPC authentication"),
+		f("podpassword", "password for node RPC authentication"),
 
-		pu.GenFlag("debuglevel", "d", "--debuglevel=trace", "sets debuglevel, default info, sets the baseline for others not specified below (logging is per-library)", true),
+		f("walletpass", "the public wallet password - only required if the wallet was created with one"),
 
-		pu.GenFlag("lib-addrmgr", "", "--lib-addrmg=info", "", true),
-		pu.GenFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
-		pu.GenFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
-		pu.GenFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
-		pu.GenFlag("lib-database", "", "--lib-database=info", "", true),
-		pu.GenFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
-		pu.GenFlag("lib-mining", "", "--lib-mining=info", "", true),
-		pu.GenFlag("lib-netsync", "", "--lib-netsync=info", "", true),
-		pu.GenFlag("lib-peer", "", "--lib-peer=info", "", true),
-		pu.GenFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
-		pu.GenFlag("lib-txscript", "", "--lib-txscript=info", "", true),
-		pu.GenFlag("node", "", "--node=info", "", true),
-		pu.GenFlag("node-mempool", "", "--node-mempool=info", "", true),
-		pu.GenFlag("spv", "", "--spv=info", "", true),
-		pu.GenFlag("wallet", "", "--wallet=info", "", true),
-		pu.GenFlag("wallet-chain", "", "--wallet-chain=info", "", true),
-		pu.GenFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
-		pu.GenFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
-		pu.GenFlag("wallet-tx", "", "--wallet-tx=info", "", true),
-		pu.GenFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
-		pu.GenFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
-		pu.GenFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
-		pu.GenFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
+		f("noinitialload", "defer wallet load to be triggered by RPC"),
+		f("network", "connect to (mainnet|testnet|regtestnet|simnet)"),
+
+		f("profile", "enable HTTP profiling on given port (1024-65536)"),
+
+		f("rpccert", "file containing the RPC tls certificate"),
+		f("rpckey", "file containing RPC TLS key"),
+		f("onetimetlskey", "generate a new TLS certpair don't save key"),
+		f("cafile", "certificate authority for custom TLS CA"),
+		f("enableclienttls", "enable TLS for the RPC client"),
+		f("enableservertls", "enable TLS on wallet RPC server"),
+
+		f("proxy", "proxy address for outbound connections"),
+		f("proxyuser", "username for proxy server"),
+		f("proxypass", "password for proxy server"),
+
+		f("legacyrpclisteners", "add a listener for the legacy RPC"),
+		f("legacyrpcmaxclients", "max connections for legacy RPC"),
+		f("legacyrpcmaxwebsockets", "max websockets for legacy RPC"),
+
+		f("username", "username for wallet RPC when podusername is empty"),
+		f("password", "password for wallet RPC when podpassword is omitted"),
+		f("experimentalrpclisteners", "listener for experimental rpc"),
+
+		s("debuglevel", "d", "sets debuglevel, specify per-library below"),
+
+		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
 	Examples: []climax.Example{
 		{
@@ -143,13 +137,13 @@ var Command = climax.Command{
 			cfgData, err := ioutil.ReadFile(cfgFile)
 			if err != nil {
 				log <- cl.Error{"reading app config file", err.Error()}
-				cl.Shutdown()
+				WriteDefaultConfig(cfgFile)
 			}
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &Config)
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
-				cl.Shutdown()
+				WriteDefaultConfig(cfgFile)
 			}
 		}
 		configNode(&ctx, cfgFile)
@@ -269,18 +263,226 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		switch *r {
 		case "testnet":
 			Config.Wallet.TestNet3, Config.Wallet.SimNet = true, false
+			w.ActiveNet = &netparams.TestNet3Params
 		case "simnet":
 			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, true
+			w.ActiveNet = &netparams.SimNetParams
 		default:
 			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, false
+			w.ActiveNet = &netparams.MainNetParams
 		}
 	}
+
+	// Exit if you try to use a simulation wallet with a standard data directory.
+	if !(ctx.Is("appdatadir") || ctx.Is("datadir")) && Config.Wallet.CreateTemp {
+		fmt.Fprintln(os.Stderr, "Tried to create a temporary simulation wallet, but failed to specify data directory!")
+		os.Exit(0)
+	}
+
+	// Exit if you try to use a simulation wallet on anything other than simnet or testnet3.
+	if !Config.Wallet.SimNet && Config.Wallet.CreateTemp {
+		fmt.Fprintln(os.Stderr,
+			"Tried to create a temporary simulation wallet for network other than simnet!",
+		)
+		os.Exit(0)
+	}
+
+	// // Ensure the wallet exists or create it when the create flag is set.
+	netDir := w.NetworkDir(Config.Wallet.AppDataDir, w.ActiveNet.Params)
+	dbPath := filepath.Join(netDir, w.WalletDbName)
+
+	if ctx.Is("createtemp") && ctx.Is("create") {
+		err := fmt.Errorf("The flags --create and --createtemp can not " +
+			"be specified together. Use --help for more information.")
+		log <- cl.Error{err}
+		cl.Shutdown()
+	}
+
+	dbFileExists, err := FileExists(dbPath)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		cl.Shutdown()
+	}
+
+	if ctx.Is("createtemp") {
+		tempWalletExists := false
+
+		if dbFileExists {
+			str := fmt.Sprintf(
+				"The wallet already exists. Loading this wallet instead.",
+			)
+			fmt.Fprintln(os.Stdout, str)
+			tempWalletExists = true
+		}
+
+		if !tempWalletExists {
+			// Perform the initial wallet creation wizard.
+			if err := w.CreateSimulationWallet(Config.Wallet); err != nil {
+				log <- cl.Error{"Unable to create wallet:", err}
+			}
+		}
+	} else if ctx.Is("create") {
+		// Error if the create flag is set and the wallet already exists.
+		if dbFileExists {
+			log <- cl.Fatal{
+				"The wallet database file `%v` already exists.", dbPath,
+			}
+			cl.Shutdown()
+		}
+	}
+
+	// Ensure the data directory for the network exists.
+	if err := pu.CheckCreateDir(netDir); err != nil {
+		log <- cl.Error{err}
+		cl.Shutdown()
+	}
+
+	// Perform the initial wallet creation wizard.
+	if err := w.CreateWallet(Config.Wallet); err != nil {
+		log <- cl.Fatal{"Unable to create wallet:", err}
+		// Created successfully, so exit now with success.
+		os.Exit(0)
+	} else if !dbFileExists && !Config.Wallet.NoInitialLoad {
+		keystorePath := filepath.Join(netDir, keystore.Filename)
+		keystoreExists, err := cfgutil.FileExists(keystorePath)
+		if err != nil {
+			log <- cl.Error{err}
+			cl.Shutdown()
+		}
+		if !keystoreExists {
+			// err = fmt.Errorf("The wallet does not exist.  Run with the " +
+			// "--create option to initialize and create it...")
+			// Ensure the data directory for the network exists.
+			// fmt.Println("Existing wallet not found in", config.Wallet.ConfigFile.Value)
+			if err := pu.CheckCreateDir(netDir); err != nil {
+				log <- cl.Error{err}
+				cl.Shutdown()
+			}
+
+			// Perform the initial wallet creation wizard.
+			if err := w.CreateWallet(Config.Wallet); err != nil {
+				log <- cl.Error{"Unable to create wallet:", err}
+			}
+
+			// Created successfully, so exit now with success.
+			cl.Shutdown()
+
+		} else {
+			err = fmt.Errorf(
+				"the wallet is in legacy format - run with the --create option to import it",
+			)
+		}
+		log <- cl.Error{err}
+		cl.Shutdown()
+	}
+
+	if Config.Wallet.UseSPV {
+		spv.MaxPeers = Config.Wallet.MaxPeers
+		spv.BanDuration = Config.Wallet.BanDuration
+		spv.BanThreshold = Config.Wallet.BanThreshold
+	} else if Config.Wallet.RPCConnect == "" {
+		Config.Wallet.RPCConnect = net.JoinHostPort("localhost", w.ActiveNet.RPCClientPort)
+	}
+
+	// Add default port to connect flag if missing.
+	Config.Wallet.RPCConnect, err = cfgutil.NormalizeAddress(
+		Config.Wallet.RPCConnect, w.ActiveNet.RPCClientPort,
+	)
+	if err != nil {
+		log <- cl.Error{"invalid rpcconnect network address: %v\n", err}
+		cl.Shutdown()
+	}
+
+	if Config.Wallet.EnableClientTLS {
+		// If CAFile is unset, choose either the copy or local pod cert.
+		if !ctx.Is("cafile") {
+			Config.Wallet.CAFile = filepath.Join(Config.Wallet.AppDataDir, w.DefaultCAFilename)
+			// If the CA copy does not exist, check if we're connecting to
+			// a local pod and switch to its RPC cert if it exists.
+			certExists, err := cfgutil.FileExists(Config.Wallet.CAFile)
+			if err != nil {
+				log <- cl.Error{err}
+				cl.Shutdown()
+			}
+			if !certExists {
+				podCertExists, err := cfgutil.FileExists(w.DefaultCAFile)
+				if err != nil {
+					log <- cl.Error{err}
+				}
+				if podCertExists {
+					Config.Wallet.CAFile = w.DefaultCAFile
+				}
+			}
+		}
+	}
+
+	// Only set default RPC listeners when there are no listeners set for the experimental RPC server.  This is required to prevent the old RPC server from sharing listen addresses, since it is impossible to remove defaults from go-flags slice options without assigning specific behavior to a particular string.
+	if len(Config.Wallet.ExperimentalRPCListeners) == 0 && len(Config.Wallet.LegacyRPCListeners) == 0 {
+		addrs, err := net.LookupHost("localhost")
+		if err != nil {
+			cl.Shutdown()
+		}
+		Config.Wallet.LegacyRPCListeners = make([]string, 0, len(addrs))
+		for _, addr := range addrs {
+			addr = net.JoinHostPort(addr, w.ActiveNet.RPCServerPort)
+			Config.Wallet.LegacyRPCListeners = append(Config.Wallet.LegacyRPCListeners, addr)
+		}
+	}
+
+	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
+	Config.Wallet.LegacyRPCListeners, err = cfgutil.NormalizeAddresses(
+		Config.Wallet.LegacyRPCListeners, w.ActiveNet.RPCServerPort)
+	if err != nil {
+		fmt.Fprintf(os.Stderr,
+			"Invalid network address in legacy RPC listeners: %v\n", err)
+		cl.Shutdown()
+	}
+	Config.Wallet.ExperimentalRPCListeners, err = cfgutil.NormalizeAddresses(
+		Config.Wallet.ExperimentalRPCListeners, w.ActiveNet.RPCServerPort)
+	if err != nil {
+		fmt.Fprintf(os.Stderr,
+			"Invalid network address in RPC listeners: %v\n", err)
+		cl.Shutdown()
+	}
+
+	// Both RPC servers may not listen on the same interface/port.
+	if len(Config.Wallet.LegacyRPCListeners) > 0 && len(Config.Wallet.ExperimentalRPCListeners) > 0 {
+		seenAddresses := make(map[string]struct{}, len(Config.Wallet.LegacyRPCListeners))
+		for _, addr := range Config.Wallet.LegacyRPCListeners {
+			seenAddresses[addr] = struct{}{}
+		}
+		for _, addr := range Config.Wallet.ExperimentalRPCListeners {
+			_, seen := seenAddresses[addr]
+			if seen {
+				log <- cl.Errorf{
+					"Address `%s` may not be used as a listener address for both RPC servers", addr}
+				cl.Shutdown()
+			}
+		}
+	}
+
+	// Expand environment variable and leading ~ for filepaths.
+	Config.Wallet.CAFile = n.CleanAndExpandPath(Config.Wallet.CAFile)
+	Config.Wallet.RPCCert = n.CleanAndExpandPath(Config.Wallet.RPCCert)
+	Config.Wallet.RPCKey = n.CleanAndExpandPath(Config.Wallet.RPCKey)
+
+	// If the pod username or password are unset, use the same auth as for the client.  The two settings were previously shared for pod and client auth, so this avoids breaking backwards compatibility while allowing users to use different auth settings for pod and wallet.
+	if Config.Wallet.PodUsername == "" {
+		Config.Wallet.PodUsername = Config.Wallet.Username
+	}
+	if Config.Wallet.PodPassword == "" {
+		Config.Wallet.PodPassword = Config.Wallet.Password
+	}
+
+	// finished configuration
+
 	logger.SetLogging(ctx)
+
 	if ctx.Is("save") {
 		log <- cl.Info{"saving config file to", cfgFile}
 		j, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {
-			log <- cl.Error{"writing app config file", err.Error()}
+			log <- cl.Error{"writing app config file", err}
 		}
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
@@ -308,20 +510,24 @@ func WriteDefaultConfig(cfgFile string) {
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err.Error()}
+		panic(err)
 	}
 	j = append(j, '\n')
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
 	err = ioutil.WriteFile(cfgFile, j, 0600)
 	if err != nil {
 		log <- cl.Error{"writing app config file", err.Error()}
+		panic(err)
 	}
 	// if we are writing default config we also want to use it
 	Config = defCfg
 }
 
+// DefaultConfig returns a default configuration
 func DefaultConfig() *ConfigAndLog {
 	return &ConfigAndLog{
 		Wallet: &w.Config{
+			NoInitialLoad:          true,
 			ConfigFile:             w.DefaultConfigFile,
 			DataDir:                w.DefaultDataDir,
 			AppDataDir:             w.DefaultAppDataDir,
@@ -335,4 +541,16 @@ func DefaultConfig() *ConfigAndLog {
 		},
 		Levels: logger.GetDefaultConfig(),
 	}
+}
+
+// FileExists reports whether the named file or directory exists.
+func FileExists(filePath string) (bool, error) {
+	_, err := os.Stat(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

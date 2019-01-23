@@ -11,13 +11,13 @@ import (
 
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	cl "git.parallelcoin.io/pod/lib/clog"
-	"git.parallelcoin.io/pod/module/wallet/internal/prompt"
+	"git.parallelcoin.io/pod/module/wallet/prompt"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
 )
 
 const (
-	walletDbName = "wallet.db"
+	WalletDbName = "wallet.db"
 )
 
 var (
@@ -104,7 +104,7 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 		return nil, ErrLoaded
 	}
 
-	dbPath := filepath.Join(l.dbDirPath, walletDbName)
+	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	exists, err := fileExists(dbPath)
 	if err != nil {
 		return nil, err
@@ -156,7 +156,10 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
+	log <- cl.Trace{"opening existing wallet", canConsolePrompt}
+
 	if l.wallet != nil {
+		log <- cl.Trc("already loaded wallet")
 		return nil, ErrLoaded
 	}
 
@@ -166,7 +169,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	}
 
 	// Open the database using the boltdb backend.
-	dbPath := filepath.Join(l.dbDirPath, walletDbName)
+	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
 	if err != nil {
 		log <- cl.Error{"failed to open database:", err}
@@ -205,7 +208,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 // WalletExists returns whether a file exists at the loader's database path.
 // This may return an error for unexpected I/O failures.
 func (l *Loader) WalletExists() (bool, error) {
-	dbPath := filepath.Join(l.dbDirPath, walletDbName)
+	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	return fileExists(dbPath)
 }
 

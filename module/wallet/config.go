@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/module/wallet/wallet"
@@ -23,7 +24,7 @@ const (
 	DefaultRPCMaxClients    = 10
 	DefaultRPCMaxWebsockets = 25
 
-	walletDbName = "wallet.db"
+	WalletDbName = "wallet.db"
 )
 
 var (
@@ -65,12 +66,12 @@ type Config struct {
 	ProxyPass       string `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
 
 	// SPV client options
-	// UseSPV       bool          `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
-	// AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
-	// ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
-	// MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
-	// BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
-	// BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
+	UseSPV       bool          `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
+	AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
+	ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
+	MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
+	BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
+	BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
 
 	// RPC server options
 	//
@@ -481,7 +482,7 @@ func loadConfig() (*Config, []string, error) {
 
 	// // Ensure the wallet exists or create it when the create flag is set.
 	// netDir := networkDir(cfg.AppDataDir.Value, activeNet.Params)
-	// dbPath := filepath.Join(netDir, walletDbName)
+	// dbPath := filepath.Join(netDir, WalletDbName)
 
 	// if cfg.CreateTemp && cfg.Create {
 	// 	err := fmt.Errorf("The flags --create and --createtemp can not " +

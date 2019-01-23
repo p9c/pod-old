@@ -6,7 +6,7 @@ import (
 	"git.parallelcoin.io/pod/lib/blockchain"
 	"git.parallelcoin.io/pod/lib/wire"
 
-	h "git.parallelcoin.io/pod/module/wallet/internal/helpers"
+	h "git.parallelcoin.io/pod/module/wallet/helpers"
 )
 
 // Worst case script and input/output size estimates.

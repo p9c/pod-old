@@ -41,12 +41,13 @@ func Main(c *Config) error {
 		}()
 	}
 
-	dbDir := networkDir(cfg.AppDataDir, activeNet.Params)
-	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
+	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
+	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
 
 	// Create and start HTTP server to serve wallet client connections.
 	// This will be updated with the wallet and chain server RPC client
 	// created below after each is created.
+	log <- cl.Trc("startRPCServers loader")
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
 	if err != nil {
 		log <- cl.Error{
@@ -58,22 +59,27 @@ func Main(c *Config) error {
 	// Create and start chain RPC client so it's ready to connect to
 	// the wallet when loaded later.
 	if !cfg.NoInitialLoad {
+		log <- cl.Trc("starting rpcClienntConnectLoop")
 		go rpcClientConnectLoop(legacyRPCServer, loader)
 	}
 
 	loader.RunAfterLoad(func(w *wallet.Wallet) {
+		log <- cl.Trc("starting startWalletRPCServices")
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
 	if !cfg.NoInitialLoad {
+		log <- cl.Trc("opening existing wallet")
 		// Load the wallet database.  It must have been created already
 		// or this will return an appropriate error.
 		_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
 		if err != nil {
+			fmt.Println(err)
 			log <- cl.Error{err}
 			return err
 		}
 	}
+	log <- cl.Trc("adding interrupt handler to unload wallet")
 
 	// Add interrupt handlers to shutdown the various process components
 	// before exiting.  Interrupt handlers run in LIFO order, so the wallet
@@ -87,6 +93,7 @@ func Main(c *Config) error {
 		}
 	})
 	if rpcs != nil {
+		log <- cl.Trc("starting rpc server")
 		addInterruptHandler(func() {
 			// TODO: Does this need to wait for the grpc server to
 			// finish up any requests?
@@ -135,7 +142,7 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// 		chainService *neutrino.ChainService
 		// 		spvdb        walletdb.DB
 		// 	)
-		// 	netDir := networkDir(cfg.AppDataDir.Value, activeNet.Params)
+		// 	netDir := networkDir(cfg.AppDataDir.Value, ActiveNet.Params)
 		// 	spvdb, err = walletdb.Create("bdb",
 		// 		filepath.Join(netDir, "neutrino.db"))
 		// 	defer spvdb.Close()
@@ -147,7 +154,7 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// 		neutrino.Config{
 		// 			DataDir:      netDir,
 		// 			Database:     spvdb,
-		// 			ChainParams:  *activeNet.Params,
+		// 			ChainParams:  *ActiveNet.Params,
 		// 			ConnectPeers: cfg.ConnectPeers,
 		// 			AddPeers:     cfg.AddPeers,
 		// 		})
@@ -155,7 +162,7 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// 		log<-cl.Errorf{"Couldn't create Neutrino ChainService: %s", err)
 		// 		continue
 		// 	}
-		// 	chainClient = chain.NewNeutrinoClient(activeNet.Params, chainService)
+		// 	chainClient = chain.NewNeutrinoClient(ActiveNet.Params, chainService)
 		// 	err = chainClient.Start()
 		// 	if err != nil {
 		// 		log<-cl.Errorf{"Couldn't start Neutrino client: %s", err)
@@ -245,7 +252,7 @@ func startChainRPC(certs []byte) (*chain.RPCClient, error) {
 		"attempting RPC client connection to %v, TLS: %s",
 		cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS),
 	}
-	rpcc, err := chain.NewRPCClient(activeNet.Params, cfg.RPCConnect,
+	rpcc, err := chain.NewRPCClient(ActiveNet.Params, cfg.RPCConnect,
 		cfg.PodUsername, cfg.PodPassword, certs, !cfg.EnableClientTLS, 0)
 	if err != nil {
 		return nil, err

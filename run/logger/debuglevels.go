@@ -122,27 +122,7 @@ func SetAllLogging(level string) {
 	}
 }
 
+var l = pu.GenLog
+
 var debugLevels = []climax.Flag{
-	pu.GenFlag("lib-blockchain", "", "--lib-blockchain=info", "", true),
-	pu.GenFlag("lib-connmgr", "", "--lib-connmgr=info", "", true),
-	pu.GenFlag("lib-database-ffldb", "", "--lib-database-ffldb=info", "", true),
-	pu.GenFlag("lib-database", "", "--lib-database=info", "", true),
-	pu.GenFlag("lib-mining-cpuminer", "", "--lib-mining-cpuminer=info", "", true),
-	pu.GenFlag("lib-mining", "", "--lib-mining=info", "", true),
-	pu.GenFlag("lib-netsync", "", "--lib-netsync=info", "", true),
-	pu.GenFlag("lib-peer", "", "--lib-peer=info", "", true),
-	pu.GenFlag("lib-rpcclient", "", "--lib-rpcclient=info", "", true),
-	pu.GenFlag("lib-txscript", "", "--lib-txscript=info", "", true),
-	pu.GenFlag("node", "", "--node=info", "", true),
-	pu.GenFlag("node-mempool", "", "--node-mempool=info", "", true),
-	pu.GenFlag("spv", "", "--spv=info", "", true),
-	pu.GenFlag("wallet", "", "--wallet=info", "", true),
-	pu.GenFlag("wallet-chain", "", "--wallet-chain=info", "", true),
-	pu.GenFlag("wallet-legacyrpc", "", "--wallet-legacyrpc=info", "", true),
-	pu.GenFlag("wallet-rpcserver", "", "--wallet-rpcserver=info", "", true),
-	pu.GenFlag("wallet-tx", "", "--wallet-tx=info", "", true),
-	pu.GenFlag("wallet-votingpool", "", "--wallet-votingpool=info", "", true),
-	pu.GenFlag("wallet-waddrmgr", "", "--wallet-waddrmgr=info", "", true),
-	pu.GenFlag("wallet-wallet", "", "--wallet-wallet=info", "", true),
-	pu.GenFlag("wallet-wtxmgr", "", "--wallet-wtxmgr=info", "", true),
-}
+	l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr")}

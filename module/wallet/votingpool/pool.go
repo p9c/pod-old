@@ -7,9 +7,9 @@ import (
 	"git.parallelcoin.io/pod/lib/txscript"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/hdkeychain"
-	"git.parallelcoin.io/pod/module/wallet/internal/zero"
 	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/module/wallet/zero"
 )
 
 const (

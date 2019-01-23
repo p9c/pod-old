@@ -12,9 +12,9 @@ import (
 	"git.parallelcoin.io/pod/lib/chaincfg"
 	"git.parallelcoin.io/pod/lib/util"
 	"git.parallelcoin.io/pod/lib/util/hdkeychain"
-	"git.parallelcoin.io/pod/module/wallet/internal/zero"
 	"git.parallelcoin.io/pod/module/wallet/snacl"
 	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/module/wallet/zero"
 )
 
 const (
