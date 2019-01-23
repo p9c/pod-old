@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/database"
-	_ "git.parallelcoin.io/pod/pkg/database/ffldb"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/lib/chaincfg"
+	"git.parallelcoin.io/pod/lib/database"
+	_ "git.parallelcoin.io/pod/lib/database/ffldb"
+	"git.parallelcoin.io/pod/lib/util"
+	"git.parallelcoin.io/pod/lib/wire"
 )
 
 var (

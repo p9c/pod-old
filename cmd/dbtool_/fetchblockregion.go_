@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/database"
+	"git.parallelcoin.io/pod/lib/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/lib/database"
 )
 
 // blockRegionCmd defines the configuration options for the fetchblockregion command.

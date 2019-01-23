@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/lib/util"
 	flags "github.com/jessevdk/go-flags"
 )
 
