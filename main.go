@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"git.parallelcoin.io/pod/pkg/limits"
 	"git.parallelcoin.io/pod/app"
+	"git.parallelcoin.io/pod/pkg/limits"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	os.Exit(pod.Main())
+	os.Exit(app.Main())
 
 	// cf, err := os.Create("cpu.prof")
 	// if err != nil {

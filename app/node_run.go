@@ -8,7 +8,7 @@ import (
 )
 
 func runNode() {
-	j, _ := json.MarshalIndent(Config, "", "  ")
+	j, _ := json.MarshalIndent(NodeConfig, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
-	node.Main(Config.Node, nil)
+	node.Main(NodeConfig.Node, nil)
 }

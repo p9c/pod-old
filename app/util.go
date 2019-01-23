@@ -15,10 +15,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-var f = GenFlag
-var t = GenTrig
-var s = GenShort
-var l = GenLog
 
 var defaultUser, defaultPass = "user", "pa55word"
 

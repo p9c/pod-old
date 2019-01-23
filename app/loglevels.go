@@ -29,7 +29,7 @@ import (
 )
 
 // LogLevels are the configured log level settings
-var LogLevels = GetDefault()
+var LogLevels = GetDefaultLogLevelsConfig()
 
 // GetDefaultLogLevelsConfig returns a fresh shiny new default levels map
 func GetDefaultLogLevelsConfig() map[string]string {
@@ -60,8 +60,8 @@ func GetDefaultLogLevelsConfig() map[string]string {
 	}
 }
 
-// GetDefault returns a fresh shiny new default levels map
-func GetDefault() map[string]*cl.SubSystem {
+// GetAllSubSystems returns a map with all the SubSystems in Parallelcoin Pod
+func GetAllSubSystems() map[string]*cl.SubSystem {
 	return map[string]*cl.SubSystem{
 		"lib-addrmgr":         addrmgr.Log,
 		"lib-blockchain":      blockchain.Log,
@@ -89,30 +89,21 @@ func GetDefault() map[string]*cl.SubSystem {
 	}
 }
 
-func setIfIs(ctx *climax.Context, name string) {
-	var r *string
-	t := ""
-	r = &t
-	if getIfIs(ctx, name, r) {
-		Levels[name].SetLevel(*r)
-	}
-}
 
 // SetLogging sets the logging settings according to the provided context
 func SetLogging(ctx *climax.Context) {
-	for i := range Levels {
-		setIfIs(ctx, i)
+	ss := GetAllSubSystems()
+	for i := range ss {
+		if lvl, ok:=ctx.Get(i); ok {
+			ss[i].SetLevel(lvl)
+		}
 	}
 }
 
 // SetAllLogging sets all the logging to a particular level
 func SetAllLogging(level string) {
-	for i := range Levels {
-		Levels[i].SetLevel(level)
+	ss := GetAllSubSystems()
+	for i := range ss {
+		ss[i].SetLevel(level)
 	}
 }
-
-var l = pu.GenLog
-
-var debugLevels = []climax.Flag{
-	l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr")}

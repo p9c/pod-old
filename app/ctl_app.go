@@ -6,20 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 
-	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/cmd/ctl"
+	"git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
-<<<<<<< HEAD
-// Config is the default configuration native to ctl
-var Config = new(ctl.Config)
-=======
-// CtlConfig is the default configuration native to ctl
-var CtlConfig = new(ctl.Config)
->>>>>>> master
-
-
+// CtlCfg is the default configuration native to ctl
+var CtlCfg = new(ctl.Config)
 
 // CtlCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var CtlCommand = climax.Command{
@@ -82,7 +75,7 @@ var CtlCommand = climax.Command{
 				log <- cl.Debug{
 					"writing default configuration to", cfgFile,
 				}
-				WriteDefaultConfig(cfgFile)
+				WriteDefaultCtlConfig(cfgFile)
 				// then run from this config
 				configCtl(&ctx, cfgFile)
 			} else {
@@ -91,7 +84,7 @@ var CtlCommand = climax.Command{
 				}
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 					log <- cl.Wrn("configuration file does not exist, creating new one")
-					WriteDefaultConfig(cfgFile)
+					WriteDefaultCtlConfig(cfgFile)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 				} else {
@@ -102,7 +95,7 @@ var CtlCommand = climax.Command{
 						cl.Shutdown()
 					}
 					log <- cl.Trace{"read in config file\n", string(cfgData)}
-					err = json.Unmarshal(cfgData, Config)
+					err = json.Unmarshal(cfgData, CtlCfg)
 					if err != nil {
 						log <- cl.Err(err.Error())
 						cl.Shutdown()
@@ -124,78 +117,78 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 	var ok bool
 	// Apply all configurations specified on commandline
 	if r, ok = getIfIs(ctx, "debuglevel"); ok {
-		Config.DebugLevel = r
+		CtlCfg.DebugLevel = r
 		log <- cl.Trace{
 			"set", "debuglevel", "to", r,
 		}
 	}
 	if r, ok = getIfIs(ctx, "rpcuser"); ok {
-		Config.RPCUser = r
+		CtlCfg.RPCUser = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcuser", r,
 		}
 	}
 	if r, ok = getIfIs(ctx, "rpcpass"); ok {
-		Config.RPCPass = r
+		CtlCfg.RPCPass = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcpass", r,
 		}
 	}
 	if r, ok = getIfIs(ctx, "rpcserver"); ok {
-		Config.RPCServer = r
+		CtlCfg.RPCServer = r
 		log <- cl.Tracef{
 			"set %s to %s", "rpcserver", r,
 		}
 	}
 	if r, ok = getIfIs(ctx, "rpccert"); ok {
-		Config.RPCCert = r
+		CtlCfg.RPCCert = r
 		log <- cl.Tracef{"set %s to %s", "rpccert", r}
 	}
 	if r, ok = getIfIs(ctx, "tls"); ok {
-		Config.TLS = r == "true"
+		CtlCfg.TLS = r == "true"
 		log <- cl.Tracef{"set %s to %s", "tls", r}
 	}
 	if r, ok = getIfIs(ctx, "proxy"); ok {
-		Config.Proxy = r
+		CtlCfg.Proxy = r
 		log <- cl.Tracef{"set %s to %s", "proxy", r}
 	}
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
-		Config.ProxyUser = r
+		CtlCfg.ProxyUser = r
 		log <- cl.Tracef{"set %s to %s", "proxyuser", r}
 	}
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
-		Config.ProxyPass = r
+		CtlCfg.ProxyPass = r
 		log <- cl.Tracef{"set %s to %s", "proxypass", r}
 	}
 	otn, osn := "false", "false"
-	if Config.TestNet3 {
+	if CtlCfg.TestNet3 {
 		otn = "true"
 	}
-	if Config.SimNet {
+	if CtlCfg.SimNet {
 		osn = "true"
 	}
 	tn, ts := ctx.Get("testnet")
 	sn, ss := ctx.Get("simnet")
 	if ts {
-		Config.TestNet3 = tn == "true"
+		CtlCfg.TestNet3 = tn == "true"
 	}
 	if ss {
-		Config.SimNet = sn == "true"
+		CtlCfg.SimNet = sn == "true"
 	}
-	if Config.TestNet3 && Config.SimNet {
+	if CtlCfg.TestNet3 && CtlCfg.SimNet {
 		log <- cl.Error{
 			"cannot enable simnet and testnet at the same time. current settings testnet =", otn,
 			"simnet =", osn,
 		}
 	}
 	if ctx.Is("skipverify") {
-		Config.TLSSkipVerify = true
+		CtlCfg.TLSSkipVerify = true
 		log <- cl.Tracef{
 			"set %s to true", "skipverify",
 		}
 	}
 	if r, ok = getIfIs(ctx, "wallet"); ok {
-		Config.Wallet = r
+		CtlCfg.Wallet = r
 		log <- cl.Tracef{
 			"set %s to true", "wallet",
 		}
@@ -205,7 +198,7 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 			"saving config file to",
 			cfgFile,
 		}
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(CtlCfg, "", "  ")
 		if err != nil {
 			log <- cl.Err(err.Error())
 		}
@@ -217,8 +210,8 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 	}
 }
 
-// WriteConfig writes the current config in the requested location
-func WriteConfig(cfgFile string, cc *ctl.Config) {
+// WriteCtlConfig writes the current config in the requested location
+func WriteCtlConfig(cfgFile string, cc *ctl.Config) {
 	j, err := json.MarshalIndent(cc, "", "  ")
 	if err != nil {
 		log <- cl.Err(err.Error())
@@ -237,7 +230,7 @@ func WriteConfig(cfgFile string, cc *ctl.Config) {
 
 // WriteDefaultConfig writes a default config in the requested location
 func WriteDefaultCtlConfig(cfgFile string) {
-	defCfg := DefaultConfig()
+	defCfg := DefaultCtlConfig()
 	defCfg.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -254,7 +247,7 @@ func WriteDefaultCtlConfig(cfgFile string) {
 		cl.Shutdown()
 	}
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	CtlCfg = defCfg
 }
 
 // DefaultCtlConfig returns an allocated, default CtlCfg

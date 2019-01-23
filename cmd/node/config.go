@@ -494,10 +494,10 @@ func loadConfig() (*Config, []string, error) {
 	cfg.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	cfg.DataDir = CleanAndExpandPath(cfg.DataDir)
-	cfg.DataDir = filepath.Join(cfg.DataDir, netName(ActiveNetParams))
+	cfg.DataDir = filepath.Join(cfg.DataDir, NetName(ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	cfg.LogDir = CleanAndExpandPath(cfg.LogDir)
-	cfg.LogDir = filepath.Join(cfg.LogDir, netName(ActiveNetParams))
+	cfg.LogDir = filepath.Join(cfg.LogDir, NetName(ActiveNetParams))
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
 	// initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
 	// Validate database type.

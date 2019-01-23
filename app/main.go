@@ -1,8 +1,6 @@
 package app
 
 import (
-	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/cmd/node"
 	"github.com/tucnak/climax"
 )
 
@@ -12,7 +10,7 @@ var interrupt <-chan struct{}
 var PodApp = climax.Application{
 	Name:     "pod",
 	Brief:    "multi-application launcher for Parallelcoin Pod",
-	Version:  version(),
+	Version:  Version(),
 	Commands: []climax.Command{},
 	Topics:   []climax.Topic{},
 	Groups:   []climax.Group{},

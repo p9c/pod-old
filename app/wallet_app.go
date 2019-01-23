@@ -6,12 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 
-	"git.parallelcoin.io/pod/pkg/clog"
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/netparams"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -24,13 +23,8 @@ type WalletCfg struct {
 // WalletConfig is the combined app and log levels configuration
 var WalletConfig = DefaultWalletConfig()
 
-var f = pu.GenFlag
-var t = pu.GenTrig
-var s = pu.GenShort
-var l = pu.GenLog
-
 // Wallet is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
-var Wallet = climax.Command{
+var WalletCommand = climax.Command{
 	Name:  "wallet",
 	Brief: "parallelcoin wallet",
 	Help:  "check balances, make payments, manage contacts",
@@ -95,8 +89,9 @@ var Wallet = climax.Command{
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			log <- cl.Tracef{"setting debug level %s", dl}
 			Log.SetLevel(dl)
-			for i := range logger.Levels {
-				logger.Levels[i].SetLevel(dl)
+			ll := GetAllSubSystems()
+			for i := range ll {
+				ll[i].SetLevel(dl)
 			}
 		}
 		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
@@ -124,7 +119,7 @@ var Wallet = climax.Command{
 				WriteDefaultWalletConfig(cfgFile)
 			}
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-			err = json.Unmarshal(cfgData, &Config)
+			err = json.Unmarshal(cfgData, &WalletConfig)
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
 				WriteDefaultWalletConfig(cfgFile)
@@ -139,151 +134,147 @@ var Wallet = climax.Command{
 
 func configWallet(ctx *climax.Context, cfgFile string) {
 	log <- cl.Debug{"configuring from command line flags ", os.Args}
-	var r *string
-	t := ""
-	r = &t
 	if ctx.Is("create") {
 		log <- cl.Dbg("")
-		Config.Wallet.Create = true
+		WalletConfig.Wallet.Create = true
 	}
 	if ctx.Is("createtemp") {
 		log <- cl.Dbg("")
-		Config.Wallet.CreateTemp = true
+		WalletConfig.Wallet.CreateTemp = true
 	}
-	if getIfIs(ctx, "appdatadir", r) {
+	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.AppDataDir = n.CleanAndExpandPath(*r)
+		WalletConfig.Wallet.AppDataDir = n.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "noinitialload", r) {
+	if r, ok := getIfIs(ctx, "noinitialload"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.NoInitialLoad = *r == "true"
+		WalletConfig.Wallet.NoInitialLoad = r == "true"
 	}
-	if getIfIs(ctx, "logdir", r) {
+	if r, ok := getIfIs(ctx, "logdir"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.LogDir = n.CleanAndExpandPath(*r)
+		WalletConfig.Wallet.LogDir = n.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "profile", r) {
+	if r, ok := getIfIs(ctx, "profile"); ok {
 		log <- cl.Dbg("")
-		pu.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
+		NormalizeAddress(r, "3131", &WalletConfig.Wallet.Profile)
 	}
-	if getIfIs(ctx, "gui", r) {
+	if r, ok := getIfIs(ctx, "gui"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.GUI = *r == "true"
+		WalletConfig.Wallet.GUI = r == "true"
 	}
-	if getIfIs(ctx, "walletpass", r) {
+	if r, ok := getIfIs(ctx, "walletpass"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.WalletPass = *r
+		WalletConfig.Wallet.WalletPass = r
 	}
-	if getIfIs(ctx, "rpcconnect", r) {
+	if r, ok := getIfIs(ctx, "rpcconnect"); ok {
 		log <- cl.Dbg("")
-		pu.NormalizeAddress(*r, "11048", &Config.Wallet.RPCConnect)
+		NormalizeAddress(r, "11048", &WalletConfig.Wallet.RPCConnect)
 	}
-	if getIfIs(ctx, "cafile", r) {
+	if r, ok := getIfIs(ctx, "cafile"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.CAFile = n.CleanAndExpandPath(*r)
+		WalletConfig.Wallet.CAFile = n.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "enableclienttls", r) {
+	if r, ok := getIfIs(ctx, "enableclienttls"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.EnableClientTLS = *r == "true"
+		WalletConfig.Wallet.EnableClientTLS = r == "true"
 	}
-	if getIfIs(ctx, "podusername", r) {
+	if r, ok := getIfIs(ctx, "podusername"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.PodUsername = *r
+		WalletConfig.Wallet.PodUsername = r
 	}
-	if getIfIs(ctx, "podpassword", r) {
+	if r, ok := getIfIs(ctx, "podpassword"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.PodPassword = *r
+		WalletConfig.Wallet.PodPassword = r
 	}
-	if getIfIs(ctx, "proxy", r) {
+	if r, ok := getIfIs(ctx, "proxy"); ok {
 		log <- cl.Dbg("")
-		pu.NormalizeAddress(*r, "11048", &Config.Wallet.Proxy)
+		NormalizeAddress(r, "11048", &WalletConfig.Wallet.Proxy)
 	}
-	if getIfIs(ctx, "proxyuser", r) {
+	if r, ok := getIfIs(ctx, "proxyuser"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.ProxyUser = *r
+		WalletConfig.Wallet.ProxyUser = r
 	}
-	if getIfIs(ctx, "proxypass", r) {
+	if r, ok := getIfIs(ctx, "proxypass"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.ProxyPass = *r
+		WalletConfig.Wallet.ProxyPass = r
 	}
-	if getIfIs(ctx, "rpccert", r) {
+	if r, ok := getIfIs(ctx, "rpccert"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.RPCCert = n.CleanAndExpandPath(*r)
+		WalletConfig.Wallet.RPCCert = n.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "rpckey", r) {
+	if r, ok := getIfIs(ctx, "rpckey"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.RPCKey = n.CleanAndExpandPath(*r)
+		WalletConfig.Wallet.RPCKey = n.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "onetimetlskey", r) {
+	if r, ok := getIfIs(ctx, "onetimetlskey"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.OneTimeTLSKey = *r == "true"
+		WalletConfig.Wallet.OneTimeTLSKey = r == "true"
 	}
-	if getIfIs(ctx, "enableservertls", r) {
+	if r, ok := getIfIs(ctx, "enableservertls"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.EnableServerTLS = *r == "true"
+		WalletConfig.Wallet.EnableServerTLS = r == "true"
 	}
-	if getIfIs(ctx, "legacyrpclisteners", r) {
+	if r, ok := getIfIs(ctx, "legacyrpclisteners"); ok {
 		log <- cl.Dbg("")
-		pu.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
+		NormalizeAddresses(r, "11046", &WalletConfig.Wallet.LegacyRPCListeners)
 	}
-	if getIfIs(ctx, "legacyrpcmaxclients", r) {
+	if r, ok := getIfIs(ctx, "legacyrpcmaxclients"); ok {
 		log <- cl.Dbg("")
 		var bt int
-		if err := pu.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
+		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			Config.Wallet.LegacyRPCMaxClients = int64(bt)
+			WalletConfig.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
 	}
-	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
+	if r, ok := getIfIs(ctx, "legacyrpcmaxwebsockets"); ok {
 		log <- cl.Dbg("")
-		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
+		_, err := fmt.Sscanf(r, "%d", WalletConfig.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
 			log <- cl.Errorf{
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
-				r,
-				Config.Wallet.LegacyRPCMaxWebsockets,
+				r, WalletConfig.Wallet.LegacyRPCMaxWebsockets,
 			}
 		}
 	}
-	if getIfIs(ctx, "username", r) {
+	if r, ok := getIfIs(ctx, "username"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.Username = *r
+		WalletConfig.Wallet.Username = r
 	}
-	if getIfIs(ctx, "password", r) {
+	if r, ok := getIfIs(ctx, "password"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.Password = *r
+		WalletConfig.Wallet.Password = r
 	}
-	if getIfIs(ctx, "experimentalrpclisteners", r) {
+	if r, ok := getIfIs(ctx, "experimentalrpclisteners"); ok {
 		log <- cl.Dbg("")
-		pu.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
+		NormalizeAddresses(r, "11045", &WalletConfig.Wallet.ExperimentalRPCListeners)
 	}
-	if getIfIs(ctx, "datadir", r) {
+	if r, ok := getIfIs(ctx, "datadir"); ok {
 		log <- cl.Dbg("")
-		Config.Wallet.DataDir = *r
+		WalletConfig.Wallet.DataDir = r
 	}
-	if getIfIs(ctx, "network", r) {
+	if r, ok := getIfIs(ctx, "network"); ok {
 		log <- cl.Dbg("")
-		switch *r {
+		switch r {
 		case "testnet":
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = true, false
+			WalletConfig.Wallet.TestNet3, WalletConfig.Wallet.SimNet = true, false
 			w.ActiveNet = &netparams.TestNet3Params
 		case "simnet":
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, true
+			WalletConfig.Wallet.TestNet3, WalletConfig.Wallet.SimNet = false, true
 			w.ActiveNet = &netparams.SimNetParams
 		default:
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, false
+			WalletConfig.Wallet.TestNet3, WalletConfig.Wallet.SimNet = false, false
 			w.ActiveNet = &netparams.MainNetParams
 		}
 	}
 
 	// finished configuration
 
-	logger.SetLogging(ctx)
+	SetLogging(ctx)
 
 	if ctx.Is("save") {
 		log <- cl.Info{"saving config file to", cfgFile}
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(WalletConfig, "", "  ")
 		if err != nil {
 			log <- cl.Error{"writing app config file", err}
 		}
@@ -309,8 +300,7 @@ func WriteWalletConfig(cfgFile string, c *WalletCfg) {
 
 // WriteDefaultWalletConfig creates and writes a default config to the requested location
 func WriteDefaultWalletConfig(cfgFile string) {
-	log <- cl.Dbg("writing default config")
-	defCfg Wallet:= DefaultWalletConfig()
+	defCfg := DefaultWalletConfig()
 	defCfg.Wallet.ConfigFile = cfgFile
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -325,7 +315,7 @@ func WriteDefaultWalletConfig(cfgFile string) {
 		panic(err)
 	}
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	WalletConfig = defCfg
 }
 
 // DefaultWalletConfig returns a default configuration
@@ -344,7 +334,7 @@ func DefaultWalletConfig() *WalletCfg {
 			CAFile:                 "",
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
-		Wallet},
-		Levels:Wallet logger.GetDefaultWalletConfig(),
+		},
+		Levels: GetDefaultLogLevelsConfig(),
 	}
 }

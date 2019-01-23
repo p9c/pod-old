@@ -7,7 +7,7 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
-func runWallet(args []string) {
+func runShell(args []string) {
 	j, _ := json.MarshalIndent(CtlCfg, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	ctl.Main(args, CtlCfg)

@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
+	"git.parallelcoin.io/pod/cmd/wallet"
 	ww "git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -27,14 +26,12 @@ type ShellCfg struct {
 }
 
 var (
-	
+	// ShellConfig is the combined app and log levels configuration
+	ShellConfig = DefaultShellConfig()
 )
 
-// ShellConfig is the combined app and log levels configuration
-var ShellConfig = DefaultShellConfig()
-
-// Command is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
-var Command = climax.Command{
+// ShellCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+var ShellCommand = climax.Command{
 	Name:  "shell",
 	Brief: "parallelcoin combined full node and wallet",
 	Help:  "distrubutes, verifies and mines blocks for the parallelcoin duo cryptocurrency, as well as optionally providing search indexes for transactions in the database, and provides RPC and GUI interfaces for a built-in wallet",
@@ -158,8 +155,9 @@ var Command = climax.Command{
 				dl,
 			}
 			Log.SetLevel(dl)
-			for i := range logger.Levels {
-				logger.Levels[i].SetLevel(dl)
+			ll := GetAllSubSystems()
+			for i := range ShellConfig.Levels {
+				ll[i].SetLevel(dl)
 			}
 		}
 		log <- cl.Debugf{
@@ -181,7 +179,7 @@ var Command = climax.Command{
 				"writing default configuration to %s", cfgFile,
 			}
 			WriteDefaultShellConfig(cfgFile)
-			configNode(&ctx, cfgFile)
+			configShell(&ctx, cfgFile)
 		} else {
 			log <- cl.Infof{
 				"loading configuration from %s",
@@ -192,7 +190,7 @@ var Command = climax.Command{
 					"configuration file does not exist, creating new one",
 				)
 				WriteDefaultShellConfig(cfgFile)
-				configNode(&ctx, cfgFile)
+				configShell(&ctx, cfgFile)
 			} else {
 				log <- cl.Debug{
 					"reading app configuration from", cfgFile,
@@ -203,370 +201,365 @@ var Command = climax.Command{
 					cl.Shutdown()
 				}
 				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-				err = json.Unmarshal(cfgData, &Config)
+				err = json.Unmarshal(cfgData, &ShellConfig)
 				log <- cl.Dbg("finished processing config file")
 				if err != nil {
 					log <- cl.Error{"parsing app configuration:", err.Error()}
 					cl.Shutdown()
 				}
-				configNode(&ctx, cfgFile)
+				configShell(&ctx, cfgFile)
 			}
 		}
-		runShell()
+		runShell(ctx.Args)
 		cl.Shutdown()
 		return 0
 	},
 }
 
-func configNode(ctx *climax.Context, cfgFile string) {
+func configShell(ctx *climax.Context, cfgFile string) {
 	fmt.Println("configuring from command line flags")
-	var r *string
-	t := ""
-	r = &t
-
 	// Node and general stuff
-	if getIfIs(ctx, "debuglevel", r) {
-		switch *r {
+	if r, ok := getIfIs(ctx, "debuglevel"); ok {
+		switch r {
 		case "fatal", "error", "warn", "info", "debug", "trace":
-			Config.Node.DebugLevel = *r
+			ShellConfig.Node.DebugLevel = r
 		default:
-			Config.Node.DebugLevel = "info"
+			ShellConfig.Node.DebugLevel = "info"
 		}
-		Log.SetLevel(Config.Node.DebugLevel)
+		Log.SetLevel(ShellConfig.Node.DebugLevel)
 	}
-	if getIfIs(ctx, "datadir", r) {
-		Config.Node.DataDir = node.CleanAndExpandPath(*r)
+	if r, ok := getIfIs(ctx, "datadir"); ok {
+		ShellConfig.Node.DataDir = node.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "addpeers", r) {
-		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.AddPeers)
+	if r, ok := getIfIs(ctx, "addpeers"); ok {
+		NormalizeAddresses(r, node.DefaultPort, &ShellConfig.Node.AddPeers)
 	}
-	if getIfIs(ctx, "connectpeers", r) {
-		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.ConnectPeers)
+	if r, ok := getIfIs(ctx, "connectpeers"); ok {
+		NormalizeAddresses(r, node.DefaultPort, &ShellConfig.Node.ConnectPeers)
 	}
-	if getIfIs(ctx, "disablelisten", r) {
-		Config.Node.DisableListen = *r == "true"
+	if r, ok := getIfIs(ctx, "disablelisten"); ok {
+		ShellConfig.Node.DisableListen = r == "true"
 	}
-	if getIfIs(ctx, "listeners", r) {
-		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.Listeners)
+	if r, ok := getIfIs(ctx, "listeners"); ok {
+		NormalizeAddresses(r, node.DefaultPort, &ShellConfig.Node.Listeners)
 	}
-	if getIfIs(ctx, "maxpeers", r) {
-		if err := pu.ParseInteger(*r, "maxpeers", &Config.Node.MaxPeers); err != nil {
+	if r, ok := getIfIs(ctx, "maxpeers"); ok {
+		if err := ParseInteger(r, "maxpeers", &ShellConfig.Node.MaxPeers); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "disablebanning", r) {
-		Config.Node.DisableBanning = *r == "true"
+	if r, ok := getIfIs(ctx, "disablebanning"); ok {
+		ShellConfig.Node.DisableBanning = r == "true"
 	}
-	if getIfIs(ctx, "banduration", r) {
-		if err := pu.ParseDuration(*r, "banduration", &Config.Node.BanDuration); err != nil {
+	if r, ok := getIfIs(ctx, "banduration"); ok {
+		if err := ParseDuration(r, "banduration", &ShellConfig.Node.BanDuration); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "banthreshold", r) {
+	if r, ok := getIfIs(ctx, "banthreshold"); ok {
 		var bt int
-		if err := pu.ParseInteger(*r, "banthtreshold", &bt); err != nil {
+		if err := ParseInteger(r, "banthtreshold", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			Config.Node.BanThreshold = uint32(bt)
+			ShellConfig.Node.BanThreshold = uint32(bt)
 		}
 	}
-	if getIfIs(ctx, "whitelists", r) {
-		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.Whitelists)
+	if r, ok := getIfIs(ctx, "whitelists"); ok {
+		NormalizeAddresses(r, node.DefaultPort, &ShellConfig.Node.Whitelists)
 	}
-	// if getIfIs(ctx, "rpcuser", r) {
-	// 	Config.Node.RPCUser = *r
+	// if getIfIs(ctx, "rpcuser");ok {
+	// 	ShellConfig.Node.RPCUser = r
 	// }
-	// if getIfIs(ctx, "rpcpass", r) {
-	// 	Config.Node.RPCPass = *r
+	// if getIfIs(ctx, "rpcpass");ok {
+	// 	ShellConfig.Node.RPCPass = r
 	// }
-	// if getIfIs(ctx, "rpclimituser", r) {
-	// 	Config.Node.RPCLimitUser = *r
+	// if getIfIs(ctx, "rpclimituser");ok {
+	// 	ShellConfig.Node.RPCLimitUser = r
 	// }
-	// if getIfIs(ctx, "rpclimitpass", r) {
-	// 	Config.Node.RPCLimitPass = *r
+	// if getIfIs(ctx, "rpclimitpass");ok {
+	// 	ShellConfig.Node.RPCLimitPass = r
 	// }
-	// if getIfIs(ctx, "rpclisteners", r) {
-	pu.NormalizeAddresses(node.DefaultRPCListener, node.DefaultRPCPort, &Config.Node.RPCListeners)
+	// if getIfIs(ctx, "rpclisteners");ok {
+	NormalizeAddresses(node.DefaultRPCListener, node.DefaultRPCPort, &ShellConfig.Node.RPCListeners)
 	// }
-	// if getIfIs(ctx, "rpccert", r) {
-	// 	Config.Node.RPCCert = node.CleanAndExpandPath(*r)
+	// if getIfIs(ctx, "rpccert");ok {
+	// 	ShellConfig.Node.RPCCert = node.CleanAndExpandPath(r)
 	// }
-	// if getIfIs(ctx, "rpckey", r) {
-	// 	Config.Node.RPCKey = node.CleanAndExpandPath(*r)
+	// if getIfIs(ctx, "rpckey");ok {
+	// 	ShellConfig.Node.RPCKey = node.CleanAndExpandPath(r)
 	// }
-	// if getIfIs(ctx, "tls", r) {
-	// Config.Node.TLS = *r == "true"
+	// if getIfIs(ctx, "tls");ok {
+	// ShellConfig.Node.TLS = r == "true"
 	// }
-	Config.Node.TLS = false
-	if getIfIs(ctx, "disablednsseed", r) {
-		Config.Node.DisableDNSSeed = *r == "true"
+	ShellConfig.Node.TLS = false
+	if r, ok := getIfIs(ctx, "disablednsseed"); ok {
+		ShellConfig.Node.DisableDNSSeed = r == "true"
 	}
-	if getIfIs(ctx, "externalips", r) {
-		pu.NormalizeAddresses(*r, node.DefaultPort, &Config.Node.ExternalIPs)
+	if r, ok := getIfIs(ctx, "externalips"); ok {
+		NormalizeAddresses(r, node.DefaultPort, &ShellConfig.Node.ExternalIPs)
 	}
-	if getIfIs(ctx, "proxy", r) {
-		pu.NormalizeAddress(*r, "9050", &Config.Node.Proxy)
+	if r, ok := getIfIs(ctx, "proxy"); ok {
+		NormalizeAddress(r, "9050", &ShellConfig.Node.Proxy)
 	}
-	if getIfIs(ctx, "proxyuser", r) {
-		Config.Node.ProxyUser = *r
+	if r, ok := getIfIs(ctx, "proxyuser"); ok {
+		ShellConfig.Node.ProxyUser = r
 	}
-	if getIfIs(ctx, "proxypass", r) {
-		Config.Node.ProxyPass = *r
+	if r, ok := getIfIs(ctx, "proxypass"); ok {
+		ShellConfig.Node.ProxyPass = r
 	}
-	if getIfIs(ctx, "onion", r) {
-		pu.NormalizeAddress(*r, "9050", &Config.Node.OnionProxy)
+	if r, ok := getIfIs(ctx, "onion"); ok {
+		NormalizeAddress(r, "9050", &ShellConfig.Node.OnionProxy)
 	}
-	if getIfIs(ctx, "onionuser", r) {
-		Config.Node.OnionProxyUser = *r
+	if r, ok := getIfIs(ctx, "onionuser"); ok {
+		ShellConfig.Node.OnionProxyUser = r
 	}
-	if getIfIs(ctx, "onionpass", r) {
-		Config.Node.OnionProxyPass = *r
+	if r, ok := getIfIs(ctx, "onionpass"); ok {
+		ShellConfig.Node.OnionProxyPass = r
 	}
-	if getIfIs(ctx, "noonion", r) {
-		Config.Node.NoOnion = *r == "true"
+	if r, ok := getIfIs(ctx, "noonion"); ok {
+		ShellConfig.Node.NoOnion = r == "true"
 	}
-	if getIfIs(ctx, "torisolation", r) {
-		Config.Node.TorIsolation = *r == "true"
+	if r, ok := getIfIs(ctx, "torisolation"); ok {
+		ShellConfig.Node.TorIsolation = r == "true"
 	}
-	if getIfIs(ctx, "network", r) {
-		switch *r {
+	if r, ok := getIfIs(ctx, "network"); ok {
+		switch r {
 		case "testnet":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = true, false, false
+			ShellConfig.Node.TestNet3, ShellConfig.Node.RegressionTest, ShellConfig.Node.SimNet = true, false, false
 		case "regtest":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, true, false
+			ShellConfig.Node.TestNet3, ShellConfig.Node.RegressionTest, ShellConfig.Node.SimNet = false, true, false
 		case "simnet":
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, false, true
+			ShellConfig.Node.TestNet3, ShellConfig.Node.RegressionTest, ShellConfig.Node.SimNet = false, false, true
 		default:
-			Config.Node.TestNet3, Config.Node.RegressionTest, Config.Node.SimNet = false, false, false
+			ShellConfig.Node.TestNet3, ShellConfig.Node.RegressionTest, ShellConfig.Node.SimNet = false, false, false
 		}
 	}
-	if getIfIs(ctx, "addcheckpoints", r) {
-		Config.Node.AddCheckpoints = strings.Split(*r, " ")
+	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
+		ShellConfig.Node.AddCheckpoints = strings.Split(r, " ")
 	}
-	if getIfIs(ctx, "disablecheckpoints", r) {
-		Config.Node.DisableCheckpoints = *r == "true"
+	if r, ok := getIfIs(ctx, "disablecheckpoints"); ok {
+		ShellConfig.Node.DisableCheckpoints = r == "true"
 	}
-	if getIfIs(ctx, "dbtype", r) {
-		Config.Node.DbType = *r
+	if r, ok := getIfIs(ctx, "dbtype"); ok {
+		ShellConfig.Node.DbType = r
 	}
-	if getIfIs(ctx, "profile", r) {
-		Config.Node.Profile = node.NormalizeAddress(*r, "11034")
+	if r, ok := getIfIs(ctx, "profile"); ok {
+		ShellConfig.Node.Profile = node.NormalizeAddress(r, "11034")
 	}
-	if getIfIs(ctx, "cpuprofile", r) {
-		Config.Node.CPUProfile = node.NormalizeAddress(*r, "11033")
+	if r, ok := getIfIs(ctx, "cpuprofile"); ok {
+		ShellConfig.Node.CPUProfile = node.NormalizeAddress(r, "11033")
 	}
-	if getIfIs(ctx, "upnp", r) {
-		Config.Node.Upnp = *r == "true"
+	if r, ok := getIfIs(ctx, "upnp"); ok {
+		ShellConfig.Node.Upnp = r == "true"
 	}
-	if getIfIs(ctx, "minrelaytxfee", r) {
-		if err := pu.ParseFloat(*r, "minrelaytxfee", &Config.Node.MinRelayTxFee); err != nil {
+	if r, ok := getIfIs(ctx, "minrelaytxfee"); ok {
+		if err := ParseFloat(r, "minrelaytxfee", &ShellConfig.Node.MinRelayTxFee); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "freetxrelaylimit", r) {
-		if err := pu.ParseFloat(*r, "freetxrelaylimit", &Config.Node.FreeTxRelayLimit); err != nil {
+	if r, ok := getIfIs(ctx, "freetxrelaylimit"); ok {
+		if err := ParseFloat(r, "freetxrelaylimit", &ShellConfig.Node.FreeTxRelayLimit); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "norelaypriority", r) {
-		Config.Node.NoRelayPriority = *r == "true"
+	if r, ok := getIfIs(ctx, "norelaypriority"); ok {
+		ShellConfig.Node.NoRelayPriority = r == "true"
 	}
-	if getIfIs(ctx, "trickleinterval", r) {
-		if err := pu.ParseDuration(*r, "trickleinterval", &Config.Node.TrickleInterval); err != nil {
+	if r, ok := getIfIs(ctx, "trickleinterval"); ok {
+		if err := ParseDuration(r, "trickleinterval", &ShellConfig.Node.TrickleInterval); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "maxorphantxs", r) {
-		if err := pu.ParseInteger(*r, "maxorphantxs", &Config.Node.MaxOrphanTxs); err != nil {
+	if r, ok := getIfIs(ctx, "maxorphantxs"); ok {
+		if err := ParseInteger(r, "maxorphantxs", &ShellConfig.Node.MaxOrphanTxs); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "algo", r) {
-		Config.Node.Algo = *r
+	if r, ok := getIfIs(ctx, "algo"); ok {
+		ShellConfig.Node.Algo = r
 	}
-	if getIfIs(ctx, "generate", r) {
-		Config.Node.Generate = *r == "true"
+	if r, ok := getIfIs(ctx, "generate"); ok {
+		ShellConfig.Node.Generate = r == "true"
 	}
-	if getIfIs(ctx, "genthreads", r) {
+	if r, ok := getIfIs(ctx, "genthreads"); ok {
 		var gt int
-		if err := pu.ParseInteger(*r, "genthreads", &gt); err != nil {
+		if err := ParseInteger(r, "genthreads", &gt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			Config.Node.GenThreads = int32(gt)
+			ShellConfig.Node.GenThreads = int32(gt)
 		}
 	}
-	if getIfIs(ctx, "miningaddrs", r) {
-		Config.Node.MiningAddrs = strings.Split(*r, " ")
+	if r, ok := getIfIs(ctx, "miningaddrs"); ok {
+		ShellConfig.Node.MiningAddrs = strings.Split(r, " ")
 	}
-	if getIfIs(ctx, "minerlistener", r) {
-		pu.NormalizeAddress(*r, node.DefaultRPCPort, &Config.Node.MinerListener)
+	if r, ok := getIfIs(ctx, "minerlistener"); ok {
+		NormalizeAddress(r, node.DefaultRPCPort, &ShellConfig.Node.MinerListener)
 	}
-	if getIfIs(ctx, "minerpass", r) {
-		Config.Node.MinerPass = *r
+	if r, ok := getIfIs(ctx, "minerpass"); ok {
+		ShellConfig.Node.MinerPass = r
 	}
-	if getIfIs(ctx, "blockminsize", r) {
-		if err := pu.ParseUint32(*r, "blockminsize", &Config.Node.BlockMinSize); err != nil {
+	if r, ok := getIfIs(ctx, "blockminsize"); ok {
+		if err := ParseUint32(r, "blockminsize", &ShellConfig.Node.BlockMinSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "blockmaxsize", r) {
-		if err := pu.ParseUint32(*r, "blockmaxsize", &Config.Node.BlockMaxSize); err != nil {
+	if r, ok := getIfIs(ctx, "blockmaxsize"); ok {
+		if err := ParseUint32(r, "blockmaxsize", &ShellConfig.Node.BlockMaxSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "blockminweight", r) {
-		if err := pu.ParseUint32(*r, "blockminweight", &Config.Node.BlockMinWeight); err != nil {
+	if r, ok := getIfIs(ctx, "blockminweight"); ok {
+		if err := ParseUint32(r, "blockminweight", &ShellConfig.Node.BlockMinWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "blockmaxweight", r) {
-		if err := pu.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockMaxWeight); err != nil {
+	if r, ok := getIfIs(ctx, "blockmaxweight"); ok {
+		if err := ParseUint32(r, "blockmaxweight", &ShellConfig.Node.BlockMaxWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "blockprioritysize", r) {
-		if err := pu.ParseUint32(*r, "blockmaxweight", &Config.Node.BlockPrioritySize); err != nil {
+	if r, ok := getIfIs(ctx, "blockprioritysize"); ok {
+		if err := ParseUint32(r, "blockmaxweight", &ShellConfig.Node.BlockPrioritySize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
-	if getIfIs(ctx, "uacomment", r) {
-		Config.Node.UserAgentComments = strings.Split(*r, " ")
+	if r, ok := getIfIs(ctx, "uacomment"); ok {
+		ShellConfig.Node.UserAgentComments = strings.Split(r, " ")
 	}
-	if getIfIs(ctx, "nopeerbloomfilters", r) {
-		Config.Node.NoPeerBloomFilters = *r == "true"
+	if r, ok := getIfIs(ctx, "nopeerbloomfilters"); ok {
+		ShellConfig.Node.NoPeerBloomFilters = r == "true"
 	}
-	if getIfIs(ctx, "nocfilters", r) {
-		Config.Node.NoCFilters = *r == "true"
+	if r, ok := getIfIs(ctx, "nocfilters"); ok {
+		ShellConfig.Node.NoCFilters = r == "true"
 	}
 	if ctx.Is("dropcfindex") {
-		Config.Node.DropCfIndex = true
+		ShellConfig.Node.DropCfIndex = true
 	}
-	if getIfIs(ctx, "sigcachemaxsize", r) {
+	if r, ok := getIfIs(ctx, "sigcachemaxsize"); ok {
 		var scms int
-		if err := pu.ParseInteger(*r, "sigcachemaxsize", &scms); err != nil {
+		if err := ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			Config.Node.SigCacheMaxSize = uint(scms)
+			ShellConfig.Node.SigCacheMaxSize = uint(scms)
 		}
 	}
-	if getIfIs(ctx, "blocksonly", r) {
-		Config.Node.BlocksOnly = *r == "true"
+	if r, ok := getIfIs(ctx, "blocksonly"); ok {
+		ShellConfig.Node.BlocksOnly = r == "true"
 	}
-	if getIfIs(ctx, "txindex", r) {
-		Config.Node.TxIndex = *r == "true"
+	if r, ok := getIfIs(ctx, "txindex"); ok {
+		ShellConfig.Node.TxIndex = r == "true"
 	}
 	if ctx.Is("droptxindex") {
-		Config.Node.DropTxIndex = true
+		ShellConfig.Node.DropTxIndex = true
 	}
-	if ctx.Is("addrindex") {
-		r, _ := ctx.Get("addrindex")
-		Config.Node.AddrIndex = r == "true"
+	if r, ok := getIfIs(ctx, "addrindex"); ok {
+		ShellConfig.Node.AddrIndex = r == "true"
 	}
 	if ctx.Is("dropaddrindex") {
-		Config.Node.DropAddrIndex = true
+		ShellConfig.Node.DropAddrIndex = true
 	}
-	if getIfIs(ctx, "relaynonstd", r) {
-		Config.Node.RelayNonStd = *r == "true"
+	if r, ok := getIfIs(ctx, "relaynonstd"); ok {
+		ShellConfig.Node.RelayNonStd = r == "true"
 	}
-	if getIfIs(ctx, "rejectnonstd", r) {
-		Config.Node.RejectNonStd = *r == "true"
+	if r, ok := getIfIs(ctx, "rejectnonstd"); ok {
+		ShellConfig.Node.RejectNonStd = r == "true"
 	}
 
 	// Wallet stuff
 
 	if ctx.Is("create") {
-		Config.Wallet.Create = true
+		ShellConfig.Wallet.Create = true
 	}
 	if ctx.Is("createtemp") {
-		Config.Wallet.CreateTemp = true
+		ShellConfig.Wallet.CreateTemp = true
 	}
-	if getIfIs(ctx, "appdatadir", r) {
-		Config.Wallet.AppDataDir = node.CleanAndExpandPath(*r)
+	if r, ok := getIfIs(ctx, "appdatadir"); ok {
+		ShellConfig.Wallet.AppDataDir = node.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "noinitialload", r) {
-		Config.Wallet.NoInitialLoad = *r == "true"
+	if r, ok := getIfIs(ctx, "noinitialload"); ok {
+		ShellConfig.Wallet.NoInitialLoad = r == "true"
 	}
-	if getIfIs(ctx, "logdir", r) {
-		Config.Wallet.LogDir = node.CleanAndExpandPath(*r)
+	if r, ok := getIfIs(ctx, "logdir"); ok {
+		ShellConfig.Wallet.LogDir = node.CleanAndExpandPath(r)
 	}
-	if getIfIs(ctx, "profile", r) {
-		pu.NormalizeAddress(*r, "3131", &Config.Wallet.Profile)
+	if r, ok := getIfIs(ctx, "profile"); ok {
+		NormalizeAddress(r, "3131", &ShellConfig.Wallet.Profile)
 	}
-	if getIfIs(ctx, "gui", r) {
-		Config.Wallet.GUI = *r == "true"
+	if r, ok := getIfIs(ctx, "gui"); ok {
+		ShellConfig.Wallet.GUI = r == "true"
 	}
-	if getIfIs(ctx, "walletpass", r) {
-		Config.Wallet.WalletPass = *r
+	if r, ok := getIfIs(ctx, "walletpass"); ok {
+		ShellConfig.Wallet.WalletPass = r
 	}
-	// if getIfIs(ctx, "rpcconnect", r) {
-	pu.NormalizeAddress(node.DefaultRPCListener, "11048", &Config.Wallet.RPCConnect)
+	// if getIfIs(ctx, "rpcconnect");ok {
+	NormalizeAddress(node.DefaultRPCListener, "11048", &ShellConfig.Wallet.RPCConnect)
 	// }
-	if getIfIs(ctx, "cafile", r) {
-		Config.Wallet.CAFile = node.CleanAndExpandPath(*r)
+	if r, ok := getIfIs(ctx, "cafile"); ok {
+		ShellConfig.Wallet.CAFile = node.CleanAndExpandPath(r)
 	}
-	// if getIfIs(ctx, "enableclienttls", r) {
-	// 	Config.Wallet.EnableClientTLS = *r == "true"
+	// if getIfIs(ctx, "enableclienttls");ok {
+	// 	ShellConfig.Wallet.EnableClientTLS = r == "true"
 	// }
-	// if getIfIs(ctx, "podusername", r) {
-	Config.Wallet.PodUsername = Config.Node.RPCUser
+	// if getIfIs(ctx, "podusername");ok {
+	ShellConfig.Wallet.PodUsername = ShellConfig.Node.RPCUser
 	// }
-	// if getIfIs(ctx, "podpassword", r) {
-	Config.Wallet.PodPassword = Config.Node.RPCPass
+	// if getIfIs(ctx, "podpassword");ok {
+	ShellConfig.Wallet.PodPassword = ShellConfig.Node.RPCPass
 	// }
-	if getIfIs(ctx, "onetimetlskey", r) {
-		Config.Wallet.OneTimeTLSKey = *r == "true"
+	if r, ok := getIfIs(ctx, "onetimetlskey"); ok {
+		ShellConfig.Wallet.OneTimeTLSKey = r == "true"
 	}
-	if getIfIs(ctx, "enableservertls", r) {
-		Config.Wallet.EnableServerTLS = *r == "true"
+	if r, ok := getIfIs(ctx, "enableservertls"); ok {
+		ShellConfig.Wallet.EnableServerTLS = r == "true"
 	}
-	if getIfIs(ctx, "legacyrpclisteners", r) {
-		pu.NormalizeAddresses(*r, "11046", &Config.Wallet.LegacyRPCListeners)
+	if r, ok := getIfIs(ctx, "legacyrpclisteners"); ok {
+		NormalizeAddresses(r, "11046", &ShellConfig.Wallet.LegacyRPCListeners)
 	}
-	if getIfIs(ctx, "legacyrpcmaxclients", r) {
+	if r, ok := getIfIs(ctx, "legacyrpcmaxclients"); ok {
 		var bt int
-		if err := pu.ParseInteger(*r, "legacyrpcmaxclients", &bt); err != nil {
+		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			Config.Wallet.LegacyRPCMaxClients = int64(bt)
+			ShellConfig.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
 	}
-	if getIfIs(ctx, "legacyrpcmaxwebsockets", r) {
-		_, err := fmt.Sscanf(*r, "%d", Config.Wallet.LegacyRPCMaxWebsockets)
+	if r, ok := getIfIs(ctx, "legacyrpcmaxwebsockets"); ok {
+		_, err := fmt.Sscanf(r, "%d", ShellConfig.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
 			log <- cl.Errorf{
 				`malformed legacyrpcmaxwebsockets: "%s" leaving set at "%d"`,
 				r,
-				Config.Wallet.LegacyRPCMaxWebsockets,
+				ShellConfig.Wallet.LegacyRPCMaxWebsockets,
 			}
 		}
 	}
-	if getIfIs(ctx, "username", r) {
-		Config.Wallet.Username = *r
+	if r, ok := getIfIs(ctx, "username"); ok {
+		ShellConfig.Wallet.Username = r
 	}
-	if getIfIs(ctx, "password", r) {
-		Config.Wallet.Password = *r
+	if r, ok := getIfIs(ctx, "password"); ok {
+		ShellConfig.Wallet.Password = r
 	}
-	if getIfIs(ctx, "experimentalrpclisteners", r) {
-		pu.NormalizeAddresses(*r, "11045", &Config.Wallet.ExperimentalRPCListeners)
+	if r, ok := getIfIs(ctx, "experimentalrpclisteners"); ok {
+		NormalizeAddresses(r, "11045", &ShellConfig.Wallet.ExperimentalRPCListeners)
 	}
-	if getIfIs(ctx, "network", r) {
-		switch *r {
+	if r, ok := getIfIs(ctx, "network"); ok {
+		switch r {
 		case "testnet":
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = true, false
+			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = true, false
 		case "simnet":
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, true
+			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, true
 		default:
-			Config.Wallet.TestNet3, Config.Wallet.SimNet = false, false
+			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, false
 		}
 	}
 
-	logger.SetLogging(ctx)
+	SetLogging(ctx)
 	if ctx.Is("save") {
 		log <- cl.Infof{
 			"saving config file to %s",
 			cfgFile,
 		}
-		j, err := json.MarshalIndent(Config, "", "  ")
+		j, err := json.MarshalIndent(ShellConfig, "", "  ")
 		if err != nil {
 			log <- cl.Error{"saving config file:", err.Error()}
 		}
@@ -579,8 +572,8 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	}
 }
 
-// WriteConfig creates and writes the config file in the requested location
-func WriteConfig(cfgFile string, c *ShellCfg) {
+// WriteShellConfig creates and writes the config file in the requested location
+func WriteShellConfig(cfgFile string, c *ShellCfg) {
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		panic(err.Error())
@@ -607,13 +600,13 @@ func WriteDefaultShellConfig(cfgFile string) {
 		log <- cl.Error{"writing default config:", err.Error()}
 	}
 	// if we are writing default config we also want to use it
-	Config = defCfg
+	ShellConfig = defCfg
 }
 
 // DefaultShellConfig returns a default configuration
 func DefaultShellConfig() *ShellCfg {
-	rpcusername := pu.GenKey()
-	rpcpassword := pu.GenKey()
+	rpcusername := GenKey()
+	rpcpassword := GenKey()
 	return &ShellCfg{
 		DataDir:      DefaultDataDir,
 		AppDataDir:   DefaultAppDataDir,
@@ -655,6 +648,6 @@ func DefaultShellConfig() *ShellCfg {
 			LegacyRPCMaxClients:    walletmain.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: walletmain.DefaultRPCMaxWebsockets,
 		},
-		Levels: logger.GetDefaultConfig(),
+		Levels: GetDefaultLogLevelsConfig(),
 	}
 }
