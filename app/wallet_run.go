@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/module/wallet"
+	"git.parallelcoin.io/pod/cmd/wallet"
 )
 
 func runNode() {

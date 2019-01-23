@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/pod/pkg/json"
-	"git.parallelcoin.io/pod/module/wallet/internal/rpchelp"
+	"git.parallelcoin.io/pod/cmd/wallet/internal/rpchelp"
 )
 
 func serverMethods() map[string]struct{} {

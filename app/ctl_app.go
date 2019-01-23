@@ -11,8 +11,8 @@ import (
 	"github.com/tucnak/climax"
 )
 
-// Config is the default configuration native to ctl
-var Config = new(ctl.Config)
+// CtlConfig is the default configuration native to ctl
+var CtlConfig = new(ctl.Config)
 
 
 
@@ -112,13 +112,6 @@ var CtlCommand = climax.Command{
 		cl.Shutdown()
 		return 0
 	},
-}
-
-func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
-	if ctx.Is(name) {
-		return ctx.Get(name)
-	}
-	return
 }
 
 func configCtl(ctx *climax.Context, cfgFile string) {

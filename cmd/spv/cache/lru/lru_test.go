@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"git.parallelcoin.io/pod/module/spv/cache"
+	"git.parallelcoin.io/pod/cmd/spv/cache"
 )
 
 func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {

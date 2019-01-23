@@ -10,7 +10,6 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/cmd/node"
 	"github.com/tucnak/climax"
 )
 
@@ -112,13 +111,6 @@ var ConfCommand = climax.Command{
 		runCtl()
 		return 0
 	},
-}
-
-func getIfIs(ctx *climax.Context, name string) (out string, ok bool) {
-	if ctx.Is(name) {
-		return ctx.Get(name)
-	}
-	return
 }
 
 func configConf(ctx *climax.Context, cfgFile string) {

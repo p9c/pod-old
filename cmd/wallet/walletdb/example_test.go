@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
 )
 
 // This example demonstrates creating a new database.
@@ -15,8 +15,8 @@ func ExampleCreate() {
 	// This example assumes the bdb (bolt db) driver is imported.
 	//
 	// import (
-	// 	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	// 	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+	// 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	// 	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
 	// )
 
 	// Create a database and schedule it to be closed and removed on exit.
@@ -98,8 +98,8 @@ func Example_basicUsage() {
 	// This example assumes the bdb (bolt db) driver is imported.
 	//
 	// import (
-	// 	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	// 	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+	// 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	// 	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
 	// )
 
 	// Create a database and schedule it to be closed and removed on exit.

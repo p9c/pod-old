@@ -1,4 +1,4 @@
 package app
 
-func runCtl() {
+func runConf() {
 }

@@ -27,11 +27,11 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/module/wallet/votingpool"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/votingpool"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 )
 
 var (

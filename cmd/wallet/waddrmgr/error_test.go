@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 )
 
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.

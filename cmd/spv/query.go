@@ -13,8 +13,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/module/spv/cache"
-	"git.parallelcoin.io/pod/module/spv/filterdb"
+	"git.parallelcoin.io/pod/cmd/spv/cache"
+	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"github.com/davecgh/go-spew/spew"
 )
 

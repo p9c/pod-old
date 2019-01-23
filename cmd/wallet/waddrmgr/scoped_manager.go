@@ -8,8 +8,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	"git.parallelcoin.io/pod/module/wallet/zero"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/zero"
 )
 
 // DerivationPath represents a derivation path from a particular key manager's

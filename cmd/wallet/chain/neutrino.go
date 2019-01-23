@@ -15,9 +15,9 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-	sac "git.parallelcoin.io/pod/module/spv"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	sac "git.parallelcoin.io/pod/cmd/spv"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.

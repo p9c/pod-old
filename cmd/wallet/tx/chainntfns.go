@@ -6,10 +6,10 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
-	"git.parallelcoin.io/pod/module/wallet/chain"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/chain"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 )
 
 func (w *Wallet) handleChainNotifications() {

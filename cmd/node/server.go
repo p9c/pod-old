@@ -34,7 +34,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/bloom"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/module/node/mempool"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 )
 
 const (

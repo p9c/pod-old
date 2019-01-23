@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	bolt "github.com/coreos/bbolt"
 )
 

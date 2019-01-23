@@ -14,9 +14,9 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/module/wallet/snacl"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/snacl"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	"github.com/davecgh/go-spew/spew"
 )
 

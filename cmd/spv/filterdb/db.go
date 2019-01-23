@@ -7,7 +7,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 )
 
 var (

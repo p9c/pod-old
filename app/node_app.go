@@ -17,9 +17,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/util"
-	n "git.parallelcoin.io/pod/module/node"
-	"git.parallelcoin.io/pod/module/node/mempool"
-	"git.parallelcoin.io/pod/run/util"
+	n "git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
@@ -229,15 +228,6 @@ var NodeCommand = climax.Command{
 		cl.Shutdown()
 		return 0
 	},
-}
-
-func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
-	if ctx.Is(name) {
-		var s string
-		s, ok = ctx.Get(name)
-		r = &s
-	}
-	return
 }
 
 func configNode(ctx *climax.Context, cfgFile string) {

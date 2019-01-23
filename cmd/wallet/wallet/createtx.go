@@ -12,10 +12,10 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/module/wallet/wallet/txauthor"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet/txauthor"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 )
 
 // byAmount defines the methods needed to satisify sort.Interface to

@@ -4,7 +4,7 @@ import (
 	"net/url"
 
 	"git.parallelcoin.io/pod/gui/vue"
-	"git.parallelcoin.io/pod/module/wallet/gui/jdb"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/jdb"
 	"github.com/zserge/webview"
 )
 

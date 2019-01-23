@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/module/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 )
 
 func TestPoolEnsureUsedAddr(t *testing.T) {

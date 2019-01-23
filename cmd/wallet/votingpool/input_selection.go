@@ -9,8 +9,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	"git.parallelcoin.io/pod/module/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
 )
 
 const eligibleInputMinConfirmations = 100

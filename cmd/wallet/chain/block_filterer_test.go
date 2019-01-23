@@ -8,7 +8,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/module/wallet/chain"
+	"git.parallelcoin.io/pod/cmd/wallet/chain"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 

@@ -2,9 +2,7 @@ package app
 
 import (
 	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/cmd/conf"
 	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/shell"
 	"github.com/tucnak/climax"
 )
 

@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/btcjson"
-	"git.parallelcoin.io/pod/module/wallet/internal/rpchelp"
+	"git.parallelcoin.io/pod/cmd/wallet/internal/rpchelp"
 )
 
 var outputFile = func() *os.File {

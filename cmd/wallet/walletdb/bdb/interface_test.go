@@ -12,7 +12,7 @@ import (
 	"os"
 	"testing"
 
-	"git.parallelcoin.io/pod/module/wallet/walletdb/walletdbtest"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb/walletdbtest"
 )
 
 // TestInterface performs all interfaces tests for this database driver.

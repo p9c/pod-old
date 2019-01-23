@@ -89,15 +89,6 @@ func GetDefault() map[string]*cl.SubSystem {
 	}
 }
 
-func getIfIs(ctx *climax.Context, name string, r *string) (ok bool) {
-	if ctx.Is(name) {
-		var s string
-		s, ok = ctx.Get(name)
-		r = &s
-	}
-	return
-}
-
 func setIfIs(ctx *climax.Context, name string) {
 	var r *string
 	t := ""

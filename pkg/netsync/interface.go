@@ -7,7 +7,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/module/node/mempool"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 )
 
 // PeerNotifier exposes methods to notify peers of status changes to transactions, blocks, etc. Currently server (in the main package) implements this interface.

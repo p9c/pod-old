@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/module/wallet/legacy/keystore"
+	"git.parallelcoin.io/pod/cmd/wallet/legacy/keystore"
 	"github.com/btcsuite/golangcrypto/ssh/terminal"
 )
 

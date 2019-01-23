@@ -6,7 +6,7 @@ package wallettx
 import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 )
 
 // OutputSelectionPolicy describes the rules for selecting an output from the

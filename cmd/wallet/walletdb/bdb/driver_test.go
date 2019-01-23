@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/module/wallet/walletdb/bdb"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
 )
 
 // dbType is the database type name for this driver.

@@ -5,7 +5,7 @@ package zero_test
 import (
 	"testing"
 
-	. "git.parallelcoin.io/pod/module/wallet/internal/zero"
+	. "git.parallelcoin.io/pod/cmd/wallet/internal/zero"
 )
 
 var (

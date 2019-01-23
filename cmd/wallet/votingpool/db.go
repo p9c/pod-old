@@ -8,8 +8,8 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/module/wallet/snacl"
-	"git.parallelcoin.io/pod/module/wallet/walletdb"
+	"git.parallelcoin.io/pod/cmd/wallet/snacl"
+	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
