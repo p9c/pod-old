@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"git.parallelcoin.io/pod/lib/blockchain"
-	"git.parallelcoin.io/pod/lib/blockchain/indexers"
-	"git.parallelcoin.io/pod/lib/database"
-	"git.parallelcoin.io/pod/lib/limits"
-	l "git.parallelcoin.io/pod/lib/log"
+	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	"git.parallelcoin.io/pod/pkg/database"
+	"git.parallelcoin.io/pod/pkg/limits"
+	l "git.parallelcoin.io/pod/pkg/log"
 )
 
 const (
