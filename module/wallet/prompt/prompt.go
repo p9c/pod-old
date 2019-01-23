@@ -31,9 +31,8 @@ func ProvideSeed() ([]byte, error) {
 		if err != nil || len(seed) < hdkeychain.MinSeedBytes ||
 			len(seed) > hdkeychain.MaxSeedBytes {
 
-			fmt.Printf("Invalid seed specified.  Must be a "+
-				"hexadecimal value that is at least %d bits and "+
-				"at most %d bits\n", hdkeychain.MinSeedBytes*8,
+			fmt.Printf(
+				"Invalid seed specified.  Must be a hexadecimal value that is at least %d bits and at most %d bits\n", hdkeychain.MinSeedBytes*8,
 				hdkeychain.MaxSeedBytes*8)
 			continue
 		}
@@ -45,7 +44,7 @@ func ProvideSeed() ([]byte, error) {
 // ProvidePrivPassphrase is used to prompt for the private passphrase which
 // maybe required during upgrades.
 func ProvidePrivPassphrase() ([]byte, error) {
-	prompt := "Enter the private passphrase of your wallet: "
+	prompt := "enter the private passphrase for your wallet: "
 	for {
 		fmt.Print(prompt)
 		pass, err := terminal.ReadPassword(int(os.Stdin.Fd()))
@@ -157,19 +156,16 @@ func PrivatePass(reader *bufio.Reader, legacyKeyStore *keystore.Store) ([]byte, 
 	// When there is not an existing legacy wallet, simply prompt the user
 	// for a new private passphase and return it.
 	if legacyKeyStore == nil {
-		return promptPass(reader, "Enter the private "+
-			"passphrase for your new wallet", true)
+		return promptPass(reader,
+			"Enter the private passphrase for your new wallet", true)
 	}
 
 	// At this point, there is an existing legacy wallet, so prompt the user
 	// for the existing private passphrase and ensure it properly unlocks
 	// the legacy wallet so all of the addresses can later be imported.
-	fmt.Println("You have an existing legacy wallet.  All addresses from " +
-		"your existing legacy wallet will be imported into the new " +
-		"wallet format.")
+	fmt.Println("You have an existing legacy wallet.  All addresses from your existing legacy wallet will be imported into the new wallet format.")
 	for {
-		privPass, err := promptPass(reader, "Enter the private "+
-			"passphrase for your existing wallet", false)
+		privPass, err := promptPass(reader, "Enter the private passphrase for your existing wallet", false)
 		if err != nil {
 			return nil, err
 		}
