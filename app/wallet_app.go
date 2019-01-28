@@ -148,7 +148,7 @@ func configWallet(ctx *climax.Context, cfgFile string) {
 		WalletConfig.Wallet.AppDataDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "noinitialload"); ok {
-		log <- cl.Dbg("")
+		log <- cl.Dbg("no initial load requested")
 		WalletConfig.Wallet.NoInitialLoad = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "logdir"); ok {

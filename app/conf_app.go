@@ -9,7 +9,7 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	"github.com/tucnak/climax"
 )
@@ -83,10 +83,6 @@ var ConfCommand = climax.Command{
 		},
 	},
 	Handle: func(ctx climax.Context) int {
-		if ctx.Is("version") {
-			fmt.Println("pod conf version", Version())
-			os.Exit(0)
-		}
 		if ctx.Is("init") {
 			WriteDefaultConfConfig(confFile)
 		} else {

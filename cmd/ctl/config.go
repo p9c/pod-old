@@ -2,16 +2,13 @@ package ctl
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"git.parallelcoin.io/pod/pkg/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	flags "github.com/jessevdk/go-flags"
 )
 
 const (
@@ -136,6 +133,7 @@ func cleanAndExpandPath(path string) string {
 	return filepath.Clean(os.ExpandEnv(path))
 }
 
+/*
 // loadConfig initializes and parses the config using a config file and command line options.
 // The configuration proceeds as follows:
 // 	1) Start with a default config with sane settings
@@ -238,6 +236,9 @@ func loadConfig() (*Config, []string, error) {
 	return &cfg, remainingArgs, nil
 }
 
+*/
+
+/*
 // createDefaultConfig creates a basic config file at the given destination path. For this it tries to read the config file for the RPC server (either pod or sac), and extract the RPC user and password from it.
 func createDefaultConfigFile(destinationPath, serverConfigPath string) error {
 	// Read the RPC server config
@@ -299,3 +300,4 @@ func createDefaultConfigFile(destinationPath, serverConfigPath string) error {
 	dest.WriteString(output)
 	return nil
 }
+*/

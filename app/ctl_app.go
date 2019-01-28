@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -50,6 +50,7 @@ var CtlCommand = climax.Command{
 		},
 	},
 	Handle: func(ctx climax.Context) int {
+		Log.SetLevel("off")
 		if dl, ok := ctx.Get("debuglevel"); ok {
 			log <- cl.Trace{
 				"setting debug level", dl,

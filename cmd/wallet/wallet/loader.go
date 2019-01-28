@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/cmd/wallet/prompt"
 	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/pkg/chaincfg"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 const (
@@ -165,6 +165,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 
 	// Ensure that the network directory exists.
 	if err := checkCreateDir(l.dbDirPath); err != nil {
+		log <- cl.Error{"cannot create directory", l.dbDirPath}
 		return nil, err
 	}
 

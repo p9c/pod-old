@@ -8,10 +8,10 @@ import (
 	_ "net/http/pprof"
 	"sync"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/cmd/wallet/chain"
 	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 var (
@@ -43,6 +43,12 @@ func Main(c *Config) error {
 
 	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
+	if cfg.Create {
+		if err := CreateWallet(cfg); err != nil {
+			log <- cl.Error{"failed to create wallet", err}
+			cl.Shutdown()
+		}
+	}
 
 	// Create and start HTTP server to serve wallet client connections.
 	// This will be updated with the wallet and chain server RPC client
@@ -55,7 +61,7 @@ func Main(c *Config) error {
 		}
 		return err
 	}
-
+	log <- cl.Debug{"noinitialload", cfg.NoInitialLoad}
 	// Create and start chain RPC client so it's ready to connect to
 	// the wallet when loaded later.
 	if !cfg.NoInitialLoad {
@@ -68,8 +74,9 @@ func Main(c *Config) error {
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
+	log <- cl.Debug{"initial wallet database load", cfg.NoInitialLoad}
 	if !cfg.NoInitialLoad {
-		log <- cl.Trc("opening existing wallet")
+		log <- cl.Debug{"loading database"}
 		// Load the wallet database.  It must have been created already
 		// or this will return an appropriate error.
 		_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
