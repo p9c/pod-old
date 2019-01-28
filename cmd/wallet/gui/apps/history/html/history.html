@@ -1,0 +1,102 @@
+<div class="tile is-ancestor">
+
+  <div class="tile is-parent"  v-bar>
+    <div class="tile is-child box is-radiusless">
+      <p class="title" v-html="vlng.senttransactionshistory"></p>
+    <b-field grouped group-multiline>
+            <b-select v-model="perPage" :disabled="!isPaginated">
+                <option value="10">10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+            </b-select>
+            <div class="control is-flex">
+                <b-switch v-model="isPaginated">Paginated</b-switch>
+            </div>
+            <div class="control is-flex">
+                <b-switch v-model="isPaginationSimple" :disabled="!isPaginated">Simple pagination</b-switch>
+            </div>
+        </b-field>
+    <b-table
+        :data="transactions"
+        :opened-detailed="defaultOpenedDetails"
+        detailed
+        detail-key="txid"
+        @details-open="(row, index) => $toast.open(`Expanded ${row.address}`)"
+            :paginated="isPaginated"
+            :per-page="perPage"
+            :current-page.sync="currentPage"
+            :pagination-simple="isPaginationSimple"
+            default-sort="time"
+            >
+
+        <template slot-scope="props">
+
+
+            <b-table-column field="time" label="Date" numeric sortable centered>
+<span>
+    {{ new Date(props.row.time).toLocaleDateString() }}
+    {{ new Date(props.row.time).toLocaleTimeString() }}
+</span>
+            </b-table-column>
+
+<b-table-column field="address" label="Address" sortable><span v-html="props.row.address" class="tag"></span></b-table-column>
+<b-table-column field="amount" label="Amount" sortable v-html="props.row.amount"></b-table-column>
+
+            <b-table-column label="Gender">
+<b-icon pack="fa"
+    :icon="props.row.gender === 'Send' ? 'mars' : 'venus'">
+</b-icon>
+{{ props.row.category }}
+            </b-table-column>
+        </template>
+
+        <template slot="detail" slot-scope="props">
+            <article class="media">
+<figure class="media-left">
+    <p class="image is-64x64">
+        <img src="https://buefy.github.io/static/img/placeholder-128x128.png">
+    </p>
+</figure>
+<div class="media-content">
+
+    <div class="content">
+    <table><tr><td>
+    <table>
+    <tr><th>TxID</th><td><b-tag type="is-warning" v-html="props.row.txid"></b-tag></td><tr>
+    <tr><th>Abandoned</th><td><span v-html="props.row.abandoned"></span></td><tr>
+    <tr><th>Account</th><td><span v-html="props.row.account"></span></td><tr>
+    <tr><th>Address</th><td><b-tag type="is-info" size="is-medium" v-html="props.row.address"></b-tag></td><tr>
+    <tr><th>Blockhash</th><td><b-tag type="is-dark" v-html="props.row.blockhash"></b-tag></td><tr>
+    <tr><th>Confirmations</th><td><span v-html="props.row.confirmations"></span></td><tr>
+    <tr><th>Generated</th><td><span v-html="props.row.generated"></span></td><tr>
+    <tr><th>Trusted</th><td><span v-html="props.row.trusted"></span></td><tr>
+
+    <tr><th>Wallet conflicts</th><td><span v-html="props.row.walletconflicts"></span></td><tr>
+
+    </table></td><td><table>
+    <tr><th>Category</th><td><b-tag><span v-html="props.row.category"></span></td><tr>
+    <tr><th>Time</th><td><b-tag><span>
+    {{ new Date(props.row.time).toLocaleDateString() }}
+    {{ new Date(props.row.time).toLocaleTimeString() }}
+</span></b-tag></td><tr>    
+<tr><th>Block time</th><td><b-tag><span>
+    {{ new Date(props.row.blocktime).toLocaleDateString() }}
+    {{ new Date(props.row.blocktime).toLocaleTimeString() }}
+</span></b-tag></td><tr>
+<tr><th>Time received</th><td><b-tag><span>
+    {{ new Date(props.row.timereceived).toLocaleDateString() }}
+    {{ new Date(props.row.timereceived).toLocaleTimeString() }}
+</span></b-tag></td><tr>
+
+    </table></td></tr></table>
+
+    </div>
+</div>
+            </article>
+        </template>
+    </b-table>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<form id="sendform" @submit.prevent="saveInterfaceConfForm">
+ <p class="title" v-html="language.data.interface"></p>
+
+<div class="field is-horizontal">
+  <div class="field-label is-normal"><label class="label">Language</label></div>
+  <div class="field-body"><div class="field"><div class="control">
+        <b-select placeholder="Language" name="lang" value="conf.data.Interface.lang" v-model="conf.data.Interface.lang" >
+                <option value="en">English</option>
+                <option value="rs">Српски</option>
+                <option value="fr">Français</option>
+            </b-select>
+  </div></div></div></div>
+
+
+  <div class="field is-horizontal">
+  <div class="field-body"><div class="field"><div class="control">
+                <button type="submit" class="button is-large is-success">Save</button>
+  </div></div></div></div>
+  
+  </form
