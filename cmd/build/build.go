@@ -21,7 +21,7 @@ func main() {
 	args := `-X `
 	args += S[1]
 	args += `/app.Stamp=`
-	args += time.Now().UTC().Format("v06.0102.1504")
+	args += time.Now().UTC().Format("v06.01.02.15")
 
 	var dir string
 	dir, err = os.Getwd()
@@ -29,7 +29,7 @@ func main() {
 		log.Fatal(err)
 	}
 	dir += "/bin/pod"
-	cmd := exec.Command("go", "build", "-o", dir, "-ldflags", args, "-race", "-v")
+	cmd := exec.Command("go", "build", "-o", dir, "-ldflags", args, "-v")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()

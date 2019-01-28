@@ -3,8 +3,8 @@ package gui
 import (
 	"net/url"
 
-	"git.parallelcoin.io/lib/gui/jdb"
-	"git.parallelcoin.io/lib/gui/vue"
+	"git.parallelcoin.io/pod/pkg/gui/jdb"
+	"git.parallelcoin.io/pod/pkg/gui/vue"
 	"github.com/zserge/webview"
 )
 
