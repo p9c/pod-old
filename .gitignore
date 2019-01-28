@@ -16,3 +16,5 @@
 docker/legacy/data/*
 
 test/docker/legacy/data/
+bin/pod
+bin/bld

@@ -12,3 +12,9 @@ It consists of 4 main modules:
 4. pod/shell - combined full node and wallet server with optional GUI
 
 The shell is currently a simple wallet but will be expanded into a full application framework/shell.
+
+## Building
+
+To make life simpler, there is a builder app in `cmd/` and if you source init.sh `. init.sh` it will set your path to include the `bin/` directory and build and place an executable `bld` in there which builds the main project executable, with the version timestamp set, and puts it also in there so then after that you can test how it works after you make changes.
+
+Otherwise, you can just `go install` in the root directory and `pod` will be placed in your `GOBIN` directory.

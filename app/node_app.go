@@ -64,7 +64,7 @@ var NodeCommand = climax.Command{
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
 
-		f("network", "connect to (mainnet|testnet|simnet"),
+		f("network", "connect to (mainnet|testnet|simnet)"),
 
 		f("txindex", "enable transaction index"),
 		f("addrindex", "enable address index"),
