@@ -23,7 +23,6 @@ var CtlCommand = climax.Command{
 		t("version", "V", "show version number and quit"),
 		s("configfile", "C", ctl.DefaultConfigFile, "Path to configuration file"),
 
-		t("listcommands", "l", "list available commands"),
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
 		t("wallet", "w", "uses configured walletrpc instead of full node rpc"),
@@ -37,7 +36,7 @@ var CtlCommand = climax.Command{
 		s("rpccert", "c", "rpc.cert", "RPC server certificate chain for validation"),
 		f("skipverify", "false", "do not verify tls certificates"),
 
-		s("debuglevel", "d", "off", "sets logging level"),
+		s("debuglevel", "d", "off", "sets logging level (off|fatal|error|info|debug|trace)"),
 
 		f("proxy", "", "connect via SOCKS5 proxy"),
 		f("proxyuser", "user", "username for proxy server"),
@@ -114,6 +113,9 @@ var CtlCommand = climax.Command{
 		return 0
 	},
 }
+
+// CtlFlags is the list of flags and the default values stored in the Usage field
+var CtlFlags = GetFlags(CtlCommand)
 
 func configCtl(ctx *climax.Context, cfgFile string) {
 	var r string

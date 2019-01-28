@@ -382,7 +382,7 @@ func init() {
 				if color {
 					s = colorstring.Color("[reset]")
 				}
-				t = time.Now().UTC().Format("06-01-02 15:04:05.000000")
+				t = time.Now().UTC().Format("06-01-02 15:04:05.000")
 				switch i.(type) {
 				case Fatalc:
 					s += i.(Fatalc)() + "\n"

@@ -246,6 +246,9 @@ var NodeCommand = climax.Command{
 	},
 }
 
+// NodeFlags is the list of flags and the default values stored in the Usage field
+var NodeFlags = GetFlags(NodeCommand)
+
 func configNode(ctx *climax.Context, cfgFile string) {
 	var err error
 	if r, ok := getIfIs(ctx, "debuglevel"); ok {

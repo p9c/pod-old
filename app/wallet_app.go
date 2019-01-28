@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
@@ -18,9 +19,6 @@ type WalletCfg struct {
 	Wallet *w.Config
 	Levels map[string]string
 }
-
-// WalletConfig is the combined app and log levels configuration
-var WalletConfig = DefaultWalletConfig()
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var WalletCommand = climax.Command{
@@ -85,13 +83,23 @@ var WalletCommand = climax.Command{
 
 		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
-	Examples: []climax.Example{
-		{
-			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
-			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
-		},
-	},
-	Handle: func(ctx climax.Context) int {
+	// Examples: []climax.Example{
+	// 	{
+	// 		Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
+	// 		Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
+	// 	},
+	// },
+}
+
+// WalletConfig is the combined app and log levels configuration
+var WalletConfig = DefaultWalletConfig()
+
+// wf is the list of flags and the default values stored in the Usage field
+var wf = GetFlags(WalletCommand)
+
+func init() {
+	// Loads after the var clauses run
+	WalletCommand.Handle = func(ctx climax.Context) int {
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
@@ -138,7 +146,7 @@ var WalletCommand = climax.Command{
 		runWallet(ctx.Args)
 		cl.Shutdown()
 		return 0
-	},
+	}
 }
 
 func configWallet(ctx *climax.Context, cfgFile string) {
@@ -158,10 +166,6 @@ func configWallet(ctx *climax.Context, cfgFile string) {
 	if r, ok := getIfIs(ctx, "noinitialload"); ok {
 		log <- cl.Dbg("no initial load requested")
 		WalletConfig.Wallet.NoInitialLoad = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "logdir"); ok {
-		log <- cl.Dbg("")
-		WalletConfig.Wallet.LogDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "profile"); ok {
 		log <- cl.Dbg("")
@@ -278,7 +282,6 @@ func configWallet(ctx *climax.Context, cfgFile string) {
 	}
 
 	// finished configuration
-
 	SetLogging(ctx)
 
 	if ctx.Is("save") {
@@ -330,19 +333,37 @@ func WriteDefaultWalletConfig(cfgFile string) {
 // DefaultWalletConfig returns a default configuration
 func DefaultWalletConfig() *WalletCfg {
 	log <- cl.Dbg("getting default config")
+	legacymaxrpcclients, _ := strconv.ParseInt(wf["legacymaxrpcclients"], 10, 64)
+	legacymaxrpcwebsockets, _ := strconv.ParseInt(wf["legacymaxrpcwebsockets"], 10, 64)
+
 	return &WalletCfg{
 		Wallet: &w.Config{
-			NoInitialLoad:          false,
-			ConfigFile:             w.DefaultConfigFile,
-			DataDir:                w.DefaultDataDir,
-			AppDataDir:             w.DefaultAppDataDir,
-			LogDir:                 w.DefaultLogDir,
-			RPCKey:                 w.DefaultRPCKeyFile,
-			RPCCert:                w.DefaultRPCCertFile,
-			WalletPass:             "",
-			CAFile:                 "",
-			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
-			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
+			ConfigFile:      wf["configfile"],
+			DataDir:         wf["datadir"],
+			AppDataDir:      wf["appdatadir"],
+			RPCConnect:      wf["rpcconnect"],
+			PodUsername:     wf["podusername"],
+			PodPassword:     wf["podpassword"],
+			WalletPass:      wf["walletpass"],
+			NoInitialLoad:   wf["noinitialload"] == "true",
+			RPCCert:         wf["rpccert"],
+			RPCKey:          wf["rpckey"],
+			CAFile:          wf["cafile"],
+			EnableClientTLS: wf["enableclienttls"] == "true",
+			EnableServerTLS: wf["enableservertls"] == "true",
+			Proxy:           wf["proxy"],
+			ProxyUser:       wf["proxyuser"],
+			ProxyPass:       wf["proxypass"],
+			LegacyRPCListeners: []string{
+				wf["legacyrpclisteners"],
+			},
+			LegacyRPCMaxClients:    legacymaxrpcclients,
+			LegacyRPCMaxWebsockets: legacymaxrpcwebsockets,
+			Username:               wf["username"],
+			Password:               wf["password"],
+			ExperimentalRPCListeners: []string{
+				wf["experimentalrpclisteners"],
+			},
 		},
 		Levels: GetDefaultLogLevelsConfig(),
 	}

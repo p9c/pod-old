@@ -217,6 +217,9 @@ var ShellCommand = climax.Command{
 	},
 }
 
+// ShellFlags is the list of flags and the default values stored in the Usage field
+var ShellFlags = GetFlags(ShellCommand)
+
 func configShell(ctx *climax.Context, cfgFile string) {
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
 	if ctx.Is("create") {
