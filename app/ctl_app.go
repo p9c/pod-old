@@ -262,6 +262,7 @@ func WriteDefaultCtlConfig(cfgFile string) {
 // DefaultCtlConfig returns an allocated, default CtlCfg
 func DefaultCtlConfig() *ctl.Config {
 	return &ctl.Config{
+		ConfigFile:    ctl.DefaultConfigFile,
 		DebugLevel:    "off",
 		RPCUser:       "user",
 		RPCPass:       "pa55word",
