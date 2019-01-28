@@ -3,7 +3,7 @@ package vue
 import (
 	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"github.com/parallelcointeam/pod/btcjson"
+	"git.parallelcoin.io/pod/pkg/json"
 	// "github.com/parallelcointeam/pod/rpcclient"
 )
 
@@ -14,12 +14,12 @@ var MODS Modules = Modules{}
 var WLT *wallet.Wallet
 
 type BlockChain struct {
-	GetInfo                 *btcjson.InfoWalletResult        `json:"getinfo"`
-	ListTransactions        []btcjson.ListTransactionsResult `json:"listtransactions"`
-	ListAllTransactions     []btcjson.ListTransactionsResult `json:"listalltransactions"`
-	ListAllSendTransactions []btcjson.ListTransactionsResult `json:"listallsendtransactions"`
-	Balance                 float64                          `json:"balance"`
-	UnConfirmed             float64                          `json:"unconfirmed"`
+	GetInfo                 *json.InfoWalletResult        `json:"getinfo"`
+	ListTransactions        []json.ListTransactionsResult `json:"listtransactions"`
+	ListAllTransactions     []json.ListTransactionsResult `json:"listalltransactions"`
+	ListAllSendTransactions []json.ListTransactionsResult `json:"listallsendtransactions"`
+	Balance                 float64                       `json:"balance"`
+	UnConfirmed             float64                       `json:"unconfirmed"`
 	// GetInfo interface{} `json:"getinfo"`
 }
 type SendToAddress struct {
@@ -39,7 +39,7 @@ func (k *BlockChain) GetInfoData() {
 	k.ListAllTransactions, _ = WLT.ListAllTransactions()
 
 	// List Send Transactions
-	var listallsendtransactions []btcjson.ListTransactionsResult
+	var listallsendtransactions []json.ListTransactionsResult
 	for _, sent := range k.ListAllTransactions {
 		if sent.Category == "send" {
 			listallsendtransactions = append(listallsendtransactions, sent)
