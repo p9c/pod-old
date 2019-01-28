@@ -16,18 +16,17 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
-
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/pkg/blockchain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/database"
 	_ "git.parallelcoin.io/pod/pkg/database/ffldb"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"github.com/btcsuite/go-socks/socks"
 	flags "github.com/jessevdk/go-flags"
 )
@@ -70,9 +69,9 @@ const (
 	DefaultMaxOrphanTxSize       = 100000
 	DefaultSigCacheMaxSize       = 100000
 	// These are set to default on because more often one wants them than not
-	DefaultTxIndex               = true
-	DefaultAddrIndex             = true
-	DefaultAlgo                  = "random"
+	DefaultTxIndex   = true
+	DefaultAddrIndex = true
+	DefaultAlgo      = "random"
 )
 
 var (

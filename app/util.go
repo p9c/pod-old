@@ -15,7 +15,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-
 var defaultUser, defaultPass = "user", "pa55word"
 
 // GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
@@ -131,9 +130,10 @@ func ParseDuration(d, name string, out *time.Duration) (err error) {
 }
 
 // GenFlag allows a flag to be more concisely declared
-func GenFlag(name, help string) climax.Flag {
+func GenFlag(name, usage, help string) climax.Flag {
 	return climax.Flag{
 		Name:     name,
+		Usage:    "--" + name + `="` + usage + `"`,
 		Help:     help,
 		Variable: true,
 	}
@@ -150,10 +150,11 @@ func GenTrig(name, short, help string) climax.Flag {
 }
 
 // GenShort is a short declaration for a variable with a short version
-func GenShort(name, short, help string) climax.Flag {
+func GenShort(name, short, usage, help string) climax.Flag {
 	return climax.Flag{
 		Name:     name,
 		Short:    short,
+		Usage:    "--" + name + `="` + usage + `"`,
 		Help:     help,
 		Variable: true,
 	}
@@ -163,6 +164,7 @@ func GenShort(name, short, help string) climax.Flag {
 func GenLog(name string) climax.Flag {
 	return climax.Flag{
 		Name:     name,
+		Usage:    "--" + name + `="info"`,
 		Variable: true,
 	}
 }

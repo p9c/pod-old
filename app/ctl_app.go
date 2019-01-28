@@ -21,28 +21,29 @@ var CtlCommand = climax.Command{
 	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
 	Flags: []climax.Flag{
 		t("version", "V", "show version number and quit"),
+		s("configfile", "C", ctl.DefaultConfigFile, "Path to configuration file"),
 
 		t("listcommands", "l", "list available commands"),
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
 		t("wallet", "w", "uses configured walletrpc instead of full node rpc"),
 
-		f("walletrpc", "wallet RPC address to try when given wallet RPC queries"),
-		f("rpcuser", "RPC username"),
-		s("rpcpass", "P", "RPC password"),
-		s("rpcserver", "s", "RPC server to connect to"),
-		f("tls", "enable/disable (true|false)"),
-		s("rpccert", "c", "RPC server certificate chain for validation"),
-		f("skipverify", "do not verify tls certificates"),
+		f("walletrpc", ctl.DefaultRPCServer,
+			"wallet RPC address to try when given wallet RPC queries"),
+		f("rpcuser", "user", "RPC username"),
+		s("rpcpass", "P", "pa55word", "RPC password"),
+		s("rpcserver", "s", "127.0.0.1:11048", "RPC server to connect to"),
+		f("tls", "false", "enable/disable (true|false)"),
+		s("rpccert", "c", "rpc.cert", "RPC server certificate chain for validation"),
+		f("skipverify", "false", "do not verify tls certificates"),
 
-		s("configfile", "C", "Path to configuration file"),
-		s("debuglevel", "d", "sets logging level"),
+		s("debuglevel", "d", "off", "sets logging level"),
 
-		f("proxy", "connect via SOCKS5 proxy"),
-		f("proxyuser", "username for proxy server"),
-		f("proxypass", "password for proxy server"),
+		f("proxy", "", "connect via SOCKS5 proxy"),
+		f("proxyuser", "user", "username for proxy server"),
+		f("proxypass", "pa55word", "password for proxy server"),
 
-		f("network", "connect to (mainnet|testnet|simnet"),
+		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
 	Examples: []climax.Example{
 		{

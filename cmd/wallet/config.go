@@ -35,6 +35,7 @@ var (
 	DefaultLogFilePath = filepath.Join(DefaultAppDataDir, "log")
 	DefaultLogDir      = DefaultAppDataDir
 	DefaultGUI         = false
+	DefaultListener    = "127.0.0.1:11046"
 )
 
 type Config struct {

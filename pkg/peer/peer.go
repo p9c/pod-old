@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
 	"git.parallelcoin.io/pod/pkg/blockchain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
@@ -27,7 +27,7 @@ const (
 	// MaxProtocolVersion is the max protocol version the peer supports.
 	MaxProtocolVersion = wire.FeeFilterVersion
 	// DefaultTrickleInterval is the min time between attempts to send an inv message to a peer.
-	DefaultTrickleInterval = time.Second * 9
+	DefaultTrickleInterval = time.Second * 1
 	// MinAcceptableProtocolVersion is the lowest protocol version that a connected peer may support.
 	MinAcceptableProtocolVersion = 1
 	// outputBufferSize is the number of elements the output channels use.
