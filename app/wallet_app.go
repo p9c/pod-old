@@ -10,7 +10,7 @@ import (
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/netparams"
 	"git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -23,7 +23,7 @@ type WalletCfg struct {
 // WalletConfig is the combined app and log levels configuration
 var WalletConfig = DefaultWalletConfig()
 
-// Wallet is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+// WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var WalletCommand = climax.Command{
 	Name:  "wallet",
 	Brief: "parallelcoin wallet",
@@ -94,6 +94,7 @@ var WalletCommand = climax.Command{
 				ll[i].SetLevel(dl)
 			}
 		}
+		log <- cl.Trc("starting wallet app")
 		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
 		if ctx.Is("version") {
 			fmt.Println("pod/wallet version", w.Version())
@@ -126,24 +127,24 @@ var WalletCommand = climax.Command{
 			}
 		}
 		configWallet(&ctx, cfgFile)
-		runNode()
+		runWallet(ctx.Args)
 		cl.Shutdown()
 		return 0
 	},
 }
 
 func configWallet(ctx *climax.Context, cfgFile string) {
-	log <- cl.Debug{"configuring from command line flags ", os.Args}
+	log <- cl.Trace{"configuring from command line flags ", os.Args}
 	if ctx.Is("create") {
-		log <- cl.Dbg("")
+		log <- cl.Dbg("request to make new wallet")
 		WalletConfig.Wallet.Create = true
 	}
 	if ctx.Is("createtemp") {
-		log <- cl.Dbg("")
+		log <- cl.Dbg("request to make temp wallet")
 		WalletConfig.Wallet.CreateTemp = true
 	}
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
-		log <- cl.Dbg("")
+		log <- cl.Debug{"appdatadir set to", r}
 		WalletConfig.Wallet.AppDataDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "noinitialload"); ok {
