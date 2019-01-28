@@ -1,8 +1,8 @@
 package vue
 
 import (
-	"github.com/parallelcointeam/mod/waddrmgr"
-	"github.com/parallelcointeam/mod/wallet"
+	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	"github.com/parallelcointeam/pod/btcjson"
 	// "github.com/parallelcointeam/pod/rpcclient"
 )

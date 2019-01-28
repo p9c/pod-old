@@ -16,6 +16,7 @@ require (
 	github.com/dchest/blake256 v1.0.0
 	github.com/ebfe/keccak v0.0.0-20150115210727-5cc570678d1b
 	github.com/golang/protobuf v1.2.0
+	github.com/google/martian v2.1.0+incompatible
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kkdai/bstream v0.0.0-20181106074824-b3251f7901ec

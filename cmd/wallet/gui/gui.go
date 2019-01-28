@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/parallelcointeam/mod/gui/apps"
-	"github.com/parallelcointeam/mod/gui/conf"
-	"github.com/parallelcointeam/mod/gui/libs"
-	"github.com/parallelcointeam/mod/gui/vue"
-	"github.com/parallelcointeam/mod/wallet"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/apps"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/conf"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/libs"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/vue"
+	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	"github.com/zserge/webview"
 )
 

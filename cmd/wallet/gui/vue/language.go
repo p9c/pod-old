@@ -3,7 +3,7 @@ package vue
 import (
 	"fmt"
 
-	"github.com/parallelcointeam/mod/gui/jdb"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/jdb"
 )
 
 // "github.com/parallelcointeam/pod/rpcclient"

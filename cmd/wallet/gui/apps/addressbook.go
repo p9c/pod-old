@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/parallelcointeam/mod/gui/jdb"
-	"github.com/parallelcointeam/mod/gui/vue"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/jdb"
+	"git.parallelcoin.io/pod/cmd/wallet/gui/vue"
 )
 
 // var VAB []AddressBook
