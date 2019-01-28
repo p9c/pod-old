@@ -6,7 +6,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
-// VersionApp is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+// VersionCmd is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var VersionCmd = climax.Command{
 	Name:  "version",
 	Brief: "prints the version of pod",

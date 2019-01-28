@@ -9,7 +9,6 @@ import (
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/cmd/wallet/netparams"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
@@ -331,7 +330,7 @@ func DefaultWalletConfig() *WalletCfg {
 			LogDir:                 w.DefaultLogDir,
 			RPCKey:                 w.DefaultRPCKeyFile,
 			RPCCert:                w.DefaultRPCCertFile,
-			WalletPass:             wallet.InsecurePubPassphrase,
+			WalletPass:             "",
 			CAFile:                 "",
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,

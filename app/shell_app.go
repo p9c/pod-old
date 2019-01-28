@@ -9,9 +9,9 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	ww "git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -172,7 +172,7 @@ var ShellCommand = climax.Command{
 		}
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = DefaultConfFileName
+			cfgFile = DefaultShellConfFileName
 		}
 		if ctx.Is("init") {
 			log <- cl.Debugf{
@@ -609,8 +609,8 @@ func DefaultShellConfig() *ShellCfg {
 	rpcpassword := GenKey()
 	return &ShellCfg{
 		DataDir:      DefaultDataDir,
-		AppDataDir:   DefaultAppDataDir,
-		ConfFileName: DefaultConfFileName,
+		AppDataDir:   DefaultShellDataDir,
+		ConfFileName: DefaultShellConfFileName,
 		Node: &node.Config{
 			RPCUser:              rpcusername,
 			RPCPass:              rpcpassword,

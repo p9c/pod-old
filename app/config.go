@@ -1,17 +1,23 @@
 package app
 
-import(
- "git.parallelcoin.io/pod/pkg/util"
- "git.parallelcoin.io/pod/cmd/node"
- "path/filepath"
+import (
+	"path/filepath"
+
+	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/pkg/util"
 )
+
 var (
+	// AppName is the name of this application
 	AppName = "pod"
- 	DefaultDataDir = util.AppDataDir(AppName, false)
-	DefaultAppDataDir   = filepath.Join(
+	// DefaultDataDir is the default location for the data
+	DefaultDataDir = util.AppDataDir(AppName, false)
+	// DefaultShellDataDir is the default data directory for the shell
+	DefaultShellDataDir = filepath.Join(
 		node.DefaultHomeDir, "shell")
-	DefaultConfFileName = filepath.Join(
-		filepath.Join(node.DefaultHomeDir, "shell"), "conf"	)
+	// DefaultShellConfFileName is
+	DefaultShellConfFileName = filepath.Join(
+		filepath.Join(node.DefaultHomeDir, "shell"), "conf")
 	f = GenFlag
 	t = GenTrig
 	s = GenShort

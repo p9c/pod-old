@@ -25,8 +25,9 @@ var CtlCommand = climax.Command{
 		t("listcommands", "l", "list available commands"),
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
+		t("wallet", "w", "uses configured walletrpc instead of full node rpc"),
 
-		f("wallet", "wallet RPC address to try when given wallet RPC queries"),
+		f("walletrpc", "wallet RPC address to try when given wallet RPC queries"),
 		f("rpcuser", "RPC username"),
 		s("rpcpass", "P", "RPC password"),
 		s("rpcserver", "s", "RPC server to connect to"),
@@ -188,10 +189,14 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 			"set %s to true", "skipverify",
 		}
 	}
-	if r, ok = getIfIs(ctx, "wallet"); ok {
+	if ctx.Is("wallet") {
+		CtlCfg.RPCServer = CtlCfg.Wallet
+		log <- cl.Trc("using configured wallet rpc server")
+	}
+	if r, ok = getIfIs(ctx, "walletrpc"); ok {
 		CtlCfg.Wallet = r
 		log <- cl.Tracef{
-			"set %s to true", "wallet",
+			"set %s to true", "walletrpc",
 		}
 	}
 	if ctx.Is("save") {
@@ -229,7 +234,7 @@ func WriteCtlConfig(cfgFile string, cc *ctl.Config) {
 	}
 }
 
-// WriteDefaultConfig writes a default config in the requested location
+// WriteDefaultCtlConfig writes a default config in the requested location
 func WriteDefaultCtlConfig(cfgFile string) {
 	defCfg := DefaultCtlConfig()
 	defCfg.ConfigFile = cfgFile
@@ -266,6 +271,6 @@ func DefaultCtlConfig() *ctl.Config {
 		TestNet3:      false,
 		SimNet:        false,
 		TLSSkipVerify: false,
-		Wallet:        "",
+		Wallet:        ctl.DefaultWallet,
 	}
 }
