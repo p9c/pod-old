@@ -1,11 +1,11 @@
 package mempool
 
 import (
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("module/node/mempool", "info")
+var Log = cl.NewSubSystem("mempool      ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

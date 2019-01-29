@@ -21,8 +21,8 @@ import (
 	"git.parallelcoin.io/pod/cmd/spv/cache/lru"
 	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"git.parallelcoin.io/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
+	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/walletdb"
 )
 
 // These are exported variables so they can be changed by users.

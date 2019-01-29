@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("lib/peer", "info")
+var Log = cl.NewSubSystem("pkg/peer           ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

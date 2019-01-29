@@ -1,9 +1,13 @@
 package app
 
 import (
+	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	"git.parallelcoin.io/pod/cmd/spv"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/pkg/addrmgr"
 	"git.parallelcoin.io/pod/pkg/blockchain"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/database"
 	"git.parallelcoin.io/pod/pkg/database/ffldb"
@@ -11,20 +15,16 @@ import (
 	"git.parallelcoin.io/pod/pkg/mining/cpuminer"
 	"git.parallelcoin.io/pod/pkg/netsync"
 	"git.parallelcoin.io/pod/pkg/peer"
+	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/pkg/rpc/rpcserver"
 	"git.parallelcoin.io/pod/pkg/rpcclient"
 	"git.parallelcoin.io/pod/pkg/txscript"
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/cmd/spv"
-	"git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/cmd/wallet/chain"
-	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
-	"git.parallelcoin.io/pod/cmd/wallet/rpc/rpcserver"
-	"git.parallelcoin.io/pod/cmd/wallet/tx"
-	"git.parallelcoin.io/pod/cmd/wallet/votingpool"
-	"git.parallelcoin.io/pod/cmd/wallet/waddrmgr"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
-	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/votingpool"
+	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wallet"
+	"git.parallelcoin.io/pod/pkg/wallettx"
+	chain "git.parallelcoin.io/pod/pkg/wchain"
+	"git.parallelcoin.io/pod/pkg/wtxmgr"
 	"github.com/tucnak/climax"
 )
 
@@ -89,12 +89,11 @@ func GetAllSubSystems() map[string]*cl.SubSystem {
 	}
 }
 
-
 // SetLogging sets the logging settings according to the provided context
 func SetLogging(ctx *climax.Context) {
 	ss := GetAllSubSystems()
 	for i := range ss {
-		if lvl, ok:=ctx.Get(i); ok {
+		if lvl, ok := ctx.Get(i); ok {
 			ss[i].SetLevel(lvl)
 		}
 	}

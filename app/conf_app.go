@@ -10,7 +10,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
+	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 

@@ -1,11 +1,11 @@
 package database
 
 import (
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("lib/database", "info")
+var Log = cl.NewSubSystem("pkg/database        ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

@@ -9,20 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
-<<<<<<< HEAD
 	"git.parallelcoin.io/pod/pkg/util"
-<<<<<<< HEAD
-=======
-	"git.parallelcoin.io/pod/pkg/util"
->>>>>>> parent of 4e7e6f6... commit before it kills your machine
-	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
-	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
-=======
-	"git.parallelcoin.io/pod/cmd/wallet/walletdb"
-	_ "git.parallelcoin.io/pod/cmd/wallet/walletdb/bdb"
-	"git.parallelcoin.io/pod/cmd/wallet/wtxmgr"
->>>>>>> master
+	"git.parallelcoin.io/pod/pkg/walletdb"
+	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
+	"git.parallelcoin.io/pod/pkg/wtxmgr"
 	"github.com/jessevdk/go-flags"
 )
 

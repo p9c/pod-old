@@ -1,11 +1,11 @@
 package rpcclient
 
 import (
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 // Log is the logger for the rpcclient package
-var Log = cl.NewSubSystem("lib/rpcclient", "info")
+var Log = cl.NewSubSystem("pkg/rpcclient       ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

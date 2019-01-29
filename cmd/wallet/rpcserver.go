@@ -13,10 +13,10 @@ import (
 	"time"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/pkg/rpc/rpcserver"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
-	"git.parallelcoin.io/pod/cmd/wallet/rpc/rpcserver"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
+	"git.parallelcoin.io/pod/pkg/wallet"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

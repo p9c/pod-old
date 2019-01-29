@@ -1,56 +1,77 @@
 package gui
 
 import (
+	"fmt"
 	"net/url"
 
-	"git.parallelcoin.io/pod/pkg/gui/jdb"
+	"git.parallelcoin.io/pod/pkg/gui/apps"
+	"git.parallelcoin.io/pod/pkg/gui/conf"
+	"git.parallelcoin.io/pod/pkg/gui/libs"
 	"git.parallelcoin.io/pod/pkg/gui/vue"
+	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/zserge/webview"
 )
 
 type VDATA struct {
-	Pages map[string]string `json:"pages"`
-	Icons map[string]string `json:"icons"`
-	Imgs  map[string][]byte `json:"imgs"`
+	Config conf.Conf         `json:"config"`
+	Pages  map[string]string `json:"pages"`
+	Icons  map[string]string `json:"icons"`
+	Imgs   map[string][]byte `json:"imgs"`
 }
 
-func GUI() {
-	// libs := jdb.VueLibs
-	// pages := jdb.VuePages
+func GUI(wlt *wallet.Wallet) {
+	apps.InitApps()
+	vue.WLT = wlt
 	w := webview.New(webview.Settings{
 		Title:     "ParallelCoin - DUO - True Story",
-		Width:     1400,
-		Height:    800,
-		URL:       `data:text/html,` + url.PathEscape(string(jdb.VLB["apphtml"])),
+		Width:     1800,
+		Height:    960,
+		URL:       `data:text/html,` + url.PathEscape(string(libs.APP["apphtml"])),
 		Debug:     true,
 		Resizable: false,
 	})
 	defer w.Exit()
 	w.Dispatch(func() {
-		// w.Bind("blockchaindata", []interface{}{(*btcjson.InfoWalletResult)(nil)})
-		w.Bind("blockchaindata", &vue.BlockChainData{})
 
-		//w.Bind("icons", &icons)
+		w.Bind("blockchaindata", &vue.BlockChain{})
+		// w.Bind("sendtoaddress", &vue.SendToAddress{})
+		w.Bind("language", &vue.Language{})
+		w.Bind("addressbook", &apps.AddressBook{})
+		w.Bind("addressbooklabel", &apps.AddressBookLabel{})
+		for mn, md := range vue.MODS {
+			w.Bind(mn, &md)
+			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwwwwww", mn)
+		}
+		fmt.Println("vue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODS", vue.MODS)
+
+		w.Bind("reqpays", &vue.RequestedPaymentHistory{})
+		w.Bind("reqpay", &vue.RequestedPayment{})
+
+		w.Bind("rpcinterface", &vue.RPCInterface{})
+
+		w.Bind("conf", &conf.Conf{})
+
 		w.Bind("vuedata", &VDATA{
-			Pages: jdb.VPG,
-			Icons: jdb.VIC,
-			Imgs:  jdb.VIM,
+			Config: conf.VCF,
+			Pages:  libs.PGS,
+			Icons:  libs.VIC,
+			Imgs:   libs.VIM,
 		})
 
-		w.InjectCSS(string(jdb.VLB["buefycss"]))
-		w.InjectCSS(string(jdb.VLB["appcss"]))
+		for _, c := range libs.CSS {
+			w.InjectCSS(string(c))
+		}
 
-		w.Eval(string(jdb.VLB["vue"]))
-		w.Eval(string(jdb.VLB["easybar"]))
-		w.Eval(string(jdb.VLB["buefyjs"]))
+		for _, j := range libs.JSL {
+			w.Eval(string(j))
+		}
+		for _, v := range libs.VJS {
+			w.Eval(string(v))
+		}
 
-		w.Eval(string(jdb.VLB["settings"]))
-		w.Eval(string(jdb.VLB["comp"]))
+		w.Eval(string(libs.APP["appjs"]))
+		w.InjectCSS(string(libs.APP["appcss"]))
 
-		// w.Eval(string(jdb.VPG["home"]))
-
-		w.Eval(string(jdb.VLB["appjs"]))
-		// fmt.Println("daaaaaa", imgs)
 	})
 
 	w.Run()

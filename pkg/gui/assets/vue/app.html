@@ -2,38 +2,114 @@
 <html lang="en" >
 <head>
     <meta charset="UTF-8">
-    <title>ParallelCoin Wallet - True Story</title>
+    <title>ParallelCoin Wallet - {{lng.data.truestory}}</title>
 
 </head>
 <body>
-    <div id="app">
-    
-        <header id="header" class="fooa"><div class="flx cpt" @click="swapComponent(HomeC)" v-html="vdt.data.icons.logo"></div><div id="balance"><p>Current Balance</p><h2> bcd.data.getinfo  <span class="bold">DUO</span></h2></div></header>
-        <section id="mid">
-            <aside id="aside">
-                <nav id="nav" class="bxs">
-                    <button @click="swapComponent(HomeC)"><span v-html="vdt.data.icons.overview"></span><small>Overview</small></button>
-                    <button @click="swapComponent(SendC)"><span v-html="vdt.data.icons.send"></span><small>Send</small></button>
-                    <button @click="swapComponent(ReceiveC)"><span v-html="vdt.data.icons.receive"></span><small>Receive</small></button>
-                    <button @click="swapComponent(AddressBookC)"><span v-html="vdt.data.icons.addressbook"></span><small>Address Book</small></button>
-                    <button @click="swapComponent(HistoryC)"><span v-html="vdt.data.icons.history"></span><small>History</small></button>
-                </nav>
-            </aside>
-                      <main :is="component" id="content" :vicons="vdt.data.icons" class="scr vpage"></main>
+    <div id="app" class="">
+ <nav class="navbar box is-paddingless is-radiusless">
+  <div class="navbar-brand">
+    <span class="navbar-item" @click="swapComponent(HomeC)" v-html="vdt.data.icons.logo"></span>
+    <div class="navbar-burger burger" data-target="navMenuColorblack-example">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
 
-        </section>
-        <footer id="footer" class="cnt fooa">
-            <button @click="swapComponent(PeersC)" class="flc cpt" title="Peers" v-html="vdt.data.icons.peers"></button><span v-html="bcd.data.getinfo.connections"></span>
-            <button @click="swapComponent(BlocksC)" class="flc cpt" title="Blocks" v-html="vdt.data.icons.blocks"></button><span v-html="bcd.data.getinfo.blocks"></span>
-            <button @click="swapComponent(AboutC)" class="flc cpt" title="About" v-html="vdt.data.icons.about"></button>  
-            <button @click="swapComponent(HelpC)" class="flc cpt" title="Help" v-html="vdt.data.icons.help"></button>  
-            <button @click="swapComponent(SettingsC)" class="flc cpt" title="Settings" v-html="vdt.data.icons.settings"></button>  
-            <span>Balance 0.0000000 (0.0000000 unconfirmed) STATUS: Syncing... 10000 of 3030030</span>
-            <span class="netstat">
-                <div v-html="vdt.data.icons.linkoff"></div>
-                <div v-html="vdt.data.icons.link"></div>
-                <div v-html="vdt.data.icons.loading"></div>
-            </span>
+
+  <div id="navMenuColorblack-example" class="navbar-menu">
+    <div class="navbar-start">
+      <a @click="swapComponent(HomeC)" class="navbar-item">
+        <span class="icon" v-html="vdt.data.icons.overview"></span>
+        <span v-html="lng.data.overview"></span>
+      </a>
+
+      <a @click="swapComponent(SendC)" class="navbar-item">
+        <span class="icon" v-html="vdt.data.icons.send"></span>
+        <span v-html="lng.data.send"></span>
+      </a>
+
+      <a @click="swapComponent(ReceiveC)" class="navbar-item">
+        <span class="icon" v-html="vdt.data.icons.receive"></span>
+        <span v-html="lng.data.receive"></span>
+      </a>
+
+      <a @click="swapComponent(AddressBookC)" class="navbar-item">
+        <span class="icon" v-html="vdt.data.icons.addressbook"></span>
+        <span v-html="lng.data.addressbook"></span>
+      </a>
+
+      <a @click="swapComponent(HistoryC)" class="navbar-item">
+        <span class="icon" v-html="vdt.data.icons.history"></span>
+        <span v-html="lng.data.history"></span>
+      </a>
+
+
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link" @click="swapComponent(SettingsC)">
+          Docs
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-link" @click="swapComponent(ConsoleC)">
+            Console
+          </a>
+          <a class="navbar-link" @click="swapComponent(ConsoleC)">
+            Console
+          </a>
+          <a class="navbar-link" @click="swapComponent(ConsoleC)">
+            Console
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="field is-grouped">
+          <p class="navbar-link">
+            <span v-html="lng.data.currentbalance"></span> <span class="duo" v-html="rpcinterface.data.Getinfo.balance"></span>
+          </p>
+          <p class="control">
+              
+          <b-field>
+            <b-select placeholder="Language" v-model="conf.data.Interface.lang" >
+                <option value="en">English</option>
+                <option value="rs">Српски</option>
+                <option value="fr">Français</option>
+            </b-select>
+        </b-field>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+        
+      
+
+             
+<main :is="component" id="content" :vicons="vdt.data.icons" :vbcd="bcd.data" :vlng="lng.data" :vrpc="rpc.data"></main>
+
+        <footer id="footer" class="">
+
+            <span @click="swapComponent(PeersC)" title="Peers" class="icon" v-html="vdt.data.icons.peers"></span><span v-html="rpcinterface.data.Connections"></span>
+            <span @click="swapComponent(BlocksC)" title="Blocks" class="icon" v-html="vdt.data.icons.blocks"></span><span v-html="rpcinterface.data.Getblockcount"></span>
+            <span @click="swapComponent(AboutC)" title="About" class="icon" v-html="vdt.data.icons.about"></span>  
+            <span @click="swapComponent(HelpC)" title="Help" class="icon" v-html="vdt.data.icons.help"></span>  
+            <span @click="swapComponent(SettingsC)" title="Settings" v-html="vdt.data.icons.settings"></span>  
+            
+            <span class="icon" v-html="vdt.data.icons.linkoff"></span>
+                <span class="icon" v-html="vdt.data.icons.link"></span>
+                <span class="icon" v-html="vdt.data.icons.loading"></span>
+            <progress class="progress" value="1555" max="15645">15%</progress>
+
+
+                
         </footer>
      
     </div>

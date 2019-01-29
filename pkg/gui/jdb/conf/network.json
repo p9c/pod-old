@@ -1,9 +1,7 @@
 {
 	"tls": true,
 	"network": "network",
-	"rpc": "rpc",
 	"srpc": "srpc",
 	"tlspub": "tlspub",
-	"tlspri": "tlspri",
-	"proxy": "rpc"
+	"tlspri": "tlspri"
 }

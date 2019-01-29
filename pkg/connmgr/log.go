@@ -1,11 +1,11 @@
 package connmgr
 
 import (
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 // Log is the logger for the connmgr package
-var Log = cl.NewSubSystem("lib/connmgr", "info")
+var Log = cl.NewSubSystem("lib/connmgr ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

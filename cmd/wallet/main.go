@@ -8,11 +8,11 @@ import (
 	_ "net/http/pprof"
 	"sync"
 
-	"git.parallelcoin.io/pod/cmd/wallet/chain"
-	"git.parallelcoin.io/pod/cmd/wallet/gui"
-	"git.parallelcoin.io/pod/cmd/wallet/rpc/legacyrpc"
-	"git.parallelcoin.io/pod/cmd/wallet/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/gui"
+	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/pkg/wallet"
+	chain "git.parallelcoin.io/pod/pkg/wchain"
 )
 
 var (
@@ -222,16 +222,14 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 
 		loadedWallet, ok := loader.LoadedWallet()
 		if ok {
-			// Do not attempt a reconnect when the wallet was
-			// explicitly stopped.
+			// Do not attempt a reconnect when the wallet was explicitly stopped.
 			if loadedWallet.ShuttingDown() {
 				return
 			}
 
 			loadedWallet.SetChainSynced(false)
 
-			// TODO: Rework the wallet so changing the RPC client
-			// does not require stopping and restarting everything.
+			// TODO: Rework the wallet so changing the RPC client does not require stopping and restarting everything.
 			loadedWallet.Stop()
 			loadedWallet.WaitForShutdown()
 			loadedWallet.Start()
