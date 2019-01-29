@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
@@ -43,7 +43,7 @@ const (
 	//
 	// NOTE: at time of writing, public encryption only applies to public
 	// data in the waddrmgr namespace.  Transactions are not yet encrypted.
-	InsecurePubPassphrase = "public"
+	InsecurePubPassphrase = ""
 
 	walletDbWatchingOnlyName = "wowallet.db"
 

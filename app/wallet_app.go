@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/netparams"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"github.com/tucnak/climax"
 )
 
@@ -37,7 +36,6 @@ var WalletCommand = climax.Command{
 		t("init", "i", "resets configuration to defaults"),
 		t("save", "S", "saves current flags into configuration"),
 
-		t("create", "", "create a new wallet if it does not exist"),
 		t("createtemp", "", "create temporary wallet (pass=walletpass) requires --datadir"),
 
 		t("gui", "G", "launch GUI"),
@@ -100,6 +98,7 @@ var wf = GetFlags(WalletCommand)
 func init() {
 	// Loads after the var clauses run
 	WalletCommand.Handle = func(ctx climax.Context) int {
+		Log.SetLevel("off")
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
@@ -151,10 +150,6 @@ func init() {
 
 func configWallet(ctx *climax.Context, cfgFile string) {
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
-	if ctx.Is("create") {
-		log <- cl.Dbg("request to make new wallet")
-		WalletConfig.Wallet.Create = true
-	}
 	if ctx.Is("createtemp") {
 		log <- cl.Dbg("request to make temp wallet")
 		WalletConfig.Wallet.CreateTemp = true
@@ -333,37 +328,33 @@ func WriteDefaultWalletConfig(cfgFile string) {
 // DefaultWalletConfig returns a default configuration
 func DefaultWalletConfig() *WalletCfg {
 	log <- cl.Dbg("getting default config")
-	legacymaxrpcclients, _ := strconv.ParseInt(wf["legacymaxrpcclients"], 10, 64)
-	legacymaxrpcwebsockets, _ := strconv.ParseInt(wf["legacymaxrpcwebsockets"], 10, 64)
 
 	return &WalletCfg{
 		Wallet: &w.Config{
-			ConfigFile:      wf["configfile"],
-			DataDir:         wf["datadir"],
-			AppDataDir:      wf["appdatadir"],
-			RPCConnect:      wf["rpcconnect"],
-			PodUsername:     wf["podusername"],
-			PodPassword:     wf["podpassword"],
-			WalletPass:      wf["walletpass"],
-			NoInitialLoad:   wf["noinitialload"] == "true",
-			RPCCert:         wf["rpccert"],
-			RPCKey:          wf["rpckey"],
-			CAFile:          wf["cafile"],
-			EnableClientTLS: wf["enableclienttls"] == "true",
-			EnableServerTLS: wf["enableservertls"] == "true",
-			Proxy:           wf["proxy"],
-			ProxyUser:       wf["proxyuser"],
-			ProxyPass:       wf["proxypass"],
+			ConfigFile:      w.DefaultConfigFilename,
+			DataDir:         w.DefaultDataDir,
+			AppDataDir:      w.DefaultAppDataDir,
+			RPCConnect:      n.DefaultRPCListener,
+			PodUsername:     "user",
+			PodPassword:     "pa55word",
+			WalletPass:      "",
+			NoInitialLoad:   false,
+			RPCCert:         w.DefaultRPCCertFile,
+			RPCKey:          w.DefaultRPCKeyFile,
+			CAFile:          w.DefaultCAFile,
+			EnableClientTLS: false,
+			EnableServerTLS: false,
+			Proxy:           "",
+			ProxyUser:       "",
+			ProxyPass:       "",
 			LegacyRPCListeners: []string{
-				wf["legacyrpclisteners"],
+				w.DefaultListener,
 			},
-			LegacyRPCMaxClients:    legacymaxrpcclients,
-			LegacyRPCMaxWebsockets: legacymaxrpcwebsockets,
-			Username:               wf["username"],
-			Password:               wf["password"],
-			ExperimentalRPCListeners: []string{
-				wf["experimentalrpclisteners"],
-			},
+			LegacyRPCMaxClients:      w.DefaultRPCMaxClients,
+			LegacyRPCMaxWebsockets:   w.DefaultRPCMaxWebsockets,
+			Username:                 "user",
+			Password:                 "pa55word",
+			ExperimentalRPCListeners: []string{},
 		},
 		Levels: GetDefaultLogLevelsConfig(),
 	}

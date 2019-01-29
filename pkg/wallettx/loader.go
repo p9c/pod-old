@@ -108,7 +108,7 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 		return nil, err
 	}
 	if exists {
-		return nil, ErrExists
+		return nil, errors.New("ERROR: " + dbPath + " already exists")
 	}
 
 	// Create the wallet database backed by bolt db.

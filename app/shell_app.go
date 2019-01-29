@@ -9,8 +9,8 @@ import (
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	w "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/netparams"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"github.com/tucnak/climax"
 )
 
@@ -42,7 +42,6 @@ var ShellCommand = climax.Command{
 		f("noinitialload", "false", "defer wallet load to be triggered by RPC"),
 		f("network", "mainnet", "connect to (mainnet|testnet|regtestnet|simnet)"),
 
-		t("create", "", "create a new wallet if it does not exist"),
 		f("createtemp", "false", "create temporary wallet (pass=walletpass) requires --datadir"),
 
 		f("gui", "false", "launch GUI"),
@@ -222,10 +221,6 @@ var ShellFlags = GetFlags(ShellCommand)
 
 func configShell(ctx *climax.Context, cfgFile string) {
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
-	if ctx.Is("create") {
-		log <- cl.Dbg("request to make new wallet")
-		ShellConfig.Wallet.Create = true
-	}
 	if ctx.Is("createtemp") {
 		log <- cl.Dbg("request to make temp wallet")
 		ShellConfig.Wallet.CreateTemp = true

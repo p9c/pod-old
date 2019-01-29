@@ -27,7 +27,7 @@ var (
 func Main(c *Config) error {
 	cfg = c
 	// Show version at startup.
-	log <- cl.Info{"version", Version()}
+	// log <- cl.Info{"version", Version()}
 
 	if cfg.Profile != "" {
 		go func() {

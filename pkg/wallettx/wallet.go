@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
@@ -24,14 +24,14 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 	"github.com/davecgh/go-spew/spew"
 
+	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/wallet/txauthor"
 	"git.parallelcoin.io/pod/pkg/wallet/txrules"
 	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
+	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
 const (
@@ -43,7 +43,7 @@ const (
 	//
 	// NOTE: at time of writing, public encryption only applies to public
 	// data in the waddrmgr namespace.  Transactions are not yet encrypted.
-	InsecurePubPassphrase = "public"
+	InsecurePubPassphrase = ""
 
 	walletDbWatchingOnlyName = "wowallet.db"
 

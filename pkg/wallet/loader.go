@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"git.parallelcoin.io/pod/pkg/chaincfg"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/prompt"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
 const (
@@ -91,9 +91,7 @@ func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 	}
 }
 
-// CreateNewWallet creates a new wallet using the provided public and private
-// passphrases.  The seed is optional.  If non-nil, addresses are derived from
-// this seed.  If nil, a secure random seed is generated.
+// CreateNewWallet creates a new wallet using the provided public and private passphrases.  The seed is optional.  If non-nil, addresses are derived from this seed.  If nil, a secure random seed is generated.
 func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	bday time.Time) (*Wallet, error) {
 
@@ -110,7 +108,7 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 		return nil, err
 	}
 	if exists {
-		return nil, ErrExists
+		return nil, errors.New("ERROR: " + dbPath + " already exists")
 	}
 
 	// Create the wallet database backed by bolt db.
@@ -148,10 +146,7 @@ func noConsole() ([]byte, error) {
 	return nil, errNoConsole
 }
 
-// OpenExistingWallet opens the wallet from the loader's wallet database path
-// and the public passphrase.  If the loader is being called by a context where
-// standard input prompts may be used during wallet upgrades, setting
-// canConsolePrompt will enables these prompts.
+// OpenExistingWallet opens the wallet from the loader's wallet database path and the public passphrase.  If the loader is being called by a context where standard input prompts may be used during wallet upgrades, setting canConsolePrompt will enables these prompts.
 func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool) (*Wallet, error) {
 	defer l.mu.Unlock()
 	l.mu.Lock()

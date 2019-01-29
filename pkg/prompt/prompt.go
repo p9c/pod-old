@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/legacy/keystore"
+	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"github.com/btcsuite/golangcrypto/ssh/terminal"
 )
 
@@ -157,7 +157,7 @@ func PrivatePass(reader *bufio.Reader, legacyKeyStore *keystore.Store) ([]byte, 
 	// for a new private passphase and return it.
 	if legacyKeyStore == nil {
 		return promptPass(reader,
-			"Enter the private passphrase for your new wallet", true)
+			"Creating new wallet\n\nEnter the private passphrase for your new wallet", true)
 	}
 
 	// At this point, there is an existing legacy wallet, so prompt the user
@@ -267,14 +267,10 @@ func Seed(reader *bufio.Reader) ([]byte, error) {
 			return nil, err
 		}
 
-		fmt.Println("Your wallet generation seed is:")
-		fmt.Printf("%x\n", seed)
-		fmt.Println("IMPORTANT: Keep the seed in a safe place as you\n" +
-			"will NOT be able to restore your wallet without it.")
-		fmt.Println("Please keep in mind that anyone who has access\n" +
-			"to the seed can also restore your wallet thereby\n" +
-			"giving them access to all your funds, so it is\n" +
-			"imperative that you keep it in a secure location.")
+		fmt.Println("\nYour wallet generation seed is:")
+		fmt.Printf("\n%x\n\n", seed)
+		fmt.Print("IMPORTANT: Keep the seed in a safe place as you will NOT be able to restore your wallet without it.\n\n")
+		fmt.Print("Please keep in mind that anyone who has access to the seed can also restore your wallet thereby giving them access to all your funds, so it is imperative that you keep it in a secure location.\n\n")
 
 		for {
 			fmt.Print(`Once you have stored the seed in a safe ` +
