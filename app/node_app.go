@@ -15,7 +15,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/fork"
@@ -182,7 +182,7 @@ var NodeCommand = climax.Command{
 				"setting debug level %s",
 				dl,
 			}
-			CtlCfg.DebugLevel = dl
+			NodeConfig.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
 			for i := range ll {
@@ -227,7 +227,7 @@ var NodeCommand = climax.Command{
 				}
 				log <- cl.Trace{
 					"parsing app configuration",
-					cfgData,
+					string(cfgData),
 				}
 				err = json.Unmarshal(cfgData, &NodeConfig)
 				if err != nil {
@@ -239,52 +239,45 @@ var NodeCommand = climax.Command{
 				}
 			}
 		}
-		configNode(&ctx, cfgFile)
+		configNode(NodeConfig.Node, &ctx, cfgFile)
+		if dl, ok = ctx.Get("debuglevel"); ok {
+			for i := range NodeConfig.LogLevels {
+				NodeConfig.LogLevels[i] = dl
+			}
+		}
 		runNode()
 		cl.Shutdown()
 		return 0
 	},
 }
 
-// NodeFlags is the list of flags and the default values stored in the Usage field
-var NodeFlags = GetFlags(NodeCommand)
-
-func configNode(ctx *climax.Context, cfgFile string) {
+func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	var err error
-	if r, ok := getIfIs(ctx, "debuglevel"); ok {
-		switch r {
-		case "fatal", "error", "warn", "info", "debug", "trace":
-			NodeConfig.Node.DebugLevel = r
-		default:
-			NodeConfig.Node.DebugLevel = "info"
-		}
-		Log.SetLevel(NodeConfig.Node.DebugLevel)
-	}
 	if r, ok := getIfIs(ctx, "datadir"); ok {
-		NodeConfig.Node.DataDir = n.CleanAndExpandPath(r)
+		nc.DataDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "addpeers"); ok {
-		NormalizeAddresses(r, n.DefaultPort, &NodeConfig.Node.AddPeers)
+		NormalizeAddresses(r, n.DefaultPort, &nc.AddPeers)
 	}
 	if r, ok := getIfIs(ctx, "connectpeers"); ok {
-		NormalizeAddresses(r, n.DefaultPort, &NodeConfig.Node.ConnectPeers)
+		NormalizeAddresses(r, n.DefaultPort, &nc.ConnectPeers)
 	}
 	if r, ok := getIfIs(ctx, "disablelisten"); ok {
-		NodeConfig.Node.DisableListen = r == "true"
+		nc.DisableListen = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "listeners"); ok {
-		NormalizeAddresses(r, n.DefaultPort, &NodeConfig.Node.Listeners)
+		NormalizeAddresses(r, n.DefaultPort, &nc.Listeners)
 	}
 	if r, ok := getIfIs(ctx, "maxpeers"); ok {
-		if err := ParseInteger(r, "maxpeers", &NodeConfig.Node.MaxPeers); err != nil {
+		if err := ParseInteger(r, "maxpeers", &nc.MaxPeers); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "disablebanning"); ok {
-		NodeConfig.Node.DisableBanning = r == "true"
+		nc.DisableBanning = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "banduration"); ok {
-		if err := ParseDuration(r, "banduration", &NodeConfig.Node.BanDuration); err != nil {
+		if err := ParseDuration(r, "banduration", &nc.BanDuration); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
@@ -293,211 +286,211 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		if err := ParseInteger(r, "banthtreshold", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			NodeConfig.Node.BanThreshold = uint32(bt)
+			nc.BanThreshold = uint32(bt)
 		}
 	}
 	if r, ok := getIfIs(ctx, "whitelists"); ok {
-		NormalizeAddresses(r, n.DefaultPort, &NodeConfig.Node.Whitelists)
+		NormalizeAddresses(r, n.DefaultPort, &nc.Whitelists)
 	}
 	if r, ok := getIfIs(ctx, "rpcuser"); ok {
-		NodeConfig.Node.RPCUser = r
+		nc.RPCUser = r
 	}
 	if r, ok := getIfIs(ctx, "rpcpass"); ok {
-		NodeConfig.Node.RPCPass = r
+		nc.RPCPass = r
 	}
 	if r, ok := getIfIs(ctx, "rpclimituser"); ok {
-		NodeConfig.Node.RPCLimitUser = r
+		nc.RPCLimitUser = r
 	}
 	if r, ok := getIfIs(ctx, "rpclimitpass"); ok {
-		NodeConfig.Node.RPCLimitPass = r
+		nc.RPCLimitPass = r
 	}
 	if r, ok := getIfIs(ctx, "rpclisteners"); ok {
-		NormalizeAddresses(r, n.DefaultRPCPort, &NodeConfig.Node.RPCListeners)
+		NormalizeAddresses(r, n.DefaultRPCPort, &nc.RPCListeners)
 	}
 	if r, ok := getIfIs(ctx, "rpccert"); ok {
-		NodeConfig.Node.RPCCert = n.CleanAndExpandPath(r)
+		nc.RPCCert = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "rpckey"); ok {
-		NodeConfig.Node.RPCKey = n.CleanAndExpandPath(r)
+		nc.RPCKey = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "tls"); ok {
-		NodeConfig.Node.TLS = r == "true"
+		nc.TLS = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "disablednsseed"); ok {
-		NodeConfig.Node.DisableDNSSeed = r == "true"
+		nc.DisableDNSSeed = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "externalips"); ok {
-		NormalizeAddresses(r, n.DefaultPort, &NodeConfig.Node.ExternalIPs)
+		NormalizeAddresses(r, n.DefaultPort, &nc.ExternalIPs)
 	}
 	if r, ok := getIfIs(ctx, "proxy"); ok {
-		NormalizeAddress(r, "9050", &NodeConfig.Node.Proxy)
+		NormalizeAddress(r, "9050", &nc.Proxy)
 	}
 	if r, ok := getIfIs(ctx, "proxyuser"); ok {
-		NodeConfig.Node.ProxyUser = r
+		nc.ProxyUser = r
 	}
 	if r, ok := getIfIs(ctx, "proxypass"); ok {
-		NodeConfig.Node.ProxyPass = r
+		nc.ProxyPass = r
 	}
 	if r, ok := getIfIs(ctx, "onion"); ok {
-		NormalizeAddress(r, "9050", &NodeConfig.Node.OnionProxy)
+		NormalizeAddress(r, "9050", &nc.OnionProxy)
 	}
 	if r, ok := getIfIs(ctx, "onionuser"); ok {
-		NodeConfig.Node.OnionProxyUser = r
+		nc.OnionProxyUser = r
 	}
 	if r, ok := getIfIs(ctx, "onionpass"); ok {
-		NodeConfig.Node.OnionProxyPass = r
+		nc.OnionProxyPass = r
 	}
 	if r, ok := getIfIs(ctx, "noonion"); ok {
-		NodeConfig.Node.NoOnion = r == "true"
+		nc.NoOnion = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "torisolation"); ok {
-		NodeConfig.Node.TorIsolation = r == "true"
+		nc.TorIsolation = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
-			NodeConfig.Node.TestNet3, NodeConfig.Node.RegressionTest, NodeConfig.Node.SimNet = true, false, false
+			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
 		case "regtest":
-			NodeConfig.Node.TestNet3, NodeConfig.Node.RegressionTest, NodeConfig.Node.SimNet = false, true, false
+			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, true, false
 		case "simnet":
-			NodeConfig.Node.TestNet3, NodeConfig.Node.RegressionTest, NodeConfig.Node.SimNet = false, false, true
+			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, true
 		default:
-			NodeConfig.Node.TestNet3, NodeConfig.Node.RegressionTest, NodeConfig.Node.SimNet = false, false, false
+			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, false
 		}
 	}
 	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
-		NodeConfig.Node.AddCheckpoints = strings.Split(r, " ")
+		nc.AddCheckpoints = strings.Split(r, " ")
 	}
 	if r, ok := getIfIs(ctx, "disablecheckpoints"); ok {
-		NodeConfig.Node.DisableCheckpoints = r == "true"
+		nc.DisableCheckpoints = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "dbtype"); ok {
-		NodeConfig.Node.DbType = r
+		nc.DbType = r
 	}
 	if r, ok := getIfIs(ctx, "profile"); ok {
 		var p int
 		if err = ParseInteger(r, "profile", &p); err == nil {
-			NodeConfig.Node.Profile = fmt.Sprint(p)
+			nc.Profile = fmt.Sprint(p)
 		}
 	}
 	if r, ok := getIfIs(ctx, "cpuprofile"); ok {
-		NodeConfig.Node.CPUProfile = r
+		nc.CPUProfile = r
 	}
 	if r, ok := getIfIs(ctx, "upnp"); ok {
-		NodeConfig.Node.Upnp = r == "true"
+		nc.Upnp = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "minrelaytxfee"); ok {
-		if err := ParseFloat(r, "minrelaytxfee", &NodeConfig.Node.MinRelayTxFee); err != nil {
+		if err := ParseFloat(r, "minrelaytxfee", &nc.MinRelayTxFee); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "freetxrelaylimit"); ok {
-		if err := ParseFloat(r, "freetxrelaylimit", &NodeConfig.Node.FreeTxRelayLimit); err != nil {
+		if err := ParseFloat(r, "freetxrelaylimit", &nc.FreeTxRelayLimit); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "norelaypriority"); ok {
-		NodeConfig.Node.NoRelayPriority = r == "true"
+		nc.NoRelayPriority = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "trickleinterval"); ok {
-		if err := ParseDuration(r, "trickleinterval", &NodeConfig.Node.TrickleInterval); err != nil {
+		if err := ParseDuration(r, "trickleinterval", &nc.TrickleInterval); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "maxorphantxs"); ok {
-		if err := ParseInteger(r, "maxorphantxs", &NodeConfig.Node.MaxOrphanTxs); err != nil {
+		if err := ParseInteger(r, "maxorphantxs", &nc.MaxOrphanTxs); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "algo"); ok {
-		NodeConfig.Node.Algo = r
+		nc.Algo = r
 	}
 	if r, ok := getIfIs(ctx, "generate"); ok {
-		NodeConfig.Node.Generate = r == "true"
+		nc.Generate = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "genthreads"); ok {
 		var gt int
 		if err := ParseInteger(r, "genthreads", &gt); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			NodeConfig.Node.GenThreads = int32(gt)
+			nc.GenThreads = int32(gt)
 		}
 	}
 	if r, ok := getIfIs(ctx, "miningaddrs"); ok {
-		NodeConfig.Node.MiningAddrs = strings.Split(r, " ")
+		nc.MiningAddrs = strings.Split(r, " ")
 	}
 	if r, ok := getIfIs(ctx, "minerlistener"); ok {
-		NormalizeAddress(r, n.DefaultRPCPort, &NodeConfig.Node.MinerListener)
+		NormalizeAddress(r, n.DefaultRPCPort, &nc.MinerListener)
 	}
 	if r, ok := getIfIs(ctx, "minerpass"); ok {
-		NodeConfig.Node.MinerPass = r
+		nc.MinerPass = r
 	}
 	if r, ok := getIfIs(ctx, "blockminsize"); ok {
-		if err := ParseUint32(r, "blockminsize", &NodeConfig.Node.BlockMinSize); err != nil {
+		if err := ParseUint32(r, "blockminsize", &nc.BlockMinSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "blockmaxsize"); ok {
-		if err := ParseUint32(r, "blockmaxsize", &NodeConfig.Node.BlockMaxSize); err != nil {
+		if err := ParseUint32(r, "blockmaxsize", &nc.BlockMaxSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "blockminweight"); ok {
-		if err := ParseUint32(r, "blockminweight", &NodeConfig.Node.BlockMinWeight); err != nil {
+		if err := ParseUint32(r, "blockminweight", &nc.BlockMinWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "blockmaxweight"); ok {
-		if err := ParseUint32(r, "blockmaxweight", &NodeConfig.Node.BlockMaxWeight); err != nil {
+		if err := ParseUint32(r, "blockmaxweight", &nc.BlockMaxWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "blockprioritysize"); ok {
-		if err := ParseUint32(r, "blockmaxweight", &NodeConfig.Node.BlockPrioritySize); err != nil {
+		if err := ParseUint32(r, "blockmaxweight", &nc.BlockPrioritySize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
 	}
 	if r, ok := getIfIs(ctx, "uacomment"); ok {
-		NodeConfig.Node.UserAgentComments = strings.Split(r, " ")
+		nc.UserAgentComments = strings.Split(r, " ")
 	}
 	if r, ok := getIfIs(ctx, "nopeerbloomfilters"); ok {
-		NodeConfig.Node.NoPeerBloomFilters = r == "true"
+		nc.NoPeerBloomFilters = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "nocfilters"); ok {
-		NodeConfig.Node.NoCFilters = r == "true"
+		nc.NoCFilters = r == "true"
 	}
 	if ctx.Is("dropcfindex") {
-		NodeConfig.Node.DropCfIndex = true
+		nc.DropCfIndex = true
 	}
 	if r, ok := getIfIs(ctx, "sigcachemaxsize"); ok {
 		var scms int
 		if err := ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
 			log <- cl.Wrn(err.Error())
 		} else {
-			NodeConfig.Node.SigCacheMaxSize = uint(scms)
+			nc.SigCacheMaxSize = uint(scms)
 		}
 	}
 	if r, ok := getIfIs(ctx, "blocksonly"); ok {
-		NodeConfig.Node.BlocksOnly = r == "true"
+		nc.BlocksOnly = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "txindex"); ok {
-		NodeConfig.Node.TxIndex = r == "true"
+		nc.TxIndex = r == "true"
 	}
 	if ctx.Is("droptxindex") {
-		NodeConfig.Node.DropTxIndex = true
+		nc.DropTxIndex = true
 	}
 	if ctx.Is("addrindex") {
 		r, _ := ctx.Get("addrindex")
-		NodeConfig.Node.AddrIndex = r == "true"
+		nc.AddrIndex = r == "true"
 	}
 	if ctx.Is("dropaddrindex") {
-		NodeConfig.Node.DropAddrIndex = true
+		nc.DropAddrIndex = true
 	}
 	if r, ok := getIfIs(ctx, "relaynonstd"); ok {
-		NodeConfig.Node.RelayNonStd = r == "true"
+		nc.RelayNonStd = r == "true"
 	}
 	if r, ok := getIfIs(ctx, "rejectnonstd"); ok {
-		NodeConfig.Node.RejectNonStd = r == "true"
+		nc.RejectNonStd = r == "true"
 	}
 	SetLogging(ctx)
 	if ctx.Is("save") {
@@ -533,51 +526,51 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		os.Exit(0)
 	}
 	// Don't add peers from the config file when in regression test mode.
-	if NodeConfig.Node.RegressionTest && len(NodeConfig.Node.AddPeers) > 0 {
-		NodeConfig.Node.AddPeers = nil
+	if nc.RegressionTest && len(nc.AddPeers) > 0 {
+		nc.AddPeers = nil
 	}
 	// Set the mining algorithm correctly, default to random if unrecognised
-	switch NodeConfig.Node.Algo {
+	switch nc.Algo {
 	case "blake14lr", "cryptonight7v2", "keccak", "lyra2rev2", "scrypt", "skein", "x11", "stribog", "random", "easy":
 	default:
-		NodeConfig.Node.Algo = "random"
+		nc.Algo = "random"
 	}
 	relayNonStd := n.ActiveNetParams.RelayNonStdTxs
 	funcName := "loadConfig"
 	switch {
-	case NodeConfig.Node.RelayNonStd && NodeConfig.Node.RejectNonStd:
+	case nc.RelayNonStd && nc.RejectNonStd:
 		str := "%s: rejectnonstd and relaynonstd cannot be used together -- choose only one"
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
-	case NodeConfig.Node.RejectNonStd:
+	case nc.RejectNonStd:
 		relayNonStd = false
-	case NodeConfig.Node.RelayNonStd:
+	case nc.RelayNonStd:
 		relayNonStd = true
 	}
-	NodeConfig.Node.RelayNonStd = relayNonStd
+	nc.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
-	NodeConfig.Node.DataDir = n.CleanAndExpandPath(NodeConfig.Node.DataDir)
-	NodeConfig.Node.DataDir = filepath.Join(NodeConfig.Node.DataDir, n.NetName(n.ActiveNetParams))
+	nc.DataDir = n.CleanAndExpandPath(nc.DataDir)
+	nc.DataDir = filepath.Join(nc.DataDir, n.NetName(n.ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
-	NodeConfig.Node.LogDir = n.CleanAndExpandPath(NodeConfig.Node.LogDir)
-	NodeConfig.Node.LogDir = filepath.Join(NodeConfig.Node.LogDir, n.NetName(n.ActiveNetParams))
+	nc.LogDir = n.CleanAndExpandPath(nc.LogDir)
+	nc.LogDir = filepath.Join(nc.LogDir, n.NetName(n.ActiveNetParams))
 
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
-	// initLogRotator(filepath.Join(NodeConfig.Node.LogDir, DefaultLogFilename))
+	// initLogRotator(filepath.Join(nc.LogDir, DefaultLogFilename))
 	// Validate database type.
-	if !n.ValidDbType(NodeConfig.Node.DbType) {
+	if !n.ValidDbType(nc.DbType) {
 		str := "%s: The specified database type [%v] is invalid -- " +
 			"supported types %v"
-		err := fmt.Errorf(str, funcName, NodeConfig.Node.DbType, n.KnownDbTypes)
+		err := fmt.Errorf(str, funcName, nc.DbType, n.KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Validate profile port number
-	if NodeConfig.Node.Profile != "" {
-		profilePort, err := strconv.Atoi(NodeConfig.Node.Profile)
+	if nc.Profile != "" {
+		profilePort, err := strconv.Atoi(nc.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
 			str := "%s: The profile port must be between 1024 and 65535"
 			err := fmt.Errorf(str, funcName)
@@ -587,18 +580,18 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	// Don't allow ban durations that are too short.
-	if NodeConfig.Node.BanDuration < time.Second {
+	if nc.BanDuration < time.Second {
 		str := "%s: The banduration option may not be less than 1s -- parsed [%v]"
-		err := fmt.Errorf(str, funcName, NodeConfig.Node.BanDuration)
+		err := fmt.Errorf(str, funcName, nc.BanDuration)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Validate any given whitelisted IP addresses and networks.
-	if len(NodeConfig.Node.Whitelists) > 0 {
+	if len(nc.Whitelists) > 0 {
 		var ip net.IP
-		StateCfg.ActiveWhitelists = make([]*net.IPNet, 0, len(NodeConfig.Node.Whitelists))
-		for _, addr := range NodeConfig.Node.Whitelists {
+		StateCfg.ActiveWhitelists = make([]*net.IPNet, 0, len(nc.Whitelists))
+		for _, addr := range nc.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
 				ip = net.ParseIP(addr)
@@ -625,7 +618,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	// --addPeer and --connect do not mix.
-	if len(NodeConfig.Node.AddPeers) > 0 && len(NodeConfig.Node.ConnectPeers) > 0 {
+	if len(nc.AddPeers) > 0 && len(nc.ConnectPeers) > 0 {
 		str := "%s: the --addpeer and --connect options can not be " +
 			"mixed"
 		err := fmt.Errorf(str, funcName)
@@ -633,22 +626,22 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
 	// --proxy or --connect without --listen disables listening.
-	if (NodeConfig.Node.Proxy != "" || len(NodeConfig.Node.ConnectPeers) > 0) &&
-		len(NodeConfig.Node.Listeners) == 0 {
-		NodeConfig.Node.DisableListen = true
+	if (nc.Proxy != "" || len(nc.ConnectPeers) > 0) &&
+		len(nc.Listeners) == 0 {
+		nc.DisableListen = true
 	}
 	// Connect means no DNS seeding.
-	if len(NodeConfig.Node.ConnectPeers) > 0 {
-		NodeConfig.Node.DisableDNSSeed = true
+	if len(nc.ConnectPeers) > 0 {
+		nc.DisableDNSSeed = true
 	}
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
-	if len(NodeConfig.Node.Listeners) == 0 {
-		NodeConfig.Node.Listeners = []string{
+	if len(nc.Listeners) == 0 {
+		nc.Listeners = []string{
 			net.JoinHostPort("", n.ActiveNetParams.DefaultPort),
 		}
 	}
 	// Check to make sure limited and admin users don't have the same username
-	if NodeConfig.Node.RPCUser == NodeConfig.Node.RPCLimitUser && NodeConfig.Node.RPCUser != "" {
+	if nc.RPCUser == nc.RPCLimitUser && nc.RPCUser != "" {
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
@@ -656,7 +649,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// Check to make sure limited and admin users don't have the same password
-	if NodeConfig.Node.RPCPass == NodeConfig.Node.RPCLimitPass && NodeConfig.Node.RPCPass != "" {
+	if nc.RPCPass == nc.RPCLimitPass && nc.RPCPass != "" {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the " +
 			"same password"
 		err := fmt.Errorf(str, funcName)
@@ -665,35 +658,35 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// The RPC server is disabled if no username or password is provided.
-	if (NodeConfig.Node.RPCUser == "" || NodeConfig.Node.RPCPass == "") &&
-		(NodeConfig.Node.RPCLimitUser == "" || NodeConfig.Node.RPCLimitPass == "") {
-		NodeConfig.Node.DisableRPC = true
+	if (nc.RPCUser == "" || nc.RPCPass == "") &&
+		(nc.RPCLimitUser == "" || nc.RPCLimitPass == "") {
+		nc.DisableRPC = true
 	}
-	if NodeConfig.Node.DisableRPC {
+	if nc.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
 	}
 	// Default RPC to listen on localhost only.
-	if !NodeConfig.Node.DisableRPC && len(NodeConfig.Node.RPCListeners) == 0 {
+	if !nc.DisableRPC && len(nc.RPCListeners) == 0 {
 		addrs, err := net.LookupHost(n.DefaultRPCListener)
 		if err != nil {
 			log <- cl.Err(err.Error())
 			cl.Shutdown()
 		}
-		NodeConfig.Node.RPCListeners = make([]string, 0, len(addrs))
+		nc.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
 			addr = net.JoinHostPort(addr, n.ActiveNetParams.RPCPort)
-			NodeConfig.Node.RPCListeners = append(NodeConfig.Node.RPCListeners, addr)
+			nc.RPCListeners = append(nc.RPCListeners, addr)
 		}
 	}
-	if NodeConfig.Node.RPCMaxConcurrentReqs < 0 {
+	if nc.RPCMaxConcurrentReqs < 0 {
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
-		err := fmt.Errorf(str, funcName, NodeConfig.Node.RPCMaxConcurrentReqs)
+		err := fmt.Errorf(str, funcName, nc.RPCMaxConcurrentReqs)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Validate the the minrelaytxfee.
-	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(NodeConfig.Node.MinRelayTxFee)
+	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(nc.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -702,49 +695,49 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// Limit the max block size to a sane value.
-	if NodeConfig.Node.BlockMaxSize < n.BlockMaxSizeMin || NodeConfig.Node.BlockMaxSize >
+	if nc.BlockMaxSize < n.BlockMaxSizeMin || nc.BlockMaxSize >
 		n.BlockMaxSizeMax {
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, n.BlockMaxSizeMin,
-			n.BlockMaxSizeMax, NodeConfig.Node.BlockMaxSize)
+			n.BlockMaxSizeMax, nc.BlockMaxSize)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Limit the max block weight to a sane value.
-	if NodeConfig.Node.BlockMaxWeight < n.BlockMaxWeightMin ||
-		NodeConfig.Node.BlockMaxWeight > n.BlockMaxWeightMax {
+	if nc.BlockMaxWeight < n.BlockMaxWeightMin ||
+		nc.BlockMaxWeight > n.BlockMaxWeightMax {
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, n.BlockMaxWeightMin,
-			n.BlockMaxWeightMax, NodeConfig.Node.BlockMaxWeight)
+			n.BlockMaxWeightMax, nc.BlockMaxWeight)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Limit the max orphan count to a sane vlue.
-	if NodeConfig.Node.MaxOrphanTxs < 0 {
+	if nc.MaxOrphanTxs < 0 {
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
-		err := fmt.Errorf(str, funcName, NodeConfig.Node.MaxOrphanTxs)
+		err := fmt.Errorf(str, funcName, nc.MaxOrphanTxs)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Limit the block priority and minimum block sizes to max block size.
-	NodeConfig.Node.BlockPrioritySize = minUint32(NodeConfig.Node.BlockPrioritySize, NodeConfig.Node.BlockMaxSize)
-	NodeConfig.Node.BlockMinSize = minUint32(NodeConfig.Node.BlockMinSize, NodeConfig.Node.BlockMaxSize)
-	NodeConfig.Node.BlockMinWeight = minUint32(NodeConfig.Node.BlockMinWeight, NodeConfig.Node.BlockMaxWeight)
+	nc.BlockPrioritySize = minUint32(nc.BlockPrioritySize, nc.BlockMaxSize)
+	nc.BlockMinSize = minUint32(nc.BlockMinSize, nc.BlockMaxSize)
+	nc.BlockMinWeight = minUint32(nc.BlockMinWeight, nc.BlockMaxWeight)
 	switch {
 	// If the max block size isn't set, but the max weight is, then we'll set the limit for the max block size to a safe limit so weight takes precedence.
-	case NodeConfig.Node.BlockMaxSize == n.DefaultBlockMaxSize &&
-		NodeConfig.Node.BlockMaxWeight != n.DefaultBlockMaxWeight:
-		NodeConfig.Node.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
+	case nc.BlockMaxSize == n.DefaultBlockMaxSize &&
+		nc.BlockMaxWeight != n.DefaultBlockMaxWeight:
+		nc.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
 	// If the max block weight isn't set, but the block size is, then we'll scale the set weight accordingly based on the max block size value.
-	case NodeConfig.Node.BlockMaxSize != n.DefaultBlockMaxSize &&
-		NodeConfig.Node.BlockMaxWeight == n.DefaultBlockMaxWeight:
-		NodeConfig.Node.BlockMaxWeight = NodeConfig.Node.BlockMaxSize * blockchain.WitnessScaleFactor
+	case nc.BlockMaxSize != n.DefaultBlockMaxSize &&
+		nc.BlockMaxWeight == n.DefaultBlockMaxWeight:
+		nc.BlockMaxWeight = nc.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
 	// Look for illegal characters in the user agent comments.
-	for _, uaComment := range NodeConfig.Node.UserAgentComments {
+	for _, uaComment := range nc.UserAgentComments {
 		if strings.ContainsAny(uaComment, "/:()") {
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
@@ -756,7 +749,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	// --txindex and --droptxindex do not mix.
-	if NodeConfig.Node.TxIndex && NodeConfig.Node.DropTxIndex {
+	if nc.TxIndex && nc.DropTxIndex {
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
 			funcName)
 		log <- cl.Err(err.Error())
@@ -765,7 +758,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 
 	}
 	// --addrindex and --dropaddrindex do not mix.
-	if NodeConfig.Node.AddrIndex && NodeConfig.Node.DropAddrIndex {
+	if nc.AddrIndex && nc.DropAddrIndex {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex "+
 			"options may not be activated at the same time",
 			funcName)
@@ -774,7 +767,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// --addrindex and --droptxindex do not mix.
-	if NodeConfig.Node.AddrIndex && NodeConfig.Node.DropTxIndex {
+	if nc.AddrIndex && nc.DropTxIndex {
 		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time "+
 			"because the address index relies on the transaction index",
 			funcName)
@@ -783,8 +776,8 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// Check mining addresses are valid and saved parsed versions.
-	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(NodeConfig.Node.MiningAddrs))
-	for _, strAddr := range NodeConfig.Node.MiningAddrs {
+	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(nc.MiningAddrs))
+	for _, strAddr := range nc.MiningAddrs {
 		addr, err := util.DecodeAddress(strAddr, n.ActiveNetParams.Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
@@ -803,7 +796,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 	// Ensure there is at least one mining address when the generate flag is set.
-	if (NodeConfig.Node.Generate || NodeConfig.Node.MinerListener != "") && len(NodeConfig.Node.MiningAddrs) == 0 {
+	if (nc.Generate || nc.MinerListener != "") && len(nc.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
@@ -811,17 +804,17 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 
 	}
-	if NodeConfig.Node.MinerPass != "" {
-		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(NodeConfig.Node.MinerPass))
+	if nc.MinerPass != "" {
+		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(nc.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
-	NodeConfig.Node.Listeners = n.NormalizeAddresses(NodeConfig.Node.Listeners,
+	nc.Listeners = n.NormalizeAddresses(nc.Listeners,
 		n.ActiveNetParams.DefaultPort)
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
-	NodeConfig.Node.RPCListeners = n.NormalizeAddresses(NodeConfig.Node.RPCListeners,
+	nc.RPCListeners = n.NormalizeAddresses(nc.RPCListeners,
 		n.ActiveNetParams.RPCPort)
-	if !NodeConfig.Node.DisableRPC && !NodeConfig.Node.TLS {
-		for _, addr := range NodeConfig.Node.RPCListeners {
+	if !nc.DisableRPC && !nc.TLS {
+		for _, addr := range nc.RPCListeners {
 			if err != nil {
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
@@ -832,19 +825,19 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		}
 	}
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
-	NodeConfig.Node.AddPeers = n.NormalizeAddresses(NodeConfig.Node.AddPeers,
+	nc.AddPeers = n.NormalizeAddresses(nc.AddPeers,
 		n.ActiveNetParams.DefaultPort)
-	NodeConfig.Node.ConnectPeers = n.NormalizeAddresses(NodeConfig.Node.ConnectPeers,
+	nc.ConnectPeers = n.NormalizeAddresses(nc.ConnectPeers,
 		n.ActiveNetParams.DefaultPort)
 	// --noonion and --onion do not mix.
-	if NodeConfig.Node.NoOnion && NodeConfig.Node.OnionProxy != "" {
+	if nc.NoOnion && nc.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		cl.Shutdown()
 	}
 	// Check the checkpoints for syntax errors.
-	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(NodeConfig.Node.AddCheckpoints)
+	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(nc.AddCheckpoints)
 	if err != nil {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -853,7 +846,7 @@ func configNode(ctx *climax.Context, cfgFile string) {
 		cl.Shutdown()
 	}
 	// Tor stream isolation requires either proxy or onion proxy to be set.
-	if NodeConfig.Node.TorIsolation && NodeConfig.Node.Proxy == "" && NodeConfig.Node.OnionProxy == "" {
+	if nc.TorIsolation && nc.Proxy == "" && nc.OnionProxy == "" {
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
@@ -863,74 +856,74 @@ func configNode(ctx *climax.Context, cfgFile string) {
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
-	if NodeConfig.Node.Proxy != "" {
-		_, _, err := net.SplitHostPort(NodeConfig.Node.Proxy)
+	if nc.Proxy != "" {
+		_, _, err := net.SplitHostPort(nc.Proxy)
 		if err != nil {
 			str := "%s: Proxy address '%s' is invalid: %v"
-			err := fmt.Errorf(str, funcName, NodeConfig.Node.Proxy, err)
+			err := fmt.Errorf(str, funcName, nc.Proxy, err)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
 			cl.Shutdown()
 		}
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
-		if NodeConfig.Node.TorIsolation && NodeConfig.Node.OnionProxy == "" &&
-			(NodeConfig.Node.ProxyUser != "" || NodeConfig.Node.ProxyPass != "") {
+		if nc.TorIsolation && nc.OnionProxy == "" &&
+			(nc.ProxyUser != "" || nc.ProxyPass != "") {
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified proxy user credentials")
 		}
 		proxy := &socks.Proxy{
-			Addr:         NodeConfig.Node.Proxy,
-			Username:     NodeConfig.Node.ProxyUser,
-			Password:     NodeConfig.Node.ProxyPass,
+			Addr:         nc.Proxy,
+			Username:     nc.ProxyUser,
+			Password:     nc.ProxyPass,
 			TorIsolation: torIsolation,
 		}
 		StateCfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
-		if !NodeConfig.Node.NoOnion && NodeConfig.Node.OnionProxy == "" {
+		if !nc.NoOnion && nc.OnionProxy == "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
-				return connmgr.TorLookupIP(host, NodeConfig.Node.Proxy)
+				return connmgr.TorLookupIP(host, nc.Proxy)
 			}
 		}
 	}
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
-	if NodeConfig.Node.OnionProxy != "" {
-		_, _, err := net.SplitHostPort(NodeConfig.Node.OnionProxy)
+	if nc.OnionProxy != "" {
+		_, _, err := net.SplitHostPort(nc.OnionProxy)
 		if err != nil {
 			str := "%s: Onion proxy address '%s' is invalid: %v"
-			err := fmt.Errorf(str, funcName, NodeConfig.Node.OnionProxy, err)
+			err := fmt.Errorf(str, funcName, nc.OnionProxy, err)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
 			cl.Shutdown()
 		}
 		// Tor isolation flag means onion proxy credentials will be overridden.
-		if NodeConfig.Node.TorIsolation &&
-			(NodeConfig.Node.OnionProxyUser != "" || NodeConfig.Node.OnionProxyPass != "") {
+		if nc.TorIsolation &&
+			(nc.OnionProxyUser != "" || nc.OnionProxyPass != "") {
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 			proxy := &socks.Proxy{
-				Addr:         NodeConfig.Node.OnionProxy,
-				Username:     NodeConfig.Node.OnionProxyUser,
-				Password:     NodeConfig.Node.OnionProxyPass,
-				TorIsolation: NodeConfig.Node.TorIsolation,
+				Addr:         nc.OnionProxy,
+				Username:     nc.OnionProxyUser,
+				Password:     nc.OnionProxyPass,
+				TorIsolation: nc.TorIsolation,
 			}
 			return proxy.DialTimeout(network, addr, timeout)
 		}
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
-		if NodeConfig.Node.Proxy != "" {
+		if nc.Proxy != "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
-				return connmgr.TorLookupIP(host, NodeConfig.Node.OnionProxy)
+				return connmgr.TorLookupIP(host, nc.OnionProxy)
 			}
 		}
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
 	// Specifying --noonion means the onion address dial function results in an error.
-	if NodeConfig.Node.NoOnion {
+	if nc.NoOnion {
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
 			return nil, errors.New("tor has been disabled")
 		}

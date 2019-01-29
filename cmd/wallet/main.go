@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/gui"
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
@@ -120,15 +119,6 @@ func Main(c *Config) error {
 			<-legacyRPCServer.RequestProcessShutdown()
 			simulateInterrupt()
 		}()
-	}
-
-	if cfg.GUI {
-		wlt, err := loader.LoadedWallet()
-		if err != true {
-			panic("")
-		}
-		go gui.GUI(wlt)
-
 	}
 	<-interruptHandlersDone
 	log <- cl.Inf("shutdown complete")

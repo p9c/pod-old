@@ -4,22 +4,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
+	"path/filepath"
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/netparams"
 	"github.com/tucnak/climax"
 )
 
 // ShellCfg is the combined app and logging configuration data
 type ShellCfg struct {
-	Node   *n.Config
-	Wallet *w.Config
-	Levels map[string]string
+	ConfigFile string
+	Node       *n.Config
+	Wallet     *w.Config
+	Levels     map[string]string
 }
+
+// DefaultShellAppDataDir is the default app data dir
+var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
+
+// DefaultShellConfigFile is the default configfile for shell
+var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf")
 
 // ShellConfig is the combined app and log levels configuration
 var ShellConfig = DefaultShellConfig()
@@ -33,28 +39,33 @@ var ShellCommand = climax.Command{
 		t("version", "V", "show version number and quit"),
 
 		s("configfile", "C", DefaultShellConfFileName, "path to configuration file"),
+
 		s("datadir", "D", n.DefaultDataDir, "set the pod base directory"),
 		f("appdatadir", "shell", "set app data directory for wallet, configuration and logs"),
 
 		t("init", "i", "resets configuration to defaults"),
 		t("save", "S", "saves current flags into configuration"),
 
-		f("noinitialload", "false", "defer wallet load to be triggered by RPC"),
-		f("network", "mainnet", "connect to (mainnet|testnet|regtestnet|simnet)"),
+		f("network", "mainnet",
+			"connect to (mainnet|testnet|regtestnet|simnet)"),
 
-		f("createtemp", "false", "create temporary wallet (pass=walletpass) requires --datadir"),
+		f("createtemp", "false",
+			"create temporary wallet (pass=walletpass) requires --datadir"),
 
-		f("gui", "false", "launch GUI"),
+		f("walletpass", "",
+			"the public wallet password - only required if the wallet was created with one"),
 
-		f("walletpass", "", "the public wallet password - only required if the wallet was created with one"),
+		s("listeners", "S", n.DefaultListener,
+			"sets an address to listen for P2P connections"),
+		f("externalips", "", "additional P2P listeners"),
+		f("disablelisten", "false", "disables the P2P listener"),
 
-		f("profile", "false", "enable HTTP profiling on given port (1024-65536)"),
-
-		f("legacyrpclisteners", "127.0.0.1:11046", "add a listener for the legacy RPC"),
-		f("legacyrpcmaxclients", fmt.Sprint(n.DefaultMaxRPCClients),
-			"max connections for legacy RPC"),
-		f("legacyrpcmaxwebsockets", fmt.Sprint(n.DefaultMaxRPCWebsockets),
-			"max websockets for legacy RPC"),
+		f("rpclisteners", "127.0.0.1:11046",
+			"add a listener for the wallet RPC"),
+		f("rpcmaxclients", fmt.Sprint(n.DefaultMaxRPCClients),
+			"max connections for wallet RPC"),
+		f("rpcmaxwebsockets", fmt.Sprint(n.DefaultMaxRPCWebsockets),
+			"max websockets for wallet RPC"),
 
 		f("username", "user", "username for wallet RPC"),
 		f("password", "pa55word", "password for wallet RPC"),
@@ -67,11 +78,7 @@ var ShellCommand = climax.Command{
 			"generate a new TLS certpair don't save key"),
 		f("cafile", w.DefaultCAFile,
 			"certificate authority for custom TLS CA"),
-		f("enableservertls", "false", "enable TLS on wallet RPC server"),
-
-		f("proxy", "", "proxy address for outbound connections"),
-		f("proxyuser", "", "username for proxy server"),
-		f("proxypass", "", "password for proxy server"),
+		f("tls", "false", "enable TLS on wallet RPC server"),
 
 		f("txindex", "true", "enable transaction index"),
 		f("addrindex", "true", "enable address index"),
@@ -79,12 +86,20 @@ var ShellCommand = climax.Command{
 		t("droptxindex", "", "deletes transaction index then exit"),
 		t("dropaddrindex", "", "deletes the address index then exits"),
 
-		s("listeners", "S", n.DefaultListener, "sets an address to listen for P2P connections"),
-		f("externalips", "", "additional P2P listeners"),
-		f("disablelisten", "false", "disables the P2P listener"),
+		f("proxy", "", "proxy address for outbound connections"),
+		f("proxyuser", "", "username for proxy server"),
+		f("proxypass", "", "password for proxy server"),
 
-		f("addpeers", "", "adds a peer to the peers database to try to connect to"),
-		f("connectpeers", "", "adds a peer to a connect-only whitelist"),
+		f("onion", "", "connect via tor proxy relay"),
+		f("onionuser", "", "username for onion proxy server"),
+		f("onionpass", "", "password for onion proxy server"),
+		f("noonion", "false", "disable onion proxy"),
+		f("torisolation", "false", "use a different user/pass for each peer"),
+
+		f("addpeers", "",
+			"adds a peer to the peers database to try to connect to"),
+		f("connectpeers", "",
+			"adds a peer to a connect-only whitelist"),
 		f(`maxpeers`, fmt.Sprint(n.DefaultMaxPeers),
 			"sets max number of peers to connect to to at once"),
 		f(`disablebanning`, "false",
@@ -94,12 +109,6 @@ var ShellCommand = climax.Command{
 		f("banthreshold", fmt.Sprint(n.DefaultBanThreshold),
 			"banscore that triggers a ban"),
 		f("whitelists", "", "addresses and networks immune to banning"),
-
-		f("onion", "", "connect via tor proxy relay"),
-		f("onionuser", "", "username for onion proxy server"),
-		f("onionpass", "", "password for onion proxy server"),
-		f("noonion", "false", "disable onion proxy"),
-		f("torisolation", "false", "use a different user/pass for each peer"),
 
 		f("trickleinterval", fmt.Sprint(n.DefaultTrickleInterval),
 			"time between sending inventory batches to peers"),
@@ -177,194 +186,16 @@ var ShellCommand = climax.Command{
 				ll[i].SetLevel(dl)
 			}
 		}
-		log <- cl.Trc("starting wallet app")
-		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
-		if ctx.Is("version") {
-			fmt.Println("pod/wallet version", w.Version())
-			cl.Shutdown()
-		}
-		var cfgFile string
-		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = w.DefaultConfigFile
-		}
-		if ctx.Is("init") {
-			log <- cl.Debug{"writing default configuration to", cfgFile}
-			WriteDefaultShellConfig(cfgFile)
-		}
-		log <- cl.Info{"loading configuration from", cfgFile}
-		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-			log <- cl.Wrn("configuration file does not exist, creating new one")
-			WriteDefaultShellConfig(cfgFile)
-		} else {
-			log <- cl.Debug{"reading app configuration from", cfgFile}
-			cfgData, err := ioutil.ReadFile(cfgFile)
-			if err != nil {
-				log <- cl.Error{"reading app config file", err.Error()}
-				WriteDefaultShellConfig(cfgFile)
-			}
-			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-			err = json.Unmarshal(cfgData, &ShellConfig)
-			if err != nil {
-				log <- cl.Error{"parsing app config file", err.Error()}
-				WriteDefaultShellConfig(cfgFile)
+		log <- cl.Trc("starting shell app")
+		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
+		if dl, ok = ctx.Get("debuglevel"); ok {
+			for i := range ShellConfig.Levels {
+				ShellConfig.Levels[i] = dl
 			}
 		}
-		configShell(&ctx, cfgFile)
-		runShell(ctx.Args)
-		cl.Shutdown()
+		runShell()
 		return 0
 	},
-}
-
-// ShellFlags is the list of flags and the default values stored in the Usage field
-var ShellFlags = GetFlags(ShellCommand)
-
-func configShell(ctx *climax.Context, cfgFile string) {
-	log <- cl.Trace{"configuring from command line flags ", os.Args}
-	if ctx.Is("createtemp") {
-		log <- cl.Dbg("request to make temp wallet")
-		ShellConfig.Wallet.CreateTemp = true
-	}
-	if r, ok := getIfIs(ctx, "appdatadir"); ok {
-		log <- cl.Debug{"appdatadir set to", r}
-		ShellConfig.Wallet.AppDataDir = n.CleanAndExpandPath(r)
-	}
-	if r, ok := getIfIs(ctx, "noinitialload"); ok {
-		log <- cl.Dbg("no initial load requested")
-		ShellConfig.Wallet.NoInitialLoad = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "logdir"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.LogDir = n.CleanAndExpandPath(r)
-	}
-	if r, ok := getIfIs(ctx, "profile"); ok {
-		log <- cl.Dbg("")
-		NormalizeAddress(r, "3131", &ShellConfig.Wallet.Profile)
-	}
-	if r, ok := getIfIs(ctx, "gui"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.GUI = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "walletpass"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.WalletPass = r
-	}
-	if r, ok := getIfIs(ctx, "rpcconnect"); ok {
-		log <- cl.Dbg("")
-		NormalizeAddress(r, "11048", &ShellConfig.Wallet.RPCConnect)
-	}
-	if r, ok := getIfIs(ctx, "cafile"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.CAFile = n.CleanAndExpandPath(r)
-	}
-	if r, ok := getIfIs(ctx, "enableclienttls"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.EnableClientTLS = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "podusername"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.PodUsername = r
-	}
-	if r, ok := getIfIs(ctx, "podpassword"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.PodPassword = r
-	}
-	if r, ok := getIfIs(ctx, "proxy"); ok {
-		log <- cl.Dbg("")
-		NormalizeAddress(r, "11048", &ShellConfig.Wallet.Proxy)
-	}
-	if r, ok := getIfIs(ctx, "proxyuser"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.ProxyUser = r
-	}
-	if r, ok := getIfIs(ctx, "proxypass"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.ProxyPass = r
-	}
-	if r, ok := getIfIs(ctx, "rpccert"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.RPCCert = n.CleanAndExpandPath(r)
-	}
-	if r, ok := getIfIs(ctx, "rpckey"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.RPCKey = n.CleanAndExpandPath(r)
-	}
-	if r, ok := getIfIs(ctx, "onetimetlskey"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.OneTimeTLSKey = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "enableservertls"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.EnableServerTLS = r == "true"
-	}
-	if r, ok := getIfIs(ctx, "legacyrpclisteners"); ok {
-		log <- cl.Dbg("")
-		NormalizeAddresses(r, "11046", &ShellConfig.Wallet.LegacyRPCListeners)
-	}
-	if r, ok := getIfIs(ctx, "legacyrpcmaxclients"); ok {
-		log <- cl.Dbg("")
-		var bt int
-		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
-			log <- cl.Wrn(err.Error())
-		} else {
-			ShellConfig.Wallet.LegacyRPCMaxClients = int64(bt)
-		}
-	}
-	if r, ok := getIfIs(ctx, "legacyrpcmaxwebsockets"); ok {
-		log <- cl.Dbg("")
-		_, err := fmt.Sscanf(r, "%d", ShellConfig.Wallet.LegacyRPCMaxWebsockets)
-		if err != nil {
-			log <- cl.Errorf{
-				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
-				r, ShellConfig.Wallet.LegacyRPCMaxWebsockets,
-			}
-		}
-	}
-	if r, ok := getIfIs(ctx, "username"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.Username = r
-	}
-	if r, ok := getIfIs(ctx, "password"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.Password = r
-	}
-	if r, ok := getIfIs(ctx, "experimentalrpclisteners"); ok {
-		log <- cl.Dbg("")
-		NormalizeAddresses(r, "11045", &ShellConfig.Wallet.ExperimentalRPCListeners)
-	}
-	if r, ok := getIfIs(ctx, "datadir"); ok {
-		log <- cl.Dbg("")
-		ShellConfig.Wallet.DataDir = r
-	}
-	if r, ok := getIfIs(ctx, "network"); ok {
-		log <- cl.Dbg("")
-		switch r {
-		case "testnet":
-			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = true, false
-			w.ActiveNet = &netparams.TestNet3Params
-		case "simnet":
-			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, true
-			w.ActiveNet = &netparams.SimNetParams
-		default:
-			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, false
-			w.ActiveNet = &netparams.MainNetParams
-		}
-	}
-
-	// finished configuration
-
-	SetLogging(ctx)
-
-	if ctx.Is("save") {
-		log <- cl.Info{"saving config file to", cfgFile}
-		j, err := json.MarshalIndent(ShellConfig, "", "  ")
-		if err != nil {
-			log <- cl.Error{"writing app config file", err}
-		}
-		j = append(j, '\n')
-		log <- cl.Trace{"JSON formatted config file\n", string(j)}
-		ioutil.WriteFile(cfgFile, j, 0600)
-	}
 }
 
 // WriteShellConfig creates and writes the config file in the requested location
@@ -404,10 +235,12 @@ func WriteDefaultShellConfig(cfgFile string) {
 // DefaultShellConfig returns a default configuration
 func DefaultShellConfig() *ShellCfg {
 	log <- cl.Dbg("getting default config")
+	u := GenKey()
+	p := GenKey()
 	return &ShellCfg{
 		Node: &n.Config{
-			RPCUser:              "",
-			RPCPass:              "",
+			RPCUser:              u,
+			RPCPass:              p,
 			Listeners:            []string{n.DefaultListener},
 			RPCListeners:         []string{n.DefaultRPCListener},
 			DebugLevel:           "info",
@@ -434,12 +267,18 @@ func DefaultShellConfig() *ShellCfg {
 			MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
 			SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
 			Generate:             n.DefaultGenerate,
-			GenThreads:           1,
+			GenThreads:           -1,
 			TxIndex:              n.DefaultTxIndex,
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
 		},
 		Wallet: &w.Config{
+			PodUsername:            u,
+			PodPassword:            p,
+			Username:               "user",
+			Password:               "pa55word",
+			RPCConnect:             n.DefaultRPCListener,
+			LegacyRPCListeners:     []string{w.DefaultListener},
 			NoInitialLoad:          false,
 			ConfigFile:             w.DefaultConfigFile,
 			DataDir:                w.DefaultDataDir,
@@ -448,7 +287,7 @@ func DefaultShellConfig() *ShellCfg {
 			RPCKey:                 w.DefaultRPCKeyFile,
 			RPCCert:                w.DefaultRPCCertFile,
 			WalletPass:             "",
-			CAFile:                 "",
+			CAFile:                 w.DefaultCAFile,
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},

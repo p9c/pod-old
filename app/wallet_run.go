@@ -9,7 +9,7 @@ import (
 )
 
 func runWallet(args []string) {
-	j, _ := json.MarshalIndent(WalletConfig.Wallet, "", "  ")
+	j, _ := json.MarshalIndent(WalletConfig, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	walletmain.Main(WalletConfig.Wallet)
 }

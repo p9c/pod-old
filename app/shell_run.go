@@ -2,13 +2,13 @@ package app
 
 import (
 	"encoding/json"
+	"time"
 
-	"git.parallelcoin.io/pod/cmd/ctl"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
-func runShell(args []string) {
-	j, _ := json.MarshalIndent(CtlCfg, "", "  ")
+func runShell() {
+	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
-	ctl.Main(args, CtlCfg)
+	time.Sleep(time.Second)
 }

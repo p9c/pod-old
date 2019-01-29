@@ -22,7 +22,10 @@ type VDATA struct {
 var wlt *wallet.Wallet
 
 // GUI is the main entry point for the GUI interface
-func GUI() {
+func GUI(W ...*wallet.Wallet) {
+	if len(W) > 0 {
+		wlt = W[0]
+	}
 	w := webview.New(webview.Settings{
 		Title:     "ParallelCoin - DUO - True Story",
 		Width:     1800,
@@ -32,7 +35,7 @@ func GUI() {
 		Resizable: false,
 	})
 	defer w.Exit()
-	// Here we need to check for and create wallet
+	// Here we need to check for and create wallet :
 
 	// Next start up shell
 

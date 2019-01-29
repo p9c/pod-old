@@ -14,7 +14,7 @@ var PodApp = climax.Application{
 	Commands: []climax.Command{},
 	Topics:   []climax.Topic{},
 	Groups:   []climax.Group{},
-	Default:  DefaultCommand.Handle,
+	Default:  GUICommand.Handle,
 }
 
 // Main is the real pod main
@@ -25,6 +25,6 @@ func Main() int {
 	PodApp.AddCommand(ShellCommand)
 	PodApp.AddCommand(ConfCommand)
 	PodApp.AddCommand(VersionCommand)
-	PodApp.AddCommand(DefaultCommand)
+	PodApp.AddCommand(GUICommand)
 	return PodApp.Run()
 }

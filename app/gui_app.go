@@ -6,14 +6,15 @@ import (
 	"time"
 
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	"git.parallelcoin.io/pod/pkg/gui"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 
-// DefaultCfg is the type for the default config data
-type DefaultCfg struct {
+// GUICfg is the type for the default config data
+type GUICfg struct {
 	AppDataDir string
 	Password   string
 	PublicPass string
@@ -21,17 +22,17 @@ type DefaultCfg struct {
 	Network    string
 }
 
-// DefaultConfig is
-var DefaultConfig = DefaultCfg{
+// GUIConfig is
+var GUIConfig = GUICfg{
 	AppDataDir: walletmain.DefaultAppDataDir,
 	Network:    "mainnet",
 }
 
-// DefaultCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
-var DefaultCommand = climax.Command{
-	Name:  "createwallet",
-	Brief: "creates a new wallet",
-	Help:  "creates a new wallet using GUI or CLI flags, if no parameters are given, launches the GUI input, if wallet exists, launch the shell with GUI",
+// GUICommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+var GUICommand = climax.Command{
+	Name:  "gui",
+	Brief: "runs the GUI",
+	Help:  "if given CLI parameters, creates a new wallet, otherwise launches the GUI",
 	Flags: []climax.Flag{
 		t("help", "h", "show help text"),
 		s("appdatadir", "d", walletmain.DefaultAppDataDir, "specify where the wallet will be created"),
@@ -45,7 +46,7 @@ var DefaultCommand = climax.Command{
 		if ctx.Is("help") {
 			fmt.Print(`Usage: createwallet [-h] [-d] [-s] [-p] [-P] [-c] [--network]
 
-creates a new wallet using GUI or CLI flags, if no parameters are given, launches the GUI input, if wallet exists, launch the shell with GUI
+creates a new wallet given CLI flags, or launches the GUI which creates a new wallet if necessary
 			
 Available options:
 
@@ -69,7 +70,7 @@ Available options:
 		}
 		argsGiven := false
 		if r, ok := getIfIs(&ctx, "appdatadir"); ok {
-			DefaultConfig.AppDataDir = r
+			GUIConfig.AppDataDir = r
 			argsGiven = true
 		}
 		if r, ok := getIfIs(&ctx, "network"); ok {
@@ -81,39 +82,39 @@ Available options:
 			default:
 				walletmain.ActiveNet = &netparams.MainNetParams
 			}
-			DefaultConfig.Network = r
+			GUIConfig.Network = r
 			argsGiven = true
 		}
 		if ctx.Is("cli") {
 			walletmain.CreateWallet(&walletmain.Config{
-				AppDataDir: DefaultConfig.AppDataDir,
-				WalletPass: DefaultConfig.PublicPass,
+				AppDataDir: GUIConfig.AppDataDir,
+				WalletPass: GUIConfig.PublicPass,
 			})
 			fmt.Print("\nYou can now open the wallet\n")
 			os.Exit(0)
 		}
 		if r, ok := getIfIs(&ctx, "seed"); ok {
-			DefaultConfig.Seed = []byte(r)
+			GUIConfig.Seed = []byte(r)
 			argsGiven = true
 		}
 		if r, ok := getIfIs(&ctx, "password"); ok {
-			DefaultConfig.Password = r
+			GUIConfig.Password = r
 			argsGiven = true
 		}
 		if r, ok := getIfIs(&ctx, "publicpass"); ok {
-			DefaultConfig.PublicPass = r
+			GUIConfig.PublicPass = r
 			argsGiven = true
 		}
 		if argsGiven {
 			dbDir := walletmain.NetworkDir(
-				DefaultConfig.AppDataDir, walletmain.ActiveNet.Params)
+				GUIConfig.AppDataDir, walletmain.ActiveNet.Params)
 			loader := wallet.NewLoader(
 				walletmain.ActiveNet.Params, dbDir, 250)
-			if DefaultConfig.Password == "" {
+			if GUIConfig.Password == "" {
 				fmt.Println("no password given")
 				return 1
 			}
-			if DefaultConfig.Seed == nil {
+			if GUIConfig.Seed == nil {
 				seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
 				if err != nil {
 					fmt.Println("failed to generate new seed")
@@ -123,27 +124,27 @@ Available options:
 				fmt.Printf("\n%x\n\n", seed)
 				fmt.Print("IMPORTANT: Keep the seed in a safe place as you will NOT be able to restore your wallet without it.\n\n")
 				fmt.Print("Please keep in mind that anyone who has access to the seed can also restore your wallet thereby giving them access to all your funds, so it is imperative that you keep it in a secure location.\n\n")
-				DefaultConfig.Seed = []byte(seed)
+				GUIConfig.Seed = []byte(seed)
 			}
 			w, err := loader.CreateNewWallet(
-				[]byte(DefaultConfig.PublicPass),
-				[]byte(DefaultConfig.Password),
-				DefaultConfig.Seed,
+				[]byte(GUIConfig.PublicPass),
+				[]byte(GUIConfig.Password),
+				GUIConfig.Seed,
 				time.Now())
 			if err != nil {
 				fmt.Println(err)
 				return 1
 			}
 			fmt.Println("Wallet creation completed")
-			fmt.Println("Seed:", string(DefaultConfig.Seed))
-			fmt.Println("Password: '" + string(DefaultConfig.Password) + "'")
-			fmt.Println("Public Password: '" + string(DefaultConfig.PublicPass) + "'")
+			fmt.Println("Seed:", string(GUIConfig.Seed))
+			fmt.Println("Password: '" + string(GUIConfig.Password) + "'")
+			fmt.Println("Public Password: '" + string(GUIConfig.PublicPass) + "'")
 			w.Manager.Close()
 			return 0
 
 		} else {
 			fmt.Println("launching GUI")
-			// Start GUI actually!
+			gui.GUI()
 		}
 		return 0
 	},
