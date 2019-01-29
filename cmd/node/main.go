@@ -138,8 +138,13 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 	}
 	// Wait until the interrupt signal is received from an OS signal or shutdown is requested through one of the subsystems such as the RPC server.
 	<-interrupt
+	log <- cl.Inf("node shutdown complete")
+	NodeDone <- struct{}{}
 	return nil
 }
+
+// NodeDone indicates when the node has finished shutting down
+var NodeDone = make(chan struct{})
 
 // removeRegressionDB removes the existing regression test database if running in regression test mode and it already exists.
 func removeRegressionDB(dbPath string) error {

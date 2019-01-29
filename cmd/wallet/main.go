@@ -122,8 +122,12 @@ func Main(c *Config) error {
 	}
 	<-interruptHandlersDone
 	log <- cl.Inf("shutdown complete")
+	WalletDone <- struct{}{}
 	return nil
 }
+
+// WalletDone indicates when the node has finished shutting down
+var WalletDone = make(chan struct{})
 
 // rpcClientConnectLoop continuously attempts a connection to the consensus RPC
 // server.  When a connection is established, the client is used to sync the

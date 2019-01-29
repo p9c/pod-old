@@ -147,7 +147,7 @@ func init() {
 				WalletConfig.Levels[i] = dl
 			}
 		}
-		runWallet(ctx.Args)
+		runWallet()
 		return 0
 	}
 }

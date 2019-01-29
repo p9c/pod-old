@@ -193,8 +193,7 @@ var ShellCommand = climax.Command{
 				ShellConfig.Levels[i] = dl
 			}
 		}
-		runShell()
-		return 0
+		return runShell()
 	},
 }
 
