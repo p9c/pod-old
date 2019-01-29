@@ -8,16 +8,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/database"
+	database "git.parallelcoin.io/pod/pkg/db"
 	peerpkg "git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 )
 
 const (

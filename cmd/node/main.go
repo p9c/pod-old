@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
-	"git.parallelcoin.io/pod/pkg/database"
+	indexers "git.parallelcoin.io/pod/pkg/chain/index"
+	database "git.parallelcoin.io/pod/pkg/db"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/util"

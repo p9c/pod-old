@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"

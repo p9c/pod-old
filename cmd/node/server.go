@@ -17,24 +17,24 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/pkg/addrmgr"
-	"git.parallelcoin.io/pod/pkg/blockchain"
-	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	indexers "git.parallelcoin.io/pod/pkg/chain/index"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
-	"git.parallelcoin.io/pod/pkg/database"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/mining"
-	"git.parallelcoin.io/pod/pkg/mining/controller"
 	"git.parallelcoin.io/pod/pkg/mining/cpuminer"
+	controller "git.parallelcoin.io/pod/pkg/mining/dispatch"
 	"git.parallelcoin.io/pod/pkg/netsync"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/bloom"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 )
 
 const (
@@ -46,7 +46,7 @@ const (
 	// defaultTargetOutbound is the default number of outbound peers to target.
 	defaultTargetOutbound = 9
 	// connectionRetryInterval is the base amount of time to wait in between retries when connecting to persistent peers.  It is adjusted by the number of retries such that there is a retry backoff.
-	connectionRetryInterval = time.Second*9
+	connectionRetryInterval = time.Second * 9
 )
 
 var (

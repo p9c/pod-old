@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
-	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	indexers "git.parallelcoin.io/pod/pkg/chain/index"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"

@@ -22,12 +22,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
-	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	indexers "git.parallelcoin.io/pod/pkg/chain/index"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/database"
+	database "git.parallelcoin.io/pod/pkg/db"
 	ec "git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/json"
@@ -37,7 +38,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"github.com/btcsuite/websocket"
 )
 

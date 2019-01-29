@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 
 	"git.parallelcoin.io/pod/pkg/addrmgr"
-	"git.parallelcoin.io/pod/pkg/blockchain"
-	"git.parallelcoin.io/pod/pkg/blockchain/indexers"
+	"git.parallelcoin.io/pod/pkg/chain"
+	"git.parallelcoin.io/pod/pkg/chain/indexers"
 	"git.parallelcoin.io/pod/pkg/connmgr"
-	"git.parallelcoin.io/pod/pkg/database"
+	"git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/log"
 	"git.parallelcoin.io/pod/pkg/mining"
 	"git.parallelcoin.io/pod/pkg/mining/controller"

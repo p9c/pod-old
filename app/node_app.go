@@ -15,7 +15,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	"git.parallelcoin.io/pod/pkg/fork"

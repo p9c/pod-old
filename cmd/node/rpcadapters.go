@@ -3,7 +3,7 @@ package node
 import (
 	"sync/atomic"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/netsync"
 	"git.parallelcoin.io/pod/pkg/peer"

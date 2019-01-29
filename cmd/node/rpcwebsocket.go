@@ -15,11 +15,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/database"
+	"git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/json"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"

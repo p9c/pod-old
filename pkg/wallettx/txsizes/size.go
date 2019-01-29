@@ -3,7 +3,7 @@
 package txsizes
 
 import (
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/wire"
 
 	h "git.parallelcoin.io/pod/pkg/helpers"

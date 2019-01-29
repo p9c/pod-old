@@ -3,7 +3,7 @@ package spv
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/cmd/spv/headerfs"

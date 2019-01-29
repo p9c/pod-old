@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/blockchain"
+	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
