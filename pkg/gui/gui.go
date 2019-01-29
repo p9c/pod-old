@@ -19,9 +19,10 @@ type VDATA struct {
 	Imgs   map[string][]byte `json:"imgs"`
 }
 
-func GUI(wlt *wallet.Wallet) {
-	apps.InitApps()
-	vue.WLT = wlt
+var wlt *wallet.Wallet
+
+// GUI is the main entry point for the GUI interface
+func GUI() {
 	w := webview.New(webview.Settings{
 		Title:     "ParallelCoin - DUO - True Story",
 		Width:     1800,
@@ -31,6 +32,13 @@ func GUI(wlt *wallet.Wallet) {
 		Resizable: false,
 	})
 	defer w.Exit()
+	// Here we need to check for and create wallet
+
+	// Next start up shell
+
+	//  Now start as normal with something in `wlt`
+	apps.InitApps()
+	vue.WLT = wlt
 	w.Dispatch(func() {
 
 		w.Bind("blockchaindata", &vue.BlockChain{})
