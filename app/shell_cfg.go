@@ -97,9 +97,13 @@ func configShell(sc *ShellCfg, ctx *climax.Context, cfgFile string) {
 	}
 	if r, ok := getIfIs(ctx, "username"); ok {
 		sc.Wallet.Username = r
+		sc.Wallet.PodPassword = r
+		sc.Node.RPCUser = r
 	}
 	if r, ok := getIfIs(ctx, "password"); ok {
 		sc.Wallet.Password = r
+		sc.Wallet.PodPassword = r
+		sc.Node.RPCPass = r
 	}
 	if r, ok := getIfIs(ctx, "rpccert"); ok {
 		sc.Wallet.RPCCert = n.CleanAndExpandPath(r)
@@ -469,8 +473,7 @@ func configShell(sc *ShellCfg, ctx *climax.Context, cfgFile string) {
 	}
 	// Check to make sure limited and admin users don't have the same password
 	if sc.Node.RPCPass == sc.Node.RPCLimitPass && sc.Node.RPCPass != "" {
-		str := "%s: --rpcpass and --rpclimitpass must not specify the " +
-			"same password"
+		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)

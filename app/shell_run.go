@@ -15,7 +15,7 @@ func runShell() int {
 	go runNode(ShellConfig.Node)
 	time.Sleep(time.Second * 3)
 	go runWallet(ShellConfig.Wallet)
-	var shutdown chan struct{}
+	shutdown := make(chan struct{})
 	interrupt.AddHandler(func() {
 		close(shutdown)
 	})

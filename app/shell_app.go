@@ -191,7 +191,7 @@ var ShellCommand = climax.Command{
 
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = w.DefaultConfigFile
+			cfgFile = DefaultShellConfigFile
 		}
 		if ctx.Is("init") {
 			log <- cl.Debug{"writing default configuration to", cfgFile}
@@ -209,7 +209,7 @@ var ShellCommand = climax.Command{
 				WriteDefaultShellConfig(cfgFile)
 			}
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-			err = json.Unmarshal(cfgData, &WalletConfig)
+			err = json.Unmarshal(cfgData, &ShellConfig)
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
 				WriteDefaultShellConfig(cfgFile)
@@ -297,8 +297,8 @@ func DefaultShellConfig() *ShellCfg {
 		Wallet: &w.Config{
 			PodUsername:            u,
 			PodPassword:            p,
-			Username:               "user",
-			Password:               "pa55word",
+			Username:               u,
+			Password:               p,
 			RPCConnect:             n.DefaultRPCListener,
 			LegacyRPCListeners:     []string{w.DefaultListener},
 			NoInitialLoad:          false,
