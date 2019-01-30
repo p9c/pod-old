@@ -9,8 +9,8 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
-func runWallet() int {
-	j, _ := json.MarshalIndent(WalletConfig, "", "  ")
+func runWallet(wc *walletmain.Config) int {
+	j, _ := json.MarshalIndent(wc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	go func() {
 		for {
@@ -20,7 +20,7 @@ func runWallet() int {
 			}
 		}
 	}()
-	err := walletmain.Main(WalletConfig.Wallet)
+	err := walletmain.Main(wc)
 	if err != nil {
 		fmt.Print(err)
 		return 1

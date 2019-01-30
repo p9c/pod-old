@@ -12,6 +12,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
+	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -27,6 +28,8 @@ func Main(c *Config) error {
 	cfg = c
 	// Show version at startup.
 	// log <- cl.Info{"version", Version()}
+
+	spew.Dump(cfg)
 
 	if cfg.Profile != "" {
 		go func() {
@@ -139,7 +142,7 @@ var WalletDone = make(chan struct{})
 func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
 	var certs []byte
 	// if !cfg.UseSPV {
-	// 	certs = readCAFile()
+	certs = readCAFile()
 	// }
 
 	for {

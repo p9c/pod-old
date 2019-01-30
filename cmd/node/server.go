@@ -1636,7 +1636,7 @@ func (s *server) peerHandler() {
 	// Start the address manager and sync manager, both of which are needed by peers.  This is done here since their lifecycle is closely tied to this handler and rather than adding more channels to sychronize things, it's easier and slightly faster to simply start and stop them in this handler.
 	s.addrManager.Start()
 	s.syncManager.Start()
-	log <- cl.Tracef{"Starting peer handler"}
+	log <- cl.Trc("starting peer handler")
 	state := &peerState{
 		inboundPeers:    make(map[int32]*serverPeer),
 		persistentPeers: make(map[int32]*serverPeer),
@@ -1645,6 +1645,7 @@ func (s *server) peerHandler() {
 		outboundGroups:  make(map[string]int),
 	}
 	if !cfg.DisableDNSSeed {
+		log <- cl.Trc("seeding from DNS")
 		// Add peers discovered through DNS to the address manager.
 		connmgr.SeedFromDNS(ActiveNetParams.Params, defaultRequiredServices,
 			podLookup, func(addrs []*wire.NetAddress) {
@@ -1652,6 +1653,7 @@ func (s *server) peerHandler() {
 				s.addrManager.AddAddresses(addrs, addrs[0])
 			})
 	}
+	log <- cl.Trc("starting connmgr")
 	go s.connManager.Start()
 out:
 	for {

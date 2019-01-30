@@ -274,8 +274,8 @@ func DefaultShellConfig() *ShellCfg {
 		Wallet: &w.Config{
 			PodUsername:            u,
 			PodPassword:            p,
-			Username:               "user",
-			Password:               "pa55word",
+			Username:               u,
+			Password:               p,
 			RPCConnect:             n.DefaultRPCListener,
 			LegacyRPCListeners:     []string{w.DefaultListener},
 			NoInitialLoad:          false,

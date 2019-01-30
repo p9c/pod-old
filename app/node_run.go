@@ -8,8 +8,8 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
-func runNode() int {
-	j, _ := json.MarshalIndent(NodeConfig, "", "  ")
+func runNode(nc *node.Config) int {
+	j, _ := json.MarshalIndent(nc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	go func() {
 		for {
@@ -19,7 +19,7 @@ func runNode() int {
 			}
 		}
 	}()
-	err := node.Main(NodeConfig.Node, nil)
+	err := node.Main(nc, nil)
 	if err != nil {
 		fmt.Print(err)
 		return 1

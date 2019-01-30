@@ -141,13 +141,13 @@ func init() {
 				WriteDefaultWalletConfig(cfgFile)
 			}
 		}
-		configWallet(ShellConfig.Wallet, &ctx, cfgFile)
+		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			for i := range WalletConfig.Levels {
 				WalletConfig.Levels[i] = dl
 			}
 		}
-		runWallet()
+		runWallet(WalletConfig.Wallet)
 		return 0
 	}
 }
@@ -163,7 +163,7 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 		wc.AppDataDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "logdir"); ok {
-		ShellConfig.Wallet.LogDir = n.CleanAndExpandPath(r)
+		wc.LogDir = n.CleanAndExpandPath(r)
 	}
 	if r, ok := getIfIs(ctx, "profile"); ok {
 		NormalizeAddress(r, "3131", &wc.Profile)

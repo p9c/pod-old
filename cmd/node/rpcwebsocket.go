@@ -15,11 +15,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/json"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
@@ -1125,7 +1125,7 @@ out:
 			c.SendMessage(reply, nil)
 			continue
 		}
-		log <- cl.Debugf{
+		log <- cl.Tracef{
 			"received command <%s> from %s", cmd.method, c.addr,
 		}
 		// Check auth.  The client is immediately disconnected if the first request of an unauthentiated websocket client is not the authenticate request, an authenticate request is received when the client is already authenticated, or incorrect authentication credentials are provided in the request.

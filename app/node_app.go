@@ -245,7 +245,7 @@ var NodeCommand = climax.Command{
 				NodeConfig.LogLevels[i] = dl
 			}
 		}
-		runNode()
+		runNode(NodeConfig.Node)
 		cl.Shutdown()
 		return 0
 	},
@@ -492,7 +492,11 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	if r, ok := getIfIs(ctx, "rejectnonstd"); ok {
 		nc.RejectNonStd = r == "true"
 	}
+
+	// finished configuration
+
 	SetLogging(ctx)
+
 	if ctx.Is("save") {
 		log <- cl.Infof{
 			"saving config file to %s",
@@ -515,6 +519,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 			log <- cl.Error{"writing app config file:", err.Error()}
 		}
 	}
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.

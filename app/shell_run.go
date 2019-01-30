@@ -11,10 +11,11 @@ import (
 
 func runShell() int {
 	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
-	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
+	log <- cl.Infof{"running with configuration:\n%s", string(j)}
 	time.Sleep(time.Second)
-	go runWallet()
-	go runNode()
+	go runNode(ShellConfig.Node)
+	time.Sleep(time.Second * 3)
+	go runWallet(ShellConfig.Wallet)
 	var walletdone, nodedone bool
 	for {
 		select {
