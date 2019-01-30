@@ -185,9 +185,14 @@ var NodeCommand = climax.Command{
 			fmt.Println("pod/node version", n.Version())
 			cl.Shutdown()
 		}
+		var datadir string
+		if datadir, ok = ctx.Get("datadir"); !ok {
+			datadir = n.DefaultDataDir
+		}
 		var cfgFile string
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = n.DefaultConfigFile
+			cfgFile = filepath.Join(
+				datadir, n.DefaultConfigFilename)
 		}
 		if ctx.Is("init") {
 			log <- cl.Debugf{
