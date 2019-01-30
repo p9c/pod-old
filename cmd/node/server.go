@@ -26,6 +26,7 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
 	database "git.parallelcoin.io/pod/pkg/db"
+	"git.parallelcoin.io/pod/pkg/interrupt"
 	"git.parallelcoin.io/pod/pkg/mining"
 	"git.parallelcoin.io/pod/pkg/mining/cpuminer"
 	controller "git.parallelcoin.io/pod/pkg/mining/dispatch"
@@ -2071,7 +2072,7 @@ func setupRPCListeners(urls []string) ([]net.Listener, error) {
 }
 
 // newServer returns a new pod server configured to listen on addr for the bitcoin network type specified by chainParams.  Use start to begin accepting connections from peers.
-func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interrupt <-chan struct{}, algo string) (*server, error) {
+func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interruptChan <-chan struct{}, algo string) (*server, error) {
 	services := defaultServices
 	if cfg.NoPeerBloomFilters {
 		services &^= wire.SFNodeBloom
@@ -2160,7 +2161,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 	var err error
 	s.chain, err = blockchain.New(&blockchain.Config{
 		DB:           s.db,
-		Interrupt:    interrupt,
+		Interrupt:    interruptChan,
 		ChainParams:  s.chainParams,
 		Checkpoints:  checkpoints,
 		TimeSource:   s.timeSource,
@@ -2379,7 +2380,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 			for i := range s.rpcServers {
 				<-s.rpcServers[i].RequestedProcessShutdown()
 			}
-			shutdownRequestChannel <- struct{}{}
+			interrupt.Request()
 		}()
 	}
 	return &s, nil

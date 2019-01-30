@@ -12,14 +12,6 @@ import (
 func runWallet(wc *walletmain.Config) int {
 	j, _ := json.MarshalIndent(wc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
-	go func() {
-		for {
-			select {
-			case <-walletmain.WalletDone:
-				break
-			}
-		}
-	}()
 	err := walletmain.Main(wc)
 	if err != nil {
 		fmt.Print(err)

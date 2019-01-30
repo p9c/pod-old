@@ -9,6 +9,7 @@ import (
 	"runtime/pprof"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/interrupt"
 
 	indexers "git.parallelcoin.io/pod/pkg/chain/index"
 	database "git.parallelcoin.io/pod/pkg/db"
@@ -30,22 +31,13 @@ var winServiceMain func() (bool, error)
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
 func Main(c *Config, serverChan chan<- *server) (err error) {
 	cfg = c
-	// Load configuration and parse command line.  This function also initializes logging and configures it accordingly.
-	// tcfg, _, err := loadConfig()
-	// if err != nil {
-	// 	return err
-	// }
-	// cfg = tcfg
-	// defer func() {
-	// 	if logRotator != nil {
-	// 		logRotator.Close()
-	// 	}
-	// }()
-	// Get a channel that will be closed when a shutdown signal has been triggered either from an OS signal such as SIGINT (Ctrl+C) or from another subsystem such as the RPC server.
-	interrupt := interruptListener()
-	defer func() {
-		log <- cl.Inf("shutdown complete")
-	}()
+	shutdownChan := make(chan struct{})
+	interrupt.AddHandler(
+		func() {
+			log <- cl.Inf("shutdown complete")
+			close(shutdownChan)
+		},
+	)
 	// Show version at startup.
 	log <- cl.Info{"version", Version()}
 	// Enable http profiling server if requested.
@@ -78,7 +70,7 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		return
 	}
 	// Return now if an interrupt signal was triggered.
-	if interruptRequested(interrupt) {
+	if interrupt.Requested() {
 		return nil
 	}
 	// Load the block database.
@@ -94,33 +86,33 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		db.Close()
 	}()
 	// Return now if an interrupt signal was triggered.
-	if interruptRequested(interrupt) {
+	if interrupt.Requested() {
 		return nil
 	}
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
 	if cfg.DropAddrIndex {
-		if err = indexers.DropAddrIndex(db, interrupt); err != nil {
+		if err = indexers.DropAddrIndex(db, interrupt.ShutdownRequestChan); err != nil {
 			log <- cl.Error{err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropTxIndex {
-		if err = indexers.DropTxIndex(db, interrupt); err != nil {
+		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
 			log <- cl.Error{err}
 			return
 		}
 		return nil
 	}
 	if cfg.DropCfIndex {
-		if err := indexers.DropCfIndex(db, interrupt); err != nil {
+		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
 			log <- cl.Error{err}
 			return err
 		}
 		return nil
 	}
 	// Create server and start it.
-	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt, cfg.Algo)
+	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt.ShutdownRequestChan, cfg.Algo)
 	if err != nil {
 		// TODO: this logging could do with some beautifying.
 		log <- cl.Errorf{"unable to start server on %v: %v", cfg.Listeners, err}
@@ -137,14 +129,9 @@ func Main(c *Config, serverChan chan<- *server) (err error) {
 		serverChan <- server
 	}
 	// Wait until the interrupt signal is received from an OS signal or shutdown is requested through one of the subsystems such as the RPC server.
-	<-interrupt
-	log <- cl.Inf("node shutdown complete")
-	NodeDone <- struct{}{}
+	<-shutdownChan
 	return nil
 }
-
-// NodeDone indicates when the node has finished shutting down
-var NodeDone = make(chan struct{})
 
 // removeRegressionDB removes the existing regression test database if running in regression test mode and it already exists.
 func removeRegressionDB(dbPath string) error {

@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/interrupt"
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
@@ -94,7 +95,7 @@ func Main(c *Config) error {
 	// Add interrupt handlers to shutdown the various process components
 	// before exiting.  Interrupt handlers run in LIFO order, so the wallet
 	// (which should be closed last) is added first.
-	addInterruptHandler(func() {
+	interrupt.AddHandler(func() {
 		err := loader.UnloadWallet()
 		if err != nil && err != wallet.ErrNotLoaded {
 			log <- cl.Error{
@@ -104,7 +105,7 @@ func Main(c *Config) error {
 	})
 	if rpcs != nil {
 		log <- cl.Trc("starting rpc server")
-		addInterruptHandler(func() {
+		interrupt.AddHandler(func() {
 			// TODO: Does this need to wait for the grpc server to
 			// finish up any requests?
 			log <- cl.Wrn("stopping RPC server...")
@@ -113,28 +114,22 @@ func Main(c *Config) error {
 		})
 	}
 	if legacyRPCServer != nil {
-		addInterruptHandler(func() {
+		interrupt.AddHandler(func() {
 			log <- cl.Wrn("stopping legacy RPC server...")
 			legacyRPCServer.Stop()
 			log <- cl.Inf("legacy RPC server shutdown")
 		})
 		go func() {
 			<-legacyRPCServer.RequestProcessShutdown()
-			simulateInterrupt()
+			interrupt.Request()
 		}()
 	}
-	<-interruptHandlersDone
+	<-interrupt.HandlersDone
 	log <- cl.Inf("shutdown complete")
-	WalletDone <- struct{}{}
 	return nil
 }
 
-// WalletDone indicates when the node has finished shutting down
-var WalletDone = make(chan struct{})
-
-// rpcClientConnectLoop continuously attempts a connection to the consensus RPC
-// server.  When a connection is established, the client is used to sync the
-// loaded wallet, either immediately or when loaded at a later time.
+// rpcClientConnectLoop continuously attempts a connection to the consensus RPC server.  When a connection is established, the client is used to sync the loaded wallet, either immediately or when loaded at a later time.
 //
 // The legacy RPC is optional.  If set, the connected RPC client will be
 // associated with the server for RPC passthrough and to enable additional

@@ -11,14 +11,6 @@ import (
 func runNode(nc *node.Config) int {
 	j, _ := json.MarshalIndent(nc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
-	go func() {
-		for {
-			select {
-			case <-node.NodeDone:
-				break
-			}
-		}
-	}()
 	err := node.Main(nc, nil)
 	if err != nil {
 		fmt.Print(err)

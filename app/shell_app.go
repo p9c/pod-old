@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	n "git.parallelcoin.io/pod/cmd/node"
@@ -187,12 +188,34 @@ var ShellCommand = climax.Command{
 			}
 		}
 		log <- cl.Trc("starting shell app")
-		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
-		if dl, ok = ctx.Get("debuglevel"); ok {
-			for i := range ShellConfig.Levels {
-				ShellConfig.Levels[i] = dl
+
+		var cfgFile string
+		if cfgFile, ok = ctx.Get("configfile"); !ok {
+			cfgFile = w.DefaultConfigFile
+		}
+		if ctx.Is("init") {
+			log <- cl.Debug{"writing default configuration to", cfgFile}
+			WriteDefaultShellConfig(cfgFile)
+		}
+		log <- cl.Info{"loading configuration from", cfgFile}
+		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+			log <- cl.Wrn("configuration file does not exist, creating new one")
+			WriteDefaultShellConfig(cfgFile)
+		} else {
+			log <- cl.Debug{"reading app configuration from", cfgFile}
+			cfgData, err := ioutil.ReadFile(cfgFile)
+			if err != nil {
+				log <- cl.Error{"reading app config file", err.Error()}
+				WriteDefaultShellConfig(cfgFile)
+			}
+			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+			err = json.Unmarshal(cfgData, &WalletConfig)
+			if err != nil {
+				log <- cl.Error{"parsing app config file", err.Error()}
+				WriteDefaultShellConfig(cfgFile)
 			}
 		}
+		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
 		return runShell()
 	},
 }
@@ -274,8 +297,8 @@ func DefaultShellConfig() *ShellCfg {
 		Wallet: &w.Config{
 			PodUsername:            u,
 			PodPassword:            p,
-			Username:               u,
-			Password:               p,
+			Username:               "user",
+			Password:               "pa55word",
 			RPCConnect:             n.DefaultRPCListener,
 			LegacyRPCListeners:     []string{w.DefaultListener},
 			NoInitialLoad:          false,

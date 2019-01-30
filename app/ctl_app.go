@@ -29,7 +29,7 @@ var CtlCommand = climax.Command{
 
 		f("walletrpc", ctl.DefaultRPCServer,
 			"wallet RPC address to try when given wallet RPC queries"),
-		f("rpcuser", "user", "RPC username"),
+		s("rpcuser", "u", "user", "RPC username"),
 		s("rpcpass", "P", "pa55word", "RPC password"),
 		s("rpcserver", "s", "127.0.0.1:11048", "RPC server to connect to"),
 		f("tls", "false", "enable/disable (true|false)"),
