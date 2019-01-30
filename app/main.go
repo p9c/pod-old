@@ -4,8 +4,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-var interrupt <-chan struct{}
-
 // PodApp is the climax main app controller for pod
 var PodApp = climax.Application{
 	Name:     "pod",
