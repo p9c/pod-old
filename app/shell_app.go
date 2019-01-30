@@ -10,6 +10,7 @@ import (
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	w "git.parallelcoin.io/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
@@ -29,7 +30,7 @@ var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
 var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf")
 
 // ShellConfig is the combined app and log levels configuration
-var ShellConfig = DefaultShellConfig()
+var ShellConfig = DefaultShellConfig(w.DefaultDataDir)
 
 // ShellCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var ShellCommand = climax.Command{
@@ -190,29 +191,31 @@ var ShellCommand = climax.Command{
 		log <- cl.Trc("starting shell app")
 
 		var cfgFile string
-		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = DefaultShellConfigFile
+		cfgFile = DefaultShellConfigFile
+		datadir := DefaultDataDir
+		if datadir, ok = ctx.Get("datadir"); ok {
+			cfgFile = filepath.Join(datadir, "shell/conf.json")
 		}
 		if ctx.Is("init") {
 			log <- cl.Debug{"writing default configuration to", cfgFile}
-			WriteDefaultShellConfig(cfgFile)
+			WriteDefaultShellConfig(datadir)
 		}
 		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 			log <- cl.Wrn("configuration file does not exist, creating new one")
-			WriteDefaultShellConfig(cfgFile)
+			WriteDefaultShellConfig(datadir)
 		} else {
 			log <- cl.Debug{"reading app configuration from", cfgFile}
 			cfgData, err := ioutil.ReadFile(cfgFile)
 			if err != nil {
 				log <- cl.Error{"reading app config file", err.Error()}
-				WriteDefaultShellConfig(cfgFile)
+				WriteDefaultShellConfig(datadir)
 			}
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &ShellConfig)
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
-				WriteDefaultShellConfig(cfgFile)
+				WriteDefaultShellConfig(datadir)
 			}
 		}
 		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
@@ -221,23 +224,23 @@ var ShellCommand = climax.Command{
 }
 
 // WriteShellConfig creates and writes the config file in the requested location
-func WriteShellConfig(cfgFile string, c *ShellCfg) {
+func WriteShellConfig(c *ShellCfg) {
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		panic(err.Error())
 	}
 	j = append(j, '\n')
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(c.ConfigFile)
+	err = ioutil.WriteFile(c.ConfigFile, j, 0600)
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
 // WriteDefaultShellConfig creates and writes a default config to the requested location
-func WriteDefaultShellConfig(cfgFile string) {
-	defCfg := DefaultShellConfig()
-	defCfg.Wallet.ConfigFile = cfgFile
+func WriteDefaultShellConfig(datadir string) {
+	defCfg := DefaultShellConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err}
@@ -245,9 +248,10 @@ func WriteDefaultShellConfig(cfgFile string) {
 	}
 	j = append(j, '\n')
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 	if err != nil {
-		log <- cl.Error{"writing app config file", err}
+		log <- cl.Error{"writing app config file", defCfg.ConfigFile, err}
 		panic(err)
 	}
 	// if we are writing default config we also want to use it
@@ -255,29 +259,32 @@ func WriteDefaultShellConfig(cfgFile string) {
 }
 
 // DefaultShellConfig returns a default configuration
-func DefaultShellConfig() *ShellCfg {
+func DefaultShellConfig(datadir string) *ShellCfg {
 	log <- cl.Dbg("getting default config")
 	u := GenKey()
 	p := GenKey()
+	appdatadir := filepath.Join(datadir, "shell")
 	return &ShellCfg{
+		ConfigFile: filepath.Join(appdatadir, "conf.json"),
 		Node: &n.Config{
-			RPCUser:              u,
-			RPCPass:              p,
-			Listeners:            []string{n.DefaultListener},
-			RPCListeners:         []string{n.DefaultRPCListener},
-			DebugLevel:           "info",
-			ConfigFile:           n.DefaultConfigFile,
+			RPCUser:      u,
+			RPCPass:      p,
+			Listeners:    []string{n.DefaultListener},
+			RPCListeners: []string{n.DefaultRPCListener},
+			DebugLevel:   "info",
+			ConfigFile: filepath.Join(
+				appdatadir, "nodeconf.json"),
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,
 			BanThreshold:         n.DefaultBanThreshold,
 			RPCMaxClients:        n.DefaultMaxRPCClients,
 			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
 			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-			DataDir:              n.DefaultDataDir,
-			LogDir:               n.DefaultLogDir,
+			DataDir:              datadir,
+			LogDir:               appdatadir,
 			DbType:               n.DefaultDbType,
-			RPCKey:               n.DefaultRPCKeyFile,
-			RPCCert:              n.DefaultRPCCertFile,
+			RPCCert:              filepath.Join(datadir, "rpc.cert"),
+			RPCKey:               filepath.Join(datadir, "rpc.key"),
 			MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
 			FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
 			TrickleInterval:      n.DefaultTrickleInterval,
@@ -295,21 +302,23 @@ func DefaultShellConfig() *ShellCfg {
 			Algo:                 n.DefaultAlgo,
 		},
 		Wallet: &w.Config{
-			PodUsername:            u,
-			PodPassword:            p,
-			Username:               u,
-			Password:               p,
-			RPCConnect:             n.DefaultRPCListener,
-			LegacyRPCListeners:     []string{w.DefaultListener},
-			NoInitialLoad:          false,
-			ConfigFile:             w.DefaultConfigFile,
-			DataDir:                w.DefaultDataDir,
-			AppDataDir:             w.DefaultAppDataDir,
-			LogDir:                 w.DefaultLogDir,
-			RPCKey:                 w.DefaultRPCKeyFile,
-			RPCCert:                w.DefaultRPCCertFile,
-			WalletPass:             "",
-			CAFile:                 w.DefaultCAFile,
+			PodUsername:        u,
+			PodPassword:        p,
+			Username:           u,
+			Password:           p,
+			RPCConnect:         n.DefaultRPCListener,
+			LegacyRPCListeners: []string{w.DefaultListener},
+			NoInitialLoad:      false,
+			ConfigFile: filepath.Join(
+				appdatadir, "walletconf.json"),
+			DataDir:    datadir,
+			AppDataDir: appdatadir,
+			LogDir:     appdatadir,
+			RPCCert:    filepath.Join(datadir, "rpc.cert"),
+			RPCKey:     filepath.Join(datadir, "rpc.key"),
+			WalletPass: "",
+			CAFile: filepath.Join(
+				datadir, walletmain.DefaultCAFile),
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},

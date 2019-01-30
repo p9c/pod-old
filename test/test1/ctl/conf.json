@@ -1,0 +1,18 @@
+{
+  "ShowVersion": false,
+  "ListCommands": false,
+  "ConfigFile": "test/test1/ctl/conf.json",
+  "DebugLevel": "off",
+  "RPCUser": "ff0ab050",
+  "RPCPass": "cdd54362",
+  "RPCServer": "127.0.0.1:11048",
+  "RPCCert": "test/test1/rpc.cert",
+  "TLS": false,
+  "Proxy": "",
+  "ProxyUser": "",
+  "ProxyPass": "",
+  "TestNet3": true,
+  "SimNet": false,
+  "TLSSkipVerify": false,
+  "Wallet": "127.0.0.1:11046"
+}

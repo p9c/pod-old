@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"github.com/tucnak/climax"
@@ -90,7 +92,7 @@ var WalletCommand = climax.Command{
 }
 
 // WalletConfig is the combined app and log levels configuration
-var WalletConfig = DefaultWalletConfig()
+var WalletConfig = DefaultWalletConfig(w.DefaultConfigFile)
 
 // wf is the list of flags and the default values stored in the Usage field
 var wf = GetFlags(WalletCommand)
@@ -269,31 +271,33 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 }
 
 // WriteWalletConfig creates and writes the config file in the requested location
-func WriteWalletConfig(cfgFile string, c *WalletCfg) {
+func WriteWalletConfig(c *WalletCfg) {
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		panic(err.Error())
 	}
 	j = append(j, '\n')
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(c.Wallet.ConfigFile)
+	err = ioutil.WriteFile(c.Wallet.ConfigFile, j, 0600)
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
 // WriteDefaultWalletConfig creates and writes a default config to the requested location
-func WriteDefaultWalletConfig(cfgFile string) {
-	defCfg := DefaultWalletConfig()
-	defCfg.Wallet.ConfigFile = cfgFile
+func WriteDefaultWalletConfig(datadir string) {
+	defCfg := DefaultWalletConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err}
 		panic(err)
 	}
 	j = append(j, '\n')
+	EnsureDir(defCfg.Wallet.ConfigFile)
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(defCfg.Wallet.ConfigFile)
+	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
 	if err != nil {
 		log <- cl.Error{"writing app config file", err}
 		panic(err)
@@ -303,22 +307,23 @@ func WriteDefaultWalletConfig(cfgFile string) {
 }
 
 // DefaultWalletConfig returns a default configuration
-func DefaultWalletConfig() *WalletCfg {
+func DefaultWalletConfig(datadir string) *WalletCfg {
 	log <- cl.Dbg("getting default config")
-
+	appdatadir := filepath.Join(datadir, w.DefaultAppDataDirname)
 	return &WalletCfg{
 		Wallet: &w.Config{
-			ConfigFile:      w.DefaultConfigFilename,
-			DataDir:         w.DefaultDataDir,
-			AppDataDir:      w.DefaultAppDataDir,
+			ConfigFile: filepath.Join(
+				appdatadir, w.DefaultConfigFilename),
+			DataDir:         datadir,
+			AppDataDir:      appdatadir,
 			RPCConnect:      n.DefaultRPCListener,
 			PodUsername:     "user",
 			PodPassword:     "pa55word",
 			WalletPass:      "",
 			NoInitialLoad:   false,
-			RPCCert:         w.DefaultRPCCertFile,
-			RPCKey:          w.DefaultRPCKeyFile,
-			CAFile:          w.DefaultCAFile,
+			RPCCert:         filepath.Join(datadir, "rpc.cert"),
+			RPCKey:          filepath.Join(datadir, "rpc.key"),
+			CAFile:          walletmain.DefaultCAFile,
 			EnableClientTLS: false,
 			EnableServerTLS: false,
 			Proxy:           "",

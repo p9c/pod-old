@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 
@@ -18,6 +18,8 @@ var confFile = DefaultDataDir + "/conf"
 
 // ConfCfg is the settings that can be set to synchronise across all pod modules
 type ConfCfg struct {
+	DataDir          string
+	ConfigFile       string
 	NodeListeners    []string
 	NodeRPCListeners []string
 	WalletListeners  []string
@@ -59,6 +61,8 @@ var ConfCommand = climax.Command{
 		t("init", "i", "resets configuration to defaults"),
 		t("show", "s", "prints currently configuration"),
 
+		s("datadir", "d", "~/.pod", "where to create the new profile"),
+
 		f("nodelistener", node.DefaultListener,
 			"main peer to peer address for apps that connect to the parallelcoin peer to peer network"),
 		f("noderpclistener", node.DefaultRPCListener,
@@ -81,6 +85,41 @@ var ConfCommand = climax.Command{
 
 		f("network", "mainnet", "connect to [mainnet|testnet|regtestnet|simnet]"),
 	},
+	Handle: func(ctx climax.Context) int {
+		if r, ok := ctx.Get("datadir"); ok {
+			DefaultDataDir = r
+			confFile = DefaultDataDir + "/conf.json"
+		}
+		confs = []string{
+			DefaultDataDir + "/ctl/conf.json",
+			DefaultDataDir + "/node/conf.json",
+			DefaultDataDir + "/wallet/conf.json",
+			DefaultDataDir + "/shell/conf.json",
+		}
+		for i := range confs {
+			EnsureDir(confs[i])
+		}
+		EnsureDir(confFile)
+		if ctx.Is("init") {
+			WriteDefaultConfConfig(DefaultDataDir)
+		} else {
+			if _, err := os.Stat(confFile); os.IsNotExist(err) {
+				WriteDefaultConfConfig(DefaultDataDir)
+			} else {
+				cfgData, err := ioutil.ReadFile(confFile)
+				if err != nil {
+					WriteDefaultConfConfig(DefaultDataDir)
+				}
+				err = json.Unmarshal(cfgData, &ConfConfig)
+				if err != nil {
+					WriteDefaultConfConfig(DefaultDataDir)
+				}
+			}
+		}
+		configConf(&ctx, DefaultDataDir)
+		runConf()
+		return 0
+	},
 	// Examples: []climax.Example{
 	// 	{
 	// 		Usecase:     "--nodeuser=user --nodepass=pa55word",
@@ -90,100 +129,83 @@ var ConfCommand = climax.Command{
 	// Handle:
 }
 
-func init() {
-	ConfCommand.Handle = func(ctx climax.Context) int {
-		if ctx.Is("init") {
-			WriteDefaultConfConfig(confFile)
-		} else {
-			if _, err := os.Stat(confFile); os.IsNotExist(err) {
-				WriteDefaultConfConfig(confFile)
-			} else {
-				cfgData, err := ioutil.ReadFile(confFile)
-				if err != nil {
-					WriteDefaultConfConfig(confFile)
-				}
-				err = json.Unmarshal(cfgData, &ConfConfig)
-				if err != nil {
-					WriteDefaultConfConfig(confFile)
-				}
-			}
-		}
-		configConf(&ctx, confFile)
-		runConf()
-		return 0
+var confs []string
+
+func getConfs(datadir string) {
+	confs = []string{
+		datadir + "/ctl/conf.json",
+		datadir + "/node/conf.json",
+		datadir + "/wallet/conf.json",
+		datadir + "/shell/conf.json",
 	}
+}
+
+func init() {
 }
 
 // cf is the list of flags and the default values stored in the Usage field
 var cf = GetFlags(ConfCommand)
 
-func configConf(ctx *climax.Context, cfgFile string) {
-	// First load all of the module configurations and unmarshal into their structs
-	confs := []string{
-		DefaultDataDir + "/ctl/conf",
-		DefaultDataDir + "/node/conf",
-		DefaultDataDir + "/wallet/conf",
-		DefaultDataDir + "/shell/conf",
-	}
-
+func configConf(ctx *climax.Context, datadir string) {
+	getConfs(datadir)
 	// If we can't parse the config files we just reset them to default
 
-	ctlCfg := *DefaultCtlConfig()
+	ctlCfg := *DefaultCtlConfig(datadir)
 	if _, err := os.Stat(confs[0]); os.IsNotExist(err) {
-		WriteDefaultConfConfig(confs[0])
+		WriteDefaultCtlConfig(datadir)
 	} else {
 		ctlCfgData, err := ioutil.ReadFile(confs[0])
 		if err != nil {
-			WriteDefaultCtlConfig(confs[0])
+			WriteDefaultCtlConfig(datadir)
 		} else {
 			err = json.Unmarshal(ctlCfgData, &ctlCfg)
 			if err != nil {
-				WriteDefaultCtlConfig(confs[0])
+				WriteDefaultCtlConfig(datadir)
 			}
 		}
 	}
 
-	nodeCfg := *DefaultNodeConfig()
+	nodeCfg := *DefaultNodeConfig(datadir)
 	if _, err := os.Stat(confs[1]); os.IsNotExist(err) {
-		WriteDefaultNodeConfig(confs[1])
+		WriteDefaultNodeConfig(datadir)
 	} else {
 		nodeCfgData, err := ioutil.ReadFile(confs[1])
 		if err != nil {
-			WriteDefaultNodeConfig(confs[1])
+			WriteDefaultNodeConfig(datadir)
 		} else {
 			err = json.Unmarshal(nodeCfgData, &nodeCfg)
 			if err != nil {
-				WriteDefaultNodeConfig(confs[1])
+				WriteDefaultNodeConfig(datadir)
 			}
 		}
 	}
 
-	walletCfg := *DefaultWalletConfig()
+	walletCfg := *DefaultWalletConfig(datadir)
 	if _, err := os.Stat(confs[2]); os.IsNotExist(err) {
-		WriteDefaultWalletConfig(confs[2])
+		WriteDefaultWalletConfig(datadir)
 	} else {
 		walletCfgData, err := ioutil.ReadFile(confs[2])
 		if err != nil {
-			WriteDefaultWalletConfig(confs[2])
+			WriteDefaultWalletConfig(datadir)
 		} else {
 			err = json.Unmarshal(walletCfgData, &walletCfg)
 			if err != nil {
-				WriteDefaultWalletConfig(confs[2])
+				WriteDefaultWalletConfig(datadir)
 			}
 		}
 	}
 
-	shellCfg := *DefaultShellConfig()
+	shellCfg := *DefaultShellConfig(datadir)
 	if _, err := os.Stat(confs[3]); os.IsNotExist(err) {
-		WriteDefaultShellConfig(confs[3])
+		WriteDefaultShellConfig(datadir)
 	} else {
 		shellCfgData, err := ioutil.ReadFile(confs[3])
 		if err != nil {
-			WriteDefaultShellConfig(confs[3])
+			WriteDefaultShellConfig(datadir)
 		} else {
 			err = json.Unmarshal(shellCfgData, &shellCfg)
 			if err != nil {
-				WriteDefaultShellConfig(confs[3])
+				WriteDefaultShellConfig(datadir)
 			}
 		}
 	}
@@ -436,12 +458,12 @@ func configConf(ctx *climax.Context, cfgFile string) {
 			shellCfg.Wallet.SimNet = true
 		}
 	}
-	WriteConfConfig(cfgFile, ConfConfig)
+	WriteConfConfig(ConfConfig)
 	// Now write the configs for all the others reading them and overwriting the changed values
-	WriteCtlConfig(confs[0], &ctlCfg)
-	WriteNodeConfig(confs[1], &nodeCfg)
-	WriteWalletConfig(confs[2], &walletCfg)
-	WriteShellConfig(confs[3], &shellCfg)
+	WriteCtlConfig(&ctlCfg)
+	WriteNodeConfig(&nodeCfg)
+	WriteWalletConfig(&walletCfg)
+	WriteShellConfig(&shellCfg)
 	if ctx.Is("show") {
 		j, err := json.MarshalIndent(ConfConfig, "", "  ")
 		if err != nil {
@@ -452,27 +474,29 @@ func configConf(ctx *climax.Context, cfgFile string) {
 }
 
 // WriteConfConfig creates and writes the config file in the requested location
-func WriteConfConfig(cfgFile string, cfg ConfCfg) {
+func WriteConfConfig(cfg ConfCfg) {
 	j, err := json.MarshalIndent(ConfConfig, "", "  ")
 	if err != nil {
 		panic(err.Error())
 	}
 	j = append(j, '\n')
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(cfg.ConfigFile)
+	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
 // WriteDefaultConfConfig creates and writes a default config file in the requested location
-func WriteDefaultConfConfig(cfgFile string) {
-	defCfg := DefaultConfConfig()
+func WriteDefaultConfConfig(datadir string) {
+	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		panic(err.Error())
 	}
 	j = append(j, '\n')
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -481,24 +505,27 @@ func WriteDefaultConfConfig(cfgFile string) {
 }
 
 // DefaultConfConfig returns a crispy fresh default conf configuration
-func DefaultConfConfig() *ConfCfg {
+func DefaultConfConfig(datadir string) *ConfCfg {
 	u := GenKey()
 	p := GenKey()
 	return &ConfCfg{
-		NodeListeners:    []string{"127.0.0.1:11047"},
-		NodeRPCListeners: []string{"127.0.0.1:11048"},
-		WalletListeners:  []string{"127.0.0.1:11046"},
+		DataDir:          datadir,
+		ConfigFile:       filepath.Join(datadir, "conf.json"),
+		NodeListeners:    []string{node.DefaultListener},
+		NodeRPCListeners: []string{node.DefaultRPCListener},
+		WalletListeners:  []string{walletmain.DefaultListener},
 		NodeUser:         u,
 		NodePass:         p,
-		WalletPass:       wallet.InsecurePubPassphrase,
-		RPCKey:           walletmain.DefaultRPCKeyFile,
-		RPCCert:          walletmain.DefaultRPCCertFile,
-		CAFile:           walletmain.DefaultCAFile,
-		TLS:              false,
-		SkipVerify:       false,
-		Proxy:            "",
-		ProxyUser:        "",
-		ProxyPass:        "",
-		Network:          "mainnet",
+		WalletPass:       "",
+		RPCCert:          filepath.Join(datadir, "rpc.cert"),
+		RPCKey:           filepath.Join(datadir, "rpc.key"),
+		CAFile: filepath.Join(
+			datadir, walletmain.DefaultCAFilename),
+		TLS:        false,
+		SkipVerify: false,
+		Proxy:      "",
+		ProxyUser:  "",
+		ProxyPass:  "",
+		Network:    "mainnet",
 	}
 }

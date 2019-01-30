@@ -1,0 +1,25 @@
+{
+  "DataDir": "test/test1ls/conf",
+  "ConfigFile": "test/test1ls/conf/conf",
+  "NodeListeners": [
+    "127.0.0.1:11047"
+  ],
+  "NodeRPCListeners": [
+    "127.0.0.1:11048"
+  ],
+  "WalletListeners": [
+    "127.0.0.1:11046"
+  ],
+  "NodeUser": "1a56a17a",
+  "NodePass": "7f604765",
+  "WalletPass": "",
+  "RPCKey": "",
+  "RPCCert": "test/test1ls/conf/rpc.cert",
+  "CAFile": "test/test1ls/conf/loki/.pod/cafile",
+  "TLS": false,
+  "SkipVerify": false,
+  "Proxy": "",
+  "ProxyUser": "",
+  "ProxyPass": "",
+  "Network": "mainnet"
+}

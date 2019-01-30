@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
 	cl "git.parallelcoin.io/pod/pkg/clog"
@@ -220,14 +221,15 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 }
 
 // WriteCtlConfig writes the current config in the requested location
-func WriteCtlConfig(cfgFile string, cc *ctl.Config) {
+func WriteCtlConfig(cc *ctl.Config) {
 	j, err := json.MarshalIndent(cc, "", "  ")
 	if err != nil {
 		log <- cl.Err(err.Error())
 	}
 	j = append(j, '\n')
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(cc.ConfigFile)
+	err = ioutil.WriteFile(cc.ConfigFile, j, 0600)
 	if err != nil {
 		log <- cl.Fatal{
 			"unable to write config file %s",
@@ -238,16 +240,16 @@ func WriteCtlConfig(cfgFile string, cc *ctl.Config) {
 }
 
 // WriteDefaultCtlConfig writes a default config in the requested location
-func WriteDefaultCtlConfig(cfgFile string) {
-	defCfg := DefaultCtlConfig()
-	defCfg.ConfigFile = cfgFile
+func WriteDefaultCtlConfig(datadir string) {
+	defCfg := DefaultCtlConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log <- cl.Err(err.Error())
 	}
 	j = append(j, '\n')
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
-	err = ioutil.WriteFile(cfgFile, j, 0600)
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 	if err != nil {
 		log <- cl.Fatal{
 			"unable to write config file %s",
@@ -260,14 +262,14 @@ func WriteDefaultCtlConfig(cfgFile string) {
 }
 
 // DefaultCtlConfig returns an allocated, default CtlCfg
-func DefaultCtlConfig() *ctl.Config {
+func DefaultCtlConfig(datadir string) *ctl.Config {
 	return &ctl.Config{
-		ConfigFile:    ctl.DefaultConfigFile,
+		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
 		DebugLevel:    "off",
 		RPCUser:       "user",
 		RPCPass:       "pa55word",
 		RPCServer:     ctl.DefaultRPCServer,
-		RPCCert:       ctl.DefaultRPCCertFile,
+		RPCCert:       filepath.Join(datadir, "rpc.cert"),
 		TLS:           false,
 		Proxy:         "",
 		ProxyUser:     "",

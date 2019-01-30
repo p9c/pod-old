@@ -14,11 +14,12 @@ import (
 )
 
 const (
+	DefaultAppDataDirname   = "wallet"
 	DefaultCAFilename       = "wallet.cert"
-	DefaultConfigFilename   = "conf"
+	DefaultConfigFilename   = "conf.json"
 	DefaultLogLevel         = "info"
 	DefaultLogDirname       = ""
-	DefaultLogFilename      = "log"
+	DefaultLogFilename      = "wallet/log"
 	DefaultRPCMaxClients    = 10
 	DefaultRPCMaxWebsockets = 25
 
@@ -26,8 +27,9 @@ const (
 )
 
 var (
-	DefaultDataDir     = util.AppDataDir("pod", false)
-	DefaultAppDataDir  = filepath.Join(DefaultDataDir, "wallet")
+	DefaultDataDir    = util.AppDataDir("pod", false)
+	DefaultAppDataDir = filepath.Join(
+		DefaultDataDir, DefaultAppDataDirname)
 	DefaultCAFile      = filepath.Join(DefaultDataDir, "cafile")
 	DefaultConfigFile  = filepath.Join(DefaultAppDataDir, DefaultConfigFilename)
 	DefaultRPCKeyFile  = filepath.Join(DefaultDataDir, "rpc.key")

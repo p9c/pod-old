@@ -13,7 +13,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
-	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -27,11 +26,6 @@ var (
 // can be exited with an error exit status.
 func Main(c *Config) error {
 	cfg = c
-	// Show version at startup.
-	// log <- cl.Info{"version", Version()}
-
-	spew.Dump(cfg)
-
 	if cfg.Profile != "" {
 		go func() {
 			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)

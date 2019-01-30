@@ -17,12 +17,12 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/peer"
@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	DefaultConfigFilename        = "node/conf"
+	DefaultConfigFilename        = "node/conf.json"
 	DefaultDataDirname           = "node"
 	DefaultLogLevel              = "info"
 	DefaultLogDirname            = "node"
