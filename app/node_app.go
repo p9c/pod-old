@@ -189,7 +189,7 @@ var NodeCommand = climax.Command{
 			fmt.Println("pod/node version", n.Version())
 			cl.Shutdown()
 		}
-		var datadir string
+		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = n.DefaultDataDir
 		}
