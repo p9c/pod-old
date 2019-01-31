@@ -189,7 +189,11 @@ var NodeCommand = climax.Command{
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = n.DefaultDataDir
 		}
+		log <- cl.Debug{"DataDir", datadir}
 		var cfgFile string
+		if r, ok := getIfIs(&ctx, "configfile"); ok {
+			cfgFile = r
+		}
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = filepath.Join(
 				datadir, n.DefaultConfigFilename)
@@ -233,6 +237,16 @@ var NodeCommand = climax.Command{
 					}
 					WriteDefaultNodeConfig(cfgFile)
 				}
+			}
+			switch {
+			case NodeConfig.Node.TestNet3:
+				n.ActiveNetParams = &n.TestNet3Params
+			case NodeConfig.Node.RegressionTest:
+				n.ActiveNetParams = &n.RegressionNetParams
+			case NodeConfig.Node.SimNet:
+				n.ActiveNetParams = &n.SimNetParams
+			default:
+				n.ActiveNetParams = &n.MainNetParams
 			}
 		}
 		configNode(NodeConfig.Node, &ctx, cfgFile)

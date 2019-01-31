@@ -25,7 +25,8 @@ import (
 func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	var err error
 	if r, ok := getIfIs(ctx, "datadir"); ok {
-		nc.DataDir = n.CleanAndExpandPath(r)
+		nc.DataDir = filepath.Join(n.CleanAndExpandPath(r), "node")
+		nc.ConfigFile = filepath.Join(n.CleanAndExpandPath(r), "conf.json")
 	}
 	if r, ok := getIfIs(ctx, "addpeers"); ok {
 		NormalizeAddresses(r, n.DefaultPort, &nc.AddPeers)
@@ -121,13 +122,18 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 		switch r {
 		case "testnet":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
+			n.ActiveNetParams = &n.TestNet3Params
 		case "regtest":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, true, false
+			n.ActiveNetParams = &n.RegressionNetParams
 		case "simnet":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, true
+			n.ActiveNetParams = &n.SimNetParams
 		default:
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, false
+			n.ActiveNetParams = &n.MainNetParams
 		}
+		log <- cl.Debug{n.ActiveNetParams.Name, r}
 	}
 	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
 		nc.AddCheckpoints = strings.Split(r, " ")
@@ -328,6 +334,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	nc.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	nc.DataDir = n.CleanAndExpandPath(nc.DataDir)
+	log <- cl.Debug{"netname", n.ActiveNetParams.Name, n.NetName(n.ActiveNetParams)}
 	nc.DataDir = filepath.Join(nc.DataDir, n.NetName(n.ActiveNetParams))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	nc.LogDir = n.CleanAndExpandPath(nc.LogDir)

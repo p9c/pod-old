@@ -1,9 +1,9 @@
 {
   "Node": {
     "ShowVersion": false,
-    "ConfigFile": "test/test1/node/conf.json",
-    "DataDir": "test/test1/node",
-    "LogDir": "test/test1/node",
+    "ConfigFile": "test/node/conf.json",
+    "DataDir": "test/node",
+    "LogDir": "test/node",
     "DebugLevel": "info",
     "AddPeers": null,
     "ConnectPeers": null,
@@ -16,15 +16,15 @@
     "BanDuration": 86400000000000,
     "BanThreshold": 100,
     "Whitelists": null,
-    "RPCUser": "2b8a5d37",
-    "RPCPass": "4125af9d",
+    "RPCUser": "bbd7d6cc",
+    "RPCPass": "f7a0f6cd",
     "RPCLimitUser": "",
     "RPCLimitPass": "",
     "RPCListeners": [
       "127.0.0.1:11048"
     ],
-    "RPCCert": "test/test1/rpc.cert",
-    "RPCKey": "test/test1/rpc.key",
+    "RPCCert": "test/rpc.cert",
+    "RPCKey": "test/rpc.key",
     "RPCMaxClients": 10,
     "RPCMaxWebsockets": 25,
     "RPCMaxConcurrentReqs": 20,

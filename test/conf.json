@@ -1,6 +1,6 @@
 {
-  "DataDir": "test/test1",
-  "ConfigFile": "test/test1/conf.json",
+  "DataDir": "test",
+  "ConfigFile": "test/conf.json",
   "NodeListeners": [
     "127.0.0.1:11047"
   ],
@@ -10,12 +10,12 @@
   "WalletListeners": [
     "127.0.0.1:11046"
   ],
-  "NodeUser": "2b8a5d37",
-  "NodePass": "4125af9d",
+  "NodeUser": "bbd7d6cc",
+  "NodePass": "f7a0f6cd",
   "WalletPass": "",
-  "RPCKey": "test/test1/rpc.key",
-  "RPCCert": "test/test1/rpc.cert",
-  "CAFile": "test/test1/wallet.cert",
+  "RPCKey": "test/rpc.key",
+  "RPCCert": "test/rpc.cert",
+  "CAFile": "test/wallet.cert",
   "TLS": false,
   "SkipVerify": false,
   "Proxy": "",

@@ -6,7 +6,7 @@ import (
 )
 
 // ActiveNetParams is a pointer to the parameters specific to the currently active bitcoin network.
-var ActiveNetParams = &mainNetParams
+var ActiveNetParams = &MainNetParams
 
 // params is used to group parameters for various networks such as the main network and test networks.
 type params struct {
@@ -14,26 +14,26 @@ type params struct {
 	RPCPort string
 }
 
-// mainNetParams contains parameters specific to the main network (wire.MainNet).  NOTE: The RPC port is intentionally different than the reference implementation because pod does not handle wallet requests.  The separate wallet process listens on the well-known port and forwards requests it does not handle on to pod.  This approach allows the wallet process to emulate the full reference implementation RPC API.
-var mainNetParams = params{
+// MainNetParams contains parameters specific to the main network (wire.MainNet).  NOTE: The RPC port is intentionally different than the reference implementation because pod does not handle wallet requests.  The separate wallet process listens on the well-known port and forwards requests it does not handle on to pod.  This approach allows the wallet process to emulate the full reference implementation RPC API.
+var MainNetParams = params{
 	Params:  &chaincfg.MainNetParams,
 	RPCPort: "11048",
 }
 
-// regressionNetParams contains parameters specific to the regression test network (wire.TestNet).  NOTE: The RPC port is intentionally different than the reference implementation - see the mainNetParams comment for details.
-var regressionNetParams = params{
+// RegressionNetParams contains parameters specific to the regression test network (wire.TestNet).  NOTE: The RPC port is intentionally different than the reference implementation - see the MainNetParams comment for details.
+var RegressionNetParams = params{
 	Params:  &chaincfg.RegressionNetParams,
 	RPCPort: "31048",
 }
 
-// testNet3Params contains parameters specific to the test network (version 3) (wire.TestNet3).  NOTE: The RPC port is intentionally different than the reference implementation - see the mainNetParams comment for details.
-var testNet3Params = params{
+// TestNet3Params contains parameters specific to the test network (version 3) (wire.TestNet3).  NOTE: The RPC port is intentionally different than the reference implementation - see the MainNetParams comment for details.
+var TestNet3Params = params{
 	Params:  &chaincfg.TestNet3Params,
 	RPCPort: "21048",
 }
 
-// simNetParams contains parameters specific to the simulation test network (wire.SimNet).
-var simNetParams = params{
+// SimNetParams contains parameters specific to the simulation test network (wire.SimNet).
+var SimNetParams = params{
 	Params:  &chaincfg.SimNetParams,
 	RPCPort: "41048",
 }

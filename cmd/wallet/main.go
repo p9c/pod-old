@@ -39,7 +39,8 @@ func Main(c *Config) error {
 		}()
 	}
 
-	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
+	dbDir := NetworkDir(cfg.DataDir, ActiveNet.Params)
+	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, ActiveNet.Params.Name}
 	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
 	if cfg.Create {
 		if err := CreateWallet(cfg); err != nil {
@@ -63,7 +64,7 @@ func Main(c *Config) error {
 	// Create and start chain RPC client so it's ready to connect to
 	// the wallet when loaded later.
 	if !cfg.NoInitialLoad {
-		log <- cl.Trc("starting rpcClienntConnectLoop")
+		log <- cl.Trc("starting rpcClientConnectLoop")
 		go rpcClientConnectLoop(legacyRPCServer, loader)
 	}
 
