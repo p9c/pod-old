@@ -151,7 +151,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
-	log <- cl.Trace{"opening existing wallet", canConsolePrompt}
+	log <- cl.Trace{"opening existing wallet"}
 
 	if l.wallet != nil {
 		log <- cl.Trc("already loaded wallet")
@@ -168,7 +168,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
 	if err != nil {
-		log <- cl.Error{"failed to open database:", err}
+		log <- cl.Error{"failed to open database '", l.dbDirPath, "':", err}
 		return nil, err
 	}
 

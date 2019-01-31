@@ -11,6 +11,7 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/legacy/keystore"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/prompt"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
@@ -95,14 +96,14 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 }
 
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
-func CreateWallet(cfg *Config) error {
-	dbDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
-	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
+func CreateWallet(cfg *Config, activeNet *netparams.Params) error {
+	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
+	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
 	// When there is a legacy keystore, open it now to ensure any errors
 	// don't end up exiting the process after the user has spent time
 	// entering a bunch of information.
-	netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
+	netDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
 	keystorePath := filepath.Join(netDir, keystore.Filename)
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)

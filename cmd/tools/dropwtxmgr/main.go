@@ -13,7 +13,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/walletdb"
 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
-	"github.com/jessevdk/go-flags"
+	flags "github.com/jessevdk/go-flags"
 )
 
 const defaultNet = "mainnet"
@@ -105,11 +105,11 @@ func mainInt() int {
 
 	db, err := walletdb.Open("bdb", opts.DbPath)
 	if err != nil {
-		fmt.Println("Failed to open database:", err)
+		fmt.Println("failed to open database:", err)
 		return 1
 	}
 	defer db.Close()
-	fmt.Println("Dropping wtxmgr namespace")
+	fmt.Println("dropping wtxmgr namespace")
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		err := tx.DeleteTopLevelBucket(wtxmgrNamespace)
 		if err != nil && err != walletdb.ErrBucketNotFound {

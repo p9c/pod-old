@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
+	w "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
@@ -23,6 +24,8 @@ var CtlCommand = climax.Command{
 	Flags: []climax.Flag{
 		t("version", "V", "show version number and quit"),
 		s("configfile", "C", ctl.DefaultConfigFile, "Path to configuration file"),
+		s("datadir", "D", w.DefaultDataDir,
+			"set the pod base directory"),
 
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
@@ -69,10 +72,14 @@ var CtlCommand = climax.Command{
 		if ctx.Is("listcommands") {
 			ctl.ListCommands()
 		} else {
-			var cfgFile string
+			var cfgFile, datadir string
 			var ok bool
 			if cfgFile, ok = ctx.Get("configfile"); !ok {
 				cfgFile = ctl.DefaultConfigFile
+			}
+			if datadir, ok = ctx.Get("datadir"); ok {
+				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
+				CtlCfg.ConfigFile = cfgFile
 			}
 			if ctx.Is("init") {
 				log <- cl.Debug{

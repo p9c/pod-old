@@ -6,10 +6,12 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"path/filepath"
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/interrupt"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
@@ -24,7 +26,7 @@ var (
 // Instead, main runs this function and checks for a non-nil error, at which
 // point any defers have already run, and if the error is non-nil, the program
 // can be exited with an error exit status.
-func Main(c *Config) error {
+func Main(c *Config, activeNet *netparams.Params) error {
 	cfg = c
 	if cfg.Profile != "" {
 		go func() {
@@ -39,11 +41,12 @@ func Main(c *Config) error {
 		}()
 	}
 
-	dbDir := NetworkDir(cfg.DataDir, ActiveNet.Params)
-	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, ActiveNet.Params.Name}
+	dbDir := NetworkDir(
+		filepath.Join(cfg.DataDir, "wallet"), activeNet.Params)
+	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, activeNet.Params.Name}
 	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
 	if cfg.Create {
-		if err := CreateWallet(cfg); err != nil {
+		if err := CreateWallet(cfg, ActiveNet); err != nil {
 			log <- cl.Error{"failed to create wallet", err}
 			cl.Shutdown()
 		}
@@ -60,7 +63,6 @@ func Main(c *Config) error {
 		}
 		return err
 	}
-	log <- cl.Debug{"noinitialload", cfg.NoInitialLoad}
 	// Create and start chain RPC client so it's ready to connect to
 	// the wallet when loaded later.
 	if !cfg.NoInitialLoad {
@@ -73,7 +75,6 @@ func Main(c *Config) error {
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
-	log <- cl.Debug{"initial wallet database load", cfg.NoInitialLoad}
 	if !cfg.NoInitialLoad {
 		log <- cl.Debug{"loading database"}
 		// Load the wallet database.  It must have been created already

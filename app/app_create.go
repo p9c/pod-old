@@ -1,15 +1,21 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"time"
 
+	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/gui"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )
 
@@ -20,6 +26,7 @@ type CreateCfg struct {
 	PublicPass string
 	Seed       []byte
 	Network    string
+	Config     *walletmain.Config
 }
 
 // CreateConfig is
@@ -73,23 +80,62 @@ Available options:
 			CreateConfig.DataDir = r
 			argsGiven = true
 		}
+		var cfgFile string
+		var ok bool
+		if cfgFile, ok = ctx.Get("configfile"); !ok {
+			cfgFile = filepath.Join(
+				filepath.Join(CreateConfig.DataDir, "wallet"),
+				w.DefaultConfigFilename)
+			argsGiven = true
+		}
+		log <- cl.Info{"loading configuration from", cfgFile}
+		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+			fmt.Println("configuration file does not exist, creating new one")
+			WriteDefaultWalletConfig(cfgFile)
+		} else {
+			fmt.Println("reading app configuration from", cfgFile)
+			cfgData, err := ioutil.ReadFile(cfgFile)
+			fmt.Println(string(cfgData))
+			if err != nil {
+				fmt.Println("reading app config file", err.Error())
+				WriteDefaultWalletConfig(cfgFile)
+			}
+			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+			err = json.Unmarshal(cfgData, &WalletConfig)
+			if err != nil {
+				fmt.Println("parsing app config file", err.Error())
+				WriteDefaultWalletConfig(cfgFile)
+			}
+		}
+		CreateConfig.Config = WalletConfig.Wallet
+		spew.Dump(CreateConfig.Config)
+		activeNet := walletmain.ActiveNet
+		if CreateConfig.Config.TestNet3 {
+			fmt.Println("using testnet")
+			activeNet = &netparams.TestNet3Params
+		}
+		if CreateConfig.Config.SimNet {
+			fmt.Println("using simnet")
+			activeNet = &netparams.SimNetParams
+		}
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
-				walletmain.ActiveNet = &netparams.TestNet3Params
+				activeNet = &netparams.TestNet3Params
 			case "simnet":
-				walletmain.ActiveNet = &netparams.SimNetParams
+				activeNet = &netparams.SimNetParams
 			default:
-				walletmain.ActiveNet = &netparams.MainNetParams
+				activeNet = &netparams.MainNetParams
 			}
 			CreateConfig.Network = r
 			argsGiven = true
 		}
+		CreateConfig.Config.AppDataDir = filepath.Join(
+			CreateConfig.DataDir, "wallet")
+		fmt.Println(activeNet.Name)
+		// spew.Dump(CreateConfig)
 		if ctx.Is("cli") {
-			walletmain.CreateWallet(&walletmain.Config{
-				AppDataDir: CreateConfig.DataDir,
-				WalletPass: CreateConfig.PublicPass,
-			})
+			walletmain.CreateWallet(CreateConfig.Config, activeNet)
 			fmt.Print("\nYou can now open the wallet\n")
 			os.Exit(0)
 		}

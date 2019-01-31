@@ -17,8 +17,9 @@ import (
 
 // WalletCfg is the combined app and logging configuration data
 type WalletCfg struct {
-	Wallet *w.Config
-	Levels map[string]string
+	Wallet    *w.Config
+	Levels    map[string]string
+	ActiveNet *netparams.Params
 }
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
@@ -100,6 +101,7 @@ var wf = GetFlags(WalletCommand)
 func init() {
 	// Loads after the var clauses run
 	WalletCommand.Handle = func(ctx climax.Context) int {
+
 		Log.SetLevel("off")
 		var dl string
 		var ok bool
@@ -123,12 +125,9 @@ func init() {
 		}
 		log <- cl.Debug{"DataDir", datadir}
 		var cfgFile string
-		if r, ok := getIfIs(&ctx, "configfile"); ok {
-			cfgFile = r
-		}
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = filepath.Join(
-				datadir, w.DefaultConfigFilename)
+				filepath.Join(datadir, "wallet"), w.DefaultConfigFilename)
 		}
 
 		if ctx.Is("init") {
@@ -152,14 +151,23 @@ func init() {
 				log <- cl.Error{"parsing app config file", err.Error()}
 				WriteDefaultWalletConfig(cfgFile)
 			}
+			WalletConfig.ActiveNet = &netparams.MainNetParams
+			if WalletConfig.Wallet.TestNet3 {
+				WalletConfig.ActiveNet = &netparams.TestNet3Params
+			}
+			if WalletConfig.Wallet.SimNet {
+				WalletConfig.ActiveNet = &netparams.SimNetParams
+			}
 		}
+
 		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			for i := range WalletConfig.Levels {
 				WalletConfig.Levels[i] = dl
 			}
 		}
-		runWallet(WalletConfig.Wallet)
+		fmt.Println("running wallet on", WalletConfig.ActiveNet.Name)
+		runWallet(WalletConfig.Wallet, WalletConfig.ActiveNet)
 		return 0
 	}
 }
@@ -255,13 +263,13 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 		switch r {
 		case "testnet":
 			wc.TestNet3, wc.SimNet = true, false
-			w.ActiveNet = &netparams.TestNet3Params
+			WalletConfig.ActiveNet = &netparams.TestNet3Params
 		case "simnet":
 			wc.TestNet3, wc.SimNet = false, true
-			w.ActiveNet = &netparams.SimNetParams
+			WalletConfig.ActiveNet = &netparams.SimNetParams
 		default:
 			wc.TestNet3, wc.SimNet = false, false
-			w.ActiveNet = &netparams.MainNetParams
+			WalletConfig.ActiveNet = &netparams.MainNetParams
 		}
 	}
 
