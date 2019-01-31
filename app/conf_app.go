@@ -61,7 +61,7 @@ var ConfCommand = climax.Command{
 		t("init", "i", "resets configuration to defaults"),
 		t("show", "s", "prints currently configuration"),
 
-		s("datadir", "d", "~/.pod", "where to create the new profile"),
+		s("datadir", "D", "~/.pod", "where to create the new profile"),
 
 		f("nodelistener", node.DefaultListener,
 			"main peer to peer address for apps that connect to the parallelcoin peer to peer network"),
@@ -84,6 +84,12 @@ var ConfCommand = climax.Command{
 		f("proxypass", "pa55word", "password for proxy"),
 
 		f("network", "mainnet", "connect to [mainnet|testnet|regtestnet|simnet]"),
+	},
+	Examples: []climax.Example{
+		{
+			Usecase:     "--D test --init",
+			Description: "creates a new data directory at test",
+		},
 	},
 	Handle: func(ctx climax.Context) int {
 		if r, ok := ctx.Get("datadir"); ok {

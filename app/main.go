@@ -17,12 +17,13 @@ var PodApp = climax.Application{
 
 // Main is the real pod main
 func Main() int {
+	PodApp.AddCommand(VersionCommand)
+	PodApp.AddCommand(ConfCommand)
+	PodApp.AddCommand(GUICommand)
 	PodApp.AddCommand(CtlCommand)
 	PodApp.AddCommand(NodeCommand)
 	PodApp.AddCommand(WalletCommand)
 	PodApp.AddCommand(ShellCommand)
-	PodApp.AddCommand(ConfCommand)
-	PodApp.AddCommand(VersionCommand)
-	PodApp.AddCommand(GUICommand)
+	PodApp.AddCommand(CreateCommand)
 	return PodApp.Run()
 }

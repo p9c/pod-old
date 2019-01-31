@@ -117,10 +117,20 @@ func init() {
 			fmt.Println("pod/wallet version", w.Version())
 			cl.Shutdown()
 		}
-		var cfgFile string
-		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = w.DefaultConfigFile
+		var datadir string
+		if datadir, ok = ctx.Get("datadir"); !ok {
+			datadir = w.DefaultDataDir
 		}
+		log <- cl.Debug{"DataDir", datadir}
+		var cfgFile string
+		if r, ok := getIfIs(&ctx, "configfile"); ok {
+			cfgFile = r
+		}
+		if cfgFile, ok = ctx.Get("configfile"); !ok {
+			cfgFile = filepath.Join(
+				datadir, w.DefaultConfigFilename)
+		}
+
 		if ctx.Is("init") {
 			log <- cl.Debug{"writing default configuration to", cfgFile}
 			WriteDefaultWalletConfig(cfgFile)

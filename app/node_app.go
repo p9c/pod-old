@@ -164,6 +164,10 @@ var NodeCommand = climax.Command{
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},
+		{
+			Usecase:     " -D test -d trace",
+			Description: "run using the configuration in the 'test' directory with trace logging",
+		},
 	},
 	Handle: func(ctx climax.Context) int {
 		var dl string
@@ -190,7 +194,6 @@ var NodeCommand = climax.Command{
 			datadir = n.DefaultDataDir
 		}
 		log <- cl.Debug{"DataDir", datadir}
-		var cfgFile string
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
 			cfgFile = r
 		}
