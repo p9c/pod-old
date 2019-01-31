@@ -119,12 +119,12 @@ func init() {
 			fmt.Println("pod/wallet version", w.Version())
 			cl.Shutdown()
 		}
-		var datadir string
+		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = w.DefaultDataDir
 		}
-		log <- cl.Debug{"DataDir", datadir}
-		var cfgFile string
+		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
+		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = filepath.Join(
 				filepath.Join(datadir, "wallet"), w.DefaultConfigFilename)

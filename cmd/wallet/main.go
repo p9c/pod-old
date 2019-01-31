@@ -20,11 +20,8 @@ var (
 	cfg *Config
 )
 
-// Main is a work-around main function that is required since deferred
-// functions (such as log flushing) are not called with calls to os.Exit.
-// Instead, main runs this function and checks for a non-nil error, at which
-// point any defers have already run, and if the error is non-nil, the program
-// can be exited with an error exit status.
+// Main is a work-around main function that is required since deferred functions (such as log flushing) are not called with calls to os.Exit.
+// Instead, main runs this function and checks for a non-nil error, at point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
 func Main(c *Config, activeNet *netparams.Params) error {
 	cfg = c
 	ActiveNet = activeNet
@@ -41,7 +38,7 @@ func Main(c *Config, activeNet *netparams.Params) error {
 		}()
 	}
 
-	dbDir := NetworkDir(cfg.DataDir, activeNet.Params)
+	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
 	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, activeNet.Params.Name}
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 	if cfg.Create {
