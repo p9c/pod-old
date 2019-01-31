@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"path/filepath"
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
@@ -28,6 +27,7 @@ var (
 // can be exited with an error exit status.
 func Main(c *Config, activeNet *netparams.Params) error {
 	cfg = c
+	ActiveNet = activeNet
 	if cfg.Profile != "" {
 		go func() {
 			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)
@@ -41,10 +41,9 @@ func Main(c *Config, activeNet *netparams.Params) error {
 		}()
 	}
 
-	dbDir := NetworkDir(
-		filepath.Join(cfg.DataDir, "wallet"), activeNet.Params)
+	dbDir := NetworkDir(cfg.DataDir, activeNet.Params)
 	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, activeNet.Params.Name}
-	loader := wallet.NewLoader(ActiveNet.Params, dbDir, 250)
+	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 	if cfg.Create {
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
 			log <- cl.Error{"failed to create wallet", err}
@@ -175,7 +174,8 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		// } else {
 		chainClient, err = startChainRPC(certs)
 		if err != nil {
-			log <- cl.Error{"unable to open connection to consensus RPC server:", err}
+			log <- cl.Error{
+				"unable to open connection to consensus RPC server:", err}
 			continue
 		}
 		// }

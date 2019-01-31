@@ -76,9 +76,9 @@ Available options:
 			os.Exit(0)
 		}
 		argsGiven := false
+		CreateConfig.DataDir = w.DefaultDataDir
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			CreateConfig.DataDir = r
-			argsGiven = true
 		}
 		var cfgFile string
 		var ok bool
@@ -91,20 +91,20 @@ Available options:
 		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 			fmt.Println("configuration file does not exist, creating new one")
-			WriteDefaultWalletConfig(cfgFile)
+			WriteDefaultWalletConfig(CreateConfig.DataDir)
 		} else {
 			fmt.Println("reading app configuration from", cfgFile)
 			cfgData, err := ioutil.ReadFile(cfgFile)
 			fmt.Println(string(cfgData))
 			if err != nil {
 				fmt.Println("reading app config file", err.Error())
-				WriteDefaultWalletConfig(cfgFile)
+				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &WalletConfig)
 			if err != nil {
 				fmt.Println("parsing app config file", err.Error())
-				WriteDefaultWalletConfig(cfgFile)
+				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
 		}
 		CreateConfig.Config = WalletConfig.Wallet

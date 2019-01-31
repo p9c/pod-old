@@ -44,10 +44,6 @@ func usage(errorMessage string) {
 
 // Main is the entry point for the pod.Ctl component
 func Main(args []string, cfg *Config) {
-	// cfg, args, err := loadConfig()
-	// if err != nil {
-	// 	os.Exit(1)
-	// }
 	if len(args) < 1 {
 		usage("No command specified")
 		os.Exit(1)
@@ -61,8 +57,9 @@ func Main(args []string, cfg *Config) {
 		os.Exit(1)
 	}
 	if usageFlags&unusableFlags != 0 {
-		fmt.Fprintf(os.Stderr, "The '%s' command can only be used via "+
-			"websockets\n", method)
+		fmt.Fprintf(
+			os.Stderr,
+			"The '%s' command can only be used via websockets\n", method)
 		fmt.Fprintln(os.Stderr, listCmdMessage)
 		os.Exit(1)
 	}
@@ -74,13 +71,12 @@ func Main(args []string, cfg *Config) {
 		if arg == "-" {
 			param, err := bio.ReadString('\n')
 			if err != nil && err != io.EOF {
-				fmt.Fprintf(os.Stderr, "Failed to read data "+
-					"from stdin: %v\n", err)
+				fmt.Fprintf(os.Stderr,
+					"Failed to read data from stdin: %v\n", err)
 				os.Exit(1)
 			}
 			if err == io.EOF && len(param) == 0 {
-				fmt.Fprintln(os.Stderr, "Not enough lines "+
-					"provided on stdin")
+				fmt.Fprintln(os.Stderr, "Not enough lines provided on stdin")
 				os.Exit(1)
 			}
 			param = strings.TrimRight(param, "\r\n")

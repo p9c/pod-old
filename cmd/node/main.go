@@ -29,16 +29,15 @@ var (
 var winServiceMain func() (bool, error)
 
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
-func Main(c *Config, serverChan chan<- *server) (err error) {
+func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	cfg = c
-	if cfg.TestNet3 {
+	switch activeNet.Name {
+	case "testnet":
 		ActiveNetParams = &TestNet3Params
-	}
-	if cfg.RegressionTest {
-		ActiveNetParams = &RegressionNetParams
-	}
-	if cfg.SimNet {
+	case "simnet":
 		ActiveNetParams = &SimNetParams
+	default:
+		ActiveNetParams = &MainNetParams
 	}
 	shutdownChan := make(chan struct{})
 	interrupt.AddHandler(

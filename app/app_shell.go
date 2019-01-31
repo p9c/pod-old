@@ -7,20 +7,24 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"github.com/tucnak/climax"
 )
 
 // ShellCfg is the combined app and logging configuration data
 type ShellCfg struct {
-	ConfigFile string
-	Node       *n.Config
-	Wallet     *w.Config
-	Levels     map[string]string
+	ConfigFile      string
+	Node            *n.Config
+	Wallet          *w.Config
+	Levels          map[string]string
+	nodeActiveNet   *node.Params
+	walletActiveNet *netparams.Params
 }
 
 // DefaultShellAppDataDir is the default app data dir
@@ -219,7 +223,8 @@ var ShellCommand = climax.Command{
 			}
 		}
 		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
-		return runShell()
+		return runShell(
+			ShellConfig.nodeActiveNet, ShellConfig.walletActiveNet)
 	},
 }
 

@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
-	w "git.parallelcoin.io/pod/cmd/wallet"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/connmgr"
@@ -48,15 +48,18 @@ func configShell(sc *ShellCfg, ctx *climax.Context, cfgFile string) {
 		case "testnet":
 			sc.Wallet.TestNet3, sc.Wallet.SimNet = true, false
 			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = true, false, false
-			w.ActiveNet = &netparams.TestNet3Params
+			sc.nodeActiveNet = &node.TestNet3Params
+			sc.walletActiveNet = &netparams.TestNet3Params
 		case "simnet":
 			sc.Wallet.TestNet3, sc.Wallet.SimNet = false, true
 			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, true, false
-			w.ActiveNet = &netparams.SimNetParams
+			sc.nodeActiveNet = &node.SimNetParams
+			sc.walletActiveNet = &netparams.SimNetParams
 		default:
 			sc.Wallet.TestNet3, sc.Wallet.SimNet = false, false
 			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, false, false
-			w.ActiveNet = &netparams.MainNetParams
+			sc.nodeActiveNet = &node.MainNetParams
+			sc.walletActiveNet = &netparams.MainNetParams
 		}
 	}
 

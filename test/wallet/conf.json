@@ -15,8 +15,8 @@
     "RPCConnect": "127.0.0.1:11048",
     "CAFile": "test/wallet.cert",
     "EnableClientTLS": false,
-    "PodUsername": "ea84d5ce",
-    "PodPassword": "f1a87aa1",
+    "PodUsername": "62e00796",
+    "PodPassword": "e33d84e4",
     "Proxy": "",
     "ProxyUser": "",
     "ProxyPass": "",
@@ -35,8 +35,8 @@
     ],
     "LegacyRPCMaxClients": 10,
     "LegacyRPCMaxWebsockets": 25,
-    "Username": "ea84d5ce",
-    "Password": "f1a87aa1",
+    "Username": "62e00796",
+    "Password": "e33d84e4",
     "ExperimentalRPCListeners": [],
     "DataDir": "test"
   },
@@ -64,6 +64,5 @@
     "wallet-waddrmgr": "info",
     "wallet-wallet": "info",
     "wallet-wtxmgr": "info"
-  },
-  "ActiveNet": null
+  }
 }

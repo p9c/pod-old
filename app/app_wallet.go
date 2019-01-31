@@ -19,7 +19,7 @@ import (
 type WalletCfg struct {
 	Wallet    *w.Config
 	Levels    map[string]string
-	ActiveNet *netparams.Params
+	activeNet *netparams.Params
 }
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
@@ -151,12 +151,12 @@ func init() {
 				log <- cl.Error{"parsing app config file", err.Error()}
 				WriteDefaultWalletConfig(cfgFile)
 			}
-			WalletConfig.ActiveNet = &netparams.MainNetParams
+			WalletConfig.activeNet = &netparams.MainNetParams
 			if WalletConfig.Wallet.TestNet3 {
-				WalletConfig.ActiveNet = &netparams.TestNet3Params
+				WalletConfig.activeNet = &netparams.TestNet3Params
 			}
 			if WalletConfig.Wallet.SimNet {
-				WalletConfig.ActiveNet = &netparams.SimNetParams
+				WalletConfig.activeNet = &netparams.SimNetParams
 			}
 		}
 
@@ -166,8 +166,8 @@ func init() {
 				WalletConfig.Levels[i] = dl
 			}
 		}
-		fmt.Println("running wallet on", WalletConfig.ActiveNet.Name)
-		runWallet(WalletConfig.Wallet, WalletConfig.ActiveNet)
+		fmt.Println("running wallet on", WalletConfig.activeNet.Name)
+		runWallet(WalletConfig.Wallet, WalletConfig.activeNet)
 		return 0
 	}
 }
@@ -263,13 +263,13 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 		switch r {
 		case "testnet":
 			wc.TestNet3, wc.SimNet = true, false
-			WalletConfig.ActiveNet = &netparams.TestNet3Params
+			WalletConfig.activeNet = &netparams.TestNet3Params
 		case "simnet":
 			wc.TestNet3, wc.SimNet = false, true
-			WalletConfig.ActiveNet = &netparams.SimNetParams
+			WalletConfig.activeNet = &netparams.SimNetParams
 		default:
 			wc.TestNet3, wc.SimNet = false, false
-			WalletConfig.ActiveNet = &netparams.MainNetParams
+			WalletConfig.activeNet = &netparams.MainNetParams
 		}
 	}
 
@@ -356,6 +356,7 @@ func DefaultWalletConfig(datadir string) *WalletCfg {
 			Password:                 "pa55word",
 			ExperimentalRPCListeners: []string{},
 		},
-		Levels: GetDefaultLogLevelsConfig(),
+		Levels:    GetDefaultLogLevelsConfig(),
+		activeNet: &netparams.MainNetParams,
 	}
 }

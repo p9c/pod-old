@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	DefaultConfigFilename        = "node/conf.json"
+	DefaultConfigFilename        = "conf.json"
 	DefaultDataDirname           = "node"
 	DefaultLogLevel              = "info"
 	DefaultLogDirname            = "node"
@@ -75,8 +75,9 @@ const (
 )
 
 var (
-	DefaultHomeDir     = util.AppDataDir("pod", false)
-	DefaultConfigFile  = filepath.Join(DefaultHomeDir, DefaultConfigFilename)
+	DefaultHomeDir    = util.AppDataDir("pod", false)
+	DefaultConfigFile = filepath.Join(
+		DefaultHomeDir, DefaultConfigFilename)
 	DefaultDataDir     = filepath.Join(DefaultHomeDir, DefaultDataDirname)
 	KnownDbTypes       = database.SupportedDrivers()
 	DefaultRPCKeyFile  = filepath.Join(DefaultHomeDir, "rpc.key")

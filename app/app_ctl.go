@@ -77,6 +77,7 @@ var CtlCommand = climax.Command{
 			if cfgFile, ok = ctx.Get("configfile"); !ok {
 				cfgFile = ctl.DefaultConfigFile
 			}
+			datadir = w.DefaultDataDir
 			if datadir, ok = ctx.Get("datadir"); ok {
 				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
 				CtlCfg.ConfigFile = cfgFile
@@ -85,24 +86,22 @@ var CtlCommand = climax.Command{
 				log <- cl.Debug{
 					"writing default configuration to", cfgFile,
 				}
-				WriteDefaultCtlConfig(cfgFile)
-				// then run from this config
-				configCtl(&ctx, cfgFile)
+				WriteDefaultCtlConfig(datadir)
 			} else {
 				log <- cl.Info{
 					"loading configuration from", cfgFile,
 				}
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 					log <- cl.Wrn("configuration file does not exist, creating new one")
-					WriteDefaultCtlConfig(cfgFile)
+					WriteDefaultCtlConfig(datadir)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 				} else {
 					log <- cl.Debug{"reading from", cfgFile}
 					cfgData, err := ioutil.ReadFile(cfgFile)
 					if err != nil {
+						WriteDefaultCtlConfig(datadir)
 						log <- cl.Error{err}
-						cl.Shutdown()
 					}
 					log <- cl.Trace{"read in config file\n", string(cfgData)}
 					err = json.Unmarshal(cfgData, CtlCfg)
@@ -110,13 +109,13 @@ var CtlCommand = climax.Command{
 						log <- cl.Err(err.Error())
 						cl.Shutdown()
 					}
-					// then run from this config
-					configCtl(&ctx, cfgFile)
 				}
+				// then run from this config
+				configCtl(&ctx, cfgFile)
 			}
 		}
 		log <- cl.Trace{ctx.Args}
-		runCtl(ctx.Args)
+		runCtl(ctx.Args, CtlCfg)
 		cl.Shutdown()
 		return 0
 	},

@@ -151,7 +151,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
-	log <- cl.Trace{"opening existing wallet"}
+	log <- cl.Trace{"opening existing wallet", l.dbDirPath}
 
 	if l.wallet != nil {
 		log <- cl.Trc("already loaded wallet")

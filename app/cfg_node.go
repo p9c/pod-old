@@ -122,18 +122,18 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 		switch r {
 		case "testnet":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
-			n.ActiveNetParams = &n.TestNet3Params
+			NodeConfig.params = &n.TestNet3Params
 		case "regtest":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, true, false
-			n.ActiveNetParams = &n.RegressionNetParams
+			NodeConfig.params = &n.RegressionNetParams
 		case "simnet":
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, true
-			n.ActiveNetParams = &n.SimNetParams
+			NodeConfig.params = &n.SimNetParams
 		default:
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = false, false, false
-			n.ActiveNetParams = &n.MainNetParams
+			NodeConfig.params = &n.MainNetParams
 		}
-		log <- cl.Debug{n.ActiveNetParams.Name, r}
+		log <- cl.Debug{NodeConfig.params.Name, r}
 	}
 	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
 		nc.AddCheckpoints = strings.Split(r, " ")
@@ -317,7 +317,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	default:
 		nc.Algo = "random"
 	}
-	relayNonStd := n.ActiveNetParams.RelayNonStdTxs
+	relayNonStd := NodeConfig.params.RelayNonStdTxs
 	funcName := "loadConfig"
 	switch {
 	case nc.RelayNonStd && nc.RejectNonStd:
@@ -334,11 +334,11 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	nc.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	nc.DataDir = n.CleanAndExpandPath(nc.DataDir)
-	log <- cl.Debug{"netname", n.ActiveNetParams.Name, n.NetName(n.ActiveNetParams)}
-	nc.DataDir = filepath.Join(nc.DataDir, n.NetName(n.ActiveNetParams))
+	log <- cl.Debug{"netname", NodeConfig.params.Name, n.NetName(NodeConfig.params)}
+	nc.DataDir = filepath.Join(nc.DataDir, n.NetName(NodeConfig.params))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	nc.LogDir = n.CleanAndExpandPath(nc.LogDir)
-	nc.LogDir = filepath.Join(nc.LogDir, n.NetName(n.ActiveNetParams))
+	nc.LogDir = filepath.Join(nc.LogDir, n.NetName(NodeConfig.params))
 
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
 	// initLogRotator(filepath.Join(nc.LogDir, DefaultLogFilename))
@@ -420,7 +420,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(nc.Listeners) == 0 {
 		nc.Listeners = []string{
-			net.JoinHostPort("", n.ActiveNetParams.DefaultPort),
+			net.JoinHostPort("", NodeConfig.params.DefaultPort),
 		}
 	}
 	// Check to make sure limited and admin users don't have the same username
@@ -457,7 +457,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 		}
 		nc.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
-			addr = net.JoinHostPort(addr, n.ActiveNetParams.RPCPort)
+			addr = net.JoinHostPort(addr, NodeConfig.params.RPCPort)
 			nc.RPCListeners = append(nc.RPCListeners, addr)
 		}
 	}
@@ -561,7 +561,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(nc.MiningAddrs))
 	for _, strAddr := range nc.MiningAddrs {
-		addr, err := util.DecodeAddress(strAddr, n.ActiveNetParams.Params)
+		addr, err := util.DecodeAddress(strAddr, NodeConfig.params.Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
@@ -569,7 +569,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			cl.Shutdown()
 		}
-		if !addr.IsForNet(n.ActiveNetParams.Params) {
+		if !addr.IsForNet(NodeConfig.params.Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())
@@ -592,10 +592,10 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	nc.Listeners = n.NormalizeAddresses(nc.Listeners,
-		n.ActiveNetParams.DefaultPort)
+		NodeConfig.params.DefaultPort)
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	nc.RPCListeners = n.NormalizeAddresses(nc.RPCListeners,
-		n.ActiveNetParams.RPCPort)
+		NodeConfig.params.RPCPort)
 	if !nc.DisableRPC && !nc.TLS {
 		for _, addr := range nc.RPCListeners {
 			if err != nil {
@@ -609,9 +609,9 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) {
 	}
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	nc.AddPeers = n.NormalizeAddresses(nc.AddPeers,
-		n.ActiveNetParams.DefaultPort)
+		NodeConfig.params.DefaultPort)
 	nc.ConnectPeers = n.NormalizeAddresses(nc.ConnectPeers,
-		n.ActiveNetParams.DefaultPort)
+		NodeConfig.params.DefaultPort)
 	// --noonion and --onion do not mix.
 	if nc.NoOnion && nc.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)

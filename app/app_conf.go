@@ -11,6 +11,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -84,6 +85,7 @@ var ConfCommand = climax.Command{
 		f("proxypass", "pa55word", "password for proxy"),
 
 		f("network", "mainnet", "connect to [mainnet|testnet|regtestnet|simnet]"),
+		s("debuglevel", "d", "info", "sets log level for those unspecified below"),
 	},
 	Examples: []climax.Example{
 		{
@@ -92,6 +94,21 @@ var ConfCommand = climax.Command{
 		},
 	},
 	Handle: func(ctx climax.Context) int {
+		var dl string
+		var ok bool
+		if dl, ok = ctx.Get("debuglevel"); ok {
+			log <- cl.Tracef{
+				"setting debug level %s",
+				dl,
+			}
+			Log.SetLevel(dl)
+			ll := GetAllSubSystems()
+			for i := range ll {
+				ll[i].SetLevel(dl)
+			}
+		}
+
+		confFile = DefaultDataDir + "/conf.json"
 		if r, ok := ctx.Get("datadir"); ok {
 			DefaultDataDir = r
 			confFile = DefaultDataDir + "/conf.json"
@@ -108,6 +125,10 @@ var ConfCommand = climax.Command{
 		EnsureDir(confFile)
 		if ctx.Is("init") {
 			WriteDefaultConfConfig(DefaultDataDir)
+			WriteDefaultCtlConfig(DefaultDataDir)
+			WriteDefaultNodeConfig(DefaultDataDir)
+			WriteDefaultWalletConfig(DefaultDataDir)
+			WriteDefaultShellConfig(DefaultDataDir)
 		} else {
 			if _, err := os.Stat(confFile); os.IsNotExist(err) {
 				WriteDefaultConfConfig(DefaultDataDir)
@@ -155,7 +176,6 @@ var cf = GetFlags(ConfCommand)
 func configConf(ctx *climax.Context, datadir string) {
 	getConfs(datadir)
 	// If we can't parse the config files we just reset them to default
-
 	ctlCfg := *DefaultCtlConfig(datadir)
 	if _, err := os.Stat(confs[0]); os.IsNotExist(err) {
 		WriteDefaultCtlConfig(datadir)
@@ -173,14 +193,19 @@ func configConf(ctx *climax.Context, datadir string) {
 
 	nodeCfg := *DefaultNodeConfig(datadir)
 	if _, err := os.Stat(confs[1]); os.IsNotExist(err) {
+		fmt.Println("default config does not exist")
 		WriteDefaultNodeConfig(datadir)
 	} else {
+		fmt.Println("reading file", confs[1])
 		nodeCfgData, err := ioutil.ReadFile(confs[1])
 		if err != nil {
+			fmt.Println("error reading file", err)
 			WriteDefaultNodeConfig(datadir)
 		} else {
+			fmt.Println("parsing config file")
 			err = json.Unmarshal(nodeCfgData, &nodeCfg)
 			if err != nil {
+				fmt.Println("failed to parse config, resetting config", err)
 				WriteDefaultNodeConfig(datadir)
 			}
 		}

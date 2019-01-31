@@ -20,7 +20,7 @@ var (
 	NodeHomeDir           = util.AppDataDir("pod", false)
 	PodCtlHomeDir         = util.AppDataDir("pod/ctl", false)
 	SPVHomeDir            = util.AppDataDir("pod/spv", false)
-	DefaultConfigFile     = filepath.Join(PodCtlHomeDir, "conf")
+	DefaultConfigFile     = filepath.Join(PodCtlHomeDir, "conf.json")
 	DefaultRPCServer      = "127.0.0.1:11048"
 	DefaultWallet         = "127.0.0.1:11046"
 	DefaultRPCCertFile    = filepath.Join(NodeHomeDir, "rpc.cert")

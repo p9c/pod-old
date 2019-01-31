@@ -36,6 +36,7 @@ var usageMessage = fmt.Sprintf("use `%s help node` to show usage", appName)
 type NodeCfg struct {
 	Node      *n.Config
 	LogLevels map[string]string
+	params    *node.Params
 }
 
 // NodeConfig is the combined app and log levels configuration
@@ -191,22 +192,19 @@ var NodeCommand = climax.Command{
 		}
 		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
-			datadir = n.DefaultDataDir
+			datadir = n.DefaultHomeDir
 		}
-		log <- cl.Debug{"DataDir", datadir}
+		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
+		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
 			cfgFile = r
-		}
-		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = filepath.Join(
-				datadir, n.DefaultConfigFilename)
 		}
 		if ctx.Is("init") {
 			log <- cl.Debugf{
 				"writing default configuration to %s",
 				cfgFile,
 			}
-			WriteDefaultNodeConfig(cfgFile)
+			WriteDefaultNodeConfig(datadir)
 		} else {
 			log <- cl.Infof{
 				"loading configuration from %s",
@@ -214,7 +212,7 @@ var NodeCommand = climax.Command{
 			}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 				log <- cl.Warn{"configuration file does not exist, creating new one"}
-				WriteDefaultNodeConfig(cfgFile)
+				WriteDefaultNodeConfig(datadir)
 			} else {
 				log <- cl.Debug{
 					"reading app configuration from",
@@ -226,6 +224,7 @@ var NodeCommand = climax.Command{
 						"reading app config file:",
 						err.Error(),
 					}
+					fmt.Println(err)
 					cl.Shutdown()
 				}
 				log <- cl.Trace{
@@ -238,18 +237,19 @@ var NodeCommand = climax.Command{
 						"parsing app config file:",
 						err.Error(),
 					}
-					WriteDefaultNodeConfig(cfgFile)
+					WriteDefaultNodeConfig(datadir)
 				}
 			}
 			switch {
 			case NodeConfig.Node.TestNet3:
-				n.ActiveNetParams = &n.TestNet3Params
-			case NodeConfig.Node.RegressionTest:
-				n.ActiveNetParams = &n.RegressionNetParams
+				log <- cl.Info{"running on testnet"}
+				NodeConfig.params = &node.TestNet3Params
 			case NodeConfig.Node.SimNet:
-				n.ActiveNetParams = &n.SimNetParams
+				log <- cl.Info{"running on simnet"}
+				NodeConfig.params = &node.SimNetParams
 			default:
-				n.ActiveNetParams = &n.MainNetParams
+				log <- cl.Info{"running on mainnet"}
+				NodeConfig.params = &node.MainNetParams
 			}
 		}
 		configNode(NodeConfig.Node, &ctx, cfgFile)
@@ -258,7 +258,7 @@ var NodeCommand = climax.Command{
 				NodeConfig.LogLevels[i] = dl
 			}
 		}
-		runNode(NodeConfig.Node)
+		runNode(NodeConfig.Node, NodeConfig.params)
 		cl.Shutdown()
 		return 0
 	},
@@ -315,44 +315,50 @@ func WriteDefaultNodeConfig(datadir string) {
 func DefaultNodeConfig(datadir string) *NodeCfg {
 	user := GenKey()
 	pass := GenKey()
+	params := node.MainNetParams
+	switch n.ActiveNetParams.Name {
+	case "testnet3":
+		params = node.TestNet3Params
+	case "simnet":
+		params = node.SimNetParams
+	}
+	appdir := filepath.Join(datadir, "node")
 	return &NodeCfg{
 		Node: &n.Config{
-			RPCUser:      user,
-			RPCPass:      pass,
-			Listeners:    []string{n.DefaultListener},
-			RPCListeners: []string{n.DefaultRPCListener},
-			DebugLevel:   "info",
-			ConfigFile: filepath.Join(
-				datadir, n.DefaultConfigFilename),
+			RPCUser:              user,
+			RPCPass:              pass,
+			Listeners:            []string{n.DefaultListener},
+			RPCListeners:         []string{n.DefaultRPCListener},
+			DebugLevel:           "info",
+			ConfigFile:           filepath.Join(appdir, n.DefaultConfigFilename),
 			MaxPeers:             n.DefaultMaxPeers,
 			BanDuration:          n.DefaultBanDuration,
 			BanThreshold:         n.DefaultBanThreshold,
 			RPCMaxClients:        n.DefaultMaxRPCClients,
 			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
 			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-			DataDir: filepath.Join(
-				datadir, n.DefaultDataDirname),
-			LogDir: filepath.Join(
-				datadir, n.DefaultDataDirname),
-			DbType:            n.DefaultDbType,
-			RPCKey:            filepath.Join(datadir, "rpc.key"),
-			RPCCert:           filepath.Join(datadir, "rpc.cert"),
-			MinRelayTxFee:     mempool.DefaultMinRelayTxFee.ToDUO(),
-			FreeTxRelayLimit:  n.DefaultFreeTxRelayLimit,
-			TrickleInterval:   n.DefaultTrickleInterval,
-			BlockMinSize:      n.DefaultBlockMinSize,
-			BlockMaxSize:      n.DefaultBlockMaxSize,
-			BlockMinWeight:    n.DefaultBlockMinWeight,
-			BlockMaxWeight:    n.DefaultBlockMaxWeight,
-			BlockPrioritySize: mempool.DefaultBlockPrioritySize,
-			MaxOrphanTxs:      n.DefaultMaxOrphanTransactions,
-			SigCacheMaxSize:   n.DefaultSigCacheMaxSize,
-			Generate:          n.DefaultGenerate,
-			GenThreads:        1,
-			TxIndex:           n.DefaultTxIndex,
-			AddrIndex:         n.DefaultAddrIndex,
-			Algo:              n.DefaultAlgo,
+			DataDir:              appdir,
+			LogDir:               appdir,
+			DbType:               n.DefaultDbType,
+			RPCKey:               filepath.Join(datadir, "rpc.key"),
+			RPCCert:              filepath.Join(datadir, "rpc.cert"),
+			MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
+			FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
+			TrickleInterval:      n.DefaultTrickleInterval,
+			BlockMinSize:         n.DefaultBlockMinSize,
+			BlockMaxSize:         n.DefaultBlockMaxSize,
+			BlockMinWeight:       n.DefaultBlockMinWeight,
+			BlockMaxWeight:       n.DefaultBlockMaxWeight,
+			BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
+			MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
+			SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
+			Generate:             n.DefaultGenerate,
+			GenThreads:           1,
+			TxIndex:              n.DefaultTxIndex,
+			AddrIndex:            n.DefaultAddrIndex,
+			Algo:                 n.DefaultAlgo,
 		},
 		LogLevels: GetDefaultLogLevelsConfig(),
+		params:    &params,
 	}
 }
