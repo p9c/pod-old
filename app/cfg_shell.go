@@ -26,41 +26,31 @@ import (
 
 func configShell(sc *ShellCfg, ctx *climax.Context, cfgFile string) {
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
-
-	if ctx.Is("version") {
-		//
-	}
-	if r, ok := getIfIs(ctx, "configfile"); ok {
-		ShellConfig.ConfigFile = r
-	}
-	if r, ok := getIfIs(ctx, "datadir"); ok {
-		ShellConfig.Node.DataDir = r
-		ShellConfig.Wallet.DataDir = r
-	}
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
-	if ctx.Is("init") {
-
+	var r string
+	var ok bool
+	if r, ok = getIfIs(ctx, "network"); ok {
+	} else {
+		r = "mainnet"
 	}
-	if r, ok := getIfIs(ctx, "network"); ok {
-		switch r {
-		case "testnet":
-			sc.Wallet.TestNet3, sc.Wallet.SimNet = true, false
-			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = true, false, false
-			sc.nodeActiveNet = &node.TestNet3Params
-			sc.walletActiveNet = &netparams.TestNet3Params
-		case "simnet":
-			sc.Wallet.TestNet3, sc.Wallet.SimNet = false, true
-			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, true, false
-			sc.nodeActiveNet = &node.SimNetParams
-			sc.walletActiveNet = &netparams.SimNetParams
-		default:
-			sc.Wallet.TestNet3, sc.Wallet.SimNet = false, false
-			sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, false, false
-			sc.nodeActiveNet = &node.MainNetParams
-			sc.walletActiveNet = &netparams.MainNetParams
-		}
+	switch r {
+	case "testnet":
+		sc.Wallet.TestNet3, sc.Wallet.SimNet = true, false
+		sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = true, false, false
+		sc.nodeActiveNet = &node.TestNet3Params
+		sc.walletActiveNet = &netparams.TestNet3Params
+	case "simnet":
+		sc.Wallet.TestNet3, sc.Wallet.SimNet = false, true
+		sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, true, false
+		sc.nodeActiveNet = &node.SimNetParams
+		sc.walletActiveNet = &netparams.SimNetParams
+	default:
+		sc.Wallet.TestNet3, sc.Wallet.SimNet = false, false
+		sc.Node.TestNet3, sc.Node.SimNet, sc.Node.RegressionTest = false, false, false
+		sc.nodeActiveNet = &node.MainNetParams
+		sc.walletActiveNet = &netparams.MainNetParams
 	}
 
 	if ctx.Is("createtemp") {

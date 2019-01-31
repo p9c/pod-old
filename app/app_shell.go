@@ -14,6 +14,7 @@ import (
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/tucnak/climax"
 )
 
@@ -31,7 +32,7 @@ type ShellCfg struct {
 var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
 
 // DefaultShellConfigFile is the default configfile for shell
-var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf")
+var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf.json")
 
 // ShellConfig is the combined app and log levels configuration
 var ShellConfig = DefaultShellConfig(w.DefaultDataDir)
@@ -181,51 +182,63 @@ var ShellCommand = climax.Command{
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},
 	},
-	Handle: func(ctx climax.Context) int {
-		var dl string
-		var ok bool
-		if dl, ok = ctx.Get("debuglevel"); ok {
-			log <- cl.Tracef{"setting debug level %s", dl}
-			Log.SetLevel(dl)
-			ll := GetAllSubSystems()
-			for i := range ll {
-				ll[i].SetLevel(dl)
-			}
-		}
-		log <- cl.Trc("starting shell app")
+	Handle: shellHandle,
+}
 
-		var cfgFile string
-		cfgFile = DefaultShellConfigFile
-		datadir := DefaultDataDir
-		if datadir, ok = ctx.Get("datadir"); ok {
-			cfgFile = filepath.Join(datadir, "shell/conf.json")
+func shellHandle(ctx climax.Context) int {
+	var dl string
+	var ok bool
+	if dl, ok = ctx.Get("debuglevel"); ok {
+		log <- cl.Tracef{"setting debug level %s", dl}
+		ShellConfig.Node.DebugLevel = dl
+		Log.SetLevel(dl)
+		ll := GetAllSubSystems()
+		for i := range ll {
+			ll[i].SetLevel(dl)
 		}
-		if ctx.Is("init") {
-			log <- cl.Debug{"writing default configuration to", cfgFile}
+	}
+	if ctx.Is("version") {
+		fmt.Println("pod/shell version", Version(),
+			"pod/node version", n.Version(),
+			"pod/wallet version", w.Version())
+		cl.Shutdown()
+	}
+	var datadir, cfgFile string
+	datadir = util.AppDataDir("pod", false)
+	if datadir, ok = ctx.Get("datadir"); ok {
+		ShellConfig.Node.DataDir = datadir
+		ShellConfig.Wallet.DataDir = datadir
+	}
+	cfgFile = filepath.Join(datadir, "shell/conf.json")
+	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+	if ctx.Is("init") {
+		log <- cl.Debug{"writing default configuration to", cfgFile}
+		WriteDefaultShellConfig(datadir)
+	}
+	if r, ok := ctx.Get("configfile"); ok {
+		ShellConfig.ConfigFile = r
+	}
+	log <- cl.Info{"loading configuration from", cfgFile}
+	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+		log <- cl.Wrn("configuration file does not exist, creating new one")
+		WriteDefaultShellConfig(datadir)
+	} else {
+		log <- cl.Debug{"reading app configuration from", cfgFile}
+		cfgData, err := ioutil.ReadFile(cfgFile)
+		if err != nil {
+			log <- cl.Error{"reading app config file", err.Error()}
 			WriteDefaultShellConfig(datadir)
 		}
-		log <- cl.Info{"loading configuration from", cfgFile}
-		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-			log <- cl.Wrn("configuration file does not exist, creating new one")
+		log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+		err = json.Unmarshal(cfgData, &ShellConfig)
+		if err != nil {
+			log <- cl.Error{"parsing app config file", err.Error()}
 			WriteDefaultShellConfig(datadir)
-		} else {
-			log <- cl.Debug{"reading app configuration from", cfgFile}
-			cfgData, err := ioutil.ReadFile(cfgFile)
-			if err != nil {
-				log <- cl.Error{"reading app config file", err.Error()}
-				WriteDefaultShellConfig(datadir)
-			}
-			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-			err = json.Unmarshal(cfgData, &ShellConfig)
-			if err != nil {
-				log <- cl.Error{"parsing app config file", err.Error()}
-				WriteDefaultShellConfig(datadir)
-			}
 		}
-		configShell(ShellConfig, &ctx, DefaultShellConfFileName)
-		return runShell(
-			ShellConfig.nodeActiveNet, ShellConfig.walletActiveNet)
-	},
+	}
+	configShell(ShellConfig, &ctx, cfgFile)
+	return runShell(
+		ShellConfig.nodeActiveNet, ShellConfig.walletActiveNet)
 }
 
 // WriteShellConfig creates and writes the config file in the requested location
@@ -327,6 +340,8 @@ func DefaultShellConfig(datadir string) *ShellCfg {
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},
-		Levels: GetDefaultLogLevelsConfig(),
+		Levels:          GetDefaultLogLevelsConfig(),
+		nodeActiveNet:   node.ActiveNetParams,
+		walletActiveNet: walletmain.ActiveNet,
 	}
 }

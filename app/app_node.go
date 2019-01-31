@@ -174,10 +174,7 @@ var NodeCommand = climax.Command{
 		var dl string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
-			log <- cl.Tracef{
-				"setting debug level %s",
-				dl,
-			}
+			log <- cl.Tracef{"setting debug level %s", dl}
 			NodeConfig.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
@@ -185,16 +182,15 @@ var NodeCommand = climax.Command{
 				ll[i].SetLevel(dl)
 			}
 		}
-		log <- cl.Debugf{"pod/node version %s", n.Version()}
 		if ctx.Is("version") {
 			fmt.Println("pod/node version", n.Version())
 			cl.Shutdown()
 		}
 		var datadir, cfgFile string
+		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = n.DefaultHomeDir
 		}
-		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
 			cfgFile = r
