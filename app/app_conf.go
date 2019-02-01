@@ -10,6 +10,7 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/shell"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"github.com/tucnak/climax"
@@ -49,7 +50,7 @@ type ConfConfigs struct {
 	Ctl    ctl.Config
 	Node   node.Config
 	Wallet walletmain.Config
-	Shell  ShellCfg
+	Shell  shell.Config
 }
 
 // ConfCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries

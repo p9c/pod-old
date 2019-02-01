@@ -29,19 +29,19 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
-	ShellConfig.nodeActiveNet = &node.MainNetParams
-	ShellConfig.walletActiveNet = &netparams.MainNetParams
+	ShellConfig.SetNodeActiveNet(&node.MainNetParams)
+	ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
 	var ok bool
 	var r string
 	if ShellConfig.Node.TestNet3 {
 		r = "testnet"
-		ShellConfig.nodeActiveNet = &node.TestNet3Params
-		ShellConfig.walletActiveNet = &netparams.TestNet3Params
+		ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
+		ShellConfig.SetWalletActiveNet(&netparams.TestNet3Params)
 	}
 	if ShellConfig.Node.SimNet {
 		r = "simnet"
-		ShellConfig.nodeActiveNet = &node.SimNetParams
-		ShellConfig.walletActiveNet = &netparams.SimNetParams
+		ShellConfig.SetNodeActiveNet(&node.SimNetParams)
+		ShellConfig.SetWalletActiveNet(&netparams.SimNetParams)
 	}
 	fmt.Println("nodeActiveNet.Name", r)
 	if r, ok = getIfIs(ctx, "network"); ok {
@@ -49,18 +49,18 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		case "testnet":
 			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = true, false
 			ShellConfig.Node.TestNet3, ShellConfig.Node.SimNet, ShellConfig.Node.RegressionTest = true, false, false
-			ShellConfig.nodeActiveNet = &node.TestNet3Params
-			ShellConfig.walletActiveNet = &netparams.TestNet3Params
+			ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
+			ShellConfig.SetWalletActiveNet(&netparams.TestNet3Params)
 		case "simnet":
 			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, true
 			ShellConfig.Node.TestNet3, ShellConfig.Node.SimNet, ShellConfig.Node.RegressionTest = false, true, false
-			ShellConfig.nodeActiveNet = &node.SimNetParams
-			ShellConfig.walletActiveNet = &netparams.SimNetParams
+			ShellConfig.SetNodeActiveNet(&node.SimNetParams)
+			ShellConfig.SetWalletActiveNet(&netparams.SimNetParams)
 		default:
 			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = false, false
 			ShellConfig.Node.TestNet3, ShellConfig.Node.SimNet, ShellConfig.Node.RegressionTest = false, false, false
-			ShellConfig.nodeActiveNet = &node.MainNetParams
-			ShellConfig.walletActiveNet = &netparams.MainNetParams
+			ShellConfig.SetNodeActiveNet(&node.MainNetParams)
+			ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
 		}
 	}
 
@@ -380,10 +380,10 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	ShellConfig.Node.RelayNonStd = relayNonStd
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	ShellConfig.Node.DataDir = n.CleanAndExpandPath(ShellConfig.Node.DataDir)
-	ShellConfig.Node.DataDir = filepath.Join(ShellConfig.Node.DataDir, n.NetName(ShellConfig.nodeActiveNet))
+	ShellConfig.Node.DataDir = filepath.Join(ShellConfig.Node.DataDir, n.NetName(ShellConfig.GetNodeActiveNet()))
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	ShellConfig.Node.LogDir = n.CleanAndExpandPath(ShellConfig.Node.LogDir)
-	ShellConfig.Node.LogDir = filepath.Join(ShellConfig.Node.LogDir, n.NetName(ShellConfig.nodeActiveNet))
+	ShellConfig.Node.LogDir = filepath.Join(ShellConfig.Node.LogDir, n.NetName(ShellConfig.GetNodeActiveNet()))
 
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
 	// initLogRotator(filepath.Join(ShellConfig.Node.LogDir, DefaultLogFilename))

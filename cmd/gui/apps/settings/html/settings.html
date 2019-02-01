@@ -1,0 +1,49 @@
+<div class="tile is-ancestor">
+  <div class="tile is-4 is-vertical is-parent">
+    
+      <nav class="panel  box is-radiusless">
+  <p class="panel-heading" v-html="vlng.settings"></p>
+  <a class="panel-block is-active" @click="swapComponent(Ifc)">
+    <span class="panel-icon">
+      <i class="fas fa-book" aria-hidden="true"></i>
+    </span>
+    <div class="mit">Interface</div>
+  </a>
+  <a class="panel-block is-active" @click="swapComponent(Network)">
+    <span class="panel-icon">
+      <i class="fas fa-book" aria-hidden="true"></i>
+    </span>
+    <div class="mit">Network</div>
+  </a>
+  <a class="panel-block is-active" @click="swapComponent(Security)">
+    <span class="panel-icon">
+      <i class="fas fa-book" aria-hidden="true"></i>
+    </span>
+    <div class="mit">Security</div>
+  </a>
+  <a class="panel-block is-active" @click="swapComponent(Mining)">
+    <span class="panel-icon">
+      <i class="fas fa-book" aria-hidden="true"></i>
+    </span>
+    <div class="mit">Mining</div>
+  </a>
+
+</nav>
+
+            <div class="tile is-child box is-radiusless">
+      <p class="title">Two</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
+    </div>
+  </div>
+  <div class="tile is-parent">
+    <div class="tile is-child box is-radiusless">
+      
+                              <main :is="component" id="settingsc" :vicons="vuedata.data.icons" :vlng="vlng"></main>
+        
+
+    </div>
+  </div>
+</div>
+
+
+

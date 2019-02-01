@@ -1,0 +1,53 @@
+<div class="tile is-ancestor">
+  <div class="tile is-4 is-vertical is-parent">
+    <div class="tile is-child box is-radiusless">
+      <p class="title" v-html="vlng.balances"></p>
+    <p class="heading"><span v-html="vlng.total"></span></p>
+      <p class="title"><span v-html="vicons.balance" class="icon is-large"></span><strong><span v-html="rpcinterface.data.Getinfo.balance" class="duo"></span></strong></p>
+<hr>  
+      <p class="heading"><span v-html="vlng.unconfirmed"></span></p>
+      <p class="title"><span v-html="vicons.unconfirmed" class="icon is-large"></span><strong><span v-html="rpcinterface.data.Getinfo.unconfirmed" class="duo"></span></strong></p>
+<hr>
+
+      <p class="heading"><span v-html="vlng.available"></span></p>
+      <p class="title"><span v-html="vicons.txnumber" class="icon is-large"></span><strong><span v-html="vbcd.unconfirmed" class="duo"></span></strong></p>
+          
+    <hr>       
+           
+  
+    </div>
+    <div class="tile is-child box is-radiusless">
+      <p class="title">Two</p>
+      <button @click="reqForm">daj address</button>
+
+      <span v-html="rpcinterface.data.Address"></span>
+      <hr>
+      <span v-html="rpcinterface.data.MSG"></span>
+      <hr>
+      <span v-html="rpcinterface.data.ERR"></span>
+    </div>
+  </div>
+  <div class="tile is-parent">
+    <div class="tile is-child box is-radiusless">
+      <p class="title" v-html="vlng.latesttransactions"></p>
+      <section id="home_transactions" class="flx fii">
+          <b-table
+            :data="transactions"
+            :default-sort-direction="defaultSortDirection"
+            default-sort="time">
+            <template slot-scope="props">             
+                <b-table-column field="category" :label=vlng.type width="32" sortable>
+                    <span v-if="props.row.category === 'send'" v-html="vicons.sent"></span>
+                    <span v-if="props.row.category === 'receive'" v-html="vicons.received"></span>
+                    <span v-if="props.row.category === 'immature'" v-html="vicons.unconfirmed"></span>
+                </b-table-column>
+                <b-table-column field="time" :label=vlng.date sortable numeric><small>{{ new Date(props.row.time).toLocaleDateString() }}{{ new Date(props.row.time).toLocaleTimeString() }}</small></b-table-column>
+                <b-table-column field="address" :label=vlng.address sortable><span v-html="props.row.address" class="tag"></span></b-table-column>
+                <b-table-column field="amount" :label=vlng.amount sortable numeric>
+                    <span v-html="props.row.amount" class="duo"></span>
+                </b-table-column>
+        </b-table>
+    </section>
+    </div>
+  </div>
+</div>

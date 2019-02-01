@@ -7,26 +7,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
+	"git.parallelcoin.io/pod/cmd/shell"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/tucnak/climax"
 )
-
-// ShellCfg is the combined app and logging configuration data
-type ShellCfg struct {
-	ConfigFile      string
-	Node            *n.Config
-	Wallet          *w.Config
-	Levels          map[string]string
-	nodeActiveNet   *node.Params
-	walletActiveNet *netparams.Params
-}
 
 // DefaultShellAppDataDir is the default app data dir
 var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
@@ -249,7 +238,7 @@ func shellHandle(ctx climax.Context) int {
 }
 
 // WriteShellConfig creates and writes the config file in the requested location
-func WriteShellConfig(c *ShellCfg) {
+func WriteShellConfig(c *shell.Config) {
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -284,15 +273,17 @@ func WriteDefaultShellConfig(datadir string) {
 }
 
 // DefaultShellConfig returns a default configuration
-func DefaultShellConfig(datadir string) *ShellCfg {
+func DefaultShellConfig(datadir string) *shell.Config {
 	log <- cl.Dbg("getting default config")
 	u := GenKey()
 	p := GenKey()
 	appdatadir := filepath.Join(datadir, "shell")
 	walletdatadir := filepath.Join(datadir, "wallet")
 	nodedatadir := filepath.Join(datadir, "node")
-	return &ShellCfg{
+	return &shell.Config{
 		ConfigFile: filepath.Join(appdatadir, "conf.json"),
+		DataDir:    datadir,
+		AppDataDir: appdatadir,
 		Node: &n.Config{
 			RPCUser:      u,
 			RPCPass:      p,
@@ -349,8 +340,6 @@ func DefaultShellConfig(datadir string) *ShellCfg {
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},
-		Levels:          GetDefaultLogLevelsConfig(),
-		nodeActiveNet:   node.ActiveNetParams,
-		walletActiveNet: walletmain.ActiveNet,
+		Levels: GetDefaultLogLevelsConfig(),
 	}
 }

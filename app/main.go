@@ -19,7 +19,7 @@ var PodApp = climax.Application{
 func Main() int {
 	PodApp.AddCommand(VersionCommand)
 	PodApp.AddCommand(ConfCommand)
-	// PodApp.AddCommand(GUICommand)
+	PodApp.AddCommand(GUICommand)
 	PodApp.AddCommand(CtlCommand)
 	PodApp.AddCommand(NodeCommand)
 	PodApp.AddCommand(WalletCommand)

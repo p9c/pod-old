@@ -1,0 +1,91 @@
+<div class="tile is-ancestor">
+  <div class="tile is-4 is-vertical is-parent">
+    <div class="tile is-child box is-radiusless">
+      <p class="title" v-html="vlng.send"></p>
+      
+       <form id="sendform" @submit.prevent="vrfSend">
+ 
+  <div class="field is-horizontal"><div class="field-label is-normal"><label class="label"><div v-html="vicons.balance"></div><h4 v-html="vlng.payto"></h4></label></div>
+  <div class="field-body"><div class="field"><div class="control">
+        <b-input  minlength="34"  maxlength="34" type="text" name="address" v-model="address" required placeholder="Enter a ParallelCoin address (e.g. XXXXXXX)" /><button>Address Book</button><button>Paste</button><button>Remove</button>
+  </div></div></div></div>
+  <div class="field is-horizontal"><div class="field-label is-normal"><label class="label"><div v-html="vicons.balance"></div><h4 v-html="vlng.label"></h4></label></div>
+  <div class="field-body"><div class="field"><div class="control">
+                  <b-input type="text" name="label" v-model="label" placeholder="Enter a label for the address (e.g. Loki)" />
+  </div></div></div></div>
+  <div class="field is-horizontal"><div class="field-label is-normal"><label class="label"><div v-html="vicons.balance"></div><h4 v-html="vlng.amount"></h4></label></div>
+  <div class="field-body"><div class="field"><div class="control">
+          
+       
+         <b-field>
+            <b-input  type="number" size="is-large" step="0.000001" name="amount" required v-model="amount" min="1" placeholder="Enter a ParallelCoin amount"></b-input>
+            <p class="control">
+                <button type="submit" class="button is-large is-success" v-html="vlng.send"></button>
+            </p> 
+        </b-field>
+  </div></div></div></div>
+
+          
+
+
+
+
+
+       
+       
+        
+
+    </form>
+
+  
+    </div>
+    <div class="tile is-child box is-radiusless">
+      <p class="title">Two</p>
+iuygtfrds
+    </div>
+  </div>
+  <div class="tile is-parent">
+    <div class="tile is-child box is-radiusless">
+      <p class="title" v-html="vlng.senttransactionshistory"></p>
+     <section>
+        <b-field grouped group-multiline>
+            <b-select v-model="perPage" :disabled="!isPaginated">
+                <option value="5">5 {{ vlng.perpage}}</option>
+                <option value="10">10 {{ vlng.perpage}}</option>
+                <option value="15">15 {{ vlng.perpage}}</option>
+                <option value="20">20 {{ vlng.perpage}}</option>
+            </b-select>
+            <div class="control is-flex">
+                <b-switch v-model="isPaginated">Paginated</b-switch>
+            </div>
+        </b-field>
+
+        <b-table
+            :data="transactions"
+            :paginated="isPaginated"
+            :per-page="perPage"
+            :current-page.sync="currentPage"
+            :pagination-simple="isPaginationSimple"
+            :default-sort-direction="defaultSortDirection"
+            default-sort="time">
+
+            <template slot-scope="props">
+               <b-table-column field="time" :label=vlng.date sortable centered numeric>
+<span>
+    {{ new Date(props.row.time).toLocaleDateString() }}
+    {{ new Date(props.row.time).toLocaleTimeString() }}
+</span>
+            </b-table-column>
+                <b-table-column field="address" :label=vlng.address sortable>
+                  <span v-html="props.row.address" class="tag"></span>
+                </b-table-column>
+                <b-table-column field="amount" :label=vlng.amount width="180" sortable numeric>
+                    <span v-html="props.row.amount" class="duo"></span>
+                </b-table-column>
+
+        </b-table>
+    </section>
+
+    </div>
+  </div>
+</div>

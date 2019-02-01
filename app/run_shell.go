@@ -15,13 +15,13 @@ func runShell() (out int) {
 	var wg sync.WaitGroup
 	go func() {
 		wg.Add(1)
-		out = runNode(ShellConfig.Node, ShellConfig.nodeActiveNet)
+		out = runNode(ShellConfig.Node, ShellConfig.GetNodeActiveNet())
 		wg.Done()
 	}()
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 2)
 	go func() {
 		wg.Add(1)
-		out = runWallet(ShellConfig.Wallet, ShellConfig.walletActiveNet)
+		out = runWallet(ShellConfig.Wallet, ShellConfig.GetWalletActiveNet())
 		wg.Done()
 	}()
 	wg.Wait()
