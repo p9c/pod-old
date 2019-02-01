@@ -17,9 +17,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/json"
+	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wchain"
 	"github.com/btcsuite/websocket"
 )
@@ -204,9 +204,7 @@ func (s *Server) RegisterWallet(w *wallet.Wallet) {
 	s.handlerMu.Unlock()
 }
 
-// Stop gracefully shuts down the rpc server by stopping and disconnecting all
-// clients, disconnecting the chain server connection, and closing the wallet's
-// account files.  This blocks until shutdown completes.
+// Stop gracefully shuts down the rpc server by stopping and disconnecting all clients, disconnecting the chain server connection, and closing the wallet's account files.  This blocks until shutdown completes.
 func (s *Server) Stop() {
 	s.quitMtx.Lock()
 	select {

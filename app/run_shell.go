@@ -2,19 +2,27 @@ package app
 
 import (
 	"encoding/json"
+	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/interrupt"
 )
 
-func runShell() int {
+func runShell() (out int) {
 	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
-	shutdown := make(chan struct{})
+	var wg sync.WaitGroup
 	go func() {
-		go runWallet(ShellConfig.Wallet, ShellConfig.walletActiveNet)
-		runNode(ShellConfig.Node, ShellConfig.nodeActiveNet)
-		close(shutdown)
+		wg.Add(1)
+		out = runWallet(ShellConfig.Wallet, ShellConfig.walletActiveNet)
+		wg.Done()
 	}()
-	<-shutdown
+	go func() {
+		wg.Add(1)
+		out = runNode(ShellConfig.Node, ShellConfig.nodeActiveNet)
+		wg.Done()
+	}()
+	wg.Wait()
+	<-interrupt.HandlersDone
 	return 0
 }
