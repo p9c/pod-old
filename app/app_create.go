@@ -71,7 +71,7 @@ Available options:
 		connect to (mainnet|testnet|simnet)
 
 `)
-			os.Exit(0)
+			return 0
 		}
 		argsGiven := false
 		CreateConfig.DataDir = w.DefaultDataDir

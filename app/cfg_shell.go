@@ -349,8 +349,9 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		err := runServiceCommand(serviceOpts.ServiceCommand)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			return 1
 		}
-		os.Exit(0)
+		return 0
 	}
 	// Don't add peers from the config file when in regression test mode.
 	if ShellConfig.Node.RegressionTest && len(ShellConfig.Node.AddPeers) > 0 {

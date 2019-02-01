@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	w "git.parallelcoin.io/pod/cmd/wallet"
@@ -50,7 +49,7 @@ Available options:
 		connect to (mainnet|testnet|simnet)
 
 `)
-			os.Exit(0)
+			return 0
 		}
 		SetupConfig.DataDir = w.DefaultDataDir
 		if r, ok := getIfIs(&ctx, "datadir"); ok {

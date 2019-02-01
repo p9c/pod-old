@@ -10,8 +10,8 @@
   "WalletListeners": [
     "127.0.0.1:11046"
   ],
-  "NodeUser": "2ce9ba62",
-  "NodePass": "f1c343bc",
+  "NodeUser": "198881a3",
+  "NodePass": "cbc2c501",
   "WalletPass": "",
   "RPCKey": "test/rpc.key",
   "RPCCert": "test/rpc.cert",

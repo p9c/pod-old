@@ -51,7 +51,7 @@ Available options:
 		connect to (mainnet|testnet|simnet)
 
 `)
-			os.Exit(0)
+			return 0
 		}
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			CreateConfig.DataDir = r

@@ -35,6 +35,5 @@ func main() {
 	err = cmd.Run()
 	if err != nil {
 		fmt.Println("ERR", err)
-		os.Exit(1)
 	}
 }

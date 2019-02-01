@@ -304,8 +304,9 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) int {
 		err := runServiceCommand(serviceOpts.ServiceCommand)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			return 1
 		}
-		os.Exit(0)
+		return 0
 	}
 	// Don't add peers from the config file when in regression test mode.
 	if nc.RegressionTest && len(nc.AddPeers) > 0 {
