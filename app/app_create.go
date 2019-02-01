@@ -11,7 +11,6 @@ import (
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/gui"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
@@ -108,14 +107,6 @@ Available options:
 		}
 		CreateConfig.Config = WalletConfig.Wallet
 		activeNet := walletmain.ActiveNet
-		if CreateConfig.Config.TestNet3 {
-			fmt.Println("using testnet")
-			activeNet = &netparams.TestNet3Params
-		}
-		if CreateConfig.Config.SimNet {
-			fmt.Println("using simnet")
-			activeNet = &netparams.SimNetParams
-		}
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
@@ -128,6 +119,14 @@ Available options:
 			CreateConfig.Network = r
 			argsGiven = true
 		}
+		if CreateConfig.Config.TestNet3 {
+			fmt.Println("using testnet")
+			activeNet = &netparams.TestNet3Params
+		}
+		if CreateConfig.Config.SimNet {
+			fmt.Println("using simnet")
+			activeNet = &netparams.SimNetParams
+		}
 		CreateConfig.Config.AppDataDir = filepath.Join(
 			CreateConfig.DataDir, "wallet")
 		fmt.Println(activeNet.Name)
@@ -135,7 +134,7 @@ Available options:
 		if ctx.Is("cli") {
 			walletmain.CreateWallet(CreateConfig.Config, activeNet)
 			fmt.Print("\nYou can now open the wallet\n")
-			os.Exit(0)
+			return 0
 		}
 		if r, ok := getIfIs(&ctx, "seed"); ok {
 			CreateConfig.Seed = []byte(r)
@@ -186,9 +185,6 @@ Available options:
 			w.Manager.Close()
 			return 0
 
-		} else {
-			fmt.Println("launching GUI")
-			gui.GUI()
 		}
 		return 0
 	},

@@ -25,5 +25,6 @@ func Main() int {
 	PodApp.AddCommand(WalletCommand)
 	PodApp.AddCommand(ShellCommand)
 	PodApp.AddCommand(CreateCommand)
+	PodApp.AddCommand(SetupCommand)
 	return PodApp.Run()
 }
