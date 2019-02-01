@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"git.parallelcoin.io/pod/pkg/interrupt"
+
 	"github.com/mitchellh/colorstring"
 )
 
@@ -566,5 +568,5 @@ var Quit = make(chan struct{})
 func Shutdown() {
 	close(Quit)
 	wg.Wait()
-	os.Exit(0)
+	<-interrupt.HandlersDone
 }

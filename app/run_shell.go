@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/interrupt"
@@ -14,12 +15,13 @@ func runShell() (out int) {
 	var wg sync.WaitGroup
 	go func() {
 		wg.Add(1)
-		out = runWallet(ShellConfig.Wallet, ShellConfig.walletActiveNet)
+		out = runNode(ShellConfig.Node, ShellConfig.nodeActiveNet)
 		wg.Done()
 	}()
+	time.Sleep(time.Second * 5)
 	go func() {
 		wg.Add(1)
-		out = runNode(ShellConfig.Node, ShellConfig.nodeActiveNet)
+		out = runWallet(ShellConfig.Wallet, ShellConfig.walletActiveNet)
 		wg.Done()
 	}()
 	wg.Wait()

@@ -127,18 +127,18 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 		log <- cl.Errorf{"unable to start server on %v: %v", cfg.Listeners, err}
 		return err
 	}
-	defer func() {
+	interrupt.AddHandler(func() {
 		log <- cl.Inf("gracefully shutting down the server...")
 		server.Stop()
 		server.WaitForShutdown()
 		log <- cl.Inf("server shutdown complete")
-	}()
+	})
 	server.Start()
 	if serverChan != nil {
 		serverChan <- server
 	}
 	// Wait until the interrupt signal is received from an OS signal or shutdown is requested through one of the subsystems such as the RPC server.
-	<-shutdownChan
+	<-interrupt.HandlersDone
 	return nil
 }
 
