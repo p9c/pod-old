@@ -16,8 +16,8 @@
     "BanDuration": 86400000000000,
     "BanThreshold": 100,
     "Whitelists": null,
-    "RPCUser": "62e00796",
-    "RPCPass": "e33d84e4",
+    "RPCUser": "e3b21da0",
+    "RPCPass": "cf49f764",
     "RPCLimitUser": "",
     "RPCLimitPass": "",
     "RPCListeners": [

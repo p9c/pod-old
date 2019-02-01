@@ -15,7 +15,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )
 
@@ -108,7 +107,6 @@ Available options:
 			}
 		}
 		CreateConfig.Config = WalletConfig.Wallet
-		spew.Dump(CreateConfig.Config)
 		activeNet := walletmain.ActiveNet
 		if CreateConfig.Config.TestNet3 {
 			fmt.Println("using testnet")

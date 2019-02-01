@@ -83,7 +83,7 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	}
 	// Load the block database.
 	var db database.DB
-	log <- cl.Debug{"loading db with", ActiveNetParams.Name, cfg.TestNet3}
+	log <- cl.Debug{"loading db with", activeNet.Params.Name, cfg.TestNet3}
 	db, err = loadBlockDB()
 	if err != nil {
 		log <- cl.Error{err}

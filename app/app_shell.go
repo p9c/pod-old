@@ -211,34 +211,40 @@ func shellHandle(ctx climax.Context) int {
 	}
 	cfgFile = filepath.Join(datadir, "shell/conf.json")
 	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+	if r, ok := ctx.Get("configfile"); ok {
+		ShellConfig.ConfigFile = r
+		cfgFile = r
+	}
 	if ctx.Is("init") {
 		log <- cl.Debug{"writing default configuration to", cfgFile}
 		WriteDefaultShellConfig(datadir)
-	}
-	if r, ok := ctx.Get("configfile"); ok {
-		ShellConfig.ConfigFile = r
-	}
-	log <- cl.Info{"loading configuration from", cfgFile}
-	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		log <- cl.Wrn("configuration file does not exist, creating new one")
-		WriteDefaultShellConfig(datadir)
 	} else {
-		log <- cl.Debug{"reading app configuration from", cfgFile}
-		cfgData, err := ioutil.ReadFile(cfgFile)
-		if err != nil {
-			log <- cl.Error{"reading app config file", err.Error()}
+		log <- cl.Info{"loading configuration from", cfgFile}
+		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+			log <- cl.Wrn("configuration file does not exist, creating new one")
 			WriteDefaultShellConfig(datadir)
-		}
-		log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-		err = json.Unmarshal(cfgData, &ShellConfig)
-		if err != nil {
-			log <- cl.Error{"parsing app config file", err.Error()}
-			WriteDefaultShellConfig(datadir)
+		} else {
+			log <- cl.Debug{"reading app configuration from", cfgFile}
+			cfgData, err := ioutil.ReadFile(cfgFile)
+			if err != nil {
+				log <- cl.Error{"reading app config file", err.Error()}
+				WriteDefaultShellConfig(datadir)
+			} else {
+				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+				err = json.Unmarshal(cfgData, &ShellConfig)
+				if err != nil {
+					log <- cl.Error{"parsing app config file", err.Error()}
+					WriteDefaultShellConfig(datadir)
+				}
+			}
 		}
 	}
-	configShell(ShellConfig, &ctx, cfgFile)
-	return runShell(
-		ShellConfig.nodeActiveNet, ShellConfig.walletActiveNet)
+	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
+	log <- cl.Tracef{"parsed configuration:\n%s", string(j)}
+	configShell(&ctx, cfgFile)
+	j, _ = json.MarshalIndent(ShellConfig, "", "  ")
+	log <- cl.Tracef{"after configuration:\n%s", string(j)}
+	return runShell()
 }
 
 // WriteShellConfig creates and writes the config file in the requested location
@@ -282,6 +288,8 @@ func DefaultShellConfig(datadir string) *ShellCfg {
 	u := GenKey()
 	p := GenKey()
 	appdatadir := filepath.Join(datadir, "shell")
+	walletdatadir := filepath.Join(datadir, "wallet")
+	nodedatadir := filepath.Join(datadir, "node")
 	return &ShellCfg{
 		ConfigFile: filepath.Join(appdatadir, "conf.json"),
 		Node: &n.Config{
@@ -298,7 +306,7 @@ func DefaultShellConfig(datadir string) *ShellCfg {
 			RPCMaxClients:        n.DefaultMaxRPCClients,
 			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
 			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-			DataDir:              datadir,
+			DataDir:              nodedatadir,
 			LogDir:               appdatadir,
 			DbType:               n.DefaultDbType,
 			RPCCert:              filepath.Join(datadir, "rpc.cert"),
@@ -329,8 +337,8 @@ func DefaultShellConfig(datadir string) *ShellCfg {
 			NoInitialLoad:      false,
 			ConfigFile: filepath.Join(
 				appdatadir, "walletconf.json"),
-			DataDir:    datadir,
-			AppDataDir: appdatadir,
+			DataDir:    walletdatadir,
+			AppDataDir: walletdatadir,
 			LogDir:     appdatadir,
 			RPCCert:    filepath.Join(datadir, "rpc.cert"),
 			RPCKey:     filepath.Join(datadir, "rpc.key"),
