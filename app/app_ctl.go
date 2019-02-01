@@ -67,7 +67,7 @@ var CtlCommand = climax.Command{
 		}
 		if ctx.Is("version") {
 			fmt.Println("pod/ctl version", ctl.Version())
-			cl.Shutdown()
+			return 0
 		}
 		if ctx.Is("listcommands") {
 			ctl.ListCommands()
@@ -107,7 +107,7 @@ var CtlCommand = climax.Command{
 					err = json.Unmarshal(cfgData, CtlCfg)
 					if err != nil {
 						log <- cl.Err(err.Error())
-						cl.Shutdown()
+						return 1
 					}
 				}
 				// then run from this config
@@ -116,7 +116,6 @@ var CtlCommand = climax.Command{
 		}
 		log <- cl.Trace{ctx.Args}
 		runCtl(ctx.Args, CtlCfg)
-		cl.Shutdown()
 		return 0
 	},
 }

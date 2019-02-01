@@ -44,7 +44,7 @@ func Main(c *Config, activeNet *netparams.Params) error {
 	if cfg.Create {
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
 			log <- cl.Error{"failed to create wallet", err}
-			cl.Shutdown()
+			return err
 		}
 	}
 

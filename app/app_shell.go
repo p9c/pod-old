@@ -201,13 +201,14 @@ func shellHandle(ctx climax.Context) int {
 		fmt.Println("pod/shell version", Version(),
 			"pod/node version", n.Version(),
 			"pod/wallet version", w.Version())
-		cl.Shutdown()
+		return 0
 	}
-	var datadir, cfgFile string
+	var datadir, dd, cfgFile string
 	datadir = util.AppDataDir("pod", false)
-	if datadir, ok = ctx.Get("datadir"); ok {
-		ShellConfig.Node.DataDir = datadir
-		ShellConfig.Wallet.DataDir = datadir
+	if dd, ok = ctx.Get("datadir"); ok {
+		ShellConfig.Node.DataDir = dd
+		ShellConfig.Wallet.DataDir = dd
+		datadir = dd
 	}
 	cfgFile = filepath.Join(datadir, "shell/conf.json")
 	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}

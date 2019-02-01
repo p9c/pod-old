@@ -12,6 +12,7 @@ import (
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )
@@ -184,11 +185,11 @@ var NodeCommand = climax.Command{
 		}
 		if ctx.Is("version") {
 			fmt.Println("pod/node version", n.Version())
-			cl.Shutdown()
+			return 0
 		}
 		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
-			datadir = n.DefaultHomeDir
+			datadir = util.AppDataDir("pod", false)
 		}
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}

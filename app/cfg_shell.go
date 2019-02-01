@@ -24,7 +24,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
-func configShell(ctx *climax.Context, cfgFile string) {
+func configShell(ctx *climax.Context, cfgFile string) int {
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
@@ -370,7 +370,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	case ShellConfig.Node.RejectNonStd:
 		relayNonStd = false
 	case ShellConfig.Node.RelayNonStd:
@@ -393,7 +393,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.DbType, n.KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Validate profile port number
 	if ShellConfig.Node.Profile != "" {
@@ -403,7 +403,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			err := fmt.Errorf(str, funcName)
 			fmt.Fprintln(os.Stderr, err)
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 		}
 	}
 	// Don't allow ban durations that are too short.
@@ -412,7 +412,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.BanDuration)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Validate any given whitelisted IP addresses and networks.
 	if len(ShellConfig.Node.Whitelists) > 0 {
@@ -427,7 +427,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
 					fmt.Fprintln(os.Stderr, usageMessage)
-					cl.Shutdown()
+					return 1
 				}
 				var bits int
 				if ip.To4() == nil {
@@ -473,7 +473,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Check to make sure limited and admin users don't have the same password
 	if ShellConfig.Node.RPCPass == ShellConfig.Node.RPCLimitPass && ShellConfig.Node.RPCPass != "" {
@@ -481,7 +481,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// The RPC server is disabled if no username or password is provided.
 	if (ShellConfig.Node.RPCUser == "" || ShellConfig.Node.RPCPass == "") &&
@@ -496,7 +496,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		addrs, err := net.LookupHost(n.DefaultRPCListener)
 		if err != nil {
 			log <- cl.Err(err.Error())
-			cl.Shutdown()
+			return 1
 		}
 		ShellConfig.Node.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
@@ -509,7 +509,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.RPCMaxConcurrentReqs)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	var err error
 	// Validate the the minrelaytxfee.
@@ -519,7 +519,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Limit the max block size to a sane value.
 	if ShellConfig.Node.BlockMaxSize < n.BlockMaxSizeMin || ShellConfig.Node.BlockMaxSize >
@@ -529,7 +529,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			n.BlockMaxSizeMax, ShellConfig.Node.BlockMaxSize)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Limit the max block weight to a sane value.
 	if ShellConfig.Node.BlockMaxWeight < n.BlockMaxWeightMin ||
@@ -539,7 +539,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			n.BlockMaxWeightMax, ShellConfig.Node.BlockMaxWeight)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Limit the max orphan count to a sane vlue.
 	if ShellConfig.Node.MaxOrphanTxs < 0 {
@@ -547,7 +547,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.MaxOrphanTxs)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Limit the block priority and minimum block sizes to max block size.
 	ShellConfig.Node.BlockPrioritySize = minUint32(ShellConfig.Node.BlockPrioritySize, ShellConfig.Node.BlockMaxSize)
@@ -571,7 +571,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 				funcName)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 
 		}
 	}
@@ -581,7 +581,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 
 	}
 	// --addrindex and --dropaddrindex do not mix.
@@ -591,7 +591,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// --addrindex and --droptxindex do not mix.
 	if ShellConfig.Node.AddrIndex && ShellConfig.Node.DropTxIndex {
@@ -600,7 +600,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(ShellConfig.Node.MiningAddrs))
@@ -611,14 +611,14 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			err := fmt.Errorf(str, funcName, strAddr, err)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 		}
 		if !addr.IsForNet(n.ActiveNetParams.Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 		}
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
@@ -628,7 +628,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 
 	}
 	if ShellConfig.Node.MinerPass != "" {
@@ -647,7 +647,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 				err := fmt.Errorf(str, funcName, addr, err)
 				log <- cl.Err(err.Error())
 				fmt.Fprintln(os.Stderr, usageMessage)
-				cl.Shutdown()
+				return 1
 			}
 		}
 	}
@@ -661,7 +661,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(ShellConfig.Node.AddCheckpoints)
@@ -670,7 +670,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if ShellConfig.Node.TorIsolation && ShellConfig.Node.Proxy == "" && ShellConfig.Node.OnionProxy == "" {
@@ -678,7 +678,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		cl.Shutdown()
+		return 1
 	}
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
@@ -690,7 +690,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			err := fmt.Errorf(str, funcName, ShellConfig.Node.Proxy, err)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 		}
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
@@ -722,7 +722,7 @@ func configShell(ctx *climax.Context, cfgFile string) {
 			err := fmt.Errorf(str, funcName, ShellConfig.Node.OnionProxy, err)
 			log <- cl.Err(err.Error())
 			fmt.Fprintln(os.Stderr, usageMessage)
-			cl.Shutdown()
+			return 1
 		}
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if ShellConfig.Node.TorIsolation &&
@@ -757,4 +757,5 @@ func configShell(ctx *climax.Context, cfgFile string) {
 	}
 	ShellConfig.Wallet.PodUsername = ShellConfig.Node.RPCUser
 	ShellConfig.Wallet.PodPassword = ShellConfig.Node.RPCPass
+	return 0
 }

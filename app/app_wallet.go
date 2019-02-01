@@ -12,6 +12,7 @@ import (
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/tucnak/climax"
 )
 
@@ -117,9 +118,10 @@ func init() {
 		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
 		if ctx.Is("version") {
 			fmt.Println("pod/wallet version", w.Version())
-			cl.Shutdown()
+			return 0
 		}
 		var datadir, cfgFile string
+		datadir = util.AppDataDir("pod", false)
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = w.DefaultDataDir
 		}
