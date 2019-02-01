@@ -585,8 +585,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) int {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		return 1
-
+		os.Exit(1)
 	}
 	if nc.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(nc.MinerPass))

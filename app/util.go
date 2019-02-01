@@ -55,15 +55,15 @@ func NormalizeAddresses(addrs string, defaultPort string, out *[]string) {
 	addrS := strings.Split(addrs, " ")
 	for i := range addrS {
 		a := addrS[i]
-		o := ""
-		NormalizeAddress(a, defaultPort, &o)
-		if o != "" {
-			*O = append(*O, o)
+		// o := ""
+		NormalizeAddress(a, defaultPort, &a)
+		if a != "" {
+			*O = append(*O, a)
 		}
 	}
 	// atomically switch out if there was valid addresses
 	if len(*O) > 0 {
-		out = O
+		*out = *O
 	}
 }
 

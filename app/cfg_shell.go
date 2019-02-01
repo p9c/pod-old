@@ -71,16 +71,24 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		ShellConfig.Wallet.WalletPass = r
 	}
 	if r, ok := getIfIs(ctx, "listeners"); ok {
-		NormalizeAddresses(r, "11047", &ShellConfig.Node.Listeners)
+		NormalizeAddresses(
+			r, ShellConfig.GetNodeActiveNet().DefaultPort,
+			&ShellConfig.Node.Listeners)
+		log <- cl.Debug{"node listeners", ShellConfig.Node.Listeners}
 	}
 	if r, ok := getIfIs(ctx, "externalips"); ok {
-		NormalizeAddresses(r, "11047", &ShellConfig.Node.ExternalIPs)
+		NormalizeAddresses(
+			r, ShellConfig.GetNodeActiveNet().DefaultPort,
+			&ShellConfig.Node.ExternalIPs)
+		log <- cl.Debug{ShellConfig.Node.Listeners}
 	}
 	if r, ok := getIfIs(ctx, "disablelisten"); ok {
 		ShellConfig.Node.DisableListen = strings.ToLower(r) == "true"
 	}
 	if r, ok := getIfIs(ctx, "rpclisteners"); ok {
-		NormalizeAddresses(r, "11046", &ShellConfig.Wallet.LegacyRPCListeners)
+		NormalizeAddresses(
+			r, ShellConfig.GetWalletActiveNet().RPCServerPort,
+			&ShellConfig.Wallet.LegacyRPCListeners)
 	}
 	if r, ok := getIfIs(ctx, "rpcmaxclients"); ok {
 		var bt int
@@ -142,7 +150,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		ShellConfig.Node.DropAddrIndex = true
 	}
 	if r, ok := getIfIs(ctx, "proxy"); ok {
-		NormalizeAddress(r, "11048", &ShellConfig.Node.Proxy)
+		NormalizeAddress(r, "9050", &ShellConfig.Node.Proxy)
 		ShellConfig.Wallet.Proxy = ShellConfig.Node.Proxy
 	}
 	if r, ok := getIfIs(ctx, "proxyuser"); ok {
@@ -331,17 +339,6 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 
 	SetLogging(ctx)
 
-	if ctx.Is("save") {
-		log <- cl.Info{"saving config file to", cfgFile}
-		j, err := json.MarshalIndent(ShellConfig, "", "  ")
-		if err != nil {
-			log <- cl.Error{"writing app config file", err}
-		}
-		j = append(j, '\n')
-		log <- cl.Trace{"JSON formatted config file\n", string(j)}
-		ioutil.WriteFile(cfgFile, j, 0600)
-	}
-
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
@@ -389,8 +386,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	// initLogRotator(filepath.Join(ShellConfig.Node.LogDir, DefaultLogFilename))
 	// Validate database type.
 	if !n.ValidDbType(ShellConfig.Node.DbType) {
-		str := "%s: The specified database type [%v] is invalid -- " +
-			"supported types %v"
+		str := "%s: The specified database type [%v] is invalid -- supported types %v"
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.DbType, n.KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -465,7 +461,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(ShellConfig.Node.Listeners) == 0 {
 		ShellConfig.Node.Listeners = []string{
-			net.JoinHostPort("", n.ActiveNetParams.DefaultPort),
+			net.JoinHostPort("localhost", ShellConfig.GetNodeActiveNet().DefaultPort),
 		}
 	}
 	// Check to make sure limited and admin users don't have the same username
@@ -629,18 +625,17 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
-		return 1
-
+		os.Exit(1)
 	}
 	if ShellConfig.Node.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(ShellConfig.Node.MinerPass))
 	}
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.Listeners = n.NormalizeAddresses(ShellConfig.Node.Listeners,
-		n.ActiveNetParams.DefaultPort)
+		ShellConfig.GetNodeActiveNet().DefaultPort)
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.RPCListeners = n.NormalizeAddresses(ShellConfig.Node.RPCListeners,
-		n.ActiveNetParams.RPCPort)
+		ShellConfig.GetNodeActiveNet().RPCPort)
 	if !ShellConfig.Node.DisableRPC && !ShellConfig.Node.TLS {
 		for _, addr := range ShellConfig.Node.RPCListeners {
 			if err != nil {
@@ -654,9 +649,9 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	}
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.AddPeers = n.NormalizeAddresses(ShellConfig.Node.AddPeers,
-		n.ActiveNetParams.DefaultPort)
+		ShellConfig.GetNodeActiveNet().DefaultPort)
 	ShellConfig.Node.ConnectPeers = n.NormalizeAddresses(ShellConfig.Node.ConnectPeers,
-		n.ActiveNetParams.DefaultPort)
+		ShellConfig.GetNodeActiveNet().DefaultPort)
 	// --noonion and --onion do not mix.
 	if ShellConfig.Node.NoOnion && ShellConfig.Node.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
@@ -756,7 +751,19 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 			return nil, errors.New("tor has been disabled")
 		}
 	}
+
 	ShellConfig.Wallet.PodUsername = ShellConfig.Node.RPCUser
 	ShellConfig.Wallet.PodPassword = ShellConfig.Node.RPCPass
+
+	if ctx.Is("save") {
+		log <- cl.Info{"saving config file to", cfgFile}
+		j, err := json.MarshalIndent(ShellConfig, "", "  ")
+		if err != nil {
+			log <- cl.Error{"writing app config file", err}
+		}
+		j = append(j, '\n')
+		log <- cl.Trace{"JSON formatted config file\n", string(j)}
+		ioutil.WriteFile(cfgFile, j, 0600)
+	}
 	return 0
 }

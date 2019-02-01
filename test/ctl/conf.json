@@ -3,16 +3,16 @@
   "ListCommands": false,
   "ConfigFile": "test/ctl/conf.json",
   "DebugLevel": "off",
-  "RPCUser": "8e6a0e6a",
-  "RPCPass": "bd8676bf",
-  "RPCServer": "127.0.0.1:11048",
+  "RPCUser": "d163c264",
+  "RPCPass": "cb8c1db1",
+  "RPCServer": "127.0.0.1:11148",
   "RPCCert": "test/rpc.cert",
   "TLS": false,
   "Proxy": "",
   "ProxyUser": "",
   "ProxyPass": "",
-  "TestNet3": false,
+  "TestNet3": true,
   "SimNet": false,
   "TLSSkipVerify": false,
-  "Wallet": "127.0.0.1:11046"
+  "Wallet": "127.0.0.1:11146"
 }

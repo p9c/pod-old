@@ -321,12 +321,14 @@ func configConf(ctx *climax.Context, datadir string) {
 	var listeners []string
 	if r, ok = getIfIs(ctx, "nodelistener"); ok {
 		NormalizeAddresses(r, node.DefaultPort, &listeners)
+		fmt.Println("nodelistener set to", listeners)
 		ConfConfig.NodeListeners = listeners
 		nodeCfg.Node.Listeners = listeners
 		shellCfg.Node.Listeners = listeners
 	}
 	if r, ok = getIfIs(ctx, "noderpclistener"); ok {
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
+		fmt.Println("noderpclistener set to", listeners)
 		ConfConfig.NodeRPCListeners = listeners
 		nodeCfg.Node.RPCListeners = listeners
 		walletCfg.Wallet.RPCConnect = r
@@ -336,6 +338,7 @@ func configConf(ctx *climax.Context, datadir string) {
 	}
 	if r, ok = getIfIs(ctx, "walletlistener"); ok {
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
+		fmt.Println("walletlistener set to", listeners)
 		ConfConfig.WalletListeners = listeners
 		walletCfg.Wallet.LegacyRPCListeners = listeners
 		ctlCfg.Wallet = r
@@ -435,6 +438,7 @@ func configConf(ctx *climax.Context, datadir string) {
 			r = "mainnet"
 		}
 		ConfConfig.Network = r
+		fmt.Println("configured for", r, "network")
 		switch r {
 		case "mainnet":
 			ctlCfg.TestNet3 = false
