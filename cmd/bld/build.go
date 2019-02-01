@@ -29,9 +29,33 @@ func main() {
 		log.Fatal(err)
 	}
 	dir += "/bin/pod"
-	cmd := exec.Command("go", "build", "-o", dir, "-ldflags", args, "-v")
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	verbose := ""
+	if len(os.Args) > 1 {
+		for i := range os.Args {
+			if i == 0 {
+				continue
+			}
+			if os.Args[i] == "-h" || os.Args[i] == "--help" {
+				fmt.Println(`bld - builds and stamps builds with custom variables
+
+usage: 	bld [-v] [-h]
+	
+	-v, --verbose
+		prints compiler verbose output to stdout
+	-h, --help
+		show this help message`)
+				os.Exit(0)
+			}
+			if os.Args[i] == "-v" || os.Args[i] == "--verbose" {
+				verbose = "-v"
+			}
+		}
+	}
+	cmd := exec.Command("go", "build", "-o", dir, "-ldflags", args, verbose)
+	if verbose != "" {
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+	}
 	err = cmd.Run()
 	if err != nil {
 		fmt.Println("ERR", err)

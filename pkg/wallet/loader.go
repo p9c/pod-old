@@ -51,9 +51,7 @@ type Loader struct {
 	mu             sync.Mutex
 }
 
-// NewLoader constructs a Loader with an optional recovery window. If the
-// recovery window is non-zero, the wallet will attempt to recovery addresses
-// starting from the last SyncedTo height.
+// NewLoader constructs a Loader with an optional recovery window. If the recovery window is non-zero, the wallet will attempt to recovery addresses starting from the last SyncedTo height.
 func NewLoader(chainParams *chaincfg.Params, dbDirPath string,
 	recoveryWindow uint32) *Loader {
 
@@ -76,9 +74,7 @@ func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
 	l.callbacks = nil // not needed anymore
 }
 
-// RunAfterLoad adds a function to be executed when the loader creates or opens
-// a wallet.  Functions are executed in a single goroutine in the order they are
-// added.
+// RunAfterLoad adds a function to be executed when the loader creates or opens a wallet.  Functions are executed in a single goroutine in the order they are added.
 func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 	l.mu.Lock()
 	if l.wallet != nil {

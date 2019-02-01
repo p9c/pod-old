@@ -86,14 +86,12 @@ Available options:
 				w.DefaultConfigFilename)
 			argsGiven = true
 		}
-		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 			fmt.Println("configuration file does not exist, creating new one")
 			WriteDefaultWalletConfig(CreateConfig.DataDir)
 		} else {
 			fmt.Println("reading app configuration from", cfgFile)
 			cfgData, err := ioutil.ReadFile(cfgFile)
-			fmt.Println(string(cfgData))
 			if err != nil {
 				fmt.Println("reading app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
@@ -107,30 +105,54 @@ Available options:
 		}
 		CreateConfig.Config = WalletConfig.Wallet
 		activeNet := walletmain.ActiveNet
+		CreateConfig.Config.TestNet3 = false
+		CreateConfig.Config.SimNet = false
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
 				activeNet = &netparams.TestNet3Params
+				CreateConfig.Config.TestNet3 = true
+				CreateConfig.Config.SimNet = false
 			case "simnet":
 				activeNet = &netparams.SimNetParams
+				CreateConfig.Config.TestNet3 = false
+				CreateConfig.Config.SimNet = true
 			default:
 				activeNet = &netparams.MainNetParams
 			}
 			CreateConfig.Network = r
 			argsGiven = true
 		}
+
 		if CreateConfig.Config.TestNet3 {
-			fmt.Println("using testnet")
 			activeNet = &netparams.TestNet3Params
+			CreateConfig.Config.TestNet3 = true
+			CreateConfig.Config.SimNet = false
 		}
 		if CreateConfig.Config.SimNet {
-			fmt.Println("using simnet")
 			activeNet = &netparams.SimNetParams
+			CreateConfig.Config.TestNet3 = false
+			CreateConfig.Config.SimNet = true
 		}
 		CreateConfig.Config.AppDataDir = filepath.Join(
 			CreateConfig.DataDir, "wallet")
-		fmt.Println(activeNet.Name)
 		// spew.Dump(CreateConfig)
+		dbDir := walletmain.NetworkDir(
+			filepath.Join(CreateConfig.DataDir, "wallet"), activeNet.Params)
+		loader := wallet.NewLoader(
+			walletmain.ActiveNet.Params, dbDir, 250)
+		exists, err := loader.WalletExists()
+		if err != nil {
+			fmt.Println("ERROR", err)
+			return 1
+		}
+		if !exists {
+
+		} else {
+			fmt.Println("\n!!! A wallet already exists at '" + dbDir + "' !!! \n")
+			fmt.Println("if you are sure it isn't valuable you can delete it before running this again")
+			return 1
+		}
 		if ctx.Is("cli") {
 			walletmain.CreateWallet(CreateConfig.Config, activeNet)
 			fmt.Print("\nYou can now open the wallet\n")
@@ -149,10 +171,6 @@ Available options:
 			argsGiven = true
 		}
 		if argsGiven {
-			dbDir := walletmain.NetworkDir(
-				CreateConfig.DataDir, walletmain.ActiveNet.Params)
-			loader := wallet.NewLoader(
-				walletmain.ActiveNet.Params, dbDir, 250)
 			if CreateConfig.Password == "" {
 				fmt.Println("no password given")
 				return 1

@@ -7,6 +7,7 @@ import (
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 
@@ -34,6 +35,7 @@ var SetupCommand = climax.Command{
 		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
 	Handle: func(ctx climax.Context) int {
+		fmt.Println("pod wallet setup")
 		if ctx.Is("help") {
 			fmt.Print(`Usage: create [-h] [-D] [--network]
 
@@ -55,37 +57,50 @@ Available options:
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			SetupConfig.DataDir = r
 		}
-		WriteDefaultConfConfig(SetupConfig.DataDir)
-		WriteDefaultCtlConfig(SetupConfig.DataDir)
-		WriteDefaultNodeConfig(SetupConfig.DataDir)
-		WriteDefaultWalletConfig(SetupConfig.DataDir)
-		WriteDefaultShellConfig(SetupConfig.DataDir)
 		activeNet := walletmain.ActiveNet
+		wc := DefaultWalletConfig(SetupConfig.DataDir)
+		SetupConfig.Config = wc.Wallet
+		SetupConfig.Config.TestNet3 = false
+		SetupConfig.Config.SimNet = false
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
 				activeNet = &netparams.TestNet3Params
+				SetupConfig.Config.TestNet3 = true
+				SetupConfig.Config.SimNet = false
 			case "simnet":
 				activeNet = &netparams.SimNetParams
+				SetupConfig.Config.TestNet3 = false
+				SetupConfig.Config.SimNet = true
 			default:
 				activeNet = &netparams.MainNetParams
 			}
 			SetupConfig.Network = r
 		}
-
-		SetupConfig.Config = WalletConfig.Wallet
-		if SetupConfig.Config.TestNet3 {
-			fmt.Println("using testnet")
-			activeNet = &netparams.TestNet3Params
+		dbDir := walletmain.NetworkDir(
+			filepath.Join(SetupConfig.DataDir, "wallet"), activeNet.Params)
+		loader := wallet.NewLoader(
+			walletmain.ActiveNet.Params, dbDir, 250)
+		exists, err := loader.WalletExists()
+		if err != nil {
+			fmt.Println("ERROR", err)
+			return 1
 		}
-		if SetupConfig.Config.SimNet {
-			fmt.Println("using simnet")
-			activeNet = &netparams.SimNetParams
+		if exists {
+			fmt.Print("\n!!! A wallet already exists at '" + dbDir + "/wallet.db' !!! \n")
+			fmt.Println(`if you are sure it isn't valuable you can delete it before running this again:
+
+	rm ` + dbDir + `/wallet.db			
+`)
+			return 1
 		}
 		SetupConfig.Config.AppDataDir = filepath.Join(
 			SetupConfig.DataDir, "wallet")
-		// fmt.Println(activeNet.Name)
-		// spew.Dump(SetupConfig)
+		WriteDefaultConfConfig(SetupConfig.DataDir)
+		WriteDefaultCtlConfig(SetupConfig.DataDir)
+		WriteDefaultNodeConfig(SetupConfig.DataDir)
+		WriteDefaultWalletConfig(SetupConfig.DataDir)
+		WriteDefaultShellConfig(SetupConfig.DataDir)
 		walletmain.CreateWallet(SetupConfig.Config, activeNet)
 		fmt.Print("\nYou can now open the wallet\n")
 		return 0

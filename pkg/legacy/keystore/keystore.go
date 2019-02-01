@@ -23,10 +23,10 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/ec"
+	"git.parallelcoin.io/pod/pkg/legacy/rename"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/pkg/legacy/rename"
 )
 
 const (
@@ -69,11 +69,7 @@ const (
 	addrHeader entryHeader = 0
 )
 
-// We want to use binaryRead and binaryWrite instead of binary.Read
-// and binary.Write because those from the binary package do not return
-// the number of bytes actually written or read.  We need to return
-// this value to correctly support the io.ReaderFrom and io.WriterTo
-// interfaces.
+// We want to use binaryRead and binaryWrite instead of binary.Read and binary.Write because those from the binary package do not return the number of bytes actually written or read.  We need to return this value to correctly support the io.ReaderFrom and io.WriterTo interfaces.
 func binaryRead(r io.Reader, order binary.ByteOrder, data interface{}) (n int64, err error) {
 	var read int
 	buf := make([]byte, binary.Size(data))
@@ -94,9 +90,7 @@ func binaryWrite(w io.Writer, order binary.ByteOrder, data interface{}) (n int64
 	return int64(written), err
 }
 
-// pubkeyFromPrivkey creates an encoded pubkey based on a
-// 32-byte privkey.  The returned pubkey is 33 bytes if compressed,
-// or 65 bytes if uncompressed.
+// pubkeyFromPrivkey creates an encoded pubkey based on a 32-byte privkey.  The returned pubkey is 33 bytes if compressed, or 65 bytes if uncompressed.
 func pubkeyFromPrivkey(privkey []byte, compress bool) (pubkey []byte) {
 	_, pk := ec.PrivKeyFromBytes(ec.S256(), privkey)
 
@@ -505,12 +499,9 @@ func getAddressKey(addr util.Address) addressKey {
 	return addressKey(addr.ScriptAddress())
 }
 
-// Store represents an key store in memory.  It implements the
-// io.ReaderFrom and io.WriterTo interfaces to read from and
-// write to any type of byte streams, including files.
+// Store represents an key store in memory.  It implements the io.ReaderFrom and io.WriterTo interfaces to read from and write to any type of byte streams, including files.
 type Store struct {
-	// TODO: Use atomic operations for dirty so the reader lock
-	// doesn't need to be grabbed.
+	// TODO: Use atomic operations for dirty so the reader lock doesn't need to be grabbed.
 	dirty bool
 	path  string
 	dir   string
@@ -542,9 +533,7 @@ type Store struct {
 	missingKeysStart int64
 }
 
-// New creates and initializes a new Store.  name's and desc's byte length
-// must not exceed 32 and 256 bytes, respectively.  All address private keys
-// are encrypted with passphrase.  The key store is returned locked.
+// New creates and initializes a new Store.  name's and desc's byte length must not exceed 32 and 256 bytes, respectively.  All address private keys are encrypted with passphrase.  The key store is returned locked.
 func New(dir string, desc string, passphrase []byte, net *chaincfg.Params,
 	createdAt *BlockStamp) (*Store, error) {
 
