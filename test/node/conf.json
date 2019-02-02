@@ -59,7 +59,7 @@
     "MaxOrphanTxs": 100,
     "Algo": "random",
     "Generate": true,
-    "GenThreads": 3,
+    "GenThreads": 1,
     "MiningAddrs": [
       "8PCPscPwuGag1WRYzianwHvRp83oNDsnHq"
     ],

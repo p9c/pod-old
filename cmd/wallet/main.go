@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/interrupt"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
@@ -25,6 +26,9 @@ var (
 func Main(c *Config, activeNet *netparams.Params) error {
 	cfg = c
 	ActiveNet = activeNet
+	if ActiveNet.Name == "testnet" {
+		fork.IsTestnet = true
+	}
 	if cfg.Profile != "" {
 		go func() {
 			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)

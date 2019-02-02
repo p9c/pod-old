@@ -31,31 +31,7 @@ type AlgoParams struct {
 var (
 	// IsTestnet is set at startup here to be accessible to all other libraries
 	IsTestnet bool
-	// List is the list of existing hard forks and when they activate
-	List = []HardForks{
-		{
-			Number:           0,
-			Name:             "Halcyon days",
-			ActivationHeight: 0, // Approximately 18 Jan 2019
-			Algos:            Algos,
-			AlgoVers:         AlgoVers,
-			WorkBase:         1,
-		},
-		{
-			Number:           1,
-			Name:             "Plan 9 from Crypto Space",
-			ActivationHeight: 199999,
-			Algos:            P9Algos,
-			AlgoVers:         P9AlgoVers,
-			WorkBase: func() (out int64) {
-				for i := range P9Algos {
-					out += P9Algos[i].NSperOp
-				}
-				out /= int64(len(P9Algos))
-				return
-			}(),
-		},
-	}
+
 	mainPowLimit = func() big.Int {
 		mplb, _ := hex.DecodeString("00000fffff000000000000000000000000000000000000000000000000000000")
 		return *big.NewInt(0).SetBytes(mplb)
@@ -87,15 +63,15 @@ var (
 	}
 	// P9Algos is the algorithm specifications after the hard fork
 	P9Algos = map[string]AlgoParams{
-		"blake14lr":      {0, FirstPowLimitBits, 0, 43935943},
-		"cryptonight7v2": {1, FirstPowLimitBits, 1, 44195890},
-		"keccak":         {2, FirstPowLimitBits, 2, 42804256},
-		"lyra2rev2":      {3, FirstPowLimitBits, 3, 76719207},
-		"scrypt":         {4, FirstPowLimitBits, 4, 43898224},
-		"sha256d":        {5, FirstPowLimitBits, 5, 43418857},
-		"skein":          {6, FirstPowLimitBits, 7, 44523156},
-		"stribog":        {7, FirstPowLimitBits, 6, 46297969},
-		"x11":            {8, FirstPowLimitBits, 8, 44318830},
+		"blake14lr": {0, FirstPowLimitBits, 0, 43935943},
+		"blake2s":   {1, FirstPowLimitBits, 1, 44195890},
+		"keccak":    {2, FirstPowLimitBits, 2, 42804256},
+		"lyra2rev2": {3, FirstPowLimitBits, 3, 76719207},
+		"scrypt":    {4, FirstPowLimitBits, 4, 43898224},
+		"sha256d":   {5, FirstPowLimitBits, 5, 43418857},
+		"skein":     {6, FirstPowLimitBits, 7, 44523156},
+		"stribog":   {7, FirstPowLimitBits, 6, 46297969},
+		"x11":       {8, FirstPowLimitBits, 8, 44318830},
 	}
 	// AlgoVers is the lookup for pre hardfork
 	AlgoVers = map[int32]string{
@@ -105,7 +81,7 @@ var (
 	// P9AlgoVers is the lookup for after 1st hardfork
 	P9AlgoVers = map[int32]string{
 		0: "blake14lr",
-		1: "cryptonight7v2",
+		1: "blake2s",
 		2: "keccak",
 		3: "lyra2rev2",
 		4: "scrypt",
@@ -113,6 +89,31 @@ var (
 		6: "skein",
 		7: "stribog",
 		8: "x11",
+	}
+	// List is the list of existing hard forks and when they activate
+	List = []HardForks{
+		{
+			Number:           0,
+			Name:             "Halcyon days",
+			ActivationHeight: 0, // Approximately 18 Jan 2019
+			Algos:            Algos,
+			AlgoVers:         AlgoVers,
+			WorkBase:         1,
+		},
+		{
+			Number:           1,
+			Name:             "Plan 9 from Crypto Space",
+			ActivationHeight: 199999,
+			Algos:            P9Algos,
+			AlgoVers:         P9AlgoVers,
+			WorkBase: func() (out int64) {
+				for i := range P9Algos {
+					out += P9Algos[i].NSperOp
+				}
+				out /= int64(len(P9Algos))
+				return
+			}(),
+		},
 	}
 )
 
@@ -125,33 +126,78 @@ const (
 func Hash(bytes []byte, name string, height int32) (out chainhash.Hash) {
 	switch name {
 	case "blake14lr":
-		out.SetBytes(Argon2i(Blake14lr(Cryptonight7v2(bytes))))
-	case "cryptonight7v2":
-		out.SetBytes(Argon2i(Cryptonight7v2(bytes)))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Blake14lr(bytes)...))
+		out.SetBytes(Blake14lr(b))
+	case "blake2s":
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Blake2s(bytes)...))
+		out.SetBytes(Blake2s(b))
 	case "lyra2rev2":
-		out.SetBytes(Argon2i(Lyra2REv2(Cryptonight7v2(bytes))))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Lyra2REv2(bytes)...))
+		out.SetBytes(Lyra2REv2(b))
 	case "scrypt":
 		if GetCurrent(height) > 0 {
-			bytes = Argon2i(Scrypt(Cryptonight7v2(bytes)))
+			b := Argon2i(
+				append(
+					Cryptonight7v2(
+						bytes),
+					Scrypt(bytes)...))
+			out.SetBytes(Scrypt(b))
 		} else {
 			bytes = Scrypt(bytes)
 		}
 		out.SetBytes(bytes)
 	case "sha256d": // sha256d
 		if GetCurrent(height) > 0 {
-			bytes = Argon2i(chainhash.DoubleHashB(Cryptonight7v2(bytes)))
+			b := Argon2i(
+				append(
+					Cryptonight7v2(
+						bytes),
+					chainhash.DoubleHashB(bytes)...))
+			out.SetBytes(chainhash.DoubleHashB(b))
 		} else {
 			bytes = chainhash.DoubleHashB(bytes)
 		}
 		out.SetBytes(bytes)
 	case "stribog":
-		out.SetBytes(Argon2i(Stribog(Cryptonight7v2(bytes))))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Stribog(bytes)...))
+		out.SetBytes(Stribog(b))
 	case "skein":
-		out.SetBytes(Argon2i(Skein(Cryptonight7v2(bytes))))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Skein(bytes)...))
+		out.SetBytes(Skein(b))
 	case "x11":
-		out.SetBytes(Argon2i(X11(Cryptonight7v2(bytes))))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				X11(bytes)...))
+		out.SetBytes(X11(b))
 	case "keccak":
-		out.SetBytes(Argon2i(Keccak(Cryptonight7v2(bytes))))
+		b := Argon2i(
+			append(
+				Cryptonight7v2(
+					bytes),
+				Keccak(bytes)...))
+		out.SetBytes(Keccak(b))
 	}
 	return
 }
@@ -165,9 +211,13 @@ func GetAlgoVer(name string, height int32) (version int32) {
 		randomalgover := int32(rn.Uint64())
 		switch hf {
 		case 0:
-			rndalgo := List[0].AlgoVers[randomalgover&1]
-			algo := List[0].Algos[rndalgo].Version
-			return algo
+			switch randomalgover & 1 {
+			case 0:
+				version = 2
+			case 1:
+				version = 514
+			}
+			return
 		case 1:
 			rndalgo := List[1].AlgoVers[randomalgover]
 			algo := List[1].Algos[rndalgo].Version
@@ -176,27 +226,14 @@ func GetAlgoVer(name string, height int32) (version int32) {
 	} else {
 		n = name
 	}
-	if IsTestnet {
-		return List[len(List)-1].Algos[n].Version
-	}
-	for i := range List {
-		if height > List[i].ActivationHeight {
-			version = List[i].Algos[n].Version
-		}
-	}
+	version = List[hf].Algos[n].Version
 	return
 }
 
 // GetAlgoName returns the string identifier of an algorithm depending on hard fork activation status
 func GetAlgoName(algoVer int32, height int32) (name string) {
-	if IsTestnet {
-		return List[len(List)-1].AlgoVers[algoVer]
-	}
-	for i := range List {
-		if height > List[i].ActivationHeight {
-			name = List[i].AlgoVers[algoVer]
-		}
-	}
+	hf := GetCurrent(height)
+	name = List[hf].AlgoVers[algoVer]
 	return
 }
 
@@ -224,7 +261,8 @@ func GetCurrent(height int32) (curr int) {
 // GetMinBits returns the minimum diff bits based on height and testnet
 func GetMinBits(algoname string, height int32) uint32 {
 	curr := GetCurrent(height)
-	return List[curr].Algos[algoname].MinBits
+	r := List[curr].Algos[algoname].MinBits
+	return r
 }
 
 // GetMinDiff returns the minimum difficulty in uint256 form

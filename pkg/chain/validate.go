@@ -222,16 +222,19 @@ func CheckTransactionSanity(tx *util.Tx) error {
 // checkProofOfWork ensures the block header bits which indicate the target difficulty is in min/max range and that the block hash is less than the target difficulty as claimed. The flags modify the behavior of this function as follows:
 //  - BFNoPoWCheck: The check to ensure the block hash is less than the target difficulty is not performed.
 func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags BehaviorFlags, height int32) error {
+	log <- cl.Trc("checkProofOfWork")
 	// The target difficulty must be larger than zero.
 	if powLimit == nil {
 		return errors.New("PoW limit was not set")
 	}
 	target := CompactToBig(header.Bits)
+	log <- cl.Tracef{"target   %064x", target}
 	if target.Sign() <= 0 {
 		str := fmt.Sprintf("block target difficulty of %064x is too low",
 			target)
 		return ruleError(ErrUnexpectedDifficulty, str)
 	}
+	log <- cl.Tracef{"powLimit %064x", powLimit}
 	// The target difficulty must be less than the maximum allowed.
 	if target.Cmp(powLimit) > 0 {
 		str := fmt.Sprintf("height %d block target difficulty of %064x is higher than max of %064x", height, target, powLimit)
@@ -241,6 +244,7 @@ func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags Behavio
 	if flags&BFNoPoWCheck != BFNoPoWCheck {
 		// The block hash must be less than the claimed target. Unless there is less than 10 previous with the same version (algo)...
 		hash := header.BlockHashWithAlgos(height)
+		log <- cl.Debug{"blockhashwithalgos", hash}
 		hashNum := HashToBig(&hash)
 		if hashNum.Cmp(target) > 0 {
 			str := fmt.Sprintf("block hash of %064x is higher than expected max of %064x", hashNum, target)
@@ -314,6 +318,8 @@ func CountP2SHSigOps(tx *util.Tx, isCoinBaseTx bool, utxoView *UtxoViewpoint) (i
 
 // checkBlockHeaderSanity performs some preliminary checks on a block header to ensure it is sane before continuing with processing.  These checks are context free. The flags do not modify the behavior of this function directly, however they are needed to pass along to checkProofOfWork.
 func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, height int32, testnet bool) error {
+	log <- cl.Trc("checkBlockHeaderSanity")
+
 	// Ensure the proof of work bits in the block header is in min/max range and the block hash is less than the target value described by the bits.
 	err := checkProofOfWork(header, powLimit, flags, height)
 	if err != nil {
@@ -338,6 +344,7 @@ func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSou
 
 // checkBlockSanity performs some preliminary checks on a block to ensure it is sane before continuing with block processing.  These checks are context free. The flags do not modify the behavior of this function directly, however they are needed to pass along to checkBlockHeaderSanity.
 func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, DoNotCheckPow bool, height int32) error {
+	log <- cl.Trc("checkBlockSanity")
 	msgBlock := block.MsgBlock()
 	header := &msgBlock.Header
 	err := checkBlockHeaderSanity(header, powLimit, timeSource, flags, height, fork.IsTestnet)
@@ -348,33 +355,36 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 	// A block must have at least one transaction.
 	numTx := len(msgBlock.Transactions)
 	if numTx == 0 {
-		return ruleError(ErrNoTransactions, "block does not contain "+
-			"any transactions")
+		return ruleError(
+			ErrNoTransactions, "block does not contain any transactions")
 	}
 	// A block must not have more transactions than the max block payload or else it is certainly over the weight limit.
 	if numTx > MaxBlockBaseSize {
-		str := fmt.Sprintf("block contains too many transactions - "+
-			"got %d, max %d", numTx, MaxBlockBaseSize)
+		str := fmt.Sprintf(
+			"block contains too many transactions - got %d, max %d",
+			numTx, MaxBlockBaseSize)
 		return ruleError(ErrBlockTooBig, str)
 	}
 	// A block must not exceed the maximum allowed block payload when serialized.
 	serializedSize := msgBlock.SerializeSizeStripped()
 	if serializedSize > MaxBlockBaseSize {
-		str := fmt.Sprintf("serialized block is too big - got %d, "+
-			"max %d", serializedSize, MaxBlockBaseSize)
+		str := fmt.Sprintf(
+			"serialized block is too big - got %d, max %d",
+			serializedSize, MaxBlockBaseSize)
 		return ruleError(ErrBlockTooBig, str)
 	}
 	// The first transaction in a block must be a coinbase.
 	transactions := block.Transactions()
 	if !IsCoinBase(transactions[0]) {
-		return ruleError(ErrFirstTxNotCoinbase, "first transaction in "+
-			"block is not a coinbase")
+		return ruleError(
+			ErrFirstTxNotCoinbase,
+			"first transaction in block is not a coinbase")
 	}
 	// A block must not have more than one coinbase.
 	for i, tx := range transactions[1:] {
 		if IsCoinBase(tx) {
-			str := fmt.Sprintf("block contains second coinbase at "+
-				"index %d", i+1)
+			str := fmt.Sprintf(
+				"block contains second coinbase at index %d", i+1)
 			return ruleError(ErrMultipleCoinbases, str)
 		}
 	}
@@ -868,12 +878,17 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *util.Block, view 
 
 // CheckConnectBlockTemplate fully validates that connecting the passed block to the main chain does not violate any consensus rules, aside from the proof of work requirement. The block must connect to the current tip of the main chain. This function is safe for concurrent access.
 func (b *BlockChain) CheckConnectBlockTemplate(block *util.Block) error {
+	// log <- cl.Info{"CheckConnectBlockTemplate"}
 	b.chainLock.Lock()
 	defer b.chainLock.Unlock()
 	algo := block.MsgBlock().Header.Version
+	// log <- cl.Info{"algo", algo}
 	height := block.Height()
+	// log <- cl.Info{"height", height}
 	algoname := fork.GetAlgoName(algo, height)
+	// log <- cl.Info{"algoname", algoname}
 	powLimit := fork.GetMinDiff(algoname, height)
+	// log <- cl.Infof{"powLimit %064x", powLimit}
 	// Skip the proof of work check as this is just a block template.
 	flags := BFNoPoWCheck
 	// This only checks whether the block can be connected to the tip of the current chain.
@@ -885,7 +900,7 @@ func (b *BlockChain) CheckConnectBlockTemplate(block *util.Block) error {
 	}
 	err := checkBlockSanity(block, powLimit, b.timeSource, flags, true, block.Height())
 	if err != nil {
-		log <- cl.Debug{"ERROR", err}
+		log <- cl.Error{"ERROR", err}
 		return err
 	}
 	err = b.checkBlockContext(block, tip, flags, true)

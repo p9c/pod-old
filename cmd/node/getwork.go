@@ -9,9 +9,9 @@ import (
 	"math/rand"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/json"
@@ -222,6 +222,7 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 	msgBlock.Header.MerkleRoot = *merkles[len(merkles)-1]
 	// Ensure the submitted block hash is less than the target difficulty.
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
+	log <- cl.Trace{"powlimit", pl}
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
 	if err != nil {
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.

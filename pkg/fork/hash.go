@@ -12,13 +12,14 @@ import (
 	"github.com/ebfe/keccak"
 	gost "github.com/programmer10110/gostreebog"
 	"golang.org/x/crypto/argon2"
+	"golang.org/x/crypto/blake2s"
 	"golang.org/x/crypto/scrypt"
 )
 
 // Argon2i takes bytes, generates a stribog hash as salt, generates an argon2i key, and hashes it with keccak
 func Argon2i(bytes []byte) []byte {
 	salt := Stribog(bytes)
-	return Keccak(argon2.IDKey(bytes, salt, 1, 4*1024, 1, 32))
+	return Keccak(argon2.IDKey(bytes, salt, 1, 4*1024, 4, 32))
 }
 
 // Blake14lr takes bytes and returns a blake14lr 256 bit hash
@@ -26,6 +27,12 @@ func Blake14lr(bytes []byte) []byte {
 	a := blake256.New()
 	a.Write(bytes)
 	return a.Sum(nil)
+}
+
+// Blake2s takes bytes and returns a blake2s 256 bit hash
+func Blake2s(bytes []byte) []byte {
+	b := blake2s.Sum256(bytes)
+	return b[:]
 }
 
 // Cryptonight7v2 takes bytes and returns a cryptonight 7 v2 256 bit hash

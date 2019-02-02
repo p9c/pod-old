@@ -13,6 +13,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/shell"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/fork"
 	"github.com/tucnak/climax"
 )
 
@@ -454,6 +455,7 @@ func configConf(ctx *climax.Context, datadir string) {
 			shellCfg.Wallet.TestNet3 = false
 			shellCfg.Wallet.SimNet = false
 		case "testnet":
+			fork.IsTestnet = true
 			ctlCfg.TestNet3 = true
 			ctlCfg.SimNet = false
 			nodeCfg.Node.TestNet3 = true

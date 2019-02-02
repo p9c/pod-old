@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"git.parallelcoin.io/pod/pkg/fork"
+
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
@@ -389,11 +391,11 @@ var TestNet3Params = Params{
 	// Chain parameters
 	GenesisBlock:             &testNet3GenesisBlock,
 	GenesisHash:              &testNet3GenesisHash,
-	PowLimit:                 &testNet3PowLimit,
-	PowLimitBits:             testnetBits,
-	BIP0034Height:            1000000, // 0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8
-	BIP0065Height:            1000000, // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
-	BIP0066Height:            1000000, // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
+	PowLimit:                 &fork.FirstPowLimit,    //fork&testNet3PowLimit,
+	PowLimitBits:             fork.FirstPowLimitBits, //testnetBits,
+	BIP0034Height:            1000000,                // 0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8
+	BIP0065Height:            1000000,                // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
+	BIP0066Height:            1000000,                // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
 	CoinbaseMaturity:         100,
 	SubsidyReductionInterval: 250000,
 	TargetTimespan:           TestnetTargetTimespan,

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/fork"
@@ -304,11 +304,10 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	if algo == "" {
 		algo = "random"
 	}
-	if algo == "random" {
-		h := g.BestSnapshot().Height
-		v := fork.GetAlgoVer(algo, h)
-		algo = fork.GetAlgoName(v, h)
-	}
+	h := g.BestSnapshot().Height + 1
+	v := fork.GetAlgoVer(algo, h)
+	algo = fork.GetAlgoName(v, h)
+	// log <- cl.Info{"selected algo", fork.GetAlgoName(v, h)}
 	// Extend the most recently known best block.
 	best := g.chain.BestSnapshot()
 	nextBlockHeight := best.Height + 1
@@ -339,7 +338,7 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	txSigOpCosts := make([]int64, 0, len(sourceTxns))
 	txFees = append(txFees, -1) // Updated once known
 	txSigOpCosts = append(txSigOpCosts, coinbaseSigOpCost)
-	log <- cl.Debugf{
+	log <- cl.Tracef{
 		"considering %d transactions for inclusion to new block",
 		len(sourceTxns),
 	}
@@ -612,12 +611,12 @@ mempoolLoop:
 	if err != nil {
 		return nil, err
 	}
-	nextBlockVersion := fork.GetAlgoVer(algo, best.Height)
+	// log <- cl.Infof{"reqDifficulty %08x", reqDifficulty}
 	// Create a new block ready to be solved.
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns, false)
 	var msgBlock wire.MsgBlock
 	msgBlock.Header = wire.BlockHeader{
-		Version:    nextBlockVersion,
+		Version:    v,
 		PrevBlock:  best.Hash,
 		MerkleRoot: *merkles[len(merkles)-1],
 		Timestamp:  ts,
@@ -636,14 +635,13 @@ mempoolLoop:
 		log <- cl.Debug{"checkconnectblocktemplate err:", err}
 		return nil, err
 	}
-	a := fork.GetAlgoName(block.MsgBlock().Header.Version, nextBlockHeight)
 	Log.Dbgc(func() string {
 		return fmt.Sprintf(
 			"created new block template "+
 				"(algo %s, %d transactions, %d in fees, "+
 				"%d signature operations cost, %d weight, "+
 				"target difficulty %064x)",
-			a,
+			algo,
 			len(msgBlock.Transactions),
 			totalFees,
 			blockSigOpCost,

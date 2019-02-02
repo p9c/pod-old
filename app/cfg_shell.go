@@ -47,6 +47,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	if r, ok = getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
+			fork.IsTestnet = true
 			ShellConfig.Wallet.TestNet3, ShellConfig.Wallet.SimNet = true, false
 			ShellConfig.Node.TestNet3, ShellConfig.Node.SimNet, ShellConfig.Node.RegressionTest = true, false, false
 			ShellConfig.SetNodeActiveNet(&node.TestNet3Params)

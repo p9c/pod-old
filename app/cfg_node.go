@@ -121,6 +121,7 @@ func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) int {
 	if r, ok := getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
+			fork.IsTestnet = true
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
 			NodeConfig.params = &n.TestNet3Params
 		case "regtest":

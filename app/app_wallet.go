@@ -11,6 +11,7 @@ import (
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/tucnak/climax"
@@ -264,6 +265,7 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 	if r, ok := getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
+			fork.IsTestnet = true
 			wc.TestNet3, wc.SimNet = true, false
 			WalletConfig.activeNet = &netparams.TestNet3Params
 		case "simnet":

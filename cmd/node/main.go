@@ -9,6 +9,7 @@ import (
 	"runtime/pprof"
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/interrupt"
 
 	indexers "git.parallelcoin.io/pod/pkg/chain/index"
@@ -33,6 +34,7 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	cfg = c
 	switch activeNet.Name {
 	case "testnet":
+		fork.IsTestnet = true
 		ActiveNetParams = &TestNet3Params
 	case "simnet":
 		ActiveNetParams = &SimNetParams

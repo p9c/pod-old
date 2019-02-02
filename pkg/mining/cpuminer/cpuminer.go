@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/fork"
@@ -25,9 +25,9 @@ const (
 	// maxExtraNonce is the maximum value an extra nonce used in a coinbase transaction can be.
 	maxExtraNonce = ^uint64(0) // 2^64 - 1
 	// hpsUpdateSecs is the number of seconds to wait in between each update to the hashes per second monitor.
-	hpsUpdateSecs = 10
+	hpsUpdateSecs = 3
 	// hashUpdateSec is the number of seconds each worker waits in between notifying the speed monitor with how many hashes have been completed while they are actively searching for a solution.  This is done to reduce the amount of syncs between the workers that must be done to keep track of the hashes per second.
-	hashUpdateSecs = 1
+	hashUpdateSecs = 3
 )
 
 var (
@@ -101,7 +101,6 @@ out:
 			totalHashes += numHashes
 		// Time to update the hashes per second.
 		case <-ticker.C:
-			fmt.Println("<-ticker.C")
 			curHashesPerSec := float64(totalHashes) / hpsUpdateSecs
 			if hashesPerSec == 0 {
 				hashesPerSec = curHashesPerSec
@@ -109,7 +108,7 @@ out:
 			hashesPerSec = (hashesPerSec + curHashesPerSec) / 2
 			totalHashes = 0
 			if hashesPerSec != 0 {
-				log <- cl.Debugf{
+				log <- cl.Infof{
 					"%s Hash speed: %6.4f Kh/s %0.2f h/s",
 					m.cfg.Algo,
 					hashesPerSec / 1000,
@@ -135,7 +134,7 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 	// Ensure the block is not stale since a new block could have shown up while the solution was being found.  Typically that condition is detected and all work on the stale block is halted to start work on a new block, but the check only happens periodically, so it is possible a block was found and submitted in between.
 	msgBlock := block.MsgBlock()
 	if !msgBlock.Header.PrevBlock.IsEqual(&m.g.BestSnapshot().Hash) {
-		log <- cl.Debug{
+		log <- cl.Debugf{
 			"Block submitted via CPU miner with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
 		}
@@ -179,8 +178,8 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 	},
 	)
 
-	Log.Infc(func() string {
-		return fmt.Sprint(
+	Log.Wrnc(func() string {
+		return fmt.Sprintf(
 			"Block submitted via CPU miner accepted (algo %s, hash %s, amount %v)",
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
 				block.Height()),
@@ -245,7 +244,7 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 				incr = fork.Lyra2rev2Reps
 			}
 			header.Nonce = i
-			hash := header.BlockHashWithAlgos(int32(fork.GetCurrent(blockHeight)))
+			hash := header.BlockHashWithAlgos(blockHeight)
 			hashesCompleted += incr
 			// The block is solved when the new block hash is less than the target difficulty.  Yay!
 			if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
@@ -289,11 +288,10 @@ out:
 		rand.Seed(time.Now().UnixNano())
 		payToAddr := m.cfg.MiningAddrs[rand.Intn(len(m.cfg.MiningAddrs))]
 		// Create a new block template using the available transactions in the memory pool as a source of transactions to potentially include in the block.
-		//// fmt.Println("generateBlocks algo:", m.cfg.Algo)
 		template, err := m.g.NewBlockTemplate(payToAddr, m.cfg.Algo)
 		m.submitBlockLock.Unlock()
 		if err != nil {
-			log <- cl.Error{"Failed to create new block template: %v", err}
+			log <- cl.Error{"Failed to create new block template:", err}
 			continue
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
@@ -302,7 +300,7 @@ out:
 			if m.cfg.ChainParams.Name == "testnet" {
 				rand.Seed(time.Now().UnixNano())
 				delay := uint16(rand.Int()) >> 6
-				fmt.Printf("%s testnet delay %dms algo %s\n", time.Now().Format("2006-01-02 15:04:05.000000"), delay, fork.List[fork.GetCurrent(curHeight+1)].AlgoVers[block.MsgBlock().Header.Version])
+				// fmt.Printf("%s testnet delay %dms algo %s\n", time.Now().Format("2006-01-02 15:04:05.000000"), delay, fork.List[fork.GetCurrent(curHeight+1)].AlgoVers[block.MsgBlock().Header.Version])
 				time.Sleep(time.Millisecond * time.Duration(delay))
 			}
 			m.submitBlock(block)

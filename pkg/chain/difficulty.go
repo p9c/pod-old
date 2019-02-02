@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	"math/rand"
 	"time"
 
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
@@ -155,12 +154,18 @@ func (b *BlockChain) findPrevTestNetDifficulty(startNode *blockNode) uint32 {
 
 // calcNextRequiredDifficulty calculates the required difficulty for the block after the passed previous block node based on the difficulty retarget rules. This function differs from the exported  CalcNextRequiredDifficulty in that the exported version uses the current best chain as the previous block node while this function accepts any block node.
 func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTime time.Time, algoname string, l bool) (newTargetBits uint32, err error) {
-	switch fork.GetCurrent(lastNode.height + 1) {
+	nH := lastNode.height + 1
+	switch fork.GetCurrent(nH) {
 	case 0:
-		nH := lastNode.height + 1
+		// log <- cl.Debug{"hf", 0, algoname}
 		algo := fork.GetAlgoVer(algoname, nH)
-		newTargetBits = fork.GetMinBits(algoname, nH)
+		// log <- cl.Debug{"algover", algo}
+		algoName := fork.GetAlgoName(algo, nH)
+		// log <- cl.Debug{"algoName", algoName}
+		newTargetBits = fork.GetMinBits(algoName, nH)
+		log <- cl.Debugf{"newTargetBits %064x", CompactToBig(newTargetBits)}
 		if lastNode == nil {
+			// log <- cl.Debug{"no previous node"}
 			return newTargetBits, nil
 		}
 		prevNode := lastNode
@@ -172,6 +177,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			firstNode = firstNode.RelativeAncestor(1).GetPrevWithAlgo(algo)
 		}
 		if firstNode == nil {
+			// log <- cl.Debugf{"found no previous %08x", newTargetBits}
 			return newTargetBits, nil
 		}
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
@@ -208,6 +214,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		return newTargetBits, nil
 
 	case 1: // Plan 9 from Crypto Space
+		// log <- cl.Info{"hf", 2}
 		if lastNode.height == 0 {
 			return fork.FirstPowLimitBits, nil
 		}
@@ -327,18 +334,11 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			return newTargetBits, nil
 		}
 		mintarget := CompactToBig(newTargetBits)
-		var delay uint16
 		if newtarget.Cmp(mintarget) < 0 {
 			newTargetBits = BigToCompact(newtarget)
-			if b.chainParams.Name == "testnet" {
-				rand.Seed(time.Now().UnixNano())
-				delay = uint16(rand.Int()) >> 6
-				// fmt.Printf("%s testnet delay %dms algo %s\n", time.Now().Format("2006-01-02 15:04:05.000000"), delay, algoname)
-				time.Sleep(time.Millisecond * time.Duration(delay))
-			}
 			if l {
-				log <- cl.Debugf{
-					"mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s delayed %dms",
+				log <- cl.Infof{
+					"mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s",
 					lastNode.height + 1, last.bits,
 					newTargetBits,
 					allTimeAverage,
@@ -346,18 +346,12 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 					weighted * ttpb,
 					counter,
 					(1 - adjustment) * 100, fork.List[1].AlgoVers[algo],
-					delay,
-				}
-				if b.chainParams.Name == "testnet" &&
-					int64(lastNode.height) < b.chainParams.TargetTimePerBlock+1 &&
-					lastNode.height > 0 {
-					time.Sleep(time.Second * time.Duration(b.chainParams.TargetTimePerBlock))
 				}
 			}
 		}
 		return newTargetBits, nil
 	}
-	nH := lastNode.height + 1
+	// nH := lastNode.height + 1
 	// algo := fork.GetAlgoVer(algoname, nH)
 	return fork.GetMinBits(algoname, nH), nil
 }
