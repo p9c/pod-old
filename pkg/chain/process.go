@@ -201,7 +201,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		"accepted block %s %v, height %d",
 		fork.GetAlgoName(
 			block.MsgBlock().Header.Version,
-			height,
+			block.Height(),
 		),
 		blockHashWithAlgo(),
 		height,

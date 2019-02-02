@@ -237,7 +237,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		timestamps = append(timestamps, float64(last.timestamp))
 		pb := last
 		// collect the timestamps of all the blocks of the same algo until we pass genesis block or get AveragingInterval blocks
-		for ; counter < int(b.chainParams.AveragingInterval) && pb.height > 1; counter++ {
+		for ; counter < int(b.chainParams.AveragingInterval) && pb.height > 2; counter++ {
 			p := pb.RelativeAncestor(1)
 			if p != nil {
 				if p.height == 0 {
@@ -312,11 +312,70 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			targetAdjusted = 100
 			adjusted = 100
 		}
+
+		var trailingTimestamps []float64
+
+		pb = lastNode
+		trailingTimestamps = append(
+			trailingTimestamps, float64(pb.timestamp))
+		counter = 1
+		for ; counter < int(b.chainParams.AveragingInterval) &&
+			pb.height > 2; counter++ {
+			pb = pb.RelativeAncestor(1)
+			trailingTimestamps = append(
+				trailingTimestamps, float64(pb.timestamp))
+			counter++
+		}
+
+		var trailingAdjusted,
+			trailingTargetAdjusted,
+			trailingAdjustment float64
+		if len(trailingTimestamps) > 1 {
+			target := b.chainParams.TargetTimePerBlock
+			trailingAdjustment = 1.0
+			counter = 0
+			for i := 0; i < len(trailingTimestamps)-1; i++ {
+				factor := 0.75
+				if i == 0 {
+					f := factor
+					for j := 0; j < i; j++ {
+						f = f * factor
+					}
+					factor = f
+				} else {
+					factor = 1.0
+				}
+				trailingAdjustment = trailingTimestamps[i] - trailingTimestamps[i+1]
+				trailingAdjustment = trailingAdjustment * factor
+				switch {
+				case math.IsNaN(trailingAdjustment):
+					break
+				case trailingAdjustment == 0.0:
+					break
+				}
+				trailingAdjusted += trailingAdjustment
+				trailingTargetAdjusted += float64(target) * factor
+				counter++
+			}
+		} else {
+			trailingTargetAdjusted = 100
+			trailingAdjusted = 100
+		}
+
 		ttpb := float64(b.chainParams.TargetTimePerBlock)
 		allTimeDivergence := allTimeAverage / ttpb
 		trailTimeDivergence := trailTimeAverage / ttpb
+		trailingTimeDivergence := trailingAdjusted / trailingTargetAdjusted
+		log <- cl.Trace{
+			"trailingtimedivergence",
+			trailingTimeDivergence,
+			trailingAdjusted,
+			trailingTargetAdjusted}
 		weighted := adjusted / targetAdjusted
-		adjustment = (weighted*weighted*weighted + allTimeDivergence + trailTimeDivergence) / 3.0
+		adjustment = (weighted*weighted*weighted +
+			allTimeDivergence +
+			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
+			trailTimeDivergence) / 3.0
 		if adjustment < 0 {
 			fmt.Println("negative weight adjustment")
 			adjustment = allTimeDivergence
@@ -338,11 +397,12 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			newTargetBits = BigToCompact(newtarget)
 			if l {
 				log <- cl.Infof{
-					"mining %d, old %08x new %08x average %3.2f trail %3.2f weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s",
+					"mining %d, old %08x new %08x average %3.2f trail %3.2f trail weighted %3.2f algo weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s",
 					lastNode.height + 1, last.bits,
 					newTargetBits,
 					allTimeAverage,
 					trailTimeAverage,
+					trailingTimeDivergence * ttpb,
 					weighted * ttpb,
 					counter,
 					(1 - adjustment) * 100, fork.List[1].AlgoVers[algo],

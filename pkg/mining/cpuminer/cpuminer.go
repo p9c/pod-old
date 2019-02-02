@@ -164,8 +164,8 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 	since := block.MsgBlock().Header.Timestamp.Unix() - prevTime
 
 	Log.Dbgc(func() string {
-		return fmt.Sprint(
-			"%s new block height %d %s %10d %08x %v %s %ds since prev\n",
+		return fmt.Sprintf(
+			"%s new block height %d %s %10d %08x %v %s %ds since prev",
 			time.Now().Format("2006-01-02 15:04:05.000000"),
 			block.Height(),
 			block.MsgBlock().BlockHashWithAlgos(block.Height()),
