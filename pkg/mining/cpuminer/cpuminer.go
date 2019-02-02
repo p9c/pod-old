@@ -21,9 +21,9 @@ import (
 
 const (
 	// maxNonce is the maximum value a nonce can be in a block header.
-	maxNonce = ^uint32(0) // 2^32 - 1
+	maxNonce = 9 * 9 // ^uint32(0) // 2^32 - 1
 	// maxExtraNonce is the maximum value an extra nonce used in a coinbase transaction can be.
-	maxExtraNonce = ^uint64(0) // 2^64 - 1
+	maxExtraNonce = 1 //^uint64(0) // 2^64 - 1
 	// hpsUpdateSecs is the number of seconds to wait in between each update to the hashes per second monitor.
 	hpsUpdateSecs = 9
 	// hashUpdateSec is the number of seconds each worker waits in between notifying the speed monitor with how many hashes have been completed while they are actively searching for a solution.  This is done to reduce the amount of syncs between the workers that must be done to keep track of the hashes per second.
@@ -207,11 +207,14 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 	lastTxUpdate := m.g.TxSource().LastUpdated()
 	hashesCompleted := uint64(0)
 	// Note that the entire extra nonce range is iterated and the offset is added relying on the fact that overflow will wrap around 0 as provided by the Go spec.
-	for extraNonce := uint64(0); extraNonce < maxExtraNonce; extraNonce++ {
+	eN, _ := wire.RandomUint64()
+	for extraNonce := eN; extraNonce < eN+maxExtraNonce; extraNonce++ {
 		// Update the extra nonce in the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		m.g.UpdateExtraNonce(msgBlock, blockHeight, extraNonce+enOffset)
 		// Search through the entire nonce range for a solution while periodically checking for early quit and stale block conditions along with updates to the speed monitor.
-		for i := uint32(0); i <= maxNonce; i++ {
+		rn, _ := wire.RandomUint64()
+		rnonce := uint32(rn)
+		for i := uint32(rnonce); i <= rnonce+maxNonce; i++ {
 			select {
 			case <-quit:
 				// fmt.Println("chan:<-quit")

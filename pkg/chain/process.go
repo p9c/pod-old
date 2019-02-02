@@ -197,16 +197,14 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	if err != nil {
 		return false, false, err
 	}
-	Log.Dbgc(func() string {
-		return fmt.Sprintf(
-			"accepted block %s %v, height %d",
-			fork.GetAlgoName(
-				block.MsgBlock().Header.Version,
-				height,
-			),
-			blockHashWithAlgo(),
+	log <- cl.Debugf{
+		"accepted block %s %v, height %d",
+		fork.GetAlgoName(
+			block.MsgBlock().Header.Version,
 			height,
-		)
-	})
+		),
+		blockHashWithAlgo(),
+		height,
+	}
 	return isMainChain, false, nil
 }

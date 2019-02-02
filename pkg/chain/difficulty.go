@@ -286,7 +286,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			adjustment = 1.0
 			counter = 0
 			for i := 0; i < len(timestamps)-1; i++ {
-				factor := 0.9
+				factor := 0.5
 				if i == 0 {
 					f := factor
 					for j := 0; j < i; j++ {

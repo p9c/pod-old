@@ -15,7 +15,7 @@ import (
 
 	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/wire"
@@ -27,7 +27,7 @@ const (
 	// MaxProtocolVersion is the max protocol version the peer supports.
 	MaxProtocolVersion = wire.FeeFilterVersion
 	// DefaultTrickleInterval is the min time between attempts to send an inv message to a peer.
-	DefaultTrickleInterval = time.Second * 1
+	DefaultTrickleInterval = time.Second * 9
 	// MinAcceptableProtocolVersion is the lowest protocol version that a connected peer may support.
 	MinAcceptableProtocolVersion = 1
 	// outputBufferSize is the number of elements the output channels use.
@@ -37,7 +37,7 @@ const (
 	// maxKnownInventory is the maximum number of items to keep in the known inventory cache.
 	maxKnownInventory = 1000
 	// pingInterval is the interval of time to wait in between sending ping messages.
-	pingInterval = 9 * time.Second
+	pingInterval = 1 * time.Second
 	// negotiateTimeout is the duration of inactivity before we timeout a peer that hasn't completed the initial version negotiation.
 	negotiateTimeout = 27 * time.Second
 	// idleTimeout is the duration of inactivity before we time out a peer.
@@ -45,7 +45,7 @@ const (
 	// stallTickInterval is the interval of time between each check for stalled peers.
 	stallTickInterval = 60 * time.Second
 	// stallResponseTimeout is the base maximum amount of time messages that expect a response will wait before disconnecting the peer for stalling.  The deadlines are adjusted for callback running times and checked on each stall tick interval.
-	stallResponseTimeout = 15 * time.Second
+	stallResponseTimeout = 60 * time.Second
 )
 
 var (
