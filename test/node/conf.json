@@ -1,29 +1,27 @@
 {
   "Node": {
     "ShowVersion": false,
-    "ConfigFile": "test/conf.json",
+    "ConfigFile": "test/node/conf.json",
     "DataDir": "test/node",
     "LogDir": "test/node",
     "DebugLevel": "info",
     "AddPeers": null,
-    "ConnectPeers": [
-      "127.0.0.1:11047"
-    ],
-    "DisableListen": true,
+    "ConnectPeers": null,
+    "DisableListen": false,
     "Listeners": [
-      "127.0.0.1:11147"
+      "127.0.0.1:11047"
     ],
     "MaxPeers": 125,
     "DisableBanning": false,
     "BanDuration": 86400000000000,
     "BanThreshold": 100,
     "Whitelists": null,
-    "RPCUser": "d163c264",
-    "RPCPass": "cb8c1db1",
+    "RPCUser": "9134fee5",
+    "RPCPass": "84d33113",
     "RPCLimitUser": "",
     "RPCLimitPass": "",
     "RPCListeners": [
-      "127.0.0.1:11148"
+      "127.0.0.1:11048"
     ],
     "RPCCert": "test/rpc.cert",
     "RPCKey": "test/rpc.key",
@@ -33,7 +31,7 @@
     "RPCQuirks": false,
     "DisableRPC": false,
     "TLS": false,
-    "DisableDNSSeed": true,
+    "DisableDNSSeed": false,
     "ExternalIPs": null,
     "Proxy": "",
     "ProxyUser": "",
@@ -43,7 +41,7 @@
     "OnionProxyPass": "",
     "NoOnion": false,
     "TorIsolation": false,
-    "TestNet3": true,
+    "TestNet3": false,
     "RegressionTest": false,
     "SimNet": false,
     "AddCheckpoints": null,
@@ -55,14 +53,12 @@
     "MinRelayTxFee": 0.00001,
     "FreeTxRelayLimit": 15,
     "NoRelayPriority": false,
-    "TrickleInterval": 1000000000,
+    "TrickleInterval": 9000000000,
     "MaxOrphanTxs": 100,
     "Algo": "random",
-    "Generate": true,
+    "Generate": false,
     "GenThreads": 1,
-    "MiningAddrs": [
-      "8PCPscPwuGag1WRYzianwHvRp83oNDsnHq"
-    ],
+    "MiningAddrs": null,
     "MinerListener": "",
     "MinerPass": "",
     "BlockMinSize": 80,

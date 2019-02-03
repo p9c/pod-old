@@ -249,9 +249,9 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			}
 			if pb != nil && pb.height > 0 {
 				// only add the timestamp if is not the same as the previous
-				if float64(pb.timestamp) != timestamps[len(timestamps)-1] {
-					timestamps = append(timestamps, float64(pb.timestamp))
-				}
+				// if float64(pb.timestamp) != timestamps[len(timestamps)-1] {
+				timestamps = append(timestamps, float64(pb.timestamp))
+				// }
 			} else {
 				break
 			}
@@ -373,9 +373,9 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			trailingTargetAdjusted}
 		weighted := adjusted / targetAdjusted
 		adjustment = (weighted*weighted*weighted +
-			allTimeDivergence +
-			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
-			trailTimeDivergence) / 3.0
+			allTimeDivergence*allTimeDivergence*allTimeDivergence*allTimeDivergence*allTimeDivergence +
+			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
+			trailTimeDivergence) / 4.0
 		if adjustment < 0 {
 			fmt.Println("negative weight adjustment")
 			adjustment = allTimeDivergence

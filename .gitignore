@@ -21,3 +21,4 @@ bin/bld
 test/node/testnet
 test/node/mainnet
 test/mainnet
+test?/*
