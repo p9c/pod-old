@@ -17,6 +17,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/pkg/fork"
+
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/pkg/addrmgr"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
@@ -2172,6 +2174,8 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 	if err != nil {
 		return nil, err
 	}
+	s.chain.DifficultyAdjustments = make(map[string]float64)
+	fork.DifficultyAdjustments = &s.chain.DifficultyAdjustments
 	// Search for a FeeEstimator state in the database. If none can be found or if it cannot be loaded, create a new one.
 	db.Update(func(tx database.Tx) error {
 		metadata := tx.Metadata()

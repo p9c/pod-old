@@ -88,6 +88,11 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 
 // ProcessBlock is the main workhorse for handling insertion of new blocks into the block chain.  It includes functionality such as rejecting duplicate blocks, ensuring blocks follow all rules, orphan handling, and insertion into the block chain along with best chain selection and reorganization. When no errors occurred during processing, the first return value indicates whether or not the block is on the main chain and the second indicates whether or not the block is an orphan. This function is safe for concurrent access.
 func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height int32) (bool, bool, error) {
+	blockHeight := height
+	bb, _ := b.BlockByHash(&block.MsgBlock().Header.PrevBlock)
+	if bb != nil {
+		blockHeight = bb.Height() + 1
+	}
 	b.chainLock.Lock()
 	defer b.chainLock.Unlock()
 	fastAdd := flags&BFFastAdd == BFFastAdd
@@ -131,6 +136,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	ph := &block.MsgBlock().Header.PrevBlock
 	pn := b.Index.LookupNode(ph)
 	if pn == nil {
+		log <- cl.Debug{"found no previous node"}
 		DoNotCheckPow = true
 	}
 	pb := pn.GetPrevWithAlgo(algo)
@@ -198,13 +204,10 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		return false, false, err
 	}
 	log <- cl.Debugf{
-		"accepted block %s %v, height %d",
-		fork.GetAlgoName(
-			block.MsgBlock().Header.Version,
-			block.Height(),
-		),
+		"accepted block %d %v %s ",
+		blockHeight,
 		blockHashWithAlgo(),
-		height,
+		fork.GetAlgoName(block.MsgBlock().Header.Version, blockHeight),
 	}
 	return isMainChain, false, nil
 }

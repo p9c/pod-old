@@ -18,7 +18,4 @@ docker/legacy/data/*
 test/docker/legacy/data/
 bin/pod
 bin/bld
-test/node/testnet
-test/node/mainnet
-test/mainnet
 test?/*

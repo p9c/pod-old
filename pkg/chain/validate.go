@@ -134,7 +134,7 @@ func CalcBlockSubsidy(height int32, chainParams *chaincfg.Params) (r int64) {
 		return baseSubsidy >> uint(height/chainParams.SubsidyReductionInterval)
 	case 1:
 		// Plan 9 hard fork prescribes a smooth supply curve made using an exponential decay formula adjusted to fit the previous halving cycle
-		r = int64(2.7 * (math.Pow(2.7, -float64(height*1000)/375000.0)) * 100000000)
+		r = int64(2.7 * 9 / 300 * (math.Pow(2.7, -float64(height)/375000.0/300.0*9.0)) * 100000000)
 	}
 	return
 }

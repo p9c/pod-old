@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
@@ -111,6 +111,8 @@ type BlockChain struct {
 	// The notifications field stores a slice of callbacks to be executed on certain blockchain events.
 	notificationsLock sync.RWMutex
 	notifications     []NotificationCallback
+	// DifficultyAdjustments keeps track of the latest difficulty adjustment for each algorithm
+	DifficultyAdjustments map[string]float64
 }
 
 // HaveBlock returns whether or not the chain instance has the block represented by the passed hash.  This includes checking the various places a block can be like part of the main chain, on a side chain, or in the orphan pool. This function is safe for concurrent access.
@@ -1187,23 +1189,24 @@ func New(config *Config) (*BlockChain, error) {
 	targetTimePerBlock := int64(params.TargetTimePerBlock)
 	adjustmentFactor := params.RetargetAdjustmentFactor
 	b := BlockChain{
-		checkpoints:         config.Checkpoints,
-		checkpointsByHeight: checkpointsByHeight,
-		db:                  config.DB,
-		chainParams:         params,
-		timeSource:          config.TimeSource,
-		sigCache:            config.SigCache,
-		indexManager:        config.IndexManager,
-		minRetargetTimespan: targetTimespan / adjustmentFactor,
-		maxRetargetTimespan: targetTimespan * adjustmentFactor,
-		blocksPerRetarget:   int32(targetTimespan / targetTimePerBlock),
-		Index:               newBlockIndex(config.DB, params),
-		hashCache:           config.HashCache,
-		bestChain:           newChainView(nil),
-		orphans:             make(map[chainhash.Hash]*orphanBlock),
-		prevOrphans:         make(map[chainhash.Hash][]*orphanBlock),
-		warningCaches:       newThresholdCaches(vbNumBits),
-		deploymentCaches:    newThresholdCaches(chaincfg.DefinedDeployments),
+		checkpoints:           config.Checkpoints,
+		checkpointsByHeight:   checkpointsByHeight,
+		db:                    config.DB,
+		chainParams:           params,
+		timeSource:            config.TimeSource,
+		sigCache:              config.SigCache,
+		indexManager:          config.IndexManager,
+		minRetargetTimespan:   targetTimespan / adjustmentFactor,
+		maxRetargetTimespan:   targetTimespan * adjustmentFactor,
+		blocksPerRetarget:     int32(targetTimespan / targetTimePerBlock),
+		Index:                 newBlockIndex(config.DB, params),
+		hashCache:             config.HashCache,
+		bestChain:             newChainView(nil),
+		orphans:               make(map[chainhash.Hash]*orphanBlock),
+		prevOrphans:           make(map[chainhash.Hash][]*orphanBlock),
+		warningCaches:         newThresholdCaches(vbNumBits),
+		deploymentCaches:      newThresholdCaches(chaincfg.DefinedDeployments),
+		DifficultyAdjustments: make(map[string]float64),
 	}
 	// Initialize the chain state from the passed database.  When the db does not yet contain any chain state, both it and the chain state will be initialized to contain only the genesis block.
 	if err := b.initChainState(); err != nil {

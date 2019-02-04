@@ -21,7 +21,7 @@ import (
 
 const (
 	// maxNonce is the maximum value a nonce can be in a block header.
-	maxNonce = 9 * 9 // ^uint32(0) // 2^32 - 1
+	maxNonce = 100 // ^uint32(0) // 2^32 - 1
 	// maxExtraNonce is the maximum value an extra nonce used in a coinbase transaction can be.
 	maxExtraNonce = 1 //^uint64(0) // 2^64 - 1
 	// hpsUpdateSecs is the number of seconds to wait in between each update to the hashes per second monitor.
@@ -193,6 +193,8 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 
 // solveBlock attempts to find some combination of a nonce, extra nonce, and current timestamp which makes the passed block hash to a value less than the target difficulty.  The timestamp is updated periodically and the passed block is modified with all tweaks during this process.  This means that when the function returns true, the block is ready for submission. This function will return early with false when conditions that trigger a stale block such as a new block showing up or periodically when there are new transactions and enough time has elapsed without finding a solution.
 func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testnet bool, ticker *time.Ticker, quit chan struct{}) bool {
+	algoName := fork.GetAlgoName(
+		msgBlock.Header.Version, m.b.BestSnapshot().Height)
 	// Choose a random extra nonce offset for this block template and worker.
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
@@ -214,7 +216,13 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 		// Search through the entire nonce range for a solution while periodically checking for early quit and stale block conditions along with updates to the speed monitor.
 		rn, _ := wire.RandomUint64()
 		rnonce := uint32(rn)
-		for i := uint32(rnonce); i <= rnonce+maxNonce; i++ {
+		// Do more rounds the more the difficulty will adjust down
+		mn := uint32(float64(maxNonce)/m.b.DifficultyAdjustments[algoName]/1000) + 27
+		if blockHeight < 20 {
+			mn = 27
+		}
+		log <- cl.Info{mn, "rounds of", algoName, m.b.DifficultyAdjustments[algoName]}
+		for i := uint32(rnonce); i <= rnonce+mn; i++ {
 			select {
 			case <-quit:
 				// fmt.Println("chan:<-quit")
@@ -291,7 +299,10 @@ out:
 		rand.Seed(time.Now().UnixNano())
 		payToAddr := m.cfg.MiningAddrs[rand.Intn(len(m.cfg.MiningAddrs))]
 		// Create a new block template using the available transactions in the memory pool as a source of transactions to potentially include in the block.
-		template, err := m.g.NewBlockTemplate(payToAddr, m.cfg.Algo)
+		algo := fork.GetAlgoVer(m.cfg.Algo, m.b.BestSnapshot().Height)
+		algoname := fork.GetAlgoName(algo, m.b.BestSnapshot().Height)
+		template, err := m.g.NewBlockTemplate(payToAddr, algoname)
+
 		m.submitBlockLock.Unlock()
 		if err != nil {
 			log <- cl.Error{"Failed to create new block template:", err}
@@ -300,12 +311,12 @@ out:
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
 		if m.solveBlock(template.Block, curHeight+1, m.cfg.ChainParams.Name == "testnet", ticker, quit) {
 			block := util.NewBlock(template.Block)
-			if m.cfg.ChainParams.Name == "testnet" {
-				rand.Seed(time.Now().UnixNano())
-				delay := uint16(rand.Int()) >> 6
-				// fmt.Printf("%s testnet delay %dms algo %s\n", time.Now().Format("2006-01-02 15:04:05.000000"), delay, fork.List[fork.GetCurrent(curHeight+1)].AlgoVers[block.MsgBlock().Header.Version])
-				time.Sleep(time.Millisecond * time.Duration(delay))
-			}
+			// if m.cfg.ChainParams.Name == "testnet" {
+			// 	rand.Seed(time.Now().UnixNano())
+			// 	delay := uint16(rand.Int()) >> 6
+			// fmt.Printf("%s testnet delay %dms algo %s\n", time.Now().Format("2006-01-02 15:04:05.000000"), delay, fork.List[fork.GetCurrent(curHeight+1)].AlgoVers[block.MsgBlock().Header.Version])
+			// time.Sleep(time.Millisecond * time.Duration(delay))
+			// }
 			m.submitBlock(block)
 		}
 	}

@@ -286,7 +286,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			adjustment = 1.0
 			counter = 0
 			for i := 0; i < len(timestamps)-1; i++ {
-				factor := 0.5
+				factor := 0.75
 				if i == 0 {
 					f := factor
 					for j := 0; j < i; j++ {
@@ -335,7 +335,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			trailingAdjustment = 1.0
 			counter = 0
 			for i := 0; i < len(trailingTimestamps)-1; i++ {
-				factor := 0.75
+				factor := 0.81
 				if i == 0 {
 					f := factor
 					for j := 0; j < i; j++ {
@@ -373,9 +373,9 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			trailingTargetAdjusted}
 		weighted := adjusted / targetAdjusted
 		adjustment = (weighted*weighted*weighted +
-			allTimeDivergence*allTimeDivergence*allTimeDivergence*allTimeDivergence*allTimeDivergence +
-			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
-			trailTimeDivergence) / 4.0
+			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
+			trailTimeDivergence*trailTimeDivergence*trailTimeDivergence +
+			allTimeDivergence*allTimeDivergence*allTimeDivergence) / 4.0
 		if adjustment < 0 {
 			fmt.Println("negative weight adjustment")
 			adjustment = allTimeDivergence
@@ -395,9 +395,10 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		mintarget := CompactToBig(newTargetBits)
 		if newtarget.Cmp(mintarget) < 0 {
 			newTargetBits = BigToCompact(newtarget)
+			b.DifficultyAdjustments[algoname] = adjustment
 			if l {
 				log <- cl.Infof{
-					"mining %d, old %08x new %08x average %3.2f trail %3.2f trail weighted %3.2f algo weighted %3.2f blocks in window: %d adjustment %0.1f%% algo %s",
+					"%d: old %08x, new %08x, av %3.2f, tr %3.2f, tr wgtd %3.2f, alg wgtd %3.2f, blks %d, adj %0.1f%%, alg %s",
 					lastNode.height + 1, last.bits,
 					newTargetBits,
 					allTimeAverage,
@@ -405,7 +406,8 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 					trailingTimeDivergence * ttpb,
 					weighted * ttpb,
 					counter,
-					(1 - adjustment) * 100, fork.List[1].AlgoVers[algo],
+					(1 - adjustment) * 100,
+					fork.List[1].AlgoVers[algo],
 				}
 			}
 		}
@@ -418,6 +420,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 
 // CalcNextRequiredDifficulty calculates the required difficulty for the block after the end of the current best chain based on the difficulty retarget rules. This function is safe for concurrent access.
 func (b *BlockChain) CalcNextRequiredDifficulty(timestamp time.Time, algo string) (difficulty uint32, err error) {
+
 	b.chainLock.Lock()
 	difficulty, err = b.calcNextRequiredDifficulty(b.bestChain.Tip(), timestamp, algo, true)
 	b.chainLock.Unlock()

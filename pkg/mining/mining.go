@@ -305,9 +305,9 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 		algo = "random"
 	}
 	h := g.BestSnapshot().Height + 1
-	v := fork.GetAlgoVer(algo, h)
-	algo = fork.GetAlgoName(v, h)
-	// log <- cl.Info{"selected algo", fork.GetAlgoName(v, h)}
+	vers := fork.GetAlgoVer(algo, h)
+	algo = fork.GetAlgoName(vers, h)
+	// log <- cl.Info{"selected algo", fork.GetAlgoName(vers, h)}
 	// Extend the most recently known best block.
 	best := g.chain.BestSnapshot()
 	nextBlockHeight := best.Height + 1
@@ -616,7 +616,7 @@ mempoolLoop:
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns, false)
 	var msgBlock wire.MsgBlock
 	msgBlock.Header = wire.BlockHeader{
-		Version:    v,
+		Version:    vers,
 		PrevBlock:  best.Hash,
 		MerkleRoot: *merkles[len(merkles)-1],
 		Timestamp:  ts,

@@ -3,8 +3,10 @@ package fork
 import (
 	"crypto/sha256"
 	"io"
+	"math/big"
 
 	"ekyu.moe/cryptonight"
+	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"github.com/aead/skein"
 	x11 "github.com/bitbandi/go-x11"
 	"github.com/bitgoin/lyra2rev2"
@@ -18,8 +20,7 @@ import (
 
 // Argon2i takes bytes, generates a stribog hash as salt, generates an argon2i key, and hashes it with keccak
 func Argon2i(bytes []byte) []byte {
-	salt := Stribog(bytes)
-	return Keccak(argon2.IDKey(bytes, salt, 1, 32*1024, 4, 32))
+	return Blake2s(argon2.IDKey(bytes, bytes, 1, 32*1024, 1, 32)[:32])[:32]
 }
 
 // Blake14lr takes bytes and returns a blake14lr 256 bit hash
@@ -97,4 +98,55 @@ func X11(bytes []byte) []byte {
 	x := x11.New()
 	x.Hash(bytes, o[:])
 	return bytes
+}
+
+var bTwo = big.NewInt(2)
+
+func rightShift(b []byte) (out []byte) {
+	out = make([]byte, 32)
+	copy(out, b[1:])
+	return
+}
+
+// Hash computes the hash of bytes using the named hash
+func Hash(bytes []byte, name string, height int32) (out chainhash.Hash) {
+	// time.Sleep(time.Millisecond * 2000)
+	switch name {
+	case "blake14lr":
+		b := Argon2i(Cryptonight7v2(Blake14lr(bytes)))
+		out.SetBytes(rightShift(Blake14lr(b)))
+	case "blake2s":
+		b := Argon2i(Cryptonight7v2(Blake2s(bytes)))
+		out.SetBytes(rightShift(Blake2s(b)))
+	case "lyra2rev2":
+		b := Argon2i(Cryptonight7v2(Lyra2REv2(bytes)))
+		out.SetBytes(rightShift(Lyra2REv2(b)))
+	case "scrypt":
+		if GetCurrent(height) > 0 {
+			b := Argon2i(Cryptonight7v2(Scrypt(bytes)))
+			out.SetBytes(rightShift(Scrypt(b)))
+		} else {
+			out.SetBytes(Scrypt(bytes))
+		}
+	case "sha256d": // sha256d
+		if GetCurrent(height) > 0 {
+			b := Argon2i(Cryptonight7v2(chainhash.DoubleHashB(bytes)))
+			out.SetBytes(rightShift(chainhash.DoubleHashB(b)))
+		} else {
+			out.SetBytes(chainhash.DoubleHashB(bytes))
+		}
+	case "stribog":
+		b := Argon2i(Cryptonight7v2(Stribog(bytes)))
+		out.SetBytes(rightShift(Stribog(b)))
+	case "skein":
+		b := Argon2i(Cryptonight7v2(Skein(bytes)))
+		out.SetBytes(rightShift(Skein(b)))
+	case "x11":
+		b := Argon2i(Cryptonight7v2(X11(bytes)))
+		out.SetBytes(rightShift(X11(b)))
+	case "keccak":
+		b := Argon2i(Cryptonight7v2(Keccak(bytes)))
+		out.SetBytes(rightShift(Keccak(b)))
+	}
+	return
 }
