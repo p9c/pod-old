@@ -21,7 +21,7 @@ import (
 
 const (
 	// maxNonce is the maximum value a nonce can be in a block header.
-	maxNonce = 100 // ^uint32(0) // 2^32 - 1
+	maxNonce = 27 // ^uint32(0) // 2^32 - 1
 	// maxExtraNonce is the maximum value an extra nonce used in a coinbase transaction can be.
 	maxExtraNonce = 1 //^uint64(0) // 2^64 - 1
 	// hpsUpdateSecs is the number of seconds to wait in between each update to the hashes per second monitor.
@@ -180,7 +180,7 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 
 	Log.Wrnc(func() string {
 		return fmt.Sprintf(
-			"Block submitted via CPU miner accepted (algo %s, hash %s, amount %v)",
+			"block accepted (%s, %s, %v)",
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
 				block.Height()),
 			block.MsgBlock().BlockHashWithAlgos(block.Height()),
@@ -217,11 +217,11 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 		rn, _ := wire.RandomUint64()
 		rnonce := uint32(rn)
 		// Do more rounds the more the difficulty will adjust down
-		mn := uint32(float64(maxNonce)/m.b.DifficultyAdjustments[algoName]/1000) + 27
-		if blockHeight < 20 {
-			mn = 27
+		mn := uint32(100 - (1.0-m.b.DifficultyAdjustments[algoName]*m.b.DifficultyAdjustments[algoName]*m.b.DifficultyAdjustments[algoName])*100)
+		if blockHeight < 20 || mn < 9 {
+			mn = 9
 		}
-		log <- cl.Info{mn, "rounds of", algoName, m.b.DifficultyAdjustments[algoName]}
+		log <- cl.Info{mn, "rounds of", algoName}
 		for i := uint32(rnonce); i <= rnonce+mn; i++ {
 			select {
 			case <-quit:

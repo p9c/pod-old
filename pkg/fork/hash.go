@@ -14,13 +14,14 @@ import (
 	"github.com/ebfe/keccak"
 	gost "github.com/programmer10110/gostreebog"
 	"golang.org/x/crypto/argon2"
+	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/blake2s"
 	"golang.org/x/crypto/scrypt"
 )
 
 // Argon2i takes bytes, generates a stribog hash as salt, generates an argon2i key, and hashes it with keccak
 func Argon2i(bytes []byte) []byte {
-	return Blake2s(argon2.IDKey(bytes, bytes, 1, 32*1024, 1, 32)[:32])[:32]
+	return argon2.IDKey(bytes, bytes, 1, 32*1024, 1, 32)
 }
 
 // Blake14lr takes bytes and returns a blake14lr 256 bit hash
@@ -85,10 +86,15 @@ func Skein(bytes []byte) []byte {
 	return bytes
 }
 
+// Blake2b takes bytes and returns a blake2b 256 bit hash
+func Blake2b(bytes []byte) []byte {
+	b := blake2b.Sum256(bytes)
+	return b[:]
+}
+
 // Lyra2REv2 takes bytes and returns a lyra2rev2 256 bit hash
 func Lyra2REv2(bytes []byte) []byte {
 	bytes, _ = lyra2rev2.Sum(bytes)
-	bytes = cryptonight.Sum(bytes, 0)
 	return bytes
 }
 
@@ -112,6 +118,9 @@ func rightShift(b []byte) (out []byte) {
 func Hash(bytes []byte, name string, height int32) (out chainhash.Hash) {
 	// time.Sleep(time.Millisecond * 2000)
 	switch name {
+	case "blake2b":
+		b := Argon2i(Cryptonight7v2(Blake2b(bytes)))
+		out.SetBytes(rightShift(Blake2b(b)))
 	case "blake14lr":
 		b := Argon2i(Cryptonight7v2(Blake14lr(bytes)))
 		out.SetBytes(rightShift(Blake14lr(b)))
