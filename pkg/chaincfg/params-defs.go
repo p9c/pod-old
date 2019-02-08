@@ -53,22 +53,36 @@ var (
 	testnetBits        = ScryptPowLimitBits
 	testNet3PowLimit   = ScryptPowLimit
 	// simNetPowLimit is the highest proof of work value a Bitcoin block can have for the simulation test network.  It is the value 2^255 - 1, all ones, 256 bits.
-	simNetPowLimit                = &AllOnes
-	Interval                int64 = 100
-	MaxAdjustDown           int64 = 10
-	MaxAdjustUp             int64 = 20
-	TargetTimePerBlock      int64 = 300
-	AveragingInterval       int64 = 10
-	AveragingTargetTimespan       = TargetTimePerBlock * AveragingInterval
-	TargetTimespan                = Interval * TargetTimePerBlock
+	simNetPowLimit = &AllOnes
+	// Interval is the number of blocks in the averaging window
+	Interval int64 = 100
+	// MaxAdjustDown is the percentage hard limit for downwards difficulty adjustment (ie 90%)
+	MaxAdjustDown int64 = 10
+	// MaxAdjustUp is the percentage hard limit for upwards (ie 120%)
+	MaxAdjustUp int64 = 20
+	// TargetTimePerBlock is the pre hardfork target time for blocks
+	TargetTimePerBlock int64 = 300
+	// AveragingInterval is the number of blocks to average (per algorithm)
+	AveragingInterval int64 = 10
+	// AveragingTargetTimespan is how many seconds for the averaging target interval
+	AveragingTargetTimespan = TargetTimePerBlock * AveragingInterval
+	// TargetTimespan is the base for adjustment
+	TargetTimespan = Interval * TargetTimePerBlock
 
-	TestnetInterval                int64 = 100
-	TestnetMaxAdjustDown           int64 = 10
-	TestnetMaxAdjustUp             int64 = 20
-	TestnetTargetTimePerBlock      int64 = 9
-	TestnetAveragingInterval       int64 = 1600
-	TestnetAveragingTargetTimespan       = TestnetTargetTimePerBlock * TestnetAveragingInterval
-	TestnetTargetTimespan                = TestnetInterval * TestnetTargetTimePerBlock
+	// TestnetInterval is the number of blocks in the averaging window
+	TestnetInterval int64 = 100
+	// TestnetMaxAdjustDown is the percentage hard limit for downwards difficulty adjustment (ie 90%)
+	TestnetMaxAdjustDown int64 = 10
+	// TestnetMaxAdjustUp is the percentage hard limit for upwards (ie 120%)
+	TestnetMaxAdjustUp int64 = 20
+	// TestnetTargetTimePerBlock is the pre hardfork target time for blocks
+	TestnetTargetTimePerBlock int64 = 9
+	// TestnetAveragingInterval is the number of blocks to average (per algorithm)
+	TestnetAveragingInterval int64 = 1600
+	// TestnetAveragingTargetTimespan is how many seconds for the averaging target interval
+	TestnetAveragingTargetTimespan = TestnetTargetTimePerBlock * TestnetAveragingInterval
+	// TestnetTargetTimespan is the base for adjustment
+	TestnetTargetTimespan = TestnetInterval * TestnetTargetTimePerBlock
 )
 
 // Checkpoint identifies a known good point in the block chain.  Using checkpoints allows a few optimizations for old blocks during initial download and also prevents forks from old blocks. Each checkpoint is selected based upon several factors.  See the documentation for blockchain.IsCheckpointCandidate for details on the selection criteria.
@@ -151,11 +165,11 @@ type Params struct {
 	// These fields are related to voting on consensus rule changes as defined by BIP0009.
 	//
 	// RuleChangeActivationThreshold is the number of blocks in a threshold state retarget window for which a positive vote for a rule change must be cast in order to lock in a rule change. It should typically be 95% for the main network and 75% for test networks.
-	// MinerConfirmationWindow is the number of blocks in each threshold state retarget window.
-	// Deployments define the specific consensus rule changes to be voted on.
 	RuleChangeActivationThreshold uint32
-	MinerConfirmationWindow       uint32
-	Deployments                   [DefinedDeployments]ConsensusDeployment
+	// MinerConfirmationWindow is the number of blocks in each threshold state retarget window.
+	MinerConfirmationWindow uint32
+	// Deployments define the specific consensus rule changes to be voted on.
+	Deployments [DefinedDeployments]ConsensusDeployment
 	// Mempool parameters
 	RelayNonStdTxs bool
 	// Human-readable part for Bech32 encoded segwit addresses, as defined in BIP 173.

@@ -11,14 +11,24 @@ import (
 
 // HardForks is the details related to a hard fork, number, name and activation height
 type HardForks struct {
-	Number           uint32
-	Name             string
+	// Number is the sequence number of the hardfork
+	Number uint32
+	// Name is the human readable name of the hardfork
+	Name string
+	// ActivationHeight is the height at which the hardfork takes effect
 	ActivationHeight int32
-	Algos            map[string]AlgoParams
-	AlgoVers         map[int32]string
-	WorkBase         int64
-	BlockTime        time.Duration
-	TestnetStart     int64
+	// Algos is the list of algorithms used in the hardfork
+	Algos map[string]AlgoParams
+	// AlgoVers is a reverse lookup to find the name from the block version
+	AlgoVers map[int32]string
+	// WorkBase is the average time per hash calculated from the algo's nsperop value
+	WorkBase int64
+	// TargetTimePerBlock is the amount of time the network targets for between blocks
+	TargetTimePerBlock time.Duration
+	// TestNetStart is the activation height when in testnet
+	TestnetStart int64
+	// AveragingInterval is the number of blocks in the 'trailing'  simple average
+	AveragingInterval int64
 }
 
 // AlgoParams are the identifying block version number and their minimum target bits
@@ -45,16 +55,19 @@ var (
 	}()
 	p9PowLimitBits = BigToCompact(&p9PowLimit)
 
+	// SecondPowLimit is
 	SecondPowLimit = func() big.Int {
 		mplb, _ := hex.DecodeString("07fffffff0000000000000000000000000000000000000000000000000000000")
 		return *big.NewInt(0).SetBytes(mplb)
 	}()
+	// SecondPowLimitBits is
 	SecondPowLimitBits = BigToCompact(&SecondPowLimit)
-
+	// FirstPowLimit is
 	FirstPowLimit = func() big.Int {
 		mplb, _ := hex.DecodeString("0fffffff00000000000000000000000000000000000000000000000000000000")
 		return *big.NewInt(0).SetBytes(mplb)
 	}()
+	// FirstPowLimitBits is
 	FirstPowLimitBits = BigToCompact(&FirstPowLimit)
 
 	// Algos are the specifications identifying the algorithm used in the block proof
@@ -94,14 +107,15 @@ var (
 	// List is the list of existing hard forks and when they activate
 	List = []HardForks{
 		{
-			Number:           0,
-			Name:             "Halcyon days",
-			ActivationHeight: 0,
-			Algos:            Algos,
-			AlgoVers:         AlgoVers,
-			WorkBase:         1,
-			BlockTime:        3 * time.Minute,
-			TestnetStart:     0,
+			Number:             0,
+			Name:               "Halcyon days",
+			ActivationHeight:   0,
+			Algos:              Algos,
+			AlgoVers:           AlgoVers,
+			WorkBase:           1,
+			TargetTimePerBlock: 3 * time.Minute,
+			AveragingInterval:  10, // 50 minutes
+			TestnetStart:       0,
 		},
 		{
 			Number:           1,
@@ -116,8 +130,9 @@ var (
 				out /= int64(len(P9Algos))
 				return
 			}(),
-			BlockTime:    9 * time.Second,
-			TestnetStart: 36,
+			TargetTimePerBlock: 9 * time.Second,
+			AveragingInterval:  9600, // 24 hours
+			TestnetStart:       36,
 		},
 	}
 )

@@ -54,7 +54,7 @@ func TestCalcWork(t *testing.T) {
 	}
 	for x, test := range tests {
 		bits := uint32(test.in)
-		r := CalcWork(bits)
+		r := CalcWork(bits, 0, 2)
 		if r.Int64() != test.out {
 			t.Errorf("TestCalcWork test #%d failed: got %v want %d\n",
 				x, r.Int64(), test.out)

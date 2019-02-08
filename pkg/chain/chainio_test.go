@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/database"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
@@ -571,7 +571,7 @@ func TestBestChainStateSerialization(t *testing.T) {
 				height:    0,
 				totalTxns: 1,
 				workSum: func() *big.Int {
-					workSum.Add(workSum, CalcWork(486604799))
+					workSum.Add(workSum, CalcWork(486604799, 0, 2))
 					return new(big.Int).Set(workSum)
 				}(), // 0x0100010001
 			},
@@ -584,7 +584,7 @@ func TestBestChainStateSerialization(t *testing.T) {
 				height:    1,
 				totalTxns: 2,
 				workSum: func() *big.Int {
-					workSum.Add(workSum, CalcWork(486604799))
+					workSum.Add(workSum, CalcWork(486604799, 1, 2))
 					return new(big.Int).Set(workSum)
 				}(), // 0x0200020002
 			},

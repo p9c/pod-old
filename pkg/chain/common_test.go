@@ -12,7 +12,7 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/database"
+	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"

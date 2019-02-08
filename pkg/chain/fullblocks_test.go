@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chain/fullblocktests"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
@@ -130,7 +130,7 @@ func TestFullBlocks(t *testing.T) {
 		t.Logf("Testing block %s (hash %s, height %d)",
 			item.Name, block.Hash(), blockHeight)
 		isMainChain, isOrphan, err := chain.ProcessBlock(block,
-			blockchain.BFNone)
+			blockchain.BFNone, block.Height())
 		if err != nil {
 			t.Fatalf("block %q (hash %s, height %d) should "+
 				"have been accepted: %v", item.Name,
@@ -157,7 +157,8 @@ func TestFullBlocks(t *testing.T) {
 		block.SetHeight(blockHeight)
 		t.Logf("Testing block %s (hash %s, height %d)",
 			item.Name, block.Hash(), blockHeight)
-		_, _, err := chain.ProcessBlock(block, blockchain.BFNone)
+		_, _, err := chain.ProcessBlock(
+			block, blockchain.BFNone, block.Height())
 		if err == nil {
 			t.Fatalf("block %q (hash %s, height %d) should not "+
 				"have been accepted", item.Name, block.Hash(),
@@ -204,7 +205,8 @@ func TestFullBlocks(t *testing.T) {
 		block.SetHeight(blockHeight)
 		t.Logf("Testing block %s (hash %s, height %d)",
 			item.Name, block.Hash(), blockHeight)
-		_, isOrphan, err := chain.ProcessBlock(block, blockchain.BFNone)
+		_, isOrphan, err := chain.ProcessBlock(
+			block, blockchain.BFNone, block.Height())
 		if err != nil {
 			// Ensure the error code is of the expected type.
 			if _, ok := err.(blockchain.RuleError); !ok {

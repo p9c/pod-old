@@ -65,8 +65,7 @@ var RegressionNetParams = Params{
 	// BIP32 hierarchical deterministic extended key magics
 	HDPrivateKeyID: [4]byte{0x04, 0x35, 0x83, 0x94}, // starts with tprv
 	HDPublicKeyID:  [4]byte{0x04, 0x35, 0x87, 0xcf}, // starts with tpub
-	// BIP44 coin type used in the hierarchical deterministic path for
-	// address generation.
+	// BIP44 coin type used in the hierarchical deterministic path for address generation.
 	HDCoinType: 1,
 	// Parallelcoin specific difficulty adjustment parameters
 	Interval:                Interval,

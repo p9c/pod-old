@@ -17,7 +17,9 @@ var (
 		mplb, _ := hex.DecodeString("000000039fcaa04ac30b6384471f337748ef5c87c7aeffce5e51770ce6283137,")
 		return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
 	}()
-	ScryptPowLimit     = scryptPowLimit
+	// ScryptPowLimit is
+	ScryptPowLimit = scryptPowLimit
+	// ScryptPowLimitBits is
 	ScryptPowLimitBits = BigToCompact(&scryptPowLimit)
 	// bigOne is 1 represented as a big.Int.  It is defined here to avoid the overhead of creating it multiple times.
 	bigOne = big.NewInt(1)
@@ -208,8 +210,12 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		})
 		return newTargetBits, nil
 
-	case 1: // Plan 9 from Crypto Space
-		// log <- cl.Info{"hf", 2}
+	case 1:
+		// Plan 9 from Crypto Space
+		// Hard fork changes the block time and uses less variables than the pre-hf formula above used (has no limiters because the math is self-limiting). So we are using the TargetTimePerBlock and AveragingInterval specified in the fork library.
+		averagingInterval := fork.List[1].AveragingInterval
+		targetTimePerBlock := fork.List[1].TargetTimePerBlock
+
 		if lastNode.height == 0 {
 			return fork.FirstPowLimitBits, nil
 		}
@@ -232,7 +238,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		timestamps = append(timestamps, float64(last.timestamp))
 		pb := last
 		// collect the timestamps of all the blocks of the same algo until we pass genesis block or get AveragingInterval blocks
-		for ; counter < int(b.chainParams.AveragingInterval) && pb.height > 2; counter++ {
+		for ; counter < int(averagingInterval) && pb.height > 2; counter++ {
 			p := pb.RelativeAncestor(1)
 			if p != nil {
 				if p.height == 0 {
@@ -251,12 +257,12 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 				break
 			}
 		}
-		allTimeAverage, trailTimeAverage := float64(b.chainParams.TargetTimePerBlock), float64(b.chainParams.TargetTimePerBlock)
+		allTimeAverage, trailTimeAverage := float64(targetTimePerBlock), float64(targetTimePerBlock)
 		startHeight := fork.List[1].ActivationHeight
 		if b.chainParams.Name == "testnet" {
-			startHeight = 1
+			startHeight = int32(fork.List[1].TestnetStart)
 		}
-		trailHeight := int32(int64(lastNode.height) - b.chainParams.AveragingInterval*int64(len(fork.List[1].Algos)))
+		trailHeight := int32(int64(lastNode.height) - averagingInterval*int64(len(fork.List[1].Algos)))
 		if trailHeight < 0 {
 			trailHeight = 1
 		}
@@ -277,7 +283,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		var adjusted, targetAdjusted, adjustment float64
 		if len(timestamps) > 1 {
 			numalgos := int64(len(fork.List[1].Algos))
-			target := b.chainParams.TargetTimePerBlock * numalgos
+			target := int64(targetTimePerBlock/time.Second) * numalgos
 			adjustment = 1.0
 			counter = 0
 			for i := 0; i < len(timestamps)-1; i++ {
@@ -314,7 +320,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		trailingTimestamps = append(
 			trailingTimestamps, float64(pb.timestamp))
 		counter = 1
-		for ; counter < int(b.chainParams.AveragingInterval) &&
+		for ; counter < int(averagingInterval) &&
 			pb.height > 2; counter++ {
 			pb = pb.RelativeAncestor(1)
 			trailingTimestamps = append(
@@ -326,7 +332,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			trailingTargetAdjusted,
 			trailingAdjustment float64
 		if len(trailingTimestamps) > 1 {
-			target := b.chainParams.TargetTimePerBlock
+			target := targetTimePerBlock
 			trailingAdjustment = 1.0
 			counter = 0
 			for i := 0; i < len(trailingTimestamps)-1; i++ {
@@ -357,7 +363,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			trailingAdjusted = 100
 		}
 
-		ttpb := float64(b.chainParams.TargetTimePerBlock)
+		ttpb := float64(targetTimePerBlock)
 		allTimeDivergence := allTimeAverage / ttpb
 		trailTimeDivergence := trailTimeAverage / ttpb
 		trailingTimeDivergence := trailingAdjusted / trailingTargetAdjusted

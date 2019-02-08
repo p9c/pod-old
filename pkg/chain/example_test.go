@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/util"
 )
@@ -38,7 +38,7 @@ func ExampleBlockChain_ProcessBlock() {
 	// Process a block.  For this example, we are going to intentionally cause an error by trying to process the genesis block which already exists.
 	genesisBlock := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	isMainChain, isOrphan, err := chain.ProcessBlock(genesisBlock,
-		blockchain.BFNone)
+		blockchain.BFNone, 0)
 	if err != nil {
 		fmt.Printf("Failed to process block: %v\n", err)
 		return

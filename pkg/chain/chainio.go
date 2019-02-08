@@ -11,7 +11,7 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
@@ -159,6 +159,7 @@ func dbFetchOrCreateVersion(dbTx database.Tx, key []byte, defaultVersion uint32)
 //      - 0x00: special script type pay-to-pubkey-hash
 //      - 0xb2...ec: pubkey hash
 // -----------------------------------------------------------------------------
+
 // SpentTxOut contains a spent transaction output and potentially additional contextual information such as whether or not it was contained in a coinbase transaction, the version of the transaction it was contained in, and which block height the containing transaction was included in.  As described in the comments above, the additional contextual information will only be valid when this spent txout is spending the last unspent output of the containing transaction.
 type SpentTxOut struct {
 	// Amount is the amount of the output.

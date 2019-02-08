@@ -160,7 +160,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		checkpointTime := time.Unix(checkpointNode.timestamp, 0)
 		if blockHeader.Timestamp.Before(checkpointTime) {
 			str := fmt.Sprintf("block %v has timestamp %v before "+
-				"last checkpoint timestamp %v", blockHashWithAlgo,
+				"last checkpoint timestamp %v", blockHashWithAlgo(),
 				blockHeader.Timestamp, checkpointTime)
 			return false, false, ruleError(ErrCheckpointTimeTooOld, str)
 		}

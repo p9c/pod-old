@@ -71,8 +71,7 @@ var MainNetParams = Params{
 	// BIP32 hierarchical deterministic extended key magics
 	HDPrivateKeyID: [4]byte{0x04, 0x88, 0xad, 0xe4}, // starts with xprv
 	HDPublicKeyID:  [4]byte{0x04, 0x88, 0xb2, 0x1e}, // starts with xpub
-	// BIP44 coin type used in the hierarchical deterministic path for
-	// address generation.
+	// BIP44 coin type used in the hierarchical deterministic path for address generation.
 	HDCoinType: 0,
 	// Parallelcoin specific difficulty adjustment parameters
 	Interval:                Interval,

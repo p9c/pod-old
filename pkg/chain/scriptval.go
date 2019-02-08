@@ -250,7 +250,7 @@ func checkBlockScripts(block *util.Block, utxoView *UtxoViewpoint,
 	}
 	elapsed := time.Since(start)
 	Log.Trcc(func() string {
-		return fmt.Sprint("block %v took %v to verify", block.Hash(), elapsed)
+		return fmt.Sprintf("block %v took %v to verify", block.Hash(), elapsed)
 	})
 	// If the HashCache is present, once we have validated the block, we no longer need the cached hashes for these transactions, so we purge them from the cache.
 	if segwitActive && hashCache != nil {
