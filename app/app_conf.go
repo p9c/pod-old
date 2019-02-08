@@ -19,6 +19,8 @@ import (
 
 var confFile = DefaultDataDir + "/conf"
 
+const lH = "127.0.0.1:"
+
 // ConfCfg is the settings that can be set to synchronise across all pod modules
 type ConfCfg struct {
 	DataDir          string
@@ -64,6 +66,10 @@ var ConfCommand = climax.Command{
 		t("init", "i", "resets configuration to defaults"),
 		t("show", "s", "prints currently configuration"),
 
+		f("createtest", "1", "create test configuration (set number to create max 10)"),
+		f("testname", "test", "base name for test configurations"),
+		f("testportbase", "21047", "base port number for test configurations"),
+
 		s("datadir", "D", "~/.pod", "where to create the new profile"),
 
 		f("nodelistener", node.DefaultListener,
@@ -96,7 +102,7 @@ var ConfCommand = climax.Command{
 		},
 	},
 	Handle: func(ctx climax.Context) int {
-		var dl string
+		var dl, ct, tpb string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			log <- cl.Tracef{
@@ -108,6 +114,120 @@ var ConfCommand = climax.Command{
 			for i := range ll {
 				ll[i].SetLevel(dl)
 			}
+		}
+
+		if ct, ok = ctx.Get("createtest"); ok {
+			testname := "test"
+			testnum := 1
+			testportbase := 21047
+			if err := ParseInteger(
+				ct, "createtest", &testnum,
+			); err != nil {
+				log <- cl.Wrn(err.Error())
+			}
+			if tn, ok := ctx.Get("testname"); ok {
+				testname = tn
+			}
+			if tpb, ok = ctx.Get("testportbase"); ok {
+				if err := ParseInteger(
+					tpb, "testportbase", &testportbase,
+				); err != nil {
+					log <- cl.Wrn(err.Error())
+				}
+			}
+			// Generate a full set of default configs first
+			var testConfigSet []ConfigSet
+			for i := 0; i < testnum; i++ {
+				tn := fmt.Sprintf("%s%d", testname, i)
+				cs := GetDefaultConfs(tn)
+				SyncToConfs(cs)
+				testConfigSet = append(testConfigSet, *cs)
+			}
+			var ps []PortSet
+			for i := 0; i < testnum; i++ {
+				p := GenPortSet(testportbase + 100*i)
+				ps = append(ps, *p)
+			}
+			// Set the correct listeners and add the correct addpeers entries
+			for i, ts := range testConfigSet {
+				// conf
+				tc := ts.Conf
+				tc.NodeListeners = []string{
+					lH + ps[i].P2P,
+				}
+				tc.NodeRPCListeners = []string{
+					lH + ps[i].NodeRPC,
+				}
+				tc.WalletListeners = []string{
+					lH + ps[i].WalletRPC,
+				}
+				tc.TLS = false
+				tc.Network = "testnet"
+				// ctl
+				tcc := ts.Ctl
+				tcc.SimNet = false
+				tcc.RPCServer = ts.Conf.NodeRPCListeners[0]
+				tcc.TestNet3 = true
+				tcc.TLS = false
+				tcc.Wallet = ts.Conf.WalletListeners[0]
+				// node
+				tnn := ts.Node.Node
+				for j := range ps {
+					// add all other peers in the portset list
+					if j != i {
+						tnn.AddPeers = append(
+							tnn.AddPeers,
+							lH+ps[j].P2P,
+						)
+					}
+				}
+				tnn.Listeners = tc.NodeListeners
+				tnn.RPCListeners = tc.NodeRPCListeners
+				tnn.SimNet = false
+				tnn.TestNet3 = true
+				tnn.RegressionTest = false
+				tnn.TLS = false
+				// wallet
+				tw := ts.Wallet.Wallet
+				tw.EnableClientTLS = false
+				tw.EnableServerTLS = false
+				tw.LegacyRPCListeners = ts.Conf.WalletListeners
+				tw.RPCConnect = tc.NodeRPCListeners[0]
+				tw.SimNet = false
+				tw.TestNet3 = true
+				// shell
+				tss := ts.Shell
+				// shell/node
+				tsn := tss.Node
+				tsn.Listeners = tnn.Listeners
+				tsn.RPCListeners = tnn.RPCListeners
+				tsn.TestNet3 = true
+				tsn.SimNet = true
+				for j := range ps {
+					// add all other peers in the portset list
+					if j != i {
+						tsn.AddPeers = append(
+							tsn.AddPeers,
+							lH+ps[j].P2P,
+						)
+					}
+				}
+				tsn.SimNet = false
+				tsn.TestNet3 = true
+				tsn.RegressionTest = false
+				tsn.TLS = false
+				// shell/wallet
+				tsw := tss.Wallet
+				tsw.EnableClientTLS = false
+				tsw.EnableServerTLS = false
+				tsw.LegacyRPCListeners = ts.Conf.WalletListeners
+				tsw.RPCConnect = tcc.RPCServer
+				tsw.SimNet = false
+				tsw.TestNet3 = true
+				// write to disk
+				WriteConfigSet(&ts)
+			}
+			os.Exit(0)
 		}
 
 		confFile = DefaultDataDir + "/conf.json"
@@ -145,7 +265,7 @@ var ConfCommand = climax.Command{
 				}
 			}
 		}
-		configConf(&ctx, DefaultDataDir)
+		configConf(&ctx, DefaultDataDir, node.DefaultPort)
 		runConf()
 		return 0
 	},
@@ -160,276 +280,128 @@ var ConfCommand = climax.Command{
 
 var confs []string
 
-func getConfs(datadir string) {
-	confs = []string{
-		datadir + "/ctl/conf.json",
-		datadir + "/node/conf.json",
-		datadir + "/wallet/conf.json",
-		datadir + "/shell/conf.json",
-	}
-}
-
 func init() {
 }
 
 // cf is the list of flags and the default values stored in the Usage field
 var cf = GetFlags(ConfCommand)
 
-func configConf(ctx *climax.Context, datadir string) {
-	getConfs(datadir)
-	// If we can't parse the config files we just reset them to default
-	ctlCfg := *DefaultCtlConfig(datadir)
-	if _, err := os.Stat(confs[0]); os.IsNotExist(err) {
-		WriteDefaultCtlConfig(datadir)
-	} else {
-		ctlCfgData, err := ioutil.ReadFile(confs[0])
-		if err != nil {
-			WriteDefaultCtlConfig(datadir)
-		} else {
-			err = json.Unmarshal(ctlCfgData, &ctlCfg)
-			if err != nil {
-				WriteDefaultCtlConfig(datadir)
-			}
-		}
-	}
-
-	nodeCfg := *DefaultNodeConfig(datadir)
-	if _, err := os.Stat(confs[1]); os.IsNotExist(err) {
-		fmt.Println("default config does not exist")
-		WriteDefaultNodeConfig(datadir)
-	} else {
-		fmt.Println("reading file", confs[1])
-		nodeCfgData, err := ioutil.ReadFile(confs[1])
-		if err != nil {
-			fmt.Println("error reading file", err)
-			WriteDefaultNodeConfig(datadir)
-		} else {
-			fmt.Println("parsing config file")
-			err = json.Unmarshal(nodeCfgData, &nodeCfg)
-			if err != nil {
-				fmt.Println("failed to parse config, resetting config", err)
-				WriteDefaultNodeConfig(datadir)
-			}
-		}
-	}
-
-	walletCfg := *DefaultWalletConfig(datadir)
-	if _, err := os.Stat(confs[2]); os.IsNotExist(err) {
-		WriteDefaultWalletConfig(datadir)
-	} else {
-		walletCfgData, err := ioutil.ReadFile(confs[2])
-		if err != nil {
-			WriteDefaultWalletConfig(datadir)
-		} else {
-			err = json.Unmarshal(walletCfgData, &walletCfg)
-			if err != nil {
-				WriteDefaultWalletConfig(datadir)
-			}
-		}
-	}
-
-	shellCfg := *DefaultShellConfig(datadir)
-	if _, err := os.Stat(confs[3]); os.IsNotExist(err) {
-		WriteDefaultShellConfig(datadir)
-	} else {
-		shellCfgData, err := ioutil.ReadFile(confs[3])
-		if err != nil {
-			WriteDefaultShellConfig(datadir)
-		} else {
-			err = json.Unmarshal(shellCfgData, &shellCfg)
-			if err != nil {
-				WriteDefaultShellConfig(datadir)
-			}
-		}
-	}
-
-	// push all current settings as from the conf configuration to the module configs
-	nodeCfg.Node.Listeners = ConfConfig.NodeListeners
-	shellCfg.Node.Listeners = ConfConfig.NodeListeners
-	nodeCfg.Node.RPCListeners = ConfConfig.NodeRPCListeners
-	walletCfg.Wallet.RPCConnect = ConfConfig.NodeRPCListeners[0]
-	shellCfg.Node.RPCListeners = ConfConfig.NodeRPCListeners
-	shellCfg.Wallet.RPCConnect = ConfConfig.NodeRPCListeners[0]
-	ctlCfg.RPCServer = ConfConfig.NodeRPCListeners[0]
-
-	walletCfg.Wallet.LegacyRPCListeners = ConfConfig.WalletListeners
-	ctlCfg.Wallet = ConfConfig.NodeRPCListeners[0]
-	shellCfg.Wallet.LegacyRPCListeners = ConfConfig.NodeRPCListeners
-	walletCfg.Wallet.LegacyRPCListeners = ConfConfig.WalletListeners
-	ctlCfg.Wallet = ConfConfig.WalletListeners[0]
-	shellCfg.Wallet.LegacyRPCListeners = ConfConfig.WalletListeners
-
-	nodeCfg.Node.RPCUser = ConfConfig.NodeUser
-	walletCfg.Wallet.PodUsername = ConfConfig.NodeUser
-	walletCfg.Wallet.Username = ConfConfig.NodeUser
-	shellCfg.Node.RPCUser = ConfConfig.NodeUser
-	shellCfg.Wallet.PodUsername = ConfConfig.NodeUser
-	shellCfg.Wallet.Username = ConfConfig.NodeUser
-	ctlCfg.RPCUser = ConfConfig.NodeUser
-
-	nodeCfg.Node.RPCPass = ConfConfig.NodePass
-	walletCfg.Wallet.PodPassword = ConfConfig.NodePass
-	walletCfg.Wallet.Password = ConfConfig.NodePass
-	shellCfg.Node.RPCPass = ConfConfig.NodePass
-	shellCfg.Wallet.PodPassword = ConfConfig.NodePass
-	shellCfg.Wallet.Password = ConfConfig.NodePass
-	ctlCfg.RPCPass = ConfConfig.NodePass
-
-	nodeCfg.Node.RPCKey = ConfConfig.RPCKey
-	walletCfg.Wallet.RPCKey = ConfConfig.RPCKey
-	shellCfg.Node.RPCKey = ConfConfig.RPCKey
-	shellCfg.Wallet.RPCKey = ConfConfig.RPCKey
-
-	nodeCfg.Node.RPCCert = ConfConfig.RPCCert
-	walletCfg.Wallet.RPCCert = ConfConfig.RPCCert
-	shellCfg.Node.RPCCert = ConfConfig.RPCCert
-	shellCfg.Wallet.RPCCert = ConfConfig.RPCCert
-
-	walletCfg.Wallet.CAFile = ConfConfig.CAFile
-	shellCfg.Wallet.CAFile = ConfConfig.CAFile
-
-	nodeCfg.Node.TLS = ConfConfig.TLS
-	walletCfg.Wallet.EnableClientTLS = ConfConfig.TLS
-	shellCfg.Node.TLS = ConfConfig.TLS
-	shellCfg.Wallet.EnableClientTLS = ConfConfig.TLS
-	walletCfg.Wallet.EnableServerTLS = ConfConfig.TLS
-	shellCfg.Wallet.EnableServerTLS = ConfConfig.TLS
-	ctlCfg.TLSSkipVerify = ConfConfig.SkipVerify
-
-	ctlCfg.Proxy = ConfConfig.Proxy
-	nodeCfg.Node.Proxy = ConfConfig.Proxy
-	walletCfg.Wallet.Proxy = ConfConfig.Proxy
-	shellCfg.Node.Proxy = ConfConfig.Proxy
-	shellCfg.Wallet.Proxy = ConfConfig.Proxy
-
-	ctlCfg.ProxyUser = ConfConfig.ProxyUser
-	nodeCfg.Node.ProxyUser = ConfConfig.ProxyUser
-	walletCfg.Wallet.ProxyUser = ConfConfig.ProxyUser
-	shellCfg.Node.ProxyUser = ConfConfig.ProxyUser
-	shellCfg.Wallet.ProxyUser = ConfConfig.ProxyUser
-
-	ctlCfg.ProxyPass = ConfConfig.ProxyPass
-	nodeCfg.Node.ProxyPass = ConfConfig.ProxyPass
-	walletCfg.Wallet.ProxyPass = ConfConfig.ProxyPass
-	shellCfg.Node.ProxyPass = ConfConfig.ProxyPass
-	shellCfg.Wallet.ProxyPass = ConfConfig.ProxyPass
-
-	walletCfg.Wallet.WalletPass = ConfConfig.WalletPass
-	shellCfg.Wallet.WalletPass = ConfConfig.WalletPass
-
+func configConf(ctx *climax.Context, datadir, portbase string) {
+	cs := GetDefaultConfs(datadir)
+	SyncToConfs(cs)
 	var r string
 	var ok bool
 	var listeners []string
 	if r, ok = getIfIs(ctx, "nodelistener"); ok {
-		NormalizeAddresses(r, node.DefaultPort, &listeners)
+		NormalizeAddresses(r, portbase, &listeners)
 		fmt.Println("nodelistener set to", listeners)
 		ConfConfig.NodeListeners = listeners
-		nodeCfg.Node.Listeners = listeners
-		shellCfg.Node.Listeners = listeners
+		cs.Node.Node.Listeners = listeners
+		cs.Shell.Node.Listeners = listeners
 	}
 	if r, ok = getIfIs(ctx, "noderpclistener"); ok {
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		fmt.Println("noderpclistener set to", listeners)
 		ConfConfig.NodeRPCListeners = listeners
-		nodeCfg.Node.RPCListeners = listeners
-		walletCfg.Wallet.RPCConnect = r
-		shellCfg.Node.RPCListeners = listeners
-		shellCfg.Wallet.RPCConnect = r
-		ctlCfg.RPCServer = r
+		cs.Node.Node.RPCListeners = listeners
+		cs.Wallet.Wallet.RPCConnect = r
+		cs.Shell.Node.RPCListeners = listeners
+		cs.Shell.Wallet.RPCConnect = r
+		cs.Ctl.RPCServer = r
 	}
 	if r, ok = getIfIs(ctx, "walletlistener"); ok {
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		fmt.Println("walletlistener set to", listeners)
 		ConfConfig.WalletListeners = listeners
-		walletCfg.Wallet.LegacyRPCListeners = listeners
-		ctlCfg.Wallet = r
-		shellCfg.Wallet.LegacyRPCListeners = listeners
+		cs.Wallet.Wallet.LegacyRPCListeners = listeners
+		cs.Ctl.Wallet = r
+		cs.Shell.Wallet.LegacyRPCListeners = listeners
 	}
 	if r, ok = getIfIs(ctx, "user"); ok {
 		ConfConfig.NodeUser = r
-		nodeCfg.Node.RPCUser = r
-		walletCfg.Wallet.PodUsername = r
-		walletCfg.Wallet.Username = r
-		shellCfg.Node.RPCUser = r
-		shellCfg.Wallet.PodUsername = r
-		shellCfg.Wallet.Username = r
-		ctlCfg.RPCUser = r
+		cs.Node.Node.RPCUser = r
+		cs.Wallet.Wallet.PodUsername = r
+		cs.Wallet.Wallet.Username = r
+		cs.Shell.Node.RPCUser = r
+		cs.Shell.Wallet.PodUsername = r
+		cs.Shell.Wallet.Username = r
+		cs.Ctl.RPCUser = r
 	}
 	if r, ok = getIfIs(ctx, "pass"); ok {
 		ConfConfig.NodePass = r
-		nodeCfg.Node.RPCPass = r
-		walletCfg.Wallet.PodPassword = r
-		walletCfg.Wallet.Password = r
-		shellCfg.Node.RPCPass = r
-		shellCfg.Wallet.PodPassword = r
-		shellCfg.Wallet.Password = r
-		ctlCfg.RPCPass = r
+		cs.Node.Node.RPCPass = r
+		cs.Wallet.Wallet.PodPassword = r
+		cs.Wallet.Wallet.Password = r
+		cs.Shell.Node.RPCPass = r
+		cs.Shell.Wallet.PodPassword = r
+		cs.Shell.Wallet.Password = r
+		cs.Ctl.RPCPass = r
 	}
 	if r, ok = getIfIs(ctx, "walletpass"); ok {
 		ConfConfig.WalletPass = r
-		walletCfg.Wallet.WalletPass = ConfConfig.WalletPass
-		shellCfg.Wallet.WalletPass = ConfConfig.WalletPass
+		cs.Wallet.Wallet.WalletPass = ConfConfig.WalletPass
+		cs.Shell.Wallet.WalletPass = ConfConfig.WalletPass
 	}
 
 	if r, ok = getIfIs(ctx, "rpckey"); ok {
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.RPCKey = r
-		nodeCfg.Node.RPCKey = r
-		walletCfg.Wallet.RPCKey = r
-		shellCfg.Node.RPCKey = r
-		shellCfg.Wallet.RPCKey = r
+		cs.Node.Node.RPCKey = r
+		cs.Wallet.Wallet.RPCKey = r
+		cs.Shell.Node.RPCKey = r
+		cs.Shell.Wallet.RPCKey = r
 	}
 	if r, ok = getIfIs(ctx, "rpccert"); ok {
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.RPCCert = r
-		nodeCfg.Node.RPCCert = r
-		walletCfg.Wallet.RPCCert = r
-		shellCfg.Node.RPCCert = r
-		shellCfg.Wallet.RPCCert = r
+		cs.Node.Node.RPCCert = r
+		cs.Wallet.Wallet.RPCCert = r
+		cs.Shell.Node.RPCCert = r
+		cs.Shell.Wallet.RPCCert = r
 	}
 	if r, ok = getIfIs(ctx, "cafile"); ok {
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.CAFile = r
-		walletCfg.Wallet.CAFile = r
-		shellCfg.Wallet.CAFile = r
+		cs.Wallet.Wallet.CAFile = r
+		cs.Shell.Wallet.CAFile = r
 	}
 	if r, ok = getIfIs(ctx, "tls"); ok {
 		ConfConfig.TLS = r == "true"
-		nodeCfg.Node.TLS = ConfConfig.TLS
-		walletCfg.Wallet.EnableClientTLS = ConfConfig.TLS
-		shellCfg.Node.TLS = ConfConfig.TLS
-		shellCfg.Wallet.EnableClientTLS = ConfConfig.TLS
-		walletCfg.Wallet.EnableServerTLS = ConfConfig.TLS
-		shellCfg.Wallet.EnableServerTLS = ConfConfig.TLS
+		cs.Node.Node.TLS = ConfConfig.TLS
+		cs.Wallet.Wallet.EnableClientTLS = ConfConfig.TLS
+		cs.Shell.Node.TLS = ConfConfig.TLS
+		cs.Shell.Wallet.EnableClientTLS = ConfConfig.TLS
+		cs.Wallet.Wallet.EnableServerTLS = ConfConfig.TLS
+		cs.Shell.Wallet.EnableServerTLS = ConfConfig.TLS
 	}
 	if r, ok = getIfIs(ctx, "skipverify"); ok {
 		ConfConfig.SkipVerify = r == "true"
-		ctlCfg.TLSSkipVerify = r == "true"
+		cs.Ctl.TLSSkipVerify = r == "true"
 	}
 	if r, ok = getIfIs(ctx, "proxy"); ok {
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		ConfConfig.Proxy = r
-		ctlCfg.Proxy = ConfConfig.Proxy
-		nodeCfg.Node.Proxy = ConfConfig.Proxy
-		walletCfg.Wallet.Proxy = ConfConfig.Proxy
-		shellCfg.Node.Proxy = ConfConfig.Proxy
-		shellCfg.Wallet.Proxy = ConfConfig.Proxy
+		cs.Ctl.Proxy = ConfConfig.Proxy
+		cs.Node.Node.Proxy = ConfConfig.Proxy
+		cs.Wallet.Wallet.Proxy = ConfConfig.Proxy
+		cs.Shell.Node.Proxy = ConfConfig.Proxy
+		cs.Shell.Wallet.Proxy = ConfConfig.Proxy
 	}
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
 		ConfConfig.ProxyUser = r
-		ctlCfg.ProxyUser = ConfConfig.ProxyUser
-		nodeCfg.Node.ProxyUser = ConfConfig.ProxyUser
-		walletCfg.Wallet.ProxyUser = ConfConfig.ProxyUser
-		shellCfg.Node.ProxyUser = ConfConfig.ProxyUser
-		shellCfg.Wallet.ProxyUser = ConfConfig.ProxyUser
+		cs.Ctl.ProxyUser = ConfConfig.ProxyUser
+		cs.Node.Node.ProxyUser = ConfConfig.ProxyUser
+		cs.Wallet.Wallet.ProxyUser = ConfConfig.ProxyUser
+		cs.Shell.Node.ProxyUser = ConfConfig.ProxyUser
+		cs.Shell.Wallet.ProxyUser = ConfConfig.ProxyUser
 	}
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
 		ConfConfig.ProxyPass = r
-		ctlCfg.ProxyPass = ConfConfig.ProxyPass
-		nodeCfg.Node.ProxyPass = ConfConfig.ProxyPass
-		walletCfg.Wallet.ProxyPass = ConfConfig.ProxyPass
-		shellCfg.Node.ProxyPass = ConfConfig.ProxyPass
-		shellCfg.Wallet.ProxyPass = ConfConfig.ProxyPass
+		cs.Ctl.ProxyPass = ConfConfig.ProxyPass
+		cs.Node.Node.ProxyPass = ConfConfig.ProxyPass
+		cs.Wallet.Wallet.ProxyPass = ConfConfig.ProxyPass
+		cs.Shell.Node.ProxyPass = ConfConfig.ProxyPass
+		cs.Shell.Wallet.ProxyPass = ConfConfig.ProxyPass
 	}
 	if r, ok = getIfIs(ctx, "network"); ok {
 		r = strings.ToLower(r)
@@ -442,68 +414,69 @@ func configConf(ctx *climax.Context, datadir string) {
 		fmt.Println("configured for", r, "network")
 		switch r {
 		case "mainnet":
-			ctlCfg.TestNet3 = false
-			ctlCfg.SimNet = false
-			nodeCfg.Node.TestNet3 = false
-			nodeCfg.Node.SimNet = false
-			nodeCfg.Node.RegressionTest = false
-			walletCfg.Wallet.SimNet = false
-			walletCfg.Wallet.TestNet3 = false
-			shellCfg.Node.TestNet3 = false
-			shellCfg.Node.RegressionTest = false
-			shellCfg.Node.SimNet = false
-			shellCfg.Wallet.TestNet3 = false
-			shellCfg.Wallet.SimNet = false
+			cs.Ctl.TestNet3 = false
+			cs.Ctl.SimNet = false
+			cs.Node.Node.TestNet3 = false
+			cs.Node.Node.SimNet = false
+			cs.Node.Node.RegressionTest = false
+			cs.Wallet.Wallet.SimNet = false
+			cs.Wallet.Wallet.TestNet3 = false
+			cs.Shell.Node.TestNet3 = false
+			cs.Shell.Node.RegressionTest = false
+			cs.Shell.Node.SimNet = false
+			cs.Shell.Wallet.TestNet3 = false
+			cs.Shell.Wallet.SimNet = false
 		case "testnet":
 			fork.IsTestnet = true
-			ctlCfg.TestNet3 = true
-			ctlCfg.SimNet = false
-			nodeCfg.Node.TestNet3 = true
-			nodeCfg.Node.SimNet = false
-			nodeCfg.Node.RegressionTest = false
-			walletCfg.Wallet.SimNet = false
-			walletCfg.Wallet.TestNet3 = true
-			shellCfg.Node.TestNet3 = true
-			shellCfg.Node.RegressionTest = false
-			shellCfg.Node.SimNet = false
-			shellCfg.Wallet.TestNet3 = true
-			shellCfg.Wallet.SimNet = false
+			cs.Ctl.TestNet3 = true
+			cs.Ctl.SimNet = false
+			cs.Node.Node.TestNet3 = true
+			cs.Node.Node.SimNet = false
+			cs.Node.Node.RegressionTest = false
+			cs.Wallet.Wallet.SimNet = false
+			cs.Wallet.Wallet.TestNet3 = true
+			cs.Shell.Node.TestNet3 = true
+			cs.Shell.Node.RegressionTest = false
+			cs.Shell.Node.SimNet = false
+			cs.Shell.Wallet.TestNet3 = true
+			cs.Shell.Wallet.SimNet = false
 		case "regtestnet":
-			ctlCfg.TestNet3 = false
-			ctlCfg.SimNet = false
-			nodeCfg.Node.TestNet3 = false
-			nodeCfg.Node.SimNet = false
-			nodeCfg.Node.RegressionTest = true
-			walletCfg.Wallet.SimNet = false
-			walletCfg.Wallet.TestNet3 = false
-			shellCfg.Node.TestNet3 = false
-			shellCfg.Node.RegressionTest = true
-			shellCfg.Node.SimNet = false
-			shellCfg.Wallet.TestNet3 = false
-			shellCfg.Wallet.SimNet = false
+			cs.Ctl.TestNet3 = false
+			cs.Ctl.SimNet = false
+			cs.Node.Node.TestNet3 = false
+			cs.Node.Node.SimNet = false
+			cs.Node.Node.RegressionTest = true
+			cs.Wallet.Wallet.SimNet = false
+			cs.Wallet.Wallet.TestNet3 = false
+			cs.Shell.Node.TestNet3 = false
+			cs.Shell.Node.RegressionTest = true
+			cs.Shell.Node.SimNet = false
+			cs.Shell.Wallet.TestNet3 = false
+			cs.Shell.Wallet.SimNet = false
 		case "simnet":
-			ctlCfg.TestNet3 = false
-			ctlCfg.SimNet = true
-			nodeCfg.Node.TestNet3 = false
-			nodeCfg.Node.SimNet = true
-			nodeCfg.Node.RegressionTest = false
-			walletCfg.Wallet.SimNet = true
-			walletCfg.Wallet.TestNet3 = false
-			shellCfg.Node.TestNet3 = false
-			shellCfg.Node.RegressionTest = false
-			shellCfg.Node.SimNet = true
-			shellCfg.Wallet.TestNet3 = false
-			shellCfg.Wallet.SimNet = true
+			cs.Ctl.TestNet3 = false
+			cs.Ctl.SimNet = true
+			cs.Node.Node.TestNet3 = false
+			cs.Node.Node.SimNet = true
+			cs.Node.Node.RegressionTest = false
+			cs.Wallet.Wallet.SimNet = true
+			cs.Wallet.Wallet.TestNet3 = false
+			cs.Shell.Node.TestNet3 = false
+			cs.Shell.Node.RegressionTest = false
+			cs.Shell.Node.SimNet = true
+			cs.Shell.Wallet.TestNet3 = false
+			cs.Shell.Wallet.SimNet = true
 		}
 	}
-	WriteConfConfig(ConfConfig)
+
+	WriteConfConfig(cs.Conf)
 	// Now write the configs for all the others reading them and overwriting the changed values
-	WriteCtlConfig(&ctlCfg)
-	WriteNodeConfig(&nodeCfg)
-	WriteWalletConfig(&walletCfg)
-	WriteShellConfig(&shellCfg)
+	WriteCtlConfig(cs.Ctl)
+	WriteNodeConfig(cs.Node)
+	WriteWalletConfig(cs.Wallet)
+	WriteShellConfig(cs.Shell)
 	if ctx.Is("show") {
-		j, err := json.MarshalIndent(ConfConfig, "", "  ")
+		j, err := json.MarshalIndent(cs.Conf, "", "  ")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -512,8 +485,8 @@ func configConf(ctx *climax.Context, datadir string) {
 }
 
 // WriteConfConfig creates and writes the config file in the requested location
-func WriteConfConfig(cfg ConfCfg) {
-	j, err := json.MarshalIndent(ConfConfig, "", "  ")
+func WriteConfConfig(cfg *ConfCfg) {
+	j, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		panic(err.Error())
 	}

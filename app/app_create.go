@@ -69,7 +69,6 @@ Available options:
 		use commandline interface interactive input
 	--network="mainnet"
 		connect to (mainnet|testnet|simnet)
-
 `)
 			return 0
 		}
