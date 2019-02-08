@@ -10,9 +10,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/clog"
 
-	"git.parallelcoin.io/pod/pkg/chain"
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
+	"git.parallelcoin.io/pod/cmd/spv/headerlist"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/txscript"
@@ -20,8 +22,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/pod/cmd/spv/headerlist"
 )
 
 const (
@@ -2476,8 +2476,7 @@ func (b *blockManager) checkHeaderSanity(blockHeader *wire.BlockHeader,
 	return nil
 }
 
-// calcNextRequiredDifficulty calculates the required difficulty for the block
-// after the passed previous block node based on the difficulty retarget rules.
+// calcNextRequiredDifficulty calculates the required difficulty for the block after the passed previous block node based on the difficulty retarget rules.
 func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 	reorgAttempt bool) (uint32, error) {
 
@@ -2526,8 +2525,7 @@ func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 		return lastNode.Header.Bits, nil
 	}
 
-	// Get the block node at the previous retarget (targetTimespan days
-	// worth of blocks).
+	// Get the block node at the previous retarget (targetTimespan days worth of blocks).
 	firstNode, err := b.server.BlockHeaders.FetchHeaderByHeight(
 		uint32(lastNode.Height + 1 - b.blocksPerRetarget),
 	)
@@ -2535,8 +2533,7 @@ func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 		return 0, err
 	}
 
-	// Limit the amount of adjustment that can occur to the previous
-	// difficulty.
+	// Limit the amount of adjustment that can occur to the previous difficulty.
 	actualTimespan := lastNode.Header.Timestamp.Unix() -
 		firstNode.Timestamp.Unix()
 	adjustedTimespan := actualTimespan
@@ -2548,9 +2545,7 @@ func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 
 	// Calculate new target difficulty as:
 	//  currentDifficulty * (adjustedTimespan / targetTimespan)
-	// The result uses integer division which means it will be slightly
-	// rounded down.  Bitcoind also uses integer division to calculate this
-	// result.
+	// The result uses integer division which means it will be slightly rounded down.  Bitcoind also uses integer division to calculate this result.
 	oldTarget := blockchain.CompactToBig(lastNode.Header.Bits)
 	newTarget := new(big.Int).Mul(oldTarget, big.NewInt(adjustedTimespan))
 	targetTimeSpan := int64(b.server.chainParams.TargetTimespan)
@@ -2561,10 +2556,7 @@ func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 		newTarget.Set(b.server.chainParams.PowLimit)
 	}
 
-	// Log new target difficulty and return it.  The new target logging is
-	// intentionally converting the bits back to a number instead of using
-	// newTarget since conversion to the compact representation loses
-	// precision.
+	// Log new target difficulty and return it.  The new target logging is intentionally converting the bits back to a number instead of using newTarget since conversion to the compact representation loses precision.
 	newTargetBits := blockchain.BigToCompact(newTarget)
 	log <- cl.Debugf{`
 difficulty retarget at block height %d

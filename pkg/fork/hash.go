@@ -19,9 +19,9 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
-// Argon2i takes bytes, generates a stribog hash as salt, generates an argon2i key, and hashes it with keccak
+// Argon2i takes bytes, generates a Lyra2REv2 hash as salt, generates an argon2i key
 func Argon2i(bytes []byte) []byte {
-	return argon2.IDKey(bytes, bytes, 1, 32*1024, 1, 32)
+	return argon2.IDKey(Lyra2REv2(bytes), bytes, 1, 32*1024, 1, 32)
 }
 
 // Blake14lr takes bytes and returns a blake14lr 256 bit hash

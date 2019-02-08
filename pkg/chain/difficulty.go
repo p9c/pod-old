@@ -157,15 +157,11 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 	nH := lastNode.height + 1
 	switch fork.GetCurrent(nH) {
 	case 0:
-		// log <- cl.Debug{"hf", 0, algoname}
 		algo := fork.GetAlgoVer(algoname, nH)
-		// log <- cl.Debug{"algover", algo}
 		algoName := fork.GetAlgoName(algo, nH)
-		// log <- cl.Debug{"algoName", algoName}
 		newTargetBits = fork.GetMinBits(algoName, nH)
 		log <- cl.Debugf{"newTargetBits %064x", CompactToBig(newTargetBits)}
 		if lastNode == nil {
-			// log <- cl.Debug{"no previous node"}
 			return newTargetBits, nil
 		}
 		prevNode := lastNode
@@ -177,7 +173,6 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 			firstNode = firstNode.RelativeAncestor(1).GetPrevWithAlgo(algo)
 		}
 		if firstNode == nil {
-			// log <- cl.Debugf{"found no previous %08x", newTargetBits}
 			return newTargetBits, nil
 		}
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
