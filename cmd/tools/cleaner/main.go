@@ -58,10 +58,17 @@ func liner(bb []byte) []byte {
 			}
 		step1:
 		} else {
-			rest := bb[x[1]:]
-			re := regexp.MustCompile("[_a-zA-Z][._a-zA-Z0-9]*")
+			rest := bb[x[1]+1:]
+			re := regexp.MustCompile("[_a-zA-Z][._a-zA-Z0-9]*[(]")
 			ff := re.FindIndex(rest)
-			fmt.Println(string(rest[ff[1] : ff[1]+10]))
+			// fmt.Println("1", string(rest[ff[0]:ff[1]]))
+			fmt.Println("2", string(rest[ff[1]:ff[1]+10]))
+			if rest[ff[1]] == ')' {
+				fmt.Println("no parameters")
+			}
+			if rest[ff[1]] == '\n' {
+				fmt.Println("split param open")
+			}
 		}
 	}
 
@@ -234,7 +241,7 @@ imported:
 	file.Decls = decls
 	var buf bytes.Buffer
 	decorator.Fprint(&buf, file)
-	output := string(buf.Bytes())
+	output := buf.String()
 	var splitout []string
 	splitted := strings.Split(output, "\n")
 	packagefound := false
