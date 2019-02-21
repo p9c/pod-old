@@ -18,12 +18,6 @@ type SetupCfg struct {
 	Config  *walletmain.Config
 }
 
-// SetupConfig is
-var SetupConfig = SetupCfg{
-	DataDir: walletmain.DefaultAppDataDir,
-	Network: "mainnet",
-}
-
 // SetupCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var SetupCommand = climax.Command{
 	Name:  "setup",
@@ -101,8 +95,17 @@ Available options:
 		WriteDefaultNodeConfig(SetupConfig.DataDir)
 		WriteDefaultWalletConfig(SetupConfig.DataDir)
 		WriteDefaultShellConfig(SetupConfig.DataDir)
-		walletmain.CreateWallet(SetupConfig.Config, activeNet)
+		e := walletmain.CreateWallet(SetupConfig.Config, activeNet)
+		if e != nil {
+			panic(e)
+		}
 		fmt.Print("\nYou can now open the wallet\n")
 		return 0
 	},
+}
+
+// SetupConfig is
+var SetupConfig = SetupCfg{
+	DataDir: walletmain.DefaultAppDataDir,
+	Network: "mainnet",
 }

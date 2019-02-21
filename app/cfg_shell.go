@@ -28,14 +28,14 @@ func configShell(
 	ctx *climax.Context,
 	cfgFile string,
 ) int {
+	var ok bool
+	var r string
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
 	ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 	ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
-	var ok bool
-	var r string
 	if ShellConfig.Node.TestNet3 {
 		r = "testnet"
 		ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
@@ -46,7 +46,6 @@ func configShell(
 		ShellConfig.SetNodeActiveNet(&node.SimNetParams)
 		ShellConfig.SetWalletActiveNet(&netparams.SimNetParams)
 	}
-	fmt.Println("nodeActiveNet.Name", r)
 	if r, ok = getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
@@ -338,8 +337,6 @@ func configShell(
 	if r, ok := getIfIs(ctx, "cpuprofile"); ok {
 		ShellConfig.Node.CPUProfile = r
 	}
-
-	fmt.Println("got to here")
 
 	// finished configuration
 

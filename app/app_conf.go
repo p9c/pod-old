@@ -17,10 +17,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-var confFile = DefaultDataDir + "/conf"
-
-const lH = "127.0.0.1:"
-
 // ConfCfg is the settings that can be set to synchronise across all pod modules
 type ConfCfg struct {
 	DataDir          string
@@ -42,12 +38,6 @@ type ConfCfg struct {
 	Network          string
 }
 
-// ConfConfig is the configuration for this tool
-var ConfConfig ConfCfg
-
-// Confs is the central repository of all the other app configurations
-var Confs ConfConfigs
-
 // ConfConfigs are the configurations for each app that are applied
 type ConfConfigs struct {
 	Ctl    ctl.Config
@@ -55,6 +45,8 @@ type ConfConfigs struct {
 	Wallet walletmain.Config
 	Shell  shell.Config
 }
+
+const lH = "127.0.0.1:"
 
 // ConfCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var ConfCommand = climax.Command{
@@ -278,13 +270,75 @@ var ConfCommand = climax.Command{
 	// Handle:
 }
 
+// ConfConfig is the configuration for this tool
+var ConfConfig ConfCfg
+
+// Confs is the central repository of all the other app configurations
+var Confs ConfConfigs
+
+var confFile = DefaultDataDir + "/conf"
+
 var confs []string
 
-func init() {
+// DefaultConfConfig returns a crispy fresh default conf configuration
+func DefaultConfConfig(datadir string) *ConfCfg {
+	u := GenKey()
+	p := GenKey()
+	return &ConfCfg{
+		DataDir:          datadir,
+		ConfigFile:       filepath.Join(datadir, "conf.json"),
+		NodeListeners:    []string{node.DefaultListener},
+		NodeRPCListeners: []string{node.DefaultRPCListener},
+		WalletListeners:  []string{walletmain.DefaultListener},
+		NodeUser:         u,
+		NodePass:         p,
+		WalletPass:       "",
+		RPCCert:          filepath.Join(datadir, "rpc.cert"),
+		RPCKey:           filepath.Join(datadir, "rpc.key"),
+		CAFile: filepath.Join(
+			datadir, walletmain.DefaultCAFilename),
+		TLS:        false,
+		SkipVerify: false,
+		Proxy:      "",
+		ProxyUser:  "",
+		ProxyPass:  "",
+		Network:    "mainnet",
+	}
 }
 
-// cf is the list of flags and the default values stored in the Usage field
-var cf = GetFlags(ConfCommand)
+// WriteConfConfig creates and writes the config file in the requested location
+func WriteConfConfig(cfg *ConfCfg) {
+	j, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		panic(err.Error())
+	}
+	j = append(j, '\n')
+	EnsureDir(cfg.ConfigFile)
+	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+// WriteDefaultConfConfig creates and writes a default config file in the requested location
+func WriteDefaultConfConfig(datadir string) {
+	defCfg := DefaultConfConfig(datadir)
+	j, err := json.MarshalIndent(defCfg, "", "  ")
+	if err != nil {
+		panic(err.Error())
+	}
+	j = append(j, '\n')
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
+	if err != nil {
+		panic(err.Error())
+	}
+	// if we are writing default config we also want to use it
+	ConfConfig = *defCfg
+}
+
+// // cf is the list of flags and the default values stored in the Usage field
+// var cf = GetFlags(ConfCommand)
 
 func configConf(ctx *climax.Context, datadir, portbase string) {
 	cs := GetDefaultConfs(datadir)
@@ -484,59 +538,5 @@ func configConf(ctx *climax.Context, datadir, portbase string) {
 	}
 }
 
-// WriteConfConfig creates and writes the config file in the requested location
-func WriteConfConfig(cfg *ConfCfg) {
-	j, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		panic(err.Error())
-	}
-	j = append(j, '\n')
-	EnsureDir(cfg.ConfigFile)
-	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
-// WriteDefaultConfConfig creates and writes a default config file in the requested location
-func WriteDefaultConfConfig(datadir string) {
-	defCfg := DefaultConfConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		panic(err.Error())
-	}
-	j = append(j, '\n')
-	EnsureDir(defCfg.ConfigFile)
-	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
-	if err != nil {
-		panic(err.Error())
-	}
-	// if we are writing default config we also want to use it
-	ConfConfig = *defCfg
-}
-
-// DefaultConfConfig returns a crispy fresh default conf configuration
-func DefaultConfConfig(datadir string) *ConfCfg {
-	u := GenKey()
-	p := GenKey()
-	return &ConfCfg{
-		DataDir:          datadir,
-		ConfigFile:       filepath.Join(datadir, "conf.json"),
-		NodeListeners:    []string{node.DefaultListener},
-		NodeRPCListeners: []string{node.DefaultRPCListener},
-		WalletListeners:  []string{walletmain.DefaultListener},
-		NodeUser:         u,
-		NodePass:         p,
-		WalletPass:       "",
-		RPCCert:          filepath.Join(datadir, "rpc.cert"),
-		RPCKey:           filepath.Join(datadir, "rpc.key"),
-		CAFile: filepath.Join(
-			datadir, walletmain.DefaultCAFilename),
-		TLS:        false,
-		SkipVerify: false,
-		Proxy:      "",
-		ProxyUser:  "",
-		ProxyPass:  "",
-		Network:    "mainnet",
-	}
+func init() {
 }

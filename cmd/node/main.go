@@ -1,7 +1,6 @@
 package node
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -45,7 +44,6 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	default:
 		ActiveNetParams = &MainNetParams
 	}
-	fmt.Println("here", StateCfg.Dial)
 
 	shutdownChan := make(chan struct{})
 	interrupt.AddHandler(

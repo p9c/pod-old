@@ -20,13 +20,35 @@ import (
 	"github.com/conformal/fastsha256"
 )
 
-var (
-	// getworkDataLen is the length of the data field of the getwork RPC. It consists of the serialized block header plus the internal sha256 padding.  The internal sha256 padding consists of a single 1 bit followed by enough zeros to pad the message out to 56 bytes followed by length of the message in bits encoded as a big-endian uint64 (8 bytes).  Thus, the resulting length is a multiple of the sha256 block size (64 bytes).
-	getworkDataLen = (1 + ((wire.MaxBlockHeaderPayload + 8) /
-		fastsha256.BlockSize)) * fastsha256.BlockSize
-	// hash1Len is the length of the hash1 field of the getwork RPC.  It consists of a zero hash plus the internal sha256 padding.  See the getworkDataLen comment for details about the internal sha256 padding format.
-	hash1Len = (1 + ((chainhash.HashSize + 8) / fastsha256.BlockSize)) * fastsha256.BlockSize
-)
+// getworkDataLen is the length of the data field of the getwork RPC. It consists of the serialized block header plus the internal sha256 padding.  The internal sha256 padding consists of a single 1 bit followed by enough zeros to pad the message out to 56 bytes followed by length of the message in bits encoded as a big-endian uint64 (8 bytes).  Thus, the resulting length is a multiple of the sha256 block size (64 bytes).
+var getworkDataLen = (1 + ((wire.MaxBlockHeaderPayload + 8) /
+	fastsha256.BlockSize)) * fastsha256.BlockSize
+
+// hash1Len is the length of the hash1 field of the getwork RPC.  It consists of a zero hash plus the internal sha256 padding.  See the getworkDataLen comment for details about the internal sha256 padding format.
+var hash1Len = (1 + ((chainhash.HashSize + 8) / fastsha256.BlockSize)) * fastsha256.BlockSize
+
+// bigToLEUint256 returns the passed big integer as an unsigned 256-bit integer encoded as little-endian bytes.  Numbers which are larger than the max unsigned 256-bit integer are truncated.
+func bigToLEUint256(
+	n *big.Int,
+) [uint256Size]byte {
+	// Pad or truncate the big-endian big int to correct number of bytes.
+	nBytes := n.Bytes()
+	nlen := len(nBytes)
+	pad := 0
+	start := 0
+	if nlen <= uint256Size {
+		pad = uint256Size - nlen
+	} else {
+		start = nlen - uint256Size
+	}
+	var buf [uint256Size]byte
+	copy(buf[pad:], nBytes[start:])
+	// Reverse the bytes to little endian and return them.
+	for i := 0; i < uint256Size/2; i++ {
+		buf[i], buf[uint256Size-1-i] = buf[uint256Size-1-i], buf[i]
+	}
+	return buf
+}
 
 func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 	c := cmd.(*json.GetWorkCmd)
@@ -156,7 +178,7 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 	binary.BigEndian.PutUint64(hash1[len(hash1)-8:], chainhash.HashSize*8)
 	// The final result reverses the each of the fields to little endian. In particular, the data, hash1, and midstate fields are treated as arrays of uint32s (per the internal sha256 hashing state) which are in big endian, and thus each 4 bytes is byte swapped.  The target is also in big endian, but it is treated as a uint256 and byte swapped to little endian accordingly. The fact the fields are reversed in this way is rather odd and likely an artifact of some legacy internal state in the reference implementation, but it is required for compatibility.
 	reverseUint32Array(data)
-	reverseUint32Array(hash1[:])
+	reverseUint32Array(hash1)
 	reverseUint32Array(midstate[:])
 	target := bigToLEUint256(blockchain.CompactToBig(msgBlock.Header.Bits))
 	reply := &json.GetWorkResult{
@@ -271,25 +293,4 @@ func reverseUint32Array(b []byte) {
 		b[i], b[i+3] = b[i+3], b[i]
 		b[i+1], b[i+2] = b[i+2], b[i+1]
 	}
-}
-
-// bigToLEUint256 returns the passed big integer as an unsigned 256-bit integer encoded as little-endian bytes.  Numbers which are larger than the max unsigned 256-bit integer are truncated.
-func bigToLEUint256(n *big.Int) [uint256Size]byte {
-	// Pad or truncate the big-endian big int to correct number of bytes.
-	nBytes := n.Bytes()
-	nlen := len(nBytes)
-	pad := 0
-	start := 0
-	if nlen <= uint256Size {
-		pad = uint256Size - nlen
-	} else {
-		start = nlen - uint256Size
-	}
-	var buf [uint256Size]byte
-	copy(buf[pad:], nBytes[start:])
-	// Reverse the bytes to little endian and return them.
-	for i := 0; i < uint256Size/2; i++ {
-		buf[i], buf[uint256Size-1-i] = buf[uint256Size-1-i], buf[i]
-	}
-	return buf
 }

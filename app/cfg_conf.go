@@ -8,15 +8,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func getConfs(datadir string) {
-	confs = []string{
-		datadir + "/ctl/conf.json",
-		datadir + "/node/conf.json",
-		datadir + "/wallet/conf.json",
-		datadir + "/shell/conf.json",
-	}
-}
-
 // ConfigSet is a full set of configuration structs
 type ConfigSet struct {
 	Conf   *ConfCfg
@@ -26,13 +17,28 @@ type ConfigSet struct {
 	Shell  *shell.Config
 }
 
-// WriteConfigSet writes a set of configurations to disk
-func WriteConfigSet(in *ConfigSet) {
-	WriteConfConfig(in.Conf)
-	WriteCtlConfig(in.Ctl)
-	WriteNodeConfig(in.Node)
-	WriteWalletConfig(in.Wallet)
-	WriteShellConfig(in.Shell)
+// PortSet is a single set of ports for a configuration
+type PortSet struct {
+	P2P       string
+	NodeRPC   string
+	WalletRPC string
+}
+
+// GenPortSet creates a set of ports for testnet configuration
+func GenPortSet(portbase int) (ps *PortSet) {
+	// From the base, each element is as follows:
+	// - P2P = portbase
+	// - NodeRPC = portbase + 1
+	// - WalletRPC =  portbase -1
+	// For each set, the base is incremented by 100
+	// so from 21047, you get 21047, 21048, 21046
+	// and next would be 21147, 21148, 21146
+	t := portbase
+	ps = &PortSet{
+		P2P:       fmt.Sprint(t),
+		NodeRPC:   fmt.Sprint(t + 1),
+		WalletRPC: fmt.Sprint(t - 1),
+	}
 	return
 }
 
@@ -135,27 +141,20 @@ func SyncToConfs(in *ConfigSet) {
 	in.Shell.Wallet.WalletPass = in.Conf.WalletPass
 }
 
-// PortSet is a single set of ports for a configuration
-type PortSet struct {
-	P2P       string
-	NodeRPC   string
-	WalletRPC string
+// WriteConfigSet writes a set of configurations to disk
+func WriteConfigSet(in *ConfigSet) {
+	WriteConfConfig(in.Conf)
+	WriteCtlConfig(in.Ctl)
+	WriteNodeConfig(in.Node)
+	WriteWalletConfig(in.Wallet)
+	WriteShellConfig(in.Shell)
 }
 
-// GenPortSet creates a set of ports for testnet configuration
-func GenPortSet(portbase int) (ps *PortSet) {
-	// From the base, each element is as follows:
-	// - P2P = portbase
-	// - NodeRPC = portbase + 1
-	// - WalletRPC =  portbase -1
-	// For each set, the base is incremented by 100
-	// so from 21047, you get 21047, 21048, 21046
-	// and next would be 21147, 21148, 21146
-	t := portbase
-	ps = &PortSet{
-		P2P:       fmt.Sprint(t),
-		NodeRPC:   fmt.Sprint(t + 1),
-		WalletRPC: fmt.Sprint(t - 1),
+func getConfs(datadir string) {
+	confs = []string{
+		datadir + "/ctl/conf.json",
+		datadir + "/node/conf.json",
+		datadir + "/wallet/conf.json",
+		datadir + "/shell/conf.json",
 	}
-	return
 }
