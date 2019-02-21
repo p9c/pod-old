@@ -34,12 +34,9 @@ func liner(bb []byte) []byte {
 	fi := re.FindAllIndex(bb, -1)
 	for _, x := range fi {
 	again:
-		fmt.Println(string(bb[x[1] : x[1]+3]))
 		if bb[x[1]] == '(' {
-			fmt.Println("^ receiver")
 			if bb[x[1]+1] == '\n' &&
 				bb[x[1]+2] == '\t' {
-				fmt.Println("already split")
 				rer := regexp.MustCompile(
 					"([_a-zA-Z0-9]*[ ]?[*_a-zA-Z0-9]+)")
 				rest := bb[x[1]+3:]
@@ -47,21 +44,24 @@ func liner(bb []byte) []byte {
 				if rest[fr[1]] == ',' {
 					if rest[fr[1]+1] == '\n' &&
 						rest[fr[1]+2] == ')' {
-						fmt.Println("split receiver close")
+						goto step1
 					}
 				}
 				if rest[fr[1]] == ')' {
 					bb = append(bb[:x[1]+3+fr[1]], append([]byte{',', '\n'}, bb[x[1]+3+fr[1]:]...)...)
+					goto step1
 				}
 			} else {
-				fmt.Println("not split")
 				bb = append(bb[:x[1]+1],
 					append([]byte{'\n', '\t'}, bb[x[1]+1:]...)...)
 				goto again
 			}
+		step1:
 		} else {
-			fmt.Println("^ function name")
-			// re := regexp.MustCompile("[_a-zA-Z][._a-zA-Z0-9]*")
+			rest := bb[x[1]:]
+			re := regexp.MustCompile("[_a-zA-Z][._a-zA-Z0-9]*")
+			ff := re.FindIndex(rest)
+			fmt.Println(string(rest[ff[1] : ff[1]+10]))
 		}
 	}
 
