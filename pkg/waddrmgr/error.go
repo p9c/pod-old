@@ -7,32 +7,27 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 )
 
-var (
-	// errAlreadyExists is the common error description used for the
-	// ErrAlreadyExists error code.
-	errAlreadyExists = "the specified address manager already exists"
-
-	// errCoinTypeTooHigh is the common error description used for the
-	// ErrCoinTypeTooHigh error code.
-	errCoinTypeTooHigh = "coin type may not exceed " +
-		strconv.FormatUint(hdkeychain.HardenedKeyStart-1, 10)
-
-	// errAcctTooHigh is the common error description used for the
-	// ErrAccountNumTooHigh error code.
-	errAcctTooHigh = "account number may not exceed " +
-		strconv.FormatUint(hdkeychain.HardenedKeyStart-1, 10)
-
-	// errLocked is the common error description used for the ErrLocked
-	// error code.
-	errLocked = "address manager is locked"
-
-	// errWatchingOnly is the common error description used for the
-	// ErrWatchingOnly error code.
-	errWatchingOnly = "address manager is watching-only"
-)
-
 // ErrorCode identifies a kind of error.
 type ErrorCode int
+
+// ManagerError provides a single type for errors that can happen during address
+// manager operation.  It is used to indicate several types of failures
+// including errors with caller requests such as invalid accounts or requesting
+// private keys against a locked address manager, errors with the database
+// (ErrDatabase), errors with key chain derivation (ErrKeyChain), and errors
+// related to crypto (ErrCrypto).
+//
+// The caller can use type assertions to determine if an error is a ManagerError
+// and access the ErrorCode field to ascertain the specific reason for the
+// failure.
+//
+// The ErrDatabase, ErrKeyChain, and ErrCrypto error codes will also have the
+// Err field set with the underlying error.
+type ManagerError struct {
+	ErrorCode   ErrorCode // Describes the kind of error
+	Description string    // Human readable description of the issue
+	Err         error     // Underlying error
+}
 
 // These constants are used to identify a specific ManagerError.
 const (
@@ -129,6 +124,46 @@ const (
 	ErrScopeNotFound
 )
 
+// Break is a global err used to signal a break from the callback
+// function by returning an error with the code ErrCallBackBreak
+var Break = managerError(ErrCallBackBreak, "callback break", nil)
+
+var (
+
+	// errAcctTooHigh is the common error description used for the
+	// ErrAccountNumTooHigh error code.
+	errAcctTooHigh = "account number may not exceed " +
+		strconv.FormatUint(hdkeychain.HardenedKeyStart-1, 10)
+)
+
+var (
+	// errAlreadyExists is the common error description used for the
+	// ErrAlreadyExists error code.
+	errAlreadyExists = "the specified address manager already exists"
+)
+
+var (
+
+	// errCoinTypeTooHigh is the common error description used for the
+	// ErrCoinTypeTooHigh error code.
+	errCoinTypeTooHigh = "coin type may not exceed " +
+		strconv.FormatUint(hdkeychain.HardenedKeyStart-1, 10)
+)
+
+var (
+
+	// errLocked is the common error description used for the ErrLocked
+	// error code.
+	errLocked = "address manager is locked"
+)
+
+var (
+
+	// errWatchingOnly is the common error description used for the
+	// ErrWatchingOnly error code.
+	errWatchingOnly = "address manager is watching-only"
+)
+
 // Map of ErrorCode values back to their constant names for pretty printing.
 var errorCodeStrings = map[ErrorCode]string{
 	ErrDatabase:          "ErrDatabase",
@@ -163,25 +198,6 @@ func (e ErrorCode) String() string {
 	return fmt.Sprintf("Unknown ErrorCode (%d)", int(e))
 }
 
-// ManagerError provides a single type for errors that can happen during address
-// manager operation.  It is used to indicate several types of failures
-// including errors with caller requests such as invalid accounts or requesting
-// private keys against a locked address manager, errors with the database
-// (ErrDatabase), errors with key chain derivation (ErrKeyChain), and errors
-// related to crypto (ErrCrypto).
-//
-// The caller can use type assertions to determine if an error is a ManagerError
-// and access the ErrorCode field to ascertain the specific reason for the
-// failure.
-//
-// The ErrDatabase, ErrKeyChain, and ErrCrypto error codes will also have the
-// Err field set with the underlying error.
-type ManagerError struct {
-	ErrorCode   ErrorCode // Describes the kind of error
-	Description string    // Human readable description of the issue
-	Err         error     // Underlying error
-}
-
 // Error satisfies the error interface and prints human-readable errors.
 func (e ManagerError) Error() string {
 	if e.Err != nil {
@@ -190,18 +206,14 @@ func (e ManagerError) Error() string {
 	return e.Description
 }
 
-// managerError creates a ManagerError given a set of arguments.
-func managerError(c ErrorCode, desc string, err error) ManagerError {
-	return ManagerError{ErrorCode: c, Description: desc, Err: err}
-}
-
-// Break is a global err used to signal a break from the callback
-// function by returning an error with the code ErrCallBackBreak
-var Break = managerError(ErrCallBackBreak, "callback break", nil)
-
 // IsError returns whether the error is a ManagerError with a matching error
 // code.
 func IsError(err error, code ErrorCode) bool {
 	e, ok := err.(ManagerError)
 	return ok && e.ErrorCode == code
+}
+
+// managerError creates a ManagerError given a set of arguments.
+func managerError(c ErrorCode, desc string, err error) ManagerError {
+	return ManagerError{ErrorCode: c, Description: desc, Err: err}
 }

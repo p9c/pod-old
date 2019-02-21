@@ -620,6 +620,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		}
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
+
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (ShellConfig.Node.Generate || ShellConfig.Node.MinerListener != "") && len(ShellConfig.Node.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
@@ -627,6 +628,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 		os.Exit(1)
+
 	}
 	if ShellConfig.Node.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(ShellConfig.Node.MinerPass))
