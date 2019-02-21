@@ -24,7 +24,10 @@ import (
 	"github.com/tucnak/climax"
 )
 
-func configShell(ctx *climax.Context, cfgFile string) int {
+func configShell(
+	ctx *climax.Context,
+	cfgFile string,
+) int {
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
@@ -336,6 +339,8 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 		ShellConfig.Node.CPUProfile = r
 	}
 
+	fmt.Println("got to here")
+
 	// finished configuration
 
 	SetLogging(ctx)
@@ -603,7 +608,8 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(ShellConfig.Node.MiningAddrs))
 	for _, strAddr := range ShellConfig.Node.MiningAddrs {
-		addr, err := util.DecodeAddress(strAddr, n.ActiveNetParams.Params)
+		addr, err := util.DecodeAddress(
+			strAddr, ShellConfig.GetNodeActiveNet().Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
@@ -611,7 +617,7 @@ func configShell(ctx *climax.Context, cfgFile string) int {
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
-		if !addr.IsForNet(n.ActiveNetParams.Params) {
+		if !addr.IsForNet(ShellConfig.GetNodeActiveNet().Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())

@@ -1,6 +1,7 @@
 package node
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -22,8 +23,11 @@ const (
 )
 
 var (
-	cfg      *Config
 	StateCfg = new(StateConfig)
+)
+
+var (
+	cfg *Config
 )
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
@@ -41,6 +45,8 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	default:
 		ActiveNetParams = &MainNetParams
 	}
+	fmt.Println("here", StateCfg.Dial)
+
 	shutdownChan := make(chan struct{})
 	interrupt.AddHandler(
 		func() {
@@ -144,31 +150,6 @@ func Main(c *Config, activeNet *Params, serverChan chan<- *server) (err error) {
 	return nil
 }
 
-// removeRegressionDB removes the existing regression test database if running in regression test mode and it already exists.
-func removeRegressionDB(dbPath string) error {
-	// Don't do anything if not in regression test mode.
-	if !cfg.RegressionTest {
-		return nil
-	}
-	// Remove the old regression test database if it already exists.
-	fi, err := os.Stat(dbPath)
-	if err == nil {
-		log <- cl.Infof{"removing regression test database from '%s'", dbPath}
-		if fi.IsDir() {
-			err := os.RemoveAll(dbPath)
-			if err != nil {
-				return err
-			}
-		} else {
-			err := os.Remove(dbPath)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 // dbPath returns the path to the block database given a database type.
 func blockDbPath(dbType string) string {
 	// The database name is based on the database type.
@@ -178,35 +159,6 @@ func blockDbPath(dbType string) string {
 	}
 	dbPath := filepath.Join(cfg.DataDir, dbName)
 	return dbPath
-}
-
-// warnMultipleDBs shows a warning if multiple block database types are detected. This is not a situation most users want.  It is handy for development however to support multiple side-by-side databases.
-func warnMultipleDBs() {
-	// This is intentionally not using the known db types which depend on the database types compiled into the binary since we want to detect legacy db types as well.
-	dbTypes := []string{"ffldb", "leveldb", "sqlite"}
-	duplicateDbPaths := make([]string, 0, len(dbTypes)-1)
-	for _, dbType := range dbTypes {
-		if dbType == cfg.DbType {
-			continue
-		}
-		// Store db path as a duplicate db if it exists.
-		dbPath := blockDbPath(dbType)
-		if FileExists(dbPath) {
-			duplicateDbPaths = append(duplicateDbPaths, dbPath)
-		}
-	}
-	// Warn if there are extra databases.
-	if len(duplicateDbPaths) > 0 {
-		selectedDbPath := blockDbPath(cfg.DbType)
-		log <- cl.Warnf{
-			"\nThere are multiple block chain databases using different database types.\n" +
-				"You probably don't want to waste disk space by having more than one.\n" +
-				"Your current database is located at [%v].\n" +
-				"The additional database is located at %v",
-			selectedDbPath,
-			duplicateDbPaths,
-		}
-	}
 }
 
 // loadBlockDB loads (or creates when needed) the block database taking into account the selected database backend and returns a handle to it.  It also additional logic such warning the user if there are multiple databases which consume space on the file system and ensuring the regression test database is clean when in regression test mode.
@@ -273,3 +225,57 @@ func loadBlockDB() (database.DB, error) {
 // 		os.Exit(1)
 // 	}
 // }
+
+// removeRegressionDB removes the existing regression test database if running in regression test mode and it already exists.
+func removeRegressionDB(dbPath string) error {
+	// Don't do anything if not in regression test mode.
+	if !cfg.RegressionTest {
+		return nil
+	}
+	// Remove the old regression test database if it already exists.
+	fi, err := os.Stat(dbPath)
+	if err == nil {
+		log <- cl.Infof{"removing regression test database from '%s'", dbPath}
+		if fi.IsDir() {
+			err := os.RemoveAll(dbPath)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := os.Remove(dbPath)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// warnMultipleDBs shows a warning if multiple block database types are detected. This is not a situation most users want.  It is handy for development however to support multiple side-by-side databases.
+func warnMultipleDBs() {
+	// This is intentionally not using the known db types which depend on the database types compiled into the binary since we want to detect legacy db types as well.
+	dbTypes := []string{"ffldb", "leveldb", "sqlite"}
+	duplicateDbPaths := make([]string, 0, len(dbTypes)-1)
+	for _, dbType := range dbTypes {
+		if dbType == cfg.DbType {
+			continue
+		}
+		// Store db path as a duplicate db if it exists.
+		dbPath := blockDbPath(dbType)
+		if FileExists(dbPath) {
+			duplicateDbPaths = append(duplicateDbPaths, dbPath)
+		}
+	}
+	// Warn if there are extra databases.
+	if len(duplicateDbPaths) > 0 {
+		selectedDbPath := blockDbPath(cfg.DbType)
+		log <- cl.Warnf{
+			"\nThere are multiple block chain databases using different database types.\n" +
+				"You probably don't want to waste disk space by having more than one.\n" +
+				"Your current database is located at [%v].\n" +
+				"The additional database is located at %v",
+			selectedDbPath,
+			duplicateDbPaths,
+		}
+	}
+}
