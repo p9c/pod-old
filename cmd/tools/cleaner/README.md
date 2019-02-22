@@ -23,6 +23,6 @@ Long source files and huge APIs are a maintenance nightmare. Hopefully this will
 
 ## Known issues
 
-- Methods without a receiver name will disappear when you run cleaner over them. Give them names, even if you aren't using the receiver. Many of these 'omit if implicit' rules in Go complicate parsing. I am not sure why exactly this one type of function slips through but the issue may be resolved at some point.
+- Methods without a receiver name will disappear when you run cleaner over them. Give them names, even if you aren't using the receiver. Many of these 'omit if implicit' rules in Go complicate parsing. I am not sure why exactly this one type of function slips through but the issue may be resolved at some point. In VSCode the regex `func [(]\*` will find at least the pointers and `func (_ *` will change it so it doesn't break (work in progress, maybe I fix later but for now supervise it).
 
 - Parenthesised var and type declarations are split (so they sort properly) but due to quirks in the `dst` library (a fork of go/ast that keeps whitespace and comments together with the code they refer to) it is not simple to break the group and properly format it. Manual removal of the braces will be required.

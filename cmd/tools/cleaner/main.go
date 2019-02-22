@@ -21,57 +21,44 @@ type alias int
 var fset = token.NewFileSet()
 
 func (
-	a *alias,
-) String() string {
+	_ *alias,
+) String(
+	p1, p2 int,
+	bb string,
+) string {
 	return ""
-	// fmt.Sprintln(*a)
+
 }
 
 func liner(bb []byte) []byte {
 
-	// first find the beginnings of each function in the source
-	re := regexp.MustCompile("\nfunc ")
-	fi := re.FindAllIndex(bb, -1)
-	for _, x := range fi {
-	again:
-		if bb[x[1]] == '(' {
-			if bb[x[1]+1] == '\n' &&
-				bb[x[1]+2] == '\t' {
-				rer := regexp.MustCompile(
-					"([_a-zA-Z0-9]*[ ]?[*_a-zA-Z0-9]+)")
-				rest := bb[x[1]+3:]
-				fr := rer.FindIndex(rest)
-				if rest[fr[1]] == ',' {
-					if rest[fr[1]+1] == '\n' &&
-						rest[fr[1]+2] == ')' {
-						goto step1
-					}
-				}
-				if rest[fr[1]] == ')' {
-					bb = append(bb[:x[1]+3+fr[1]], append([]byte{',', '\n'}, bb[x[1]+3+fr[1]:]...)...)
-					goto step1
-				}
-			} else {
-				bb = append(bb[:x[1]+1],
-					append([]byte{'\n', '\t'}, bb[x[1]+1:]...)...)
-				goto again
-			}
-		step1:
-		} else {
-			rest := bb[x[1]+1:]
-			re := regexp.MustCompile("[_a-zA-Z][._a-zA-Z0-9]*[(]")
-			ff := re.FindIndex(rest)
-			// fmt.Println("1", string(rest[ff[0]:ff[1]]))
-			fmt.Println("2", string(rest[ff[1]:ff[1]+10]))
-			if rest[ff[1]] == ')' {
-				fmt.Println("no parameters")
-			}
-			if rest[ff[1]] == '\n' {
-				fmt.Println("split param open")
-			}
-		}
-	}
+	changed := true
+	for changed {
 
+		changed = false
+
+		rea := regexp.MustCompile("func [(]([*._a-zA-Z0-9]+)[)]")
+		bb = rea.ReplaceAll(bb, []byte("func(_ $1)"))
+
+		reor := regexp.MustCompile(
+			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
+		bb = reor.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+
+		reors := regexp.MustCompile(
+			"func [(]\n\t([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
+		bb = reors.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+
+		reore := regexp.MustCompile(
+			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+),\n[)]")
+		bb = reore.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+
+		rep := regexp.MustCompile(
+			"(\n[)] [_a-zA-Z0-9]+[(])([_a-zA-Z0-9])",
+		)
+		bb = rep.ReplaceAll(bb, []byte("$1\n\t$2"))
+
+	}
+	// testing
 	return bb
 }
 
@@ -82,16 +69,24 @@ func main() {
 
 		panic(e)
 	}
-	ss := string(bb)
-	bb = sorter(ss)
 	bb = liner(bb)
+	if e := ioutil.WriteFile(os.Args[1], bb, 0644); e != nil {
+		panic(e)
+	}
+	bb, e = ioutil.ReadFile(os.Args[1])
+	if e != nil {
+
+		panic(e)
+	}
+	bb = sorter(bb)
 	if e := ioutil.WriteFile(os.Args[1], bb, 0644); e != nil {
 		panic(e)
 	}
 }
 
-func sorter(ss string) []byte {
+func sorter(bb []byte) []byte {
 
+	ss := string(bb)
 	splittedraw := strings.Split(ss, "\n")
 	imports := []string{}
 	for i, x := range splittedraw {
@@ -241,7 +236,7 @@ imported:
 	file.Decls = decls
 	var buf bytes.Buffer
 	decorator.Fprint(&buf, file)
-	output := buf.String()
+	output := string(buf.Bytes())
 	var splitout []string
 	splitted := strings.Split(output, "\n")
 	packagefound := false
