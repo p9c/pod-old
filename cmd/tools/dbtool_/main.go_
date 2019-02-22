@@ -24,6 +24,7 @@ var (
 // loadBlockDB opens the block database and returns a handle to it.
 func loadBlockDB(
 	) (database.DB, error) {
+
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + cfg.DbType
 	dbPath := filepath.Join(cfg.DataDir, dbName)
@@ -94,6 +95,7 @@ func realMain(
 }
 func main(
 	) {
+
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// Work around defer not working after os.Exit()

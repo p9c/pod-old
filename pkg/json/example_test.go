@@ -8,8 +8,8 @@ import (
 )
 
 // This example demonstrates how to create and marshal a command into a JSON-RPC request.
-func ExampleMarshalCmd(
-	) {
+func ExampleMarshalCmd() {
+
 	// Create a new getblock command.  Notice the nil parameter indicates to use the default parameter for that fields.  This is a common pattern used in all of the New<Foo>Cmd functions in this package for optional fields.  Also, notice the call to json.Bool which is a convenience function for creating a pointer out of a primitive for optional parameters.
 	blockHash := "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
 	gbCmd := json.NewGetBlockCmd(blockHash, json.Bool(false), nil)
@@ -26,8 +26,8 @@ func ExampleMarshalCmd(
 }
 
 // This example demonstrates how to unmarshal a JSON-RPC request and then unmarshal the concrete request into a concrete command.
-func ExampleUnmarshalCmd(
-	) {
+func ExampleUnmarshalCmd() {
+
 	// Ordinarily this would be read from the wire, but for this example, it is hard coded here for clarity.
 	data := []byte(`{"jsonrpc":"1.0","method":"getblock","params":["000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",false],"id":1}`)
 	// Unmarshal the raw bytes from the wire into a JSON-RPC request.
@@ -68,8 +68,8 @@ func ExampleUnmarshalCmd(
 }
 
 // This example demonstrates how to marshal a JSON-RPC response.
-func ExampleMarshalResponse(
-	) {
+func ExampleMarshalResponse() {
+
 	// Marshal a new JSON-RPC response.  For example, this is a response to a getblockheight request.
 	marshalledBytes, err := json.MarshalResponse(1, 350001, nil)
 	if err != nil {
@@ -82,8 +82,8 @@ func ExampleMarshalResponse(
 }
 
 // This example demonstrates how to unmarshal a JSON-RPC response and then unmarshal the result field in the response to a concrete type.
-func Example_unmarshalResponse(
-	) {
+func Example_unmarshalResponse() {
+
 	// Ordinarily this would be read from the wire, but for this example, it is hard coded here for clarity.  This is an example response to a getblockheight request.
 	data := []byte(`{"result":350001,"error":null,"id":1}`)
 	// Unmarshal the raw bytes from the wire into a JSON-RPC response.

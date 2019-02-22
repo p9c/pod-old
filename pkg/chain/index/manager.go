@@ -37,6 +37,7 @@ func dbPutIndexerTip(
 // dbFetchIndexerTip uses an existing database transaction to retrieve the hash and height of the current tip for the provided index.
 func dbFetchIndexerTip(
 	dbTx database.Tx, idxKey []byte) (*chainhash.Hash, int32, error) {
+
 	indexesBucket := dbTx.Metadata().Bucket(indexTipsBucketName)
 	serialized := indexesBucket.Get(idxKey)
 	if len(serialized) < chainhash.HashSize+4 {
@@ -63,6 +64,7 @@ func dbIndexConnectBlock(
 		return err
 	}
 	if !curTipHash.IsEqual(&block.MsgBlock().Header.PrevBlock) {
+
 		return AssertError(fmt.Sprintf("dbIndexConnectBlock must be "+
 			"called with a block that extends the current index "+
 			"tip (%s, tip %s, block %s)", indexer.Name(),
@@ -87,6 +89,7 @@ func dbIndexDisconnectBlock(
 		return err
 	}
 	if !curTipHash.IsEqual(block.Hash()) {
+
 		return AssertError(fmt.Sprintf("dbIndexDisconnectBlock must "+
 			"be called with the block at the current index tip "+
 			"(%s, tip %s, block %s)", indexer.Name(),
@@ -141,6 +144,7 @@ func (m *Manager) maybeFinishDrops(interrupt <-chan struct{}) error {
 		return err
 	}
 	if interruptRequested(interrupt) {
+
 		return errInterruptRequested
 	}
 	// Finish dropping any of the enabled indexes that are already in the middle of being dropped.
@@ -188,6 +192,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 		return nil
 	}
 	if interruptRequested(interrupt) {
+
 		return errInterruptRequested
 	}
 	// Finish and drops that were previously interrupted.
@@ -234,6 +239,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 		// Loop until the tip is a block that exists in the main chain.
 		initialHeight := height
 		for !chain.MainChainHasBlock(hash) {
+
 			// At this point the index tip is orphaned, so load the orphaned block from the database directly and disconnect it from the index.  The block has to be loaded directly since it is no longer in the main chain and thus the chain.BlockByHash function would error.
 			var block *util.Block
 			err := m.db.View(func(dbTx database.Tx) error {
@@ -274,6 +280,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 				return err
 			}
 			if interruptRequested(interrupt) {
+
 				return errInterruptRequested
 			}
 		}
@@ -333,6 +340,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 			return err
 		}
 		if interruptRequested(interrupt) {
+
 			return errInterruptRequested
 		}
 		// Connect the block for all indexes that need it.
@@ -344,6 +352,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 			}
 			// When the index requires all of the referenced txouts and they haven't been loaded yet, they need to be retrieved from the spend journal.
 			if spentTxos == nil && indexNeedsInputs(indexer) {
+
 				spentTxos, err = chain.FetchSpendJournal(block)
 				if err != nil {
 					return err
@@ -362,6 +371,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 		// Log indexing progress.
 		progressLogger.LogBlockHeight(block)
 		if interruptRequested(interrupt) {
+
 			return errInterruptRequested
 		}
 	}
@@ -381,6 +391,7 @@ func indexNeedsInputs(
 // dbFetchTx looks up the passed transaction hash in the transaction index and loads it from the database.
 func dbFetchTx(
 	dbTx database.Tx, hash *chainhash.Hash) (*wire.MsgTx, error) {
+
 	// Look up the location of the transaction.
 	blockRegion, err := dbFetchTxIndexEntry(dbTx, hash)
 	if err != nil {
@@ -477,6 +488,7 @@ func dropIndex(
 		// Get full bucket name and append to subBuckets for later deletion.
 		var bucketName [][]byte
 		if (tlBucket == nil) || (len(tlBucket) == 0) {
+
 			bucketName = append(bucketName, subBucket)
 		} else {
 			bucketName = append(tlBucket, subBucket)
@@ -528,6 +540,7 @@ func dropIndex(
 			}
 		}
 		if interruptRequested(interrupt) {
+
 			return errInterruptRequested
 		}
 		// Drop the bucket itself.

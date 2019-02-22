@@ -120,9 +120,9 @@ func cleanAndExpandPath(
 	path string,
 ) string {
 
-
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
+
 		homeDir := filepath.Dir(PodCtlHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
@@ -139,6 +139,7 @@ func cleanAndExpandPath(
 // 	4) Parse CLI options and overwrite/add any specified options
 // The above results in functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
 func loadConfig() (*Config, []string, error) {
+
 	// Default config.
 	cfg := Config{
 		ConfigFile: DefaultConfigFile,
@@ -174,6 +175,7 @@ func loadConfig() (*Config, []string, error) {
 		os.Exit(0)
 	}
 	if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
+
 		// Use config file for RPC server to create default podctl config
 		var serverConfigPath string
 		if preCfg.Wallet != "" {
@@ -307,7 +309,6 @@ func normalizeAddress(
 	useSimNet,
 	useWallet bool,
 ) string {
-
 
 	_, _, err := net.SplitHostPort(addr)
 	if err != nil {

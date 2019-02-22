@@ -44,6 +44,7 @@ func (l binaryFreeList) Borrow() []byte {
 
 // Return puts the provided byte slice back on the free list.  The buffer MUST have been obtained via the Borrow function and therefore have a cap of 8.
 func (l binaryFreeList) Return(buf []byte) {
+
 	select {
 	case l <- buf:
 		// // fmt.Println("chan:l <- buf")
@@ -54,6 +55,7 @@ func (l binaryFreeList) Return(buf []byte) {
 
 // Uint8 reads a single byte from the provided reader using a buffer from the free list and returns it as a uint8.
 func (l binaryFreeList) Uint8(r io.Reader) (uint8, error) {
+
 	buf := l.Borrow()[:1]
 	if _, err := io.ReadFull(r, buf); err != nil {
 		l.Return(buf)
@@ -67,6 +69,7 @@ func (l binaryFreeList) Uint8(r io.Reader) (uint8, error) {
 // Uint16 reads two bytes from the provided reader using a buffer from the free list, converts it to a number using the provided byte order, and returns
 // the resulting uint16.
 func (l binaryFreeList) Uint16(r io.Reader, byteOrder binary.ByteOrder) (uint16, error) {
+
 	buf := l.Borrow()[:2]
 	if _, err := io.ReadFull(r, buf); err != nil {
 		l.Return(buf)
@@ -80,6 +83,7 @@ func (l binaryFreeList) Uint16(r io.Reader, byteOrder binary.ByteOrder) (uint16,
 // Uint32 reads four bytes from the provided reader using a buffer from the free list, converts it to a number using the provided byte order, and returns
 // the resulting uint32.
 func (l binaryFreeList) Uint32(r io.Reader, byteOrder binary.ByteOrder) (uint32, error) {
+
 	buf := l.Borrow()[:4]
 	if _, err := io.ReadFull(r, buf); err != nil {
 		l.Return(buf)
@@ -93,6 +97,7 @@ func (l binaryFreeList) Uint32(r io.Reader, byteOrder binary.ByteOrder) (uint32,
 // Uint64 reads eight bytes from the provided reader using a buffer from the free list, converts it to a number using the provided byte order, and returns
 // the resulting uint64.
 func (l binaryFreeList) Uint64(r io.Reader, byteOrder binary.ByteOrder) (uint64, error) {
+
 	buf := l.Borrow()[:8]
 	if _, err := io.ReadFull(r, buf); err != nil {
 		l.Return(buf)
@@ -161,6 +166,7 @@ func readElement(
 	// Attempt to read the element based on the concrete type via fast
 	// type assertions first.
 	switch e := element.(type) {
+
 	case *int32:
 		rv, err := binarySerializer.Uint32(r, littleEndian)
 		if err != nil {
@@ -302,6 +308,7 @@ func writeElement(
 	// Attempt to write the element based on the concrete type via fast
 	// type assertions first.
 	switch e := element.(type) {
+
 	case int32:
 		err := binarySerializer.PutUint32(w, littleEndian, uint32(e))
 		if err != nil {
@@ -415,6 +422,7 @@ func writeElements(
 // ReadVarInt reads a variable length integer from r and returns it as a uint64.
 func ReadVarInt(
 	r io.Reader, pver uint32) (uint64, error) {
+
 	discriminant, err := binarySerializer.Uint8(r)
 	if err != nil {
 		return 0, err
@@ -516,6 +524,7 @@ func VarIntSerializeSize(
 // ReadVarString reads a variable length string from r and returns it as a Go string.  A variable length string is encoded as a variable length integer containing the length of the string followed by the bytes that represent the string itself.  An error is returned if the length is greater than the maximum block payload size since it helps protect against memory exhaustion attacks and forced panics through malformed messages.
 func ReadVarString(
 	r io.Reader, pver uint32) (string, error) {
+
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
 		return "", err
@@ -551,6 +560,7 @@ func WriteVarString(
 func ReadVarBytes(
 	r io.Reader, pver uint32, maxAllowed uint32,
 	fieldName string) ([]byte, error) {
+
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
 		return nil, err
@@ -559,6 +569,7 @@ func ReadVarBytes(
 	// be possible to cause memory exhaustion and panics without a sane
 	// upper bound on this count.
 	if count > uint64(maxAllowed) {
+
 		str := fmt.Sprintf("%s is larger than the max allowed size "+
 			"[count %d, max %d]", fieldName, count, maxAllowed)
 		return nil, messageError("ReadVarBytes", str)
@@ -587,6 +598,7 @@ func WriteVarBytes(
 // can be properly tested by passing a fake reader in the tests.
 func randomUint64(
 	r io.Reader) (uint64, error) {
+
 	rv, err := binarySerializer.Uint64(r, bigEndian)
 	if err != nil {
 		return 0, err
@@ -595,7 +607,7 @@ func randomUint64(
 }
 
 // RandomUint64 returns a cryptographically random uint64 value.
-func RandomUint64(
-	) (uint64, error) {
+func RandomUint64() (uint64, error) {
+
 	return randomUint64(rand.Reader)
 }

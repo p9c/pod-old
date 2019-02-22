@@ -12,6 +12,7 @@ import (
 // TestMruInventoryMap ensures the MruInventoryMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
 func TestMruInventoryMap(
 	t *testing.T) {
+
 	// Create a bunch of fake inventory vectors to use in testing the mru inventory code.
 	numInvVects := 10
 	invVects := make([]*wire.InvVect, 0, numInvVects)
@@ -41,6 +42,7 @@ testLoop:
 		// Ensure the limited number of most recent entries in the inventory vector list exist.
 		for j := numInvVects - test.limit; j < numInvVects; j++ {
 			if !mruInvMap.Exists(invVects[j]) {
+
 				t.Errorf("Exists #%d (%s) entry %s does not "+
 					"exist", i, test.name, *invVects[j])
 				continue testLoop
@@ -49,6 +51,7 @@ testLoop:
 		// Ensure the entries before the limited number of most recent entries in the inventory vector list do not exist.
 		for j := 0; j < numInvVects-test.limit; j++ {
 			if mruInvMap.Exists(invVects[j]) {
+
 				t.Errorf("Exists #%d (%s) entry %s exists", i,
 					test.name, *invVects[j])
 				continue testLoop
@@ -64,6 +67,7 @@ testLoop:
 			mruInvMap.Add(iv)
 			// Ensure the original lru entry still exists since it was updated and should've have become the mru entry.
 			if !mruInvMap.Exists(invVects[origLruIndex]) {
+
 				t.Errorf("MRU #%d (%s) entry %s does not exist",
 					i, test.name, *invVects[origLruIndex])
 				continue testLoop
@@ -71,6 +75,7 @@ testLoop:
 			// Ensure the entry that should've become the new lru entry was evicted.
 			newLruIndex := origLruIndex + 1
 			if mruInvMap.Exists(invVects[newLruIndex]) {
+
 				t.Errorf("MRU #%d (%s) entry %s exists", i,
 					test.name, *invVects[newLruIndex])
 				continue testLoop
@@ -80,6 +85,7 @@ testLoop:
 		for j := 0; j < numInvVects; j++ {
 			mruInvMap.Delete(invVects[j])
 			if mruInvMap.Exists(invVects[j]) {
+
 				t.Errorf("Delete #%d (%s) entry %s exists", i,
 					test.name, *invVects[j])
 				continue testLoop
@@ -91,6 +97,7 @@ testLoop:
 // TestMruInventoryMapStringer tests the stringized output for the MruInventoryMap type.
 func TestMruInventoryMapStringer(
 	t *testing.T) {
+
 	// Create a couple of fake inventory vectors to use in testing the mru inventory stringer code.
 	hash1 := &chainhash.Hash{0x01}
 	hash2 := &chainhash.Hash{0x02}
@@ -113,6 +120,7 @@ func TestMruInventoryMapStringer(
 // BenchmarkMruInventoryList performs basic benchmarks on the most recently used inventory handling.
 func BenchmarkMruInventoryList(
 	b *testing.B) {
+
 	// Create a bunch of fake inventory vectors to use in benchmarking the mru inventory code.
 	b.StopTimer()
 	numInvVects := 100000

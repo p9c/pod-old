@@ -17,8 +17,8 @@ var (
 	heartbeat  = time.Second * 3 / 2
 )
 
-func main(
-	) {
+func main() {
+
 	server.ClientConnect = clientConnect
 	server.ClientDisconnect = clientDisconnect
 	server.ClientTimeout = clientTimeout
@@ -46,6 +46,7 @@ func main(
 
 func serverConnect(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("serverConnect")
 	if !subscribed && connected {
 		fmt.Println("subscribe", serverAddr)
@@ -61,6 +62,7 @@ func serverConnect(
 
 func serverDisconnect(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("server disconnect")
 	subscribed = false
 	connected = false
@@ -69,6 +71,7 @@ func serverDisconnect(
 
 func serverTimeout(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("server timeout")
 	subscribed = false
 	connected = false
@@ -77,6 +80,7 @@ func serverTimeout(
 
 func handleClientPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
+
 	fmt.Println("->" + string(data))
 	if string(data)[:10] == "subscribed" {
 		subscribed = true
@@ -87,6 +91,7 @@ func handleClientPacket(
 
 func clientConnect(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("clientConnection")
 	if string(data) != "nachalnik" {
 		conn.Disconnect([]byte("wrong handshake"))
@@ -97,6 +102,7 @@ func clientConnect(
 
 func clientDisconnect(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("client disconnect")
 	subscribed = false
 	connected = false
@@ -104,6 +110,7 @@ func clientDisconnect(
 
 func clientTimeout(
 	conn *rmnp.Connection, data []byte) {
+
 	// fmt.Println("client timeout")
 	subscribed = false
 	connected = false
@@ -111,6 +118,7 @@ func clientTimeout(
 
 func validateClient(
 	addr *net.UDPAddr, data []byte) (valid bool) {
+
 	// fmt.Println("validateClient")
 	valid = string(data) == "nachalnik"
 	if !valid {
@@ -121,6 +129,7 @@ func validateClient(
 
 func handleServerPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
+
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
 	switch {

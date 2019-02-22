@@ -138,6 +138,7 @@ func (c *Cache) Put(key interface{}, value cache.Value) error {
 // Get will return value for a given key, making the element the most recently
 // accessed item in the process. Will return nil if the key isn't found.
 func (c *Cache) Get(key interface{}) (cache.Value, error) {
+
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 

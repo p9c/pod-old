@@ -15,6 +15,7 @@ import (
 // NewBase creates a new base listener
 func NewBase(
 	cfg BaseCfg) (b *Base) {
+
 	b = &Base{
 		cfg:       cfg,
 		packets:   make(chan Packet, baseChanBufs),
@@ -28,6 +29,7 @@ func NewBase(
 
 // Start attempts to open a listener and commences receiving packets and assembling them into messages
 func (b *Base) Start() (err error) {
+
 	var addr *net.UDPAddr
 	addr, err = net.ResolveUDPAddr(uNet, b.cfg.Listener)
 	if err != nil {
@@ -42,6 +44,7 @@ func (b *Base) Start() (err error) {
 	go b.processPackets()
 	go b.processBundles()
 	go func() {
+
 		for {
 			select {
 			case <-b.quit:
@@ -63,11 +66,13 @@ func (b *Base) Start() (err error) {
 
 // Stop shuts down the listener
 func (b *Base) Stop() {
+
 	b.quit <- true
 	b.listener.Close()
 }
 
 func (b *Base) readFromSocket() {
+
 	for {
 		select {
 		case <-b.quit:
@@ -98,6 +103,7 @@ func (b *Base) readFromSocket() {
 }
 
 func (b *Base) processPackets() {
+
 	for {
 		select {
 		case <-b.quit:
@@ -108,6 +114,7 @@ func (b *Base) processPackets() {
 		case p := <-b.packets:
 			sender := string(p.bytes[:6])
 			go func() {
+
 				for {
 					select {
 					case <-b.doneRet:
@@ -146,6 +153,7 @@ func (b *Base) processPackets() {
 }
 
 func (b *Base) processBundles() {
+
 	for {
 		select {
 		case <-b.quit:
@@ -175,6 +183,7 @@ func (b *Base) processBundles() {
 
 // Send a message of up to maxMessageSize bytes to a given UDP address
 func (b *Base) Send(data []byte, addr *net.UDPAddr) (err error) {
+
 	if len(data) > 3072 {
 		err = errors.New("maximum message size is " + fmt.Sprint(maxMessageSize) + " bytes")
 	}

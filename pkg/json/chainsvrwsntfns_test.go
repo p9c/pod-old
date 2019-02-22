@@ -13,6 +13,7 @@ import (
 // TestChainSvrWsNtfns tests all of the chain server websocket-specific notifications marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestChainSvrWsNtfns(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -24,6 +25,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "blockconnected",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("blockconnected", "123", 100000, 123456789)
 			},
 			staticNtfn: func() interface{} {
@@ -39,6 +41,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "blockdisconnected",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("blockdisconnected", "123", 100000, 123456789)
 			},
 			staticNtfn: func() interface{} {
@@ -54,6 +57,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "filteredblockconnected",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("filteredblockconnected", 100000, "header", []string{"tx0", "tx1"})
 			},
 			staticNtfn: func() interface{} {
@@ -69,6 +73,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "filteredblockdisconnected",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("filteredblockdisconnected", 100000, "header")
 			},
 			staticNtfn: func() interface{} {
@@ -83,6 +88,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "recvtx",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("recvtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
 			},
 			staticNtfn: func() interface{} {
@@ -108,6 +114,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "redeemingtx",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("redeemingtx", "001122", `{"height":100000,"hash":"123","index":0,"time":12345678}`)
 			},
 			staticNtfn: func() interface{} {
@@ -133,6 +140,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "rescanfinished",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("rescanfinished", "123", 100000, 12345678)
 			},
 			staticNtfn: func() interface{} {
@@ -148,6 +156,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "rescanprogress",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("rescanprogress", "123", 100000, 12345678)
 			},
 			staticNtfn: func() interface{} {
@@ -163,6 +172,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "txaccepted",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("txaccepted", "123", 1.5)
 			},
 			staticNtfn: func() interface{} {
@@ -177,6 +187,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "txacceptedverbose",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("txacceptedverbose", `{"hex":"001122","txid":"123","version":1,"locktime":4294967295,"vin":null,"vout":null,"confirmations":0}`)
 			},
 			staticNtfn: func() interface{} {
@@ -207,6 +218,7 @@ func TestChainSvrWsNtfns(
 		{
 			name: "relevanttxaccepted",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("relevanttxaccepted", "001122")
 			},
 			staticNtfn: func() interface{} {
@@ -228,6 +240,7 @@ func TestChainSvrWsNtfns(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -247,6 +260,7 @@ func TestChainSvrWsNtfns(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -266,6 +280,7 @@ func TestChainSvrWsNtfns(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

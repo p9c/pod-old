@@ -61,8 +61,8 @@ func netName(
 }
 
 // loadConfig initializes and parses the config using command line options.
-func loadConfig(
-	) (*config, []string, error) {
+func loadConfig() (*config, []string, error) {
+
 	// Default config.
 	cfg := config{
 		DataDir:       defaultDataDir,
@@ -104,6 +104,7 @@ func loadConfig(
 	}
 	// Validate database type.
 	if !validDbType(cfg.DbType) {
+
 		str := "%s: The specified database type [%v] is invalid -- " +
 			"supported types %v"
 		err := fmt.Errorf(str, "loadConfig", cfg.DbType, knownDbTypes)

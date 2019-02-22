@@ -9,8 +9,8 @@ import (
 )
 
 // genRandomSig returns a random message, a signature of the message under the public key and the public key. This function is used to generate randomized test data.
-func genRandomSig(
-	) (*chainhash.Hash, *ec.Signature, *ec.PublicKey, error) {
+func genRandomSig() (*chainhash.Hash, *ec.Signature, *ec.PublicKey, error) {
+
 	privKey, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
 		return nil, nil, nil, err
@@ -29,6 +29,7 @@ func genRandomSig(
 // TestSigCacheAddExists tests the ability to add, and later check the existence of a signature triplet in the signature cache.
 func TestSigCacheAddExists(
 	t *testing.T) {
+
 	sigCache := NewSigCache(200)
 	// Generate a random sigCache entry triplet.
 	msg1, sig1, key1, err := genRandomSig()
@@ -41,6 +42,7 @@ func TestSigCacheAddExists(
 	sig1Copy, _ := ec.ParseSignature(sig1.Serialize(), ec.S256())
 	key1Copy, _ := ec.ParsePubKey(key1.SerializeCompressed(), ec.S256())
 	if !sigCache.Exists(*msg1, sig1Copy, key1Copy) {
+
 		t.Errorf("previously added item not found in signature cache")
 	}
 }
@@ -48,6 +50,7 @@ func TestSigCacheAddExists(
 // TestSigCacheAddEvictEntry tests the eviction case where a new signature triplet is added to a full signature cache which should trigger randomized eviction, followed by adding the new element to the cache.
 func TestSigCacheAddEvictEntry(
 	t *testing.T) {
+
 	// Create a sigcache that can hold up to 100 entries.
 	sigCacheSize := uint(100)
 	sigCache := NewSigCache(sigCacheSize)
@@ -61,6 +64,7 @@ func TestSigCacheAddEvictEntry(
 		sigCopy, _ := ec.ParseSignature(sig.Serialize(), ec.S256())
 		keyCopy, _ := ec.ParsePubKey(key.SerializeCompressed(), ec.S256())
 		if !sigCache.Exists(*msg, sigCopy, keyCopy) {
+
 			t.Errorf("previously added item not found in signature" +
 				"cache")
 		}
@@ -85,6 +89,7 @@ func TestSigCacheAddEvictEntry(
 	sigNewCopy, _ := ec.ParseSignature(sigNew.Serialize(), ec.S256())
 	keyNewCopy, _ := ec.ParsePubKey(keyNew.SerializeCompressed(), ec.S256())
 	if !sigCache.Exists(*msgNew, sigNewCopy, keyNewCopy) {
+
 		t.Fatalf("previously added item not found in signature cache")
 	}
 }
@@ -92,6 +97,7 @@ func TestSigCacheAddEvictEntry(
 // TestSigCacheAddMaxEntriesZeroOrNegative tests that if a sigCache is created with a max size <= 0, then no entries are added to the sigcache at all.
 func TestSigCacheAddMaxEntriesZeroOrNegative(
 	t *testing.T) {
+
 	// Create a sigcache that can hold up to 0 entries.
 	sigCache := NewSigCache(0)
 	// Generate a random sigCache entry triplet.
@@ -105,6 +111,7 @@ func TestSigCacheAddMaxEntriesZeroOrNegative(
 	sig1Copy, _ := ec.ParseSignature(sig1.Serialize(), ec.S256())
 	key1Copy, _ := ec.ParsePubKey(key1.SerializeCompressed(), ec.S256())
 	if sigCache.Exists(*msg1, sig1Copy, key1Copy) {
+
 		t.Errorf("previously added signature found in sigcache, but" +
 			"shouldn't have been")
 	}

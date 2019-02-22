@@ -9,6 +9,7 @@ import (
 
 func TestBech32(
 	t *testing.T) {
+
 	tests := []struct {
 		str   string
 		valid bool
@@ -47,6 +48,7 @@ func TestBech32(
 			t.Errorf("encoding failed: %v", err)
 		}
 		if encoded != strings.ToLower(str) {
+
 			t.Errorf("expected data to encode to %v, but got %v",
 				str, encoded)
 		}

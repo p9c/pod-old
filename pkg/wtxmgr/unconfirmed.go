@@ -6,8 +6,8 @@ package wtxmgr
 import (
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // insertMemPoolTx inserts the unmined transaction record.  It also marks
@@ -161,6 +161,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 // which are not known to have been mined in a block.  Transactions are
 // guaranteed to be sorted by their dependency order.
 func (s *Store) UnminedTxs(ns walletdb.ReadBucket) ([]*wire.MsgTx, error) {
+
 	recSet, err := s.unminedTxRecords(ns)
 	if err != nil {
 		return nil, err
@@ -175,6 +176,7 @@ func (s *Store) UnminedTxs(ns walletdb.ReadBucket) ([]*wire.MsgTx, error) {
 }
 
 func (s *Store) unminedTxRecords(ns walletdb.ReadBucket) (map[chainhash.Hash]*TxRecord, error) {
+
 	unmined := make(map[chainhash.Hash]*TxRecord)
 	err := ns.NestedReadBucket(bucketUnmined).ForEach(func(k, v []byte) error {
 		var txHash chainhash.Hash
@@ -197,10 +199,12 @@ func (s *Store) unminedTxRecords(ns walletdb.ReadBucket) (map[chainhash.Hash]*Tx
 // UnminedTxHashes returns the hashes of all transactions not known to have been
 // mined in a block.
 func (s *Store) UnminedTxHashes(ns walletdb.ReadBucket) ([]*chainhash.Hash, error) {
+
 	return s.unminedTxHashes(ns)
 }
 
 func (s *Store) unminedTxHashes(ns walletdb.ReadBucket) ([]*chainhash.Hash, error) {
+
 	var hashes []*chainhash.Hash
 	err := ns.NestedReadBucket(bucketUnmined).ForEach(func(k, v []byte) error {
 		hash := new(chainhash.Hash)

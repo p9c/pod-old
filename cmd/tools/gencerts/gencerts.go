@@ -20,8 +20,8 @@ type config struct {
 	Force        bool     `short:"f" long:"force" description:"Force overwriting of any old certs and keys"`
 }
 
-func main(
-	) {
+func main() {
+
 	cfg := config{
 		Years:        10,
 		Organization: "gencerts",
@@ -47,6 +47,7 @@ func main(
 	keyFile := filepath.Join(cfg.Directory, "rpc.key")
 	if !cfg.Force {
 		if fileExists(certFile) || fileExists(keyFile) {
+
 			fmt.Fprintf(os.Stderr, "%v: certificate and/or key files exist; use -f to force\n", cfg.Directory)
 			os.Exit(1)
 		}
@@ -74,6 +75,7 @@ func cleanAndExpandPath(
 	path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
+
 		appHomeDir := util.AppDataDir("gencerts", false)
 		homeDir := filepath.Dir(appHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
@@ -87,6 +89,7 @@ func fileExists(
 	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
+
 			return false
 		}
 	}

@@ -1,7 +1,5 @@
 // Copyright (c) 2016 The btcsuite developers
 
-
-
 package txauthor
 
 import (
@@ -21,8 +19,8 @@ type cprngType struct {
 	mu sync.Mutex
 }
 
-func init(
-	) {
+func init() {
+
 	buf := make([]byte, 8)
 	_, err := rand.Read(buf)
 	if err != nil {

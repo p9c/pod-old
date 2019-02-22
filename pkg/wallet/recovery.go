@@ -3,14 +3,14 @@ package wallet
 import (
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/walletdb"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
+	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/walletdb"
 	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
@@ -175,6 +175,7 @@ func (rm *RecoveryManager) BlockBatch() []wtxmgr.BlockMeta {
 
 // ResetBlockBatch resets the internal block buffer to conserve memory.
 func (rm *RecoveryManager) ResetBlockBatch() {
+
 	rm.blockBatch = rm.blockBatch[:0]
 }
 
@@ -353,6 +354,7 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 // AddAddr adds a freshly derived address from our lookahead into the map of
 // known addresses for this branch.
 func (brs *BranchRecoveryState) AddAddr(index uint32, addr util.Address) {
+
 	brs.addresses[index] = addr
 }
 
@@ -364,6 +366,7 @@ func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 // ReportFound updates the last found index if the reported index exceeds the
 // current value.
 func (brs *BranchRecoveryState) ReportFound(index uint32) {
+
 	if index >= brs.nextUnfound {
 		brs.nextUnfound = index + 1
 
@@ -384,6 +387,7 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 // This is used to ensure that we are always have the proper lookahead when an
 // invalid child is encountered.
 func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
+
 	brs.invalidChildren[index] = struct{}{}
 	brs.horizon++
 }

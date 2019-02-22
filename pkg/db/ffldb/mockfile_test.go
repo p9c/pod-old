@@ -39,6 +39,7 @@ func (f *mockFile) Close() error {
 
 // ReadAt reads len(b) bytes from the mock file starting at byte offset off. It returns the number of bytes read and the error, if any.  ReadAt always returns a non-nil error when n < len(b). At end of file, that error is io.EOF. This is part of the filer implementation.
 func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
+
 	f.RLock()
 	defer f.RUnlock()
 	if f.closed {
@@ -59,6 +60,7 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	}
 	copy(b, f.data[off:off+numToRead])
 	if numToRead < int64(len(b)) {
+
 		return int(numToRead), io.EOF
 	}
 	return int(numToRead), nil
@@ -84,6 +86,7 @@ func (f *mockFile) Truncate(size int64) error {
 
 // Write writes len(b) bytes to the mock file. It returns the number of bytes written and an error, if any.  Write returns a non-nil error any time n != len(b). This is part of the filer implementation.
 func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
+
 	f.Lock()
 	defer f.Unlock()
 	if f.closed {
@@ -102,12 +105,14 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 		numToWrite = maxSize - off
 	}
 	if off+numToWrite > int64(len(f.data)) {
+
 		newData := make([]byte, off+numToWrite)
 		copy(newData, f.data)
 		f.data = newData
 	}
 	copy(f.data[off:], b[:numToWrite])
 	if numToWrite < int64(len(b)) {
+
 		return int(numToWrite), io.EOF
 	}
 	return int(numToWrite), nil

@@ -12,9 +12,9 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // BlockHeaderStore is an interface that provides an abstraction for a generic
@@ -202,6 +202,7 @@ func NewBlockHeaderStore(
 	// done here.
 	latestBlockHash := latestFileHeader.BlockHash()
 	if tipHash.IsEqual(&latestBlockHash) {
+
 		return bhs, nil
 	}
 
@@ -227,6 +228,7 @@ func NewBlockHeaderStore(
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) FetchHeader(hash *chainhash.Hash) (*wire.BlockHeader, uint32, error) {
+
 	// Lock store for read.
 	h.mtx.RLock()
 	defer h.mtx.RUnlock()
@@ -252,6 +254,7 @@ func (h *blockHeaderStore) FetchHeader(hash *chainhash.Hash) (*wire.BlockHeader,
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) FetchHeaderByHeight(height uint32) (*wire.BlockHeader, error) {
+
 	// Lock store for read.
 	h.mtx.RLock()
 	defer h.mtx.RUnlock()
@@ -299,6 +302,7 @@ func (h *blockHeaderStore) FetchHeaderAncestors(numHeaders uint32,
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) HeightFromHash(hash *chainhash.Hash) (uint32, error) {
+
 	return h.heightFromHash(hash)
 }
 
@@ -309,6 +313,7 @@ func (h *blockHeaderStore) HeightFromHash(hash *chainhash.Hash) (uint32, error) 
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp, error) {
+
 	// Lock store for write.
 	h.mtx.Lock()
 	defer h.mtx.Unlock()
@@ -455,6 +460,7 @@ func (h *blockHeaderStore) blockLocatorFromHash(hash *chainhash.Hash) (
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) LatestBlockLocator() (blockchain.BlockLocator, error) {
+
 	// Lock store for read.
 	h.mtx.RLock()
 	defer h.mtx.RUnlock()
@@ -567,6 +573,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) ChainTip() (*wire.BlockHeader, uint32, error) {
+
 	// Lock store for read.
 	h.mtx.RLock()
 	defer h.mtx.RUnlock()
@@ -678,6 +685,7 @@ func NewFilterHeaderStore(
 	// If the index's tip hash, and the file on-disk match, then we're
 	// doing here.
 	if tipHash.IsEqual(latestFileHeader) {
+
 		return fhs, nil
 	}
 
@@ -699,6 +707,7 @@ func NewFilterHeaderStore(
 // FetchHeader returns the filter header that corresponds to the passed block
 // height.
 func (f *FilterHeaderStore) FetchHeader(hash *chainhash.Hash) (*chainhash.Hash, error) {
+
 	// Lock store for read.
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
@@ -713,6 +722,7 @@ func (f *FilterHeaderStore) FetchHeader(hash *chainhash.Hash) (*chainhash.Hash, 
 
 // FetchHeaderByHeight returns the filter header for a particular block height.
 func (f *FilterHeaderStore) FetchHeaderByHeight(height uint32) (*chainhash.Hash, error) {
+
 	// Lock store for read.
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
@@ -789,6 +799,7 @@ func (f *FilterHeaderStore) WriteHeaders(hdrs ...FilterHeader) error {
 // ChainTip returns the latest filter header and height known to the
 // FilterHeaderStore.
 func (f *FilterHeaderStore) ChainTip() (*chainhash.Hash, uint32, error) {
+
 	// Lock store for read.
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
@@ -812,6 +823,7 @@ func (f *FilterHeaderStore) ChainTip() (*chainhash.Hash, uint32, error) {
 // chain. The information about the latest header tip after truncation is
 // returned.
 func (f *FilterHeaderStore) RollbackLastBlock(newTip *chainhash.Hash) (*waddrmgr.BlockStamp, error) {
+
 	// Lock store for write.
 	f.mtx.Lock()
 	defer f.mtx.Unlock()

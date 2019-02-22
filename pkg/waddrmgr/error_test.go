@@ -11,6 +11,7 @@ import (
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in   waddrmgr.ErrorCode
 		want string
@@ -52,6 +53,7 @@ func TestErrorCodeStringer(
 // TestManagerError tests the error output for the ManagerError type.
 func TestManagerError(
 	t *testing.T) {
+
 	tests := []struct {
 		in   waddrmgr.ManagerError
 		want string
@@ -113,6 +115,7 @@ func TestManagerError(
 // TestIsError tests the IsError func.
 func TestIsError(
 	t *testing.T) {
+
 	tests := []struct {
 		err  error
 		code waddrmgr.ErrorCode

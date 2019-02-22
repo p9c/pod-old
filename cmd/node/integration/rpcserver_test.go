@@ -9,12 +9,13 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/integration/rpctest"
+	"git.parallelcoin.io/pod/pkg/chaincfg"
 )
 
 func testGetBestBlock(
 	r *rpctest.Harness, t *testing.T) {
+
 	_, prevbestHeight, err := r.Node.GetBestBlock()
 	if err != nil {
 		t.Fatalf("Call to `getbestblock` failed: %v", err)
@@ -30,6 +31,7 @@ func testGetBestBlock(
 	}
 	// Hash should be the same as the newly submitted block.
 	if !bytes.Equal(bestHash[:], generatedBlockHashes[0][:]) {
+
 		t.Fatalf("Block hashes do not match. Returned hash %v, wanted "+
 			"hash %v", bestHash, generatedBlockHashes[0][:])
 	}
@@ -41,6 +43,7 @@ func testGetBestBlock(
 }
 func testGetBlockCount(
 	r *rpctest.Harness, t *testing.T) {
+
 	// Save the current count.
 	currentCount, err := r.Node.GetBlockCount()
 	if err != nil {
@@ -61,6 +64,7 @@ func testGetBlockCount(
 }
 func testGetBlockHash(
 	r *rpctest.Harness, t *testing.T) {
+
 	// Create a new block connecting to the current tip.
 	generatedBlockHashes, err := r.Node.Generate(1)
 	if err != nil {
@@ -76,6 +80,7 @@ func testGetBlockHash(
 	}
 	// Block hashes should match newly created block.
 	if !bytes.Equal(generatedBlockHashes[0][:], blockHash[:]) {
+
 		t.Fatalf("Block hashes do not match. Returned hash %v, wanted "+
 			"hash %v", blockHash, generatedBlockHashes[0][:])
 	}
@@ -90,6 +95,7 @@ var primaryHarness *rpctest.Harness
 
 func TestMain(
 	m *testing.M) {
+
 	var err error
 	// In order to properly test scenarios on as if we were on mainnet, ensure that non-standard transactions aren't accepted into the mempool or relayed.
 	podCfg := []string{"--rejectnonstd"}
@@ -115,8 +121,10 @@ func TestMain(
 }
 func TestRpcServer(
 	t *testing.T) {
+
 	var currentTestNum int
 	defer func() {
+
 		// If one of the integration tests caused a panic within the main goroutine, then tear down all the harnesses in order to avoid any leaked pod processes.
 		if r := recover(); r != nil {
 			fmt.Println("recovering from test panic: ", r)

@@ -21,7 +21,6 @@ func TestCreateDefaultConfigFile(
 	t *testing.T,
 ) {
 
-
 	// find out where the sample config lives
 	_, path, _, ok := runtime.Caller(0)
 	if !ok {
@@ -50,6 +49,7 @@ func TestCreateDefaultConfigFile(
 	}
 	// Clean-up
 	defer func() {
+
 		os.Remove(testpath)
 		os.Remove(tmpConfigFile)
 		os.Remove(tmpDir)
@@ -63,9 +63,11 @@ func TestCreateDefaultConfigFile(
 		t.Fatalf("Failed to read generated default config file: %v", err)
 	}
 	if !rpcuserRegexp.Match(content) {
+
 		t.Error("Could not find rpcuser in generated default config file.")
 	}
 	if !rpcpassRegexp.Match(content) {
+
 		t.Error("Could not find rpcpass in generated default config file.")
 	}
 }

@@ -13,6 +13,7 @@ import (
 // TestBtcWalletExtCmds tests all of the btcwallet extended commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestBtcWalletExtCmds(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := int(1)
 	tests := []struct {
@@ -25,6 +26,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "createnewaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("createnewaccount", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -38,6 +40,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "dumpwallet",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("dumpwallet", "filename")
 			},
 			staticCmd: func() interface{} {
@@ -51,6 +54,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "importaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importaddress", "1Address", "")
 			},
 			staticCmd: func() interface{} {
@@ -65,6 +69,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "importaddress optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importaddress", "1Address", "acct", false)
 			},
 			staticCmd: func() interface{} {
@@ -80,6 +85,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "importpubkey",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importpubkey", "031234")
 			},
 			staticCmd: func() interface{} {
@@ -94,6 +100,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "importpubkey optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importpubkey", "031234", false)
 			},
 			staticCmd: func() interface{} {
@@ -108,6 +115,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "importwallet",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importwallet", "filename")
 			},
 			staticCmd: func() interface{} {
@@ -121,6 +129,7 @@ func TestBtcWalletExtCmds(
 		{
 			name: "renameaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("renameaccount", "oldacct", "newacct")
 			},
 			staticCmd: func() interface{} {
@@ -144,6 +153,7 @@ func TestBtcWalletExtCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -163,6 +173,7 @@ func TestBtcWalletExtCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -182,6 +193,7 @@ func TestBtcWalletExtCmds(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

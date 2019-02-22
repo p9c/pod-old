@@ -13,8 +13,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/walletdb"
-	. "git.parallelcoin.io/pod/pkg/wtxmgr"
 	"git.parallelcoin.io/pod/pkg/wire"
+	. "git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
 type queryState struct {
@@ -23,8 +23,7 @@ type queryState struct {
 	txDetails map[chainhash.Hash][]TxDetails
 }
 
-func newQueryState(
-	) *queryState {
+func newQueryState() *queryState {
 	return &queryState{
 		txDetails: make(map[chainhash.Hash][]TxDetails),
 	}
@@ -75,13 +74,16 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 		revBlocks[i], revBlocks[len(revBlocks)-1-i] = revBlocks[len(revBlocks)-1-i], revBlocks[i]
 	}
 	checkBlock := func(blocks [][]TxDetails) func([]TxDetails) (bool, error) {
+
 		return func(got []TxDetails) (bool, error) {
+
 			if len(fwdBlocks) == 0 {
 				return false, errors.New("entered range " +
 					"when no more details expected")
 			}
 			exp := blocks[0]
 			if len(got) != len(exp) {
+
 				return false, fmt.Errorf("got len(details)=%d "+
 					"in transaction range, expected %d",
 					len(got), len(exp))
@@ -165,6 +167,7 @@ func equalTxDetails(
 			"expected %v", got.Received, exp.Received)
 	}
 	if !bytes.Equal(got.SerializedTx, exp.SerializedTx) {
+
 		return fmt.Errorf("found mismatched serialized txs: got %v, "+
 			"expected %v", got.SerializedTx, exp.SerializedTx)
 	}
@@ -173,6 +176,7 @@ func equalTxDetails(
 			"expected %v", got.Block, exp.Block)
 	}
 	if len(got.Credits) != len(exp.Credits) {
+
 		return fmt.Errorf("credit slice lengths differ: got %d, "+
 			"expected %d", len(got.Credits), len(exp.Credits))
 	}
@@ -183,6 +187,7 @@ func equalTxDetails(
 		}
 	}
 	if len(got.Debits) != len(exp.Debits) {
+
 		return fmt.Errorf("debit slice lengths differ: got %d, "+
 			"expected %d", len(got.Debits), len(exp.Debits))
 	}
@@ -208,6 +213,7 @@ func equalTxs(
 		return err
 	}
 	if !bytes.Equal(bufGot.Bytes(), bufExp.Bytes()) {
+
 		return fmt.Errorf("found unexpected wire.MsgTx: got: %v, "+
 			"expected %v", got, exp)
 	}
@@ -216,8 +222,7 @@ func equalTxs(
 }
 
 // Returns time.Now() with seconds resolution, this is what Store saves.
-func timeNow(
-	) time.Time {
+func timeNow() time.Time {
 	return time.Unix(time.Now().Unix(), 0)
 }
 
@@ -247,6 +252,7 @@ func makeBlockMeta(
 
 func TestStoreQueries(
 	t *testing.T) {
+
 	t.Parallel()
 
 	type queryTest struct {
@@ -455,6 +461,7 @@ func TestStoreQueries(
 
 		iterations := 0
 		err = s.RangeTransactions(ns, 0, -1, func([]TxDetails) (bool, error) {
+
 			iterations++
 			return true, nil
 		})
@@ -463,6 +470,7 @@ func TestStoreQueries(
 		}
 		iterations = 0
 		err = s.RangeTransactions(ns, -1, 0, func([]TxDetails) (bool, error) {
+
 			iterations++
 			return true, nil
 		})
@@ -475,6 +483,7 @@ func TestStoreQueries(
 		}
 		iterations = 0
 		err = s.RangeTransactions(ns, -1, 0, func([]TxDetails) (bool, error) {
+
 			iterations++
 			return true, nil
 		})
@@ -534,6 +543,7 @@ func TestStoreQueries(
 
 func TestPreviousPkScripts(
 	t *testing.T) {
+
 	t.Parallel()
 
 	s, db, teardown, err := testStore()
@@ -593,12 +603,14 @@ func TestPreviousPkScripts(
 	)
 
 	insertTx := func(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta) {
+
 		err := s.InsertTx(ns, rec, block)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 	addCredit := func(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta, index uint32) {
+
 		err := s.AddCredit(ns, rec, block, index, false)
 		if err != nil {
 			t.Fatal(err)
@@ -611,6 +623,7 @@ func TestPreviousPkScripts(
 		scripts [][]byte
 	}
 	runTest := func(ns walletdb.ReadWriteBucket, tst *scriptTest) {
+
 		scripts, err := s.PreviousPkScripts(ns, tst.rec, tst.block)
 		if err != nil {
 			t.Fatal(err)
@@ -620,12 +633,14 @@ func TestPreviousPkScripts(
 			height = tst.block.Height
 		}
 		if len(scripts) != len(tst.scripts) {
+
 			t.Errorf("Transaction %v height %d: got len(scripts)=%d, expected %d",
 				tst.rec.Hash, height, len(scripts), len(tst.scripts))
 			return
 		}
 		for i := range scripts {
 			if !bytes.Equal(scripts[i], tst.scripts[i]) {
+
 				// Format scripts with %s since they are (should be) ascii.
 				t.Errorf("Transaction %v height %d script %d: got '%s' expected '%s'",
 					tst.rec.Hash, height, i, scripts[i], tst.scripts[i])
@@ -662,6 +677,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after unmined tx inserts")
 	}
 
@@ -685,6 +701,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after marking unmined credits")
 	}
 
@@ -694,6 +711,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after mining tx A")
 	}
 
@@ -711,6 +729,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after mining tx B")
 	}
 
@@ -729,6 +748,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after mining tx C")
 	}
 
@@ -741,6 +761,7 @@ func TestPreviousPkScripts(
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
+
 		t.Fatal("Failed after inserting tx D")
 	}
 }

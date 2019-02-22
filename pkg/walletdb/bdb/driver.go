@@ -13,6 +13,7 @@ const (
 // parseArgs parses the arguments from the walletdb Open/Create methods.
 func parseArgs(
 	funcName string, args ...interface{}) (string, error) {
+
 	if len(args) != 1 {
 		return "", fmt.Errorf("invalid arguments to %s.%s -- "+
 			"expected database path", dbType, funcName)
@@ -31,6 +32,7 @@ func parseArgs(
 // an existing database for use.
 func openDBDriver(
 	args ...interface{}) (walletdb.DB, error) {
+
 	dbPath, err := parseArgs("Open", args...)
 	if err != nil {
 		return nil, err
@@ -43,6 +45,7 @@ func openDBDriver(
 // creates, initializes, and opens a database for use.
 func createDBDriver(
 	args ...interface{}) (walletdb.DB, error) {
+
 	dbPath, err := parseArgs("Create", args...)
 	if err != nil {
 		return nil, err
@@ -51,8 +54,8 @@ func createDBDriver(
 	return openDB(dbPath, true)
 }
 
-func init(
-	) {
+func init() {
+
 	// Register the driver.
 	driver := walletdb.Driver{
 		DbType: dbType,

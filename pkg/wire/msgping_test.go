@@ -11,6 +11,7 @@ import (
 // TestPing tests the MsgPing API against the latest protocol version.
 func TestPing(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Ensure we get the same nonce back out.
 	nonce, err := RandomUint64()
@@ -41,6 +42,7 @@ func TestPing(
 // TestPingBIP0031 tests the MsgPing API against the protocol version BIP0031Version.
 func TestPingBIP0031(
 	t *testing.T) {
+
 	// Use the protocol version just prior to BIP0031Version changes.
 	pver := BIP0031Version
 	enc := BaseEncoding
@@ -82,6 +84,7 @@ func TestPingBIP0031(
 // TestPingCrossProtocol tests the MsgPing API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestPingCrossProtocol(
 	t *testing.T) {
+
 	nonce, err := RandomUint64()
 	if err != nil {
 		t.Errorf("RandomUint64: Error generating nonce: %v", err)
@@ -112,6 +115,7 @@ func TestPingCrossProtocol(
 // TestPingWire tests the MsgPing wire encode and decode for various protocol versions.
 func TestPingWire(
 	t *testing.T) {
+
 	tests := []struct {
 		in   MsgPing         // Message to encode
 		out  MsgPing         // Expected decoded message
@@ -154,6 +158,7 @@ func TestPingWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -167,6 +172,7 @@ func TestPingWire(
 			continue
 		}
 		if !reflect.DeepEqual(msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -177,6 +183,7 @@ func TestPingWire(
 // TestPingWireErrors performs negative tests against wire encode and decode of MsgPing to confirm error paths work correctly.
 func TestPingWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	tests := []struct {
 		in       *MsgPing        // Value to encode

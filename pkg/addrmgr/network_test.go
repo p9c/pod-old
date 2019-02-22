@@ -12,6 +12,7 @@ import (
 // address based on RFCs work as intended.
 func TestIPTypes(
 	t *testing.T) {
+
 	type ipTest struct {
 		in       wire.NetAddress
 		rfc1918  bool
@@ -127,6 +128,7 @@ func TestIPTypes(
 // TestGroupKey tests the GroupKey function to ensure it properly groups various IP addresses.
 func TestGroupKey(
 	t *testing.T) {
+
 	tests := []struct {
 		name     string
 		ip       string

@@ -43,7 +43,6 @@ func NetName(
 	chainParams *Params,
 ) string {
 
-
 	switch chainParams.Net {
 	case wire.TestNet3:
 		return "testnet"

@@ -10,16 +10,16 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
+	"git.parallelcoin.io/pod/pkg/cfgutil"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/json"
+	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/rpcclient"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/pkg/cfgutil"
-	"git.parallelcoin.io/pod/pkg/netparams"
 	"git.parallelcoin.io/pod/pkg/wallet/txauthor"
 	"git.parallelcoin.io/pod/pkg/wallet/txrules"
+	"git.parallelcoin.io/pod/pkg/wire"
 	"github.com/jessevdk/go-flags"
 )
 
@@ -30,6 +30,7 @@ var (
 
 func fatalf(
 	format string, args ...interface{}) {
+
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Stderr.Write(newlineBytes)
 	os.Exit(1)
@@ -64,8 +65,8 @@ var opts = struct {
 }
 
 // Parse and validate flags.
-func init(
-	) {
+func init() {
+
 	// Unset localhost defaults if certificate file can not be found.
 	certFileExists, err := cfgutil.FileExists(opts.RPCCertificateFile)
 	if err != nil {
@@ -159,6 +160,7 @@ func makeInputSource(
 			continue
 		}
 		if !saneOutputValue(outputAmount) {
+
 			sourceErr = fmt.Errorf(
 				"impossible output amount `%v` in listunspent result",
 				outputAmount)
@@ -183,6 +185,7 @@ func makeInputSource(
 	}
 
 	return func(util.Amount) (util.Amount, []*wire.TxIn, []util.Amount, [][]byte, error) {
+
 		return totalInputValue, inputs, inputValues, nil, sourceErr
 	}
 }
@@ -193,6 +196,7 @@ func makeInputSource(
 func makeDestinationScriptSource(
 	rpcClient *rpcclient.Client, accountName string) txauthor.ChangeSource {
 	return func() ([]byte, error) {
+
 		destinationAddress, err := rpcClient.GetNewAddress(accountName)
 		if err != nil {
 			return nil, err
@@ -201,16 +205,15 @@ func makeDestinationScriptSource(
 	}
 }
 
-func main(
-	) {
+func main() {
+
 	err := sweep()
 	if err != nil {
 		fatalf("%v", err)
 	}
 }
 
-func sweep(
-	) error {
+func sweep() error {
 	rpcPassword, err := promptSecret("Wallet RPC password")
 	if err != nil {
 		return errContext(err, "failed to read RPC password")
@@ -267,6 +270,7 @@ func sweep(
 	var totalSwept util.Amount
 	var numErrors int
 	var reportError = func(format string, args ...interface{}) {
+
 		fmt.Fprintf(os.Stderr, format, args...)
 		os.Stderr.Write(newlineBytes)
 		numErrors++
@@ -278,6 +282,7 @@ func sweep(
 			inputSource, destinationSource)
 		if err != nil {
 			if err != (noInputValue{}) {
+
 				reportError("Failed to create unsigned transaction: %v", err)
 			}
 			continue
@@ -328,6 +333,7 @@ func sweep(
 
 func promptSecret(
 	what string) (string, error) {
+
 	fmt.Printf("%s: ", what)
 	fd := int(os.Stdin.Fd())
 	input, err := terminal.ReadPassword(fd)
@@ -345,6 +351,7 @@ func saneOutputValue(
 
 func parseOutPoint(
 	input *json.ListUnspentResult) (wire.OutPoint, error) {
+
 	txHash, err := chainhash.NewHashFromStr(input.TxID)
 	if err != nil {
 		return wire.OutPoint{}, err

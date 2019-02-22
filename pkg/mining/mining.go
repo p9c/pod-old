@@ -82,11 +82,13 @@ func (pq *txPriorityQueue) Less(i, j int) bool {
 
 // Swap swaps the items at the passed indices in the priority queue.  It is part of the heap.Interface implementation.
 func (pq *txPriorityQueue) Swap(i, j int) {
+
 	pq.items[i], pq.items[j] = pq.items[j], pq.items[i]
 }
 
 // Push pushes the passed item onto the priority queue.  It is part of the heap.Interface implementation.
 func (pq *txPriorityQueue) Push(x interface{}) {
+
 	pq.items = append(pq.items, x.(*txPrioItem))
 }
 
@@ -101,6 +103,7 @@ func (pq *txPriorityQueue) Pop() interface{} {
 
 // SetLessFunc sets the compare function for the priority queue to the provided function.  It also invokes heap.Init on the priority queue using the new function so it can immediately be used with heap.Push/Pop.
 func (pq *txPriorityQueue) SetLessFunc(lessFunc txPriorityQueueLessFunc) {
+
 	pq.lessFunc = lessFunc
 	heap.Init(pq)
 }
@@ -158,10 +161,13 @@ type BlockTemplate struct {
 // mergeUtxoView adds all of the entries in viewB to viewA.  The result is that viewA will contain all of its original entries plus all of the entries in viewB.  It will replace any entries in viewB which also exist in viewA if the entry in viewA is spent.
 func mergeUtxoView(
 	viewA *blockchain.UtxoViewpoint, viewB *blockchain.UtxoViewpoint) {
+
 	viewAEntries := viewA.Entries()
 	for outpoint, entryB := range viewB.Entries() {
+
 		if entryA, exists := viewAEntries[outpoint]; !exists ||
 			entryA == nil || entryA.IsSpent() {
+
 			viewAEntries[outpoint] = entryB
 		}
 	}
@@ -170,6 +176,7 @@ func mergeUtxoView(
 // standardCoinbaseScript returns a standard script suitable for use as the signature script of the coinbase transaction of a new block.  In particular, it starts with the block height that is required by version 2 blocks and adds the extra nonce as well as additional coinbase flags.
 func standardCoinbaseScript(
 	nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
+
 	return txscript.NewScriptBuilder().AddInt64(int64(nextBlockHeight)).
 		AddInt64(int64(extraNonce)).AddData([]byte(CoinbaseFlags)).
 		Script()
@@ -178,6 +185,7 @@ func standardCoinbaseScript(
 // createCoinbaseTx returns a coinbase transaction paying an appropriate subsidy based on the passed block height to the provided address.  When the address is nil, the coinbase transaction will instead be redeemable by anyone. See the comment for NewBlockTemplate for more information about why the nil address handling is useful.
 func createCoinbaseTx(
 	params *chaincfg.Params, coinbaseScript []byte, nextBlockHeight int32, addr util.Address) (*util.Tx, error) {
+
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte
 	if addr != nil {
@@ -225,6 +233,7 @@ func spendTransaction(
 // logSkippedDeps logs any dependencies which are also skipped as a result of skipping a transaction while generating a block template at the trace level.
 func logSkippedDeps(
 	tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
+
 	if deps == nil {
 		return
 	}
@@ -250,6 +259,7 @@ func medianAdjustedTime(
 	newTimestamp := timeSource.AdjustedTime()
 	minTimestamp := MinimumMedianTime(chainState)
 	if newTimestamp.Before(minTimestamp) {
+
 		newTimestamp = minTimestamp
 	}
 	return newTimestamp
@@ -313,6 +323,7 @@ func NewBlkTmplGenerator(
 //  |  <= policy.BlockMinSize)          |   |
 //   -----------------------------------  --
 func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo string) (*BlockTemplate, error) {
+
 	if algo == "" {
 		algo = "random"
 	}
@@ -359,6 +370,7 @@ mempoolLoop:
 		// A block can't have more than one coinbase or contain non-finalized transactions.
 		tx := txDesc.Tx
 		if blockchain.IsCoinBase(tx) {
+
 			Log.Trcc(func() string {
 				return fmt.Sprintf("skipping coinbase tx %s", tx.Hash())
 			})
@@ -366,6 +378,7 @@ mempoolLoop:
 		}
 		if !blockchain.IsFinalizedTransaction(tx, nextBlockHeight,
 			g.timeSource.AdjustedTime()) {
+
 			Log.Trcc(func() string {
 				return "skipping non-finalized tx " + tx.Hash().String()
 			})
@@ -385,7 +398,9 @@ mempoolLoop:
 			originHash := &txIn.PreviousOutPoint.Hash
 			entry := utxos.LookupEntry(txIn.PreviousOutPoint)
 			if entry == nil || entry.IsSpent() {
+
 				if !g.txSource.HaveTransaction(originHash) {
+
 					Log.Trcc(func() string {
 						return "skipping tx %s because it references unspent output %s which is not available" +
 							tx.Hash().String() +
@@ -520,6 +535,7 @@ mempoolLoop:
 		// Prioritize by fee per kilobyte once the block is larger than the priority size or there are no more high-priority transactions.
 		if !sortedByFee && (blockPlusTxWeight >= g.policy.BlockPrioritySize ||
 			prioItem.priority <= MinHighPriority) {
+
 			log <- cl.Tracef{
 				"switching to sort by fees per kilobyte " +
 					"blockSize %d >= BlockPrioritySize %d ||" +

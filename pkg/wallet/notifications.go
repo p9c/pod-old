@@ -6,12 +6,12 @@ import (
 	"bytes"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/walletdb"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/walletdb"
 	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
@@ -118,6 +118,7 @@ func makeTxSummary(
 	}
 	var fee util.Amount
 	if len(details.Debits) == len(details.MsgTx.TxIn) {
+
 		for _, deb := range details.Debits {
 			fee += deb.Amount
 		}
@@ -197,6 +198,7 @@ func flattenBalanceMap(
 
 func relevantAccounts(
 	w *Wallet, m map[uint32]util.Amount, txs []TransactionSummary) {
+
 	for _, tx := range txs {
 		for _, d := range tx.MyInputs {
 			m[d.PreviousAccount] = 0
@@ -208,6 +210,7 @@ func relevantAccounts(
 }
 
 func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails) {
+
 	// Sanity check: should not be currently coalescing a notification for
 	// mined transactions at the same time that an unmined tx is notified.
 	if s.currentTxNtfn != nil {
@@ -253,6 +256,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 }
 
 func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
+
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
@@ -260,6 +264,7 @@ func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 }
 
 func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails, block *wtxmgr.BlockMeta) {
+
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
@@ -278,6 +283,7 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 }
 
 func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wtxmgr.BlockMeta) {
+
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
@@ -296,7 +302,9 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	// For now (until notification coalescing isn't necessary) just use
 	// chain length to determine if this is the new best block.
 	if s.wallet.ChainSynced() {
+
 		if len(s.currentTxNtfn.DetachedBlocks) >= len(s.currentTxNtfn.AttachedBlocks) {
+
 			return
 		}
 	}
@@ -447,13 +455,16 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 // messages.  It must be called exactly once when the client is finished
 // receiving notifications.
 func (c *TransactionNotificationsClient) Done() {
+
 	go func() {
+
 		// Drain notifications until the client channel is removed from
 		// the server and closed.
 		for range c.C {
 		}
 	}()
 	go func() {
+
 		s := c.server
 		s.mu.Lock()
 		clients := s.transactions
@@ -494,12 +505,14 @@ func (n *SpentnessNotifications) Index() uint32 {
 // Spender returns the spending transction's hash and input index, if any.  If
 // the output is unspent, the final bool return is false.
 func (n *SpentnessNotifications) Spender() (*chainhash.Hash, uint32, bool) {
+
 	return n.spenderHash, n.spenderIndex, n.spenderHash != nil
 }
 
 // notifyUnspentOutput notifies registered clients of a new unspent output that
 // is controlled by the wallet.
 func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash.Hash, index uint32) {
+
 	defer s.mu.Unlock()
 	s.mu.Lock()
 	clients := s.spentness[account]
@@ -519,6 +532,7 @@ func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash
 // output is now spent, and includes the spender hash and input index in the
 // notification.
 func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint, spenderHash *chainhash.Hash, spenderIndex uint32) {
+
 	defer s.mu.Unlock()
 	s.mu.Lock()
 	clients := s.spentness[account]
@@ -562,13 +576,16 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 // messages.  It must be called exactly once when the client is finished
 // receiving notifications.
 func (c *SpentnessNotificationsClient) Done() {
+
 	go func() {
+
 		// Drain notifications until the client channel is removed from
 		// the server and closed.
 		for range c.C {
 		}
 	}()
 	go func() {
+
 		s := c.server
 		s.mu.Lock()
 		clients := s.spentness[c.account]
@@ -596,6 +613,7 @@ type AccountNotification struct {
 }
 
 func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProperties) {
+
 	defer s.mu.Unlock()
 	s.mu.Lock()
 	clients := s.accountClients
@@ -638,11 +656,14 @@ func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 // messages.  It must be called exactly once when the client is finished
 // receiving notifications.
 func (c *AccountNotificationsClient) Done() {
+
 	go func() {
+
 		for range c.C {
 		}
 	}()
 	go func() {
+
 		s := c.server
 		s.mu.Lock()
 		clients := s.accountClients

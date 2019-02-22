@@ -122,6 +122,7 @@ var bTwo = big.NewInt(2)
 
 func rightShift(
 	b []byte) (out []byte) {
+
 	out = make([]byte, 32)
 	copy(out, b[1:])
 	return
@@ -130,6 +131,7 @@ func rightShift(
 // Hash computes the hash of bytes using the named hash
 func Hash(
 	bytes []byte, name string, height int32) (out chainhash.Hash) {
+
 	// time.Sleep(time.Millisecond * 2000)
 	switch name {
 	case "blake2b":

@@ -65,6 +65,7 @@ func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 }
 
 func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucket, error) {
+
 	boltBucket, err := tx.boltTx.CreateBucket(key)
 	if err != nil {
 		return nil, convertErr(err)
@@ -127,6 +128,7 @@ func (b *bucket) NestedReadBucket(key []byte) walletdb.ReadBucket {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) CreateBucket(key []byte) (walletdb.ReadWriteBucket, error) {
+
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucket(key)
 	if err != nil {
 		return nil, convertErr(err)
@@ -140,6 +142,7 @@ func (b *bucket) CreateBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) CreateBucketIfNotExists(key []byte) (walletdb.ReadWriteBucket, error) {
+
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucketIfNotExists(key)
 	if err != nil {
 		return nil, convertErr(err)
@@ -234,6 +237,7 @@ func (c *cursor) Delete() error {
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) First() (key, value []byte) {
+
 	return (*bolt.Cursor)(c).First()
 }
 
@@ -241,6 +245,7 @@ func (c *cursor) First() (key, value []byte) {
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) Last() (key, value []byte) {
+
 	return (*bolt.Cursor)(c).Last()
 }
 
@@ -248,6 +253,7 @@ func (c *cursor) Last() (key, value []byte) {
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) Next() (key, value []byte) {
+
 	return (*bolt.Cursor)(c).Next()
 }
 
@@ -255,6 +261,7 @@ func (c *cursor) Next() (key, value []byte) {
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) Prev() (key, value []byte) {
+
 	return (*bolt.Cursor)(c).Prev()
 }
 
@@ -263,6 +270,7 @@ func (c *cursor) Prev() (key, value []byte) {
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) Seek(seek []byte) (key, value []byte) {
+
 	return (*bolt.Cursor)(c).Seek(seek)
 }
 
@@ -275,6 +283,7 @@ type db bolt.DB
 var _ walletdb.DB = (*db)(nil)
 
 func (db *db) beginTx(writable bool) (*transaction, error) {
+
 	boltTx, err := (*bolt.DB)(db).Begin(writable)
 	if err != nil {
 		return nil, convertErr(err)
@@ -283,10 +292,12 @@ func (db *db) beginTx(writable bool) (*transaction, error) {
 }
 
 func (db *db) BeginReadTx() (walletdb.ReadTx, error) {
+
 	return db.beginTx(false)
 }
 
 func (db *db) BeginReadWriteTx() (walletdb.ReadWriteTx, error) {
+
 	return db.beginTx(true)
 }
 
@@ -312,6 +323,7 @@ func fileExists(
 	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
+
 			return false
 		}
 	}
@@ -322,7 +334,9 @@ func fileExists(
 // is returned if the database doesn't exist and the create flag is not set.
 func openDB(
 	dbPath string, create bool) (walletdb.DB, error) {
+
 	if !create && !fileExists(dbPath) {
+
 		return nil, walletdb.ErrDbDoesNotExist
 	}
 

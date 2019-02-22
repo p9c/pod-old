@@ -10,6 +10,7 @@ import (
 // TestFilterCLearLatest tests the MsgFilterClear API against the latest protocol version.
 func TestFilterClearLatest(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	msg := NewMsgFilterClear()
 	// Ensure the command is expected value.
@@ -31,6 +32,7 @@ func TestFilterClearLatest(
 // TestFilterClearCrossProtocol tests the MsgFilterClear API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterClearCrossProtocol(
 	t *testing.T) {
+
 	msg := NewMsgFilterClear()
 	// Encode with latest protocol version.
 	var buf bytes.Buffer
@@ -50,6 +52,7 @@ func TestFilterClearCrossProtocol(
 // TestFilterClearWire tests the MsgFilterClear wire encode and decode for various protocol versions.
 func TestFilterClearWire(
 	t *testing.T) {
+
 	msgFilterClear := NewMsgFilterClear()
 	msgFilterClearEncoded := []byte{}
 	tests := []struct {
@@ -94,6 +97,7 @@ func TestFilterClearWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -107,6 +111,7 @@ func TestFilterClearWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -117,6 +122,7 @@ func TestFilterClearWire(
 // TestFilterClearWireErrors performs negative tests against wire encode and decode of MsgFilterClear to confirm error paths work correctly.
 func TestFilterClearWireErrors(
 	t *testing.T) {
+
 	pverNoFilterClear := BIP0037Version - 1
 	wireErr := &MessageError{}
 	baseFilterClear := NewMsgFilterClear()
@@ -142,6 +148,7 @@ func TestFilterClearWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -159,6 +166,7 @@ func TestFilterClearWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

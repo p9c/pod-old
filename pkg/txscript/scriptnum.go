@@ -98,6 +98,7 @@ func (n scriptNum) Int32() int32 {
 // The scriptNumLen is the maximum number of bytes the encoded value can be before an ErrStackNumberTooBig is returned.  This effectively limits the range of allowed values. WARNING:  Great care should be taken if passing a value larger than defaultScriptNumLen, which could lead to addition and multiplication overflows. See the Bytes function documentation for example encodings.
 func makeScriptNum(
 	v []byte, requireMinimal bool, scriptNumLen int) (scriptNum, error) {
+
 	// Interpreting data requires that it is not larger than the the passed scriptNumLen value.
 	if len(v) > scriptNumLen {
 		str := fmt.Sprintf("numeric value encoded as %x is %d bytes "+

@@ -44,6 +44,7 @@ type CryptoKey [KeySize]byte
 
 // Encrypt encrypts the passed data.
 func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
+
 	var nonce [NonceSize]byte
 	_, err := io.ReadFull(prng, nonce[:])
 	if err != nil {
@@ -56,6 +57,7 @@ func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
 // Decrypt decrypts the passed data.  The must be the output of the Encrypt
 // function.
 func (ck *CryptoKey) Decrypt(in []byte) ([]byte, error) {
+
 	if len(in) < NonceSize {
 		return nil, ErrMalformed
 	}
@@ -77,12 +79,13 @@ func (ck *CryptoKey) Decrypt(in []byte) ([]byte, error) {
 // rather than waiting until it's reclaimed by the garbage collector.  The
 // key is no longer usable after this call.
 func (ck *CryptoKey) Zero() {
+
 	zero.Bytea32((*[KeySize]byte)(ck))
 }
 
 // GenerateCryptoKey generates a new crypotgraphically random key.
-func GenerateCryptoKey(
-	) (*CryptoKey, error) {
+func GenerateCryptoKey() (*CryptoKey, error) {
+
 	var key CryptoKey
 	_, err := io.ReadFull(prng, key[:])
 	if err != nil {
@@ -190,6 +193,7 @@ func (sk *SecretKey) Unmarshal(marshalled []byte) error {
 // This effectively makes the key unusable until it is derived again via the
 // DeriveKey function.
 func (sk *SecretKey) Zero() {
+
 	sk.Key.Zero()
 }
 
@@ -212,17 +216,20 @@ func (sk *SecretKey) DeriveKey(password *[]byte) error {
 
 // Encrypt encrypts in bytes and returns a JSON blob.
 func (sk *SecretKey) Encrypt(in []byte) ([]byte, error) {
+
 	return sk.Key.Encrypt(in)
 }
 
 // Decrypt takes in a JSON blob and returns it's decrypted form.
 func (sk *SecretKey) Decrypt(in []byte) ([]byte, error) {
+
 	return sk.Key.Decrypt(in)
 }
 
 // NewSecretKey returns a SecretKey structure based on the passed parameters.
 func NewSecretKey(
 	password *[]byte, N, r, p int) (*SecretKey, error) {
+
 	sk := SecretKey{
 		Key: (*CryptoKey)(&[KeySize]byte{}),
 	}

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/integration/rpctest"
 	"git.parallelcoin.io/pod/pkg/chain"
+	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/txscript"
@@ -27,6 +27,7 @@ const (
 func makeTestOutput(
 	r *rpctest.Harness, t *testing.T,
 	amt util.Amount) (*ec.PrivateKey, *wire.OutPoint, []byte, error) {
+
 	// Create a fresh key, then send some coins to an address spendable by that key.
 	key, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
@@ -60,6 +61,7 @@ func makeTestOutput(
 	// Locate the output index of the coins spendable by the key we generated above, this is needed in order to create a proper utxo for this output.
 	var outputIndex uint32
 	if bytes.Equal(fundTx.TxOut[0].PkScript, selfAddrScript) {
+
 		outputIndex = 0
 	} else {
 		outputIndex = 1
@@ -81,6 +83,7 @@ func makeTestOutput(
 //    - Transactions with final lock-times from the PoV of MTP should be accepted to the mempool and mined in future block.
 func TestBIP0113Activation(
 	t *testing.T) {
+
 	t.Parallel()
 	podCfg := []string{"--rejectnonstd"}
 	r, err := rpctest.New(&chaincfg.SimNetParams, nil, podCfg)
@@ -133,6 +136,7 @@ func TestBIP0113Activation(
 	if err == nil {
 		t.Fatalf("transaction accepted, but should be non-final")
 	} else if !strings.Contains(err.Error(), "not finalized") {
+
 		t.Fatalf("transaction should be rejected due to being "+
 			"non-final, instead: %v", err)
 	}
@@ -196,6 +200,7 @@ func TestBIP0113Activation(
 			t.Fatal("transaction was accepted into the mempool " +
 				"but should be rejected!")
 		} else if err != nil && !strings.Contains(err.Error(), "not finalized") {
+
 			t.Fatalf("transaction should be rejected from mempool "+
 				"due to being  non-final, instead: %v", err)
 		}
@@ -205,6 +210,7 @@ func TestBIP0113Activation(
 			t.Fatal("block should be rejected due to non-final " +
 				"txn, but was accepted")
 		} else if err != nil && !strings.Contains(err.Error(), "unfinalized") {
+
 			t.Fatalf("block should be rejected due to non-final "+
 				"tx, instead: %v", err)
 		}
@@ -217,6 +223,7 @@ func createCSVOutput(
 	r *rpctest.Harness, t *testing.T,
 	numSatoshis util.Amount, timeLock int32,
 	isSeconds bool) ([]byte, *wire.OutPoint, *wire.MsgTx, error) {
+
 	// Convert the time-lock to the proper sequence lock based according to
 	// if the lock is seconds or time based.
 	sequenceLock := blockchain.LockTimeToSequence(isSeconds,
@@ -252,6 +259,7 @@ func createCSVOutput(
 	}
 	var outputIndex uint32
 	if !bytes.Equal(tx.TxOut[0].PkScript, p2shScript) {
+
 		outputIndex = 1
 	}
 	utxo := &wire.OutPoint{
@@ -268,6 +276,7 @@ func spendCSVOutput(
 	redeemScript []byte, csvUTXO *wire.OutPoint,
 	sequence uint32, targetOutput *wire.TxOut,
 	txVersion int32) (*wire.MsgTx, error) {
+
 	tx := wire.NewMsgTx(txVersion)
 	tx.AddTxIn(&wire.TxIn{
 		PreviousOutPoint: *csvUTXO,
@@ -290,6 +299,7 @@ func spendCSVOutput(
 func assertTxInBlock(
 	r *rpctest.Harness, t *testing.T, blockHash *chainhash.Hash,
 	txid *chainhash.Hash) {
+
 	block, err := r.Node.GetBlock(blockHash)
 	if err != nil {
 		t.Fatalf("unable to get block: %v", err)
@@ -321,6 +331,7 @@ func assertTxInBlock(
 //    of this test.
 func TestBIP0068AndBIP0112Activation(
 	t *testing.T) {
+
 	t.Parallel()
 	// We'd like the test proper evaluation and validation of the BIP 68
 	// (sequence locks) and BIP 112 rule-sets which add input-age based

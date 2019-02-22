@@ -11,6 +11,7 @@ import (
 // TestUsageFlagStringer tests the stringized output for the UsageFlag type.
 func TestUsageFlagStringer(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   json.UsageFlag
@@ -50,12 +51,12 @@ func TestUsageFlagStringer(
 // TestRegisterCmdErrors ensures the RegisterCmd function returns the expected error when provided with invalid types.
 func TestRegisterCmdErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string
 		method  string
-		cmdFunc func(
-	) interface{}
+		cmdFunc func() interface{}
 		flags   json.UsageFlag
 		err     json.Error
 	}{
@@ -204,6 +205,7 @@ func TestRegisterCmdErrors(
 		err := json.RegisterCmd(test.method, test.cmdFunc(),
 			test.flags)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T, "+
 				"want %T", i, test.name, err, test.err)
 			continue
@@ -221,10 +223,12 @@ func TestRegisterCmdErrors(
 // TestMustRegisterCmdPanic ensures the MustRegisterCmd function panics when used to register an invalid type.
 func TestMustRegisterCmdPanic(
 	t *testing.T) {
+
 	t.Parallel()
 	// Setup a defer to catch the expected panic to ensure it actually
 	// paniced.
 	defer func() {
+
 		if err := recover(); err == nil {
 			t.Error("MustRegisterCmd did not panic as expected")
 		}
@@ -236,6 +240,7 @@ func TestMustRegisterCmdPanic(
 // TestRegisteredCmdMethods tests the RegisteredCmdMethods function ensure it works as expected.
 func TestRegisteredCmdMethods(
 	t *testing.T) {
+
 	t.Parallel()
 	// Ensure the registered methods are returned.
 	methods := json.RegisteredCmdMethods()
@@ -247,6 +252,7 @@ func TestRegisteredCmdMethods(
 	copy(sortedMethods, methods)
 	sort.Sort(sort.StringSlice(sortedMethods))
 	if !reflect.DeepEqual(sortedMethods, methods) {
+
 		t.Fatal("RegisteredCmdMethods: methods are not sorted")
 	}
 }

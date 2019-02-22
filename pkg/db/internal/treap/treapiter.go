@@ -212,6 +212,7 @@ func (iter *Iterator) Valid() bool {
 // ForceReseek notifies the iterator that the underlying mutable treap has been updated, so the next call to Prev or Next needs to reseek in order to allow the iterator to continue working properly.
 // NOTE: Calling this function when the iterator is associated with an immutable treap has no effect as you would expect.
 func (iter *Iterator) ForceReseek() {
+
 	// Nothing to do when the iterator is associated with an immutable treap.
 	if iter.t == nil {
 		return
@@ -230,6 +231,7 @@ func (iter *Iterator) ForceReseek() {
 // For example:
 //   iter := t.Iterator(nil, nil)
 //   for iter.Next() {
+
 //   	if someCondition {
 //   		t.Delete(iter.Key())
 //   		iter.ForceReseek()

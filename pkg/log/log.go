@@ -49,9 +49,10 @@ var (
 
 // Read logger flags from the LOGFLAGS environment variable.  Multiple flags can
 // be set at once, separated by commas.
-func init(
-	) {
+func init() {
+
 	for _, f := range strings.Split(os.Getenv("LOGFLAGS"), ",") {
+
 		switch f {
 		case "longfile":
 			defaultFlags |= Llongfile
@@ -84,7 +85,9 @@ var levelStrs = [...]string{"TRC", "DBG", "INF", "WRN", "ERR", "CRT", "OFF"}
 // returned.
 func LevelFromString(
 	s string) (l Level, ok bool) {
+
 	switch strings.ToLower(s) {
+
 	case "trace", "trc":
 		return LevelTrace, true
 	case "debug", "dbg":
@@ -141,6 +144,7 @@ type BackendOption func(b *Backend)
 func WithFlags(
 	flags uint32) BackendOption {
 	return func(b *Backend) {
+
 		b.flag = flags
 	}
 }
@@ -158,8 +162,7 @@ var bufferPool = sync.Pool{
 // there are not any available on the free list.  The returned byte slice should
 // be returned to the fee list by using the recycleBuffer function when the
 // caller is done with it.
-func buffer(
-	) *[]byte {
+func buffer() *[]byte {
 	return bufferPool.Get().(*[]byte)
 }
 
@@ -167,6 +170,7 @@ func buffer(
 // the buffer function, back on the free list.
 func recycleBuffer(
 	b *[]byte) {
+
 	*b = (*b)[:0]
 	bufferPool.Put(b)
 }
@@ -176,6 +180,7 @@ func recycleBuffer(
 // zero-padding.
 func itoa(
 	buf *[]byte, i int, wid int) {
+
 	// Assemble decimal in reverse order.
 	var b [20]byte
 	bp := len(b) - 1
@@ -196,6 +201,7 @@ func itoa(
 // and line number are included after the tag and before the final colon.
 func formatHeader(
 	buf *[]byte, t time.Time, lvl, tag string, file string, line int) {
+
 	year, month, day := t.Date()
 	hour, min, sec := t.Clock()
 	ms := t.Nanosecond() / 1e6
@@ -254,6 +260,7 @@ const calldepth = 3
 // subsystem logger.
 func callsite(
 	flag uint32) (string, int) {
+
 	_, file, line, ok := runtime.Caller(calldepth)
 	if !ok {
 		return "???", 0
@@ -262,6 +269,7 @@ func callsite(
 		short := file
 		for i := len(file) - 1; i > 0; i-- {
 			if os.IsPathSeparator(file[i]) {
+
 				short = file[i+1:]
 				break
 			}
@@ -276,6 +284,7 @@ func callsite(
 // function and formatting the provided arguments using the default formatting
 // rules.
 func (b *Backend) print(lvl, tag string, args ...interface{}) {
+
 	t := time.Now() // get as early as possible
 	bytebuf := buffer()
 	var file string
@@ -299,6 +308,7 @@ func (b *Backend) print(lvl, tag string, args ...interface{}) {
 // function and formatting the provided arguments according to the given format
 // specifier.
 func (b *Backend) printf(lvl, tag string, format string, args ...interface{}) {
+
 	t := time.Now() // get as early as possible
 	bytebuf := buffer()
 	var file string
@@ -334,6 +344,7 @@ type slog struct {
 // the prefix as necessary, and writes to log with LevelTrace.
 // This is part of the Logger interface implementation.
 func (l *slog) Trace(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelTrace {
 		l.b.print("TRC", l.tag, args...)
@@ -344,6 +355,7 @@ func (l *slog) Trace(args ...interface{}) {
 // necessary, and writes to log with LevelTrace.
 // This is part of the Logger interface implementation.
 func (l *slog) Tracef(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelTrace {
 		l.b.printf("TRC", l.tag, format, args...)
@@ -354,6 +366,7 @@ func (l *slog) Tracef(format string, args ...interface{}) {
 // the prefix as necessary, and writes to log with LevelDebug.
 // This is part of the Logger interface implementation.
 func (l *slog) Debug(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelDebug {
 		l.b.print("DBG", l.tag, args...)
@@ -364,6 +377,7 @@ func (l *slog) Debug(args ...interface{}) {
 // necessary, and writes to log with LevelDebug.
 // This is part of the Logger interface implementation.
 func (l *slog) Debugf(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelDebug {
 		l.b.printf("DBG", l.tag, format, args...)
@@ -374,6 +388,7 @@ func (l *slog) Debugf(format string, args ...interface{}) {
 // the prefix as necessary, and writes to log with LevelInfo.
 // This is part of the Logger interface implementation.
 func (l *slog) Info(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelInfo {
 		l.b.print("INF", l.tag, args...)
@@ -384,6 +399,7 @@ func (l *slog) Info(args ...interface{}) {
 // necessary, and writes to log with LevelInfo.
 // This is part of the Logger interface implementation.
 func (l *slog) Infof(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelInfo {
 		l.b.printf("INF", l.tag, format, args...)
@@ -394,6 +410,7 @@ func (l *slog) Infof(format string, args ...interface{}) {
 // the prefix as necessary, and writes to log with LevelWarn.
 // This is part of the Logger interface implementation.
 func (l *slog) Warn(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelWarn {
 		l.b.print("WRN", l.tag, args...)
@@ -404,6 +421,7 @@ func (l *slog) Warn(args ...interface{}) {
 // necessary, and writes to log with LevelWarn.
 // This is part of the Logger interface implementation.
 func (l *slog) Warnf(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelWarn {
 		l.b.printf("WRN", l.tag, format, args...)
@@ -414,6 +432,7 @@ func (l *slog) Warnf(format string, args ...interface{}) {
 // the prefix as necessary, and writes to log with LevelError.
 // This is part of the Logger interface implementation.
 func (l *slog) Error(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelError {
 		l.b.print("ERR", l.tag, args...)
@@ -424,6 +443,7 @@ func (l *slog) Error(args ...interface{}) {
 // necessary, and writes to log with LevelError.
 // This is part of the Logger interface implementation.
 func (l *slog) Errorf(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelError {
 		l.b.printf("ERR", l.tag, format, args...)
@@ -434,6 +454,7 @@ func (l *slog) Errorf(format string, args ...interface{}) {
 // the prefix as necessary, and writes to log with LevelCritical.
 // This is part of the Logger interface implementation.
 func (l *slog) Critical(args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelCritical {
 		l.b.print("CRT", l.tag, args...)
@@ -444,6 +465,7 @@ func (l *slog) Critical(args ...interface{}) {
 // as necessary, and writes to log with LevelCritical.
 // This is part of the Logger interface implementation.
 func (l *slog) Criticalf(format string, args ...interface{}) {
+
 	lvl := l.Level()
 	if lvl <= LevelCritical {
 		l.b.printf("CRT", l.tag, format, args...)
@@ -459,13 +481,14 @@ func (l *slog) Level() Level {
 // SetLevel changes the logging level to the passed level.
 // This is part of the Logger interface implementation.
 func (l *slog) SetLevel(level Level) {
+
 	atomic.StoreUint32((*uint32)(&l.lvl), uint32(level))
 }
 
 // Disabled is a Logger that will never output anything.
 var Disabled Logger
 
-func init(
-	) {
+func init() {
+
 	Disabled = &slog{lvl: LevelOff, b: NewBackend(ioutil.Discard)}
 }

@@ -147,6 +147,7 @@ func (
 	s *ChainService,
 ) unsubscribeBlockMsgs(
 	subscription *blockSubscription) {
+
 	s.mtxSubscribers.Lock()
 	delete(s.blockSubscribers, subscription)
 	s.mtxSubscribers.Unlock()
@@ -172,6 +173,7 @@ cleanup:
 func (
 	s *blockSubscription,
 ) subscriptionHandler() {
+
 	// Start with a small queue; it will grow if needed.
 	ntfns := make([]*blockMessage, 0, 5)
 	var next *blockMessage

@@ -20,11 +20,13 @@ const dbType = "ffldb"
 // TestCreateOpenFail ensures that errors related to creating and opening a database are handled properly.
 func TestCreateOpenFail(
 	t *testing.T) {
+
 	t.Parallel()
 	// Ensure that attempting to open a database that doesn't exist returns the expected error.
 	wantErrCode := database.ErrDbDoesNotExist
 	_, err := database.Open(dbType, "noexist", blockDataNet)
 	if !checkDbError(t, "Open", err, wantErrCode) {
+
 		return
 	}
 	// Ensure that attempting to open a database with the wrong number of parameters returns the expected error.
@@ -32,6 +34,7 @@ func TestCreateOpenFail(
 		"database path and block network", dbType)
 	_, err = database.Open(dbType, 1, 2, 3)
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -41,6 +44,7 @@ func TestCreateOpenFail(
 		"expected database path string", dbType)
 	_, err = database.Open(dbType, 1, blockDataNet)
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -50,6 +54,7 @@ func TestCreateOpenFail(
 		"expected block network", dbType)
 	_, err = database.Open(dbType, "noexist", "invalid")
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -59,6 +64,7 @@ func TestCreateOpenFail(
 		"database path and block network", dbType)
 	_, err = database.Create(dbType, 1, 2, 3)
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Create: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -68,6 +74,7 @@ func TestCreateOpenFail(
 		"expected database path string", dbType)
 	_, err = database.Create(dbType, 1, blockDataNet)
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Create: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -77,6 +84,7 @@ func TestCreateOpenFail(
 		"expected block network", dbType)
 	_, err = database.Create(dbType, "noexist", "invalid")
 	if err.Error() != wantErr.Error() {
+
 		t.Errorf("Create: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -96,6 +104,7 @@ func TestCreateOpenFail(
 		return nil
 	})
 	if !checkDbError(t, "View", err, wantErrCode) {
+
 		return
 	}
 	wantErrCode = database.ErrDbNotOpen
@@ -103,21 +112,25 @@ func TestCreateOpenFail(
 		return nil
 	})
 	if !checkDbError(t, "Update", err, wantErrCode) {
+
 		return
 	}
 	wantErrCode = database.ErrDbNotOpen
 	_, err = db.Begin(false)
 	if !checkDbError(t, "Begin(false)", err, wantErrCode) {
+
 		return
 	}
 	wantErrCode = database.ErrDbNotOpen
 	_, err = db.Begin(true)
 	if !checkDbError(t, "Begin(true)", err, wantErrCode) {
+
 		return
 	}
 	wantErrCode = database.ErrDbNotOpen
 	err = db.Close()
 	if !checkDbError(t, "Close", err, wantErrCode) {
+
 		return
 	}
 }
@@ -125,6 +138,7 @@ func TestCreateOpenFail(
 // TestPersistence ensures that values stored are still valid after closing and reopening the database.
 func TestPersistence(
 	t *testing.T) {
+
 	t.Parallel()
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-persistencetest")
@@ -193,6 +207,7 @@ func TestPersistence(
 		for k, v := range storeValues {
 			gotVal := bucket1.Get([]byte(k))
 			if !reflect.DeepEqual(gotVal, []byte(v)) {
+
 				return fmt.Errorf("Get: key '%s' does not "+
 					"match expected value - got %s, want %s",
 					k, gotVal, v)
@@ -205,6 +220,7 @@ func TestPersistence(
 				err)
 		}
 		if !reflect.DeepEqual(gotBytes, genesisBlockBytes) {
+
 			return fmt.Errorf("FetchBlock: stored block mismatch")
 		}
 		return nil
@@ -218,6 +234,7 @@ func TestPersistence(
 // TestInterface performs all interfaces tests for this database driver.
 func TestInterface(
 	t *testing.T) {
+
 	t.Parallel()
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-interfacetest")
@@ -240,6 +257,7 @@ func TestInterface(
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// Change the maximum file size to a small value to force multiple flat files with the test data set.
 	ffldb.TstRunWithMaxBlockFileSize(db, 2048, func() {
+
 		testInterface(t, db)
 	})
 }

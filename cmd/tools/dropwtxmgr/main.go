@@ -29,8 +29,8 @@ var opts = struct {
 	DbPath: filepath.Join(datadir, defaultNet, "wallet.db"),
 }
 
-func init(
-	) {
+func init() {
+
 	_, err := flags.Parse(&opts)
 	if err != nil {
 		os.Exit(1)
@@ -69,16 +69,16 @@ func no(
 	}
 }
 
-func main(
-	) {
+func main() {
+
 	os.Exit(mainInt())
 }
 
-func mainInt(
-	) int {
+func mainInt() int {
 	fmt.Println("Database path:", opts.DbPath)
 	_, err := os.Stat(opts.DbPath)
 	if os.IsNotExist(err) {
+
 		fmt.Println("Database file does not exist")
 		return 1
 	}
@@ -88,6 +88,7 @@ func mainInt(
 
 		scanner := bufio.NewScanner(bufio.NewReader(os.Stdin))
 		if !scanner.Scan() {
+
 			// Exit on EOF.
 			return 0
 		}
@@ -99,6 +100,7 @@ func mainInt(
 		}
 		resp := scanner.Text()
 		if yes(resp) {
+
 			break
 		}
 		if no(resp) || resp == "" {

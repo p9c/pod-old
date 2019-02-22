@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // headers wraps the different headers and filters used throughout the tests.
@@ -32,6 +32,7 @@ const maxHeight = 20 * uint32(wire.CFCheckptInterval)
 // a partial interval is already written to the store.
 func TestBlockManagerInitialInterval(
 	t *testing.T) {
+
 	t.Parallel()
 
 	type testCase struct {
@@ -208,6 +209,7 @@ func TestBlockManagerInitialInterval(
 // determine it is receiving corrupt checkpoints and filter headers.
 func TestBlockManagerInvalidInterval(
 	t *testing.T) {
+
 	t.Parallel()
 
 	type testCase struct {
@@ -308,6 +310,7 @@ func TestBlockManagerInvalidInterval(
 		headers, err := generateHeaders(genesisBlockHeader,
 			genesisFilterHeader,
 			func(currentCFHeader *chainhash.Hash) {
+
 				// If we are testing that each interval doesn't
 				// line up properly with the previous, we flip
 				// a bit in the current header before
@@ -618,6 +621,7 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	}
 
 	cleanUp := func() {
+
 		defer os.RemoveAll(tempDir)
 		defer db.Close()
 	}

@@ -221,7 +221,6 @@ func (
 	isAdmin bool,
 ) {
 
-
 	// Clear the read deadline that was set before the websocket hijacked the connection.
 	conn.SetReadDeadline(timeZeroVal)
 	// Limit max number of websocket clients.
@@ -258,7 +257,6 @@ func (
 	c *wsClient,
 ) Disconnect() {
 
-
 	c.Lock()
 	defer c.Unlock()
 	// Nothing to do if already disconnected.
@@ -276,7 +274,6 @@ func (
 	c *wsClient,
 ) Disconnected() bool {
 
-
 	c.Lock()
 	isDisconnected := c.disconnected
 	c.Unlock()
@@ -290,7 +287,6 @@ func (
 ) QueueNotification(
 	marshalledJSON []byte,
 ) error {
-
 
 	// Don't queue the message if disconnected.
 	if c.Disconnected() {
@@ -309,7 +305,6 @@ func (
 	doneChan chan bool,
 ) {
 
-
 	// Don't send the message if disconnected.
 	if c.Disconnected() {
 
@@ -326,7 +321,6 @@ func (
 	c *wsClient,
 ) Start() {
 
-
 	log <- cl.Trace{"starting websocket client", c.addr}
 	// Start processing input and output.
 	c.wg.Add(3)
@@ -340,7 +334,6 @@ func (
 	c *wsClient,
 ) WaitForShutdown() {
 
-
 	c.wg.Wait()
 }
 
@@ -348,7 +341,6 @@ func (
 func (
 	c *wsClient,
 ) inHandler() {
-
 
 out:
 	for {
@@ -491,7 +483,6 @@ func (
 	c *wsClient,
 ) notificationQueueHandler() {
 
-
 	ntfnSentChan := make(chan bool, 1) // nonblocking sync
 	// pendingNtfns is used as a queue for notifications that are ready to be sent once there are no outstanding notifications currently being sent.  The waiting flag is used over simply checking for items in the pending list to ensure cleanup knows what has and hasn't been sent to the outHandler.  Currently no special cleanup is needed, however if something like a done channel is added to notifications in the future, not knowing what has and hasn't been sent to the outHandler (and thus who should respond to the done channel) would be problematic without using this approach.
 	pendingNtfns := list.New()
@@ -547,7 +538,6 @@ func (
 	c *wsClient,
 ) outHandler() {
 
-
 out:
 	for {
 		// Send any messages ready for send until the quit channel is closed.
@@ -592,7 +582,6 @@ func (
 ) serviceRequest(
 	r *parsedRPCCmd,
 ) {
-
 
 	var (
 		result interface{}
@@ -656,7 +645,6 @@ func (
 	params *chaincfg.Params,
 ) {
 
-
 	// If address can't be decoded, no point in saving it since it should also impossible to create the address from an inspected transaction output script.
 	a, err := util.DecodeAddress(s, params)
 	if err != nil {
@@ -672,7 +660,6 @@ func (
 	op *wire.OutPoint,
 ) {
 
-
 	f.unspent[*op] = struct{}{}
 }
 
@@ -682,7 +669,6 @@ func (
 ) existsAddress(
 	a util.Address,
 ) bool {
-
 
 	switch a := a.(type) {
 
@@ -769,7 +755,6 @@ func (
 	params *chaincfg.Params,
 ) {
 
-
 	a, err := util.DecodeAddress(s, params)
 	if err == nil {
 		f.removeAddress(a)
@@ -785,7 +770,6 @@ func (
 	op *wire.OutPoint,
 ) {
 
-
 	delete(f.unspent, *op)
 }
 
@@ -796,7 +780,6 @@ func (
 	wsc *wsClient,
 ) {
 
-
 	m.queueNotification <- (*notificationRegisterClient)(wsc)
 }
 
@@ -806,7 +789,6 @@ func (
 ) NotifyBlockConnected(
 	block *util.Block,
 ) {
-
 
 	// As NotifyBlockConnected will be called by the block manager and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
@@ -838,7 +820,6 @@ func (
 	isNew bool,
 ) {
 
-
 	n := &notificationTxAcceptedByMempool{
 		isNew: isNew,
 		tx:    tx,
@@ -858,7 +839,6 @@ func (
 	n int,
 ) {
 
-
 	select {
 	case n = <-m.numClients:
 		// fmt.Println("chan:n = <-m.numClients")
@@ -875,7 +855,6 @@ func (
 	wsc *wsClient,
 ) {
 
-
 	m.queueNotification <- (*notificationRegisterBlocks)(wsc)
 }
 
@@ -885,7 +864,6 @@ func (
 ) RegisterNewMempoolTxsUpdates(
 	wsc *wsClient,
 ) {
-
 
 	m.queueNotification <- (*notificationRegisterNewMempoolTxs)(wsc)
 }
@@ -897,7 +875,6 @@ func (
 	wsc *wsClient,
 	ops []*wire.OutPoint,
 ) {
-
 
 	m.queueNotification <- &notificationRegisterSpent{
 		wsc: wsc,
@@ -913,7 +890,6 @@ func (
 	addrs []string,
 ) {
 
-
 	m.queueNotification <- &notificationRegisterAddr{
 		wsc:   wsc,
 		addrs: addrs,
@@ -926,7 +902,6 @@ func (
 ) RemoveClient(
 	wsc *wsClient,
 ) {
-
 
 	select {
 	case m.queueNotification <- (*notificationUnregisterClient)(wsc):
@@ -941,7 +916,6 @@ func (
 	m *wsNotificationManager,
 ) Shutdown() {
 
-
 	close(m.quit)
 }
 
@@ -949,7 +923,6 @@ func (
 func (
 	m *wsNotificationManager,
 ) Start() {
-
 
 	m.wg.Add(2)
 	go m.queueHandler()
@@ -962,7 +935,6 @@ func (
 ) UnregisterBlockUpdates(
 	wsc *wsClient,
 ) {
-
 
 	m.queueNotification <- (*notificationUnregisterBlocks)(wsc)
 }
@@ -996,7 +968,6 @@ func (
 	addr string,
 ) {
 
-
 	m.queueNotification <- &notificationUnregisterAddr{
 		wsc:  wsc,
 		addr: addr,
@@ -1008,7 +979,6 @@ func (
 	m *wsNotificationManager,
 ) WaitForShutdown() {
 
-
 	m.wg.Wait()
 }
 
@@ -1019,7 +989,6 @@ func (
 	addrMap map[string]map[chan struct{}]*wsClient,
 	wsc *wsClient, addrs []string,
 ) {
-
 
 	for _, addr := range addrs {
 		// Track the request in the client as well so it can be quickly be removed on disconnect.
@@ -1041,7 +1010,6 @@ func (
 	opMap map[wire.OutPoint]map[chan struct{}]*wsClient,
 	wsc *wsClient, ops []*wire.OutPoint,
 ) {
-
 
 	for _, op := range ops {
 		// Track the request in the client as well so it can be quickly be removed on disconnect.
@@ -1075,7 +1043,6 @@ func (
 func (
 	m *wsNotificationManager,
 ) notificationHandler() {
-
 
 	// clients is a map of all currently connected websocket clients.
 	clients := make(map[chan struct{}]*wsClient)
@@ -1186,7 +1153,6 @@ func (
 	block *util.Block,
 ) {
 
-
 	// Notify interested websocket clients about the connected block.
 	ntfn := json.NewBlockConnectedNtfn(block.Hash().String(), block.Height(),
 		block.MsgBlock().Header.Timestamp.Unix())
@@ -1207,7 +1173,6 @@ func (
 	clients map[chan struct{}]*wsClient,
 	block *util.Block,
 ) {
-
 
 	// Skip notification creation if no clients have requested block connected/disconnected notifications.
 	if len(clients) == 0 {
@@ -1233,7 +1198,6 @@ func (
 	clients map[chan struct{}]*wsClient,
 	block *util.Block,
 ) {
-
 
 	// Create the common portion of the notification that is the same for every client.
 	var w bytes.Buffer
@@ -1282,7 +1246,6 @@ func (
 	block *util.Block,
 ) {
 
-
 	// Skip notification creation if no clients have requested block connected/disconnected notifications.
 	if len(clients) == 0 {
 		return
@@ -1317,7 +1280,6 @@ func (
 	clients map[chan struct{}]*wsClient,
 	tx *util.Tx,
 ) {
-
 
 	txHashStr := tx.Hash().String()
 	mtx := tx.MsgTx()
@@ -1367,7 +1329,6 @@ func (
 	addrs map[string]map[chan struct{}]*wsClient,
 	tx *util.Tx, block *util.Block,
 ) {
-
 
 	if len(ops) != 0 {
 		m.notifyForTxIns(ops, tx, block)
@@ -1492,7 +1453,6 @@ func (
 	m *wsNotificationManager,
 ) queueHandler() {
 
-
 	queueHandler(m.queueNotification, m.notificationMsgs, m.quit)
 	m.wg.Done()
 }
@@ -1504,7 +1464,6 @@ func (
 	addrs map[string]map[chan struct{}]*wsClient,
 	wsc *wsClient, addr string,
 ) {
-
 
 	// Remove the request tracking from the client.
 	delete(wsc.addrRequests, addr)
@@ -1531,7 +1490,6 @@ func (
 	ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	wsc *wsClient, op *wire.OutPoint,
 ) {
-
 
 	// Remove the request tracking from the client.
 	delete(wsc.spentRequests, *op)
@@ -1611,13 +1569,11 @@ func (
 	s semaphore,
 ) acquire() {
 
-
 	s <- struct{}{}
 }
 func (
 	s semaphore,
 ) release() {
-
 
 	<-s
 }
@@ -2193,8 +2149,7 @@ func handleWebsocketHelp(
 	return help, nil
 }
 
-func init(
-	) {
+func init() {
 
 	wsHandlers = wsHandlersBeforeInit
 }

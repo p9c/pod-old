@@ -21,6 +21,7 @@ import (
 type logWriter struct{}
 
 func (logWriter) Write(p []byte) (n int, err error) {
+
 	os.Stdout.Write(p)
 	logRotatorPipe.Write(p)
 	return len(p), nil
@@ -60,6 +61,7 @@ var (
 // Initialize package-global logger variables.
 func init(
 	) {
+
 	wallet.UseLogger(walletLog)
 	wtxmgr.UseLogger(txmgrLog)
 	chain.UseLogger(chainLog)
@@ -85,6 +87,7 @@ var subsystemLoggers = map[string]l.Logger{
 // package-global log rotater variables are used.
 func initLogRotator(
 	logFile string) {
+
 	logDir, _ := filepath.Split(logFile)
 	err := os.MkdirAll(logDir, 0700)
 	if err != nil {
@@ -109,6 +112,7 @@ func initLogRotator(
 // needed.
 func setLogLevel(
 	subsystemID string, logLevel string) {
+
 	// Ignore invalid subsystems.
 	logger, ok := subsystemLoggers[subsystemID]
 	if !ok {
@@ -125,6 +129,7 @@ func setLogLevel(
 // can be used to initialize the logging system.
 func setLogLevels(
 	logLevel string) {
+
 	// Configure all sub-systems with the new logging level.  Dynamically
 	// create loggers as needed.
 	for subsystemID := range subsystemLoggers {

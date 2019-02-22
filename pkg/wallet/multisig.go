@@ -19,11 +19,13 @@ import (
 //
 // This function only works with pubkeys and P2PKH addresses derived from them.
 func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte, error) {
+
 	pubKeys := make([]*util.AddressPubKey, len(addrs))
 
 	var dbtx walletdb.ReadTx
 	var addrmgrNs walletdb.ReadBucket
 	defer func() {
+
 		if dbtx != nil {
 			dbtx.Rollback()
 		}
@@ -34,6 +36,7 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 	// mixture of the two.
 	for i, addr := range addrs {
 		switch addr := addr.(type) {
+
 		default:
 			return nil, errors.New("cannot make multisig script for " +
 				"a non-secp256k1 public key or P2PKH address")
@@ -71,6 +74,7 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 
 // ImportP2SHRedeemScript adds a P2SH redeem script to the wallet.
 func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash, error) {
+
 	var p2shAddr *util.AddressScriptHash
 	err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)
@@ -96,6 +100,7 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 			// set the p2shAddr since the address manager didn't
 			// return anything useful.
 			if waddrmgr.IsError(err, waddrmgr.ErrDuplicateAddress) {
+
 				// This function will never error as it always
 				// hashes the script to the correct length.
 				p2shAddr, _ = util.NewAddressScriptHash(script,

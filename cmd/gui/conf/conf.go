@@ -16,6 +16,7 @@ type Conf struct {
 var VCF Conf = Conf{}
 
 func (cf *Conf) ConfData() {
+
 	if err := jdb.JDB.Read("conf", "interface", &cf.Interface); err != nil {
 		fmt.Println("Error", err)
 	}
@@ -33,6 +34,7 @@ func (cf *Conf) ConfData() {
 }
 
 func (cf *Conf) SaveInterfaceConf(lang string) {
+
 	ICF := InfConf{
 		Lang: lang,
 	}

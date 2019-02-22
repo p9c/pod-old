@@ -23,6 +23,7 @@ var testnet = flag.Bool("testnet", false, "operate on the testnet Bitcoin networ
 var chainParams = &chaincfg.MainNetParams
 func main(
 	) {
+
 	flag.Parse()
 	// Modify active network parameters if operating on testnet.
 	if *testnet {

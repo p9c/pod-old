@@ -1,13 +1,15 @@
-
 package blockchain
+
 import (
 	"reflect"
 	"sort"
 	"testing"
 )
+
 // TestTimeSorter tests the timeSorter implementation.
 func TestTimeSorter(
 	t *testing.T) {
+
 	tests := []struct {
 		in   []int64
 		want []int64
@@ -34,6 +36,7 @@ func TestTimeSorter(
 		copy(result, test.in)
 		sort.Sort(timeSorter(result))
 		if !reflect.DeepEqual(result, test.want) {
+
 			t.Errorf("timeSorter #%d got %v want %v", i, result,
 				test.want)
 			continue

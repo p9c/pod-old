@@ -112,6 +112,7 @@ func cleanAndExpandPath(
 	path = os.ExpandEnv(path)
 
 	if !strings.HasPrefix(path, "~") {
+
 		return filepath.Clean(path)
 	}
 
@@ -192,8 +193,10 @@ func parseAndSetDebugLevels(debugLevel string) error {
 	// When the specified string doesn't have any delimters, treat it as
 	// the log level for all subsystems.
 	if !strings.Contains(debugLevel, ",") && !strings.Contains(debugLevel, "=") {
+
 		// Validate debug log level.
 		if !validLogLevel(debugLevel) {
+
 			str := "The specified debug level [%v] is invalid"
 			return fmt.Errorf(str, debugLevel)
 		}
@@ -207,7 +210,9 @@ func parseAndSetDebugLevels(debugLevel string) error {
 	// Split the specified string into subsystem/level pairs while detecting
 	// issues and update the log levels accordingly.
 	for _, logLevelPair := range strings.Split(debugLevel, ",") {
+
 		if !strings.Contains(logLevelPair, "=") {
+
 			str := "The specified debug level contains an invalid " +
 				"subsystem/level pair [%v]"
 			return fmt.Errorf(str, logLevelPair)
@@ -226,6 +231,7 @@ func parseAndSetDebugLevels(debugLevel string) error {
 
 		// Validate log level.
 		if !validLogLevel(logLevel) {
+
 			str := "The specified debug level [%v] is invalid"
 			return fmt.Errorf(str, logLevel)
 		}
@@ -296,10 +302,12 @@ func loadConfig(
 		// parser := flags.NewParser(&cfg, flags.Default)
 		// configFilePath := preCfg.ConfigFile.Value
 		// if preCfg.ConfigFile.ExplicitlySet() {
+
 		// 	configFilePath = cleanAndExpandPath(configFilePath)
 		// } else {
 		// 	appDataDir := preCfg.AppDataDir.Value
 		// 	if !preCfg.AppDataDir.ExplicitlySet() && preCfg.DataDir.ExplicitlySet() {
+
 		// 		appDataDir = cleanAndExpandPath(preCfg.DataDir.Value)
 		// 	}
 		// 	if appDataDir != DefaultAppDataDir {
@@ -328,9 +336,11 @@ func loadConfig(
 		// // Check deprecated aliases.  The new options receive priority when both
 		// // are changed from the default.
 		// if cfg.DataDir.ExplicitlySet() {
+
 		// 	fmt.Fprintln(os.Stderr, "datadir option has been replaced by "+
 		// 		"appdata -- please update your config")
 		// 	if !cfg.AppDataDir.ExplicitlySet() {
+
 		// 		cfg.AppDataDir.Value = cfg.DataDir.Value
 		// 	}
 		// }
@@ -339,16 +349,20 @@ func loadConfig(
 		// relative to the data dir are unchanged, modify each path to be
 		// relative to the new data dir.
 		// if cfg.AppDataDir.ExplicitlySet() {
+
 		// 	cfg.AppDataDir.Value = cleanAndExpandPath(cfg.AppDataDir.Value)
 		// 	if !cfg.RPCKey.ExplicitlySet() {
+
 		// 		cfg.RPCKey.Value = filepath.Join(cfg.AppDataDir.Value, "rpc.key")
 		// 	}
 		// 	if !cfg.RPCCert.ExplicitlySet() {
+
 		// 		cfg.RPCCert.Value = filepath.Join(cfg.AppDataDir.Value, "rpc.cert")
 		// 	}
 		// }
 
 		// if _, err := os.Stat(cfg.DataDir.Value); os.IsNotExist(err) {
+
 		// 	// Create the destination directory if it does not exists
 		// 	err = os.MkdirAll(cfg.DataDir.Value, 0700)
 		// 	if err != nil {
@@ -360,6 +374,7 @@ func loadConfig(
 		// var generatedRPCPass, generatedRPCUser string
 
 		// if _, err := os.Stat(cfg.ConfigFile.Value); os.IsNotExist(err) {
+
 
 		// 	// If we can find a pod.conf in the standard location, copy
 		// 	// copy the rpcuser and rpcpassword and TLS setting
@@ -412,9 +427,12 @@ func loadConfig(
 		// 			}
 		// 			if !strings.Contains(line, "podusername=") && !strings.Contains(line, "podpassword=") {
 
+
 		// 				if strings.Contains(line, "username=") {
+
 		// 					line = "username=" + generatedRPCUser + "\n"
 		// 				} else if strings.Contains(line, "password=") {
+
 		// 					line = "password=" + generatedRPCPass + "\n"
 		// 				}
 		// 			}
@@ -625,6 +643,7 @@ func loadConfig(
 		// 	// } else {
 		// 	// If CAFile is unset, choose either the copy or local pod cert.
 		// 	if !cfg.CAFile.ExplicitlySet() {
+
 		// 		cfg.CAFile.Value = filepath.Join(cfg.AppDataDir.Value, DefaultCAFilename)
 
 		// 		// If the CA copy does not exist, check if we're connecting to
@@ -834,6 +853,7 @@ func createDefaultConfigFile(	destinationPath, serverConfigPath, serverDataDir, 
 
 func copy(
 	src, dst string) (int64, error) {
+
 	// fmt.Println(src, dst)
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
@@ -841,6 +861,7 @@ func copy(
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
+
 		return 0, fmt.Errorf("%s is not a regular file", src)
 	}
 

@@ -180,6 +180,7 @@ type blockManager struct {
 // processing asynchronous block and inv updates.
 func newBlockManager(
 	s *ChainService) (*blockManager, error) {
+
 	targetTimespan := int64(s.chainParams.TargetTimespan)
 	targetTimePerBlock := int64(s.chainParams.TargetTimePerBlock)
 	adjustmentFactor := s.chainParams.RetargetAdjustmentFactor
@@ -252,6 +253,7 @@ func newBlockManager(
 
 // Start begins the core block handler which processes block and inv messages.
 func (b *blockManager) Start() {
+
 	// Already started?
 	if atomic.AddInt32(&b.started, 1) != 1 {
 		return
@@ -274,6 +276,7 @@ func (b *blockManager) Stop() error {
 	// goroutines waiting on them will properly exit.
 	done := make(chan struct{})
 	go func() {
+
 		ticker := time.NewTicker(time.Millisecond * 50)
 		defer ticker.Stop()
 
@@ -302,6 +305,7 @@ func (b *blockManager) Stop() error {
 
 // NewPeer informs the block manager of a newly active peer.
 func (b *blockManager) NewPeer(sp *ServerPeer) {
+
 	// Ignore if we are shutting down.
 	if atomic.LoadInt32(&b.shutdown) != 0 {
 		return
@@ -320,6 +324,7 @@ func (b *blockManager) NewPeer(sp *ServerPeer) {
 // also starts syncing if needed.  It is invoked from the syncHandler
 // goroutine.
 func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
+
 	// Ignore if in the process of shutting down.
 	if atomic.LoadInt32(&b.shutdown) != 0 {
 		return
@@ -331,6 +336,7 @@ func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
 
 	// Ignore the peer if it's not a sync candidate.
 	if !b.isSyncCandidate(sp) {
+
 		return
 	}
 
@@ -348,6 +354,7 @@ func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
 		return
 	}
 	if height < uint32(sp.StartingHeight()) && b.BlockHeadersSynced() {
+
 		locator, err := b.server.BlockHeaders.LatestBlockLocator()
 		if err != nil {
 			log <- cl.Fatalf{
@@ -365,6 +372,7 @@ func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
 
 // DonePeer informs the blockmanager that a peer has disconnected.
 func (b *blockManager) DonePeer(sp *ServerPeer) {
+
 	// Ignore if we are shutting down.
 	if atomic.LoadInt32(&b.shutdown) != 0 {
 		return
@@ -385,8 +393,10 @@ func (b *blockManager) DonePeer(sp *ServerPeer) {
 // current sync peer, attempts to select a new best peer to sync from.  It is
 // invoked from the syncHandler goroutine.
 func (b *blockManager) handleDonePeerMsg(peers *list.List, sp *ServerPeer) {
+
 	// Remove the peer from the list of candidate peers.
 	for e := peers.Front(); e != nil; e = e.Next() {
+
 		if e.Value == sp {
 			peers.Remove(e)
 			break
@@ -417,9 +427,11 @@ func (b *blockManager) handleDonePeerMsg(peers *list.List, sp *ServerPeer) {
 // run as a goroutine. It requests and processes cfheaders messages in a
 // separate goroutine from the peer handlers.
 func (b *blockManager) cfHandler() {
+
 	// If a loop ends with a quit, we want to signal that the goroutine is
 	// done.
 	defer func() {
+
 		b.wg.Done()
 	}()
 
@@ -464,6 +476,7 @@ waitForHeaders:
 	// is the only goroutine that can modify this value.
 	b.newHeadersSignal.L.Lock()
 	for !(b.filterHeaderTip+wire.CFCheckptInterval <= b.headerTip || b.BlockHeadersSynced()) {
+
 		b.newHeadersSignal.Wait()
 
 		// While we're awake, we'll quickly check to see if we need to
@@ -532,6 +545,7 @@ waitForHeaders:
 			bestHeight := lastHeight
 			bestHash := lastHash
 			if bestHeight < uint32(lastCp.Height) {
+
 				bestHeight = uint32(lastCp.Height)
 				bestHash = *lastCp.Hash
 			}
@@ -604,6 +618,7 @@ waitForHeaders:
 	// Now we check the headers again. If the block headers are not yet
 	// current, then we go back to the loop waiting for them to finish.
 	if !b.BlockHeadersSynced() {
+
 		goto waitForHeaders
 	}
 
@@ -732,6 +747,7 @@ func (b *blockManager) getUncheckpointedCFHeaders(
 	// calculate the filter, and throw out any mismatching peers.
 	for i := 0; i < wire.MaxCFHeadersPerMsg; i++ {
 		if checkForCFHeaderMismatch(headers, i) {
+
 			targetHeight := startHeight + uint32(i)
 
 			log <- cl.Warnf{
@@ -856,6 +872,7 @@ func (b *blockManager) getCheckpointedCFHeaders(checkpoints []*chainhash.Hash,
 	// TODO(roasbeef): extract to func to test
 	currentInterval := startingInterval
 	for currentInterval < uint32(len(checkpoints)) {
+
 		// Each checkpoint is spaced wire.CFCheckptInterval after the
 		// prior one, so we'll fetch headers in batches using the
 		// checkpoints as a guide.
@@ -952,6 +969,7 @@ func (b *blockManager) getCheckpointedCFHeaders(checkpoints []*chainhash.Hash,
 
 			// The response doesn't match the checkpoint.
 			if !verifyCheckpoint(prevCheckpoint, nextCheckpoint, r) {
+
 				log <- cl.Warnf{
 					"checkpoints at index %v don't match response!!!\n" +
 						"TODO: WHERE IS THIS INDEX VALUE FOR THE DEBUG?",
@@ -1009,6 +1027,7 @@ func (b *blockManager) getCheckpointedCFHeaders(checkpoints []*chainhash.Hash,
 			// TODO(roasbeef): can eventually special case handle
 			// this at the top
 			if bytes.Equal(curHeader[:], initialFilterHeader[:]) {
+
 				// So we'll set the prev header to our best
 				// known header, and seek within the header
 				// range a bit so we don't write any duplicate
@@ -1280,6 +1299,7 @@ func (b *blockManager) resolveConflict(
 	// calculate the filter, and throw out any mismatching peers.
 	for i := 0; i < wire.MaxCFHeadersPerMsg; i++ {
 		if checkForCFHeaderMismatch(headers, i) {
+
 			// Get the block header for this height, along with the
 			// block as well.
 			targetHeight := startHeight + uint32(i)
@@ -1531,7 +1551,9 @@ func (b *blockManager) getCFHeadersForAllPeers(height uint32,
 		msg,
 		func(sp *ServerPeer, resp wire.Message, quit chan<- struct{},
 			peerQuit chan<- struct{}) {
+
 			switch m := resp.(type) {
+
 			case *wire.MsgCFHeaders:
 				if m.StopHash == stopHash &&
 					m.FilterType == fType {
@@ -1569,6 +1591,7 @@ func (b *blockManager) fetchFilterFromAllPeers(
 			peerQuit chan<- struct{}) {
 
 			switch response := resp.(type) {
+
 			// We're only interested in "cfilter" messages.
 			case *wire.MsgCFilter:
 				// If the response doesn't match our request.
@@ -1615,7 +1638,9 @@ func (b *blockManager) getCheckpts(lastHash *chainhash.Hash,
 		getCheckptMsg,
 		func(sp *ServerPeer, resp wire.Message, quit chan<- struct{},
 			peerQuit chan<- struct{}) {
+
 			switch m := resp.(type) {
+
 			case *wire.MsgCFCheckpt:
 				if m.FilterType == fType &&
 					m.StopHash == *lastHash {
@@ -1659,6 +1684,7 @@ func checkCFCheckptSanity(
 		var checkpoint chainhash.Hash
 		for _, checkpoints := range cp {
 			if i >= len(checkpoints) {
+
 				continue
 			}
 			if checkpoint == zeroHash {
@@ -1703,6 +1729,7 @@ func checkCFCheckptSanity(
 // because the block manager controls which blocks are needed and how
 // the fetching should proceed.
 func (b *blockManager) blockHandler() {
+
 	candidatePeers := list.New()
 out:
 	for {
@@ -1710,6 +1737,7 @@ out:
 		select {
 		case m := <-b.peerChan:
 			switch msg := m.(type) {
+
 			case *newPeerMsg:
 				// fmt.Println("chan:*newPeerMsg")
 
@@ -1818,6 +1846,7 @@ func (b *blockManager) findPreviousHeaderCheckpoint(height int32) *chaincfg.Chec
 // simply returns.  It also examines the candidates for any which are no longer
 // candidates and removes them as needed.
 func (b *blockManager) startSync(peers *list.List) {
+
 	// Return now if we're already syncing.
 	if b.syncPeer != nil {
 		return
@@ -1846,6 +1875,7 @@ func (b *blockManager) startSync(peers *list.List) {
 		// choice.  It also allows the case where both are at 0 such as
 		// during regression test.
 		if sp.LastBlock() < int32(bestHeight) {
+
 			peers.Remove(e)
 			continue
 		}
@@ -1853,6 +1883,7 @@ func (b *blockManager) startSync(peers *list.List) {
 		// TODO: Use a better algorithm to choose the best peer.
 		// For now, just pick the candidate with the highest last block.
 		if bestPeer == nil || sp.LastBlock() > bestPeer.LastBlock() {
+
 			bestPeer = sp
 		}
 	}
@@ -1944,6 +1975,7 @@ func (b *blockManager) BlockHeadersSynced() bool {
 		// We aren't current if the newest block we know of isn't ahead
 		// of all checkpoints.
 		if checkpoints[len(checkpoints)-1].Height >= int32(height) {
+
 			return false
 		}
 	}
@@ -1951,6 +1983,7 @@ func (b *blockManager) BlockHeadersSynced() bool {
 	// If we have a syncPeer and are below the block we are syncing to, we
 	// are not current.
 	if b.syncPeer != nil && int32(height) < b.syncPeer.LastBlock() {
+
 		return false
 	}
 
@@ -1958,6 +1991,7 @@ func (b *blockManager) BlockHeadersSynced() bool {
 	// least 24 hours ahead of our best known block, we aren't current.
 	minus24Hours := b.server.timeSource.AdjustedTime().Add(-24 * time.Hour)
 	if header.Timestamp.Before(minus24Hours) {
+
 		return false
 	}
 
@@ -1988,6 +2022,7 @@ func (b *blockManager) SynchronizeFilterHeaders(f func(uint32) error) error {
 
 // QueueInv adds the passed inv message and peer to the block handling queue.
 func (b *blockManager) QueueInv(inv *wire.MsgInv, sp *ServerPeer) {
+
 	// No channel handling here because peers do not need to block on inv
 	// messages.
 	if atomic.LoadInt32(&b.shutdown) != 0 {
@@ -2006,6 +2041,7 @@ func (b *blockManager) QueueInv(inv *wire.MsgInv, sp *ServerPeer) {
 // handleInvMsg handles inv messages from all peers.
 // We examine the inventory advertised by the remote peer and act accordingly.
 func (b *blockManager) handleInvMsg(imsg *invMsg) {
+
 	// Attempt to find the final block in the inventory list.  There may
 	// not be one.
 	lastBlock := -1
@@ -2023,18 +2059,21 @@ func (b *blockManager) handleInvMsg(imsg *invMsg) {
 	// update the heights of peers based on blocks we've accepted that they
 	// previously announced.
 	if lastBlock != -1 && (imsg.peer != b.SyncPeer() || b.BlockHeadersSynced()) {
+
 		imsg.peer.UpdateLastAnnouncedBlock(&invVects[lastBlock].Hash)
 	}
 
 	// Ignore invs from peers that aren't the sync if we are not current.
 	// Helps prevent dealing with orphans.
 	if imsg.peer != b.SyncPeer() && !b.BlockHeadersSynced() {
+
 		return
 	}
 
 	// If our chain is current and a peer announces a block we already
 	// know of, then update their current block height.
 	if lastBlock != -1 && b.BlockHeadersSynced() {
+
 		height, err := b.server.BlockHeaders.HeightFromHash(&invVects[lastBlock].Hash)
 		if err == nil {
 			imsg.peer.UpdateLastBlockHeight(int32(height))
@@ -2051,6 +2090,7 @@ func (b *blockManager) handleInvMsg(imsg *invMsg) {
 	// If this is the sync peer or we're current, get the headers for the
 	// announced blocks and update the last announced block.
 	if lastBlock != -1 && (imsg.peer == b.SyncPeer() || b.BlockHeadersSynced()) {
+
 		lastEl := b.headerList.Back()
 		var lastHash chainhash.Hash
 		if lastEl != nil {
@@ -2092,6 +2132,7 @@ func (b *blockManager) handleInvMsg(imsg *invMsg) {
 // QueueHeaders adds the passed headers message and peer to the block handling
 // queue.
 func (b *blockManager) QueueHeaders(headers *wire.MsgHeaders, sp *ServerPeer) {
+
 	// No channel handling here because peers do not need to block on
 	// headers messages.
 	if atomic.LoadInt32(&b.shutdown) != 0 {
@@ -2110,6 +2151,7 @@ func (b *blockManager) QueueHeaders(headers *wire.MsgHeaders, sp *ServerPeer) {
 
 // handleHeadersMsg handles headers messages from all peers.
 func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
+
 	msg := hmsg.headers
 	numHeaders := len(msg.Headers)
 
@@ -2156,6 +2198,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 		prevNode := prevNodeEl
 		prevHash := prevNode.Header.BlockHash()
 		if prevHash.IsEqual(&blockHeader.PrevBlock) {
+
 			err := b.checkHeaderSanity(blockHeader, maxTimestamp, false, prevNode.Height+1)
 			if err != nil {
 				log <- cl.Warnf{
@@ -2202,6 +2245,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 			// peer or disconnect the peer that sent us these bad
 			// headers.
 			if hmsg.peer != b.SyncPeer() && !b.BlockHeadersSynced() {
+
 				return
 			}
 
@@ -2246,6 +2290,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 				prevNode.Height,
 			)
 			if backHeight < uint32(prevCheckpoint.Height) {
+
 				log <- cl.Errorf{
 					"attempt at a reorg earlier than a checkpoint past which we've already synchronized -- disconnecting peer %s", hmsg.peer,
 				}
@@ -2320,6 +2365,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 			// known chain. Disconnect if it's actually less than
 			// the known chain.
 			switch knownWork.Cmp(totalWork) {
+
 			case 1:
 				log <- cl.Warnf{
 					"reorg attempt that has less work than known chain from peer %s -- disconnecting",
@@ -2372,6 +2418,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 		if b.nextCheckpoint != nil && node.Height == b.nextCheckpoint.Height {
 			nodeHash := node.Header.BlockHash()
 			if nodeHash.IsEqual(b.nextCheckpoint.Hash) {
+
 				receivedCheckpoint = true
 				log <- cl.Infof{
 					"verified downloaded block header against checkpoint at height %d/hash %s",
@@ -2434,6 +2481,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 	// If not current, request the next batch of headers starting from the
 	// latest known header and ending with the next checkpoint.
 	if b.server.chainParams.Net == chaincfg.SimNetParams.Net || !b.BlockHeadersSynced() {
+
 		locator := blockchain.BlockLocator([]*chainhash.Hash{finalHash})
 		nextHash := zeroHash
 		if b.nextCheckpoint != nil {
@@ -2476,6 +2524,7 @@ func (b *blockManager) checkHeaderSanity(blockHeader *wire.BlockHeader,
 	}
 	// Ensure the block time is not too far in the future.
 	if blockHeader.Timestamp.After(maxTimestamp) {
+
 		return fmt.Errorf("block timestamp of %v is too far in the "+
 			"future", blockHeader.Timestamp)
 	}
@@ -2583,6 +2632,7 @@ actual timespan %v, adjusted timespan %v, target timespan %v`,
 // findPrevTestNetDifficulty returns the difficulty of the previous block which
 // did not have the special testnet minimum difficulty rule applied.
 func (b *blockManager) findPrevTestNetDifficulty(hList headerlist.Chain) (uint32, error) {
+
 	startNode := hList.Back()
 
 	// Genesis block.

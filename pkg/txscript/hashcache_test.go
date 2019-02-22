@@ -10,8 +10,8 @@ import (
 )
 
 // genTestTx creates a random transaction for uses within test cases.
-func genTestTx(
-	) (*wire.MsgTx, error) {
+func genTestTx() (*wire.MsgTx, error) {
+
 	tx := wire.NewMsgTx(2)
 	tx.Version = rand.Int31()
 	numTxins := rand.Intn(11)
@@ -45,6 +45,7 @@ func genTestTx(
 // TestHashCacheAddContainsHashes tests that after items have been added to the hash cache, the ContainsHashes method returns true for all the items inserted.  Conversely, ContainsHashes should return false for any items _not_ in the hash cache.
 func TestHashCacheAddContainsHashes(
 	t *testing.T) {
+
 	t.Parallel()
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)
@@ -85,6 +86,7 @@ func TestHashCacheAddContainsHashes(
 // TestHashCacheAddGet tests that the sighashes for a particular transaction are properly retrieved by the GetSigHashes function.
 func TestHashCacheAddGet(
 	t *testing.T) {
+
 	t.Parallel()
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)
@@ -112,6 +114,7 @@ func TestHashCacheAddGet(
 // TestHashCachePurge tests that items are able to be properly removed from the hash cache.
 func TestHashCachePurge(
 	t *testing.T) {
+
 	t.Parallel()
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)

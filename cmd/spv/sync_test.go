@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/node/integration/rpctest"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/ec"
@@ -23,12 +24,11 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/node/integration/rpctest"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/wallet/txauthor"
 	"git.parallelcoin.io/pod/pkg/walletdb"
 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 var (
@@ -59,6 +59,7 @@ var (
 	// "bd":	OnBlockDisconnected
 	// "fd":	OnFilteredBlockDisconnected
 	wantLog = func() (log []byte) {
+
 		for i := 1096; i <= 1100; i++ {
 			// FilteredBlockConnected
 			log = append(log, []byte("fc")...)
@@ -189,6 +190,7 @@ type secSource struct {
 }
 
 func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
+
 	pubKeyHash := util.Hash160(privKey.PubKey().SerializeCompressed())
 	addr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, s.params)
 	if err != nil {
@@ -205,6 +207,7 @@ func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
 		return nil, err
 	}
 	if addrs[0].String() != addr.String() {
+
 		return nil, fmt.Errorf("Encoded and decoded addresses don't "+
 			"match. Encoded: %s, decoded: %s", addr, addrs[0])
 	}
@@ -214,6 +217,7 @@ func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
 // GetKey is required by the txscript.KeyDB interface
 func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 	error) {
+
 	privKey, ok := s.keys[addr.String()]
 	if !ok {
 		return nil, true, fmt.Errorf("No key for address %s", addr)
@@ -223,6 +227,7 @@ func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 
 // GetScript is required by the txscript.ScriptDB interface
 func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
+
 	script, ok := s.scripts[addr.String()]
 	if !ok {
 		return nil, fmt.Errorf("No script for address %s", addr)
@@ -284,6 +289,7 @@ var testCases = []*syncTestCase{
 // Make sure the client synchronizes with the correct node.
 func testInitialSync(
 	harness *neutrinoHarness, t *testing.T) {
+
 	err := waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
 		t.Fatalf("Couldn't sync ChainService: %s", err)
@@ -307,6 +313,7 @@ var (
 // smaller tests.
 func testRescan(
 	harness *neutrinoHarness, t *testing.T) {
+
 	// Generate an address and send it some coins on the h1 chain. We use
 	// this to test rescans and notifications.
 	modParams := harness.svc.ChainParams()
@@ -378,6 +385,7 @@ func testRescan(
 	ourIndex := 1 << 30 // Should work on 32-bit systems
 	for i, txo := range tx1.TxOut {
 		if bytes.Equal(txo.PkScript, script1) {
+
 			ourIndex = i
 		}
 	}
@@ -401,6 +409,7 @@ func testRescan(
 		t.Fatalf("Couldn't get UTXO %s: %s", ourOutPoint, err)
 	}
 	if !bytes.Equal(spendReport.Output.PkScript, script1) {
+
 		t.Fatalf("UTXO's script doesn't match expected script for %s",
 			ourOutPoint)
 	}
@@ -409,6 +418,7 @@ func testRescan(
 
 func testStartRescan(
 	harness *neutrinoHarness, t *testing.T) {
+
 	// Start a rescan with notifications in another goroutine. We'll kill
 	// it with a quit channel at the end and make sure we got the expected
 	// results.
@@ -451,16 +461,19 @@ func testStartRescan(
 	inSrc := func(tx wire.MsgTx) func(target util.Amount) (
 		total util.Amount, inputs []*wire.TxIn,
 		inputValues []util.Amount, scripts [][]byte, err error) {
+
 		ourIndex := 1 << 30 // Should work on 32-bit systems
 		for i, txo := range tx.TxOut {
 			if bytes.Equal(txo.PkScript, script1) ||
 				bytes.Equal(txo.PkScript, script2) {
+
 				ourIndex = i
 			}
 		}
 		return func(target util.Amount) (total util.Amount,
 			inputs []*wire.TxIn, inputValues []util.Amount,
 			scripts [][]byte, err error) {
+
 			if ourIndex == 1<<30 {
 				err = fmt.Errorf("Couldn't find our address " +
 					"in the passed transaction's outputs.")
@@ -511,6 +524,7 @@ func testStartRescan(
 		1024000,
 		inSrc(*tx1),
 		func() ([]byte, error) {
+
 			return script3, nil
 		},
 	)
@@ -526,6 +540,7 @@ func testStartRescan(
 		append(queryOptions,
 			neutrino.PeerConnectTimeout(3*time.Second))...)
 	if err != nil && !strings.Contains(err.Error(), "already have") {
+
 		t.Fatalf("Unable to send transaction to network: %s", err)
 	}
 	_, err = harness.h1.Node.Generate(1)
@@ -551,6 +566,7 @@ func testStartRescan(
 		1024000,
 		inSrc(*tx2),
 		func() ([]byte, error) {
+
 			return script3, nil
 		},
 	)
@@ -566,6 +582,7 @@ func testStartRescan(
 		append(queryOptions,
 			neutrino.PeerConnectTimeout(3*time.Second))...)
 	if err != nil && !strings.Contains(err.Error(), "already have") {
+
 		t.Fatalf("Unable to send transaction to network: %s", err)
 	}
 	_, err = harness.h1.Node.Generate(1)
@@ -632,6 +649,7 @@ func testStartRescan(
 		t.Fatalf("Unable to find initial transaction")
 	}
 	if spendReport.SpendingTx.TxHash() != authTx1.Tx.TxHash() {
+
 		t.Fatalf("Redeeming transaction doesn't match expected "+
 			"transaction: want %s, got %s", authTx1.Tx.TxHash(),
 			spendReport.SpendingTx.TxHash())
@@ -640,6 +658,7 @@ func testStartRescan(
 
 func fetchPrevInputScripts(
 	block *wire.MsgBlock, client *rpctest.Harness) ([][]byte, error) {
+
 	var inputScripts [][]byte
 	for i, tx := range block.Transactions {
 		if i == 0 {
@@ -666,6 +685,7 @@ func fetchPrevInputScripts(
 
 func testRescanResults(
 	harness *neutrinoHarness, t *testing.T) {
+
 	// Generate 5 blocks on h2 and wait for ChainService to sync to the
 	// newly-best chain on h2. This includes the transactions sent via
 	// svc.SendTransaction earlier, so we'll have to check that the rescan
@@ -703,6 +723,7 @@ func testRescanResults(
 	}
 
 	if !bytes.Equal(wantLog, gotLog) {
+
 		leastBytes := len(wantLog)
 		if len(gotLog) < leastBytes {
 			leastBytes = len(gotLog)
@@ -784,6 +805,7 @@ func testRescanResults(
 // TODO: Make this a benchmark instead.
 func testRandomBlocks(
 	harness *neutrinoHarness, t *testing.T) {
+
 	var haveBest *waddrmgr.BlockStamp
 	haveBest, err := harness.svc.BestBlock()
 	if err != nil {
@@ -801,9 +823,11 @@ func testRandomBlocks(
 		// Wait until there's room in the worker queue.
 		workerQueue <- struct{}{}
 		go func() {
+
 			// On exit, open a spot in workerQueue and tell the
 			// wait group we're done.
 			defer func() {
+
 				<-workerQueue
 			}()
 			defer wg.Done()
@@ -839,6 +863,7 @@ func testRandomBlocks(
 			// Check that network and RPC blocks match.
 			if !reflect.DeepEqual(*haveBlock.MsgBlock(),
 				*wantBlock) {
+
 				errChan <- fmt.Errorf("Block from network "+
 					"doesn't match block from RPC. Want: "+
 					"%s, RPC: %s, network: %s", blockHash,
@@ -848,6 +873,7 @@ func testRandomBlocks(
 			}
 			// Check that block height matches what we have.
 			if height != uint32(haveBlock.Height()) {
+
 				errChan <- fmt.Errorf("Block height from "+
 					"network doesn't match expected "+
 					"height. Want: %v, network: %v",
@@ -883,6 +909,7 @@ func testRandomBlocks(
 				}
 			}
 			if !bytes.Equal(haveBytes, wantFilter.Data) {
+
 				errChan <- fmt.Errorf("Basic filter from P2P "+
 					"network/DB doesn't match RPC value "+
 					"for block %d (%s):\nRPC: %s\nNet: %s",
@@ -921,6 +948,7 @@ func testRandomBlocks(
 			// Check that the network value matches the calculated
 			// value from the block.
 			if !bytes.Equal(haveBytes, calcBytes) {
+
 				errChan <- fmt.Errorf("Basic filter from P2P "+
 					"network/DB doesn't match calculated "+
 					"value for block %d (%s)", height,
@@ -956,6 +984,7 @@ func testRandomBlocks(
 				return
 			}
 			if !bytes.Equal(curHeader[:], calcHeader[:]) {
+
 				errChan <- fmt.Errorf("Filter header doesn't "+
 					"match. Want: %s, got: %s", curHeader,
 					calcHeader)
@@ -988,6 +1017,7 @@ func testRandomBlocks(
 
 func TestNeutrinoSync(
 	t *testing.T) {
+
 	// Set up logging.
 	logger := log.NewBackend(os.Stdout)
 	chainLogger := logger.Logger("CHAIN")
@@ -1124,6 +1154,7 @@ func TestNeutrinoSync(
 
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
+
 			test.test(testHarness, t)
 		})
 	}
@@ -1158,6 +1189,7 @@ func csd(
 // during a rescan.
 func checkErrChan(
 	t *testing.T, errChan <-chan error) {
+
 	select {
 	case err := <-errChan:
 		t.Logf("Got error from rescan: %s", err)
@@ -1204,6 +1236,7 @@ func waitForSync(
 
 	// Check if we're current.
 	if !svc.IsCurrent() {
+
 		return fmt.Errorf("the ChainService doesn't see itself as " +
 			"current")
 	}
@@ -1339,6 +1372,7 @@ func startRescan(
 	t *testing.T, svc *neutrino.ChainService, addr util.Address,
 	startBlock *waddrmgr.BlockStamp, quit <-chan struct{}) (
 	*neutrino.Rescan, <-chan error) {
+
 	rescan := svc.NewRescan(
 		neutrino.QuitChan(quit),
 		neutrino.WatchAddrs(addr),
@@ -1348,6 +1382,7 @@ func startRescan(
 				OnBlockConnected: func(
 					hash *chainhash.Hash,
 					height int32, time time.Time) {
+
 					rescanMtx.Lock()
 					gotLog = append(gotLog,
 						[]byte("bc")...)
@@ -1357,6 +1392,7 @@ func startRescan(
 				OnBlockDisconnected: func(
 					hash *chainhash.Hash,
 					height int32, time time.Time) {
+
 					rescanMtx.Lock()
 					delete(ourKnownTxsByBlock, *hash)
 					gotLog = append(gotLog,
@@ -1366,6 +1402,7 @@ func startRescan(
 				},
 				OnRecvTx: func(tx *util.Tx,
 					details *json.BlockDetails) {
+
 					rescanMtx.Lock()
 					hash, err := chainhash.
 						NewHashFromStr(
@@ -1386,6 +1423,7 @@ func startRescan(
 				},
 				OnRedeemingTx: func(tx *util.Tx,
 					details *json.BlockDetails) {
+
 					rescanMtx.Lock()
 					hash, err := chainhash.
 						NewHashFromStr(
@@ -1408,6 +1446,7 @@ func startRescan(
 					height int32,
 					header *wire.BlockHeader,
 					relevantTxs []*util.Tx) {
+
 					rescanMtx.Lock()
 					ourKnownTxsByFilteredBlock[header.BlockHash()] =
 						relevantTxs
@@ -1421,6 +1460,7 @@ func startRescan(
 				OnFilteredBlockDisconnected: func(
 					height int32,
 					header *wire.BlockHeader) {
+
 					rescanMtx.Lock()
 					delete(ourKnownTxsByFilteredBlock,
 						header.BlockHash())
@@ -1440,8 +1480,8 @@ func startRescan(
 
 // checkRescanStatus returns the number of relevant transactions we currently
 // know about and the currently known height.
-func checkRescanStatus(
-	) (int, int32, error) {
+func checkRescanStatus() (int, int32, error) {
+
 	var txCount [2]int
 	rescanMtx.RLock()
 	defer rescanMtx.RUnlock()
@@ -1472,9 +1512,11 @@ func checkRescanStatus(
 // instance for BanDuration seconds.
 func banPeer(
 	svc *neutrino.ChainService, harness *rpctest.Harness) {
+
 	peers := svc.Peers()
 	for _, peer := range peers {
 		if peer.Addr() == harness.P2PAddress() {
+
 			svc.BanPeer(peer)
 			peer.Disconnect()
 		}
@@ -1483,8 +1525,7 @@ func banPeer(
 
 // goroutineDump returns a string with the current goroutine dump in order to
 // show what's going on in case of timeout.
-func goroutineDump(
-	) string {
+func goroutineDump() string {
 	buf := make([]byte, 1<<18)
 	runtime.Stack(buf, true)
 	return string(buf)

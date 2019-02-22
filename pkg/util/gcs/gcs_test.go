@@ -65,6 +65,7 @@ var (
 // TestGCSFilterBuild builds a test filter with a randomized key. For Bitcoin use, deterministic filter generation is desired. Therefore, a key that's derived deterministically would be required.
 func TestGCSFilterBuild(
 	t *testing.T) {
+
 	for i := 0; i < gcs.KeySize; i += 4 {
 		binary.BigEndian.PutUint32(key[i:], rand.Uint32())
 	}
@@ -77,6 +78,7 @@ func TestGCSFilterBuild(
 // TestGCSFilterCopy deserializes and serializes a filter to create a copy.
 func TestGCSFilterCopy(
 	t *testing.T) {
+
 	serialized2, err := filter.Bytes()
 	if err != nil {
 		t.Fatalf("Filter Bytes() failed: %v", err)
@@ -98,22 +100,28 @@ func TestGCSFilterCopy(
 // TestGCSFilterMetadata checks that the filter metadata is built and copied correctly.
 func TestGCSFilterMetadata(
 	t *testing.T) {
+
 	if filter.P() != P {
 		t.Fatal("P not correctly stored in filter metadata")
 	}
 	if filter.N() != uint32(len(contents)) {
+
 		t.Fatal("N not correctly stored in filter metadata")
 	}
 	if filter.P() != filter2.P() {
+
 		t.Fatal("P doesn't match between copied filters")
 	}
 	if filter.P() != filter3.P() {
+
 		t.Fatal("P doesn't match between copied filters")
 	}
 	if filter.N() != filter2.N() {
+
 		t.Fatal("N doesn't match between copied filters")
 	}
 	if filter.N() != filter3.N() {
+
 		t.Fatal("N doesn't match between copied filters")
 	}
 	serialized, err := filter.Bytes()
@@ -125,6 +133,7 @@ func TestGCSFilterMetadata(
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized2) {
+
 		t.Fatal("Bytes don't match between copied filters")
 	}
 	serialized3, err := filter3.Bytes()
@@ -132,6 +141,7 @@ func TestGCSFilterMetadata(
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized3) {
+
 		t.Fatal("Bytes don't match between copied filters")
 	}
 	serialized4, err := filter3.Bytes()
@@ -139,6 +149,7 @@ func TestGCSFilterMetadata(
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized4) {
+
 		t.Fatal("Bytes don't match between copied filters")
 	}
 }
@@ -146,6 +157,7 @@ func TestGCSFilterMetadata(
 // TestGCSFilterMatch checks that both the built and copied filters match correctly, logging any false positives without failing on them.
 func TestGCSFilterMatch(
 	t *testing.T) {
+
 	match, err := filter.Match(key, []byte("Nate"))
 	if err != nil {
 		t.Fatalf("Filter match failed: %s", err.Error())
@@ -207,6 +219,7 @@ func TestGCSFilterMatch(
 // TestGCSFilterMatchAny checks that both the built and copied filters match a list correctly, logging any false positives without failing on them.
 func TestGCSFilterMatchAny(
 	t *testing.T) {
+
 	match, err := filter.MatchAny(key, contents2)
 	if err != nil {
 		t.Fatalf("Filter match any failed: %s", err.Error())

@@ -3,11 +3,11 @@ package spv
 import (
 	"fmt"
 
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // mockBlockHeaderStore is an implementation of the BlockHeaderStore backed by
@@ -24,8 +24,7 @@ var _ headerfs.BlockHeaderStore = (*mockBlockHeaderStore)(nil)
 // backed by an in-memory map. This instance is meant to be used by callers
 // outside the package to unit test components that require a BlockHeaderStore
 // interface.
-func newMockBlockHeaderStore(
-	) headerfs.BlockHeaderStore {
+func newMockBlockHeaderStore() headerfs.BlockHeaderStore {
 	return &mockBlockHeaderStore{
 		headers: make(map[chainhash.Hash]wire.BlockHeader),
 	}
@@ -33,11 +32,13 @@ func newMockBlockHeaderStore(
 
 func (m *mockBlockHeaderStore) ChainTip() (*wire.BlockHeader,
 	uint32, error) {
+
 	return nil, 0, nil
 
 }
 func (m *mockBlockHeaderStore) LatestBlockLocator() (
 	blockchain.BlockLocator, error) {
+
 	return nil, nil
 }
 func (m *mockBlockHeaderStore) FetchHeaderByHeight(height uint32) (
@@ -51,16 +52,19 @@ func (m *mockBlockHeaderStore) FetchHeaderAncestors(uint32,
 	return nil, 0, nil
 }
 func (m *mockBlockHeaderStore) HeightFromHash(*chainhash.Hash) (uint32, error) {
+
 	return 0, nil
 
 }
 func (m *mockBlockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp,
 	error) {
+
 	return nil, nil
 }
 
 func (m *mockBlockHeaderStore) FetchHeader(h *chainhash.Hash) (
 	*wire.BlockHeader, uint32, error) {
+
 	if header, ok := m.headers[*h]; ok {
 		return &header, 0, nil
 	}

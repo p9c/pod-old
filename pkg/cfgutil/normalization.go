@@ -1,7 +1,5 @@
 // Copyright (c) 2015 The btcsuite developers
 
-
-
 package cfgutil
 
 import "net"
@@ -11,6 +9,7 @@ import "net"
 // is not valid.
 func NormalizeAddress(
 	addr string, defaultPort string) (hostport string, err error) {
+
 	// If the first SplitHostPort errors because of a missing port and not
 	// for an invalid host, add the port.  If the second SplitHostPort
 	// fails, then a port is not missing and the original error should be
@@ -31,6 +30,7 @@ func NormalizeAddress(
 // normalized with the given default port, and all duplicates removed.
 func NormalizeAddresses(
 	addrs []string, defaultPort string) ([]string, error) {
+
 	var (
 		normalized = make([]string, 0, len(addrs))
 		seenSet    = make(map[string]struct{})

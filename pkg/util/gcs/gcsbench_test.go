@@ -10,6 +10,7 @@ import (
 
 func genRandFilterElements(
 	numElements uint) ([][]byte, error) {
+
 	testContents := make([][]byte, numElements)
 	for i := range contents {
 		randElem := make([]byte, 32)
@@ -29,6 +30,7 @@ var (
 // BenchmarkGCSFilterBuild benchmarks building a filter.
 func BenchmarkGCSFilterBuild50000(
 	b *testing.B) {
+
 	b.StopTimer()
 	var testKey [gcs.KeySize]byte
 	for i := 0; i < gcs.KeySize; i += 4 {
@@ -54,6 +56,7 @@ func BenchmarkGCSFilterBuild50000(
 // BenchmarkGCSFilterBuild benchmarks building a filter.
 func BenchmarkGCSFilterBuild100000(
 	b *testing.B) {
+
 	b.StopTimer()
 	var testKey [gcs.KeySize]byte
 	for i := 0; i < gcs.KeySize; i += 4 {
@@ -83,6 +86,7 @@ var (
 // BenchmarkGCSFilterMatch benchmarks querying a filter for a single value.
 func BenchmarkGCSFilterMatch(
 	b *testing.B) {
+
 	b.StopTimer()
 	filter, err := gcs.BuildGCSFilter(P, M, key, contents)
 	if err != nil {
@@ -108,6 +112,7 @@ func BenchmarkGCSFilterMatch(
 // BenchmarkGCSFilterMatchAny benchmarks querying a filter for a list of values.
 func BenchmarkGCSFilterMatchAny(
 	b *testing.B) {
+
 	b.StopTimer()
 	filter, err := gcs.BuildGCSFilter(P, M, key, contents)
 	if err != nil {

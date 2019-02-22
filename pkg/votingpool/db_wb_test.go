@@ -10,6 +10,7 @@ import (
 
 func TestPutUsedAddrHash(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -32,12 +33,14 @@ func TestPutUsedAddrHash(
 		t.Fatal(err)
 	}
 	if !bytes.Equal(storedHash, dummyHash) {
+
 		t.Fatalf("Wrong stored hash; got %x, want %x", storedHash, dummyHash)
 	}
 }
 
 func TestGetMaxUsedIdx(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -67,12 +70,14 @@ func TestGetMaxUsedIdx(
 		t.Fatal(err)
 	}
 	if maxIdx != Index(3001) {
+
 		t.Fatalf("Wrong max idx; got %d, want %d", maxIdx, Index(3001))
 	}
 }
 
 func TestWithdrawalSerialization(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -94,6 +99,7 @@ func TestWithdrawalSerialization(
 
 	var wInfo *withdrawalInfo
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		wInfo, err = deserializeWithdrawal(pool, ns, addrmgrNs, serialized)
 		if err != nil {
 			t.Fatal(err)
@@ -101,10 +107,12 @@ func TestWithdrawalSerialization(
 	})
 
 	if !reflect.DeepEqual(wInfo.startAddress, wi.startAddress) {
+
 		t.Fatalf("Wrong startAddr; got %v, want %v", wInfo.startAddress, wi.startAddress)
 	}
 
 	if !reflect.DeepEqual(wInfo.changeStart, wi.changeStart) {
+
 		t.Fatalf("Wrong changeStart; got %v, want %v", wInfo.changeStart, wi.changeStart)
 	}
 
@@ -117,6 +125,7 @@ func TestWithdrawalSerialization(
 	}
 
 	if !reflect.DeepEqual(wInfo.requests, wi.requests) {
+
 		t.Fatalf("Wrong output requests; got %v, want %v", wInfo.requests, wi.requests)
 	}
 
@@ -125,6 +134,7 @@ func TestWithdrawalSerialization(
 
 func TestPutAndGetWithdrawal(
 	t *testing.T) {
+
 	tearDown, db, _ := TstCreatePool(t)
 	defer tearDown()
 
@@ -150,6 +160,7 @@ func TestPutAndGetWithdrawal(
 	}
 
 	if !bytes.Equal(retrieved, serialized) {
+
 		t.Fatalf("Wrong value retrieved from DB; got %x, want %x", retrieved, serialized)
 	}
 }

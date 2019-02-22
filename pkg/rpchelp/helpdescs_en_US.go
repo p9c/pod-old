@@ -1,7 +1,5 @@
 // Copyright (c) 2015 The btcsuite developers
 
-
-
 //+build !generate
 
 package rpchelp

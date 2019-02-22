@@ -43,6 +43,7 @@ func (msg *MsgVersion) HasService(service ServiceFlag) bool {
 
 // AddService adds service as a supported service by the peer generating the message.
 func (msg *MsgVersion) AddService(service ServiceFlag) {
+
 	msg.Services |= service
 }
 

@@ -1,13 +1,16 @@
 package main
+
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 )
+
 var jsonrpc = NewJSONRPC("user", "pa55word", "127.0.0.1", 11349)
-func main(
-	) {
+
+func main() {
+
 	fmt.Println("Simple Block Explorer")
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/getinfo", getinfoHandler)
@@ -16,6 +19,7 @@ func main(
 }
 func getinfoHandler(
 	w http.ResponseWriter, r *http.Request) {
+
 	response, err := jsonrpc.Call("getinfo", nil)
 	if err != nil {
 		fmt.Println("ERROR", err.Error())
@@ -25,10 +29,12 @@ func getinfoHandler(
 }
 func rootHandler(
 	w http.ResponseWriter, r *http.Request) {
+
 	fmt.Fprintf(w, "This is the root")
 }
 func getallblocksHandler(
 	w http.ResponseWriter, r *http.Request) {
+
 	response, err := jsonrpc.Call("getblockcount", nil)
 	height := uint32(response.(float64))
 	if err != nil {

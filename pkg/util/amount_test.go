@@ -9,6 +9,7 @@ import (
 
 func TestAmountCreation(
 	t *testing.T) {
+
 	tests := []struct {
 		name     string
 		amount   float64
@@ -105,6 +106,7 @@ func TestAmountCreation(
 }
 func TestAmountUnitConversions(
 	t *testing.T) {
+
 	tests := []struct {
 		name      string
 		amount    Amount
@@ -189,6 +191,7 @@ func TestAmountUnitConversions(
 }
 func TestAmountMulF64(
 	t *testing.T) {
+
 	tests := []struct {
 		name string
 		amt  Amount

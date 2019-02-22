@@ -10,6 +10,7 @@ import (
 // TestCmdMethod tests the CmdMethod function to ensure it retunrs the expected methods and errors.
 func TestCmdMethod(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -37,6 +38,7 @@ func TestCmdMethod(
 	for i, test := range tests {
 		method, err := json.CmdMethod(test.cmd)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
@@ -64,6 +66,7 @@ func TestCmdMethod(
 // TestMethodUsageFlags tests the MethodUsage function ensure it returns the expected flags and errors.
 func TestMethodUsageFlags(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -91,6 +94,7 @@ func TestMethodUsageFlags(
 	for i, test := range tests {
 		flags, err := json.MethodUsageFlags(test.method)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
@@ -118,6 +122,7 @@ func TestMethodUsageFlags(
 // TestMethodUsageText tests the MethodUsageText function ensure it returns the expected text.
 func TestMethodUsageText(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -145,6 +150,7 @@ func TestMethodUsageText(
 	for i, test := range tests {
 		usage, err := json.MethodUsageText(test.method)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
@@ -185,6 +191,7 @@ func TestMethodUsageText(
 // TestFieldUsage tests the internal fieldUsage function ensure it returns the expected text.
 func TestFieldUsage(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string

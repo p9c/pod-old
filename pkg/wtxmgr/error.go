@@ -1,8 +1,6 @@
 // Copyright (c) 2015-2017 The btcsuite developers
 // Copyright (c) 2015-2016 The Decred developers
 
-
-
 package wtxmgr
 
 import "fmt"
@@ -64,6 +62,7 @@ var errStrs = [...]string{
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
 	if e < ErrorCode(len(errStrs)) {
+
 		return errStrs[e]
 	}
 	return fmt.Sprintf("ErrorCode(%d)", e)

@@ -16,6 +16,7 @@ import (
 // works as expected in all possible combinations/scenarios.
 func TestSequenceLocksActive(
 	t *testing.T) {
+
 	seqLock := func(h int32, s int64) *SequenceLock {
 		return &SequenceLock{
 			Seconds:     s,
@@ -56,6 +57,7 @@ func TestSequenceLocksActive(
 // ensure it fails.
 func TestCheckConnectBlockTemplate(
 	t *testing.T) {
+
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("checkconnectblocktemplate",
 		&chaincfg.MainNetParams)
@@ -133,6 +135,7 @@ func TestCheckConnectBlockTemplate(
 // TestCheckBlockSanity tests the CheckBlockSanity function to ensure it works as expected.
 func TestCheckBlockSanity(
 	t *testing.T) {
+
 	powLimit := chaincfg.MainNetParams.PowLimit
 	block := util.NewBlock(&Block100000)
 	timeSource := NewMedianTime()
@@ -155,6 +158,7 @@ func TestCheckBlockSanity(
 // and handled properly.
 func TestCheckSerializedHeight(
 	t *testing.T) {
+
 	// Create an empty coinbase template to be used in the tests below.
 	coinbaseOutpoint := wire.NewOutPoint(&chainhash.Hash{}, math.MaxUint32)
 	coinbaseTx := wire.NewMsgTx(1)
@@ -195,6 +199,7 @@ func TestCheckSerializedHeight(
 		tx := util.NewTx(msgTx)
 		err := checkSerializedHeight(tx, test.wantHeight)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("checkSerializedHeight #%d wrong error type "+
 				"got: %v <%T>, want: %T", i, err, err, test.err)
 			continue

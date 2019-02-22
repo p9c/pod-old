@@ -34,6 +34,7 @@ func hexToBytes(
 func newUtxoViewpoint(
 	sourceTxns []*wire.MsgTx, sourceTxHeights []int32) *blockchain.UtxoViewpoint {
 	if len(sourceTxns) != len(sourceTxHeights) {
+
 		panic("each transaction must have its block height specified")
 	}
 	view := blockchain.NewUtxoViewpoint()
@@ -46,6 +47,7 @@ func newUtxoViewpoint(
 // TestCalcPriority ensures the priority calculations work as intended.
 func TestCalcPriority(
 	t *testing.T) {
+
 	// commonSourceTx1 is a valid transaction used in the tests below as an input to transactions that are having their priority calculated.
 	// From block 7 in main blockchain.
 	// tx 0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9

@@ -57,6 +57,7 @@ As discussed in the bitcoin message overview section, this package reads and wri
 	// Assumes msg is already a valid concrete message such as one created
 	// via NewMsgVersion or read via ReadMessage.
 	switch msg := msg.(type) {
+
 	case *wire.MsgVersion:
 		// The message is a pointer to a MsgVersion struct.
 		fmt.Printf("Protocol version: %v", msg.ProtocolVersion)

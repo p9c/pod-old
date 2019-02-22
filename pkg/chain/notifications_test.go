@@ -9,6 +9,7 @@ import (
 // TestNotifications ensures that notification callbacks are fired on events.
 func TestNotifications(
 	t *testing.T) {
+
 	blocks, err := loadBlocks("blk_0_to_4.dat.bz2")
 	if err != nil {
 		t.Fatalf("Error loading file: %v\n", err)
@@ -22,6 +23,7 @@ func TestNotifications(
 	defer teardownFunc()
 	notificationCount := 0
 	callback := func(notification *Notification) {
+
 		if notification.Type == NTBlockAccepted {
 			notificationCount++
 		}

@@ -12,6 +12,7 @@ var gen = []int{0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3}
 // Decode decodes a bech32 encoded string, returning the human-readable part and the data part excluding the checksum.
 func Decode(
 	bech string) (string, []byte, error) {
+
 	// The maximum allowed length for a bech32 string is 90. It must also be at least 8 characters, since it needs a non-empty HRP, a separator, and a 6 character checksum.
 	if len(bech) < 8 || len(bech) > 90 {
 		return "", nil, fmt.Errorf("invalid bech32 string length %d",
@@ -36,6 +37,7 @@ func Decode(
 	// The string is invalid if the last '1' is non-existent, it is the first character of the string (no human-readable part) or one of the last 6 characters of the string (since checksum cannot contain '1'), or if the string is more than 90 characters in total.
 	one := strings.LastIndexByte(bech, '1')
 	if one < 1 || one+7 > len(bech) {
+
 		return "", nil, fmt.Errorf("invalid index of 1")
 	}
 	// The human-readable part is everything before the last '1'.
@@ -48,6 +50,7 @@ func Decode(
 			"%v", err)
 	}
 	if !bech32VerifyChecksum(hrp, decoded) {
+
 		moreInfo := ""
 		checksum := bech[len(bech)-6:]
 		expected, err := toChars(bech32Checksum(hrp,
@@ -65,6 +68,7 @@ func Decode(
 // Encode encodes a byte slice into a bech32 string with the human-readable part hrb. Note that the bytes must each encode 5 bits (base32).
 func Encode(
 	hrp string, data []byte) (string, error) {
+
 	// Calculate the checksum of the data and append it at the end.
 	checksum := bech32Checksum(hrp, data)
 	combined := append(data, checksum...)
@@ -80,6 +84,7 @@ func Encode(
 // toBytes converts each character in the string 'chars' to the value of the index of the correspoding character in 'charset'.
 func toBytes(
 	chars string) ([]byte, error) {
+
 	decoded := make([]byte, 0, len(chars))
 	for i := 0; i < len(chars); i++ {
 		index := strings.IndexByte(charset, chars[i])
@@ -95,9 +100,11 @@ func toBytes(
 // toChars converts the byte slice 'data' to a string where each byte in 'data' encodes the index of a character in 'charset'.
 func toChars(
 	data []byte) (string, error) {
+
 	result := make([]byte, 0, len(data))
 	for _, b := range data {
 		if int(b) >= len(charset) {
+
 			return "", fmt.Errorf("invalid data byte: %v", b)
 		}
 		result = append(result, charset[b])
@@ -108,6 +115,7 @@ func toChars(
 // ConvertBits converts a byte slice where each byte is encoding fromBits bits, to a byte slice where each byte is encoding toBits bits.
 func ConvertBits(
 	data []byte, fromBits, toBits uint8, pad bool) ([]byte, error) {
+
 	if fromBits < 1 || fromBits > 8 || toBits < 1 || toBits > 8 {
 		return nil, fmt.Errorf("only bit groups between 1 and 8 allowed")
 	}
@@ -152,6 +160,7 @@ func ConvertBits(
 	}
 	// Any incomplete group must be <= 4 bits, and all zeroes.
 	if filledBits > 0 && (filledBits > 4 || nextByte != 0) {
+
 		return nil, fmt.Errorf("invalid incomplete group")
 	}
 	return regrouped, nil

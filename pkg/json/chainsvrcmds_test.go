@@ -14,6 +14,7 @@ import (
 // TestChainSvrCmds tests all of the chain server commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestChainSvrCmds(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := int(1)
 	tests := []struct {
@@ -26,6 +27,7 @@ func TestChainSvrCmds(
 		{
 			name: "addnode",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("addnode", "127.0.0.1", json.ANRemove)
 			},
 			staticCmd: func() interface{} {
@@ -37,6 +39,7 @@ func TestChainSvrCmds(
 		{
 			name: "createrawtransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
 					`{"456":0.0123}`)
 			},
@@ -56,6 +59,7 @@ func TestChainSvrCmds(
 		{
 			name: "createrawtransaction optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("createrawtransaction", `[{"txid":"123","vout":1}]`,
 					`{"456":0.0123}`, int64(12312333333))
 			},
@@ -76,6 +80,7 @@ func TestChainSvrCmds(
 		{
 			name: "decoderawtransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("decoderawtransaction", "123")
 			},
 			staticCmd: func() interface{} {
@@ -87,6 +92,7 @@ func TestChainSvrCmds(
 		{
 			name: "decodescript",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("decodescript", "00")
 			},
 			staticCmd: func() interface{} {
@@ -98,6 +104,7 @@ func TestChainSvrCmds(
 		{
 			name: "getaddednodeinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getaddednodeinfo", true)
 			},
 			staticCmd: func() interface{} {
@@ -109,6 +116,7 @@ func TestChainSvrCmds(
 		{
 			name: "getaddednodeinfo optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getaddednodeinfo", true, "127.0.0.1")
 			},
 			staticCmd: func() interface{} {
@@ -123,6 +131,7 @@ func TestChainSvrCmds(
 		{
 			name: "getbestblockhash",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getbestblockhash")
 			},
 			staticCmd: func() interface{} {
@@ -134,6 +143,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblock", "123")
 			},
 			staticCmd: func() interface{} {
@@ -149,6 +159,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblock required optional1",
 			newCmd: func() (interface{}, error) {
+
 				// Intentionally use a source param that is more pointers than the destination to exercise that path.
 				verbosePtr := json.Bool(true)
 				return json.NewCmd("getblock", "123", &verbosePtr)
@@ -166,6 +177,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblock required optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblock", "123", true, true)
 			},
 			staticCmd: func() interface{} {
@@ -181,6 +193,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblockchaininfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblockchaininfo")
 			},
 			staticCmd: func() interface{} {
@@ -192,6 +205,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblockcount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblockcount")
 			},
 			staticCmd: func() interface{} {
@@ -203,6 +217,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblockhash",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblockhash", 123)
 			},
 			staticCmd: func() interface{} {
@@ -214,6 +229,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblockheader",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblockheader", "123")
 			},
 			staticCmd: func() interface{} {
@@ -228,6 +244,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblocktemplate",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblocktemplate")
 			},
 			staticCmd: func() interface{} {
@@ -239,6 +256,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblocktemplate optional - template request",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"]}`)
 			},
 			staticCmd: func() interface{} {
@@ -259,6 +277,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblocktemplate optional - template request with tweaks",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":500,"sizelimit":100000000,"maxversion":2}`)
 			},
 			staticCmd: func() interface{} {
@@ -285,6 +304,7 @@ func TestChainSvrCmds(
 		{
 			name: "getblocktemplate optional - template request with tweaks 2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getblocktemplate", `{"mode":"template","capabilities":["longpoll","coinbasetxn"],"sigoplimit":true,"sizelimit":100000000,"maxversion":2}`)
 			},
 			staticCmd: func() interface{} {
@@ -311,6 +331,7 @@ func TestChainSvrCmds(
 		{
 			name: "getcfilter",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getcfilter", "123",
 					wire.GCSFilterRegular)
 			},
@@ -327,6 +348,7 @@ func TestChainSvrCmds(
 		{
 			name: "getcfilterheader",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getcfilterheader", "123",
 					wire.GCSFilterRegular)
 			},
@@ -343,6 +365,7 @@ func TestChainSvrCmds(
 		{
 			name: "getchaintips",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getchaintips")
 			},
 			staticCmd: func() interface{} {
@@ -354,6 +377,7 @@ func TestChainSvrCmds(
 		{
 			name: "getconnectioncount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getconnectioncount")
 			},
 			staticCmd: func() interface{} {
@@ -365,6 +389,7 @@ func TestChainSvrCmds(
 		{
 			name: "getdifficulty",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getdifficulty", "123")
 			},
 			staticCmd: func() interface{} {
@@ -376,6 +401,7 @@ func TestChainSvrCmds(
 		{
 			name: "getgenerate",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getgenerate")
 			},
 			staticCmd: func() interface{} {
@@ -387,6 +413,7 @@ func TestChainSvrCmds(
 		{
 			name: "gethashespersec",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gethashespersec")
 			},
 			staticCmd: func() interface{} {
@@ -398,6 +425,7 @@ func TestChainSvrCmds(
 		{
 			name: "getinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getinfo")
 			},
 			staticCmd: func() interface{} {
@@ -409,6 +437,7 @@ func TestChainSvrCmds(
 		{
 			name: "getmempoolentry",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getmempoolentry", "txhash")
 			},
 			staticCmd: func() interface{} {
@@ -422,6 +451,7 @@ func TestChainSvrCmds(
 		{
 			name: "getmempoolinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getmempoolinfo")
 			},
 			staticCmd: func() interface{} {
@@ -433,6 +463,7 @@ func TestChainSvrCmds(
 		{
 			name: "getmininginfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getmininginfo")
 			},
 			staticCmd: func() interface{} {
@@ -444,6 +475,7 @@ func TestChainSvrCmds(
 		{
 			name: "getnetworkinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnetworkinfo")
 			},
 			staticCmd: func() interface{} {
@@ -455,6 +487,7 @@ func TestChainSvrCmds(
 		{
 			name: "getnettotals",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnettotals")
 			},
 			staticCmd: func() interface{} {
@@ -466,6 +499,7 @@ func TestChainSvrCmds(
 		{
 			name: "getnetworkhashps",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnetworkhashps")
 			},
 			staticCmd: func() interface{} {
@@ -480,6 +514,7 @@ func TestChainSvrCmds(
 		{
 			name: "getnetworkhashps optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnetworkhashps", 200)
 			},
 			staticCmd: func() interface{} {
@@ -494,6 +529,7 @@ func TestChainSvrCmds(
 		{
 			name: "getnetworkhashps optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnetworkhashps", 200, 123)
 			},
 			staticCmd: func() interface{} {
@@ -508,6 +544,7 @@ func TestChainSvrCmds(
 		{
 			name: "getpeerinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getpeerinfo")
 			},
 			staticCmd: func() interface{} {
@@ -519,6 +556,7 @@ func TestChainSvrCmds(
 		{
 			name: "getrawmempool",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawmempool")
 			},
 			staticCmd: func() interface{} {
@@ -532,6 +570,7 @@ func TestChainSvrCmds(
 		{
 			name: "getrawmempool optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawmempool", false)
 			},
 			staticCmd: func() interface{} {
@@ -545,6 +584,7 @@ func TestChainSvrCmds(
 		{
 			name: "getrawtransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawtransaction", "123")
 			},
 			staticCmd: func() interface{} {
@@ -559,6 +599,7 @@ func TestChainSvrCmds(
 		{
 			name: "getrawtransaction optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawtransaction", "123", 1)
 			},
 			staticCmd: func() interface{} {
@@ -573,6 +614,7 @@ func TestChainSvrCmds(
 		{
 			name: "gettxout",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettxout", "123", 1)
 			},
 			staticCmd: func() interface{} {
@@ -588,6 +630,7 @@ func TestChainSvrCmds(
 		{
 			name: "gettxout optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettxout", "123", 1, true)
 			},
 			staticCmd: func() interface{} {
@@ -603,6 +646,7 @@ func TestChainSvrCmds(
 		{
 			name: "gettxoutproof",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettxoutproof", []string{"123", "456"})
 			},
 			staticCmd: func() interface{} {
@@ -616,6 +660,7 @@ func TestChainSvrCmds(
 		{
 			name: "gettxoutproof optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettxoutproof", []string{"123", "456"},
 					json.String("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 			},
@@ -633,6 +678,7 @@ func TestChainSvrCmds(
 		{
 			name: "gettxoutsetinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettxoutsetinfo")
 			},
 			staticCmd: func() interface{} {
@@ -644,6 +690,7 @@ func TestChainSvrCmds(
 		{
 			name: "getwork",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getwork")
 			},
 			staticCmd: func() interface{} {
@@ -657,6 +704,7 @@ func TestChainSvrCmds(
 		{
 			name: "getwork optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getwork", "00112233")
 			},
 			staticCmd: func() interface{} {
@@ -670,6 +718,7 @@ func TestChainSvrCmds(
 		{
 			name: "help",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("help")
 			},
 			staticCmd: func() interface{} {
@@ -683,6 +732,7 @@ func TestChainSvrCmds(
 		{
 			name: "help optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("help", "getblock")
 			},
 			staticCmd: func() interface{} {
@@ -696,6 +746,7 @@ func TestChainSvrCmds(
 		{
 			name: "invalidateblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("invalidateblock", "123")
 			},
 			staticCmd: func() interface{} {
@@ -709,6 +760,7 @@ func TestChainSvrCmds(
 		{
 			name: "ping",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("ping")
 			},
 			staticCmd: func() interface{} {
@@ -720,6 +772,7 @@ func TestChainSvrCmds(
 		{
 			name: "preciousblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("preciousblock", "0123")
 			},
 			staticCmd: func() interface{} {
@@ -733,6 +786,7 @@ func TestChainSvrCmds(
 		{
 			name: "reconsiderblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("reconsiderblock", "123")
 			},
 			staticCmd: func() interface{} {
@@ -746,6 +800,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address")
 			},
 			staticCmd: func() interface{} {
@@ -765,6 +820,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0)
 			},
 			staticCmd: func() interface{} {
@@ -785,6 +841,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0, 5)
 			},
 			staticCmd: func() interface{} {
@@ -805,6 +862,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10)
 			},
 			staticCmd: func() interface{} {
@@ -825,6 +883,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1)
 			},
 			staticCmd: func() interface{} {
@@ -845,6 +904,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true)
 			},
 			staticCmd: func() interface{} {
@@ -865,6 +925,7 @@ func TestChainSvrCmds(
 		{
 			name: "searchrawtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("searchrawtransactions", "1Address", 0, 5, 10, 1, true, []string{"1Address"})
 			},
 			staticCmd: func() interface{} {
@@ -885,6 +946,7 @@ func TestChainSvrCmds(
 		{
 			name: "sendrawtransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendrawtransaction", "1122")
 			},
 			staticCmd: func() interface{} {
@@ -899,6 +961,7 @@ func TestChainSvrCmds(
 		{
 			name: "sendrawtransaction optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendrawtransaction", "1122", false)
 			},
 			staticCmd: func() interface{} {
@@ -913,6 +976,7 @@ func TestChainSvrCmds(
 		{
 			name: "setgenerate",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("setgenerate", true)
 			},
 			staticCmd: func() interface{} {
@@ -927,6 +991,7 @@ func TestChainSvrCmds(
 		{
 			name: "setgenerate optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("setgenerate", true, 6)
 			},
 			staticCmd: func() interface{} {
@@ -941,6 +1006,7 @@ func TestChainSvrCmds(
 		{
 			name: "stop",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("stop")
 			},
 			staticCmd: func() interface{} {
@@ -952,6 +1018,7 @@ func TestChainSvrCmds(
 		{
 			name: "submitblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("submitblock", "112233")
 			},
 			staticCmd: func() interface{} {
@@ -966,6 +1033,7 @@ func TestChainSvrCmds(
 		{
 			name: "submitblock optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("submitblock", "112233", `{"workid":"12345"}`)
 			},
 			staticCmd: func() interface{} {
@@ -985,6 +1053,7 @@ func TestChainSvrCmds(
 		{
 			name: "uptime",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("uptime")
 			},
 			staticCmd: func() interface{} {
@@ -996,6 +1065,7 @@ func TestChainSvrCmds(
 		{
 			name: "validateaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("validateaddress", "1Address")
 			},
 			staticCmd: func() interface{} {
@@ -1009,6 +1079,7 @@ func TestChainSvrCmds(
 		{
 			name: "verifychain",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("verifychain")
 			},
 			staticCmd: func() interface{} {
@@ -1023,6 +1094,7 @@ func TestChainSvrCmds(
 		{
 			name: "verifychain optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("verifychain", 2)
 			},
 			staticCmd: func() interface{} {
@@ -1037,6 +1109,7 @@ func TestChainSvrCmds(
 		{
 			name: "verifychain optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("verifychain", 2, 500)
 			},
 			staticCmd: func() interface{} {
@@ -1051,6 +1124,7 @@ func TestChainSvrCmds(
 		{
 			name: "verifymessage",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("verifymessage", "1Address", "301234", "test")
 			},
 			staticCmd: func() interface{} {
@@ -1066,6 +1140,7 @@ func TestChainSvrCmds(
 		{
 			name: "verifytxoutproof",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("verifytxoutproof", "test")
 			},
 			staticCmd: func() interface{} {
@@ -1088,6 +1163,7 @@ func TestChainSvrCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -1110,6 +1186,7 @@ func TestChainSvrCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -1129,6 +1206,7 @@ func TestChainSvrCmds(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),
@@ -1141,6 +1219,7 @@ func TestChainSvrCmds(
 // TestChainSvrCmdErrors ensures any errors that occur in the command during custom mashal and unmarshal are as expected.
 func TestChainSvrCmdErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name       string
@@ -1171,6 +1250,7 @@ func TestChainSvrCmdErrors(
 	for i, test := range tests {
 		err := json.Unmarshal([]byte(test.marshalled), &test.result)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue

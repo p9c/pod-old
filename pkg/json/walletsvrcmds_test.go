@@ -13,6 +13,7 @@ import (
 // TestWalletSvrCmds tests all of the wallet server commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestWalletSvrCmds(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := int(1)
 	tests := []struct {
@@ -25,6 +26,7 @@ func TestWalletSvrCmds(
 		{
 			name: "addmultisigaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("addmultisigaddress", 2, []string{"031234", "035678"})
 			},
 			staticCmd: func() interface{} {
@@ -41,6 +43,7 @@ func TestWalletSvrCmds(
 		{
 			name: "addmultisigaddress optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("addmultisigaddress", 2, []string{"031234", "035678"}, "test")
 			},
 			staticCmd: func() interface{} {
@@ -57,6 +60,7 @@ func TestWalletSvrCmds(
 		{
 			name: "addwitnessaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("addwitnessaddress", "1address")
 			},
 			staticCmd: func() interface{} {
@@ -70,6 +74,7 @@ func TestWalletSvrCmds(
 		{
 			name: "createmultisig",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("createmultisig", 2, []string{"031234", "035678"})
 			},
 			staticCmd: func() interface{} {
@@ -85,6 +90,7 @@ func TestWalletSvrCmds(
 		{
 			name: "dumpprivkey",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("dumpprivkey", "1Address")
 			},
 			staticCmd: func() interface{} {
@@ -98,6 +104,7 @@ func TestWalletSvrCmds(
 		{
 			name: "encryptwallet",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("encryptwallet", "pass")
 			},
 			staticCmd: func() interface{} {
@@ -111,6 +118,7 @@ func TestWalletSvrCmds(
 		{
 			name: "estimatefee",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("estimatefee", 6)
 			},
 			staticCmd: func() interface{} {
@@ -124,6 +132,7 @@ func TestWalletSvrCmds(
 		{
 			name: "estimatepriority",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("estimatepriority", 6)
 			},
 			staticCmd: func() interface{} {
@@ -137,6 +146,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getaccount", "1Address")
 			},
 			staticCmd: func() interface{} {
@@ -150,6 +160,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getaccountaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getaccountaddress", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -163,6 +174,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getaddressesbyaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getaddressesbyaccount", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -176,6 +188,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getbalance",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getbalance")
 			},
 			staticCmd: func() interface{} {
@@ -190,6 +203,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getbalance optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getbalance", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -204,6 +218,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getbalance optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getbalance", "acct", 6)
 			},
 			staticCmd: func() interface{} {
@@ -218,6 +233,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getnewaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnewaddress")
 			},
 			staticCmd: func() interface{} {
@@ -231,6 +247,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getnewaddress optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getnewaddress", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -244,6 +261,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getrawchangeaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawchangeaddress")
 			},
 			staticCmd: func() interface{} {
@@ -257,6 +275,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getrawchangeaddress optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getrawchangeaddress", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -270,6 +289,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getreceivedbyaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getreceivedbyaccount", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -284,6 +304,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getreceivedbyaccount optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getreceivedbyaccount", "acct", 6)
 			},
 			staticCmd: func() interface{} {
@@ -298,6 +319,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getreceivedbyaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getreceivedbyaddress", "1Address")
 			},
 			staticCmd: func() interface{} {
@@ -312,6 +334,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getreceivedbyaddress optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getreceivedbyaddress", "1Address", 6)
 			},
 			staticCmd: func() interface{} {
@@ -326,6 +349,7 @@ func TestWalletSvrCmds(
 		{
 			name: "gettransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettransaction", "123")
 			},
 			staticCmd: func() interface{} {
@@ -340,6 +364,7 @@ func TestWalletSvrCmds(
 		{
 			name: "gettransaction optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("gettransaction", "123", true)
 			},
 			staticCmd: func() interface{} {
@@ -354,6 +379,7 @@ func TestWalletSvrCmds(
 		{
 			name: "getwalletinfo",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getwalletinfo")
 			},
 			staticCmd: func() interface{} {
@@ -365,6 +391,7 @@ func TestWalletSvrCmds(
 		{
 			name: "importprivkey",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importprivkey", "abc")
 			},
 			staticCmd: func() interface{} {
@@ -380,6 +407,7 @@ func TestWalletSvrCmds(
 		{
 			name: "importprivkey optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importprivkey", "abc", "label")
 			},
 			staticCmd: func() interface{} {
@@ -395,6 +423,7 @@ func TestWalletSvrCmds(
 		{
 			name: "importprivkey optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("importprivkey", "abc", "label", false)
 			},
 			staticCmd: func() interface{} {
@@ -410,6 +439,7 @@ func TestWalletSvrCmds(
 		{
 			name: "keypoolrefill",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("keypoolrefill")
 			},
 			staticCmd: func() interface{} {
@@ -423,6 +453,7 @@ func TestWalletSvrCmds(
 		{
 			name: "keypoolrefill optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("keypoolrefill", 200)
 			},
 			staticCmd: func() interface{} {
@@ -436,6 +467,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listaccounts",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listaccounts")
 			},
 			staticCmd: func() interface{} {
@@ -449,6 +481,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listaccounts optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listaccounts", 6)
 			},
 			staticCmd: func() interface{} {
@@ -462,6 +495,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listaddressgroupings",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listaddressgroupings")
 			},
 			staticCmd: func() interface{} {
@@ -473,6 +507,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listlockunspent",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listlockunspent")
 			},
 			staticCmd: func() interface{} {
@@ -484,6 +519,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaccount")
 			},
 			staticCmd: func() interface{} {
@@ -499,6 +535,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaccount optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaccount", 6)
 			},
 			staticCmd: func() interface{} {
@@ -514,6 +551,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaccount optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaccount", 6, true)
 			},
 			staticCmd: func() interface{} {
@@ -529,6 +567,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaccount optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaccount", 6, true, false)
 			},
 			staticCmd: func() interface{} {
@@ -544,6 +583,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaddress")
 			},
 			staticCmd: func() interface{} {
@@ -559,6 +599,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaddress optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaddress", 6)
 			},
 			staticCmd: func() interface{} {
@@ -574,6 +615,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaddress optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaddress", 6, true)
 			},
 			staticCmd: func() interface{} {
@@ -589,6 +631,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listreceivedbyaddress optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listreceivedbyaddress", 6, true, false)
 			},
 			staticCmd: func() interface{} {
@@ -604,6 +647,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listsinceblock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listsinceblock")
 			},
 			staticCmd: func() interface{} {
@@ -619,6 +663,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listsinceblock optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listsinceblock", "123")
 			},
 			staticCmd: func() interface{} {
@@ -634,6 +679,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listsinceblock optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listsinceblock", "123", 6)
 			},
 			staticCmd: func() interface{} {
@@ -649,6 +695,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listsinceblock optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listsinceblock", "123", 6, true)
 			},
 			staticCmd: func() interface{} {
@@ -664,6 +711,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listtransactions")
 			},
 			staticCmd: func() interface{} {
@@ -680,6 +728,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listtransactions optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listtransactions", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -696,6 +745,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listtransactions optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listtransactions", "acct", 20)
 			},
 			staticCmd: func() interface{} {
@@ -712,6 +762,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listtransactions optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listtransactions", "acct", 20, 1)
 			},
 			staticCmd: func() interface{} {
@@ -729,6 +780,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listtransactions optional4",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listtransactions", "acct", 20, 1, true)
 			},
 			staticCmd: func() interface{} {
@@ -746,6 +798,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listunspent",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listunspent")
 			},
 			staticCmd: func() interface{} {
@@ -761,6 +814,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listunspent optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listunspent", 6)
 			},
 			staticCmd: func() interface{} {
@@ -776,6 +830,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listunspent optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listunspent", 6, 100)
 			},
 			staticCmd: func() interface{} {
@@ -791,6 +846,7 @@ func TestWalletSvrCmds(
 		{
 			name: "listunspent optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listunspent", 6, 100, []string{"1Address", "1Address2"})
 			},
 			staticCmd: func() interface{} {
@@ -807,6 +863,7 @@ func TestWalletSvrCmds(
 		{
 			name: "lockunspent",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("lockunspent", true, `[{"txid":"123","vout":1}]`)
 			},
 			staticCmd: func() interface{} {
@@ -826,6 +883,7 @@ func TestWalletSvrCmds(
 		{
 			name: "move",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("move", "from", "to", 0.5)
 			},
 			staticCmd: func() interface{} {
@@ -843,6 +901,7 @@ func TestWalletSvrCmds(
 		{
 			name: "move optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("move", "from", "to", 0.5, 6)
 			},
 			staticCmd: func() interface{} {
@@ -860,6 +919,7 @@ func TestWalletSvrCmds(
 		{
 			name: "move optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("move", "from", "to", 0.5, 6, "comment")
 			},
 			staticCmd: func() interface{} {
@@ -877,6 +937,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendfrom",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5)
 			},
 			staticCmd: func() interface{} {
@@ -895,6 +956,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendfrom optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6)
 			},
 			staticCmd: func() interface{} {
@@ -913,6 +975,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendfrom optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6, "comment")
 			},
 			staticCmd: func() interface{} {
@@ -932,6 +995,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendfrom optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6, "comment", "commentto")
 			},
 			staticCmd: func() interface{} {
@@ -951,6 +1015,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendmany",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`)
 			},
 			staticCmd: func() interface{} {
@@ -968,6 +1033,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendmany optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`, 6)
 			},
 			staticCmd: func() interface{} {
@@ -985,6 +1051,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendmany optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`, 6, "comment")
 			},
 			staticCmd: func() interface{} {
@@ -1002,6 +1069,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendtoaddress",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendtoaddress", "1Address", 0.5)
 			},
 			staticCmd: func() interface{} {
@@ -1018,6 +1086,7 @@ func TestWalletSvrCmds(
 		{
 			name: "sendtoaddress optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("sendtoaddress", "1Address", 0.5, "comment", "commentto")
 			},
 			staticCmd: func() interface{} {
@@ -1035,6 +1104,7 @@ func TestWalletSvrCmds(
 		{
 			name: "setaccount",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("setaccount", "1Address", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -1049,6 +1119,7 @@ func TestWalletSvrCmds(
 		{
 			name: "settxfee",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("settxfee", 0.0001)
 			},
 			staticCmd: func() interface{} {
@@ -1062,6 +1133,7 @@ func TestWalletSvrCmds(
 		{
 			name: "signmessage",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("signmessage", "1Address", "message")
 			},
 			staticCmd: func() interface{} {
@@ -1076,6 +1148,7 @@ func TestWalletSvrCmds(
 		{
 			name: "signrawtransaction",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("signrawtransaction", "001122")
 			},
 			staticCmd: func() interface{} {
@@ -1092,6 +1165,7 @@ func TestWalletSvrCmds(
 		{
 			name: "signrawtransaction optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("signrawtransaction", "001122", `[{"txid":"123","vout":1,"scriptPubKey":"00","redeemScript":"01"}]`)
 			},
 			staticCmd: func() interface{} {
@@ -1123,6 +1197,7 @@ func TestWalletSvrCmds(
 		{
 			name: "signrawtransaction optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("signrawtransaction", "001122", `[]`, `["abc"]`)
 			},
 			staticCmd: func() interface{} {
@@ -1141,6 +1216,7 @@ func TestWalletSvrCmds(
 		{
 			name: "signrawtransaction optional3",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("signrawtransaction", "001122", `[]`, `[]`, "ALL")
 			},
 			staticCmd: func() interface{} {
@@ -1160,6 +1236,7 @@ func TestWalletSvrCmds(
 		{
 			name: "walletlock",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("walletlock")
 			},
 			staticCmd: func() interface{} {
@@ -1171,6 +1248,7 @@ func TestWalletSvrCmds(
 		{
 			name: "walletpassphrase",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("walletpassphrase", "pass", 60)
 			},
 			staticCmd: func() interface{} {
@@ -1185,6 +1263,7 @@ func TestWalletSvrCmds(
 		{
 			name: "walletpassphrasechange",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("walletpassphrasechange", "old", "new")
 			},
 			staticCmd: func() interface{} {
@@ -1206,6 +1285,7 @@ func TestWalletSvrCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -1225,6 +1305,7 @@ func TestWalletSvrCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -1244,6 +1325,7 @@ func TestWalletSvrCmds(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

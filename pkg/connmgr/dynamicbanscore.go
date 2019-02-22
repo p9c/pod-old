@@ -22,8 +22,8 @@ const (
 var precomputedFactor [precomputedLen]float64
 
 // init precomputes decay factors.
-func init(
-	) {
+func init() {
+
 	for i := range precomputedFactor {
 		precomputedFactor[i] = math.Exp(-1.0 * float64(i) * lambda)
 	}
@@ -74,6 +74,7 @@ func (s *DynamicBanScore) Increase(persistent, transient uint32) uint32 {
 
 // Reset set both persistent and decaying scores to zero. This function is safe for concurrent access.
 func (s *DynamicBanScore) Reset() {
+
 	s.mtx.Lock()
 	s.persistent = 0
 	s.transient = 0

@@ -97,6 +97,7 @@ func sqrt(
 // and λ are fixed, the final results can be accelerated by storing the
 // precomputed values with the curve.
 func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
+
 	bigMinus1 := big.NewInt(-1)
 	// This section uses an extended Euclidean algorithm to generate a
 	// sequence of equations:

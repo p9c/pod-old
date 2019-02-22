@@ -1,11 +1,13 @@
-
 package txscript
+
 import (
 	"testing"
 )
+
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   ErrorCode
@@ -79,6 +81,7 @@ func TestErrorCodeStringer(
 	}
 	// Detect additional error codes that don't have the stringer added.
 	if len(tests)-1 != int(numErrorCodes) {
+
 		t.Errorf("It appears an error code was added without adding an " +
 			"associated stringer test")
 	}
@@ -92,9 +95,11 @@ func TestErrorCodeStringer(
 		}
 	}
 }
+
 // TestError tests the error output for the Error type.
 func TestError(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   Error

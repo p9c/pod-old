@@ -39,10 +39,12 @@ func (iter *ldbCacheIter) Error() error {
 
 // SetReleaser is only provided to satisfy the iterator interface as there is no need to override it. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *ldbCacheIter) SetReleaser(releaser util.Releaser) {
+
 }
 
 // Release is only provided to satisfy the iterator interface. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *ldbCacheIter) Release() {
+
 }
 
 // newLdbCacheIter creates a new treap iterator for the given slice against the pending keys for the passed cache snapshot and returns it wrapped in an ldbCacheIter so it can be used as a leveldb iterator.
@@ -66,12 +68,16 @@ var _ iterator.Iterator = (*dbCacheIterator)(nil)
 
 // skipPendingUpdates skips any keys at the current database iterator position that are being updated by the cache.  The forwards flag indicates the direction the iterator is moving.
 func (iter *dbCacheIterator) skipPendingUpdates(forwards bool) {
+
 	for iter.dbIter.Valid() {
+
 		var skip bool
 		key := iter.dbIter.Key()
 		if iter.cacheSnapshot.pendingRemove.Has(key) {
+
 			skip = true
 		} else if iter.cacheSnapshot.pendingKeys.Has(key) {
+
 			skip = true
 		}
 		if !skip {
@@ -91,22 +97,26 @@ func (iter *dbCacheIterator) chooseIterator(forwards bool) bool {
 	iter.skipPendingUpdates(forwards)
 	// When both iterators are exhausted, the iterator is exhausted too.
 	if !iter.dbIter.Valid() && !iter.cacheIter.Valid() {
+
 		iter.currentIter = nil
 		return false
 	}
 	// Choose the database iterator when the cache iterator is exhausted.
 	if !iter.cacheIter.Valid() {
+
 		iter.currentIter = iter.dbIter
 		return true
 	}
 	// Choose the cache iterator when the database iterator is exhausted.
 	if !iter.dbIter.Valid() {
+
 		iter.currentIter = iter.cacheIter
 		return true
 	}
 	// Both iterators are valid, so choose the iterator with either the smaller or larger key depending on the forwards flag.
 	compare := bytes.Compare(iter.dbIter.Key(), iter.cacheIter.Key())
 	if (forwards && compare > 0) || (!forwards && compare < 0) {
+
 		iter.currentIter = iter.cacheIter
 	} else {
 		iter.currentIter = iter.dbIter
@@ -185,10 +195,12 @@ func (iter *dbCacheIterator) Value() []byte {
 
 // SetReleaser is only provided to satisfy the iterator interface as there is no need to override it. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *dbCacheIterator) SetReleaser(releaser util.Releaser) {
+
 }
 
 // Release releases the iterator by removing the underlying treap iterator from the list of active iterators against the pending keys treap. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *dbCacheIterator) Release() {
+
 	if !iter.released {
 		iter.dbIter.Release()
 		iter.cacheIter.Release()
@@ -213,9 +225,11 @@ type dbCacheSnapshot struct {
 func (snap *dbCacheSnapshot) Has(key []byte) bool {
 	// Check the cached entries first.
 	if snap.pendingRemove.Has(key) {
+
 		return false
 	}
 	if snap.pendingKeys.Has(key) {
+
 		return true
 	}
 	// Consult the database.
@@ -227,6 +241,7 @@ func (snap *dbCacheSnapshot) Has(key []byte) bool {
 func (snap *dbCacheSnapshot) Get(key []byte) []byte {
 	// Check the cached entries first.
 	if snap.pendingRemove.Has(key) {
+
 		return nil
 	}
 	if value := snap.pendingKeys.Get(key); value != nil {
@@ -242,6 +257,7 @@ func (snap *dbCacheSnapshot) Get(key []byte) []byte {
 
 // Release releases the snapshot.
 func (snap *dbCacheSnapshot) Release() {
+
 	snap.dbSnapshot.Release()
 	snap.pendingKeys = nil
 	snap.pendingRemove = nil
@@ -279,6 +295,7 @@ type dbCache struct {
 
 // Snapshot returns a snapshot of the database cache and underlying database at a particular point in time. The snapshot must be released after use by calling Release.
 func (c *dbCache) Snapshot() (*dbCacheSnapshot, error) {
+
 	dbSnapshot, err := c.ldb.GetSnapshot()
 	if err != nil {
 		str := "failed to open transaction"
@@ -395,6 +412,7 @@ func (c *dbCache) needsFlush(tx *transaction) bool {
 func (c *dbCache) commitTx(tx *transaction) error {
 	// Flush the cache and write the current transaction directly to the database if a flush is needed.
 	if c.needsFlush(tx) {
+
 		if err := c.flush(); err != nil {
 			return err
 		}

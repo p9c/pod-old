@@ -14,6 +14,7 @@ import (
 // TestTx tests the MsgTx API.
 func TestTx(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Block 100000 hash.
 	hashStr := "3ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
@@ -40,6 +41,7 @@ func TestTx(
 	prevOutIndex := uint32(1)
 	prevOut := NewOutPoint(hash, prevOutIndex)
 	if !prevOut.Hash.IsEqual(hash) {
+
 		t.Errorf("NewOutPoint: wrong hash - got %v, want %v",
 			spew.Sprint(&prevOut.Hash), spew.Sprint(hash))
 	}
@@ -60,16 +62,19 @@ func TestTx(
 	}
 	txIn := NewTxIn(prevOut, sigScript, witnessData)
 	if !reflect.DeepEqual(&txIn.PreviousOutPoint, prevOut) {
+
 		t.Errorf("NewTxIn: wrong prev outpoint - got %v, want %v",
 			spew.Sprint(&txIn.PreviousOutPoint),
 			spew.Sprint(prevOut))
 	}
 	if !bytes.Equal(txIn.SignatureScript, sigScript) {
+
 		t.Errorf("NewTxIn: wrong signature script - got %v, want %v",
 			spew.Sdump(txIn.SignatureScript),
 			spew.Sdump(sigScript))
 	}
 	if !reflect.DeepEqual(txIn.Witness, TxWitness(witnessData)) {
+
 		t.Errorf("NewTxIn: wrong witness data - got %v, want %v",
 			spew.Sdump(txIn.Witness),
 			spew.Sdump(witnessData))
@@ -95,6 +100,7 @@ func TestTx(
 			txOut.Value, txValue)
 	}
 	if !bytes.Equal(txOut.PkScript, pkScript) {
+
 		t.Errorf("NewTxOut: wrong pk script - got %v, want %v",
 			spew.Sdump(txOut.PkScript),
 			spew.Sdump(pkScript))
@@ -102,18 +108,21 @@ func TestTx(
 	// Ensure transaction inputs are added properly.
 	msg.AddTxIn(txIn)
 	if !reflect.DeepEqual(msg.TxIn[0], txIn) {
+
 		t.Errorf("AddTxIn: wrong transaction input added - got %v, want %v",
 			spew.Sprint(msg.TxIn[0]), spew.Sprint(txIn))
 	}
 	// Ensure transaction outputs are added properly.
 	msg.AddTxOut(txOut)
 	if !reflect.DeepEqual(msg.TxOut[0], txOut) {
+
 		t.Errorf("AddTxIn: wrong transaction output added - got %v, want %v",
 			spew.Sprint(msg.TxOut[0]), spew.Sprint(txOut))
 	}
 	// Ensure the copy produced an identical transaction message.
 	newMsg := msg.Copy()
 	if !reflect.DeepEqual(newMsg, msg) {
+
 		t.Errorf("Copy: mismatched tx messages - got %v, want %v",
 			spew.Sdump(newMsg), spew.Sdump(msg))
 	}
@@ -122,6 +131,7 @@ func TestTx(
 // TestTxHash tests the ability to generate the hash of a transaction accurately.
 func TestTxHash(
 	t *testing.T) {
+
 	// Hash of first transaction from block 113875.
 	hashStr := "f051e59b5e2503ac626d03aaeac8ab7be2d72ba4b7e97119c5852d70d52dcb86"
 	wantHash, err := chainhash.NewHashFromStr(hashStr)
@@ -161,6 +171,7 @@ func TestTxHash(
 	// Ensure the hash produced is expected.
 	txHash := msgTx.TxHash()
 	if !txHash.IsEqual(wantHash) {
+
 		t.Errorf("TxHash: wrong hash - got %v, want %v",
 			spew.Sprint(txHash), spew.Sprint(wantHash))
 	}
@@ -169,6 +180,7 @@ func TestTxHash(
 // TestTxSha tests the ability to generate the wtxid, and txid of a transaction with witness inputs accurately.
 func TestWTxSha(
 	t *testing.T) {
+
 	hashStrTxid := "0f167d1385a84d1518cfee208b653fc9163b605ccf1b75347e2850b3e2eb19f3"
 	wantHashTxid, err := chainhash.NewHashFromStr(hashStrTxid)
 	if err != nil {
@@ -231,11 +243,13 @@ func TestWTxSha(
 	// Ensure the correct txid, and wtxid is produced as expected.
 	txid := msgTx.TxHash()
 	if !txid.IsEqual(wantHashTxid) {
+
 		t.Errorf("TxSha: wrong hash - got %v, want %v",
 			spew.Sprint(txid), spew.Sprint(wantHashTxid))
 	}
 	wtxid := msgTx.WitnessHash()
 	if !wtxid.IsEqual(wantHashWTxid) {
+
 		t.Errorf("WTxSha: wrong hash - got %v, want %v",
 			spew.Sprint(wtxid), spew.Sprint(wantHashWTxid))
 	}
@@ -244,6 +258,7 @@ func TestWTxSha(
 // TestTxWire tests the MsgTx wire encode and decode for various numbers of transaction inputs and outputs and protocol versions.
 func TestTxWire(
 	t *testing.T) {
+
 	// Empty tx message.
 	noTx := NewMsgTx(1)
 	noTx.Version = 1
@@ -350,6 +365,7 @@ func TestTxWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -363,6 +379,7 @@ func TestTxWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(&msg), spew.Sdump(test.out))
 			continue
@@ -373,6 +390,7 @@ func TestTxWire(
 // TestTxWireErrors performs negative tests against wire encode and decode of MsgTx to confirm error paths work correctly.
 func TestTxWireErrors(
 	t *testing.T) {
+
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
 	tests := []struct {
@@ -434,6 +452,7 @@ func TestTxWireErrors(
 // TestTxSerialize tests MsgTx serialize and deserialize.
 func TestTxSerialize(
 	t *testing.T) {
+
 	noTx := NewMsgTx(1)
 	noTx.Version = 1
 	noTxEncoded := []byte{
@@ -484,6 +503,7 @@ func TestTxSerialize(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("Serialize #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -501,6 +521,7 @@ func TestTxSerialize(
 			continue
 		}
 		if !reflect.DeepEqual(&tx, test.out) {
+
 			t.Errorf("Deserialize #%d\n got: %s want: %s", i,
 				spew.Sdump(&tx), spew.Sdump(test.out))
 			continue
@@ -508,6 +529,7 @@ func TestTxSerialize(
 		// Ensure the public key script locations are accurate.
 		pkScriptLocs := test.in.PkScriptLocs()
 		if !reflect.DeepEqual(pkScriptLocs, test.pkScriptLocs) {
+
 			t.Errorf("PkScriptLocs #%d\n got: %s want: %s", i,
 				spew.Sdump(pkScriptLocs),
 				spew.Sdump(test.pkScriptLocs))
@@ -517,6 +539,7 @@ func TestTxSerialize(
 			wantPkScript := test.in.TxOut[j].PkScript
 			gotPkScript := test.buf[loc : loc+len(wantPkScript)]
 			if !bytes.Equal(gotPkScript, wantPkScript) {
+
 				t.Errorf("PkScriptLocs #%d:%d\n unexpected "+
 					"script got: %s want: %s", i, j,
 					spew.Sdump(gotPkScript),
@@ -529,6 +552,7 @@ func TestTxSerialize(
 // TestTxSerializeErrors performs negative tests against wire encode and decode of MsgTx to confirm error paths work correctly.
 func TestTxSerializeErrors(
 	t *testing.T) {
+
 	tests := []struct {
 		in       *MsgTx // Value to encode
 		buf      []byte // Serialized data
@@ -586,6 +610,7 @@ func TestTxSerializeErrors(
 // TestTxOverflowErrors performs tests to ensure deserializing transactions which are intentionally crafted to use large values for the variable number of inputs and outputs are handled properly.  This could otherwise potentially be used as an attack vector.
 func TestTxOverflowErrors(
 	t *testing.T) {
+
 	// Use protocol version 70001 and transaction version 1 specifically here instead of the latest values because the test data is using bytes encoded with those versions.
 	pver := uint32(70001)
 	txVer := uint32(1)
@@ -653,6 +678,7 @@ func TestTxOverflowErrors(
 		r := bytes.NewReader(test.buf)
 		err := msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, reflect.TypeOf(test.err))
 			continue
@@ -661,6 +687,7 @@ func TestTxOverflowErrors(
 		r = bytes.NewReader(test.buf)
 		err = msg.Deserialize(r)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Deserialize #%d wrong error got: %v, want: %v",
 				i, err, reflect.TypeOf(test.err))
 			continue
@@ -671,6 +698,7 @@ func TestTxOverflowErrors(
 // TestTxSerializeSizeStripped performs tests to ensure the serialize size for various transactions is accurate.
 func TestTxSerializeSizeStripped(
 	t *testing.T) {
+
 	// Empty tx message.
 	noTx := NewMsgTx(1)
 	noTx.Version = 1
@@ -699,6 +727,7 @@ func TestTxSerializeSizeStripped(
 // TestTxWitnessSize performs tests to ensure that the serialized size for various types of transactions that include witness data is accurate.
 func TestTxWitnessSize(
 	t *testing.T) {
+
 	tests := []struct {
 		in   *MsgTx // Tx to encode
 		size int    // Expected serialized size w/ witnesses

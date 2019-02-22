@@ -70,8 +70,10 @@ func (entry *UtxoEntry) IsSpent() bool {
 // Spend marks the output as spent.  Spending an output that is already spent
 // has no effect.
 func (entry *UtxoEntry) Spend() {
+
 	// Nothing to do if the output is already spent.
 	if entry.IsSpent() {
+
 		return
 	}
 	// Mark the output as spent and modified.
@@ -121,6 +123,7 @@ func (view *UtxoViewpoint) BestHash() *chainhash.Hash {
 // SetBestHash sets the hash of the best block in the chain the view currently
 // respresents.
 func (view *UtxoViewpoint) SetBestHash(hash *chainhash.Hash) {
+
 	view.bestHash = *hash
 }
 
@@ -137,8 +140,10 @@ func (view *UtxoViewpoint) LookupEntry(outpoint wire.OutPoint) *UtxoEntry {
 // marked unspent.  All fields will be updated for existing entries since it's
 // possible it has changed during a reorg.
 func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, isCoinBase bool, blockHeight int32) {
+
 	// Don't add provably unspendable outputs.
 	if txscript.IsUnspendable(txOut.PkScript) {
+
 		return
 	}
 	// Update existing entries.  All fields are updated because it's
@@ -164,8 +169,10 @@ func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, i
 // entry for the output, it will be marked unspent.  All fields will be updated
 // for existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight int32) {
+
 	// Can't add an output for an out of bounds index.
 	if txOutIdx >= uint32(len(tx.MsgTx().TxOut)) {
+
 		return
 	}
 	// Update existing entries.  All fields are updated because it's
@@ -182,6 +189,7 @@ func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight in
 // outputs, they are simply marked unspent.  All fields will be updated for
 // existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOuts(tx *util.Tx, blockHeight int32) {
+
 	// Loop all of the transaction outputs and add those which are not
 	// provably unspendable.
 	isCoinBase := IsCoinBase(tx)
@@ -205,6 +213,7 @@ func (view *UtxoViewpoint) AddTxOuts(tx *util.Tx, blockHeight int32) {
 func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, stxos *[]SpentTxOut) error {
 	// Coinbase transactions don't have any inputs to spend.
 	if IsCoinBase(tx) {
+
 		// Add the transaction's outputs as available utxos.
 		view.AddTxOuts(tx, blockHeight)
 		return nil
@@ -248,6 +257,7 @@ func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, st
 // append an entry for each spent txout.
 func (view *UtxoViewpoint) connectTransactions(block *util.Block, stxos *[]SpentTxOut) error {
 	for _, tx := range block.Transactions() {
+
 		err := view.connectTransaction(tx, block.Height(), stxos)
 		if err != nil {
 			return err
@@ -263,6 +273,7 @@ func (view *UtxoViewpoint) connectTransactions(block *util.Block, stxos *[]Spent
 // searching the entire set of possible outputs for the given hash.  It checks
 // the view first and then falls back to the database if needed.
 func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash) (*UtxoEntry, error) {
+
 	// First attempt to find a utxo with the provided hash in the view.
 	prevOut := wire.OutPoint{Hash: *hash}
 	for idx := uint32(0); idx < MaxOutputsPerBlock; idx++ {
@@ -291,6 +302,7 @@ func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash
 func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Block, stxos []SpentTxOut) error {
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
+
 		return AssertError("disconnectTransactions called with bad " +
 			"spent transaction out information")
 	}
@@ -322,6 +334,7 @@ func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Bl
 		prevOut := wire.OutPoint{Hash: *txHash}
 		for txOutIdx, txOut := range tx.MsgTx().TxOut {
 			if txscript.IsUnspendable(txOut.PkScript) {
+
 				continue
 			}
 			prevOut.Index = uint32(txOutIdx)
@@ -410,6 +423,7 @@ func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Bl
 // the view.  It will have no effect if the passed output does not exist in the
 // view.
 func (view *UtxoViewpoint) RemoveEntry(outpoint wire.OutPoint) {
+
 	delete(view.entries, outpoint)
 }
 
@@ -421,8 +435,10 @@ func (view *UtxoViewpoint) Entries() map[wire.OutPoint]*UtxoEntry {
 // commit prunes all entries marked modified that are now fully spent and marks
 // all entries as unmodified.
 func (view *UtxoViewpoint) commit() {
+
 	for outpoint, entry := range view.entries {
 		if entry == nil || (entry.isModified() && entry.IsSpent()) {
+
 			delete(view.entries, outpoint)
 			continue
 		}
@@ -532,8 +548,7 @@ func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) er
 }
 
 // NewUtxoViewpoint returns a new empty unspent transaction output view.
-func NewUtxoViewpoint(
-	) *UtxoViewpoint {
+func NewUtxoViewpoint() *UtxoViewpoint {
 	return &UtxoViewpoint{
 		entries: make(map[wire.OutPoint]*UtxoEntry),
 	}
@@ -545,6 +560,7 @@ func NewUtxoViewpoint(
 // so the returned view can be examined for duplicate transactions.
 // This function is safe for concurrent access however the returned view is NOT.
 func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
+
 	// Create a set of needed outputs based on those referenced by the
 	// inputs of the passed transaction and the outputs of the transaction
 	// itself.
@@ -555,6 +571,7 @@ func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
 		neededSet[prevOut] = struct{}{}
 	}
 	if !IsCoinBase(tx) {
+
 		for _, txIn := range tx.MsgTx().TxIn {
 			neededSet[txIn.PreviousOutPoint] = struct{}{}
 		}
@@ -577,6 +594,7 @@ func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
 // This function is safe for concurrent access however the returned entry (if
 // any) is NOT.
 func (b *BlockChain) FetchUtxoEntry(outpoint wire.OutPoint) (*UtxoEntry, error) {
+
 	b.chainLock.RLock()
 	defer b.chainLock.RUnlock()
 	var entry *UtxoEntry

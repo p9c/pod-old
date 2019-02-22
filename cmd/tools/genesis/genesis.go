@@ -41,13 +41,14 @@ var (
 // This function reverses the bytes in a byte array
 func byteswap(
 	buf []byte) {
+
 	length := len(buf)
 	for i := 0; i < length/2; i++ {
 		buf[i], buf[length-i-1] = buf[length-i-1], buf[i]
 	}
 }
-func initTransaction(
-	) (t transaction) {
+func initTransaction() (t transaction) {
+
 	t.version = 1
 	t.numInputs = 1
 	t.numOutputs = 1
@@ -58,8 +59,8 @@ func initTransaction(
 	t.prevOutput = make([]byte, 32, 32)
 	return
 }
-func main(
-	) {
+func main() {
+
 	args := os.Args
 	if len(args) != 4 {
 		fmt.Println("Bitcoin fork genesis block generator")
@@ -195,6 +196,7 @@ func findNonce(
 		blockhash1 := sha256.Sum256(blockHeader)
 		blockhash2 := sha256.Sum256(blockhash1[:])
 		if undertarget(blockhash2[bytes:], bits) {
+
 			byteswap(blockhash2[:])
 			fmt.Printf("Block found!\n\nHash:\n0x%x\n\nNonce:\n%d\n\nUnix time:\n%d\n", blockhash2, startNonce, unixtime)
 			fmt.Printf("\nBlock header encoded in hex:\n0x%x\n", blockHeader)
@@ -219,6 +221,7 @@ func findNonce(
 }
 func joinBytes(
 	segment ...[]byte) (joined []byte) {
+
 	joined = make([]byte, 0)
 	for i := range segment {
 		joined = append(joined, segment[i]...)

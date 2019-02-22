@@ -8,6 +8,7 @@ import (
 // TestScriptBuilderAddOp tests that pushing opcodes to a script via the ScriptBuilder API works as expected.
 func TestScriptBuilderAddOp(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -45,6 +46,7 @@ func TestScriptBuilderAddOp(
 			continue
 		}
 		if !bytes.Equal(result, test.expected) {
+
 			t.Errorf("ScriptBuilder.AddOp #%d (%s) wrong result\n"+
 				"got: %x\nwant: %x", i, test.name, result,
 				test.expected)
@@ -62,6 +64,7 @@ func TestScriptBuilderAddOp(
 			continue
 		}
 		if !bytes.Equal(result, test.expected) {
+
 			t.Errorf("ScriptBuilder.AddOps #%d (%s) wrong result\n"+
 				"got: %x\nwant: %x", i, test.name, result,
 				test.expected)
@@ -73,6 +76,7 @@ func TestScriptBuilderAddOp(
 // TestScriptBuilderAddInt64 tests that pushing signed integers to a script via the ScriptBuilder API works as expected.
 func TestScriptBuilderAddInt64(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -129,6 +133,7 @@ func TestScriptBuilderAddInt64(
 			continue
 		}
 		if !bytes.Equal(result, test.expected) {
+
 			t.Errorf("ScriptBuilder.AddInt64 #%d (%s) wrong result\n"+
 				"got: %x\nwant: %x", i, test.name, result,
 				test.expected)
@@ -140,6 +145,7 @@ func TestScriptBuilderAddInt64(
 // TestScriptBuilderAddData tests that pushing data to a script via the ScriptBuilder API works as expected and conforms to BIP0062.
 func TestScriptBuilderAddData(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -247,6 +253,7 @@ func TestScriptBuilderAddData(
 		}
 		result, _ := builder.Script()
 		if !bytes.Equal(result, test.expected) {
+
 			t.Errorf("ScriptBuilder.AddData #%d (%s) wrong result\n"+
 				"got: %x\nwant: %x", i, test.name, result,
 				test.expected)
@@ -258,6 +265,7 @@ func TestScriptBuilderAddData(
 // TestExceedMaxScriptSize ensures that all of the functions that can be used to add data to a script don't allow the script to exceed the max allowed size.
 func TestExceedMaxScriptSize(
 	t *testing.T) {
+
 	t.Parallel()
 	// Start off by constructing a max size script.
 	builder := NewScriptBuilder()
@@ -273,6 +281,7 @@ func TestExceedMaxScriptSize(
 			"size: %v", len(script))
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddData unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -284,6 +293,7 @@ func TestExceedMaxScriptSize(
 			"got len %d, want len %d", len(script), len(origScript))
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddOp unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -295,6 +305,7 @@ func TestExceedMaxScriptSize(
 			"got len %d, want len %d", len(script), len(origScript))
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddInt64 unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -303,6 +314,7 @@ func TestExceedMaxScriptSize(
 // TestErroredScript ensures that all of the functions that can be used to add data to a script don't modify the script once an error has happened.
 func TestErroredScript(
 	t *testing.T) {
+
 	t.Parallel()
 	// Start off by constructing a near max size script that has enough space left to add each data type without an error and force an initial error condition.
 	builder := NewScriptBuilder()
@@ -317,6 +329,7 @@ func TestErroredScript(
 			"size: %v", len(script))
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddData unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -326,6 +339,7 @@ func TestErroredScript(
 		t.Fatal("ScriptBuilder.AddFullData succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddFullData unexpected modified "+
 			"script - got len %d, want len %d", len(script),
 			len(origScript))
@@ -336,6 +350,7 @@ func TestErroredScript(
 		t.Fatal("ScriptBuilder.AddData succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddData unexpected modified "+
 			"script - got len %d, want len %d", len(script),
 			len(origScript))
@@ -346,6 +361,7 @@ func TestErroredScript(
 		t.Fatal("ScriptBuilder.AddOp succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddOp unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -355,6 +371,7 @@ func TestErroredScript(
 		t.Fatal("ScriptBuilder.AddInt64 succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
+
 		t.Fatalf("ScriptBuilder.AddInt64 unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}

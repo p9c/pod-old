@@ -183,6 +183,7 @@ type SecretKeyGenerator func(
 func defaultNewSecretKey(
 	passphrase *[]byte,
 	config *ScryptOptions) (*snacl.SecretKey, error) {
+
 	return snacl.NewSecretKey(passphrase, config.N, config.R, config.P)
 }
 
@@ -240,12 +241,13 @@ func (ck *cryptoKey) Bytes() []byte {
 
 // CopyBytes copies the bytes from the given slice into this CryptoKey.
 func (ck *cryptoKey) CopyBytes(from []byte) {
+
 	copy(ck.CryptoKey[:], from)
 }
 
 // defaultNewCryptoKey returns a new CryptoKey.  See newCryptoKey.
-func defaultNewCryptoKey(
-	) (EncryptorDecryptor, error) {
+func defaultNewCryptoKey() (EncryptorDecryptor, error) {
+
 	key, err := snacl.GenerateCryptoKey()
 	if err != nil {
 		return nil, err
@@ -349,6 +351,7 @@ func (m *Manager) WatchOnly() bool {
 //
 // This function MUST be called with the manager lock held for writes.
 func (m *Manager) lock() {
+
 	for _, manager := range m.scopedManagers {
 		// Clear all of the account private keys.
 		for _, acctInfo := range manager.acctInfo {
@@ -363,6 +366,7 @@ func (m *Manager) lock() {
 	for _, manager := range m.scopedManagers {
 		for _, ma := range manager.addrs {
 			switch addr := ma.(type) {
+
 			case *managedAddress:
 				addr.lock()
 			case *scriptAddress:
@@ -391,6 +395,7 @@ func (m *Manager) lock() {
 // and zero all private key and sensitive public key material associated with
 // the address manager from memory.
 func (m *Manager) Close() {
+
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
@@ -533,6 +538,7 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 // along with the active scoped manager. Otherwise, a nil manager and a non-nil
 // error will be returned.
 func (m *Manager) FetchScopedKeyManager(scope KeyScope) (*ScopedKeyManager, error) {
+
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -968,6 +974,7 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 	for _, manager := range m.scopedManagers {
 		for _, ma := range manager.addrs {
 			switch addr := ma.(type) {
+
 			case *managedAddress:
 				zero.Bytes(addr.privKeyEncrypted)
 				addr.privKeyEncrypted = nil
@@ -1145,6 +1152,7 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 			}
 
 			switch a := info.managedAddr.(type) {
+
 			case *managedAddress:
 				a.privKeyEncrypted = privKeyEncrypted
 				a.privKeyCT = privKeyBytes
@@ -1172,6 +1180,7 @@ func ValidateAccountName(
 		return managerError(ErrInvalidAccount, str, nil)
 	}
 	if isReservedAccountName(name) {
+
 		str := "reserved account name"
 		return managerError(ErrInvalidAccount, str, nil)
 	}
@@ -1184,6 +1193,7 @@ func ValidateAccountName(
 //
 // This function MUST be called with the manager lock held for reads.
 func (m *Manager) selectCryptoKey(keyType CryptoKeyType) (EncryptorDecryptor, error) {
+
 	if keyType == CKTPrivate || keyType == CKTScript {
 		// The manager must be unlocked to work with the private keys.
 		if m.locked || m.watchingOnly {
@@ -1209,6 +1219,7 @@ func (m *Manager) selectCryptoKey(keyType CryptoKeyType) (EncryptorDecryptor, er
 
 // Encrypt in using the crypto key type specified by keyType.
 func (m *Manager) Encrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
+
 	// Encryption must be performed under the manager mutex since the
 	// keys are cleared when the manager is locked.
 	m.mtx.Lock()
@@ -1228,6 +1239,7 @@ func (m *Manager) Encrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
 
 // Decrypt in using the crypto key type specified by keyType.
 func (m *Manager) Decrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
+
 	// Decryption must be performed under the manager mutex since the keys
 	// are cleared when the manager is locked.
 	m.mtx.Lock()

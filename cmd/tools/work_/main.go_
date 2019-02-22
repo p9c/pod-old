@@ -39,6 +39,7 @@ var (
 
 func main(
 	) {
+
 	l.Init()
 	*ld <- "starting up"
 	n := newNode(_n)
@@ -55,6 +56,7 @@ func main(
 
 func newNode(
 	nc nodeCfg) (n *node) {
+
 	n = &node{
 		cfg:  nc,
 		kill: make(chan bool),
@@ -63,6 +65,7 @@ func newNode(
 }
 
 func (n *node) setupListener() {
+
 	addr, err := net.ResolveUDPAddr(uNet, n.cfg.Listener)
 	check(err)
 	n.connection, err = net.ListenUDP(uNet, addr)
@@ -70,6 +73,7 @@ func (n *node) setupListener() {
 }
 
 func (n *node) readFromSocket() {
+
 	for {
 		var b = make([]byte, n.cfg.BufferSize)
 		count, addr, err := n.connection.ReadFromUDP(b[0:])
@@ -88,6 +92,7 @@ func (n *node) readFromSocket() {
 }
 
 func (n *node) send(b []byte) {
+
 	addr, err := net.ResolveUDPAddr("udp4", n.cfg.Worker)
 	check(err)
 	conn, err := net.DialUDP(uNet, nil, addr)
@@ -99,6 +104,7 @@ func (n *node) send(b []byte) {
 
 func check(
 	err error) {
+
 	if err != nil {
 		*le <- err.Error()
 	}

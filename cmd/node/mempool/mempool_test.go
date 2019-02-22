@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chain"
+	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/ec"
 	"git.parallelcoin.io/pod/pkg/txscript"
@@ -27,6 +27,7 @@ type fakeChain struct {
 
 // FetchUtxoView loads utxo details about the inputs referenced by the passed transaction from the point of view of the fake chain.  It also attempts to fetch the utxos for the outputs of the transaction itself so the returned view can be examined for duplicate transactions. This function is safe for concurrent access however the returned view is NOT.
 func (s *fakeChain) FetchUtxoView(tx *util.Tx) (*blockchain.UtxoViewpoint, error) {
+
 	s.RLock()
 	defer s.RUnlock()
 	// All entries are cloned to ensure modifications to the returned view do not affect the fake chain's view. Add an entry for the tx itself to the new view.
@@ -55,6 +56,7 @@ func (s *fakeChain) BestHeight() int32 {
 
 // SetHeight sets the current height associated with the fake chain instance.
 func (s *fakeChain) SetHeight(height int32) {
+
 	s.Lock()
 	s.currentHeight = height
 	s.Unlock()
@@ -70,6 +72,7 @@ func (s *fakeChain) MedianTimePast() time.Time {
 
 // SetMedianTimePast sets the current median time past associated with the fake chain instance.
 func (s *fakeChain) SetMedianTimePast(mtp time.Time) {
+
 	s.Lock()
 	s.medianTimePast = mtp
 	s.Unlock()
@@ -78,6 +81,7 @@ func (s *fakeChain) SetMedianTimePast(mtp time.Time) {
 // CalcSequenceLock returns the current sequence lock for the passed transaction associated with the fake chain instance.
 func (s *fakeChain) CalcSequenceLock(tx *util.Tx,
 	view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
+
 	return &blockchain.SequenceLock{
 		Seconds:     -1,
 		BlockHeight: -1,
@@ -112,6 +116,7 @@ type poolHarness struct {
 
 // CreateCoinbaseTx returns a coinbase transaction with the requested number of outputs paying an appropriate subsidy based on the passed block height to the address associated with the harness.  It automatically uses a standard signature script that starts with the block height that is required by version 2 blocks.
 func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*util.Tx, error) {
+
 	// Create standard coinbase script.
 	extraNonce := int64(0)
 	coinbaseScript, err := txscript.NewScriptBuilder().
@@ -146,6 +151,7 @@ func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*u
 
 // CreateSignedTx creates a new signed transaction that consumes the provided inputs and generates the provided number of outputs by evenly splitting the total input amount.  All outputs will be to the payment script associated with the harness and all inputs are assumed to do the same.
 func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32) (*util.Tx, error) {
+
 	// Calculate the total input amount and split it amongst the requested number of outputs.
 	var totalInput util.Amount
 	for _, input := range inputs {
@@ -186,6 +192,7 @@ func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32
 
 // CreateTxChain creates a chain of zero-fee transactions (each subsequent transaction spends the entire amount from the previous one) with the first one spending the provided outpoint.  Each transaction spends the entire amount of the previous one and as such does not include any fees.
 func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32) ([]*util.Tx, error) {
+
 	txChain := make([]*util.Tx, 0, numTxns)
 	prevOutPoint := firstOutput.outPoint
 	spendableAmount := firstOutput.amount
@@ -218,6 +225,7 @@ func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32)
 // newPoolHarness returns a new instance of a pool harness initialized with a fake chain and a TxPool bound to it that is configured with a policy suitable for testing.  Also, the fake chain is populated with the returned spendable outputs so the caller can easily create new valid transactions which build off of it.
 func newPoolHarness(
 	chainParams *chaincfg.Params) (*poolHarness, []spendableOutput, error) {
+
 	// Use a hard coded key pair for deterministic results.
 	keyBytes, err := hex.DecodeString("700868df1838811ffbdf918fb482c1f7e" +
 		"ad62db4b97bd7012c23e726485e577d")
@@ -289,6 +297,7 @@ type testContext struct {
 // testPoolMembership tests the transaction pool associated with the provided test context to determine if the passed transaction matches the provided orphan pool and transaction pool status.  It also further determines if it should be reported as available by the HaveTransaction function based upon the two flags and tests that condition as well.
 func testPoolMembership(
 	tc *testContext, tx *util.Tx, inOrphanPool, inTxPool bool) {
+
 	txHash := tx.Hash()
 	gotOrphanPool := tc.harness.txPool.IsOrphanInPool(txHash)
 	if inOrphanPool != gotOrphanPool {
@@ -314,6 +323,7 @@ func testPoolMembership(
 // TestSimpleOrphanChain ensures that a simple chain of orphans is handled properly.  In particular, it generates a chain of single input, single output transactions and inserts them while skipping the first linking transaction so they are all orphans.  Finally, it adds the linking transaction and ensures the entire orphan chain is moved to the transaction pool.
 func TestSimpleOrphanChain(
 	t *testing.T) {
+
 	t.Parallel()
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -351,6 +361,7 @@ func TestSimpleOrphanChain(
 			"orphan %v", err)
 	}
 	if len(acceptedTxns) != len(chainedTxns) {
+
 		t.Fatalf("ProcessTransaction: reported accepted transactions "+
 			"length does not match expected -- got %d, want %d",
 			len(acceptedTxns), len(chainedTxns))
@@ -364,6 +375,7 @@ func TestSimpleOrphanChain(
 // TestOrphanReject ensures that orphans are properly rejected when the allow orphans flag is not set on ProcessTransaction.
 func TestOrphanReject(
 	t *testing.T) {
+
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -386,6 +398,7 @@ func TestOrphanReject(
 		}
 		expectedErr := RuleError{}
 		if reflect.TypeOf(err) != reflect.TypeOf(expectedErr) {
+
 			t.Fatalf("ProcessTransaction: wrong error got: <%T> %v, "+
 				"want: <%T>", err, err, expectedErr)
 		}
@@ -412,6 +425,7 @@ func TestOrphanReject(
 // TestOrphanEviction ensures that exceeding the maximum number of orphans evicts entries to make room for the new ones.
 func TestOrphanEviction(
 	t *testing.T) {
+
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -445,6 +459,7 @@ func TestOrphanEviction(
 	var evictedTxns []*util.Tx
 	for _, tx := range chainedTxns[1:] {
 		if !harness.txPool.IsOrphanInPool(tx.Hash()) {
+
 			evictedTxns = append(evictedTxns, tx)
 		}
 	}
@@ -462,6 +477,7 @@ func TestOrphanEviction(
 // TestBasicOrphanRemoval ensure that orphan removal works as expected when an orphan that doesn't exist is removed  both when there is another orphan that redeems it and when there is not.
 func TestBasicOrphanRemoval(
 	t *testing.T) {
+
 	t.Parallel()
 	const maxOrphans = 4
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -521,6 +537,7 @@ func TestBasicOrphanRemoval(
 // TestOrphanChainRemoval ensure that orphan chains (orphans that spend outputs from other orphans) are removed as expected.
 func TestOrphanChainRemoval(
 	t *testing.T) {
+
 	t.Parallel()
 	const maxOrphans = 10
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -571,6 +588,7 @@ func TestOrphanChainRemoval(
 // TestMultiInputOrphanDoubleSpend ensures that orphans that spend from an output that is spend by another transaction entering the pool are removed.
 func TestMultiInputOrphanDoubleSpend(
 	t *testing.T) {
+
 	t.Parallel()
 	const maxOrphans = 4
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -640,6 +658,7 @@ func TestMultiInputOrphanDoubleSpend(
 // TestCheckSpend tests that CheckSpend returns the expected spends found in the mempool.
 func TestCheckSpend(
 	t *testing.T) {
+
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {

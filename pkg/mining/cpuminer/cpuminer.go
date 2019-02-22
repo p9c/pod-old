@@ -78,16 +78,19 @@ type CPUMiner struct {
 
 // SetAlgo sets the algorithm for the CPU miner
 func (m *CPUMiner) SetAlgo(name string) {
+
 	m.cfg.Algo = name
 }
 
 // GetAlgo returns the algorithm currently configured for the miner
 func (m *CPUMiner) GetAlgo() (name string) {
+
 	return m.cfg.Algo
 }
 
 // speedMonitor handles tracking the number of hashes per second the mining process is performing.  It must be run as a goroutine.
 func (m *CPUMiner) speedMonitor() {
+
 	var hashesPerSec float64
 	var totalHashes uint64
 	ticker := time.NewTicker(time.Second * hpsUpdateSecs)
@@ -134,6 +137,7 @@ func (m *CPUMiner) submitBlock(block *util.Block) bool {
 	// Ensure the block is not stale since a new block could have shown up while the solution was being found.  Typically that condition is detected and all work on the stale block is halted to start work on a new block, but the check only happens periodically, so it is possible a block was found and submitted in between.
 	msgBlock := block.MsgBlock()
 	if !msgBlock.Header.PrevBlock.IsEqual(&m.g.BestSnapshot().Hash) {
+
 		log <- cl.Debugf{
 			"Block submitted via CPU miner with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
@@ -234,11 +238,13 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 				// The current block is stale if the best block has changed.
 				best := m.g.BestSnapshot()
 				if !header.PrevBlock.IsEqual(&best.Hash) {
+
 					return false
 				}
 				// The current block is stale if the memory pool has been updated since the block template was generated and it has been at least one minute.
 				if lastTxUpdate != m.g.TxSource().LastUpdated() &&
 					time.Now().After(lastGenerated.Add(time.Minute)) {
+
 					return false
 				}
 				m.g.UpdateBlockTime(msgBlock)
@@ -247,6 +253,7 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 			var incr uint64
 			incr = 1
 			// switch fork.GetAlgoName(header.Version, blockHeight) {
+
 			// case "sha256d":
 			// 	incr = 2
 			// case "blake14lr":
@@ -269,6 +276,7 @@ func (m *CPUMiner) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testne
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (m *CPUMiner) generateBlocks(quit chan struct{}) {
+
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second * hashUpdateSecs)
 	defer ticker.Stop()
@@ -291,6 +299,7 @@ out:
 		m.submitBlockLock.Lock()
 		curHeight := m.g.BestSnapshot().Height
 		if curHeight != 0 && !m.cfg.IsCurrent() {
+
 			m.submitBlockLock.Unlock()
 			time.Sleep(time.Second)
 			continue
@@ -310,6 +319,7 @@ out:
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
 		if m.solveBlock(template.Block, curHeight+1, m.cfg.ChainParams.Name == "testnet", ticker, quit) {
+
 			block := util.NewBlock(template.Block)
 			// if m.cfg.ChainParams.Name == "testnet" {
 			// 	rand.Seed(time.Now().UnixNano())
@@ -325,9 +335,11 @@ out:
 
 // miningWorkerController launches the worker goroutines that are used to generate block templates and solve them.  It also provides the ability to dynamically adjust the number of running worker goroutines. It must be run as a goroutine.
 func (m *CPUMiner) miningWorkerController() {
+
 	// launchWorkers groups common code to launch a specified number of workers for generating blocks.
 	var runningWorkers []chan struct{}
 	launchWorkers := func(numWorkers uint32) {
+
 		for i := uint32(0); i < numWorkers; i++ {
 			quit := make(chan struct{})
 			runningWorkers = append(runningWorkers, quit)
@@ -378,6 +390,7 @@ out:
 // Start begins the CPU mining process as well as the speed monitor used to track hashing metrics.  Calling this function when the CPU miner has already been started will have no effect.
 // This function is safe for concurrent access.
 func (m *CPUMiner) Start() {
+
 	m.Lock()
 	defer m.Unlock()
 	// Nothing to do if the miner is already running or if running in discrete mode (using GenerateNBlocks).
@@ -395,6 +408,7 @@ func (m *CPUMiner) Start() {
 
 // Stop gracefully stops the mining process by signalling all workers, and the speed monitor to quit.  Calling this function when the CPU miner has not already been started will have no effect. This function is safe for concurrent access.
 func (m *CPUMiner) Stop() {
+
 	m.Lock()
 	defer m.Unlock()
 	// Nothing to do if the miner is not currently running or if running in discrete mode (using GenerateNBlocks).
@@ -427,6 +441,7 @@ func (m *CPUMiner) HashesPerSecond() float64 {
 
 // SetNumWorkers sets the number of workers to create which solve blocks.  Any negative values will cause a default number of workers to be used which is based on the number of processor cores in the system.  A value of 0 will cause all CPU mining to be stopped. This function is safe for concurrent access.
 func (m *CPUMiner) SetNumWorkers(numWorkers int32) {
+
 	if numWorkers == 0 {
 		m.Stop()
 	}
@@ -454,6 +469,7 @@ func (m *CPUMiner) NumWorkers() int32 {
 
 // GenerateNBlocks generates the requested number of blocks. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. The function returns a list of the hashes of generated blocks.
 func (m *CPUMiner) GenerateNBlocks(n uint32, algo string) ([]*chainhash.Hash, error) {
+
 	m.Lock()
 	log <- cl.Infof{"Generating %s blocks...", m.cfg.Algo}
 	// Respond with an error if server is already mining.
@@ -496,6 +512,7 @@ func (m *CPUMiner) GenerateNBlocks(n uint32, algo string) ([]*chainhash.Hash, er
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
 		if m.solveBlock(template.Block, curHeight+1, m.cfg.ChainParams.Name == "testnet", ticker, nil) {
+
 			block := util.NewBlock(template.Block)
 			m.submitBlock(block)
 			blockHashes[i] = block.Hash()

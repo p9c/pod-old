@@ -62,6 +62,7 @@ func putVLQ(
 // deserializeVLQ deserializes the provided variable-length quantity according to the format described above.  It also returns the number of bytes deserialized.
 func deserializeVLQ(
 	serialized []byte) (uint64, int) {
+
 	var n uint64
 	var size int
 	for _, val := range serialized {
@@ -111,6 +112,7 @@ const (
 // isPubKeyHash returns whether or not the passed public key script is a standard pay-to-pubkey-hash script along with the pubkey hash it is paying to if it is.
 func isPubKeyHash(
 	script []byte) (bool, []byte) {
+
 	if len(script) == 25 && script[0] == txscript.OP_DUP &&
 		script[1] == txscript.OP_HASH160 &&
 		script[2] == txscript.OP_DATA_20 &&
@@ -124,6 +126,7 @@ func isPubKeyHash(
 // isScriptHash returns whether or not the passed public key script is a standard pay-to-script-hash script along with the script hash it is paying to if it is.
 func isScriptHash(
 	script []byte) (bool, []byte) {
+
 	if len(script) == 23 && script[0] == txscript.OP_HASH160 &&
 		script[1] == txscript.OP_DATA_20 &&
 		script[22] == txscript.OP_EQUAL {
@@ -135,10 +138,12 @@ func isScriptHash(
 // isPubKey returns whether or not the passed public key script is a standard pay-to-pubkey script that pays to a valid compressed or uncompressed public key along with the serialized pubkey it is paying to if it is. NOTE: This function ensures the public key is actually valid since the compression algorithm requires valid pubkeys.  It does not support hybrid pubkeys.  This means that even if the script has the correct form for a pay-to-pubkey script, this function will only return true when it is paying to a valid compressed or uncompressed pubkey.
 func isPubKey(
 	script []byte) (bool, []byte) {
+
 	// Pay-to-compressed-pubkey script.
 	if len(script) == 35 && script[0] == txscript.OP_DATA_33 &&
 		script[34] == txscript.OP_CHECKSIG && (script[1] == 0x02 ||
 		script[1] == 0x03) {
+
 		// Ensure the public key is valid.
 		serializedPubKey := script[1:34]
 		_, err := ec.ParsePubKey(serializedPubKey, ec.S256())
@@ -406,9 +411,11 @@ func putCompressedTxOut(
 // decodeCompressedTxOut decodes the passed compressed txout, possibly followed by other data, into its uncompressed amount and script and returns them along with the number of bytes they occupied prior to decompression.
 func decodeCompressedTxOut(
 	serialized []byte) (uint64, []byte, int, error) {
+
 	// Deserialize the compressed amount and ensure there are bytes remaining for the compressed script.
 	compressedAmount, bytesRead := deserializeVLQ(serialized)
 	if bytesRead >= len(serialized) {
+
 		return 0, nil, bytesRead, errDeserialize("unexpected end of " +
 			"data after compressed amount")
 	}

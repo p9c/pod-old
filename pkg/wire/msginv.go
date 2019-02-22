@@ -82,8 +82,7 @@ func (msg *MsgInv) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgInv returns a new bitcoin inv message that conforms to the Message interface.  See MsgInv for details.
-func NewMsgInv(
-	) *MsgInv {
+func NewMsgInv() *MsgInv {
 	return &MsgInv{
 		InvList: make([]*InvVect, 0, defaultInvListAlloc),
 	}

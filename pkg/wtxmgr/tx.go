@@ -13,8 +13,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // Block contains the minimum amount of data to uniquely identify any block on
@@ -87,6 +87,7 @@ type TxRecord struct {
 // transaction.
 func NewTxRecord(
 	serializedTx []byte, received time.Time) (*TxRecord, error) {
+
 	rec := &TxRecord{
 		Received:     received,
 		SerializedTx: serializedTx,
@@ -104,6 +105,7 @@ func NewTxRecord(
 // into the store.
 func NewTxRecordFromMsgTx(
 	msgTx *wire.MsgTx, received time.Time) (*TxRecord, error) {
+
 	buf := bytes.NewBuffer(make([]byte, 0, msgTx.SerializeSize()))
 	err := msgTx.Serialize(buf)
 	if err != nil {
@@ -155,6 +157,7 @@ func DoUpgrades(
 // store does not exist, ErrNoExist is returned.
 func Open(
 	ns walletdb.ReadBucket, chainParams *chaincfg.Params) (*Store, error) {
+
 	// Open the store.
 	err := openStore(ns)
 	if err != nil {
@@ -249,6 +252,7 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 
 	it := makeUnminedCreditIterator(ns, &rec.Hash)
 	for it.next() {
+
 		// TODO: This should use the raw apis.  The credit value (it.cv)
 		// can be moved from unmined directly to the credits bucket.
 		// The key needs a modification to include the block
@@ -396,6 +400,7 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 // inserted into the store.
 func (s *Store) AddCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta, index uint32, change bool) error {
 	if int(index) >= len(rec.MsgTx.TxOut) {
+
 		str := "transaction output does not exist"
 		return storeError(ErrInput, str, nil)
 	}
@@ -411,6 +416,7 @@ func (s *Store) AddCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 // bool return specifies whether the unspent output is newly added (true) or a
 // duplicate (false).
 func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta, index uint32, change bool) (bool, error) {
+
 	if block == nil {
 		// If the outpoint that we should mark as credit already exists
 		// within the store, either as unconfirmed or confirmed, then we
@@ -488,6 +494,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 
 	it := makeReverseBlockIterator(ns)
 	for it.prev() {
+
 		b := &it.elem
 		if it.elem.Height < height {
 			break
@@ -521,6 +528,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			// contain any debits, but all credits should be removed
 			// and the mined balance decremented.
 			if blockchain.IsCoinBaseTx(&rec.MsgTx) {
+
 				op := wire.OutPoint{Hash: rec.Hash}
 				for i, output := range rec.MsgTx.TxOut {
 					k, v := existsCredit(ns, &rec.Hash,
@@ -717,6 +725,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 // UnspentOutputs returns all unspent received transaction outputs.
 // The order is undefined.
 func (s *Store) UnspentOutputs(ns walletdb.ReadBucket) ([]Credit, error) {
+
 	var unspent []Credit
 
 	var op wire.OutPoint
@@ -824,6 +833,7 @@ func (s *Store) UnspentOutputs(ns walletdb.ReadBucket) ([]Credit, error) {
 // Balance may return unexpected results if syncHeight is lower than the block
 // height of the most recent mined transaction in the store.
 func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32) (util.Amount, error) {
+
 	bal, err := fetchMinedBalance(ns)
 	if err != nil {
 		return 0, err
@@ -870,6 +880,7 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 	lastHeight := syncHeight - stopConf
 	blockIt := makeReadReverseBlockIterator(ns)
 	for blockIt.prev() {
+
 		block := &blockIt.elem
 
 		if block.Height < lastHeight {
@@ -906,6 +917,7 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 				confs := syncHeight - block.Height + 1
 				if confs < minConf || (blockchain.IsCoinBaseTx(&rec.MsgTx) &&
 					confs < coinbaseMaturity) {
+
 					bal -= amt
 				}
 			}

@@ -10,6 +10,7 @@ import (
 // TestSendHeaders tests the MsgSendHeaders API against the latest protocol version.
 func TestSendHeaders(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	enc := BaseEncoding
 	// Ensure the command is expected value.
@@ -61,6 +62,7 @@ func TestSendHeaders(
 // TestSendHeadersBIP0130 tests the MsgSendHeaders API against the protocol prior to version SendHeadersVersion.
 func TestSendHeadersBIP0130(
 	t *testing.T) {
+
 	// Use the protocol version just prior to SendHeadersVersion changes.
 	pver := SendHeadersVersion - 1
 	enc := BaseEncoding
@@ -84,6 +86,7 @@ func TestSendHeadersBIP0130(
 // TestSendHeadersCrossProtocol tests the MsgSendHeaders API when encoding with the latest protocol version and decoding with SendHeadersVersion.
 func TestSendHeadersCrossProtocol(
 	t *testing.T) {
+
 	enc := BaseEncoding
 	msg := NewMsgSendHeaders()
 	// Encode with latest protocol version.
@@ -105,6 +108,7 @@ func TestSendHeadersCrossProtocol(
 // TestSendHeadersWire tests the MsgSendHeaders wire encode and decode for various protocol versions.
 func TestSendHeadersWire(
 	t *testing.T) {
+
 	msgSendHeaders := NewMsgSendHeaders()
 	msgSendHeadersEncoded := []byte{}
 	tests := []struct {
@@ -149,6 +153,7 @@ func TestSendHeadersWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -162,6 +167,7 @@ func TestSendHeadersWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue

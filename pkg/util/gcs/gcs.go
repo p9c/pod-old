@@ -59,8 +59,10 @@ type Filter struct {
 // BuildGCSFilter builds a new GCS filter with the collision probability of `1/(2**P)`, key `key`, and including every `[]byte` in `data` as a member of the set.
 func BuildGCSFilter(
 	P uint8, M uint64, key [KeySize]byte, data [][]byte) (*Filter, error) {
+
 	// Some initial parameter checks: make sure we have data from which to build the filter, and make sure our parameters will fit the hash function we're using.
 	if uint64(len(data)) >= (1 << 32) {
+
 		return nil, ErrNTooBig
 	}
 	if P > 32 {
@@ -116,6 +118,7 @@ func BuildGCSFilter(
 // FromBytes deserializes a GCS filter from a known N, P, and serialized filter as returned by Bytes().
 func FromBytes(
 	N uint32, P uint8, M uint64, d []byte) (*Filter, error) {
+
 	// Basic sanity check.
 	if P > 32 {
 		return nil, ErrPTooBig
@@ -136,12 +139,14 @@ func FromBytes(
 // FromNBytes deserializes a GCS filter from a known P, and serialized N and filter as returned by NBytes().
 func FromNBytes(
 	P uint8, M uint64, d []byte) (*Filter, error) {
+
 	buffer := bytes.NewBuffer(d)
 	N, err := wire.ReadVarInt(buffer, varIntProtoVer)
 	if err != nil {
 		return nil, err
 	}
 	if N >= (1 << 32) {
+
 		return nil, ErrNTooBig
 	}
 	return FromBytes(uint32(N), P, M, buffer.Bytes())
@@ -149,6 +154,7 @@ func FromNBytes(
 
 // Bytes returns the serialized format of the GCS filter, which does not include N or P (returned by separate methods) or the key used by SipHash.
 func (f *Filter) Bytes() ([]byte, error) {
+
 	filterData := make([]byte, len(f.filterData))
 	copy(filterData, f.filterData)
 	return filterData, nil
@@ -156,6 +162,7 @@ func (f *Filter) Bytes() ([]byte, error) {
 
 // NBytes returns the serialized format of the GCS filter with N, which does not include P (returned by a separate method) or the key used by SipHash.
 func (f *Filter) NBytes() ([]byte, error) {
+
 	var buffer bytes.Buffer
 	buffer.Grow(wire.VarIntSerializeSize(uint64(f.n)) + len(f.filterData))
 	err := wire.WriteVarInt(&buffer, varIntProtoVer, uint64(f.n))
@@ -171,6 +178,7 @@ func (f *Filter) NBytes() ([]byte, error) {
 
 // PBytes returns the serialized format of the GCS filter with P, which does not include N (returned by a separate method) or the key used by SipHash.
 func (f *Filter) PBytes() ([]byte, error) {
+
 	filterData := make([]byte, len(f.filterData)+1)
 	filterData[0] = f.p
 	copy(filterData[1:], f.filterData)
@@ -179,6 +187,7 @@ func (f *Filter) PBytes() ([]byte, error) {
 
 // NPBytes returns the serialized format of the GCS filter with N and P, which does not include the key used by SipHash.
 func (f *Filter) NPBytes() ([]byte, error) {
+
 	var buffer bytes.Buffer
 	buffer.Grow(wire.VarIntSerializeSize(uint64(f.n)) + 1 + len(f.filterData))
 	err := wire.WriteVarInt(&buffer, varIntProtoVer, uint64(f.n))
@@ -208,6 +217,7 @@ func (f *Filter) N() uint32 {
 
 // Match checks whether a []byte value is likely (within collision probability) to be a member of the set represented by the filter.
 func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
+
 	// Create a filter bitstream.
 	filterData, err := f.Bytes()
 	if err != nil {
@@ -243,6 +253,7 @@ func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 
 // MatchAny returns checks whether any []byte value is likely (within collision probability) to be a member of the set represented by the filter faster than calling Match() for each value individually.
 func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
+
 	// Basic sanity check.
 	if len(data) == 0 {
 		return false, nil
@@ -276,6 +287,7 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 		case lastValue1 > lastValue2:
 			// Advance filter created from search terms or return false if we're at the end because nothing matched.
 			if i < len(values) {
+
 				lastValue2 = values[i]
 				i++
 			} else {
@@ -299,6 +311,7 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 
 // readFullUint64 reads a value represented by the sum of a unary multiple of the filter's P modulus (`2**P`) and a big-endian P-bit remainder.
 func (f *Filter) readFullUint64(b *bstream.BStream) (uint64, error) {
+
 	var quotient uint64
 	// Count the 1s until we reach a 0.
 	c, err := b.ReadBit()

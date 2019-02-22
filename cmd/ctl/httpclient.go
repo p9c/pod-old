@@ -22,7 +22,6 @@ func newHTTPClient(
 	error,
 ) {
 
-
 	// Configure proxy if needed.
 	var dial func(network, addr string) (net.Conn, error)
 	if cfg.Proxy != "" {
@@ -32,6 +31,7 @@ func newHTTPClient(
 			Password: cfg.ProxyPass,
 		}
 		dial = func(network, addr string) (net.Conn, error) {
+
 			c, err := proxy.Dial(network, addr)
 			if err != nil {
 				return nil, err

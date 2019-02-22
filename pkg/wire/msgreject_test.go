@@ -11,6 +11,7 @@ import (
 // TestRejectCodeStringer tests the stringized output for the reject code type.
 func TestRejectCodeStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in   RejectCode
 		want string
@@ -39,6 +40,7 @@ func TestRejectCodeStringer(
 // TestRejectLatest tests the MsgPong API against the latest protocol version.
 func TestRejectLatest(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	enc := BaseEncoding
 	// Create reject message data.
@@ -110,6 +112,7 @@ func TestRejectLatest(
 // TestRejectBeforeAdded tests the MsgReject API against a protocol version before the version which introduced it (RejectVersion).
 func TestRejectBeforeAdded(
 	t *testing.T) {
+
 	// Use the protocol version just prior to RejectVersion.
 	pver := RejectVersion - 1
 	enc := BaseEncoding
@@ -162,6 +165,7 @@ func TestRejectBeforeAdded(
 // TestRejectCrossProtocol tests the MsgReject API when encoding with the latest protocol version and decoded with a version before the version which introduced it (RejectVersion).
 func TestRejectCrossProtocol(
 	t *testing.T) {
+
 	// Create reject message data.
 	rejCommand := (&MsgBlock{}).Command()
 	rejCode := RejectDuplicate
@@ -200,6 +204,7 @@ func TestRejectCrossProtocol(
 // TestRejectWire tests the MsgReject wire encode and decode for various protocol versions.
 func TestRejectWire(
 	t *testing.T) {
+
 	tests := []struct {
 		msg  MsgReject       // Message to encode
 		buf  []byte          // Wire encoding
@@ -255,6 +260,7 @@ func TestRejectWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -268,6 +274,7 @@ func TestRejectWire(
 			continue
 		}
 		if !reflect.DeepEqual(msg, test.msg) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.msg))
 			continue
@@ -278,6 +285,7 @@ func TestRejectWire(
 // TestRejectWireErrors performs negative tests against wire encode and decode of MsgReject to confirm error paths work correctly.
 func TestRejectWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverNoReject := RejectVersion - 1
 	wireErr := &MessageError{}
@@ -319,6 +327,7 @@ func TestRejectWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -336,6 +345,7 @@ func TestRejectWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

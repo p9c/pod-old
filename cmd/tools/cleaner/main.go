@@ -64,8 +64,7 @@ func liner(
 	return bb
 }
 
-func main(
-	) {
+func main() {
 
 	bb, e := ioutil.ReadFile(os.Args[1])
 	if e != nil {

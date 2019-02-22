@@ -8,8 +8,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
 	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
 var (
@@ -22,8 +22,8 @@ var (
 	exampleTxRecordB *wtxmgr.TxRecord
 )
 
-func init(
-	) {
+func init() {
+
 	tx := spendOutput(&chainhash.Hash{}, 0, 10e8)
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx, timeNow())
 	if err != nil {
@@ -43,8 +43,8 @@ var exampleBlock100 = makeBlockMeta(100)
 
 // This example demonstrates reporting the Store balance given an unmined and
 // mined transaction given 0, 1, and 6 block confirmations.
-func ExampleStore_Balance(
-	) {
+func ExampleStore_Balance() {
+
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
@@ -55,6 +55,7 @@ func ExampleStore_Balance(
 	// Prints balances for 0 block confirmations, 1 confirmation, and 6
 	// confirmations.
 	printBalances := func(syncHeight int32) {
+
 		dbtx, err := db.BeginReadTx()
 		if err != nil {
 			fmt.Println(err)
@@ -115,8 +116,8 @@ func ExampleStore_Balance(
 	// 10 DUO, 10 DUO, 10 DUO
 }
 
-func ExampleStore_Rollback(
-	) {
+func ExampleStore_Rollback() {
+
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
@@ -159,8 +160,8 @@ func ExampleStore_Rollback(
 	// -1
 }
 
-func Example_basicUsage(
-	) {
+func Example_basicUsage() {
+
 	// Open the database.
 	db, dbTeardown, err := testDB()
 	defer dbTeardown()

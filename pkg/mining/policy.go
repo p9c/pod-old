@@ -44,6 +44,7 @@ func calcInputValueAge(
 		// Don't attempt to accumulate the total input age if the referenced transaction output doesn't exist.
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		if entry != nil && !entry.IsSpent() {
+
 			// Inputs with dependencies currently in the mempool have their block height set to a special constant. Their input age should computed as zero since their parent hasn't made it into a block yet.
 			var inputAge int32
 			originHeight := entry.BlockHeight()

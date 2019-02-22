@@ -12,6 +12,7 @@ import (
 // TestAssignField tests the assignField function handles supported combinations properly.
 func TestAssignField(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -173,6 +174,7 @@ func TestAssignField(
 			dst = dst.Elem()
 		}
 		if !reflect.DeepEqual(dst.Interface(), test.expected) {
+
 			t.Errorf("Test #%d (%s) unexpected value - got %v, "+
 				"want %v", i, test.name, dst.Interface(),
 				test.expected)
@@ -184,6 +186,7 @@ func TestAssignField(
 // TestAssignFieldErrors tests the assignField function error paths.
 func TestAssignFieldErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name string
@@ -324,6 +327,7 @@ func TestAssignFieldErrors(
 		src := reflect.ValueOf(test.src)
 		err := json.TstAssignField(1, "testField", dst, src)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
@@ -341,6 +345,7 @@ func TestAssignFieldErrors(
 // TestNewCmdErrors ensures the error paths of NewCmd behave as expected.
 func TestNewCmdErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -377,6 +382,7 @@ func TestNewCmdErrors(
 	for i, test := range tests {
 		_, err := json.NewCmd(test.method, test.args...)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
@@ -394,6 +400,7 @@ func TestNewCmdErrors(
 // TestMarshalCmdErrors  tests the error paths of the MarshalCmd function.
 func TestMarshalCmdErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name string
@@ -424,6 +431,7 @@ func TestMarshalCmdErrors(
 	for i, test := range tests {
 		_, err := json.MarshalCmd(test.id, test.cmd)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
@@ -441,6 +449,7 @@ func TestMarshalCmdErrors(
 // TestUnmarshalCmdErrors  tests the error paths of the UnmarshalCmd function.
 func TestUnmarshalCmdErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string
@@ -492,6 +501,7 @@ func TestUnmarshalCmdErrors(
 	for i, test := range tests {
 		_, err := json.UnmarshalCmd(&test.request)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue

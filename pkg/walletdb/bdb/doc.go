@@ -1,7 +1,3 @@
-
-
-
-
 /*
 Package bdb implements an instance of walletdb that uses boltdb for the backing
 datastore.

@@ -17,6 +17,7 @@ type PrivateKey ecdsa.PrivateKey
 func PrivKeyFromBytes(
 	curve elliptic.Curve, pk []byte) (*PrivateKey,
 	*PublicKey) {
+
 	x, y := curve.ScalarBaseMult(pk)
 	priv := &ecdsa.PrivateKey{
 		PublicKey: ecdsa.PublicKey{
@@ -33,6 +34,7 @@ func PrivKeyFromBytes(
 // instead of the normal ecdsa.PrivateKey.
 func NewPrivateKey(
 	curve elliptic.Curve) (*PrivateKey, error) {
+
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		return nil, err
@@ -55,6 +57,7 @@ func (p *PrivateKey) ToECDSA() *ecdsa.PrivateKey {
 // is deterministic (same message and same key yield the same signature) and canonical
 // in accordance with RFC6979 and BIP0062.
 func (p *PrivateKey) Sign(hash []byte) (*Signature, error) {
+
 	return signRFC6979(p, hash)
 }
 

@@ -115,8 +115,10 @@ const (
 
 // updateAddress is a helper function to either update an address already known to the address manager, or to add the address if not already known.
 func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
+
 	// Filter out non-routable addresses. Note that non-routable also includes invalid and local addresses.
 	if !IsRoutable(netAddr) {
+
 		return
 	}
 	addr := NetAddressKey(netAddr)
@@ -170,10 +172,12 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 
 // expireNew makes space in the new buckets by expiring the really bad entries. If no bad entries are available we look at a few and remove the oldest.
 func (a *AddrManager) expireNew(bucket int) {
+
 	// First see if there are any entries that are so bad we can just throw them away. otherwise we throw away the oldest entry in the cache. Bitcoind here chooses four random and just throws the oldest of those away, but we keep track of oldest in the initial traversal and use that information instead.
 	var oldest *KnownAddress
 	for k, v := range a.addrNew[bucket] {
 		if v.isBad() {
+
 			log <- cl.Tracef{"expiring bad address %v", k}
 			delete(a.addrNew[bucket], k)
 			v.refs--
@@ -186,6 +190,7 @@ func (a *AddrManager) expireNew(bucket int) {
 		if oldest == nil {
 			oldest = v
 		} else if !v.na.Timestamp.After(oldest.na.Timestamp) {
+
 			oldest = v
 		}
 	}
@@ -206,8 +211,10 @@ func (a *AddrManager) pickTried(bucket int) *list.Element {
 	var oldest *KnownAddress
 	var oldestElem *list.Element
 	for e := a.addrTried[bucket].Front(); e != nil; e = e.Next() {
+
 		ka := e.Value.(*KnownAddress)
 		if oldest == nil || oldest.na.Timestamp.After(ka.na.Timestamp) {
+
 			oldestElem = e
 			oldest = ka
 		}
@@ -254,6 +261,7 @@ func (a *AddrManager) getTriedBucket(netAddr *wire.NetAddress) int {
 
 // addressHandler is the main handler for the address manager.  It must be run as a goroutine.
 func (a *AddrManager) addressHandler() {
+
 	dumpAddressTicker := time.NewTicker(dumpAddressInterval)
 	defer dumpAddressTicker.Stop()
 out:
@@ -276,6 +284,7 @@ out:
 
 // savePeers saves all the known addresses to a file so they can be read back in at next run.
 func (a *AddrManager) savePeers() {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	// First we make a serialisable datastructure so we can encode it to json.
@@ -308,6 +317,7 @@ func (a *AddrManager) savePeers() {
 		sam.TriedBuckets[i] = make([]string, a.addrTried[i].Len())
 		j := 0
 		for e := a.addrTried[i].Front(); e != nil; e = e.Next() {
+
 			ka := e.Value.(*KnownAddress)
 			sam.TriedBuckets[i][j] = NetAddressKey(ka.na)
 			j++
@@ -330,6 +340,7 @@ func (a *AddrManager) savePeers() {
 
 // loadPeers loads the known address from the saved file.  If empty, missing, or malformed file, just don't load anything and start fresh
 func (a *AddrManager) loadPeers() {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	err := a.deserializePeers(a.peersFile)
@@ -357,6 +368,7 @@ func (a *AddrManager) loadPeers() {
 func (a *AddrManager) deserializePeers(filePath string) error {
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
+
 		return nil
 	}
 	r, err := os.Open(filePath)
@@ -438,6 +450,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 
 // DeserializeNetAddress converts a given address string to a *wire.NetAddress
 func (a *AddrManager) DeserializeNetAddress(addr string) (*wire.NetAddress, error) {
+
 	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, err
@@ -451,6 +464,7 @@ func (a *AddrManager) DeserializeNetAddress(addr string) (*wire.NetAddress, erro
 
 // Start begins the core address handler which manages a pool of known addresses, timeouts, and interval based writes.
 func (a *AddrManager) Start() {
+
 	// Already started?
 	if atomic.AddInt32(&a.started, 1) != 1 {
 		return
@@ -476,6 +490,7 @@ func (a *AddrManager) Stop() error {
 
 // AddAddresses adds new addresses to the address manager.  It enforces a max number of addresses and silently ignores duplicate addresses.  It is safe for concurrent access.
 func (a *AddrManager) AddAddresses(addrs []*wire.NetAddress, srcAddr *wire.NetAddress) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	for _, na := range addrs {
@@ -485,6 +500,7 @@ func (a *AddrManager) AddAddresses(addrs []*wire.NetAddress, srcAddr *wire.NetAd
 
 // AddAddress adds a new address to the address manager.  It enforces a max number of addresses and silently ignores duplicate addresses.  It is safe for concurrent access.
 func (a *AddrManager) AddAddress(addr, srcAddr *wire.NetAddress) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	a.updateAddress(addr, srcAddr)
@@ -559,6 +575,7 @@ func (a *AddrManager) AddressCache() []*wire.NetAddress {
 
 // reset resets the address manager by reinitialising the random source and allocating fresh empty bucket storage.
 func (a *AddrManager) reset() {
+
 	a.addrIndex = make(map[string]*KnownAddress)
 	// fill key with bytes from a good random source.
 	io.ReadFull(crand.Reader, a.key[:])
@@ -572,6 +589,7 @@ func (a *AddrManager) reset() {
 
 // HostToNetAddress returns a netaddress given a host address.  If the address is a Tor .onion address this will be taken care of.  Else if the host is not an IP address it will be resolved (via Tor if required).
 func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.ServiceFlag) (*wire.NetAddress, error) {
+
 	// Tor address is 16 char base32 + ".onion"
 	var ip net.IP
 	if len(host) == 22 && host[16:] == ".onion" {
@@ -600,6 +618,7 @@ func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.S
 func ipString(
 	na *wire.NetAddress) string {
 	if IsOnionCatTor(na) {
+
 		// We know now that na.IP is long enough.
 		base32 := base32.StdEncoding.EncodeToString(na.IP[6:])
 		return strings.ToLower(base32) + ".onion"
@@ -624,6 +643,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 	}
 	// Use a 50% chance for choosing between tried and new table entries.
 	if a.nTried > 0 && (a.nNew == 0 || a.rand.Intn(2) == 0) {
+
 		// Tried entry.
 		large := 1 << 30
 		factor := 1.0
@@ -642,6 +662,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 			ka := e.Value.(*KnownAddress)
 			randval := a.rand.Intn(large)
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
+
 				Log.Trcc(func() string {
 					return fmt.Sprintf("selected %v from tried bucket", NetAddressKey(ka.na))
 				})
@@ -671,6 +692,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 			}
 			randval := a.rand.Intn(large)
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
+
 				Log.Trcc(func() string {
 					return fmt.Sprintf("Selected %v from new bucket", NetAddressKey(ka.na))
 				})
@@ -686,6 +708,7 @@ func (a *AddrManager) find(addr *wire.NetAddress) *KnownAddress {
 
 // Attempt increases the given address' attempt counter and updates the last attempt time.
 func (a *AddrManager) Attempt(addr *wire.NetAddress) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	// find address. Surely address will be in tried by now?
@@ -700,6 +723,7 @@ func (a *AddrManager) Attempt(addr *wire.NetAddress) {
 
 // Connected Marks the given address as currently connected and working at the current time.  The address must already be known to AddrManager else it will be ignored.
 func (a *AddrManager) Connected(addr *wire.NetAddress) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	ka := a.find(addr)
@@ -709,6 +733,7 @@ func (a *AddrManager) Connected(addr *wire.NetAddress) {
 	// Update the time as long as it has been 20 minutes since last we did so.
 	now := time.Now()
 	if now.After(ka.na.Timestamp.Add(time.Minute * 20)) {
+
 		// ka.na is immutable, so replace it.
 		naCopy := *ka.na
 		naCopy.Timestamp = time.Now()
@@ -718,6 +743,7 @@ func (a *AddrManager) Connected(addr *wire.NetAddress) {
 
 // Good marks the given address as good.  To be called after a successful connection and version exchange.  If the address is unknown to the address manager it will be ignored.
 func (a *AddrManager) Good(addr *wire.NetAddress) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	ka := a.find(addr)
@@ -783,6 +809,7 @@ func (a *AddrManager) Good(addr *wire.NetAddress) {
 
 // SetServices sets the services for the giiven address to the provided value.
 func (a *AddrManager) SetServices(addr *wire.NetAddress, services wire.ServiceFlag) {
+
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	ka := a.find(addr)
@@ -801,6 +828,7 @@ func (a *AddrManager) SetServices(addr *wire.NetAddress, services wire.ServiceFl
 // AddLocalAddress adds na to the list of known local addresses to advertise with the given priority.
 func (a *AddrManager) AddLocalAddress(na *wire.NetAddress, priority AddressPriority) error {
 	if !IsRoutable(na) {
+
 		return fmt.Errorf("address %s is not routable", na.IP)
 	}
 	a.lamtx.Lock()
@@ -833,31 +861,41 @@ func getReachabilityFrom(
 		Private
 	)
 	if !IsRoutable(remoteAddr) {
+
 		return Unreachable
 	}
 	if IsOnionCatTor(remoteAddr) {
+
 		if IsOnionCatTor(localAddr) {
+
 			return Private
 		}
 		if IsRoutable(localAddr) && IsIPv4(localAddr) {
+
 			return Ipv4
 		}
 		return Default
 	}
 	if IsRFC4380(remoteAddr) {
+
 		if !IsRoutable(localAddr) {
+
 			return Default
 		}
 		if IsRFC4380(localAddr) {
+
 			return Teredo
 		}
 		if IsIPv4(localAddr) {
+
 			return Ipv4
 		}
 		return Ipv6Weak
 	}
 	if IsIPv4(remoteAddr) {
+
 		if IsRoutable(localAddr) && IsIPv4(localAddr) {
+
 			return Ipv4
 		}
 		return Unreachable
@@ -866,15 +904,19 @@ func getReachabilityFrom(
 	var tunnelled bool
 	// Is our v6 is tunnelled?
 	if IsRFC3964(localAddr) || IsRFC6052(localAddr) || IsRFC6145(localAddr) {
+
 		tunnelled = true
 	}
 	if !IsRoutable(localAddr) {
+
 		return Default
 	}
 	if IsRFC4380(localAddr) {
+
 		return Teredo
 	}
 	if IsIPv4(localAddr) {
+
 		return Ipv4
 	}
 	if tunnelled {
@@ -895,6 +937,7 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 		reach := getReachabilityFrom(la.na, remoteAddr)
 		if reach > bestreach ||
 			(reach == bestreach && la.score > bestscore) {
+
 			bestreach = reach
 			bestscore = la.score
 			bestAddress = la.na
@@ -907,6 +950,7 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 		// Send something unroutable if nothing suitable.
 		var ip net.IP
 		if !IsIPv4(remoteAddr) && !IsOnionCatTor(remoteAddr) {
+
 			ip = net.IPv6zero
 		} else {
 			ip = net.IPv4zero
@@ -920,7 +964,7 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 // New returns a new bitcoin address manager. Use Start to begin processing asynchronous address updates.
 func New(
 	dataDir string, lookupFunc func(
-	string) ([]net.IP, error)) *AddrManager {
+		string) ([]net.IP, error)) *AddrManager {
 	am := AddrManager{
 		peersFile:      filepath.Join(dataDir, "peers.json"),
 		lookupFunc:     lookupFunc,

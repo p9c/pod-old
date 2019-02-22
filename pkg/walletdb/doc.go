@@ -1,7 +1,3 @@
-
-
-
-
 /*
 Package walletdb provides a namespaced database interface for btcwallet.
 

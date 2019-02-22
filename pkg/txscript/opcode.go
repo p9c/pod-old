@@ -20,7 +20,7 @@ type opcode struct {
 	name   string
 	length int
 	opfunc func(
-	*parsedOpcode, *Engine) error
+		*parsedOpcode, *Engine) error
 }
 
 // These constants are the values of the official opcodes used on the btc wiki, in bitcoin core and in most if not all other references and software related to handling DUO scripts.
@@ -741,6 +741,7 @@ func (pop *parsedOpcode) print(oneline bool) string {
 
 // bytes returns any data associated with the opcode encoded as it would be in a script.  This is used for unparsing scripts from parsed opcodes.
 func (pop *parsedOpcode) bytes() ([]byte, error) {
+
 	var retbytes []byte
 	if pop.opcode.length > 0 {
 		retbytes = make([]byte, 1, pop.opcode.length)
@@ -852,6 +853,7 @@ func opcodeNop(
 	case OP_NOP1, OP_NOP4, OP_NOP5,
 		OP_NOP6, OP_NOP7, OP_NOP8, OP_NOP9, OP_NOP10:
 		if vm.hasFlag(ScriptDiscourageUpgradableNops) {
+
 			str := fmt.Sprintf("OP_NOP%d reserved for soft-fork "+
 				"upgrades", op.opcode.value-(OP_NOP1-1))
 			return scriptError(ErrDiscourageUpgradableNOPs, str)
@@ -863,8 +865,10 @@ func opcodeNop(
 // popIfBool enforces the "minimal if" policy during script execution if the particular flag is set.  If so, in order to eliminate an additional source of nuisance malleability, post-segwit for version 0 witness programs, we now require the following: for OP_IF and OP_NOT_IF, the top stack item MUST either be an empty byte slice, or [0x01]. Otherwise, the item at the top of the stack will be popped and interpreted as a boolean.
 func popIfBool(
 	vm *Engine) (bool, error) {
+
 	// When not in witness execution mode, not executing a v0 witness program, or the minimal if flag isn't set pop the top stack item as a normal bool.
 	if !vm.isWitnessVersionActive(0) || !vm.hasFlag(ScriptVerifyMinimalIf) {
+
 		return vm.dstack.PopBool()
 	}
 	// At this point, a v0 witness program is being executed and the minimal if flag is set, so enforce additional constraints on the top stack item.
@@ -896,6 +900,7 @@ func opcodeIf(
 	op *parsedOpcode, vm *Engine) error {
 	condVal := OpCondFalse
 	if vm.isBranchExecuting() {
+
 		ok, err := popIfBool(vm)
 		if err != nil {
 			return err
@@ -918,6 +923,7 @@ func opcodeNotIf(
 	op *parsedOpcode, vm *Engine) error {
 	condVal := OpCondFalse
 	if vm.isBranchExecuting() {
+
 		ok, err := popIfBool(vm)
 		if err != nil {
 			return err
@@ -1000,6 +1006,7 @@ func verifyLockTime(
 	// The lockTimes in both the script and transaction must be of the same type.
 	if !((txLockTime < threshold && lockTime < threshold) ||
 		(txLockTime >= threshold && lockTime >= threshold)) {
+
 		str := fmt.Sprintf("mismatched locktime types -- tx locktime "+
 			"%d, stack locktime %d", txLockTime, lockTime)
 		return scriptError(ErrUnsatisfiedLockTime, str)
@@ -1018,7 +1025,9 @@ func opcodeCheckLockTimeVerify(
 	op *parsedOpcode, vm *Engine) error {
 	// If the ScriptVerifyCheckLockTimeVerify script flag is not set, treat opcode as OP_NOP2 instead.
 	if !vm.hasFlag(ScriptVerifyCheckLockTimeVerify) {
+
 		if vm.hasFlag(ScriptDiscourageUpgradableNops) {
+
 			return scriptError(ErrDiscourageUpgradableNOPs,
 				"OP_NOP2 reserved for soft-fork upgrades")
 		}
@@ -1060,7 +1069,9 @@ func opcodeCheckSequenceVerify(
 	op *parsedOpcode, vm *Engine) error {
 	// If the ScriptVerifyCheckSequenceVerify script flag is not set, treat opcode as OP_NOP3 instead.
 	if !vm.hasFlag(ScriptVerifyCheckSequenceVerify) {
+
 		if vm.hasFlag(ScriptDiscourageUpgradableNops) {
+
 			return scriptError(ErrDiscourageUpgradableNOPs,
 				"OP_NOP3 reserved for soft-fork upgrades")
 		}
@@ -1185,6 +1196,7 @@ func opcodeIfDup(
 	}
 	// Push copy of data iff it isn't zero
 	if asBool(so) {
+
 		vm.dstack.PushByteArray(so)
 	}
 	return nil
@@ -1789,6 +1801,7 @@ func opcodeCheckSig(
 	// Generate the signature hash based on the signature hash type.
 	var hash []byte
 	if vm.isWitnessVersionActive(0) {
+
 		var sigHashes *TxSigHashes
 		if vm.hashCache != nil {
 			sigHashes = vm.hashCache
@@ -1813,6 +1826,7 @@ func opcodeCheckSig(
 	var signature *ec.Signature
 	if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 		vm.hasFlag(ScriptVerifyDERSignatures) {
+
 		signature, err = ec.ParseDERSignature(sigBytes, ec.S256())
 	} else {
 		signature, err = ec.ParseSignature(sigBytes, ec.S256())
@@ -1827,6 +1841,7 @@ func opcodeCheckSig(
 		copy(sigHash[:], hash)
 		valid = vm.sigCache.Exists(sigHash, signature, pubKey)
 		if !valid && signature.Verify(hash, pubKey) {
+
 			vm.sigCache.Add(sigHash, signature, pubKey)
 			valid = true
 		}
@@ -1933,6 +1948,7 @@ func opcodeCheckMultiSig(
 	script := vm.subScript()
 	// Remove the signature in pre version 0 segwit scripts since there is no way for a signature to sign itself.
 	if !vm.isWitnessVersionActive(0) {
+
 		for _, sigInfo := range signatures {
 			script = removeOpcodeByData(script, sigInfo.signature)
 		}
@@ -1973,6 +1989,7 @@ func opcodeCheckMultiSig(
 			var err error
 			if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 				vm.hasFlag(ScriptVerifyDERSignatures) {
+
 				parsedSig, err = ec.ParseDERSignature(signature,
 					ec.S256())
 			} else {
@@ -2003,6 +2020,7 @@ func opcodeCheckMultiSig(
 		// Generate the signature hash based on the signature hash type.
 		var hash []byte
 		if vm.isWitnessVersionActive(0) {
+
 			var sigHashes *TxSigHashes
 			if vm.hashCache != nil {
 				sigHashes = vm.hashCache
@@ -2023,6 +2041,7 @@ func opcodeCheckMultiSig(
 			copy(sigHash[:], hash)
 			valid = vm.sigCache.Exists(sigHash, parsedSig, parsedPubKey)
 			if !valid && parsedSig.Verify(hash, parsedPubKey) {
+
 				vm.sigCache.Add(sigHash, parsedSig, parsedPubKey)
 				valid = true
 			}
@@ -2036,6 +2055,7 @@ func opcodeCheckMultiSig(
 		}
 	}
 	if !success && vm.hasFlag(ScriptVerifyNullFail) {
+
 		for _, sig := range signatures {
 			if len(sig.signature) > 0 {
 				str := "not all signatures empty on failed checkmultisig"
@@ -2062,8 +2082,8 @@ func opcodeCheckMultiSigVerify(
 // OpcodeByName is a map that can be used to lookup an opcode by its human-readable name (OP_CHECKMULTISIG, OP_CHECKSIG, etc).
 var OpcodeByName = make(map[string]byte)
 
-func init(
-	) {
+func init() {
+
 	// Initialize the opcode name to value map using the contents of the opcode array.  Also add entries for "OP_FALSE", "OP_TRUE", and "OP_NOP2" since they are aliases for "OP_0", "OP_1", and "OP_CHECKLOCKTIMEVERIFY" respectively.
 	for _, op := range opcodeArray {
 		OpcodeByName[op.name] = op.value

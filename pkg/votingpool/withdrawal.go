@@ -15,9 +15,9 @@ import (
 	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
@@ -133,8 +133,10 @@ func (u byAmount) Swap(i, j int)      { u[i], u[j] = u[j], u[i] }
 // a slice of OutputRequests by their outBailmentIDHash.
 type byOutBailmentID []OutputRequest
 
-func (s byOutBailmentID) Len() int      { return len(s) }
-func (s byOutBailmentID) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+func (s byOutBailmentID) Len() int { return len(s) }
+func (s byOutBailmentID) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
 func (s byOutBailmentID) Less(i, j int) bool {
 	return bytes.Compare(s[i].outBailmentIDHash(), s[j].outBailmentIDHash()) < 0
 }
@@ -224,6 +226,7 @@ func (o *WithdrawalOutput) String() string {
 }
 
 func (o *WithdrawalOutput) addOutpoint(outpoint OutBailmentOutpoint) {
+
 	o.outpoints = append(o.outpoints, outpoint)
 }
 
@@ -336,6 +339,7 @@ func (tx *withdrawalTx) isTooBig() bool {
 
 // inputTotal returns the sum amount of all inputs in this tx.
 func (tx *withdrawalTx) inputTotal() (total util.Amount) {
+
 	for _, input := range tx.inputs {
 		total += input.Amount
 	}
@@ -345,6 +349,7 @@ func (tx *withdrawalTx) inputTotal() (total util.Amount) {
 // outputTotal returns the sum amount of all outputs in this tx. It does not
 // include the amount for the change output, in case the tx has one.
 func (tx *withdrawalTx) outputTotal() (total util.Amount) {
+
 	for _, output := range tx.outputs {
 		total += output.amount
 	}
@@ -364,6 +369,7 @@ func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
 	}
 
 	if tx.hasChange() {
+
 		msgtx.AddTxOut(tx.changeOutput)
 	}
 
@@ -375,6 +381,7 @@ func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
 
 // addOutput adds a new output to this transaction.
 func (tx *withdrawalTx) addOutput(request OutputRequest) {
+
 	log <- cl.Debugf{
 		"added tx output sending %s to %s",
 		request.Amount,
@@ -397,6 +404,7 @@ func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
 
 // addInput adds a new input to this transaction.
 func (tx *withdrawalTx) addInput(input credit) {
+
 	log <- cl.Debug{
 		"added tx input with amount", input.Amount,
 	}
@@ -446,6 +454,7 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 // The tx needs to have two or more outputs. The case with only one output must
 // be handled separately (by the split output procedure).
 func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error) {
+
 	// Check precondition: At least two outputs are required in the transaction.
 	if len(tx.outputs) < 2 {
 		str := fmt.Sprintf("at least two outputs expected; got %d", len(tx.outputs))
@@ -457,6 +466,7 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 	var removedInputs []credit
 	// Continue until sum(in) < sum(out) + fee
 	for tx.inputTotal() >= tx.outputTotal()+tx.calculateFee() {
+
 		removedInputs = append(removedInputs, tx.removeInput())
 	}
 
@@ -467,7 +477,8 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 }
 
 func defaultTxOptions(
-	tx *withdrawalTx) {}
+	tx *withdrawalTx) {
+}
 
 func newWithdrawal(
 	roundID uint32, requests []OutputRequest, inputs []credit,
@@ -549,6 +560,7 @@ func (w *withdrawal) popRequest() OutputRequest {
 
 // pushRequest adds a new request to the top of the stack of pending requests.
 func (w *withdrawal) pushRequest(request OutputRequest) {
+
 	w.pendingRequests = append([]OutputRequest{request}, w.pendingRequests...)
 }
 
@@ -562,6 +574,7 @@ func (w *withdrawal) popInput() credit {
 
 // pushInput adds a new input to the top of the stack of eligible inputs.
 func (w *withdrawal) pushInput(input credit) {
+
 	w.eligibleInputs = append(w.eligibleInputs, input)
 }
 
@@ -577,6 +590,7 @@ func (w *withdrawal) fulfillNextRequest() error {
 	w.current.addOutput(request)
 
 	if w.current.isTooBig() {
+
 		return w.handleOversizeTx()
 	}
 
@@ -595,6 +609,7 @@ func (w *withdrawal) fulfillNextRequest() error {
 		fee = w.current.calculateFee()
 
 		if w.current.isTooBig() {
+
 			return w.handleOversizeTx()
 		}
 	}
@@ -650,6 +665,7 @@ func (w *withdrawal) finalizeCurrentTx() error {
 		return newError(ErrWithdrawalProcessing, "failed to generate pkScript for change address", err)
 	}
 	if tx.addChange(pkScript) {
+
 		var err error
 		w.status.nextChangeAddr, err = nextChangeAddress(w.status.nextChangeAddr)
 		if err != nil {
@@ -693,6 +709,7 @@ func (w *withdrawal) finalizeCurrentTx() error {
 // fulfill them all. For every dropped output request we update its entry in
 // w.status.outputs with the status string set to statusPartial.
 func (w *withdrawal) maybeDropRequests() {
+
 	inputAmount := util.Amount(0)
 	for _, input := range w.eligibleInputs {
 		inputAmount += input.Amount
@@ -730,6 +747,7 @@ func (w *withdrawal) fulfillRequests() error {
 		}
 		tx := w.current
 		if len(w.eligibleInputs) == 0 && tx.inputTotal() <= tx.outputTotal()+tx.calculateFee() {
+
 			// We don't have more eligible inputs and all the inputs in the
 			// current tx have been spent.
 			break
@@ -750,6 +768,7 @@ func (w *withdrawal) fulfillRequests() error {
 		msgtx := tx.toMsgTx()
 		changeIdx := -1
 		if tx.hasChange() {
+
 			// When withdrawalTx has a change, we know it will be the last entry
 			// in the generated MsgTx.
 			changeIdx = len(msgtx.TxOut) - 1
@@ -801,6 +820,7 @@ func (w *withdrawal) splitLastOutput() error {
 }
 
 func (s *WithdrawalStatus) updateStatusFor(tx *withdrawalTx) {
+
 	for _, output := range s.outputs {
 		if len(output.outpoints) > 1 {
 			output.status = statusSplit
@@ -820,6 +840,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	// structs that contain pointers and we want to compare their content and
 	// not their address.
 	if !reflect.DeepEqual(changeStart, wi.changeStart) {
+
 		log <- cl.Debugf{
 			"withdrawal changeStart does not match: %v != %v",
 			changeStart,
@@ -828,6 +849,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 		return false
 	}
 	if !reflect.DeepEqual(startAddress, wi.startAddress) {
+
 		log <- cl.Debugf{
 			"withdrawal startAddr does not match: %v != %v",
 			startAddress,
@@ -858,6 +880,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	sort.Sort(byOutBailmentID(r1))
 	sort.Sort(byOutBailmentID(r2))
 	if !reflect.DeepEqual(r1, r2) {
+
 		log <- cl.Debugf{
 			"withdrawal requests does not match: %v != %v",
 			requests,
@@ -878,6 +901,7 @@ func getWithdrawalStatus(
 
 	serialized := getWithdrawal(ns, p.ID, roundID)
 	if bytes.Equal(serialized, []byte{}) {
+
 		return nil, nil
 	}
 	wInfo, err := deserializeWithdrawal(p, ns, addrmgrNs, serialized)
@@ -885,6 +909,7 @@ func getWithdrawalStatus(
 		return nil, err
 	}
 	if wInfo.match(requests, startAddress, lastSeriesID, changeStart, dustThreshold) {
+
 		return &wInfo.status, nil
 	}
 	return nil, nil
@@ -895,6 +920,7 @@ func getWithdrawalStatus(
 // It returns a map of ntxids to signature lists.
 func getRawSigs(
 	transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
+
 	sigs := make(map[Ntxid]TxSigs)
 	for _, tx := range transactions {
 		txSigs := make(TxSigs, len(tx.inputs))
@@ -987,6 +1013,7 @@ func SignTx(
 // be called with the manager unlocked.
 func getRedeemScript(
 	mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, addr *util.AddressScriptHash) ([]byte, error) {
+
 	address, err := mgr.Address(addrmgrNs, addr)
 	if err != nil {
 		return nil, err
@@ -1074,6 +1101,7 @@ func calculateTxSize(
 	// the size of its serialized form, which should be the same for all of them
 	// as they're either P2PKH or P2SH..
 	if !tx.hasChange() {
+
 		msgtx.AddTxOut(msgtx.TxOut[0])
 	}
 	// Craft a SignatureScript with dummy signatures for every input in this tx
@@ -1097,6 +1125,7 @@ func calculateTxSize(
 
 func nextChangeAddress(
 	a ChangeAddress) (ChangeAddress, error) {
+
 	index := a.index
 	seriesID := a.seriesID
 	if index == math.MaxUint32 {

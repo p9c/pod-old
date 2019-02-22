@@ -10,6 +10,7 @@ import (
 // list w.r.t which methods return a nil pointer and which do not.
 func TestBoundedMemoryChainEmptyList(
 	t *testing.T) {
+
 	t.Parallel()
 
 	memChain := NewBoundedMemoryChain(5)
@@ -37,6 +38,7 @@ func TestBoundedMemoryChainEmptyList(
 	})
 
 	if memChain.Front() != memChain.Back() {
+
 		t.Fatalf("back and front of chain of length 1 should be " +
 			"identical")
 	}
@@ -47,6 +49,7 @@ func TestBoundedMemoryChainEmptyList(
 // created chain with only that element.
 func TestBoundedMemoryChainResetHeaderState(
 	t *testing.T) {
+
 	t.Parallel()
 
 	memChain := NewBoundedMemoryChain(5)
@@ -68,6 +71,7 @@ func TestBoundedMemoryChainResetHeaderState(
 
 	// At this point, the front and back of the chain should be identical.
 	if memChain.Front() != memChain.Back() {
+
 		t.Fatalf("back and front of chain of length 1 should be " +
 			"identical")
 	}
@@ -88,6 +92,7 @@ func TestBoundedMemoryChainResetHeaderState(
 // of the list if exceeded, then the list is properly bounded.
 func TestBoundedMemoryChainSizeLimit(
 	t *testing.T) {
+
 	t.Parallel()
 
 	memChain := NewBoundedMemoryChain(5)
@@ -157,6 +162,7 @@ func TestBoundedMemoryChainSizeLimit(
 // element.
 func TestBoundedMemoryChainPrevIteration(
 	t *testing.T) {
+
 	t.Parallel()
 
 	memChain := NewBoundedMemoryChain(5)

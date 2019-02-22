@@ -10,6 +10,7 @@ import (
 // TestHelpers tests the various helper functions which create pointers to primitive types.
 func TestHelpers(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -101,6 +102,7 @@ func TestHelpers(
 	for i, test := range tests {
 		result := test.f()
 		if !reflect.DeepEqual(result, test.expected) {
+
 			t.Errorf("Test #%d (%s) unexpected value - got %v, "+
 				"want %v", i, test.name, result, test.expected)
 			continue

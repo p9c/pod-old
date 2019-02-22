@@ -170,6 +170,7 @@ var NodeCommand = climax.Command{
 			}
 		}
 		if ctx.Is("version") {
+
 			fmt.Println("pod/node version", n.Version())
 			return 0
 		}
@@ -183,11 +184,13 @@ var NodeCommand = climax.Command{
 			cfgFile = r
 		}
 		if ctx.Is("init") {
+
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
 			WriteDefaultNodeConfig(datadir)
 		} else {
 			log <- cl.Infof{"loading configuration from %s", cfgFile}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+
 				log <- cl.Wrn("configuration file does not exist, creating new one")
 				WriteDefaultNodeConfig(datadir)
 			} else {
@@ -244,7 +247,6 @@ func DefaultNodeConfig(
 	datadir string,
 ) *NodeCfg {
 
-
 	user := GenKey()
 	pass := GenKey()
 	params := node.MainNetParams
@@ -300,7 +302,6 @@ func WriteDefaultNodeConfig(
 	datadir string,
 ) {
 
-
 	log <- cl.Dbg("writing default config")
 	defCfg := DefaultNodeConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
@@ -328,7 +329,6 @@ func WriteDefaultNodeConfig(
 func WriteNodeConfig(
 	c *NodeCfg,
 ) {
-
 
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")

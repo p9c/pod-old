@@ -13,6 +13,7 @@ import (
 // TestChainSvrWsCmds tests all of the chain server websocket-specific commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestChainSvrWsCmds(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := int(1)
 	tests := []struct {
@@ -25,6 +26,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "authenticate",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("authenticate", "user", "pass")
 			},
 			staticCmd: func() interface{} {
@@ -36,6 +38,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "notifyblocks",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("notifyblocks")
 			},
 			staticCmd: func() interface{} {
@@ -47,6 +50,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "stopnotifyblocks",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("stopnotifyblocks")
 			},
 			staticCmd: func() interface{} {
@@ -58,6 +62,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "notifynewtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("notifynewtransactions")
 			},
 			staticCmd: func() interface{} {
@@ -71,6 +76,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "notifynewtransactions optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("notifynewtransactions", true)
 			},
 			staticCmd: func() interface{} {
@@ -84,6 +90,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "stopnotifynewtransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("stopnotifynewtransactions")
 			},
 			staticCmd: func() interface{} {
@@ -95,6 +102,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "notifyreceived",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("notifyreceived", []string{"1Address"})
 			},
 			staticCmd: func() interface{} {
@@ -108,6 +116,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "stopnotifyreceived",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("stopnotifyreceived", []string{"1Address"})
 			},
 			staticCmd: func() interface{} {
@@ -121,6 +130,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "notifyspent",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("notifyspent", `[{"hash":"123","index":0}]`)
 			},
 			staticCmd: func() interface{} {
@@ -135,6 +145,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "stopnotifyspent",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("stopnotifyspent", `[{"hash":"123","index":0}]`)
 			},
 			staticCmd: func() interface{} {
@@ -149,6 +160,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "rescan",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("rescan", "123", `["1Address"]`, `[{"hash":"0000000000000000000000000000000000000000000000000000000000000123","index":0}]`)
 			},
 			staticCmd: func() interface{} {
@@ -170,6 +182,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "rescan optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("rescan", "123", `["1Address"]`, `[{"hash":"123","index":0}]`, "456")
 			},
 			staticCmd: func() interface{} {
@@ -188,6 +201,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "loadtxfilter",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("loadtxfilter", false, `["1Address"]`, `[{"hash":"0000000000000000000000000000000000000000000000000000000000000123","index":0}]`)
 			},
 			staticCmd: func() interface{} {
@@ -208,6 +222,7 @@ func TestChainSvrWsCmds(
 		{
 			name: "rescanblocks",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("rescanblocks", `["0000000000000000000000000000000000000000000000000000000000000123"]`)
 			},
 			staticCmd: func() interface{} {
@@ -230,6 +245,7 @@ func TestChainSvrWsCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -249,6 +265,7 @@ func TestChainSvrWsCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -268,6 +285,7 @@ func TestChainSvrWsCmds(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

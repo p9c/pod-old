@@ -301,7 +301,9 @@ func (v *Vin) HasWitness() bool {
 
 // MarshalJSON provides a custom Marshal method for Vin.
 func (v *Vin) MarshalJSON() ([]byte, error) {
+
 	if v.IsCoinBase() {
+
 		coinbaseStruct := struct {
 			Coinbase string   `json:"coinbase"`
 			Sequence uint32   `json:"sequence"`
@@ -314,6 +316,7 @@ func (v *Vin) MarshalJSON() ([]byte, error) {
 		return json.Marshal(coinbaseStruct)
 	}
 	if v.HasWitness() {
+
 		txStruct := struct {
 			Txid      string     `json:"txid"`
 			Vout      uint32     `json:"vout"`
@@ -372,7 +375,9 @@ func (v *VinPrevOut) HasWitness() bool {
 
 // MarshalJSON provides a custom Marshal method for VinPrevOut.
 func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
+
 	if v.IsCoinBase() {
+
 		coinbaseStruct := struct {
 			Coinbase string `json:"coinbase"`
 			Sequence uint32 `json:"sequence"`
@@ -383,6 +388,7 @@ func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
 		return json.Marshal(coinbaseStruct)
 	}
 	if v.HasWitness() {
+
 		txStruct := struct {
 			Txid      string     `json:"txid"`
 			Vout      uint32     `json:"vout"`

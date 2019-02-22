@@ -1,7 +1,3 @@
-
-
-
-
 /*
 Package waddrmgr provides a secure hierarchical deterministic wallet address
 manager.

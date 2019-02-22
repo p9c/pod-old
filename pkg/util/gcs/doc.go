@@ -1,4 +1,3 @@
-
 /*
 Package gcs provides an API for building and using a Golomb-coded set filter.
 Golomb-Coded Set

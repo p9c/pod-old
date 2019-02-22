@@ -1,7 +1,3 @@
-
-
-
-
 package walletdb
 
 import (

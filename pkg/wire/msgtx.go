@@ -69,6 +69,7 @@ func (c scriptFreeList) Borrow(size uint64) []byte {
 
 // Return puts the provided byte slice back on the free list when it has a cap of the expected length.  The buffer is expected to have been obtained via the Borrow function.  Any slices that are not of the appropriate size, such as those whose size is greater than the largest allowed free list item size are simply ignored so they can go to the garbage collector.
 func (c scriptFreeList) Return(buf []byte) {
+
 	// Ignore any buffers returned that aren't the expected size for the free list.
 	if cap(buf) != freeListMaxScriptSize {
 		return
@@ -182,16 +183,19 @@ type MsgTx struct {
 
 // AddTxIn adds a transaction input to the message.
 func (msg *MsgTx) AddTxIn(ti *TxIn) {
+
 	msg.TxIn = append(msg.TxIn, ti)
 }
 
 // AddTxOut adds a transaction output to the message.
 func (msg *MsgTx) AddTxOut(to *TxOut) {
+
 	msg.TxOut = append(msg.TxOut, to)
 }
 
 // TxHash generates the Hash for the transaction.
 func (msg *MsgTx) TxHash() (out chainhash.Hash) {
+
 	// Encode the transaction and calculate double sha256 on the result. Ignore the error returns since the only way the encode could fail is being out of memory or due to nil pointers, both of which would cause a run-time panic.
 	buf := bytes.NewBuffer(make([]byte, 0, msg.SerializeSizeStripped()))
 	_ = msg.SerializeNoWitness(buf)
@@ -201,6 +205,7 @@ func (msg *MsgTx) TxHash() (out chainhash.Hash) {
 // WitnessHash generates the hash of the transaction serialized according to the new witness serialization defined in BIP0141 and BIP0144. The final output is used within the Segregated Witness commitment of all the witnesses within a block. If a transaction has no witness data, then the witness hash, is the same as its txid.
 func (msg *MsgTx) WitnessHash() chainhash.Hash {
 	if msg.HasWitness() {
+
 		buf := bytes.NewBuffer(make([]byte, 0, msg.SerializeSize()))
 		_ = msg.Serialize(buf)
 		return chainhash.DoubleHashH(buf.Bytes())
@@ -302,6 +307,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 	// Prevent more input transactions than could possibly fit into a message.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
 	if count > uint64(maxTxInPerMessage) {
+
 		str := fmt.Sprintf("too many input transactions to fit into "+
 			"max message size [count %d, max %d]", count,
 			maxTxInPerMessage)
@@ -309,6 +315,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 	// returnScriptBuffers is a closure that returns any script buffers that were borrowed from the pool when there are any deserialization errors.  This is only valid to call before the final step which replaces the scripts with the location in a contiguous buffer and returns them.
 	returnScriptBuffers := func() {
+
 		for _, txIn := range msg.TxIn {
 			if txIn == nil {
 				continue
@@ -351,6 +358,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 	// Prevent more output transactions than could possibly fit into a message.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
 	if count > uint64(maxTxOutPerMessage) {
+
 		returnScriptBuffers()
 		str := fmt.Sprintf("too many output transactions to fit into "+
 			"max message size [count %d, max %d]", count,
@@ -546,6 +554,7 @@ func (msg *MsgTx) baseSize() int {
 func (msg *MsgTx) SerializeSize() int {
 	n := msg.baseSize()
 	if msg.HasWitness() {
+
 		// The marker, and flag fields take up two additional bytes.
 		n += 2
 		// Additionally, factor in the serialized size of each of the witnesses for each txin.
@@ -634,12 +643,14 @@ func writeOutPoint(
 // readScript reads a variable length byte array that represents a transaction script.  It is encoded as a varInt containing the length of the array followed by the bytes themselves.  An error is returned if the length is greater than the passed maxAllowed parameter which helps protect against memory exhaustion attacks and forced panics through malformed messages.  The fieldName parameter is only used for the error message so it provides more context in the error.
 func readScript(
 	r io.Reader, pver uint32, maxAllowed uint32, fieldName string) ([]byte, error) {
+
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
 		return nil, err
 	}
 	// Prevent byte array larger than the max message size.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
 	if count > uint64(maxAllowed) {
+
 		str := fmt.Sprintf("%s is larger than the max allowed size "+
 			"[count %d, max %d]", fieldName, count, maxAllowed)
 		return nil, messageError("readScript", str)

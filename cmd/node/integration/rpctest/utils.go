@@ -47,6 +47,7 @@ retry:
 				return err
 			}
 			if !reflect.DeepEqual(firstPool, nodePool) {
+
 				time.Sleep(time.Millisecond * 100)
 				continue retry
 			}
@@ -71,6 +72,7 @@ retry:
 			}
 			if prevHash != nil && (*blockHash != *prevHash ||
 				blockHeight != prevHeight) {
+
 				time.Sleep(time.Millisecond * 100)
 				continue retry
 			}
@@ -108,8 +110,7 @@ func ConnectNode(
 }
 
 // TearDownAll tears down all active test harnesses.
-func TearDownAll(
-	) error {
+func TearDownAll() error {
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 	for _, harness := range testInstances {
@@ -121,8 +122,7 @@ func TearDownAll(
 }
 
 // ActiveHarnesses returns a slice of all currently active test harnesses. A test harness if considered "active" if it has been created, but not yet torn down.
-func ActiveHarnesses(
-	) []*Harness {
+func ActiveHarnesses() []*Harness {
 	harnessStateMtx.RLock()
 	defer harnessStateMtx.RUnlock()
 	activeNodes := make([]*Harness, 0, len(testInstances))

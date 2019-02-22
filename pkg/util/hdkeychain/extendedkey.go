@@ -124,6 +124,7 @@ func (k *ExtendedKey) ParentFingerprint() uint32 {
 // When the index is greater to or equal than the HardenedKeyStart constant, the derived extended key will be a hardened extended key.  It is only possible to derive a hardended extended key from a private extended key.  Consequently, this function will return ErrDeriveHardFromPublic if a hardened child extended key is requested from a public extended key.
 // A hardened extended key is useful since, as previously mentioned, it requires a parent private extended key to derive.  In other words, normal child extended public keys can be derived from a parent public extended key (no knowledge of the parent private key) whereas hardened extended keys may not be. NOTE: There is an extremely small chance (< 1 in 2^127) the specific child index does not derive to a usable child.  The ErrInvalidChild error will be returned if this should occur, and the caller is expected to ignore the invalid child and simply increment to the next index.
 func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
+
 	// Prevent derivation of children beyond the max allowed depth.
 	if k.depth == maxUint8 {
 		return nil, ErrDeriveBeyondMaxDepth
@@ -213,6 +214,7 @@ func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
 // Neuter returns a new extended public key from this extended private key.  The same extended key will be returned unaltered if it is already an extended public key.
 // As the name implies, an extended public key does not have access to the private key, so it is not capable of signing transactions or deriving child extended private keys.  However, it is capable of deriving further child extended public keys.
 func (k *ExtendedKey) Neuter() (*ExtendedKey, error) {
+
 	// Already an extended public key.
 	if !k.isPrivate {
 		return k, nil
@@ -230,11 +232,13 @@ func (k *ExtendedKey) Neuter() (*ExtendedKey, error) {
 
 // ECPubKey converts the extended key to a ec public key and returns it.
 func (k *ExtendedKey) ECPubKey() (*ec.PublicKey, error) {
+
 	return ec.ParsePubKey(k.pubKeyBytes(), ec.S256())
 }
 
 // ECPrivKey converts the extended key to a ec private key and returns it. As you might imagine this is only possible if the extended key is a private extended key (as determined by the IsPrivate function).  The ErrNotPrivExtKey error will be returned if this function is called on a public extended key.
 func (k *ExtendedKey) ECPrivKey() (*ec.PrivateKey, error) {
+
 	if !k.isPrivate {
 		return nil, ErrNotPrivExtKey
 	}
@@ -244,6 +248,7 @@ func (k *ExtendedKey) ECPrivKey() (*ec.PrivateKey, error) {
 
 // Address converts the extended key to a standard bitcoin pay-to-pubkey-hash address for the passed network.
 func (k *ExtendedKey) Address(net *chaincfg.Params) (*util.AddressPubKeyHash, error) {
+
 	pkHash := util.Hash160(k.pubKeyBytes())
 	return util.NewAddressPubKeyHash(pkHash, net)
 }
@@ -292,6 +297,7 @@ func (k *ExtendedKey) IsForNet(net *chaincfg.Params) bool {
 
 // SetNet associates the extended key, and any child keys yet to be derived from it, with the passed network.
 func (k *ExtendedKey) SetNet(net *chaincfg.Params) {
+
 	if k.isPrivate {
 		k.version = net.HDPrivateKeyID[:]
 	} else {
@@ -302,6 +308,7 @@ func (k *ExtendedKey) SetNet(net *chaincfg.Params) {
 // zero sets all bytes in the passed slice to zero.  This is used to explicitly clear private key material from memory.
 func zero(
 	b []byte) {
+
 	lenb := len(b)
 	for i := 0; i < lenb; i++ {
 		b[i] = 0
@@ -310,6 +317,7 @@ func zero(
 
 // Zero manually clears all fields and bytes in the extended key.  This can be used to explicitly clear key material from memory for enhanced security against memory scraping.  This function only clears this particular key and not any children that have already been derived.
 func (k *ExtendedKey) Zero() {
+
 	zero(k.key)
 	zero(k.pubKey)
 	zero(k.chainCode)
@@ -326,6 +334,7 @@ func (k *ExtendedKey) Zero() {
 // new seed accordingly.
 func NewMaster(
 	seed []byte, net *chaincfg.Params) (*ExtendedKey, error) {
+
 	// Per [BIP32], the seed must be in range [MinSeedBytes, MaxSeedBytes].
 	if len(seed) < MinSeedBytes || len(seed) > MaxSeedBytes {
 		return nil, ErrInvalidSeedLen
@@ -353,6 +362,7 @@ func NewMaster(
 // NewKeyFromString returns a new extended key instance from a base58-encoded extended key.
 func NewKeyFromString(
 	key string) (*ExtendedKey, error) {
+
 	// The base58-decoded extended key must consist of a serialized payload plus an additional 4 bytes for the checksum.
 	decoded := base58.Decode(key)
 	if len(decoded) != serializedKeyLen+4 {
@@ -366,6 +376,7 @@ func NewKeyFromString(
 	checkSum := decoded[len(decoded)-4:]
 	expectedCheckSum := chainhash.DoubleHashB(payload)[:4]
 	if !bytes.Equal(checkSum, expectedCheckSum) {
+
 		return nil, ErrBadChecksum
 	}
 	// Deserialize each of the payload fields.
@@ -398,6 +409,7 @@ func NewKeyFromString(
 // GenerateSeed returns a cryptographically secure random seed that can be used as the input for the NewMaster function to generate a new master node. The length is in bytes and it must be between 16 and 64 (128 to 512 bits). The recommended length is 32 (256 bits) as defined by the RecommendedSeedLen constant.
 func GenerateSeed(
 	length uint8) ([]byte, error) {
+
 	// Per [BIP32], the seed must be in range [MinSeedBytes, MaxSeedBytes].
 	if length < MinSeedBytes || length > MaxSeedBytes {
 		return nil, ErrInvalidSeedLen

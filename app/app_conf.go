@@ -330,6 +330,7 @@ func DefaultConfConfig(
 func WriteConfConfig(
 	cfg *ConfCfg,
 ) {
+
 	j, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 
@@ -348,6 +349,7 @@ func WriteConfConfig(
 func WriteDefaultConfConfig(
 	datadir string,
 ) {
+
 	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -373,6 +375,7 @@ func configConf(
 	datadir,
 	portbase string,
 ) {
+
 	cs := GetDefaultConfs(datadir)
 	SyncToConfs(cs)
 	var r string

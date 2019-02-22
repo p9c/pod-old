@@ -7,8 +7,8 @@ import (
 )
 
 // This example demonstrates how to decode modified base58 encoded data.
-func ExampleDecode(
-	) {
+func ExampleDecode() {
+
 	// Decode example modified base58 encoded data.
 	encoded := "25JnwSn7XKfNQ"
 	decoded := base58.Decode(encoded)
@@ -19,8 +19,8 @@ func ExampleDecode(
 }
 
 // This example demonstrates how to encode data using the modified base58 encoding scheme.
-func ExampleEncode(
-	) {
+func ExampleEncode() {
+
 	// Encode example data with the modified base58 encoding scheme.
 	data := []byte("Test data")
 	encoded := base58.Encode(data)
@@ -31,8 +31,8 @@ func ExampleEncode(
 }
 
 // This example demonstrates how to decode Base58Check encoded data.
-func ExampleCheckDecode(
-	) {
+func ExampleCheckDecode() {
+
 	// Decode an example Base58Check encoded data.
 	encoded := "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
 	decoded, version, err := base58.CheckDecode(encoded)
@@ -49,8 +49,8 @@ func ExampleCheckDecode(
 }
 
 // This example demonstrates how to encode data using the Base58Check encoding scheme.
-func ExampleCheckEncode(
-	) {
+func ExampleCheckEncode() {
+
 	// Encode example data with the Base58Check encoding scheme.
 	data := []byte("Test data")
 	encoded := base58.CheckEncode(data, 0)

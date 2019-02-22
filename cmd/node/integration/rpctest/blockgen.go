@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chain"
+	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
@@ -27,6 +27,7 @@ func solveBlock(
 	quit := make(chan bool)
 	results := make(chan sbResult)
 	solver := func(hdr wire.BlockHeader, startNonce, stopNonce uint32) {
+
 		// We need to modify the nonce field of the header, so make sure we work with a copy of the original header.
 		for i := startNonce; i >= startNonce && i <= stopNonce; i++ {
 			select {
@@ -77,6 +78,7 @@ func solveBlock(
 // standardCoinbaseScript returns a standard script suitable for use as the signature script of the coinbase transaction of a new block. In particular, it starts with the block height that is required by version 2 blocks.
 func standardCoinbaseScript(
 	nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
+
 	return txscript.NewScriptBuilder().AddInt64(int64(nextBlockHeight)).
 		AddInt64(int64(extraNonce)).Script()
 }
@@ -86,6 +88,7 @@ func createCoinbaseTx(
 	coinbaseScript []byte, nextBlockHeight int32,
 	addr util.Address, mineTo []wire.TxOut,
 	net *chaincfg.Params) (*util.Tx, error) {
+
 	// Create the script to pay to the provided payment address.
 	pkScript, err := txscript.PayToAddrScript(addr)
 	if err != nil {
@@ -117,6 +120,7 @@ func CreateBlock(
 	prevBlock *util.Block, inclusionTxs []*util.Tx,
 	blockVersion int32, blockTime time.Time, miningAddr util.Address,
 	mineTo []wire.TxOut, net *chaincfg.Params) (*util.Block, error) {
+
 	var (
 		prevHash      *chainhash.Hash
 		blockHeight   int32

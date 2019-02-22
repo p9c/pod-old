@@ -101,12 +101,14 @@ func (vm *Engine) isBranchExecuting() bool {
 func (vm *Engine) executeOpcode(pop *parsedOpcode) error {
 	// Disabled opcodes are fail on program counter.
 	if pop.isDisabled() {
+
 		str := fmt.Sprintf("attempt to execute disabled opcode %s",
 			pop.opcode.name)
 		return scriptError(ErrDisabledOpcode, str)
 	}
 	// Always-illegal opcodes are fail on program counter.
 	if pop.alwaysIllegal() {
+
 		str := fmt.Sprintf("attempt to execute reserved opcode %s",
 			pop.opcode.name)
 		return scriptError(ErrReservedOpcode, str)
@@ -126,6 +128,7 @@ func (vm *Engine) executeOpcode(pop *parsedOpcode) error {
 	}
 	// Nothing left to do when this is not a conditional opcode and it is not in an executing branch.
 	if !vm.isBranchExecuting() && !pop.isConditional() {
+
 		return nil
 	}
 	// Ensure all executed data push opcodes use the minimal encoding when the minimal data verification flag is set.
@@ -147,11 +150,13 @@ func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
 // validPC returns an error if the current script position is valid for execution, nil otherwise.
 func (vm *Engine) validPC() error {
 	if vm.scriptIdx >= len(vm.scripts) {
+
 		str := fmt.Sprintf("past input scripts %v:%v %v:xxxx",
 			vm.scriptIdx, vm.scriptOff, len(vm.scripts))
 		return scriptError(ErrInvalidProgramCounter, str)
 	}
 	if vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+
 		str := fmt.Sprintf("past input scripts %v:%v %v:%04d",
 			vm.scriptIdx, vm.scriptOff, vm.scriptIdx,
 			len(vm.scripts[vm.scriptIdx]))
@@ -162,6 +167,7 @@ func (vm *Engine) validPC() error {
 
 // curPC returns either the current script and offset, or an error if the position isn't valid.
 func (vm *Engine) curPC() (script int, off int, err error) {
+
 	err = vm.validPC()
 	if err != nil {
 		return 0, 0, err
@@ -177,7 +183,9 @@ func (vm *Engine) isWitnessVersionActive(version uint) bool {
 // verifyWitnessProgram validates the stored witness program using the passed witness as input.
 func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 	if vm.isWitnessVersionActive(0) {
+
 		switch len(vm.witnessProgram) {
+
 		case payToWitnessPubKeyHashDataSize: // P2WKH
 			// The witness stack should consist of exactly two items: the signature, and the pubkey.
 			if len(witness) != 2 {
@@ -214,6 +222,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			// Ensure that the serialized pkScript at the end of the witness stack matches the witness program.
 			witnessHash := sha256.Sum256(witnessScript)
 			if !bytes.Equal(witnessHash[:], vm.witnessProgram) {
+
 				return scriptError(ErrWitnessProgramMismatch,
 					"witness program hash mismatch")
 			}
@@ -234,6 +243,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			return scriptError(ErrWitnessProgramWrongLength, errStr)
 		}
 	} else if vm.hasFlag(ScriptVerifyDiscourageUpgradeableWitnessProgram) {
+
 		errStr := fmt.Sprintf("new witness program versions "+
 			"invalid: %v", vm.witnessProgram)
 		return scriptError(ErrDiscourageUpgradableWitnessProgram, errStr)
@@ -242,8 +252,10 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 		vm.witnessProgram = nil
 	}
 	if vm.isWitnessVersionActive(0) {
+
 		// All elements within the witness stack must not be greater than the maximum bytes which are allowed to be pushed onto the stack.
 		for _, witElement := range vm.GetStack() {
+
 			if len(witElement) > MaxScriptElementSize {
 				str := fmt.Sprintf("element size %d exceeds "+
 					"max allowed size %d", len(witElement),
@@ -257,6 +269,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 
 // DisasmPC returns the string for the disassembly of the opcode that will be next to execute when Step() is called.
 func (vm *Engine) DisasmPC() (string, error) {
+
 	scriptIdx, scriptOff, err := vm.curPC()
 	if err != nil {
 		return "", err
@@ -266,7 +279,9 @@ func (vm *Engine) DisasmPC() (string, error) {
 
 // DisasmScript returns the disassembly string for the script at the requested offset index.  Index 0 is the signature script and 1 is the public key script.
 func (vm *Engine) DisasmScript(idx int) (string, error) {
+
 	if idx >= len(vm.scripts) {
+
 		str := fmt.Sprintf("script index %d >= total scripts %d", idx,
 			len(vm.scripts))
 		return "", scriptError(ErrInvalidIndex, str)
@@ -282,6 +297,7 @@ func (vm *Engine) DisasmScript(idx int) (string, error) {
 func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 	// Check execution is actually done.  When pc is past the end of script array there are no more scripts to run.
 	if vm.scriptIdx < len(vm.scripts) {
+
 		return scriptError(ErrScriptUnfinished,
 			"error check when script unfinished")
 	}
@@ -319,6 +335,7 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 
 // Step will execute the next instruction and move the program counter to the next opcode in the script, or the next script if the current has ended.  Step will return true in the case that the last opcode was successfully executed. The result of calling Step or any other method is undefined if an error is returned.
 func (vm *Engine) Step() (done bool, err error) {
+
 	// Verify that it is pointing to a valid script address.
 	err = vm.validPC()
 	if err != nil {
@@ -340,6 +357,7 @@ func (vm *Engine) Step() (done bool, err error) {
 	}
 	// Prepare for next instruction.
 	if vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+
 		// Illegal to have an `if' that straddles two scripts.
 		if err == nil && len(vm.condStack) != 0 {
 			return false, scriptError(ErrUnbalancedConditional,
@@ -369,7 +387,8 @@ func (vm *Engine) Step() (done bool, err error) {
 			// Set stack to be the stack from first script minus the script itself
 			vm.SetStack(vm.savedFirstStack[:len(vm.savedFirstStack)-1])
 		} else if (vm.scriptIdx == 1 && vm.witnessProgram != nil) ||
-			(vm.scriptIdx == 2 && vm.witnessProgram != nil && vm.bip16) { // Nested P2SH.
+			(vm.scriptIdx == 2 && vm.witnessProgram != nil && vm.bip16) {
+			// Nested P2SH.
 			vm.scriptIdx++
 			witness := vm.tx.TxIn[vm.txIdx].Witness
 			if err := vm.verifyWitnessProgram(witness); err != nil {
@@ -380,10 +399,12 @@ func (vm *Engine) Step() (done bool, err error) {
 		}
 		// there are zero length scripts in the wild
 		if vm.scriptIdx < len(vm.scripts) && vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+
 			vm.scriptIdx++
 		}
 		vm.lastCodeSep = 0
 		if vm.scriptIdx >= len(vm.scripts) {
+
 			return true, nil
 		}
 	}
@@ -392,6 +413,7 @@ func (vm *Engine) Step() (done bool, err error) {
 
 // Execute will execute all scripts in the script engine and return either nil for successful validation or an error if one occurred.
 func (vm *Engine) Execute() (err error) {
+
 	done := false
 	for !done {
 		done, err = vm.Step()
@@ -427,6 +449,7 @@ func (vm *Engine) subScript() []parsedOpcode {
 // checkHashTypeEncoding returns whether or not the passed hashtype adheres to the strict encoding requirements if enabled.
 func (vm *Engine) checkHashTypeEncoding(hashType SigHashType) error {
 	if !vm.hasFlag(ScriptVerifyStrictEncoding) {
+
 		return nil
 	}
 	sigHashType := hashType & ^SigHashAnyOneCanPay
@@ -441,13 +464,16 @@ func (vm *Engine) checkHashTypeEncoding(hashType SigHashType) error {
 func (vm *Engine) checkPubKeyEncoding(pubKey []byte) error {
 	if vm.hasFlag(ScriptVerifyWitnessPubKeyType) &&
 		vm.isWitnessVersionActive(0) && !ec.IsCompressedPubKey(pubKey) {
+
 		str := "only uncompressed keys are accepted post-segwit"
 		return scriptError(ErrWitnessPubKeyType, str)
 	}
 	if !vm.hasFlag(ScriptVerifyStrictEncoding) {
+
 		return nil
 	}
 	if len(pubKey) == 33 && (pubKey[0] == 0x02 || pubKey[0] == 0x03) {
+
 		// Compressed
 		return nil
 	}
@@ -463,6 +489,7 @@ func (vm *Engine) checkSignatureEncoding(sig []byte) error {
 	if !vm.hasFlag(ScriptVerifyDERSignatures) &&
 		!vm.hasFlag(ScriptVerifyLowS) &&
 		!vm.hasFlag(ScriptVerifyStrictEncoding) {
+
 		return nil
 	}
 	// The format of a DER encoded signature is as follows:
@@ -587,6 +614,7 @@ func (vm *Engine) checkSignatureEncoding(sig []byte) error {
 	}
 	// Verify the S value is <= half the order of the curve.  This check is done because when it is higher, the complement modulo the order can be used instead which is a shorter encoding by 1 byte.  Further, without enforcing this, it is possible to replace a signature in a valid transaction with the complement while still being a valid signature that verifies.  This would result in changing the transaction hash and thus is a source of malleability.
 	if vm.hasFlag(ScriptVerifyLowS) {
+
 		sValue := new(big.Int).SetBytes(sig[sOffset : sOffset+sLen])
 		if sValue.Cmp(halfOrder) > 0 {
 			return scriptError(ErrSigHighS, "signature is not canonical due "+
@@ -610,6 +638,7 @@ func getStack(
 // setStack sets the stack to the contents of the array where the last item in the array is the top item in the stack.
 func setStack(
 	stack *stack, data [][]byte) {
+
 	// This can not error. Only errors are for invalid arguments.
 	_ = stack.DropN(stack.Depth())
 	for i := range data {
@@ -624,6 +653,7 @@ func (vm *Engine) GetStack() [][]byte {
 
 // SetStack sets the contents of the primary stack to the contents of the provided array where the last item in the array will be the top of the stack.
 func (vm *Engine) SetStack(data [][]byte) {
+
 	setStack(&vm.dstack, data)
 }
 
@@ -634,6 +664,7 @@ func (vm *Engine) GetAltStack() [][]byte {
 
 // SetAltStack sets the contents of the alternate stack to the contents of the provided array where the last item in the array will be the top of the stack.
 func (vm *Engine) SetAltStack(data [][]byte) {
+
 	setStack(&vm.astack, data)
 }
 
@@ -641,8 +672,10 @@ func (vm *Engine) SetAltStack(data [][]byte) {
 func NewEngine(
 	scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags,
 	sigCache *SigCache, hashCache *TxSigHashes, inputAmount int64) (*Engine, error) {
+
 	// The provided transaction input index must refer to a valid input.
 	if txIdx < 0 || txIdx >= len(tx.TxIn) {
+
 		str := fmt.Sprintf("transaction input index %d is negative or "+
 			">= %d", txIdx, len(tx.TxIn))
 		return nil, scriptError(ErrInvalidIndex, str)
@@ -659,11 +692,13 @@ func NewEngine(
 		inputAmount: inputAmount}
 	if vm.hasFlag(ScriptVerifyCleanStack) && (!vm.hasFlag(ScriptBip16) &&
 		!vm.hasFlag(ScriptVerifyWitness)) {
+
 		return nil, scriptError(ErrInvalidFlags,
 			"invalid flags combination")
 	}
 	// The signature script must only contain data pushes when the associated flag is set.
 	if vm.hasFlag(ScriptVerifySigPushOnly) && !IsPushOnlyScript(scriptSig) {
+
 		return nil, scriptError(ErrNotPushOnly,
 			"signature script is not push only")
 	}
@@ -687,21 +722,26 @@ func NewEngine(
 		vm.scriptIdx++
 	}
 	if vm.hasFlag(ScriptBip16) && isScriptHash(vm.scripts[1]) {
+
 		// Only accept input scripts that push data for P2SH.
 		if !isPushOnly(vm.scripts[0]) {
+
 			return nil, scriptError(ErrNotPushOnly,
 				"pay to script hash is not push only")
 		}
 		vm.bip16 = true
 	}
 	if vm.hasFlag(ScriptVerifyMinimalData) {
+
 		vm.dstack.verifyMinimalData = true
 		vm.astack.verifyMinimalData = true
 	}
 	// Check to see if we should execute in witness verification mode according to the set flags. We check both the pkScript, and sigScript here since in the case of nested p2sh, the scriptSig will be a valid witness program. For nested p2sh, all the bytes after the first data push should *exactly* match the witness program template.
 	if vm.hasFlag(ScriptVerifyWitness) {
+
 		// If witness evaluation is enabled, then P2SH MUST also be active.
 		if !vm.hasFlag(ScriptBip16) {
+
 			errStr := "P2SH must be enabled to do witness verification"
 			return nil, scriptError(ErrInvalidFlags, errStr)
 		}
@@ -720,6 +760,7 @@ func NewEngine(
 			sigPops := vm.scripts[0]
 			if len(sigPops) == 1 && canonicalPush(sigPops[0]) &&
 				IsWitnessProgram(sigPops[0].data) {
+
 				witProgram = sigPops[0].data
 			} else {
 				errStr := "signature script for witness " +

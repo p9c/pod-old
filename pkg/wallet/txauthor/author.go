@@ -37,7 +37,8 @@ type InputSourceError interface {
 // Default implementation of InputSourceError.
 type insufficientFundsError struct{}
 
-func (insufficientFundsError) InputSourceError() {}
+func (insufficientFundsError) InputSourceError() {
+}
 func (insufficientFundsError) Error() string {
 	return "insufficient funds available to construct transaction"
 }
@@ -127,6 +128,7 @@ func NewUnsignedTransaction(
 		changeAmount := inputAmount - targetAmount - maxRequiredFee
 		if changeAmount != 0 && !txrules.IsDustAmount(changeAmount,
 			txsizes.P2WPKHPkScriptSize, relayFeePerKb) {
+
 			changeScript, err := fetchChange()
 			if err != nil {
 				return nil, err
@@ -164,6 +166,7 @@ func RandomizeOutputPosition(
 // RandomizeChangePosition randomizes the position of an authored transaction's
 // change output.  This should be done before signing.
 func (tx *AuthoredTx) RandomizeChangePosition() {
+
 	tx.ChangeIndex = RandomizeOutputPosition(tx.Tx.TxOut, tx.ChangeIndex)
 }
 
@@ -198,6 +201,7 @@ func AddAllInputScripts(
 	chainParams := secrets.ChainParams()
 
 	if len(inputs) != len(prevPkScripts) {
+
 		return errors.New("tx.TxIn and prevPkScripts slices must " +
 			"have equal length")
 	}

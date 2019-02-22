@@ -83,6 +83,7 @@ func IsRFC1918(
 	na *wire.NetAddress) bool {
 	for _, rfc := range rfc1918Nets {
 		if rfc.Contains(na.IP) {
+
 			return true
 		}
 	}
@@ -142,6 +143,7 @@ func IsRFC5737(
 	na *wire.NetAddress) bool {
 	for _, rfc := range rfc5737Net {
 		if rfc.Contains(na.IP) {
+
 			return true
 		}
 	}
@@ -186,24 +188,30 @@ func IsRoutable(
 func GroupKey(
 	na *wire.NetAddress) string {
 	if IsLocal(na) {
+
 		return "local"
 	}
 	if !IsRoutable(na) {
+
 		return "unroutable"
 	}
 	if IsIPv4(na) {
+
 		return na.IP.Mask(net.CIDRMask(16, 32)).String()
 	}
 	if IsRFC6145(na) || IsRFC6052(na) {
+
 		// last four bytes are the ip address
 		ip := na.IP[12:16]
 		return ip.Mask(net.CIDRMask(16, 32)).String()
 	}
 	if IsRFC3964(na) {
+
 		ip := na.IP[2:6]
 		return ip.Mask(net.CIDRMask(16, 32)).String()
 	}
 	if IsRFC4380(na) {
+
 		// teredo tunnels have the last 4 bytes as the v4 address XOR 0xff.
 		ip := net.IP(make([]byte, 4))
 		for i, byte := range na.IP[12:16] {
@@ -212,12 +220,14 @@ func GroupKey(
 		return ip.Mask(net.CIDRMask(16, 32)).String()
 	}
 	if IsOnionCatTor(na) {
+
 		// group is keyed off the first 4 bits of the actual onion key.
 		return fmt.Sprintf("tor:%d", na.IP[6]&((1<<4)-1))
 	}
 	// OK, so now we know ourselves to be a IPv6 address. bitcoind uses /32 for everything, except for Hurricane Electric's (he.net) IP range, which it uses /36 for.
 	bits := 32
 	if heNet.Contains(na.IP) {
+
 		bits = 36
 	}
 	return na.IP.Mask(net.CIDRMask(bits, 128)).String()

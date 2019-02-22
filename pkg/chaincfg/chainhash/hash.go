@@ -57,6 +57,7 @@ func (hash *Hash) IsEqual(target *Hash) bool {
 // NewHash returns a new Hash from a byte slice.  An error is returned if the number of bytes passed in is not HashSize.
 func NewHash(
 	newHash []byte) (*Hash, error) {
+
 	var sh Hash
 	err := sh.SetBytes(newHash)
 	if err != nil {
@@ -68,6 +69,7 @@ func NewHash(
 // NewHashFromStr creates a Hash from a hash string.  The string should be the hexadecimal string of a byte-reversed hash, but any missing characters result in zero padding at the end of the Hash.
 func NewHashFromStr(
 	hash string) (*Hash, error) {
+
 	ret := new(Hash)
 	err := Decode(ret, hash)
 	if err != nil {

@@ -135,6 +135,7 @@ func migrateBlockIndex(
 // mainChain fields of the returned blockChainContext values.
 func readBlockTree(
 	v1BlockIdxBucket database.Bucket) (map[chainhash.Hash]*blockChainContext, error) {
+
 	blocksMap := make(map[chainhash.Hash]*blockChainContext)
 	err := v1BlockIdxBucket.ForEach(func(_, blockRow []byte) error {
 		var header wire.BlockHeader
@@ -180,6 +181,7 @@ func determineBlockHeights(
 		queue.PushBack(genesisHash)
 	}
 	for e := queue.Front(); e != nil; e = queue.Front() {
+
 		queue.Remove(e)
 		hash := e.Value.(*chainhash.Hash)
 		height := blocksMap[*hash].height
@@ -198,6 +200,7 @@ func determineBlockHeights(
 // modifies the mainChain field on the blocksMap entries.
 func determineMainChainBlocks(
 	blocksMap map[chainhash.Hash]*blockChainContext, tip *chainhash.Hash) {
+
 	for nextHash := tip; *nextHash != zeroHash; nextHash = blocksMap[*nextHash].parent {
 		blocksMap[*nextHash].mainChain = true
 	}
@@ -295,24 +298,28 @@ func determineMainChainBlocks(
 //    - 0x1d...e6: script hash
 func deserializeUtxoEntryV0(
 	serialized []byte) (map[uint32]*UtxoEntry, error) {
+
 	// Deserialize the version.
 	//
 	// NOTE: Ignore version since it is no longer used in the new format.
 	_, bytesRead := deserializeVLQ(serialized)
 	offset := bytesRead
 	if offset >= len(serialized) {
+
 		return nil, errDeserialize("unexpected end of data after version")
 	}
 	// Deserialize the block height.
 	blockHeight, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
 	if offset >= len(serialized) {
+
 		return nil, errDeserialize("unexpected end of data after height")
 	}
 	// Deserialize the header code.
 	code, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
 	if offset >= len(serialized) {
+
 		return nil, errDeserialize("unexpected end of data after header")
 	}
 	// Decode the header code.
@@ -417,6 +424,7 @@ func upgradeUtxoSetToV2(
 	// It returns the number of utxos processed.
 	const maxUtxos = 200000
 	doBatch := func(dbTx database.Tx) (uint32, error) {
+
 		v1Bucket := dbTx.Metadata().Bucket(v1BucketName)
 		v2Bucket := dbTx.Metadata().Bucket(v2BucketName)
 		v1Cursor := v1Bucket.Cursor()
@@ -425,6 +433,7 @@ func upgradeUtxoSetToV2(
 		var numUtxos uint32
 		for ok := v1Cursor.First(); ok && numUtxos < maxUtxos; ok =
 			v1Cursor.Next() {
+
 			// Old key was the transaction hash.
 			oldKey := v1Cursor.Key()
 			var txHash chainhash.Hash
@@ -463,6 +472,7 @@ func upgradeUtxoSetToV2(
 			}
 			numUtxos += uint32(len(utxos))
 			if interruptRequested(interrupt) {
+
 				// No error here so the database transaction
 				// is not cancelled and therefore outstanding
 				// work is written to disk.
@@ -484,6 +494,7 @@ func upgradeUtxoSetToV2(
 			return err
 		}
 		if interruptRequested(interrupt) {
+
 			return errInterruptRequested
 		}
 		if numUtxos == 0 {

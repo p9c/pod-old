@@ -26,6 +26,7 @@ var checkEncodingStringTests = []struct {
 
 func TestBase58Check(
 	t *testing.T) {
+
 	for x, test := range checkEncodingStringTests {
 		// test encoding
 		if res := base58.CheckEncode([]byte(test.in), test.version); res != test.out {

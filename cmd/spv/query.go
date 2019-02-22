@@ -6,6 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/spv/cache"
+	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
@@ -13,8 +15,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/cache"
-	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -85,8 +85,7 @@ type filterCacheKey struct {
 type QueryOption func(*queryOptions)
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
-func defaultQueryOptions(
-	) *queryOptions {
+func defaultQueryOptions() *queryOptions {
 	return &queryOptions{
 		timeout:            QueryTimeout,
 		numRetries:         uint8(QueryNumRetries),
@@ -97,6 +96,7 @@ func defaultQueryOptions(
 
 // applyQueryOptions updates a queryOptions set with functional options.
 func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
+
 	for _, option := range options {
 		option(qo)
 	}
@@ -107,6 +107,7 @@ func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 func Timeout(
 	timeout time.Duration) QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.timeout = timeout
 	}
 }
@@ -116,6 +117,7 @@ func Timeout(
 func NumRetries(
 	numRetries uint8) QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.numRetries = numRetries
 	}
 }
@@ -126,6 +128,7 @@ func NumRetries(
 func PeerConnectTimeout(
 	timeout time.Duration) QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.peerConnectTimeout = timeout
 	}
 }
@@ -135,6 +138,7 @@ func PeerConnectTimeout(
 func Encoding(
 	encoding wire.MessageEncoding) QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.encoding = encoding
 	}
 }
@@ -144,15 +148,16 @@ func Encoding(
 func DoneChan(
 	doneChan chan<- struct{}) QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.doneChan = doneChan
 	}
 }
 
 // PersistToDisk allows the caller to tell that the filter should be kept
 // on disk once it's found.
-func PersistToDisk(
-	) QueryOption {
+func PersistToDisk() QueryOption {
 	return func(qo *queryOptions) {
+
 		qo.persistToDisk = true
 	}
 }
@@ -257,6 +262,7 @@ func queryChainServiceBatch(
 		sp.subscribeRecvMsg(subscription)
 		defer sp.unsubscribeRecvMsgs(subscription)
 		defer func() {
+
 			mtxPeerStates.Lock()
 			delete(peerStates, sp.Addr())
 			mtxPeerStates.Unlock()
@@ -268,6 +274,7 @@ func queryChainServiceBatch(
 		firstUnfinished, handleQuery := 0, -1
 
 		for firstUnfinished < len(queryMsgs) {
+
 			select {
 			case <-queryQuit:
 				return
@@ -286,6 +293,7 @@ func queryChainServiceBatch(
 				if i == firstUnfinished &&
 					atomic.LoadUint32(&queryStates[i]) ==
 						uint32(queryAnswered) {
+
 					firstUnfinished++
 
 					log <- cl.Tracef{
@@ -302,6 +310,7 @@ func queryChainServiceBatch(
 					uint32(queryWaitSubmit),
 					uint32(queryWaitResponse),
 				) {
+
 					log <- cl.Tracef{
 						"query #%v already being queried for, skipping", i,
 					}
@@ -321,6 +330,7 @@ func queryChainServiceBatch(
 			timeout := time.After(qo.timeout)
 			if handleQuery == -1 {
 				if firstUnfinished == len(queryMsgs) {
+
 					// We've now answered all the queries.
 					return
 				}
@@ -338,6 +348,7 @@ func queryChainServiceBatch(
 					return
 				case <-timeout:
 					if sp.Connected() {
+
 						continue
 					} else {
 						return
@@ -362,6 +373,7 @@ func queryChainServiceBatch(
 				atomic.StoreUint32(&queryStates[handleQuery],
 					uint32(queryWaitSubmit))
 				if !sp.Connected() {
+
 					return
 				}
 
@@ -397,6 +409,7 @@ func queryChainServiceBatch(
 
 	// Clean up on exit.
 	defer func() {
+
 		for _, quitChan := range peerQuits {
 			close(quitChan)
 		}
@@ -406,8 +419,10 @@ func queryChainServiceBatch(
 		// Update our view of peers, starting new workers for new peers
 		// and removing disconnected/banned peers.
 		for _, peer := range s.Peers() {
+
 			sp := peer.Addr()
 			if _, ok := peerQuits[sp]; !ok && peer.Connected() {
+
 				peerQuits[sp] = make(chan struct{})
 				matchSignals[sp] = make(chan struct{})
 				go peerGoroutine(
@@ -420,6 +435,7 @@ func queryChainServiceBatch(
 		for peer, quitChan := range peerQuits {
 			p := s.PeerByAddr(peer)
 			if p == nil || !p.Connected() {
+
 				close(quitChan)
 				close(matchSignals[peer])
 				delete(peerQuits, peer)
@@ -433,6 +449,7 @@ func queryChainServiceBatch(
 			curQuery := peerStates[msg.sp.Addr()]
 			mtxPeerStates.RUnlock()
 			if checkResponse(msg.sp, curQuery, msg.msg) {
+
 				select {
 				case <-queryQuit:
 					return
@@ -447,6 +464,7 @@ func queryChainServiceBatch(
 			for i := 0; i < len(queryStates); i++ {
 				if atomic.LoadUint32(&queryStates[i]) !=
 					uint32(queryAnswered) {
+
 					allDone = false
 				}
 			}
@@ -513,6 +531,7 @@ func (s *ChainService) queryAllPeers(
 		wg.Add(1)
 		peerQuits[sp.Addr()] = make(chan struct{})
 		go func(sp *ServerPeer, peerQuit <-chan struct{}) {
+
 			defer wg.Done()
 
 			defer sp.unsubscribeRecvMsgs(subscription)
@@ -537,6 +556,7 @@ func (s *ChainService) queryAllPeers(
 	// This goroutine will wait until all of the peer-query goroutines have
 	// terminated, and then initiate a query shutdown.
 	go func() {
+
 		wg.Wait()
 
 		// Make sure our main goroutine and the subscription know to
@@ -678,6 +698,7 @@ checkResponses:
 
 			queryPeer = nil
 			for _, curPeer := range s.Peers() {
+
 				if curPeer != nil && curPeer.Connected() &&
 					peerTries[curPeer.Addr()] < qo.numRetries {
 
@@ -820,7 +841,9 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// Check responses and if we get one that matches, end the
 		// query early.
 		func(sp *ServerPeer, resp wire.Message, quit chan<- struct{}) {
+
 			switch response := resp.(type) {
+
 			// We're only interested in "cfilter" messages.
 			case *wire.MsgCFilter:
 				// Only keep this going if we haven't already
@@ -951,7 +974,9 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 		// query early.
 		func(sp *ServerPeer, resp wire.Message,
 			quit chan<- struct{}) {
+
 			switch response := resp.(type) {
+
 			// We're only interested in "block" messages.
 			case *wire.MsgBlock:
 				// Only keep this going if we haven't already
@@ -1051,7 +1076,9 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 		inv,
 		func(sp *ServerPeer, resp wire.Message, quit chan<- struct{},
 			peerQuit chan<- struct{}) {
+
 			switch response := resp.(type) {
+
 			case *wire.MsgGetData:
 				for _, vec := range response.InvList {
 					if vec.Hash == txHash {

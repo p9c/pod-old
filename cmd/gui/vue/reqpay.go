@@ -21,6 +21,7 @@ type RequestedPaymentHistory struct {
 }
 
 func (ab *RequestedPaymentHistory) RequestedPaymentHistory() {
+
 	reqpays, err := jdb.JDB.ReadAll("reqpay")
 	if err != nil {
 		fmt.Println("Error", err)
@@ -37,6 +38,7 @@ func (ab *RequestedPaymentHistory) RequestedPaymentHistory() {
 
 }
 func (ab *RequestedPayment) RequestedPaymentWrite(time, label, address, amount, desc string) {
+
 	ab.Time = time
 	ab.Label = label
 	ab.Address = address

@@ -29,6 +29,7 @@ func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
 	var right *chainhash.Hash
 	left := m.calcHash(height-1, pos*2)
 	if pos*2+1 < m.calcTreeWidth(height-1) {
+
 		right = m.calcHash(height-1, pos*2+1)
 	} else {
 		right = left
@@ -38,6 +39,7 @@ func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
 
 // traverseAndBuild builds a partial merkle tree using a recursive depth-first approach.  As it calculates the hashes, it also saves whether or not each node is a parent node and a list of final hashes to be included in the merkle block.
 func (m *merkleBlock) traverseAndBuild(height, pos uint32) {
+
 	// Determine whether this node is a parent of a matched node.
 	var isParent byte
 	for i := pos << height; i < (pos+1)<<height && i < m.numTx; i++ {
@@ -53,6 +55,7 @@ func (m *merkleBlock) traverseAndBuild(height, pos uint32) {
 	m.traverseAndBuild(height-1, pos*2)
 	// Descend into the right child and process its sub-tree if there is one.
 	if pos*2+1 < m.calcTreeWidth(height-1) {
+
 		m.traverseAndBuild(height-1, pos*2+1)
 	}
 }
@@ -60,6 +63,7 @@ func (m *merkleBlock) traverseAndBuild(height, pos uint32) {
 // NewMerkleBlock returns a new *wire.MsgMerkleBlock and an array of the matched transaction index numbers based on the passed block and filter.
 func NewMerkleBlock(
 	block *util.Block, filter *Filter) (*wire.MsgMerkleBlock, []uint32) {
+
 	numTx := uint32(len(block.Transactions()))
 	mBlock := merkleBlock{
 		numTx:       numTx,
@@ -69,7 +73,9 @@ func NewMerkleBlock(
 	// Find and keep track of any transactions that match the filter.
 	var matchedIndices []uint32
 	for txIndex, tx := range block.Transactions() {
+
 		if filter.MatchTxAndUpdate(tx) {
+
 			mBlock.matchedBits = append(mBlock.matchedBits, 0x01)
 			matchedIndices = append(matchedIndices, uint32(txIndex))
 		} else {

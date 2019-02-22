@@ -20,8 +20,7 @@ func NewAuthenticateCmd(
 type NotifyBlocksCmd struct{}
 
 // NewNotifyBlocksCmd returns a new instance which can be used to issue a notifyblocks JSON-RPC command.
-func NewNotifyBlocksCmd(
-	) *NotifyBlocksCmd {
+func NewNotifyBlocksCmd() *NotifyBlocksCmd {
 	return &NotifyBlocksCmd{}
 }
 
@@ -29,8 +28,7 @@ func NewNotifyBlocksCmd(
 type StopNotifyBlocksCmd struct{}
 
 // NewStopNotifyBlocksCmd returns a new instance which can be used to issue a stopnotifyblocks JSON-RPC command.
-func NewStopNotifyBlocksCmd(
-	) *StopNotifyBlocksCmd {
+func NewStopNotifyBlocksCmd() *StopNotifyBlocksCmd {
 	return &StopNotifyBlocksCmd{}
 }
 
@@ -51,8 +49,7 @@ func NewNotifyNewTransactionsCmd(
 type SessionCmd struct{}
 
 // NewSessionCmd returns a new instance which can be used to issue a session JSON-RPC command.
-func NewSessionCmd(
-	) *SessionCmd {
+func NewSessionCmd() *SessionCmd {
 	return &SessionCmd{}
 }
 
@@ -60,8 +57,7 @@ func NewSessionCmd(
 type StopNotifyNewTransactionsCmd struct{}
 
 // NewStopNotifyNewTransactionsCmd returns a new instance which can be used to issue a stopnotifynewtransactions JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewStopNotifyNewTransactionsCmd(
-	) *StopNotifyNewTransactionsCmd {
+func NewStopNotifyNewTransactionsCmd() *StopNotifyNewTransactionsCmd {
 	return &StopNotifyNewTransactionsCmd{}
 }
 
@@ -170,8 +166,8 @@ func NewRescanBlocksCmd(
 	blockHashes []string) *RescanBlocksCmd {
 	return &RescanBlocksCmd{BlockHashes: blockHashes}
 }
-func init(
-	) {
+func init() {
+
 	// The commands in this file are only usable by websockets.
 	flags := UFWebsocketOnly
 	MustRegisterCmd("authenticate", (*AuthenticateCmd)(nil), flags)

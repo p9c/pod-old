@@ -1,10 +1,13 @@
 package base58
+
 import (
 	"math/big"
 )
+
 //go:generate go run genalphabet.go
 var bigRadix = big.NewInt(58)
 var bigZero = big.NewInt(0)
+
 // Decode decodes a modified base58 string to a byte slice.
 func Decode(
 	b string) []byte {
@@ -33,6 +36,7 @@ func Decode(
 	copy(val[numZeros:], tmpval)
 	return val
 }
+
 // Encode encodes a byte slice to a modified base58 string.
 func Encode(
 	b []byte) string {

@@ -23,6 +23,7 @@ func isOdd(
 // the solution to use.
 func decompressPoint(
 	curve *KoblitzCurve, x *big.Int, ybit bool) (*big.Int, error) {
+
 	// TODO: This will probably only work for secp256k1 due to
 	// optimizations.
 	// Y = +-sqrt(x^3 + B)
@@ -36,6 +37,7 @@ func decompressPoint(
 	// https://bitcointalk.org/index.php?topic=162805.msg1712294#msg1712294
 	y := new(big.Int).Exp(x3, curve.QPlus1Div4(), curve.Params().P)
 	if ybit != isOdd(y) {
+
 		y.Sub(curve.Params().P, y)
 	}
 	// Check that y is a square root of x^3 + B.
@@ -46,6 +48,7 @@ func decompressPoint(
 	}
 	// Verify that y-coord has expected parity.
 	if ybit != isOdd(y) {
+
 		return nil, fmt.Errorf("ybit doesn't match oddness")
 	}
 	return y, nil
@@ -72,6 +75,7 @@ func IsCompressedPubKey(
 // uncompressed and hybrid signature formats.
 func ParsePubKey(
 	pubKeyStr []byte, curve *KoblitzCurve) (key *PublicKey, err error) {
+
 	pubkey := PublicKey{}
 	pubkey.Curve = curve
 	if len(pubKeyStr) == 0 {
@@ -81,6 +85,7 @@ func ParsePubKey(
 	ybit := (format & 0x1) == 0x1
 	format &= ^byte(0x1)
 	switch len(pubKeyStr) {
+
 	case PubKeyBytesLenUncompressed:
 		if format != pubkeyUncompressed && format != pubkeyHybrid {
 			return nil, fmt.Errorf("invalid magic in pubkey str: "+
@@ -90,6 +95,7 @@ func ParsePubKey(
 		pubkey.Y = new(big.Int).SetBytes(pubKeyStr[33:])
 		// hybrid keys have extra information, make use of it.
 		if format == pubkeyHybrid && ybit != isOdd(pubkey.Y) {
+
 			return nil, fmt.Errorf("ybit doesn't match oddness")
 		}
 	case PubKeyBytesLenCompressed:
@@ -116,6 +122,7 @@ func ParsePubKey(
 		return nil, fmt.Errorf("pubkey Y parameter is >= to P")
 	}
 	if !pubkey.Curve.IsOnCurve(pubkey.X, pubkey.Y) {
+
 		return nil, fmt.Errorf("pubkey isn't on secp256k1 curve")
 	}
 	return &pubkey, nil
@@ -144,6 +151,7 @@ func (p *PublicKey) SerializeCompressed() []byte {
 	b := make([]byte, 0, PubKeyBytesLenCompressed)
 	format := pubkeyCompressed
 	if isOdd(p.Y) {
+
 		format |= 0x1
 	}
 	b = append(b, format)
@@ -155,6 +163,7 @@ func (p *PublicKey) SerializeHybrid() []byte {
 	b := make([]byte, 0, PubKeyBytesLenHybrid)
 	format := pubkeyHybrid
 	if isOdd(p.Y) {
+
 		format |= 0x1
 	}
 	b = append(b, format)

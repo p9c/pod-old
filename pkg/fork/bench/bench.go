@@ -7,8 +7,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/fork"
 )
 
-func main(
-	) {
+func main() {
+
 	h := fork.Hash([]byte{}, "blake14lr", fork.List[1].ActivationHeight)
 	for i := range fork.P9Algos {
 		fmt.Print(`"`, i, `": {, FirstPowLimitBits, , `)

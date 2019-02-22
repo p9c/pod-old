@@ -15,6 +15,7 @@ import (
 // The function should only be used if the caller is creating the transaction or is otherwise 100% positive mutating will not cause adverse affects due to other dependencies.
 func InPlaceSort(
 	tx *wire.MsgTx) {
+
 	sort.Sort(sortableInputSlice(tx.TxIn))
 	sort.Sort(sortableOutputSlice(tx.TxOut))
 }
@@ -32,9 +33,11 @@ func Sort(
 func IsSorted(
 	tx *wire.MsgTx) bool {
 	if !sort.IsSorted(sortableInputSlice(tx.TxIn)) {
+
 		return false
 	}
 	if !sort.IsSorted(sortableOutputSlice(tx.TxOut)) {
+
 		return false
 	}
 	return true
@@ -44,10 +47,12 @@ type sortableInputSlice []*wire.TxIn
 type sortableOutputSlice []*wire.TxOut
 
 // For SortableInputSlice and SortableOutputSlice, three functions are needed to make it sortable with sort.Sort() -- Len, Less, and Swap Len and Swap are trivial.  Less is BIP 69 specific.
-func (s sortableInputSlice) Len() int       { return len(s) }
-func (s sortableOutputSlice) Len() int      { return len(s) }
-func (s sortableOutputSlice) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s sortableInputSlice) Swap(i, j int)  { s[i], s[j] = s[j], s[i] }
+func (s sortableInputSlice) Len() int  { return len(s) }
+func (s sortableOutputSlice) Len() int { return len(s) }
+func (s sortableOutputSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s sortableInputSlice) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
 // Input comparison function.
 // First sort based on input hash (reversed / rpc-style), then index.

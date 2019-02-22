@@ -51,6 +51,7 @@ var _ Chain = (*BoundedMemoryChain)(nil)
 //
 // NOTE: Part of the Chain interface.
 func (b *BoundedMemoryChain) ResetHeaderState(n Node) {
+
 	b.headPtr = -1
 	b.tailPtr = -1
 	b.len = 0

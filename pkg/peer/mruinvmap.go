@@ -45,6 +45,7 @@ func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 
 // Add adds the passed inventory to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
 func (m *mruInventoryMap) Add(iv *wire.InvVect) {
+
 	m.invMtx.Lock()
 	defer m.invMtx.Unlock()
 	// When the limit is zero, nothing can be added to the map, so just return.
@@ -75,6 +76,7 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 
 // Delete deletes the passed inventory item from the map (if it exists). This function is safe for concurrent access.
 func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
+
 	m.invMtx.Lock()
 	if node, exists := m.invMap[*iv]; exists {
 		m.invList.Remove(node)

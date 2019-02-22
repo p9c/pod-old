@@ -1,13 +1,15 @@
-
 package blockchain
+
 import (
 	"reflect"
 	"testing"
 )
+
 // TestDeserializeUtxoEntryV0 ensures deserializing unspent trasaction output
 // entries from the legacy version 0 format works as expected.
 func TestDeserializeUtxoEntryV0(
 	t *testing.T) {
+
 	tests := []struct {
 		name       string
 		entries    map[uint32]*UtxoEntry
@@ -101,6 +103,7 @@ func TestDeserializeUtxoEntryV0(
 		// Ensure the deserialized entry has the same properties as the
 		// ones in the test entry.
 		if !reflect.DeepEqual(entries, test.entries) {
+
 			t.Errorf("deserializeUtxoEntryV0 #%d (%s) unexpected "+
 				"entries: got %v, want %v", i, test.name,
 				entries, test.entries)

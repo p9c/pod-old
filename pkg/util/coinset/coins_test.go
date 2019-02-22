@@ -50,6 +50,7 @@ type coinSelectTest struct {
 
 func testCoinSelector(
 	tests []coinSelectTest, t *testing.T) {
+
 	for testIndex, test := range tests {
 		cs, err := test.selector.CoinSelect(test.targetValue, test.inputCoins)
 		if err != test.expectedError {
@@ -63,6 +64,7 @@ func testCoinSelector(
 			}
 			coins := cs.Coins()
 			if len(coins) != len(test.expectedCoins) {
+
 				t.Errorf("[%d] expected different number of coins: got=%d, expected=%d", testIndex, len(coins), len(test.expectedCoins))
 				continue
 			}
@@ -90,6 +92,7 @@ var coins = []coinset.Coin{
 
 func TestCoinSet(
 	t *testing.T) {
+
 	cs := coinset.NewCoinSet(nil)
 	if cs.PopCoin() != nil {
 		t.Error("Expected popCoin of empty to be nil")
@@ -112,6 +115,7 @@ func TestCoinSet(
 	}
 	op := mtx.TxIn[0].PreviousOutPoint
 	if !op.Hash.IsEqual(coins[1].Hash()) || op.Index != coins[1].Index() {
+
 		t.Errorf("Expected the second coin to be added as input to mtx")
 	}
 }
@@ -134,6 +138,7 @@ var minIndexTests = []coinSelectTest{
 
 func TestMinIndexSelector(
 	t *testing.T) {
+
 	testCoinSelector(minIndexTests, t)
 }
 
@@ -157,6 +162,7 @@ var minNumberTests = []coinSelectTest{
 
 func TestMinNumberSelector(
 	t *testing.T) {
+
 	testCoinSelector(minNumberTests, t)
 }
 
@@ -179,6 +185,7 @@ var maxValueAgeTests = []coinSelectTest{
 
 func TestMaxValueAgeSelector(
 	t *testing.T) {
+
 	testCoinSelector(maxValueAgeTests, t)
 }
 
@@ -212,6 +219,7 @@ var minPriorityTests = []coinSelectTest{
 
 func TestMinPrioritySelector(
 	t *testing.T) {
+
 	testCoinSelector(minPriorityTests, t)
 }
 
@@ -235,6 +243,7 @@ var (
 
 func TestSimpleCoin(
 	t *testing.T) {
+
 	if testSimpleCoin.Hash().String() != testSimpleCoinTxHash {
 		t.Error("Different value for tx hash than expected")
 	}
@@ -245,6 +254,7 @@ func TestSimpleCoin(
 		t.Error("Different value of coin value than expected")
 	}
 	if !bytes.Equal(testSimpleCoin.PkScript(), testSimpleCoinTxPkScript0Bytes) {
+
 		t.Error("Different value of coin pkScript than expected")
 	}
 	if testSimpleCoin.NumConfs() != 1 {

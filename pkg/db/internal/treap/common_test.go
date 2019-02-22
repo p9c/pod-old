@@ -29,6 +29,7 @@ func serializeUint32(
 // TestParentStack ensures the treapParentStack functionality works as intended.
 func TestParentStack(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		numNodes int
@@ -62,6 +63,7 @@ testLoop:
 			for k := 0; k <= j; k++ {
 				atNode := stack.At(j - k)
 				if !reflect.DeepEqual(atNode, nodes[k]) {
+
 					t.Errorf("At #%d (%d): mismatched node "+
 						"- got %v, want %v", i, j-k,
 						atNode, nodes[k])
@@ -74,6 +76,7 @@ testLoop:
 			node := stack.Pop()
 			expected := nodes[len(nodes)-j-1]
 			if !reflect.DeepEqual(node, expected) {
+
 				t.Errorf("At #%d (%d): mismatched node - "+
 					"got %v, want %v", i, j, node, expected)
 				continue testLoop
@@ -101,8 +104,8 @@ testLoop:
 		}
 	}
 }
-func init(
-	) {
+func init() {
+
 	// Force the same pseudo random numbers for each test run.
 	rand.Seed(0)
 }

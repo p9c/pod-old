@@ -61,6 +61,7 @@ func handleGetWork(
 },
 	error,
 ) {
+
 	c := cmd.(*json.GetWorkCmd)
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
 
@@ -113,6 +114,7 @@ func handleGetWork(
 		!state.prevHash.IsEqual(latestHash) ||
 		(state.lastTxUpdate != lastTxUpdate &&
 			time.Now().After(state.lastGenerated.Add(time.Minute))) {
+
 		/*	Reset the extra nonce and clear all cached template
 			variations if the best block changed. */
 		if state.prevHash != nil && !state.prevHash.IsEqual(latestHash) {
@@ -224,6 +226,7 @@ func handleGetWorkSubmission(
 	interface{},
 	error,
 ) {
+
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {
 
@@ -332,6 +335,7 @@ func handleGetWorkSubmission(
 func reverseUint32Array(
 	b []byte,
 ) {
+
 	blen := len(b)
 	for i := 0; i < blen; i += 4 {
 

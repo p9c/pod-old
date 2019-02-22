@@ -94,6 +94,7 @@ func dbRemoveBlockIDIndexEntry(
 // dbFetchBlockIDByHash uses an existing database transaction to retrieve the block id for the provided hash from the index.
 func dbFetchBlockIDByHash(
 	dbTx database.Tx, hash *chainhash.Hash) (uint32, error) {
+
 	hashIndex := dbTx.Metadata().Bucket(idByHashIndexBucketName)
 	serializedID := hashIndex.Get(hash[:])
 	if serializedID == nil {
@@ -105,6 +106,7 @@ func dbFetchBlockIDByHash(
 // dbFetchBlockHashBySerializedID uses an existing database transaction to retrieve the hash for the provided serialized block id from the index.
 func dbFetchBlockHashBySerializedID(
 	dbTx database.Tx, serializedID []byte) (*chainhash.Hash, error) {
+
 	idIndex := dbTx.Metadata().Bucket(hashByIDIndexBucketName)
 	hashBytes := idIndex.Get(serializedID)
 	if hashBytes == nil {
@@ -118,6 +120,7 @@ func dbFetchBlockHashBySerializedID(
 // dbFetchBlockHashByID uses an existing database transaction to retrieve the hash for the provided block id from the index.
 func dbFetchBlockHashByID(
 	dbTx database.Tx, id uint32) (*chainhash.Hash, error) {
+
 	var serializedID [4]byte
 	byteOrder.PutUint32(serializedID[:], id)
 	return dbFetchBlockHashBySerializedID(dbTx, serializedID[:])
@@ -126,6 +129,7 @@ func dbFetchBlockHashByID(
 // putTxIndexEntry serializes the provided values according to the format described about for a transaction index entry.  The target byte slice must be at least large enough to handle the number of bytes defined by the txEntrySize constant or it will panic.
 func putTxIndexEntry(
 	target []byte, blockID uint32, txLoc wire.TxLoc) {
+
 	byteOrder.PutUint32(target, blockID)
 	byteOrder.PutUint32(target[4:], uint32(txLoc.TxStart))
 	byteOrder.PutUint32(target[8:], uint32(txLoc.TxLen))
@@ -141,6 +145,7 @@ func dbPutTxIndexEntry(
 // dbFetchTxIndexEntry uses an existing database transaction to fetch the block region for the provided transaction hash from the transaction index.  When there is no entry for the provided hash, nil will be returned for the both the region and the error.
 func dbFetchTxIndexEntry(
 	dbTx database.Tx, txHash *chainhash.Hash) (*database.BlockRegion, error) {
+
 	// Load the record from the database and return now if it doesn't exist.
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	serializedData := txIndex.Get(txHash[:])
@@ -184,6 +189,7 @@ func dbAddTxIndexEntries(
 	offset := 0
 	serializedValues := make([]byte, len(block.Transactions())*txEntrySize)
 	for i, tx := range block.Transactions() {
+
 		putTxIndexEntry(serializedValues[offset:], blockID, txLocs[i])
 		endOffset := offset + txEntrySize
 		err := dbPutTxIndexEntry(dbTx, tx.Hash(),
@@ -212,6 +218,7 @@ func dbRemoveTxIndexEntry(
 func dbRemoveTxIndexEntries(
 	dbTx database.Tx, block *util.Block) error {
 	for _, tx := range block.Transactions() {
+
 		err := dbRemoveTxIndexEntry(dbTx, tx.Hash())
 		if err != nil {
 			return err
@@ -340,6 +347,7 @@ func (idx *TxIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 
 // TxBlockRegion returns the block region for the provided transaction hash from the transaction index.  The block region can in turn be used to load the raw transaction bytes.  When there is no entry for the provided hash, nil will be returned for the both the entry and the error. This function is safe for concurrent access.
 func (idx *TxIndex) TxBlockRegion(hash *chainhash.Hash) (*database.BlockRegion, error) {
+
 	var region *database.BlockRegion
 	err := idx.db.View(func(dbTx database.Tx) error {
 		var err error

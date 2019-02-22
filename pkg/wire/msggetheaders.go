@@ -94,8 +94,7 @@ func (msg *MsgGetHeaders) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgGetHeaders returns a new bitcoin getheaders message that conforms to the Message interface.  See MsgGetHeaders for details.
-func NewMsgGetHeaders(
-	) *MsgGetHeaders {
+func NewMsgGetHeaders() *MsgGetHeaders {
 	return &MsgGetHeaders{
 		BlockLocatorHashes: make([]*chainhash.Hash, 0,
 			MaxBlockLocatorsPerMsg),

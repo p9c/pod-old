@@ -1,4 +1,3 @@
-
 /*
 This test file is part of the database package rather than than the
 database_test package so it can bridge access to the internals to properly test
@@ -7,6 +6,7 @@ interface.  The functions, constants, and variables are only exported while the
 tests are being run.
 */
 package database
+
 // TstNumErrorCodes makes the internal numErrorCodes parameter available to the
 // test package.
 const TstNumErrorCodes = numErrorCodes

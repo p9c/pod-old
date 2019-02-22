@@ -69,6 +69,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	// Ensure the block is not stale since a new block could have shown up while the solution was being found.  Typically that condition is detected and all work on the stale block is halted to start work on a new block, but the check only happens periodically, so it is possible a block was found and submitted in between.
 	msgBlock := block.MsgBlock()
 	if !msgBlock.Header.PrevBlock.IsEqual(&c.g.BestSnapshot().Hash) {
+
 		log <- cl.Debugf{
 			"Block submitted via miner with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
@@ -143,11 +144,13 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 				// The current block is stale if the best block has changed.
 				best := c.g.BestSnapshot()
 				if !header.PrevBlock.IsEqual(&best.Hash) {
+
 					return false
 				}
 				// The current block is stale if the memory pool has been updated since the block template was generated and it has been at least one minute.
 				if lastTxUpdate != c.g.TxSource().LastUpdated() &&
 					time.Now().After(lastGenerated.Add(time.Minute)) {
+
 					return false
 				}
 				c.g.UpdateBlockTime(msgBlock)
@@ -171,6 +174,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (c *Controller) generateBlocks(quit chan struct{}) {
+
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second / 2)
 	defer ticker.Stop()
@@ -193,6 +197,7 @@ out:
 		c.submitBlockLock.Lock()
 		curHeight := c.g.BestSnapshot().Height
 		if curHeight != 0 && !c.cfg.IsCurrent() {
+
 			c.submitBlockLock.Unlock()
 			time.Sleep(time.Second)
 			continue
@@ -209,6 +214,7 @@ out:
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
 		if c.solveBlock(template.Block, curHeight+1, c.cfg.ChainParams.Name == "testnet", ticker, submission, quit) {
+
 			block := util.NewBlock(template.Block)
 			c.submitBlock(block)
 		}
@@ -217,6 +223,7 @@ out:
 }
 
 func (c *Controller) minerController() {
+
 	c.workerWg.Add(1)
 	quit := make(chan struct{})
 	go c.generateBlocks(quit)
@@ -233,6 +240,7 @@ out:
 
 // Start begins the miner controller process. Calling this function when the miner controller has already been started will have no effect.
 func (c *Controller) Start() {
+
 	c.Lock()
 	defer c.Unlock()
 	if c.started {
@@ -248,6 +256,7 @@ func (c *Controller) Start() {
 
 // Stop gracefully stops the mining process by signalling all workers, and the speed monitor to quit.  Calling this function when the miner controller has not already been started will have no effect.
 func (c *Controller) Stop() {
+
 	c.Lock()
 	defer c.Unlock()
 	if !c.started {

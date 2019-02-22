@@ -22,6 +22,7 @@ var mockNetParams = Params{
 
 func TestRegister(
 	t *testing.T) {
+
 	type registerTest struct {
 		name   string
 		params *Params
@@ -492,11 +493,13 @@ func TestRegister(
 		for i, magTest := range test.hdMagics {
 			pubKey, err := HDPrivateKeyToPublicKeyID(magTest.priv[:])
 			if !reflect.DeepEqual(err, magTest.err) {
+
 				t.Errorf("%s: HD magic %d mismatched error: got %v expected %v ",
 					test.name, i, err, magTest.err)
 				continue
 			}
 			if magTest.err == nil && !bytes.Equal(pubKey, magTest.want[:]) {
+
 				t.Errorf("%s: HD magic %d private and public mismatch: got %v expected %v ",
 					test.name, i, pubKey, magTest.want[:])
 			}

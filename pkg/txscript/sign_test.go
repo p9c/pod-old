@@ -22,11 +22,13 @@ func mkGetKey(
 	if keys == nil {
 		return KeyClosure(func(addr util.Address) (*ec.PrivateKey,
 			bool, error) {
+
 			return nil, false, errors.New("nope")
 		})
 	}
 	return KeyClosure(func(addr util.Address) (*ec.PrivateKey,
 		bool, error) {
+
 		a2k, ok := keys[addr.EncodeAddress()]
 		if !ok {
 			return nil, false, errors.New("nope")
@@ -38,10 +40,12 @@ func mkGetScript(
 	scripts map[string][]byte) ScriptDB {
 	if scripts == nil {
 		return ScriptClosure(func(addr util.Address) ([]byte, error) {
+
 			return nil, errors.New("nope")
 		})
 	}
 	return ScriptClosure(func(addr util.Address) ([]byte, error) {
+
 		script, ok := scripts[addr.EncodeAddress()]
 		if !ok {
 			return nil, errors.New("nope")
@@ -78,6 +82,7 @@ func signAndCheck(
 }
 func TestSignTxOutput(
 	t *testing.T) {
+
 	t.Parallel()
 	// make key
 	// make script based on key.
@@ -1469,6 +1474,7 @@ var sigScriptTests = []tstSigScript{
 // Test the sigscript generation for valid and invalid inputs, all hashTypes, and with and without compression.  This test creates sigscripts to spend fake coinbase inputs, as sigscripts cannot be created for the MsgTxs in txTests, since they come from the blockchain and we don't have the private keys.
 func TestSignatureScript(
 	t *testing.T) {
+
 	t.Parallel()
 	privKey, _ := ec.PrivKeyFromBytes(ec.S256(), privKeyD)
 nexttest:

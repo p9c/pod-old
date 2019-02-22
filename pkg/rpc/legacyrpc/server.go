@@ -82,6 +82,7 @@ type Server struct {
 // jsonAuthFail sends a message back to the client if the http auth is rejected.
 func jsonAuthFail(
 	w http.ResponseWriter) {
+
 	w.Header().Add("WWW-Authenticate", `Basic realm="mod RPC"`)
 	http.Error(w, "401 Unauthorized.", http.StatusUnauthorized)
 }
@@ -118,6 +119,7 @@ func NewServer(
 
 	serveMux.Handle("/", throttledFn(opts.MaxPOSTClients,
 		func(w http.ResponseWriter, r *http.Request) {
+
 			w.Header().Set("Connection", "close")
 			w.Header().Set("Content-Type", "application/json")
 			r.Close = true
@@ -134,8 +136,10 @@ func NewServer(
 
 	serveMux.Handle("/ws", throttledFn(opts.MaxWebsocketClients,
 		func(w http.ResponseWriter, r *http.Request) {
+
 			authenticated := false
 			switch server.checkAuthHeader(r) {
+
 			case nil:
 				authenticated = true
 			case ErrNoAuth:
@@ -191,8 +195,10 @@ func httpBasicAuth(
 // serve serves HTTP POST and websocket RPC for the legacy JSON-RPC RPC server.
 // This function does not block on lis.Accept.
 func (s *Server) serve(lis net.Listener) {
+
 	s.wg.Add(1)
 	go func() {
+
 		log <- cl.Infof{"RPC server listening on %s", lis.Addr()}
 		err := s.httpServer.Serve(lis)
 		log <- cl.Tracef{"finished serving RPC: %v", err}
@@ -203,6 +209,7 @@ func (s *Server) serve(lis net.Listener) {
 // RegisterWallet associates the legacy RPC server with the wallet.  This
 // function must be called before any wallet RPCs can be called by clients.
 func (s *Server) RegisterWallet(w *wallet.Wallet) {
+
 	s.handlerMu.Lock()
 	s.wallet = w
 	s.handlerMu.Unlock()
@@ -210,6 +217,7 @@ func (s *Server) RegisterWallet(w *wallet.Wallet) {
 
 // Stop gracefully shuts down the rpc server by stopping and disconnecting all clients, disconnecting the chain server connection, and closing the wallet's account files.  This blocks until shutdown completes.
 func (s *Server) Stop() {
+
 	s.quitMtx.Lock()
 	select {
 	case <-s.quit:
@@ -263,6 +271,7 @@ func (s *Server) Stop() {
 // passthrough even before a loaded wallet is set, but the wallet's RPC client
 // is preferred.
 func (s *Server) SetChainServer(chainClient chain.Interface) {
+
 	s.handlerMu.Lock()
 	s.chainClient = chainClient
 	s.handlerMu.Unlock()
@@ -327,6 +336,7 @@ func throttled(
 	var active int64
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		current := atomic.AddInt64(&active, 1)
 		defer atomic.AddInt64(&active, -1)
 
@@ -367,6 +377,7 @@ func sanitizeRequest(
 // which uses empty interface pointers for response IDs.
 func idPointer(
 	id interface{}) (p *interface{}) {
+
 	if id != nil {
 		p = &id
 	}
@@ -393,6 +404,7 @@ func (s *Server) invalidAuth(req *json.Request) bool {
 }
 
 func (s *Server) websocketClientRead(wsc *websocketClient) {
+
 	for {
 		_, request, err := wsc.conn.ReadMessage()
 		if err != nil {
@@ -410,6 +422,7 @@ func (s *Server) websocketClientRead(wsc *websocketClient) {
 }
 
 func (s *Server) websocketClientRespond(wsc *websocketClient) {
+
 	// A for-select with a read of the quit channel is used instead of a
 	// for-range to provide clean shutdown.  This is necessary due to
 	// WebsocketClientRead (which sends to the allRequests chan) not closing
@@ -449,6 +462,7 @@ out:
 
 			if req.Method == "authenticate" {
 				if wsc.authenticated || s.invalidAuth(&req) {
+
 					// Disconnect immediately.
 					break out
 				}
@@ -492,6 +506,7 @@ out:
 				f := s.handlerClosure(&req)
 				wsc.wg.Add(1)
 				go func() {
+
 					resp, jsonErr := f()
 					mresp, err := json.MarshalResponse(req.ID, resp, jsonErr)
 					if err != nil {
@@ -517,6 +532,7 @@ out:
 }
 
 func (s *Server) websocketClientSend(wsc *websocketClient) {
+
 	const deadline time.Duration = 2 * time.Second
 out:
 	for {
@@ -556,6 +572,7 @@ out:
 // websocketClientRPC starts the goroutines to serve JSON-RPC requests over a
 // websocket connection for a single client.
 func (s *Server) websocketClientRPC(wsc *websocketClient) {
+
 	log <- cl.Infof{
 		"new websocket client", wsc.remoteAddr,
 	}
@@ -587,6 +604,7 @@ const maxRequestSize = 1024 * 1024 * 4
 
 // postClientRPC processes and replies to a JSON-RPC client request.
 func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
+
 	body := http.MaxBytesReader(w, r.Body, maxRequestSize)
 	rpcRequest, err := ioutil.ReadAll(body)
 	if err != nil {
@@ -659,6 +677,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) requestProcessShutdown() {
+
 	select {
 	case s.requestShutdownChan <- struct{}{}:
 	default:

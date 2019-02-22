@@ -1,11 +1,13 @@
-
 package blockchain
+
 import (
 	"testing"
 )
+
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in   ErrorCode
 		want string
@@ -66,9 +68,11 @@ func TestErrorCodeStringer(
 		}
 	}
 }
+
 // TestRuleError tests the error output for the RuleError type.
 func TestRuleError(
 	t *testing.T) {
+
 	tests := []struct {
 		in   RuleError
 		want string
@@ -92,9 +96,11 @@ func TestRuleError(
 		}
 	}
 }
+
 // TestDeploymentError tests the stringized output for the DeploymentError type.
 func TestDeploymentError(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   DeploymentError

@@ -60,8 +60,7 @@ func NewGenerateCmd(
 type GetBestBlockCmd struct{}
 
 // NewGetBestBlockCmd returns a new instance which can be used to issue a getbestblock JSON-RPC command.
-func NewGetBestBlockCmd(
-	) *GetBestBlockCmd {
+func NewGetBestBlockCmd() *GetBestBlockCmd {
 	return &GetBestBlockCmd{}
 }
 
@@ -69,8 +68,7 @@ func NewGetBestBlockCmd(
 type GetCurrentNetCmd struct{}
 
 // NewGetCurrentNetCmd returns a new instance which can be used to issue a getcurrentnet JSON-RPC command.
-func NewGetCurrentNetCmd(
-	) *GetCurrentNetCmd {
+func NewGetCurrentNetCmd() *GetCurrentNetCmd {
 	return &GetCurrentNetCmd{}
 }
 
@@ -95,10 +93,11 @@ type VersionCmd struct{}
 
 // NewVersionCmd returns a new instance which can be used to issue a JSON-RPC version command. NOTE: This is a btcsuite extension ported from
 // github.com/decred/dcrd/dcrjson.
-func NewVersionCmd(
-	) *VersionCmd { return new(VersionCmd) }
-func init(
-	) {
+func NewVersionCmd() *VersionCmd {
+	return new(VersionCmd)
+}
+func init() {
+
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)
 	MustRegisterCmd("debuglevel", (*DebugLevelCmd)(nil), flags)

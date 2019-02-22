@@ -23,8 +23,8 @@ import (
 
 // openRPCKeyPair creates or loads the RPC TLS keypair specified by the
 // application config.  This function respects the cfg.OneTimeTLSKey setting.
-func openRPCKeyPair(
-	) (tls.Certificate, error) {
+func openRPCKeyPair() (tls.Certificate, error) {
+
 	// Check for existence of the TLS key file.  If one time TLS keys are
 	// enabled but a key already exists, this function should error since
 	// it's possible that a persistent certificate was copied to a remote
@@ -53,6 +53,7 @@ func openRPCKeyPair(
 // successful, the new keypair is returned.
 func generateRPCKeyPair(
 	writeKey bool) (tls.Certificate, error) {
+
 	log <- cl.Inf("generating TLS certificates...")
 
 	// Create directories for cert and key files if they do not yet exist.
@@ -101,6 +102,7 @@ func generateRPCKeyPair(
 
 func startRPCServers(
 	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
+
 	log <- cl.Trc("startRPCServers")
 	var (
 		server       *grpc.Server
@@ -124,6 +126,7 @@ func startRPCServers(
 			NextProtos:   []string{"h2"}, // HTTP/2 over TLS
 		}
 		legacyListen = func(net string, laddr string) (net.Listener, error) {
+
 			return tls.Listen(net, laddr, tlsConfig)
 		}
 
@@ -140,6 +143,7 @@ func startRPCServers(
 			for _, lis := range listeners {
 				lis := lis
 				go func() {
+
 					log <- cl.Info{"experimental RPC server listening on", lis.Addr()}
 					err = server.Serve(lis)
 					log <- cl.Trace{"finished serving expimental RPC:", err}
@@ -197,6 +201,7 @@ func makeListeners(
 
 		// Empty host or host of * on plan9 is both IPv4 and IPv6.
 		if host == "" || (host == "*" && runtime.GOOS == "plan9") {
+
 			ipv4Addrs = append(ipv4Addrs, addr)
 			ipv6Addrs = append(ipv6Addrs, addr)
 			continue
@@ -252,6 +257,7 @@ func makeListeners(
 // enables methods that require a loaded wallet.
 func startWalletRPCServices(
 	wallet *wallet.Wallet, server *grpc.Server, legacyServer *legacyrpc.Server) {
+
 	if server != nil {
 		rpcserver.StartWalletService(server, wallet)
 	}

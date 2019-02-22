@@ -8,6 +8,7 @@ import (
 // TestHashFuncs ensures the hash functions which perform hash(b) work as expected.
 func TestHashFuncs(
 	t *testing.T) {
+
 	tests := []struct {
 		out string
 		in  string
@@ -66,6 +67,7 @@ func TestHashFuncs(
 // TestDoubleHashFuncs ensures the hash functions which perform hash(hash(b)) work as expected.
 func TestDoubleHashFuncs(
 	t *testing.T) {
+
 	tests := []struct {
 		out string
 		in  string

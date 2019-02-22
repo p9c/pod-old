@@ -30,6 +30,7 @@ func Register(
 // mustRegister performs the same function as Register except it panics if there is an error.  This should only be called from package init functions.
 func mustRegister(
 	params *Params) {
+
 	if err := Register(params); err != nil {
 		panic("failed to register network: " + err.Error())
 	}
@@ -60,6 +61,7 @@ func IsBech32SegwitPrefix(
 // HDPrivateKeyToPublicKeyID accepts a private hierarchical deterministic extended key id and returns the associated public key id.  When the provided id is not registered, the ErrUnknownHDKeyID error will be returned.
 func HDPrivateKeyToPublicKeyID(
 	id []byte) ([]byte, error) {
+
 	if len(id) != 4 {
 		return nil, ErrUnknownHDKeyID
 	}
@@ -83,8 +85,8 @@ func newHashFromStr(
 	}
 	return hash
 }
-func init(
-	) {
+func init() {
+
 	// Register all default networks when the package is initialized.
 	mustRegister(&MainNetParams)
 	mustRegister(&TestNet3Params)

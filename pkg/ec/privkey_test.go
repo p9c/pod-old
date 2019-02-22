@@ -7,6 +7,7 @@ import (
 
 func TestPrivKeys(
 	t *testing.T) {
+
 	tests := []struct {
 		name string
 		key  []byte
@@ -35,11 +36,13 @@ func TestPrivKeys(
 			continue
 		}
 		if !sig.Verify(hash, pub) {
+
 			t.Errorf("%s could not verify: %v", test.name, err)
 			continue
 		}
 		serializedKey := priv.Serialize()
 		if !bytes.Equal(serializedKey, test.key) {
+
 			t.Errorf("%s unexpected serialized bytes - got: %x, "+
 				"want: %x", test.name, serializedKey, test.key)
 		}

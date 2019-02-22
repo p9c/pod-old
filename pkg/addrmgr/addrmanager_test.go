@@ -25,8 +25,8 @@ var naTests = make([]naTest, 0)
 var someIP = "173.194.115.66"
 
 // addNaTests
-func addNaTests(
-	) {
+func addNaTests() {
+
 	// IPv4
 	// Localhost
 	addNaTest("127.0.0.1", 11047, "127.0.0.1:11047")
@@ -78,6 +78,7 @@ func addNaTests(
 }
 func addNaTest(
 	ip string, port uint16, want string) {
+
 	nip := net.ParseIP(ip)
 	na := *wire.NewNetAddressIPPort(nip, port, wire.SFNodeNetwork)
 	test := naTest{na, want}
@@ -85,10 +86,12 @@ func addNaTest(
 }
 func lookupFunc(
 	host string) ([]net.IP, error) {
+
 	return nil, errors.New("not implemented")
 }
 func TestStartStop(
 	t *testing.T) {
+
 	n := addrmgr.New("teststartstop", lookupFunc)
 	n.Start()
 	err := n.Stop()
@@ -98,6 +101,7 @@ func TestStartStop(
 }
 func TestAddAddressByIP(
 	t *testing.T) {
+
 	fmtErr := fmt.Errorf("")
 	addrErr := &net.AddrError{}
 	var tests = []struct {
@@ -132,6 +136,7 @@ func TestAddAddressByIP(
 			continue
 		}
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("TestGood test %d failed got %v, want %v", i,
 				reflect.TypeOf(err), reflect.TypeOf(test.err))
 			continue
@@ -140,6 +145,7 @@ func TestAddAddressByIP(
 }
 func TestAddLocalAddress(
 	t *testing.T) {
+
 	var tests = []struct {
 		address  wire.NetAddress
 		priority addrmgr.AddressPriority
@@ -193,6 +199,7 @@ func TestAddLocalAddress(
 }
 func TestAttempt(
 	t *testing.T) {
+
 	n := addrmgr.New("testattempt", lookupFunc)
 	// Add a new address and get it
 	err := n.AddAddressByIP(someIP + ":11047")
@@ -201,16 +208,19 @@ func TestAttempt(
 	}
 	ka := n.GetAddress()
 	if !ka.LastAttempt().IsZero() {
+
 		t.Errorf("Address should not have attempts, but does")
 	}
 	na := ka.NetAddress()
 	n.Attempt(na)
 	if ka.LastAttempt().IsZero() {
+
 		t.Errorf("Address should have an attempt, but does not")
 	}
 }
 func TestConnected(
 	t *testing.T) {
+
 	n := addrmgr.New("testconnected", lookupFunc)
 	// Add a new address and get it
 	err := n.AddAddressByIP(someIP + ":11047")
@@ -223,11 +233,13 @@ func TestConnected(
 	na.Timestamp = time.Unix(time.Now().Add(time.Hour*-1).Unix(), 0)
 	n.Connected(na)
 	if !ka.NetAddress().Timestamp.After(na.Timestamp) {
+
 		t.Errorf("Address should have a new timestamp, but does not")
 	}
 }
 func TestNeedMoreAddresses(
 	t *testing.T) {
+
 	n := addrmgr.New("testneedmoreaddresses", lookupFunc)
 	addrsToAdd := 1500
 	b := n.NeedMoreAddresses()
@@ -256,6 +268,7 @@ func TestNeedMoreAddresses(
 }
 func TestGood(
 	t *testing.T) {
+
 	n := addrmgr.New("testgood", lookupFunc)
 	addrsToAdd := 64 * 64
 	addrs := make([]*wire.NetAddress, addrsToAdd)
@@ -283,6 +296,7 @@ func TestGood(
 }
 func TestGetAddress(
 	t *testing.T) {
+
 	n := addrmgr.New("testgetaddress", lookupFunc)
 	// Get an address from an empty set (should error)
 	if rv := n.GetAddress(); rv != nil {
@@ -316,6 +330,7 @@ func TestGetAddress(
 }
 func TestGetBestLocalAddress(
 	t *testing.T) {
+
 	localAddrs := []wire.NetAddress{
 		{IP: net.ParseIP("192.168.0.100")},
 		{IP: net.ParseIP("::1")},
@@ -368,6 +383,7 @@ func TestGetBestLocalAddress(
 	for x, test := range tests {
 		got := amgr.GetBestLocalAddress(&test.remoteAddr)
 		if !test.want0.IP.Equal(got.IP) {
+
 			t.Errorf("TestGetBestLocalAddress test1 #%d failed for remote address %s: want %s got %s",
 				x, test.remoteAddr.IP, test.want1.IP, got.IP)
 			continue
@@ -380,6 +396,7 @@ func TestGetBestLocalAddress(
 	for x, test := range tests {
 		got := amgr.GetBestLocalAddress(&test.remoteAddr)
 		if !test.want1.IP.Equal(got.IP) {
+
 			t.Errorf("TestGetBestLocalAddress test1 #%d failed for remote address %s: want %s got %s",
 				x, test.remoteAddr.IP, test.want1.IP, got.IP)
 			continue
@@ -392,6 +409,7 @@ func TestGetBestLocalAddress(
 	for x, test := range tests {
 		got := amgr.GetBestLocalAddress(&test.remoteAddr)
 		if !test.want2.IP.Equal(got.IP) {
+
 			t.Errorf("TestGetBestLocalAddress test2 #%d failed for remote address %s: want %s got %s",
 				x, test.remoteAddr.IP, test.want2.IP, got.IP)
 			continue
@@ -405,6 +423,7 @@ func TestGetBestLocalAddress(
 		for x, test := range tests {
 			got := amgr.GetBestLocalAddress(&test.remoteAddr)
 			if !test.want3.IP.Equal(got.IP) {
+
 				t.Errorf("TestGetBestLocalAddress test3 #%d failed for remote address %s: want %s got %s",
 					x, test.remoteAddr.IP, test.want3.IP, got.IP)
 				continue
@@ -414,6 +433,7 @@ func TestGetBestLocalAddress(
 }
 func TestNetAddressKey(
 	t *testing.T) {
+
 	addNaTests()
 	t.Logf("Running %d tests", len(naTests))
 	for i, test := range naTests {

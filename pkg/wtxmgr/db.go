@@ -89,6 +89,7 @@ var (
 // value is the amount serialized as a uint64.
 func fetchMinedBalance(
 	ns walletdb.ReadBucket) (util.Amount, error) {
+
 	v := ns.Get(rootMinedBalance)
 	if len(v) != 8 {
 		str := fmt.Sprintf("balance: short read (expected 8 bytes, "+
@@ -170,6 +171,7 @@ func valueBlockRecord(
 // hash appended to the end and an incremented number of transactions.
 func appendRawBlockRecord(
 	v []byte, txHash *chainhash.Hash) ([]byte, error) {
+
 	if len(v) < 44 {
 		str := fmt.Sprintf("%s: short read (expected %d bytes, read %d)",
 			bucketBlocks, 44, len(v))
@@ -200,6 +202,7 @@ func putBlockRecord(
 
 func fetchBlockTime(
 	ns walletdb.ReadBucket, height int32) (time.Time, error) {
+
 	k := keyBlockRecord(height)
 	v := ns.NestedReadBucket(bucketBlocks).Get(k)
 	if len(v) < 44 {
@@ -212,6 +215,7 @@ func fetchBlockTime(
 
 func existsBlockRecord(
 	ns walletdb.ReadBucket, height int32) (k, v []byte) {
+
 	k = keyBlockRecord(height)
 	v = ns.NestedReadBucket(bucketBlocks).Get(k)
 	return
@@ -335,6 +339,7 @@ func (it *blockIterator) prev() bool {
 		// block records since the key (and seek prefix) is just the
 		// block height.
 		if !bytes.HasPrefix(it.ck, it.seek) {
+
 			it.ck, it.cv = it.c.Prev()
 		}
 	} else {
@@ -366,6 +371,7 @@ func (it *blockIterator) prev() bool {
 // }
 
 func (it *blockIterator) reposition(height int32) {
+
 	it.c.Seek(keyBlockRecord(height))
 }
 
@@ -401,6 +407,7 @@ func keyTxRecord(
 
 func valueTxRecord(
 	rec *TxRecord) ([]byte, error) {
+
 	var v []byte
 	if rec.SerializedTx == nil {
 		txSize := rec.MsgTx.SerializeSize()
@@ -476,6 +483,7 @@ func readRawTxRecordBlock(
 
 func fetchTxRecord(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, block *Block) (*TxRecord, error) {
+
 	k := keyTxRecord(txHash, block)
 	v := ns.NestedReadBucket(bucketTxRecords).Get(k)
 
@@ -488,6 +496,7 @@ func fetchTxRecord(
 // avoid the wire.MsgTx deserialization.
 func fetchRawTxRecordPkScript(
 	k, v []byte, index uint32) ([]byte, error) {
+
 	var rec TxRecord
 	copy(rec.Hash[:], k) // Silly but need an array
 	err := readRawTxRecord(&rec.Hash, v, &rec)
@@ -495,6 +504,7 @@ func fetchRawTxRecordPkScript(
 		return nil, err
 	}
 	if int(index) >= len(rec.MsgTx.TxOut) {
+
 		str := "missing transaction output for credit index"
 		return nil, storeError(ErrData, str, nil)
 	}
@@ -503,6 +513,7 @@ func fetchRawTxRecordPkScript(
 
 func existsTxRecord(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, block *Block) (k, v []byte) {
+
 	k = keyTxRecord(txHash, block)
 	v = ns.NestedReadBucket(bucketTxRecords).Get(k)
 	return
@@ -510,6 +521,7 @@ func existsTxRecord(
 
 func existsRawTxRecord(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
+
 	return ns.NestedReadBucket(bucketTxRecords).Get(k)
 }
 
@@ -524,11 +536,13 @@ func deleteTxRecord(
 // block is returned.  Returns (nil, nil) if no matching transactions are found.
 func latestTxRecord(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash) (k, v []byte) {
+
 	prefix := txHash[:]
 	c := ns.NestedReadBucket(bucketTxRecords).ReadCursor()
 	ck, cv := c.Seek(prefix)
 	var lastKey, lastVal []byte
 	for bytes.HasPrefix(ck, prefix) {
+
 		lastKey, lastVal = ck, cv
 		ck, cv = c.Next()
 	}
@@ -616,6 +630,7 @@ func extractRawCreditIndex(
 // fetchRawCreditAmount returns the amount of the credit.
 func fetchRawCreditAmount(
 	v []byte) (util.Amount, error) {
+
 	if len(v) < 9 {
 		str := fmt.Sprintf("%s: short read (expected %d bytes, read %d)",
 			bucketCredits, 9, len(v))
@@ -628,6 +643,7 @@ func fetchRawCreditAmount(
 // credit is spent.
 func fetchRawCreditAmountSpent(
 	v []byte) (util.Amount, bool, error) {
+
 	if len(v) < 9 {
 		str := fmt.Sprintf("%s: short read (expected %d bytes, read %d)",
 			bucketCredits, 9, len(v))
@@ -640,6 +656,7 @@ func fetchRawCreditAmountSpent(
 // credit is marked as change.
 func fetchRawCreditAmountChange(
 	v []byte) (util.Amount, bool, error) {
+
 	if len(v) < 9 {
 		str := fmt.Sprintf("%s: short read (expected %d bytes, read %d)",
 			bucketCredits, 9, len(v))
@@ -652,6 +669,7 @@ func fetchRawCreditAmountChange(
 // This may be used to mark a credit as unspent.
 func fetchRawCreditUnspentValue(
 	k []byte) ([]byte, error) {
+
 	if len(k) < 72 {
 		str := fmt.Sprintf("%s: short key (expected %d bytes, read %d)",
 			bucketCredits, 72, len(k))
@@ -665,6 +683,7 @@ func fetchRawCreditUnspentValue(
 // amount is returned.
 func spendCredit(
 	ns walletdb.ReadWriteBucket, k []byte, spender *indexedIncidence) (util.Amount, error) {
+
 	v := ns.NestedReadBucket(bucketCredits).Get(k)
 	newv := make([]byte, 81)
 	copy(newv, v)
@@ -683,6 +702,7 @@ func spendCredit(
 // credit exists for the key.
 func unspendRawCredit(
 	ns walletdb.ReadWriteBucket, k []byte) (util.Amount, error) {
+
 	b := ns.NestedReadWriteBucket(bucketCredits)
 	v := b.Get(k)
 	if v == nil {
@@ -702,6 +722,7 @@ func unspendRawCredit(
 
 func existsCredit(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, index uint32, block *Block) (k, v []byte) {
+
 	k = keyCredit(txHash, index, block)
 	v = ns.NestedReadBucket(bucketCredits).Get(k)
 	return
@@ -730,6 +751,7 @@ func deleteRawCredit(
 //   prefix := keyTxRecord(txHash, block)
 //   it := makeCreditIterator(ns, prefix)
 //   for it.next() {
+
 //           // Use it.elem
 //           // If necessary, read additional details from it.ck, it.cv
 //   }
@@ -792,6 +814,7 @@ func (it *creditIterator) next() bool {
 		it.ck, it.cv = it.c.Next()
 	}
 	if !bytes.HasPrefix(it.ck, it.prefix) {
+
 		it.c = nil
 		return false
 	}
@@ -864,6 +887,7 @@ func readUnspentBlock(
 // credit key is nil.
 func existsUnspent(
 	ns walletdb.ReadBucket, outPoint *wire.OutPoint) (k, credKey []byte) {
+
 	k = canonicalOutPoint(&outPoint.Hash, outPoint.Index)
 	credKey = existsRawUnspent(ns, k)
 	return k, credKey
@@ -873,6 +897,7 @@ func existsUnspent(
 // for the raw unspent key.  It returns nil if the k/v pair does not exist.
 func existsRawUnspent(
 	ns walletdb.ReadBucket, k []byte) (credKey []byte) {
+
 	if len(k) < 36 {
 		return nil
 	}
@@ -953,6 +978,7 @@ func extractRawDebitCreditKey(
 // are nil.
 func existsDebit(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, index uint32, block *Block) (k, credKey []byte, err error) {
+
 	k = keyDebit(txHash, index, block)
 	v := ns.NestedReadBucket(bucketDebits).Get(k)
 	if v == nil {
@@ -984,6 +1010,7 @@ func deleteRawDebit(
 //   prefix := keyTxRecord(txHash, block)
 //   it := makeDebitIterator(ns, prefix)
 //   for it.next() {
+
 //           // Use it.elem
 //           // If necessary, read additional details from it.ck, it.cv
 //   }
@@ -1038,6 +1065,7 @@ func (it *debitIterator) next() bool {
 		it.ck, it.cv = it.c.Next()
 	}
 	if !bytes.HasPrefix(it.ck, it.prefix) {
+
 		it.c = nil
 		return false
 	}
@@ -1078,6 +1106,7 @@ func readRawUnminedHash(
 
 func existsRawUnmined(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
+
 	return ns.NestedReadBucket(bucketUnmined).Get(k)
 }
 
@@ -1126,6 +1155,7 @@ func putRawUnminedCredit(
 
 func fetchRawUnminedCreditIndex(
 	k []byte) (uint32, error) {
+
 	if len(k) < 36 {
 		str := "short unmined credit key"
 		return 0, storeError(ErrData, str, nil)
@@ -1135,6 +1165,7 @@ func fetchRawUnminedCreditIndex(
 
 func fetchRawUnminedCreditAmount(
 	v []byte) (util.Amount, error) {
+
 	if len(v) < 9 {
 		str := "short unmined credit value"
 		return 0, storeError(ErrData, str, nil)
@@ -1144,6 +1175,7 @@ func fetchRawUnminedCreditAmount(
 
 func fetchRawUnminedCreditAmountChange(
 	v []byte) (util.Amount, bool, error) {
+
 	if len(v) < 9 {
 		str := "short unmined credit value"
 		return 0, false, storeError(ErrData, str, nil)
@@ -1175,6 +1207,7 @@ func deleteRawUnminedCredit(
 //
 //   it := makeUnminedCreditIterator(ns, txHash)
 //   for it.next() {
+
 //           // Use it.elem, it.ck and it.cv
 //           // Optionally, use it.delete() to remove this k/v pair
 //   }
@@ -1246,6 +1279,7 @@ func (it *unminedCreditIterator) next() bool {
 		it.ck, it.cv = it.c.Next()
 	}
 	if !bytes.HasPrefix(it.ck, it.prefix) {
+
 		it.c = nil
 		return false
 	}
@@ -1269,6 +1303,7 @@ func (it *unminedCreditIterator) next() bool {
 // }
 
 func (it *unminedCreditIterator) reposition(txHash *chainhash.Hash, index uint32) {
+
 	it.c.Seek(canonicalOutPoint(txHash, index))
 }
 
@@ -1303,6 +1338,7 @@ func putRawUnminedInput(
 
 func existsRawUnminedInput(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
+
 	return ns.NestedReadBucket(bucketUnminedInputs).Get(k)
 }
 

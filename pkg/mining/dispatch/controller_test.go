@@ -20,6 +20,7 @@ var K Kopach
 
 func TestKCPClientServer(
 	t *testing.T) {
+
 	fmt.Println("Testing KCP client/server connection")
 	go runServer(t)
 	time.Sleep(time.Second)
@@ -28,6 +29,7 @@ func TestKCPClientServer(
 
 func runServer(
 	t *testing.T) {
+
 	server := rpcx.NewServer()
 	server.RegisterName("Kopach", &K)
 	pass := argon2.IDKey([]byte(cryptKey), []byte(cryptSalt), 1, 4096, 32, 32)
@@ -47,6 +49,7 @@ func runServer(
 
 func runClient(
 	t *testing.T) {
+
 	pass := argon2.Key([]byte(cryptKey), []byte(cryptSalt), 1, 4096, 32, 32)
 	bc, _ := kcp.NewAESBlockCrypt(pass)
 

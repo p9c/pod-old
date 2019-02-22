@@ -15,6 +15,7 @@ var (
 
 func TestPadData(
 	t *testing.T) {
+
 	actualAligned := hex.EncodeToString(padData(testDataAligned))
 	actualUnaligned := hex.EncodeToString(padData(testDataUnaligned))
 	if actualAligned != expectedAligned {
@@ -29,7 +30,9 @@ func TestPadData(
 
 func TestFECCodec(
 	t *testing.T) {
+
 	defer func() {
+
 		if r := recover(); r != nil {
 			t.Log("Recovered in f", r)
 		}

@@ -13,6 +13,7 @@ import (
 // TestAddr tests the MsgAddr API.
 func TestAddr(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "addr"
@@ -83,6 +84,7 @@ func TestAddr(
 // TestAddrWire tests the MsgAddr wire encode and decode for various numbers of addresses and protocol versions.
 func TestAddrWire(
 	t *testing.T) {
+
 	// A couple of NetAddresses to use for testing.
 	na := &NetAddress{
 		Timestamp: time.Unix(0x495fab29, 0), // 2009-01-03 12:15:05 -0600 CST
@@ -159,6 +161,7 @@ func TestAddrWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -172,6 +175,7 @@ func TestAddrWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -182,6 +186,7 @@ func TestAddrWire(
 // TestAddrWireErrors performs negative tests against wire encode and decode of MsgAddr to confirm error paths work correctly.
 func TestAddrWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverMA := MultipleAddressVersion
 	wireErr := &MessageError{}
@@ -248,6 +253,7 @@ func TestAddrWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -265,6 +271,7 @@ func TestAddrWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

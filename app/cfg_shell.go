@@ -69,6 +69,7 @@ func configShell(
 	}
 
 	if ctx.Is("createtemp") {
+
 		ShellConfig.Wallet.CreateTemp = true
 	}
 	if r, ok := getIfIs(ctx, "walletpass"); ok {
@@ -145,12 +146,15 @@ func configShell(
 		ShellConfig.Node.AddrIndex = strings.ToLower(r) == "true"
 	}
 	if ctx.Is("dropcfindex") {
+
 		ShellConfig.Node.DropCfIndex = true
 	}
 	if ctx.Is("droptxindex") {
+
 		ShellConfig.Node.DropTxIndex = true
 	}
 	if ctx.Is("dropaddrindex") {
+
 		ShellConfig.Node.DropAddrIndex = true
 	}
 	if r, ok := getIfIs(ctx, "proxy"); ok {
@@ -390,6 +394,7 @@ func configShell(
 	// initLogRotator(filepath.Join(ShellConfig.Node.LogDir, DefaultLogFilename))
 	// Validate database type.
 	if !n.ValidDbType(ShellConfig.Node.DbType) {
+
 		str := "%s: The specified database type [%v] is invalid -- supported types %v"
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.DbType, n.KnownDbTypes)
 		fmt.Fprintln(os.Stderr, err)
@@ -487,6 +492,7 @@ func configShell(
 	// The RPC server is disabled if no username or password is provided.
 	if (ShellConfig.Node.RPCUser == "" || ShellConfig.Node.RPCPass == "") &&
 		(ShellConfig.Node.RPCLimitUser == "" || ShellConfig.Node.RPCLimitPass == "") {
+
 		ShellConfig.Node.DisableRPC = true
 	}
 	if ShellConfig.Node.DisableRPC {
@@ -567,6 +573,7 @@ func configShell(
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range ShellConfig.Node.UserAgentComments {
 		if strings.ContainsAny(uaComment, "/:()") {
+
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
@@ -616,6 +623,7 @@ func configShell(
 			return 1
 		}
 		if !addr.IsForNet(ShellConfig.GetNodeActiveNet().Params) {
+
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())
@@ -699,6 +707,7 @@ func configShell(
 		torIsolation := false
 		if ShellConfig.Node.TorIsolation && ShellConfig.Node.OnionProxy == "" &&
 			(ShellConfig.Node.ProxyUser != "" || ShellConfig.Node.ProxyPass != "") {
+
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified proxy user credentials")
@@ -713,6 +722,7 @@ func configShell(
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !ShellConfig.Node.NoOnion && ShellConfig.Node.OnionProxy == "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, ShellConfig.Node.Proxy)
 			}
 		}
@@ -730,11 +740,13 @@ func configShell(
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if ShellConfig.Node.TorIsolation &&
 			(ShellConfig.Node.OnionProxyUser != "" || ShellConfig.Node.OnionProxyPass != "") {
+
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+
 			proxy := &socks.Proxy{
 				Addr:         ShellConfig.Node.OnionProxy,
 				Username:     ShellConfig.Node.OnionProxyUser,
@@ -746,6 +758,7 @@ func configShell(
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if ShellConfig.Node.Proxy != "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, ShellConfig.Node.OnionProxy)
 			}
 		}
@@ -755,6 +768,7 @@ func configShell(
 	// Specifying --noonion means the onion address dial function results in an error.
 	if ShellConfig.Node.NoOnion {
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+
 			return nil, errors.New("tor has been disabled")
 		}
 	}
@@ -763,6 +777,7 @@ func configShell(
 	ShellConfig.Wallet.PodPassword = ShellConfig.Node.RPCPass
 
 	if ctx.Is("save") {
+
 		log <- cl.Info{"saving config file to", cfgFile}
 		j, err := json.MarshalIndent(ShellConfig, "", "  ")
 		if err != nil {

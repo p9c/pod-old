@@ -13,6 +13,7 @@ func tstCheckScriptError(
 	gotErr, wantErr error) error {
 	// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
 	if reflect.TypeOf(gotErr) != reflect.TypeOf(wantErr) {
+
 		return fmt.Errorf("wrong error - got %T (%[1]v), want %T",
 			gotErr, wantErr)
 	}
@@ -36,6 +37,7 @@ func tstCheckScriptError(
 // TestStack tests that all of the stack operations work as expected.
 func TestStack(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name      string
@@ -92,6 +94,7 @@ func TestStack(
 					return err
 				}
 				if !bytes.Equal(val, []byte{5}) {
+
 					return errors.New("not equal")
 				}
 				return err
@@ -894,6 +897,7 @@ func TestStack(
 		}
 		// Ensure the resulting stack is the expected length.
 		if int32(len(test.after)) != s.Depth() {
+
 			t.Errorf("%s: stack depth doesn't match expected: %v "+
 				"vs %v", test.name, len(test.after),
 				s.Depth())
@@ -908,6 +912,7 @@ func TestStack(
 				break
 			}
 			if !bytes.Equal(val, test.after[i]) {
+
 				t.Errorf("%s: %dth stack entry doesn't match "+
 					"expected: %v vs %v", test.name, i, val,
 					test.after[i])

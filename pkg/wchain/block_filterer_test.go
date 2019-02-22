@@ -267,6 +267,7 @@ var Block100000 = wire.MsgBlock{
 // send to an address controlled by the wallet.
 func TestBlockFiltererOneInOneOut(
 	t *testing.T) {
+
 	// Watch for spend from prev in in first and last tx, both of which are
 	// single input/single output.
 	firstTx := Block100000.Transactions[1]
@@ -305,6 +306,7 @@ func TestBlockFiltererOneInOneOut(
 // filterer is of a specific size.
 func assertNumRelevantTxns(
 	t *testing.T, bf *chain.BlockFilterer, size int) {
+
 	count := len(bf.RelevantTxns)
 	if count != size {
 		t.Fatalf("unexpected number of relevant txns: "+
@@ -316,8 +318,10 @@ func assertNumRelevantTxns(
 // filterers set of relevant txns.
 func assertRelevantTxnsContains(
 	t *testing.T, bf *chain.BlockFilterer, wantTx *wire.MsgTx) {
+
 	for _, relevantTx := range bf.RelevantTxns {
 		if reflect.DeepEqual(relevantTx, wantTx) {
+
 			return
 		}
 	}

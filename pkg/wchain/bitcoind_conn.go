@@ -100,6 +100,7 @@ func NewBitcoindConn(
 // established in the case that the node is down.
 func (c *BitcoindConn) Start() error {
 	if !atomic.CompareAndSwapInt32(&c.started, 0, 1) {
+
 		return nil
 	}
 
@@ -147,7 +148,9 @@ func (c *BitcoindConn) Start() error {
 // Stop terminates the RPC and ZMQ connection to a bitcoind node and removes any
 // active rescan clients.
 func (c *BitcoindConn) Stop() {
+
 	if !atomic.CompareAndSwapInt32(&c.stopped, 0, 1) {
+
 		return
 	}
 
@@ -167,6 +170,7 @@ func (c *BitcoindConn) Stop() {
 //
 // NOTE: This must be run as a goroutine.
 func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
+
 	defer c.wg.Done()
 	defer conn.Close()
 
@@ -191,6 +195,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			// error to prevent spamming the logs.
 			netErr, ok := err.(net.Error)
 			if ok && netErr.Timeout() {
+
 				continue
 			}
 
@@ -232,6 +237,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			// event type. To prevent from logging it, we'll make
 			// sure it conforms to the ASCII standard.
 			if eventType == "" || !isASCII(eventType) {
+
 				continue
 			}
 
@@ -248,6 +254,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 //
 // NOTE: This must be run as a goroutine.
 func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
+
 	defer c.wg.Done()
 	defer conn.Close()
 
@@ -273,6 +280,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			// error to prevent spamming the logs.
 			netErr, ok := err.(net.Error)
 			if ok && netErr.Timeout() {
+
 				continue
 			}
 
@@ -314,6 +322,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			// event type. To prevent from logging it, we'll make
 			// sure it conforms to the ASCII standard.
 			if eventType == "" || !isASCII(eventType) {
+
 				continue
 			}
 
@@ -327,6 +336,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 
 // getCurrentNet returns the network on which the bitcoind node is running.
 func (c *BitcoindConn) getCurrentNet() (wire.BitcoinNet, error) {
+
 	hash, err := c.client.GetBlockHash(0)
 	if err != nil {
 		return 0, err
@@ -376,6 +386,7 @@ func (c *BitcoindConn) NewBitcoindClient() *BitcoindClient {
 //
 // NOTE: This function is safe for concurrent access.
 func (c *BitcoindConn) AddClient(client *BitcoindClient) {
+
 	c.rescanClientsMtx.Lock()
 	defer c.rescanClientsMtx.Unlock()
 
@@ -388,6 +399,7 @@ func (c *BitcoindConn) AddClient(client *BitcoindClient) {
 //
 // NOTE: This function is safe for concurrent access.
 func (c *BitcoindConn) RemoveClient(id uint64) {
+
 	c.rescanClientsMtx.Lock()
 	defer c.rescanClientsMtx.Unlock()
 

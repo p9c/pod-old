@@ -34,6 +34,7 @@ func newBlockProgressLogger(
 
 // LogBlockHeight logs a new block height as an information message to show progress to the user. In order to prevent spam, it limits logging to one message every 10 seconds with duration and totals included.
 func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
+
 	b.Lock()
 	defer b.Unlock()
 	b.receivedLogBlocks++

@@ -15,6 +15,7 @@ import (
 // TestMerkleBlock tests the MsgMerkleBlock API.
 func TestMerkleBlock(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	enc := BaseEncoding
 	// Block 1 header.
@@ -97,6 +98,7 @@ func TestMerkleBlock(
 // TestMerkleBlockCrossProtocol tests the MsgMerkleBlock API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestMerkleBlockCrossProtocol(
 	t *testing.T) {
+
 	// Block 1 header.
 	prevHash := &blockOne.Header.PrevBlock
 	merkleHash := &blockOne.Header.MerkleRoot
@@ -123,6 +125,7 @@ func TestMerkleBlockCrossProtocol(
 // TestMerkleBlockWire tests the MsgMerkleBlock wire encode and decode for various numbers of transaction hashes and protocol versions.
 func TestMerkleBlockWire(
 	t *testing.T) {
+
 	tests := []struct {
 		in   *MsgMerkleBlock // Message to encode
 		out  *MsgMerkleBlock // Expected decoded message
@@ -151,6 +154,7 @@ func TestMerkleBlockWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -164,6 +168,7 @@ func TestMerkleBlockWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(&msg), spew.Sdump(test.out))
 			continue
@@ -174,6 +179,7 @@ func TestMerkleBlockWire(
 // TestMerkleBlockWireErrors performs negative tests against wire encode and decode of MsgBlock to confirm error paths work correctly.
 func TestMerkleBlockWireErrors(
 	t *testing.T) {
+
 	// Use protocol version 70001 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(70001)
 	pverNoMerkleBlock := BIP0037Version - 1
@@ -254,6 +260,7 @@ func TestMerkleBlockWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -271,6 +278,7 @@ func TestMerkleBlockWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
@@ -289,6 +297,7 @@ func TestMerkleBlockWireErrors(
 // TestMerkleBlockOverflowErrors performs tests to ensure encoding and decoding merkle blocks that are intentionally crafted to use large values for the number of hashes and flags are handled properly.  This could otherwise potentially be used as an attack vector.
 func TestMerkleBlockOverflowErrors(
 	t *testing.T) {
+
 	// Use protocol version 70001 specifically here instead of the latest protocol version because the test data is using bytes encoded with that version.
 	pver := uint32(70001)
 	// Create bytes for a merkle block that claims to have more than the max allowed tx hashes.
@@ -323,6 +332,7 @@ func TestMerkleBlockOverflowErrors(
 		r := bytes.NewReader(test.buf)
 		err := msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, reflect.TypeOf(test.err))
 			continue

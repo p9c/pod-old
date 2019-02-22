@@ -40,6 +40,7 @@ func NewHashCache(
 
 // AddSigHashes computes, then adds the partial sighashes for the passed transaction.
 func (h *HashCache) AddSigHashes(tx *wire.MsgTx) {
+
 	h.Lock()
 	h.sigHashes[tx.TxHash()] = NewTxSigHashes(tx)
 	h.Unlock()
@@ -55,6 +56,7 @@ func (h *HashCache) ContainsHashes(txid *chainhash.Hash) bool {
 
 // GetSigHashes possibly returns the previously cached partial sighashes for the passed transaction. This function also returns an additional boolean value indicating if the sighashes for the passed transaction were found to be present within the HashCache.
 func (h *HashCache) GetSigHashes(txid *chainhash.Hash) (*TxSigHashes, bool) {
+
 	h.RLock()
 	item, found := h.sigHashes[*txid]
 	h.RUnlock()
@@ -63,6 +65,7 @@ func (h *HashCache) GetSigHashes(txid *chainhash.Hash) (*TxSigHashes, bool) {
 
 // PurgeSigHashes removes all partial sighashes from the HashCache belonging to the passed transaction.
 func (h *HashCache) PurgeSigHashes(txid *chainhash.Hash) {
+
 	h.Lock()
 	delete(h.sigHashes, *txid)
 	h.Unlock()

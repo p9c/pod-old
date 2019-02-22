@@ -29,6 +29,7 @@ type MsgCFCheckpt struct {
 // AddCFHeader adds a new committed filter header to the message.
 func (msg *MsgCFCheckpt) AddCFHeader(header *chainhash.Hash) error {
 	if len(msg.FilterHeaders) == cap(msg.FilterHeaders) {
+
 		str := fmt.Sprintf("FilterHeaders has insufficient capacity for "+
 			"additional header: len = %d", len(msg.FilterHeaders))
 		return messageError("MsgCFCheckpt.AddCFHeader", str)

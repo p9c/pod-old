@@ -43,28 +43,33 @@ func (s *stack) Depth() int32 {
 // PushByteArray adds the given back array to the top of the stack.
 // Stack transformation: [... x1 x2] -> [... x1 x2 data]
 func (s *stack) PushByteArray(so []byte) {
+
 	s.stk = append(s.stk, so)
 }
 
 // PushInt converts the provided scriptNum to a suitable byte array then pushes it onto the top of the stack. Stack transformation: [... x1 x2] -> [... x1 x2 int]
 func (s *stack) PushInt(val scriptNum) {
+
 	s.PushByteArray(val.Bytes())
 }
 
 // PushBool converts the provided boolean to a suitable byte array then pushes it onto the top of the stack.
 // Stack transformation: [... x1 x2] -> [... x1 x2 bool]
 func (s *stack) PushBool(val bool) {
+
 	s.PushByteArray(fromBool(val))
 }
 
 // PopByteArray pops the value off the top of the stack and returns it. Stack transformation: [... x1 x2 x3] -> [... x1 x2]
 func (s *stack) PopByteArray() ([]byte, error) {
+
 	return s.nipN(0)
 }
 
 // PopInt pops the value off the top of the stack, converts it into a script num, and returns it.  The act of converting to a script num enforces the consensus rules imposed on data interpreted as numbers.
 // Stack transformation: [... x1 x2 x3] -> [... x1 x2]
 func (s *stack) PopInt() (scriptNum, error) {
+
 	so, err := s.PopByteArray()
 	if err != nil {
 		return 0, err
@@ -75,6 +80,7 @@ func (s *stack) PopInt() (scriptNum, error) {
 // PopBool pops the value off the top of the stack, converts it into a bool, and returns it.
 // Stack transformation: [... x1 x2 x3] -> [... x1 x2]
 func (s *stack) PopBool() (bool, error) {
+
 	so, err := s.PopByteArray()
 	if err != nil {
 		return false, err
@@ -84,6 +90,7 @@ func (s *stack) PopBool() (bool, error) {
 
 // PeekByteArray returns the Nth item on the stack without removing it.
 func (s *stack) PeekByteArray(idx int32) ([]byte, error) {
+
 	sz := int32(len(s.stk))
 	if idx < 0 || idx >= sz {
 		str := fmt.Sprintf("index %d is invalid for stack size %d", idx,
@@ -95,6 +102,7 @@ func (s *stack) PeekByteArray(idx int32) ([]byte, error) {
 
 // PeekInt returns the Nth item on the stack as a script num without removing it.  The act of converting to a script num enforces the consensus rules imposed on data interpreted as numbers.
 func (s *stack) PeekInt(idx int32) (scriptNum, error) {
+
 	so, err := s.PeekByteArray(idx)
 	if err != nil {
 		return 0, err
@@ -104,6 +112,7 @@ func (s *stack) PeekInt(idx int32) (scriptNum, error) {
 
 // PeekBool returns the Nth item on the stack as a bool without removing it.
 func (s *stack) PeekBool(idx int32) (bool, error) {
+
 	so, err := s.PeekByteArray(idx)
 	if err != nil {
 		return false, err
@@ -117,6 +126,7 @@ func (s *stack) PeekBool(idx int32) (bool, error) {
 // nipN(1): [... x1 x2 x3] -> [... x1 x3]
 // nipN(2): [... x1 x2 x3] -> [... x2 x3]
 func (s *stack) nipN(idx int32) ([]byte, error) {
+
 	sz := int32(len(s.stk))
 	if idx < 0 || idx > sz-1 {
 		str := fmt.Sprintf("index %d is invalid for stack size %d", idx,

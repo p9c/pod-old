@@ -138,6 +138,7 @@ func (
 	mp *TxPool,
 ) FetchTransaction(
 	txHash *chainhash.Hash) (*util.Tx, error) {
+
 	// Protect concurrent access.
 	mp.mtx.RLock()
 	txDesc, exists := mp.pool[*txHash]
@@ -197,6 +198,7 @@ func (
 	mp *TxPool,
 ) MaybeAcceptTransaction(
 	tx *util.Tx, isNew, rateLimit bool) ([]*chainhash.Hash, *TxDesc, error) {
+
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	hashes, txD, err := mp.maybeAcceptTransaction(tx, isNew, rateLimit, true)
@@ -237,6 +239,7 @@ func (
 	mp *TxPool,
 ) ProcessTransaction(
 	tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
+
 	log <- cl.Trace{"processing transaction", tx.Hash()}
 	// Protect concurrent access.
 	mp.mtx.Lock()
@@ -322,6 +325,7 @@ func (
 	mp *TxPool,
 ) RemoveDoubleSpends(
 	tx *util.Tx) {
+
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	for _, txIn := range tx.MsgTx().TxIn {
@@ -342,6 +346,7 @@ func (
 	mp *TxPool,
 ) RemoveOrphan(
 	tx *util.Tx) {
+
 	mp.mtx.Lock()
 	mp.removeOrphan(tx, false)
 	mp.mtx.Unlock()
@@ -371,6 +376,7 @@ func (
 	mp *TxPool,
 ) RemoveTransaction(
 	tx *util.Tx, removeRedeemers bool) {
+
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	mp.removeTransaction(tx, removeRedeemers)
@@ -415,6 +421,7 @@ func (
 	mp *TxPool,
 ) addOrphan(
 	tx *util.Tx, tag Tag) {
+
 	// Nothing to do if no orphans are allowed.
 	if mp.cfg.Policy.MaxOrphanTxs <= 0 {
 
@@ -503,6 +510,7 @@ func (
 	mp *TxPool,
 ) fetchInputUtxos(
 	tx *util.Tx) (*blockchain.UtxoViewpoint, error) {
+
 	utxoView, err := mp.cfg.FetchUtxoView(tx)
 	if err != nil {
 
@@ -608,6 +616,7 @@ func (
 	mp *TxPool,
 ) maybeAcceptTransaction(
 	tx *util.Tx, isNew, rateLimit, rejectDupOrphans bool) ([]*chainhash.Hash, *TxDesc, error) {
+
 	txHash := tx.Hash()
 	// If a transaction has iwtness data, and segwit isn't active yet, If segwit isn't active yet, then we won't accept it into the mempool as it can't be mined yet.
 	if tx.MsgTx().HasWitness() {
@@ -627,6 +636,7 @@ func (
 	// Don't accept the transaction if it already exists in the pool.  This applies to orphan transactions as well when the reject duplicate orphans flag is set.  This check is intended to be a quick check to weed out duplicates.
 	if mp.isTransactionInPool(txHash) || (rejectDupOrphans &&
 		mp.isOrphanInPool(txHash)) {
+
 		str := fmt.Sprintf("already have transaction %v", txHash)
 		return nil, nil, txRuleError(wire.RejectDuplicate, str)
 	}
@@ -726,6 +736,7 @@ func (
 	}
 	if !blockchain.SequenceLockActive(sequenceLock, nextBlockHeight,
 		medianTimePast) {
+
 		return nil, nil, txRuleError(wire.RejectNonstandard,
 			"transaction's sequence locks on inputs not met")
 	}
@@ -928,6 +939,7 @@ func (
 	mp *TxPool,
 ) removeOrphan(
 	tx *util.Tx, removeRedeemers bool) {
+
 	// Nothing to do if passed tx is not an orphan.
 	txHash := tx.Hash()
 	otx, exists := mp.orphans[*txHash]
@@ -971,6 +983,7 @@ func (
 	mp *TxPool,
 ) removeOrphanDoubleSpends(
 	tx *util.Tx) {
+
 	msgTx := tx.MsgTx()
 	for _, txIn := range msgTx.TxIn {
 
@@ -986,6 +999,7 @@ func (
 	mp *TxPool,
 ) removeTransaction(
 	tx *util.Tx, removeRedeemers bool) {
+
 	txHash := tx.Hash()
 	if removeRedeemers {
 

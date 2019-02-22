@@ -227,8 +227,7 @@ func NewGetTransactionCmd(
 type GetWalletInfoCmd struct{}
 
 // NewGetWalletInfoCmd returns a new instance which can be used to issue a getwalletinfo JSON-RPC command.
-func NewGetWalletInfoCmd(
-	) *GetWalletInfoCmd {
+func NewGetWalletInfoCmd() *GetWalletInfoCmd {
 	return &GetWalletInfoCmd{}
 }
 
@@ -279,8 +278,7 @@ func NewListAccountsCmd(
 type ListAddressGroupingsCmd struct{}
 
 // NewListAddressGroupingsCmd returns a new instance which can be used to issue a listaddressgroupoings JSON-RPC command.
-func NewListAddressGroupingsCmd(
-	) *ListAddressGroupingsCmd {
+func NewListAddressGroupingsCmd() *ListAddressGroupingsCmd {
 	return &ListAddressGroupingsCmd{}
 }
 
@@ -288,8 +286,7 @@ func NewListAddressGroupingsCmd(
 type ListLockUnspentCmd struct{}
 
 // NewListLockUnspentCmd returns a new instance which can be used to issue a listlockunspent JSON-RPC command.
-func NewListLockUnspentCmd(
-	) *ListLockUnspentCmd {
+func NewListLockUnspentCmd() *ListLockUnspentCmd {
 	return &ListLockUnspentCmd{}
 }
 
@@ -551,8 +548,7 @@ func NewSignRawTransactionCmd(
 type WalletLockCmd struct{}
 
 // NewWalletLockCmd returns a new instance which can be used to issue a walletlock JSON-RPC command.
-func NewWalletLockCmd(
-	) *WalletLockCmd {
+func NewWalletLockCmd() *WalletLockCmd {
 	return &WalletLockCmd{}
 }
 
@@ -585,8 +581,8 @@ func NewWalletPassphraseChangeCmd(
 		NewPassphrase: newPassphrase,
 	}
 }
-func init(
-	) {
+func init() {
+
 	// The commands in this file are only usable with a wallet server.
 	flags := UFWalletOnly
 	MustRegisterCmd("addmultisigaddress", (*AddMultisigAddressCmd)(nil), flags)

@@ -16,6 +16,7 @@ import (
 
 func TestLoadPoolAndDepositScript(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -51,6 +52,7 @@ func TestLoadPoolAndDepositScript(
 
 func TestLoadPoolAndCreateSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -81,6 +83,7 @@ func TestLoadPoolAndCreateSeries(
 
 func TestLoadPoolAndReplaceSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -108,6 +111,7 @@ func TestLoadPoolAndReplaceSeries(
 
 func TestLoadPoolAndEmpowerSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -127,6 +131,7 @@ func TestLoadPoolAndEmpowerSeries(
 	}
 
 	vp.TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		err = vp.LoadAndEmpowerSeries(ns, pool.Manager(), poolID, 1, vp.TstPrivKeys[0])
 	})
 	if err != nil {
@@ -136,6 +141,7 @@ func TestLoadPoolAndEmpowerSeries(
 
 func TestDepositScriptAddress(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -189,6 +195,7 @@ func TestDepositScriptAddress(
 
 func TestDepositScriptAddressForNonExistentSeries(
 	t *testing.T) {
+
 	tearDown, _, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -199,6 +206,7 @@ func TestDepositScriptAddressForNonExistentSeries(
 
 func TestDepositScriptAddressForHardenedPubKey(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -222,6 +230,7 @@ func TestDepositScriptAddressForHardenedPubKey(
 
 func TestLoadPool(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -237,12 +246,14 @@ func TestLoadPool(
 		t.Errorf("Error loading Pool: %v", err)
 	}
 	if !bytes.Equal(pool2.ID, pool.ID) {
+
 		t.Errorf("Voting pool obtained from DB does not match the created one")
 	}
 }
 
 func TestCreatePool(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -258,12 +269,14 @@ func TestCreatePool(
 		t.Errorf("Error creating Pool: %v", err)
 	}
 	if !bytes.Equal(pool2.ID, []byte{0x02}) {
+
 		t.Errorf("Pool ID mismatch: got %v, want %v", pool2.ID, []byte{0x02})
 	}
 }
 
 func TestCreatePoolWhenAlreadyExists(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -281,6 +294,7 @@ func TestCreatePoolWhenAlreadyExists(
 
 func TestCreateSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -340,6 +354,7 @@ func TestCreateSeries(
 
 func TestPoolCreateSeriesInvalidID(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -357,6 +372,7 @@ func TestPoolCreateSeriesInvalidID(
 
 func TestPoolCreateSeriesWhenAlreadyExists(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -379,6 +395,7 @@ func TestPoolCreateSeriesWhenAlreadyExists(
 
 func TestPoolCreateSeriesIDNotSequential(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -401,6 +418,7 @@ func TestPoolCreateSeriesIDNotSequential(
 
 func TestPutSeriesErrors(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -454,6 +472,7 @@ func TestPutSeriesErrors(
 
 func TestCannotReplaceEmpoweredSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -471,6 +490,7 @@ func TestCannotReplaceEmpoweredSeries(
 	}
 
 	vp.TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		if err := pool.EmpowerSeries(ns, seriesID, vp.TstPrivKeys[1]); err != nil {
 			t.Fatalf("Failed to empower series: %v", err)
 		}
@@ -484,6 +504,7 @@ func TestCannotReplaceEmpoweredSeries(
 
 func TestReplaceNonExistingSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -558,6 +579,7 @@ var replaceSeriesTestData = []replaceSeriesTestEntry{
 
 func TestReplaceExistingSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -590,6 +612,7 @@ func TestReplaceExistingSeries(
 // corresponds to the series we replaced the original with.
 func validateReplaceSeries(
 	t *testing.T, pool *vp.Pool, testID int, replacedWith seriesRaw) {
+
 	seriesID := replacedWith.id
 	series := pool.Series(seriesID)
 	if series == nil {
@@ -599,18 +622,21 @@ func validateReplaceSeries(
 	pubKeys := series.TstGetRawPublicKeys()
 	// Check that the public keys match what we expect.
 	if !reflect.DeepEqual(replacedWith.pubKeys, pubKeys) {
+
 		t.Errorf("Test #%d, series #%d: pubkeys mismatch. Got %v, want %v",
 			testID, seriesID, pubKeys, replacedWith.pubKeys)
 	}
 
 	// Check number of required sigs.
 	if replacedWith.reqSigs != series.TstGetReqSigs() {
+
 		t.Errorf("Test #%d, series #%d: required signatures mismatch. Got %d, want %d",
 			testID, seriesID, series.TstGetReqSigs(), replacedWith.reqSigs)
 	}
 
 	// Check that the series is not empowered.
 	if series.IsEmpowered() {
+
 		t.Errorf("Test #%d, series #%d: series is empowered but should not be",
 			testID, seriesID)
 	}
@@ -618,6 +644,7 @@ func validateReplaceSeries(
 
 func TestEmpowerSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -634,6 +661,7 @@ func TestEmpowerSeries(
 	}
 
 	vp.TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		if err := pool.EmpowerSeries(ns, seriesID, vp.TstPrivKeys[0]); err != nil {
 			t.Errorf("Failed to empower series: %v", err)
 		}
@@ -642,6 +670,7 @@ func TestEmpowerSeries(
 
 func TestEmpowerSeriesErrors(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -697,6 +726,7 @@ func TestEmpowerSeriesErrors(
 
 func TestPoolSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -719,6 +749,7 @@ func TestPoolSeries(
 	}
 	pubKeys := series.TstGetRawPublicKeys()
 	if !reflect.DeepEqual(pubKeys, expectedPubKeys) {
+
 		t.Errorf("Series pubKeys mismatch. Got %v, want %v", pubKeys, expectedPubKeys)
 	}
 }
@@ -794,6 +825,7 @@ func setUpLoadAllSeries(
 
 		for _, privKey := range series.privKeys {
 			vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
+
 				if err := pool.EmpowerSeries(ns, series.id, privKey); err != nil {
 					t.Fatalf("Test #%d Series #%d: empower with privKey %v failed: %v",
 						test.id, series.id, privKey, err)
@@ -806,6 +838,7 @@ func setUpLoadAllSeries(
 
 func TestLoadAllSeries(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -820,6 +853,7 @@ func TestLoadAllSeries(
 		pool := setUpLoadAllSeries(t, dbtx, pool.Manager(), test)
 		pool.TstEmptySeriesLookup()
 		vp.TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 			if err := pool.LoadAllSeries(ns); err != nil {
 				t.Fatalf("Test #%d: failed to load voting pool: %v", test.id, err)
 			}
@@ -832,6 +866,7 @@ func TestLoadAllSeries(
 
 func validateLoadAllSeries(
 	t *testing.T, pool *vp.Pool, testID int, seriesData seriesRaw) {
+
 	series := pool.Series(seriesData.id)
 
 	// Check that the series exists.
@@ -841,6 +876,7 @@ func validateLoadAllSeries(
 
 	// Check that reqSigs is what we inserted.
 	if seriesData.reqSigs != series.TstGetReqSigs() {
+
 		t.Errorf("Test #%d, series #%d: required sigs are different. Got %d, want %d",
 			testID, seriesData.id, series.TstGetReqSigs(), seriesData.reqSigs)
 	}
@@ -849,12 +885,14 @@ func validateLoadAllSeries(
 	publicKeys := series.TstGetRawPublicKeys()
 	privateKeys := series.TstGetRawPrivateKeys()
 	if len(privateKeys) != len(publicKeys) {
+
 		t.Errorf("Test #%d, series #%d: wrong number of private keys. Got %d, want %d",
 			testID, seriesData.id, len(privateKeys), len(publicKeys))
 	}
 
 	sortedKeys := vp.CanonicalKeyOrder(seriesData.pubKeys)
 	if !reflect.DeepEqual(publicKeys, sortedKeys) {
+
 		t.Errorf("Test #%d, series #%d: public keys mismatch. Got %v, want %v",
 			testID, seriesData.id, sortedKeys, publicKeys)
 	}
@@ -869,6 +907,7 @@ func validateLoadAllSeries(
 	foundPrivKeys = vp.CanonicalKeyOrder(foundPrivKeys)
 	privKeys := vp.CanonicalKeyOrder(seriesData.privKeys)
 	if !reflect.DeepEqual(privKeys, foundPrivKeys) {
+
 		t.Errorf("Test #%d, series #%d: private keys mismatch. Got %v, want %v",
 			testID, seriesData.id, foundPrivKeys, privKeys)
 	}
@@ -886,6 +925,7 @@ func reverse(
 
 func TestBranchOrderZero(
 	t *testing.T) {
+
 	// test change address branch (0) for 0-10 keys
 	for i := 0; i < 10; i++ {
 		inKeys := createTestPubKeys(t, i, 0)
@@ -896,6 +936,7 @@ func TestBranchOrderZero(
 		}
 
 		if len(resKeys) != len(wantKeys) {
+
 			t.Errorf("BranchOrder: wrong no. of keys. Got: %d, want %d",
 				len(resKeys), len(inKeys))
 			return
@@ -912,6 +953,7 @@ func TestBranchOrderZero(
 
 func TestBranchOrderNonZero(
 	t *testing.T) {
+
 	maxBranch := 5
 	maxTail := 4
 	// Test branch reordering for branch no. > 0. We test all branch values
@@ -932,6 +974,7 @@ func TestBranchOrderNonZero(
 			}
 
 			if len(resKeys) != len(inKeys) {
+
 				t.Errorf("BranchOrder: wrong no. of keys. Got: %d, want %d",
 					len(resKeys), len(inKeys))
 			}
@@ -948,6 +991,7 @@ func TestBranchOrderNonZero(
 
 func TestBranchOrderNilKeys(
 	t *testing.T) {
+
 	_, err := vp.TstBranchOrder(nil, 1)
 
 	vp.TstCheckError(t, "", err, vp.ErrInvalidValue)
@@ -955,6 +999,7 @@ func TestBranchOrderNilKeys(
 
 func TestBranchOrderInvalidBranch(
 	t *testing.T) {
+
 	_, err := vp.TstBranchOrder(createTestPubKeys(t, 3, 0), 4)
 
 	vp.TstCheckError(t, "", err, vp.ErrInvalidBranch)
@@ -962,6 +1007,7 @@ func TestBranchOrderInvalidBranch(
 
 func branchErrorFormat(
 	orig, want, got []*hdkeychain.ExtendedKey) (origOrder, wantOrder, gotOrder []int) {
+
 	origOrder = []int{}
 	origMap := make(map[*hdkeychain.ExtendedKey]int)
 	for i, key := range orig {
@@ -1003,12 +1049,14 @@ func createTestPubKeys(
 
 func TestReverse(
 	t *testing.T) {
+
 	// Test the utility function that reverses a list of public keys.
 	// 11 is arbitrary.
 	for numKeys := 0; numKeys < 11; numKeys++ {
 		keys := createTestPubKeys(t, numKeys, 0)
 		revRevKeys := reverse(reverse(keys))
 		if len(keys) != len(revRevKeys) {
+
 			t.Errorf("Reverse(Reverse(x)): the no. pubkeys changed. Got %d, want %d",
 				len(revRevKeys), len(keys))
 		}
@@ -1024,6 +1072,7 @@ func TestReverse(
 
 func TestEmpowerSeriesNeuterFailed(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -1051,6 +1100,7 @@ func TestEmpowerSeriesNeuterFailed(
 
 func TestDecryptExtendedKeyCannotCreateResultKey(
 	t *testing.T) {
+
 	tearDown, _, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -1067,6 +1117,7 @@ func TestDecryptExtendedKeyCannotCreateResultKey(
 
 func TestDecryptExtendedKeyCannotDecrypt(
 	t *testing.T) {
+
 	tearDown, _, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -1077,6 +1128,7 @@ func TestDecryptExtendedKeyCannotDecrypt(
 
 func TestPoolChangeAddress(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 
@@ -1102,6 +1154,7 @@ func TestPoolChangeAddress(
 
 func TestPoolWithdrawalAddress(
 	t *testing.T) {
+
 	tearDown, db, pool := vp.TstCreatePool(t)
 	defer tearDown()
 

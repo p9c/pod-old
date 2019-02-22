@@ -9,8 +9,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
 	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
 var (
@@ -20,6 +20,7 @@ var (
 
 func TestGetEligibleInputs(
 	t *testing.T) {
+
 	tearDown, db, pool, store := TstCreatePoolAndTxStore(t)
 	defer tearDown()
 
@@ -54,6 +55,7 @@ func TestGetEligibleInputs(
 	var eligibles []credit
 	txmgrNs := dbtx.ReadBucket(txmgrNamespaceKey)
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		eligibles, err = pool.getEligibleInputs(ns, addrmgrNs,
 			store, txmgrNs, *startAddr, lastSeriesID, dustThreshold, int32(currentBlock),
 			eligibleInputMinConfirmations)
@@ -70,6 +72,7 @@ func TestGetEligibleInputs(
 
 	// Check that the returned eligibles are reverse sorted by address.
 	if !sort.IsSorted(sort.Reverse(byAddress(eligibles))) {
+
 		t.Fatal("Eligible inputs are not sorted.")
 	}
 
@@ -79,6 +82,7 @@ func TestGetEligibleInputs(
 
 func TestNextAddrWithVaryingHighestIndices(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -107,6 +111,7 @@ func TestNextAddrWithVaryingHighestIndices(
 	// The first call to nextAddr() should give us the address for branch==1
 	// and index==1.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
@@ -117,6 +122,7 @@ func TestNextAddrWithVaryingHighestIndices(
 	// The next call should give us the address for branch==0, index==2 since
 	// there are no used addresses for branch==2.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
@@ -127,6 +133,7 @@ func TestNextAddrWithVaryingHighestIndices(
 	// Since the last addr for branch==1 was the one with index==1, a subsequent
 	// call will return nil.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
@@ -139,6 +146,7 @@ func TestNextAddrWithVaryingHighestIndices(
 
 func TestNextAddr(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -167,6 +175,7 @@ func TestNextAddr(
 	// here (because our series has 3 public keys).
 	for _, i := range []int{1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
@@ -180,6 +189,7 @@ func TestNextAddr(
 	// branch=[0-3] and idx=lastIdx.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
@@ -197,6 +207,7 @@ func TestNextAddr(
 	// we should move to the next series and start again with branch=0, idx=0.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
@@ -209,6 +220,7 @@ func TestNextAddr(
 	// available address before stopSeriesID.
 	addr = TstNewWithdrawalAddress(t, dbtx, pool, 2, 3, lastIdx)
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
@@ -221,6 +233,7 @@ func TestNextAddr(
 
 func TestEligibleInputsAreEligible(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -237,12 +250,14 @@ func TestEligibleInputsAreEligible(
 	c.BlockMeta.Height = int32(eligibleInputMinConfirmations)
 
 	if !pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
+
 		t.Errorf("Input is not eligible and it should be.")
 	}
 }
 
 func TestNonEligibleInputsAreNotEligible(
 	t *testing.T) {
+
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -260,6 +275,7 @@ func TestNonEligibleInputsAreNotEligible(
 
 	// Check that credit below dustThreshold is rejected.
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
+
 		t.Errorf("Input is eligible and it should not be.")
 	}
 
@@ -271,12 +287,14 @@ func TestNonEligibleInputsAreNotEligible(
 	// is *that* makes 1000 - 902 +1 = 99 >= 100 false
 	c.BlockMeta.Height = int32(902)
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
+
 		t.Errorf("Input is eligible and it should not be.")
 	}
 }
 
 func TestCreditSortingByAddress(
 	t *testing.T) {
+
 	teardown, db, pool := TstCreatePool(t)
 	defer teardown()
 
@@ -316,12 +334,14 @@ func TestCreditSortingByAddress(
 		got := random
 
 		if len(got) != len(want) {
+
 			t.Fatalf("Sorted credit slice size wrong: Got: %d, want: %d",
 				len(got), len(want))
 		}
 
 		for idx := 0; idx < len(want); idx++ {
 			if !reflect.DeepEqual(got[idx], want[idx]) {
+
 				t.Errorf("Wrong output index. Got: %v, want: %v",
 					got[idx], want[idx])
 			}
@@ -354,6 +374,7 @@ func newDummyCredit(
 
 func checkUniqueness(
 	t *testing.T, credits byAddress) {
+
 	type uniq struct {
 		series      uint32
 		branch      Branch
@@ -394,6 +415,7 @@ func getPKScriptsForAddressRange(
 func checkWithdrawalAddressMatches(
 	t *testing.T, addr *WithdrawalAddress, seriesID uint32,
 	branch Branch, index Index) {
+
 	if addr.SeriesID() != seriesID {
 		t.Fatalf("Wrong seriesID; got %d, want %d", addr.SeriesID(), seriesID)
 	}

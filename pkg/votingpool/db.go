@@ -6,9 +6,9 @@ import (
 	"encoding/gob"
 	"fmt"
 
+	"git.parallelcoin.io/pod/pkg/snacl"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/snacl"
 	"git.parallelcoin.io/pod/pkg/walletdb"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
@@ -144,6 +144,7 @@ func getUsedAddrHash(
 // of the given pool, series and branch.
 func getMaxUsedIdx(
 	ns walletdb.ReadBucket, poolID []byte, seriesID uint32, branch Branch) (Index, error) {
+
 	maxIdx := Index(0)
 	usedAddrs := ns.NestedReadBucket(poolID).NestedReadBucket(usedAddrsBucketName)
 	bucket := usedAddrs.NestedReadBucket(getUsedAddrBucketID(seriesID, branch))
@@ -201,6 +202,7 @@ func putPool(
 // bucket, keyed by id.
 func loadAllSeries(
 	ns walletdb.ReadBucket, poolID []byte) (map[uint32]*dbSeriesRow, error) {
+
 	bucket := ns.NestedReadBucket(poolID).NestedReadBucket(seriesBucketName)
 	allSeries := make(map[uint32]*dbSeriesRow)
 	err := bucket.ForEach(
@@ -270,6 +272,7 @@ func putSeriesRow(
 // deserializeSeriesRow deserializes a series storage into a dbSeriesRow struct.
 func deserializeSeriesRow(
 	serializedSeries []byte) (*dbSeriesRow, error) {
+
 	// The serialized series format is:
 	// <version><active><reqSigs><nKeys><pubKey1><privKey1>...<pubkeyN><privKeyN>
 	//
@@ -330,6 +333,7 @@ func deserializeSeriesRow(
 		row.pubKeysEncrypted[i] = serializedSeries[pubKeyStart:pubKeyEnd]
 		privKeyEncrypted := serializedSeries[pubKeyEnd:privKeyEnd]
 		if bytes.Equal(privKeyEncrypted, seriesNullPrivKey[:]) {
+
 			row.privKeysEncrypted[i] = nil
 		} else {
 			row.privKeysEncrypted[i] = privKeyEncrypted
@@ -342,6 +346,7 @@ func deserializeSeriesRow(
 // serializeSeriesRow serializes a dbSeriesRow struct into storage format.
 func serializeSeriesRow(
 	row *dbSeriesRow) ([]byte, error) {
+
 	// The serialized series format is:
 	// <version><active><reqSigs><nKeys><pubKey1><privKey1>...<pubkeyN><privKeyN>
 	//
@@ -351,6 +356,7 @@ func serializeSeriesRow(
 
 	if len(row.privKeysEncrypted) != 0 &&
 		len(row.pubKeysEncrypted) != len(row.privKeysEncrypted) {
+
 		str := fmt.Sprintf("different # of pub (%v) and priv (%v) keys",
 			len(row.pubKeysEncrypted), len(row.privKeysEncrypted))
 		return nil, newError(ErrSeriesSerialization, str, nil)
@@ -486,6 +492,7 @@ func serializeWithdrawal(
 // with the address manager unlocked.
 func deserializeWithdrawal(
 	p *Pool, ns, addrmgrNs walletdb.ReadBucket, serialized []byte) (*withdrawalInfo, error) {
+
 	var row dbWithdrawalRow
 	if err := gob.NewDecoder(bytes.NewReader(serialized)).Decode(&row); err != nil {
 		return nil, newError(ErrWithdrawalStorage, "cannot deserialize withdrawal information",

@@ -10,6 +10,7 @@ import (
 // TestFilterCLearLatest tests the MsgFilterLoad API against the latest protocol version.
 func TestFilterLoadLatest(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	enc := BaseEncoding
 	data := []byte{0x01, 0x02}
@@ -45,6 +46,7 @@ func TestFilterLoadLatest(
 // TestFilterLoadCrossProtocol tests the MsgFilterLoad API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterLoadCrossProtocol(
 	t *testing.T) {
+
 	data := []byte{0x01, 0x02}
 	msg := NewMsgFilterLoad(data, 10, 0, 0)
 	// Encode with latest protocol version.
@@ -66,6 +68,7 @@ func TestFilterLoadCrossProtocol(
 // TestFilterLoadMaxFilterSize tests the MsgFilterLoad API maximum filter size.
 func TestFilterLoadMaxFilterSize(
 	t *testing.T) {
+
 	data := bytes.Repeat([]byte{0xff}, 36001)
 	msg := NewMsgFilterLoad(data, 10, 0, 0)
 	// Encode with latest protocol version.
@@ -87,6 +90,7 @@ func TestFilterLoadMaxFilterSize(
 // TestFilterLoadMaxHashFuncsSize tests the MsgFilterLoad API maximum hash functions.
 func TestFilterLoadMaxHashFuncsSize(
 	t *testing.T) {
+
 	data := bytes.Repeat([]byte{0xff}, 10)
 	msg := NewMsgFilterLoad(data, 61, 0, 0)
 	// Encode with latest protocol version.
@@ -115,6 +119,7 @@ func TestFilterLoadMaxHashFuncsSize(
 // TestFilterLoadWireErrors performs negative tests against wire encode and decode of MsgFilterLoad to confirm error paths work correctly.
 func TestFilterLoadWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverNoFilterLoad := BIP0037Version - 1
 	wireErr := &MessageError{}
@@ -171,6 +176,7 @@ func TestFilterLoadWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -188,6 +194,7 @@ func TestFilterLoadWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

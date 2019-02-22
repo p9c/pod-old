@@ -13,7 +13,6 @@ func GetFlags(
 	out map[string]string,
 ) {
 
-
 	out = make(map[string]string)
 	for i := range cmd.Flags {
 		usage := strings.Split(cmd.Flags[i].Usage, " ")

@@ -1,7 +1,3 @@
-
-
-
-
 package snacl
 
 import (
@@ -19,6 +15,7 @@ var (
 
 func TestNewSecretKey(
 	t *testing.T) {
+
 	var err error
 	key, err = NewSecretKey(&password, DefaultN, DefaultR, DefaultP)
 	if err != nil {
@@ -29,11 +26,13 @@ func TestNewSecretKey(
 
 func TestMarshalSecretKey(
 	t *testing.T) {
+
 	params = key.Marshal()
 }
 
 func TestUnmarshalSecretKey(
 	t *testing.T) {
+
 	var sk SecretKey
 	if err := sk.Unmarshal(params); err != nil {
 		t.Errorf("unexpected unmarshal error: %v", err)
@@ -46,12 +45,14 @@ func TestUnmarshalSecretKey(
 	}
 
 	if !bytes.Equal(sk.Key[:], key.Key[:]) {
+
 		t.Errorf("keys not equal")
 	}
 }
 
 func TestUnmarshalSecretKeyInvalid(
 	t *testing.T) {
+
 	var sk SecretKey
 	if err := sk.Unmarshal(params); err != nil {
 		t.Errorf("unexpected unmarshal error: %v", err)
@@ -67,6 +68,7 @@ func TestUnmarshalSecretKeyInvalid(
 
 func TestEncrypt(
 	t *testing.T) {
+
 	var err error
 
 	blob, err = key.Encrypt(message)
@@ -78,6 +80,7 @@ func TestEncrypt(
 
 func TestDecrypt(
 	t *testing.T) {
+
 	decryptedMessage, err := key.Decrypt(blob)
 	if err != nil {
 		t.Error(err)
@@ -85,6 +88,7 @@ func TestDecrypt(
 	}
 
 	if !bytes.Equal(decryptedMessage, message) {
+
 		t.Errorf("decryption failed")
 		return
 	}
@@ -92,6 +96,7 @@ func TestDecrypt(
 
 func TestDecryptCorrupt(
 	t *testing.T) {
+
 	blob[len(blob)-15] = blob[len(blob)-15] + 1
 	_, err := key.Decrypt(blob)
 	if err == nil {
@@ -102,16 +107,19 @@ func TestDecryptCorrupt(
 
 func TestZero(
 	t *testing.T) {
+
 	var zeroKey [32]byte
 
 	key.Zero()
 	if !bytes.Equal(key.Key[:], zeroKey[:]) {
+
 		t.Errorf("zero key failed")
 	}
 }
 
 func TestDeriveKey(
 	t *testing.T) {
+
 	if err := key.DeriveKey(&password); err != nil {
 		t.Errorf("unexpected DeriveKey key failure: %v", err)
 	}
@@ -119,6 +127,7 @@ func TestDeriveKey(
 
 func TestDeriveKeyInvalid(
 	t *testing.T) {
+
 	bogusPass := []byte("bogus")
 	if err := key.DeriveKey(&bogusPass); err != ErrInvalidPassword {
 		t.Errorf("unexpected DeriveKey key failure: %v", err)

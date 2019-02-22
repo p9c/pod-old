@@ -99,7 +99,9 @@ var NextAddressRequest_Kind_value = map[string]int32{
 func (x NextAddressRequest_Kind) String() string {
 	return proto.EnumName(NextAddressRequest_Kind_name, int32(x))
 }
-func (NextAddressRequest_Kind) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{17, 0} }
+func (NextAddressRequest_Kind) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{17, 0}
+}
 
 type ChangePassphraseRequest_Key int32
 
@@ -121,16 +123,19 @@ func (x ChangePassphraseRequest_Key) String() string {
 	return proto.EnumName(ChangePassphraseRequest_Key_name, int32(x))
 }
 func (ChangePassphraseRequest_Key) EnumDescriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{25, 0}
 }
 
 type VersionRequest struct {
 }
 
-func (m *VersionRequest) Reset()                    { *m = VersionRequest{} }
-func (m *VersionRequest) String() string            { return proto.CompactTextString(m) }
-func (*VersionRequest) ProtoMessage()               {}
-func (*VersionRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (m *VersionRequest) Reset()         { *m = VersionRequest{} }
+func (m *VersionRequest) String() string { return proto.CompactTextString(m) }
+func (*VersionRequest) ProtoMessage()    {}
+func (*VersionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{0}
+}
 
 type VersionResponse struct {
 	VersionString string `protobuf:"bytes,1,opt,name=version_string,json=versionString" json:"version_string,omitempty"`
@@ -141,10 +146,12 @@ type VersionResponse struct {
 	BuildMetadata string `protobuf:"bytes,6,opt,name=build_metadata,json=buildMetadata" json:"build_metadata,omitempty"`
 }
 
-func (m *VersionResponse) Reset()                    { *m = VersionResponse{} }
-func (m *VersionResponse) String() string            { return proto.CompactTextString(m) }
-func (*VersionResponse) ProtoMessage()               {}
-func (*VersionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (m *VersionResponse) Reset()         { *m = VersionResponse{} }
+func (m *VersionResponse) String() string { return proto.CompactTextString(m) }
+func (*VersionResponse) ProtoMessage()    {}
+func (*VersionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{1}
+}
 
 func (m *VersionResponse) GetVersionString() string {
 	if m != nil {
@@ -197,10 +204,12 @@ type TransactionDetails struct {
 	Timestamp   int64                        `protobuf:"varint,6,opt,name=timestamp" json:"timestamp,omitempty"`
 }
 
-func (m *TransactionDetails) Reset()                    { *m = TransactionDetails{} }
-func (m *TransactionDetails) String() string            { return proto.CompactTextString(m) }
-func (*TransactionDetails) ProtoMessage()               {}
-func (*TransactionDetails) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (m *TransactionDetails) Reset()         { *m = TransactionDetails{} }
+func (m *TransactionDetails) String() string { return proto.CompactTextString(m) }
+func (*TransactionDetails) ProtoMessage()    {}
+func (*TransactionDetails) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{2}
+}
 
 func (m *TransactionDetails) GetHash() []byte {
 	if m != nil {
@@ -250,10 +259,12 @@ type TransactionDetails_Input struct {
 	PreviousAmount  int64  `protobuf:"varint,3,opt,name=previous_amount,json=previousAmount" json:"previous_amount,omitempty"`
 }
 
-func (m *TransactionDetails_Input) Reset()                    { *m = TransactionDetails_Input{} }
-func (m *TransactionDetails_Input) String() string            { return proto.CompactTextString(m) }
-func (*TransactionDetails_Input) ProtoMessage()               {}
-func (*TransactionDetails_Input) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0} }
+func (m *TransactionDetails_Input) Reset()         { *m = TransactionDetails_Input{} }
+func (m *TransactionDetails_Input) String() string { return proto.CompactTextString(m) }
+func (*TransactionDetails_Input) ProtoMessage()    {}
+func (*TransactionDetails_Input) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{2, 0}
+}
 
 func (m *TransactionDetails_Input) GetIndex() uint32 {
 	if m != nil {
@@ -282,10 +293,12 @@ type TransactionDetails_Output struct {
 	Internal bool   `protobuf:"varint,3,opt,name=internal" json:"internal,omitempty"`
 }
 
-func (m *TransactionDetails_Output) Reset()                    { *m = TransactionDetails_Output{} }
-func (m *TransactionDetails_Output) String() string            { return proto.CompactTextString(m) }
-func (*TransactionDetails_Output) ProtoMessage()               {}
-func (*TransactionDetails_Output) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 1} }
+func (m *TransactionDetails_Output) Reset()         { *m = TransactionDetails_Output{} }
+func (m *TransactionDetails_Output) String() string { return proto.CompactTextString(m) }
+func (*TransactionDetails_Output) ProtoMessage()    {}
+func (*TransactionDetails_Output) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{2, 1}
+}
 
 func (m *TransactionDetails_Output) GetIndex() uint32 {
 	if m != nil {
@@ -315,10 +328,12 @@ type BlockDetails struct {
 	Transactions []*TransactionDetails `protobuf:"bytes,4,rep,name=transactions" json:"transactions,omitempty"`
 }
 
-func (m *BlockDetails) Reset()                    { *m = BlockDetails{} }
-func (m *BlockDetails) String() string            { return proto.CompactTextString(m) }
-func (*BlockDetails) ProtoMessage()               {}
-func (*BlockDetails) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (m *BlockDetails) Reset()         { *m = BlockDetails{} }
+func (m *BlockDetails) String() string { return proto.CompactTextString(m) }
+func (*BlockDetails) ProtoMessage()    {}
+func (*BlockDetails) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{3}
+}
 
 func (m *BlockDetails) GetHash() []byte {
 	if m != nil {
@@ -353,10 +368,12 @@ type AccountBalance struct {
 	TotalBalance int64  `protobuf:"varint,2,opt,name=total_balance,json=totalBalance" json:"total_balance,omitempty"`
 }
 
-func (m *AccountBalance) Reset()                    { *m = AccountBalance{} }
-func (m *AccountBalance) String() string            { return proto.CompactTextString(m) }
-func (*AccountBalance) ProtoMessage()               {}
-func (*AccountBalance) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (m *AccountBalance) Reset()         { *m = AccountBalance{} }
+func (m *AccountBalance) String() string { return proto.CompactTextString(m) }
+func (*AccountBalance) ProtoMessage()    {}
+func (*AccountBalance) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{4}
+}
 
 func (m *AccountBalance) GetAccount() uint32 {
 	if m != nil {
@@ -375,35 +392,43 @@ func (m *AccountBalance) GetTotalBalance() int64 {
 type PingRequest struct {
 }
 
-func (m *PingRequest) Reset()                    { *m = PingRequest{} }
-func (m *PingRequest) String() string            { return proto.CompactTextString(m) }
-func (*PingRequest) ProtoMessage()               {}
-func (*PingRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (m *PingRequest) Reset()         { *m = PingRequest{} }
+func (m *PingRequest) String() string { return proto.CompactTextString(m) }
+func (*PingRequest) ProtoMessage()    {}
+func (*PingRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{5}
+}
 
 type PingResponse struct {
 }
 
-func (m *PingResponse) Reset()                    { *m = PingResponse{} }
-func (m *PingResponse) String() string            { return proto.CompactTextString(m) }
-func (*PingResponse) ProtoMessage()               {}
-func (*PingResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+func (m *PingResponse) Reset()         { *m = PingResponse{} }
+func (m *PingResponse) String() string { return proto.CompactTextString(m) }
+func (*PingResponse) ProtoMessage()    {}
+func (*PingResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{6}
+}
 
 type NetworkRequest struct {
 }
 
-func (m *NetworkRequest) Reset()                    { *m = NetworkRequest{} }
-func (m *NetworkRequest) String() string            { return proto.CompactTextString(m) }
-func (*NetworkRequest) ProtoMessage()               {}
-func (*NetworkRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (m *NetworkRequest) Reset()         { *m = NetworkRequest{} }
+func (m *NetworkRequest) String() string { return proto.CompactTextString(m) }
+func (*NetworkRequest) ProtoMessage()    {}
+func (*NetworkRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{7}
+}
 
 type NetworkResponse struct {
 	ActiveNetwork uint32 `protobuf:"varint,1,opt,name=active_network,json=activeNetwork" json:"active_network,omitempty"`
 }
 
-func (m *NetworkResponse) Reset()                    { *m = NetworkResponse{} }
-func (m *NetworkResponse) String() string            { return proto.CompactTextString(m) }
-func (*NetworkResponse) ProtoMessage()               {}
-func (*NetworkResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (m *NetworkResponse) Reset()         { *m = NetworkResponse{} }
+func (m *NetworkResponse) String() string { return proto.CompactTextString(m) }
+func (*NetworkResponse) ProtoMessage()    {}
+func (*NetworkResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{8}
+}
 
 func (m *NetworkResponse) GetActiveNetwork() uint32 {
 	if m != nil {
@@ -416,10 +441,12 @@ type AccountNumberRequest struct {
 	AccountName string `protobuf:"bytes,1,opt,name=account_name,json=accountName" json:"account_name,omitempty"`
 }
 
-func (m *AccountNumberRequest) Reset()                    { *m = AccountNumberRequest{} }
-func (m *AccountNumberRequest) String() string            { return proto.CompactTextString(m) }
-func (*AccountNumberRequest) ProtoMessage()               {}
-func (*AccountNumberRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (m *AccountNumberRequest) Reset()         { *m = AccountNumberRequest{} }
+func (m *AccountNumberRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountNumberRequest) ProtoMessage()    {}
+func (*AccountNumberRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{9}
+}
 
 func (m *AccountNumberRequest) GetAccountName() string {
 	if m != nil {
@@ -432,10 +459,12 @@ type AccountNumberResponse struct {
 	AccountNumber uint32 `protobuf:"varint,1,opt,name=account_number,json=accountNumber" json:"account_number,omitempty"`
 }
 
-func (m *AccountNumberResponse) Reset()                    { *m = AccountNumberResponse{} }
-func (m *AccountNumberResponse) String() string            { return proto.CompactTextString(m) }
-func (*AccountNumberResponse) ProtoMessage()               {}
-func (*AccountNumberResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (m *AccountNumberResponse) Reset()         { *m = AccountNumberResponse{} }
+func (m *AccountNumberResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountNumberResponse) ProtoMessage()    {}
+func (*AccountNumberResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{10}
+}
 
 func (m *AccountNumberResponse) GetAccountNumber() uint32 {
 	if m != nil {
@@ -447,10 +476,12 @@ func (m *AccountNumberResponse) GetAccountNumber() uint32 {
 type AccountsRequest struct {
 }
 
-func (m *AccountsRequest) Reset()                    { *m = AccountsRequest{} }
-func (m *AccountsRequest) String() string            { return proto.CompactTextString(m) }
-func (*AccountsRequest) ProtoMessage()               {}
-func (*AccountsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (m *AccountsRequest) Reset()         { *m = AccountsRequest{} }
+func (m *AccountsRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountsRequest) ProtoMessage()    {}
+func (*AccountsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{11}
+}
 
 type AccountsResponse struct {
 	Accounts           []*AccountsResponse_Account `protobuf:"bytes,1,rep,name=accounts" json:"accounts,omitempty"`
@@ -458,10 +489,12 @@ type AccountsResponse struct {
 	CurrentBlockHeight int32                       `protobuf:"varint,3,opt,name=current_block_height,json=currentBlockHeight" json:"current_block_height,omitempty"`
 }
 
-func (m *AccountsResponse) Reset()                    { *m = AccountsResponse{} }
-func (m *AccountsResponse) String() string            { return proto.CompactTextString(m) }
-func (*AccountsResponse) ProtoMessage()               {}
-func (*AccountsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (m *AccountsResponse) Reset()         { *m = AccountsResponse{} }
+func (m *AccountsResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountsResponse) ProtoMessage()    {}
+func (*AccountsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{12}
+}
 
 func (m *AccountsResponse) GetAccounts() []*AccountsResponse_Account {
 	if m != nil {
@@ -493,10 +526,12 @@ type AccountsResponse_Account struct {
 	ImportedKeyCount uint32 `protobuf:"varint,6,opt,name=imported_key_count,json=importedKeyCount" json:"imported_key_count,omitempty"`
 }
 
-func (m *AccountsResponse_Account) Reset()                    { *m = AccountsResponse_Account{} }
-func (m *AccountsResponse_Account) String() string            { return proto.CompactTextString(m) }
-func (*AccountsResponse_Account) ProtoMessage()               {}
-func (*AccountsResponse_Account) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12, 0} }
+func (m *AccountsResponse_Account) Reset()         { *m = AccountsResponse_Account{} }
+func (m *AccountsResponse_Account) String() string { return proto.CompactTextString(m) }
+func (*AccountsResponse_Account) ProtoMessage()    {}
+func (*AccountsResponse_Account) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{12, 0}
+}
 
 func (m *AccountsResponse_Account) GetAccountNumber() uint32 {
 	if m != nil {
@@ -545,10 +580,12 @@ type RenameAccountRequest struct {
 	NewName       string `protobuf:"bytes,2,opt,name=new_name,json=newName" json:"new_name,omitempty"`
 }
 
-func (m *RenameAccountRequest) Reset()                    { *m = RenameAccountRequest{} }
-func (m *RenameAccountRequest) String() string            { return proto.CompactTextString(m) }
-func (*RenameAccountRequest) ProtoMessage()               {}
-func (*RenameAccountRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (m *RenameAccountRequest) Reset()         { *m = RenameAccountRequest{} }
+func (m *RenameAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*RenameAccountRequest) ProtoMessage()    {}
+func (*RenameAccountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{13}
+}
 
 func (m *RenameAccountRequest) GetAccountNumber() uint32 {
 	if m != nil {
@@ -567,20 +604,24 @@ func (m *RenameAccountRequest) GetNewName() string {
 type RenameAccountResponse struct {
 }
 
-func (m *RenameAccountResponse) Reset()                    { *m = RenameAccountResponse{} }
-func (m *RenameAccountResponse) String() string            { return proto.CompactTextString(m) }
-func (*RenameAccountResponse) ProtoMessage()               {}
-func (*RenameAccountResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+func (m *RenameAccountResponse) Reset()         { *m = RenameAccountResponse{} }
+func (m *RenameAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*RenameAccountResponse) ProtoMessage()    {}
+func (*RenameAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{14}
+}
 
 type NextAccountRequest struct {
 	Passphrase  []byte `protobuf:"bytes,1,opt,name=passphrase,proto3" json:"passphrase,omitempty"`
 	AccountName string `protobuf:"bytes,2,opt,name=account_name,json=accountName" json:"account_name,omitempty"`
 }
 
-func (m *NextAccountRequest) Reset()                    { *m = NextAccountRequest{} }
-func (m *NextAccountRequest) String() string            { return proto.CompactTextString(m) }
-func (*NextAccountRequest) ProtoMessage()               {}
-func (*NextAccountRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+func (m *NextAccountRequest) Reset()         { *m = NextAccountRequest{} }
+func (m *NextAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*NextAccountRequest) ProtoMessage()    {}
+func (*NextAccountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{15}
+}
 
 func (m *NextAccountRequest) GetPassphrase() []byte {
 	if m != nil {
@@ -600,10 +641,12 @@ type NextAccountResponse struct {
 	AccountNumber uint32 `protobuf:"varint,1,opt,name=account_number,json=accountNumber" json:"account_number,omitempty"`
 }
 
-func (m *NextAccountResponse) Reset()                    { *m = NextAccountResponse{} }
-func (m *NextAccountResponse) String() string            { return proto.CompactTextString(m) }
-func (*NextAccountResponse) ProtoMessage()               {}
-func (*NextAccountResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
+func (m *NextAccountResponse) Reset()         { *m = NextAccountResponse{} }
+func (m *NextAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*NextAccountResponse) ProtoMessage()    {}
+func (*NextAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{16}
+}
 
 func (m *NextAccountResponse) GetAccountNumber() uint32 {
 	if m != nil {
@@ -617,10 +660,12 @@ type NextAddressRequest struct {
 	Kind    NextAddressRequest_Kind `protobuf:"varint,2,opt,name=kind,enum=walletrpc.NextAddressRequest_Kind" json:"kind,omitempty"`
 }
 
-func (m *NextAddressRequest) Reset()                    { *m = NextAddressRequest{} }
-func (m *NextAddressRequest) String() string            { return proto.CompactTextString(m) }
-func (*NextAddressRequest) ProtoMessage()               {}
-func (*NextAddressRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
+func (m *NextAddressRequest) Reset()         { *m = NextAddressRequest{} }
+func (m *NextAddressRequest) String() string { return proto.CompactTextString(m) }
+func (*NextAddressRequest) ProtoMessage()    {}
+func (*NextAddressRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{17}
+}
 
 func (m *NextAddressRequest) GetAccount() uint32 {
 	if m != nil {
@@ -640,10 +685,12 @@ type NextAddressResponse struct {
 	Address string `protobuf:"bytes,1,opt,name=address" json:"address,omitempty"`
 }
 
-func (m *NextAddressResponse) Reset()                    { *m = NextAddressResponse{} }
-func (m *NextAddressResponse) String() string            { return proto.CompactTextString(m) }
-func (*NextAddressResponse) ProtoMessage()               {}
-func (*NextAddressResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+func (m *NextAddressResponse) Reset()         { *m = NextAddressResponse{} }
+func (m *NextAddressResponse) String() string { return proto.CompactTextString(m) }
+func (*NextAddressResponse) ProtoMessage()    {}
+func (*NextAddressResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{18}
+}
 
 func (m *NextAddressResponse) GetAddress() string {
 	if m != nil {
@@ -659,10 +706,12 @@ type ImportPrivateKeyRequest struct {
 	Rescan        bool   `protobuf:"varint,4,opt,name=rescan" json:"rescan,omitempty"`
 }
 
-func (m *ImportPrivateKeyRequest) Reset()                    { *m = ImportPrivateKeyRequest{} }
-func (m *ImportPrivateKeyRequest) String() string            { return proto.CompactTextString(m) }
-func (*ImportPrivateKeyRequest) ProtoMessage()               {}
-func (*ImportPrivateKeyRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
+func (m *ImportPrivateKeyRequest) Reset()         { *m = ImportPrivateKeyRequest{} }
+func (m *ImportPrivateKeyRequest) String() string { return proto.CompactTextString(m) }
+func (*ImportPrivateKeyRequest) ProtoMessage()    {}
+func (*ImportPrivateKeyRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{19}
+}
 
 func (m *ImportPrivateKeyRequest) GetPassphrase() []byte {
 	if m != nil {
@@ -695,20 +744,24 @@ func (m *ImportPrivateKeyRequest) GetRescan() bool {
 type ImportPrivateKeyResponse struct {
 }
 
-func (m *ImportPrivateKeyResponse) Reset()                    { *m = ImportPrivateKeyResponse{} }
-func (m *ImportPrivateKeyResponse) String() string            { return proto.CompactTextString(m) }
-func (*ImportPrivateKeyResponse) ProtoMessage()               {}
-func (*ImportPrivateKeyResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
+func (m *ImportPrivateKeyResponse) Reset()         { *m = ImportPrivateKeyResponse{} }
+func (m *ImportPrivateKeyResponse) String() string { return proto.CompactTextString(m) }
+func (*ImportPrivateKeyResponse) ProtoMessage()    {}
+func (*ImportPrivateKeyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{20}
+}
 
 type BalanceRequest struct {
 	AccountNumber         uint32 `protobuf:"varint,1,opt,name=account_number,json=accountNumber" json:"account_number,omitempty"`
 	RequiredConfirmations int32  `protobuf:"varint,2,opt,name=required_confirmations,json=requiredConfirmations" json:"required_confirmations,omitempty"`
 }
 
-func (m *BalanceRequest) Reset()                    { *m = BalanceRequest{} }
-func (m *BalanceRequest) String() string            { return proto.CompactTextString(m) }
-func (*BalanceRequest) ProtoMessage()               {}
-func (*BalanceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
+func (m *BalanceRequest) Reset()         { *m = BalanceRequest{} }
+func (m *BalanceRequest) String() string { return proto.CompactTextString(m) }
+func (*BalanceRequest) ProtoMessage()    {}
+func (*BalanceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{21}
+}
 
 func (m *BalanceRequest) GetAccountNumber() uint32 {
 	if m != nil {
@@ -730,10 +783,12 @@ type BalanceResponse struct {
 	ImmatureReward int64 `protobuf:"varint,3,opt,name=immature_reward,json=immatureReward" json:"immature_reward,omitempty"`
 }
 
-func (m *BalanceResponse) Reset()                    { *m = BalanceResponse{} }
-func (m *BalanceResponse) String() string            { return proto.CompactTextString(m) }
-func (*BalanceResponse) ProtoMessage()               {}
-func (*BalanceResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
+func (m *BalanceResponse) Reset()         { *m = BalanceResponse{} }
+func (m *BalanceResponse) String() string { return proto.CompactTextString(m) }
+func (*BalanceResponse) ProtoMessage()    {}
+func (*BalanceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{22}
+}
 
 func (m *BalanceResponse) GetTotal() int64 {
 	if m != nil {
@@ -779,10 +834,12 @@ type GetTransactionsRequest struct {
 	MinimumRecentTransactions int32 `protobuf:"varint,5,opt,name=minimum_recent_transactions,json=minimumRecentTransactions" json:"minimum_recent_transactions,omitempty"`
 }
 
-func (m *GetTransactionsRequest) Reset()                    { *m = GetTransactionsRequest{} }
-func (m *GetTransactionsRequest) String() string            { return proto.CompactTextString(m) }
-func (*GetTransactionsRequest) ProtoMessage()               {}
-func (*GetTransactionsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
+func (m *GetTransactionsRequest) Reset()         { *m = GetTransactionsRequest{} }
+func (m *GetTransactionsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetTransactionsRequest) ProtoMessage()    {}
+func (*GetTransactionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{23}
+}
 
 func (m *GetTransactionsRequest) GetStartingBlockHash() []byte {
 	if m != nil {
@@ -824,10 +881,12 @@ type GetTransactionsResponse struct {
 	UnminedTransactions []*TransactionDetails `protobuf:"bytes,2,rep,name=unmined_transactions,json=unminedTransactions" json:"unmined_transactions,omitempty"`
 }
 
-func (m *GetTransactionsResponse) Reset()                    { *m = GetTransactionsResponse{} }
-func (m *GetTransactionsResponse) String() string            { return proto.CompactTextString(m) }
-func (*GetTransactionsResponse) ProtoMessage()               {}
-func (*GetTransactionsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
+func (m *GetTransactionsResponse) Reset()         { *m = GetTransactionsResponse{} }
+func (m *GetTransactionsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetTransactionsResponse) ProtoMessage()    {}
+func (*GetTransactionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{24}
+}
 
 func (m *GetTransactionsResponse) GetMinedTransactions() []*BlockDetails {
 	if m != nil {
@@ -849,10 +908,12 @@ type ChangePassphraseRequest struct {
 	NewPassphrase []byte                      `protobuf:"bytes,3,opt,name=new_passphrase,json=newPassphrase,proto3" json:"new_passphrase,omitempty"`
 }
 
-func (m *ChangePassphraseRequest) Reset()                    { *m = ChangePassphraseRequest{} }
-func (m *ChangePassphraseRequest) String() string            { return proto.CompactTextString(m) }
-func (*ChangePassphraseRequest) ProtoMessage()               {}
-func (*ChangePassphraseRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
+func (m *ChangePassphraseRequest) Reset()         { *m = ChangePassphraseRequest{} }
+func (m *ChangePassphraseRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangePassphraseRequest) ProtoMessage()    {}
+func (*ChangePassphraseRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{25}
+}
 
 func (m *ChangePassphraseRequest) GetKey() ChangePassphraseRequest_Key {
 	if m != nil {
@@ -878,10 +939,12 @@ func (m *ChangePassphraseRequest) GetNewPassphrase() []byte {
 type ChangePassphraseResponse struct {
 }
 
-func (m *ChangePassphraseResponse) Reset()                    { *m = ChangePassphraseResponse{} }
-func (m *ChangePassphraseResponse) String() string            { return proto.CompactTextString(m) }
-func (*ChangePassphraseResponse) ProtoMessage()               {}
-func (*ChangePassphraseResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
+func (m *ChangePassphraseResponse) Reset()         { *m = ChangePassphraseResponse{} }
+func (m *ChangePassphraseResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangePassphraseResponse) ProtoMessage()    {}
+func (*ChangePassphraseResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{26}
+}
 
 type FundTransactionRequest struct {
 	Account                  uint32 `protobuf:"varint,1,opt,name=account" json:"account,omitempty"`
@@ -891,10 +954,12 @@ type FundTransactionRequest struct {
 	IncludeChangeScript      bool   `protobuf:"varint,5,opt,name=include_change_script,json=includeChangeScript" json:"include_change_script,omitempty"`
 }
 
-func (m *FundTransactionRequest) Reset()                    { *m = FundTransactionRequest{} }
-func (m *FundTransactionRequest) String() string            { return proto.CompactTextString(m) }
-func (*FundTransactionRequest) ProtoMessage()               {}
-func (*FundTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
+func (m *FundTransactionRequest) Reset()         { *m = FundTransactionRequest{} }
+func (m *FundTransactionRequest) String() string { return proto.CompactTextString(m) }
+func (*FundTransactionRequest) ProtoMessage()    {}
+func (*FundTransactionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{27}
+}
 
 func (m *FundTransactionRequest) GetAccount() uint32 {
 	if m != nil {
@@ -937,10 +1002,12 @@ type FundTransactionResponse struct {
 	ChangePkScript  []byte                                    `protobuf:"bytes,3,opt,name=change_pk_script,json=changePkScript,proto3" json:"change_pk_script,omitempty"`
 }
 
-func (m *FundTransactionResponse) Reset()                    { *m = FundTransactionResponse{} }
-func (m *FundTransactionResponse) String() string            { return proto.CompactTextString(m) }
-func (*FundTransactionResponse) ProtoMessage()               {}
-func (*FundTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
+func (m *FundTransactionResponse) Reset()         { *m = FundTransactionResponse{} }
+func (m *FundTransactionResponse) String() string { return proto.CompactTextString(m) }
+func (*FundTransactionResponse) ProtoMessage()    {}
+func (*FundTransactionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{28}
+}
 
 func (m *FundTransactionResponse) GetSelectedOutputs() []*FundTransactionResponse_PreviousOutput {
 	if m != nil {
@@ -973,11 +1040,13 @@ type FundTransactionResponse_PreviousOutput struct {
 }
 
 func (m *FundTransactionResponse_PreviousOutput) Reset() {
+
 	*m = FundTransactionResponse_PreviousOutput{}
 }
 func (m *FundTransactionResponse_PreviousOutput) String() string { return proto.CompactTextString(m) }
 func (*FundTransactionResponse_PreviousOutput) ProtoMessage()    {}
 func (*FundTransactionResponse_PreviousOutput) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{28, 0}
 }
 
@@ -1034,10 +1103,12 @@ type SignTransactionRequest struct {
 	InputIndexes []uint32 `protobuf:"varint,3,rep,packed,name=input_indexes,json=inputIndexes" json:"input_indexes,omitempty"`
 }
 
-func (m *SignTransactionRequest) Reset()                    { *m = SignTransactionRequest{} }
-func (m *SignTransactionRequest) String() string            { return proto.CompactTextString(m) }
-func (*SignTransactionRequest) ProtoMessage()               {}
-func (*SignTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
+func (m *SignTransactionRequest) Reset()         { *m = SignTransactionRequest{} }
+func (m *SignTransactionRequest) String() string { return proto.CompactTextString(m) }
+func (*SignTransactionRequest) ProtoMessage()    {}
+func (*SignTransactionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{29}
+}
 
 func (m *SignTransactionRequest) GetPassphrase() []byte {
 	if m != nil {
@@ -1065,10 +1136,12 @@ type SignTransactionResponse struct {
 	UnsignedInputIndexes []uint32 `protobuf:"varint,2,rep,packed,name=unsigned_input_indexes,json=unsignedInputIndexes" json:"unsigned_input_indexes,omitempty"`
 }
 
-func (m *SignTransactionResponse) Reset()                    { *m = SignTransactionResponse{} }
-func (m *SignTransactionResponse) String() string            { return proto.CompactTextString(m) }
-func (*SignTransactionResponse) ProtoMessage()               {}
-func (*SignTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
+func (m *SignTransactionResponse) Reset()         { *m = SignTransactionResponse{} }
+func (m *SignTransactionResponse) String() string { return proto.CompactTextString(m) }
+func (*SignTransactionResponse) ProtoMessage()    {}
+func (*SignTransactionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{30}
+}
 
 func (m *SignTransactionResponse) GetTransaction() []byte {
 	if m != nil {
@@ -1088,10 +1161,12 @@ type PublishTransactionRequest struct {
 	SignedTransaction []byte `protobuf:"bytes,1,opt,name=signed_transaction,json=signedTransaction,proto3" json:"signed_transaction,omitempty"`
 }
 
-func (m *PublishTransactionRequest) Reset()                    { *m = PublishTransactionRequest{} }
-func (m *PublishTransactionRequest) String() string            { return proto.CompactTextString(m) }
-func (*PublishTransactionRequest) ProtoMessage()               {}
-func (*PublishTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
+func (m *PublishTransactionRequest) Reset()         { *m = PublishTransactionRequest{} }
+func (m *PublishTransactionRequest) String() string { return proto.CompactTextString(m) }
+func (*PublishTransactionRequest) ProtoMessage()    {}
+func (*PublishTransactionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{31}
+}
 
 func (m *PublishTransactionRequest) GetSignedTransaction() []byte {
 	if m != nil {
@@ -1103,10 +1178,12 @@ func (m *PublishTransactionRequest) GetSignedTransaction() []byte {
 type PublishTransactionResponse struct {
 }
 
-func (m *PublishTransactionResponse) Reset()                    { *m = PublishTransactionResponse{} }
-func (m *PublishTransactionResponse) String() string            { return proto.CompactTextString(m) }
-func (*PublishTransactionResponse) ProtoMessage()               {}
-func (*PublishTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
+func (m *PublishTransactionResponse) Reset()         { *m = PublishTransactionResponse{} }
+func (m *PublishTransactionResponse) String() string { return proto.CompactTextString(m) }
+func (*PublishTransactionResponse) ProtoMessage()    {}
+func (*PublishTransactionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{32}
+}
 
 type TransactionNotificationsRequest struct {
 }
@@ -1115,6 +1192,7 @@ func (m *TransactionNotificationsRequest) Reset()         { *m = TransactionNoti
 func (m *TransactionNotificationsRequest) String() string { return proto.CompactTextString(m) }
 func (*TransactionNotificationsRequest) ProtoMessage()    {}
 func (*TransactionNotificationsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{33}
 }
 
@@ -1141,6 +1219,7 @@ func (m *TransactionNotificationsResponse) Reset()         { *m = TransactionNot
 func (m *TransactionNotificationsResponse) String() string { return proto.CompactTextString(m) }
 func (*TransactionNotificationsResponse) ProtoMessage()    {}
 func (*TransactionNotificationsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{34}
 }
 
@@ -1178,10 +1257,12 @@ type SpentnessNotificationsRequest struct {
 	NoNotifySpent   bool   `protobuf:"varint,3,opt,name=no_notify_spent,json=noNotifySpent" json:"no_notify_spent,omitempty"`
 }
 
-func (m *SpentnessNotificationsRequest) Reset()                    { *m = SpentnessNotificationsRequest{} }
-func (m *SpentnessNotificationsRequest) String() string            { return proto.CompactTextString(m) }
-func (*SpentnessNotificationsRequest) ProtoMessage()               {}
-func (*SpentnessNotificationsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
+func (m *SpentnessNotificationsRequest) Reset()         { *m = SpentnessNotificationsRequest{} }
+func (m *SpentnessNotificationsRequest) String() string { return proto.CompactTextString(m) }
+func (*SpentnessNotificationsRequest) ProtoMessage()    {}
+func (*SpentnessNotificationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{35}
+}
 
 func (m *SpentnessNotificationsRequest) GetAccount() uint32 {
 	if m != nil {
@@ -1210,10 +1291,12 @@ type SpentnessNotificationsResponse struct {
 	Spender         *SpentnessNotificationsResponse_Spender `protobuf:"bytes,3,opt,name=spender" json:"spender,omitempty"`
 }
 
-func (m *SpentnessNotificationsResponse) Reset()                    { *m = SpentnessNotificationsResponse{} }
-func (m *SpentnessNotificationsResponse) String() string            { return proto.CompactTextString(m) }
-func (*SpentnessNotificationsResponse) ProtoMessage()               {}
-func (*SpentnessNotificationsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
+func (m *SpentnessNotificationsResponse) Reset()         { *m = SpentnessNotificationsResponse{} }
+func (m *SpentnessNotificationsResponse) String() string { return proto.CompactTextString(m) }
+func (*SpentnessNotificationsResponse) ProtoMessage()    {}
+func (*SpentnessNotificationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{36}
+}
 
 func (m *SpentnessNotificationsResponse) GetTransactionHash() []byte {
 	if m != nil {
@@ -1242,11 +1325,13 @@ type SpentnessNotificationsResponse_Spender struct {
 }
 
 func (m *SpentnessNotificationsResponse_Spender) Reset() {
+
 	*m = SpentnessNotificationsResponse_Spender{}
 }
 func (m *SpentnessNotificationsResponse_Spender) String() string { return proto.CompactTextString(m) }
 func (*SpentnessNotificationsResponse_Spender) ProtoMessage()    {}
 func (*SpentnessNotificationsResponse_Spender) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{36, 0}
 }
 
@@ -1267,10 +1352,12 @@ func (m *SpentnessNotificationsResponse_Spender) GetInputIndex() uint32 {
 type AccountNotificationsRequest struct {
 }
 
-func (m *AccountNotificationsRequest) Reset()                    { *m = AccountNotificationsRequest{} }
-func (m *AccountNotificationsRequest) String() string            { return proto.CompactTextString(m) }
-func (*AccountNotificationsRequest) ProtoMessage()               {}
-func (*AccountNotificationsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
+func (m *AccountNotificationsRequest) Reset()         { *m = AccountNotificationsRequest{} }
+func (m *AccountNotificationsRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountNotificationsRequest) ProtoMessage()    {}
+func (*AccountNotificationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{37}
+}
 
 type AccountNotificationsResponse struct {
 	AccountNumber    uint32 `protobuf:"varint,1,opt,name=account_number,json=accountNumber" json:"account_number,omitempty"`
@@ -1280,10 +1367,12 @@ type AccountNotificationsResponse struct {
 	ImportedKeyCount uint32 `protobuf:"varint,5,opt,name=imported_key_count,json=importedKeyCount" json:"imported_key_count,omitempty"`
 }
 
-func (m *AccountNotificationsResponse) Reset()                    { *m = AccountNotificationsResponse{} }
-func (m *AccountNotificationsResponse) String() string            { return proto.CompactTextString(m) }
-func (*AccountNotificationsResponse) ProtoMessage()               {}
-func (*AccountNotificationsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
+func (m *AccountNotificationsResponse) Reset()         { *m = AccountNotificationsResponse{} }
+func (m *AccountNotificationsResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountNotificationsResponse) ProtoMessage()    {}
+func (*AccountNotificationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{38}
+}
 
 func (m *AccountNotificationsResponse) GetAccountNumber() uint32 {
 	if m != nil {
@@ -1326,10 +1415,12 @@ type CreateWalletRequest struct {
 	Seed              []byte `protobuf:"bytes,3,opt,name=seed,proto3" json:"seed,omitempty"`
 }
 
-func (m *CreateWalletRequest) Reset()                    { *m = CreateWalletRequest{} }
-func (m *CreateWalletRequest) String() string            { return proto.CompactTextString(m) }
-func (*CreateWalletRequest) ProtoMessage()               {}
-func (*CreateWalletRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
+func (m *CreateWalletRequest) Reset()         { *m = CreateWalletRequest{} }
+func (m *CreateWalletRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateWalletRequest) ProtoMessage()    {}
+func (*CreateWalletRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{39}
+}
 
 func (m *CreateWalletRequest) GetPublicPassphrase() []byte {
 	if m != nil {
@@ -1355,19 +1446,23 @@ func (m *CreateWalletRequest) GetSeed() []byte {
 type CreateWalletResponse struct {
 }
 
-func (m *CreateWalletResponse) Reset()                    { *m = CreateWalletResponse{} }
-func (m *CreateWalletResponse) String() string            { return proto.CompactTextString(m) }
-func (*CreateWalletResponse) ProtoMessage()               {}
-func (*CreateWalletResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
+func (m *CreateWalletResponse) Reset()         { *m = CreateWalletResponse{} }
+func (m *CreateWalletResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateWalletResponse) ProtoMessage()    {}
+func (*CreateWalletResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{40}
+}
 
 type OpenWalletRequest struct {
 	PublicPassphrase []byte `protobuf:"bytes,1,opt,name=public_passphrase,json=publicPassphrase,proto3" json:"public_passphrase,omitempty"`
 }
 
-func (m *OpenWalletRequest) Reset()                    { *m = OpenWalletRequest{} }
-func (m *OpenWalletRequest) String() string            { return proto.CompactTextString(m) }
-func (*OpenWalletRequest) ProtoMessage()               {}
-func (*OpenWalletRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
+func (m *OpenWalletRequest) Reset()         { *m = OpenWalletRequest{} }
+func (m *OpenWalletRequest) String() string { return proto.CompactTextString(m) }
+func (*OpenWalletRequest) ProtoMessage()    {}
+func (*OpenWalletRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{41}
+}
 
 func (m *OpenWalletRequest) GetPublicPassphrase() []byte {
 	if m != nil {
@@ -1379,43 +1474,53 @@ func (m *OpenWalletRequest) GetPublicPassphrase() []byte {
 type OpenWalletResponse struct {
 }
 
-func (m *OpenWalletResponse) Reset()                    { *m = OpenWalletResponse{} }
-func (m *OpenWalletResponse) String() string            { return proto.CompactTextString(m) }
-func (*OpenWalletResponse) ProtoMessage()               {}
-func (*OpenWalletResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
+func (m *OpenWalletResponse) Reset()         { *m = OpenWalletResponse{} }
+func (m *OpenWalletResponse) String() string { return proto.CompactTextString(m) }
+func (*OpenWalletResponse) ProtoMessage()    {}
+func (*OpenWalletResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{42}
+}
 
 type CloseWalletRequest struct {
 }
 
-func (m *CloseWalletRequest) Reset()                    { *m = CloseWalletRequest{} }
-func (m *CloseWalletRequest) String() string            { return proto.CompactTextString(m) }
-func (*CloseWalletRequest) ProtoMessage()               {}
-func (*CloseWalletRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{43} }
+func (m *CloseWalletRequest) Reset()         { *m = CloseWalletRequest{} }
+func (m *CloseWalletRequest) String() string { return proto.CompactTextString(m) }
+func (*CloseWalletRequest) ProtoMessage()    {}
+func (*CloseWalletRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{43}
+}
 
 type CloseWalletResponse struct {
 }
 
-func (m *CloseWalletResponse) Reset()                    { *m = CloseWalletResponse{} }
-func (m *CloseWalletResponse) String() string            { return proto.CompactTextString(m) }
-func (*CloseWalletResponse) ProtoMessage()               {}
-func (*CloseWalletResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
+func (m *CloseWalletResponse) Reset()         { *m = CloseWalletResponse{} }
+func (m *CloseWalletResponse) String() string { return proto.CompactTextString(m) }
+func (*CloseWalletResponse) ProtoMessage()    {}
+func (*CloseWalletResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{44}
+}
 
 type WalletExistsRequest struct {
 }
 
-func (m *WalletExistsRequest) Reset()                    { *m = WalletExistsRequest{} }
-func (m *WalletExistsRequest) String() string            { return proto.CompactTextString(m) }
-func (*WalletExistsRequest) ProtoMessage()               {}
-func (*WalletExistsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{45} }
+func (m *WalletExistsRequest) Reset()         { *m = WalletExistsRequest{} }
+func (m *WalletExistsRequest) String() string { return proto.CompactTextString(m) }
+func (*WalletExistsRequest) ProtoMessage()    {}
+func (*WalletExistsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{45}
+}
 
 type WalletExistsResponse struct {
 	Exists bool `protobuf:"varint,1,opt,name=exists" json:"exists,omitempty"`
 }
 
-func (m *WalletExistsResponse) Reset()                    { *m = WalletExistsResponse{} }
-func (m *WalletExistsResponse) String() string            { return proto.CompactTextString(m) }
-func (*WalletExistsResponse) ProtoMessage()               {}
-func (*WalletExistsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{46} }
+func (m *WalletExistsResponse) Reset()         { *m = WalletExistsResponse{} }
+func (m *WalletExistsResponse) String() string { return proto.CompactTextString(m) }
+func (*WalletExistsResponse) ProtoMessage()    {}
+func (*WalletExistsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{46}
+}
 
 func (m *WalletExistsResponse) GetExists() bool {
 	if m != nil {
@@ -1431,10 +1536,12 @@ type StartConsensusRPCRequest struct {
 	Certificate    []byte `protobuf:"bytes,4,opt,name=certificate,proto3" json:"certificate,omitempty"`
 }
 
-func (m *StartConsensusRPCRequest) Reset()                    { *m = StartConsensusRPCRequest{} }
-func (m *StartConsensusRPCRequest) String() string            { return proto.CompactTextString(m) }
-func (*StartConsensusRPCRequest) ProtoMessage()               {}
-func (*StartConsensusRPCRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{47} }
+func (m *StartConsensusRPCRequest) Reset()         { *m = StartConsensusRPCRequest{} }
+func (m *StartConsensusRPCRequest) String() string { return proto.CompactTextString(m) }
+func (*StartConsensusRPCRequest) ProtoMessage()    {}
+func (*StartConsensusRPCRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{47}
+}
 
 func (m *StartConsensusRPCRequest) GetNetworkAddress() string {
 	if m != nil {
@@ -1467,13 +1574,15 @@ func (m *StartConsensusRPCRequest) GetCertificate() []byte {
 type StartConsensusRPCResponse struct {
 }
 
-func (m *StartConsensusRPCResponse) Reset()                    { *m = StartConsensusRPCResponse{} }
-func (m *StartConsensusRPCResponse) String() string            { return proto.CompactTextString(m) }
-func (*StartConsensusRPCResponse) ProtoMessage()               {}
-func (*StartConsensusRPCResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{48} }
+func (m *StartConsensusRPCResponse) Reset()         { *m = StartConsensusRPCResponse{} }
+func (m *StartConsensusRPCResponse) String() string { return proto.CompactTextString(m) }
+func (*StartConsensusRPCResponse) ProtoMessage()    {}
+func (*StartConsensusRPCResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{48}
+}
 
-func init(
-	) {
+func init() {
+
 	proto.RegisterType((*VersionRequest)(nil), "walletrpc.VersionRequest")
 	proto.RegisterType((*VersionResponse)(nil), "walletrpc.VersionResponse")
 	proto.RegisterType((*TransactionDetails)(nil), "walletrpc.TransactionDetails")
@@ -1556,6 +1665,7 @@ func NewVersionServiceClient(
 }
 
 func (c *versionServiceClient) Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error) {
+
 	out := new(VersionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.VersionService/Version", in, out, c.cc, opts...)
 	if err != nil {
@@ -1572,11 +1682,13 @@ type VersionServiceServer interface {
 
 func RegisterVersionServiceServer(
 	s *grpc.Server, srv VersionServiceServer) {
+
 	s.RegisterService(&_VersionService_serviceDesc, srv)
 }
 
 func _VersionService_Version_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(VersionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1589,6 +1701,7 @@ func _VersionService_Version_Handler(
 		FullMethod: "/walletrpc.VersionService/Version",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(VersionServiceServer).Version(ctx, req.(*VersionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1642,6 +1755,7 @@ func NewWalletServiceClient(
 }
 
 func (c *walletServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+
 	out := new(PingResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Ping", in, out, c.cc, opts...)
 	if err != nil {
@@ -1651,6 +1765,7 @@ func (c *walletServiceClient) Ping(ctx context.Context, in *PingRequest, opts ..
 }
 
 func (c *walletServiceClient) Network(ctx context.Context, in *NetworkRequest, opts ...grpc.CallOption) (*NetworkResponse, error) {
+
 	out := new(NetworkResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Network", in, out, c.cc, opts...)
 	if err != nil {
@@ -1660,6 +1775,7 @@ func (c *walletServiceClient) Network(ctx context.Context, in *NetworkRequest, o
 }
 
 func (c *walletServiceClient) AccountNumber(ctx context.Context, in *AccountNumberRequest, opts ...grpc.CallOption) (*AccountNumberResponse, error) {
+
 	out := new(AccountNumberResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/AccountNumber", in, out, c.cc, opts...)
 	if err != nil {
@@ -1669,6 +1785,7 @@ func (c *walletServiceClient) AccountNumber(ctx context.Context, in *AccountNumb
 }
 
 func (c *walletServiceClient) Accounts(ctx context.Context, in *AccountsRequest, opts ...grpc.CallOption) (*AccountsResponse, error) {
+
 	out := new(AccountsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Accounts", in, out, c.cc, opts...)
 	if err != nil {
@@ -1678,6 +1795,7 @@ func (c *walletServiceClient) Accounts(ctx context.Context, in *AccountsRequest,
 }
 
 func (c *walletServiceClient) Balance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceResponse, error) {
+
 	out := new(BalanceResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Balance", in, out, c.cc, opts...)
 	if err != nil {
@@ -1687,6 +1805,7 @@ func (c *walletServiceClient) Balance(ctx context.Context, in *BalanceRequest, o
 }
 
 func (c *walletServiceClient) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
+
 	out := new(GetTransactionsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/GetTransactions", in, out, c.cc, opts...)
 	if err != nil {
@@ -1696,6 +1815,7 @@ func (c *walletServiceClient) GetTransactions(ctx context.Context, in *GetTransa
 }
 
 func (c *walletServiceClient) TransactionNotifications(ctx context.Context, in *TransactionNotificationsRequest, opts ...grpc.CallOption) (WalletService_TransactionNotificationsClient, error) {
+
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[0], c.cc, "/walletrpc.WalletService/TransactionNotifications", opts...)
 	if err != nil {
 		return nil, err
@@ -1720,6 +1840,7 @@ type walletServiceTransactionNotificationsClient struct {
 }
 
 func (x *walletServiceTransactionNotificationsClient) Recv() (*TransactionNotificationsResponse, error) {
+
 	m := new(TransactionNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -1728,6 +1849,7 @@ func (x *walletServiceTransactionNotificationsClient) Recv() (*TransactionNotifi
 }
 
 func (c *walletServiceClient) SpentnessNotifications(ctx context.Context, in *SpentnessNotificationsRequest, opts ...grpc.CallOption) (WalletService_SpentnessNotificationsClient, error) {
+
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[1], c.cc, "/walletrpc.WalletService/SpentnessNotifications", opts...)
 	if err != nil {
 		return nil, err
@@ -1752,6 +1874,7 @@ type walletServiceSpentnessNotificationsClient struct {
 }
 
 func (x *walletServiceSpentnessNotificationsClient) Recv() (*SpentnessNotificationsResponse, error) {
+
 	m := new(SpentnessNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -1760,6 +1883,7 @@ func (x *walletServiceSpentnessNotificationsClient) Recv() (*SpentnessNotificati
 }
 
 func (c *walletServiceClient) AccountNotifications(ctx context.Context, in *AccountNotificationsRequest, opts ...grpc.CallOption) (WalletService_AccountNotificationsClient, error) {
+
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[2], c.cc, "/walletrpc.WalletService/AccountNotifications", opts...)
 	if err != nil {
 		return nil, err
@@ -1784,6 +1908,7 @@ type walletServiceAccountNotificationsClient struct {
 }
 
 func (x *walletServiceAccountNotificationsClient) Recv() (*AccountNotificationsResponse, error) {
+
 	m := new(AccountNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -1792,6 +1917,7 @@ func (x *walletServiceAccountNotificationsClient) Recv() (*AccountNotificationsR
 }
 
 func (c *walletServiceClient) ChangePassphrase(ctx context.Context, in *ChangePassphraseRequest, opts ...grpc.CallOption) (*ChangePassphraseResponse, error) {
+
 	out := new(ChangePassphraseResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/ChangePassphrase", in, out, c.cc, opts...)
 	if err != nil {
@@ -1801,6 +1927,7 @@ func (c *walletServiceClient) ChangePassphrase(ctx context.Context, in *ChangePa
 }
 
 func (c *walletServiceClient) RenameAccount(ctx context.Context, in *RenameAccountRequest, opts ...grpc.CallOption) (*RenameAccountResponse, error) {
+
 	out := new(RenameAccountResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/RenameAccount", in, out, c.cc, opts...)
 	if err != nil {
@@ -1810,6 +1937,7 @@ func (c *walletServiceClient) RenameAccount(ctx context.Context, in *RenameAccou
 }
 
 func (c *walletServiceClient) NextAccount(ctx context.Context, in *NextAccountRequest, opts ...grpc.CallOption) (*NextAccountResponse, error) {
+
 	out := new(NextAccountResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/NextAccount", in, out, c.cc, opts...)
 	if err != nil {
@@ -1819,6 +1947,7 @@ func (c *walletServiceClient) NextAccount(ctx context.Context, in *NextAccountRe
 }
 
 func (c *walletServiceClient) NextAddress(ctx context.Context, in *NextAddressRequest, opts ...grpc.CallOption) (*NextAddressResponse, error) {
+
 	out := new(NextAddressResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/NextAddress", in, out, c.cc, opts...)
 	if err != nil {
@@ -1828,6 +1957,7 @@ func (c *walletServiceClient) NextAddress(ctx context.Context, in *NextAddressRe
 }
 
 func (c *walletServiceClient) ImportPrivateKey(ctx context.Context, in *ImportPrivateKeyRequest, opts ...grpc.CallOption) (*ImportPrivateKeyResponse, error) {
+
 	out := new(ImportPrivateKeyResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/ImportPrivateKey", in, out, c.cc, opts...)
 	if err != nil {
@@ -1837,6 +1967,7 @@ func (c *walletServiceClient) ImportPrivateKey(ctx context.Context, in *ImportPr
 }
 
 func (c *walletServiceClient) FundTransaction(ctx context.Context, in *FundTransactionRequest, opts ...grpc.CallOption) (*FundTransactionResponse, error) {
+
 	out := new(FundTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/FundTransaction", in, out, c.cc, opts...)
 	if err != nil {
@@ -1846,6 +1977,7 @@ func (c *walletServiceClient) FundTransaction(ctx context.Context, in *FundTrans
 }
 
 func (c *walletServiceClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
+
 	out := new(SignTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/SignTransaction", in, out, c.cc, opts...)
 	if err != nil {
@@ -1855,6 +1987,7 @@ func (c *walletServiceClient) SignTransaction(ctx context.Context, in *SignTrans
 }
 
 func (c *walletServiceClient) PublishTransaction(ctx context.Context, in *PublishTransactionRequest, opts ...grpc.CallOption) (*PublishTransactionResponse, error) {
+
 	out := new(PublishTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/PublishTransaction", in, out, c.cc, opts...)
 	if err != nil {
@@ -1890,11 +2023,13 @@ type WalletServiceServer interface {
 
 func RegisterWalletServiceServer(
 	s *grpc.Server, srv WalletServiceServer) {
+
 	s.RegisterService(&_WalletService_serviceDesc, srv)
 }
 
 func _WalletService_Ping_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(PingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1907,6 +2042,7 @@ func _WalletService_Ping_Handler(
 		FullMethod: "/walletrpc.WalletService/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).Ping(ctx, req.(*PingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1914,6 +2050,7 @@ func _WalletService_Ping_Handler(
 
 func _WalletService_Network_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(NetworkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1926,6 +2063,7 @@ func _WalletService_Network_Handler(
 		FullMethod: "/walletrpc.WalletService/Network",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).Network(ctx, req.(*NetworkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1933,6 +2071,7 @@ func _WalletService_Network_Handler(
 
 func _WalletService_AccountNumber_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(AccountNumberRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1945,6 +2084,7 @@ func _WalletService_AccountNumber_Handler(
 		FullMethod: "/walletrpc.WalletService/AccountNumber",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).AccountNumber(ctx, req.(*AccountNumberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1952,6 +2092,7 @@ func _WalletService_AccountNumber_Handler(
 
 func _WalletService_Accounts_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(AccountsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1964,6 +2105,7 @@ func _WalletService_Accounts_Handler(
 		FullMethod: "/walletrpc.WalletService/Accounts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).Accounts(ctx, req.(*AccountsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1971,6 +2113,7 @@ func _WalletService_Accounts_Handler(
 
 func _WalletService_Balance_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(BalanceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1983,6 +2126,7 @@ func _WalletService_Balance_Handler(
 		FullMethod: "/walletrpc.WalletService/Balance",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).Balance(ctx, req.(*BalanceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -1990,6 +2134,7 @@ func _WalletService_Balance_Handler(
 
 func _WalletService_GetTransactions_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(GetTransactionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2002,6 +2147,7 @@ func _WalletService_GetTransactions_Handler(
 		FullMethod: "/walletrpc.WalletService/GetTransactions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).GetTransactions(ctx, req.(*GetTransactionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2075,6 +2221,7 @@ func (x *walletServiceAccountNotificationsServer) Send(m *AccountNotificationsRe
 
 func _WalletService_ChangePassphrase_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(ChangePassphraseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2087,6 +2234,7 @@ func _WalletService_ChangePassphrase_Handler(
 		FullMethod: "/walletrpc.WalletService/ChangePassphrase",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).ChangePassphrase(ctx, req.(*ChangePassphraseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2094,6 +2242,7 @@ func _WalletService_ChangePassphrase_Handler(
 
 func _WalletService_RenameAccount_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(RenameAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2106,6 +2255,7 @@ func _WalletService_RenameAccount_Handler(
 		FullMethod: "/walletrpc.WalletService/RenameAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).RenameAccount(ctx, req.(*RenameAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2113,6 +2263,7 @@ func _WalletService_RenameAccount_Handler(
 
 func _WalletService_NextAccount_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(NextAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2125,6 +2276,7 @@ func _WalletService_NextAccount_Handler(
 		FullMethod: "/walletrpc.WalletService/NextAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).NextAccount(ctx, req.(*NextAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2132,6 +2284,7 @@ func _WalletService_NextAccount_Handler(
 
 func _WalletService_NextAddress_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(NextAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2144,6 +2297,7 @@ func _WalletService_NextAddress_Handler(
 		FullMethod: "/walletrpc.WalletService/NextAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).NextAddress(ctx, req.(*NextAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2151,6 +2305,7 @@ func _WalletService_NextAddress_Handler(
 
 func _WalletService_ImportPrivateKey_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(ImportPrivateKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2163,6 +2318,7 @@ func _WalletService_ImportPrivateKey_Handler(
 		FullMethod: "/walletrpc.WalletService/ImportPrivateKey",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).ImportPrivateKey(ctx, req.(*ImportPrivateKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2170,6 +2326,7 @@ func _WalletService_ImportPrivateKey_Handler(
 
 func _WalletService_FundTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(FundTransactionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2182,6 +2339,7 @@ func _WalletService_FundTransaction_Handler(
 		FullMethod: "/walletrpc.WalletService/FundTransaction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).FundTransaction(ctx, req.(*FundTransactionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2189,6 +2347,7 @@ func _WalletService_FundTransaction_Handler(
 
 func _WalletService_SignTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(SignTransactionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2201,6 +2360,7 @@ func _WalletService_SignTransaction_Handler(
 		FullMethod: "/walletrpc.WalletService/SignTransaction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).SignTransaction(ctx, req.(*SignTransactionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2208,6 +2368,7 @@ func _WalletService_SignTransaction_Handler(
 
 func _WalletService_PublishTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(PublishTransactionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2220,6 +2381,7 @@ func _WalletService_PublishTransaction_Handler(
 		FullMethod: "/walletrpc.WalletService/PublishTransaction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletServiceServer).PublishTransaction(ctx, req.(*PublishTransactionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2326,6 +2488,7 @@ func NewWalletLoaderServiceClient(
 }
 
 func (c *walletLoaderServiceClient) WalletExists(ctx context.Context, in *WalletExistsRequest, opts ...grpc.CallOption) (*WalletExistsResponse, error) {
+
 	out := new(WalletExistsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/WalletExists", in, out, c.cc, opts...)
 	if err != nil {
@@ -2335,6 +2498,7 @@ func (c *walletLoaderServiceClient) WalletExists(ctx context.Context, in *Wallet
 }
 
 func (c *walletLoaderServiceClient) CreateWallet(ctx context.Context, in *CreateWalletRequest, opts ...grpc.CallOption) (*CreateWalletResponse, error) {
+
 	out := new(CreateWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/CreateWallet", in, out, c.cc, opts...)
 	if err != nil {
@@ -2344,6 +2508,7 @@ func (c *walletLoaderServiceClient) CreateWallet(ctx context.Context, in *Create
 }
 
 func (c *walletLoaderServiceClient) OpenWallet(ctx context.Context, in *OpenWalletRequest, opts ...grpc.CallOption) (*OpenWalletResponse, error) {
+
 	out := new(OpenWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/OpenWallet", in, out, c.cc, opts...)
 	if err != nil {
@@ -2353,6 +2518,7 @@ func (c *walletLoaderServiceClient) OpenWallet(ctx context.Context, in *OpenWall
 }
 
 func (c *walletLoaderServiceClient) CloseWallet(ctx context.Context, in *CloseWalletRequest, opts ...grpc.CallOption) (*CloseWalletResponse, error) {
+
 	out := new(CloseWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/CloseWallet", in, out, c.cc, opts...)
 	if err != nil {
@@ -2362,6 +2528,7 @@ func (c *walletLoaderServiceClient) CloseWallet(ctx context.Context, in *CloseWa
 }
 
 func (c *walletLoaderServiceClient) StartConsensusRPC(ctx context.Context, in *StartConsensusRPCRequest, opts ...grpc.CallOption) (*StartConsensusRPCResponse, error) {
+
 	out := new(StartConsensusRPCResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/StartConsensusRPC", in, out, c.cc, opts...)
 	if err != nil {
@@ -2382,11 +2549,13 @@ type WalletLoaderServiceServer interface {
 
 func RegisterWalletLoaderServiceServer(
 	s *grpc.Server, srv WalletLoaderServiceServer) {
+
 	s.RegisterService(&_WalletLoaderService_serviceDesc, srv)
 }
 
 func _WalletLoaderService_WalletExists_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(WalletExistsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2399,6 +2568,7 @@ func _WalletLoaderService_WalletExists_Handler(
 		FullMethod: "/walletrpc.WalletLoaderService/WalletExists",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletLoaderServiceServer).WalletExists(ctx, req.(*WalletExistsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2406,6 +2576,7 @@ func _WalletLoaderService_WalletExists_Handler(
 
 func _WalletLoaderService_CreateWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(CreateWalletRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2418,6 +2589,7 @@ func _WalletLoaderService_CreateWallet_Handler(
 		FullMethod: "/walletrpc.WalletLoaderService/CreateWallet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletLoaderServiceServer).CreateWallet(ctx, req.(*CreateWalletRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2425,6 +2597,7 @@ func _WalletLoaderService_CreateWallet_Handler(
 
 func _WalletLoaderService_OpenWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(OpenWalletRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2437,6 +2610,7 @@ func _WalletLoaderService_OpenWallet_Handler(
 		FullMethod: "/walletrpc.WalletLoaderService/OpenWallet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletLoaderServiceServer).OpenWallet(ctx, req.(*OpenWalletRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2444,6 +2618,7 @@ func _WalletLoaderService_OpenWallet_Handler(
 
 func _WalletLoaderService_CloseWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(CloseWalletRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2456,6 +2631,7 @@ func _WalletLoaderService_CloseWallet_Handler(
 		FullMethod: "/walletrpc.WalletLoaderService/CloseWallet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletLoaderServiceServer).CloseWallet(ctx, req.(*CloseWalletRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2463,6 +2639,7 @@ func _WalletLoaderService_CloseWallet_Handler(
 
 func _WalletLoaderService_StartConsensusRPC_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 	in := new(StartConsensusRPCRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -2475,6 +2652,7 @@ func _WalletLoaderService_StartConsensusRPC_Handler(
 		FullMethod: "/walletrpc.WalletLoaderService/StartConsensusRPC",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+
 		return srv.(WalletLoaderServiceServer).StartConsensusRPC(ctx, req.(*StartConsensusRPCRequest))
 	}
 	return interceptor(ctx, in, info, handler)
@@ -2509,8 +2687,9 @@ var _WalletLoaderService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "api.proto",
 }
 
-func init(
-	) { proto.RegisterFile("api.proto", fileDescriptor0) }
+func init() {
+	proto.RegisterFile("api.proto", fileDescriptor0)
+}
 
 var fileDescriptor0 = []byte{
 	// 2391 bytes of a gzipped FileDescriptorProto

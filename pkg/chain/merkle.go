@@ -108,8 +108,10 @@ func BuildMerkleTreeStore(
 // ExtractWitnessCommitment attempts to locate, and return the witness commitment for a block. The witness commitment is of the form: SHA256(witness root || witness nonce). The function additionally returns a boolean indicating if the witness root was located within any of the txOut's in the passed transaction. The witness commitment is stored as the data push for an OP_RETURN with special magic bytes to aide in location.
 func ExtractWitnessCommitment(
 	tx *util.Tx) ([]byte, bool) {
+
 	// The witness commitment *must* be located within one of the coinbase transaction's outputs.
 	if !IsCoinBase(tx) {
+
 		return nil, false
 	}
 	msgTx := tx.MsgTx()
@@ -118,6 +120,7 @@ func ExtractWitnessCommitment(
 		pkScript := msgTx.TxOut[i].PkScript
 		if len(pkScript) >= CoinbaseWitnessPkScriptLength &&
 			bytes.HasPrefix(pkScript, WitnessMagicBytes) {
+
 			// The witness commitment itself is a 32-byte hash directly after the WitnessMagicBytes. The remaining bytes beyond the 38th byte currently have no consensus meaning.
 			start := len(WitnessMagicBytes)
 			end := CoinbaseWitnessPkScriptLength
@@ -144,8 +147,10 @@ func ValidateWitnessCommitment(
 	// If we can't find a witness commitment in any of the coinbase's outputs, then the block MUST NOT contain any transactions with witness data.
 	if !witnessFound {
 		for _, tx := range blk.Transactions() {
+
 			msgTx := tx.MsgTx()
 			if msgTx.HasWitness() {
+
 				str := fmt.Sprintf("block contains transaction with witness" +
 					" data, yet no witness commitment present")
 				return ruleError(ErrUnexpectedWitness, str)
@@ -176,6 +181,7 @@ func ValidateWitnessCommitment(
 	copy(witnessPreimage[chainhash.HashSize:], witnessNonce)
 	computedCommitment := chainhash.DoubleHashB(witnessPreimage[:])
 	if !bytes.Equal(computedCommitment, witnessCommitment) {
+
 		str := fmt.Sprintf("witness commitment does not match: "+
 			"computed %v, coinbase includes %v", computedCommitment,
 			witnessCommitment)

@@ -28,6 +28,7 @@ var signals = []os.Signal{os.Interrupt}
 // internal component instead of a SIGINT.
 func simulateInterrupt(
 	) {
+
 	select {
 	case simulateInterruptChannel <- struct{}{}:
 	default:
@@ -39,10 +40,12 @@ func simulateInterrupt(
 // It also listens for callback registration.  It must be run as a goroutine.
 func mainInterruptHandler(
 	) {
+
 	// interruptCallbacks is a list of callbacks to invoke when a
 	// SIGINT (Ctrl+C) is received.
 	var interruptCallbacks []func()
 	invokeCallbacks := func() {
+
 		// run handlers in LIFO order.
 		for i := range interruptCallbacks {
 			idx := len(interruptCallbacks) - 1 - i
@@ -77,6 +80,7 @@ func mainInterruptHandler(
 // received.
 func addInterruptHandler(
 	handler func()) {
+
 	// Create the channel and start the main interrupt handler which invokes
 	// all other callbacks and exits if not already done.
 	if interruptChannel == nil {

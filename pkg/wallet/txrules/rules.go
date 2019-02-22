@@ -53,6 +53,7 @@ func IsDustOutput(
 
 	// All other unspendable outputs are considered dust.
 	if txscript.IsUnspendable(output.PkScript) {
+
 		return true
 	}
 
@@ -78,6 +79,7 @@ func CheckOutput(
 		return ErrAmountExceedsMax
 	}
 	if IsDustOutput(output, relayFeePerKb) {
+
 		return ErrOutputIsDust
 	}
 	return nil

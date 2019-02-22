@@ -14,6 +14,7 @@ import (
 )
 
 func (w *Wallet) handleChainNotifications() {
+
 	defer w.wg.Done()
 
 	chainClient, err := w.requireChainClient()
@@ -23,12 +24,14 @@ func (w *Wallet) handleChainNotifications() {
 	}
 
 	sync := func(w *Wallet) {
+
 		// At the moment there is no recourse if the rescan fails for
 		// some reason, however, the wallet will not be marked synced
 		// and many methods will error early since the wallet is known
 		// to be out of date.
 		err := w.syncWithChain()
 		if err != nil && !w.ShuttingDown() {
+
 			log <- cl.Warn{"unable to synchronize wallet to chain:", err}
 		}
 	}
@@ -96,6 +99,7 @@ func (w *Wallet) handleChainNotifications() {
 			var notificationName string
 			var err error
 			switch n := n.(type) {
+
 			case chain.ClientConnected:
 				go sync(w)
 			case chain.BlockConnected:
@@ -159,6 +163,7 @@ func (w *Wallet) handleChainNotifications() {
 				if notificationName == "blockconnected" &&
 					strings.Contains(err.Error(),
 						"couldn't get hash from database") {
+
 					log <- cl.Debugf{errStr, notificationName, err}
 				} else {
 					log <- cl.Errorf{errStr, notificationName, err}
@@ -201,6 +206,7 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 	txmgrNs := dbtx.ReadWriteBucket(wtxmgrNamespaceKey)
 
 	if !w.ChainSynced() {
+
 		return nil
 	}
 
@@ -212,6 +218,7 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 			return err
 		}
 		if bytes.Equal(hash[:], b.Hash[:]) {
+
 			bs := waddrmgr.BlockStamp{
 				Height: b.Height - 1,
 			}
@@ -290,6 +297,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 			// Missing addresses are skipped.  Other errors should
 			// be propagated.
 			if !waddrmgr.IsError(err, waddrmgr.ErrAddressNotFound) {
+
 				return err
 			}
 		}

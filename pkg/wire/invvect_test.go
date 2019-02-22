@@ -12,6 +12,7 @@ import (
 // TestInvVectStringer tests the stringized output for inventory vector types.
 func TestInvTypeStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in   InvType
 		want string
@@ -35,6 +36,7 @@ func TestInvTypeStringer(
 // TestInvVect tests the InvVect API.
 func TestInvVect(
 	t *testing.T) {
+
 	ivType := InvTypeBlock
 	hash := chainhash.Hash{}
 	// Ensure we get the same payload and signature back out.
@@ -44,6 +46,7 @@ func TestInvVect(
 			iv.Type, ivType)
 	}
 	if !iv.Hash.IsEqual(&hash) {
+
 		t.Errorf("NewInvVect: wrong hash - got %v, want %v",
 			spew.Sdump(iv.Hash), spew.Sdump(hash))
 	}
@@ -52,6 +55,7 @@ func TestInvVect(
 // TestInvVectWire tests the InvVect wire encode and decode for various protocol versions and supported inventory vector types.
 func TestInvVectWire(
 	t *testing.T) {
+
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	baseHash, err := chainhash.NewHashFromStr(hashStr)
@@ -219,6 +223,7 @@ func TestInvVectWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("writeInvVect #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -232,6 +237,7 @@ func TestInvVectWire(
 			continue
 		}
 		if !reflect.DeepEqual(iv, test.out) {
+
 			t.Errorf("readInvVect #%d\n got: %s want: %s", i,
 				spew.Sdump(iv), spew.Sdump(test.out))
 			continue

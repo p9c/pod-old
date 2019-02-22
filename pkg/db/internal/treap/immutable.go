@@ -250,6 +250,7 @@ func (t *Immutable) Delete(key []byte) *Immutable {
 
 // ForEach invokes the passed function with every key/value pair in the treap in ascending order.
 func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
+
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, have been traversed.
 	var parents parentStack
 	for node := t.root; node != nil; node = node.left {
@@ -258,6 +259,7 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 	for parents.Len() > 0 {
 		node := parents.Pop()
 		if !fn(node.key, node.value) {
+
 			return
 		}
 		// Extend the nodes to traverse by all children to the left of the current node's right child.
@@ -268,7 +270,6 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 }
 
 // NewImmutable returns a new empty immutable treap ready for use.  See the documentation for the Immutable structure for more details.
-func NewImmutable(
-	) *Immutable {
+func NewImmutable() *Immutable {
 	return &Immutable{}
 }

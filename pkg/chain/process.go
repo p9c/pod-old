@@ -27,8 +27,10 @@ const (
 
 // blockExists determines whether a block with the given hash exists either in the main chain or any side chains. This function is safe for concurrent access.
 func (b *BlockChain) blockExists(hash *chainhash.Hash) (bool, error) {
+
 	// Check block index first (could be main chain or side chain blocks).
 	if b.Index.HaveBlock(hash) {
+
 		return true, nil
 	}
 	// Check in the database.
@@ -42,6 +44,7 @@ func (b *BlockChain) blockExists(hash *chainhash.Hash) (bool, error) {
 		// Ignore side chain blocks in the database.  This is necessary because there is not currently any record of the associated block index data such as its block height, so it's not yet possible to efficiently load the block and do anything useful with it. Ultimately the entire block index should be serialized instead of only the current main chain so it can be consulted directly.
 		_, err = dbFetchHeightByHash(dbTx, hash)
 		if isNotInMainChainErr(err) {
+
 			exists = false
 			return nil
 		}
@@ -88,6 +91,7 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 
 // ProcessBlock is the main workhorse for handling insertion of new blocks into the block chain.  It includes functionality such as rejecting duplicate blocks, ensuring blocks follow all rules, orphan handling, and insertion into the block chain along with best chain selection and reorganization. When no errors occurred during processing, the first return value indicates whether or not the block is on the main chain and the second indicates whether or not the block is an orphan. This function is safe for concurrent access.
 func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height int32) (bool, bool, error) {
+
 	blockHeight := height
 	bb, _ := b.BlockByHash(&block.MsgBlock().Header.PrevBlock)
 	if bb != nil {
@@ -159,6 +163,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		// Ensure the block timestamp is after the checkpoint timestamp.
 		checkpointTime := time.Unix(checkpointNode.timestamp, 0)
 		if blockHeader.Timestamp.Before(checkpointTime) {
+
 			str := fmt.Sprintf("block %v has timestamp %v before "+
 				"last checkpoint timestamp %v", blockHashWithAlgo(),
 				blockHeader.Timestamp, checkpointTime)

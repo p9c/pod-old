@@ -10,6 +10,7 @@ import (
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in   database.ErrorCode
 		want string
@@ -39,6 +40,7 @@ func TestErrorCodeStringer(
 	}
 	// Detect additional error codes that don't have the stringer added.
 	if len(tests)-1 != int(database.TstNumErrorCodes) {
+
 		t.Errorf("It appears an error code was added without adding " +
 			"an associated stringer test")
 	}
@@ -56,6 +58,7 @@ func TestErrorCodeStringer(
 // TestError tests the error output for the Error type.
 func TestError(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   database.Error

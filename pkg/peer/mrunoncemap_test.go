@@ -8,6 +8,7 @@ import (
 // TestMruNonceMap ensures the mruNonceMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
 func TestMruNonceMap(
 	t *testing.T) {
+
 	// Create a bunch of fake nonces to use in testing the mru nonce code.
 	numNonces := 10
 	nonces := make([]uint64, 0, numNonces)
@@ -35,6 +36,7 @@ testLoop:
 		// Ensure the limited number of most recent entries in the list exist.
 		for j := numNonces - test.limit; j < numNonces; j++ {
 			if !mruNonceMap.Exists(nonces[j]) {
+
 				t.Errorf("Exists #%d (%s) entry %d does not "+
 					"exist", i, test.name, nonces[j])
 				continue testLoop
@@ -43,6 +45,7 @@ testLoop:
 		// Ensure the entries before the limited number of most recent entries in the list do not exist.
 		for j := 0; j < numNonces-test.limit; j++ {
 			if mruNonceMap.Exists(nonces[j]) {
+
 				t.Errorf("Exists #%d (%s) entry %d exists", i,
 					test.name, nonces[j])
 				continue testLoop
@@ -56,6 +59,7 @@ testLoop:
 			mruNonceMap.Add(uint64(numNonces) + 1)
 			// Ensure the original lru entry still exists since it was updated and should've have become the mru entry.
 			if !mruNonceMap.Exists(nonces[origLruIndex]) {
+
 				t.Errorf("MRU #%d (%s) entry %d does not exist",
 					i, test.name, nonces[origLruIndex])
 				continue testLoop
@@ -63,6 +67,7 @@ testLoop:
 			// Ensure the entry that should've become the new lru entry was evicted.
 			newLruIndex := origLruIndex + 1
 			if mruNonceMap.Exists(nonces[newLruIndex]) {
+
 				t.Errorf("MRU #%d (%s) entry %d exists", i,
 					test.name, nonces[newLruIndex])
 				continue testLoop
@@ -72,6 +77,7 @@ testLoop:
 		for j := 0; j < numNonces; j++ {
 			mruNonceMap.Delete(nonces[j])
 			if mruNonceMap.Exists(nonces[j]) {
+
 				t.Errorf("Delete #%d (%s) entry %d exists", i,
 					test.name, nonces[j])
 				continue testLoop
@@ -83,6 +89,7 @@ testLoop:
 // TestMruNonceMapStringer tests the stringized output for the mruNonceMap type.
 func TestMruNonceMapStringer(
 	t *testing.T) {
+
 	// Create a couple of fake nonces to use in testing the mru nonce stringer code.
 	nonce1 := uint64(10)
 	nonce2 := uint64(20)
@@ -103,6 +110,7 @@ func TestMruNonceMapStringer(
 // BenchmarkMruNonceList performs basic benchmarks on the most recently used nonce handling.
 func BenchmarkMruNonceList(
 	b *testing.B) {
+
 	// Create a bunch of fake nonces to use in benchmarking the mru nonce code.
 	b.StopTimer()
 	numNonces := 100000

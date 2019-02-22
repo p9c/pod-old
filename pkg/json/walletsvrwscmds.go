@@ -88,12 +88,11 @@ func NewRecoverAddressesCmd(
 type WalletIsLockedCmd struct{}
 
 // NewWalletIsLockedCmd returns a new instance which can be used to issue a walletislocked JSON-RPC command.
-func NewWalletIsLockedCmd(
-	) *WalletIsLockedCmd {
+func NewWalletIsLockedCmd() *WalletIsLockedCmd {
 	return &WalletIsLockedCmd{}
 }
-func init(
-	) {
+func init() {
+
 	// The commands in this file are only usable with a wallet server via websockets.
 	flags := UFWalletOnly | UFWebsocketOnly
 	MustRegisterCmd("createencryptedwallet", (*CreateEncryptedWalletCmd)(nil), flags)

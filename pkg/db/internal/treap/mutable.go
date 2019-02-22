@@ -25,6 +25,7 @@ func (t *Mutable) Size() uint64 {
 
 // get returns the treap node that contains the passed key and its parent.  When the found node is the root of the tree, the parent will be nil.  When the key does not exist, both the node and the parent will be nil.
 func (t *Mutable) get(key []byte) (*treapNode, *treapNode) {
+
 	var parent *treapNode
 	for node := t.root; node != nil; {
 		// Traverse left or right depending on the result of the comparison.
@@ -64,6 +65,7 @@ func (t *Mutable) Get(key []byte) []byte {
 
 // relinkGrandparent relinks the node into the treap after it has been rotated by changing the passed grandparent's left or right pointer, depending on where the old parent was, to point at the passed node.  Otherwise, when there is no grandparent, it means the node is now the root of the tree, so update it accordingly.
 func (t *Mutable) relinkGrandparent(node, parent, grandparent *treapNode) {
+
 	// The node is now the root of the tree when there is no grandparent.
 	if grandparent == nil {
 		t.root = node
@@ -79,6 +81,7 @@ func (t *Mutable) relinkGrandparent(node, parent, grandparent *treapNode) {
 
 // Put inserts the passed key/value pair.
 func (t *Mutable) Put(key, value []byte) {
+
 	// Use an empty byte slice for the value when none was provided.  This ultimately allows key existence to be determined from the value since an empty byte slice is distinguishable from nil.
 	if value == nil {
 		value = emptySlice
@@ -140,6 +143,7 @@ func (t *Mutable) Put(key, value []byte) {
 
 // Delete removes the passed key if it exists.
 func (t *Mutable) Delete(key []byte) {
+
 	// Find the node for the key along with its parent.  There is nothing to do if the key does not exist.
 	node, parent := t.get(key)
 	if node == nil {
@@ -192,6 +196,7 @@ func (t *Mutable) Delete(key []byte) {
 
 // ForEach invokes the passed function with every key/value pair in the treap in ascending order.
 func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
+
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, been traversed.
 	var parents parentStack
 	for node := t.root; node != nil; node = node.left {
@@ -200,6 +205,7 @@ func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 	for parents.Len() > 0 {
 		node := parents.Pop()
 		if !fn(node.key, node.value) {
+
 			return
 		}
 		// Extend the nodes to traverse by all children to the left of the current node's right child.
@@ -211,13 +217,13 @@ func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 
 // Reset efficiently removes all items in the treap.
 func (t *Mutable) Reset() {
+
 	t.count = 0
 	t.totalSize = 0
 	t.root = nil
 }
 
 // NewMutable returns a new empty mutable treap ready for use.  See the documentation for the Mutable structure for more details.
-func NewMutable(
-	) *Mutable {
+func NewMutable() *Mutable {
 	return &Mutable{}
 }

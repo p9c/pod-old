@@ -10,6 +10,7 @@ import (
 // TestVerAck tests the MsgVerAck API.
 func TestVerAck(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "verack"
@@ -31,6 +32,7 @@ func TestVerAck(
 // TestVerAckWire tests the MsgVerAck wire encode and decode for various protocol versions.
 func TestVerAckWire(
 	t *testing.T) {
+
 	msgVerAck := NewMsgVerAck()
 	msgVerAckEncoded := []byte{}
 	tests := []struct {
@@ -91,6 +93,7 @@ func TestVerAckWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -104,6 +107,7 @@ func TestVerAckWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue

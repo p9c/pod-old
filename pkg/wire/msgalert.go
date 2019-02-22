@@ -253,6 +253,7 @@ func NewAlert(
 // NewAlertFromPayload returns an Alert with values deserialized from the serialized payload.
 func NewAlertFromPayload(
 	serializedPayload []byte, pver uint32) (*Alert, error) {
+
 	var alert Alert
 	r := bytes.NewReader(serializedPayload)
 	err := alert.Deserialize(r, pver)

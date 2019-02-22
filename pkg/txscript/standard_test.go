@@ -57,6 +57,7 @@ func newAddressScriptHash(
 // TestExtractPkScriptAddrs ensures that extracting the type, addresses, and number of required signatures from PkScripts works as intended.
 func TestExtractPkScriptAddrs(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string
@@ -322,6 +323,7 @@ func TestExtractPkScriptAddrs(
 		if err != nil {
 		}
 		if !reflect.DeepEqual(addrs, test.addrs) {
+
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
 				"addresses\ngot  %v\nwant %v", i, test.name,
 				addrs, test.addrs)
@@ -345,6 +347,7 @@ func TestExtractPkScriptAddrs(
 // TestCalcScriptInfo ensures the CalcScriptInfo provides the expected results for various valid and invalid script pairs.
 func TestCalcScriptInfo(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name          string
@@ -549,6 +552,7 @@ func (b *bogusAddress) String() string {
 // TestPayToAddrScript ensures the PayToAddrScript function generates the correct scripts for the various types of addresses.
 func TestPayToAddrScript(
 	t *testing.T) {
+
 	t.Parallel()
 	// 1MirQ9bwyQcGVJPwKUgapu5ouK2E2Ey4gX
 	p2pkhMain, err := util.NewAddressPubKeyHash(hexToBytes("e34cce70c86"+
@@ -646,6 +650,7 @@ func TestPayToAddrScript(
 		}
 		expected := mustParseShortForm(test.expected)
 		if !bytes.Equal(pkScript, expected) {
+
 			t.Errorf("PayToAddrScript #%d got: %x\nwant: %x",
 				i, pkScript, expected)
 			continue
@@ -656,6 +661,7 @@ func TestPayToAddrScript(
 // TestMultiSigScript ensures the MultiSigScript function returns the expected scripts and errors.
 func TestMultiSigScript(
 	t *testing.T) {
+
 	t.Parallel()
 	//  mainnet p2pk 13CG6SJ3yHUXo4Cr2RY4THLLJrNFuG3gUg
 	p2pkCompressedMain, err := util.NewAddressPubKey(hexToBytes("02192d"+
@@ -748,6 +754,7 @@ func TestMultiSigScript(
 		}
 		expected := mustParseShortForm(test.expected)
 		if !bytes.Equal(script, expected) {
+
 			t.Errorf("MultiSigScript #%d got: %x\nwant: %x",
 				i, script, expected)
 			continue
@@ -758,6 +765,7 @@ func TestMultiSigScript(
 // TestCalcMultiSigStats ensures the CalcMutliSigStats function returns the expected errors.
 func TestCalcMultiSigStats(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -974,6 +982,7 @@ var scriptClassTests = []struct {
 // TestScriptClass ensures all the scripts in scriptClassTests have the expected class.
 func TestScriptClass(
 	t *testing.T) {
+
 	t.Parallel()
 	for _, test := range scriptClassTests {
 		script := mustParseShortForm(test.script)
@@ -989,6 +998,7 @@ func TestScriptClass(
 // TestStringifyClass ensures the script class string returns the expected string for each script class.
 func TestStringifyClass(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -1053,6 +1063,7 @@ func TestStringifyClass(
 // TestNullDataScript tests whether NullDataScript returns a valid script.
 func TestNullDataScript(
 	t *testing.T) {
+
 	tests := []struct {
 		name     string
 		data     []byte
@@ -1117,6 +1128,7 @@ func TestNullDataScript(
 		}
 		// Check that the expected result was returned.
 		if !bytes.Equal(script, test.expected) {
+
 			t.Errorf("NullDataScript: #%d (%s) wrong result\n"+
 				"got: %x\nwant: %x", i, test.name, script,
 				test.expected)

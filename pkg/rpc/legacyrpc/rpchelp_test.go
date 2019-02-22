@@ -4,12 +4,11 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpchelp"
 	"git.parallelcoin.io/pod/pkg/json"
+	"git.parallelcoin.io/pod/pkg/rpchelp"
 )
 
-func serverMethods(
-	) map[string]struct{} {
+func serverMethods() map[string]struct{} {
 	m := make(map[string]struct{})
 	for method, handlerData := range rpcHandlers {
 		if !handlerData.noHelp {
@@ -22,14 +21,18 @@ func serverMethods(
 // TestRPCMethodHelpGeneration ensures that help text can be generated for every method of the RPC server for every supported locale.
 func TestRPCMethodHelpGeneration(
 	t *testing.T) {
+
 	needsGenerate := false
 
 	defer func() {
+
 		if needsGenerate && !t.Failed() {
+
 			t.Error("Generated help texts are out of date: run 'go generate'")
 			return
 		}
 		if t.Failed() {
+
 			t.Log("Regenerate help texts with 'go generate' after fixing")
 		}
 	}()
@@ -62,14 +65,18 @@ func TestRPCMethodHelpGeneration(
 // generated for every supported request of the RPC server.
 func TestRPCMethodUsageGeneration(
 	t *testing.T) {
+
 	needsGenerate := false
 
 	defer func() {
+
 		if needsGenerate && !t.Failed() {
+
 			t.Error("Generated help usages are out of date: run 'go generate'")
 			return
 		}
 		if t.Failed() {
+
 			t.Log("Regenerate help usage with 'go generate' after fixing")
 		}
 	}()
@@ -86,11 +93,13 @@ func TestRPCMethodUsageGeneration(
 		}
 
 		if !t.Failed() {
+
 			usageStrs = append(usageStrs, usage)
 		}
 	}
 
 	if !t.Failed() {
+
 		usages := strings.Join(usageStrs, "\n")
 		needsGenerate = usages != requestUsages
 	}

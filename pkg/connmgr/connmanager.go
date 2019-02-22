@@ -52,6 +52,7 @@ type ConnReq struct {
 
 // updateState updates the state of the connection request.
 func (c *ConnReq) updateState(state ConnState) {
+
 	c.stateMtx.Lock()
 	c.state = state
 	c.stateMtx.Unlock()
@@ -141,6 +142,7 @@ type ConnManager struct {
 
 // handleFailedConn handles a connection failed due to a disconnect or any other failure. If permanent, it retries the connection after the configured retry duration. Otherwise, if required, it makes a new connection request. After maxFailedConnectionAttempts new connections will be retried after the configured retry duration.
 func (cm *ConnManager) handleFailedConn(c *ConnReq) {
+
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
 	}
@@ -152,6 +154,7 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 		}
 		log <- cl.Debugf{"retrying connection to %v in %v", c, d}
 		time.AfterFunc(d, func() {
+
 			cm.Connect(c)
 		})
 	} else if cm.cfg.GetNewAddress != nil {
@@ -163,6 +166,7 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 				cm.cfg.RetryDuration,
 			}
 			time.AfterFunc(cm.cfg.RetryDuration, func() {
+
 				cm.NewConnReq()
 			})
 		} else {
@@ -173,6 +177,7 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 
 // connHandler handles all connection related requests.  It must be run as a goroutine. The connection handler makes sure that we maintain a pool of active outbound connections so that we remain connected to the network.  Connection requests are processed and mapped by their assigned ids.
 func (cm *ConnManager) connHandler() {
+
 	var (
 		// pending holds all registered conn requests that have yet to succeed.
 		pending = make(map[uint64]*ConnReq)
@@ -186,6 +191,7 @@ out:
 		case req := <-cm.requests:
 			// fmt.Println("chan:req := <-cm.requests")
 			switch msg := req.(type) {
+
 			case registerPending:
 				connReq := msg.c
 				connReq.updateState(ConnPending)
@@ -267,6 +273,7 @@ out:
 
 // NewConnReq creates a new connection request and connects to the corresponding address.
 func (cm *ConnManager) NewConnReq() {
+
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
 	}
@@ -309,6 +316,7 @@ func (cm *ConnManager) NewConnReq() {
 
 // Connect assigns an id and dials a connection to the address of the connection request.
 func (cm *ConnManager) Connect(c *ConnReq) {
+
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
 	}
@@ -354,6 +362,7 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 // Disconnect disconnects the connection corresponding to the given connection id. If permanent, the connection will be retried with an increasing backoff
 // duration.
 func (cm *ConnManager) Disconnect(id uint64) {
+
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
 	}
@@ -367,6 +376,7 @@ func (cm *ConnManager) Disconnect(id uint64) {
 
 // Remove removes the connection corresponding to the given connection id from known connections. NOTE: This method can also be used to cancel a lingering connection attempt that hasn't yet succeeded.
 func (cm *ConnManager) Remove(id uint64) {
+
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
 	}
@@ -380,6 +390,7 @@ func (cm *ConnManager) Remove(id uint64) {
 
 // listenHandler accepts incoming connections on a given listener.  It must be run as a goroutine.
 func (cm *ConnManager) listenHandler(listener net.Listener) {
+
 	Log.Infc(func() string {
 		return fmt.Sprint("server listening on ", listener.Addr())
 	})
@@ -402,6 +413,7 @@ func (cm *ConnManager) listenHandler(listener net.Listener) {
 
 // Start launches the connection manager and begins connecting to the network.
 func (cm *ConnManager) Start() {
+
 	// Already started?
 	if atomic.AddInt32(&cm.start, 1) != 1 {
 		return
@@ -422,11 +434,13 @@ func (cm *ConnManager) Start() {
 
 // Wait blocks until the connection manager halts gracefully.
 func (cm *ConnManager) Wait() {
+
 	cm.wg.Wait()
 }
 
 // Stop gracefully shuts down the connection manager.
 func (cm *ConnManager) Stop() {
+
 	if atomic.AddInt32(&cm.stop, 1) != 1 {
 		log <- cl.Wrn("connection manager already stopped")
 		return
@@ -442,6 +456,7 @@ func (cm *ConnManager) Stop() {
 // New returns a new connection manager. Use Start to start connecting to the network.
 func New(
 	cfg *Config) (*ConnManager, error) {
+
 	if cfg.Dial == nil {
 		return nil, ErrDialNil
 	}

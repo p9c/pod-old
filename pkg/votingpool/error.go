@@ -1,7 +1,3 @@
-
-
-
-
 package votingpool
 
 import "fmt"

@@ -33,6 +33,7 @@ func fileExists(
 	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
+
 			return false
 		}
 	}
@@ -54,6 +55,7 @@ func isSupportedDbType(
 // loadBlocks reads files containing bitcoin block data (gzipped but otherwise in the format bitcoind writes) from disk and returns them as an array of util.Block.  This is largely borrowed from the test code in podb.
 func loadBlocks(
 	filename string) (blocks []*util.Block, err error) {
+
 	filename = filepath.Join("testdata/", filename)
 	var network = wire.MainNet
 	var dr io.Reader
@@ -63,6 +65,7 @@ func loadBlocks(
 		return
 	}
 	if strings.HasSuffix(filename, ".bz2") {
+
 		dr = bzip2.NewReader(fi)
 	} else {
 		dr = fi
@@ -83,6 +86,7 @@ func loadBlocks(
 			break
 		}
 		if rintbuf != uint32(network) {
+
 			break
 		}
 		err = binary.Read(dr, binary.LittleEndian, &rintbuf)
@@ -102,7 +106,9 @@ func loadBlocks(
 // chainSetup is used to create a new db and chain instance with the genesis block already inserted.  In addition to the new chain instance, it returns a teardown function the caller should invoke when done testing to clean up.
 func chainSetup(
 	dbName string, params *chaincfg.Params) (*BlockChain, func(), error) {
+
 	if !isSupportedDbType(testDbType) {
+
 		return nil, nil, fmt.Errorf("unsupported db type %v", testDbType)
 	}
 	// Handle memory database specially since it doesn't need the disk specific handling.
@@ -116,11 +122,13 @@ func chainSetup(
 		db = ndb
 		// Setup a teardown function for cleaning up.  This function is returned to the caller to be invoked when it is done testing.
 		teardown = func() {
+
 			db.Close()
 		}
 	} else {
 		// Create the root directory for test databases.
 		if !fileExists(testDbRoot) {
+
 			if err := os.MkdirAll(testDbRoot, 0700); err != nil {
 				err := fmt.Errorf("unable to create test db "+
 					"root: %v", err)
@@ -137,6 +145,7 @@ func chainSetup(
 		db = ndb
 		// Setup a teardown function for cleaning up.  This function is returned to the caller to be invoked when it is done testing.
 		teardown = func() {
+
 			db.Close()
 			os.RemoveAll(dbPath)
 			os.RemoveAll(testDbRoot)
@@ -163,6 +172,7 @@ func chainSetup(
 // loadUtxoView returns a utxo view loaded from a file.
 func loadUtxoView(
 	filename string) (*UtxoViewpoint, error) {
+
 	// The utxostore file format is:
 	// <tx hash><output index><serialized utxo len><serialized utxo>
 	//
@@ -175,6 +185,7 @@ func loadUtxoView(
 	// Choose read based on whether the file is compressed or not.
 	var r io.Reader
 	if strings.HasSuffix(filename, ".bz2") {
+
 		r = bzip2.NewReader(fi)
 	} else {
 		r = fi
@@ -290,6 +301,7 @@ func convertUtxoStore(
 
 // TstSetCoinbaseMaturity makes the ability to set the coinbase maturity available when running tests.
 func (b *BlockChain) TstSetCoinbaseMaturity(maturity uint16) {
+
 	b.chainParams.CoinbaseMaturity = maturity
 }
 

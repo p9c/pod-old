@@ -41,6 +41,7 @@ func reflectTypeToJSONType(
 	xT descLookupFunc, rt reflect.Type) string {
 	kind := rt.Kind()
 	if isNumeric(kind) {
+
 		return xT("json-type-numeric")
 	}
 	switch kind {
@@ -111,12 +112,14 @@ func resultStructHelp(
 // reflectTypeToJSONExample generates example usage in the format used by the help output.  It handles arrays, slices and structs recursively.  The output is returned as a slice of lines so the final help can be nicely aligned via a tab writer.  A bool is also returned which specifies whether or not the type results in a complex JSON object since they need to be handled differently.
 func reflectTypeToJSONExample(
 	xT descLookupFunc, rt reflect.Type, indentLevel int, fieldDescKey string) ([]string, bool) {
+
 	// Indirect pointer if needed.
 	if rt.Kind() == reflect.Ptr {
 		rt = rt.Elem()
 	}
 	kind := rt.Kind()
 	if isNumeric(kind) {
+
 		if kind == reflect.Float32 || kind == reflect.Float64 {
 			return []string{"n.nnn"}, false
 		}
@@ -346,6 +349,7 @@ func methodHelp(
 func isValidResultType(
 	kind reflect.Kind) bool {
 	if isNumeric(kind) {
+
 		return true
 	}
 	switch kind {
@@ -376,6 +380,7 @@ func isValidResultType(
 //   "help--result1":    "Help for specified command"
 func GenerateHelp(
 	method string, descs map[string]string, resultTypes ...interface{}) (string, error) {
+
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]
@@ -398,6 +403,7 @@ func GenerateHelp(
 		}
 		elemKind := rtp.Elem().Kind()
 		if !isValidResultType(elemKind) {
+
 			str := fmt.Sprintf("result #%d (%v) is not an allowed "+
 				"type", i, elemKind)
 			return "", makeError(ErrInvalidType, str)

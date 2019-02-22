@@ -46,6 +46,7 @@ func testGetValues(
 
 		gotValue := bucket.Get([]byte(k))
 		if !reflect.DeepEqual(gotValue, vBytes) {
+
 			tc.t.Errorf("Get: unexpected value - got %s, want %s",
 				gotValue, vBytes)
 			return false
@@ -98,9 +99,11 @@ func testNestedReadWriteBucket(
 
 	tc.bucketDepth++
 	defer func() {
+
 		tc.bucketDepth--
 	}()
 	if !testReadWriteBucketInterface(tc, testBucket) {
+
 		return false
 	}
 
@@ -119,10 +122,12 @@ func testReadWriteBucketInterface(
 		"bucketkey3": "foo3",
 	}
 	if !testPutValues(tc, bucket, keyValues) {
+
 		return false
 	}
 
 	if !testGetValues(tc, bucket, keyValues) {
+
 		return false
 	}
 
@@ -138,6 +143,7 @@ func testReadWriteBucketInterface(
 		}
 
 		if !reflect.DeepEqual(v, []byte(wantV)) {
+
 			return fmt.Errorf("ForEach: value for key '%s' "+
 				"does not match - got %s, want %s",
 				ks, v, wantV)
@@ -162,9 +168,11 @@ func testReadWriteBucketInterface(
 
 	// Delete the keys and ensure they were deleted.
 	if !testDeleteValues(tc, bucket, keyValues) {
+
 		return false
 	}
 	if !testGetValues(tc, bucket, rollbackValues(keyValues)) {
+
 		return false
 	}
 
@@ -176,6 +184,7 @@ func testReadWriteBucketInterface(
 		return false
 	}
 	if !testNestedReadWriteBucket(tc, testBucket) {
+
 		return false
 	}
 
@@ -196,12 +205,14 @@ func testReadWriteBucketInterface(
 		return false
 	}
 	if !testNestedReadWriteBucket(tc, testBucket) {
+
 		return false
 	}
 
 	// Ensure retrieving and existing bucket works as expected.
 	testBucket = bucket.NestedReadWriteBucket(testBucketName)
 	if !testNestedReadWriteBucket(tc, testBucket) {
+
 		return false
 	}
 
@@ -234,6 +245,7 @@ func testReadWriteBucketInterface(
 		return false
 	}
 	if !testNestedReadWriteBucket(tc, testBucket) {
+
 		return false
 	}
 
@@ -294,6 +306,7 @@ func testManualTxInterface(
 		if writable {
 			tc.isWritable = writable
 			if !testReadWriteBucketInterface(tc, rootBucket.(walletdb.ReadWriteBucket)) {
+
 				_ = dbtx.Rollback()
 				return false
 			}
@@ -308,6 +321,7 @@ func testManualTxInterface(
 		} else {
 			rootBucket := rootBucket.(walletdb.ReadWriteBucket)
 			if !testPutValues(tc, rootBucket, putValues) {
+
 				return false
 			}
 
@@ -350,6 +364,7 @@ func testManualTxInterface(
 		}
 
 		if !testGetValues(tc, rootBucket, expectedValues) {
+
 			_ = dbtx.Rollback()
 			return false
 		}
@@ -382,10 +397,12 @@ func testManualTxInterface(
 
 		// Delete the keys and ensure they were deleted.
 		if !testDeleteValues(tc, rootBucket, values) {
+
 			_ = dbtx.Rollback()
 			return false
 		}
 		if !testGetValues(tc, rootBucket, rollbackValues(values)) {
+
 			_ = dbtx.Rollback()
 			return false
 		}
@@ -410,32 +427,39 @@ func testManualTxInterface(
 	// Ensure that attempting populating the values using a read-only
 	// transaction fails as expected.
 	if !populateValues(false, true, keyValues) {
+
 		return false
 	}
 	if !checkValues(rollbackValues(keyValues)) {
+
 		return false
 	}
 
 	// Ensure that attempting populating the values using a read-write
 	// transaction and then rolling it back yields the expected values.
 	if !populateValues(true, true, keyValues) {
+
 		return false
 	}
 	if !checkValues(rollbackValues(keyValues)) {
+
 		return false
 	}
 
 	// Ensure that attempting populating the values using a read-write
 	// transaction and then committing it stores the expected values.
 	if !populateValues(true, false, keyValues) {
+
 		return false
 	}
 	if !checkValues(keyValues) {
+
 		return false
 	}
 
 	// Clean up the keys.
 	if !deleteValues(keyValues) {
+
 		return false
 	}
 
@@ -457,6 +481,7 @@ func testNamespaceAndTxInterfaces(
 		return false
 	}
 	defer func() {
+
 		// Remove the namespace now that the tests are done for it.
 		err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
 			return tx.DeleteTopLevelBucket(namespaceKeyBytes)
@@ -468,6 +493,7 @@ func testNamespaceAndTxInterfaces(
 	}()
 
 	if !testManualTxInterface(tc, namespaceKeyBytes) {
+
 		return false
 	}
 
@@ -507,10 +533,12 @@ func testNamespaceAndTxInterfaces(
 
 		tc.isWritable = true
 		if !testReadWriteBucketInterface(tc, rootBucket) {
+
 			return errSubTestFail
 		}
 
 		if !testPutValues(tc, rootBucket, keyValues) {
+
 			return errSubTestFail
 		}
 
@@ -536,6 +564,7 @@ func testNamespaceAndTxInterfaces(
 		}
 
 		if !testGetValues(tc, rootBucket, rollbackValues(keyValues)) {
+
 			return errSubTestFail
 		}
 
@@ -556,6 +585,7 @@ func testNamespaceAndTxInterfaces(
 		}
 
 		if !testPutValues(tc, rootBucket, keyValues) {
+
 			return errSubTestFail
 		}
 
@@ -576,6 +606,7 @@ func testNamespaceAndTxInterfaces(
 		}
 
 		if !testGetValues(tc, rootBucket, keyValues) {
+
 			return errSubTestFail
 		}
 
@@ -596,6 +627,7 @@ func testNamespaceAndTxInterfaces(
 		}
 
 		if !testDeleteValues(tc, rootBucket, keyValues) {
+
 			return errSubTestFail
 		}
 
@@ -686,6 +718,7 @@ func testAdditionalErrors(
 // TestInterface performs all interfaces tests for this database driver.
 func TestInterface(
 	t Tester, dbType, dbPath string) {
+
 	db, err := walletdb.Create(dbType, dbPath)
 	if err != nil {
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
@@ -700,16 +733,19 @@ func TestInterface(
 
 	// Create a namespace and test the interface for it.
 	if !testNamespaceAndTxInterfaces(&context, "ns1") {
+
 		return
 	}
 
 	// Create a second namespace and test the interface for it.
 	if !testNamespaceAndTxInterfaces(&context, "ns2") {
+
 		return
 	}
 
 	// Check a few more error conditions not covered elsewhere.
 	if !testAdditionalErrors(&context) {
+
 		return
 	}
 }

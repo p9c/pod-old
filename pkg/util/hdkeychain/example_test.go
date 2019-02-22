@@ -8,8 +8,8 @@ import (
 )
 
 // This example demonstrates how to generate a cryptographically random seed then use it to create a new master node (extended key).
-func ExampleNewMaster(
-	) {
+func ExampleNewMaster() {
+
 	// Generate a random seed at the recommended length.
 	seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
 	if err != nil {
@@ -29,8 +29,8 @@ func ExampleNewMaster(
 }
 
 // This example demonstrates the default hierarchical deterministic wallet layout as described in BIP0032.
-func Example_defaultWalletLayout(
-	) {
+func Example_defaultWalletLayout() {
+
 	// The default wallet layout described in BIP0032 is:
 	// Each account is composed of two keypair chains: an internal and an external one. The external keychain is used to generate new public addresses, while the internal keychain is used for all other operations (change addresses, generation addresses, ..., anything that doesn't need to be communicated).
 	//   * m/iH/0/k
@@ -96,8 +96,8 @@ func Example_defaultWalletLayout(
 }
 
 // This example demonstrates the audits use case in BIP0032.
-func Example_audits(
-	) {
+func Example_audits() {
+
 	// The audits use case described in BIP0032 is://
 	// In case an auditor needs full access to the list of incoming and outgoing payments, one can share all account public extended keys. This will allow the auditor to see all transactions from and to the wallet, in all accounts, but not a single secret key.
 	//   * N(m/*)

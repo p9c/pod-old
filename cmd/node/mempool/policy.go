@@ -49,6 +49,7 @@ func checkInputsStandard(
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		originPkScript := entry.PkScript()
 		switch txscript.GetScriptClass(originPkScript) {
+
 		case txscript.ScriptHashTy:
 			numSigOps := txscript.GetPreciseSigOpCount(
 				txIn.SignatureScript, originPkScript, true)
@@ -113,6 +114,7 @@ func isDust(
 	txOut *wire.TxOut, minRelayTxFee util.Amount) bool {
 	// Unspendable outputs are considered dust.
 	if txscript.IsUnspendable(txOut.PkScript) {
+
 		return true
 	}
 	// The total serialized size consists of the output and the associated input script to redeem it.  Since there is no input script to redeem it yet, use the minimum size of a typical input script.
@@ -150,6 +152,7 @@ func isDust(
 	// Both cases share a 41 byte preamble required to reference the input being spent and the sequence number of the input.
 	totalSize := txOut.SerializeSize() + 41
 	if txscript.IsWitnessProgram(txOut.PkScript) {
+
 		totalSize += (107 / blockchain.WitnessScaleFactor)
 	} else {
 		totalSize += 107
@@ -175,6 +178,7 @@ func checkTransactionStandard(
 	}
 	// The transaction must be finalized to be standard and therefore considered for inclusion in a block.
 	if !blockchain.IsFinalizedTransaction(tx, height, medianTimePast) {
+
 		return txRuleError(wire.RejectNonstandard,
 			"transaction is not finalized")
 	}
@@ -197,6 +201,7 @@ func checkTransactionStandard(
 		}
 		// Each transaction input signature script must only contain opcodes which push data onto the stack.
 		if !txscript.IsPushOnlyScript(txIn.SignatureScript) {
+
 			str := fmt.Sprintf("transaction input %d: signature "+
 				"script is not push only", i)
 			return txRuleError(wire.RejectNonstandard, str)
@@ -220,6 +225,7 @@ func checkTransactionStandard(
 		if scriptClass == txscript.NullDataTy {
 			numNullDataOutputs++
 		} else if isDust(txOut, minRelayTxFee) {
+
 			str := fmt.Sprintf("transaction output %d: payment "+
 				"of %d is dust", i, txOut.Value)
 			return txRuleError(wire.RejectDust, str)

@@ -9,6 +9,7 @@ import (
 // TestImmutableEmpty ensures calling functions on an empty immutable treap works as expected.
 func TestImmutableEmpty(
 	t *testing.T) {
+
 	t.Parallel()
 	// Ensure the treap length is the expected value.
 	testTreap := NewImmutable()
@@ -46,6 +47,7 @@ func TestImmutableEmpty(
 // TestImmutableSequential ensures that putting keys into an immutable treap in sequential order works as expected.
 func TestImmutableSequential(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of sequential keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -61,10 +63,12 @@ func TestImmutableSequential(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -81,11 +85,13 @@ func TestImmutableSequential(
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected key - got %x, want %x",
 				numIterated, k, wantKey)
 		}
 		// Ensure the value is as expected.
 		if !bytes.Equal(v, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected value - got %x, want %x",
 				numIterated, v, wantKey)
 		}
@@ -108,6 +114,7 @@ func TestImmutableSequential(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure it is nil.
@@ -127,6 +134,7 @@ func TestImmutableSequential(
 // TestImmutableReverseSequential ensures that putting keys into an immutable treap in reverse sequential order works as expected.
 func TestImmutableReverseSequential(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of sequential keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -142,11 +150,13 @@ func TestImmutableReverseSequential(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected
 		// value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -163,11 +173,13 @@ func TestImmutableReverseSequential(
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected key - got %x, want %x",
 				numIterated, k, wantKey)
 		}
 		// Ensure the value is as expected.
 		if !bytes.Equal(v, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected value - got %x, want %x",
 				numIterated, v, wantKey)
 		}
@@ -191,6 +203,7 @@ func TestImmutableReverseSequential(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure
@@ -211,6 +224,7 @@ func TestImmutableReverseSequential(
 // TestImmutableUnordered ensures that putting keys into an immutable treap in no paritcular order works as expected.
 func TestImmutableUnordered(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of out-of-order keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -228,11 +242,13 @@ func TestImmutableUnordered(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected
 		// value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -256,6 +272,7 @@ func TestImmutableUnordered(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure
@@ -276,6 +293,7 @@ func TestImmutableUnordered(
 // TestImmutableDuplicatePut ensures that putting a duplicate key into an immutable treap works as expected.
 func TestImmutableDuplicatePut(
 	t *testing.T) {
+
 	t.Parallel()
 	expectedVal := []byte("testval")
 	expectedSize := uint64(0)
@@ -293,6 +311,7 @@ func TestImmutableDuplicatePut(
 				gotVal)
 		}
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, expectedVal) {
+
 			t.Fatalf("Get: unexpected result - got %x, want %x",
 				gotVal, expectedVal)
 		}
@@ -309,6 +328,7 @@ func TestImmutableDuplicatePut(
 // TestImmutableNilValue ensures that putting a nil value into an immutable treap results in a key being added with an empty byte slice.
 func TestImmutableNilValue(
 	t *testing.T) {
+
 	t.Parallel()
 	key := serializeUint32(0)
 	// Put the key with a nil value.
@@ -330,6 +350,7 @@ func TestImmutableNilValue(
 // TestImmutableForEachStopIterator ensures that returning false from the ForEach callback on an immutable treap stops iteration early.
 func TestImmutableForEachStopIterator(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a few keys.
 	numItems := 10
@@ -353,6 +374,7 @@ func TestImmutableForEachStopIterator(
 // TestImmutableSnapshot ensures that immutable treaps are actually immutable by keeping a reference to the previous treap, performing a mutation, and then ensuring the referenced treap does not have the mutation applied.
 func TestImmutableSnapshot(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of sequential keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -370,6 +392,7 @@ func TestImmutableSnapshot(
 		}
 		// Ensure the treap snapshot does not have the key.
 		if treapSnap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that doesn't exist in the treap snapshot and
@@ -397,10 +420,12 @@ func TestImmutableSnapshot(
 		}
 		// Ensure the treap snapshot still has the key.
 		if !treapSnap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap snapshot and ensure it is still the expected value.
 		if gotVal := treapSnap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}

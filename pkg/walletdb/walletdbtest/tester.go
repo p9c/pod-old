@@ -1,7 +1,5 @@
 // Copyright (c) 2017 The btcsuite developers
 
-
-
 package walletdbtest
 
 // Tester is an interface type that can be implemented by *testing.T.  This

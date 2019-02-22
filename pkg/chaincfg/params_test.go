@@ -5,7 +5,9 @@ import "testing"
 // TestInvalidHashStr ensures the newShaHashFromStr function panics when used to with an invalid hash string.
 func TestInvalidHashStr(
 	t *testing.T) {
+
 	defer func() {
+
 		if r := recover(); r == nil {
 			t.Errorf("Expected panic for invalid hash, got nil")
 		}
@@ -17,10 +19,12 @@ func TestInvalidHashStr(
 // register an invalid network.
 func TestMustRegisterPanic(
 	t *testing.T) {
+
 	t.Parallel()
 	// Setup a defer to catch the expected panic to ensure it actually
 	// paniced.
 	defer func() {
+
 		if err := recover(); err == nil {
 			t.Error("mustRegister did not panic as expected")
 		}

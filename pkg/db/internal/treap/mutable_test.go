@@ -10,6 +10,7 @@ import (
 // expected.
 func TestMutableEmpty(
 	t *testing.T) {
+
 	t.Parallel()
 	// Ensure the treap length is the expected value.
 	testTreap := NewMutable()
@@ -47,6 +48,7 @@ func TestMutableEmpty(
 // TestMutableReset ensures that resetting an existing mutable treap works as expected.
 func TestMutableReset(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a few keys.
 	numItems := 10
@@ -71,6 +73,7 @@ func TestMutableReset(
 		key := serializeUint32(uint32(i))
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure
@@ -95,6 +98,7 @@ func TestMutableReset(
 // TestMutableSequential ensures that putting keys into a mutable treap in sequential order works as expected.
 func TestMutableSequential(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of sequential keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -110,10 +114,12 @@ func TestMutableSequential(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -130,11 +136,13 @@ func TestMutableSequential(
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected key - got %x, want %x",
 				numIterated, k, wantKey)
 		}
 		// Ensure the value is as expected.
 		if !bytes.Equal(v, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected value - got %x, want %x",
 				numIterated, v, wantKey)
 		}
@@ -157,6 +165,7 @@ func TestMutableSequential(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure it is nil.
@@ -176,6 +185,7 @@ func TestMutableSequential(
 // TestMutableReverseSequential ensures that putting keys into a mutable treap in reverse sequential order works as expected.
 func TestMutableReverseSequential(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of sequential keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -191,10 +201,12 @@ func TestMutableReverseSequential(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -211,11 +223,13 @@ func TestMutableReverseSequential(
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected key - got %x, want %x",
 				numIterated, k, wantKey)
 		}
 		// Ensure the value is as expected.
 		if !bytes.Equal(v, wantKey) {
+
 			t.Fatalf("ForEach #%d: unexpected value - got %x, want %x",
 				numIterated, v, wantKey)
 		}
@@ -239,6 +253,7 @@ func TestMutableReverseSequential(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure it is nil.
@@ -258,6 +273,7 @@ func TestMutableReverseSequential(
 // TestMutableUnordered ensures that putting keys into a mutable treap in no paritcular order works as expected.
 func TestMutableUnordered(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a bunch of out-of-order keys while checking several of the treap functions work as expected.
 	expectedSize := uint64(0)
@@ -275,11 +291,13 @@ func TestMutableUnordered(
 		}
 		// Ensure the treap has the key.
 		if !testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is not in treap", i, key)
 		}
 		// Get the key from the treap and ensure it is the expected
 		// value.
 		if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, key) {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want %x",
 				i, gotVal, key)
 		}
@@ -303,6 +321,7 @@ func TestMutableUnordered(
 		}
 		// Ensure the treap no longer has the key.
 		if testTreap.Has(key) {
+
 			t.Fatalf("Has #%d: key %q is in treap", i, key)
 		}
 		// Get the key that no longer exists from the treap and ensure it is nil.
@@ -322,6 +341,7 @@ func TestMutableUnordered(
 // TestMutableDuplicatePut ensures that putting a duplicate key into a mutable treap updates the existing value.
 func TestMutableDuplicatePut(
 	t *testing.T) {
+
 	t.Parallel()
 	key := serializeUint32(0)
 	val := []byte("testval")
@@ -334,6 +354,7 @@ func TestMutableDuplicatePut(
 		t.Fatalf("Has: unexpected result - got %v, want true", gotVal)
 	}
 	if gotVal := testTreap.Get(key); !bytes.Equal(gotVal, val) {
+
 		t.Fatalf("Get: unexpected result - got %x, want %x", gotVal, val)
 	}
 	// Ensure the expected size is reported.
@@ -347,6 +368,7 @@ func TestMutableDuplicatePut(
 // TestMutableNilValue ensures that putting a nil value into a mutable treap results in a key being added with an empty byte slice.
 func TestMutableNilValue(
 	t *testing.T) {
+
 	t.Parallel()
 	key := serializeUint32(0)
 	// Put the key with a nil value.
@@ -368,6 +390,7 @@ func TestMutableNilValue(
 // TestMutableForEachStopIterator ensures that returning false from the ForEach callback of a mutable treap stops iteration early.
 func TestMutableForEachStopIterator(
 	t *testing.T) {
+
 	t.Parallel()
 	// Insert a few keys.
 	numItems := 10

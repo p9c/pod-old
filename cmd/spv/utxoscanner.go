@@ -46,6 +46,7 @@ type GetUtxoRequest struct {
 // deliver tries to deliver the report or error to any subscribers. If
 // resultChan cannot accept a new update, this method will not block.
 func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
+
 	select {
 	case r.resultChan <- &getUtxoResult{report, err}:
 	default:
@@ -58,6 +59,7 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 
 // Result is callback returning either a spend report or an error.
 func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -133,6 +135,7 @@ func NewUtxoScanner(
 // Start begins running scan batches.
 func (s *UtxoScanner) Start() error {
 	if !atomic.CompareAndSwapUint32(&s.started, 0, 1) {
+
 		return nil
 	}
 
@@ -145,6 +148,7 @@ func (s *UtxoScanner) Start() error {
 // Stop any in-progress scan.
 func (s *UtxoScanner) Stop() error {
 	if !atomic.CompareAndSwapUint32(&s.stopped, 0, 1) {
+
 		return nil
 	}
 
@@ -163,6 +167,7 @@ batchShutdown:
 	// Cancel all pending get utxo requests that were not pulled into the
 	// batchManager's main goroutine.
 	for !s.pq.IsEmpty() {
+
 		pendingReq := heap.Pop(&s.pq).(*GetUtxoRequest)
 		pendingReq.deliver(nil, ErrShuttingDown)
 	}
@@ -210,6 +215,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 //
 // NOTE: This method MUST be spawned as a goroutine.
 func (s *UtxoScanner) batchManager() {
+
 	defer close(s.shutdown)
 
 	for {
@@ -222,6 +228,7 @@ func (s *UtxoScanner) batchManager() {
 
 		// Wait for the queue to be non-empty.
 		for s.pq.IsEmpty() {
+
 			s.cv.Wait()
 
 			select {
@@ -410,6 +417,7 @@ func (pq GetUtxoRequestPQ) Less(i, j int) bool {
 }
 
 func (pq GetUtxoRequestPQ) Swap(i, j int) {
+
 	pq[i], pq[j] = pq[j], pq[i]
 }
 
@@ -417,6 +425,7 @@ func (pq GetUtxoRequestPQ) Swap(i, j int) {
 // end of the backing store. The heap library will then maintain the heap
 // invariant.
 func (pq *GetUtxoRequestPQ) Push(x interface{}) {
+
 	item := x.(*GetUtxoRequest)
 	*pq = append(*pq, item)
 }

@@ -143,6 +143,7 @@ var _ ManagedPubKeyAddress = (*managedAddress)(nil)
 // used by the caller without worrying about it being zeroed during an address
 // lock.
 func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
+
 	// Protect concurrent access to clear text private key.
 	a.privKeyMutex.Lock()
 	defer a.privKeyMutex.Unlock()
@@ -165,6 +166,7 @@ func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 
 // lock zeroes the associated clear text private key.
 func (a *managedAddress) lock() {
+
 	// Zero and nil the clear text private key associated with this
 	// address.
 	a.privKeyMutex.Lock()
@@ -203,6 +205,7 @@ func (a *managedAddress) AddrHash() []byte {
 	var hash []byte
 
 	switch n := a.address.(type) {
+
 	case *util.AddressPubKeyHash:
 		hash = n.Hash160()[:]
 	case *util.AddressScriptHash:
@@ -273,8 +276,10 @@ func (a *managedAddress) ExportPubKey() string {
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
+
 	// No private keys are available for a watching-only address manager.
 	if a.manager.rootManager.WatchOnly() {
+
 		return nil, managerError(ErrWatchingOnly, errWatchingOnly, nil)
 	}
 
@@ -283,6 +288,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 
 	// Account manager must be unlocked to decrypt the private key.
 	if a.manager.rootManager.IsLocked() {
+
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
 
@@ -304,6 +310,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) ExportPrivKey() (*util.WIF, error) {
+
 	pk, err := a.PrivKey()
 	if err != nil {
 		return nil, err
@@ -319,6 +326,7 @@ func (a *managedAddress) ExportPrivKey() (*util.WIF, error) {
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
+
 	var (
 		scope KeyScope
 		path  DerivationPath
@@ -464,6 +472,7 @@ func newManagedAddressFromExtKey(
 	// depending on whether the generated key is private.
 	var managedAddr *managedAddress
 	if key.IsPrivate() {
+
 		privKey, err := key.ECPrivKey()
 		if err != nil {
 			return nil, err
@@ -514,6 +523,7 @@ var _ ManagedScriptAddress = (*scriptAddress)(nil)
 // script will always be a copy that may be safely used by the caller without
 // worrying about it being zeroed during an address lock.
 func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
+
 	// Protect concurrent access to clear text script.
 	a.scriptMutex.Lock()
 	defer a.scriptMutex.Unlock()
@@ -536,6 +546,7 @@ func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 
 // lock zeroes the associated clear text private key.
 func (a *scriptAddress) lock() {
+
 	// Zero and nil the clear text script associated with this address.
 	a.scriptMutex.Lock()
 	zero.Bytes(a.scriptCT)
@@ -608,8 +619,10 @@ func (a *scriptAddress) Used(ns walletdb.ReadBucket) bool {
 //
 // This implements the ScriptAddress interface.
 func (a *scriptAddress) Script() ([]byte, error) {
+
 	// No script is available for a watching-only address manager.
 	if a.manager.rootManager.WatchOnly() {
+
 		return nil, managerError(ErrWatchingOnly, errWatchingOnly, nil)
 	}
 
@@ -618,6 +631,7 @@ func (a *scriptAddress) Script() ([]byte, error) {
 
 	// Account manager must be unlocked to decrypt the script.
 	if a.manager.rootManager.IsLocked() {
+
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
 

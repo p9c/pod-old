@@ -29,8 +29,8 @@ type GCSBuilder struct {
 }
 
 // RandomKey is a utility function that returns a cryptographically random [gcs.KeySize]byte usable as a key for a GCS filter.
-func RandomKey(
-	) ([gcs.KeySize]byte, error) {
+func RandomKey() ([gcs.KeySize]byte, error) {
+
 	var key [gcs.KeySize]byte
 	// Read a byte slice from rand.Reader.
 	randKey := make([]byte, gcs.KeySize)
@@ -54,6 +54,7 @@ func DeriveKey(
 
 // Key retrieves the key with which the builder will build a filter. This is useful if the builder is created with a random initial key.
 func (b *GCSBuilder) Key() ([gcs.KeySize]byte, error) {
+
 	// Do nothing if the builder's errored out.
 	if b.err != nil {
 		return [gcs.KeySize]byte{}, b.err
@@ -103,6 +104,7 @@ func (b *GCSBuilder) SetM(m uint64) *GCSBuilder {
 	}
 	// Basic sanity check.
 	if m > uint64(math.MaxUint32) {
+
 		b.err = gcs.ErrPTooBig
 		return b
 	}
@@ -164,6 +166,7 @@ func (b *GCSBuilder) AddWitness(witness wire.TxWitness) *GCSBuilder {
 
 // Build returns a function which builds a GCS filter with the given parameters and data.
 func (b *GCSBuilder) Build() (*gcs.Filter, error) {
+
 	// Do nothing if the builder's already errored out.
 	if b.err != nil {
 		return nil, b.err
@@ -238,14 +241,14 @@ func WithRandomKeyPM(
 }
 
 // WithRandomKey creates a GCSBuilder with a cryptographically random key. Probability is set to 20 (2^-20 collision probability). Estimated filter size is set to zero, which means more reallocations are done when building the filter.
-func WithRandomKey(
-	) *GCSBuilder {
+func WithRandomKey() *GCSBuilder {
 	return WithRandomKeyPNM(DefaultP, 0, DefaultM)
 }
 
 // BuildBasicFilter builds a basic GCS filter from a block. A basic GCS filter will contain all the previous output scripts spent by inputs within a block, as well as the data pushes within all the outputs created within a block.
 func BuildBasicFilter(
 	block *wire.MsgBlock, prevOutScripts [][]byte) (*gcs.Filter, error) {
+
 	blockHash := block.BlockHash()
 	b := WithKeyHash(&blockHash)
 	// If the filter had an issue with the specified key, then we force it to bubble up here by calling the Key() function.
@@ -263,6 +266,7 @@ func BuildBasicFilter(
 			// In order to allow the filters to later be committed to within an OP_RETURN output, we ignore all OP_RETURNs to avoid a circular dependency.
 			if txOut.PkScript[0] == txscript.OP_RETURN &&
 				txscript.IsPushOnlyScript(txOut.PkScript[1:]) {
+
 				continue
 			}
 			b.AddEntry(txOut.PkScript)
@@ -281,6 +285,7 @@ func BuildBasicFilter(
 // GetFilterHash returns the double-SHA256 of the filter.
 func GetFilterHash(
 	filter *gcs.Filter) (chainhash.Hash, error) {
+
 	filterData, err := filter.NBytes()
 	if err != nil {
 		return chainhash.Hash{}, err
@@ -291,6 +296,7 @@ func GetFilterHash(
 // MakeHeaderForFilter makes a filter chain header for a filter, given the filter and the previous filter chain header.
 func MakeHeaderForFilter(
 	filter *gcs.Filter, prevHeader chainhash.Hash) (chainhash.Hash, error) {
+
 	filterTip := make([]byte, 2*chainhash.HashSize)
 	filterHash, err := GetFilterHash(filter)
 	if err != nil {

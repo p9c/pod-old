@@ -548,6 +548,7 @@ func configNode(
 	// The RPC server is disabled if no username or password is provided.
 	if (nc.RPCUser == "" || nc.RPCPass == "") &&
 		(nc.RPCLimitUser == "" || nc.RPCLimitPass == "") {
+
 		nc.DisableRPC = true
 	}
 	if nc.DisableRPC {
@@ -781,6 +782,7 @@ func configNode(
 		torIsolation := false
 		if nc.TorIsolation && nc.OnionProxy == "" &&
 			(nc.ProxyUser != "" || nc.ProxyPass != "") {
+
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified proxy user credentials")
@@ -796,6 +798,7 @@ func configNode(
 		if !nc.NoOnion && nc.OnionProxy == "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, nc.Proxy)
 			}
 		}
@@ -815,11 +818,13 @@ func configNode(
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if nc.TorIsolation &&
 			(nc.OnionProxyUser != "" || nc.OnionProxyPass != "") {
+
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+
 			proxy := &socks.Proxy{
 				Addr:         nc.OnionProxy,
 				Username:     nc.OnionProxyUser,
@@ -832,6 +837,7 @@ func configNode(
 		if nc.Proxy != "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, nc.OnionProxy)
 			}
 		}
@@ -842,6 +848,7 @@ func configNode(
 	if nc.NoOnion {
 
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+
 			return nil, errors.New("tor has been disabled")
 		}
 	}

@@ -118,6 +118,7 @@ type BlockChain struct {
 
 // HaveBlock returns whether or not the chain instance has the block represented by the passed hash.  This includes checking the various places a block can be like part of the main chain, on a side chain, or in the orphan pool. This function is safe for concurrent access.
 func (b *BlockChain) HaveBlock(hash *chainhash.Hash) (bool, error) {
+
 	exists, err := b.blockExists(hash)
 	if err != nil {
 		return false, err
@@ -155,6 +156,7 @@ func (b *BlockChain) GetOrphanRoot(hash *chainhash.Hash) *chainhash.Hash {
 
 // removeOrphanBlock removes the passed orphan block from the orphan pool and previous orphan index.
 func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
+
 	// Protect concurrent access.
 	b.orphanLock.Lock()
 	defer b.orphanLock.Unlock()
@@ -167,6 +169,7 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 	for i := 0; i < len(orphans); i++ {
 		hash := orphans[i].block.Hash()
 		if hash.IsEqual(orphanHash) {
+
 			copy(orphans[i:], orphans[i+1:])
 			orphans[len(orphans)-1] = nil
 			orphans = orphans[:len(orphans)-1]
@@ -182,14 +185,17 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 
 // addOrphanBlock adds the passed block (which is already determined to be an orphan prior calling this function) to the orphan pool.  It lazily cleans up any expired blocks so a separate cleanup poller doesn't need to be run. It also imposes a maximum limit on the number of outstanding orphan blocks and will remove the oldest received orphan block if the limit is exceeded.
 func (b *BlockChain) addOrphanBlock(block *util.Block) {
+
 	// Remove expired orphan blocks.
 	for _, oBlock := range b.orphans {
 		if time.Now().After(oBlock.expiration) {
+
 			b.removeOrphanBlock(oBlock)
 			continue
 		}
 		// Update the oldest orphan block pointer so it can be discarded in case the orphan pool fills up.
 		if b.oldestOrphan == nil || oBlock.expiration.Before(b.oldestOrphan.expiration) {
+
 			b.oldestOrphan = oBlock
 		}
 	}
@@ -222,6 +228,7 @@ type SequenceLock struct {
 
 // CalcSequenceLock computes a relative lock-time SequenceLock for the passed transaction using the passed UtxoViewpoint to obtain the past median time for blocks in which the referenced inputs of the transactions were included within. The generated SequenceLock lock can be used in conjunction with a block height, and adjusted median block time to determine if all the inputs referenced within a transaction have reached sufficient maturity allowing the candidate transaction to be included in a block. This function is safe for concurrent access.
 func (b *BlockChain) CalcSequenceLock(tx *util.Tx, utxoView *UtxoViewpoint, mempool bool) (*SequenceLock, error) {
+
 	b.chainLock.Lock()
 	defer b.chainLock.Unlock()
 	return b.calcSequenceLock(b.bestChain.Tip(), tx, utxoView, mempool)
@@ -229,6 +236,7 @@ func (b *BlockChain) CalcSequenceLock(tx *util.Tx, utxoView *UtxoViewpoint, memp
 
 // calcSequenceLock computes the relative lock-times for the passed transaction. See the exported version, CalcSequenceLock for further details. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *UtxoViewpoint, mempool bool) (*SequenceLock, error) {
+
 	// A value of -1 for each relative lock type represents a relative time lock value that will allow a transaction to be included in a block at any given height or time. This value is returned as the relative lock time in the case that BIP 68 is disabled, or has not yet been activated.
 	sequenceLock := &SequenceLock{Seconds: -1, BlockHeight: -1}
 	// The sequence locks semantics are always active for transactions within the mempool.
@@ -246,6 +254,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 	mTx := tx.MsgTx()
 	sequenceLockActive := mTx.Version >= 2 && csvSoftforkActive
 	if !sequenceLockActive || IsCoinBase(tx) {
+
 		return sequenceLock, nil
 	}
 	// Grab the next height from the PoV of the passed blockNode to use for inputs present in the mempool.
@@ -312,10 +321,12 @@ func LockTimeToSequence(
 
 // getReorganizeNodes finds the fork point between the main chain and the passed node and returns a list of block nodes that would need to be detached from the main chain and a list of block nodes that would need to be attached to the fork point (which will be the end of the main chain after detaching the returned list of block nodes) in order to reorganize the chain such that the passed node is the new end of the main chain.  The lists will be empty if the passed node is not on a side chain. This function may modify node statuses in the block index without flushing. This function MUST be called with the chain state lock held (for reads).
 func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List) {
+
 	attachNodes := list.New()
 	detachNodes := list.New()
 	// Do not reorganize to a known invalid chain. Ancestors deeper than the direct parent are checked below but this is a quick check before doing more unnecessary work.
 	if b.Index.NodeStatus(node.parent).KnownInvalid() {
+
 		b.Index.SetStatusFlags(node, statusInvalidAncestor)
 		return detachNodes, attachNodes
 	}
@@ -325,6 +336,7 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 	invalidChain := false
 	for n := node; n != nil && n != forkNode; n = n.parent {
 		if b.Index.NodeStatus(n).KnownInvalid() {
+
 			invalidChain = true
 			break
 		}
@@ -354,18 +366,21 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	// Make sure it's extending the end of the best chain.
 	prevHash := &block.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(&b.bestChain.Tip().hash) {
+
 		str := "connectBlock must be called with a block that extends the main chain"
 		log <- cl.Dbg(str)
 		return AssertError(str)
 	}
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
+
 		str := "connectBlock called with inconsistent spent transaction out information"
 		log <- cl.Dbg(str)
 		return AssertError(str)
 	}
 	// No warnings about unknown rules or versions until the chain is current.
 	if b.isCurrent() {
+
 		// Warn if any unknown new rules are either about to activate or have already been activated.
 		if err := b.warnUnknownRuleActivations(node); err != nil {
 			Log.Trcc(func() string {
@@ -447,6 +462,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *UtxoViewpoint) error {
 	// Make sure the node being disconnected is the end of the best chain.
 	if !node.hash.IsEqual(&b.bestChain.Tip().hash) {
+
 		return AssertError(
 			"disconnectBlock must be called with the block at the end of the main chain",
 		)
@@ -578,6 +594,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	view := NewUtxoViewpoint()
 	view.SetBestHash(&oldBest.hash)
 	for e := detachNodes.Front(); e != nil; e = e.Next() {
+
 		n := e.Value.(*blockNode)
 		var block *util.Block
 		err := b.db.View(func(dbTx database.Tx) error {
@@ -589,6 +606,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 			return err
 		}
 		if n.hash != *block.Hash() {
+
 			return AssertError(fmt.Sprintf(
 				"detach block node hash %v (height %v) does not match previous parent block hash %v",
 				&n.hash, n.height, block.Hash(),
@@ -625,6 +643,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	// Perform several checks to verify each block that needs to be attached to the main chain can be connected without violating any rules and without actually connecting the block.
 	// NOTE: These checks could be done directly when connecting a block, however the downside to that approach is that if any of these checks fail after disconnecting some blocks or attaching others, all of the operations have to be rolled back to get the chain back into the state it was before the rule violation (or other failure). There are at least a couple of ways accomplish that rollback, but both involve tweaking the chain and/or database.  This approach catches these issues before ever modifying the chain.
 	for e := attachNodes.Front(); e != nil; e = e.Next() {
+
 		n := e.Value.(*blockNode)
 		var block *util.Block
 		err := b.db.View(func(dbTx database.Tx) error {
@@ -641,6 +660,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// checkConnectBlock gets skipped, we still need to update the UTXO
 		// view.
 		if b.Index.NodeStatus(n).KnownValid() {
+
 			err = view.fetchInputUtxos(b.db, block)
 			if err != nil {
 				return err
@@ -659,6 +679,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 			if _, ok := err.(RuleError); ok {
 				b.Index.SetStatusFlags(n, statusValidateFailed)
 				for de := e.Next(); de != nil; de = de.Next() {
+
 					dn := de.Value.(*blockNode)
 					b.Index.SetStatusFlags(dn, statusInvalidAncestor)
 				}
@@ -673,6 +694,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	view.SetBestHash(&b.bestChain.Tip().hash)
 	// Disconnect blocks from the main chain.
 	for i, e := 0, detachNodes.Front(); e != nil; i, e = i+1, e.Next() {
+
 		n := e.Value.(*blockNode)
 		block := detachBlocks[i]
 		// Load all of the utxos referenced by the block that aren't already in the view.
@@ -694,6 +716,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	}
 	// Connect the new best chain blocks.
 	for i, e := 0, attachNodes.Front(); e != nil; i, e = i+1, e.Next() {
+
 		n := e.Value.(*blockNode)
 		block := attachBlocks[i]
 		// Load all of the utxos referenced by the block that aren't already in the view.
@@ -740,8 +763,10 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 //    This is useful when using checkpoints.
 // This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags BehaviorFlags) (bool, error) {
+
 	fastAdd := flags&BFFastAdd == BFFastAdd
 	flushIndexState := func() {
+
 		// Intentionally ignore errors writing updated node status to DB. If it fails to write, it's not the end of the world. If the block is valid, we flush in connectBlock and if the block is invalid, the worst that can happen is we revalidate the block after a restart.
 		if writeErr := b.Index.flushToDB(); writeErr != nil {
 			log <- cl.Warn{
@@ -752,6 +777,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	// We are extending the main (best) chain with a new block.  This is the most common case.
 	parentHash := &block.MsgBlock().Header.PrevBlock
 	if parentHash.IsEqual(&b.bestChain.Tip().hash) {
+
 		// Skip checks if node has already been fully validated.
 		fastAdd = fastAdd || b.Index.NodeStatus(node).KnownValid()
 		// Perform several checks to verify the block can be connected to the main chain without violating any rules and without actually connecting the block.
@@ -799,6 +825,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		}
 		// If this is fast add, or this block node isn't yet marked as valid, then we'll update its status and flush the state to disk again.
 		if fastAdd || !b.Index.NodeStatus(node).KnownValid() {
+
 			b.Index.SetStatusFlags(node, statusValid)
 			flushIndexState()
 		}
@@ -815,6 +842,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		// Log information about how the block is forking the chain.
 		f := b.bestChain.FindFork(node)
 		if f.hash.IsEqual(parentHash) {
+
 			log <- cl.Infof{
 				"FORK: Block %v forks the chain at height %d/block %v, but does not cause a reorganize. workSum=%d",
 				node.hash,
@@ -887,6 +915,7 @@ func (b *BlockChain) BestSnapshot() *BestState {
 
 // HeaderByHash returns the block header identified by the given hash or an error if it doesn't exist. Note that this will return headers from both the main and side chains.
 func (b *BlockChain) HeaderByHash(hash *chainhash.Hash) (wire.BlockHeader, error) {
+
 	node := b.Index.LookupNode(hash)
 	if node == nil {
 		err := fmt.Errorf("block %s is not known", hash)
@@ -912,6 +941,7 @@ func (b *BlockChain) BlockLocatorFromHash(hash *chainhash.Hash) BlockLocator {
 
 // LatestBlockLocator returns a block locator for the latest known tip of the main (best) chain. This function is safe for concurrent access.
 func (b *BlockChain) LatestBlockLocator() (BlockLocator, error) {
+
 	b.chainLock.RLock()
 	locator := b.bestChain.BlockLocator(nil)
 	b.chainLock.RUnlock()
@@ -920,8 +950,10 @@ func (b *BlockChain) LatestBlockLocator() (BlockLocator, error) {
 
 // BlockHeightByHash returns the height of the block with the given hash in the main chain. This function is safe for concurrent access.
 func (b *BlockChain) BlockHeightByHash(hash *chainhash.Hash) (int32, error) {
+
 	node := b.Index.LookupNode(hash)
 	if node == nil || !b.bestChain.Contains(node) {
+
 		str := fmt.Sprintf("BlockHeightByHash: block %s is not in the main chain", hash)
 		return 0, errNotInMainChain(str)
 	}
@@ -930,6 +962,7 @@ func (b *BlockChain) BlockHeightByHash(hash *chainhash.Hash) (int32, error) {
 
 // BlockHashByHeight returns the hash of the block at the given height in the main chain. This function is safe for concurrent access.
 func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, error) {
+
 	node := b.bestChain.NodeByHeight(blockHeight)
 	if node == nil {
 		str := fmt.Sprintf("BlockHashByHeight: no block at height %d exists", blockHeight)
@@ -940,6 +973,7 @@ func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, erro
 
 // HeightRange returns a range of block hashes for the given start and end heights.  It is inclusive of the start height and exclusive of the end height.  The end height will be limited to the current main chain height. This function is safe for concurrent access.
 func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash, error) {
+
 	// Ensure requested heights are sane.
 	if startHeight < 0 {
 		return nil, fmt.Errorf("start height of fetch range must not be less than zero - got %d", startHeight)
@@ -975,11 +1009,13 @@ func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash
 // HeightToHashRange returns a range of block hashes for the given start height and end hash, inclusive on both ends.  The hashes are for all blocks that are ancestors of endHash with height greater than or equal to startHeight.  The end hash must belong to a block that is known to be valid. This function is safe for concurrent access.
 func (b *BlockChain) HeightToHashRange(startHeight int32,
 	endHash *chainhash.Hash, maxResults int) ([]chainhash.Hash, error) {
+
 	endNode := b.Index.LookupNode(endHash)
 	if endNode == nil {
 		return nil, fmt.Errorf("no known block header with hash %v", endHash)
 	}
 	if !b.Index.NodeStatus(endNode).KnownValid() {
+
 		return nil, fmt.Errorf("block %v is not yet validated", endHash)
 	}
 	endHeight := endNode.height
@@ -1014,6 +1050,7 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 		return nil, fmt.Errorf("no known block header with hash %v", endHash)
 	}
 	if !b.Index.NodeStatus(endNode).KnownValid() {
+
 		return nil, fmt.Errorf("block %v is not yet validated", endHash)
 	}
 	endHeight := endNode.height
@@ -1026,6 +1063,7 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 		// Use the bestChain chainView for faster lookups once lookup intersects the best chain.
 		blockHeight := int32(index * interval)
 		if b.bestChain.contains(blockNode) {
+
 			blockNode = b.bestChain.nodeByHeight(blockHeight)
 		} else {
 			blockNode = blockNode.Ancestor(blockHeight)
@@ -1040,6 +1078,7 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 // - When locators are provided, but none of them are known, nodes starting after the genesis block will be returned
 // This is primarily a helper function for the locateBlocks and locateHeaders functions. This function MUST be called with the chain state lock held (for reads).
 func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.Hash, maxEntries uint32) (*blockNode, uint32) {
+
 	// There are no block locators so a specific block is being requested as identified by the stop hash.
 	stopNode := b.Index.LookupNode(hashStop)
 	if len(locator) == 0 {
@@ -1054,6 +1093,7 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	for _, hash := range locator {
 		node := b.Index.LookupNode(hash)
 		if node != nil && b.bestChain.Contains(node) {
+
 			startNode = node
 			break
 		}
@@ -1164,6 +1204,7 @@ type Config struct {
 // New returns a BlockChain instance using the provided configuration details.
 func New(
 	config *Config) (*BlockChain, error) {
+
 	// Enforce required config fields.
 	if config.DB == nil {
 		return nil, AssertError("blockchain.New database is nil")

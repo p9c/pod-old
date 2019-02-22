@@ -100,8 +100,7 @@ func (msg *MsgHeaders) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgHeaders returns a new bitcoin headers message that conforms to the Message interface.  See MsgHeaders for details.
-func NewMsgHeaders(
-	) *MsgHeaders {
+func NewMsgHeaders() *MsgHeaders {
 	return &MsgHeaders{
 		Headers: make([]*BlockHeader, 0, MaxBlockHeadersPerMsg),
 	}

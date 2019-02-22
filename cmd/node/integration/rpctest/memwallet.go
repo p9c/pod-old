@@ -81,6 +81,7 @@ type memWallet struct {
 // newMemWallet creates and returns a fully initialized instance of the memWallet given a particular blockchain's parameters.
 func newMemWallet(
 	net *chaincfg.Params, harnessID uint32) (*memWallet, error) {
+
 	// The wallet's final HD seed is: hdSeed || harnessID. This method ensures that each harness instance uses a deterministic root seed based on its harness ID.
 	var harnessHDSeed [chainhash.HashSize + 4]byte
 	copy(harnessHDSeed[:], hdSeed[:])
@@ -121,6 +122,7 @@ func newMemWallet(
 
 // Start launches all goroutines required for the wallet to function properly.
 func (m *memWallet) Start() {
+
 	go m.chainSyncer()
 }
 
@@ -136,6 +138,7 @@ func (m *memWallet) SyncedHeight() int32 {
 // SetRPCClient saves the passed rpc connection to pod as the wallet's
 // personal rpc connection.
 func (m *memWallet) SetRPCClient(rpcClient *rpcclient.Client) {
+
 	m.rpc = rpcClient
 }
 
@@ -143,6 +146,7 @@ func (m *memWallet) SetRPCClient(rpcClient *rpcclient.Client) {
 // connected to the main chain. It queues the update for the chain syncer,
 // calling the private version in sequential order.
 func (m *memWallet) IngestBlock(height int32, header *wire.BlockHeader, filteredTxns []*util.Tx) {
+
 	// Append this new chain update to the end of the queue of new chain
 	// updates.
 	m.chainMtx.Lock()
@@ -153,6 +157,7 @@ func (m *memWallet) IngestBlock(height int32, header *wire.BlockHeader, filtered
 	// available. We do this in a new goroutine in order to avoid blocking
 	// the main loop of the rpc client.
 	go func() {
+
 		m.chainUpdateSignal <- struct{}{}
 	}()
 }
@@ -160,6 +165,7 @@ func (m *memWallet) IngestBlock(height int32, header *wire.BlockHeader, filtered
 // ingestBlock updates the wallet's internal utxo state based on the outputs
 // created and destroyed within each block.
 func (m *memWallet) ingestBlock(update *chainUpdate) {
+
 	// Update the latest synced height, then process each filtered
 	// transaction in the block creating and destroying utxos within
 	// the wallet as a result.
@@ -185,6 +191,7 @@ func (m *memWallet) ingestBlock(update *chainUpdate) {
 //
 // NOTE: This MUST be run as a goroutine.
 func (m *memWallet) chainSyncer() {
+
 	var update *chainUpdate
 	for range m.chainUpdateSignal {
 		// A new update is available, so pop the new chain update from
@@ -208,6 +215,7 @@ func (m *memWallet) chainSyncer() {
 // utxo within the wallet if we're able to spend the output.
 func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 	isCoinbase bool, undo *undoEntry) {
+
 	for i, output := range outputs {
 		pkScript := output.PkScript
 		// Scan all the addresses we currently control to see if the
@@ -215,6 +223,7 @@ func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 		for keyIndex, addr := range m.addrs {
 			pkHash := addr.ScriptAddress()
 			if !bytes.Contains(pkScript, pkHash) {
+
 				continue
 			}
 			// If this is a coinbase output, then we mark the
@@ -239,6 +248,7 @@ func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 // evalInputs scans all the passed inputs, destroying any utxos within the
 // wallet which are spent by an input.
 func (m *memWallet) evalInputs(inputs []*wire.TxIn, undo *undoEntry) {
+
 	for _, txIn := range inputs {
 		op := txIn.PreviousOutPoint
 		oldUtxo, ok := m.utxos[op]
@@ -254,6 +264,7 @@ func (m *memWallet) evalInputs(inputs []*wire.TxIn, undo *undoEntry) {
 // disconnected from the main chain. It queues the update for the chain syncer,
 // calling the private version in sequential order.
 func (m *memWallet) UnwindBlock(height int32, header *wire.BlockHeader) {
+
 	// Append this new chain update to the end of the queue of new chain
 	// updates.
 	m.chainMtx.Lock()
@@ -264,6 +275,7 @@ func (m *memWallet) UnwindBlock(height int32, header *wire.BlockHeader) {
 	// available. We do this in a new goroutine in order to avoid blocking
 	// the main loop of the rpc client.
 	go func() {
+
 		m.chainUpdateSignal <- struct{}{}
 	}()
 }
@@ -271,6 +283,7 @@ func (m *memWallet) UnwindBlock(height int32, header *wire.BlockHeader) {
 // unwindBlock undoes the effect that a particular block had on the wallet's
 // internal utxo state.
 func (m *memWallet) unwindBlock(update *chainUpdate) {
+
 	undo := m.reorgJournal[update.blockHeight]
 	for _, utxo := range undo.utxosCreated {
 		delete(m.utxos, utxo)
@@ -285,6 +298,7 @@ func (m *memWallet) unwindBlock(update *chainUpdate) {
 // loads the address into the RPC client's transaction filter to ensure any
 // transactions that involve it are delivered via the notifications.
 func (m *memWallet) newAddress() (util.Address, error) {
+
 	index := m.hdIndex
 	childKey, err := m.hdRoot.Child(index)
 	if err != nil {
@@ -311,6 +325,7 @@ func (m *memWallet) newAddress() (util.Address, error) {
 //
 // This function is safe for concurrent access.
 func (m *memWallet) NewAddress() (util.Address, error) {
+
 	m.Lock()
 	defer m.Unlock()
 	return m.newAddress()
@@ -385,6 +400,7 @@ func (m *memWallet) fundTx(tx *wire.MsgTx, amt util.Amount,
 // in satoshis-per-byte.
 func (m *memWallet) SendOutputs(outputs []*wire.TxOut,
 	feeRate util.Amount) (*chainhash.Hash, error) {
+
 	tx, err := m.CreateTransaction(outputs, feeRate, true)
 	if err != nil {
 		return nil, err
@@ -397,6 +413,7 @@ func (m *memWallet) SendOutputs(outputs []*wire.TxOut,
 // output. The passed fee rate should be expressed in sat/b.
 func (m *memWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 	feeRate util.Amount) (*chainhash.Hash, error) {
+
 	tx, err := m.CreateTransaction(outputs, feeRate, false)
 	if err != nil {
 		return nil, err
@@ -412,6 +429,7 @@ func (m *memWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 // This function is safe for concurrent access.
 func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 	feeRate util.Amount, change bool) (*wire.MsgTx, error) {
+
 	m.Lock()
 	defer m.Unlock()
 	tx := wire.NewMsgTx(wire.TxVersion)
@@ -464,6 +482,7 @@ func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 //
 // This function is safe for concurrent access.
 func (m *memWallet) UnlockOutputs(inputs []*wire.TxIn) {
+
 	m.Lock()
 	defer m.Unlock()
 	for _, input := range inputs {
@@ -496,6 +515,7 @@ func (m *memWallet) ConfirmedBalance() util.Amount {
 // keyToAddr maps the passed private to corresponding p2pkh address.
 func keyToAddr(
 	key *ec.PrivateKey, net *chaincfg.Params) (util.Address, error) {
+
 	serializedKey := key.PubKey().SerializeCompressed()
 	pubKeyAddr, err := util.NewAddressPubKey(serializedKey, net)
 	if err != nil {

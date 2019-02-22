@@ -79,8 +79,7 @@ func (msg *MsgGetData) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgGetData returns a new bitcoin getdata message that conforms to the Message interface.  See MsgGetData for details.
-func NewMsgGetData(
-	) *MsgGetData {
+func NewMsgGetData() *MsgGetData {
 	return &MsgGetData{
 		InvList: make([]*InvVect, 0, defaultInvListAlloc),
 	}

@@ -14,8 +14,8 @@ import (
 )
 
 // This example demonstrates creating a new database.
-func ExampleCreate(
-	) {
+func ExampleCreate() {
+
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (
@@ -39,8 +39,8 @@ func ExampleCreate(
 
 // This example demonstrates creating a new database and using a managed
 // read-write transaction to store and retrieve metadata.
-func Example_basicUsage(
-	) {
+func Example_basicUsage() {
+
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (
@@ -74,6 +74,7 @@ func Example_basicUsage(
 		}
 		// Read the key back and ensure it matches.
 		if !bytes.Equal(tx.Metadata().Get(key), value) {
+
 			return fmt.Errorf("unexpected value for key '%s'", key)
 		}
 		// Create a new nested bucket under the metadata bucket.
@@ -99,8 +100,8 @@ func Example_basicUsage(
 // This example demonstrates creating a new database, using a managed read-write
 // transaction to store a block, and using a managed read-only transaction to
 // fetch the block.
-func Example_blockStorageAndRetrieval(
-	) {
+func Example_blockStorageAndRetrieval() {
+
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (

@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/json"
@@ -16,9 +17,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 var (
@@ -54,8 +54,7 @@ type rescanOptions struct {
 // later options overriding earlier ones.
 type RescanOption func(ro *rescanOptions)
 
-func defaultRescanOptions(
-	) *rescanOptions {
+func defaultRescanOptions() *rescanOptions {
 	return &rescanOptions{}
 }
 
@@ -63,6 +62,7 @@ func defaultRescanOptions(
 func QueryOptions(
 	options ...QueryOption) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.queryOptions = options
 	}
 }
@@ -72,6 +72,7 @@ func QueryOptions(
 func NotificationHandlers(
 	ntfn rpcclient.NotificationHandlers) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.ntfn = ntfn
 	}
 }
@@ -85,6 +86,7 @@ func NotificationHandlers(
 func StartBlock(
 	startBlock *waddrmgr.BlockStamp) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.startBlock = startBlock
 	}
 }
@@ -97,6 +99,7 @@ func StartBlock(
 func StartTime(
 	startTime time.Time) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.startTime = startTime
 	}
 }
@@ -110,6 +113,7 @@ func StartTime(
 func EndBlock(
 	endBlock *waddrmgr.BlockStamp) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.endBlock = endBlock
 	}
 }
@@ -121,6 +125,7 @@ func EndBlock(
 func WatchAddrs(
 	watchAddrs ...util.Address) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.watchAddrs = append(ro.watchAddrs, watchAddrs...)
 	}
 }
@@ -143,6 +148,7 @@ type InputWithScript struct {
 func WatchInputs(
 	watchInputs ...InputWithScript) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.watchInputs = append(ro.watchInputs, watchInputs...)
 	}
 }
@@ -152,6 +158,7 @@ func WatchInputs(
 func TxIdx(
 	txIdx uint32) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.txIdx = txIdx
 	}
 }
@@ -163,6 +170,7 @@ func TxIdx(
 func QuitChan(
 	quit <-chan struct{}) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.quit = quit
 	}
 }
@@ -172,6 +180,7 @@ func QuitChan(
 func updateChan(
 	update <-chan *updateOptions) RescanOption {
 	return func(ro *rescanOptions) {
+
 		ro.update = update
 	}
 }
@@ -210,6 +219,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		// If the end block hash is non-nil, then we'll query the
 		// database to find out the stop height.
 		if (ro.endBlock.Hash != chainhash.Hash{}) {
+
 			_, height, err := s.BlockHeaders.FetchHeader(
 				&ro.endBlock.Hash,
 			)
@@ -224,6 +234,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		// height is non-nil. If not, then we'll use this to find the
 		// stopping hash.
 		if (ro.endBlock.Hash == chainhash.Hash{}) {
+
 			if ro.endBlock.Height != 0 {
 				header, err := s.BlockHeaders.FetchHeaderByHeight(
 					uint32(ro.endBlock.Height))
@@ -266,6 +277,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	// the start height should be set. If neither is, then we'll be
 	// starting from the genesis block.
 	if (curStamp.Hash != chainhash.Hash{}) {
+
 		header, height, err := s.BlockHeaders.FetchHeader(&curStamp.Hash)
 		if err == nil {
 			curHeader = *header
@@ -275,6 +287,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		}
 	}
 	if (curStamp.Hash == chainhash.Hash{}) {
+
 		if curStamp.Height == 0 {
 			curStamp.Hash = *s.chainParams.GenesisHash
 		} else {
@@ -306,8 +319,10 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	// wait.
 	done := make(chan struct{})
 	go func() {
+
 		s.blockManager.newFilterHeadersMtx.Lock()
 		for s.blockManager.filterHeaderTip < uint32(curStamp.Height) {
+
 			s.blockManager.newFilterHeadersSignal.Wait()
 
 			// While we're awake, check to see if we need to exit.
@@ -386,6 +401,7 @@ filterHeaderWaitLoop:
 	var blockReFetchTimer *time.Timer
 
 	resetBlockReFetchTimer := func(headerTip wire.BlockHeader, height int32) {
+
 		// If so, then we'll avoid notifying the block, and will
 		// instead add this to our retry queue, as we should be getting
 		// block disconnected notifications in short order.
@@ -401,6 +417,7 @@ filterHeaderWaitLoop:
 		// We'll start a timer to re-send this header so we re-process
 		// if in the case that we don't get a re-org soon afterwards.
 		blockReFetchTimer = time.AfterFunc(blockRetryInterval, func() {
+
 			log <- cl.Infof{
 				"resending rescan header for block hash=%v, height=%v",
 				headerTip.BlockHash(), height,
@@ -424,6 +441,7 @@ rescanLoop:
 		if curStamp.Hash == ro.endBlock.Hash ||
 			(ro.endBlock.Height > 0 &&
 				curStamp.Height == ro.endBlock.Height) {
+
 			return nil
 		}
 
@@ -501,6 +519,7 @@ rescanLoop:
 				// re-process it without any issues.
 				if header.BlockHash() != curStamp.Hash &&
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
+
 					log <- cl.Warnf{
 						"missing filter header for height=%v, skipping",
 						curStamp.Height + 1,
@@ -512,6 +531,7 @@ rescanLoop:
 				// we don't incorrectly increment our current
 				// time stamp.
 				if curStamp.Hash != header.BlockHash() {
+
 					curHeader = header
 					curStamp.Hash = header.BlockHash()
 					curStamp.Height++
@@ -667,6 +687,7 @@ rescanLoop:
 					)
 				}
 				defer func() {
+
 					if subscription != nil {
 						s.unsubscribeBlockMsgs(subscription)
 						subscription = nil
@@ -765,12 +786,14 @@ func (s *ChainService) extractBlockMatches(ro *rescanOptions,
 
 	relevantTxs := make([]*util.Tx, 0, len(block.Transactions()))
 	for txIdx, tx := range block.Transactions() {
+
 		txDetails := blockDetails
 		txDetails.Index = txIdx
 
 		var relevant bool
 
 		if ro.spendsWatchedInput(tx) {
+
 			relevant = true
 			if ro.ntfn.OnRedeemingTx != nil {
 				ro.ntfn.OnRedeemingTx(tx, &txDetails)
@@ -946,6 +969,7 @@ func (ro *rescanOptions) updateFilter(update *updateOptions,
 	// If we need to rewind, then we'll walk backwards in the chain until
 	// we arrive at the block _just_ before the rewind.
 	for curStamp.Height > int32(update.rewind) {
+
 		if ro.ntfn.OnBlockDisconnected != nil &&
 			!update.disableDisconnectedNtfns {
 			ro.ntfn.OnBlockDisconnected(&curStamp.Hash,
@@ -995,6 +1019,7 @@ func (ro *rescanOptions) spendsWatchedInput(tx *util.Tx) bool {
 // an output paying to a watched address. If that is the case, this also
 // updates the filter to watch the newly created output going forward.
 func (ro *rescanOptions) paysWatchedAddr(tx *util.Tx) (bool, error) {
+
 	anyMatchingOutputs := false
 
 txOutLoop:
@@ -1012,6 +1037,7 @@ txOutLoop:
 			// If the script doesn't match, we'll move onto the
 			// next one.
 			if !bytes.Equal(pkScript, addrScript) {
+
 				continue
 			}
 
@@ -1076,6 +1102,7 @@ func (s *ChainService) NewRescan(options ...RescanOption) *Rescan {
 // exited. This method is to be called once the passed quitchan (if any) has
 // been closed.
 func (r *Rescan) WaitForShutdown() {
+
 	r.wg.Wait()
 }
 
@@ -1085,12 +1112,14 @@ func (r *Rescan) Start() <-chan error {
 	errChan := make(chan error, 1)
 
 	if !atomic.CompareAndSwapUint32(&r.started, 0, 1) {
+
 		errChan <- fmt.Errorf("Rescan already started")
 		return errChan
 	}
 
 	r.wg.Add(1)
 	go func() {
+
 		defer r.wg.Done()
 
 		rescanArgs := append(r.options, updateChan(r.updateChan))
@@ -1120,8 +1149,7 @@ type updateOptions struct {
 // UpdateOption is a functional option argument for the Rescan.Update method.
 type UpdateOption func(uo *updateOptions)
 
-func defaultUpdateOptions(
-	) *updateOptions {
+func defaultUpdateOptions() *updateOptions {
 	return &updateOptions{}
 }
 
@@ -1129,6 +1157,7 @@ func defaultUpdateOptions(
 func AddAddrs(
 	addrs ...util.Address) UpdateOption {
 	return func(uo *updateOptions) {
+
 		uo.addrs = append(uo.addrs, addrs...)
 	}
 }
@@ -1137,6 +1166,7 @@ func AddAddrs(
 func AddInputs(
 	inputs ...InputWithScript) UpdateOption {
 	return func(uo *updateOptions) {
+
 		uo.inputs = append(uo.inputs, inputs...)
 	}
 }
@@ -1148,6 +1178,7 @@ func AddInputs(
 func Rewind(
 	height uint32) UpdateOption {
 	return func(uo *updateOptions) {
+
 		uo.rewind = height
 	}
 }
@@ -1157,6 +1188,7 @@ func Rewind(
 func DisableDisconnectedNtfns(
 	disabled bool) UpdateOption {
 	return func(uo *updateOptions) {
+
 		uo.disableDisconnectedNtfns = disabled
 	}
 }
@@ -1233,6 +1265,7 @@ type SpendReport struct {
 //
 // TODO(roasbeef): WTB utxo-commitments
 func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
+
 	// Before we start we'll fetch the set of default options, and apply
 	// any user specified options in a functional manner.
 	ro := defaultRescanOptions()

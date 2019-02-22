@@ -71,6 +71,7 @@ type FutureGetAddedNodeInfoResult chan *response
 
 // Receive waits for the response promised by the future and returns information about manually added (persistent) peers.
 func (r FutureGetAddedNodeInfoResult) Receive() ([]json.GetAddedNodeInfoResult, error) {
+
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -92,6 +93,7 @@ func (c *Client) GetAddedNodeInfoAsync(peer string) FutureGetAddedNodeInfoResult
 
 // GetAddedNodeInfo returns information about manually added (persistent) peers. See GetAddedNodeInfoNoDNS to retrieve only a list of the added (persistent) peers.
 func (c *Client) GetAddedNodeInfo(peer string) ([]json.GetAddedNodeInfoResult, error) {
+
 	return c.GetAddedNodeInfoAsync(peer).Receive()
 }
 
@@ -100,6 +102,7 @@ type FutureGetAddedNodeInfoNoDNSResult chan *response
 
 // Receive waits for the response promised by the future and returns a list of manually added (persistent) peers.
 func (r FutureGetAddedNodeInfoNoDNSResult) Receive() ([]string, error) {
+
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -121,6 +124,7 @@ func (c *Client) GetAddedNodeInfoNoDNSAsync(peer string) FutureGetAddedNodeInfoN
 
 // GetAddedNodeInfoNoDNS returns a list of manually added (persistent) peers. This works by setting the dns flag to false in the underlying RPC. See GetAddedNodeInfo to obtain more information about each added (persistent) peer.
 func (c *Client) GetAddedNodeInfoNoDNS(peer string) ([]string, error) {
+
 	return c.GetAddedNodeInfoNoDNSAsync(peer).Receive()
 }
 
@@ -129,6 +133,7 @@ type FutureGetConnectionCountResult chan *response
 
 // Receive waits for the response promised by the future and returns the number of active connections to other peers.
 func (r FutureGetConnectionCountResult) Receive() (int64, error) {
+
 	res, err := receiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -150,6 +155,7 @@ func (c *Client) GetConnectionCountAsync() FutureGetConnectionCountResult {
 
 // GetConnectionCount returns the number of active connections to other peers.
 func (c *Client) GetConnectionCount() (int64, error) {
+
 	return c.GetConnectionCountAsync().Receive()
 }
 
@@ -178,6 +184,7 @@ type FutureGetPeerInfoResult chan *response
 
 // Receive waits for the response promised by the future and returns  data about each connected network peer.
 func (r FutureGetPeerInfoResult) Receive() ([]json.GetPeerInfoResult, error) {
+
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -199,6 +206,7 @@ func (c *Client) GetPeerInfoAsync() FutureGetPeerInfoResult {
 
 // GetPeerInfo returns data about each connected network peer.
 func (c *Client) GetPeerInfo() ([]json.GetPeerInfoResult, error) {
+
 	return c.GetPeerInfoAsync().Receive()
 }
 
@@ -207,6 +215,7 @@ type FutureGetNetTotalsResult chan *response
 
 // Receive waits for the response promised by the future and returns network statistics.
 func (r FutureGetNetTotalsResult) Receive() (*json.GetNetTotalsResult, error) {
+
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -228,5 +237,6 @@ func (c *Client) GetNetTotalsAsync() FutureGetNetTotalsResult {
 
 // GetNetTotals returns network traffic statistics.
 func (c *Client) GetNetTotals() (*json.GetNetTotalsResult, error) {
+
 	return c.GetNetTotalsAsync().Receive()
 }

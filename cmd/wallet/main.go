@@ -32,6 +32,7 @@ func Main(
 	}
 	if cfg.Profile != "" {
 		go func() {
+
 			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)
 			log <- cl.Info{
 				"profile server listening on", listenAddr,
@@ -72,6 +73,7 @@ func Main(
 	}
 
 	loader.RunAfterLoad(func(w *wallet.Wallet) {
+
 		log <- cl.Trc("starting startWalletRPCServices")
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
@@ -93,6 +95,7 @@ func Main(
 	// before exiting.  Interrupt handlers run in LIFO order, so the wallet
 	// (which should be closed last) is added first.
 	interrupt.AddHandler(func() {
+
 		err := loader.UnloadWallet()
 		if err != nil && err != wallet.ErrNotLoaded {
 			log <- cl.Error{
@@ -103,6 +106,7 @@ func Main(
 	if rpcs != nil {
 		log <- cl.Trc("starting rpc server")
 		interrupt.AddHandler(func() {
+
 			// TODO: Does this need to wait for the grpc server to
 			// finish up any requests?
 			log <- cl.Wrn("stopping RPC server...")
@@ -112,11 +116,13 @@ func Main(
 	}
 	if legacyRPCServer != nil {
 		interrupt.AddHandler(func() {
+
 			log <- cl.Wrn("stopping legacy RPC server...")
 			legacyRPCServer.Stop()
 			log <- cl.Inf("legacy RPC server shutdown")
 		})
 		go func() {
+
 			<-legacyRPCServer.RequestProcessShutdown()
 			interrupt.Request()
 		}()
@@ -133,6 +139,7 @@ func Main(
 // methods.
 func rpcClientConnectLoop(
 	legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
+
 	var certs []byte
 	// if !cfg.UseSPV {
 	certs = readCAFile()
@@ -190,6 +197,7 @@ func rpcClientConnectLoop(
 		// later time with a client that has already disconnected.  A
 		// mutex is used to make this concurrent safe.
 		associateRPCClient := func(w *wallet.Wallet) {
+
 			w.SynchronizeRPC(chainClient)
 			if legacyRPCServer != nil {
 				legacyRPCServer.SetChainServer(chainClient)
@@ -197,6 +205,7 @@ func rpcClientConnectLoop(
 		}
 		mu := new(sync.Mutex)
 		loader.RunAfterLoad(func(w *wallet.Wallet) {
+
 			mu.Lock()
 			associate := associateRPCClient
 			mu.Unlock()
@@ -215,6 +224,7 @@ func rpcClientConnectLoop(
 		if ok {
 			// Do not attempt a reconnect when the wallet was explicitly stopped.
 			if loadedWallet.ShuttingDown() {
+
 				return
 			}
 
@@ -228,8 +238,7 @@ func rpcClientConnectLoop(
 	}
 }
 
-func readCAFile(
-	) []byte {
+func readCAFile() []byte {
 	// Read certificate file if TLS is not disabled.
 	var certs []byte
 	if cfg.EnableClientTLS {
@@ -256,6 +265,7 @@ func readCAFile(
 // authentication error.  Instead, all requests to the client will simply error.
 func startChainRPC(
 	certs []byte) (*chain.RPCClient, error) {
+
 	log <- cl.Infof{
 		"attempting RPC client connection to %v, TLS: %s",
 		cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS),

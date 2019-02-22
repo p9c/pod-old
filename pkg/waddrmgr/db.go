@@ -28,8 +28,7 @@ var (
 // ObtainUserInputFunc is a function that reads a user input and returns it as
 // a byte stream. It is used to accept data required during upgrades, for e.g.
 // wallet seed and private passphrase.
-type ObtainUserInputFunc func(
-	) ([]byte, error)
+type ObtainUserInputFunc func() ([]byte, error)
 
 // maybeConvertDbError converts the passed error to a ManagerError with an
 // error code of ErrDatabase if it is not already a ManagerError.  This is
@@ -381,6 +380,7 @@ func putScopeAddrTypes(
 
 func fetchReadScopeBucket(
 	ns walletdb.ReadBucket, scope *KeyScope) (walletdb.ReadBucket, error) {
+
 	rootScopeBucket := ns.NestedReadBucket(scopeBucketName)
 
 	scopeKey := scopeToBytes(scope)
@@ -412,6 +412,7 @@ func fetchWriteScopeBucket(
 // fetchManagerVersion fetches the current manager version from the database.
 func fetchManagerVersion(
 	ns walletdb.ReadBucket) (uint32, error) {
+
 	mainBucket := ns.NestedReadBucket(mainBucketName)
 	verBytes := mainBucket.Get(mgrVersionName)
 	if verBytes == nil {
@@ -442,6 +443,7 @@ func putManagerVersion(
 // be nil for a watching-only database.
 func fetchMasterKeyParams(
 	ns walletdb.ReadBucket) ([]byte, []byte, error) {
+
 	bucket := ns.NestedReadBucket(mainBucketName)
 
 	// Load the master public key parameters.  Required.
@@ -496,6 +498,7 @@ func putMasterKeyParams(
 // associated with a particular manager scoped.
 func fetchCoinTypeKeys(
 	ns walletdb.ReadBucket, scope *KeyScope) ([]byte, []byte, error) {
+
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
 		return nil, nil, err
@@ -584,6 +587,7 @@ func putMasterHDKeys(
 // that the master private key isn't stored.
 func fetchMasterHDKeys(
 	ns walletdb.ReadBucket) ([]byte, []byte, error) {
+
 	bucket := ns.NestedReadBucket(mainBucketName)
 
 	var masterHDPrivEnc, masterHDPubEnc []byte
@@ -612,6 +616,7 @@ func fetchMasterHDKeys(
 // will be nil for a watching-only database.
 func fetchCryptoKeys(
 	ns walletdb.ReadBucket) ([]byte, []byte, []byte, error) {
+
 	bucket := ns.NestedReadBucket(mainBucketName)
 
 	// Load the crypto public key parameters.  Required.
@@ -681,6 +686,7 @@ func putCryptoKeys(
 // fetchWatchingOnly loads the watching-only flag from the database.
 func fetchWatchingOnly(
 	ns walletdb.ReadBucket) (bool, error) {
+
 	bucket := ns.NestedReadBucket(mainBucketName)
 
 	buf := bucket.Get(watchingOnlyName)
@@ -714,6 +720,7 @@ func putWatchingOnly(
 // the common parts.
 func deserializeAccountRow(
 	accountID []byte, serializedAccount []byte) (*dbAccountRow, error) {
+
 	// The serialized account format is:
 	//   <acctType><rdlen><rawdata>
 	//
@@ -755,6 +762,7 @@ func serializeAccountRow(
 // account row as a BIP0044-like account.
 func deserializeDefaultAccountRow(
 	accountID []byte, row *dbAccountRow) (*dbDefaultAccountRow, error) {
+
 	// The serialized BIP0044 account raw data format is:
 	//   <encpubkeylen><encpubkey><encprivkeylen><encprivkey><nextextidx>
 	//   <nextintidx><namelen><name>
@@ -874,6 +882,7 @@ func forEachAccount(
 // fetchLastAccount retrieves the last account from the database.
 func fetchLastAccount(
 	ns walletdb.ReadBucket, scope *KeyScope) (uint32, error) {
+
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
 		return 0, err
@@ -1175,6 +1184,7 @@ func putLastAccount(
 // deserialize the common parts.
 func deserializeAddressRow(
 	serializedAddress []byte) (*dbAddressRow, error) {
+
 	// The serialized address format is:
 	//   <addrType><account><addedTime><syncStatus><rawdata>
 	//
@@ -1224,6 +1234,7 @@ func serializeAddressRow(
 // row as a chained address.
 func deserializeChainedAddress(
 	row *dbAddressRow) (*dbChainAddressRow, error) {
+
 	// The serialized chain address raw data format is:
 	//   <branch><index>
 	//
@@ -1261,6 +1272,7 @@ func serializeChainedAddress(
 // row as an imported address.
 func deserializeImportedAddress(
 	row *dbAddressRow) (*dbImportedAddressRow, error) {
+
 	// The serialized imported address raw data format is:
 	//   <encpubkeylen><encpubkey><encprivkeylen><encprivkey>
 	//
@@ -1315,6 +1327,7 @@ func serializeImportedAddress(
 // row as a script address.
 func deserializeScriptAddress(
 	row *dbAddressRow) (*dbScriptAddressRow, error) {
+
 	// The serialized script address raw data format is:
 	//   <encscripthashlen><encscripthash><encscriptlen><encscript>
 	//
@@ -1868,6 +1881,7 @@ func deletePrivateKeys(
 // database.
 func fetchSyncedTo(
 	ns walletdb.ReadBucket) (*BlockStamp, error) {
+
 	bucket := ns.NestedReadBucket(syncBucketName)
 
 	// The serialized synced to format is:
@@ -1937,6 +1951,7 @@ func putSyncedTo(
 // database.
 func fetchBlockHash(
 	ns walletdb.ReadBucket, height int32) (*chainhash.Hash, error) {
+
 	bucket := ns.NestedReadBucket(syncBucketName)
 	errStr := fmt.Sprintf("failed to fetch block hash for height %d", height)
 
@@ -1958,6 +1973,7 @@ func fetchBlockHash(
 // database.
 func fetchStartBlock(
 	ns walletdb.ReadBucket) (*BlockStamp, error) {
+
 	bucket := ns.NestedReadBucket(syncBucketName)
 
 	// The serialized start block format is:
@@ -2000,6 +2016,7 @@ func putStartBlock(
 // fetchBirthday loads the manager's bithday timestamp from the database.
 func fetchBirthday(
 	ns walletdb.ReadBucket) (time.Time, error) {
+
 	bucket := ns.NestedReadBucket(syncBucketName)
 
 	var t time.Time

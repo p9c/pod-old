@@ -177,6 +177,7 @@ func (b *ScriptBuilder) AddInt64(val int64) *ScriptBuilder {
 		return b
 	}
 	if val == -1 || (val >= 1 && val <= 16) {
+
 		b.script = append(b.script, byte((OP_1-1)+val))
 		return b
 	}
@@ -192,12 +193,12 @@ func (b *ScriptBuilder) Reset() *ScriptBuilder {
 
 // Script returns the currently built script.  When any errors occurred while building the script, the script will be returned up the point of the first error along with the error.
 func (b *ScriptBuilder) Script() ([]byte, error) {
+
 	return b.script, b.err
 }
 
 // NewScriptBuilder returns a new instance of a script builder.  See ScriptBuilder for details.
-func NewScriptBuilder(
-	) *ScriptBuilder {
+func NewScriptBuilder() *ScriptBuilder {
 	return &ScriptBuilder{
 		script: make([]byte, 0, defaultScriptAlloc),
 	}

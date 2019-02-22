@@ -57,6 +57,7 @@ var (
 // TestUseBlockHash tests using a block hash as a filter key.
 func TestUseBlockHash(
 	t *testing.T) {
+
 	// Block hash #448710, pretty high difficulty.
 	hash, err := chainhash.NewHashFromStr(testHash)
 	if err != nil {
@@ -170,6 +171,7 @@ func BuilderTest(
 	b *builder.GCSBuilder, hash *chainhash.Hash, p uint8,
 	outPoint wire.OutPoint, addrBytes []byte, witness wire.TxWitness,
 	t *testing.T) {
+
 	key, err := b.Key()
 	if err != nil {
 		t.Fatalf("Builder instantiation with key hash failed: %s",

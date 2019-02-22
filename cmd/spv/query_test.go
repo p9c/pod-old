@@ -12,6 +12,10 @@ import (
 	"testing"
 	"time"
 
+	"git.parallelcoin.io/pod/cmd/spv/cache"
+	"git.parallelcoin.io/pod/cmd/spv/cache/lru"
+	"git.parallelcoin.io/pod/cmd/spv/filterdb"
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
@@ -19,10 +23,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/cache"
-	"git.parallelcoin.io/pod/cmd/spv/cache/lru"
-	"git.parallelcoin.io/pod/cmd/spv/filterdb"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 )
 
 var (
@@ -53,6 +53,7 @@ var (
 // and verifies that it's the only one remaining.
 func TestBigFilterEvictsEverything(
 	t *testing.T) {
+
 	// Create different sized filters.
 	b1, f1, _ := genRandFilter(1, t)
 	b2, f2, _ := genRandFilter(3, t)
@@ -79,6 +80,7 @@ func TestBigFilterEvictsEverything(
 // before peers are queried.
 func TestBlockCache(
 	t *testing.T) {
+
 	t.Parallel()
 
 	// Load the first 255 blocks from disk.
@@ -178,6 +180,7 @@ func TestBlockCache(
 	// fetchAndAssertPeersQueried calls GetBlock and makes sure the block
 	// is fetched from the peers.
 	fetchAndAssertPeersQueried := func(hash chainhash.Hash) {
+
 		found, err := cs.GetBlock(hash)
 		if err != nil {
 
@@ -205,6 +208,7 @@ func TestBlockCache(
 	// fetchAndAssertInCache calls GetBlock and makes sure the block is not
 	// fetched from the peers.
 	fetchAndAssertInCache := func(hash chainhash.Hash) {
+
 		found, err := cs.GetBlock(hash)
 		if err != nil {
 
@@ -258,6 +262,7 @@ func TestBlockCache(
 // filters, then gets them in random order and makes sure they are always there.
 func TestCacheBigEnoughHoldsAllFilter(
 	t *testing.T) {
+
 	// Create different sized filters.
 	b1, f1, s1 := genRandFilter(1, t)
 	b2, f2, s2 := genRandFilter(10, t)
@@ -290,6 +295,7 @@ func TestCacheBigEnoughHoldsAllFilter(
 
 func assertEqual(
 	t *testing.T, a interface{}, b interface{}, message string) {
+
 	if a == b {
 
 		return
@@ -310,6 +316,7 @@ func assertEqual(
 func genRandFilter(
 	numElements uint32, t *testing.T) (
 	*chainhash.Hash, *gcs.Filter, uint64) {
+
 	elements := make([][]byte, numElements)
 	for i := uint32(0); i < numElements; i++ {
 
@@ -377,6 +384,7 @@ func getFilter(
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) (
 	[]*util.Block, error) {
+
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
 	if err != nil {
@@ -385,6 +393,7 @@ func loadBlocks(
 		return nil, err
 	}
 	defer func() {
+
 		if err := fi.Close(); err != nil {
 
 			t.Errorf("failed to close file %v %v", dataFile,

@@ -31,6 +31,7 @@ var SetupCommand = climax.Command{
 	Handle: func(ctx climax.Context) int {
 		fmt.Println("pod wallet setup")
 		if ctx.Is("help") {
+
 			fmt.Print(`Usage: create [-h] [-D] [--network]
 
 creates a new wallet given CLI flags, or interactively

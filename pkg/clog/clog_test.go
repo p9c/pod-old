@@ -9,6 +9,7 @@ import (
 
 func TestClog(
 	t *testing.T) {
+
 	logfile, err := os.OpenFile("/tmp/clog", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		t.Fatal(err.Error())

@@ -124,6 +124,7 @@ var (
 			Algos:            P9Algos,
 			AlgoVers:         P9AlgoVers,
 			WorkBase: func() (out int64) {
+
 				for i := range P9Algos {
 					out += P9Algos[i].NSperOp
 				}
@@ -140,6 +141,7 @@ var (
 // GetAlgoVer returns the version number for a given algorithm (by string name) at a given height. If "random" is given, a random number is taken from the system secure random source (for randomised cpu mining)
 func GetAlgoVer(
 	name string, height int32) (version int32) {
+
 	n := "sha256d"
 	hf := GetCurrent(height)
 	if name == "random" {
@@ -169,6 +171,7 @@ func GetAlgoVer(
 // GetAlgoName returns the string identifier of an algorithm depending on hard fork activation status
 func GetAlgoName(
 	algoVer int32, height int32) (name string) {
+
 	hf := GetCurrent(height)
 	name = List[hf].AlgoVers[algoVer]
 	return
@@ -186,6 +189,7 @@ func GetAlgoID(
 // GetCurrent returns the hardfork number code
 func GetCurrent(
 	height int32) (curr int) {
+
 	if IsTestnet {
 		return len(List) - 1
 	}

@@ -9,6 +9,7 @@ import (
 
 func BenchmarkBase58Encode(
 	b *testing.B) {
+
 	b.StopTimer()
 	data := bytes.Repeat([]byte{0xff}, 5000)
 	b.SetBytes(int64(len(data)))
@@ -19,6 +20,7 @@ func BenchmarkBase58Encode(
 }
 func BenchmarkBase58Decode(
 	b *testing.B) {
+
 	b.StopTimer()
 	data := bytes.Repeat([]byte{0xff}, 5000)
 	encoded := base58.Encode(data)

@@ -38,6 +38,7 @@ func fileExists(
 	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
+
 			return false
 		}
 	}
@@ -89,6 +90,7 @@ func setupGlobalConfig(
 	}
 	// Validate database type.
 	if !validDbType(cfg.DbType) {
+
 		str := "The specified database type [%v] is invalid -- " +
 			"supported types %v"
 		return fmt.Errorf(str, cfg.DbType, knownDbTypes)

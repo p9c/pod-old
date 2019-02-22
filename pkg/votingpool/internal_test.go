@@ -2,9 +2,9 @@ package votingpool
 
 import (
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 var TstLastErr = lastErr
@@ -20,6 +20,7 @@ var TstBranchOrder = branchOrder
 
 // TstExistsSeries checks whether a series is stored in the database.
 func (vp *Pool) TstExistsSeries(dbtx walletdb.ReadTx, seriesID uint32) (bool, error) {
+
 	ns, _ := TstRNamespaces(dbtx)
 	poolBucket := ns.NestedReadBucket(vp.ID)
 	if poolBucket == nil {
@@ -59,11 +60,13 @@ func (s *SeriesData) TstGetReqSigs() uint32 {
 
 // TstEmptySeriesLookup empties the voting pool seriesLookup attribute.
 func (vp *Pool) TstEmptySeriesLookup() {
+
 	vp.seriesLookup = make(map[uint32]*SeriesData)
 }
 
 // TstDecryptExtendedKey expose the decryptExtendedKey method.
 func (vp *Pool) TstDecryptExtendedKey(keyType waddrmgr.CryptoKeyType, encrypted []byte) (*hdkeychain.ExtendedKey, error) {
+
 	return vp.decryptExtendedKey(keyType, encrypted)
 }
 

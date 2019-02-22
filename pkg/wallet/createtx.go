@@ -63,6 +63,7 @@ type secretSource struct {
 }
 
 func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
+
 	ma, err := s.Address(s.addrmgrNs, addr)
 	if err != nil {
 		return nil, false, err
@@ -82,6 +83,7 @@ func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 }
 
 func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
+
 	ma, err := s.Address(s.addrmgrNs, addr)
 	if err != nil {
 		return nil, err
@@ -125,6 +127,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		inputSource := makeInputSource(eligible)
 		changeSource := func() ([]byte, error) {
+
 			// Derive the change output script.  As a hack to allow
 			// spending from the imported account, change addresses
 			// are created from account 0.
@@ -177,6 +180,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 }
 
 func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minconf int32, bs *waddrmgr.BlockStamp) ([]wtxmgr.Credit, error) {
+
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -198,17 +202,20 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		// confirmations.  Coinbase transactions must have have reached
 		// maturity before their outputs may be spent.
 		if !confirmed(minconf, output.Height, bs.Height) {
+
 			continue
 		}
 		if output.FromCoinBase {
 			target := int32(w.chainParams.CoinbaseMaturity)
 			if !confirmed(target, output.Height, bs.Height) {
+
 				continue
 			}
 		}
 
 		// Locked unspent outputs are skipped.
 		if w.LockedOutpoint(output.OutPoint) {
+
 			continue
 		}
 

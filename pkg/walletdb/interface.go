@@ -1,7 +1,3 @@
-
-
-
-
 // This interface was inspired heavily by the excellent boltdb project at
 // https://github.com/boltdb/bolt by Ben B. Johnson.
 
@@ -264,8 +260,7 @@ func RegisterDriver(
 
 // SupportedDrivers returns a slice of strings that represent the database
 // drivers that have been registered and are therefore supported.
-func SupportedDrivers(
-	) []string {
+func SupportedDrivers() []string {
 	supportedDBs := make([]string, 0, len(drivers))
 	for _, drv := range drivers {
 		supportedDBs = append(supportedDBs, drv.DbType)
@@ -280,6 +275,7 @@ func SupportedDrivers(
 // ErrDbUnknownType will be returned if the the database type is not registered.
 func Create(
 	dbType string, args ...interface{}) (DB, error) {
+
 	drv, exists := drivers[dbType]
 	if !exists {
 		return nil, ErrDbUnknownType
@@ -295,6 +291,7 @@ func Create(
 // ErrDbUnknownType will be returned if the the database type is not registered.
 func Open(
 	dbType string, args ...interface{}) (DB, error) {
+
 	drv, exists := drivers[dbType]
 	if !exists {
 		return nil, ErrDbUnknownType

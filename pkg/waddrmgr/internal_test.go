@@ -36,6 +36,7 @@ type failingCryptoKey struct {
 //
 // This is part of the EncryptorDecryptor interface implementation.
 func (c *failingCryptoKey) Encrypt(in []byte) ([]byte, error) {
+
 	return nil, errors.New("failed to encrypt")
 }
 
@@ -43,6 +44,7 @@ func (c *failingCryptoKey) Encrypt(in []byte) ([]byte, error) {
 //
 // This is part of the EncryptorDecryptor interface implementation.
 func (c *failingCryptoKey) Decrypt(in []byte) ([]byte, error) {
+
 	return nil, errors.New("failed to decrypt")
 }
 
@@ -51,8 +53,10 @@ func (c *failingCryptoKey) Decrypt(in []byte) ([]byte, error) {
 // paths.
 func TstRunWithFailingCryptoKeyPriv(
 	m *Manager, callback func()) {
+
 	orig := m.cryptoKeyPriv
 	defer func() {
+
 		m.cryptoKeyPriv = orig
 	}()
 	m.cryptoKeyPriv = &failingCryptoKey{}

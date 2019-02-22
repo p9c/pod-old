@@ -40,6 +40,7 @@ func (msg *MsgBlock) AddTransaction(tx *MsgTx) error {
 
 // ClearTransactions removes all transactions from the message.
 func (msg *MsgBlock) ClearTransactions() {
+
 	msg.Transactions = make([]*MsgTx, 0, defaultTransactionAlloc)
 }
 
@@ -84,6 +85,7 @@ func (msg *MsgBlock) DeserializeNoWitness(r io.Reader) error {
 
 // DeserializeTxLoc decodes r in the same manner Deserialize does, but it takes a byte buffer instead of a generic reader and returns a slice containing the start and length of each transaction within the raw data that is being deserialized.
 func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
+
 	fullLen := r.Len()
 	// At the current time, there is no difference between the wire encoding at protocol version 0 and the stable long-term storage format.  As a result, make use of existing wire protocol functions.
 	err := readBlockHeader(r, 0, &msg.Header)
@@ -190,6 +192,7 @@ func (msg *MsgBlock) BlockHashWithAlgos(h int32) chainhash.Hash {
 
 // TxHashes returns a slice of hashes of all of transactions in this block.
 func (msg *MsgBlock) TxHashes() ([]chainhash.Hash, error) {
+
 	hashList := make([]chainhash.Hash, 0, len(msg.Transactions))
 	for _, tx := range msg.Transactions {
 		hashList = append(hashList, tx.TxHash())

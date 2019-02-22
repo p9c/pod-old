@@ -45,6 +45,7 @@ type blockImporter struct {
 
 // readBlock reads the next block from the input file.
 func (bi *blockImporter) readBlock() ([]byte, error) {
+
 	// The block file format is:
 	//  <network> <block length> <serialized block>
 	var net uint32
@@ -57,6 +58,7 @@ func (bi *blockImporter) readBlock() ([]byte, error) {
 		return nil, nil
 	}
 	if net != uint32(activeNetParams.Net) {
+
 		return nil, fmt.Errorf("network mismatch -- got %x, want %x",
 			net, uint32(activeNetParams.Net))
 	}
@@ -79,6 +81,7 @@ func (bi *blockImporter) readBlock() ([]byte, error) {
 
 // processBlock potentially imports the block into the database.  It first deserializes the raw block while checking for errors.  Already known blocks are skipped and orphan blocks are considered errors.  Finally, it runs the block through the chain rules to ensure it follows all rules and matches up to the known checkpoint.  Returns whether the block was imported along with any potential errors.
 func (bi *blockImporter) processBlock(serializedBlock []byte) (bool, error) {
+
 	// Deserialize the block which includes checks for malformed blocks.
 	block, err := util.NewBlockFromBytes(serializedBlock)
 	if err != nil {
@@ -99,6 +102,7 @@ func (bi *blockImporter) processBlock(serializedBlock []byte) (bool, error) {
 	// Don't bother trying to process orphans.
 	prevHash := &block.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(&zeroHash) {
+
 		exists, err := bi.chain.HaveBlock(prevHash)
 		if err != nil {
 			return false, err
@@ -128,6 +132,7 @@ func (bi *blockImporter) processBlock(serializedBlock []byte) (bool, error) {
 
 // readHandler is the main handler for reading blocks from the import file. This allows block processing to take place in parallel with block reads. It must be run as a goroutine.
 func (bi *blockImporter) readHandler() {
+
 out:
 	for {
 		// Read the next block from the file and if anything goes wrong notify the status handler with the error and bail.
@@ -155,10 +160,12 @@ out:
 
 // logProgress logs block progress as an information message.  In order to prevent spam, it limits logging to one message every cfg.Progress seconds with duration and totals included.
 func (bi *blockImporter) logProgress() {
+
 	bi.receivedLogBlocks++
 	now := time.Now()
 	duration := now.Sub(bi.lastLogTime)
 	if duration < time.Second*time.Duration(cfg.Progress) {
+
 		return
 	}
 	// Truncate the duration to 10s of milliseconds.
@@ -183,6 +190,7 @@ func (bi *blockImporter) logProgress() {
 
 // processHandler is the main handler for processing blocks.  This allows block processing to take place in parallel with block reads from the import file. It must be run as a goroutine.
 func (bi *blockImporter) processHandler() {
+
 out:
 	for {
 		select {
@@ -211,6 +219,7 @@ out:
 
 // statusHandler waits for updates from the import operation and notifies the passed doneChan with the results of the import.  It also causes all goroutines to exit if an error is reported from any of them.
 func (bi *blockImporter) statusHandler(resultsChan chan *importResults) {
+
 	select {
 	// An error from either of the goroutines means we're done so signal caller with the error and signal all goroutines to quit.
 	case err := <-bi.errChan:
@@ -242,6 +251,7 @@ func (bi *blockImporter) Import() chan *importResults {
 	// Wait for the import to finish in a separate goroutine and signal
 	// the status handler when done.
 	go func() {
+
 		bi.wg.Wait()
 		bi.doneChan <- true
 	}()
@@ -256,6 +266,7 @@ func (bi *blockImporter) Import() chan *importResults {
 // and database.
 func newBlockImporter(
 	db database.DB, r io.ReadSeeker) (*blockImporter, error) {
+
 	// Create the transaction and address indexes if needed.
 	//
 	// CAUTION: the txindex needs to be first in the indexes array because

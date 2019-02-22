@@ -167,6 +167,7 @@ func RegisterCmd(
 			fallthrough
 		default:
 			if !isAcceptableKind(kind) {
+
 				str := fmt.Sprintf("unsupported field type "+
 					"'%s (%s)' (field name %q)", rtf.Type,
 					baseKindString(rtf.Type), rtf.Name)
@@ -219,6 +220,7 @@ func RegisterCmd(
 // MustRegisterCmd performs the same function as RegisterCmd except it panics if there is an error.  This should only be called from package init functions.
 func MustRegisterCmd(
 	method string, cmd interface{}, flags UsageFlag) {
+
 	if err := RegisterCmd(method, cmd, flags); err != nil {
 		panic(fmt.Sprintf("failed to register type %q: %v\n", method,
 			err))
@@ -226,8 +228,7 @@ func MustRegisterCmd(
 }
 
 // RegisteredCmdMethods returns a sorted list of methods for all registered commands.
-func RegisteredCmdMethods(
-	) []string {
+func RegisteredCmdMethods() []string {
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	methods := make([]string, 0, len(methodToInfo))

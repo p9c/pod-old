@@ -24,7 +24,6 @@ func Main(
 	cfg *Config,
 ) {
 
-
 	if len(args) < 1 {
 		usage("No command specified")
 		os.Exit(1)
@@ -96,6 +95,7 @@ func Main(
 	// Choose how to display the result based on its type.
 	strResult := string(result)
 	if strings.HasPrefix(strResult, "{") || strings.HasPrefix(strResult, "[") {
+
 		var dst bytes.Buffer
 		if err := js.Indent(&dst, result, "", "  "); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to format result: %v",
@@ -104,6 +104,7 @@ func Main(
 		}
 		fmt.Println(dst.String())
 	} else if strings.HasPrefix(strResult, `"`) {
+
 		var str string
 		if err := js.Unmarshal(result, &str); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to unmarshal result: %v",
@@ -121,7 +122,6 @@ func commandUsage(
 	method string,
 ) {
 
-
 	usage, err := json.MethodUsageText(method)
 	if err != nil {
 		// This should never happen since the method was already checked before calling this function, but be safe.
@@ -136,7 +136,6 @@ func commandUsage(
 func usage(
 	errorMessage string,
 ) {
-
 
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))

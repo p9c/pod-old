@@ -69,6 +69,7 @@ var _ FilterDatabase = (*FilterStore)(nil)
 // database, and the target chain parameters.
 func New(
 	db walletdb.DB, params chaincfg.Params) (*FilterStore, error) {
+
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		// As part of our initial setup, we'll try to create the top
 		// level filter bucket. If this already exists, then we can

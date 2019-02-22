@@ -11,6 +11,7 @@ import (
 // TestIsValidIDType ensures the IsValidIDType function behaves as expected.
 func TestIsValidIDType(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string
@@ -35,7 +36,8 @@ func TestIsValidIDType(
 		{"chan int", make(chan int), false},
 		{"complex64", complex64(1), false},
 		{"complex128", complex128(1), false},
-		{"func", func() {}, false},
+		{"func", func() {
+		}, false},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
@@ -51,6 +53,7 @@ func TestIsValidIDType(
 // TestMarshalResponse ensures the MarshalResponse function works as expected.
 func TestMarshalResponse(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := 1
 	tests := []struct {
@@ -84,6 +87,7 @@ func TestMarshalResponse(
 			continue
 		}
 		if !reflect.DeepEqual(marshalled, test.expected) {
+
 			t.Errorf("Test #%d (%s) mismatched result - got %s, "+
 				"want %s", i, test.name, marshalled,
 				test.expected)
@@ -94,6 +98,7 @@ func TestMarshalResponse(
 // TestMiscErrors tests a few error conditions not covered elsewhere.
 func TestMiscErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	// Force an error in NewRequest by giving it a parameter type that is
 	// not supported.
@@ -124,6 +129,7 @@ func TestMiscErrors(
 // TestRPCError tests the error output for the RPCError type.
 func TestRPCError(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		in   *json.RPCError

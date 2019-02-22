@@ -61,6 +61,7 @@ type Harness struct {
 func New(
 	activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
 	extraArgs []string) (*Harness, error) {
+
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 	// Add a flag for the appropriate network type based on the provided chain params.
@@ -117,6 +118,7 @@ func New(
 	if handlers.OnFilteredBlockConnected != nil {
 		obc := handlers.OnFilteredBlockConnected
 		handlers.OnFilteredBlockConnected = func(height int32, header *wire.BlockHeader, filteredTxns []*util.Tx) {
+
 			wallet.IngestBlock(height, header, filteredTxns)
 			obc(height, header, filteredTxns)
 		}
@@ -127,6 +129,7 @@ func New(
 	if handlers.OnFilteredBlockDisconnected != nil {
 		obd := handlers.OnFilteredBlockDisconnected
 		handlers.OnFilteredBlockDisconnected = func(height int32, header *wire.BlockHeader) {
+
 			wallet.UnwindBlock(height, header)
 			obd(height, header)
 		}
@@ -236,6 +239,7 @@ func (h *Harness) connectRPCClient() error {
 
 // NewAddress returns a fresh address spendable by the Harness' internal wallet. This function is safe for concurrent access.
 func (h *Harness) NewAddress() (util.Address, error) {
+
 	return h.wallet.NewAddress()
 }
 
@@ -247,23 +251,27 @@ func (h *Harness) ConfirmedBalance() util.Amount {
 // SendOutputs creates, signs, and finally broadcasts a transaction spending the harness' available mature coinbase outputs creating new outputs according to targetOutputs. This function is safe for concurrent access.
 func (h *Harness) SendOutputs(targetOutputs []*wire.TxOut,
 	feeRate util.Amount) (*chainhash.Hash, error) {
+
 	return h.wallet.SendOutputs(targetOutputs, feeRate)
 }
 
 // SendOutputsWithoutChange creates and sends a transaction that pays to the specified outputs while observing the passed fee rate and ignoring a change output. The passed fee rate should be expressed in sat/b. This function is safe for concurrent access.
 func (h *Harness) SendOutputsWithoutChange(targetOutputs []*wire.TxOut,
 	feeRate util.Amount) (*chainhash.Hash, error) {
+
 	return h.wallet.SendOutputsWithoutChange(targetOutputs, feeRate)
 }
 
 // CreateTransaction returns a fully signed transaction paying to the specified outputs while observing the desired fee rate. The passed fee rate should be expressed in satoshis-per-byte. The transaction being created can optionally include a change output indicated by the change boolean. Any unspent outputs selected as inputs for the crafted transaction are marked as unspendable in order to avoid potential double-spends by future calls to this method. If the created transaction is cancelled for any reason then the selected inputs MUST be freed via a call to UnlockOutputs. Otherwise, the locked inputs won't be returned to the pool of spendable outputs. This function is safe for concurrent access.
 func (h *Harness) CreateTransaction(targetOutputs []*wire.TxOut,
 	feeRate util.Amount, change bool) (*wire.MsgTx, error) {
+
 	return h.wallet.CreateTransaction(targetOutputs, feeRate, change)
 }
 
 // UnlockOutputs unlocks any outputs which were previously marked as unspendabe due to being selected to fund a transaction via the CreateTransaction method. This function is safe for concurrent access.
 func (h *Harness) UnlockOutputs(inputs []*wire.TxIn) {
+
 	h.wallet.UnlockOutputs(inputs)
 }
 
@@ -280,6 +288,7 @@ func (h *Harness) P2PAddress() string {
 // GenerateAndSubmitBlock creates a block whose contents include the passed transactions and submits it to the running simnet node. For generating blocks with only a coinbase tx, callers can simply pass nil instead of transactions to be mined. Additionally, a custom block version can be set by the caller. A blockVersion of -1 indicates that the current default block version should be used. An uninitialized time.Time should be used for the blockTime parameter if one doesn't wish to set a custom time. This function is safe for concurrent access.
 func (h *Harness) GenerateAndSubmitBlock(txns []*util.Tx, blockVersion uint32,
 	blockTime time.Time) (*util.Block, error) {
+
 	return h.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(txns,
 		blockVersion, blockTime, []wire.TxOut{})
 }
@@ -288,9 +297,11 @@ func (h *Harness) GenerateAndSubmitBlock(txns []*util.Tx, blockVersion uint32,
 func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 	txns []*util.Tx, blockVersion uint32, blockTime time.Time,
 	mineTo []wire.TxOut) (*util.Block, error) {
+
 	h.Lock()
 	defer h.Unlock()
 	if blockVersion == ^uint32(0) {
+
 		blockVersion = BlockVersion
 	}
 	prevBlockHash, prevBlockHeight, err := h.Node.GetBestBlock()
@@ -317,8 +328,8 @@ func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 }
 
 // generateListeningAddresses returns two strings representing listening addresses designated for the current rpc test. If there haven't been any test instances created, the default ports are used. Otherwise, in order to support multiple test nodes running at once, the p2p and rpc port are incremented after each initialization.
-func generateListeningAddresses(
-	) (string, string) {
+func generateListeningAddresses() (string, string) {
+
 	localhost := "127.0.0.1"
 	portString := func(minPort, maxPort int) string {
 		port := minPort + numTestInstances + ((20 * processID) %
@@ -331,8 +342,8 @@ func generateListeningAddresses(
 }
 
 // baseDir is the directory path of the temp directory for all rpctest files.
-func baseDir(
-	) (string, error) {
+func baseDir() (string, error) {
+
 	dirPath := filepath.Join(os.TempDir(), "pod", "rpctest")
 	err := os.MkdirAll(dirPath, 0755)
 	return dirPath, err

@@ -1,6 +1,3 @@
-
-
-
 package legacyrpc
 
 import (
@@ -12,11 +9,13 @@ import (
 
 func TestThrottle(
 	t *testing.T) {
+
 	const threshold = 1
 	busy := make(chan struct{})
 
 	srv := httptest.NewServer(throttledFn(threshold,
 		func(w http.ResponseWriter, r *http.Request) {
+
 			<-busy
 		}),
 	)
@@ -24,6 +23,7 @@ func TestThrottle(
 	codes := make(chan int, 2)
 	for i := 0; i < cap(codes); i++ {
 		go func() {
+
 			res, err := http.Get(srv.URL)
 			if err != nil {
 				t.Fatal(err)
@@ -43,6 +43,7 @@ func TestThrottle(
 
 	want := map[int]int{200: 1, 429: 1}
 	if !reflect.DeepEqual(want, got) {
+
 		t.Fatalf("status codes: want: %v, got: %v", want, got)
 	}
 }

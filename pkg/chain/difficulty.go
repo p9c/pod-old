@@ -160,8 +160,10 @@ func (b *BlockChain) findPrevTestNetDifficulty(startNode *blockNode) uint32 {
 
 // calcNextRequiredDifficulty calculates the required difficulty for the block after the passed previous block node based on the difficulty retarget rules. This function differs from the exported  CalcNextRequiredDifficulty in that the exported version uses the current best chain as the previous block node while this function accepts any block node.
 func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTime time.Time, algoname string, l bool) (newTargetBits uint32, err error) {
+
 	nH := lastNode.height + 1
 	switch fork.GetCurrent(nH) {
+
 	case 0:
 		algo := fork.GetAlgoVer(algoname, nH)
 		algoName := fork.GetAlgoName(algo, nH)
@@ -388,6 +390,7 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		// d := adjustment - 1.0
 		// adjustment = 1.0 + (d*d*d+d+d*d)
 		if math.IsNaN(adjustment) {
+
 			return lastNode.bits, nil
 		}
 		bigadjustment := big.NewFloat(adjustment)

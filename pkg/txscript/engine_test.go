@@ -10,6 +10,7 @@ import (
 // TestBadPC sets the pc to a deliberately bad result then confirms that Step() and Disasm fail correctly.
 func TestBadPC(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		script, off int
@@ -70,6 +71,7 @@ func TestBadPC(
 // TestCheckErrorCondition tests the execute early test in CheckErrorCondition() since most code paths are tested elsewhere.
 func TestCheckErrorCondition(
 	t *testing.T) {
+
 	t.Parallel()
 	// tx with almost empty scripts.
 	tx := &wire.MsgTx{
@@ -113,6 +115,7 @@ func TestCheckErrorCondition(
 		}
 		err = vm.CheckErrorCondition(false)
 		if !IsErrorCode(err, ErrScriptUnfinished) {
+
 			t.Fatalf("got unexepected error %v on %dth iteration",
 				err, i)
 		}
@@ -133,6 +136,7 @@ func TestCheckErrorCondition(
 // TestInvalidFlagCombinations ensures the script engine returns the expected error when disallowed flag combinations are specified.
 func TestInvalidFlagCombinations(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []ScriptFlags{
 		ScriptVerifyCleanStack,
@@ -171,6 +175,7 @@ func TestInvalidFlagCombinations(
 	for i, test := range tests {
 		_, err := NewEngine(pkScript, tx, 0, test, nil, nil, -1)
 		if !IsErrorCode(err, ErrInvalidFlags) {
+
 			t.Fatalf("TestInvalidFlagCombinations #%d unexpected "+
 				"error: %v", i, err)
 		}
@@ -180,6 +185,7 @@ func TestInvalidFlagCombinations(
 // TestCheckPubKeyEncoding ensures the internal checkPubKeyEncoding function works as expected.
 func TestCheckPubKeyEncoding(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string
@@ -237,6 +243,7 @@ func TestCheckPubKeyEncoding(
 // TestCheckSignatureEncoding ensures the internal checkSignatureEncoding function works as expected.
 func TestCheckSignatureEncoding(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name    string

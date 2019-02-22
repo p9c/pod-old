@@ -49,8 +49,7 @@ func (s *notificationState) Copy() *notificationState {
 }
 
 // newNotificationState returns a new notification state ready to be populated.
-func newNotificationState(
-	) *notificationState {
+func newNotificationState() *notificationState {
 	return &notificationState{
 		notifyReceived: make(map[string]struct{}),
 		notifySpent:    make(map[json.OutPoint]struct{}),
@@ -58,8 +57,7 @@ func newNotificationState(
 }
 
 // newNilFutureResult returns a new future result channel that already has the result waiting on the channel with the reply set to nil.  This is useful to ignore things such as notifications when the caller didn't specify any notification handlers.
-func newNilFutureResult(
-	) chan *response {
+func newNilFutureResult() chan *response {
 	responseChan := make(chan *response, 1)
 	responseChan <- &response{result: nil, err: nil}
 	return responseChan
@@ -110,6 +108,7 @@ type NotificationHandlers struct {
 
 // handleNotification examines the passed notification type, performs conversions to get the raw notification types into higher level types and delivers the notification to the appropriate On<X> handler registered with the client.
 func (c *Client) handleNotification(ntfn *rawNotification) {
+
 	// Ignore the notification if the client is not interested in any notifications.
 	if c.ntfnHandlers == nil {
 		return
@@ -309,6 +308,7 @@ func (e wrongNumParams) Error() string {
 func parseChainNtfnParams(
 	params []js.RawMessage) (*chainhash.Hash,
 	int32, time.Time, error) {
+
 	if len(params) != 3 {
 		return nil, 0, time.Time{}, wrongNumParams(len(params))
 	}
@@ -344,6 +344,7 @@ func parseChainNtfnParams(
 func parseFilteredBlockConnectedParams(
 	params []js.RawMessage) (int32,
 	*wire.BlockHeader, []*util.Tx, error) {
+
 	if len(params) < 3 {
 		return 0, nil, nil, wrongNumParams(len(params))
 	}
@@ -389,6 +390,7 @@ func parseFilteredBlockConnectedParams(
 func parseFilteredBlockDisconnectedParams(
 	params []js.RawMessage) (int32,
 	*wire.BlockHeader, error) {
+
 	if len(params) < 2 {
 		return 0, nil, wrongNumParams(len(params))
 	}
@@ -413,6 +415,7 @@ func parseFilteredBlockDisconnectedParams(
 }
 func parseHexParam(
 	param js.RawMessage) ([]byte, error) {
+
 	var s string
 	err := js.Unmarshal(param, &s)
 	if err != nil {
@@ -424,6 +427,7 @@ func parseHexParam(
 // parseRelevantTxAcceptedParams parses out the parameter included in a relevanttxaccepted notification.
 func parseRelevantTxAcceptedParams(
 	params []js.RawMessage) (transaction []byte, err error) {
+
 	if len(params) < 1 {
 		return nil, wrongNumParams(len(params))
 	}
@@ -434,6 +438,7 @@ func parseRelevantTxAcceptedParams(
 func parseChainTxNtfnParams(
 	params []js.RawMessage) (*util.Tx,
 	*json.BlockDetails, error) {
+
 	if len(params) == 0 || len(params) > 2 {
 		return nil, nil, wrongNumParams(len(params))
 	}
@@ -468,6 +473,7 @@ func parseChainTxNtfnParams(
 // parseRescanProgressParams parses out the height of the last rescanned block from the parameters of rescanfinished and rescanprogress notifications.
 func parseRescanProgressParams(
 	params []js.RawMessage) (*chainhash.Hash, int32, time.Time, error) {
+
 	if len(params) != 3 {
 		return nil, 0, time.Time{}, wrongNumParams(len(params))
 	}
@@ -501,6 +507,7 @@ func parseRescanProgressParams(
 func parseTxAcceptedNtfnParams(
 	params []js.RawMessage) (*chainhash.Hash,
 	util.Amount, error) {
+
 	if len(params) != 2 {
 		return nil, 0, wrongNumParams(len(params))
 	}
@@ -533,6 +540,7 @@ func parseTxAcceptedNtfnParams(
 func parseTxAcceptedVerboseNtfnParams(
 	params []js.RawMessage) (*json.TxRawResult,
 	error) {
+
 	if len(params) != 1 {
 		return nil, wrongNumParams(len(params))
 	}
@@ -549,6 +557,7 @@ func parseTxAcceptedVerboseNtfnParams(
 // parsePodConnectedNtfnParams parses out the connection status of pod and btcwallet from the parameters of a podconnected notification.
 func parsePodConnectedNtfnParams(
 	params []js.RawMessage) (bool, error) {
+
 	if len(params) != 1 {
 		return false, wrongNumParams(len(params))
 	}
@@ -565,6 +574,7 @@ func parsePodConnectedNtfnParams(
 func parseAccountBalanceNtfnParams(
 	params []js.RawMessage) (account string,
 	balance util.Amount, confirmed bool, err error) {
+
 	if len(params) != 3 {
 		return "", 0, false, wrongNumParams(len(params))
 	}
@@ -596,6 +606,7 @@ func parseAccountBalanceNtfnParams(
 func parseWalletLockStateNtfnParams(
 	params []js.RawMessage) (account string,
 	locked bool, err error) {
+
 	if len(params) != 2 {
 		return "", false, wrongNumParams(len(params))
 	}

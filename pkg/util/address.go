@@ -47,6 +47,7 @@ func encodeAddress(
 // encodeSegWitAddress creates a bech32 encoded address string representation from witness version and witness program.
 func encodeSegWitAddress(
 	hrp string, witnessVersion byte, witnessProgram []byte) (string, error) {
+
 	// Group the address bytes into 5 bit groups, as this is what is used to encode each character in the address string.
 	converted, err := bech32.ConvertBits(witnessProgram, 8, 5, true)
 	if err != nil {
@@ -66,6 +67,7 @@ func encodeSegWitAddress(
 		return "", fmt.Errorf("invalid segwit address: %v", err)
 	}
 	if version != witnessVersion || !bytes.Equal(program, witnessProgram) {
+
 		return "", fmt.Errorf("invalid segwit address")
 	}
 	return bech, nil
@@ -88,11 +90,13 @@ type Address interface {
 // DecodeAddress decodes the string encoding of an address and returns the Address if addr is a valid encoding for a known address type. The bitcoin network the address is associated with is extracted if possible. When the address does not encode the network, such as in the case of a raw public key, the address will be associated with the passed defaultNet.
 func DecodeAddress(
 	addr string, defaultNet *chaincfg.Params) (Address, error) {
+
 	// Bech32 encoded segwit addresses start with a human-readable part (hrp) followed by '1'. For Bitcoin mainnet the hrp is "bc", and for testnet it is "tb". If the address string has a prefix that matches one of the prefixes for the known networks, we try to decode it as a segwit address.
 	oneIndex := strings.LastIndexByte(addr, '1')
 	if oneIndex > 1 {
 		prefix := addr[:oneIndex+1]
 		if chaincfg.IsBech32SegwitPrefix(prefix) {
+
 			witnessVer, witnessProg, err := decodeSegWitAddress(addr)
 			if err != nil {
 				return nil, err
@@ -104,6 +108,7 @@ func DecodeAddress(
 			// The HRP is everything before the found '1'.
 			hrp := prefix[:len(prefix)-1]
 			switch len(witnessProg) {
+
 			case 20:
 				return newAddressWitnessPubKeyHash(hrp, witnessProg)
 			case 32:
@@ -130,6 +135,7 @@ func DecodeAddress(
 		return nil, errors.New("decoded address is of unknown format")
 	}
 	switch len(decoded) {
+
 	case ripemd160.Size: // P2PKH or P2SH
 		isP2PKH := chaincfg.IsPubKeyHashAddrID(netID)
 		isP2SH := chaincfg.IsScriptHashAddrID(netID)
@@ -151,6 +157,7 @@ func DecodeAddress(
 // decodeSegWitAddress parses a bech32 encoded segwit address string and returns the witness version and witness program byte representation.
 func decodeSegWitAddress(
 	address string) (byte, []byte, error) {
+
 	// Decode the bech32 encoded address.
 	_, data, err := bech32.Decode(address)
 	if err != nil {
@@ -191,12 +198,14 @@ type AddressPubKeyHash struct {
 // NewAddressPubKeyHash returns a new AddressPubKeyHash.  pkHash must be 20 bytes.
 func NewAddressPubKeyHash(
 	pkHash []byte, net *chaincfg.Params) (*AddressPubKeyHash, error) {
+
 	return newAddressPubKeyHash(pkHash, net.PubKeyHashAddrID)
 }
 
 // newAddressPubKeyHash is the internal API to create a pubkey hash address with a known leading identifier byte for a network, rather than looking it up through its parameters.  This is useful when creating a new address structure from a string encoding where the identifer byte is already known.
 func newAddressPubKeyHash(
 	pkHash []byte, netID byte) (*AddressPubKeyHash, error) {
+
 	// Check for a valid pubkey hash length.
 	if len(pkHash) != ripemd160.Size {
 		return nil, errors.New("pkHash must be 20 bytes")
@@ -240,6 +249,7 @@ type AddressScriptHash struct {
 // NewAddressScriptHash returns a new AddressScriptHash.
 func NewAddressScriptHash(
 	serializedScript []byte, net *chaincfg.Params) (*AddressScriptHash, error) {
+
 	scriptHash := Hash160(serializedScript)
 	return newAddressScriptHashFromHash(scriptHash, net.ScriptHashAddrID)
 }
@@ -247,12 +257,14 @@ func NewAddressScriptHash(
 // NewAddressScriptHashFromHash returns a new AddressScriptHash.  scriptHash must be 20 bytes.
 func NewAddressScriptHashFromHash(
 	scriptHash []byte, net *chaincfg.Params) (*AddressScriptHash, error) {
+
 	return newAddressScriptHashFromHash(scriptHash, net.ScriptHashAddrID)
 }
 
 // newAddressScriptHashFromHash is the internal API to create a script hash address with a known leading identifier byte for a network, rather than looking it up through its parameters.  This is useful when creating a new address structure from a string encoding where the identifer byte is already known.
 func newAddressScriptHashFromHash(
 	scriptHash []byte, netID byte) (*AddressScriptHash, error) {
+
 	// Check for a valid script hash length.
 	if len(scriptHash) != ripemd160.Size {
 		return nil, errors.New("scriptHash must be 20 bytes")
@@ -309,6 +321,7 @@ type AddressPubKey struct {
 // NewAddressPubKey returns a new AddressPubKey which represents a pay-to-pubkey address.  The serializedPubKey parameter must be a valid pubkey and can be uncompressed, compressed, or hybrid.
 func NewAddressPubKey(
 	serializedPubKey []byte, net *chaincfg.Params) (*AddressPubKey, error) {
+
 	pubKey, err := ec.ParsePubKey(serializedPubKey, ec.S256())
 	if err != nil {
 		return nil, err
@@ -369,6 +382,7 @@ func (a *AddressPubKey) Format() PubKeyFormat {
 
 // SetFormat sets the format (uncompressed, compressed, etc) of the pay-to-pubkey address.
 func (a *AddressPubKey) SetFormat(pkFormat PubKeyFormat) {
+
 	a.pubKeyFormat = pkFormat
 }
 
@@ -394,12 +408,14 @@ type AddressWitnessPubKeyHash struct {
 // NewAddressWitnessPubKeyHash returns a new AddressWitnessPubKeyHash.
 func NewAddressWitnessPubKeyHash(
 	witnessProg []byte, net *chaincfg.Params) (*AddressWitnessPubKeyHash, error) {
+
 	return newAddressWitnessPubKeyHash(net.Bech32HRPSegwit, witnessProg)
 }
 
 // newAddressWitnessPubKeyHash is an internal helper function to create an AddressWitnessPubKeyHash with a known human-readable part, rather than looking it up through its parameters.
 func newAddressWitnessPubKeyHash(
 	hrp string, witnessProg []byte) (*AddressWitnessPubKeyHash, error) {
+
 	// Check for valid program length for witness version 0, which is 20 for P2WPKH.
 	if len(witnessProg) != 20 {
 		return nil, errors.New("witness program must be 20 " +
@@ -468,12 +484,14 @@ type AddressWitnessScriptHash struct {
 // NewAddressWitnessScriptHash returns a new AddressWitnessPubKeyHash.
 func NewAddressWitnessScriptHash(
 	witnessProg []byte, net *chaincfg.Params) (*AddressWitnessScriptHash, error) {
+
 	return newAddressWitnessScriptHash(net.Bech32HRPSegwit, witnessProg)
 }
 
 // newAddressWitnessScriptHash is an internal helper function to create an AddressWitnessScriptHash with a known human-readable part, rather than looking it up through its parameters.
 func newAddressWitnessScriptHash(
 	hrp string, witnessProg []byte) (*AddressWitnessScriptHash, error) {
+
 	// Check for valid program length for witness version 0, which is 32 for P2WSH.
 	if len(witnessProg) != 32 {
 		return nil, errors.New("witness program must be 32 " +

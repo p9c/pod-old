@@ -14,6 +14,7 @@ import (
 // TestVersion tests the MsgVersion API.
 func TestVersion(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Create version message data.
 	lastBlock := int32(234234)
@@ -28,14 +29,17 @@ func TestVersion(
 	// Ensure we get the correct data back out.
 	msg := NewMsgVersion(me, you, nonce, lastBlock)
 	if msg.ProtocolVersion != int32(pver) {
+
 		t.Errorf("NewMsgVersion: wrong protocol version - got %v, want %v",
 			msg.ProtocolVersion, pver)
 	}
 	if !reflect.DeepEqual(&msg.AddrMe, me) {
+
 		t.Errorf("NewMsgVersion: wrong me address - got %v, want %v",
 			spew.Sdump(&msg.AddrMe), spew.Sdump(me))
 	}
 	if !reflect.DeepEqual(&msg.AddrYou, you) {
+
 		t.Errorf("NewMsgVersion: wrong you address - got %v, want %v",
 			spew.Sdump(&msg.AddrYou), spew.Sdump(you))
 	}
@@ -80,6 +84,7 @@ func TestVersion(
 			msg.Services, 0)
 	}
 	if msg.HasService(SFNodeNetwork) {
+
 		t.Errorf("HasService: SFNodeNetwork service is set")
 	}
 	// Ensure the command is expected value.
@@ -103,6 +108,7 @@ func TestVersion(
 			msg.Services, SFNodeNetwork)
 	}
 	if !msg.HasService(SFNodeNetwork) {
+
 		t.Errorf("HasService: SFNodeNetwork service not set")
 	}
 }
@@ -110,6 +116,7 @@ func TestVersion(
 // TestVersionWire tests the MsgVersion wire encode and decode for various protocol versions.
 func TestVersionWire(
 	t *testing.T) {
+
 	// verRelayTxFalse and verRelayTxFalseEncoded is a version message as of BIP0037Version with the transaction relay disabled.
 	baseVersionBIP0037Copy := *baseVersionBIP0037
 	verRelayTxFalse := &baseVersionBIP0037Copy
@@ -191,6 +198,7 @@ func TestVersionWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -204,6 +212,7 @@ func TestVersionWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -214,6 +223,7 @@ func TestVersionWire(
 // TestVersionWireErrors performs negative tests against wire encode and decode of MsgGetHeaders to confirm error paths work correctly.
 func TestVersionWireErrors(
 	t *testing.T) {
+
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
 	enc := BaseEncoding
@@ -284,6 +294,7 @@ func TestVersionWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -301,6 +312,7 @@ func TestVersionWireErrors(
 		buf := bytes.NewBuffer(test.buf[0:test.max])
 		err = msg.BtcDecode(buf, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
@@ -319,6 +331,7 @@ func TestVersionWireErrors(
 // TestVersionOptionalFields performs tests to ensure that an encoded version messages that omit optional fields are handled correctly.
 func TestVersionOptionalFields(
 	t *testing.T) {
+
 	// onlyRequiredVersion is a version message that only contains the required versions and all other values set to their default values.
 	onlyRequiredVersion := MsgVersion{
 		ProtocolVersion: 60002,
@@ -405,6 +418,7 @@ func TestVersionOptionalFields(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.msg) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.msg))
 			continue

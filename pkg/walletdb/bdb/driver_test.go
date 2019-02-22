@@ -17,6 +17,7 @@ const dbType = "bdb"
 // database are handled properly.
 func TestCreateOpenFail(
 	t *testing.T) {
+
 	// Ensure that attempting to open a database that doesn't exist returns
 	// the expected error.
 	wantErr := walletdb.ErrDbDoesNotExist
@@ -31,6 +32,7 @@ func TestCreateOpenFail(
 	wantErr = fmt.Errorf("invalid arguments to %s.Open -- expected "+
 		"database path", dbType)
 	if _, err := walletdb.Open(dbType, 1, 2, 3); err.Error() != wantErr.Error() {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -41,6 +43,7 @@ func TestCreateOpenFail(
 	wantErr = fmt.Errorf("first argument to %s.Open is invalid -- "+
 		"expected database path string", dbType)
 	if _, err := walletdb.Open(dbType, 1); err.Error() != wantErr.Error() {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -51,6 +54,7 @@ func TestCreateOpenFail(
 	wantErr = fmt.Errorf("invalid arguments to %s.Create -- expected "+
 		"database path", dbType)
 	if _, err := walletdb.Create(dbType, 1, 2, 3); err.Error() != wantErr.Error() {
+
 		t.Errorf("Create: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -61,6 +65,7 @@ func TestCreateOpenFail(
 	wantErr = fmt.Errorf("first argument to %s.Create is invalid -- "+
 		"expected database path string", dbType)
 	if _, err := walletdb.Create(dbType, 1); err.Error() != wantErr.Error() {
+
 		t.Errorf("Create: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -89,6 +94,7 @@ func TestCreateOpenFail(
 // reopening the database.
 func TestPersistence(
 	t *testing.T) {
+
 	// Create a new database to run tests against.
 	dbPath := "persistencetest.db"
 	db, err := walletdb.Create(dbType, dbPath)
@@ -146,6 +152,7 @@ func TestPersistence(
 		for k, v := range storeValues {
 			gotVal := ns1.Get([]byte(k))
 			if !reflect.DeepEqual(gotVal, []byte(v)) {
+
 				return fmt.Errorf("Get: key '%s' does not "+
 					"match expected value - got %s, want %s",
 					k, gotVal, v)

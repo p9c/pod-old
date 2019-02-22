@@ -32,9 +32,9 @@ import (
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
@@ -48,8 +48,7 @@ var (
 	TstInputsBlock = int32(10)
 )
 
-func getUniqueID(
-	) uint32 {
+func getUniqueID() uint32 {
 	return atomic.AddUint32(&uniqueCounter, 1)
 }
 
@@ -105,11 +104,13 @@ func TstNewDepositScript(
 
 func TstRNamespaces(
 	tx walletdb.ReadTx) (votingpoolNs, addrmgrNs walletdb.ReadBucket) {
+
 	return tx.ReadBucket(votingpoolNamespaceKey), tx.ReadBucket(addrmgrNamespaceKey)
 }
 
 func TstRWNamespaces(
 	tx walletdb.ReadWriteTx) (votingpoolNs, addrmgrNs walletdb.ReadWriteBucket) {
+
 	return tx.ReadWriteBucket(votingpoolNamespaceKey), tx.ReadWriteBucket(addrmgrNamespaceKey)
 }
 
@@ -129,6 +130,7 @@ func TstEnsureUsedAddr(
 	} else if addr != nil {
 		var script []byte
 		TstRunWithManagerUnlocked(t, p.Manager(), addrmgrNs, func() {
+
 			script, err = addr.Script()
 		})
 		if err != nil {
@@ -137,6 +139,7 @@ func TstEnsureUsedAddr(
 		return script
 	}
 	TstRunWithManagerUnlocked(t, p.Manager(), addrmgrNs, func() {
+
 		err = p.EnsureUsedAddr(ns, addrmgrNs, seriesID, branch, idx)
 	})
 	if err != nil {
@@ -172,6 +175,7 @@ type TstSeriesDef struct {
 // empowered with them.
 func TstCreateSeries(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, definitions []TstSeriesDef) {
+
 	ns, addrmgrNs := TstRWNamespaces(dbtx)
 	for _, def := range definitions {
 		err := pool.CreateSeries(ns, CurrentVersion, def.SeriesID, def.ReqSigs, def.PubKeys)
@@ -179,6 +183,7 @@ func TstCreateSeries(
 			t.Fatalf("Cannot creates series %d: %v", def.SeriesID, err)
 		}
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
+
 			for _, key := range def.PrivKeys {
 				if err := pool.EmpowerSeries(ns, def.SeriesID, key); err != nil {
 					t.Fatal(err)
@@ -227,6 +232,7 @@ func TstCreateSeriesDef(
 
 func TstCreatePoolAndTxStore(
 	t *testing.T) (tearDown func(), db walletdb.DB, pool *Pool, store *wtxmgr.Store) {
+
 	teardown, db, pool := TstCreatePool(t)
 	store = TstCreateTxStore(t, db)
 	return teardown, db, pool, store
@@ -238,6 +244,7 @@ func TstCreatePoolAndTxStore(
 // all of its private keys.
 func TstCreateCreditsOnNewSeries(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, amounts []int64) (uint32, []credit) {
+
 	masters := []*hdkeychain.ExtendedKey{
 		TstCreateMasterKey(t, bytes.Repeat(uint32ToBytes(getUniqueID()), 4)),
 		TstCreateMasterKey(t, bytes.Repeat(uint32ToBytes(getUniqueID()), 4)),
@@ -288,6 +295,7 @@ func TstCreateSeriesCreditsOnStore(
 	pkScript := TstCreatePkScript(t, dbtx, pool, seriesID, branch, idx)
 	eligible := make([]credit, len(amounts))
 	for i, credit := range TstCreateCreditsOnStore(t, dbtx, store, pkScript, amounts) {
+
 		eligible[i] = newCredit(credit, *TstNewWithdrawalAddress(t, dbtx, pool, seriesID, branch, idx))
 	}
 	return eligible
@@ -340,8 +348,8 @@ var (
 // returns a teardown function that closes the Manager and removes the directory
 // used to store the database.
 func TstCreatePool(
-	t *testing.T) (tearDownFunc func(
-	), db walletdb.DB, pool *Pool) {
+	t *testing.T) (tearDownFunc func(), db walletdb.DB, pool *Pool) {
+
 	// This should be moved somewhere else eventually as not all of our tests
 	// call this function, but right now the only option would be to have the
 	// t.Parallel() call in each of our tests.
@@ -383,6 +391,7 @@ func TstCreatePool(
 		t.Fatalf("Could not set up DB: %v", err)
 	}
 	tearDownFunc = func() {
+
 		addrMgr.Close()
 		db.Close()
 		os.RemoveAll(dir)
@@ -445,10 +454,12 @@ func TstNewWithdrawalOutput(
 func TstNewWithdrawalAddress(
 	t *testing.T, dbtx walletdb.ReadWriteTx, p *Pool, seriesID uint32, branch Branch,
 	index Index) (addr *WithdrawalAddress) {
+
 	TstEnsureUsedAddr(t, dbtx, p, seriesID, branch, index)
 	ns, addrmgrNs := TstRNamespaces(dbtx)
 	var err error
 	TstRunWithManagerUnlocked(t, p.Manager(), addrmgrNs, func() {
+
 		addr, err = p.WithdrawalAddress(ns, addrmgrNs, seriesID, branch, index)
 	})
 	if err != nil {
@@ -459,6 +470,7 @@ func TstNewWithdrawalAddress(
 
 func TstNewChangeAddress(
 	t *testing.T, p *Pool, seriesID uint32, idx Index) (addr *ChangeAddress) {
+
 	addr, err := p.ChangeAddress(seriesID, idx)
 	if err != nil {
 		t.Fatalf("Failed to get ChangeAddress: %v", err)

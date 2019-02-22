@@ -53,6 +53,7 @@ func NewCoinSet(
 func (cs *CoinSet) Coins() []Coin {
 	coins := make([]Coin, cs.coinList.Len())
 	for i, e := 0, cs.coinList.Front(); e != nil; i, e = i+1, e.Next() {
+
 		coins[i] = e.Value.(Coin)
 	}
 	return coins
@@ -60,11 +61,13 @@ func (cs *CoinSet) Coins() []Coin {
 
 // TotalValue returns the total value of the coins in the set.
 func (cs *CoinSet) TotalValue() (value util.Amount) {
+
 	return cs.totalValue
 }
 
 // TotalValueAge returns the total value * number of confirmations of the coins in the set.
 func (cs *CoinSet) TotalValueAge() (valueAge int64) {
+
 	return cs.totalValueAge
 }
 
@@ -75,6 +78,7 @@ func (cs *CoinSet) Num() int {
 
 // PushCoin adds a coin to the end of the list and updates the cached value amounts.
 func (cs *CoinSet) PushCoin(c Coin) {
+
 	cs.coinList.PushBack(c)
 	cs.totalValue += c.Value()
 	cs.totalValueAge += c.ValueAge()
@@ -151,10 +155,12 @@ type MinIndexCoinSelector struct {
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinIndexCoinSelector struct.
 func (s MinIndexCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
+
 	cs := NewCoinSet(nil)
 	for n := 0; n < len(coins) && n < s.MaxInputs; n++ {
 		cs.PushCoin(coins[n])
 		if satisfiesTargetValue(targetValue, s.MinChangeAmount, cs.TotalValue()) {
+
 			return cs, nil
 		}
 	}
@@ -169,6 +175,7 @@ type MinNumberCoinSelector struct {
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinNumberCoinSelector struct.
 func (s MinNumberCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
+
 	sortedCoins := make([]Coin, 0, len(coins))
 	sortedCoins = append(sortedCoins, coins...)
 	sort.Sort(sort.Reverse(byAmount(sortedCoins)))
@@ -183,6 +190,7 @@ type MaxValueAgeCoinSelector struct {
 
 // CoinSelect will attempt to select coins using the algorithm described in the MaxValueAgeCoinSelector struct.
 func (s MaxValueAgeCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
+
 	sortedCoins := make([]Coin, 0, len(coins))
 	sortedCoins = append(sortedCoins, coins...)
 	sort.Sort(sort.Reverse(byValueAge(sortedCoins)))
@@ -198,6 +206,7 @@ type MinPriorityCoinSelector struct {
 
 // CoinSelect will attempt to select coins using the algorithm described in the MinPriorityCoinSelector struct.
 func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
+
 	possibleCoins := make([]Coin, 0, len(coins))
 	possibleCoins = append(possibleCoins, coins...)
 	sort.Sort(byValueAge(possibleCoins))
@@ -240,6 +249,7 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 					continue
 				}
 				for _, coin := range lowSelect.Coins() {
+
 					allHigh.PushCoin(coin)
 				}
 				return allHigh, nil

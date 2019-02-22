@@ -35,8 +35,7 @@ type batchSpendReporter struct {
 }
 
 // newBatchSpendReporter instantiates a fresh batchSpendReporter.
-func newBatchSpendReporter(
-	) *batchSpendReporter {
+func newBatchSpendReporter() *batchSpendReporter {
 	return &batchSpendReporter{
 		requests:    make(map[wire.OutPoint][]*GetUtxoRequest),
 		initialTxns: make(map[wire.OutPoint]*SpendReport),
@@ -49,6 +48,7 @@ func newBatchSpendReporter(
 // delivered signaling that no spend was detected. If the original output could
 // not be found, a nil spend report is returned.
 func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
+
 	log <- cl.Debugf{
 		"finished batch, %d unspent outpoints", len(b.requests),
 	}
@@ -132,6 +132,7 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 // state. This method immediately adds the request's outpoints to the reporter's
 // watchlist.
 func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
+
 	for _, req := range reqs {
 		outpoint := req.Input.OutPoint
 
@@ -195,6 +196,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			// output on the transaction. If not, we will be unable
 			// to find the initial output.
 			if op.Index >= uint32(len(txOuts)) {
+
 				log <- cl.Errorf{
 					"failed to find outpoint %s -- invalid output index", op,
 				}

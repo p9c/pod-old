@@ -23,6 +23,7 @@ func NewAmountFlag(
 
 // MarshalFlag satisifes the flags.Marshaler interface.
 func (a *AmountFlag) MarshalFlag() (string, error) {
+
 	return a.Amount.String(), nil
 }
 

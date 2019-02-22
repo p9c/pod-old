@@ -5,8 +5,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // BlockFilterer is used to iteratively scan blocks for a set of addresses of
@@ -111,6 +111,7 @@ func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
 	var hasRelevantTxns bool
 	for _, tx := range block.Transactions {
 		if bf.FilterTx(tx) {
+
 			bf.RelevantTxns = append(bf.RelevantTxns, tx)
 			hasRelevantTxns = true
 		}
@@ -157,6 +158,7 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 		}
 
 		if !bf.FilterOutputAddrs(addrs) {
+
 			continue
 		}
 
@@ -204,6 +206,7 @@ func (bf *BlockFilterer) FilterOutputAddrs(addrs []util.Address) bool {
 // FoundExternal map. If this the first index found for a particular scope, the
 // scope's second layer map will be initialized before marking the index.
 func (bf *BlockFilterer) foundExternal(scopedIndex waddrmgr.ScopedIndex) {
+
 	if _, ok := bf.FoundExternal[scopedIndex.Scope]; !ok {
 		bf.FoundExternal[scopedIndex.Scope] = make(map[uint32]struct{})
 	}
@@ -214,6 +217,7 @@ func (bf *BlockFilterer) foundExternal(scopedIndex waddrmgr.ScopedIndex) {
 // FoundInternal map. If this the first index found for a particular scope, the
 // scope's second layer map will be initialized before marking the index.
 func (bf *BlockFilterer) foundInternal(scopedIndex waddrmgr.ScopedIndex) {
+
 	if _, ok := bf.FoundInternal[scopedIndex.Scope]; !ok {
 		bf.FoundInternal[scopedIndex.Scope] = make(map[uint32]struct{})
 	}

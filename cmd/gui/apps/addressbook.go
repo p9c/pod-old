@@ -23,7 +23,6 @@ func (
 	ab *AddressBook,
 ) AddressBookData() {
 
-
 	ab.AddressBookLabel = nil
 	addressbooks, err := jdb.JDB.ReadAll("addressbook")
 	if err != nil {
@@ -54,6 +53,7 @@ func (
 	ab *AddressBookLabel,
 ) AddressBookLabelWrite(
 	label, address string) {
+
 	ab.Label = label
 	ab.Address = address
 	jdb.JDB.Write("addressbook", ab.Label, ab)

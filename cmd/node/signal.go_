@@ -19,6 +19,7 @@ func interruptListener(
 	) <-chan struct{} {
 	c := make(chan struct{})
 	go func() {
+
 		interruptChannel := make(chan os.Signal, 1)
 		signal.Notify(interruptChannel, interruptSignals...)
 		// Listen for initial shutdown signal and close the returned channel to notify the caller.

@@ -35,8 +35,10 @@ func (c *credit) String() string {
 // slice of credits by their address.
 type byAddress []credit
 
-func (c byAddress) Len() int      { return len(c) }
-func (c byAddress) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+func (c byAddress) Len() int { return len(c) }
+func (c byAddress) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
 
 // Less returns true if the element at positions i is smaller than the
 // element at position j. The 'smaller-than' relation is defined to be
@@ -113,6 +115,7 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 			for _, c := range candidates {
 				candidate := newCredit(c, address)
 				if p.isCreditEligible(candidate, minConf, chainHeight, dustThreshold) {
+
 					eligibles = append(eligibles, candidate)
 				}
 			}
@@ -139,12 +142,14 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 func nextAddr(
 	p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branch Branch, index Index, stopSeriesID uint32) (
 	*WithdrawalAddress, error) {
+
 	series := p.Series(seriesID)
 	if series == nil {
 		return nil, newError(ErrSeriesNotExists, fmt.Sprintf("unknown seriesID: %d", seriesID), nil)
 	}
 	branch++
 	if int(branch) > len(series.publicKeys) {
+
 		highestIdx, err := p.highestUsedSeriesIndex(ns, seriesID)
 		if err != nil {
 			return nil, err
@@ -190,6 +195,7 @@ func nextAddr(
 // used addresses for the given seriesID. It returns 0 if there are no used
 // addresses with the given seriesID.
 func (p *Pool) highestUsedSeriesIndex(ns walletdb.ReadBucket, seriesID uint32) (Index, error) {
+
 	maxIdx := Index(0)
 	series := p.Series(seriesID)
 	if series == nil {
@@ -214,6 +220,7 @@ func (p *Pool) highestUsedSeriesIndex(ns walletdb.ReadBucket, seriesID uint32) (
 func groupCreditsByAddr(
 	credits []wtxmgr.Credit, chainParams *chaincfg.Params) (
 	map[string][]wtxmgr.Credit, error) {
+
 	addrMap := make(map[string][]wtxmgr.Credit)
 	for _, c := range credits {
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(c.PkScript, chainParams)
@@ -246,9 +253,11 @@ func (p *Pool) isCreditEligible(c credit, minConf int, chainHeight int32,
 		return false
 	}
 	if confirms(c.BlockMeta.Block.Height, chainHeight) < int32(minConf) {
+
 		return false
 	}
 	if p.isCharterOutput(c) {
+
 		return false
 	}
 

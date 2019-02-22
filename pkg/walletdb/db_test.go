@@ -21,6 +21,7 @@ var (
 // overwrite an existing one.
 func TestAddDuplicateDriver(
 	t *testing.T) {
+
 	supportedDrivers := walletdb.SupportedDrivers()
 	if len(supportedDrivers) == 0 {
 		t.Errorf("no backends to test")
@@ -33,6 +34,7 @@ func TestAddDuplicateDriver(
 	// detected if the interface allows a duplicate driver to overwrite an
 	// existing one.
 	bogusCreateDB := func(args ...interface{}) (walletdb.DB, error) {
+
 		return nil, fmt.Errorf("duplicate driver allowed for database "+
 			"type [%v]", dbType)
 	}
@@ -66,6 +68,7 @@ func TestAddDuplicateDriver(
 // a database are handled properly.
 func TestCreateOpenFail(
 	t *testing.T) {
+
 	// bogusCreateDB is a function which acts as a bogus create and open
 	// driver function that intentionally returns a failure which can be
 	// detected.
@@ -73,6 +76,7 @@ func TestCreateOpenFail(
 	openError := fmt.Errorf("failed to create or open database for "+
 		"database type [%v]", dbType)
 	bogusCreateDB := func(args ...interface{}) (walletdb.DB, error) {
+
 		return nil, openError
 	}
 
@@ -108,6 +112,7 @@ func TestCreateOpenFail(
 // unsupported database type is handled properly.
 func TestCreateOpenUnsupported(
 	t *testing.T) {
+
 	// Ensure creating a database with an unsupported type fails with the
 	// expected error.
 	dbType := "unsupported"

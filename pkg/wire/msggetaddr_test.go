@@ -10,6 +10,7 @@ import (
 // TestGetAddr tests the MsgGetAddr API.
 func TestGetAddr(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "getaddr"
@@ -31,6 +32,7 @@ func TestGetAddr(
 // TestGetAddrWire tests the MsgGetAddr wire encode and decode for various protocol versions.
 func TestGetAddrWire(
 	t *testing.T) {
+
 	msgGetAddr := NewMsgGetAddr()
 	msgGetAddrEncoded := []byte{}
 	tests := []struct {
@@ -91,6 +93,7 @@ func TestGetAddrWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -104,6 +107,7 @@ func TestGetAddrWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue

@@ -16,9 +16,11 @@ import (
 // TestBlock tests the API for Block.
 func TestBlock(
 	t *testing.T) {
+
 	b := util.NewBlock(&Block100000)
 	// Ensure we get the same data back out.
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
+
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
@@ -39,6 +41,7 @@ func TestBlock(
 	for i := 0; i < 2; i++ {
 		hash := b.Hash()
 		if !hash.IsEqual(wantHash) {
+
 			t.Errorf("Hash #%d mismatched hash - got %v, want %v",
 				i, hash, wantHash)
 		}
@@ -68,6 +71,7 @@ func TestBlock(
 			}
 			hash := tx.Hash()
 			if !hash.IsEqual(wantHash) {
+
 				t.Errorf("Hash #%d mismatched hash - got %v, "+
 					"want %v", j, hash, wantHash)
 				continue
@@ -81,6 +85,7 @@ func TestBlock(
 		transactions := b.Transactions()
 		// Ensure we get the expected number of transactions.
 		if len(transactions) != len(wantTxHashes) {
+
 			t.Errorf("Transactions #%d mismatched number of "+
 				"transactions - got %d, want %d", i,
 				len(transactions), len(wantTxHashes))
@@ -94,6 +99,7 @@ func TestBlock(
 			}
 			hash := tx.Hash()
 			if !hash.IsEqual(wantHash) {
+
 				t.Errorf("Transactions #%d mismatched hashes "+
 					"- got %v, want %v", j, hash, wantHash)
 				continue
@@ -115,6 +121,7 @@ func TestBlock(
 			continue
 		}
 		if !bytes.Equal(serializedBytes, block100000Bytes) {
+
 			t.Errorf("Bytes #%d wrong bytes - got %v, want %v", i,
 				spew.Sdump(serializedBytes),
 				spew.Sdump(block100000Bytes))
@@ -135,6 +142,7 @@ func TestBlock(
 		return
 	}
 	if !reflect.DeepEqual(txLocs, wantTxLocs) {
+
 		t.Errorf("TxLoc: mismatched transaction location information "+
 			"- got %v, want %v", spew.Sdump(txLocs),
 			spew.Sdump(wantTxLocs))
@@ -144,6 +152,7 @@ func TestBlock(
 // TestNewBlockFromBytes tests creation of a Block from serialized bytes.
 func TestNewBlockFromBytes(
 	t *testing.T) {
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -164,12 +173,14 @@ func TestNewBlockFromBytes(
 		return
 	}
 	if !bytes.Equal(serializedBytes, block100000Bytes) {
+
 		t.Errorf("Bytes: wrong bytes - got %v, want %v",
 			spew.Sdump(serializedBytes),
 			spew.Sdump(block100000Bytes))
 	}
 	// Ensure the generated MsgBlock is correct.
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
+
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
@@ -178,6 +189,7 @@ func TestNewBlockFromBytes(
 // TestNewBlockFromBlockAndBytes tests creation of a Block from a MsgBlock and raw bytes.
 func TestNewBlockFromBlockAndBytes(
 	t *testing.T) {
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -194,11 +206,13 @@ func TestNewBlockFromBlockAndBytes(
 		return
 	}
 	if !bytes.Equal(serializedBytes, block100000Bytes) {
+
 		t.Errorf("Bytes: wrong bytes - got %v, want %v",
 			spew.Sdump(serializedBytes),
 			spew.Sdump(block100000Bytes))
 	}
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
+
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
@@ -207,6 +221,7 @@ func TestNewBlockFromBlockAndBytes(
 // TestBlockErrors tests the error paths for the Block API.
 func TestBlockErrors(
 	t *testing.T) {
+
 	// Ensure out of range errors are as expected.
 	wantErr := "transaction index -1 is out of range - max 3"
 	testErr := util.OutOfRangeError(wantErr)

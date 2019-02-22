@@ -17,8 +17,8 @@ import (
 
 // ProvideSeed is used to prompt for the wallet seed which maybe required during
 // upgrades.
-func ProvideSeed(
-	) ([]byte, error) {
+func ProvideSeed() ([]byte, error) {
+
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("Enter existing wallet seed: ")
@@ -44,8 +44,8 @@ func ProvideSeed(
 
 // ProvidePrivPassphrase is used to prompt for the private passphrase which
 // maybe required during upgrades.
-func ProvidePrivPassphrase(
-	) ([]byte, error) {
+func ProvidePrivPassphrase() ([]byte, error) {
+
 	prompt := "enter the private passphrase for your wallet: "
 	for {
 		fmt.Print(prompt)
@@ -68,6 +68,7 @@ func ProvidePrivPassphrase(
 // user until they enter a valid response.
 func promptList(
 	reader *bufio.Reader, prefix string, validResponses []string, defaultEntry string) (string, error) {
+
 	// Setup the prompt according to the parameters.
 	validStrings := strings.Join(validResponses, "/")
 	var prompt string
@@ -103,6 +104,7 @@ func promptList(
 // reponse.
 func promptListBool(
 	reader *bufio.Reader, prefix string, defaultEntry string) (bool, error) {
+
 	// Setup the valid responses.
 	valid := []string{"n", "no", "y", "yes"}
 	response, err := promptList(reader, prefix, valid, defaultEntry)
@@ -117,6 +119,7 @@ func promptListBool(
 // prompts until they enter a matching response.
 func promptPass(
 	reader *bufio.Reader, prefix string, confirm bool) ([]byte, error) {
+
 	// Prompt the user until they enter a passphrase.
 	prompt := fmt.Sprintf("%s: ", prefix)
 	for {
@@ -143,6 +146,7 @@ func promptPass(
 		fmt.Print("\n")
 		confirm = bytes.TrimSpace(confirm)
 		if !bytes.Equal(pass, confirm) {
+
 			fmt.Println("The entered passphrases do not match")
 			continue
 		}
@@ -159,6 +163,7 @@ func promptPass(
 // valid response.
 func PrivatePass(
 	reader *bufio.Reader, legacyKeyStore *keystore.Store) ([]byte, error) {
+
 	// When there is not an existing legacy wallet, simply prompt the user
 	// for a new private passphase and return it.
 	if legacyKeyStore == nil {
@@ -214,6 +219,7 @@ func PublicPass(
 	}
 
 	if !bytes.Equal(configPubPassphrase, pubPass) {
+
 		useExisting, err := promptListBool(reader, "Use the "+
 			"existing configured public passphrase for encryption "+
 			"of public data?", "no")
@@ -234,6 +240,7 @@ func PublicPass(
 		}
 
 		if bytes.Equal(pubPass, privPass) {
+
 			useSamePass, err := promptListBool(reader,
 				"Are you sure want to use the same passphrase "+
 					"for public and private data?", "no")
@@ -263,6 +270,7 @@ func PublicPass(
 // enters a valid response.
 func Seed(
 	reader *bufio.Reader) ([]byte, error) {
+
 	// Ascertain the wallet generation seed.
 	useUserSeed, err := promptListBool(reader, "Do you have an "+
 		"existing wallet seed you want to use?", "no")

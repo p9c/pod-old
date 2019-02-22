@@ -32,6 +32,7 @@ func checkZeroBytes(
 
 func TestBytes(
 	t *testing.T) {
+
 	tests := []int{
 		0,
 		31,
@@ -77,6 +78,7 @@ var bigZero = new(big.Int)
 
 func TestBigInt(
 	t *testing.T) {
+
 	tests := []string{
 		// 16 0xFFFFFFFF 32-bit uintptrs
 		strings.Repeat("FFFFFFFF", 16),
@@ -125,6 +127,7 @@ func TestBigInt(
 
 func TestBytea32(
 	t *testing.T) {
+
 	const sz = 32
 	var b [sz]byte
 	copy(b[:], makeOneBytes(sz))
@@ -139,6 +142,7 @@ func TestBytea32(
 
 func TestBytea64(
 	t *testing.T) {
+
 	const sz = 64
 	var b [sz]byte
 	copy(b[:], makeOneBytes(sz))

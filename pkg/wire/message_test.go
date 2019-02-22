@@ -31,6 +31,7 @@ func makeHeader(
 // TestMessage tests the Read/WriteMessage and Read/WriteMessageN API.
 func TestMessage(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Create the various types of messages to test.
 	// MsgVersion.
@@ -127,6 +128,7 @@ func TestMessage(
 			continue
 		}
 		if !reflect.DeepEqual(msg, test.out) {
+
 			t.Errorf("ReadMessage #%d\n got: %v want: %v", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -157,6 +159,7 @@ func TestMessage(
 			continue
 		}
 		if !reflect.DeepEqual(msg, test.out) {
+
 			t.Errorf("ReadMessage #%d\n got: %v want: %v", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -168,6 +171,7 @@ func TestMessage(
 // concrete messages to confirm error paths work correctly.
 func TestReadMessageWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	btcnet := MainNet
 	// Ensure message errors are as expected with no function specified.
@@ -320,6 +324,7 @@ func TestReadMessageWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		nr, _, _, err := ReadMessageN(r, test.pver, test.btcnet)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("ReadMessage #%d wrong error got: %v <%T>, "+
 				"want: %T", i, err, err, test.readErr)
 			continue
@@ -346,6 +351,7 @@ func TestReadMessageWireErrors(
 // concrete messages to confirm error paths work correctly.
 func TestWriteMessageWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	btcnet := MainNet
 	wireErr := &MessageError{}
@@ -390,6 +396,7 @@ func TestWriteMessageWireErrors(
 		w := newFixedWriter(test.max)
 		nw, err := WriteMessageN(w, test.msg, test.pver, test.btcnet)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("WriteMessage #%d wrong error got: %v <%T>, "+
 				"want: %T", i, err, err, test.err)
 			continue

@@ -202,8 +202,8 @@ func NewRelevantTxAcceptedNtfn(
 	txHex string) *RelevantTxAcceptedNtfn {
 	return &RelevantTxAcceptedNtfn{Transaction: txHex}
 }
-func init(
-	) {
+func init() {
+
 	// The commands in this file are only usable by websockets and are notifications.
 	flags := UFWebsocketOnly | UFNotification
 	MustRegisterCmd(BlockConnectedNtfnMethod, (*BlockConnectedNtfn)(nil), flags)

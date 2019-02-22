@@ -181,7 +181,6 @@ func DefaultShellConfig(
 	datadir string,
 ) *shell.Config {
 
-
 	log <- cl.Dbg("getting default config")
 	u := GenKey()
 	p := GenKey()
@@ -257,7 +256,6 @@ func WriteDefaultShellConfig(
 	datadir string,
 ) {
 
-
 	defCfg := DefaultShellConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -281,7 +279,6 @@ func WriteShellConfig(
 	c *shell.Config,
 ) {
 
-
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -299,7 +296,6 @@ func shellHandle(
 	ctx climax.Context,
 ) int {
 
-
 	var dl string
 	var ok bool
 	if dl, ok = ctx.Get("debuglevel"); ok {
@@ -312,6 +308,7 @@ func shellHandle(
 		}
 	}
 	if ctx.Is("version") {
+
 		fmt.Println("pod/shell version", Version(),
 			"pod/node version", n.Version(),
 			"pod/wallet version", w.Version())
@@ -331,11 +328,13 @@ func shellHandle(
 		cfgFile = r
 	}
 	if ctx.Is("init") {
+
 		log <- cl.Debug{"writing default configuration to", cfgFile}
 		WriteDefaultShellConfig(datadir)
 	} else {
 		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+
 			log <- cl.Wrn("configuration file does not exist, creating new one")
 			WriteDefaultShellConfig(datadir)
 		} else {

@@ -6,8 +6,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/rpcclient"
 )
 
-func main(
-	) {
+func main() {
+
 	// Connect to local bitcoin core RPC server using HTTP POST mode.
 	connCfg := &rpcclient.ConnConfig{
 		Host:         "localhost:11046",

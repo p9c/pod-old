@@ -64,6 +64,7 @@ var certificateFile = filepath.Join(btcutil.AppDataDir("mod", false), "rpc.cert"
 
 func main(
 	) {
+
 	creds, err := credentials.NewClientTLSFromFile(certificateFile, "localhost")
 	if err != nil {
 		fmt.Println(err)
@@ -155,6 +156,7 @@ auto main() -> int {
     auto wallet_tls_cert_file = []{
         auto pw = getpwuid(getuid());
         if (pw == nullptr || pw->pw_dir == nullptr) {
+
             throw NoHomeDirectoryException{};
         }
         return pw->pw_dir + "/.btcwallet/rpc.cert"s;
@@ -176,6 +178,7 @@ auto main() -> int {
     walletrpc::BalanceResponse response{};
     auto status = stub->Balance(&context, request, &response);
     if (!status.ok()) {
+
         std::cout << status.error_message() << std::endl;
     } else {
         std::cout << "Spendable balance: " << response.spendable() << " Satoshis" << std::endl;
@@ -360,8 +363,10 @@ var walletrpc = protoDescriptor.walletrpc;
 
 var certPath = path.join(process.env.HOME, '.btcwallet', 'rpc.cert');
 if (os.platform == 'win32') {
+
     certPath = path.join(process.env.LOCALAPPDATA, 'Btcwallet', 'rpc.cert');
 } else if (os.platform == 'darwin') {
+
     certPath = path.join(process.env.HOME, 'Library', 'Application Support',
         'Btcwallet', 'rpc.cert');
 }
@@ -375,7 +380,9 @@ var request = {
     required_confirmations: 1
 };
 client.balance(request, function(err, response) {
+
     if (err) {
+
         console.error(err);
     } else {
         console.log('Spendable balance:', response.spendable, 'Satoshis');

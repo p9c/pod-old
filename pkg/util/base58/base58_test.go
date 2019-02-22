@@ -58,6 +58,7 @@ var hexTests = []struct {
 
 func TestBase58(
 	t *testing.T) {
+
 	// Encode tests
 	for x, test := range stringTests {
 		tmp := []byte(test.in)
@@ -75,6 +76,7 @@ func TestBase58(
 			continue
 		}
 		if res := base58.Decode(test.out); !bytes.Equal(res, b) {
+
 			t.Errorf("Decode test #%d failed: got: %q want: %q",
 				x, res, test.in)
 			continue

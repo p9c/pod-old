@@ -55,14 +55,17 @@ func (ka *KnownAddress) chance() float64 {
 // All addresses that meet these criteria are assumed to be worthless and not worth keeping hold of.
 func (ka *KnownAddress) isBad() bool {
 	if ka.lastattempt.After(time.Now().Add(-1 * time.Minute)) {
+
 		return false
 	}
 	// From the future?
 	if ka.na.Timestamp.After(time.Now().Add(10 * time.Minute)) {
+
 		return true
 	}
 	// Over a month old?
 	if ka.na.Timestamp.Before(time.Now().Add(-1 * numMissingDays * time.Hour * 24)) {
+
 		return true
 	}
 	// Never succeeded?

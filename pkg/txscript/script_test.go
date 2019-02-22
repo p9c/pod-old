@@ -11,6 +11,7 @@ import (
 // TestParseOpcode tests for opcode parsing with bad data templates.
 func TestParseOpcode(
 	t *testing.T) {
+
 	// Deep copy the array and make one of the opcodes invalid by setting it to the wrong length.
 	fakeArray := opcodeArray
 	fakeArray[OP_PUSHDATA4] = opcode{value: OP_PUSHDATA4,
@@ -26,6 +27,7 @@ func TestParseOpcode(
 // TestUnparsingInvalidOpcodes tests for errors when unparsing invalid parsed opcodes.
 func TestUnparsingInvalidOpcodes(
 	t *testing.T) {
+
 	tests := []struct {
 		name        string
 		pop         *parsedOpcode
@@ -3676,6 +3678,7 @@ func TestUnparsingInvalidOpcodes(
 // TestPushedData ensured the PushedData function extracts the expected data out of various scripts.
 func TestPushedData(
 	t *testing.T) {
+
 	t.Parallel()
 	var tests = []struct {
 		script string
@@ -3726,6 +3729,7 @@ func TestPushedData(
 			continue
 		}
 		if !reflect.DeepEqual(data, test.out) {
+
 			t.Errorf("TestPushedData failed test #%d: want: %x "+
 				"got: %x\n", i, test.out, data)
 		}
@@ -3735,6 +3739,7 @@ func TestPushedData(
 // TestHasCanonicalPush ensures the canonicalPush function works as expected.
 func TestHasCanonicalPush(
 	t *testing.T) {
+
 	t.Parallel()
 	for i := 0; i < 65535; i++ {
 		script, err := NewScriptBuilder().AddInt64(int64(i)).Script()
@@ -3790,6 +3795,7 @@ func TestHasCanonicalPush(
 // TestGetPreciseSigOps ensures the more precise signature operation counting mechanism which includes signatures in P2SH scripts works as expected.
 func TestGetPreciseSigOps(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name      string
@@ -3836,6 +3842,7 @@ func TestGetPreciseSigOps(
 // TestGetWitnessSigOpCount tests that the sig op counting for p2wkh, p2wsh, nested p2sh, and invalid variants are counted properly.
 func TestGetWitnessSigOpCount(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name      string
@@ -3915,6 +3922,7 @@ func TestGetWitnessSigOpCount(
 // TestRemoveOpcodes ensures that removing opcodes from scripts behaves as expected.
 func TestRemoveOpcodes(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -3965,6 +3973,7 @@ func TestRemoveOpcodes(
 	}
 	// tstRemoveOpcode is a convenience function to parse the provided raw script, remove the passed opcode, then unparse the result back into a raw script.
 	tstRemoveOpcode := func(script []byte, opcode byte) ([]byte, error) {
+
 		pops, err := parseScript(script)
 		if err != nil {
 			return nil, err
@@ -3981,6 +3990,7 @@ func TestRemoveOpcodes(
 			continue
 		}
 		if !bytes.Equal(after, result) {
+
 			t.Errorf("%s: value does not equal expected: exp: %q"+
 				" got: %q", test.name, after, result)
 		}
@@ -3990,6 +4000,7 @@ func TestRemoveOpcodes(
 // TestRemoveOpcodeByData ensures that removing data carrying opcodes based on the data they contain works as expected.
 func TestRemoveOpcodeByData(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -4110,6 +4121,7 @@ func TestRemoveOpcodeByData(
 	}
 	// tstRemoveOpcodeByData is a convenience function to parse the provided raw script, remove the passed data, then unparse the result back into a raw script.
 	tstRemoveOpcodeByData := func(script []byte, data []byte) ([]byte, error) {
+
 		pops, err := parseScript(script)
 		if err != nil {
 			return nil, err
@@ -4124,6 +4136,7 @@ func TestRemoveOpcodeByData(
 			continue
 		}
 		if !bytes.Equal(test.after, result) {
+
 			t.Errorf("%s: value does not equal expected: exp: %q"+
 				" got: %q", test.name, test.after, result)
 		}
@@ -4133,6 +4146,7 @@ func TestRemoveOpcodeByData(
 // TestIsPayToScriptHash ensures the IsPayToScriptHash function returns the expected results for all the scripts in scriptClassTests.
 func TestIsPayToScriptHash(
 	t *testing.T) {
+
 	t.Parallel()
 	for _, test := range scriptClassTests {
 		script := mustParseShortForm(test.script)
@@ -4148,6 +4162,7 @@ func TestIsPayToScriptHash(
 // TestIsPayToWitnessScriptHash ensures the IsPayToWitnessScriptHash function returns the expected results for all the scripts in scriptClassTests.
 func TestIsPayToWitnessScriptHash(
 	t *testing.T) {
+
 	t.Parallel()
 	for _, test := range scriptClassTests {
 		script := mustParseShortForm(test.script)
@@ -4163,6 +4178,7 @@ func TestIsPayToWitnessScriptHash(
 // TestIsPayToWitnessPubKeyHash ensures the IsPayToWitnessPubKeyHash function returns the expected results for all the scripts in scriptClassTests.
 func TestIsPayToWitnessPubKeyHash(
 	t *testing.T) {
+
 	t.Parallel()
 	for _, test := range scriptClassTests {
 		script := mustParseShortForm(test.script)
@@ -4178,6 +4194,7 @@ func TestIsPayToWitnessPubKeyHash(
 // TestHasCanonicalPushes ensures the canonicalPush function properly determines what is considered a canonical push for the purposes of removeOpcodeByData.
 func TestHasCanonicalPushes(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -4219,6 +4236,7 @@ func TestHasCanonicalPushes(
 // TestIsPushOnlyScript ensures the IsPushOnlyScript function returns the expected results.
 func TestIsPushOnlyScript(
 	t *testing.T) {
+
 	t.Parallel()
 	test := struct {
 		name     string
@@ -4239,6 +4257,7 @@ func TestIsPushOnlyScript(
 // TestIsUnspendable ensures the IsUnspendable function returns the expected results.
 func TestIsUnspendable(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name     string

@@ -3,13 +3,13 @@ package node
 import (
 	"sync/atomic"
 
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/netsync"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 )
 
 // rpcPeer provides a peer for use with the RPC server and implements the rpcserverPeer interface.
@@ -107,6 +107,7 @@ func (cm *rpcConnManager) ConnectedCount() int32 {
 
 // NetTotals returns the sum of all bytes received and sent across the network for all peers. This function is safe for concurrent access and is part of the rpcserverConnManager interface implementation.
 func (cm *rpcConnManager) NetTotals() (uint64, uint64) {
+
 	return cm.server.NetTotals()
 }
 
@@ -138,16 +139,19 @@ func (cm *rpcConnManager) PersistentPeers() []rpcserverPeer {
 
 // BroadcastMessage sends the provided message to all currently connected peers. This function is safe for concurrent access and is part of the rpcserverConnManager interface implementation.
 func (cm *rpcConnManager) BroadcastMessage(msg wire.Message) {
+
 	cm.server.BroadcastMessage(msg)
 }
 
 // AddRebroadcastInventory adds the provided inventory to the list of inventories to be rebroadcast at random intervals until they show up in a block. This function is safe for concurrent access and is part of the rpcserverConnManager interface implementation.
 func (cm *rpcConnManager) AddRebroadcastInventory(iv *wire.InvVect, data interface{}) {
+
 	cm.server.AddRebroadcastInventory(iv, data)
 }
 
 // RelayTransactions generates and relays inventory vectors for all of the passed transactions to all connected peers.
 func (cm *rpcConnManager) RelayTransactions(txns []*mempool.TxDesc) {
+
 	cm.server.relayTransactions(txns)
 }
 
@@ -167,6 +171,7 @@ func (b *rpcSyncMgr) IsCurrent() bool {
 
 // SubmitBlock submits the provided block to the network after processing it locally. This function is safe for concurrent access and is part of the rpcserverSyncManager interface implementation.
 func (b *rpcSyncMgr) SubmitBlock(block *util.Block, flags blockchain.BehaviorFlags) (bool, error) {
+
 	return b.syncMgr.ProcessBlock(block, flags)
 }
 

@@ -73,6 +73,7 @@ type headerIndex struct {
 // a particular header type.
 func newHeaderIndex(
 	db walletdb.DB, indexType HeaderType) (*headerIndex, error) {
+
 	// As an initially step, we'll attempt to create all the buckets
 	// necessary for functioning of the index. If these buckets has already
 	// been created, then we can exit early.
@@ -124,6 +125,7 @@ func (h headerBatch) Less(i, j int) bool {
 //
 // NOTE: This is part of the sort.Interface implementation.
 func (h headerBatch) Swap(i, j int) {
+
 	h[i], h[j] = h[j], h[i]
 }
 
@@ -186,6 +188,7 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 // height. With this height, the caller is then able to seek to the appropriate
 // spot in the flat files in order to extract the true header.
 func (h *headerIndex) heightFromHash(hash *chainhash.Hash) (uint32, error) {
+
 	var height uint32
 	err := walletdb.View(h.db, func(tx walletdb.ReadTx) error {
 		rootBucket := tx.ReadBucket(indexBucket)
@@ -209,6 +212,7 @@ func (h *headerIndex) heightFromHash(hash *chainhash.Hash) (uint32, error) {
 
 // chainTip returns the best hash and height that the index knows of.
 func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
+
 	var (
 		tipHeight uint32
 		tipHash   *chainhash.Hash

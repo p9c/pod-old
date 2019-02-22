@@ -49,6 +49,7 @@ var CreateCommand = climax.Command{
 	},
 	Handle: func(ctx climax.Context) int {
 		if ctx.Is("help") {
+
 			fmt.Print(`Usage: create [-h] [-d] [-s] [-p] [-P] [-c] [--network]
 
 creates a new wallet given CLI flags, or interactively
@@ -86,6 +87,7 @@ Available options:
 			argsGiven = true
 		}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+
 			fmt.Println("configuration file does not exist, creating new one")
 			WriteDefaultWalletConfig(CreateConfig.DataDir)
 		} else {
@@ -153,6 +155,7 @@ Available options:
 			return 1
 		}
 		if ctx.Is("cli") {
+
 			walletmain.CreateWallet(CreateConfig.Config, activeNet)
 			fmt.Print("\nYou can now open the wallet\n")
 			return 0

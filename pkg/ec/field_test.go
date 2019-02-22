@@ -9,6 +9,7 @@ import (
 // works as expected.
 func TestSetInt(
 	t *testing.T) {
+
 	tests := []struct {
 		in  uint
 		raw [10]uint32
@@ -25,6 +26,7 @@ func TestSetInt(
 	for i, test := range tests {
 		f := new(fieldVal).SetInt(test.in)
 		if !reflect.DeepEqual(f.n, test.raw) {
+
 			t.Errorf("fieldVal.Set #%d wrong result\ngot: %v\n"+
 				"want: %v", i, f.n, test.raw)
 			continue
@@ -35,6 +37,7 @@ func TestSetInt(
 // TestZero ensures that zeroing a field value zero works as expected.
 func TestZero(
 	t *testing.T) {
+
 	f := new(fieldVal).SetInt(2)
 	f.Zero()
 	for idx, rawInt := range f.n {
@@ -48,18 +51,22 @@ func TestZero(
 // TestIsZero ensures that checking if a field IsZero works as expected.
 func TestIsZero(
 	t *testing.T) {
+
 	f := new(fieldVal)
 	if !f.IsZero() {
+
 		t.Errorf("new field value is not zero - got %v (rawints %x)", f,
 			f.n)
 	}
 	f.SetInt(1)
 	if f.IsZero() {
+
 		t.Errorf("field claims it's zero when it's not - got %v "+
 			"(raw rawints %x)", f, f.n)
 	}
 	f.Zero()
 	if !f.IsZero() {
+
 		t.Errorf("field claims it's not zero when it is - got %v "+
 			"(raw rawints %x)", f, f.n)
 	}
@@ -68,6 +75,7 @@ func TestIsZero(
 // TestStringer ensures the stringer returns the appropriate hex string.
 func TestStringer(
 	t *testing.T) {
+
 	tests := []struct {
 		in       string
 		expected string
@@ -152,6 +160,7 @@ func TestStringer(
 // expected.
 func TestNormalize(
 	t *testing.T) {
+
 	tests := []struct {
 		raw        [10]uint32 // Intentionally denormalized value
 		normalized [10]uint32 // Normalized form of the raw value
@@ -309,6 +318,7 @@ func TestNormalize(
 		f.n = test.raw
 		f.Normalize()
 		if !reflect.DeepEqual(f.n, test.normalized) {
+
 			t.Errorf("fieldVal.Normalize #%d wrong result\n"+
 				"got: %x\nwant: %x", i, f.n, test.normalized)
 			continue
@@ -319,6 +329,7 @@ func TestNormalize(
 // TestIsOdd ensures that checking if a field value IsOdd works as expected.
 func TestIsOdd(
 	t *testing.T) {
+
 	tests := []struct {
 		in       string // hex encoded value
 		expected bool   // expected oddness
@@ -349,6 +360,7 @@ func TestIsOdd(
 // works as expected.
 func TestEquals(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // hex encoded value
 		in2      string // hex encoded value
@@ -382,6 +394,7 @@ func TestEquals(
 // TestNegate ensures that negating field values via Negate works as expected.
 func TestNegate(
 	t *testing.T) {
+
 	tests := []struct {
 		in       string // hex encoded value
 		expected string // expected hex encoded value
@@ -420,6 +433,7 @@ func TestNegate(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Negate(1).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Negate #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -431,6 +445,7 @@ func TestNegate(
 // expected.
 func TestAddInt(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // hex encoded value
 		in2      uint   // unsigned integer to add to the value above
@@ -471,6 +486,7 @@ func TestAddInt(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.AddInt(test.in2).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.AddInt #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -482,6 +498,7 @@ func TestAddInt(
 // expected.
 func TestAdd(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // first hex encoded value
 		in2      string // second hex encoded value to add
@@ -523,6 +540,7 @@ func TestAdd(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Add(f2).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Add #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -534,6 +552,7 @@ func TestAdd(
 // expected.
 func TestAdd2(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // first hex encoded value
 		in2      string // second hex encoded value to add
@@ -577,6 +596,7 @@ func TestAdd2(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Add2(f, f2).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Add2 #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -588,6 +608,7 @@ func TestAdd2(
 // expected.
 func TestMulInt(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // hex encoded value
 		in2      uint   // unsigned integer to multiply with value above
@@ -641,6 +662,7 @@ func TestMulInt(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.MulInt(test.in2).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.MulInt #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -651,6 +673,7 @@ func TestMulInt(
 // TestMul ensures that multiplying two field valuess via Mul works as expected.
 func TestMul(
 	t *testing.T) {
+
 	tests := []struct {
 		in1      string // first hex encoded value
 		in2      string // second hex encoded value to multiply with
@@ -709,6 +732,7 @@ func TestMul(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Mul(f2).Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Mul #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -719,6 +743,7 @@ func TestMul(
 // TestSquare ensures that squaring field values via Square works as expected.
 func TestSquare(
 	t *testing.T) {
+
 	tests := []struct {
 		in       string // hex encoded value
 		expected string // expected hex encoded value
@@ -755,6 +780,7 @@ func TestSquare(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Square().Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Square #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue
@@ -766,6 +792,7 @@ func TestSquare(
 // as expected.
 func TestInverse(
 	t *testing.T) {
+
 	tests := []struct {
 		in       string // hex encoded value
 		expected string // expected hex encoded value
@@ -808,6 +835,7 @@ func TestInverse(
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Inverse().Normalize()
 		if !result.Equals(expected) {
+
 			t.Errorf("fieldVal.Inverse #%d wrong result\n"+
 				"got: %v\nwant: %v", i, result, expected)
 			continue

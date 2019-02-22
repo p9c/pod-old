@@ -10,8 +10,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 type MockChainClient struct {
@@ -22,8 +22,7 @@ type MockChainClient struct {
 	getCFilterResponse   map[chainhash.Hash]*gcs.Filter
 }
 
-func NewMockChainClient(
-	) *MockChainClient {
+func NewMockChainClient() *MockChainClient {
 	return &MockChainClient{
 		getBlockResponse:     make(map[chainhash.Hash]*util.Block),
 		getBlockHashResponse: make(map[int64]*chainhash.Hash),
@@ -32,28 +31,34 @@ func NewMockChainClient(
 }
 
 func (c *MockChainClient) SetBlock(hash *chainhash.Hash, block *util.Block) {
+
 	c.getBlockResponse[*hash] = block
 }
 
 func (c *MockChainClient) GetBlockFromNetwork(blockHash chainhash.Hash,
 	options ...QueryOption) (*util.Block, error) {
+
 	return c.getBlockResponse[blockHash], nil
 }
 
 func (c *MockChainClient) SetBlockHash(height int64, hash *chainhash.Hash) {
+
 	c.getBlockHashResponse[height] = hash
 }
 
 func (c *MockChainClient) GetBlockHash(height int64) (*chainhash.Hash, error) {
+
 	return c.getBlockHashResponse[height], nil
 }
 
 func (c *MockChainClient) SetBestSnapshot(hash *chainhash.Hash, height int32) {
+
 	c.getBestBlockHash = hash
 	c.getBestBlockHeight = height
 }
 
 func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
+
 	return &waddrmgr.BlockStamp{
 		Hash:   *c.getBestBlockHash,
 		Height: c.getBestBlockHeight,
@@ -62,11 +67,11 @@ func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
 
 func (c *MockChainClient) blockFilterMatches(ro *rescanOptions,
 	blockHash *chainhash.Hash) (bool, error) {
+
 	return true, nil
 }
 
-func makeTestInputWithScript(
-	) *InputWithScript {
+func makeTestInputWithScript() *InputWithScript {
 	hash, _ := chainhash.NewHashFromStr("87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03")
 	pkScript := []byte("76a91471d7dd96d9edda09180fe9d57a477b5acc9cad118")
 
@@ -83,6 +88,7 @@ func makeTestInputWithScript(
 // TestFindSpends tests that findSpends properly returns spend reports.
 func TestFindSpends(
 	t *testing.T) {
+
 	height := uint32(100000)
 
 	reqs := []*GetUtxoRequest{
@@ -117,6 +123,7 @@ func TestFindSpends(
 // given block.
 func TestFindInitialTransactions(
 	t *testing.T) {
+
 	hash, _ := chainhash.NewHashFromStr("e9a66845e05d5abc0ad04ec80f774a7e585c6e8db975962d069a522137b80c1d")
 	outpoint := &wire.OutPoint{Hash: *hash, Index: 0}
 	pkScript := []byte("76a91439aa3d569e06a1d7926dc4be1193c99bf2eb9ee08")
@@ -191,6 +198,7 @@ func TestFindInitialTransactions(
 // slice.
 func TestDequeueAtHeight(
 	t *testing.T) {
+
 	mockChainClient := NewMockChainClient()
 	scanner := NewUtxoScanner(&UtxoScannerConfig{
 		GetBlock:           mockChainClient.GetBlockFromNetwork,
@@ -218,6 +226,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100000) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100000)
 	}
@@ -229,6 +238,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100001) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100001)
 	}
@@ -250,6 +260,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100001) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100001)
 	}
@@ -281,6 +292,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100000) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100000)
 	}
@@ -291,6 +303,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100001) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100001)
 	}
@@ -312,6 +325,7 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 1, len(reqs))
 	}
 	if !reflect.DeepEqual(reqs[0], req100001) {
+
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100001)
 	}
@@ -329,6 +343,7 @@ func TestDequeueAtHeight(
 // of the spend returns a correct spend report.
 func TestUtxoScannerScanBasic(
 	t *testing.T) {
+
 	mockChainClient := NewMockChainClient()
 
 	block100000Hash := Block100000.BlockHash()
@@ -372,6 +387,7 @@ func TestUtxoScannerScanBasic(
 // the best height after a rescan, and then continues scans up to the new tip.
 func TestUtxoScannerScanAddBlocks(
 	t *testing.T) {
+
 	mockChainClient := NewMockChainClient()
 
 	block99999Hash := Block99999.BlockHash()
@@ -390,6 +406,7 @@ func TestUtxoScannerScanAddBlocks(
 		GetBlock:     mockChainClient.GetBlockFromNetwork,
 		GetBlockHash: mockChainClient.GetBlockHash,
 		BestSnapshot: func() (*waddrmgr.BlockStamp, error) {
+
 			<-waitForSnapshot
 			snapshotLock.Lock()
 			defer snapshotLock.Unlock()
@@ -444,6 +461,7 @@ func TestUtxoScannerScanAddBlocks(
 // stopped during a batch scan.
 func TestUtxoScannerCancelRequest(
 	t *testing.T) {
+
 	mockChainClient := NewMockChainClient()
 
 	block100000Hash := Block100000.BlockHash()
@@ -460,6 +478,7 @@ func TestUtxoScannerCancelRequest(
 	scanner := NewUtxoScanner(&UtxoScannerConfig{
 		GetBlock: func(chainhash.Hash, ...QueryOption,
 		) (*util.Block, error) {
+
 			<-block
 			return nil, fetchErr
 		},
@@ -486,6 +505,7 @@ func TestUtxoScannerCancelRequest(
 	cancel100000 := make(chan struct{})
 	err100000 := make(chan error, 1)
 	go func() {
+
 		_, err := req100000.Result(cancel100000)
 		err100000 <- err
 	}()
@@ -494,6 +514,7 @@ func TestUtxoScannerCancelRequest(
 	// ability to break if the scanner is stopped.
 	err100001 := make(chan error, 1)
 	go func() {
+
 		_, err := req100001.Result(nil)
 		err100001 <- err
 	}()
@@ -539,6 +560,7 @@ func TestUtxoScannerCancelRequest(
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
+
 		defer wg.Done()
 		scanner.Stop()
 	}()

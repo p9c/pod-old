@@ -15,8 +15,8 @@ import (
 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
 )
 
-func createTestDatabase(
-	) (func(), FilterDatabase, error) {
+func createTestDatabase() (func(), FilterDatabase, error) {
+
 	tempDir, err := ioutil.TempDir("", "neutrino")
 	if err != nil {
 		return nil, nil, err
@@ -28,6 +28,7 @@ func createTestDatabase(
 	}
 
 	cleanUp := func() {
+
 		os.RemoveAll(tempDir)
 		db.Close()
 	}
@@ -42,6 +43,7 @@ func createTestDatabase(
 
 func TestGenesisFilterCreation(
 	t *testing.T) {
+
 	cleanUp, database, err := createTestDatabase()
 	defer cleanUp()
 	if err != nil {
@@ -66,6 +68,7 @@ func TestGenesisFilterCreation(
 
 func genRandFilter(
 	numElements uint32) (*gcs.Filter, error) {
+
 	elements := make([][]byte, numElements)
 	for i := uint32(0); i < numElements; i++ {
 		var elem [20]byte
@@ -93,6 +96,7 @@ func genRandFilter(
 
 func TestFilterStorage(
 	t *testing.T) {
+
 	// TODO(roasbeef): use testing.Quick
 	cleanUp, database, err := createTestDatabase()
 	defer cleanUp()
@@ -125,6 +129,7 @@ func TestFilterStorage(
 		t.Fatalf("unable to retrieve reg filter: %v", err)
 	}
 	if !reflect.DeepEqual(regFilter, regFilterDB) {
+
 		t.Fatalf("regular filter doesn't match!")
 	}
 }

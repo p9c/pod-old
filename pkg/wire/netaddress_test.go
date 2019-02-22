@@ -13,15 +13,18 @@ import (
 // TestNetAddress tests the NetAddress API.
 func TestNetAddress(
 	t *testing.T) {
+
 	ip := net.ParseIP("127.0.0.1")
 	port := 11047
 	// Test NewNetAddress.
 	na := NewNetAddress(&net.TCPAddr{IP: ip, Port: port}, 0)
 	// Ensure we get the same ip, port, and services back out.
 	if !na.IP.Equal(ip) {
+
 		t.Errorf("NetNetAddress: wrong ip - got %v, want %v", na.IP, ip)
 	}
 	if na.Port != uint16(port) {
+
 		t.Errorf("NetNetAddress: wrong port - got %v, want %v", na.Port,
 			port)
 	}
@@ -30,6 +33,7 @@ func TestNetAddress(
 			na.Services, 0)
 	}
 	if na.HasService(SFNodeNetwork) {
+
 		t.Errorf("HasService: SFNodeNetwork service is set")
 	}
 	// Ensure adding the full service node flag works.
@@ -39,6 +43,7 @@ func TestNetAddress(
 			na.Services, SFNodeNetwork)
 	}
 	if !na.HasService(SFNodeNetwork) {
+
 		t.Errorf("HasService: SFNodeNetwork service not set")
 	}
 	// Ensure max payload is expected value for latest protocol version.
@@ -64,6 +69,7 @@ func TestNetAddress(
 // TestNetAddressWire tests the NetAddress wire encode and decode for various protocol versions and timestamp flag combinations.
 func TestNetAddressWire(
 	t *testing.T) {
+
 	// baseNetAddr is used in the various tests as a baseline NetAddress.
 	baseNetAddr := NetAddress{
 		Timestamp: time.Unix(0x495fab29, 0), // 2009-01-03 12:15:05 -0600 CST
@@ -156,6 +162,7 @@ func TestNetAddressWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("writeNetAddress #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -169,6 +176,7 @@ func TestNetAddressWire(
 			continue
 		}
 		if !reflect.DeepEqual(na, test.out) {
+
 			t.Errorf("readNetAddress #%d\n got: %s want: %s", i,
 				spew.Sdump(na), spew.Sdump(test.out))
 			continue
@@ -179,6 +187,7 @@ func TestNetAddressWire(
 // TestNetAddressWireErrors performs negative tests against wire encode and decode NetAddress to confirm error paths work correctly.
 func TestNetAddressWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverNAT := NetAddressTimeVersion - 1
 	// baseNetAddr is used in the various tests as a baseline NetAddress.

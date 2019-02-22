@@ -29,6 +29,7 @@ func makeBS(
 
 func TestBtcAddressSerializer(
 	t *testing.T) {
+
 	fakeWallet := &Store{net: (*netParams)(tstNetParams)}
 	kdfp := &kdfParameters{
 		mem:   1024,
@@ -77,12 +78,14 @@ func TestBtcAddressSerializer(
 	}
 
 	if !reflect.DeepEqual(addr, &readAddr) {
+
 		t.Error("Original and read btcAddress differ.")
 	}
 }
 
 func TestScriptAddressSerializer(
 	t *testing.T) {
+
 	fakeWallet := &Store{net: (*netParams)(tstNetParams)}
 	script := []byte{txscript.OP_TRUE, txscript.OP_DUP,
 		txscript.OP_DROP}
@@ -108,12 +111,14 @@ func TestScriptAddressSerializer(
 	}
 
 	if !reflect.DeepEqual(addr, &readAddr) {
+
 		t.Error("Original and read btcAddress differ.")
 	}
 }
 
 func TestWalletCreationSerialization(
 	t *testing.T) {
+
 	createdAt := makeBS(0)
 	w1, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)
@@ -150,6 +155,7 @@ func TestWalletCreationSerialization(
 	}
 
 	//	if !reflect.DeepEqual(w1, w2) {
+
 	//		t.Error("Created and read-in wallets do not match.")
 	//		spew.Dump(w1, w2)
 	//		return
@@ -158,6 +164,7 @@ func TestWalletCreationSerialization(
 
 func TestChaining(
 	t *testing.T) {
+
 	tests := []struct {
 		name                       string
 		cc                         []byte
@@ -228,11 +235,13 @@ func TestChaining(
 		// Verify that the new private keys match the expected values
 		// in the test case.
 		if !bytes.Equal(nextPrivUncompressed, test.nextPrivateKeyUncompressed) {
+
 			t.Errorf("%s: Next private key (from uncompressed pubkey) does not match expected.\nGot: %s\nExpected: %s",
 				test.name, spew.Sdump(nextPrivUncompressed), spew.Sdump(test.nextPrivateKeyUncompressed))
 			return
 		}
 		if !bytes.Equal(nextPrivCompressed, test.nextPrivateKeyCompressed) {
+
 			t.Errorf("%s: Next private key (from compressed pubkey) does not match expected.\nGot: %s\nExpected: %s",
 				test.name, spew.Sdump(nextPrivCompressed), spew.Sdump(test.nextPrivateKeyCompressed))
 			return
@@ -257,20 +266,24 @@ func TestChaining(
 
 		// Public keys (used to generate the bitcoin address) MUST match.
 		if !bytes.Equal(nextPubUncompressedFromPriv, nextPubUncompressedFromPub) {
+
 			t.Errorf("%s: Uncompressed public keys do not match.", test.name)
 		}
 		if !bytes.Equal(nextPubCompressedFromPriv, nextPubCompressedFromPub) {
+
 			t.Errorf("%s: Compressed public keys do not match.", test.name)
 		}
 
 		// Verify that all generated public keys match the expected
 		// values in the test case.
 		if !bytes.Equal(nextPubUncompressedFromPub, test.nextPublicKeyUncompressed) {
+
 			t.Errorf("%s: Next uncompressed public keys do not match expected value.\nGot: %s\nExpected: %s",
 				test.name, spew.Sdump(nextPubUncompressedFromPub), spew.Sdump(test.nextPublicKeyUncompressed))
 			return
 		}
 		if !bytes.Equal(nextPubCompressedFromPub, test.nextPublicKeyCompressed) {
+
 			t.Errorf("%s: Next compressed public keys do not match expected value.\nGot: %s\nExpected: %s",
 				test.name, spew.Sdump(nextPubCompressedFromPub), spew.Sdump(test.nextPublicKeyCompressed))
 			return
@@ -326,6 +339,7 @@ func TestChaining(
 
 func TestWalletPubkeyChaining(
 	t *testing.T) {
+
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, makeBS(0))
 	if err != nil {
@@ -333,6 +347,7 @@ func TestWalletPubkeyChaining(
 		return
 	}
 	if !w.IsLocked() {
+
 		t.Error("New wallet is not locked.")
 	}
 
@@ -355,10 +370,12 @@ func TestWalletPubkeyChaining(
 	pkinfo := info.(PubKeyAddress)
 	// sanity checks
 	if !info.Compressed() {
+
 		t.Errorf("Pubkey should be compressed.")
 		return
 	}
 	if info.Imported() {
+
 		t.Errorf("Should not be marked as imported.")
 		return
 	}
@@ -422,6 +439,7 @@ func TestWalletPubkeyChaining(
 
 	// Keys returned by both wallets must match.
 	if !reflect.DeepEqual(key1, key2) {
+
 		t.Errorf("Private keys for address originally created without one mismtach between original and re-read wallet.")
 		return
 	}
@@ -486,6 +504,7 @@ func TestWalletPubkeyChaining(
 
 func TestWatchingWalletExport(
 	t *testing.T) {
+
 	createdAt := makeBS(0)
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)
@@ -536,6 +555,7 @@ func TestWatchingWalletExport(
 	}
 	for apkh, waddr := range ww.addrMap {
 		switch addr := waddr.(type) {
+
 		case *btcAddress:
 			if addr.flags.encrypted {
 				t.Errorf("Chained address should not be encrypted (nothing to encrypt)")
@@ -596,6 +616,7 @@ func TestWatchingWalletExport(
 	}
 	for i := range newAddrs {
 		if newAddrs[i].EncodeAddress() != newWWAddrs[i].EncodeAddress() {
+
 			t.Errorf("Extended active addresses do not match manually requested addresses.")
 			return
 		}
@@ -619,6 +640,7 @@ func TestWatchingWalletExport(
 	}
 	for i := range newAddrs {
 		if newAddrs[i].EncodeAddress() != newWWAddrs[i].EncodeAddress() {
+
 			t.Errorf("Extended active addresses do not match manually requested addresses.")
 			return
 		}
@@ -640,6 +662,7 @@ func TestWatchingWalletExport(
 
 	// Check that (de)serialized watching wallet matches the exported wallet.
 	if !reflect.DeepEqual(ww, ww2) {
+
 		t.Error("Exported and read-in watching wallets do not match.")
 		return
 	}
@@ -679,6 +702,7 @@ func TestWatchingWalletExport(
 
 func TestImportPrivateKey(
 	t *testing.T) {
+
 	createHeight := int32(100)
 	createdAt := makeBS(createHeight)
 	w, err := New(dummyDir, "A wallet for testing.",
@@ -733,6 +757,7 @@ func TestImportPrivateKey(
 	}
 
 	if !reflect.DeepEqual(pk, pk2) {
+
 		t.Error("original and looked-up private keys do not match.")
 		return
 	}
@@ -841,6 +866,7 @@ func TestImportPrivateKey(
 	}
 
 	if !reflect.DeepEqual(pk, pk2) {
+
 		t.Error("original and deserialized private keys do not match.")
 		return
 	}
@@ -849,6 +875,7 @@ func TestImportPrivateKey(
 
 func TestImportScript(
 	t *testing.T) {
+
 	createHeight := int32(100)
 	createdAt := makeBS(createHeight)
 	w, err := New(dummyDir, "A wallet for testing.",
@@ -889,6 +916,7 @@ func TestImportScript(
 	sinfo := ainfo.(ScriptAddress)
 
 	if !bytes.Equal(script, sinfo.Script()) {
+
 		t.Error("original and looked-up script do not match.")
 		return
 	}
@@ -909,11 +937,13 @@ func TestImportScript(
 	}
 
 	if sinfo.Address().EncodeAddress() != address.EncodeAddress() {
+
 		t.Error("script address doesn't match entry.")
 		return
 	}
 
 	if string(sinfo.Address().ScriptAddress()) != sinfo.AddrHash() {
+
 		t.Error("script hash doesn't match address.")
 		return
 	}
@@ -924,16 +954,19 @@ func TestImportScript(
 	}
 
 	if !sinfo.Imported() {
+
 		t.Error("imported script info not imported.")
 		return
 	}
 
 	if sinfo.Change() {
+
 		t.Error("imported script is change.")
 		return
 	}
 
 	if sinfo.Compressed() {
+
 		t.Error("imported script is compressed.")
 		return
 	}
@@ -947,6 +980,7 @@ func TestImportScript(
 	// Check that it's included along with the active payment addresses.
 	found := false
 	for _, wa := range w.SortedActiveAddresses() {
+
 		if wa.Address() == address {
 			found = true
 			break
@@ -993,11 +1027,13 @@ func TestImportScript(
 	// Check all the same again. We can't use reflect.DeepEquals since
 	// the internals have pointers back to the wallet struct.
 	if sinfo2.Address().EncodeAddress() != address.EncodeAddress() {
+
 		t.Error("script address doesn't match entry.")
 		return
 	}
 
 	if string(sinfo2.Address().ScriptAddress()) != sinfo2.AddrHash() {
+
 		t.Error("script hash doesn't match address.")
 		return
 	}
@@ -1008,27 +1044,32 @@ func TestImportScript(
 	}
 
 	if !sinfo2.Imported() {
+
 		t.Error("imported script info not imported.")
 		return
 	}
 
 	if sinfo2.Change() {
+
 		t.Error("imported script is change.")
 		return
 	}
 
 	if sinfo2.Compressed() {
+
 		t.Error("imported script is compressed.")
 		return
 	}
 
 	if !bytes.Equal(sinfo.Script(), sinfo2.Script()) {
+
 		t.Error("original and serailised scriptinfo scripts "+
 			"don't match %s != %s", spew.Sdump(sinfo.Script()),
 			spew.Sdump(sinfo2.Script()))
 	}
 
 	if sinfo.ScriptClass() != sinfo2.ScriptClass() {
+
 		t.Error("original and serailised scriptinfo class "+
 			"don't match: %s != %s", sinfo.ScriptClass(),
 			sinfo2.ScriptClass())
@@ -1036,6 +1077,7 @@ func TestImportScript(
 	}
 
 	if !reflect.DeepEqual(sinfo.Addresses(), sinfo2.Addresses()) {
+
 		t.Error("original and serailised scriptinfo addresses "+
 			"don't match (%s) != (%s)", spew.Sdump(sinfo.Addresses),
 			spew.Sdump(sinfo2.Addresses()))
@@ -1043,6 +1085,7 @@ func TestImportScript(
 	}
 
 	if sinfo.RequiredSigs() != sinfo.RequiredSigs() {
+
 		t.Errorf("original and serailised scriptinfo requiredsigs "+
 			"don't match %d != %d", sinfo.RequiredSigs(),
 			sinfo2.RequiredSigs())
@@ -1052,6 +1095,7 @@ func TestImportScript(
 	// Check that it's included along with the active payment addresses.
 	found = false
 	for _, wa := range w.SortedActiveAddresses() {
+
 		if wa.Address() == address {
 			found = true
 			break
@@ -1132,6 +1176,7 @@ func TestImportScript(
 
 func TestChangePassphrase(
 	t *testing.T) {
+
 	createdAt := makeBS(0)
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)
@@ -1177,6 +1222,7 @@ func TestChangePassphrase(
 
 	// Wallet should still be unlocked.
 	if w.IsLocked() {
+
 		t.Errorf("Wallet should be unlocked after passphrase change.")
 		return
 	}
@@ -1215,6 +1261,7 @@ func TestChangePassphrase(
 
 	// Private keys must match.
 	if !reflect.DeepEqual(rootPrivKey, rootPrivKey2) {
+
 		t.Errorf("Private keys before and after unlock differ.")
 		return
 	}

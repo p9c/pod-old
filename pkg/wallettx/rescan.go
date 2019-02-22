@@ -74,6 +74,7 @@ func (job *RescanJob) batch() *rescanBatch {
 // the minimum of the two jobs.  This method does not check for
 // duplicate addresses or outpoints.
 func (b *rescanBatch) merge(job *RescanJob) {
+
 	if job.InitialSync {
 		b.initialSync = true
 	}
@@ -93,6 +94,7 @@ func (b *rescanBatch) merge(job *RescanJob) {
 // to inform callers that the rescan finished (or could not complete due
 // to an error).
 func (b *rescanBatch) done(err error) {
+
 	for _, c := range b.errChans {
 		c <- err
 	}
@@ -102,6 +104,7 @@ func (b *rescanBatch) done(err error) {
 // submissions, and possibly batching many waiting requests together so they
 // can be handled by a single rescan after the current one completes.
 func (w *Wallet) rescanBatchHandler() {
+
 	var curBatch, nextBatch *rescanBatch
 	quit := w.quitChan()
 
@@ -126,6 +129,7 @@ out:
 
 		case n := <-w.rescanNotifications:
 			switch n := n.(type) {
+
 			case *chain.RescanProgress:
 				if curBatch == nil {
 					log <- cl.Wrn(
@@ -172,6 +176,7 @@ out:
 // rescanProgressHandler handles notifications for partially and fully completed
 // rescans by marking each rescanned address as partially or fully synced.
 func (w *Wallet) rescanProgressHandler() {
+
 	quit := w.quitChan()
 out:
 	for {
@@ -211,6 +216,7 @@ out:
 // RPC requests to perform a rescan.  New jobs are not read until a rescan
 // finishes.
 func (w *Wallet) rescanRPCHandler() {
+
 	chainClient, err := w.requireChainClient()
 	if err != nil {
 		log <- cl.Errorf{

@@ -30,10 +30,12 @@ func (r *Config) GetWalletActiveNet() *netparams.Params {
 
 // SetNodeActiveNet returns the activenet params
 func (r *Config) SetNodeActiveNet(in *node.Params) {
+
 	r.nodeActiveNet = in
 }
 
 // SetWalletActiveNet returns the activenet params
 func (r *Config) SetWalletActiveNet(in *netparams.Params) {
+
 	r.walletActiveNet = in
 }

@@ -1,4 +1,5 @@
 package main
+
 import (
 	"encoding/json"
 	"errors"
@@ -7,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 )
+
 // JSONRPC is a handler for sending queries and receiving responses from a JSONRPC endpoint
 type JSONRPC struct {
 	User     string
@@ -14,8 +16,10 @@ type JSONRPC struct {
 	Host     string
 	Port     int64
 }
+
 // Call the RPC server and send a query
 func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
+
 	baseURL := fmt.Sprintf("http://%s:%d", c.Host, c.Port)
 	client := new(http.Client)
 	req, err := http.NewRequest("POST", baseURL, nil)
@@ -53,6 +57,7 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	}
 	return nil, errors.New("no result")
 }
+
 // NewJSONRPC creates a new structure for a JSONRPC connection
 func NewJSONRPC(
 	user string, password string, host string, port int64) *JSONRPC {

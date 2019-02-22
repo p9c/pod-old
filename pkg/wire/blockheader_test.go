@@ -11,6 +11,7 @@ import (
 // TestBlockHeader tests the BlockHeader API.
 func TestBlockHeader(
 	t *testing.T) {
+
 	nonce64, err := RandomUint64()
 	if err != nil {
 		t.Errorf("RandomUint64: Error generating nonce: %v", err)
@@ -22,10 +23,12 @@ func TestBlockHeader(
 	bh := NewBlockHeader(1, &hash, &merkleHash, bits, nonce)
 	// Ensure we get the same data back out.
 	if !bh.PrevBlock.IsEqual(&hash) {
+
 		t.Errorf("NewBlockHeader: wrong prev hash - got %v, want %v",
 			spew.Sprint(bh.PrevBlock), spew.Sprint(hash))
 	}
 	if !bh.MerkleRoot.IsEqual(&merkleHash) {
+
 		t.Errorf("NewBlockHeader: wrong merkle root - got %v, want %v",
 			spew.Sprint(bh.MerkleRoot), spew.Sprint(merkleHash))
 	}
@@ -42,6 +45,7 @@ func TestBlockHeader(
 // TestBlockHeaderWire tests the BlockHeader wire encode and decode for various protocol versions.
 func TestBlockHeaderWire(
 	t *testing.T) {
+
 	nonce := uint32(123123) // 0x1e0f3
 	pver := uint32(70001)
 	// baseBlockHdr is used in the various tests as a baseline BlockHeader.
@@ -127,6 +131,7 @@ func TestBlockHeaderWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("writeBlockHeader #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -138,6 +143,7 @@ func TestBlockHeaderWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -151,6 +157,7 @@ func TestBlockHeaderWire(
 			continue
 		}
 		if !reflect.DeepEqual(&bh, test.out) {
+
 			t.Errorf("readBlockHeader #%d\n got: %s want: %s", i,
 				spew.Sdump(&bh), spew.Sdump(test.out))
 			continue
@@ -162,6 +169,7 @@ func TestBlockHeaderWire(
 			continue
 		}
 		if !reflect.DeepEqual(&bh, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(&bh), spew.Sdump(test.out))
 			continue
@@ -172,6 +180,7 @@ func TestBlockHeaderWire(
 // TestBlockHeaderSerialize tests BlockHeader serialize and deserialize.
 func TestBlockHeaderSerialize(
 	t *testing.T) {
+
 	nonce := uint32(123123) // 0x1e0f3
 	// baseBlockHdr is used in the various tests as a baseline BlockHeader.
 	bits := uint32(0x1d00ffff)
@@ -219,6 +228,7 @@ func TestBlockHeaderSerialize(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("Serialize #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -232,6 +242,7 @@ func TestBlockHeaderSerialize(
 			continue
 		}
 		if !reflect.DeepEqual(&bh, test.out) {
+
 			t.Errorf("Deserialize #%d\n got: %s want: %s", i,
 				spew.Sdump(&bh), spew.Sdump(test.out))
 			continue

@@ -39,6 +39,7 @@ func (na *NetAddress) HasService(service ServiceFlag) bool {
 
 // AddService adds service as a supported service by the peer generating the message.
 func (na *NetAddress) AddService(service ServiceFlag) {
+
 	na.Services |= service
 }
 

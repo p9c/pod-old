@@ -9,6 +9,7 @@ import (
 // CmdMethod returns the method for the passed command.  The provided command type must be a registered type.  All commands provided by this package are registered by default.
 func CmdMethod(
 	cmd interface{}) (string, error) {
+
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -24,6 +25,7 @@ func CmdMethod(
 // MethodUsageFlags returns the usage flags for the passed command method.  The provided method must be associated with a registered type.  All commands provided by this package are registered by default.
 func MethodUsageFlags(
 	method string) (UsageFlag, error) {
+
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
 	info, ok := methodToInfo[method]
@@ -77,15 +79,19 @@ func subArrayUsage(
 	// Convert plural field names to singular.  Only works for English.
 	singularFieldName := fieldName
 	if strings.HasSuffix(fieldName, "ies") {
+
 		singularFieldName = strings.TrimSuffix(fieldName, "ies")
 		singularFieldName = singularFieldName + "y"
 	} else if strings.HasSuffix(fieldName, "es") {
+
 		singularFieldName = strings.TrimSuffix(fieldName, "es")
 	} else if strings.HasSuffix(fieldName, "s") {
+
 		singularFieldName = strings.TrimSuffix(fieldName, "s")
 	}
 	elemType := arrayType.Elem()
 	switch elemType.Kind() {
+
 	case reflect.String:
 		return fmt.Sprintf("[%q,...]", singularFieldName)
 	case reflect.Struct:
@@ -115,6 +121,7 @@ func fieldUsage(
 	// Handle certain types uniquely to provide nicer usage.
 	fieldName := strings.ToLower(structField.Name)
 	switch fieldType.Kind() {
+
 	case reflect.String:
 		if defaultVal != nil {
 			return fmt.Sprintf("%s=%q", fieldName,
@@ -173,6 +180,7 @@ func methodUsageText(
 // MethodUsageText returns a one-line usage string for the provided method.  The provided method must be associated with a registered type.  All commands provided by this package are registered by default.
 func MethodUsageText(
 	method string) (string, error) {
+
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]

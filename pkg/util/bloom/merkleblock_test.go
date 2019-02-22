@@ -13,6 +13,7 @@ import (
 
 func TestMerkleBlock3(
 	t *testing.T) {
+
 	blockStr := "0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b" +
 		"4b8b0000000000000b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdc" +
 		"c96b2c3ff60abe184f196367291b4d4c86041b8fa45d630101000000010" +
@@ -57,6 +58,7 @@ func TestMerkleBlock3(
 		return
 	}
 	if !bytes.Equal(want, got.Bytes()) {
+
 		t.Errorf("TestMerkleBlock3 failed merkle block comparison: "+
 			"got %v want %v", got.Bytes(), want)
 		return

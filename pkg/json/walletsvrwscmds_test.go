@@ -13,6 +13,7 @@ import (
 // TestWalletSvrWsCmds tests all of the wallet server websocket-specific commands marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestWalletSvrWsCmds(
 	t *testing.T) {
+
 	t.Parallel()
 	testID := int(1)
 	tests := []struct {
@@ -25,6 +26,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "createencryptedwallet",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("createencryptedwallet", "pass")
 			},
 			staticCmd: func() interface{} {
@@ -36,6 +38,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "exportwatchingwallet",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("exportwatchingwallet")
 			},
 			staticCmd: func() interface{} {
@@ -50,6 +53,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "exportwatchingwallet optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("exportwatchingwallet", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -64,6 +68,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "exportwatchingwallet optional2",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("exportwatchingwallet", "acct", true)
 			},
 			staticCmd: func() interface{} {
@@ -79,6 +84,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "getunconfirmedbalance",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getunconfirmedbalance")
 			},
 			staticCmd: func() interface{} {
@@ -92,6 +98,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "getunconfirmedbalance optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("getunconfirmedbalance", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -105,6 +112,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "listaddresstransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listaddresstransactions", `["1Address"]`)
 			},
 			staticCmd: func() interface{} {
@@ -119,6 +127,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "listaddresstransactions optional1",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listaddresstransactions", `["1Address"]`, "acct")
 			},
 			staticCmd: func() interface{} {
@@ -134,6 +143,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "listalltransactions",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listalltransactions")
 			},
 			staticCmd: func() interface{} {
@@ -147,6 +157,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "listalltransactions optional",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("listalltransactions", "acct")
 			},
 			staticCmd: func() interface{} {
@@ -160,6 +171,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "recoveraddresses",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("recoveraddresses", "acct", 10)
 			},
 			staticCmd: func() interface{} {
@@ -174,6 +186,7 @@ func TestWalletSvrWsCmds(
 		{
 			name: "walletislocked",
 			newCmd: func() (interface{}, error) {
+
 				return json.NewCmd("walletislocked")
 			},
 			staticCmd: func() interface{} {
@@ -193,6 +206,7 @@ func TestWalletSvrWsCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -212,6 +226,7 @@ func TestWalletSvrWsCmds(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -231,6 +246,7 @@ func TestWalletSvrWsCmds(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

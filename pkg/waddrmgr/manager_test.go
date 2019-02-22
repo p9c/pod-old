@@ -13,8 +13,8 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/snacl"
+	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 	"git.parallelcoin.io/pod/pkg/walletdb"
 	"github.com/davecgh/go-spew/spew"
@@ -38,6 +38,7 @@ func newHash(
 func failingSecretKeyGen(
 	passphrase *[]byte,
 	config *waddrmgr.ScryptOptions) (*snacl.SecretKey, error) {
+
 	return nil, snacl.ErrDecryptFailed
 }
 
@@ -110,11 +111,13 @@ func testManagedPubKeyAddress(
 	// Ensure pubkey is the expected value for the managed address.
 	var gpubBytes []byte
 	if gotAddr.Compressed() {
+
 		gpubBytes = gotAddr.PubKey().SerializeCompressed()
 	} else {
 		gpubBytes = gotAddr.PubKey().SerializeUncompressed()
 	}
 	if !reflect.DeepEqual(gpubBytes, wantAddr.pubKey) {
+
 		tc.t.Errorf("%s PubKey: unexpected public key - got %x, want "+
 			"%x", prefix, gpubBytes, wantAddr.pubKey)
 		return false
@@ -134,6 +137,7 @@ func testManagedPubKeyAddress(
 	// address was read from disk.
 	_, gotAddrPath, ok := gotAddr.DerivationInfo()
 	if !ok && !gotAddr.Imported() {
+
 		tc.t.Errorf("%s PubKey: non-imported address has empty "+
 			"derivation info", prefix)
 		return false
@@ -155,6 +159,7 @@ func testManagedPubKeyAddress(
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s PrivKey", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrWatchingOnly) {
+
 			return false
 		}
 	case tc.unlocked:
@@ -165,6 +170,7 @@ func testManagedPubKeyAddress(
 		}
 		gpriv := gotPrivKey.Serialize()
 		if !reflect.DeepEqual(gpriv, wantAddr.privKey) {
+
 			tc.t.Errorf("%s PrivKey: unexpected private key - "+
 				"got %x, want %x", prefix, gpriv, wantAddr.privKey)
 			return false
@@ -173,6 +179,7 @@ func testManagedPubKeyAddress(
 		// Confirm expected locked error.
 		testName := fmt.Sprintf("%s PrivKey", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrLocked) {
+
 			return false
 		}
 	}
@@ -187,6 +194,7 @@ func testManagedPubKeyAddress(
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s ExportPrivKey", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrWatchingOnly) {
+
 			return false
 		}
 	case tc.unlocked:
@@ -205,6 +213,7 @@ func testManagedPubKeyAddress(
 		// Confirm expected locked error.
 		testName := fmt.Sprintf("%s ExportPrivKey", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrLocked) {
+
 			return false
 		}
 	}
@@ -237,6 +246,7 @@ func testManagedScriptAddress(
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s Script", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrWatchingOnly) {
+
 			return false
 		}
 	case tc.unlocked:
@@ -246,6 +256,7 @@ func testManagedScriptAddress(
 			return false
 		}
 		if !reflect.DeepEqual(gotScript, wantAddr.script) {
+
 			tc.t.Errorf("%s Script: unexpected script - got %x, "+
 				"want %x", prefix, gotScript, wantAddr.script)
 			return false
@@ -254,6 +265,7 @@ func testManagedScriptAddress(
 		// Confirm expected locked error.
 		testName := fmt.Sprintf("%s Script", prefix)
 		if !checkManagerError(tc.t, testName, err, waddrmgr.ErrLocked) {
+
 			return false
 		}
 	}
@@ -285,6 +297,7 @@ func testAddress(
 	}
 
 	if !reflect.DeepEqual(gotAddr.AddrHash(), wantAddr.addressHash) {
+
 		tc.t.Errorf("%s AddrHash: unexpected address hash - got %x, "+
 			"want %x", prefix, gotAddr.AddrHash(),
 			wantAddr.addressHash)
@@ -311,13 +324,16 @@ func testAddress(
 	}
 
 	switch addr := gotAddr.(type) {
+
 	case waddrmgr.ManagedPubKeyAddress:
 		if !testManagedPubKeyAddress(tc, prefix, addr, wantAddr) {
+
 			return false
 		}
 
 	case waddrmgr.ManagedScriptAddress:
 		if !testManagedScriptAddress(tc, prefix, addr, wantAddr) {
+
 			return false
 		}
 	}
@@ -347,6 +363,7 @@ func testExternalAddresses(
 			return false
 		}
 		if len(addrs) != len(expectedExternalAddrs) {
+
 			tc.t.Errorf("%s: unexpected number of addresses - got "+
 				"%d, want %d", prefix, len(addrs),
 				len(expectedExternalAddrs))
@@ -364,6 +381,7 @@ func testExternalAddresses(
 		for i := 0; i < len(addrs); i++ {
 			prefix := fmt.Sprintf("%s ExternalAddress #%d", prefix, i)
 			if !testAddress(tc, prefix, addrs[i], &expectedExternalAddrs[i]) {
+
 				return false
 			}
 		}
@@ -382,6 +400,7 @@ func testExternalAddresses(
 			return false
 		}
 		if !testAddress(tc, leaPrefix, lastAddr, &expectedExternalAddrs[len(expectedExternalAddrs)-1]) {
+
 			return false
 		}
 
@@ -414,6 +433,7 @@ func testExternalAddresses(
 			}
 
 			if !testAddress(tc, prefix, addr, &expectedExternalAddrs[i]) {
+
 				return false
 			}
 		}
@@ -425,6 +445,7 @@ func testExternalAddresses(
 	// information is tested and the private functions are checked to ensure
 	// they return the expected error.
 	if !testResults() {
+
 		return false
 	}
 
@@ -447,6 +468,7 @@ func testExternalAddresses(
 	}
 	tc.unlocked = true
 	if !testResults() {
+
 		return false
 	}
 
@@ -500,6 +522,7 @@ func testInternalAddresses(
 			return false
 		}
 		if len(addrs) != len(expectedInternalAddrs) {
+
 			tc.t.Errorf("%s: unexpected number of addresses - got "+
 				"%d, want %d", prefix, len(addrs),
 				len(expectedInternalAddrs))
@@ -517,6 +540,7 @@ func testInternalAddresses(
 		for i := 0; i < len(addrs); i++ {
 			prefix := fmt.Sprintf("%s InternalAddress #%d", prefix, i)
 			if !testAddress(tc, prefix, addrs[i], &expectedInternalAddrs[i]) {
+
 				return false
 			}
 		}
@@ -535,6 +559,7 @@ func testInternalAddresses(
 			return false
 		}
 		if !testAddress(tc, liaPrefix, lastAddr, &expectedInternalAddrs[len(expectedInternalAddrs)-1]) {
+
 			return false
 		}
 
@@ -567,6 +592,7 @@ func testInternalAddresses(
 			}
 
 			if !testAddress(tc, prefix, addr, &expectedInternalAddrs[i]) {
+
 				return false
 			}
 		}
@@ -581,6 +607,7 @@ func testInternalAddresses(
 	// address information is tested and the private functions are checked
 	// to ensure they return the expected ErrWatchingOnly error.
 	if !testResults() {
+
 		return false
 	}
 
@@ -601,6 +628,7 @@ func testInternalAddresses(
 	}
 	tc.unlocked = false
 	if !testResults() {
+
 		return false
 	}
 
@@ -617,6 +645,7 @@ func testLocking(
 		return false
 	}
 	if !tc.rootManager.IsLocked() {
+
 		tc.t.Error("IsLocked: returned false on locked manager")
 		return false
 	}
@@ -630,6 +659,7 @@ func testLocking(
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, "Lock", err, wantErrCode) {
+
 		return false
 	}
 
@@ -643,6 +673,7 @@ func testLocking(
 	})
 	if tc.watchingOnly {
 		if !checkManagerError(tc.t, "Unlock", err, waddrmgr.ErrWatchingOnly) {
+
 			return false
 		}
 	} else if err != nil {
@@ -650,6 +681,7 @@ func testLocking(
 		return false
 	}
 	if !tc.watchingOnly && tc.rootManager.IsLocked() {
+
 		tc.t.Error("IsLocked: returned true on unlocked manager")
 		return false
 	}
@@ -663,6 +695,7 @@ func testLocking(
 	})
 	if tc.watchingOnly {
 		if !checkManagerError(tc.t, "Unlock2", err, waddrmgr.ErrWatchingOnly) {
+
 			return false
 		}
 	} else if err != nil {
@@ -670,6 +703,7 @@ func testLocking(
 		return false
 	}
 	if !tc.watchingOnly && tc.rootManager.IsLocked() {
+
 		tc.t.Error("IsLocked: returned true on unlocked manager")
 		return false
 	}
@@ -685,9 +719,11 @@ func testLocking(
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, "Unlock", err, wantErrCode) {
+
 		return false
 	}
 	if !tc.rootManager.IsLocked() {
+
 		tc.t.Error("IsLocked: manager is unlocked after failed unlock " +
 			"attempt")
 		return false
@@ -784,6 +820,7 @@ func testImportPrivateKey(
 			}
 			if !testAddress(tc, prefix+" ImportPrivateKey", addr,
 				&test.expected) {
+
 				continue
 			}
 		}
@@ -824,6 +861,7 @@ func testImportPrivateKey(
 				continue
 			}
 			if !testAddress(tc, taPrefix, ma, &test.expected) {
+
 				failed = true
 				continue
 			}
@@ -839,6 +877,7 @@ func testImportPrivateKey(
 	// address  information is tested and the private functions are checked
 	// to ensure they return the expected ErrWatchingOnly error.
 	if !testResults() {
+
 		return false
 	}
 
@@ -858,6 +897,7 @@ func testImportPrivateKey(
 	}
 	tc.unlocked = false
 	if !testResults() {
+
 		return false
 	}
 
@@ -953,6 +993,7 @@ func testImportScript(
 				continue
 			}
 			if !testAddress(tc, prefix, addr, &test.expected) {
+
 				continue
 			}
 		}
@@ -993,6 +1034,7 @@ func testImportScript(
 				continue
 			}
 			if !testAddress(tc, taPrefix, ma, &test.expected) {
+
 				failed = true
 				continue
 			}
@@ -1008,6 +1050,7 @@ func testImportScript(
 	// address information is tested and the private functions are checked
 	// to ensure they return the expected ErrWatchingOnly error.
 	if !testResults() {
+
 		return false
 	}
 
@@ -1027,6 +1070,7 @@ func testImportScript(
 	}
 	tc.unlocked = false
 	if !testResults() {
+
 		return false
 	}
 
@@ -1126,6 +1170,7 @@ func testChangePassphrase(
 		)
 	})
 	if !checkManagerError(tc.t, testName, err, waddrmgr.ErrCrypto) {
+
 		return false
 	}
 
@@ -1139,6 +1184,7 @@ func testChangePassphrase(
 		)
 	})
 	if !checkManagerError(tc.t, testName, err, waddrmgr.ErrWrongPassphrase) {
+
 		return false
 	}
 
@@ -1157,6 +1203,7 @@ func testChangePassphrase(
 
 	// Ensure the public passphrase was successfully changed.
 	if !tc.rootManager.TstCheckPublicPassphrase(pubPassphrase2) {
+
 		tc.t.Errorf("%s: passphrase does not match", testName)
 		return false
 	}
@@ -1188,6 +1235,7 @@ func testChangePassphrase(
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 
@@ -1238,6 +1286,7 @@ func testChangePassphrase(
 		return false
 	}
 	if tc.rootManager.IsLocked() {
+
 		tc.t.Errorf("%s: manager is locked", testName)
 		return false
 	}
@@ -1265,6 +1314,7 @@ func testNewAccount(
 		})
 		if !checkManagerError(tc.t, "Create account in watching-only mode", err,
 			waddrmgr.ErrWatchingOnly) {
+
 			tc.manager.Close()
 			return false
 		}
@@ -1278,6 +1328,7 @@ func testNewAccount(
 	})
 	if !checkManagerError(tc.t, "Create account when wallet is locked", err,
 		waddrmgr.ErrLocked) {
+
 		tc.manager.Close()
 		return false
 	}
@@ -1327,6 +1378,7 @@ func testNewAccount(
 	})
 	wantErrCode := waddrmgr.ErrDuplicateAccount
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 	// Test account name validation
@@ -1338,6 +1390,7 @@ func testNewAccount(
 	})
 	wantErrCode = waddrmgr.ErrInvalidAccount
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 	testName = "imported" // A reserved account name
@@ -1348,6 +1401,7 @@ func testNewAccount(
 	})
 	wantErrCode = waddrmgr.ErrInvalidAccount
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 	return true
@@ -1390,6 +1444,7 @@ func testLookupAccount(
 	})
 	wantErrCode := waddrmgr.ErrAccountNotFound
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 
@@ -1492,6 +1547,7 @@ func testRenameAccount(
 	})
 	wantErrCode := waddrmgr.ErrDuplicateAccount
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 	// Test old account name is no longer valid
@@ -1502,6 +1558,7 @@ func testRenameAccount(
 	})
 	wantErrCode = waddrmgr.ErrAccountNotFound
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
+
 		return false
 	}
 	return true
@@ -1532,6 +1589,7 @@ func testForEachAccount(
 		return false
 	}
 	if len(accounts) != len(expectedAccounts) {
+
 		tc.t.Errorf("%s: unexpected number of accounts - got "+
 			"%d, want %d", prefix, len(accounts),
 			len(expectedAccounts))
@@ -1577,6 +1635,7 @@ func testForEachAccountAddress(
 		gotAddr := addrs[i]
 		wantAddr := expectedAddrMap[gotAddr.Address().String()]
 		if !testAddress(tc, prefix, gotAddr, wantAddr) {
+
 			return false
 		}
 		delete(expectedAddrMap, gotAddr.Address().String())
@@ -1596,6 +1655,7 @@ func testForEachAccountAddress(
 // interfaces.
 func testManagerAPI(
 	tc *testContext) {
+
 	testLocking(tc)
 	testExternalAddresses(tc)
 	testInternalAddresses(tc)
@@ -1777,6 +1837,7 @@ func testSync(
 // much of the testing involves having specific state.
 func TestManager(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -1790,6 +1851,7 @@ func TestManager(
 		return err
 	})
 	if !checkManagerError(t, "Open non-existant", err, waddrmgr.ErrNoExist) {
+
 		return
 	}
 
@@ -1826,6 +1888,7 @@ func TestManager(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{})
 	})
 	if !checkManagerError(t, "Create existing", err, waddrmgr.ErrAlreadyExists) {
+
 		mgr.Close()
 		return
 	}
@@ -1856,6 +1919,7 @@ func TestManager(
 		return err
 	})
 	if !checkManagerError(t, "Upgrade needed", err, waddrmgr.ErrUpgrade) {
+
 		return
 	}
 	*waddrmgr.TstLatestMgrVersion--
@@ -1911,6 +1975,7 @@ func TestManager(
 // decrypting data return the expected errors.
 func TestEncryptDecryptErrors(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
@@ -1926,6 +1991,7 @@ func TestEncryptDecryptErrors(
 	}
 
 	if !mgr.IsLocked() {
+
 		t.Fatal("Manager should be locked at this point.")
 	}
 
@@ -1951,12 +2017,14 @@ func TestEncryptDecryptErrors(
 
 	// Make sure to cover the ErrCrypto error path in Encrypt.
 	waddrmgr.TstRunWithFailingCryptoKeyPriv(mgr, func() {
+
 		_, err = mgr.Encrypt(waddrmgr.CKTPrivate, []byte{})
 	})
 	checkManagerError(t, "failed encryption", err, waddrmgr.ErrCrypto)
 
 	// Make sure to cover the ErrCrypto error path in Decrypt.
 	waddrmgr.TstRunWithFailingCryptoKeyPriv(mgr, func() {
+
 		_, err = mgr.Decrypt(waddrmgr.CKTPrivate, []byte{})
 	})
 	checkManagerError(t, "failed decryption", err, waddrmgr.ErrCrypto)
@@ -1966,6 +2034,7 @@ func TestEncryptDecryptErrors(
 // the various crypto key types works as expected.
 func TestEncryptDecrypt(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
@@ -2000,6 +2069,7 @@ func TestEncryptDecrypt(
 		}
 
 		if !reflect.DeepEqual(decryptedCipherText, plainText) {
+
 			t.Fatal("Got:", decryptedCipherText, ", want:", plainText)
 		}
 	}
@@ -2010,6 +2080,7 @@ func TestEncryptDecrypt(
 // created scopes.
 func TestScopedKeyManagerManagement(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -2223,6 +2294,7 @@ func TestScopedKeyManagerManagement(
 		t.Fatalf("open: unexpected error: %v", err)
 	}
 	if !bytes.Equal(lastAddr.AddrHash(), externalAddr[0].AddrHash()) {
+
 		t.Fatalf("mismatch addr hashes: expected %x, got %x",
 			externalAddr[0].AddrHash(), lastAddr.AddrHash())
 	}
@@ -2262,6 +2334,7 @@ func TestScopedKeyManagerManagement(
 // managers once the root HD key has been deleted from the database.
 func TestRootHDKeyNeutering(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -2357,6 +2430,7 @@ func TestRootHDKeyNeutering(
 // eventually mapped to an account number.
 func TestNewRawAccount(
 	t *testing.T) {
+
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -2452,10 +2526,12 @@ func TestNewRawAccount(
 
 	// The two keys we just derived should match up perfectly.
 	if accountAddrNext.AddrType() != accountTargetAddr.AddrType() {
+
 		t.Fatalf("wrong addr type: %v vs %v",
 			accountAddrNext.AddrType(), accountTargetAddr.AddrType())
 	}
 	if !bytes.Equal(accountAddrNext.AddrHash(), accountTargetAddr.AddrHash()) {
+
 		t.Fatalf("wrong pubkey hash: %x vs %x", accountAddrNext.AddrHash(),
 			accountTargetAddr.AddrHash())
 	}

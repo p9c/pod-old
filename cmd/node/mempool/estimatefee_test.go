@@ -31,6 +31,7 @@ func (
 	eft *estimateFeeTester,
 ) checkSaveAndRestore(
 	previousEstimates [estimateFeeDepth]BtcPerKilobyte) {
+
 	// Get the save state.
 	save := eft.ef.Save()
 	// Save and restore database.
@@ -84,6 +85,7 @@ func (
 ) newBlock(
 	txs []*wire.MsgTx,
 ) {
+
 	eft.height++
 	block := util.NewBlock(&wire.MsgBlock{
 		Transactions: txs,
@@ -119,6 +121,7 @@ func (
 	txHistory [][]*TxDesc,
 	estimateHistory [][estimateFeeDepth]BtcPerKilobyte,
 	txPerRound, txPerBlock uint32) ([][]*TxDesc, [][estimateFeeDepth]BtcPerKilobyte) {
+
 	// generate new txs.
 	var newTxs []*TxDesc
 	for i := uint32(0); i < txPerRound; i++ {
@@ -179,6 +182,7 @@ func (
 // TestSave tests saving and restoring to a []byte.
 func TestDatabase(
 	t *testing.T) {
+
 	txPerRound := uint32(7)
 	txPerBlock := uint32(5)
 	binSize := uint32(6)
@@ -205,6 +209,7 @@ func TestDatabase(
 // TestEstimateFee tests basic functionality in the FeeEstimator.
 func TestEstimateFee(
 	t *testing.T) {
+
 	ef := newTestFeeEstimator(5, 3, 1)
 	eft := estimateFeeTester{ef: ef, t: t}
 	// Try with no txs and get zero for all queries.
@@ -362,6 +367,7 @@ func TestEstimateFee(
 func TestEstimateFeeRollback(
 	t *testing.T,
 ) {
+
 	txPerRound := uint32(7)
 	txPerBlock := uint32(5)
 	binSize := uint32(6)

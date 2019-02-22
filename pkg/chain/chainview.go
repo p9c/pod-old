@@ -80,6 +80,7 @@ func (c *chainView) Tip() *blockNode {
 
 // setTip sets the chain view to use the provided block node as the current tip and ensures the view is consistent by populating it with the nodes obtained by walking backwards all the way to genesis block as necessary.  Further calls will only perform the minimum work needed, so switching between chain tips is efficient.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for writes).
 func (c *chainView) setTip(node *blockNode) {
+
 	if node == nil {
 		// Keep the backing array around for potential future use.
 		c.nodes = c.nodes[:0]
@@ -106,6 +107,7 @@ func (c *chainView) setTip(node *blockNode) {
 
 // SetTip sets the chain view to use the provided block node as the current tip and ensures the view is consistent by populating it with the nodes obtained by walking backwards all the way to genesis block as necessary.  Further calls will only perform the minimum work needed, so switching between chain tips is efficient. This function is safe for concurrent access.
 func (c *chainView) SetTip(node *blockNode) {
+
 	c.mtx.Lock()
 	c.setTip(node)
 	c.mtx.Unlock()
@@ -127,6 +129,7 @@ func (c *chainView) Height() int32 {
 // nodeByHeight returns the block node at the specified height.  Nil will be returned if the height does not exist.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
 func (c *chainView) nodeByHeight(height int32) *blockNode {
 	if height < 0 || height >= int32(len(c.nodes)) {
+
 		return nil
 	}
 	return c.nodes[height]
@@ -166,6 +169,7 @@ func (c *chainView) Contains(node *blockNode) bool {
 // next returns the successor to the provided node for the chain view.  It will return nil if there is no successor or the provided node is not part of the view.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the comment on the exported function for more details. This function MUST be called with the view mutex locked (for reads).
 func (c *chainView) next(node *blockNode) *blockNode {
 	if node == nil || !c.contains(node) {
+
 		return nil
 	}
 	return c.nodeByHeight(node.height + 1)
@@ -200,6 +204,7 @@ func (c *chainView) findFork(node *blockNode) *blockNode {
 	}
 	// Walk the other chain backwards as long as the current one does not contain the node or there are no more nodes in which case there is no common node between the two.
 	for node != nil && !c.contains(node) {
+
 		node = node.parent
 	}
 	return node
@@ -252,6 +257,7 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 		}
 		// When the node is in the current chain view, all of its ancestors must be too, so use a much faster O(1) lookup in that case.  Otherwise, fall back to walking backwards through the nodes of the other chain to the correct ancestor.
 		if c.contains(node) {
+
 			node = c.nodes[height]
 		} else {
 			node = node.Ancestor(height)

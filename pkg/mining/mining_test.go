@@ -11,6 +11,7 @@ import (
 // TestTxFeePrioHeap ensures the priority queue for transaction fees and priorities works as expected.
 func TestTxFeePrioHeap(
 	t *testing.T) {
+
 	// Create some fake priority items that exercise the expected sort edge conditions.
 	testItems := []*txPrioItem{
 		{feePerKB: 5678, priority: 3},
@@ -29,7 +30,9 @@ func TestTxFeePrioHeap(
 	// Add random data in addition to the edge conditions already manually specified.
 	randSeed := rand.Int63()
 	defer func() {
+
 		if t.Failed() {
+
 			t.Logf("Random numbers using seed: %v", randSeed)
 		}
 	}()

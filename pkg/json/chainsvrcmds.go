@@ -103,8 +103,7 @@ func NewGetAddedNodeInfoCmd(
 type GetBestBlockHashCmd struct{}
 
 // NewGetBestBlockHashCmd returns a new instance which can be used to issue a getbestblockhash JSON-RPC command.
-func NewGetBestBlockHashCmd(
-	) *GetBestBlockHashCmd {
+func NewGetBestBlockHashCmd() *GetBestBlockHashCmd {
 	return &GetBestBlockHashCmd{}
 }
 
@@ -129,8 +128,7 @@ func NewGetBlockCmd(
 type GetBlockChainInfoCmd struct{}
 
 // NewGetBlockChainInfoCmd returns a new instance which can be used to issue a getblockchaininfo JSON-RPC command.
-func NewGetBlockChainInfoCmd(
-	) *GetBlockChainInfoCmd {
+func NewGetBlockChainInfoCmd() *GetBlockChainInfoCmd {
 	return &GetBlockChainInfoCmd{}
 }
 
@@ -138,8 +136,7 @@ func NewGetBlockChainInfoCmd(
 type GetBlockCountCmd struct{}
 
 // NewGetBlockCountCmd returns a new instance which can be used to issue a getblockcount JSON-RPC command.
-func NewGetBlockCountCmd(
-	) *GetBlockCountCmd {
+func NewGetBlockCountCmd() *GetBlockCountCmd {
 	return &GetBlockCountCmd{}
 }
 
@@ -192,13 +189,16 @@ type TemplateRequest struct {
 // needed.
 func convertTemplateRequestField(
 	fieldName string, iface interface{}) (interface{}, error) {
+
 	switch val := iface.(type) {
+
 	case nil:
 		return nil, nil
 	case bool:
 		return val, nil
 	case float64:
 		if val == float64(int64(val)) {
+
 			return int64(val), nil
 		}
 	}
@@ -277,8 +277,7 @@ func NewGetCFilterHeaderCmd(
 type GetChainTipsCmd struct{}
 
 // NewGetChainTipsCmd returns a new instance which can be used to issue a getchaintips JSON-RPC command.
-func NewGetChainTipsCmd(
-	) *GetChainTipsCmd {
+func NewGetChainTipsCmd() *GetChainTipsCmd {
 	return &GetChainTipsCmd{}
 }
 
@@ -286,8 +285,7 @@ func NewGetChainTipsCmd(
 type GetConnectionCountCmd struct{}
 
 // NewGetConnectionCountCmd returns a new instance which can be used to issue a getconnectioncount JSON-RPC command.
-func NewGetConnectionCountCmd(
-	) *GetConnectionCountCmd {
+func NewGetConnectionCountCmd() *GetConnectionCountCmd {
 	return &GetConnectionCountCmd{}
 }
 
@@ -308,8 +306,7 @@ func NewGetDifficultyCmd(
 type GetGenerateCmd struct{}
 
 // NewGetGenerateCmd returns a new instance which can be used to issue a getgenerate JSON-RPC command.
-func NewGetGenerateCmd(
-	) *GetGenerateCmd {
+func NewGetGenerateCmd() *GetGenerateCmd {
 	return &GetGenerateCmd{}
 }
 
@@ -317,8 +314,7 @@ func NewGetGenerateCmd(
 type GetHashesPerSecCmd struct{}
 
 // NewGetHashesPerSecCmd returns a new instance which can be used to issue a gethashespersec JSON-RPC command.
-func NewGetHashesPerSecCmd(
-	) *GetHashesPerSecCmd {
+func NewGetHashesPerSecCmd() *GetHashesPerSecCmd {
 	return &GetHashesPerSecCmd{}
 }
 
@@ -326,8 +322,7 @@ func NewGetHashesPerSecCmd(
 type GetInfoCmd struct{}
 
 // NewGetInfoCmd returns a new instance which can be used to issue a getinfo JSON-RPC command.
-func NewGetInfoCmd(
-	) *GetInfoCmd {
+func NewGetInfoCmd() *GetInfoCmd {
 	return &GetInfoCmd{}
 }
 
@@ -348,8 +343,7 @@ func NewGetMempoolEntryCmd(
 type GetMempoolInfoCmd struct{}
 
 // NewGetMempoolInfoCmd returns a new instance which can be used to issue a getmempool JSON-RPC command.
-func NewGetMempoolInfoCmd(
-	) *GetMempoolInfoCmd {
+func NewGetMempoolInfoCmd() *GetMempoolInfoCmd {
 	return &GetMempoolInfoCmd{}
 }
 
@@ -357,8 +351,7 @@ func NewGetMempoolInfoCmd(
 type GetMiningInfoCmd struct{}
 
 // NewGetMiningInfoCmd returns a new instance which can be used to issue a getmininginfo JSON-RPC command.
-func NewGetMiningInfoCmd(
-	) *GetMiningInfoCmd {
+func NewGetMiningInfoCmd() *GetMiningInfoCmd {
 	return &GetMiningInfoCmd{}
 }
 
@@ -366,8 +359,7 @@ func NewGetMiningInfoCmd(
 type GetNetworkInfoCmd struct{}
 
 // NewGetNetworkInfoCmd returns a new instance which can be used to issue a getnetworkinfo JSON-RPC command.
-func NewGetNetworkInfoCmd(
-	) *GetNetworkInfoCmd {
+func NewGetNetworkInfoCmd() *GetNetworkInfoCmd {
 	return &GetNetworkInfoCmd{}
 }
 
@@ -375,8 +367,7 @@ func NewGetNetworkInfoCmd(
 type GetNetTotalsCmd struct{}
 
 // NewGetNetTotalsCmd returns a new instance which can be used to issue a getnettotals JSON-RPC command.
-func NewGetNetTotalsCmd(
-	) *GetNetTotalsCmd {
+func NewGetNetTotalsCmd() *GetNetTotalsCmd {
 	return &GetNetTotalsCmd{}
 }
 
@@ -399,8 +390,7 @@ func NewGetNetworkHashPSCmd(
 type GetPeerInfoCmd struct{}
 
 // NewGetPeerInfoCmd returns a new instance which can be used to issue a getpeer JSON-RPC command.
-func NewGetPeerInfoCmd(
-	) *GetPeerInfoCmd {
+func NewGetPeerInfoCmd() *GetPeerInfoCmd {
 	return &GetPeerInfoCmd{}
 }
 
@@ -468,8 +458,7 @@ func NewGetTxOutProofCmd(
 type GetTxOutSetInfoCmd struct{}
 
 // NewGetTxOutSetInfoCmd returns a new instance which can be used to issue a gettxoutsetinfo JSON-RPC command.
-func NewGetTxOutSetInfoCmd(
-	) *GetTxOutSetInfoCmd {
+func NewGetTxOutSetInfoCmd() *GetTxOutSetInfoCmd {
 	return &GetTxOutSetInfoCmd{}
 }
 
@@ -516,8 +505,7 @@ func NewInvalidateBlockCmd(
 type PingCmd struct{}
 
 // NewPingCmd returns a new instance which can be used to issue a ping JSON-RPC command.
-func NewPingCmd(
-	) *PingCmd {
+func NewPingCmd() *PingCmd {
 	return &PingCmd{}
 }
 
@@ -606,8 +594,7 @@ func NewSetGenerateCmd(
 type StopCmd struct{}
 
 // NewStopCmd returns a new instance which can be used to issue a stop JSON-RPC command.
-func NewStopCmd(
-	) *StopCmd {
+func NewStopCmd() *StopCmd {
 	return &StopCmd{}
 }
 
@@ -636,8 +623,7 @@ func NewSubmitBlockCmd(
 type UptimeCmd struct{}
 
 // NewUptimeCmd returns a new instance which can be used to issue an uptime JSON-RPC command.
-func NewUptimeCmd(
-	) *UptimeCmd {
+func NewUptimeCmd() *UptimeCmd {
 	return &UptimeCmd{}
 }
 
@@ -698,8 +684,8 @@ func NewVerifyTxOutProofCmd(
 		Proof: proof,
 	}
 }
-func init(
-	) {
+func init() {
+
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)
 	MustRegisterCmd("addnode", (*AddNodeCmd)(nil), flags)

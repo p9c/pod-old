@@ -18,6 +18,7 @@ func makeParams(
 		rvf := rv.Field(i)
 		if rtf.Type.Kind() == reflect.Ptr {
 			if rvf.IsNil() {
+
 				break
 			}
 			rvf.Elem()
@@ -30,6 +31,7 @@ func makeParams(
 // MarshalCmd marshals the passed command to a JSON-RPC request byte slice that is suitable for transmission to an RPC server.  The provided command type must be a registered type.  All commands provided by this package are registered by default.
 func MarshalCmd(
 	id interface{}, cmd interface{}) ([]byte, error) {
+
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -42,6 +44,7 @@ func MarshalCmd(
 	// The provided command must not be nil.
 	rv := reflect.ValueOf(cmd)
 	if rv.IsNil() {
+
 		str := "the specified command is nil"
 		return nil, makeError(ErrInvalidType, str)
 	}
@@ -76,6 +79,7 @@ func checkNumParams(
 // populateDefaults populates default values into any remaining optional struct fields that did not have parameters explicitly provided. The caller should have previously checked that the number of parameters being passed is at least the required number of parameters to avoid unnecessary work in this function, but since required fields never have default values, it will work properly even without the check.
 func populateDefaults(
 	numParams int, info *methodInfo, rv reflect.Value) {
+
 	// When there are no more parameters left in the supplied parameters, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	for i := numParams; i < info.maxParams; i++ {
 		rvf := rv.Field(i)
@@ -88,6 +92,7 @@ func populateDefaults(
 // UnmarshalCmd unmarshals a JSON-RPC request into a suitable concrete command so long as the method type contained within the marshalled request is registered.
 func UnmarshalCmd(
 	r *Request) (interface{}, error) {
+
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[r.Method]
 	info := methodToInfo[r.Method]
@@ -154,11 +159,13 @@ func typesMaybeCompatible(
 	srcKind := src.Kind()
 	destKind := dest.Kind()
 	if isNumeric(destKind) && isNumeric(srcKind) {
+
 		return true
 	}
 	if srcKind == reflect.String {
 		// Strings can potentially be converted to numeric types.
 		if isNumeric(destKind) {
+
 			return true
 		}
 		switch destKind {
@@ -179,6 +186,7 @@ func typesMaybeCompatible(
 // baseType returns the type of the argument after indirecting through all pointers along with how many indirections were necessary.
 func baseType(
 	arg reflect.Type) (reflect.Type, int) {
+
 	var numIndirects int
 	for arg.Kind() == reflect.Ptr {
 		arg = arg.Elem()
@@ -194,6 +202,7 @@ func assignField(
 	destBaseType, destIndirects := baseType(dest.Type())
 	srcBaseType, srcIndirects := baseType(src.Type())
 	if !typesMaybeCompatible(destBaseType, srcBaseType) {
+
 		str := fmt.Sprintf("parameter #%d '%s' must be type %v (got "+
 			"%v)", paramNum, fieldName, destBaseType, srcBaseType)
 		return makeError(ErrInvalidType, str)
@@ -231,15 +240,18 @@ func assignField(
 	}
 	// Perform supported type conversions.
 	switch src.Kind() {
+
 	// Source value is a signed integer of various magnitude.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 		reflect.Int64:
 		switch dest.Kind() {
+
 		// Destination is a signed integer of various magnitude.
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 			reflect.Int64:
 			srcInt := src.Int()
 			if dest.OverflowInt(srcInt) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -251,6 +263,7 @@ func assignField(
 			reflect.Uint64:
 			srcInt := src.Int()
 			if srcInt < 0 || dest.OverflowUint(uint64(srcInt)) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -267,6 +280,7 @@ func assignField(
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
 		reflect.Uint64:
 		switch dest.Kind() {
+
 		// Destination is a signed integer of various magnitude.
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 			reflect.Int64:
@@ -278,6 +292,7 @@ func assignField(
 				return makeError(ErrInvalidType, str)
 			}
 			if dest.OverflowInt(int64(srcUint)) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -289,6 +304,7 @@ func assignField(
 			reflect.Uint64:
 			srcUint := src.Uint()
 			if dest.OverflowUint(srcUint) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -312,6 +328,7 @@ func assignField(
 		}
 		srcFloat := src.Float()
 		if dest.OverflowFloat(srcFloat) {
+
 			str := fmt.Sprintf("parameter #%d '%s' overflows "+
 				"destination type %v", paramNum, fieldName,
 				destBaseType)
@@ -321,6 +338,7 @@ func assignField(
 	// Source value is a string.
 	case reflect.String:
 		switch dest.Kind() {
+
 		// String -> bool
 		case reflect.Bool:
 			b, err := strconv.ParseBool(src.String())
@@ -342,6 +360,7 @@ func assignField(
 				return makeError(ErrInvalidType, str)
 			}
 			if dest.OverflowInt(srcInt) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -359,6 +378,7 @@ func assignField(
 				return makeError(ErrInvalidType, str)
 			}
 			if dest.OverflowUint(srcUint) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -375,6 +395,7 @@ func assignField(
 				return makeError(ErrInvalidType, str)
 			}
 			if dest.OverflowFloat(srcFloat) {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -410,6 +431,7 @@ func assignField(
 //   - Conversion from string to arrays, slices, structs, and maps by treating the string as marshalled JSON and calling json.Unmarshal into the destination field
 func NewCmd(
 	method string, args ...interface{}) (interface{}, error) {
+
 	// Look up details about the provided method.  Any methods that aren't registered are an error.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]

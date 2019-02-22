@@ -23,10 +23,12 @@ func (iter *ldbTreapIter) Error() error {
 
 // SetReleaser is only provided to satisfy the iterator interface as there is no need to override it. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *ldbTreapIter) SetReleaser(releaser util.Releaser) {
+
 }
 
 // Release releases the iterator by removing the underlying treap iterator from the list of active iterators against the pending keys treap. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *ldbTreapIter) Release() {
+
 	if !iter.released {
 		iter.tx.removeActiveIter(iter.Iterator)
 		iter.released = true

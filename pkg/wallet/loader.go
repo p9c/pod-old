@@ -66,6 +66,7 @@ func NewLoader(
 // onLoaded executes each added callback and prevents loader from loading any
 // additional wallets.  Requires mutex to be locked.
 func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
+
 	for _, fn := range l.callbacks {
 		fn(w)
 	}
@@ -77,6 +78,7 @@ func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
 
 // RunAfterLoad adds a function to be executed when the loader creates or opens a wallet.  Functions are executed in a single goroutine in the order they are added.
 func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
+
 	l.mu.Lock()
 	if l.wallet != nil {
 		w := l.wallet
@@ -139,13 +141,14 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 
 var errNoConsole = errors.New("db upgrade requires console access for additional input")
 
-func noConsole(
-	) ([]byte, error) {
+func noConsole() ([]byte, error) {
+
 	return nil, errNoConsole
 }
 
 // OpenExistingWallet opens the wallet from the loader's wallet database path and the public passphrase.  If the loader is being called by a context where standard input prompts may be used during wallet upgrades, setting canConsolePrompt will enables these prompts.
 func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool) (*Wallet, error) {
+
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
@@ -202,6 +205,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 // WalletExists returns whether a file exists at the loader's database path.
 // This may return an error for unexpected I/O failures.
 func (l *Loader) WalletExists() (bool, error) {
+
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	return fileExists(dbPath)
 }
@@ -210,6 +214,7 @@ func (l *Loader) WalletExists() (bool, error) {
 // wallet has been loaded or not.  If true, the wallet pointer should be safe to
 // dereference.
 func (l *Loader) LoadedWallet() (*Wallet, bool) {
+
 	l.mu.Lock()
 	w := l.wallet
 	l.mu.Unlock()
@@ -242,9 +247,11 @@ func (l *Loader) UnloadWallet() error {
 
 func fileExists(
 	filePath string) (bool, error) {
+
 	_, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
+
 			return false, nil
 		}
 		return false, err

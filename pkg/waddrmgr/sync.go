@@ -82,6 +82,7 @@ func (m *Manager) SyncedTo() BlockStamp {
 // reorg is taking place and how far back it goes.
 func (m *Manager) BlockHash(ns walletdb.ReadBucket, height int32) (
 	*chainhash.Hash, error) {
+
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 

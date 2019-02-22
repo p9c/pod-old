@@ -17,6 +17,7 @@ var mainNetGenesisHash = Hash([HashSize]byte{ // Make go vet happy.
 // TestHash tests the Hash API.
 func TestHash(
 	t *testing.T) {
+
 	// Hash of block 234439.
 	blockHashStr := "14a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
 	blockHash, err := NewHashFromStr(blockHashStr)
@@ -41,11 +42,13 @@ func TestHash(
 	}
 	// Ensure contents match.
 	if !bytes.Equal(hash[:], buf) {
+
 		t.Errorf("NewHash: hash contents mismatch - got: %v, want: %v",
 			hash[:], buf)
 	}
 	// Ensure contents of hash of block 234440 don't match 234439.
 	if hash.IsEqual(blockHash) {
+
 		t.Errorf("IsEqual: hash contents should not match - got: %v, want: %v",
 			hash, blockHash)
 	}
@@ -55,14 +58,17 @@ func TestHash(
 		t.Errorf("SetBytes: %v", err)
 	}
 	if !hash.IsEqual(blockHash) {
+
 		t.Errorf("IsEqual: hash contents mismatch - got: %v, want: %v",
 			hash, blockHash)
 	}
 	// Ensure nil hashes are handled properly.
 	if !(*Hash)(nil).IsEqual(nil) {
+
 		t.Error("IsEqual: nil hashes should match")
 	}
 	if hash.IsEqual(nil) {
+
 		t.Error("IsEqual: non-nil hash matches nil hash")
 	}
 	// Invalid size for SetBytes.
@@ -81,6 +87,7 @@ func TestHash(
 // TestHashString  tests the stringized output for hashes.
 func TestHashString(
 	t *testing.T) {
+
 	// Block 100000 hash.
 	wantStr := "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 	hash := Hash([HashSize]byte{ // Make go vet happy.
@@ -99,6 +106,7 @@ func TestHashString(
 // TestNewHashFromStr executes tests against the NewHashFromStr function.
 func TestNewHashFromStr(
 	t *testing.T) {
+
 	tests := []struct {
 		in   string
 		want Hash
@@ -170,6 +178,7 @@ func TestNewHashFromStr(
 			continue
 		}
 		if !test.want.IsEqual(result) {
+
 			t.Errorf(unexpectedResultStr, i, result, &test.want)
 			continue
 		}

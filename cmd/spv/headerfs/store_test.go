@@ -19,9 +19,9 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func createTestBlockHeaderStore(
-	) (func(), walletdb.DB, string,
+func createTestBlockHeaderStore() (func(), walletdb.DB, string,
 	*blockHeaderStore, error) {
+
 	tempDir, err := ioutil.TempDir("", "store_test")
 	if err != nil {
 		return nil, nil, "", nil, err
@@ -39,6 +39,7 @@ func createTestBlockHeaderStore(
 	}
 
 	cleanUp := func() {
+
 		os.RemoveAll(tempDir)
 		db.Close()
 	}
@@ -71,6 +72,7 @@ func createTestBlockHeaderChain(
 
 func TestBlockHeaderStoreOperations(
 	t *testing.T) {
+
 	cleanUp, _, _, bhs, err := createTestBlockHeaderStore()
 	if cleanUp != nil {
 		defer cleanUp()
@@ -100,6 +102,7 @@ func TestBlockHeaderStoreOperations(
 		t.Fatalf("unable to fetch chain tip")
 	}
 	if !reflect.DeepEqual(lastHeader.BlockHeader, tipHeader) {
+
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(lastHeader),
 			spew.Sdump(tipHeader))
@@ -123,6 +126,7 @@ func TestBlockHeaderStoreOperations(
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
 		if !reflect.DeepEqual(*header.BlockHeader, *dbHeader) {
+
 			t.Fatalf("retrieved by height headers don't match up: "+
 				"expected %v, got %v", spew.Sdump(*header.BlockHeader),
 				spew.Sdump(*dbHeader))
@@ -134,6 +138,7 @@ func TestBlockHeaderStoreOperations(
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
 		if !reflect.DeepEqual(*dbHeader, *header.BlockHeader) {
+
 			t.Fatalf("retrieved by hash headers don't match up: "+
 				"expected %v, got %v", spew.Sdump(header),
 				spew.Sdump(dbHeader))
@@ -150,11 +155,13 @@ func TestBlockHeaderStoreOperations(
 		t.Fatalf("unable to rollback chain: %v", err)
 	}
 	if secondToLastHeader.Height != uint32(blockStamp.Height) {
+
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, blockStamp.Height)
 	}
 	headerHash := secondToLastHeader.BlockHash()
 	if !bytes.Equal(headerHash[:], blockStamp.Hash[:]) {
+
 		t.Fatalf("header hashes don't match: expected %v, got %v",
 			headerHash, blockStamp.Hash)
 	}
@@ -163,6 +170,7 @@ func TestBlockHeaderStoreOperations(
 		t.Fatalf("unable to fetch chain tip")
 	}
 	if !reflect.DeepEqual(secondToLastHeader.BlockHeader, tipHeader) {
+
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(secondToLastHeader),
 			spew.Sdump(tipHeader))
@@ -175,6 +183,7 @@ func TestBlockHeaderStoreOperations(
 
 func TestBlockHeaderStoreRecovery(
 	t *testing.T) {
+
 	// In this test we want to exercise the ability of the block header
 	// store to recover in the face of a partial batch write (the headers
 	// were written, but the index wasn't updated).
@@ -222,13 +231,14 @@ func TestBlockHeaderStoreRecovery(
 	prevHeaderHash := blockHeaders[5].BlockHash()
 	tipBlockHash := tipHash.BlockHash()
 	if bytes.Equal(prevHeaderHash[:], tipBlockHash[:]) {
+
 		t.Fatalf("block hash mismatch: expected %v, got %v",
 			prevHeaderHash, tipBlockHash)
 	}
 }
 
-func createTestFilterHeaderStore(
-	) (func(), walletdb.DB, string, *FilterHeaderStore, error) {
+func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderStore, error) {
+
 	tempDir, err := ioutil.TempDir("", "store_test")
 	if err != nil {
 		return nil, nil, "", nil, err
@@ -247,6 +257,7 @@ func createTestFilterHeaderStore(
 	}
 
 	cleanUp := func() {
+
 		os.RemoveAll(tempDir)
 		db.Close()
 	}
@@ -270,6 +281,7 @@ func createTestFilterHeaderChain(
 
 func TestFilterHeaderStoreOperations(
 	t *testing.T) {
+
 	cleanUp, _, _, fhs, err := createTestFilterHeaderStore()
 	if cleanUp != nil {
 		defer cleanUp()
@@ -318,6 +330,7 @@ func TestFilterHeaderStoreOperations(
 		t.Fatalf("unable to fetch chain tip")
 	}
 	if !bytes.Equal(lastHeader.FilterHash[:], tipHeader[:]) {
+
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", lastHeader, tipHeader)
 	}
@@ -334,6 +347,7 @@ func TestFilterHeaderStoreOperations(
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
 		if !bytes.Equal(header.FilterHash[:], dbHeader[:]) {
+
 			t.Fatalf("retrieved by height headers don't match up: "+
 				"expected %v, got %v", header.FilterHash,
 				dbHeader)
@@ -345,6 +359,7 @@ func TestFilterHeaderStoreOperations(
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
 		if !bytes.Equal(dbHeader[:], header.FilterHash[:]) {
+
 			t.Fatalf("retrieved by hash headers don't match up: "+
 				"expected %v, got %v", spew.Sdump(header),
 				spew.Sdump(dbHeader))
@@ -361,10 +376,12 @@ func TestFilterHeaderStoreOperations(
 		t.Fatalf("unable to rollback chain: %v", err)
 	}
 	if secondToLastHeader.Height != uint32(blockStamp.Height) {
+
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, blockStamp.Height)
 	}
 	if !bytes.Equal(secondToLastHeader.FilterHash[:], blockStamp.Hash[:]) {
+
 		t.Fatalf("header hashes don't match: expected %v, got %v",
 			secondToLastHeader.FilterHash, blockStamp.Hash)
 	}
@@ -373,6 +390,7 @@ func TestFilterHeaderStoreOperations(
 		t.Fatalf("unable to fetch chain tip")
 	}
 	if !bytes.Equal(secondToLastHeader.FilterHash[:], tipHeader[:]) {
+
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(secondToLastHeader),
 			spew.Sdump(tipHeader))
@@ -385,6 +403,7 @@ func TestFilterHeaderStoreOperations(
 
 func TestFilterHeaderStoreRecovery(
 	t *testing.T) {
+
 	// In this test we want to exercise the ability of the filter header
 	// store to recover in the face of a partial batch write (the headers
 	// were written, but the index wasn't updated).
@@ -450,6 +469,7 @@ func TestFilterHeaderStoreRecovery(
 	}
 	prevHeaderHash := blockHeaders[5].FilterHash
 	if bytes.Equal(prevHeaderHash[:], tipHash[:]) {
+
 		t.Fatalf("block hash mismatch: expected %v, got %v",
 			prevHeaderHash, tipHash[:])
 	}
@@ -460,6 +480,7 @@ func TestFilterHeaderStoreRecovery(
 // target block.
 func TestBlockHeadersFetchHeaderAncestors(
 	t *testing.T) {
+
 	t.Parallel()
 
 	cleanUp, _, _, bhs, err := createTestBlockHeaderStore()
@@ -513,6 +534,7 @@ func TestBlockHeadersFetchHeaderAncestors(
 		diskHeader := diskHeaders[i]
 		blockHeader := blockHeaders[i].BlockHeader
 		if !reflect.DeepEqual(diskHeader, *blockHeader) {
+
 			t.Fatalf("header mismatch, expected %v got %v",
 				spew.Sdump(blockHeader), spew.Sdump(diskHeader))
 		}

@@ -9,6 +9,7 @@ import (
 // TestMedianTime tests the medianTime implementation.
 func TestMedianTime(
 	t *testing.T) {
+
 	tests := []struct {
 		in         []int64
 		wantOffset int64
@@ -38,7 +39,9 @@ func TestMedianTime(
 	}
 	// Modify the max number of allowed median time entries for these tests.
 	maxMedianTimeEntries = 10
-	defer func() { maxMedianTimeEntries = 200 }()
+	defer func() {
+		maxMedianTimeEntries = 200
+	}()
 	for i, test := range tests {
 		filter := NewMedianTime()
 		for j, offset := range test.in {
@@ -70,6 +73,7 @@ func TestMedianTime(
 		wantTime := now.Add(filter.Offset())
 		wantTime2 := now.Add(filter.Offset() - time.Second)
 		if !adjustedTime.Equal(wantTime) && !adjustedTime.Equal(wantTime2) {
+
 			t.Errorf("AdjustedTime #%d: unexpected result -- got %v, "+
 				"want %v or %v", i, adjustedTime, wantTime,
 				wantTime2)

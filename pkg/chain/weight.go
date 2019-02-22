@@ -46,6 +46,7 @@ func GetTransactionWeight(
 // GetSigOpCost returns the unified sig op cost for the passed transaction respecting current active soft-forks which modified sig op cost counting. The unified sig op cost for a transaction is computed as the sum of: the legacy sig op count scaled according to the WitnessScaleFactor, the sig op count for all p2sh inputs scaled by the WitnessScaleFactor, and finally the unscaled sig op count for any inputs spending witness programs.
 func GetSigOpCost(
 	tx *util.Tx, isCoinBaseTx bool, utxoView *UtxoViewpoint, bip16, segWit bool) (int, error) {
+
 	numSigOps := CountSigOps(tx) * WitnessScaleFactor
 	if bip16 {
 		numP2SHSigOps, err := CountP2SHSigOps(tx, isCoinBaseTx, utxoView)
@@ -60,6 +61,7 @@ func GetSigOpCost(
 			// Ensure the referenced output is available and hasn't already been spent.
 			utxo := utxoView.LookupEntry(txIn.PreviousOutPoint)
 			if utxo == nil || utxo.IsSpent() {
+
 				str := fmt.Sprintf("output %v referenced from "+
 					"transaction %s:%d either does not "+
 					"exist or has already been spent",

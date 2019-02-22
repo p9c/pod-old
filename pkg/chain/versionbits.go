@@ -53,6 +53,7 @@ func (c bitConditionChecker) MinerConfirmationWindow() uint32 {
 
 // Condition returns true when the specific bit associated with the checker is set and it's not supposed to be according to the expected version based on the known deployments and the current state of the chain. This function MUST be called with the chain state lock held (for writes). This is part of the thresholdConditionChecker interface implementation.
 func (c bitConditionChecker) Condition(node *blockNode) (bool, error) {
+
 	conditionMask := uint32(1) << c.bit
 	version := uint32(node.version)
 	if version&vbTopMask != vbTopBits {
@@ -99,6 +100,7 @@ func (c deploymentChecker) MinerConfirmationWindow() uint32 {
 
 // Condition returns true when the specific bit defined by the deployment associated with the checker is set. This is part of the thresholdConditionChecker interface implementation.
 func (c deploymentChecker) Condition(node *blockNode) (bool, error) {
+
 	conditionMask := uint32(1) << c.deployment.BitNumber
 	version := uint32(node.version)
 	return (version&vbTopMask == vbTopBits) && (version&conditionMask != 0),
@@ -107,6 +109,7 @@ func (c deploymentChecker) Condition(node *blockNode) (bool, error) {
 
 // calcNextBlockVersion calculates the expected version of the block after the passed previous block node based on the state of started and locked in rule change deployments. This function differs from the exported CalcNextBlockVersion in that the exported version uses the current best chain as the previous block node while this function accepts any block node. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) calcNextBlockVersion(prevNode *blockNode) (uint32, error) {
+
 	// Set the appropriate bits for each actively defined rule deployment that is either in the process of being voted on, or locked in for the/ activation at the next threshold window change.
 	expectedVersion := uint32(vbTopBits)
 	for id := 0; id < len(b.chainParams.Deployments); id++ {
@@ -126,6 +129,7 @@ func (b *BlockChain) calcNextBlockVersion(prevNode *blockNode) (uint32, error) {
 
 // CalcNextBlockVersion calculates the expected version of the block after the end of the current best chain based on the state of started and locked in rule change deployments. This function is safe for concurrent access.
 func (b *BlockChain) CalcNextBlockVersion() (uint32, error) {
+
 	b.chainLock.Lock()
 	version, err := b.calcNextBlockVersion(b.bestChain.Tip())
 	b.chainLock.Unlock()

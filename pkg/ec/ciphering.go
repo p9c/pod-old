@@ -60,6 +60,7 @@ func GenerateSharedSecret(
 // to section 5.8.1 of ANSI X9.63 for rationale on this format.
 func Encrypt(
 	pubkey *PublicKey, in []byte) ([]byte, error) {
+
 	ephemeral, err := NewPrivateKey(S256())
 	if err != nil {
 		return nil, err
@@ -107,6 +108,7 @@ func Encrypt(
 // Decrypt decrypts data that was encrypted using the Encrypt function.
 func Decrypt(
 	priv *PrivateKey, in []byte) ([]byte, error) {
+
 	// IV + Curve params/X/Y + 1 block + HMAC-256
 	if len(in) < aes.BlockSize+70+aes.BlockSize+sha256.Size {
 		return nil, errInputTooShort
@@ -116,16 +118,19 @@ func Decrypt(
 	offset := aes.BlockSize
 	// start reading pubkey
 	if !bytes.Equal(in[offset:offset+2], ciphCurveBytes[:]) {
+
 		return nil, errUnsupportedCurve
 	}
 	offset += 2
 	if !bytes.Equal(in[offset:offset+2], ciphCoordLength[:]) {
+
 		return nil, errInvalidXLength
 	}
 	offset += 2
 	xBytes := in[offset : offset+32]
 	offset += 32
 	if !bytes.Equal(in[offset:offset+2], ciphCoordLength[:]) {
+
 		return nil, errInvalidYLength
 	}
 	offset += 2
@@ -156,6 +161,7 @@ func Decrypt(
 	hm.Write(in[:len(in)-sha256.Size]) // everything is hashed
 	expectedMAC := hm.Sum(nil)
 	if !hmac.Equal(messageMAC, expectedMAC) {
+
 		return nil, ErrInvalidMAC
 	}
 	// start decryption
@@ -182,6 +188,7 @@ func addPKCSPadding(
 // removePKCSPadding removes padding from data that was added with addPKCSPadding
 func removePKCSPadding(
 	src []byte) ([]byte, error) {
+
 	length := len(src)
 	padLength := int(src[length-1])
 	if padLength > aes.BlockSize || length < aes.BlockSize {

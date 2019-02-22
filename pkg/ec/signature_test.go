@@ -316,6 +316,7 @@ var signatureTests = []signatureTest{
 
 func TestSignatures(
 	t *testing.T) {
+
 	for _, test := range signatureTests {
 		var err error
 		if test.der {
@@ -342,6 +343,7 @@ func TestSignatures(
 // TestSignatureSerialize ensures that serializing signatures works as expected.
 func TestSignatureSerialize(
 	t *testing.T) {
+
 	tests := []struct {
 		name     string
 		ecsig    *Signature
@@ -434,6 +436,7 @@ func TestSignatureSerialize(
 	for i, test := range tests {
 		result := test.ecsig.Serialize()
 		if !bytes.Equal(result, test.expected) {
+
 			t.Errorf("Serialize #%d (%s) unexpected result:\n"+
 				"got:  %x\nwant: %x", i, test.name, result,
 				test.expected)
@@ -443,6 +446,7 @@ func TestSignatureSerialize(
 func testSignCompact(
 	t *testing.T, tag string, curve *KoblitzCurve,
 	data []byte, isCompressed bool) {
+
 	tmp, _ := NewPrivateKey(curve)
 	priv := (*PrivateKey)(tmp)
 	hashed := []byte("testing")
@@ -491,6 +495,7 @@ func testSignCompact(
 }
 func TestSignCompact(
 	t *testing.T) {
+
 	for i := 0; i < 256; i++ {
 		name := fmt.Sprintf("test %d", i)
 		data := make([]byte, 32)
@@ -533,6 +538,7 @@ var recoveryTests = []struct {
 
 func TestRecoverCompact(
 	t *testing.T) {
+
 	for i, test := range recoveryTests {
 		msg := decodeHex(test.msg)
 		sig := decodeHex(test.sig)
@@ -541,6 +547,7 @@ func TestRecoverCompact(
 		pub, _, err := RecoverCompact(S256(), sig, msg)
 		// Verify that returned error matches as expected.
 		if !reflect.DeepEqual(test.err, err) {
+
 			t.Errorf("unexpected error returned from pubkey "+
 				"recovery #%d: wanted %v, got %v",
 				i, test.err, err)
@@ -554,6 +561,7 @@ func TestRecoverCompact(
 		// Otherwise, ensure the correct public key was recovered.
 		exPub, _ := ParsePubKey(decodeHex(test.pub), S256())
 		if !exPub.IsEqual(pub) {
+
 			t.Errorf("unexpected recovered public key #%d: "+
 				"want %v, got %v", i, exPub, pub)
 		}
@@ -561,6 +569,7 @@ func TestRecoverCompact(
 }
 func TestRFC6979(
 	t *testing.T) {
+
 	// Test vectors matching Trezor and CoreBitcoin implementations.
 	// - https://github.com/trezor/trezor-crypto/blob/9fea8f8ab377dc514e40c6fd1f7c89a74c1d8dc6/tests.c#L432-L453
 	// - https://github.com/oleganza/CoreBitcoin/blob/e93dd71207861b5bf044415db5fa72405e7d8fbc/CoreBitcoin/BTCKey%2BTests.m#L23-L49
@@ -615,6 +624,7 @@ func TestRFC6979(
 		gotNonce := nonceRFC6979(privKey.D, hash[:]).Bytes()
 		wantNonce := decodeHex(test.nonce)
 		if !bytes.Equal(gotNonce, wantNonce) {
+
 			t.Errorf("NonceRFC6979 #%d (%s): Nonce is incorrect: "+
 				"%x (expected %x)", i, test.msg, gotNonce,
 				wantNonce)
@@ -630,6 +640,7 @@ func TestRFC6979(
 		gotSigBytes := gotSig.Serialize()
 		wantSigBytes := decodeHex(test.signature)
 		if !bytes.Equal(gotSigBytes, wantSigBytes) {
+
 			t.Errorf("Sign #%d (%s): mismatched signature: %x "+
 				"(expected %x)", i, test.msg, gotSigBytes,
 				wantSigBytes)
@@ -639,6 +650,7 @@ func TestRFC6979(
 }
 func TestSignatureIsEqual(
 	t *testing.T) {
+
 	sig1 := &Signature{
 		R: fromHex("0082235e21a2300022738dabb8e1bbd9d19cfb1e7ab8c30a23b0afbb8d178abcf3"),
 		S: fromHex("24bf68e256c534ddfaf966bf908deb944305596f7bdcc38d69acad7f9c868724"),
@@ -648,10 +660,12 @@ func TestSignatureIsEqual(
 		S: fromHex("181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d09"),
 	}
 	if !sig1.IsEqual(sig1) {
+
 		t.Fatalf("value of IsEqual is incorrect, %v is "+
 			"equal to %v", sig1, sig1)
 	}
 	if sig1.IsEqual(sig2) {
+
 		t.Fatalf("value of IsEqual is incorrect, %v is not "+
 			"equal to %v", sig1, sig2)
 	}

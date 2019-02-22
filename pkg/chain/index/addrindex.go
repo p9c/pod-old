@@ -170,6 +170,7 @@ func dbPutAddrIndexEntry(
 // dbFetchAddrIndexEntries returns block regions for transactions referenced by the given address key and the number of entries skipped since it could have been less in the case where there are less total entries than the requested number of entries to skip.
 func dbFetchAddrIndexEntries(
 	bucket internalBucket, addrKey [addrKeySize]byte, numToSkip, numRequested uint32, reverse bool, fetchBlockHash fetchBlockHashFunc) ([]database.BlockRegion, uint32, error) {
+
 	// When the reverse flag is not set, all levels need to be fetched because numToSkip and numRequested are counted from the oldest transactions (highest level) and thus the total count is needed. However, when the reverse flag is set, only enough records to satisfy the requested amount are needed.
 	var level uint8
 	var serialized []byte
@@ -217,6 +218,7 @@ func dbFetchAddrIndexEntries(
 		if err != nil {
 			// Ensure any deserialization errors are returned as database corruption errors.
 			if isDeserializeErr(err) {
+
 				err = database.Error{
 					ErrorCode: database.ErrCorruption,
 					Description: fmt.Sprintf("failed to "+
@@ -376,7 +378,9 @@ func dbRemoveAddrIndexEntries(
 // addrToKey converts known address types to an addrindex key.  An error is returned for unsupported types.
 func addrToKey(
 	addr util.Address) ([addrKeySize]byte, error) {
+
 	switch addr := addr.(type) {
+
 	case *util.AddressPubKeyHash:
 		var result [addrKeySize]byte
 		result[0] = addrKeyTypePubKeyHash
@@ -459,6 +463,7 @@ type writeIndexData map[[addrKeySize]byte][]int
 // indexPkScript extracts all standard addresses from the passed public key script and maps each of them to the associated transaction using the passed
 // map.
 func (idx *AddrIndex) indexPkScript(data writeIndexData, pkScript []byte, txIdx int) {
+
 	// Nothing to index if the script is non-standard or otherwise doesn't contain any addresses.
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		idx.chainParams)
@@ -485,8 +490,10 @@ func (idx *AddrIndex) indexPkScript(data writeIndexData, pkScript []byte, txIdx 
 // indexBlock extract all of the standard addresses from all of the transactions in the passed block and maps each of them to the associated transaction using the passed map.
 func (idx *AddrIndex) indexBlock(data writeIndexData, block *util.Block,
 	stxos []blockchain.SpentTxOut) {
+
 	stxoIndex := 0
 	for txIdx, tx := range block.Transactions() {
+
 		// Coinbases do not reference any inputs.  Since the block is required to have already gone through full validation, it has already been proven on the first transaction in the block is a coinbase.
 		if txIdx != 0 {
 			for range tx.MsgTx().TxIn {
@@ -552,6 +559,7 @@ func (idx *AddrIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 
 // TxRegionsForAddress returns a slice of block regions which identify each transaction that involves the passed address according to the specified number to skip, number requested, and whether or not the results should be reversed.  It also returns the number actually skipped since it could be less in the case where there are not enough entries. NOTE: These results only include transactions confirmed in blocks.  See the UnconfirmedTxnsForAddress method for obtaining unconfirmed transactions that involve a given address. This function is safe for concurrent access.
 func (idx *AddrIndex) TxRegionsForAddress(dbTx database.Tx, addr util.Address, numToSkip, numRequested uint32, reverse bool) ([]database.BlockRegion, uint32, error) {
+
 	addrKey, err := addrToKey(addr)
 	if err != nil {
 		return nil, 0, err
@@ -561,6 +569,7 @@ func (idx *AddrIndex) TxRegionsForAddress(dbTx database.Tx, addr util.Address, n
 	err = idx.db.View(func(dbTx database.Tx) error {
 		// Create closure to lookup the block hash given the ID using the database transaction.
 		fetchBlockHash := func(id []byte) (*chainhash.Hash, error) {
+
 			// Deserialize and populate the result.
 			return dbFetchBlockHashBySerializedID(dbTx, id)
 		}
@@ -576,6 +585,7 @@ func (idx *AddrIndex) TxRegionsForAddress(dbTx database.Tx, addr util.Address, n
 
 // indexUnconfirmedAddresses modifies the unconfirmed (memory-only) address index to include mappings for the addresses encoded by the passed public key script to the transaction. This function is safe for concurrent access.
 func (idx *AddrIndex) indexUnconfirmedAddresses(pkScript []byte, tx *util.Tx) {
+
 	// The error is ignored here since the only reason it can fail is if the script fails to parse and it was already validated before being admitted to the mempool.
 	_, addresses, _, _ := txscript.ExtractPkScriptAddrs(pkScript,
 		idx.chainParams)
@@ -606,6 +616,7 @@ func (idx *AddrIndex) indexUnconfirmedAddresses(pkScript []byte, tx *util.Tx) {
 
 // AddUnconfirmedTx adds all addresses related to the transaction to the unconfirmed (memory-only) address index. NOTE: This transaction MUST have already been validated by the memory pool before calling this function with it and have all of the inputs available in the provided utxo view.  Failure to do so could result in some or all addresses not being indexed. This function is safe for concurrent access.
 func (idx *AddrIndex) AddUnconfirmedTx(tx *util.Tx, utxoView *blockchain.UtxoViewpoint) {
+
 	// Index addresses of all referenced previous transaction outputs.
 	// The existence checks are elided since this is only called after the transaction has already been validated and thus all inputs are already known to exist.
 	for _, txIn := range tx.MsgTx().TxIn {
@@ -624,6 +635,7 @@ func (idx *AddrIndex) AddUnconfirmedTx(tx *util.Tx, utxoView *blockchain.UtxoVie
 
 // RemoveUnconfirmedTx removes the passed transaction from the unconfirmed (memory-only) address index. This function is safe for concurrent access.
 func (idx *AddrIndex) RemoveUnconfirmedTx(hash *chainhash.Hash) {
+
 	idx.unconfirmedLock.Lock()
 	defer idx.unconfirmedLock.Unlock()
 	// Remove all address references to the transaction from the address index and remove the entry for the address altogether if it no longer references any transactions.

@@ -15,6 +15,7 @@ func RawTxInWitnessSignature(
 	tx *wire.MsgTx, sigHashes *TxSigHashes, idx int,
 	amt int64, subScript []byte, hashType SigHashType,
 	key *ec.PrivateKey) ([]byte, error) {
+
 	parsedScript, err := parseScript(subScript)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse output script: %v", err)
@@ -36,6 +37,7 @@ func WitnessSignature(
 	tx *wire.MsgTx, sigHashes *TxSigHashes, idx int, amt int64,
 	subscript []byte, hashType SigHashType, privKey *ec.PrivateKey,
 	compress bool) (wire.TxWitness, error) {
+
 	sig, err := RawTxInWitnessSignature(tx, sigHashes, idx, amt, subscript,
 		hashType, privKey)
 	if err != nil {
@@ -56,6 +58,7 @@ func WitnessSignature(
 func RawTxInSignature(
 	tx *wire.MsgTx, idx int, subScript []byte,
 	hashType SigHashType, key *ec.PrivateKey) ([]byte, error) {
+
 	hash, err := CalcSignatureHash(subScript, hashType, tx, idx)
 	if err != nil {
 		return nil, err
@@ -70,6 +73,7 @@ func RawTxInSignature(
 // SignatureScript creates an input signature script for tx to spend DUO sent from a previous output to the owner of privKey. tx must include all transaction inputs and outputs, however txin scripts are allowed to be filled or empty. The returned script is calculated to be used as the idx'th txin sigscript for tx. subscript is the PkScript of the previous output being used as the idx'th input. privKey is serialized in either a compressed or uncompressed format based on compress. This format must match the same format used to generate the payment address, or the script validation will fail.
 func SignatureScript(
 	tx *wire.MsgTx, idx int, subscript []byte, hashType SigHashType, privKey *ec.PrivateKey, compress bool) ([]byte, error) {
+
 	sig, err := RawTxInSignature(tx, idx, subscript, hashType, privKey)
 	if err != nil {
 		return nil, err
@@ -85,6 +89,7 @@ func SignatureScript(
 }
 func p2pkSignatureScript(
 	tx *wire.MsgTx, idx int, subScript []byte, hashType SigHashType, privKey *ec.PrivateKey) ([]byte, error) {
+
 	sig, err := RawTxInSignature(tx, idx, subScript, hashType, privKey)
 	if err != nil {
 		return nil, err
@@ -96,6 +101,7 @@ func p2pkSignatureScript(
 func signMultiSig(
 	tx *wire.MsgTx, idx int, subScript []byte, hashType SigHashType,
 	addresses []util.Address, nRequired int, kdb KeyDB) ([]byte, bool) {
+
 	// We start with a single OP_FALSE to work around the (now standard) but in the reference implementation that causes a spurious pop at the end of OP_CHECKMULTISIG.
 	builder := NewScriptBuilder().AddOp(OP_FALSE)
 	signed := 0
@@ -121,6 +127,7 @@ func sign(
 	chainParams *chaincfg.Params, tx *wire.MsgTx, idx int,
 	subScript []byte, hashType SigHashType, kdb KeyDB, sdb ScriptDB) ([]byte,
 	ScriptClass, []util.Address, int, error) {
+
 	class, addresses, nrequired, err := ExtractPkScriptAddrs(subScript,
 		chainParams)
 	if err != nil {
@@ -210,6 +217,7 @@ func mergeScripts(
 	// It doesn't actually make sense to merge anything other than multiig and scripthash (because it could contain multisig). Everything else has either zero signature, can't be spent, or has a single signature which is either present or not. The other two cases are handled above. In the conflict case here we just assume the longest is correct (this matches behaviour of the reference implementation).
 	default:
 		if len(sigScript) > len(prevScript) {
+
 			return sigScript
 		}
 		return prevScript
@@ -264,6 +272,7 @@ sigLoop:
 			pubKey := pkaddr.PubKey()
 			// If it matches we put it in the map. We only can take one signature per public key so if we already have one, we can throw this away.
 			if pSig.Verify(hash, pubKey) {
+
 				aStr := addr.EncodeAddress()
 				if _, ok := addrToSig[aStr]; !ok {
 					addrToSig[aStr] = sig
@@ -306,6 +315,7 @@ type KeyClosure func(util.Address) (*ec.PrivateKey, bool, error)
 // GetKey implements KeyDB by returning the result of calling the closure.
 func (kc KeyClosure) GetKey(address util.Address) (*ec.PrivateKey,
 	bool, error) {
+
 	return kc(address)
 }
 
@@ -319,6 +329,7 @@ type ScriptClosure func(util.Address) ([]byte, error)
 
 // GetScript implements ScriptDB by returning the result of calling the closure.
 func (sc ScriptClosure) GetScript(address util.Address) ([]byte, error) {
+
 	return sc(address)
 }
 
@@ -327,6 +338,7 @@ func SignTxOutput(
 	chainParams *chaincfg.Params, tx *wire.MsgTx, idx int,
 	pkScript []byte, hashType SigHashType, kdb KeyDB, sdb ScriptDB,
 	previousScript []byte) ([]byte, error) {
+
 	sigScript, class, addresses, nrequired, err := sign(chainParams, tx,
 		idx, pkScript, hashType, kdb, sdb)
 	if err != nil {

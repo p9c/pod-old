@@ -76,6 +76,7 @@ func (k *BlockChain) GetInfoData() {
 	// })
 
 	// for line := range t.Lines() {
+
 	// 	fmt.Println("ddddddddddddd", line)
 	// }
 	// blk := WLT.Manager.SyncedTo()

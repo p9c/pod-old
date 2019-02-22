@@ -14,10 +14,12 @@ import (
 // TestTx tests the API for Tx.
 func TestTx(
 	t *testing.T) {
+
 	testTx := Block100000.Transactions[0]
 	tx := util.NewTx(testTx)
 	// Ensure we get the same data back out.
 	if msgTx := tx.MsgTx(); !reflect.DeepEqual(msgTx, testTx) {
+
 		t.Errorf("MsgTx: mismatched MsgTx - got %v, want %v",
 			spew.Sdump(msgTx), spew.Sdump(testTx))
 	}
@@ -38,6 +40,7 @@ func TestTx(
 	for i := 0; i < 2; i++ {
 		hash := tx.Hash()
 		if !hash.IsEqual(wantHash) {
+
 			t.Errorf("Hash #%d mismatched hash - got %v, want %v", i,
 				hash, wantHash)
 		}
@@ -47,6 +50,7 @@ func TestTx(
 // TestNewTxFromBytes tests creation of a Tx from serialized bytes.
 func TestNewTxFromBytes(
 	t *testing.T) {
+
 	// Serialize the test transaction.
 	testTx := Block100000.Transactions[0]
 	var testTxBuf bytes.Buffer
@@ -63,6 +67,7 @@ func TestNewTxFromBytes(
 	}
 	// Ensure the generated MsgTx is correct.
 	if msgTx := tx.MsgTx(); !reflect.DeepEqual(msgTx, testTx) {
+
 		t.Errorf("MsgTx: mismatched MsgTx - got %v, want %v",
 			spew.Sdump(msgTx), spew.Sdump(testTx))
 	}
@@ -71,6 +76,7 @@ func TestNewTxFromBytes(
 // TestTxErrors tests the error paths for the Tx API.
 func TestTxErrors(
 	t *testing.T) {
+
 	// Serialize the test transaction.
 	testTx := Block100000.Transactions[0]
 	var testTxBuf bytes.Buffer

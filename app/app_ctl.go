@@ -158,6 +158,7 @@ func DefaultCtlConfig(
 func WriteCtlConfig(
 	cc *ctl.Config,
 ) {
+
 	j, err := json.MarshalIndent(cc, "", "  ")
 	if err != nil {
 
@@ -181,6 +182,7 @@ func WriteCtlConfig(
 func WriteDefaultCtlConfig(
 	datadir string,
 ) {
+
 	defCfg := DefaultCtlConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -207,6 +209,7 @@ func configCtl(
 	ctx *climax.Context,
 	cfgFile string,
 ) {
+
 	var r string
 	var ok bool
 	// Apply all configurations specified on commandline

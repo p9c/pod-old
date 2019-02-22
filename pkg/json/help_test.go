@@ -10,6 +10,7 @@ import (
 // TestHelpReflectInternals ensures the various help functions which deal with reflect types work as expected for various Go types.
 func TestHelpReflectInternals(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -246,6 +247,7 @@ func TestHelpReflectInternals(
 			continue
 		}
 		if len(examples) != len(test.examples) {
+
 			t.Errorf("Test #%d (%s) unexpected result length - "+
 				"got: %v, want: %v", i, test.name, len(examples),
 				len(test.examples))
@@ -279,6 +281,7 @@ func TestHelpReflectInternals(
 // TestResultStructHelp ensures the expected help text format is returned for various Go struct types.
 func TestResultStructHelp(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -391,6 +394,7 @@ func TestResultStructHelp(
 	for i, test := range tests {
 		results := json.TstResultStructHelp(xT, test.reflectType, 0)
 		if len(results) != len(test.expected) {
+
 			t.Errorf("Test #%d (%s) unexpected result length - "+
 				"got: %v, want: %v", i, test.name, len(results),
 				len(test.expected))
@@ -410,6 +414,7 @@ func TestResultStructHelp(
 // TestHelpArgInternals ensures the various help functions which deal with arguments work as expected for various argument types.
 func TestHelpArgInternals(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -552,6 +557,7 @@ func TestHelpArgInternals(
 // TestMethodHelp ensures the method help function works as expected for various command structs.
 func TestMethodHelp(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -642,6 +648,7 @@ func TestMethodHelp(
 // TestGenerateHelpErrors ensures the GenerateHelp function returns the expected errors.
 func TestGenerateHelpErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -678,6 +685,7 @@ func TestGenerateHelpErrors(
 		_, err := json.GenerateHelp(test.method, nil,
 			test.resultTypes...)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
+
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
 				"want %T", i, test.name, err, err, test.err)
 			continue
@@ -695,6 +703,7 @@ func TestGenerateHelpErrors(
 // TestGenerateHelp performs a very basic test to ensure GenerateHelp is working as expected.  The internal are testd much more thoroughly in other tests, so there is no need to add more tests here.
 func TestGenerateHelp(
 	t *testing.T) {
+
 	t.Parallel()
 	descs := map[string]string{
 		"help--synopsis": "test",

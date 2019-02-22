@@ -50,12 +50,15 @@ type forAllPeersMsg struct {
 // handleQuery is the central handler for all queries and commands from other
 // goroutines related to peer state.
 func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
+
 	switch msg := querymsg.(type) {
 
 	case getConnCountMsg:
 		nconnected := int32(0)
 		state.forAllPeers(func(sp *ServerPeer) {
+
 			if sp.Connected() {
+
 				nconnected++
 			}
 		})
@@ -64,7 +67,9 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 	case getPeersMsg:
 		peers := make([]*ServerPeer, 0, state.Count())
 		state.forAllPeers(func(sp *ServerPeer) {
+
 			if !sp.Connected() {
+
 				return
 			}
 			peers = append(peers, sp)
@@ -104,6 +109,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 	case removeNodeMsg:
 		found := disconnectPeer(state.persistentPeers, msg.cmp, func(sp *ServerPeer) {
+
 			// Keep group counts ok since we remove from
 			// the list now.
 			state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
@@ -135,6 +141,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 	case disconnectNodeMsg:
 		// Check outbound peers.
 		found := disconnectPeer(state.outboundPeers, msg.cmp, func(sp *ServerPeer) {
+
 			// Keep group counts ok since we remove from
 			// the list now.
 			state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
@@ -145,6 +152,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			// peers are found.
 			for found {
 				found = disconnectPeer(state.outboundPeers, msg.cmp, func(sp *ServerPeer) {
+
 					state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
 				})
 			}
@@ -309,6 +317,7 @@ func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 // ForAllPeers method doesn't return anything as the closure passed to it
 // doesn't return anything.
 func (s *ChainService) ForAllPeers(closure func(sp *ServerPeer)) {
+
 	select {
 	case s.query <- forAllPeersMsg{closure: closure}:
 	case <-s.quit:

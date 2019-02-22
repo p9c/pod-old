@@ -40,6 +40,7 @@ func (s *SigCache) Exists(sigHash chainhash.Hash, sig *ec.Signature, pubKey *ec.
 
 // Add adds an entry for a signature over 'sigHash' under public key 'pubKey' to the signature cache. In the event that the SigCache is 'full', an existing entry is randomly chosen to be evicted in order to make space for the new entry. NOTE: This function is safe for concurrent access. Writers will block simultaneous readers until function execution has concluded.
 func (s *SigCache) Add(sigHash chainhash.Hash, sig *ec.Signature, pubKey *ec.PublicKey) {
+
 	s.Lock()
 	defer s.Unlock()
 	if s.maxEntries <= 0 {

@@ -7,8 +7,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 )
 
-func ExampleAmount(
-	) {
+func ExampleAmount() {
+
 	a := util.Amount(0)
 	fmt.Println("Zero Satoshi:", a)
 	a = util.Amount(1e8)
@@ -20,8 +20,8 @@ func ExampleAmount(
 	// 100,000,000 Satoshis: 1 DUO
 	// 100,000 Satoshis: 0.001 DUO
 }
-func ExampleNewAmount(
-	) {
+func ExampleNewAmount() {
+
 	amountOne, err := util.NewAmount(1)
 	if err != nil {
 		fmt.Println(err)
@@ -51,8 +51,8 @@ func ExampleNewAmount(
 	// 0 DUO
 	// invalid bitcoin amount
 }
-func ExampleAmount_unitConversions(
-	) {
+func ExampleAmount_unitConversions() {
+
 	amount := util.Amount(44433322211100)
 	fmt.Println("Satoshi to kDUO:", amount.Format(util.AmountKiloDUO))
 	fmt.Println("Satoshi to DUO:", amount)

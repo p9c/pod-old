@@ -19,6 +19,7 @@ import (
 // scriptTestName returns a descriptive test name for the given reference script test data.
 func scriptTestName(
 	test []interface{}) (string, error) {
+
 	// Account for any optional leading witness data.
 	var witnessOffset int
 	if _, ok := test[0].([]interface{}); ok {
@@ -42,7 +43,9 @@ func scriptTestName(
 // parse hex string into a []byte.
 func parseHex(
 	tok string) ([]byte, error) {
+
 	if !strings.HasPrefix(tok, "0x") {
+
 		return nil, errors.New("not a hex number")
 	}
 	return hex.DecodeString(tok[2:])
@@ -51,6 +54,7 @@ func parseHex(
 // parseWitnessStack parses a json array of witness items encoded as hex into a slice of witness elements.
 func parseWitnessStack(
 	elements []interface{}) ([][]byte, error) {
+
 	witness := make([][]byte, len(elements))
 	for i, e := range elements {
 		witElement, err := hex.DecodeString(e.(string))
@@ -74,11 +78,13 @@ var shortFormOps map[string]byte
 //   - Anything else is an error
 func parseShortForm(
 	script string) ([]byte, error) {
+
 	// Only create the short form opcode map once.
 	if shortFormOps == nil {
 		ops := make(map[string]byte)
 		for opcodeName, opcodeValue := range OpcodeByName {
 			if strings.Contains(opcodeName, "OP_UNKNOWN") {
+
 				continue
 			}
 			ops[opcodeName] = opcodeValue
@@ -86,6 +92,7 @@ func parseShortForm(
 			if (opcodeName == "OP_FALSE" || opcodeName == "OP_TRUE") ||
 				(opcodeValue != OP_0 && (opcodeValue < OP_1 ||
 					opcodeValue > OP_16)) {
+
 				ops[strings.TrimPrefix(opcodeName, "OP_")] = opcodeValue
 			}
 		}
@@ -124,6 +131,7 @@ func parseShortForm(
 // parseScriptFlags parses the provided flags string from the format used in the reference tests into ScriptFlags suitable for use in the script engine.
 func parseScriptFlags(
 	flagStr string) (ScriptFlags, error) {
+
 	var flags ScriptFlags
 	sFlags := strings.Split(flagStr, ",")
 	for _, flag := range sFlags {
@@ -174,6 +182,7 @@ func parseScriptFlags(
 // parseExpectedResult parses the provided expected result string into allowed script error codes.  An error is returned if the expected result string is not supported.
 func parseExpectedResult(
 	expected string) ([]ErrorCode, error) {
+
 	switch expected {
 	case "OK":
 		return nil, nil
@@ -290,6 +299,7 @@ type scriptWithInputVal struct {
 // testScripts ensures all of the passed script tests execute with the expected results with or without using a signature cache, as specified by the parameter.
 func testScripts(
 	t *testing.T, tests [][]interface{}, useSigCache bool) {
+
 	// Create a signature cache to use only if requested.
 	var sigCache *SigCache
 	if useSigCache {
@@ -396,6 +406,7 @@ func testScripts(
 		success := false
 		for _, code := range allowedErrorCodes {
 			if IsErrorCode(err, code) {
+
 				success = true
 				break
 			}
@@ -416,6 +427,7 @@ func testScripts(
 // TestScripts ensures all of the tests in script_tests.json execute with the expected results as defined in the test data.
 func TestScripts(
 	t *testing.T) {
+
 	file, err := ioutil.ReadFile("data/script_tests.json")
 	if err != nil {
 		t.Fatalf("TestScripts: %v\n", err)
@@ -439,6 +451,7 @@ func testVecF64ToUint32(
 // TestTxInvalidTests ensures all of the tests in tx_invalid.json fail as expected.
 func TestTxInvalidTests(
 	t *testing.T) {
+
 	file, err := ioutil.ReadFile("data/tx_invalid.json")
 	if err != nil {
 		t.Fatalf("TestTxInvalidTests: %v\n", err)
@@ -575,6 +588,7 @@ testloop:
 // TestTxValidTests ensures all of the tests in tx_valid.json pass as expected.
 func TestTxValidTests(
 	t *testing.T) {
+
 	file, err := ioutil.ReadFile("data/tx_valid.json")
 	if err != nil {
 		t.Fatalf("TestTxValidTests: %v\n", err)
@@ -713,6 +727,7 @@ testloop:
 // https://github.com/bitcoin/bitcoin/blob/master/src/test/data/sighash.json
 func TestCalcSignatureHash(
 	t *testing.T) {
+
 	file, err := ioutil.ReadFile("data/sighash.json")
 	if err != nil {
 		t.Fatalf("TestCalcSignatureHash: %v\n", err)
@@ -752,6 +767,7 @@ func TestCalcSignatureHash(
 			int(test[2].(float64)))
 		expectedHash, _ := chainhash.NewHashFromStr(test[4].(string))
 		if !bytes.Equal(hash, expectedHash[:]) {
+
 			t.Errorf("TestCalcSignatureHash failed test #%d: "+
 				"Signature hash mismatch.", i)
 		}

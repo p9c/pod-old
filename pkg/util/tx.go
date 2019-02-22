@@ -67,6 +67,7 @@ func (t *Tx) Index() int {
 
 // SetIndex sets the index of the transaction in within a block.
 func (t *Tx) SetIndex(index int) {
+
 	t.txIndex = index
 }
 
@@ -82,6 +83,7 @@ func NewTx(
 // NewTxFromBytes returns a new instance of a bitcoin transaction given the serialized bytes.  See Tx.
 func NewTxFromBytes(
 	serializedTx []byte) (*Tx, error) {
+
 	br := bytes.NewReader(serializedTx)
 	return NewTxFromReader(br)
 }
@@ -89,6 +91,7 @@ func NewTxFromBytes(
 // NewTxFromReader returns a new instance of a bitcoin transaction given a Reader to deserialize the transaction.  See Tx.
 func NewTxFromReader(
 	r io.Reader) (*Tx, error) {
+
 	// Deserialize the bytes into a MsgTx.
 	var msgTx wire.MsgTx
 	err := msgTx.Deserialize(r)

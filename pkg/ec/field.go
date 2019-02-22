@@ -126,6 +126,7 @@ func (f fieldVal) String() string {
 // set to zero.  This function can be useful to clear an existing field value
 // for reuse.
 func (f *fieldVal) Zero() {
+
 	f.n[0] = 0
 	f.n[1] = 0
 	f.n[2] = 0
@@ -347,6 +348,7 @@ func (f *fieldVal) Normalize() *fieldVal {
 // The field value must be normalized for this function to return the correct
 // result.
 func (f *fieldVal) PutBytes(b *[32]byte) {
+
 	// Unpack the 256 total bits from the 10 uint32 words with a max of
 	// 26-bits per word.  This could be done with a couple of for loops,
 	// but this unrolled version is a bit faster.  Benchmarks show this is

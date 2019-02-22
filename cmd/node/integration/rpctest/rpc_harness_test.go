@@ -18,6 +18,7 @@ import (
 
 func testSendOutputs(
 	r *Harness, t *testing.T) {
+
 	genSpend := func(amt util.Amount) *chainhash.Hash {
 		// Grab a fresh address from the wallet.
 		addr, err := r.NewAddress()
@@ -37,6 +38,7 @@ func testSendOutputs(
 		return txid
 	}
 	assertTxMined := func(txid *chainhash.Hash, blockHash *chainhash.Hash) {
+
 		block, err := r.Node.GetBlock(blockHash)
 		if err != nil {
 			t.Fatalf("unable to get block: %v", err)
@@ -70,6 +72,7 @@ func testSendOutputs(
 }
 func assertConnectedTo(
 	t *testing.T, nodeA *Harness, nodeB *Harness) {
+
 	nodeAPeers, err := nodeA.Node.GetPeerInfo()
 	if err != nil {
 		t.Fatalf("unable to get nodeA's peer info")
@@ -88,6 +91,7 @@ func assertConnectedTo(
 }
 func testConnectNode(
 	r *Harness, t *testing.T) {
+
 	// Create a fresh test harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -106,6 +110,7 @@ func testConnectNode(
 }
 func testTearDownAll(
 	t *testing.T) {
+
 	// Grab a local copy of the currently active harnesses before attempting to tear them all down.
 	initialActiveHarnesses := ActiveHarnesses()
 	// Tear down all currently active harnesses.
@@ -125,6 +130,7 @@ func testTearDownAll(
 }
 func testActiveHarnesses(
 	r *Harness, t *testing.T) {
+
 	numInitialHarnesses := len(ActiveHarnesses())
 	// Create a single test harness.
 	harness1, err := New(&chaincfg.SimNetParams, nil, nil)
@@ -135,12 +141,14 @@ func testActiveHarnesses(
 	// With the harness created above, a single harness should be detected as active.
 	numActiveHarnesses := len(ActiveHarnesses())
 	if !(numActiveHarnesses > numInitialHarnesses) {
+
 		t.Fatalf("ActiveHarnesses not updated, should have an " +
 			"additional test harness listed.")
 	}
 }
 func testJoinMempools(
 	r *Harness, t *testing.T) {
+
 	// Assert main test harness has no transactions in its mempool.
 	pooledHashes, err := r.Node.GetRawMempool()
 	if err != nil {
@@ -180,6 +188,7 @@ func testJoinMempools(
 	// Wait until the transaction shows up to ensure the two mempools are not the same.
 	harnessSynced := make(chan struct{})
 	go func() {
+
 		for {
 			poolHashes, err := r.Node.GetRawMempool()
 			if err != nil {
@@ -200,6 +209,7 @@ func testJoinMempools(
 	// This select case should fall through to the default as the goroutine should be blocked on the JoinNodes call.
 	poolsSynced := make(chan struct{})
 	go func() {
+
 		if err := JoinNodes(nodeSlice, Mempools); err != nil {
 			t.Fatalf("unable to join node on mempools: %v", err)
 		}
@@ -230,6 +240,7 @@ func testJoinMempools(
 }
 func testJoinBlocks(
 	r *Harness, t *testing.T) {
+
 	// Create a second harness with only the genesis block so it is behind the main harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -242,6 +253,7 @@ func testJoinBlocks(
 	nodeSlice := []*Harness{r, harness}
 	blocksSynced := make(chan struct{})
 	go func() {
+
 		if err := JoinNodes(nodeSlice, Blocks); err != nil {
 			t.Fatalf("unable to join node on blocks: %v", err)
 		}
@@ -266,6 +278,7 @@ func testJoinBlocks(
 }
 func testGenerateAndSubmitBlock(
 	r *Harness, t *testing.T) {
+
 	// Generate a few test spend transactions.
 	addr, err := r.NewAddress()
 	if err != nil {
@@ -312,10 +325,12 @@ func testGenerateAndSubmitBlock(
 	header := block.MsgBlock().Header
 	blockVersion = header.Version
 	if blockVersion != int32(targetBlockVersion) {
+
 		t.Fatalf("block version mismatch: expected %v, got %v",
 			targetBlockVersion, blockVersion)
 	}
 	if !timestamp.Equal(header.Timestamp) {
+
 		t.Fatalf("header time stamp mismatch: expected %v, got %v",
 			timestamp, header.Timestamp)
 	}
@@ -323,6 +338,7 @@ func testGenerateAndSubmitBlock(
 func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 	r *Harness,
 	t *testing.T) {
+
 	// Generate a few test spend transactions.
 	addr, err := r.NewAddress()
 	if err != nil {
@@ -377,16 +393,19 @@ func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 	header := block.MsgBlock().Header
 	blockVersion = header.Version
 	if blockVersion != int32(targetBlockVersion) {
+
 		t.Fatalf("block version mismatch: expected %v, got %v",
 			targetBlockVersion, blockVersion)
 	}
 	if !timestamp.Equal(header.Timestamp) {
+
 		t.Fatalf("header time stamp mismatch: expected %v, got %v",
 			timestamp, header.Timestamp)
 	}
 }
 func testMemWalletReorg(
 	r *Harness, t *testing.T) {
+
 	// Create a fresh harness, we'll be using the main harness to force a re-org on this local harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -421,6 +440,7 @@ func testMemWalletReorg(
 }
 func testMemWalletLockedOutputs(
 	r *Harness, t *testing.T) {
+
 	// Obtain the initial balance of the wallet at this point.
 	startingBalance := r.ConfirmedBalance()
 	// First, create a signed transaction spending some outputs.
@@ -441,6 +461,7 @@ func testMemWalletLockedOutputs(
 	// The current wallet balance should now be at least 50 DUO less (accounting for fees) than the period balance
 	currentBalance := r.ConfirmedBalance()
 	if !(currentBalance <= startingBalance-outputAmt) {
+
 		t.Fatalf("spent outputs not locked: previous balance %v, "+
 			"current balance %v", startingBalance, currentBalance)
 	}
@@ -472,6 +493,7 @@ const (
 
 func TestMain(
 	m *testing.M) {
+
 	var err error
 	mainHarness, err = New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -497,6 +519,7 @@ func TestMain(
 }
 func TestHarness(
 	t *testing.T) {
+
 	// We should have (numMatureOutputs * 50 DUO) of mature unspendable
 	// outputs.
 	expectedBalance := util.Amount(numMatureOutputs * 50 * util.SatoshiPerBitcoin)

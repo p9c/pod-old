@@ -8,6 +8,7 @@ import (
 // TestBigToCompact ensures BigToCompact converts big integers to the expected compact representation.
 func TestBigToCompact(
 	t *testing.T) {
+
 	tests := []struct {
 		in  int64
 		out uint32
@@ -29,6 +30,7 @@ func TestBigToCompact(
 // TestCompactToBig ensures CompactToBig converts numbers using the compact representation to the expected big intergers.
 func TestCompactToBig(
 	t *testing.T) {
+
 	tests := []struct {
 		in  uint32
 		out int64
@@ -49,6 +51,7 @@ func TestCompactToBig(
 // TestCalcWork ensures CalcWork calculates the expected work value from values in compact representation.
 func TestCalcWork(
 	t *testing.T) {
+
 	tests := []struct {
 		in  uint32
 		out int64

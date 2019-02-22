@@ -26,6 +26,7 @@ func serializeWriteRow(
 // deserializeWriteRow deserializes the write cursor location stored in the metadata.  Returns ErrCorruption if the checksum of the entry doesn't match.
 func deserializeWriteRow(
 	writeRow []byte) (uint32, uint32, error) {
+
 	// Ensure the checksum matches.  The checksum is at the end.
 	gotChecksum := crc32.Checksum(writeRow[:8], castagnoli)
 	wantChecksumBytes := writeRow[8:12]
@@ -44,6 +45,7 @@ func deserializeWriteRow(
 // reconcileDB reconciles the metadata with the flat block files on disk.  It will also initialize the underlying database if the create flag is set.
 func reconcileDB(
 	pdb *db, create bool) (database.DB, error) {
+
 	// Perform initial internal bucket and value creation during database creation.
 	if create {
 		if err := initDB(pdb.cache.ldb); err != nil {
@@ -69,6 +71,7 @@ func reconcileDB(
 	wc := pdb.store.writeCursor
 	if wc.curFileNum > curFileNum || (wc.curFileNum == curFileNum &&
 		wc.curOffset > curOffset) {
+
 		log <- cl.Inf("Detected unclean shutdown - Repairing...")
 		log <- cl.Debugf{
 			"Metadata claims file %d, offset %d. Block data is at file %d, offset %d",
@@ -83,6 +86,7 @@ func reconcileDB(
 	// When the write cursor position found by scanning the block files on disk is BEFORE the position the metadata believes to be true, return a corruption error.  Since sync is called after each block is written and before the metadata is updated, this should only happen in the case of missing, deleted, or truncated block files, which generally is not an easily recoverable scenario.  In the future, it might be possible to rescan and rebuild the metadata from the block files, however, that would need to happen with coordination from a higher layer since it could invalidate other metadata.
 	if wc.curFileNum < curFileNum || (wc.curFileNum == curFileNum &&
 		wc.curOffset < curOffset) {
+
 		str := fmt.Sprintf("metadata claims file %d, offset %d, but "+
 			"block data is at file %d, offset %d", curFileNum,
 			curOffset, wc.curFileNum, wc.curOffset)

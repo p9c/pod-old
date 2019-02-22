@@ -13,6 +13,7 @@ import (
 // TestInv tests the MsgInv API.
 func TestInv(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "inv"
@@ -60,6 +61,7 @@ func TestInv(
 // TestInvWire tests the MsgInv wire encode and decode for various numbers of inventory vectors and protocol versions.
 func TestInvWire(
 	t *testing.T) {
+
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
@@ -194,6 +196,7 @@ func TestInvWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -207,6 +210,7 @@ func TestInvWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -217,6 +221,7 @@ func TestInvWire(
 // TestInvWireErrors performs negative tests against wire encode and decode of MsgInv to confirm error paths work correctly.
 func TestInvWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	wireErr := &MessageError{}
 	// Block 203707 hash.
@@ -268,6 +273,7 @@ func TestInvWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -285,6 +291,7 @@ func TestInvWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

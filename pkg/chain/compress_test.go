@@ -19,6 +19,7 @@ func hexToBytes(
 // TestVLQ ensures the variable length quantity serialization, deserialization, and size calculation works as expected.
 func TestVLQ(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		val        uint64
@@ -52,6 +53,7 @@ func TestVLQ(
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := serializeSizeVLQ(test.val)
 		if gotSize != len(test.serialized) {
+
 			t.Errorf("serializeSizeVLQ: did not get expected size "+
 				"for %d - got %d, want %d", test.val, gotSize,
 				len(test.serialized))
@@ -61,12 +63,14 @@ func TestVLQ(
 		gotBytes := make([]byte, gotSize)
 		gotBytesWritten := putVLQ(gotBytes, test.val)
 		if !bytes.Equal(gotBytes, test.serialized) {
+
 			t.Errorf("putVLQUnchecked: did not get expected bytes "+
 				"for %d - got %x, want %x", test.val, gotBytes,
 				test.serialized)
 			continue
 		}
 		if gotBytesWritten != len(test.serialized) {
+
 			t.Errorf("putVLQUnchecked: did not get expected number "+
 				"of bytes written for %d - got %d, want %d",
 				test.val, gotBytesWritten, len(test.serialized))
@@ -81,6 +85,7 @@ func TestVLQ(
 			continue
 		}
 		if gotBytesRead != len(test.serialized) {
+
 			t.Errorf("deserializeVLQ: did not get expected number "+
 				"of bytes read for %d - got %d, want %d",
 				test.serialized, gotBytesRead,
@@ -93,6 +98,7 @@ func TestVLQ(
 // TestScriptCompression ensures the domain-specific script compression and decompression works as expected.
 func TestScriptCompression(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -166,6 +172,7 @@ func TestScriptCompression(
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := compressedScriptSize(test.uncompressed)
 		if gotSize != len(test.compressed) {
+
 			t.Errorf("compressedScriptSize (%s): did not get "+
 				"expected size - got %d, want %d", test.name,
 				gotSize, len(test.compressed))
@@ -176,12 +183,14 @@ func TestScriptCompression(
 		gotBytesWritten := putCompressedScript(gotCompressed,
 			test.uncompressed)
 		if !bytes.Equal(gotCompressed, test.compressed) {
+
 			t.Errorf("putCompressedScript (%s): did not get "+
 				"expected bytes - got %x, want %x", test.name,
 				gotCompressed, test.compressed)
 			continue
 		}
 		if gotBytesWritten != len(test.compressed) {
+
 			t.Errorf("putCompressedScript (%s): did not get "+
 				"expected number of bytes written - got %d, "+
 				"want %d", test.name, gotBytesWritten,
@@ -191,6 +200,7 @@ func TestScriptCompression(
 		// Ensure the compressed script size is properly decoded from the compressed script.
 		gotDecodedSize := decodeCompressedScriptSize(test.compressed)
 		if gotDecodedSize != len(test.compressed) {
+
 			t.Errorf("decodeCompressedScriptSize (%s): did not get "+
 				"expected size - got %d, want %d", test.name,
 				gotDecodedSize, len(test.compressed))
@@ -199,6 +209,7 @@ func TestScriptCompression(
 		// Ensure the script decompresses to the expected bytes.
 		gotDecompressed := decompressScript(test.compressed)
 		if !bytes.Equal(gotDecompressed, test.uncompressed) {
+
 			t.Errorf("decompressScript (%s): did not get expected "+
 				"bytes - got %x, want %x", test.name,
 				gotDecompressed, test.uncompressed)
@@ -210,6 +221,7 @@ func TestScriptCompression(
 // TestScriptCompressionErrors ensures calling various functions related to script compression with incorrect data returns the expected results.
 func TestScriptCompressionErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	// A nil script must result in a decoded size of 0.
 	if gotSize := decodeCompressedScriptSize(nil); gotSize != 0 {
@@ -234,6 +246,7 @@ func TestScriptCompressionErrors(
 // TestAmountCompression ensures the domain-specific transaction output amount compression and decompression works as expected.
 func TestAmountCompression(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -309,6 +322,7 @@ func TestAmountCompression(
 // TestCompressedTxOut ensures the transaction output serialization and deserialization works as expected.
 func TestCompressedTxOut(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name       string
@@ -339,6 +353,7 @@ func TestCompressedTxOut(
 		// Ensure the function to calculate the serialized size without actually serializing the txout is calculated properly.
 		gotSize := compressedTxOutSize(test.amount, test.pkScript)
 		if gotSize != len(test.compressed) {
+
 			t.Errorf("compressedTxOutSize (%s): did not get "+
 				"expected size - got %d, want %d", test.name,
 				gotSize, len(test.compressed))
@@ -349,12 +364,14 @@ func TestCompressedTxOut(
 		gotBytesWritten := putCompressedTxOut(gotCompressed,
 			test.amount, test.pkScript)
 		if !bytes.Equal(gotCompressed, test.compressed) {
+
 			t.Errorf("compressTxOut (%s): did not get expected "+
 				"bytes - got %x, want %x", test.name,
 				gotCompressed, test.compressed)
 			continue
 		}
 		if gotBytesWritten != len(test.compressed) {
+
 			t.Errorf("compressTxOut (%s): did not get expected "+
 				"number of bytes written - got %d, want %d",
 				test.name, gotBytesWritten,
@@ -376,12 +393,14 @@ func TestCompressedTxOut(
 			continue
 		}
 		if !bytes.Equal(gotScript, test.pkScript) {
+
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
 				"expected script - got %x, want %x",
 				test.name, gotScript, test.pkScript)
 			continue
 		}
 		if gotBytesRead != len(test.compressed) {
+
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
 				"expected number of bytes read - got %d, want %d",
 				test.name, gotBytesRead, len(test.compressed))
@@ -393,11 +412,13 @@ func TestCompressedTxOut(
 // TestTxOutCompressionErrors ensures calling various functions related to txout compression with incorrect data returns the expected results.
 func TestTxOutCompressionErrors(
 	t *testing.T) {
+
 	t.Parallel()
 	// A compressed txout with missing compressed script must error.
 	compressedTxOut := hexToBytes("00")
 	_, _, _, err := decodeCompressedTxOut(compressedTxOut)
 	if !isDeserializeErr(err) {
+
 		t.Fatalf("decodeCompressedTxOut with missing compressed script "+
 			"did not return expected error type - got %T, want "+
 			"errDeserialize", err)
@@ -406,6 +427,7 @@ func TestTxOutCompressionErrors(
 	compressedTxOut = hexToBytes("0010")
 	_, _, _, err = decodeCompressedTxOut(compressedTxOut)
 	if !isDeserializeErr(err) {
+
 		t.Fatalf("decodeCompressedTxOut with short compressed script "+
 			"did not return expected error type - got %T, want "+
 			"errDeserialize", err)

@@ -105,7 +105,6 @@ func DefaultWalletConfig(
 	datadir string,
 ) *WalletCfg {
 
-
 	log <- cl.Dbg("getting default config")
 	appdatadir := filepath.Join(datadir, w.DefaultAppDataDirname)
 	return &WalletCfg{
@@ -146,7 +145,6 @@ func WriteDefaultWalletConfig(
 	datadir string,
 ) {
 
-
 	defCfg := DefaultWalletConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -171,7 +169,6 @@ func WriteWalletConfig(
 	c *WalletCfg,
 ) {
 
-
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -191,9 +188,9 @@ func configWallet(
 	cfgFile string,
 ) {
 
-
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
 	if ctx.Is("createtemp") {
+
 		log <- cl.Dbg("request to make temp wallet")
 		wc.CreateTemp = true
 	}
@@ -297,6 +294,7 @@ func configWallet(
 	SetLogging(ctx)
 
 	if ctx.Is("save") {
+
 		log <- cl.Info{"saving config file to", cfgFile}
 		j, err := json.MarshalIndent(WalletConfig, "", "  ")
 		if err != nil {
@@ -309,6 +307,7 @@ func configWallet(
 }
 
 func init() {
+
 	// Loads after the var clauses run
 	WalletCommand.Handle = func(ctx climax.Context) int {
 
@@ -326,6 +325,7 @@ func init() {
 		log <- cl.Trc("starting wallet app")
 		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
 		if ctx.Is("version") {
+
 			fmt.Println("pod/wallet version", w.Version())
 			return 0
 		}
@@ -342,11 +342,13 @@ func init() {
 		}
 
 		if ctx.Is("init") {
+
 			log <- cl.Debug{"writing default configuration to", cfgFile}
 			WriteDefaultWalletConfig(cfgFile)
 		}
 		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+
 			log <- cl.Wrn("configuration file does not exist, creating new one")
 			WriteDefaultWalletConfig(cfgFile)
 		} else {

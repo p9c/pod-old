@@ -72,6 +72,7 @@ const minSigLen = 8
 
 func parseSig(
 	sigStr []byte, curve elliptic.Curve, der bool) (*Signature, error) {
+
 	// Originally this code used encoding/asn1 in order to parse the signature, but a number of problems were found with this approach. Despite the fact that signatures are stored as DER, the difference between go's idea of a bignum (and that they have sign) doesn't agree with the openssl one (where they do not). The above is true as of Go 1.1. In the end it was simpler to rewrite the code to explicitly understand the format which is this:
 	// 0x30 <length of whole message> <0x02> <length of R> <R> 0x2
 	// <length of S> <S>.
@@ -145,6 +146,7 @@ func parseSig(
 	index += sLen
 	// sanity check length parsing
 	if index != len(sigStr) {
+
 		return nil, fmt.Errorf("malformed signature: bad final length %v != %v",
 			index, len(sigStr))
 	}
@@ -167,12 +169,14 @@ func parseSig(
 // ParseSignature parses a signature in BER format for the curve type `curve' into a Signature type, perfoming some basic sanity checks.  If parsing according to the more strict DER format is needed, use ParseDERSignature.
 func ParseSignature(
 	sigStr []byte, curve elliptic.Curve) (*Signature, error) {
+
 	return parseSig(sigStr, curve, false)
 }
 
 // ParseDERSignature parses a signature in DER format for the curve type `curve` into a Signature type.  If parsing according to the less strict BER format is needed, use ParseSignature.
 func ParseDERSignature(
 	sigStr []byte, curve elliptic.Curve) (*Signature, error) {
+
 	return parseSig(sigStr, curve, true)
 }
 
@@ -224,6 +228,7 @@ func hashToInt(
 func recoverKeyFromSignature(
 	curve *KoblitzCurve, sig *Signature, msg []byte,
 	iter int, doChecks bool) (*PublicKey, error) {
+
 	// 1.1 x = (n * i) + r
 	Rx := new(big.Int).Mul(curve.Params().N,
 		new(big.Int).SetInt64(int64(iter/2)))
@@ -274,6 +279,7 @@ func recoverKeyFromSignature(
 func SignCompact(
 	curve *KoblitzCurve, key *PrivateKey,
 	hash []byte, isCompressedKey bool) ([]byte, error) {
+
 	sig, err := key.Sign(hash)
 	if err != nil {
 		return nil, err
@@ -312,6 +318,7 @@ func SignCompact(
 func RecoverCompact(
 	curve *KoblitzCurve, signature,
 	hash []byte) (*PublicKey, bool, error) {
+
 	bitlen := (curve.BitSize + 7) / 8
 	if len(signature) != 1+bitlen*2 {
 		return nil, false, errors.New("invalid compact signature size")
@@ -333,6 +340,7 @@ func RecoverCompact(
 // signRFC6979 generates a deterministic ECDSA signature according to RFC 6979 and BIP 62.
 func signRFC6979(
 	privateKey *PrivateKey, hash []byte) (*Signature, error) {
+
 	privkey := privateKey.ToECDSA()
 	N := S256().N
 	halfOrder := S256().halfOrder

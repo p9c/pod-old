@@ -29,6 +29,7 @@ type WIF struct {
 // NewWIF creates a new WIF structure to export an address and its private key as a string encoded in the Wallet Import Format.  The compress argument specifies whether the address intended to be imported or exported was created by serializing the public key compressed rather than uncompressed.
 func NewWIF(
 	privKey *ec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
+
 	if net == nil {
 		return nil, errors.New("no network")
 	}
@@ -50,6 +51,7 @@ func (w *WIF) IsForNet(net *chaincfg.Params) bool {
 // If the base58-decoded byte sequence does not match this, DecodeWIF will return a non-nil error.  ErrMalformedPrivateKey is returned when the WIF is of an impossible length or the expected compressed pubkey magic number does not equal the expected value of 0x01.  ErrChecksumMismatch is returned if the expected WIF checksum does not match the calculated checksum.
 func DecodeWIF(
 	wif string) (*WIF, error) {
+
 	decoded := base58.Decode(wif)
 	decodedLen := len(decoded)
 	var compress bool
@@ -74,6 +76,7 @@ func DecodeWIF(
 	}
 	cksum := chainhash.DoubleHashB(tosum)[:4]
 	if !bytes.Equal(cksum, decoded[decodedLen-4:]) {
+
 		return nil, ErrChecksumMismatch
 	}
 	netID := decoded[0]

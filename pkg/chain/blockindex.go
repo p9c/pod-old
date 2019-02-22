@@ -71,6 +71,7 @@ type blockNode struct {
 // initBlockNode initializes a block node from the given header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.  It must only be called when initially creating a node.
 func initBlockNode(
 	node *blockNode, blockHeader *wire.BlockHeader, parent *blockNode) {
+
 	*node = blockNode{
 		hash:       blockHeader.BlockHash(),
 		version:    blockHeader.Version,
@@ -190,6 +191,7 @@ func (bi *blockIndex) LookupNode(hash *chainhash.Hash) *blockNode {
 
 // AddNode adds the provided node to the block index and marks it as dirty. Duplicate entries are not checked so it is up to caller to avoid adding them. This function is safe for concurrent access.
 func (bi *blockIndex) AddNode(node *blockNode) {
+
 	bi.Lock()
 	bi.addNode(node)
 	bi.dirty[node] = struct{}{}
@@ -198,6 +200,7 @@ func (bi *blockIndex) AddNode(node *blockNode) {
 
 // addNode adds the provided node to the block index, but does not mark it as dirty. This can be used while initializing the block index. This function is NOT safe for concurrent access.
 func (bi *blockIndex) addNode(node *blockNode) {
+
 	bi.index[node.hash] = node
 }
 
@@ -211,6 +214,7 @@ func (bi *blockIndex) NodeStatus(node *blockNode) blockStatus {
 
 // SetStatusFlags flips the provided status flags on the block node to on, regardless of whether they were on or off previously. This does not unset any flags currently on. This function is safe for concurrent access.
 func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
+
 	bi.Lock()
 	node.status |= flags
 	bi.dirty[node] = struct{}{}
@@ -219,6 +223,7 @@ func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
 
 // UnsetStatusFlags flips the provided status flags on the block node to off, regardless of whether they were on or off previously. This function is safe for concurrent access.
 func (bi *blockIndex) UnsetStatusFlags(node *blockNode, flags blockStatus) {
+
 	bi.Lock()
 	node.status &^= flags
 	bi.dirty[node] = struct{}{}
@@ -256,6 +261,7 @@ func (node *blockNode) GetAlgo() int32 {
 
 // GetPrevWithAlgo returns the previous block from the current with the same algorithm
 func (node *blockNode) GetPrevWithAlgo(algo int32) (prev *blockNode) {
+
 	if node == nil {
 		return nil
 	}

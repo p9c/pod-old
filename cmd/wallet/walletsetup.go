@@ -43,7 +43,9 @@ func convertLegacyKeystore(
 		Hash:   *netParams.GenesisHash,
 	}
 	for _, walletAddr := range legacyKeyStore.ActiveAddresses() {
+
 		switch addr := walletAddr.(type) {
+
 		case keystore.PubKeyAddress:
 			privKey, err := addr.PrivKey()
 			if err != nil {
@@ -104,6 +106,7 @@ func CreateWallet(
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)
 	if err != nil && !os.IsNotExist(err) {
+
 		// A stat error not due to a non-existant file should be
 		// returned to the caller.
 		return err
@@ -133,12 +136,14 @@ func CreateWallet(
 
 		// Import the addresses in the legacy keystore to the new wallet if any exist, locking each wallet again when finished.
 		loader.RunAfterLoad(func(w *wallet.Wallet) {
+
 			defer legacyKeyStore.Lock()
 
 			fmt.Println("Importing addresses from existing wallet...")
 
 			lockChan := make(chan time.Time, 1)
 			defer func() {
+
 				lockChan <- time.Time{}
 			}()
 			err := w.Unlock(privPass, lockChan)
@@ -235,6 +240,7 @@ func checkCreateDir(
 	path string) error {
 	if fi, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
+
 			// Attempt data directory creation
 			if err = os.MkdirAll(path, 0700); err != nil {
 				return fmt.Errorf("cannot create directory: %s", err)
@@ -244,6 +250,7 @@ func checkCreateDir(
 		}
 	} else {
 		if !fi.IsDir() {
+
 			return fmt.Errorf("path '%s' is not a directory", path)
 		}
 	}

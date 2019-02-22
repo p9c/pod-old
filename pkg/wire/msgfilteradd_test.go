@@ -10,6 +10,7 @@ import (
 // TestFilterAddLatest tests the MsgFilterAdd API against the latest protocol version.
 func TestFilterAddLatest(
 	t *testing.T) {
+
 	enc := BaseEncoding
 	pver := ProtocolVersion
 	data := []byte{0x01, 0x02}
@@ -45,9 +46,11 @@ func TestFilterAddLatest(
 // TestFilterAddCrossProtocol tests the MsgFilterAdd API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterAddCrossProtocol(
 	t *testing.T) {
+
 	data := []byte{0x01, 0x02}
 	msg := NewMsgFilterAdd(data)
 	if !bytes.Equal(msg.Data, data) {
+
 		t.Errorf("should get same data back out")
 	}
 	// Encode with latest protocol version.
@@ -65,6 +68,7 @@ func TestFilterAddCrossProtocol(
 	}
 	// Since one of the protocol versions doesn't support the filteradd message, make sure the data didn't get encoded and decoded back out.
 	if bytes.Equal(msg.Data, readmsg.Data) {
+
 		t.Error("should not get same data for cross protocol")
 	}
 }
@@ -72,6 +76,7 @@ func TestFilterAddCrossProtocol(
 // TestFilterAddMaxDataSize tests the MsgFilterAdd API maximum data size.
 func TestFilterAddMaxDataSize(
 	t *testing.T) {
+
 	data := bytes.Repeat([]byte{0xff}, 521)
 	msg := NewMsgFilterAdd(data)
 	// Encode with latest protocol version.
@@ -93,6 +98,7 @@ func TestFilterAddMaxDataSize(
 // TestFilterAddWireErrors performs negative tests against wire encode and decode of MsgFilterAdd to confirm error paths work correctly.
 func TestFilterAddWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverNoFilterAdd := BIP0037Version - 1
 	wireErr := &MessageError{}
@@ -130,6 +136,7 @@ func TestFilterAddWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -147,6 +154,7 @@ func TestFilterAddWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

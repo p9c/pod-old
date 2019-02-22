@@ -13,8 +13,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
@@ -124,6 +124,7 @@ func (c *RPCClient) Start() error {
 // Stop disconnects the client and signals the shutdown of all goroutines
 // started by Start.
 func (c *RPCClient) Stop() {
+
 	c.quitMtx.Lock()
 	select {
 	case <-c.quit:
@@ -156,6 +157,7 @@ func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 // WaitForShutdown blocks until both the client has finished disconnecting
 // and all handlers have exited.
 func (c *RPCClient) WaitForShutdown() {
+
 	c.Client.WaitForShutdown()
 	c.wg.Wait()
 }
@@ -171,6 +173,7 @@ func (c *RPCClient) Notifications() <-chan interface{} {
 // BlockStamp returns the latest block notified by the client, or an error
 // if the client has been shut down.
 func (c *RPCClient) BlockStamp() (*waddrmgr.BlockStamp, error) {
+
 	select {
 	case bs := <-c.currentBlock:
 		return bs, nil
@@ -244,6 +247,7 @@ func (c *RPCClient) FilterBlocks(
 		}
 
 		if !blockFilterer.FilterBlock(rawBlock) {
+
 			continue
 		}
 
@@ -273,6 +277,7 @@ func (c *RPCClient) FilterBlocks(
 // here since rpcclient doesn't parse this nicely for us.
 func parseBlock(
 	block *json.BlockDetails) (*wtxmgr.BlockMeta, error) {
+
 	if block == nil {
 		return nil, nil
 	}
@@ -291,6 +296,7 @@ func parseBlock(
 }
 
 func (c *RPCClient) onClientConnect() {
+
 	select {
 	case c.enqueueNotification <- ClientConnected{}:
 	case <-c.quit:
@@ -298,6 +304,7 @@ func (c *RPCClient) onClientConnect() {
 }
 
 func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time time.Time) {
+
 	select {
 	case c.enqueueNotification <- BlockConnected{
 		Block: wtxmgr.Block{
@@ -311,6 +318,7 @@ func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time ti
 }
 
 func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time time.Time) {
+
 	select {
 	case c.enqueueNotification <- BlockDisconnected{
 		Block: wtxmgr.Block{
@@ -324,6 +332,7 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 }
 
 func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
+
 	blk, err := parseBlock(block)
 	if err != nil {
 		// Log and drop improper notification.
@@ -347,11 +356,13 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 }
 
 func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
+
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
 
 func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime time.Time) {
+
 	select {
 	case c.enqueueNotification <- &RescanProgress{hash, height, blkTime}:
 	case <-c.quit:
@@ -359,6 +370,7 @@ func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime
 }
 
 func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime time.Time) {
+
 	select {
 	case c.enqueueNotification <- &RescanFinished{hash, height, blkTime}:
 	case <-c.quit:
@@ -369,6 +381,7 @@ func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime
 // handler maintains a queue of notifications and the current state (best
 // block) of the chain.
 func (c *RPCClient) handler() {
+
 	hash, height, err := c.GetBestBlock()
 	if err != nil {
 		log <- cl.Error{
@@ -447,6 +460,7 @@ out:
 
 // POSTClient creates the equivalent HTTP POST rpcclient.Client.
 func (c *RPCClient) POSTClient() (*rpcclient.Client, error) {
+
 	configCopy := *c.connConfig
 	configCopy.HTTPPostMode = true
 	return rpcclient.New(&configCopy, nil)

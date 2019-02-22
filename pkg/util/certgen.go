@@ -20,8 +20,10 @@ import (
 // NewTLSCertPair returns a new PEM-encoded x.509 certificate pair based on a 521-bit ECDSA private key.  The machine's local interface addresses and all variants of IPv4 and IPv6 localhost are included as valid IP addresses.
 func NewTLSCertPair(
 	organization string, validUntil time.Time, extraHosts []string) (cert, key []byte, err error) {
+
 	now := time.Now()
 	if validUntil.Before(now) {
+
 		return nil, nil, errors.New("validUntil would create an already-expired certificate")
 	}
 	priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
@@ -31,6 +33,7 @@ func NewTLSCertPair(
 	// end of ASN.1 time
 	endOfTime := time.Date(2049, 12, 31, 23, 59, 59, 0, time.UTC)
 	if validUntil.After(endOfTime) {
+
 		validUntil = endOfTime
 	}
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
@@ -48,14 +51,17 @@ func NewTLSCertPair(
 		dnsNames = append(dnsNames, "localhost")
 	}
 	addIP := func(ipAddr net.IP) {
+
 		for _, ip := range ipAddresses {
 			if bytes.Equal(ip, ipAddr) {
+
 				return
 			}
 		}
 		ipAddresses = append(ipAddresses, ipAddr)
 	}
 	addHost := func(host string) {
+
 		for _, dnsName := range dnsNames {
 			if host == dnsName {
 				return

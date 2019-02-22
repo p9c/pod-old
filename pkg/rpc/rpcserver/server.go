@@ -120,10 +120,12 @@ type loaderServer struct {
 // registers it with the gRPC server.
 func StartVersionService(
 	server *grpc.Server) {
+
 	pb.RegisterVersionServiceServer(server, &versionServer{})
 }
 
 func (*versionServer) Version(ctx context.Context, req *pb.VersionRequest) (*pb.VersionResponse, error) {
+
 	return &pb.VersionResponse{
 		VersionString: semverString,
 		Major:         semverMajor,
@@ -136,11 +138,13 @@ func (*versionServer) Version(ctx context.Context, req *pb.VersionRequest) (*pb.
 // registers it with the gRPC server.
 func StartWalletService(
 	server *grpc.Server, wallet *wallet.Wallet) {
+
 	service := &walletServer{wallet}
 	pb.RegisterWalletServiceServer(server, service)
 }
 
 func (s *walletServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+
 	return &pb.PingResponse{}, nil
 }
 
@@ -209,6 +213,7 @@ func (s *walletServer) NextAccount(ctx context.Context, req *pb.NextAccountReque
 
 	lock := make(chan time.Time, 1)
 	defer func() {
+
 		lock <- time.Time{} // send matters, not the value
 	}()
 	err := s.wallet.Unlock(req.Passphrase, lock)
@@ -259,6 +264,7 @@ func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPriva
 
 	lock := make(chan time.Time, 1)
 	defer func() {
+
 		lock <- time.Time{} // send matters, not the value
 	}()
 	err = s.wallet.Unlock(req.Passphrase, lock)
@@ -347,12 +353,14 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 		totalAmount += util.Amount(output.Output.Value)
 
 		if req.TargetAmount != 0 && totalAmount > util.Amount(req.TargetAmount) {
+
 			break
 		}
 	}
 
 	var changeScript []byte
 	if req.IncludeChangeScript && totalAmount > util.Amount(req.TargetAmount) {
+
 		changeAddr, err := s.wallet.NewChangeAddress(req.Account, waddrmgr.KeyScopeBIP0044)
 		if err != nil {
 			return nil, translateError(err)
@@ -441,6 +449,7 @@ func (s *walletServer) ChangePassphrase(ctx context.Context, req *pb.ChangePassp
 	*pb.ChangePassphraseResponse, error) {
 
 	defer func() {
+
 		zero.Bytes(req.OldPassphrase)
 		zero.Bytes(req.NewPassphrase)
 	}()
@@ -476,6 +485,7 @@ func (s *walletServer) SignTransaction(ctx context.Context, req *pb.SignTransact
 
 	lock := make(chan time.Time, 1)
 	defer func() {
+
 		lock <- time.Time{} // send matters, not the value
 	}()
 	err = s.wallet.Unlock(req.Passphrase, lock)
@@ -658,6 +668,7 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 		case v := <-n.C:
 			spenderHash, spenderIndex, spent := v.Spender()
 			if (spent && req.NoNotifySpent) || (!spent && req.NoNotifyUnspent) {
+
 				continue
 			}
 			index := v.Index()
@@ -724,6 +735,7 @@ func (s *loaderServer) CreateWallet(ctx context.Context, req *pb.CreateWalletReq
 	*pb.CreateWalletResponse, error) {
 
 	defer func() {
+
 		zero.Bytes(req.PrivatePassphrase)
 		zero.Bytes(req.Seed)
 	}()
@@ -819,6 +831,7 @@ func (s *loaderServer) StartConsensusRPC(ctx context.Context, req *pb.StartConse
 	// Error if the wallet is already syncing with the network.
 	wallet, walletLoaded := s.loader.LoadedWallet()
 	if walletLoaded && wallet.SynchronizingToNetwork() {
+
 		return nil, grpc.Errorf(codes.FailedPrecondition,
 			"wallet is loaded and already synchronizing")
 	}

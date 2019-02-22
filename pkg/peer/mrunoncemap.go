@@ -43,6 +43,7 @@ func (m *mruNonceMap) Exists(nonce uint64) bool {
 
 // Add adds the passed nonce to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
 func (m *mruNonceMap) Add(nonce uint64) {
+
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 	// When the limit is zero, nothing can be added to the map, so just return.
@@ -73,6 +74,7 @@ func (m *mruNonceMap) Add(nonce uint64) {
 
 // Delete deletes the passed nonce from the map (if it exists). This function is safe for concurrent access.
 func (m *mruNonceMap) Delete(nonce uint64) {
+
 	m.mtx.Lock()
 	if node, exists := m.nonceMap[nonce]; exists {
 		m.nonceList.Remove(node)

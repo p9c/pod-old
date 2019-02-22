@@ -231,6 +231,7 @@ func NewCheckpointFromStr(
 	chaincfg.Checkpoint,
 	error,
 ) {
+
 	parts := strings.Split(checkpoint, ":")
 	if len(parts) != 2 {
 
@@ -428,6 +429,7 @@ func createDefaultConfigFile(
 
 			line = "rpcuser=" + generatedRPCUser + "\n"
 		} else if strings.Contains(line, "rpcpass=") {
+
 			line = "rpcpass=" + generatedRPCPass + "\n"
 		}
 		if _, err := dest.WriteString(line); err != nil {
@@ -451,6 +453,7 @@ func loadConfig() (
 	*Config, []string,
 	error,
 ) {
+
 
 	// Default config.
 	cfg := Config{
@@ -523,6 +526,7 @@ func loadConfig() (
 		DefaultConfigFile {
 		if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
 
+
 			err := createDefaultConfigFile(preCfg.ConfigFile)
 			if err != nil {
 
@@ -565,6 +569,7 @@ func loadConfig() (
 
 		// Show a nicer error message if it's because a symlink is linked to a directory that does not exist (probably because it's not mounted).
 		if e, ok := err.(*os.PathError); ok && os.IsExist(err) {
+
 
 			if link, lerr := os.Readlink(e.Path); lerr == nil {
 
@@ -641,6 +646,7 @@ func loadConfig() (
 	// initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
 	// Validate database type.
 	if !ValidDbType(cfg.DbType) {
+
 
 		str := "%s: The specified database type [%v] is invalid -- supported types %v"
 		err := fmt.Errorf(str, funcName, cfg.DbType, KnownDbTypes)
@@ -756,6 +762,7 @@ func loadConfig() (
 	// The RPC server is disabled if no username or password is provided.
 	if (cfg.RPCUser == "" || cfg.RPCPass == "") &&
 		(cfg.RPCLimitUser == "" || cfg.RPCLimitPass == "") {
+
 		cfg.DisableRPC = true
 	}
 	if cfg.DisableRPC {
@@ -846,6 +853,7 @@ func loadConfig() (
 
 		if strings.ContainsAny(uaComment, "/:()") {
 
+
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
@@ -896,6 +904,7 @@ func loadConfig() (
 			return nil, nil, err
 		}
 		if !addr.IsForNet(ActiveNetParams.Params) {
+
 
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
@@ -988,6 +997,7 @@ func loadConfig() (
 		torIsolation := false
 		if cfg.TorIsolation && cfg.OnionProxy == "" &&
 			(cfg.ProxyUser != "" || cfg.ProxyPass != "") {
+
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- overriding specified proxy user credentials")
 		}
@@ -1002,6 +1012,7 @@ func loadConfig() (
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, cfg.Proxy)
 			}
 		}
@@ -1021,11 +1032,13 @@ func loadConfig() (
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if cfg.TorIsolation &&
 			(cfg.OnionProxyUser != "" || cfg.OnionProxyPass != "") {
+
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+
 			proxy := &socks.Proxy{
 				Addr:         cfg.OnionProxy,
 				Username:     cfg.OnionProxyUser,
@@ -1038,6 +1051,7 @@ func loadConfig() (
 		if cfg.Proxy != "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, cfg.OnionProxy)
 			}
 		}
@@ -1048,6 +1062,7 @@ func loadConfig() (
 	if cfg.NoOnion {
 
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+
 			return nil, errors.New("tor has been disabled")
 		}
 	}
@@ -1079,6 +1094,7 @@ func podDial(
 	net.Conn,
 	error,
 ) {
+
 	if strings.Contains(addr.String(), ".onion:") {
 
 		return StateCfg.Oniondial(addr.Network(), addr.String(),
@@ -1094,6 +1110,7 @@ func podLookup(
 ) ([]net.IP,
 	error,
 ) {
+
 	if strings.HasSuffix(host, ".onion") {
 
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)

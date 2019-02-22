@@ -45,7 +45,9 @@ func (cq *ConcurrentQueue) ChanOut() <-chan interface{} {
 // minimize overhead, but if the out channel is full it pushes items to an
 // overflow queue. This must be called before using the queue.
 func (cq *ConcurrentQueue) Start() {
+
 	go func() {
+
 		for {
 			nextElement := cq.overflow.Front()
 			if nextElement == nil {
@@ -85,5 +87,6 @@ func (cq *ConcurrentQueue) Start() {
 // Stop ends the goroutine that moves items from the in channel to the out
 // channel.
 func (cq *ConcurrentQueue) Stop() {
+
 	close(cq.quit)
 }

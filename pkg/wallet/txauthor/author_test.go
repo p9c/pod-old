@@ -30,6 +30,7 @@ func makeInputSource(
 	currentInputs := make([]*wire.TxIn, 0, len(unspents))
 	currentInputValues := make([]util.Amount, 0, len(unspents))
 	f := func(target util.Amount) (util.Amount, []*wire.TxIn, []util.Amount, [][]byte, error) {
+
 		for currentTotal < target && len(unspents) != 0 {
 			u := unspents[0]
 			unspents = unspents[1:]
@@ -45,6 +46,7 @@ func makeInputSource(
 
 func TestNewUnsignedTransaction(
 	t *testing.T) {
+
 	tests := []struct {
 		UnspentOutputs   []*wire.TxOut
 		Outputs          []*wire.TxOut
@@ -176,6 +178,7 @@ func TestNewUnsignedTransaction(
 	}
 
 	changeSource := func() ([]byte, error) {
+
 		// Only length matters for these tests.
 		return make([]byte, txsizes.P2WPKHPkScriptSize), nil
 	}
@@ -184,6 +187,7 @@ func TestNewUnsignedTransaction(
 		inputSource := makeInputSource(test.UnspentOutputs)
 		tx, err := NewUnsignedTransaction(test.Outputs, test.RelayFee, inputSource, changeSource)
 		switch e := err.(type) {
+
 		case nil:
 		case InputSourceError:
 			if !test.InputSourceError {

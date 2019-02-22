@@ -95,8 +95,8 @@ type blockStore struct {
 	// These functions are set to openFile, openWriteFile, and deleteFile by default, but are exposed here to allow the whitebox tests to replace them when working with mock files.
 	openFileFunc      func(fileNum uint32) (*lockableFile, error)
 	openWriteFileFunc func(
-	fileNum uint32) (filer, error)
-	deleteFileFunc    func(fileNum uint32) error
+		fileNum uint32) (filer, error)
+	deleteFileFunc func(fileNum uint32) error
 }
 
 // blockLocation identifies a particular block file and location.
@@ -143,6 +143,7 @@ func blockFilePath(
 
 // openWriteFile returns a file handle for the passed flat file number in read/write mode.  The file will be created if needed.  It is typically used for the current file that will have all new data appended.  Unlike openFile, this function does not keep track of the open file and it is not subject to the maxOpenFiles limit.
 func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
+
 	// The current block file needs to be read-write so it is possible to append to it.  Also, it shouldn't be part of the least recently used file.
 	filePath := blockFilePath(s.basePath, fileNum)
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0666)
@@ -156,6 +157,7 @@ func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
 // openFile returns a read-only file handle for the passed flat file number. The function also keeps track of the open files, performs least recently used tracking, and limits the number of open files to maxOpenFiles by closing the least recently used file as needed.
 // This function MUST be called with the overall files mutex (s.obfMutex) locked for WRITES.
 func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
+
 	// Open the appropriate file as read-only.
 	filePath := blockFilePath(s.basePath, fileNum)
 	file, err := os.Open(filePath)
@@ -198,6 +200,7 @@ func (s *blockStore) deleteFile(fileNum uint32) error {
 // blockFile attempts to return an existing file handle for the passed flat file number if it is already open as well as marking it as most recently used.  It will also open the file when it's not already open subject to the rules described in openFile.
 // NOTE: The returned block file will already have the read lock acquired and the caller MUST call .RUnlock() to release it once it has finished all read operations.  This is necessary because otherwise it would be possible for a separate goroutine to close the file after it is returned from here, but before the caller has acquired a read lock.
 func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
+
 	// When the requested block file is open for writes, return it.
 	wc := s.writeCursor
 	wc.RLock()
@@ -256,6 +259,7 @@ func (s *blockStore) writeData(data []byte, fieldName string) error {
 // writeBlock appends the specified raw block bytes to the store's write cursor location and increments it accordingly.  When the block would exceed the max file size for the current flat file, this function will close the current file, create the next file, update the write cursor, and write the block to the new file.
 // The write cursor will also be advanced the number of bytes actually written in the event of failure. Format: <network><block length><serialized block><checksum>
 func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
+
 	// Compute how many bytes will be written.
 	// 4 bytes each for block network + 4 bytes for block length +
 	// length of raw block + 4 bytes for checksum.
@@ -326,6 +330,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 // readBlock reads the specified block record and returns the serialized block. It ensures the integrity of the block data by checking that the serialized network matches the current network associated with the block store and comparing the calculated checksum against the one stored in the flat file. This function also automatically handles all file management such as opening and closing files as necessary to stay within the maximum allowed open files limit.
 // Returns ErrDriverSpecific if the data fails to read for any reason and ErrCorruption if the checksum of the read data doesn't match the checksum read from the file. Format: <network><block length><serialized block><checksum>
 func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte, error) {
+
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
 	if err != nil {
@@ -352,6 +357,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 	// The network associated with the block must match the current active network, otherwise somebody probably put the block files for the wrong network in the directory.
 	serializedNet := byteOrder.Uint32(serializedData[:4])
 	if serializedNet != uint32(s.network) {
+
 		str := fmt.Sprintf("block data for block %s is for the "+
 			"wrong network - got %d, want %d", hash, serializedNet,
 			uint32(s.network))
@@ -363,6 +369,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 
 // readBlockRegion reads the specified amount of data at the provided offset for a given block location.  The offset is relative to the start of the serialized block (as opposed to the beginning of the block record).  This function automatically handles all file management such as opening and closing files as necessary to stay within the maximum allowed open files limit. Returns ErrDriverSpecific if the data fails to read for any reason.
 func (s *blockStore) readBlockRegion(loc blockLocation, offset, numBytes uint32) ([]byte, error) {
+
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
 	if err != nil {
@@ -412,6 +419,7 @@ func (s *blockStore) syncBlocks() error {
 // For the first scenario, this will lead to any data which failed to be undone being overwritten and thus behaves as desired as the system continues to run. For the second scenario, the metadata which stores the current write cursor position within the block files will not have been updated yet and thus if the system eventually recovers (perhaps the hard drive is reconnected), it will also lead to any data which failed to be undone being overwritten and thus behaves as desired.
 // Therefore, any errors are simply logged at a warning level rather than being returned since there is nothing more that could be done about it anyways.
 func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
+
 	// Grab the write cursor mutex since it is modified throughout this function.
 	wc := s.writeCursor
 	wc.Lock()
@@ -422,6 +430,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}
 	// Regardless of any failures that happen below, reposition the write cursor to the old block file and offset.
 	defer func() {
+
 		wc.curFileNum = oldBlockFileNum
 		wc.curOffset = oldBlockOffset
 	}()
@@ -486,6 +495,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 // scanBlockFiles searches the database directory for all flat block files to find the end of the most recent file.  This position is considered the current write cursor which is also stored in the metadata.  Thus, it is used to detect unexpected shutdowns in the middle of writes so the block files can be reconciled.
 func scanBlockFiles(
 	dbPath string) (int, uint32) {
+
 	lastFile := -1
 	fileLen := uint32(0)
 	for i := 0; ; i++ {

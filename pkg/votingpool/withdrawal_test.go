@@ -11,6 +11,7 @@ import (
 
 func TestStartWithdrawal(
 	t *testing.T) {
+
 	tearDown, db, pool, store := vp.TstCreatePoolAndTxStore(t)
 	defer tearDown()
 
@@ -46,6 +47,7 @@ func TestStartWithdrawal(
 	currentBlock := int32(vp.TstInputsBlock + vp.TstEligibleInputMinConfirmations + 1)
 	var status *vp.WithdrawalStatus
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
+
 		status, err = pool.StartWithdrawal(ns, addrmgrNs, 0, requests, *startAddr, lastSeriesID, *changeStart,
 			store, txmgrNs, currentBlock, dustThreshold)
 	})
@@ -57,6 +59,7 @@ func TestStartWithdrawal(
 	checkWithdrawalOutputs(t, status, map[string]util.Amount{address1: 4e6, address2: 1e6})
 
 	if status.Fees() != util.Amount(1e3) {
+
 		t.Fatalf("Wrong amount for fees; got %v, want %v", status.Fees(), util.Amount(1e3))
 	}
 
@@ -65,6 +68,7 @@ func TestStartWithdrawal(
 	// index incremented by 1.
 	nextChangeAddr := status.NextChangeAddr()
 	if nextChangeAddr.SeriesID() != changeStart.SeriesID() {
+
 		t.Fatalf("Wrong nextChangeStart series; got %d, want %d", nextChangeAddr.SeriesID(),
 			changeStart.SeriesID())
 	}
@@ -85,6 +89,7 @@ func TestStartWithdrawal(
 	// redeem script, which is stored encrypted.
 	msgtx := status.TstGetMsgTx(ntxid)
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
+
 		if err = vp.SignTx(msgtx, txSigs, mgr, addrmgrNs, store, txmgrNs); err != nil {
 			t.Fatal(err)
 		}
@@ -94,6 +99,7 @@ func TestStartWithdrawal(
 	// return the previously stored WithdrawalStatus.
 	var status2 *vp.WithdrawalStatus
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
+
 		status2, err = pool.StartWithdrawal(ns, addrmgrNs, 0, requests, *startAddr, lastSeriesID, *changeStart,
 			store, txmgrNs, currentBlock, dustThreshold)
 	})
@@ -105,6 +111,7 @@ func TestStartWithdrawal(
 
 func checkWithdrawalOutputs(
 	t *testing.T, wStatus *vp.WithdrawalStatus, amounts map[string]util.Amount) {
+
 	fulfilled := wStatus.Outputs()
 	if len(fulfilled) != 2 {
 		t.Fatalf("Unexpected number of outputs in WithdrawalStatus; got %d, want %d",

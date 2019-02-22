@@ -32,6 +32,7 @@ type txValidator struct {
 
 // sendResult sends the result of a script pair validation on the internal result channel while respecting the quit channel.  This allows orderly shutdown when the validation process is aborted early due to a validation error in one of the other goroutines.
 func (v *txValidator) sendResult(result error) {
+
 	select {
 	case v.resultChan <- result:
 		// fmt.Println("chan:v.resultChan <- result")
@@ -42,6 +43,7 @@ func (v *txValidator) sendResult(result error) {
 
 // validateHandler consumes items to validate from the internal validate channel and returns the result of the validation on the internal result channel. It must be run as a goroutine.
 func (v *txValidator) validateHandler() {
+
 out:
 	for {
 		// fmt.Println("loop:validateHandler")
@@ -114,6 +116,7 @@ func (v *txValidator) Validate(items []*txValidateItem) error {
 		maxGoRoutines = 1
 	}
 	if maxGoRoutines > len(items) {
+
 		maxGoRoutines = len(items)
 	}
 	// Start up validation handlers that are used to asynchronously validate each transaction input.
@@ -174,10 +177,12 @@ func ValidateTransactionScripts(
 	// If the hashcache doesn't yet has the sighash midstate for this transaction, then we'll compute them now so we can re-use them amongst all worker validation goroutines.
 	if segwitActive && tx.MsgTx().HasWitness() &&
 		!hashCache.ContainsHashes(tx.Hash()) {
+
 		hashCache.AddSigHashes(tx.MsgTx())
 	}
 	var cachedHashes *txscript.TxSigHashes
 	if segwitActive && tx.MsgTx().HasWitness() {
+
 		// The same pointer to the transaction's sighash midstate will be re-used amongst all validation goroutines. By pre-computing the sighash here instead of during validation, we ensure the sighashes are only computed once.
 		cachedHashes, _ = hashCache.GetSigHashes(tx.Hash())
 	}
@@ -212,19 +217,23 @@ func checkBlockScripts(
 	// Collect all of the transaction inputs and required information for validation for all transactions in the block into a single slice.
 	numInputs := 0
 	for _, tx := range block.Transactions() {
+
 		numInputs += len(tx.MsgTx().TxIn)
 	}
 	// cl.Debugf{"numInputs=%d", numInputs)
 	txValItems := make([]*txValidateItem, 0, numInputs)
 	for _, tx := range block.Transactions() {
+
 		hash := tx.Hash()
 		// If the HashCache is present, and it doesn't yet contain the partial sighashes for this transaction, then we add the sighashes for the transaction. This allows us to take advantage of the potential speed savings due to the new digest algorithm (BIP0143).
 		if segwitActive && tx.HasWitness() && hashCache != nil &&
 			!hashCache.ContainsHashes(hash) {
+
 			hashCache.AddSigHashes(tx.MsgTx())
 		}
 		var cachedHashes *txscript.TxSigHashes
 		if segwitActive && tx.HasWitness() {
+
 			if hashCache != nil {
 				cachedHashes, _ = hashCache.GetSigHashes(hash)
 			} else {
@@ -258,7 +267,9 @@ func checkBlockScripts(
 	// If the HashCache is present, once we have validated the block, we no longer need the cached hashes for these transactions, so we purge them from the cache.
 	if segwitActive && hashCache != nil {
 		for _, tx := range block.Transactions() {
+
 			if tx.MsgTx().HasWitness() {
+
 				hashCache.PurgeSigHashes(tx.Hash())
 			}
 		}

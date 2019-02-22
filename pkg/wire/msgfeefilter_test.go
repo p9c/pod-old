@@ -12,6 +12,7 @@ import (
 // TestFeeFilterLatest tests the MsgFeeFilter API against the latest protocol version.
 func TestFeeFilterLatest(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	minfee := rand.Int63()
 	msg := NewMsgFeeFilter(minfee)
@@ -54,6 +55,7 @@ func TestFeeFilterLatest(
 // TestFeeFilterWire tests the MsgFeeFilter wire encode and decode for various protocol versions.
 func TestFeeFilterWire(
 	t *testing.T) {
+
 	tests := []struct {
 		in   MsgFeeFilter // Message to encode
 		out  MsgFeeFilter // Expected decoded message
@@ -85,6 +87,7 @@ func TestFeeFilterWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -98,6 +101,7 @@ func TestFeeFilterWire(
 			continue
 		}
 		if !reflect.DeepEqual(msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
@@ -108,6 +112,7 @@ func TestFeeFilterWire(
 // TestFeeFilterWireErrors performs negative tests against wire encode and decode of MsgFeeFilter to confirm error paths work correctly.
 func TestFeeFilterWireErrors(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	pverNoFeeFilter := FeeFilterVersion - 1
 	wireErr := &MessageError{}
@@ -134,6 +139,7 @@ func TestFeeFilterWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, BaseEncoding)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -151,6 +157,7 @@ func TestFeeFilterWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, BaseEncoding)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

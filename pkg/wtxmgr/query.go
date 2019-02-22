@@ -42,6 +42,7 @@ type TxDetails struct {
 // minedTxDetails fetches the TxDetails for the mined transaction with hash
 // txHash and the passed tx record key and value.
 func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, recKey, recVal []byte) (*TxDetails, error) {
+
 	var details TxDetails
 
 	// Parse transaction record k/v, lookup the full block record for the
@@ -61,7 +62,9 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 
 	credIter := makeReadCreditIterator(ns, recKey)
 	for credIter.next() {
+
 		if int(credIter.elem.Index) >= len(details.MsgTx.TxOut) {
+
 			str := "saved credit index exceeds number of outputs"
 			return nil, storeError(ErrData, str, nil)
 		}
@@ -81,7 +84,9 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 
 	debIter := makeReadDebitIterator(ns, recKey)
 	for debIter.next() {
+
 		if int(debIter.elem.Index) >= len(details.MsgTx.TxIn) {
+
 			str := "saved debit index exceeds number of inputs"
 			return nil, storeError(ErrData, str, nil)
 		}
@@ -94,6 +99,7 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 // unminedTxDetails fetches the TxDetails for the unmined transaction with the
 // hash txHash and the passed unmined record value.
 func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, v []byte) (*TxDetails, error) {
+
 	details := TxDetails{
 		Block: BlockMeta{Block: Block{Height: -1}},
 	}
@@ -104,7 +110,9 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 
 	it := makeReadUnminedCreditIterator(ns, txHash)
 	for it.next() {
+
 		if int(it.elem.Index) >= len(details.MsgTx.TxOut) {
+
 			str := "saved credit index exceeds number of outputs"
 			return nil, storeError(ErrData, str, nil)
 		}
@@ -166,6 +174,7 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 // Not finding a transaction with this hash is not an error.  In this case,
 // a nil TxDetails is returned.
 func (s *Store) TxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash) (*TxDetails, error) {
+
 	// First, check whether there exists an unmined transaction with this
 	// hash.  Use it if found.
 	v := existsRawUnmined(ns, txHash[:])
@@ -212,6 +221,7 @@ func (s *Store) UniqueTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 // (signaling breaking out of a RangeTransactions) iff f executes and returns
 // true.
 func (s *Store) rangeUnminedTransactions(ns walletdb.ReadBucket, f func([]TxDetails) (bool, error)) (bool, error) {
+
 	var details []TxDetails
 	err := ns.NestedReadBucket(bucketUnmined).ForEach(func(k, v []byte) error {
 		if len(k) < 32 {
@@ -261,6 +271,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 		blockIter = makeReadBlockIterator(ns, begin)
 		advance = func(it *blockIterator) bool {
 			if !it.next() {
+
 				return false
 			}
 			return it.elem.Height <= end
@@ -270,6 +281,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 		blockIter = makeReadBlockIterator(ns, begin)
 		advance = func(it *blockIterator) bool {
 			if !it.prev() {
+
 				return false
 			}
 			return end <= it.elem.Height
@@ -278,9 +290,11 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 
 	var details []TxDetails
 	for advance(&blockIter) {
+
 		block := &blockIter.elem
 
 		if cap(details) < len(block.transactions) {
+
 			details = make([]TxDetails, 0, len(block.transactions))
 		} else {
 			details = details[:0]
@@ -307,7 +321,9 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 
 			credIter := makeReadCreditIterator(ns, k)
 			for credIter.next() {
+
 				if int(credIter.elem.Index) >= len(detail.MsgTx.TxOut) {
+
 					str := "saved credit index exceeds number of outputs"
 					return false, storeError(ErrData, str, nil)
 				}
@@ -328,7 +344,9 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 
 			debIter := makeReadDebitIterator(ns, k)
 			for debIter.next() {
+
 				if int(debIter.elem.Index) >= len(detail.MsgTx.TxIn) {
+
 					str := "saved debit index exceeds number of inputs"
 					return false, storeError(ErrData, str, nil)
 				}
@@ -387,6 +405,7 @@ func (s *Store) RangeTransactions(ns walletdb.ReadBucket, begin, end int32,
 // PreviousPkScripts returns a slice of previous output scripts for each credit
 // output this transaction record debits from.
 func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *Block) ([][]byte, error) {
+
 	var pkScripts [][]byte
 
 	if block == nil {
@@ -435,6 +454,7 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 	recKey := keyTxRecord(&rec.Hash, block)
 	it := makeReadDebitIterator(ns, recKey)
 	for it.next() {
+
 		credKey := extractRawDebitCreditKey(it.cv)
 		index := extractRawCreditIndex(credKey)
 		k := extractRawCreditTxRecordKey(credKey)

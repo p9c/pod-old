@@ -13,8 +13,8 @@ import (
 )
 
 // This example demonstrates creating a script which pays to a bitcoin address. It also prints the created script hex and uses the DisasmString function to display the disassembled script.
-func ExamplePayToAddrScript(
-	) {
+func ExamplePayToAddrScript() {
+
 	// Parse the address to send the coins to into a util.Address which is useful to ensure the accuracy of the address and determine the address type.  It is also required for the upcoming call to
 	// PayToAddrScript.
 	addressStr := "12gpXQVcCL2qhTNQgyLVdCFG2Qs2px98nV"
@@ -42,8 +42,8 @@ func ExamplePayToAddrScript(
 }
 
 // This example demonstrates extracting information from a standard public key script.
-func ExampleExtractPkScriptAddrs(
-	) {
+func ExampleExtractPkScriptAddrs() {
+
 	// Start with a standard pay-to-pubkey-hash script.
 	scriptHex := "76a914128004ff2fcaf13b2b91eb654b1dc2b674f7ec6188ac"
 	script, err := hex.DecodeString(scriptHex)
@@ -68,8 +68,8 @@ func ExampleExtractPkScriptAddrs(
 }
 
 // This example demonstrates manually creating and signing a redeem transaction.
-func ExampleSignTxOutput(
-	) {
+func ExampleSignTxOutput() {
+
 	// Ordinarily the private key would come from whatever storage mechanism is being used, but for this example just hard code it.
 	privKeyBytes, err := hex.DecodeString("22a47fa09a223f2aa079edf85a7c2" +
 		"d4f8720ee63e502ee2869afab7de234b80c")
@@ -109,6 +109,7 @@ func ExampleSignTxOutput(
 	redeemTx.AddTxOut(txOut)
 	// Sign the redeeming transaction.
 	lookupKey := func(a util.Address) (*ec.PrivateKey, bool, error) {
+
 		// Ordinarily this function would involve looking up the private key for the provided address, but since the only thing being signed in this example uses the address associated with the private key from above, simply return it with the compressed flag set since the address is using the associated compressed public key.
 		// NOTE: If you want to prove the code is actually signing the transaction properly, uncomment the following line which intentionally returns an invalid key to sign with, which in turn will result in a failure during the script execution when verifying the signature.
 		// privKey.D.SetInt64(12345)

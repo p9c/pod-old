@@ -6,13 +6,13 @@ import (
 	"sort"
 	"testing"
 
+	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 func decodeHashNoError(
@@ -416,6 +416,7 @@ func heightToHeader(
 
 func runCheckCFCheckptSanityTestCase(
 	t *testing.T, testCase *cfCheckptTestCase) {
+
 	tempDir, err := ioutil.TempDir("", "neutrino")
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %s", err)
@@ -523,10 +524,12 @@ func runCheckCFCheckptSanityTestCase(
 
 func TestCheckCFCheckptSanity(
 	t *testing.T) {
+
 	t.Parallel()
 
 	for _, testCase := range cfCheckptTestCases {
 		t.Run(testCase.name, func(t *testing.T) {
+
 			runCheckCFCheckptSanityTestCase(t, testCase)
 		})
 	}
@@ -534,10 +537,12 @@ func TestCheckCFCheckptSanity(
 
 func TestCheckForCFHeadersMismatch(
 	t *testing.T) {
+
 	t.Parallel()
 
 	for _, testCase := range checkCFHTestCases {
 		t.Run(testCase.name, func(t *testing.T) {
+
 			mismatch := checkForCFHeaderMismatch(
 				testCase.headers, testCase.idx,
 			)
@@ -552,10 +557,12 @@ func TestCheckForCFHeadersMismatch(
 
 func TestResolveCFHeadersMismatch(
 	t *testing.T) {
+
 	t.Parallel()
 
 	for _, testCase := range resolveCFHTestCases {
 		t.Run(testCase.name, func(t *testing.T) {
+
 			badPeers, err := resolveCFHeaderMismatch(
 				block, wire.GCSFilterRegular, testCase.peerFilters,
 			)
@@ -565,6 +572,7 @@ func TestResolveCFHeadersMismatch(
 			}
 
 			if len(badPeers) != len(testCase.badPeers) {
+
 				t.Fatalf("Banned wrong peers.\nExpected: "+
 					"%#v\nGot: %#v", testCase.badPeers,
 					badPeers)

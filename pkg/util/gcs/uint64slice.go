@@ -15,5 +15,6 @@ func (p uint64Slice) Less(i, j int) bool {
 
 // Swap swaps two slice elements.
 func (p uint64Slice) Swap(i, j int) {
+
 	p[i], p[j] = p[j], p[i]
 }

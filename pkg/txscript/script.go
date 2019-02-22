@@ -38,6 +38,7 @@ const (
 func isSmallInt(
 	op *opcode) bool {
 	if op.value == OP_0 || (op.value >= OP_1 && op.value <= OP_16) {
+
 		return true
 	}
 	return false
@@ -124,12 +125,14 @@ func isWitnessProgram(
 // ExtractWitnessProgramInfo attempts to extract the witness program version, as well as the witness program itself from the passed script.
 func ExtractWitnessProgramInfo(
 	script []byte) (int, []byte, error) {
+
 	pops, err := parseScript(script)
 	if err != nil {
 		return 0, nil, err
 	}
 	// If at this point, the scripts doesn't resemble a witness program, then we'll exit early as there isn't a valid version or program to extract.
 	if !isWitnessProgram(pops) {
+
 		return 0, nil, fmt.Errorf("script is not a witness program, " +
 			"unable to extract version or witness program")
 	}
@@ -164,6 +167,7 @@ func IsPushOnlyScript(
 // parseScriptTemplate is the same as parseScript but allows the passing of the template list for testing purposes.  When there are parse errors, it returns the list of parsed opcodes up to the point of failure along with the error.
 func parseScriptTemplate(
 	script []byte, opcodes *[256]opcode) ([]parsedOpcode, error) {
+
 	retScript := make([]parsedOpcode, 0, len(script))
 	for i := 0; i < len(script); {
 		instr := script[i]
@@ -236,12 +240,14 @@ func parseScriptTemplate(
 // parseScript preparses the script in bytes into a list of parsedOpcodes while applying a number of sanity checks.
 func parseScript(
 	script []byte) ([]parsedOpcode, error) {
+
 	return parseScriptTemplate(script, &opcodeArray)
 }
 
 // unparseScript reversed the action of parseScript and returns the parsedOpcodes as a list of bytes
 func unparseScript(
 	pops []parsedOpcode) ([]byte, error) {
+
 	script := make([]byte, 0, len(pops))
 	for _, pop := range pops {
 		b, err := pop.bytes()
@@ -256,6 +262,7 @@ func unparseScript(
 // DisasmString formats a disassembled script for one line printing.  When the script fails to parse, the returned string will contain the disassembled script up to the point the failure occurred along with the string '[error]' appended.  In addition, the reason the script failed to parse is returned if the caller wants more information about the failure.
 func DisasmString(
 	buf []byte) (string, error) {
+
 	var disbuf bytes.Buffer
 	opcodes, err := parseScript(buf)
 	for _, pop := range opcodes {
@@ -293,6 +300,7 @@ func canonicalPush(
 		return true
 	}
 	if opcode < OP_PUSHDATA1 && opcode > OP_0 && (dataLen == 1 && data[0] <= 16) {
+
 		return false
 	}
 	if opcode == OP_PUSHDATA1 && dataLen < OP_PUSHDATA1 {
@@ -313,6 +321,7 @@ func removeOpcodeByData(
 	retScript := make([]parsedOpcode, 0, len(pkscript))
 	for _, pop := range pkscript {
 		if !canonicalPush(pop) || !bytes.Contains(pop.data, data) {
+
 			retScript = append(retScript, pop)
 		}
 	}
@@ -360,6 +369,7 @@ func calcHashOutputs(
 func calcWitnessSignatureHash(
 	subScript []parsedOpcode, sigHashes *TxSigHashes,
 	hashType SigHashType, tx *wire.MsgTx, idx int, amt int64) ([]byte, error) {
+
 	// As a sanity check, ensure the passed input index for the transaction is valid.
 	if idx > len(tx.TxIn)-1 {
 		return nil, fmt.Errorf("idx %d but %d txins", idx, len(tx.TxIn))
@@ -393,6 +403,7 @@ func calcWitnessSignatureHash(
 	binary.LittleEndian.PutUint32(bIndex[:], txIn.PreviousOutPoint.Index)
 	sigHash.Write(bIndex[:])
 	if isWitnessPubKeyHash(subScript) {
+
 		// The script code for a p2wkh is a length prefix varint for the next 25 bytes, followed by a re-creation of the original p2pkh pk script.
 		sigHash.Write([]byte{0x19})
 		sigHash.Write([]byte{OP_DUP})
@@ -418,6 +429,7 @@ func calcWitnessSignatureHash(
 		hashType&SigHashNone != SigHashNone {
 		sigHash.Write(sigHashes.HashOutputs[:])
 	} else if hashType&sigHashMask == SigHashSingle && idx < len(tx.TxOut) {
+
 		var b bytes.Buffer
 		wire.WriteTxOut(&b, 0, 0, tx.TxOut[idx])
 		sigHash.Write(chainhash.DoubleHashB(b.Bytes()))
@@ -438,6 +450,7 @@ func calcWitnessSignatureHash(
 func CalcWitnessSigHash(
 	script []byte, sigHashes *TxSigHashes, hType SigHashType,
 	tx *wire.MsgTx, idx int, amt int64) ([]byte, error) {
+
 	parsedScript, err := parseScript(script)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse output script: %v", err)
@@ -472,6 +485,7 @@ func shallowCopyTx(
 // CalcSignatureHash will, given a script and hash type for the current script engine instance, calculate the signature hash to be used for signing and verification.
 func CalcSignatureHash(
 	script []byte, hashType SigHashType, tx *wire.MsgTx, idx int) ([]byte, error) {
+
 	parsedScript, err := parseScript(script)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse output script: %v", err)
@@ -487,6 +501,7 @@ func calcSignatureHash(
 	// A bug in the original Satoshi client implementation means specifying an index that is out of range results in a signature hash of 1 (as a uint256 little endian).  The original intent appeared to be to indicate failure, but unfortunately, it was never checked and thus is treated as the actual signature hash.  This buggy behavior is now part of the consensus and a hard fork would be required to fix it.
 	// Due to this, care must be taken by software that creates transactions which make use of SigHashSingle because it can lead to an extremely dangerous situation where the invalid inputs will end up signing a hash of 1.  This in turn presents an opportunity for attackers to cleverly construct transactions which can steal those coins provided they can reuse signatures.
 	if hashType&sigHashMask == SigHashSingle && idx >= len(tx.TxOut) {
+
 		var hash chainhash.Hash
 		hash[0] = 0x01
 		return hash[:]
@@ -596,6 +611,7 @@ func GetPreciseSigOpCount(
 	pops, _ := parseScript(scriptPubKey)
 	// Treat non P2SH transactions as normal.
 	if !(bip16 && isScriptHash(pops)) {
+
 		return getSigOpCount(pops, true)
 	}
 	// The public key script is a pay-to-script-hash, so parse the signature script to get the final item.  Scripts that fail to fully parse count as 0 signature operations.
@@ -622,6 +638,7 @@ func GetWitnessSigOpCount(
 	sigScript, pkScript []byte, witness wire.TxWitness) int {
 	// If this is a regular witness program, then we can proceed directly to counting its signature operations without any further processing.
 	if IsWitnessProgram(pkScript) {
+
 		return getWitnessSigOps(pkScript, witness)
 	}
 	// Next, we'll check the sigScript to see if this is a nested p2sh witness program. This is a case wherein the sigScript is actually a datapush of a p2wsh witness program.
@@ -631,6 +648,7 @@ func GetWitnessSigOpCount(
 	}
 	if IsPayToScriptHash(pkScript) && isPushOnly(sigPops) &&
 		IsWitnessProgram(sigScript[1:]) {
+
 		return getWitnessSigOps(sigScript[1:], witness)
 	}
 	return 0

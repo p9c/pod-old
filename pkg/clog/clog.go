@@ -105,11 +105,13 @@ type SubSystem struct {
 
 // Close a SubSystem logger
 func (s *SubSystem) Close() {
+
 	close(s.Ch)
 }
 
 // Ftlc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Ftlc(closure StringClosure) {
+
 	if s.Level > _off {
 		s.Ch <- Fatalc(closure)
 	}
@@ -117,6 +119,7 @@ func (s *SubSystem) Ftlc(closure StringClosure) {
 
 // Errc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Errc(closure StringClosure) {
+
 	if s.Level > _fatal {
 		s.Ch <- Errorc(closure)
 	}
@@ -124,6 +127,7 @@ func (s *SubSystem) Errc(closure StringClosure) {
 
 // Wrnc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Wrnc(closure StringClosure) {
+
 	if s.Level > _error {
 		s.Ch <- Warnc(closure)
 	}
@@ -131,6 +135,7 @@ func (s *SubSystem) Wrnc(closure StringClosure) {
 
 // Infc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Infc(closure StringClosure) {
+
 	if s.Level > _warn {
 		s.Ch <- Infoc(closure)
 	}
@@ -138,6 +143,7 @@ func (s *SubSystem) Infc(closure StringClosure) {
 
 // Dbgc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Dbgc(closure StringClosure) {
+
 	if s.Level > _info {
 		s.Ch <- Debugc(closure)
 	}
@@ -145,6 +151,7 @@ func (s *SubSystem) Dbgc(closure StringClosure) {
 
 // Trcc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
 func (s *SubSystem) Trcc(closure StringClosure) {
+
 	if s.Level > _debug {
 		s.Ch <- Tracec(closure)
 	}
@@ -176,6 +183,7 @@ var Levels = map[string]int{
 
 // SetLevel changes the level of a subsystem by level name
 func (s *SubSystem) SetLevel(level string) {
+
 	if i, ok := Levels[level]; ok {
 		s.Level = i
 		s.LevelString = level
@@ -199,12 +207,14 @@ var ShuttingDown bool
 // NewSubSystem starts up a new subsystem logger
 func NewSubSystem(
 	name, level string) (ss *SubSystem) {
+
 	wg.Add(1)
 	ss = new(SubSystem)
 	ss.Ch = make(chan interface{})
 	ss.Name = name
 	ss.SetLevel(level)
 	go func() {
+
 		for {
 			// fmt.Println("loop:NewSubSystem")
 
@@ -225,6 +235,7 @@ func NewSubSystem(
 					n += ":"
 				}
 				switch i.(type) {
+
 				case Ftl:
 					if ss.Level > _off {
 						Og <- Ftl(n+" ") + i.(Ftl)
@@ -359,10 +370,11 @@ func NewSubSystem(
 	return
 }
 
-func init(
-	) {
+func init() {
+
 	wg.Add(1)
 	worker := func() {
+
 		var t, s string
 		for {
 			// fmt.Println("clog loop")
@@ -388,6 +400,7 @@ func init(
 				}
 				t = time.Now().UTC().Format("06-01-02 15:04:05.000")
 				switch i.(type) {
+
 				case Fatalc:
 					s += i.(Fatalc)() + "\n"
 				case Errorc:
@@ -427,41 +440,48 @@ func init(
 				case Fatalf:
 					I := i.(Fatalf)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				case Errorf:
 					I := i.(Errorf)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				case Warnf:
 					I := i.(Warnf)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				case Infof:
 					I := i.(Infof)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				case Debugf:
 					I := i.(Debugf)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				case Tracef:
 					I := i.(Tracef)
 					switch I[0].(type) {
+
 					case string:
 						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
 					}
 				}
 				switch i.(type) {
+
 				case Ftl, Fatal, Fatalf, Fatalc:
 					s = ftlTag(color) + s
 				case Err, Error, Errorf, Errorc:
@@ -573,8 +593,8 @@ func trcTag(
 var Quit = make(chan struct{})
 
 // Shutdown the application, allowing the logger a moment to clear the channels
-func Shutdown(
-	) {
+func Shutdown() {
+
 	close(Quit)
 	wg.Wait()
 	<-interrupt.HandlersDone

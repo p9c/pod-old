@@ -43,8 +43,10 @@ type SubSystem struct {
 
 // SetLevel sets the debug level according to a string
 func (s *SubSystem) SetLevel(level string) {
+
 	oldlevel := s.Level
 	switch strings.ToLower(level) {
+
 	case "off":
 		s.Level = -1
 	case "fatal":
@@ -110,6 +112,7 @@ func NewSubSystem(
 
 	for i := range chans {
 		go func(i int) {
+
 			s := chans[i]
 			for {
 				if ss.Active {
@@ -157,6 +160,7 @@ func NewSubSystem(
 	}
 	for i := range fmtchans {
 		go func(i int) {
+
 			s := fmtchans[i]
 			for {
 				for ss.Active {
@@ -215,6 +219,7 @@ func NewSubSystem(
 // though you can always just directly do what is done here in this function, where log.Info is the channel. This is just here for completeness with the FmtChan Print, which makes a less weildy invocation by using the builtin variant arguments processing
 // This format also allows you to use comma separated list of strings, instead of using concatenation operators, it also interposes spaces between the strings
 func (c *Chan) Print(s ...string) {
+
 	tmp := ""
 	for i := range s {
 		if i > 0 {
@@ -227,6 +232,7 @@ func (c *Chan) Print(s ...string) {
 
 // Print is a shortcut to assemble an Fmt struct literal. It should be inlined by the compiler
 func (s *FmtChan) Print(fmt string, items ...interface{}) {
+
 	*s <- Fmt{fmt, items}
 }
 
@@ -244,6 +250,7 @@ type Fmt struct {
 // Check checks if an error exists, if so, prints a log to the specified log level with a string and returns if err was nil
 func Check(
 	err error, tag int, where string) (wasError bool) {
+
 	if err != nil {
 		wasError = true
 		L[tag].Chan <- L[tag].Name() + " " + err.Error()
@@ -361,17 +368,20 @@ var (
 // Disabled is a no-op print function
 func Disabled(
 	name, txt string) {
+
 }
 
 // SetPrinter loads a different print function
 func SetPrinter(
 	fn func(name, txt string)) {
+
 	LogIt = fn
 }
 
 // Color sets whether tags are coloured or not, 0 color
 func Color(
 	on bool) {
+
 	color = on
 }
 
@@ -383,6 +393,7 @@ func GetColor(
 
 // func emptyJoiner(
 	string) {
+
 // 	// This just swallows the input and discards it
 // }
 
@@ -391,6 +402,7 @@ func GetColor(
 
 func init(
 	) {
+
 	Init()
 }
 
@@ -418,6 +430,7 @@ func Init(
 		<-ready[i]
 	}
 	// go func() {
+
 	// 	for {
 	// 		select {
 	// 		case s := <-Joined:
@@ -432,6 +445,7 @@ func Init(
 // Print out a formatted log message
 func Print(
 	name, txt string) {
+
 	out := fmt.Sprintf("%s %s %s\n",
 		time.Now().UTC().Format("2006-01-02 15:04:05.000000 MST"),
 		name,
@@ -448,6 +462,7 @@ func Print(
 
 func startChan(
 	ch int, ready chan bool) {
+
 	L[ch].Chan = make(chan string)
 	ready <- true
 	done := true
@@ -471,6 +486,7 @@ func startChan(
 // Shutdown the application, allowing the logger a moment to clear the channels
 func Shutdown(
 	) {
+
 	close(Quit)
 	// wait a moment to let log channel clear
 	time.Sleep(time.Millisecond * 50)

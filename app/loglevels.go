@@ -106,6 +106,7 @@ func SetAllLogging(
 func SetLogging(
 	ctx *climax.Context,
 ) {
+
 	ss := GetAllSubSystems()
 	var baselevel = "info"
 	if r, ok := getIfIs(ctx, "debuglevel"); ok {

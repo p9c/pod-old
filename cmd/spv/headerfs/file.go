@@ -21,6 +21,7 @@ func (h *headerStore) appendRaw(header []byte) error {
 // amount of bytes read past the seek distance is determined by the specified
 // header type.
 func (h *headerStore) readRaw(seekDist uint64) ([]byte, error) {
+
 	var headerSize uint32
 
 	// Based on the defined header type, we'll determine the number of
@@ -107,6 +108,7 @@ func (h *blockHeaderStore) readHeaderRange(startHeight uint32,
 // readHeader reads a full block header from the flat-file. The header read is
 // determined by the hight value.
 func (h *blockHeaderStore) readHeader(height uint32) (wire.BlockHeader, error) {
+
 	var header wire.BlockHeader
 
 	// Each header is 80 bytes, so using this information, we'll seek a
@@ -132,6 +134,7 @@ func (h *blockHeaderStore) readHeader(height uint32) (wire.BlockHeader, error) {
 // readHeader reads a single filter header at the specified height from the
 // flat files on disk.
 func (f *FilterHeaderStore) readHeader(height uint32) (*chainhash.Hash, error) {
+
 	seekDistance := uint64(height) * 32
 
 	rawHeader, err := f.readRaw(seekDistance)

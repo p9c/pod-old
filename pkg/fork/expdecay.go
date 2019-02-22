@@ -20,6 +20,7 @@ func Root(a *big.Float, n float64) *big.Float {
 		}
 		x0, x = x, Mul(rn, Add(Mul(n1f, x), t2))
 		if Lesser(Mul(Abs(Sub(x, x0)), limit), x) {
+
 			break
 		}
 	}

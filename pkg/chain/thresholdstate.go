@@ -64,12 +64,14 @@ type thresholdStateCache struct {
 
 // Lookup returns the threshold state associated with the given hash along with a boolean that indicates whether or not it is valid.
 func (c *thresholdStateCache) Lookup(hash *chainhash.Hash) (ThresholdState, bool) {
+
 	state, ok := c.entries[*hash]
 	return state, ok
 }
 
 // Update updates the cache to contain the provided hash to threshold state mapping.
 func (c *thresholdStateCache) Update(hash *chainhash.Hash, state ThresholdState) {
+
 	c.entries[*hash] = state
 }
 
@@ -87,6 +89,7 @@ func newThresholdCaches(
 
 // thresholdState returns the current rule change threshold state for the block AFTER the given node and deployment ID.  The cache is used to ensure the threshold states for previous windows are only calculated once. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdConditionChecker, cache *thresholdStateCache) (ThresholdState, error) {
+
 	// The threshold state for the window that contains the genesis block is defined by definition.
 	confirmationWindow := int32(checker.MinerConfirmationWindow())
 	if prevNode == nil || (prevNode.height+1) < confirmationWindow {
@@ -106,6 +109,7 @@ func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdCondit
 		medianTime := prevNode.CalcPastMedianTime()
 		// The state is simply defined if the start time hasn't been been reached yet.
 		if uint64(medianTime.Unix()) < checker.BeginTime() {
+
 			cache.Update(&prevNode.hash, ThresholdDefined)
 			break
 		}
@@ -132,17 +136,20 @@ func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdCondit
 			medianTime := prevNode.CalcPastMedianTime()
 			medianTimeUnix := uint64(medianTime.Unix())
 			if medianTimeUnix >= checker.EndTime() {
+
 				state = ThresholdFailed
 				break
 			}
 			// The state for the rule moves to the started state once its start time has been reached (and it hasn't already expired per the above).
 			if medianTimeUnix >= checker.BeginTime() {
+
 				state = ThresholdStarted
 			}
 		case ThresholdStarted:
 			// The deployment of the rule change fails if it expires before it is accepted and locked in.
 			medianTime := prevNode.CalcPastMedianTime()
 			if uint64(medianTime.Unix()) >= checker.EndTime() {
+
 				state = ThresholdFailed
 				break
 			}
@@ -162,6 +169,7 @@ func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdCondit
 			}
 			// The state is locked in if the number of blocks in the period that voted for the rule change meets the activation threshold.
 			if count >= checker.RuleChangeActivationThreshold() {
+
 				state = ThresholdLockedIn
 			}
 		case ThresholdLockedIn:
@@ -179,6 +187,7 @@ func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdCondit
 
 // ThresholdState returns the current rule change threshold state of the given deployment ID for the block AFTER the end of the current best chain. This function is safe for concurrent access.
 func (b *BlockChain) ThresholdState(deploymentID uint32) (ThresholdState, error) {
+
 	b.chainLock.Lock()
 	state, err := b.deploymentState(b.bestChain.Tip(), deploymentID)
 	b.chainLock.Unlock()
@@ -187,6 +196,7 @@ func (b *BlockChain) ThresholdState(deploymentID uint32) (ThresholdState, error)
 
 // IsDeploymentActive returns true if the target deploymentID is active, and false otherwise. This function is safe for concurrent access.
 func (b *BlockChain) IsDeploymentActive(deploymentID uint32) (bool, error) {
+
 	b.chainLock.Lock()
 	state, err := b.deploymentState(b.bestChain.Tip(), deploymentID)
 	b.chainLock.Unlock()
@@ -198,7 +208,9 @@ func (b *BlockChain) IsDeploymentActive(deploymentID uint32) (bool, error) {
 
 // deploymentState returns the current rule change threshold for a given deploymentID. The threshold is evaluated from the point of view of the block node passed in as the first argument to this method. It is important to note that, as the variable name indicates, this function expects the block node prior to the block for which the deployment state is desired.  In other words, the returned deployment state is for the block AFTER the passed node. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) deploymentState(prevNode *blockNode, deploymentID uint32) (ThresholdState, error) {
+
 	if deploymentID > uint32(len(b.chainParams.Deployments)) {
+
 		return ThresholdFailed, DeploymentError(deploymentID)
 	}
 	deployment := &b.chainParams.Deployments[deploymentID]
@@ -230,6 +242,7 @@ func (b *BlockChain) initThresholdCaches() error {
 	}
 	// No warnings about unknown rules or versions until the chain is current.
 	if b.isCurrent() {
+
 		// Warn if a high enough percentage of the last blocks have unexpected versions.
 		bestNode := b.bestChain.Tip()
 		// if err := b.warnUnknownVersions(bestNode); err != nil {

@@ -234,8 +234,8 @@ func hexToBytes(
 }
 
 func emptyDB(
-	t *testing.T) (tearDownFunc func(
-	), db walletdb.DB) {
+	t *testing.T) (tearDownFunc func(), db walletdb.DB) {
+
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {
 		t.Fatalf("Failed to create db temp dir: %v", err)
@@ -247,6 +247,7 @@ func emptyDB(
 		t.Fatalf("createDbNamespace: unexpected error: %v", err)
 	}
 	tearDownFunc = func() {
+
 		db.Close()
 		_ = os.RemoveAll(dirName)
 	}
@@ -256,8 +257,8 @@ func emptyDB(
 // setupManager creates a new address manager and returns a teardown function
 // that should be invoked to ensure it is closed and removed upon completion.
 func setupManager(
-	t *testing.T) (tearDownFunc func(
-	), db walletdb.DB, mgr *waddrmgr.Manager) {
+	t *testing.T) (tearDownFunc func(), db walletdb.DB, mgr *waddrmgr.Manager) {
+
 	// Create a new manager in a temp directory.
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {
@@ -290,6 +291,7 @@ func setupManager(
 		t.Fatalf("Failed to create Manager: %v", err)
 	}
 	tearDownFunc = func() {
+
 		mgr.Close()
 		db.Close()
 		_ = os.RemoveAll(dirName)

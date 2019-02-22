@@ -39,6 +39,7 @@ func Main(
 	serverChan chan<- *server,
 ) (err error,
 ) {
+
 	cfg = c
 	switch activeNet.Name {
 	case "testnet":
@@ -53,6 +54,7 @@ func Main(
 	shutdownChan := make(chan struct{})
 	interrupt.AddHandler(
 		func() {
+
 			log <- cl.Inf("shutdown complete")
 			close(shutdownChan)
 		},
@@ -64,6 +66,7 @@ func Main(
 
 		log <- cl.Dbg("profiling requested")
 		go func() {
+
 			listenAddr := net.JoinHostPort("", cfg.Profile)
 			log <- cl.Info{"profile server listening on", listenAddr}
 			profileRedirect := http.RedirectHandler("/debug/pprof",
@@ -111,6 +114,7 @@ func Main(
 		return
 	}
 	defer func() {
+
 		// Ensure the database is sync'd and closed on shutdown.
 		log <- cl.Inf("gracefully shutting down the database...")
 		db.Close()
@@ -157,6 +161,7 @@ func Main(
 		return err
 	}
 	interrupt.AddHandler(func() {
+
 		log <- cl.Inf("gracefully shutting down the server...")
 		e := server.Stop()
 		if e != nil {
@@ -195,6 +200,7 @@ func loadBlockDB() (
 	database.DB,
 	error,
 ) {
+
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if cfg.DbType == "memdb" {
 
@@ -242,6 +248,7 @@ func loadBlockDB() (
 
 /*
 func PreMain() {
+
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// Block and transaction processing can cause bursty allocations.  This limits the garbage collector from excessively overallocating during bursts.  This value was arrived at with the help of profiling live usage.

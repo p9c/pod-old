@@ -31,7 +31,6 @@ func GenPortSet(
 	ps *PortSet,
 ) {
 
-
 	// From the base, each element is as follows:
 	// - P2P = portbase
 	// - NodeRPC = portbase + 1
@@ -55,7 +54,6 @@ func GetDefaultConfs(
 	out *ConfigSet,
 ) {
 
-
 	out = new(ConfigSet)
 	out.Conf = DefaultConfConfig(datadir)
 	out.Ctl = DefaultCtlConfig(datadir)
@@ -69,7 +67,6 @@ func GetDefaultConfs(
 func SyncToConfs(
 	in *ConfigSet,
 ) {
-
 
 	if in == nil {
 		panic("received nil configset")
@@ -162,7 +159,6 @@ func WriteConfigSet(
 	in *ConfigSet,
 ) {
 
-
 	WriteConfConfig(in.Conf)
 	WriteCtlConfig(in.Ctl)
 	WriteNodeConfig(in.Node)
@@ -173,7 +169,6 @@ func WriteConfigSet(
 func getConfs(
 	datadir string,
 ) {
-
 
 	confs = []string{
 		datadir + "/ctl/conf.json",

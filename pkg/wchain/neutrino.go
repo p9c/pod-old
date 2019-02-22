@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	sac "git.parallelcoin.io/pod/cmd/spv"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
 	"git.parallelcoin.io/pod/pkg/clog"
@@ -14,9 +15,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
-	sac "git.parallelcoin.io/pod/cmd/spv"
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/wire"
 	"git.parallelcoin.io/pod/pkg/wtxmgr"
 )
 
@@ -77,6 +77,7 @@ func (s *NeutrinoClient) Start() error {
 		s.started = true
 		s.wg.Add(1)
 		go func() {
+
 			select {
 			case s.enqueueNotification <- ClientConnected{}:
 			case <-s.quit:
@@ -89,6 +90,7 @@ func (s *NeutrinoClient) Start() error {
 
 // Stop replicates the RPC client's Stop method.
 func (s *NeutrinoClient) Stop() {
+
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
 	if !s.started {
@@ -100,11 +102,13 @@ func (s *NeutrinoClient) Stop() {
 
 // WaitForShutdown replicates the RPC client's WaitForShutdown method.
 func (s *NeutrinoClient) WaitForShutdown() {
+
 	s.wg.Wait()
 }
 
 // GetBlock replicates the RPC client's GetBlock command.
 func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) {
+
 	// TODO(roasbeef): add a block cache?
 	//  * which evication strategy? depends on use case
 	//  Should the block cache be INSIDE neutrino instead of in btcwallet?
@@ -120,11 +124,13 @@ func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) 
 // since we can't actually return a FutureGetBlockVerboseResult because the
 // underlying type is private to rpcclient.
 func (s *NeutrinoClient) GetBlockHeight(hash *chainhash.Hash) (int32, error) {
+
 	return s.CS.GetBlockHeight(hash)
 }
 
 // GetBestBlock replicates the RPC client's GetBestBlock command.
 func (s *NeutrinoClient) GetBestBlock() (*chainhash.Hash, int32, error) {
+
 	chainTip, err := s.CS.BestBlock()
 	if err != nil {
 		return nil, 0, err
@@ -136,6 +142,7 @@ func (s *NeutrinoClient) GetBestBlock() (*chainhash.Hash, int32, error) {
 // BlockStamp returns the latest block notified by the client, or an error
 // if the client has been shut down.
 func (s *NeutrinoClient) BlockStamp() (*waddrmgr.BlockStamp, error) {
+
 	select {
 	case bs := <-s.currentBlock:
 		return bs, nil
@@ -148,6 +155,7 @@ func (s *NeutrinoClient) BlockStamp() (*waddrmgr.BlockStamp, error) {
 // client has been shut down or the hash at the block height doesn't exist or
 // is unknown.
 func (s *NeutrinoClient) GetBlockHash(height int64) (*chainhash.Hash, error) {
+
 	return s.CS.GetBlockHash(height)
 }
 
@@ -155,12 +163,14 @@ func (s *NeutrinoClient) GetBlockHash(height int64) (*chainhash.Hash, error) {
 // if the client has been shut down or the hash doesn't exist or is unknown.
 func (s *NeutrinoClient) GetBlockHeader(
 	blockHash *chainhash.Hash) (*wire.BlockHeader, error) {
+
 	return s.CS.GetBlockHeader(blockHash)
 }
 
 // SendRawTransaction replicates the RPC client's SendRawTransaction command.
 func (s *NeutrinoClient) SendRawTransaction(tx *wire.MsgTx, allowHighFees bool) (
 	*chainhash.Hash, error) {
+
 	err := s.CS.SendTransaction(tx)
 	if err != nil {
 		return nil, err
@@ -224,6 +234,7 @@ func (s *NeutrinoClient) FilterBlocks(
 		}
 
 		if !blockFilterer.FilterBlock(rawBlock) {
+
 			continue
 		}
 
@@ -254,6 +265,7 @@ func (s *NeutrinoClient) FilterBlocks(
 // request.
 func buildFilterBlocksWatchList(
 	req *FilterBlocksRequest) ([][]byte, error) {
+
 	// Construct a watch list containing the script addresses of all
 	// internal and external addresses that were requested, in addition to
 	// the set of outpoints currently being watched.
@@ -297,6 +309,7 @@ func buildFilterBlocksWatchList(
 // used to get around the fact that the filter headers may lag behind the
 // highest known block header.
 func (s *NeutrinoClient) pollCFilter(hash *chainhash.Hash) (*gcs.Filter, error) {
+
 	var (
 		filter *gcs.Filter
 		err    error
@@ -464,6 +477,7 @@ func (s *NeutrinoClient) Notifications() <-chan interface{} {
 // TODO: When factoring out to multiple rescans per Neutrino client, add a
 // birthday per client.
 func (s *NeutrinoClient) SetStartTime(startTime time.Time) {
+
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
 
@@ -474,6 +488,7 @@ func (s *NeutrinoClient) SetStartTime(startTime time.Time) {
 // channel.
 func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 	header *wire.BlockHeader, relevantTxs []*util.Tx) {
+
 	ntfn := FilteredBlockConnected{
 		Block: &wtxmgr.BlockMeta{
 			Block: wtxmgr.Block{
@@ -511,6 +526,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 	}
 
 	if bs.Hash == header.BlockHash() {
+
 		// Only send the RescanFinished notification once.
 		s.clientMtx.Lock()
 		if s.finished {
@@ -544,6 +560,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 // channel.
 func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 	t time.Time) {
+
 	select {
 	case s.enqueueNotification <- BlockDisconnected{
 		Block: wtxmgr.Block{
@@ -559,9 +576,11 @@ func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 
 func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	time time.Time) {
+
 	// TODO: Move this closure out and parameterize it? Is it useful
 	// outside here?
 	sendRescanProgress := func() {
+
 		select {
 		case s.enqueueNotification <- &RescanProgress{
 			Hash:   hash,
@@ -576,6 +595,7 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	// before the birthday. Otherwise, we can just update using
 	// RescanProgress notifications.
 	if time.Before(s.startTime) {
+
 		// Send a RescanProgress notification every 10K blocks.
 		if height%10000 == 0 {
 			s.clientMtx.Lock()
@@ -618,6 +638,7 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 // no bounds on the queue, so the dequeue channel should be read continually to
 // avoid running out of memory.
 func (s *NeutrinoClient) notificationHandler() {
+
 	hash, height, err := s.GetBestBlock()
 	if err != nil {
 		log <- cl.Errorf{"failed to get best block from chain service:", err}

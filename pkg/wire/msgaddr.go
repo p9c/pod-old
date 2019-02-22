@@ -37,6 +37,7 @@ func (msg *MsgAddr) AddAddresses(netAddrs ...*NetAddress) error {
 
 // ClearAddresses removes all addresses from the message.
 func (msg *MsgAddr) ClearAddresses() {
+
 	msg.AddrList = []*NetAddress{}
 }
 
@@ -108,8 +109,7 @@ func (msg *MsgAddr) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgAddr returns a new bitcoin addr message that conforms to the Message interface.  See MsgAddr for details.
-func NewMsgAddr(
-	) *MsgAddr {
+func NewMsgAddr() *MsgAddr {
 	return &MsgAddr{
 		AddrList: make([]*NetAddress, 0, MaxAddrPerMsg),
 	}

@@ -42,6 +42,7 @@ func (s int64Sorter) Len() int {
 
 // Swap swaps the 64-bit integers at the passed indices.  It is part of the sort.Interface implementation.
 func (s int64Sorter) Swap(i, j int) {
+
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -73,6 +74,7 @@ func (m *medianTime) AdjustedTime() time.Time {
 
 // AddTimeSample adds a time sample that is used when determining the median time of the added samples. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
 func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
+
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 	// Don't add time data from the same source.
@@ -142,8 +144,7 @@ func (m *medianTime) Offset() time.Duration {
 }
 
 // NewMedianTime returns a new instance of concurrency-safe implementation of the MedianTimeSource interface.  The returned implementation contains the rules necessary for proper time handling in the chain consensus rules and expects the time samples to be added from the timestamp field of the version message received from remote peers that successfully connect and negotiate.
-func NewMedianTime(
-	) MedianTimeSource {
+func NewMedianTime() MedianTimeSource {
 	return &medianTime{
 		knownIDs: make(map[string]struct{}),
 		offsets:  make([]int64, 0, maxMedianTimeEntries),

@@ -13,6 +13,7 @@ import (
 // TestWalletSvrWsNtfns tests all of the chain server websocket-specific notifications marshal and unmarshal into valid results include handling of optional fields being omitted in the marshalled command, while optional fields with defaults have the default assigned on unmarshalled commands.
 func TestWalletSvrWsNtfns(
 	t *testing.T) {
+
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -24,6 +25,7 @@ func TestWalletSvrWsNtfns(
 		{
 			name: "accountbalance",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("accountbalance", "acct", 1.25, true)
 			},
 			staticNtfn: func() interface{} {
@@ -39,6 +41,7 @@ func TestWalletSvrWsNtfns(
 		{
 			name: "podconnected",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("podconnected", true)
 			},
 			staticNtfn: func() interface{} {
@@ -52,6 +55,7 @@ func TestWalletSvrWsNtfns(
 		{
 			name: "walletlockstate",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("walletlockstate", true)
 			},
 			staticNtfn: func() interface{} {
@@ -65,6 +69,7 @@ func TestWalletSvrWsNtfns(
 		{
 			name: "newtx",
 			newNtfn: func() (interface{}, error) {
+
 				return json.NewCmd("newtx", "acct", `{"account":"acct","address":"1Address","category":"send","amount":1.5,"bip125-replaceable":"unknown","fee":0.0001,"confirmations":1,"trusted":true,"txid":"456","walletconflicts":[],"time":12345678,"timereceived":12345876,"vout":789,"otheraccount":"otheracct"}`)
 			},
 			staticNtfn: func() interface{} {
@@ -120,6 +125,7 @@ func TestWalletSvrWsNtfns(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -139,6 +145,7 @@ func TestWalletSvrWsNtfns(
 			continue
 		}
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
+
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
 				"got %s, want %s", i, test.name, marshalled,
 				test.marshalled)
@@ -158,6 +165,7 @@ func TestWalletSvrWsNtfns(
 			continue
 		}
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
+
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+
 				"- got %s, want %s", i, test.name,
 				fmt.Sprintf("(%T) %+[1]v", cmd),

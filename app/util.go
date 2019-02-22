@@ -46,6 +46,7 @@ func CheckCreateDir(
 func EnsureDir(
 	fileName string,
 ) {
+
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
 
@@ -64,6 +65,7 @@ func FileExists(
 	bool,
 	error,
 ) {
+
 	_, err := os.Stat(filePath)
 	if err != nil {
 
@@ -145,6 +147,7 @@ func NormalizeAddress(
 	defaultPort string,
 	out *string,
 ) {
+
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
 	if err != nil {
@@ -165,6 +168,7 @@ func NormalizeAddresses(
 	defaultPort string,
 	out *[]string,
 ) {
+
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")
 	for i := range addrS {
@@ -186,7 +190,12 @@ func NormalizeAddresses(
 
 // ParseDuration takes a string of the format `Xd/h/m/s` and returns a time.Duration corresponding with that specification
 func ParseDuration(
-	d, name string, out *time.Duration) (err error) {
+	d, name string,
+	out *time.Duration,
+) (
+	err error,
+) {
+
 	var t int
 	var ti time.Duration
 	switch d[len(d)-1] {
@@ -214,7 +223,12 @@ func ParseDuration(
 
 // ParseFloat reads a string that should contain a floating point number and returns it and any parsing error
 func ParseFloat(
-	f, name string, original *float64) (err error) {
+	f, name string,
+	original *float64,
+) (
+	err error,
+) {
+
 	var out float64
 	_, err = fmt.Sscanf(f, "%0.f", out)
 	if err != nil {
@@ -228,7 +242,13 @@ func ParseFloat(
 
 // ParseInteger reads a string that should contain a integer and returns the number and any parsing error
 func ParseInteger(
-	integer, name string, original *int) (err error) {
+	integer,
+	name string,
+	original *int,
+) (
+	err error,
+) {
+
 	var out int
 	out, err = strconv.Atoi(integer)
 	if err != nil {
@@ -242,7 +262,13 @@ func ParseInteger(
 
 // ParseUint32 reads a string that should contain a integer and returns the number and any parsing error
 func ParseUint32(
-	integer, name string, original *uint32) (err error) {
+	integer,
+	name string,
+	original *uint32,
+) (
+	err error,
+) {
+
 	var out int
 	out, err = strconv.Atoi(integer)
 	if err != nil {
@@ -255,7 +281,13 @@ func ParseUint32(
 }
 
 func getIfIs(
-	ctx *climax.Context, name string) (out string, ok bool) {
+	ctx *climax.Context,
+	name string,
+) (
+	out string,
+	ok bool,
+) {
+
 	if ctx.Is(name) {
 
 		return ctx.Get(name)
@@ -265,7 +297,9 @@ func getIfIs(
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(
-	a, b uint32) uint32 {
+	a, b uint32,
+) uint32 {
+
 	if a < b {
 
 		return a

@@ -29,6 +29,7 @@ type LookupFunc func(
 func SeedFromDNS(
 	chainParams *chaincfg.Params, reqServices wire.ServiceFlag,
 	lookupFn LookupFunc, seedFn OnSeed) {
+
 	for _, dnsseed := range chainParams.DNSSeeds {
 		var host string
 		if !dnsseed.HasFiltering || reqServices == wire.SFNodeNetwork {
@@ -37,6 +38,7 @@ func SeedFromDNS(
 			host = fmt.Sprintf("x%x.%s", uint64(reqServices), dnsseed.Host)
 		}
 		go func(host string) {
+
 			randSource := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 			seedpeers, err := lookupFn(host)
 			if err != nil {

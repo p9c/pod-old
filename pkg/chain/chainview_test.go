@@ -63,6 +63,7 @@ func zipLocators(
 // TestChainView ensures all of the exported functionality of chain views works as intended with the exception of some special cases which are handled in other tests.
 func TestChainView(
 	t *testing.T) {
+
 	// Construct a synthetic block index consisting of the following structure.
 	// 0 -> 1 -> 2  -> 3  -> 4
 	//       \-> 2a -> 3a -> 4a  -> 5a -> 6a -> 7a -> ... -> 26a
@@ -204,6 +205,7 @@ testLoop:
 		// Ensure that the fork point for a node that is already part of the chain view is the node itself.
 		forkNode = test.view.FindFork(test.view.Tip())
 		if forkNode != test.view.Tip() {
+
 			t.Errorf("%s: unexpected fork node (view, tip) -- "+
 				"got %v, want %v", test.name, forkNode,
 				test.view.Tip())
@@ -212,6 +214,7 @@ testLoop:
 		// Ensure all expected nodes are contained in the active view.
 		for _, node := range test.contains {
 			if !test.view.Contains(node) {
+
 				t.Errorf("%s: expected %v in active view",
 					test.name, node)
 				continue testLoop
@@ -220,6 +223,7 @@ testLoop:
 		// Ensure all nodes from side chain view are NOT contained in the active view.
 		for _, node := range test.noContains {
 			if test.view.Contains(node) {
+
 				t.Errorf("%s: unexpected %v in active view",
 					test.name, node)
 				continue testLoop
@@ -227,10 +231,12 @@ testLoop:
 		}
 		// Ensure equality of different views into the same chain works as intended.
 		if !test.view.Equals(test.equal) {
+
 			t.Errorf("%s: unexpected unequal views", test.name)
 			continue
 		}
 		if test.view.Equals(test.unequal) {
+
 			t.Errorf("%s: unexpected equal views", test.name)
 			continue
 		}
@@ -268,6 +274,7 @@ testLoop:
 		// Ensure the block locator for the tip of the active view consists of the expected hashes.
 		locator := test.view.BlockLocator(test.view.tip())
 		if !reflect.DeepEqual(locator, test.locator) {
+
 			t.Errorf("%s: unexpected locator -- got %v, want %v",
 				test.name, locator, test.locator)
 			continue
@@ -278,6 +285,7 @@ testLoop:
 // TestChainViewForkCorners ensures that finding the fork between two chains works in some corner cases such as when the two chains have completely unrelated histories.
 func TestChainViewForkCorners(
 	t *testing.T) {
+
 	// Construct two unrelated single branch synthetic block indexes.
 	branchNodes := chainedNodes(nil, 5)
 	unrelatedBranchNodes := chainedNodes(nil, 7)
@@ -306,6 +314,7 @@ func TestChainViewForkCorners(
 // TestChainViewSetTip ensures changing the tip works as intended including capacity changes.
 func TestChainViewSetTip(
 	t *testing.T) {
+
 	// Construct a synthetic block index consisting of the following structure.
 	// 0 -> 1 -> 2  -> 3  -> 4
 	//       \-> 2a -> 3a -> 4a  -> 5a -> 6a -> 7a -> ... -> 26a
@@ -361,6 +370,7 @@ testLoop:
 			// Ensure all expected nodes are contained in the view.
 			for _, node := range test.contains[i] {
 				if !test.view.Contains(node) {
+
 					t.Errorf("%s: expected %v in active view",
 						test.name, node)
 					continue testLoop
@@ -373,9 +383,11 @@ testLoop:
 // TestChainViewNil ensures that creating and accessing a nil chain view behaves as expected.
 func TestChainViewNil(
 	t *testing.T) {
+
 	// Ensure two unininitialized views are considered equal.
 	view := newChainView(nil)
 	if !view.Equals(newChainView(nil)) {
+
 		t.Fatal("uninitialized nil views unequal")
 	}
 	// Ensure the genesis of an uninitialized view does not produce a node.
@@ -398,6 +410,7 @@ func TestChainViewNil(
 	// Ensure an uninitialized view does not report it contains nodes.
 	fakeNode := chainedNodes(nil, 1)[0]
 	if view.Contains(fakeNode) {
+
 		t.Fatalf("Contains: view claims it contains node %v", fakeNode)
 	}
 	// Ensure the next node for a node that does not exist does not produce a node.
@@ -423,6 +436,7 @@ func TestChainViewNil(
 		42, 41, 40, 39, 38, 36, 32, 24, 8, 0)
 	locator := view.BlockLocator(tstTip(branchNodes))
 	if !reflect.DeepEqual(locator, wantLocator) {
+
 		t.Fatalf("BlockLocator: unexpected locator -- got %v, want %v",
 			locator, wantLocator)
 	}

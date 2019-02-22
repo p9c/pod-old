@@ -13,6 +13,7 @@ import (
 // TestGetBlocks tests the MsgGetBlocks API.
 func TestGetBlocks(
 	t *testing.T) {
+
 	pver := ProtocolVersion
 	// Block 99500 hash.
 	hashStr := "000000000002e7ad7b9eef9479e4aabc65cb831269cc20d2632c13684406dee0"
@@ -29,6 +30,7 @@ func TestGetBlocks(
 	// Ensure we get the same data back out.
 	msg := NewMsgGetBlocks(hashStop)
 	if !msg.HashStop.IsEqual(hashStop) {
+
 		t.Errorf("NewMsgGetBlocks: wrong stop hash - got %v, want %v",
 			msg.HashStop, hashStop)
 	}
@@ -70,6 +72,7 @@ func TestGetBlocks(
 // TestGetBlocksWire tests the MsgGetBlocks wire encode and decode for various numbers of block locator hashes and protocol versions.
 func TestGetBlocksWire(
 	t *testing.T) {
+
 	// Set protocol inside getblocks message.
 	pver := uint32(60002)
 	// Block 99499 hash.
@@ -220,6 +223,7 @@ func TestGetBlocksWire(
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
+
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
@@ -233,6 +237,7 @@ func TestGetBlocksWire(
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
+
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
 				spew.Sdump(&msg), spew.Sdump(test.out))
 			continue
@@ -243,6 +248,7 @@ func TestGetBlocksWire(
 // TestGetBlocksWireErrors performs negative tests against wire encode and decode of MsgGetBlocks to confirm error paths work correctly.
 func TestGetBlocksWireErrors(
 	t *testing.T) {
+
 	// Set protocol inside getheaders message.  Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
 	wireErr := &MessageError{}
@@ -323,6 +329,7 @@ func TestGetBlocksWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -340,6 +347,7 @@ func TestGetBlocksWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
