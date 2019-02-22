@@ -108,7 +108,10 @@ func handleGetWork(
 		/*	Reset the extra nonce and clear all cached template
 			variations if the best block changed. */
 		if state.prevHash != nil && !state.prevHash.IsEqual(latestHash) {
-			state.updateBlockTemplate(s, false)
+			e := state.updateBlockTemplate(s, false)
+			if e != nil {
+				log <- cl.Warn{"failed to update block template", e}
+			}
 		}
 		/*	Reset the previous best hash the block template was generated
 			against so any errors below cause the next invocation to try
@@ -141,7 +144,10 @@ func handleGetWork(
 		})
 	} else {
 		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.  So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
-		generator.UpdateBlockTime(msgBlock)
+		e := generator.UpdateBlockTime(msgBlock)
+		if e != nil {
+			log <- cl.Warn{"failed to update block time", e}
+		}
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		log <- cl.Debugf{
 			"updated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
@@ -190,7 +196,7 @@ func handleGetWork(
 	target := bigToLEUint256(blockchain.CompactToBig(msgBlock.Header.Bits))
 	reply := &json.GetWorkResult{
 		Data:     hex.EncodeToString(data),
-		Hash1:    hex.EncodeToString(hash1[:]),
+		Hash1:    hex.EncodeToString(hash1),
 		Midstate: hex.EncodeToString(midstate[:]),
 		Target:   hex.EncodeToString(target[:]),
 	}

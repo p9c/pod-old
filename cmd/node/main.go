@@ -80,7 +80,10 @@ func Main(
 			log <- cl.Error{"unable to create cpu profile:", err}
 			return
 		}
-		pprof.StartCPUProfile(f)
+		e := pprof.StartCPUProfile(f)
+		if e != nil {
+			log <- cl.Warn{"failed to start up cpu profiler:", e}
+		}
 		defer f.Close()
 		defer pprof.StopCPUProfile()
 	}
@@ -141,7 +144,10 @@ func Main(
 	}
 	interrupt.AddHandler(func() {
 		log <- cl.Inf("gracefully shutting down the server...")
-		server.Stop()
+		e := server.Stop()
+		if e != nil {
+			log <- cl.Warn{"failed to stop server", e}
+		}
 		server.WaitForShutdown()
 		log <- cl.Inf("server shutdown complete")
 	})
@@ -162,7 +168,7 @@ func blockDbPath(
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + dbType
 	if dbType == "sqlite" {
-		dbName = dbName + ".db"
+		dbName += ".db"
 	}
 	dbPath := filepath.Join(cfg.DataDir, dbName)
 	return dbPath
@@ -187,7 +193,10 @@ func loadBlockDB() (
 	// The database name is based on the database type.
 	dbPath := blockDbPath(cfg.DbType)
 	// The regression test is special in that it needs a clean database for each run, so remove it now if it already exists.
-	removeRegressionDB(dbPath)
+	e := removeRegressionDB(dbPath)
+	if e != nil {
+		log <- cl.Debug{"failed to remove regression db:", e}
+	}
 	log <- cl.Infof{"loading block database from '%s'", dbPath}
 	db, err := database.Open(cfg.DbType, dbPath, ActiveNetParams.Net)
 	if err != nil {

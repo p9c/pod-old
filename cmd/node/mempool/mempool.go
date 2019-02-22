@@ -20,18 +20,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
-const (
-	// DefaultBlockPrioritySize is the default size in bytes for high- priority / low-fee transactions.  It is used to help determine which are allowed into the mempool and consequently affects their relay and inclusion when generating block templates.
-	DefaultBlockPrioritySize = 50000
-	// orphanTTL is the maximum amount of time an orphan is allowed to stay in the orphan pool before it expires and is evicted during the next scan.
-	orphanTTL = time.Minute * 15
-	// orphanExpireScanInterval is the minimum amount of time in between scans of the orphan pool to evict expired transactions.
-	orphanExpireScanInterval = time.Minute * 5
-)
-
-// Tag represents an identifier to use for tagging orphan transactions.  The caller may choose any scheme it desires, however it is common to use peer IDs so that orphans can be identified by which peer first relayed them.
-type Tag uint64
-
 // Config is a descriptor containing the memory pool configuration.
 type Config struct {
 	// Policy defines the various mempool configuration options related to policy.
@@ -79,18 +67,14 @@ type Policy struct {
 	MinRelayTxFee util.Amount
 }
 
+// Tag represents an identifier to use for tagging orphan transactions.  The caller may choose any scheme it desires, however it is common to use peer IDs so that orphans can be identified by which peer first relayed them.
+type Tag uint64
+
 // TxDesc is a descriptor containing a transaction in the mempool along with additional metadata.
 type TxDesc struct {
 	mining.TxDesc
 	// StartingPriority is the priority of the transaction when it was added to the pool.
 	StartingPriority float64
-}
-
-// orphanTx is normal transaction that references an ancestor transaction that is not yet available.  It also contains additional information related to it such as an expiration time to help prevent caching the orphan forever.
-type orphanTx struct {
-	tx         *util.Tx
-	tag        Tag
-	expiration time.Time
 }
 
 // TxPool is used as a source of transactions that need to be mined into blocks and relayed to other peers.  It is safe for concurrent access from multiple peers.
@@ -109,51 +93,254 @@ type TxPool struct {
 	nextExpireScan time.Time
 }
 
+// orphanTx is normal transaction that references an ancestor transaction that is not yet available.  It also contains additional information related to it such as an expiration time to help prevent caching the orphan forever.
+type orphanTx struct {
+	tx         *util.Tx
+	tag        Tag
+	expiration time.Time
+}
+
+const (
+	// DefaultBlockPrioritySize is the default size in bytes for high- priority / low-fee transactions.  It is used to help determine which are allowed into the mempool and consequently affects their relay and inclusion when generating block templates.
+	DefaultBlockPrioritySize = 50000
+	// orphanTTL is the maximum amount of time an orphan is allowed to stay in the orphan pool before it expires and is evicted during the next scan.
+	orphanTTL = time.Minute * 15
+	// orphanExpireScanInterval is the minimum amount of time in between scans of the orphan pool to evict expired transactions.
+	orphanExpireScanInterval = time.Minute * 5
+)
+
 // Ensure the TxPool type implements the mining.TxSource interface.
 var _ mining.TxSource = (*TxPool)(nil)
 
-// removeOrphan is the internal function which implements the public RemoveOrphan.  See the comment for RemoveOrphan for more details. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) removeOrphan(tx *util.Tx, removeRedeemers bool) {
-	// Nothing to do if passed tx is not an orphan.
-	txHash := tx.Hash()
-	otx, exists := mp.orphans[*txHash]
-	if !exists {
-		return
+// CheckSpend checks whether the passed outpoint is already spent by a transaction in the mempool. If that's the case the spending transaction will be returned, if not nil will be returned.
+func (
+	mp *TxPool,
+) CheckSpend(
+	op wire.OutPoint) *util.Tx {
+	mp.mtx.RLock()
+	txR := mp.outpoints[op]
+	mp.mtx.RUnlock()
+	return txR
+}
+
+// Count returns the number of transactions in the main pool.  It does not include the orphan pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) Count() int {
+	mp.mtx.RLock()
+	count := len(mp.pool)
+	mp.mtx.RUnlock()
+	return count
+}
+
+// FetchTransaction returns the requested transaction from the transaction pool. This only fetches from the main transaction pool and does not include orphans. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) FetchTransaction(
+	txHash *chainhash.Hash) (*util.Tx, error) {
+	// Protect concurrent access.
+	mp.mtx.RLock()
+	txDesc, exists := mp.pool[*txHash]
+	mp.mtx.RUnlock()
+	if exists {
+		return txDesc.Tx, nil
 	}
-	// Remove the reference from the previous orphan index.
-	for _, txIn := range otx.tx.MsgTx().TxIn {
-		orphans, exists := mp.orphansByPrev[txIn.PreviousOutPoint]
-		if exists {
-			delete(orphans, *txHash)
-			// Remove the map entry altogether if there are no longer any orphans which depend on it.
-			if len(orphans) == 0 {
-				delete(mp.orphansByPrev, txIn.PreviousOutPoint)
+	return nil, fmt.Errorf("transaction is not in the pool")
+}
+
+// HaveTransaction returns whether or not the passed transaction already exists in the main pool or in the orphan pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) HaveTransaction(
+	hash *chainhash.Hash) bool {
+	// Protect concurrent access.
+	mp.mtx.RLock()
+	haveTx := mp.haveTransaction(hash)
+	mp.mtx.RUnlock()
+	return haveTx
+}
+
+// IsOrphanInPool returns whether or not the passed transaction already exists in the orphan pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) IsOrphanInPool(
+	hash *chainhash.Hash) bool {
+	// Protect concurrent access.
+	mp.mtx.RLock()
+	inPool := mp.isOrphanInPool(hash)
+	mp.mtx.RUnlock()
+	return inPool
+}
+
+// IsTransactionInPool returns whether or not the passed transaction already exists in the main pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) IsTransactionInPool(
+	hash *chainhash.Hash) bool {
+	// Protect concurrent access.
+	mp.mtx.RLock()
+	inPool := mp.isTransactionInPool(hash)
+	mp.mtx.RUnlock()
+	return inPool
+}
+
+// LastUpdated returns the last time a transaction was added to or removed from the main pool.  It does not include the orphan pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) LastUpdated() time.Time {
+	return time.Unix(atomic.LoadInt64(&mp.lastUpdated), 0)
+}
+
+// MaybeAcceptTransaction is the main workhorse for handling insertion of new free-standing transactions into a memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, detecting orphan transactions, and insertion into the memory pool. If the transaction is an orphan (missing parent transactions), the transaction is NOT added to the orphan pool, but each unknown referenced parent is returned.  Use ProcessTransaction instead if new orphans should be added to the orphan pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) MaybeAcceptTransaction(
+	tx *util.Tx, isNew, rateLimit bool) ([]*chainhash.Hash, *TxDesc, error) {
+	// Protect concurrent access.
+	mp.mtx.Lock()
+	hashes, txD, err := mp.maybeAcceptTransaction(tx, isNew, rateLimit, true)
+	mp.mtx.Unlock()
+	return hashes, txD, err
+}
+
+// MiningDescs returns a slice of mining descriptors for all the transactions in the pool. This is part of the mining.TxSource interface implementation and is safe for concurrent access as required by the interface contract.
+func (
+	mp *TxPool,
+) MiningDescs() []*mining.TxDesc {
+	mp.mtx.RLock()
+	descs := make([]*mining.TxDesc, len(mp.pool))
+	i := 0
+	for _, desc := range mp.pool {
+		descs[i] = &desc.TxDesc
+		i++
+	}
+	mp.mtx.RUnlock()
+	return descs
+}
+
+// ProcessOrphans determines if there are any orphans which depend on the passed transaction hash (it is possible that they are no longer orphans) and potentially accepts them to the memory pool.  It repeats the process for the newly accepted transactions (to detect further orphans which may no longer be orphans) until there are no more. It returns a slice of transactions added to the mempool.  A nil slice means no transactions were moved from the orphan pool to the mempool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) ProcessOrphans(
+	acceptedTx *util.Tx,
+) []*TxDesc {
+
+	mp.mtx.Lock()
+	acceptedTxns := mp.processOrphans(acceptedTx)
+	mp.mtx.Unlock()
+	return acceptedTxns
+}
+
+// ProcessTransaction is the main workhorse for handling insertion of new free-standing transactions into the memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, orphan transaction handling, and insertion into the memory pool. It returns a slice of transactions added to the mempool.  When the error is nil, the list will include the passed transaction itself along with any additional orphan transaactions that were added as a result of the passed one being accepted. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) ProcessTransaction(
+	tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
+	log <- cl.Trace{"processing transaction", tx.Hash()}
+	// Protect concurrent access.
+	mp.mtx.Lock()
+	defer mp.mtx.Unlock()
+	// Potentially accept the transaction to the memory pool.
+	missingParents, txD, err := mp.maybeAcceptTransaction(tx, true, rateLimit,
+		true)
+	if err != nil {
+		return nil, err
+	}
+	if len(missingParents) == 0 {
+		// Accept any orphan transactions that depend on this transaction (they may no longer be orphans if all inputs are now available) and repeat for those accepted transactions until there are no more.
+		newTxs := mp.processOrphans(tx)
+		acceptedTxs := make([]*TxDesc, len(newTxs)+1)
+		// Add the parent transaction first so remote nodes do not add orphans.
+		acceptedTxs[0] = txD
+		copy(acceptedTxs[1:], newTxs)
+		return acceptedTxs, nil
+	}
+	// The transaction is an orphan (has inputs missing).  Reject it if the flag to allow orphans is not set.
+	if !allowOrphan {
+		// Only use the first missing parent transaction in the error message.
+		// NOTE: RejectDuplicate is really not an accurate reject code here, but it matches the reference implementation and there isn't a better choice due to the limited number of reject codes.  Missing inputs is assumed to mean they are already spent which is not really always the case.
+		str := fmt.Sprintf("orphan transaction %v references "+
+			"outputs of unknown or fully-spent "+
+			"transaction %v", tx.Hash(), missingParents[0])
+		return nil, txRuleError(wire.RejectDuplicate, str)
+	}
+	// Potentially add the orphan transaction to the orphan pool.
+	err = mp.maybeAddOrphan(tx, tag)
+	return nil, err
+}
+
+// RawMempoolVerbose returns all of the entries in the mempool as a fully populated json result. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) RawMempoolVerbose() map[string]*json.GetRawMempoolVerboseResult {
+	mp.mtx.RLock()
+	defer mp.mtx.RUnlock()
+	result := make(map[string]*json.GetRawMempoolVerboseResult,
+		len(mp.pool))
+	bestHeight := mp.cfg.BestHeight()
+	for _, desc := range mp.pool {
+		// Calculate the current priority based on the inputs to the transaction.  Use zero if one or more of the input transactions can't be found for some reason.
+		tx := desc.Tx
+		var currentPriority float64
+		utxos, err := mp.fetchInputUtxos(tx)
+		if err == nil {
+			currentPriority = mining.CalcPriority(tx.MsgTx(), utxos,
+				bestHeight+1)
+		}
+		mpd := &json.GetRawMempoolVerboseResult{
+			Size:             int32(tx.MsgTx().SerializeSize()),
+			Vsize:            int32(GetTxVirtualSize(tx)),
+			Fee:              util.Amount(desc.Fee).ToDUO(),
+			Time:             desc.Added.Unix(),
+			Height:           int64(desc.Height),
+			StartingPriority: desc.StartingPriority,
+			CurrentPriority:  currentPriority,
+			Depends:          make([]string, 0),
+		}
+		for _, txIn := range tx.MsgTx().TxIn {
+			hash := &txIn.PreviousOutPoint.Hash
+			if mp.haveTransaction(hash) {
+				mpd.Depends = append(mpd.Depends,
+					hash.String())
+			}
+		}
+		result[tx.Hash().String()] = mpd
+	}
+	return result
+}
+
+// RemoveDoubleSpends removes all transactions which spend outputs spent by the passed transaction from the memory pool.  Removing those transactions then leads to removing all transactions which rely on them, recursively.  This is necessary when a block is connected to the main chain because the block may contain transactions which were previously unknown to the memory pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) RemoveDoubleSpends(
+	tx *util.Tx) {
+	// Protect concurrent access.
+	mp.mtx.Lock()
+	for _, txIn := range tx.MsgTx().TxIn {
+		if txRedeemer, ok := mp.outpoints[txIn.PreviousOutPoint]; ok {
+			if !txRedeemer.Hash().IsEqual(tx.Hash()) {
+				mp.removeTransaction(txRedeemer, true)
 			}
 		}
 	}
-	// Remove any orphans that redeem outputs from this one if requested.
-	if removeRedeemers {
-		prevOut := wire.OutPoint{Hash: *txHash}
-		for txOutIdx := range tx.MsgTx().TxOut {
-			prevOut.Index = uint32(txOutIdx)
-			for _, orphan := range mp.orphansByPrev[prevOut] {
-				mp.removeOrphan(orphan, true)
-			}
-		}
-	}
-	// Remove the transaction from the orphan pool.
-	delete(mp.orphans, *txHash)
+	mp.mtx.Unlock()
 }
 
 // RemoveOrphan removes the passed orphan transaction from the orphan pool and previous orphan index. This function is safe for concurrent access.
-func (mp *TxPool) RemoveOrphan(tx *util.Tx) {
+func (
+	mp *TxPool,
+) RemoveOrphan(
+	tx *util.Tx) {
 	mp.mtx.Lock()
 	mp.removeOrphan(tx, false)
 	mp.mtx.Unlock()
 }
 
 // RemoveOrphansByTag removes all orphan transactions tagged with the provided identifier. This function is safe for concurrent access.
-func (mp *TxPool) RemoveOrphansByTag(tag Tag) uint64 {
+func (
+	mp *TxPool,
+) RemoveOrphansByTag(
+	tag Tag) uint64 {
 	var numEvicted uint64
 	mp.mtx.Lock()
 	for _, otx := range mp.orphans {
@@ -166,8 +353,186 @@ func (mp *TxPool) RemoveOrphansByTag(tag Tag) uint64 {
 	return numEvicted
 }
 
+// RemoveTransaction removes the passed transaction from the mempool. When the removeRedeemers flag is set, any transactions that redeem outputs from the removed transaction will also be removed recursively from the mempool, as they would otherwise become orphans. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) RemoveTransaction(
+	tx *util.Tx, removeRedeemers bool) {
+	// Protect concurrent access.
+	mp.mtx.Lock()
+	mp.removeTransaction(tx, removeRedeemers)
+	mp.mtx.Unlock()
+}
+
+// TxDescs returns a slice of descriptors for all the transactions in the pool. The descriptors are to be treated as read only. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) TxDescs() []*TxDesc {
+	mp.mtx.RLock()
+	descs := make([]*TxDesc, len(mp.pool))
+	i := 0
+	for _, desc := range mp.pool {
+		descs[i] = desc
+		i++
+	}
+	mp.mtx.RUnlock()
+	return descs
+}
+
+// TxHashes returns a slice of hashes for all of the transactions in the memory pool. This function is safe for concurrent access.
+func (
+	mp *TxPool,
+) TxHashes() []*chainhash.Hash {
+	mp.mtx.RLock()
+	hashes := make([]*chainhash.Hash, len(mp.pool))
+	i := 0
+	for hash := range mp.pool {
+		hashCopy := hash
+		hashes[i] = &hashCopy
+		i++
+	}
+	mp.mtx.RUnlock()
+	return hashes
+}
+
+// addOrphan adds an orphan transaction to the orphan pool. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) addOrphan(
+	tx *util.Tx, tag Tag) {
+	// Nothing to do if no orphans are allowed.
+	if mp.cfg.Policy.MaxOrphanTxs <= 0 {
+		return
+	}
+	// Limit the number orphan transactions to prevent memory exhaustion. This will periodically remove any expired orphans and evict a random orphan if space is still needed.
+	e := mp.limitNumOrphans()
+	if e != nil {
+		log <- cl.Warn{"failed to set orphan limit", e}
+	}
+	mp.orphans[*tx.Hash()] = &orphanTx{
+		tx:         tx,
+		tag:        tag,
+		expiration: time.Now().Add(orphanTTL),
+	}
+	for _, txIn := range tx.MsgTx().TxIn {
+		if _, exists := mp.orphansByPrev[txIn.PreviousOutPoint]; !exists {
+			mp.orphansByPrev[txIn.PreviousOutPoint] =
+				make(map[chainhash.Hash]*util.Tx)
+		}
+		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
+	}
+	log <- cl.Debug{
+		"stored orphan transaction", tx.Hash(), "(total:", len(mp.orphans), ")",
+	}
+}
+
+// addTransaction adds the passed transaction to the memory pool.  It should not be called directly as it doesn't perform any validation.  This is a helper for maybeAcceptTransaction. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) addTransaction(
+	utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height int32, fee int64) *TxDesc {
+	// Add the transaction to the pool and mark the referenced outpoints as spent by the pool.
+	txD := &TxDesc{
+		TxDesc: mining.TxDesc{
+			Tx:       tx,
+			Added:    time.Now(),
+			Height:   height,
+			Fee:      fee,
+			FeePerKB: fee * 1000 / GetTxVirtualSize(tx),
+		},
+		StartingPriority: mining.CalcPriority(tx.MsgTx(), utxoView, height),
+	}
+	mp.pool[*tx.Hash()] = txD
+	for _, txIn := range tx.MsgTx().TxIn {
+		mp.outpoints[txIn.PreviousOutPoint] = tx
+	}
+	atomic.StoreInt64(&mp.lastUpdated, time.Now().Unix())
+	// Add unconfirmed address index entries associated with the transaction if enabled.
+	if mp.cfg.AddrIndex != nil {
+		mp.cfg.AddrIndex.AddUnconfirmedTx(tx, utxoView)
+	}
+	// Record this tx for fee estimation if enabled.
+	if mp.cfg.FeeEstimator != nil {
+		mp.cfg.FeeEstimator.ObserveTransaction(txD)
+	}
+	return txD
+}
+
+// checkPoolDoubleSpend checks whether or not the passed transaction is attempting to spend coins already spent by other transactions in the pool. Note it does not check for double spends against transactions already in the main chain. This function MUST be called with the mempool lock held (for reads).
+func (
+	mp *TxPool,
+) checkPoolDoubleSpend(
+	tx *util.Tx) error {
+	for _, txIn := range tx.MsgTx().TxIn {
+		if txR, exists := mp.outpoints[txIn.PreviousOutPoint]; exists {
+			str := fmt.Sprintf("output %v already spent by "+
+				"transaction %v in the memory pool",
+				txIn.PreviousOutPoint, txR.Hash())
+			return txRuleError(wire.RejectDuplicate, str)
+		}
+	}
+	return nil
+}
+
+// fetchInputUtxos loads utxo details about the input transactions referenced by the passed transaction.  First, it loads the details form the viewpoint of the main chain, then it adjusts them based upon the contents of the transaction pool. This function MUST be called with the mempool lock held (for reads).
+func (
+	mp *TxPool,
+) fetchInputUtxos(
+	tx *util.Tx) (*blockchain.UtxoViewpoint, error) {
+	utxoView, err := mp.cfg.FetchUtxoView(tx)
+	if err != nil {
+		return nil, err
+	}
+	// Attempt to populate any missing inputs from the transaction pool.
+	for _, txIn := range tx.MsgTx().TxIn {
+		prevOut := &txIn.PreviousOutPoint
+		entry := utxoView.LookupEntry(*prevOut)
+		if entry != nil && !entry.IsSpent() {
+			continue
+		}
+		if poolTxDesc, exists := mp.pool[prevOut.Hash]; exists {
+			// AddTxOut ignores out of range index values, so it is safe to call without bounds checking here.
+			utxoView.AddTxOut(poolTxDesc.Tx, prevOut.Index,
+				mining.UnminedHeight)
+		}
+	}
+	return utxoView, nil
+}
+
+// haveTransaction returns whether or not the passed transaction already exists in the main pool or in the orphan pool. This function MUST be called with the mempool lock held (for reads).
+func (
+	mp *TxPool,
+) haveTransaction(
+	hash *chainhash.Hash) bool {
+	return mp.isTransactionInPool(hash) || mp.isOrphanInPool(hash)
+}
+
+// isOrphanInPool returns whether or not the passed transaction already exists in the orphan pool. This function MUST be called with the mempool lock held (for reads).
+func (
+	mp *TxPool,
+) isOrphanInPool(
+	hash *chainhash.Hash) bool {
+	if _, exists := mp.orphans[*hash]; exists {
+		return true
+	}
+	return false
+}
+
+// isTransactionInPool returns whether or not the passed transaction already exists in the main pool. This function MUST be called with the mempool lock held (for reads).
+func (
+	mp *TxPool,
+) isTransactionInPool(
+	hash *chainhash.Hash) bool {
+	if _, exists := mp.pool[*hash]; exists {
+		return true
+	}
+	return false
+}
+
 // limitNumOrphans limits the number of orphan transactions by evicting a random orphan if adding a new one would cause it to overflow the max allowed. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) limitNumOrphans() error {
+func (
+	mp *TxPool,
+) limitNumOrphans() error {
 	// Scan through the orphan pool and remove any expired orphans when it's time.  This is done for efficiency so the scan only happens periodically instead of on every orphan added to the pool.
 	if now := time.Now(); now.After(mp.nextExpireScan) {
 		origNumOrphans := len(mp.orphans)
@@ -202,239 +567,11 @@ func (mp *TxPool) limitNumOrphans() error {
 	return nil
 }
 
-// addOrphan adds an orphan transaction to the orphan pool. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) addOrphan(tx *util.Tx, tag Tag) {
-	// Nothing to do if no orphans are allowed.
-	if mp.cfg.Policy.MaxOrphanTxs <= 0 {
-		return
-	}
-	// Limit the number orphan transactions to prevent memory exhaustion. This will periodically remove any expired orphans and evict a random orphan if space is still needed.
-	mp.limitNumOrphans()
-	mp.orphans[*tx.Hash()] = &orphanTx{
-		tx:         tx,
-		tag:        tag,
-		expiration: time.Now().Add(orphanTTL),
-	}
-	for _, txIn := range tx.MsgTx().TxIn {
-		if _, exists := mp.orphansByPrev[txIn.PreviousOutPoint]; !exists {
-			mp.orphansByPrev[txIn.PreviousOutPoint] =
-				make(map[chainhash.Hash]*util.Tx)
-		}
-		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
-	}
-	log <- cl.Debug{
-		"stored orphan transaction", tx.Hash(), "(total:", len(mp.orphans), ")",
-	}
-}
-
-// maybeAddOrphan potentially adds an orphan to the orphan pool. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) maybeAddOrphan(tx *util.Tx, tag Tag) error {
-	// Ignore orphan transactions that are too large.  This helps avoid a memory exhaustion attack based on sending a lot of really large orphans.  In the case there is a valid transaction larger than this, it will ultimtely be rebroadcast after the parent transactions have been mined or otherwise received.
-	// Note that the number of orphan transactions in the orphan pool is also limited, so this equates to a maximum memory used of mp.cfg.Policy.MaxOrphanTxSize * mp.cfg.Policy.MaxOrphanTxs (which is ~5MB using the default values at the time this comment was written).
-	serializedLen := tx.MsgTx().SerializeSize()
-	if serializedLen > mp.cfg.Policy.MaxOrphanTxSize {
-		str := fmt.Sprintf("orphan transaction size of %d bytes is larger than max allowed size of %d bytes",
-			serializedLen, mp.cfg.Policy.MaxOrphanTxSize)
-		return txRuleError(wire.RejectNonstandard, str)
-	}
-	// Add the orphan if the none of the above disqualified it.
-	mp.addOrphan(tx, tag)
-	return nil
-}
-
-// removeOrphanDoubleSpends removes all orphans which spend outputs spent by the passed transaction from the orphan pool.  Removing those orphans then leads to removing all orphans which rely on them, recursively.  This is necessary when a transaction is added to the main pool because it may spend outputs orphans also spend. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) removeOrphanDoubleSpends(tx *util.Tx) {
-	msgTx := tx.MsgTx()
-	for _, txIn := range msgTx.TxIn {
-		for _, orphan := range mp.orphansByPrev[txIn.PreviousOutPoint] {
-			mp.removeOrphan(orphan, true)
-		}
-	}
-}
-
-// isTransactionInPool returns whether or not the passed transaction already exists in the main pool. This function MUST be called with the mempool lock held (for reads).
-func (mp *TxPool) isTransactionInPool(hash *chainhash.Hash) bool {
-	if _, exists := mp.pool[*hash]; exists {
-		return true
-	}
-	return false
-}
-
-// IsTransactionInPool returns whether or not the passed transaction already exists in the main pool. This function is safe for concurrent access.
-func (mp *TxPool) IsTransactionInPool(hash *chainhash.Hash) bool {
-	// Protect concurrent access.
-	mp.mtx.RLock()
-	inPool := mp.isTransactionInPool(hash)
-	mp.mtx.RUnlock()
-	return inPool
-}
-
-// isOrphanInPool returns whether or not the passed transaction already exists in the orphan pool. This function MUST be called with the mempool lock held (for reads).
-func (mp *TxPool) isOrphanInPool(hash *chainhash.Hash) bool {
-	if _, exists := mp.orphans[*hash]; exists {
-		return true
-	}
-	return false
-}
-
-// IsOrphanInPool returns whether or not the passed transaction already exists in the orphan pool. This function is safe for concurrent access.
-func (mp *TxPool) IsOrphanInPool(hash *chainhash.Hash) bool {
-	// Protect concurrent access.
-	mp.mtx.RLock()
-	inPool := mp.isOrphanInPool(hash)
-	mp.mtx.RUnlock()
-	return inPool
-}
-
-// haveTransaction returns whether or not the passed transaction already exists in the main pool or in the orphan pool. This function MUST be called with the mempool lock held (for reads).
-func (mp *TxPool) haveTransaction(hash *chainhash.Hash) bool {
-	return mp.isTransactionInPool(hash) || mp.isOrphanInPool(hash)
-}
-
-// HaveTransaction returns whether or not the passed transaction already exists in the main pool or in the orphan pool. This function is safe for concurrent access.
-func (mp *TxPool) HaveTransaction(hash *chainhash.Hash) bool {
-	// Protect concurrent access.
-	mp.mtx.RLock()
-	haveTx := mp.haveTransaction(hash)
-	mp.mtx.RUnlock()
-	return haveTx
-}
-
-// removeTransaction is the internal function which implements the public RemoveTransaction.  See the comment for RemoveTransaction for more details. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) removeTransaction(tx *util.Tx, removeRedeemers bool) {
-	txHash := tx.Hash()
-	if removeRedeemers {
-		// Remove any transactions which rely on this one.
-		for i := uint32(0); i < uint32(len(tx.MsgTx().TxOut)); i++ {
-			prevOut := wire.OutPoint{Hash: *txHash, Index: i}
-			if txRedeemer, exists := mp.outpoints[prevOut]; exists {
-				mp.removeTransaction(txRedeemer, true)
-			}
-		}
-	}
-	// Remove the transaction if needed.
-	if txDesc, exists := mp.pool[*txHash]; exists {
-		// Remove unconfirmed address index entries associated with the transaction if enabled.
-		if mp.cfg.AddrIndex != nil {
-			mp.cfg.AddrIndex.RemoveUnconfirmedTx(txHash)
-		}
-		// Mark the referenced outpoints as unspent by the pool.
-		for _, txIn := range txDesc.Tx.MsgTx().TxIn {
-			delete(mp.outpoints, txIn.PreviousOutPoint)
-		}
-		delete(mp.pool, *txHash)
-		atomic.StoreInt64(&mp.lastUpdated, time.Now().Unix())
-	}
-}
-
-// RemoveTransaction removes the passed transaction from the mempool. When the removeRedeemers flag is set, any transactions that redeem outputs from the removed transaction will also be removed recursively from the mempool, as they would otherwise become orphans. This function is safe for concurrent access.
-func (mp *TxPool) RemoveTransaction(tx *util.Tx, removeRedeemers bool) {
-	// Protect concurrent access.
-	mp.mtx.Lock()
-	mp.removeTransaction(tx, removeRedeemers)
-	mp.mtx.Unlock()
-}
-
-// RemoveDoubleSpends removes all transactions which spend outputs spent by the passed transaction from the memory pool.  Removing those transactions then leads to removing all transactions which rely on them, recursively.  This is necessary when a block is connected to the main chain because the block may contain transactions which were previously unknown to the memory pool. This function is safe for concurrent access.
-func (mp *TxPool) RemoveDoubleSpends(tx *util.Tx) {
-	// Protect concurrent access.
-	mp.mtx.Lock()
-	for _, txIn := range tx.MsgTx().TxIn {
-		if txRedeemer, ok := mp.outpoints[txIn.PreviousOutPoint]; ok {
-			if !txRedeemer.Hash().IsEqual(tx.Hash()) {
-				mp.removeTransaction(txRedeemer, true)
-			}
-		}
-	}
-	mp.mtx.Unlock()
-}
-
-// addTransaction adds the passed transaction to the memory pool.  It should not be called directly as it doesn't perform any validation.  This is a helper for maybeAcceptTransaction. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) addTransaction(utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height int32, fee int64) *TxDesc {
-	// Add the transaction to the pool and mark the referenced outpoints as spent by the pool.
-	txD := &TxDesc{
-		TxDesc: mining.TxDesc{
-			Tx:       tx,
-			Added:    time.Now(),
-			Height:   height,
-			Fee:      fee,
-			FeePerKB: fee * 1000 / GetTxVirtualSize(tx),
-		},
-		StartingPriority: mining.CalcPriority(tx.MsgTx(), utxoView, height),
-	}
-	mp.pool[*tx.Hash()] = txD
-	for _, txIn := range tx.MsgTx().TxIn {
-		mp.outpoints[txIn.PreviousOutPoint] = tx
-	}
-	atomic.StoreInt64(&mp.lastUpdated, time.Now().Unix())
-	// Add unconfirmed address index entries associated with the transaction if enabled.
-	if mp.cfg.AddrIndex != nil {
-		mp.cfg.AddrIndex.AddUnconfirmedTx(tx, utxoView)
-	}
-	// Record this tx for fee estimation if enabled.
-	if mp.cfg.FeeEstimator != nil {
-		mp.cfg.FeeEstimator.ObserveTransaction(txD)
-	}
-	return txD
-}
-
-// checkPoolDoubleSpend checks whether or not the passed transaction is attempting to spend coins already spent by other transactions in the pool. Note it does not check for double spends against transactions already in the main chain. This function MUST be called with the mempool lock held (for reads).
-func (mp *TxPool) checkPoolDoubleSpend(tx *util.Tx) error {
-	for _, txIn := range tx.MsgTx().TxIn {
-		if txR, exists := mp.outpoints[txIn.PreviousOutPoint]; exists {
-			str := fmt.Sprintf("output %v already spent by "+
-				"transaction %v in the memory pool",
-				txIn.PreviousOutPoint, txR.Hash())
-			return txRuleError(wire.RejectDuplicate, str)
-		}
-	}
-	return nil
-}
-
-// CheckSpend checks whether the passed outpoint is already spent by a transaction in the mempool. If that's the case the spending transaction will be returned, if not nil will be returned.
-func (mp *TxPool) CheckSpend(op wire.OutPoint) *util.Tx {
-	mp.mtx.RLock()
-	txR := mp.outpoints[op]
-	mp.mtx.RUnlock()
-	return txR
-}
-
-// fetchInputUtxos loads utxo details about the input transactions referenced by the passed transaction.  First, it loads the details form the viewpoint of the main chain, then it adjusts them based upon the contents of the transaction pool. This function MUST be called with the mempool lock held (for reads).
-func (mp *TxPool) fetchInputUtxos(tx *util.Tx) (*blockchain.UtxoViewpoint, error) {
-	utxoView, err := mp.cfg.FetchUtxoView(tx)
-	if err != nil {
-		return nil, err
-	}
-	// Attempt to populate any missing inputs from the transaction pool.
-	for _, txIn := range tx.MsgTx().TxIn {
-		prevOut := &txIn.PreviousOutPoint
-		entry := utxoView.LookupEntry(*prevOut)
-		if entry != nil && !entry.IsSpent() {
-			continue
-		}
-		if poolTxDesc, exists := mp.pool[prevOut.Hash]; exists {
-			// AddTxOut ignores out of range index values, so it is safe to call without bounds checking here.
-			utxoView.AddTxOut(poolTxDesc.Tx, prevOut.Index,
-				mining.UnminedHeight)
-		}
-	}
-	return utxoView, nil
-}
-
-// FetchTransaction returns the requested transaction from the transaction pool. This only fetches from the main transaction pool and does not include orphans. This function is safe for concurrent access.
-func (mp *TxPool) FetchTransaction(txHash *chainhash.Hash) (*util.Tx, error) {
-	// Protect concurrent access.
-	mp.mtx.RLock()
-	txDesc, exists := mp.pool[*txHash]
-	mp.mtx.RUnlock()
-	if exists {
-		return txDesc.Tx, nil
-	}
-	return nil, fmt.Errorf("transaction is not in the pool")
-}
-
 // maybeAcceptTransaction is the internal function which implements the public MaybeAcceptTransaction.  See the comment for MaybeAcceptTransaction for more details. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDupOrphans bool) ([]*chainhash.Hash, *TxDesc, error) {
+func (
+	mp *TxPool,
+) maybeAcceptTransaction(
+	tx *util.Tx, isNew, rateLimit, rejectDupOrphans bool) ([]*chainhash.Hash, *TxDesc, error) {
 	txHash := tx.Hash()
 	// If a transaction has iwtness data, and segwit isn't active yet, If segwit isn't active yet, then we won't accept it into the mempool as it can't be mined yet.
 	if tx.MsgTx().HasWitness() {
@@ -637,17 +774,29 @@ func (mp *TxPool) maybeAcceptTransaction(tx *util.Tx, isNew, rateLimit, rejectDu
 	return nil, txD, nil
 }
 
-// MaybeAcceptTransaction is the main workhorse for handling insertion of new free-standing transactions into a memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, detecting orphan transactions, and insertion into the memory pool. If the transaction is an orphan (missing parent transactions), the transaction is NOT added to the orphan pool, but each unknown referenced parent is returned.  Use ProcessTransaction instead if new orphans should be added to the orphan pool. This function is safe for concurrent access.
-func (mp *TxPool) MaybeAcceptTransaction(tx *util.Tx, isNew, rateLimit bool) ([]*chainhash.Hash, *TxDesc, error) {
-	// Protect concurrent access.
-	mp.mtx.Lock()
-	hashes, txD, err := mp.maybeAcceptTransaction(tx, isNew, rateLimit, true)
-	mp.mtx.Unlock()
-	return hashes, txD, err
+// maybeAddOrphan potentially adds an orphan to the orphan pool. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) maybeAddOrphan(
+	tx *util.Tx, tag Tag) error {
+	// Ignore orphan transactions that are too large.  This helps avoid a memory exhaustion attack based on sending a lot of really large orphans.  In the case there is a valid transaction larger than this, it will ultimtely be rebroadcast after the parent transactions have been mined or otherwise received.
+	// Note that the number of orphan transactions in the orphan pool is also limited, so this equates to a maximum memory used of mp.cfg.Policy.MaxOrphanTxSize * mp.cfg.Policy.MaxOrphanTxs (which is ~5MB using the default values at the time this comment was written).
+	serializedLen := tx.MsgTx().SerializeSize()
+	if serializedLen > mp.cfg.Policy.MaxOrphanTxSize {
+		str := fmt.Sprintf("orphan transaction size of %d bytes is larger than max allowed size of %d bytes",
+			serializedLen, mp.cfg.Policy.MaxOrphanTxSize)
+		return txRuleError(wire.RejectNonstandard, str)
+	}
+	// Add the orphan if the none of the above disqualified it.
+	mp.addOrphan(tx, tag)
+	return nil
 }
 
 // processOrphans is the internal function which implements the public ProcessOrphans.  See the comment for ProcessOrphans for more details. This function MUST be called with the mempool lock held (for writes).
-func (mp *TxPool) processOrphans(acceptedTx *util.Tx) []*TxDesc {
+func (
+	mp *TxPool,
+) processOrphans(
+	acceptedTx *util.Tx) []*TxDesc {
 	var acceptedTxns []*TxDesc
 	// Start with processing at least the passed transaction.
 	processList := list.New()
@@ -696,138 +845,83 @@ func (mp *TxPool) processOrphans(acceptedTx *util.Tx) []*TxDesc {
 	return acceptedTxns
 }
 
-// ProcessOrphans determines if there are any orphans which depend on the passed transaction hash (it is possible that they are no longer orphans) and potentially accepts them to the memory pool.  It repeats the process for the newly accepted transactions (to detect further orphans which may no longer be orphans) until there are no more. It returns a slice of transactions added to the mempool.  A nil slice means no transactions were moved from the orphan pool to the mempool. This function is safe for concurrent access.
-func (mp *TxPool) ProcessOrphans(acceptedTx *util.Tx) []*TxDesc {
-	mp.mtx.Lock()
-	acceptedTxns := mp.processOrphans(acceptedTx)
-	mp.mtx.Unlock()
-	return acceptedTxns
-}
-
-// ProcessTransaction is the main workhorse for handling insertion of new free-standing transactions into the memory pool.  It includes functionality such as rejecting duplicate transactions, ensuring transactions follow all rules, orphan transaction handling, and insertion into the memory pool. It returns a slice of transactions added to the mempool.  When the error is nil, the list will include the passed transaction itself along with any additional orphan transaactions that were added as a result of the passed one being accepted. This function is safe for concurrent access.
-func (mp *TxPool) ProcessTransaction(tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
-	log <- cl.Trace{"processing transaction", tx.Hash()}
-	// Protect concurrent access.
-	mp.mtx.Lock()
-	defer mp.mtx.Unlock()
-	// Potentially accept the transaction to the memory pool.
-	missingParents, txD, err := mp.maybeAcceptTransaction(tx, true, rateLimit,
-		true)
-	if err != nil {
-		return nil, err
+// removeOrphan is the internal function which implements the public RemoveOrphan.  See the comment for RemoveOrphan for more details. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) removeOrphan(
+	tx *util.Tx, removeRedeemers bool) {
+	// Nothing to do if passed tx is not an orphan.
+	txHash := tx.Hash()
+	otx, exists := mp.orphans[*txHash]
+	if !exists {
+		return
 	}
-	if len(missingParents) == 0 {
-		// Accept any orphan transactions that depend on this transaction (they may no longer be orphans if all inputs are now available) and repeat for those accepted transactions until there are no more.
-		newTxs := mp.processOrphans(tx)
-		acceptedTxs := make([]*TxDesc, len(newTxs)+1)
-		// Add the parent transaction first so remote nodes do not add orphans.
-		acceptedTxs[0] = txD
-		copy(acceptedTxs[1:], newTxs)
-		return acceptedTxs, nil
-	}
-	// The transaction is an orphan (has inputs missing).  Reject it if the flag to allow orphans is not set.
-	if !allowOrphan {
-		// Only use the first missing parent transaction in the error message.
-		// NOTE: RejectDuplicate is really not an accurate reject code here, but it matches the reference implementation and there isn't a better choice due to the limited number of reject codes.  Missing inputs is assumed to mean they are already spent which is not really always the case.
-		str := fmt.Sprintf("orphan transaction %v references "+
-			"outputs of unknown or fully-spent "+
-			"transaction %v", tx.Hash(), missingParents[0])
-		return nil, txRuleError(wire.RejectDuplicate, str)
-	}
-	// Potentially add the orphan transaction to the orphan pool.
-	err = mp.maybeAddOrphan(tx, tag)
-	return nil, err
-}
-
-// Count returns the number of transactions in the main pool.  It does not include the orphan pool. This function is safe for concurrent access.
-func (mp *TxPool) Count() int {
-	mp.mtx.RLock()
-	count := len(mp.pool)
-	mp.mtx.RUnlock()
-	return count
-}
-
-// TxHashes returns a slice of hashes for all of the transactions in the memory pool. This function is safe for concurrent access.
-func (mp *TxPool) TxHashes() []*chainhash.Hash {
-	mp.mtx.RLock()
-	hashes := make([]*chainhash.Hash, len(mp.pool))
-	i := 0
-	for hash := range mp.pool {
-		hashCopy := hash
-		hashes[i] = &hashCopy
-		i++
-	}
-	mp.mtx.RUnlock()
-	return hashes
-}
-
-// TxDescs returns a slice of descriptors for all the transactions in the pool. The descriptors are to be treated as read only. This function is safe for concurrent access.
-func (mp *TxPool) TxDescs() []*TxDesc {
-	mp.mtx.RLock()
-	descs := make([]*TxDesc, len(mp.pool))
-	i := 0
-	for _, desc := range mp.pool {
-		descs[i] = desc
-		i++
-	}
-	mp.mtx.RUnlock()
-	return descs
-}
-
-// MiningDescs returns a slice of mining descriptors for all the transactions in the pool. This is part of the mining.TxSource interface implementation and is safe for concurrent access as required by the interface contract.
-func (mp *TxPool) MiningDescs() []*mining.TxDesc {
-	mp.mtx.RLock()
-	descs := make([]*mining.TxDesc, len(mp.pool))
-	i := 0
-	for _, desc := range mp.pool {
-		descs[i] = &desc.TxDesc
-		i++
-	}
-	mp.mtx.RUnlock()
-	return descs
-}
-
-// RawMempoolVerbose returns all of the entries in the mempool as a fully populated json result. This function is safe for concurrent access.
-func (mp *TxPool) RawMempoolVerbose() map[string]*json.GetRawMempoolVerboseResult {
-	mp.mtx.RLock()
-	defer mp.mtx.RUnlock()
-	result := make(map[string]*json.GetRawMempoolVerboseResult,
-		len(mp.pool))
-	bestHeight := mp.cfg.BestHeight()
-	for _, desc := range mp.pool {
-		// Calculate the current priority based on the inputs to the transaction.  Use zero if one or more of the input transactions can't be found for some reason.
-		tx := desc.Tx
-		var currentPriority float64
-		utxos, err := mp.fetchInputUtxos(tx)
-		if err == nil {
-			currentPriority = mining.CalcPriority(tx.MsgTx(), utxos,
-				bestHeight+1)
-		}
-		mpd := &json.GetRawMempoolVerboseResult{
-			Size:             int32(tx.MsgTx().SerializeSize()),
-			Vsize:            int32(GetTxVirtualSize(tx)),
-			Fee:              util.Amount(desc.Fee).ToDUO(),
-			Time:             desc.Added.Unix(),
-			Height:           int64(desc.Height),
-			StartingPriority: desc.StartingPriority,
-			CurrentPriority:  currentPriority,
-			Depends:          make([]string, 0),
-		}
-		for _, txIn := range tx.MsgTx().TxIn {
-			hash := &txIn.PreviousOutPoint.Hash
-			if mp.haveTransaction(hash) {
-				mpd.Depends = append(mpd.Depends,
-					hash.String())
+	// Remove the reference from the previous orphan index.
+	for _, txIn := range otx.tx.MsgTx().TxIn {
+		orphans, exists := mp.orphansByPrev[txIn.PreviousOutPoint]
+		if exists {
+			delete(orphans, *txHash)
+			// Remove the map entry altogether if there are no longer any orphans which depend on it.
+			if len(orphans) == 0 {
+				delete(mp.orphansByPrev, txIn.PreviousOutPoint)
 			}
 		}
-		result[tx.Hash().String()] = mpd
 	}
-	return result
+	// Remove any orphans that redeem outputs from this one if requested.
+	if removeRedeemers {
+		prevOut := wire.OutPoint{Hash: *txHash}
+		for txOutIdx := range tx.MsgTx().TxOut {
+			prevOut.Index = uint32(txOutIdx)
+			for _, orphan := range mp.orphansByPrev[prevOut] {
+				mp.removeOrphan(orphan, true)
+			}
+		}
+	}
+	// Remove the transaction from the orphan pool.
+	delete(mp.orphans, *txHash)
 }
 
-// LastUpdated returns the last time a transaction was added to or removed from the main pool.  It does not include the orphan pool. This function is safe for concurrent access.
-func (mp *TxPool) LastUpdated() time.Time {
-	return time.Unix(atomic.LoadInt64(&mp.lastUpdated), 0)
+// removeOrphanDoubleSpends removes all orphans which spend outputs spent by the passed transaction from the orphan pool.  Removing those orphans then leads to removing all orphans which rely on them, recursively.  This is necessary when a transaction is added to the main pool because it may spend outputs orphans also spend. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) removeOrphanDoubleSpends(
+	tx *util.Tx) {
+	msgTx := tx.MsgTx()
+	for _, txIn := range msgTx.TxIn {
+		for _, orphan := range mp.orphansByPrev[txIn.PreviousOutPoint] {
+			mp.removeOrphan(orphan, true)
+		}
+	}
+}
+
+// removeTransaction is the internal function which implements the public RemoveTransaction.  See the comment for RemoveTransaction for more details. This function MUST be called with the mempool lock held (for writes).
+func (
+	mp *TxPool,
+) removeTransaction(
+	tx *util.Tx, removeRedeemers bool) {
+	txHash := tx.Hash()
+	if removeRedeemers {
+		// Remove any transactions which rely on this one.
+		for i := uint32(0); i < uint32(len(tx.MsgTx().TxOut)); i++ {
+			prevOut := wire.OutPoint{Hash: *txHash, Index: i}
+			if txRedeemer, exists := mp.outpoints[prevOut]; exists {
+				mp.removeTransaction(txRedeemer, true)
+			}
+		}
+	}
+	// Remove the transaction if needed.
+	if txDesc, exists := mp.pool[*txHash]; exists {
+		// Remove unconfirmed address index entries associated with the transaction if enabled.
+		if mp.cfg.AddrIndex != nil {
+			mp.cfg.AddrIndex.RemoveUnconfirmedTx(txHash)
+		}
+		// Mark the referenced outpoints as unspent by the pool.
+		for _, txIn := range txDesc.Tx.MsgTx().TxIn {
+			delete(mp.outpoints, txIn.PreviousOutPoint)
+		}
+		delete(mp.pool, *txHash)
+		atomic.StoreInt64(&mp.lastUpdated, time.Now().Unix())
+	}
 }
 
 // New returns a new memory pool for validating and storing standalone transactions until they are mined into a block.

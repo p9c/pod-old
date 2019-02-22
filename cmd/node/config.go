@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -16,18 +15,13 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/connmgr"
 	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
-	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
-	"github.com/btcsuite/go-socks/socks"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -270,7 +264,10 @@ func NewConfigParser(
 
 	parser := flags.NewParser(cfg, options)
 	if runtime.GOOS == "windows" {
-		parser.AddGroup("Service Options", "Service Options", so)
+		_, e := parser.AddGroup("Service Options", "Service Options", so)
+		if e != nil {
+			panic(e)
+		}
 	}
 	return parser
 }
@@ -419,6 +416,8 @@ func createDefaultConfigFile(
 	}
 	return nil
 }
+
+/*
 
 // loadConfig initializes and parses the config using a config file and command line options.
 // The configuration proceeds as follows:
@@ -977,13 +976,14 @@ func loadConfig() (
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(
 	a, b uint32,
-) uint32 {
+	) uint32 {
 
-	if a < b {
-		return a
+		if a < b {
+			return a
+		}
+		return b
 	}
-	return b
-}
+*/
 
 // podDial connects to the address on the named network using the appropriate dial function depending on the address and configuration options.  For example, .onion addresses will be dialed using the onion specific proxy if one was specified, but will otherwise use the normal dial function (which could itself use a proxy or not).
 func podDial(
