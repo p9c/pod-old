@@ -16,7 +16,8 @@ const (
 )
 
 // EncodedAddrToString takes a string from bytes on the prefix containing an IPv4 address (it is passed around as a string for easy comparison) and returns the format used by net.Dial
-func EncodedAddrToString(encoded string) (out string) {
+func EncodedAddrToString(
+	encoded string) (out string) {
 	if len(encoded) != 6 {
 		return
 	}
@@ -29,7 +30,8 @@ func EncodedAddrToString(encoded string) (out string) {
 }
 
 // EncodeAddrToBytes takes a string in the format xxx.xxx.xxx.xxx:xxxxx and converts it to the encoded bytes format
-func EncodeAddrToBytes(addr string) (out []byte) {
+func EncodeAddrToBytes(
+	addr string) (out []byte) {
 	out = make([]byte, 4)
 	o := make([]byte, 2)
 	var ou16 uint16

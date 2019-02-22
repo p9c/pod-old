@@ -24,7 +24,8 @@ const (
 )
 
 // makeTestOutput creates an on-chain output paying to a freshly generated p2pkh output with the specified amount.
-func makeTestOutput(r *rpctest.Harness, t *testing.T,
+func makeTestOutput(
+	r *rpctest.Harness, t *testing.T,
 	amt util.Amount) (*ec.PrivateKey, *wire.OutPoint, []byte, error) {
 	// Create a fresh key, then send some coins to an address spendable by that key.
 	key, err := ec.NewPrivateKey(ec.S256())
@@ -78,7 +79,8 @@ func makeTestOutput(r *rpctest.Harness, t *testing.T,
 //  - Post soft-fork:
 //    - Transactions with non-final lock-times from the PoV of MTP should be rejected from the mempool and when found within otherwise valid blocks.
 //    - Transactions with final lock-times from the PoV of MTP should be accepted to the mempool and mined in future block.
-func TestBIP0113Activation(t *testing.T) {
+func TestBIP0113Activation(
+	t *testing.T) {
 	t.Parallel()
 	podCfg := []string{"--rejectnonstd"}
 	r, err := rpctest.New(&chaincfg.SimNetParams, nil, podCfg)
@@ -211,7 +213,8 @@ func TestBIP0113Activation(t *testing.T) {
 
 // createCSVOutput creates an output paying to a trivially redeemable CSV
 // pkScript with the specified time-lock.
-func createCSVOutput(r *rpctest.Harness, t *testing.T,
+func createCSVOutput(
+	r *rpctest.Harness, t *testing.T,
 	numSatoshis util.Amount, timeLock int32,
 	isSeconds bool) ([]byte, *wire.OutPoint, *wire.MsgTx, error) {
 	// Convert the time-lock to the proper sequence lock based according to
@@ -261,7 +264,8 @@ func createCSVOutput(r *rpctest.Harness, t *testing.T,
 // spendCSVOutput spends an output previously created by the createCSVOutput
 // function. The sigScript is a trivial push of OP_TRUE followed by the
 // redeemScript to pass P2SH evaluation.
-func spendCSVOutput(redeemScript []byte, csvUTXO *wire.OutPoint,
+func spendCSVOutput(
+	redeemScript []byte, csvUTXO *wire.OutPoint,
 	sequence uint32, targetOutput *wire.TxOut,
 	txVersion int32) (*wire.MsgTx, error) {
 	tx := wire.NewMsgTx(txVersion)
@@ -283,7 +287,8 @@ func spendCSVOutput(redeemScript []byte, csvUTXO *wire.OutPoint,
 
 // assertTxInBlock asserts a transaction with the specified txid is found
 // within the block with the passed block hash.
-func assertTxInBlock(r *rpctest.Harness, t *testing.T, blockHash *chainhash.Hash,
+func assertTxInBlock(
+	r *rpctest.Harness, t *testing.T, blockHash *chainhash.Hash,
 	txid *chainhash.Hash) {
 	block, err := r.Node.GetBlock(blockHash)
 	if err != nil {
@@ -314,7 +319,8 @@ func assertTxInBlock(r *rpctest.Harness, t *testing.T, blockHash *chainhash.Hash
 //  - Post soft-fork:
 //    - See the cases exercised within the table driven tests towards the end
 //    of this test.
-func TestBIP0068AndBIP0112Activation(t *testing.T) {
+func TestBIP0068AndBIP0112Activation(
+	t *testing.T) {
 	t.Parallel()
 	// We'd like the test proper evaluation and validation of the BIP 68
 	// (sequence locks) and BIP 112 rule-sets which add input-age based

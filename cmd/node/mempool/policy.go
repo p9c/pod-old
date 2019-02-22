@@ -26,7 +26,8 @@ const (
 )
 
 // calcMinRequiredTxRelayFee returns the minimum transaction fee required for a transaction with the passed serialized size to be accepted into the memory pool and relayed.
-func calcMinRequiredTxRelayFee(serializedSize int64, minRelayTxFee util.Amount) int64 {
+func calcMinRequiredTxRelayFee(
+	serializedSize int64, minRelayTxFee util.Amount) int64 {
 	// Calculate the minimum fee for a transaction to be allowed into the mempool and relayed by scaling the base fee (which is the minimum free transaction relay fee).  minTxRelayFee is in Satoshi/kB so multiply by serializedSize (which is in bytes) and divide by 1000 to get minimum Satoshis.
 	minFee := (serializedSize * int64(minRelayTxFee)) / 1000
 	if minFee == 0 && minRelayTxFee > 0 {
@@ -40,7 +41,8 @@ func calcMinRequiredTxRelayFee(serializedSize int64, minRelayTxFee util.Amount) 
 }
 
 // checkInputsStandard performs a series of checks on a transaction's inputs to ensure they are "standard".  A standard transaction input within the context of this function is one whose referenced public key script is of a standard form and, for pay-to-script-hash, does not have more than maxStandardP2SHSigOps signature operations.  However, it should also be noted that standard inputs also are those which have a clean stack after execution and only contain pushed data in their signature scripts.  This function does not perform those checks because the script engine already does this more accurately and concisely via the txscript.ScriptVerifyCleanStack and txscript.ScriptVerifySigPushOnly flags.
-func checkInputsStandard(tx *util.Tx, utxoView *blockchain.UtxoViewpoint) error {
+func checkInputsStandard(
+	tx *util.Tx, utxoView *blockchain.UtxoViewpoint) error {
 	// NOTE: The reference implementation also does a coinbase check here, but coinbases have already been rejected prior to calling this function so no need to recheck.
 	for i, txIn := range tx.MsgTx().TxIn {
 		// It is safe to elide existence and index checks here since they have already been checked prior to calling this function.
@@ -67,7 +69,8 @@ func checkInputsStandard(tx *util.Tx, utxoView *blockchain.UtxoViewpoint) error 
 }
 
 // checkPkScriptStandard performs a series of checks on a transaction output script (public key script) to ensure it is a "standard" public key script. A standard public key script is one that is a recognized form, and for multi-signature scripts, only contains from 1 to maxStandardMultiSigKeys public keys.
-func checkPkScriptStandard(pkScript []byte, scriptClass txscript.ScriptClass) error {
+func checkPkScriptStandard(
+	pkScript []byte, scriptClass txscript.ScriptClass) error {
 	switch scriptClass {
 	case txscript.MultiSigTy:
 		numPubKeys, numSigs, err := txscript.CalcMultiSigStats(pkScript)
@@ -106,7 +109,8 @@ func checkPkScriptStandard(pkScript []byte, scriptClass txscript.ScriptClass) er
 }
 
 // isDust returns whether or not the passed transaction output amount is considered dust or not based on the passed minimum transaction relay fee. Dust is defined in terms of the minimum transaction relay fee.  In particular, if the cost to the network to spend coins is more than 1/3 of the minimum transaction relay fee, it is considered dust.
-func isDust(txOut *wire.TxOut, minRelayTxFee util.Amount) bool {
+func isDust(
+	txOut *wire.TxOut, minRelayTxFee util.Amount) bool {
 	// Unspendable outputs are considered dust.
 	if txscript.IsUnspendable(txOut.PkScript) {
 		return true
@@ -157,7 +161,8 @@ func isDust(txOut *wire.TxOut, minRelayTxFee util.Amount) bool {
 }
 
 // checkTransactionStandard performs a series of checks on a transaction to ensure it is a "standard" transaction.  A standard transaction is one that conforms to several additional limiting cases over what is considered a "sane" transaction such as having a version in the supported range, being finalized, conforming to more stringent size constraints, having scripts of recognized forms, and not containing "dust" outputs (those that are so small it costs more to process them than they are worth).
-func checkTransactionStandard(tx *util.Tx, height int32,
+func checkTransactionStandard(
+	tx *util.Tx, height int32,
 	medianTimePast time.Time, minRelayTxFee util.Amount,
 	maxTxVersion int32) error {
 	// The transaction must be a currently supported version.
@@ -229,7 +234,8 @@ func checkTransactionStandard(tx *util.Tx, height int32,
 }
 
 // GetTxVirtualSize computes the virtual size of a given transaction. A transaction's virtual size is based off its weight, creating a discount for any witness data it contains, proportional to the current blockchain.WitnessScaleFactor value.
-func GetTxVirtualSize(tx *util.Tx) int64 {
+func GetTxVirtualSize(
+	tx *util.Tx) int64 {
 	// vSize := (weight(tx) + 3) / 4
 	//       := (((baseSize * 3) + totalSize) + 3) / 4
 	// We add 3 here as a way to compute the ceiling of the prior arithmetic

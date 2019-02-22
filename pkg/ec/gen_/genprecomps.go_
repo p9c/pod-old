@@ -13,7 +13,8 @@ import (
 	ec "git.parallelcoin.io/pod/pkg/ec"
 )
 
-func main() {
+func main(
+	) {
 	fi, err := os.Create("secp256k1.go")
 	if err != nil {
 		log.Fatal(err)

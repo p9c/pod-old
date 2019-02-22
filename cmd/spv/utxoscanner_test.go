@@ -22,7 +22,8 @@ type MockChainClient struct {
 	getCFilterResponse   map[chainhash.Hash]*gcs.Filter
 }
 
-func NewMockChainClient() *MockChainClient {
+func NewMockChainClient(
+	) *MockChainClient {
 	return &MockChainClient{
 		getBlockResponse:     make(map[chainhash.Hash]*util.Block),
 		getBlockHashResponse: make(map[int64]*chainhash.Hash),
@@ -64,7 +65,8 @@ func (c *MockChainClient) blockFilterMatches(ro *rescanOptions,
 	return true, nil
 }
 
-func makeTestInputWithScript() *InputWithScript {
+func makeTestInputWithScript(
+	) *InputWithScript {
 	hash, _ := chainhash.NewHashFromStr("87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03")
 	pkScript := []byte("76a91471d7dd96d9edda09180fe9d57a477b5acc9cad118")
 
@@ -79,7 +81,8 @@ func makeTestInputWithScript() *InputWithScript {
 }
 
 // TestFindSpends tests that findSpends properly returns spend reports.
-func TestFindSpends(t *testing.T) {
+func TestFindSpends(
+	t *testing.T) {
 	height := uint32(100000)
 
 	reqs := []*GetUtxoRequest{
@@ -112,7 +115,8 @@ func TestFindSpends(t *testing.T) {
 // TestFindInitialTransactions tests that findInitialTransactions properly
 // returns the transaction corresponding to an output if it is found in the
 // given block.
-func TestFindInitialTransactions(t *testing.T) {
+func TestFindInitialTransactions(
+	t *testing.T) {
 	hash, _ := chainhash.NewHashFromStr("e9a66845e05d5abc0ad04ec80f774a7e585c6e8db975962d069a522137b80c1d")
 	outpoint := &wire.OutPoint{Hash: *hash, Index: 0}
 	pkScript := []byte("76a91439aa3d569e06a1d7926dc4be1193c99bf2eb9ee08")
@@ -185,7 +189,8 @@ func TestFindInitialTransactions(t *testing.T) {
 // ensures that dequeueing heights lower than what has already been dequeued
 // will not return requests, as they should be moved internally to the nextBatch
 // slice.
-func TestDequeueAtHeight(t *testing.T) {
+func TestDequeueAtHeight(
+	t *testing.T) {
 	mockChainClient := NewMockChainClient()
 	scanner := NewUtxoScanner(&UtxoScannerConfig{
 		GetBlock:           mockChainClient.GetBlockFromNetwork,
@@ -322,7 +327,8 @@ func TestDequeueAtHeight(t *testing.T) {
 
 // TestUtxoScannerScanBasic tests that enqueueing a spend request at the height
 // of the spend returns a correct spend report.
-func TestUtxoScannerScanBasic(t *testing.T) {
+func TestUtxoScannerScanBasic(
+	t *testing.T) {
 	mockChainClient := NewMockChainClient()
 
 	block100000Hash := Block100000.BlockHash()
@@ -364,7 +370,8 @@ func TestUtxoScannerScanBasic(t *testing.T) {
 // of the best snapshot properly dispatches spend reports. Internally, this
 // tests that the rescan detects a difference in the original best height and
 // the best height after a rescan, and then continues scans up to the new tip.
-func TestUtxoScannerScanAddBlocks(t *testing.T) {
+func TestUtxoScannerScanAddBlocks(
+	t *testing.T) {
 	mockChainClient := NewMockChainClient()
 
 	block99999Hash := Block99999.BlockHash()
@@ -435,7 +442,8 @@ func TestUtxoScannerScanAddBlocks(t *testing.T) {
 // TestUtxoScannerCancelRequest tests the ability to cancel pending GetUtxo
 // requests, as well as the scanners ability to exit and cancel request when
 // stopped during a batch scan.
-func TestUtxoScannerCancelRequest(t *testing.T) {
+func TestUtxoScannerCancelRequest(
+	t *testing.T) {
 	mockChainClient := NewMockChainClient()
 
 	block100000Hash := Block100000.BlockHash()

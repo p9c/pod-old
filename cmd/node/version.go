@@ -22,7 +22,8 @@ const (
 var appBuild string
 
 // Version returns the application version as a properly formed string per the semantic versioning 2.0.0 spec (http://semver.org/).
-func Version() string {
+func Version(
+	) string {
 	// Start with the major, minor, and patch versions.
 	version := fmt.Sprintf("%d.%d.%d", appMajor, appMinor, appPatch)
 	// Append pre-release version if there is one.  The hyphen called for by the semantic versioning spec is automatically appended and should not be contained in the pre-release string.  The pre-release version is not appended if it contains invalid characters.
@@ -39,7 +40,8 @@ func Version() string {
 }
 
 // normalizeVerString returns the passed string stripped of all characters which are not valid according to the semantic versioning guidelines for pre-release version and build metadata strings.  In particular they MUST only contain characters in semanticAlphabet.
-func normalizeVerString(str string) string {
+func normalizeVerString(
+	str string) string {
 	var result bytes.Buffer
 	for _, r := range str {
 		if strings.ContainsRune(semanticAlphabet, r) {

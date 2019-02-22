@@ -85,7 +85,8 @@ type TxRecord struct {
 // NewTxRecord creates a new transaction record that may be inserted into the
 // store.  It uses memoization to save the transaction hash and the serialized
 // transaction.
-func NewTxRecord(serializedTx []byte, received time.Time) (*TxRecord, error) {
+func NewTxRecord(
+	serializedTx []byte, received time.Time) (*TxRecord, error) {
 	rec := &TxRecord{
 		Received:     received,
 		SerializedTx: serializedTx,
@@ -101,7 +102,8 @@ func NewTxRecord(serializedTx []byte, received time.Time) (*TxRecord, error) {
 
 // NewTxRecordFromMsgTx creates a new transaction record that may be inserted
 // into the store.
-func NewTxRecordFromMsgTx(msgTx *wire.MsgTx, received time.Time) (*TxRecord, error) {
+func NewTxRecordFromMsgTx(
+	msgTx *wire.MsgTx, received time.Time) (*TxRecord, error) {
 	buf := bytes.NewBuffer(make([]byte, 0, msgTx.SerializeSize()))
 	err := msgTx.Serialize(buf)
 	if err != nil {
@@ -143,14 +145,16 @@ type Store struct {
 // DoUpgrades performs any necessary upgrades to the transaction history
 // contained in the wallet database, namespaced by the top level bucket key
 // namespaceKey.
-func DoUpgrades(db walletdb.DB, namespaceKey []byte) error {
+func DoUpgrades(
+	db walletdb.DB, namespaceKey []byte) error {
 	// No upgrades
 	return nil
 }
 
 // Open opens the wallet transaction store from a walletdb namespace.  If the
 // store does not exist, ErrNoExist is returned.
-func Open(ns walletdb.ReadBucket, chainParams *chaincfg.Params) (*Store, error) {
+func Open(
+	ns walletdb.ReadBucket, chainParams *chaincfg.Params) (*Store, error) {
 	// Open the store.
 	err := openStore(ns)
 	if err != nil {
@@ -163,7 +167,8 @@ func Open(ns walletdb.ReadBucket, chainParams *chaincfg.Params) (*Store, error) 
 // Create creates a new persistent transaction store in the walletdb namespace.
 // Creating the store when one already exists in this namespace will error with
 // ErrAlreadyExists.
-func Create(ns walletdb.ReadWriteBucket) error {
+func Create(
+	ns walletdb.ReadWriteBucket) error {
 	return createStore(ns)
 }
 

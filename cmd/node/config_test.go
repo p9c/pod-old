@@ -10,11 +10,17 @@ import (
 )
 
 var (
-	rpcuserRegexp = regexp.MustCompile("(?m)^rpcuser=.+$")
 	rpcpassRegexp = regexp.MustCompile("(?m)^rpcpass=.+$")
 )
 
-func TestCreateDefaultConfigFile(t *testing.T) {
+var (
+	rpcuserRegexp = regexp.MustCompile("(?m)^rpcuser=.+$")
+)
+
+func TestCreateDefaultConfigFile(
+	t *testing.T,
+) {
+
 	// find out where the sample config lives
 	_, path, _, ok := runtime.Caller(0)
 	if !ok {

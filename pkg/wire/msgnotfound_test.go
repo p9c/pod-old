@@ -11,7 +11,8 @@ import (
 )
 
 // TestNotFound tests the MsgNotFound API.
-func TestNotFound(t *testing.T) {
+func TestNotFound(
+	t *testing.T) {
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "notfound"
@@ -50,7 +51,8 @@ func TestNotFound(t *testing.T) {
 }
 
 // TestNotFoundWire tests the MsgNotFound wire encode and decode for various numbers of inventory vectors and protocol versions.
-func TestNotFoundWire(t *testing.T) {
+func TestNotFoundWire(
+	t *testing.T) {
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
@@ -206,7 +208,8 @@ func TestNotFoundWire(t *testing.T) {
 }
 
 // TestNotFoundWireErrors performs negative tests against wire encode and decode of MsgNotFound to confirm error paths work correctly.
-func TestNotFoundWireErrors(t *testing.T) {
+func TestNotFoundWireErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	wireErr := &MessageError{}
 	// Block 203707 hash.

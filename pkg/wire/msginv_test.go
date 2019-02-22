@@ -11,7 +11,8 @@ import (
 )
 
 // TestInv tests the MsgInv API.
-func TestInv(t *testing.T) {
+func TestInv(
+	t *testing.T) {
 	pver := ProtocolVersion
 	// Ensure the command is expected value.
 	wantCmd := "inv"
@@ -57,7 +58,8 @@ func TestInv(t *testing.T) {
 }
 
 // TestInvWire tests the MsgInv wire encode and decode for various numbers of inventory vectors and protocol versions.
-func TestInvWire(t *testing.T) {
+func TestInvWire(
+	t *testing.T) {
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
@@ -213,7 +215,8 @@ func TestInvWire(t *testing.T) {
 }
 
 // TestInvWireErrors performs negative tests against wire encode and decode of MsgInv to confirm error paths work correctly.
-func TestInvWireErrors(t *testing.T) {
+func TestInvWireErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	wireErr := &MessageError{}
 	// Block 203707 hash.

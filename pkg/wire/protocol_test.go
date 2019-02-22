@@ -2,7 +2,8 @@
 package wire
 import "testing"
 // TestServiceFlagStringer tests the stringized output for service flag types.
-func TestServiceFlagStringer(t *testing.T) {
+func TestServiceFlagStringer(
+	t *testing.T) {
 	tests := []struct {
 		in   ServiceFlag
 		want string
@@ -29,7 +30,8 @@ func TestServiceFlagStringer(t *testing.T) {
 	}
 }
 // TestBitcoinNetStringer tests the stringized output for bitcoin net types.
-func TestBitcoinNetStringer(t *testing.T) {
+func TestBitcoinNetStringer(
+	t *testing.T) {
 	tests := []struct {
 		in   BitcoinNet
 		want string

@@ -25,7 +25,12 @@ type PortSet struct {
 }
 
 // GenPortSet creates a set of ports for testnet configuration
-func GenPortSet(portbase int) (ps *PortSet) {
+func GenPortSet(
+	portbase int,
+) (
+	ps *PortSet,
+) {
+
 	// From the base, each element is as follows:
 	// - P2P = portbase
 	// - NodeRPC = portbase + 1
@@ -43,7 +48,12 @@ func GenPortSet(portbase int) (ps *PortSet) {
 }
 
 // GetDefaultConfs returns all of the configurations in their default state
-func GetDefaultConfs(datadir string) (out *ConfigSet) {
+func GetDefaultConfs(
+	datadir string,
+) (
+	out *ConfigSet,
+) {
+
 	out = new(ConfigSet)
 	out.Conf = DefaultConfConfig(datadir)
 	out.Ctl = DefaultCtlConfig(datadir)
@@ -54,7 +64,10 @@ func GetDefaultConfs(datadir string) (out *ConfigSet) {
 }
 
 // SyncToConfs takes a ConfigSet and synchronises the values according to the ConfCfg settings
-func SyncToConfs(in *ConfigSet) {
+func SyncToConfs(
+	in *ConfigSet,
+) {
+
 	if in == nil {
 		panic("received nil configset")
 	}
@@ -142,7 +155,10 @@ func SyncToConfs(in *ConfigSet) {
 }
 
 // WriteConfigSet writes a set of configurations to disk
-func WriteConfigSet(in *ConfigSet) {
+func WriteConfigSet(
+	in *ConfigSet,
+) {
+
 	WriteConfConfig(in.Conf)
 	WriteCtlConfig(in.Ctl)
 	WriteNodeConfig(in.Node)
@@ -150,7 +166,10 @@ func WriteConfigSet(in *ConfigSet) {
 	WriteShellConfig(in.Shell)
 }
 
-func getConfs(datadir string) {
+func getConfs(
+	datadir string,
+) {
+
 	confs = []string{
 		datadir + "/ctl/conf.json",
 		datadir + "/node/conf.json",

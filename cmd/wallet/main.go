@@ -23,7 +23,8 @@ var (
 
 // Main is a work-around main function that is required since deferred functions (such as log flushing) are not called with calls to os.Exit.
 // Instead, main runs this function and checks for a non-nil error, at point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
-func Main(c *Config, activeNet *netparams.Params) error {
+func Main(
+	c *Config, activeNet *netparams.Params) error {
 	cfg = c
 	ActiveNet = activeNet
 	if ActiveNet.Name == "testnet" {
@@ -130,7 +131,8 @@ func Main(c *Config, activeNet *netparams.Params) error {
 // The legacy RPC is optional.  If set, the connected RPC client will be
 // associated with the server for RPC passthrough and to enable additional
 // methods.
-func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
+func rpcClientConnectLoop(
+	legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
 	var certs []byte
 	// if !cfg.UseSPV {
 	certs = readCAFile()
@@ -226,7 +228,8 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 	}
 }
 
-func readCAFile() []byte {
+func readCAFile(
+	) []byte {
 	// Read certificate file if TLS is not disabled.
 	var certs []byte
 	if cfg.EnableClientTLS {
@@ -251,7 +254,8 @@ func readCAFile() []byte {
 // services.  This function uses the RPC options from the global config and
 // there is no recovery in case the server is not available or if there is an
 // authentication error.  Instead, all requests to the client will simply error.
-func startChainRPC(certs []byte) (*chain.RPCClient, error) {
+func startChainRPC(
+	certs []byte) (*chain.RPCClient, error) {
 	log <- cl.Infof{
 		"attempting RPC client connection to %v, TLS: %s",
 		cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS),

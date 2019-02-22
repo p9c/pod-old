@@ -69,7 +69,8 @@ type blockNode struct {
 }
 
 // initBlockNode initializes a block node from the given header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.  It must only be called when initially creating a node.
-func initBlockNode(node *blockNode, blockHeader *wire.BlockHeader, parent *blockNode) {
+func initBlockNode(
+	node *blockNode, blockHeader *wire.BlockHeader, parent *blockNode) {
 	*node = blockNode{
 		hash:       blockHeader.BlockHash(),
 		version:    blockHeader.Version,
@@ -88,7 +89,8 @@ func initBlockNode(node *blockNode, blockHeader *wire.BlockHeader, parent *block
 }
 
 // newBlockNode returns a new block node for the given block header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.
-func newBlockNode(blockHeader *wire.BlockHeader, parent *blockNode) *blockNode {
+func newBlockNode(
+	blockHeader *wire.BlockHeader, parent *blockNode) *blockNode {
 	var node blockNode
 	initBlockNode(&node, blockHeader, parent)
 	return &node
@@ -160,7 +162,8 @@ type blockIndex struct {
 }
 
 // newBlockIndex returns a new empty instance of a block index.  The index will be dynamically populated as block nodes are loaded from the database and manually added.
-func newBlockIndex(db database.DB, chainParams *chaincfg.Params) *blockIndex {
+func newBlockIndex(
+	db database.DB, chainParams *chaincfg.Params) *blockIndex {
 	return &blockIndex{
 		db:          db,
 		chainParams: chainParams,

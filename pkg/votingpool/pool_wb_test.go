@@ -9,7 +9,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/waddrmgr"
 )
 
-func TestPoolEnsureUsedAddr(t *testing.T) {
+func TestPoolEnsureUsedAddr(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -71,7 +72,8 @@ func TestPoolEnsureUsedAddr(t *testing.T) {
 	}
 }
 
-func TestPoolGetUsedAddr(t *testing.T) {
+func TestPoolGetUsedAddr(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -119,7 +121,8 @@ func TestPoolGetUsedAddr(t *testing.T) {
 	}
 }
 
-func TestSerializationErrors(t *testing.T) {
+func TestSerializationErrors(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -187,7 +190,8 @@ func TestSerializationErrors(t *testing.T) {
 	}
 }
 
-func TestSerialization(t *testing.T) {
+func TestSerialization(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -309,7 +313,8 @@ func TestSerialization(t *testing.T) {
 	}
 }
 
-func TestDeserializationErrors(t *testing.T) {
+func TestDeserializationErrors(
+	t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -350,7 +355,8 @@ func TestDeserializationErrors(t *testing.T) {
 	}
 }
 
-func TestValidateAndDecryptKeys(t *testing.T) {
+func TestValidateAndDecryptKeys(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -407,7 +413,8 @@ func TestValidateAndDecryptKeys(t *testing.T) {
 	}
 }
 
-func TestValidateAndDecryptKeysErrors(t *testing.T) {
+func TestValidateAndDecryptKeysErrors(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -470,7 +477,8 @@ func TestValidateAndDecryptKeysErrors(t *testing.T) {
 	}
 }
 
-func encryptKeys(keys []string, mgr *waddrmgr.Manager, keyType waddrmgr.CryptoKeyType) ([][]byte, error) {
+func encryptKeys(
+	keys []string, mgr *waddrmgr.Manager, keyType waddrmgr.CryptoKeyType) ([][]byte, error) {
 	encryptedKeys := make([][]byte, len(keys))
 	var err error
 	for i, key := range keys {

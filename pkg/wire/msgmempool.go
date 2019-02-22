@@ -39,6 +39,7 @@ func (msg *MsgMemPool) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgMemPool returns a new bitcoin pong message that conforms to the Message interface.  See MsgPong for details.
-func NewMsgMemPool() *MsgMemPool {
+func NewMsgMemPool(
+	) *MsgMemPool {
 	return &MsgMemPool{}
 }

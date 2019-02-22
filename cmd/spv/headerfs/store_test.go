@@ -19,7 +19,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func createTestBlockHeaderStore() (func(), walletdb.DB, string,
+func createTestBlockHeaderStore(
+	) (func(), walletdb.DB, string,
 	*blockHeaderStore, error) {
 	tempDir, err := ioutil.TempDir("", "store_test")
 	if err != nil {
@@ -45,7 +46,8 @@ func createTestBlockHeaderStore() (func(), walletdb.DB, string,
 	return cleanUp, db, tempDir, hStore.(*blockHeaderStore), nil
 }
 
-func createTestBlockHeaderChain(numHeaders uint32) []BlockHeader {
+func createTestBlockHeaderChain(
+	numHeaders uint32) []BlockHeader {
 	blockHeaders := make([]BlockHeader, numHeaders)
 	prevHeader := &chaincfg.SimNetParams.GenesisBlock.Header
 	for i := uint32(1); i <= numHeaders; i++ {
@@ -67,7 +69,8 @@ func createTestBlockHeaderChain(numHeaders uint32) []BlockHeader {
 	return blockHeaders
 }
 
-func TestBlockHeaderStoreOperations(t *testing.T) {
+func TestBlockHeaderStoreOperations(
+	t *testing.T) {
 	cleanUp, _, _, bhs, err := createTestBlockHeaderStore()
 	if cleanUp != nil {
 		defer cleanUp()
@@ -170,7 +173,8 @@ func TestBlockHeaderStoreOperations(t *testing.T) {
 	}
 }
 
-func TestBlockHeaderStoreRecovery(t *testing.T) {
+func TestBlockHeaderStoreRecovery(
+	t *testing.T) {
 	// In this test we want to exercise the ability of the block header
 	// store to recover in the face of a partial batch write (the headers
 	// were written, but the index wasn't updated).
@@ -223,7 +227,8 @@ func TestBlockHeaderStoreRecovery(t *testing.T) {
 	}
 }
 
-func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderStore, error) {
+func createTestFilterHeaderStore(
+	) (func(), walletdb.DB, string, *FilterHeaderStore, error) {
 	tempDir, err := ioutil.TempDir("", "store_test")
 	if err != nil {
 		return nil, nil, "", nil, err
@@ -249,7 +254,8 @@ func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderSt
 	return cleanUp, db, tempDir, hStore, nil
 }
 
-func createTestFilterHeaderChain(numHeaders uint32) []FilterHeader {
+func createTestFilterHeaderChain(
+	numHeaders uint32) []FilterHeader {
 	filterHeaders := make([]FilterHeader, numHeaders)
 	for i := uint32(1); i <= numHeaders; i++ {
 		filterHeaders[i-1] = FilterHeader{
@@ -262,7 +268,8 @@ func createTestFilterHeaderChain(numHeaders uint32) []FilterHeader {
 	return filterHeaders
 }
 
-func TestFilterHeaderStoreOperations(t *testing.T) {
+func TestFilterHeaderStoreOperations(
+	t *testing.T) {
 	cleanUp, _, _, fhs, err := createTestFilterHeaderStore()
 	if cleanUp != nil {
 		defer cleanUp()
@@ -376,7 +383,8 @@ func TestFilterHeaderStoreOperations(t *testing.T) {
 	}
 }
 
-func TestFilterHeaderStoreRecovery(t *testing.T) {
+func TestFilterHeaderStoreRecovery(
+	t *testing.T) {
 	// In this test we want to exercise the ability of the filter header
 	// store to recover in the face of a partial batch write (the headers
 	// were written, but the index wasn't updated).
@@ -450,7 +458,8 @@ func TestFilterHeaderStoreRecovery(t *testing.T) {
 // TestBlockHeadersFetchHeaderAncestors tests that we're able to properly fetch
 // the ancestors of a particular block, going from a set distance back to the
 // target block.
-func TestBlockHeadersFetchHeaderAncestors(t *testing.T) {
+func TestBlockHeadersFetchHeaderAncestors(
+	t *testing.T) {
 	t.Parallel()
 
 	cleanUp, _, _, bhs, err := createTestBlockHeaderStore()

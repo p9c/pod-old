@@ -100,82 +100,94 @@ var WalletConfig = DefaultWalletConfig(w.DefaultConfigFile)
 // wf is the list of flags and the default values stored in the Usage field
 var wf = GetFlags(WalletCommand)
 
-func init() {
-	// Loads after the var clauses run
-	WalletCommand.Handle = func(ctx climax.Context) int {
+// DefaultWalletConfig returns a default configuration
+func DefaultWalletConfig(
+	datadir string,
+) *WalletCfg {
 
-		Log.SetLevel("off")
-		var dl string
-		var ok bool
-		if dl, ok = ctx.Get("debuglevel"); ok {
-			Log.SetLevel(dl)
-			ll := GetAllSubSystems()
-			for i := range ll {
-				ll[i].SetLevel(dl)
-			}
-		}
-		log <- cl.Tracef{"setting debug level %s", dl}
-		log <- cl.Trc("starting wallet app")
-		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
-		if ctx.Is("version") {
-			fmt.Println("pod/wallet version", w.Version())
-			return 0
-		}
-		var datadir, cfgFile string
-		datadir = util.AppDataDir("pod", false)
-		if datadir, ok = ctx.Get("datadir"); !ok {
-			datadir = w.DefaultDataDir
-		}
-		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
-		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
-		if cfgFile, ok = ctx.Get("configfile"); !ok {
-			cfgFile = filepath.Join(
-				filepath.Join(datadir, "wallet"), w.DefaultConfigFilename)
-		}
-
-		if ctx.Is("init") {
-			log <- cl.Debug{"writing default configuration to", cfgFile}
-			WriteDefaultWalletConfig(cfgFile)
-		}
-		log <- cl.Info{"loading configuration from", cfgFile}
-		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-			log <- cl.Wrn("configuration file does not exist, creating new one")
-			WriteDefaultWalletConfig(cfgFile)
-		} else {
-			log <- cl.Debug{"reading app configuration from", cfgFile}
-			cfgData, err := ioutil.ReadFile(cfgFile)
-			if err != nil {
-				log <- cl.Error{"reading app config file", err.Error()}
-				WriteDefaultWalletConfig(cfgFile)
-			}
-			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-			err = json.Unmarshal(cfgData, &WalletConfig)
-			if err != nil {
-				log <- cl.Error{"parsing app config file", err.Error()}
-				WriteDefaultWalletConfig(cfgFile)
-			}
-			WalletConfig.activeNet = &netparams.MainNetParams
-			if WalletConfig.Wallet.TestNet3 {
-				WalletConfig.activeNet = &netparams.TestNet3Params
-			}
-			if WalletConfig.Wallet.SimNet {
-				WalletConfig.activeNet = &netparams.SimNetParams
-			}
-		}
-
-		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
-		if dl, ok = ctx.Get("debuglevel"); ok {
-			for i := range WalletConfig.Levels {
-				WalletConfig.Levels[i] = dl
-			}
-		}
-		fmt.Println("running wallet on", WalletConfig.activeNet.Name)
-		runWallet(WalletConfig.Wallet, WalletConfig.activeNet)
-		return 0
+	log <- cl.Dbg("getting default config")
+	appdatadir := filepath.Join(datadir, w.DefaultAppDataDirname)
+	return &WalletCfg{
+		Wallet: &w.Config{
+			ConfigFile: filepath.Join(
+				appdatadir, w.DefaultConfigFilename),
+			DataDir:         datadir,
+			AppDataDir:      appdatadir,
+			RPCConnect:      n.DefaultRPCListener,
+			PodUsername:     "user",
+			PodPassword:     "pa55word",
+			WalletPass:      "",
+			NoInitialLoad:   false,
+			RPCCert:         filepath.Join(datadir, "rpc.cert"),
+			RPCKey:          filepath.Join(datadir, "rpc.key"),
+			CAFile:          walletmain.DefaultCAFile,
+			EnableClientTLS: false,
+			EnableServerTLS: false,
+			Proxy:           "",
+			ProxyUser:       "",
+			ProxyPass:       "",
+			LegacyRPCListeners: []string{
+				w.DefaultListener,
+			},
+			LegacyRPCMaxClients:      w.DefaultRPCMaxClients,
+			LegacyRPCMaxWebsockets:   w.DefaultRPCMaxWebsockets,
+			Username:                 "user",
+			Password:                 "pa55word",
+			ExperimentalRPCListeners: []string{},
+		},
+		Levels:    GetDefaultLogLevelsConfig(),
+		activeNet: &netparams.MainNetParams,
 	}
 }
 
-func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
+// WriteDefaultWalletConfig creates and writes a default config to the requested location
+func WriteDefaultWalletConfig(
+	datadir string,
+) {
+
+	defCfg := DefaultWalletConfig(datadir)
+	j, err := json.MarshalIndent(defCfg, "", "  ")
+	if err != nil {
+		log <- cl.Error{"marshalling configuration", err}
+		panic(err)
+	}
+	j = append(j, '\n')
+	EnsureDir(defCfg.Wallet.ConfigFile)
+	log <- cl.Trace{"JSON formatted config file\n", string(j)}
+	EnsureDir(defCfg.Wallet.ConfigFile)
+	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Error{"writing app config file", err}
+		panic(err)
+	}
+	// if we are writing default config we also want to use it
+	WalletConfig = defCfg
+}
+
+// WriteWalletConfig creates and writes the config file in the requested location
+func WriteWalletConfig(
+	c *WalletCfg,
+) {
+
+	log <- cl.Dbg("writing config")
+	j, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		panic(err.Error())
+	}
+	j = append(j, '\n')
+	EnsureDir(c.Wallet.ConfigFile)
+	err = ioutil.WriteFile(c.Wallet.ConfigFile, j, 0600)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func configWallet(
+	wc *w.Config,
+	ctx *climax.Context,
+	cfgFile string,
+) {
+
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
 	if ctx.Is("createtemp") {
 		log <- cl.Dbg("request to make temp wallet")
@@ -292,75 +304,77 @@ func configWallet(wc *w.Config, ctx *climax.Context, cfgFile string) {
 	}
 }
 
-// WriteWalletConfig creates and writes the config file in the requested location
-func WriteWalletConfig(c *WalletCfg) {
-	log <- cl.Dbg("writing config")
-	j, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		panic(err.Error())
-	}
-	j = append(j, '\n')
-	EnsureDir(c.Wallet.ConfigFile)
-	err = ioutil.WriteFile(c.Wallet.ConfigFile, j, 0600)
-	if err != nil {
-		panic(err.Error())
-	}
-}
+func init() {
+	// Loads after the var clauses run
+	WalletCommand.Handle = func(ctx climax.Context) int {
 
-// WriteDefaultWalletConfig creates and writes a default config to the requested location
-func WriteDefaultWalletConfig(datadir string) {
-	defCfg := DefaultWalletConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		log <- cl.Error{"marshalling configuration", err}
-		panic(err)
-	}
-	j = append(j, '\n')
-	EnsureDir(defCfg.Wallet.ConfigFile)
-	log <- cl.Trace{"JSON formatted config file\n", string(j)}
-	EnsureDir(defCfg.Wallet.ConfigFile)
-	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing app config file", err}
-		panic(err)
-	}
-	// if we are writing default config we also want to use it
-	WalletConfig = defCfg
-}
+		Log.SetLevel("off")
+		var dl string
+		var ok bool
+		if dl, ok = ctx.Get("debuglevel"); ok {
+			Log.SetLevel(dl)
+			ll := GetAllSubSystems()
+			for i := range ll {
+				ll[i].SetLevel(dl)
+			}
+		}
+		log <- cl.Tracef{"setting debug level %s", dl}
+		log <- cl.Trc("starting wallet app")
+		log <- cl.Debugf{"pod/wallet version %s", w.Version()}
+		if ctx.Is("version") {
+			fmt.Println("pod/wallet version", w.Version())
+			return 0
+		}
+		var datadir, cfgFile string
+		datadir = util.AppDataDir("pod", false)
+		if datadir, ok = ctx.Get("datadir"); !ok {
+			datadir = w.DefaultDataDir
+		}
+		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
+		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+		if cfgFile, ok = ctx.Get("configfile"); !ok {
+			cfgFile = filepath.Join(
+				filepath.Join(datadir, "wallet"), w.DefaultConfigFilename)
+		}
 
-// DefaultWalletConfig returns a default configuration
-func DefaultWalletConfig(datadir string) *WalletCfg {
-	log <- cl.Dbg("getting default config")
-	appdatadir := filepath.Join(datadir, w.DefaultAppDataDirname)
-	return &WalletCfg{
-		Wallet: &w.Config{
-			ConfigFile: filepath.Join(
-				appdatadir, w.DefaultConfigFilename),
-			DataDir:         datadir,
-			AppDataDir:      appdatadir,
-			RPCConnect:      n.DefaultRPCListener,
-			PodUsername:     "user",
-			PodPassword:     "pa55word",
-			WalletPass:      "",
-			NoInitialLoad:   false,
-			RPCCert:         filepath.Join(datadir, "rpc.cert"),
-			RPCKey:          filepath.Join(datadir, "rpc.key"),
-			CAFile:          walletmain.DefaultCAFile,
-			EnableClientTLS: false,
-			EnableServerTLS: false,
-			Proxy:           "",
-			ProxyUser:       "",
-			ProxyPass:       "",
-			LegacyRPCListeners: []string{
-				w.DefaultListener,
-			},
-			LegacyRPCMaxClients:      w.DefaultRPCMaxClients,
-			LegacyRPCMaxWebsockets:   w.DefaultRPCMaxWebsockets,
-			Username:                 "user",
-			Password:                 "pa55word",
-			ExperimentalRPCListeners: []string{},
-		},
-		Levels:    GetDefaultLogLevelsConfig(),
-		activeNet: &netparams.MainNetParams,
+		if ctx.Is("init") {
+			log <- cl.Debug{"writing default configuration to", cfgFile}
+			WriteDefaultWalletConfig(cfgFile)
+		}
+		log <- cl.Info{"loading configuration from", cfgFile}
+		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+			log <- cl.Wrn("configuration file does not exist, creating new one")
+			WriteDefaultWalletConfig(cfgFile)
+		} else {
+			log <- cl.Debug{"reading app configuration from", cfgFile}
+			cfgData, err := ioutil.ReadFile(cfgFile)
+			if err != nil {
+				log <- cl.Error{"reading app config file", err.Error()}
+				WriteDefaultWalletConfig(cfgFile)
+			}
+			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+			err = json.Unmarshal(cfgData, &WalletConfig)
+			if err != nil {
+				log <- cl.Error{"parsing app config file", err.Error()}
+				WriteDefaultWalletConfig(cfgFile)
+			}
+			WalletConfig.activeNet = &netparams.MainNetParams
+			if WalletConfig.Wallet.TestNet3 {
+				WalletConfig.activeNet = &netparams.TestNet3Params
+			}
+			if WalletConfig.Wallet.SimNet {
+				WalletConfig.activeNet = &netparams.SimNetParams
+			}
+		}
+
+		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
+		if dl, ok = ctx.Get("debuglevel"); ok {
+			for i := range WalletConfig.Levels {
+				WalletConfig.Levels[i] = dl
+			}
+		}
+		fmt.Println("running wallet on", WalletConfig.activeNet.Name)
+		runWallet(WalletConfig.Wallet, WalletConfig.activeNet)
+		return 0
 	}
 }

@@ -92,12 +92,14 @@ func (s bulkFetchDataSorter) Less(i, j int) bool {
 }
 
 // makeDbErr creates a database.Error given a set of arguments.
-func makeDbErr(c database.ErrorCode, desc string, err error) database.Error {
+func makeDbErr(
+	c database.ErrorCode, desc string, err error) database.Error {
 	return database.Error{ErrorCode: c, Description: desc, Err: err}
 }
 
 // convertErr converts the passed leveldb error into a database error with an equivalent error code  and the passed description.  It also sets the passed error as the underlying error.
-func convertErr(desc string, ldbErr error) database.Error {
+func convertErr(
+	desc string, ldbErr error) database.Error {
 	// Use the driver-specific error code by default.  The code below will update this with the converted error if it's recognized.
 	var code = database.ErrDriverSpecific
 	switch {
@@ -117,7 +119,8 @@ func convertErr(desc string, ldbErr error) database.Error {
 }
 
 // copySlice returns a copy of the passed slice.  This is mostly used to copy leveldb iterator keys and values since they are only valid until the iterator is moved instead of during the entirety of the transaction.
-func copySlice(slice []byte) []byte {
+func copySlice(
+	slice []byte) []byte {
 	ret := make([]byte, len(slice))
 	copy(ret, slice)
 	return ret
@@ -359,14 +362,16 @@ const (
 )
 
 // cursorFinalizer is either invoked when a cursor is being garbage collected or called manually to ensure the underlying cursor iterators are released.
-func cursorFinalizer(c *cursor) {
+func cursorFinalizer(
+	c *cursor) {
 	c.dbIter.Release()
 	c.pendingIter.Release()
 }
 
 // newCursor returns a new cursor for the given bucket, bucket ID, and cursor type.
 // NOTE: The caller is responsible for calling the cursorFinalizer function on the returned cursor.
-func newCursor(b *bucket, bucketID []byte, cursorTyp cursorType) *cursor {
+func newCursor(
+	b *bucket, bucketID []byte, cursorTyp cursorType) *cursor {
 	var dbIter, pendingIter iterator.Iterator
 	switch cursorTyp {
 	case ctKeys:
@@ -422,7 +427,8 @@ type bucket struct {
 var _ database.Bucket = (*bucket)(nil)
 
 // bucketIndexKey returns the actual key to use for storing and retrieving a child bucket in the bucket index.  This is required because additional information is needed to distinguish nested buckets with the same name.
-func bucketIndexKey(parentID [4]byte, key []byte) []byte {
+func bucketIndexKey(
+	parentID [4]byte, key []byte) []byte {
 	// The serialized bucket index key format is:
 	//   <bucketindexprefix><parentbucketid><bucketname>
 	indexKey := make([]byte, len(bucketIndexPrefix)+4+len(key))
@@ -433,7 +439,8 @@ func bucketIndexKey(parentID [4]byte, key []byte) []byte {
 }
 
 // bucketizedKey returns the actual key to use for storing and retrieving a key for the provided bucket ID.  This is required because bucketizing is handled through the use of a unique prefix per bucket.
-func bucketizedKey(bucketID [4]byte, key []byte) []byte {
+func bucketizedKey(
+	bucketID [4]byte, key []byte) []byte {
 	// The serialized block index key format is:
 	//   <bucketid><key>
 	bKey := make([]byte, 4+len(key))
@@ -1316,7 +1323,8 @@ func (db *db) Begin(writable bool) (database.Tx, error) {
 
 // rollbackOnPanic rolls the passed transaction back if the code in the calling function panics.  This is needed since the mutex on a transaction must be released and a panic in called code would prevent that from happening.
 // NOTE: This can only be handled manually for managed transactions since they control the life-cycle of the transaction.  As the documentation on Begin calls out, callers opting to use manual transactions will have to ensure the transaction is rolled back on panic if it desires that functionality as well or the database will fail to close since the read-lock will never be released.
-func rollbackOnPanic(tx *transaction) {
+func rollbackOnPanic(
+	tx *transaction) {
 	if err := recover(); err != nil {
 		tx.managed = false
 		_ = tx.Rollback()
@@ -1391,7 +1399,8 @@ func (db *db) Close() error {
 }
 
 // filesExists reports whether the named file or directory exists.
-func fileExists(name string) bool {
+func fileExists(
+	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -1401,7 +1410,8 @@ func fileExists(name string) bool {
 }
 
 // initDB creates the initial buckets and values used by the package.  This is mainly in a separate function for testing purposes.
-func initDB(ldb *leveldb.DB) error {
+func initDB(
+	ldb *leveldb.DB) error {
 	// The starting block file write cursor location is file num 0, offset 0.
 	batch := new(leveldb.Batch)
 	batch.Put(bucketizedKey(metadataBucketID, writeLocKeyName),
@@ -1421,7 +1431,8 @@ func initDB(ldb *leveldb.DB) error {
 }
 
 // openDB opens the database at the provided path.  database.ErrDbDoesNotExist is returned if the database doesn't exist and the create flag is not set.
-func openDB(dbPath string, network wire.BitcoinNet, create bool) (database.DB, error) {
+func openDB(
+	dbPath string, network wire.BitcoinNet, create bool) (database.DB, error) {
 	// Error if the database doesn't exist and the create flag is not set.
 	metadataDbPath := filepath.Join(dbPath, metadataDbName)
 	dbExists := fileExists(metadataDbPath)

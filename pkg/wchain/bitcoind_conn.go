@@ -60,7 +60,8 @@ type BitcoindConn struct {
 // the Start method. If the remote node does not operate on the same bitcoin
 // network as described by the passed chain parameters, the connection will be
 // disconnected.
-func NewBitcoindConn(chainParams *chaincfg.Params,
+func NewBitcoindConn(
+	chainParams *chaincfg.Params,
 	host, user, pass, zmqBlockHost, zmqTxHost string,
 	zmqPollInterval time.Duration) (*BitcoindConn, error) {
 
@@ -395,7 +396,8 @@ func (c *BitcoindConn) RemoveClient(id uint64) {
 
 // isASCII is a helper method that checks whether all bytes in `data` would be
 // printable ASCII characters if interpreted as a string.
-func isASCII(s string) bool {
+func isASCII(
+	s string) bool {
 	for _, c := range s {
 		if c < 32 || c > 126 {
 			return false

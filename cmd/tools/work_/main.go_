@@ -37,7 +37,8 @@ var (
 	}
 )
 
-func main() {
+func main(
+	) {
 	l.Init()
 	*ld <- "starting up"
 	n := newNode(_n)
@@ -52,7 +53,8 @@ func main() {
 	}
 }
 
-func newNode(nc nodeCfg) (n *node) {
+func newNode(
+	nc nodeCfg) (n *node) {
 	n = &node{
 		cfg:  nc,
 		kill: make(chan bool),
@@ -95,7 +97,8 @@ func (n *node) send(b []byte) {
 	*li <- "'" + string(b) + "' -> " + n.cfg.Worker
 }
 
-func check(err error) {
+func check(
+	err error) {
 	if err != nil {
 		*le <- err.Error()
 	}

@@ -161,7 +161,8 @@ func (msg *MsgVersion) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgVersion returns a new bitcoin version message that conforms to the Message interface using the passed parameters and defaults for the remaining fields.
-func NewMsgVersion(me *NetAddress, you *NetAddress, nonce uint64,
+func NewMsgVersion(
+	me *NetAddress, you *NetAddress, nonce uint64,
 	lastBlock int32) *MsgVersion {
 	// Limit the timestamp to one second precision since the protocol doesn't support better.
 	return &MsgVersion{
@@ -178,7 +179,8 @@ func NewMsgVersion(me *NetAddress, you *NetAddress, nonce uint64,
 }
 
 // validateUserAgent checks userAgent length against MaxUserAgentLen
-func validateUserAgent(userAgent string) error {
+func validateUserAgent(
+	userAgent string) error {
 	if len(userAgent) > MaxUserAgentLen {
 		str := fmt.Sprintf("user agent too long [len %v, max %v]",
 			len(userAgent), MaxUserAgentLen)

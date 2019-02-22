@@ -9,7 +9,8 @@ import (
 )
 
 // TestUsageFlagStringer tests the stringized output for the UsageFlag type.
-func TestUsageFlagStringer(t *testing.T) {
+func TestUsageFlagStringer(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		in   json.UsageFlag
@@ -47,12 +48,14 @@ func TestUsageFlagStringer(t *testing.T) {
 }
 
 // TestRegisterCmdErrors ensures the RegisterCmd function returns the expected error when provided with invalid types.
-func TestRegisterCmdErrors(t *testing.T) {
+func TestRegisterCmdErrors(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name    string
 		method  string
-		cmdFunc func() interface{}
+		cmdFunc func(
+	) interface{}
 		flags   json.UsageFlag
 		err     json.Error
 	}{
@@ -216,7 +219,8 @@ func TestRegisterCmdErrors(t *testing.T) {
 }
 
 // TestMustRegisterCmdPanic ensures the MustRegisterCmd function panics when used to register an invalid type.
-func TestMustRegisterCmdPanic(t *testing.T) {
+func TestMustRegisterCmdPanic(
+	t *testing.T) {
 	t.Parallel()
 	// Setup a defer to catch the expected panic to ensure it actually
 	// paniced.
@@ -230,7 +234,8 @@ func TestMustRegisterCmdPanic(t *testing.T) {
 }
 
 // TestRegisteredCmdMethods tests the RegisteredCmdMethods function ensure it works as expected.
-func TestRegisteredCmdMethods(t *testing.T) {
+func TestRegisteredCmdMethods(
+	t *testing.T) {
 	t.Parallel()
 	// Ensure the registered methods are returned.
 	methods := json.RegisteredCmdMethods()

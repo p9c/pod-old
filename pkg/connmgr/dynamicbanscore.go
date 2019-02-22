@@ -22,14 +22,16 @@ const (
 var precomputedFactor [precomputedLen]float64
 
 // init precomputes decay factors.
-func init() {
+func init(
+	) {
 	for i := range precomputedFactor {
 		precomputedFactor[i] = math.Exp(-1.0 * float64(i) * lambda)
 	}
 }
 
 // decayFactor returns the decay factor at t seconds, using precalculated values if available, or calculating the factor if needed.
-func decayFactor(t int64) float64 {
+func decayFactor(
+	t int64) float64 {
 	if t < precomputedLen {
 		return precomputedFactor[t]
 	}

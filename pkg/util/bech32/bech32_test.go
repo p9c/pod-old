@@ -7,7 +7,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/util/bech32"
 )
 
-func TestBech32(t *testing.T) {
+func TestBech32(
+	t *testing.T) {
 	tests := []struct {
 		str   string
 		valid bool

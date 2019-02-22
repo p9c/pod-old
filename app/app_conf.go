@@ -281,7 +281,10 @@ var confFile = DefaultDataDir + "/conf"
 var confs []string
 
 // DefaultConfConfig returns a crispy fresh default conf configuration
-func DefaultConfConfig(datadir string) *ConfCfg {
+func DefaultConfConfig(
+	datadir string,
+) *ConfCfg {
+
 	u := GenKey()
 	p := GenKey()
 	return &ConfCfg{
@@ -307,7 +310,10 @@ func DefaultConfConfig(datadir string) *ConfCfg {
 }
 
 // WriteConfConfig creates and writes the config file in the requested location
-func WriteConfConfig(cfg *ConfCfg) {
+func WriteConfConfig(
+	cfg *ConfCfg,
+) {
+
 	j, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		panic(err.Error())
@@ -321,7 +327,10 @@ func WriteConfConfig(cfg *ConfCfg) {
 }
 
 // WriteDefaultConfConfig creates and writes a default config file in the requested location
-func WriteDefaultConfConfig(datadir string) {
+func WriteDefaultConfConfig(
+	datadir string,
+) {
+
 	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -340,7 +349,12 @@ func WriteDefaultConfConfig(datadir string) {
 // // cf is the list of flags and the default values stored in the Usage field
 // var cf = GetFlags(ConfCommand)
 
-func configConf(ctx *climax.Context, datadir, portbase string) {
+func configConf(
+	ctx *climax.Context,
+	datadir,
+	portbase string,
+) {
+
 	cs := GetDefaultConfs(datadir)
 	SyncToConfs(cs)
 	var r string
@@ -536,7 +550,4 @@ func configConf(ctx *climax.Context, datadir, portbase string) {
 		}
 		fmt.Println(string(j))
 	}
-}
-
-func init() {
 }

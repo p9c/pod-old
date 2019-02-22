@@ -17,7 +17,8 @@ const DefaultRelayFeePerKb util.Amount = 1e3
 
 // GetDustThreshold is used to define the amount below which output will be
 // determined as dust. Threshold is determined as 3 times the relay fee.
-func GetDustThreshold(scriptSize int, relayFeePerKb util.Amount) util.Amount {
+func GetDustThreshold(
+	scriptSize int, relayFeePerKb util.Amount) util.Amount {
 	// Calculate the total (estimated) cost to the network.  This is
 	// calculated using the serialize size of the output plus the serial
 	// size of a transaction input which redeems it.  The output is assumed
@@ -35,14 +36,16 @@ func GetDustThreshold(scriptSize int, relayFeePerKb util.Amount) util.Amount {
 // IsDustAmount determines whether a transaction output value and script length would
 // cause the output to be considered dust.  Transactions with dust outputs are
 // not standard and are rejected by mempools with default policies.
-func IsDustAmount(amount util.Amount, scriptSize int, relayFeePerKb util.Amount) bool {
+func IsDustAmount(
+	amount util.Amount, scriptSize int, relayFeePerKb util.Amount) bool {
 	return amount < GetDustThreshold(scriptSize, relayFeePerKb)
 }
 
 // IsDustOutput determines whether a transaction output is considered dust.
 // Transactions with dust outputs are not standard and are rejected by mempools
 // with default policies.
-func IsDustOutput(output *wire.TxOut, relayFeePerKb util.Amount) bool {
+func IsDustOutput(
+	output *wire.TxOut, relayFeePerKb util.Amount) bool {
 	// Unspendable outputs which solely carry data are not checked for dust.
 	if txscript.GetScriptClass(output.PkScript) == txscript.NullDataTy {
 		return false
@@ -66,7 +69,8 @@ var (
 
 // CheckOutput performs simple consensus and policy tests on a transaction
 // output.
-func CheckOutput(output *wire.TxOut, relayFeePerKb util.Amount) error {
+func CheckOutput(
+	output *wire.TxOut, relayFeePerKb util.Amount) error {
 	if output.Value < 0 {
 		return ErrAmountNegative
 	}
@@ -81,7 +85,8 @@ func CheckOutput(output *wire.TxOut, relayFeePerKb util.Amount) error {
 
 // FeeForSerializeSize calculates the required fee for a transaction of some
 // arbitrary size given a mempool's relay fee policy.
-func FeeForSerializeSize(relayFeePerKb util.Amount, txSerializeSize int) util.Amount {
+func FeeForSerializeSize(
+	relayFeePerKb util.Amount, txSerializeSize int) util.Amount {
 	fee := relayFeePerKb * util.Amount(txSerializeSize) / 1000
 
 	if fee == 0 && relayFeePerKb > 0 {

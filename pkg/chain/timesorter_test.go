@@ -6,7 +6,8 @@ import (
 	"testing"
 )
 // TestTimeSorter tests the timeSorter implementation.
-func TestTimeSorter(t *testing.T) {
+func TestTimeSorter(
+	t *testing.T) {
 	tests := []struct {
 		in   []int64
 		want []int64

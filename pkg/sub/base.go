@@ -13,7 +13,8 @@ import (
 // Implementations of common parts for node and worker
 
 // NewBase creates a new base listener
-func NewBase(cfg BaseCfg) (b *Base) {
+func NewBase(
+	cfg BaseCfg) (b *Base) {
 	b = &Base{
 		cfg:       cfg,
 		packets:   make(chan Packet, baseChanBufs),

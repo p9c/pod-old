@@ -6,7 +6,8 @@ import (
 )
 
 // cloneTreapNode returns a shallow copy of the passed node.
-func cloneTreapNode(node *treapNode) *treapNode {
+func cloneTreapNode(
+	node *treapNode) *treapNode {
 	return &treapNode{
 		key:      node.key,
 		value:    node.value,
@@ -26,7 +27,8 @@ type Immutable struct {
 }
 
 // newImmutable returns a new immutable treap given the passed parameters.
-func newImmutable(root *treapNode, count int, totalSize uint64) *Immutable {
+func newImmutable(
+	root *treapNode, count int, totalSize uint64) *Immutable {
 	return &Immutable{root: root, count: count, totalSize: totalSize}
 }
 
@@ -266,6 +268,7 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 }
 
 // NewImmutable returns a new empty immutable treap ready for use.  See the documentation for the Immutable structure for more details.
-func NewImmutable() *Immutable {
+func NewImmutable(
+	) *Immutable {
 	return &Immutable{}
 }

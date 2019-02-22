@@ -26,7 +26,8 @@ type AddNodeCmd struct {
 }
 
 // NewAddNodeCmd returns a new instance which can be used to issue an addnode JSON-RPC command.
-func NewAddNodeCmd(addr string, subCmd AddNodeSubCmd) *AddNodeCmd {
+func NewAddNodeCmd(
+	addr string, subCmd AddNodeSubCmd) *AddNodeCmd {
 	return &AddNodeCmd{
 		Addr:   addr,
 		SubCmd: subCmd,
@@ -47,7 +48,8 @@ type CreateRawTransactionCmd struct {
 }
 
 // NewCreateRawTransactionCmd returns a new instance which can be used to issue a createrawtransaction JSON-RPC command. Amounts are in DUO.
-func NewCreateRawTransactionCmd(inputs []TransactionInput, amounts map[string]float64,
+func NewCreateRawTransactionCmd(
+	inputs []TransactionInput, amounts map[string]float64,
 	lockTime *int64) *CreateRawTransactionCmd {
 	return &CreateRawTransactionCmd{
 		Inputs:   inputs,
@@ -62,7 +64,8 @@ type DecodeRawTransactionCmd struct {
 }
 
 // NewDecodeRawTransactionCmd returns a new instance which can be used to issue a decoderawtransaction JSON-RPC command.
-func NewDecodeRawTransactionCmd(hexTx string) *DecodeRawTransactionCmd {
+func NewDecodeRawTransactionCmd(
+	hexTx string) *DecodeRawTransactionCmd {
 	return &DecodeRawTransactionCmd{
 		HexTx: hexTx,
 	}
@@ -74,7 +77,8 @@ type DecodeScriptCmd struct {
 }
 
 // NewDecodeScriptCmd returns a new instance which can be used to issue a decodescript JSON-RPC command.
-func NewDecodeScriptCmd(hexScript string) *DecodeScriptCmd {
+func NewDecodeScriptCmd(
+	hexScript string) *DecodeScriptCmd {
 	return &DecodeScriptCmd{
 		HexScript: hexScript,
 	}
@@ -87,7 +91,8 @@ type GetAddedNodeInfoCmd struct {
 }
 
 // NewGetAddedNodeInfoCmd returns a new instance which can be used to issue a getaddednodeinfo JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetAddedNodeInfoCmd(dns bool, node *string) *GetAddedNodeInfoCmd {
+func NewGetAddedNodeInfoCmd(
+	dns bool, node *string) *GetAddedNodeInfoCmd {
 	return &GetAddedNodeInfoCmd{
 		DNS:  dns,
 		Node: node,
@@ -98,7 +103,8 @@ func NewGetAddedNodeInfoCmd(dns bool, node *string) *GetAddedNodeInfoCmd {
 type GetBestBlockHashCmd struct{}
 
 // NewGetBestBlockHashCmd returns a new instance which can be used to issue a getbestblockhash JSON-RPC command.
-func NewGetBestBlockHashCmd() *GetBestBlockHashCmd {
+func NewGetBestBlockHashCmd(
+	) *GetBestBlockHashCmd {
 	return &GetBestBlockHashCmd{}
 }
 
@@ -110,7 +116,8 @@ type GetBlockCmd struct {
 }
 
 // NewGetBlockCmd returns a new instance which can be used to issue a getblock JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetBlockCmd(hash string, verbose, verboseTx *bool) *GetBlockCmd {
+func NewGetBlockCmd(
+	hash string, verbose, verboseTx *bool) *GetBlockCmd {
 	return &GetBlockCmd{
 		Hash:      hash,
 		Verbose:   verbose,
@@ -122,7 +129,8 @@ func NewGetBlockCmd(hash string, verbose, verboseTx *bool) *GetBlockCmd {
 type GetBlockChainInfoCmd struct{}
 
 // NewGetBlockChainInfoCmd returns a new instance which can be used to issue a getblockchaininfo JSON-RPC command.
-func NewGetBlockChainInfoCmd() *GetBlockChainInfoCmd {
+func NewGetBlockChainInfoCmd(
+	) *GetBlockChainInfoCmd {
 	return &GetBlockChainInfoCmd{}
 }
 
@@ -130,7 +138,8 @@ func NewGetBlockChainInfoCmd() *GetBlockChainInfoCmd {
 type GetBlockCountCmd struct{}
 
 // NewGetBlockCountCmd returns a new instance which can be used to issue a getblockcount JSON-RPC command.
-func NewGetBlockCountCmd() *GetBlockCountCmd {
+func NewGetBlockCountCmd(
+	) *GetBlockCountCmd {
 	return &GetBlockCountCmd{}
 }
 
@@ -140,7 +149,8 @@ type GetBlockHashCmd struct {
 }
 
 // NewGetBlockHashCmd returns a new instance which can be used to issue a getblockhash JSON-RPC command.
-func NewGetBlockHashCmd(index int64) *GetBlockHashCmd {
+func NewGetBlockHashCmd(
+	index int64) *GetBlockHashCmd {
 	return &GetBlockHashCmd{
 		Index: index,
 	}
@@ -153,7 +163,8 @@ type GetBlockHeaderCmd struct {
 }
 
 // NewGetBlockHeaderCmd returns a new instance which can be used to issue a getblockheader JSON-RPC command.
-func NewGetBlockHeaderCmd(hash string, verbose *bool) *GetBlockHeaderCmd {
+func NewGetBlockHeaderCmd(
+	hash string, verbose *bool) *GetBlockHeaderCmd {
 	return &GetBlockHeaderCmd{
 		Hash:    hash,
 		Verbose: verbose,
@@ -179,7 +190,8 @@ type TemplateRequest struct {
 
 // convertTemplateRequestField potentially converts the provided value as
 // needed.
-func convertTemplateRequestField(fieldName string, iface interface{}) (interface{}, error) {
+func convertTemplateRequestField(
+	fieldName string, iface interface{}) (interface{}, error) {
 	switch val := iface.(type) {
 	case nil:
 		return nil, nil
@@ -223,7 +235,8 @@ type GetBlockTemplateCmd struct {
 }
 
 // NewGetBlockTemplateCmd returns a new instance which can be used to issue a getblocktemplate JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetBlockTemplateCmd(request *TemplateRequest) *GetBlockTemplateCmd {
+func NewGetBlockTemplateCmd(
+	request *TemplateRequest) *GetBlockTemplateCmd {
 	return &GetBlockTemplateCmd{
 		Request: request,
 	}
@@ -236,7 +249,8 @@ type GetCFilterCmd struct {
 }
 
 // NewGetCFilterCmd returns a new instance which can be used to issue a getcfilter JSON-RPC command.
-func NewGetCFilterCmd(hash string, filterType wire.FilterType) *GetCFilterCmd {
+func NewGetCFilterCmd(
+	hash string, filterType wire.FilterType) *GetCFilterCmd {
 	return &GetCFilterCmd{
 		Hash:       hash,
 		FilterType: filterType,
@@ -250,7 +264,8 @@ type GetCFilterHeaderCmd struct {
 }
 
 // NewGetCFilterHeaderCmd returns a new instance which can be used to issue a getcfilterheader JSON-RPC command.
-func NewGetCFilterHeaderCmd(hash string,
+func NewGetCFilterHeaderCmd(
+	hash string,
 	filterType wire.FilterType) *GetCFilterHeaderCmd {
 	return &GetCFilterHeaderCmd{
 		Hash:       hash,
@@ -262,7 +277,8 @@ func NewGetCFilterHeaderCmd(hash string,
 type GetChainTipsCmd struct{}
 
 // NewGetChainTipsCmd returns a new instance which can be used to issue a getchaintips JSON-RPC command.
-func NewGetChainTipsCmd() *GetChainTipsCmd {
+func NewGetChainTipsCmd(
+	) *GetChainTipsCmd {
 	return &GetChainTipsCmd{}
 }
 
@@ -270,7 +286,8 @@ func NewGetChainTipsCmd() *GetChainTipsCmd {
 type GetConnectionCountCmd struct{}
 
 // NewGetConnectionCountCmd returns a new instance which can be used to issue a getconnectioncount JSON-RPC command.
-func NewGetConnectionCountCmd() *GetConnectionCountCmd {
+func NewGetConnectionCountCmd(
+	) *GetConnectionCountCmd {
 	return &GetConnectionCountCmd{}
 }
 
@@ -280,7 +297,8 @@ type GetDifficultyCmd struct {
 }
 
 // NewGetDifficultyCmd returns a new instance which can be used to issue a getdifficulty JSON-RPC command.
-func NewGetDifficultyCmd(algo string) *GetDifficultyCmd {
+func NewGetDifficultyCmd(
+	algo string) *GetDifficultyCmd {
 	return &GetDifficultyCmd{
 		Algo: algo,
 	}
@@ -290,7 +308,8 @@ func NewGetDifficultyCmd(algo string) *GetDifficultyCmd {
 type GetGenerateCmd struct{}
 
 // NewGetGenerateCmd returns a new instance which can be used to issue a getgenerate JSON-RPC command.
-func NewGetGenerateCmd() *GetGenerateCmd {
+func NewGetGenerateCmd(
+	) *GetGenerateCmd {
 	return &GetGenerateCmd{}
 }
 
@@ -298,7 +317,8 @@ func NewGetGenerateCmd() *GetGenerateCmd {
 type GetHashesPerSecCmd struct{}
 
 // NewGetHashesPerSecCmd returns a new instance which can be used to issue a gethashespersec JSON-RPC command.
-func NewGetHashesPerSecCmd() *GetHashesPerSecCmd {
+func NewGetHashesPerSecCmd(
+	) *GetHashesPerSecCmd {
 	return &GetHashesPerSecCmd{}
 }
 
@@ -306,7 +326,8 @@ func NewGetHashesPerSecCmd() *GetHashesPerSecCmd {
 type GetInfoCmd struct{}
 
 // NewGetInfoCmd returns a new instance which can be used to issue a getinfo JSON-RPC command.
-func NewGetInfoCmd() *GetInfoCmd {
+func NewGetInfoCmd(
+	) *GetInfoCmd {
 	return &GetInfoCmd{}
 }
 
@@ -316,7 +337,8 @@ type GetMempoolEntryCmd struct {
 }
 
 // NewGetMempoolEntryCmd returns a new instance which can be used to issue a getmempoolentry JSON-RPC command.
-func NewGetMempoolEntryCmd(txHash string) *GetMempoolEntryCmd {
+func NewGetMempoolEntryCmd(
+	txHash string) *GetMempoolEntryCmd {
 	return &GetMempoolEntryCmd{
 		TxID: txHash,
 	}
@@ -326,7 +348,8 @@ func NewGetMempoolEntryCmd(txHash string) *GetMempoolEntryCmd {
 type GetMempoolInfoCmd struct{}
 
 // NewGetMempoolInfoCmd returns a new instance which can be used to issue a getmempool JSON-RPC command.
-func NewGetMempoolInfoCmd() *GetMempoolInfoCmd {
+func NewGetMempoolInfoCmd(
+	) *GetMempoolInfoCmd {
 	return &GetMempoolInfoCmd{}
 }
 
@@ -334,7 +357,8 @@ func NewGetMempoolInfoCmd() *GetMempoolInfoCmd {
 type GetMiningInfoCmd struct{}
 
 // NewGetMiningInfoCmd returns a new instance which can be used to issue a getmininginfo JSON-RPC command.
-func NewGetMiningInfoCmd() *GetMiningInfoCmd {
+func NewGetMiningInfoCmd(
+	) *GetMiningInfoCmd {
 	return &GetMiningInfoCmd{}
 }
 
@@ -342,7 +366,8 @@ func NewGetMiningInfoCmd() *GetMiningInfoCmd {
 type GetNetworkInfoCmd struct{}
 
 // NewGetNetworkInfoCmd returns a new instance which can be used to issue a getnetworkinfo JSON-RPC command.
-func NewGetNetworkInfoCmd() *GetNetworkInfoCmd {
+func NewGetNetworkInfoCmd(
+	) *GetNetworkInfoCmd {
 	return &GetNetworkInfoCmd{}
 }
 
@@ -350,7 +375,8 @@ func NewGetNetworkInfoCmd() *GetNetworkInfoCmd {
 type GetNetTotalsCmd struct{}
 
 // NewGetNetTotalsCmd returns a new instance which can be used to issue a getnettotals JSON-RPC command.
-func NewGetNetTotalsCmd() *GetNetTotalsCmd {
+func NewGetNetTotalsCmd(
+	) *GetNetTotalsCmd {
 	return &GetNetTotalsCmd{}
 }
 
@@ -361,7 +387,8 @@ type GetNetworkHashPSCmd struct {
 }
 
 // NewGetNetworkHashPSCmd returns a new instance which can be used to issue a getnetworkhashps JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetNetworkHashPSCmd(numBlocks, height *int) *GetNetworkHashPSCmd {
+func NewGetNetworkHashPSCmd(
+	numBlocks, height *int) *GetNetworkHashPSCmd {
 	return &GetNetworkHashPSCmd{
 		Blocks: numBlocks,
 		Height: height,
@@ -372,7 +399,8 @@ func NewGetNetworkHashPSCmd(numBlocks, height *int) *GetNetworkHashPSCmd {
 type GetPeerInfoCmd struct{}
 
 // NewGetPeerInfoCmd returns a new instance which can be used to issue a getpeer JSON-RPC command.
-func NewGetPeerInfoCmd() *GetPeerInfoCmd {
+func NewGetPeerInfoCmd(
+	) *GetPeerInfoCmd {
 	return &GetPeerInfoCmd{}
 }
 
@@ -382,7 +410,8 @@ type GetRawMempoolCmd struct {
 }
 
 // NewGetRawMempoolCmd returns a new instance which can be used to issue a getrawmempool JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetRawMempoolCmd(verbose *bool) *GetRawMempoolCmd {
+func NewGetRawMempoolCmd(
+	verbose *bool) *GetRawMempoolCmd {
 	return &GetRawMempoolCmd{
 		Verbose: verbose,
 	}
@@ -395,7 +424,8 @@ type GetRawTransactionCmd struct {
 }
 
 // NewGetRawTransactionCmd returns a new instance which can be used to issue a getrawtransaction JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetRawTransactionCmd(txHash string, verbose *int) *GetRawTransactionCmd {
+func NewGetRawTransactionCmd(
+	txHash string, verbose *int) *GetRawTransactionCmd {
 	return &GetRawTransactionCmd{
 		Txid:    txHash,
 		Verbose: verbose,
@@ -410,7 +440,8 @@ type GetTxOutCmd struct {
 }
 
 // NewGetTxOutCmd returns a new instance which can be used to issue a gettxout JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetTxOutCmd(txHash string, vout uint32, includeMempool *bool) *GetTxOutCmd {
+func NewGetTxOutCmd(
+	txHash string, vout uint32, includeMempool *bool) *GetTxOutCmd {
 	return &GetTxOutCmd{
 		Txid:           txHash,
 		Vout:           vout,
@@ -425,7 +456,8 @@ type GetTxOutProofCmd struct {
 }
 
 // NewGetTxOutProofCmd returns a new instance which can be used to issue a gettxoutproof JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetTxOutProofCmd(txIDs []string, blockHash *string) *GetTxOutProofCmd {
+func NewGetTxOutProofCmd(
+	txIDs []string, blockHash *string) *GetTxOutProofCmd {
 	return &GetTxOutProofCmd{
 		TxIDs:     txIDs,
 		BlockHash: blockHash,
@@ -436,7 +468,8 @@ func NewGetTxOutProofCmd(txIDs []string, blockHash *string) *GetTxOutProofCmd {
 type GetTxOutSetInfoCmd struct{}
 
 // NewGetTxOutSetInfoCmd returns a new instance which can be used to issue a gettxoutsetinfo JSON-RPC command.
-func NewGetTxOutSetInfoCmd() *GetTxOutSetInfoCmd {
+func NewGetTxOutSetInfoCmd(
+	) *GetTxOutSetInfoCmd {
 	return &GetTxOutSetInfoCmd{}
 }
 
@@ -446,7 +479,8 @@ type GetWorkCmd struct {
 }
 
 // NewGetWorkCmd returns a new instance which can be used to issue a getwork JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetWorkCmd(data *string) *GetWorkCmd {
+func NewGetWorkCmd(
+	data *string) *GetWorkCmd {
 	return &GetWorkCmd{
 		Data: data,
 	}
@@ -458,7 +492,8 @@ type HelpCmd struct {
 }
 
 // NewHelpCmd returns a new instance which can be used to issue a help JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewHelpCmd(command *string) *HelpCmd {
+func NewHelpCmd(
+	command *string) *HelpCmd {
 	return &HelpCmd{
 		Command: command,
 	}
@@ -470,7 +505,8 @@ type InvalidateBlockCmd struct {
 }
 
 // NewInvalidateBlockCmd returns a new instance which can be used to issue a invalidateblock JSON-RPC command.
-func NewInvalidateBlockCmd(blockHash string) *InvalidateBlockCmd {
+func NewInvalidateBlockCmd(
+	blockHash string) *InvalidateBlockCmd {
 	return &InvalidateBlockCmd{
 		BlockHash: blockHash,
 	}
@@ -480,7 +516,8 @@ func NewInvalidateBlockCmd(blockHash string) *InvalidateBlockCmd {
 type PingCmd struct{}
 
 // NewPingCmd returns a new instance which can be used to issue a ping JSON-RPC command.
-func NewPingCmd() *PingCmd {
+func NewPingCmd(
+	) *PingCmd {
 	return &PingCmd{}
 }
 
@@ -490,7 +527,8 @@ type PreciousBlockCmd struct {
 }
 
 // NewPreciousBlockCmd returns a new instance which can be used to issue a preciousblock JSON-RPC command.
-func NewPreciousBlockCmd(blockHash string) *PreciousBlockCmd {
+func NewPreciousBlockCmd(
+	blockHash string) *PreciousBlockCmd {
 	return &PreciousBlockCmd{
 		BlockHash: blockHash,
 	}
@@ -502,7 +540,8 @@ type ReconsiderBlockCmd struct {
 }
 
 // NewReconsiderBlockCmd returns a new instance which can be used to issue a reconsiderblock JSON-RPC command.
-func NewReconsiderBlockCmd(blockHash string) *ReconsiderBlockCmd {
+func NewReconsiderBlockCmd(
+	blockHash string) *ReconsiderBlockCmd {
 	return &ReconsiderBlockCmd{
 		BlockHash: blockHash,
 	}
@@ -520,7 +559,8 @@ type SearchRawTransactionsCmd struct {
 }
 
 // NewSearchRawTransactionsCmd returns a new instance which can be used to issue a sendrawtransaction JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewSearchRawTransactionsCmd(address string, verbose, skip, count *int, vinExtra *int, reverse *bool, filterAddrs *[]string) *SearchRawTransactionsCmd {
+func NewSearchRawTransactionsCmd(
+	address string, verbose, skip, count *int, vinExtra *int, reverse *bool, filterAddrs *[]string) *SearchRawTransactionsCmd {
 	return &SearchRawTransactionsCmd{
 		Address:     address,
 		Verbose:     verbose,
@@ -539,7 +579,8 @@ type SendRawTransactionCmd struct {
 }
 
 // NewSendRawTransactionCmd returns a new instance which can be used to issue a sendrawtransaction JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewSendRawTransactionCmd(hexTx string, allowHighFees *bool) *SendRawTransactionCmd {
+func NewSendRawTransactionCmd(
+	hexTx string, allowHighFees *bool) *SendRawTransactionCmd {
 	return &SendRawTransactionCmd{
 		HexTx:         hexTx,
 		AllowHighFees: allowHighFees,
@@ -553,7 +594,8 @@ type SetGenerateCmd struct {
 }
 
 // NewSetGenerateCmd returns a new instance which can be used to issue a setgenerate JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewSetGenerateCmd(generate bool, genProcLimit *int) *SetGenerateCmd {
+func NewSetGenerateCmd(
+	generate bool, genProcLimit *int) *SetGenerateCmd {
 	return &SetGenerateCmd{
 		Generate:     generate,
 		GenProcLimit: genProcLimit,
@@ -564,7 +606,8 @@ func NewSetGenerateCmd(generate bool, genProcLimit *int) *SetGenerateCmd {
 type StopCmd struct{}
 
 // NewStopCmd returns a new instance which can be used to issue a stop JSON-RPC command.
-func NewStopCmd() *StopCmd {
+func NewStopCmd(
+	) *StopCmd {
 	return &StopCmd{}
 }
 
@@ -581,7 +624,8 @@ type SubmitBlockCmd struct {
 }
 
 // NewSubmitBlockCmd returns a new instance which can be used to issue a submitblock JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewSubmitBlockCmd(hexBlock string, options *SubmitBlockOptions) *SubmitBlockCmd {
+func NewSubmitBlockCmd(
+	hexBlock string, options *SubmitBlockOptions) *SubmitBlockCmd {
 	return &SubmitBlockCmd{
 		HexBlock: hexBlock,
 		Options:  options,
@@ -592,7 +636,8 @@ func NewSubmitBlockCmd(hexBlock string, options *SubmitBlockOptions) *SubmitBloc
 type UptimeCmd struct{}
 
 // NewUptimeCmd returns a new instance which can be used to issue an uptime JSON-RPC command.
-func NewUptimeCmd() *UptimeCmd {
+func NewUptimeCmd(
+	) *UptimeCmd {
 	return &UptimeCmd{}
 }
 
@@ -602,7 +647,8 @@ type ValidateAddressCmd struct {
 }
 
 // NewValidateAddressCmd returns a new instance which can be used to issue a validateaddress JSON-RPC command.
-func NewValidateAddressCmd(address string) *ValidateAddressCmd {
+func NewValidateAddressCmd(
+	address string) *ValidateAddressCmd {
 	return &ValidateAddressCmd{
 		Address: address,
 	}
@@ -615,7 +661,8 @@ type VerifyChainCmd struct {
 }
 
 // NewVerifyChainCmd returns a new instance which can be used to issue a verifychain JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewVerifyChainCmd(checkLevel, checkDepth *int32) *VerifyChainCmd {
+func NewVerifyChainCmd(
+	checkLevel, checkDepth *int32) *VerifyChainCmd {
 	return &VerifyChainCmd{
 		CheckLevel: checkLevel,
 		CheckDepth: checkDepth,
@@ -630,7 +677,8 @@ type VerifyMessageCmd struct {
 }
 
 // NewVerifyMessageCmd returns a new instance which can be used to issue a verifymessage JSON-RPC command.
-func NewVerifyMessageCmd(address, signature, message string) *VerifyMessageCmd {
+func NewVerifyMessageCmd(
+	address, signature, message string) *VerifyMessageCmd {
 	return &VerifyMessageCmd{
 		Address:   address,
 		Signature: signature,
@@ -644,12 +692,14 @@ type VerifyTxOutProofCmd struct {
 }
 
 // NewVerifyTxOutProofCmd returns a new instance which can be used to issue a verifytxoutproof JSON-RPC command.
-func NewVerifyTxOutProofCmd(proof string) *VerifyTxOutProofCmd {
+func NewVerifyTxOutProofCmd(
+	proof string) *VerifyTxOutProofCmd {
 	return &VerifyTxOutProofCmd{
 		Proof: proof,
 	}
 }
-func init() {
+func init(
+	) {
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)
 	MustRegisterCmd("addnode", (*AddNodeCmd)(nil), flags)

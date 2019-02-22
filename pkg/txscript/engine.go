@@ -597,7 +597,8 @@ func (vm *Engine) checkSignatureEncoding(sig []byte) error {
 }
 
 // getStack returns the contents of stack as a byte array bottom up
-func getStack(stack *stack) [][]byte {
+func getStack(
+	stack *stack) [][]byte {
 	array := make([][]byte, stack.Depth())
 	for i := range array {
 		// PeekByteArry can't fail due to overflow, already checked
@@ -607,7 +608,8 @@ func getStack(stack *stack) [][]byte {
 }
 
 // setStack sets the stack to the contents of the array where the last item in the array is the top item in the stack.
-func setStack(stack *stack, data [][]byte) {
+func setStack(
+	stack *stack, data [][]byte) {
 	// This can not error. Only errors are for invalid arguments.
 	_ = stack.DropN(stack.Depth())
 	for i := range data {
@@ -636,7 +638,8 @@ func (vm *Engine) SetAltStack(data [][]byte) {
 }
 
 // NewEngine returns a new script engine for the provided public key script, transaction, and input index.  The flags modify the behavior of the script engine according to the description provided by each flag.
-func NewEngine(scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags,
+func NewEngine(
+	scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags,
 	sigCache *SigCache, hashCache *TxSigHashes, inputAmount int64) (*Engine, error) {
 	// The provided transaction input index must refer to a valid input.
 	if txIdx < 0 || txIdx >= len(tx.TxIn) {

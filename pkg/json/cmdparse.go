@@ -9,7 +9,8 @@ import (
 )
 
 // makeParams creates a slice of interface values for the given struct.
-func makeParams(rt reflect.Type, rv reflect.Value) []interface{} {
+func makeParams(
+	rt reflect.Type, rv reflect.Value) []interface{} {
 	numFields := rt.NumField()
 	params := make([]interface{}, 0, numFields)
 	for i := 0; i < numFields; i++ {
@@ -27,7 +28,8 @@ func makeParams(rt reflect.Type, rv reflect.Value) []interface{} {
 }
 
 // MarshalCmd marshals the passed command to a JSON-RPC request byte slice that is suitable for transmission to an RPC server.  The provided command type must be a registered type.  All commands provided by this package are registered by default.
-func MarshalCmd(id interface{}, cmd interface{}) ([]byte, error) {
+func MarshalCmd(
+	id interface{}, cmd interface{}) ([]byte, error) {
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -54,7 +56,8 @@ func MarshalCmd(id interface{}, cmd interface{}) ([]byte, error) {
 }
 
 // checkNumParams ensures the supplied number of params is at least the minimum required number for the command and less than the maximum allowed.
-func checkNumParams(numParams int, info *methodInfo) error {
+func checkNumParams(
+	numParams int, info *methodInfo) error {
 	if numParams < info.numReqParams || numParams > info.maxParams {
 		if info.numReqParams == info.maxParams {
 			str := fmt.Sprintf("wrong number of params (expected "+
@@ -71,7 +74,8 @@ func checkNumParams(numParams int, info *methodInfo) error {
 }
 
 // populateDefaults populates default values into any remaining optional struct fields that did not have parameters explicitly provided. The caller should have previously checked that the number of parameters being passed is at least the required number of parameters to avoid unnecessary work in this function, but since required fields never have default values, it will work properly even without the check.
-func populateDefaults(numParams int, info *methodInfo, rv reflect.Value) {
+func populateDefaults(
+	numParams int, info *methodInfo, rv reflect.Value) {
 	// When there are no more parameters left in the supplied parameters, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	for i := numParams; i < info.maxParams; i++ {
 		rvf := rv.Field(i)
@@ -82,7 +86,8 @@ func populateDefaults(numParams int, info *methodInfo, rv reflect.Value) {
 }
 
 // UnmarshalCmd unmarshals a JSON-RPC request into a suitable concrete command so long as the method type contained within the marshalled request is registered.
-func UnmarshalCmd(r *Request) (interface{}, error) {
+func UnmarshalCmd(
+	r *Request) (interface{}, error) {
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[r.Method]
 	info := methodToInfo[r.Method]
@@ -127,7 +132,8 @@ func UnmarshalCmd(r *Request) (interface{}, error) {
 }
 
 // isNumeric returns whether the passed reflect kind is a signed or unsigned integer of any magnitude or a float of any magnitude.
-func isNumeric(kind reflect.Kind) bool {
+func isNumeric(
+	kind reflect.Kind) bool {
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
@@ -138,7 +144,8 @@ func isNumeric(kind reflect.Kind) bool {
 }
 
 // typesMaybeCompatible returns whether the source type can possibly be assigned to the destination type.  This is intended as a relatively quick check to weed out obviously invalid conversions.
-func typesMaybeCompatible(dest reflect.Type, src reflect.Type) bool {
+func typesMaybeCompatible(
+	dest reflect.Type, src reflect.Type) bool {
 	// The same types are obviously compatible.
 	if dest == src {
 		return true
@@ -170,7 +177,8 @@ func typesMaybeCompatible(dest reflect.Type, src reflect.Type) bool {
 }
 
 // baseType returns the type of the argument after indirecting through all pointers along with how many indirections were necessary.
-func baseType(arg reflect.Type) (reflect.Type, int) {
+func baseType(
+	arg reflect.Type) (reflect.Type, int) {
 	var numIndirects int
 	for arg.Kind() == reflect.Ptr {
 		arg = arg.Elem()
@@ -180,7 +188,8 @@ func baseType(arg reflect.Type) (reflect.Type, int) {
 }
 
 // assignField is the main workhorse for the NewCmd function which handles assigning the provided source value to the destination field.  It supports direct type assignments, indirection, conversion of numeric types, and unmarshaling of strings into arrays, slices, structs, and maps via json.Unmarshal.
-func assignField(paramNum int, fieldName string, dest reflect.Value, src reflect.Value) error {
+func assignField(
+	paramNum int, fieldName string, dest reflect.Value, src reflect.Value) error {
 	// Just error now when the types have no chance of being compatible.
 	destBaseType, destIndirects := baseType(dest.Type())
 	srcBaseType, srcIndirects := baseType(src.Type())
@@ -399,7 +408,8 @@ func assignField(paramNum int, fieldName string, dest reflect.Value, src reflect
 //   - Conversion from string to any size integer for everything strconv.ParseInt and strconv.ParseUint recognizes
 //   - Conversion from string to any size float for everything strconv.ParseFloat recognizes
 //   - Conversion from string to arrays, slices, structs, and maps by treating the string as marshalled JSON and calling json.Unmarshal into the destination field
-func NewCmd(method string, args ...interface{}) (interface{}, error) {
+func NewCmd(
+	method string, args ...interface{}) (interface{}, error) {
 	// Look up details about the provided method.  Any methods that aren't registered are an error.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]

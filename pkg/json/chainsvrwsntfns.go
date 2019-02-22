@@ -34,7 +34,8 @@ type BlockConnectedNtfn struct {
 }
 
 // NewBlockConnectedNtfn returns a new instance which can be used to issue a blockconnected JSON-RPC notification. NOTE: Deprecated. Use NewFilteredBlockConnectedNtfn instead.
-func NewBlockConnectedNtfn(hash string, height int32, time int64) *BlockConnectedNtfn {
+func NewBlockConnectedNtfn(
+	hash string, height int32, time int64) *BlockConnectedNtfn {
 	return &BlockConnectedNtfn{
 		Hash:   hash,
 		Height: height,
@@ -50,7 +51,8 @@ type BlockDisconnectedNtfn struct {
 }
 
 // NewBlockDisconnectedNtfn returns a new instance which can be used to issue a blockdisconnected JSON-RPC notification. NOTE: Deprecated. Use NewFilteredBlockDisconnectedNtfn instead.
-func NewBlockDisconnectedNtfn(hash string, height int32, time int64) *BlockDisconnectedNtfn {
+func NewBlockDisconnectedNtfn(
+	hash string, height int32, time int64) *BlockDisconnectedNtfn {
 	return &BlockDisconnectedNtfn{
 		Hash:   hash,
 		Height: height,
@@ -66,7 +68,8 @@ type FilteredBlockConnectedNtfn struct {
 }
 
 // NewFilteredBlockConnectedNtfn returns a new instance which can be used to issue a filteredblockconnected JSON-RPC notification.
-func NewFilteredBlockConnectedNtfn(height int32, header string, subscribedTxs []string) *FilteredBlockConnectedNtfn {
+func NewFilteredBlockConnectedNtfn(
+	height int32, header string, subscribedTxs []string) *FilteredBlockConnectedNtfn {
 	return &FilteredBlockConnectedNtfn{
 		Height:        height,
 		Header:        header,
@@ -81,7 +84,8 @@ type FilteredBlockDisconnectedNtfn struct {
 }
 
 // NewFilteredBlockDisconnectedNtfn returns a new instance which can be used to issue a filteredblockdisconnected JSON-RPC notification.
-func NewFilteredBlockDisconnectedNtfn(height int32, header string) *FilteredBlockDisconnectedNtfn {
+func NewFilteredBlockDisconnectedNtfn(
+	height int32, header string) *FilteredBlockDisconnectedNtfn {
 	return &FilteredBlockDisconnectedNtfn{
 		Height: height,
 		Header: header,
@@ -103,7 +107,8 @@ type RecvTxNtfn struct {
 }
 
 // NewRecvTxNtfn returns a new instance which can be used to issue a recvtx JSON-RPC notification. NOTE: Deprecated. Use NewRelevantTxAcceptedNtfn and NewFilteredBlockConnectedNtfn instead.
-func NewRecvTxNtfn(hexTx string, block *BlockDetails) *RecvTxNtfn {
+func NewRecvTxNtfn(
+	hexTx string, block *BlockDetails) *RecvTxNtfn {
 	return &RecvTxNtfn{
 		HexTx: hexTx,
 		Block: block,
@@ -117,7 +122,8 @@ type RedeemingTxNtfn struct {
 }
 
 // NewRedeemingTxNtfn returns a new instance which can be used to issue a redeemingtx JSON-RPC notification. NOTE: Deprecated. Use NewRelevantTxAcceptedNtfn and NewFilteredBlockConnectedNtfn instead.
-func NewRedeemingTxNtfn(hexTx string, block *BlockDetails) *RedeemingTxNtfn {
+func NewRedeemingTxNtfn(
+	hexTx string, block *BlockDetails) *RedeemingTxNtfn {
 	return &RedeemingTxNtfn{
 		HexTx: hexTx,
 		Block: block,
@@ -132,7 +138,8 @@ type RescanFinishedNtfn struct {
 }
 
 // NewRescanFinishedNtfn returns a new instance which can be used to issue a rescanfinished JSON-RPC notification. NOTE: Deprecated. Not used with rescanblocks command.
-func NewRescanFinishedNtfn(hash string, height int32, time int64) *RescanFinishedNtfn {
+func NewRescanFinishedNtfn(
+	hash string, height int32, time int64) *RescanFinishedNtfn {
 	return &RescanFinishedNtfn{
 		Hash:   hash,
 		Height: height,
@@ -148,7 +155,8 @@ type RescanProgressNtfn struct {
 }
 
 // NewRescanProgressNtfn returns a new instance which can be used to issue a rescanprogress JSON-RPC notification. NOTE: Deprecated. Not used with rescanblocks command.
-func NewRescanProgressNtfn(hash string, height int32, time int64) *RescanProgressNtfn {
+func NewRescanProgressNtfn(
+	hash string, height int32, time int64) *RescanProgressNtfn {
 	return &RescanProgressNtfn{
 		Hash:   hash,
 		Height: height,
@@ -163,7 +171,8 @@ type TxAcceptedNtfn struct {
 }
 
 // NewTxAcceptedNtfn returns a new instance which can be used to issue a txaccepted JSON-RPC notification.
-func NewTxAcceptedNtfn(txHash string, amount float64) *TxAcceptedNtfn {
+func NewTxAcceptedNtfn(
+	txHash string, amount float64) *TxAcceptedNtfn {
 	return &TxAcceptedNtfn{
 		TxID:   txHash,
 		Amount: amount,
@@ -176,7 +185,8 @@ type TxAcceptedVerboseNtfn struct {
 }
 
 // NewTxAcceptedVerboseNtfn returns a new instance which can be used to issue a txacceptedverbose JSON-RPC notification.
-func NewTxAcceptedVerboseNtfn(rawTx TxRawResult) *TxAcceptedVerboseNtfn {
+func NewTxAcceptedVerboseNtfn(
+	rawTx TxRawResult) *TxAcceptedVerboseNtfn {
 	return &TxAcceptedVerboseNtfn{
 		RawTx: rawTx,
 	}
@@ -188,10 +198,12 @@ type RelevantTxAcceptedNtfn struct {
 }
 
 // NewRelevantTxAcceptedNtfn returns a new instance which can be used to issue a relevantxaccepted JSON-RPC notification.
-func NewRelevantTxAcceptedNtfn(txHex string) *RelevantTxAcceptedNtfn {
+func NewRelevantTxAcceptedNtfn(
+	txHex string) *RelevantTxAcceptedNtfn {
 	return &RelevantTxAcceptedNtfn{Transaction: txHex}
 }
-func init() {
+func init(
+	) {
 	// The commands in this file are only usable by websockets and are notifications.
 	flags := UFWebsocketOnly | UFNotification
 	MustRegisterCmd(BlockConnectedNtfnMethod, (*BlockConnectedNtfn)(nil), flags)

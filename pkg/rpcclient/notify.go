@@ -49,7 +49,8 @@ func (s *notificationState) Copy() *notificationState {
 }
 
 // newNotificationState returns a new notification state ready to be populated.
-func newNotificationState() *notificationState {
+func newNotificationState(
+	) *notificationState {
 	return &notificationState{
 		notifyReceived: make(map[string]struct{}),
 		notifySpent:    make(map[json.OutPoint]struct{}),
@@ -57,7 +58,8 @@ func newNotificationState() *notificationState {
 }
 
 // newNilFutureResult returns a new future result channel that already has the result waiting on the channel with the reply set to nil.  This is useful to ignore things such as notifications when the caller didn't specify any notification handlers.
-func newNilFutureResult() chan *response {
+func newNilFutureResult(
+	) chan *response {
 	responseChan := make(chan *response, 1)
 	responseChan <- &response{result: nil, err: nil}
 	return responseChan
@@ -304,7 +306,8 @@ func (e wrongNumParams) Error() string {
 }
 
 // parseChainNtfnParams parses out the block hash and height from the parameters of blockconnected and blockdisconnected notifications.
-func parseChainNtfnParams(params []js.RawMessage) (*chainhash.Hash,
+func parseChainNtfnParams(
+	params []js.RawMessage) (*chainhash.Hash,
 	int32, time.Time, error) {
 	if len(params) != 3 {
 		return nil, 0, time.Time{}, wrongNumParams(len(params))
@@ -338,7 +341,8 @@ func parseChainNtfnParams(params []js.RawMessage) (*chainhash.Hash,
 }
 
 // parseFilteredBlockConnectedParams parses out the parameters included in a filteredblockconnected notification. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
-func parseFilteredBlockConnectedParams(params []js.RawMessage) (int32,
+func parseFilteredBlockConnectedParams(
+	params []js.RawMessage) (int32,
 	*wire.BlockHeader, []*util.Tx, error) {
 	if len(params) < 3 {
 		return 0, nil, nil, wrongNumParams(len(params))
@@ -382,7 +386,8 @@ func parseFilteredBlockConnectedParams(params []js.RawMessage) (int32,
 }
 
 // parseFilteredBlockDisconnectedParams parses out the parameters included in a filteredblockdisconnected notification.: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
-func parseFilteredBlockDisconnectedParams(params []js.RawMessage) (int32,
+func parseFilteredBlockDisconnectedParams(
+	params []js.RawMessage) (int32,
 	*wire.BlockHeader, error) {
 	if len(params) < 2 {
 		return 0, nil, wrongNumParams(len(params))
@@ -406,7 +411,8 @@ func parseFilteredBlockDisconnectedParams(params []js.RawMessage) (int32,
 	}
 	return blockHeight, &blockHeader, nil
 }
-func parseHexParam(param js.RawMessage) ([]byte, error) {
+func parseHexParam(
+	param js.RawMessage) ([]byte, error) {
 	var s string
 	err := js.Unmarshal(param, &s)
 	if err != nil {
@@ -416,7 +422,8 @@ func parseHexParam(param js.RawMessage) ([]byte, error) {
 }
 
 // parseRelevantTxAcceptedParams parses out the parameter included in a relevanttxaccepted notification.
-func parseRelevantTxAcceptedParams(params []js.RawMessage) (transaction []byte, err error) {
+func parseRelevantTxAcceptedParams(
+	params []js.RawMessage) (transaction []byte, err error) {
 	if len(params) < 1 {
 		return nil, wrongNumParams(len(params))
 	}
@@ -424,7 +431,8 @@ func parseRelevantTxAcceptedParams(params []js.RawMessage) (transaction []byte, 
 }
 
 // parseChainTxNtfnParams parses out the transaction and optional details about the block it's mined in from the parameters of recvtx and redeemingtx notifications.
-func parseChainTxNtfnParams(params []js.RawMessage) (*util.Tx,
+func parseChainTxNtfnParams(
+	params []js.RawMessage) (*util.Tx,
 	*json.BlockDetails, error) {
 	if len(params) == 0 || len(params) > 2 {
 		return nil, nil, wrongNumParams(len(params))
@@ -458,7 +466,8 @@ func parseChainTxNtfnParams(params []js.RawMessage) (*util.Tx,
 }
 
 // parseRescanProgressParams parses out the height of the last rescanned block from the parameters of rescanfinished and rescanprogress notifications.
-func parseRescanProgressParams(params []js.RawMessage) (*chainhash.Hash, int32, time.Time, error) {
+func parseRescanProgressParams(
+	params []js.RawMessage) (*chainhash.Hash, int32, time.Time, error) {
 	if len(params) != 3 {
 		return nil, 0, time.Time{}, wrongNumParams(len(params))
 	}
@@ -489,7 +498,8 @@ func parseRescanProgressParams(params []js.RawMessage) (*chainhash.Hash, int32, 
 }
 
 // parseTxAcceptedNtfnParams parses out the transaction hash and total amount from the parameters of a txaccepted notification.
-func parseTxAcceptedNtfnParams(params []js.RawMessage) (*chainhash.Hash,
+func parseTxAcceptedNtfnParams(
+	params []js.RawMessage) (*chainhash.Hash,
 	util.Amount, error) {
 	if len(params) != 2 {
 		return nil, 0, wrongNumParams(len(params))
@@ -520,7 +530,8 @@ func parseTxAcceptedNtfnParams(params []js.RawMessage) (*chainhash.Hash,
 }
 
 // parseTxAcceptedVerboseNtfnParams parses out details about a raw transaction from the parameters of a txacceptedverbose notification.
-func parseTxAcceptedVerboseNtfnParams(params []js.RawMessage) (*json.TxRawResult,
+func parseTxAcceptedVerboseNtfnParams(
+	params []js.RawMessage) (*json.TxRawResult,
 	error) {
 	if len(params) != 1 {
 		return nil, wrongNumParams(len(params))
@@ -536,7 +547,8 @@ func parseTxAcceptedVerboseNtfnParams(params []js.RawMessage) (*json.TxRawResult
 }
 
 // parsePodConnectedNtfnParams parses out the connection status of pod and btcwallet from the parameters of a podconnected notification.
-func parsePodConnectedNtfnParams(params []js.RawMessage) (bool, error) {
+func parsePodConnectedNtfnParams(
+	params []js.RawMessage) (bool, error) {
 	if len(params) != 1 {
 		return false, wrongNumParams(len(params))
 	}
@@ -550,7 +562,8 @@ func parsePodConnectedNtfnParams(params []js.RawMessage) (bool, error) {
 }
 
 // parseAccountBalanceNtfnParams parses out the account name, total balance, and whether or not the balance is confirmed or unconfirmed from the parameters of an accountbalance notification.
-func parseAccountBalanceNtfnParams(params []js.RawMessage) (account string,
+func parseAccountBalanceNtfnParams(
+	params []js.RawMessage) (account string,
 	balance util.Amount, confirmed bool, err error) {
 	if len(params) != 3 {
 		return "", 0, false, wrongNumParams(len(params))
@@ -580,7 +593,8 @@ func parseAccountBalanceNtfnParams(params []js.RawMessage) (account string,
 }
 
 // parseWalletLockStateNtfnParams parses out the account name and locked state of an account from the parameters of a walletlockstate notification.
-func parseWalletLockStateNtfnParams(params []js.RawMessage) (account string,
+func parseWalletLockStateNtfnParams(
+	params []js.RawMessage) (account string,
 	locked bool, err error) {
 	if len(params) != 2 {
 		return "", false, wrongNumParams(len(params))
@@ -650,7 +664,8 @@ func (c *Client) notifySpentInternal(outpoints []json.OutPoint) FutureNotifySpen
 }
 
 // newOutPointFromWire constructs the json representation of a transaction outpoint from the wire type.
-func newOutPointFromWire(op *wire.OutPoint) json.OutPoint {
+func newOutPointFromWire(
+	op *wire.OutPoint) json.OutPoint {
 	return json.OutPoint{
 		Hash:  op.Hash.String(),
 		Index: op.Index,

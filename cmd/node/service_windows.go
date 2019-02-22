@@ -25,7 +25,8 @@ const (
 var elog *eventlog.Log
 
 // logServiceStartOfDay logs information about pod when the main server has been started to the Windows event log.
-func logServiceStartOfDay(srvr *server) {
+func logServiceStartOfDay(
+	srvr *server) {
 	var message string
 	message += fmt.Sprintf("Version %s\n", version())
 	message += fmt.Sprintf("Configuration directory: %s\n", defaultHomeDir)
@@ -91,7 +92,8 @@ loop:
 }
 
 // installService attempts to install the pod service.  Typically this should be done by the msi installer, but it is provided here since it can be useful for development.
-func installService() error {
+func installService(
+	) error {
 	// Get the path of the current executable.  This is needed because os.Args[0] can vary depending on how the application was launched. For example, under cmd.exe it will only be the name of the app without the path or extension, but under mingw it will be the full path including the extension.
 	exePath, err := filepath.Abs(os.Args[0])
 	if err != nil {
@@ -128,7 +130,8 @@ func installService() error {
 }
 
 // removeService attempts to uninstall the pod service.  Typically this should be done by the msi uninstaller, but it is provided here since it can be useful for development.  Not the eventlog entry is intentionally not removed since it would invalidate any existing event log messages.
-func removeService() error {
+func removeService(
+	) error {
 	// Connect to the windows service manager.
 	serviceManager, err := mgr.Connect()
 	if err != nil {
@@ -146,7 +149,8 @@ func removeService() error {
 }
 
 // startService attempts to start the pod service.
-func startService() error {
+func startService(
+	) error {
 	// Connect to the windows service manager.
 	serviceManager, err := mgr.Connect()
 	if err != nil {
@@ -166,7 +170,8 @@ func startService() error {
 }
 
 // controlService allows commands which change the status of the service.  It also waits for up to 10 seconds for the service to change to the passed state.
-func controlService(c svc.Cmd, to svc.State) error {
+func controlService(
+	c svc.Cmd, to svc.State) error {
 	// Connect to the windows service manager.
 	serviceManager, err := mgr.Connect()
 	if err != nil {
@@ -200,7 +205,8 @@ func controlService(c svc.Cmd, to svc.State) error {
 }
 
 // performServiceCommand attempts to run one of the supported service commands provided on the command line via the service command flag.  An appropriate error is returned if an invalid command is specified.
-func performServiceCommand(command string) error {
+func performServiceCommand(
+	command string) error {
 	var err error
 	switch command {
 	case "install":
@@ -218,7 +224,8 @@ func performServiceCommand(command string) error {
 }
 
 // serviceMain checks whether we're being invoked as a service, and if so uses the service control manager to start the long-running server.  A flag is returned to the caller so the application can determine whether to exit (when running as a service) or launch in normal interactive mode.
-func serviceMain() (bool, error) {
+func serviceMain(
+	) (bool, error) {
 	// Don't run as a service if we're running interactively (or that can't be determined due to an error).
 	isInteractive, err := svc.IsAnInteractiveSession()
 	if err != nil {
@@ -241,7 +248,8 @@ func serviceMain() (bool, error) {
 }
 
 // Set windows specific functions to real functions.
-func init() {
+func init(
+	) {
 	runServiceCommand = performServiceCommand
 	winServiceMain = serviceMain
 }

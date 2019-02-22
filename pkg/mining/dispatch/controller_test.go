@@ -18,14 +18,16 @@ var nodeAddr = "127.0.0.1:11011"
 var ready = make(chan bool)
 var K Kopach
 
-func TestKCPClientServer(t *testing.T) {
+func TestKCPClientServer(
+	t *testing.T) {
 	fmt.Println("Testing KCP client/server connection")
 	go runServer(t)
 	time.Sleep(time.Second)
 	runClient(t)
 }
 
-func runServer(t *testing.T) {
+func runServer(
+	t *testing.T) {
 	server := rpcx.NewServer()
 	server.RegisterName("Kopach", &K)
 	pass := argon2.IDKey([]byte(cryptKey), []byte(cryptSalt), 1, 4096, 32, 32)
@@ -43,7 +45,8 @@ func runServer(t *testing.T) {
 	fmt.Println("Finished running server")
 }
 
-func runClient(t *testing.T) {
+func runClient(
+	t *testing.T) {
 	pass := argon2.Key([]byte(cryptKey), []byte(cryptSalt), 1, 4096, 32, 32)
 	bc, _ := kcp.NewAESBlockCrypt(pass)
 

@@ -532,7 +532,8 @@ func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) er
 }
 
 // NewUtxoViewpoint returns a new empty unspent transaction output view.
-func NewUtxoViewpoint() *UtxoViewpoint {
+func NewUtxoViewpoint(
+	) *UtxoViewpoint {
 	return &UtxoViewpoint{
 		entries: make(map[wire.OutPoint]*UtxoEntry),
 	}

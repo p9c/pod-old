@@ -18,7 +18,8 @@ var (
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
-func loadBlockDB() (database.DB, error) {
+func loadBlockDB(
+	) (database.DB, error) {
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + cfg.DbType
 	dbPath := filepath.Join(cfg.DataDir, dbName)
@@ -31,7 +32,8 @@ func loadBlockDB() (database.DB, error) {
 }
 
 // findCandidates searches the chain backwards for checkpoint candidates and returns a slice of found candidates, if any.  It also stops searching for candidates at the last checkpoint that is already hard coded into btcchain since there is no point in finding candidates before already existing checkpoints.
-func findCandidates(chain *blockchain.BlockChain, latestHash *chainhash.Hash) ([]*chaincfg.Checkpoint, error) {
+func findCandidates(
+	chain *blockchain.BlockChain, latestHash *chainhash.Hash) ([]*chaincfg.Checkpoint, error) {
 	// Start with the latest block of the main chain.
 	block, err := chain.BlockByHash(latestHash)
 	if err != nil {
@@ -97,7 +99,8 @@ func findCandidates(chain *blockchain.BlockChain, latestHash *chainhash.Hash) ([
 }
 
 // showCandidate display a checkpoint candidate using and output format determined by the configuration parameters.  The Go syntax output uses the format the btcchain code expects for checkpoints added to the list.
-func showCandidate(candidateNum int, checkpoint *chaincfg.Checkpoint) {
+func showCandidate(
+	candidateNum int, checkpoint *chaincfg.Checkpoint) {
 	if cfg.UseGoOutput {
 		fmt.Printf("Candidate %d -- {%d, newShaHashFromStr(\"%v\")},\n",
 			candidateNum, checkpoint.Height, checkpoint.Hash)
@@ -106,7 +109,8 @@ func showCandidate(candidateNum int, checkpoint *chaincfg.Checkpoint) {
 	fmt.Printf("Candidate %d -- Height: %d, Hash: %v\n", candidateNum,
 		checkpoint.Height, checkpoint.Hash)
 }
-func main() {
+func main(
+	) {
 	// Load configuration and parse command line.
 	tcfg, _, err := loadConfig()
 	if err != nil {

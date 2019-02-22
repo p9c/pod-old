@@ -13,7 +13,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/wallet/internal/txsizes"
 )
 
-func p2pkhOutputs(amounts ...util.Amount) []*wire.TxOut {
+func p2pkhOutputs(
+	amounts ...util.Amount) []*wire.TxOut {
 	v := make([]*wire.TxOut, 0, len(amounts))
 	for _, a := range amounts {
 		outScript := make([]byte, txsizes.P2PKHOutputSize)
@@ -22,7 +23,8 @@ func p2pkhOutputs(amounts ...util.Amount) []*wire.TxOut {
 	return v
 }
 
-func makeInputSource(unspents []*wire.TxOut) InputSource {
+func makeInputSource(
+	unspents []*wire.TxOut) InputSource {
 	// Return outputs in order.
 	currentTotal := util.Amount(0)
 	currentInputs := make([]*wire.TxIn, 0, len(unspents))
@@ -41,7 +43,8 @@ func makeInputSource(unspents []*wire.TxOut) InputSource {
 	return InputSource(f)
 }
 
-func TestNewUnsignedTransaction(t *testing.T) {
+func TestNewUnsignedTransaction(
+	t *testing.T) {
 	tests := []struct {
 		UnspentOutputs   []*wire.TxOut
 		Outputs          []*wire.TxOut

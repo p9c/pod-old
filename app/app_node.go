@@ -17,22 +17,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-// serviceOptions defines the configuration options for the daemon as a service on Windows.
-type serviceOptions struct {
-	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
-}
-
-// StateCfg is a reference to the main node state configuration struct
-var StateCfg = n.StateCfg
-
-// runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
-var runServiceCommand func(string) error
-
-var aN = filepath.Base(os.Args[0])
-var appName = strings.TrimSuffix(aN, filepath.Ext(aN))
-
-var usageMessage = fmt.Sprintf("use `%s help node` to show usage", appName)
-
 // NodeCfg is the combined app and logging configuration data
 type NodeCfg struct {
 	Node      *n.Config
@@ -40,8 +24,10 @@ type NodeCfg struct {
 	params    *node.Params
 }
 
-// NodeConfig is the combined app and log levels configuration
-var NodeConfig = DefaultNodeConfig(n.DefaultDataDir)
+// serviceOptions defines the configuration options for the daemon as a service on Windows.
+type serviceOptions struct {
+	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
+}
 
 // NodeCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var NodeCommand = climax.Command{
@@ -237,55 +223,27 @@ var NodeCommand = climax.Command{
 	},
 }
 
-// WriteNodeConfig writes the current config to the requested location
-func WriteNodeConfig(c *NodeCfg) {
-	log <- cl.Dbg("writing config")
-	j, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
-		log <- cl.Err(spew.Sdump(c))
-		return
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{
-		"JSON formatted config file\n%s",
-		j,
-	}
-	EnsureDir(c.Node.ConfigFile)
-	err = ioutil.WriteFile(c.Node.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing default app config file:", err.Error()}
-		return
-	}
-}
+// NodeConfig is the combined app and log levels configuration
+var NodeConfig = DefaultNodeConfig(n.DefaultDataDir)
 
-// WriteDefaultNodeConfig creates a default config and writes it to the requested location
-func WriteDefaultNodeConfig(datadir string) {
-	log <- cl.Dbg("writing default config")
-	defCfg := DefaultNodeConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
-		log <- cl.Err(spew.Sdump(defCfg))
-		return
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{
-		"JSON formatted config file\n%s",
-		j,
-	}
-	EnsureDir(defCfg.Node.ConfigFile)
-	err = ioutil.WriteFile(defCfg.Node.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing default app config file:", err.Error()}
-		return
-	}
-	// if we are writing default config we also want to use it
-	NodeConfig = defCfg
-}
+// StateCfg is a reference to the main node state configuration struct
+var StateCfg = n.StateCfg
+
+var aN = filepath.Base(os.Args[0])
+
+var appName = strings.TrimSuffix(aN, filepath.Ext(aN))
+
+// runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
+var runServiceCommand func(string) error
+
+var usageMessage = fmt.Sprintf(
+	"use `%s help node` to show usage", appName)
 
 // DefaultNodeConfig is the default configuration for node
-func DefaultNodeConfig(datadir string) *NodeCfg {
+func DefaultNodeConfig(
+	datadir string,
+) *NodeCfg {
+
 	user := GenKey()
 	pass := GenKey()
 	params := node.MainNetParams
@@ -333,5 +291,58 @@ func DefaultNodeConfig(datadir string) *NodeCfg {
 		},
 		LogLevels: GetDefaultLogLevelsConfig(),
 		params:    &params,
+	}
+}
+
+// WriteDefaultNodeConfig creates a default config and writes it to the requested location
+func WriteDefaultNodeConfig(
+	datadir string,
+) {
+
+	log <- cl.Dbg("writing default config")
+	defCfg := DefaultNodeConfig(datadir)
+	j, err := json.MarshalIndent(defCfg, "", "  ")
+	if err != nil {
+		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
+		log <- cl.Err(spew.Sdump(defCfg))
+		return
+	}
+	j = append(j, '\n')
+	log <- cl.Tracef{
+		"JSON formatted config file\n%s",
+		j,
+	}
+	EnsureDir(defCfg.Node.ConfigFile)
+	err = ioutil.WriteFile(defCfg.Node.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Error{"writing default app config file:", err.Error()}
+		return
+	}
+	// if we are writing default config we also want to use it
+	NodeConfig = defCfg
+}
+
+// WriteNodeConfig writes the current config to the requested location
+func WriteNodeConfig(
+	c *NodeCfg,
+) {
+
+	log <- cl.Dbg("writing config")
+	j, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
+		log <- cl.Err(spew.Sdump(c))
+		return
+	}
+	j = append(j, '\n')
+	log <- cl.Tracef{
+		"JSON formatted config file\n%s",
+		j,
+	}
+	EnsureDir(c.Node.ConfigFile)
+	err = ioutil.WriteFile(c.Node.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Error{"writing default app config file:", err.Error()}
+		return
 	}
 }

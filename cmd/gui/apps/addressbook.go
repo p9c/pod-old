@@ -8,22 +8,20 @@ import (
 	"git.parallelcoin.io/pod/cmd/gui/vue"
 )
 
+type AddressBook struct {
+	AddressBookLabel []AddressBookLabel `json:"labels"`
+}
+
 // var VAB []AddressBook
 
 type AddressBookLabel struct {
 	Label   string `json:"label"`
 	Address string `json:"address"`
 }
-type AddressBook struct {
-	AddressBookLabel []AddressBookLabel `json:"labels"`
-}
 
-func init() {
-
-	vue.MODS["addressbook"] = AddressBook{}
-	vue.MODS["addressbooklabel"] = AddressBookLabel{}
-}
-func (ab *AddressBook) AddressBookData() {
+func (
+	ab *AddressBook,
+) AddressBookData() {
 
 	ab.AddressBookLabel = nil
 	addressbooks, err := jdb.JDB.ReadAll("addressbook")
@@ -40,16 +38,29 @@ func (ab *AddressBook) AddressBookData() {
 	}
 	// fmt.Println("Ersssssssssssssssssssssssssssror", ab.AddressBookLabel)
 }
-func (ab *AddressBookLabel) AddressBookLabelWrite(label, address string) {
+func (
+	ab *AddressBookLabel,
+) AddressBookLabelDelete(
+	label string,
+) {
+	if err := jdb.JDB.Delete("addressbook", label); err != nil {
+		fmt.Println("Error", err)
+	}
+	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
+}
+func (
+	ab *AddressBookLabel,
+) AddressBookLabelWrite(
+	label, address string) {
 	ab.Label = label
 	ab.Address = address
 	jdb.JDB.Write("addressbook", ab.Label, ab)
 	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
 
 }
-func (ab *AddressBookLabel) AddressBookLabelDelete(label string) {
-	if err := jdb.JDB.Delete("addressbook", label); err != nil {
-		fmt.Println("Error", err)
-	}
-	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
+
+func init() {
+
+	vue.MODS["addressbook"] = AddressBook{}
+	vue.MODS["addressbooklabel"] = AddressBookLabel{}
 }

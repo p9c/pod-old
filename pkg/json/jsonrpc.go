@@ -23,7 +23,8 @@ func (e RPCError) Error() string {
 }
 
 // NewRPCError constructs and returns a new JSON-RPC error that is suitable for use in a JSON-RPC Response object.
-func NewRPCError(code RPCErrorCode, message string) *RPCError {
+func NewRPCError(
+	code RPCErrorCode, message string) *RPCError {
 	return &RPCError{
 		Code:    code,
 		Message: message,
@@ -32,7 +33,8 @@ func NewRPCError(code RPCErrorCode, message string) *RPCError {
 
 // IsValidIDType checks that the ID field (which can go in any of the JSON-RPC requests, responses, or notifications) is valid.  JSON-RPC 1.0 allows any valid JSON type.  JSON-RPC 2.0 (which bitcoind follows for some parts) only allows string, number, or null, so this function restricts the allowed types to that list.  This function is only provided in case the caller is manually marshalling for some reason.
 // The functions which accept an ID in this package already call this function to ensure the provided id is valid.
-func IsValidIDType(id interface{}) bool {
+func IsValidIDType(
+	id interface{}) bool {
 	switch id.(type) {
 	case int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64,
@@ -54,7 +56,8 @@ type Request struct {
 }
 
 // NewRequest returns a new JSON-RPC 1.0 request object given the provided id, method, and parameters.  The parameters are marshalled into a json.RawMessage for the Params field of the returned request object.  This function is only provided in case the caller wants to construct raw requests for some reason. Typically callers will instead want to create a registered concrete command type with the NewCmd or New<Foo>Cmd functions and call the MarshalCmd function with that command to generate the marshalled JSON-RPC request.
-func NewRequest(id interface{}, method string, params []interface{}) (*Request, error) {
+func NewRequest(
+	id interface{}, method string, params []interface{}) (*Request, error) {
 	if !IsValidIDType(id) {
 		str := fmt.Sprintf("the id of type '%T' is invalid", id)
 		return nil, makeError(ErrInvalidType, str)
@@ -84,7 +87,8 @@ type Response struct {
 }
 
 // NewResponse returns a new JSON-RPC response object given the provided id, marshalled result, and RPC error.  This function is only provided in case the caller wants to construct raw responses for some reason. Typically callers will instead want to create the fully marshalled JSON-RPC response to send over the wire with the MarshalResponse function.
-func NewResponse(id interface{}, marshalledResult []byte, rpcErr *RPCError) (*Response, error) {
+func NewResponse(
+	id interface{}, marshalledResult []byte, rpcErr *RPCError) (*Response, error) {
 	if !IsValidIDType(id) {
 		str := fmt.Sprintf("the id of type '%T' is invalid", id)
 		return nil, makeError(ErrInvalidType, str)
@@ -98,7 +102,8 @@ func NewResponse(id interface{}, marshalledResult []byte, rpcErr *RPCError) (*Re
 }
 
 // MarshalResponse marshals the passed id, result, and RPCError to a JSON-RPC response byte slice that is suitable for transmission to a JSON-RPC client.
-func MarshalResponse(id interface{}, result interface{}, rpcErr *RPCError) ([]byte, error) {
+func MarshalResponse(
+	id interface{}, result interface{}, rpcErr *RPCError) ([]byte, error) {
 	marshalledResult, err := json.Marshal(result)
 	if err != nil {
 		return nil, err

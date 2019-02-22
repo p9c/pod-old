@@ -11,7 +11,8 @@ import (
 )
 
 // TestNetAddress tests the NetAddress API.
-func TestNetAddress(t *testing.T) {
+func TestNetAddress(
+	t *testing.T) {
 	ip := net.ParseIP("127.0.0.1")
 	port := 11047
 	// Test NewNetAddress.
@@ -61,7 +62,8 @@ func TestNetAddress(t *testing.T) {
 }
 
 // TestNetAddressWire tests the NetAddress wire encode and decode for various protocol versions and timestamp flag combinations.
-func TestNetAddressWire(t *testing.T) {
+func TestNetAddressWire(
+	t *testing.T) {
 	// baseNetAddr is used in the various tests as a baseline NetAddress.
 	baseNetAddr := NetAddress{
 		Timestamp: time.Unix(0x495fab29, 0), // 2009-01-03 12:15:05 -0600 CST
@@ -175,7 +177,8 @@ func TestNetAddressWire(t *testing.T) {
 }
 
 // TestNetAddressWireErrors performs negative tests against wire encode and decode NetAddress to confirm error paths work correctly.
-func TestNetAddressWireErrors(t *testing.T) {
+func TestNetAddressWireErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	pverNAT := NetAddressTimeVersion - 1
 	// baseNetAddr is used in the various tests as a baseline NetAddress.

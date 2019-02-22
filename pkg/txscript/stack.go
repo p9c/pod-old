@@ -6,7 +6,8 @@ import (
 )
 
 // asBool gets the boolean value of the byte array.
-func asBool(t []byte) bool {
+func asBool(
+	t []byte) bool {
 	for i := range t {
 		if t[i] != 0 {
 			// Negative 0 is also considered false.
@@ -20,7 +21,8 @@ func asBool(t []byte) bool {
 }
 
 // fromBool converts a boolean into the appropriate byte array.
-func fromBool(v bool) []byte {
+func fromBool(
+	v bool) []byte {
 	if v {
 		return []byte{1}
 	}

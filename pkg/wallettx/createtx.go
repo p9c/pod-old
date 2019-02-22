@@ -26,7 +26,8 @@ func (s byAmount) Len() int           { return len(s) }
 func (s byAmount) Less(i, j int) bool { return s[i].Amount < s[j].Amount }
 func (s byAmount) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-func makeInputSource(eligible []wtxmgr.Credit) txauthor.InputSource {
+func makeInputSource(
+	eligible []wtxmgr.Credit) txauthor.InputSource {
 	// Pick largest outputs first.  This is only done for compatibility with
 	// previous tx creation code, not because it's a good idea.
 	sort.Sort(sort.Reverse(byAmount(eligible)))
@@ -233,7 +234,8 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 // validateMsgTx verifies transaction input scripts for tx.  All previous output
 // scripts from outputs redeemed by the transaction, in the same order they are
 // spent, must be passed in the prevScripts slice.
-func validateMsgTx(tx *wire.MsgTx, prevScripts [][]byte, inputValues []util.Amount) error {
+func validateMsgTx(
+	tx *wire.MsgTx, prevScripts [][]byte, inputValues []util.Amount) error {
 	hashCache := txscript.NewTxSigHashes(tx)
 	for i, prevScript := range prevScripts {
 		vm, err := txscript.NewEngine(prevScript, tx, i,

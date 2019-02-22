@@ -49,7 +49,8 @@ func (c *failingCryptoKey) Decrypt(in []byte) ([]byte, error) {
 // TstRunWithFailingCryptoKeyPriv runs the provided callback with the
 // private crypto key replaced with a version that fails to help test error
 // paths.
-func TstRunWithFailingCryptoKeyPriv(m *Manager, callback func()) {
+func TstRunWithFailingCryptoKeyPriv(
+	m *Manager, callback func()) {
 	orig := m.cryptoKeyPriv
 	defer func() {
 		m.cryptoKeyPriv = orig

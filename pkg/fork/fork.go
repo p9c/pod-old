@@ -138,7 +138,8 @@ var (
 )
 
 // GetAlgoVer returns the version number for a given algorithm (by string name) at a given height. If "random" is given, a random number is taken from the system secure random source (for randomised cpu mining)
-func GetAlgoVer(name string, height int32) (version int32) {
+func GetAlgoVer(
+	name string, height int32) (version int32) {
 	n := "sha256d"
 	hf := GetCurrent(height)
 	if name == "random" {
@@ -166,14 +167,16 @@ func GetAlgoVer(name string, height int32) (version int32) {
 }
 
 // GetAlgoName returns the string identifier of an algorithm depending on hard fork activation status
-func GetAlgoName(algoVer int32, height int32) (name string) {
+func GetAlgoName(
+	algoVer int32, height int32) (name string) {
 	hf := GetCurrent(height)
 	name = List[hf].AlgoVers[algoVer]
 	return
 }
 
 // GetAlgoID returns the 'algo_id' which in pre-hardfork is not the same as the block version number, but is afterwards
-func GetAlgoID(algoname string, height int32) uint32 {
+func GetAlgoID(
+	algoname string, height int32) uint32 {
 	if GetCurrent(height) > 1 {
 		return P9Algos[algoname].AlgoID
 	}
@@ -181,7 +184,8 @@ func GetAlgoID(algoname string, height int32) uint32 {
 }
 
 // GetCurrent returns the hardfork number code
-func GetCurrent(height int32) (curr int) {
+func GetCurrent(
+	height int32) (curr int) {
 	if IsTestnet {
 		return len(List) - 1
 	}
@@ -194,13 +198,15 @@ func GetCurrent(height int32) (curr int) {
 }
 
 // GetMinBits returns the minimum diff bits based on height and testnet
-func GetMinBits(algoname string, height int32) uint32 {
+func GetMinBits(
+	algoname string, height int32) uint32 {
 	curr := GetCurrent(height)
 	r := List[curr].Algos[algoname].MinBits
 	return r
 }
 
 // GetMinDiff returns the minimum difficulty in uint256 form
-func GetMinDiff(algoname string, height int32) *big.Int {
+func GetMinDiff(
+	algoname string, height int32) *big.Int {
 	return CompactToBig(GetMinBits(algoname, height))
 }

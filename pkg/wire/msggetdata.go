@@ -79,14 +79,16 @@ func (msg *MsgGetData) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgGetData returns a new bitcoin getdata message that conforms to the Message interface.  See MsgGetData for details.
-func NewMsgGetData() *MsgGetData {
+func NewMsgGetData(
+	) *MsgGetData {
 	return &MsgGetData{
 		InvList: make([]*InvVect, 0, defaultInvListAlloc),
 	}
 }
 
 // NewMsgGetDataSizeHint returns a new bitcoin getdata message that conforms to the Message interface.  See MsgGetData for details.  This function differs from NewMsgGetData in that it allows a default allocation size for the backing array which houses the inventory vector list.  This allows callers who know in advance how large the inventory list will grow to avoid the overhead of growing the internal backing array several times when appending large amounts of inventory vectors with AddInvVect.  Note that the specified hint is just that - a hint that is used for the default allocation size. Adding more (or less) inventory vectors will still work properly.  The size hint is limited to MaxInvPerMsg.
-func NewMsgGetDataSizeHint(sizeHint uint) *MsgGetData {
+func NewMsgGetDataSizeHint(
+	sizeHint uint) *MsgGetData {
 	// Limit the specified hint to the maximum allow per message.
 	if sizeHint > MaxInvPerMsg {
 		sizeHint = MaxInvPerMsg

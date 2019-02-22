@@ -6,7 +6,8 @@ import (
 )
 
 // TestMruNonceMap ensures the mruNonceMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
-func TestMruNonceMap(t *testing.T) {
+func TestMruNonceMap(
+	t *testing.T) {
 	// Create a bunch of fake nonces to use in testing the mru nonce code.
 	numNonces := 10
 	nonces := make([]uint64, 0, numNonces)
@@ -80,7 +81,8 @@ testLoop:
 }
 
 // TestMruNonceMapStringer tests the stringized output for the mruNonceMap type.
-func TestMruNonceMapStringer(t *testing.T) {
+func TestMruNonceMapStringer(
+	t *testing.T) {
 	// Create a couple of fake nonces to use in testing the mru nonce stringer code.
 	nonce1 := uint64(10)
 	nonce2 := uint64(20)
@@ -99,7 +101,8 @@ func TestMruNonceMapStringer(t *testing.T) {
 }
 
 // BenchmarkMruNonceList performs basic benchmarks on the most recently used nonce handling.
-func BenchmarkMruNonceList(b *testing.B) {
+func BenchmarkMruNonceList(
+	b *testing.B) {
 	// Create a bunch of fake nonces to use in benchmarking the mru nonce code.
 	b.StopTimer()
 	numNonces := 100000

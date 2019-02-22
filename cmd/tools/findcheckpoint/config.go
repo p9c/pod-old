@@ -39,7 +39,8 @@ type config struct {
 }
 
 // validDbType returns whether or not dbType is a supported database type.
-func validDbType(dbType string) bool {
+func validDbType(
+	dbType string) bool {
 	for _, knownType := range knownDbTypes {
 		if dbType == knownType {
 			return true
@@ -49,7 +50,8 @@ func validDbType(dbType string) bool {
 }
 
 // netName returns the name used when referring to a bitcoin network.  At the time of writing, pod currently places blocks for testnet version 3 in the data and log directory "testnet", which does not match the Name field of the chaincfg parameters.  This function can be used to override this directory name as "testnet" when the passed active network matches wire.TestNet3. A proper upgrade to move the data and log directories for this network to "testnet3" is planned for the future, at which point this function can be removed and the network parameter's name used instead.
-func netName(chainParams *chaincfg.Params) string {
+func netName(
+	chainParams *chaincfg.Params) string {
 	switch chainParams.Net {
 	case wire.TestNet3:
 		return "testnet"
@@ -59,7 +61,8 @@ func netName(chainParams *chaincfg.Params) string {
 }
 
 // loadConfig initializes and parses the config using command line options.
-func loadConfig() (*config, []string, error) {
+func loadConfig(
+	) (*config, []string, error) {
 	// Default config.
 	cfg := config{
 		DataDir:       defaultDataDir,

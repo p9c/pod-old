@@ -8,7 +8,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/walletdb"
 )
 
-func TestPutUsedAddrHash(t *testing.T) {
+func TestPutUsedAddrHash(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -35,7 +36,8 @@ func TestPutUsedAddrHash(t *testing.T) {
 	}
 }
 
-func TestGetMaxUsedIdx(t *testing.T) {
+func TestGetMaxUsedIdx(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -69,7 +71,8 @@ func TestGetMaxUsedIdx(t *testing.T) {
 	}
 }
 
-func TestWithdrawalSerialization(t *testing.T) {
+func TestWithdrawalSerialization(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -120,7 +123,8 @@ func TestWithdrawalSerialization(t *testing.T) {
 	TstCheckWithdrawalStatusMatches(t, wInfo.status, wi.status)
 }
 
-func TestPutAndGetWithdrawal(t *testing.T) {
+func TestPutAndGetWithdrawal(
+	t *testing.T) {
 	tearDown, db, _ := TstCreatePool(t)
 	defer tearDown()
 

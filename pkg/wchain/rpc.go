@@ -42,7 +42,8 @@ type RPCClient struct {
 // but must be done using the Start method.  If the remote server does not
 // operate on the same bitcoin network as described by the passed chain
 // parameters, the connection will be disconnected.
-func NewRPCClient(chainParams *chaincfg.Params, connect, user, pass string, certs []byte,
+func NewRPCClient(
+	chainParams *chaincfg.Params, connect, user, pass string, certs []byte,
 	disableTLS bool, reconnectAttempts int) (*RPCClient, error) {
 
 	if reconnectAttempts < 0 {
@@ -270,7 +271,8 @@ func (c *RPCClient) FilterBlocks(
 // parseBlock parses a btcws definition of the block a tx is mined it to the
 // Block structure of the wtxmgr package, and the block index.  This is done
 // here since rpcclient doesn't parse this nicely for us.
-func parseBlock(block *json.BlockDetails) (*wtxmgr.BlockMeta, error) {
+func parseBlock(
+	block *json.BlockDetails) (*wtxmgr.BlockMeta, error) {
 	if block == nil {
 		return nil, nil
 	}

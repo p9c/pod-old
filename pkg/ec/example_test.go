@@ -10,7 +10,8 @@ import (
 
 // This example demonstrates signing a message with a secp256k1 private key that
 // is first parsed form raw bytes and serializing the generated signature.
-func Example_signMessage() {
+func Example_signMessage(
+	) {
 	// Decode a hex-encoded private key.
 	pkBytes, err := hex.DecodeString("22a47fa09a223f2aa079edf85a7c2d4f87" +
 		"20ee63e502ee2869afab7de234b80c")
@@ -40,7 +41,8 @@ func Example_signMessage() {
 // This example demonstrates verifying a secp256k1 signature against a public
 // key that is first parsed from raw bytes.  The signature is also parsed from
 // raw bytes.
-func Example_verifySignature() {
+func Example_verifySignature(
+	) {
 	// Decode hex-encoded serialized public key.
 	pubKeyBytes, err := hex.DecodeString("02a673638cb9587cb68ea08dbef685c" +
 		"6f2d2a751a8b3c6f2a7e9a4999e6e4bfaf5")
@@ -77,7 +79,8 @@ func Example_verifySignature() {
 
 // This example demonstrates encrypting a message for a public key that is first
 // parsed from raw bytes, then decrypting it using the corresponding private key.
-func Example_encryptMessage() {
+func Example_encryptMessage(
+	) {
 	// Decode the hex-encoded pubkey of the recipient.
 	pubKeyBytes, err := hex.DecodeString("04115c42e757b2efb7671c578530ec191a1" +
 		"359381e6a71127a9d37c486fd30dae57e76dc58f693bd7e7010358ce6b165e483a29" +
@@ -120,7 +123,8 @@ func Example_encryptMessage() {
 
 // This example demonstrates decrypting a message using a private key that is
 // first parsed from raw bytes.
-func Example_decryptMessage() {
+func Example_decryptMessage(
+	) {
 	// Decode the hex-encoded private key.
 	pkBytes, err := hex.DecodeString("a11b0a4e1a132305652ee7a8eb7848f6ad" +
 		"5ea381e3ce20a2c086a2e388230811")

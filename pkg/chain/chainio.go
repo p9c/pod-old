@@ -55,7 +55,8 @@ func (e errNotInMainChain) Error() string {
 }
 
 // isNotInMainChainErr returns whether or not the passed error is an errNotInMainChain error.
-func isNotInMainChainErr(err error) bool {
+func isNotInMainChainErr(
+	err error) bool {
 	_, ok := err.(errNotInMainChain)
 	return ok
 }
@@ -68,19 +69,22 @@ func (e errDeserialize) Error() string {
 }
 
 // isDeserializeErr returns whether or not the passed error is an errDeserialize error.
-func isDeserializeErr(err error) bool {
+func isDeserializeErr(
+	err error) bool {
 	_, ok := err.(errDeserialize)
 	return ok
 }
 
 // isDbBucketNotFoundErr returns whether or not the passed error is a database.Error with an error code of database.ErrBucketNotFound.
-func isDbBucketNotFoundErr(err error) bool {
+func isDbBucketNotFoundErr(
+	err error) bool {
 	dbErr, ok := err.(database.Error)
 	return ok && dbErr.ErrorCode == database.ErrBucketNotFound
 }
 
 // dbFetchVersion fetches an individual version with the given key from the metadata bucket.  It is primarily used to track versions on entities such as buckets.  It returns zero if the provided key does not exist.
-func dbFetchVersion(dbTx database.Tx, key []byte) uint32 {
+func dbFetchVersion(
+	dbTx database.Tx, key []byte) uint32 {
 	serialized := dbTx.Metadata().Get(key)
 	if serialized == nil {
 		return 0
@@ -89,14 +93,16 @@ func dbFetchVersion(dbTx database.Tx, key []byte) uint32 {
 }
 
 // dbPutVersion uses an existing database transaction to update the provided key in the metadata bucket to the given version.  It is primarily used to track versions on entities such as buckets.
-func dbPutVersion(dbTx database.Tx, key []byte, version uint32) error {
+func dbPutVersion(
+	dbTx database.Tx, key []byte, version uint32) error {
 	var serialized [4]byte
 	byteOrder.PutUint32(serialized[:], version)
 	return dbTx.Metadata().Put(key, serialized[:])
 }
 
 // dbFetchOrCreateVersion uses an existing database transaction to attempt to fetch the provided key from the metadata bucket as a version and in the case it doesn't exist, it adds the entry with the provided default version and returns that.  This is useful during upgrades to automatically handle loading and adding version keys as necessary.
-func dbFetchOrCreateVersion(dbTx database.Tx, key []byte, defaultVersion uint32) (uint32, error) {
+func dbFetchOrCreateVersion(
+	dbTx database.Tx, key []byte, defaultVersion uint32) (uint32, error) {
 	version := dbFetchVersion(dbTx, key)
 	if version == 0 {
 		version = defaultVersion
@@ -189,7 +195,8 @@ func (b *BlockChain) FetchSpendJournal(targetBlock *util.Block) ([]SpentTxOut, e
 }
 
 // spentTxOutHeaderCode returns the calculated header code to be used when serializing the provided stxo entry.
-func spentTxOutHeaderCode(stxo *SpentTxOut) uint64 {
+func spentTxOutHeaderCode(
+	stxo *SpentTxOut) uint64 {
 	// As described in the serialization format comments, the header code encodes the height shifted over one bit and the coinbase flag in the lowest bit.
 	headerCode := uint64(stxo.Height) << 1
 	if stxo.IsCoinBase {
@@ -199,7 +206,8 @@ func spentTxOutHeaderCode(stxo *SpentTxOut) uint64 {
 }
 
 // spentTxOutSerializeSize returns the number of bytes it would take to serialize the passed stxo according to the format described above.
-func spentTxOutSerializeSize(stxo *SpentTxOut) int {
+func spentTxOutSerializeSize(
+	stxo *SpentTxOut) int {
 	size := serializeSizeVLQ(spentTxOutHeaderCode(stxo))
 	if stxo.Height > 0 {
 		// The legacy v1 spend journal format conditionally tracked the containing transaction version when the height was non-zero, so this is required for backwards compat.
@@ -209,7 +217,8 @@ func spentTxOutSerializeSize(stxo *SpentTxOut) int {
 }
 
 // putSpentTxOut serializes the passed stxo according to the format described above directly into the passed target byte slice.  The target byte slice must be at least large enough to handle the number of bytes returned by the SpentTxOutSerializeSize function or it will panic.
-func putSpentTxOut(target []byte, stxo *SpentTxOut) int {
+func putSpentTxOut(
+	target []byte, stxo *SpentTxOut) int {
 	headerCode := spentTxOutHeaderCode(stxo)
 	offset := putVLQ(target, headerCode)
 	if stxo.Height > 0 {
@@ -221,7 +230,8 @@ func putSpentTxOut(target []byte, stxo *SpentTxOut) int {
 }
 
 // decodeSpentTxOut decodes the passed serialized stxo entry, possibly followed by other data, into the passed stxo struct.  It returns the number of bytes read.
-func decodeSpentTxOut(serialized []byte, stxo *SpentTxOut) (int, error) {
+func decodeSpentTxOut(
+	serialized []byte, stxo *SpentTxOut) (int, error) {
 	// Ensure there are bytes to decode.
 	if len(serialized) == 0 {
 		return 0, errDeserialize("no serialized bytes")
@@ -263,7 +273,8 @@ func decodeSpentTxOut(serialized []byte, stxo *SpentTxOut) (int, error) {
 }
 
 // deserializeSpendJournalEntry decodes the passed serialized byte slice into a slice of spent txouts according to the format described in detail above. Since the serialization format is not self describing, as noted in the format comments, this function also requires the transactions that spend the txouts.
-func deserializeSpendJournalEntry(serialized []byte, txns []*wire.MsgTx) ([]SpentTxOut, error) {
+func deserializeSpendJournalEntry(
+	serialized []byte, txns []*wire.MsgTx) ([]SpentTxOut, error) {
 	// Calculate the total number of stxos.
 	var numStxos int
 	for _, tx := range txns {
@@ -305,7 +316,8 @@ func deserializeSpendJournalEntry(serialized []byte, txns []*wire.MsgTx) ([]Spen
 }
 
 // serializeSpendJournalEntry serializes all of the passed spent txouts into a single byte slice according to the format described in detail above.
-func serializeSpendJournalEntry(stxos []SpentTxOut) []byte {
+func serializeSpendJournalEntry(
+	stxos []SpentTxOut) []byte {
 	if len(stxos) == 0 {
 		return nil
 	}
@@ -324,7 +336,8 @@ func serializeSpendJournalEntry(stxos []SpentTxOut) []byte {
 }
 
 // dbFetchSpendJournalEntry fetches the spend journal entry for the passed block and deserializes it into a slice of spent txout entries. NOTE: Legacy entries will not have the coinbase flag or height set unless it was the final output spend in the containing transaction.  It is up to the caller to handle this properly by looking the information up in the utxo set.
-func dbFetchSpendJournalEntry(dbTx database.Tx, block *util.Block) ([]SpentTxOut, error) {
+func dbFetchSpendJournalEntry(
+	dbTx database.Tx, block *util.Block) ([]SpentTxOut, error) {
 	// Exclude the coinbase transaction since it can't spend anything.
 	spendBucket := dbTx.Metadata().Bucket(spendJournalBucketName)
 	serialized := spendBucket.Get(block.Hash()[:])
@@ -348,14 +361,16 @@ func dbFetchSpendJournalEntry(dbTx database.Tx, block *util.Block) ([]SpentTxOut
 }
 
 // dbPutSpendJournalEntry uses an existing database transaction to update the spend journal entry for the given block hash using the provided slice of spent txouts. The spent txouts slice must contain an entry for every txout the transactions in the block spend in the order they are spent.
-func dbPutSpendJournalEntry(dbTx database.Tx, blockHash *chainhash.Hash, stxos []SpentTxOut) error {
+func dbPutSpendJournalEntry(
+	dbTx database.Tx, blockHash *chainhash.Hash, stxos []SpentTxOut) error {
 	spendBucket := dbTx.Metadata().Bucket(spendJournalBucketName)
 	serialized := serializeSpendJournalEntry(stxos)
 	return spendBucket.Put(blockHash[:], serialized)
 }
 
 // dbRemoveSpendJournalEntry uses an existing database transaction to remove the spend journal entry for the passed block hash.
-func dbRemoveSpendJournalEntry(dbTx database.Tx, blockHash *chainhash.Hash) error {
+func dbRemoveSpendJournalEntry(
+	dbTx database.Tx, blockHash *chainhash.Hash) error {
 	spendBucket := dbTx.Metadata().Bucket(spendJournalBucketName)
 	return spendBucket.Delete(blockHash[:])
 }
@@ -427,7 +442,8 @@ var outpointKeyPool = sync.Pool{
 }
 
 // outpointKey returns a key suitable for use as a database key in the utxo set while making use of a free list.  A new buffer is allocated if there are not already any available on the free list.  The returned byte slice should be returned to the free list by using the recycleOutpointKey function when the caller is done with it _unless_ the slice will need to live for longer than the caller can calculate such as when used to write to the database.
-func outpointKey(outpoint wire.OutPoint) *[]byte {
+func outpointKey(
+	outpoint wire.OutPoint) *[]byte {
 	// A VLQ employs an MSB encoding, so they are useful not only to reduce the amount of storage space, but also so iteration of utxos when doing byte-wise comparisons will produce them in order.
 	key := outpointKeyPool.Get().(*[]byte)
 	idx := uint64(outpoint.Index)
@@ -438,12 +454,14 @@ func outpointKey(outpoint wire.OutPoint) *[]byte {
 }
 
 // recycleOutpointKey puts the provided byte slice, which should have been obtained via the outpointKey function, back on the free list.
-func recycleOutpointKey(key *[]byte) {
+func recycleOutpointKey(
+	key *[]byte) {
 	outpointKeyPool.Put(key)
 }
 
 // utxoEntryHeaderCode returns the calculated header code to be used when serializing the provided utxo entry.
-func utxoEntryHeaderCode(entry *UtxoEntry) (uint64, error) {
+func utxoEntryHeaderCode(
+	entry *UtxoEntry) (uint64, error) {
 	if entry.IsSpent() {
 		return 0, AssertError("attempt to serialize spent UXTO header")
 	}
@@ -456,7 +474,8 @@ func utxoEntryHeaderCode(entry *UtxoEntry) (uint64, error) {
 }
 
 // serializeUtxoEntry returns the entry serialized to a format that is suitable for long-term storage.  The format is described in detail above.
-func serializeUtxoEntry(entry *UtxoEntry) ([]byte, error) {
+func serializeUtxoEntry(
+	entry *UtxoEntry) ([]byte, error) {
 	// Spent outputs have no serialization.
 	if entry.IsSpent() {
 		return nil, nil
@@ -479,7 +498,8 @@ func serializeUtxoEntry(entry *UtxoEntry) ([]byte, error) {
 }
 
 // deserializeUtxoEntry decodes a utxo entry from the passed serialized byte slice into a new UtxoEntry using a format that is suitable for long-term storage.  The format is described in detail above.
-func deserializeUtxoEntry(serialized []byte) (*UtxoEntry, error) {
+func deserializeUtxoEntry(
+	serialized []byte) (*UtxoEntry, error) {
 	// Deserialize the header code.
 	code, offset := deserializeVLQ(serialized)
 	if offset >= len(serialized) {
@@ -510,7 +530,8 @@ func deserializeUtxoEntry(serialized []byte) (*UtxoEntry, error) {
 }
 
 // dbFetchUtxoEntryByHash attempts to find and fetch a utxo for the given hash. It uses a cursor and seek to try and do this as efficiently as possible. When there are no entries for the provided hash, nil will be returned for the both the entry and the error.
-func dbFetchUtxoEntryByHash(dbTx database.Tx, hash *chainhash.Hash) (*UtxoEntry, error) {
+func dbFetchUtxoEntryByHash(
+	dbTx database.Tx, hash *chainhash.Hash) (*UtxoEntry, error) {
 	// Attempt to find an entry by seeking for the hash along with a zero index.  Due to the fact the keys are serialized as <hash><index>, where the index uses an MSB encoding, if there are any entries for the hash at all, one will be found.
 	cursor := dbTx.Metadata().Bucket(utxoSetBucketName).Cursor()
 	key := outpointKey(wire.OutPoint{Hash: *hash, Index: 0})
@@ -531,7 +552,8 @@ func dbFetchUtxoEntryByHash(dbTx database.Tx, hash *chainhash.Hash) (*UtxoEntry,
 }
 
 // dbFetchUtxoEntry uses an existing database transaction to fetch the specified transaction output from the utxo set. When there is no entry for the provided output, nil will be returned for both the entry and the error.
-func dbFetchUtxoEntry(dbTx database.Tx, outpoint wire.OutPoint) (*UtxoEntry, error) {
+func dbFetchUtxoEntry(
+	dbTx database.Tx, outpoint wire.OutPoint) (*UtxoEntry, error) {
 	// Fetch the unspent transaction output information for the passed transaction output.  Return now when there is no entry.
 	key := outpointKey(outpoint)
 	utxoBucket := dbTx.Metadata().Bucket(utxoSetBucketName)
@@ -566,7 +588,8 @@ func dbFetchUtxoEntry(dbTx database.Tx, outpoint wire.OutPoint) (*UtxoEntry, err
 }
 
 // dbPutUtxoView uses an existing database transaction to update the utxo set in the database based on the provided utxo view contents and state.  In particular, only the entries that have been marked as modified are written to the database.
-func dbPutUtxoView(dbTx database.Tx, view *UtxoViewpoint) error {
+func dbPutUtxoView(
+	dbTx database.Tx, view *UtxoViewpoint) error {
 	utxoBucket := dbTx.Metadata().Bucket(utxoSetBucketName)
 	for outpoint, entry := range view.entries {
 		// No need to update the database if the entry was not modified.
@@ -609,7 +632,8 @@ func dbPutUtxoView(dbTx database.Tx, view *UtxoViewpoint) error {
 //   hash       chainhash.Hash   chainhash.HashSize
 // -----------------------------------------------------------------------------
 // dbPutBlockIndex uses an existing database transaction to update or add the block index entries for the hash to height and height to hash mappings for the provided values.
-func dbPutBlockIndex(dbTx database.Tx, hash *chainhash.Hash, height int32) error {
+func dbPutBlockIndex(
+	dbTx database.Tx, hash *chainhash.Hash, height int32) error {
 	// Serialize the height for use in the index entries.
 	var serializedHeight [4]byte
 	byteOrder.PutUint32(serializedHeight[:], uint32(height))
@@ -625,7 +649,8 @@ func dbPutBlockIndex(dbTx database.Tx, hash *chainhash.Hash, height int32) error
 }
 
 // dbRemoveBlockIndex uses an existing database transaction remove block index entries from the hash to height and height to hash mappings for the provided values.
-func dbRemoveBlockIndex(dbTx database.Tx, hash *chainhash.Hash, height int32) error {
+func dbRemoveBlockIndex(
+	dbTx database.Tx, hash *chainhash.Hash, height int32) error {
 	// Remove the block hash to height mapping.
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(hashIndexBucketName)
@@ -640,7 +665,8 @@ func dbRemoveBlockIndex(dbTx database.Tx, hash *chainhash.Hash, height int32) er
 }
 
 // dbFetchHeightByHash uses an existing database transaction to retrieve the height for the provided hash from the index.
-func dbFetchHeightByHash(dbTx database.Tx, hash *chainhash.Hash) (int32, error) {
+func dbFetchHeightByHash(
+	dbTx database.Tx, hash *chainhash.Hash) (int32, error) {
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(hashIndexBucketName)
 	serializedHeight := hashIndex.Get(hash[:])
@@ -654,7 +680,8 @@ func dbFetchHeightByHash(dbTx database.Tx, hash *chainhash.Hash) (int32, error) 
 }
 
 // dbFetchHashByHeight uses an existing database transaction to retrieve the hash for the provided height from the index.
-func dbFetchHashByHeight(dbTx database.Tx, height int32) (*chainhash.Hash, error) {
+func dbFetchHashByHeight(
+	dbTx database.Tx, height int32) (*chainhash.Hash, error) {
 	var serializedHeight [4]byte
 	byteOrder.PutUint32(serializedHeight[:], uint32(height))
 	meta := dbTx.Metadata()
@@ -690,7 +717,8 @@ type bestChainState struct {
 }
 
 // serializeBestChainState returns the serialization of the passed block best chain state.  This is data to be stored in the chain state bucket.
-func serializeBestChainState(state bestChainState) []byte {
+func serializeBestChainState(
+	state bestChainState) []byte {
 	// Calculate the full size needed to serialize the chain state.
 	workSumBytes := state.workSum.Bytes()
 	workSumBytesLen := uint32(len(workSumBytes))
@@ -710,7 +738,8 @@ func serializeBestChainState(state bestChainState) []byte {
 }
 
 // deserializeBestChainState deserializes the passed serialized best chain state.  This is data stored in the chain state bucket and is updated after every block is connected or disconnected form the main chain. block.
-func deserializeBestChainState(serializedData []byte) (bestChainState, error) {
+func deserializeBestChainState(
+	serializedData []byte) (bestChainState, error) {
 	// Ensure the serialized data has enough bytes to properly deserialize the hash, height, total transactions, and work sum length.
 	if len(serializedData) < chainhash.HashSize+16 {
 		return bestChainState{}, database.Error{
@@ -740,7 +769,8 @@ func deserializeBestChainState(serializedData []byte) (bestChainState, error) {
 }
 
 // dbPutBestState uses an existing database transaction to update the best chain state with the given parameters.
-func dbPutBestState(dbTx database.Tx, snapshot *BestState, workSum *big.Int) error {
+func dbPutBestState(
+	dbTx database.Tx, snapshot *BestState, workSum *big.Int) error {
 	// Serialize the current best chain state.
 	serializedData := serializeBestChainState(bestChainState{
 		hash:      snapshot.Hash,
@@ -959,7 +989,8 @@ func (b *BlockChain) initChainState() error {
 }
 
 // deserializeBlockRow parses a value in the block index bucket into a block header and block status bitfield.
-func deserializeBlockRow(blockRow []byte) (*wire.BlockHeader, blockStatus, error) {
+func deserializeBlockRow(
+	blockRow []byte) (*wire.BlockHeader, blockStatus, error) {
 	buffer := bytes.NewReader(blockRow)
 	var header wire.BlockHeader
 	err := header.Deserialize(buffer)
@@ -974,7 +1005,8 @@ func deserializeBlockRow(blockRow []byte) (*wire.BlockHeader, blockStatus, error
 }
 
 // dbFetchHeaderByHash uses an existing database transaction to retrieve the block header for the provided hash.
-func dbFetchHeaderByHash(dbTx database.Tx, hash *chainhash.Hash) (*wire.BlockHeader, error) {
+func dbFetchHeaderByHash(
+	dbTx database.Tx, hash *chainhash.Hash) (*wire.BlockHeader, error) {
 	headerBytes, err := dbTx.FetchBlockHeader(hash)
 	if err != nil {
 		return nil, err
@@ -988,7 +1020,8 @@ func dbFetchHeaderByHash(dbTx database.Tx, hash *chainhash.Hash) (*wire.BlockHea
 }
 
 // dbFetchHeaderByHeight uses an existing database transaction to retrieve the block header for the provided height.
-func dbFetchHeaderByHeight(dbTx database.Tx, height int32) (*wire.BlockHeader, error) {
+func dbFetchHeaderByHeight(
+	dbTx database.Tx, height int32) (*wire.BlockHeader, error) {
 	hash, err := dbFetchHashByHeight(dbTx, height)
 	if err != nil {
 		return nil, err
@@ -997,7 +1030,8 @@ func dbFetchHeaderByHeight(dbTx database.Tx, height int32) (*wire.BlockHeader, e
 }
 
 // dbFetchBlockByNode uses an existing database transaction to retrieve the raw block for the provided node, deserialize it, and return a util.Block with the height set.
-func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*util.Block, error) {
+func dbFetchBlockByNode(
+	dbTx database.Tx, node *blockNode) (*util.Block, error) {
 	// Load the raw block bytes from the database.
 	blockBytes, err := dbTx.FetchBlock(&node.hash)
 	if err != nil {
@@ -1013,7 +1047,8 @@ func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*util.Block, error) 
 }
 
 // dbStoreBlockNode stores the block header and validation status to the block index bucket. This overwrites the current entry if there exists one.
-func dbStoreBlockNode(dbTx database.Tx, node *blockNode) error {
+func dbStoreBlockNode(
+	dbTx database.Tx, node *blockNode) error {
 	// Serialize block data to be stored.
 	w := bytes.NewBuffer(make([]byte, 0, blockHdrSize+1))
 	header := node.Header()
@@ -1033,7 +1068,8 @@ func dbStoreBlockNode(dbTx database.Tx, node *blockNode) error {
 }
 
 // dbStoreBlock stores the provided block in the database if it is not already there. The full block data is written to ffldb.
-func dbStoreBlock(dbTx database.Tx, block *util.Block) error {
+func dbStoreBlock(
+	dbTx database.Tx, block *util.Block) error {
 	hasBlock, err := dbTx.HasBlock(block.Hash())
 	if err != nil {
 		return err
@@ -1045,7 +1081,8 @@ func dbStoreBlock(dbTx database.Tx, block *util.Block) error {
 }
 
 // blockIndexKey generates the binary key for an entry in the block index bucket. The key is composed of the block height encoded as a big-endian 32-bit unsigned int followed by the 32 byte block hash.
-func blockIndexKey(blockHash *chainhash.Hash, blockHeight uint32) []byte {
+func blockIndexKey(
+	blockHash *chainhash.Hash, blockHeight uint32) []byte {
 	indexKey := make([]byte, chainhash.HashSize+4)
 	binary.BigEndian.PutUint32(indexKey[0:4], blockHeight)
 	copy(indexKey[4:chainhash.HashSize+4], blockHash[:])

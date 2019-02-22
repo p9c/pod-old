@@ -25,7 +25,8 @@ type headerProgressLogger struct {
 // The progress message is templated as follows:
 //  {progressAction} {numProcessed} {blocks|block} in the last {timePeriod}
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
-func newBlockProgressLogger(progressMessage string,
+func newBlockProgressLogger(
+	progressMessage string,
 	entityType string, logger *cl.SubSystem) *headerProgressLogger {
 
 	return &headerProgressLogger{

@@ -11,7 +11,8 @@ const approxNodesPerWeek = 6 * 24 * 7
 var log2FloorMasks = []uint32{0xffff0000, 0xff00, 0xf0, 0xc, 0x2}
 
 // fastLog2Floor calculates and returns floor(log2(x)) in a constant 5 steps.
-func fastLog2Floor(n uint32) uint8 {
+func fastLog2Floor(
+	n uint32) uint8 {
 	rv := uint8(0)
 	exponent := uint8(16)
 	for i := 0; i < 5; i++ {
@@ -37,7 +38,8 @@ type chainView struct {
 
 // newChainView returns a new chain view for the given tip block node. Passing nil as the tip will result in a chain view that is not initialized. The tip
 // can be updated at any time via the setTip function.
-func newChainView(tip *blockNode) *chainView {
+func newChainView(
+	tip *blockNode) *chainView {
 	// The mutex is intentionally not held since this is a constructor.
 	var c chainView
 	c.setTip(tip)

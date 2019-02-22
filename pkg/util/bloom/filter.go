@@ -15,7 +15,8 @@ import (
 const ln2Squared = math.Ln2 * math.Ln2
 
 // minUint32 is a convenience function to return the minimum value of the two passed uint32 values.
-func minUint32(a, b uint32) uint32 {
+func minUint32(
+	a, b uint32) uint32 {
 	if a < b {
 		return a
 	}
@@ -31,7 +32,8 @@ type Filter struct {
 // NewFilter creates a new bloom filter instance, mainly to be used by SPV clients.  The tweak parameter is a random value added to the seed value.
 // The false positive rate is the probability of a false positive where 1.0 is "match everything" and zero is unachievable.  Thus, providing any false positive rates less than 0 or greater than 1 will be adjusted to the valid range.
 // For more information on what values to use for both elements and fprate, see https://en.wikipedia.org/wiki/Bloom_filter.
-func NewFilter(elements, tweak uint32, fprate float64, flags wire.BloomUpdateType) *Filter {
+func NewFilter(
+	elements, tweak uint32, fprate float64, flags wire.BloomUpdateType) *Filter {
 	// Massage the false positive rate to sane values.
 	if fprate > 1.0 {
 		fprate = 1.0
@@ -55,7 +57,8 @@ func NewFilter(elements, tweak uint32, fprate float64, flags wire.BloomUpdateTyp
 }
 
 // LoadFilter creates a new Filter instance with the given underlying wire.MsgFilterLoad.
-func LoadFilter(filter *wire.MsgFilterLoad) *Filter {
+func LoadFilter(
+	filter *wire.MsgFilterLoad) *Filter {
 	return &Filter{
 		msgFilterLoad: filter,
 	}

@@ -23,9 +23,6 @@ var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
 // DefaultShellConfigFile is the default configfile for shell
 var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf.json")
 
-// ShellConfig is the combined app and log levels configuration
-var ShellConfig = DefaultShellConfig(w.DefaultDataDir)
-
 // ShellCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var ShellCommand = climax.Command{
 	Name:  "shell",
@@ -174,106 +171,16 @@ var ShellCommand = climax.Command{
 	Handle: shellHandle,
 }
 
-func shellHandle(ctx climax.Context) int {
-	var dl string
-	var ok bool
-	if dl, ok = ctx.Get("debuglevel"); ok {
-		log <- cl.Tracef{"setting debug level %s", dl}
-		ShellConfig.Node.DebugLevel = dl
-		Log.SetLevel(dl)
-		ll := GetAllSubSystems()
-		for i := range ll {
-			ll[i].SetLevel(dl)
-		}
-	}
-	if ctx.Is("version") {
-		fmt.Println("pod/shell version", Version(),
-			"pod/node version", n.Version(),
-			"pod/wallet version", w.Version())
-		return 0
-	}
-	var datadir, dd, cfgFile string
-	datadir = util.AppDataDir("pod", false)
-	if dd, ok = ctx.Get("datadir"); ok {
-		ShellConfig.Node.DataDir = dd
-		ShellConfig.Wallet.DataDir = dd
-		datadir = dd
-	}
-	cfgFile = filepath.Join(datadir, "shell/conf.json")
-	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
-	if r, ok := ctx.Get("configfile"); ok {
-		ShellConfig.ConfigFile = r
-		cfgFile = r
-	}
-	if ctx.Is("init") {
-		log <- cl.Debug{"writing default configuration to", cfgFile}
-		WriteDefaultShellConfig(datadir)
-	} else {
-		log <- cl.Info{"loading configuration from", cfgFile}
-		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-			log <- cl.Wrn("configuration file does not exist, creating new one")
-			WriteDefaultShellConfig(datadir)
-		} else {
-			log <- cl.Debug{"reading app configuration from", cfgFile}
-			cfgData, err := ioutil.ReadFile(cfgFile)
-			if err != nil {
-				log <- cl.Error{"reading app config file", err.Error()}
-				WriteDefaultShellConfig(datadir)
-			} else {
-				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
-				err = json.Unmarshal(cfgData, &ShellConfig)
-				if err != nil {
-					log <- cl.Error{"parsing app config file", err.Error()}
-					WriteDefaultShellConfig(datadir)
-				}
-			}
-		}
-	}
-	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
-	log <- cl.Tracef{"parsed configuration:\n%s", string(j)}
-	configShell(&ctx, cfgFile)
-	j, _ = json.MarshalIndent(ShellConfig, "", "  ")
-	log <- cl.Tracef{"after configuration:\n%s", string(j)}
-	return runShell()
-}
-
-// WriteShellConfig creates and writes the config file in the requested location
-func WriteShellConfig(c *shell.Config) {
-	log <- cl.Dbg("writing config")
-	j, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		panic(err.Error())
-	}
-	j = append(j, '\n')
-	EnsureDir(c.ConfigFile)
-	err = ioutil.WriteFile(c.ConfigFile, j, 0600)
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
-// WriteDefaultShellConfig creates and writes a default config to the requested location
-func WriteDefaultShellConfig(datadir string) {
-	defCfg := DefaultShellConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		log <- cl.Error{"marshalling configuration", err}
-		panic(err)
-	}
-	j = append(j, '\n')
-	log <- cl.Trace{"JSON formatted config file\n", string(j)}
-	EnsureDir(defCfg.ConfigFile)
-	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing app config file", defCfg.ConfigFile, err}
-		panic(err)
-	}
-	// if we are writing default config we also want to use it
-	ShellConfig = defCfg
-}
+// ShellConfig is the combined app and log levels configuration
+var ShellConfig = DefaultShellConfig(
+	w.DefaultDataDir,
+)
 
 // DefaultShellConfig returns a default configuration
-func DefaultShellConfig(datadir string) *shell.Config {
+func DefaultShellConfig(
+	datadir string,
+) *shell.Config {
+
 	log <- cl.Dbg("getting default config")
 	u := GenKey()
 	p := GenKey()
@@ -342,4 +249,111 @@ func DefaultShellConfig(datadir string) *shell.Config {
 		},
 		Levels: GetDefaultLogLevelsConfig(),
 	}
+}
+
+// WriteDefaultShellConfig creates and writes a default config to the requested location
+func WriteDefaultShellConfig(
+	datadir string,
+) {
+
+	defCfg := DefaultShellConfig(datadir)
+	j, err := json.MarshalIndent(defCfg, "", "  ")
+	if err != nil {
+		log <- cl.Error{"marshalling configuration", err}
+		panic(err)
+	}
+	j = append(j, '\n')
+	log <- cl.Trace{"JSON formatted config file\n", string(j)}
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Error{"writing app config file", defCfg.ConfigFile, err}
+		panic(err)
+	}
+	// if we are writing default config we also want to use it
+	ShellConfig = defCfg
+}
+
+// WriteShellConfig creates and writes the config file in the requested location
+func WriteShellConfig(
+	c *shell.Config,
+) {
+
+	log <- cl.Dbg("writing config")
+	j, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		panic(err.Error())
+	}
+	j = append(j, '\n')
+	EnsureDir(c.ConfigFile)
+	err = ioutil.WriteFile(c.ConfigFile, j, 0600)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func shellHandle(
+	ctx climax.Context,
+) int {
+
+	var dl string
+	var ok bool
+	if dl, ok = ctx.Get("debuglevel"); ok {
+		log <- cl.Tracef{"setting debug level %s", dl}
+		ShellConfig.Node.DebugLevel = dl
+		Log.SetLevel(dl)
+		ll := GetAllSubSystems()
+		for i := range ll {
+			ll[i].SetLevel(dl)
+		}
+	}
+	if ctx.Is("version") {
+		fmt.Println("pod/shell version", Version(),
+			"pod/node version", n.Version(),
+			"pod/wallet version", w.Version())
+		return 0
+	}
+	var datadir, dd, cfgFile string
+	datadir = util.AppDataDir("pod", false)
+	if dd, ok = ctx.Get("datadir"); ok {
+		ShellConfig.Node.DataDir = dd
+		ShellConfig.Wallet.DataDir = dd
+		datadir = dd
+	}
+	cfgFile = filepath.Join(datadir, "shell/conf.json")
+	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+	if r, ok := ctx.Get("configfile"); ok {
+		ShellConfig.ConfigFile = r
+		cfgFile = r
+	}
+	if ctx.Is("init") {
+		log <- cl.Debug{"writing default configuration to", cfgFile}
+		WriteDefaultShellConfig(datadir)
+	} else {
+		log <- cl.Info{"loading configuration from", cfgFile}
+		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+			log <- cl.Wrn("configuration file does not exist, creating new one")
+			WriteDefaultShellConfig(datadir)
+		} else {
+			log <- cl.Debug{"reading app configuration from", cfgFile}
+			cfgData, err := ioutil.ReadFile(cfgFile)
+			if err != nil {
+				log <- cl.Error{"reading app config file", err.Error()}
+				WriteDefaultShellConfig(datadir)
+			} else {
+				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+				err = json.Unmarshal(cfgData, &ShellConfig)
+				if err != nil {
+					log <- cl.Error{"parsing app config file", err.Error()}
+					WriteDefaultShellConfig(datadir)
+				}
+			}
+		}
+	}
+	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
+	log <- cl.Tracef{"parsed configuration:\n%s", string(j)}
+	configShell(&ctx, cfgFile)
+	j, _ = json.MarshalIndent(ShellConfig, "", "  ")
+	log <- cl.Tracef{"after configuration:\n%s", string(j)}
+	return runShell()
 }

@@ -19,7 +19,8 @@ const (
 )
 
 // JoinNodes is a synchronization tool used to block until all passed nodes are fully synced with respect to an attribute. This function will block for a period of time, finally returning once all nodes are synced according to the passed JoinType. This function be used to to ensure all active test harnesses are at a consistent state before proceeding to an assertion or check within rpc tests.
-func JoinNodes(nodes []*Harness, joinType JoinType) error {
+func JoinNodes(
+	nodes []*Harness, joinType JoinType) error {
 	switch joinType {
 	case Blocks:
 		return syncBlocks(nodes)
@@ -30,7 +31,8 @@ func JoinNodes(nodes []*Harness, joinType JoinType) error {
 }
 
 // syncMempools blocks until all nodes have identical mempools.
-func syncMempools(nodes []*Harness) error {
+func syncMempools(
+	nodes []*Harness) error {
 	poolsMatch := false
 retry:
 	for !poolsMatch {
@@ -55,7 +57,8 @@ retry:
 }
 
 // syncBlocks blocks until all nodes report the same best chain.
-func syncBlocks(nodes []*Harness) error {
+func syncBlocks(
+	nodes []*Harness) error {
 	blocksMatch := false
 retry:
 	for !blocksMatch {
@@ -79,7 +82,8 @@ retry:
 }
 
 // ConnectNode establishes a new peer-to-peer connection between the "from" harness and the "to" harness.  The connection made is flagged as persistent, therefore in the case of disconnects, "from" will attempt to reestablish a connection to the "to" harness.
-func ConnectNode(from *Harness, to *Harness) error {
+func ConnectNode(
+	from *Harness, to *Harness) error {
 	peerInfo, err := from.Node.GetPeerInfo()
 	if err != nil {
 		return err
@@ -104,7 +108,8 @@ func ConnectNode(from *Harness, to *Harness) error {
 }
 
 // TearDownAll tears down all active test harnesses.
-func TearDownAll() error {
+func TearDownAll(
+	) error {
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 	for _, harness := range testInstances {
@@ -116,7 +121,8 @@ func TearDownAll() error {
 }
 
 // ActiveHarnesses returns a slice of all currently active test harnesses. A test harness if considered "active" if it has been created, but not yet torn down.
-func ActiveHarnesses() []*Harness {
+func ActiveHarnesses(
+	) []*Harness {
 	harnessStateMtx.RLock()
 	defer harnessStateMtx.RUnlock()
 	activeNodes := make([]*Harness, 0, len(testInstances))

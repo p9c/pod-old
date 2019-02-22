@@ -70,7 +70,8 @@ const (
 )
 
 // We want to use binaryRead and binaryWrite instead of binary.Read and binary.Write because those from the binary package do not return the number of bytes actually written or read.  We need to return this value to correctly support the io.ReaderFrom and io.WriterTo interfaces.
-func binaryRead(r io.Reader, order binary.ByteOrder, data interface{}) (n int64, err error) {
+func binaryRead(
+	r io.Reader, order binary.ByteOrder, data interface{}) (n int64, err error) {
 	var read int
 	buf := make([]byte, binary.Size(data))
 	if read, err = io.ReadFull(r, buf); err != nil {
@@ -80,7 +81,8 @@ func binaryRead(r io.Reader, order binary.ByteOrder, data interface{}) (n int64,
 }
 
 // See comment for binaryRead().
-func binaryWrite(w io.Writer, order binary.ByteOrder, data interface{}) (n int64, err error) {
+func binaryWrite(
+	w io.Writer, order binary.ByteOrder, data interface{}) (n int64, err error) {
 	buf := bytes.Buffer{}
 	if err = binary.Write(&buf, order, data); err != nil {
 		return 0, err
@@ -91,7 +93,8 @@ func binaryWrite(w io.Writer, order binary.ByteOrder, data interface{}) (n int64
 }
 
 // pubkeyFromPrivkey creates an encoded pubkey based on a 32-byte privkey.  The returned pubkey is 33 bytes if compressed, or 65 bytes if uncompressed.
-func pubkeyFromPrivkey(privkey []byte, compress bool) (pubkey []byte) {
+func pubkeyFromPrivkey(
+	privkey []byte, compress bool) (pubkey []byte) {
 	_, pk := ec.PrivKeyFromBytes(ec.S256(), privkey)
 
 	if compress {
@@ -100,7 +103,8 @@ func pubkeyFromPrivkey(privkey []byte, compress bool) (pubkey []byte) {
 	return pk.SerializeUncompressed()
 }
 
-func keyOneIter(passphrase, salt []byte, memReqts uint64) []byte {
+func keyOneIter(
+	passphrase, salt []byte, memReqts uint64) []byte {
 	saltedpass := append(passphrase, salt...)
 	lutbl := make([]byte, memReqts)
 
@@ -142,7 +146,8 @@ func keyOneIter(passphrase, salt []byte, memReqts uint64) []byte {
 // based on the ROMix algorithm described in Colin Percival's paper
 // "Stronger Key Derivation via Sequential Memory-Hard Functions"
 // (http://www.tarsnap.com/scrypt/scrypt.pdf).
-func kdf(passphrase []byte, params *kdfParameters) []byte {
+func kdf(
+	passphrase []byte, params *kdfParameters) []byte {
 	masterKey := passphrase
 	for i := uint32(0); i < params.nIter; i++ {
 		masterKey = keyOneIter(masterKey, params.salt[:], params.mem)
@@ -150,7 +155,8 @@ func kdf(passphrase []byte, params *kdfParameters) []byte {
 	return masterKey
 }
 
-func pad(size int, b []byte) []byte {
+func pad(
+	size int, b []byte) []byte {
 	// Prevent a possible panic if the input exceeds the expected size.
 	if len(b) > size {
 		size = len(b)
@@ -164,7 +170,8 @@ func pad(size int, b []byte) []byte {
 // chainedPrivKey deterministically generates a new private key using a
 // previous address and chaincode.  privkey and chaincode must be 32
 // bytes long, and pubkey may either be 33 or 65 bytes.
-func chainedPrivKey(privkey, pubkey, chaincode []byte) ([]byte, error) {
+func chainedPrivKey(
+	privkey, pubkey, chaincode []byte) ([]byte, error) {
 	if len(privkey) != 32 {
 		return nil, fmt.Errorf("invalid privkey length %d (must be 32)",
 			len(privkey))
@@ -196,7 +203,8 @@ func chainedPrivKey(privkey, pubkey, chaincode []byte) ([]byte, error) {
 // chainedPubKey deterministically generates a new public key using a
 // previous public key and chaincode.  pubkey must be 33 or 65 bytes, and
 // chaincode must be 32 bytes long.
-func chainedPubKey(pubkey, chaincode []byte) ([]byte, error) {
+func chainedPubKey(
+	pubkey, chaincode []byte) ([]byte, error) {
 	var compressed bool
 	switch n := len(pubkey); n {
 	case ec.PubKeyBytesLenUncompressed:
@@ -495,7 +503,8 @@ type transactionHashKey string
 
 type comment []byte
 
-func getAddressKey(addr util.Address) addressKey {
+func getAddressKey(
+	addr util.Address) addressKey {
 	return addressKey(addr.ScriptAddress())
 }
 
@@ -534,7 +543,8 @@ type Store struct {
 }
 
 // New creates and initializes a new Store.  name's and desc's byte length must not exceed 32 and 256 bytes, respectively.  All address private keys are encrypted with passphrase.  The key store is returned locked.
-func New(dir string, desc string, passphrase []byte, net *chaincfg.Params,
+func New(
+	dir string, desc string, passphrase []byte, net *chaincfg.Params,
 	createdAt *BlockStamp) (*Store, error) {
 
 	// Check sizes of inputs.
@@ -851,7 +861,8 @@ func (s *Store) WriteIfDirty() error {
 // does not exist, the error from the os package will be returned, and can
 // be checked with os.IsNotExist to differentiate missing file errors from
 // others (including deserialization).
-func OpenDir(dir string) (*Store, error) {
+func OpenDir(
+	dir string) (*Store, error) {
 	path := filepath.Join(dir, Filename)
 	fi, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
@@ -968,7 +979,8 @@ func (s *Store) ChangePassphrase(new []byte) error {
 	return nil
 }
 
-func zero(b []byte) {
+func zero(
+	b []byte) {
 	for i := range b {
 		b[i] = 0
 	}
@@ -1968,7 +1980,8 @@ type unusedSpace struct {
 	rfvs   []readerFromVersion
 }
 
-func newUnusedSpace(nBytes int, rfvs ...readerFromVersion) *unusedSpace {
+func newUnusedSpace(
+	nBytes int, rfvs ...readerFromVersion) *unusedSpace {
 	return &unusedSpace{
 		nBytes: nBytes,
 		rfvs:   rfvs,
@@ -2120,7 +2133,8 @@ type PubKeyAddress interface {
 // newBtcAddress initializes and returns a new address.  privkey must
 // be 32 bytes.  iv must be 16 bytes, or nil (in which case it is
 // randomly generated).
-func newBtcAddress(wallet *Store, privkey, iv []byte, bs *BlockStamp, compressed bool) (addr *btcAddress, err error) {
+func newBtcAddress(
+	wallet *Store, privkey, iv []byte, bs *BlockStamp, compressed bool) (addr *btcAddress, err error) {
 	if len(privkey) != 32 {
 		return nil, errors.New("private key is not 32 bytes")
 	}
@@ -2142,7 +2156,8 @@ func newBtcAddress(wallet *Store, privkey, iv []byte, bs *BlockStamp, compressed
 // unknown (at the time) private key that must be found later.  pubkey must be
 // 33 or 65 bytes, and iv must be 16 bytes or empty (in which case it is
 // randomly generated).
-func newBtcAddressWithoutPrivkey(s *Store, pubkey, iv []byte, bs *BlockStamp) (addr *btcAddress, err error) {
+func newBtcAddressWithoutPrivkey(
+	s *Store, pubkey, iv []byte, bs *BlockStamp) (addr *btcAddress, err error) {
 	var compressed bool
 	switch n := len(pubkey); n {
 	case ec.PubKeyBytesLenCompressed:
@@ -2195,7 +2210,8 @@ func newBtcAddressWithoutPrivkey(s *Store, pubkey, iv []byte, bs *BlockStamp) (a
 // newRootBtcAddress generates a new address, also setting the
 // chaincode and chain index to represent this address as a root
 // address.
-func newRootBtcAddress(s *Store, privKey, iv, chaincode []byte,
+func newRootBtcAddress(
+	s *Store, privKey, iv, chaincode []byte,
 	bs *BlockStamp) (addr *btcAddress, err error) {
 
 	if len(chaincode) != 32 {
@@ -2766,7 +2782,8 @@ type ScriptAddress interface {
 
 // newScriptAddress initializes and returns a new P2SH address.
 // iv must be 16 bytes, or nil (in which case it is randomly generated).
-func newScriptAddress(s *Store, script []byte, bs *BlockStamp) (addr *scriptAddress, err error) {
+func newScriptAddress(
+	s *Store, script []byte, bs *BlockStamp) (addr *scriptAddress, err error) {
 	class, addresses, reqSigs, err :=
 		txscript.ExtractPkScriptAddrs(script, s.netParams())
 	if err != nil {
@@ -3013,13 +3030,15 @@ func (sa *scriptAddress) watchingCopy(s *Store) walletAddress {
 	}
 }
 
-func walletHash(b []byte) uint32 {
+func walletHash(
+	b []byte) uint32 {
 	sum := chainhash.DoubleHashB(b)
 	return binary.LittleEndian.Uint32(sum)
 }
 
 // TODO(jrick) add error correction.
-func verifyAndFix(b []byte, chk uint32) error {
+func verifyAndFix(
+	b []byte, chk uint32) error {
 	if walletHash(b) != chk {
 		return ErrChecksumMismatch
 	}
@@ -3035,7 +3054,8 @@ type kdfParameters struct {
 // computeKdfParameters returns best guess parameters to the
 // memory-hard key derivation function to make the computation last
 // targetSec seconds, while using no more than maxMem bytes of memory.
-func computeKdfParameters(targetSec float64, maxMem uint64) (*kdfParameters, error) {
+func computeKdfParameters(
+	targetSec float64, maxMem uint64) (*kdfParameters, error) {
 	params := &kdfParameters{}
 	if _, err := rand.Read(params.salt[:]); err != nil {
 		return nil, err

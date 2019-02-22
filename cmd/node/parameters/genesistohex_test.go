@@ -12,7 +12,8 @@ var (
 	regtestnetGenesisHash, _ = hex.DecodeString(`69e9b79e220ea183dc2a52c825667e486bba65e2f64d237b578559ab60379181`)
 	regtestnetGenesisBlock, _ = hex.DecodeString(`020000000000000000000000000000000000000000000000000000000000000000000000b79a9b6f31a9d7d25a1c4b0ec7a671dc56ce7663c380f2d2513a8e65e4ea43c8d4e5c953ffff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3a04ffff001d0104324e5954696d657320323031342d30372d3139202d2044656c6c20426567696e7320416363657074696e6720426974636f696effffffff0100e8764817000000434104e0d27172510c6806889740edafe6e63eb23fca32786fccfdb282bb2876a9f43b228245df057661ff943f6150716a20ea1851e8a7e9f54e620297664618438daeac00000000`)
 )
-func TestGenesisToHex(t *testing.T) {
+func TestGenesisToHex(
+	t *testing.T) {
 	printByteAssignments("mainnetGenesisHash", *rev(mainnetGenesisHash))
 	printByteAssignments("mainnetGenesisBlock", mainnetGenesisBlock)
 	printByteAssignments("testnetGenesisHash", *rev(testnetGenesisHash))
@@ -20,12 +21,14 @@ func TestGenesisToHex(t *testing.T) {
 	printByteAssignments("regtestnetGenesisHash", *rev(regtestnetGenesisHash))
 	printByteAssignments("regtestnetGenesisBlock", regtestnetGenesisBlock)
 }
-func printByteAssignments(name string, in []byte) {
+func printByteAssignments(
+	name string, in []byte) {
 	fmt.Print(name, "=[]byte{\n")
 	printGoHexes(in)
 	fmt.Print("}\n")
 }
-func printGoHexes(in []byte) {
+func printGoHexes(
+	in []byte) {
 	fmt.Print("\t")
 	for i := range in {
 		if i%8 == 0 && i != 0 {
@@ -36,7 +39,8 @@ func printGoHexes(in []byte) {
 	}
 	fmt.Println()
 }
-func rev(in []byte) (out *[]byte) {
+func rev(
+	in []byte) (out *[]byte) {
 	o := make([]byte, len(in))
 	out = &o
 	for i := range in {
@@ -44,10 +48,12 @@ func rev(in []byte) (out *[]byte) {
 	}
 	return
 }
-func hx(in []byte) string {
+func hx(
+	in []byte) string {
 	return hex.EncodeToString(in)
 }
-func split(in []byte, pos int) (out []byte, piece []byte) {
+func split(
+	in []byte, pos int) (out []byte, piece []byte) {
 	out = in[pos:]
 	piece = in[:pos]
 	return

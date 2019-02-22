@@ -10,7 +10,8 @@ import (
 )
 
 // TestInvVectStringer tests the stringized output for inventory vector types.
-func TestInvTypeStringer(t *testing.T) {
+func TestInvTypeStringer(
+	t *testing.T) {
 	tests := []struct {
 		in   InvType
 		want string
@@ -32,7 +33,8 @@ func TestInvTypeStringer(t *testing.T) {
 }
 
 // TestInvVect tests the InvVect API.
-func TestInvVect(t *testing.T) {
+func TestInvVect(
+	t *testing.T) {
 	ivType := InvTypeBlock
 	hash := chainhash.Hash{}
 	// Ensure we get the same payload and signature back out.
@@ -48,7 +50,8 @@ func TestInvVect(t *testing.T) {
 }
 
 // TestInvVectWire tests the InvVect wire encode and decode for various protocol versions and supported inventory vector types.
-func TestInvVectWire(t *testing.T) {
+func TestInvVectWire(
+	t *testing.T) {
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	baseHash, err := chainhash.NewHashFromStr(hashStr)

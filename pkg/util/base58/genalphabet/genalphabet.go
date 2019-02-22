@@ -26,13 +26,15 @@ var b58 = [256]byte{`)
 	space    = []byte(" ")
 	nl       = []byte("\n")
 )
-func write(w io.Writer, b []byte) {
+func write(
+	w io.Writer, b []byte) {
 	_, err := w.Write(b)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-func main() {
+func main(
+	) {
 	fi, err := os.Create("alphabet.go")
 	if err != nil {
 		log.Fatal(err)

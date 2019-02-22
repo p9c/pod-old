@@ -7,7 +7,8 @@ import (
 	"time"
 )
 
-func TestClog(t *testing.T) {
+func TestClog(
+	t *testing.T) {
 	logfile, err := os.OpenFile("/tmp/clog", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -60,7 +61,8 @@ func TestClog(t *testing.T) {
 	close(Og)
 }
 
-func tests(ch *chan interface{}, done chan bool) {
+func tests(
+	ch *chan interface{}, done chan bool) {
 
 	*ch <- Ftl("fatal")
 	*ch <- Fatal{1, "test", Og}

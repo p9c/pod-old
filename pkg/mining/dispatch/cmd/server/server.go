@@ -16,7 +16,8 @@ var (
 	mapWrite   = false
 )
 
-func main() {
+func main(
+	) {
 	server.ClientConnect = clientConnect
 	server.ClientDisconnect = clientDisconnect
 	server.ClientTimeout = clientTimeout
@@ -29,7 +30,8 @@ func main() {
 
 // Client callbacks
 
-func serverConnect(conn *rmnp.Connection, data []byte) {
+func serverConnect(
+	conn *rmnp.Connection, data []byte) {
 	// fmt.Println("serverConnect")
 	originAddr := conn.Addr.String()
 	for conn.Addr != nil {
@@ -45,7 +47,8 @@ func serverConnect(conn *rmnp.Connection, data []byte) {
 	}
 }
 
-func serverDisconnect(conn *rmnp.Connection, data []byte) {
+func serverDisconnect(
+	conn *rmnp.Connection, data []byte) {
 	fmt.Println("server disconnect")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
@@ -57,7 +60,8 @@ func serverDisconnect(conn *rmnp.Connection, data []byte) {
 	conn.Disconnect([]byte("disconn"))
 }
 
-func serverTimeout(conn *rmnp.Connection, data []byte) {
+func serverTimeout(
+	conn *rmnp.Connection, data []byte) {
 	// fmt.Println("server timeout")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
@@ -69,20 +73,23 @@ func serverTimeout(conn *rmnp.Connection, data []byte) {
 	conn.Disconnect([]byte("timeout"))
 }
 
-func handleClientPacket(conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
+func handleClientPacket(
+	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 	fmt.Println("->", string(data))
 }
 
 // Server callbacks
 
-func clientConnect(conn *rmnp.Connection, data []byte) {
+func clientConnect(
+	conn *rmnp.Connection, data []byte) {
 	// fmt.Println("clientConnection")
 	if string(data) != "kopach" {
 		conn.Disconnect([]byte("wrong handshake"))
 	}
 }
 
-func clientDisconnect(conn *rmnp.Connection, data []byte) {
+func clientDisconnect(
+	conn *rmnp.Connection, data []byte) {
 	// fmt.Println("client disconnect")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
@@ -94,7 +101,8 @@ func clientDisconnect(conn *rmnp.Connection, data []byte) {
 	conn.Disconnect([]byte("timeout"))
 }
 
-func clientTimeout(conn *rmnp.Connection, data []byte) {
+func clientTimeout(
+	conn *rmnp.Connection, data []byte) {
 	// fmt.Println("client timeout")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
@@ -106,7 +114,8 @@ func clientTimeout(conn *rmnp.Connection, data []byte) {
 	conn.Disconnect([]byte("timeout"))
 }
 
-func validateClient(addr *net.UDPAddr, data []byte) (valid bool) {
+func validateClient(
+	addr *net.UDPAddr, data []byte) (valid bool) {
 	// fmt.Println("validateClient")
 	valid = string(data) == "kopach"
 	if !valid {
@@ -115,7 +124,8 @@ func validateClient(addr *net.UDPAddr, data []byte) (valid bool) {
 	return
 }
 
-func handleServerPacket(conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
+func handleServerPacket(
+	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
 	switch {

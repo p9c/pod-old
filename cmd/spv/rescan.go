@@ -54,12 +54,14 @@ type rescanOptions struct {
 // later options overriding earlier ones.
 type RescanOption func(ro *rescanOptions)
 
-func defaultRescanOptions() *rescanOptions {
+func defaultRescanOptions(
+	) *rescanOptions {
 	return &rescanOptions{}
 }
 
 // QueryOptions pass onto the underlying queries.
-func QueryOptions(options ...QueryOption) RescanOption {
+func QueryOptions(
+	options ...QueryOption) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.queryOptions = options
 	}
@@ -67,7 +69,8 @@ func QueryOptions(options ...QueryOption) RescanOption {
 
 // NotificationHandlers specifies notification handlers for the rescan. These
 // will always run in the same goroutine as the caller.
-func NotificationHandlers(ntfn rpcclient.NotificationHandlers) RescanOption {
+func NotificationHandlers(
+	ntfn rpcclient.NotificationHandlers) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.ntfn = ntfn
 	}
@@ -79,7 +82,8 @@ func NotificationHandlers(ntfn rpcclient.NotificationHandlers) RescanOption {
 // block. This block is assumed to already be known, and no notifications will
 // be sent for this block. The rescan uses the latter of StartBlock and
 // StartTime.
-func StartBlock(startBlock *waddrmgr.BlockStamp) RescanOption {
+func StartBlock(
+	startBlock *waddrmgr.BlockStamp) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.startBlock = startBlock
 	}
@@ -90,7 +94,8 @@ func StartBlock(startBlock *waddrmgr.BlockStamp) RescanOption {
 // timestamp. When using this, it is advisable to use a margin of error and
 // start rescans slightly earlier than required. The rescan uses the latter of
 // StartBlock and StartTime.
-func StartTime(startTime time.Time) RescanOption {
+func StartTime(
+	startTime time.Time) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.startTime = startTime
 	}
@@ -102,7 +107,8 @@ func StartTime(startTime time.Time) RescanOption {
 // channel MUST be specified as Rescan will sync to the tip of the blockchain
 // and continue to stay in sync and pass notifications. This is enforced at
 // runtime.
-func EndBlock(endBlock *waddrmgr.BlockStamp) RescanOption {
+func EndBlock(
+	endBlock *waddrmgr.BlockStamp) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.endBlock = endBlock
 	}
@@ -112,7 +118,8 @@ func EndBlock(endBlock *waddrmgr.BlockStamp) RescanOption {
 // function adds to the list of addresses being watched rather than replacing
 // the list. Each time a transaction spends to the specified address, the
 // outpoint is added to the WatchOutPoints list.
-func WatchAddrs(watchAddrs ...util.Address) RescanOption {
+func WatchAddrs(
+	watchAddrs ...util.Address) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.watchAddrs = append(ro.watchAddrs, watchAddrs...)
 	}
@@ -133,7 +140,8 @@ type InputWithScript struct {
 // require the script as we'll match on the script, but then notify based on
 // the outpoint. Each call to this function adds to the list of outpoints being
 // watched rather than replacing the list.
-func WatchInputs(watchInputs ...InputWithScript) RescanOption {
+func WatchInputs(
+	watchInputs ...InputWithScript) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.watchInputs = append(ro.watchInputs, watchInputs...)
 	}
@@ -141,7 +149,8 @@ func WatchInputs(watchInputs ...InputWithScript) RescanOption {
 
 // TxIdx specifies a hint transaction index into the block in which the UTXO is
 // created (eg, coinbase is 0, next transaction is 1, etc.)
-func TxIdx(txIdx uint32) RescanOption {
+func TxIdx(
+	txIdx uint32) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.txIdx = txIdx
 	}
@@ -151,7 +160,8 @@ func TxIdx(txIdx uint32) RescanOption {
 // an indefinite rescan (one with no EndBlock set) know it should gracefully
 // shut down. If this isn't specified, an end block MUST be specified as Rescan
 // must know when to stop. This is enforced at runtime.
-func QuitChan(quit <-chan struct{}) RescanOption {
+func QuitChan(
+	quit <-chan struct{}) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.quit = quit
 	}
@@ -159,7 +169,8 @@ func QuitChan(quit <-chan struct{}) RescanOption {
 
 // updateChan specifies an update channel. This is for internal use by the
 // Rescan.Update functionality.
-func updateChan(update <-chan *updateOptions) RescanOption {
+func updateChan(
+	update <-chan *updateOptions) RescanOption {
 	return func(ro *rescanOptions) {
 		ro.update = update
 	}
@@ -1109,19 +1120,22 @@ type updateOptions struct {
 // UpdateOption is a functional option argument for the Rescan.Update method.
 type UpdateOption func(uo *updateOptions)
 
-func defaultUpdateOptions() *updateOptions {
+func defaultUpdateOptions(
+	) *updateOptions {
 	return &updateOptions{}
 }
 
 // AddAddrs adds addresses to the filter.
-func AddAddrs(addrs ...util.Address) UpdateOption {
+func AddAddrs(
+	addrs ...util.Address) UpdateOption {
 	return func(uo *updateOptions) {
 		uo.addrs = append(uo.addrs, addrs...)
 	}
 }
 
 // AddInputs adds inputs to watch to the filter.
-func AddInputs(inputs ...InputWithScript) UpdateOption {
+func AddInputs(
+	inputs ...InputWithScript) UpdateOption {
 	return func(uo *updateOptions) {
 		uo.inputs = append(uo.inputs, inputs...)
 	}
@@ -1131,7 +1145,8 @@ func AddInputs(inputs ...InputWithScript) UpdateOption {
 // to the block immediately after the specified height) and restarts it from
 // that point with the (possibly) newly expanded filter. Especially useful when
 // called in the same Update() as one of the previous three options.
-func Rewind(height uint32) UpdateOption {
+func Rewind(
+	height uint32) UpdateOption {
 	return func(uo *updateOptions) {
 		uo.rewind = height
 	}
@@ -1139,7 +1154,8 @@ func Rewind(height uint32) UpdateOption {
 
 // DisableDisconnectedNtfns tells the rescan not to send `OnBlockDisconnected`
 // and `OnFilteredBlockDisconnected` notifications when rewinding.
-func DisableDisconnectedNtfns(disabled bool) UpdateOption {
+func DisableDisconnectedNtfns(
+	disabled bool) UpdateOption {
 	return func(uo *updateOptions) {
 		uo.disableDisconnectedNtfns = disabled
 	}

@@ -17,7 +17,8 @@ type ExplicitString struct {
 }
 
 // NewExplicitString creates a string flag with the provided default value.
-func NewExplicitString(defaultValue string) *ExplicitString {
+func NewExplicitString(
+	defaultValue string) *ExplicitString {
 	return &ExplicitString{Value: defaultValue, explicitlySet: false}
 }
 

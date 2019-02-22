@@ -54,7 +54,8 @@ func (msg *MsgGetCFilters) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgGetCFilters returns a new bitcoin getcfilters message that conforms to the Message interface using the passed parameters and defaults for the remaining fields.
-func NewMsgGetCFilters(filterType FilterType, startHeight uint32,
+func NewMsgGetCFilters(
+	filterType FilterType, startHeight uint32,
 	stopHash *chainhash.Hash) *MsgGetCFilters {
 	return &MsgGetCFilters{
 		FilterType:  filterType,

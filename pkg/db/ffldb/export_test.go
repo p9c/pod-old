@@ -6,7 +6,8 @@ package ffldb
 import "git.parallelcoin.io/pod/pkg/database"
 
 // TstRunWithMaxBlockFileSize runs the passed function with the maximum allowed file size for the database set to the provided value.  The value will be set back to the original value upon completion.
-func TstRunWithMaxBlockFileSize(idb database.DB, size uint32, fn func()) {
+func TstRunWithMaxBlockFileSize(
+	idb database.DB, size uint32, fn func()) {
 	ffldb := idb.(*db)
 	origSize := ffldb.store.maxBlockFileSize
 	ffldb.store.maxBlockFileSize = size

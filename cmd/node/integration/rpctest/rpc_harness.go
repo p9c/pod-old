@@ -58,7 +58,8 @@ type Harness struct {
 }
 
 // New creates and initializes new instance of the rpc test harness. Optionally, websocket handlers and a specified configuration may be passed. In the case that a nil config is passed, a default configuration will be used. NOTE: This function is safe for concurrent access.
-func New(activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
+func New(
+	activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
 	extraArgs []string) (*Harness, error) {
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
@@ -316,7 +317,8 @@ func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 }
 
 // generateListeningAddresses returns two strings representing listening addresses designated for the current rpc test. If there haven't been any test instances created, the default ports are used. Otherwise, in order to support multiple test nodes running at once, the p2p and rpc port are incremented after each initialization.
-func generateListeningAddresses() (string, string) {
+func generateListeningAddresses(
+	) (string, string) {
 	localhost := "127.0.0.1"
 	portString := func(minPort, maxPort int) string {
 		port := minPort + numTestInstances + ((20 * processID) %
@@ -329,7 +331,8 @@ func generateListeningAddresses() (string, string) {
 }
 
 // baseDir is the directory path of the temp directory for all rpctest files.
-func baseDir() (string, error) {
+func baseDir(
+	) (string, error) {
 	dirPath := filepath.Join(os.TempDir(), "pod", "rpctest")
 	err := os.MkdirAll(dirPath, 0755)
 	return dirPath, err

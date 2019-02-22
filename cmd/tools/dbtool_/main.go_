@@ -22,7 +22,8 @@ var (
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
-func loadBlockDB() (database.DB, error) {
+func loadBlockDB(
+	) (database.DB, error) {
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + cfg.DbType
 	dbPath := filepath.Join(cfg.DataDir, dbName)
@@ -50,7 +51,8 @@ func loadBlockDB() (database.DB, error) {
 }
 
 // realMain is the real main function for the utility.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.
-func realMain() error {
+func realMain(
+	) error {
 	// Setup logging.
 	backendLogger := l.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
@@ -90,7 +92,8 @@ func realMain() error {
 	}
 	return nil
 }
-func main() {
+func main(
+	) {
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// Work around defer not working after os.Exit()

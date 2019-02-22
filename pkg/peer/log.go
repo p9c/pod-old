@@ -16,7 +16,8 @@ var Log = cl.NewSubSystem("pkg/peer       ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
-func UseLogger(logger *cl.SubSystem) {
+func UseLogger(
+	logger *cl.SubSystem) {
 	Log = logger
 	log = Log.Ch
 }
@@ -32,12 +33,14 @@ type logClosure func() string
 func (c logClosure) String() string {
 	return c()
 }
-func newLogClosure(c func() string) logClosure {
+func newLogClosure(
+	c func() string) logClosure {
 	return logClosure(c)
 }
 
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
-func directionString(inbound bool) string {
+func directionString(
+	inbound bool) string {
 	if inbound {
 		return "inbound"
 	}
@@ -45,7 +48,8 @@ func directionString(inbound bool) string {
 }
 
 // formatLockTime returns a transaction lock time as a human-readable string.
-func formatLockTime(lockTime uint32) string {
+func formatLockTime(
+	lockTime uint32) string {
 	// The lock time field of a transaction is either a block height at which the transaction is finalized or a timestamp depending on if the value is before the lockTimeThreshold.  When it is under the threshold it is a block height.
 	if lockTime < txscript.LockTimeThreshold {
 		return fmt.Sprintf("height %d", lockTime)
@@ -54,7 +58,8 @@ func formatLockTime(lockTime uint32) string {
 }
 
 // invSummary returns an inventory message as a human-readable string.
-func invSummary(invList []*wire.InvVect) string {
+func invSummary(
+	invList []*wire.InvVect) string {
 	// No inventory.
 	invLen := len(invList)
 	if invLen == 0 {
@@ -82,7 +87,8 @@ func invSummary(invList []*wire.InvVect) string {
 }
 
 // locatorSummary returns a block locator as a human-readable string.
-func locatorSummary(locator []*chainhash.Hash, stopHash *chainhash.Hash) string {
+func locatorSummary(
+	locator []*chainhash.Hash, stopHash *chainhash.Hash) string {
 	if len(locator) > 0 {
 		return fmt.Sprintf("locator %s, stop %s", locator[0], stopHash)
 	}
@@ -90,7 +96,8 @@ func locatorSummary(locator []*chainhash.Hash, stopHash *chainhash.Hash) string 
 }
 
 // sanitizeString strips any characters which are even remotely dangerous, such as html control characters, from the passed string.  It also limits it to the passed maximum size, which can be 0 for unlimited.  When the string is limited, it will also add "..." to the string to indicate it was truncated.
-func sanitizeString(str string, maxLength uint) string {
+func sanitizeString(
+	str string, maxLength uint) string {
 	const safeChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY" +
 		"Z01234567890 .,;_/:?@"
 	// Strip any characters not in the safeChars string removed.
@@ -109,7 +116,8 @@ func sanitizeString(str string, maxLength uint) string {
 }
 
 // messageSummary returns a human-readable string which summarizes a message. Not all messages have or need a summary.  This is used for debug logging.
-func messageSummary(msg wire.Message) string {
+func messageSummary(
+	msg wire.Message) string {
 	switch msg := msg.(type) {
 	case *wire.MsgVersion:
 		return fmt.Sprintf("agent %s, pver %d, block %d",

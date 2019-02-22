@@ -14,7 +14,8 @@ const (
 	p2shScriptSize  = 23
 )
 
-func makeInts(value int, n int) []int {
+func makeInts(
+	value int, n int) []int {
 	v := make([]int, n)
 	for i := range v {
 		v[i] = value
@@ -22,7 +23,8 @@ func makeInts(value int, n int) []int {
 	return v
 }
 
-func TestEstimateSerializeSize(t *testing.T) {
+func TestEstimateSerializeSize(
+	t *testing.T) {
 	tests := []struct {
 		InputCount           int
 		OutputScriptLengths  []int
@@ -63,7 +65,8 @@ func TestEstimateSerializeSize(t *testing.T) {
 	}
 }
 
-func TestEstimateVirtualSize(t *testing.T) {
+func TestEstimateVirtualSize(
+	t *testing.T) {
 
 	type estimateVSizeTest struct {
 		tx              func() (*wire.MsgTx, error)

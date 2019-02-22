@@ -39,13 +39,15 @@ var (
 )
 
 // This function reverses the bytes in a byte array
-func byteswap(buf []byte) {
+func byteswap(
+	buf []byte) {
 	length := len(buf)
 	for i := 0; i < length/2; i++ {
 		buf[i], buf[length-i-1] = buf[length-i-1], buf[i]
 	}
 }
-func initTransaction() (t transaction) {
+func initTransaction(
+	) (t transaction) {
 	t.version = 1
 	t.numInputs = 1
 	t.numOutputs = 1
@@ -56,7 +58,8 @@ func initTransaction() (t transaction) {
 	t.prevOutput = make([]byte, 32, 32)
 	return
 }
-func main() {
+func main(
+	) {
 	args := os.Args
 	if len(args) != 4 {
 		fmt.Println("Bitcoin fork genesis block generator")
@@ -180,7 +183,8 @@ func main() {
 	}
 	time.Sleep(time.Hour)
 }
-func findNonce(b []byte, bytes, bits uint32, start time.Time) []byte {
+func findNonce(
+	b []byte, bytes, bits uint32, start time.Time) []byte {
 	blockHeader := append([]byte(nil), b...)
 	unixtime = uint32(time.Now().Unix())
 	blockHeader[68] = byte(unixtime)
@@ -213,14 +217,16 @@ func findNonce(b []byte, bytes, bits uint32, start time.Time) []byte {
 		}
 	}
 }
-func joinBytes(segment ...[]byte) (joined []byte) {
+func joinBytes(
+	segment ...[]byte) (joined []byte) {
 	joined = make([]byte, 0)
 	for i := range segment {
 		joined = append(joined, segment[i]...)
 	}
 	return
 }
-func undertarget(hash []byte, bits uint32) bool {
+func undertarget(
+	hash []byte, bits uint32) bool {
 	// for i:=len(hash)-1; i>0; i-- { hash[i]=0 }
 	// fmt.Println(hash)
 	for i := len(hash) - 1; i > 0; i-- {
@@ -237,7 +243,8 @@ func undertarget(hash []byte, bits uint32) bool {
 	}
 	return true
 }
-func uint32tobytes(u uint32) []byte {
+func uint32tobytes(
+	u uint32) []byte {
 	b := make([]byte, 4)
 	b[0] = byte(u)
 	for i := uint(1); i < 4; i++ {
@@ -245,7 +252,8 @@ func uint32tobytes(u uint32) []byte {
 	}
 	return b
 }
-func bytestouint32(b []byte) uint32 {
+func bytestouint32(
+	b []byte) uint32 {
 	if len(b) > 4 {
 		return 0
 	}
@@ -255,7 +263,8 @@ func bytestouint32(b []byte) uint32 {
 	}
 	return u
 }
-func uint64tobytes(u uint64) []byte {
+func uint64tobytes(
+	u uint64) []byte {
 	b := make([]byte, 8)
 	b[0] = byte(u)
 	for i := uint(1); i < 8; i++ {

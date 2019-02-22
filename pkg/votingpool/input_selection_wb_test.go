@@ -18,7 +18,8 @@ var (
 	dustThreshold util.Amount = 1e4
 )
 
-func TestGetEligibleInputs(t *testing.T) {
+func TestGetEligibleInputs(
+	t *testing.T) {
 	tearDown, db, pool, store := TstCreatePoolAndTxStore(t)
 	defer tearDown()
 
@@ -76,7 +77,8 @@ func TestGetEligibleInputs(t *testing.T) {
 	checkUniqueness(t, eligibles)
 }
 
-func TestNextAddrWithVaryingHighestIndices(t *testing.T) {
+func TestNextAddrWithVaryingHighestIndices(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -135,7 +137,8 @@ func TestNextAddrWithVaryingHighestIndices(t *testing.T) {
 	}
 }
 
-func TestNextAddr(t *testing.T) {
+func TestNextAddr(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -216,7 +219,8 @@ func TestNextAddr(t *testing.T) {
 	}
 }
 
-func TestEligibleInputsAreEligible(t *testing.T) {
+func TestEligibleInputsAreEligible(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -237,7 +241,8 @@ func TestEligibleInputsAreEligible(t *testing.T) {
 	}
 }
 
-func TestNonEligibleInputsAreNotEligible(t *testing.T) {
+func TestNonEligibleInputsAreNotEligible(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -270,7 +275,8 @@ func TestNonEligibleInputsAreNotEligible(t *testing.T) {
 	}
 }
 
-func TestCreditSortingByAddress(t *testing.T) {
+func TestCreditSortingByAddress(
+	t *testing.T) {
 	teardown, db, pool := TstCreatePool(t)
 	defer teardown()
 
@@ -326,7 +332,8 @@ func TestCreditSortingByAddress(t *testing.T) {
 // newDummyCredit creates a new credit with the given hash and outpointIdx,
 // locked to the votingpool address identified by the given
 // series/index/branch.
-func newDummyCredit(t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, series uint32, index Index, branch Branch,
+func newDummyCredit(
+	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, series uint32, index Index, branch Branch,
 	txHash []byte, outpointIdx uint32) credit {
 	var hash chainhash.Hash
 	if err := hash.SetBytes(txHash); err != nil {
@@ -345,7 +352,8 @@ func newDummyCredit(t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, series 
 	return newCredit(c, *addr)
 }
 
-func checkUniqueness(t *testing.T, credits byAddress) {
+func checkUniqueness(
+	t *testing.T, credits byAddress) {
 	type uniq struct {
 		series      uint32
 		branch      Branch
@@ -371,7 +379,8 @@ func checkUniqueness(t *testing.T, credits byAddress) {
 	}
 }
 
-func getPKScriptsForAddressRange(t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, seriesID uint32,
+func getPKScriptsForAddressRange(
+	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, seriesID uint32,
 	startBranch, stopBranch Branch, startIdx, stopIdx Index) [][]byte {
 	var pkScripts [][]byte
 	for idx := startIdx; idx <= stopIdx; idx++ {
@@ -382,7 +391,8 @@ func getPKScriptsForAddressRange(t *testing.T, dbtx walletdb.ReadWriteTx, pool *
 	return pkScripts
 }
 
-func checkWithdrawalAddressMatches(t *testing.T, addr *WithdrawalAddress, seriesID uint32,
+func checkWithdrawalAddressMatches(
+	t *testing.T, addr *WithdrawalAddress, seriesID uint32,
 	branch Branch, index Index) {
 	if addr.SeriesID() != seriesID {
 		t.Fatalf("Wrong seriesID; got %d, want %d", addr.SeriesID(), seriesID)

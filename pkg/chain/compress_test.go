@@ -7,7 +7,8 @@ import (
 )
 
 // hexToBytes converts the passed hex string into bytes and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called with hard-coded values.
-func hexToBytes(s string) []byte {
+func hexToBytes(
+	s string) []byte {
 	b, err := hex.DecodeString(s)
 	if err != nil {
 		panic("invalid hex in source file: " + s)
@@ -16,7 +17,8 @@ func hexToBytes(s string) []byte {
 }
 
 // TestVLQ ensures the variable length quantity serialization, deserialization, and size calculation works as expected.
-func TestVLQ(t *testing.T) {
+func TestVLQ(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		val        uint64
@@ -89,7 +91,8 @@ func TestVLQ(t *testing.T) {
 }
 
 // TestScriptCompression ensures the domain-specific script compression and decompression works as expected.
-func TestScriptCompression(t *testing.T) {
+func TestScriptCompression(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -205,7 +208,8 @@ func TestScriptCompression(t *testing.T) {
 }
 
 // TestScriptCompressionErrors ensures calling various functions related to script compression with incorrect data returns the expected results.
-func TestScriptCompressionErrors(t *testing.T) {
+func TestScriptCompressionErrors(
+	t *testing.T) {
 	t.Parallel()
 	// A nil script must result in a decoded size of 0.
 	if gotSize := decodeCompressedScriptSize(nil); gotSize != 0 {
@@ -228,7 +232,8 @@ func TestScriptCompressionErrors(t *testing.T) {
 }
 
 // TestAmountCompression ensures the domain-specific transaction output amount compression and decompression works as expected.
-func TestAmountCompression(t *testing.T) {
+func TestAmountCompression(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name         string
@@ -302,7 +307,8 @@ func TestAmountCompression(t *testing.T) {
 }
 
 // TestCompressedTxOut ensures the transaction output serialization and deserialization works as expected.
-func TestCompressedTxOut(t *testing.T) {
+func TestCompressedTxOut(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name       string
@@ -385,7 +391,8 @@ func TestCompressedTxOut(t *testing.T) {
 }
 
 // TestTxOutCompressionErrors ensures calling various functions related to txout compression with incorrect data returns the expected results.
-func TestTxOutCompressionErrors(t *testing.T) {
+func TestTxOutCompressionErrors(
+	t *testing.T) {
 	t.Parallel()
 	// A compressed txout with missing compressed script must error.
 	compressedTxOut := hexToBytes("00")

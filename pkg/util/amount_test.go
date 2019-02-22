@@ -7,7 +7,8 @@ import (
 	. "git.parallelcoin.io/pod/pkg/util"
 )
 
-func TestAmountCreation(t *testing.T) {
+func TestAmountCreation(
+	t *testing.T) {
 	tests := []struct {
 		name     string
 		amount   float64
@@ -102,7 +103,8 @@ func TestAmountCreation(t *testing.T) {
 		}
 	}
 }
-func TestAmountUnitConversions(t *testing.T) {
+func TestAmountUnitConversions(
+	t *testing.T) {
 	tests := []struct {
 		name      string
 		amount    Amount
@@ -185,7 +187,8 @@ func TestAmountUnitConversions(t *testing.T) {
 		}
 	}
 }
-func TestAmountMulF64(t *testing.T) {
+func TestAmountMulF64(
+	t *testing.T) {
 	tests := []struct {
 		name string
 		amt  Amount

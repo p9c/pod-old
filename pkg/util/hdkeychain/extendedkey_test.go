@@ -14,7 +14,8 @@ import (
 )
 
 // TestBIP0032Vectors tests the vectors provided by [BIP32] to ensure the derivation works as intended.
-func TestBIP0032Vectors(t *testing.T) {
+func TestBIP0032Vectors(
+	t *testing.T) {
 	// The master seeds for each of the two test vectors in [BIP32].
 	testVec1MasterHex := "000102030405060708090a0b0c0d0e0f"
 	testVec2MasterHex := "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542"
@@ -252,7 +253,8 @@ tests:
 }
 
 // TestPrivateDerivation tests several vectors which derive private keys from other private keys works as intended.
-func TestPrivateDerivation(t *testing.T) {
+func TestPrivateDerivation(
+	t *testing.T) {
 	// The private extended keys for test vectors in [BIP32].
 	testVec1MasterPrivKey := "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi"
 	testVec2MasterPrivKey := "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U"
@@ -373,7 +375,8 @@ tests:
 }
 
 // TestPublicDerivation tests several vectors which derive public keys from other public keys works as intended.
-func TestPublicDerivation(t *testing.T) {
+func TestPublicDerivation(
+	t *testing.T) {
 	// The public extended keys for test vectors in [BIP32].
 	testVec1MasterPubKey := "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
 	testVec2MasterPubKey := "xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB"
@@ -486,7 +489,8 @@ tests:
 }
 
 // TestGenenerateSeed ensures the GenerateSeed function works as intended.
-func TestGenenerateSeed(t *testing.T) {
+func TestGenenerateSeed(
+	t *testing.T) {
 	wantErr := errors.New("seed length must be between 128 and 512 bits")
 	tests := []struct {
 		name   string
@@ -520,7 +524,8 @@ func TestGenenerateSeed(t *testing.T) {
 }
 
 // TestExtendedKeyAPI ensures the API on the ExtendedKey type works as intended.
-func TestExtendedKeyAPI(t *testing.T) {
+func TestExtendedKeyAPI(
+	t *testing.T) {
 	tests := []struct {
 		name       string
 		extKey     string
@@ -621,7 +626,8 @@ func TestExtendedKeyAPI(t *testing.T) {
 }
 
 // TestNet ensures the network related APIs work as intended.
-func TestNet(t *testing.T) {
+func TestNet(
+	t *testing.T) {
 	tests := []struct {
 		name      string
 		key       string
@@ -748,7 +754,8 @@ func TestNet(t *testing.T) {
 }
 
 // TestErrors performs some negative tests for various invalid cases to ensure the errors are handled properly.
-func TestErrors(t *testing.T) {
+func TestErrors(
+	t *testing.T) {
 	// Should get an error when seed has too few bytes.
 	net := &chaincfg.MainNetParams
 	_, err := NewMaster(bytes.Repeat([]byte{0x00}, 15), net)
@@ -833,7 +840,8 @@ func TestErrors(t *testing.T) {
 }
 
 // TestZero ensures that zeroing an extended key works as intended.
-func TestZero(t *testing.T) {
+func TestZero(
+	t *testing.T) {
 	tests := []struct {
 		name   string
 		master string
@@ -966,7 +974,8 @@ func TestZero(t *testing.T) {
 }
 
 // TestMaximumDepth ensures that attempting to retrieve a child key when already at the maximum depth is not allowed.  The serialization of a BIP32 key uses uint8 to encode the depth.  This implicitly bounds the depth of the tree to 255 derivations.  Here we test that an error is returned after 'max uint8'.
-func TestMaximumDepth(t *testing.T) {
+func TestMaximumDepth(
+	t *testing.T) {
 	net := &chaincfg.MainNetParams
 	extKey, err := NewMaster([]byte(`abcd1234abcd1234abcd1234abcd1234`), net)
 	if err != nil {

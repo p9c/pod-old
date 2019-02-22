@@ -14,7 +14,8 @@ import (
 )
 
 // TestBlock tests the API for Block.
-func TestBlock(t *testing.T) {
+func TestBlock(
+	t *testing.T) {
 	b := util.NewBlock(&Block100000)
 	// Ensure we get the same data back out.
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
@@ -141,7 +142,8 @@ func TestBlock(t *testing.T) {
 }
 
 // TestNewBlockFromBytes tests creation of a Block from serialized bytes.
-func TestNewBlockFromBytes(t *testing.T) {
+func TestNewBlockFromBytes(
+	t *testing.T) {
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -174,7 +176,8 @@ func TestNewBlockFromBytes(t *testing.T) {
 }
 
 // TestNewBlockFromBlockAndBytes tests creation of a Block from a MsgBlock and raw bytes.
-func TestNewBlockFromBlockAndBytes(t *testing.T) {
+func TestNewBlockFromBlockAndBytes(
+	t *testing.T) {
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -202,7 +205,8 @@ func TestNewBlockFromBlockAndBytes(t *testing.T) {
 }
 
 // TestBlockErrors tests the error paths for the Block API.
-func TestBlockErrors(t *testing.T) {
+func TestBlockErrors(
+	t *testing.T) {
 	// Ensure out of range errors are as expected.
 	wantErr := "transaction index -1 is out of range - max 3"
 	testErr := util.OutOfRangeError(wantErr)

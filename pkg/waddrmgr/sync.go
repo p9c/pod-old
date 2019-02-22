@@ -30,7 +30,8 @@ type syncState struct {
 }
 
 // newSyncState returns a new sync state with the provided parameters.
-func newSyncState(startBlock, syncedTo *BlockStamp) *syncState {
+func newSyncState(
+	startBlock, syncedTo *BlockStamp) *syncState {
 
 	return &syncState{
 		startBlock: *startBlock,

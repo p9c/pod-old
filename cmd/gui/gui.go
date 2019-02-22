@@ -24,7 +24,9 @@ type VDATA struct {
 }
 
 // GUI is the main entry point for the GUI interface
-func GUI(sh *shell.Config) {
+func GUI(
+	sh *shell.Config,
+) {
 	// wlt =
 	var err error
 	jdb.JDB, err = scribble.New(filepath.Join(sh.DataDir, "gui"), nil)

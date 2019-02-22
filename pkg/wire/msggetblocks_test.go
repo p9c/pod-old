@@ -11,7 +11,8 @@ import (
 )
 
 // TestGetBlocks tests the MsgGetBlocks API.
-func TestGetBlocks(t *testing.T) {
+func TestGetBlocks(
+	t *testing.T) {
 	pver := ProtocolVersion
 	// Block 99500 hash.
 	hashStr := "000000000002e7ad7b9eef9479e4aabc65cb831269cc20d2632c13684406dee0"
@@ -67,7 +68,8 @@ func TestGetBlocks(t *testing.T) {
 }
 
 // TestGetBlocksWire tests the MsgGetBlocks wire encode and decode for various numbers of block locator hashes and protocol versions.
-func TestGetBlocksWire(t *testing.T) {
+func TestGetBlocksWire(
+	t *testing.T) {
 	// Set protocol inside getblocks message.
 	pver := uint32(60002)
 	// Block 99499 hash.
@@ -239,7 +241,8 @@ func TestGetBlocksWire(t *testing.T) {
 }
 
 // TestGetBlocksWireErrors performs negative tests against wire encode and decode of MsgGetBlocks to confirm error paths work correctly.
-func TestGetBlocksWireErrors(t *testing.T) {
+func TestGetBlocksWireErrors(
+	t *testing.T) {
 	// Set protocol inside getheaders message.  Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
 	wireErr := &MessageError{}

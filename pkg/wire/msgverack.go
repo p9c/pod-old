@@ -28,6 +28,7 @@ func (msg *MsgVerAck) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgVerAck returns a new bitcoin verack message that conforms to the Message interface.
-func NewMsgVerAck() *MsgVerAck {
+func NewMsgVerAck(
+	) *MsgVerAck {
 	return &MsgVerAck{}
 }

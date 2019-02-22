@@ -20,30 +20,35 @@ import (
 )
 
 // Argon2i takes bytes, generates a Lyra2REv2 hash as salt, generates an argon2i key
-func Argon2i(bytes []byte) []byte {
+func Argon2i(
+	bytes []byte) []byte {
 	return argon2.IDKey(Lyra2REv2(bytes), bytes, 1, 32*1024, 1, 32)
 }
 
 // Blake14lr takes bytes and returns a blake14lr 256 bit hash
-func Blake14lr(bytes []byte) []byte {
+func Blake14lr(
+	bytes []byte) []byte {
 	a := blake256.New()
 	a.Write(bytes)
 	return a.Sum(nil)
 }
 
 // Blake2s takes bytes and returns a blake2s 256 bit hash
-func Blake2s(bytes []byte) []byte {
+func Blake2s(
+	bytes []byte) []byte {
 	b := blake2s.Sum256(bytes)
 	return b[:]
 }
 
 // Cryptonight7v2 takes bytes and returns a cryptonight 7 v2 256 bit hash
-func Cryptonight7v2(bytes []byte) []byte {
+func Cryptonight7v2(
+	bytes []byte) []byte {
 	return cryptonight.Sum(bytes, 2)
 }
 
 // Keccak takes bytes and returns a keccak (sha-3) 256 bit hash
-func Keccak(bytes []byte) []byte {
+func Keccak(
+	bytes []byte) []byte {
 	k := keccak.New256()
 	k.Reset()
 	k.Write(bytes)
@@ -51,7 +56,8 @@ func Keccak(bytes []byte) []byte {
 }
 
 // Scrypt takes bytes and returns a scrypt 256 bit hash
-func Scrypt(bytes []byte) []byte {
+func Scrypt(
+	bytes []byte) []byte {
 	b := bytes
 	c := make([]byte, len(b))
 	copy(c, b[:])
@@ -68,38 +74,44 @@ func Scrypt(bytes []byte) []byte {
 }
 
 // SHA256D takes bytes and returns a double SHA256 hash
-func SHA256D(bytes []byte) []byte {
+func SHA256D(
+	bytes []byte) []byte {
 	h := sha256.Sum256(bytes)
 	h = sha256.Sum256(h[:])
 	return h[:]
 }
 
 // Stribog takes bytes and returns a double GOST Stribog 256 bit hash
-func Stribog(bytes []byte) []byte {
+func Stribog(
+	bytes []byte) []byte {
 	return gost.Hash(bytes, "256")
 }
 
 // Skein takes bytes and returns a skein 256 bit hash
-func Skein(bytes []byte) []byte {
+func Skein(
+	bytes []byte) []byte {
 	h := skein.New256(nil)
 	io.WriteString(h, string(bytes))
 	return bytes
 }
 
 // Blake2b takes bytes and returns a blake2b 256 bit hash
-func Blake2b(bytes []byte) []byte {
+func Blake2b(
+	bytes []byte) []byte {
 	b := blake2b.Sum256(bytes)
 	return b[:]
 }
 
 // Lyra2REv2 takes bytes and returns a lyra2rev2 256 bit hash
-func Lyra2REv2(bytes []byte) []byte {
+func Lyra2REv2(
+	bytes []byte) []byte {
 	bytes, _ = lyra2rev2.Sum(bytes)
 	return bytes
 }
 
 // X11 takes bytes and returns an x11 256 bit hash
-func X11(bytes []byte) []byte {
+func X11(
+	bytes []byte) []byte {
 	o := [32]byte{}
 	x := x11.New()
 	x.Hash(bytes, o[:])
@@ -108,14 +120,16 @@ func X11(bytes []byte) []byte {
 
 var bTwo = big.NewInt(2)
 
-func rightShift(b []byte) (out []byte) {
+func rightShift(
+	b []byte) (out []byte) {
 	out = make([]byte, 32)
 	copy(out, b[1:])
 	return
 }
 
 // Hash computes the hash of bytes using the named hash
-func Hash(bytes []byte, name string, height int32) (out chainhash.Hash) {
+func Hash(
+	bytes []byte, name string, height int32) (out chainhash.Hash) {
 	// time.Sleep(time.Millisecond * 2000)
 	switch name {
 	case "blake2b":

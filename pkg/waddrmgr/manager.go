@@ -82,13 +82,15 @@ const (
 // isReservedAccountName returns true if the account name is reserved.
 // Reserved accounts may never be renamed, and other accounts may not be
 // renamed to a reserved name.
-func isReservedAccountName(name string) bool {
+func isReservedAccountName(
+	name string) bool {
 	return name == ImportedAddrAccountName
 }
 
 // isReservedAccountNum returns true if the account number is reserved.
 // Reserved accounts may not be renamed.
-func isReservedAccountNum(acct uint32) bool {
+func isReservedAccountNum(
+	acct uint32) bool {
 	return acct == ImportedAddrAccount
 }
 
@@ -178,7 +180,8 @@ type SecretKeyGenerator func(
 	passphrase *[]byte, config *ScryptOptions) (*snacl.SecretKey, error)
 
 // defaultNewSecretKey returns a new secret key.  See newSecretKey.
-func defaultNewSecretKey(passphrase *[]byte,
+func defaultNewSecretKey(
+	passphrase *[]byte,
 	config *ScryptOptions) (*snacl.SecretKey, error) {
 	return snacl.NewSecretKey(passphrase, config.N, config.R, config.P)
 }
@@ -195,7 +198,8 @@ var (
 
 // SetSecretKeyGen replaces the existing secret key generator, and returns the
 // previous generator.
-func SetSecretKeyGen(keyGen SecretKeyGenerator) SecretKeyGenerator {
+func SetSecretKeyGen(
+	keyGen SecretKeyGenerator) SecretKeyGenerator {
 	secretKeyGenMtx.Lock()
 	oldKeyGen := secretKeyGen
 	secretKeyGen = keyGen
@@ -205,7 +209,8 @@ func SetSecretKeyGen(keyGen SecretKeyGenerator) SecretKeyGenerator {
 }
 
 // newSecretKey generates a new secret key using the active secretKeyGen.
-func newSecretKey(passphrase *[]byte,
+func newSecretKey(
+	passphrase *[]byte,
 	config *ScryptOptions) (*snacl.SecretKey, error) {
 
 	secretKeyGenMtx.RLock()
@@ -239,7 +244,8 @@ func (ck *cryptoKey) CopyBytes(from []byte) {
 }
 
 // defaultNewCryptoKey returns a new CryptoKey.  See newCryptoKey.
-func defaultNewCryptoKey() (EncryptorDecryptor, error) {
+func defaultNewCryptoKey(
+	) (EncryptorDecryptor, error) {
 	key, err := snacl.GenerateCryptoKey()
 	if err != nil {
 		return nil, err
@@ -1159,7 +1165,8 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 }
 
 // ValidateAccountName validates the given account name and returns an error, if any.
-func ValidateAccountName(name string) error {
+func ValidateAccountName(
+	name string) error {
 	if name == "" {
 		str := "accounts may not be named the empty string"
 		return managerError(ErrInvalidAccount, str, nil)
@@ -1239,7 +1246,8 @@ func (m *Manager) Decrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
 }
 
 // newManager returns a new locked address manager with the given parameters.
-func newManager(chainParams *chaincfg.Params, masterKeyPub *snacl.SecretKey,
+func newManager(
+	chainParams *chaincfg.Params, masterKeyPub *snacl.SecretKey,
 	masterKeyPriv *snacl.SecretKey, cryptoKeyPub EncryptorDecryptor,
 	cryptoKeyPrivEncrypted, cryptoKeyScriptEncrypted []byte, syncInfo *syncState,
 	birthday time.Time, privPassphraseSalt [saltSize]byte,
@@ -1285,7 +1293,8 @@ func newManager(chainParams *chaincfg.Params, masterKeyPub *snacl.SecretKey,
 //
 // In particular this is the hierarchical deterministic extended key path:
 // m/purpose'/<coin type>'
-func deriveCoinTypeKey(masterNode *hdkeychain.ExtendedKey,
+func deriveCoinTypeKey(
+	masterNode *hdkeychain.ExtendedKey,
 	scope KeyScope) (*hdkeychain.ExtendedKey, error) {
 
 	// Enforce maximum coin type.
@@ -1325,7 +1334,8 @@ func deriveCoinTypeKey(masterNode *hdkeychain.ExtendedKey,
 //
 // In particular this is the hierarchical deterministic extended key path:
 //   m/purpose'/<coin type>'/<account>'
-func deriveAccountKey(coinTypeKey *hdkeychain.ExtendedKey,
+func deriveAccountKey(
+	coinTypeKey *hdkeychain.ExtendedKey,
 	account uint32) (*hdkeychain.ExtendedKey, error) {
 
 	// Enforce maximum account number.
@@ -1348,7 +1358,8 @@ func deriveAccountKey(coinTypeKey *hdkeychain.ExtendedKey,
 //   m/purpose'/<coin type>'/<account>'/<branch>
 //
 // The branch is 0 for external addresses and 1 for internal addresses.
-func checkBranchKeys(acctKey *hdkeychain.ExtendedKey) error {
+func checkBranchKeys(
+	acctKey *hdkeychain.ExtendedKey) error {
 	// Derive the external branch as the first child of the account key.
 	if _, err := acctKey.Child(ExternalBranch); err != nil {
 		return err
@@ -1362,7 +1373,8 @@ func checkBranchKeys(acctKey *hdkeychain.ExtendedKey) error {
 // loadManager returns a new address manager that results from loading it from
 // the passed opened database.  The public passphrase is required to decrypt
 // the public keys.
-func loadManager(ns walletdb.ReadBucket, pubPassphrase []byte,
+func loadManager(
+	ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, error) {
 
 	// Verify the version is neither too old or too new.
@@ -1506,7 +1518,8 @@ func loadManager(ns walletdb.ReadBucket, pubPassphrase []byte,
 //
 // A ManagerError with an error code of ErrNoExist will be returned if the
 // passed manager does not exist in the specified namespace.
-func Open(ns walletdb.ReadBucket, pubPassphrase []byte,
+func Open(
+	ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, error) {
 
 	// Return an error if the manager has NOT already been created in the
@@ -1522,7 +1535,8 @@ func Open(ns walletdb.ReadBucket, pubPassphrase []byte,
 
 // DoUpgrades performs any necessary upgrades to the address manager contained
 // in the wallet database, namespaced by the top level bucket key namespaceKey.
-func DoUpgrades(db walletdb.DB, namespaceKey []byte, pubPassphrase []byte,
+func DoUpgrades(
+	db walletdb.DB, namespaceKey []byte, pubPassphrase []byte,
 	chainParams *chaincfg.Params, cbs *OpenCallbacks) error {
 
 	return upgradeManager(db, namespaceKey, pubPassphrase, chainParams, cbs)
@@ -1531,7 +1545,8 @@ func DoUpgrades(db walletdb.DB, namespaceKey []byte, pubPassphrase []byte,
 // createManagerKeyScope creates a new key scoped for a target manager's scope.
 // This partitions key derivation for a particular purpose+coin tuple, allowing
 // multiple address derivation schems to be maintained concurrently.
-func createManagerKeyScope(ns walletdb.ReadWriteBucket,
+func createManagerKeyScope(
+	ns walletdb.ReadWriteBucket,
 	scope KeyScope, root *hdkeychain.ExtendedKey,
 	cryptoKeyPub, cryptoKeyPriv EncryptorDecryptor) error {
 
@@ -1646,7 +1661,8 @@ func createManagerKeyScope(ns walletdb.ReadWriteBucket,
 //
 // A ManagerError with an error code of ErrAlreadyExists will be returned the
 // address manager already exists in the specified namespace.
-func Create(ns walletdb.ReadWriteBucket, seed, pubPassphrase, privPassphrase []byte,
+func Create(
+	ns walletdb.ReadWriteBucket, seed, pubPassphrase, privPassphrase []byte,
 	chainParams *chaincfg.Params, config *ScryptOptions,
 	birthday time.Time) error {
 

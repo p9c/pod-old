@@ -11,7 +11,8 @@ import (
 )
 
 // This example demonstrates creating a new database.
-func ExampleCreate() {
+func ExampleCreate(
+	) {
 	// This example assumes the bdb (bolt db) driver is imported.
 	//
 	// import (
@@ -40,7 +41,8 @@ func ExampleCreate() {
 var exampleNum = 0
 
 // exampleLoadDB is used in the examples to elide the setup code.
-func exampleLoadDB() (walletdb.DB, func(), error) {
+func exampleLoadDB(
+	) (walletdb.DB, func(), error) {
 	dbName := fmt.Sprintf("exampleload%d.db", exampleNum)
 	dbPath := filepath.Join(os.TempDir(), dbName)
 	db, err := walletdb.Create("bdb", dbPath)
@@ -57,7 +59,8 @@ func exampleLoadDB() (walletdb.DB, func(), error) {
 }
 
 // This example demonstrates creating a new top level bucket.
-func ExampleDB_createTopLevelBucket() {
+func ExampleDB_createTopLevelBucket(
+	) {
 	// Load a database for the purposes of this example and schedule it to
 	// be closed and removed on exit. See the Create example for more
 	// details on what this step is doing.
@@ -94,7 +97,8 @@ func ExampleDB_createTopLevelBucket() {
 // This example demonstrates creating a new database, getting a namespace from
 // it, and using a managed read-write transaction against the namespace to store
 // and retrieve data.
-func Example_basicUsage() {
+func Example_basicUsage(
+	) {
 	// This example assumes the bdb (bolt db) driver is imported.
 	//
 	// import (

@@ -43,7 +43,8 @@ var (
 // a slice of them.
 //
 // NOTE: copied from btcsuite/btcd/database/ffldb/interface_test.go
-func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) (
+func loadBlocks(
+	t *testing.T, dataFile string, network wire.BitcoinNet) (
 	[]*util.Block, error) {
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
@@ -112,7 +113,8 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) (
 }
 
 // genRandomBlockHash generates a random block hash using math/rand.
-func genRandomBlockHash() *chainhash.Hash {
+func genRandomBlockHash(
+	) *chainhash.Hash {
 	var seed [32]byte
 	rand.Read(seed[:])
 	hash := chainhash.Hash(seed)
@@ -125,7 +127,8 @@ func genRandomBlockHash() *chainhash.Hash {
 // generated block hash. testing.T is passed in as a convenience to deal with
 // errors in this method and making the test code more straigthforward. Method
 // originally taken from filterdb/db_test.go.
-func genRandFilter(numElements uint32, t *testing.T) (
+func genRandFilter(
+	numElements uint32, t *testing.T) (
 	*chainhash.Hash, *gcs.Filter, uint64) {
 	elements := make([][]byte, numElements)
 	for i := uint32(0); i < numElements; i++ {
@@ -164,7 +167,8 @@ func genRandFilter(numElements uint32, t *testing.T) (
 
 // getFilter is a convenience method which will extract a value from the cache
 // and handle errors, it makes the test code easier to follow.
-func getFilter(cs *ChainService, b *chainhash.Hash, t *testing.T) *gcs.Filter {
+func getFilter(
+	cs *ChainService, b *chainhash.Hash, t *testing.T) *gcs.Filter {
 	val, err := cs.getFilterFromCache(b, filterdb.RegularFilter)
 	if err != nil {
 		t.Fatal(err)
@@ -172,7 +176,8 @@ func getFilter(cs *ChainService, b *chainhash.Hash, t *testing.T) *gcs.Filter {
 	return val
 }
 
-func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
+func assertEqual(
+	t *testing.T, a interface{}, b interface{}, message string) {
 	if a == b {
 		return
 	}
@@ -184,7 +189,8 @@ func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
 
 // TestCacheBigEnoughHoldsAllFilter creates a cache big enough to hold all
 // filters, then gets them in random order and makes sure they are always there.
-func TestCacheBigEnoughHoldsAllFilter(t *testing.T) {
+func TestCacheBigEnoughHoldsAllFilter(
+	t *testing.T) {
 	// Create different sized filters.
 	b1, f1, s1 := genRandFilter(1, t)
 	b2, f2, s2 := genRandFilter(10, t)
@@ -218,7 +224,8 @@ func TestCacheBigEnoughHoldsAllFilter(t *testing.T) {
 // TestBigFilterEvictsEverything creates a cache big enough to hold a large
 // filter and inserts many smaller filters into. Then it inserts the big filter
 // and verifies that it's the only one remaining.
-func TestBigFilterEvictsEverything(t *testing.T) {
+func TestBigFilterEvictsEverything(
+	t *testing.T) {
 	// Create different sized filters.
 	b1, f1, _ := genRandFilter(1, t)
 	b2, f2, _ := genRandFilter(3, t)
@@ -243,7 +250,8 @@ func TestBigFilterEvictsEverything(t *testing.T) {
 
 // TestBlockCache checks that blocks are inserted and fetched from the cache
 // before peers are queried.
-func TestBlockCache(t *testing.T) {
+func TestBlockCache(
+	t *testing.T) {
 	t.Parallel()
 
 	// Load the first 255 blocks from disk.

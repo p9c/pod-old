@@ -25,7 +25,8 @@ var naTests = make([]naTest, 0)
 var someIP = "173.194.115.66"
 
 // addNaTests
-func addNaTests() {
+func addNaTests(
+	) {
 	// IPv4
 	// Localhost
 	addNaTest("127.0.0.1", 11047, "127.0.0.1:11047")
@@ -75,16 +76,19 @@ func addNaTests() {
 	addNaTest("fee2::3:3", 8335, "[fee2::3:3]:8335")
 	addNaTest("fef3::4:4", 8336, "[fef3::4:4]:8336")
 }
-func addNaTest(ip string, port uint16, want string) {
+func addNaTest(
+	ip string, port uint16, want string) {
 	nip := net.ParseIP(ip)
 	na := *wire.NewNetAddressIPPort(nip, port, wire.SFNodeNetwork)
 	test := naTest{na, want}
 	naTests = append(naTests, test)
 }
-func lookupFunc(host string) ([]net.IP, error) {
+func lookupFunc(
+	host string) ([]net.IP, error) {
 	return nil, errors.New("not implemented")
 }
-func TestStartStop(t *testing.T) {
+func TestStartStop(
+	t *testing.T) {
 	n := addrmgr.New("teststartstop", lookupFunc)
 	n.Start()
 	err := n.Stop()
@@ -92,7 +96,8 @@ func TestStartStop(t *testing.T) {
 		t.Fatalf("Address Manager failed to stop: %v", err)
 	}
 }
-func TestAddAddressByIP(t *testing.T) {
+func TestAddAddressByIP(
+	t *testing.T) {
 	fmtErr := fmt.Errorf("")
 	addrErr := &net.AddrError{}
 	var tests = []struct {
@@ -133,7 +138,8 @@ func TestAddAddressByIP(t *testing.T) {
 		}
 	}
 }
-func TestAddLocalAddress(t *testing.T) {
+func TestAddLocalAddress(
+	t *testing.T) {
 	var tests = []struct {
 		address  wire.NetAddress
 		priority addrmgr.AddressPriority
@@ -185,7 +191,8 @@ func TestAddLocalAddress(t *testing.T) {
 		}
 	}
 }
-func TestAttempt(t *testing.T) {
+func TestAttempt(
+	t *testing.T) {
 	n := addrmgr.New("testattempt", lookupFunc)
 	// Add a new address and get it
 	err := n.AddAddressByIP(someIP + ":11047")
@@ -202,7 +209,8 @@ func TestAttempt(t *testing.T) {
 		t.Errorf("Address should have an attempt, but does not")
 	}
 }
-func TestConnected(t *testing.T) {
+func TestConnected(
+	t *testing.T) {
 	n := addrmgr.New("testconnected", lookupFunc)
 	// Add a new address and get it
 	err := n.AddAddressByIP(someIP + ":11047")
@@ -218,7 +226,8 @@ func TestConnected(t *testing.T) {
 		t.Errorf("Address should have a new timestamp, but does not")
 	}
 }
-func TestNeedMoreAddresses(t *testing.T) {
+func TestNeedMoreAddresses(
+	t *testing.T) {
 	n := addrmgr.New("testneedmoreaddresses", lookupFunc)
 	addrsToAdd := 1500
 	b := n.NeedMoreAddresses()
@@ -245,7 +254,8 @@ func TestNeedMoreAddresses(t *testing.T) {
 		t.Errorf("Expected that we don't need more addresses")
 	}
 }
-func TestGood(t *testing.T) {
+func TestGood(
+	t *testing.T) {
 	n := addrmgr.New("testgood", lookupFunc)
 	addrsToAdd := 64 * 64
 	addrs := make([]*wire.NetAddress, addrsToAdd)
@@ -271,7 +281,8 @@ func TestGood(t *testing.T) {
 		t.Errorf("Number of addresses in cache: got %d, want %d", numCache, numAddrs/4)
 	}
 }
-func TestGetAddress(t *testing.T) {
+func TestGetAddress(
+	t *testing.T) {
 	n := addrmgr.New("testgetaddress", lookupFunc)
 	// Get an address from an empty set (should error)
 	if rv := n.GetAddress(); rv != nil {
@@ -303,7 +314,8 @@ func TestGetAddress(t *testing.T) {
 		t.Errorf("Wrong number of addresses: got %d, want %d", numAddrs, 1)
 	}
 }
-func TestGetBestLocalAddress(t *testing.T) {
+func TestGetBestLocalAddress(
+	t *testing.T) {
 	localAddrs := []wire.NetAddress{
 		{IP: net.ParseIP("192.168.0.100")},
 		{IP: net.ParseIP("::1")},
@@ -400,7 +412,8 @@ func TestGetBestLocalAddress(t *testing.T) {
 		}
 	*/
 }
-func TestNetAddressKey(t *testing.T) {
+func TestNetAddressKey(
+	t *testing.T) {
 	addNaTests()
 	t.Logf("Running %d tests", len(naTests))
 	for i, test := range naTests {

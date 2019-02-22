@@ -9,7 +9,8 @@ var Log = cl.NewSubSystem("pkg/wallettx   ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
-func UseLogger(logger *cl.SubSystem) {
+func UseLogger(
+	logger *cl.SubSystem) {
 	Log = logger
 	log = Log.Ch
 }
@@ -27,13 +28,15 @@ func (c logClosure) String() string {
 // newLogClosure returns a new closure over the passed function which allows
 // it to be used as a parameter in a logging function that is only invoked when
 // the logging level is such that the message will actually be logged.
-func newLogClosure(c func() string) logClosure {
+func newLogClosure(
+	c func() string) logClosure {
 	return logClosure(c)
 }
 
 // pickNoun returns the singular or plural form of a noun depending
 // on the count n.
-func pickNoun(n int, singular, plural string) string {
+func pickNoun(
+	n int, singular, plural string) string {
 	if n == 1 {
 		return singular
 	}

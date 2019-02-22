@@ -9,7 +9,8 @@ var Log = cl.NewSubSystem("pkg/rpcclient  ", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.
-func UseLogger(logger *cl.SubSystem) {
+func UseLogger(
+	logger *cl.SubSystem) {
 	Log = logger
 	log = Log.Ch
 }
@@ -23,6 +24,7 @@ func (c logClosure) String() string {
 }
 
 // newLogClosure returns a new closure over the passed function which allows it to be used as a parameter in a logging function that is only invoked when the logging level is such that the message will actually be logged.
-func newLogClosure(c func() string) logClosure {
+func newLogClosure(
+	c func() string) logClosure {
 	return logClosure(c)
 }

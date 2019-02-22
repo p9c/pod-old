@@ -39,7 +39,8 @@ var (
 )
 
 // TorLookupIP uses Tor to resolve DNS via the SOCKS extension they provide for resolution over the Tor network. Tor itself doesn't support ipv6 so this doesn't either.
-func TorLookupIP(host, proxy string) ([]net.IP, error) {
+func TorLookupIP(
+	host, proxy string) ([]net.IP, error) {
 	conn, err := net.Dial("tcp", proxy)
 	if err != nil {
 		return nil, err

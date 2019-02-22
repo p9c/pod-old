@@ -58,7 +58,8 @@ var (
 )
 
 // Initialize package-global logger variables.
-func init() {
+func init(
+	) {
 	wallet.UseLogger(walletLog)
 	wtxmgr.UseLogger(txmgrLog)
 	chain.UseLogger(chainLog)
@@ -82,7 +83,8 @@ var subsystemLoggers = map[string]l.Logger{
 // initLogRotator initializes the logging rotater to write logs to logFile and
 // create roll files in the same directory.  It must be called before the
 // package-global log rotater variables are used.
-func initLogRotator(logFile string) {
+func initLogRotator(
+	logFile string) {
 	logDir, _ := filepath.Split(logFile)
 	err := os.MkdirAll(logDir, 0700)
 	if err != nil {
@@ -105,7 +107,8 @@ func initLogRotator(logFile string) {
 // setLogLevel sets the logging level for provided subsystem.  Invalid
 // subsystems are ignored.  Uninitialized subsystems are dynamically created as
 // needed.
-func setLogLevel(subsystemID string, logLevel string) {
+func setLogLevel(
+	subsystemID string, logLevel string) {
 	// Ignore invalid subsystems.
 	logger, ok := subsystemLoggers[subsystemID]
 	if !ok {
@@ -120,7 +123,8 @@ func setLogLevel(subsystemID string, logLevel string) {
 // setLogLevels sets the log level for all subsystem loggers to the passed
 // level.  It also dynamically creates the subsystem loggers as needed, so it
 // can be used to initialize the logging system.
-func setLogLevels(logLevel string) {
+func setLogLevels(
+	logLevel string) {
 	// Configure all sub-systems with the new logging level.  Dynamically
 	// create loggers as needed.
 	for subsystemID := range subsystemLoggers {
@@ -130,7 +134,8 @@ func setLogLevels(logLevel string) {
 
 // pickNoun returns the singular or plural form of a noun depending
 // on the count n.
-func pickNoun(n int, singular, plural string) string {
+func pickNoun(
+	n int, singular, plural string) string {
 	if n == 1 {
 		return singular
 	}

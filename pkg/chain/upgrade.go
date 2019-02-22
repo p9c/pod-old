@@ -29,7 +29,8 @@ var errInterruptRequested = errors.New("interrupt requested")
 // interruptRequested returns true when the provided channel has been closed.
 // This simplifies early shutdown slightly since the caller can just use an if
 // statement instead of a select.
-func interruptRequested(interrupted <-chan struct{}) bool {
+func interruptRequested(
+	interrupted <-chan struct{}) bool {
 	select {
 	case <-interrupted:
 		// fmt.Println("chan:<-interrupted")
@@ -53,7 +54,8 @@ type blockChainContext struct {
 // to the v2 bucket. The v1 bucket stores all block entries keyed by block hash,
 // whereas the v2 bucket stores the exact same values, but keyed instead by
 // block height + hash.
-func migrateBlockIndex(db database.DB) error {
+func migrateBlockIndex(
+	db database.DB) error {
 	// Hardcoded bucket names so updates to the global values do not affect
 	// old upgrades.
 	v1BucketName := []byte("ffldb-blockidx")
@@ -131,7 +133,8 @@ func migrateBlockIndex(db database.DB) error {
 // each block to its parent block and all child blocks. This mapping represents
 // the full tree of blocks. This function does not populate the height or
 // mainChain fields of the returned blockChainContext values.
-func readBlockTree(v1BlockIdxBucket database.Bucket) (map[chainhash.Hash]*blockChainContext, error) {
+func readBlockTree(
+	v1BlockIdxBucket database.Bucket) (map[chainhash.Hash]*blockChainContext, error) {
 	blocksMap := make(map[chainhash.Hash]*blockChainContext)
 	err := v1BlockIdxBucket.ForEach(func(_, blockRow []byte) error {
 		var header wire.BlockHeader
@@ -163,7 +166,8 @@ func readBlockTree(v1BlockIdxBucket database.Bucket) (map[chainhash.Hash]*blockC
 // breadth-first, assigning a height to every block with a path back to the
 // genesis block. This function modifies the height field on the blocksMap
 // entries.
-func determineBlockHeights(blocksMap map[chainhash.Hash]*blockChainContext) error {
+func determineBlockHeights(
+	blocksMap map[chainhash.Hash]*blockChainContext) error {
 	queue := list.New()
 	// The genesis block is included in blocksMap as a child of the zero hash
 	// because that is the value of the PrevBlock field in the genesis header.
@@ -192,7 +196,8 @@ func determineBlockHeights(blocksMap map[chainhash.Hash]*blockChainContext) erro
 // determineMainChainBlocks traverses the block graph down from the tip to
 // determine which block hashes that are part of the main chain. This function
 // modifies the mainChain field on the blocksMap entries.
-func determineMainChainBlocks(blocksMap map[chainhash.Hash]*blockChainContext, tip *chainhash.Hash) {
+func determineMainChainBlocks(
+	blocksMap map[chainhash.Hash]*blockChainContext, tip *chainhash.Hash) {
 	for nextHash := tip; *nextHash != zeroHash; nextHash = blocksMap[*nextHash].parent {
 		blocksMap[*nextHash].mainChain = true
 	}
@@ -288,7 +293,8 @@ func determineMainChainBlocks(blocksMap map[chainhash.Hash]*blockChainContext, t
 //    - 0x8ba5b9e763: VLQ-encoded compressed amount for 366875659 (3.66875659 DUO)
 //    - 0x01: special script type pay-to-script-hash
 //    - 0x1d...e6: script hash
-func deserializeUtxoEntryV0(serialized []byte) (map[uint32]*UtxoEntry, error) {
+func deserializeUtxoEntryV0(
+	serialized []byte) (map[uint32]*UtxoEntry, error) {
 	// Deserialize the version.
 	//
 	// NOTE: Ignore version since it is no longer used in the new format.
@@ -384,7 +390,8 @@ func deserializeUtxoEntryV0(serialized []byte) (map[uint32]*UtxoEntry, error) {
 
 // upgradeUtxoSetToV2 migrates the utxo set entries from version 1 to 2 in
 // batches.  It is guaranteed to updated if this returns without failure.
-func upgradeUtxoSetToV2(db database.DB, interrupt <-chan struct{}) error {
+func upgradeUtxoSetToV2(
+	db database.DB, interrupt <-chan struct{}) error {
 	// Hardcoded bucket names so updates to the global values do not affect
 	// old upgrades.
 	var (

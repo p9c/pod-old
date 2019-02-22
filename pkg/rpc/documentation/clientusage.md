@@ -62,7 +62,8 @@ import (
 
 var certificateFile = filepath.Join(btcutil.AppDataDir("mod", false), "rpc.cert")
 
-func main() {
+func main(
+	) {
 	creds, err := credentials.NewClientTLSFromFile(certificateFile, "localhost")
 	if err != nil {
 		fmt.Println(err)

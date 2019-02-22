@@ -63,7 +63,8 @@ var (
 )
 
 // TestGCSFilterBuild builds a test filter with a randomized key. For Bitcoin use, deterministic filter generation is desired. Therefore, a key that's derived deterministically would be required.
-func TestGCSFilterBuild(t *testing.T) {
+func TestGCSFilterBuild(
+	t *testing.T) {
 	for i := 0; i < gcs.KeySize; i += 4 {
 		binary.BigEndian.PutUint32(key[i:], rand.Uint32())
 	}
@@ -74,7 +75,8 @@ func TestGCSFilterBuild(t *testing.T) {
 }
 
 // TestGCSFilterCopy deserializes and serializes a filter to create a copy.
-func TestGCSFilterCopy(t *testing.T) {
+func TestGCSFilterCopy(
+	t *testing.T) {
 	serialized2, err := filter.Bytes()
 	if err != nil {
 		t.Fatalf("Filter Bytes() failed: %v", err)
@@ -94,7 +96,8 @@ func TestGCSFilterCopy(t *testing.T) {
 }
 
 // TestGCSFilterMetadata checks that the filter metadata is built and copied correctly.
-func TestGCSFilterMetadata(t *testing.T) {
+func TestGCSFilterMetadata(
+	t *testing.T) {
 	if filter.P() != P {
 		t.Fatal("P not correctly stored in filter metadata")
 	}
@@ -141,7 +144,8 @@ func TestGCSFilterMetadata(t *testing.T) {
 }
 
 // TestGCSFilterMatch checks that both the built and copied filters match correctly, logging any false positives without failing on them.
-func TestGCSFilterMatch(t *testing.T) {
+func TestGCSFilterMatch(
+	t *testing.T) {
 	match, err := filter.Match(key, []byte("Nate"))
 	if err != nil {
 		t.Fatalf("Filter match failed: %s", err.Error())
@@ -201,7 +205,8 @@ func TestGCSFilterMatch(t *testing.T) {
 }
 
 // TestGCSFilterMatchAny checks that both the built and copied filters match a list correctly, logging any false positives without failing on them.
-func TestGCSFilterMatchAny(t *testing.T) {
+func TestGCSFilterMatchAny(
+	t *testing.T) {
 	match, err := filter.MatchAny(key, contents2)
 	if err != nil {
 		t.Fatalf("Filter match any failed: %s", err.Error())

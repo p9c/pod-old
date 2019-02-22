@@ -18,32 +18,12 @@ const (
 	listCmdMessage  = "Specify -l to list available commands"
 )
 
-// commandUsage display the usage for a specific command.
-func commandUsage(method string) {
-	usage, err := json.MethodUsageText(method)
-	if err != nil {
-		// This should never happen since the method was already checked before calling this function, but be safe.
-		fmt.Fprintln(os.Stderr, "Failed to obtain command usage:", err)
-		return
-	}
-	fmt.Fprintln(os.Stderr, "Usage:")
-	fmt.Fprintf(os.Stderr, "  %s\n", usage)
-}
-
-// usage displays the general usage when the help flag is not displayed and and an invalid command was specified.  The commandUsage function is used instead when a valid command was specified.
-func usage(errorMessage string) {
-	appName := filepath.Base(os.Args[0])
-	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
-	fmt.Fprintln(os.Stderr, errorMessage)
-	fmt.Fprintln(os.Stderr, "Usage:")
-	fmt.Fprintf(os.Stderr, "  %s [OPTIONS] <command> <args...>\n\n",
-		appName)
-	fmt.Fprintln(os.Stderr, showHelpMessage)
-	fmt.Fprintln(os.Stderr, listCmdMessage)
-}
-
 // Main is the entry point for the pod.Ctl component
-func Main(args []string, cfg *Config) {
+func Main(
+	args []string,
+	cfg *Config,
+) {
+
 	if len(args) < 1 {
 		usage("No command specified")
 		os.Exit(1)
@@ -133,4 +113,34 @@ func Main(args []string, cfg *Config) {
 	} else if strResult != "null" {
 		fmt.Println(strResult)
 	}
+}
+
+// commandUsage display the usage for a specific command.
+func commandUsage(
+	method string,
+) {
+
+	usage, err := json.MethodUsageText(method)
+	if err != nil {
+		// This should never happen since the method was already checked before calling this function, but be safe.
+		fmt.Fprintln(os.Stderr, "Failed to obtain command usage:", err)
+		return
+	}
+	fmt.Fprintln(os.Stderr, "Usage:")
+	fmt.Fprintf(os.Stderr, "  %s\n", usage)
+}
+
+// usage displays the general usage when the help flag is not displayed and and an invalid command was specified.  The commandUsage function is used instead when a valid command was specified.
+func usage(
+	errorMessage string,
+) {
+
+	appName := filepath.Base(os.Args[0])
+	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
+	fmt.Fprintln(os.Stderr, errorMessage)
+	fmt.Fprintln(os.Stderr, "Usage:")
+	fmt.Fprintf(os.Stderr, "  %s [OPTIONS] <command> <args...>\n\n",
+		appName)
+	fmt.Fprintln(os.Stderr, showHelpMessage)
+	fmt.Fprintln(os.Stderr, listCmdMessage)
 }

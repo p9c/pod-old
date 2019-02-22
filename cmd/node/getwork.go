@@ -50,7 +50,14 @@ func bigToLEUint256(
 	return buf
 }
 
-func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
+func handleGetWork(
+	s *rpcServer,
+	cmd interface{},
+	closeChan <-chan struct{},
+) (interface{},
+	error,
+) {
+
 	c := cmd.(*json.GetWorkCmd)
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
 		return nil, &json.RPCError{
@@ -191,7 +198,14 @@ func handleGetWork(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (in
 }
 
 //	handleGetWorkSubmission is a helper for handleGetWork which deals with the calling submitting work to be verified and processed. This function MUST be called with the RPC workstate locked.
-func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) {
+func handleGetWorkSubmission(
+	s *rpcServer,
+	hexData string,
+) (
+	interface{},
+	error,
+) {
+
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {
 		hexData = "0" + hexData
@@ -287,7 +301,10 @@ func handleGetWorkSubmission(s *rpcServer, hexData string) (interface{}, error) 
 }
 
 // reverseUint32Array treats the passed bytes as a series of uint32s and reverses the byte order of each uint32.  The passed byte slice must be a multiple of 4 for a correct result.  The passed bytes slice is modified.
-func reverseUint32Array(b []byte) {
+func reverseUint32Array(
+	b []byte,
+) {
+
 	blen := len(b)
 	for i := 0; i < blen; i += 4 {
 		b[i], b[i+3] = b[i+3], b[i]

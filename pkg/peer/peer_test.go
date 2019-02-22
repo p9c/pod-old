@@ -67,7 +67,8 @@ func (m addr) Network() string { return m.net }
 func (m addr) String() string  { return m.address }
 
 // pipe turns two mock connections into a full-duplex connection similar to net.Pipe to allow pipe's with (fake) addresses.
-func pipe(c1, c2 *conn) (*conn, *conn) {
+func pipe(
+	c1, c2 *conn) (*conn, *conn) {
 	r1, w1 := io.Pipe()
 	r2, w2 := io.Pipe()
 	c1.Writer = w1
@@ -99,7 +100,8 @@ type peerStats struct {
 }
 
 // testPeer tests the given peer's flags and stats
-func testPeer(t *testing.T, p *peer.Peer, s peerStats) {
+func testPeer(
+	t *testing.T, p *peer.Peer, s peerStats) {
 	if p.UserAgent() != s.wantUserAgent {
 		t.Errorf("testPeer: wrong UserAgent - got %v, want %v", p.UserAgent(), s.wantUserAgent)
 		return
@@ -183,7 +185,8 @@ func testPeer(t *testing.T, p *peer.Peer, s peerStats) {
 }
 
 // TestPeerConnection tests connection between inbound and outbound peers.
-func TestPeerConnection(t *testing.T) {
+func TestPeerConnection(
+	t *testing.T) {
 	verack := make(chan struct{})
 	peer1Cfg := &peer.Config{
 		Listeners: peer.MessageListeners{
@@ -314,7 +317,8 @@ func TestPeerConnection(t *testing.T) {
 }
 
 // TestPeerListeners tests that the peer listeners are called as expected.
-func TestPeerListeners(t *testing.T) {
+func TestPeerListeners(
+	t *testing.T) {
 	verack := make(chan struct{}, 1)
 	ok := make(chan wire.Message, 20)
 	peerCfg := &peer.Config{
@@ -566,7 +570,8 @@ func TestPeerListeners(t *testing.T) {
 }
 
 // TestOutboundPeer tests that the outbound peer works as expected.
-func TestOutboundPeer(t *testing.T) {
+func TestOutboundPeer(
+	t *testing.T) {
 	peerCfg := &peer.Config{
 		NewestBlock: func() (*chainhash.Hash, int32, error) {
 			return nil, 0, errors.New("newest block not found")
@@ -691,7 +696,8 @@ func TestOutboundPeer(t *testing.T) {
 }
 
 // Tests that the node disconnects from peers with an unsupported protocol version.
-func TestUnsupportedVersionPeer(t *testing.T) {
+func TestUnsupportedVersionPeer(
+	t *testing.T) {
 	peerCfg := &peer.Config{
 		UserAgentName:     "peer",
 		UserAgentVersion:  "1.0",
@@ -784,7 +790,8 @@ func TestUnsupportedVersionPeer(t *testing.T) {
 }
 
 // TestDuplicateVersionMsg ensures that receiving a version message after one has already been received results in the peer being disconnected.
-func TestDuplicateVersionMsg(t *testing.T) {
+func TestDuplicateVersionMsg(
+	t *testing.T) {
 	// Create a pair of peers that are connected to each other using a fake connection.
 	verack := make(chan struct{})
 	peerCfg := &peer.Config{
@@ -837,7 +844,8 @@ func TestDuplicateVersionMsg(t *testing.T) {
 		t.Fatal("peer did not disconnect")
 	}
 }
-func init() {
+func init(
+	) {
 	// Allow self connection when running the tests.
 	peer.TstAllowSelfConns()
 }

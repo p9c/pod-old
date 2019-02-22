@@ -16,7 +16,8 @@ type AmountFlag struct {
 }
 
 // NewAmountFlag creates an AmountFlag with a default util.Amount.
-func NewAmountFlag(defaultValue util.Amount) *AmountFlag {
+func NewAmountFlag(
+	defaultValue util.Amount) *AmountFlag {
 	return &AmountFlag{defaultValue}
 }
 

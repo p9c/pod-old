@@ -15,7 +15,8 @@ var shutdownRequestChannel = make(chan struct{})
 var interruptSignals = []os.Signal{os.Interrupt}
 
 // interruptListener listens for OS Signals such as SIGINT (Ctrl+C) and shutdown requests from shutdownRequestChannel.  It returns a channel that is closed when either signal is received.
-func interruptListener() <-chan struct{} {
+func interruptListener(
+	) <-chan struct{} {
 	c := make(chan struct{})
 	go func() {
 		interruptChannel := make(chan os.Signal, 1)
@@ -43,7 +44,8 @@ func interruptListener() <-chan struct{} {
 }
 
 // interruptRequested returns true when the channel returned by interruptListener was closed.  This simplifies early shutdown slightly since the caller can just use an if statement instead of a select.
-func interruptRequested(interrupted <-chan struct{}) bool {
+func interruptRequested(
+	interrupted <-chan struct{}) bool {
 	select {
 	case <-interrupted:
 		// fmt.Println("chan:<-interrupted")

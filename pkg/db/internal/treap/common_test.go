@@ -9,7 +9,8 @@ import (
 )
 
 // fromHex converts the passed hex string into a byte slice and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called for initialization purposes.
-func fromHex(s string) []byte {
+func fromHex(
+	s string) []byte {
 	r, err := hex.DecodeString(s)
 	if err != nil {
 		panic("invalid hex in source file: " + s)
@@ -18,14 +19,16 @@ func fromHex(s string) []byte {
 }
 
 // serializeUint32 returns the big-endian encoding of the passed uint32.
-func serializeUint32(ui uint32) []byte {
+func serializeUint32(
+	ui uint32) []byte {
 	var ret [4]byte
 	binary.BigEndian.PutUint32(ret[:], ui)
 	return ret[:]
 }
 
 // TestParentStack ensures the treapParentStack functionality works as intended.
-func TestParentStack(t *testing.T) {
+func TestParentStack(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		numNodes int
@@ -98,7 +101,8 @@ testLoop:
 		}
 	}
 }
-func init() {
+func init(
+	) {
 	// Force the same pseudo random numbers for each test run.
 	rand.Seed(0)
 }

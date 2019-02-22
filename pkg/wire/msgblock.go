@@ -198,7 +198,8 @@ func (msg *MsgBlock) TxHashes() ([]chainhash.Hash, error) {
 }
 
 // NewMsgBlock returns a new bitcoin block message that conforms to the Message interface.  See MsgBlock for details.
-func NewMsgBlock(blockHeader *BlockHeader) *MsgBlock {
+func NewMsgBlock(
+	blockHeader *BlockHeader) *MsgBlock {
 	return &MsgBlock{
 		Header:       *blockHeader,
 		Transactions: make([]*MsgTx, 0, defaultTransactionAlloc),

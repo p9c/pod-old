@@ -336,7 +336,8 @@ func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
 // newManagedAddressWithoutPrivKey returns a new managed address based on the
 // passed account, public key, and whether or not the public key should be
 // compressed.
-func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
+func newManagedAddressWithoutPrivKey(
+	m *ScopedKeyManager,
 	derivationPath DerivationPath, pubKey *ec.PublicKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
 
@@ -419,7 +420,8 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 // newManagedAddress returns a new managed address based on the passed account,
 // private key, and whether or not the public key is compressed.  The managed
 // address will have access to the private and public keys.
-func newManagedAddress(s *ScopedKeyManager, derivationPath DerivationPath,
+func newManagedAddress(
+	s *ScopedKeyManager, derivationPath DerivationPath,
 	privKey *ec.PrivateKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
 
@@ -453,7 +455,8 @@ func newManagedAddress(s *ScopedKeyManager, derivationPath DerivationPath,
 // account and extended key.  The managed address will have access to the
 // private and public keys if the provided extended key is private, otherwise it
 // will only have access to the public key.
-func newManagedAddressFromExtKey(s *ScopedKeyManager,
+func newManagedAddressFromExtKey(
+	s *ScopedKeyManager,
 	derivationPath DerivationPath, key *hdkeychain.ExtendedKey,
 	addrType AddressType) (*managedAddress, error) {
 
@@ -625,7 +628,8 @@ func (a *scriptAddress) Script() ([]byte, error) {
 }
 
 // newScriptAddress initializes and returns a new pay-to-script-hash address.
-func newScriptAddress(m *ScopedKeyManager, account uint32, scriptHash,
+func newScriptAddress(
+	m *ScopedKeyManager, account uint32, scriptHash,
 	scriptEncrypted []byte) (*scriptAddress, error) {
 
 	address, err := util.NewAddressScriptHashFromHash(

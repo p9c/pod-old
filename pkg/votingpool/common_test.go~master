@@ -9,7 +9,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/walletdb"
 )
 
-func init() {
+func init(
+	) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Enable logging (Debug level) to aid debugging failing tests.
@@ -18,7 +19,8 @@ func init() {
 
 // TstCheckError ensures the passed error is a votingpool.Error with an error
 // code that matches the passed error code.
-func TstCheckError(t *testing.T, testName string, gotErr error, wantErrCode ErrorCode) {
+func TstCheckError(
+	t *testing.T, testName string, gotErr error, wantErrCode ErrorCode) {
 	vpErr, ok := gotErr.(Error)
 	if !ok {
 		t.Errorf("%s: unexpected error type - got %T (%s), want %T",
@@ -32,7 +34,8 @@ func TstCheckError(t *testing.T, testName string, gotErr error, wantErrCode Erro
 
 // TstRunWithManagerUnlocked calls the given callback with the manager unlocked,
 // and locks it again before returning.
-func TstRunWithManagerUnlocked(t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, callback func()) {
+func TstRunWithManagerUnlocked(
+	t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, callback func()) {
 	if err := mgr.Unlock(addrmgrNs, privPassphrase); err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +45,8 @@ func TstRunWithManagerUnlocked(t *testing.T, mgr *waddrmgr.Manager, addrmgrNs wa
 
 // TstCheckWithdrawalStatusMatches compares s1 and s2 using reflect.DeepEqual
 // and calls t.Fatal() if they're not identical.
-func TstCheckWithdrawalStatusMatches(t *testing.T, s1, s2 WithdrawalStatus) {
+func TstCheckWithdrawalStatusMatches(
+	t *testing.T, s1, s2 WithdrawalStatus) {
 	if s1.Fees() != s2.Fees() {
 		t.Fatalf("Wrong amount of network fees; want %d, got %d", s1.Fees(), s2.Fees())
 	}

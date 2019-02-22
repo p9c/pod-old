@@ -137,7 +137,8 @@ func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgReject returns a new bitcoin reject message that conforms to the Message interface.  See MsgReject for details.
-func NewMsgReject(command string, code RejectCode, reason string) *MsgReject {
+func NewMsgReject(
+	command string, code RejectCode, reason string) *MsgReject {
 	return &MsgReject{
 		Cmd:    command,
 		Code:   code,

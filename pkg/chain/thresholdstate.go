@@ -74,7 +74,8 @@ func (c *thresholdStateCache) Update(hash *chainhash.Hash, state ThresholdState)
 }
 
 // newThresholdCaches returns a new array of caches to be used when calculating threshold states.
-func newThresholdCaches(numCaches uint32) []thresholdStateCache {
+func newThresholdCaches(
+	numCaches uint32) []thresholdStateCache {
 	caches := make([]thresholdStateCache, numCaches)
 	for i := 0; i < len(caches); i++ {
 		caches[i] = thresholdStateCache{

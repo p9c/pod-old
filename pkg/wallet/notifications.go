@@ -39,14 +39,16 @@ type NotificationServer struct {
 	wallet         *Wallet    // smells like hacks
 }
 
-func newNotificationServer(wallet *Wallet) *NotificationServer {
+func newNotificationServer(
+	wallet *Wallet) *NotificationServer {
 	return &NotificationServer{
 		spentness: make(map[uint32][]chan *SpentnessNotifications),
 		wallet:    wallet,
 	}
 }
 
-func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails, deb wtxmgr.DebitRecord) uint32 {
+func lookupInputAccount(
+	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails, deb wtxmgr.DebitRecord) uint32 {
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -81,7 +83,8 @@ func lookupInputAccount(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetai
 	return inputAcct
 }
 
-func lookupOutputChain(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails,
+func lookupOutputChain(
+	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails,
 	cred wtxmgr.CreditRecord) (account uint32, internal bool) {
 
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)
@@ -102,7 +105,8 @@ func lookupOutputChain(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetail
 	return
 }
 
-func makeTxSummary(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) TransactionSummary {
+func makeTxSummary(
+	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) TransactionSummary {
 	serializedTx := details.SerializedTx
 	if serializedTx == nil {
 		var buf bytes.Buffer
@@ -157,7 +161,8 @@ func makeTxSummary(dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) T
 	}
 }
 
-func totalBalances(dbtx walletdb.ReadTx, w *Wallet, m map[uint32]util.Amount) error {
+func totalBalances(
+	dbtx walletdb.ReadTx, w *Wallet, m map[uint32]util.Amount) error {
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)
 	unspent, err := w.TxStore.UnspentOutputs(dbtx.ReadBucket(wtxmgrNamespaceKey))
 	if err != nil {
@@ -181,7 +186,8 @@ func totalBalances(dbtx walletdb.ReadTx, w *Wallet, m map[uint32]util.Amount) er
 	return nil
 }
 
-func flattenBalanceMap(m map[uint32]util.Amount) []AccountBalance {
+func flattenBalanceMap(
+	m map[uint32]util.Amount) []AccountBalance {
 	s := make([]AccountBalance, 0, len(m))
 	for k, v := range m {
 		s = append(s, AccountBalance{Account: k, TotalBalance: v})
@@ -189,7 +195,8 @@ func flattenBalanceMap(m map[uint32]util.Amount) []AccountBalance {
 	return s
 }
 
-func relevantAccounts(w *Wallet, m map[uint32]util.Amount, txs []TransactionSummary) {
+func relevantAccounts(
+	w *Wallet, m map[uint32]util.Amount, txs []TransactionSummary) {
 	for _, tx := range txs {
 		for _, d := range tx.MyInputs {
 			m[d.PreviousAccount] = 0

@@ -39,6 +39,7 @@ func (msg *MsgFilterClear) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgFilterClear returns a new bitcoin filterclear message that conforms to the Message interface.  See MsgFilterClear for details.
-func NewMsgFilterClear() *MsgFilterClear {
+func NewMsgFilterClear(
+	) *MsgFilterClear {
 	return &MsgFilterClear{}
 }

@@ -588,14 +588,16 @@ func (c *Client) sendPostRequest(httpReq *http.Request, jReq *jsonRequest) {
 }
 
 // newFutureError returns a new future result channel that already has the passed error waitin on the channel with the reply set to nil.  This is useful to easily return errors from the various Async functions.
-func newFutureError(err error) chan *response {
+func newFutureError(
+	err error) chan *response {
 	responseChan := make(chan *response, 1)
 	responseChan <- &response{err: err}
 	return responseChan
 }
 
 // receiveFuture receives from the passed futureResult channel to extract a reply or any errors.  The examined errors include an error in the futureResult and the error in the reply from the server.  This will block until the result is available on the passed channel.
-func receiveFuture(f chan *response) ([]byte, error) {
+func receiveFuture(
+	f chan *response) ([]byte, error) {
 	// Wait for a response on the returned channel.
 	r := <-f
 	return r.result, r.err
@@ -829,9 +831,11 @@ type ConnConfig struct {
 }
 
 // newHTTPClient returns a new http client that is configured according to the proxy and TLS settings in the associated connection configuration.
-func newHTTPClient(config *ConnConfig) (*http.Client, error) {
+func newHTTPClient(
+	config *ConnConfig) (*http.Client, error) {
 	// Set proxy function if there is a proxy configured.
-	var proxyFunc func(*http.Request) (*url.URL, error)
+	var proxyFunc func(
+	*http.Request) (*url.URL, error)
 	if config.Proxy != "" {
 		proxyURL, err := url.Parse(config.Proxy)
 		if err != nil {
@@ -860,7 +864,8 @@ func newHTTPClient(config *ConnConfig) (*http.Client, error) {
 }
 
 // dial opens a websocket connection using the passed connection configuration details.
-func dial(config *ConnConfig) (*websocket.Conn, error) {
+func dial(
+	config *ConnConfig) (*websocket.Conn, error) {
 	// Setup TLS if not disabled.
 	var tlsConfig *tls.Config
 	var scheme = "ws"
@@ -914,7 +919,8 @@ func dial(config *ConnConfig) (*websocket.Conn, error) {
 }
 
 // New creates a new RPC client based on the provided connection configuration details.  The notification handlers parameter may be nil if you are not interested in receiving notifications and will be ignored if the configuration is set to run in HTTP POST mode.
-func New(config *ConnConfig, ntfnHandlers *NotificationHandlers) (*Client, error) {
+func New(
+	config *ConnConfig, ntfnHandlers *NotificationHandlers) (*Client, error) {
 	// Either open a websocket connection or create an HTTP client depending on the HTTP POST mode.  Also, set the notification handlers to nil when running in HTTP POST mode.
 	var wsConn *websocket.Conn
 	var httpClient *http.Client

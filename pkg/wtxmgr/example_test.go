@@ -22,7 +22,8 @@ var (
 	exampleTxRecordB *wtxmgr.TxRecord
 )
 
-func init() {
+func init(
+	) {
 	tx := spendOutput(&chainhash.Hash{}, 0, 10e8)
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx, timeNow())
 	if err != nil {
@@ -42,7 +43,8 @@ var exampleBlock100 = makeBlockMeta(100)
 
 // This example demonstrates reporting the Store balance given an unmined and
 // mined transaction given 0, 1, and 6 block confirmations.
-func ExampleStore_Balance() {
+func ExampleStore_Balance(
+	) {
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
@@ -113,7 +115,8 @@ func ExampleStore_Balance() {
 	// 10 DUO, 10 DUO, 10 DUO
 }
 
-func ExampleStore_Rollback() {
+func ExampleStore_Rollback(
+	) {
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
@@ -156,7 +159,8 @@ func ExampleStore_Rollback() {
 	// -1
 }
 
-func Example_basicUsage() {
+func Example_basicUsage(
+	) {
 	// Open the database.
 	db, dbTeardown, err := testDB()
 	defer dbTeardown()

@@ -42,7 +42,8 @@ type Cache struct {
 
 // NewCache return a cache with specified capacity, the cache's size can't
 // exceed that given capacity.
-func NewCache(capacity uint64) *Cache {
+func NewCache(
+	capacity uint64) *Cache {
 	return &Cache{
 		capacity: capacity,
 		ll:       list.New(),

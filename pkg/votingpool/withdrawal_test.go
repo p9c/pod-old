@@ -9,7 +9,8 @@ import (
 	vp "git.parallelcoin.io/pod/pkg/votingpool"
 )
 
-func TestStartWithdrawal(t *testing.T) {
+func TestStartWithdrawal(
+	t *testing.T) {
 	tearDown, db, pool, store := vp.TstCreatePoolAndTxStore(t)
 	defer tearDown()
 

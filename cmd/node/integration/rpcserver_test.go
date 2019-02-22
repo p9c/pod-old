@@ -13,7 +13,8 @@ import (
 	"git.parallelcoin.io/pod/integration/rpctest"
 )
 
-func testGetBestBlock(r *rpctest.Harness, t *testing.T) {
+func testGetBestBlock(
+	r *rpctest.Harness, t *testing.T) {
 	_, prevbestHeight, err := r.Node.GetBestBlock()
 	if err != nil {
 		t.Fatalf("Call to `getbestblock` failed: %v", err)
@@ -38,7 +39,8 @@ func testGetBestBlock(r *rpctest.Harness, t *testing.T) {
 			bestHeight, prevbestHeight+1)
 	}
 }
-func testGetBlockCount(r *rpctest.Harness, t *testing.T) {
+func testGetBlockCount(
+	r *rpctest.Harness, t *testing.T) {
 	// Save the current count.
 	currentCount, err := r.Node.GetBlockCount()
 	if err != nil {
@@ -57,7 +59,8 @@ func testGetBlockCount(r *rpctest.Harness, t *testing.T) {
 			newCount, currentCount+1)
 	}
 }
-func testGetBlockHash(r *rpctest.Harness, t *testing.T) {
+func testGetBlockHash(
+	r *rpctest.Harness, t *testing.T) {
 	// Create a new block connecting to the current tip.
 	generatedBlockHashes, err := r.Node.Generate(1)
 	if err != nil {
@@ -85,7 +88,8 @@ var rpcTestCases = []rpctest.HarnessTestCase{
 }
 var primaryHarness *rpctest.Harness
 
-func TestMain(m *testing.M) {
+func TestMain(
+	m *testing.M) {
 	var err error
 	// In order to properly test scenarios on as if we were on mainnet, ensure that non-standard transactions aren't accepted into the mempool or relayed.
 	podCfg := []string{"--rejectnonstd"}
@@ -109,7 +113,8 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(exitCode)
 }
-func TestRpcServer(t *testing.T) {
+func TestRpcServer(
+	t *testing.T) {
 	var currentTestNum int
 	defer func() {
 		// If one of the integration tests caused a panic within the main goroutine, then tear down all the harnesses in order to avoid any leaked pod processes.

@@ -440,7 +440,8 @@ func (cm *ConnManager) Stop() {
 }
 
 // New returns a new connection manager. Use Start to start connecting to the network.
-func New(cfg *Config) (*ConnManager, error) {
+func New(
+	cfg *Config) (*ConnManager, error) {
 	if cfg.Dial == nil {
 		return nil, ErrDialNil
 	}

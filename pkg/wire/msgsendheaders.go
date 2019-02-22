@@ -39,6 +39,7 @@ func (msg *MsgSendHeaders) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgSendHeaders returns a new bitcoin sendheaders message that conforms to the Message interface.  See MsgSendHeaders for details.
-func NewMsgSendHeaders() *MsgSendHeaders {
+func NewMsgSendHeaders(
+	) *MsgSendHeaders {
 	return &MsgSendHeaders{}
 }

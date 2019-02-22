@@ -74,7 +74,8 @@ func (h *BlockHeader) Serialize(w io.Writer) error {
 }
 
 // NewBlockHeader returns a new BlockHeader using the provided version, previous block hash, merkle root hash, difficulty bits, and nonce used to generate the block with defaults for the remaining fields.
-func NewBlockHeader(version int32, prevHash, merkleRootHash *chainhash.Hash,
+func NewBlockHeader(
+	version int32, prevHash, merkleRootHash *chainhash.Hash,
 	bits uint32, nonce uint32) *BlockHeader {
 	// Limit the timestamp to one second precision since the protocol doesn't support better.
 	return &BlockHeader{
@@ -88,13 +89,15 @@ func NewBlockHeader(version int32, prevHash, merkleRootHash *chainhash.Hash,
 }
 
 // readBlockHeader reads a bitcoin block header from r.  See Deserialize for decoding block headers stored to disk, such as in a database, as opposed to decoding from the wire.
-func readBlockHeader(r io.Reader, pver uint32, bh *BlockHeader) error {
+func readBlockHeader(
+	r io.Reader, pver uint32, bh *BlockHeader) error {
 	return readElements(r, &bh.Version, &bh.PrevBlock, &bh.MerkleRoot,
 		(*uint32Time)(&bh.Timestamp), &bh.Bits, &bh.Nonce)
 }
 
 // writeBlockHeader writes a bitcoin block header to w.  See Serialize for encoding block headers to be stored to disk, such as in a database, as opposed to encoding for the wire.
-func writeBlockHeader(w io.Writer, pver uint32, bh *BlockHeader) error {
+func writeBlockHeader(
+	w io.Writer, pver uint32, bh *BlockHeader) error {
 	sec := uint32(bh.Timestamp.Unix())
 	return writeElements(w, bh.Version, &bh.PrevBlock, &bh.MerkleRoot,
 		sec, bh.Bits, bh.Nonce)

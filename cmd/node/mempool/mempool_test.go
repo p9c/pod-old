@@ -91,7 +91,8 @@ type spendableOutput struct {
 }
 
 // txOutToSpendableOut returns a spendable output given a transaction and index of the output to use.  This is useful as a convenience when creating test transactions.
-func txOutToSpendableOut(tx *util.Tx, outputNum uint32) spendableOutput {
+func txOutToSpendableOut(
+	tx *util.Tx, outputNum uint32) spendableOutput {
 	return spendableOutput{
 		outPoint: wire.OutPoint{Hash: *tx.Hash(), Index: outputNum},
 		amount:   util.Amount(tx.MsgTx().TxOut[outputNum].Value),
@@ -215,7 +216,8 @@ func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32)
 }
 
 // newPoolHarness returns a new instance of a pool harness initialized with a fake chain and a TxPool bound to it that is configured with a policy suitable for testing.  Also, the fake chain is populated with the returned spendable outputs so the caller can easily create new valid transactions which build off of it.
-func newPoolHarness(chainParams *chaincfg.Params) (*poolHarness, []spendableOutput, error) {
+func newPoolHarness(
+	chainParams *chaincfg.Params) (*poolHarness, []spendableOutput, error) {
 	// Use a hard coded key pair for deterministic results.
 	keyBytes, err := hex.DecodeString("700868df1838811ffbdf918fb482c1f7e" +
 		"ad62db4b97bd7012c23e726485e577d")
@@ -285,7 +287,8 @@ type testContext struct {
 }
 
 // testPoolMembership tests the transaction pool associated with the provided test context to determine if the passed transaction matches the provided orphan pool and transaction pool status.  It also further determines if it should be reported as available by the HaveTransaction function based upon the two flags and tests that condition as well.
-func testPoolMembership(tc *testContext, tx *util.Tx, inOrphanPool, inTxPool bool) {
+func testPoolMembership(
+	tc *testContext, tx *util.Tx, inOrphanPool, inTxPool bool) {
 	txHash := tx.Hash()
 	gotOrphanPool := tc.harness.txPool.IsOrphanInPool(txHash)
 	if inOrphanPool != gotOrphanPool {
@@ -309,7 +312,8 @@ func testPoolMembership(tc *testContext, tx *util.Tx, inOrphanPool, inTxPool boo
 }
 
 // TestSimpleOrphanChain ensures that a simple chain of orphans is handled properly.  In particular, it generates a chain of single input, single output transactions and inserts them while skipping the first linking transaction so they are all orphans.  Finally, it adds the linking transaction and ensures the entire orphan chain is moved to the transaction pool.
-func TestSimpleOrphanChain(t *testing.T) {
+func TestSimpleOrphanChain(
+	t *testing.T) {
 	t.Parallel()
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -358,7 +362,8 @@ func TestSimpleOrphanChain(t *testing.T) {
 }
 
 // TestOrphanReject ensures that orphans are properly rejected when the allow orphans flag is not set on ProcessTransaction.
-func TestOrphanReject(t *testing.T) {
+func TestOrphanReject(
+	t *testing.T) {
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -405,7 +410,8 @@ func TestOrphanReject(t *testing.T) {
 }
 
 // TestOrphanEviction ensures that exceeding the maximum number of orphans evicts entries to make room for the new ones.
-func TestOrphanEviction(t *testing.T) {
+func TestOrphanEviction(
+	t *testing.T) {
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {
@@ -454,7 +460,8 @@ func TestOrphanEviction(t *testing.T) {
 }
 
 // TestBasicOrphanRemoval ensure that orphan removal works as expected when an orphan that doesn't exist is removed  both when there is another orphan that redeems it and when there is not.
-func TestBasicOrphanRemoval(t *testing.T) {
+func TestBasicOrphanRemoval(
+	t *testing.T) {
 	t.Parallel()
 	const maxOrphans = 4
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -512,7 +519,8 @@ func TestBasicOrphanRemoval(t *testing.T) {
 }
 
 // TestOrphanChainRemoval ensure that orphan chains (orphans that spend outputs from other orphans) are removed as expected.
-func TestOrphanChainRemoval(t *testing.T) {
+func TestOrphanChainRemoval(
+	t *testing.T) {
 	t.Parallel()
 	const maxOrphans = 10
 	harness, spendableOuts, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -561,7 +569,8 @@ func TestOrphanChainRemoval(t *testing.T) {
 }
 
 // TestMultiInputOrphanDoubleSpend ensures that orphans that spend from an output that is spend by another transaction entering the pool are removed.
-func TestMultiInputOrphanDoubleSpend(t *testing.T) {
+func TestMultiInputOrphanDoubleSpend(
+	t *testing.T) {
 	t.Parallel()
 	const maxOrphans = 4
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
@@ -629,7 +638,8 @@ func TestMultiInputOrphanDoubleSpend(t *testing.T) {
 }
 
 // TestCheckSpend tests that CheckSpend returns the expected spends found in the mempool.
-func TestCheckSpend(t *testing.T) {
+func TestCheckSpend(
+	t *testing.T) {
 	t.Parallel()
 	harness, outputs, err := newPoolHarness(&chaincfg.MainNetParams)
 	if err != nil {

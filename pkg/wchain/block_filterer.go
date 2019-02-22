@@ -67,7 +67,8 @@ type BlockFilterer struct {
 // external and internal addresses that we are searching for, and is used to
 // scan successive blocks for addresses of interest. A particular block filter
 // can be reused until the first call from `FitlerBlock` returns true.
-func NewBlockFilterer(params *chaincfg.Params,
+func NewBlockFilterer(
+	params *chaincfg.Params,
 	req *FilterBlocksRequest) *BlockFilterer {
 
 	// Construct a reverse index by address string for the requested

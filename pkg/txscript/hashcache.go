@@ -15,7 +15,8 @@ type TxSigHashes struct {
 }
 
 // NewTxSigHashes computes, and returns the cached sighashes of the given transaction.
-func NewTxSigHashes(tx *wire.MsgTx) *TxSigHashes {
+func NewTxSigHashes(
+	tx *wire.MsgTx) *TxSigHashes {
 	return &TxSigHashes{
 		HashPrevOuts: calcHashPrevOuts(tx),
 		HashSequence: calcHashSequence(tx),
@@ -30,7 +31,8 @@ type HashCache struct {
 }
 
 // NewHashCache returns a new instance of the HashCache given a maximum number of entries which may exist within it at anytime.
-func NewHashCache(maxSize uint) *HashCache {
+func NewHashCache(
+	maxSize uint) *HashCache {
 	return &HashCache{
 		sigHashes: make(map[chainhash.Hash]*TxSigHashes, maxSize),
 	}

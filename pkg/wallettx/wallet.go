@@ -817,7 +817,8 @@ expandHorizons:
 // persistent state of the wallet. If any invalid child keys are detected, the
 // horizon will be properly extended such that our lookahead always includes the
 // proper number of valid child keys.
-func expandScopeHorizons(ns walletdb.ReadWriteBucket,
+func expandScopeHorizons(
+	ns walletdb.ReadWriteBucket,
 	scopedMgr *waddrmgr.ScopedKeyManager,
 	scopeState *ScopeRecoveryState) error {
 
@@ -885,7 +886,8 @@ func expandScopeHorizons(ns walletdb.ReadWriteBucket,
 }
 
 // externalKeyPath returns the relative external derivation path /0/0/index.
-func externalKeyPath(index uint32) waddrmgr.DerivationPath {
+func externalKeyPath(
+	index uint32) waddrmgr.DerivationPath {
 	return waddrmgr.DerivationPath{
 		Account: waddrmgr.DefaultAccountNum,
 		Branch:  waddrmgr.ExternalBranch,
@@ -894,7 +896,8 @@ func externalKeyPath(index uint32) waddrmgr.DerivationPath {
 }
 
 // internalKeyPath returns the relative internal derivation path /0/1/index.
-func internalKeyPath(index uint32) waddrmgr.DerivationPath {
+func internalKeyPath(
+	index uint32) waddrmgr.DerivationPath {
 	return waddrmgr.DerivationPath{
 		Account: waddrmgr.DefaultAccountNum,
 		Branch:  waddrmgr.InternalBranch,
@@ -904,7 +907,8 @@ func internalKeyPath(index uint32) waddrmgr.DerivationPath {
 
 // newFilterBlocksRequest constructs FilterBlocksRequests using our current
 // block range, scoped managers, and recovery state.
-func newFilterBlocksRequest(batch []wtxmgr.BlockMeta,
+func newFilterBlocksRequest(
+	batch []wtxmgr.BlockMeta,
 	scopedMgrs map[waddrmgr.KeyScope]*waddrmgr.ScopedKeyManager,
 	recoveryState *RecoveryState) *chain.FilterBlocksRequest {
 
@@ -941,7 +945,8 @@ func newFilterBlocksRequest(batch []wtxmgr.BlockMeta,
 // extendFoundAddresses accepts a filter blocks response that contains addresses
 // found on chain, and advances the state of all relevant derivation paths to
 // match the highest found child index for each branch.
-func extendFoundAddresses(ns walletdb.ReadWriteBucket,
+func extendFoundAddresses(
+	ns walletdb.ReadWriteBucket,
 	filterResp *chain.FilterBlocksResponse,
 	scopedMgrs map[waddrmgr.KeyScope]*waddrmgr.ScopedKeyManager,
 	recoveryState *RecoveryState) error {
@@ -1036,7 +1041,8 @@ func extendFoundAddresses(ns walletdb.ReadWriteBucket,
 
 // logFilterBlocksResp provides useful logging information when filtering
 // succeeded in finding relevant transactions.
-func logFilterBlocksResp(block wtxmgr.BlockMeta,
+func logFilterBlocksResp(
+	block wtxmgr.BlockMeta,
 	resp *chain.FilterBlocksResponse) {
 
 	// Log the number of external addresses found in this block.
@@ -1770,7 +1776,8 @@ func (c CreditCategory) String() string {
 //
 // TODO: This is intended for use by the RPC server and should be moved out of
 // this package at a later time.
-func RecvCategory(details *wtxmgr.TxDetails, syncHeight int32, net *chaincfg.Params) CreditCategory {
+func RecvCategory(
+	details *wtxmgr.TxDetails, syncHeight int32, net *chaincfg.Params) CreditCategory {
 	if blockchain.IsCoinBaseTx(&details.MsgTx) {
 		if confirmed(int32(net.CoinbaseMaturity), details.Block.Height,
 			syncHeight) {
@@ -1785,7 +1792,8 @@ func RecvCategory(details *wtxmgr.TxDetails, syncHeight int32, net *chaincfg.Par
 // for a listtransactions RPC.
 //
 // TODO: This should be moved to the legacyrpc package.
-func listTransactions(tx walletdb.ReadTx, details *wtxmgr.TxDetails, addrMgr *waddrmgr.Manager,
+func listTransactions(
+	tx walletdb.ReadTx, details *wtxmgr.TxDetails, addrMgr *waddrmgr.Manager,
 	syncHeight int32, net *chaincfg.Params) []json.ListTransactionsResult {
 
 	addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
@@ -2073,12 +2081,14 @@ type BlockIdentifier struct {
 }
 
 // NewBlockIdentifierFromHeight constructs a BlockIdentifier for a block height.
-func NewBlockIdentifierFromHeight(height int32) *BlockIdentifier {
+func NewBlockIdentifierFromHeight(
+	height int32) *BlockIdentifier {
 	return &BlockIdentifier{height: height}
 }
 
 // NewBlockIdentifierFromHash constructs a BlockIdentifier for a block hash.
-func NewBlockIdentifierFromHash(hash *chainhash.Hash) *BlockIdentifier {
+func NewBlockIdentifierFromHash(
+	hash *chainhash.Hash) *BlockIdentifier {
 	return &BlockIdentifier{hash: hash}
 }
 
@@ -2968,14 +2978,16 @@ func (w *Wallet) newChangeAddress(addrmgrNs walletdb.ReadWriteBucket,
 
 // confirmed checks whether a transaction at height txHeight has met minconf
 // confirmations for a blockchain at height curHeight.
-func confirmed(minconf, txHeight, curHeight int32) bool {
+func confirmed(
+	minconf, txHeight, curHeight int32) bool {
 	return confirms(txHeight, curHeight) >= minconf
 }
 
 // confirms returns the number of confirmations for a transaction in a block at
 // height txHeight (or -1 for an unconfirmed tx) given the chain height
 // curHeight.
-func confirms(txHeight, curHeight int32) int32 {
+func confirms(
+	txHeight, curHeight int32) int32 {
 	switch {
 	case txHeight == -1, txHeight > curHeight:
 		return 0
@@ -3362,7 +3374,8 @@ func (w *Wallet) Database() walletdb.DB {
 // Create creates an new wallet, writing it to an empty database.  If the passed
 // seed is non-nil, it is used.  Otherwise, a secure random seed of the
 // recommended length is generated.
-func Create(db walletdb.DB, pubPass, privPass, seed []byte, params *chaincfg.Params,
+func Create(
+	db walletdb.DB, pubPass, privPass, seed []byte, params *chaincfg.Params,
 	birthday time.Time) error {
 
 	// If a seed was provided, ensure that it is of valid length. Otherwise,
@@ -3403,7 +3416,8 @@ func Create(db walletdb.DB, pubPass, privPass, seed []byte, params *chaincfg.Par
 }
 
 // Open loads an already-created wallet from the passed database and namespaces.
-func Open(db walletdb.DB, pubPass []byte, cbs *waddrmgr.OpenCallbacks,
+func Open(
+	db walletdb.DB, pubPass []byte, cbs *waddrmgr.OpenCallbacks,
 	params *chaincfg.Params, recoveryWindow uint32) (*Wallet, error) {
 
 	err := walletdb.View(db, func(tx walletdb.ReadTx) error {

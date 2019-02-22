@@ -68,7 +68,8 @@ func (b *ScriptBuilder) AddOps(opcodes []byte) *ScriptBuilder {
 }
 
 // canonicalDataSize returns the number of bytes the canonical encoding of the data will take.
-func canonicalDataSize(data []byte) int {
+func canonicalDataSize(
+	data []byte) int {
 	dataLen := len(data)
 	// When the data consists of a single number that can be represented by one of the "small integer" opcodes, that opcode will be instead of a data push opcode followed by the number.
 	if dataLen == 0 {
@@ -195,7 +196,8 @@ func (b *ScriptBuilder) Script() ([]byte, error) {
 }
 
 // NewScriptBuilder returns a new instance of a script builder.  See ScriptBuilder for details.
-func NewScriptBuilder() *ScriptBuilder {
+func NewScriptBuilder(
+	) *ScriptBuilder {
 	return &ScriptBuilder{
 		script: make([]byte, 0, defaultScriptAlloc),
 	}

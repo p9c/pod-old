@@ -14,13 +14,15 @@ const (
 	PubKeyBytesLenHybrid       = 65
 )
 
-func isOdd(a *big.Int) bool {
+func isOdd(
+	a *big.Int) bool {
 	return a.Bit(0) == 1
 }
 
 // decompressPoint decompresses a point on the given curve given the X point and
 // the solution to use.
-func decompressPoint(curve *KoblitzCurve, x *big.Int, ybit bool) (*big.Int, error) {
+func decompressPoint(
+	curve *KoblitzCurve, x *big.Int, ybit bool) (*big.Int, error) {
 	// TODO: This will probably only work for secp256k1 due to
 	// optimizations.
 	// Y = +-sqrt(x^3 + B)
@@ -57,7 +59,8 @@ const (
 
 // IsCompressedPubKey returns true the the passed serialized public key has
 // been encoded in compressed format, and false otherwise.
-func IsCompressedPubKey(pubKey []byte) bool {
+func IsCompressedPubKey(
+	pubKey []byte) bool {
 	// The public key is only compressed if it is the correct length and
 	// the format (first byte) is one of the compressed pubkey values.
 	return len(pubKey) == PubKeyBytesLenCompressed &&
@@ -67,7 +70,8 @@ func IsCompressedPubKey(pubKey []byte) bool {
 // ParsePubKey parses a public key for a koblitz curve from a bytestring into a
 // ecdsa.Publickey, verifying that it is valid. It supports compressed,
 // uncompressed and hybrid signature formats.
-func ParsePubKey(pubKeyStr []byte, curve *KoblitzCurve) (key *PublicKey, err error) {
+func ParsePubKey(
+	pubKeyStr []byte, curve *KoblitzCurve) (key *PublicKey, err error) {
 	pubkey := PublicKey{}
 	pubkey.Curve = curve
 	if len(pubKeyStr) == 0 {
@@ -169,7 +173,8 @@ func (p *PublicKey) IsEqual(otherPubKey *PublicKey) bool {
 // paddedAppend appends the src byte slice to dst, returning the new slice.
 // If the length of the source is smaller than the passed size, leading zero
 // bytes are appended to the dst slice before appending src.
-func paddedAppend(size uint, dst, src []byte) []byte {
+func paddedAppend(
+	size uint, dst, src []byte) []byte {
 	for i := 0; i < int(size)-len(src); i++ {
 		dst = append(dst, 0)
 	}

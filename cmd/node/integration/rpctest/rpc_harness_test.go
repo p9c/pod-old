@@ -16,7 +16,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
-func testSendOutputs(r *Harness, t *testing.T) {
+func testSendOutputs(
+	r *Harness, t *testing.T) {
 	genSpend := func(amt util.Amount) *chainhash.Hash {
 		// Grab a fresh address from the wallet.
 		addr, err := r.NewAddress()
@@ -67,7 +68,8 @@ func testSendOutputs(r *Harness, t *testing.T) {
 	}
 	assertTxMined(txid, blockHashes[0])
 }
-func assertConnectedTo(t *testing.T, nodeA *Harness, nodeB *Harness) {
+func assertConnectedTo(
+	t *testing.T, nodeA *Harness, nodeB *Harness) {
 	nodeAPeers, err := nodeA.Node.GetPeerInfo()
 	if err != nil {
 		t.Fatalf("unable to get nodeA's peer info")
@@ -84,7 +86,8 @@ func assertConnectedTo(t *testing.T, nodeA *Harness, nodeB *Harness) {
 		t.Fatal("nodeA not connected to nodeB")
 	}
 }
-func testConnectNode(r *Harness, t *testing.T) {
+func testConnectNode(
+	r *Harness, t *testing.T) {
 	// Create a fresh test harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -101,7 +104,8 @@ func testConnectNode(r *Harness, t *testing.T) {
 	// The main harness should show up in our local harness' peer's list, and vice verse.
 	assertConnectedTo(t, harness, r)
 }
-func testTearDownAll(t *testing.T) {
+func testTearDownAll(
+	t *testing.T) {
 	// Grab a local copy of the currently active harnesses before attempting to tear them all down.
 	initialActiveHarnesses := ActiveHarnesses()
 	// Tear down all currently active harnesses.
@@ -119,7 +123,8 @@ func testTearDownAll(t *testing.T) {
 		}
 	}
 }
-func testActiveHarnesses(r *Harness, t *testing.T) {
+func testActiveHarnesses(
+	r *Harness, t *testing.T) {
 	numInitialHarnesses := len(ActiveHarnesses())
 	// Create a single test harness.
 	harness1, err := New(&chaincfg.SimNetParams, nil, nil)
@@ -134,7 +139,8 @@ func testActiveHarnesses(r *Harness, t *testing.T) {
 			"additional test harness listed.")
 	}
 }
-func testJoinMempools(r *Harness, t *testing.T) {
+func testJoinMempools(
+	r *Harness, t *testing.T) {
 	// Assert main test harness has no transactions in its mempool.
 	pooledHashes, err := r.Node.GetRawMempool()
 	if err != nil {
@@ -222,7 +228,8 @@ func testJoinMempools(r *Harness, t *testing.T) {
 		t.Fatalf("mempools never detected as synced")
 	}
 }
-func testJoinBlocks(r *Harness, t *testing.T) {
+func testJoinBlocks(
+	r *Harness, t *testing.T) {
 	// Create a second harness with only the genesis block so it is behind the main harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -257,7 +264,8 @@ func testJoinBlocks(r *Harness, t *testing.T) {
 		t.Fatalf("blocks never detected as synced")
 	}
 }
-func testGenerateAndSubmitBlock(r *Harness, t *testing.T) {
+func testGenerateAndSubmitBlock(
+	r *Harness, t *testing.T) {
 	// Generate a few test spend transactions.
 	addr, err := r.NewAddress()
 	if err != nil {
@@ -312,7 +320,8 @@ func testGenerateAndSubmitBlock(r *Harness, t *testing.T) {
 			timestamp, header.Timestamp)
 	}
 }
-func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(r *Harness,
+func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(
+	r *Harness,
 	t *testing.T) {
 	// Generate a few test spend transactions.
 	addr, err := r.NewAddress()
@@ -376,7 +385,8 @@ func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(r *Harness,
 			timestamp, header.Timestamp)
 	}
 }
-func testMemWalletReorg(r *Harness, t *testing.T) {
+func testMemWalletReorg(
+	r *Harness, t *testing.T) {
 	// Create a fresh harness, we'll be using the main harness to force a re-org on this local harness.
 	harness, err := New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -409,7 +419,8 @@ func testMemWalletReorg(r *Harness, t *testing.T) {
 			expectedBalance, walletBalance)
 	}
 }
-func testMemWalletLockedOutputs(r *Harness, t *testing.T) {
+func testMemWalletLockedOutputs(
+	r *Harness, t *testing.T) {
 	// Obtain the initial balance of the wallet at this point.
 	startingBalance := r.ConfirmedBalance()
 	// First, create a signed transaction spending some outputs.
@@ -459,7 +470,8 @@ const (
 	numMatureOutputs = 25
 )
 
-func TestMain(m *testing.M) {
+func TestMain(
+	m *testing.M) {
 	var err error
 	mainHarness, err = New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
@@ -483,7 +495,8 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(exitCode)
 }
-func TestHarness(t *testing.T) {
+func TestHarness(
+	t *testing.T) {
 	// We should have (numMatureOutputs * 50 DUO) of mature unspendable
 	// outputs.
 	expectedBalance := util.Amount(numMatureOutputs * 50 * util.SatoshiPerBitcoin)

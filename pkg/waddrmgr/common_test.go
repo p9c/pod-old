@@ -205,7 +205,8 @@ var (
 
 // checkManagerError ensures the passed error is a ManagerError with an error
 // code that matches the passed  error code.
-func checkManagerError(t *testing.T, testName string, gotErr error, wantErrCode waddrmgr.ErrorCode) bool {
+func checkManagerError(
+	t *testing.T, testName string, gotErr error, wantErrCode waddrmgr.ErrorCode) bool {
 	merr, ok := gotErr.(waddrmgr.ManagerError)
 	if !ok {
 		t.Errorf("%s: unexpected error type - got %T, want %T",
@@ -223,7 +224,8 @@ func checkManagerError(t *testing.T, testName string, gotErr error, wantErrCode 
 
 // hexToBytes is a wrapper around hex.DecodeString that panics if there is an
 // error.  It MUST only be used with hard coded values in the tests.
-func hexToBytes(origHex string) []byte {
+func hexToBytes(
+	origHex string) []byte {
 	buf, err := hex.DecodeString(origHex)
 	if err != nil {
 		panic(err)
@@ -231,7 +233,9 @@ func hexToBytes(origHex string) []byte {
 	return buf
 }
 
-func emptyDB(t *testing.T) (tearDownFunc func(), db walletdb.DB) {
+func emptyDB(
+	t *testing.T) (tearDownFunc func(
+	), db walletdb.DB) {
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {
 		t.Fatalf("Failed to create db temp dir: %v", err)
@@ -251,7 +255,9 @@ func emptyDB(t *testing.T) (tearDownFunc func(), db walletdb.DB) {
 
 // setupManager creates a new address manager and returns a teardown function
 // that should be invoked to ensure it is closed and removed upon completion.
-func setupManager(t *testing.T) (tearDownFunc func(), db walletdb.DB, mgr *waddrmgr.Manager) {
+func setupManager(
+	t *testing.T) (tearDownFunc func(
+	), db walletdb.DB, mgr *waddrmgr.Manager) {
 	// Create a new manager in a temp directory.
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {

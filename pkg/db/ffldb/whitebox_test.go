@@ -29,7 +29,8 @@ var (
 )
 
 // loadBlocks loads the blocks contained in the testdata directory and returns a slice of them.
-func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util.Block, error) {
+func loadBlocks(
+	t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util.Block, error) {
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
 	if err != nil {
@@ -91,7 +92,8 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util
 }
 
 // checkDbError ensures the passed error is a database.Error with an error code that matches the passed  error code.
-func checkDbError(t *testing.T, testName string, gotErr error, wantErrCode database.ErrorCode) bool {
+func checkDbError(
+	t *testing.T, testName string, gotErr error, wantErrCode database.ErrorCode) bool {
 	dbErr, ok := gotErr.(database.Error)
 	if !ok {
 		t.Errorf("%s: unexpected error type - got %T, want %T",
@@ -117,7 +119,8 @@ type testContext struct {
 }
 
 // TestConvertErr ensures the leveldb error to database error conversion works as expected.
-func TestConvertErr(t *testing.T) {
+func TestConvertErr(
+	t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		err         error
@@ -139,7 +142,8 @@ func TestConvertErr(t *testing.T) {
 }
 
 // TestCornerCases ensures several corner cases which can happen when opening a database and/or block files work as expected.
-func TestCornerCases(t *testing.T) {
+func TestCornerCases(
+	t *testing.T) {
 	t.Parallel()
 	// Create a file at the datapase path to force the open below to fail.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-errors")
@@ -213,7 +217,8 @@ func TestCornerCases(t *testing.T) {
 }
 
 // resetDatabase removes everything from the opened database associated with the test context including all metadata and the mock files.
-func resetDatabase(tc *testContext) bool {
+func resetDatabase(
+	tc *testContext) bool {
 	// Reset the metadata.
 	err := tc.db.Update(func(tx database.Tx) error {
 		// Remove all the keys using a cursor while also generating a list of buckets.  It's not safe to remove keys during ForEach iteration nor is it safe to remove buckets during cursor iteration, so this dual approach is needed.
@@ -260,7 +265,8 @@ func resetDatabase(tc *testContext) bool {
 }
 
 // testWriteFailures tests various failures paths when writing to the block files.
-func testWriteFailures(tc *testContext) bool {
+func testWriteFailures(
+	tc *testContext) bool {
 	if !resetDatabase(tc) {
 		return false
 	}
@@ -343,7 +349,8 @@ func testWriteFailures(tc *testContext) bool {
 }
 
 // testBlockFileErrors ensures the database returns expected errors with various file-related issues such as closed and missing files.
-func testBlockFileErrors(tc *testContext) bool {
+func testBlockFileErrors(
+	tc *testContext) bool {
 	if !resetDatabase(tc) {
 		return false
 	}
@@ -431,7 +438,8 @@ func testBlockFileErrors(tc *testContext) bool {
 }
 
 // testCorruption ensures the database returns expected errors under various corruption scenarios.
-func testCorruption(tc *testContext) bool {
+func testCorruption(
+	tc *testContext) bool {
 	if !resetDatabase(tc) {
 		return false
 	}
@@ -509,7 +517,8 @@ func testCorruption(tc *testContext) bool {
 }
 
 // TestFailureScenarios ensures several failure scenarios such as database corruption, block file write failures, and rollback failures are handled correctly.
-func TestFailureScenarios(t *testing.T) {
+func TestFailureScenarios(
+	t *testing.T) {
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-failurescenarios")
 	_ = os.RemoveAll(dbPath)

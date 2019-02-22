@@ -30,7 +30,8 @@ func (
 
 }
 
-func liner(bb []byte) []byte {
+func liner(
+	bb []byte) []byte {
 
 	changed := true
 	for changed {
@@ -62,7 +63,8 @@ func liner(bb []byte) []byte {
 	return bb
 }
 
-func main() {
+func main(
+	) {
 
 	bb, e := ioutil.ReadFile(os.Args[1])
 	if e != nil {
@@ -84,7 +86,8 @@ func main() {
 	}
 }
 
-func sorter(bb []byte) []byte {
+func sorter(
+	bb []byte) []byte {
 
 	ss := string(bb)
 	splittedraw := strings.Split(ss, "\n")

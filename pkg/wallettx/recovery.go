@@ -41,7 +41,8 @@ type RecoveryManager struct {
 // NewRecoveryManager initializes a new RecoveryManager with a derivation
 // look-ahead of `recoveryWindow` child indexes, and pre-allocates a backing
 // array for `batchSize` blocks to scan at once.
-func NewRecoveryManager(recoveryWindow, batchSize uint32,
+func NewRecoveryManager(
+	recoveryWindow, batchSize uint32,
 	chainParams *chaincfg.Params) *RecoveryManager {
 
 	return &RecoveryManager{
@@ -219,7 +220,8 @@ type RecoveryState struct {
 // NewRecoveryState creates a new RecoveryState using the provided
 // recoveryWindow. Each RecoveryState that is subsequently initialized for a
 // particular key scope will receive the same recoveryWindow.
-func NewRecoveryState(recoveryWindow uint32) *RecoveryState {
+func NewRecoveryState(
+	recoveryWindow uint32) *RecoveryState {
 	scopes := make(map[waddrmgr.KeyScope]*ScopeRecoveryState)
 
 	return &RecoveryState{
@@ -276,7 +278,8 @@ type ScopeRecoveryState struct {
 
 // NewScopeRecoveryState initializes an ScopeRecoveryState with the chosen
 // recovery window.
-func NewScopeRecoveryState(recoveryWindow uint32) *ScopeRecoveryState {
+func NewScopeRecoveryState(
+	recoveryWindow uint32) *ScopeRecoveryState {
 	return &ScopeRecoveryState{
 		ExternalBranch: NewBranchRecoveryState(recoveryWindow),
 		InternalBranch: NewBranchRecoveryState(recoveryWindow),
@@ -317,7 +320,8 @@ type BranchRecoveryState struct {
 
 // NewBranchRecoveryState creates a new BranchRecoveryState that can be used to
 // track either the external or internal branch of an account's derivation path.
-func NewBranchRecoveryState(recoveryWindow uint32) *BranchRecoveryState {
+func NewBranchRecoveryState(
+	recoveryWindow uint32) *BranchRecoveryState {
 	return &BranchRecoveryState{
 		recoveryWindow:  recoveryWindow,
 		addresses:       make(map[uint32]util.Address),

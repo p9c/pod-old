@@ -58,7 +58,8 @@ type InvVect struct {
 }
 
 // NewInvVect returns a new InvVect using the provided type and hash.
-func NewInvVect(typ InvType, hash *chainhash.Hash) *InvVect {
+func NewInvVect(
+	typ InvType, hash *chainhash.Hash) *InvVect {
 	return &InvVect{
 		Type: typ,
 		Hash: *hash,
@@ -66,11 +67,13 @@ func NewInvVect(typ InvType, hash *chainhash.Hash) *InvVect {
 }
 
 // readInvVect reads an encoded InvVect from r depending on the protocol version.
-func readInvVect(r io.Reader, pver uint32, iv *InvVect) error {
+func readInvVect(
+	r io.Reader, pver uint32, iv *InvVect) error {
 	return readElements(r, &iv.Type, &iv.Hash)
 }
 
 // writeInvVect serializes an InvVect to w depending on the protocol version.
-func writeInvVect(w io.Writer, pver uint32, iv *InvVect) error {
+func writeInvVect(
+	w io.Writer, pver uint32, iv *InvVect) error {
 	return writeElements(w, iv.Type, &iv.Hash)
 }

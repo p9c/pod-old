@@ -56,7 +56,8 @@ var hexTests = []struct {
 	{"00000000000000000000", "1111111111"},
 }
 
-func TestBase58(t *testing.T) {
+func TestBase58(
+	t *testing.T) {
 	// Encode tests
 	for x, test := range stringTests {
 		tmp := []byte(test.in)

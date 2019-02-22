@@ -14,7 +14,8 @@ type PrivateKey ecdsa.PrivateKey
 
 // PrivKeyFromBytes returns a private and public key for `curve' based on the
 // private key passed as an argument as a byte slice.
-func PrivKeyFromBytes(curve elliptic.Curve, pk []byte) (*PrivateKey,
+func PrivKeyFromBytes(
+	curve elliptic.Curve, pk []byte) (*PrivateKey,
 	*PublicKey) {
 	x, y := curve.ScalarBaseMult(pk)
 	priv := &ecdsa.PrivateKey{
@@ -30,7 +31,8 @@ func PrivKeyFromBytes(curve elliptic.Curve, pk []byte) (*PrivateKey,
 
 // NewPrivateKey is a wrapper for ecdsa.GenerateKey that returns a PrivateKey
 // instead of the normal ecdsa.PrivateKey.
-func NewPrivateKey(curve elliptic.Curve) (*PrivateKey, error) {
+func NewPrivateKey(
+	curve elliptic.Curve) (*PrivateKey, error) {
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		return nil, err

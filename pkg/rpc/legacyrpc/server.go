@@ -34,7 +34,8 @@ type websocketClient struct {
 	wg            sync.WaitGroup
 }
 
-func newWebsocketClient(c *websocket.Conn, authenticated bool, remoteAddr string) *websocketClient {
+func newWebsocketClient(
+	c *websocket.Conn, authenticated bool, remoteAddr string) *websocketClient {
 	return &websocketClient{
 		conn:          c,
 		authenticated: authenticated,
@@ -79,14 +80,16 @@ type Server struct {
 }
 
 // jsonAuthFail sends a message back to the client if the http auth is rejected.
-func jsonAuthFail(w http.ResponseWriter) {
+func jsonAuthFail(
+	w http.ResponseWriter) {
 	w.Header().Add("WWW-Authenticate", `Basic realm="mod RPC"`)
 	http.Error(w, "401 Unauthorized.", http.StatusUnauthorized)
 }
 
 // NewServer creates a new server for serving legacy RPC client connections,
 // both HTTP POST and websocket.
-func NewServer(opts *Options, walletLoader *wallet.Loader, listeners []net.Listener) *Server {
+func NewServer(
+	opts *Options, walletLoader *wallet.Loader, listeners []net.Listener) *Server {
 	serveMux := http.NewServeMux()
 	const rpcAuthTimeoutSeconds = 10
 
@@ -168,7 +171,8 @@ func NewServer(opts *Options, walletLoader *wallet.Loader, listeners []net.Liste
 // string:
 //
 //   "Basic " + base64(username + ":" + password)
-func httpBasicAuth(username, password string) []byte {
+func httpBasicAuth(
+	username, password string) []byte {
 	const header = "Basic "
 	base64 := base64.StdEncoding
 
@@ -311,13 +315,15 @@ func (s *Server) checkAuthHeader(r *http.Request) error {
 
 // throttledFn wraps an http.HandlerFunc with throttling of concurrent active
 // clients by responding with an HTTP 429 when the threshold is crossed.
-func throttledFn(threshold int64, f http.HandlerFunc) http.Handler {
+func throttledFn(
+	threshold int64, f http.HandlerFunc) http.Handler {
 	return throttled(threshold, f)
 }
 
 // throttled wraps an http.Handler with throttling of concurrent active
 // clients by responding with an HTTP 429 when the threshold is crossed.
-func throttled(threshold int64, h http.Handler) http.Handler {
+func throttled(
+	threshold int64, h http.Handler) http.Handler {
 	var active int64
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -339,7 +345,8 @@ func throttled(threshold int64, h http.Handler) http.Handler {
 // sanitizeRequest returns a sanitized string for the request which may be
 // safely logged.  It is intended to strip private keys, passphrases, and any
 // other secrets from request parameters before they may be saved to a log file.
-func sanitizeRequest(r *json.Request) string {
+func sanitizeRequest(
+	r *json.Request) string {
 	// These are considered unsafe to log, so sanitize parameters.
 	switch r.Method {
 	case "encryptwallet", "importprivkey", "importwallet",
@@ -358,7 +365,8 @@ func sanitizeRequest(r *json.Request) string {
 // Interface pointers are usually a red flag of doing something incorrectly,
 // but this is only implemented here to work around an oddity with json,
 // which uses empty interface pointers for response IDs.
-func idPointer(id interface{}) (p *interface{}) {
+func idPointer(
+	id interface{}) (p *interface{}) {
 	if id != nil {
 		p = &id
 	}

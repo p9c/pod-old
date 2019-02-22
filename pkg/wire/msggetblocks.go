@@ -95,7 +95,8 @@ func (msg *MsgGetBlocks) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgGetBlocks returns a new bitcoin getblocks message that conforms to the Message interface using the passed parameters and defaults for the remaining fields.
-func NewMsgGetBlocks(hashStop *chainhash.Hash) *MsgGetBlocks {
+func NewMsgGetBlocks(
+	hashStop *chainhash.Hash) *MsgGetBlocks {
 	return &MsgGetBlocks{
 		ProtocolVersion:    ProtocolVersion,
 		BlockLocatorHashes: make([]*chainhash.Hash, 0, MaxBlockLocatorsPerMsg),

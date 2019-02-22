@@ -8,7 +8,8 @@ import (
 	"git.parallelcoin.io/pod/cmd/spv/cache"
 )
 
-func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
+func assertEqual(
+	t *testing.T, a interface{}, b interface{}, message string) {
 	if a == b {
 		return
 	}
@@ -32,12 +33,14 @@ func (s *sizeable) Size() (uint64, error) {
 
 // getSizeableValue is a helper method used for converting the cache.Value
 // interface to sizeable struct and extracting the value from it.
-func getSizeableValue(generic cache.Value, _ error) int {
+func getSizeableValue(
+	generic cache.Value, _ error) int {
 	return generic.(*sizeable).value
 }
 
 // TestEmptyCacheSizeZero will check that an empty cache has a size of 0.
-func TestEmptyCacheSizeZero(t *testing.T) {
+func TestEmptyCacheSizeZero(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(10)
 	assertEqual(t, c.Len(), 0, "")
@@ -45,7 +48,8 @@ func TestEmptyCacheSizeZero(t *testing.T) {
 
 // TestCacheNeverExceedsSize inserts many filters into the cache and verifies
 // at each step that the cache never exceeds it's initial size.
-func TestCacheNeverExceedsSize(t *testing.T) {
+func TestCacheNeverExceedsSize(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(2)
 	c.Put(1, &sizeable{value: 1, size: 1})
@@ -60,7 +64,8 @@ func TestCacheNeverExceedsSize(t *testing.T) {
 // TestCacheAlwaysHasLastAccessedItems will check that the last items that
 // were put in the cache are always available, it will also check the eviction
 // behavior when items put in the cache exceeds cache capacity.
-func TestCacheAlwaysHasLastAccessedItems(t *testing.T) {
+func TestCacheAlwaysHasLastAccessedItems(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(2)
 	c.Put(1, &sizeable{value: 1, size: 1})
@@ -96,7 +101,8 @@ func TestCacheAlwaysHasLastAccessedItems(t *testing.T) {
 
 // TestElementSizeCapacityEvictsEverything tests that Cache evicts everything
 // from cache when an element with size=capacity is inserted.
-func TestElementSizeCapacityEvictsEverything(t *testing.T) {
+func TestElementSizeCapacityEvictsEverything(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(3)
 
@@ -127,7 +133,8 @@ func TestElementSizeCapacityEvictsEverything(t *testing.T) {
 
 // TestCacheFailsInsertionSizeBiggerCapacity tests that the cache fails the
 // put operation when the element's size is bigger than it's capacity.
-func TestCacheFailsInsertionSizeBiggerCapacity(t *testing.T) {
+func TestCacheFailsInsertionSizeBiggerCapacity(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(2)
 
@@ -141,7 +148,8 @@ func TestCacheFailsInsertionSizeBiggerCapacity(t *testing.T) {
 // TestManySmallElementCanInsertAfterBigEviction tests that when a big element
 // is evicted from the Cache, multiple smaller ones can be inserted without an
 // eviction taking place.
-func TestManySmallElementCanInsertAfterBigEviction(t *testing.T) {
+func TestManySmallElementCanInsertAfterBigEviction(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(3)
 
@@ -176,7 +184,8 @@ func TestManySmallElementCanInsertAfterBigEviction(t *testing.T) {
 // TestReplacingElementValueSmallerSize tests that if an existing element is
 // replaced with a value of size smaller, that the size shrinks and we can
 // insert without an eviction taking place.
-func TestReplacingElementValueSmallerSize(t *testing.T) {
+func TestReplacingElementValueSmallerSize(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(2)
 
@@ -193,7 +202,8 @@ func TestReplacingElementValueSmallerSize(t *testing.T) {
 
 // TestReplacingElementValueBiggerSize tests that if an existing element is
 // replaced with a value of size bigger, that it evicts accordingly.
-func TestReplacingElementValueBiggerSize(t *testing.T) {
+func TestReplacingElementValueBiggerSize(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(2)
 
@@ -209,7 +219,8 @@ func TestReplacingElementValueBiggerSize(t *testing.T) {
 // TestConcurrencySimple is a very simple test that checks concurrent access to
 // the lru cache. When running the test, "-race" option should be passed to
 // "go test" command.
-func TestConcurrencySimple(t *testing.T) {
+func TestConcurrencySimple(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(5)
 	var wg sync.WaitGroup
@@ -243,7 +254,8 @@ func TestConcurrencySimple(t *testing.T) {
 // lru cache when the cache is smaller than the number of elements we want to
 // put and retrieve. When running the test, "-race" option should be passed to
 // "go test" command.
-func TestConcurrencySmallCache(t *testing.T) {
+func TestConcurrencySmallCache(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(5)
 	var wg sync.WaitGroup
@@ -277,7 +289,8 @@ func TestConcurrencySmallCache(t *testing.T) {
 // lru cache when the cache is bigger than the number of elements we want to
 // put and retrieve. When running the test, "-race" option should be passed to
 // "go test" command.
-func TestConcurrencyBigCache(t *testing.T) {
+func TestConcurrencyBigCache(
+	t *testing.T) {
 	t.Parallel()
 	c := NewCache(100)
 	var wg sync.WaitGroup

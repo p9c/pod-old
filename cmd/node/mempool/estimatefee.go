@@ -65,7 +65,8 @@ func (rate SatoshiPerByte) Fee(size uint32) util.Amount {
 }
 
 // NewSatoshiPerByte creates a SatoshiPerByte from an Amount and a size in bytes.
-func NewSatoshiPerByte(fee util.Amount, size uint32) SatoshiPerByte {
+func NewSatoshiPerByte(
+	fee util.Amount, size uint32) SatoshiPerByte {
 	return SatoshiPerByte(float64(fee) / float64(size))
 }
 
@@ -87,7 +88,8 @@ func (o *observedTransaction) Serialize(w io.Writer) {
 	binary.Write(w, binary.BigEndian, o.observed)
 	binary.Write(w, binary.BigEndian, o.mined)
 }
-func deserializeObservedTransaction(r io.Reader) (*observedTransaction, error) {
+func deserializeObservedTransaction(
+	r io.Reader) (*observedTransaction, error) {
 	ot := observedTransaction{}
 	// The first 32 bytes should be a hash.
 	binary.Read(r, binary.BigEndian, &ot.hash)
@@ -135,7 +137,8 @@ type FeeEstimator struct {
 }
 
 // NewFeeEstimator creates a FeeEstimator for which at most maxRollback blocks can be unregistered and which returns an error unless minRegisteredBlocks have been registered with it.
-func NewFeeEstimator(maxRollback, minRegisteredBlocks uint32) *FeeEstimator {
+func NewFeeEstimator(
+	maxRollback, minRegisteredBlocks uint32) *FeeEstimator {
 	return &FeeEstimator{
 		maxRollback:         maxRollback,
 		minRegisteredBlocks: minRegisteredBlocks,
@@ -441,7 +444,8 @@ func (ef *FeeEstimator) EstimateFee(numBlocks uint32) (BtcPerKilobyte, error) {
 // In case the format for the serialized version of the FeeEstimator changes, we use a version number. If the version number changes, it does not make sense to try to upgrade a previous version to a new version. Instead, just start fee estimation over.
 const estimateFeeSaveVersion = 1
 
-func deserializeRegisteredBlock(r io.Reader, txs map[uint32]*observedTransaction) (*registeredBlock, error) {
+func deserializeRegisteredBlock(
+	r io.Reader, txs map[uint32]*observedTransaction) (*registeredBlock, error) {
 	var lenTransactions uint32
 	rb := &registeredBlock{}
 	binary.Read(r, binary.BigEndian, &rb.hash)
@@ -516,7 +520,8 @@ func (ef *FeeEstimator) Save() FeeEstimatorState {
 }
 
 // RestoreFeeEstimator takes a FeeEstimatorState that was previously returned by Save and restores it to a FeeEstimator
-func RestoreFeeEstimator(data FeeEstimatorState) (*FeeEstimator, error) {
+func RestoreFeeEstimator(
+	data FeeEstimatorState) (*FeeEstimator, error) {
 	r := bytes.NewReader([]byte(data))
 	// Check version
 	var version uint32

@@ -22,7 +22,8 @@ type credit struct {
 	addr WithdrawalAddress
 }
 
-func newCredit(c wtxmgr.Credit, addr WithdrawalAddress) credit {
+func newCredit(
+	c wtxmgr.Credit, addr WithdrawalAddress) credit {
 	return credit{Credit: c, addr: addr}
 }
 
@@ -135,7 +136,8 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 // nextAddr returns the next WithdrawalAddress according to the input selection
 // rules: http://opentransactions.org/wiki/index.php/Input_Selection_Algorithm_(voting_pools)
 // It returns nil if the new address' seriesID is >= stopSeriesID.
-func nextAddr(p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branch Branch, index Index, stopSeriesID uint32) (
+func nextAddr(
+	p *Pool, ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branch Branch, index Index, stopSeriesID uint32) (
 	*WithdrawalAddress, error) {
 	series := p.Series(seriesID)
 	if series == nil {
@@ -209,7 +211,8 @@ func (p *Pool) highestUsedSeriesIndex(ns walletdb.ReadBucket, seriesID uint32) (
 // groupCreditsByAddr converts a slice of credits to a map from the string
 // representation of an encoded address to the unspent outputs associated with
 // that address.
-func groupCreditsByAddr(credits []wtxmgr.Credit, chainParams *chaincfg.Params) (
+func groupCreditsByAddr(
+	credits []wtxmgr.Credit, chainParams *chaincfg.Params) (
 	map[string][]wtxmgr.Credit, error) {
 	addrMap := make(map[string][]wtxmgr.Credit)
 	for _, c := range credits {
@@ -261,7 +264,8 @@ func (p *Pool) isCharterOutput(c credit) bool {
 // confirms returns the number of confirmations for a transaction in a block at
 // height txHeight (or -1 for an unconfirmed tx) given the chain height
 // curHeight.
-func confirms(txHeight, curHeight int32) int32 {
+func confirms(
+	txHeight, curHeight int32) int32 {
 	switch {
 	case txHeight == -1, txHeight > curHeight:
 		return 0

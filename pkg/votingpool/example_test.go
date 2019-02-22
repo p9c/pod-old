@@ -41,7 +41,8 @@ var (
 	fastScrypt     = &waddrmgr.ScryptOptions{N: 16, R: 8, P: 1}
 )
 
-func createWaddrmgr(ns walletdb.ReadWriteBucket, params *chaincfg.Params) (*waddrmgr.Manager, error) {
+func createWaddrmgr(
+	ns walletdb.ReadWriteBucket, params *chaincfg.Params) (*waddrmgr.Manager, error) {
 	err := waddrmgr.Create(ns, seed, pubPassphrase, privPassphrase, params,
 		fastScrypt, time.Now())
 	if err != nil {
@@ -50,7 +51,8 @@ func createWaddrmgr(ns walletdb.ReadWriteBucket, params *chaincfg.Params) (*wadd
 	return waddrmgr.Open(ns, pubPassphrase, params)
 }
 
-func ExampleCreate() {
+func ExampleCreate(
+	) {
 	// Create a new walletdb.DB. See the walletdb docs for instructions on how
 	// to do that.
 	db, dbTearDown, err := createWalletDB()
@@ -101,7 +103,8 @@ func ExampleCreate() {
 
 // This example demonstrates how to create a voting pool with one
 // series and get a deposit address for that series.
-func Example_depositAddress() {
+func Example_depositAddress(
+	) {
 	// Create the address manager and votingpool DB namespace. See the example
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
@@ -148,7 +151,8 @@ func Example_depositAddress() {
 
 // This example demonstrates how to empower a series by loading the private
 // key for one of the series' public keys.
-func Example_empowerSeries() {
+func Example_empowerSeries(
+	) {
 	// Create the address manager and votingpool DB namespace. See the example
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
@@ -182,7 +186,8 @@ func Example_empowerSeries() {
 }
 
 // This example demonstrates how to use the Pool.StartWithdrawal method.
-func Example_startWithdrawal() {
+func Example_startWithdrawal(
+	) {
 	// Create the address manager and votingpool DB namespace. See the example
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
@@ -251,7 +256,8 @@ func Example_startWithdrawal() {
 	//
 }
 
-func createWalletDB() (walletdb.DB, func(), error) {
+func createWalletDB(
+	) (walletdb.DB, func(), error) {
 	dir, err := ioutil.TempDir("", "votingpool_example")
 	if err != nil {
 		return nil, nil, err
@@ -273,19 +279,23 @@ var (
 	votingpoolNamespaceKey = []byte("votingpool")
 )
 
-func addrmgrNamespace(dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
+func addrmgrNamespace(
+	dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 	return dbtx.ReadWriteBucket(addrmgrNamespaceKey)
 }
 
-func txmgrNamespace(dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
+func txmgrNamespace(
+	dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 	return dbtx.ReadWriteBucket(txmgrNamespaceKey)
 }
 
-func votingpoolNamespace(dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
+func votingpoolNamespace(
+	dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 	return dbtx.ReadWriteBucket(votingpoolNamespaceKey)
 }
 
-func exampleCreateDBAndMgr() (teardown func(), db walletdb.DB, mgr *waddrmgr.Manager) {
+func exampleCreateDBAndMgr(
+	) (teardown func(), db walletdb.DB, mgr *waddrmgr.Manager) {
 	db, dbTearDown, err := createWalletDB()
 	if err != nil {
 		dbTearDown()
@@ -323,7 +333,8 @@ func exampleCreateDBAndMgr() (teardown func(), db walletdb.DB, mgr *waddrmgr.Man
 	return teardown, db, mgr
 }
 
-func exampleCreatePoolAndSeries(db walletdb.DB, mgr *waddrmgr.Manager) (pool *votingpool.Pool, seriesID uint32) {
+func exampleCreatePoolAndSeries(
+	db walletdb.DB, mgr *waddrmgr.Manager) (pool *votingpool.Pool, seriesID uint32) {
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		ns := votingpoolNamespace(tx)
 		var err error
@@ -353,7 +364,8 @@ func exampleCreatePoolAndSeries(db walletdb.DB, mgr *waddrmgr.Manager) (pool *vo
 	return pool, seriesID
 }
 
-func exampleCreateTxStore(ns walletdb.ReadWriteBucket) *wtxmgr.Store {
+func exampleCreateTxStore(
+	ns walletdb.ReadWriteBucket) *wtxmgr.Store {
 	err := wtxmgr.Create(ns)
 	if err != nil {
 		panic(err)

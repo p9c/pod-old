@@ -22,7 +22,8 @@ var outputFile = func() *os.File {
 	return fi
 }()
 
-func writefln(format string, args ...interface{}) {
+func writefln(
+	format string, args ...interface{}) {
 	_, err := fmt.Fprintf(outputFile, format, args...)
 	if err != nil {
 		log.Fatal(err)
@@ -33,7 +34,8 @@ func writefln(format string, args ...interface{}) {
 	}
 }
 
-func writeLocaleHelp(locale, goLocale string, descs map[string]string) {
+func writeLocaleHelp(
+	locale, goLocale string, descs map[string]string) {
 	funcName := "helpDescs" + goLocale
 	writefln("func %s() map[string]string {", funcName)
 	writefln("return map[string]string{")
@@ -49,7 +51,8 @@ func writeLocaleHelp(locale, goLocale string, descs map[string]string) {
 	writefln("}")
 }
 
-func writeLocales() {
+func writeLocales(
+	) {
 	writefln("var localeHelpDescs = map[string]func() map[string]string{")
 	for _, h := range rpchelp.HelpDescs {
 		writefln("%q: helpDescs%s,", h.Locale, h.GoLocale)
@@ -57,7 +60,8 @@ func writeLocales() {
 	writefln("}")
 }
 
-func writeUsage() {
+func writeUsage(
+	) {
 	usageStrs := make([]string, len(rpchelp.Methods))
 	var err error
 	for i := range rpchelp.Methods {
@@ -70,7 +74,8 @@ func writeUsage() {
 	writefln("var requestUsages = %q", usages)
 }
 
-func main() {
+func main(
+	) {
 	defer outputFile.Close()
 
 	packageName := "main"

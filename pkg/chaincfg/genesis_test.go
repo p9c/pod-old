@@ -7,7 +7,8 @@ import (
 )
 
 // TestGenesisBlock tests the genesis block of the main network for validity by checking the encoded bytes and hashes.
-func TestGenesisBlock(t *testing.T) {
+func TestGenesisBlock(
+	t *testing.T) {
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
 	err := MainNetParams.GenesisBlock.Serialize(&buf)
@@ -30,7 +31,8 @@ func TestGenesisBlock(t *testing.T) {
 }
 
 // TestRegTestGenesisBlock tests the genesis block of the regression test network for validity by checking the encoded bytes and hashes.
-func TestRegTestGenesisBlock(t *testing.T) {
+func TestRegTestGenesisBlock(
+	t *testing.T) {
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
 	err := RegressionNetParams.GenesisBlock.Serialize(&buf)
@@ -54,7 +56,8 @@ func TestRegTestGenesisBlock(t *testing.T) {
 }
 
 // TestTestNet3GenesisBlock tests the genesis block of the test network (version 3) for validity by checking the encoded bytes and hashes.
-func TestTestNet3GenesisBlock(t *testing.T) {
+func TestTestNet3GenesisBlock(
+	t *testing.T) {
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
 	err := TestNet3Params.GenesisBlock.Serialize(&buf)
@@ -78,7 +81,8 @@ func TestTestNet3GenesisBlock(t *testing.T) {
 }
 
 // TestSimNetGenesisBlock tests the genesis block of the simulation test network for validity by checking the encoded bytes and hashes.
-func TestSimNetGenesisBlock(t *testing.T) {
+func TestSimNetGenesisBlock(
+	t *testing.T) {
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
 	err := SimNetParams.GenesisBlock.Serialize(&buf)

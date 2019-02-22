@@ -52,7 +52,8 @@ type Loader struct {
 // NewLoader constructs a Loader with an optional recovery window. If the
 // recovery window is non-zero, the wallet will attempt to recovery addresses
 // starting from the last SyncedTo height.
-func NewLoader(chainParams *chaincfg.Params, dbDirPath string,
+func NewLoader(
+	chainParams *chaincfg.Params, dbDirPath string,
 	recoveryWindow uint32) *Loader {
 
 	return &Loader{
@@ -142,7 +143,8 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 
 var errNoConsole = errors.New("db upgrade requires console access for additional input")
 
-func noConsole() ([]byte, error) {
+func noConsole(
+	) ([]byte, error) {
 	return nil, errNoConsole
 }
 
@@ -245,7 +247,8 @@ func (l *Loader) UnloadWallet() error {
 	return nil
 }
 
-func fileExists(filePath string) (bool, error) {
+func fileExists(
+	filePath string) (bool, error) {
 	_, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {

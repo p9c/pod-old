@@ -12,7 +12,8 @@ import (
 )
 
 // newTestFeeEstimator creates a feeEstimator with some different parameters for testing purposes.
-func newTestFeeEstimator(binSize, maxReplacements, maxRollback uint32) *FeeEstimator {
+func newTestFeeEstimator(
+	binSize, maxReplacements, maxRollback uint32) *FeeEstimator {
 	return &FeeEstimator{
 		maxRollback:         maxRollback,
 		lastKnownHeight:     0,
@@ -52,7 +53,8 @@ func (eft *estimateFeeTester) testTx(fee util.Amount) *TxDesc {
 		StartingPriority: 0,
 	}
 }
-func expectedFeePerKilobyte(t *TxDesc) BtcPerKilobyte {
+func expectedFeePerKilobyte(
+	t *TxDesc) BtcPerKilobyte {
 	size := float64(t.TxDesc.Tx.MsgTx().SerializeSize())
 	fee := float64(t.TxDesc.Fee)
 	return SatoshiPerByte(fee / size).ToBtcPerKb()
@@ -79,7 +81,8 @@ func (eft *estimateFeeTester) rollback() {
 }
 
 // TestEstimateFee tests basic functionality in the FeeEstimator.
-func TestEstimateFee(t *testing.T) {
+func TestEstimateFee(
+	t *testing.T) {
 	ef := newTestFeeEstimator(5, 3, 1)
 	eft := estimateFeeTester{ef: ef, t: t}
 	// Try with no txs and get zero for all queries.
@@ -261,7 +264,8 @@ func (eft *estimateFeeTester) round(txHistory [][]*TxDesc,
 }
 
 // TestEstimateFeeRollback tests the rollback function, which undoes the effect of a adding a new block.
-func TestEstimateFeeRollback(t *testing.T) {
+func TestEstimateFeeRollback(
+	t *testing.T) {
 	txPerRound := uint32(7)
 	txPerBlock := uint32(5)
 	binSize := uint32(6)
@@ -322,7 +326,8 @@ func (eft *estimateFeeTester) checkSaveAndRestore(
 }
 
 // TestSave tests saving and restoring to a []byte.
-func TestDatabase(t *testing.T) {
+func TestDatabase(
+	t *testing.T) {
 	txPerRound := uint32(7)
 	txPerBlock := uint32(5)
 	binSize := uint32(6)

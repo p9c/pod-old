@@ -156,7 +156,8 @@ type Config struct {
 }
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
-func minUint32(a, b uint32) uint32 {
+func minUint32(
+	a, b uint32) uint32 {
 	if a < b {
 		return a
 	}
@@ -164,7 +165,8 @@ func minUint32(a, b uint32) uint32 {
 }
 
 // newNetAddress attempts to extract the IP address and port from the passed net.Addr interface and create a bitcoin NetAddress structure using that information.
-func newNetAddress(addr net.Addr, services wire.ServiceFlag) (*wire.NetAddress, error) {
+func newNetAddress(
+	addr net.Addr, services wire.ServiceFlag) (*wire.NetAddress, error) {
 	// addr will be a net.TCPAddr when not using a proxy.
 	if tcpAddr, ok := addr.(*net.TCPAddr); ok {
 		ip := tcpAddr.IP
@@ -246,13 +248,16 @@ type StatsSnap struct {
 }
 
 // HashFunc is a function which returns a block hash, height and error It is used as a callback to get newest block details.
-type HashFunc func() (hash *chainhash.Hash, height int32, err error)
+type HashFunc func(
+	) (hash *chainhash.Hash, height int32, err error)
 
 // AddrFunc is a func which takes an address and returns a related address.
-type AddrFunc func(remoteAddr *wire.NetAddress) *wire.NetAddress
+type AddrFunc func(
+	remoteAddr *wire.NetAddress) *wire.NetAddress
 
 // HostToNetAddrFunc is a func which takes a host, port, services and returns the netaddress.
-type HostToNetAddrFunc func(host string, port uint16,
+type HostToNetAddrFunc func(
+	host string, port uint16,
 	services wire.ServiceFlag) (*wire.NetAddress, error)
 
 // NOTE: The overall data flow of a peer is split into 3 goroutines.  Inbound messages are read via the inHandler goroutine and generally dispatched to their own handler.  For inbound data-related messages such as blocks, transactions, and inventory, the data is handled by the corresponding message handlers.
@@ -1610,7 +1615,8 @@ func (p *Peer) WaitForDisconnect() {
 }
 
 // newPeerBase returns a new base bitcoin peer based on the inbound flag.  This is used by the NewInboundPeer and NewOutboundPeer functions to perform base setup needed by both types of peers.
-func newPeerBase(origCfg *Config, inbound bool) *Peer {
+func newPeerBase(
+	origCfg *Config, inbound bool) *Peer {
 	// Default to the max supported protocol version if not specified by the caller.
 	cfg := *origCfg // Copy to avoid mutating caller.
 	if cfg.ProtocolVersion == 0 {
@@ -1645,12 +1651,14 @@ func newPeerBase(origCfg *Config, inbound bool) *Peer {
 }
 
 // NewInboundPeer returns a new inbound bitcoin peer. Use Start to begin processing incoming and outgoing messages.
-func NewInboundPeer(cfg *Config) *Peer {
+func NewInboundPeer(
+	cfg *Config) *Peer {
 	return newPeerBase(cfg, true)
 }
 
 // NewOutboundPeer returns a new outbound bitcoin peer.
-func NewOutboundPeer(cfg *Config, addr string) (*Peer, error) {
+func NewOutboundPeer(
+	cfg *Config, addr string) (*Peer, error) {
 	p := newPeerBase(cfg, false)
 	p.addr = addr
 	host, portStr, err := net.SplitHostPort(addr)
@@ -1672,6 +1680,7 @@ func NewOutboundPeer(cfg *Config, addr string) (*Peer, error) {
 	}
 	return p, nil
 }
-func init() {
+func init(
+	) {
 	rand.Seed(time.Now().UnixNano())
 }

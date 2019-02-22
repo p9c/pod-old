@@ -19,14 +19,16 @@ const dummyDir = ""
 
 var tstNetParams = &chaincfg.MainNetParams
 
-func makeBS(height int32) *BlockStamp {
+func makeBS(
+	height int32) *BlockStamp {
 	return &BlockStamp{
 		Hash:   new(chainhash.Hash),
 		Height: height,
 	}
 }
 
-func TestBtcAddressSerializer(t *testing.T) {
+func TestBtcAddressSerializer(
+	t *testing.T) {
 	fakeWallet := &Store{net: (*netParams)(tstNetParams)}
 	kdfp := &kdfParameters{
 		mem:   1024,
@@ -79,7 +81,8 @@ func TestBtcAddressSerializer(t *testing.T) {
 	}
 }
 
-func TestScriptAddressSerializer(t *testing.T) {
+func TestScriptAddressSerializer(
+	t *testing.T) {
 	fakeWallet := &Store{net: (*netParams)(tstNetParams)}
 	script := []byte{txscript.OP_TRUE, txscript.OP_DUP,
 		txscript.OP_DROP}
@@ -109,7 +112,8 @@ func TestScriptAddressSerializer(t *testing.T) {
 	}
 }
 
-func TestWalletCreationSerialization(t *testing.T) {
+func TestWalletCreationSerialization(
+	t *testing.T) {
 	createdAt := makeBS(0)
 	w1, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)
@@ -152,7 +156,8 @@ func TestWalletCreationSerialization(t *testing.T) {
 	//	}
 }
 
-func TestChaining(t *testing.T) {
+func TestChaining(
+	t *testing.T) {
 	tests := []struct {
 		name                       string
 		cc                         []byte
@@ -319,7 +324,8 @@ func TestChaining(t *testing.T) {
 	}
 }
 
-func TestWalletPubkeyChaining(t *testing.T) {
+func TestWalletPubkeyChaining(
+	t *testing.T) {
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, makeBS(0))
 	if err != nil {
@@ -478,7 +484,8 @@ func TestWalletPubkeyChaining(t *testing.T) {
 	}
 }
 
-func TestWatchingWalletExport(t *testing.T) {
+func TestWatchingWalletExport(
+	t *testing.T) {
 	createdAt := makeBS(0)
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)
@@ -670,7 +677,8 @@ func TestWatchingWalletExport(t *testing.T) {
 	}
 }
 
-func TestImportPrivateKey(t *testing.T) {
+func TestImportPrivateKey(
+	t *testing.T) {
 	createHeight := int32(100)
 	createdAt := makeBS(createHeight)
 	w, err := New(dummyDir, "A wallet for testing.",
@@ -839,7 +847,8 @@ func TestImportPrivateKey(t *testing.T) {
 
 }
 
-func TestImportScript(t *testing.T) {
+func TestImportScript(
+	t *testing.T) {
 	createHeight := int32(100)
 	createdAt := makeBS(createHeight)
 	w, err := New(dummyDir, "A wallet for testing.",
@@ -1121,7 +1130,8 @@ func TestImportScript(t *testing.T) {
 	}
 }
 
-func TestChangePassphrase(t *testing.T) {
+func TestChangePassphrase(
+	t *testing.T) {
 	createdAt := makeBS(0)
 	w, err := New(dummyDir, "A wallet for testing.",
 		[]byte("banana"), tstNetParams, createdAt)

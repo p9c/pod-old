@@ -123,7 +123,8 @@ type spendableOut struct {
 }
 
 // makeSpendableOutForTx returns a spendable output for the given transaction and transaction output index within the transaction.
-func makeSpendableOutForTx(tx *wire.MsgTx, txOutIndex uint32) spendableOut {
+func makeSpendableOutForTx(
+	tx *wire.MsgTx, txOutIndex uint32) spendableOut {
 	return spendableOut{
 		prevOut: wire.OutPoint{
 			Hash:  tx.TxHash(),
@@ -134,7 +135,8 @@ func makeSpendableOutForTx(tx *wire.MsgTx, txOutIndex uint32) spendableOut {
 }
 
 // makeSpendableOut returns a spendable output for the given block, transaction index within the block, and transaction output index within the transaction.
-func makeSpendableOut(block *wire.MsgBlock, txIndex, txOutIndex uint32) spendableOut {
+func makeSpendableOut(
+	block *wire.MsgBlock, txIndex, txOutIndex uint32) spendableOut {
 	return makeSpendableOutForTx(block.Transactions[txIndex], txOutIndex)
 }
 
@@ -155,7 +157,8 @@ type testGenerator struct {
 }
 
 // makeTestGenerator returns a test generator instance initialized with the genesis block as the tip.
-func makeTestGenerator(params *chaincfg.Params) (testGenerator, error) {
+func makeTestGenerator(
+	params *chaincfg.Params) (testGenerator, error) {
 	privKey, _ := ec.PrivKeyFromBytes(ec.S256(), []byte{0x01})
 	genesis := params.GenesisBlock
 	genesisHash := genesis.BlockHash()
@@ -172,7 +175,8 @@ func makeTestGenerator(params *chaincfg.Params) (testGenerator, error) {
 }
 
 // payToScriptHashScript returns a standard pay-to-script-hash for the provided redeem script.
-func payToScriptHashScript(redeemScript []byte) []byte {
+func payToScriptHashScript(
+	redeemScript []byte) []byte {
 	redeemScriptHash := util.Hash160(redeemScript)
 	script, err := txscript.NewScriptBuilder().
 		AddOp(txscript.OP_HASH160).AddData(redeemScriptHash).
@@ -184,7 +188,8 @@ func payToScriptHashScript(redeemScript []byte) []byte {
 }
 
 // pushDataScript returns a script with the provided items individually pushed to the stack.
-func pushDataScript(items ...[]byte) []byte {
+func pushDataScript(
+	items ...[]byte) []byte {
 	builder := txscript.NewScriptBuilder()
 	for _, item := range items {
 		builder.AddData(item)
@@ -197,13 +202,15 @@ func pushDataScript(items ...[]byte) []byte {
 }
 
 // standardCoinbaseScript returns a standard script suitable for use as the signature script of the coinbase transaction of a new block.  In particular, it starts with the block height that is required by version 2 blocks.
-func standardCoinbaseScript(blockHeight int32, extraNonce uint64) ([]byte, error) {
+func standardCoinbaseScript(
+	blockHeight int32, extraNonce uint64) ([]byte, error) {
 	return txscript.NewScriptBuilder().AddInt64(int64(blockHeight)).
 		AddInt64(int64(extraNonce)).Script()
 }
 
 // opReturnScript returns a provably-pruneable OP_RETURN script with the provided data.
-func opReturnScript(data []byte) []byte {
+func opReturnScript(
+	data []byte) []byte {
 	builder := txscript.NewScriptBuilder()
 	script, err := builder.AddOp(txscript.OP_RETURN).AddData(data).Script()
 	if err != nil {
@@ -213,7 +220,8 @@ func opReturnScript(data []byte) []byte {
 }
 
 // uniqueOpReturnScript returns a standard provably-pruneable OP_RETURN script with a random uint64 encoded as the data.
-func uniqueOpReturnScript() []byte {
+func uniqueOpReturnScript(
+	) []byte {
 	rand, err := wire.RandomUint64()
 	if err != nil {
 		panic(err)
@@ -246,7 +254,8 @@ func (g *testGenerator) createCoinbaseTx(blockHeight int32) *wire.MsgTx {
 }
 
 // calcMerkleRoot creates a merkle tree from the slice of transactions and returns the root of the tree.
-func calcMerkleRoot(txns []*wire.MsgTx) chainhash.Hash {
+func calcMerkleRoot(
+	txns []*wire.MsgTx) chainhash.Hash {
 	if len(txns) == 0 {
 		return chainhash.Hash{}
 	}
@@ -260,7 +269,8 @@ func calcMerkleRoot(txns []*wire.MsgTx) chainhash.Hash {
 
 // solveBlock attempts to find a nonce which makes the passed block header hash to a value less than the target difficulty.  When a successful solution is found true is returned and the nonce field of the passed header is updated with the solution.  False is returned if no solution exists.
 // NOTE: This function will never solve blocks with a nonce of 0.  This is done so the 'nextBlock' function can properly detect when a nonce was modified by a munge function.
-func solveBlock(header *wire.BlockHeader, height int32) bool {
+func solveBlock(
+	header *wire.BlockHeader, height int32) bool {
 	// sbResult is used by the solver goroutines to send results.
 	type sbResult struct {
 		found bool
@@ -312,7 +322,8 @@ func solveBlock(header *wire.BlockHeader, height int32) bool {
 }
 
 // additionalCoinbase returns a function that itself takes a block and modifies it by adding the provided amount to coinbase subsidy.
-func additionalCoinbase(amount util.Amount) func(*wire.MsgBlock) {
+func additionalCoinbase(
+	amount util.Amount) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		// Increase the first proof-of-work coinbase subsidy by the provided amount.
 		b.Transactions[0].TxOut[0].Value += int64(amount)
@@ -321,7 +332,8 @@ func additionalCoinbase(amount util.Amount) func(*wire.MsgBlock) {
 
 // additionalSpendFee returns a function that itself takes a block and modifies it by adding the provided fee to the spending transaction.
 // NOTE: The coinbase value is NOT updated to reflect the additional fee.  Use 'additionalCoinbase' for that purpose.
-func additionalSpendFee(fee util.Amount) func(*wire.MsgBlock) {
+func additionalSpendFee(
+	fee util.Amount) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		// Increase the fee of the spending transaction by reducing the amount paid.
 		if int64(fee) > b.Transactions[1].TxOut[0].Value {
@@ -334,28 +346,32 @@ func additionalSpendFee(fee util.Amount) func(*wire.MsgBlock) {
 }
 
 // replaceSpendScript returns a function that itself takes a block and modifies it by replacing the public key script of the spending transaction.
-func replaceSpendScript(pkScript []byte) func(*wire.MsgBlock) {
+func replaceSpendScript(
+	pkScript []byte) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		b.Transactions[1].TxOut[0].PkScript = pkScript
 	}
 }
 
 // replaceCoinbaseSigScript returns a function that itself takes a block and modifies it by replacing the signature key script of the coinbase.
-func replaceCoinbaseSigScript(script []byte) func(*wire.MsgBlock) {
+func replaceCoinbaseSigScript(
+	script []byte) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		b.Transactions[0].TxIn[0].SignatureScript = script
 	}
 }
 
 // additionalTx returns a function that itself takes a block and modifies it by adding the the provided transaction.
-func additionalTx(tx *wire.MsgTx) func(*wire.MsgBlock) {
+func additionalTx(
+	tx *wire.MsgTx) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		b.AddTransaction(tx)
 	}
 }
 
 // createSpendTx creates a transaction that spends from the provided spendable output and includes an additional unique OP_RETURN output to ensure the transaction ends up with a unique hash.  The script is a simple OP_TRUE script which avoids the need to track addresses and signature scripts in the tests.
-func createSpendTx(spend *spendableOut, fee util.Amount) *wire.MsgTx {
+func createSpendTx(
+	spend *spendableOut, fee util.Amount) *wire.MsgTx {
 	spendTx := wire.NewMsgTx(1)
 	spendTx.AddTxIn(&wire.TxIn{
 		PreviousOutPoint: spend.prevOut,
@@ -369,7 +385,8 @@ func createSpendTx(spend *spendableOut, fee util.Amount) *wire.MsgTx {
 }
 
 // createSpendTxForTx creates a transaction that spends from the first output of the provided transaction and includes an additional unique OP_RETURN output to ensure the transaction ends up with a unique hash.  The public key script is a simple OP_TRUE script which avoids the need to track addresses and signature scripts in the tests.  The signature script is nil.
-func createSpendTxForTx(tx *wire.MsgTx, fee util.Amount) *wire.MsgTx {
+func createSpendTxForTx(
+	tx *wire.MsgTx, fee util.Amount) *wire.MsgTx {
 	spend := makeSpendableOutForTx(tx, 0)
 	return createSpendTx(&spend, fee)
 }
@@ -499,7 +516,8 @@ func (g *testGenerator) saveSpendableCoinbaseOuts() {
 }
 
 // nonCanonicalVarInt return a variable-length encoded integer that is encoded with 9 bytes even though it could be encoded with a minimal canonical encoding.
-func nonCanonicalVarInt(val uint32) []byte {
+func nonCanonicalVarInt(
+	val uint32) []byte {
 	var rv [9]byte
 	rv[0] = 0xff
 	binary.LittleEndian.PutUint64(rv[1:], uint64(val))
@@ -507,7 +525,8 @@ func nonCanonicalVarInt(val uint32) []byte {
 }
 
 // encodeNonCanonicalBlock serializes the block in a non-canonical way by encoding the number of transactions using a variable-length encoded integer with 9 bytes even though it should be encoded with a minimal canonical encoding.
-func encodeNonCanonicalBlock(b *wire.MsgBlock) []byte {
+func encodeNonCanonicalBlock(
+	b *wire.MsgBlock) []byte {
 	var buf bytes.Buffer
 	b.Header.BtcEncode(&buf, 0, wire.BaseEncoding)
 	buf.Write(nonCanonicalVarInt(uint32(len(b.Transactions))))
@@ -518,7 +537,8 @@ func encodeNonCanonicalBlock(b *wire.MsgBlock) []byte {
 }
 
 // cloneBlock returns a deep copy of the provided block.
-func cloneBlock(b *wire.MsgBlock) wire.MsgBlock {
+func cloneBlock(
+	b *wire.MsgBlock) wire.MsgBlock {
 	var blockCopy wire.MsgBlock
 	blockCopy.Header = b.Header
 	for _, tx := range b.Transactions {
@@ -528,12 +548,14 @@ func cloneBlock(b *wire.MsgBlock) wire.MsgBlock {
 }
 
 // repeatOpcode returns a byte slice with the provided opcode repeated the specified number of times.
-func repeatOpcode(opcode uint8, numRepeats int) []byte {
+func repeatOpcode(
+	opcode uint8, numRepeats int) []byte {
 	return bytes.Repeat([]byte{opcode}, numRepeats)
 }
 
 // assertScriptSigOpsCount panics if the provided script does not have the specified number of signature operations.
-func assertScriptSigOpsCount(script []byte, expected int) {
+func assertScriptSigOpsCount(
+	script []byte, expected int) {
 	numSigOps := txscript.GetSigOpCount(script)
 	if numSigOps != expected {
 		_, file, line, _ := runtime.Caller(1)
@@ -544,7 +566,8 @@ func assertScriptSigOpsCount(script []byte, expected int) {
 }
 
 // countBlockSigOps returns the number of legacy signature operations in the scripts in the passed block.
-func countBlockSigOps(block *wire.MsgBlock) int {
+func countBlockSigOps(
+	block *wire.MsgBlock) int {
 	totalSigOps := 0
 	for _, tx := range block.Transactions {
 		for _, txIn := range tx.TxIn {
@@ -641,7 +664,8 @@ func (g *testGenerator) assertTipBlockTxOutOpReturn(txIndex, txOutIndex uint32) 
 }
 
 // Generate returns a slice of tests that can be used to exercise the consensus validation rules.  The tests are intended to be flexible enough to allow both unit-style tests directly against the blockchain code as well as integration style tests over the peer-to-peer network.  To achieve that goal, each test contains additional information about the expected result, however that information can be ignored when doing comparison tests between two independent versions over the peer-to-peer network.
-func Generate(includeLargeReorg bool) (tests [][]TestInstance, err error) {
+func Generate(
+	includeLargeReorg bool) (tests [][]TestInstance, err error) {
 	// In order to simplify the generation code which really should never fail unless the test code itself is broken, panics are used internally.  This deferred func ensures any panics don't escape the generator by replacing the named error return with the underlying panic error.
 	defer func() {
 		if r := recover(); r != nil {

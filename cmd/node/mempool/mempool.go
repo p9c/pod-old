@@ -831,7 +831,8 @@ func (mp *TxPool) LastUpdated() time.Time {
 }
 
 // New returns a new memory pool for validating and storing standalone transactions until they are mined into a block.
-func New(cfg *Config) *TxPool {
+func New(
+	cfg *Config) *TxPool {
 	return &TxPool{
 		cfg:            *cfg,
 		pool:           make(map[chainhash.Hash]*TxDesc),

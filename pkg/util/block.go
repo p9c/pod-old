@@ -168,7 +168,8 @@ func (b *Block) SetHeight(height int32) {
 }
 
 // NewBlock returns a new instance of a bitcoin block given an underlying wire.MsgBlock.  See Block.
-func NewBlock(msgBlock *wire.MsgBlock) *Block {
+func NewBlock(
+	msgBlock *wire.MsgBlock) *Block {
 	return &Block{
 		msgBlock:    msgBlock,
 		blockHeight: BlockHeightUnknown,
@@ -176,7 +177,8 @@ func NewBlock(msgBlock *wire.MsgBlock) *Block {
 }
 
 // NewBlockFromBytes returns a new instance of a bitcoin block given the serialized bytes.  See Block.
-func NewBlockFromBytes(serializedBlock []byte) (*Block, error) {
+func NewBlockFromBytes(
+	serializedBlock []byte) (*Block, error) {
 	br := bytes.NewReader(serializedBlock)
 	b, err := NewBlockFromReader(br)
 	if err != nil {
@@ -187,7 +189,8 @@ func NewBlockFromBytes(serializedBlock []byte) (*Block, error) {
 }
 
 // NewBlockFromReader returns a new instance of a bitcoin block given a Reader to deserialize the block.  See Block.
-func NewBlockFromReader(r io.Reader) (*Block, error) {
+func NewBlockFromReader(
+	r io.Reader) (*Block, error) {
 	// Deserialize the bytes into a MsgBlock.
 	var msgBlock wire.MsgBlock
 	err := msgBlock.Deserialize(r)
@@ -202,7 +205,8 @@ func NewBlockFromReader(r io.Reader) (*Block, error) {
 }
 
 // NewBlockFromBlockAndBytes returns a new instance of a bitcoin block given an underlying wire.MsgBlock and the serialized bytes for it.  See Block.
-func NewBlockFromBlockAndBytes(msgBlock *wire.MsgBlock, serializedBlock []byte) *Block {
+func NewBlockFromBlockAndBytes(
+	msgBlock *wire.MsgBlock, serializedBlock []byte) *Block {
 	return &Block{
 		msgBlock:        msgBlock,
 		serializedBlock: serializedBlock,

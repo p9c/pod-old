@@ -68,7 +68,8 @@ func (s *SubSystem) SetLevel(level string) {
 }
 
 // NewSubSystem creates a new clog logger that adds a prefix to the log entry for subsystem control
-func NewSubSystem(name string, level int) *SubSystem {
+func NewSubSystem(
+	name string, level int) *SubSystem {
 	fmt.Println("NewSubSystem " + name)
 	name = aurora.Bold(name).String()
 	ss := SubSystem{
@@ -241,7 +242,8 @@ type Fmt struct {
 }
 
 // Check checks if an error exists, if so, prints a log to the specified log level with a string and returns if err was nil
-func Check(err error, tag int, where string) (wasError bool) {
+func Check(
+	err error, tag int, where string) (wasError bool) {
 	if err != nil {
 		wasError = true
 		L[tag].Chan <- L[tag].Name() + " " + err.Error()
@@ -357,37 +359,44 @@ var (
 )
 
 // Disabled is a no-op print function
-func Disabled(name, txt string) {
+func Disabled(
+	name, txt string) {
 }
 
 // SetPrinter loads a different print function
-func SetPrinter(fn func(name, txt string)) {
+func SetPrinter(
+	fn func(name, txt string)) {
 	LogIt = fn
 }
 
 // Color sets whether tags are coloured or not, 0 color
-func Color(on bool) {
+func Color(
+	on bool) {
 	color = on
 }
 
 // GetColor returns if color is turned on
-func GetColor() bool {
+func GetColor(
+	) bool {
 	return color
 }
 
-// func emptyJoiner(string) {
+// func emptyJoiner(
+	string) {
 // 	// This just swallows the input and discards it
 // }
 
 // // Joiner is the function that will pipe the output
 // var Joiner = emptyJoiner
 
-func init() {
+func init(
+	) {
 	Init()
 }
 
 // Init manually starts a clog
-func Init(fn ...func(name, txt string)) bool {
+func Init(
+	fn ...func(name, txt string)) bool {
 	var ready []chan bool
 	Ftl.Chan = make(chan string)
 	Err.Chan = make(chan string)
@@ -421,7 +430,8 @@ func Init(fn ...func(name, txt string)) bool {
 }
 
 // Print out a formatted log message
-func Print(name, txt string) {
+func Print(
+	name, txt string) {
 	out := fmt.Sprintf("%s %s %s\n",
 		time.Now().UTC().Format("2006-01-02 15:04:05.000000 MST"),
 		name,
@@ -436,7 +446,8 @@ func Print(name, txt string) {
 	}
 }
 
-func startChan(ch int, ready chan bool) {
+func startChan(
+	ch int, ready chan bool) {
 	L[ch].Chan = make(chan string)
 	ready <- true
 	done := true
@@ -458,7 +469,8 @@ func startChan(ch int, ready chan bool) {
 }
 
 // Shutdown the application, allowing the logger a moment to clear the channels
-func Shutdown() {
+func Shutdown(
+	) {
 	close(Quit)
 	// wait a moment to let log channel clear
 	time.Sleep(time.Millisecond * 50)

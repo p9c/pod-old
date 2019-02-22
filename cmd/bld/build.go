@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+
 	gomod, err := ioutil.ReadFile("go.mod")
 	if err != nil {
 		log.Fatal(err)

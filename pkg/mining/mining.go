@@ -61,7 +61,8 @@ type txPrioItem struct {
 }
 
 // txPriorityQueueLessFunc describes a function that can be used as a compare function for a transaction priority queue (txPriorityQueue).
-type txPriorityQueueLessFunc func(*txPriorityQueue, int, int) bool
+type txPriorityQueueLessFunc func(
+	*txPriorityQueue, int, int) bool
 
 // txPriorityQueue implements a priority queue of txPrioItem elements that supports an arbitrary compare function as defined by txPriorityQueueLessFunc.
 type txPriorityQueue struct {
@@ -105,7 +106,8 @@ func (pq *txPriorityQueue) SetLessFunc(lessFunc txPriorityQueueLessFunc) {
 }
 
 // txPQByPriority sorts a txPriorityQueue by transaction priority and then fees per kilobyte.
-func txPQByPriority(pq *txPriorityQueue, i, j int) bool {
+func txPQByPriority(
+	pq *txPriorityQueue, i, j int) bool {
 	// Using > here so that pop gives the highest priority item as opposed to the lowest.  Sort by priority first, then fee.
 	if pq.items[i].priority == pq.items[j].priority {
 		return pq.items[i].feePerKB > pq.items[j].feePerKB
@@ -114,7 +116,8 @@ func txPQByPriority(pq *txPriorityQueue, i, j int) bool {
 }
 
 // txPQByFee sorts a txPriorityQueue by fees per kilobyte and then transaction priority.
-func txPQByFee(pq *txPriorityQueue, i, j int) bool {
+func txPQByFee(
+	pq *txPriorityQueue, i, j int) bool {
 	// Using > here so that pop gives the highest fee item as opposed to the lowest.  Sort by fee first, then priority.
 	if pq.items[i].feePerKB == pq.items[j].feePerKB {
 		return pq.items[i].priority > pq.items[j].priority
@@ -123,7 +126,8 @@ func txPQByFee(pq *txPriorityQueue, i, j int) bool {
 }
 
 // newTxPriorityQueue returns a new transaction priority queue that reserves the passed amount of space for the elements.  The new priority queue uses either the txPQByPriority or the txPQByFee compare function depending on the sortByFee parameter and is already initialized for use with heap.Push/Pop. The priority queue can grow larger than the reserved space, but extra copies of the underlying array can be avoided by reserving a sane value.
-func newTxPriorityQueue(reserve int, sortByFee bool) *txPriorityQueue {
+func newTxPriorityQueue(
+	reserve int, sortByFee bool) *txPriorityQueue {
 	pq := &txPriorityQueue{
 		items: make([]*txPrioItem, 0, reserve),
 	}
@@ -152,7 +156,8 @@ type BlockTemplate struct {
 }
 
 // mergeUtxoView adds all of the entries in viewB to viewA.  The result is that viewA will contain all of its original entries plus all of the entries in viewB.  It will replace any entries in viewB which also exist in viewA if the entry in viewA is spent.
-func mergeUtxoView(viewA *blockchain.UtxoViewpoint, viewB *blockchain.UtxoViewpoint) {
+func mergeUtxoView(
+	viewA *blockchain.UtxoViewpoint, viewB *blockchain.UtxoViewpoint) {
 	viewAEntries := viewA.Entries()
 	for outpoint, entryB := range viewB.Entries() {
 		if entryA, exists := viewAEntries[outpoint]; !exists ||
@@ -163,14 +168,16 @@ func mergeUtxoView(viewA *blockchain.UtxoViewpoint, viewB *blockchain.UtxoViewpo
 }
 
 // standardCoinbaseScript returns a standard script suitable for use as the signature script of the coinbase transaction of a new block.  In particular, it starts with the block height that is required by version 2 blocks and adds the extra nonce as well as additional coinbase flags.
-func standardCoinbaseScript(nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
+func standardCoinbaseScript(
+	nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
 	return txscript.NewScriptBuilder().AddInt64(int64(nextBlockHeight)).
 		AddInt64(int64(extraNonce)).AddData([]byte(CoinbaseFlags)).
 		Script()
 }
 
 // createCoinbaseTx returns a coinbase transaction paying an appropriate subsidy based on the passed block height to the provided address.  When the address is nil, the coinbase transaction will instead be redeemable by anyone. See the comment for NewBlockTemplate for more information about why the nil address handling is useful.
-func createCoinbaseTx(params *chaincfg.Params, coinbaseScript []byte, nextBlockHeight int32, addr util.Address) (*util.Tx, error) {
+func createCoinbaseTx(
+	params *chaincfg.Params, coinbaseScript []byte, nextBlockHeight int32, addr util.Address) (*util.Tx, error) {
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte
 	if addr != nil {
@@ -203,7 +210,8 @@ func createCoinbaseTx(params *chaincfg.Params, coinbaseScript []byte, nextBlockH
 }
 
 // spendTransaction updates the passed view by marking the inputs to the passed transaction as spent.  It also adds all outputs in the passed transaction which are not provably unspendable as available unspent transaction outputs.
-func spendTransaction(utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height int32) error {
+func spendTransaction(
+	utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height int32) error {
 	for _, txIn := range tx.MsgTx().TxIn {
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		if entry != nil {
@@ -215,7 +223,8 @@ func spendTransaction(utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height in
 }
 
 // logSkippedDeps logs any dependencies which are also skipped as a result of skipping a transaction while generating a block template at the trace level.
-func logSkippedDeps(tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
+func logSkippedDeps(
+	tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
 	if deps == nil {
 		return
 	}
@@ -229,12 +238,14 @@ func logSkippedDeps(tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
 }
 
 // MinimumMedianTime returns the minimum allowed timestamp for a block building on the end of the provided best chain.  In particular, it is one second after the median timestamp of the last several blocks per the chain consensus rules.
-func MinimumMedianTime(chainState *blockchain.BestState) time.Time {
+func MinimumMedianTime(
+	chainState *blockchain.BestState) time.Time {
 	return chainState.MedianTime.Add(time.Second)
 }
 
 // medianAdjustedTime returns the current time adjusted to ensure it is at least one second after the median timestamp of the last several blocks per the chain consensus rules.
-func medianAdjustedTime(chainState *blockchain.BestState, timeSource blockchain.MedianTimeSource) time.Time {
+func medianAdjustedTime(
+	chainState *blockchain.BestState, timeSource blockchain.MedianTimeSource) time.Time {
 	// The timestamp for the block must not be before the median timestamp of the last several blocks.  Thus, choose the maximum between the current time and one second after the past median time.  The current timestamp is truncated to a second boundary before comparison since a block timestamp does not supported a precision greater than one second.
 	newTimestamp := timeSource.AdjustedTime()
 	minTimestamp := MinimumMedianTime(chainState)
@@ -257,7 +268,8 @@ type BlkTmplGenerator struct {
 }
 
 // NewBlkTmplGenerator returns a new block template generator for the given policy using transactions from the provided transaction source. The additional state-related fields are required in order to ensure the templates are built on top of the current best chain and adhere to the consensus rules.
-func NewBlkTmplGenerator(policy *Policy, params *chaincfg.Params,
+func NewBlkTmplGenerator(
+	policy *Policy, params *chaincfg.Params,
 	txSource TxSource, chain *blockchain.BlockChain,
 	timeSource blockchain.MedianTimeSource,
 	sigCache *txscript.SigCache,

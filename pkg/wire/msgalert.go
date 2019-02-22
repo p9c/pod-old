@@ -228,7 +228,8 @@ func (alert *Alert) Deserialize(r io.Reader, pver uint32) error {
 }
 
 // NewAlert returns an new Alert with values provided.
-func NewAlert(version int32, relayUntil int64, expiration int64,
+func NewAlert(
+	version int32, relayUntil int64, expiration int64,
 	id int32, cancel int32, setCancel []int32, minVer int32,
 	maxVer int32, setSubVer []string, priority int32, comment string,
 	statusBar string) *Alert {
@@ -250,7 +251,8 @@ func NewAlert(version int32, relayUntil int64, expiration int64,
 }
 
 // NewAlertFromPayload returns an Alert with values deserialized from the serialized payload.
-func NewAlertFromPayload(serializedPayload []byte, pver uint32) (*Alert, error) {
+func NewAlertFromPayload(
+	serializedPayload []byte, pver uint32) (*Alert, error) {
 	var alert Alert
 	r := bytes.NewReader(serializedPayload)
 	err := alert.Deserialize(r, pver)
@@ -327,7 +329,8 @@ func (msg *MsgAlert) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgAlert returns a new bitcoin alert message that conforms to the Message interface.  See MsgAlert for details.
-func NewMsgAlert(serializedPayload []byte, signature []byte) *MsgAlert {
+func NewMsgAlert(
+	serializedPayload []byte, signature []byte) *MsgAlert {
 	return &MsgAlert{
 		SerializedPayload: serializedPayload,
 		Signature:         signature,

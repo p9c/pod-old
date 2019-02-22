@@ -28,13 +28,15 @@ var (
 	newlineBytes        = []byte{'\n'}
 )
 
-func fatalf(format string, args ...interface{}) {
+func fatalf(
+	format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Stderr.Write(newlineBytes)
 	os.Exit(1)
 }
 
-func errContext(err error, context string) error {
+func errContext(
+	err error, context string) error {
 	return fmt.Errorf("%s: %v", context, err)
 }
 
@@ -62,7 +64,8 @@ var opts = struct {
 }
 
 // Parse and validate flags.
-func init() {
+func init(
+	) {
 	// Unset localhost defaults if certificate file can not be found.
 	certFileExists, err := cfgutil.FileExists(opts.RPCCertificateFile)
 	if err != nil {
@@ -136,7 +139,8 @@ func (noInputValue) Error() string { return "no input value" }
 // output is consumed.  The InputSource does not return any previous output
 // scripts as they are not needed for creating the unsinged transaction and are
 // looked up again by the wallet during the call to signrawtransaction.
-func makeInputSource(outputs []json.ListUnspentResult) txauthor.InputSource {
+func makeInputSource(
+	outputs []json.ListUnspentResult) txauthor.InputSource {
 	var (
 		totalInputValue util.Amount
 		inputs          = make([]*wire.TxIn, 0, len(outputs))
@@ -186,7 +190,8 @@ func makeInputSource(outputs []json.ListUnspentResult) txauthor.InputSource {
 // makeDestinationScriptSource creates a ChangeSource which is used to receive
 // all correlated previous input value.  A non-change address is created by this
 // function.
-func makeDestinationScriptSource(rpcClient *rpcclient.Client, accountName string) txauthor.ChangeSource {
+func makeDestinationScriptSource(
+	rpcClient *rpcclient.Client, accountName string) txauthor.ChangeSource {
 	return func() ([]byte, error) {
 		destinationAddress, err := rpcClient.GetNewAddress(accountName)
 		if err != nil {
@@ -196,14 +201,16 @@ func makeDestinationScriptSource(rpcClient *rpcclient.Client, accountName string
 	}
 }
 
-func main() {
+func main(
+	) {
 	err := sweep()
 	if err != nil {
 		fatalf("%v", err)
 	}
 }
 
-func sweep() error {
+func sweep(
+	) error {
 	rpcPassword, err := promptSecret("Wallet RPC password")
 	if err != nil {
 		return errContext(err, "failed to read RPC password")
@@ -319,7 +326,8 @@ func sweep() error {
 	return nil
 }
 
-func promptSecret(what string) (string, error) {
+func promptSecret(
+	what string) (string, error) {
 	fmt.Printf("%s: ", what)
 	fd := int(os.Stdin.Fd())
 	input, err := terminal.ReadPassword(fd)
@@ -330,11 +338,13 @@ func promptSecret(what string) (string, error) {
 	return string(input), nil
 }
 
-func saneOutputValue(amount util.Amount) bool {
+func saneOutputValue(
+	amount util.Amount) bool {
 	return amount >= 0 && amount <= util.MaxSatoshi
 }
 
-func parseOutPoint(input *json.ListUnspentResult) (wire.OutPoint, error) {
+func parseOutPoint(
+	input *json.ListUnspentResult) (wire.OutPoint, error) {
 	txHash, err := chainhash.NewHashFromStr(input.TxID)
 	if err != nil {
 		return wire.OutPoint{}, err
@@ -342,7 +352,8 @@ func parseOutPoint(input *json.ListUnspentResult) (wire.OutPoint, error) {
 	return wire.OutPoint{Hash: *txHash, Index: input.Vout}, nil
 }
 
-func pickNoun(n int, singularForm, pluralForm string) string {
+func pickNoun(
+	n int, singularForm, pluralForm string) string {
 	if n == 1 {
 		return singularForm
 	}

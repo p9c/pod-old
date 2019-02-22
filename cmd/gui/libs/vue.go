@@ -8,13 +8,25 @@ import (
 	"strings"
 )
 
-type vJS map[string][]byte
+type VPages map[string]string
+
 type aPP map[string][]byte
 type jSL map[string][]byte
 
-type VPages map[string]string
+type vJS map[string][]byte
+
+var APP map[string][]byte = map[string][]byte{
+	"apphtml": apphtml,
+	"appjs":   appjs,
+	"appcss":  appcss,
+}
+
+var JSL jSL = jSL{}
 
 var PGS VPages = VPages{}
+
+var VJS vJS = vJS{}
+var appcss, _ = ioutil.ReadFile("./gui/assets/vue/app.css")
 
 // var commands, _ = ioutil.ReadFile("./gui/assets/vue/js/commands.js")
 // var tasks, _ = ioutil.ReadFile("./gui/assets/vue/js/tasks.js")
@@ -34,16 +46,6 @@ var PGS VPages = VPages{}
 // var vrfsendjs, _ = ioutil.ReadFile("./gui/assets/vue/components/modals/vrfsend.js")
 var apphtml, _ = ioutil.ReadFile("./gui/assets/vue/app.html")
 var appjs, _ = ioutil.ReadFile("./gui/assets/vue/app.js")
-var appcss, _ = ioutil.ReadFile("./gui/assets/vue/app.css")
-
-var APP map[string][]byte = map[string][]byte{
-	"apphtml": apphtml,
-	"appjs":   appjs,
-	"appcss":  appcss,
-}
-
-var VJS vJS = vJS{}
-var JSL jSL = jSL{}
 
 func init() {
 

@@ -20,7 +20,8 @@ type config struct {
 	Force        bool     `short:"f" long:"force" description:"Force overwriting of any old certs and keys"`
 }
 
-func main() {
+func main(
+	) {
 	cfg := config{
 		Years:        10,
 		Organization: "gencerts",
@@ -69,7 +70,8 @@ func main() {
 }
 
 // cleanAndExpandPath expands environement variables and leading ~ in the passed path, cleans the result, and returns it.
-func cleanAndExpandPath(path string) string {
+func cleanAndExpandPath(
+	path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 		appHomeDir := util.AppDataDir("gencerts", false)
@@ -81,7 +83,8 @@ func cleanAndExpandPath(path string) string {
 }
 
 // filesExists reports whether the named file or directory exists.
-func fileExists(name string) bool {
+func fileExists(
+	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false

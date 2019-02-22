@@ -160,7 +160,8 @@ type ServerPeer struct {
 
 // newServerPeer returns a new ServerPeer instance. The peer needs to be set by
 // the caller.
-func newServerPeer(s *ChainService, isPersistent bool) *ServerPeer {
+func newServerPeer(
+	s *ChainService, isPersistent bool) *ServerPeer {
 	return &ServerPeer{
 		server:          s,
 		persistent:      isPersistent,
@@ -576,7 +577,8 @@ type ChainService struct {
 // NewChainService returns a new chain service configured to connect to the
 // bitcoin network type specified by chainParams.  Use start to begin syncing
 // with peers.
-func NewChainService(cfg Config) (*ChainService, error) {
+func NewChainService(
+	cfg Config) (*ChainService, error) {
 	// First, we'll sort out the methods that we'll use to established
 	// outbound TCP connections, as well as perform any DNS queries.
 	//
@@ -684,7 +686,8 @@ func NewChainService(cfg Config) (*ChainService, error) {
 	// connect-only mode since it is only intended to connect to specified
 	// peers and actively avoid advertising and connecting to discovered
 	// peers in order to prevent it from becoming a public test network.
-	var newAddressFunc func() (net.Addr, error)
+	var newAddressFunc func(
+	) (net.Addr, error)
 	if s.chainParams.Net != chaincfg.SimNetParams.Net {
 		newAddressFunc = func() (net.Addr, error) {
 			for tries := 0; tries < 100; tries++ {
@@ -1196,7 +1199,9 @@ func (s *ChainService) handleBanPeerMsg(state *peerState, sp *ServerPeer) {
 // to be located. If the peer is found, and the passed callback: `whenFound'
 // isn't nil, we call it with the peer as the argument before it is removed
 // from the peerList, and is disconnected from the server.
-func disconnectPeer(peerList map[int32]*ServerPeer, compareFunc func(*ServerPeer) bool, whenFound func(*ServerPeer)) bool {
+func disconnectPeer(
+	peerList map[int32]*ServerPeer, compareFunc func(
+	*ServerPeer) bool, whenFound func(*ServerPeer)) bool {
 	for addr, peer := range peerList {
 		if compareFunc(peer) {
 			if whenFound != nil {
@@ -1224,7 +1229,8 @@ func (s *ChainService) PublishTransaction(tx *wire.MsgTx) error {
 }
 
 // newPeerConfig returns the configuration for the given ServerPeer.
-func newPeerConfig(sp *ServerPeer) *peer.Config {
+func newPeerConfig(
+	sp *ServerPeer) *peer.Config {
 	return &peer.Config{
 		Listeners: peer.MessageListeners{
 			OnVersion: sp.OnVersion,

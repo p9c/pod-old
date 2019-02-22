@@ -9,7 +9,8 @@ import (
 )
 
 // TestMsgAlert tests the MsgAlert API.
-func TestMsgAlert(t *testing.T) {
+func TestMsgAlert(
+	t *testing.T) {
 	pver := ProtocolVersion
 	encoding := BaseEncoding
 	serializedpayload := []byte("some message")
@@ -70,7 +71,8 @@ func TestMsgAlert(t *testing.T) {
 }
 
 // TestMsgAlertWire tests the MsgAlert wire encode and decode for various protocol versions.
-func TestMsgAlertWire(t *testing.T) {
+func TestMsgAlertWire(
+	t *testing.T) {
 	baseMsgAlert := NewMsgAlert([]byte("some payload"), []byte("somesig"))
 	baseMsgAlertEncoded := []byte{
 		0x0c, // Varint for payload length
@@ -158,7 +160,8 @@ func TestMsgAlertWire(t *testing.T) {
 }
 
 // TestMsgAlertWireErrors performs negative tests against wire encode and decode of MsgAlert to confirm error paths work correctly.
-func TestMsgAlertWireErrors(t *testing.T) {
+func TestMsgAlertWireErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	encoding := BaseEncoding
 	baseMsgAlert := NewMsgAlert([]byte("some payload"), []byte("somesig"))
@@ -252,7 +255,8 @@ func TestMsgAlertWireErrors(t *testing.T) {
 }
 
 // TestAlert tests serialization and deserialization of the payload to Alert
-func TestAlert(t *testing.T) {
+func TestAlert(
+	t *testing.T) {
 	pver := ProtocolVersion
 	alert := NewAlert(
 		1, 1337093712, 1368628812, 1015,
@@ -336,7 +340,8 @@ func TestAlert(t *testing.T) {
 }
 
 // TestAlertErrors performs negative tests against payload serialization, deserialization of Alert to confirm error paths work correctly.
-func TestAlertErrors(t *testing.T) {
+func TestAlertErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	baseAlert := NewAlert(
 		1, 1337093712, 1368628812, 1015,

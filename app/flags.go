@@ -7,7 +7,12 @@ import (
 )
 
 // GetFlags reads out the flags in a climax.Command and reads the default value stored there into a searchable map
-func GetFlags(cmd climax.Command) (out map[string]string) {
+func GetFlags(
+	cmd climax.Command,
+) (
+	out map[string]string,
+) {
+
 	out = make(map[string]string)
 	for i := range cmd.Flags {
 		usage := strings.Split(cmd.Flags[i].Usage, " ")

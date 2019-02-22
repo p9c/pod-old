@@ -67,10 +67,12 @@ var (
 //   -----
 //   Total: 12 bytes per indexed tx
 // fetchBlockHashFunc defines a callback function to use in order to convert a serialized block ID to an associated block hash.
-type fetchBlockHashFunc func(serializedID []byte) (*chainhash.Hash, error)
+type fetchBlockHashFunc func(
+	serializedID []byte) (*chainhash.Hash, error)
 
 // serializeAddrIndexEntry serializes the provided block id and transaction location according to the format described in detail above.
-func serializeAddrIndexEntry(blockID uint32, txLoc wire.TxLoc) []byte {
+func serializeAddrIndexEntry(
+	blockID uint32, txLoc wire.TxLoc) []byte {
 	// Serialize the entry.
 	serialized := make([]byte, 12)
 	byteOrder.PutUint32(serialized, blockID)
@@ -80,7 +82,8 @@ func serializeAddrIndexEntry(blockID uint32, txLoc wire.TxLoc) []byte {
 }
 
 // deserializeAddrIndexEntry decodes the passed serialized byte slice into the provided region struct according to the format described in detail above and uses the passed block hash fetching function in order to conver the block ID to the associated block hash.
-func deserializeAddrIndexEntry(serialized []byte, region *database.BlockRegion, fetchBlockHash fetchBlockHashFunc) error {
+func deserializeAddrIndexEntry(
+	serialized []byte, region *database.BlockRegion, fetchBlockHash fetchBlockHashFunc) error {
 	// Ensure there are enough bytes to decode.
 	if len(serialized) < txEntrySize {
 		return errDeserialize("unexpected end of data")
@@ -96,7 +99,8 @@ func deserializeAddrIndexEntry(serialized []byte, region *database.BlockRegion, 
 }
 
 // keyForLevel returns the key for a specific address and level in the address index entry.
-func keyForLevel(addrKey [addrKeySize]byte, level uint8) [levelKeySize]byte {
+func keyForLevel(
+	addrKey [addrKeySize]byte, level uint8) [levelKeySize]byte {
 	var key [levelKeySize]byte
 	copy(key[:], addrKey[:])
 	key[levelOffset] = level
@@ -104,7 +108,8 @@ func keyForLevel(addrKey [addrKeySize]byte, level uint8) [levelKeySize]byte {
 }
 
 // dbPutAddrIndexEntry updates the address index to include the provided entry according to the level-based scheme described in detail above.
-func dbPutAddrIndexEntry(bucket internalBucket, addrKey [addrKeySize]byte, blockID uint32, txLoc wire.TxLoc) error {
+func dbPutAddrIndexEntry(
+	bucket internalBucket, addrKey [addrKeySize]byte, blockID uint32, txLoc wire.TxLoc) error {
 	// Start with level 0 and its initial max number of entries.
 	curLevel := uint8(0)
 	maxLevelBytes := level0MaxEntries * txEntrySize
@@ -163,7 +168,8 @@ func dbPutAddrIndexEntry(bucket internalBucket, addrKey [addrKeySize]byte, block
 }
 
 // dbFetchAddrIndexEntries returns block regions for transactions referenced by the given address key and the number of entries skipped since it could have been less in the case where there are less total entries than the requested number of entries to skip.
-func dbFetchAddrIndexEntries(bucket internalBucket, addrKey [addrKeySize]byte, numToSkip, numRequested uint32, reverse bool, fetchBlockHash fetchBlockHashFunc) ([]database.BlockRegion, uint32, error) {
+func dbFetchAddrIndexEntries(
+	bucket internalBucket, addrKey [addrKeySize]byte, numToSkip, numRequested uint32, reverse bool, fetchBlockHash fetchBlockHashFunc) ([]database.BlockRegion, uint32, error) {
 	// When the reverse flag is not set, all levels need to be fetched because numToSkip and numRequested are counted from the oldest transactions (highest level) and thus the total count is needed. However, when the reverse flag is set, only enough records to satisfy the requested amount are needed.
 	var level uint8
 	var serialized []byte
@@ -225,7 +231,8 @@ func dbFetchAddrIndexEntries(bucket internalBucket, addrKey [addrKeySize]byte, n
 }
 
 // minEntriesToReachLevel returns the minimum number of entries that are required to reach the given address index level.
-func minEntriesToReachLevel(level uint8) int {
+func minEntriesToReachLevel(
+	level uint8) int {
 	maxEntriesForLevel := level0MaxEntries
 	minRequired := 1
 	for l := uint8(1); l <= level; l++ {
@@ -236,7 +243,8 @@ func minEntriesToReachLevel(level uint8) int {
 }
 
 // maxEntriesForLevel returns the maximum number of entries allowed for the given address index level.
-func maxEntriesForLevel(level uint8) int {
+func maxEntriesForLevel(
+	level uint8) int {
 	numEntries := level0MaxEntries
 	for l := level; l > 0; l-- {
 		numEntries *= 2
@@ -245,7 +253,8 @@ func maxEntriesForLevel(level uint8) int {
 }
 
 // dbRemoveAddrIndexEntries removes the specified number of entries from from the address index for the provided key. An assertion error will be returned if the count exceeds the total number of entries in the index.
-func dbRemoveAddrIndexEntries(bucket internalBucket, addrKey [addrKeySize]byte, count int) error {
+func dbRemoveAddrIndexEntries(
+	bucket internalBucket, addrKey [addrKeySize]byte, count int) error {
 	// Nothing to do if no entries are being deleted.
 	if count <= 0 {
 		return nil
@@ -365,7 +374,8 @@ func dbRemoveAddrIndexEntries(bucket internalBucket, addrKey [addrKeySize]byte, 
 }
 
 // addrToKey converts known address types to an addrindex key.  An error is returned for unsupported types.
-func addrToKey(addr util.Address) ([addrKeySize]byte, error) {
+func addrToKey(
+	addr util.Address) ([addrKeySize]byte, error) {
 	switch addr := addr.(type) {
 	case *util.AddressPubKeyHash:
 		var result [addrKeySize]byte
@@ -650,7 +660,8 @@ func (idx *AddrIndex) UnconfirmedTxnsForAddress(addr util.Address) []*util.Tx {
 
 // NewAddrIndex returns a new instance of an indexer that is used to create a mapping of all addresses in the blockchain to the respective transactions that involve them.
 // It implements the Indexer interface which plugs into the IndexManager that in turn is used by the blockchain package.  This allows the index to be seamlessly maintained along with the chain.
-func NewAddrIndex(db database.DB, chainParams *chaincfg.Params) *AddrIndex {
+func NewAddrIndex(
+	db database.DB, chainParams *chaincfg.Params) *AddrIndex {
 	return &AddrIndex{
 		db:          db,
 		chainParams: chainParams,
@@ -660,6 +671,7 @@ func NewAddrIndex(db database.DB, chainParams *chaincfg.Params) *AddrIndex {
 }
 
 // DropAddrIndex drops the address index from the provided database if it exists.
-func DropAddrIndex(db database.DB, interrupt <-chan struct{}) error {
+func DropAddrIndex(
+	db database.DB, interrupt <-chan struct{}) error {
 	return dropIndex(db, addrIndexKey, addrIndexName, interrupt)
 }

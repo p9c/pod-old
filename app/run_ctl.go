@@ -7,7 +7,11 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 )
 
-func runCtl(args []string, cc *ctl.Config) {
+func runCtl(
+	args []string,
+	cc *ctl.Config,
+) {
+
 	j, _ := json.MarshalIndent(cc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	ctl.Main(args, cc)

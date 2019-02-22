@@ -22,7 +22,8 @@ type SigCache struct {
 }
 
 // NewSigCache creates and initializes a new instance of SigCache. Its sole parameter 'maxEntries' represents the maximum number of entries allowed to exist in the SigCache at any particular moment. Random entries are evicted make room for new entries that would cause the number of entries in the cache to exceed the max.
-func NewSigCache(maxEntries uint) *SigCache {
+func NewSigCache(
+	maxEntries uint) *SigCache {
 	return &SigCache{
 		validSigs:  make(map[chainhash.Hash]sigCacheEntry, maxEntries),
 		maxEntries: maxEntries,

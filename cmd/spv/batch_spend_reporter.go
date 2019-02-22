@@ -35,7 +35,8 @@ type batchSpendReporter struct {
 }
 
 // newBatchSpendReporter instantiates a fresh batchSpendReporter.
-func newBatchSpendReporter() *batchSpendReporter {
+func newBatchSpendReporter(
+	) *batchSpendReporter {
 	return &batchSpendReporter{
 		requests:    make(map[wire.OutPoint][]*GetUtxoRequest),
 		initialTxns: make(map[wire.OutPoint]*SpendReport),

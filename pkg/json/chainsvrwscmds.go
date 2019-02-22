@@ -8,7 +8,8 @@ type AuthenticateCmd struct {
 }
 
 // NewAuthenticateCmd returns a new instance which can be used to issue an authenticate JSON-RPC command.
-func NewAuthenticateCmd(username, passphrase string) *AuthenticateCmd {
+func NewAuthenticateCmd(
+	username, passphrase string) *AuthenticateCmd {
 	return &AuthenticateCmd{
 		Username:   username,
 		Passphrase: passphrase,
@@ -19,7 +20,8 @@ func NewAuthenticateCmd(username, passphrase string) *AuthenticateCmd {
 type NotifyBlocksCmd struct{}
 
 // NewNotifyBlocksCmd returns a new instance which can be used to issue a notifyblocks JSON-RPC command.
-func NewNotifyBlocksCmd() *NotifyBlocksCmd {
+func NewNotifyBlocksCmd(
+	) *NotifyBlocksCmd {
 	return &NotifyBlocksCmd{}
 }
 
@@ -27,7 +29,8 @@ func NewNotifyBlocksCmd() *NotifyBlocksCmd {
 type StopNotifyBlocksCmd struct{}
 
 // NewStopNotifyBlocksCmd returns a new instance which can be used to issue a stopnotifyblocks JSON-RPC command.
-func NewStopNotifyBlocksCmd() *StopNotifyBlocksCmd {
+func NewStopNotifyBlocksCmd(
+	) *StopNotifyBlocksCmd {
 	return &StopNotifyBlocksCmd{}
 }
 
@@ -37,7 +40,8 @@ type NotifyNewTransactionsCmd struct {
 }
 
 // NewNotifyNewTransactionsCmd returns a new instance which can be used to issue a notifynewtransactions JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewNotifyNewTransactionsCmd(verbose *bool) *NotifyNewTransactionsCmd {
+func NewNotifyNewTransactionsCmd(
+	verbose *bool) *NotifyNewTransactionsCmd {
 	return &NotifyNewTransactionsCmd{
 		Verbose: verbose,
 	}
@@ -47,7 +51,8 @@ func NewNotifyNewTransactionsCmd(verbose *bool) *NotifyNewTransactionsCmd {
 type SessionCmd struct{}
 
 // NewSessionCmd returns a new instance which can be used to issue a session JSON-RPC command.
-func NewSessionCmd() *SessionCmd {
+func NewSessionCmd(
+	) *SessionCmd {
 	return &SessionCmd{}
 }
 
@@ -55,7 +60,8 @@ func NewSessionCmd() *SessionCmd {
 type StopNotifyNewTransactionsCmd struct{}
 
 // NewStopNotifyNewTransactionsCmd returns a new instance which can be used to issue a stopnotifynewtransactions JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewStopNotifyNewTransactionsCmd() *StopNotifyNewTransactionsCmd {
+func NewStopNotifyNewTransactionsCmd(
+	) *StopNotifyNewTransactionsCmd {
 	return &StopNotifyNewTransactionsCmd{}
 }
 
@@ -65,7 +71,8 @@ type NotifyReceivedCmd struct {
 }
 
 // NewNotifyReceivedCmd returns a new instance which can be used to issue a notifyreceived JSON-RPC command. NOTE: Deprecated. Use NewLoadTxFilterCmd instead.
-func NewNotifyReceivedCmd(addresses []string) *NotifyReceivedCmd {
+func NewNotifyReceivedCmd(
+	addresses []string) *NotifyReceivedCmd {
 	return &NotifyReceivedCmd{
 		Addresses: addresses,
 	}
@@ -85,7 +92,8 @@ type LoadTxFilterCmd struct {
 }
 
 // NewLoadTxFilterCmd returns a new instance which can be used to issue a loadtxfilter JSON-RPC command. NOTE: This is a pod extension ported from github.com/decred/dcrd/dcrjson and requires a websocket connection.
-func NewLoadTxFilterCmd(reload bool, addresses []string, outPoints []OutPoint) *LoadTxFilterCmd {
+func NewLoadTxFilterCmd(
+	reload bool, addresses []string, outPoints []OutPoint) *LoadTxFilterCmd {
 	return &LoadTxFilterCmd{
 		Reload:    reload,
 		Addresses: addresses,
@@ -99,7 +107,8 @@ type NotifySpentCmd struct {
 }
 
 // NewNotifySpentCmd returns a new instance which can be used to issue a notifyspent JSON-RPC command. NOTE: Deprecated. Use NewLoadTxFilterCmd instead.
-func NewNotifySpentCmd(outPoints []OutPoint) *NotifySpentCmd {
+func NewNotifySpentCmd(
+	outPoints []OutPoint) *NotifySpentCmd {
 	return &NotifySpentCmd{
 		OutPoints: outPoints,
 	}
@@ -111,7 +120,8 @@ type StopNotifyReceivedCmd struct {
 }
 
 // NewStopNotifyReceivedCmd returns a new instance which can be used to issue a stopnotifyreceived JSON-RPC command. NOTE: Deprecated. Use NewLoadTxFilterCmd instead.
-func NewStopNotifyReceivedCmd(addresses []string) *StopNotifyReceivedCmd {
+func NewStopNotifyReceivedCmd(
+	addresses []string) *StopNotifyReceivedCmd {
 	return &StopNotifyReceivedCmd{
 		Addresses: addresses,
 	}
@@ -123,7 +133,8 @@ type StopNotifySpentCmd struct {
 }
 
 // NewStopNotifySpentCmd returns a new instance which can be used to issue a stopnotifyspent JSON-RPC command. NOTE: Deprecated. Use NewLoadTxFilterCmd instead.
-func NewStopNotifySpentCmd(outPoints []OutPoint) *StopNotifySpentCmd {
+func NewStopNotifySpentCmd(
+	outPoints []OutPoint) *StopNotifySpentCmd {
 	return &StopNotifySpentCmd{
 		OutPoints: outPoints,
 	}
@@ -138,7 +149,8 @@ type RescanCmd struct {
 }
 
 // NewRescanCmd returns a new instance which can be used to issue a rescan JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value. NOTE: Deprecated. Use NewRescanBlocksCmd instead.
-func NewRescanCmd(beginBlock string, addresses []string, outPoints []OutPoint, endBlock *string) *RescanCmd {
+func NewRescanCmd(
+	beginBlock string, addresses []string, outPoints []OutPoint, endBlock *string) *RescanCmd {
 	return &RescanCmd{
 		BeginBlock: beginBlock,
 		Addresses:  addresses,
@@ -154,10 +166,12 @@ type RescanBlocksCmd struct {
 }
 
 // NewRescanBlocksCmd returns a new instance which can be used to issue a rescan JSON-RPC command. NOTE: This is a pod extension ported from github.com/decred/dcrd/dcrjson and requires a websocket connection.
-func NewRescanBlocksCmd(blockHashes []string) *RescanBlocksCmd {
+func NewRescanBlocksCmd(
+	blockHashes []string) *RescanBlocksCmd {
 	return &RescanBlocksCmd{BlockHashes: blockHashes}
 }
-func init() {
+func init(
+	) {
 	// The commands in this file are only usable by websockets.
 	flags := UFWebsocketOnly
 	MustRegisterCmd("authenticate", (*AuthenticateCmd)(nil), flags)

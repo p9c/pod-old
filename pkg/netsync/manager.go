@@ -1156,7 +1156,8 @@ func (sm *SyncManager) Pause() chan<- struct{} {
 }
 
 // New constructs a new SyncManager. Use Start to begin processing asynchronous block, tx, and inv updates.
-func New(config *Config) (*SyncManager, error) {
+func New(
+	config *Config) (*SyncManager, error) {
 	sm := SyncManager{
 		peerNotifier:    config.PeerNotifier,
 		chain:           config.Chain,

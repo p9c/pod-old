@@ -81,7 +81,8 @@ func (ck *CryptoKey) Zero() {
 }
 
 // GenerateCryptoKey generates a new crypotgraphically random key.
-func GenerateCryptoKey() (*CryptoKey, error) {
+func GenerateCryptoKey(
+	) (*CryptoKey, error) {
 	var key CryptoKey
 	_, err := io.ReadFull(prng, key[:])
 	if err != nil {
@@ -220,7 +221,8 @@ func (sk *SecretKey) Decrypt(in []byte) ([]byte, error) {
 }
 
 // NewSecretKey returns a SecretKey structure based on the passed parameters.
-func NewSecretKey(password *[]byte, N, r, p int) (*SecretKey, error) {
+func NewSecretKey(
+	password *[]byte, N, r, p int) (*SecretKey, error) {
 	sk := SecretKey{
 		Key: (*CryptoKey)(&[KeySize]byte{}),
 	}

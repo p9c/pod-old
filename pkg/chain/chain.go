@@ -48,7 +48,8 @@ type BestState struct {
 }
 
 // newBestState returns a new best stats instance for the given parameters.
-func newBestState(node *blockNode, blockSize, blockWeight, numTxns,
+func newBestState(
+	node *blockNode, blockSize, blockWeight, numTxns,
 	totalTxns uint64, medianTime time.Time) *BestState {
 	return &BestState{
 		Hash:        node.hash,
@@ -298,7 +299,8 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 // LockTimeToSequence converts the passed relative locktime to a sequence number in accordance to BIP-68.
 // See: https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki
 //  * (Compatibility)
-func LockTimeToSequence(isSeconds bool, locktime uint32) uint32 {
+func LockTimeToSequence(
+	isSeconds bool, locktime uint32) uint32 {
 	// If we're expressing the relative lock time in blocks, then the corresponding sequence number is simply the desired input age.
 	if !isSeconds {
 		return locktime
@@ -529,7 +531,8 @@ func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *U
 }
 
 // countSpentOutputs returns the number of utxos the passed block spends.
-func countSpentOutputs(block *util.Block) int {
+func countSpentOutputs(
+	block *util.Block) int {
 	// Exclude the coinbase transaction since it can't spend anything.
 	var numSpent int
 	for _, tx := range block.Transactions()[1:] {
@@ -1158,7 +1161,8 @@ type Config struct {
 }
 
 // New returns a BlockChain instance using the provided configuration details.
-func New(config *Config) (*BlockChain, error) {
+func New(
+	config *Config) (*BlockChain, error) {
 	// Enforce required config fields.
 	if config.DB == nil {
 		return nil, AssertError("blockchain.New database is nil")

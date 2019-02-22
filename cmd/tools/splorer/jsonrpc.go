@@ -54,7 +54,8 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	return nil, errors.New("no result")
 }
 // NewJSONRPC creates a new structure for a JSONRPC connection
-func NewJSONRPC(user string, password string, host string, port int64) *JSONRPC {
+func NewJSONRPC(
+	user string, password string, host string, port int64) *JSONRPC {
 	c := JSONRPC{user, password, host, port}
 	return &c
 }

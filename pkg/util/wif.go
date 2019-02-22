@@ -27,7 +27,8 @@ type WIF struct {
 }
 
 // NewWIF creates a new WIF structure to export an address and its private key as a string encoded in the Wallet Import Format.  The compress argument specifies whether the address intended to be imported or exported was created by serializing the public key compressed rather than uncompressed.
-func NewWIF(privKey *ec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
+func NewWIF(
+	privKey *ec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
 	if net == nil {
 		return nil, errors.New("no network")
 	}
@@ -47,7 +48,8 @@ func (w *WIF) IsForNet(net *chaincfg.Params) bool {
 //    compressed (33-byte) public key
 //  * 4 bytes of checksum, must equal the first four bytes of the double SHA256 of every byte before the checksum in this sequence
 // If the base58-decoded byte sequence does not match this, DecodeWIF will return a non-nil error.  ErrMalformedPrivateKey is returned when the WIF is of an impossible length or the expected compressed pubkey magic number does not equal the expected value of 0x01.  ErrChecksumMismatch is returned if the expected WIF checksum does not match the calculated checksum.
-func DecodeWIF(wif string) (*WIF, error) {
+func DecodeWIF(
+	wif string) (*WIF, error) {
 	decoded := base58.Decode(wif)
 	decodedLen := len(decoded)
 	var compress bool
@@ -109,7 +111,8 @@ func (w *WIF) SerializePubKey() []byte {
 }
 
 // paddedAppend appends the src byte slice to dst, returning the new slice. If the length of the source is smaller than the passed size, leading zero bytes are appended to the dst slice before appending src.
-func paddedAppend(size uint, dst, src []byte) []byte {
+func paddedAppend(
+	size uint, dst, src []byte) []byte {
 	for i := 0; i < int(size)-len(src); i++ {
 		dst = append(dst, 0)
 	}

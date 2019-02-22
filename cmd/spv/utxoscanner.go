@@ -118,7 +118,8 @@ type UtxoScanner struct {
 
 // NewUtxoScanner creates a new instance of UtxoScanner using the given chain
 // interface.
-func NewUtxoScanner(cfg *UtxoScannerConfig) *UtxoScanner {
+func NewUtxoScanner(
+	cfg *UtxoScannerConfig) *UtxoScanner {
 	scanner := &UtxoScanner{
 		cfg:      cfg,
 		quit:     make(chan struct{}),

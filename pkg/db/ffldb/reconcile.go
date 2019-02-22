@@ -13,7 +13,8 @@ import (
 //  [4:8]  File offset (4 bytes)
 //  [8:12] Castagnoli CRC-32 checksum (4 bytes)
 // serializeWriteRow serialize the current block file and offset where new will be written into a format suitable for storage into the metadata.
-func serializeWriteRow(curBlockFileNum, curFileOffset uint32) []byte {
+func serializeWriteRow(
+	curBlockFileNum, curFileOffset uint32) []byte {
 	var serializedRow [12]byte
 	byteOrder.PutUint32(serializedRow[0:4], curBlockFileNum)
 	byteOrder.PutUint32(serializedRow[4:8], curFileOffset)
@@ -23,7 +24,8 @@ func serializeWriteRow(curBlockFileNum, curFileOffset uint32) []byte {
 }
 
 // deserializeWriteRow deserializes the write cursor location stored in the metadata.  Returns ErrCorruption if the checksum of the entry doesn't match.
-func deserializeWriteRow(writeRow []byte) (uint32, uint32, error) {
+func deserializeWriteRow(
+	writeRow []byte) (uint32, uint32, error) {
 	// Ensure the checksum matches.  The checksum is at the end.
 	gotChecksum := crc32.Checksum(writeRow[:8], castagnoli)
 	wantChecksumBytes := writeRow[8:12]
@@ -40,7 +42,8 @@ func deserializeWriteRow(writeRow []byte) (uint32, uint32, error) {
 }
 
 // reconcileDB reconciles the metadata with the flat block files on disk.  It will also initialize the underlying database if the create flag is set.
-func reconcileDB(pdb *db, create bool) (database.DB, error) {
+func reconcileDB(
+	pdb *db, create bool) (database.DB, error) {
 	// Perform initial internal bucket and value creation during database creation.
 	if create {
 		if err := initDB(pdb.cache.ldb); err != nil {

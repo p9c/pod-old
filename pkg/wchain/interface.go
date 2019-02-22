@@ -12,7 +12,8 @@ import (
 
 // BackEnds returns a list of the available back ends.
 // TODO: Refactor each into a driver and use dynamic registration.
-func BackEnds() []string {
+func BackEnds(
+	) []string {
 	return []string{
 		"bitcoind",
 		"pod",

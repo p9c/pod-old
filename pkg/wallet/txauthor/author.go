@@ -75,7 +75,8 @@ type ChangeSource func() ([]byte, error)
 // InputSourceError is returned.
 //
 // BUGS: Fee estimation may be off when redeeming non-compressed P2PKH outputs.
-func NewUnsignedTransaction(outputs []*wire.TxOut, relayFeePerKb util.Amount,
+func NewUnsignedTransaction(
+	outputs []*wire.TxOut, relayFeePerKb util.Amount,
 	fetchInputs InputSource, fetchChange ChangeSource) (*AuthoredTx, error) {
 
 	targetAmount := h.SumOutputValues(outputs)
@@ -153,7 +154,8 @@ func NewUnsignedTransaction(outputs []*wire.TxOut, relayFeePerKb util.Amount,
 // RandomizeOutputPosition randomizes the position of a transaction's output by
 // swapping it with a random output.  The new index is returned.  This should be
 // done before signing.
-func RandomizeOutputPosition(outputs []*wire.TxOut, index int) int {
+func RandomizeOutputPosition(
+	outputs []*wire.TxOut, index int) int {
 	r := cprng.Int31n(int32(len(outputs)))
 	outputs[r], outputs[index] = outputs[index], outputs[r]
 	return int(r)
@@ -187,7 +189,8 @@ type SecretsSource interface {
 // are passed in prevPkScripts and the slice length must match the number of
 // inputs.  Private keys and redeem scripts are looked up using a SecretsSource
 // based on the previous output script.
-func AddAllInputScripts(tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []util.Amount,
+func AddAllInputScripts(
+	tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []util.Amount,
 	secrets SecretsSource) error {
 
 	inputs := tx.TxIn
@@ -241,7 +244,8 @@ func AddAllInputScripts(tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []ut
 // correspond to the output value of the previous pkScript, or else verification
 // will fail since the new sighash digest algorithm defined in BIP0143 includes
 // the input value in the sighash.
-func spendWitnessKeyHash(txIn *wire.TxIn, pkScript []byte,
+func spendWitnessKeyHash(
+	txIn *wire.TxIn, pkScript []byte,
 	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
 	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
 
@@ -295,7 +299,8 @@ func spendWitnessKeyHash(txIn *wire.TxIn, pkScript []byte,
 // p2wkh output. The input amount *must* correspond to the output value of the
 // previous pkScript, or else verification will fail since the new sighash
 // digest algorithm defined in BIP0143 includes the input value in the sighash.
-func spendNestedWitnessPubKeyHash(txIn *wire.TxIn, pkScript []byte,
+func spendNestedWitnessPubKeyHash(
+	txIn *wire.TxIn, pkScript []byte,
 	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
 	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
 

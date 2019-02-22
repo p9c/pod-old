@@ -6,7 +6,8 @@ type CreateEncryptedWalletCmd struct {
 }
 
 // NewCreateEncryptedWalletCmd returns a new instance which can be used to issue a createencryptedwallet JSON-RPC command.
-func NewCreateEncryptedWalletCmd(passphrase string) *CreateEncryptedWalletCmd {
+func NewCreateEncryptedWalletCmd(
+	passphrase string) *CreateEncryptedWalletCmd {
 	return &CreateEncryptedWalletCmd{
 		Passphrase: passphrase,
 	}
@@ -19,7 +20,8 @@ type ExportWatchingWalletCmd struct {
 }
 
 // NewExportWatchingWalletCmd returns a new instance which can be used to issue a exportwatchingwallet JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewExportWatchingWalletCmd(account *string, download *bool) *ExportWatchingWalletCmd {
+func NewExportWatchingWalletCmd(
+	account *string, download *bool) *ExportWatchingWalletCmd {
 	return &ExportWatchingWalletCmd{
 		Account:  account,
 		Download: download,
@@ -32,7 +34,8 @@ type GetUnconfirmedBalanceCmd struct {
 }
 
 // NewGetUnconfirmedBalanceCmd returns a new instance which can be used to issue a getunconfirmedbalance JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewGetUnconfirmedBalanceCmd(account *string) *GetUnconfirmedBalanceCmd {
+func NewGetUnconfirmedBalanceCmd(
+	account *string) *GetUnconfirmedBalanceCmd {
 	return &GetUnconfirmedBalanceCmd{
 		Account: account,
 	}
@@ -45,7 +48,8 @@ type ListAddressTransactionsCmd struct {
 }
 
 // NewListAddressTransactionsCmd returns a new instance which can be used to issue a listaddresstransactions JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewListAddressTransactionsCmd(addresses []string, account *string) *ListAddressTransactionsCmd {
+func NewListAddressTransactionsCmd(
+	addresses []string, account *string) *ListAddressTransactionsCmd {
 	return &ListAddressTransactionsCmd{
 		Addresses: addresses,
 		Account:   account,
@@ -58,7 +62,8 @@ type ListAllTransactionsCmd struct {
 }
 
 // NewListAllTransactionsCmd returns a new instance which can be used to issue a listalltransactions JSON-RPC command. The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
-func NewListAllTransactionsCmd(account *string) *ListAllTransactionsCmd {
+func NewListAllTransactionsCmd(
+	account *string) *ListAllTransactionsCmd {
 	return &ListAllTransactionsCmd{
 		Account: account,
 	}
@@ -71,7 +76,8 @@ type RecoverAddressesCmd struct {
 }
 
 // NewRecoverAddressesCmd returns a new instance which can be used to issue a recoveraddresses JSON-RPC command.
-func NewRecoverAddressesCmd(account string, n int) *RecoverAddressesCmd {
+func NewRecoverAddressesCmd(
+	account string, n int) *RecoverAddressesCmd {
 	return &RecoverAddressesCmd{
 		Account: account,
 		N:       n,
@@ -82,10 +88,12 @@ func NewRecoverAddressesCmd(account string, n int) *RecoverAddressesCmd {
 type WalletIsLockedCmd struct{}
 
 // NewWalletIsLockedCmd returns a new instance which can be used to issue a walletislocked JSON-RPC command.
-func NewWalletIsLockedCmd() *WalletIsLockedCmd {
+func NewWalletIsLockedCmd(
+	) *WalletIsLockedCmd {
 	return &WalletIsLockedCmd{}
 }
-func init() {
+func init(
+	) {
 	// The commands in this file are only usable with a wallet server via websockets.
 	flags := UFWalletOnly | UFWebsocketOnly
 	MustRegisterCmd("createencryptedwallet", (*CreateEncryptedWalletCmd)(nil), flags)

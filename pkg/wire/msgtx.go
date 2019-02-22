@@ -92,7 +92,8 @@ type OutPoint struct {
 }
 
 // NewOutPoint returns a new bitcoin transaction outpoint point with the provided hash and index.
-func NewOutPoint(hash *chainhash.Hash, index uint32) *OutPoint {
+func NewOutPoint(
+	hash *chainhash.Hash, index uint32) *OutPoint {
 	return &OutPoint{
 		Hash:  *hash,
 		Index: index,
@@ -125,7 +126,8 @@ func (t *TxIn) SerializeSize() int {
 }
 
 // NewTxIn returns a new bitcoin transaction input with the provided previous outpoint point and signature script with a default sequence of MaxTxInSequenceNum.
-func NewTxIn(prevOut *OutPoint, signatureScript []byte, witness [][]byte) *TxIn {
+func NewTxIn(
+	prevOut *OutPoint, signatureScript []byte, witness [][]byte) *TxIn {
 	return &TxIn{
 		PreviousOutPoint: *prevOut,
 		SignatureScript:  signatureScript,
@@ -162,7 +164,8 @@ func (t *TxOut) SerializeSize() int {
 }
 
 // NewTxOut returns a new bitcoin transaction output with the provided transaction value and public key script.
-func NewTxOut(value int64, pkScript []byte) *TxOut {
+func NewTxOut(
+	value int64, pkScript []byte) *TxOut {
 	return &TxOut{
 		Value:    value,
 		PkScript: pkScript,
@@ -598,7 +601,8 @@ func (msg *MsgTx) PkScriptLocs() []int {
 }
 
 // NewMsgTx returns a new bitcoin tx message that conforms to the Message interface.  The return instance has a default version of TxVersion and there are no transaction inputs or outputs.  Also, the lock time is set to zero to indicate the transaction is valid immediately as opposed to some time in future.
-func NewMsgTx(version int32) *MsgTx {
+func NewMsgTx(
+	version int32) *MsgTx {
 	return &MsgTx{
 		Version: version,
 		TxIn:    make([]*TxIn, 0, defaultTxInOutAlloc),
@@ -607,7 +611,8 @@ func NewMsgTx(version int32) *MsgTx {
 }
 
 // readOutPoint reads the next sequence of bytes from r as an OutPoint.
-func readOutPoint(r io.Reader, pver uint32, version int32, op *OutPoint) error {
+func readOutPoint(
+	r io.Reader, pver uint32, version int32, op *OutPoint) error {
 	_, err := io.ReadFull(r, op.Hash[:])
 	if err != nil {
 		return err
@@ -617,7 +622,8 @@ func readOutPoint(r io.Reader, pver uint32, version int32, op *OutPoint) error {
 }
 
 // writeOutPoint encodes op to the bitcoin protocol encoding for an OutPoint to w.
-func writeOutPoint(w io.Writer, pver uint32, version int32, op *OutPoint) error {
+func writeOutPoint(
+	w io.Writer, pver uint32, version int32, op *OutPoint) error {
 	_, err := w.Write(op.Hash[:])
 	if err != nil {
 		return err
@@ -626,7 +632,8 @@ func writeOutPoint(w io.Writer, pver uint32, version int32, op *OutPoint) error 
 }
 
 // readScript reads a variable length byte array that represents a transaction script.  It is encoded as a varInt containing the length of the array followed by the bytes themselves.  An error is returned if the length is greater than the passed maxAllowed parameter which helps protect against memory exhaustion attacks and forced panics through malformed messages.  The fieldName parameter is only used for the error message so it provides more context in the error.
-func readScript(r io.Reader, pver uint32, maxAllowed uint32, fieldName string) ([]byte, error) {
+func readScript(
+	r io.Reader, pver uint32, maxAllowed uint32, fieldName string) ([]byte, error) {
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
 		return nil, err
@@ -647,7 +654,8 @@ func readScript(r io.Reader, pver uint32, maxAllowed uint32, fieldName string) (
 }
 
 // readTxIn reads the next sequence of bytes from r as a transaction input (TxIn).
-func readTxIn(r io.Reader, pver uint32, version int32, ti *TxIn) error {
+func readTxIn(
+	r io.Reader, pver uint32, version int32, ti *TxIn) error {
 	err := readOutPoint(r, pver, version, &ti.PreviousOutPoint)
 	if err != nil {
 		return err
@@ -661,7 +669,8 @@ func readTxIn(r io.Reader, pver uint32, version int32, ti *TxIn) error {
 }
 
 // writeTxIn encodes ti to the bitcoin protocol encoding for a transaction input (TxIn) to w.
-func writeTxIn(w io.Writer, pver uint32, version int32, ti *TxIn) error {
+func writeTxIn(
+	w io.Writer, pver uint32, version int32, ti *TxIn) error {
 	err := writeOutPoint(w, pver, version, &ti.PreviousOutPoint)
 	if err != nil {
 		return err
@@ -674,7 +683,8 @@ func writeTxIn(w io.Writer, pver uint32, version int32, ti *TxIn) error {
 }
 
 // readTxOut reads the next sequence of bytes from r as a transaction output (TxOut).
-func readTxOut(r io.Reader, pver uint32, version int32, to *TxOut) error {
+func readTxOut(
+	r io.Reader, pver uint32, version int32, to *TxOut) error {
 	err := readElement(r, &to.Value)
 	if err != nil {
 		return err
@@ -685,7 +695,8 @@ func readTxOut(r io.Reader, pver uint32, version int32, to *TxOut) error {
 }
 
 // WriteTxOut encodes to into the bitcoin protocol encoding for a transaction output (TxOut) to w. NOTE: This function is exported in order to allow txscript to compute the new sighashes for witness transactions (BIP0143).
-func WriteTxOut(w io.Writer, pver uint32, version int32, to *TxOut) error {
+func WriteTxOut(
+	w io.Writer, pver uint32, version int32, to *TxOut) error {
 	err := binarySerializer.PutUint64(w, littleEndian, uint64(to.Value))
 	if err != nil {
 		return err
@@ -694,7 +705,8 @@ func WriteTxOut(w io.Writer, pver uint32, version int32, to *TxOut) error {
 }
 
 // writeTxWitness encodes the bitcoin protocol encoding for a transaction input's witness into to w.
-func writeTxWitness(w io.Writer, pver uint32, version int32, wit [][]byte) error {
+func writeTxWitness(
+	w io.Writer, pver uint32, version int32, wit [][]byte) error {
 	err := WriteVarInt(w, pver, uint64(len(wit)))
 	if err != nil {
 		return err

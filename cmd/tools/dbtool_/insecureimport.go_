@@ -260,7 +260,8 @@ func (bi *blockImporter) Import() chan *importResults {
 }
 
 // newBlockImporter returns a new importer for the provided file reader seeker and database.
-func newBlockImporter(db database.DB, r io.ReadSeeker) *blockImporter {
+func newBlockImporter(
+	db database.DB, r io.ReadSeeker) *blockImporter {
 	return &blockImporter{
 		db:           db,
 		r:            r,

@@ -58,7 +58,8 @@ func (s *ChainService) sendSubscribedMsg(bm *blockMessage) {
 // sendMsgToSubscriber is a helper function that sends the target message to
 // the subscription client over the proper channel based on the type of the new
 // block notification.
-func sendMsgToSubscriber(sub *blockSubscription, bm *blockMessage) {
+func sendMsgToSubscriber(
+	sub *blockSubscription, bm *blockMessage) {
 
 	var subChan chan<- wire.BlockHeader
 

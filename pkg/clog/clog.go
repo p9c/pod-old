@@ -197,7 +197,8 @@ var ColorChan = make(chan bool)
 var ShuttingDown bool
 
 // NewSubSystem starts up a new subsystem logger
-func NewSubSystem(name, level string) (ss *SubSystem) {
+func NewSubSystem(
+	name, level string) (ss *SubSystem) {
 	wg.Add(1)
 	ss = new(SubSystem)
 	ss.Ch = make(chan interface{})
@@ -358,7 +359,8 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	return
 }
 
-func init() {
+func init(
+	) {
 	wg.Add(1)
 	worker := func() {
 		var t, s string
@@ -484,7 +486,8 @@ func init() {
 	wg.Done()
 }
 
-func ftlTag(color bool) string {
+func ftlTag(
+	color bool) string {
 	tag := "FTL"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -496,7 +499,8 @@ func ftlTag(color bool) string {
 	return " " + tag + " "
 }
 
-func errTag(color bool) string {
+func errTag(
+	color bool) string {
 	tag := "ERR"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -509,7 +513,8 @@ func errTag(color bool) string {
 
 }
 
-func wrnTag(color bool) string {
+func wrnTag(
+	color bool) string {
 	tag := "WRN"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -522,7 +527,8 @@ func wrnTag(color bool) string {
 
 }
 
-func infTag(color bool) string {
+func infTag(
+	color bool) string {
 	tag := "INF"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -534,7 +540,8 @@ func infTag(color bool) string {
 	return " " + tag + " "
 
 }
-func dbgTag(color bool) string {
+func dbgTag(
+	color bool) string {
 	tag := "DBG"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -546,7 +553,8 @@ func dbgTag(color bool) string {
 	return " " + tag + " "
 
 }
-func trcTag(color bool) string {
+func trcTag(
+	color bool) string {
 	tag := "TRC"
 	if color {
 		pre := ""  // colorstring.Color("[light_gray][[dark_gray]")
@@ -565,7 +573,8 @@ func trcTag(color bool) string {
 var Quit = make(chan struct{})
 
 // Shutdown the application, allowing the logger a moment to clear the channels
-func Shutdown() {
+func Shutdown(
+	) {
 	close(Quit)
 	wg.Wait()
 	<-interrupt.HandlersDone

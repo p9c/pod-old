@@ -24,7 +24,8 @@ type testContext struct {
 
 // rollbackValues returns a copy of the provided map with all values set to an
 // empty string.  This is used to test that values are properly rolled back.
-func rollbackValues(values map[string]string) map[string]string {
+func rollbackValues(
+	values map[string]string) map[string]string {
 	retMap := make(map[string]string, len(values))
 	for k := range values {
 		retMap[k] = ""
@@ -35,7 +36,8 @@ func rollbackValues(values map[string]string) map[string]string {
 // testGetValues checks that all of the provided key/value pairs can be
 // retrieved from the database and the retrieved values match the provided
 // values.
-func testGetValues(tc *testContext, bucket walletdb.ReadBucket, values map[string]string) bool {
+func testGetValues(
+	tc *testContext, bucket walletdb.ReadBucket, values map[string]string) bool {
 	for k, v := range values {
 		var vBytes []byte
 		if v != "" {
@@ -55,7 +57,8 @@ func testGetValues(tc *testContext, bucket walletdb.ReadBucket, values map[strin
 
 // testPutValues stores all of the provided key/value pairs in the provided
 // bucket while checking for errors.
-func testPutValues(tc *testContext, bucket walletdb.ReadWriteBucket, values map[string]string) bool {
+func testPutValues(
+	tc *testContext, bucket walletdb.ReadWriteBucket, values map[string]string) bool {
 	for k, v := range values {
 		var vBytes []byte
 		if v != "" {
@@ -72,7 +75,8 @@ func testPutValues(tc *testContext, bucket walletdb.ReadWriteBucket, values map[
 
 // testDeleteValues removes all of the provided key/value pairs from the
 // provided bucket.
-func testDeleteValues(tc *testContext, bucket walletdb.ReadWriteBucket, values map[string]string) bool {
+func testDeleteValues(
+	tc *testContext, bucket walletdb.ReadWriteBucket, values map[string]string) bool {
 	for k := range values {
 		if err := bucket.Delete([]byte(k)); err != nil {
 			tc.t.Errorf("Delete: unexpected error: %v", err)
@@ -85,7 +89,8 @@ func testDeleteValues(tc *testContext, bucket walletdb.ReadWriteBucket, values m
 
 // testNestedReadWriteBucket reruns the testBucketInterface against a nested bucket along
 // with a counter to only test a couple of level deep.
-func testNestedReadWriteBucket(tc *testContext, testBucket walletdb.ReadWriteBucket) bool {
+func testNestedReadWriteBucket(
+	tc *testContext, testBucket walletdb.ReadWriteBucket) bool {
 	// Don't go more than 2 nested level deep.
 	if tc.bucketDepth > 1 {
 		return true
@@ -104,7 +109,8 @@ func testNestedReadWriteBucket(tc *testContext, testBucket walletdb.ReadWriteBuc
 
 // testReadWriteBucketInterface ensures the bucket interface is working properly by
 // exercising all of its functions.
-func testReadWriteBucketInterface(tc *testContext, bucket walletdb.ReadWriteBucket) bool {
+func testReadWriteBucketInterface(
+	tc *testContext, bucket walletdb.ReadWriteBucket) bool {
 	// keyValues holds the keys and values to use when putting
 	// values into the bucket.
 	var keyValues = map[string]string{
@@ -246,7 +252,8 @@ func testReadWriteBucketInterface(tc *testContext, bucket walletdb.ReadWriteBuck
 }
 
 // testManualTxInterface ensures that manual transactions work as expected.
-func testManualTxInterface(tc *testContext, bucketKey []byte) bool {
+func testManualTxInterface(
+	tc *testContext, bucketKey []byte) bool {
 	db := tc.db
 
 	// populateValues tests that populating values works as expected.
@@ -438,7 +445,8 @@ func testManualTxInterface(tc *testContext, bucketKey []byte) bool {
 // testNamespaceAndTxInterfaces creates a namespace using the provided key and
 // tests all facets of it interface as well as  transaction and bucket
 // interfaces under it.
-func testNamespaceAndTxInterfaces(tc *testContext, namespaceKey string) bool {
+func testNamespaceAndTxInterfaces(
+	tc *testContext, namespaceKey string) bool {
 	namespaceKeyBytes := []byte(namespaceKey)
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
 		_, err := tx.CreateTopLevelBucket(namespaceKeyBytes)
@@ -605,7 +613,8 @@ func testNamespaceAndTxInterfaces(tc *testContext, namespaceKey string) bool {
 
 // testAdditionalErrors performs some tests for error cases not covered
 // elsewhere in the tests and therefore improves negative test coverage.
-func testAdditionalErrors(tc *testContext) bool {
+func testAdditionalErrors(
+	tc *testContext) bool {
 	ns3Key := []byte("ns3")
 
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -675,7 +684,8 @@ func testAdditionalErrors(tc *testContext) bool {
 }
 
 // TestInterface performs all interfaces tests for this database driver.
-func TestInterface(t Tester, dbType, dbPath string) {
+func TestInterface(
+	t Tester, dbType, dbPath string) {
 	db, err := walletdb.Create(dbType, dbPath)
 	if err != nil {
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)

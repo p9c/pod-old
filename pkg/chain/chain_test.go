@@ -12,7 +12,8 @@ import (
 )
 
 // TestHaveBlock tests the HaveBlock API to ensure proper functionality.
-func TestHaveBlock(t *testing.T) {
+func TestHaveBlock(
+	t *testing.T) {
 	// Load up blocks such that there is a side chain.
 	// (genesis block) -> 1 -> 2 -> 3 -> 4
 	//                          \-> 3a
@@ -96,7 +97,8 @@ func TestHaveBlock(t *testing.T) {
 }
 
 // TestCalcSequenceLock tests the LockTimeToSequence function, and the CalcSequenceLock method of a Chain instance. The tests exercise several combinations of inputs to the CalcSequenceLock function in order to ensure the returned SequenceLocks are correct for each test instance.
-func TestCalcSequenceLock(t *testing.T) {
+func TestCalcSequenceLock(
+	t *testing.T) {
 	netParams := &chaincfg.SimNetParams
 	// We need to activate CSV in order to test the processing logic, so manually craft the block version that's used to signal the soft-fork activation.
 	csvBit := netParams.Deployments[chaincfg.DeploymentCSV].BitNumber
@@ -361,7 +363,8 @@ func TestCalcSequenceLock(t *testing.T) {
 }
 
 // nodeHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected hash slices in the tests.
-func nodeHashes(nodes []*blockNode, indexes ...int) []chainhash.Hash {
+func nodeHashes(
+	nodes []*blockNode, indexes ...int) []chainhash.Hash {
 	hashes := make([]chainhash.Hash, 0, len(indexes))
 	for _, idx := range indexes {
 		hashes = append(hashes, nodes[idx].hash)
@@ -370,7 +373,8 @@ func nodeHashes(nodes []*blockNode, indexes ...int) []chainhash.Hash {
 }
 
 // nodeHeaders is a convenience function that returns the headers for all of the passed indexes of the provided nodes.  It is used to construct expected located headers in the tests.
-func nodeHeaders(nodes []*blockNode, indexes ...int) []wire.BlockHeader {
+func nodeHeaders(
+	nodes []*blockNode, indexes ...int) []wire.BlockHeader {
 	headers := make([]wire.BlockHeader, 0, len(indexes))
 	for _, idx := range indexes {
 		headers = append(headers, nodes[idx].Header())
@@ -379,7 +383,8 @@ func nodeHeaders(nodes []*blockNode, indexes ...int) []wire.BlockHeader {
 }
 
 // TestLocateInventory ensures that locating inventory via the LocateHeaders and LocateBlocks functions behaves as expected.
-func TestLocateInventory(t *testing.T) {
+func TestLocateInventory(
+	t *testing.T) {
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
 	// 	                              \-> 16a -> 17a
@@ -634,7 +639,8 @@ func TestLocateInventory(t *testing.T) {
 }
 
 // TestHeightToHashRange ensures that fetching a range of block hashes by start height and end hash works as expected.
-func TestHeightToHashRange(t *testing.T) {
+func TestHeightToHashRange(
+	t *testing.T) {
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
 	// 	                              \-> 16a -> 17a -> 18a (unvalidated)
@@ -726,7 +732,8 @@ func TestHeightToHashRange(t *testing.T) {
 }
 
 // TestIntervalBlockHashes ensures that fetching block hashes at specified intervals by end hash works as expected.
-func TestIntervalBlockHashes(t *testing.T) {
+func TestIntervalBlockHashes(
+	t *testing.T) {
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
 	// 	                              \-> 16a -> 17a -> 18a (unvalidated)

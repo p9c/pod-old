@@ -20,7 +20,8 @@ import (
 const maxHeight = 20 * uint32(wire.CFCheckptInterval)
 
 // setupBlockManager initialises a blockManager to be used in tests.
-func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
+func setupBlockManager(
+	) (*blockManager, headerfs.BlockHeaderStore,
 	*headerfs.FilterHeaderStore, func(), error) {
 
 	// Set up the block and filter header stores.
@@ -91,7 +92,8 @@ type headers struct {
 // checkpoints from the given genesis. The onCheckpoint method will be called
 // with the current cf header on each checkpoint to modify the derivation of
 // the next interval
-func generateHeaders(genesisBlockHeader *wire.BlockHeader,
+func generateHeaders(
+	genesisBlockHeader *wire.BlockHeader,
 	genesisFilterHeader *chainhash.Hash,
 	onCheckpoint func(*chainhash.Hash)) (*headers, error) {
 
@@ -187,7 +189,8 @@ func generateHeaders(genesisBlockHeader *wire.BlockHeader,
 
 // generateResponses generates the MsgCFHeaders messages from the given queries
 // and headers.
-func generateResponses(msgs []wire.Message,
+func generateResponses(
+	msgs []wire.Message,
 	headers *headers) ([]*wire.MsgCFHeaders, error) {
 
 	// Craft a response for each message.
@@ -248,7 +251,8 @@ func generateResponses(msgs []wire.Message,
 // TestBlockManagerInitialInterval tests that the block manager is able to
 // handle checkpointed filter header query responses in out of order, and when
 // a partial interval is already written to the store.
-func TestBlockManagerInitialInterval(t *testing.T) {
+func TestBlockManagerInitialInterval(
+	t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
@@ -403,7 +407,8 @@ func TestBlockManagerInitialInterval(t *testing.T) {
 
 // TestBlockManagerInvalidInterval tests that the block manager is able to
 // determine it is receiving corrupt checkpoints and filter headers.
-func TestBlockManagerInvalidInterval(t *testing.T) {
+func TestBlockManagerInvalidInterval(
+	t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {

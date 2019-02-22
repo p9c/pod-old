@@ -123,7 +123,81 @@ var CtlCommand = climax.Command{
 // CtlFlags is the list of flags and the default values stored in the Usage field
 var CtlFlags = GetFlags(CtlCommand)
 
-func configCtl(ctx *climax.Context, cfgFile string) {
+// DefaultCtlConfig returns an allocated, default CtlCfg
+func DefaultCtlConfig(
+	datadir string,
+) *ctl.Config {
+
+	return &ctl.Config{
+		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
+		DebugLevel:    "off",
+		RPCUser:       "user",
+		RPCPass:       "pa55word",
+		RPCServer:     ctl.DefaultRPCServer,
+		RPCCert:       filepath.Join(datadir, "rpc.cert"),
+		TLS:           false,
+		Proxy:         "",
+		ProxyUser:     "",
+		ProxyPass:     "",
+		TestNet3:      false,
+		SimNet:        false,
+		TLSSkipVerify: false,
+		Wallet:        ctl.DefaultWallet,
+	}
+}
+
+// WriteCtlConfig writes the current config in the requested location
+func WriteCtlConfig(
+	cc *ctl.Config,
+) {
+
+	j, err := json.MarshalIndent(cc, "", "  ")
+	if err != nil {
+		log <- cl.Err(err.Error())
+	}
+	j = append(j, '\n')
+	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
+	EnsureDir(cc.ConfigFile)
+	err = ioutil.WriteFile(cc.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Fatal{
+			"unable to write config file %s",
+			err.Error(),
+		}
+		cl.Shutdown()
+	}
+}
+
+// WriteDefaultCtlConfig writes a default config in the requested location
+func WriteDefaultCtlConfig(
+	datadir string,
+) {
+
+	defCfg := DefaultCtlConfig(datadir)
+	j, err := json.MarshalIndent(defCfg, "", "  ")
+	if err != nil {
+		log <- cl.Err(err.Error())
+	}
+	j = append(j, '\n')
+	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
+	EnsureDir(defCfg.ConfigFile)
+	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
+	if err != nil {
+		log <- cl.Fatal{
+			"unable to write config file %s",
+			err.Error(),
+		}
+		cl.Shutdown()
+	}
+	// if we are writing default config we also want to use it
+	CtlCfg = defCfg
+}
+
+func configCtl(
+	ctx *climax.Context,
+	cfgFile string,
+) {
+
 	var r string
 	var ok bool
 	// Apply all configurations specified on commandline
@@ -222,66 +296,5 @@ func configCtl(ctx *climax.Context, cfgFile string) {
 			"JSON formatted config file\n", string(j),
 		}
 		ioutil.WriteFile(cfgFile, j, 0600)
-	}
-}
-
-// WriteCtlConfig writes the current config in the requested location
-func WriteCtlConfig(cc *ctl.Config) {
-	j, err := json.MarshalIndent(cc, "", "  ")
-	if err != nil {
-		log <- cl.Err(err.Error())
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
-	EnsureDir(cc.ConfigFile)
-	err = ioutil.WriteFile(cc.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Fatal{
-			"unable to write config file %s",
-			err.Error(),
-		}
-		cl.Shutdown()
-	}
-}
-
-// WriteDefaultCtlConfig writes a default config in the requested location
-func WriteDefaultCtlConfig(datadir string) {
-	defCfg := DefaultCtlConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		log <- cl.Err(err.Error())
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
-	EnsureDir(defCfg.ConfigFile)
-	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Fatal{
-			"unable to write config file %s",
-			err.Error(),
-		}
-		cl.Shutdown()
-	}
-	// if we are writing default config we also want to use it
-	CtlCfg = defCfg
-}
-
-// DefaultCtlConfig returns an allocated, default CtlCfg
-func DefaultCtlConfig(datadir string) *ctl.Config {
-	return &ctl.Config{
-		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
-		DebugLevel:    "off",
-		RPCUser:       "user",
-		RPCPass:       "pa55word",
-		RPCServer:     ctl.DefaultRPCServer,
-		RPCCert:       filepath.Join(datadir, "rpc.cert"),
-		TLS:           false,
-		Proxy:         "",
-		ProxyUser:     "",
-		ProxyPass:     "",
-		TestNet3:      false,
-		SimNet:        false,
-		TLSSkipVerify: false,
-		Wallet:        ctl.DefaultWallet,
 	}
 }

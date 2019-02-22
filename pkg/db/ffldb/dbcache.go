@@ -46,7 +46,8 @@ func (iter *ldbCacheIter) Release() {
 }
 
 // newLdbCacheIter creates a new treap iterator for the given slice against the pending keys for the passed cache snapshot and returns it wrapped in an ldbCacheIter so it can be used as a leveldb iterator.
-func newLdbCacheIter(snap *dbCacheSnapshot, slice *util.Range) *ldbCacheIter {
+func newLdbCacheIter(
+	snap *dbCacheSnapshot, slice *util.Range) *ldbCacheIter {
 	iter := snap.pendingKeys.Iterator(slice.Start, slice.Limit)
 	return &ldbCacheIter{Iterator: iter}
 }
@@ -452,7 +453,8 @@ func (c *dbCache) Close() error {
 }
 
 // newDbCache returns a new database cache instance backed by the provided leveldb instance.  The cache will be flushed to leveldb when the max size exceeds the provided value or it has been longer than the provided interval since the last flush.
-func newDbCache(ldb *leveldb.DB, store *blockStore, maxSize uint64, flushIntervalSecs uint32) *dbCache {
+func newDbCache(
+	ldb *leveldb.DB, store *blockStore, maxSize uint64, flushIntervalSecs uint32) *dbCache {
 	return &dbCache{
 		ldb:           ldb,
 		store:         store,

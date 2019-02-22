@@ -71,7 +71,8 @@ type headerIndex struct {
 
 // newHeaderIndex creates a new headerIndex given an already open database, and
 // a particular header type.
-func newHeaderIndex(db walletdb.DB, indexType HeaderType) (*headerIndex, error) {
+func newHeaderIndex(
+	db walletdb.DB, indexType HeaderType) (*headerIndex, error) {
 	// As an initially step, we'll attempt to create all the buckets
 	// necessary for functioning of the index. If these buckets has already
 	// been created, then we can exit early.

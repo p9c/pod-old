@@ -40,19 +40,22 @@ var (
 )
 
 // dbFetchFilterIdxEntry retrieves a data blob from the filter index database. An entry's absence is not considered an error.
-func dbFetchFilterIdxEntry(dbTx database.Tx, key []byte, h *chainhash.Hash) ([]byte, error) {
+func dbFetchFilterIdxEntry(
+	dbTx database.Tx, key []byte, h *chainhash.Hash) ([]byte, error) {
 	idx := dbTx.Metadata().Bucket(cfIndexParentBucketKey).Bucket(key)
 	return idx.Get(h[:]), nil
 }
 
 // dbStoreFilterIdxEntry stores a data blob in the filter index database.
-func dbStoreFilterIdxEntry(dbTx database.Tx, key []byte, h *chainhash.Hash, f []byte) error {
+func dbStoreFilterIdxEntry(
+	dbTx database.Tx, key []byte, h *chainhash.Hash, f []byte) error {
 	idx := dbTx.Metadata().Bucket(cfIndexParentBucketKey).Bucket(key)
 	return idx.Put(h[:], f)
 }
 
 // dbDeleteFilterIdxEntry deletes a data blob from the filter index database.
-func dbDeleteFilterIdxEntry(dbTx database.Tx, key []byte, h *chainhash.Hash) error {
+func dbDeleteFilterIdxEntry(
+	dbTx database.Tx, key []byte, h *chainhash.Hash) error {
 	idx := dbTx.Metadata().Bucket(cfIndexParentBucketKey).Bucket(key)
 	return idx.Delete(h[:])
 }
@@ -118,7 +121,8 @@ func (idx *CfIndex) Create(dbTx database.Tx) error {
 }
 
 // storeFilter stores a given filter, and performs the steps needed to generate the filter's header.
-func storeFilter(dbTx database.Tx, block *util.Block, f *gcs.Filter,
+func storeFilter(
+	dbTx database.Tx, block *util.Block, f *gcs.Filter,
 	filterType wire.FilterType) error {
 	if uint8(filterType) > maxFilterType {
 		return errors.New("unsupported filter type")
@@ -282,11 +286,13 @@ func (idx *CfIndex) FilterHashesByBlockHashes(blockHashes []*chainhash.Hash,
 
 // NewCfIndex returns a new instance of an indexer that is used to create a mapping of the hashes of all blocks in the blockchain to their respective committed filters.
 // It implements the Indexer interface which plugs into the IndexManager that in turn is used by the blockchain package. This allows the index to be seamlessly maintained along with the chain.
-func NewCfIndex(db database.DB, chainParams *chaincfg.Params) *CfIndex {
+func NewCfIndex(
+	db database.DB, chainParams *chaincfg.Params) *CfIndex {
 	return &CfIndex{db: db, chainParams: chainParams}
 }
 
 // DropCfIndex drops the CF index from the provided database if exists.
-func DropCfIndex(db database.DB, interrupt <-chan struct{}) error {
+func DropCfIndex(
+	db database.DB, interrupt <-chan struct{}) error {
 	return dropIndex(db, cfIndexParentBucketKey, cfIndexName, interrupt)
 }

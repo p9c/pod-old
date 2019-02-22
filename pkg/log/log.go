@@ -49,7 +49,8 @@ var (
 
 // Read logger flags from the LOGFLAGS environment variable.  Multiple flags can
 // be set at once, separated by commas.
-func init() {
+func init(
+	) {
 	for _, f := range strings.Split(os.Getenv("LOGFLAGS"), ",") {
 		switch f {
 		case "longfile":
@@ -81,7 +82,8 @@ var levelStrs = [...]string{"TRC", "DBG", "INF", "WRN", "ERR", "CRT", "OFF"}
 // LevelFromString returns a level based on the input string s.  If the input
 // can't be interpreted as a valid log level, the info level and false is
 // returned.
-func LevelFromString(s string) (l Level, ok bool) {
+func LevelFromString(
+	s string) (l Level, ok bool) {
 	switch strings.ToLower(s) {
 	case "trace", "trc":
 		return LevelTrace, true
@@ -112,7 +114,8 @@ func (l Level) String() string {
 }
 
 // NewBackend creates a logger backend from a Writer.
-func NewBackend(w io.Writer, opts ...BackendOption) *Backend {
+func NewBackend(
+	w io.Writer, opts ...BackendOption) *Backend {
 	b := &Backend{w: w, flag: defaultFlags}
 	for _, o := range opts {
 		o(b)
@@ -135,7 +138,8 @@ type BackendOption func(b *Backend)
 // WithFlags configures a Backend to use the specified flags rather than using
 // the package's defaults as determined through the LOGFLAGS environment
 // variable.
-func WithFlags(flags uint32) BackendOption {
+func WithFlags(
+	flags uint32) BackendOption {
 	return func(b *Backend) {
 		b.flag = flags
 	}
@@ -154,13 +158,15 @@ var bufferPool = sync.Pool{
 // there are not any available on the free list.  The returned byte slice should
 // be returned to the fee list by using the recycleBuffer function when the
 // caller is done with it.
-func buffer() *[]byte {
+func buffer(
+	) *[]byte {
 	return bufferPool.Get().(*[]byte)
 }
 
 // recycleBuffer puts the provided byte slice, which should have been obtain via
 // the buffer function, back on the free list.
-func recycleBuffer(b *[]byte) {
+func recycleBuffer(
+	b *[]byte) {
 	*b = (*b)[:0]
 	bufferPool.Put(b)
 }
@@ -168,7 +174,8 @@ func recycleBuffer(b *[]byte) {
 // From stdlib log package.
 // Cheap integer to fixed-width decimal ASCII.  Give a negative width to avoid
 // zero-padding.
-func itoa(buf *[]byte, i int, wid int) {
+func itoa(
+	buf *[]byte, i int, wid int) {
 	// Assemble decimal in reverse order.
 	var b [20]byte
 	bp := len(b) - 1
@@ -187,7 +194,8 @@ func itoa(buf *[]byte, i int, wid int) {
 // Appends a header in the default format 'YYYY-MM-DD hh:mm:ss.sss [LVL] TAG: '.
 // If either of the Lshortfile or Llongfile flags are specified, the file named
 // and line number are included after the tag and before the final colon.
-func formatHeader(buf *[]byte, t time.Time, lvl, tag string, file string, line int) {
+func formatHeader(
+	buf *[]byte, t time.Time, lvl, tag string, file string, line int) {
 	year, month, day := t.Date()
 	hour, min, sec := t.Clock()
 	ms := t.Nanosecond() / 1e6
@@ -244,7 +252,8 @@ const calldepth = 3
 
 // callsite returns the file name and line number of the callsite to the
 // subsystem logger.
-func callsite(flag uint32) (string, int) {
+func callsite(
+	flag uint32) (string, int) {
 	_, file, line, ok := runtime.Caller(calldepth)
 	if !ok {
 		return "???", 0
@@ -456,6 +465,7 @@ func (l *slog) SetLevel(level Level) {
 // Disabled is a Logger that will never output anything.
 var Disabled Logger
 
-func init() {
+func init(
+	) {
 	Disabled = &slog{lvl: LevelOff, b: NewBackend(ioutil.Discard)}
 }

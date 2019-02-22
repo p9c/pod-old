@@ -12,7 +12,8 @@ var interruptChannel chan os.Signal
 var addHandlerChannel = make(chan func())
 
 // mainInterruptHandler listens for SIGINT (Ctrl+C) signals on the interruptChannel and invokes the registered interruptCallbacks accordingly. It also listens for callback registration.  It must be run as a goroutine.
-func mainInterruptHandler() {
+func mainInterruptHandler(
+	) {
 	// interruptCallbacks is a list of callbacks to invoke when a SIGINT (Ctrl+C) is received.
 	var interruptCallbacks []func()
 	// isShutdown is a flag which is used to indicate whether or not the shutdown signal has already been received and hence any future attempts to add a new interrupt handler should invoke them immediately.
@@ -49,7 +50,8 @@ func mainInterruptHandler() {
 }
 
 // addInterruptHandler adds a handler to call when a SIGINT (Ctrl+C) is received.
-func addInterruptHandler(handler func()) {
+func addInterruptHandler(
+	handler func()) {
 	// Create the channel and start the main interrupt handler which invokes all other callbacks and exits if not already done.
 	if interruptChannel == nil {
 		interruptChannel = make(chan os.Signal, 1)

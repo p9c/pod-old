@@ -254,7 +254,8 @@ func (bi *blockImporter) Import() chan *importResults {
 
 // newBlockImporter returns a new importer for the provided file reader seeker
 // and database.
-func newBlockImporter(db database.DB, r io.ReadSeeker) (*blockImporter, error) {
+func newBlockImporter(
+	db database.DB, r io.ReadSeeker) (*blockImporter, error) {
 	// Create the transaction and address indexes if needed.
 	//
 	// CAUTION: the txindex needs to be first in the indexes array because

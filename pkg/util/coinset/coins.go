@@ -36,7 +36,8 @@ type CoinSet struct {
 var _ Coins = NewCoinSet(nil)
 
 // NewCoinSet creates a CoinSet containing the coins provided. To create an empty CoinSet, you may pass null as the coins input parameter.
-func NewCoinSet(coins []Coin) *CoinSet {
+func NewCoinSet(
+	coins []Coin) *CoinSet {
 	newCoinSet := &CoinSet{
 		coinList:      list.New(),
 		totalValue:    0,
@@ -107,7 +108,8 @@ func (cs *CoinSet) removeElement(e *list.Element) Coin {
 }
 
 // NewMsgTxWithInputCoins takes the coins in the CoinSet and makes them the inputs to a new wire.MsgTx which is returned.
-func NewMsgTxWithInputCoins(txVersion int32, inputCoins Coins) *wire.MsgTx {
+func NewMsgTxWithInputCoins(
+	txVersion int32, inputCoins Coins) *wire.MsgTx {
 	msgTx := wire.NewMsgTx(txVersion)
 	coins := inputCoins.Coins()
 	msgTx.TxIn = make([]*wire.TxIn, len(coins))
@@ -130,7 +132,8 @@ var (
 )
 
 // satisfiesTargetValue checks that the totalValue is either exactly the targetValue or is greater than the targetValue by at least the minChange amount.
-func satisfiesTargetValue(targetValue, minChange, totalValue util.Amount) bool {
+func satisfiesTargetValue(
+	targetValue, minChange, totalValue util.Amount) bool {
 	return (totalValue == targetValue || totalValue >= targetValue+minChange)
 }
 

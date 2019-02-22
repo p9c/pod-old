@@ -11,7 +11,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func main() {
+func main(
+	) {
 	// Only override the handlers for notifications you care about. Also note most of the handlers will only be called if you register for notifications.  See the documentation of the rpcclient NotificationHandlers type for more details about each handler.
 	ntfnHandlers := rpcclient.NotificationHandlers{
 		OnAccountBalance: func(account string, balance util.Amount, confirmed bool) {

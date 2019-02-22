@@ -14,7 +14,8 @@ import (
 )
 
 // TestCalcMinRequiredTxRelayFee tests the calcMinRequiredTxRelayFee API.
-func TestCalcMinRequiredTxRelayFee(t *testing.T) {
+func TestCalcMinRequiredTxRelayFee(
+	t *testing.T) {
 	tests := []struct {
 		name     string      // test description.
 		size     int64       // Transaction size in bytes.
@@ -89,7 +90,8 @@ func TestCalcMinRequiredTxRelayFee(t *testing.T) {
 }
 
 // TestCheckPkScriptStandard tests the checkPkScriptStandard API.
-func TestCheckPkScriptStandard(t *testing.T) {
+func TestCheckPkScriptStandard(
+	t *testing.T) {
 	var pubKeys [][]byte
 	for i := 0; i < 4; i++ {
 		pk, err := ec.NewPrivateKey(ec.S256())
@@ -196,7 +198,8 @@ func TestCheckPkScriptStandard(t *testing.T) {
 }
 
 // TestDust tests the isDust API.
-func TestDust(t *testing.T) {
+func TestDust(
+	t *testing.T) {
 	pkScript := []byte{0x76, 0xa9, 0x21, 0x03, 0x2f, 0x7e, 0x43,
 		0x0a, 0xa4, 0xc9, 0xd1, 0x59, 0x43, 0x7e, 0x84, 0xb9,
 		0x75, 0xdc, 0x76, 0xd9, 0x00, 0x3b, 0xf0, 0x92, 0x2c,
@@ -267,7 +270,8 @@ func TestDust(t *testing.T) {
 }
 
 // TestCheckTransactionStandard tests the checkTransactionStandard API.
-func TestCheckTransactionStandard(t *testing.T) {
+func TestCheckTransactionStandard(
+	t *testing.T) {
 	// Create some dummy, but otherwise standard, data for transactions.
 	prevOutHash, err := chainhash.NewHashFromStr("01")
 	if err != nil {

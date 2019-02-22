@@ -40,7 +40,8 @@ func (e TxRuleError) Error() string {
 
 // txRuleError creates an underlying TxRuleError with the given a set of
 // arguments and returns a RuleError that encapsulates it.
-func txRuleError(c wire.RejectCode, desc string) RuleError {
+func txRuleError(
+	c wire.RejectCode, desc string) RuleError {
 	return RuleError{
 		Err: TxRuleError{RejectCode: c, Description: desc},
 	}
@@ -48,7 +49,8 @@ func txRuleError(c wire.RejectCode, desc string) RuleError {
 
 // chainRuleError returns a RuleError that encapsulates the given
 // blockchain.RuleError.
-func chainRuleError(chainErr blockchain.RuleError) RuleError {
+func chainRuleError(
+	chainErr blockchain.RuleError) RuleError {
 	return RuleError{
 		Err: chainErr,
 	}
@@ -57,7 +59,8 @@ func chainRuleError(chainErr blockchain.RuleError) RuleError {
 // extractRejectCode attempts to return a relevant reject code for a given error
 // by examining the error for known types.  It will return true if a code
 // was successfully extracted.
-func extractRejectCode(err error) (wire.RejectCode, bool) {
+func extractRejectCode(
+	err error) (wire.RejectCode, bool) {
 	// Pull the underlying error out of a RuleError.
 	if rerr, ok := err.(RuleError); ok {
 		err = rerr.Err
@@ -97,7 +100,8 @@ func extractRejectCode(err error) (wire.RejectCode, bool) {
 
 // ErrToRejectErr examines the underlying type of the error and returns a reject
 // code and string appropriate to be sent in a wire.MsgReject message.
-func ErrToRejectErr(err error) (wire.RejectCode, string) {
+func ErrToRejectErr(
+	err error) (wire.RejectCode, string) {
 	// Return the reject code along with the error text if it can be
 	// extracted from the error.
 	rejectCode, found := extractRejectCode(err)

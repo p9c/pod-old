@@ -94,7 +94,8 @@ type blockStore struct {
 	writeCursor *writeCursor
 	// These functions are set to openFile, openWriteFile, and deleteFile by default, but are exposed here to allow the whitebox tests to replace them when working with mock files.
 	openFileFunc      func(fileNum uint32) (*lockableFile, error)
-	openWriteFileFunc func(fileNum uint32) (filer, error)
+	openWriteFileFunc func(
+	fileNum uint32) (filer, error)
 	deleteFileFunc    func(fileNum uint32) error
 }
 
@@ -106,7 +107,8 @@ type blockLocation struct {
 }
 
 // deserializeBlockLoc deserializes the passed serialized block location information.  This is data stored into the block index metadata for each block.  The serialized data passed to this function MUST be at least blockLocSize bytes or it will panic.  The error check is avoided here because this information will always be coming from the block index which includes a checksum to detect corruption.  Thus it is safe to use this unchecked here.
-func deserializeBlockLoc(serializedLoc []byte) blockLocation {
+func deserializeBlockLoc(
+	serializedLoc []byte) blockLocation {
 	// The serialized block location format is:
 	//  [0:4]  Block file (4 bytes)
 	//  [4:8]  File offset (4 bytes)
@@ -119,7 +121,8 @@ func deserializeBlockLoc(serializedLoc []byte) blockLocation {
 }
 
 // serializeBlockLoc returns the serialization of the passed block location. This is data to be stored into the block index metadata for each block.
-func serializeBlockLoc(loc blockLocation) []byte {
+func serializeBlockLoc(
+	loc blockLocation) []byte {
 	// The serialized block location format is:
 	//  [0:4]  Block file (4 bytes)
 	//  [4:8]  File offset (4 bytes)
@@ -132,7 +135,8 @@ func serializeBlockLoc(loc blockLocation) []byte {
 }
 
 // blockFilePath return the file path for the provided block file number.
-func blockFilePath(dbPath string, fileNum uint32) string {
+func blockFilePath(
+	dbPath string, fileNum uint32) string {
 	fileName := fmt.Sprintf(blockFilenameTemplate, fileNum)
 	return filepath.Join(dbPath, fileName)
 }
@@ -480,7 +484,8 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 }
 
 // scanBlockFiles searches the database directory for all flat block files to find the end of the most recent file.  This position is considered the current write cursor which is also stored in the metadata.  Thus, it is used to detect unexpected shutdowns in the middle of writes so the block files can be reconciled.
-func scanBlockFiles(dbPath string) (int, uint32) {
+func scanBlockFiles(
+	dbPath string) (int, uint32) {
 	lastFile := -1
 	fileLen := uint32(0)
 	for i := 0; ; i++ {
@@ -501,7 +506,8 @@ func scanBlockFiles(dbPath string) (int, uint32) {
 }
 
 // newBlockStore returns a new block store with the current block file number and offset set and all fields initialized.
-func newBlockStore(basePath string, network wire.BitcoinNet) *blockStore {
+func newBlockStore(
+	basePath string, network wire.BitcoinNet) *blockStore {
 	// Look for the end of the latest block to file to determine what the write cursor position is from the viewpoing of the block files on
 	// disk.
 	fileNum, fileOff := scanBlockFiles(basePath)

@@ -79,7 +79,8 @@ type memWallet struct {
 }
 
 // newMemWallet creates and returns a fully initialized instance of the memWallet given a particular blockchain's parameters.
-func newMemWallet(net *chaincfg.Params, harnessID uint32) (*memWallet, error) {
+func newMemWallet(
+	net *chaincfg.Params, harnessID uint32) (*memWallet, error) {
 	// The wallet's final HD seed is: hdSeed || harnessID. This method ensures that each harness instance uses a deterministic root seed based on its harness ID.
 	var harnessHDSeed [chainhash.HashSize + 4]byte
 	copy(harnessHDSeed[:], hdSeed[:])
@@ -493,7 +494,8 @@ func (m *memWallet) ConfirmedBalance() util.Amount {
 }
 
 // keyToAddr maps the passed private to corresponding p2pkh address.
-func keyToAddr(key *ec.PrivateKey, net *chaincfg.Params) (util.Address, error) {
+func keyToAddr(
+	key *ec.PrivateKey, net *chaincfg.Params) (util.Address, error) {
 	serializedKey := key.PubKey().SerializeCompressed()
 	pubKeyAddr, err := util.NewAddressPubKey(serializedKey, net)
 	if err != nil {

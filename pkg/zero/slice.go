@@ -15,7 +15,8 @@ import "math/big"
 // In general, prefer to use the fixed-sized zeroing functions (Bytea*)
 // when zeroing bytes as they are much more efficient than the variable
 // sized zeroing func Bytes.
-func Bytes(b []byte) {
+func Bytes(
+	b []byte) {
 	for i := range b {
 		b[i] = 0
 	}
@@ -25,7 +26,8 @@ func Bytes(b []byte) {
 // value to 0.  This differs from simply setting the value in that it
 // specifically clears the underlying bytes whereas simply setting the value
 // does not.  This is mostly useful to forcefully clear private keys.
-func BigInt(x *big.Int) {
+func BigInt(
+	x *big.Int) {
 	b := x.Bits()
 	for i := range b {
 		b[i] = 0

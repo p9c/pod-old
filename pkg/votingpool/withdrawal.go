@@ -304,7 +304,8 @@ type withdrawalTx struct {
 
 // newWithdrawalTx creates a new withdrawalTx and calls setOptions()
 // passing the newly created tx.
-func newWithdrawalTx(setOptions func(tx *withdrawalTx)) *withdrawalTx {
+func newWithdrawalTx(
+	setOptions func(tx *withdrawalTx)) *withdrawalTx {
 	tx := &withdrawalTx{}
 	tx.calculateSize = func() int { return calculateTxSize(tx) }
 	tx.calculateFee = func() util.Amount {
@@ -465,9 +466,11 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 	return removedInputs, removedOutput, nil
 }
 
-func defaultTxOptions(tx *withdrawalTx) {}
+func defaultTxOptions(
+	tx *withdrawalTx) {}
 
-func newWithdrawal(roundID uint32, requests []OutputRequest, inputs []credit,
+func newWithdrawal(
+	roundID uint32, requests []OutputRequest, inputs []credit,
 	changeStart ChangeAddress) *withdrawal {
 	outputs := make(map[OutBailmentID]*WithdrawalOutput, len(requests))
 	for _, request := range requests {
@@ -868,7 +871,8 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 // getWithdrawalStatus returns the existing WithdrawalStatus for the given
 // withdrawal parameters, if one exists. This function must be called with the
 // address manager unlocked.
-func getWithdrawalStatus(p *Pool, ns, addrmgrNs walletdb.ReadBucket, roundID uint32, requests []OutputRequest,
+func getWithdrawalStatus(
+	p *Pool, ns, addrmgrNs walletdb.ReadBucket, roundID uint32, requests []OutputRequest,
 	startAddress WithdrawalAddress, lastSeriesID uint32, changeStart ChangeAddress,
 	dustThreshold util.Amount) (*WithdrawalStatus, error) {
 
@@ -889,7 +893,8 @@ func getWithdrawalStatus(p *Pool, ns, addrmgrNs walletdb.ReadBucket, roundID uin
 // getRawSigs iterates over the inputs of each transaction given, constructing the
 // raw signatures for them using the private keys available to us.
 // It returns a map of ntxids to signature lists.
-func getRawSigs(transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
+func getRawSigs(
+	transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
 	sigs := make(map[Ntxid]TxSigs)
 	for _, tx := range transactions {
 		txSigs := make(TxSigs, len(tx.inputs))
@@ -958,7 +963,8 @@ func getRawSigs(transactions []*withdrawalTx) (map[Ntxid]TxSigs, error) {
 // manager) the redeem script for each of them and constructing the signature
 // script using that and the given raw signatures.
 // This function must be called with the manager unlocked.
-func SignTx(msgtx *wire.MsgTx, sigs TxSigs, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, store *wtxmgr.Store, txmgrNs walletdb.ReadBucket) error {
+func SignTx(
+	msgtx *wire.MsgTx, sigs TxSigs, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, store *wtxmgr.Store, txmgrNs walletdb.ReadBucket) error {
 	// We use time.Now() here as we're not going to store the new TxRecord
 	// anywhere -- we just need it to pass to store.PreviousPkScripts().
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(msgtx, time.Now())
@@ -979,7 +985,8 @@ func SignTx(msgtx *wire.MsgTx, sigs TxSigs, mgr *waddrmgr.Manager, addrmgrNs wal
 
 // getRedeemScript returns the redeem script for the given P2SH address. It must
 // be called with the manager unlocked.
-func getRedeemScript(mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, addr *util.AddressScriptHash) ([]byte, error) {
+func getRedeemScript(
+	mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, addr *util.AddressScriptHash) ([]byte, error) {
 	address, err := mgr.Address(addrmgrNs, addr)
 	if err != nil {
 		return nil, err
@@ -994,7 +1001,8 @@ func getRedeemScript(mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, addr 
 // The order of the signatures must match that of the public keys in the multi-sig
 // script as OP_CHECKMULTISIG expects that.
 // This function must be called with the manager unlocked.
-func signMultiSigUTXO(mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *wire.MsgTx, idx int, pkScript []byte, sigs []RawSig) error {
+func signMultiSigUTXO(
+	mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *wire.MsgTx, idx int, pkScript []byte, sigs []RawSig) error {
 	class, addresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, mgr.ChainParams())
 	if err != nil {
 		return newError(ErrTxSigning, "unparseable pkScript", err)
@@ -1043,7 +1051,8 @@ func signMultiSigUTXO(mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *
 
 // validateSigScripts executes the signature script of the tx input with the
 // given index, returning an error if it fails.
-func validateSigScript(msgtx *wire.MsgTx, idx int, pkScript []byte) error {
+func validateSigScript(
+	msgtx *wire.MsgTx, idx int, pkScript []byte) error {
 	vm, err := txscript.NewEngine(pkScript, msgtx, idx,
 		txscript.StandardVerifyFlags, nil, nil, 0)
 	if err != nil {
@@ -1057,7 +1066,8 @@ func validateSigScript(msgtx *wire.MsgTx, idx int, pkScript []byte) error {
 
 // calculateTxSize returns an estimate of the serialized size (in bytes) of the
 // given transaction. It assumes all tx inputs are P2SH multi-sig.
-func calculateTxSize(tx *withdrawalTx) int {
+func calculateTxSize(
+	tx *withdrawalTx) int {
 	msgtx := tx.toMsgTx()
 	// Assume that there will always be a change output, for simplicity. We
 	// simulate that by simply copying the first output as all we care about is
@@ -1085,7 +1095,8 @@ func calculateTxSize(tx *withdrawalTx) int {
 	return msgtx.SerializeSize()
 }
 
-func nextChangeAddress(a ChangeAddress) (ChangeAddress, error) {
+func nextChangeAddress(
+	a ChangeAddress) (ChangeAddress, error) {
 	index := a.index
 	seriesID := a.seriesID
 	if index == math.MaxUint32 {
@@ -1098,7 +1109,8 @@ func nextChangeAddress(a ChangeAddress) (ChangeAddress, error) {
 	return *addr, err
 }
 
-func storeTransactions(store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket, transactions []*changeAwareTx) error {
+func storeTransactions(
+	store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket, transactions []*changeAwareTx) error {
 	for _, tx := range transactions {
 		if err := tx.addSelfToStore(store, txmgrNs); err != nil {
 			return err

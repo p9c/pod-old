@@ -16,7 +16,8 @@ import (
 )
 
 // TestInterface performs all interfaces tests for this database driver.
-func TestInterface(t *testing.T) {
+func TestInterface(
+	t *testing.T) {
 	dbPath := "interfacetest.db"
 	defer os.RemoveAll(dbPath)
 	walletdbtest.TestInterface(t, dbType, dbPath)

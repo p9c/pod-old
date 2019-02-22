@@ -235,7 +235,8 @@ func (s *secSource) ChainParams() *chaincfg.Params {
 	return s.params
 }
 
-func newSecSource(params *chaincfg.Params) *secSource {
+func newSecSource(
+	params *chaincfg.Params) *secSource {
 	return &secSource{
 		keys:    make(map[string]*ec.PrivateKey),
 		scripts: make(map[string]*[]byte),
@@ -281,7 +282,8 @@ var testCases = []*syncTestCase{
 }
 
 // Make sure the client synchronizes with the correct node.
-func testInitialSync(harness *neutrinoHarness, t *testing.T) {
+func testInitialSync(
+	harness *neutrinoHarness, t *testing.T) {
 	err := waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
 		t.Fatalf("Couldn't sync ChainService: %s", err)
@@ -303,7 +305,8 @@ var (
 
 // testRescan tests several rescan modes. This should be broken up into
 // smaller tests.
-func testRescan(harness *neutrinoHarness, t *testing.T) {
+func testRescan(
+	harness *neutrinoHarness, t *testing.T) {
 	// Generate an address and send it some coins on the h1 chain. We use
 	// this to test rescans and notifications.
 	modParams := harness.svc.ChainParams()
@@ -404,7 +407,8 @@ func testRescan(harness *neutrinoHarness, t *testing.T) {
 
 }
 
-func testStartRescan(harness *neutrinoHarness, t *testing.T) {
+func testStartRescan(
+	harness *neutrinoHarness, t *testing.T) {
 	// Start a rescan with notifications in another goroutine. We'll kill
 	// it with a quit channel at the end and make sure we got the expected
 	// results.
@@ -634,7 +638,8 @@ func testStartRescan(harness *neutrinoHarness, t *testing.T) {
 	}
 }
 
-func fetchPrevInputScripts(block *wire.MsgBlock, client *rpctest.Harness) ([][]byte, error) {
+func fetchPrevInputScripts(
+	block *wire.MsgBlock, client *rpctest.Harness) ([][]byte, error) {
 	var inputScripts [][]byte
 	for i, tx := range block.Transactions {
 		if i == 0 {
@@ -659,7 +664,8 @@ func fetchPrevInputScripts(block *wire.MsgBlock, client *rpctest.Harness) ([][]b
 	return inputScripts, nil
 }
 
-func testRescanResults(harness *neutrinoHarness, t *testing.T) {
+func testRescanResults(
+	harness *neutrinoHarness, t *testing.T) {
 	// Generate 5 blocks on h2 and wait for ChainService to sync to the
 	// newly-best chain on h2. This includes the transactions sent via
 	// svc.SendTransaction earlier, so we'll have to check that the rescan
@@ -776,7 +782,8 @@ func testRescanResults(harness *neutrinoHarness, t *testing.T) {
 // at the same time to go through this. 50 is comfortable on my somewhat dated
 // laptop with default query optimization settings.
 // TODO: Make this a benchmark instead.
-func testRandomBlocks(harness *neutrinoHarness, t *testing.T) {
+func testRandomBlocks(
+	harness *neutrinoHarness, t *testing.T) {
 	var haveBest *waddrmgr.BlockStamp
 	haveBest, err := harness.svc.BestBlock()
 	if err != nil {
@@ -979,7 +986,8 @@ func testRandomBlocks(harness *neutrinoHarness, t *testing.T) {
 	return
 }
 
-func TestNeutrinoSync(t *testing.T) {
+func TestNeutrinoSync(
+	t *testing.T) {
 	// Set up logging.
 	logger := log.NewBackend(os.Stdout)
 	chainLogger := logger.Logger("CHAIN")
@@ -1124,7 +1132,8 @@ func TestNeutrinoSync(t *testing.T) {
 // csd does a connect-sync-disconnect between nodes in order to support
 // reorg testing. It brings up and tears down a temporary node, otherwise the
 // nodes try to reconnect to each other which results in unintended reorgs.
-func csd(harnesses []*rpctest.Harness) error {
+func csd(
+	harnesses []*rpctest.Harness) error {
 	hTemp, err := rpctest.New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
 		return err
@@ -1147,7 +1156,8 @@ func csd(harnesses []*rpctest.Harness) error {
 // checkErrChan tries to read the passed error channel if possible and logs the
 // error it found, if any. This is useful to help troubleshoot any timeouts
 // during a rescan.
-func checkErrChan(t *testing.T, errChan <-chan error) {
+func checkErrChan(
+	t *testing.T, errChan <-chan error) {
 	select {
 	case err := <-errChan:
 		t.Logf("Got error from rescan: %s", err)
@@ -1156,7 +1166,8 @@ func checkErrChan(t *testing.T, errChan <-chan error) {
 }
 
 // waitForSync waits for the ChainService to sync to the current chain state.
-func waitForSync(t *testing.T, svc *neutrino.ChainService,
+func waitForSync(
+	t *testing.T, svc *neutrino.ChainService,
 	correctSyncNode *rpctest.Harness) error {
 	knownBestHash, knownBestHeight, err :=
 		correctSyncNode.Node.GetBestBlock()
@@ -1324,7 +1335,8 @@ func waitForSync(t *testing.T, svc *neutrino.ChainService,
 // from the rescan. At the end, the log should match one we precomputed based
 // on the flow of the test. The rescan starts at the genesis block and the
 // notifications continue until the `quit` channel is closed.
-func startRescan(t *testing.T, svc *neutrino.ChainService, addr util.Address,
+func startRescan(
+	t *testing.T, svc *neutrino.ChainService, addr util.Address,
 	startBlock *waddrmgr.BlockStamp, quit <-chan struct{}) (
 	*neutrino.Rescan, <-chan error) {
 	rescan := svc.NewRescan(
@@ -1428,7 +1440,8 @@ func startRescan(t *testing.T, svc *neutrino.ChainService, addr util.Address,
 
 // checkRescanStatus returns the number of relevant transactions we currently
 // know about and the currently known height.
-func checkRescanStatus() (int, int32, error) {
+func checkRescanStatus(
+	) (int, int32, error) {
 	var txCount [2]int
 	rescanMtx.RLock()
 	defer rescanMtx.RUnlock()
@@ -1457,7 +1470,8 @@ func checkRescanStatus() (int, int32, error) {
 
 // banPeer bans and disconnects the requested harness from the ChainService
 // instance for BanDuration seconds.
-func banPeer(svc *neutrino.ChainService, harness *rpctest.Harness) {
+func banPeer(
+	svc *neutrino.ChainService, harness *rpctest.Harness) {
 	peers := svc.Peers()
 	for _, peer := range peers {
 		if peer.Addr() == harness.P2PAddress() {
@@ -1469,7 +1483,8 @@ func banPeer(svc *neutrino.ChainService, harness *rpctest.Harness) {
 
 // goroutineDump returns a string with the current goroutine dump in order to
 // show what's going on in case of timeout.
-func goroutineDump() string {
+func goroutineDump(
+	) string {
 	buf := make([]byte, 1<<18)
 	runtime.Stack(buf, true)
 	return string(buf)

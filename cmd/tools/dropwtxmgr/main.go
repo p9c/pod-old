@@ -29,7 +29,8 @@ var opts = struct {
 	DbPath: filepath.Join(datadir, defaultNet, "wallet.db"),
 }
 
-func init() {
+func init(
+	) {
 	_, err := flags.Parse(&opts)
 	if err != nil {
 		os.Exit(1)
@@ -48,7 +49,8 @@ var (
 	recentBlocksName = []byte("recentblocks")
 )
 
-func yes(s string) bool {
+func yes(
+	s string) bool {
 	switch s {
 	case "y", "Y", "yes", "Yes":
 		return true
@@ -57,7 +59,8 @@ func yes(s string) bool {
 	}
 }
 
-func no(s string) bool {
+func no(
+	s string) bool {
 	switch s {
 	case "n", "N", "no", "No":
 		return true
@@ -66,11 +69,13 @@ func no(s string) bool {
 	}
 }
 
-func main() {
+func main(
+	) {
 	os.Exit(mainInt())
 }
 
-func mainInt() int {
+func mainInt(
+	) int {
 	fmt.Println("Database path:", opts.DbPath)
 	_, err := os.Stat(opts.DbPath)
 	if os.IsNotExist(err) {

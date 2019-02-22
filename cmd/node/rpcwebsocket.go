@@ -1578,7 +1578,8 @@ func (
 }
 
 // blockDetails creates a BlockDetails struct to include in btcws notifications from a block and a transaction's block index.
-func blockDetails(block *util.Block, txIndex int) *json.BlockDetails {
+func blockDetails(
+	block *util.Block, txIndex int) *json.BlockDetails {
 	if block == nil {
 		return nil
 	}
@@ -1591,7 +1592,8 @@ func blockDetails(block *util.Block, txIndex int) *json.BlockDetails {
 }
 
 // checkAddressValidity checks the validity of each address in the passed string slice. It does this by attempting to decode each address using the current active network parameters. If any single address fails to decode properly, the function returns an error. Otherwise, nil is returned.
-func checkAddressValidity(addrs []string, params *chaincfg.Params) error {
+func checkAddressValidity(
+	addrs []string, params *chaincfg.Params) error {
 	for _, addr := range addrs {
 		_, err := util.DecodeAddress(addr, params)
 		if err != nil {
@@ -1606,7 +1608,8 @@ func checkAddressValidity(addrs []string, params *chaincfg.Params) error {
 }
 
 // descendantBlock returns the appropriate JSON-RPC error if a current block fetched during a reorganize is not a direct child of the parent block hash.
-func descendantBlock(prevHash *chainhash.Hash, curBlock *util.Block) error {
+func descendantBlock(
+	prevHash *chainhash.Hash, curBlock *util.Block) error {
 	curHash := &curBlock.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(curHash) {
 
@@ -1620,7 +1623,8 @@ func descendantBlock(prevHash *chainhash.Hash, curBlock *util.Block) error {
 }
 
 // deserializeOutpoints deserializes each serialized outpoint.
-func deserializeOutpoints(serializedOuts []json.OutPoint) ([]*wire.OutPoint, error) {
+func deserializeOutpoints(
+	serializedOuts []json.OutPoint) ([]*wire.OutPoint, error) {
 
 	outpoints := make([]*wire.OutPoint, 0, len(serializedOuts))
 	for i := range serializedOuts {
@@ -1635,7 +1639,8 @@ func deserializeOutpoints(serializedOuts []json.OutPoint) ([]*wire.OutPoint, err
 }
 
 // handleLoadTxFilter implements the loadtxfilter command extension for websocket connections. NOTE: This extension is ported from github.com/decred/dcrd
-func handleLoadTxFilter(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleLoadTxFilter(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.LoadTxFilterCmd)
 	outPoints := make([]wire.OutPoint, len(cmd.OutPoints))
@@ -1673,14 +1678,16 @@ func handleLoadTxFilter(wsc *wsClient, icmd interface{}) (interface{}, error) {
 }
 
 // handleNotifyBlocks implements the notifyblocks command extension for websocket connections.
-func handleNotifyBlocks(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleNotifyBlocks(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	wsc.server.ntfnMgr.RegisterBlockUpdates(wsc)
 	return nil, nil
 }
 
 // handleNotifyNewTransations implements the notifynewtransactions command extension for websocket connections.
-func handleNotifyNewTransactions(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleNotifyNewTransactions(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.NotifyNewTransactionsCmd)
 	if !ok {
@@ -1692,7 +1699,8 @@ func handleNotifyNewTransactions(wsc *wsClient, icmd interface{}) (interface{}, 
 }
 
 // handleNotifyReceived implements the notifyreceived command extension for websocket connections.
-func handleNotifyReceived(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleNotifyReceived(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.NotifyReceivedCmd)
 	if !ok {
@@ -1708,7 +1716,8 @@ func handleNotifyReceived(wsc *wsClient, icmd interface{}) (interface{}, error) 
 }
 
 // handleNotifySpent implements the notifyspent command extension for websocket connections.
-func handleNotifySpent(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleNotifySpent(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.NotifySpentCmd)
 	if !ok {
@@ -1724,7 +1733,8 @@ func handleNotifySpent(wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 // handleRescan implements the rescan command extension for websocket connections.
 // NOTE: This does not smartly handle reorgs, and fixing requires database changes (for safe, concurrent access to full block ranges, and support for other chains than the best chain).  It will, however, detect whether a reorg removed a block that was previously processed, and result in the handler erroring.  Clients must handle this by finding a block still in the chain (perhaps from a rescanprogress notification) to resume their rescan.
-func handleRescan(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleRescan(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.RescanCmd)
 	if !ok {
@@ -1978,7 +1988,8 @@ fetchRange:
 }
 
 // handleRescanBlocks implements the rescanblocks command extension for websocket connections. NOTE: This extension is ported from github.com/decred/dcrd
-func handleRescanBlocks(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleRescanBlocks(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.RescanBlocksCmd)
 	if !ok {
@@ -2035,27 +2046,31 @@ func handleRescanBlocks(wsc *wsClient, icmd interface{}) (interface{}, error) {
 }
 
 // handleSession implements the session command extension for websocket connections.
-func handleSession(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleSession(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	return &json.SessionResult{SessionID: wsc.sessionID}, nil
 }
 
 // handleStopNotifyBlocks implements the stopnotifyblocks command extension for websocket connections.
-func handleStopNotifyBlocks(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleStopNotifyBlocks(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	wsc.server.ntfnMgr.UnregisterBlockUpdates(wsc)
 	return nil, nil
 }
 
 // handleStopNotifyNewTransations implements the stopnotifynewtransactions command extension for websocket connections.
-func handleStopNotifyNewTransactions(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleStopNotifyNewTransactions(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	wsc.server.ntfnMgr.UnregisterNewMempoolTxsUpdates(wsc)
 	return nil, nil
 }
 
 // handleStopNotifyReceived implements the stopnotifyreceived command extension for websocket connections.
-func handleStopNotifyReceived(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleStopNotifyReceived(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.StopNotifyReceivedCmd)
 	if !ok {
@@ -2073,7 +2088,8 @@ func handleStopNotifyReceived(wsc *wsClient, icmd interface{}) (interface{}, err
 }
 
 // handleStopNotifySpent implements the stopnotifyspent command extension for websocket connections.
-func handleStopNotifySpent(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleStopNotifySpent(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.StopNotifySpentCmd)
 	if !ok {
@@ -2090,7 +2106,8 @@ func handleStopNotifySpent(wsc *wsClient, icmd interface{}) (interface{}, error)
 }
 
 // handleWebsocketHelp implements the help command for websocket connections.
-func handleWebsocketHelp(wsc *wsClient, icmd interface{}) (interface{}, error) {
+func handleWebsocketHelp(
+	wsc *wsClient, icmd interface{}) (interface{}, error) {
 
 	cmd, ok := icmd.(*json.HelpCmd)
 	if !ok {
@@ -2131,17 +2148,20 @@ func handleWebsocketHelp(wsc *wsClient, icmd interface{}) (interface{}, error) {
 	return help, nil
 }
 
-func init() {
+func init(
+	) {
 
 	wsHandlers = wsHandlersBeforeInit
 }
 
-func makeSemaphore(n int) semaphore {
+func makeSemaphore(
+	n int) semaphore {
 	return make(chan struct{}, n)
 }
 
 // newRedeemingTxNotification returns a new marshalled redeemingtx notification with the passed parameters.
-func newRedeemingTxNotification(txHex string, index int, block *util.Block) ([]byte, error) {
+func newRedeemingTxNotification(
+	txHex string, index int, block *util.Block) ([]byte, error) {
 
 	// Create and marshal the notification.
 	ntfn := json.NewRedeemingTxNtfn(txHex, blockDetails(block, index))
@@ -2149,7 +2169,8 @@ func newRedeemingTxNotification(txHex string, index int, block *util.Block) ([]b
 }
 
 // newWSClientFilter creates a new, empty wsClientFilter struct to be used for a websocket client. NOTE: This extension was ported from github.com/decred/dcrd
-func newWSClientFilter(addresses []string, unspentOutPoints []wire.OutPoint, params *chaincfg.Params) *wsClientFilter {
+func newWSClientFilter(
+	addresses []string, unspentOutPoints []wire.OutPoint, params *chaincfg.Params) *wsClientFilter {
 	filter := &wsClientFilter{
 		pubKeyHashes:        map[[ripemd160.Size]byte]struct{}{},
 		scriptHashes:        map[[ripemd160.Size]byte]struct{}{},
@@ -2168,7 +2189,8 @@ func newWSClientFilter(addresses []string, unspentOutPoints []wire.OutPoint, par
 }
 
 // newWebsocketClient returns a new websocket client given the notification manager, websocket connection, remote address, and whether or not the client has already been authenticated (via HTTP Basic access authentication).  The returned client is ready to start.  Once started, the client will process incoming and outgoing messages in separate goroutines complete with queuing and asynchrous handling for long-running operations.
-func newWebsocketClient(server *rpcServer, conn *websocket.Conn,
+func newWebsocketClient(
+	server *rpcServer, conn *websocket.Conn,
 	remoteAddr string, authenticated bool, isAdmin bool) (*wsClient, error) {
 
 	sessionID, err := wire.RandomUint64()
@@ -2193,7 +2215,8 @@ func newWebsocketClient(server *rpcServer, conn *websocket.Conn,
 }
 
 // newWsNotificationManager returns a new notification manager ready for use. See wsNotificationManager for more details.
-func newWsNotificationManager(server *rpcServer) *wsNotificationManager {
+func newWsNotificationManager(
+	server *rpcServer) *wsNotificationManager {
 	return &wsNotificationManager{
 		server:            server,
 		queueNotification: make(chan interface{}),
@@ -2204,7 +2227,8 @@ func newWsNotificationManager(server *rpcServer) *wsNotificationManager {
 }
 
 // queueHandler manages a queue of empty interfaces, reading from in and sending the oldest unsent to out.  This handler stops when either of the in or quit channels are closed, and closes out before returning, without waiting to send any variables still remaining in the queue.
-func queueHandler(in <-chan interface{}, out chan<- interface{}, quit <-chan struct{}) {
+func queueHandler(
+	in <-chan interface{}, out chan<- interface{}, quit <-chan struct{}) {
 
 	var q []interface{}
 	var dequeue chan<- interface{}
@@ -2249,7 +2273,8 @@ out:
 }
 
 // recoverFromReorg attempts to recover from a detected reorganize during a rescan.  It fetches a new range of block shas from the database and verifies that the new range of blocks is on the same fork as a previous range of blocks.  If this condition does not hold true, the JSON-RPC error for an unrecoverable reorganize is returned.
-func recoverFromReorg(chain *blockchain.BlockChain, minBlock, maxBlock int32,
+func recoverFromReorg(
+	chain *blockchain.BlockChain, minBlock, maxBlock int32,
 	lastBlock *chainhash.Hash) ([]chainhash.Hash, error) {
 
 	hashList, err := chain.HeightRange(minBlock, maxBlock)
@@ -2279,7 +2304,8 @@ func recoverFromReorg(chain *blockchain.BlockChain, minBlock, maxBlock int32,
 }
 
 // rescanBlock rescans all transactions in a single block.  This is a helper function for handleRescan.
-func rescanBlock(wsc *wsClient, lookups *rescanKeys, blk *util.Block) {
+func rescanBlock(
+	wsc *wsClient, lookups *rescanKeys, blk *util.Block) {
 
 	for _, tx := range blk.Transactions() {
 
@@ -2391,7 +2417,8 @@ func rescanBlock(wsc *wsClient, lookups *rescanKeys, blk *util.Block) {
 }
 
 // rescanBlockFilter rescans a block for any relevant transactions for the passed lookup keys. Any discovered transactions are returned hex encoded as a string slice. NOTE: This extension is ported from github.com/decred/dcrd
-func rescanBlockFilter(filter *wsClientFilter, block *util.Block, params *chaincfg.Params) []string {
+func rescanBlockFilter(
+	filter *wsClientFilter, block *util.Block, params *chaincfg.Params) []string {
 	var transactions []string
 	filter.mu.Lock()
 	for _, tx := range block.Transactions() {
@@ -2446,7 +2473,8 @@ func rescanBlockFilter(filter *wsClientFilter, block *util.Block, params *chainc
 }
 
 // txHexString returns the serialized transaction encoded in hexadecimal.
-func txHexString(tx *wire.MsgTx) string {
+func txHexString(
+	tx *wire.MsgTx) string {
 	buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 	// Ignore Serialize's error, as writing to a bytes.buffer cannot fail.
 	tx.Serialize(buf)

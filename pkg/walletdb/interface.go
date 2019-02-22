@@ -162,7 +162,8 @@ type ReadWriteCursor interface {
 
 // BucketIsEmpty returns whether the bucket is empty, that is, whether there are
 // no key/value pairs or nested buckets.
-func BucketIsEmpty(bucket ReadBucket) bool {
+func BucketIsEmpty(
+	bucket ReadBucket) bool {
 	k, v := bucket.ReadCursor().First()
 	return k == nil && v == nil
 }
@@ -188,7 +189,8 @@ type DB interface {
 // transaction passed as a parameter.  After f exits, the transaction is rolled
 // back.  If f errors, its error is returned, not a rollback error (if any
 // occur).
-func View(db DB, f func(tx ReadTx) error) error {
+func View(
+	db DB, f func(tx ReadTx) error) error {
 	tx, err := db.BeginReadTx()
 	if err != nil {
 		return err
@@ -210,7 +212,8 @@ func View(db DB, f func(tx ReadTx) error) error {
 // transaction is rolled back.  If the rollback fails, the original error
 // returned by f is still returned.  If the commit fails, the commit error is
 // returned.
-func Update(db DB, f func(tx ReadWriteTx) error) error {
+func Update(
+	db DB, f func(tx ReadWriteTx) error) error {
 	tx, err := db.BeginReadWriteTx()
 	if err != nil {
 		return err
@@ -249,7 +252,8 @@ var drivers = make(map[string]*Driver)
 // RegisterDriver adds a backend database driver to available interfaces.
 // ErrDbTypeRegistered will be retruned if the database type for the driver has
 // already been registered.
-func RegisterDriver(driver Driver) error {
+func RegisterDriver(
+	driver Driver) error {
 	if _, exists := drivers[driver.DbType]; exists {
 		return ErrDbTypeRegistered
 	}
@@ -260,7 +264,8 @@ func RegisterDriver(driver Driver) error {
 
 // SupportedDrivers returns a slice of strings that represent the database
 // drivers that have been registered and are therefore supported.
-func SupportedDrivers() []string {
+func SupportedDrivers(
+	) []string {
 	supportedDBs := make([]string, 0, len(drivers))
 	for _, drv := range drivers {
 		supportedDBs = append(supportedDBs, drv.DbType)
@@ -273,7 +278,8 @@ func SupportedDrivers() []string {
 // database driver for further details.
 //
 // ErrDbUnknownType will be returned if the the database type is not registered.
-func Create(dbType string, args ...interface{}) (DB, error) {
+func Create(
+	dbType string, args ...interface{}) (DB, error) {
 	drv, exists := drivers[dbType]
 	if !exists {
 		return nil, ErrDbUnknownType
@@ -287,7 +293,8 @@ func Create(dbType string, args ...interface{}) (DB, error) {
 // driver for further details.
 //
 // ErrDbUnknownType will be returned if the the database type is not registered.
-func Open(dbType string, args ...interface{}) (DB, error) {
+func Open(
+	dbType string, args ...interface{}) (DB, error) {
 	drv, exists := drivers[dbType]
 	if !exists {
 		return nil, ErrDbUnknownType

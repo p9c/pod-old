@@ -21,7 +21,8 @@ type blockProgressLogger struct {
 }
 
 // newBlockProgressLogger returns a new block progress logger. The progress message is templated as follows:  {progressAction} {numProcessed} {blocks|block} in the last {timePeriod}  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
-func newBlockProgressLogger(progressMessage string, logger *cl.SubSystem) *blockProgressLogger {
+func newBlockProgressLogger(
+	progressMessage string, logger *cl.SubSystem) *blockProgressLogger {
 	return &blockProgressLogger{
 		lastBlockLogTime: time.Now(),
 		progressAction:   progressMessage,

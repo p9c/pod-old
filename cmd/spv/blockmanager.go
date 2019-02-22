@@ -178,7 +178,8 @@ type blockManager struct {
 
 // newBlockManager returns a new bitcoin block manager.  Use Start to begin
 // processing asynchronous block and inv updates.
-func newBlockManager(s *ChainService) (*blockManager, error) {
+func newBlockManager(
+	s *ChainService) (*blockManager, error) {
 	targetTimespan := int64(s.chainParams.TargetTimespan)
 	targetTimePerBlock := int64(s.chainParams.TargetTimePerBlock)
 	adjustmentFactor := s.chainParams.RetargetAdjustmentFactor
@@ -1180,7 +1181,8 @@ func (b *blockManager) writeCFHeadersMsg(msg *wire.MsgCFHeaders,
 
 // minCheckpointHeight returns the height of the last filter checkpoint for the
 // shortest checkpoint list among the given lists.
-func minCheckpointHeight(checkpoints map[string][]*chainhash.Hash) uint32 {
+func minCheckpointHeight(
+	checkpoints map[string][]*chainhash.Hash) uint32 {
 	// If the map is empty, return 0 immediately.
 	if len(checkpoints) == 0 {
 		return 0
@@ -1200,7 +1202,8 @@ func minCheckpointHeight(checkpoints map[string][]*chainhash.Hash) uint32 {
 // verifyHeaderCheckpoint verifies that a CFHeaders message matches the passed
 // checkpoints. It assumes everything else has been checked, including filter
 // type and stop hash matches, and returns true if matching and false if not.
-func verifyCheckpoint(prevCheckpoint, nextCheckpoint *chainhash.Hash,
+func verifyCheckpoint(
+	prevCheckpoint, nextCheckpoint *chainhash.Hash,
 	cfheaders *wire.MsgCFHeaders) bool {
 
 	if *prevCheckpoint != cfheaders.PrevFilterHeader {
@@ -1374,7 +1377,8 @@ func (b *blockManager) resolveConflict(
 
 // checkForCFHeaderMismatch checks all peers' responses at a specific position
 // and detects a mismatch. It returns true if a mismatch has occurred.
-func checkForCFHeaderMismatch(headers map[string]*wire.MsgCFHeaders,
+func checkForCFHeaderMismatch(
+	headers map[string]*wire.MsgCFHeaders,
 	idx int) bool {
 
 	// First, see if we have a mismatch.
@@ -1402,7 +1406,8 @@ func checkForCFHeaderMismatch(headers map[string]*wire.MsgCFHeaders,
 // by each peer based on what we can reconstruct and verify from the filter in
 // question. We'll return all the peers that returned what we believe to in
 // invalid filter.
-func resolveCFHeaderMismatch(block *wire.MsgBlock, fType wire.FilterType,
+func resolveCFHeaderMismatch(
+	block *wire.MsgBlock, fType wire.FilterType,
 	filtersFromPeers map[string]*gcs.Filter) ([]string, error) {
 
 	badPeers := make(map[string]struct{})
@@ -1628,7 +1633,8 @@ func (b *blockManager) getCheckpts(lastHash *chainhash.Hash,
 // least one of the peers differs. The checkpoints are also checked against the
 // existing store up to the tip of the store. If all of the peers match but
 // the store doesn't, the height at which the mismatch occurs is returned.
-func checkCFCheckptSanity(cp map[string][]*chainhash.Hash,
+func checkCFCheckptSanity(
+	cp map[string][]*chainhash.Hash,
 	headerStore *headerfs.FilterHeaderStore) (int, error) {
 
 	// Get the known best header to compare against checkpoints.

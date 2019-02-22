@@ -122,7 +122,8 @@ func (msg *MsgMerkleBlock) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgMerkleBlock returns a new bitcoin merkleblock message that conforms to the Message interface.  See MsgMerkleBlock for details.
-func NewMsgMerkleBlock(bh *BlockHeader) *MsgMerkleBlock {
+func NewMsgMerkleBlock(
+	bh *BlockHeader) *MsgMerkleBlock {
 	return &MsgMerkleBlock{
 		Header:       *bh,
 		Transactions: 0,

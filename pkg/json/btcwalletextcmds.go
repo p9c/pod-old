@@ -7,7 +7,8 @@ type CreateNewAccountCmd struct {
 }
 
 // NewCreateNewAccountCmd returns a new instance which can be used to issue a createnewaccount JSON-RPC command.
-func NewCreateNewAccountCmd(account string) *CreateNewAccountCmd {
+func NewCreateNewAccountCmd(
+	account string) *CreateNewAccountCmd {
 	return &CreateNewAccountCmd{
 		Account: account,
 	}
@@ -19,7 +20,8 @@ type DumpWalletCmd struct {
 }
 
 // NewDumpWalletCmd returns a new instance which can be used to issue a dumpwallet JSON-RPC command.
-func NewDumpWalletCmd(filename string) *DumpWalletCmd {
+func NewDumpWalletCmd(
+	filename string) *DumpWalletCmd {
 	return &DumpWalletCmd{
 		Filename: filename,
 	}
@@ -33,7 +35,8 @@ type ImportAddressCmd struct {
 }
 
 // NewImportAddressCmd returns a new instance which can be used to issue an importaddress JSON-RPC command.
-func NewImportAddressCmd(address string, account string, rescan *bool) *ImportAddressCmd {
+func NewImportAddressCmd(
+	address string, account string, rescan *bool) *ImportAddressCmd {
 	return &ImportAddressCmd{
 		Address: address,
 		Account: account,
@@ -48,7 +51,8 @@ type ImportPubKeyCmd struct {
 }
 
 // NewImportPubKeyCmd returns a new instance which can be used to issue an importpubkey JSON-RPC command.
-func NewImportPubKeyCmd(pubKey string, rescan *bool) *ImportPubKeyCmd {
+func NewImportPubKeyCmd(
+	pubKey string, rescan *bool) *ImportPubKeyCmd {
 	return &ImportPubKeyCmd{
 		PubKey: pubKey,
 		Rescan: rescan,
@@ -61,7 +65,8 @@ type ImportWalletCmd struct {
 }
 
 // NewImportWalletCmd returns a new instance which can be used to issue a importwallet JSON-RPC command.
-func NewImportWalletCmd(filename string) *ImportWalletCmd {
+func NewImportWalletCmd(
+	filename string) *ImportWalletCmd {
 	return &ImportWalletCmd{
 		Filename: filename,
 	}
@@ -74,13 +79,15 @@ type RenameAccountCmd struct {
 }
 
 // NewRenameAccountCmd returns a new instance which can be used to issue a renameaccount JSON-RPC command.
-func NewRenameAccountCmd(oldAccount, newAccount string) *RenameAccountCmd {
+func NewRenameAccountCmd(
+	oldAccount, newAccount string) *RenameAccountCmd {
 	return &RenameAccountCmd{
 		OldAccount: oldAccount,
 		NewAccount: newAccount,
 	}
 }
-func init() {
+func init(
+	) {
 	// The commands in this file are only usable with a wallet server.
 	flags := UFWalletOnly
 	MustRegisterCmd("createnewaccount", (*CreateNewAccountCmd)(nil), flags)

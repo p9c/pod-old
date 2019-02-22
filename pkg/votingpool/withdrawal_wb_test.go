@@ -18,7 +18,8 @@ import (
 
 // TestOutputSplittingNotEnoughInputs checks that an output will get split if we
 // don't have enough inputs to fulfil it.
-func TestOutputSplittingNotEnoughInputs(t *testing.T) {
+func TestOutputSplittingNotEnoughInputs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -72,7 +73,8 @@ func TestOutputSplittingNotEnoughInputs(t *testing.T) {
 	checkLastOutputWasSplit(t, w, tx, output2Amount, newAmount)
 }
 
-func TestOutputSplittingOversizeTx(t *testing.T) {
+func TestOutputSplittingOversizeTx(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -136,7 +138,8 @@ func TestOutputSplittingOversizeTx(t *testing.T) {
 	}
 }
 
-func TestSplitLastOutputNoOutputs(t *testing.T) {
+func TestSplitLastOutputNoOutputs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -156,7 +159,8 @@ func TestSplitLastOutputNoOutputs(t *testing.T) {
 
 // Check that all outputs requested in a withdrawal match the outputs of the generated
 // transaction(s).
-func TestWithdrawalTxOutputs(t *testing.T) {
+func TestWithdrawalTxOutputs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -198,7 +202,8 @@ func TestWithdrawalTxOutputs(t *testing.T) {
 
 // Check that withdrawal.status correctly states that no outputs were fulfilled when we
 // don't have enough eligible credits for any of them.
-func TestFulfillRequestsNoSatisfiableOutputs(t *testing.T) {
+func TestFulfillRequestsNoSatisfiableOutputs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -236,7 +241,8 @@ func TestFulfillRequestsNoSatisfiableOutputs(t *testing.T) {
 
 // Check that some requested outputs are not fulfilled when we don't have credits for all
 // of them.
-func TestFulfillRequestsNotEnoughCreditsForAllRequests(t *testing.T) {
+func TestFulfillRequestsNotEnoughCreditsForAllRequests(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -294,7 +300,8 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(t *testing.T) {
 
 // TestRollbackLastOutput tests the case where we rollback one output
 // and one input, such that sum(in) >= sum(out) + fee.
-func TestRollbackLastOutput(t *testing.T) {
+func TestRollbackLastOutput(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -334,7 +341,8 @@ func TestRollbackLastOutput(t *testing.T) {
 	checkTxInputs(t, tx, initialInputs[:len(initialInputs)-1])
 }
 
-func TestRollbackLastOutputMultipleInputsRolledBack(t *testing.T) {
+func TestRollbackLastOutputMultipleInputsRolledBack(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -373,7 +381,8 @@ func TestRollbackLastOutputMultipleInputsRolledBack(t *testing.T) {
 
 // TestRollbackLastOutputNoInputsRolledBack tests the case where we roll back
 // one output but don't need to roll back any inputs.
-func TestRollbackLastOutputNoInputsRolledBack(t *testing.T) {
+func TestRollbackLastOutputNoInputsRolledBack(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -412,7 +421,8 @@ func TestRollbackLastOutputNoInputsRolledBack(t *testing.T) {
 // TestRollBackLastOutputInsufficientOutputs checks that
 // rollBackLastOutput returns an error if there are less than two
 // outputs in the transaction.
-func TestRollBackLastOutputInsufficientOutputs(t *testing.T) {
+func TestRollBackLastOutputInsufficientOutputs(
+	t *testing.T) {
 	tx := newWithdrawalTx(defaultTxOptions)
 	_, _, err := tx.rollBackLastOutput()
 	TstCheckError(t, "", err, ErrPreconditionNotMet)
@@ -426,7 +436,8 @@ func TestRollBackLastOutputInsufficientOutputs(t *testing.T) {
 
 // TestRollbackLastOutputWhenNewOutputAdded checks that we roll back the last
 // output if a tx becomes too big right after we add a new output to it.
-func TestRollbackLastOutputWhenNewOutputAdded(t *testing.T) {
+func TestRollbackLastOutputWhenNewOutputAdded(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -484,7 +495,8 @@ func TestRollbackLastOutputWhenNewOutputAdded(t *testing.T) {
 
 // TestRollbackLastOutputWhenNewInputAdded checks that we roll back the last
 // output if a tx becomes too big right after we add a new input to it.
-func TestRollbackLastOutputWhenNewInputAdded(t *testing.T) {
+func TestRollbackLastOutputWhenNewInputAdded(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -549,7 +561,8 @@ func TestRollbackLastOutputWhenNewInputAdded(t *testing.T) {
 	checkTxInputs(t, secondTx, wantInputs)
 }
 
-func TestWithdrawalTxRemoveOutput(t *testing.T) {
+func TestWithdrawalTxRemoveOutput(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -583,7 +596,8 @@ func TestWithdrawalTxRemoveOutput(t *testing.T) {
 	}
 }
 
-func TestWithdrawalTxRemoveInput(t *testing.T) {
+func TestWithdrawalTxRemoveInput(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -615,7 +629,8 @@ func TestWithdrawalTxRemoveInput(t *testing.T) {
 	}
 }
 
-func TestWithdrawalTxAddChange(t *testing.T) {
+func TestWithdrawalTxAddChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -647,7 +662,8 @@ func TestWithdrawalTxAddChange(t *testing.T) {
 // TestWithdrawalTxAddChangeNoChange checks that withdrawalTx.addChange() does not
 // add a change output when there's no satoshis left after paying all
 // outputs+fees.
-func TestWithdrawalTxAddChangeNoChange(t *testing.T) {
+func TestWithdrawalTxAddChangeNoChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -670,7 +686,8 @@ func TestWithdrawalTxAddChangeNoChange(t *testing.T) {
 	}
 }
 
-func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(t *testing.T) {
+func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -686,7 +703,8 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(t *testing.T) {
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
 
-func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(t *testing.T) {
+func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -705,7 +723,8 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(t *testing.T) {
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
 
-func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(t *testing.T) {
+func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -724,7 +743,8 @@ func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(t *testing.T) {
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
 
-func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(t *testing.T) {
+func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -743,7 +763,8 @@ func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(t *testing.T) {
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
 
-func TestWithdrawalTxInputTotal(t *testing.T) {
+func TestWithdrawalTxInputTotal(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -760,7 +781,8 @@ func TestWithdrawalTxInputTotal(t *testing.T) {
 	}
 }
 
-func TestWithdrawalTxOutputTotal(t *testing.T) {
+func TestWithdrawalTxOutputTotal(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -778,7 +800,8 @@ func TestWithdrawalTxOutputTotal(t *testing.T) {
 	}
 }
 
-func TestWithdrawalInfoMatch(t *testing.T) {
+func TestWithdrawalInfoMatch(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -854,7 +877,8 @@ func TestWithdrawalInfoMatch(t *testing.T) {
 	}
 }
 
-func TestGetWithdrawalStatus(t *testing.T) {
+func TestGetWithdrawalStatus(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -904,7 +928,8 @@ func TestGetWithdrawalStatus(t *testing.T) {
 	}
 }
 
-func TestSignMultiSigUTXO(t *testing.T) {
+func TestSignMultiSigUTXO(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -935,7 +960,8 @@ func TestSignMultiSigUTXO(t *testing.T) {
 	})
 }
 
-func TestSignMultiSigUTXOUnparseablePkScript(t *testing.T) {
+func TestSignMultiSigUTXOUnparseablePkScript(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -956,7 +982,8 @@ func TestSignMultiSigUTXOUnparseablePkScript(t *testing.T) {
 	TstCheckError(t, "", err, ErrTxSigning)
 }
 
-func TestSignMultiSigUTXOPkScriptNotP2SH(t *testing.T) {
+func TestSignMultiSigUTXOPkScriptNotP2SH(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -978,7 +1005,8 @@ func TestSignMultiSigUTXOPkScriptNotP2SH(t *testing.T) {
 	TstCheckError(t, "", err, ErrTxSigning)
 }
 
-func TestSignMultiSigUTXORedeemScriptNotFound(t *testing.T) {
+func TestSignMultiSigUTXORedeemScriptNotFound(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1005,7 +1033,8 @@ func TestSignMultiSigUTXORedeemScriptNotFound(t *testing.T) {
 	TstCheckError(t, "", err, ErrTxSigning)
 }
 
-func TestSignMultiSigUTXONotEnoughSigs(t *testing.T) {
+func TestSignMultiSigUTXONotEnoughSigs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1037,7 +1066,8 @@ func TestSignMultiSigUTXONotEnoughSigs(t *testing.T) {
 	TstCheckError(t, "", err, ErrTxSigning)
 }
 
-func TestSignMultiSigUTXOWrongRawSigs(t *testing.T) {
+func TestSignMultiSigUTXOWrongRawSigs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1061,7 +1091,8 @@ func TestSignMultiSigUTXOWrongRawSigs(t *testing.T) {
 	TstCheckError(t, "", err, ErrTxSigning)
 }
 
-func TestGetRawSigs(t *testing.T) {
+func TestGetRawSigs(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1092,7 +1123,8 @@ func TestGetRawSigs(t *testing.T) {
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, txSigs, tx.inputs)
 }
 
-func TestGetRawSigsOnlyOnePrivKeyAvailable(t *testing.T) {
+func TestGetRawSigsOnlyOnePrivKeyAvailable(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1122,7 +1154,8 @@ func TestGetRawSigsOnlyOnePrivKeyAvailable(t *testing.T) {
 	checkNonEmptySigsForPrivKeys(t, txSigs, series.privateKeys)
 }
 
-func TestGetRawSigsUnparseableRedeemScript(t *testing.T) {
+func TestGetRawSigsUnparseableRedeemScript(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1142,7 +1175,8 @@ func TestGetRawSigsUnparseableRedeemScript(t *testing.T) {
 	TstCheckError(t, "", err, ErrRawSigning)
 }
 
-func TestGetRawSigsInvalidAddrBranch(t *testing.T) {
+func TestGetRawSigsInvalidAddrBranch(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1164,7 +1198,8 @@ func TestGetRawSigsInvalidAddrBranch(t *testing.T) {
 
 // TestOutBailmentIDSort tests that we can correctly sort a slice
 // of output requests by the hash of the outbailmentID.
-func TestOutBailmentIDSort(t *testing.T) {
+func TestOutBailmentIDSort(
+	t *testing.T) {
 	or00 := OutputRequest{cachedHash: []byte{0, 0}}
 	or01 := OutputRequest{cachedHash: []byte{0, 1}}
 	or10 := OutputRequest{cachedHash: []byte{1, 0}}
@@ -1180,7 +1215,8 @@ func TestOutBailmentIDSort(t *testing.T) {
 	}
 }
 
-func TestTxTooBig(t *testing.T) {
+func TestTxTooBig(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1212,7 +1248,8 @@ func TestTxTooBig(t *testing.T) {
 	}
 }
 
-func TestTxSizeCalculation(t *testing.T) {
+func TestTxSizeCalculation(
+	t *testing.T) {
 	tearDown, db, pool := TstCreatePool(t)
 	defer tearDown()
 
@@ -1263,7 +1300,8 @@ func TestTxSizeCalculation(t *testing.T) {
 	}
 }
 
-func TestTxFeeEstimationForSmallTx(t *testing.T) {
+func TestTxFeeEstimationForSmallTx(
+	t *testing.T) {
 	tx := newWithdrawalTx(defaultTxOptions)
 
 	// A tx that is smaller than 1000 bytes in size should have a fee of 10000
@@ -1277,7 +1315,8 @@ func TestTxFeeEstimationForSmallTx(t *testing.T) {
 	}
 }
 
-func TestTxFeeEstimationForLargeTx(t *testing.T) {
+func TestTxFeeEstimationForLargeTx(
+	t *testing.T) {
 	tx := newWithdrawalTx(defaultTxOptions)
 
 	// A tx that is larger than 1000 bytes in size should have a fee of 1e3
@@ -1291,7 +1330,8 @@ func TestTxFeeEstimationForLargeTx(t *testing.T) {
 	}
 }
 
-func TestStoreTransactionsWithoutChangeOutput(t *testing.T) {
+func TestStoreTransactionsWithoutChangeOutput(
+	t *testing.T) {
 	tearDown, db, pool, store := TstCreatePoolAndTxStore(t)
 	defer tearDown()
 
@@ -1317,7 +1357,8 @@ func TestStoreTransactionsWithoutChangeOutput(t *testing.T) {
 	}
 }
 
-func TestStoreTransactionsWithChangeOutput(t *testing.T) {
+func TestStoreTransactionsWithChangeOutput(
+	t *testing.T) {
 	tearDown, db, pool, store := TstCreatePoolAndTxStore(t)
 	defer tearDown()
 
@@ -1382,7 +1423,8 @@ func TestStoreTransactionsWithChangeOutput(t *testing.T) {
 // createWithdrawalTxWithStoreCredits creates a new Credit in the given store
 // for each entry in inputAmounts, and uses them to construct a withdrawalTx
 // with one output for every entry in outputAmounts.
-func createWithdrawalTxWithStoreCredits(t *testing.T, dbtx walletdb.ReadWriteTx, store *wtxmgr.Store, pool *Pool,
+func createWithdrawalTxWithStoreCredits(
+	t *testing.T, dbtx walletdb.ReadWriteTx, store *wtxmgr.Store, pool *Pool,
 	inputAmounts []int64, outputAmounts []int64) *withdrawalTx {
 	masters := []*hdkeychain.ExtendedKey{
 		TstCreateMasterKey(t, bytes.Repeat(uint32ToBytes(getUniqueID()), 4)),
@@ -1408,7 +1450,8 @@ func createWithdrawalTxWithStoreCredits(t *testing.T, dbtx walletdb.ReadWriteTx,
 // one non-empty signature for every non-nil private key in the given list. This
 // is to make sure every signature list matches the specification at
 // http://opentransactions.org/wiki/index.php/Siglist.
-func checkNonEmptySigsForPrivKeys(t *testing.T, txSigs TxSigs, privKeys []*hdkeychain.ExtendedKey) {
+func checkNonEmptySigsForPrivKeys(
+	t *testing.T, txSigs TxSigs, privKeys []*hdkeychain.ExtendedKey) {
 	for _, txInSigs := range txSigs {
 		if len(txInSigs) != len(privKeys) {
 			t.Fatalf("Number of items in sig list (%d) does not match number of privkeys (%d)",
@@ -1428,7 +1471,8 @@ func checkNonEmptySigsForPrivKeys(t *testing.T, txSigs TxSigs, privKeys []*hdkey
 
 // checkTxOutputs uses reflect.DeepEqual() to ensure that the tx outputs match
 // the given slice of withdrawalTxOuts.
-func checkTxOutputs(t *testing.T, tx *withdrawalTx, outputs []*withdrawalTxOut) {
+func checkTxOutputs(
+	t *testing.T, tx *withdrawalTx, outputs []*withdrawalTxOut) {
 	nOutputs := len(outputs)
 	if len(tx.outputs) != nOutputs {
 		t.Fatalf("Wrong number of outputs in tx; got %d, want %d", len(tx.outputs), nOutputs)
@@ -1443,7 +1487,8 @@ func checkTxOutputs(t *testing.T, tx *withdrawalTx, outputs []*withdrawalTxOut) 
 // checkMsgTxOutputs checks that the pkScript and amount of every output in the
 // given msgtx match the pkScript and amount of every item in the slice of
 // OutputRequests.
-func checkMsgTxOutputs(t *testing.T, msgtx *wire.MsgTx, requests []OutputRequest) {
+func checkMsgTxOutputs(
+	t *testing.T, msgtx *wire.MsgTx, requests []OutputRequest) {
 	nRequests := len(requests)
 	if len(msgtx.TxOut) != nRequests {
 		t.Fatalf("Unexpected number of TxOuts; got %d, want %d", len(msgtx.TxOut), nRequests)
@@ -1464,7 +1509,8 @@ func checkMsgTxOutputs(t *testing.T, msgtx *wire.MsgTx, requests []OutputRequest
 }
 
 // checkTxInputs ensures that the tx.inputs match the given inputs.
-func checkTxInputs(t *testing.T, tx *withdrawalTx, inputs []credit) {
+func checkTxInputs(
+	t *testing.T, tx *withdrawalTx, inputs []credit) {
 	if len(tx.inputs) != len(inputs) {
 		t.Fatalf("Wrong number of inputs in tx; got %d, want %d", len(tx.inputs), len(inputs))
 	}
@@ -1478,7 +1524,8 @@ func checkTxInputs(t *testing.T, tx *withdrawalTx, inputs []credit) {
 // signTxAndValidate will construct the signature script for each input of the given
 // transaction (using the given raw signatures and the pkScripts from credits) and execute
 // those scripts to validate them.
-func signTxAndValidate(t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *wire.MsgTx, txSigs TxSigs,
+func signTxAndValidate(
+	t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *wire.MsgTx, txSigs TxSigs,
 	credits []credit) {
 	for i := range tx.TxIn {
 		pkScript := credits[i].PkScript
@@ -1490,7 +1537,8 @@ func signTxAndValidate(t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.R
 	}
 }
 
-func compareMsgTxAndWithdrawalTxInputs(t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
+func compareMsgTxAndWithdrawalTxInputs(
+	t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
 	if len(msgtx.TxIn) != len(tx.inputs) {
 		t.Fatalf("Wrong number of inputs; got %d, want %d", len(msgtx.TxIn), len(tx.inputs))
 	}
@@ -1503,7 +1551,8 @@ func compareMsgTxAndWithdrawalTxInputs(t *testing.T, msgtx *wire.MsgTx, tx *with
 	}
 }
 
-func compareMsgTxAndWithdrawalTxOutputs(t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
+func compareMsgTxAndWithdrawalTxOutputs(
+	t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
 	nOutputs := len(tx.outputs)
 
 	if tx.changeOutput != nil {
@@ -1539,7 +1588,8 @@ func compareMsgTxAndWithdrawalTxOutputs(t *testing.T, msgtx *wire.MsgTx, tx *wit
 	}
 }
 
-func checkTxChangeAmount(t *testing.T, tx *withdrawalTx, amount util.Amount) {
+func checkTxChangeAmount(
+	t *testing.T, tx *withdrawalTx, amount util.Amount) {
 	if !tx.hasChange() {
 		t.Fatalf("Transaction has no change.")
 	}
@@ -1553,7 +1603,8 @@ func checkTxChangeAmount(t *testing.T, tx *withdrawalTx, amount util.Amount) {
 // given tx matches newAmount and that the splitRequest amount is equal to
 // origAmount - newAmount. It also checks that splitRequest is identical (except
 // for its amount) to the request of the last output in the tx.
-func checkLastOutputWasSplit(t *testing.T, w *withdrawal, tx *withdrawalTx,
+func checkLastOutputWasSplit(
+	t *testing.T, w *withdrawal, tx *withdrawalTx,
 	origAmount, newAmount util.Amount) {
 	splitRequest := w.pendingRequests[0]
 	lastOutput := tx.outputs[len(tx.outputs)-1]

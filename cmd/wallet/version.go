@@ -28,7 +28,8 @@ var appBuild string
 
 // Version returns the application version as a properly formed string per the
 // semantic versioning 2.0.0 spec (http://semver.org/).
-func Version() string {
+func Version(
+	) string {
 	// Start with the major, minor, and path versions.
 	version := fmt.Sprintf("%d.%d.%d", appMajor, appMinor, appPatch)
 
@@ -57,7 +58,8 @@ func Version() string {
 // are not valid according to the semantic versioning guidelines for pre-release
 // version and build metadata strings.  In particular they MUST only contain
 // characters in semanticAlphabet.
-func normalizeVerString(str string) string {
+func normalizeVerString(
+	str string) string {
 	result := bytes.Buffer{}
 	for _, r := range str {
 		if strings.ContainsRune(semanticAlphabet, r) {

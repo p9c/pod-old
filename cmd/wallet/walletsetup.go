@@ -22,7 +22,8 @@ import (
 )
 
 // NetworkDir returns the directory name of a network directory to hold wallet files.
-func NetworkDir(dataDir string, chainParams *chaincfg.Params) string {
+func NetworkDir(
+	dataDir string, chainParams *chaincfg.Params) string {
 	netname := chainParams.Name
 
 	// For now, we must always name the testnet data directory as "testnet" and not "testnet3" or any other version, as the chaincfg testnet3 paramaters will likely be switched to being named "testnet3" in the future.  This is done to future proof that change, and an upgrade plan to move the testnet3 data directory can be worked out later.
@@ -34,7 +35,8 @@ func NetworkDir(dataDir string, chainParams *chaincfg.Params) string {
 }
 
 // convertLegacyKeystore converts all of the addresses in the passed legacy key store to the new waddrmgr.Manager format.  Both the legacy keystore and the new manager must be unlocked.
-func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
+func convertLegacyKeystore(
+	legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
 	netParams := legacyKeyStore.Net()
 	blockStamp := waddrmgr.BlockStamp{
 		Height: 0,
@@ -89,7 +91,8 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 }
 
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
-func CreateWallet(cfg *Config, activeNet *netparams.Params) error {
+func CreateWallet(
+	cfg *Config, activeNet *netparams.Params) error {
 	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
@@ -195,7 +198,8 @@ func CreateWallet(cfg *Config, activeNet *netparams.Params) error {
 
 // CreateSimulationWallet is intended to be called from the rpcclient
 // and used to create a wallet for actors involved in simulations.
-func CreateSimulationWallet(cfg *Config) error {
+func CreateSimulationWallet(
+	cfg *Config) error {
 	// Simulation wallet password is 'password'.
 	privPass := []byte("password")
 
@@ -227,7 +231,8 @@ func CreateSimulationWallet(cfg *Config) error {
 
 // checkCreateDir checks that the path exists and is a directory.
 // If path does not exist, it is created.
-func checkCreateDir(path string) error {
+func checkCreateDir(
+	path string) error {
 	if fi, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
 			// Attempt data directory creation

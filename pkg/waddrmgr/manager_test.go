@@ -24,7 +24,8 @@ import (
 // It only differs from the one available in wire in that it panics on an
 // error since it will only (and must only) be called with hard-coded, and
 // therefore known good, hashes.
-func newHash(hexStr string) *chainhash.Hash {
+func newHash(
+	hexStr string) *chainhash.Hash {
 	hash, err := chainhash.NewHashFromStr(hexStr)
 	if err != nil {
 		panic(err)
@@ -34,7 +35,8 @@ func newHash(hexStr string) *chainhash.Hash {
 
 // failingSecretKeyGen is a waddrmgr.SecretKeyGenerator that always returns
 // snacl.ErrDecryptFailed.
-func failingSecretKeyGen(passphrase *[]byte,
+func failingSecretKeyGen(
+	passphrase *[]byte,
 	config *waddrmgr.ScryptOptions) (*snacl.SecretKey, error) {
 	return nil, snacl.ErrDecryptFailed
 }
@@ -84,7 +86,8 @@ type expectedAddr struct {
 
 // testNamePrefix is a helper to return a prefix to show for test errors based
 // on the state of the test context.
-func testNamePrefix(tc *testContext) string {
+func testNamePrefix(
+	tc *testContext) string {
 	prefix := "Open "
 	if tc.create {
 		prefix = "Create "
@@ -100,7 +103,8 @@ func testNamePrefix(tc *testContext) string {
 // When the test context indicates the manager is unlocked, the private data
 // will also be tested, otherwise, the functions which deal with private data
 // are checked to ensure they return the correct error.
-func testManagedPubKeyAddress(tc *testContext, prefix string,
+func testManagedPubKeyAddress(
+	tc *testContext, prefix string,
 	gotAddr waddrmgr.ManagedPubKeyAddress, wantAddr *expectedAddr) bool {
 
 	// Ensure pubkey is the expected value for the managed address.
@@ -221,7 +225,8 @@ func testManagedPubKeyAddress(tc *testContext, prefix string,
 // When the test context indicates the manager is unlocked, the private data
 // will also be tested, otherwise, the functions which deal with private data
 // are checked to ensure they return the correct error.
-func testManagedScriptAddress(tc *testContext, prefix string, gotAddr waddrmgr.ManagedScriptAddress, wantAddr *expectedAddr) bool {
+func testManagedScriptAddress(
+	tc *testContext, prefix string, gotAddr waddrmgr.ManagedScriptAddress, wantAddr *expectedAddr) bool {
 	// Ensure script is the expected value for the managed address.
 	// Ensure script is the expected value for the managed address.  Since
 	// this is only available when the manager is unlocked, also check for
@@ -264,7 +269,8 @@ func testManagedScriptAddress(tc *testContext, prefix string, gotAddr waddrmgr.M
 // When the test context indicates the manager is unlocked, the private data
 // will also be tested, otherwise, the functions which deal with private data
 // are checked to ensure they return the correct error.
-func testAddress(tc *testContext, prefix string, gotAddr waddrmgr.ManagedAddress, wantAddr *expectedAddr) bool {
+func testAddress(
+	tc *testContext, prefix string, gotAddr waddrmgr.ManagedAddress, wantAddr *expectedAddr) bool {
 	if gotAddr.Account() != tc.account {
 		tc.t.Errorf("ManagedAddress.Account: unexpected account - got "+
 			"%d, want %d", gotAddr.Account(), tc.account)
@@ -323,7 +329,8 @@ func testAddress(tc *testContext, prefix string, gotAddr waddrmgr.ManagedAddress
 // generating multiple addresses via NextExternalAddresses, ensuring they can be
 // retrieved by Address, and that they work properly when the manager is locked
 // and unlocked.
-func testExternalAddresses(tc *testContext) bool {
+func testExternalAddresses(
+	tc *testContext) bool {
 	prefix := testNamePrefix(tc) + " testExternalAddresses"
 	var addrs []waddrmgr.ManagedAddress
 	if tc.create {
@@ -457,7 +464,8 @@ func testExternalAddresses(tc *testContext) bool {
 // generating multiple addresses via NextInternalAddresses, ensuring they can be
 // retrieved by Address, and that they work properly when the manager is locked
 // and unlocked.
-func testInternalAddresses(tc *testContext) bool {
+func testInternalAddresses(
+	tc *testContext) bool {
 	// When the address manager is not in watching-only mode, unlocked it
 	// first to ensure that address generation works correctly when the
 	// address manager is unlocked and then locked later.  These tests
@@ -602,7 +610,8 @@ func testInternalAddresses(tc *testContext) bool {
 // testLocking tests the basic locking semantics of the address manager work
 // as expected.  Other tests ensure addresses behave as expected under locked
 // and unlocked conditions.
-func testLocking(tc *testContext) bool {
+func testLocking(
+	tc *testContext) bool {
 	if tc.unlocked {
 		tc.t.Error("testLocking called with an unlocked manager")
 		return false
@@ -694,7 +703,8 @@ func testLocking(tc *testContext) bool {
 //
 // This function expects the manager is already locked when called and returns
 // with the manager locked.
-func testImportPrivateKey(tc *testContext) bool {
+func testImportPrivateKey(
+	tc *testContext) bool {
 	tests := []struct {
 		name       string
 		in         string
@@ -860,7 +870,8 @@ func testImportPrivateKey(tc *testContext) bool {
 //
 // This function expects the manager is already locked when called and returns
 // with the manager locked.
-func testImportScript(tc *testContext) bool {
+func testImportScript(
+	tc *testContext) bool {
 	tests := []struct {
 		name       string
 		in         []byte
@@ -1023,7 +1034,8 @@ func testImportScript(tc *testContext) bool {
 }
 
 // testMarkUsed ensures used addresses are flagged as such.
-func testMarkUsed(tc *testContext) bool {
+func testMarkUsed(
+	tc *testContext) bool {
 	tests := []struct {
 		name string
 		typ  addrType
@@ -1099,7 +1111,8 @@ func testMarkUsed(tc *testContext) bool {
 
 // testChangePassphrase ensures changes both the public and private passphrases
 // works as intended.
-func testChangePassphrase(tc *testContext) bool {
+func testChangePassphrase(
+	tc *testContext) bool {
 	// Force an error when changing the passphrase due to failure to
 	// generate a new secret key by replacing the generation function one
 	// that intentionally errors.
@@ -1241,7 +1254,8 @@ func testChangePassphrase(tc *testContext) bool {
 
 // testNewAccount tests the new account creation func of the address manager works
 // as expected.
-func testNewAccount(tc *testContext) bool {
+func testNewAccount(
+	tc *testContext) bool {
 	if tc.watchingOnly {
 		// Creating new accounts in watching-only mode should return ErrWatchingOnly
 		err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -1341,7 +1355,8 @@ func testNewAccount(tc *testContext) bool {
 
 // testLookupAccount tests the basic account lookup func of the address manager
 // works as expected.
-func testLookupAccount(tc *testContext) bool {
+func testLookupAccount(
+	tc *testContext) bool {
 	// Lookup accounts created earlier in testNewAccount
 	expectedAccounts := map[string]uint32{
 		waddrmgr.TstDefaultAccountName:   waddrmgr.DefaultAccountNum,
@@ -1431,7 +1446,8 @@ func testLookupAccount(tc *testContext) bool {
 
 // testRenameAccount tests the rename account func of the address manager works
 // as expected.
-func testRenameAccount(tc *testContext) bool {
+func testRenameAccount(
+	tc *testContext) bool {
 	var acctName string
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
@@ -1493,7 +1509,8 @@ func testRenameAccount(tc *testContext) bool {
 
 // testForEachAccount tests the retrieve all accounts func of the address
 // manager works as expected.
-func testForEachAccount(tc *testContext) bool {
+func testForEachAccount(
+	tc *testContext) bool {
 	prefix := testNamePrefix(tc) + " testForEachAccount"
 	expectedAccounts := []uint32{0, 1}
 	if !tc.create {
@@ -1532,7 +1549,8 @@ func testForEachAccount(tc *testContext) bool {
 
 // testForEachAccountAddress tests that iterating through the given
 // account addresses using the manager API works as expected.
-func testForEachAccountAddress(tc *testContext) bool {
+func testForEachAccountAddress(
+	tc *testContext) bool {
 	prefix := testNamePrefix(tc) + " testForEachAccountAddress"
 	// Make a map of expected addresses
 	expectedAddrMap := make(map[string]*expectedAddr, len(expectedAddrs))
@@ -1576,7 +1594,8 @@ func testForEachAccountAddress(tc *testContext) bool {
 // testManagerAPI tests the functions provided by the Manager API as well as
 // the ManagedAddress, ManagedPubKeyAddress, and ManagedScriptAddress
 // interfaces.
-func testManagerAPI(tc *testContext) {
+func testManagerAPI(
+	tc *testContext) {
 	testLocking(tc)
 	testExternalAddresses(tc)
 	testInternalAddresses(tc)
@@ -1600,7 +1619,8 @@ func testManagerAPI(tc *testContext) {
 // testWatchingOnly tests various facets of a watching-only address
 // manager such as running the full set of API tests against a newly converted
 // copy as well as when it is opened from an existing namespace.
-func testWatchingOnly(tc *testContext) bool {
+func testWatchingOnly(
+	tc *testContext) bool {
 	// Make a copy of the current database so the copy can be converted to
 	// watching only.
 	woMgrName := "mgrtestwo.bin"
@@ -1699,7 +1719,8 @@ func testWatchingOnly(tc *testContext) bool {
 }
 
 // testSync tests various facets of setting the manager sync state.
-func testSync(tc *testContext) bool {
+func testSync(
+	tc *testContext) bool {
 	// Ensure syncing the manager to nil results in the synced to state
 	// being the earliest block (genesis block in this case).
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -1754,7 +1775,8 @@ func testSync(tc *testContext) bool {
 // TestManager performs a full suite of tests against the address manager API.
 // It makes use of a test context because the address manager is persistent and
 // much of the testing involves having specific state.
-func TestManager(t *testing.T) {
+func TestManager(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -1887,7 +1909,8 @@ func TestManager(t *testing.T) {
 
 // TestEncryptDecryptErrors ensures that errors which occur while encrypting and
 // decrypting data return the expected errors.
-func TestEncryptDecryptErrors(t *testing.T) {
+func TestEncryptDecryptErrors(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
@@ -1941,7 +1964,8 @@ func TestEncryptDecryptErrors(t *testing.T) {
 
 // TestEncryptDecrypt ensures that encrypting and decrypting data with the
 // the various crypto key types works as expected.
-func TestEncryptDecrypt(t *testing.T) {
+func TestEncryptDecrypt(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
@@ -1984,7 +2008,8 @@ func TestEncryptDecrypt(t *testing.T) {
 // TestScopedKeyManagerManagement tests that callers are able to properly
 // create, retrieve, and utilize new scoped managers outside the set of default
 // created scopes.
-func TestScopedKeyManagerManagement(t *testing.T) {
+func TestScopedKeyManagerManagement(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -2235,7 +2260,8 @@ func TestScopedKeyManagerManagement(t *testing.T) {
 
 // TestRootHDKeyNeutering tests that callers are unable to create new scoped
 // managers once the root HD key has been deleted from the database.
-func TestRootHDKeyNeutering(t *testing.T) {
+func TestRootHDKeyNeutering(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db := emptyDB(t)
@@ -2329,7 +2355,8 @@ func TestRootHDKeyNeutering(t *testing.T) {
 // TestNewRawAccount tests that callers are able to properly create, and use
 // raw accounts created with only an account number, and not a string which is
 // eventually mapped to an account number.
-func TestNewRawAccount(t *testing.T) {
+func TestNewRawAccount(
+	t *testing.T) {
 	t.Parallel()
 
 	teardown, db := emptyDB(t)

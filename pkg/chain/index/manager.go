@@ -25,7 +25,8 @@ var (
 //   block hash      chainhash.Hash   chainhash.HashSize
 //   block height    uint32           4 bytes
 // dbPutIndexerTip uses an existing database transaction to update or add the current tip for the given index to the provided values.
-func dbPutIndexerTip(dbTx database.Tx, idxKey []byte, hash *chainhash.Hash, height int32) error {
+func dbPutIndexerTip(
+	dbTx database.Tx, idxKey []byte, hash *chainhash.Hash, height int32) error {
 	serialized := make([]byte, chainhash.HashSize+4)
 	copy(serialized, hash[:])
 	byteOrder.PutUint32(serialized[chainhash.HashSize:], uint32(height))
@@ -34,7 +35,8 @@ func dbPutIndexerTip(dbTx database.Tx, idxKey []byte, hash *chainhash.Hash, heig
 }
 
 // dbFetchIndexerTip uses an existing database transaction to retrieve the hash and height of the current tip for the provided index.
-func dbFetchIndexerTip(dbTx database.Tx, idxKey []byte) (*chainhash.Hash, int32, error) {
+func dbFetchIndexerTip(
+	dbTx database.Tx, idxKey []byte) (*chainhash.Hash, int32, error) {
 	indexesBucket := dbTx.Metadata().Bucket(indexTipsBucketName)
 	serialized := indexesBucket.Get(idxKey)
 	if len(serialized) < chainhash.HashSize+4 {
@@ -51,7 +53,8 @@ func dbFetchIndexerTip(dbTx database.Tx, idxKey []byte) (*chainhash.Hash, int32,
 }
 
 // dbIndexConnectBlock adds all of the index entries associated with the given block using the provided indexer and updates the tip of the indexer accordingly.  An error will be returned if the current tip for the indexer is not the previous block for the passed block.
-func dbIndexConnectBlock(dbTx database.Tx, indexer Indexer, block *util.Block,
+func dbIndexConnectBlock(
+	dbTx database.Tx, indexer Indexer, block *util.Block,
 	stxo []blockchain.SpentTxOut) error {
 	// Assert that the block being connected properly connects to the current tip of the index.
 	idxKey := indexer.Key()
@@ -74,7 +77,8 @@ func dbIndexConnectBlock(dbTx database.Tx, indexer Indexer, block *util.Block,
 }
 
 // dbIndexDisconnectBlock removes all of the index entries associated with the given block using the provided indexer and updates the tip of the indexer accordingly.  An error will be returned if the current tip for the indexer is not the passed block.
-func dbIndexDisconnectBlock(dbTx database.Tx, indexer Indexer, block *util.Block,
+func dbIndexDisconnectBlock(
+	dbTx database.Tx, indexer Indexer, block *util.Block,
 	stxo []blockchain.SpentTxOut) error {
 	// Assert that the block being disconnected is the current tip of the index.
 	idxKey := indexer.Key()
@@ -107,7 +111,8 @@ type Manager struct {
 var _ blockchain.IndexManager = (*Manager)(nil)
 
 // indexDropKey returns the key for an index which indicates it is in the process of being dropped.
-func indexDropKey(idxKey []byte) []byte {
+func indexDropKey(
+	idxKey []byte) []byte {
 	dropKey := make([]byte, len(idxKey)+1)
 	dropKey[0] = 'd'
 	copy(dropKey[1:], idxKey)
@@ -365,7 +370,8 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 }
 
 // indexNeedsInputs returns whether or not the index needs access to the txouts referenced by the transaction inputs being indexed.
-func indexNeedsInputs(index Indexer) bool {
+func indexNeedsInputs(
+	index Indexer) bool {
 	if idx, ok := index.(NeedsInputser); ok {
 		return idx.NeedsInputs()
 	}
@@ -373,7 +379,8 @@ func indexNeedsInputs(index Indexer) bool {
 }
 
 // dbFetchTx looks up the passed transaction hash in the transaction index and loads it from the database.
-func dbFetchTx(dbTx database.Tx, hash *chainhash.Hash) (*wire.MsgTx, error) {
+func dbFetchTx(
+	dbTx database.Tx, hash *chainhash.Hash) (*wire.MsgTx, error) {
 	// Look up the location of the transaction.
 	blockRegion, err := dbFetchTxIndexEntry(dbTx, hash)
 	if err != nil {
@@ -423,7 +430,8 @@ func (m *Manager) DisconnectBlock(dbTx database.Tx, block *util.Block,
 }
 
 // NewManager returns a new index manager with the provided indexes enabled. The manager returned satisfies the blockchain.IndexManager interface and thus cleanly plugs into the normal blockchain processing path.
-func NewManager(db database.DB, enabledIndexes []Indexer) *Manager {
+func NewManager(
+	db database.DB, enabledIndexes []Indexer) *Manager {
 	return &Manager{
 		db:             db,
 		enabledIndexes: enabledIndexes,
@@ -431,7 +439,8 @@ func NewManager(db database.DB, enabledIndexes []Indexer) *Manager {
 }
 
 // dropIndex drops the passed index from the database.  Since indexes can be massive, it deletes the index in multiple database transactions in order to keep memory usage to reasonable levels.  It also marks the drop in progress so the drop can be resumed if it is stopped before it is done before the index can be used again.
-func dropIndex(db database.DB, idxKey []byte, idxName string, interrupt <-chan struct{}) error {
+func dropIndex(
+	db database.DB, idxKey []byte, idxName string, interrupt <-chan struct{}) error {
 	// Nothing to do if the index doesn't already exist.
 	var needsDelete bool
 	err := db.View(func(dbTx database.Tx) error {

@@ -10,7 +10,8 @@ import (
 	"testing"
 )
 
-func TestThrottle(t *testing.T) {
+func TestThrottle(
+	t *testing.T) {
 	const threshold = 1
 	busy := make(chan struct{})
 

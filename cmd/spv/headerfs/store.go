@@ -91,7 +91,8 @@ type headerStore struct {
 // newHeaderStore creates a new headerStore given an already open database, a
 // target file path for the flat-file and a particular header type. The target
 // file will be created as necessary.
-func newHeaderStore(db walletdb.DB, filePath string,
+func newHeaderStore(
+	db walletdb.DB, filePath string,
 	hType HeaderType) (*headerStore, error) {
 
 	var flatFileName string
@@ -145,7 +146,8 @@ var _ BlockHeaderStore = (*blockHeaderStore)(nil)
 // parameters for the target chain. These parameters are required as if this is
 // the initial start up of the blockHeaderStore, then the initial genesis
 // header will need to be inserted.
-func NewBlockHeaderStore(filePath string, db walletdb.DB,
+func NewBlockHeaderStore(
+	filePath string, db walletdb.DB,
 	netParams *chaincfg.Params) (BlockHeaderStore, error) {
 
 	hStore, err := newHeaderStore(db, filePath, Block)
@@ -595,7 +597,8 @@ type FilterHeaderStore struct {
 // parameters are required as if this is the initial start up of the
 // FilterHeaderStore, then the initial genesis filter header will need to be
 // inserted.
-func NewFilterHeaderStore(filePath string, db walletdb.DB,
+func NewFilterHeaderStore(
+	filePath string, db walletdb.DB,
 	filterType HeaderType, netParams *chaincfg.Params) (*FilterHeaderStore, error) {
 
 	fStore, err := newHeaderStore(db, filePath, filterType)

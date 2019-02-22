@@ -22,7 +22,12 @@ import (
 	"github.com/tucnak/climax"
 )
 
-func configNode(nc *n.Config, ctx *climax.Context, cfgFile string) int {
+func configNode(
+	nc *n.Config,
+	ctx *climax.Context,
+	cfgFile string,
+) int {
+
 	var err error
 	if r, ok := getIfIs(ctx, "datadir"); ok {
 		nc.DataDir = filepath.Join(n.CleanAndExpandPath(r), "node")

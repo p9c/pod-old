@@ -16,7 +16,8 @@ import (
 const CheckpointConfirmations = 2016
 
 // newHashFromStr converts the passed big-endian hex string into a chainhash.Hash.  It only differs from the one available in chainhash in that it ignores the error since it will only (and must only) be called with hard-coded, and therefore known good, hashes.
-func newHashFromStr(hexStr string) *chainhash.Hash {
+func newHashFromStr(
+	hexStr string) *chainhash.Hash {
 	hash, _ := chainhash.NewHashFromStr(hexStr)
 	return hash
 }
@@ -118,7 +119,8 @@ func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 }
 
 // isNonstandardTransaction determines whether a transaction contains any scripts which are not one of the standard types.
-func isNonstandardTransaction(tx *util.Tx) bool {
+func isNonstandardTransaction(
+	tx *util.Tx) bool {
 	// Check all of the output public key scripts for non-standard scripts.
 	for _, txOut := range tx.MsgTx().TxOut {
 		scriptClass := txscript.GetScriptClass(txOut.PkScript)

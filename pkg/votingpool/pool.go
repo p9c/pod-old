@@ -78,7 +78,8 @@ type WithdrawalAddress struct {
 
 // Create creates a new entry in the database with the given ID
 // and returns the Pool representing it.
-func Create(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, poolID []byte) (*Pool, error) {
+func Create(
+	ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, poolID []byte) (*Pool, error) {
 	err := putPool(ns, poolID)
 	if err != nil {
 		str := fmt.Sprintf("unable to add voting pool %v to db", poolID)
@@ -89,7 +90,8 @@ func Create(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, poolID []byte) (*P
 
 // Load fetches the entry in the database with the given ID and returns the Pool
 // representing it.
-func Load(ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID []byte) (*Pool, error) {
+func Load(
+	ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID []byte) (*Pool, error) {
 	if !existsPool(ns, poolID) {
 		str := fmt.Sprintf("unable to find voting pool %v in db", poolID)
 		return nil, newError(ErrPoolNotExists, str, nil)
@@ -102,7 +104,8 @@ func Load(ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID []byte) (*Pool, er
 }
 
 // newPool creates a new Pool instance.
-func newPool(m *waddrmgr.Manager, poolID []byte) *Pool {
+func newPool(
+	m *waddrmgr.Manager, poolID []byte) *Pool {
 	return &Pool{
 		ID:           poolID,
 		seriesLookup: make(map[uint32]*SeriesData),
@@ -112,7 +115,8 @@ func newPool(m *waddrmgr.Manager, poolID []byte) *Pool {
 
 // LoadAndGetDepositScript generates and returns a deposit script for the given seriesID,
 // branch and index of the Pool identified by poolID.
-func LoadAndGetDepositScript(ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID string, seriesID uint32, branch Branch, index Index) ([]byte, error) {
+func LoadAndGetDepositScript(
+	ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID string, seriesID uint32, branch Branch, index Index) ([]byte, error) {
 	pid := []byte(poolID)
 	p, err := Load(ns, m, pid)
 	if err != nil {
@@ -128,7 +132,8 @@ func LoadAndGetDepositScript(ns walletdb.ReadBucket, m *waddrmgr.Manager, poolID
 // LoadAndCreateSeries loads the Pool with the given ID, creating a new one if it doesn't
 // yet exist, and then creates and returns a Series with the given seriesID, rawPubKeys
 // and reqSigs. See CreateSeries for the constraints enforced on rawPubKeys and reqSigs.
-func LoadAndCreateSeries(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, version uint32,
+func LoadAndCreateSeries(
+	ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, version uint32,
 	poolID string, seriesID, reqSigs uint32, rawPubKeys []string) error {
 	pid := []byte(poolID)
 	p, err := Load(ns, m, pid)
@@ -148,7 +153,8 @@ func LoadAndCreateSeries(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, versi
 
 // LoadAndReplaceSeries loads the voting pool with the given ID and calls ReplaceSeries,
 // passing the given series ID, public keys and reqSigs to it.
-func LoadAndReplaceSeries(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, version uint32,
+func LoadAndReplaceSeries(
+	ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, version uint32,
 	poolID string, seriesID, reqSigs uint32, rawPubKeys []string) error {
 	pid := []byte(poolID)
 	p, err := Load(ns, m, pid)
@@ -160,7 +166,8 @@ func LoadAndReplaceSeries(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager, vers
 
 // LoadAndEmpowerSeries loads the voting pool with the given ID and calls EmpowerSeries,
 // passing the given series ID and private key to it.
-func LoadAndEmpowerSeries(ns walletdb.ReadWriteBucket, m *waddrmgr.Manager,
+func LoadAndEmpowerSeries(
+	ns walletdb.ReadWriteBucket, m *waddrmgr.Manager,
 	poolID string, seriesID uint32, rawPrivKey string) error {
 	pid := []byte(poolID)
 	pool, err := Load(ns, m, pid)
@@ -225,7 +232,8 @@ func (p *Pool) saveSeriesToDisk(ns walletdb.ReadWriteBucket, seriesID uint32, da
 
 // CanonicalKeyOrder will return a copy of the input canonically
 // ordered which is defined to be lexicographical.
-func CanonicalKeyOrder(keys []string) []string {
+func CanonicalKeyOrder(
+	keys []string) []string {
 	orderedKeys := make([]string, len(keys))
 	copy(orderedKeys, keys)
 	sort.Sort(sort.StringSlice(orderedKeys))
@@ -235,7 +243,8 @@ func CanonicalKeyOrder(keys []string) []string {
 // Convert the given slice of strings into a slice of ExtendedKeys,
 // checking that all of them are valid public (and not private) keys,
 // and that there are no duplicates.
-func convertAndValidatePubKeys(rawPubKeys []string) ([]*hdkeychain.ExtendedKey, error) {
+func convertAndValidatePubKeys(
+	rawPubKeys []string) ([]*hdkeychain.ExtendedKey, error) {
 	seenKeys := make(map[string]bool)
 	keys := make([]*hdkeychain.ExtendedKey, len(rawPubKeys))
 	for i, rawPubKey := range rawPubKeys {
@@ -388,7 +397,8 @@ func (p *Pool) decryptExtendedKey(keyType waddrmgr.CryptoKeyType, encrypted []by
 // public key and returns them.
 //
 // This function must be called with the Pool's manager unlocked.
-func validateAndDecryptKeys(rawPubKeys, rawPrivKeys [][]byte, p *Pool) (pubKeys, privKeys []*hdkeychain.ExtendedKey, err error) {
+func validateAndDecryptKeys(
+	rawPubKeys, rawPrivKeys [][]byte, p *Pool) (pubKeys, privKeys []*hdkeychain.ExtendedKey, err error) {
 	pubKeys = make([]*hdkeychain.ExtendedKey, len(rawPubKeys))
 	privKeys = make([]*hdkeychain.ExtendedKey, len(rawPrivKeys))
 	if len(pubKeys) != len(privKeys) {
@@ -467,7 +477,8 @@ func (p *Pool) LoadAllSeries(ns walletdb.ReadBucket) error {
 // - branch 1: ABC (first key priority)
 // - branch 2: BAC (second key priority)
 // - branch 3: CAB (third key priority)
-func branchOrder(pks []*hdkeychain.ExtendedKey, branch Branch) ([]*hdkeychain.ExtendedKey, error) {
+func branchOrder(
+	pks []*hdkeychain.ExtendedKey, branch Branch) ([]*hdkeychain.ExtendedKey, error) {
 	if pks == nil {
 		// This really shouldn't happen, but we want to be good citizens, so we
 		// return an error instead of crashing.

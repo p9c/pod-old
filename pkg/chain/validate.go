@@ -42,7 +42,8 @@ var (
 )
 
 // isNullOutpoint determines whether or not a previous transaction output point is set.
-func isNullOutpoint(outpoint *wire.OutPoint) bool {
+func isNullOutpoint(
+	outpoint *wire.OutPoint) bool {
 	if outpoint.Index == math.MaxUint32 && outpoint.Hash == zeroHash {
 		return true
 	}
@@ -50,12 +51,14 @@ func isNullOutpoint(outpoint *wire.OutPoint) bool {
 }
 
 // ShouldHaveSerializedBlockHeight determines if a block should have a serialized block height embedded within the scriptSig of its coinbase transaction. Judgement is based on the block version in the block header. Blocks with version 2 and above satisfy this criteria. See BIP0034 for further information.
-func ShouldHaveSerializedBlockHeight(header *wire.BlockHeader) bool {
+func ShouldHaveSerializedBlockHeight(
+	header *wire.BlockHeader) bool {
 	return header.Version >= serializedHeightVersion
 }
 
 // IsCoinBaseTx determines whether or not a transaction is a coinbase.  A coinbase is a special transaction created by miners that has no inputs.  This is represented in the block chain by a transaction with a single input that has a previous output transaction index set to the maximum value along with a zero hash. This function only differs from IsCoinBase in that it works with a raw wire transaction as opposed to a higher level util transaction.
-func IsCoinBaseTx(msgTx *wire.MsgTx) bool {
+func IsCoinBaseTx(
+	msgTx *wire.MsgTx) bool {
 	// A coin base must only have one transaction input.
 	if len(msgTx.TxIn) != 1 {
 		return false
@@ -69,12 +72,14 @@ func IsCoinBaseTx(msgTx *wire.MsgTx) bool {
 }
 
 // IsCoinBase determines whether or not a transaction is a coinbase.  A coinbase is a special transaction created by miners that has no inputs.  This is represented in the block chain by a transaction with a single input that has a previous output transaction index set to the maximum value along with a zero hash. This function only differs from IsCoinBaseTx in that it works with a higher level util transaction as opposed to a raw wire transaction.
-func IsCoinBase(tx *util.Tx) bool {
+func IsCoinBase(
+	tx *util.Tx) bool {
 	return IsCoinBaseTx(tx.MsgTx())
 }
 
 // SequenceLockActive determines if a transaction's sequence locks have been met, meaning that all the inputs of a given transaction have reached a height or time sufficient for their relative lock-time maturity.
-func SequenceLockActive(sequenceLock *SequenceLock, blockHeight int32,
+func SequenceLockActive(
+	sequenceLock *SequenceLock, blockHeight int32,
 	medianTimePast time.Time) bool {
 	// If either the seconds, or height relative-lock time has not yet reached, then the transaction is not yet mature according to its sequence locks.
 	if sequenceLock.Seconds >= medianTimePast.Unix() ||
@@ -85,7 +90,8 @@ func SequenceLockActive(sequenceLock *SequenceLock, blockHeight int32,
 }
 
 // IsFinalizedTransaction determines whether or not a transaction is finalized.
-func IsFinalizedTransaction(tx *util.Tx, blockHeight int32, blockTime time.Time) bool {
+func IsFinalizedTransaction(
+	tx *util.Tx, blockHeight int32, blockTime time.Time) bool {
 	msgTx := tx.MsgTx()
 	// Lock time of zero means the transaction is finalized.
 	lockTime := msgTx.LockTime
@@ -112,7 +118,8 @@ func IsFinalizedTransaction(tx *util.Tx, blockHeight int32, blockTime time.Time)
 }
 
 // isBIP0030Node returns whether or not the passed node represents one of the two blocks that violate the BIP0030 rule which prevents transactions from overwriting old ones.
-func isBIP0030Node(node *blockNode) bool {
+func isBIP0030Node(
+	node *blockNode) bool {
 	if node.height == 91842 && node.hash.IsEqual(block91842Hash) {
 		return true
 	}
@@ -124,7 +131,8 @@ func isBIP0030Node(node *blockNode) bool {
 
 // CalcBlockSubsidy returns the subsidy amount a block at the provided height should have. This is mainly used for determining how much the coinbase for newly generated blocks awards as well as validating the coinbase for blocks has the expected value. The subsidy is halved every SubsidyReductionInterval blocks.  Mathematically this is: baseSubsidy / 2^(height/SubsidyReductionInterval) At the target block generation rate for the main network, this is approximately every 4 years.
 // TODO: Add an exponential decay that returns the point on a precise 1/x^2 curve that creates exactly 5% reward at 1 year (31536000 seconds)
-func CalcBlockSubsidy(height int32, chainParams *chaincfg.Params) (r int64) {
+func CalcBlockSubsidy(
+	height int32, chainParams *chaincfg.Params) (r int64) {
 	if chainParams.SubsidyReductionInterval == 0 {
 		return baseSubsidy
 	}
@@ -140,7 +148,8 @@ func CalcBlockSubsidy(height int32, chainParams *chaincfg.Params) (r int64) {
 }
 
 // CheckTransactionSanity performs some preliminary checks on a transaction to ensure it is sane.  These checks are context free.
-func CheckTransactionSanity(tx *util.Tx) error {
+func CheckTransactionSanity(
+	tx *util.Tx) error {
 	// A transaction must have at least one input.
 	msgTx := tx.MsgTx()
 	if len(msgTx.TxIn) == 0 {
@@ -221,7 +230,8 @@ func CheckTransactionSanity(tx *util.Tx) error {
 
 // checkProofOfWork ensures the block header bits which indicate the target difficulty is in min/max range and that the block hash is less than the target difficulty as claimed. The flags modify the behavior of this function as follows:
 //  - BFNoPoWCheck: The check to ensure the block hash is less than the target difficulty is not performed.
-func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags BehaviorFlags, height int32) error {
+func checkProofOfWork(
+	header *wire.BlockHeader, powLimit *big.Int, flags BehaviorFlags, height int32) error {
 	log <- cl.Trc("checkProofOfWork")
 	// The target difficulty must be larger than zero.
 	if powLimit == nil {
@@ -255,12 +265,14 @@ func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags Behavio
 }
 
 // CheckProofOfWork ensures the block header bits which indicate the target difficulty is in min/max range and that the block hash is less than the target difficulty as claimed.
-func CheckProofOfWork(block *util.Block, powLimit *big.Int, height int32) error {
+func CheckProofOfWork(
+	block *util.Block, powLimit *big.Int, height int32) error {
 	return checkProofOfWork(&block.MsgBlock().Header, powLimit, BFNone, height)
 }
 
 // CountSigOps returns the number of signature operations for all transaction input and output scripts in the provided transaction.  This uses the quicker, but imprecise, signature operation counting mechanism from txscript.
-func CountSigOps(tx *util.Tx) int {
+func CountSigOps(
+	tx *util.Tx) int {
 	msgTx := tx.MsgTx()
 	// Accumulate the number of signature operations in all transaction inputs.
 	totalSigOps := 0
@@ -278,7 +290,8 @@ func CountSigOps(tx *util.Tx) int {
 }
 
 // CountP2SHSigOps returns the number of signature operations for all input transactions which are of the pay-to-script-hash type.  This uses the precise, signature operation counting mechanism from the script engine which requires access to the input transaction scripts.
-func CountP2SHSigOps(tx *util.Tx, isCoinBaseTx bool, utxoView *UtxoViewpoint) (int, error) {
+func CountP2SHSigOps(
+	tx *util.Tx, isCoinBaseTx bool, utxoView *UtxoViewpoint) (int, error) {
 	// Coinbase transactions have no interesting inputs.
 	if isCoinBaseTx {
 		return 0, nil
@@ -317,7 +330,8 @@ func CountP2SHSigOps(tx *util.Tx, isCoinBaseTx bool, utxoView *UtxoViewpoint) (i
 }
 
 // checkBlockHeaderSanity performs some preliminary checks on a block header to ensure it is sane before continuing with processing.  These checks are context free. The flags do not modify the behavior of this function directly, however they are needed to pass along to checkProofOfWork.
-func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, height int32, testnet bool) error {
+func checkBlockHeaderSanity(
+	header *wire.BlockHeader, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, height int32, testnet bool) error {
 	log <- cl.Trc("checkBlockHeaderSanity")
 
 	// Ensure the proof of work bits in the block header is in min/max range and the block hash is less than the target value described by the bits.
@@ -343,7 +357,8 @@ func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSou
 }
 
 // checkBlockSanity performs some preliminary checks on a block to ensure it is sane before continuing with block processing.  These checks are context free. The flags do not modify the behavior of this function directly, however they are needed to pass along to checkBlockHeaderSanity.
-func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, DoNotCheckPow bool, height int32) error {
+func checkBlockSanity(
+	block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, DoNotCheckPow bool, height int32) error {
 	log <- cl.Trc("checkBlockSanity")
 	msgBlock := block.MsgBlock()
 	header := &msgBlock.Header
@@ -432,12 +447,14 @@ func checkBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTim
 }
 
 // CheckBlockSanity performs some preliminary checks on a block to ensure it is sane before continuing with block processing.  These checks are context free.
-func CheckBlockSanity(block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, DoNotCheckPow bool, height int32, testnet bool) error {
+func CheckBlockSanity(
+	block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, DoNotCheckPow bool, height int32, testnet bool) error {
 	return checkBlockSanity(block, powLimit, timeSource, BFNone, DoNotCheckPow, height)
 }
 
 // ExtractCoinbaseHeight attempts to extract the height of the block from the scriptSig of a coinbase transaction.  Coinbase heights are only present in blocks of version 2 or later.  This was added as part of BIP0034.
-func ExtractCoinbaseHeight(coinbaseTx *util.Tx) (int32, error) {
+func ExtractCoinbaseHeight(
+	coinbaseTx *util.Tx) (int32, error) {
 	sigScript := coinbaseTx.MsgTx().TxIn[0].SignatureScript
 	if len(sigScript) < 1 {
 		str := "the coinbase signature script for blocks of " +
@@ -470,7 +487,8 @@ func ExtractCoinbaseHeight(coinbaseTx *util.Tx) (int32, error) {
 }
 
 // checkSerializedHeight checks if the signature script in the passed transaction starts with the serialized block height of wantHeight.
-func checkSerializedHeight(coinbaseTx *util.Tx, wantHeight int32) error {
+func checkSerializedHeight(
+	coinbaseTx *util.Tx, wantHeight int32) error {
 	serializedHeight, err := ExtractCoinbaseHeight(coinbaseTx)
 	if err != nil {
 		return err
@@ -644,7 +662,8 @@ func (b *BlockChain) checkBIP0030(node *blockNode, block *util.Block, view *Utxo
 
 // CheckTransactionInputs performs a series of checks on the inputs to a transaction to ensure they are valid.  An example of some of the checks include verifying all inputs exist, ensuring the coinbase seasoning requirements are met, detecting double spends, validating all values and fees are in the legal range and the total output amount doesn't exceed the input amount, and verifying the signatures to prove the spender was the owner of the bitcoins and therefore allowed to spend them.  As it checks the inputs, it also calculates the total fees for the transaction and returns that value.
 // NOTE: The transaction MUST have already been sanity checked with the CheckTransactionSanity function prior to calling this function.
-func CheckTransactionInputs(tx *util.Tx, txHeight int32, utxoView *UtxoViewpoint, chainParams *chaincfg.Params) (int64, error) {
+func CheckTransactionInputs(
+	tx *util.Tx, txHeight int32, utxoView *UtxoViewpoint, chainParams *chaincfg.Params) (int64, error) {
 	// Coinbase transactions have no inputs.
 	if IsCoinBase(tx) {
 		return 0, nil

@@ -15,7 +15,8 @@ import (
 // and be performed much faster than it is with hard-coding the final in-memory
 // data structure.  At the same time, it is quite fast to generate the in-memory
 // data structure at init time with this approach versus computing the table.
-func loadS256BytePoints() error {
+func loadS256BytePoints(
+	) error {
 	// There will be no byte points to load when generating them.
 	bp := secp256k1BytePoints
 	if len(bp) == 0 {

@@ -9,7 +9,8 @@ import (
 )
 
 // convertErr converts some bolt errors to the equivalent walletdb error.
-func convertErr(err error) error {
+func convertErr(
+	err error) error {
 	switch err {
 	// Database open/create errors.
 	case bolt.ErrDatabaseNotOpen:
@@ -307,7 +308,8 @@ func (db *db) Close() error {
 }
 
 // filesExists reports whether the named file or directory exists.
-func fileExists(name string) bool {
+func fileExists(
+	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -318,7 +320,8 @@ func fileExists(name string) bool {
 
 // openDB opens the database at the provided path.  walletdb.ErrDbDoesNotExist
 // is returned if the database doesn't exist and the create flag is not set.
-func openDB(dbPath string, create bool) (walletdb.DB, error) {
+func openDB(
+	dbPath string, create bool) (walletdb.DB, error) {
 	if !create && !fileExists(dbPath) {
 		return nil, walletdb.ErrDbDoesNotExist
 	}

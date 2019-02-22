@@ -9,7 +9,8 @@ import (
 )
 
 // TestHeaders tests the MsgHeaders API.
-func TestHeaders(t *testing.T) {
+func TestHeaders(
+	t *testing.T) {
 	pver := uint32(60002)
 	// Ensure the command is expected value.
 	wantCmd := "headers"
@@ -46,7 +47,8 @@ func TestHeaders(t *testing.T) {
 }
 
 // TestHeadersWire tests the MsgHeaders wire encode and decode for various numbers of headers and protocol versions.
-func TestHeadersWire(t *testing.T) {
+func TestHeadersWire(
+	t *testing.T) {
 	hash := mainNetGenesisHash
 	merkleHash := blockOne.Header.MerkleRoot
 	bits := uint32(0x1d00ffff)
@@ -197,7 +199,8 @@ func TestHeadersWire(t *testing.T) {
 }
 
 // TestHeadersWireErrors performs negative tests against wire encode and decode of MsgHeaders to confirm error paths work correctly.
-func TestHeadersWireErrors(t *testing.T) {
+func TestHeadersWireErrors(
+	t *testing.T) {
 	pver := ProtocolVersion
 	wireErr := &MessageError{}
 	hash := mainNetGenesisHash

@@ -79,7 +79,8 @@ func (msg *MsgNotFound) MaxPayloadLength(pver uint32) uint32 {
 }
 
 // NewMsgNotFound returns a new bitcoin notfound message that conforms to the Message interface.  See MsgNotFound for details.
-func NewMsgNotFound() *MsgNotFound {
+func NewMsgNotFound(
+	) *MsgNotFound {
 	return &MsgNotFound{
 		InvList: make([]*InvVect, 0, defaultInvListAlloc),
 	}

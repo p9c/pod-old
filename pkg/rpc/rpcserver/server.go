@@ -53,12 +53,14 @@ const (
 // This function is by no means complete and should be expanded based on other
 // known errors.  Any RPC handler not returning a gRPC error (with grpc.Errorf)
 // should return this result instead.
-func translateError(err error) error {
+func translateError(
+	err error) error {
 	code := errorCode(err)
 	return grpc.Errorf(code, "%s", err.Error())
 }
 
-func errorCode(err error) codes.Code {
+func errorCode(
+	err error) codes.Code {
 	// waddrmgr.IsError is convenient, but not granular enough when the
 	// underlying error has to be checked.  Unwrap the underlying error
 	// if it exists.
@@ -116,7 +118,8 @@ type loaderServer struct {
 
 // StartVersionService creates an implementation of the VersionService and
 // registers it with the gRPC server.
-func StartVersionService(server *grpc.Server) {
+func StartVersionService(
+	server *grpc.Server) {
 	pb.RegisterVersionServiceServer(server, &versionServer{})
 }
 
@@ -131,7 +134,8 @@ func (*versionServer) Version(ctx context.Context, req *pb.VersionRequest) (*pb.
 
 // StartWalletService creates an implementation of the WalletService and
 // registers it with the gRPC server.
-func StartWalletService(server *grpc.Server, wallet *wallet.Wallet) {
+func StartWalletService(
+	server *grpc.Server, wallet *wallet.Wallet) {
 	service := &walletServer{wallet}
 	pb.RegisterWalletServiceServer(server, service)
 }
@@ -299,14 +303,16 @@ func (s *walletServer) Balance(ctx context.Context, req *pb.BalanceRequest) (
 
 // confirmed checks whether a transaction at height txHeight has met minconf
 // confirmations for a blockchain at height curHeight.
-func confirmed(minconf, txHeight, curHeight int32) bool {
+func confirmed(
+	minconf, txHeight, curHeight int32) bool {
 	return confirms(txHeight, curHeight) >= minconf
 }
 
 // confirms returns the number of confirmations for a transaction in a block at
 // height txHeight (or -1 for an unconfirmed tx) given the chain height
 // curHeight.
-func confirms(txHeight, curHeight int32) int32 {
+func confirms(
+	txHeight, curHeight int32) int32 {
 	switch {
 	case txHeight == -1, txHeight > curHeight:
 		return 0
@@ -364,7 +370,8 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 	}, nil
 }
 
-func marshalGetTransactionsResult(wresp *wallet.GetTransactionsResult) (
+func marshalGetTransactionsResult(
+	wresp *wallet.GetTransactionsResult) (
 	*pb.GetTransactionsResponse, error) {
 
 	resp := &pb.GetTransactionsResponse{
@@ -525,7 +532,8 @@ func (s *walletServer) PublishTransaction(ctx context.Context, req *pb.PublishTr
 	return &pb.PublishTransactionResponse{}, nil
 }
 
-func marshalTransactionInputs(v []wallet.TransactionSummaryInput) []*pb.TransactionDetails_Input {
+func marshalTransactionInputs(
+	v []wallet.TransactionSummaryInput) []*pb.TransactionDetails_Input {
 	inputs := make([]*pb.TransactionDetails_Input, len(v))
 	for i := range v {
 		input := &v[i]
@@ -538,7 +546,8 @@ func marshalTransactionInputs(v []wallet.TransactionSummaryInput) []*pb.Transact
 	return inputs
 }
 
-func marshalTransactionOutputs(v []wallet.TransactionSummaryOutput) []*pb.TransactionDetails_Output {
+func marshalTransactionOutputs(
+	v []wallet.TransactionSummaryOutput) []*pb.TransactionDetails_Output {
 	outputs := make([]*pb.TransactionDetails_Output, len(v))
 	for i := range v {
 		output := &v[i]
@@ -551,7 +560,8 @@ func marshalTransactionOutputs(v []wallet.TransactionSummaryOutput) []*pb.Transa
 	return outputs
 }
 
-func marshalTransactionDetails(v []wallet.TransactionSummary) []*pb.TransactionDetails {
+func marshalTransactionDetails(
+	v []wallet.TransactionSummary) []*pb.TransactionDetails {
 	txs := make([]*pb.TransactionDetails, len(v))
 	for i := range v {
 		tx := &v[i]
@@ -567,7 +577,8 @@ func marshalTransactionDetails(v []wallet.TransactionSummary) []*pb.TransactionD
 	return txs
 }
 
-func marshalBlocks(v []wallet.Block) []*pb.BlockDetails {
+func marshalBlocks(
+	v []wallet.Block) []*pb.BlockDetails {
 	blocks := make([]*pb.BlockDetails, len(v))
 	for i := range v {
 		block := &v[i]
@@ -581,7 +592,8 @@ func marshalBlocks(v []wallet.Block) []*pb.BlockDetails {
 	return blocks
 }
 
-func marshalHashes(v []*chainhash.Hash) [][]byte {
+func marshalHashes(
+	v []*chainhash.Hash) [][]byte {
 	hashes := make([][]byte, len(v))
 	for i, hash := range v {
 		hashes[i] = hash[:]
@@ -589,7 +601,8 @@ func marshalHashes(v []*chainhash.Hash) [][]byte {
 	return hashes
 }
 
-func marshalAccountBalances(v []wallet.AccountBalance) []*pb.AccountBalance {
+func marshalAccountBalances(
+	v []wallet.AccountBalance) []*pb.AccountBalance {
 	balances := make([]*pb.AccountBalance, len(v))
 	for i := range v {
 		balance := &v[i]
@@ -699,7 +712,8 @@ func (s *walletServer) AccountNotifications(req *pb.AccountNotificationsRequest,
 
 // StartWalletLoaderService creates an implementation of the WalletLoaderService
 // and registers it with the gRPC server.
-func StartWalletLoaderService(server *grpc.Server, loader *wallet.Loader,
+func StartWalletLoaderService(
+	server *grpc.Server, loader *wallet.Loader,
 	activeNet *netparams.Params) {
 
 	service := &loaderServer{loader: loader, activeNet: activeNet}

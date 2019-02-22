@@ -23,7 +23,8 @@ import (
 
 // openRPCKeyPair creates or loads the RPC TLS keypair specified by the
 // application config.  This function respects the cfg.OneTimeTLSKey setting.
-func openRPCKeyPair() (tls.Certificate, error) {
+func openRPCKeyPair(
+	) (tls.Certificate, error) {
 	// Check for existence of the TLS key file.  If one time TLS keys are
 	// enabled but a key already exists, this function should error since
 	// it's possible that a persistent certificate was copied to a remote
@@ -50,7 +51,8 @@ func openRPCKeyPair() (tls.Certificate, error) {
 // generateRPCKeyPair generates a new RPC TLS keypair and writes the cert and
 // possibly also the key in PEM format to the paths specified by the config.  If
 // successful, the new keypair is returned.
-func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
+func generateRPCKeyPair(
+	writeKey bool) (tls.Certificate, error) {
 	log <- cl.Inf("generating TLS certificates...")
 
 	// Create directories for cert and key files if they do not yet exist.
@@ -97,7 +99,8 @@ func generateRPCKeyPair(writeKey bool) (tls.Certificate, error) {
 	return keyPair, nil
 }
 
-func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
+func startRPCServers(
+	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
 	log <- cl.Trc("startRPCServers")
 	var (
 		server       *grpc.Server
@@ -172,12 +175,14 @@ func startRPCServers(walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Serv
 	return server, legacyServer, nil
 }
 
-type listenFunc func(net string, laddr string) (net.Listener, error)
+type listenFunc func(
+	net string, laddr string) (net.Listener, error)
 
 // makeListeners splits the normalized listen addresses into IPv4 and IPv6
 // addresses and creates new net.Listeners for each with the passed listen func.
 // Invalid addresses are logged and skipped.
-func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.Listener {
+func makeListeners(
+	normalizedListenAddrs []string, listen listenFunc) []net.Listener {
 	ipv4Addrs := make([]string, 0, len(normalizedListenAddrs)*2)
 	ipv6Addrs := make([]string, 0, len(normalizedListenAddrs)*2)
 	for _, addr := range normalizedListenAddrs {
@@ -245,7 +250,8 @@ func makeListeners(normalizedListenAddrs []string, listen listenFunc) []net.List
 // with a wallet to enable remote wallet access.  For the GRPC server, this
 // registers the WalletService service, and for the legacy JSON-RPC server it
 // enables methods that require a loaded wallet.
-func startWalletRPCServices(wallet *wallet.Wallet, server *grpc.Server, legacyServer *legacyrpc.Server) {
+func startWalletRPCServices(
+	wallet *wallet.Wallet, server *grpc.Server, legacyServer *legacyrpc.Server) {
 	if server != nil {
 		rpcserver.StartWalletService(server, wallet)
 	}

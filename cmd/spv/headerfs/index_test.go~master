@@ -11,7 +11,8 @@ import (
 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
 )
 
-func createTestIndex() (func(), *headerIndex, error) {
+func createTestIndex(
+	) (func(), *headerIndex, error) {
 	tempDir, err := ioutil.TempDir("", "neutrino")
 	if err != nil {
 		return nil, nil, err
@@ -35,7 +36,8 @@ func createTestIndex() (func(), *headerIndex, error) {
 	return cleanUp, filterDB, nil
 }
 
-func TestAddHeadersIndexRetrieve(t *testing.T) {
+func TestAddHeadersIndexRetrieve(
+	t *testing.T) {
 	cleanUp, hIndex, err := createTestIndex()
 	defer cleanUp()
 	if err != nil {

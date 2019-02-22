@@ -267,7 +267,8 @@ func (c *Controller) IsMining() bool {
 }
 
 // New returns a new instance of a CPU miner for the provided configuration. Use Start to begin the mining process.  See the documentation for Controller type for more details.
-func New(cfg *Config) *Controller {
+func New(
+	cfg *Config) *Controller {
 	return &Controller{
 		b:   cfg.Blockchain,
 		g:   cfg.BlockTemplateGenerator,

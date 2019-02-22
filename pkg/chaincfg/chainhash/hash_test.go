@@ -15,7 +15,8 @@ var mainNetGenesisHash = Hash([HashSize]byte{ // Make go vet happy.
 })
 
 // TestHash tests the Hash API.
-func TestHash(t *testing.T) {
+func TestHash(
+	t *testing.T) {
 	// Hash of block 234439.
 	blockHashStr := "14a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
 	blockHash, err := NewHashFromStr(blockHashStr)
@@ -78,7 +79,8 @@ func TestHash(t *testing.T) {
 }
 
 // TestHashString  tests the stringized output for hashes.
-func TestHashString(t *testing.T) {
+func TestHashString(
+	t *testing.T) {
 	// Block 100000 hash.
 	wantStr := "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 	hash := Hash([HashSize]byte{ // Make go vet happy.
@@ -95,7 +97,8 @@ func TestHashString(t *testing.T) {
 }
 
 // TestNewHashFromStr executes tests against the NewHashFromStr function.
-func TestNewHashFromStr(t *testing.T) {
+func TestNewHashFromStr(
+	t *testing.T) {
 	tests := []struct {
 		in   string
 		want Hash

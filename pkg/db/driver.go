@@ -22,7 +22,8 @@ type Driver struct {
 var drivers = make(map[string]*Driver)
 
 // RegisterDriver adds a backend database driver to available interfaces. ErrDbTypeRegistered will be returned if the database type for the driver has already been registered.
-func RegisterDriver(driver Driver) error {
+func RegisterDriver(
+	driver Driver) error {
 	if _, exists := drivers[driver.DbType]; exists {
 		str := fmt.Sprintf("driver %q is already registered",
 			driver.DbType)
@@ -33,7 +34,8 @@ func RegisterDriver(driver Driver) error {
 }
 
 // SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
-func SupportedDrivers() []string {
+func SupportedDrivers(
+	) []string {
 	supportedDBs := make([]string, 0, len(drivers))
 	for _, drv := range drivers {
 		supportedDBs = append(supportedDBs, drv.DbType)
@@ -42,7 +44,8 @@ func SupportedDrivers() []string {
 }
 
 // Create initializes and opens a database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
-func Create(dbType string, args ...interface{}) (DB, error) {
+func Create(
+	dbType string, args ...interface{}) (DB, error) {
 	drv, exists := drivers[dbType]
 	if !exists {
 		str := fmt.Sprintf("driver %q is not registered", dbType)
@@ -52,7 +55,8 @@ func Create(dbType string, args ...interface{}) (DB, error) {
 }
 
 // Open opens an existing database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
-func Open(dbType string, args ...interface{}) (DB, error) {
+func Open(
+	dbType string, args ...interface{}) (DB, error) {
 	drv, exists := drivers[dbType]
 	if !exists {
 		str := fmt.Sprintf("driver %q is not registered", dbType)

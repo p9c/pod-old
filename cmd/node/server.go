@@ -2075,7 +2075,8 @@ func (
 
 /*	addLocalAddress adds an address that this node is listening on to the
 	address manager so that it may be relayed to peers. */
-func addLocalAddress(addrMgr *addrmgr.AddrManager, addr string, services wire.ServiceFlag) error {
+func addLocalAddress(
+	addrMgr *addrmgr.AddrManager, addr string, services wire.ServiceFlag) error {
 	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
 		return err
@@ -2117,7 +2118,8 @@ func addLocalAddress(addrMgr *addrmgr.AddrManager, addr string, services wire.Se
 	a net.Addr which maps to the original address with any host names resolved
 	to IP addresses.  It also handles tor addresses properly by returning a
 	net.Addr that encapsulates the address. */
-func addrStringToNetAddr(addr string) (net.Addr, error) {
+func addrStringToNetAddr(
+	addr string) (net.Addr, error) {
 	host, strPort, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, err
@@ -2155,7 +2157,9 @@ func addrStringToNetAddr(addr string) (net.Addr, error) {
 }
 
 // disconnectPeer attempts to drop the connection of a targeted peer in the passed peer list. Targets are identified via usage of the passed `compareFunc`, which should return `true` if the passed peer is the target peer. This function returns true on success and false if the peer is unable to be located. If the peer is found, and the passed callback: `whenFound' isn't nil, we call it with the peer as the argument before it is removed from the peerList, and is disconnected from the server.
-func disconnectPeer(peerList map[int32]*serverPeer, compareFunc func(*serverPeer) bool, whenFound func(*serverPeer)) bool {
+func disconnectPeer(
+	peerList map[int32]*serverPeer, compareFunc func(
+	*serverPeer) bool, whenFound func(*serverPeer)) bool {
 	for addr, peer := range peerList {
 		if compareFunc(peer) {
 			if whenFound != nil {
@@ -2174,7 +2178,8 @@ func disconnectPeer(peerList map[int32]*serverPeer, compareFunc func(*serverPeer
 	tick duration based on remaining time.  It is primarily used during
 	server shutdown to make shutdown warnings more frequent as the shutdown time
 	approaches. */
-func dynamicTickDuration(remaining time.Duration) time.Duration {
+func dynamicTickDuration(
+	remaining time.Duration) time.Duration {
 	switch {
 	case remaining <= time.Second*5:
 		return time.Second
@@ -2193,14 +2198,16 @@ func dynamicTickDuration(remaining time.Duration) time.Duration {
 }
 
 // hasServices returns whether or not the provided advertised service flags have all of the provided desired service flags set.
-func hasServices(advertised, desired wire.ServiceFlag) bool {
+func hasServices(
+	advertised, desired wire.ServiceFlag) bool {
 	return advertised&desired == desired
 }
 
 /*	initListeners initializes the configured net listeners and adds any bound
 	addresses to the address manager. Returns the listeners and a NAT interface,
 	which is non-nil if UPnP is in use. */
-func initListeners(amgr *addrmgr.AddrManager, listenAddrs []string, services wire.ServiceFlag) ([]net.Listener, NAT, error) {
+func initListeners(
+	amgr *addrmgr.AddrManager, listenAddrs []string, services wire.ServiceFlag) ([]net.Listener, NAT, error) {
 	// Listen for TCP connections at the configured addresses
 	netAddrs, err := parseListeners(listenAddrs)
 	if err != nil {
@@ -2271,7 +2278,8 @@ func initListeners(amgr *addrmgr.AddrManager, listenAddrs []string, services wir
 
 /*	isWhitelisted returns whether the IP address is included in the whitelisted
 	networks and IPs. */
-func isWhitelisted(addr net.Addr) bool {
+func isWhitelisted(
+	addr net.Addr) bool {
 	if len(StateCfg.ActiveWhitelists) == 0 {
 		return false
 	}
@@ -2298,7 +2306,8 @@ func isWhitelisted(addr net.Addr) bool {
 	checkpoints contain a checkpoint with the same height as a checkpoint in the
 	default checkpoints, the additional checkpoint will take precedence and
 	overwrite the default one. */
-func mergeCheckpoints(defaultCheckpoints, additional []chaincfg.Checkpoint) []chaincfg.Checkpoint {
+func mergeCheckpoints(
+	defaultCheckpoints, additional []chaincfg.Checkpoint) []chaincfg.Checkpoint {
 	/*	Create a map of the additional checkpoints to remove duplicates while
 		leaving the most recently-specified checkpoint. */
 	extra := make(map[int32]chaincfg.Checkpoint)
@@ -2322,7 +2331,8 @@ func mergeCheckpoints(defaultCheckpoints, additional []chaincfg.Checkpoint) []ch
 }
 
 // newPeerConfig returns the configuration for the given serverPeer.
-func newPeerConfig(sp *serverPeer) *peer.Config {
+func newPeerConfig(
+	sp *serverPeer) *peer.Config {
 	return &peer.Config{
 		Listeners: peer.MessageListeners{
 			OnVersion:      sp.OnVersion,
@@ -2363,7 +2373,8 @@ func newPeerConfig(sp *serverPeer) *peer.Config {
 }
 
 // newServer returns a new pod server configured to listen on addr for the bitcoin network type specified by chainParams.  Use start to begin accepting connections from peers.
-func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interruptChan <-chan struct{}, algo string) (*server, error) {
+func newServer(
+	listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interruptChan <-chan struct{}, algo string) (*server, error) {
 	services := defaultServices
 	if cfg.NoPeerBloomFilters {
 		services &^= wire.SFNodeBloom
@@ -2564,7 +2575,8 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		specified peers and actively avoid advertising and connecting to
 		discovered peers in order to prevent it from becoming a public test
 		network. */
-	var newAddressFunc func() (net.Addr, error)
+	var newAddressFunc func(
+	) (net.Addr, error)
 	if !cfg.SimNet && len(cfg.ConnectPeers) == 0 {
 		newAddressFunc = func() (net.Addr, error) {
 			for tries := 0; tries < 100; tries++ {
@@ -2679,7 +2691,8 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 }
 
 // newServerPeer returns a new serverPeer instance. The peer needs to be set by the caller.
-func newServerPeer(s *server, isPersistent bool) *serverPeer {
+func newServerPeer(
+	s *server, isPersistent bool) *serverPeer {
 	return &serverPeer{
 		server:         s,
 		persistent:     isPersistent,
@@ -2692,7 +2705,8 @@ func newServerPeer(s *server, isPersistent bool) *serverPeer {
 }
 
 // parseListeners determines whether each listen address is IPv4 and IPv6 and returns a slice of appropriate net.Addrs to listen on with TCP. It also properly detects addresses which apply to "all interfaces" and adds the address as both IPv4 and IPv6.
-func parseListeners(addrs []string) ([]net.Addr, error) {
+func parseListeners(
+	addrs []string) ([]net.Addr, error) {
 	netAddrs := make([]net.Addr, 0, len(addrs)*2)
 	for _, addr := range addrs {
 		host, _, err := net.SplitHostPort(addr)
@@ -2727,7 +2741,8 @@ func parseListeners(addrs []string) ([]net.Addr, error) {
 }
 
 // randomUint16Number returns a random uint16 in a specified input range.  Note that the range is in zeroth ordering; if you pass it 1800, you will get values from 0 to 1800.
-func randomUint16Number(max uint16) uint16 {
+func randomUint16Number(
+	max uint16) uint16 {
 	// In order to avoid modulo bias and ensure every possible outcome in [0, max) has equal probability, the random number must be sampled from a random source that has a range limited to a multiple of the modulus.
 	var randomNumber uint16
 	var limitRange = (math.MaxUint16 / max) * max
@@ -2740,7 +2755,8 @@ func randomUint16Number(max uint16) uint16 {
 }
 
 // setupRPCListeners returns a slice of listeners that are configured for use with the RPC server depending on the configuration settings for listen addresses and TLS.
-func setupRPCListeners(urls []string) ([]net.Listener, error) {
+func setupRPCListeners(
+	urls []string) ([]net.Listener, error) {
 	// Setup TLS if not disabled.
 	listenFunc := net.Listen
 	if cfg.TLS {

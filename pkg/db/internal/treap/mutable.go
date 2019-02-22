@@ -217,6 +217,7 @@ func (t *Mutable) Reset() {
 }
 
 // NewMutable returns a new empty mutable treap ready for use.  See the documentation for the Mutable structure for more details.
-func NewMutable() *Mutable {
+func NewMutable(
+	) *Mutable {
 	return &Mutable{}
 }

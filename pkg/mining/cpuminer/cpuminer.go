@@ -515,7 +515,8 @@ func (m *CPUMiner) GenerateNBlocks(n uint32, algo string) ([]*chainhash.Hash, er
 }
 
 // New returns a new instance of a CPU miner for the provided configuration. Use Start to begin the mining process.  See the documentation for CPUMiner type for more details.
-func New(cfg *Config) *CPUMiner {
+func New(
+	cfg *Config) *CPUMiner {
 	return &CPUMiner{
 		b:                 cfg.Blockchain,
 		g:                 cfg.BlockTemplateGenerator,

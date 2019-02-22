@@ -597,7 +597,8 @@ func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.S
 }
 
 // ipString returns a string for the ip from the provided NetAddress. If the ip is in the range used for Tor addresses then it will be transformed into the relevant .onion address.
-func ipString(na *wire.NetAddress) string {
+func ipString(
+	na *wire.NetAddress) string {
 	if IsOnionCatTor(na) {
 		// We know now that na.IP is long enough.
 		base32 := base32.StdEncoding.EncodeToString(na.IP[6:])
@@ -607,7 +608,8 @@ func ipString(na *wire.NetAddress) string {
 }
 
 // NetAddressKey returns a string key in the form of ip:port for IPv4 addresses or [ip]:port for IPv6 addresses.
-func NetAddressKey(na *wire.NetAddress) string {
+func NetAddressKey(
+	na *wire.NetAddress) string {
 	port := strconv.FormatUint(uint64(na.Port), 10)
 	return net.JoinHostPort(ipString(na), port)
 }
@@ -819,7 +821,8 @@ func (a *AddrManager) AddLocalAddress(na *wire.NetAddress, priority AddressPrior
 }
 
 // getReachabilityFrom returns the relative reachability of the provided local address to the provided remote address.
-func getReachabilityFrom(localAddr, remoteAddr *wire.NetAddress) int {
+func getReachabilityFrom(
+	localAddr, remoteAddr *wire.NetAddress) int {
 	const (
 		Unreachable = 0
 		Default     = iota
@@ -915,7 +918,9 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 }
 
 // New returns a new bitcoin address manager. Use Start to begin processing asynchronous address updates.
-func New(dataDir string, lookupFunc func(string) ([]net.IP, error)) *AddrManager {
+func New(
+	dataDir string, lookupFunc func(
+	string) ([]net.IP, error)) *AddrManager {
 	am := AddrManager{
 		peersFile:      filepath.Join(dataDir, "peers.json"),
 		lookupFunc:     lookupFunc,

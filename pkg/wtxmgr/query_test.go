@@ -23,7 +23,8 @@ type queryState struct {
 	txDetails map[chainhash.Hash][]TxDetails
 }
 
-func newQueryState() *queryState {
+func newQueryState(
+	) *queryState {
 	return &queryState{
 		txDetails: make(map[chainhash.Hash][]TxDetails),
 	}
@@ -49,7 +50,8 @@ func (q *queryState) deepCopy() *queryState {
 	return cpy
 }
 
-func deepCopyTxDetails(d *TxDetails) *TxDetails {
+func deepCopyTxDetails(
+	d *TxDetails) *TxDetails {
 	cpy := *d
 	cpy.MsgTx = *d.MsgTx.Copy()
 	if cpy.SerializedTx != nil {
@@ -146,7 +148,8 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 	return nil
 }
 
-func equalTxDetails(got, exp *TxDetails) error {
+func equalTxDetails(
+	got, exp *TxDetails) error {
 	// Need to avoid using reflect.DeepEqual against slices, since it
 	// returns false for nil vs non-nil zero length slices.
 	if err := equalTxs(&got.MsgTx, &exp.MsgTx); err != nil {
@@ -193,7 +196,8 @@ func equalTxDetails(got, exp *TxDetails) error {
 	return nil
 }
 
-func equalTxs(got, exp *wire.MsgTx) error {
+func equalTxs(
+	got, exp *wire.MsgTx) error {
 	var bufGot, bufExp bytes.Buffer
 	err := got.Serialize(&bufGot)
 	if err != nil {
@@ -212,18 +216,21 @@ func equalTxs(got, exp *wire.MsgTx) error {
 }
 
 // Returns time.Now() with seconds resolution, this is what Store saves.
-func timeNow() time.Time {
+func timeNow(
+	) time.Time {
 	return time.Unix(time.Now().Unix(), 0)
 }
 
 // Returns a copy of a TxRecord without the serialized tx.
-func stripSerializedTx(rec *TxRecord) *TxRecord {
+func stripSerializedTx(
+	rec *TxRecord) *TxRecord {
 	ret := *rec
 	ret.SerializedTx = nil
 	return &ret
 }
 
-func makeBlockMeta(height int32) BlockMeta {
+func makeBlockMeta(
+	height int32) BlockMeta {
 	if height == -1 {
 		return BlockMeta{Block: Block{Height: -1}}
 	}
@@ -238,7 +245,8 @@ func makeBlockMeta(height int32) BlockMeta {
 	return b
 }
 
-func TestStoreQueries(t *testing.T) {
+func TestStoreQueries(
+	t *testing.T) {
 	t.Parallel()
 
 	type queryTest struct {
@@ -524,7 +532,8 @@ func TestStoreQueries(t *testing.T) {
 	}
 }
 
-func TestPreviousPkScripts(t *testing.T) {
+func TestPreviousPkScripts(
+	t *testing.T) {
 	t.Parallel()
 
 	s, db, teardown, err := testStore()

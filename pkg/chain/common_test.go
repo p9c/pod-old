@@ -29,7 +29,8 @@ const (
 )
 
 // filesExists returns whether or not the named file or directory exists.
-func fileExists(name string) bool {
+func fileExists(
+	name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -39,7 +40,8 @@ func fileExists(name string) bool {
 }
 
 // isSupportedDbType returns whether or not the passed database type is currently supported.
-func isSupportedDbType(dbType string) bool {
+func isSupportedDbType(
+	dbType string) bool {
 	supportedDrivers := database.SupportedDrivers()
 	for _, driver := range supportedDrivers {
 		if dbType == driver {
@@ -50,7 +52,8 @@ func isSupportedDbType(dbType string) bool {
 }
 
 // loadBlocks reads files containing bitcoin block data (gzipped but otherwise in the format bitcoind writes) from disk and returns them as an array of util.Block.  This is largely borrowed from the test code in podb.
-func loadBlocks(filename string) (blocks []*util.Block, err error) {
+func loadBlocks(
+	filename string) (blocks []*util.Block, err error) {
 	filename = filepath.Join("testdata/", filename)
 	var network = wire.MainNet
 	var dr io.Reader
@@ -97,7 +100,8 @@ func loadBlocks(filename string) (blocks []*util.Block, err error) {
 }
 
 // chainSetup is used to create a new db and chain instance with the genesis block already inserted.  In addition to the new chain instance, it returns a teardown function the caller should invoke when done testing to clean up.
-func chainSetup(dbName string, params *chaincfg.Params) (*BlockChain, func(), error) {
+func chainSetup(
+	dbName string, params *chaincfg.Params) (*BlockChain, func(), error) {
 	if !isSupportedDbType(testDbType) {
 		return nil, nil, fmt.Errorf("unsupported db type %v", testDbType)
 	}
@@ -157,7 +161,8 @@ func chainSetup(dbName string, params *chaincfg.Params) (*BlockChain, func(), er
 }
 
 // loadUtxoView returns a utxo view loaded from a file.
-func loadUtxoView(filename string) (*UtxoViewpoint, error) {
+func loadUtxoView(
+	filename string) (*UtxoViewpoint, error) {
 	// The utxostore file format is:
 	// <tx hash><output index><serialized utxo len><serialized utxo>
 	//
@@ -216,7 +221,8 @@ func loadUtxoView(filename string) (*UtxoViewpoint, error) {
 }
 
 // convertUtxoStore reads a utxostore from the legacy format and writes it back out using the latest format.  It is only useful for converting utxostore data used in the tests, which has already been done.  However, the code is left available for future reference.
-func convertUtxoStore(r io.Reader, w io.Writer) error {
+func convertUtxoStore(
+	r io.Reader, w io.Writer) error {
 	// The old utxostore file format was:
 	// <tx hash><serialized utxo len><serialized utxo>
 	//
@@ -288,7 +294,8 @@ func (b *BlockChain) TstSetCoinbaseMaturity(maturity uint16) {
 }
 
 // newFakeChain returns a chain that is usable for syntetic tests.  It is important to note that this chain has no database associated with it, so it is not usable with all functions and the tests must take care when making use of it.
-func newFakeChain(params *chaincfg.Params) *BlockChain {
+func newFakeChain(
+	params *chaincfg.Params) *BlockChain {
 	// Create a genesis block node and block index index populated with it for use when creating the fake chain below.
 	node := newBlockNode(&params.GenesisBlock.Header, nil)
 	index := newBlockIndex(nil, params)
@@ -310,7 +317,8 @@ func newFakeChain(params *chaincfg.Params) *BlockChain {
 }
 
 // newFakeNode creates a block node connected to the passed parent with the provided fields populated and fake values for the other fields.
-func newFakeNode(parent *blockNode, blockVersion int32, bits uint32, timestamp time.Time) *blockNode {
+func newFakeNode(
+	parent *blockNode, blockVersion int32, bits uint32, timestamp time.Time) *blockNode {
 	// Make up a header and create a block node from it.
 	header := &wire.BlockHeader{
 		Version:   blockVersion,

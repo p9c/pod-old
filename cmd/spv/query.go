@@ -85,7 +85,8 @@ type filterCacheKey struct {
 type QueryOption func(*queryOptions)
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
-func defaultQueryOptions() *queryOptions {
+func defaultQueryOptions(
+	) *queryOptions {
 	return &queryOptions{
 		timeout:            QueryTimeout,
 		numRetries:         uint8(QueryNumRetries),
@@ -103,7 +104,8 @@ func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 
 // Timeout is a query option that lets the query know how long to wait for each
 // peer we ask the query to answer it before moving on.
-func Timeout(timeout time.Duration) QueryOption {
+func Timeout(
+	timeout time.Duration) QueryOption {
 	return func(qo *queryOptions) {
 		qo.timeout = timeout
 	}
@@ -111,7 +113,8 @@ func Timeout(timeout time.Duration) QueryOption {
 
 // NumRetries is a query option that lets the query know the maximum number of
 // times each peer should be queried. The default is one.
-func NumRetries(numRetries uint8) QueryOption {
+func NumRetries(
+	numRetries uint8) QueryOption {
 	return func(qo *queryOptions) {
 		qo.numRetries = numRetries
 	}
@@ -120,7 +123,8 @@ func NumRetries(numRetries uint8) QueryOption {
 // PeerConnectTimeout is a query option that lets the query know how long to
 // wait for the underlying chain service to connect to a peer before giving up
 // on a query in case we don't have any peers.
-func PeerConnectTimeout(timeout time.Duration) QueryOption {
+func PeerConnectTimeout(
+	timeout time.Duration) QueryOption {
 	return func(qo *queryOptions) {
 		qo.peerConnectTimeout = timeout
 	}
@@ -128,7 +132,8 @@ func PeerConnectTimeout(timeout time.Duration) QueryOption {
 
 // Encoding is a query option that allows the caller to set a message encoding
 // for the query messages.
-func Encoding(encoding wire.MessageEncoding) QueryOption {
+func Encoding(
+	encoding wire.MessageEncoding) QueryOption {
 	return func(qo *queryOptions) {
 		qo.encoding = encoding
 	}
@@ -136,7 +141,8 @@ func Encoding(encoding wire.MessageEncoding) QueryOption {
 
 // DoneChan allows the caller to pass a channel that will get closed when the
 // query is finished.
-func DoneChan(doneChan chan<- struct{}) QueryOption {
+func DoneChan(
+	doneChan chan<- struct{}) QueryOption {
 	return func(qo *queryOptions) {
 		qo.doneChan = doneChan
 	}
@@ -144,7 +150,8 @@ func DoneChan(doneChan chan<- struct{}) QueryOption {
 
 // PersistToDisk allows the caller to tell that the filter should be kept
 // on disk once it's found.
-func PersistToDisk() QueryOption {
+func PersistToDisk(
+	) QueryOption {
 	return func(qo *queryOptions) {
 		qo.persistToDisk = true
 	}

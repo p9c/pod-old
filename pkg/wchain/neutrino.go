@@ -49,7 +49,8 @@ type NeutrinoClient struct {
 
 // NewNeutrinoClient creates a new NeutrinoClient struct with a backing
 // ChainService.
-func NewNeutrinoClient(chainParams *chaincfg.Params,
+func NewNeutrinoClient(
+	chainParams *chaincfg.Params,
 	chainService *sac.ChainService) *NeutrinoClient {
 
 	return &NeutrinoClient{
@@ -251,7 +252,8 @@ func (s *NeutrinoClient) FilterBlocks(
 // cfilter from a FilterBlocksRequest. The watchlist will be populated with all
 // external addresses, internal addresses, and outpoints contained in the
 // request.
-func buildFilterBlocksWatchList(req *FilterBlocksRequest) ([][]byte, error) {
+func buildFilterBlocksWatchList(
+	req *FilterBlocksRequest) ([][]byte, error) {
 	// Construct a watch list containing the script addresses of all
 	// internal and external addresses that were requested, in addition to
 	// the set of outpoints currently being watched.

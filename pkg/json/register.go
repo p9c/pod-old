@@ -73,7 +73,8 @@ var (
 )
 
 // baseKindString returns the base kind for a given reflect.Type after indirecting through all pointers.
-func baseKindString(rt reflect.Type) string {
+func baseKindString(
+	rt reflect.Type) string {
 	numIndirects := 0
 	for rt.Kind() == reflect.Ptr {
 		numIndirects++
@@ -83,7 +84,8 @@ func baseKindString(rt reflect.Type) string {
 }
 
 // isAcceptableKind returns whether or not the passed field type is a supported type.  It is called after the first pointer indirection, so further pointers are not supported.
-func isAcceptableKind(kind reflect.Kind) bool {
+func isAcceptableKind(
+	kind reflect.Kind) bool {
 	switch kind {
 	case reflect.Chan:
 		fallthrough
@@ -114,7 +116,8 @@ func isAcceptableKind(kind reflect.Kind) bool {
 //   - Once the first optional field (pointer) is encountered, the remaining fields must also be optional fields (pointers) as required by positional params
 //   - A field that has a 'jsonrpcdefault' struct tag must be an optional field (pointer)
 // NOTE: This function only needs to be able to examine the structure of the passed struct, so it does not need to be an actual instance.  Therefore, it is recommended to simply pass a nil pointer cast to the appropriate type. For example, (*FooCmd)(nil).
-func RegisterCmd(method string, cmd interface{}, flags UsageFlag) error {
+func RegisterCmd(
+	method string, cmd interface{}, flags UsageFlag) error {
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	if _, ok := methodToConcreteType[method]; ok {
@@ -214,7 +217,8 @@ func RegisterCmd(method string, cmd interface{}, flags UsageFlag) error {
 }
 
 // MustRegisterCmd performs the same function as RegisterCmd except it panics if there is an error.  This should only be called from package init functions.
-func MustRegisterCmd(method string, cmd interface{}, flags UsageFlag) {
+func MustRegisterCmd(
+	method string, cmd interface{}, flags UsageFlag) {
 	if err := RegisterCmd(method, cmd, flags); err != nil {
 		panic(fmt.Sprintf("failed to register type %q: %v\n", method,
 			err))
@@ -222,7 +226,8 @@ func MustRegisterCmd(method string, cmd interface{}, flags UsageFlag) {
 }
 
 // RegisteredCmdMethods returns a sorted list of methods for all registered commands.
-func RegisteredCmdMethods() []string {
+func RegisteredCmdMethods(
+	) []string {
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	methods := make([]string, 0, len(methodToInfo))

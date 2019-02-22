@@ -120,7 +120,8 @@ var _ Stepper = ReportFound{}
 //   - the horizon is properly expanded in response to found addrs
 //   - report found children below or equal to previously found causes no change
 //   - marking invalid children expands the horizon
-func TestBranchRecoveryState(t *testing.T) {
+func TestBranchRecoveryState(
+	t *testing.T) {
 
 	const recoveryWindow = 10
 
@@ -220,23 +221,28 @@ func TestBranchRecoveryState(t *testing.T) {
 	}
 }
 
-func assertHorizon(t *testing.T, i int, have, want uint32) {
+func assertHorizon(
+	t *testing.T, i int, have, want uint32) {
 	assertHaveWant(t, i, "incorrect horizon", have, want)
 }
 
-func assertDelta(t *testing.T, i int, have, want uint32) {
+func assertDelta(
+	t *testing.T, i int, have, want uint32) {
 	assertHaveWant(t, i, "incorrect delta", have, want)
 }
 
-func assertNextUnfound(t *testing.T, i int, have, want uint32) {
+func assertNextUnfound(
+	t *testing.T, i int, have, want uint32) {
 	assertHaveWant(t, i, "incorrect next unfound", have, want)
 }
 
-func assertNumInvalid(t *testing.T, i int, have, want uint32) {
+func assertNumInvalid(
+	t *testing.T, i int, have, want uint32) {
 	assertHaveWant(t, i, "incorrect num invalid children", have, want)
 }
 
-func assertHaveWant(t *testing.T, i int, msg string, have, want uint32) {
+func assertHaveWant(
+	t *testing.T, i int, msg string, have, want uint32) {
 	_, _, line, _ := runtime.Caller(2)
 	if want != have {
 		t.Fatalf("[line: %d, step: %d] %s: got %d, want %d",

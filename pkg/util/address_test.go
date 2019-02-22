@@ -13,7 +13,8 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-func TestAddresses(t *testing.T) {
+func TestAddresses(
+	t *testing.T) {
 	tests := []struct {
 		name    string
 		addr    string

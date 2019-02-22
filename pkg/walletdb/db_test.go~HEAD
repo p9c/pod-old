@@ -19,7 +19,8 @@ var (
 
 // TestAddDuplicateDriver ensures that adding a duplicate driver does not
 // overwrite an existing one.
-func TestAddDuplicateDriver(t *testing.T) {
+func TestAddDuplicateDriver(
+	t *testing.T) {
 	supportedDrivers := walletdb.SupportedDrivers()
 	if len(supportedDrivers) == 0 {
 		t.Errorf("no backends to test")
@@ -63,7 +64,8 @@ func TestAddDuplicateDriver(t *testing.T) {
 
 // TestCreateOpenFail ensures that errors which occur while opening or closing
 // a database are handled properly.
-func TestCreateOpenFail(t *testing.T) {
+func TestCreateOpenFail(
+	t *testing.T) {
 	// bogusCreateDB is a function which acts as a bogus create and open
 	// driver function that intentionally returns a failure which can be
 	// detected.
@@ -104,7 +106,8 @@ func TestCreateOpenFail(t *testing.T) {
 
 // TestCreateOpenUnsupported ensures that attempting to create or open an
 // unsupported database type is handled properly.
-func TestCreateOpenUnsupported(t *testing.T) {
+func TestCreateOpenUnsupported(
+	t *testing.T) {
 	// Ensure creating a database with an unsupported type fails with the
 	// expected error.
 	dbType := "unsupported"

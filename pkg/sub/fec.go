@@ -22,7 +22,8 @@ var (
 )
 
 // padData appends a 2 byte length prefix, and pads to a multiple of rsTotal. An empty slice will be returned if the total length is greater than maxMessageSize.
-func padData(data []byte) (out []byte) {
+func padData(
+	data []byte) (out []byte) {
 	dataLen := len(data)
 	prefixBytes := make([]byte, 2)
 	binary.LittleEndian.PutUint16(prefixBytes, uint16(dataLen))
@@ -41,7 +42,8 @@ func padData(data []byte) (out []byte) {
 	return
 }
 
-func rsEncode(data []byte) (chunks [][]byte) {
+func rsEncode(
+	data []byte) (chunks [][]byte) {
 	// First we must pad the data
 	data = padData(data)
 	shares := make([]infectious.Share, rsTotal)
@@ -65,7 +67,8 @@ func rsEncode(data []byte) (chunks [][]byte) {
 	return
 }
 
-func rsDecode(chunks [][]byte) (data []byte, err error) {
+func rsDecode(
+	chunks [][]byte) (data []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Print("Recovered in f", r)

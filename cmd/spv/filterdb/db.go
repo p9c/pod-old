@@ -67,7 +67,8 @@ var _ FilterDatabase = (*FilterStore)(nil)
 
 // New creates a new instance of the FilterStore given an already open
 // database, and the target chain parameters.
-func New(db walletdb.DB, params chaincfg.Params) (*FilterStore, error) {
+func New(
+	db walletdb.DB, params chaincfg.Params) (*FilterStore, error) {
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		// As part of our initial setup, we'll try to create the top
 		// level filter bucket. If this already exists, then we can
@@ -110,7 +111,8 @@ func New(db walletdb.DB, params chaincfg.Params) (*FilterStore, error) {
 // putFilter stores a filter in the database according to the corresponding
 // block hash. The passed bucket is expected to be the proper bucket for the
 // passed filter type.
-func putFilter(bucket walletdb.ReadWriteBucket, hash *chainhash.Hash,
+func putFilter(
+	bucket walletdb.ReadWriteBucket, hash *chainhash.Hash,
 	filter *gcs.Filter) error {
 
 	if filter == nil {

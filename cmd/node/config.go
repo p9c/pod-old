@@ -31,71 +31,6 @@ import (
 	flags "github.com/jessevdk/go-flags"
 )
 
-const (
-	DefaultConfigFilename        = "conf.json"
-	DefaultDataDirname           = "node"
-	DefaultLogLevel              = "info"
-	DefaultLogDirname            = "node"
-	DefaultLogFilename           = "log"
-	DefaultAddress               = "127.0.0.1"
-	DefaultPort                  = "11047"
-	DefaultRPCPort               = "11048"
-	DefalutRPCAddr               = "127.0.0.1"
-	DefaultRPCServer             = "127.0.0.1:11048"
-	DefaultListener              = "127.0.0.1:11047"
-	DefaultRPCListener           = "127.0.0.1:11048"
-	DefaultMaxPeers              = 125
-	DefaultBanDuration           = time.Hour * 24
-	DefaultBanThreshold          = 100
-	DefaultConnectTimeout        = time.Second * 30
-	DefaultMaxRPCClients         = 10
-	DefaultMaxRPCWebsockets      = 25
-	DefaultMaxRPCConcurrentReqs  = 20
-	DefaultDbType                = "ffldb"
-	DefaultFreeTxRelayLimit      = 15.0
-	DefaultTrickleInterval       = peer.DefaultTrickleInterval
-	DefaultBlockMinSize          = 80
-	DefaultBlockMaxSize          = 200000
-	DefaultBlockMinWeight        = 10
-	DefaultBlockMaxWeight        = 3000000
-	BlockMaxSizeMin              = 1000
-	BlockMaxSizeMax              = blockchain.MaxBlockBaseSize - 1000
-	BlockMaxWeightMin            = 4000
-	BlockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
-	DefaultGenerate              = false
-	DefaultGenThreads            = 1
-	DefaultMinerListener         = "127.0.0.1:11011"
-	DefaultMaxOrphanTransactions = 100
-	DefaultMaxOrphanTxSize       = 100000
-	DefaultSigCacheMaxSize       = 100000
-	// These are set to default on because more often one wants them than not
-	DefaultTxIndex   = true
-	DefaultAddrIndex = true
-	DefaultAlgo      = "random"
-)
-
-var (
-	DefaultHomeDir    = util.AppDataDir("pod", false)
-	DefaultConfigFile = filepath.Join(
-		DefaultHomeDir, DefaultConfigFilename)
-	DefaultDataDir     = filepath.Join(DefaultHomeDir, DefaultDataDirname)
-	KnownDbTypes       = database.SupportedDrivers()
-	DefaultRPCKeyFile  = filepath.Join(DefaultHomeDir, "rpc.key")
-	DefaultRPCCertFile = filepath.Join(DefaultHomeDir, "rpc.cert")
-	DefaultLogDir      = filepath.Join(DefaultHomeDir, DefaultLogDirname)
-)
-
-// runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
-var runServiceCommand func(string) error
-
-// minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
-func minUint32(a, b uint32) uint32 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // Config defines the configuration options for pod. See loadConfig for details on the configuration load process.
 type Config struct {
 	ShowVersion          bool          `short:"V" long:"version" description:"Display version information and exit"`
@@ -191,8 +126,85 @@ type serviceOptions struct {
 	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
 }
 
+const (
+	DefaultConfigFilename        = "conf.json"
+	DefaultDataDirname           = "node"
+	DefaultLogLevel              = "info"
+	DefaultLogDirname            = "node"
+	DefaultLogFilename           = "log"
+	DefaultAddress               = "127.0.0.1"
+	DefaultPort                  = "11047"
+	DefaultRPCPort               = "11048"
+	DefalutRPCAddr               = "127.0.0.1"
+	DefaultRPCServer             = "127.0.0.1:11048"
+	DefaultListener              = "127.0.0.1:11047"
+	DefaultRPCListener           = "127.0.0.1:11048"
+	DefaultMaxPeers              = 125
+	DefaultBanDuration           = time.Hour * 24
+	DefaultBanThreshold          = 100
+	DefaultConnectTimeout        = time.Second * 30
+	DefaultMaxRPCClients         = 10
+	DefaultMaxRPCWebsockets      = 25
+	DefaultMaxRPCConcurrentReqs  = 20
+	DefaultDbType                = "ffldb"
+	DefaultFreeTxRelayLimit      = 15.0
+	DefaultTrickleInterval       = peer.DefaultTrickleInterval
+	DefaultBlockMinSize          = 80
+	DefaultBlockMaxSize          = 200000
+	DefaultBlockMinWeight        = 10
+	DefaultBlockMaxWeight        = 3000000
+	BlockMaxSizeMin              = 1000
+	BlockMaxSizeMax              = blockchain.MaxBlockBaseSize - 1000
+	BlockMaxWeightMin            = 4000
+	BlockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
+	DefaultGenerate              = false
+	DefaultGenThreads            = 1
+	DefaultMinerListener         = "127.0.0.1:11011"
+	DefaultMaxOrphanTransactions = 100
+	DefaultMaxOrphanTxSize       = 100000
+	DefaultSigCacheMaxSize       = 100000
+	// These are set to default on because more often one wants them than not
+	DefaultTxIndex   = true
+	DefaultAddrIndex = true
+	DefaultAlgo      = "random"
+)
+
+var (
+	DefaultConfigFile = filepath.Join(
+		DefaultHomeDir, DefaultConfigFilename)
+)
+
+var (
+	DefaultDataDir = filepath.Join(DefaultHomeDir, DefaultDataDirname)
+)
+
+var (
+	DefaultHomeDir = util.AppDataDir("pod", false)
+)
+
+var (
+	DefaultLogDir = filepath.Join(DefaultHomeDir, DefaultLogDirname)
+)
+
+var (
+	DefaultRPCCertFile = filepath.Join(DefaultHomeDir, "rpc.cert")
+)
+
+var (
+	DefaultRPCKeyFile = filepath.Join(DefaultHomeDir, "rpc.key")
+)
+
+var (
+	KnownDbTypes = database.SupportedDrivers()
+)
+
+// runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
+var runServiceCommand func(string) error
+
 // CleanAndExpandPath expands environment variables and leading ~ in the passed path, cleans the result, and returns it.
-func CleanAndExpandPath(path string) string {
+func CleanAndExpandPath(
+	path string,
+) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 		homeDir := filepath.Dir(DefaultHomeDir)
@@ -202,67 +214,27 @@ func CleanAndExpandPath(path string) string {
 	return filepath.Clean(os.ExpandEnv(path))
 }
 
-// ValidLogLevel returns whether or not logLevel is a valid debug log level.
-func ValidLogLevel(logLevel string) bool {
-	switch logLevel {
-	case "trace":
-		fallthrough
-	case "debug":
-		fallthrough
-	case "info":
-		fallthrough
-	case "warn":
-		fallthrough
-	case "error":
-		fallthrough
-	case "critical":
-		return true
-	}
-	return false
-}
+// FileExists reports whether the named file or directory exists.
+func FileExists(
+	name string,
+) bool {
 
-// ValidDbType returns whether or not dbType is a supported database type.
-func ValidDbType(dbType string) bool {
-	for _, knownType := range KnownDbTypes {
-		if dbType == knownType {
-			return true
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
 		}
 	}
-	return false
-}
-
-// RemoveDuplicateAddresses returns a new slice with all duplicate entries in addrs removed.
-func RemoveDuplicateAddresses(addrs []string) []string {
-	result := make([]string, 0, len(addrs))
-	seen := map[string]struct{}{}
-	for _, val := range addrs {
-		if _, ok := seen[val]; !ok {
-			result = append(result, val)
-			seen[val] = struct{}{}
-		}
-	}
-	return result
-}
-
-// NormalizeAddress returns addr with the passed default port appended if there is not already a port specified.
-func NormalizeAddress(addr, defaultPort string) string {
-	_, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return net.JoinHostPort(addr, defaultPort)
-	}
-	return addr
-}
-
-// NormalizeAddresses returns a new slice with all the passed peer addresses normalized with the given default port, and all duplicates removed.
-func NormalizeAddresses(addrs []string, defaultPort string) []string {
-	for i, addr := range addrs {
-		addrs[i] = NormalizeAddress(addr, defaultPort)
-	}
-	return RemoveDuplicateAddresses(addrs)
+	return true
 }
 
 // NewCheckpointFromStr parses checkpoints in the '<height>:<hash>' format.
-func NewCheckpointFromStr(checkpoint string) (chaincfg.Checkpoint, error) {
+func NewCheckpointFromStr(
+	checkpoint string,
+) (
+	chaincfg.Checkpoint,
+	error,
+) {
+
 	parts := strings.Split(checkpoint, ":")
 	if len(parts) != 2 {
 		return chaincfg.Checkpoint{}, fmt.Errorf("unable to parse "+
@@ -289,8 +261,52 @@ func NewCheckpointFromStr(checkpoint string) (chaincfg.Checkpoint, error) {
 	}, nil
 }
 
+// NewConfigParser returns a new command line flags parser.
+func NewConfigParser(
+	cfg *Config,
+	so *serviceOptions,
+	options flags.Options,
+) *flags.Parser {
+
+	parser := flags.NewParser(cfg, options)
+	if runtime.GOOS == "windows" {
+		parser.AddGroup("Service Options", "Service Options", so)
+	}
+	return parser
+}
+
+// NormalizeAddress returns addr with the passed default port appended if there is not already a port specified.
+func NormalizeAddress(
+	addr,
+	defaultPort string,
+) string {
+
+	_, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return net.JoinHostPort(addr, defaultPort)
+	}
+	return addr
+}
+
+// NormalizeAddresses returns a new slice with all the passed peer addresses normalized with the given default port, and all duplicates removed.
+func NormalizeAddresses(
+	addrs []string,
+	defaultPort string,
+) []string {
+
+	for i, addr := range addrs {
+		addrs[i] = NormalizeAddress(addr, defaultPort)
+	}
+	return RemoveDuplicateAddresses(addrs)
+}
+
 // ParseCheckpoints checks the checkpoint strings for valid syntax ('<height>:<hash>') and parses them to chaincfg.Checkpoint instances.
-func ParseCheckpoints(checkpointStrings []string) ([]chaincfg.Checkpoint, error) {
+func ParseCheckpoints(
+	checkpointStrings []string,
+) (
+	[]chaincfg.Checkpoint,
+	error,
+) {
 	if len(checkpointStrings) == 0 {
 		return nil, nil
 	}
@@ -305,23 +321,103 @@ func ParseCheckpoints(checkpointStrings []string) ([]chaincfg.Checkpoint, error)
 	return checkpoints, nil
 }
 
-// FileExists reports whether the named file or directory exists.
-func FileExists(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
+// RemoveDuplicateAddresses returns a new slice with all duplicate entries in addrs removed.
+func RemoveDuplicateAddresses(
+	addrs []string,
+) []string {
+
+	result := make([]string, 0, len(addrs))
+	seen := map[string]struct{}{}
+	for _, val := range addrs {
+		if _, ok := seen[val]; !ok {
+			result = append(result, val)
+			seen[val] = struct{}{}
 		}
 	}
-	return true
+	return result
 }
 
-// NewConfigParser returns a new command line flags parser.
-func NewConfigParser(cfg *Config, so *serviceOptions, options flags.Options) *flags.Parser {
-	parser := flags.NewParser(cfg, options)
-	if runtime.GOOS == "windows" {
-		parser.AddGroup("Service Options", "Service Options", so)
+// ValidDbType returns whether or not dbType is a supported database type.
+func ValidDbType(
+	dbType string,
+) bool {
+
+	for _, knownType := range KnownDbTypes {
+		if dbType == knownType {
+			return true
+		}
 	}
-	return parser
+	return false
+}
+
+// ValidLogLevel returns whether or not logLevel is a valid debug log level.
+func ValidLogLevel(
+	logLevel string,
+) bool {
+
+	switch logLevel {
+	case "trace":
+		fallthrough
+	case "debug":
+		fallthrough
+	case "info":
+		fallthrough
+	case "warn":
+		fallthrough
+	case "error":
+		fallthrough
+	case "critical":
+		return true
+	}
+	return false
+}
+
+// createDefaultConfig copies the file sample-pod.conf to the given destination path, and populates it with some randomly generated RPC username and password.
+func createDefaultConfigFile(
+	destinationPath string,
+) error {
+	// Create the destination directory if it does not exists
+	err := os.MkdirAll(filepath.Dir(destinationPath), 0700)
+	if err != nil {
+		return err
+	}
+	// We generate a random user and password
+	randomBytes := make([]byte, 20)
+	_, err = rand.Read(randomBytes)
+	if err != nil {
+		return err
+	}
+	generatedRPCUser := base64.StdEncoding.EncodeToString(randomBytes)
+	_, err = rand.Read(randomBytes)
+	if err != nil {
+		return err
+	}
+	generatedRPCPass := base64.StdEncoding.EncodeToString(randomBytes)
+	var bb bytes.Buffer
+	bb.Write(samplePodConf)
+	dest, err := os.OpenFile(destinationPath,
+		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+	defer dest.Close()
+	reader := bufio.NewReader(&bb)
+	for err != io.EOF {
+		var line string
+		line, err = reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if strings.Contains(line, "rpcuser=") {
+			line = "rpcuser=" + generatedRPCUser + "\n"
+		} else if strings.Contains(line, "rpcpass=") {
+			line = "rpcpass=" + generatedRPCPass + "\n"
+		}
+		if _, err := dest.WriteString(line); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // loadConfig initializes and parses the config using a config file and command line options.
@@ -331,7 +427,10 @@ func NewConfigParser(cfg *Config, so *serviceOptions, options flags.Options) *fl
 // 	3) Load configuration file overwriting defaults with any specified options
 // 	4) Parse CLI options and overwrite/add any specified options
 // The above results in pod functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
-func loadConfig() (*Config, []string, error) {
+func loadConfig() (
+	*Config, []string,
+	error,
+) {
 	// Default config.
 	cfg := Config{
 		ConfigFile:           DefaultConfigFile,
@@ -875,54 +974,25 @@ func loadConfig() (*Config, []string, error) {
 	return &cfg, remainingArgs, nil
 }
 
-// createDefaultConfig copies the file sample-pod.conf to the given destination path, and populates it with some randomly generated RPC username and password.
-func createDefaultConfigFile(destinationPath string) error {
-	// Create the destination directory if it does not exists
-	err := os.MkdirAll(filepath.Dir(destinationPath), 0700)
-	if err != nil {
-		return err
+// minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
+func minUint32(
+	a, b uint32,
+) uint32 {
+
+	if a < b {
+		return a
 	}
-	// We generate a random user and password
-	randomBytes := make([]byte, 20)
-	_, err = rand.Read(randomBytes)
-	if err != nil {
-		return err
-	}
-	generatedRPCUser := base64.StdEncoding.EncodeToString(randomBytes)
-	_, err = rand.Read(randomBytes)
-	if err != nil {
-		return err
-	}
-	generatedRPCPass := base64.StdEncoding.EncodeToString(randomBytes)
-	var bb bytes.Buffer
-	bb.Write(samplePodConf)
-	dest, err := os.OpenFile(destinationPath,
-		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-	defer dest.Close()
-	reader := bufio.NewReader(&bb)
-	for err != io.EOF {
-		var line string
-		line, err = reader.ReadString('\n')
-		if err != nil && err != io.EOF {
-			return err
-		}
-		if strings.Contains(line, "rpcuser=") {
-			line = "rpcuser=" + generatedRPCUser + "\n"
-		} else if strings.Contains(line, "rpcpass=") {
-			line = "rpcpass=" + generatedRPCPass + "\n"
-		}
-		if _, err := dest.WriteString(line); err != nil {
-			return err
-		}
-	}
-	return nil
+	return b
 }
 
 // podDial connects to the address on the named network using the appropriate dial function depending on the address and configuration options.  For example, .onion addresses will be dialed using the onion specific proxy if one was specified, but will otherwise use the normal dial function (which could itself use a proxy or not).
-func podDial(addr net.Addr) (net.Conn, error) {
+func podDial(
+	addr net.Addr,
+) (
+	net.Conn,
+	error,
+) {
+
 	if strings.Contains(addr.String(), ".onion:") {
 		return StateCfg.Oniondial(addr.Network(), addr.String(),
 			DefaultConnectTimeout)
@@ -932,7 +1002,12 @@ func podDial(addr net.Addr) (net.Conn, error) {
 }
 
 // podLookup resolves the IP of the given host using the correct DNS lookup function depending on the configuration options.  For example, addresses will be resolved using tor when the --proxy flag was specified unless --noonion was also specified in which case the normal system DNS resolver will be used. Any attempt to resolve a tor address (.onion) will return an error since they are not intended to be resolved outside of the tor proxy.
-func podLookup(host string) ([]net.IP, error) {
+func podLookup(
+	host string,
+) ([]net.IP,
+	error,
+) {
+
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)
 	}

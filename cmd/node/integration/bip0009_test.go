@@ -22,7 +22,8 @@ const (
 )
 
 // assertVersionBit gets the passed block hash from the given test harness and ensures its version either has the provided bit set or unset per the set flag.
-func assertVersionBit(r *rpctest.Harness, t *testing.T, hash *chainhash.Hash, bit uint8, set bool) {
+func assertVersionBit(
+	r *rpctest.Harness, t *testing.T, hash *chainhash.Hash, bit uint8, set bool) {
 	block, err := r.Node.GetBlock(hash)
 	if err != nil {
 		t.Fatalf("failed to retrieve block %v: %v", hash, err)
@@ -41,7 +42,8 @@ func assertVersionBit(r *rpctest.Harness, t *testing.T, hash *chainhash.Hash, bi
 }
 
 // assertChainHeight retrieves the current chain height from the given test harness and ensures it matches the provided expected height.
-func assertChainHeight(r *rpctest.Harness, t *testing.T, expectedHeight uint32) {
+func assertChainHeight(
+	r *rpctest.Harness, t *testing.T, expectedHeight uint32) {
 	height, err := r.Node.GetBlockCount()
 	if err != nil {
 		t.Fatalf("failed to retrieve block height: %v", err)
@@ -54,7 +56,8 @@ func assertChainHeight(r *rpctest.Harness, t *testing.T, expectedHeight uint32) 
 }
 
 // thresholdStateToStatus converts the passed threshold state to the equivalent status string returned in the getblockchaininfo RPC.
-func thresholdStateToStatus(state blockchain.ThresholdState) (string, error) {
+func thresholdStateToStatus(
+	state blockchain.ThresholdState) (string, error) {
 	switch state {
 	case blockchain.ThresholdDefined:
 		return "defined", nil
@@ -71,7 +74,8 @@ func thresholdStateToStatus(state blockchain.ThresholdState) (string, error) {
 }
 
 // assertSoftForkStatus retrieves the current blockchain info from the given test harness and ensures the provided soft fork key is both available and its status is the equivalent of the passed state.
-func assertSoftForkStatus(r *rpctest.Harness, t *testing.T, forkKey string, state blockchain.ThresholdState) {
+func assertSoftForkStatus(
+	r *rpctest.Harness, t *testing.T, forkKey string, state blockchain.ThresholdState) {
 	// Convert the expected threshold state into the equivalent getblockchaininfo RPC status string.
 	status, err := thresholdStateToStatus(state)
 	if err != nil {
@@ -100,7 +104,8 @@ func assertSoftForkStatus(r *rpctest.Harness, t *testing.T, forkKey string, stat
 }
 
 // testBIP0009 ensures the BIP0009 soft fork mechanism follows the state transition rules set forth by the BIP for the provided soft fork key.  It uses the regression test network to signal support and advance through the various threshold states including failure to achieve locked in status. See TestBIP0009 for an overview of what is tested. NOTE: This only differs from the exported version in that it accepts the specific soft fork deployment to test.
-func testBIP0009(t *testing.T, forkKey string, deploymentID uint32) {
+func testBIP0009(
+	t *testing.T, forkKey string, deploymentID uint32) {
 	// Initialize the primary mining node with only the genesis block.
 	r, err := rpctest.New(&chaincfg.RegressionNetParams, nil, nil)
 	if err != nil {
@@ -215,7 +220,8 @@ func testBIP0009(t *testing.T, forkKey string, deploymentID uint32) {
 //   - Assert chain height is expected and state is still ThresholdLockedIn
 // - Generate 1 more block to reach the next state transition
 //   - Assert chain height is expected and state moved to ThresholdActive
-func TestBIP0009(t *testing.T) {
+func TestBIP0009(
+	t *testing.T) {
 	t.Parallel()
 	testBIP0009(t, "dummy", chaincfg.DeploymentTestDummy)
 	testBIP0009(t, "segwit", chaincfg.DeploymentSegwit)
@@ -233,7 +239,8 @@ func TestBIP0009(t *testing.T) {
 // - Generate enough blocks to reach third state transition
 //   - Assert bit is set for block prior to state transition (ThresholdLockedIn)
 //   - Assert bit is NOT set for block at state transition (ThresholdActive)
-func TestBIP0009Mining(t *testing.T) {
+func TestBIP0009Mining(
+	t *testing.T) {
 	t.Parallel()
 	// Initialize the primary mining node with only the genesis block.
 	r, err := rpctest.New(&chaincfg.SimNetParams, nil, nil)
