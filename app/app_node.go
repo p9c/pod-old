@@ -9,17 +9,14 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/cmd/node"
-	n "git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/util"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )
 
 // NodeCfg is the combined app and logging configuration data
 type NodeCfg struct {
-	Node      *n.Config
+	Node      *node.Config
 	LogLevels map[string]string
 	params    *node.Params
 }
@@ -38,8 +35,8 @@ var NodeCommand = climax.Command{
 
 		t("version", "V", "show version number and quit"),
 
-		s("configfile", "C", n.DefaultConfigFile, "path to configuration file"),
-		s("datadir", "D", n.DefaultDataDir, "path to configuration directory"),
+		s("configfile", "C", node.DefaultConfigFile, "path to configuration file"),
+		s("datadir", "D", node.DefaultDataDir, "path to configuration directory"),
 
 		t("init", "", "resets configuration to defaults"),
 		t("save", "", "saves current configuration"),
@@ -52,7 +49,7 @@ var NodeCommand = climax.Command{
 		t("droptxindex", "", "deletes transaction index then exit"),
 		t("dropaddrindex", "", "deletes the address index then exits"),
 
-		s("listeners", "S", n.DefaultListener, "sets an address to listen for P2P connections"),
+		s("listeners", "S", node.DefaultListener, "sets an address to listen for P2P connections"),
 		f("externalips", "", "additional P2P listeners"),
 		f("disablelisten", "false", "disables the P2P listener"),
 
@@ -170,8 +167,7 @@ var NodeCommand = climax.Command{
 			}
 		}
 		if ctx.Is("version") {
-
-			fmt.Println("pod/node version", n.Version())
+			fmt.Println("pod/node version", node.Version())
 			return 0
 		}
 		var datadir, cfgFile string
@@ -184,13 +180,11 @@ var NodeCommand = climax.Command{
 			cfgFile = r
 		}
 		if ctx.Is("init") {
-
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
 			WriteDefaultNodeConfig(datadir)
 		} else {
 			log <- cl.Infof{"loading configuration from %s", cfgFile}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-
 				log <- cl.Wrn("configuration file does not exist, creating new one")
 				WriteDefaultNodeConfig(datadir)
 			} else {
@@ -227,10 +221,10 @@ var NodeCommand = climax.Command{
 }
 
 // NodeConfig is the combined app and log levels configuration
-var NodeConfig = DefaultNodeConfig(n.DefaultDataDir)
+var NodeConfig = DefaultNodeConfig(node.DefaultDataDir)
 
 // StateCfg is a reference to the main node state configuration struct
-var StateCfg = n.StateCfg
+var StateCfg = node.StateCfg
 
 var aN = filepath.Base(os.Args[0])
 
@@ -241,111 +235,3 @@ var runServiceCommand func(string) error
 
 var usageMessage = fmt.Sprintf(
 	"use `%s help node` to show usage", appName)
-
-// DefaultNodeConfig is the default configuration for node
-func DefaultNodeConfig(
-	datadir string,
-) *NodeCfg {
-
-	user := GenKey()
-	pass := GenKey()
-	params := node.MainNetParams
-	switch n.ActiveNetParams.Name {
-	case "testnet3":
-		params = node.TestNet3Params
-	case "simnet":
-		params = node.SimNetParams
-	}
-	appdir := filepath.Join(datadir, "node")
-	return &NodeCfg{
-		Node: &n.Config{
-			RPCUser:              user,
-			RPCPass:              pass,
-			Listeners:            []string{n.DefaultListener},
-			RPCListeners:         []string{n.DefaultRPCListener},
-			DebugLevel:           "info",
-			ConfigFile:           filepath.Join(appdir, n.DefaultConfigFilename),
-			MaxPeers:             n.DefaultMaxPeers,
-			BanDuration:          n.DefaultBanDuration,
-			BanThreshold:         n.DefaultBanThreshold,
-			RPCMaxClients:        n.DefaultMaxRPCClients,
-			RPCMaxWebsockets:     n.DefaultMaxRPCWebsockets,
-			RPCMaxConcurrentReqs: n.DefaultMaxRPCConcurrentReqs,
-			DataDir:              appdir,
-			LogDir:               appdir,
-			DbType:               n.DefaultDbType,
-			RPCKey:               filepath.Join(datadir, "rpc.key"),
-			RPCCert:              filepath.Join(datadir, "rpc.cert"),
-			MinRelayTxFee:        mempool.DefaultMinRelayTxFee.ToDUO(),
-			FreeTxRelayLimit:     n.DefaultFreeTxRelayLimit,
-			TrickleInterval:      n.DefaultTrickleInterval,
-			BlockMinSize:         n.DefaultBlockMinSize,
-			BlockMaxSize:         n.DefaultBlockMaxSize,
-			BlockMinWeight:       n.DefaultBlockMinWeight,
-			BlockMaxWeight:       n.DefaultBlockMaxWeight,
-			BlockPrioritySize:    mempool.DefaultBlockPrioritySize,
-			MaxOrphanTxs:         n.DefaultMaxOrphanTransactions,
-			SigCacheMaxSize:      n.DefaultSigCacheMaxSize,
-			Generate:             n.DefaultGenerate,
-			GenThreads:           1,
-			TxIndex:              n.DefaultTxIndex,
-			AddrIndex:            n.DefaultAddrIndex,
-			Algo:                 n.DefaultAlgo,
-		},
-		LogLevels: GetDefaultLogLevelsConfig(),
-		params:    &params,
-	}
-}
-
-// WriteDefaultNodeConfig creates a default config and writes it to the requested location
-func WriteDefaultNodeConfig(
-	datadir string,
-) {
-
-	log <- cl.Dbg("writing default config")
-	defCfg := DefaultNodeConfig(datadir)
-	j, err := json.MarshalIndent(defCfg, "", "  ")
-	if err != nil {
-		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
-		log <- cl.Err(spew.Sdump(defCfg))
-		return
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{
-		"JSON formatted config file\n%s",
-		j,
-	}
-	EnsureDir(defCfg.Node.ConfigFile)
-	err = ioutil.WriteFile(defCfg.Node.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing default app config file:", err.Error()}
-		return
-	}
-	// if we are writing default config we also want to use it
-	NodeConfig = defCfg
-}
-
-// WriteNodeConfig writes the current config to the requested location
-func WriteNodeConfig(
-	c *NodeCfg,
-) {
-
-	log <- cl.Dbg("writing config")
-	j, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
-		log <- cl.Err(spew.Sdump(c))
-		return
-	}
-	j = append(j, '\n')
-	log <- cl.Tracef{
-		"JSON formatted config file\n%s",
-		j,
-	}
-	EnsureDir(c.Node.ConfigFile)
-	err = ioutil.WriteFile(c.Node.ConfigFile, j, 0600)
-	if err != nil {
-		log <- cl.Error{"writing default app config file:", err.Error()}
-		return
-	}
-}

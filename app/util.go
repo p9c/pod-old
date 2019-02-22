@@ -20,7 +20,9 @@ var defaultUser, defaultPass = "user", "pa55word"
 // CheckCreateDir checks that the path exists and is a directory.
 // If path does not exist, it is created.
 func CheckCreateDir(
-	path string) error {
+	path string,
+) error {
+
 	if fi, err := os.Stat(path); err != nil {
 
 		if os.IsNotExist(err) {
