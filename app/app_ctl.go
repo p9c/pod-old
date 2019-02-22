@@ -128,6 +128,7 @@ func DefaultCtlConfig(
 	datadir string,
 ) *ctl.Config {
 
+
 	return &ctl.Config{
 		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
 		DebugLevel:    "off",
@@ -151,6 +152,7 @@ func WriteCtlConfig(
 	cc *ctl.Config,
 ) {
 
+
 	j, err := json.MarshalIndent(cc, "", "  ")
 	if err != nil {
 		log <- cl.Err(err.Error())
@@ -172,6 +174,7 @@ func WriteCtlConfig(
 func WriteDefaultCtlConfig(
 	datadir string,
 ) {
+
 
 	defCfg := DefaultCtlConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
@@ -197,6 +200,7 @@ func configCtl(
 	ctx *climax.Context,
 	cfgFile string,
 ) {
+
 
 	var r string
 	var ok bool

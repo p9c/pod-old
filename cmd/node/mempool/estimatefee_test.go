@@ -57,6 +57,7 @@ func (
 	eft *estimateFeeTester,
 ) estimates() [estimateFeeDepth]BtcPerKilobyte {
 
+
 	// Generate estimates
 	var estimates [estimateFeeDepth]BtcPerKilobyte
 	for i := 0; i < estimateFeeDepth; i++ {
@@ -79,6 +80,7 @@ func (
 	txs []*wire.MsgTx,
 ) {
 
+
 	eft.height++
 	block := util.NewBlock(&wire.MsgBlock{
 		Transactions: txs,
@@ -93,6 +95,7 @@ func (
 func (
 	eft *estimateFeeTester,
 ) rollback() {
+
 	if eft.last == nil {
 		return
 	}
@@ -323,6 +326,7 @@ func TestEstimateFee(
 func TestEstimateFeeRollback(
 	t *testing.T,
 ) {
+
 
 	txPerRound := uint32(7)
 	txPerBlock := uint32(5)

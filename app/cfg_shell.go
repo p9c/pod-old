@@ -28,6 +28,7 @@ func configShell(
 	ctx *climax.Context,
 	cfgFile string,
 ) int {
+
 	var ok bool
 	var r string
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir

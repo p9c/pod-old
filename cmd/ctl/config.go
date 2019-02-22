@@ -120,6 +120,7 @@ func cleanAndExpandPath(
 	path string,
 ) string {
 
+
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 		homeDir := filepath.Dir(PodCtlHomeDir)
@@ -306,6 +307,7 @@ func normalizeAddress(
 	useSimNet,
 	useWallet bool,
 ) string {
+
 
 	_, _, err := net.SplitHostPort(addr)
 	if err != nil {

@@ -40,6 +40,7 @@ func Main(
 ) (err error,
 ) {
 
+
 	cfg = c
 	switch activeNet.Name {
 	case "testnet":
@@ -165,6 +166,7 @@ func blockDbPath(
 	dbType string,
 ) string {
 
+
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + dbType
 	if dbType == "sqlite" {
@@ -179,6 +181,7 @@ func loadBlockDB() (
 	database.DB,
 	error,
 ) {
+
 
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if cfg.DbType == "memdb" {
@@ -251,6 +254,7 @@ func PreMain() {
 func removeRegressionDB(
 	dbPath string,
 ) error {
+
 
 	// Don't do anything if not in regression test mode.
 	if !cfg.RegressionTest {

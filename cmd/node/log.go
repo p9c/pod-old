@@ -14,6 +14,7 @@ func UseLogger(
 	logger *cl.SubSystem,
 ) {
 
+
 	Log = logger
 	log = Log.Ch
 }
@@ -22,6 +23,7 @@ func UseLogger(
 func directionString(
 	inbound bool,
 ) string {
+
 
 	if inbound {
 		return "inbound"
@@ -35,6 +37,7 @@ func pickNoun(
 	singular,
 	plural string,
 ) string {
+
 
 	if n == 1 {
 		return singular

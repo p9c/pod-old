@@ -127,6 +127,8 @@ func (
 func (
 	mp *TxPool,
 ) Count() int {
+
+
 	mp.mtx.RLock()
 	count := len(mp.pool)
 	mp.mtx.RUnlock()
@@ -188,6 +190,8 @@ func (
 func (
 	mp *TxPool,
 ) LastUpdated() time.Time {
+
+
 	return time.Unix(atomic.LoadInt64(&mp.lastUpdated), 0)
 }
 
@@ -207,6 +211,8 @@ func (
 func (
 	mp *TxPool,
 ) MiningDescs() []*mining.TxDesc {
+
+
 	mp.mtx.RLock()
 	descs := make([]*mining.TxDesc, len(mp.pool))
 	i := 0
@@ -224,6 +230,7 @@ func (
 ) ProcessOrphans(
 	acceptedTx *util.Tx,
 ) []*TxDesc {
+
 
 	mp.mtx.Lock()
 	acceptedTxns := mp.processOrphans(acceptedTx)
@@ -273,6 +280,8 @@ func (
 func (
 	mp *TxPool,
 ) RawMempoolVerbose() map[string]*json.GetRawMempoolVerboseResult {
+
+
 	mp.mtx.RLock()
 	defer mp.mtx.RUnlock()
 	result := make(map[string]*json.GetRawMempoolVerboseResult,
@@ -368,6 +377,8 @@ func (
 func (
 	mp *TxPool,
 ) TxDescs() []*TxDesc {
+
+
 	mp.mtx.RLock()
 	descs := make([]*TxDesc, len(mp.pool))
 	i := 0
@@ -383,6 +394,8 @@ func (
 func (
 	mp *TxPool,
 ) TxHashes() []*chainhash.Hash {
+
+
 	mp.mtx.RLock()
 	hashes := make([]*chainhash.Hash, len(mp.pool))
 	i := 0
@@ -533,6 +546,8 @@ func (
 func (
 	mp *TxPool,
 ) limitNumOrphans() error {
+
+
 	// Scan through the orphan pool and remove any expired orphans when it's time.  This is done for efficiency so the scan only happens periodically instead of on every orphan added to the pool.
 	if now := time.Now(); now.After(mp.nextExpireScan) {
 		origNumOrphans := len(mp.orphans)

@@ -105,6 +105,7 @@ func DefaultWalletConfig(
 	datadir string,
 ) *WalletCfg {
 
+
 	log <- cl.Dbg("getting default config")
 	appdatadir := filepath.Join(datadir, w.DefaultAppDataDirname)
 	return &WalletCfg{
@@ -145,6 +146,7 @@ func WriteDefaultWalletConfig(
 	datadir string,
 ) {
 
+
 	defCfg := DefaultWalletConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -169,6 +171,7 @@ func WriteWalletConfig(
 	c *WalletCfg,
 ) {
 
+
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -187,6 +190,7 @@ func configWallet(
 	ctx *climax.Context,
 	cfgFile string,
 ) {
+
 
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
 	if ctx.Is("createtemp") {

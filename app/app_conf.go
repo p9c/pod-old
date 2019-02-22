@@ -285,6 +285,7 @@ func DefaultConfConfig(
 	datadir string,
 ) *ConfCfg {
 
+
 	u := GenKey()
 	p := GenKey()
 	return &ConfCfg{
@@ -314,6 +315,7 @@ func WriteConfConfig(
 	cfg *ConfCfg,
 ) {
 
+
 	j, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		panic(err.Error())
@@ -330,6 +332,7 @@ func WriteConfConfig(
 func WriteDefaultConfConfig(
 	datadir string,
 ) {
+
 
 	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
@@ -354,6 +357,7 @@ func configConf(
 	datadir,
 	portbase string,
 ) {
+
 
 	cs := GetDefaultConfs(datadir)
 	SyncToConfs(cs)

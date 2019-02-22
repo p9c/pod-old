@@ -23,6 +23,7 @@ func (
 	ab *AddressBook,
 ) AddressBookData() {
 
+
 	ab.AddressBookLabel = nil
 	addressbooks, err := jdb.JDB.ReadAll("addressbook")
 	if err != nil {
@@ -43,6 +44,7 @@ func (
 ) AddressBookLabelDelete(
 	label string,
 ) {
+
 	if err := jdb.JDB.Delete("addressbook", label); err != nil {
 		fmt.Println("Error", err)
 	}

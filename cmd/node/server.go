@@ -221,6 +221,7 @@ var zeroHash chainhash.Hash
 func (
 	oa *onionAddr,
 ) Network() string {
+
 	return "onion"
 }
 
@@ -228,6 +229,7 @@ func (
 func (
 	oa *onionAddr,
 ) String() string {
+
 	return oa.addr
 }
 
@@ -235,6 +237,7 @@ func (
 func (
 	ps *peerState,
 ) Count() int {
+
 	return len(ps.inboundPeers) + len(ps.outboundPeers) +
 		len(ps.persistentPeers)
 }
@@ -243,6 +246,7 @@ func (
 func (
 	ps *peerState,
 ) forAllOutboundPeers(closure func(sp *serverPeer)) {
+
 	for _, e := range ps.outboundPeers {
 		closure(e)
 	}
@@ -255,6 +259,7 @@ func (
 func (
 	ps *peerState,
 ) forAllPeers(closure func(sp *serverPeer)) {
+
 	for _, e := range ps.inboundPeers {
 		closure(e)
 	}
@@ -265,6 +270,7 @@ func (
 func (
 	s *server,
 ) AddBytesReceived(bytesReceived uint64) {
+
 	atomic.AddUint64(&s.bytesReceived, bytesReceived)
 }
 
@@ -272,6 +278,7 @@ func (
 func (
 	s *server,
 ) AddBytesSent(bytesSent uint64) {
+
 	atomic.AddUint64(&s.bytesSent, bytesSent)
 }
 
@@ -279,6 +286,7 @@ func (
 func (
 	s *server,
 ) AddPeer(sp *serverPeer) {
+
 	s.newPeers <- sp
 }
 
@@ -286,6 +294,7 @@ func (
 func (
 	s *server,
 ) AddRebroadcastInventory(iv *wire.InvVect, data interface{}) {
+
 	// Ignore if shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
 		return
@@ -297,6 +306,7 @@ func (
 func (
 	s *server,
 ) AnnounceNewTransactions(txns []*mempool.TxDesc) {
+
 	// Generate and relay inventory vectors for all newly accepted transactions.
 	s.relayTransactions(txns)
 	// Notify both websocket and getblocktemplate long poll clients of all newly accepted transactions.
@@ -311,6 +321,7 @@ func (
 func (
 	s *server,
 ) BanPeer(sp *serverPeer) {
+
 	s.banPeers <- sp
 }
 
@@ -318,6 +329,7 @@ func (
 func (
 	s *server,
 ) BroadcastMessage(msg wire.Message, exclPeers ...*serverPeer) {
+
 	// XXX: Need to determine if this is an alert that has already been broadcast and refrain from broadcasting again.
 	bmsg := broadcastMsg{message: msg, excludePeers: exclPeers}
 	s.broadcast <- bmsg
@@ -327,6 +339,7 @@ func (
 func (
 	s *server,
 ) ConnectedCount() int32 {
+
 	replyChan := make(chan int32)
 	s.query <- getConnCountMsg{reply: replyChan}
 	return <-replyChan
@@ -336,6 +349,7 @@ func (
 func (
 	s *server,
 ) NetTotals() (uint64, uint64) {
+
 	return atomic.LoadUint64(&s.bytesReceived),
 		atomic.LoadUint64(&s.bytesSent)
 }
@@ -344,6 +358,7 @@ func (
 func (
 	s *server,
 ) OutboundGroupCount(key string) int {
+
 	replyChan := make(chan int)
 	s.query <- getOutboundGroup{key: key, reply: replyChan}
 	return <-replyChan
@@ -353,6 +368,7 @@ func (
 func (
 	s *server,
 ) RelayInventory(invVect *wire.InvVect, data interface{}) {
+
 	s.relayInv <- relayMsg{invVect: invVect, data: data}
 }
 
@@ -360,6 +376,7 @@ func (
 func (
 	s *server,
 ) RemoveRebroadcastInventory(iv *wire.InvVect) {
+
 	// Log<-cl.Debug{emoveBroadcastInventory"
 	// Ignore if shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
@@ -373,6 +390,7 @@ func (
 func (
 	s *server,
 ) ScheduleShutdown(duration time.Duration) {
+
 	// Don't schedule shutdown more than once.
 	if atomic.AddInt32(&s.shutdownSched, 1) != 1 {
 		return
@@ -415,6 +433,7 @@ func (
 func (
 	s *server,
 ) Start() {
+
 	// Log<-cl.Debug{tarting server"
 	// Already started?
 	if atomic.AddInt32(&s.started, 1) != 1 {
@@ -455,6 +474,7 @@ func (
 func (
 	s *server,
 ) Stop() error {
+
 	// Make sure this only happens once.
 	if atomic.AddInt32(&s.shutdown, 1) != 1 {
 		log <- cl.Infof{"Server is already in the process of shutting down"}
@@ -486,6 +506,7 @@ func (
 func (
 	s *server,
 ) TransactionConfirmed(tx *util.Tx) {
+
 	// Log<-cl.Debug{ransactionConfirmed"
 	// Rebroadcasting is only necessary when the RPC server is active.
 	for i := range s.rpcServers {
@@ -505,6 +526,7 @@ func (
 func (
 	s *server,
 ) UpdatePeerHeights(latestBlkHash *chainhash.Hash, latestHeight int32, updateSource *peer.Peer) {
+
 	s.peerHeightsUpdate <- updatePeerHeightsMsg{
 		newHash:    latestBlkHash,
 		newHeight:  latestHeight,
@@ -516,6 +538,7 @@ func (
 func (
 	s *server,
 ) WaitForShutdown() {
+
 	s.wg.Wait()
 }
 
@@ -523,6 +546,7 @@ func (
 func (
 	s *server,
 ) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
+
 	if sp == nil {
 		return false
 	}
@@ -582,6 +606,7 @@ func (
 func (
 	s *server,
 ) handleBanPeerMsg(state *peerState, sp *serverPeer) {
+
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
 		log <- cl.Debugf{"can't split ban peer %s %v", sp.Addr(), err}
@@ -598,6 +623,7 @@ func (
 func (
 	s *server,
 ) handleBroadcastMsg(state *peerState, bmsg *broadcastMsg) {
+
 	state.forAllPeers(func(sp *serverPeer) {
 		if !sp.Connected() {
 			return
@@ -615,6 +641,7 @@ func (
 func (
 	s *server,
 ) handleDonePeerMsg(state *peerState, sp *serverPeer) {
+
 	var list map[int32]*serverPeer
 	if sp.persistent {
 		list = state.persistentPeers
@@ -648,6 +675,7 @@ func (
 func (
 	s *server,
 ) handleQuery(state *peerState, querymsg interface{}) {
+
 	switch msg := querymsg.(type) {
 	case getConnCountMsg:
 		nconnected := int32(0)
@@ -748,6 +776,7 @@ func (
 func (
 	s *server,
 ) handleRelayInvMsg(state *peerState, msg relayMsg) {
+
 	state.forAllPeers(func(sp *serverPeer) {
 		if !sp.Connected() {
 			return
@@ -801,6 +830,7 @@ func (
 func (
 	s *server,
 ) handleUpdatePeerHeights(state *peerState, umsg updatePeerHeightsMsg) {
+
 	state.forAllPeers(func(sp *serverPeer) {
 		// The origin peer should already have the updated height.
 		if sp.Peer == umsg.originPeer {
@@ -824,6 +854,7 @@ func (
 func (
 	s *server,
 ) inboundPeerConnected(conn net.Conn) {
+
 	sp := newServerPeer(s, false)
 	sp.isWhitelisted = isWhitelisted(conn.RemoteAddr())
 	sp.Peer = peer.NewInboundPeer(newPeerConfig(sp))
@@ -835,6 +866,7 @@ func (
 func (
 	s *server,
 ) outboundPeerConnected(c *connmgr.ConnReq, conn net.Conn) {
+
 	sp := newServerPeer(s, c.Permanent)
 	p, err := peer.NewOutboundPeer(newPeerConfig(sp), c.Addr.String())
 	if err != nil {
@@ -853,6 +885,7 @@ func (
 func (
 	s *server,
 ) peerDoneHandler(sp *serverPeer) {
+
 	sp.WaitForDisconnect()
 	s.donePeers <- sp
 	// Only tell sync manager we are gone if we ever told it we existed.
@@ -875,6 +908,7 @@ func (
 func (
 	s *server,
 ) peerHandler() {
+
 	// Start the address manager and sync manager, both of which are needed by peers.  This is done here since their lifecycle is closely tied to this handler and rather than adding more channels to sychronize things, it's easier and slightly faster to simply start and stop them in this handler.
 	s.addrManager.Start()
 	s.syncManager.Start()
@@ -961,7 +995,8 @@ cleanup:
 // pushBlockMsg sends a block message for the provided block hash to the connected peer.  An error is returned if the block hash is not known.
 func (
 	s *server,
-) pushBlockMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{},
+) pushBlockMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{
+},
 	waitChan <-chan struct{}, encoding wire.MessageEncoding) error {
 	// Fetch the raw block bytes from the database.
 	var blockBytes []byte
@@ -1072,7 +1107,8 @@ func (
 // pushTxMsg sends a tx message for the provided transaction hash to the connected peer.  An error is returned if the transaction hash is not known.
 func (
 	s *server,
-) pushTxMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{},
+) pushTxMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{
+},
 	waitChan <-chan struct{}, encoding wire.MessageEncoding) error {
 	// Attempt to fetch the requested transaction from the pool.  A call could be made to check for existence first, but simply trying to fetch a missing transaction results in the same behavior.
 	tx, err := s.txMemPool.FetchTransaction(hash)
@@ -1097,6 +1133,7 @@ func (
 func (
 	s *server,
 ) rebroadcastHandler() {
+
 	// Log<-cl.Debug{tarting rebroadcastHandler"
 	// Wait 5 min before first tx rebroadcast.
 	timer := time.NewTimer(5 * time.Minute)
@@ -1152,6 +1189,7 @@ cleanup:
 func (
 	s *server,
 ) relayTransactions(txns []*mempool.TxDesc) {
+
 	for _, txD := range txns {
 		iv := wire.NewInvVect(wire.InvTypeTx, txD.Tx.Hash())
 		s.RelayInventory(iv, txD)
@@ -1161,6 +1199,7 @@ func (
 func (
 	s *server,
 ) upnpUpdateThread() {
+
 	// Go off immediately to prevent code duplication, thereafter we renew lease every 15 minutes.
 	timer := time.NewTimer(0 * time.Second)
 	lport, _ := strconv.ParseInt(ActiveNetParams.DefaultPort, 10, 16)
@@ -1215,6 +1254,7 @@ out:
 func (
 	sp *serverPeer,
 ) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
+
 	// Ignore addresses when running on the simulation test network.  This helps prevent the network from becoming another public test network since it will not be able to learn about other peers that have not specifically been provided.
 	if cfg.SimNet {
 		return
@@ -1253,6 +1293,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnBlock(_ *peer.Peer, msg *wire.MsgBlock, buf []byte) {
+
 	// Convert the raw MsgBlock to a util.Block which provides some convenience methods and things such as hash caching.
 	block := util.NewBlockFromBlockAndBytes(msg, buf)
 	// Add the block to the known inventory for the peer.
@@ -1267,6 +1308,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
+
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
 		log <- cl.Debugf{
@@ -1282,6 +1324,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnFilterAdd(_ *peer.Peer, msg *wire.MsgFilterAdd) {
+
 	// Disconnect and/or ban depending on the node bloom services flag and negotiated protocol version.
 	if !sp.enforceNodeBloomFlag(msg.Command()) {
 		return
@@ -1300,6 +1343,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnFilterClear(_ *peer.Peer, msg *wire.MsgFilterClear) {
+
 	// Disconnect and/or ban depending on the node bloom services flag and negotiated protocol version.
 	if !sp.enforceNodeBloomFlag(msg.Command()) {
 		return
@@ -1318,6 +1362,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnFilterLoad(_ *peer.Peer, msg *wire.MsgFilterLoad) {
+
 	// Disconnect and/or ban depending on the node bloom services flag and negotiated protocol version.
 	if !sp.enforceNodeBloomFlag(msg.Command()) {
 		return
@@ -1330,6 +1375,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetAddr(_ *peer.Peer, msg *wire.MsgGetAddr) {
+
 	// Don't return any addresses when running on the simulation test network.  This helps prevent the network from becoming another public test network since it will not be able to learn about other peers that have not specifically been provided.
 	if cfg.SimNet {
 		return
@@ -1355,6 +1401,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetBlocks(_ *peer.Peer, msg *wire.MsgGetBlocks) {
+
 	// Find the most recent known block in the best chain based on the block locator and fetch all of the block hashes after it until either wire.MaxBlocksPerMsg have been fetched or the provided stop hash is encountered. Use the block after the genesis block if no other blocks in the provided locator are known.  This does mean the client will start over with the genesis block if unknown block locators are provided. This mirrors the behavior in the reference implementation.
 	chain := sp.server.chain
 	hashList := chain.LocateBlocks(msg.BlockLocatorHashes, &msg.HashStop,
@@ -1381,6 +1428,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetCFCheckpt(_ *peer.Peer, msg *wire.MsgGetCFCheckpt) {
+
 	// Ignore getcfcheckpt requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
 		return
@@ -1497,6 +1545,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetCFHeaders(_ *peer.Peer, msg *wire.MsgGetCFHeaders) {
+
 	// Ignore getcfilterheader requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
 		return
@@ -1599,6 +1648,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetCFilters(_ *peer.Peer, msg *wire.MsgGetCFilters) {
+
 	// Ignore getcfilters requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
 		return
@@ -1646,6 +1696,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetData(_ *peer.Peer, msg *wire.MsgGetData) {
+
 	numAdded := 0
 	notFound := wire.NewMsgNotFound()
 	length := len(msg.InvList)
@@ -1704,6 +1755,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnGetHeaders(_ *peer.Peer, msg *wire.MsgGetHeaders) {
+
 	// Ignore getheaders requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
 		return
@@ -1723,6 +1775,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnHeaders(_ *peer.Peer, msg *wire.MsgHeaders) {
+
 	sp.server.syncManager.QueueHeaders(msg, sp.Peer)
 }
 
@@ -1730,6 +1783,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnInv(_ *peer.Peer, msg *wire.MsgInv) {
+
 	if !cfg.BlocksOnly {
 		if len(msg.InvList) > 0 {
 			sp.server.syncManager.QueueInv(msg, sp.Peer)
@@ -1767,6 +1821,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnMemPool(_ *peer.Peer, msg *wire.MsgMemPool) {
+
 	// Only allow mempool requests if the server has bloom filtering enabled.
 	if sp.server.services&wire.SFNodeBloom != wire.SFNodeBloom {
 		log <- cl.Debugf{
@@ -1801,6 +1856,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnRead(_ *peer.Peer, bytesRead int, msg wire.Message, err error) {
+
 	sp.server.AddBytesReceived(uint64(bytesRead))
 }
 
@@ -1808,6 +1864,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnTx(_ *peer.Peer, msg *wire.MsgTx) {
+
 	if cfg.BlocksOnly {
 		log <- cl.Tracef{
 			"ignoring tx %v from %v - blocksonly enabled",
@@ -1828,6 +1885,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgReject {
+
 	// Update the address manager with the advertised services for outbound connections in case they have changed.  This is not done for inbound connections to help prevent malicious behavior and is skipped when running on the simulation test network since it is only intended to connect to specified peers and actively avoids advertising and connecting to discovered peers. NOTE: This is done before rejecting peers that are too old to ensure it is updated regardless in the case a new minimum protocol version is enforced and the remote node has not upgraded yet.
 	isInbound := sp.Inbound()
 	remoteAddr := sp.NA()
@@ -1903,6 +1961,7 @@ func (
 func (
 	sp *serverPeer,
 ) OnWrite(_ *peer.Peer, bytesWritten int, msg wire.Message, err error) {
+
 	sp.server.AddBytesSent(uint64(bytesWritten))
 }
 
@@ -1910,6 +1969,7 @@ func (
 func (
 	sp *serverPeer,
 ) addBanScore(persistent, transient uint32, reason string) {
+
 	// No warning is logged and no score is calculated if banning is disabled.
 	if cfg.DisableBanning {
 		return
@@ -1952,6 +2012,7 @@ func (
 func (
 	sp *serverPeer,
 ) addKnownAddresses(addresses []*wire.NetAddress) {
+
 	for _, na := range addresses {
 		sp.knownAddresses[addrmgr.NetAddressKey(na)] = struct{}{}
 	}
@@ -1961,6 +2022,7 @@ func (
 func (
 	sp *serverPeer,
 ) addressKnown(na *wire.NetAddress) bool {
+
 	_, exists := sp.knownAddresses[addrmgr.NetAddressKey(na)]
 	return exists
 }
@@ -1969,6 +2031,7 @@ func (
 func (
 	sp *serverPeer,
 ) enforceNodeBloomFlag(cmd string) bool {
+
 	if sp.server.services&wire.SFNodeBloom != wire.SFNodeBloom {
 		// Ban the peer if the protocol version is high enough that the peer is knowingly violating the protocol and banning is enabled. NOTE: Even though the addBanScore function already examines whether or not banning is enabled, it is checked here as well to ensure the violation is logged and the peer is disconnected regardless.
 		if sp.ProtocolVersion() >= wire.BIP0111Version &&
@@ -1992,6 +2055,7 @@ func (
 func (
 	sp *serverPeer,
 ) newestBlock() (*chainhash.Hash, int32, error) {
+
 	best := sp.server.chain.BestSnapshot()
 	return &best.Hash, best.Height, nil
 }
@@ -2000,6 +2064,7 @@ func (
 func (
 	sp *serverPeer,
 ) pushAddrMsg(addresses []*wire.NetAddress) {
+
 	// Filter addresses already known to the peer.
 	addrs := make([]*wire.NetAddress, 0, len(addresses))
 	for _, addr := range addresses {
@@ -2022,6 +2087,7 @@ func (
 func (
 	sp *serverPeer,
 ) relayTxDisabled() bool {
+
 	sp.relayMtx.Lock()
 	isDisabled := sp.disableRelayTx
 	sp.relayMtx.Unlock()
@@ -2032,6 +2098,7 @@ func (
 func (
 	sp *serverPeer,
 ) setDisableRelayTx(disable bool) {
+
 	sp.relayMtx.Lock()
 	sp.disableRelayTx = disable
 	sp.relayMtx.Unlock()
@@ -2041,6 +2108,7 @@ func (
 func (
 	s checkpointSorter,
 ) Len() int {
+
 	return len(s)
 }
 
@@ -2049,6 +2117,7 @@ func (
 func (
 	s checkpointSorter,
 ) Less(i, j int) bool {
+
 	return s[i].Height < s[j].Height
 }
 
@@ -2056,6 +2125,7 @@ func (
 func (
 	s checkpointSorter,
 ) Swap(i, j int) {
+
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -2063,6 +2133,7 @@ func (
 func (
 	a simpleAddr,
 ) Network() string {
+
 	return a.net
 }
 
@@ -2070,6 +2141,7 @@ func (
 func (
 	a simpleAddr,
 ) String() string {
+
 	return a.addr
 }
 

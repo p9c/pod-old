@@ -1008,6 +1008,7 @@ func (b *BlockChain) HeightToHashRange(startHeight int32,
 // IntervalBlockHashes returns hashes for all blocks that are ancestors of endHash where the block height is a positive multiple of interval. This function is safe for concurrent access.
 func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 ) ([]chainhash.Hash, error) {
+
 	endNode := b.Index.LookupNode(endHash)
 	if endNode == nil {
 		return nil, fmt.Errorf("no known block header with hash %v", endHash)

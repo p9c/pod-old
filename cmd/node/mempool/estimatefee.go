@@ -130,6 +130,7 @@ func (
 func (
 	ef *FeeEstimator,
 ) LastKnownHeight() int32 {
+
 	ef.mtx.Lock()
 	defer ef.mtx.Unlock()
 	return ef.lastKnownHeight
@@ -276,6 +277,7 @@ func (
 func (
 	ef *FeeEstimator,
 ) Save() FeeEstimatorState {
+
 	ef.mtx.Lock()
 	defer ef.mtx.Unlock()
 	// TODO figure out what the capacity should be.
@@ -358,6 +360,7 @@ func (
 func (
 	ef *FeeEstimator,
 ) estimates() []SatoshiPerByte {
+
 	set := ef.newEstimateFeeSet()
 	estimates := make([]SatoshiPerByte, estimateFeeDepth)
 	for i := 0; i < estimateFeeDepth; i++ {
@@ -370,6 +373,7 @@ func (
 func (
 	ef *FeeEstimator,
 ) newEstimateFeeSet() *estimateFeeSet {
+
 	set := &estimateFeeSet{}
 	capacity := 0
 	for i, b := range ef.bin {
@@ -393,6 +397,7 @@ func (
 func (
 	ef *FeeEstimator,
 ) rollback() {
+
 	// The previous sorted list is invalid, so delete it.
 	ef.cached = nil
 	// pop the last list of dropped txs from the stack.
@@ -455,6 +460,7 @@ func (
 func (
 	b *estimateFeeSet,
 ) Len() int {
+
 	return len(b.feeRate)
 }
 func (
@@ -558,6 +564,7 @@ func (
 func (
 	rate SatoshiPerByte,
 ) ToBtcPerKb() BtcPerKilobyte {
+
 	// If our rate is the error value, return that.
 	if rate == SatoshiPerByte(-1.0) {
 		return -1.0
@@ -568,6 +575,7 @@ func (
 func (
 	q observedTxSet,
 ) Len() int {
+
 	return len(q)
 }
 func (

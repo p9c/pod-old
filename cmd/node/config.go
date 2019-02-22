@@ -199,6 +199,7 @@ var runServiceCommand func(string) error
 func CleanAndExpandPath(
 	path string,
 ) string {
+
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 		homeDir := filepath.Dir(DefaultHomeDir)
@@ -212,6 +213,7 @@ func CleanAndExpandPath(
 func FileExists(
 	name string,
 ) bool {
+
 
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
@@ -228,6 +230,7 @@ func NewCheckpointFromStr(
 	chaincfg.Checkpoint,
 	error,
 ) {
+
 
 	parts := strings.Split(checkpoint, ":")
 	if len(parts) != 2 {
@@ -262,6 +265,7 @@ func NewConfigParser(
 	options flags.Options,
 ) *flags.Parser {
 
+
 	parser := flags.NewParser(cfg, options)
 	if runtime.GOOS == "windows" {
 		_, e := parser.AddGroup("Service Options", "Service Options", so)
@@ -278,6 +282,7 @@ func NormalizeAddress(
 	defaultPort string,
 ) string {
 
+
 	_, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		return net.JoinHostPort(addr, defaultPort)
@@ -290,6 +295,7 @@ func NormalizeAddresses(
 	addrs []string,
 	defaultPort string,
 ) []string {
+
 
 	for i, addr := range addrs {
 		addrs[i] = NormalizeAddress(addr, defaultPort)
@@ -304,6 +310,7 @@ func ParseCheckpoints(
 	[]chaincfg.Checkpoint,
 	error,
 ) {
+
 	if len(checkpointStrings) == 0 {
 		return nil, nil
 	}
@@ -323,6 +330,7 @@ func RemoveDuplicateAddresses(
 	addrs []string,
 ) []string {
 
+
 	result := make([]string, 0, len(addrs))
 	seen := map[string]struct{}{}
 	for _, val := range addrs {
@@ -339,6 +347,7 @@ func ValidDbType(
 	dbType string,
 ) bool {
 
+
 	for _, knownType := range KnownDbTypes {
 		if dbType == knownType {
 			return true
@@ -351,6 +360,7 @@ func ValidDbType(
 func ValidLogLevel(
 	logLevel string,
 ) bool {
+
 
 	switch logLevel {
 	case "trace":
@@ -373,6 +383,7 @@ func ValidLogLevel(
 func createDefaultConfigFile(
 	destinationPath string,
 ) error {
+
 	// Create the destination directory if it does not exists
 	err := os.MkdirAll(filepath.Dir(destinationPath), 0700)
 	if err != nil {
@@ -430,6 +441,7 @@ func loadConfig() (
 	*Config, []string,
 	error,
 ) {
+
 	// Default config.
 	cfg := Config{
 		ConfigFile:           DefaultConfigFile,
@@ -993,6 +1005,7 @@ func podDial(
 	error,
 ) {
 
+
 	if strings.Contains(addr.String(), ".onion:") {
 		return StateCfg.Oniondial(addr.Network(), addr.String(),
 			DefaultConnectTimeout)
@@ -1007,6 +1020,7 @@ func podLookup(
 ) ([]net.IP,
 	error,
 ) {
+
 
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)

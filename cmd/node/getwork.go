@@ -31,6 +31,7 @@ var hash1Len = (1 + ((chainhash.HashSize + 8) / fastsha256.BlockSize)) * fastsha
 func bigToLEUint256(
 	n *big.Int,
 ) [uint256Size]byte {
+
 	// Pad or truncate the big-endian big int to correct number of bytes.
 	nBytes := n.Bytes()
 	nlen := len(nBytes)
@@ -54,9 +55,11 @@ func handleGetWork(
 	s *rpcServer,
 	cmd interface{},
 	closeChan <-chan struct{},
-) (interface{},
+) (interface{
+},
 	error,
 ) {
+
 
 	c := cmd.(*json.GetWorkCmd)
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
@@ -212,6 +215,7 @@ func handleGetWorkSubmission(
 	error,
 ) {
 
+
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {
 		hexData = "0" + hexData
@@ -310,6 +314,7 @@ func handleGetWorkSubmission(
 func reverseUint32Array(
 	b []byte,
 ) {
+
 
 	blen := len(b)
 	for i := 0; i < blen; i += 4 {

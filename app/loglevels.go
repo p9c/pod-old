@@ -94,6 +94,7 @@ func GetDefaultLogLevelsConfig() map[string]string {
 func SetAllLogging(
 	level string,
 ) {
+
 	ss := GetAllSubSystems()
 	for i := range ss {
 		ss[i].SetLevel(level)
@@ -104,6 +105,7 @@ func SetAllLogging(
 func SetLogging(
 	ctx *climax.Context,
 ) {
+
 
 	ss := GetAllSubSystems()
 	var baselevel = "info"

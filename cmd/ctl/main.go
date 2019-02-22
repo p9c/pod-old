@@ -24,6 +24,7 @@ func Main(
 	cfg *Config,
 ) {
 
+
 	if len(args) < 1 {
 		usage("No command specified")
 		os.Exit(1)
@@ -120,6 +121,7 @@ func commandUsage(
 	method string,
 ) {
 
+
 	usage, err := json.MethodUsageText(method)
 	if err != nil {
 		// This should never happen since the method was already checked before calling this function, but be safe.
@@ -134,6 +136,7 @@ func commandUsage(
 func usage(
 	errorMessage string,
 ) {
+
 
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))

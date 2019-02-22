@@ -244,6 +244,7 @@ func DefaultNodeConfig(
 	datadir string,
 ) *NodeCfg {
 
+
 	user := GenKey()
 	pass := GenKey()
 	params := node.MainNetParams
@@ -299,6 +300,7 @@ func WriteDefaultNodeConfig(
 	datadir string,
 ) {
 
+
 	log <- cl.Dbg("writing default config")
 	defCfg := DefaultNodeConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
@@ -326,6 +328,7 @@ func WriteDefaultNodeConfig(
 func WriteNodeConfig(
 	c *NodeCfg,
 ) {
+
 
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")

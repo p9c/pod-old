@@ -393,6 +393,7 @@ func (
 	blockHash *chainhash.Hash,
 ) {
 
+
 	go func() {
 		state.Lock()
 		defer state.Unlock()
@@ -406,6 +407,7 @@ func (
 ) NotifyMempoolTx(
 	lastUpdated time.Time,
 ) {
+
 
 	go func() {
 		state.Lock()
@@ -430,6 +432,7 @@ func (
 	*json.GetBlockTemplateResult,
 	error,
 ) {
+
 
 	// Ensure the timestamps are still in valid range for the template. This should really only ever happen if the local clock is changed after the template is generated, but it's important to avoid serving invalid block templates.
 	template := state.template
@@ -552,6 +555,7 @@ func (
 	lastGenerated time.Time,
 ) {
 
+
 	// Notify anything that is waiting for a block template update from a hash which is not the hash of the tip of the best chain since their work is now invalid.
 	for hash, channels := range state.notifyMap {
 		if !hash.IsEqual(latestHash) {
@@ -592,6 +596,7 @@ func (
 	lastGenerated int64,
 ) chan struct{} {
 
+
 	// Either get the current list of channels waiting for updates about changes to block template for the previous hash or create a new one.
 	channels, ok := state.notifyMap[*prevHash]
 	if !ok {
@@ -615,6 +620,7 @@ func (
 	s *rpcServer,
 	useCoinbaseValue bool,
 ) error {
+
 
 	generator := s.cfg.Generator
 	lastTxUpdate := generator.TxSource().LastUpdated()
@@ -706,6 +712,7 @@ func (
 	txns []*mempool.TxDesc,
 ) {
 
+
 	for _, txD := range txns {
 		// Notify websocket clients about mempool transactions.
 		s.ntfnMgr.NotifyMempoolTx(txD.Tx, true)
@@ -718,6 +725,7 @@ func (
 func (
 	s *rpcServer,
 ) RequestedProcessShutdown() <-chan struct{} {
+
 	return s.requestProcessShutdown
 }
 
@@ -725,6 +733,7 @@ func (
 func (
 	s *rpcServer,
 ) Start() {
+
 	if atomic.AddInt32(&s.started, 1) != 1 {
 		return
 	}
@@ -787,6 +796,7 @@ func (
 func (
 	s *rpcServer,
 ) Stop() error {
+
 	if atomic.AddInt32(&s.shutdown, 1) != 1 {
 		log <- cl.Inf("RPC server is already in the process of shutting down")
 		return nil
@@ -818,6 +828,7 @@ func (
 	bool, error,
 ) {
 
+
 	authhdr := r.Header["Authorization"]
 	if len(authhdr) <= 0 {
 		if require {
@@ -846,6 +857,7 @@ func (
 func (
 	s *rpcServer,
 ) decrementClients() {
+
 	atomic.AddInt32(&s.numClients, -1)
 }
 
@@ -855,6 +867,7 @@ func (
 ) handleBlockchainNotification(
 	notification *blockchain.Notification,
 ) {
+
 
 	switch notification.Type {
 	case blockchain.NTBlockAccepted:
@@ -892,6 +905,7 @@ func (
 	code int,
 ) string {
 
+
 	// Fast path:
 	key := code
 	proto11 := req.ProtoAtLeast(1, 1)
@@ -927,6 +941,7 @@ func (
 func (
 	s *rpcServer,
 ) incrementClients() {
+
 	atomic.AddInt32(&s.numClients, 1)
 }
 
@@ -938,6 +953,7 @@ func (
 	r *http.Request,
 	isAdmin bool,
 ) {
+
 
 	if atomic.LoadInt32(&s.shutdown) != 0 {
 		return
@@ -1044,6 +1060,7 @@ func (
 	remoteAddr string,
 ) bool {
 
+
 	if int(atomic.LoadInt32(&s.numClients)+1) > cfg.RPCMaxClients {
 		log <- cl.Infof{
 			"max RPC clients exceeded [%d] - disconnecting client %s",
@@ -1065,6 +1082,7 @@ func (
 	interface{},
 	error,
 ) {
+
 
 	handler, ok := rpcHandlers[cmd.method]
 	if ok {
@@ -1095,6 +1113,7 @@ func (
 	w io.Writer,
 ) error {
 
+
 	_, err := io.WriteString(w, s.httpStatusLine(req, code))
 	if err != nil {
 		return err
@@ -1112,6 +1131,7 @@ func builderScript(
 	builder *txscript.ScriptBuilder,
 ) []byte {
 
+
 	script, err := builder.Script()
 	if err != nil {
 		panic(err)
@@ -1123,6 +1143,7 @@ func builderScript(
 func chainErrToGBTErrString(
 	err error,
 ) string {
+
 
 	// When the passed error is not a RuleError, just return a generic rejected string with the error text.
 	ruleErr, ok := err.(blockchain.RuleError)
@@ -1230,6 +1251,7 @@ func createMarshalledReply(
 	error,
 ) {
 
+
 	var jsonErr *json.RPCError
 	if replyErr != nil {
 		if jErr, ok := replyErr.(*json.RPCError); ok {
@@ -1254,6 +1276,7 @@ func createTxRawResult(
 	*json.TxRawResult,
 	error,
 ) {
+
 
 	mtxHex, err := messageToHex(mtx)
 	if err != nil {
@@ -1284,6 +1307,7 @@ func createTxRawResult(
 func createVinList(
 	mtx *wire.MsgTx,
 ) []json.Vin {
+
 
 	// Coinbase transactions only have a single txin by definition.
 	vinList := make([]json.Vin, len(mtx.TxIn))
@@ -1323,6 +1347,7 @@ func createVinListPrevOut(
 	[]json.VinPrevOut,
 	error,
 ) {
+
 
 	// Coinbase transactions only have a single txin by definition.
 	if blockchain.IsCoinBaseTx(mtx) {
@@ -1419,6 +1444,7 @@ func createVoutList(
 	filterAddrMap map[string]struct{},
 ) []json.Vout {
 
+
 	voutList := make([]json.Vout, 0, len(mtx.TxOut))
 	for i, v := range mtx.TxOut {
 		// The disassembled string will contain [error] inline if the script doesn't fully parse, so ignore the error here.
@@ -1464,6 +1490,7 @@ func decodeTemplateID(
 	error,
 ) {
 
+
 	fields := strings.Split(templateID, "-")
 	if len(fields) != 2 {
 		return nil, 0, errors.New("invalid longpollid format")
@@ -1485,6 +1512,7 @@ func encodeTemplateID(
 	lastGenerated time.Time,
 ) string {
 
+
 	return fmt.Sprintf("%s-%d", prevHash.String(), lastGenerated.Unix())
 }
 
@@ -1496,6 +1524,7 @@ func fetchInputTxos(
 	map[wire.OutPoint]wire.TxOut,
 	error,
 ) {
+
 
 	mp := s.cfg.TxMemPool
 	originOutputs := make(map[wire.OutPoint]wire.TxOut)
@@ -1560,6 +1589,7 @@ func fetchMempoolTxnsForAddress(
 	uint32,
 ) {
 
+
 	// There are no entries to return when there are less available than the number being skipped.
 	mpTxns := s.cfg.AddrIndex.UnconfirmedTxnsForAddress(addr)
 	numAvailable := uint32(len(mpTxns))
@@ -1579,6 +1609,7 @@ func genCertPair(
 	certFile,
 	keyFile string,
 ) error {
+
 
 	log <- cl.Inf("generating TLS certificates...")
 	org := "pod autogenerated cert"
@@ -1606,6 +1637,7 @@ func getDifficultyRatio(
 	algo int32,
 ) float64 {
 
+
 	// The minimum difficulty is the max possible proof-of-work limit bits converted back to a number.  Note this is not the same as the proof of work limit directly because the block difficulty is encoded in a block with the compact form which loses precision.
 	max := blockchain.CompactToBig(0x1d00ffff)
 	target := blockchain.CompactToBig(bits)
@@ -1628,6 +1660,7 @@ func handleAddNode(
 	interface{},
 	error,
 ) {
+
 
 	c := cmd.(*json.AddNodeCmd)
 	addr := NormalizeAddress(c.Addr, s.cfg.ChainParams.DefaultPort)
@@ -1664,6 +1697,7 @@ func handleAskWallet(
 	interface{},
 	error,
 ) {
+
 	return nil, ErrRPCNoWallet
 }
 
@@ -1676,6 +1710,7 @@ func handleCreateRawTransaction(
 	interface{},
 	error,
 ) {
+
 
 	c := cmd.(*json.CreateRawTransactionCmd)
 	// Validate the locktime, if given.
@@ -3894,6 +3929,7 @@ func handleVersion(
 	error,
 ) {
 
+
 	result := map[string]json.VersionResult{
 		"podjsonrpcapi": {
 			VersionString: jsonrpcSemverString,
@@ -3925,6 +3961,7 @@ func internalRPCError(
 func jsonAuthFail(
 	w http.ResponseWriter,
 ) {
+
 	w.Header().Add("WWW-Authenticate", `Basic realm="pod RPC"`)
 	http.Error(w, "401 Unauthorized.", http.StatusUnauthorized)
 }
@@ -3936,6 +3973,7 @@ func messageToHex(
 	string,
 	error,
 ) {
+
 
 	var buf bytes.Buffer
 	if err := msg.BtcEncode(&buf, maxProtocolVersion, wire.WitnessEncoding); err != nil {
@@ -3951,6 +3989,7 @@ func newGbtWorkState(
 	algoname string,
 ) *gbtWorkState {
 
+
 	return &gbtWorkState{
 		notifyMap:  make(map[chainhash.Hash]map[int64]chan struct{}),
 		timeSource: timeSource,
@@ -3965,6 +4004,7 @@ func newRPCServer(
 	*rpcServer,
 	error,
 ) {
+
 
 	rpc := rpcServer{
 		cfg:                    *config,
@@ -3994,6 +4034,7 @@ func parseCmd(
 	request *json.Request,
 ) *parsedRPCCmd {
 
+
 	var parsedCmd parsedRPCCmd
 	parsedCmd.id = request.ID
 	parsedCmd.method = request.Method
@@ -4021,6 +4062,7 @@ func peerExists(
 	nodeID int32,
 ) bool {
 
+
 	for _, p := range connMgr.ConnectedPeers() {
 		if p.ToPeer().ID() == nodeID || p.ToPeer().Addr() == addr {
 			return true
@@ -4034,6 +4076,7 @@ func rpcDecodeHexError(
 	gotHex string,
 ) *json.RPCError {
 
+
 	return json.NewRPCError(json.ErrRPCDecodeHexString,
 		fmt.Sprintf("Argument must be hexadecimal string (not %q)",
 			gotHex))
@@ -4043,6 +4086,7 @@ func rpcDecodeHexError(
 func rpcNoTxInfoError(
 	txHash *chainhash.Hash,
 ) *json.RPCError {
+
 
 	return json.NewRPCError(json.ErrRPCNoTxInfo,
 		fmt.Sprintf("No information available about transaction %v",
@@ -4056,6 +4100,7 @@ func softForkStatus(
 	string,
 	error,
 ) {
+
 
 	switch state {
 	case blockchain.ThresholdDefined:
@@ -4078,6 +4123,7 @@ func verifyChain(
 	level,
 	depth int32,
 ) error {
+
 
 	best := s.cfg.Chain.BestSnapshot()
 	finishHeight := best.Height - depth

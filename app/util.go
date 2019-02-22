@@ -43,6 +43,7 @@ func EnsureDir(
 	fileName string,
 ) {
 
+
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
 		merr := os.MkdirAll(dirName, os.ModePerm)
@@ -60,6 +61,7 @@ func FileExists(
 	error,
 ) {
 
+
 	_, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -76,6 +78,7 @@ func GenFlag(
 	usage,
 	help string,
 ) climax.Flag {
+
 
 	return climax.Flag{
 		Name:     name,
@@ -98,6 +101,7 @@ func GenLog(
 	name string,
 ) climax.Flag {
 
+
 	return climax.Flag{
 		Name:     name,
 		Usage:    "--" + name + `="info"`,
@@ -112,6 +116,7 @@ func GenShort(
 	usage,
 	help string,
 ) climax.Flag {
+
 
 	return climax.Flag{
 		Name:     name,
@@ -129,6 +134,7 @@ func GenTrig(
 	help string,
 ) climax.Flag {
 
+
 	return climax.Flag{
 		Name:     name,
 		Short:    short,
@@ -143,6 +149,7 @@ func NormalizeAddress(
 	defaultPort string,
 	out *string,
 ) {
+
 
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
@@ -162,6 +169,7 @@ func NormalizeAddresses(
 	defaultPort string,
 	out *[]string,
 ) {
+
 
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")

@@ -181,6 +181,7 @@ func DefaultShellConfig(
 	datadir string,
 ) *shell.Config {
 
+
 	log <- cl.Dbg("getting default config")
 	u := GenKey()
 	p := GenKey()
@@ -256,6 +257,7 @@ func WriteDefaultShellConfig(
 	datadir string,
 ) {
 
+
 	defCfg := DefaultShellConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
@@ -279,6 +281,7 @@ func WriteShellConfig(
 	c *shell.Config,
 ) {
 
+
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -295,6 +298,7 @@ func WriteShellConfig(
 func shellHandle(
 	ctx climax.Context,
 ) int {
+
 
 	var dl string
 	var ok bool

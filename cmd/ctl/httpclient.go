@@ -22,6 +22,7 @@ func newHTTPClient(
 	error,
 ) {
 
+
 	// Configure proxy if needed.
 	var dial func(network, addr string) (net.Conn, error)
 	if cfg.Proxy != "" {
@@ -70,6 +71,7 @@ func sendPostRequest(
 	[]byte,
 	error,
 ) {
+
 	// Generate a request to the configured RPC server.
 	protocol := "http"
 	if cfg.TLS {
