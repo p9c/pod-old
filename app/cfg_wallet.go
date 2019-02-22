@@ -16,6 +16,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // DefaultWalletConfig returns a default configuration
 func DefaultWalletConfig(
 	datadir string,
@@ -56,6 +57,7 @@ func DefaultWalletConfig(
 	}
 }
 
+
 // WriteDefaultWalletConfig creates and writes a default config to the requested location
 func WriteDefaultWalletConfig(
 	datadir string,
@@ -76,9 +78,11 @@ func WriteDefaultWalletConfig(
 		log <- cl.Error{"writing app config file", err}
 		panic(err)
 	}
+
 	// if we are writing default config we also want to use it
 	WalletConfig = defCfg
 }
+
 
 // WriteWalletConfig creates and writes the config file in the requested location
 func WriteWalletConfig(
@@ -206,6 +210,7 @@ func configWallet(
 		}
 	}
 
+
 	// finished configuration
 	SetLogging(ctx)
 
@@ -223,6 +228,7 @@ func configWallet(
 }
 
 func init() {
+
 
 	// Loads after the var clauses run
 	WalletCommand.Handle = func(ctx climax.Context) int {

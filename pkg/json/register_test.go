@@ -26,6 +26,7 @@ func TestUsageFlagStringer(
 		{json.UFWalletOnly | json.UFWebsocketOnly | (1 << 31),
 			"UFWalletOnly|UFWebsocketOnly|0x80000000"},
 	}
+
 	// Detect additional usage flags that don't have the stringer added.
 	numUsageFlags := 0
 	highestUsageFlagBit := json.TstHighestUsageFlagBit
@@ -225,7 +226,9 @@ func TestMustRegisterCmdPanic(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Setup a defer to catch the expected panic to ensure it actually
+
 	// paniced.
 	defer func() {
 
@@ -233,6 +236,7 @@ func TestMustRegisterCmdPanic(
 			t.Error("MustRegisterCmd did not panic as expected")
 		}
 	}()
+
 	// Intentionally try to register an invalid type to force a panic.
 	json.MustRegisterCmd("panicme", 0, 0)
 }
@@ -242,11 +246,13 @@ func TestRegisteredCmdMethods(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Ensure the registered methods are returned.
 	methods := json.RegisteredCmdMethods()
 	if len(methods) == 0 {
 		t.Fatal("RegisteredCmdMethods: no methods")
 	}
+
 	// Ensure the returned methods are sorted.
 	sortedMethods := make([]string, len(methods))
 	copy(sortedMethods, methods)

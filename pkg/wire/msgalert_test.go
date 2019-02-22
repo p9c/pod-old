@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+
 // TestMsgAlert tests the MsgAlert API.
 func TestMsgAlert(
 	t *testing.T) {
@@ -16,6 +17,7 @@ func TestMsgAlert(
 	encoding := BaseEncoding
 	serializedpayload := []byte("some message")
 	signature := []byte("some sig")
+
 	// Ensure we get the same payload and signature back out.
 	msg := NewMsgAlert(serializedpayload, signature)
 	if !reflect.DeepEqual(msg.SerializedPayload, serializedpayload) {
@@ -28,12 +30,14 @@ func TestMsgAlert(
 		t.Errorf("NewMsgAlert: wrong signature - got %v, want %v",
 			msg.Signature, signature)
 	}
+
 	// Ensure the command is expected value.
 	wantCmd := "alert"
 	if cmd := msg.Command(); cmd != wantCmd {
 		t.Errorf("NewMsgAlert: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
+
 	// Ensure max payload is expected value.
 	wantPayload := uint32(1024 * 1024 * 32)
 	maxPayload := msg.MaxPayloadLength(pver)
@@ -42,12 +46,14 @@ func TestMsgAlert(
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
 	}
+
 	// Test BtcEncode with Payload == nil
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, encoding)
 	if err != nil {
 		t.Error(err.Error())
 	}
+
 	// expected = 0x0c + serializedpayload + 0x08 + signature
 	expectedBuf := append([]byte{0x0c}, serializedpayload...)
 	expectedBuf = append(expectedBuf, []byte{0x08}...)
@@ -57,6 +63,7 @@ func TestMsgAlert(
 		t.Errorf("BtcEncode got: %s want: %s",
 			spew.Sdump(buf.Bytes()), spew.Sdump(expectedBuf))
 	}
+
 	// Test BtcEncode with Payload != nil note: Payload is an empty Alert but not nil
 	msg.Payload = new(Alert)
 	buf = *new(bytes.Buffer)
@@ -64,6 +71,7 @@ func TestMsgAlert(
 	if err != nil {
 		t.Error(err.Error())
 	}
+
 	// empty Alert is 45 null bytes, see Alert comments for details expected = 0x2d + 45*0x00 + 0x08 + signature
 	expectedBuf = append([]byte{0x2d}, bytes.Repeat([]byte{0x00}, 45)...)
 	expectedBuf = append(expectedBuf, []byte{0x08}...)
@@ -74,6 +82,7 @@ func TestMsgAlert(
 			spew.Sdump(buf.Bytes()), spew.Sdump(expectedBuf))
 	}
 }
+
 
 // TestMsgAlertWire tests the MsgAlert wire encode and decode for various protocol versions.
 func TestMsgAlertWire(
@@ -94,6 +103,7 @@ func TestMsgAlertWire(
 		pver uint32          // Protocol version for wire encoding
 		enc  MessageEncoding // Message encoding format
 	}{
+
 		// Latest protocol version.
 		{
 			baseMsgAlert,
@@ -102,6 +112,7 @@ func TestMsgAlertWire(
 			ProtocolVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0035Version.
 		{
 			baseMsgAlert,
@@ -110,6 +121,7 @@ func TestMsgAlertWire(
 			BIP0035Version,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0031Version.
 		{
 			baseMsgAlert,
@@ -118,6 +130,7 @@ func TestMsgAlertWire(
 			BIP0031Version,
 			BaseEncoding,
 		},
+
 		// Protocol version NetAddressTimeVersion.
 		{
 			baseMsgAlert,
@@ -126,6 +139,7 @@ func TestMsgAlertWire(
 			NetAddressTimeVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version MultipleAddressVersion.
 		{
 			baseMsgAlert,
@@ -137,6 +151,7 @@ func TestMsgAlertWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
@@ -150,6 +165,7 @@ func TestMsgAlertWire(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Decode the message from wire format.
 		var msg MsgAlert
 		rbuf := bytes.NewReader(test.buf)
@@ -166,6 +182,7 @@ func TestMsgAlertWire(
 		}
 	}
 }
+
 
 // TestMsgAlertWireErrors performs negative tests against wire encode and decode of MsgAlert to confirm error paths work correctly.
 func TestMsgAlertWireErrors(
@@ -190,17 +207,22 @@ func TestMsgAlertWireErrors(
 		writeErr error           // Expected write error
 		readErr  error           // Expected read error
 	}{
+
 		// Force error in payload length.
 		{baseMsgAlert, baseMsgAlertEncoded, pver, BaseEncoding, 0, io.ErrShortWrite, io.EOF},
+
 		// Force error in payload.
 		{baseMsgAlert, baseMsgAlertEncoded, pver, BaseEncoding, 1, io.ErrShortWrite, io.EOF},
+
 		// Force error in signature length.
 		{baseMsgAlert, baseMsgAlertEncoded, pver, BaseEncoding, 13, io.ErrShortWrite, io.EOF},
+
 		// Force error in signature.
 		{baseMsgAlert, baseMsgAlertEncoded, pver, BaseEncoding, 14, io.ErrShortWrite, io.EOF},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
@@ -210,6 +232,7 @@ func TestMsgAlertWireErrors(
 				i, err, test.writeErr)
 			continue
 		}
+
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
 			if err != test.writeErr {
@@ -218,6 +241,7 @@ func TestMsgAlertWireErrors(
 				continue
 			}
 		}
+
 		// Decode from wire format.
 		var msg MsgAlert
 		r := newFixedReader(test.max, test.buf)
@@ -228,6 +252,7 @@ func TestMsgAlertWireErrors(
 				i, err, test.readErr)
 			continue
 		}
+
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
 			if err != test.readErr {
@@ -237,6 +262,7 @@ func TestMsgAlertWireErrors(
 			}
 		}
 	}
+
 	// Test Error on empty Payload
 	baseMsgAlert.SerializedPayload = []byte{}
 	w := new(bytes.Buffer)
@@ -245,6 +271,7 @@ func TestMsgAlertWireErrors(
 		t.Errorf("MsgAlert.BtcEncode wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
+
 	// Test Payload Serialize error overflow the max number of elements in SetCancel
 	baseMsgAlert.Payload = new(Alert)
 	baseMsgAlert.Payload.SetCancel = make([]int32, maxCountSetCancel+1)
@@ -254,6 +281,7 @@ func TestMsgAlertWireErrors(
 		t.Errorf("MsgAlert.BtcEncode wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
+
 	// overflow the max number of elements in SetSubVer
 	baseMsgAlert.Payload = new(Alert)
 	baseMsgAlert.Payload.SetSubVer = make([]string, maxCountSetSubVer+1)
@@ -264,6 +292,7 @@ func TestMsgAlertWireErrors(
 			err, MessageError{})
 	}
 }
+
 
 // TestAlert tests serialization and deserialization of the payload to Alert
 func TestAlert(
@@ -353,6 +382,7 @@ func TestAlert(
 	}
 }
 
+
 // TestAlertErrors performs negative tests against payload serialization, deserialization of Alert to confirm error paths work correctly.
 func TestAlertErrors(
 	t *testing.T) {
@@ -378,24 +408,34 @@ func TestAlertErrors(
 		writeErr error  // Expected write error
 		readErr  error  // Expected read error
 	}{
+
 		// Force error in Version
 		{baseAlert, baseAlertEncoded, pver, 0, io.ErrShortWrite, io.EOF},
+
 		// Force error in SetCancel VarInt.
 		{baseAlert, baseAlertEncoded, pver, 28, io.ErrShortWrite, io.EOF},
+
 		// Force error in SetCancel ints.
 		{baseAlert, baseAlertEncoded, pver, 29, io.ErrShortWrite, io.EOF},
+
 		// Force error in MinVer
 		{baseAlert, baseAlertEncoded, pver, 40, io.ErrShortWrite, io.EOF},
+
 		// Force error in SetSubVer string VarInt.
 		{baseAlert, baseAlertEncoded, pver, 41, io.ErrShortWrite, io.EOF},
+
 		// Force error in SetSubVer strings.
 		{baseAlert, baseAlertEncoded, pver, 48, io.ErrShortWrite, io.EOF},
+
 		// Force error in Priority
 		{baseAlert, baseAlertEncoded, pver, 60, io.ErrShortWrite, io.EOF},
+
 		// Force error in Comment string.
 		{baseAlert, baseAlertEncoded, pver, 62, io.ErrShortWrite, io.EOF},
+
 		// Force error in StatusBar string.
 		{baseAlert, baseAlertEncoded, pver, 64, io.ErrShortWrite, io.EOF},
+
 		// Force error in Reserved string.
 		{baseAlert, baseAlertEncoded, pver, 70, io.ErrShortWrite, io.EOF},
 	}
@@ -419,8 +459,11 @@ func TestAlertErrors(
 			continue
 		}
 	}
+
 	// overflow the max number of elements in SetCancel
+
 	// maxCountSetCancel + 1 == 8388575 == \xdf\xff\x7f\x00
+
 	// replace bytes 29-33
 	badAlertEncoded := []byte{
 		0x01, 0x00, 0x00, 0x00, 0x50, 0x6e, 0xb2, 0x4f, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x9e, 0x93, 0x51, //|....Pn.O....L..Q|
@@ -436,7 +479,9 @@ func TestAlertErrors(
 		t.Errorf("Alert.Deserialize wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
+
 	// overflow the max number of elements in SetSubVer maxCountSetSubVer + 1 == 131071 + 1 == \x00\x00\x02\x00
+
 	// replace bytes 42-46
 	badAlertEncoded = []byte{
 		0x01, 0x00, 0x00, 0x00, 0x50, 0x6e, 0xb2, 0x4f, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x9e, 0x93, 0x51, //|....Pn.O....L..Q|

@@ -58,6 +58,7 @@ func TestSequenceLocksActive(
 func TestCheckConnectBlockTemplate(
 	t *testing.T) {
 
+
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("checkconnectblocktemplate",
 		&chaincfg.MainNetParams)
@@ -66,11 +67,16 @@ func TestCheckConnectBlockTemplate(
 		return
 	}
 	defer teardownFunc()
+
 	// Since we're not dealing with the real block chain, set the coinbase
+
 	// maturity to 1.
 	chain.TstSetCoinbaseMaturity(1)
+
 	// Load up blocks such that there is a side chain.
+
 	// (genesis block) -> 1 -> 2 -> 3 -> 4
+
 	//                          \-> 3a
 	testFiles := []string{
 		"blk_0_to_4.dat.bz2",
@@ -96,24 +102,28 @@ func TestCheckConnectBlockTemplate(
 				"to main chain", i)
 		}
 	}
+
 	// Block 3 should fail to connect since it's already inserted.
 	err = chain.CheckConnectBlockTemplate(blocks[3])
 	if err == nil {
 		t.Fatal("CheckConnectBlockTemplate: Did not received expected error " +
 			"on block 3")
 	}
+
 	// Block 4 should connect successfully to tip of chain.
 	err = chain.CheckConnectBlockTemplate(blocks[4])
 	if err != nil {
 		t.Fatalf("CheckConnectBlockTemplate: Received unexpected error on "+
 			"block 4: %v", err)
 	}
+
 	// Block 3a should fail to connect since does not build on chain tip.
 	err = chain.CheckConnectBlockTemplate(blocks[5])
 	if err == nil {
 		t.Fatal("CheckConnectBlockTemplate: Did not received expected error " +
 			"on block 3a")
 	}
+
 	// Block 4 should connect even if proof of work is invalid.
 	invalidPowBlock := *blocks[4].MsgBlock()
 	invalidPowBlock.Header.Nonce++
@@ -122,6 +132,7 @@ func TestCheckConnectBlockTemplate(
 		t.Fatalf("CheckConnectBlockTemplate: Received unexpected error on "+
 			"block 4 with bad nonce: %v", err)
 	}
+
 	// Invalid block building on chain tip should fail to connect.
 	invalidBlock := *blocks[4].MsgBlock()
 	invalidBlock.Header.Bits--
@@ -143,7 +154,9 @@ func TestCheckBlockSanity(
 	if err != nil {
 		t.Errorf("CheckBlockSanity: %v", err)
 	}
+
 	// Ensure a block that has a timestamp with a precision higher than one
+
 	// second fails.
 	timestamp := block.MsgBlock().Header.Timestamp
 	block.MsgBlock().Header.Timestamp = timestamp.Add(time.Nanosecond)
@@ -159,10 +172,12 @@ func TestCheckBlockSanity(
 func TestCheckSerializedHeight(
 	t *testing.T) {
 
+
 	// Create an empty coinbase template to be used in the tests below.
 	coinbaseOutpoint := wire.NewOutPoint(&chainhash.Hash{}, math.MaxUint32)
 	coinbaseTx := wire.NewMsgTx(1)
 	coinbaseTx.AddTxIn(wire.NewTxIn(coinbaseOutpoint, nil, nil))
+
 	// Expected rule errors.
 	missingHeightError := RuleError{
 		ErrorCode: ErrMissingCoinbaseHeight,

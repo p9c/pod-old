@@ -13,16 +13,26 @@ import (
 // This example demonstrates creating a new database.
 func ExampleCreate() {
 
+
 	// This example assumes the bdb (bolt db) driver is imported.
+
 	//
+
 	// import (
+
 	// 	"git.parallelcoin.io/pod/pkg/walletdb"
+
 	// 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
+
 	// )
 
+
 	// Create a database and schedule it to be closed and removed on exit.
+
 	// Typically you wouldn't want to remove the database right away like
+
 	// this, but it's done here in the example to ensure the example cleans
+
 	// up after itself.
 	dbPath := filepath.Join(os.TempDir(), "examplecreate.db")
 	db, err := walletdb.Create("bdb", dbPath)
@@ -32,6 +42,7 @@ func ExampleCreate() {
 	}
 	defer os.Remove(dbPath)
 	defer db.Close()
+
 
 	// Output:
 }
@@ -62,8 +73,11 @@ func exampleLoadDB() (walletdb.DB, func(), error) {
 // This example demonstrates creating a new top level bucket.
 func ExampleDB_createTopLevelBucket() {
 
+
 	// Load a database for the purposes of this example and schedule it to
+
 	// be closed and removed on exit. See the Create example for more
+
 	// details on what this step is doing.
 	db, teardownFunc, err := exampleLoadDB()
 	if err != nil {
@@ -79,8 +93,11 @@ func ExampleDB_createTopLevelBucket() {
 	}
 	defer dbtx.Commit()
 
+
 	// Get or create a bucket in the database as needed.  This bucket
+
 	// is what is typically passed to specific sub-packages so they have
+
 	// their own area to work in without worrying about conflicting keys.
 	bucketKey := []byte("walletsubpackage")
 	bucket, err := dbtx.CreateTopLevelBucket(bucketKey)
@@ -89,8 +106,10 @@ func ExampleDB_createTopLevelBucket() {
 		return
 	}
 
+
 	// Prevent unused error.
 	_ = bucket
+
 
 	// Output:
 }
@@ -100,16 +119,26 @@ func ExampleDB_createTopLevelBucket() {
 // and retrieve data.
 func Example_basicUsage() {
 
+
 	// This example assumes the bdb (bolt db) driver is imported.
+
 	//
+
 	// import (
+
 	// 	"git.parallelcoin.io/pod/pkg/walletdb"
+
 	// 	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
+
 	// )
 
+
 	// Create a database and schedule it to be closed and removed on exit.
+
 	// Typically you wouldn't want to remove the database right away like
+
 	// this, but it's done here in the example to ensure the example cleans
+
 	// up after itself.
 	dbPath := filepath.Join(os.TempDir(), "exampleusage.db")
 	db, err := walletdb.Create("bdb", dbPath)
@@ -120,8 +149,11 @@ func Example_basicUsage() {
 	defer os.Remove(dbPath)
 	defer db.Close()
 
+
 	// Get or create a bucket in the database as needed.  This bucket
+
 	// is what is typically passed to specific sub-packages so they have
+
 	// their own area to work in without worrying about conflicting keys.
 	bucketKey := []byte("walletsubpackage")
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
@@ -139,8 +171,11 @@ func Example_basicUsage() {
 		return
 	}
 
+
 	// Use the Update function of the namespace to perform a managed
+
 	// read-write transaction.  The transaction will automatically be rolled
+
 	// back if the supplied inner function returns a non-nil error.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		// All data is stored against the root bucket of the namespace,
@@ -182,6 +217,7 @@ func Example_basicUsage() {
 		fmt.Println(err)
 		return
 	}
+
 
 	// Output:
 }

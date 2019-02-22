@@ -9,6 +9,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
+
 // TestInvVectStringer tests the stringized output for inventory vector types.
 func TestInvTypeStringer(
 	t *testing.T) {
@@ -33,12 +34,14 @@ func TestInvTypeStringer(
 	}
 }
 
+
 // TestInvVect tests the InvVect API.
 func TestInvVect(
 	t *testing.T) {
 
 	ivType := InvTypeBlock
 	hash := chainhash.Hash{}
+
 	// Ensure we get the same payload and signature back out.
 	iv := NewInvVect(ivType, &hash)
 	if iv.Type != ivType {
@@ -52,9 +55,11 @@ func TestInvVect(
 	}
 }
 
+
 // TestInvVectWire tests the InvVect wire encode and decode for various protocol versions and supported inventory vector types.
 func TestInvVectWire(
 	t *testing.T) {
+
 
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
@@ -62,11 +67,13 @@ func TestInvVectWire(
 	if err != nil {
 		t.Errorf("NewHashFromStr: %v", err)
 	}
+
 	// errInvVect is an inventory vector with an error.
 	errInvVect := InvVect{
 		Type: InvTypeError,
 		Hash: chainhash.Hash{},
 	}
+
 	// errInvVectEncoded is the wire encoded bytes of errInvVect.
 	errInvVectEncoded := []byte{
 		0x00, 0x00, 0x00, 0x00, // InvTypeError
@@ -75,11 +82,13 @@ func TestInvVectWire(
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // No hash
 	}
+
 	// txInvVect is an inventory vector representing a transaction.
 	txInvVect := InvVect{
 		Type: InvTypeTx,
 		Hash: *baseHash,
 	}
+
 	// txInvVectEncoded is the wire encoded bytes of txInvVect.
 	txInvVectEncoded := []byte{
 		0x01, 0x00, 0x00, 0x00, // InvTypeTx
@@ -88,11 +97,13 @@ func TestInvVectWire(
 		0x79, 0x40, 0x08, 0xa6, 0x36, 0xac, 0xc2, 0x4b,
 		0x26, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Block 203707 hash
 	}
+
 	// blockInvVect is an inventory vector representing a block.
 	blockInvVect := InvVect{
 		Type: InvTypeBlock,
 		Hash: *baseHash,
 	}
+
 	// blockInvVectEncoded is the wire encoded bytes of blockInvVect.
 	blockInvVectEncoded := []byte{
 		0x02, 0x00, 0x00, 0x00, // InvTypeBlock
@@ -107,6 +118,7 @@ func TestInvVectWire(
 		buf  []byte  // Wire encoding
 		pver uint32  // Protocol version for wire encoding
 	}{
+
 		// Latest protocol version error inventory vector.
 		{
 			errInvVect,
@@ -114,6 +126,7 @@ func TestInvVectWire(
 			errInvVectEncoded,
 			ProtocolVersion,
 		},
+
 		// Latest protocol version tx inventory vector.
 		{
 			txInvVect,
@@ -121,6 +134,7 @@ func TestInvVectWire(
 			txInvVectEncoded,
 			ProtocolVersion,
 		},
+
 		// Latest protocol version block inventory vector.
 		{
 			blockInvVect,
@@ -128,6 +142,7 @@ func TestInvVectWire(
 			blockInvVectEncoded,
 			ProtocolVersion,
 		},
+
 		// Protocol version BIP0035Version error inventory vector.
 		{
 			errInvVect,
@@ -135,6 +150,7 @@ func TestInvVectWire(
 			errInvVectEncoded,
 			BIP0035Version,
 		},
+
 		// Protocol version BIP0035Version tx inventory vector.
 		{
 			txInvVect,
@@ -142,6 +158,7 @@ func TestInvVectWire(
 			txInvVectEncoded,
 			BIP0035Version,
 		},
+
 		// Protocol version BIP0035Version block inventory vector.
 		{
 			blockInvVect,
@@ -149,6 +166,7 @@ func TestInvVectWire(
 			blockInvVectEncoded,
 			BIP0035Version,
 		},
+
 		// Protocol version BIP0031Version error inventory vector.
 		{
 			errInvVect,
@@ -156,6 +174,7 @@ func TestInvVectWire(
 			errInvVectEncoded,
 			BIP0031Version,
 		},
+
 		// Protocol version BIP0031Version tx inventory vector.
 		{
 			txInvVect,
@@ -163,6 +182,7 @@ func TestInvVectWire(
 			txInvVectEncoded,
 			BIP0031Version,
 		},
+
 		// Protocol version BIP0031Version block inventory vector.
 		{
 			blockInvVect,
@@ -170,6 +190,7 @@ func TestInvVectWire(
 			blockInvVectEncoded,
 			BIP0031Version,
 		},
+
 		// Protocol version NetAddressTimeVersion error inventory vector.
 		{
 			errInvVect,
@@ -177,6 +198,7 @@ func TestInvVectWire(
 			errInvVectEncoded,
 			NetAddressTimeVersion,
 		},
+
 		// Protocol version NetAddressTimeVersion tx inventory vector.
 		{
 			txInvVect,
@@ -184,6 +206,7 @@ func TestInvVectWire(
 			txInvVectEncoded,
 			NetAddressTimeVersion,
 		},
+
 		// Protocol version NetAddressTimeVersion block inventory vector.
 		{
 			blockInvVect,
@@ -191,6 +214,7 @@ func TestInvVectWire(
 			blockInvVectEncoded,
 			NetAddressTimeVersion,
 		},
+
 		// Protocol version MultipleAddressVersion error inventory vector.
 		{
 			errInvVect,
@@ -198,6 +222,7 @@ func TestInvVectWire(
 			errInvVectEncoded,
 			MultipleAddressVersion,
 		},
+
 		// Protocol version MultipleAddressVersion tx inventory vector.
 		{
 			txInvVect,
@@ -205,6 +230,7 @@ func TestInvVectWire(
 			txInvVectEncoded,
 			MultipleAddressVersion,
 		},
+
 		// Protocol version MultipleAddressVersion block inventory vector.
 		{
 			blockInvVect,
@@ -215,6 +241,7 @@ func TestInvVectWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode to wire format.
 		var buf bytes.Buffer
 		err := writeInvVect(&buf, test.pver, &test.in)
@@ -228,6 +255,7 @@ func TestInvVectWire(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Decode the message from wire format.
 		var iv InvVect
 		rbuf := bytes.NewReader(test.buf)

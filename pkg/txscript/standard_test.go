@@ -554,18 +554,21 @@ func TestPayToAddrScript(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// 1MirQ9bwyQcGVJPwKUgapu5ouK2E2Ey4gX
 	p2pkhMain, err := util.NewAddressPubKeyHash(hexToBytes("e34cce70c86"+
 		"373273efcc54ce7d2a491bb4a0e84"), &chaincfg.MainNetParams)
 	if err != nil {
 		t.Fatalf("Unable to create public key hash address: %v", err)
 	}
+
 	// Taken from transaction: b0539a45de13b3e0403909b8bd1a555b8cbe45fd4e3f3fda76f3a5f52835c29d
 	p2shMain, _ := util.NewAddressScriptHashFromHash(hexToBytes("e8c300"+
 		"c87986efa84c37c0519929019ef86eb5b4"), &chaincfg.MainNetParams)
 	if err != nil {
 		t.Fatalf("Unable to create script hash address: %v", err)
 	}
+
 	//  mainnet p2pk 13CG6SJ3yHUXo4Cr2RY4THLLJrNFuG3gUg
 	p2pkCompressedMain, err := util.NewAddressPubKey(hexToBytes("02192d"+
 		"74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
@@ -589,6 +592,7 @@ func TestPayToAddrScript(
 		t.Fatalf("Unable to create pubkey address (uncompressed): %v",
 			err)
 	}
+
 	// Errors used in the tests below defined here for convenience and to keep the horizontal test size shorter.
 	errUnsupportedAddress := scriptError(ErrUnsupportedAddress, "")
 	tests := []struct {
@@ -663,6 +667,7 @@ func TestMultiSigScript(
 	t *testing.T) {
 
 	t.Parallel()
+
 	//  mainnet p2pk 13CG6SJ3yHUXo4Cr2RY4THLLJrNFuG3gUg
 	p2pkCompressedMain, err := util.NewAddressPubKey(hexToBytes("02192d"+
 		"74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
@@ -820,6 +825,7 @@ var scriptClassTests = []struct {
 			"0bfa9b8b64f9d4c03f999b8643f656b412a3 CHECKSIG",
 		class: PubKeyTy,
 	},
+
 	// tx 599e47a8114fe098103663029548811d2651991b62397e057f0c863c2bc9f9ea
 	{
 		name: "Pay PubkeyHash",
@@ -827,6 +833,7 @@ var scriptClassTests = []struct {
 			"c271ad504b EQUALVERIFY CHECKSIG",
 		class: PubKeyHashTy,
 	},
+
 	// part of tx 6d36bc17e947ce00bb6f12f8e7a56a1585c5a36188ffa2b05e10b4743273a74b parts have been elided. (bitcoin core's checks for multisig type doesn't have codesep either).
 	{
 		name: "multisig",
@@ -834,6 +841,7 @@ var scriptClassTests = []struct {
 			"5329a00357b3a7886211ab414d55a 1 CHECKMULTISIG",
 		class: MultiSigTy,
 	},
+
 	// tx e5779b9e78f9650debc2893fd9636d827b26b4ddfa6a8172fe8708c924f5c39d
 	{
 		name: "P2SH",
@@ -911,6 +919,7 @@ var scriptClassTests = []struct {
 		script: "RETURN 4 TRUE",
 		class:  NonStandardTy,
 	},
+
 	// The next few are almost multisig (it is the more complex script type) but with various changes to make it fail.
 	{
 		// Multisig but invalid nsigs.
@@ -964,6 +973,7 @@ var scriptClassTests = []struct {
 			"3 CHECKMULTISIG",
 		class: NonStandardTy,
 	},
+
 	// New standard segwit script templates.
 	{
 		// A pay to witness pub key hash pk script.

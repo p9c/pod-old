@@ -121,6 +121,7 @@ type GetBlockTemplateResultAux struct {
 
 // GetBlockTemplateResult models the data returned from the getblocktemplate command.
 type GetBlockTemplateResult struct {
+
 	// Base fields from BIP 0022.  CoinbaseAux is optional.  One of CoinbaseTxn or CoinbaseValue must be specified, but not both.
 	Bits          string                     `json:"bits"`
 	CurTime       int64                      `json:"curtime"`
@@ -135,20 +136,25 @@ type GetBlockTemplateResult struct {
 	CoinbaseTxn   *GetBlockTemplateResultTx  `json:"coinbasetxn,omitempty"`
 	CoinbaseValue *int64                     `json:"coinbasevalue,omitempty"`
 	WorkID        string                     `json:"workid,omitempty"`
+
 	// Witness commitment defined in BIP 0141.
 	DefaultWitnessCommitment string `json:"default_witness_commitment,omitempty"`
+
 	// Optional long polling from BIP 0022.
 	LongPollID  string `json:"longpollid,omitempty"`
 	LongPollURI string `json:"longpolluri,omitempty"`
 	SubmitOld   *bool  `json:"submitold,omitempty"`
+
 	// Basic pool extension from BIP 0023.
 	Target  string `json:"target,omitempty"`
 	Expires int64  `json:"expires,omitempty"`
+
 	// Mutations from BIP 0023.
 	MaxTime    int64    `json:"maxtime,omitempty"`
 	MinTime    int64    `json:"mintime,omitempty"`
 	Mutable    []string `json:"mutable,omitempty"`
 	NonceRange string   `json:"noncerange,omitempty"`
+
 	// Block proposal from BIP 0023.
 	Capabilities  []string `json:"capabilities,omitempty"`
 	RejectReasion string   `json:"reject-reason,omitempty"`

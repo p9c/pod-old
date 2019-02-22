@@ -15,8 +15,11 @@ import (
 func TestHaveBlock(
 	t *testing.T) {
 
+
 	// Load up blocks such that there is a side chain.
+
 	// (genesis block) -> 1 -> 2 -> 3 -> 4
+
 	//                          \-> 3a
 	testFiles := []string{
 		"blk_0_to_4.dat.bz2",
@@ -31,6 +34,7 @@ func TestHaveBlock(
 		}
 		blocks = append(blocks, blockTmp...)
 	}
+
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("haveblock",
 		&chaincfg.MainNetParams)
@@ -39,6 +43,7 @@ func TestHaveBlock(
 		return
 	}
 	defer teardownFunc()
+
 	// Since we're not dealing with the real block chain, set the coinbase maturity to 1.
 	chain.TstSetCoinbaseMaturity(1)
 	for i := 1; i < len(blocks); i++ {
@@ -53,6 +58,7 @@ func TestHaveBlock(
 			return
 		}
 	}
+
 	// Insert an orphan block.
 	_, isOrphan, err := chain.ProcessBlock(util.NewBlock(&Block100000),
 		BFNone, 100000)
@@ -102,9 +108,11 @@ func TestCalcSequenceLock(
 	t *testing.T) {
 
 	netParams := &chaincfg.SimNetParams
+
 	// We need to activate CSV in order to test the processing logic, so manually craft the block version that's used to signal the soft-fork activation.
 	csvBit := netParams.Deployments[chaincfg.DeploymentCSV].BitNumber
 	blockVersion := int32(0x20000000 | (uint32(1) << csvBit))
+
 	// Generate enough synthetic blocks to activate CSV.
 	chain := newFakeChain(netParams)
 	node := chain.bestChain.Tip()
@@ -116,6 +124,7 @@ func TestCalcSequenceLock(
 		chain.Index.AddNode(node)
 		chain.bestChain.SetTip(node)
 	}
+
 	// Create a utxo view with a fake utxo for the inputs used in the transactions created below.  This utxo is added such that it has an age of 4 blocks.
 	targetTx := util.NewTx(&wire.MsgTx{
 		TxOut: []*wire.TxOut{{
@@ -126,17 +135,21 @@ func TestCalcSequenceLock(
 	utxoView := NewUtxoViewpoint()
 	utxoView.AddTxOuts(targetTx, int32(numBlocksToActivate)-4)
 	utxoView.SetBestHash(&node.hash)
+
 	// Create a utxo that spends the fake utxo created above for use in the transactions created in the tests.  It has an age of 4 blocks.  Note that the sequence lock heights are always calculated from the same point of view that they were originally calculated from for a given utxo.  That is to say, the height prior to it.
 	utxo := wire.OutPoint{
 		Hash:  *targetTx.Hash(),
 		Index: 0,
 	}
 	prevUtxoHeight := int32(numBlocksToActivate) - 4
+
 	// Obtain the median time past from the PoV of the input created above. The MTP for the input is the MTP from the PoV of the block *prior* to the one that included it.
 	medianTime := node.RelativeAncestor(5).CalcPastMedianTime().Unix()
+
 	// The median time calculated from the PoV of the best block in the test chain.  For unconfirmed inputs, this value will be used since the MTP will be calculated from the PoV of the yet-to-be-mined block.
 	nextMedianTime := node.CalcPastMedianTime().Unix()
 	nextBlockHeight := int32(numBlocksToActivate) + 1
+
 	// Add an additional transaction which will serve as our unconfirmed output.
 	unConfTx := &wire.MsgTx{
 		TxOut: []*wire.TxOut{{
@@ -148,6 +161,7 @@ func TestCalcSequenceLock(
 		Hash:  unConfTx.TxHash(),
 		Index: 0,
 	}
+
 	// Adding a utxo with a height of 0x7fffffff indicates that the output is currently unmined.
 	utxoView.AddTxOuts(util.NewTx(unConfTx), 0x7fffffff)
 	tests := []struct {
@@ -388,8 +402,11 @@ func nodeHeaders(
 func TestLocateInventory(
 	t *testing.T) {
 
+
 	// Construct a synthetic block chain with a block index consisting of the following structure.
+
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
+
 	// 	                              \-> 16a -> 17a
 	tip := tstTip
 	chain := newFakeChain(&chaincfg.MainNetParams)
@@ -402,9 +419,11 @@ func TestLocateInventory(
 		chain.Index.AddNode(node)
 	}
 	chain.bestChain.SetTip(tip(branch0Nodes))
+
 	// Create chain views for different branches of the overall chain to simulate a local and remote node on different parts of the chain.
 	localView := newChainView(tip(branch0Nodes))
 	remoteView := newChainView(tip(branch1Nodes))
+
 	// Create a chain view for a completely unrelated block chain to simulate a remote node on a totally different chain.
 	unrelatedBranchNodes := chainedNodes(nil, 5)
 	unrelatedView := newChainView(tip(unrelatedBranchNodes))
@@ -647,8 +666,11 @@ func TestLocateInventory(
 func TestHeightToHashRange(
 	t *testing.T) {
 
+
 	// Construct a synthetic block chain with a block index consisting of the following structure.
+
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
+
 	// 	                              \-> 16a -> 17a -> 18a (unvalidated)
 	tip := tstTip
 	chain := newFakeChain(&chaincfg.MainNetParams)
@@ -742,8 +764,11 @@ func TestHeightToHashRange(
 func TestIntervalBlockHashes(
 	t *testing.T) {
 
+
 	// Construct a synthetic block chain with a block index consisting of the following structure.
+
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
+
 	// 	                              \-> 16a -> 17a -> 18a (unvalidated)
 	tip := tstTip
 	chain := newFakeChain(&chaincfg.MainNetParams)

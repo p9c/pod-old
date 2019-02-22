@@ -116,6 +116,7 @@ func (cm *rpcConnManager) ConnectedPeers() []rpcserverPeer {
 	replyChan := make(chan []*serverPeer)
 	cm.server.query <- getPeersMsg{reply: replyChan}
 	serverPeers := <-replyChan
+
 	// Convert to RPC server peers.
 	peers := make([]rpcserverPeer, 0, len(serverPeers))
 	for _, sp := range serverPeers {
@@ -129,6 +130,7 @@ func (cm *rpcConnManager) PersistentPeers() []rpcserverPeer {
 	replyChan := make(chan []*serverPeer)
 	cm.server.query <- getAddedNodesMsg{reply: replyChan}
 	serverPeers := <-replyChan
+
 	// Convert to generic peers.
 	peers := make([]rpcserverPeer, 0, len(serverPeers))
 	for _, sp := range serverPeers {

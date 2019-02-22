@@ -14,6 +14,7 @@ import (
 )
 
 var (
+
 	// random small number of satoshis used as dustThreshold
 	dustThreshold util.Amount = 1e4
 )
@@ -40,6 +41,7 @@ func TestGetEligibleInputs(
 		getPKScriptsForAddressRange(t, dbtx, pool, 1, 0, 2, 0, 4),
 		getPKScriptsForAddressRange(t, dbtx, pool, 2, 0, 2, 0, 6)...)
 
+
 	// Create two eligible inputs locked to each of the PKScripts above.
 	expNoEligibleInputs := 2 * len(scripts)
 	eligibleAmounts := []int64{int64(dustThreshold + 1), int64(dustThreshold + 1)}
@@ -64,17 +66,20 @@ func TestGetEligibleInputs(
 		t.Fatal("InputSelection failed:", err)
 	}
 
+
 	// Check we got the expected number of eligible inputs.
 	if len(eligibles) != expNoEligibleInputs {
 		t.Fatalf("Wrong number of eligible inputs returned. Got: %d, want: %d.",
 			len(eligibles), expNoEligibleInputs)
 	}
 
+
 	// Check that the returned eligibles are reverse sorted by address.
 	if !sort.IsSorted(sort.Reverse(byAddress(eligibles))) {
 
 		t.Fatal("Eligible inputs are not sorted.")
 	}
+
 
 	// Check that all credits are unique
 	checkUniqueness(t, eligibles)
@@ -99,16 +104,21 @@ func TestNextAddrWithVaryingHighestIndices(
 	TstCreateSeries(t, dbtx, pool, series)
 	stopSeriesID := uint32(2)
 
+
 	// Populate the used addr DB for branch 0 and indices ranging from 0 to 2.
 	TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(0), 2)
+
 
 	// Populate the used addr DB for branch 1 and indices ranging from 0 to 1.
 	TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(1), 1)
 
+
 	// Start with the address for branch==0, index==1.
 	addr := TstNewWithdrawalAddress(t, dbtx, pool, 1, 0, 1)
 
+
 	// The first call to nextAddr() should give us the address for branch==1
+
 	// and index==1.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
@@ -119,7 +129,9 @@ func TestNextAddrWithVaryingHighestIndices(
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(1), 1)
 
+
 	// The next call should give us the address for branch==0, index==2 since
+
 	// there are no used addresses for branch==2.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
@@ -130,7 +142,9 @@ func TestNextAddrWithVaryingHighestIndices(
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(0), 2)
 
+
 	// Since the last addr for branch==1 was the one with index==1, a subsequent
+
 	// call will return nil.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
@@ -165,13 +179,17 @@ func TestNextAddr(
 	stopSeriesID := uint32(3)
 
 	lastIdx := Index(10)
+
 	// Populate used addresses DB with entries for seriesID==1, branch==0..3,
+
 	// idx==0..10.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(i), lastIdx)
 	}
 	addr := TstNewWithdrawalAddress(t, dbtx, pool, 1, 0, lastIdx-1)
+
 	// nextAddr() first increments just the branch, which ranges from 0 to 3
+
 	// here (because our series has 3 public keys).
 	for _, i := range []int{1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -184,8 +202,11 @@ func TestNextAddr(
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx-1)
 	}
 
+
 	// The last nextAddr() above gave us the addr with branch=3,
+
 	// idx=lastIdx-1, so the next 4 calls should give us the addresses with
+
 	// branch=[0-3] and idx=lastIdx.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -198,12 +219,16 @@ func TestNextAddr(
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx)
 	}
 
+
 	// Populate used addresses DB with entries for seriesID==2, branch==0..3,
+
 	// idx==0..10.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstEnsureUsedAddr(t, dbtx, pool, 2, Branch(i), lastIdx)
 	}
+
 	// Now we've gone through all the available branch/idx combinations, so
+
 	// we should move to the next series and start again with branch=0, idx=0.
 	for _, i := range []int{0, 1, 2, 3} {
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -216,7 +241,9 @@ func TestNextAddr(
 		checkWithdrawalAddressMatches(t, addr, 2, Branch(i), 0)
 	}
 
+
 	// Finally check that nextAddr() returns nil when we've reached the last
+
 	// available address before stopSeriesID.
 	addr = TstNewWithdrawalAddress(t, dbtx, pool, 2, 3, lastIdx)
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -246,6 +273,7 @@ func TestEligibleInputsAreEligible(
 	var chainHeight int32 = 1000
 	_, credits := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{int64(dustThreshold)})
 	c := credits[0]
+
 	// Make sure credit is old enough to pass the minConf check.
 	c.BlockMeta.Height = int32(eligibleInputMinConfirmations)
 
@@ -270,8 +298,10 @@ func TestNonEligibleInputsAreNotEligible(
 	var chainHeight int32 = 1000
 	_, credits := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{int64(dustThreshold - 1)})
 	c := credits[0]
+
 	// Make sure credit is old enough to pass the minConf check.
 	c.BlockMeta.Height = int32(eligibleInputMinConfirmations)
+
 
 	// Check that credit below dustThreshold is rejected.
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
@@ -279,11 +309,15 @@ func TestNonEligibleInputsAreNotEligible(
 		t.Errorf("Input is eligible and it should not be.")
 	}
 
+
 	// Check that a credit with not enough confirmations is rejected.
 	_, credits = TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{int64(dustThreshold)})
 	c = credits[0]
+
 	// The calculation of if it has been confirmed does this: chainheigt - bh +
+
 	// 1 >= target, which is quite weird, but the reason why I need to put 902
+
 	// is *that* makes 1000 - 902 +1 = 99 >= 100 false
 	c.BlockMeta.Height = int32(902)
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
@@ -359,7 +393,9 @@ func newDummyCredit(
 	if err := hash.SetBytes(txHash); err != nil {
 		t.Fatal(err)
 	}
+
 	// Ensure the address defined by the given series/branch/index is present on
+
 	// the set of used addresses as that's a requirement of WithdrawalAddress.
 	TstEnsureUsedAddr(t, dbtx, pool, series, branch, index)
 	addr := TstNewWithdrawalAddress(t, dbtx, pool, series, branch, index)

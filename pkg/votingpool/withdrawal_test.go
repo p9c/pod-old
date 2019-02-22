@@ -31,6 +31,7 @@ func TestStartWithdrawal(
 		vp.TstCreateMasterKey(t, bytes.Repeat([]byte{0x03, 0x01}, 16))}
 	def := vp.TstCreateSeriesDef(t, pool, 2, masters)
 	vp.TstCreateSeries(t, dbtx, pool, []vp.TstSeriesDef{def})
+
 	// Create eligible inputs and the list of outputs we need to fulfil.
 	vp.TstCreateSeriesCreditsOnStore(t, dbtx, pool, def.SeriesID, []int64{5e6, 4e6}, store)
 	address1 := "34eVkREKgvvGASZW7hkgE2uNc1yycntMK6"
@@ -55,6 +56,7 @@ func TestStartWithdrawal(
 		t.Fatal(err)
 	}
 
+
 	// Check that all outputs were successfully fulfilled.
 	checkWithdrawalOutputs(t, status, map[string]util.Amount{address1: 4e6, address2: 1e6})
 
@@ -63,8 +65,11 @@ func TestStartWithdrawal(
 		t.Fatalf("Wrong amount for fees; got %v, want %v", status.Fees(), util.Amount(1e3))
 	}
 
+
 	// This withdrawal generated a single transaction with just one change
+
 	// output, so the next change address will be on the same series with the
+
 	// index incremented by 1.
 	nextChangeAddr := status.NextChangeAddr()
 	if nextChangeAddr.SeriesID() != changeStart.SeriesID() {
@@ -77,15 +82,22 @@ func TestStartWithdrawal(
 			changeStart.Index()+1)
 	}
 
+
 	// NOTE: The ntxid is deterministic so we hardcode it here, but if the test
+
 	// or the code is changed in a way that causes the generated transaction to
+
 	// change (e.g. different inputs/outputs), the ntxid will change too and
+
 	// this will have to be updated.
 	ntxid := vp.Ntxid("eb753083db55bd0ad2eb184bfd196a7ea8b90eaa000d9293e892999695af2519")
 	txSigs := status.Sigs()[ntxid]
 
+
 	// Finally we use SignTx() to construct the SignatureScripts (using the raw
+
 	// signatures).  Must unlock the manager as signing involves looking up the
+
 	// redeem script, which is stored encrypted.
 	msgtx := status.TstGetMsgTx(ntxid)
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
@@ -95,7 +107,9 @@ func TestStartWithdrawal(
 		}
 	})
 
+
 	// Any subsequent StartWithdrawal() calls with the same parameters will
+
 	// return the previously stored WithdrawalStatus.
 	var status2 *vp.WithdrawalStatus
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {

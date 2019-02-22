@@ -268,25 +268,33 @@ var Block100000 = wire.MsgBlock{
 func TestBlockFiltererOneInOneOut(
 	t *testing.T) {
 
+
 	// Watch for spend from prev in in first and last tx, both of which are
+
 	// single input/single output.
 	firstTx := Block100000.Transactions[1]
 	lastTx := Block100000.Transactions[3]
 
+
 	// Add each of their single previous outpoints to the set of watched
+
 	// outpoints to filter for.
 	watchedOutPoints := make(map[wire.OutPoint]util.Address)
 	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
 	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
 
+
 	// Construct a filter request, watching only for the outpoints above,
+
 	// and construct a block filterer.
 	req := &chain.FilterBlocksRequest{
 		WatchedOutPoints: watchedOutPoints,
 	}
 	blockFilterer := chain.NewBlockFilterer(&chaincfg.SimNetParams, req)
 
+
 	// Filter block 100000, which should find matches for the watched
+
 	// outpoints.
 	match := blockFilterer.FilterBlock(&Block100000)
 	if !match {
@@ -294,8 +302,11 @@ func TestBlockFiltererOneInOneOut(
 			"1-in-1-out txns")
 	}
 
+
 	// We should find exactly two relevant transactions added to the block
+
 	// filterer, then we check that both the first and last txns are found
+
 	// in that list.
 	assertNumRelevantTxns(t, blockFilterer, 2)
 	assertRelevantTxnsContains(t, blockFilterer, firstTx)

@@ -13,7 +13,9 @@ import (
 // insertMemPoolTx inserts the unmined transaction record.  It also marks
 // previous outputs referenced by the inputs as spent.
 func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) error {
+
 	// Check whether the transaction has already been added to the
+
 	// unconfirmed bucket.
 	if existsRawUnmined(ns, rec.Hash[:]) != nil {
 		// TODO: compare serialized txs to ensure this isn't a hash
@@ -21,9 +23,13 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		return nil
 	}
 
+
 	// Since transaction records within the store are keyed by their
+
 	// transaction _and_ block confirmation, we'll iterate through the
+
 	// transaction's outputs to determine if we've already seen them to
+
 	// prevent from adding this transaction to the unconfirmed bucket.
 	for i := range rec.MsgTx.TxOut {
 		k := canonicalOutPoint(&rec.Hash, uint32(i))
@@ -51,7 +57,9 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		}
 	}
 
+
 	// TODO: increment credit amount for each credit (but those are unknown
+
 	// here currently).
 
 	return nil
@@ -105,8 +113,11 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 // that would otherwise result in double spend conflicts if left in the store,
 // and to remove transactions that spend coinbase transactions on reorgs.
 func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error {
+
 	// For each potential credit for this record, each spender (if any) must
+
 	// be recursively removed as well.  Once the spenders are removed, the
+
 	// credit is deleted.
 	for i := range rec.MsgTx.TxOut {
 		k := canonicalOutPoint(&rec.Hash, uint32(i))
@@ -143,8 +154,11 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 		}
 	}
 
+
 	// If this tx spends any previous credits (either mined or unmined), set
+
 	// each unspent.  Mined transactions are only marked spent by having the
+
 	// output in the unmined inputs bucket.
 	for _, input := range rec.MsgTx.TxIn {
 		prevOut := &input.PreviousOutPoint

@@ -87,6 +87,7 @@ func TstAddressSegwitSAddr(
 	if err != nil {
 		return []byte{}
 	}
+
 	// First byte is version, rest is base 32 encoded data.
 	data, err = bech32.ConvertBits(data[1:], 5, 8, false)
 	if err != nil {

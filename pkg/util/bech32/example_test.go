@@ -15,11 +15,15 @@ func ExampleDecode() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+
 	// Show the decoded data.
 	fmt.Println("Decoded human-readable part:", hrp)
 	fmt.Println("Decoded Data:", hex.EncodeToString(decoded))
+
 	// Output:
+
 	// Decoded human-readable part: bc
+
 	// Decoded Data: 010e140f070d1a001912060b0d081504140311021d030c1d03040f1814060e1e160e140f070d1a001912060b0d081504140311021d030c1d03040f1814060e1e16
 }
 
@@ -27,6 +31,7 @@ func ExampleDecode() {
 func ExampleEncode() {
 
 	data := []byte("Test data")
+
 	// Convert test data to base32:
 	conv, err := bech32.ConvertBits(data, 8, 5, true)
 	if err != nil {
@@ -36,8 +41,11 @@ func ExampleEncode() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+
 	// Show the encoded data.
 	fmt.Println("Encoded Data:", encoded)
+
 	// Output:
+
 	// Encoded Data: customHrp!11111q123jhxapqv3shgcgumastr
 }

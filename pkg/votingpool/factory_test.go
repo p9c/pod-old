@@ -39,11 +39,13 @@ import (
 )
 
 var (
+
 	// seed is the master seed used to create extended keys.
 	seed           = bytes.Repeat([]byte{0x2a, 0x64, 0xdf, 0x08}, 8)
 	pubPassphrase  = []byte("_DJr{fL4H0O}*-0\n:V1izc)(6BomK")
 	privPassphrase = []byte("81lUHXnOMZ@?XXd7O9xyDIWIbXX-lj")
 	uniqueCounter  = uint32(0)
+
 	// The block height where all our test inputs are created.
 	TstInputsBlock = int32(10)
 )
@@ -350,10 +352,14 @@ var (
 func TstCreatePool(
 	t *testing.T) (tearDownFunc func(), db walletdb.DB, pool *Pool) {
 
+
 	// This should be moved somewhere else eventually as not all of our tests
+
 	// call this function, but right now the only option would be to have the
+
 	// t.Parallel() call in each of our tests.
 	t.Parallel()
+
 
 	// Create a new wallet DB and addr manager.
 	dir, err := ioutil.TempDir("", "pool_test")

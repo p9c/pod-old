@@ -15,7 +15,9 @@ type pubKeyTest struct {
 }
 
 var pubKeyTests = []pubKeyTest{
+
 	// pubkey from bitcoin blockchain tx
+
 	// 0437cd7f8525ceed2324359c2d0ba26006d92d85
 	{
 		name: "uncompressed ok",
@@ -97,6 +99,7 @@ var pubKeyTests = []pubKeyTest{
 		},
 		isValid: false,
 	},
+
 	// from tx 0b09c51c51ff762f00fb26217269d2a18e77a4fa87d69b3c363ab4df16543f20
 	{
 		name: "compressed ok (ybit = 0)",
@@ -108,6 +111,7 @@ var pubKeyTests = []pubKeyTest{
 		isValid: true,
 		format:  pubkeyCompressed,
 	},
+
 	// from tx fdeb8e72524e8dab0da507ddbaf5f88fe4a933eb10a66bc4745bb0aa11ea393c
 	{
 		name: "compressed ok (ybit = 1)",

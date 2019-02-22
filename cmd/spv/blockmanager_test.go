@@ -16,6 +16,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
+
 // headers wraps the different headers and filters used throughout the tests.
 type headers struct {
 	blockHeaders []headerfs.BlockHeader
@@ -24,11 +25,15 @@ type headers struct {
 	filterHashes []chainhash.Hash
 }
 
+
 // maxHeight is the height we will generate filter headers up to.
 const maxHeight = 20 * uint32(wire.CFCheckptInterval)
 
+
 // TestBlockManagerInitialInterval tests that the block manager is able to
+
 // handle checkpointed filter header query responses in out of order, and when
+
 // a partial interval is already written to the store.
 func TestBlockManagerInitialInterval(
 	t *testing.T) {
@@ -36,17 +41,23 @@ func TestBlockManagerInitialInterval(
 	t.Parallel()
 
 	type testCase struct {
+
 		// permute indicates whether responses should be permutated.
 		permute bool
 
+
 		// partialInterval indicates whether we should write parts of
+
 		// the first checkpoint interval to the filter header store
+
 		// before starting the test.
 		partialInterval bool
+
 
 		// repeat indicates whether responses should be repeated.
 		repeat bool
 	}
+
 
 	// Generate all combinations of testcases.
 	var testCases []testCase
@@ -78,8 +89,11 @@ func TestBlockManagerInitialInterval(
 		}
 		defer cleanUp()
 
+
 		// Keep track of the filter headers and block headers. Since
+
 		// the genesis headers are written automatically when the store
+
 		// is created, we query it to add to the slices.
 		genesisBlockHeader, _, err := hdrStore.ChainTip()
 		if err != nil {
@@ -100,14 +114,18 @@ func TestBlockManagerInitialInterval(
 			t.Fatalf("unable to generate headers: %v", err)
 		}
 
+
 		// Write all block headers but the genesis, since it is already
+
 		// in the store.
 		if err = hdrStore.WriteHeaders(headers.blockHeaders[1:]...); err != nil {
 
 			t.Fatalf("Error writing batch of headers: %s", err)
 		}
 
+
 		// We emulate the case where a few filter headers are already
+
 		// written to the store by writing 1/3 of the first interval.
 		if test.partialInterval {
 
@@ -121,8 +139,11 @@ func TestBlockManagerInitialInterval(
 			}
 		}
 
+
 		// We set up a custom query batch method for this test, as we
+
 		// will use this to feed the blockmanager with our crafted
+
 		// responses.
 		bm.server.queryBatch = func(msgs []wire.Message,
 			f func(*ServerPeer, wire.Message, wire.Message) bool,
@@ -135,7 +156,9 @@ func TestBlockManagerInitialInterval(
 					err)
 			}
 
+
 			// We permute the response order if the test signals
+
 			// that.
 			perm := rand.Perm(len(responses))
 			for i, v := range perm {
@@ -146,10 +169,14 @@ func TestBlockManagerInitialInterval(
 					index = v
 				}
 
+
 				// Before sending we take a copy of the
+
 				// message, as we cannot guarantee that it
+
 				// won't be modified.
 				r := *responses[index]
+
 
 				// Let the blockmanager handle the message.
 				if !f(nil, msgs[index], responses[index]) {
@@ -159,12 +186,15 @@ func TestBlockManagerInitialInterval(
 						index, testDesc)
 				}
 
+
 				// If we are not testing repeated responses, go
+
 				// on to the next response.
 				if !test.repeat {
 
 					continue
 				}
+
 
 				// Otherwise resend the response we just sent.
 				if !f(nil, msgs[index], &r) {
@@ -177,11 +207,14 @@ func TestBlockManagerInitialInterval(
 			}
 		}
 
+
 		// Call the get checkpointed cf headers method with the
+
 		// checkpoints we created to start the test.
 		bm.getCheckpointedCFHeaders(
 			headers.checkpoints, cfStore, wire.GCSFilterRegular,
 		)
+
 
 		// Finally make sure the filter header tip is what we expect.
 		tip, tipHeight, err := cfStore.ChainTip()
@@ -205,7 +238,9 @@ func TestBlockManagerInitialInterval(
 	}
 }
 
+
 // TestBlockManagerInvalidInterval tests that the block manager is able to
+
 // determine it is receiving corrupt checkpoints and filter headers.
 func TestBlockManagerInvalidInterval(
 	t *testing.T) {
@@ -213,39 +248,56 @@ func TestBlockManagerInvalidInterval(
 	t.Parallel()
 
 	type testCase struct {
+
 		// wrongGenesis indicates whether we should start deriving the
+
 		// filters from a wrong genesis.
 		wrongGenesis bool
 
+
 		// intervalMisaligned indicates whether each interval prev hash
+
 		// should not line up with the previous checkpoint.
 		intervalMisaligned bool
 
+
 		// invalidPrevHash indicates whether the interval responses
+
 		// should have a prev hash that doesn't mathc that interval.
 		invalidPrevHash bool
 
+
 		// partialInterval indicates whether we should write parts of
+
 		// the first checkpoint interval to the filter header store
+
 		// before starting the test.
 		partialInterval bool
 
+
 		// firstInvalid is the first interval we expect the
+
 		// blockmanager to determine is invalid.
 		firstInvalid int
 	}
 
 	testCases := []testCase{
+
 		// With a set of checkpoints and filter headers calculated from
+
 		// the wrong genesis, the block manager should be able to
+
 		// determine that the first interval doesn't line up.
 		{
 			wrongGenesis: true,
 			firstInvalid: 0,
 		},
 
+
 		// With checkpoints calculated from the wrong genesis, and a
+
 		// partial set of filter headers already written, the first
+
 		// interval should be considered invalid.
 		{
 			wrongGenesis:    true,
@@ -253,14 +305,18 @@ func TestBlockManagerInvalidInterval(
 			firstInvalid:    0,
 		},
 
+
 		// With intervals not lining up, the second interval should
+
 		// be determined invalid.
 		{
 			intervalMisaligned: true,
 			firstInvalid:       1,
 		},
 
+
 		// With misaligned intervals and a partial interval written, the
+
 		// second interval should be considered invalid.
 		{
 			intervalMisaligned: true,
@@ -268,7 +324,9 @@ func TestBlockManagerInvalidInterval(
 			firstInvalid:       1,
 		},
 
+
 		// With responses having invalid prev hashes, the second
+
 		// interval should be deemed invalid.
 		{
 			invalidPrevHash: true,
@@ -285,8 +343,11 @@ func TestBlockManagerInvalidInterval(
 		}
 		defer cleanUp()
 
+
 		// Keep track of the filter headers and block headers. Since
+
 		// the genesis headers are written automatically when the store
+
 		// is created, we query it to add to the slices.
 		genesisBlockHeader, _, err := hdrStore.ChainTip()
 		if err != nil {
@@ -299,8 +360,11 @@ func TestBlockManagerInvalidInterval(
 
 			t.Fatal(err)
 		}
+
 		// To emulate a full node serving us filter headers derived
+
 		// from different genesis than what we have, we flip a bit in
+
 		// the genesis filter header.
 		if test.wrongGenesis {
 
@@ -311,9 +375,13 @@ func TestBlockManagerInvalidInterval(
 			genesisFilterHeader,
 			func(currentCFHeader *chainhash.Hash) {
 
+
 				// If we are testing that each interval doesn't
+
 				// line up properly with the previous, we flip
+
 				// a bit in the current header before
+
 				// calculating the next interval checkpoint.
 				if test.intervalMisaligned {
 
@@ -325,14 +393,18 @@ func TestBlockManagerInvalidInterval(
 			t.Fatalf("unable to generate headers: %v", err)
 		}
 
+
 		// Write all block headers but the genesis, since it is already
+
 		// in the store.
 		if err = hdrStore.WriteHeaders(headers.blockHeaders[1:]...); err != nil {
 
 			t.Fatalf("Error writing batch of headers: %s", err)
 		}
 
+
 		// We emulate the case where a few filter headers are already
+
 		// written to the store by writing 1/3 of the first interval.
 		if test.partialInterval {
 
@@ -357,10 +429,15 @@ func TestBlockManagerInvalidInterval(
 					err)
 			}
 
+
 			// Since we used the generated checkpoints when
+
 			// creating the responses, we must flip the
+
 			// PrevFilterHeader bit back before sending them if we
+
 			// are checking for misaligned intervals. This to
+
 			// ensure we don't hit the invalid prev hash case.
 			if test.intervalMisaligned {
 
@@ -374,8 +451,11 @@ func TestBlockManagerInvalidInterval(
 				}
 			}
 
+
 			// If we are testing for intervals with invalid prev
+
 			// hashes, we flip a bit to corrup them, regardless of
+
 			// whether we are testing misaligned intervals.
 			if test.invalidPrevHash {
 
@@ -389,7 +469,9 @@ func TestBlockManagerInvalidInterval(
 				}
 			}
 
+
 			// Check that the success of the callback match what we
+
 			// expect.
 			for i := range responses {
 
@@ -412,7 +494,9 @@ func TestBlockManagerInvalidInterval(
 			}
 		}
 
+
 		// Start the test by calling the get checkpointed cf headers
+
 		// method with the checkpoints we created.
 		bm.getCheckpointedCFHeaders(
 			headers.checkpoints, cfStore, wire.GCSFilterRegular,
@@ -420,9 +504,13 @@ func TestBlockManagerInvalidInterval(
 	}
 }
 
+
 // generateHeaders generates block headers, filter header and hashes, and
+
 // checkpoints from the given genesis. The onCheckpoint method will be called
+
 // with the current cf header on each checkpoint to modify the derivation of
+
 // the next interval
 func generateHeaders(
 	genesisBlockHeader *wire.BlockHeader,
@@ -442,8 +530,11 @@ func generateHeaders(
 		Height:     0,
 	})
 
+
 	// The filter hashes (not the filter headers!) will be sent as
+
 	// part of the CFHeaders response, so we also keep track of
+
 	// them.
 	genesisFilter, err := builder.BuildBasicFilter(
 		chaincfg.SimNetParams.GenesisBlock, nil,
@@ -464,12 +555,17 @@ func generateHeaders(
 	var filterHashes []chainhash.Hash
 	filterHashes = append(filterHashes, genesisFilterHash)
 
+
 	// Also keep track of the current filter header. We use this to
+
 	// calculate the next filter header, as it commits to the
+
 	// previous.
 	currentCFHeader := *genesisFilterHeader
 
+
 	// checkpoints will be the checkpoints passed to
+
 	// getCheckpointedCFHeaders.
 	var checkpoints []*chainhash.Hash
 
@@ -483,14 +579,19 @@ func generateHeaders(
 
 		blockHeaders = append(blockHeaders, blockHeader)
 
+
 		// It doesn't really matter what filter the filter
+
 		// header commit to, so just use the height as a nonce
+
 		// for the filters.
 		filterHash := chainhash.Hash{}
 		binary.BigEndian.PutUint32(filterHash[:], height)
 		filterHashes = append(filterHashes, filterHash)
 
+
 		// Calculate the current filter header, and add to our
+
 		// slice.
 		currentCFHeader = chainhash.DoubleHashH(
 			append(filterHash[:], currentCFHeader[:]...),
@@ -501,10 +602,13 @@ func generateHeaders(
 			Height:     height,
 		})
 
+
 		// Each interval we must record a checkpoint.
 		if height%wire.CFCheckptInterval == 0 {
 
+
 			// We must make a copy of the current header to
+
 			// avoid mutation.
 			cfh := currentCFHeader
 			checkpoints = append(checkpoints, &cfh)
@@ -524,15 +628,19 @@ func generateHeaders(
 	}, nil
 }
 
+
 // generateResponses generates the MsgCFHeaders messages from the given queries
+
 // and headers.
 func generateResponses(
 	msgs []wire.Message,
 	headers *headers) ([]*wire.MsgCFHeaders, error) {
 
+
 	// Craft a response for each message.
 	var responses []*wire.MsgCFHeaders
 	for _, msg := range msgs {
+
 
 		// Only GetCFHeaders expected.
 		q, ok := msg.(*wire.MsgGetCFHeaders)
@@ -541,6 +649,7 @@ func generateResponses(
 			return nil, fmt.Errorf("got unexpected message %T",
 				msg)
 		}
+
 
 		// The start height must be set to a checkpoint height+1.
 		if q.StartHeight%wire.CFCheckptInterval != 1 {
@@ -552,11 +661,14 @@ func generateResponses(
 		var prevFilterHeader chainhash.Hash
 		switch q.StartHeight {
 
+
 		// If the start height is 1 the prevFilterHeader is set to the
+
 		// genesis header.
 		case 1:
 			genesisFilterHeader := headers.cfHeaders[0].FilterHash
 			prevFilterHeader = genesisFilterHeader
+
 
 		// Otherwise we use one of the created checkpoints.
 		default:
@@ -569,6 +681,7 @@ func generateResponses(
 			StopHash:         q.StopHash,
 			PrevFilterHeader: prevFilterHeader,
 		}
+
 
 		// Keep adding filter hashes until we reach the stop hash.
 		for h := q.StartHeight; ; h++ {
@@ -590,9 +703,11 @@ func generateResponses(
 	return responses, nil
 }
 
+
 // setupBlockManager initialises a blockManager to be used in tests.
 func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	*headerfs.FilterHeaderStore, func(), error) {
+
 
 	// Set up the block and filter header stores.
 	tempDir, err := ioutil.TempDir("", "neutrino")
@@ -637,13 +752,16 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 			"header store: %s", err)
 	}
 
+
 	// Set up a chain service for the block manager. Each test should set
+
 	// custom query methods on this chain service.
 	cs := &ChainService{
 		chainParams:      chaincfg.SimNetParams,
 		BlockHeaders:     hdrStore,
 		RegFilterHeaders: cfStore,
 	}
+
 
 	// Set up a blockManager with the chain service we defined.
 	bm, err := newBlockManager(cs)

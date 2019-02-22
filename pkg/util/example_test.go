@@ -15,9 +15,13 @@ func ExampleAmount() {
 	fmt.Println("100,000,000 Satoshis:", a)
 	a = util.Amount(1e5)
 	fmt.Println("100,000 Satoshis:", a)
+
 	// Output:
+
 	// Zero Satoshi: 0 DUO
+
 	// 100,000,000 Satoshis: 1 DUO
+
 	// 100,000 Satoshis: 0.001 DUO
 }
 func ExampleNewAmount() {
@@ -46,9 +50,13 @@ func ExampleNewAmount() {
 		return
 	}
 	fmt.Println(amountNaN) //Output 4
+
 	// Output: 1 DUO
+
 	// 0.01234567 DUO
+
 	// 0 DUO
+
 	// invalid bitcoin amount
 }
 func ExampleAmount_unitConversions() {
@@ -59,10 +67,16 @@ func ExampleAmount_unitConversions() {
 	fmt.Println("Satoshi to MilliDUO:", amount.Format(util.AmountMilliDUO))
 	fmt.Println("Satoshi to MicroDUO:", amount.Format(util.AmountMicroDUO))
 	fmt.Println("Satoshi to Satoshi:", amount.Format(util.AmountSatoshi))
+
 	// Output:
+
 	// Satoshi to kDUO: 444.333222111 kDUO
+
 	// Satoshi to DUO: 444333.222111 DUO
+
 	// Satoshi to MilliDUO: 444333222.111 mDUO
+
 	// Satoshi to MicroDUO: 444333222111 μDUO
+
 	// Satoshi to Satoshi: 44433322211100 Satoshi
 }

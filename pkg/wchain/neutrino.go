@@ -26,6 +26,7 @@ type NeutrinoClient struct {
 
 	chainParams *chaincfg.Params
 
+
 	// We currently support one rescan/notifiction goroutine per client
 	rescan *sac.Rescan
 
@@ -109,8 +110,11 @@ func (s *NeutrinoClient) WaitForShutdown() {
 // GetBlock replicates the RPC client's GetBlock command.
 func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) {
 
+
 	// TODO(roasbeef): add a block cache?
+
 	//  * which evication strategy? depends on use case
+
 	//  Should the block cache be INSIDE neutrino instead of in btcwallet?
 	block, err := s.CS.GetBlock(*hash)
 	if err != nil {
@@ -191,16 +195,22 @@ func (s *NeutrinoClient) FilterBlocks(
 
 	blockFilterer := NewBlockFilterer(s.chainParams, req)
 
+
 	// Construct the watchlist using the addresses and outpoints contained
+
 	// in the filter blocks request.
 	watchList, err := buildFilterBlocksWatchList(req)
 	if err != nil {
 		return nil, err
 	}
 
+
 	// Iterate over the requested blocks, fetching the compact filter for
+
 	// each one, and matching it against the watchlist generated above. If
+
 	// the filter returns a positive match, the full block is then requested
+
 	// and scanned for addresses using the block filterer.
 	for i, blk := range req.Blocks {
 		filter, err := s.pollCFilter(&blk.Hash)
@@ -255,6 +265,7 @@ func (s *NeutrinoClient) FilterBlocks(
 		return resp, nil
 	}
 
+
 	// No addresses were found for this range.
 	return nil, nil
 }
@@ -266,8 +277,11 @@ func (s *NeutrinoClient) FilterBlocks(
 func buildFilterBlocksWatchList(
 	req *FilterBlocksRequest) ([][]byte, error) {
 
+
 	// Construct a watch list containing the script addresses of all
+
 	// internal and external addresses that were requested, in addition to
+
 	// the set of outpoints currently being watched.
 	watchListSize := len(req.ExternalAddrs) +
 		len(req.InternalAddrs) +
@@ -369,8 +383,11 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 			bestBlock.Hash, err)
 	}
 
+
 	// If the wallet is already fully caught up, or the rescan has started
+
 	// with state that indicates a "fresh" wallet, we'll send a
+
 	// notification indicating the rescan has "finished".
 	if header.BlockHash() == *startHash {
 		s.finished = true
@@ -420,7 +437,9 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 // NotifyBlocks replicates the RPC client's NotifyBlocks command.
 func (s *NeutrinoClient) NotifyBlocks() error {
 	s.clientMtx.Lock()
+
 	// If we're scanning, we're already notifying on blocks. Otherwise,
+
 	// start a rescan without watching any addresses.
 	if !s.scanning {
 		s.clientMtx.Unlock()
@@ -434,7 +453,9 @@ func (s *NeutrinoClient) NotifyBlocks() error {
 func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
 	s.clientMtx.Lock()
 
+
 	// If we have a rescan running, we just need to add the appropriate
+
 	// addresses to the watch list.
 	if s.scanning {
 		s.clientMtx.Unlock()
@@ -444,9 +465,11 @@ func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
 	s.rescanQuit = make(chan struct{})
 	s.scanning = true
 
+
 	// Don't need RescanFinished or RescanProgress notifications.
 	s.finished = true
 	s.lastProgressSent = true
+
 
 	// Rescan with just the specified addresses.
 	newRescan := s.CS.NewRescan(
@@ -518,6 +541,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		return
 	}
 
+
 	// Handle RescanFinished notification if required.
 	bs, err := s.CS.BestBlock()
 	if err != nil {
@@ -577,7 +601,9 @@ func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	time time.Time) {
 
+
 	// TODO: Move this closure out and parameterize it? Is it useful
+
 	// outside here?
 	sendRescanProgress := func() {
 
@@ -591,8 +617,11 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 		case <-s.rescanQuit:
 		}
 	}
+
 	// Only send BlockConnected notification if we're processing blocks
+
 	// before the birthday. Otherwise, we can just update using
+
 	// RescanProgress notifications.
 	if time.Before(s.startTime) {
 
@@ -649,11 +678,17 @@ func (s *NeutrinoClient) notificationHandler() {
 
 	bs := &waddrmgr.BlockStamp{Hash: *hash, Height: height}
 
+
 	// TODO: Rather than leaving this as an unbounded queue for all types of
+
 	// notifications, try dropping ones where a later enqueued notification
+
 	// can fully invalidate one waiting to be processed.  For example,
+
 	// blockconnected notifications for greater block heights can remove the
+
 	// need to process earlier blockconnected notifications still waiting
+
 	// here.
 
 	var notifications []interface{}

@@ -15,6 +15,7 @@ import (
 func BenchmarkBlockHeader(
 	b *testing.B) {
 
+
 	// Start by creating a new database and populating it with the mainnet genesis block.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-benchblkhdr")
 	_ = os.RemoveAll(dbPath)
@@ -46,6 +47,7 @@ func BenchmarkBlockHeader(
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	// Don't benchmark teardown.
 	b.StopTimer()
 }
@@ -53,6 +55,7 @@ func BenchmarkBlockHeader(
 // BenchmarkBlockHeader benchmarks how long it takes to load the mainnet genesis block.
 func BenchmarkBlock(
 	b *testing.B) {
+
 
 	// Start by creating a new database and populating it with the mainnet genesis block.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-benchblk")
@@ -85,6 +88,7 @@ func BenchmarkBlock(
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	// Don't benchmark teardown.
 	b.StopTimer()
 }

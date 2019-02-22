@@ -13,6 +13,7 @@ import (
 func TestErrorCodeStringer(
 	t *testing.T) {
 
+
 	// All the errors in ths
 	tests := []struct {
 		in   vp.ErrorCode

@@ -2,12 +2,16 @@
 package json
 
 const (
+
 	// AccountBalanceNtfnMethod is the method used for account balance notifications.
 	AccountBalanceNtfnMethod = "accountbalance"
+
 	// PodConnectedNtfnMethod is the method used for notifications when a wallet server is connected to a chain server.
 	PodConnectedNtfnMethod = "podconnected"
+
 	// WalletLockStateNtfnMethod is the method used to notify the lock state of a wallet has changed.
 	WalletLockStateNtfnMethod = "walletlockstate"
+
 	// NewTxNtfnMethod is the method used to notify that a wallet server has added a new transaction to the transaction store.
 	NewTxNtfnMethod = "newtx"
 )
@@ -70,6 +74,7 @@ func NewNewTxNtfn(
 	}
 }
 func init() {
+
 
 	// The commands in this file are only usable with a wallet server via websockets and are notifications.
 	flags := UFWalletOnly | UFWebsocketOnly | UFNotification

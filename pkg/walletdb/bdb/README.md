@@ -16,6 +16,7 @@ database path as a string:
 ```Go
 db, err := walletdb.Open("bdb", "path/to/database.db")
 if err != nil {
+
 	// Handle error
 }
 ```
@@ -23,6 +24,7 @@ if err != nil {
 ```Go
 db, err := walletdb.Create("bdb", "path/to/database.db")
 if err != nil {
+
 	// Handle error
 }
 ```

@@ -23,10 +23,12 @@ type VDATA struct {
 	Imgs   map[string][]byte `json:"imgs"`
 }
 
+
 // GUI is the main entry point for the GUI interface
 func GUI(
 	sh *shell.Config,
 ) {
+
 
 	// wlt =
 	var err error
@@ -43,15 +45,20 @@ func GUI(
 		Resizable: false,
 	})
 	defer w.Exit()
+
 	// Here we need to check for and create wallet :
+
 	// Next start up shell
+
 
 	//  Now start as normal with something in `wlt`
 	apps.InitApps()
+
 	// vue.WLT = _
 	w.Dispatch(func() {
 
 		w.Bind("blockchaindata", &vue.BlockChain{})
+
 		// w.Bind("sendtoaddress", &vue.SendToAddress{})
 		w.Bind("language", &vue.Language{})
 		w.Bind("addressbook", &apps.AddressBook{})

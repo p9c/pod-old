@@ -2,26 +2,37 @@
 package json
 
 const (
+
 	// BlockConnectedNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a block has been connected. NOTE: Deprecated. Use FilteredBlockConnectedNtfnMethod instead.
 	BlockConnectedNtfnMethod = "blockconnected"
+
 	// BlockDisconnectedNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a block has been disconnected. NOTE: Deprecated. Use FilteredBlockDisconnectedNtfnMethod instead.
 	BlockDisconnectedNtfnMethod = "blockdisconnected"
+
 	// FilteredBlockConnectedNtfnMethod is the new method used for notifications from the chain server that a block has been connected.
 	FilteredBlockConnectedNtfnMethod = "filteredblockconnected"
+
 	// FilteredBlockDisconnectedNtfnMethod is the new method used for notifications from the chain server that a block has been disconnected.
 	FilteredBlockDisconnectedNtfnMethod = "filteredblockdisconnected"
+
 	// RecvTxNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a transaction which pays to a registered address has been processed. NOTE: Deprecated. Use RelevantTxAcceptedNtfnMethod and FilteredBlockConnectedNtfnMethod instead.
 	RecvTxNtfnMethod = "recvtx"
+
 	// RedeemingTxNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a transaction which spends a registered outpoint has been processed. NOTE: Deprecated. Use RelevantTxAcceptedNtfnMethod and FilteredBlockConnectedNtfnMethod instead.
 	RedeemingTxNtfnMethod = "redeemingtx"
+
 	// RescanFinishedNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a legacy, deprecated rescan operation has finished. NOTE: Deprecated. Not used with rescanblocks command.
 	RescanFinishedNtfnMethod = "rescanfinished"
+
 	// RescanProgressNtfnMethod is the legacy, deprecated method used for notifications from the chain server that a legacy, deprecated rescan operation this is underway has made progress. NOTE: Deprecated. Not used with rescanblocks command.
 	RescanProgressNtfnMethod = "rescanprogress"
+
 	// TxAcceptedNtfnMethod is the method used for notifications from the chain server that a transaction has been accepted into the mempool.
 	TxAcceptedNtfnMethod = "txaccepted"
+
 	// TxAcceptedVerboseNtfnMethod is the method used for notifications from the chain server that a transaction has been accepted into the mempool.  This differs from TxAcceptedNtfnMethod in that it provides more details in the notification.
 	TxAcceptedVerboseNtfnMethod = "txacceptedverbose"
+
 	// RelevantTxAcceptedNtfnMethod is the new method used for notifications from the chain server that inform a client that a transaction that matches the loaded filter was accepted by the mempool.
 	RelevantTxAcceptedNtfnMethod = "relevanttxaccepted"
 )
@@ -203,6 +214,7 @@ func NewRelevantTxAcceptedNtfn(
 	return &RelevantTxAcceptedNtfn{Transaction: txHex}
 }
 func init() {
+
 
 	// The commands in this file are only usable by websockets and are notifications.
 	flags := UFWebsocketOnly | UFNotification

@@ -24,6 +24,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // DefaultNodeConfig is the default configuration for node
 func DefaultNodeConfig(
 	datadir string,
@@ -79,6 +80,7 @@ func DefaultNodeConfig(
 	}
 }
 
+
 // WriteDefaultNodeConfig creates a default config and writes it to the requested location
 func WriteDefaultNodeConfig(
 	datadir string,
@@ -103,9 +105,11 @@ func WriteDefaultNodeConfig(
 		log <- cl.Error{"writing default app config file:", err.Error()}
 		return
 	}
+
 	// if we are writing default config we also want to use it
 	NodeConfig = defCfg
 }
+
 
 // WriteNodeConfig writes the current config to the requested location
 func WriteNodeConfig(
@@ -386,6 +390,7 @@ func configNode(
 		nc.RejectNonStd = r == "true"
 	}
 
+
 	// finished configuration
 
 	SetLogging(ctx)
@@ -413,8 +418,10 @@ func configNode(
 		}
 	}
 
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
+
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
 		err := runServiceCommand(serviceOpts.ServiceCommand)
@@ -424,10 +431,12 @@ func configNode(
 		}
 		return 0
 	}
+
 	// Don't add peers from the config file when in regression test mode.
 	if nc.RegressionTest && len(nc.AddPeers) > 0 {
 		nc.AddPeers = nil
 	}
+
 	// Set the mining algorithm correctly, default to random if unrecognised
 	switch nc.Algo {
 	case "blake14lr", "cryptonight7v2", "keccak", "lyra2rev2", "scrypt", "skein", "x11", "stribog", "random", "easy":
@@ -449,16 +458,21 @@ func configNode(
 		relayNonStd = true
 	}
 	nc.RelayNonStd = relayNonStd
+
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	nc.DataDir = node.CleanAndExpandPath(nc.DataDir)
 	log <- cl.Debug{"netname", NodeConfig.params.Name, node.NetName(NodeConfig.params)}
 	nc.DataDir = filepath.Join(nc.DataDir, node.NetName(NodeConfig.params))
+
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	nc.LogDir = node.CleanAndExpandPath(nc.LogDir)
 	nc.LogDir = filepath.Join(nc.LogDir, node.NetName(NodeConfig.params))
 
+
 	// Initialize log rotationode.  After log rotation has been initialized, the logger variables may be used.
+
 	// initLogRotator(filepath.Join(nc.LogDir, DefaultLogFilename))
+
 	// Validate database type.
 	if !node.ValidDbType(nc.DbType) {
 		str := "%s: The specified database type [%v] is invalid -- " +
@@ -468,6 +482,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Validate profile port number
 	if nc.Profile != "" {
 		profilePort, err := strconv.Atoi(nc.Profile)
@@ -479,6 +494,7 @@ func configNode(
 			return 1
 		}
 	}
+
 	// Don't allow ban durations that are too short.
 	if nc.BanDuration < time.Second {
 		str := "%s: The banduration option may not be less than 1s -- parsed [%v]"
@@ -487,6 +503,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Validate any given whitelisted IP addresses and networks.
 	if len(nc.Whitelists) > 0 {
 		var ip net.IP
@@ -504,6 +521,7 @@ func configNode(
 				}
 				var bits int
 				if ip.To4() == nil {
+
 					// IPv6
 					bits = 128
 				} else {
@@ -517,6 +535,7 @@ func configNode(
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
 	}
+
 	// --addPeer and --connect do not mix.
 	if len(nc.AddPeers) > 0 && len(nc.ConnectPeers) > 0 {
 		str := "%s: the --addpeer and --connect options can not be " +
@@ -525,21 +544,25 @@ func configNode(
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
+
 	// --proxy or --connect without --listen disables listening.
 	if (nc.Proxy != "" || len(nc.ConnectPeers) > 0) &&
 		len(nc.Listeners) == 0 {
 		nc.DisableListen = true
 	}
+
 	// Connect means no DNS seeding.
 	if len(nc.ConnectPeers) > 0 {
 		nc.DisableDNSSeed = true
 	}
+
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(nc.Listeners) == 0 {
 		nc.Listeners = []string{
 			net.JoinHostPort("", NodeConfig.params.DefaultPort),
 		}
 	}
+
 	// Check to make sure limited and admin users don't have the same username
 	if nc.RPCUser == nc.RPCLimitUser && nc.RPCUser != "" {
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
@@ -548,6 +571,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check to make sure limited and admin users don't have the same password
 	if nc.RPCPass == nc.RPCLimitPass && nc.RPCPass != "" {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the " +
@@ -557,6 +581,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// The RPC server is disabled if no username or password is provided.
 	if (nc.RPCUser == "" || nc.RPCPass == "") &&
 		(nc.RPCLimitUser == "" || nc.RPCLimitPass == "") {
@@ -565,6 +590,7 @@ func configNode(
 	if nc.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
 	}
+
 	// Default RPC to listen on localhost only.
 	if !nc.DisableRPC && len(nc.RPCListeners) == 0 {
 		addrs, err := net.LookupHost(node.DefaultRPCListener)
@@ -585,6 +611,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(nc.MinRelayTxFee)
 	if err != nil {
@@ -594,6 +621,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max block size to a sane value.
 	if nc.BlockMaxSize < node.BlockMaxSizeMin || nc.BlockMaxSize >
 		node.BlockMaxSizeMax {
@@ -604,6 +632,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max block weight to a sane value.
 	if nc.BlockMaxWeight < node.BlockMaxWeightMin ||
 		nc.BlockMaxWeight > node.BlockMaxWeightMax {
@@ -614,6 +643,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max orphan count to a sane vlue.
 	if nc.MaxOrphanTxs < 0 {
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
@@ -622,20 +652,24 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the block priority and minimum block sizes to max block size.
 	nc.BlockPrioritySize = minUint32(nc.BlockPrioritySize, nc.BlockMaxSize)
 	nc.BlockMinSize = minUint32(nc.BlockMinSize, nc.BlockMaxSize)
 	nc.BlockMinWeight = minUint32(nc.BlockMinWeight, nc.BlockMaxWeight)
 	switch {
+
 	// If the max block size isn't set, but the max weight is, then we'll set the limit for the max block size to a safe limit so weight takes precedence.
 	case nc.BlockMaxSize == node.DefaultBlockMaxSize &&
 		nc.BlockMaxWeight != node.DefaultBlockMaxWeight:
 		nc.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
+
 	// If the max block weight isn't set, but the block size is, then we'll scale the set weight accordingly based on the max block size value.
 	case nc.BlockMaxSize != node.DefaultBlockMaxSize &&
 		nc.BlockMaxWeight == node.DefaultBlockMaxWeight:
 		nc.BlockMaxWeight = nc.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
+
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range nc.UserAgentComments {
 		if strings.ContainsAny(uaComment, "/:()") {
@@ -648,6 +682,7 @@ func configNode(
 
 		}
 	}
+
 	// --txindex and --droptxindex do not mix.
 	if nc.TxIndex && nc.DropTxIndex {
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
@@ -657,6 +692,7 @@ func configNode(
 		return 1
 
 	}
+
 	// --addrindex and --dropaddrindex do not mix.
 	if nc.AddrIndex && nc.DropAddrIndex {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex "+
@@ -666,6 +702,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// --addrindex and --droptxindex do not mix.
 	if nc.AddrIndex && nc.DropTxIndex {
 		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time "+
@@ -675,6 +712,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(nc.MiningAddrs))
 	for _, strAddr := range nc.MiningAddrs {
@@ -695,6 +733,7 @@ func configNode(
 		}
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
+
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (nc.Generate || nc.MinerListener != "") && len(nc.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
@@ -706,9 +745,11 @@ func configNode(
 	if nc.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(nc.MinerPass))
 	}
+
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	nc.Listeners = node.NormalizeAddresses(nc.Listeners,
 		NodeConfig.params.DefaultPort)
+
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	nc.RPCListeners = node.NormalizeAddresses(nc.RPCListeners,
 		NodeConfig.params.RPCPort)
@@ -723,11 +764,13 @@ func configNode(
 			}
 		}
 	}
+
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	nc.AddPeers = node.NormalizeAddresses(nc.AddPeers,
 		NodeConfig.params.DefaultPort)
 	nc.ConnectPeers = node.NormalizeAddresses(nc.ConnectPeers,
 		NodeConfig.params.DefaultPort)
+
 	// --noonion and --onion do not mix.
 	if nc.NoOnion && nc.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
@@ -735,6 +778,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = node.ParseCheckpoints(nc.AddCheckpoints)
 	if err != nil {
@@ -744,6 +788,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if nc.TorIsolation && nc.Proxy == "" && nc.OnionProxy == "" {
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
@@ -752,6 +797,7 @@ func configNode(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
@@ -764,6 +810,7 @@ func configNode(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overriddenode.
 		torIsolation := false
 		if nc.TorIsolation && nc.OnionProxy == "" &&
@@ -779,6 +826,7 @@ func configNode(
 			TorIsolation: torIsolation,
 		}
 		StateCfg.Dial = proxy.DialTimeout
+
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !nc.NoOnion && nc.OnionProxy == "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -786,6 +834,7 @@ func configNode(
 			}
 		}
 	}
+
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
 	if nc.OnionProxy != "" {
 		_, _, err := net.SplitHostPort(nc.OnionProxy)
@@ -796,6 +845,7 @@ func configNode(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
 		if nc.TorIsolation &&
 			(nc.OnionProxyUser != "" || nc.OnionProxyPass != "") {
@@ -812,6 +862,7 @@ func configNode(
 			}
 			return proxy.DialTimeout(network, addr, timeout)
 		}
+
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if nc.Proxy != "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -821,6 +872,7 @@ func configNode(
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
+
 	// Specifying --noonion means the onion address dial function results in an error.
 	if nc.NoOnion {
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {

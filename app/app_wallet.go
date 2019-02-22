@@ -9,12 +9,14 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // WalletCfg is the combined app and logging configuration data
 type WalletCfg struct {
 	Wallet    *w.Config
 	Levels    map[string]string
 	activeNet *netparams.Params
 }
+
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var WalletCommand = climax.Command{
@@ -78,16 +80,24 @@ var WalletCommand = climax.Command{
 
 		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
+
 	// Examples: []climax.Example{
+
 	// 	{
+
 	// 		Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
+
 	// 		Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
+
 	// 	},
+
 	// },
 }
 
+
 // WalletConfig is the combined app and log levels configuration
 var WalletConfig = DefaultWalletConfig(w.DefaultConfigFile)
+
 
 // wf is the list of flags and the default values stored in the Usage field
 var wf = GetFlags(WalletCommand)

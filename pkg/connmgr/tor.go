@@ -19,10 +19,13 @@ const (
 )
 
 var (
+
 	// ErrTorInvalidAddressResponse indicates an invalid address was returned by the Tor DNS resolver.
 	ErrTorInvalidAddressResponse = errors.New("invalid address response")
+
 	// ErrTorInvalidProxyResponse indicates the Tor proxy returned a response in an unexpected format.
 	ErrTorInvalidProxyResponse = errors.New("invalid proxy response")
+
 	// ErrTorUnrecognizedAuthMethod indicates the authentication method provided is not recognized.
 	ErrTorUnrecognizedAuthMethod = errors.New("invalid proxy authentication method")
 	torStatusErrors              = map[byte]error{
@@ -37,6 +40,7 @@ var (
 		torAddrNotSupported:  errors.New("tor address type not supported"),
 	}
 )
+
 
 // TorLookupIP uses Tor to resolve DNS via the SOCKS extension they provide for resolution over the Tor network. Tor itself doesn't support ipv6 so this doesn't either.
 func TorLookupIP(

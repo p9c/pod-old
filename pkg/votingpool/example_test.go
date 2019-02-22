@@ -54,7 +54,9 @@ func createWaddrmgr(
 
 func ExampleCreate() {
 
+
 	// Create a new walletdb.DB. See the walletdb docs for instructions on how
+
 	// to do that.
 	db, dbTearDown, err := createWalletDB()
 	if err != nil {
@@ -70,12 +72,14 @@ func ExampleCreate() {
 	}
 	defer dbtx.Commit()
 
+
 	// Create a new walletdb namespace for the address manager.
 	mgrNamespace, err := dbtx.CreateTopLevelBucket([]byte("waddrmgr"))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 
 	// Create the address manager.
 	mgr, err := createWaddrmgr(mgrNamespace, &chaincfg.MainNetParams)
@@ -84,12 +88,14 @@ func ExampleCreate() {
 		return
 	}
 
+
 	// Create a walletdb namespace for votingpools.
 	vpNamespace, err := dbtx.CreateTopLevelBucket([]byte("votingpool"))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 
 	// Create a voting pool.
 	_, err = votingpool.Create(vpNamespace, mgr, []byte{0x00})
@@ -98,7 +104,9 @@ func ExampleCreate() {
 		return
 	}
 
+
 	// Output:
+
 	//
 }
 
@@ -106,7 +114,9 @@ func ExampleCreate() {
 // series and get a deposit address for that series.
 func Example_depositAddress() {
 
+
 	// Create the address manager and votingpool DB namespace. See the example
+
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
 	defer teardown()
@@ -146,7 +156,9 @@ func Example_depositAddress() {
 		return
 	}
 
+
 	// Output:
+
 	// Generated deposit address: 3QTzpc9d3tTbNLJLB7xwt87nWM38boAhAw
 }
 
@@ -154,12 +166,16 @@ func Example_depositAddress() {
 // key for one of the series' public keys.
 func Example_empowerSeries() {
 
+
 	// Create the address manager and votingpool DB namespace. See the example
+
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
 	defer teardown()
 
+
 	// Create a pool and a series. See the DepositAddress example for more info
+
 	// on how this is done.
 	pool, seriesID := exampleCreatePoolAndSeries(db, mgr)
 
@@ -182,19 +198,25 @@ func Example_empowerSeries() {
 		return
 	}
 
+
 	// Output:
+
 	//
 }
 
 // This example demonstrates how to use the Pool.StartWithdrawal method.
 func Example_startWithdrawal() {
 
+
 	// Create the address manager and votingpool DB namespace. See the example
+
 	// for the Create() function for more info on how this is done.
 	teardown, db, mgr := exampleCreateDBAndMgr()
 	defer teardown()
 
+
 	// Create a pool and a series. See the DepositAddress example for more info
+
 	// on how this is done.
 	pool, seriesID := exampleCreatePoolAndSeries(db, mgr)
 
@@ -253,7 +275,9 @@ func Example_startWithdrawal() {
 		return
 	}
 
+
 	// Output:
+
 	//
 }
 
@@ -303,6 +327,7 @@ func exampleCreateDBAndMgr() (teardown func(), db walletdb.DB, mgr *waddrmgr.Man
 		dbTearDown()
 		panic(err)
 	}
+
 
 	// Create a new walletdb namespace for the address manager.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {

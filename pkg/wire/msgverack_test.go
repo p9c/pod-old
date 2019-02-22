@@ -7,11 +7,13 @@ import (
 	"testing"
 )
 
+
 // TestVerAck tests the MsgVerAck API.
 func TestVerAck(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// Ensure the command is expected value.
 	wantCmd := "verack"
 	msg := NewMsgVerAck()
@@ -19,6 +21,7 @@ func TestVerAck(
 		t.Errorf("NewMsgVerAck: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
+
 	// Ensure max payload is expected value.
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
@@ -28,6 +31,7 @@ func TestVerAck(
 			maxPayload, wantPayload)
 	}
 }
+
 
 // TestVerAckWire tests the MsgVerAck wire encode and decode for various protocol versions.
 func TestVerAckWire(
@@ -42,6 +46,7 @@ func TestVerAckWire(
 		pver uint32          // Protocol version for wire encoding
 		enc  MessageEncoding // Message encoding format
 	}{
+
 		// Latest protocol version.
 		{
 			msgVerAck,
@@ -50,6 +55,7 @@ func TestVerAckWire(
 			ProtocolVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0035Version.
 		{
 			msgVerAck,
@@ -58,6 +64,7 @@ func TestVerAckWire(
 			BIP0035Version,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0031Version.
 		{
 			msgVerAck,
@@ -66,6 +73,7 @@ func TestVerAckWire(
 			BIP0031Version,
 			BaseEncoding,
 		},
+
 		// Protocol version NetAddressTimeVersion.
 		{
 			msgVerAck,
@@ -74,6 +82,7 @@ func TestVerAckWire(
 			NetAddressTimeVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version MultipleAddressVersion.
 		{
 			msgVerAck,
@@ -85,6 +94,7 @@ func TestVerAckWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
@@ -98,6 +108,7 @@ func TestVerAckWire(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Decode the message from wire format.
 		var msg MsgVerAck
 		rbuf := bytes.NewReader(test.buf)

@@ -18,6 +18,7 @@ func TestBadPC(
 		{script: 2, off: 0},
 		{script: 0, off: 2},
 	}
+
 	// tx with almost empty scripts.
 	tx := &wire.MsgTx{
 		Version: 1,
@@ -73,6 +74,7 @@ func TestCheckErrorCondition(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// tx with almost empty scripts.
 	tx := &wire.MsgTx{
 		Version: 1,
@@ -141,6 +143,7 @@ func TestInvalidFlagCombinations(
 	tests := []ScriptFlags{
 		ScriptVerifyCleanStack,
 	}
+
 	// tx with almost empty scripts.
 	tx := &wire.MsgTx{
 		Version: 1,

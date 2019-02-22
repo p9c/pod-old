@@ -48,8 +48,11 @@ func newUtxoViewpoint(
 func TestCalcPriority(
 	t *testing.T) {
 
+
 	// commonSourceTx1 is a valid transaction used in the tests below as an input to transactions that are having their priority calculated.
+
 	// From block 7 in main blockchain.
+
 	// tx 0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9
 	commonSourceTx1 := &wire.MsgTx{
 		Version: 1,
@@ -70,7 +73,9 @@ func TestCalcPriority(
 		}},
 		LockTime: 0,
 	}
+
 	// commonRedeemTx1 is a valid transaction used in the tests below as the transaction to calculate the priority for.
+
 	// It originally came from block 170 in main blockchain.
 	commonRedeemTx1 := &wire.MsgTx{
 		Version: 1,

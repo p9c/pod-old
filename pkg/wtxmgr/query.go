@@ -45,7 +45,9 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 
 	var details TxDetails
 
+
 	// Parse transaction record k/v, lookup the full block record for the
+
 	// block time, and read all matching credits, debits.
 	err := readRawTxRecord(txHash, recVal, &details.TxRecord)
 	if err != nil {
@@ -125,11 +127,17 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 		return nil, it.err
 	}
 
+
 	// Debit records are not saved for unmined transactions.  Instead, they
+
 	// must be looked up for each transaction input manually.  There are two
+
 	// kinds of previous credits that may be debited by an unmined
+
 	// transaction: mined unspent outputs (which remain marked unspent even
+
 	// when spent by an unmined transaction), and credits from other unmined
+
 	// transactions.  Both situations must be considered.
 	for i, output := range details.MsgTx.TxIn {
 		opKey := canonicalOutPoint(&output.PreviousOutPoint.Hash,
@@ -175,14 +183,18 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 // a nil TxDetails is returned.
 func (s *Store) TxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash) (*TxDetails, error) {
 
+
 	// First, check whether there exists an unmined transaction with this
+
 	// hash.  Use it if found.
 	v := existsRawUnmined(ns, txHash[:])
 	if v != nil {
 		return s.unminedTxDetails(ns, txHash, v)
 	}
 
+
 	// Otherwise, if there exists a mined transaction with this matching
+
 	// hash, skip over to the newest and begin fetching all details.
 	k, v := latestTxRecord(ns, txHash)
 	if v == nil {
@@ -255,6 +267,7 @@ func (s *Store) rangeUnminedTransactions(ns walletdb.ReadBucket, f func([]TxDeta
 // f executes and returns true.
 func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 	f func([]TxDetails) (bool, error)) (bool, error) {
+
 
 	// Mempool height is considered a high bound.
 	if begin < 0 {

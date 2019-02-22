@@ -22,31 +22,45 @@ type BitcoindConn struct {
 	started int32 // To be used atomically.
 	stopped int32 // To be used atomically.
 
+
 	// rescanClientCounter is an atomic counter that assigns a unique ID to
+
 	// each new bitcoind rescan client using the current bitcoind
+
 	// connection.
 	rescanClientCounter uint64
 
+
 	// chainParams identifies the current network the bitcoind node is
+
 	// running on.
 	chainParams *chaincfg.Params
+
 
 	// client is the RPC client to the bitcoind node.
 	client *rpcclient.Client
 
+
 	// zmqBlockHost is the host listening for ZMQ connections that will be
+
 	// responsible for delivering raw transaction events.
 	zmqBlockHost string
 
+
 	// zmqTxHost is the host listening for ZMQ connections that will be
+
 	// responsible for delivering raw transaction events.
 	zmqTxHost string
 
+
 	// zmqPollInterval is the interval at which we'll attempt to retrieve an
+
 	// event from the ZMQ connection.
 	zmqPollInterval time.Duration
 
+
 	// rescanClients is the set of active bitcoind rescan clients to which
+
 	// ZMQ event notfications will be sent to.
 	rescanClientsMtx sync.Mutex
 	rescanClients    map[uint64]*BitcoindClient
@@ -104,6 +118,7 @@ func (c *BitcoindConn) Start() error {
 		return nil
 	}
 
+
 	// Verify that the node is running on the expected network.
 	net, err := c.getCurrentNet()
 	if err != nil {
@@ -116,9 +131,13 @@ func (c *BitcoindConn) Start() error {
 			c.chainParams.Net, net)
 	}
 
+
 	// Establish two different ZMQ connections to bitcoind to retrieve block
+
 	// and transaction event notifications. We'll use two as a separation of
+
 	// concern to ensure one type of event isn't dropped from the connection
+
 	// queue due to another type of event filling it up.
 	zmqBlockConn, err := gozmq.Subscribe(
 		c.zmqBlockHost, []string{"rawblock"}, c.zmqPollInterval,

@@ -14,6 +14,7 @@ func TestNotifications(
 	if err != nil {
 		t.Fatalf("Error loading file: %v\n", err)
 	}
+
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("notifications",
 		&chaincfg.MainNetParams)
@@ -28,6 +29,7 @@ func TestNotifications(
 			notificationCount++
 		}
 	}
+
 	// Register callback multiple times then assert it is called that many times.
 	const numSubscribers = 3
 	for i := 0; i < numSubscribers; i++ {

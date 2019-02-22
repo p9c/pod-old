@@ -253,6 +253,7 @@ func spendWitnessKeyHash(
 	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
 	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
 
+
 	// First obtain the key pair associated with this p2wkh address.
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		chainParams)
@@ -265,7 +266,9 @@ func spendWitnessKeyHash(
 	}
 	pubKey := privKey.PubKey()
 
+
 	// Once we have the key pair, generate a p2wkh address type, respecting
+
 	// the compression type of the generated key.
 	var pubKeyHash []byte
 	if compressed {
@@ -278,8 +281,11 @@ func spendWitnessKeyHash(
 		return err
 	}
 
+
 	// With the concrete address type, we can now generate the
+
 	// corresponding witness program to be used to generate a valid witness
+
 	// which will allow us to spend this output.
 	witnessProgram, err := txscript.PayToAddrScript(p2wkhAddr)
 	if err != nil {
@@ -308,6 +314,7 @@ func spendNestedWitnessPubKeyHash(
 	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
 	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
 
+
 	// First we need to obtain the key pair related to this p2sh output.
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		chainParams)
@@ -327,9 +334,13 @@ func spendNestedWitnessPubKeyHash(
 		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
 	}
 
+
 	// Next, we'll generate a valid sigScript that'll allow us to spend
+
 	// the p2sh output. The sigScript will contain only a single push of
+
 	// the p2wkh witness program corresponding to the matching public key
+
 	// of this address.
 	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
@@ -347,7 +358,9 @@ func spendNestedWitnessPubKeyHash(
 	}
 	txIn.SignatureScript = sigScript
 
+
 	// With the sigScript in place, we'll next generate the proper witness
+
 	// that'll allow us to spend the p2wkh output.
 	witnessScript, err := txscript.WitnessSignature(tx, hashCache, idx,
 		inputValue, witnessProgram, txscript.SigHashAll, privKey, compressed)

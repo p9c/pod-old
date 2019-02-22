@@ -18,30 +18,41 @@ import (
 )
 
 const (
+
 	// maxNonce is the maximum value a nonce can be in a block header.
 	maxNonce = ^uint32(0) // 2^32 - 1
+
 	// maxExtraNonce is the maximum value an extra nonce used in a coinbase transaction can be.
 	maxExtraNonce = ^uint64(0) // 2^64 - 1
 )
 
 // Config is a descriptor containing the controller configuration.
 type Config struct {
+
 	// Blockchain gives access for the miner to information about the chain
 	Blockchain *blockchain.BlockChain
+
 	// ChainParams identifies which chain parameters the cpu miner is associated with.
 	ChainParams *chaincfg.Params
+
 	// BlockTemplateGenerator identifies the instance to use in order to generate block templates that the miner will attempt to solve.
 	BlockTemplateGenerator *mining.BlkTmplGenerator
+
 	// MiningAddrs is a list of payment addresses to use for the generated blocks.  Each generated block will randomly choose one of thec.
 	MiningAddrs []util.Address
+
 	// ProcessBlock defines the function to call with any solved blocks. It typically must run the provided block through the same set of rules and handling as any other block coming from the network.
 	ProcessBlock func(*util.Block, blockchain.BehaviorFlags) (bool, error)
+
 	// MinerListener is the listener that will accept miner subscriptions and such
 	MinerListener string
+
 	// MinerKey is generated from the password specified in the main configuration for miner port using Stribog hash to derive the nonce, Argon2i to expand the password, and a final pass of Keccak
 	MinerKey []byte
+
 	// ConnectedCount defines the function to use to obtain how many other peers the server is connected to.  This is used by the automatic persistent mining routine to determine whether or it should attempt mining.  This is useful because there is no point in mining when not connected to any peers since there would no be anyone to send any found blocks to.
 	ConnectedCount func() int32
+
 	// IsCurrent defines the function to use to obtain whether or not the block chain is current.  This is used by the automatic persistent mining routine to determine whether or it should attempt mining. This is useful because there is no point in mining if the chain is not current since any solved blocks would be on a side chain and and up orphaned anyways.
 	IsCurrent func() bool
 }
@@ -66,6 +77,7 @@ type Controller struct {
 func (c *Controller) submitBlock(block *util.Block) bool {
 	c.submitBlockLock.Lock()
 	defer c.submitBlockLock.Unlock()
+
 	// Ensure the block is not stale since a new block could have shown up while the solution was being found.  Typically that condition is detected and all work on the stale block is halted to start work on a new block, but the check only happens periodically, so it is possible a block was found and submitted in between.
 	msgBlock := block.MsgBlock()
 	if !msgBlock.Header.PrevBlock.IsEqual(&c.g.BestSnapshot().Hash) {
@@ -76,6 +88,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 		}
 		return false
 	}
+
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
 	isOrphan, err := c.cfg.ProcessBlock(block, blockchain.BFNone)
 	if err != nil {
@@ -94,6 +107,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 		log <- cl.Dbg("Block submitted via miner is an orphan")
 		return false
 	}
+
 	// The block was accepted.
 	coinbaseTx := block.MsgBlock().Transactions[0].TxOut[0]
 	prevHeight := block.Height() - 1
@@ -119,6 +133,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 
 // solveBlock attempts to find some combination of a nonce, extra nonce, and current timestamp which makes the passed block hash to a value less than the target difficulty.  The timestamp is updated periodically and the passed block is modified with all tweaks during this process.  This means that when the function returns true, the block is ready for submission. This function will return early with false when conditions that trigger a stale block such as a new block showing up or periodically when there are new transactions and enough time has elapsed without finding a solution.
 func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, testnet bool, ticker *time.Ticker, submissionReceived chan *wire.MsgBlock, quit chan struct{}) bool {
+
 	// Choose a random extra nonce offset for this block template and worker.
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
@@ -129,6 +144,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	targetDifficulty := blockchain.CompactToBig(header.Bits)
 	lastGenerated := time.Now()
 	lastTxUpdate := c.g.TxSource().LastUpdated()
+
 	// Note that the entire extra nonce range is iterated and the offset is added relying on the fact that overflow will wrap around 0 as provided by the Go spec.
 	for extraNonce := uint64(0); extraNonce < maxExtraNonce; extraNonce++ {
 		// Update the extra nonce in the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
@@ -175,9 +191,11 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (c *Controller) generateBlocks(quit chan struct{}) {
 
+
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second / 2)
 	defer ticker.Stop()
+
 	// Create a channel to receive block submissions
 	var submission chan *wire.MsgBlock
 out:

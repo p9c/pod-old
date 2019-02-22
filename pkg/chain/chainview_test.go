@@ -64,9 +64,13 @@ func zipLocators(
 func TestChainView(
 	t *testing.T) {
 
+
 	// Construct a synthetic block index consisting of the following structure.
+
 	// 0 -> 1 -> 2  -> 3  -> 4
+
 	//       \-> 2a -> 3a -> 4a  -> 5a -> 6a -> 7a -> ... -> 26a
+
 	//             \-> 3a'-> 4a' -> 5a'
 	branch0Nodes := chainedNodes(nil, 5)
 	branch1Nodes := chainedNodes(branch0Nodes[1], 25)
@@ -286,16 +290,20 @@ testLoop:
 func TestChainViewForkCorners(
 	t *testing.T) {
 
+
 	// Construct two unrelated single branch synthetic block indexes.
 	branchNodes := chainedNodes(nil, 5)
 	unrelatedBranchNodes := chainedNodes(nil, 7)
+
 	// Create chain views for the two unrelated histories.
 	view1 := newChainView(tstTip(branchNodes))
 	view2 := newChainView(tstTip(unrelatedBranchNodes))
+
 	// Ensure attempting to find a fork point with a node that doesn't exist doesn't produce a node.
 	if fork := view1.FindFork(nil); fork != nil {
 		t.Fatalf("FindFork: unexpected fork -- got %v, want nil", fork)
 	}
+
 	// Ensure attempting to find a fork point in two chain views with totally unrelated histories doesn't produce a node.
 	for _, node := range branchNodes {
 		if fork := view2.FindFork(node); fork != nil {
@@ -315,8 +323,11 @@ func TestChainViewForkCorners(
 func TestChainViewSetTip(
 	t *testing.T) {
 
+
 	// Construct a synthetic block index consisting of the following structure.
+
 	// 0 -> 1 -> 2  -> 3  -> 4
+
 	//       \-> 2a -> 3a -> 4a  -> 5a -> 6a -> 7a -> ... -> 26a
 	branch0Nodes := chainedNodes(nil, 5)
 	branch1Nodes := chainedNodes(branch0Nodes[1], 25)
@@ -384,52 +395,63 @@ testLoop:
 func TestChainViewNil(
 	t *testing.T) {
 
+
 	// Ensure two unininitialized views are considered equal.
 	view := newChainView(nil)
 	if !view.Equals(newChainView(nil)) {
 
 		t.Fatal("uninitialized nil views unequal")
 	}
+
 	// Ensure the genesis of an uninitialized view does not produce a node.
 	if genesis := view.Genesis(); genesis != nil {
 		t.Fatalf("Genesis: unexpected genesis -- got %v, want nil",
 			genesis)
 	}
+
 	// Ensure the tip of an uninitialized view does not produce a node.
 	if tip := view.Tip(); tip != nil {
 		t.Fatalf("Tip: unexpected tip -- got %v, want nil", tip)
 	}
+
 	// Ensure the height of an uninitialized view is the expected value.
 	if height := view.Height(); height != -1 {
 		t.Fatalf("Height: unexpected height -- got %d, want -1", height)
 	}
+
 	// Ensure attempting to get a node for a height that does not exist does not produce a node.
 	if node := view.NodeByHeight(10); node != nil {
 		t.Fatalf("NodeByHeight: unexpected node -- got %v, want nil", node)
 	}
+
 	// Ensure an uninitialized view does not report it contains nodes.
 	fakeNode := chainedNodes(nil, 1)[0]
 	if view.Contains(fakeNode) {
 
 		t.Fatalf("Contains: view claims it contains node %v", fakeNode)
 	}
+
 	// Ensure the next node for a node that does not exist does not produce a node.
 	if next := view.Next(nil); next != nil {
 		t.Fatalf("Next: unexpected next node -- got %v, want nil", next)
 	}
+
 	// Ensure the next node for a node that exists does not produce a node.
 	if next := view.Next(fakeNode); next != nil {
 		t.Fatalf("Next: unexpected next node -- got %v, want nil", next)
 	}
+
 	// Ensure attempting to find a fork point with a node that doesn't exist doesn't produce a node.
 	if fork := view.FindFork(nil); fork != nil {
 		t.Fatalf("FindFork: unexpected fork -- got %v, want nil", fork)
 	}
+
 	// Ensure attempting to get a block locator for the tip doesn't produce one since the tip is nil.
 	if locator := view.BlockLocator(nil); locator != nil {
 		t.Fatalf("BlockLocator: unexpected locator -- got %v, want nil",
 			locator)
 	}
+
 	// Ensure attempting to get a block locator for a node that exists still works as intended.
 	branchNodes := chainedNodes(nil, 50)
 	wantLocator := locatorHashes(branchNodes, 49, 48, 47, 46, 45, 44, 43,

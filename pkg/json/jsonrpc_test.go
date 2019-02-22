@@ -100,14 +100,18 @@ func TestMiscErrors(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Force an error in NewRequest by giving it a parameter type that is
+
 	// not supported.
 	_, err := json.NewRequest(nil, "test", []interface{}{make(chan int)})
 	if err == nil {
 		t.Error("NewRequest: did not receive error")
 		return
 	}
+
 	// Force an error in MarshalResponse by giving it an id type that is not
+
 	// supported.
 	wantErr := json.Error{ErrorCode: json.ErrInvalidType}
 	_, err = json.MarshalResponse(make(chan int), nil, nil)
@@ -116,6 +120,7 @@ func TestMiscErrors(
 			"%v (%[1]T), want %v (%[2]T)", err, wantErr)
 		return
 	}
+
 	// Force an error in MarshalResponse by giving it a result type that can't be marshalled.
 	_, err = json.MarshalResponse(1, make(chan int), nil)
 	if _, ok := err.(*json.UnsupportedTypeError); !ok {

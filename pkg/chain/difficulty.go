@@ -17,12 +17,16 @@ var (
 		mplb, _ := hex.DecodeString("000000039fcaa04ac30b6384471f337748ef5c87c7aeffce5e51770ce6283137,")
 		return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
 	}()
+
 	// ScryptPowLimit is
 	ScryptPowLimit = scryptPowLimit
+
 	// ScryptPowLimitBits is
 	ScryptPowLimitBits = BigToCompact(&scryptPowLimit)
+
 	// bigOne is 1 represented as a big.Int.  It is defined here to avoid the overhead of creating it multiple times.
 	bigOne = big.NewInt(1)
+
 	// oneLsh256 is 1 shifted left 256 bits.  It is defined here to avoid the overhead of creating it multiple times.
 	oneLsh256 = new(big.Int).Lsh(bigOne, 256)
 )
@@ -30,6 +34,7 @@ var (
 // HashToBig converts a chainhash.Hash into a big.Int that can be used to perform math comparisons.
 func HashToBig(
 	hash *chainhash.Hash) *big.Int {
+
 	// A Hash is in little-endian, but the big package wants the bytes in big-endian, so reverse them.
 	buf := *hash
 	blen := len(buf)
@@ -55,10 +60,12 @@ func HashToBig(
 // This compact form is only used in bitcoin to encode unsigned 256-bit numbers which represent difficulty targets, thus there really is not a need for a sign bit, but it is implemented here to stay consistent with bitcoind.
 func CompactToBig(
 	compact uint32) *big.Int {
+
 	// Extract the mantissa, sign bit, and exponent.
 	mantissa := compact & 0x007fffff
 	isNegative := compact&0x00800000 != 0
 	exponent := uint(compact >> 24)
+
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes to represent the full 256-bit number.  So, treat the exponent as the number of bytes and shift the mantissa right or left accordingly.  This is equivalent to: N = mantissa * 256^(exponent-3)
 	var bn *big.Int
 	if exponent <= 3 {
@@ -68,6 +75,7 @@ func CompactToBig(
 		bn = big.NewInt(int64(mantissa))
 		bn.Lsh(bn, 8*(exponent-3))
 	}
+
 	// Make it negative if the sign bit is set.
 	if isNegative {
 		bn = bn.Neg(bn)
@@ -78,10 +86,12 @@ func CompactToBig(
 // BigToCompact converts a whole number N to a compact representation using an unsigned 32-bit number.  The compact representation only provides 23 bits of precision, so values larger than (2^23 - 1) only encode the most significant digits of the number.  See CompactToBig for details.
 func BigToCompact(
 	n *big.Int) uint32 {
+
 	// No need to do any work if it's zero.
 	if n.Sign() == 0 {
 		return 0
 	}
+
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes.  So, shift the number right or left accordingly.  This is equivalent to: mantissa = mantissa / 256^(exponent-3)
 	var mantissa uint32
 	exponent := uint(len(n.Bytes()))
@@ -93,11 +103,13 @@ func BigToCompact(
 		tn := new(big.Int).Set(n)
 		mantissa = uint32(tn.Rsh(tn, 8*(exponent-3)).Bits()[0])
 	}
+
 	// When the mantissa already has the sign bit set, the number is too large to fit into the available 23-bits, so divide the number by 256 and increment the exponent accordingly.
 	if mantissa&0x00800000 != 0 {
 		mantissa >>= 8
 		exponent++
 	}
+
 	// Pack the exponent, sign bit, and mantissa into an unsigned 32-bit int and return it.
 	compact := uint32(exponent<<24) | mantissa
 	if n.Sign() < 0 {
@@ -109,8 +121,10 @@ func BigToCompact(
 // CalcWork calculates a work value from difficulty bits.  Bitcoin increases the difficulty for generating a block by decreasing the value which the generated hash must be less than.  This difficulty target is stored in each block header using a compact representation as described in the documentation for CompactToBig. The main chain is selected by choosing the chain that has the most proof of work (highest difficulty). Since a lower target difficulty value equates to higher actual difficulty, the work value which will be accumulated must be the inverse of the difficulty.  Also, in order to avoid potential division by zero and really small floating point numbers, the result adds 1 to the denominator and multiplies the numerator by 2^256.
 func CalcWork(
 	bits uint32, height int32, algover int32) *big.Int {
+
 	// Return a work value of zero if the passed difficulty bits represent a negative number. Note this should not happen in practice with valid blocks, but an invalid block could trigger it.
 	difficultyNum := CompactToBig(bits)
+
 	// To make the difficulty values correlate to number of hash operations, multiply this difficulty base by the nanoseconds/hash figures in the fork algorithms list
 	current := fork.GetCurrent(height)
 	algoname := fork.List[current].AlgoVers[algover]
@@ -126,15 +140,18 @@ func CalcWork(
 
 // calcEasiestDifficulty calculates the easiest possible difficulty that a block can have given starting difficulty bits and a duration.  It is mainly used to verify that claimed proof of work by a block is sane as compared to a known good checkpoint.
 func (b *BlockChain) calcEasiestDifficulty(bits uint32, duration time.Duration) uint32 {
+
 	// Convert types used in the calculations below.
 	durationVal := int64(duration / time.Second)
 	adjustmentFactor := big.NewInt(b.chainParams.RetargetAdjustmentFactor)
+
 	// Since easier difficulty equates to higher numbers, the easiest difficulty for a given duration is the largest value possible given the number of retargets for the duration and starting difficulty multiplied by the max adjustment factor.
 	newTarget := CompactToBig(bits)
 	for durationVal > 0 && newTarget.Cmp(b.chainParams.PowLimit) < 0 {
 		newTarget.Mul(newTarget, adjustmentFactor)
 		durationVal -= b.maxRetargetTimespan
 	}
+
 	// Limit new value to the proof of work limit.
 	if newTarget.Cmp(b.chainParams.PowLimit) > 0 {
 		newTarget.Set(b.chainParams.PowLimit)
@@ -144,12 +161,14 @@ func (b *BlockChain) calcEasiestDifficulty(bits uint32, duration time.Duration) 
 
 // findPrevTestNetDifficulty returns the difficulty of the previous block which did not have the special testnet minimum difficulty rule applied. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) findPrevTestNetDifficulty(startNode *blockNode) uint32 {
+
 	// Search backwards through the chain for the last block without the special rule applied.
 	iterNode := startNode
 	for iterNode != nil && iterNode.height%b.blocksPerRetarget != 0 &&
 		iterNode.bits == b.chainParams.PowLimitBits {
 		iterNode = iterNode.parent
 	}
+
 	// Return the found difficulty or the minimum difficulty if no appropriate block was found.
 	lastBits := b.chainParams.PowLimitBits
 	if iterNode != nil {
@@ -421,7 +440,9 @@ func (b *BlockChain) calcNextRequiredDifficulty(lastNode *blockNode, newBlockTim
 		}
 		return newTargetBits, nil
 	}
+
 	// nH := lastNode.height + 1
+
 	// algo := fork.GetAlgoVer(algoname, nH)
 	return fork.GetMinBits(algoname, nH), nil
 }

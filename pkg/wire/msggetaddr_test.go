@@ -7,11 +7,13 @@ import (
 	"testing"
 )
 
+
 // TestGetAddr tests the MsgGetAddr API.
 func TestGetAddr(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// Ensure the command is expected value.
 	wantCmd := "getaddr"
 	msg := NewMsgGetAddr()
@@ -19,6 +21,7 @@ func TestGetAddr(
 		t.Errorf("NewMsgGetAddr: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
+
 	// Ensure max payload is expected value for latest protocol version. Num addresses (varInt) + max allowed addresses.
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
@@ -28,6 +31,7 @@ func TestGetAddr(
 			maxPayload, wantPayload)
 	}
 }
+
 
 // TestGetAddrWire tests the MsgGetAddr wire encode and decode for various protocol versions.
 func TestGetAddrWire(
@@ -42,6 +46,7 @@ func TestGetAddrWire(
 		pver uint32          // Protocol version for wire encoding
 		enc  MessageEncoding // Message encoding variant.
 	}{
+
 		// Latest protocol version.
 		{
 			msgGetAddr,
@@ -50,6 +55,7 @@ func TestGetAddrWire(
 			ProtocolVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0035Version.
 		{
 			msgGetAddr,
@@ -58,6 +64,7 @@ func TestGetAddrWire(
 			BIP0035Version,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0031Version.
 		{
 			msgGetAddr,
@@ -66,6 +73,7 @@ func TestGetAddrWire(
 			BIP0031Version,
 			BaseEncoding,
 		},
+
 		// Protocol version NetAddressTimeVersion.
 		{
 			msgGetAddr,
@@ -74,6 +82,7 @@ func TestGetAddrWire(
 			NetAddressTimeVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version MultipleAddressVersion.
 		{
 			msgGetAddr,
@@ -85,6 +94,7 @@ func TestGetAddrWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
@@ -98,6 +108,7 @@ func TestGetAddrWire(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Decode the message from wire format.
 		var msg MsgGetAddr
 		rbuf := bytes.NewReader(test.buf)

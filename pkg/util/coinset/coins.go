@@ -131,6 +131,7 @@ func NewMsgTxWithInputCoins(
 }
 
 var (
+
 	// ErrCoinsNoSelectionAvailable is returned when a CoinSelector believes there is no possible combination of coins which can meet the requirements provided to the selector.
 	ErrCoinsNoSelectionAvailable = errors.New("no coin selection possible")
 )
@@ -210,6 +211,7 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 	possibleCoins := make([]Coin, 0, len(coins))
 	possibleCoins = append(possibleCoins, coins...)
 	sort.Sort(byValueAge(possibleCoins))
+
 	// find the first coin with sufficient valueAge
 	cutoffIndex := -1
 	for i := 0; i < len(possibleCoins); i++ {
@@ -221,6 +223,7 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 	if cutoffIndex < 0 {
 		return nil, ErrCoinsNoSelectionAvailable
 	}
+
 	// create sets of input coins that will obey minimum average valueAge
 	for i := cutoffIndex; i < len(possibleCoins); i++ {
 		possibleHighCoins := possibleCoins[cutoffIndex : i+1]

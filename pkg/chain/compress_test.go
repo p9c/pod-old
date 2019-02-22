@@ -223,16 +223,19 @@ func TestScriptCompressionErrors(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// A nil script must result in a decoded size of 0.
 	if gotSize := decodeCompressedScriptSize(nil); gotSize != 0 {
 		t.Fatalf("decodeCompressedScriptSize with nil script did not "+
 			"return 0 - got %d", gotSize)
 	}
+
 	// A nil script must result in a nil decompressed script.
 	if gotScript := decompressScript(nil); gotScript != nil {
 		t.Fatalf("decompressScript with nil script did not return nil "+
 			"decompressed script - got %x", gotScript)
 	}
+
 	// A compressed script for a pay-to-pubkey (uncompressed) that results in an invalid pubkey must result in a nil decompressed script.
 	compressedScript := hexToBytes("04012d74d0cb94344c9569c2e77901573d8d" +
 		"7903c3ebec3a957724895dca52c6b4")
@@ -414,6 +417,7 @@ func TestTxOutCompressionErrors(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// A compressed txout with missing compressed script must error.
 	compressedTxOut := hexToBytes("00")
 	_, _, _, err := decodeCompressedTxOut(compressedTxOut)
@@ -423,6 +427,7 @@ func TestTxOutCompressionErrors(
 			"did not return expected error type - got %T, want "+
 			"errDeserialize", err)
 	}
+
 	// A compressed txout with short compressed script must error.
 	compressedTxOut = hexToBytes("0010")
 	_, _, _, err = decodeCompressedTxOut(compressedTxOut)

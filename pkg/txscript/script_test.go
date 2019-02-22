@@ -12,10 +12,12 @@ import (
 func TestParseOpcode(
 	t *testing.T) {
 
+
 	// Deep copy the array and make one of the opcodes invalid by setting it to the wrong length.
 	fakeArray := opcodeArray
 	fakeArray[OP_PUSHDATA4] = opcode{value: OP_PUSHDATA4,
 		name: "OP_PUSHDATA4", length: -8, opfunc: opcodePushData}
+
 	// This script would be fine if -8 was a valid length.
 	_, err := parseScriptTemplate([]byte{OP_PUSHDATA4, 0x1, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00}, &fakeArray)
@@ -3827,6 +3829,7 @@ func TestGetPreciseSigOps(
 			scriptSig: mustParseShortForm("DATA_2 PUSHDATA1 0x02"),
 		},
 	}
+
 	// The signature in the p2sh script is nonsensical for the tests since this script will never be executed.  What matters is that it matches the right pattern.
 	pkScript := mustParseShortForm("HASH160 DATA_20 0x433ec2ac1ffa1b7b7d0" +
 		"27f564529c57197f9ae88 EQUAL")
@@ -3971,6 +3974,7 @@ func TestRemoveOpcodes(
 			err:    scriptError(ErrMalformedPush, ""),
 		},
 	}
+
 	// tstRemoveOpcode is a convenience function to parse the provided raw script, remove the passed opcode, then unparse the result back into a raw script.
 	tstRemoveOpcode := func(script []byte, opcode byte) ([]byte, error) {
 
@@ -4119,6 +4123,7 @@ func TestRemoveOpcodeByData(
 			err:    scriptError(ErrMalformedPush, ""),
 		},
 	}
+
 	// tstRemoveOpcodeByData is a convenience function to parse the provided raw script, remove the passed data, then unparse the result back into a raw script.
 	tstRemoveOpcodeByData := func(script []byte, data []byte) ([]byte, error) {
 

@@ -21,26 +21,39 @@ import (
 type AddressType uint8
 
 const (
+
 	// PubKeyHash is a regular p2pkh address.
 	PubKeyHash AddressType = iota
+
 
 	// Script reprints a raw script address.
 	Script
 
+
 	// RawPubKey is just raw public key to be used within scripts, This
+
 	// type indicates that a scoped manager with this address type
+
 	// shouldn't be consulted during historical rescans.
 	RawPubKey
 
+
 	// NestedWitnessPubKey represents a p2wkh output nested within a p2sh
+
 	// output. Using this address type, the wallet can receive funds from
+
 	// other wallet's which don't yet recognize the new segwit standard
+
 	// output types. Receiving funds to this address maintains the
+
 	// scalability, and malleability fixes due to segwit in a backwards
+
 	// compatible manner.
 	NestedWitnessPubKey
 
+
 	// WitnessPubKey represents a p2wkh (pay-to-witness-key-hash) address
+
 	// type.
 	WitnessPubKey
 )
@@ -50,31 +63,43 @@ const (
 // type may provide further fields to provide information specific to that type
 // of address.
 type ManagedAddress interface {
+
 	// Account returns the account the address is associated with.
 	Account() uint32
+
 
 	// Address returns a util.Address for the backing address.
 	Address() util.Address
 
+
 	// AddrHash returns the key or script hash related to the address
 	AddrHash() []byte
 
+
 	// Imported returns true if the backing address was imported instead
+
 	// of being part of an address chain.
 	Imported() bool
 
+
 	// Internal returns true if the backing address was created for internal
+
 	// use such as a change output of a transaction.
 	Internal() bool
+
 
 	// Compressed returns true if the backing address is compressed.
 	Compressed() bool
 
+
 	// Used returns true if the backing address has been used in a transaction.
 	Used(ns walletdb.ReadBucket) bool
 
+
 	// AddrType returns the address type of the managed address. This can
+
 	// be used to quickly discern the address type without further
+
 	// processing
 	AddrType() AddressType
 }
@@ -84,25 +109,37 @@ type ManagedAddress interface {
 type ManagedPubKeyAddress interface {
 	ManagedAddress
 
+
 	// PubKey returns the public key associated with the address.
 	PubKey() *ec.PublicKey
 
+
 	// ExportPubKey returns the public key associated with the address
+
 	// serialized as a hex encoded string.
 	ExportPubKey() string
 
+
 	// PrivKey returns the private key for the address.  It can fail if the
+
 	// address manager is watching-only or locked, or the address does not
+
 	// have any keys.
 	PrivKey() (*ec.PrivateKey, error)
 
+
 	// ExportPrivKey returns the private key associated with the address
+
 	// serialized as Wallet Import Format (WIF).
 	ExportPrivKey() (*util.WIF, error)
 
+
 	// DerivationInfo contains the information required to derive the key
+
 	// that backs the address via traditional methods from the HD root. For
+
 	// imported keys, the first value will be set to false to indicate that
+
 	// we don't know exactly how the key was derived.
 	DerivationInfo() (KeyScope, DerivationPath, bool)
 }
@@ -112,6 +149,7 @@ type ManagedPubKeyAddress interface {
 // script.
 type ManagedScriptAddress interface {
 	ManagedAddress
+
 
 	// Script returns the script associated with the address.
 	Script() ([]byte, error)
@@ -144,6 +182,7 @@ var _ ManagedPubKeyAddress = (*managedAddress)(nil)
 // lock.
 func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 
+
 	// Protect concurrent access to clear text private key.
 	a.privKeyMutex.Lock()
 	defer a.privKeyMutex.Unlock()
@@ -167,7 +206,9 @@ func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 // lock zeroes the associated clear text private key.
 func (a *managedAddress) lock() {
 
+
 	// Zero and nil the clear text private key associated with this
+
 	// address.
 	a.privKeyMutex.Lock()
 	zero.Bytes(a.privKeyCT)
@@ -277,6 +318,7 @@ func (a *managedAddress) ExportPubKey() string {
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 
+
 	// No private keys are available for a watching-only address manager.
 	if a.manager.rootManager.WatchOnly() {
 
@@ -286,14 +328,18 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 	a.manager.mtx.Lock()
 	defer a.manager.mtx.Unlock()
 
+
 	// Account manager must be unlocked to decrypt the private key.
 	if a.manager.rootManager.IsLocked() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
 
+
 	// Decrypt the key as needed.  Also, make sure it's a copy since the
+
 	// private key stored in memory can be cleared at any time.  Otherwise
+
 	// the returned private key could be invalidated from under the caller.
 	privKeyCopy, err := a.unlock(a.manager.rootManager.cryptoKeyPriv)
 	if err != nil {
@@ -332,7 +378,9 @@ func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
 		path  DerivationPath
 	)
 
+
 	// If this key is imported, then we can't return any information as we
+
 	// don't know precisely how the key was derived.
 	if a.imported {
 		return scope, path, false
@@ -348,6 +396,7 @@ func newManagedAddressWithoutPrivKey(
 	m *ScopedKeyManager,
 	derivationPath DerivationPath, pubKey *ec.PublicKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
+
 
 	// Create a pay-to-pubkey-hash address from the public key.
 	var pubKeyHash []byte
@@ -433,9 +482,13 @@ func newManagedAddress(
 	privKey *ec.PrivateKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
 
+
 	// Encrypt the private key.
+
 	//
+
 	// NOTE: The privKeyBytes here are set into the managed address which
+
 	// are cleared when locked, so they aren't cleared here.
 	privKeyBytes := privKey.Serialize()
 	privKeyEncrypted, err := s.rootManager.cryptoKeyPriv.Encrypt(privKeyBytes)
@@ -444,7 +497,9 @@ func newManagedAddress(
 		return nil, managerError(ErrCrypto, str, err)
 	}
 
+
 	// Leverage the code to create a managed address without a private key
+
 	// and then add the private key to it.
 	ecPubKey := (*ec.PublicKey)(&privKey.PublicKey)
 	managedAddr, err := newManagedAddressWithoutPrivKey(
@@ -468,7 +523,9 @@ func newManagedAddressFromExtKey(
 	derivationPath DerivationPath, key *hdkeychain.ExtendedKey,
 	addrType AddressType) (*managedAddress, error) {
 
+
 	// Create a new managed address based on the public or private key
+
 	// depending on whether the generated key is private.
 	var managedAddr *managedAddress
 	if key.IsPrivate() {
@@ -524,6 +581,7 @@ var _ ManagedScriptAddress = (*scriptAddress)(nil)
 // worrying about it being zeroed during an address lock.
 func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 
+
 	// Protect concurrent access to clear text script.
 	a.scriptMutex.Lock()
 	defer a.scriptMutex.Unlock()
@@ -546,6 +604,7 @@ func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 
 // lock zeroes the associated clear text private key.
 func (a *scriptAddress) lock() {
+
 
 	// Zero and nil the clear text script associated with this address.
 	a.scriptMutex.Lock()
@@ -620,6 +679,7 @@ func (a *scriptAddress) Used(ns walletdb.ReadBucket) bool {
 // This implements the ScriptAddress interface.
 func (a *scriptAddress) Script() ([]byte, error) {
 
+
 	// No script is available for a watching-only address manager.
 	if a.manager.rootManager.WatchOnly() {
 
@@ -629,14 +689,18 @@ func (a *scriptAddress) Script() ([]byte, error) {
 	a.manager.mtx.Lock()
 	defer a.manager.mtx.Unlock()
 
+
 	// Account manager must be unlocked to decrypt the script.
 	if a.manager.rootManager.IsLocked() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
 
+
 	// Decrypt the script as needed.  Also, make sure it's a copy since the
+
 	// script stored in memory can be cleared at any time.  Otherwise,
+
 	// the returned script could be invalidated from under the caller.
 	return a.unlock(a.manager.rootManager.cryptoKeyScript)
 }

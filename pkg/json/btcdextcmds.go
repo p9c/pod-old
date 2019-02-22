@@ -4,10 +4,13 @@ package json
 type NodeSubCmd string
 
 const (
+
 	// NConnect indicates the specified host that should be connected to.
 	NConnect NodeSubCmd = "connect"
+
 	// NRemove indicates the specified peer that should be removed as a persistent peer.
 	NRemove NodeSubCmd = "remove"
+
 	// NDisconnect indicates the specified peer should be disonnected.
 	NDisconnect NodeSubCmd = "disconnect"
 )
@@ -97,6 +100,7 @@ func NewVersionCmd() *VersionCmd {
 	return new(VersionCmd)
 }
 func init() {
+
 
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)

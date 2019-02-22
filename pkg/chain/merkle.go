@@ -11,13 +11,16 @@ import (
 )
 
 const (
+
 	// CoinbaseWitnessDataLen is the required length of the only element within the coinbase's witness data if the coinbase transaction contains a witness commitment.
 	CoinbaseWitnessDataLen = 32
+
 	// CoinbaseWitnessPkScriptLength is the length of the public key script containing an OP_RETURN, the WitnessMagicBytes, and the witness commitment itself. In order to be a valid candidate for the output containing the witness commitment
 	CoinbaseWitnessPkScriptLength = 38
 )
 
 var (
+
 	// WitnessMagicBytes is the prefix marker within the public key script of a coinbase output to indicate that this output holds the witness commitment for a block.
 	WitnessMagicBytes = []byte{
 		txscript.OP_RETURN,
@@ -32,10 +35,12 @@ var (
 // nextPowerOfTwo returns the next highest power of two from a given number if it is not already a power of two.  This is a helper function used during the calculation of a merkle tree.
 func nextPowerOfTwo(
 	n int) int {
+
 	// Return the number if it's already a power of 2.
 	if n&(n-1) == 0 {
 		return n
 	}
+
 	// Figure out and return the next power of two.
 	exponent := uint(math.Log2(float64(n))) + 1
 	return 1 << exponent // 2^exponent
@@ -44,6 +49,7 @@ func nextPowerOfTwo(
 // HashMerkleBranches takes two hashes, treated as the left and right tree nodes, and returns the hash of their concatenation.  This is a helper function used to aid in the generation of a merkle tree.
 func HashMerkleBranches(
 	left *chainhash.Hash, right *chainhash.Hash) *chainhash.Hash {
+
 	// Concatenate the left and right nodes.
 	var hash [chainhash.HashSize * 2]byte
 	copy(hash[:chainhash.HashSize], left[:])
@@ -66,10 +72,12 @@ func HashMerkleBranches(
 // The additional bool parameter indicates if we are generating the merkle tree using witness transaction id's rather than regular transaction id's. This also presents an additional case wherein the wtxid of the coinbase transaction is the zeroHash.
 func BuildMerkleTreeStore(
 	transactions []*util.Tx, witness bool) []*chainhash.Hash {
+
 	// Calculate how many entries are required to hold the binary merkle tree as a linear array and create an array of that size.
 	nextPoT := nextPowerOfTwo(len(transactions))
 	arraySize := nextPoT*2 - 1
 	merkles := make([]*chainhash.Hash, arraySize)
+
 	// Create the base transaction hashes and populate the array with them.
 	for i, tx := range transactions {
 		// If we're computing a witness merkle root, instead of the regular txid, we use the modified wtxid which includes a transaction's witness data within the digest. Additionally, the coinbase's wtxid is all zeroes.
@@ -84,6 +92,7 @@ func BuildMerkleTreeStore(
 			merkles[i] = tx.Hash()
 		}
 	}
+
 	// Start the array offset after the last transaction and adjusted to the next power of two.
 	offset := nextPoT
 	for i := 0; i < arraySize-1; i += 2 {
@@ -109,6 +118,7 @@ func BuildMerkleTreeStore(
 func ExtractWitnessCommitment(
 	tx *util.Tx) ([]byte, bool) {
 
+
 	// The witness commitment *must* be located within one of the coinbase transaction's outputs.
 	if !IsCoinBase(tx) {
 
@@ -133,6 +143,7 @@ func ExtractWitnessCommitment(
 // ValidateWitnessCommitment validates the witness commitment (if any) found within the coinbase transaction of the passed block.
 func ValidateWitnessCommitment(
 	blk *util.Block) error {
+
 	// If the block doesn't have any transactions at all, then we won't be able to extract a commitment from the non-existent coinbase transaction. So we exit early here.
 	if len(blk.Transactions()) == 0 {
 		str := "cannot validate witness commitment of block without " +
@@ -144,6 +155,7 @@ func ValidateWitnessCommitment(
 		return ruleError(ErrNoTxInputs, "transaction has no inputs")
 	}
 	witnessCommitment, witnessFound := ExtractWitnessCommitment(coinbaseTx)
+
 	// If we can't find a witness commitment in any of the coinbase's outputs, then the block MUST NOT contain any transactions with witness data.
 	if !witnessFound {
 		for _, tx := range blk.Transactions() {
@@ -158,6 +170,7 @@ func ValidateWitnessCommitment(
 		}
 		return nil
 	}
+
 	// At this point the block contains a witness commitment, so the coinbase transaction MUST have exactly one witness element within its witness data and that element must be exactly CoinbaseWitnessDataLen bytes.
 	coinbaseWitness := coinbaseTx.MsgTx().TxIn[0].Witness
 	if len(coinbaseWitness) != 1 {
@@ -173,6 +186,7 @@ func ValidateWitnessCommitment(
 			len(witnessNonce), CoinbaseWitnessDataLen)
 		return ruleError(ErrInvalidWitnessCommitment, str)
 	}
+
 	// Finally, with the preliminary checks out of the way, we can check if the extracted witnessCommitment is equal to: SHA256(witnessMerkleRoot || witnessNonce). Where witnessNonce is the coinbase transaction's only witness item.
 	witnessMerkleTree := BuildMerkleTreeStore(blk.Transactions(), true)
 	witnessMerkleRoot := witnessMerkleTree[len(witnessMerkleTree)-1]

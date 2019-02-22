@@ -86,7 +86,9 @@ func dependencySort(
 	graph := makeGraph(txs)
 	s := graphRoots(graph)
 
+
 	// If there are no edges (no transactions from the map reference each
+
 	// other), then Kahn's algorithm is unnecessary.
 	if len(s) == len(txs) {
 

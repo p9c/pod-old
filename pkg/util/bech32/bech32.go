@@ -13,11 +13,13 @@ var gen = []int{0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3}
 func Decode(
 	bech string) (string, []byte, error) {
 
+
 	// The maximum allowed length for a bech32 string is 90. It must also be at least 8 characters, since it needs a non-empty HRP, a separator, and a 6 character checksum.
 	if len(bech) < 8 || len(bech) > 90 {
 		return "", nil, fmt.Errorf("invalid bech32 string length %d",
 			len(bech))
 	}
+
 	// Only	ASCII characters between 33 and 126 are allowed.
 	for i := 0; i < len(bech); i++ {
 		if bech[i] < 33 || bech[i] > 126 {
@@ -25,6 +27,7 @@ func Decode(
 				"string: '%c'", bech[i])
 		}
 	}
+
 	// The characters must be either all lowercase or all uppercase.
 	lower := strings.ToLower(bech)
 	upper := strings.ToUpper(bech)
@@ -32,17 +35,21 @@ func Decode(
 		return "", nil, fmt.Errorf("string not all lowercase or all " +
 			"uppercase")
 	}
+
 	// We'll work with the lowercase string from now on.
 	bech = lower
+
 	// The string is invalid if the last '1' is non-existent, it is the first character of the string (no human-readable part) or one of the last 6 characters of the string (since checksum cannot contain '1'), or if the string is more than 90 characters in total.
 	one := strings.LastIndexByte(bech, '1')
 	if one < 1 || one+7 > len(bech) {
 
 		return "", nil, fmt.Errorf("invalid index of 1")
 	}
+
 	// The human-readable part is everything before the last '1'.
 	hrp := bech[:one]
 	data := bech[one+1:]
+
 	// Each character corresponds to the byte with value of the index in 'charset'.
 	decoded, err := toBytes(data)
 	if err != nil {
@@ -61,6 +68,7 @@ func Decode(
 		}
 		return "", nil, fmt.Errorf("checksum failed. " + moreInfo)
 	}
+
 	// We exclude the last 6 bytes, which is the checksum.
 	return hrp, decoded[:len(decoded)-6], nil
 }
@@ -69,9 +77,11 @@ func Decode(
 func Encode(
 	hrp string, data []byte) (string, error) {
 
+
 	// Calculate the checksum of the data and append it at the end.
 	checksum := bech32Checksum(hrp, data)
 	combined := append(data, checksum...)
+
 	// The resulting bech32 string is the concatenation of the hrp, the separator 1, data and checksum. Everything after the separator is represented using the specified charset.
 	dataChars, err := toChars(combined)
 	if err != nil {
@@ -119,8 +129,10 @@ func ConvertBits(
 	if fromBits < 1 || fromBits > 8 || toBits < 1 || toBits > 8 {
 		return nil, fmt.Errorf("only bit groups between 1 and 8 allowed")
 	}
+
 	// The final bytes, each byte encoding toBits bits.
 	var regrouped []byte
+
 	// Keep track of the next byte we create and how many bits we have added to it out of the toBits goal.
 	nextByte := byte(0)
 	filledBits := uint8(0)
@@ -151,6 +163,7 @@ func ConvertBits(
 			}
 		}
 	}
+
 	// We pad any unfinished group if specified.
 	if pad && filledBits > 0 {
 		nextByte = nextByte << (toBits - filledBits)
@@ -158,6 +171,7 @@ func ConvertBits(
 		filledBits = 0
 		nextByte = 0
 	}
+
 	// Any incomplete group must be <= 4 bits, and all zeroes.
 	if filledBits > 0 && (filledBits > 4 || nextByte != 0) {
 
@@ -169,6 +183,7 @@ func ConvertBits(
 // For more details on the checksum calculation, please refer to BIP 173.
 func bech32Checksum(
 	hrp string, data []byte) []byte {
+
 	// Convert the bytes to list of integers, as this is needed for the checksum calculation.
 	integers := make([]int, len(data))
 	for i, b := range data {

@@ -13,21 +13,30 @@ import (
 )
 
 var (
+
 	// ErrInvalidMAC occurs when Message Authentication Check (MAC) fails
+
 	// during decryption. This happens because of either invalid private key or
+
 	// corrupt ciphertext.
 	ErrInvalidMAC = errors.New("invalid mac hash")
+
 	// errInputTooShort occurs when the input ciphertext to the Decrypt
+
 	// function is less than 134 bytes long.
 	errInputTooShort = errors.New("ciphertext too short")
+
 	// errUnsupportedCurve occurs when the first two bytes of the encrypted
+
 	// text aren't 0x02CA (= 712 = secp256k1, from OpenSSL).
 	errUnsupportedCurve = errors.New("unsupported curve")
 	errInvalidXLength   = errors.New("invalid X length, must be 32")
 	errInvalidYLength   = errors.New("invalid Y length, must be 32")
 	errInvalidPadding   = errors.New("invalid PKCS#7 padding")
+
 	// 0x02CA = 714
 	ciphCurveBytes = [2]byte{0x02, 0xCA}
+
 	// 0x20 = 32
 	ciphCoordLength = [2]byte{0x00, 0x20}
 )
@@ -70,27 +79,34 @@ func Encrypt(
 	keyE := derivedKey[:32]
 	keyM := derivedKey[32:]
 	paddedIn := addPKCSPadding(in)
+
 	// IV + Curve params/X/Y + padded plaintext/ciphertext + HMAC-256
 	out := make([]byte, aes.BlockSize+70+len(paddedIn)+sha256.Size)
 	iv := out[:aes.BlockSize]
 	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
 		return nil, err
 	}
+
 	// start writing public key
 	pb := ephemeral.PubKey().SerializeUncompressed()
 	offset := aes.BlockSize
+
 	// curve and X length
 	copy(out[offset:offset+4], append(ciphCurveBytes[:], ciphCoordLength[:]...))
 	offset += 4
+
 	// X
 	copy(out[offset:offset+32], pb[1:33])
 	offset += 32
+
 	// Y length
 	copy(out[offset:offset+2], ciphCoordLength[:])
 	offset += 2
+
 	// Y
 	copy(out[offset:offset+32], pb[33:])
 	offset += 32
+
 	// start encryption
 	block, err := aes.NewCipher(keyE)
 	if err != nil {
@@ -98,6 +114,7 @@ func Encrypt(
 	}
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(out[offset:len(out)-sha256.Size], paddedIn)
+
 	// start HMAC-SHA-256
 	hm := hmac.New(sha256.New, keyM)
 	hm.Write(out[:len(out)-sha256.Size])          // everything is hashed
@@ -109,13 +126,16 @@ func Encrypt(
 func Decrypt(
 	priv *PrivateKey, in []byte) ([]byte, error) {
 
+
 	// IV + Curve params/X/Y + 1 block + HMAC-256
 	if len(in) < aes.BlockSize+70+aes.BlockSize+sha256.Size {
 		return nil, errInputTooShort
 	}
+
 	// read iv
 	iv := in[:aes.BlockSize]
 	offset := aes.BlockSize
+
 	// start reading pubkey
 	if !bytes.Equal(in[offset:offset+2], ciphCurveBytes[:]) {
 
@@ -140,22 +160,27 @@ func Decrypt(
 	pb[0] = byte(0x04) // uncompressed
 	copy(pb[1:33], xBytes)
 	copy(pb[33:], yBytes)
+
 	// check if (X, Y) lies on the curve and create a Pubkey if it does
 	pubkey, err := ParsePubKey(pb, S256())
 	if err != nil {
 		return nil, err
 	}
+
 	// check for cipher text length
 	if (len(in)-aes.BlockSize-offset-sha256.Size)%aes.BlockSize != 0 {
 		return nil, errInvalidPadding // not padded to 16 bytes
 	}
+
 	// read hmac
 	messageMAC := in[len(in)-sha256.Size:]
+
 	// generate shared secret
 	ecdhKey := GenerateSharedSecret(priv, pubkey)
 	derivedKey := sha512.Sum512(ecdhKey)
 	keyE := derivedKey[:32]
 	keyM := derivedKey[32:]
+
 	// verify mac
 	hm := hmac.New(sha256.New, keyM)
 	hm.Write(in[:len(in)-sha256.Size]) // everything is hashed
@@ -164,12 +189,14 @@ func Decrypt(
 
 		return nil, ErrInvalidMAC
 	}
+
 	// start decryption
 	block, err := aes.NewCipher(keyE)
 	if err != nil {
 		return nil, err
 	}
 	mode := cipher.NewCBCDecrypter(block, iv)
+
 	// same length as ciphertext
 	plaintext := make([]byte, len(in)-offset-sha256.Size)
 	mode.CryptBlocks(plaintext, in[offset:len(in)-sha256.Size])

@@ -22,16 +22,19 @@ type Tx struct {
 
 // MsgTx returns the underlying wire.MsgTx for the transaction.
 func (t *Tx) MsgTx() *wire.MsgTx {
+
 	// Return the cached transaction.
 	return t.msgTx
 }
 
 // Hash returns the hash of the transaction.  This is equivalent to calling TxHash on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
 func (t *Tx) Hash() *chainhash.Hash {
+
 	// Return the cached hash if it has already been generated.
 	if t.txHash != nil {
 		return t.txHash
 	}
+
 	// Cache the hash and return it.
 	hash := t.msgTx.TxHash()
 	t.txHash = &hash
@@ -40,10 +43,12 @@ func (t *Tx) Hash() *chainhash.Hash {
 
 // WitnessHash returns the witness hash (wtxid) of the transaction.  This is equivalent to calling WitnessHash on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
 func (t *Tx) WitnessHash() *chainhash.Hash {
+
 	// Return the cached hash if it has already been generated.
 	if t.txHashWitness != nil {
 		return t.txHashWitness
 	}
+
 	// Cache the hash and return it.
 	hash := t.msgTx.WitnessHash()
 	t.txHashWitness = &hash
@@ -91,6 +96,7 @@ func NewTxFromBytes(
 // NewTxFromReader returns a new instance of a bitcoin transaction given a Reader to deserialize the transaction.  See Tx.
 func NewTxFromReader(
 	r io.Reader) (*Tx, error) {
+
 
 	// Deserialize the bytes into a MsgTx.
 	var msgTx wire.MsgTx

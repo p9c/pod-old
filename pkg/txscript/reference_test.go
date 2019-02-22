@@ -20,15 +20,18 @@ import (
 func scriptTestName(
 	test []interface{}) (string, error) {
 
+
 	// Account for any optional leading witness data.
 	var witnessOffset int
 	if _, ok := test[0].([]interface{}); ok {
 		witnessOffset++
 	}
+
 	// In addition to the optional leading witness data, the test must consist of at least a signature script, public key script, flags, and expected error.  Finally, it may optionally contain a comment.
 	if len(test) < witnessOffset+4 || len(test) > witnessOffset+5 {
 		return "", fmt.Errorf("invalid test length %d", len(test))
 	}
+
 	// Use the comment for the test name if one is specified, otherwise, construct the name based on the signature script, public key script, and flags.
 	var name string
 	if len(test) == witnessOffset+5 {
@@ -79,6 +82,7 @@ var shortFormOps map[string]byte
 func parseShortForm(
 	script string) ([]byte, error) {
 
+
 	// Only create the short form opcode map once.
 	if shortFormOps == nil {
 		ops := make(map[string]byte)
@@ -98,6 +102,7 @@ func parseShortForm(
 		}
 		shortFormOps = ops
 	}
+
 	// Split only does one separator so convert all \n and tab into  space.
 	script = strings.Replace(script, "\n", " ", -1)
 	script = strings.Replace(script, "\t", " ", -1)
@@ -300,6 +305,7 @@ type scriptWithInputVal struct {
 func testScripts(
 	t *testing.T, tests [][]interface{}, useSigCache bool) {
 
+
 	// Create a signature cache to use only if requested.
 	var sigCache *SigCache
 	if useSigCache {
@@ -437,6 +443,7 @@ func TestScripts(
 	if err != nil {
 		t.Fatalf("TestScripts couldn't Unmarshal: %v", err)
 	}
+
 	// Run all script tests with and without the signature cache.
 	testScripts(t, tests, true)
 	testScripts(t, tests, false)
@@ -461,10 +468,15 @@ func TestTxInvalidTests(
 	if err != nil {
 		t.Fatalf("TestTxInvalidTests couldn't Unmarshal: %v\n", err)
 	}
+
 	// form is either:
+
 	//   ["this is a comment "]
+
 	// or:
+
 	//   [[[previous hash, previous index, previous scriptPubKey]...,]
+
 	//	serializedTransaction, verifyFlags]
 testloop:
 	for i, test := range tests {
@@ -598,10 +610,15 @@ func TestTxValidTests(
 	if err != nil {
 		t.Fatalf("TestTxValidTests couldn't Unmarshal: %v\n", err)
 	}
+
 	// form is either:
+
 	//   ["this is a comment "]
+
 	// or:
+
 	//   [[[previous hash, previous index, previous scriptPubKey, input value]...,]
+
 	//	serializedTransaction, verifyFlags]
 testloop:
 	for i, test := range tests {

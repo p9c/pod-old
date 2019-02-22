@@ -83,6 +83,7 @@ func TestMakeScriptNum(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Errors used in the tests below defined here for convenience and to keep the horizontal test size shorter.
 	errNumTooBig := scriptError(ErrNumberTooBig, "")
 	errMinimalData := scriptError(ErrMinimalData, "")

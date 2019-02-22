@@ -17,6 +17,7 @@ func dirEmpty(
 		return false, err
 	}
 	defer f.Close()
+
 	// Read the names of a max of one entry from the directory.  When the directory is empty, an io.EOF error will be returned, so allow it.
 	names, err := f.Readdirnames(1)
 	if err != nil && err != io.EOF {
@@ -27,16 +28,19 @@ func dirEmpty(
 
 // oldPodHomeDir returns the OS specific home directory pod used prior to version 0.3.3.  This has since been replaced with util.AppDataDir, but this function is still provided for the automatic upgrade path.
 func oldPodHomeDir() string {
+
 	// Search for Windows APPDATA first.  This won't exist on POSIX OSes.
 	appData := os.Getenv("APPDATA")
 	if appData != "" {
 		return filepath.Join(appData, "pod")
 	}
+
 	// Fall back to standard HOME directory that works for most POSIX OSes.
 	home := os.Getenv("HOME")
 	if home != "" {
 		return filepath.Join(home, ".pod")
 	}
+
 	// In the worst case, use the current directory.
 	return "."
 }
@@ -44,6 +48,7 @@ func oldPodHomeDir() string {
 // upgradeDBPathNet moves the database for a specific network from its location prior to pod version 0.2.0 and uses heuristics to ascertain the old database type to rename to the new format.
 func upgradeDBPathNet(
 	oldDbPath, netName string) error {
+
 	// Prior to version 0.2.0, the database was named the same thing for both sqlite and leveldb.  Use heuristics to figure out the type of the database and move it to the new path and name introduced with version 0.2.0 accordingly.
 	fi, err := os.Stat(oldDbPath)
 	if err == nil {
@@ -75,23 +80,27 @@ func upgradeDBPathNet(
 
 // upgradeDBPaths moves the databases from their locations prior to pod version 0.2.0 to their new locations.
 func upgradeDBPaths() error {
+
 	// Prior to version 0.2.0, the databases were in the "db" directory and their names were suffixed by "testnet" and "regtest" for their respective networks.  Check for the old database and update it to the new path introduced with version 0.2.0 accordingly.
 	oldDbRoot := filepath.Join(oldPodHomeDir(), "db")
 	upgradeDBPathNet(filepath.Join(oldDbRoot, "pod.db"), "mainnet")
 	upgradeDBPathNet(filepath.Join(oldDbRoot, "pod_testnet.db"), "testnet")
 	upgradeDBPathNet(filepath.Join(oldDbRoot, "pod_regtest.db"), "regtest")
+
 	// Remove the old db directory.
 	return os.RemoveAll(oldDbRoot)
 }
 
 // upgradeDataPaths moves the application data from its location prior to pod version 0.3.3 to its new location.
 func upgradeDataPaths() error {
+
 	// No need to migrate if the old and new home paths are the same.
 	oldHomePath := oldPodHomeDir()
 	newHomePath := DefaultHomeDir
 	if oldHomePath == newHomePath {
 		return nil
 	}
+
 	// Only migrate if the old path exists and the new one doesn't.
 	if FileExists(oldHomePath) && !FileExists(newHomePath) {
 

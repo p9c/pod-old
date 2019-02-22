@@ -18,63 +18,102 @@ import (
 )
 
 const (
+
 	// MaxAccountNum is the maximum allowed account number.  This value was
+
 	// chosen because accounts are hardened children and therefore must not
+
 	// exceed the hardened child range of extended keys and it provides a
+
 	// reserved account at the top of the range for supporting imported
+
 	// addresses.
 	MaxAccountNum = hdkeychain.HardenedKeyStart - 2 // 2^31 - 2
 
+
 	// MaxAddressesPerAccount is the maximum allowed number of addresses
+
 	// per account number.  This value is based on the limitation of the
+
 	// underlying hierarchical deterministic key derivation.
 	MaxAddressesPerAccount = hdkeychain.HardenedKeyStart - 1
 
+
 	// ImportedAddrAccount is the account number to use for all imported
+
 	// addresses.  This is useful since normal accounts are derived from
+
 	// the root hierarchical deterministic key and imported addresses do
+
 	// not fit into that model.
 	ImportedAddrAccount = MaxAccountNum + 1 // 2^31 - 1
+
 
 	// ImportedAddrAccountName is the name of the imported account.
 	ImportedAddrAccountName = "imported"
 
+
 	// DefaultAccountNum is the number of the default account.
 	DefaultAccountNum = 0
 
+
 	// defaultAccountName is the initial name of the default account.  Note
+
 	// that the default account may be renamed and is not a reserved name,
+
 	// so the default account might not be named "default" and non-default
+
 	// accounts may be named "default".
+
 	//
+
 	// Account numbers never change, so the DefaultAccountNum should be
+
 	// used to refer to (and only to) the default account.
 	defaultAccountName = "default"
 
+
 	// The hierarchy described by BIP0043 is:
+
 	//  m/<purpose>'/*
+
 	// This is further extended by BIP0044 to:
+
 	//  m/44'/<coin type>'/<account>'/<branch>/<address index>
+
 	//
+
 	// The branch is 0 for external addresses and 1 for internal addresses.
 
+
 	// maxCoinType is the maximum allowed coin type used when structuring
+
 	// the BIP0044 multi-account hierarchy.  This value is based on the
+
 	// limitation of the underlying hierarchical deterministic key
+
 	// derivation.
 	maxCoinType = hdkeychain.HardenedKeyStart - 1
 
+
 	// ExternalBranch is the child number to use when performing BIP0044
+
 	// style hierarchical deterministic key derivation for the external
+
 	// branch.
 	ExternalBranch uint32 = 0
 
+
 	// InternalBranch is the child number to use when performing BIP0044
+
 	// style hierarchical deterministic key derivation for the internal
+
 	// branch.
 	InternalBranch uint32 = 1
 
+
 	// saltSize is the number of bytes of the salt used when hashing
+
 	// private passphrases.
 	saltSize = 32
 )
@@ -104,14 +143,21 @@ type ScryptOptions struct {
 // opening an existing manager.  The open blocks on the execution of these
 // functions.
 type OpenCallbacks struct {
+
 	// ObtainSeed is a callback function that is potentially invoked during
+
 	// upgrades.  It is intended to be used to request the wallet seed
+
 	// from the user (or any other mechanism the caller deems fit).
 	ObtainSeed ObtainUserInputFunc
 
+
 	// ObtainPrivatePass is a callback function that is potentially invoked
+
 	// during upgrades.  It is intended to be used to request the wallet
+
 	// private passphrase from the user (or any other mechanism the caller
+
 	// deems fit).
 	ObtainPrivatePass ObtainUserInputFunc
 }
@@ -136,19 +182,26 @@ type addrKey string
 type accountInfo struct {
 	acctName string
 
+
 	// The account key is used to derive the branches which in turn derive
+
 	// the internal and external addresses.  The accountKeyPriv will be nil
+
 	// when the address manager is locked.
 	acctKeyEncrypted []byte
 	acctKeyPriv      *hdkeychain.ExtendedKey
 	acctKeyPub       *hdkeychain.ExtendedKey
 
+
 	// The external branch is used for all addresses which are intended for
+
 	// external use.
 	nextExternalIndex uint32
 	lastExternalAddr  ManagedAddress
 
+
 	// The internal branch is used for all adddresses which are only
+
 	// intended for internal wallet use such as change addresses.
 	nextInternalIndex uint32
 	lastInternalAddr  ManagedAddress
@@ -188,11 +241,15 @@ func defaultNewSecretKey(
 }
 
 var (
+
 	// secretKeyGen is the inner method that is executed when calling
+
 	// newSecretKey.
 	secretKeyGen = defaultNewSecretKey
 
+
 	// secretKeyGenMtx protects access to secretKeyGen, so that it can be
+
 	// replaced in testing.
 	secretKeyGenMtx sync.RWMutex
 )
@@ -261,16 +318,23 @@ type CryptoKeyType byte
 
 // Crypto key types.
 const (
+
 	// CKTPrivate specifies the key that is used for encryption of private
+
 	// key material such as derived extended private keys and imported
+
 	// private keys.
 	CKTPrivate CryptoKeyType = iota
+
 
 	// CKTScript specifies the key that is used for encryption of scripts.
 	CKTScript
 
+
 	// CKTPublic specifies the key that is used for encryption of public
+
 	// key material such as dervied extended public keys and imported public
+
 	// keys.
 	CKTPublic
 )
@@ -285,7 +349,9 @@ var newCryptoKey = defaultNewCryptoKey
 type Manager struct {
 	mtx sync.RWMutex
 
+
 	// scopedManager is a mapping of scope of scoped manager, the manager
+
 	// itself loaded into memory.
 	scopedManagers map[KeyScope]*ScopedKeyManager
 
@@ -299,39 +365,62 @@ type Manager struct {
 	closed       bool
 	chainParams  *chaincfg.Params
 
+
 	// masterKeyPub is the secret key used to secure the cryptoKeyPub key
+
 	// and masterKeyPriv is the secret key used to secure the cryptoKeyPriv
+
 	// key.  This approach is used because it makes changing the passwords
+
 	// much simpler as it then becomes just changing these keys.  It also
+
 	// provides future flexibility.
+
 	//
+
 	// NOTE: This is not the same thing as BIP0032 master node extended
+
 	// key.
+
 	//
+
 	// The underlying master private key will be zeroed when the address
+
 	// manager is locked.
 	masterKeyPub  *snacl.SecretKey
 	masterKeyPriv *snacl.SecretKey
 
+
 	// cryptoKeyPub is the key used to encrypt public extended keys and
+
 	// addresses.
 	cryptoKeyPub EncryptorDecryptor
 
+
 	// cryptoKeyPriv is the key used to encrypt private data such as the
+
 	// master hierarchical deterministic extended key.
+
 	//
+
 	// This key will be zeroed when the address manager is locked.
 	cryptoKeyPrivEncrypted []byte
 	cryptoKeyPriv          EncryptorDecryptor
 
+
 	// cryptoKeyScript is the key used to encrypt script data.
+
 	//
+
 	// This key will be zeroed when the address manager is locked.
 	cryptoKeyScriptEncrypted []byte
 	cryptoKeyScript          EncryptorDecryptor
 
+
 	// privPassphraseSalt and hashedPrivPassphrase allow for the secure
+
 	// detection of a correct passphrase on manager unlock when the
+
 	// manager is already unlocked.  The hash is zeroed each lock.
 	privPassphraseSalt   [saltSize]byte
 	hashedPrivPassphrase [sha512.Size]byte
@@ -362,6 +451,7 @@ func (m *Manager) lock() {
 		}
 	}
 
+
 	// Remove clear text private keys and scripts from all address entries.
 	for _, manager := range m.scopedManagers {
 		for _, ma := range manager.addrs {
@@ -375,17 +465,23 @@ func (m *Manager) lock() {
 		}
 	}
 
+
 	// Remove clear text private master and crypto keys from memory.
 	m.cryptoKeyScript.Zero()
 	m.cryptoKeyPriv.Zero()
 	m.masterKeyPriv.Zero()
 
+
 	// Zero the hashed passphrase.
 	zero.Bytea64(&m.hashedPrivPassphrase)
 
+
 	// NOTE: m.cryptoKeyPub is intentionally not cleared here as the address
+
 	// manager needs to be able to continue to read and decrypt public data
+
 	// which uses a separate derived key from the database even when it is
+
 	// locked.
 
 	m.locked = true
@@ -408,10 +504,12 @@ func (m *Manager) Close() {
 		manager.Close()
 	}
 
+
 	// Attempt to clear private key material from memory.
 	if !m.watchingOnly && !m.locked {
 		m.lock()
 	}
+
 
 	// Remove clear text public master and crypto keys from memory.
 	m.cryptoKeyPub.Zero()
@@ -437,31 +535,44 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// If the manager is locked, then we can't create a new scoped manager.
 	if m.locked {
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
 
+
 	// Now that we know the manager is unlocked, we'll need to fetch the
+
 	// root master HD private key. This is required as we'll be attempting
+
 	// the following derivation: m/purpose'/cointype'
+
 	//
+
 	// Note that the path to the coin type is requires hardened derivation,
+
 	// therefore this can only be done if the wallet's root key hasn't been
+
 	// neutered.
 	masterRootPrivEnc, _, err := fetchMasterHDKeys(ns)
 	if err != nil {
 		return nil, err
 	}
 
+
 	// If the master root private key isn't found within the database, but
+
 	// we need to bail here as we can't create the cointype key without the
+
 	// master root private key.
 	if masterRootPrivEnc == nil {
 		return nil, managerError(ErrWatchingOnly, "", nil)
 	}
 
+
 	// Before we can derive any new scoped managers using this key, we'll
+
 	// need to fully decrypt it.
 	serializedMasterRootPriv, err := m.cryptoKeyPriv.Decrypt(masterRootPrivEnc)
 	if err != nil {
@@ -469,7 +580,9 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 		return nil, managerError(ErrLocked, str, err)
 	}
 
+
 	// Now that we know the root priv is within the database, we'll decode
+
 	// it into a usable object.
 	rootPriv, err := hdkeychain.NewKeyFromString(
 		string(serializedMasterRootPriv),
@@ -480,17 +593,23 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 		return nil, managerError(ErrKeyChain, str, err)
 	}
 
+
 	// Now that we have the root private key, we'll fetch the scope bucket
+
 	// so we can create the proper internal name spaces.
 	scopeBucket := ns.NestedReadWriteBucket(scopeBucketName)
 
+
 	// Now that we know it's possible to actually create a new scoped
+
 	// manager, we'll carve out its bucket space within the database.
 	if err := createScopedManagerNS(scopeBucket, &scope); err != nil {
 		return nil, err
 	}
 
+
 	// With the database state created, we'll now write down the address
+
 	// schema of this particular scope type.
 	scopeSchemas := ns.NestedReadWriteBucket(scopeSchemaBucketName)
 	if scopeSchemas == nil {
@@ -504,8 +623,11 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 		return nil, err
 	}
 
+
 	// With the database state created, we'll now derive the cointype key
+
 	// using the master HD private key, then encrypt it along with the
+
 	// first account using our crypto keys.
 	err = createManagerKeyScope(
 		ns, scope, rootPriv, m.cryptoKeyPub, m.cryptoKeyPriv,
@@ -514,7 +636,9 @@ func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScop
 		return nil, err
 	}
 
+
 	// Finally, we'll register this new scoped manager with the root
+
 	// manager.
 	m.scopedManagers[scope] = &ScopedKeyManager{
 		scope:       scope,
@@ -592,21 +716,27 @@ func (m *Manager) NeuterRootKey(ns walletdb.ReadWriteBucket) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// First, we'll fetch the current master HD keys from the database.
 	masterRootPrivEnc, _, err := fetchMasterHDKeys(ns)
 	if err != nil {
 		return err
 	}
 
+
 	// If the root master private key is already nil, then we'll return a
+
 	// nil error here as the root key has already been permanently
+
 	// neutered.
 	if masterRootPrivEnc == nil {
 		return nil
 	}
 	zero.Bytes(masterRootPrivEnc)
 
+
 	// Otherwise, we'll neuter the root key permanently by deleting the
+
 	// encrypted master HD key from the database.
 	return ns.NestedReadWriteBucket(mainBucketName).Delete(masterHDPrivName)
 }
@@ -623,7 +753,9 @@ func (m *Manager) Address(ns walletdb.ReadBucket,
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
+
 	// We'll iterate through each of the known scoped managers, and see if
+
 	// any of them now of the target address.
 	for _, scopedMgr := range m.scopedManagers {
 		addr, err := scopedMgr.Address(ns, address)
@@ -634,7 +766,9 @@ func (m *Manager) Address(ns walletdb.ReadBucket,
 		return addr, nil
 	}
 
+
 	// If the address wasn't known to any of the scoped managers, then
+
 	// we'll return an error.
 	str := fmt.Sprintf("unable to find key for addr %v", address)
 	return nil, managerError(ErrAddressNotFound, str, nil)
@@ -645,8 +779,11 @@ func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address util.Address) er
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
+
 	// Run through all the known scoped managers, and attempt to mark the
+
 	// address as used for each one.
+
 
 	// First, we'll figure out which scoped manager this address belong to.
 	for _, scopedMgr := range m.scopedManagers {
@@ -659,7 +796,9 @@ func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address util.Address) er
 		return scopedMgr.MarkUsed(ns, address)
 	}
 
+
 	// If we get to this point, then we weren't able to find the address in
+
 	// any of the managers, so we'll exit with an error.
 	str := fmt.Sprintf("unable to find key for addr %v", address)
 	return managerError(ErrAddressNotFound, str, nil)
@@ -689,7 +828,9 @@ func (m *Manager) AddrAccount(ns walletdb.ReadBucket,
 		return scopedMgr, accNo, err
 	}
 
+
 	// If we get to this point, then we weren't able to find the address in
+
 	// any of the managers, so we'll exit with an error.
 	str := fmt.Sprintf("unable to find key for addr %v", address)
 	return nil, 0, managerError(ErrAddressNotFound, str, nil)
@@ -752,7 +893,9 @@ func (m *Manager) ForEachAccountAddress(ns walletdb.ReadBucket, account uint32,
 
 // ChainParams returns the chain parameters for this address manager.
 func (m *Manager) ChainParams() *chaincfg.Params {
+
 	// NOTE: No need for mutex here since the net field does not change
+
 	// after the manager instance is created.
 
 	return m.chainParams
@@ -767,6 +910,7 @@ func (m *Manager) ChainParams() *chaincfg.Params {
 func (m *Manager) ChangePassphrase(ns walletdb.ReadWriteBucket, oldPassphrase,
 	newPassphrase []byte, private bool, config *ScryptOptions) error {
 
+
 	// No private passphrase to change for a watching-only address manager.
 	if private && m.watchingOnly {
 		return managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -775,9 +919,13 @@ func (m *Manager) ChangePassphrase(ns walletdb.ReadWriteBucket, oldPassphrase,
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// Ensure the provided old passphrase is correct.  This check is done
+
 	// using a copy of the appropriate master key depending on the private
+
 	// flag to ensure the current state is not altered.  The temp key is
+
 	// cleared when done to avoid leaving a copy in memory.
 	var keyName string
 	secretKey := snacl.SecretKey{Key: &snacl.CryptoKey{}}
@@ -800,7 +948,9 @@ func (m *Manager) ChangePassphrase(ns walletdb.ReadWriteBucket, oldPassphrase,
 	}
 	defer secretKey.Zero()
 
+
 	// Generate a new master key from the passphrase which is used to secure
+
 	// the actual secret keys.
 	newMasterKey, err := newSecretKey(&newPassphrase, config)
 	if err != nil {
@@ -932,6 +1082,7 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// Exit now if the manager is already watching-only.
 	if m.watchingOnly {
 		return nil
@@ -939,7 +1090,9 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 
 	var err error
 
+
 	// Remove all private key material and mark the new database as
+
 	// watching only.
 	if err := deletePrivateKeys(ns); err != nil {
 		return maybeConvertDbError(err)
@@ -950,16 +1103,23 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 		return maybeConvertDbError(err)
 	}
 
+
 	// Lock the manager to remove all clear text private key material from
+
 	// memory if needed.
 	if !m.locked {
 		m.lock()
 	}
 
+
 	// This section clears and removes the encrypted private key material
+
 	// that is ordinarily used to unlock the manager.  Since the the manager
+
 	// is being converted to watching-only, the encrypted private key
+
 	// material is no longer needed.
+
 
 	// Clear and remove all of the encrypted acount private keys.
 	for _, manager := range m.scopedManagers {
@@ -969,7 +1129,9 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 		}
 	}
 
+
 	// Clear and remove encrypted private keys and encrypted scripts from
+
 	// all address entries.
 	for _, manager := range m.scopedManagers {
 		for _, ma := range manager.addrs {
@@ -985,6 +1147,7 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 		}
 	}
 
+
 	// Clear and remove encrypted private and script crypto keys.
 	zero.Bytes(m.cryptoKeyScriptEncrypted)
 	m.cryptoKeyScriptEncrypted = nil
@@ -993,10 +1156,14 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) error {
 	m.cryptoKeyPrivEncrypted = nil
 	m.cryptoKeyPriv = nil
 
+
 	// The master private key is derived from a passphrase when the manager
+
 	// is unlocked, so there is no encrypted version to zero.  However,
+
 	// it is no longer needed, so nil it.
 	m.masterKeyPriv = nil
+
 
 	// Mark the manager watching-only.
 	m.watchingOnly = true
@@ -1029,6 +1196,7 @@ func (m *Manager) isLocked() bool {
 // This function will return an error if invoked on a watching-only address
 // manager.
 func (m *Manager) Lock() error {
+
 	// A watching-only address manager can't be locked.
 	if m.watchingOnly {
 		return managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -1036,6 +1204,7 @@ func (m *Manager) Lock() error {
 
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
+
 
 	// Error on attempt to lock an already locked manager.
 	if m.locked {
@@ -1055,6 +1224,7 @@ func (m *Manager) Lock() error {
 // This function will return an error if invoked on a watching-only address
 // manager.
 func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
+
 	// A watching-only address manager can't be unlocked.
 	if m.watchingOnly {
 		return managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -1063,7 +1233,9 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// Avoid actually unlocking if the manager is already unlocked
+
 	// and the passphrases match.
 	if !m.locked {
 		saltedPassphrase := append(m.privPassphraseSalt[:],
@@ -1078,6 +1250,7 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 		return nil
 	}
 
+
 	// Derive the master private key using the provided passphrase.
 	if err := m.masterKeyPriv.DeriveKey(&passphrase); err != nil {
 		m.lock()
@@ -1090,6 +1263,7 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 		return managerError(ErrCrypto, str, err)
 	}
 
+
 	// Use the master private key to decrypt the crypto private key.
 	decryptedKey, err := m.masterKeyPriv.Decrypt(m.cryptoKeyPrivEncrypted)
 	if err != nil {
@@ -1100,7 +1274,9 @@ func (m *Manager) Unlock(ns walletdb.ReadBucket, passphrase []byte) error {
 	m.cryptoKeyPriv.CopyBytes(decryptedKey)
 	zero.Bytes(decryptedKey)
 
+
 	// Use the crypto private key to decrypt all of the account private
+
 	// extended keys.
 	for _, manager := range m.scopedManagers {
 		for account, acctInfo := range manager.acctInfo {
@@ -1220,7 +1396,9 @@ func (m *Manager) selectCryptoKey(keyType CryptoKeyType) (EncryptorDecryptor, er
 // Encrypt in using the crypto key type specified by keyType.
 func (m *Manager) Encrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
 
+
 	// Encryption must be performed under the manager mutex since the
+
 	// keys are cleared when the manager is locked.
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
@@ -1240,7 +1418,9 @@ func (m *Manager) Encrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
 // Decrypt in using the crypto key type specified by keyType.
 func (m *Manager) Decrypt(keyType CryptoKeyType, in []byte) ([]byte, error) {
 
+
 	// Decryption must be performed under the manager mutex since the keys
+
 	// are cleared when the manager is locked.
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
@@ -1309,28 +1489,41 @@ func deriveCoinTypeKey(
 	masterNode *hdkeychain.ExtendedKey,
 	scope KeyScope) (*hdkeychain.ExtendedKey, error) {
 
+
 	// Enforce maximum coin type.
 	if scope.Coin > maxCoinType {
 		err := managerError(ErrCoinTypeTooHigh, errCoinTypeTooHigh, nil)
 		return nil, err
 	}
 
+
 	// The hierarchy described by BIP0043 is:
+
 	//  m/<purpose>'/*
+
 	//
+
 	// This is further extended by BIP0044 to:
+
 	//  m/44'/<coin type>'/<account>'/<branch>/<address index>
+
 	//
+
 	// However, as this is a generic key store for any family for BIP0044
+
 	// standards, we'll use the custom scope to govern our key derivation.
+
 	//
+
 	// The branch is 0 for external addresses and 1 for internal addresses.
+
 
 	// Derive the purpose key as a child of the master node.
 	purpose, err := masterNode.Child(scope.Purpose + hdkeychain.HardenedKeyStart)
 	if err != nil {
 		return nil, err
 	}
+
 
 	// Derive the coin type key as a child of the purpose key.
 	coinTypeKey, err := purpose.Child(scope.Coin + hdkeychain.HardenedKeyStart)
@@ -1350,11 +1543,13 @@ func deriveAccountKey(
 	coinTypeKey *hdkeychain.ExtendedKey,
 	account uint32) (*hdkeychain.ExtendedKey, error) {
 
+
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
 		err := managerError(ErrAccountNumTooHigh, errAcctTooHigh, nil)
 		return nil, err
 	}
+
 
 	// Derive the account key as a child of the coin type key.
 	return coinTypeKey.Child(account + hdkeychain.HardenedKeyStart)
@@ -1372,10 +1567,12 @@ func deriveAccountKey(
 // The branch is 0 for external addresses and 1 for internal addresses.
 func checkBranchKeys(
 	acctKey *hdkeychain.ExtendedKey) error {
+
 	// Derive the external branch as the first child of the account key.
 	if _, err := acctKey.Child(ExternalBranch); err != nil {
 		return err
 	}
+
 
 	// Derive the external branch as the second child of the account key.
 	_, err := acctKey.Child(InternalBranch)
@@ -1388,6 +1585,7 @@ func checkBranchKeys(
 func loadManager(
 	ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, error) {
+
 
 	// Verify the version is neither too old or too new.
 	version, err := fetchManagerVersion(ns)
@@ -1403,11 +1601,13 @@ func loadManager(
 		return nil, managerError(ErrUpgrade, str, nil)
 	}
 
+
 	// Load whether or not the manager is watching-only from the db.
 	watchingOnly, err := fetchWatchingOnly(ns)
 	if err != nil {
 		return nil, maybeConvertDbError(err)
 	}
+
 
 	// Load the master key params from the db.
 	masterKeyPubParams, masterKeyPrivParams, err := fetchMasterKeyParams(ns)
@@ -1415,12 +1615,14 @@ func loadManager(
 		return nil, maybeConvertDbError(err)
 	}
 
+
 	// Load the crypto keys from the db.
 	cryptoKeyPubEnc, cryptoKeyPrivEnc, cryptoKeyScriptEnc, err :=
 		fetchCryptoKeys(ns)
 	if err != nil {
 		return nil, maybeConvertDbError(err)
 	}
+
 
 	// Load the sync state from the db.
 	syncedTo, err := fetchSyncedTo(ns)
@@ -1436,7 +1638,9 @@ func loadManager(
 		return nil, maybeConvertDbError(err)
 	}
 
+
 	// When not a watching-only manager, set the master private key params,
+
 	// but don't derive it now since the manager starts off locked.
 	var masterKeyPriv snacl.SecretKey
 	if !watchingOnly {
@@ -1447,7 +1651,9 @@ func loadManager(
 		}
 	}
 
+
 	// Derive the master public key using the serialized params and provided
+
 	// passphrase.
 	var masterKeyPub snacl.SecretKey
 	if err := masterKeyPub.Unmarshal(masterKeyPubParams); err != nil {
@@ -1459,6 +1665,7 @@ func loadManager(
 		return nil, managerError(ErrWrongPassphrase, str, nil)
 	}
 
+
 	// Use the master public key to decrypt the crypto public key.
 	cryptoKeyPub := &cryptoKey{snacl.CryptoKey{}}
 	cryptoKeyPubCT, err := masterKeyPub.Decrypt(cryptoKeyPubEnc)
@@ -1469,8 +1676,10 @@ func loadManager(
 	cryptoKeyPub.CopyBytes(cryptoKeyPubCT)
 	zero.Bytes(cryptoKeyPubCT)
 
+
 	// Create the sync state struct.
 	syncInfo := newSyncState(startBlock, syncedTo)
+
 
 	// Generate private passphrase salt.
 	var privPassphraseSalt [saltSize]byte
@@ -1480,7 +1689,9 @@ func loadManager(
 		return nil, managerError(ErrCrypto, str, err)
 	}
 
+
 	// Next, we'll need to load all known manager scopes from disk. Each
+
 	// scope is on a distinct top-level path within our HD key chain.
 	scopedManagers := make(map[KeyScope]*ScopedKeyManager)
 	err = forEachKeyScope(ns, func(scope KeyScope) error {
@@ -1502,9 +1713,13 @@ func loadManager(
 		return nil, err
 	}
 
+
 	// Create new address manager with the given parameters.  Also,
+
 	// override the defaults for the additional fields which are not
+
 	// specified in the call to new with the values loaded from the
+
 	// database.
 	mgr := newManager(
 		chainParams, &masterKeyPub, &masterKeyPriv,
@@ -1534,7 +1749,9 @@ func Open(
 	ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, error) {
 
+
 	// Return an error if the manager has NOT already been created in the
+
 	// given database namespace.
 	exists := managerExists(ns)
 	if !exists {
@@ -1562,6 +1779,7 @@ func createManagerKeyScope(
 	scope KeyScope, root *hdkeychain.ExtendedKey,
 	cryptoKeyPub, cryptoKeyPriv EncryptorDecryptor) error {
 
+
 	// Derive the cointype key according to the passed scope.
 	coinTypeKeyPriv, err := deriveCoinTypeKey(root, scope)
 	if err != nil {
@@ -1570,7 +1788,9 @@ func createManagerKeyScope(
 	}
 	defer coinTypeKeyPriv.Zero()
 
+
 	// Derive the account key for the first account according our
+
 	// BIP0044-like derivation.
 	acctKeyPriv, err := deriveAccountKey(coinTypeKeyPriv, 0)
 	if err != nil {
@@ -1585,7 +1805,9 @@ func createManagerKeyScope(
 		return err
 	}
 
+
 	// Ensure the branch keys can be derived for the provided seed according
+
 	// to our BIP0044-like derivation.
 	if err := checkBranchKeys(acctKeyPriv); err != nil {
 		// The seed is unusable if the any of the children in the
@@ -1599,12 +1821,14 @@ func createManagerKeyScope(
 		return err
 	}
 
+
 	// The address manager needs the public extended key for the account.
 	acctKeyPub, err := acctKeyPriv.Neuter()
 	if err != nil {
 		str := "failed to convert private key for account 0"
 		return managerError(ErrKeyChain, str, err)
 	}
+
 
 	// Encrypt the cointype keys with the associated crypto keys.
 	coinTypeKeyPub, err := coinTypeKeyPriv.Neuter()
@@ -1623,6 +1847,7 @@ func createManagerKeyScope(
 		return managerError(ErrCrypto, str, err)
 	}
 
+
 	// Encrypt the default account keys with the associated crypto keys.
 	acctPubEnc, err := cryptoKeyPub.Encrypt([]byte(acctKeyPub.String()))
 	if err != nil {
@@ -1635,11 +1860,13 @@ func createManagerKeyScope(
 		return managerError(ErrCrypto, str, err)
 	}
 
+
 	// Save the encrypted cointype keys to the database.
 	err = putCoinTypeKeys(ns, &scope, coinTypePubEnc, coinTypePrivEnc)
 	if err != nil {
 		return err
 	}
+
 
 	// Save the information for the default account to the database.
 	err = putAccountInfo(
@@ -1678,18 +1905,22 @@ func Create(
 	chainParams *chaincfg.Params, config *ScryptOptions,
 	birthday time.Time) error {
 
+
 	// Return an error if the manager has already been created in
+
 	// the given database namespace.
 	exists := managerExists(ns)
 	if exists {
 		return managerError(ErrAlreadyExists, errAlreadyExists, nil)
 	}
 
+
 	// Ensure the private passphrase is not empty.
 	if len(privPassphrase) == 0 {
 		str := "private passphrase may not be empty"
 		return managerError(ErrEmptyPassphrase, str, nil)
 	}
+
 
 	// Perform the initial bucket creation and database namespace setup.
 	if err := createManagerNS(ns, ScopeAddrMap); err != nil {
@@ -1700,7 +1931,9 @@ func Create(
 		config = &DefaultScryptOptions
 	}
 
+
 	// Generate new master keys.  These master keys are used to protect the
+
 	// crypto keys that will be generated next.
 	masterKeyPub, err := newSecretKey(&pubPassphrase, config)
 	if err != nil {
@@ -1714,8 +1947,11 @@ func Create(
 	}
 	defer masterKeyPriv.Zero()
 
+
 	// Generate the private passphrase salt.  This is used when hashing
+
 	// passwords to detect whether an unlock can be avoided when the manager
+
 	// is already unlocked.
 	var privPassphraseSalt [saltSize]byte
 	_, err = rand.Read(privPassphraseSalt[:])
@@ -1724,8 +1960,11 @@ func Create(
 		return managerError(ErrCrypto, str, err)
 	}
 
+
 	// Generate new crypto public, private, and script keys.  These keys are
+
 	// used to protect the actual public and private data such as addresses,
+
 	// extended keys, and scripts.
 	cryptoKeyPub, err := newCryptoKey()
 	if err != nil {
@@ -1745,6 +1984,7 @@ func Create(
 	}
 	defer cryptoKeyScript.Zero()
 
+
 	// Encrypt the crypto keys with the associated master keys.
 	cryptoKeyPubEnc, err := masterKeyPub.Encrypt(cryptoKeyPub.Bytes())
 	if err != nil {
@@ -1762,12 +2002,16 @@ func Create(
 		return managerError(ErrCrypto, str, err)
 	}
 
+
 	// Use the genesis block for the passed chain as the created at block
+
 	// for the default.
 	createdAt := &BlockStamp{Hash: *chainParams.GenesisHash, Height: 0}
 
+
 	// Create the initial sync state.
 	syncInfo := newSyncState(createdAt, createdAt)
+
 
 	// Save the master key params to the database.
 	pubParams := masterKeyPub.Marshal()
@@ -1777,8 +2021,11 @@ func Create(
 		return maybeConvertDbError(err)
 	}
 
+
 	// Generate the BIP0044 HD key structure to ensure the provided seed
+
 	// can generate the required structure with no issues.
+
 
 	// Derive the master extended key from the seed.
 	rootKey, err := hdkeychain.NewMaster(seed, chainParams)
@@ -1792,7 +2039,9 @@ func Create(
 		return managerError(ErrKeyChain, str, err)
 	}
 
+
 	// Next, for each registers default manager scope, we'll create the
+
 	// hardened cointype key for it, as well as the first default account.
 	for _, defaultScope := range DefaultKeyScopes {
 		err := createManagerKeyScope(
@@ -1803,8 +2052,11 @@ func Create(
 		}
 	}
 
+
 	// Before we proceed, we'll also store the root master private key
+
 	// within the database in an encrypted format. This is required as in
+
 	// the future, we may need to create additional scoped key managers.
 	masterHDPrivKeyEnc, err := cryptoKeyPriv.Encrypt([]byte(rootKey.String()))
 	if err != nil {
@@ -1819,6 +2071,7 @@ func Create(
 		return maybeConvertDbError(err)
 	}
 
+
 	// Save the encrypted crypto keys to the database.
 	err = putCryptoKeys(ns, cryptoKeyPubEnc, cryptoKeyPrivEnc,
 		cryptoKeyScriptEnc)
@@ -1826,12 +2079,15 @@ func Create(
 		return maybeConvertDbError(err)
 	}
 
+
 	// Save the fact this is not a watching-only address manager to the
+
 	// database.
 	err = putWatchingOnly(ns, false)
 	if err != nil {
 		return maybeConvertDbError(err)
 	}
+
 
 	// Save the initial synced to state.
 	err = putSyncedTo(ns, &syncInfo.syncedTo)
@@ -1842,6 +2098,7 @@ func Create(
 	if err != nil {
 		return maybeConvertDbError(err)
 	}
+
 
 	// Use 48 hours as margin of safety for wallet birthday.
 	return putBirthday(ns, birthday.Add(-48*time.Hour))

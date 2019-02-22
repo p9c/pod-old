@@ -78,6 +78,7 @@ func TestEstimateVirtualSize(
 		result          int
 	}
 
+
 	// TODO(halseth): add tests for more combination out inputs/outputs.
 	tests := []estimateVSizeTest{
 		// Spending P2WPKH to two outputs. Example adapted from example in BIP-143.

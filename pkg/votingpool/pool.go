@@ -14,6 +14,7 @@ import (
 
 const (
 	minSeriesPubKeys = 3
+
 	// CurrentVersion is the version used for newly created Series.
 	CurrentVersion = 1
 )
@@ -27,9 +28,12 @@ type Index uint32
 // SeriesData represents a Series for a given Pool.
 type SeriesData struct {
 	version uint32
+
 	// Whether or not a series is active. This is serialized/deserialized but
+
 	// for now there's no way to deactivate a series.
 	active bool
+
 	// A.k.a. "m" in "m of n signatures needed".
 	reqSigs     uint32
 	publicKeys  []*hdkeychain.ExtendedKey
@@ -630,6 +634,7 @@ func (p *Pool) ChangeAddress(seriesID uint32, index Index) (*ChangeAddress, erro
 func (p *Pool) WithdrawalAddress(ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branch Branch, index Index) (
 	*WithdrawalAddress, error) {
 
+
 	// TODO: Ensure the given series is hot.
 	addr, err := p.getUsedAddr(ns, addrmgrNs, seriesID, branch, index)
 	if err != nil {
@@ -671,6 +676,7 @@ func (p *Pool) poolAddress(seriesID uint32, branch Branch, index Index, script [
 //
 // This method must be called with the Pool's manager unlocked.
 func (p *Pool) EmpowerSeries(ns walletdb.ReadWriteBucket, seriesID uint32, rawPrivKey string) error {
+
 	// make sure this series exists
 	series := p.Series(seriesID)
 	if series == nil {
@@ -678,6 +684,7 @@ func (p *Pool) EmpowerSeries(ns walletdb.ReadWriteBucket, seriesID uint32, rawPr
 			seriesID)
 		return newError(ErrSeriesNotExists, str, nil)
 	}
+
 
 	// Check that the private key is valid.
 	privKey, err := hdkeychain.NewKeyFromString(rawPrivKey)
@@ -703,7 +710,9 @@ func (p *Pool) EmpowerSeries(ns walletdb.ReadWriteBucket, seriesID uint32, rawPr
 	lookingFor := pubKey.String()
 	found := false
 
+
 	// Make sure the private key has the corresponding public key in the series,
+
 	// to be able to empower it.
 	for i, publicKey := range series.publicKeys {
 		if publicKey.String() == lookingFor {
@@ -760,9 +769,13 @@ func (p *Pool) addUsedAddr(ns, addrmgrNs walletdb.ReadWriteBucket, seriesID uint
 		return err
 	}
 
+
 	// First ensure the address manager has our script. That way there's no way
+
 	// to have it in the used addresses DB but not in the address manager.
+
 	// TODO: Decide how far back we want the addr manager to rescan and set the
+
 	// BlockStamp height according to that.
 	manager, err := p.manager.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0044)
 	if err != nil {

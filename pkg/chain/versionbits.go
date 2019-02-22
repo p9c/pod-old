@@ -8,16 +8,22 @@ import (
 )
 
 const (
+
 	// vbLegacyBlockVersion is the highest legacy block version before the version bits scheme became active.
 	vbLegacyBlockVersion = 4
+
 	// vbTopBits defines the bits to set in the version to signal that the version bits scheme is being used.
 	vbTopBits = 0x20000000
+
 	// vbTopMask is the bitmask to use to determine whether or not the version bits scheme is in use.
 	vbTopMask = 0xe0000000
+
 	// vbNumBits is the total number of bits available for use with the version bits scheme.
 	vbNumBits = 29
+
 	// unknownVerNumToCheck is the number of previous blocks to consider when checking for a threshold of unknown block versions for the purposes of warning the user.
 	unknownVerNumToCheck = 100
+
 	// unknownVerWarnNum is the threshold of previous blocks that have an unknown version to use for the purposes of warning the user.
 	unknownVerWarnNum = unknownVerNumToCheck / 2
 )
@@ -110,6 +116,7 @@ func (c deploymentChecker) Condition(node *blockNode) (bool, error) {
 // calcNextBlockVersion calculates the expected version of the block after the passed previous block node based on the state of started and locked in rule change deployments. This function differs from the exported CalcNextBlockVersion in that the exported version uses the current best chain as the previous block node while this function accepts any block node. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) calcNextBlockVersion(prevNode *blockNode) (uint32, error) {
 
+
 	// Set the appropriate bits for each actively defined rule deployment that is either in the process of being voted on, or locked in for the/ activation at the next threshold window change.
 	expectedVersion := uint32(vbTopBits)
 	for id := 0; id < len(b.chainParams.Deployments); id++ {
@@ -138,6 +145,7 @@ func (b *BlockChain) CalcNextBlockVersion() (uint32, error) {
 
 // warnUnknownRuleActivations displays a warning when any unknown new rules are either about to activate or have been activated.  This will only happen once when new rules have been activated and every block for those about to be activated. This function MUST be called with the chain state lock held (for writes)
 func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
+
 	// Warn if any unknown new rules are either about to activate or have already been activated.
 	for bit := uint32(0); bit < vbNumBits; bit++ {
 		checker := bitConditionChecker{bit: bit, chain: b}

@@ -9,9 +9,12 @@ import (
 )
 
 const (
+
 	// MaxDataCarrierSize is the maximum number of bytes allowed in pushed data to be considered a nulldata transaction
 	MaxDataCarrierSize = 80
+
 	// StandardVerifyFlags are the script flags which are used when executing transaction scripts to enforce additional checks which are required for the script to be considered standard.  These checks help reduce issues related to transaction malleability as well as allow pay-to-script hash transactions.  Note these flags are different than what is required for the consensus rules in that they are more strict.
+
 	// TODO: This definition does not belong here.  It belongs in a policy package.
 	StandardVerifyFlags = ScriptBip16 |
 		ScriptVerifyDERSignatures |
@@ -69,6 +72,7 @@ func (t ScriptClass) String() string {
 // isPubkey returns true if the script passed is a pay-to-pubkey transaction, false otherwise.
 func isPubkey(
 	pops []parsedOpcode) bool {
+
 	// Valid pubkeys are either 33 or 65 bytes.
 	return len(pops) == 2 &&
 		(len(pops[0].data) == 33 || len(pops[0].data) == 65) &&
@@ -89,7 +93,9 @@ func isPubkeyHash(
 // isMultiSig returns true if the passed script is a multisig transaction, false otherwise.
 func isMultiSig(
 	pops []parsedOpcode) bool {
+
 	// The absolute minimum is 1 pubkey:
+
 	// OP_0/OP_1-16 <pubkey> OP_1 OP_CHECKMULTISIG
 	l := len(pops)
 	if l < 4 {
@@ -106,6 +112,7 @@ func isMultiSig(
 	if pops[l-1].opcode.value != OP_CHECKMULTISIG {
 		return false
 	}
+
 	// Verify the number of pubkeys specified matches the actual number of pubkeys provided.
 	if l-2-1 != asSmallInt(pops[l-2].opcode) {
 
@@ -123,6 +130,7 @@ func isMultiSig(
 // isNullData returns true if the passed script is a null data transaction, false otherwise.
 func isNullData(
 	pops []parsedOpcode) bool {
+
 	// A nulldata transaction is either a single OP_RETURN or an OP_RETURN SMALLDATA (where SMALLDATA is a data push up to MaxDataCarrierSize bytes).
 	l := len(pops)
 	if l == 1 && pops[0].opcode.value == OP_RETURN {
@@ -201,12 +209,16 @@ func expectedInputs(
 
 // ScriptInfo houses information about a script pair that is determined by CalcScriptInfo.
 type ScriptInfo struct {
+
 	// PkScriptClass is the class of the public key script and is equivalent to calling GetScriptClass on it.
 	PkScriptClass ScriptClass
+
 	// NumInputs is the number of inputs provided by the public key script.
 	NumInputs int
+
 	// ExpectedInputs is the number of outputs required by the signature script and any pay-to-script-hash scripts. The number will be -1 if unknown.
 	ExpectedInputs int
+
 	// SigOps is the number of signature operations in the script pair.
 	SigOps int
 }
@@ -224,9 +236,11 @@ func CalcScriptInfo(
 	if err != nil {
 		return nil, err
 	}
+
 	// Push only sigScript makes little sense.
 	si := new(ScriptInfo)
 	si.PkScriptClass = typeOfScript(pkPops)
+
 	// Can't have a signature script that doesn't just push data.
 	if !isPushOnly(sigPops) {
 
@@ -235,6 +249,7 @@ func CalcScriptInfo(
 	}
 	si.ExpectedInputs = expectedInputs(pkPops, si.PkScriptClass)
 	switch {
+
 	// Count sigops taking into account pay-to-script-hash.
 	case si.PkScriptClass == ScriptHashTy && bip16 && !segwit:
 		// The pay-to-hash-script is the final data push of the signature script.
@@ -252,10 +267,12 @@ func CalcScriptInfo(
 		si.SigOps = getSigOpCount(shPops, true)
 		// All entries pushed to stack (or are OP_RESERVED and exec will fail).
 		si.NumInputs = len(sigPops)
+
 	// If segwit is active, and this is a regular p2wkh output, then we'll treat the script as a p2pkh output in essence.
 	case si.PkScriptClass == WitnessV0PubKeyHashTy && segwit:
 		si.SigOps = GetWitnessSigOpCount(sigScript, pkScript, witness)
 		si.NumInputs = len(witness)
+
 	// We'll attempt to detect the nested p2sh case so we can accurately count the signature operations involved.
 	case si.PkScriptClass == ScriptHashTy &&
 		IsWitnessProgram(sigScript[1:]) && bip16 && segwit:
@@ -270,6 +287,7 @@ func CalcScriptInfo(
 		si.SigOps = GetWitnessSigOpCount(sigScript, pkScript, witness)
 		si.NumInputs = len(witness)
 		si.NumInputs += len(sigPops)
+
 	// If segwit is active, and this is a p2wsh output, then we'll need to examine the witness script to generate accurate script info.
 	case si.PkScriptClass == WitnessV0ScriptHashTy && segwit:
 		// The witness script is the final element of the witness stack.
@@ -299,6 +317,7 @@ func CalcMultiSigStats(
 	if err != nil {
 		return 0, 0, err
 	}
+
 	// A multi-signature script is of the pattern:  NUM_SIGS PUBKEY PUBKEY PUBKEY... NUM_PUBKEYS OP_CHECKMULTISIG Therefore the number of signatures is the oldest item on the stack and the number of pubkeys is the 2nd to last.  Also, the absolute minimum for a multi-signature script is 1 pubkey, so at least 4 items must be on the stack per:  OP_1 PUBKEY OP_1 OP_CHECKMULTISIG
 	if len(pops) < 4 {
 		str := fmt.Sprintf("script %x is not a multisig script", script)
@@ -447,6 +466,7 @@ func ExtractPkScriptAddrs(
 
 	var addrs []util.Address
 	var requiredSigs int
+
 	// No valid addresses or required signatures if the script doesn't parse.
 	pops, err := parseScript(pkScript)
 	if err != nil {

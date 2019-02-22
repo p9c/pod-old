@@ -224,6 +224,7 @@ func TestMinPrioritySelector(
 }
 
 var (
+
 	// should be two outpoints, with 1st one having 0.035DUO value.
 	testSimpleCoinNumConfs            = int64(1)
 	testSimpleCoinTxHash              = "9b5965c86de51d5dc824e179a05cf232db78c80ae86ca9d7cb2a655b5e19c1e2"

@@ -18,10 +18,13 @@ const compressMagic byte = 0x01
 
 // WIF contains the individual components described by the Wallet Import Format (WIF).  A WIF string is typically used to represent a private key and its associated address in a way that  may be easily copied and imported into or exported from wallet software.  WIF strings may be decoded into this structure by calling DecodeWIF or created with a user-provided private key by calling NewWIF.
 type WIF struct {
+
 	// PrivKey is the private key being imported or exported.
 	PrivKey *ec.PrivateKey
+
 	// CompressPubKey specifies whether the address controlled by the imported or exported private key was created by hashing a compressed (33-byte) serialized public key, rather than an uncompressed (65-byte) one.
 	CompressPubKey bool
+
 	// netID is the bitcoin network identifier byte used when WIF encoding the private key.
 	netID byte
 }
@@ -55,6 +58,7 @@ func DecodeWIF(
 	decoded := base58.Decode(wif)
 	decodedLen := len(decoded)
 	var compress bool
+
 	// Length of base58 decoded WIF must be 32 bytes + an optional 1 byte (0x01) if compressed, plus 1 byte for netID + 4 bytes of checksum.
 	switch decodedLen {
 	case 1 + ec.PrivKeyBytesLen + 1 + 4:
@@ -67,6 +71,7 @@ func DecodeWIF(
 	default:
 		return nil, ErrMalformedPrivateKey
 	}
+
 	// Checksum is first four bytes of double SHA256 of the identifier byte and privKey.  Verify this matches the final 4 bytes of the decoded private key.
 	var tosum []byte
 	if compress {
@@ -87,6 +92,7 @@ func DecodeWIF(
 
 // String creates the Wallet Import Format string encoding of a WIF structure. See DecodeWIF for a detailed breakdown of the format and requirements of a valid WIF string.
 func (w *WIF) String() string {
+
 	// Precalculate size.  Maximum number of bytes before base58 encoding is one byte for the network, 32 bytes of private key, possibly one extra byte if the pubkey is to be compressed, and finally four bytes of checksum.
 	encodeLen := 1 + ec.PrivKeyBytesLen + 4
 	if w.CompressPubKey {
@@ -94,6 +100,7 @@ func (w *WIF) String() string {
 	}
 	a := make([]byte, 0, encodeLen)
 	a = append(a, w.netID)
+
 	// Pad and append bytes manually, instead of using Serialize, to avoid another call to make.
 	a = paddedAppend(ec.PrivKeyBytesLen, a, w.PrivKey.D.Bytes())
 	if w.CompressPubKey {

@@ -17,8 +17,11 @@ import (
 )
 
 var (
+
 	// fieldOne is simply the integer 1 in field representation.  It is
+
 	// used to avoid needing to create it multiple times during the internal
+
 	// arithmetic.
 	fieldOne = new(fieldVal).SetInt(1)
 )
@@ -30,19 +33,29 @@ type KoblitzCurve struct {
 	q         *big.Int
 	H         int      // cofactor of the curve.
 	halfOrder *big.Int // half the order N
+
 	// byteSize is simply the bit size / 8 and is provided for convenience
+
 	// since it is calculated repeatedly.
 	byteSize int
+
 	// bytePoints
 	bytePoints *[32][256][3]fieldVal
+
 	// The next 6 values are used specifically for endomorphism
+
 	// optimizations in ScalarMult.
+
 	// lambda must fulfill lambda^3 = 1 mod N where N is the order of G.
 	lambda *big.Int
+
 	// beta must fulfill beta^3 = 1 mod P where P is the prime field of the
+
 	// curve.
 	beta *fieldVal
+
 	// See the EndomorphismVectors in gensecp256k1.go to see how these are
+
 	// derived.
 	a1 *big.Int
 	b1 *big.Int
@@ -69,9 +82,13 @@ func (curve *KoblitzCurve) bigAffineToField(x, y *big.Int) (*fieldVal, *fieldVal
 // converts it to an affine point as big integers.
 func (curve *KoblitzCurve) fieldJacobianToBigAffine(x, y, z *fieldVal) (*big.Int, *big.Int) {
 
+
 	// Inversions are expensive and both point addition and point doubling
+
 	// are faster when working with points that have a z value of one.  So,
+
 	// if the point needs to be converted to affine, go ahead and normalize
+
 	// the point itself at the same time as the calculation is the same.
 	var zInv, tempZ fieldVal
 	zInv.Set(z).Inverse()   // zInv = Z^-1
@@ -79,9 +96,11 @@ func (curve *KoblitzCurve) fieldJacobianToBigAffine(x, y, z *fieldVal) (*big.Int
 	x.Mul(&tempZ)           // X = X/Z^2 (mag: 1)
 	y.Mul(tempZ.Mul(&zInv)) // Y = Y/Z^3 (mag: 1)
 	z.SetInt(1)             // Z = 1 (mag: 1)
+
 	// Normalize the x and y values.
 	x.Normalize()
 	y.Normalize()
+
 	// Convert the field values for the now affine point to big.Ints.
 	x3, y3 := new(big.Int), new(big.Int)
 	x3.SetBytes(x.Bytes()[:])
@@ -93,8 +112,10 @@ func (curve *KoblitzCurve) fieldJacobianToBigAffine(x, y, z *fieldVal) (*big.Int
 // Part of the elliptic.Curve interface. This function differs from the
 // crypto/elliptic algorithm since a = 0 not -3.
 func (curve *KoblitzCurve) IsOnCurve(x, y *big.Int) bool {
+
 	// Convert big ints to field values for faster arithmetic.
 	fx, fy := curve.bigAffineToField(x, y)
+
 	// Elliptic curve equation for secp256k1 is: y^2 = x^3 + 7
 	y2 := new(fieldVal).SquareVal(fy).Normalize()
 	result := new(fieldVal).SquareVal(fx).Mul(fx).AddInt(7).Normalize()
@@ -108,20 +129,35 @@ func (curve *KoblitzCurve) IsOnCurve(x, y *big.Int) bool {
 // avoid the z value multiplications.
 func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
+
 	// To compute the point addition efficiently, this implementation splits
+
 	// the equation into intermediate elements which are used to minimize
+
 	// the number of field multiplications using the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-mmadd-2007-bl
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// H = X2-X1, HH = H^2, I = 4*HH, J = H*I, r = 2*(Y2-Y1), V = X1*I
+
 	// X3 = r^2-J-2*V, Y3 = r*(V-X3)-2*Y1*J, Z3 = 2*H
+
 	//
+
 	// This results in a cost of 4 field multiplications, 2 field squarings,
+
 	// 6 field additions, and 5 integer multiplications.
+
 	// When the x coordinates are the same for two points on the curve, the
+
 	// y coordinates either must be the same, in which case it is point
+
 	// doubling, or they are opposite and the result is the point at
+
 	// infinity per the group law for elliptic curve cryptography.
 	x1.Normalize()
 	y1.Normalize()
@@ -144,7 +180,9 @@ func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *f
 		z3.SetInt(0)
 		return
 	}
+
 	// Calculate X3, Y3, and Z3 according to the intermediate elements
+
 	// breakdown above.
 	var h, i, j, r, v fieldVal
 	var negJ, neg2V, negX3 fieldVal
@@ -160,6 +198,7 @@ func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *f
 	j.Mul(y1).MulInt(2).Negate(2)              // J = -(2*Y1*J) (mag: 3)
 	y3.Set(&v).Add(&negX3).Mul(&r).Add(&j)     // Y3 = r*(V-X3)-2*Y1*J (mag: 4)
 	z3.Set(&h).MulInt(2)                       // Z3 = 2*H (mag: 6)
+
 	// Normalize the resulting field values to a magnitude of 1 as needed.
 	x3.Normalize()
 	y3.Normalize()
@@ -173,21 +212,37 @@ func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *f
 // equivalence.
 func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
+
 	// To compute the point addition efficiently, this implementation splits
+
 	// the equation into intermediate elements which are used to minimize
+
 	// the number of field multiplications using a slightly modified version
+
 	// of the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-mmadd-2007-bl
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// A = X2-X1, B = A^2, C=Y2-Y1, D = C^2, E = X1*B, F = X2*B
+
 	// X3 = D-E-F, Y3 = C*(E-X3)-Y1*(F-E), Z3 = Z1*A
+
 	//
+
 	// This results in a cost of 5 field multiplications, 2 field squarings,
+
 	// 9 field additions, and 0 integer multiplications.
+
 	// When the x coordinates are the same for two points on the curve, the
+
 	// y coordinates either must be the same, in which case it is point
+
 	// doubling, or they are opposite and the result is the point at
+
 	// infinity per the group law for elliptic curve cryptography.
 	x1.Normalize()
 	y1.Normalize()
@@ -210,7 +265,9 @@ func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVa
 		z3.SetInt(0)
 		return
 	}
+
 	// Calculate X3, Y3, and Z3 according to the intermediate elements
+
 	// breakdown above.
 	var a, b, c, d, e, f fieldVal
 	var negX1, negY1, negE, negX3 fieldVal
@@ -228,6 +285,7 @@ func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVa
 	y3.Set(y1).Mul(f.Add(&negE)).Negate(3) // Y3 = -(Y1*(F-E)) (mag: 4)
 	y3.Add(e.Add(&negX3).Mul(&c))          // Y3 = C*(E-X3)+Y3 (mag: 5)
 	z3.Mul2(z1, &a)                        // Z3 = Z1*A (mag: 1)
+
 	// Normalize the resulting field values to a magnitude of 1 as needed.
 	x3.Normalize()
 	y3.Normalize()
@@ -241,25 +299,45 @@ func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVa
 // multiplications by the second point's z value.
 func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
+
 	// To compute the point addition efficiently, this implementation splits
+
 	// the equation into intermediate elements which are used to minimize
+
 	// the number of field multiplications using the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// Z1Z1 = Z1^2, U2 = X2*Z1Z1, S2 = Y2*Z1*Z1Z1, H = U2-X1, HH = H^2,
+
 	// I = 4*HH, J = H*I, r = 2*(S2-Y1), V = X1*I
+
 	// X3 = r^2-J-2*V, Y3 = r*(V-X3)-2*Y1*J, Z3 = (Z1+H)^2-Z1Z1-HH
+
 	//
+
 	// This results in a cost of 7 field multiplications, 4 field squarings,
+
 	// 9 field additions, and 4 integer multiplications.
+
 	// When the x coordinates are the same for two points on the curve, the
+
 	// y coordinates either must be the same, in which case it is point
+
 	// doubling, or they are opposite and the result is the point at
+
 	// infinity per the group law for elliptic curve cryptography.  Since
+
 	// any number of Jacobian coordinates can represent the same affine
+
 	// point, the x and y values need to be converted to like terms.  Due to
+
 	// the assumption made for this function that the second point has a z
+
 	// value of 1 (z2=1), the first point is already "converted".
 	var z1z1, u2, s2 fieldVal
 	x1.Normalize()
@@ -284,7 +362,9 @@ func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldV
 		z3.SetInt(0)
 		return
 	}
+
 	// Calculate X3, Y3, and Z3 according to the intermediate elements
+
 	// breakdown above.
 	var h, hh, i, j, r, rr, v fieldVal
 	var negX1, negY1, negX3 fieldVal
@@ -304,6 +384,7 @@ func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldV
 	y3.Add(v.Add(&negX3).Mul(&r))          // Y3 = r*(V-X3)+Y3 (mag: 4)
 	z3.Add2(z1, &h).Square()               // Z3 = (Z1+H)^2 (mag: 1)
 	z3.Add(z1z1.Add(&hh).Negate(2))        // Z3 = Z3-(Z1Z1+HH) (mag: 4)
+
 	// Normalize the resulting field values to a magnitude of 1 as needed.
 	x3.Normalize()
 	y3.Normalize()
@@ -316,24 +397,43 @@ func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldV
 // is the slowest of the add routines due to requiring the most arithmetic.
 func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldVal) {
 
+
 	// To compute the point addition efficiently, this implementation splits
+
 	// the equation into intermediate elements which are used to minimize
+
 	// the number of field multiplications using the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// Z1Z1 = Z1^2, Z2Z2 = Z2^2, U1 = X1*Z2Z2, U2 = X2*Z1Z1, S1 = Y1*Z2*Z2Z2
+
 	// S2 = Y2*Z1*Z1Z1, H = U2-U1, I = (2*H)^2, J = H*I, r = 2*(S2-S1)
+
 	// V = U1*I
+
 	// X3 = r^2-J-2*V, Y3 = r*(V-X3)-2*S1*J, Z3 = ((Z1+Z2)^2-Z1Z1-Z2Z2)*H
+
 	//
+
 	// This results in a cost of 11 field multiplications, 5 field squarings,
+
 	// 9 field additions, and 4 integer multiplications.
+
 	// When the x coordinates are the same for two points on the curve, the
+
 	// y coordinates either must be the same, in which case it is point
+
 	// doubling, or they are opposite and the result is the point at
+
 	// infinity.  Since any number of Jacobian coordinates can represent the
+
 	// same affine point, the x and y values need to be converted to like
+
 	// terms.
 	var z1z1, z2z2, u1, u2, s1, s2 fieldVal
 	z1z1.SquareVal(z1)                        // Z1Z1 = Z1^2 (mag: 1)
@@ -359,7 +459,9 @@ func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldV
 		z3.SetInt(0)
 		return
 	}
+
 	// Calculate X3, Y3, and Z3 according to the intermediate elements
+
 	// breakdown above.
 	var h, i, j, r, rr, v fieldVal
 	var negU1, negS1, negX3 fieldVal
@@ -379,6 +481,7 @@ func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldV
 	z3.Add2(z1, z2).Square()               // Z3 = (Z1+Z2)^2 (mag: 1)
 	z3.Add(z1z1.Add(&z2z2).Negate(2))      // Z3 = Z3-(Z1Z1+Z2Z2) (mag: 4)
 	z3.Mul(&h)                             // Z3 = Z3*H (mag: 1)
+
 	// Normalize the resulting field values to a magnitude of 1 as needed.
 	x3.Normalize()
 	y3.Normalize()
@@ -388,7 +491,9 @@ func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldV
 // together and stores the result in (x3, y3, z3).
 func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldVal) {
 
+
 	// A point at infinity is the identity according to the group law for
+
 	// elliptic curve cryptography.  Thus, ∞ + P = P and P + ∞ = P.
 	if (x1.IsZero() && y1.IsZero()) || z1.IsZero() {
 
@@ -404,10 +509,15 @@ func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *field
 		z3.Set(z1)
 		return
 	}
+
 	// Faster point addition can be achieved when certain assumptions are
+
 	// met.  For example, when both points have the same z value, arithmetic
+
 	// on the z values can be avoided.  This section thus checks for these
+
 	// conditions and calls an appropriate add function which is accelerated
+
 	// by using those assumptions.
 	z1.Normalize()
 	z2.Normalize()
@@ -424,7 +534,9 @@ func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *field
 		curve.addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3)
 		return
 	}
+
 	// None of the above assumptions are true, so fall back to generic
+
 	// point addition.
 	curve.addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3)
 }
@@ -433,7 +545,9 @@ func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *field
 // interface.
 func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 
+
 	// A point at infinity is the identity according to the group law for
+
 	// elliptic curve cryptography.  Thus, ∞ + P = P and P + ∞ = P.
 	if x1.Sign() == 0 && y1.Sign() == 0 {
 		return x2, y2
@@ -441,14 +555,18 @@ func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 	if x2.Sign() == 0 && y2.Sign() == 0 {
 		return x1, y1
 	}
+
 	// Convert the affine coordinates from big integers to field values
+
 	// and do the point addition in Jacobian projective space.
 	fx1, fy1 := curve.bigAffineToField(x1, y1)
 	fx2, fy2 := curve.bigAffineToField(x2, y2)
 	fx3, fy3, fz3 := new(fieldVal), new(fieldVal), new(fieldVal)
 	fOne := new(fieldVal).SetInt(1)
 	curve.addJacobian(fx1, fy1, fOne, fx2, fy2, fOne, fx3, fy3, fz3)
+
 	// Convert the Jacobian coordinate field values back to affine big
+
 	// integers.
 	return curve.fieldJacobianToBigAffine(fx3, fy3, fz3)
 }
@@ -460,28 +578,51 @@ func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 // is needed due to the ability to avoid multiplication by the z value.
 func (curve *KoblitzCurve) doubleZ1EqualsOne(x1, y1, x3, y3, z3 *fieldVal) {
 
+
 	// This function uses the assumptions that z1 is 1, thus the point
+
 	// doubling formulas reduce to:
+
 	//
+
 	// X3 = (3*X1^2)^2 - 8*X1*Y1^2
+
 	// Y3 = (3*X1^2)*(4*X1*Y1^2 - X3) - 8*Y1^4
+
 	// Z3 = 2*Y1
+
 	//
+
 	// To compute the above efficiently, this implementation splits the
+
 	// equation into intermediate elements which are used to minimize the
+
 	// number of field multiplications in favor of field squarings which
+
 	// are roughly 35% faster than field multiplications with the current
+
 	// implementation at the time this was written.
+
 	//
+
 	// This uses a slightly modified version of the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-mdbl-2007-bl
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// A = X1^2, B = Y1^2, C = B^2, D = 2*((X1+B)^2-A-C)
+
 	// E = 3*A, F = E^2, X3 = F-2*D, Y3 = E*(D-X3)-8*C
+
 	// Z3 = 2*Y1
+
 	//
+
 	// This results in a cost of 1 field multiplication, 5 field squarings,
+
 	// 6 field additions, and 5 integer multiplications.
 	var a, b, c, d, e, f fieldVal
 	z3.Set(y1).MulInt(2)                     // Z3 = 2*Y1 (mag: 2)
@@ -498,6 +639,7 @@ func (curve *KoblitzCurve) doubleZ1EqualsOne(x1, y1, x3, y3, z3 *fieldVal) {
 	f.Set(x3).Negate(18).Add(&d).Normalize() // F = D-X3 (mag: 1)
 	y3.Set(&c).MulInt(8).Negate(8)           // Y3 = -(8*C) (mag: 9)
 	y3.Add(f.Mul(&e))                        // Y3 = E*F+Y3 (mag: 10)
+
 	// Normalize the field values back to a magnitude of 1.
 	x3.Normalize()
 	y3.Normalize()
@@ -510,27 +652,49 @@ func (curve *KoblitzCurve) doubleZ1EqualsOne(x1, y1, x3, y3, z3 *fieldVal) {
 // doubling routines due to requiring the most arithmetic.
 func (curve *KoblitzCurve) doubleGeneric(x1, y1, z1, x3, y3, z3 *fieldVal) {
 
+
 	// Point doubling formula for Jacobian coordinates for the secp256k1
+
 	// curve:
+
 	// X3 = (3*X1^2)^2 - 8*X1*Y1^2
+
 	// Y3 = (3*X1^2)*(4*X1*Y1^2 - X3) - 8*Y1^4
+
 	// Z3 = 2*Y1*Z1
+
 	//
+
 	// To compute the above efficiently, this implementation splits the
+
 	// equation into intermediate elements which are used to minimize the
+
 	// number of field multiplications in favor of field squarings which
+
 	// are roughly 35% faster than field multiplications with the current
+
 	// implementation at the time this was written.
+
 	//
+
 	// This uses a slightly modified version of the method shown at:
+
 	// http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
+
 	//
+
 	// In particular it performs the calculations using the following:
+
 	// A = X1^2, B = Y1^2, C = B^2, D = 2*((X1+B)^2-A-C)
+
 	// E = 3*A, F = E^2, X3 = F-2*D, Y3 = E*(D-X3)-8*C
+
 	// Z3 = 2*Y1*Z1
+
 	//
+
 	// This results in a cost of 1 field multiplication, 5 field squarings,
+
 	// 6 field additions, and 5 integer multiplications.
 	var a, b, c, d, e, f fieldVal
 	z3.Mul2(y1, z1).MulInt(2)                // Z3 = 2*Y1*Z1 (mag: 2)
@@ -547,6 +711,7 @@ func (curve *KoblitzCurve) doubleGeneric(x1, y1, z1, x3, y3, z3 *fieldVal) {
 	f.Set(x3).Negate(18).Add(&d).Normalize() // F = D-X3 (mag: 1)
 	y3.Set(&c).MulInt(8).Negate(8)           // Y3 = -(8*C) (mag: 9)
 	y3.Add(f.Mul(&e))                        // Y3 = E*F+Y3 (mag: 10)
+
 	// Normalize the field values back to a magnitude of 1.
 	x3.Normalize()
 	y3.Normalize()
@@ -557,6 +722,7 @@ func (curve *KoblitzCurve) doubleGeneric(x1, y1, z1, x3, y3, z3 *fieldVal) {
 // result in (x3, y3, z3).
 func (curve *KoblitzCurve) doubleJacobian(x1, y1, z1, x3, y3, z3 *fieldVal) {
 
+
 	// Doubling a point at infinity is still infinity.
 	if y1.IsZero() || z1.IsZero() {
 
@@ -565,16 +731,22 @@ func (curve *KoblitzCurve) doubleJacobian(x1, y1, z1, x3, y3, z3 *fieldVal) {
 		z3.SetInt(0)
 		return
 	}
+
 	// Slightly faster point doubling can be achieved when the z value is 1
+
 	// by avoiding the multiplication on the z value.  This section calls
+
 	// a point doubling function which is accelerated by using that
+
 	// assumption when possible.
 	if z1.Normalize().Equals(fieldOne) {
 
 		curve.doubleZ1EqualsOne(x1, y1, x3, y3, z3)
 		return
 	}
+
 	// Fall back to generic point doubling which works with arbitrary z
+
 	// values.
 	curve.doubleGeneric(x1, y1, z1, x3, y3, z3)
 }
@@ -585,13 +757,17 @@ func (curve *KoblitzCurve) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 	if y1.Sign() == 0 {
 		return new(big.Int), new(big.Int)
 	}
+
 	// Convert the affine coordinates from big integers to field values
+
 	// and do the point doubling in Jacobian projective space.
 	fx1, fy1 := curve.bigAffineToField(x1, y1)
 	fx3, fy3, fz3 := new(fieldVal), new(fieldVal), new(fieldVal)
 	fOne := new(fieldVal).SetInt(1)
 	curve.doubleJacobian(fx1, fy1, fOne, fx3, fy3, fz3)
+
 	// Convert the Jacobian coordinate field values back to affine big
+
 	// integers.
 	return curve.fieldJacobianToBigAffine(fx3, fy3, fz3)
 }
@@ -604,34 +780,47 @@ func (curve *KoblitzCurve) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 // c1 and c2 are chosen to minimize the max(k1,k2).
 func (curve *KoblitzCurve) splitK(k []byte) ([]byte, []byte, int, int) {
 
+
 	// All math here is done with big.Int, which is slow.
+
 	// At some point, it might be useful to write something similar to
+
 	// fieldVal but for N instead of P as the prime field if this ends up
+
 	// being a bottleneck.
 	bigIntK := new(big.Int)
 	c1, c2 := new(big.Int), new(big.Int)
 	tmp1, tmp2 := new(big.Int), new(big.Int)
 	k1, k2 := new(big.Int), new(big.Int)
 	bigIntK.SetBytes(k)
+
 	// c1 = round(b2 * k / n) from step 4.
+
 	// Rounding isn't really necessary and costs too much, hence skipped
 	c1.Mul(curve.b2, bigIntK)
 	c1.Div(c1, curve.N)
+
 	// c2 = round(b1 * k / n) from step 4 (sign reversed to optimize one step)
+
 	// Rounding isn't really necessary and costs too much, hence skipped
 	c2.Mul(curve.b1, bigIntK)
 	c2.Div(c2, curve.N)
+
 	// k1 = k - c1 * a1 - c2 * a2 from step 5 (note c2's sign is reversed)
 	tmp1.Mul(c1, curve.a1)
 	tmp2.Mul(c2, curve.a2)
 	k1.Sub(bigIntK, tmp1)
 	k1.Add(k1, tmp2)
+
 	// k2 = - c1 * b1 - c2 * b2 from step 5 (note c2's sign is reversed)
 	tmp1.Mul(c1, curve.b1)
 	tmp2.Mul(c2, curve.b2)
 	k2.Sub(tmp2, tmp1)
+
 	// Note Bytes() throws out the sign of k1 and k2. This matters
+
 	// since k1 and/or k2 can be negative. Hence, we pass that
+
 	// back separately.
 	return k1.Bytes(), k2.Bytes(), k1.Sign(), k2.Sign()
 }
@@ -640,7 +829,9 @@ func (curve *KoblitzCurve) splitK(k []byte) ([]byte, []byte, int, int) {
 // is done by doing a simple modulo curve.N.  We can do this since G^N = 1 and
 // thus any other valid point on the elliptic curve has the same order.
 func (curve *KoblitzCurve) moduloReduce(k []byte) []byte {
+
 	// Since the order of G is curve.N, we can use a much smaller number
+
 	// by doing modulo curve.N
 	if len(k) > curve.byteSize {
 		// Reduce k by performing modulo curve.N.
@@ -660,17 +851,28 @@ func (curve *KoblitzCurve) moduloReduce(k []byte) []byte {
 func NAF(
 	k []byte) ([]byte, []byte) {
 
+
 	// The essence of this algorithm is that whenever we have consecutive 1s
+
 	// in the binary, we want to put a -1 in the lowest bit and get a bunch
+
 	// of 0s up to the highest bit of consecutive 1s.  This is due to this
+
 	// identity:
+
 	// 2^n + 2^(n-1) + 2^(n-2) + ... + 2^(n-k) = 2^(n+1) - 2^(n-k)
+
 	//
+
 	// The algorithm thus may need to go 1 more bit than the length of the
+
 	// bits we actually have, hence bits being 1 bit longer than was
+
 	// necessary.  Since we need to know whether adding will cause a carry,
+
 	// we go from right-to-left in this addition.
 	var carry, curIsOne, nextIsOne bool
+
 	// these default to zero
 	retPos := make([]byte, len(k)+1)
 	retNeg := make([]byte, len(k)+1)
@@ -733,29 +935,44 @@ func NAF(
 // Part of the elliptic.Curve interface.
 func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big.Int) {
 
+
 	// Point Q = ∞ (point at infinity).
 	qx, qy, qz := new(fieldVal), new(fieldVal), new(fieldVal)
+
 	// Decompose K into k1 and k2 in order to halve the number of EC ops.
+
 	// See Algorithm 3.74 in [GECC].
 	k1, k2, signK1, signK2 := curve.splitK(curve.moduloReduce(k))
+
 	// The main equation here to remember is:
+
 	//   k * P = k1 * P + k2 * ϕ(P)
+
 	//
+
 	// P1 below is P in the equation, P2 below is ϕ(P) in the equation
 	p1x, p1y := curve.bigAffineToField(Bx, By)
 	p1yNeg := new(fieldVal).NegateVal(p1y, 1)
 	p1z := new(fieldVal).SetInt(1)
+
 	// NOTE: ϕ(x,y) = (βx,y).  The Jacobian z coordinate is 1, so this math
+
 	// goes through.
 	p2x := new(fieldVal).Mul2(p1x, curve.beta)
 	p2y := new(fieldVal).Set(p1y)
 	p2yNeg := new(fieldVal).NegateVal(p2y, 1)
 	p2z := new(fieldVal).SetInt(1)
+
 	// Flip the positive and negative values of the points as needed
+
 	// depending on the signs of k1 and k2.  As mentioned in the equation
+
 	// above, each of k1 and k2 are multiplied by the respective point.
+
 	// Since -k * P is the same thing as k * -P, and the group law for
+
 	// elliptic curves states that P(x, y) = -P(x, -y), it's faster and
+
 	// simplifies the code to just make the point negative.
 	if signK1 == -1 {
 		p1y, p1yNeg = p1yNeg, p1y
@@ -763,9 +980,13 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 	if signK2 == -1 {
 		p2y, p2yNeg = p2yNeg, p2y
 	}
+
 	// NAF versions of k1 and k2 should have a lot more zeros.
+
 	//
+
 	// The Pos version of the bytes contain the +1s and the Neg versions
+
 	// contain the -1s.
 	k1PosNAF, k1NegNAF := NAF(k1)
 	k2PosNAF, k2NegNAF := NAF(k2)
@@ -775,9 +996,13 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 	if m < k2Len {
 		m = k2Len
 	}
+
 	// Add left-to-right using the NAF optimization.  See algorithm 3.77
+
 	// from [GECC].  This should be faster overall since there will be a lot
+
 	// more instances of 0, hence reducing the number of Jacobian additions
+
 	// at the cost of 1 possible extra doubling.
 	var k1BytePos, k1ByteNeg, k2BytePos, k2ByteNeg byte
 	for i := 0; i < m; i++ {
@@ -819,6 +1044,7 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 			k2ByteNeg <<= 1
 		}
 	}
+
 	// Convert the Jacobian coordinate field values back to affine big.Ints.
 	return curve.fieldJacobianToBigAffine(qx, qy, qz)
 }
@@ -830,12 +1056,18 @@ func (curve *KoblitzCurve) ScalarBaseMult(k []byte) (*big.Int, *big.Int) {
 
 	newK := curve.moduloReduce(k)
 	diff := len(curve.bytePoints) - len(newK)
+
 	// Point Q = ∞ (point at infinity).
 	qx, qy, qz := new(fieldVal), new(fieldVal), new(fieldVal)
+
 	// curve.bytePoints has all 256 byte points for each 8-bit window. The
+
 	// strategy is to add up the byte points. This is best understood by
+
 	// expressing k in base-256 which it already sort of is.
+
 	// Each "digit" in the 8-bit window can be looked up using bytePoints
+
 	// and added together.
 	for i, byteVal := range newK {
 		p := curve.bytePoints[diff+i][byteVal]
@@ -872,6 +1104,7 @@ func fromHex(
 }
 func initS256() {
 
+
 	// Curve parameters taken from [SECG] section 2.4.1.
 	secp256k1.CurveParams = new(elliptic.CurveParams)
 	secp256k1.P = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F")
@@ -884,19 +1117,29 @@ func initS256() {
 		big.NewInt(1)), big.NewInt(4))
 	secp256k1.H = 1
 	secp256k1.halfOrder = new(big.Int).Rsh(secp256k1.N, 1)
+
 	// Provided for convenience since this gets computed repeatedly.
 	secp256k1.byteSize = secp256k1.BitSize / 8
+
 	// Deserialize and set the pre-computed table used to accelerate scalar
+
 	// base multiplication.  This is hard-coded data, so any errors are
+
 	// panics because it means something is wrong in the source code.
 	if err := loadS256BytePoints(); err != nil {
 		panic(err)
 	}
+
 	// Next 6 constants are from Hal Finney's bitcointalk.org post:
+
 	// https://bitcointalk.org/index.php?topic=3238.msg45565#msg45565
+
 	// May he rest in peace.
+
 	//
+
 	// They have also been independently derived from the code in the
+
 	// EndomorphismVectors function in gensecp256k1.go.
 	secp256k1.lambda = fromHex("5363AD4CC05C30E0A5261C028812645A122E22EA20816678DF02967C1B23BD72")
 	secp256k1.beta = new(fieldVal).SetHex("7AE96A2B657C07106E64479EAC3434E99CF0497512F58995C1396C28719501EE")
@@ -904,13 +1147,21 @@ func initS256() {
 	secp256k1.b1 = fromHex("-E4437ED6010E88286F547FA90ABFE4C3")
 	secp256k1.a2 = fromHex("114CA50F7A8E2F3F657C1108D9D44CFD8")
 	secp256k1.b2 = fromHex("3086D221A7D46BCDE86C90E49284EB15")
+
 	// Alternatively, we can use the parameters below, however, they seem
+
 	//  to be about 8% slower.
+
 	// secp256k1.lambda = fromHex("AC9C52B33FA3CF1F5AD9E3FD77ED9BA4A880B9FC8EC739C2E0CFC810B51283CE")
+
 	// secp256k1.beta = new(fieldVal).SetHex("851695D49A83F8EF919BB86153CBCB16630FB68AED0A766A3EC693D68E6AFA40")
+
 	// secp256k1.a1 = fromHex("E4437ED6010E88286F547FA90ABFE4C3")
+
 	// secp256k1.b1 = fromHex("-3086D221A7D46BCDE86C90E49284EB15")
+
 	// secp256k1.a2 = fromHex("3086D221A7D46BCDE86C90E49284EB15")
+
 	// secp256k1.b2 = fromHex("114CA50F7A8E2F3F657C1108D9D44CFD8")
 }
 

@@ -12,10 +12,13 @@ type NotificationCallback func(*Notification)
 
 // Constants for the type of a notification message.
 const (
+
 	// NTBlockAccepted indicates the associated block was accepted into the block chain.  Note that this does not necessarily mean it was added to the main chain.  For that, use NTBlockConnected.
 	NTBlockAccepted NotificationType = iota
+
 	// NTBlockConnected indicates the associated block was connected to the main chain.
 	NTBlockConnected
+
 	// NTBlockDisconnected indicates the associated block was disconnected from the main chain.
 	NTBlockDisconnected
 )
@@ -55,7 +58,9 @@ func (b *BlockChain) Subscribe(callback NotificationCallback) {
 // sendNotification sends a notification with the passed type and data if the caller requested notifications by providing a callback function in the call to New.
 func (b *BlockChain) sendNotification(typ NotificationType, data interface{}) {
 
+
 	// Log.Debug <- "sendNotification"
+
 	// Generate and send the notification.
 	n := Notification{Type: typ, Data: data}
 	b.notificationsLock.RLock()
@@ -64,6 +69,7 @@ func (b *BlockChain) sendNotification(typ NotificationType, data interface{}) {
 		callback(&n)
 		// Log.Debug <- "sent callback"
 	}
+
 	// Log.Debug <- "done sending notifications"
 	b.notificationsLock.RUnlock()
 }

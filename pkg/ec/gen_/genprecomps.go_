@@ -21,6 +21,7 @@ func main(
 		log.Fatal(err)
 	}
 	defer fi.Close()
+
 	// Compress the serialized byte points.
 	serialized := ec.S256().SerializedBytePoints()
 	var compressed bytes.Buffer
@@ -30,6 +31,7 @@ func main(
 		os.Exit(1)
 	}
 	w.Close()
+
 	// Encode the compressed byte points with base64.
 	encoded := make([]byte, base64.StdEncoding.EncodedLen(compressed.Len()))
 	base64.StdEncoding.Encode(encoded, compressed.Bytes())

@@ -17,10 +17,13 @@ import (
 type BehaviorFlags uint32
 
 const (
+
 	// BFFastAdd may be set to indicate that several checks can be avoided for the block since it is already known to fit into the chain due to already proving it correct links into the chain up to a known checkpoint.  This is primarily used for headers-first mode.
 	BFFastAdd BehaviorFlags = 1 << iota
+
 	// BFNoPoWCheck may be set to indicate the proof of work check which ensures a block hashes to a value less than the required target will not be performed.
 	BFNoPoWCheck
+
 	// BFNone is a convenience value to specifically indicate no flags.
 	BFNone BehaviorFlags = 0
 )
@@ -28,11 +31,13 @@ const (
 // blockExists determines whether a block with the given hash exists either in the main chain or any side chains. This function is safe for concurrent access.
 func (b *BlockChain) blockExists(hash *chainhash.Hash) (bool, error) {
 
+
 	// Check block index first (could be main chain or side chain blocks).
 	if b.Index.HaveBlock(hash) {
 
 		return true, nil
 	}
+
 	// Check in the database.
 	var exists bool
 	err := b.db.View(func(dbTx database.Tx) error {
@@ -55,6 +60,7 @@ func (b *BlockChain) blockExists(hash *chainhash.Hash) (bool, error) {
 
 // processOrphans determines if there are any orphans which depend on the passed block hash (they are no longer orphans if true) and potentially accepts them. It repeats the process for the newly accepted blocks (to detect further orphans which may no longer be orphans) until there are no more. The flags do not modify the behavior of this function directly, however they are needed to pass along to maybeAcceptBlock. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) error {
+
 	// Start with processing at least the passed hash.  Leave a little room for additional orphan blocks that need to be processed without needing to grow the array in the common case.
 	processHashes := make([]*chainhash.Hash, 0, 10)
 	processHashes = append(processHashes, hash)
@@ -119,6 +125,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 	case 1:
 		algo = block.MsgBlock().Header.Version
 	}
+
 	// The block must not already exist in the main chain or side chains.
 	exists, err := b.blockExists(blockHash)
 	if err != nil {
@@ -128,11 +135,13 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		str := fmt.Sprintf("already have block %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
 	}
+
 	// The block must not already exist as an orphan.
 	if _, exists := b.orphans[*blockHash]; exists {
 		str := fmt.Sprintf("already have block (orphan) %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
 	}
+
 	// Perform preliminary sanity checks on the block and its transactions.
 	var DoNotCheckPow bool
 	var pl *big.Int
@@ -153,6 +162,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		log <- cl.Debug{"ERROR", err}
 		return false, false, err
 	}
+
 	// Find the previous checkpoint and perform some additional checks based on the checkpoint.  This provides a few nice properties such as preventing old side chain blocks before the last checkpoint, rejecting easy to mine, but otherwise bogus, blocks that could be used to eat memory, and ensuring expected (versus claimed) proof of work requirements since the previous checkpoint are met.
 	blockHeader := &block.MsgBlock().Header
 	checkpointNode, err := b.findPreviousCheckpoint()
@@ -181,6 +191,7 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 			}
 		}
 	}
+
 	// Handle orphan blocks.
 	prevHash := &blockHeader.PrevBlock
 	prevHashExists, err := b.blockExists(prevHash)
@@ -198,11 +209,13 @@ func (b *BlockChain) ProcessBlock(block *util.Block, flags BehaviorFlags, height
 		b.addOrphanBlock(block)
 		return false, true, nil
 	}
+
 	// The block has passed all context independent checks and appears sane enough to potentially accept it into the block chain.
 	isMainChain, err := b.maybeAcceptBlock(block, flags)
 	if err != nil {
 		return false, false, err
 	}
+
 	// Accept any orphan blocks that depend on this block (they are no longer orphans) and repeat for those accepted blocks until there are no more.
 	err = b.processOrphans(blockHash, flags)
 	if err != nil {

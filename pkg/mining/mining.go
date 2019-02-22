@@ -18,34 +18,45 @@ import (
 )
 
 const (
+
 	// MinHighPriority is the minimum priority value that allows a transaction to be considered high priority.
 	MinHighPriority = util.SatoshiPerBitcoin * 144.0 / 250
+
 	// blockHeaderOverhead is the max number of bytes it takes to serialize a block header and max possible transaction count.
 	blockHeaderOverhead = wire.MaxBlockHeaderPayload + wire.MaxVarIntPayload
+
 	// CoinbaseFlags is added to the coinbase script of a generated block and is used to monitor BIP16 support as well as blocks that are generated via pod.
 	CoinbaseFlags = "/P2SH/pod/"
 )
 
 // TxDesc is a descriptor about a transaction in a transaction source along with additional metadata.
 type TxDesc struct {
+
 	// Tx is the transaction associated with the entry.
 	Tx *util.Tx
+
 	// Added is the time when the entry was added to the source pool.
 	Added time.Time
+
 	// Height is the block height when the entry was added to the the source pool.
 	Height int32
+
 	// Fee is the total fee the transaction associated with the entry pays.
 	Fee int64
+
 	// FeePerKB is the fee the transaction pays in Satoshi per 1000 bytes.
 	FeePerKB int64
 }
 
 // TxSource represents a source of transactions to consider for inclusion in new blocks. The interface contract requires that all of these methods are safe for concurrent access with respect to the source.
 type TxSource interface {
+
 	// LastUpdated returns the last time a transaction was added to or removed from the source pool.
 	LastUpdated() time.Time
+
 	// MiningDescs returns a slice of mining descriptors for all the transactions in the source pool.
 	MiningDescs() []*TxDesc
+
 	// HaveTransaction returns whether or not the passed transaction hash exists in the source pool.
 	HaveTransaction(hash *chainhash.Hash) bool
 }
@@ -56,6 +67,7 @@ type txPrioItem struct {
 	fee      int64
 	priority float64
 	feePerKB int64
+
 	// dependsOn holds a map of transaction hashes which this one depends on.  It will only be set when the transaction references other transactions in the source pool and hence must come after them in a block.
 	dependsOn map[chainhash.Hash]struct{}
 }
@@ -111,6 +123,7 @@ func (pq *txPriorityQueue) SetLessFunc(lessFunc txPriorityQueueLessFunc) {
 // txPQByPriority sorts a txPriorityQueue by transaction priority and then fees per kilobyte.
 func txPQByPriority(
 	pq *txPriorityQueue, i, j int) bool {
+
 	// Using > here so that pop gives the highest priority item as opposed to the lowest.  Sort by priority first, then fee.
 	if pq.items[i].priority == pq.items[j].priority {
 		return pq.items[i].feePerKB > pq.items[j].feePerKB
@@ -121,6 +134,7 @@ func txPQByPriority(
 // txPQByFee sorts a txPriorityQueue by fees per kilobyte and then transaction priority.
 func txPQByFee(
 	pq *txPriorityQueue, i, j int) bool {
+
 	// Using > here so that pop gives the highest fee item as opposed to the lowest.  Sort by fee first, then priority.
 	if pq.items[i].feePerKB == pq.items[j].feePerKB {
 		return pq.items[i].priority > pq.items[j].priority
@@ -144,16 +158,22 @@ func newTxPriorityQueue(
 
 // BlockTemplate houses a block that has yet to be solved along with additional details about the fees and the number of signature operations for each transaction in the block.
 type BlockTemplate struct {
+
 	// Block is a block that is ready to be solved by miners.  Thus, it is completely valid with the exception of satisfying the proof-of-work requirement.
 	Block *wire.MsgBlock
+
 	// Fees contains the amount of fees each transaction in the generated template pays in base units.  Since the first transaction is the coinbase, the first entry (offset 0) will contain the negative of the sum of the fees of all other transactions.
 	Fees []int64
+
 	// SigOpCosts contains the number of signature operations each transaction in the generated template performs.
 	SigOpCosts []int64
+
 	// Height is the height at which the block template connects to the main chain.
 	Height int32
+
 	// ValidPayAddress indicates whether or not the template coinbase pays to an address or is redeemable by anyone.  See the documentation on NewBlockTemplate for details on which this can be useful to generate templates without a coinbase payment address.
 	ValidPayAddress bool
+
 	// WitnessCommitment is a commitment to the witness data (if any) within the block. This field will only be populted once segregated witness has been activated, and the block contains a transaction which has witness data.
 	WitnessCommitment []byte
 }
@@ -185,6 +205,7 @@ func standardCoinbaseScript(
 // createCoinbaseTx returns a coinbase transaction paying an appropriate subsidy based on the passed block height to the provided address.  When the address is nil, the coinbase transaction will instead be redeemable by anyone. See the comment for NewBlockTemplate for more information about why the nil address handling is useful.
 func createCoinbaseTx(
 	params *chaincfg.Params, coinbaseScript []byte, nextBlockHeight int32, addr util.Address) (*util.Tx, error) {
+
 
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte
@@ -255,6 +276,7 @@ func MinimumMedianTime(
 // medianAdjustedTime returns the current time adjusted to ensure it is at least one second after the median timestamp of the last several blocks per the chain consensus rules.
 func medianAdjustedTime(
 	chainState *blockchain.BestState, timeSource blockchain.MedianTimeSource) time.Time {
+
 	// The timestamp for the block must not be before the median timestamp of the last several blocks.  Thus, choose the maximum between the current time and one second after the past median time.  The current timestamp is truncated to a second boundary before comparison since a block timestamp does not supported a precision greater than one second.
 	newTimestamp := timeSource.AdjustedTime()
 	minTimestamp := MinimumMedianTime(chainState)
@@ -330,10 +352,13 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	h := g.BestSnapshot().Height + 1
 	vers := fork.GetAlgoVer(algo, h)
 	algo = fork.GetAlgoName(vers, h)
+
 	// log <- cl.Info{"selected algo", fork.GetAlgoName(vers, h)}
+
 	// Extend the most recently known best block.
 	best := g.chain.BestSnapshot()
 	nextBlockHeight := best.Height + 1
+
 	// Create a standard coinbase transaction paying to the provided address.  NOTE: The coinbase value will be updated to include the fees from the selected transactions later after they have actually been selected.  It is created here to detect any errors early before potentially doing a lot of work below.  The extra nonce helps ensure the transaction is not a duplicate transaction (paying the same value to the same public key address would otherwise be an identical transaction for block version 1).
 	extraNonce := uint64(0)
 	coinbaseScript, err := standardCoinbaseScript(nextBlockHeight, extraNonce)
@@ -346,16 +371,20 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 		return nil, err
 	}
 	coinbaseSigOpCost := int64(blockchain.CountSigOps(coinbaseTx)) * blockchain.WitnessScaleFactor
+
 	// Get the current source transactions and create a priority queue to hold the transactions which are ready for inclusion into a block along with some priority related and fee metadata.  Reserve the same number of items that are available for the priority queue.  Also, choose the initial sort order for the priority queue based on whether or not there is an area allocated for high-priority transactions.
 	sourceTxns := g.txSource.MiningDescs()
 	sortedByFee := g.policy.BlockPrioritySize == 0
 	priorityQueue := newTxPriorityQueue(len(sourceTxns), sortedByFee)
+
 	// Create a slice to hold the transactions to be included in the generated block with reserved space.  Also create a utxo view to house all of the input transactions so multiple lookups can be avoided.
 	blockTxns := make([]*util.Tx, 0, len(sourceTxns))
 	blockTxns = append(blockTxns, coinbaseTx)
 	blockUtxos := blockchain.NewUtxoViewpoint()
+
 	// dependers is used to track transactions which depend on another transaction in the source pool.  This, in conjunction with the dependsOn map kept with each dependent transaction helps quickly determine which dependent transactions are now eligible for inclusion in the block once each transaction has been included.
 	dependers := make(map[chainhash.Hash]map[chainhash.Hash]*txPrioItem)
+
 	// Create slices to hold the fees and number of signature operations for each of the selected transactions and add an entry for the coinbase.  This allows the code below to simply append details about a transaction as it is selected for inclusion in the final block. However, since the total fees aren't known yet, use a dummy value for the coinbase fee which will be updated later.
 	txFees := make([]int64, 0, len(sourceTxns))
 	txSigOpCosts := make([]int64, 0, len(sourceTxns))
@@ -444,11 +473,13 @@ mempoolLoop:
 			len(dependers),
 		)
 	})
+
 	// The starting block size is the size of the block header plus the max possible transaction count size, plus the size of the coinbase transaction.
 	blockWeight := uint32((blockHeaderOverhead * blockchain.WitnessScaleFactor) +
 		blockchain.GetTransactionWeight(coinbaseTx))
 	blockSigOpCost := coinbaseSigOpCost
 	totalFees := int64(0)
+
 	// Query the version bits state to see if segwit has been activated, if so then this means that we'll include any transactions with witness data in the mempool, and also add the witness commitment as an OP_RETURN output in the coinbase transaction.
 	segwitState, err := g.chain.ThresholdState(chaincfg.DeploymentSegwit)
 	if err != nil {
@@ -456,6 +487,7 @@ mempoolLoop:
 	}
 	segwitActive := segwitState == blockchain.ThresholdActive
 	witnessIncluded := false
+
 	// Choose which transactions make it into the block.
 	for priorityQueue.Len() > 0 {
 		// Grab the highest priority (or highest fee per kilobyte depending on the sort order) transaction.
@@ -602,12 +634,14 @@ mempoolLoop:
 			}
 		}
 	}
+
 	// Now that the actual transactions have been selected, update the block weight for the real transaction count and coinbase value with the total fees accordingly.
 	blockWeight -= wire.MaxVarIntPayload -
 		(uint32(wire.VarIntSerializeSize(uint64(len(blockTxns)))) *
 			blockchain.WitnessScaleFactor)
 	coinbaseTx.MsgTx().TxOut[0].Value += totalFees
 	txFees[0] = -totalFees
+
 	// If segwit is active and we included transactions with witness data, then we'll need to include a commitment to the witness data in an OP_RETURN output within the coinbase transaction.
 	var witnessCommitment []byte
 	if witnessIncluded {
@@ -633,13 +667,16 @@ mempoolLoop:
 		coinbaseTx.MsgTx().TxOut = append(coinbaseTx.MsgTx().TxOut,
 			commitmentOutput)
 	}
+
 	// Calculate the required difficulty for the block.  The timestamp is potentially adjusted to ensure it comes after the median time of the last several blocks per the chain consensus rules.
 	ts := medianAdjustedTime(best, g.timeSource)
 	reqDifficulty, err := g.chain.CalcNextRequiredDifficulty(ts, algo)
 	if err != nil {
 		return nil, err
 	}
+
 	// log <- cl.Infof{"reqDifficulty %08x", reqDifficulty}
+
 	// Create a new block ready to be solved.
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns, false)
 	var msgBlock wire.MsgBlock
@@ -655,6 +692,7 @@ mempoolLoop:
 			return nil, err
 		}
 	}
+
 	// Finally, perform a full check on the created block against the chain consensus rules to ensure it properly connects to the current best chain with no issues.
 	block := util.NewBlock(&msgBlock)
 	block.SetHeight(nextBlockHeight)
@@ -689,16 +727,25 @@ mempoolLoop:
 
 // UpdateBlockTime updates the timestamp in the header of the passed block to the current time while taking into account the median time of the last several blocks to ensure the new time is after that time per the chain consensus rules.  Finally, it will update the target difficulty if needed based on the new time for the test networks since their target difficulty can change based upon time.
 func (g *BlkTmplGenerator) UpdateBlockTime(msgBlock *wire.MsgBlock) error {
+
 	// The new timestamp is potentially adjusted to ensure it comes after the median time of the last several blocks per the chain consensus rules.
 	newTime := medianAdjustedTime(g.chain.BestSnapshot(), g.timeSource)
 	msgBlock.Header.Timestamp = newTime
+
 	// Recalculate the difficulty if running on a network that requires it.
+
 	// if g.chainParams.ReduceMinDifficulty {
+
 	// 	difficulty, err := g.chain.CalcNextRequiredDifficulty(newTime, msgBlock.Header.Version)
+
 	// 	if err != nil {
+
 	// 		return err
+
 	// 	}
+
 	// 	msgBlock.Header.Bits = difficulty
+
 	// }
 	return nil
 }
@@ -716,7 +763,9 @@ func (g *BlkTmplGenerator) UpdateExtraNonce(msgBlock *wire.MsgBlock, blockHeight
 			blockchain.MaxCoinbaseScriptLen)
 	}
 	msgBlock.Transactions[0].TxIn[0].SignatureScript = coinbaseScript
+
 	// TODO(davec): A util.Block should use saved in the state to avoid recalculating all of the other transaction hashes. block.Transactions[0].InvalidateCache()
+
 	// Recalculate the merkle root with the updated extra nonce.
 	block := util.NewBlock(msgBlock)
 	merkles := blockchain.BuildMerkleTreeStore(block.Transactions(), false)

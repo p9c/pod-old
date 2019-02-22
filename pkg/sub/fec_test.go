@@ -38,13 +38,16 @@ func TestFECCodec(
 		}
 	}()
 	chunks := rsEncode(testDataAligned)
+
 	// Deface one of the pieces
 	chunks[4][3] = ^chunks[4][3]
+
 	// Here we only need 3 packets
 	data, err := rsDecode(chunks[4:7])
 	if err != nil {
 		panic(err)
 	}
+
 	// Requires one more across the punctured chunk to recover. This would not normally happen as the checksums would usually filter out incorrect chunks.
 	data, err = rsDecode(chunks[3:6])
 	if err != nil {

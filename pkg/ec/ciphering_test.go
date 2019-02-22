@@ -152,6 +152,7 @@ func TestCipheringErrors(
 			t.Errorf("Decrypt #%d did not get error", i)
 		}
 	}
+
 	// test error from removePKCSPadding
 	tests2 := []struct {
 		in []byte // input data

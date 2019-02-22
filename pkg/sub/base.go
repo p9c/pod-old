@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
+
 // Implementations of common parts for node and worker
+
 
 // NewBase creates a new base listener
 func NewBase(
@@ -27,6 +29,7 @@ func NewBase(
 	return
 }
 
+
 // Start attempts to open a listener and commences receiving packets and assembling them into messages
 func (b *Base) Start() (err error) {
 
@@ -39,6 +42,7 @@ func (b *Base) Start() (err error) {
 	if err != nil {
 		panic(err)
 	}
+
 	// Start up reader to push packets into packet channel
 	go b.readFromSocket()
 	go b.processPackets()
@@ -48,12 +52,14 @@ func (b *Base) Start() (err error) {
 		for {
 			select {
 			case <-b.quit:
+
 				// fmt.Println("chan:<-b.quit")
 				break
 			default:
 			}
 			select {
 			case msg := <-b.message:
+
 				// fmt.Println("chan:msg := <-b.message")
 				go b.cfg.Handler(msg)
 				continue
@@ -63,6 +69,7 @@ func (b *Base) Start() (err error) {
 	}()
 	return
 }
+
 
 // Stop shuts down the listener
 func (b *Base) Stop() {
@@ -180,6 +187,7 @@ func (b *Base) processBundles() {
 		}
 	}
 }
+
 
 // Send a message of up to maxMessageSize bytes to a given UDP address
 func (b *Base) Send(data []byte, addr *net.UDPAddr) (err error) {

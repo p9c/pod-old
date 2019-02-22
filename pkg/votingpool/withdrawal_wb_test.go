@@ -63,13 +63,16 @@ func TestOutputSplittingNotEnoughInputs(
 		t.Fatalf("Wrong number of outputs; got %d, want 2", len(tx.outputs))
 	}
 
+
 	// The first output should've been left untouched.
 	if tx.outputs[0].amount != output1Amount {
 		t.Fatalf("Wrong amount for first tx output; got %v, want %v",
 			tx.outputs[0].amount, output1Amount)
 	}
 
+
 	// The last output should have had its amount updated to whatever we had
+
 	// left after satisfying all previous outputs.
 	newAmount := tx.inputTotal() - output1Amount - tx.calculateFee()
 	checkLastOutputWasSplit(t, w, tx, output2Amount, newAmount)
@@ -180,6 +183,7 @@ func TestWithdrawalTxOutputs(
 
 	net := pool.Manager().ChainParams()
 
+
 	// Create eligible inputs and the list of outputs we need to fulfil.
 	seriesID, eligible := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{2e6, 4e6})
 	outputs := []OutputRequest{
@@ -198,7 +202,9 @@ func TestWithdrawalTxOutputs(
 	}
 
 	tx := w.transactions[0]
+
 	// The created tx should include both eligible credits, so we expect it to have
+
 	// an input amount of 2e6+4e6 satoshis.
 	inputAmount := eligible[0].Amount + eligible[1].Amount
 	change := inputAmount - (outputs[0].Amount + outputs[1].Amount + tx.calculateFee())
@@ -264,6 +270,7 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 
 	net := pool.Manager().ChainParams()
 
+
 	// Create eligible inputs and the list of outputs we need to fulfil.
 	seriesID, eligible := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{2e6, 4e6})
 	out1 := TstNewOutputRequest(
@@ -281,10 +288,14 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 	}
 
 	tx := w.transactions[0]
+
 	// The created tx should spend both eligible credits, so we expect it to have
+
 	// an input amount of 2e6+4e6 satoshis.
 	inputAmount := eligible[0].Amount + eligible[1].Amount
+
 	// We expect it to include outputs for requests 1 and 2, plus a change output, but
+
 	// output request #3 should not be there because we don't have enough credits.
 	change := inputAmount - (out1.Amount + out2.Amount + tx.calculateFee())
 	expectedOutputs := []OutputRequest{out1, out2}
@@ -294,7 +305,9 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 	msgtx := tx.toMsgTx()
 	checkMsgTxOutputs(t, msgtx, expectedOutputs)
 
+
 	// withdrawal.status should state that outputs 1 and 2 were successfully fulfilled,
+
 	// and that output 3 was not.
 	expectedStatuses := map[OutBailmentID]outputStatus{
 		out1.outBailmentID(): statusSuccess,
@@ -332,7 +345,9 @@ func TestRollbackLastOutput(
 		t.Fatal("Unexpected error:", err)
 	}
 
+
 	// The above rollBackLastOutput() call should have removed the last output
+
 	// and the last input.
 	lastOutput := initialOutputs[len(initialOutputs)-1]
 	if removedOutput != lastOutput {
@@ -347,7 +362,9 @@ func TestRollbackLastOutput(
 		t.Fatalf("Wrong rolled back input; got %v want %v", removedInputs[0], lastInput)
 	}
 
+
 	// Now check that the inputs and outputs left in the tx match what we
+
 	// expect.
 	checkTxOutputs(t, tx, initialOutputs[:len(initialOutputs)-1])
 	checkTxInputs(t, tx, initialInputs[:len(initialInputs)-1])
@@ -365,7 +382,9 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 	}
 	defer dbtx.Commit()
 
+
 	// This tx will need the 3 last inputs to fulfill the second output, so they
+
 	// should all be rolled back and returned in the reverse order they were added.
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{1, 2, 3, 4}, []int64{1, 8})
 	initialInputs := tx.inputs
@@ -386,7 +405,9 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 		}
 	}
 
+
 	// Now check that the inputs and outputs left in the tx match what we
+
 	// expect.
 	checkTxOutputs(t, tx, initialOutputs[:len(initialOutputs)-1])
 	checkTxInputs(t, tx, initialInputs[:len(initialInputs)-len(removedInputs)])
@@ -416,7 +437,9 @@ func TestRollbackLastOutputNoInputsRolledBack(
 		t.Fatal("Unexpected error:", err)
 	}
 
+
 	// The above rollBackLastOutput() call should have removed the
+
 	// last output but no inputs.
 	lastOutput := initialOutputs[len(initialOutputs)-1]
 	if removedOutput != lastOutput {
@@ -426,7 +449,9 @@ func TestRollbackLastOutputNoInputsRolledBack(
 		t.Fatalf("Expected no removed inputs, but got %d inputs", len(removedInputs))
 	}
 
+
 	// Now check that the inputs and outputs left in the tx match what we
+
 	// expect.
 	checkTxOutputs(t, tx, initialOutputs[:len(initialOutputs)-1])
 	checkTxInputs(t, tx, initialInputs)
@@ -489,18 +514,22 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 		t.Fatal("Unexpected error:", err)
 	}
 
+
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
 
+
 	// First tx should have one output with 1 and one change output with 4
+
 	// satoshis.
 	firstTx := w.transactions[0]
 	req1 := requests[0]
 	checkTxOutputs(t, firstTx,
 		[]*withdrawalTxOut{{request: req1, amount: req1.Amount}})
 	checkTxChangeAmount(t, firstTx, util.Amount(4))
+
 
 	// Second tx should have one output with 2 and one changeoutput with 3 satoshis.
 	secondTx := w.transactions[1]
@@ -548,18 +577,23 @@ func TestRollbackLastOutputWhenNewInputAdded(
 		}
 	}
 
+
 	// The rollback should be triggered right after the 4th input is added in
+
 	// order to fulfill the second request.
 	if err := w.fulfillRequests(); err != nil {
 		t.Fatal("Unexpected error:", err)
 	}
+
 
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
 
+
 	// First tx should have one output with amount of 1, the first input from
+
 	// the stack of eligible inputs (last slice item), and no change output.
 	firstTx := w.transactions[0]
 	req1 := requests[0]
@@ -567,9 +601,13 @@ func TestRollbackLastOutputWhenNewInputAdded(
 		[]*withdrawalTxOut{{request: req1, amount: req1.Amount}})
 	checkTxInputs(t, firstTx, eligible[5:6])
 
+
 	// Second tx should have outputs for the two last requests (in the same
+
 	// order they were passed to newWithdrawal), and the 3 inputs needed to
+
 	// fulfill that (in reverse order as they were passed to newWithdrawal, as
+
 	// that's how fulfillRequests() consumes them) and no change output.
 	secondTx := w.transactions[1]
 	wantOutputs := []*withdrawalTxOut{
@@ -594,7 +632,9 @@ func TestWithdrawalTxRemoveOutput(
 
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{}, []int64{1, 2})
 	outputs := tx.outputs
+
 	// Make sure we have created the transaction with the expected
+
 	// outputs.
 	checkTxOutputs(t, tx, outputs)
 
@@ -603,12 +643,15 @@ func TestWithdrawalTxRemoveOutput(
 
 	gotRemovedOutput := tx.removeOutput()
 
+
 	// Check the popped output looks correct.
 	if gotRemovedOutput != wantRemovedOutput {
 		t.Fatalf("Removed output wrong; got %v, want %v", gotRemovedOutput, wantRemovedOutput)
 	}
+
 	// And that the remaining output is correct.
 	checkTxOutputs(t, tx, []*withdrawalTxOut{remainingOutput})
+
 
 	// Make sure that the remaining output is really the right one.
 	if tx.outputs[0] != remainingOutput {
@@ -630,6 +673,7 @@ func TestWithdrawalTxRemoveInput(
 
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{1, 2}, []int64{})
 	inputs := tx.inputs
+
 	// Make sure we have created the transaction with the expected inputs
 	checkTxInputs(t, tx, inputs)
 
@@ -638,12 +682,14 @@ func TestWithdrawalTxRemoveInput(
 
 	gotRemovedInput := tx.removeInput()
 
+
 	// Check the popped input looks correct.
 	if !reflect.DeepEqual(gotRemovedInput, wantRemovedInput) {
 
 		t.Fatalf("Popped input wrong; got %v, want %v", gotRemovedInput, wantRemovedInput)
 	}
 	checkTxInputs(t, tx, inputs[0:1])
+
 
 	// Make sure that the remaining input is really the right one.
 	if !reflect.DeepEqual(tx.inputs[0], remainingInput) {
@@ -850,8 +896,11 @@ func TestWithdrawalInfoMatch(
 	roundID := uint32(0)
 	wi := createAndFulfillWithdrawalRequests(t, dbtx, pool, roundID)
 
+
 	// Use freshly created values for requests, startAddress and changeStart
+
 	// to simulate what would happen if we had recreated them from the
+
 	// serialized data in the DB.
 	requestsCopy := make([]OutputRequest, len(wi.requests))
 	copy(requestsCopy, wi.requests)
@@ -859,11 +908,13 @@ func TestWithdrawalInfoMatch(
 		wi.startAddress.index)
 	changeStart := TstNewChangeAddress(t, pool, wi.changeStart.seriesID, wi.changeStart.index)
 
+
 	// First check that it matches when all fields are identical.
 	matches := wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold)
 	if !matches {
 		t.Fatal("Should match when everything is identical.")
 	}
+
 
 	// It also matches if the OutputRequests are not in the same order.
 	diffOrderRequests := make([]OutputRequest, len(requestsCopy))
@@ -875,6 +926,7 @@ func TestWithdrawalInfoMatch(
 		t.Fatal("Should match when requests are in different order.")
 	}
 
+
 	// It should not match when the OutputRequests are not the same.
 	diffRequests := diffOrderRequests
 	diffRequests[0] = OutputRequest{}
@@ -883,17 +935,20 @@ func TestWithdrawalInfoMatch(
 		t.Fatal("Should not match as requests is not equal.")
 	}
 
+
 	// It should not match when lastSeriesID is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID+1, *changeStart, wi.dustThreshold)
 	if matches {
 		t.Fatal("Should not match as lastSeriesID is not equal.")
 	}
 
+
 	// It should not match when dustThreshold is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold+1)
 	if matches {
 		t.Fatal("Should not match as dustThreshold is not equal.")
 	}
+
 
 	// It should not match when startAddress is not equal.
 	diffStartAddr := TstNewWithdrawalAddress(t, dbtx, pool, startAddr.seriesID, startAddr.branch+1,
@@ -903,6 +958,7 @@ func TestWithdrawalInfoMatch(
 	if matches {
 		t.Fatal("Should not match as startAddress is not equal.")
 	}
+
 
 	// It should not match when changeStart is not equal.
 	diffChangeStart := TstNewChangeAddress(t, pool, changeStart.seriesID, changeStart.index+1)
@@ -939,6 +995,7 @@ func TestGetWithdrawalStatus(
 		t.Fatal(err)
 	}
 
+
 	// Here we should get a WithdrawalStatus that matches wi.status.
 	var status *WithdrawalStatus
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -951,7 +1008,9 @@ func TestGetWithdrawalStatus(
 	}
 	TstCheckWithdrawalStatusMatches(t, wi.status, *status)
 
+
 	// Here we should get a nil WithdrawalStatus because the parameters are not
+
 	// identical to those of the stored WithdrawalStatus with this roundID.
 	dustThreshold := wi.dustThreshold + 1
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -979,6 +1038,7 @@ func TestSignMultiSigUTXO(
 	}
 	defer dbtx.Commit()
 	_, addrmgrNs := TstRWNamespaces(dbtx)
+
 
 	// Create a new tx with a single input that we're going to sign.
 	mgr := pool.Manager()
@@ -1063,7 +1123,9 @@ func TestSignMultiSigUTXORedeemScriptNotFound(
 
 	mgr := pool.Manager()
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{4e6}, []int64{})
+
 	// This is a P2SH address for which the addr manager doesn't have the redeem
+
 	// script.
 	addr, _ := util.DecodeAddress("3Hb4xcebcKg4DiETJfwjh8sF4uDw9rqtVC", mgr.ChainParams())
 	if _, err := mgr.Address(addrmgrNs, addr); err == nil {
@@ -1100,6 +1162,7 @@ func TestSignMultiSigUTXONotEnoughSigs(
 	txSigs := sigs[tx.ntxid()]
 
 	idx := 0 // The index of the tx input we're going to sign.
+
 	// Here we provide reqSigs-1 signatures to SignMultiSigUTXO()
 	reqSigs := tx.inputs[idx].addr.series().TstGetReqSigs()
 	txInSigs := txSigs[idx][:reqSigs-1]
@@ -1167,8 +1230,11 @@ func TestGetRawSigs(
 
 	checkNonEmptySigsForPrivKeys(t, txSigs, tx.inputs[0].addr.series().privateKeys)
 
+
 	// Since we have all the necessary signatures (m-of-n), we construct the
+
 	// sigsnature scripts and execute them to make sure the raw signatures are
+
 	// valid.
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, txSigs, tx.inputs)
 }
@@ -1186,6 +1252,7 @@ func TestGetRawSigsOnlyOnePrivKeyAvailable(
 	defer dbtx.Commit()
 
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{5e6, 4e6}, []int64{})
+
 	// Remove all private keys but the first one from the credit's series.
 	series := tx.inputs[0].addr.series()
 	for i := range series.privateKeys[1:] {
@@ -1219,7 +1286,9 @@ func TestGetRawSigsUnparseableRedeemScript(
 	defer dbtx.Commit()
 
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{5e6, 4e6}, []int64{})
+
 	// Change the redeem script for one of our tx inputs, to force an error in
+
 	// getRawSigs().
 	tx.inputs[0].addr.script = []byte{0x01}
 
@@ -1241,7 +1310,9 @@ func TestGetRawSigsInvalidAddrBranch(
 	defer dbtx.Commit()
 
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{5e6, 4e6}, []int64{})
+
 	// Change the branch of our input's address to an invalid value, to force
+
 	// an error in getRawSigs().
 	tx.inputs[0].addr.branch = Branch(999)
 
@@ -1292,6 +1363,7 @@ func TestTxTooBig(
 			tx.calculateSize(), txMaxSize)
 	}
 
+
 	// A tx whose size is equal to txMaxSize should be considered too big.
 	tx.calculateSize = func() int { return txMaxSize }
 	if !tx.isTooBig() {
@@ -1325,9 +1397,13 @@ func TestTxSizeCalculation(
 
 	size := tx.calculateSize()
 
+
 	// Now add a change output, get a msgtx, sign it and get its SerializedSize
+
 	// to compare with the value above. We need to replace the calculateFee
+
 	// method so that the tx.addChange() call below always adds a change
+
 	// output.
 	tx.calculateFee = TstConstantFee(1)
 	seriesID := tx.inputs[0].addr.SeriesID()
@@ -1339,18 +1415,30 @@ func TestTxSizeCalculation(
 	}
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, sigs[tx.ntxid()], tx.inputs)
 
+
 	// ECDSA signatures have variable length (71-73 bytes) but in
+
 	// calculateSize() we use a dummy signature for the worst-case scenario (73
+
 	// bytes) so the estimate here can be up to 2 bytes bigger for every
+
 	// signature in every input's SigScript.
 	maxDiff := 2 * len(msgtx.TxIn) * int(tx.inputs[0].addr.series().reqSigs)
+
 	// To make things worse, there's a possibility that the length of the
+
 	// actual SignatureScript is at the upper boundary of one of the uint*
+
 	// types, and when that happens our dummy SignatureScript is likely to have
+
 	// a length that cannot be represented in the same uint* type as that of the
+
 	// actual one, so we need to account for that here too. As per
+
 	// wire.VarIntSerializeSize(), the biggest difference would be of 4
+
 	// bytes, when the actual SigScript size fits in a uint32 but the dummy one
+
 	// needs a uint64.
 	maxDiff += 4 * len(msgtx.TxIn)
 	if size-msgtx.SerializeSize() > maxDiff {
@@ -1366,7 +1454,9 @@ func TestTxFeeEstimationForSmallTx(
 
 	tx := newWithdrawalTx(defaultTxOptions)
 
+
 	// A tx that is smaller than 1000 bytes in size should have a fee of 10000
+
 	// satoshis.
 	tx.calculateSize = func() int { return 999 }
 	fee := tx.calculateFee()
@@ -1382,7 +1472,9 @@ func TestTxFeeEstimationForLargeTx(
 
 	tx := newWithdrawalTx(defaultTxOptions)
 
+
 	// A tx that is larger than 1000 bytes in size should have a fee of 1e3
+
 	// satoshis plus 1e3 for every 1000 bytes.
 	tx.calculateSize = func() int { return 3000 }
 	fee := tx.calculateFee()
@@ -1662,6 +1754,7 @@ func compareMsgTxAndWithdrawalTxOutputs(
 		}
 	}
 
+
 	// Finally check the change output if it exists
 	if tx.changeOutput != nil {
 		msgTxChange := msgtx.TxOut[len(msgtx.TxOut)-1]
@@ -1705,7 +1798,9 @@ func checkLastOutputWasSplit(
 			wantSplitAmount)
 	}
 
+
 	// Check that the split request is identical (except for its amount) to the
+
 	// original one.
 	origRequest := lastOutput.request
 	if !bytes.Equal(origRequest.PkScript, splitRequest.PkScript) {

@@ -17,10 +17,12 @@ import "math/big"
 // This compact form is only used in bitcoin to encode unsigned 256-bit numbers which represent difficulty targets, thus there really is not a need for a sign bit, but it is implemented here to stay consistent with bitcoind.
 func compactToBig(
 	compact uint32) *big.Int {
+
 	// Extract the mantissa, sign bit, and exponent.
 	mantissa := compact & 0x007fffff
 	isNegative := compact&0x00800000 != 0
 	exponent := uint(compact >> 24)
+
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes to represent the full 256-bit number.  So, treat the exponent as the number of bytes and shift the mantissa right or left accordingly.  This is equivalent to `N = mantissa * 256^(exponent-3)``
 	var bn *big.Int
 	if exponent <= 3 {
@@ -30,6 +32,7 @@ func compactToBig(
 		bn = big.NewInt(int64(mantissa))
 		bn.Lsh(bn, 8*(exponent-3))
 	}
+
 	// Make it negative if the sign bit is set.
 	if isNegative {
 		bn = bn.Neg(bn)

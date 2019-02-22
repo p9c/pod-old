@@ -19,11 +19,17 @@ const DefaultRelayFeePerKb util.Amount = 1e3
 // determined as dust. Threshold is determined as 3 times the relay fee.
 func GetDustThreshold(
 	scriptSize int, relayFeePerKb util.Amount) util.Amount {
+
 	// Calculate the total (estimated) cost to the network.  This is
+
 	// calculated using the serialize size of the output plus the serial
+
 	// size of a transaction input which redeems it.  The output is assumed
+
 	// to be compressed P2PKH as this is the most common script type.  Use
+
 	// the average size of a compressed P2PKH redeem input (148) rather than
+
 	// the largest possible (txsizes.RedeemP2PKHInputSize).
 	totalSize := 8 + wire.VarIntSerializeSize(uint64(scriptSize)) +
 		scriptSize + 148
@@ -46,10 +52,12 @@ func IsDustAmount(
 // with default policies.
 func IsDustOutput(
 	output *wire.TxOut, relayFeePerKb util.Amount) bool {
+
 	// Unspendable outputs which solely carry data are not checked for dust.
 	if txscript.GetScriptClass(output.PkScript) == txscript.NullDataTy {
 		return false
 	}
+
 
 	// All other unspendable outputs are considered dust.
 	if txscript.IsUnspendable(output.PkScript) {

@@ -13,6 +13,7 @@ var SimNetParams = Params{
 	Net:         wire.SimNet,
 	DefaultPort: "41047",
 	DNSSeeds:    []DNSSeed{}, // NOTE: There must NOT be any seeds.
+
 	// Chain parameters
 	GenesisBlock:             &simNetGenesisBlock,
 	GenesisHash:              &simNetGenesisHash,
@@ -29,11 +30,16 @@ var SimNetParams = Params{
 	ReduceMinDifficulty:      true,
 	MinDiffReductionTime:     time.Minute * 10, // TargetTimePerBlock * 2
 	GenerateSupported:        true,
+
 	// Checkpoints ordered from oldest to newest.
 	Checkpoints: nil,
+
 	// Consensus rule change deployments.
+
 	//
+
 	// The miner confirmation window is defined as:
+
 	//   target proof of work timespan / target proof of work spacing
 	RuleChangeActivationThreshold: 75, // 75% of MinerConfirmationWindow
 	MinerConfirmationWindow:       100,
@@ -54,22 +60,29 @@ var SimNetParams = Params{
 			ExpireTime: math.MaxInt64, // Never expires.
 		},
 	},
+
 	// Mempool parameters
 	RelayNonStdTxs: true,
+
 	// Human-readable part for Bech32 encoded segwit addresses, as defined in
+
 	// BIP 173.
 	Bech32HRPSegwit: "sb", // always sb for sim net
+
 	// Address encoding magics
 	PubKeyHashAddrID:        0x3f, // starts with S
 	ScriptHashAddrID:        0x7b, // starts with s
 	PrivateKeyID:            0x64, // starts with 4 (uncompressed) or F (compressed)
 	WitnessPubKeyHashAddrID: 0x19, // starts with Gg
 	WitnessScriptHashAddrID: 0x28, // starts with ?
+
 	// BIP32 hierarchical deterministic extended key magics
 	HDPrivateKeyID: [4]byte{0x04, 0x20, 0xb9, 0x00}, // starts with sprv
 	HDPublicKeyID:  [4]byte{0x04, 0x20, 0xbd, 0x3a}, // starts with spub
+
 	// BIP44 coin type used in the hierarchical deterministic path for address generation.
 	HDCoinType: 115, // ASCII for s
+
 	// Parallelcoin specific difficulty adjustment parameters
 	Interval:                100,
 	AveragingInterval:       10, // Extend to target timespan to adjust better to hashpower (30000/300=100) post hardfork

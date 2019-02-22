@@ -17,6 +17,7 @@ message VersionResponse {
 }
 
 service WalletService {
+
 	// Queries
 	rpc Ping (PingRequest) returns (PingResponse);
 	rpc Network (NetworkRequest) returns (NetworkResponse);
@@ -25,10 +26,12 @@ service WalletService {
 	rpc Balance (BalanceRequest) returns (BalanceResponse);
 	rpc GetTransactions (GetTransactionsRequest) returns (GetTransactionsResponse);
 
+
 	// Notifications
 	rpc TransactionNotifications (TransactionNotificationsRequest) returns (stream TransactionNotificationsResponse);
 	rpc SpentnessNotifications (SpentnessNotificationsRequest) returns (stream SpentnessNotificationsResponse);
 	rpc AccountNotifications (AccountNotificationsRequest) returns (stream AccountNotificationsResponse);
+
 
 	// Control
 	rpc ChangePassphrase (ChangePassphraseRequest) returns (ChangePassphraseResponse);
@@ -156,28 +159,44 @@ message BalanceResponse {
 }
 
 message GetTransactionsRequest {
+
 	// Optionally specify the starting block from which to begin including all transactions.
+
 	// Either the starting block hash or height may be specified, but not both.
+
 	// If a block height is specified and is negative, the absolute value becomes the number of
+
 	// last blocks to include.  That is, given a current chain height of 1000 and a starting block
+
 	// height of -3, transaction notifications will be created for blocks 998, 999, and 1000.
+
 	// If both options are excluded, transaction results are created for transactions since the
+
 	// genesis block.
 	bytes starting_block_hash = 1;
 	sint32 starting_block_height = 2;
 
+
 	// Optionally specify the last block that transaction results may appear in.
+
 	// Either the ending block hash or height may be specified, but not both.
+
 	// If both are excluded, transaction results are created for all transactions
+
 	// through the best block, and include all unmined transactions.
 	bytes ending_block_hash = 3;
 	int32 ending_block_height = 4;
 	
+
 	// Include at least this many of the newest transactions if they exist.
+
 	// Cannot be used when the ending block hash is specified.
+
 	//
+
 	// TODO: remove until spec adds it back in some way.
 	int32 minimum_recent_transactions = 5;
+
 
 	// TODO: limit max number of txs?
 }
@@ -223,10 +242,15 @@ message SignTransactionRequest {
 	
 	bytes serialized_transaction = 2;
 
+
 	// If no indexes are specified, signatures scripts will be added for
+
 	// every input. If any input indexes are specified, only those inputs
+
 	// will be signed.  Rather than returning an incompletely signed
+
 	// transaction if any of the inputs to be signed can not be, the RPC
+
 	// immediately errors.
 	repeated uint32 input_indexes = 3;
 }
@@ -242,23 +266,35 @@ message PublishTransactionResponse {}
 
 message TransactionNotificationsRequest {}
 message TransactionNotificationsResponse {
+
 	// Sorted by increasing height.  This is a repeated field so many new blocks
+
 	// in a new best chain can be notified at once during a reorganize.
 	repeated BlockDetails attached_blocks = 1;
 
+
 	// If there was a chain reorganize, there may have been blocks with wallet
+
 	// transactions that are no longer in the best chain.  These are those
+
 	// block's hashes.
 	repeated bytes detached_blocks = 2;
 	
+
 	// Any new unmined transactions are included here.  These unmined transactions
+
 	// refer to the current best chain, so transactions from detached blocks may
+
 	// be moved to mempool and included here if they are not mined or double spent
+
 	// in the new chain.  Additonally, if no new blocks were attached but a relevant
+
 	// unmined transaction is seen by the wallet, it will be reported here.
 	repeated TransactionDetails unmined_transactions = 3;
 
+
 	// Instead of notifying all of the removed unmined transactions,
+
 	// just send all of the current hashes.
 	repeated bytes unmined_transaction_hashes = 4;
 }

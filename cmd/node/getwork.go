@@ -32,6 +32,7 @@ func bigToLEUint256(
 	n *big.Int,
 ) [uint256Size]byte {
 
+
 	// Pad or truncate the big-endian big int to correct number of bytes.
 	nBytes := n.Bytes()
 	nlen := len(nBytes)
@@ -45,6 +46,7 @@ func bigToLEUint256(
 	}
 	var buf [uint256Size]byte
 	copy(buf[pad:], nBytes[start:])
+
 	// Reverse the bytes to little endian and return them.
 	for i := 0; i < uint256Size/2; i++ {
 
@@ -78,6 +80,7 @@ func handleGetWork(
 			Message: "Pod is not connected to network",
 		}
 	}
+
 	// No point in generating or accepting work before the chain is synced.
 	latestHeight := s.cfg.Chain.BestSnapshot().Height
 	if latestHeight != 0 && !s.cfg.SyncMgr.IsCurrent() {
@@ -94,6 +97,7 @@ func handleGetWork(
 
 		return handleGetWorkSubmission(s, *c.Data)
 	}
+
 	// Choose a payment address at random.
 	rand.Seed(time.Now().UnixNano())
 	payToAddr := StateCfg.ActiveMiningAddrs[rand.Intn(len(StateCfg.ActiveMiningAddrs))]
@@ -171,6 +175,7 @@ func handleGetWork(
 			msgBlock.Transactions[0].TxIn[0].SignatureScript,
 		}
 	}
+
 	//	In order to efficiently store the variations of block templates that have been provided to callers, save a pointer to the block as well as the modified signature script keyed by the merkle root.  This information, along with the data that is included in a work submission, is used to rebuild the block before checking the submitted solution.
 	/*
 		coinbaseTx := msgBlock.Transactions[0]
@@ -179,6 +184,7 @@ func handleGetWork(
 			signatureScript: coinbaseTx.TxIn[0].SignatureScript,
 		}
 	*/
+
 	// Serialize the block header into a buffer large enough to hold the the block header and the internal sha256 padding that is added and returned as part of the data below.
 	data := make([]byte, 0, getworkDataLen)
 	buf := bytes.NewBuffer(data)
@@ -192,18 +198,22 @@ func handleGetWork(
 			Message: errStr,
 		}
 	}
+
 	// Calculate the midstate for the block header.  The midstate here is the internal state of the sha256 algorithm for the first chunk of the block header (sha256 operates on 64-byte chunks) which is before the nonce.  This allows sophisticated callers to avoid hashing the first chunk over and over while iterating the nonce range.
 	data = data[:buf.Len()]
 	midstate := fastsha256.MidState256(data)
+
 	// Expand the data slice to include the full data buffer and apply the internal sha256 padding which consists of a single 1 bit followed by enough zeros to pad the message out to 56 bytes followed by the length of the message in bits encoded as a big-endian uint64 (8 bytes).  Thus, the resulting length is a multiple of the sha256 block size (64 bytes).  This makes the data ready for sophisticated caller to make use of only the second chunk along with the midstate for the first chunk.
 	data = data[:getworkDataLen]
 	data[wire.MaxBlockHeaderPayload] = 0x80
 	binary.BigEndian.PutUint64(data[len(data)-8:],
 		wire.MaxBlockHeaderPayload*8)
+
 	//	Create the hash1 field which is a zero hash along with the internal sha256 padding as described above.  This field is really quite useless, but it is required for compatibility with the reference implementation.
 	var hash1 = make([]byte, hash1Len)
 	hash1[chainhash.HashSize] = 0x80
 	binary.BigEndian.PutUint64(hash1[len(hash1)-8:], chainhash.HashSize*8)
+
 	// The final result reverses the each of the fields to little endian. In particular, the data, hash1, and midstate fields are treated as arrays of uint32s (per the internal sha256 hashing state) which are in big endian, and thus each 4 bytes is byte swapped.  The target is also in big endian, but it is treated as a uint256 and byte swapped to little endian accordingly. The fact the fields are reversed in this way is rather odd and likely an artifact of some legacy internal state in the reference implementation, but it is required for compatibility.
 	reverseUint32Array(data)
 	reverseUint32Array(hash1)
@@ -226,6 +236,7 @@ func handleGetWorkSubmission(
 	interface{},
 	error,
 ) {
+
 
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {
@@ -250,8 +261,10 @@ func handleGetWorkSubmission(
 				len(data)),
 		}
 	}
+
 	// Reverse the data as if it were an array of 32-bit unsigned integers. The fact the getwork request and submission data is reversed in this way is rather odd and likey an artifact of some legacy internal state in the reference implementation, but it is required for compatibility.
 	reverseUint32Array(data)
+
 	// Deserialize the block header from the data.
 	var submittedHeader wire.BlockHeader
 	bhBuf := bytes.NewBuffer(data[0:wire.MaxBlockHeaderPayload])
@@ -264,6 +277,7 @@ func handleGetWorkSubmission(
 				"contain a valid block header: %v", err),
 		}
 	}
+
 	// Look up the full block for the provided data based on the merkle root.  Return false to indicate the solve failed if it's not available.
 	state := s.gbtWorkState
 	if state.template.Block.Header.MerkleRoot.String() == "" {
@@ -274,6 +288,7 @@ func handleGetWorkSubmission(
 		}
 		return false, nil
 	}
+
 	// Reconstruct the block using the submitted header stored block info.
 	msgBlock := state.template.Block
 	block := util.NewBlock(msgBlock)
@@ -282,6 +297,7 @@ func handleGetWorkSubmission(
 	msgBlock.Transactions[0].TxIn[0].SignatureScript = state.template.Block.Transactions[0].TxIn[0].SignatureScript
 	merkles := blockchain.BuildMerkleTreeStore(block.Transactions(), false)
 	msgBlock.Header.MerkleRoot = *merkles[len(merkles)-1]
+
 	// Ensure the submitted block hash is less than the target difficulty.
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
 	log <- cl.Trace{"powlimit", pl}
@@ -310,6 +326,7 @@ func handleGetWorkSubmission(
 		}
 		return false, nil
 	}
+
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
 	_, isOrphan, err := s.cfg.Chain.ProcessBlock(block, 0, s.cfg.Chain.BestSnapshot().Height)
 	if err != nil || isOrphan {
@@ -325,6 +342,7 @@ func handleGetWorkSubmission(
 		log <- cl.Info{"block submitted via getwork rejected:", err}
 		return false, nil
 	}
+
 	// The block was accepted.
 	blockSha := block.Hash()
 	log <- cl.Info{"block submitted via getwork accepted:", blockSha}

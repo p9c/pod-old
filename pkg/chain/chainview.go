@@ -40,6 +40,7 @@ type chainView struct {
 // can be updated at any time via the setTip function.
 func newChainView(
 	tip *blockNode) *chainView {
+
 	// The mutex is intentionally not held since this is a constructor.
 	var c chainView
 	c.setTip(tip)
@@ -86,6 +87,7 @@ func (c *chainView) setTip(node *blockNode) {
 		c.nodes = c.nodes[:0]
 		return
 	}
+
 	// Create or resize the slice that will hold the block nodes to the provided tip height.  When creating the slice, it is created with some additional capacity for the underlying array as append would do in order to reduce overhead when extending the chain later.  As long as the underlying array already has enough capacity, simply expand or contract the slice accordingly.  The additional capacity is chosen such that the array should only have to be extended about once a week.
 	needed := node.height + 1
 	if int32(cap(c.nodes)) < needed {
@@ -192,16 +194,20 @@ func (c *chainView) Next(node *blockNode) *blockNode {
 
 // findFork returns the final common block between the provided node and the the chain view.  It will return nil if there is no common block.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the exported FindFork comments for more details. This function MUST be called with the view mutex locked (for reads).
 func (c *chainView) findFork(node *blockNode) *blockNode {
+
 	// No fork point for node that doesn't exist.
 	if node == nil {
 		return nil
 	}
+
 	// When the height of the passed node is higher than the height of the tip of the current chain view, walk backwards through the nodes of the other chain until the heights match (or there or no more nodes in which case there is no common node between the two).
+
 	// NOTE: This isn't strictly necessary as the following section will find the node as well, however, it is more efficient to avoid the contains check since it is already known that the common node can't possibly be past the end of the current chain view.  It also allows this code to take advantage of any potential future optimizations to the Ancestor function such as using an O(log n) skip list.
 	chainHeight := c.height()
 	if node.height > chainHeight {
 		node = node.Ancestor(chainHeight)
 	}
+
 	// Walk the other chain backwards as long as the current one does not contain the node or there are no more nodes in which case there is no common node between the two.
 	for node != nil && !c.contains(node) {
 
@@ -226,6 +232,7 @@ func (c *chainView) FindFork(node *blockNode) *blockNode {
 
 // blockLocator returns a block locator for the passed block node.  The passed node can be nil in which case the block locator for the current tip associated with the view will be returned. This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the exported BlockLocator function comments for more details. This function MUST be called with the view mutex locked (for reads).
 func (c *chainView) blockLocator(node *blockNode) BlockLocator {
+
 	// Use the current tip if requested.
 	if node == nil {
 		node = c.tip()
@@ -233,6 +240,7 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 	if node == nil {
 		return nil
 	}
+
 	// Calculate the max number of entries that will ultimately be in the block locator.  See the description of the algorithm for how these numbers are derived.
 	var maxEntries uint8
 	if node.height <= 12 {

@@ -21,12 +21,16 @@ import (
 )
 
 const (
+
 	// minInFlightBlocks is the minimum number of blocks that should be in the request queue for headers-first mode before requesting more.
 	minInFlightBlocks = 10
+
 	// maxRejectedTxns is the maximum number of rejected transactions hashes to store in memory.
 	maxRejectedTxns = 1000
+
 	// maxRequestedBlocks is the maximum number of requested block hashes to store in memory.
 	maxRequestedBlocks = wire.MaxInvPerMsg
+
 	// maxRequestedTxns is the maximum number of requested transactions hashes to store in memory.
 	maxRequestedTxns = wire.MaxInvPerMsg
 )
@@ -124,17 +128,20 @@ type SyncManager struct {
 	msgChan        chan interface{}
 	wg             sync.WaitGroup
 	quit           chan struct{}
+
 	// These fields should only be accessed from the blockHandler thread
 	rejectedTxns    map[chainhash.Hash]struct{}
 	requestedTxns   map[chainhash.Hash]struct{}
 	requestedBlocks map[chainhash.Hash]struct{}
 	syncPeer        *peerpkg.Peer
 	peerStates      map[*peerpkg.Peer]*peerSyncState
+
 	// The following fields are used for headers-first mode.
 	headersFirstMode bool
 	headerList       *list.List
 	startHeader      *list.Element
 	nextCheckpoint   *chaincfg.Checkpoint
+
 	// An optional fee estimator.
 	feeEstimator *mempool.FeeEstimator
 }
@@ -145,6 +152,7 @@ func (sm *SyncManager) resetHeaderState(newestHash *chainhash.Hash, newestHeight
 	sm.headersFirstMode = false
 	sm.headerList.Init()
 	sm.startHeader = nil
+
 	// When there is a next checkpoint, add an entry for the latest known block into the header pool.  This allows the next downloaded header to prove it links to the chain properly.
 	if sm.nextCheckpoint != nil {
 		node := headerNode{height: newestHeight, hash: newestHash}
@@ -158,11 +166,13 @@ func (sm *SyncManager) findNextHeaderCheckpoint(height int32) *chaincfg.Checkpoi
 	if len(checkpoints) == 0 {
 		return nil
 	}
+
 	// There is no next checkpoint if the height is already after the final checkpoint.
 	finalCheckpoint := &checkpoints[len(checkpoints)-1]
 	if height >= finalCheckpoint.Height {
 		return nil
 	}
+
 	// Find the next checkpoint.
 	nextCheckpoint := finalCheckpoint
 	for i := len(checkpoints) - 2; i >= 0; i-- {
@@ -177,10 +187,12 @@ func (sm *SyncManager) findNextHeaderCheckpoint(height int32) *chaincfg.Checkpoi
 // startSync will choose the best peer among the available candidate peers to download/sync the blockchain from.  When syncing is already running, it simply returns.  It also examines the candidates for any which are no longer candidates and removes them as needed.
 func (sm *SyncManager) startSync() {
 
+
 	// Return now if we're already syncing.
 	if sm.syncPeer != nil {
 		return
 	}
+
 	// Once the segwit soft-fork package has activated, we only want to sync from peers which are witness enabled to ensure that we fully validate all blockchain data.
 	segwitActive, err := sm.chain.IsDeploymentActive(chaincfg.DeploymentSegwit)
 	if err != nil {
@@ -206,6 +218,7 @@ func (sm *SyncManager) startSync() {
 		// TODO(davec): Use a better algorithm to choose the best peer. For now, just pick the first available candidate.
 		bestPeer = peer
 	}
+
 	// Start syncing from the best peer if one was selected.
 	if bestPeer != nil {
 		// Clear the requestedBlocks if the sync peer changes, otherwise we may ignore blocks we need that the last sync peer failed to send.
@@ -249,6 +262,7 @@ func (sm *SyncManager) startSync() {
 
 // isSyncCandidate returns whether or not the peer is a candidate to consider syncing from.
 func (sm *SyncManager) isSyncCandidate(peer *peerpkg.Peer) bool {
+
 	// Typically a peer is not a candidate for sync if it's not a full node, however regression test is special in that the regression tool is not a full node and still needs to be considered a sync candidate.
 	if sm.chainParams == &chaincfg.RegressionNetParams {
 		// The peer is not a candidate if it's not coming from localhost or the hostname can't be determined for some reason.
@@ -272,6 +286,7 @@ func (sm *SyncManager) isSyncCandidate(peer *peerpkg.Peer) bool {
 			return false
 		}
 	}
+
 	// Candidate if all checks passed.
 	return true
 }
@@ -279,11 +294,13 @@ func (sm *SyncManager) isSyncCandidate(peer *peerpkg.Peer) bool {
 // handleNewPeerMsg deals with new peers that have signalled they may be considered as a sync peer (they have already successfully negotiated).  It also starts syncing if needed.  It is invoked from the syncHandler goroutine.
 func (sm *SyncManager) handleNewPeerMsg(peer *peerpkg.Peer) {
 
+
 	// Ignore if in the process of shutting down.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		return
 	}
 	log <- cl.Debugf{"new valid peer %s (%s)", peer, peer.UserAgent()}
+
 	// Initialize the peer state
 	isSyncCandidate := sm.isSyncCandidate(peer)
 	sm.peerStates[peer] = &peerSyncState{
@@ -291,6 +308,7 @@ func (sm *SyncManager) handleNewPeerMsg(peer *peerpkg.Peer) {
 		requestedTxns:   make(map[chainhash.Hash]struct{}),
 		requestedBlocks: make(map[chainhash.Hash]struct{}),
 	}
+
 	// Start syncing by choosing the best candidate if needed.
 	if isSyncCandidate && sm.syncPeer == nil {
 		sm.startSync()
@@ -305,18 +323,23 @@ func (sm *SyncManager) handleDonePeerMsg(peer *peerpkg.Peer) {
 		log <- cl.Warn{"received done peer message for unknown peer", peer}
 		return
 	}
+
 	// Remove the peer from the list of candidate peers.
 	delete(sm.peerStates, peer)
 	log <- cl.Info{"lost peer", peer}
+
 	// Remove requested transactions from the global map so that they will be fetched from elsewhere next time we get an inv.
 	for txHash := range state.requestedTxns {
 		delete(sm.requestedTxns, txHash)
 	}
+
 	// Remove requested blocks from the global map so that they will be fetched from elsewhere next time we get an inv.
+
 	// TODO: we could possibly here check which peers have these blocks and request them now to speed things up a little.
 	for blockHash := range state.requestedBlocks {
 		delete(sm.requestedBlocks, blockHash)
 	}
+
 	// Attempt to find a new peer to sync from if the quitting peer is the sync peer.  Also, reset the headers-first state if in headers-first mode so
 	if sm.syncPeer == peer {
 		sm.syncPeer = nil
@@ -340,8 +363,10 @@ func (sm *SyncManager) handleTxMsg(tmsg *txMsg) {
 		})
 		return
 	}
+
 	// NOTE:  BitcoinJ, and possibly other wallets, don't follow the spec of sending an inventory message and allowing the remote peer to decide whether or not they want to request the transaction via a getdata message.  Unfortunately, the reference implementation permits unrequested data, so it has allowed wallets that don't follow the spec to proliferate.  While this is not ideal, there is no check here to disconnect peers for sending unsolicited transactions to provide interoperability.
 	txHash := tmsg.tx.Hash()
+
 	// Ignore transactions that we have already rejected.  Do not send a reject message here because if the transaction was already rejected, the transaction was unsolicited.
 	if _, exists = sm.rejectedTxns[*txHash]; exists {
 		Log.Dbgc(func() string {
@@ -350,9 +375,11 @@ func (sm *SyncManager) handleTxMsg(tmsg *txMsg) {
 		})
 		return
 	}
+
 	// Process the transaction to include validation, insertion in the memory pool, orphan handling, etc.
 	acceptedTxs, err := sm.txMemPool.ProcessTransaction(tmsg.tx,
 		true, true, mempool.Tag(peer.ID()))
+
 	// Remove transaction from request maps. Either the mempool/chain already knows about it and as such we shouldn't have any more instances of trying to fetch it, or we failed to insert and thus we'll retry next time we get an inv.
 	delete(state.requestedTxns, *txHash)
 	delete(sm.requestedTxns, *txHash)
@@ -389,10 +416,12 @@ func (sm *SyncManager) current() bool {
 
 		return false
 	}
+
 	// if blockChain thinks we are current and we have no syncPeer it is probably right.
 	if sm.syncPeer == nil {
 		return true
 	}
+
 	// No matter what chain thinks, if we are below the block we are syncing to we are not current.
 	if sm.chain.BestSnapshot().Height < sm.syncPeer.LastBlock() {
 
@@ -412,6 +441,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		}
 		return
 	}
+
 	// If we didn't ask for this block then the peer is misbehaving.
 	blockHash := bmsg.block.Hash()
 	if _, exists = state.requestedBlocks[*blockHash]; !exists {
@@ -428,6 +458,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 			return
 		}
 	}
+
 	// When in headers-first mode, if the block matches the hash of the first header in the list of headers that are being fetched, it's eligible for less validation since the headers have already been verified to link together and are valid up to the next checkpoint. Also, remove the list entry for all blocks except the checkpoint since it is needed to verify the next round of headers links properly.
 	isCheckpointBlock := false
 	behaviorFlags := blockchain.BFNone
@@ -447,6 +478,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 			}
 		}
 	}
+
 	// Remove block from request maps. Either chain will know about it and so we shouldn't have any more instances of trying to fetch it, or we will fail the insert and thus we'll retry next time we get an inv.
 	delete(state.requestedBlocks, *blockHash)
 	delete(sm.requestedBlocks, *blockHash)
@@ -467,6 +499,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 			blkHashUpdate = blockHash
 		}
 	}
+
 	// Process the block to include validation, best chain selection, orphan handling, etc.
 	_, isOrphan, err := sm.chain.ProcessBlock(bmsg.block, behaviorFlags, heightUpdate)
 	if err != nil {
@@ -489,6 +522,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		peer.PushRejectMsg(wire.CmdBlock, code, reason, blockHash, false)
 		return
 	}
+
 	// Meta-data about the new block this peer is reporting. We use this below to update this peer's lastest block height and the heights of other peers based on their last announced block hash. This allows us to dynamically update the block heights of peers, avoiding stale heights when looking for a new sync peer. Upon acceptance of a block or recognition of an orphan, we also use this information to update the block heights over other peers who's invs may have been ignored if we are actively syncing while the chain is not yet current or who may have lost the lock announcment race. Request the parents for the orphan block from the peer that sent it.
 	if isOrphan {
 		// We've just received an orphan block from a peer. In order to update the height of the peer, we try to extract the block height from the scriptSig of the coinbase transaction. Extraction is only attempted if the block's version is high enough (ver 2+).
@@ -522,6 +556,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		// Clear the rejected transactions.
 		sm.rejectedTxns = make(map[chainhash.Hash]struct{})
 	}
+
 	// Update the block height for this peer. But only send a message to the server for updating peer heights if this is an orphan or our chain is "current". This avoids sending a spammy amount of messages if we're syncing the chain from scratch.
 	if blkHashUpdate != nil && heightUpdate != 0 {
 		peer.UpdateLastBlockHeight(heightUpdate)
@@ -531,10 +566,12 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 				peer)
 		}
 	}
+
 	// Nothing more to do if we aren't in headers-first mode.
 	if !sm.headersFirstMode {
 		return
 	}
+
 	// This is headers-first mode, so if the block is not a checkpoint request more blocks using the header list when the request queue is getting short.
 	if !isCheckpointBlock {
 		if sm.startHeader != nil &&
@@ -543,6 +580,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		}
 		return
 	}
+
 	// This is headers-first mode and the block is a checkpoint.  When there is a next checkpoint, get the next round of headers by asking for headers starting from the block after this one up to the next checkpoint.
 	prevHeight := sm.nextCheckpoint.Height
 	prevHash := sm.nextCheckpoint.Hash
@@ -562,6 +600,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		}
 		return
 	}
+
 	// This is headers-first mode, the block is a checkpoint, and there are no more checkpoints, so switch to normal mode by requesting blocks from the block after this one up to the end of the chain (zero hash).
 	sm.headersFirstMode = false
 	sm.headerList.Init()
@@ -581,11 +620,13 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 // fetchHeaderBlocks creates and sends a request to the syncPeer for the next list of blocks to be downloaded based on the current list of headers.
 func (sm *SyncManager) fetchHeaderBlocks() {
 
+
 	// Nothing to do if there is no start header.
 	if sm.startHeader == nil {
 		log <- cl.Wrn("fetchHeaderBlocks called with no start header")
 		return
 	}
+
 	// Build up a getdata request for the list of blocks the headers describe.  The size hint will be limited to wire.MaxInvPerMsg by the function, so no need to double check it here.
 	gdmsg := wire.NewMsgGetDataSizeHint(uint(sm.headerList.Len()))
 	numRequested := 0
@@ -635,6 +676,7 @@ func (sm *SyncManager) handleHeadersMsg(hmsg *headersMsg) {
 		log <- cl.Warn{"received headers message from unknown peer", peer}
 		return
 	}
+
 	// The remote peer is misbehaving if we didn't request headers.
 	msg := hmsg.headers
 	numHeaders := len(msg.Headers)
@@ -646,10 +688,12 @@ func (sm *SyncManager) handleHeadersMsg(hmsg *headersMsg) {
 		peer.Disconnect()
 		return
 	}
+
 	// Nothing to do for an empty headers message.
 	if numHeaders == 0 {
 		return
 	}
+
 	// Process all of the received headers ensuring each one connects to the previous and that checkpoints match.
 	receivedCheckpoint := false
 	var finalHash *chainhash.Hash
@@ -708,6 +752,7 @@ func (sm *SyncManager) handleHeadersMsg(hmsg *headersMsg) {
 			break
 		}
 	}
+
 	// When this header is a checkpoint, switch to fetching the blocks for all of the headers since the last checkpoint.
 	if receivedCheckpoint {
 		// Since the first entry of the list is always the final block that is already in the database and is only used to ensure the next header links properly, it must be removed before fetching the blocks.
@@ -720,6 +765,7 @@ func (sm *SyncManager) handleHeadersMsg(hmsg *headersMsg) {
 		sm.fetchHeaderBlocks()
 		return
 	}
+
 	// This header is not a checkpoint, so request the next batch of headers starting from the latest known header and ending with the next checkpoint.
 	locator := blockchain.BlockLocator([]*chainhash.Hash{finalHash})
 	err := peer.PushGetHeadersMsg(locator, sm.nextCheckpoint.Hash)
@@ -762,6 +808,7 @@ func (sm *SyncManager) haveInventory(invVect *wire.InvVect) (bool, error) {
 		}
 		return false, nil
 	}
+
 	// The requested inventory is is an unsupported type, so just claim it is known to avoid requesting it.
 	return true, nil
 }
@@ -775,6 +822,7 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 		log <- cl.Warn{"received inv message from unknown peer", peer}
 		return
 	}
+
 	// Attempt to find the final block in the inventory list.  There may not be one.
 	lastBlock := -1
 	invVects := imsg.inv.InvList
@@ -784,16 +832,19 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 			break
 		}
 	}
+
 	// If this inv contains a block announcement, and this isn't coming from our current sync peer or we're current, then update the last announced block for this peer. We'll use this information later to update the heights of peers based on blocks we've accepted that they previously announced.
 	if lastBlock != -1 && (peer != sm.syncPeer || sm.current()) {
 
 		peer.UpdateLastAnnouncedBlock(&invVects[lastBlock].Hash)
 	}
+
 	// Ignore invs from peers that aren't the sync if we are not current. Helps prevent fetching a mass of orphans.
 	if peer != sm.syncPeer && !sm.current() {
 
 		return
 	}
+
 	// If our chain is current and a peer announces a block we already know of, then update their current block height.
 	if lastBlock != -1 && sm.current() {
 
@@ -802,6 +853,7 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 			peer.UpdateLastBlockHeight(blkHeight)
 		}
 	}
+
 	// Request the advertised inventory if we don't already have it.  Also, request parent blocks of orphans if we receive one we already have. Finally, attempt to detect potential stalls due to long side chains we already have and request more blocks to prevent them.
 	for i, iv := range invVects {
 		// Ignore unsupported inventory types.
@@ -868,6 +920,7 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 			}
 		}
 	}
+
 	// Request as much as possible at once.  Anything that won't fit into request will be requested on the next inv message.
 	numRequested := 0
 	gdmsg := wire.NewMsgGetData()
@@ -1005,8 +1058,10 @@ out:
 // handleBlockchainNotification handles notifications from blockchain.  It does things such as request orphan block parents and relay accepted blocks to connected peers.
 func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Notification) {
 
+
 	// log<-cl.Debug{andleBlockCHainNotification}
 	switch notification.Type {
+
 	// A block has been accepted into the block chain.  Relay it to other peers.
 	case blockchain.NTBlockAccepted:
 		// log<-cl.Debug{lock accepted}
@@ -1024,6 +1079,7 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 		// Generate the inventory vector and relay it.
 		iv := wire.NewInvVect(wire.InvTypeBlock, block.Hash())
 		sm.peerNotifier.RelayInventory(iv, block.MsgBlock().Header)
+
 	// A block has been connected to the main block chain.
 	case blockchain.NTBlockConnected:
 		// log<-cl.Debug{lock connected}
@@ -1060,6 +1116,7 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 					mempool.DefaultEstimateFeeMinRegisteredBlocks)
 			}
 		}
+
 	// A block has been disconnected from the main block chain.
 	case blockchain.NTBlockDisconnected:
 		// log<-cl.Debug{lock disconnected}
@@ -1087,6 +1144,7 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 // NewPeer informs the sync manager of a newly active peer.
 func (sm *SyncManager) NewPeer(peer *peerpkg.Peer) {
 
+
 	// Ignore if we are shutting down.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		return
@@ -1096,6 +1154,7 @@ func (sm *SyncManager) NewPeer(peer *peerpkg.Peer) {
 
 // QueueTx adds the passed transaction message and peer to the block handling queue. Responds to the done channel argument after the tx message is processed.
 func (sm *SyncManager) QueueTx(tx *util.Tx, peer *peerpkg.Peer, done chan struct{}) {
+
 
 	// Don't accept more transactions if we're shutting down.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
@@ -1108,6 +1167,7 @@ func (sm *SyncManager) QueueTx(tx *util.Tx, peer *peerpkg.Peer, done chan struct
 // QueueBlock adds the passed block message and peer to the block handling queue. Responds to the done channel argument after the block message is processed.
 func (sm *SyncManager) QueueBlock(block *util.Block, peer *peerpkg.Peer, done chan struct{}) {
 
+
 	// Don't accept more blocks if we're shutting down.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		done <- struct{}{}
@@ -1119,6 +1179,7 @@ func (sm *SyncManager) QueueBlock(block *util.Block, peer *peerpkg.Peer, done ch
 // QueueInv adds the passed inv message and peer to the block handling queue.
 func (sm *SyncManager) QueueInv(inv *wire.MsgInv, peer *peerpkg.Peer) {
 
+
 	// No channel handling here because peers do not need to block on inv messages.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		return
@@ -1128,6 +1189,7 @@ func (sm *SyncManager) QueueInv(inv *wire.MsgInv, peer *peerpkg.Peer) {
 
 // QueueHeaders adds the passed headers message and peer to the block handling queue.
 func (sm *SyncManager) QueueHeaders(headers *wire.MsgHeaders, peer *peerpkg.Peer) {
+
 
 	// No channel handling here because peers do not need to block on headers messages.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
@@ -1139,6 +1201,7 @@ func (sm *SyncManager) QueueHeaders(headers *wire.MsgHeaders, peer *peerpkg.Peer
 // DonePeer informs the blockmanager that a peer has disconnected.
 func (sm *SyncManager) DonePeer(peer *peerpkg.Peer) {
 
+
 	// Ignore if we are shutting down.
 	if atomic.LoadInt32(&sm.shutdown) != 0 {
 		return
@@ -1148,6 +1211,7 @@ func (sm *SyncManager) DonePeer(peer *peerpkg.Peer) {
 
 // Start begins the core block handler which processes block and inv messages.
 func (sm *SyncManager) Start() {
+
 
 	// Already started?
 	if atomic.AddInt32(&sm.started, 1) != 1 {

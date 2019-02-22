@@ -1,3 +1,4 @@
+
 // Copyright (c) 2015-2017 The btcsuite developers
 
 package wtxmgr_test
@@ -18,6 +19,7 @@ import (
 )
 
 type queryState struct {
+
 	// slice items are ordered by height, mempool comes last.
 	blocks    [][]TxDetails
 	txDetails map[chainhash.Hash][]TxDetails
@@ -133,8 +135,11 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 			}
 		}
 
+
 		// For the most recent tx with this hash, check that
+
 		// TxDetails (not looking up a tx at any particular
+
 		// height) matches the last.
 		detail := &details[len(details)-1]
 		d, err := s.TxDetails(ns, &txHash)
@@ -152,7 +157,9 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 
 func equalTxDetails(
 	got, exp *TxDetails) error {
+
 	// Need to avoid using reflect.DeepEqual against slices, since it
+
 	// returns false for nil vs non-nil zero length slices.
 	if err := equalTxs(&got.MsgTx, &exp.MsgTx); err != nil {
 		return err
@@ -221,10 +228,12 @@ func equalTxs(
 	return nil
 }
 
+
 // Returns time.Now() with seconds resolution, this is what Store saves.
 func timeNow() time.Time {
 	return time.Unix(time.Now().Unix(), 0)
 }
+
 
 // Returns a copy of a TxRecord without the serialized tx.
 func stripSerializedTx(
@@ -244,6 +253,7 @@ func makeBlockMeta(
 		Block: Block{Height: height},
 		Time:  timeNow(),
 	}
+
 	// Give it a fake block hash created from the height and time.
 	binary.LittleEndian.PutUint32(b.Hash[0:4], uint32(height))
 	binary.LittleEndian.PutUint64(b.Hash[4:12], uint64(b.Time.Unix()))
@@ -262,6 +272,7 @@ func TestStoreQueries(
 	}
 	var tests []queryTest
 
+
 	// Create the store and test initial state.
 	s, db, teardown, err := testStore()
 	defer teardown()
@@ -274,6 +285,7 @@ func TestStoreQueries(
 		updates: func(walletdb.ReadWriteBucket) error { return nil },
 		state:   lastState,
 	})
+
 
 	// Insert an unmined transaction.  Mark no credits yet.
 	txA := spendOutput(&chainhash.Hash{}, 0, 100e8)
@@ -302,6 +314,7 @@ func TestStoreQueries(
 		state: newState,
 	})
 
+
 	// Add txA:0 as a change credit.
 	newState = lastState.deepCopy()
 	newState.blocks[0][0].Credits = []CreditRecord{
@@ -322,7 +335,9 @@ func TestStoreQueries(
 		state: newState,
 	})
 
+
 	// Insert another unmined transaction which spends txA:0, splitting the
+
 	// amount into outputs of 40 and 60 DUO.
 	txB := spendOutput(&recA.Hash, 0, 40e8, 60e8)
 	recB, err := NewTxRecordFromMsgTx(txB, timeNow())
@@ -370,6 +385,7 @@ func TestStoreQueries(
 		state: newState,
 	})
 
+
 	// Mine tx A at block 100.  Leave tx B unmined.
 	b100 := makeBlockMeta(100)
 	newState = lastState.deepCopy()
@@ -385,6 +401,7 @@ func TestStoreQueries(
 		},
 		state: newState,
 	})
+
 
 	// Mine tx B at block 101.
 	b101 := makeBlockMeta(101)
@@ -413,12 +430,19 @@ func TestStoreQueries(
 		}
 	}
 
+
 	// Run some additional query tests with the current store's state:
+
 	//   - Verify that querying for a transaction not in the store returns
+
 	//     nil without failure.
+
 	//   - Verify that querying for a unique transaction at the wrong block
+
 	//     returns nil without failure.
+
 	//   - Verify that breaking early on RangeTransactions stops further
+
 	//     iteration.
 
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
@@ -477,6 +501,7 @@ func TestStoreQueries(
 		if iterations != 1 {
 			t.Errorf("RangeTransactions (reverse) ran func %d times", iterations)
 		}
+
 		// Make sure it also breaks early after one iteration through unmined transactions.
 		if err := s.Rollback(ns, b101.Height); err != nil {
 			return err
@@ -496,9 +521,13 @@ func TestStoreQueries(
 		t.Fatal(err)
 	}
 
+
 	// None of the above tests have tested RangeTransactions with multiple
+
 	// txs per block, so do that now.  Start by moving tx B to block 100
+
 	// (same block as tx A), and then rollback from block 100 onwards so
+
 	// both are unmined.
 	newState = lastState.deepCopy()
 	newState.blocks[0] = append(newState.blocks[0], newState.blocks[1]...)
@@ -552,6 +581,7 @@ func TestPreviousPkScripts(
 		t.Fatal(err)
 	}
 
+
 	// Invalid scripts but sufficient for testing.
 	var (
 		scriptA0 = []byte("tx A output 0")
@@ -562,7 +592,9 @@ func TestPreviousPkScripts(
 		scriptC1 = []byte("tx C output 1")
 	)
 
+
 	// Create a transaction spending two prevous outputs and generating two
+
 	// new outputs the passed pkScipts.  Spends outputs 0 and 1 from prevHash.
 	buildTx := func(prevHash *chainhash.Hash, script0, script1 []byte) *wire.MsgTx {
 		return &wire.MsgTx{
@@ -589,6 +621,7 @@ func TestPreviousPkScripts(
 		}
 		return rec
 	}
+
 
 	// Create transactions with the fake output scripts.
 	var (
@@ -641,6 +674,7 @@ func TestPreviousPkScripts(
 		for i := range scripts {
 			if !bytes.Equal(scripts[i], tst.scripts[i]) {
 
+
 				// Format scripts with %s since they are (should be) ascii.
 				t.Errorf("Transaction %v height %d script %d: got '%s' expected '%s'",
 					tst.rec.Hash, height, i, scripts[i], tst.scripts[i])
@@ -655,8 +689,11 @@ func TestPreviousPkScripts(
 	defer dbtx.Commit()
 	ns := dbtx.ReadWriteBucket(namespaceKey)
 
+
 	// Insert transactions A-C unmined, but mark no credits yet.  Until
+
 	// these are marked as credits, PreviousPkScripts should not return
+
 	// them.
 	insertTx(ns, recA, nil)
 	insertTx(ns, recB, nil)
@@ -681,8 +718,11 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after unmined tx inserts")
 	}
 
+
 	// Mark credits.  Tx C output 1 not marked as a credit: tx D will spend
+
 	// both later but when C is mined, output 1's script should not be
+
 	// returned.
 	addCredit(ns, recA, nil, 0)
 	addCredit(ns, recA, nil, 1)
@@ -705,6 +745,7 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after marking unmined credits")
 	}
 
+
 	// Mine tx A in block 100.  Test results should be identical.
 	insertTx(ns, recA, &b100)
 	for _, tst := range tests {
@@ -714,6 +755,7 @@ func TestPreviousPkScripts(
 
 		t.Fatal("Failed after mining tx A")
 	}
+
 
 	// Mine tx B in block 101.
 	insertTx(ns, recB, &b101)
@@ -733,7 +775,9 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after mining tx B")
 	}
 
+
 	// Mine tx C in block 101 (same block as tx B) to test debits from the
+
 	// same block.
 	insertTx(ns, recC, &b101)
 	tests = []scriptTest{
@@ -752,7 +796,9 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after mining tx C")
 	}
 
+
 	// Insert tx D, which spends C:0 and C:1.  However, only C:0 is marked
+
 	// as a credit, and only that output script should be returned.
 	insertTx(ns, recD, nil)
 	tests = append(tests, scriptTest{recD, nil, [][]byte{scriptC0}})

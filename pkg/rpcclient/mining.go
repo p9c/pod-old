@@ -20,12 +20,14 @@ func (r FutureGenerateResult) Receive() ([]*chainhash.Hash, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as a list of strings.
 	var result []string
 	err = js.Unmarshal(res, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	// Convert each block hash to a chainhash.Hash and store a pointer to each.
 	convertedResult := make([]*chainhash.Hash, len(result))
 	for i, hashString := range result {
@@ -59,6 +61,7 @@ func (r FutureGetGenerateResult) Receive() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	// Unmarshal result as a boolean.
 	var result bool
 	err = js.Unmarshal(res, &result)
@@ -110,6 +113,7 @@ func (r FutureGetHashesPerSecResult) Receive() (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	// Unmarshal result as an int64.
 	var result int64
 	err = js.Unmarshal(res, &result)
@@ -141,6 +145,7 @@ func (r FutureGetMiningInfoResult) Receive() (*json.GetMiningInfoResult, error) 
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as a getmininginfo result object.
 	var infoResult json.GetMiningInfoResult
 	err = js.Unmarshal(res, &infoResult)
@@ -172,6 +177,7 @@ func (r FutureGetNetworkHashPS) Receive() (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	// Unmarshal result as an int64.
 	var result int64
 	err = js.Unmarshal(res, &result)
@@ -227,6 +233,7 @@ func (r FutureGetWork) Receive() (*json.GetWorkResult, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as a getwork result object.
 	var result json.GetWorkResult
 	err = js.Unmarshal(res, &result)
@@ -258,6 +265,7 @@ func (r FutureGetWorkSubmit) Receive() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	// Unmarshal result as a boolean.
 	var accepted bool
 	err = js.Unmarshal(res, &accepted)

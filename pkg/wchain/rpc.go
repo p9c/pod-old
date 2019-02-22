@@ -101,6 +101,7 @@ func (c *RPCClient) Start() error {
 		return err
 	}
 
+
 	// Verify that the server is running on the expected network.
 	net, err := c.GetCurrentNet()
 	if err != nil {
@@ -194,16 +195,22 @@ func (c *RPCClient) FilterBlocks(
 
 	blockFilterer := NewBlockFilterer(c.chainParams, req)
 
+
 	// Construct the watchlist using the addresses and outpoints contained
+
 	// in the filter blocks request.
 	watchList, err := buildFilterBlocksWatchList(req)
 	if err != nil {
 		return nil, err
 	}
 
+
 	// Iterate over the requested blocks, fetching the compact filter for
+
 	// each one, and matching it against the watchlist generated above. If
+
 	// the filter returns a positive match, the full block is then requested
+
 	// and scanned for addresses using the block filterer.
 	for i, blk := range req.Blocks {
 		rawFilter, err := c.GetCFilter(&blk.Hash, wire.GCSFilterRegular)
@@ -267,6 +274,7 @@ func (c *RPCClient) FilterBlocks(
 
 		return resp, nil
 	}
+
 
 	// No addresses were found for this range.
 	return nil, nil
@@ -357,6 +365,7 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
 
+
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
@@ -394,11 +403,17 @@ func (c *RPCClient) handler() {
 
 	bs := &waddrmgr.BlockStamp{Hash: *hash, Height: height}
 
+
 	// TODO: Rather than leaving this as an unbounded queue for all types of
+
 	// notifications, try dropping ones where a later enqueued notification
+
 	// can fully invalidate one waiting to be processed.  For example,
+
 	// blockconnected notifications for greater block heights can remove the
+
 	// need to process earlier blockconnected notifications still waiting
+
 	// here.
 
 	var notifications []interface{}

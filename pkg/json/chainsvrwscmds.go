@@ -157,6 +157,7 @@ func NewRescanCmd(
 
 // RescanBlocksCmd defines the rescan JSON-RPC command. NOTE: This is a pod extension ported from github.com/decred/dcrd/dcrjson and requires a websocket connection.
 type RescanBlocksCmd struct {
+
 	// Block hashes as a string array.
 	BlockHashes []string
 }
@@ -167,6 +168,7 @@ func NewRescanBlocksCmd(
 	return &RescanBlocksCmd{BlockHashes: blockHashes}
 }
 func init() {
+
 
 	// The commands in this file are only usable by websockets.
 	flags := UFWebsocketOnly

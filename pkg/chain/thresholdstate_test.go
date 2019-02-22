@@ -22,6 +22,7 @@ func TestThresholdStateStringer(
 		{ThresholdFailed, "ThresholdFailed"},
 		{0xff, "Unknown ThresholdState (255)"},
 	}
+
 	// Detect additional threshold states that don't have the stringer added.
 	if len(tests)-1 != int(numThresholdsStates) {
 

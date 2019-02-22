@@ -47,6 +47,7 @@ func (b *BlockChain) verifyCheckpoint(height int32, hash *chainhash.Hash) bool {
 
 		return true
 	}
+
 	// Nothing to check if there is no checkpoint data for the block height.
 	checkpoint, exists := b.checkpointsByHeight[height]
 	if !exists {
@@ -71,6 +72,7 @@ func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 
 		return nil, nil
 	}
+
 	// Perform the initial search to find and cache the latest known checkpoint if the best chain is not known yet or we haven't already previously searched.
 	checkpoints := b.checkpoints
 	numCheckpoints := len(checkpoints)
@@ -93,14 +95,17 @@ func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 		b.nextCheckpoint = &checkpoints[0]
 		return nil, nil
 	}
+
 	// At this point we've already searched for the latest known checkpoint, so when there is no next checkpoint, the current checkpoint lockin will always be the latest known checkpoint.
 	if b.nextCheckpoint == nil {
 		return b.checkpointNode, nil
 	}
+
 	// When there is a next checkpoint and the height of the current best chain does not exceed it, the current checkpoint lockin is still the latest known checkpoint.
 	if b.bestChain.Tip().height < b.nextCheckpoint.Height {
 		return b.checkpointNode, nil
 	}
+
 	// We've reached or exceeded the next checkpoint height.  Note that once a checkpoint lockin has been reached, forks are prevented from any blocks before the checkpoint, so we don't have to worry about the checkpoint going away out from under us due to a chain reorganize. Cache the latest known checkpoint for future lookups.  Note that if this lookup fails something is very wrong since the chain has already passed the checkpoint which was verified as accurate before inserting it.
 	checkpointNode := b.Index.LookupNode(b.nextCheckpoint.Hash)
 	if checkpointNode == nil {
@@ -109,6 +114,7 @@ func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 			b.nextCheckpoint.Hash))
 	}
 	b.checkpointNode = checkpointNode
+
 	// Set the next expected checkpoint.
 	checkpointIndex := -1
 	for i := numCheckpoints - 1; i >= 0; i-- {
@@ -128,6 +134,7 @@ func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 // isNonstandardTransaction determines whether a transaction contains any scripts which are not one of the standard types.
 func isNonstandardTransaction(
 	tx *util.Tx) bool {
+
 	// Check all of the output public key scripts for non-standard scripts.
 	for _, txOut := range tx.MsgTx().TxOut {
 		scriptClass := txscript.GetScriptClass(txOut.PkScript)
@@ -153,12 +160,14 @@ func (b *BlockChain) IsCheckpointCandidate(block *util.Block) (bool, error) {
 
 	b.chainLock.RLock()
 	defer b.chainLock.RUnlock()
+
 	// A checkpoint must be in the main chain.
 	node := b.Index.LookupNode(block.Hash())
 	if node == nil || !b.bestChain.Contains(node) {
 
 		return false, nil
 	}
+
 	// Ensure the height of the passed block and the entry for the block in the main chain match.  This should always be the case unless the caller provided an invalid block.
 	if node.height != block.Height() {
 
@@ -166,21 +175,25 @@ func (b *BlockChain) IsCheckpointCandidate(block *util.Block) (bool, error) {
 			"match the main chain height of %d", block.Height(),
 			node.height)
 	}
+
 	// A checkpoint must be at least CheckpointConfirmations blocks before the end of the main chain.
 	mainChainHeight := b.bestChain.Tip().height
 	if node.height > (mainChainHeight - CheckpointConfirmations) {
 
 		return false, nil
 	}
+
 	// A checkpoint must be have at least one block after it. This should always succeed since the check above already made sure it is CheckpointConfirmations back, but be safe in case the constant changes.
 	nextNode := b.bestChain.Next(node)
 	if nextNode == nil {
 		return false, nil
 	}
+
 	// A checkpoint must be have at least one block before it.
 	if node.parent == nil {
 		return false, nil
 	}
+
 	// A checkpoint must have timestamps for the block and the blocks on either side of it in order (due to the median time allowance this is not always the case).
 	prevTime := time.Unix(node.parent.timestamp, 0)
 	curTime := block.MsgBlock().Header.Timestamp
@@ -189,6 +202,7 @@ func (b *BlockChain) IsCheckpointCandidate(block *util.Block) (bool, error) {
 
 		return false, nil
 	}
+
 	// A checkpoint must have transactions that only contain standard scripts.
 	for _, tx := range block.Transactions() {
 
@@ -197,6 +211,7 @@ func (b *BlockChain) IsCheckpointCandidate(block *util.Block) (bool, error) {
 			return false, nil
 		}
 	}
+
 	// All of the checks passed, so the block is a candidate.
 	return true, nil
 }

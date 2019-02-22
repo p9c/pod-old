@@ -16,6 +16,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // ConfigSet is a full set of configuration structs
 type ConfigSet struct {
 	Conf   *ConfCfg
@@ -25,12 +26,14 @@ type ConfigSet struct {
 	Shell  *shell.Config
 }
 
+
 // PortSet is a single set of ports for a configuration
 type PortSet struct {
 	P2P       string
 	NodeRPC   string
 	WalletRPC string
 }
+
 
 // DefaultConfConfig returns a crispy fresh default conf configuration
 func DefaultConfConfig(
@@ -61,6 +64,7 @@ func DefaultConfConfig(
 	}
 }
 
+
 // GenPortSet creates a set of ports for testnet configuration
 func GenPortSet(
 	portbase int,
@@ -68,12 +72,19 @@ func GenPortSet(
 	ps *PortSet,
 ) {
 
+
 	// From the base, each element is as follows:
+
 	// - P2P = portbase
+
 	// - NodeRPC = portbase + 1
+
 	// - WalletRPC =  portbase -1
+
 	// For each set, the base is incremented by 100
+
 	// so from 21047, you get 21047, 21048, 21046
+
 	// and next would be 21147, 21148, 21146
 	t := portbase
 	ps = &PortSet{
@@ -83,6 +94,7 @@ func GenPortSet(
 	}
 	return
 }
+
 
 // GetDefaultConfs returns all of the configurations in their default state
 func GetDefaultConfs(
@@ -100,6 +112,7 @@ func GetDefaultConfs(
 	return
 }
 
+
 // SyncToConfs takes a ConfigSet and synchronises the values according to the ConfCfg settings
 func SyncToConfs(
 	in *ConfigSet,
@@ -115,6 +128,7 @@ func SyncToConfs(
 		in.Shell == nil {
 		panic("configset had a nil element\n" + spew.Sdump(in))
 	}
+
 
 	// push all current settings as from the conf configuration to the module configs
 	in.Node.Node.Listeners = in.Conf.NodeListeners
@@ -191,6 +205,7 @@ func SyncToConfs(
 	in.Shell.Wallet.WalletPass = in.Conf.WalletPass
 }
 
+
 // WriteConfConfig creates and writes the config file in the requested location
 func WriteConfConfig(
 	cfg *ConfCfg,
@@ -210,6 +225,7 @@ func WriteConfConfig(
 	}
 }
 
+
 // WriteConfigSet writes a set of configurations to disk
 func WriteConfigSet(
 	in *ConfigSet,
@@ -221,6 +237,7 @@ func WriteConfigSet(
 	WriteWalletConfig(in.Wallet)
 	WriteShellConfig(in.Shell)
 }
+
 
 // WriteDefaultConfConfig creates and writes a default config file in the requested location
 func WriteDefaultConfConfig(
@@ -240,11 +257,14 @@ func WriteDefaultConfConfig(
 
 		panic(err.Error())
 	}
+
 	// if we are writing default config we also want to use it
 	ConfConfig = *defCfg
 }
 
+
 // // cf is the list of flags and the default values stored in the Usage field
+
 // var cf = GetFlags(ConfCommand)
 
 func configConf(
@@ -451,6 +471,7 @@ func configConf(
 	}
 
 	WriteConfConfig(cs.Conf)
+
 	// Now write the configs for all the others reading them and overwriting the changed values
 	WriteCtlConfig(cs.Ctl)
 	WriteNodeConfig(cs.Node)

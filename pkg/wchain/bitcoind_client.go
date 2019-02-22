@@ -21,8 +21,11 @@ import (
 )
 
 var (
+
 	// ErrBitcoindClientShuttingDown is an error returned when we attempt
+
 	// to receive a notification for a specific item and the bitcoind client
+
 	// is in the middle of shutting down.
 	ErrBitcoindClientShuttingDown = errors.New("client is shutting down")
 )
@@ -33,75 +36,117 @@ type BitcoindClient struct {
 	started int32 // To be used atomically.
 	stopped int32 // To be used atomically.
 
+
 	// birthday is the earliest time for which we should begin scanning the
+
 	// chain.
 	birthday time.Time
 
+
 	// chainParams are the parameters of the current chain this client is
+
 	// active under.
 	chainParams *chaincfg.Params
 
+
 	// id is the unique ID of this client assigned by the backing bitcoind
+
 	// connection.
 	id uint64
 
+
 	// chainConn is the backing client to our rescan client that contains
+
 	// the RPC and ZMQ connections to a bitcoind node.
 	chainConn *BitcoindConn
+
 
 	// bestBlock keeps track of the tip of the current best chain.
 	bestBlockMtx sync.RWMutex
 	bestBlock    waddrmgr.BlockStamp
 
+
 	// notifyBlocks signals whether the client is sending block
+
 	// notifications to the caller.
 	notifyBlocks uint32
 
+
 	// rescanUpdate is a channel will be sent items that we should match
+
 	// transactions against while processing a chain rescan to determine if
+
 	// they are relevant to the client.
 	rescanUpdate chan interface{}
 
+
 	// watchedAddresses, watchedOutPoints, and watchedTxs are the set of
+
 	// items we should match transactions against while processing a chain
+
 	// rescan to determine if they are relevant to the client.
 	watchMtx         sync.RWMutex
 	watchedAddresses map[string]struct{}
 	watchedOutPoints map[wire.OutPoint]struct{}
 	watchedTxs       map[chainhash.Hash]struct{}
 
+
 	// mempool keeps track of all relevant transactions that have yet to be
+
 	// confirmed. This is used to shortcut the filtering process of a
+
 	// transaction when a new confirmed transaction notification is
+
 	// received.
+
 	//
+
 	// NOTE: This requires the watchMtx to be held.
 	mempool map[chainhash.Hash]struct{}
 
+
 	// expiredMempool keeps track of a set of confirmed transactions along
+
 	// with the height at which they were included in a block. These
+
 	// transactions will then be removed from the mempool after a period of
+
 	// 288 blocks. This is done to ensure the transactions are safe from a
+
 	// reorg in the chain.
+
 	//
+
 	// NOTE: This requires the watchMtx to be held.
 	expiredMempool map[int32]map[chainhash.Hash]struct{}
 
+
 	// notificationQueue is a concurrent unbounded queue that handles
+
 	// dispatching notifications to the subscriber of this client.
+
 	//
+
 	// TODO: Rather than leaving this as an unbounded queue for all types of
+
 	// notifications, try dropping ones where a later enqueued notification
+
 	// can fully invalidate one waiting to be processed. For example,
+
 	// BlockConnected notifications for greater block heights can remove the
+
 	// need to process earlier notifications still waiting to be processed.
 	notificationQueue *ConcurrentQueue
 
+
 	// zmqTxNtfns is a channel through which ZMQ transaction events will be
+
 	// retrieved from the backing bitcoind connection.
 	zmqTxNtfns chan *wire.MsgTx
 
+
 	// zmqBlockNtfns is a channel through which ZMQ block events will be
+
 	// retrieved from the backing bitcoind connection.
 	zmqBlockNtfns chan *wire.MsgBlock
 
@@ -296,8 +341,11 @@ func (c *BitcoindClient) LoadTxFilter(reset bool, filters ...interface{}) error 
 		return nil
 	}
 
+
 	// In order to make this operation atomic, we'll iterate through the
+
 	// filters twice: the first to ensure there aren't any unsupported
+
 	// filter types, and the second to actually update our filters.
 	for _, filter := range filters {
 		switch filter := filter.(type) {
@@ -370,10 +418,12 @@ func (c *BitcoindClient) RescanBlocks(
 func (c *BitcoindClient) Rescan(blockHash *chainhash.Hash,
 	addresses []util.Address, outPoints map[wire.OutPoint]util.Address) error {
 
+
 	// A block hash is required to use as the starting point of the rescan.
 	if blockHash == nil {
 		return errors.New("rescan requires a starting block hash")
 	}
+
 
 	// We'll then update our filters with the given outpoints and addresses.
 	select {
@@ -387,6 +437,7 @@ func (c *BitcoindClient) Rescan(blockHash *chainhash.Hash,
 	case <-c.quit:
 		return ErrBitcoindClientShuttingDown
 	}
+
 
 	// Once the filters have been updated, we can begin the rescan.
 	select {
@@ -409,11 +460,15 @@ func (c *BitcoindClient) Start() error {
 		return nil
 	}
 
+
 	// Start the notification queue and immediately dispatch a
+
 	// ClientConnected notification to the caller. This is needed as some of
+
 	// the callers will require this notification before proceeding.
 	c.notificationQueue.Start()
 	c.notificationQueue.ChanIn() <- ClientConnected{}
+
 
 	// Retrieve the best block of the chain.
 	bestHash, bestHeight, err := c.GetBestBlock()
@@ -434,8 +489,11 @@ func (c *BitcoindClient) Start() error {
 	}
 	c.bestBlockMtx.Unlock()
 
+
 	// Once the client has started successfully, we'll include it in the set
+
 	// of rescan clients of the backing bitcoind connection in order to
+
 	// received ZMQ event notifications.
 	c.chainConn.AddClient(c)
 
@@ -459,7 +517,9 @@ func (c *BitcoindClient) Stop() {
 
 	close(c.quit)
 
+
 	// Remove this client's reference from the bitcoind connection to
+
 	// prevent sending notifications to it after it's been stopped.
 	c.chainConn.RemoveClient(c.id)
 
@@ -781,8 +841,11 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 		"possible reorg at block", reorgBlock.BlockHash(),
 	}
 
+
 	// Retrieve the best known height based on the block which caused the
+
 	// reorg. This way, we can preserve the chain of blocks we need to
+
 	// retrieve.
 	bestHash := reorgBlock.BlockHash()
 	bestHeight, err := c.GetBlockHeight(&bestHash)
@@ -795,8 +858,11 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 		return nil
 	}
 
+
 	// We'll now keep track of all the blocks known to the *chain*, starting
+
 	// from the best block known to us until the best block in the chain.
+
 	// This will let us fast-forward despite any future reorgs.
 	blocksToNotify := list.New()
 	blocksToNotify.PushFront(reorgBlock)
@@ -810,17 +876,24 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 		previousBlock = block.Header.PrevBlock
 	}
 
+
 	// Rewind back to the last common ancestor block using the previous
+
 	// block hash from each header to avoid any race conditions. If we
+
 	// encounter more reorgs, they'll be queued and we'll repeat the cycle.
+
 	//
+
 	// We'll start by retrieving the header to the best block known to us.
 	currentHeader, err := c.GetBlockHeader(&currentBlock.Hash)
 	if err != nil {
 		return err
 	}
 
+
 	// Then, we'll walk backwards in the chain until we find our common
+
 	// ancestor.
 	for previousBlock != currentHeader.PrevBlock {
 		// Since the previous hashes don't match, the current block has
@@ -858,8 +931,11 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 		previousBlock = block.Header.PrevBlock
 	}
 
+
 	// Disconnect the last block from the old chain. Since the previous
+
 	// block remains the same between the old and new chains, the tip will
+
 	// now be the last common ancestor.
 	log <- cl.Debugf{
 		"disconnecting block %d (%v)",
@@ -871,6 +947,7 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 	)
 
 	currentBlock.Height--
+
 
 	// Now we fast-forward to the new block, notifying along the way.
 	for blocksToNotify.Front() != nil {
@@ -913,8 +990,11 @@ func (c *BitcoindClient) FilterBlocks(
 
 	blockFilterer := NewBlockFilterer(c.chainParams, req)
 
+
 	// Iterate over the requested blocks, fetching each from the rpc client.
+
 	// Each block will scanned using the reverse addresses indexes generated
+
 	// above, breaking out early if any addresses are found.
 	for i, block := range req.Blocks {
 		// TODO(conner): add prefetching, since we already know we'll be
@@ -946,6 +1026,7 @@ func (c *BitcoindClient) FilterBlocks(
 		return resp, nil
 	}
 
+
 	// No addresses were found for this range.
 	return nil, nil
 }
@@ -958,9 +1039,13 @@ func (c *BitcoindClient) FilterBlocks(
 func (c *BitcoindClient) rescan(start chainhash.Hash) error {
 	log <- cl.Info{"starting rescan from block", start}
 
+
 	// We start by getting the best already processed block. We only use
+
 	// the height, as the hash can change during a reorganization, which we
+
 	// catch by testing connectivity from known blocks to the previous
+
 	// block.
 	bestHash, bestHeight, err := c.GetBestBlock()
 	if err != nil {
@@ -976,7 +1061,9 @@ func (c *BitcoindClient) rescan(start chainhash.Hash) error {
 		Timestamp: time.Unix(bestHeader.Time, 0),
 	}
 
+
 	// Create a list of headers sorted in forward order. We'll use this in
+
 	// the event that we need to backtrack due to a chain reorg.
 	headers := list.New()
 	previousHeader, err := c.GetBlockHeaderVerbose(&start)
@@ -989,14 +1076,18 @@ func (c *BitcoindClient) rescan(start chainhash.Hash) error {
 	}
 	headers.PushBack(previousHeader)
 
+
 	// Queue a RescanFinished notification to the caller with the last block
+
 	// processed throughout the rescan once done.
 	defer c.onRescanFinished(
 		previousHash, previousHeader.Height,
 		time.Unix(previousHeader.Time, 0),
 	)
 
+
 	// Cycle through all of the blocks known to bitcoind, being mindful of
+
 	// reorgs.
 	for i := previousHeader.Height + 1; i <= bestBlock.Height; i++ {
 		hash, err := c.GetBlockHash(int64(i))
@@ -1142,6 +1233,7 @@ func (c *BitcoindClient) rescan(start chainhash.Hash) error {
 func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 	notify bool) ([]*wtxmgr.TxRecord, error) {
 
+
 	// If this block happened before the client's birthday, then we'll skip it entirely.
 	if block.Header.Timestamp.Before(c.birthday) {
 
@@ -1154,6 +1246,7 @@ func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 			height, block.BlockHash(), len(block.Transactions),
 		}
 	}
+
 	// Create a block details template to use for all of the confirmed transactions found within this block.
 	blockHash := block.BlockHash()
 	blockDetails := &json.BlockDetails{
@@ -1161,6 +1254,7 @@ func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 		Height: height,
 		Time:   block.Header.Timestamp.Unix(),
 	}
+
 	// Now, we'll through all of the transactions in the block keeping track of any relevant to the caller.
 	var relevantTxs []*wtxmgr.TxRecord
 	confirmedTxs := make(map[chainhash.Hash]struct{})
@@ -1183,8 +1277,11 @@ func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 		}
 	}
 
+
 	// Update the expiration map by setting the block's confirmed
+
 	// transactions and deleting any in the mempool that were confirmed
+
 	// over 288 blocks ago.
 	c.watchMtx.Lock()
 	c.expiredMempool[height] = confirmedTxs
@@ -1226,13 +1323,18 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		rec.Received = time.Unix(blockDetails.Time, 0)
 	}
 
+
 	// We'll begin the filtering process by holding the lock to ensure we
+
 	// match exactly against what's currently in the filters.
 	c.watchMtx.Lock()
 	defer c.watchMtx.Unlock()
 
+
 	// If we've already seen this transaction and it's now been confirmed,
+
 	// then we'll shortcut the filter process by immediately sending a
+
 	// notification to the caller that the filter matches.
 	if _, ok := c.mempool[tx.TxHash()]; ok {
 		if notify && blockDetails != nil {
@@ -1241,12 +1343,17 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		return true, rec, nil
 	}
 
+
 	// Otherwise, this is a new transaction we have yet to see. We'll need
+
 	// to determine if this transaction is somehow relevant to the caller.
 	var isRelevant bool
 
+
 	// We'll start by cycling through its outputs to determine if it pays to
+
 	// any of the currently watched addresses. If an output matches, we'll
+
 	// add it to our watch list.
 	for i, out := range tx.TxOut {
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
@@ -1272,7 +1379,9 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		}
 	}
 
+
 	// If the transaction didn't pay to any of our watched addresses, we'll
+
 	// check if we're currently watching for the hash of this transaction.
 	if !isRelevant {
 		if _, ok := c.watchedTxs[tx.TxHash()]; ok {
@@ -1280,7 +1389,9 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		}
 	}
 
+
 	// If the transaction didn't pay to any of our watched hashes, we'll
+
 	// check if it spends any of our watched outpoints.
 	if !isRelevant {
 		for _, in := range tx.TxIn {
@@ -1291,14 +1402,19 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		}
 	}
 
+
 	// If the transaction is not relevant to us, we can simply exit.
 	if !isRelevant {
 		return false, rec, nil
 	}
 
+
 	// Otherwise, the transaction matched our filters, so we should dispatch
+
 	// a notification for it. If it's still unconfirmed, we'll include it in
+
 	// our mempool so that it can also be notified as part of
+
 	// FilteredBlockConnected once it confirms.
 	if blockDetails == nil {
 		c.mempool[tx.TxHash()] = struct{}{}

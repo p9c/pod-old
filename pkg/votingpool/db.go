@@ -16,16 +16,24 @@ import (
 // These constants define the serialized length for a given encrypted extended
 // public or private key.
 const (
+
 	// We can calculate the encrypted extended key length this way:
+
 	// snacl.Overhead == overhead for encrypting (16)
+
 	// actual base58 extended key length = (111)
+
 	// snacl.NonceSize == nonce size used for encryption (24)
 	seriesKeyLength = snacl.Overhead + 111 + snacl.NonceSize
+
 	// 4 bytes version + 1 byte active + 4 bytes nKeys + 4 bytes reqSigs
 	seriesMinSerial = 4 + 1 + 4 + 4
+
 	// 15 is the max number of keys in a voting pool, 1 each for
+
 	// pubkey and privkey
 	seriesMaxSerial = seriesMinSerial + 15*seriesKeyLength*2
+
 	// version of serialized Series that we support
 	seriesMaxVersion = 1
 )
@@ -34,6 +42,7 @@ var (
 	usedAddrsBucketName   = []byte("usedaddrs")
 	seriesBucketName      = []byte("series")
 	withdrawalsBucketName = []byte("withdrawals")
+
 	// string representing a non-existent private key
 	seriesNullPrivKey = [seriesKeyLength]byte{}
 )
@@ -74,7 +83,9 @@ type dbOutputRequest struct {
 }
 
 type dbWithdrawalOutput struct {
+
 	// We store the OutBailmentID here as we need a way to look up the
+
 	// corresponding dbOutputRequest in dbWithdrawalRow when deserializing.
 	OutBailmentID OutBailmentID
 	Status        outputStatus
@@ -151,11 +162,17 @@ func getMaxUsedIdx(
 	if bucket == nil {
 		return maxIdx, nil
 	}
+
 	// FIXME: This is far from optimal and should be optimized either by storing
+
 	// a separate key in the DB with the highest used idx for every
+
 	// series/branch or perhaps by doing a large gap linear forward search +
+
 	// binary backwards search (e.g. check for 1000000, 2000000, ....  until it
+
 	// doesn't exist, and then use a binary search to find the max using the
+
 	// discovered bounds).
 	err := bucket.ForEach(
 		func(k, v []byte) error {
@@ -273,25 +290,35 @@ func putSeriesRow(
 func deserializeSeriesRow(
 	serializedSeries []byte) (*dbSeriesRow, error) {
 
+
 	// The serialized series format is:
+
 	// <version><active><reqSigs><nKeys><pubKey1><privKey1>...<pubkeyN><privKeyN>
+
 	//
+
 	// 4 bytes version + 1 byte active + 4 bytes reqSigs + 4 bytes nKeys
+
 	// + seriesKeyLength * 2 * nKeys (1 for priv, 1 for pub)
 
+
 	// Given the above, the length of the serialized series should be
+
 	// at minimum the length of the constants.
 	if len(serializedSeries) < seriesMinSerial {
 		str := fmt.Sprintf("serialized series is too short: %v", serializedSeries)
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
 
+
 	// Maximum number of public keys is 15 and the same for public keys
+
 	// this gives us an upper bound.
 	if len(serializedSeries) > seriesMaxSerial {
 		str := fmt.Sprintf("serialized series is too long: %v", serializedSeries)
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
+
 
 	// Keeps track of the position of the next set of bytes to deserialize.
 	current := 0
@@ -314,6 +341,7 @@ func deserializeSeriesRow(
 	nKeys := bytesToUint32(serializedSeries[current : current+4])
 	current += 4
 
+
 	// Check to see if we have the right number of bytes to consume.
 	if len(serializedSeries) < current+int(nKeys)*seriesKeyLength*2 {
 		str := fmt.Sprintf("serialized series has not enough data: %v", serializedSeries)
@@ -322,6 +350,7 @@ func deserializeSeriesRow(
 		str := fmt.Sprintf("serialized series has too much data: %v", serializedSeries)
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
+
 
 	// Deserialize the pubkey/privkey pairs.
 	row.pubKeysEncrypted = make([][]byte, nKeys)
@@ -347,10 +376,15 @@ func deserializeSeriesRow(
 func serializeSeriesRow(
 	row *dbSeriesRow) ([]byte, error) {
 
+
 	// The serialized series format is:
+
 	// <version><active><reqSigs><nKeys><pubKey1><privKey1>...<pubkeyN><privKeyN>
+
 	//
+
 	// 4 bytes version + 1 byte active + 4 bytes reqSigs + 4 bytes nKeys
+
 	// + seriesKeyLength * 2 * nKeys (1 for priv, 1 for pub)
 	serializedLen := 4 + 1 + 4 + 4 + (seriesKeyLength * 2 * len(row.pubKeysEncrypted))
 
@@ -504,7 +538,9 @@ func deserializeWithdrawal(
 	}
 	chainParams := p.Manager().ChainParams()
 	wInfo.requests = make([]OutputRequest, len(row.Requests))
+
 	// A map of requests indexed by OutBailmentID; needed to populate
+
 	// WithdrawalStatus.Outputs later on.
 	requestsByOID := make(map[OutBailmentID]OutputRequest)
 	for i, req := range row.Requests {
@@ -540,7 +576,9 @@ func deserializeWithdrawal(
 	}
 	wInfo.changeStart = *cAddr
 
+
 	// TODO: Copy over row.Status.nextInputAddr. Not done because StartWithdrawal
+
 	// does not update that yet.
 	nextChangeAddr := row.Status.NextChangeAddr
 	cAddr, err = p.ChangeAddress(nextChangeAddr.SeriesID, nextChangeAddr.Index)

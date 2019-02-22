@@ -14,12 +14,16 @@ import (
 type UsageFlag uint32
 
 const (
+
 	// UFWalletOnly indicates that the command can only be used with an RPC server that supports wallet commands.
 	UFWalletOnly UsageFlag = 1 << iota
+
 	// UFWebsocketOnly indicates that the command can only be used when communicating with an RPC server over websockets.  This typically applies to notifications and notification registration functions since neiher makes since when using a single-shot HTTP-POST request.
 	UFWebsocketOnly
+
 	// UFNotification indicates that the command is actually a notification. This means when it is marshalled, the ID must be nil.
 	UFNotification
+
 	// highestUsageFlagBit is the maximum usage flag bit and is used in the stringer and tests to ensure all of the above constants have been tested.
 	highestUsageFlagBit
 )
@@ -33,10 +37,12 @@ var usageFlagStrings = map[UsageFlag]string{
 
 // String returns the UsageFlag in human-readable form.
 func (fl UsageFlag) String() string {
+
 	// No flags are set.
 	if fl == 0 {
 		return "0x0"
 	}
+
 	// Add individual bit flags.
 	s := ""
 	for flag := UFWalletOnly; flag < highestUsageFlagBit; flag <<= 1 {
@@ -45,6 +51,7 @@ func (fl UsageFlag) String() string {
 			fl -= flag
 		}
 	}
+
 	// Add remaining value as raw hex.
 	s = strings.TrimRight(s, "|")
 	if fl != 0 {
@@ -65,6 +72,7 @@ type methodInfo struct {
 }
 
 var (
+
 	// These fields are used to map the registered types to method names.
 	registerLock         sync.RWMutex
 	methodToConcreteType = make(map[string]reflect.Type)
@@ -124,6 +132,7 @@ func RegisterCmd(
 		str := fmt.Sprintf("method %q is already registered", method)
 		return makeError(ErrDuplicateMethod, str)
 	}
+
 	// Ensure that no unrecognized flag bits were specified.
 	if ^(highestUsageFlagBit-1)&flags != 0 {
 		str := fmt.Sprintf("invalid usage flags specified for method "+
@@ -142,6 +151,7 @@ func RegisterCmd(
 			rtp, rt.Kind())
 		return makeError(ErrInvalidType, str)
 	}
+
 	// Enumerate the struct fields to validate them and gather parameter information.
 	numFields := rt.NumField()
 	numOptFields := 0
@@ -204,6 +214,7 @@ func RegisterCmd(
 			defaults[i] = rvf
 		}
 	}
+
 	// Update the registration maps.
 	methodToConcreteType[method] = rtp
 	methodToInfo[method] = methodInfo{

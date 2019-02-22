@@ -7,6 +7,7 @@ import (
 	database "git.parallelcoin.io/pod/pkg/db"
 )
 
+
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
@@ -38,6 +39,7 @@ func TestErrorCodeStringer(
 		{database.ErrDriverSpecific, "ErrDriverSpecific"},
 		{0xffff, "Unknown ErrorCode (65535)"},
 	}
+
 	// Detect additional error codes that don't have the stringer added.
 	if len(tests)-1 != int(database.TstNumErrorCodes) {
 
@@ -54,6 +56,7 @@ func TestErrorCodeStringer(
 		}
 	}
 }
+
 
 // TestError tests the error output for the Error type.
 func TestError(

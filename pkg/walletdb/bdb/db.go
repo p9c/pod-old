@@ -12,17 +12,20 @@ import (
 func convertErr(
 	err error) error {
 	switch err {
+
 	// Database open/create errors.
 	case bolt.ErrDatabaseNotOpen:
 		return walletdb.ErrDbNotOpen
 	case bolt.ErrInvalid:
 		return walletdb.ErrInvalid
 
+
 	// Transaction errors.
 	case bolt.ErrTxNotWritable:
 		return walletdb.ErrTxNotWritable
 	case bolt.ErrTxClosed:
 		return walletdb.ErrTxClosed
+
 
 	// Value/bucket errors.
 	case bolt.ErrBucketNotFound:
@@ -40,6 +43,7 @@ func convertErr(
 	case bolt.ErrIncompatibleValue:
 		return walletdb.ErrIncompatibleValue
 	}
+
 
 	// Return the original error if none of the above applies.
 	return err
@@ -110,6 +114,7 @@ var _ walletdb.ReadWriteBucket = (*bucket)(nil)
 // This function is part of the walletdb.ReadWriteBucket interface implementation.
 func (b *bucket) NestedReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 	boltBucket := (*bolt.Bucket)(b).Bucket(key)
+
 	// Don't return a non-nil interface to a nil pointer.
 	if boltBucket == nil {
 		return nil

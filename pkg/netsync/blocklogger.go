@@ -42,9 +42,11 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 	if duration < time.Second*2 {
 		return
 	}
+
 	// Truncate the duration to 10s of milliseconds.
 	durationMillis := int64(duration / time.Millisecond)
 	tDuration := 10 * time.Millisecond * time.Duration(durationMillis/10)
+
 	// Log information about new block height.
 	blockStr := "blocks"
 	if b.receivedLogBlocks == 1 {

@@ -21,7 +21,9 @@ func TestMustRegisterPanic(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Setup a defer to catch the expected panic to ensure it actually
+
 	// paniced.
 	defer func() {
 
@@ -29,6 +31,7 @@ func TestMustRegisterPanic(
 			t.Error("mustRegister did not panic as expected")
 		}
 	}()
+
 	// Intentionally try to register duplicate params to force a panic.
 	mustRegister(&MainNetParams)
 }

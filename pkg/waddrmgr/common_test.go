@@ -15,6 +15,7 @@ import (
 )
 
 var (
+
 	// seed is the master seed used throughout the tests.
 	seed = []byte{
 		0x2a, 0x64, 0xdf, 0x08, 0x5e, 0xef, 0xed, 0xd8, 0xbf,
@@ -28,7 +29,9 @@ var (
 	pubPassphrase2  = []byte("-0NV4P~VSJBWbunw}%<Z]fuGpbN[ZI")
 	privPassphrase2 = []byte("~{<]08%6!-?2s<$(8$8:f(5[4/!/{Y")
 
+
 	// fastScrypt are parameters used throughout the tests to speed up the
+
 	// scrypt operations.
 	fastScrypt = &waddrmgr.ScryptOptions{
 		N: 16,
@@ -36,10 +39,13 @@ var (
 		P: 1,
 	}
 
+
 	// waddrmgrNamespaceKey is the namespace key for the waddrmgr package.
 	waddrmgrNamespaceKey = []byte("waddrmgrNamespace")
 
+
 	// expectedAddrs is the list of all expected addresses generated from the
+
 	// seed.
 	expectedAddrs = []expectedAddr{
 		{
@@ -194,11 +200,15 @@ var (
 		},
 	}
 
+
 	// expectedExternalAddrs is the list of expected external addresses
+
 	// generated from the seed
 	expectedExternalAddrs = expectedAddrs[:5]
 
+
 	// expectedInternalAddrs is the list of expected internal addresses
+
 	// generated from the seed
 	expectedInternalAddrs = expectedAddrs[5:]
 )
@@ -258,6 +268,7 @@ func emptyDB(
 // that should be invoked to ensure it is closed and removed upon completion.
 func setupManager(
 	t *testing.T) (tearDownFunc func(), db walletdb.DB, mgr *waddrmgr.Manager) {
+
 
 	// Create a new manager in a temp directory.
 	dirName, err := ioutil.TempDir("", "mgrtest")

@@ -14,10 +14,15 @@ import (
 )
 
 const (
+
 	// blockHdrOffset defines the offsets into a v1 block index row for the
+
 	// block header.
+
 	//
+
 	// The serialized block index row format is:
+
 	//   <blocklocation><blockheader>
 	blockHdrOffset = 12
 )
@@ -56,7 +61,9 @@ type blockChainContext struct {
 // block height + hash.
 func migrateBlockIndex(
 	db database.DB) error {
+
 	// Hardcoded bucket names so updates to the global values do not affect
+
 	// old upgrades.
 	v1BucketName := []byte("ffldb-blockidx")
 	v2BucketName := []byte("blockheaderidx")
@@ -170,7 +177,9 @@ func readBlockTree(
 func determineBlockHeights(
 	blocksMap map[chainhash.Hash]*blockChainContext) error {
 	queue := list.New()
+
 	// The genesis block is included in blocksMap as a child of the zero hash
+
 	// because that is the value of the PrevBlock field in the genesis header.
 	preGenesisContext, exists := blocksMap[zeroHash]
 	if !exists || len(preGenesisContext.children) == 0 {
@@ -299,8 +308,11 @@ func determineMainChainBlocks(
 func deserializeUtxoEntryV0(
 	serialized []byte) (map[uint32]*UtxoEntry, error) {
 
+
 	// Deserialize the version.
+
 	//
+
 	// NOTE: Ignore version since it is no longer used in the new format.
 	_, bytesRead := deserializeVLQ(serialized)
 	offset := bytesRead
@@ -308,6 +320,7 @@ func deserializeUtxoEntryV0(
 
 		return nil, errDeserialize("unexpected end of data after version")
 	}
+
 	// Deserialize the block height.
 	blockHeight, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
@@ -315,6 +328,7 @@ func deserializeUtxoEntryV0(
 
 		return nil, errDeserialize("unexpected end of data after height")
 	}
+
 	// Deserialize the header code.
 	code, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
@@ -322,12 +336,19 @@ func deserializeUtxoEntryV0(
 
 		return nil, errDeserialize("unexpected end of data after header")
 	}
+
 	// Decode the header code.
+
 	//
+
 	// Bit 0 indicates whether the containing transaction is a coinbase.
+
 	// Bit 1 indicates output 0 is unspent.
+
 	// Bit 2 indicates output 1 is unspent.
+
 	// Bits 3-x encodes the number of non-zero unspentness bitmap bytes that
+
 	// follow.  When both output 0 and 1 are spent, it encodes N-1.
 	isCoinBase := code&0x01 != 0
 	output0Unspent := code&0x02 != 0
@@ -336,13 +357,17 @@ func deserializeUtxoEntryV0(
 	if !output0Unspent && !output1Unspent {
 		numBitmapBytes++
 	}
+
 	// Ensure there are enough bytes left to deserialize the unspentness
+
 	// bitmap.
 	if uint64(len(serialized[offset:])) < numBitmapBytes {
 		return nil, errDeserialize("unexpected end of data for " +
 			"unspentness bitmap")
 	}
+
 	// Add sparse output for unspent outputs 0 and 1 as needed based on the
+
 	// details provided by the header code.
 	var outputIndexes []uint32
 	if output0Unspent {
@@ -351,7 +376,9 @@ func deserializeUtxoEntryV0(
 	if output1Unspent {
 		outputIndexes = append(outputIndexes, 1)
 	}
+
 	// Decode the unspentness bitmap adding a sparse output for each unspent
+
 	// output.
 	for i := uint32(0); i < uint32(numBitmapBytes); i++ {
 		unspentBits := serialized[offset]
@@ -367,13 +394,16 @@ func deserializeUtxoEntryV0(
 		}
 		offset++
 	}
+
 	// Map to hold all of the converted outputs.
 	entries := make(map[uint32]*UtxoEntry)
+
 	// All entries will need to potentially be marked as a coinbase.
 	var packedFlags txoFlags
 	if isCoinBase {
 		packedFlags |= tfCoinBase
 	}
+
 	// Decode and add all of the utxos.
 	for i, outputIndex := range outputIndexes {
 		// Decode the next utxo.
@@ -399,7 +429,9 @@ func deserializeUtxoEntryV0(
 // batches.  It is guaranteed to updated if this returns without failure.
 func upgradeUtxoSetToV2(
 	db database.DB, interrupt <-chan struct{}) error {
+
 	// Hardcoded bucket names so updates to the global values do not affect
+
 	// old upgrades.
 	var (
 		v1BucketName = []byte("utxoset")
@@ -407,6 +439,7 @@ func upgradeUtxoSetToV2(
 	)
 	log <- cl.Inf("Upgrading utxo set to v2.  This will take a while...")
 	start := time.Now()
+
 	// Create the new utxo set bucket as needed.
 	err := db.Update(func(dbTx database.Tx) error {
 		_, err := dbTx.Metadata().CreateBucketIfNotExists(v2BucketName)
@@ -415,12 +448,19 @@ func upgradeUtxoSetToV2(
 	if err != nil {
 		return err
 	}
+
 	// doBatch contains the primary logic for upgrading the utxo set from
+
 	// version 1 to 2 in batches.  This is done because the utxo set can be
+
 	// huge and thus attempting to migrate in a single database transaction
+
 	// would result in massive memory usage and could potentially crash on
+
 	// many systems due to ulimits.
+
 	//
+
 	// It returns the number of utxos processed.
 	const maxUtxos = 200000
 	doBatch := func(dbTx database.Tx) (uint32, error) {
@@ -481,6 +521,7 @@ func upgradeUtxoSetToV2(
 		}
 		return numUtxos, nil
 	}
+
 	// Migrate all entries in batches for the reasons mentioned above.
 	var totalUtxos uint64
 	for {
@@ -503,7 +544,9 @@ func upgradeUtxoSetToV2(
 		totalUtxos += uint64(numUtxos)
 		log <- cl.Infof{"Migrated %d utxos (%d total)", numUtxos, totalUtxos}
 	}
+
 	// Remove the old bucket and update the utxo set version once it has
+
 	// been fully migrated.
 	err = db.Update(func(dbTx database.Tx) error {
 		err := dbTx.Metadata().DeleteBucket(v1BucketName)
@@ -529,6 +572,7 @@ func upgradeUtxoSetToV2(
 // All buckets used by this package are guaranteed to be the latest version if
 // this function returns without error.
 func (b *BlockChain) maybeUpgradeDbBuckets(interrupt <-chan struct{}) error {
+
 	// Load or create bucket versions as needed.
 	var utxoSetVersion uint32
 	err := b.db.Update(func(dbTx database.Tx) error {
@@ -542,6 +586,7 @@ func (b *BlockChain) maybeUpgradeDbBuckets(interrupt <-chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
 	// Update the utxo set to v2 if needed.
 	if utxoSetVersion < 2 {
 		if err := upgradeUtxoSetToV2(b.db, interrupt); err != nil {

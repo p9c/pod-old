@@ -19,12 +19,17 @@ type BlockStamp struct {
 // syncState houses the sync state of the manager.  It consists of the recently
 // seen blocks as height, as well as the start and current sync block stamps.
 type syncState struct {
+
 	// startBlock is the first block that can be safely used to start a
+
 	// rescan.  It is either the block the manager was created with, or the
+
 	// earliest block provided with imported addresses or scripts.
 	startBlock BlockStamp
 
+
 	// syncedTo is the current block the addresses in the manager are known
+
 	// to be synced against.
 	syncedTo BlockStamp
 }
@@ -49,17 +54,21 @@ func (m *Manager) SetSyncedTo(ns walletdb.ReadWriteBucket, bs *BlockStamp) error
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
+
 	// Use the stored start blockstamp and reset recent hashes and height
+
 	// when the provided blockstamp is nil.
 	if bs == nil {
 		bs = &m.syncState.startBlock
 	}
+
 
 	// Update the database.
 	err := putSyncedTo(ns, bs)
 	if err != nil {
 		return err
 	}
+
 
 	// Update memory now that the database is updated.
 	m.syncState.syncedTo = *bs

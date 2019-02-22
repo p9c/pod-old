@@ -21,18 +21,21 @@ func TestCreateDefaultConfigFile(
 	t *testing.T,
 ) {
 
+
 	// find out where the sample config lives
 	_, path, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatalf("Failed finding config file path")
 	}
 	sampleConfigFile := filepath.Join(filepath.Dir(path), "sample-pod.conf")
+
 	// Setup a temporary directory
 	tmpDir, err := ioutil.TempDir("", "pod")
 	if err != nil {
 		t.Fatalf("Failed creating a temporary directory: %v", err)
 	}
 	testpath := filepath.Join(tmpDir, "test.conf")
+
 	// copy config file to location of pod binary
 	data, err := ioutil.ReadFile(sampleConfigFile)
 	if err != nil {
@@ -47,6 +50,7 @@ func TestCreateDefaultConfigFile(
 	if err != nil {
 		t.Fatalf("Failed copying sample config file: %v", err)
 	}
+
 	// Clean-up
 	defer func() {
 

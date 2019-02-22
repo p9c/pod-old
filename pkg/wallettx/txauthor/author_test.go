@@ -25,6 +25,7 @@ func p2pkhOutputs(
 
 func makeInputSource(
 	unspents []*wire.TxOut) InputSource {
+
 	// Return outputs in order.
 	currentTotal := util.Amount(0)
 	currentInputs := make([]*wire.TxIn, 0, len(unspents))

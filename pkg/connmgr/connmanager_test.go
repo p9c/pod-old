@@ -12,9 +12,11 @@ import (
 
 func init() {
 
+
 	// Override the max retry duration when running tests.
 	maxRetryDuration = 2 * time.Millisecond
 }
+
 
 // mockAddr mocks a network address
 type mockAddr struct {
@@ -24,26 +26,32 @@ type mockAddr struct {
 func (m mockAddr) Network() string { return m.net }
 func (m mockAddr) String() string  { return m.address }
 
+
 // mockConn mocks a network connection by implementing the net.Conn interface.
 type mockConn struct {
 	io.Reader
 	io.Writer
 	io.Closer
+
 	// local network, address for the connection.
 	lnet, laddr string
+
 	// remote network, address for the connection.
 	rAddr net.Addr
 }
+
 
 // LocalAddr returns the local address for the connection.
 func (c mockConn) LocalAddr() net.Addr {
 	return &mockAddr{c.lnet, c.laddr}
 }
 
+
 // RemoteAddr returns the remote address for the connection.
 func (c mockConn) RemoteAddr() net.Addr {
 	return &mockAddr{c.rAddr.Network(), c.rAddr.String()}
 }
+
 
 // Close handles closing the connection.
 func (c mockConn) Close() error {
@@ -52,6 +60,7 @@ func (c mockConn) Close() error {
 func (c mockConn) SetDeadline(t time.Time) error      { return nil }
 func (c mockConn) SetReadDeadline(t time.Time) error  { return nil }
 func (c mockConn) SetWriteDeadline(t time.Time) error { return nil }
+
 
 // mockDialer mocks the net.Dial interface by returning a mock connection to the given address.
 func mockDialer(
@@ -63,6 +72,7 @@ func mockDialer(
 	c.Writer = w
 	return c, nil
 }
+
 
 // TestNewConfig tests that new ConnManager config is validated as expected.
 func TestNewConfig(
@@ -79,6 +89,7 @@ func TestNewConfig(
 		t.Fatalf("New unexpected error: %v", err)
 	}
 }
+
 
 // TestStartStop tests that the connection manager starts and stops as expected.
 func TestStartStop(
@@ -111,8 +122,10 @@ func TestStartStop(
 	cmgr.Start()
 	gotConnReq := <-connected
 	cmgr.Stop()
+
 	// already stopped
 	cmgr.Stop()
+
 	// ignored
 	cr := &ConnReq{
 		Addr: &net.TCPAddr{
@@ -134,6 +147,7 @@ func TestStartStop(
 		break
 	}
 }
+
 
 // TestConnectMode tests that the connection manager works in the connect mode. In connect mode, automatic connections are disabled, so we test that requests using Connect are handled and that no other connections are made.
 func TestConnectMode(
@@ -180,6 +194,7 @@ func TestConnectMode(
 	cmgr.Stop()
 }
 
+
 // TestTargetOutbound tests the target number of outbound connections. We wait until all connections are established, then test they there are the only connections made.
 func TestTargetOutbound(
 	t *testing.T) {
@@ -216,6 +231,7 @@ func TestTargetOutbound(
 	}
 	cmgr.Stop()
 }
+
 
 // TestRetryPermanent tests that permanent connection requests are retried. We make a permanent connection request using Connect, disconnect it using Disconnect and we wait for it to be connected back.
 func TestRetryPermanent(
@@ -297,6 +313,7 @@ func TestRetryPermanent(
 	cmgr.Stop()
 }
 
+
 // TestMaxRetryDuration tests the maximum retry duration. We have a timed dialer which initially returns err but after RetryDuration hits maxRetryDuration returns a mock conn.
 func TestMaxRetryDuration(
 	t *testing.T) {
@@ -337,8 +354,11 @@ func TestMaxRetryDuration(
 	}
 	go cmgr.Connect(cr)
 	cmgr.Start()
+
 	// retry in 1ms
+
 	// retry in 2ms - max retry duration reached
+
 	// retry in 2ms - timedDialer returns mockDial
 	select {
 	case <-connected:
@@ -346,6 +366,7 @@ func TestMaxRetryDuration(
 		t.Fatalf("max retry duration: connection timeout")
 	}
 }
+
 
 // TestNetworkFailure tests that the connection manager handles a network failure gracefully.
 func TestNetworkFailure(
@@ -386,6 +407,7 @@ func TestNetworkFailure(
 	}
 }
 
+
 // TestStopFailed tests that failed connections are ignored after connmgr is stopped. We have a dailer which sets the stop flag on the conn manager and returns an err so that the handler assumes that the conn manager is stopped and ignores the failure.
 func TestStopFailed(
 	t *testing.T) {
@@ -423,9 +445,11 @@ func TestStopFailed(
 	cmgr.Wait()
 }
 
+
 // TestRemovePendingConnection tests that it's possible to cancel a pending connection, removing its internal state from the ConnMgr.
 func TestRemovePendingConnection(
 	t *testing.T) {
+
 
 	// Create a ConnMgr instance with an instance of a dialer that'll never succeed.
 	wait := make(chan struct{})
@@ -441,6 +465,7 @@ func TestRemovePendingConnection(
 		t.Fatalf("New error: %v", err)
 	}
 	cmgr.Start()
+
 	// Establish a connection request to a random IP we've chosen.
 	cr := &ConnReq{
 		Addr: &net.TCPAddr{
@@ -455,10 +480,13 @@ func TestRemovePendingConnection(
 		t.Fatalf("pending request hasn't been registered, status: %v",
 			cr.State())
 	}
+
 	// The request launched above will actually never be able to establish a connection. So we'll cancel it _before_ it's able to be completed.
 	cmgr.Remove(cr.ID())
 	time.Sleep(10 * time.Millisecond)
+
 	// Now examine the status of the connection request, it should read a
+
 	// status of failed.
 	if cr.State() != ConnCanceled {
 		t.Fatalf("request wasn't canceled, status is: %v", cr.State())
@@ -467,11 +495,13 @@ func TestRemovePendingConnection(
 	cmgr.Stop()
 }
 
+
 // TestCancelIgnoreDelayedConnection tests that a canceled connection request will not execute the on connection callback, even if an outstanding retry succeeds.
 func TestCancelIgnoreDelayedConnection(
 	t *testing.T) {
 
 	retryTimeout := 10 * time.Millisecond
+
 	// Setup a dialer that will continue to return an error until the connect chan is signaled, the dial attempt immediately after will succeed in returning a connection.
 	connect := make(chan struct{})
 	failingDialer := func(addr net.Addr) (net.Conn, error) {
@@ -497,6 +527,7 @@ func TestCancelIgnoreDelayedConnection(
 	}
 	cmgr.Start()
 	defer cmgr.Stop()
+
 	// Establish a connection request to a random IP we've chosen.
 	cr := &ConnReq{
 		Addr: &net.TCPAddr{
@@ -505,24 +536,32 @@ func TestCancelIgnoreDelayedConnection(
 		},
 	}
 	cmgr.Connect(cr)
+
 	// Allow for the first retry timeout to elapse.
 	time.Sleep(2 * retryTimeout)
+
 	// Connection be marked as failed, even after reattempting to
+
 	// connect.
 	if cr.State() != ConnFailing {
 		t.Fatalf("failing request should have status failed, status: %v",
 			cr.State())
 	}
+
 	// Remove the connection, and then immediately allow the next connection to succeed.
 	cmgr.Remove(cr.ID())
 	close(connect)
+
 	// Allow the connection manager to process the removal.
 	time.Sleep(5 * time.Millisecond)
+
 	// Now examine the status of the connection request, it should read a
+
 	// status of canceled.
 	if cr.State() != ConnCanceled {
 		t.Fatalf("request wasn't canceled, status is: %v", cr.State())
 	}
+
 	// Finally, the connection manager should not signal the on-connection callback, since we explicitly canceled this request. We give a generous window to ensure the connection manager's lienar backoff is allowed to properly elapse.
 	select {
 	case <-connected:
@@ -531,11 +570,13 @@ func TestCancelIgnoreDelayedConnection(
 	}
 }
 
+
 // mockListener implements the net.Listener interface and is used to test code that deals with net.Listeners without having to actually make any real connections.
 type mockListener struct {
 	localAddr   string
 	provideConn chan net.Conn
 }
+
 
 // Accept returns a mock connection when it receives a signal via the Connect function. This is part of the net.Listener interface.
 func (m *mockListener) Accept() (net.Conn, error) {
@@ -546,18 +587,22 @@ func (m *mockListener) Accept() (net.Conn, error) {
 	return nil, errors.New("network connection closed")
 }
 
+
 // Close closes the mock listener which will cause any blocked Accept operations to be unblocked and return errors. This is part of the net.Listener interface.
 func (m *mockListener) Close() error {
 	close(m.provideConn)
 	return nil
 }
 
+
 // Addr returns the address the mock listener was configured with. This is part of the net.Listener interface.
 func (m *mockListener) Addr() net.Addr {
 	return &mockAddr{"tcp", m.localAddr}
 }
 
+
 // Connect fakes a connection to the mock listener from the provided remote address.  It will cause the Accept function to return a mock connection configured with the provided remote address and the local address for the
+
 // mock listener.
 func (m *mockListener) Connect(ip string, port int) {
 
@@ -571,6 +616,7 @@ func (m *mockListener) Connect(ip string, port int) {
 	}
 }
 
+
 // newMockListener returns a new mock listener for the provided local address and port.  No ports are actually opened.
 func newMockListener(
 	localAddr string) *mockListener {
@@ -580,9 +626,11 @@ func newMockListener(
 	}
 }
 
+
 // TestListeners ensures providing listeners to the connection manager along with an accept callback works properly.
 func TestListeners(
 	t *testing.T) {
+
 
 	// Setup a connection manager with a couple of mock listeners that notify a channel when they receive mock connections.
 	receivedConns := make(chan net.Conn)
@@ -601,6 +649,7 @@ func TestListeners(
 		t.Fatalf("New error: %v", err)
 	}
 	cmgr.Start()
+
 	// Fake a couple of mock connections to each of the listeners.
 	go func() {
 
@@ -610,6 +659,7 @@ func TestListeners(
 			l.Connect("127.0.0.1", 10000+i*2+1)
 		}
 	}()
+
 	// Tally the receive connections to ensure the expected number are received.  Also, fail the test after a timeout so it will not hang forever should the test not work.
 	expectedNumConns := len(listeners) * 2
 	var numConns int

@@ -7,6 +7,7 @@ import (
 const (
 	maxInt32 = 1<<31 - 1
 	minInt32 = -1 << 31
+
 	// defaultScriptNumLen is the default number of bytes data being interpreted as an integer may be.
 	defaultScriptNumLen = 4
 )
@@ -23,7 +24,9 @@ func checkMinimalDataEncoding(
 	if len(v) == 0 {
 		return nil
 	}
+
 	// Check that the number is encoded with the minimum possible number of bytes.
+
 	// If the most-significant-byte - excluding the sign bit - is zero then we're not minimal.  Note how this test also rejects the negative-zero encoding, [0x80].
 	if v[len(v)-1]&0x7f == 0 {
 		// One exception: if there's more than one byte and the most significant bit of the second-most-significant-byte is set it would conflict with the sign bit.  An example of this case is +-255, which encode to 0xff00 and 0xff80 respectively. (big-endian).
@@ -51,22 +54,27 @@ func checkMinimalDataEncoding(
 //     32768 -> [0x00 0x80 0x00]
 //    -32768 -> [0x00 0x80 0x80]
 func (n scriptNum) Bytes() []byte {
+
 	// Zero encodes as an empty byte slice.
 	if n == 0 {
 		return nil
 	}
+
 	// Take the absolute value and keep track of whether it was originally negative.
 	isNegative := n < 0
 	if isNegative {
 		n = -n
 	}
+
 	// Encode to little endian.  The maximum number of encoded bytes is 9 (8 bytes for max int64 plus a potential byte for sign extension).
 	result := make([]byte, 0, 9)
 	for n > 0 {
 		result = append(result, byte(n&0xff))
 		n >>= 8
 	}
+
 	// When the most significant byte already has the high bit set, an additional high byte is required to indicate whether the number is negative or positive.  The additional byte is removed when converting back to an integral and its high bit is used to denote the sign.
+
 	// Otherwise, when the most significant byte does not already have the high bit set, use it to indicate the value is negative, if needed.
 	if result[len(result)-1]&0x80 != 0 {
 		extraByte := byte(0x00)
@@ -99,6 +107,7 @@ func (n scriptNum) Int32() int32 {
 func makeScriptNum(
 	v []byte, requireMinimal bool, scriptNumLen int) (scriptNum, error) {
 
+
 	// Interpreting data requires that it is not larger than the the passed scriptNumLen value.
 	if len(v) > scriptNumLen {
 		str := fmt.Sprintf("numeric value encoded as %x is %d bytes "+
@@ -106,21 +115,25 @@ func makeScriptNum(
 			scriptNumLen)
 		return 0, scriptError(ErrNumberTooBig, str)
 	}
+
 	// Enforce minimal encoded if requested.
 	if requireMinimal {
 		if err := checkMinimalDataEncoding(v); err != nil {
 			return 0, err
 		}
 	}
+
 	// Zero is encoded as an empty byte slice.
 	if len(v) == 0 {
 		return 0, nil
 	}
+
 	// Decode from little endian.
 	var result int64
 	for i, val := range v {
 		result |= int64(val) << uint8(8*i)
 	}
+
 	// When the most significant byte of the input bytes has the sign bit set, the result is negative.  So, remove the sign bit from the result and make it negative.
 	if v[len(v)-1]&0x80 != 0 {
 		// The maximum length of v has already been determined to be 4 above, so uint8 is enough to cover the max possible shift value of 24.

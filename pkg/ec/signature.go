@@ -25,22 +25,27 @@ type Signature struct {
 }
 
 var (
+
 	// Used in RFC6979 implementation when testing the nonce for correctness
 	one = big.NewInt(1)
+
 	// oneInitializer is used to fill a byte slice with byte 0x01.  It is provided here to avoid the need to create it multiple times.
 	oneInitializer = []byte{0x01}
 )
 
 // Serialize returns the ECDSA signature in the more strict DER format.  Note that the serialized bytes returned do not include the appended hash type used in Bitcoin signature scripts. encoding/asn1 is broken so we hand roll this output: 0x30 <length> 0x02 <length r> r 0x02 <length s> s
 func (sig *Signature) Serialize() []byte {
+
 	// low 'S' malleability breaker
 	sigS := sig.S
 	if sigS.Cmp(S256().halfOrder) == 1 {
 		sigS = new(big.Int).Sub(S256().N, sigS)
 	}
+
 	// Ensure the encoded bytes for the r and s values are canonical and thus suitable for DER encoding.
 	rb := canonicalizeInt(sig.R)
 	sb := canonicalizeInt(sigS)
+
 	// total length of returned signature is 1 byte for each magic and length (6 total), plus lengths of r and s
 	length := 6 + len(rb) + len(sb)
 	b := make([]byte, length)
@@ -73,41 +78,52 @@ const minSigLen = 8
 func parseSig(
 	sigStr []byte, curve elliptic.Curve, der bool) (*Signature, error) {
 
+
 	// Originally this code used encoding/asn1 in order to parse the signature, but a number of problems were found with this approach. Despite the fact that signatures are stored as DER, the difference between go's idea of a bignum (and that they have sign) doesn't agree with the openssl one (where they do not). The above is true as of Go 1.1. In the end it was simpler to rewrite the code to explicitly understand the format which is this:
+
 	// 0x30 <length of whole message> <0x02> <length of R> <R> 0x2
+
 	// <length of S> <S>.
 	signature := &Signature{}
 	if len(sigStr) < minSigLen {
 		return nil, errors.New("malformed signature: too short")
 	}
+
 	// 0x30
 	index := 0
 	if sigStr[index] != 0x30 {
 		return nil, errors.New("malformed signature: no header magic")
 	}
 	index++
+
 	// length of remaining message
 	siglen := sigStr[index]
 	index++
+
 	// siglen should be less than the entire message and greater than the minimal message size.
 	if int(siglen+2) > len(sigStr) || int(siglen+2) < minSigLen {
 		return nil, errors.New("malformed signature: bad length")
 	}
+
 	// trim the slice we're working on so we only look at what matters.
 	sigStr = sigStr[:siglen+2]
+
 	// 0x02
 	if sigStr[index] != 0x02 {
 		return nil,
 			errors.New("malformed signature: no 1st int marker")
 	}
 	index++
+
 	// Length of signature R.
 	rLen := int(sigStr[index])
+
 	// must be positive, must be able to fit in another 0x2, <len> <s> hence the -3. We assume that the length must be at least one byte.
 	index++
 	if rLen <= 0 || rLen > len(sigStr)-index-3 {
 		return nil, errors.New("malformed signature: bogus R length")
 	}
+
 	// Then R itself.
 	rBytes := sigStr[index : index+rLen]
 	if der {
@@ -120,18 +136,22 @@ func parseSig(
 	}
 	signature.R = new(big.Int).SetBytes(rBytes)
 	index += rLen
+
 	// 0x02. length already checked in previous if.
 	if sigStr[index] != 0x02 {
 		return nil, errors.New("malformed signature: no 2nd int marker")
 	}
 	index++
+
 	// Length of signature S.
 	sLen := int(sigStr[index])
 	index++
+
 	// S should be the rest of the string.
 	if sLen <= 0 || sLen > len(sigStr)-index {
 		return nil, errors.New("malformed signature: bogus S length")
 	}
+
 	// Then S itself.
 	sBytes := sigStr[index : index+sLen]
 	if der {
@@ -144,12 +164,14 @@ func parseSig(
 	}
 	signature.S = new(big.Int).SetBytes(sBytes)
 	index += sLen
+
 	// sanity check length parsing
 	if index != len(sigStr) {
 
 		return nil, fmt.Errorf("malformed signature: bad final length %v != %v",
 			index, len(sigStr))
 	}
+
 	// Verify also checks this, but we can be more sure that we parsed correctly if we verify here too. FWIW the ecdsa spec states that R and S must be | 1, N - 1 | but crypto/ecdsa only checks for Sign != 0. Mirror that.
 	if signature.R.Sign() != 1 {
 		return nil, errors.New("signature R isn't 1 or more")
@@ -229,6 +251,7 @@ func recoverKeyFromSignature(
 	curve *KoblitzCurve, sig *Signature, msg []byte,
 	iter int, doChecks bool) (*PublicKey, error) {
 
+
 	// 1.1 x = (n * i) + r
 	Rx := new(big.Int).Mul(curve.Params().N,
 		new(big.Int).SetInt64(int64(iter/2)))
@@ -236,11 +259,13 @@ func recoverKeyFromSignature(
 	if Rx.Cmp(curve.Params().P) != -1 {
 		return nil, errors.New("calculated Rx is larger than curve P")
 	}
+
 	// convert 02<Rx> to point R. (step 1.2 and 1.3). If we are on an odd iteration then 1.6 will be done with -R, so we calculate the other term when uncompressing the point.
 	Ry, err := decompressPoint(curve, Rx, iter%2 == 1)
 	if err != nil {
 		return nil, err
 	}
+
 	// 1.4 Check n*R is point at infinity
 	if doChecks {
 		nRx, nRy := curve.ScalarMult(Rx, Ry, curve.Params().N.Bytes())
@@ -248,22 +273,29 @@ func recoverKeyFromSignature(
 			return nil, errors.New("n*R does not equal the point at infinity")
 		}
 	}
+
 	// 1.5 calculate e from message using the same algorithm as ecdsa signature calculation.
 	e := hashToInt(msg, curve)
+
 	// Step 1.6.1:
+
 	// We calculate the two terms sR and eG separately multiplied by the inverse of r (from the signature). We then add them to calculate  Q = r^-1(sR-eG)
 	invr := new(big.Int).ModInverse(sig.R, curve.Params().N)
+
 	// first term.
 	invrS := new(big.Int).Mul(invr, sig.S)
 	invrS.Mod(invrS, curve.Params().N)
 	sRx, sRy := curve.ScalarMult(Rx, Ry, invrS.Bytes())
+
 	// second term.
 	e.Neg(e)
 	e.Mod(e, curve.Params().N)
 	e.Mul(e, invr)
 	e.Mod(e, curve.Params().N)
 	minuseGx, minuseGy := curve.ScalarBaseMult(e.Bytes())
+
 	// TODO: this would be faster if we did a mult and add in one
+
 	// step to prevent the jacobian conversion back and forth.
 	Qx, Qy := curve.Add(sRx, sRy, minuseGx, minuseGy)
 	return &PublicKey{
@@ -284,6 +316,7 @@ func SignCompact(
 	if err != nil {
 		return nil, err
 	}
+
 	// bitcoind checks the bit length of R and S here. The ecdsa signature algorithm returns R and S mod N therefore they will be the bitsize of the curve, and thus correctly sized.
 	for i := 0; i < (curve.H+1)*2; i++ {
 		pk, err := recoverKeyFromSignature(curve, sig, hash, i, true)
@@ -324,11 +357,13 @@ func RecoverCompact(
 		return nil, false, errors.New("invalid compact signature size")
 	}
 	iteration := int((signature[0] - 27) & ^byte(4))
+
 	// format is <header byte><bitlen R><bitlen S>
 	sig := &Signature{
 		R: new(big.Int).SetBytes(signature[1 : bitlen+1]),
 		S: new(big.Int).SetBytes(signature[bitlen+1:]),
 	}
+
 	// The iteration used here was encoded
 	key, err := recoverKeyFromSignature(curve, sig, hash, iteration, false)
 	if err != nil {
@@ -378,18 +413,25 @@ func nonceRFC6979(
 	holen := alg().Size()
 	rolen := (qlen + 7) >> 3
 	bx := append(int2octets(x, rolen), bits2octets(hash, curve, rolen)...)
+
 	// Step B
 	v := bytes.Repeat(oneInitializer, holen)
+
 	// Step C (Go zeroes the all allocated memory)
 	k := make([]byte, holen)
+
 	// Step D
 	k = mac(alg, k, append(append(v, 0x00), bx...))
+
 	// Step E
 	v = mac(alg, k, v)
+
 	// Step F
 	k = mac(alg, k, append(append(v, 0x01), bx...))
+
 	// Step G
 	v = mac(alg, k, v)
+
 	// Step H
 	for {
 		// Step H1
@@ -421,12 +463,14 @@ func mac(
 func int2octets(
 	v *big.Int, rolen int) []byte {
 	out := v.Bytes()
+
 	// left pad with zeros if it's too short
 	if len(out) < rolen {
 		out2 := make([]byte, rolen)
 		copy(out2[rolen-len(out):], out)
 		return out2
 	}
+
 	// drop most significant bytes if it's too long
 	if len(out) > rolen {
 		out2 := make([]byte, rolen)

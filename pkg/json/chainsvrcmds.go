@@ -11,10 +11,13 @@ import (
 type AddNodeSubCmd string
 
 const (
+
 	// ANAdd indicates the specified host should be added as a persistent peer.
 	ANAdd AddNodeSubCmd = "add"
+
 	// ANRemove indicates the specified peer should be removed.
 	ANRemove AddNodeSubCmd = "remove"
+
 	// ANOneTry indicates the specified host should try to connect once, but it should not be made persistent.
 	ANOneTry AddNodeSubCmd = "onetry"
 )
@@ -172,14 +175,18 @@ func NewGetBlockHeaderCmd(
 type TemplateRequest struct {
 	Mode         string   `json:"mode,omitempty"`
 	Capabilities []string `json:"capabilities,omitempty"`
+
 	// Optional long polling.
 	LongPollID string `json:"longpollid,omitempty"`
+
 	// Optional template tweaking.  SigOpLimit and SizeLimit can be int64 or bool.
 	SigOpLimit interface{} `json:"sigoplimit,omitempty"`
 	SizeLimit  interface{} `json:"sizelimit,omitempty"`
 	MaxVersion uint32      `json:"maxversion,omitempty"`
+
 	// Basic pool extension from BIP 0023.
 	Target string `json:"target,omitempty"`
+
 	// Block proposal from BIP 0023.  Data is only provided when Mode is "proposal".
 	Data   string `json:"data,omitempty"`
 	WorkID string `json:"workid,omitempty"`
@@ -214,12 +221,14 @@ func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &request); err != nil {
 		return err
 	}
+
 	// The SigOpLimit field can only be nil, bool, or int64.
 	val, err := convertTemplateRequestField("sigoplimit", request.SigOpLimit)
 	if err != nil {
 		return err
 	}
 	request.SigOpLimit = val
+
 	// The SizeLimit field can only be nil, bool, or int64.
 	val, err = convertTemplateRequestField("sizelimit", request.SizeLimit)
 	if err != nil {
@@ -600,6 +609,7 @@ func NewStopCmd() *StopCmd {
 
 // SubmitBlockOptions represents the optional options struct provided with a SubmitBlockCmd command.
 type SubmitBlockOptions struct {
+
 	// must be provided if server provided a workid with template.
 	WorkID string `json:"workid,omitempty"`
 }
@@ -685,6 +695,7 @@ func NewVerifyTxOutProofCmd(
 	}
 }
 func init() {
+
 
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)

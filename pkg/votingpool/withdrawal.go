@@ -53,13 +53,17 @@ type OutputRequest struct {
 	Amount   util.Amount
 	PkScript []byte
 
+
 	// The notary server that received the outbailment request.
 	Server string
+
 
 	// The server-specific transaction number for the outbailment request.
 	Transaction uint32
 
+
 	// cachedHash is used to cache the hash of the outBailmentID so it
+
 	// only has to be calculated once.
 	cachedHash []byte
 }
@@ -68,7 +72,9 @@ type OutputRequest struct {
 type WithdrawalOutput struct {
 	request OutputRequest
 	status  outputStatus
+
 	// The outpoints that fulfill the OutputRequest. There will be more than one in case we
+
 	// need to split the request across multiple transactions.
 	outpoints []OutBailmentOutpoint
 }
@@ -214,6 +220,7 @@ func (r OutputRequest) outBailmentIDHash() []byte {
 	}
 	str := r.Server + strconv.Itoa(int(r.Transaction))
 	hasher := sha256.New()
+
 	// hasher.Write() always returns nil as the error, so it's safe to ignore it here.
 	_, _ = hasher.Write([]byte(str))
 	id := hasher.Sum(nil)
@@ -259,8 +266,11 @@ type withdrawal struct {
 	pendingRequests []OutputRequest
 	eligibleInputs  []credit
 	current         *withdrawalTx
+
 	// txOptions is a function called for every new withdrawalTx created as
+
 	// part of this withdrawal. It is defined as a function field because it
+
 	// exists mainly so that tests can mock withdrawalTx fields.
 	txOptions func(tx *withdrawalTx)
 }
@@ -269,10 +279,15 @@ type withdrawal struct {
 // It is necessary because some requests may be partially fulfilled or split
 // across transactions.
 type withdrawalTxOut struct {
+
 	// Notice that in the case of a split output, the OutputRequest here will
+
 	// be a copy of the original one with the amount being the remainder of the
+
 	// originally requested amount minus the amounts fulfilled by other
+
 	// withdrawalTxOut. The original OutputRequest, if needed, can be obtained
+
 	// from WithdrawalStatus.outputs.
 	request OutputRequest
 	amount  util.Amount
@@ -293,14 +308,20 @@ type withdrawalTx struct {
 	outputs []*withdrawalTxOut
 	fee     util.Amount
 
+
 	// changeOutput holds information about the change for this transaction.
 	changeOutput *wire.TxOut
 
+
 	// calculateSize returns the estimated serialized size (in bytes) of this
+
 	// tx. See calculateTxSize() for details on how that's done. We use a
+
 	// struct field instead of a method so that it can be replaced in tests.
 	calculateSize func() int
+
 	// calculateFee calculates the expected network fees for this tx. We use a
+
 	// struct field instead of a method so that it can be replaced in tests.
 	calculateFee func() util.Amount
 }
@@ -331,8 +352,11 @@ func (tx *withdrawalTx) ntxid() Ntxid {
 // isTooBig returns true if the size (in bytes) of the given tx is greater
 // than or equal to txMaxSize.
 func (tx *withdrawalTx) isTooBig() bool {
+
 	// In bitcoind a tx is considered standard only if smaller than
+
 	// MAX_STANDARD_TX_SIZE; that's why we consider anything >= txMaxSize to
+
 	// be too big.
 	return tx.calculateSize() >= txMaxSize
 }
@@ -455,6 +479,7 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 // be handled separately (by the split output procedure).
 func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error) {
 
+
 	// Check precondition: At least two outputs are required in the transaction.
 	if len(tx.outputs) < 2 {
 		str := fmt.Sprintf("at least two outputs expected; got %d", len(tx.outputs))
@@ -464,11 +489,13 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 	removedOutput := tx.removeOutput()
 
 	var removedInputs []credit
+
 	// Continue until sum(in) < sum(out) + fee
 	for tx.inputTotal() >= tx.outputTotal()+tx.calculateFee() {
 
 		removedInputs = append(removedInputs, tx.removeInput())
 	}
+
 
 	// Re-add the last item from removedInputs, which is the last popped input.
 	tx.addInput(removedInputs[len(removedInputs)-1])
@@ -584,7 +611,9 @@ func (w *withdrawal) pushInput(input credit) {
 func (w *withdrawal) fulfillNextRequest() error {
 	request := w.popRequest()
 	output := w.status.outputs[request.outBailmentID()]
+
 	// We start with an output status of success and let the methods that deal
+
 	// with special cases change it when appropriate.
 	output.status = statusSuccess
 	w.current.addOutput(request)
@@ -680,7 +709,9 @@ func (w *withdrawal) finalizeCurrentTx() error {
 			OutBailmentOutpoint{ntxid: ntxid, index: uint32(i), amount: txOut.amount})
 	}
 
+
 	// Check that WithdrawalOutput entries with status==success have the sum of
+
 	// their outpoint amounts matching the requested amount.
 	for _, txOut := range tx.outputs {
 		// Look up the original request we received because txOut.request may
@@ -737,6 +768,7 @@ func (w *withdrawal) fulfillRequests() error {
 		return nil
 	}
 
+
 	// Sort outputs by outBailmentID (hash(server ID, tx #))
 	sort.Sort(byOutBailmentID(w.pendingRequests))
 
@@ -758,7 +790,9 @@ func (w *withdrawal) fulfillRequests() error {
 		return err
 	}
 
+
 	// TODO: Update w.status.nextInputAddr. Not yet implemented as in some
+
 	// conditions we need to know about un-thawed series.
 
 	w.status.transactions = make(map[Ntxid]changeAwareTx, len(w.transactions))
@@ -794,6 +828,7 @@ func (w *withdrawal) splitLastOutput() error {
 	}
 	origAmount := output.amount
 	spentAmount := tx.outputTotal() + tx.calculateFee() - output.amount
+
 	// This is how much we have left after satisfying all outputs except the last one. IOW, all we have left for the last output, so we set that as the amount of the tx's last output.
 	unspentAmount := tx.inputTotal() - spentAmount
 	output.amount = unspentAmount
@@ -801,7 +836,9 @@ func (w *withdrawal) splitLastOutput() error {
 		"updated output amount to", output.amount,
 	}
 
+
 	// Create a new OutputRequest with the amount being the difference between
+
 	// the original amount and what was left in the tx output above.
 	request := output.request
 	newRequest := OutputRequest{
@@ -836,8 +873,11 @@ func (s *WithdrawalStatus) updateStatusFor(tx *withdrawalTx) {
 // matter.
 func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress WithdrawalAddress,
 	lastSeriesID uint32, changeStart ChangeAddress, dustThreshold util.Amount) bool {
+
 	// Use reflect.DeepEqual to compare changeStart and startAddress as they're
+
 	// structs that contain pointers and we want to compare their content and
+
 	// not their address.
 	if !reflect.DeepEqual(changeStart, wi.changeStart) {
 
@@ -991,7 +1031,9 @@ func getRawSigs(
 // This function must be called with the manager unlocked.
 func SignTx(
 	msgtx *wire.MsgTx, sigs TxSigs, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, store *wtxmgr.Store, txmgrNs walletdb.ReadBucket) error {
+
 	// We use time.Now() here as we're not going to store the new TxRecord
+
 	// anywhere -- we just need it to pass to store.PreviousPkScripts().
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(msgtx, time.Now())
 	if err != nil {
@@ -1055,12 +1097,15 @@ func signMultiSigUTXO(
 		return newError(ErrTxSigning, errStr, nil)
 	}
 
+
 	// Construct the unlocking script.
+
 	// Start with an OP_0 because of the bug in bitcoind, then add nRequired signatures.
 	unlockingScript := txscript.NewScriptBuilder().AddOp(txscript.OP_FALSE)
 	for _, sig := range sigs[:nRequired] {
 		unlockingScript.AddData(sig)
 	}
+
 
 	// Combine the redeem script and the unlocking script to get the actual signature script.
 	sigScript := unlockingScript.AddData(redeemScript)
@@ -1096,16 +1141,23 @@ func validateSigScript(
 func calculateTxSize(
 	tx *withdrawalTx) int {
 	msgtx := tx.toMsgTx()
+
 	// Assume that there will always be a change output, for simplicity. We
+
 	// simulate that by simply copying the first output as all we care about is
+
 	// the size of its serialized form, which should be the same for all of them
+
 	// as they're either P2PKH or P2SH..
 	if !tx.hasChange() {
 
 		msgtx.AddTxOut(msgtx.TxOut[0])
 	}
+
 	// Craft a SignatureScript with dummy signatures for every input in this tx
+
 	// so that we can use msgtx.SerializeSize() to get its size and don't need
+
 	// to rely on estimations.
 	for i, txin := range msgtx.TxIn {
 		// 1 byte for the OP_FALSE opcode, then 73+1 bytes for each signature

@@ -50,6 +50,7 @@ func TestHashCacheAddContainsHashes(
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)
 	var err error
+
 	// First, we'll generate 10 random transactions for use within our tests.
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
@@ -59,10 +60,12 @@ func TestHashCacheAddContainsHashes(
 			t.Fatalf("unable to generate test tx: %v", err)
 		}
 	}
+
 	// With the transactions generated, we'll add each of them to the hash cache.
 	for _, tx := range txns {
 		cache.AddSigHashes(tx)
 	}
+
 	// Next, we'll ensure that each of the transactions inserted into the cache are properly located by the ContainsHashes method.
 	for _, tx := range txns {
 		txid := tx.TxHash()
@@ -75,6 +78,7 @@ func TestHashCacheAddContainsHashes(
 	if err != nil {
 		t.Fatalf("unable to generate tx: %v", err)
 	}
+
 	// Finally, we'll assert that a transaction that wasn't added to the cache won't be reported as being present by the ContainsHashes method.
 	randTxid := randTx.TxHash()
 	if ok := cache.ContainsHashes(&randTxid); ok {
@@ -90,20 +94,24 @@ func TestHashCacheAddGet(
 	t.Parallel()
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)
+
 	// To start, we'll generate a random transaction and compute the set of sighashes for the transaction.
 	randTx, err := genTestTx()
 	if err != nil {
 		t.Fatalf("unable to generate tx: %v", err)
 	}
 	sigHashes := NewTxSigHashes(randTx)
+
 	// Next, add the transaction to the hash cache.
 	cache.AddSigHashes(randTx)
+
 	// The transaction inserted into the cache above should be found.
 	txid := randTx.TxHash()
 	cacheHashes, ok := cache.GetSigHashes(&txid)
 	if !ok {
 		t.Fatalf("tx %v wasn't found in cache", txid)
 	}
+
 	// Finally, the sighashes retrieved should exactly match the sighash originally inserted into the cache.
 	if *sigHashes != *cacheHashes {
 		t.Fatalf("sighashes don't match: expected %v, got %v",
@@ -119,6 +127,7 @@ func TestHashCachePurge(
 	rand.Seed(time.Now().Unix())
 	cache := NewHashCache(10)
 	var err error
+
 	// First we'll start by inserting numTxns transactions into the hash cache.
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
@@ -131,11 +140,13 @@ func TestHashCachePurge(
 	for _, tx := range txns {
 		cache.AddSigHashes(tx)
 	}
+
 	// Once all the transactions have been inserted, we'll purge them from the hash cache.
 	for _, tx := range txns {
 		txid := tx.TxHash()
 		cache.PurgeSigHashes(&txid)
 	}
+
 	// At this point, none of the transactions inserted into the hash cache should be found within the cache.
 	for _, tx := range txns {
 		txid := tx.TxHash()

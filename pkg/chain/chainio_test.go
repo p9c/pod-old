@@ -17,11 +17,13 @@ func TestErrNotInMainChain(
 
 	errStr := "no block at height 1 exists"
 	err := error(errNotInMainChain(errStr))
+
 	// Ensure the stringized output for the error is as expected.
 	if err.Error() != errStr {
 		t.Fatalf("errNotInMainChain retuned unexpected error string - "+
 			"got %q, want %q", err.Error(), errStr)
 	}
+
 	// Ensure error is detected as the correct type.
 	if !isNotInMainChainErr(err) {
 

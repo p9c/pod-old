@@ -157,6 +157,7 @@ const (
 	DefaultMaxOrphanTransactions = 100
 	DefaultMaxOrphanTxSize       = 100000
 	DefaultSigCacheMaxSize       = 100000
+
 	// These are set to default on because more often one wants them than not
 	DefaultTxIndex   = true
 	DefaultAddrIndex = true
@@ -200,12 +201,14 @@ func CleanAndExpandPath(
 	path string,
 ) string {
 
+
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 
 		homeDir := filepath.Dir(DefaultHomeDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
+
 	// NOTE: The os.ExpandEnv doesn't work with Windows-style %VARIABLE%, but they variables can still be expanded via POSIX-style $VARIABLE.
 	return filepath.Clean(os.ExpandEnv(path))
 }
@@ -387,12 +390,14 @@ func createDefaultConfigFile(
 	destinationPath string,
 ) error {
 
+
 	// Create the destination directory if it does not exists
 	err := os.MkdirAll(filepath.Dir(destinationPath), 0700)
 	if err != nil {
 
 		return err
 	}
+
 	// We generate a random user and password
 	randomBytes := make([]byte, 20)
 	_, err = rand.Read(randomBytes)
@@ -455,6 +460,7 @@ func loadConfig() (
 ) {
 
 
+
 	// Default config.
 	cfg := Config{
 		ConfigFile:           DefaultConfigFile,
@@ -486,8 +492,10 @@ func loadConfig() (
 		Algo:                 DefaultAlgo,
 	}
 
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
+
 	// Pre-parse the command line options to see if an alternative config file or the version flag was specified.  Any errors aside from the help message error can be ignored here since they will be caught by the final parse below.
 	preCfg := cfg
 	preParser := NewConfigParser(&preCfg, &serviceOpts, flags.HelpFlag)
@@ -500,6 +508,7 @@ func loadConfig() (
 			return nil, nil, err
 		}
 	}
+
 	// Show the version and exit if the version flag was specified.
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
@@ -509,6 +518,7 @@ func loadConfig() (
 		fmt.Println(appName, "version", Version())
 		os.Exit(0)
 	}
+
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
 
@@ -519,6 +529,7 @@ func loadConfig() (
 		}
 		os.Exit(0)
 	}
+
 	// Load additional config from file.
 	var configFileError error
 	parser := NewConfigParser(&cfg, &serviceOpts, flags.Default)
@@ -547,11 +558,13 @@ func loadConfig() (
 			configFileError = err
 		}
 	}
+
 	// Don't add peers from the config file when in regression test mode.
 	if preCfg.RegressionTest && len(cfg.AddPeers) > 0 {
 
 		cfg.AddPeers = nil
 	}
+
 	// Parse command line options again to ensure they take precedence.
 	remainingArgs, err := parser.Parse()
 	if err != nil {
@@ -562,6 +575,7 @@ func loadConfig() (
 		}
 		return nil, nil, err
 	}
+
 	// Create the home directory if it doesn't already exist.
 	funcName := "loadConfig"
 	err = os.MkdirAll(DefaultHomeDir, 0700)
@@ -582,8 +596,10 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
 	}
+
 	// Multiple networks can't be selected simultaneously.
 	numNets := 0
+
 	// Count number of network flags passed; assign active network params while we're at it
 	if cfg.TestNet3 {
 
@@ -614,12 +630,14 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Set the mining algorithm correctly, default to sha256d if unrecognised
 	switch cfg.Algo {
 	case "blake14lr", "cryptonight7v2", "keccak", "lyra2rev2", "scrypt", "skein", "x11", "stribog", "random", "easy":
 	default:
 		cfg.Algo = "sha256d"
 	}
+
 	// Set the default policy for relaying non-standard transactions according to the default of the active network. The set configuration value takes precedence over the default value for the selected network.
 	relayNonStd := ActiveNetParams.RelayNonStdTxs
 	switch {
@@ -636,14 +654,19 @@ func loadConfig() (
 		relayNonStd = true
 	}
 	cfg.RelayNonStd = relayNonStd
+
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	cfg.DataDir = CleanAndExpandPath(cfg.DataDir)
 	cfg.DataDir = filepath.Join(cfg.DataDir, NetName(ActiveNetParams))
+
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	cfg.LogDir = CleanAndExpandPath(cfg.LogDir)
 	cfg.LogDir = filepath.Join(cfg.LogDir, NetName(ActiveNetParams))
+
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
+
 	// initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
+
 	// Validate database type.
 	if !ValidDbType(cfg.DbType) {
 
@@ -654,6 +677,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Validate profile port number
 	if cfg.Profile != "" {
 
@@ -668,6 +692,7 @@ func loadConfig() (
 			return nil, nil, err
 		}
 	}
+
 	// Don't allow ban durations that are too short.
 	if cfg.BanDuration < time.Second {
 
@@ -677,6 +702,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Validate any given whitelisted IP addresses and networks.
 	if len(StateCfg.ActiveWhitelists) > 0 {
 
@@ -712,6 +738,7 @@ func loadConfig() (
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
 	}
+
 	// --addPeer and --connect do not mix.
 	if len(cfg.AddPeers) > 0 && len(cfg.ConnectPeers) > 0 {
 
@@ -722,16 +749,19 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// --proxy or --connect without --listen disables listening.
 	if (cfg.Proxy != "" || len(cfg.ConnectPeers) > 0) &&
 		len(cfg.Listeners) == 0 {
 		cfg.DisableListen = true
 	}
+
 	// Connect means no DNS seeding.
 	if len(cfg.ConnectPeers) > 0 {
 
 		cfg.DisableDNSSeed = true
 	}
+
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(cfg.Listeners) == 0 {
 
@@ -739,6 +769,7 @@ func loadConfig() (
 			net.JoinHostPort("", ActiveNetParams.DefaultPort),
 		}
 	}
+
 	// Check to make sure limited and admin users don't have the same username
 	if cfg.RPCUser == cfg.RPCLimitUser && cfg.RPCUser != "" {
 
@@ -749,6 +780,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Check to make sure limited and admin users don't have the same password
 	if cfg.RPCPass == cfg.RPCLimitPass && cfg.RPCPass != "" {
 
@@ -759,6 +791,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// The RPC server is disabled if no username or password is provided.
 	if (cfg.RPCUser == "" || cfg.RPCPass == "") &&
 		(cfg.RPCLimitUser == "" || cfg.RPCLimitPass == "") {
@@ -792,6 +825,7 @@ func loadConfig() (
 			return nil, nil, err
 		}
 	}
+
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
@@ -802,6 +836,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Limit the max block size to a sane value.
 	if cfg.BlockMaxSize < BlockMaxSizeMin || cfg.BlockMaxSize >
 		BlockMaxSizeMax {
@@ -813,6 +848,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Limit the max block weight to a sane value.
 	if cfg.BlockMaxWeight < BlockMaxWeightMin ||
 		cfg.BlockMaxWeight > BlockMaxWeightMax {
@@ -824,6 +860,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Limit the max orphan count to a sane vlue.
 	if cfg.MaxOrphanTxs < 0 {
 
@@ -834,20 +871,24 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Limit the block priority and minimum block sizes to max block size.
 	cfg.BlockPrioritySize = minUint32(cfg.BlockPrioritySize, cfg.BlockMaxSize)
 	cfg.BlockMinSize = minUint32(cfg.BlockMinSize, cfg.BlockMaxSize)
 	cfg.BlockMinWeight = minUint32(cfg.BlockMinWeight, cfg.BlockMaxWeight)
 	switch {
+
 	// If the max block size isn't set, but the max weight is, then we'll set the limit for the max block size to a safe limit so weight takes precedence.
 	case cfg.BlockMaxSize == DefaultBlockMaxSize &&
 		cfg.BlockMaxWeight != DefaultBlockMaxWeight:
 		cfg.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
+
 	// If the max block weight isn't set, but the block size is, then we'll scale the set weight accordingly based on the max block size value.
 	case cfg.BlockMaxSize != DefaultBlockMaxSize &&
 		cfg.BlockMaxWeight == DefaultBlockMaxWeight:
 		cfg.BlockMaxWeight = cfg.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
+
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range cfg.UserAgentComments {
 
@@ -862,6 +903,7 @@ func loadConfig() (
 			return nil, nil, err
 		}
 	}
+
 	// --txindex and --droptxindex do not mix.
 	if cfg.TxIndex && cfg.DropTxIndex {
 
@@ -872,6 +914,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// --addrindex and --dropaddrindex do not mix.
 	if cfg.AddrIndex && cfg.DropAddrIndex {
 
@@ -882,6 +925,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// --addrindex and --droptxindex do not mix.
 	if cfg.AddrIndex && cfg.DropTxIndex {
 
@@ -890,6 +934,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
@@ -914,6 +959,7 @@ func loadConfig() (
 		}
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
+
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
 
@@ -927,9 +973,11 @@ func loadConfig() (
 
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
+
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = NormalizeAddresses(cfg.Listeners,
 		ActiveNetParams.DefaultPort)
+
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	cfg.RPCListeners = NormalizeAddresses(cfg.RPCListeners,
 		ActiveNetParams.RPCPort)
@@ -947,11 +995,13 @@ func loadConfig() (
 			}
 		}
 	}
+
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	cfg.AddPeers = NormalizeAddresses(cfg.AddPeers,
 		ActiveNetParams.DefaultPort)
 	cfg.ConnectPeers = NormalizeAddresses(cfg.ConnectPeers,
 		ActiveNetParams.DefaultPort)
+
 	// --noonion and --onion do not mix.
 	if cfg.NoOnion && cfg.OnionProxy != "" {
 
@@ -960,6 +1010,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
@@ -970,6 +1021,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if cfg.TorIsolation && cfg.Proxy == "" && cfg.OnionProxy == "" {
 
@@ -979,6 +1031,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
@@ -1017,6 +1070,7 @@ func loadConfig() (
 			}
 		}
 	}
+
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
 	if cfg.OnionProxy != "" {
 
@@ -1058,6 +1112,7 @@ func loadConfig() (
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
+
 	// Specifying --noonion means the onion address dial function results in an error.
 	if cfg.NoOnion {
 
@@ -1066,6 +1121,7 @@ func loadConfig() (
 			return nil, errors.New("tor has been disabled")
 		}
 	}
+
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
 

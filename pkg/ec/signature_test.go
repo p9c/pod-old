@@ -30,6 +30,7 @@ func decodeHex(
 }
 
 var signatureTests = []signatureTest{
+
 	// signatures from bitcoin blockchain tx 0437cd7f8525ceed2324359c2d0ba26006d92d85
 	{
 		name: "valid signature.",
@@ -289,6 +290,7 @@ var signatureTests = []signatureTest{
 		der:     true,
 		isValid: false,
 	},
+
 	// Standard checks (in BER format, without checking for 'canonical' DER signatures) don't test for negative numbers here because there isn't a way that is the same between openssl and go that will mark a number as negative. The Go ASN.1 parser marks numbers as negative when openssl does not (it doesn't handle negative numbers that I can tell at all. When not parsing DER signatures, which is done by by bitcoind when accepting transactions into its mempool, we otherwise only check for the coordinates being zero.
 	{
 		name: "X == 0",
@@ -470,6 +472,7 @@ func testSignCompact(
 			"(%v vs %v)", tag, isCompressed, wasCompressed)
 		return
 	}
+
 	// If we change the compressed bit we should get the same key back, but the compressed flag should be reversed.
 	if isCompressed {
 		sig[0] -= 4
@@ -570,8 +573,11 @@ func TestRecoverCompact(
 func TestRFC6979(
 	t *testing.T) {
 
+
 	// Test vectors matching Trezor and CoreBitcoin implementations.
+
 	// - https://github.com/trezor/trezor-crypto/blob/9fea8f8ab377dc514e40c6fd1f7c89a74c1d8dc6/tests.c#L432-L453
+
 	// - https://github.com/oleganza/CoreBitcoin/blob/e93dd71207861b5bf044415db5fa72405e7d8fbc/CoreBitcoin/BTCKey%2BTests.m#L23-L49
 	tests := []struct {
 		key       string

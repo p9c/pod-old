@@ -39,10 +39,13 @@ import (
 
 // NAT is an interface representing a NAT traversal options for example UPNP or NAT-PMP. It provides methods to query and manipulate this traversal to allow access to services.
 type NAT interface {
+
 	// Get the external address from outside the NAT.
 	GetExternalAddress() (addr net.IP, err error)
+
 	// Add a port mapping for protocol ("udp" or "tcp") from external port to internal port with description lasting for timeout.
 	AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error)
+
 	// Remove a previously added port mapping from external port to internal port.
 	DeletePortMapping(protocol string, externalPort, internalPort int) (err error)
 }
@@ -272,6 +275,7 @@ func soapRequest(
 	}
 	req.Header.Set("Content-Type", "text/xml ; charset=\"utf-8\"")
 	req.Header.Set("User-Agent", "Darwin/10.0.0, UPnP/1.0, MiniUPnPc/1.3")
+
 	//req.Header.Set("Transfer-Encoding", "chunked")
 	req.Header.Set("SOAPAction", "\"urn:schemas-upnp-org:service:WANIPConnection:1#"+function+"\"")
 	req.Header.Set("Connection", "Close")
@@ -327,6 +331,7 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 // AddPortMapping implements the NAT interface by setting up a port forwarding from the UPnP router to the local machine with the given ports and protocol.
 func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error) {
 
+
 	// A single concatenation would break ARM compilation.
 	message := "<u:AddPortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">\r\n" +
 		"<NewRemoteHost></NewRemoteHost><NewExternalPort>" + strconv.Itoa(externalPort)
@@ -341,7 +346,9 @@ func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int
 	if err != nil {
 		return
 	}
+
 	// TODO: check response to see if the port was forwarded
+
 	// If the port was not wildcard we don't get an reply with the port in it. Not sure about wildcard yet. miniupnpc just checks for error codes here.
 	mappedExternalPort = externalPort
 	_ = response
@@ -359,6 +366,7 @@ func (n *upnpNAT) DeletePortMapping(protocol string, externalPort, internalPort 
 	if err != nil {
 		return
 	}
+
 	// TODO: check response to see if the port was deleted log.Println(message, response)
 	_ = response
 	return

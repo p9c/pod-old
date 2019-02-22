@@ -10,8 +10,10 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // CtlFlags is the list of flags and the default values stored in the Usage field
 var CtlFlags = GetFlags(CtlCommand)
+
 
 // DefaultCtlConfig returns an allocated, default CtlCfg
 func DefaultCtlConfig(
@@ -34,6 +36,7 @@ func DefaultCtlConfig(
 		Wallet:        ctl.DefaultWallet,
 	}
 }
+
 
 // WriteCtlConfig writes the current config in the requested location
 func WriteCtlConfig(
@@ -59,6 +62,7 @@ func WriteCtlConfig(
 	}
 }
 
+
 // WriteDefaultCtlConfig writes a default config in the requested location
 func WriteDefaultCtlConfig(
 	datadir string,
@@ -82,6 +86,7 @@ func WriteDefaultCtlConfig(
 		}
 		cl.Shutdown()
 	}
+
 	// if we are writing default config we also want to use it
 	CtlCfg = defCfg
 }
@@ -93,6 +98,7 @@ func configCtl(
 
 	var r string
 	var ok bool
+
 	// Apply all configurations specified on commandline
 	if r, ok = getIfIs(ctx, "debuglevel"); ok {
 

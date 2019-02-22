@@ -18,7 +18,9 @@ const dbType = "bdb"
 func TestCreateOpenFail(
 	t *testing.T) {
 
+
 	// Ensure that attempting to open a database that doesn't exist returns
+
 	// the expected error.
 	wantErr := walletdb.ErrDbDoesNotExist
 	if _, err := walletdb.Open(dbType, "noexist.db"); err != wantErr {
@@ -27,7 +29,9 @@ func TestCreateOpenFail(
 		return
 	}
 
+
 	// Ensure that attempting to open a database with the wrong number of
+
 	// parameters returns the expected error.
 	wantErr = fmt.Errorf("invalid arguments to %s.Open -- expected "+
 		"database path", dbType)
@@ -38,7 +42,9 @@ func TestCreateOpenFail(
 		return
 	}
 
+
 	// Ensure that attempting to open a database with an invalid type for
+
 	// the first parameter returns the expected error.
 	wantErr = fmt.Errorf("first argument to %s.Open is invalid -- "+
 		"expected database path string", dbType)
@@ -49,7 +55,9 @@ func TestCreateOpenFail(
 		return
 	}
 
+
 	// Ensure that attempting to create a database with the wrong number of
+
 	// parameters returns the expected error.
 	wantErr = fmt.Errorf("invalid arguments to %s.Create -- expected "+
 		"database path", dbType)
@@ -60,7 +68,9 @@ func TestCreateOpenFail(
 		return
 	}
 
+
 	// Ensure that attempting to open a database with an invalid type for
+
 	// the first parameter returns the expected error.
 	wantErr = fmt.Errorf("first argument to %s.Create is invalid -- "+
 		"expected database path string", dbType)
@@ -71,7 +81,9 @@ func TestCreateOpenFail(
 		return
 	}
 
+
 	// Ensure operations against a closed database return the expected
+
 	// error.
 	dbPath := "createfail.db"
 	db, err := walletdb.Create(dbType, dbPath)
@@ -95,6 +107,7 @@ func TestCreateOpenFail(
 func TestPersistence(
 	t *testing.T) {
 
+
 	// Create a new database to run tests against.
 	dbPath := "persistencetest.db"
 	db, err := walletdb.Create(dbType, dbPath)
@@ -105,7 +118,9 @@ func TestPersistence(
 	defer os.Remove(dbPath)
 	defer db.Close()
 
+
 	// Create a namespace and put some values into it so they can be tested
+
 	// for existence on re-open.
 	storeValues := map[string]string{
 		"ns1key1": "foo1",
@@ -132,6 +147,7 @@ func TestPersistence(
 		return
 	}
 
+
 	// Close and reopen the database to ensure the values persist.
 	db.Close()
 	db, err = walletdb.Open(dbType, dbPath)
@@ -141,7 +157,9 @@ func TestPersistence(
 	}
 	defer db.Close()
 
+
 	// Ensure the values previously stored in the 3rd namespace still exist
+
 	// and are correct.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
 		ns1 := tx.ReadBucket(ns1Key)

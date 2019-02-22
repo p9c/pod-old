@@ -94,7 +94,9 @@ func TestPoolGetUsedAddr(
 
 	TstCreateSeries(t, dbtx, pool, []TstSeriesDef{{ReqSigs: 2, PubKeys: TstPubKeys[0:3], SeriesID: 1}})
 
+
 	// Addr with series=1, branch=0, index=10 has never been used, so it should
+
 	// return nil.
 	addr, err := pool.getUsedAddr(ns, addrmgrNs, 1, 0, 10)
 	if err != nil {
@@ -104,7 +106,9 @@ func TestPoolGetUsedAddr(
 		t.Fatalf("Unused address found in used addresses DB: %v", addr)
 	}
 
+
 	// Now we add that addr to the used addresses DB and check that the value
+
 	// returned by getUsedAddr() is what we expect.
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 

@@ -11,23 +11,29 @@ import (
 
 // TODO: tighten maxAllowedOffsetSecs for hf1 - also, consider changing to a mode, as this makes it harder to manipulate even with huge hash power
 const (
+
 	// maxAllowedOffsetSeconds is the maximum number of seconds in either direction that local clock will be adjusted.  When the median time of the network is outside of this range, no offset will be applied.
 	maxAllowedOffsetSecs = 70 * 60 // 1 hour 10 minutes
+
 	// similarTimeSecs is the number of seconds in either direction from the local clock that is used to determine that it is likley wrong and hence to show a warning.
 	similarTimeSecs = 5 * 60 // 5 minutes
 )
 
 var (
+
 	// maxMedianTimeEntries is the maximum number of entries allowed in the median time data.  This is a variable as opposed to a constant so the test code can modify it.
 	maxMedianTimeEntries = 200
 )
 
 // MedianTimeSource provides a mechanism to add several time samples which are used to determine a median time which is then used as an offset to the local clock.
 type MedianTimeSource interface {
+
 	// AdjustedTime returns the current time adjusted by the median time offset as calculated from the time samples added by AddTimeSample.
 	AdjustedTime() time.Time
+
 	// AddTimeSample adds a time sample that is used when determining the median time of the added samples.
 	AddTimeSample(id string, timeVal time.Time)
+
 	// Offset returns the number of seconds to adjust the local clock based upon the median of the time samples added by AddTimeData.
 	Offset() time.Duration
 }
@@ -67,6 +73,7 @@ var _ MedianTimeSource = (*medianTime)(nil)
 func (m *medianTime) AdjustedTime() time.Time {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
+
 	// Limit the adjusted time to 1 second precision.
 	now := time.Unix(time.Now().Unix(), 0)
 	return now.Add(time.Duration(m.offsetSecs) * time.Second)
@@ -77,11 +84,13 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
+
 	// Don't add time data from the same source.
 	if _, exists := m.knownIDs[sourceID]; exists {
 		return
 	}
 	m.knownIDs[sourceID] = struct{}{}
+
 	// Truncate the provided offset to seconds and append it to the slice of offsets while respecting the maximum number of allowed entries by replacing the oldest entry with the new entry once the maximum number of entries is reached.
 	now := time.Unix(time.Now().Unix(), 0)
 	offsetSecs := int64(timeVal.Sub(now).Seconds())
@@ -92,6 +101,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	}
 	m.offsets = append(m.offsets, offsetSecs)
 	numOffsets++
+
 	// Sort the offsets so the median can be obtained as needed later.
 	sortedOffsets := make([]int64, numOffsets)
 	copy(sortedOffsets, m.offsets)
@@ -102,12 +112,15 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 		offsetDuration,
 		numOffsets,
 	}
+
 	// NOTE: The following code intentionally has a bug to mirror the buggy behavior in Bitcoin Core since the median time is used in the consensus rules. In particular, the offset is only updated when the number of entries is odd, but the max number of entries is 200, an even number.  Thus, the offset will never be updated again once the max number of entries is reached. The median offset is only updated when there are enough offsets and the number of offsets is odd so the middle value is the true median. Thus, there is nothing to do when those conditions are not met.
 	if numOffsets < 5 || numOffsets&0x01 != 1 {
 		return
 	}
+
 	// At this point the number of offsets in the list is odd, so the middle value of the sorted offsets is the median.
 	median := sortedOffsets[numOffsets/2]
+
 	// Set the new offset when the median offset is within the allowed offset range.
 	if math.Abs(float64(median)) < maxAllowedOffsetSecs {
 		m.offsetSecs = median

@@ -10,6 +10,7 @@ import (
 func CmdMethod(
 	cmd interface{}) (string, error) {
 
+
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -25,6 +26,7 @@ func CmdMethod(
 // MethodUsageFlags returns the usage flags for the passed command method.  The provided method must be associated with a registered type.  All commands provided by this package are registered by default.
 func MethodUsageFlags(
 	method string) (UsageFlag, error) {
+
 
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
@@ -76,6 +78,7 @@ func subStructUsage(
 // subArrayUsage returns a string for use in the one-line usage for the given array or slice.  It also contains logic to convert plural field names to singular so the generated usage string reads better.
 func subArrayUsage(
 	arrayType reflect.Type, fieldName string) string {
+
 	// Convert plural field names to singular.  Only works for English.
 	singularFieldName := fieldName
 	if strings.HasSuffix(fieldName, "ies") {
@@ -97,6 +100,7 @@ func subArrayUsage(
 	case reflect.Struct:
 		return fmt.Sprintf("[%s,...]", subStructUsage(elemType))
 	}
+
 	// Fall back to simply showing the field name in array syntax.
 	return fmt.Sprintf(`[%s,...]`, singularFieldName)
 }
@@ -104,20 +108,24 @@ func subArrayUsage(
 // fieldUsage returns a string for use in the one-line usage for the struct field of a command. Any fields that include a jsonrpcusage struct tag will use that instead of being automatically generated.
 func fieldUsage(
 	structField reflect.StructField, defaultVal *reflect.Value) string {
+
 	// When the field has a jsonrpcusage struct tag specified use that instead of automatically generating it.
 	if tag := structField.Tag.Get("jsonrpcusage"); tag != "" {
 		return tag
 	}
+
 	// Indirect the pointer if needed.
 	fieldType := structField.Type
 	if fieldType.Kind() == reflect.Ptr {
 		fieldType = fieldType.Elem()
 	}
+
 	// When there is a default value, it must also be a pointer due to the rules enforced by RegisterCmd.
 	if defaultVal != nil {
 		indirect := defaultVal.Elem()
 		defaultVal = &indirect
 	}
+
 	// Handle certain types uniquely to provide nicer usage.
 	fieldName := strings.ToLower(structField.Name)
 	switch fieldType.Kind() {
@@ -133,6 +141,7 @@ func fieldUsage(
 	case reflect.Struct:
 		return subStructUsage(fieldType)
 	}
+
 	// Simply return the field name when none of the above special cases apply.
 	if defaultVal != nil {
 		return fmt.Sprintf("%s=%v", fieldName, defaultVal.Interface())
@@ -143,6 +152,7 @@ func fieldUsage(
 // methodUsageText returns a one-line usage string for the provided command and method info.  This is the main work horse for the exported MethodUsageText function.
 func methodUsageText(
 	rtp reflect.Type, defaults map[int]reflect.Value, method string) string {
+
 	// Generate the individual usage for each field in the command.  Several simplifying assumptions are made here because the RegisterCmd function has already rigorously enforced the layout.
 	rt := rtp.Elem()
 	numFields := rt.NumField()
@@ -166,6 +176,7 @@ func methodUsageText(
 			reqFieldUsages = append(reqFieldUsages, usage)
 		}
 	}
+
 	// Generate and return the one-line usage string.
 	usageStr := method
 	if len(reqFieldUsages) > 0 {
@@ -181,6 +192,7 @@ func methodUsageText(
 func MethodUsageText(
 	method string) (string, error) {
 
+
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]
@@ -190,10 +202,12 @@ func MethodUsageText(
 		str := fmt.Sprintf("%q is not registered", method)
 		return "", makeError(ErrUnregisteredMethod, str)
 	}
+
 	// When the usage for this method has already been generated, simply return it.
 	if info.usage != "" {
 		return info.usage, nil
 	}
+
 	// Generate and store the usage string for future calls and return it.
 	usage := methodUsageText(rtp, info.defaults, method)
 	registerLock.Lock()

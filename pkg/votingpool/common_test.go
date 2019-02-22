@@ -13,6 +13,7 @@ func init() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+
 	// Enable logging (Debug level) to aid debugging failing tests.
 	Log.SetLevel("debug")
 }
@@ -80,9 +81,13 @@ func TstCheckWithdrawalStatusMatches(
 		t.Fatalf("Wrong transactions; got %v, want %v", s1.transactions, s2.transactions)
 	}
 
+
 	// The above checks could be replaced by this one, but when they fail the
+
 	// failure msg wouldn't give us much clue as to what is not equal, so we do
+
 	// the individual checks above and use this one as a catch-all check in case
+
 	// we forget to check any of the individual fields.
 	if !reflect.DeepEqual(s1, s2) {
 

@@ -76,41 +76,54 @@ type semaphore chan struct{}
 // wsClient provides an abstraction for handling a websocket client.  The overall data flow is split into 3 main goroutines, a possible 4th goroutine for long-running operations (only started if request is made), and a websocket manager which is used to allow things such as broadcasting requested notifications to all connected websocket clients.   Inbound messages are read via the inHandler goroutine and generally dispatched to their own handler.  However, certain potentially long-running operations such as rescans, are sent to the asyncHander goroutine and are limited to one at a time.  There are two outbound message types - one for responding to client requests and another for async notifications.  Responses to client requests use SendMessage which employs a buffered channel thereby limiting the number of outstanding requests that can be made.  Notifications are sent via QueueNotification which implements a queue via notificationQueueHandler to ensure sending notifications from other subsystems can't block.  Ultimately, all messages are sent via the outHandler.
 type wsClient struct {
 
+
 	// ws client requires a mutex lock for access
 	sync.Mutex
+
 
 	// server is the RPC server that is servicing the client.
 	server *rpcServer
 
+
 	// conn is the underlying websocket connection.
 	conn *websocket.Conn
+
 
 	// disconnected indicated whether or not the websocket client is disconnected.
 	disconnected bool
 
+
 	// addr is the remote address of the client.
 	addr string
+
 
 	// authenticated specifies whether a client has been authenticated and therefore is allowed to communicated over the websocket.
 	authenticated bool
 
+
 	// isAdmin specifies whether a client may change the state of the server; false means its access is only to the limited set of RPC calls.
 	isAdmin bool
+
 
 	// sessionID is a random ID generated for each client when connected. These IDs may be queried by a client using the session RPC.  A change to the session ID indicates that the client reconnected.
 	sessionID uint64
 
+
 	// verboseTxUpdates specifies whether a client has requested verbose information about all new transactions.
 	verboseTxUpdates bool
+
 
 	// addrRequests is a set of addresses the caller has requested to be notified about.  It is maintained here so all requests can be removed when a wallet disconnects.  Owned by the notification manager.
 	addrRequests map[string]struct{}
 
+
 	// spentRequests is a set of unspent Outpoints a wallet has requested notifications for when they are spent by a processed transaction. Owned by the notification manager.
 	spentRequests map[wire.OutPoint]struct{}
 
+
 	// filterData is the new generation transaction filter backported from github.com/decred/dcrd for the new backported `loadtxfilter` and `rescanblocks` methods.
 	filterData *wsClientFilter
+
 
 	// Networking infrastructure.
 	serviceRequestSem semaphore
@@ -123,13 +136,16 @@ type wsClient struct {
 // wsClientFilter tracks relevant addresses for each websocket client for the `rescanblocks` extension. It is modified by the `loadtxfilter` command. NOTE: This extension was ported from github.com/decred/dcrd
 type wsClientFilter struct {
 	mu sync.Mutex
+
 	// Implemented fast paths for address lookup.
 	pubKeyHashes        map[[ripemd160.Size]byte]struct{}
 	scriptHashes        map[[ripemd160.Size]byte]struct{}
 	compressedPubKeys   map[[33]byte]struct{}
 	uncompressedPubKeys map[[65]byte]struct{}
+
 	// A fallback address lookup map in case a fast path doesn't exist. Only exists for completeness.  If using this shows up in a profile, there's a good chance a fast path should be added.
 	otherAddresses map[string]struct{}
+
 	// Outpoints of unspent outputs.
 	unspent map[wire.OutPoint]struct{}
 }
@@ -140,17 +156,22 @@ type wsCommandHandler func(*wsClient, interface{}) (interface{}, error)
 // wsNotificationManager is a connection and notification manager used for websockets.  It allows websocket clients to register for notifications they are interested in.  When an event happens elsewhere in the code such as transactions being added to the memory pool or block connects/disconnects, the notification manager is provided with the relevant details needed to figure out which websocket clients need to be notified based on what they have registered for and notifies them accordingly.  It is also used to keep track of all connected websocket clients.
 type wsNotificationManager struct {
 
+
 	// server is the RPC server the notification manager is associated with.
 	server *rpcServer
+
 
 	// queueNotification queues a notification for handling.
 	queueNotification chan interface{}
 
+
 	// notificationMsgs feeds notificationHandler with notifications and client (un)registeration requests from a queue as well as registeration and unregisteration requests from clients.
 	notificationMsgs chan interface{}
 
+
 	// Access channel for current number of connected clients.
 	numClients chan int
+
 
 	// Shutdown handling
 	wg   sync.WaitGroup
@@ -164,6 +185,7 @@ type wsResponse struct {
 }
 
 const (
+
 	// websocketSendBufferSize is the number of elements the send channel can queue before blocking.  Note that this only applies to requests handled directly in the websocket client input handler or the async handler since notifications have their own queuing mechanism independent of the send channel buffer.
 	websocketSendBufferSize = 50
 )
@@ -221,8 +243,10 @@ func (
 	isAdmin bool,
 ) {
 
+
 	// Clear the read deadline that was set before the websocket hijacked the connection.
 	conn.SetReadDeadline(timeZeroVal)
+
 	// Limit max number of websocket clients.
 	log <- cl.Info{"new websocket client", remoteAddr}
 	if s.ntfnMgr.NumClients()+1 > cfg.RPCMaxWebsockets {
@@ -234,6 +258,7 @@ func (
 		conn.Close()
 		return
 	}
+
 	// Create a new websocket client to handle the new websocket connection and wait for it to shutdown.  Once it has shutdown (and hence disconnected), remove it and any notifications it registered for.
 	client, err := newWebsocketClient(s, conn, remoteAddr, authenticated, isAdmin)
 	if err != nil {
@@ -259,6 +284,7 @@ func (
 
 	c.Lock()
 	defer c.Unlock()
+
 	// Nothing to do if already disconnected.
 	if c.disconnected {
 		return
@@ -288,6 +314,7 @@ func (
 	marshalledJSON []byte,
 ) error {
 
+
 	// Don't queue the message if disconnected.
 	if c.Disconnected() {
 
@@ -304,6 +331,7 @@ func (
 	marshalledJSON []byte,
 	doneChan chan bool,
 ) {
+
 
 	// Don't send the message if disconnected.
 	if c.Disconnected() {
@@ -322,6 +350,7 @@ func (
 ) Start() {
 
 	log <- cl.Trace{"starting websocket client", c.addr}
+
 	// Start processing input and output.
 	c.wg.Add(3)
 	go c.inHandler()
@@ -472,6 +501,7 @@ out:
 			c.serviceRequestSem.release()
 		}()
 	}
+
 	// Ensure the connection is closed.
 	c.Disconnect()
 	c.wg.Done()
@@ -484,6 +514,7 @@ func (
 ) notificationQueueHandler() {
 
 	ntfnSentChan := make(chan bool, 1) // nonblocking sync
+
 	// pendingNtfns is used as a queue for notifications that are ready to be sent once there are no outstanding notifications currently being sent.  The waiting flag is used over simply checking for items in the pending list to ensure cleanup knows what has and hasn't been sent to the outHandler.  Currently no special cleanup is needed, however if something like a done channel is added to notifications in the future, not knowing what has and hasn't been sent to the outHandler (and thus who should respond to the done channel) would be problematic without using this approach.
 	pendingNtfns := list.New()
 	waiting := false
@@ -515,6 +546,7 @@ out:
 			break out
 		}
 	}
+
 	// Drain any wait channels before exiting so nothing is left waiting around to send.
 cleanup:
 	for {
@@ -557,6 +589,7 @@ out:
 			break out
 		}
 	}
+
 	// Drain any wait channels before exiting so nothing is left waiting around to send.
 cleanup:
 	for {
@@ -587,6 +620,7 @@ func (
 		result interface{}
 		err    error
 	)
+
 	// Lookup the websocket extension for the command and if it doesn't exist fallback to handling the command as a standard command.
 	wsHandler, ok := wsHandlers[r.method]
 	if ok {
@@ -644,6 +678,7 @@ func (
 	s string,
 	params *chaincfg.Params,
 ) {
+
 
 	// If address can't be decoded, no point in saving it since it should also impossible to create the address from an inspected transaction output script.
 	a, err := util.DecodeAddress(s, params)
@@ -790,6 +825,7 @@ func (
 	block *util.Block,
 ) {
 
+
 	// As NotifyBlockConnected will be called by the block manager and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
 	case m.queueNotification <- (*notificationBlockConnected)(block):
@@ -803,6 +839,7 @@ func (
 	m *wsNotificationManager,
 ) NotifyBlockDisconnected(
 	block *util.Block) {
+
 
 	// As NotifyBlockDisconnected will be called by the block manager and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
@@ -824,6 +861,7 @@ func (
 		isNew: isNew,
 		tx:    tx,
 	}
+
 	// As NotifyMempoolTx will be called by mempool and the RPC server may no longer be running, use a select statement to unblock enqueuing the notification once the RPC server has begun shutting down.
 	select {
 	case m.queueNotification <- n:
@@ -1022,6 +1060,7 @@ func (
 		}
 		cmap[wsc.quit] = wsc
 	}
+
 	// Check if any transactions spending these outputs already exists in the mempool, if so send the notification immediately.
 	spends := make(map[chainhash.Hash]*util.Tx)
 	for _, op := range ops {
@@ -1044,8 +1083,10 @@ func (
 	m *wsNotificationManager,
 ) notificationHandler() {
 
+
 	// clients is a map of all currently connected websocket clients.
 	clients := make(map[chan struct{}]*wsClient)
+
 	// Maps used to hold lists of websocket clients to be notified on certain events.  Each websocket client also keeps maps for the events which have multiple triggers to make removal from these lists on connection close less horrendously. Where possible, the quit channel is used as the unique id for a client since it is quite a bit more efficient than using the entire struct.
 	blockNotifications := make(map[chan struct{}]*wsClient)
 	txNotifications := make(map[chan struct{}]*wsClient)
@@ -1153,6 +1194,7 @@ func (
 	block *util.Block,
 ) {
 
+
 	// Notify interested websocket clients about the connected block.
 	ntfn := json.NewBlockConnectedNtfn(block.Hash().String(), block.Height(),
 		block.MsgBlock().Header.Timestamp.Unix())
@@ -1174,10 +1216,12 @@ func (
 	block *util.Block,
 ) {
 
+
 	// Skip notification creation if no clients have requested block connected/disconnected notifications.
 	if len(clients) == 0 {
 		return
 	}
+
 	// Notify interested websocket clients about the disconnected block.
 	ntfn := json.NewBlockDisconnectedNtfn(block.Hash().String(),
 		block.Height(), block.MsgBlock().Header.Timestamp.Unix())
@@ -1199,6 +1243,7 @@ func (
 	block *util.Block,
 ) {
 
+
 	// Create the common portion of the notification that is the same for every client.
 	var w bytes.Buffer
 	err := block.MsgBlock().Header.Serialize(&w)
@@ -1210,6 +1255,7 @@ func (
 	}
 	ntfn := json.NewFilteredBlockConnectedNtfn(block.Height(),
 		hex.EncodeToString(w.Bytes()), nil)
+
 	// Search for relevant transactions for each client and save them serialized in hex encoding for the notification.
 	subscribedTxs := make(map[chan struct{}][]string)
 	for _, tx := range block.Transactions() {
@@ -1246,10 +1292,12 @@ func (
 	block *util.Block,
 ) {
 
+
 	// Skip notification creation if no clients have requested block connected/disconnected notifications.
 	if len(clients) == 0 {
 		return
 	}
+
 	// Notify interested websocket clients about the disconnected block.
 	var w bytes.Buffer
 	err := block.MsgBlock().Header.Serialize(&w)
@@ -1345,6 +1393,7 @@ func (
 	ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	tx *util.Tx, block *util.Block) {
 
+
 	// Nothing to do if nobody is watching outpoints.
 	if len(ops) == 0 {
 		return
@@ -1383,6 +1432,7 @@ func (
 ) notifyForTxOuts(
 	ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	addrs map[string]map[chan struct{}]*wsClient, tx *util.Tx, block *util.Block) {
+
 
 	// Nothing to do if nobody is listening for address notifications.
 	if len(addrs) == 0 {
@@ -1465,8 +1515,10 @@ func (
 	wsc *wsClient, addr string,
 ) {
 
+
 	// Remove the request tracking from the client.
 	delete(wsc.addrRequests, addr)
+
 	// Remove the client from the list to notify.
 	cmap, ok := addrs[addr]
 	if !ok {
@@ -1477,6 +1529,7 @@ func (
 		return
 	}
 	delete(cmap, wsc.quit)
+
 	// Remove the map entry altogether if there are no more clients interested in it.
 	if len(cmap) == 0 {
 		delete(addrs, addr)
@@ -1491,8 +1544,10 @@ func (
 	wsc *wsClient, op *wire.OutPoint,
 ) {
 
+
 	// Remove the request tracking from the client.
 	delete(wsc.spentRequests, *op)
+
 	// Remove the client from the list to notify.
 	notifyMap, ok := ops[*op]
 	if !ok {
@@ -1502,6 +1557,7 @@ func (
 		return
 	}
 	delete(notifyMap, wsc.quit)
+
 	// Remove the map entry altogether if there are no more clients interested in it.
 	if len(notifyMap) == 0 {
 		delete(ops, *op)
@@ -1514,6 +1570,7 @@ func (
 ) subscribedClients(
 	tx *util.Tx,
 	clients map[chan struct{}]*wsClient) map[chan struct{}]struct{} {
+
 	// Use a map of client quit channels as keys to prevent duplicates when multiple inputs and/or outputs are relevant to the client.
 	subscribed := make(map[chan struct{}]struct{})
 	msgTx := tx.MsgTx()
@@ -1707,6 +1764,7 @@ func handleNotifyReceived(
 	if !ok {
 		return nil, json.ErrRPCInternal
 	}
+
 	// Decode addresses to validate input, but the strings slice is used directly if these are all ok.
 	err := checkAddressValidity(cmd.Addresses, wsc.server.cfg.ChainParams)
 	if err != nil {
@@ -1757,6 +1815,7 @@ func handleRescan(
 	} else {
 		log <- cl.Infof{"beginning rescan for %d addresses", numAddrs}
 	}
+
 	// Build lookup maps.
 	lookups := rescanKeys{
 		fallbacks:           map[string]struct{}{},
@@ -1836,12 +1895,15 @@ func handleRescan(
 			}
 		}
 	}
+
 	// lastBlock and lastBlockHash track the previously-rescanned block. They equal nil when no previous blocks have been rescanned.
 	var lastBlock *util.Block
 	var lastBlockHash *chainhash.Hash
+
 	// A ticker is created to wait at least 10 seconds before notifying the websocket client of the current progress completed by the rescan.
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
+
 	// Instead of fetching all block shas at once, fetch in smaller chunks to ensure large rescans consume a limited amount of memory.
 fetchRange:
 	for minBlock < maxBlock {
@@ -1972,6 +2034,7 @@ fetchRange:
 		}
 		minBlock += int32(len(hashList))
 	}
+
 	// Notify websocket client of the finished rescan.  Due to how pod asynchronously queues notifications to not block calling code, there is no guarantee that any of the notifications created during rescan (such as rescanprogress, recvtx and redeemingtx) will be received before the rescan RPC returns.  Therefore, another method is needed to safely inform clients that all rescan notifications have been sent.
 	n := json.NewRescanFinishedNtfn(lastBlockHash.String(),
 		lastBlock.Height(),
@@ -1996,6 +2059,7 @@ func handleRescanBlocks(
 	if !ok {
 		return nil, json.ErrRPCInternal
 	}
+
 	// Load client's transaction filter.  Must exist in order to continue.
 	wsc.Lock()
 	filter := wsc.filterData
@@ -2015,6 +2079,7 @@ func handleRescanBlocks(
 		blockHashes[i] = hash
 	}
 	discoveredData := make([]json.RescannedBlock, 0, len(blockHashes))
+
 	// Iterate over each block in the request and rescan.  When a block contains relevant transactions, add it to the response.
 	bc := wsc.server.cfg.Chain
 	params := wsc.server.cfg.ChainParams
@@ -2077,6 +2142,7 @@ func handleStopNotifyReceived(
 	if !ok {
 		return nil, json.ErrRPCInternal
 	}
+
 	// Decode addresses to validate input, but the strings slice is used directly if these are all ok.
 	err := checkAddressValidity(cmd.Addresses, wsc.server.cfg.ChainParams)
 	if err != nil {
@@ -2114,6 +2180,7 @@ func handleWebsocketHelp(
 	if !ok {
 		return nil, json.ErrRPCInternal
 	}
+
 	// Provide a usage overview of all commands when no specific command was specified.
 	var command string
 	if cmd.Command != nil {
@@ -2127,6 +2194,7 @@ func handleWebsocketHelp(
 		}
 		return usage, nil
 	}
+
 	// Check that the command asked for is supported and implemented. Search the list of websocket handlers as well as the main list of handlers since help should only be provided for those cases.
 	valid := true
 	if _, ok := rpcHandlers[command]; !ok {
@@ -2140,6 +2208,7 @@ func handleWebsocketHelp(
 			Message: "Unknown command: " + command,
 		}
 	}
+
 	// Get the help for the command.
 	help, err := wsc.server.helpCacher.rpcMethodHelp(command)
 	if err != nil {
@@ -2162,6 +2231,7 @@ func makeSemaphore(
 // newRedeemingTxNotification returns a new marshalled redeemingtx notification with the passed parameters.
 func newRedeemingTxNotification(
 	txHex string, index int, block *util.Block) ([]byte, error) {
+
 
 	// Create and marshal the notification.
 	ntfn := json.NewRedeemingTxNtfn(txHex, blockDetails(block, index))
@@ -2476,6 +2546,7 @@ func rescanBlockFilter(
 func txHexString(
 	tx *wire.MsgTx) string {
 	buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
+
 	// Ignore Serialize's error, as writing to a bytes.buffer cannot fail.
 	tx.Serialize(buf)
 	return hex.EncodeToString(buf.Bytes())

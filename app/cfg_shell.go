@@ -27,6 +27,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // DefaultShellConfig returns a default configuration
 func DefaultShellConfig(
 	datadir string,
@@ -102,6 +103,7 @@ func DefaultShellConfig(
 	}
 }
 
+
 // WriteDefaultShellConfig creates and writes a default config to the requested location
 func WriteDefaultShellConfig(
 	datadir string,
@@ -121,9 +123,11 @@ func WriteDefaultShellConfig(
 		log <- cl.Error{"writing app config file", defCfg.ConfigFile, err}
 		panic(err)
 	}
+
 	// if we are writing default config we also want to use it
 	ShellConfig = defCfg
 }
+
 
 // WriteShellConfig creates and writes the config file in the requested location
 func WriteShellConfig(
@@ -462,12 +466,15 @@ func configShell(
 		ShellConfig.Node.CPUProfile = r
 	}
 
+
 	// finished configuration
 
 	SetLogging(ctx)
 
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
+
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
 		err := runServiceCommand(serviceOpts.ServiceCommand)
@@ -477,10 +484,12 @@ func configShell(
 		}
 		return 0
 	}
+
 	// Don't add peers from the config file when in regression test mode.
 	if ShellConfig.Node.RegressionTest && len(ShellConfig.Node.AddPeers) > 0 {
 		ShellConfig.Node.AddPeers = nil
 	}
+
 	// Set the mining algorithm correctly, default to random if unrecognised
 	switch ShellConfig.Node.Algo {
 	case "blake14lr", "cryptonight7v2", "keccak", "lyra2rev2", "scrypt", "skein", "x11", "stribog", "random", "easy":
@@ -502,15 +511,20 @@ func configShell(
 		relayNonStd = true
 	}
 	ShellConfig.Node.RelayNonStd = relayNonStd
+
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	ShellConfig.Node.DataDir = n.CleanAndExpandPath(ShellConfig.Node.DataDir)
 	ShellConfig.Node.DataDir = filepath.Join(ShellConfig.Node.DataDir, n.NetName(ShellConfig.GetNodeActiveNet()))
+
 	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
 	ShellConfig.Node.LogDir = n.CleanAndExpandPath(ShellConfig.Node.LogDir)
 	ShellConfig.Node.LogDir = filepath.Join(ShellConfig.Node.LogDir, n.NetName(ShellConfig.GetNodeActiveNet()))
 
+
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
+
 	// initLogRotator(filepath.Join(ShellConfig.Node.LogDir, DefaultLogFilename))
+
 	// Validate database type.
 	if !n.ValidDbType(ShellConfig.Node.DbType) {
 
@@ -520,6 +534,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Validate profile port number
 	if ShellConfig.Node.Profile != "" {
 		profilePort, err := strconv.Atoi(ShellConfig.Node.Profile)
@@ -531,6 +546,7 @@ func configShell(
 			return 1
 		}
 	}
+
 	// Don't allow ban durations that are too short.
 	if ShellConfig.Node.BanDuration < time.Second {
 		str := "%s: The banduration option may not be less than 1s -- parsed [%v]"
@@ -539,6 +555,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Validate any given whitelisted IP addresses and networks.
 	if len(ShellConfig.Node.Whitelists) > 0 {
 		var ip net.IP
@@ -556,6 +573,7 @@ func configShell(
 				}
 				var bits int
 				if ip.To4() == nil {
+
 					// IPv6
 					bits = 128
 				} else {
@@ -569,6 +587,7 @@ func configShell(
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
 	}
+
 	// --addPeer and --connect do not mix.
 	if len(ShellConfig.Node.AddPeers) > 0 && len(ShellConfig.Node.ConnectPeers) > 0 {
 		str := "%s: the --addpeer and --connect options can not be " +
@@ -577,21 +596,25 @@ func configShell(
 		log <- cl.Err(err.Error())
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
+
 	// --proxy or --connect without --listen disables listening.
 	if (ShellConfig.Node.Proxy != "" || len(ShellConfig.Node.ConnectPeers) > 0) &&
 		len(ShellConfig.Node.Listeners) == 0 {
 		ShellConfig.Node.DisableListen = true
 	}
+
 	// Connect means no DNS seeding.
 	if len(ShellConfig.Node.ConnectPeers) > 0 {
 		ShellConfig.Node.DisableDNSSeed = true
 	}
+
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(ShellConfig.Node.Listeners) == 0 {
 		ShellConfig.Node.Listeners = []string{
 			net.JoinHostPort("localhost", ShellConfig.GetNodeActiveNet().DefaultPort),
 		}
 	}
+
 	// Check to make sure limited and admin users don't have the same username
 	if ShellConfig.Node.RPCUser == ShellConfig.Node.RPCLimitUser && ShellConfig.Node.RPCUser != "" {
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
@@ -600,6 +623,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check to make sure limited and admin users don't have the same password
 	if ShellConfig.Node.RPCPass == ShellConfig.Node.RPCLimitPass && ShellConfig.Node.RPCPass != "" {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
@@ -608,6 +632,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// The RPC server is disabled if no username or password is provided.
 	if (ShellConfig.Node.RPCUser == "" || ShellConfig.Node.RPCPass == "") &&
 		(ShellConfig.Node.RPCLimitUser == "" || ShellConfig.Node.RPCLimitPass == "") {
@@ -617,6 +642,7 @@ func configShell(
 	if ShellConfig.Node.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
 	}
+
 	// Default RPC to listen on localhost only.
 	if !ShellConfig.Node.DisableRPC && len(ShellConfig.Node.RPCListeners) == 0 {
 		addrs, err := net.LookupHost(n.DefaultRPCListener)
@@ -638,6 +664,7 @@ func configShell(
 		return 1
 	}
 	var err error
+
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(ShellConfig.Node.MinRelayTxFee)
 	if err != nil {
@@ -647,6 +674,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max block size to a sane value.
 	if ShellConfig.Node.BlockMaxSize < n.BlockMaxSizeMin || ShellConfig.Node.BlockMaxSize >
 		n.BlockMaxSizeMax {
@@ -657,6 +685,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max block weight to a sane value.
 	if ShellConfig.Node.BlockMaxWeight < n.BlockMaxWeightMin ||
 		ShellConfig.Node.BlockMaxWeight > n.BlockMaxWeightMax {
@@ -667,6 +696,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the max orphan count to a sane vlue.
 	if ShellConfig.Node.MaxOrphanTxs < 0 {
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
@@ -675,20 +705,24 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Limit the block priority and minimum block sizes to max block size.
 	ShellConfig.Node.BlockPrioritySize = minUint32(ShellConfig.Node.BlockPrioritySize, ShellConfig.Node.BlockMaxSize)
 	ShellConfig.Node.BlockMinSize = minUint32(ShellConfig.Node.BlockMinSize, ShellConfig.Node.BlockMaxSize)
 	ShellConfig.Node.BlockMinWeight = minUint32(ShellConfig.Node.BlockMinWeight, ShellConfig.Node.BlockMaxWeight)
 	switch {
+
 	// If the max block size isn't set, but the max weight is, then we'll set the limit for the max block size to a safe limit so weight takes precedence.
 	case ShellConfig.Node.BlockMaxSize == n.DefaultBlockMaxSize &&
 		ShellConfig.Node.BlockMaxWeight != n.DefaultBlockMaxWeight:
 		ShellConfig.Node.BlockMaxSize = blockchain.MaxBlockBaseSize - 1000
+
 	// If the max block weight isn't set, but the block size is, then we'll scale the set weight accordingly based on the max block size value.
 	case ShellConfig.Node.BlockMaxSize != n.DefaultBlockMaxSize &&
 		ShellConfig.Node.BlockMaxWeight == n.DefaultBlockMaxWeight:
 		ShellConfig.Node.BlockMaxWeight = ShellConfig.Node.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
+
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range ShellConfig.Node.UserAgentComments {
 		if strings.ContainsAny(uaComment, "/:()") {
@@ -702,6 +736,7 @@ func configShell(
 
 		}
 	}
+
 	// --txindex and --droptxindex do not mix.
 	if ShellConfig.Node.TxIndex && ShellConfig.Node.DropTxIndex {
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
@@ -711,6 +746,7 @@ func configShell(
 		return 1
 
 	}
+
 	// --addrindex and --dropaddrindex do not mix.
 	if ShellConfig.Node.AddrIndex && ShellConfig.Node.DropAddrIndex {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex "+
@@ -720,6 +756,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// --addrindex and --droptxindex do not mix.
 	if ShellConfig.Node.AddrIndex && ShellConfig.Node.DropTxIndex {
 		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time "+
@@ -729,6 +766,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(ShellConfig.Node.MiningAddrs))
 	for _, strAddr := range ShellConfig.Node.MiningAddrs {
@@ -752,6 +790,7 @@ func configShell(
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 
+
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (ShellConfig.Node.Generate || ShellConfig.Node.MinerListener != "") && len(ShellConfig.Node.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
@@ -764,9 +803,11 @@ func configShell(
 	if ShellConfig.Node.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(ShellConfig.Node.MinerPass))
 	}
+
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.Listeners = n.NormalizeAddresses(ShellConfig.Node.Listeners,
 		ShellConfig.GetNodeActiveNet().DefaultPort)
+
 	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.RPCListeners = n.NormalizeAddresses(ShellConfig.Node.RPCListeners,
 		ShellConfig.GetNodeActiveNet().RPCPort)
@@ -781,11 +822,13 @@ func configShell(
 			}
 		}
 	}
+
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	ShellConfig.Node.AddPeers = n.NormalizeAddresses(ShellConfig.Node.AddPeers,
 		ShellConfig.GetNodeActiveNet().DefaultPort)
 	ShellConfig.Node.ConnectPeers = n.NormalizeAddresses(ShellConfig.Node.ConnectPeers,
 		ShellConfig.GetNodeActiveNet().DefaultPort)
+
 	// --noonion and --onion do not mix.
 	if ShellConfig.Node.NoOnion && ShellConfig.Node.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
@@ -793,6 +836,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = n.ParseCheckpoints(ShellConfig.Node.AddCheckpoints)
 	if err != nil {
@@ -802,6 +846,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if ShellConfig.Node.TorIsolation && ShellConfig.Node.Proxy == "" && ShellConfig.Node.OnionProxy == "" {
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
@@ -810,6 +855,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
@@ -822,6 +868,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
 		if ShellConfig.Node.TorIsolation && ShellConfig.Node.OnionProxy == "" &&
@@ -838,6 +885,7 @@ func configShell(
 			TorIsolation: torIsolation,
 		}
 		StateCfg.Dial = proxy.DialTimeout
+
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !ShellConfig.Node.NoOnion && ShellConfig.Node.OnionProxy == "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -846,6 +894,7 @@ func configShell(
 			}
 		}
 	}
+
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
 	if ShellConfig.Node.OnionProxy != "" {
 		_, _, err := net.SplitHostPort(ShellConfig.Node.OnionProxy)
@@ -856,6 +905,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if ShellConfig.Node.TorIsolation &&
 			(ShellConfig.Node.OnionProxyUser != "" || ShellConfig.Node.OnionProxyPass != "") {
@@ -874,6 +924,7 @@ func configShell(
 			}
 			return proxy.DialTimeout(network, addr, timeout)
 		}
+
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if ShellConfig.Node.Proxy != "" {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -884,6 +935,7 @@ func configShell(
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
+
 	// Specifying --noonion means the onion address dial function results in an error.
 	if ShellConfig.Node.NoOnion {
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {

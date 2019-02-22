@@ -53,6 +53,7 @@ var byteOrder = binary.BigEndian
 // Database versions.  Versions start at 1 and increment for each database
 // change.
 const (
+
 	// LatestVersion is the most recent store version.
 	LatestVersion = 1
 )
@@ -1263,6 +1264,7 @@ func (it *unminedCreditIterator) readElem() error {
 	it.elem.Index = index
 	it.elem.Amount = amount
 	it.elem.Change = change
+
 	// Spent intentionally not set
 
 	return nil
@@ -1351,6 +1353,7 @@ func fetchUnminedInputSpendTxHashes(
 		return nil
 	}
 
+
 	// Each transaction hash is 32 bytes.
 	spendTxHashes := make([]chainhash.Hash, 0, len(rawSpendTxHashes)/32)
 	for len(rawSpendTxHashes) > 0 {
@@ -1396,17 +1399,29 @@ func openStore(
 		return storeError(ErrUnknownVersion, str, nil)
 	}
 
+
 	// Upgrade the tx store as needed, one version at a time, until
+
 	// LatestVersion is reached.  Versions are not skipped when performing
+
 	// database upgrades, and each upgrade is done in its own transaction.
+
 	//
+
 	// No upgrades yet.
+
 	//if version < LatestVersion {
+
 	//	err := scopedUpdate(namespace, func(ns walletdb.Bucket) error {
+
 	//	})
+
 	//	if err != nil {
+
 	//		// Handle err
+
 	//	}
+
 	//}
 
 	return nil
@@ -1416,12 +1431,14 @@ func openStore(
 // namespace.  If a store already exists, ErrAlreadyExists is returned.
 func createStore(
 	ns walletdb.ReadWriteBucket) error {
+
 	// Ensure that nothing currently exists in the namespace bucket.
 	ck, cv := ns.ReadCursor().First()
 	if ck != nil || cv != nil {
 		const str = "namespace is not empty"
 		return storeError(ErrAlreadyExists, str, nil)
 	}
+
 
 	// Write the latest store version.
 	v := make([]byte, 4)
@@ -1432,6 +1449,7 @@ func createStore(
 		return storeError(ErrDatabase, str, err)
 	}
 
+
 	// Save the creation date of the store.
 	v = make([]byte, 8)
 	byteOrder.PutUint64(v, uint64(time.Now().Unix()))
@@ -1440,6 +1458,7 @@ func createStore(
 		str := "failed to store database creation time"
 		return storeError(ErrDatabase, str, err)
 	}
+
 
 	// Write a zero balance.
 	v = make([]byte, 8)

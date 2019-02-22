@@ -20,10 +20,13 @@ import (
 )
 
 const (
+
 	// testDbType is the database backend type to use for the tests.
 	testDbType = "ffldb"
+
 	// testDbRoot is the root directory used to create all test databases.
 	testDbRoot = "testdbs"
+
 	// blockDataNet is the expected network in the test block data.
 	blockDataNet = wire.MainNet
 )
@@ -111,6 +114,7 @@ func chainSetup(
 
 		return nil, nil, fmt.Errorf("unsupported db type %v", testDbType)
 	}
+
 	// Handle memory database specially since it doesn't need the disk specific handling.
 	var db database.DB
 	var teardown func()
@@ -151,8 +155,10 @@ func chainSetup(
 			os.RemoveAll(testDbRoot)
 		}
 	}
+
 	// Copy the chain params to ensure any modifications the tests do to the chain parameters do not affect the global instance.
 	paramsCopy := *params
+
 	// Create the main chain instance.
 	chain, err := New(&Config{
 		DB:          db,
@@ -173,15 +179,20 @@ func chainSetup(
 func loadUtxoView(
 	filename string) (*UtxoViewpoint, error) {
 
+
 	// The utxostore file format is:
+
 	// <tx hash><output index><serialized utxo len><serialized utxo>
+
 	//
+
 	// The output index and serialized utxo len are little endian uint32s and the serialized utxo uses the format described in chainio.go.
 	filename = filepath.Join("testdata", filename)
 	fi, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
+
 	// Choose read based on whether the file is compressed or not.
 	var r io.Reader
 	if strings.HasSuffix(filename, ".bz2") {
@@ -234,9 +245,13 @@ func loadUtxoView(
 // convertUtxoStore reads a utxostore from the legacy format and writes it back out using the latest format.  It is only useful for converting utxostore data used in the tests, which has already been done.  However, the code is left available for future reference.
 func convertUtxoStore(
 	r io.Reader, w io.Writer) error {
+
 	// The old utxostore file format was:
+
 	// <tx hash><serialized utxo len><serialized utxo>
+
 	//
+
 	// The serialized utxo len was a little endian uint32 and the serialized utxo uses the format described in upgrade.go.
 	littleEndian := binary.LittleEndian
 	for {
@@ -308,6 +323,7 @@ func (b *BlockChain) TstSetCoinbaseMaturity(maturity uint16) {
 // newFakeChain returns a chain that is usable for syntetic tests.  It is important to note that this chain has no database associated with it, so it is not usable with all functions and the tests must take care when making use of it.
 func newFakeChain(
 	params *chaincfg.Params) *BlockChain {
+
 	// Create a genesis block node and block index index populated with it for use when creating the fake chain below.
 	node := newBlockNode(&params.GenesisBlock.Header, nil)
 	index := newBlockIndex(nil, params)
@@ -331,6 +347,7 @@ func newFakeChain(
 // newFakeNode creates a block node connected to the passed parent with the provided fields populated and fake values for the other fields.
 func newFakeNode(
 	parent *blockNode, blockVersion int32, bits uint32, timestamp time.Time) *blockNode {
+
 	// Make up a header and create a block node from it.
 	header := &wire.BlockHeader{
 		Version:   blockVersion,

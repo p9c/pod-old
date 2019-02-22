@@ -20,10 +20,14 @@ var defaultFlags uint32
 
 // Flags to modify Backend's behavior.
 const (
+
 	// Llongfile modifies the logger output to include full path and line number
+
 	// of the logging callsite, e.g. /a/b/c/main.go:123.
 	Llongfile uint32 = 1 << iota
+
 	// Lshortfile modifies the logger output to include filename and line number
+
 	// of the logging callsite, e.g. main.go:123.  Overrides Llongfile.
 	Lshortfile
 )
@@ -181,6 +185,7 @@ func recycleBuffer(
 func itoa(
 	buf *[]byte, i int, wid int) {
 
+
 	// Assemble decimal in reverse order.
 	var b [20]byte
 	bp := len(b) - 1
@@ -191,6 +196,7 @@ func itoa(
 		bp--
 		i = q
 	}
+
 	// i < 10
 	b[bp] = byte('0' + i)
 	*buf = append(*buf, b[bp:]...)

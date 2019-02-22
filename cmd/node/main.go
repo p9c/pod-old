@@ -17,6 +17,7 @@ import (
 )
 
 const (
+
 	// blockDbNamePrefix is the prefix for the block database name.  The database type is appended to this value to form the full block database name.
 	blockDbNamePrefix = "blocks"
 )
@@ -59,8 +60,10 @@ func Main(
 			close(shutdownChan)
 		},
 	)
+
 	// Show version at startup.
 	log <- cl.Info{"version", Version()}
+
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
 
@@ -75,6 +78,7 @@ func Main(
 			log <- cl.Error{"profile server", http.ListenAndServe(listenAddr, nil)}
 		}()
 	}
+
 	// Write cpu profile if requested.
 	if cfg.CPUProfile != "" {
 
@@ -93,17 +97,20 @@ func Main(
 		defer f.Close()
 		defer pprof.StopCPUProfile()
 	}
+
 	// Perform upgrades to pod as new versions require it.
 	if err = doUpgrades(); err != nil {
 
 		log <- cl.Error{err}
 		return
 	}
+
 	// Return now if an interrupt signal was triggered.
 	if interrupt.Requested() {
 
 		return nil
 	}
+
 	// Load the block database.
 	var db database.DB
 	log <- cl.Debug{"loading db with", activeNet.Params.Name, cfg.TestNet3}
@@ -119,11 +126,13 @@ func Main(
 		log <- cl.Inf("gracefully shutting down the database...")
 		db.Close()
 	}()
+
 	// Return now if an interrupt signal was triggered.
 	if interrupt.Requested() {
 
 		return nil
 	}
+
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
 	if cfg.DropAddrIndex {
 
@@ -152,6 +161,7 @@ func Main(
 		}
 		return nil
 	}
+
 	// Create server and start it.
 	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt.ShutdownRequestChan, cfg.Algo)
 	if err != nil {
@@ -176,6 +186,7 @@ func Main(
 
 		serverChan <- server
 	}
+
 	// Wait until the interrupt signal is received from an OS signal or shutdown is requested through one of the subsystems such as the RPC server.
 	<-interrupt.HandlersDone
 	return nil
@@ -185,6 +196,7 @@ func Main(
 func blockDbPath(
 	dbType string,
 ) string {
+
 	// The database name is based on the database type.
 	dbName := blockDbNamePrefix + "_" + dbType
 	if dbType == "sqlite" {
@@ -201,6 +213,7 @@ func loadBlockDB() (
 	error,
 ) {
 
+
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if cfg.DbType == "memdb" {
 
@@ -213,8 +226,10 @@ func loadBlockDB() (
 		return db, nil
 	}
 	warnMultipleDBs()
+
 	// The database name is based on the database type.
 	dbPath := blockDbPath(cfg.DbType)
+
 	// The regression test is special in that it needs a clean database for each run, so remove it now if it already exists.
 	e := removeRegressionDB(dbPath)
 	if e != nil {
@@ -249,16 +264,20 @@ func loadBlockDB() (
 /*
 func PreMain() {
 
+
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	// Block and transaction processing can cause bursty allocations.  This limits the garbage collector from excessively overallocating during bursts.  This value was arrived at with the help of profiling live usage.
 	debug.SetGCPercent(10)
+
 	// Up some limits.
 	if err := limits.SetLimits(); err != nil {
 
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
 		os.Exit(1)
 	}
+
 	// Call serviceMain on Windows to handle running as a service.  When the return isService flag is true, exit now since we ran as a service.  Otherwise, just fall through to normal operation.
 	if runtime.GOOS == "windows" {
 
@@ -273,6 +292,7 @@ func PreMain() {
 			os.Exit(0)
 		}
 	}
+
 	// Work around defer not working after os.Exit()
 	if err := Main(nil); err != nil {
 
@@ -284,11 +304,13 @@ func PreMain() {
 func removeRegressionDB(
 	dbPath string,
 ) error {
+
 	// Don't do anything if not in regression test mode.
 	if !cfg.RegressionTest {
 
 		return nil
 	}
+
 	// Remove the old regression test database if it already exists.
 	fi, err := os.Stat(dbPath)
 	if err == nil {
@@ -315,6 +337,7 @@ func removeRegressionDB(
 // warnMultipleDBs shows a warning if multiple block database types are detected. This is not a situation most users want.  It is handy for development however to support multiple side-by-side databases.
 func warnMultipleDBs() {
 
+
 	// This is intentionally not using the known db types which depend on the database types compiled into the binary since we want to detect legacy db types as well.
 	dbTypes := []string{"ffldb", "leveldb", "sqlite"}
 	duplicateDbPaths := make([]string, 0, len(dbTypes)-1)
@@ -331,6 +354,7 @@ func warnMultipleDBs() {
 			duplicateDbPaths = append(duplicateDbPaths, dbPath)
 		}
 	}
+
 	// Warn if there are extra databases.
 	if len(duplicateDbPaths) > 0 {
 

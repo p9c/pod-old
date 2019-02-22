@@ -6,6 +6,7 @@ import "testing"
 func TestHelp(
 	t *testing.T) {
 
+
 	// Ensure there are result types specified for every handler.
 	for k := range rpcHandlers {
 		if _, ok := rpcResultTypes[k]; !ok {
@@ -21,6 +22,7 @@ func TestHelp(
 			continue
 		}
 	}
+
 	// Ensure the usage for every command can be generated without errors.
 	helpCacher := newHelpCacher()
 	if _, err := helpCacher.rpcUsage(true); err != nil {
@@ -29,6 +31,7 @@ func TestHelp(
 	if _, err := helpCacher.rpcUsage(true); err != nil {
 		t.Fatalf("Failed to generate one-line usage (cached): %v", err)
 	}
+
 	// Ensure the help for every command can be generated without errors.
 	for k := range rpcHandlers {
 		if _, err := helpCacher.rpcMethodHelp(k); err != nil {

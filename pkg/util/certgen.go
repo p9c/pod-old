@@ -30,6 +30,7 @@ func NewTLSCertPair(
 	if err != nil {
 		return nil, nil, err
 	}
+
 	// end of ASN.1 time
 	endOfTime := time.Date(2049, 12, 31, 23, 59, 59, 0, time.UTC)
 	if validUntil.After(endOfTime) {

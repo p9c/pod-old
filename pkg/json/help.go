@@ -10,6 +10,7 @@ import (
 
 // baseHelpDescs house the various help labels, types, and example values used when generating help.  The per-command synopsis, field descriptions, conditions, and result descriptions are to be provided by the caller.
 var baseHelpDescs = map[string]string{
+
 	// Misc help labels and output.
 	"help-arguments":      "Arguments",
 	"help-arguments-none": "None",
@@ -18,6 +19,7 @@ var baseHelpDescs = map[string]string{
 	"help-default":        "default",
 	"help-optional":       "optional",
 	"help-required":       "required",
+
 	// JSON types.
 	"json-type-numeric": "numeric",
 	"json-type-string":  "string",
@@ -25,6 +27,7 @@ var baseHelpDescs = map[string]string{
 	"json-type-array":   "array of ",
 	"json-type-object":  "object",
 	"json-type-value":   "value",
+
 	// JSON examples.
 	"json-example-string":   "value",
 	"json-example-bool":     "true|false",
@@ -65,6 +68,7 @@ func resultStructHelp(
 	xT descLookupFunc, rt reflect.Type, indentLevel int) []string {
 	indent := strings.Repeat(" ", indentLevel)
 	typeName := strings.ToLower(rt.Name())
+
 	// Generate the help for each of the fields in the result struct.
 	numField := rt.NumField()
 	results := make([]string, 0, numField)
@@ -112,6 +116,7 @@ func resultStructHelp(
 // reflectTypeToJSONExample generates example usage in the format used by the help output.  It handles arrays, slices and structs recursively.  The output is returned as a slice of lines so the final help can be nicely aligned via a tab writer.  A bool is also returned which specifies whether or not the type results in a complex JSON object since they need to be handled differently.
 func reflectTypeToJSONExample(
 	xT descLookupFunc, rt reflect.Type, indentLevel int, fieldDescKey string) ([]string, bool) {
+
 
 	// Indirect pointer if needed.
 	if rt.Kind() == reflect.Ptr {
@@ -186,12 +191,15 @@ func reflectTypeToJSONExample(
 // resultTypeHelp generates and returns formatted help for the provided result type.
 func resultTypeHelp(
 	xT descLookupFunc, rt reflect.Type, fieldDescKey string) string {
+
 	// Generate the JSON example for the result type.
 	results, isComplex := reflectTypeToJSONExample(xT, rt, 0, fieldDescKey)
+
 	// When this is a primitive type, add the associated JSON type and result description into the final string, format it accordingly, and return it.
 	if !isComplex {
 		return fmt.Sprintf("%s (%s) %s", results[0], reflectTypeToJSONType(xT, rt), xT(fieldDescKey))
 	}
+
 	// At this point, this is a complex type that already has the JSON types and descriptions in the results.  Thus, use a tab writer to nicely align the help text.
 	var formatted bytes.Buffer
 	w := new(tabwriter.Writer)
@@ -210,6 +218,7 @@ func resultTypeHelp(
 // argTypeHelp returns the type of provided command argument as a string in the format used by the help output.  In particular, it includes the JSON type (boolean, numeric, string, array, object) along with optional and the default value if applicable.
 func argTypeHelp(
 	xT descLookupFunc, structField reflect.StructField, defaultVal *reflect.Value) string {
+
 	// Indirect the pointer if needed and track if it's an optional field.
 	fieldType := structField.Type
 	var isOptional bool
@@ -217,14 +226,17 @@ func argTypeHelp(
 		fieldType = fieldType.Elem()
 		isOptional = true
 	}
+
 	// When there is a default value, it must also be a pointer due to the rules enforced by RegisterCmd.
 	if defaultVal != nil {
 		indirect := defaultVal.Elem()
 		defaultVal = &indirect
 	}
+
 	// Convert the field type to a JSON type.
 	details := make([]string, 0, 3)
 	details = append(details, reflectTypeToJSONType(xT, fieldType))
+
 	// Add optional and default value to the details if needed.
 	if isOptional {
 		details = append(details, xT("help-optional"))
@@ -246,12 +258,14 @@ func argTypeHelp(
 // argHelp generates and returns formatted help for the provided command.
 func argHelp(
 	xT descLookupFunc, rtp reflect.Type, defaults map[int]reflect.Value, method string) string {
+
 	// Return now if the command has no arguments.
 	rt := rtp.Elem()
 	numFields := rt.NumField()
 	if numFields == 0 {
 		return ""
 	}
+
 	// Generate the help for each argument in the command.  Several simplifying assumptions are made here because the RegisterCmd function has already rigorously enforced the layout.
 	args := make([]string, 0, numFields)
 	for i := 0; i < numFields; i++ {
@@ -289,6 +303,7 @@ func argHelp(
 			}
 		}
 	}
+
 	// Add argument names, types, and descriptions if there are any.  Use a tab writer to nicely align the help text.
 	var formatted bytes.Buffer
 	w := new(tabwriter.Writer)
@@ -303,9 +318,11 @@ func argHelp(
 // methodHelp generates and returns the help output for the provided command and method info.  This is the main work horse for the exported MethodHelp function.
 func methodHelp(
 	xT descLookupFunc, rtp reflect.Type, defaults map[int]reflect.Value, method string, resultTypes []interface{}) string {
+
 	// Start off with the method usage and help synopsis.
 	help := fmt.Sprintf("%s\n\n%s\n", methodUsageText(rtp, defaults, method),
 		xT(method+"--synopsis"))
+
 	// Generate the help for each argument in the command.
 	if argText := argHelp(xT, rtp, defaults, method); argText != "" {
 		help += fmt.Sprintf("\n%s:\n%s", xT("help-arguments"),
@@ -314,6 +331,7 @@ func methodHelp(
 		help += fmt.Sprintf("\n%s:\n%s\n", xT("help-arguments"),
 			xT("help-arguments-none"))
 	}
+
 	// Generate the help text for each result type.
 	resultTexts := make([]string, 0, len(resultTypes))
 	for i := range resultTypes {
@@ -327,6 +345,7 @@ func methodHelp(
 		resultText := resultTypeHelp(xT, rtp.Elem(), fieldDescKey)
 		resultTexts = append(resultTexts, resultText)
 	}
+
 	// Add result types and descriptions.  When there is more than one result type, also add the condition which triggers it.
 	if len(resultTexts) > 1 {
 		for i, resultText := range resultTexts {
@@ -381,6 +400,7 @@ func isValidResultType(
 func GenerateHelp(
 	method string, descs map[string]string, resultTypes ...interface{}) (string, error) {
 
+
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]
@@ -390,6 +410,7 @@ func GenerateHelp(
 		str := fmt.Sprintf("%q is not registered", method)
 		return "", makeError(ErrUnregisteredMethod, str)
 	}
+
 	// Validate each result type is a pointer to a supported type (or nil).
 	for i, resultType := range resultTypes {
 		if resultType == nil {
@@ -409,6 +430,7 @@ func GenerateHelp(
 			return "", makeError(ErrInvalidType, str)
 		}
 	}
+
 	// Create a closure for the description lookup function which falls back to the base help descriptions map for unrecognized keys and tracks and missing keys.
 	var missingKey string
 	xT := func(key string) string {
@@ -421,6 +443,7 @@ func GenerateHelp(
 		missingKey = key
 		return key
 	}
+
 	// Generate and return the help for the method.
 	help := methodHelp(xT, rtp, info.defaults, method, resultTypes)
 	if missingKey != "" {

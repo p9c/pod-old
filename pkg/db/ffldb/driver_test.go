@@ -22,6 +22,7 @@ func TestCreateOpenFail(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Ensure that attempting to open a database that doesn't exist returns the expected error.
 	wantErrCode := database.ErrDbDoesNotExist
 	_, err := database.Open(dbType, "noexist", blockDataNet)
@@ -29,6 +30,7 @@ func TestCreateOpenFail(
 
 		return
 	}
+
 	// Ensure that attempting to open a database with the wrong number of parameters returns the expected error.
 	wantErr := fmt.Errorf("invalid arguments to %s.Open -- expected "+
 		"database path and block network", dbType)
@@ -39,6 +41,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure that attempting to open a database with an invalid type for the first parameter returns the expected error.
 	wantErr = fmt.Errorf("first argument to %s.Open is invalid -- "+
 		"expected database path string", dbType)
@@ -49,6 +52,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure that attempting to open a database with an invalid type for the second parameter returns the expected error.
 	wantErr = fmt.Errorf("second argument to %s.Open is invalid -- "+
 		"expected block network", dbType)
@@ -59,6 +63,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure that attempting to create a database with the wrong number of parameters returns the expected error.
 	wantErr = fmt.Errorf("invalid arguments to %s.Create -- expected "+
 		"database path and block network", dbType)
@@ -69,6 +74,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure that attempting to create a database with an invalid type for the first parameter returns the expected error.
 	wantErr = fmt.Errorf("first argument to %s.Create is invalid -- "+
 		"expected database path string", dbType)
@@ -79,6 +85,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure that attempting to create a database with an invalid type for the second parameter returns the expected error.
 	wantErr = fmt.Errorf("second argument to %s.Create is invalid -- "+
 		"expected block network", dbType)
@@ -89,6 +96,7 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
+
 	// Ensure operations against a closed database return the expected error.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-createfail")
 	_ = os.RemoveAll(dbPath)
@@ -140,6 +148,7 @@ func TestPersistence(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-persistencetest")
 	_ = os.RemoveAll(dbPath)
@@ -150,6 +159,7 @@ func TestPersistence(
 	}
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
+
 	// Create a bucket, put some values into it, and store a block so they can be tested for existence on re-open.
 	bucket1Key := []byte("bucket1")
 	storeValues := map[string]string{
@@ -186,6 +196,7 @@ func TestPersistence(
 		t.Errorf("Update: unexpected error: %v", err)
 		return
 	}
+
 	// Close and reopen the database to ensure the values persist.
 	db.Close()
 	db, err = database.Open(dbType, dbPath, blockDataNet)
@@ -194,6 +205,7 @@ func TestPersistence(
 		return
 	}
 	defer db.Close()
+
 	// Ensure the values previously stored in the 3rd namespace still exist and are correct.
 	err = db.View(func(tx database.Tx) error {
 		metadataBucket := tx.Metadata()
@@ -236,6 +248,7 @@ func TestInterface(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-interfacetest")
 	_ = os.RemoveAll(dbPath)
@@ -246,6 +259,7 @@ func TestInterface(
 	}
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
+
 	// Ensure the driver type is the expected value.
 	gotDbType := db.Type()
 	if gotDbType != dbType {
@@ -253,8 +267,10 @@ func TestInterface(
 			gotDbType, dbType)
 		return
 	}
+
 	// Run all of the interface tests against the database.
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	// Change the maximum file size to a small value to force multiple flat files with the test data set.
 	ffldb.TstRunWithMaxBlockFileSize(db, 2048, func() {
 

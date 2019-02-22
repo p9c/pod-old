@@ -440,6 +440,7 @@ func TestVarStringWire(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// str256 is a string that takes a 2-byte varint to encode.
 	str256 := strings.Repeat("test", 64)
 	tests := []struct {
@@ -491,6 +492,7 @@ func TestVarStringWireErrors(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// str256 is a string that takes a 2-byte varint to encode.
 	str256 := strings.Repeat("test", 64)
 	tests := []struct {
@@ -564,6 +566,7 @@ func TestVarBytesWire(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// bytes256 is a byte array that takes a 2-byte varint to encode.
 	bytes256 := bytes.Repeat([]byte{0x01}, 256)
 	tests := []struct {
@@ -616,6 +619,7 @@ func TestVarBytesWireErrors(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// bytes256 is a byte array that takes a 2-byte varint to encode.
 	bytes256 := bytes.Repeat([]byte{0x01}, 256)
 	tests := []struct {
@@ -719,6 +723,7 @@ func TestRandomUint64(
 // TestRandomUint64Errors uses a fake reader to force error paths to be executed and checks the results accordingly.
 func TestRandomUint64Errors(
 	t *testing.T) {
+
 
 	// Test short reads.
 	fr := &fakeRandReader{n: 2, err: io.EOF}

@@ -12,6 +12,7 @@ import (
 func TestTxFeePrioHeap(
 	t *testing.T) {
 
+
 	// Create some fake priority items that exercise the expected sort edge conditions.
 	testItems := []*txPrioItem{
 		{feePerKB: 5678, priority: 3},
@@ -27,6 +28,7 @@ func TestTxFeePrioHeap(
 		{feePerKB: 10000, priority: 0}, // Higher fee, smaller prio
 		{feePerKB: 0, priority: 10000}, // Higher prio, lower fee
 	}
+
 	// Add random data in addition to the edge conditions already manually specified.
 	randSeed := rand.Int63()
 	defer func() {
@@ -43,6 +45,7 @@ func TestTxFeePrioHeap(
 			priority: prng.Float64() * 100,
 		})
 	}
+
 	// Test sorting by fee per KB then priority.
 	var highest *txPrioItem
 	priorityQueue := newTxPriorityQueue(len(testItems), true)
@@ -69,6 +72,7 @@ func TestTxFeePrioHeap(
 		}
 		highest = prioItem
 	}
+
 	// Test sorting by priority then fee per KB.
 	highest = nil
 	priorityQueue = newTxPriorityQueue(len(testItems), false)

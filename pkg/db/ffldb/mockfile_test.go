@@ -9,10 +9,13 @@ import (
 
 // Errors used for the mock file.
 var (
+
 	// errMockFileClosed is used to indicate a mock file is closed.
 	errMockFileClosed = errors.New("file closed")
+
 	// errInvalidOffset is used to indicate an offset that is out of range for the file was provided.
 	errInvalidOffset = errors.New("invalid offset")
+
 	// errSyncFail is used to indicate simulated sync failure.
 	errSyncFail = errors.New("simulated sync failure")
 )
@@ -52,6 +55,7 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	if off < 0 || off > maxSize {
 		return 0, errInvalidOffset
 	}
+
 	// Limit to the max size field, if set.
 	numToRead := int64(len(b))
 	endOffset := off + numToRead
@@ -99,6 +103,7 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 	if off < 0 || off > maxSize {
 		return 0, errInvalidOffset
 	}
+
 	// Limit to the max size field, if set, and grow the slice if needed.
 	numToWrite := int64(len(b))
 	if off+numToWrite > maxSize {

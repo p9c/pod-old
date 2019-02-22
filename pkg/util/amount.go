@@ -55,6 +55,7 @@ func round(
 func NewAmount(
 	f float64) (Amount, error) {
 
+
 	// The amount is only considered invalid if it cannot be represented as an integer type.  This may happen if f is NaN or +-Infinity.
 	switch {
 	case math.IsNaN(f):

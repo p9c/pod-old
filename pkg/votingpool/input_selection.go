@@ -54,6 +54,7 @@ func (c byAddress) Less(i, j int) bool {
 		return false
 	}
 
+
 	// The seriesID are equal, so compare index.
 	if iAddr.index < jAddr.index {
 		return true
@@ -62,6 +63,7 @@ func (c byAddress) Less(i, j int) bool {
 		return false
 	}
 
+
 	// The seriesID and index are equal, so compare branch.
 	if iAddr.branch < jAddr.branch {
 		return true
@@ -69,6 +71,7 @@ func (c byAddress) Less(i, j int) bool {
 	if iAddr.branch > jAddr.branch {
 		return false
 	}
+
 
 	// The seriesID, index, and branch are equal, so compare hash.
 	txidComparison := bytes.Compare(c[i].OutPoint.Hash[:], c[j].OutPoint.Hash[:])
@@ -79,7 +82,9 @@ func (c byAddress) Less(i, j int) bool {
 		return false
 	}
 
+
 	// The seriesID, index, branch, and hash are equal, so compare output
+
 	// index.
 	return c[i].OutPoint.Index < c[j].OutPoint.Index
 }

@@ -15,6 +15,7 @@ This package is a driver to the database package and provides the database type 
 ```Go
 db, err := database.Open("ffldb", "path/to/database", wire.MainNet)
 if err != nil {
+
 	// Handle error
 }
 ```
@@ -22,6 +23,7 @@ if err != nil {
 ```Go
 db, err := database.Create("ffldb", "path/to/database", wire.MainNet)
 if err != nil {
+
 	// Handle error
 }
 ```

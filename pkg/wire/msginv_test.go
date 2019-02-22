@@ -15,6 +15,7 @@ func TestInv(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// Ensure the command is expected value.
 	wantCmd := "inv"
 	msg := NewMsgInv()
@@ -22,6 +23,7 @@ func TestInv(
 		t.Errorf("NewMsgInv: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
+
 	// Ensure max payload is expected value for latest protocol version. Num inventory vectors (varInt) + max allowed inventory vectors.
 	wantPayload := uint32(1800009)
 	maxPayload := msg.MaxPayloadLength(pver)
@@ -30,6 +32,7 @@ func TestInv(
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
 	}
+
 	// Ensure inventory vectors are added properly.
 	hash := chainhash.Hash{}
 	iv := NewInvVect(InvTypeBlock, &hash)
@@ -41,6 +44,7 @@ func TestInv(
 		t.Errorf("AddInvVect: wrong invvect added - got %v, want %v",
 			spew.Sprint(msg.InvList[0]), spew.Sprint(iv))
 	}
+
 	// Ensure adding more than the max allowed inventory vectors per message returns an error.
 	for i := 0; i < MaxInvPerMsg; i++ {
 		err = msg.AddInvVect(iv)
@@ -49,6 +53,7 @@ func TestInv(
 		t.Errorf("AddInvVect: expected error on too many inventory " +
 			"vectors not received")
 	}
+
 	// Ensure creating the message with a size hint larger than the max works as expected.
 	msg = NewMsgInvSizeHint(MaxInvPerMsg + 1)
 	wantCap := MaxInvPerMsg
@@ -62,12 +67,14 @@ func TestInv(
 func TestInvWire(
 	t *testing.T) {
 
+
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
 		t.Errorf("NewHashFromStr: %v", err)
 	}
+
 	// Transaction 1 of Block 203707 hash.
 	hashStr = "d28a3dc7392bf00a9855ee93dd9a81eff82a2c4fe57fbd42cfe71b487accfaf0"
 	txHash, err := chainhash.NewHashFromStr(hashStr)
@@ -76,11 +83,13 @@ func TestInvWire(
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
 	iv2 := NewInvVect(InvTypeTx, txHash)
+
 	// Empty inv message.
 	NoInv := NewMsgInv()
 	NoInvEncoded := []byte{
 		0x00, // Varint for number of inventory vectors
 	}
+
 	// Inv message with multiple inventory vectors.
 	MultiInv := NewMsgInv()
 	MultiInv.AddInvVect(iv)
@@ -224,6 +233,7 @@ func TestInvWireErrors(
 
 	pver := ProtocolVersion
 	wireErr := &MessageError{}
+
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
@@ -231,6 +241,7 @@ func TestInvWireErrors(
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
+
 	// Base inv message used to induce errors.
 	baseInv := NewMsgInv()
 	baseInv.AddInvVect(iv)
@@ -242,6 +253,7 @@ func TestInvWireErrors(
 		0x79, 0x40, 0x08, 0xa6, 0x36, 0xac, 0xc2, 0x4b,
 		0x26, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Block 203707 hash
 	}
+
 	// Inv message that forces an error by having more than the max allowed inv vectors.
 	maxInv := NewMsgInv()
 	for i := 0; i < MaxInvPerMsg; i++ {

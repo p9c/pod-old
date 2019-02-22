@@ -11,10 +11,13 @@ type AddNodeCommand string
 
 // Constants used to indicate the command for the AddNode function.
 const (
+
 	// ANAdd indicates the specified host should be added as a persistent peer.
 	ANAdd AddNodeCommand = "add"
+
 	// ANRemove indicates the specified peer should be removed.
 	ANRemove AddNodeCommand = "remove"
+
 	// ANOneTry indicates the specified host should try to connect once, but it should not be made persistent.
 	ANOneTry AddNodeCommand = "onetry"
 )
@@ -76,6 +79,7 @@ func (r FutureGetAddedNodeInfoResult) Receive() ([]json.GetAddedNodeInfoResult, 
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal as an array of getaddednodeinfo result objects.
 	var nodeInfo []json.GetAddedNodeInfoResult
 	err = js.Unmarshal(res, &nodeInfo)
@@ -107,6 +111,7 @@ func (r FutureGetAddedNodeInfoNoDNSResult) Receive() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as an array of strings.
 	var nodes []string
 	err = js.Unmarshal(res, &nodes)
@@ -138,6 +143,7 @@ func (r FutureGetConnectionCountResult) Receive() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	// Unmarshal result as an int64.
 	var count int64
 	err = js.Unmarshal(res, &count)
@@ -189,6 +195,7 @@ func (r FutureGetPeerInfoResult) Receive() ([]json.GetPeerInfoResult, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as an array of getpeerinfo result objects.
 	var peerInfo []json.GetPeerInfoResult
 	err = js.Unmarshal(res, &peerInfo)
@@ -220,6 +227,7 @@ func (r FutureGetNetTotalsResult) Receive() (*json.GetNetTotalsResult, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Unmarshal result as a getnettotals result object.
 	var totals json.GetNetTotalsResult
 	err = js.Unmarshal(res, &totals)

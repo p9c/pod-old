@@ -18,12 +18,14 @@ func TestBlock(
 	t *testing.T) {
 
 	b := util.NewBlock(&Block100000)
+
 	// Ensure we get the same data back out.
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
 
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
+
 	// Ensure block height set and get work properly.
 	wantHeight := int32(100000)
 	b.SetHeight(wantHeight)
@@ -31,12 +33,14 @@ func TestBlock(
 		t.Errorf("Height: mismatched height - got %v, want %v",
 			gotHeight, wantHeight)
 	}
+
 	// Hash for block 100,000.
 	wantHashStr := "3ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 	wantHash, err := chainhash.NewHashFromStr(wantHashStr)
 	if err != nil {
 		t.Errorf("NewHashFromStr: %v", err)
 	}
+
 	// Request the hash multiple times to test generation and caching.
 	for i := 0; i < 2; i++ {
 		hash := b.Hash()
@@ -46,6 +50,7 @@ func TestBlock(
 				i, hash, wantHash)
 		}
 	}
+
 	// Hashes for the transactions in Block100000.
 	wantTxHashes := []string{
 		"8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87",
@@ -53,8 +58,10 @@ func TestBlock(
 		"6359f0868171b1d194cbee1af2f16ea598ae8fad666d9b012c8ed2b79a236ec4",
 		"e9a66845e05d5abc0ad04ec80f774a7e585c6e8db975962d069a522137b80c1d",
 	}
+
 	// Create a new block to nuke all cached data.
 	b = util.NewBlock(&Block100000)
+
 	// Request hash for all transactions one at a time via Tx.
 	for i, txHash := range wantTxHashes {
 		wantHash, err := chainhash.NewHashFromStr(txHash)
@@ -78,8 +85,10 @@ func TestBlock(
 			}
 		}
 	}
+
 	// Create a new block to nuke all cached data.
 	b = util.NewBlock(&Block100000)
+
 	// Request slice of all transactions multiple times to test generation and caching.
 	for i := 0; i < 2; i++ {
 		transactions := b.Transactions()
@@ -106,6 +115,7 @@ func TestBlock(
 			}
 		}
 	}
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err = Block100000.Serialize(&block100000Buf)
@@ -113,6 +123,7 @@ func TestBlock(
 		t.Errorf("Serialize: %v", err)
 	}
 	block100000Bytes := block100000Buf.Bytes()
+
 	// Request serialized bytes multiple times to test generation and caching.
 	for i := 0; i < 2; i++ {
 		serializedBytes, err := b.Bytes()
@@ -128,6 +139,7 @@ func TestBlock(
 			continue
 		}
 	}
+
 	// Transaction offsets and length for the transaction in Block100000.
 	wantTxLocs := []wire.TxLoc{
 		{TxStart: 81, TxLen: 135},
@@ -135,6 +147,7 @@ func TestBlock(
 		{TxStart: 475, TxLen: 257},
 		{TxStart: 732, TxLen: 225},
 	}
+
 	// Ensure the transaction location information is accurate.
 	txLocs, err := b.TxLoc()
 	if err != nil {
@@ -153,6 +166,7 @@ func TestBlock(
 func TestNewBlockFromBytes(
 	t *testing.T) {
 
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -160,12 +174,14 @@ func TestNewBlockFromBytes(
 		t.Errorf("Serialize: %v", err)
 	}
 	block100000Bytes := block100000Buf.Bytes()
+
 	// Create a new block from the serialized bytes.
 	b, err := util.NewBlockFromBytes(block100000Bytes)
 	if err != nil {
 		t.Errorf("NewBlockFromBytes: %v", err)
 		return
 	}
+
 	// Ensure we get the same data back out.
 	serializedBytes, err := b.Bytes()
 	if err != nil {
@@ -178,6 +194,7 @@ func TestNewBlockFromBytes(
 			spew.Sdump(serializedBytes),
 			spew.Sdump(block100000Bytes))
 	}
+
 	// Ensure the generated MsgBlock is correct.
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
 
@@ -190,6 +207,7 @@ func TestNewBlockFromBytes(
 func TestNewBlockFromBlockAndBytes(
 	t *testing.T) {
 
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -197,8 +215,10 @@ func TestNewBlockFromBlockAndBytes(
 		t.Errorf("Serialize: %v", err)
 	}
 	block100000Bytes := block100000Buf.Bytes()
+
 	// Create a new block from the serialized bytes.
 	b := util.NewBlockFromBlockAndBytes(&Block100000, block100000Bytes)
+
 	// Ensure we get the same data back out.
 	serializedBytes, err := b.Bytes()
 	if err != nil {
@@ -222,6 +242,7 @@ func TestNewBlockFromBlockAndBytes(
 func TestBlockErrors(
 	t *testing.T) {
 
+
 	// Ensure out of range errors are as expected.
 	wantErr := "transaction index -1 is out of range - max 3"
 	testErr := util.OutOfRangeError(wantErr)
@@ -229,6 +250,7 @@ func TestBlockErrors(
 		t.Errorf("OutOfRangeError: wrong error - got %v, want %v",
 			testErr.Error(), wantErr)
 	}
+
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -236,12 +258,14 @@ func TestBlockErrors(
 		t.Errorf("Serialize: %v", err)
 	}
 	block100000Bytes := block100000Buf.Bytes()
+
 	// Create a new block from the serialized bytes.
 	b, err := util.NewBlockFromBytes(block100000Bytes)
 	if err != nil {
 		t.Errorf("NewBlockFromBytes: %v", err)
 		return
 	}
+
 	// Truncate the block byte buffer to force errors.
 	shortBytes := block100000Bytes[:80]
 	_, err = util.NewBlockFromBytes(shortBytes)
@@ -249,6 +273,7 @@ func TestBlockErrors(
 		t.Errorf("NewBlockFromBytes: did not get expected error - "+
 			"got %v, want %v", err, io.EOF)
 	}
+
 	// Ensure TxHash returns expected error on invalid indices.
 	_, err = b.TxHash(-1)
 	if _, ok := err.(util.OutOfRangeError); !ok {
@@ -260,6 +285,7 @@ func TestBlockErrors(
 		t.Errorf("TxHash: wrong error - got: %v <%T>, "+
 			"want: <%T>", err, err, util.OutOfRangeError(""))
 	}
+
 	// Ensure Tx returns expected error on invalid indices.
 	_, err = b.Tx(-1)
 	if _, ok := err.(util.OutOfRangeError); !ok {
@@ -271,6 +297,7 @@ func TestBlockErrors(
 		t.Errorf("Tx: wrong error - got: %v <%T>, "+
 			"want: <%T>", err, err, util.OutOfRangeError(""))
 	}
+
 	// Ensure TxLoc returns expected error with short byte buffer. This makes use of the test package only function, SetBlockBytes, to inject a short byte buffer.
 	b.SetBlockBytes(shortBytes)
 	_, err = b.TxLoc()

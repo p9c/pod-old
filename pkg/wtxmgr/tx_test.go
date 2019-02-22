@@ -111,10 +111,14 @@ func TestInsertsCreditsDebitsRollbacks(
 
 	t.Parallel()
 
+
 	// Create a double spend of the received blockchain transaction.
 	dupRecvTx, _ := util.NewTxFromBytes(TstRecvSerializedTx)
+
 	// Switch txout amount to 1 DUO.  Transaction store doesn't
+
 	// validate txs, so this is fine for testing a double spend
+
 	// removal.
 	TstDupRecvAmount := int64(1e8)
 	newDupMsgTx := dupRecvTx.MsgTx()
@@ -122,7 +126,9 @@ func TestInsertsCreditsDebitsRollbacks(
 	TstDoubleSpendTx := util.NewTx(newDupMsgTx)
 	TstDoubleSpendSerializedTx := serializeTx(TstDoubleSpendTx)
 
+
 	// Create a "signed" (with invalid sigs) tx that spends output 0 of
+
 	// the double spend.
 	spendingTx := wire.NewMsgTx(wire.TxVersion)
 	spendingTxIn := wire.NewTxIn(wire.NewOutPoint(TstDoubleSpendTx.Hash(), 0), []byte{0, 1, 2, 3, 4}, nil)
@@ -598,6 +604,7 @@ func TestFindingSpentCredits(
 	defer dbtx.Commit()
 	ns := dbtx.ReadWriteBucket(namespaceKey)
 
+
 	// Insert transaction and credit which will be spent.
 	recvRec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
 	if err != nil {
@@ -612,6 +619,7 @@ func TestFindingSpentCredits(
 	if err != nil {
 		t.Fatal(err)
 	}
+
 
 	// Insert confirmed transaction which spends the above credit.
 	spendingRec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
@@ -721,6 +729,7 @@ func TestCoinbases(
 		t.Fatal(err)
 	}
 
+
 	// Insert coinbase and mark outputs 0 and 2 as credits.
 	err = s.InsertTx(ns, cbRec, &b100)
 	if err != nil {
@@ -737,11 +746,17 @@ func TestCoinbases(
 
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 
+
 	// Balance should be 0 if the coinbase is immature, 50 DUO at and beyond
+
 	// maturity.
+
 	//
+
 	// Outputs when depth is below maturity are never included, no matter
+
 	// the required number of confirmations.  Matured outputs which have
+
 	// greater depth than minConf are still excluded.
 	type balTest struct {
 		height  int32
@@ -829,7 +844,9 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks after inserting coinbase")
 	}
 
+
 	// Spend an output from the coinbase tx in an unmined transaction when
+
 	// the next block will mature the coinbase.
 	spenderATime := time.Now()
 	spenderA := spendOutput(&cbRec.Hash, 0, 5e8, 15e8)
@@ -910,6 +927,7 @@ func TestCoinbases(
 
 		t.Fatal("Failed balance checks after spending coinbase with unmined transaction")
 	}
+
 
 	// Mine the spending transaction in the block the coinbase matures.
 	bMaturity := BlockMeta{
@@ -995,11 +1013,17 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks mining coinbase spending transaction")
 	}
 
+
 	// Create another spending transaction which spends the credit from the
+
 	// first spender.  This will be used to test removing the entire
+
 	// conflict chain when the coinbase is later reorged out.
+
 	//
+
 	// Use the same output amount as spender A and mark it as a credit.
+
 	// This will mean the balance tests should report identical results.
 	spenderBTime := time.Now()
 	spenderB := spendOutput(&spenderARec.Hash, 0, 5e8)
@@ -1029,7 +1053,9 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks mining second spending transaction")
 	}
 
+
 	// Reorg out the block that matured the coinbase and check balances
+
 	// again.
 	err = s.Rollback(ns, bMaturity.Height)
 	if err != nil {
@@ -1050,9 +1076,13 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks after reorging maturity block")
 	}
 
+
 	// Reorg out the block which contained the coinbase.  There should be no
+
 	// more transactions in the store (since the previous outputs referenced
+
 	// by the spending tx no longer exist), and the balance will always be
+
 	// zero.
 	err = s.Rollback(ns, b100.Height)
 	if err != nil {
@@ -1135,6 +1165,7 @@ func TestMoveMultipleToSameBlock(
 		t.Fatal(err)
 	}
 
+
 	// Insert coinbase and mark both outputs as credits.
 	err = s.InsertTx(ns, cbRec, &b100)
 	if err != nil {
@@ -1149,7 +1180,9 @@ func TestMoveMultipleToSameBlock(
 		t.Fatal(err)
 	}
 
+
 	// Create and insert two unmined transactions which spend both coinbase
+
 	// outputs.
 	spenderATime := time.Now()
 	spenderA := spendOutput(&cbRec.Hash, 0, 1e8, 2e8, 18e8)
@@ -1190,6 +1223,7 @@ func TestMoveMultipleToSameBlock(
 
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 
+
 	// Mine both transactions in the block that matures the coinbase.
 	bMaturity := BlockMeta{
 		Block: Block{Height: b100.Height + coinbaseMaturity},
@@ -1203,6 +1237,7 @@ func TestMoveMultipleToSameBlock(
 	if err != nil {
 		t.Fatal(err)
 	}
+
 
 	// Check that both transactions can be queried at the maturity block.
 	detailsA, err := s.UniqueTxDetails(ns, &spenderARec.Hash, &bMaturity.Block)
@@ -1220,7 +1255,9 @@ func TestMoveMultipleToSameBlock(
 		t.Fatal("No details found for second spender")
 	}
 
+
 	// Verify that the balance was correctly updated on the block record
+
 	// append and that no unmined transactions remain.
 	balTests := []struct {
 		height  int32
@@ -1315,6 +1352,7 @@ func TestInsertUnserializedTx(
 		t.Fatalf("Insert for stripped TxRecord failed: %v", err)
 	}
 
+
 	// Ensure it can be retreived successfully.
 	details, err := s.UniqueTxDetails(ns, &rec.Hash, &b100.Block)
 	if err != nil {
@@ -1328,6 +1366,7 @@ func TestInsertUnserializedTx(
 
 		t.Fatal("Serialized txs for coinbase do not match")
 	}
+
 
 	// Now test that path with an unmined transaction.
 	tx = spendOutput(&rec.Hash, 0, 50e8)
@@ -1368,10 +1407,15 @@ func TestRemoveUnminedTx(
 	}
 	defer teardown()
 
+
 	// In order to reproduce real-world scenarios, we'll use a new database
+
 	// transaction for each interaction with the wallet.
+
 	//
+
 	// We'll start off the test by creating a new coinbase output at height
+
 	// 100 and inserting it into the store.
 	b100 := &BlockMeta{
 		Block: Block{Height: 100},
@@ -1394,13 +1438,18 @@ func TestRemoveUnminedTx(
 		}
 	})
 
+
 	// Determine the maturity height for the coinbase output created.
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 	maturityHeight := b100.Block.Height + coinbaseMaturity
 
+
 	// checkBalance is a helper function that compares the balance of the
+
 	// store with the expected value. The includeUnconfirmed boolean can be
+
 	// used to include the unconfirmed balance as a part of the total
+
 	// balance.
 	checkBalance := func(expectedBalance util.Amount,
 		includeUnconfirmed bool) {
@@ -1427,13 +1476,18 @@ func TestRemoveUnminedTx(
 		})
 	}
 
+
 	// Since we don't have any unconfirmed transactions within the store,
+
 	// the total balance reflecting confirmed and unconfirmed outputs should
+
 	// match the initial balance.
 	checkBalance(util.Amount(initialBalance), false)
 	checkBalance(util.Amount(initialBalance), true)
 
+
 	// Then, we'll create an unconfirmed spend for the coinbase output and
+
 	// insert it into the store.
 	b101 := &BlockMeta{
 		Block: Block{Height: 201},
@@ -1456,7 +1510,9 @@ func TestRemoveUnminedTx(
 		}
 	})
 
+
 	// With the unconfirmed spend inserted into the store, we'll query it
+
 	// for its unconfirmed tranasctions to ensure it was properly added.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1477,12 +1533,17 @@ func TestRemoveUnminedTx(
 		}
 	})
 
+
 	// Now that an unconfirmed spend exists, there should no longer be any
+
 	// confirmed balance. The total balance should now all be unconfirmed
+
 	// and it should match the change amount of the unconfirmed spend
+
 	// tranasction.
 	checkBalance(0, false)
 	checkBalance(util.Amount(changeAmount), true)
+
 
 	// Now, we'll remove the unconfirmed spend tranaction from the store.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
@@ -1492,7 +1553,9 @@ func TestRemoveUnminedTx(
 		}
 	})
 
+
 	// We'll query the store one last time for its unconfirmed transactions
+
 	// to ensure the unconfirmed spend was properly removed above.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1506,8 +1569,11 @@ func TestRemoveUnminedTx(
 		}
 	})
 
+
 	// Finally, the total balance (including confirmed and unconfirmed)
+
 	// should once again match the initial balance, as the uncofirmed spend
+
 	// has already been removed.
 	checkBalance(util.Amount(initialBalance), false)
 	checkBalance(util.Amount(initialBalance), true)
@@ -1547,10 +1613,15 @@ func testInsertMempoolDoubleSpendTx(
 	}
 	defer teardown()
 
+
 	// In order to reproduce real-world scenarios, we'll use a new database
+
 	// transaction for each interaction with the wallet.
+
 	//
+
 	// We'll start off the test by creating a new coinbase output at height
+
 	// 100 and inserting it into the store.
 	b100 := BlockMeta{
 		Block: Block{Height: 100},
@@ -1572,7 +1643,9 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
+
 	// Then, we'll create two spends from the same coinbase output, in order
+
 	// to replicate a double spend scenario.
 	firstSpend := spendOutput(&cbRec.Hash, 0, 5e7, 5e7)
 	firstSpendRec, err := NewTxRecordFromMsgTx(firstSpend, time.Now())
@@ -1584,6 +1657,7 @@ func testInsertMempoolDoubleSpendTx(
 	if err != nil {
 		t.Fatal(err)
 	}
+
 
 	// We'll insert both of them into the store without confirming them.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
@@ -1607,7 +1681,9 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
+
 	// Ensure that both spends are found within the unconfirmed transactions
+
 	// in the wallet's store.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1621,8 +1697,11 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
+
 	// Then, we'll confirm either the first or second spend, depending on
+
 	// the boolean passed, with a height deep enough that allows us to
+
 	// succesfully spend the coinbase output.
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 	bMaturity := BlockMeta{
@@ -1650,10 +1729,15 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
+
 	// This should now trigger the store to remove any other pending double
+
 	// spends for this coinbase output, as we've already seen the confirmed
+
 	// one. Therefore, we shouldn't see any other unconfirmed transactions
+
 	// within it. We also ensure that the transaction that confirmed and is
+
 	// now listed as a UTXO within the wallet is the correct one.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1718,10 +1802,15 @@ func TestInsertConfirmedDoubleSpendTx(
 	}
 	defer teardown()
 
+
 	// In order to reproduce real-world scenarios, we'll use a new database
+
 	// transaction for each interaction with the wallet.
+
 	//
+
 	// We'll start off the test by creating a new coinbase output at height
+
 	// 100 and inserting it into the store.
 	b100 := BlockMeta{
 		Block: Block{Height: 100},
@@ -1743,8 +1832,11 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
+
 	// Then, we'll create three spends from the same coinbase output. The
+
 	// first two will remain unconfirmed, while the last should confirm and
+
 	// remove the remaining unconfirmed from the wallet's store.
 	firstSpend1 := spendOutput(&cbRec1.Hash, 0, 5e7)
 	firstSpendRec1, err := NewTxRecordFromMsgTx(firstSpend1, time.Now())
@@ -1778,7 +1870,9 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
+
 	// We'll also create another output and have one unconfirmed and one
+
 	// confirmed spending transaction also spend it.
 	cb2 := newCoinBase(2e8)
 	cbRec2, err := NewTxRecordFromMsgTx(cb2, b100.Time)
@@ -1812,7 +1906,9 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
+
 	// At this point, we should see all unconfirmed transactions within the
+
 	// store.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1826,7 +1922,9 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
+
 	// Then, we'll insert the confirmed spend at a height deep enough that
+
 	// allows us to successfully spend the coinbase outputs.
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 	bMaturity := BlockMeta{
@@ -1858,9 +1956,13 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
+
 	// Now that the confirmed spend exists within the store, we should no
+
 	// longer see the unconfirmed spends within it. We also ensure that the
+
 	// transaction that confirmed and is now listed as a UTXO within the
+
 	// wallet is the correct one.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1903,10 +2005,15 @@ func TestAddDuplicateCreditAfterConfirm(
 	}
 	defer teardown()
 
+
 	// In order to reproduce real-world scenarios, we'll use a new database
+
 	// transaction for each interaction with the wallet.
+
 	//
+
 	// We'll start off the test by creating a new coinbase output at height
+
 	// 100 and inserting it into the store.
 	b100 := &BlockMeta{
 		Block: Block{Height: 100},
@@ -1928,7 +2035,9 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
+
 	// We'll confirm that there is one unspent output in the store, which
+
 	// should be the coinbase output created above.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1945,6 +2054,7 @@ func TestAddDuplicateCreditAfterConfirm(
 				minedTxs[0].Hash)
 		}
 	})
+
 
 	// Then, we'll create an unconfirmed spend for the coinbase output.
 	b101 := &BlockMeta{
@@ -1967,6 +2077,7 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
+
 	// Confirm the spending transaction at the next height.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1979,7 +2090,9 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
+
 	// We should see one unspent output within the store once again, this
+
 	// time being the change output of the spending transaction.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1997,12 +2110,19 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
+
 	// Now, we'll insert the spending transaction once again, this time as
+
 	// unconfirmed. This can happen if the backend happens to forward an
+
 	// unconfirmed chain.RelevantTx notification to the client even after it
+
 	// has confirmed, which results in us adding it to the store once again.
+
 	//
+
 	// TODO(wilmer): ideally this shouldn't happen, so we should identify
+
 	// the real reason for this.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -2015,7 +2135,9 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
+
 	// Finally, we'll ensure the change output is still the only unspent
+
 	// output within the store.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 

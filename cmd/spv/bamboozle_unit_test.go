@@ -97,7 +97,9 @@ var (
 		0x5b, 0x4c, 0x6f, 0x4d,
 	}
 
+
 	// For the purpose of the cfheader mismatch test, we actually only need
+
 	// to have the scripts of each transaction present.
 	block = &wire.MsgBlock{
 		Transactions: []*wire.MsgTx{

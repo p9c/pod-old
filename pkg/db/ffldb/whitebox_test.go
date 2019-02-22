@@ -20,10 +20,13 @@ import (
 )
 
 var (
+
 	// blockDataNet is the expected network in the test block data.
 	blockDataNet = wire.MainNet
+
 	// blockDataFile is the path to a file containing the first 256 blocks of the block chain.
 	blockDataFile = filepath.Join("..", "testdata", "blocks1-256.bz2")
+
 	// errSubTestFail is used to signal that a sub test returned false.
 	errSubTestFail = fmt.Errorf("sub test failure")
 )
@@ -31,6 +34,7 @@ var (
 // loadBlocks loads the blocks contained in the testdata directory and returns a slice of them.
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util.Block, error) {
+
 
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
@@ -46,10 +50,12 @@ func loadBlocks(
 		}
 	}()
 	dr := bzip2.NewReader(fi)
+
 	// Set the first block as the genesis block.
 	blocks := make([]*util.Block, 0, 256)
 	genesis := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	blocks = append(blocks, genesis)
+
 	// Load the remaining blocks.
 	for height := 1; ; height++ {
 		var net uint32
@@ -150,6 +156,7 @@ func TestCornerCases(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// Create a file at the datapase path to force the open below to fail.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-errors")
 	_ = os.RemoveAll(dbPath)
@@ -159,6 +166,7 @@ func TestCornerCases(
 		return
 	}
 	fi.Close()
+
 	// Ensure creating a new database fails when a file exists where a directory is needed.
 	testName := "openDB: fail due to file at target location"
 	wantErrCode := database.ErrDriverSpecific
@@ -171,6 +179,7 @@ func TestCornerCases(
 		_ = os.RemoveAll(dbPath)
 		return
 	}
+
 	// Remove the file and create the database to run tests against.  It should be successful this time.
 	_ = os.RemoveAll(dbPath)
 	idb, err = openDB(dbPath, blockDataNet, true)
@@ -180,6 +189,7 @@ func TestCornerCases(
 	}
 	defer os.RemoveAll(dbPath)
 	defer idb.Close()
+
 	// Ensure attempting to write to a file that can't be created returns the expected error.
 	testName = "writeBlock: open file failure"
 	filePath := blockFilePath(dbPath, 0)
@@ -194,9 +204,11 @@ func TestCornerCases(
 		return
 	}
 	_ = os.RemoveAll(filePath)
+
 	// Close the underlying leveldb database out from under the database.
 	ldb := idb.(*db).cache.ldb
 	ldb.Close()
+
 	// Ensure initilization errors in the underlying database work as expected.
 	testName = "initDB: reinitialization"
 	wantErrCode = database.ErrDbNotOpen
@@ -205,6 +217,7 @@ func TestCornerCases(
 
 		return
 	}
+
 	// Ensure the View handles errors in the underlying leveldb database properly.
 	testName = "View: underlying leveldb error"
 	wantErrCode = database.ErrDbNotOpen
@@ -215,6 +228,7 @@ func TestCornerCases(
 
 		return
 	}
+
 	// Ensure the Update handles errors in the underlying leveldb database properly.
 	testName = "Update: underlying leveldb error"
 	err = idb.Update(func(tx database.Tx) error {
@@ -229,6 +243,7 @@ func TestCornerCases(
 // resetDatabase removes everything from the opened database associated with the test context including all metadata and the mock files.
 func resetDatabase(
 	tc *testContext) bool {
+
 	// Reset the metadata.
 	err := tc.db.Update(func(tx database.Tx) error {
 		// Remove all the keys using a cursor while also generating a list of buckets.  It's not safe to remove keys during ForEach iteration nor is it safe to remove buckets during cursor iteration, so this dual approach is needed.
@@ -257,6 +272,7 @@ func resetDatabase(
 		tc.t.Errorf("Update: unexpected error: %v", err)
 		return false
 	}
+
 	// Reset the mock files.
 	store := tc.db.(*db).store
 	wc := store.writeCursor
@@ -282,6 +298,7 @@ func testWriteFailures(
 
 		return false
 	}
+
 	// Ensure file sync errors during flush return the expected error.
 	store := tc.db.(*db).store
 	testName := "flush: file sync failure"
@@ -299,6 +316,7 @@ func testWriteFailures(
 	store.writeCursor.Lock()
 	store.writeCursor.curFile = oldFile
 	store.writeCursor.Unlock()
+
 	// Force errors in the various error paths when writing data by using mock files with a limited max size.
 	block0Bytes, _ := tc.blocks[0].Bytes()
 	tests := []struct {
@@ -370,6 +388,7 @@ func testBlockFileErrors(
 
 		return false
 	}
+
 	// Ensure errors in blockFile and openFile when requesting invalid file numbers.
 	store := tc.db.(*db).store
 	testName := "blockFile invalid file open"
@@ -384,6 +403,7 @@ func testBlockFileErrors(
 
 		return false
 	}
+
 	// Insert the first block into the mock file.
 	err = tc.db.Update(func(tx database.Tx) error {
 		err := tx.StoreBlock(tc.blocks[0])
@@ -399,6 +419,7 @@ func testBlockFileErrors(
 		}
 		return false
 	}
+
 	// Ensure errors in readBlock and readBlockRegion when requesting a file number that doesn't exist.
 	block0Hash := tc.blocks[0].Hash()
 	testName = "readBlock invalid file number"
@@ -417,10 +438,12 @@ func testBlockFileErrors(
 
 		return false
 	}
+
 	// Close the block file out from under the database.
 	store.writeCursor.curFile.Lock()
 	store.writeCursor.curFile.file.Close()
 	store.writeCursor.curFile.Unlock()
+
 	// Ensure failures in FetchBlock and FetchBlockRegion(s) since the underlying file they need to read from has been closed.
 	err = tc.db.View(func(tx database.Tx) error {
 		testName = "FetchBlock closed file"
@@ -467,6 +490,7 @@ func testCorruption(
 
 		return false
 	}
+
 	// Insert the first block into the mock file.
 	err := tc.db.Update(func(tx database.Tx) error {
 		err := tx.StoreBlock(tc.blocks[0])
@@ -482,6 +506,7 @@ func testCorruption(
 		}
 		return false
 	}
+
 	// Ensure corruption is detected by intentionally modifying the bytes stored to the mock file and reading the block.
 	block0Bytes, _ := tc.blocks[0].Bytes()
 	block0Hash := tc.blocks[0].Hash()
@@ -545,6 +570,7 @@ func testCorruption(
 func TestFailureScenarios(
 	t *testing.T) {
 
+
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-failurescenarios")
 	_ = os.RemoveAll(dbPath)
@@ -555,6 +581,7 @@ func TestFailureScenarios(
 	}
 	defer os.RemoveAll(dbPath)
 	defer idb.Close()
+
 	// Create a test context to pass around.
 	tc := &testContext{
 		t:            t,
@@ -562,6 +589,7 @@ func TestFailureScenarios(
 		files:        make(map[uint32]*lockableFile),
 		maxFileSizes: make(map[uint32]int64),
 	}
+
 	// Change the maximum file size to a small value to force multiple flat files with the test data set and replace the file-related functions to make use of mock files in memory.  This allows injection of various file-related errors.
 	store := idb.(*db).store
 	store.maxBlockFileSize = 1024 // 1KiB
@@ -619,6 +647,7 @@ func TestFailureScenarios(
 		str := fmt.Sprintf("file %d does not exist", fileNum)
 		return makeDbErr(database.ErrDriverSpecific, str, nil)
 	}
+
 	// Load the test blocks and save in the test context for use throughout the tests.
 	blocks, err := loadBlocks(t, blockDataFile, blockDataNet)
 	if err != nil {
@@ -626,16 +655,19 @@ func TestFailureScenarios(
 		return
 	}
 	tc.blocks = blocks
+
 	// Test various failures paths when writing to the block files.
 	if !testWriteFailures(tc) {
 
 		return
 	}
+
 	// Test various file-related issues such as closed and missing files.
 	if !testBlockFileErrors(tc) {
 
 		return
 	}
+
 	// Test various corruption scenarios.
 	testCorruption(tc)
 }

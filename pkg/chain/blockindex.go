@@ -17,17 +17,25 @@ import (
 type blockStatus byte
 
 const (
+
 	// statusDataStored indicates that the block's payload is stored on disk.
 	statusDataStored blockStatus = 1 << iota
+
 	// statusValid indicates that the block has been fully validated.
 	statusValid
+
 	// statusValidateFailed indicates that the block has failed validation.
 	statusValidateFailed
+
 	// statusInvalidAncestor indicates that one of the block's ancestors has
+
 	// has failed validation, thus the block is also invalid.
 	statusInvalidAncestor
+
 	// statusNone indicates that the block has no validation state flags set.
+
 	//
+
 	// NOTE: This must be defined last in order to avoid influencing iota.
 	statusNone blockStatus = 0
 )
@@ -49,21 +57,28 @@ func (status blockStatus) KnownInvalid() bool {
 
 // blockNode represents a block within the block chain and is primarily used to aid in selecting the best chain to be the main chain.  The main chain is stored into the block database.
 type blockNode struct {
+
 	// NOTE: Additions, deletions, or modifications to the order of the definitions in this struct should not be changed without considering how it affects alignment on 64-bit platforms.  The current order is specifically crafted to result in minimal padding.  There will be hundreds of thousands of these in memory, so a few extra bytes of padding adds up.
+
 	// parent is the parent block for this node.
 	parent *blockNode
+
 	// hash is the double sha 256 of the block.
 	hash chainhash.Hash
+
 	// workSum is the total amount of work in the chain up to and including this node.
 	workSum *big.Int
+
 	// height is the position in the block chain.
 	height int32
+
 	// Some fields from block headers to aid in best chain selection and reconstructing headers from memory.  These must be treated as immutable and are intentionally ordered to avoid padding on 64-bit platforms.
 	version    int32
 	bits       uint32
 	nonce      uint32
 	timestamp  int64
 	merkleRoot chainhash.Hash
+
 	// status is a bitfield representing the validation state of the block. The status field, unlike the other fields, may be written to and so should only be accessed using the concurrent-safe NodeStatus method on blockIndex once the node has been added to the global index.
 	status blockStatus
 }
@@ -99,6 +114,7 @@ func newBlockNode(
 
 // Header constructs a block header from the node and returns it. This function is safe for concurrent access.
 func (node *blockNode) Header() wire.BlockHeader {
+
 	// No lock is needed because all accessed fields are immutable.
 	prevHash := &zeroHash
 	if node.parent != nil {
@@ -134,6 +150,7 @@ func (node *blockNode) RelativeAncestor(distance int32) *blockNode {
 
 // CalcPastMedianTime calculates the median time of the previous few blocks prior to, and including, the block node. This function is safe for concurrent access.
 func (node *blockNode) CalcPastMedianTime() time.Time {
+
 	// Create a slice of the previous few block timestamps used to calculate the median per the number defined by the constant medianTimeBlocks.
 	timestamps := make([]int64, medianTimeBlocks)
 	numNodes := 0
@@ -143,10 +160,13 @@ func (node *blockNode) CalcPastMedianTime() time.Time {
 		numNodes++
 		iterNode = iterNode.parent
 	}
+
 	// Prune the slice to the actual number of available timestamps which will be fewer than desired near the beginning of the block chain and sort them.
 	timestamps = timestamps[:numNodes]
 	sort.Sort(timeSorter(timestamps))
+
 	// NOTE: The consensus rules incorrectly calculate the median for even numbers of blocks.  A true median averages the middle two elements for a set with an even number of elements in it. Since the constant for the previous number of blocks to be used is odd, this is only an issue for a few blocks near the beginning of the chain.  I suspect this is an optimization even though the result is slightly wrong for a few of the first blocks since after the first few blocks, there will always be an odd number of blocks in the set per the constant.
+
 	// This code follows suit to ensure the same rules are used, however, be aware that should the medianTimeBlocks constant ever be changed to an even number, this code will be wrong.
 	medianTimestamp := timestamps[numNodes/2]
 	return time.Unix(medianTimestamp, 0)
@@ -154,6 +174,7 @@ func (node *blockNode) CalcPastMedianTime() time.Time {
 
 // blockIndex provides facilities for keeping track of an in-memory index of the block chain.  Although the name block chain suggests a single chain of blocks, it is actually a tree-shaped structure where any node can have multiple children.  However, there can only be one active branch which does indeed form a chain from the tip all the way back to the genesis block.
 type blockIndex struct {
+
 	// The following fields are set when the instance is created and can't be changed afterwards, so there is no need to protect them with a separate mutex.
 	db          database.DB
 	chainParams *chaincfg.Params
@@ -246,6 +267,7 @@ func (bi *blockIndex) flushToDB() error {
 		}
 		return nil
 	})
+
 	// If write was successful, clear the dirty set.
 	if err == nil {
 		bi.dirty = make(map[*blockNode]struct{})
@@ -268,6 +290,7 @@ func (node *blockNode) GetPrevWithAlgo(algo int32) (prev *blockNode) {
 	if node.GetAlgo() == algo {
 		return node
 	}
+
 	// Until HF1, 514 = scrypt and anything else is sha256d ver 2
 	if fork.GetCurrent(node.height) == 0 {
 		if algo != 514 {

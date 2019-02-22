@@ -15,11 +15,15 @@ import (
 type txoFlags uint8
 
 const (
+
 	// tfCoinBase indicates that a txout was contained in a coinbase tx.
 	tfCoinBase txoFlags = 1 << iota
+
 	// tfSpent indicates that a txout is spent.
 	tfSpent
+
 	// tfModified indicates that a txout has been modified since it was
+
 	// loaded.
 	tfModified
 )
@@ -29,17 +33,26 @@ const (
 // the block that contains the tx, whether or not it is spent, its public key
 // script, and how much it pays.
 type UtxoEntry struct {
+
 	// NOTE: Additions, deletions, or modifications to the order of the
+
 	// definitions in this struct should not be changed without considering
+
 	// how it affects alignment on 64-bit platforms.  The current order is
+
 	// specifically crafted to result in minimal padding.  There will be a
+
 	// lot of these in memory, so a few extra bytes of padding adds up.
 	amount      int64
 	pkScript    []byte // The public key script for the output.
 	blockHeight int32  // Height of block containing tx.
+
 	// packedFlags contains additional info about output such as whether it
+
 	// is a coinbase, whether it is spent, and whether it has been modified
+
 	// since it was loaded.  This approach is used in order to reduce memory
+
 	// usage since there will be a lot of these in memory.
 	packedFlags txoFlags
 }
@@ -71,11 +84,13 @@ func (entry *UtxoEntry) IsSpent() bool {
 // has no effect.
 func (entry *UtxoEntry) Spend() {
 
+
 	// Nothing to do if the output is already spent.
 	if entry.IsSpent() {
 
 		return
 	}
+
 	// Mark the output as spent and modified.
 	entry.packedFlags |= tfSpent | tfModified
 }
@@ -141,14 +156,19 @@ func (view *UtxoViewpoint) LookupEntry(outpoint wire.OutPoint) *UtxoEntry {
 // possible it has changed during a reorg.
 func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, isCoinBase bool, blockHeight int32) {
 
+
 	// Don't add provably unspendable outputs.
 	if txscript.IsUnspendable(txOut.PkScript) {
 
 		return
 	}
+
 	// Update existing entries.  All fields are updated because it's
+
 	// possible (although extremely unlikely) that the existing entry is
+
 	// being replaced by a different transaction with the same hash.  This
+
 	// is allowed so long as the previous transaction is fully spent.
 	entry := view.LookupEntry(outpoint)
 	if entry == nil {
@@ -170,14 +190,19 @@ func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, i
 // for existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight int32) {
 
+
 	// Can't add an output for an out of bounds index.
 	if txOutIdx >= uint32(len(tx.MsgTx().TxOut)) {
 
 		return
 	}
+
 	// Update existing entries.  All fields are updated because it's
+
 	// possible (although extremely unlikely) that the existing entry is
+
 	// being replaced by a different transaction with the same hash.  This
+
 	// is allowed so long as the previous transaction is fully spent.
 	prevOut := wire.OutPoint{Hash: *tx.Hash(), Index: txOutIdx}
 	txOut := tx.MsgTx().TxOut[txOutIdx]
@@ -190,7 +215,9 @@ func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight in
 // existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOuts(tx *util.Tx, blockHeight int32) {
 
+
 	// Loop all of the transaction outputs and add those which are not
+
 	// provably unspendable.
 	isCoinBase := IsCoinBase(tx)
 	prevOut := wire.OutPoint{Hash: *tx.Hash()}
@@ -211,6 +238,7 @@ func (view *UtxoViewpoint) AddTxOuts(tx *util.Tx, blockHeight int32) {
 // to append an entry for each spent txout.  An error will be returned if the
 // view does not contain the required utxos.
 func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, stxos *[]SpentTxOut) error {
+
 	// Coinbase transactions don't have any inputs to spend.
 	if IsCoinBase(tx) {
 
@@ -218,8 +246,11 @@ func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, st
 		view.AddTxOuts(tx, blockHeight)
 		return nil
 	}
+
 	// Spend the referenced utxos by marking them spent in the view and,
+
 	// if a slice was provided for the spent txout details, append an entry
+
 	// to it.
 	for _, txIn := range tx.MsgTx().TxIn {
 		// Ensure the referenced utxo exists in the view.  This should
@@ -245,6 +276,7 @@ func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, st
 		// clear the fields from memory in the future.
 		entry.Spend()
 	}
+
 	// Add the transaction's outputs as available utxos.
 	view.AddTxOuts(tx, blockHeight)
 	return nil
@@ -263,7 +295,9 @@ func (view *UtxoViewpoint) connectTransactions(block *util.Block, stxos *[]Spent
 			return err
 		}
 	}
+
 	// Update the best hash for view to include this block since all of its
+
 	// transactions have been connected.
 	view.SetBestHash(block.Hash())
 	return nil
@@ -274,6 +308,7 @@ func (view *UtxoViewpoint) connectTransactions(block *util.Block, stxos *[]Spent
 // the view first and then falls back to the database if needed.
 func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash) (*UtxoEntry, error) {
 
+
 	// First attempt to find a utxo with the provided hash in the view.
 	prevOut := wire.OutPoint{Hash: *hash}
 	for idx := uint32(0); idx < MaxOutputsPerBlock; idx++ {
@@ -283,8 +318,11 @@ func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash
 			return entry, nil
 		}
 	}
+
 	// Check the database since it doesn't exist in the view.  This will
+
 	// often by the case since only specifically referenced utxos are loaded
+
 	// into the view.
 	var entry *UtxoEntry
 	err := db.View(func(dbTx database.Tx) error {
@@ -300,14 +338,18 @@ func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash
 // using the provided spent txo information, and setting the best hash for the
 // view to the block before the passed block.
 func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Block, stxos []SpentTxOut) error {
+
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
 
 		return AssertError("disconnectTransactions called with bad " +
 			"spent transaction out information")
 	}
+
 	// Loop backwards through all transactions so everything is unspent in
+
 	// reverse order.  This is necessary since transactions later in a block
+
 	// can spend from previous ones.
 	stxoIdx := len(stxos) - 1
 	transactions := block.Transactions()
@@ -413,7 +455,9 @@ func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Bl
 			}
 		}
 	}
+
 	// Update the best hash for view to the previous block since all of the
+
 	// transactions for the current block have been disconnected.
 	view.SetBestHash(&block.MsgBlock().Header.PrevBlock)
 	return nil
@@ -453,16 +497,24 @@ func (view *UtxoViewpoint) commit() {
 // requested outpoint.  Spent outputs, or those which otherwise don't exist,
 // will result in a nil entry in the view.
 func (view *UtxoViewpoint) fetchUtxosMain(db database.DB, outpoints map[wire.OutPoint]struct{}) error {
+
 	// Nothing to do if there are no requested outputs.
 	if len(outpoints) == 0 {
 		return nil
 	}
+
 	// Load the requested set of unspent transaction outputs from the point
+
 	// of view of the end of the main chain.
+
 	//
+
 	// NOTE: Missing entries are not considered an error here and instead
+
 	// will result in nil entries in the view.  This is intentionally done
+
 	// so other code can use the presence of an entry in the store as a way
+
 	// to unnecessarily avoid attempting to reload it from the database.
 	return db.View(func(dbTx database.Tx) error {
 		for outpoint := range outpoints {
@@ -480,10 +532,12 @@ func (view *UtxoViewpoint) fetchUtxosMain(db database.DB, outpoints map[wire.Out
 // outputs into the view from the database as needed unless they already exist
 // in the view in which case they are ignored.
 func (view *UtxoViewpoint) fetchUtxos(db database.DB, outpoints map[wire.OutPoint]struct{}) error {
+
 	// Nothing to do if there are no requested outputs.
 	if len(outpoints) == 0 {
 		return nil
 	}
+
 	// Filter entries that are already in the view.
 	neededSet := make(map[wire.OutPoint]struct{})
 	for outpoint := range outpoints {
@@ -493,6 +547,7 @@ func (view *UtxoViewpoint) fetchUtxos(db database.DB, outpoints map[wire.OutPoin
 		}
 		neededSet[outpoint] = struct{}{}
 	}
+
 	// Request the input utxos from the database.
 	return view.fetchUtxosMain(db, neededSet)
 }
@@ -503,16 +558,22 @@ func (view *UtxoViewpoint) fetchUtxos(db database.DB, outpoints map[wire.OutPoin
 // the block are added to the view and entries that are already in the view are
 // not modified.
 func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) error {
+
 	// Build a map of in-flight transactions because some of the inputs in
+
 	// this block could be referencing other transactions earlier in this
+
 	// block which are not yet in the chain.
 	txInFlight := map[chainhash.Hash]int{}
 	transactions := block.Transactions()
 	for i, tx := range transactions {
 		txInFlight[*tx.Hash()] = i
 	}
+
 	// Loop through all of the transaction inputs (except for the coinbase
+
 	// which has no inputs) collecting them into sets of what is needed and
+
 	// what is already known (in-flight).
 	neededSet := make(map[wire.OutPoint]struct{})
 	for i, tx := range transactions[1:] {
@@ -543,6 +604,7 @@ func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) er
 			neededSet[txIn.PreviousOutPoint] = struct{}{}
 		}
 	}
+
 	// Request the input utxos from the database.
 	return view.fetchUtxosMain(db, neededSet)
 }
@@ -561,8 +623,11 @@ func NewUtxoViewpoint() *UtxoViewpoint {
 // This function is safe for concurrent access however the returned view is NOT.
 func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
 
+
 	// Create a set of needed outputs based on those referenced by the
+
 	// inputs of the passed transaction and the outputs of the transaction
+
 	// itself.
 	neededSet := make(map[wire.OutPoint]struct{})
 	prevOut := wire.OutPoint{Hash: *tx.Hash()}
@@ -576,7 +641,9 @@ func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
 			neededSet[txIn.PreviousOutPoint] = struct{}{}
 		}
 	}
+
 	// Request the utxos from the point of view of the end of the main
+
 	// chain.
 	view := NewUtxoViewpoint()
 	b.chainLock.RLock()

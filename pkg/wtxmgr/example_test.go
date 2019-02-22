@@ -1,3 +1,4 @@
+
 // Copyright (c) 2015 The btcsuite developers
 
 package wtxmgr_test
@@ -13,11 +14,15 @@ import (
 )
 
 var (
+
 	// Spends: bogus
+
 	// Outputs: 10 DUO
 	exampleTxRecordA *wtxmgr.TxRecord
 
+
 	// Spends: A:0
+
 	// Outputs: 5 DUO, 5 DUO
 	exampleTxRecordB *wtxmgr.TxRecord
 )
@@ -41,7 +46,9 @@ func init() {
 
 var exampleBlock100 = makeBlockMeta(100)
 
+
 // This example demonstrates reporting the Store balance given an unmined and
+
 // mined transaction given 0, 1, and 6 block confirmations.
 func ExampleStore_Balance() {
 
@@ -52,7 +59,9 @@ func ExampleStore_Balance() {
 		return
 	}
 
+
 	// Prints balances for 0 block confirmations, 1 confirmation, and 6
+
 	// confirmations.
 	printBalances := func(syncHeight int32) {
 
@@ -81,7 +90,9 @@ func ExampleStore_Balance() {
 		fmt.Printf("%v, %v, %v\n", zeroConfBal, oneConfBal, sixConfBal)
 	}
 
+
 	// Insert a transaction which outputs 10 DUO unmined and mark the output
+
 	// as a credit.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		ns := tx.ReadWriteBucket(namespaceKey)
@@ -97,7 +108,9 @@ func ExampleStore_Balance() {
 	}
 	printBalances(100)
 
+
 	// Mine the transaction in block 100 and print balances again with a
+
 	// sync height of 100 and 105 blocks.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		ns := tx.ReadWriteBucket(namespaceKey)
@@ -110,9 +123,13 @@ func ExampleStore_Balance() {
 	printBalances(100)
 	printBalances(105)
 
+
 	// Output:
+
 	// 10 DUO, 0 DUO, 0 DUO
+
 	// 10 DUO, 10 DUO, 0 DUO
+
 	// 10 DUO, 10 DUO, 10 DUO
 }
 
@@ -128,17 +145,20 @@ func ExampleStore_Rollback() {
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		ns := tx.ReadWriteBucket(namespaceKey)
 
+
 		// Insert a transaction which outputs 10 DUO in a block at height 100.
 		err := s.InsertTx(ns, exampleTxRecordA, &exampleBlock100)
 		if err != nil {
 			return err
 		}
 
+
 		// Rollback everything from block 100 onwards.
 		err = s.Rollback(ns, 100)
 		if err != nil {
 			return err
 		}
+
 
 		// Assert that the transaction is now unmined.
 		details, err := s.TxDetails(ns, &exampleTxRecordA.Hash)
@@ -156,11 +176,14 @@ func ExampleStore_Rollback() {
 		return
 	}
 
+
 	// Output:
+
 	// -1
 }
 
 func Example_basicUsage() {
+
 
 	// Open the database.
 	db, dbTeardown, err := testDB()
@@ -170,6 +193,7 @@ func Example_basicUsage() {
 		return
 	}
 
+
 	// Open a read-write transaction to operate on the database.
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
@@ -178,12 +202,14 @@ func Example_basicUsage() {
 	}
 	defer dbtx.Commit()
 
+
 	// Create a bucket for the transaction store.
 	b, err := dbtx.CreateTopLevelBucket([]byte("txstore"))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 
 	// Create and open the transaction store in the provided namespace.
 	err = wtxmgr.Create(b)
@@ -197,7 +223,9 @@ func Example_basicUsage() {
 		return
 	}
 
+
 	// Insert an unmined transaction that outputs 10 DUO to a wallet address
+
 	// at output 0.
 	err = s.InsertTx(b, exampleTxRecordA, nil)
 	if err != nil {
@@ -210,7 +238,9 @@ func Example_basicUsage() {
 		return
 	}
 
+
 	// Insert a second transaction which spends the output, and creates two
+
 	// outputs.  Mark the second one (5 DUO) as wallet change.
 	err = s.InsertTx(b, exampleTxRecordB, nil)
 	if err != nil {
@@ -222,6 +252,7 @@ func Example_basicUsage() {
 		fmt.Println(err)
 		return
 	}
+
 
 	// Mine each transaction in a block at height 100.
 	err = s.InsertTx(b, exampleTxRecordA, &exampleBlock100)
@@ -235,6 +266,7 @@ func Example_basicUsage() {
 		return
 	}
 
+
 	// Print the one confirmation balance.
 	bal, err := s.Balance(b, 1, 100)
 	if err != nil {
@@ -242,6 +274,7 @@ func Example_basicUsage() {
 		return
 	}
 	fmt.Println(bal)
+
 
 	// Fetch unspent outputs.
 	utxos, err := s.UnspentOutputs(b)
@@ -253,7 +286,10 @@ func Example_basicUsage() {
 		fmt.Println(utxo.OutPoint == expectedOutPoint)
 	}
 
+
 	// Output:
+
 	// 5 DUO
+
 	// true
 }

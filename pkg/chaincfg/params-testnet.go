@@ -13,6 +13,7 @@ var TestNet3Params = Params{
 	DNSSeeds:    []DNSSeed{
 		// {"testnet-seed.bitcoin.jonasschnelli.ch", true},
 	},
+
 	// Chain parameters
 	GenesisBlock:             &testNet3GenesisBlock,
 	GenesisHash:              &testNet3GenesisHash,
@@ -29,13 +30,18 @@ var TestNet3Params = Params{
 	ReduceMinDifficulty:      false,
 	MinDiffReductionTime:     0, // time.Minute * 10, // TargetTimePerBlock * 2
 	GenerateSupported:        true,
+
 	// Checkpoints ordered from oldest to newest.
 	Checkpoints: []Checkpoint{
 		// {546, newHashFromStr("000000002a936ca763904c3c35fce2f3556c559c0214345d31b1bcebf76acb70")},
 	},
+
 	// Consensus rule change deployments.
+
 	//
+
 	// The miner confirmation window is defined as:
+
 	//   target proof of work timespan / target proof of work spacing
 	RuleChangeActivationThreshold: 1512, // 75% of MinerConfirmationWindow
 	MinerConfirmationWindow:       2016,
@@ -56,21 +62,27 @@ var TestNet3Params = Params{
 			ExpireTime: 1493596800, // May 1, 2017 UTC.
 		},
 	},
+
 	// Mempool parameters
 	RelayNonStdTxs: true,
+
 	// Human-readable part for Bech32 encoded segwit addresses, as defined in BIP 173.
 	Bech32HRPSegwit: "tb", // always tb for test net
+
 	// Address encoding magics
 	PubKeyHashAddrID:        18,   // starts with m or n
 	ScriptHashAddrID:        188,  // starts with 2
 	WitnessPubKeyHashAddrID: 0x03, // starts with QW
 	WitnessScriptHashAddrID: 0x28, // starts with T7n
 	PrivateKeyID:            239,  // starts with 9 (uncompressed) or c (compressed)
+
 	// BIP32 hierarchical deterministic extended key magics
 	HDPrivateKeyID: [4]byte{0x04, 0x35, 0x83, 0x94}, // starts with tprv
 	HDPublicKeyID:  [4]byte{0x04, 0x35, 0x87, 0xcf}, // starts with tpub
+
 	// BIP44 coin type used in the hierarchical deterministic path for address generation.
 	HDCoinType: 1,
+
 	// Parallelcoin specific difficulty adjustment parameters
 	Interval:                TestnetInterval,
 	AveragingInterval:       TestnetAveragingInterval, // Extend to target timespan to adjust better to hashpower (30000/300=100) post hardforkTestnet

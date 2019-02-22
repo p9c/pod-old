@@ -47,6 +47,7 @@ func (msg *MsgAddr) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) err
 	if err != nil {
 		return err
 	}
+
 	// Limit to max addresses per message.
 	if count > MaxAddrPerMsg {
 		str := fmt.Sprintf("too many addresses for message "+
@@ -68,6 +69,7 @@ func (msg *MsgAddr) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) err
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgAddr) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	// Protocol versions before MultipleAddressVersion only allowed 1 address per message.
 	count := len(msg.AddrList)
 	if pver < MultipleAddressVersion && count > 1 {
@@ -104,6 +106,7 @@ func (msg *MsgAddr) MaxPayloadLength(pver uint32) uint32 {
 		// Num addresses (varInt) + a single net addresses.
 		return MaxVarIntPayload + maxNetAddressPayload(pver)
 	}
+
 	// Num addresses (varInt) + max allowed addresses.
 	return MaxVarIntPayload + (MaxAddrPerMsg * maxNetAddressPayload(pver))
 }

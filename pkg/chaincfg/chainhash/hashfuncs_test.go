@@ -45,6 +45,7 @@ func TestHashFuncs(
 		{"395585ce30617b62c80b93e8208ce866d4edc811a177fdb4b82d3911d8696423", "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
 		{"4f9b189a13d030838269dce846b16a1ce9ce81fe63e65de2f636863336a98fe6", "How can you write a big system without C++?  -Paul Glick"},
 	}
+
 	// Ensure the hash function which returns a byte slice returns the expected result.
 	for _, test := range tests {
 		h := fmt.Sprintf("%x", HashB([]byte(test.in)))
@@ -53,6 +54,7 @@ func TestHashFuncs(
 			continue
 		}
 	}
+
 	// Ensure the hash function which returns a Hash returns the expected result.
 	for _, test := range tests {
 		hash := HashH([]byte(test.in))
@@ -104,6 +106,7 @@ func TestDoubleHashFuncs(
 		{"6bcbf25469e9544c5b5806b24220554fedb6695ba9b1510a76837414f7adb113", "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
 		{"1041988b06835481f0845be2a54f4628e1da26145b2de7ad1be3bb643cef9d4f", "How can you write a big system without C++?  -Paul Glick"},
 	}
+
 	// Ensure the hash function which returns a byte slice returns the expected result.
 	for _, test := range tests {
 		h := fmt.Sprintf("%x", DoubleHashB([]byte(test.in)))
@@ -113,6 +116,7 @@ func TestDoubleHashFuncs(
 			continue
 		}
 	}
+
 	// Ensure the hash function which returns a Hash returns the expected result.
 	for _, test := range tests {
 		hash := DoubleHashH([]byte(test.in))

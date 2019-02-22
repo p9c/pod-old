@@ -84,8 +84,11 @@ func TestSignTxOutput(
 	t *testing.T) {
 
 	t.Parallel()
+
 	// make key
+
 	// make script based on key.
+
 	// sign with magic pixie dust.
 	hashTypes := []SigHashType{
 		SigHashOld, // no longer used but should act like all
@@ -135,6 +138,7 @@ func TestSignTxOutput(
 		},
 		LockTime: 0,
 	}
+
 	// Pay to Pubkey Hash (uncompressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -168,6 +172,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (uncompressed) (merging with correct)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -221,6 +226,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (compressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -255,6 +261,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (compressed) with duplicate merge
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -309,6 +316,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (uncompressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -343,6 +351,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (uncompressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -396,6 +405,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (compressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -430,6 +440,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (compressed) with duplicate merge
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -484,6 +495,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// As before, but with p2sh now. Pay to Pubkey Hash (uncompressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -535,6 +547,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (uncompressed) with duplicate merge
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -608,6 +621,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (compressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -658,6 +672,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to Pubkey Hash (compressed) with duplicate merge
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -730,6 +745,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (uncompressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -780,6 +796,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (uncompressed) with duplicate merge
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -851,6 +868,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (compressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -900,6 +918,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Pay to PubKey (compressed)
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -971,6 +990,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Basic Multisig
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -1038,6 +1058,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Two part multisig, sign with one key then the other.
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {
@@ -1131,6 +1152,7 @@ func TestSignTxOutput(
 			}
 		}
 	}
+
 	// Two part multisig, sign with one key then both, check key dedup correctly.
 	for _, hashType := range hashTypes {
 		for i := range tx.TxIn {

@@ -29,36 +29,53 @@ import (
 // opting to allow the caller to contextually infer the account (DefaultAccount)
 // and branch (Internal or External).
 type BlockFilterer struct {
+
 	// Params specifies the chain params of the current network.
 	Params *chaincfg.Params
 
+
 	// ExReverseFilter holds a reverse index mapping an external address to
+
 	// the scoped index from which it was derived.
 	ExReverseFilter map[string]waddrmgr.ScopedIndex
 
+
 	// InReverseFilter holds a reverse index mapping an internal address to
+
 	// the scoped index from which it was derived.
 	InReverseFilter map[string]waddrmgr.ScopedIndex
 
+
 	// WathcedOutPoints is a global set of outpoints being tracked by the
+
 	// wallet. This allows the block filterer to check for spends from an
+
 	// outpoint we own.
 	WatchedOutPoints map[wire.OutPoint]util.Address
 
+
 	// FoundExternal is a two-layer map recording the scope and index of
+
 	// external addresses found in a single block.
 	FoundExternal map[waddrmgr.KeyScope]map[uint32]struct{}
 
+
 	// FoundInternal is a two-layer map recording the scope and index of
+
 	// internal addresses found in a single block.
 	FoundInternal map[waddrmgr.KeyScope]map[uint32]struct{}
 
+
 	// FoundOutPoints is a set of outpoints found in a single block whose
+
 	// address belongs to the wallet.
 	FoundOutPoints map[wire.OutPoint]util.Address
 
+
 	// RelevantTxns records the transactions found in a particular block
+
 	// that contained matches from an address in either ExReverseFilter or
+
 	// InReverseFilter.
 	RelevantTxns []*wire.MsgTx
 }
@@ -71,7 +88,9 @@ func NewBlockFilterer(
 	params *chaincfg.Params,
 	req *FilterBlocksRequest) *BlockFilterer {
 
+
 	// Construct a reverse index by address string for the requested
+
 	// external addresses.
 	nExAddrs := len(req.ExternalAddrs)
 	exReverseFilter := make(map[string]waddrmgr.ScopedIndex, nExAddrs)
@@ -79,7 +98,9 @@ func NewBlockFilterer(
 		exReverseFilter[addr.EncodeAddress()] = scopedIndex
 	}
 
+
 	// Construct a reverse index by address string for the requested
+
 	// internal addresses.
 	nInAddrs := len(req.InternalAddrs)
 	inReverseFilter := make(map[string]waddrmgr.ScopedIndex, nInAddrs)
@@ -128,9 +149,13 @@ func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
 func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 	var isRelevant bool
 
+
 	// First, check the inputs to this transaction to see if they spend any
+
 	// inputs belonging to the wallet. In addition to checking
+
 	// WatchedOutPoints, we also check FoundOutPoints, in case a txn spends
+
 	// from an outpoint created in the same block.
 	for _, in := range tx.TxIn {
 		if _, ok := bf.WatchedOutPoints[in.PreviousOutPoint]; ok {
@@ -141,9 +166,13 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 		}
 	}
 
+
 	// Now, parse all of the outputs created by this transactions, and see
+
 	// if they contain any addresses known the wallet using our reverse
+
 	// indexes for both external and internal addresses. If a new output is
+
 	// found, we will add the outpoint to our set of FoundOutPoints.
 	for i, out := range tx.TxOut {
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(

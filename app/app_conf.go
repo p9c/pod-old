@@ -14,6 +14,7 @@ import (
 	"github.com/tucnak/climax"
 )
 
+
 // ConfCfg is the settings that can be set to synchronise across all pod modules
 type ConfCfg struct {
 	DataDir          string
@@ -35,6 +36,7 @@ type ConfCfg struct {
 	Network          string
 }
 
+
 // ConfConfigs are the configurations for each app that are applied
 type ConfConfigs struct {
 	Ctl    ctl.Config
@@ -44,6 +46,7 @@ type ConfConfigs struct {
 }
 
 const lH = "127.0.0.1:"
+
 
 // ConfCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var ConfCommand = climax.Command{
@@ -129,6 +132,7 @@ var ConfCommand = climax.Command{
 					log <- cl.Wrn(err.Error())
 				}
 			}
+
 			// Generate a full set of default configs first
 			var testConfigSet []ConfigSet
 			for i := 0; i < testnum; i++ {
@@ -144,8 +148,10 @@ var ConfCommand = climax.Command{
 				p := GenPortSet(testportbase + 100*i)
 				ps = append(ps, *p)
 			}
+
 			// Set the correct listeners and add the correct addpeers entries
 			for i, ts := range testConfigSet {
+
 
 				// conf
 				tc := ts.Conf
@@ -160,6 +166,7 @@ var ConfCommand = climax.Command{
 				}
 				tc.TLS = false
 				tc.Network = "testnet"
+
 				// ctl
 				tcc := ts.Ctl
 				tcc.SimNet = false
@@ -167,9 +174,11 @@ var ConfCommand = climax.Command{
 				tcc.TestNet3 = true
 				tcc.TLS = false
 				tcc.Wallet = ts.Conf.WalletListeners[0]
+
 				// node
 				tnn := ts.Node.Node
 				for j := range ps {
+
 
 					// add all other peers in the portset list
 					if j != i {
@@ -186,6 +195,7 @@ var ConfCommand = climax.Command{
 				tnn.TestNet3 = true
 				tnn.RegressionTest = false
 				tnn.TLS = false
+
 				// wallet
 				tw := ts.Wallet.Wallet
 				tw.EnableClientTLS = false
@@ -194,8 +204,10 @@ var ConfCommand = climax.Command{
 				tw.RPCConnect = tc.NodeRPCListeners[0]
 				tw.SimNet = false
 				tw.TestNet3 = true
+
 				// shell
 				tss := ts.Shell
+
 				// shell/node
 				tsn := tss.Node
 				tsn.Listeners = tnn.Listeners
@@ -203,6 +215,7 @@ var ConfCommand = climax.Command{
 				tsn.TestNet3 = true
 				tsn.SimNet = true
 				for j := range ps {
+
 
 					// add all other peers in the portset list
 					if j != i {
@@ -217,6 +230,7 @@ var ConfCommand = climax.Command{
 				tsn.TestNet3 = true
 				tsn.RegressionTest = false
 				tsn.TLS = false
+
 				// shell/wallet
 				tsw := tss.Wallet
 				tsw.EnableClientTLS = false
@@ -225,6 +239,7 @@ var ConfCommand = climax.Command{
 				tsw.RPCConnect = tcc.RPCServer
 				tsw.SimNet = false
 				tsw.TestNet3 = true
+
 				// write to disk
 				WriteConfigSet(&ts)
 			}
@@ -276,17 +291,26 @@ var ConfCommand = climax.Command{
 		runConf()
 		return 0
 	},
+
 	// Examples: []climax.Example{
+
 	// 	{
+
 	// 		Usecase:     "--nodeuser=user --nodepass=pa55word",
+
 	// 		Description: "set the username and password for the node RPC",
+
 	// 	},
+
 	// },
+
 	// Handle:
 }
 
+
 // ConfConfig is the configuration for this tool
 var ConfConfig ConfCfg
+
 
 // Confs is the central repository of all the other app configurations
 var Confs ConfConfigs

@@ -6,6 +6,7 @@ import (
 )
 
 const (
+
 	// defaultScriptAlloc is the default size used for the backing array for a script being built by the ScriptBuilder.  The array will dynamically grow as needed, but this figure is intended to provide enough space for vast majority of scripts without needing to grow the backing array multiple times.
 	defaultScriptAlloc = 500
 )
@@ -40,6 +41,7 @@ func (b *ScriptBuilder) AddOp(opcode byte) *ScriptBuilder {
 	if b.err != nil {
 		return b
 	}
+
 	// Pushes that would cause the script to exceed the largest allowed script size would result in a non-canonical script.
 	if len(b.script)+1 > MaxScriptSize {
 		str := fmt.Sprintf("adding an opcode would exceed the maximum "+
@@ -56,6 +58,7 @@ func (b *ScriptBuilder) AddOps(opcodes []byte) *ScriptBuilder {
 	if b.err != nil {
 		return b
 	}
+
 	// Pushes that would cause the script to exceed the largest allowed script size would result in a non-canonical script.
 	if len(b.script)+len(opcodes) > MaxScriptSize {
 		str := fmt.Sprintf("adding opcodes would exceed the maximum "+
@@ -71,6 +74,7 @@ func (b *ScriptBuilder) AddOps(opcodes []byte) *ScriptBuilder {
 func canonicalDataSize(
 	data []byte) int {
 	dataLen := len(data)
+
 	// When the data consists of a single number that can be represented by one of the "small integer" opcodes, that opcode will be instead of a data push opcode followed by the number.
 	if dataLen == 0 {
 		return 1
@@ -92,6 +96,7 @@ func canonicalDataSize(
 // addData is the internal function that actually pushes the passed data to the end of the script.  It automatically chooses canonical opcodes depending on the length of the data.  A zero length buffer will lead to a push of empty data onto the stack (OP_0).  No data limits are enforced with this function.
 func (b *ScriptBuilder) addData(data []byte) *ScriptBuilder {
 	dataLen := len(data)
+
 	// When the data consists of a single number that can be represented by one of the "small integer" opcodes, use that opcode instead of a data push opcode followed by the number.
 	if dataLen == 0 || dataLen == 1 && data[0] == 0 {
 		b.script = append(b.script, OP_0)
@@ -103,6 +108,7 @@ func (b *ScriptBuilder) addData(data []byte) *ScriptBuilder {
 		b.script = append(b.script, byte(OP_1NEGATE))
 		return b
 	}
+
 	// Use one of the OP_DATA_# opcodes if the length of the data is small enough so the data push instruction is only a single byte. Otherwise, choose the smallest possible OP_PUSHDATA# opcode that can represent the length of the data.
 	if dataLen < OP_PUSHDATA1 {
 		b.script = append(b.script, byte((OP_DATA_1-1)+dataLen))
@@ -119,6 +125,7 @@ func (b *ScriptBuilder) addData(data []byte) *ScriptBuilder {
 		b.script = append(b.script, OP_PUSHDATA4)
 		b.script = append(b.script, buf...)
 	}
+
 	// Append the actual data.
 	b.script = append(b.script, data...)
 	return b
@@ -137,6 +144,7 @@ func (b *ScriptBuilder) AddData(data []byte) *ScriptBuilder {
 	if b.err != nil {
 		return b
 	}
+
 	// Pushes that would cause the script to exceed the largest allowed script size would result in a non-canonical script.
 	dataSize := canonicalDataSize(data)
 	if len(b.script)+dataSize > MaxScriptSize {
@@ -146,6 +154,7 @@ func (b *ScriptBuilder) AddData(data []byte) *ScriptBuilder {
 		b.err = ErrScriptNotCanonical(str)
 		return b
 	}
+
 	// Pushes larger than the max script element size would result in a script that is not canonical.
 	dataLen := len(data)
 	if dataLen > MaxScriptElementSize {
@@ -163,6 +172,7 @@ func (b *ScriptBuilder) AddInt64(val int64) *ScriptBuilder {
 	if b.err != nil {
 		return b
 	}
+
 	// Pushes that would cause the script to exceed the largest allowed script size would result in a non-canonical script.
 	if len(b.script)+1 > MaxScriptSize {
 		str := fmt.Sprintf("adding an integer would exceed the "+
@@ -171,6 +181,7 @@ func (b *ScriptBuilder) AddInt64(val int64) *ScriptBuilder {
 		b.err = ErrScriptNotCanonical(str)
 		return b
 	}
+
 	// Fast path for small integers and OP_1NEGATE.
 	if val == 0 {
 		b.script = append(b.script, OP_0)

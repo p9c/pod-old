@@ -54,14 +54,18 @@ Determining Message Type
 
 As discussed in the bitcoin message overview section, this package reads and writes bitcoin messages using a generic interface named Message.  In order to determine the actual concrete type of the message, use a type switch or type assertion.  An example of a type switch follows:
 
+
 	// Assumes msg is already a valid concrete message such as one created
+
 	// via NewMsgVersion or read via ReadMessage.
 	switch msg := msg.(type) {
 
 	case *wire.MsgVersion:
+
 		// The message is a pointer to a MsgVersion struct.
 		fmt.Printf("Protocol version: %v", msg.ProtocolVersion)
 	case *wire.MsgBlock:
+
 		// The message is a pointer to a MsgBlock struct.
 		fmt.Printf("Number of tx in block: %v", msg.Header.TxnCount)
 	}
@@ -70,12 +74,17 @@ Reading Messages
 
 In order to unmarshall bitcoin messages from the wire, use the ReadMessage function.  It accepts any io.Reader, but typically this will be a net.Conn to a remote node running a bitcoin peer.  Example syntax is:
 
+
 	// Reads and validates the next bitcoin message from conn using the
+
 	// protocol version pver and the bitcoin network btcnet.  The returns
+
 	// are a wire.Message, a []byte which contains the unmarshalled
+
 	// raw payload, and a possible error.
 	msg, rawPayload, err := wire.ReadMessage(conn, pver, btcnet)
 	if err != nil {
+
 		// Log and handle the error
 	}
 
@@ -83,13 +92,18 @@ Writing Messages
 
 In order to marshall bitcoin messages to the wire, use the WriteMessage function.  It accepts any io.Writer, but typically this will be a net.Conn to a remote node running a bitcoin peer.  Example syntax to request addresses from a remote peer is:
 
+
 	// Create a new getaddr bitcoin message.
 	msg := wire.NewMsgGetAddr()
+
 	// Writes a bitcoin message msg to conn using the protocol version
+
 	// pver, and the bitcoin network btcnet.  The return is a possible
+
 	// error.
 	err := wire.WriteMessage(conn, msg, pver, btcnet)
 	if err != nil {
+
 		// Log and handle the error
 	}
 

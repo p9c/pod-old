@@ -15,23 +15,29 @@ import (
 	"github.com/btcsuite/go-socks/socks"
 )
 
+
 // conn mocks a network connection by implementing the net.Conn interface.  It is used to test peer connection without actually opening a network connection.
 type conn struct {
 	io.Reader
 	io.Writer
 	io.Closer
+
 	// local network, address for the connection.
 	lnet, laddr string
+
 	// remote network, address for the connection.
 	rnet, raddr string
+
 	// mocks socks proxy if true
 	proxy bool
 }
+
 
 // LocalAddr returns the local address for the connection.
 func (c conn) LocalAddr() net.Addr {
 	return &addr{c.lnet, c.laddr}
 }
+
 
 // Remote returns the remote address for the connection.
 func (c conn) RemoteAddr() net.Addr {
@@ -47,6 +53,7 @@ func (c conn) RemoteAddr() net.Addr {
 	}
 }
 
+
 // Close handles closing the connection.
 func (c conn) Close() error {
 	if c.Closer == nil {
@@ -58,6 +65,7 @@ func (c conn) SetDeadline(t time.Time) error      { return nil }
 func (c conn) SetReadDeadline(t time.Time) error  { return nil }
 func (c conn) SetWriteDeadline(t time.Time) error { return nil }
 
+
 // addr mocks a network address
 type addr struct {
 	net, address string
@@ -65,6 +73,7 @@ type addr struct {
 
 func (m addr) Network() string { return m.net }
 func (m addr) String() string  { return m.address }
+
 
 // pipe turns two mock connections into a full-duplex connection similar to net.Pipe to allow pipe's with (fake) addresses.
 func pipe(
@@ -80,6 +89,7 @@ func pipe(
 	c2.Closer = w2
 	return c1, c2
 }
+
 
 // peerStats holds the expected peer stats used for testing peer.
 type peerStats struct {
@@ -99,6 +109,7 @@ type peerStats struct {
 	wantBytesReceived   uint64
 	wantWitnessEnabled  bool
 }
+
 
 // testPeer tests the given peer's flags and stats
 func testPeer(
@@ -141,6 +152,7 @@ func testPeer(
 		t.Errorf("testPeer: wrong LastBlock - got %v, want %v", p.LastBlock(), s.wantLastBlock)
 		return
 	}
+
 	// Allow for a deviation of 1s, as the second may tick when the message is in transit and the protocol doesn't support any further precision.
 	if p.TimeOffset() != s.wantTimeOffset && p.TimeOffset() != s.wantTimeOffset-1 {
 		t.Errorf("testPeer: wrong TimeOffset - got %v, want %v or %v", p.TimeOffset(),
@@ -186,6 +198,7 @@ func testPeer(
 		return
 	}
 }
+
 
 // TestPeerConnection tests connection between inbound and outbound peers.
 func TestPeerConnection(
@@ -323,6 +336,7 @@ func TestPeerConnection(
 		outPeer.WaitForDisconnect()
 	}
 }
+
 
 // TestPeerListeners tests that the peer listeners are called as expected.
 func TestPeerListeners(
@@ -581,6 +595,7 @@ func TestPeerListeners(
 			wire.NewMsgMerkleBlock(wire.NewBlockHeader(1,
 				&chainhash.Hash{}, &chainhash.Hash{}, 1, 1)),
 		},
+
 		// only one verack message is allowed
 		{
 			"OnReject",
@@ -593,6 +608,7 @@ func TestPeerListeners(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for _, test := range tests {
+
 		// Queue the test message
 		outPeer.QueueMessage(test.msg, nil)
 		select {
@@ -605,6 +621,7 @@ func TestPeerListeners(
 	inPeer.Disconnect()
 	outPeer.Disconnect()
 }
+
 
 // TestOutboundPeer tests that the outbound peer works as expected.
 func TestOutboundPeer(
@@ -629,6 +646,7 @@ func TestOutboundPeer(
 		t.Errorf("NewOutboundPeer: unexpected err - %v\n", err)
 		return
 	}
+
 	// Test trying to connect twice.
 	p.AssociateConnection(c)
 	p.AssociateConnection(c)
@@ -648,9 +666,11 @@ func TestOutboundPeer(
 
 		t.Fatalf("Should not be connected as NewestBlock produces error.")
 	}
+
 	// Test Queue Inv
 	fakeBlockHash := &chainhash.Hash{0: 0x00, 1: 0x01}
 	fakeInv := wire.NewInvVect(wire.InvTypeBlock, fakeBlockHash)
+
 	// Should be noops as the peer could not connect.
 	p.QueueInventory(fakeInv)
 	p.AddKnownInventory(fakeInv)
@@ -661,6 +681,7 @@ func TestOutboundPeer(
 	p.QueueMessage(fakeMsg, done)
 	<-done
 	p.Disconnect()
+
 	// Test NewestBlock
 	var newestBlock = func() (*chainhash.Hash, int32, error) {
 
@@ -680,6 +701,7 @@ func TestOutboundPeer(
 		return
 	}
 	p1.AssociateConnection(c1)
+
 	// Test update latest block
 	latestBlockHash, err := chainhash.NewHashFromStr("1a63f9cdff1752e6375c8c76e543a71d239e1a2e5c6db1aa679")
 	if err != nil {
@@ -693,9 +715,11 @@ func TestOutboundPeer(
 			p1.LastAnnouncedBlock(), latestBlockHash)
 		return
 	}
+
 	// Test Queue Inv after connection
 	p1.QueueInventory(fakeInv)
 	p1.Disconnect()
+
 	// Test regression
 	peerCfg.ChainParams = &chaincfg.RegressionNetParams
 	peerCfg.Services = wire.SFNodeBloom
@@ -707,6 +731,7 @@ func TestOutboundPeer(
 		return
 	}
 	p2.AssociateConnection(c2)
+
 	// Test PushXXX
 	var addrs []*wire.NetAddress
 	for i := 0; i < 5; i++ {
@@ -727,6 +752,7 @@ func TestOutboundPeer(
 	}
 	p2.PushRejectMsg("block", wire.RejectMalformed, "malformed", nil, false)
 	p2.PushRejectMsg("block", wire.RejectInvalid, "invalid", nil, false)
+
 	// Test Queue Messages
 	p2.QueueMessage(wire.NewMsgGetAddr(), nil)
 	p2.QueueMessage(wire.NewMsgPing(1), nil)
@@ -736,6 +762,7 @@ func TestOutboundPeer(
 	p2.QueueMessage(wire.NewMsgFeeFilter(20000), nil)
 	p2.Disconnect()
 }
+
 
 // Tests that the node disconnects from peers with an unsupported protocol version.
 func TestUnsupportedVersionPeer(
@@ -768,6 +795,7 @@ func TestUnsupportedVersionPeer(
 		t.Fatalf("NewOutboundPeer: unexpected err - %v\n", err)
 	}
 	p.AssociateConnection(localConn)
+
 	// Read outbound messages to peer into a channel
 	outboundMessages := make(chan wire.Message)
 	go func() {
@@ -789,6 +817,7 @@ func TestUnsupportedVersionPeer(
 			outboundMessages <- msg
 		}
 	}()
+
 	// Read version message sent to remote peer
 	select {
 	case msg := <-outboundMessages:
@@ -798,6 +827,7 @@ func TestUnsupportedVersionPeer(
 	case <-time.After(time.Second):
 		t.Fatal("Peer did not send version message")
 	}
+
 	// Remote peer writes version message advertising invalid protocol version 1
 	invalidVersionMsg := wire.NewMsgVersion(remoteNA, localNA, 0, 0)
 	invalidVersionMsg.ProtocolVersion = 1
@@ -810,6 +840,7 @@ func TestUnsupportedVersionPeer(
 	if err != nil {
 		t.Fatalf("wire.WriteMessageN: unexpected err - %v\n", err)
 	}
+
 	// Expect peer to disconnect automatically
 	disconnected := make(chan struct{})
 	go func() {
@@ -823,6 +854,7 @@ func TestUnsupportedVersionPeer(
 	case <-time.After(time.Second):
 		t.Fatal("Peer did not automatically disconnect")
 	}
+
 	// Expect no further outbound messages from peer
 	select {
 	case msg, chanOpen := <-outboundMessages:
@@ -834,9 +866,11 @@ func TestUnsupportedVersionPeer(
 	}
 }
 
+
 // TestDuplicateVersionMsg ensures that receiving a version message after one has already been received results in the peer being disconnected.
 func TestDuplicateVersionMsg(
 	t *testing.T) {
+
 
 	// Create a pair of peers that are connected to each other using a fake connection.
 	verack := make(chan struct{})
@@ -863,6 +897,7 @@ func TestDuplicateVersionMsg(
 	outPeer.AssociateConnection(outConn)
 	inPeer := peer.NewInboundPeer(peerCfg)
 	inPeer.AssociateConnection(inConn)
+
 	// Wait for the veracks from the initial protocol version negotiation.
 	for i := 0; i < 2; i++ {
 		select {
@@ -871,6 +906,7 @@ func TestDuplicateVersionMsg(
 			t.Fatal("verack timeout")
 		}
 	}
+
 	// Queue a duplicate version message from the outbound peer and wait until it is sent.
 	done := make(chan struct{})
 	outPeer.QueueMessage(&wire.MsgVersion{}, done)
@@ -879,6 +915,7 @@ func TestDuplicateVersionMsg(
 	case <-time.After(time.Second):
 		t.Fatal("send duplicate version timeout")
 	}
+
 	// Ensure the peer that is the recipient of the duplicate version closes the connection.
 	disconnected := make(chan struct{}, 1)
 	go func() {
@@ -893,6 +930,7 @@ func TestDuplicateVersionMsg(
 	}
 }
 func init() {
+
 
 	// Allow self connection when running the tests.
 	peer.TstAllowSelfConns()

@@ -19,10 +19,13 @@ import (
 )
 
 const (
+
 	// testDbType is the database backend type to use for the tests.
 	testDbType = "ffldb"
+
 	// testDbRoot is the root directory used to create all test databases.
 	testDbRoot = "testdbs"
+
 	// blockDataNet is the expected network in the test block data.
 	blockDataNet = wire.MainNet
 )
@@ -59,6 +62,7 @@ func chainSetup(
 
 		return nil, nil, fmt.Errorf("unsupported db type %v", testDbType)
 	}
+
 	// Handle memory database specially since it doesn't need the disk specific handling.
 	var db database.DB
 	var teardown func()
@@ -99,8 +103,10 @@ func chainSetup(
 			os.RemoveAll(testDbRoot)
 		}
 	}
+
 	// Copy the chain params to ensure any modifications the tests do to the chain parameters do not affect the global instance.
 	paramsCopy := *params
+
 	// Create the main chain instance.
 	chain, err := blockchain.New(&blockchain.Config{
 		DB:          db,
@@ -125,6 +131,7 @@ func TestFullBlocks(
 	if err != nil {
 		t.Fatalf("failed to generate tests: %v", err)
 	}
+
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("fullblocktest",
 		&chaincfg.RegressionNetParams)
@@ -133,6 +140,7 @@ func TestFullBlocks(
 		return
 	}
 	defer teardownFunc()
+
 	// testAcceptedBlock attempts to process the block in the provided test instance and ensures that it was accepted according to the flags specified in the test.
 	testAcceptedBlock := func(item fullblocktests.AcceptedBlock) {
 
@@ -162,6 +170,7 @@ func TestFullBlocks(
 				item.IsOrphan)
 		}
 	}
+
 	// testRejectedBlock attempts to process the block in the provided test instance and ensures that it was rejected with the reject code specified in the test.
 	testRejectedBlock := func(item fullblocktests.RejectedBlock) {
 
@@ -192,6 +201,7 @@ func TestFullBlocks(
 				rerr.ErrorCode, item.RejectCode)
 		}
 	}
+
 	// testRejectedNonCanonicalBlock attempts to decode the block in the provided test instance and ensures that it failed to decode with a message error.
 	testRejectedNonCanonicalBlock := func(item fullblocktests.RejectedNonCanonicalBlock) {
 
@@ -212,6 +222,7 @@ func TestFullBlocks(
 				blockHeight)
 		}
 	}
+
 	// testOrphanOrRejectedBlock attempts to process the block in the provided test instance and ensures that it was either accepted as an orphan or rejected with a rule violation.
 	testOrphanOrRejectedBlock := func(item fullblocktests.OrphanOrRejectedBlock) {
 
@@ -238,6 +249,7 @@ func TestFullBlocks(
 				block.Hash(), blockHeight)
 		}
 	}
+
 	// testExpectedTip ensures the current tip of the blockchain is the block specified in the provided test instance.
 	testExpectedTip := func(item fullblocktests.ExpectedTip) {
 

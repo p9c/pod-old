@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+
 // TestBlockHeader tests the BlockHeader API.
 func TestBlockHeader(
 	t *testing.T) {
@@ -21,6 +22,7 @@ func TestBlockHeader(
 	merkleHash := mainNetGenesisMerkleRoot
 	bits := uint32(0x1d00ffff)
 	bh := NewBlockHeader(1, &hash, &merkleHash, bits, nonce)
+
 	// Ensure we get the same data back out.
 	if !bh.PrevBlock.IsEqual(&hash) {
 
@@ -42,12 +44,14 @@ func TestBlockHeader(
 	}
 }
 
+
 // TestBlockHeaderWire tests the BlockHeader wire encode and decode for various protocol versions.
 func TestBlockHeaderWire(
 	t *testing.T) {
 
 	nonce := uint32(123123) // 0x1e0f3
 	pver := uint32(70001)
+
 	// baseBlockHdr is used in the various tests as a baseline BlockHeader.
 	bits := uint32(0x1d00ffff)
 	baseBlockHdr := &BlockHeader{
@@ -58,6 +62,7 @@ func TestBlockHeaderWire(
 		Bits:       bits,
 		Nonce:      nonce,
 	}
+
 	// baseBlockHdrEncoded is the wire encoded bytes of baseBlockHdr.
 	baseBlockHdrEncoded := []byte{
 		0x01, 0x00, 0x00, 0x00, // Version 1
@@ -80,6 +85,7 @@ func TestBlockHeaderWire(
 		pver uint32          // Protocol version for wire encoding
 		enc  MessageEncoding // Message encoding variant to use
 	}{
+
 		// Latest protocol version.
 		{
 			baseBlockHdr,
@@ -88,6 +94,7 @@ func TestBlockHeaderWire(
 			ProtocolVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0035Version.
 		{
 			baseBlockHdr,
@@ -96,6 +103,7 @@ func TestBlockHeaderWire(
 			BIP0035Version,
 			BaseEncoding,
 		},
+
 		// Protocol version BIP0031Version.
 		{
 			baseBlockHdr,
@@ -104,6 +112,7 @@ func TestBlockHeaderWire(
 			BIP0031Version,
 			BaseEncoding,
 		},
+
 		// Protocol version NetAddressTimeVersion.
 		{
 			baseBlockHdr,
@@ -112,6 +121,7 @@ func TestBlockHeaderWire(
 			NetAddressTimeVersion,
 			BaseEncoding,
 		},
+
 		// Protocol version MultipleAddressVersion.
 		{
 			baseBlockHdr,
@@ -123,6 +133,7 @@ func TestBlockHeaderWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode to wire format.
 		var buf bytes.Buffer
 		err := writeBlockHeader(&buf, test.pver, test.in)
@@ -148,6 +159,7 @@ func TestBlockHeaderWire(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Decode the block header from wire format.
 		var bh BlockHeader
 		rbuf := bytes.NewReader(test.buf)
@@ -177,11 +189,13 @@ func TestBlockHeaderWire(
 	}
 }
 
+
 // TestBlockHeaderSerialize tests BlockHeader serialize and deserialize.
 func TestBlockHeaderSerialize(
 	t *testing.T) {
 
 	nonce := uint32(123123) // 0x1e0f3
+
 	// baseBlockHdr is used in the various tests as a baseline BlockHeader.
 	bits := uint32(0x1d00ffff)
 	baseBlockHdr := &BlockHeader{
@@ -192,6 +206,7 @@ func TestBlockHeaderSerialize(
 		Bits:       bits,
 		Nonce:      nonce,
 	}
+
 	// baseBlockHdrEncoded is the wire encoded bytes of baseBlockHdr.
 	baseBlockHdrEncoded := []byte{
 		0x01, 0x00, 0x00, 0x00, // Version 1
@@ -220,6 +235,7 @@ func TestBlockHeaderSerialize(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Serialize the block header.
 		var buf bytes.Buffer
 		err := test.in.Serialize(&buf)
@@ -233,6 +249,7 @@ func TestBlockHeaderSerialize(
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
+
 		// Deserialize the block header.
 		var bh BlockHeader
 		rbuf := bytes.NewReader(test.buf)

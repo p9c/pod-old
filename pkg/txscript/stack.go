@@ -202,6 +202,7 @@ func (s *stack) DupN(n int32) error {
 		str := fmt.Sprintf("attempt to dup %d stack items", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
+
 	// Iteratively duplicate the value n-1 down the stack n times. This leaves an in-order duplicate of the top n items on the stack.
 	for i := n; i > 0; i-- {
 		so, err := s.PeekByteArray(n - 1)
@@ -222,6 +223,7 @@ func (s *stack) RotN(n int32) error {
 		str := fmt.Sprintf("attempt to rotate %d stack items", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
+
 	// Nip the 3n-1th item from the stack to the top n times to rotate them up to the head of the stack.
 	entry := 3*n - 1
 	for i := n; i > 0; i-- {
@@ -265,6 +267,7 @@ func (s *stack) OverN(n int32) error {
 			n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
+
 	// Copy 2n-1th entry to top of the stack.
 	entry := 2*n - 1
 	for ; n > 0; n-- {

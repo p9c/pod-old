@@ -57,6 +57,7 @@ func createDBDriver(
 
 func init() {
 
+
 	// Register the driver.
 	driver := database.Driver{
 		DbType: dbType,

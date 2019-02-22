@@ -16,12 +16,14 @@ func TestTx(
 	t *testing.T) {
 
 	pver := ProtocolVersion
+
 	// Block 100000 hash.
 	hashStr := "3ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 	hash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
 		t.Errorf("NewHashFromStr: %v", err)
 	}
+
 	// Ensure the command is expected value.
 	wantCmd := "tx"
 	msg := NewMsgTx(1)
@@ -29,6 +31,7 @@ func TestTx(
 		t.Errorf("NewMsgAddr: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
+
 	// Ensure max payload is expected value for latest protocol version.
 	wantPayload := uint32(1000 * 4000)
 	maxPayload := msg.MaxPayloadLength(pver)
@@ -37,6 +40,7 @@ func TestTx(
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
 	}
+
 	// Ensure we get the same transaction output point data back out. NOTE: This is a block hash and made up index, but we're only testing package functionality.
 	prevOutIndex := uint32(1)
 	prevOut := NewOutPoint(hash, prevOutIndex)
@@ -54,6 +58,7 @@ func TestTx(
 		t.Errorf("OutPoint.String: unexpected result - got %v, "+
 			"want %v", s, prevOutStr)
 	}
+
 	// Ensure we get the same transaction input back out.
 	sigScript := []byte{0x04, 0x31, 0xdc, 0x00, 0x1b, 0x01, 0x62}
 	witnessData := [][]byte{
@@ -79,6 +84,7 @@ func TestTx(
 			spew.Sdump(txIn.Witness),
 			spew.Sdump(witnessData))
 	}
+
 	// Ensure we get the same transaction output back out.
 	txValue := int64(5000000000)
 	pkScript := []byte{
@@ -105,6 +111,7 @@ func TestTx(
 			spew.Sdump(txOut.PkScript),
 			spew.Sdump(pkScript))
 	}
+
 	// Ensure transaction inputs are added properly.
 	msg.AddTxIn(txIn)
 	if !reflect.DeepEqual(msg.TxIn[0], txIn) {
@@ -112,6 +119,7 @@ func TestTx(
 		t.Errorf("AddTxIn: wrong transaction input added - got %v, want %v",
 			spew.Sprint(msg.TxIn[0]), spew.Sprint(txIn))
 	}
+
 	// Ensure transaction outputs are added properly.
 	msg.AddTxOut(txOut)
 	if !reflect.DeepEqual(msg.TxOut[0], txOut) {
@@ -119,6 +127,7 @@ func TestTx(
 		t.Errorf("AddTxIn: wrong transaction output added - got %v, want %v",
 			spew.Sprint(msg.TxOut[0]), spew.Sprint(txOut))
 	}
+
 	// Ensure the copy produced an identical transaction message.
 	newMsg := msg.Copy()
 	if !reflect.DeepEqual(newMsg, msg) {
@@ -132,6 +141,7 @@ func TestTx(
 func TestTxHash(
 	t *testing.T) {
 
+
 	// Hash of first transaction from block 113875.
 	hashStr := "f051e59b5e2503ac626d03aaeac8ab7be2d72ba4b7e97119c5852d70d52dcb86"
 	wantHash, err := chainhash.NewHashFromStr(hashStr)
@@ -139,6 +149,7 @@ func TestTxHash(
 		t.Errorf("NewHashFromStr: %v", err)
 		return
 	}
+
 	// First transaction from block 113875.
 	msgTx := NewMsgTx(1)
 	txIn := TxIn{
@@ -168,6 +179,7 @@ func TestTxHash(
 	msgTx.AddTxIn(&txIn)
 	msgTx.AddTxOut(&txOut)
 	msgTx.LockTime = 0
+
 	// Ensure the hash produced is expected.
 	txHash := msgTx.TxHash()
 	if !txHash.IsEqual(wantHash) {
@@ -193,6 +205,7 @@ func TestWTxSha(
 		t.Errorf("NewShaHashFromStr: %v", err)
 		return
 	}
+
 	// From block 23157 in a past version of segnet.
 	msgTx := NewMsgTx(1)
 	txIn := TxIn{
@@ -240,6 +253,7 @@ func TestWTxSha(
 	msgTx.AddTxIn(&txIn)
 	msgTx.AddTxOut(&txOut)
 	msgTx.LockTime = 0
+
 	// Ensure the correct txid, and wtxid is produced as expected.
 	txid := msgTx.TxHash()
 	if !txid.IsEqual(wantHashTxid) {
@@ -258,6 +272,7 @@ func TestWTxSha(
 // TestTxWire tests the MsgTx wire encode and decode for various numbers of transaction inputs and outputs and protocol versions.
 func TestTxWire(
 	t *testing.T) {
+
 
 	// Empty tx message.
 	noTx := NewMsgTx(1)
@@ -390,6 +405,7 @@ func TestTxWire(
 // TestTxWireErrors performs negative tests against wire encode and decode of MsgTx to confirm error paths work correctly.
 func TestTxWireErrors(
 	t *testing.T) {
+
 
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
@@ -611,6 +627,7 @@ func TestTxSerializeErrors(
 func TestTxOverflowErrors(
 	t *testing.T) {
 
+
 	// Use protocol version 70001 and transaction version 1 specifically here instead of the latest values because the test data is using bytes encoded with those versions.
 	pver := uint32(70001)
 	txVer := uint32(1)
@@ -698,6 +715,7 @@ func TestTxOverflowErrors(
 // TestTxSerializeSizeStripped performs tests to ensure the serialize size for various transactions is accurate.
 func TestTxSerializeSizeStripped(
 	t *testing.T) {
+
 
 	// Empty tx message.
 	noTx := NewMsgTx(1)

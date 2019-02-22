@@ -79,6 +79,7 @@ func TestErrorCodeStringer(
 		{ErrDiscourageUpgradableWitnessProgram, "ErrDiscourageUpgradableWitnessProgram"},
 		{0xffff, "Unknown ErrorCode (65535)"},
 	}
+
 	// Detect additional error codes that don't have the stringer added.
 	if len(tests)-1 != int(numErrorCodes) {
 

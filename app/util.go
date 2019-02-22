@@ -17,7 +17,9 @@ import (
 
 var defaultUser, defaultPass = "user", "pa55word"
 
+
 // CheckCreateDir checks that the path exists and is a directory.
+
 // If path does not exist, it is created.
 func CheckCreateDir(
 	path string,
@@ -26,6 +28,7 @@ func CheckCreateDir(
 	if fi, err := os.Stat(path); err != nil {
 
 		if os.IsNotExist(err) {
+
 
 			// Attempt data directory creation
 			if err = os.MkdirAll(path, 0700); err != nil {
@@ -44,6 +47,7 @@ func CheckCreateDir(
 	return nil
 }
 
+
 // EnsureDir checks a file could be written to a path, creates the directories as needed
 func EnsureDir(
 	fileName string,
@@ -59,6 +63,7 @@ func EnsureDir(
 		}
 	}
 }
+
 
 // FileExists reports whether the named file or directory exists.
 func FileExists(
@@ -80,6 +85,7 @@ func FileExists(
 	return true, nil
 }
 
+
 // GenFlag allows a flag to be more concisely declared
 func GenFlag(
 	name,
@@ -94,6 +100,7 @@ func GenFlag(
 	}
 }
 
+
 // GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
 func GenKey() string {
 
@@ -101,6 +108,7 @@ func GenKey() string {
 	key := k.Uint64()
 	return fmt.Sprintf("%0x", key)
 }
+
 
 // GenLog is a short declaration for a variable with a short version
 func GenLog(
@@ -112,6 +120,7 @@ func GenLog(
 		Variable: true,
 	}
 }
+
 
 // GenShort is a short declaration for a variable with a short version
 func GenShort(
@@ -129,6 +138,7 @@ func GenShort(
 	}
 }
 
+
 // GenTrig is a short declaration for a trigger type
 func GenTrig(
 	name,
@@ -142,6 +152,7 @@ func GenTrig(
 		Variable: false,
 	}
 }
+
 
 // NormalizeAddress reads and corrects an address if it is missing pieces
 func NormalizeAddress(
@@ -164,6 +175,7 @@ func NormalizeAddress(
 	}
 }
 
+
 // NormalizeAddresses reads and collects a space separated list of addresses contained in a string
 func NormalizeAddresses(
 	addrs string,
@@ -176,6 +188,7 @@ func NormalizeAddresses(
 	for i := range addrS {
 
 		a := addrS[i]
+
 		// o := ""
 		NormalizeAddress(a, defaultPort, &a)
 		if a != "" {
@@ -183,12 +196,14 @@ func NormalizeAddresses(
 			*O = append(*O, a)
 		}
 	}
+
 	// atomically switch out if there was valid addresses
 	if len(*O) > 0 {
 
 		*out = *O
 	}
 }
+
 
 // ParseDuration takes a string of the format `Xd/h/m/s` and returns a time.Duration corresponding with that specification
 func ParseDuration(
@@ -223,6 +238,7 @@ func ParseDuration(
 	return
 }
 
+
 // ParseFloat reads a string that should contain a floating point number and returns it and any parsing error
 func ParseFloat(
 	f, name string,
@@ -241,6 +257,7 @@ func ParseFloat(
 	}
 	return
 }
+
 
 // ParseInteger reads a string that should contain a integer and returns the number and any parsing error
 func ParseInteger(
@@ -261,6 +278,7 @@ func ParseInteger(
 	}
 	return
 }
+
 
 // ParseUint32 reads a string that should contain a integer and returns the number and any parsing error
 func ParseUint32(
@@ -296,6 +314,7 @@ func getIfIs(
 	}
 	return
 }
+
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(

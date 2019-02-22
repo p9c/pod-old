@@ -90,12 +90,14 @@ func BenchmarkSigVerify(
 	b *testing.B) {
 
 	b.StopTimer()
+
 	// Randomly generated keypair. Private key: 9e0699c91ca1e3b7e3c9ba71eb71c89890872be97576010fe593fbf3fd57e66d
 	pubKey := PublicKey{
 		Curve: S256(),
 		X:     fromHex("d2e670a19c6d753d1a6d8b20bd045df8a08fb162cf508956c31268c6d81ffdab"),
 		Y:     fromHex("ab65528eefbb8057aa85d597258a3fbd481a24633bc9b47a9aa045c91371de52"),
 	}
+
 	// Double sha256 of []byte{0x01, 0x02, 0x03, 0x04}
 	msgHash := fromHex("8de472e2399610baaa7f84840547cd409434e31f5d3bd71e4d947f283874f9c0")
 	sig := Signature{
@@ -116,6 +118,7 @@ func BenchmarkSigVerify(
 // BenchmarkFieldNormalize benchmarks how long it takes the internal field to perform normalization (which includes modular reduction).
 func BenchmarkFieldNormalize(
 	b *testing.B) {
+
 
 	// The normalize function is constant time so default value is fine.
 	f := new(fieldVal)

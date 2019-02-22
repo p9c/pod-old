@@ -32,6 +32,7 @@ func makeParams(
 func MarshalCmd(
 	id interface{}, cmd interface{}) ([]byte, error) {
 
+
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -41,6 +42,7 @@ func MarshalCmd(
 		str := fmt.Sprintf("%q is not registered", method)
 		return nil, makeError(ErrUnregisteredMethod, str)
 	}
+
 	// The provided command must not be nil.
 	rv := reflect.ValueOf(cmd)
 	if rv.IsNil() {
@@ -48,8 +50,10 @@ func MarshalCmd(
 		str := "the specified command is nil"
 		return nil, makeError(ErrInvalidType, str)
 	}
+
 	// Create a slice of interface values in the order of the struct fields while respecting pointer fields as optional params and only adding them if they are non-nil.
 	params := makeParams(rt.Elem(), rv.Elem())
+
 	// Generate and marshal the final JSON-RPC request.
 	rawCmd, err := NewRequest(id, method, params)
 	if err != nil {
@@ -80,6 +84,7 @@ func checkNumParams(
 func populateDefaults(
 	numParams int, info *methodInfo, rv reflect.Value) {
 
+
 	// When there are no more parameters left in the supplied parameters, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	for i := numParams; i < info.maxParams; i++ {
 		rvf := rv.Field(i)
@@ -104,11 +109,13 @@ func UnmarshalCmd(
 	rt := rtp.Elem()
 	rvp := reflect.New(rt)
 	rv := rvp.Elem()
+
 	// Ensure the number of parameters are correct.
 	numParams := len(r.Params)
 	if err := checkNumParams(numParams, &info); err != nil {
 		return nil, err
 	}
+
 	// Loop through each of the struct fields and unmarshal the associated parameter into them.
 	for i := 0; i < numParams; i++ {
 		rvf := rv.Field(i)
@@ -129,6 +136,7 @@ func UnmarshalCmd(
 			return nil, makeError(ErrInvalidType, str)
 		}
 	}
+
 	// When there are less supplied parameters than the total number of params, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	if numParams < info.maxParams {
 		populateDefaults(numParams, &info, rv)
@@ -151,10 +159,12 @@ func isNumeric(
 // typesMaybeCompatible returns whether the source type can possibly be assigned to the destination type.  This is intended as a relatively quick check to weed out obviously invalid conversions.
 func typesMaybeCompatible(
 	dest reflect.Type, src reflect.Type) bool {
+
 	// The same types are obviously compatible.
 	if dest == src {
 		return true
 	}
+
 	// When both types are numeric, they are potentially compatible.
 	srcKind := src.Kind()
 	destKind := dest.Kind()
@@ -198,6 +208,7 @@ func baseType(
 // assignField is the main workhorse for the NewCmd function which handles assigning the provided source value to the destination field.  It supports direct type assignments, indirection, conversion of numeric types, and unmarshaling of strings into arrays, slices, structs, and maps via json.Unmarshal.
 func assignField(
 	paramNum int, fieldName string, dest reflect.Value, src reflect.Value) error {
+
 	// Just error now when the types have no chance of being compatible.
 	destBaseType, destIndirects := baseType(dest.Type())
 	srcBaseType, srcIndirects := baseType(src.Type())
@@ -207,6 +218,7 @@ func assignField(
 			"%v)", paramNum, fieldName, destBaseType, srcBaseType)
 		return makeError(ErrInvalidType, str)
 	}
+
 	// Check if it's possible to simply set the dest to the provided source. This is the case when the base types are the same or they are both pointers that can be indirected to be the same without needing to create pointers for the destination field.
 	if destBaseType == srcBaseType && srcIndirects >= destIndirects {
 		for i := 0; i < srcIndirects-destIndirects; i++ {
@@ -215,6 +227,7 @@ func assignField(
 		dest.Set(src)
 		return nil
 	}
+
 	// When the destination has more indirects than the source, the extra pointers have to be created.  Only create enough pointers to reach the same level of indirection as the source so the dest can simply be set to the provided source when the types are the same.
 	destIndirectsRemaining := destIndirects
 	if destIndirects > srcIndirects {
@@ -229,17 +242,21 @@ func assignField(
 		dest.Set(src)
 		return nil
 	}
+
 	// Make any remaining pointers needed to get to the base dest type since the above direct assign was not possible and conversions are done against the base types.
 	for i := 0; i < destIndirectsRemaining; i++ {
 		dest.Set(reflect.New(dest.Type().Elem()))
 		dest = dest.Elem()
 	}
+
 	// Indirect through to the base source value.
 	for src.Kind() == reflect.Ptr {
 		src = src.Elem()
 	}
+
 	// Perform supported type conversions.
 	switch src.Kind() {
+
 
 	// Source value is a signed integer of various magnitude.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
@@ -276,6 +293,7 @@ func assignField(
 				srcBaseType)
 			return makeError(ErrInvalidType, str)
 		}
+
 	// Source value is an unsigned integer of various magnitude.
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
 		reflect.Uint64:
@@ -317,6 +335,7 @@ func assignField(
 				srcBaseType)
 			return makeError(ErrInvalidType, str)
 		}
+
 	// Source value is a float.
 	case reflect.Float32, reflect.Float64:
 		destKind := dest.Kind()
@@ -335,6 +354,7 @@ func assignField(
 			return makeError(ErrInvalidType, str)
 		}
 		dest.SetFloat(srcFloat)
+
 	// Source value is a string.
 	case reflect.String:
 		switch dest.Kind() {
@@ -432,6 +452,7 @@ func assignField(
 func NewCmd(
 	method string, args ...interface{}) (interface{}, error) {
 
+
 	// Look up details about the provided method.  Any methods that aren't registered are an error.
 	registerLock.RLock()
 	rtp, ok := methodToConcreteType[method]
@@ -441,15 +462,18 @@ func NewCmd(
 		str := fmt.Sprintf("%q is not registered", method)
 		return nil, makeError(ErrUnregisteredMethod, str)
 	}
+
 	// Ensure the number of parameters are correct.
 	numParams := len(args)
 	if err := checkNumParams(numParams, &info); err != nil {
 		return nil, err
 	}
+
 	// Create the appropriate command type for the method.  Since all types are enforced to be a pointer to a struct at registration time, it's safe to indirect to the struct now.
 	rvp := reflect.New(rtp.Elem())
 	rv := rvp.Elem()
 	rt := rtp.Elem()
+
 	// Loop through each of the struct fields and assign the associated parameter into them after checking its type validity.
 	for i := 0; i < numParams; i++ {
 		// Attempt to assign each of the arguments to the according struct field.

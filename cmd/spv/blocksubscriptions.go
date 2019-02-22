@@ -7,16 +7,22 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
+
 // blockMessage is a notification from the block manager to a block
+
 // subscription's goroutine to be forwarded on via the appropriate channel.
 type blockMessage struct {
 	header  *wire.BlockHeader
 	msgType messageType
 }
 
+
 // blockSubscription allows a client to subscribe to and unsubscribe from block
+
 // connect and disconnect notifications.
+
 // TODO(aakselrod): Move this to its own package so that the subscriber can't
+
 // access internals, in particular the notifyBlock and intQuit members.
 type blockSubscription struct {
 	onConnectBasic chan<- wire.BlockHeader
@@ -28,23 +34,33 @@ type blockSubscription struct {
 	intQuit     chan struct{}
 }
 
+
 // messageType describes the type of blockMessage.
 type messageType int
 
 const (
+
 	// connectBasic is a type of notification sent whenever we connect a
+
 	// new set of basic filter headers to the end of the main chain.
 	connectBasic messageType = iota
 
+
 	// disconnect is a type of filter notification that is sent whenever a
+
 	// block is disconnected from the end of the main chain.
 	disconnect
 )
 
+
 // sendSubscribedMsg sends all block subscribers a message if they request this
+
 // type.
+
 //
+
 // TODO(aakselrod): Refactor so we're able to handle more message types in new
+
 // package.
 func (
 	s *ChainService,
@@ -59,12 +75,19 @@ func (
 	s.mtxSubscribers.RUnlock()
 }
 
+
 // subscribeBlockMsg handles adding block subscriptions to the ChainService.
+
 // The best known height to the caller should be passed in, such that we can
+
 // send a backlog of notifications to the caller if they're behind the current
+
 // best tip.
+
 //
+
 // TODO(aakselrod): move this to its own package and refactor so that we're not
+
 // modifying an object held by the caller.
 func (
 	s *ChainService,
@@ -81,8 +104,11 @@ func (
 		intQuit:        make(chan struct{}),
 	}
 
+
 	// At this point, we'll now check to see if we need to deliver any
+
 	// backlog notifications as its possible that while the caller is
+
 	// requesting right after a new set of blocks has been connected.
 	err := s.blockManager.SynchronizeFilterHeaders(func(filterHeaderTip uint32) error {
 		s.mtxSubscribers.Lock()
@@ -91,7 +117,9 @@ func (
 		s.blockSubscribers[&subscription] = struct{}{}
 		go subscription.subscriptionHandler()
 
+
 		// If the best height matches the filter header tip, then we're
+
 		// done and don't need to proceed any further.
 		if filterHeaderTip == bestHeight {
 
@@ -103,10 +131,15 @@ func (
 			bestHeight, filterHeaderTip,
 		}
 
+
 		// Otherwise, we need to read block headers from disk to
+
 		// deliver a backlog to the caller before we proceed. We'll use
+
 		// this synchronization method to ensure the filter header
+
 		// state doesn't change until we're finished catching up the
+
 		// caller.
 		for currentHeight := bestHeight + 1; currentHeight <= filterHeaderTip; currentHeight++ {
 
@@ -137,11 +170,17 @@ func (
 	return &subscription, nil
 }
 
+
 // unsubscribeBlockMsgs handles removing block subscriptions from the
+
 // ChainService.
+
 //
+
 // TODO(aakselrod): move this to its own package and refactor so that we're
+
 // not depending on the caller to not modify the argument between subscribe and
+
 // unsubscribe.
 func (
 	s *ChainService,
@@ -154,12 +193,14 @@ func (
 
 	close(subscription.intQuit)
 
+
 	// Drain the inbound notification channel
 cleanup:
 	for {
 
 		select {
 		case <-subscription.notifyBlock:
+
 			// fmt.Println("chan:<-subscription.notifyBlock")
 
 		default:
@@ -168,28 +209,36 @@ cleanup:
 	}
 }
 
+
 // subscriptionHandler must be run as a goroutine and queues notification
+
 // messages from the chain service to the subscriber.
 func (
 	s *blockSubscription,
 ) subscriptionHandler() {
 
+
 	// Start with a small queue; it will grow if needed.
 	ntfns := make([]*blockMessage, 0, 5)
 	var next *blockMessage
 
+
 	// Try to send on the specified channel. If a new message arrives while
+
 	// we try to send, queue it and continue with the loop. If a quit
+
 	// signal is sent, let the loop know.
 	selectChan := func(notify chan<- wire.BlockHeader) bool {
 		if notify == nil {
 
 			select {
 			case <-s.quit:
+
 				// fmt.Println("chan:<-s.quit")
 
 				return false
 			case <-s.intQuit:
+
 				// fmt.Println("chan:<-s.intQuit")
 				return false
 			default:
@@ -200,34 +249,41 @@ func (
 		select {
 
 		case notify <- *next.header:
+
 			// fmt.Println("chan:notify <- *next.header")
 
 			next = nil
 			return true
 
 		case queueMsg := <-s.notifyBlock:
+
 			// fmt.Println("chan:queueMsg := <-s.notifyBlock")
 			ntfns = append(ntfns, queueMsg)
 			return true
 
 		case <-s.quit:
+
 			// fmt.Println("chan:<-s.quit")
 
 			return false
 
 		case <-s.intQuit:
+
 			// fmt.Println("chan:<-s.intQuit")
 
 			return false
 		}
 	}
 
+
 	// Loop until we get a signal on s.quit or s.intQuit.
 	for {
 
 		if next != nil {
 
+
 			// If selectChan returns false, we were signalled on
+
 			// s.quit or s.intQuit.
 			switch next.msgType {
 
@@ -244,8 +300,11 @@ func (
 				}
 			}
 		} else {
+
 			// Next notification is nil, so see if we can get a
+
 			// notification from the queue. If not, we wait for a
+
 			// notification on s.notifyBlock or quit if signalled.
 			if len(ntfns) > 0 {
 
@@ -255,12 +314,15 @@ func (
 			} else {
 				select {
 				case next = <-s.notifyBlock:
+
 					// fmt.Println("chan:next = <-s.notifyBlock")
 
 				case <-s.quit:
+
 					// fmt.Println("chan:<-s.quit")
 					return
 				case <-s.intQuit:
+
 					// fmt.Println("chan:<-s.intQuit")
 					return
 				}
@@ -269,8 +331,11 @@ func (
 	}
 }
 
+
 // sendMsgToSubscriber is a helper function that sends the target message to
+
 // the subscription client over the proper channel based on the type of the new
+
 // block notification.
 func sendMsgToSubscriber(
 	sub *blockSubscription, bm *blockMessage) {
@@ -283,24 +348,32 @@ func sendMsgToSubscriber(
 	case disconnect:
 		subChan = sub.onDisconnect
 	default:
+
 		// TODO: Return a useful error when factored out into its own
+
 		// package.
 		panic("invalid message type")
 	}
 
+
 	// If the subscription channel was found for this subscription based on
+
 	// the new update, then we'll wait to either send this notification, or
+
 	// quit from either signal.
 	if subChan != nil {
 
 		select {
 		case sub.notifyBlock <- bm:
+
 			// fmt.Println("chan:sub.notifyBlock <- bm")
 
 		case <-sub.quit:
+
 			// fmt.Println("chan:<-sub.quit")
 
 		case <-sub.intQuit:
+
 			// fmt.Println("chan:<-sub.intQuit")
 		}
 	}
