@@ -21,8 +21,10 @@ I personally have a rule if I have to scroll through more than two screenfuls th
 
 Long source files and huge APIs are a maintenance nightmare. Hopefully this will help you avoid that, or more quickly deal with a mess you inherited from some former C++ programmer.
 
+A little known fact about Go's syntax is that receiver/parameter/return value blocks enclosed in brackets can be split with newlines if the final item inside them ends with a comma. At this point they are not fully split, only the receiver is split, parameter lines are broken at the start but none of the rest (I'm still a beginner with regexp). You might wonder why someone would want things formatted this way - in my opinion scanning down through text a list of items is more readable when its items are broken up per line. Hopefully in the future I will finish the function parameter section splitter but for now it is nice that at least parts of it are now automated.
+
 ## Known issues
 
-- Methods without a receiver name will disappear when you run cleaner over them. Give them names, even if you aren't using the receiver. Many of these 'omit if implicit' rules in Go complicate parsing. I am not sure why exactly this one type of function slips through but the issue may be resolved at some point. In VSCode the regex `func [(]\*` will find at least the pointers and `func (_ *` will change it so it doesn't break (work in progress, maybe I fix later but for now supervise it).
+- The sorting algorithm based on the ast-based sorter removes functions with anonymous receivers. This is addressed by preprocessing to add an anonymous name `_` for the receivers without an address. I am not sure why the AST parser deletes these anon receivers but if they are given this nominal non-address it works.
 
 - Parenthesised var and type declarations are split (so they sort properly) but due to quirks in the `dst` library (a fork of go/ast that keeps whitespace and comments together with the code they refer to) it is not simple to break the group and properly format it. Manual removal of the braces will be required.
