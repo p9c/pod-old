@@ -22,9 +22,12 @@ var defaultUser, defaultPass = "user", "pa55word"
 func CheckCreateDir(
 	path string) error {
 	if fi, err := os.Stat(path); err != nil {
+
 		if os.IsNotExist(err) {
+
 			// Attempt data directory creation
 			if err = os.MkdirAll(path, 0700); err != nil {
+
 				return fmt.Errorf("cannot create directory: %s", err)
 			}
 		} else {
@@ -32,6 +35,7 @@ func CheckCreateDir(
 		}
 	} else {
 		if !fi.IsDir() {
+
 			return fmt.Errorf("path '%s' is not a directory", path)
 		}
 	}
@@ -42,12 +46,12 @@ func CheckCreateDir(
 func EnsureDir(
 	fileName string,
 ) {
-
-
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
+
 		merr := os.MkdirAll(dirName, os.ModePerm)
 		if merr != nil {
+
 			panic(merr)
 		}
 	}
@@ -60,11 +64,11 @@ func FileExists(
 	bool,
 	error,
 ) {
-
-
 	_, err := os.Stat(filePath)
 	if err != nil {
+
 		if os.IsNotExist(err) {
+
 			return false, nil
 		}
 		return false, err
@@ -78,8 +82,6 @@ func GenFlag(
 	usage,
 	help string,
 ) climax.Flag {
-
-
 	return climax.Flag{
 		Name:     name,
 		Usage:    "--" + name + `="` + usage + `"`,
@@ -100,8 +102,6 @@ func GenKey() string {
 func GenLog(
 	name string,
 ) climax.Flag {
-
-
 	return climax.Flag{
 		Name:     name,
 		Usage:    "--" + name + `="info"`,
@@ -116,8 +116,6 @@ func GenShort(
 	usage,
 	help string,
 ) climax.Flag {
-
-
 	return climax.Flag{
 		Name:     name,
 		Short:    short,
@@ -133,8 +131,6 @@ func GenTrig(
 	short,
 	help string,
 ) climax.Flag {
-
-
 	return climax.Flag{
 		Name:     name,
 		Short:    short,
@@ -149,13 +145,13 @@ func NormalizeAddress(
 	defaultPort string,
 	out *string,
 ) {
-
-
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
 	if err != nil {
+
 		ip := net.ParseIP(addr)
 		if ip != nil {
+
 			out = &o
 		}
 	} else {
@@ -169,20 +165,21 @@ func NormalizeAddresses(
 	defaultPort string,
 	out *[]string,
 ) {
-
-
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")
 	for i := range addrS {
+
 		a := addrS[i]
 		// o := ""
 		NormalizeAddress(a, defaultPort, &a)
 		if a != "" {
+
 			*O = append(*O, a)
 		}
 	}
 	// atomically switch out if there was valid addresses
 	if len(*O) > 0 {
+
 		*out = *O
 	}
 }
@@ -207,6 +204,7 @@ func ParseDuration(
 		ti = time.Duration(t) * 24 * time.Hour
 	}
 	if err != nil {
+
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%s` err: %s", name, d, *out, err.Error())
 	} else {
 		*out = ti
@@ -220,6 +218,7 @@ func ParseFloat(
 	var out float64
 	_, err = fmt.Sscanf(f, "%0.f", out)
 	if err != nil {
+
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%0.f` err: %s", name, f, *original, err.Error())
 	} else {
 		*original = out
@@ -233,6 +232,7 @@ func ParseInteger(
 	var out int
 	out, err = strconv.Atoi(integer)
 	if err != nil {
+
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
 	} else {
 		*original = out
@@ -246,6 +246,7 @@ func ParseUint32(
 	var out int
 	out, err = strconv.Atoi(integer)
 	if err != nil {
+
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
 	} else {
 		*original = uint32(out)
@@ -256,6 +257,7 @@ func ParseUint32(
 func getIfIs(
 	ctx *climax.Context, name string) (out string, ok bool) {
 	if ctx.Is(name) {
+
 		return ctx.Get(name)
 	}
 	return
@@ -265,6 +267,7 @@ func getIfIs(
 func minUint32(
 	a, b uint32) uint32 {
 	if a < b {
+
 		return a
 	}
 	return b

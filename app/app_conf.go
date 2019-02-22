@@ -97,6 +97,7 @@ var ConfCommand = climax.Command{
 		var dl, ct, tpb string
 		var ok bool
 		if dl, ok = ctx.Get("debuglevel"); ok {
+
 			log <- cl.Tracef{
 				"setting debug level %s",
 				dl,
@@ -104,11 +105,13 @@ var ConfCommand = climax.Command{
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
 			for i := range ll {
+
 				ll[i].SetLevel(dl)
 			}
 		}
 
 		if ct, ok = ctx.Get("createtest"); ok {
+
 			testname := "test"
 			testnum := 1
 			testportbase := 21047
@@ -118,9 +121,11 @@ var ConfCommand = climax.Command{
 				log <- cl.Wrn(err.Error())
 			}
 			if tn, ok := ctx.Get("testname"); ok {
+
 				testname = tn
 			}
 			if tpb, ok = ctx.Get("testportbase"); ok {
+
 				if err := ParseInteger(
 					tpb, "testportbase", &testportbase,
 				); err != nil {
@@ -130,6 +135,7 @@ var ConfCommand = climax.Command{
 			// Generate a full set of default configs first
 			var testConfigSet []ConfigSet
 			for i := 0; i < testnum; i++ {
+
 				tn := fmt.Sprintf("%s%d", testname, i)
 				cs := GetDefaultConfs(tn)
 				SyncToConfs(cs)
@@ -137,11 +143,13 @@ var ConfCommand = climax.Command{
 			}
 			var ps []PortSet
 			for i := 0; i < testnum; i++ {
+
 				p := GenPortSet(testportbase + 100*i)
 				ps = append(ps, *p)
 			}
 			// Set the correct listeners and add the correct addpeers entries
 			for i, ts := range testConfigSet {
+
 				// conf
 				tc := ts.Conf
 				tc.NodeListeners = []string{
@@ -165,8 +173,10 @@ var ConfCommand = climax.Command{
 				// node
 				tnn := ts.Node.Node
 				for j := range ps {
+
 					// add all other peers in the portset list
 					if j != i {
+
 						tnn.AddPeers = append(
 							tnn.AddPeers,
 							lH+ps[j].P2P,
@@ -196,8 +206,10 @@ var ConfCommand = climax.Command{
 				tsn.TestNet3 = true
 				tsn.SimNet = true
 				for j := range ps {
+
 					// add all other peers in the portset list
 					if j != i {
+
 						tsn.AddPeers = append(
 							tsn.AddPeers,
 							lH+ps[j].P2P,
@@ -224,6 +236,7 @@ var ConfCommand = climax.Command{
 
 		confFile = DefaultDataDir + "/conf.json"
 		if r, ok := ctx.Get("datadir"); ok {
+
 			DefaultDataDir = r
 			confFile = DefaultDataDir + "/conf.json"
 		}
@@ -234,10 +247,12 @@ var ConfCommand = climax.Command{
 			DefaultDataDir + "/shell/conf.json",
 		}
 		for i := range confs {
+
 			EnsureDir(confs[i])
 		}
 		EnsureDir(confFile)
 		if ctx.Is("init") {
+
 			WriteDefaultConfConfig(DefaultDataDir)
 			WriteDefaultCtlConfig(DefaultDataDir)
 			WriteDefaultNodeConfig(DefaultDataDir)
@@ -245,14 +260,17 @@ var ConfCommand = climax.Command{
 			WriteDefaultShellConfig(DefaultDataDir)
 		} else {
 			if _, err := os.Stat(confFile); os.IsNotExist(err) {
+
 				WriteDefaultConfConfig(DefaultDataDir)
 			} else {
 				cfgData, err := ioutil.ReadFile(confFile)
 				if err != nil {
+
 					WriteDefaultConfConfig(DefaultDataDir)
 				}
 				err = json.Unmarshal(cfgData, &ConfConfig)
 				if err != nil {
+
 					WriteDefaultConfConfig(DefaultDataDir)
 				}
 			}
@@ -284,8 +302,6 @@ var confs []string
 func DefaultConfConfig(
 	datadir string,
 ) *ConfCfg {
-
-
 	u := GenKey()
 	p := GenKey()
 	return &ConfCfg{
@@ -314,16 +330,16 @@ func DefaultConfConfig(
 func WriteConfConfig(
 	cfg *ConfCfg,
 ) {
-
-
 	j, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
+
 		panic(err.Error())
 	}
 	j = append(j, '\n')
 	EnsureDir(cfg.ConfigFile)
 	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
 	if err != nil {
+
 		panic(err.Error())
 	}
 }
@@ -332,17 +348,17 @@ func WriteConfConfig(
 func WriteDefaultConfConfig(
 	datadir string,
 ) {
-
-
 	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
+
 		panic(err.Error())
 	}
 	j = append(j, '\n')
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 	if err != nil {
+
 		panic(err.Error())
 	}
 	// if we are writing default config we also want to use it
@@ -357,14 +373,13 @@ func configConf(
 	datadir,
 	portbase string,
 ) {
-
-
 	cs := GetDefaultConfs(datadir)
 	SyncToConfs(cs)
 	var r string
 	var ok bool
 	var listeners []string
 	if r, ok = getIfIs(ctx, "nodelistener"); ok {
+
 		NormalizeAddresses(r, portbase, &listeners)
 		fmt.Println("nodelistener set to", listeners)
 		ConfConfig.NodeListeners = listeners
@@ -372,6 +387,7 @@ func configConf(
 		cs.Shell.Node.Listeners = listeners
 	}
 	if r, ok = getIfIs(ctx, "noderpclistener"); ok {
+
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		fmt.Println("noderpclistener set to", listeners)
 		ConfConfig.NodeRPCListeners = listeners
@@ -382,6 +398,7 @@ func configConf(
 		cs.Ctl.RPCServer = r
 	}
 	if r, ok = getIfIs(ctx, "walletlistener"); ok {
+
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		fmt.Println("walletlistener set to", listeners)
 		ConfConfig.WalletListeners = listeners
@@ -390,6 +407,7 @@ func configConf(
 		cs.Shell.Wallet.LegacyRPCListeners = listeners
 	}
 	if r, ok = getIfIs(ctx, "user"); ok {
+
 		ConfConfig.NodeUser = r
 		cs.Node.Node.RPCUser = r
 		cs.Wallet.Wallet.PodUsername = r
@@ -400,6 +418,7 @@ func configConf(
 		cs.Ctl.RPCUser = r
 	}
 	if r, ok = getIfIs(ctx, "pass"); ok {
+
 		ConfConfig.NodePass = r
 		cs.Node.Node.RPCPass = r
 		cs.Wallet.Wallet.PodPassword = r
@@ -410,12 +429,14 @@ func configConf(
 		cs.Ctl.RPCPass = r
 	}
 	if r, ok = getIfIs(ctx, "walletpass"); ok {
+
 		ConfConfig.WalletPass = r
 		cs.Wallet.Wallet.WalletPass = ConfConfig.WalletPass
 		cs.Shell.Wallet.WalletPass = ConfConfig.WalletPass
 	}
 
 	if r, ok = getIfIs(ctx, "rpckey"); ok {
+
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.RPCKey = r
 		cs.Node.Node.RPCKey = r
@@ -424,6 +445,7 @@ func configConf(
 		cs.Shell.Wallet.RPCKey = r
 	}
 	if r, ok = getIfIs(ctx, "rpccert"); ok {
+
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.RPCCert = r
 		cs.Node.Node.RPCCert = r
@@ -432,12 +454,14 @@ func configConf(
 		cs.Shell.Wallet.RPCCert = r
 	}
 	if r, ok = getIfIs(ctx, "cafile"); ok {
+
 		r = node.CleanAndExpandPath(r)
 		ConfConfig.CAFile = r
 		cs.Wallet.Wallet.CAFile = r
 		cs.Shell.Wallet.CAFile = r
 	}
 	if r, ok = getIfIs(ctx, "tls"); ok {
+
 		ConfConfig.TLS = r == "true"
 		cs.Node.Node.TLS = ConfConfig.TLS
 		cs.Wallet.Wallet.EnableClientTLS = ConfConfig.TLS
@@ -447,10 +471,12 @@ func configConf(
 		cs.Shell.Wallet.EnableServerTLS = ConfConfig.TLS
 	}
 	if r, ok = getIfIs(ctx, "skipverify"); ok {
+
 		ConfConfig.SkipVerify = r == "true"
 		cs.Ctl.TLSSkipVerify = r == "true"
 	}
 	if r, ok = getIfIs(ctx, "proxy"); ok {
+
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
 		ConfConfig.Proxy = r
 		cs.Ctl.Proxy = ConfConfig.Proxy
@@ -460,6 +486,7 @@ func configConf(
 		cs.Shell.Wallet.Proxy = ConfConfig.Proxy
 	}
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
+
 		ConfConfig.ProxyUser = r
 		cs.Ctl.ProxyUser = ConfConfig.ProxyUser
 		cs.Node.Node.ProxyUser = ConfConfig.ProxyUser
@@ -468,6 +495,7 @@ func configConf(
 		cs.Shell.Wallet.ProxyUser = ConfConfig.ProxyUser
 	}
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
+
 		ConfConfig.ProxyPass = r
 		cs.Ctl.ProxyPass = ConfConfig.ProxyPass
 		cs.Node.Node.ProxyPass = ConfConfig.ProxyPass
@@ -476,6 +504,7 @@ func configConf(
 		cs.Shell.Wallet.ProxyPass = ConfConfig.ProxyPass
 	}
 	if r, ok = getIfIs(ctx, "network"); ok {
+
 		r = strings.ToLower(r)
 		switch r {
 		case "mainnet", "testnet", "regtestnet", "simnet":
@@ -548,8 +577,10 @@ func configConf(
 	WriteWalletConfig(cs.Wallet)
 	WriteShellConfig(cs.Shell)
 	if ctx.Is("show") {
+
 		j, err := json.MarshalIndent(cs.Conf, "", "  ")
 		if err != nil {
+
 			panic(err.Error())
 		}
 		fmt.Println(string(j))

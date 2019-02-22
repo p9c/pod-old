@@ -7,19 +7,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/wire"
 )
 
-// messageType describes the type of blockMessage.
-type messageType int
-
-const (
-	// connectBasic is a type of notification sent whenever we connect a
-	// new set of basic filter headers to the end of the main chain.
-	connectBasic messageType = iota
-
-	// disconnect is a type of filter notification that is sent whenever a
-	// block is disconnected from the end of the main chain.
-	disconnect
-)
-
 // blockMessage is a notification from the block manager to a block
 // subscription's goroutine to be forwarded on via the appropriate channel.
 type blockMessage struct {
@@ -41,54 +28,35 @@ type blockSubscription struct {
 	intQuit     chan struct{}
 }
 
+// messageType describes the type of blockMessage.
+type messageType int
+
+const (
+	// connectBasic is a type of notification sent whenever we connect a
+	// new set of basic filter headers to the end of the main chain.
+	connectBasic messageType = iota
+
+	// disconnect is a type of filter notification that is sent whenever a
+	// block is disconnected from the end of the main chain.
+	disconnect
+)
+
 // sendSubscribedMsg sends all block subscribers a message if they request this
 // type.
 //
 // TODO(aakselrod): Refactor so we're able to handle more message types in new
 // package.
-func (s *ChainService) sendSubscribedMsg(bm *blockMessage) {
+func (
+	s *ChainService,
+) sendSubscribedMsg(
+	bm *blockMessage) {
 
 	s.mtxSubscribers.RLock()
 	for sub := range s.blockSubscribers {
+
 		sendMsgToSubscriber(sub, bm)
 	}
 	s.mtxSubscribers.RUnlock()
-}
-
-// sendMsgToSubscriber is a helper function that sends the target message to
-// the subscription client over the proper channel based on the type of the new
-// block notification.
-func sendMsgToSubscriber(
-	sub *blockSubscription, bm *blockMessage) {
-
-	var subChan chan<- wire.BlockHeader
-
-	switch bm.msgType {
-	case connectBasic:
-		subChan = sub.onConnectBasic
-	case disconnect:
-		subChan = sub.onDisconnect
-	default:
-		// TODO: Return a useful error when factored out into its own
-		// package.
-		panic("invalid message type")
-	}
-
-	// If the subscription channel was found for this subscription based on
-	// the new update, then we'll wait to either send this notification, or
-	// quit from either signal.
-	if subChan != nil {
-		select {
-		case sub.notifyBlock <- bm:
-			// fmt.Println("chan:sub.notifyBlock <- bm")
-
-		case <-sub.quit:
-			// fmt.Println("chan:<-sub.quit")
-
-		case <-sub.intQuit:
-			// fmt.Println("chan:<-sub.intQuit")
-		}
-	}
 }
 
 // subscribeBlockMsg handles adding block subscriptions to the ChainService.
@@ -98,7 +66,10 @@ func sendMsgToSubscriber(
 //
 // TODO(aakselrod): move this to its own package and refactor so that we're not
 // modifying an object held by the caller.
-func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
+func (
+	s *ChainService,
+) subscribeBlockMsg(
+	bestHeight uint32,
 	onConnectBasic, onDisconnect chan<- wire.BlockHeader,
 	quit <-chan struct{}) (*blockSubscription, error) {
 
@@ -123,6 +94,7 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 		// If the best height matches the filter header tip, then we're
 		// done and don't need to proceed any further.
 		if filterHeaderTip == bestHeight {
+
 			return nil
 		}
 
@@ -137,10 +109,12 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 		// state doesn't change until we're finished catching up the
 		// caller.
 		for currentHeight := bestHeight + 1; currentHeight <= filterHeaderTip; currentHeight++ {
+
 			blockHeader, err := s.BlockHeaders.FetchHeaderByHeight(
 				currentHeight,
 			)
 			if err != nil {
+
 				return fmt.Errorf(
 					"unable to read header at height: %v: %v",
 					currentHeight, err,
@@ -156,6 +130,7 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 		return nil
 	})
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -168,7 +143,10 @@ func (s *ChainService) subscribeBlockMsg(bestHeight uint32,
 // TODO(aakselrod): move this to its own package and refactor so that we're
 // not depending on the caller to not modify the argument between subscribe and
 // unsubscribe.
-func (s *ChainService) unsubscribeBlockMsgs(subscription *blockSubscription) {
+func (
+	s *ChainService,
+) unsubscribeBlockMsgs(
+	subscription *blockSubscription) {
 	s.mtxSubscribers.Lock()
 	delete(s.blockSubscribers, subscription)
 	s.mtxSubscribers.Unlock()
@@ -178,6 +156,7 @@ func (s *ChainService) unsubscribeBlockMsgs(subscription *blockSubscription) {
 	// Drain the inbound notification channel
 cleanup:
 	for {
+
 		select {
 		case <-subscription.notifyBlock:
 			// fmt.Println("chan:<-subscription.notifyBlock")
@@ -190,7 +169,9 @@ cleanup:
 
 // subscriptionHandler must be run as a goroutine and queues notification
 // messages from the chain service to the subscriber.
-func (s *blockSubscription) subscriptionHandler() {
+func (
+	s *blockSubscription,
+) subscriptionHandler() {
 	// Start with a small queue; it will grow if needed.
 	ntfns := make([]*blockMessage, 0, 5)
 	var next *blockMessage
@@ -200,6 +181,7 @@ func (s *blockSubscription) subscriptionHandler() {
 	// signal is sent, let the loop know.
 	selectChan := func(notify chan<- wire.BlockHeader) bool {
 		if notify == nil {
+
 			select {
 			case <-s.quit:
 				// fmt.Println("chan:<-s.quit")
@@ -240,18 +222,22 @@ func (s *blockSubscription) subscriptionHandler() {
 
 	// Loop until we get a signal on s.quit or s.intQuit.
 	for {
+
 		if next != nil {
+
 			// If selectChan returns false, we were signalled on
 			// s.quit or s.intQuit.
 			switch next.msgType {
 
 			case connectBasic:
 				if !selectChan(s.onConnectBasic) {
+
 					return
 				}
 
 			case disconnect:
 				if !selectChan(s.onDisconnect) {
+
 					return
 				}
 			}
@@ -260,6 +246,7 @@ func (s *blockSubscription) subscriptionHandler() {
 			// notification from the queue. If not, we wait for a
 			// notification on s.notifyBlock or quit if signalled.
 			if len(ntfns) > 0 {
+
 				next = ntfns[0]
 				ntfns[0] = nil // Set to nil to avoid GC leak.
 				ntfns = ntfns[1:]
@@ -276,6 +263,43 @@ func (s *blockSubscription) subscriptionHandler() {
 					return
 				}
 			}
+		}
+	}
+}
+
+// sendMsgToSubscriber is a helper function that sends the target message to
+// the subscription client over the proper channel based on the type of the new
+// block notification.
+func sendMsgToSubscriber(
+	sub *blockSubscription, bm *blockMessage) {
+
+	var subChan chan<- wire.BlockHeader
+
+	switch bm.msgType {
+	case connectBasic:
+		subChan = sub.onConnectBasic
+	case disconnect:
+		subChan = sub.onDisconnect
+	default:
+		// TODO: Return a useful error when factored out into its own
+		// package.
+		panic("invalid message type")
+	}
+
+	// If the subscription channel was found for this subscription based on
+	// the new update, then we'll wait to either send this notification, or
+	// quit from either signal.
+	if subChan != nil {
+
+		select {
+		case sub.notifyBlock <- bm:
+			// fmt.Println("chan:sub.notifyBlock <- bm")
+
+		case <-sub.quit:
+			// fmt.Println("chan:<-sub.quit")
+
+		case <-sub.intQuit:
+			// fmt.Println("chan:<-sub.intQuit")
 		}
 	}
 }

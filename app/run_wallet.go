@@ -19,6 +19,7 @@ func runWallet(
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
 	err := walletmain.Main(wc, activeNet)
 	if err != nil {
+
 		fmt.Print(err)
 		return 1
 	}

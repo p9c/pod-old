@@ -38,6 +38,7 @@ func bigToLEUint256(
 	pad := 0
 	start := 0
 	if nlen <= uint256Size {
+
 		pad = uint256Size - nlen
 	} else {
 		start = nlen - uint256Size
@@ -46,6 +47,7 @@ func bigToLEUint256(
 	copy(buf[pad:], nBytes[start:])
 	// Reverse the bytes to little endian and return them.
 	for i := 0; i < uint256Size/2; i++ {
+
 		buf[i], buf[uint256Size-1-i] = buf[uint256Size-1-i], buf[i]
 	}
 	return buf
@@ -55,14 +57,13 @@ func handleGetWork(
 	s *rpcServer,
 	cmd interface{},
 	closeChan <-chan struct{},
-) (interface{
+) (interface {
 },
 	error,
 ) {
-
-
 	c := cmd.(*json.GetWorkCmd)
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
+
 		return nil, &json.RPCError{
 			Code: json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified " +
@@ -79,6 +80,7 @@ func handleGetWork(
 	// No point in generating or accepting work before the chain is synced.
 	latestHeight := s.cfg.Chain.BestSnapshot().Height
 	if latestHeight != 0 && !s.cfg.SyncMgr.IsCurrent() {
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCClientInInitialDownload,
 			Message: "Pod is not yet synchronised...",
@@ -88,6 +90,7 @@ func handleGetWork(
 	state.Lock()
 	defer state.Unlock()
 	if c.Data != nil {
+
 		return handleGetWorkSubmission(s, *c.Data)
 	}
 	// Choose a payment address at random.
@@ -97,9 +100,11 @@ func handleGetWork(
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	generator := s.cfg.Generator
 	if state.template == nil {
+
 		var err error
 		state.template, err = generator.NewBlockTemplate(payToAddr, s.cfg.Algo)
 		if err != nil {
+
 			return nil, err
 		}
 	}
@@ -111,8 +116,10 @@ func handleGetWork(
 		/*	Reset the extra nonce and clear all cached template
 			variations if the best block changed. */
 		if state.prevHash != nil && !state.prevHash.IsEqual(latestHash) {
+
 			e := state.updateBlockTemplate(s, false)
 			if e != nil {
+
 				log <- cl.Warn{"failed to update block template", e}
 			}
 		}
@@ -123,6 +130,7 @@ func handleGetWork(
 		var err error
 		state.template, err = generator.NewBlockTemplate(payToAddr, s.cfg.Algo)
 		if err != nil {
+
 			errStr := fmt.Sprintf("Failed to create new block template: %v", err)
 			log <- cl.Err(errStr)
 			return nil, &json.RPCError{
@@ -149,6 +157,7 @@ func handleGetWork(
 		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.  So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
 		e := generator.UpdateBlockTime(msgBlock)
 		if e != nil {
+
 			log <- cl.Warn{"failed to update block time", e}
 		}
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
@@ -173,6 +182,7 @@ func handleGetWork(
 	buf := bytes.NewBuffer(data)
 	err := msgBlock.Header.Serialize(buf)
 	if err != nil {
+
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
 		log <- cl.Wrn(errStr)
 		return nil, &json.RPCError{
@@ -214,14 +224,14 @@ func handleGetWorkSubmission(
 	interface{},
 	error,
 ) {
-
-
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {
+
 		hexData = "0" + hexData
 	}
 	data, err := hex.DecodeString(hexData)
 	if err != nil {
+
 		return nil, &json.RPCError{
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
@@ -229,6 +239,7 @@ func handleGetWorkSubmission(
 		}
 	}
 	if len(data) != getworkDataLen {
+
 		return false, &json.RPCError{
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
@@ -243,6 +254,7 @@ func handleGetWorkSubmission(
 	bhBuf := bytes.NewBuffer(data[0:wire.MaxBlockHeaderPayload])
 	err = submittedHeader.Deserialize(bhBuf)
 	if err != nil {
+
 		return false, &json.RPCError{
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument does not "+
@@ -252,6 +264,7 @@ func handleGetWorkSubmission(
 	// Look up the full block for the provided data based on the merkle root.  Return false to indicate the solve failed if it's not available.
 	state := s.gbtWorkState
 	if state.template.Block.Header.MerkleRoot.String() == "" {
+
 		log <- cl.Debug{
 			"Block submitted via getwork has no matching template for merkle root",
 			submittedHeader.MerkleRoot,
@@ -271,8 +284,10 @@ func handleGetWorkSubmission(
 	log <- cl.Trace{"powlimit", pl}
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
 	if err != nil {
+
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
+
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while checking proof of work: %v", err),
@@ -285,6 +300,7 @@ func handleGetWorkSubmission(
 	}
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	if !msgBlock.Header.PrevBlock.IsEqual(latestHash) {
+
 		log <- cl.Debugf{
 			"block submitted via getwork with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
@@ -294,8 +310,10 @@ func handleGetWorkSubmission(
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
 	_, isOrphan, err := s.cfg.Chain.ProcessBlock(block, 0, s.cfg.Chain.BestSnapshot().Height)
 	if err != nil || isOrphan {
+
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
+
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while processing block: %v", err),
@@ -314,10 +332,9 @@ func handleGetWorkSubmission(
 func reverseUint32Array(
 	b []byte,
 ) {
-
-
 	blen := len(b)
 	for i := 0; i < blen; i += 4 {
+
 		b[i], b[i+3] = b[i+3], b[i]
 		b[i+1], b[i+2] = b[i+2], b[i+1]
 	}

@@ -109,18 +109,22 @@ func (
 	defer ef.mtx.Unlock()
 	// If the number of registered blocks is below the minimum, return an error.
 	if ef.numBlocksRegistered < ef.minRegisteredBlocks {
+
 		return -1, errors.New("not enough blocks have been observed")
 	}
 	if numBlocks == 0 {
+
 		return -1, errors.New("cannot confirm transaction in zero blocks")
 	}
 	if numBlocks > estimateFeeDepth {
+
 		return -1, fmt.Errorf(
 			"can only estimate fees for up to %d blocks from now",
 			estimateFeeBinSize)
 	}
 	// If there are no cached results, generate them.
 	if ef.cached == nil {
+
 		ef.cached = ef.estimates()
 	}
 	return ef.cached[int(numBlocks)-1].ToBtcPerKb(), nil
@@ -145,10 +149,12 @@ func (
 	defer ef.mtx.Unlock()
 	// If we haven't seen a block yet we don't know when this one arrived, so we ignore it.
 	if ef.lastKnownHeight == mining.UnminedHeight {
+
 		return
 	}
 	hash := *t.Tx.Hash()
 	if _, ok := ef.observed[hash]; !ok {
+
 		size := uint32(GetTxVirtualSize(t.Tx))
 		ef.observed[hash] = &observedTransaction{
 			hash:     hash,
@@ -170,6 +176,7 @@ func (
 	ef.cached = nil
 	height := block.Height()
 	if height != ef.lastKnownHeight+1 && ef.lastKnownHeight != mining.UnminedHeight {
+
 		return fmt.Errorf("intermediate block not recorded; current height is %d; new height is %d",
 			ef.lastKnownHeight, height)
 	}
@@ -179,6 +186,7 @@ func (
 	// Randomly order txs in block.
 	transactions := make(map[*util.Tx]struct{})
 	for _, t := range block.Transactions() {
+
 		transactions[t] = struct{}{}
 	}
 	// Count the number of replacements we make per bin so that we don't replace too many.
@@ -190,16 +198,19 @@ func (
 	}
 	// Go through the txs in the block.
 	for t := range transactions {
+
 		hash := *t.Hash()
 		// Have we observed this tx in the mempool?
 		o, ok := ef.observed[hash]
 		if !ok {
+
 			continue
 		}
 		// Put the observed tx in the oppropriate bin.
 		blocksToConfirm := height - o.observed - 1
 		// This shouldn't happen if the fee estimator works correctly, but return an error if it does.
 		if o.mined != mining.UnminedHeight {
+
 			log <- cl.Error{
 				"Estimate fee: transaction ",
 				hash,
@@ -209,10 +220,12 @@ func (
 		}
 		// This shouldn't happen but check just in case to avoid an out-of-bounds array index later.
 		if blocksToConfirm >= estimateFeeDepth {
+
 			continue
 		}
 		// Make sure we do not replace too many transactions per min.
 		if replacementCounts[blocksToConfirm] == int(ef.maxReplacements) {
+
 			continue
 		}
 		o.mined = height
@@ -220,6 +233,7 @@ func (
 		bin := ef.bin[blocksToConfirm]
 		// Remove a random element and replace it with this new tx.
 		if len(bin) == int(ef.binSize) {
+
 			// Don't drop transactions we have just added from this same block.
 			l := int(ef.binSize) - replacementCounts[blocksToConfirm]
 			drop := rand.Intn(l)
@@ -233,15 +247,19 @@ func (
 	}
 	// Go through the mempool for txs that have been in too long.
 	for hash, o := range ef.observed {
+
 		if o.mined == mining.UnminedHeight && height-o.observed >= estimateFeeDepth {
+
 			delete(ef.observed, hash)
 		}
 	}
 	// Add dropped list to history.
 	if ef.maxRollback == 0 {
+
 		return nil
 	}
 	if uint32(len(ef.dropped)) == ef.maxRollback {
+
 		ef.dropped = append(ef.dropped[1:], dropped)
 	} else {
 		ef.dropped = append(ef.dropped, dropped)
@@ -260,14 +278,18 @@ func (
 	// Find this block in the stack of recent registered blocks.
 	var n int
 	for n = 1; n <= len(ef.dropped); n++ {
+
 		if ef.dropped[len(ef.dropped)-n].hash.IsEqual(hash) {
+
 			break
 		}
 	}
 	if n > len(ef.dropped) {
+
 		return errors.New("no such block was recently registered")
 	}
 	for i := 0; i < n; i++ {
+
 		ef.rollback()
 	}
 	return nil
@@ -285,37 +307,45 @@ func (
 	e := binary.Write(
 		w, binary.BigEndian, uint32(estimateFeeSaveVersion))
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	// Insert basic parameters.
 	e = binary.Write(w, binary.BigEndian, &ef.maxRollback)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	e = binary.Write(w, binary.BigEndian, &ef.binSize)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	e = binary.Write(w, binary.BigEndian, &ef.maxReplacements)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	e = binary.Write(w, binary.BigEndian, &ef.minRegisteredBlocks)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	e = binary.Write(w, binary.BigEndian, &ef.lastKnownHeight)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	e = binary.Write(w, binary.BigEndian, &ef.numBlocksRegistered)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write fee estimates", e}
 	}
 	// Put all the observed transactions in a sorted list.
 	var txCount uint32
 	ots := make([]*observedTransaction, len(ef.observed))
 	for hash := range ef.observed {
+
 		ots[txCount] = ef.observed[hash]
 		txCount++
 	}
@@ -324,22 +354,28 @@ func (
 	observed := make(map[*observedTransaction]uint32)
 	e = binary.Write(w, binary.BigEndian, uint32(len(ef.observed)))
 	if e != nil {
+
 		log <- cl.Warn{"failed to write:", e}
 	}
 	for _, ot := range ots {
+
 		ot.Serialize(w)
 		observed[ot] = txCount
 		txCount++
 	}
 	// Save all the right bins.
 	for _, list := range ef.bin {
+
 		e = binary.Write(w, binary.BigEndian, uint32(len(list)))
 		if e != nil {
+
 			log <- cl.Warn{"failed to write:", e}
 		}
 		for _, o := range list {
+
 			e = binary.Write(w, binary.BigEndian, observed[o])
 			if e != nil {
+
 				log <- cl.Warn{"failed to write:", e}
 			}
 		}
@@ -347,9 +383,11 @@ func (
 	// Dropped transactions.
 	e = binary.Write(w, binary.BigEndian, uint32(len(ef.dropped)))
 	if e != nil {
+
 		log <- cl.Warn{"failed to write:", e}
 	}
 	for _, registered := range ef.dropped {
+
 		registered.serialize(w, observed)
 	}
 	// Commit the tx and return.
@@ -364,6 +402,7 @@ func (
 	set := ef.newEstimateFeeSet()
 	estimates := make([]SatoshiPerByte, estimateFeeDepth)
 	for i := 0; i < estimateFeeDepth; i++ {
+
 		estimates[i] = set.estimateFee(i + 1)
 	}
 	return estimates
@@ -377,6 +416,7 @@ func (
 	set := &estimateFeeSet{}
 	capacity := 0
 	for i, b := range ef.bin {
+
 		l := len(b)
 		set.bin[i] = uint32(l)
 		capacity += l
@@ -384,7 +424,9 @@ func (
 	set.feeRate = make([]SatoshiPerByte, capacity)
 	i := 0
 	for _, b := range ef.bin {
+
 		for _, o := range b {
+
 			set.feeRate[i] = o.feeRate
 			i++
 		}
@@ -403,6 +445,7 @@ func (
 	// pop the last list of dropped txs from the stack.
 	last := len(ef.dropped) - 1
 	if last == -1 {
+
 		// Cannot really happen because the exported calling function only rolls back a block already known to be in the list of dropped transactions.
 		return
 	}
@@ -411,18 +454,22 @@ func (
 	var replacementCounters [estimateFeeDepth]int
 	// Go through the txs in the dropped block.
 	for _, o := range dropped.transactions {
+
 		// Which bin was this tx in?
 		blocksToConfirm := o.mined - o.observed - 1
 		bin := ef.bin[blocksToConfirm]
 		var counter = replacementCounters[blocksToConfirm]
 		// Continue to go through that bin where we left off.
 		for {
+
 			if counter >= len(bin) {
+
 				// Panic, as we have entered an unrecoverable invalid state.
 				panic(errors.New("illegal state: cannot rollback dropped transaction"))
 			}
 			prev := bin[counter]
 			if prev.mined == ef.lastKnownHeight {
+
 				prev.mined = mining.UnminedHeight
 				bin[counter] = o
 				counter++
@@ -434,13 +481,17 @@ func (
 	}
 	// Continue going through bins to find other txs to remove which did not replace any other when they were entered.
 	for i, j := range replacementCounters {
+
 		for {
+
 			l := len(ef.bin[i])
 			if j >= l {
+
 				break
 			}
 			prev := ef.bin[i][j]
 			if prev.mined == ef.lastKnownHeight {
+
 				prev.mined = mining.UnminedHeight
 				newBin := append(ef.bin[i][0:j], ef.bin[i][j+1:l]...)
 				// TODO This line should prevent an unintentional memory leak but it causes a panic when it is uncommented.
@@ -482,25 +533,31 @@ func (
 ) estimateFee(
 	confirmations int) SatoshiPerByte {
 	if confirmations <= 0 {
+
 		return SatoshiPerByte(math.Inf(1))
 	}
 	if confirmations > estimateFeeDepth {
+
 		return 0
 	}
 	// We don't have any transactions!
 	if len(b.feeRate) == 0 {
+
 		return 0
 	}
 	var min, max int
 	for i := 0; i < confirmations-1; i++ {
+
 		min += int(b.bin[i])
 	}
 	max = min + int(b.bin[confirmations-1]) - 1
 	if max < min {
+
 		max = min
 	}
 	feeIndex := (min + max) / 2
 	if feeIndex >= len(b.feeRate) {
+
 		feeIndex = len(b.feeRate) - 1
 	}
 	return b.feeRate[feeIndex]
@@ -512,18 +569,22 @@ func (
 	w io.Writer) {
 	e := binary.Write(w, binary.BigEndian, o.hash)
 	if e != nil {
+
 		log <- cl.Warn{"failed to serialize observed transaction:", e}
 	}
 	e = binary.Write(w, binary.BigEndian, o.feeRate)
 	if e != nil {
+
 		log <- cl.Warn{"failed to serialize observed transaction:", e}
 	}
 	e = binary.Write(w, binary.BigEndian, o.observed)
 	if e != nil {
+
 		log <- cl.Warn{"failed to serialize observed transaction:", e}
 	}
 	e = binary.Write(w, binary.BigEndian, o.mined)
 	if e != nil {
+
 		log <- cl.Warn{"failed to serialize observed transaction:", e}
 	}
 }
@@ -534,15 +595,19 @@ func (
 	w io.Writer, txs map[*observedTransaction]uint32) {
 	e := binary.Write(w, binary.BigEndian, rb.hash)
 	if e != nil {
+
 		log <- cl.Warn{"failed to write:", e}
 	}
 	e = binary.Write(w, binary.BigEndian, uint32(len(rb.transactions)))
 	if e != nil {
+
 		log <- cl.Warn{"failed to write:", e}
 	}
 	for _, o := range rb.transactions {
+
 		e = binary.Write(w, binary.BigEndian, txs[o])
 		if e != nil {
+
 			log <- cl.Warn{"failed to write:", e}
 		}
 	}
@@ -555,6 +620,7 @@ func (
 	size uint32) util.Amount {
 	// If our rate is the error value, return that.
 	if rate == SatoshiPerByte(-1) {
+
 		return util.Amount(-1)
 	}
 	return util.Amount(float64(rate) * float64(size))
@@ -567,6 +633,7 @@ func (
 
 	// If our rate is the error value, return that.
 	if rate == SatoshiPerByte(-1.0) {
+
 		return -1.0
 	}
 	return BtcPerKilobyte(float64(rate) * bytePerKb * btcPerSatoshi)
@@ -619,9 +686,11 @@ func RestoreFeeEstimator(
 	var version uint32
 	err := binary.Read(r, binary.BigEndian, &version)
 	if err != nil {
+
 		return nil, err
 	}
 	if version != estimateFeeSaveVersion {
+
 		return nil, fmt.Errorf("Incorrect version: expected %d found %d", estimateFeeSaveVersion, version)
 	}
 	ef := &FeeEstimator{
@@ -630,26 +699,32 @@ func RestoreFeeEstimator(
 	// Read basic parameters.
 	e := binary.Read(r, binary.BigEndian, &ef.maxRollback)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ef.binSize)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ef.maxReplacements)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ef.minRegisteredBlocks)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ef.lastKnownHeight)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ef.numBlocksRegistered)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	// Read transactions.
@@ -657,11 +732,14 @@ func RestoreFeeEstimator(
 	observed := make(map[uint32]*observedTransaction)
 	e = binary.Read(r, binary.BigEndian, &numObserved)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	for i := uint32(0); i < numObserved; i++ {
+
 		ot, err := deserializeObservedTransaction(r)
 		if err != nil {
+
 			return nil, err
 		}
 		observed[i] = ot
@@ -669,21 +747,26 @@ func RestoreFeeEstimator(
 	}
 	// Read bins.
 	for i := 0; i < estimateFeeDepth; i++ {
+
 		var numTransactions uint32
 		e = binary.Read(r, binary.BigEndian, &numTransactions)
 		if e != nil {
+
 			log <- cl.Warn{"failed to read", e}
 		}
 		bin := make([]*observedTransaction, numTransactions)
 		for j := uint32(0); j < numTransactions; j++ {
+
 			var index uint32
 			e = binary.Read(r, binary.BigEndian, &index)
 			if e != nil {
+
 				log <- cl.Warn{"failed to read", e}
 			}
 			var exists bool
 			bin[j], exists = observed[index]
 			if !exists {
+
 				return nil, fmt.Errorf("Invalid transaction reference %d", index)
 			}
 		}
@@ -693,13 +776,16 @@ func RestoreFeeEstimator(
 	var numDropped uint32
 	e = binary.Read(r, binary.BigEndian, &numDropped)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	ef.dropped = make([]*registeredBlock, numDropped)
 	for i := uint32(0); i < numDropped; i++ {
+
 		var err error
 		ef.dropped[int(i)], err = deserializeRegisteredBlock(r, observed)
 		if err != nil {
+
 			return nil, err
 		}
 	}
@@ -711,20 +797,24 @@ func deserializeObservedTransaction(
 	// The first 32 bytes should be a hash.
 	e := binary.Read(r, binary.BigEndian, &ot.hash)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	// The next 8 are SatoshiPerByte
 	e = binary.Read(r, binary.BigEndian, &ot.feeRate)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	// And next there are two uint32's.
 	e = binary.Read(r, binary.BigEndian, &ot.observed)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &ot.mined)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	return &ot, nil
@@ -736,17 +826,21 @@ func deserializeRegisteredBlock(
 	rb := &registeredBlock{}
 	e := binary.Read(r, binary.BigEndian, &rb.hash)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	e = binary.Read(r, binary.BigEndian, &lenTransactions)
 	if e != nil {
+
 		log <- cl.Warn{"failed to read", e}
 	}
 	rb.transactions = make([]*observedTransaction, lenTransactions)
 	for i := uint32(0); i < lenTransactions; i++ {
+
 		var index uint32
 		e = binary.Read(r, binary.BigEndian, &index)
 		if e != nil {
+
 			log <- cl.Warn{"failed to read", e}
 		}
 		rb.transactions[i] = txs[index]

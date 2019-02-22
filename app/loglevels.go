@@ -97,6 +97,7 @@ func SetAllLogging(
 
 	ss := GetAllSubSystems()
 	for i := range ss {
+
 		ss[i].SetLevel(level)
 	}
 }
@@ -105,15 +106,16 @@ func SetAllLogging(
 func SetLogging(
 	ctx *climax.Context,
 ) {
-
-
 	ss := GetAllSubSystems()
 	var baselevel = "info"
 	if r, ok := getIfIs(ctx, "debuglevel"); ok {
+
 		baselevel = r
 	}
 	for i := range ss {
+
 		if lvl, ok := ctx.Get(i); ok {
+
 			ss[i].SetLevel(lvl)
 		} else {
 			ss[i].SetLevel(baselevel)
