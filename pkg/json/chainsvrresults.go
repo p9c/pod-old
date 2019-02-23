@@ -297,27 +297,27 @@ type GetWorkResult struct {
 
 // InfoChainResult models the data returned by the chain server getinfo command.
 type InfoChainResult struct {
-	Version                  int32   `json:"version"`
-	ProtocolVersion          int32   `json:"protocolversion"`
-	Blocks                   int32   `json:"blocks"`
-	TimeOffset               int64   `json:"timeoffset"`
-	Connections              int32   `json:"connections"`
-	Proxy                    string  `json:"proxy"`
-	PowAlgoID                uint32  `json:"pow_algo_id"`
-	PowAlgo                  string  `json:"pow_algo"`
-	Difficulty               float64 `json:"difficulty"`
-	DifficultyCryptonight7v2 float64 `json:"difficulty_cryptonight7v2"`
-	DifficultyBlake14lr      float64 `json:"difficulty_blake14lr"`
-	DifficultyLyra2rev2      float64 `json:"difficulty_lyra2rev2"`
-	DifficultySHA256D        float64 `json:"difficulty_sha256d"`
-	DifficultyScrypt         float64 `json:"difficulty_scrypt"`
-	DifficultyStribog        float64 `json:"difficulty_stribog"`
-	DifficultySkein          float64 `json:"difficulty_skein"`
-	DifficultyX11            float64 `json:"difficulty_x11"`
-	DifficultyKeccak         float64 `json:"difficulty_keccak"`
-	TestNet                  bool    `json:"testnet"`
-	RelayFee                 float64 `json:"relayfee"`
-	Errors                   string  `json:"errors"`
+	Version             int32   `json:"version"`
+	ProtocolVersion     int32   `json:"protocolversion"`
+	Blocks              int32   `json:"blocks"`
+	TimeOffset          int64   `json:"timeoffset"`
+	Connections         int32   `json:"connections"`
+	Proxy               string  `json:"proxy"`
+	PowAlgoID           uint32  `json:"pow_algo_id"`
+	PowAlgo             string  `json:"pow_algo"`
+	Difficulty          float64 `json:"difficulty"`
+	DifficultyBlake2b   float64 `json:"difficulty_blake2b"`
+	DifficultyBlake14lr float64 `json:"difficulty_blake14lr"`
+	DifficultyBlake2s   float64 `json:"difficulty_blake2s"`
+	DifficultyKeccak    float64 `json:"difficulty_keccak"`
+	DifficultyScrypt    float64 `json:"difficulty_scrypt"`
+	DifficultySHA256D   float64 `json:"difficulty_sha256d"`
+	DifficultySkein     float64 `json:"difficulty_skein"`
+	DifficultyStribog   float64 `json:"difficulty_stribog"`
+	DifficultyX11       float64 `json:"difficulty_x11"`
+	TestNet             bool    `json:"testnet"`
+	RelayFee            float64 `json:"relayfee"`
+	Errors              string  `json:"errors"`
 }
 type InfoChainResult0 struct {
 	Version           int32   `json:"version"`
