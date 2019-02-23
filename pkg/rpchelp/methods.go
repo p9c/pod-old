@@ -4,19 +4,20 @@
 
 package rpchelp
 
-import "git.parallelcoin.io/pod/pkg/json"
-
-// Common return types.
-var (
-	returnsBool        = []interface{}{(*bool)(nil)}
-	returnsNumber      = []interface{}{(*float64)(nil)}
-	returnsString      = []interface{}{(*string)(nil)}
-	returnsStringArray = []interface{}{(*[]string)(nil)}
-	returnsLTRArray    = []interface{}{(*[]json.ListTransactionsResult)(nil)}
+import (
+	"git.parallelcoin.io/pod/pkg/json"
 )
 
-// Methods contains all methods and result types that help is generated for,
-// for every locale.
+// HelpDescs contains the locale-specific help strings along with the locale.
+var HelpDescs = []struct {
+	Locale   string // Actual locale, e.g. en_US
+	GoLocale string // Locale used in Go names, e.g. EnUS
+	Descs    map[string]string
+}{
+	{"en_US", "EnUS", helpDescsEnUS}, // helpdescs_en_US.go
+}
+
+// Methods contains all methods and result types that help is generated for, for every locale.
 var Methods = []struct {
 	Method      string
 	ResultTypes []interface{}
@@ -68,11 +69,17 @@ var Methods = []struct {
 	{"walletislocked", returnsBool},
 }
 
-// HelpDescs contains the locale-specific help strings along with the locale.
-var HelpDescs = []struct {
-	Locale   string // Actual locale, e.g. en_US
-	GoLocale string // Locale used in Go names, e.g. EnUS
-	Descs    map[string]string
-}{
-	{"en_US", "EnUS", helpDescsEnUS}, // helpdescs_en_US.go
-}
+// Common return types.
+var returnsBool = []interface{}{(*bool)(nil)}
+
+// Common return types.
+var returnsLTRArray = []interface{}{(*[]json.ListTransactionsResult)(nil)}
+
+// Common return types.
+var returnsNumber = []interface{}{(*float64)(nil)}
+
+// Common return types.
+var returnsString = []interface{}{(*string)(nil)}
+
+// Common return types.
+var returnsStringArray = []interface{}{(*[]string)(nil)}

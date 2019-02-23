@@ -12,38 +12,31 @@ import (
 	"git.parallelcoin.io/pod/pkg/fork"
 )
 
-var (
-	ScryptPowLimit = scryptPowLimit
-)
+var ScryptPowLimit = scryptPowLimit
 
-var (
-	ScryptPowLimitBits = BigToCompact(&scryptPowLimit)
-)
+var ScryptPowLimitBits = BigToCompact(&scryptPowLimit)
 
-var (
+// bigOne is 1 represented as a big.Int.  It is defined here to avoid the overhead of creating it multiple times.
+var bigOne = big.NewInt(1)
 
-	// bigOne is 1 represented as a big.Int.  It is defined here to avoid the overhead of creating it multiple times.
-	bigOne = big.NewInt(1)
-)
+// oneLsh256 is 1 shifted left 256 bits.  It is defined here to avoid the overhead of creating it multiple times.
+var oneLsh256 = new(big.Int).Lsh(bigOne, 256)
 
-var (
-
-	// oneLsh256 is 1 shifted left 256 bits.  It is defined here to avoid the overhead of creating it multiple times.
-	oneLsh256 = new(big.Int).Lsh(bigOne, 256)
-)
-
-var (
-	scryptPowLimit = func() big.Int {
-		mplb, _ := hex.DecodeString("000000039fcaa04ac30b6384471f337748ef5c87c7aeffce5e51770ce6283137,")
-		return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
-	}()
-)
+var scryptPowLimit = func() big.Int {
+	mplb, _ := hex.DecodeString("000000039fcaa04ac30b6384471f337748ef5c87c7aeffce5e51770ce6283137,")
+	return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
+}()
 
 // CalcNextRequiredDifficulty calculates the required difficulty for the block after the end of the current best chain based on the difficulty retarget rules. This function is safe for concurrent access.
 func (
 	b *BlockChain,
 ) CalcNextRequiredDifficulty(
-	timestamp time.Time, algo string) (difficulty uint32, err error) {
+	timestamp time.Time,
+	algo string,
+) (
+	difficulty uint32,
+	err error,
+) {
 
 	b.chainLock.Lock()
 	difficulty, err = b.calcNextRequiredDifficulty(b.bestChain.Tip(), timestamp, algo, true)
@@ -55,7 +48,9 @@ func (
 func (
 	b *BlockChain,
 ) calcEasiestDifficulty(
-	bits uint32, duration time.Duration) uint32 {
+	bits uint32,
+	duration time.Duration,
+) uint32 {
 
 	// Convert types used in the calculations below.
 	durationVal := int64(duration / time.Second)
@@ -79,23 +74,27 @@ func (
 func (
 	b *BlockChain,
 ) calcNextRequiredDifficulty(
-	lastNode *blockNode, newBlockTime time.Time, algoname string, l bool) (newTargetBits uint32, err error) {
+	lastNode *blockNode,
+	newBlockTime time.Time,
+	algoname string,
+	l bool,
+) (
+	newTargetBits uint32,
+	err error,
+) {
 	nH := lastNode.height + 1
 	switch fork.GetCurrent(nH) {
 	case 0:
 
-		// log <- cl.Debug{"hf", 0, algoname}
 		algo := fork.GetAlgoVer(algoname, nH)
-
-		// log <- cl.Debug{"algover", algo}
 		algoName := fork.GetAlgoName(algo, nH)
-
-		// log <- cl.Debug{"algoName", algoName}
 		newTargetBits = fork.GetMinBits(algoName, nH)
-		log <- cl.Debugf{"newTargetBits %064x", CompactToBig(newTargetBits)}
-		if lastNode == nil {
 
-			// log <- cl.Debug{"no previous node"}
+		log <- cl.Debugf{
+			"newTargetBits %064x", CompactToBig(newTargetBits),
+		}
+
+		if lastNode == nil {
 			return newTargetBits, nil
 		}
 		prevNode := lastNode
@@ -103,24 +102,27 @@ func (
 			prevNode = prevNode.GetPrevWithAlgo(algo)
 		}
 		firstNode := prevNode.GetPrevWithAlgo(algo)
-		for i := int64(1); firstNode != nil && i < b.chainParams.AveragingInterval; i++ {
+		i := int64(1)
+		for ; firstNode != nil && i < fork.GetAveragingInterval(nH); i++ {
 			firstNode = firstNode.RelativeAncestor(1).GetPrevWithAlgo(algo)
 		}
 		if firstNode == nil {
-
-			// log <- cl.Debugf{"found no previous %08x", newTargetBits}
 			return newTargetBits, nil
 		}
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
 		adjustedTimespan := actualTimespan
 		if actualTimespan < b.chainParams.MinActualTimespan {
+
 			adjustedTimespan = b.chainParams.MinActualTimespan
 		} else if actualTimespan > b.chainParams.MaxActualTimespan {
+
 			adjustedTimespan = b.chainParams.MaxActualTimespan
 		}
 		oldTarget := CompactToBig(prevNode.bits)
-		newTarget := new(big.Int).Mul(oldTarget, big.NewInt(adjustedTimespan))
-		newTarget = newTarget.Div(newTarget, big.NewInt(b.chainParams.AveragingTargetTimespan))
+		newTarget := new(big.Int).
+			Mul(oldTarget, big.NewInt(adjustedTimespan))
+		newTarget = newTarget.
+			Div(newTarget, big.NewInt(b.chainParams.AveragingTargetTimespan))
 		if newTarget.Cmp(CompactToBig(newTargetBits)) > 0 {
 			newTarget.Set(CompactToBig(newTargetBits))
 		}
