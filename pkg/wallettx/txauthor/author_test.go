@@ -10,40 +10,8 @@ import (
 	"git.parallelcoin.io/pod/pkg/wallet/txrules"
 	"git.parallelcoin.io/pod/pkg/wire"
 
-	"git.parallelcoin.io/pod/pkg/tx/txsizes"
+	"git.parallelcoin.io/pod/pkg/wallettx/txsizes"
 )
-
-func p2pkhOutputs(
-	amounts ...util.Amount) []*wire.TxOut {
-	v := make([]*wire.TxOut, 0, len(amounts))
-	for _, a := range amounts {
-		outScript := make([]byte, txsizes.P2PKHOutputSize)
-		v = append(v, wire.NewTxOut(int64(a), outScript))
-	}
-	return v
-}
-
-func makeInputSource(
-	unspents []*wire.TxOut) InputSource {
-
-	// Return outputs in order.
-	currentTotal := util.Amount(0)
-	currentInputs := make([]*wire.TxIn, 0, len(unspents))
-	currentInputValues := make([]util.Amount, 0, len(unspents))
-	f := func(target util.Amount) (util.Amount, []*wire.TxIn, []util.Amount, [][]byte, error) {
-
-		for currentTotal < target && len(unspents) != 0 {
-			u := unspents[0]
-			unspents = unspents[1:]
-			nextInput := wire.NewTxIn(&wire.OutPoint{}, nil, nil)
-			currentTotal += util.Amount(u.Value)
-			currentInputs = append(currentInputs, nextInput)
-			currentInputValues = append(currentInputValues, util.Amount(u.Value))
-		}
-		return currentTotal, currentInputs, currentInputValues, make([][]byte, len(currentInputs)), nil
-	}
-	return InputSource(f)
-}
 
 func TestNewUnsignedTransaction(
 	t *testing.T) {
@@ -224,4 +192,36 @@ func TestNewUnsignedTransaction(
 				i, len(tx.Tx.TxIn), test.InputCount)
 		}
 	}
+}
+
+func makeInputSource(
+	unspents []*wire.TxOut) InputSource {
+
+	// Return outputs in order.
+	currentTotal := util.Amount(0)
+	currentInputs := make([]*wire.TxIn, 0, len(unspents))
+	currentInputValues := make([]util.Amount, 0, len(unspents))
+	f := func(target util.Amount) (util.Amount, []*wire.TxIn, []util.Amount, [][]byte, error) {
+
+		for currentTotal < target && len(unspents) != 0 {
+			u := unspents[0]
+			unspents = unspents[1:]
+			nextInput := wire.NewTxIn(&wire.OutPoint{}, nil, nil)
+			currentTotal += util.Amount(u.Value)
+			currentInputs = append(currentInputs, nextInput)
+			currentInputValues = append(currentInputValues, util.Amount(u.Value))
+		}
+		return currentTotal, currentInputs, currentInputValues, make([][]byte, len(currentInputs)), nil
+	}
+	return InputSource(f)
+}
+
+func p2pkhOutputs(
+	amounts ...util.Amount) []*wire.TxOut {
+	v := make([]*wire.TxOut, 0, len(amounts))
+	for _, a := range amounts {
+		outScript := make([]byte, txsizes.P2PKHOutputSize)
+		v = append(v, wire.NewTxOut(int64(a), outScript))
+	}
+	return v
 }

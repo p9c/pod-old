@@ -8,12 +8,25 @@ import (
 
 	"git.parallelcoin.io/pod/pkg/chaincfg"
 	h "git.parallelcoin.io/pod/pkg/helpers"
-	"git.parallelcoin.io/pod/pkg/tx/txsizes"
 	"git.parallelcoin.io/pod/pkg/txscript"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/wallet/txrules"
+	"git.parallelcoin.io/pod/pkg/wallettx/txsizes"
 	"git.parallelcoin.io/pod/pkg/wire"
 )
+
+// AuthoredTx holds the state of a newly-created transaction and the change
+// output (if one was added).
+type AuthoredTx struct {
+	Tx              *wire.MsgTx
+	PrevScripts     [][]byte
+	PrevInputValues []util.Amount
+	TotalInput      util.Amount
+	ChangeIndex     int // negative if no change
+}
+
+// ChangeSource provides P2PKH change output scripts for transaction creation.
+type ChangeSource func() ([]byte, error)
 
 // InputSource provides transaction inputs referencing spendable outputs to
 // construct a transaction outputting some target amount.  If the target amount
@@ -33,27 +46,107 @@ type InputSourceError interface {
 	InputSourceError()
 }
 
+// SecretsSource provides private keys and redeem scripts necessary for
+// constructing transaction input signatures.  Secrets are looked up by the
+// corresponding Address for the previous output script.  Addresses for lookup
+// are created using the source's blockchain parameters and means a single
+// SecretsSource can only manage secrets for a single chain.
+//
+// TODO: Rewrite this interface to look up private keys and redeem scripts for
+// pubkeys, pubkey hashes, script hashes, etc. as separate interface methods.
+// This would remove the ChainParams requirement of the interface and could
+// avoid unnecessary conversions from previous output scripts to Addresses.
+// This can not be done without modifications to the txscript package.
+type SecretsSource interface {
+	txscript.KeyDB
+	txscript.ScriptDB
+	ChainParams() *chaincfg.Params
+}
+
 // Default implementation of InputSourceError.
 type insufficientFundsError struct{}
 
-func (insufficientFundsError) InputSourceError() {
+// AddAllInputScripts modifies an authored transaction by adding inputs scripts
+// for each input of an authored transaction.  Private keys and redeem scripts
+// are looked up using a SecretsSource based on the previous output script.
+func (
+	tx *AuthoredTx,
+) AddAllInputScripts(
+	secrets SecretsSource) error {
+	return AddAllInputScripts(tx.Tx, tx.PrevScripts, tx.PrevInputValues, secrets)
 }
-func (insufficientFundsError) Error() string {
+
+// RandomizeChangePosition randomizes the position of an authored transaction's
+// change output.  This should be done before signing.
+func (
+	tx *AuthoredTx,
+) RandomizeChangePosition() {
+
+	tx.ChangeIndex = RandomizeOutputPosition(tx.Tx.TxOut, tx.ChangeIndex)
+}
+
+func (_ insufficientFundsError) Error() string {
 	return "insufficient funds available to construct transaction"
 }
 
-// AuthoredTx holds the state of a newly-created transaction and the change
-// output (if one was added).
-type AuthoredTx struct {
-	Tx              *wire.MsgTx
-	PrevScripts     [][]byte
-	PrevInputValues []util.Amount
-	TotalInput      util.Amount
-	ChangeIndex     int // negative if no change
+func (_ insufficientFundsError) InputSourceError() {
 }
 
-// ChangeSource provides P2PKH change output scripts for transaction creation.
-type ChangeSource func() ([]byte, error)
+// AddAllInputScripts modifies transaction a transaction by adding inputs
+// scripts for each input.  Previous output scripts being redeemed by each input
+// are passed in prevPkScripts and the slice length must match the number of
+// inputs.  Private keys and redeem scripts are looked up using a SecretsSource
+// based on the previous output script.
+func AddAllInputScripts(
+	tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []util.Amount,
+	secrets SecretsSource) error {
+
+	inputs := tx.TxIn
+	hashCache := txscript.NewTxSigHashes(tx)
+	chainParams := secrets.ChainParams()
+
+	if len(inputs) != len(prevPkScripts) {
+
+		return errors.New("tx.TxIn and prevPkScripts slices must " +
+			"have equal length")
+	}
+
+	for i := range inputs {
+		pkScript := prevPkScripts[i]
+
+		switch {
+		// If this is a p2sh output, who's script hash pre-image is a
+		// witness program, then we'll need to use a modified signing
+		// function which generates both the sigScript, and the witness
+		// script.
+		case txscript.IsPayToScriptHash(pkScript):
+			err := spendNestedWitnessPubKeyHash(inputs[i], pkScript,
+				int64(inputValues[i]), chainParams, secrets,
+				tx, hashCache, i)
+			if err != nil {
+				return err
+			}
+		case txscript.IsPayToWitnessPubKeyHash(pkScript):
+			err := spendWitnessKeyHash(inputs[i], pkScript,
+				int64(inputValues[i]), chainParams, secrets,
+				tx, hashCache, i)
+			if err != nil {
+				return err
+			}
+		default:
+			sigScript := inputs[i].SignatureScript
+			script, err := txscript.SignTxOutput(chainParams, tx, i,
+				pkScript, txscript.SigHashAll, secrets, secrets,
+				sigScript)
+			if err != nil {
+				return err
+			}
+			inputs[i].SignatureScript = script
+		}
+	}
+
+	return nil
+}
 
 // NewUnsignedTransaction creates an unsigned transaction paying to one or more
 // non-change outputs.  An appropriate transaction fee is included based on the
@@ -162,145 +255,6 @@ func RandomizeOutputPosition(
 	return int(r)
 }
 
-// RandomizeChangePosition randomizes the position of an authored transaction's
-// change output.  This should be done before signing.
-func (tx *AuthoredTx) RandomizeChangePosition() {
-
-	tx.ChangeIndex = RandomizeOutputPosition(tx.Tx.TxOut, tx.ChangeIndex)
-}
-
-// SecretsSource provides private keys and redeem scripts necessary for
-// constructing transaction input signatures.  Secrets are looked up by the
-// corresponding Address for the previous output script.  Addresses for lookup
-// are created using the source's blockchain parameters and means a single
-// SecretsSource can only manage secrets for a single chain.
-//
-// TODO: Rewrite this interface to look up private keys and redeem scripts for
-// pubkeys, pubkey hashes, script hashes, etc. as separate interface methods.
-// This would remove the ChainParams requirement of the interface and could
-// avoid unnecessary conversions from previous output scripts to Addresses.
-// This can not be done without modifications to the txscript package.
-type SecretsSource interface {
-	txscript.KeyDB
-	txscript.ScriptDB
-	ChainParams() *chaincfg.Params
-}
-
-// AddAllInputScripts modifies transaction a transaction by adding inputs
-// scripts for each input.  Previous output scripts being redeemed by each input
-// are passed in prevPkScripts and the slice length must match the number of
-// inputs.  Private keys and redeem scripts are looked up using a SecretsSource
-// based on the previous output script.
-func AddAllInputScripts(
-	tx *wire.MsgTx, prevPkScripts [][]byte, inputValues []util.Amount,
-	secrets SecretsSource) error {
-
-	inputs := tx.TxIn
-	hashCache := txscript.NewTxSigHashes(tx)
-	chainParams := secrets.ChainParams()
-
-	if len(inputs) != len(prevPkScripts) {
-
-		return errors.New("tx.TxIn and prevPkScripts slices must " +
-			"have equal length")
-	}
-
-	for i := range inputs {
-		pkScript := prevPkScripts[i]
-
-		switch {
-		// If this is a p2sh output, who's script hash pre-image is a
-		// witness program, then we'll need to use a modified signing
-		// function which generates both the sigScript, and the witness
-		// script.
-		case txscript.IsPayToScriptHash(pkScript):
-			err := spendNestedWitnessPubKeyHash(inputs[i], pkScript,
-				int64(inputValues[i]), chainParams, secrets,
-				tx, hashCache, i)
-			if err != nil {
-				return err
-			}
-		case txscript.IsPayToWitnessPubKeyHash(pkScript):
-			err := spendWitnessKeyHash(inputs[i], pkScript,
-				int64(inputValues[i]), chainParams, secrets,
-				tx, hashCache, i)
-			if err != nil {
-				return err
-			}
-		default:
-			sigScript := inputs[i].SignatureScript
-			script, err := txscript.SignTxOutput(chainParams, tx, i,
-				pkScript, txscript.SigHashAll, secrets, secrets,
-				sigScript)
-			if err != nil {
-				return err
-			}
-			inputs[i].SignatureScript = script
-		}
-	}
-
-	return nil
-}
-
-// spendWitnessKeyHash generates, and sets a valid witness for spending the
-// passed pkScript with the specified input amount. The input amount *must*
-// correspond to the output value of the previous pkScript, or else verification
-// will fail since the new sighash digest algorithm defined in BIP0143 includes
-// the input value in the sighash.
-func spendWitnessKeyHash(
-	txIn *wire.TxIn, pkScript []byte,
-	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
-	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
-
-
-	// First obtain the key pair associated with this p2wkh address.
-	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
-		chainParams)
-	if err != nil {
-		return err
-	}
-	privKey, compressed, err := secrets.GetKey(addrs[0])
-	if err != nil {
-		return err
-	}
-	pubKey := privKey.PubKey()
-
-
-	// Once we have the key pair, generate a p2wkh address type, respecting
-
-	// the compression type of the generated key.
-	var pubKeyHash []byte
-	if compressed {
-		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
-	} else {
-		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
-	}
-	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
-	if err != nil {
-		return err
-	}
-
-
-	// With the concrete address type, we can now generate the
-
-	// corresponding witness program to be used to generate a valid witness
-
-	// which will allow us to spend this output.
-	witnessProgram, err := txscript.PayToAddrScript(p2wkhAddr)
-	if err != nil {
-		return err
-	}
-	witnessScript, err := txscript.WitnessSignature(tx, hashCache, idx,
-		inputValue, witnessProgram, txscript.SigHashAll, privKey, true)
-	if err != nil {
-		return err
-	}
-
-	txIn.Witness = witnessScript
-
-	return nil
-}
-
 // spendNestedWitnessPubKey generates both a sigScript, and valid witness for
 // spending the passed pkScript with the specified input amount. The generated
 // sigScript is the version 0 p2wkh witness program corresponding to the queried
@@ -312,7 +266,6 @@ func spendNestedWitnessPubKeyHash(
 	txIn *wire.TxIn, pkScript []byte,
 	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
 	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
-
 
 	// First we need to obtain the key pair related to this p2sh output.
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
@@ -332,7 +285,6 @@ func spendNestedWitnessPubKeyHash(
 	} else {
 		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
 	}
-
 
 	// Next, we'll generate a valid sigScript that'll allow us to spend
 
@@ -357,7 +309,6 @@ func spendNestedWitnessPubKeyHash(
 	}
 	txIn.SignatureScript = sigScript
 
-
 	// With the sigScript in place, we'll next generate the proper witness
 
 	// that'll allow us to spend the p2wkh output.
@@ -372,9 +323,58 @@ func spendNestedWitnessPubKeyHash(
 	return nil
 }
 
-// AddAllInputScripts modifies an authored transaction by adding inputs scripts
-// for each input of an authored transaction.  Private keys and redeem scripts
-// are looked up using a SecretsSource based on the previous output script.
-func (tx *AuthoredTx) AddAllInputScripts(secrets SecretsSource) error {
-	return AddAllInputScripts(tx.Tx, tx.PrevScripts, tx.PrevInputValues, secrets)
+// spendWitnessKeyHash generates, and sets a valid witness for spending the
+// passed pkScript with the specified input amount. The input amount *must*
+// correspond to the output value of the previous pkScript, or else verification
+// will fail since the new sighash digest algorithm defined in BIP0143 includes
+// the input value in the sighash.
+func spendWitnessKeyHash(
+	txIn *wire.TxIn, pkScript []byte,
+	inputValue int64, chainParams *chaincfg.Params, secrets SecretsSource,
+	tx *wire.MsgTx, hashCache *txscript.TxSigHashes, idx int) error {
+
+	// First obtain the key pair associated with this p2wkh address.
+	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
+		chainParams)
+	if err != nil {
+		return err
+	}
+	privKey, compressed, err := secrets.GetKey(addrs[0])
+	if err != nil {
+		return err
+	}
+	pubKey := privKey.PubKey()
+
+	// Once we have the key pair, generate a p2wkh address type, respecting
+
+	// the compression type of the generated key.
+	var pubKeyHash []byte
+	if compressed {
+		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
+	} else {
+		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
+	}
+	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
+	if err != nil {
+		return err
+	}
+
+	// With the concrete address type, we can now generate the
+
+	// corresponding witness program to be used to generate a valid witness
+
+	// which will allow us to spend this output.
+	witnessProgram, err := txscript.PayToAddrScript(p2wkhAddr)
+	if err != nil {
+		return err
+	}
+	witnessScript, err := txscript.WitnessSignature(tx, hashCache, idx,
+		inputValue, witnessProgram, txscript.SigHashAll, privKey, true)
+	if err != nil {
+		return err
+	}
+
+	txIn.Witness = witnessScript
+
+	return nil
 }
