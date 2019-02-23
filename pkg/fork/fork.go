@@ -42,7 +42,7 @@ type HardForks struct {
 	TargetTimePerBlock time.Duration
 
 	// TestNetStart is the activation height when in testnet
-	TestnetStart int64
+	TestnetStart int32
 
 	// AveragingInterval is the number of blocks in the 'trailing'  simple average
 	AveragingInterval int64
@@ -104,7 +104,7 @@ var List = []HardForks{
 		}(),
 		TargetTimePerBlock: 9 * time.Second,
 		AveragingInterval:  9600, // 24 hours
-		TestnetStart:       36,
+		TestnetStart:       100,
 	},
 }
 
@@ -197,7 +197,11 @@ func GetAlgoName(
 
 // GetAlgoVer returns the version number for a given algorithm (by string name) at a given height. If "random" is given, a random number is taken from the system secure random source (for randomised cpu mining)
 func GetAlgoVer(
-	name string, height int32) (version int32) {
+	name string,
+	height int32,
+) (
+	version int32,
+) {
 
 	n := "sha256d"
 	hf := GetCurrent(height)
@@ -225,12 +229,30 @@ func GetAlgoVer(
 	return
 }
 
+// GetAveragingInterval returns the active block interval target based on hard fork status
+func GetAveragingInterval(
+	height int32,
+) (
+	r int64,
+) {
+
+	r = int64(List[GetCurrent(height)].AveragingInterval)
+	return
+}
+
 // GetCurrent returns the hardfork number code
 func GetCurrent(
-	height int32) (curr int) {
+	height int32,
+) (
+	curr int,
+) {
 
 	if IsTestnet {
-		return len(List) - 1
+		for i := range List {
+			if height > List[i].TestnetStart {
+				curr = i
+			}
+		}
 	}
 	for i := range List {
 		if height > List[i].ActivationHeight {
@@ -252,4 +274,10 @@ func GetMinBits(
 func GetMinDiff(
 	algoname string, height int32) *big.Int {
 	return CompactToBig(GetMinBits(algoname, height))
+}
+
+// GetTargetTimePerBlock returns the active block interval target based on hard fork status
+func GetTargetTimePerBlock(height int32) (r int64) {
+	r = int64(List[GetCurrent(height)].TargetTimePerBlock)
+	return
 }

@@ -146,7 +146,6 @@ func (
 
 	case 1: // Plan 9 from Crypto Space
 
-		// log <- cl.Info{"hf", 2}
 		if lastNode.height == 0 {
 			return fork.FirstPowLimitBits, nil
 		}
@@ -172,7 +171,7 @@ func (
 		pb := last
 
 		// collect the timestamps of all the blocks of the same algo until we pass genesis block or get AveragingInterval blocks
-		for ; counter < int(b.chainParams.AveragingInterval) && pb.height > 2; counter++ {
+		for ; counter < int(fork.GetAveragingInterval(nH)) && pb.height > 2; counter++ {
 			p := pb.RelativeAncestor(1)
 			if p != nil {
 				if p.height == 0 {
@@ -185,21 +184,18 @@ func (
 			if pb != nil && pb.height > 0 {
 
 				// only add the timestamp if is not the same as the previous
-
-				// if float64(pb.timestamp) != timestamps[len(timestamps)-1] {
 				timestamps = append(timestamps, float64(pb.timestamp))
-
-				// }
 			} else {
 				break
 			}
 		}
-		allTimeAverage, trailTimeAverage := float64(b.chainParams.TargetTimePerBlock), float64(b.chainParams.TargetTimePerBlock)
+		allTimeAverage, trailTimeAverage := float64(fork.GetTargetTimePerBlock(nH)), float64(fork.GetTargetTimePerBlock(nH))
 		startHeight := fork.List[1].ActivationHeight
 		if b.chainParams.Name == "testnet" {
 			startHeight = 1
 		}
-		trailHeight := int32(int64(lastNode.height) - b.chainParams.AveragingInterval*int64(len(fork.List[1].Algos)))
+		trailHeight := int32(int64(lastNode.height) -
+			fork.GetAveragingInterval(nH)*int64(len(fork.List[1].Algos)))
 		if trailHeight < 0 {
 			trailHeight = 1
 		}
@@ -220,22 +216,21 @@ func (
 		var adjusted, targetAdjusted, adjustment float64
 		if len(timestamps) > 1 {
 			numalgos := int64(len(fork.List[1].Algos))
-			target := b.chainParams.TargetTimePerBlock * numalgos
-			adjustment = 1.0
+			target := fork.GetTargetTimePerBlock(nH) * numalgos
 			counter = 0
 			for i := 0; i < len(timestamps)-1; i++ {
 				factor := 0.75
 				if i == 0 {
 					f := factor
 					for j := 0; j < i; j++ {
-						f = f * factor
+						f *= factor
 					}
 					factor = f
 				} else {
 					factor = 1.0
 				}
 				adjustment = timestamps[i] - timestamps[i+1]
-				adjustment = adjustment * factor
+				adjustment *= factor
 				switch {
 				case math.IsNaN(adjustment):
 					break
@@ -257,7 +252,7 @@ func (
 		trailingTimestamps = append(
 			trailingTimestamps, float64(pb.timestamp))
 		counter = 1
-		for ; counter < int(b.chainParams.AveragingInterval) &&
+		for ; counter < int(fork.GetAveragingInterval(nH)) &&
 			pb.height > 2; counter++ {
 			pb = pb.RelativeAncestor(1)
 			trailingTimestamps = append(
@@ -269,22 +264,21 @@ func (
 			trailingTargetAdjusted,
 			trailingAdjustment float64
 		if len(trailingTimestamps) > 1 {
-			target := b.chainParams.TargetTimePerBlock
-			trailingAdjustment = 1.0
+			target := fork.GetTargetTimePerBlock(nH)
 			counter = 0
 			for i := 0; i < len(trailingTimestamps)-1; i++ {
 				factor := 0.81
 				if i == 0 {
 					f := factor
 					for j := 0; j < i; j++ {
-						f = f * factor
+						f *= factor
 					}
 					factor = f
 				} else {
 					factor = 1.0
 				}
 				trailingAdjustment = trailingTimestamps[i] - trailingTimestamps[i+1]
-				trailingAdjustment = trailingAdjustment * factor
+				trailingAdjustment *= factor
 				switch {
 				case math.IsNaN(trailingAdjustment):
 					break
@@ -300,7 +294,7 @@ func (
 			trailingAdjusted = 100
 		}
 
-		ttpb := float64(b.chainParams.TargetTimePerBlock)
+		ttpb := float64(fork.GetTargetTimePerBlock(nH))
 		allTimeDivergence := allTimeAverage / ttpb
 		trailTimeDivergence := trailTimeAverage / ttpb
 		trailingTimeDivergence := trailingAdjusted / trailingTargetAdjusted
@@ -326,8 +320,6 @@ func (
 		// Bias adjustment for difficulty reductions to reduce incidence of sub 1 second blocks
 		if adjustment < 0 {
 			adjustment = (1 - adjustment) * adjustment
-		} else {
-			adjustment = (1 + adjustment) * adjustment
 		}
 
 		bigadjustment := big.NewFloat(adjustment)
@@ -363,27 +355,6 @@ func (
 
 	// algo := fork.GetAlgoVer(algoname, nH)
 	return fork.GetMinBits(algoname, nH), nil
-}
-
-// findPrevTestNetDifficulty returns the difficulty of the previous block which did not have the special testnet minimum difficulty rule applied. This function MUST be called with the chain state lock held (for writes).
-func (
-	b *BlockChain,
-) findPrevTestNetDifficulty(
-	startNode *blockNode) uint32 {
-
-	// Search backwards through the chain for the last block without the special rule applied.
-	iterNode := startNode
-	for iterNode != nil && iterNode.height%b.blocksPerRetarget != 0 &&
-		iterNode.bits == b.chainParams.PowLimitBits {
-		iterNode = iterNode.parent
-	}
-
-	// Return the found difficulty or the minimum difficulty if no appropriate block was found.
-	lastBits := b.chainParams.PowLimitBits
-	if iterNode != nil {
-		lastBits = iterNode.bits
-	}
-	return lastBits
 }
 
 // BigToCompact converts a whole number N to a compact representation using an unsigned 32-bit number.  The compact representation only provides 23 bits of precision, so values larger than (2^23 - 1) only encode the most significant digits of the number.  See CompactToBig for details.
