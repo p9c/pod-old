@@ -319,12 +319,17 @@ func (
 			adjustment = allTimeDivergence
 		}
 
-		// d := adjustment - 1.0
-
-		// adjustment = 1.0 + (d*d*d+d+d*d)
 		if math.IsNaN(adjustment) {
 			return lastNode.bits, nil
 		}
+
+		// Bias adjustment for difficulty reductions to reduce incidence of sub 1 second blocks
+		if adjustment < 0 {
+			adjustment = (1 - adjustment) * adjustment
+		} else {
+			adjustment = (1 + adjustment) * adjustment
+		}
+
 		bigadjustment := big.NewFloat(adjustment)
 		bigoldtarget := big.NewFloat(1.0).SetInt(CompactToBig(last.bits))
 		bigfnewtarget := big.NewFloat(1.0).Mul(bigadjustment, bigoldtarget)

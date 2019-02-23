@@ -32,7 +32,6 @@ func bigToLEUint256(
 	n *big.Int,
 ) [uint256Size]byte {
 
-
 	// Pad or truncate the big-endian big int to correct number of bytes.
 	nBytes := n.Bytes()
 	nlen := len(nBytes)
@@ -160,7 +159,9 @@ func handleGetWork(
 			)
 		})
 	} else {
-		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.  So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
+
+		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.
+		// So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
 		e := generator.UpdateBlockTime(msgBlock)
 		if e != nil {
 
@@ -236,7 +237,6 @@ func handleGetWorkSubmission(
 	interface{},
 	error,
 ) {
-
 
 	// Ensure the provided data is sane.
 	if len(hexData)%2 != 0 {

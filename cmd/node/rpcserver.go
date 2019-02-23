@@ -480,7 +480,6 @@ func (
 	error,
 ) {
 
-
 	// Ensure the timestamps are still in valid range for the template. This should really only ever happen if the local clock is changed after the template is generated, but it's important to avoid serving invalid block templates.
 	template := state.template
 	msgBlock := template.Block
@@ -615,7 +614,6 @@ func (
 	latestHash *chainhash.Hash,
 	lastGenerated time.Time,
 ) {
-
 
 	// Notify anything that is waiting for a block template update from a hash which is not the hash of the tip of the best chain since their work is now invalid.
 	for hash, channels := range state.notifyMap {
@@ -1112,13 +1110,22 @@ func (
 	}
 	if jsonErr == nil {
 
-		// The JSON-RPC 1.0 spec defines that notifications must have their "id" set to null and states that notifications do not have a response. A JSON-RPC 2.0 notification is a request with "json-rpc":"2.0", and without an "id" member. The specification states that notifications must not be responded to. JSON-RPC 2.0 permits the null value as a valid request id, therefore such requests are not notifications. Bitcoin Core serves requests with "id":null or even an absent "id", and responds to such requests with "id":null in the response. Pod does not respond to any request without and "id" or "id":null, regardless the indicated JSON-RPC protocol version unless RPC quirks are enabled. With RPC quirks enabled, such requests will be responded to if the reqeust does not indicate JSON-RPC version. RPC quirks can be enabled by the user to avoid compatibility issues with software relying on Core's behavior.
+		/* The JSON-RPC 1.0 spec defines that notifications must have their "id" set to null and states that notifications do not have a response. A JSON-RPC 2.0 notification is a request with "json-rpc":"2.0", and without an "id" member.
+
+		The specification states that notifications must not be responded to. JSON-RPC 2.0 permits the null value as a valid request id, therefore such requests are not notifications.
+
+		Bitcoin Core serves requests with "id":null or even an absent "id", and responds to such requests with "id":null in the response. Pod does not respond to any request without and "id" or "id":null, regardless the indicated JSON-RPC protocol version unless RPC quirks are enabled.
+
+		With RPC quirks enabled, such requests will be responded to if the reqeust does not indicate JSON-RPC version. RPC quirks can be enabled by the user to avoid compatibility issues with software relying on Core's behavior.
+		*/
 		if request.ID == nil && !(cfg.RPCQuirks && request.Jsonrpc == "") {
 
 			return
 		}
+
 		// The parse was at least successful enough to have an ID so set it for the response.
 		responseID = request.ID
+
 		// Setup a close notifier.  Since the connection is hijacked, the CloseNotifer on the ResponseWriter is not available.
 		closeChan := make(chan struct{}, 1)
 		go func() {
@@ -1129,6 +1136,7 @@ func (
 				close(closeChan)
 			}
 		}()
+
 		// Check if the user is limited and set error if method unauthorized
 		if !isAdmin {
 
@@ -1480,7 +1488,6 @@ func createVinListPrevOut(
 	error,
 ) {
 
-
 	// Coinbase transactions only have a single txin by definition.
 	if blockchain.IsCoinBaseTx(mtx) {
 
@@ -1747,7 +1754,6 @@ func fetchMempoolTxnsForAddress(
 	[]*util.Tx,
 	uint32,
 ) {
-
 
 	// There are no entries to return when there are less available than the number being skipped.
 	mpTxns := s.cfg.AddrIndex.UnconfirmedTxnsForAddress(addr)
@@ -2095,7 +2101,6 @@ func handleEstimateFee(
 func handleGenerate(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 
-
 	// Respond with an error if there are no addresses to pay the created blocks to.
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
 
@@ -2245,7 +2250,6 @@ func handleGetAddedNodeInfo(
 func handleGetBestBlock(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 
-
 	// All other "get block" commands give either the height, the hash, or both but require the block SHA.  This gets both for the best block.
 	best := s.cfg.Chain.BestSnapshot()
 	result := &json.GetBestBlockResult{
@@ -2381,7 +2385,6 @@ func handleGetBlock(
 // handleGetBlockChainInfo implements the getblockchaininfo command.
 func handleGetBlockChainInfo(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
-
 
 	// Obtain a snapshot of the current best known blockchain state. We'll populate the response to this call primarily from this snapshot.
 	params := s.cfg.ChainParams
@@ -2749,7 +2752,6 @@ func handleGetBlockTemplateProposal(
 // handleGetBlockTemplateRequest is a helper for handleGetBlockTemplate which deals with generating and returning block templates to the caller.  It handles both long poll requests as specified by BIP 0022 as well as regular requests.  In addition, it detects the capabilities reported by the caller in regards to whether or not it supports creating its own coinbase (the coinbasetxn and coinbasevalue capabilities) and modifies the returned block template accordingly.
 func handleGetBlockTemplateRequest(
 	s *rpcServer, request *json.TemplateRequest, closeChan <-chan struct{}) (interface{}, error) {
-
 
 	// Extract the relevant passed capabilities and restrict the result to either a coinbase value or a coinbase transaction object depending on the request.  Default to only providing a coinbase value.
 	useCoinbaseValue := true
@@ -3220,7 +3222,6 @@ func handleGetMempoolInfo(
 func handleGetMiningInfo(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (ret interface{}, err error) {
 
-
 	// Create a default getnetworkhashps command to use defaults and make use of the existing getnetworkhashps handler.
 	gnhpsCmd := json.NewGetNetworkHashPSCmd(nil, nil)
 	networkHashesPerSecIface, err := handleGetNetworkHashPS(s, gnhpsCmd, closeChan)
@@ -3431,7 +3432,6 @@ func handleGetNetTotals(
 // handleGetNetworkHashPS implements the getnetworkhashps command. This command does not default to the same end block as the parallelcoind. TODO: Really this needs to be expanded to show per-algorithm hashrates
 func handleGetNetworkHashPS(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
-
 
 	// Note: All valid error return paths should return an int64. Literal zeros are inferred as int, and won't coerce to int64 because the return value is an interface{}.
 	c := cmd.(*json.GetNetworkHashPSCmd)
@@ -3946,7 +3946,6 @@ func handleNode(
 func handlePing(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 
-
 	// Ask server to ping \o_
 	nonce, err := wire.RandomUint64()
 	if err != nil {
@@ -3960,7 +3959,6 @@ func handlePing(
 // handleSearchRawTransactions implements the searchrawtransactions command.
 func handleSearchRawTransactions(
 	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
-
 
 	// Respond with an error if the address index is not enabled.
 	addrIndex := s.cfg.AddrIndex
