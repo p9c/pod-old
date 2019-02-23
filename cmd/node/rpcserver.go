@@ -3237,8 +3237,8 @@ func handleGetMiningInfo(
 			Message: "networkHashesPerSec is not an int64",
 		}
 	}
-	var Difficulty, dSHA256D, dScrypt, dBlake14lr, dCryptonight7v2, dLyra2rev2, dSkein, dX11, dStribog, dKeccak float64
-	var lastbitsSHA256D, lastbitsScrypt, lastbitsBlake14lr, lastbitsCryptonight7v2, lastbitsLyra2rev2, lastbitsSkein, lastbitsX11, lastbitsStribog, lastbitsKeccak uint32
+	var Difficulty, dBlake2b, dBlake14lr, dBlake2s, dKeccak, dScrypt, dSHA256D, dSkein, dStribog, dX11 float64
+	var lastbitsBlake2b, lastbitsBlake14lr, lastbitsBlake2s, lastbitsKeccak, lastbitsScrypt, lastbitsSHA256D, lastbitsSkein, lastbitsStribog, lastbitsX11 uint32
 	best := s.cfg.Chain.BestSnapshot()
 	v := s.cfg.Chain.Index.LookupNode(&best.Hash)
 	foundcount, height := 0, best.Height
@@ -3298,12 +3298,12 @@ func handleGetMiningInfo(
 
 			switch fork.GetAlgoName(v.Header().Version, height) {
 
-			case "sha256d":
-				if lastbitsSHA256D == 0 {
+			case "blake2b":
+				if lastbitsBlake2b == 0 {
 
 					foundcount++
-					lastbitsSHA256D = v.Header().Bits
-					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
+					lastbitsBlake2b = v.Header().Bits
+					dBlake2b = getDifficultyRatio(lastbitsBlake2b, s.cfg.ChainParams, v.Header().Version)
 				}
 			case "blake14lr":
 				if lastbitsBlake14lr == 0 {
@@ -3312,40 +3312,12 @@ func handleGetMiningInfo(
 					lastbitsBlake14lr = v.Header().Bits
 					dBlake14lr = getDifficultyRatio(lastbitsBlake14lr, s.cfg.ChainParams, v.Header().Version)
 				}
-			case "whirlpool":
-				if lastbitsCryptonight7v2 == 0 {
+			case "blake2s":
+				if lastbitsBlake2s == 0 {
 
 					foundcount++
-					lastbitsCryptonight7v2 = v.Header().Bits
-					dCryptonight7v2 = getDifficultyRatio(lastbitsCryptonight7v2, s.cfg.ChainParams, v.Header().Version)
-				}
-			case "lyra2rev2":
-				if lastbitsLyra2rev2 == 0 {
-
-					foundcount++
-					lastbitsLyra2rev2 = v.Header().Bits
-					dLyra2rev2 = getDifficultyRatio(lastbitsLyra2rev2, s.cfg.ChainParams, v.Header().Version)
-				}
-			case "skein":
-				if lastbitsSkein == 0 {
-
-					foundcount++
-					lastbitsSkein = v.Header().Bits
-					dSkein = getDifficultyRatio(lastbitsSkein, s.cfg.ChainParams, v.Header().Version)
-				}
-			case "x11":
-				if lastbitsX11 == 0 {
-
-					foundcount++
-					lastbitsX11 = v.Header().Bits
-					dX11 = getDifficultyRatio(lastbitsX11, s.cfg.ChainParams, v.Header().Version)
-				}
-			case "stribog":
-				if lastbitsStribog == 0 {
-
-					foundcount++
-					lastbitsStribog = v.Header().Bits
-					dStribog = getDifficultyRatio(lastbitsStribog, s.cfg.ChainParams, v.Header().Version)
+					lastbitsBlake2s = v.Header().Bits
+					dBlake2s = getDifficultyRatio(lastbitsBlake2s, s.cfg.ChainParams, v.Header().Version)
 				}
 			case "keccak":
 				if lastbitsKeccak == 0 {
@@ -3361,56 +3333,84 @@ func handleGetMiningInfo(
 					lastbitsScrypt = v.Header().Bits
 					dScrypt = getDifficultyRatio(lastbitsScrypt, s.cfg.ChainParams, v.Header().Version)
 				}
+			case "sha256d":
+				if lastbitsSHA256D == 0 {
+
+					foundcount++
+					lastbitsSHA256D = v.Header().Bits
+					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
+				}
+			case "skein":
+				if lastbitsSkein == 0 {
+
+					foundcount++
+					lastbitsSkein = v.Header().Bits
+					dSkein = getDifficultyRatio(lastbitsSkein, s.cfg.ChainParams, v.Header().Version)
+				}
+			case "stribog":
+				if lastbitsStribog == 0 {
+
+					foundcount++
+					lastbitsStribog = v.Header().Bits
+					dStribog = getDifficultyRatio(lastbitsStribog, s.cfg.ChainParams, v.Header().Version)
+				}
+			case "x11":
+				if lastbitsX11 == 0 {
+
+					foundcount++
+					lastbitsX11 = v.Header().Bits
+					dX11 = getDifficultyRatio(lastbitsX11, s.cfg.ChainParams, v.Header().Version)
+				}
 			default:
 			}
 			v = v.RelativeAncestor(1)
 			height--
 		}
 		switch s.cfg.Algo {
-		case "sha256d":
-			Difficulty = dSHA256D
+		case "blake2b":
+			Difficulty = dBlake2b
 		case "blake14lr":
 			Difficulty = dBlake14lr
-		case "whirlpool":
-			Difficulty = dCryptonight7v2
-		case "lyra2rev2":
-			Difficulty = dLyra2rev2
-		case "skein":
-			Difficulty = dSkein
-		case "x11":
-			Difficulty = dX11
-		case "stribog":
-			Difficulty = dStribog
+		case "blake2s":
+			Difficulty = dBlake2s
 		case "keccak":
 			Difficulty = dKeccak
 		case "scrypt":
 			Difficulty = dScrypt
+		case "sha256d":
+			Difficulty = dSHA256D
+		case "skein":
+			Difficulty = dSkein
+		case "stribog":
+			Difficulty = dStribog
+		case "x11":
+			Difficulty = dX11
 		default:
 		}
 		ret = &json.GetMiningInfoResult{
-			Blocks:                   int64(best.Height),
-			CurrentBlockSize:         best.BlockSize,
-			CurrentBlockWeight:       best.BlockWeight,
-			CurrentBlockTx:           best.NumTxns,
-			PowAlgoID:                fork.GetAlgoID(s.cfg.Algo, height),
-			PowAlgo:                  s.cfg.Algo,
-			Difficulty:               Difficulty,
-			DifficultySHA256D:        dSHA256D,
-			DifficultyScrypt:         dScrypt,
-			DifficultyBlake14lr:      dBlake14lr,
-			DifficultyCryptonight7v2: dCryptonight7v2,
-			DifficultyLyra2rev2:      dLyra2rev2,
-			DifficultySkein:          dSkein,
-			DifficultyX11:            dX11,
-			DifficultyStribog:        dStribog,
-			DifficultyKeccak:         dKeccak,
-			Generate:                 s.cfg.CPUMiner.IsMining(),
-			GenAlgo:                  s.cfg.CPUMiner.GetAlgo(),
-			GenProcLimit:             s.cfg.CPUMiner.NumWorkers(),
-			HashesPerSec:             int64(s.cfg.CPUMiner.HashesPerSecond()),
-			NetworkHashPS:            networkHashesPerSec,
-			PooledTx:                 uint64(s.cfg.TxMemPool.Count()),
-			TestNet:                  cfg.TestNet3,
+			Blocks:              int64(best.Height),
+			CurrentBlockSize:    best.BlockSize,
+			CurrentBlockWeight:  best.BlockWeight,
+			CurrentBlockTx:      best.NumTxns,
+			PowAlgoID:           fork.GetAlgoID(s.cfg.Algo, height),
+			PowAlgo:             s.cfg.Algo,
+			Difficulty:          Difficulty,
+			DifficultyBlake2b:   dBlake2b,
+			DifficultyBlake14lr: dBlake14lr,
+			DifficultyBlake2s:   dBlake2s,
+			DifficultyKeccak:    dKeccak,
+			DifficultyScrypt:    dScrypt,
+			DifficultySHA256D:   dSHA256D,
+			DifficultySkein:     dSkein,
+			DifficultyStribog:   dStribog,
+			DifficultyX11:       dX11,
+			Generate:            s.cfg.CPUMiner.IsMining(),
+			GenAlgo:             s.cfg.CPUMiner.GetAlgo(),
+			GenProcLimit:        s.cfg.CPUMiner.NumWorkers(),
+			HashesPerSec:        int64(s.cfg.CPUMiner.HashesPerSecond()),
+			NetworkHashPS:       networkHashesPerSec,
+			PooledTx:            uint64(s.cfg.TxMemPool.Count()),
+			TestNet:             cfg.TestNet3,
 		}
 	}
 	return ret, nil

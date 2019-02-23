@@ -173,30 +173,30 @@ type GetMempoolInfoResult struct {
 
 // GetMiningInfoResult models the data from the getmininginfo command.
 type GetMiningInfoResult struct {
-	Blocks                   int64   `json:"blocks"`
-	CurrentBlockSize         uint64  `json:"currentblocksize"`
-	CurrentBlockWeight       uint64  `json:"currentblockweight"`
-	CurrentBlockTx           uint64  `json:"currentblocktx"`
-	PowAlgoID                uint32  `json:"pow_algo_id"`
-	PowAlgo                  string  `json:"pow_algo"`
-	Difficulty               float64 `json:"difficulty"`
-	DifficultyCryptonight7v2 float64 `json:"difficulty_cryptonight7v2"`
-	DifficultyBlake14lr      float64 `json:"difficulty_blake14lr"`
-	DifficultyLyra2rev2      float64 `json:"difficulty_lyra2rev2"`
-	DifficultySHA256D        float64 `json:"difficulty_sha256d"`
-	DifficultyScrypt         float64 `json:"difficulty_scrypt"`
-	DifficultyStribog        float64 `json:"difficulty_stribog"`
-	DifficultySkein          float64 `json:"difficulty_skein"`
-	DifficultyX11            float64 `json:"difficulty_x11"`
-	DifficultyKeccak         float64 `json:"difficulty_keccak"`
-	Errors                   string  `json:"errors"`
-	Generate                 bool    `json:"generate"`
-	GenAlgo                  string  `json:"genalgo"`
-	GenProcLimit             int32   `json:"genproclimit"`
-	HashesPerSec             int64   `json:"hashespersec"`
-	NetworkHashPS            int64   `json:"networkhashps"`
-	PooledTx                 uint64  `json:"pooledtx"`
-	TestNet                  bool    `json:"testnet"`
+	Blocks              int64   `json:"blocks"`
+	CurrentBlockSize    uint64  `json:"currentblocksize"`
+	CurrentBlockWeight  uint64  `json:"currentblockweight"`
+	CurrentBlockTx      uint64  `json:"currentblocktx"`
+	PowAlgoID           uint32  `json:"pow_algo_id"`
+	PowAlgo             string  `json:"pow_algo"`
+	Difficulty          float64 `json:"difficulty"`
+	DifficultyBlake2b   float64 `json:"difficulty_blake2b"`
+	DifficultyBlake14lr float64 `json:"difficulty_blake14lr"`
+	DifficultyBlake2s   float64 `json:"difficulty_blake2s"`
+	DifficultyKeccak    float64 `json:"difficulty_keccak"`
+	DifficultyScrypt    float64 `json:"difficulty_scrypt"`
+	DifficultySHA256D   float64 `json:"difficulty_sha256d"`
+	DifficultySkein     float64 `json:"difficulty_skein"`
+	DifficultyStribog   float64 `json:"difficulty_stribog"`
+	DifficultyX11       float64 `json:"difficulty_x11"`
+	Errors              string  `json:"errors"`
+	Generate            bool    `json:"generate"`
+	GenAlgo             string  `json:"genalgo"`
+	GenProcLimit        int32   `json:"genproclimit"`
+	HashesPerSec        int64   `json:"hashespersec"`
+	NetworkHashPS       int64   `json:"networkhashps"`
+	PooledTx            uint64  `json:"pooledtx"`
+	TestNet             bool    `json:"testnet"`
 }
 type GetMiningInfoResult0 struct {
 	Blocks             int64   `json:"blocks"`

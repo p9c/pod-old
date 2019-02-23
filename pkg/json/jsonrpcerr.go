@@ -1,29 +1,5 @@
 package json
 
-// Standard JSON-RPC 2.0 errors.
-var (
-	ErrRPCInvalidRequest = &RPCError{
-		Code:    -32600,
-		Message: "Invalid request",
-	}
-	ErrRPCMethodNotFound = &RPCError{
-		Code:    -32601,
-		Message: "Method not found",
-	}
-	ErrRPCInvalidParams = &RPCError{
-		Code:    -32602,
-		Message: "Invalid parameters",
-	}
-	ErrRPCInternal = &RPCError{
-		Code:    -32603,
-		Message: "Internal error",
-	}
-	ErrRPCParse = &RPCError{
-		Code:    -32700,
-		Message: "Parse error",
-	}
-)
-
 // General application defined JSON errors.
 const (
 	ErrRPCMisc                RPCErrorCode = -1
@@ -76,4 +52,44 @@ const (
 const (
 	ErrRPCNoWallet      RPCErrorCode = -1
 	ErrRPCUnimplemented RPCErrorCode = -1
+)
+
+// Standard JSON-RPC 2.0 errors.
+var (
+	ErrRPCInternal = &RPCError{
+		Code:    -32603,
+		Message: "Internal error",
+	}
+)
+
+// Standard JSON-RPC 2.0 errors.
+var (
+	ErrRPCInvalidParams = &RPCError{
+		Code:    -32602,
+		Message: "Invalid parameters",
+	}
+)
+
+// Standard JSON-RPC 2.0 errors.
+var (
+	ErrRPCInvalidRequest = &RPCError{
+		Code:    -32600,
+		Message: "Invalid request",
+	}
+)
+
+// Standard JSON-RPC 2.0 errors.
+var (
+	ErrRPCMethodNotFound = &RPCError{
+		Code:    -32601,
+		Message: "Method not found",
+	}
+)
+
+// Standard JSON-RPC 2.0 errors.
+var (
+	ErrRPCParse = &RPCError{
+		Code:    -32700,
+		Message: "Parse error",
+	}
 )
