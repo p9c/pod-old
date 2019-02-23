@@ -81,11 +81,11 @@ var CtlCommand = climax.Command{
 
 				cfgFile = ctl.DefaultConfigFile
 			}
-			datadir = w.DefaultDataDir
 			if datadir, ok = ctx.Get("datadir"); ok {
-
 				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
 				CtlCfg.ConfigFile = cfgFile
+			} else {
+				datadir = w.DefaultDataDir
 			}
 			if ctx.Is("init") {
 

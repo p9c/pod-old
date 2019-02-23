@@ -20,3 +20,4 @@ bin/pod
 bin/bld
 test?/*
 
+testnet/*

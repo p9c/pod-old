@@ -12,15 +12,15 @@ import (
 	cl "git.parallelcoin.io/pod/pkg/clog"
 	"git.parallelcoin.io/pod/pkg/fork"
 	"git.parallelcoin.io/pod/pkg/netparams"
-	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/tucnak/climax"
 )
-
 
 // DefaultWalletConfig returns a default configuration
 func DefaultWalletConfig(
 	datadir string,
-) *WalletCfg {
+) (
+	wc *WalletCfg,
+) {
 
 	log <- cl.Dbg("getting default config")
 	appdatadir := filepath.Join(datadir, walletmain.DefaultAppDataDirname)
@@ -57,7 +57,6 @@ func DefaultWalletConfig(
 	}
 }
 
-
 // WriteDefaultWalletConfig creates and writes a default config to the requested location
 func WriteDefaultWalletConfig(
 	datadir string,
@@ -82,7 +81,6 @@ func WriteDefaultWalletConfig(
 	// if we are writing default config we also want to use it
 	WalletConfig = defCfg
 }
-
 
 // WriteWalletConfig creates and writes the config file in the requested location
 func WriteWalletConfig(
@@ -210,7 +208,6 @@ func configWallet(
 		}
 	}
 
-
 	// finished configuration
 	SetLogging(ctx)
 
@@ -228,7 +225,6 @@ func configWallet(
 }
 
 func init() {
-
 
 	// Loads after the var clauses run
 	WalletCommand.Handle = func(ctx climax.Context) int {
@@ -252,7 +248,6 @@ func init() {
 			return 0
 		}
 		var datadir, cfgFile string
-		datadir = util.AppDataDir("pod", false)
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = walletmain.DefaultDataDir
 		}

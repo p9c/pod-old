@@ -27,12 +27,6 @@ type CreateCfg struct {
 	Config     *walletmain.Config
 }
 
-// CreateConfig is
-var CreateConfig = CreateCfg{
-	DataDir: walletmain.DefaultAppDataDir,
-	Network: "mainnet",
-}
-
 // CreateCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var CreateCommand = climax.Command{
 	Name:  "create",
@@ -156,7 +150,10 @@ Available options:
 		}
 		if ctx.Is("cli") {
 
-			walletmain.CreateWallet(CreateConfig.Config, activeNet)
+			e := walletmain.CreateWallet(CreateConfig.Config, activeNet)
+			if e != nil {
+				fmt.Println("\nerror creating wallet:", e)
+			}
 			fmt.Print("\nYou can now open the wallet\n")
 			return 0
 		}
@@ -208,4 +205,10 @@ Available options:
 		}
 		return 0
 	},
+}
+
+// CreateConfig is
+var CreateConfig = CreateCfg{
+	DataDir: walletmain.DefaultAppDataDir,
+	Network: "mainnet",
 }

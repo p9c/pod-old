@@ -27,7 +27,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-
 // DefaultShellConfig returns a default configuration
 func DefaultShellConfig(
 	datadir string,
@@ -87,7 +86,7 @@ func DefaultShellConfig(
 			LegacyRPCListeners: []string{w.DefaultListener},
 			NoInitialLoad:      false,
 			ConfigFile: filepath.Join(
-				appdatadir, "walletconf.json"),
+				walletdatadir, "conf.json"),
 			DataDir:    walletdatadir,
 			AppDataDir: walletdatadir,
 			LogDir:     appdatadir,
@@ -102,7 +101,6 @@ func DefaultShellConfig(
 		Levels: GetDefaultLogLevelsConfig(),
 	}
 }
-
 
 // WriteDefaultShellConfig creates and writes a default config to the requested location
 func WriteDefaultShellConfig(
@@ -127,7 +125,6 @@ func WriteDefaultShellConfig(
 	// if we are writing default config we also want to use it
 	ShellConfig = defCfg
 }
-
 
 // WriteShellConfig creates and writes the config file in the requested location
 func WriteShellConfig(
@@ -154,22 +151,21 @@ func configShell(
 
 	var ok bool
 	var r string
+	var datadir, dd string
+	datadir = util.AppDataDir("pod", false)
+	if dd, ok = ctx.Get("datadir"); ok {
+		datadir = dd
+	}
+	ShellConfig.Node.DataDir = datadir
+	ShellConfig.Wallet.DataDir = datadir
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
+	fmt.Println(ShellConfig., ShellConfig.GetWalletActiveNet())
+	time.Sleep(time.Second * 9)
 	ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 	ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
-	if ShellConfig.Node.TestNet3 {
-		r = "testnet"
-		ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
-		ShellConfig.SetWalletActiveNet(&netparams.TestNet3Params)
-	}
-	if ShellConfig.Node.SimNet {
-		r = "simnet"
-		ShellConfig.SetNodeActiveNet(&node.SimNetParams)
-		ShellConfig.SetWalletActiveNet(&netparams.SimNetParams)
-	}
 	if r, ok = getIfIs(ctx, "network"); ok {
 		switch r {
 		case "testnet":
@@ -189,6 +185,14 @@ func configShell(
 			ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 			ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
 		}
+		// if ShellConfig.Node.TestNet3 {
+		// 	ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
+		// 	ShellConfig.SetWalletActiveNet(&netparams.TestNet3Params)
+		// }
+		// if ShellConfig.Node.SimNet {
+		// 	ShellConfig.SetNodeActiveNet(&node.SimNetParams)
+		// 	ShellConfig.SetWalletActiveNet(&netparams.SimNetParams)
+		// }
 	}
 
 	if ctx.Is("createtemp") {
@@ -466,11 +470,9 @@ func configShell(
 		ShellConfig.Node.CPUProfile = r
 	}
 
-
 	// finished configuration
 
 	SetLogging(ctx)
-
 
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
@@ -515,11 +517,6 @@ func configShell(
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	ShellConfig.Node.DataDir = n.CleanAndExpandPath(ShellConfig.Node.DataDir)
 	ShellConfig.Node.DataDir = filepath.Join(ShellConfig.Node.DataDir, n.NetName(ShellConfig.GetNodeActiveNet()))
-
-	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
-	ShellConfig.Node.LogDir = n.CleanAndExpandPath(ShellConfig.Node.LogDir)
-	ShellConfig.Node.LogDir = filepath.Join(ShellConfig.Node.LogDir, n.NetName(ShellConfig.GetNodeActiveNet()))
-
 
 	// Initialize log rotation.  After log rotation has been initialized, the logger variables may be used.
 
@@ -790,7 +787,6 @@ func configShell(
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 
-
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (ShellConfig.Node.Generate || ShellConfig.Node.MinerListener != "") && len(ShellConfig.Node.MiningAddrs) == 0 {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
@@ -986,13 +982,14 @@ func shellHandle(
 	var datadir, dd, cfgFile string
 	datadir = util.AppDataDir("pod", false)
 	if dd, ok = ctx.Get("datadir"); ok {
+
 		ShellConfig.Node.DataDir = dd
 		ShellConfig.Wallet.DataDir = dd
 		datadir = dd
 	}
 	cfgFile = filepath.Join(datadir, "shell/conf.json")
-	log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 	if r, ok := ctx.Get("configfile"); ok {
+
 		ShellConfig.ConfigFile = r
 		cfgFile = r
 	}
@@ -1001,12 +998,14 @@ func shellHandle(
 		log <- cl.Debug{"writing default configuration to", cfgFile}
 		WriteDefaultShellConfig(datadir)
 	} else {
+
 		log <- cl.Info{"loading configuration from", cfgFile}
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 			log <- cl.Wrn("configuration file does not exist, creating new one")
 			WriteDefaultShellConfig(datadir)
 		} else {
+
 			log <- cl.Debug{"reading app configuration from", cfgFile}
 			cfgData, err := ioutil.ReadFile(cfgFile)
 			if err != nil {

@@ -24,7 +24,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-
 // DefaultNodeConfig is the default configuration for node
 func DefaultNodeConfig(
 	datadir string,
@@ -80,7 +79,6 @@ func DefaultNodeConfig(
 	}
 }
 
-
 // WriteDefaultNodeConfig creates a default config and writes it to the requested location
 func WriteDefaultNodeConfig(
 	datadir string,
@@ -109,7 +107,6 @@ func WriteDefaultNodeConfig(
 	// if we are writing default config we also want to use it
 	NodeConfig = defCfg
 }
-
 
 // WriteNodeConfig writes the current config to the requested location
 func WriteNodeConfig(
@@ -390,7 +387,6 @@ func configNode(
 		nc.RejectNonStd = r == "true"
 	}
 
-
 	// finished configuration
 
 	SetLogging(ctx)
@@ -417,7 +413,6 @@ func configNode(
 			log <- cl.Error{"writing app config file:", err.Error()}
 		}
 	}
-
 
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
@@ -463,11 +458,6 @@ func configNode(
 	nc.DataDir = node.CleanAndExpandPath(nc.DataDir)
 	log <- cl.Debug{"netname", NodeConfig.params.Name, node.NetName(NodeConfig.params)}
 	nc.DataDir = filepath.Join(nc.DataDir, node.NetName(NodeConfig.params))
-
-	// Append the network type to the log directory so it is "namespaced" per network in the same fashion as the data directory.
-	nc.LogDir = node.CleanAndExpandPath(nc.LogDir)
-	nc.LogDir = filepath.Join(nc.LogDir, node.NetName(NodeConfig.params))
-
 
 	// Initialize log rotationode.  After log rotation has been initialized, the logger variables may be used.
 
