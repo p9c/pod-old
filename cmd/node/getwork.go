@@ -300,7 +300,7 @@ func handleGetWorkSubmission(
 
 	// Ensure the submitted block hash is less than the target difficulty.
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
-	log <- cl.Trace{"powlimit", pl}
+	log <- cl.Info{"powlimit", pl}
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
 	if err != nil {
 

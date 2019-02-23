@@ -38,8 +38,8 @@ var AlgoVers = map[int32]string{
 
 // Algos are the specifications identifying the algorithm used in the block proof
 var Algos = map[string]AlgoParams{
-	"sha256d": {2, mainPowLimitBits, 0, 1},   //824 ns/op
-	"scrypt":  {514, mainPowLimitBits, 1, 1}, //740839 ns/op
+	AlgoVers[2]:   {2, mainPowLimitBits, 0, 824},      //824 ns/op
+	AlgoVers[514]: {514, mainPowLimitBits, 1, 740839}, //740839 ns/op
 }
 
 // FirstPowLimit is
@@ -109,15 +109,15 @@ var P9AlgoVers = map[int32]string{
 
 // P9Algos is the algorithm specifications after the hard fork
 var P9Algos = map[string]AlgoParams{
-	"blake2b":   {0, FirstPowLimitBits, 0, 69495444},
-	"blake14lr": {1, FirstPowLimitBits, 1, 79734306},
-	"blake2s":   {2, FirstPowLimitBits, 2, 69968425},
-	"keccak":    {3, FirstPowLimitBits, 3, 71988313},
-	"scrypt":    {4, FirstPowLimitBits, 4, 68395274},
-	"sha256d":   {5, FirstPowLimitBits, 5, 67460443},
-	"skein":     {6, FirstPowLimitBits, 7, 64433603},
-	"stribog":   {7, FirstPowLimitBits, 6, 69987634},
-	"x11":       {8, FirstPowLimitBits, 8, 64936544},
+	P9AlgoVers[0]: {0, FirstPowLimitBits, 0, 69495444},
+	P9AlgoVers[1]: {1, FirstPowLimitBits, 1, 79734306},
+	P9AlgoVers[2]: {2, FirstPowLimitBits, 2, 69968425},
+	P9AlgoVers[3]: {3, FirstPowLimitBits, 3, 71988313},
+	P9AlgoVers[4]: {4, FirstPowLimitBits, 4, 68395274},
+	P9AlgoVers[5]: {5, FirstPowLimitBits, 5, 67460443},
+	P9AlgoVers[6]: {6, FirstPowLimitBits, 7, 64433603},
+	P9AlgoVers[7]: {7, FirstPowLimitBits, 6, 69987634},
+	P9AlgoVers[8]: {8, FirstPowLimitBits, 8, 64936544},
 }
 
 // SecondPowLimit is
@@ -135,13 +135,6 @@ var mainPowLimit = func() big.Int {
 }()
 
 var mainPowLimitBits = BigToCompact(&mainPowLimit)
-
-var p9PowLimit = func() big.Int {
-	mplb, _ := hex.DecodeString("000ffffff0000000000000000000000000000000000000000000000000000000")
-	return *big.NewInt(0).SetBytes(mplb)
-}()
-
-var p9PowLimitBits = BigToCompact(&p9PowLimit)
 
 // GetAlgoID returns the 'algo_id' which in pre-hardfork is not the same as the block version number, but is afterwards
 func GetAlgoID(
@@ -179,7 +172,8 @@ func GetAlgoVer(
 	n := "sha256d"
 	hf := GetCurrent(height)
 	if name == "random" {
-		rn, _ := rand.Int(rand.Reader, big.NewInt(8))
+		rn, _ := rand.Int(rand.Reader,
+			big.NewInt(int64(len(P9AlgoVers)-1)))
 		randomalgover := int32(rn.Uint64())
 		switch hf {
 		case 0:
@@ -237,20 +231,35 @@ func GetCurrent(
 
 // GetMinBits returns the minimum diff bits based on height and testnet
 func GetMinBits(
-	algoname string, height int32) uint32 {
+	algoname string,
+	height int32,
+) (
+	mb uint32,
+) {
+
 	curr := GetCurrent(height)
-	r := List[curr].Algos[algoname].MinBits
-	return r
+	mb = List[curr].Algos[algoname].MinBits
+	return
 }
 
 // GetMinDiff returns the minimum difficulty in uint256 form
 func GetMinDiff(
-	algoname string, height int32) *big.Int {
+	algoname string,
+	height int32,
+) (
+	md *big.Int,
+) {
+
 	return CompactToBig(GetMinBits(algoname, height))
 }
 
 // GetTargetTimePerBlock returns the active block interval target based on hard fork status
-func GetTargetTimePerBlock(height int32) (r int64) {
+func GetTargetTimePerBlock(
+	height int32,
+) (
+	r int64,
+) {
+
 	r = int64(List[GetCurrent(height)].TargetTimePerBlock)
 	return
 }
