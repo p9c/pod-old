@@ -77,7 +77,7 @@ var List = []HardForks{
 	{
 		Number:           1,
 		Name:             "Plan 9 from Crypto Space",
-		ActivationHeight: 199999,
+		ActivationHeight: 250000,
 		Algos:            P9Algos,
 		AlgoVers:         P9AlgoVers,
 		WorkBase: func() (out int64) {

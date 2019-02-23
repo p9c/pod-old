@@ -4,7 +4,6 @@ import (
 	"github.com/tucnak/climax"
 )
 
-
 // PodApp is the climax main app controller for pod
 var PodApp = climax.Application{
 	Name:     "pod",
@@ -17,13 +16,12 @@ var PodApp = climax.Application{
 	// Default:  GUICommand.Handle,
 }
 
-
 // Main is the real pod main
 func Main() int {
 
 	PodApp.AddCommand(VersionCommand)
 	PodApp.AddCommand(ConfCommand)
-	PodApp.AddCommand(GUICommand)
+	// PodApp.AddCommand(GUICommand)
 	PodApp.AddCommand(CtlCommand)
 	PodApp.AddCommand(NodeCommand)
 	PodApp.AddCommand(WalletCommand)
