@@ -84,11 +84,11 @@ type Config struct {
 	MiningAddrs          []string      `long:"miningaddr" description:"Add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerport are set"`
 	MinerListener        string        `long:"minerlistener" description:"listen address for miner controller"`
 	MinerPass            string        `long:"minerpass" description:"Encryption password required for miner clients to subscribe to work updates, for use over insecure connections"`
-	BlockMinSize         uint32        `long:"blockminsize" description:"Mininum block size in bytes to be used when creating a block"`
-	BlockMaxSize         uint32        `long:"blockmaxsize" description:"Maximum block size in bytes to be used when creating a block"`
-	BlockMinWeight       uint32        `long:"blockminweight" description:"Mininum block weight to be used when creating a block"`
-	BlockMaxWeight       uint32        `long:"blockmaxweight" description:"Maximum block weight to be used when creating a block"`
-	BlockPrioritySize    uint32        `long:"blockprioritysize" description:"Size in bytes for high-priority/low-fee transactions when creating a block"`
+	BlockMinSize         int           `long:"blockminsize" description:"Mininum block size in bytes to be used when creating a block"`
+	BlockMaxSize         int           `long:"blockmaxsize" description:"Maximum block size in bytes to be used when creating a block"`
+	BlockMinWeight       int           `long:"blockminweight" description:"Mininum block weight to be used when creating a block"`
+	BlockMaxWeight       int           `long:"blockmaxweight" description:"Maximum block weight to be used when creating a block"`
+	BlockPrioritySize    int           `long:"blockprioritysize" description:"Size in bytes for high-priority/low-fee transactions when creating a block"`
 	UserAgentComments    []string      `long:"uacomment" description:"Comment to add to the user agent -- See BIP 14 for more information."`
 	NoPeerBloomFilters   bool          `long:"nopeerbloomfilters" description:"Disable bloom filtering support"`
 	NoCFilters           bool          `long:"nocfilters" description:"Disable committed filtering (CF) support"`
@@ -200,7 +200,6 @@ var runServiceCommand func(string) error
 func CleanAndExpandPath(
 	path string,
 ) string {
-
 
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
@@ -389,7 +388,6 @@ func ValidLogLevel(
 func createDefaultConfigFile(
 	destinationPath string,
 ) error {
-
 
 	// Create the destination directory if it does not exists
 	err := os.MkdirAll(filepath.Dir(destinationPath), 0700)

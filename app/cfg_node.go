@@ -41,12 +41,13 @@ func DefaultNodeConfig(
 	appdir := filepath.Join(datadir, "node")
 	return &NodeCfg{
 		Node: &node.Config{
-			RPCUser:              user,
-			RPCPass:              pass,
-			Listeners:            []string{node.DefaultListener},
-			RPCListeners:         []string{node.DefaultRPCListener},
-			DebugLevel:           "info",
-			ConfigFile:           filepath.Join(appdir, node.DefaultConfigFilename),
+			RPCUser:      user,
+			RPCPass:      pass,
+			Listeners:    []string{node.DefaultListener},
+			RPCListeners: []string{node.DefaultRPCListener},
+			DebugLevel:   "info",
+			ConfigFile: filepath.Join(appdir,
+				node.DefaultConfigFilename),
 			MaxPeers:             node.DefaultMaxPeers,
 			BanDuration:          node.DefaultBanDuration,
 			BanThreshold:         node.DefaultBanThreshold,
@@ -458,10 +459,6 @@ func configNode(
 	nc.DataDir = node.CleanAndExpandPath(nc.DataDir)
 	log <- cl.Debug{"netname", NodeConfig.params.Name, node.NetName(NodeConfig.params)}
 	nc.DataDir = filepath.Join(nc.DataDir, node.NetName(NodeConfig.params))
-
-	// Initialize log rotationode.  After log rotation has been initialized, the logger variables may be used.
-
-	// initLogRotator(filepath.Join(nc.LogDir, DefaultLogFilename))
 
 	// Validate database type.
 	if !node.ValidDbType(nc.DbType) {

@@ -68,19 +68,18 @@ func GenPortSet(
 	ps *PortSet,
 ) {
 
-	// From the base, each element is as follows:
+	/* From the base, each element is as follows:
 
-	// - P2P = portbase
+	- P2P = portbase
 
-	// - NodeRPC = portbase + 1
+	- NodeRPC = portbase + 1
 
-	// - WalletRPC =  portbase -1
+	- WalletRPC =  portbase -1
 
-	// For each set, the base is incremented by 100
-
-	// so from 21047, you get 21047, 21048, 21046
-
-	// and next would be 21147, 21148, 21146
+	For each set, the base is incremented by 100
+	so from 21047, you get 21047, 21048, 21046
+	and next would be 21147, 21148, 21146
+	*/
 	t := portbase
 	ps = &PortSet{
 		P2P:       fmt.Sprint(t),

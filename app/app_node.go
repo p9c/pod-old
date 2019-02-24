@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/cmd/node"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -172,31 +172,40 @@ var NodeCommand = climax.Command{
 		}
 		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
+
 			datadir = util.AppDataDir("pod", false)
 		}
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
+
 			cfgFile = r
 		}
 		if ctx.Is("init") {
+
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
 			WriteDefaultNodeConfig(datadir)
 		} else {
+
 			log <- cl.Infof{"loading configuration from %s", cfgFile}
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+
 				log <- cl.Wrn("configuration file does not exist, creating new one")
 				WriteDefaultNodeConfig(datadir)
 			} else {
+
 				log <- cl.Debug{"reading app configuration from", cfgFile}
 				cfgData, err := ioutil.ReadFile(cfgFile)
 				if err != nil {
+
 					log <- cl.Error{"reading app config file:", err.Error()}
 					WriteDefaultNodeConfig(datadir)
 				} else {
+
 					log <- cl.Trace{"parsing app configuration", string(cfgData)}
 					err = json.Unmarshal(cfgData, &NodeConfig)
 					if err != nil {
+
 						log <- cl.Error{"parsing app config file:", err.Error()}
 						WriteDefaultNodeConfig(datadir)
 					}
