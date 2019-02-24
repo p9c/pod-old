@@ -1,5 +1,7 @@
 package climax
 
+// Below is an example minimal declaration for a Speec containing two Commands
+
 var exampleSpec = Spec{
 	Name:    "name",
 	Brief:   "Brief",
@@ -18,7 +20,7 @@ var exampleSpec = Spec{
 						Brief:   "short",
 						Usage:   "usage",
 						Help:    "help",
-						Type:    NewVar("address"),
+						Type:    mockAddress,
 						Default: "127.0.0.1:11047",
 					},
 				},
@@ -38,6 +40,7 @@ var exampleSpec = Spec{
 						},
 					},
 					// SubCommands[1]...
+					{},
 				},
 				Handler: func() int {
 					// handle command
@@ -64,3 +67,7 @@ var exampleSpec = Spec{
 		return 0
 	},
 }
+
+var mockAddress = ToAddress(&mockstring)
+
+var mockstring = "127.0.0.1:11047"

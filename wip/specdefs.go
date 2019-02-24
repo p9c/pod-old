@@ -148,7 +148,7 @@ func ParseURL(s string, v interface{}) (parsed bool) {
 }
 
 // ToAddress takes a variable of the builtin type the alias defined in this file either pointer or by value, and returns the variable type-converted to the alias
-func ToAddress(in interface{}) String {
+func ToAddress(in interface{}) Address {
 	switch at := in.(type) {
 	case string:
 		return &at
