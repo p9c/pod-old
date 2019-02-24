@@ -9,14 +9,12 @@ import (
 	"github.com/tucnak/climax"
 )
 
-
 // WalletCfg is the combined app and logging configuration data
 type WalletCfg struct {
 	Wallet    *w.Config
 	Levels    map[string]string
 	activeNet *netparams.Params
 }
-
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var WalletCommand = climax.Command{
@@ -94,10 +92,5 @@ var WalletCommand = climax.Command{
 	// },
 }
 
-
 // WalletConfig is the combined app and log levels configuration
 var WalletConfig = DefaultWalletConfig(w.DefaultConfigFile)
-
-
-// wf is the list of flags and the default values stored in the Usage field
-var wf = GetFlags(WalletCommand)

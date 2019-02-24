@@ -9,9 +9,9 @@ import (
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
-	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"github.com/tucnak/climax"
 )
 
@@ -220,7 +220,13 @@ func configWallet(
 		}
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
-		ioutil.WriteFile(cfgFile, j, 0600)
+		e := ioutil.WriteFile(cfgFile, j, 0600)
+		if e != nil {
+
+			log <- cl.Error{
+				"error writing configuration file:", e,
+			}
+		}
 	}
 }
 

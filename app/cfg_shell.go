@@ -951,7 +951,10 @@ func configShell(
 		}
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
-		ioutil.WriteFile(cfgFile, j, 0600)
+		e := ioutil.WriteFile(cfgFile, j, 0600)
+		log <- cl.Error{
+			"error writing configuration file:", e,
+		}
 	}
 	return 0
 }
