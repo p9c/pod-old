@@ -10,7 +10,7 @@ import (
 	"net"
 	"net/http"
 
-	"git.parallelcoin.io/pod/pkg/json"
+	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"github.com/btcsuite/go-socks/socks"
 )
 

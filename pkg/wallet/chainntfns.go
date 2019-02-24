@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"strings"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 
-	"git.parallelcoin.io/pod/pkg/txscript"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/walletdb"
-	chain "git.parallelcoin.io/pod/pkg/wchain"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
+	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
 )
 
 func (w *Wallet) handleChainNotifications() {
@@ -24,7 +24,6 @@ func (w *Wallet) handleChainNotifications() {
 	}
 
 	sync := func(w *Wallet) {
-
 
 		// At the moment there is no recourse if the rescan fails for
 
@@ -150,7 +149,6 @@ func (w *Wallet) handleChainNotifications() {
 				}
 				notificationName = "filteredblockconnected"
 
-
 			// The following require some database maintenance, but also
 
 			// need to be reported to the wallet's rescan goroutine.
@@ -194,7 +192,6 @@ func (w *Wallet) handleChainNotifications() {
 	}
 }
 
-
 // connectBlock handles a chain server notification by marking a wallet
 
 // that's currently in-sync with the chain server as being synced up to
@@ -213,7 +210,6 @@ func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) err
 		return err
 	}
 
-
 	// Notify interested clients of the connected block.
 
 	//
@@ -222,7 +218,6 @@ func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) err
 	w.NtfnServer.notifyAttachedBlock(dbtx, &b)
 	return nil
 }
-
 
 // disconnectBlock handles a chain server reorganize by rolling back all
 
@@ -237,7 +232,6 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 
 		return nil
 	}
-
 
 	// Disconnect the removed block and all blocks after it if we know about
 
@@ -277,7 +271,6 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 		}
 	}
 
-
 	// Notify interested clients of the disconnected block.
 	w.NtfnServer.notifyDetachedBlock(&b.Hash)
 
@@ -287,7 +280,6 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, block *wtxmgr.BlockMeta) error {
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)
 	txmgrNs := dbtx.ReadWriteBucket(wtxmgrNamespaceKey)
-
 
 	// At the moment all notified transactions are assumed to actually be
 
@@ -300,7 +292,6 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 	if err != nil {
 		return err
 	}
-
 
 	// Check every output to determine whether it is controlled by a wallet
 
@@ -335,7 +326,6 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 				continue
 			}
 
-
 			// Missing addresses are skipped.  Other errors should
 
 			// be propagated.
@@ -345,7 +335,6 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 			}
 		}
 	}
-
 
 	// Send notification of mined or unmined transaction to any interested
 
@@ -359,7 +348,6 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 			log <- cl.Error{"cannot query transaction details for notification:", err}
 		}
-
 
 		// It's possible that the transaction was not found within the
 
@@ -382,7 +370,6 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 			log <- cl.Error{"cannot query transaction details for notification:", err}
 		}
-
 
 		// We'll only notify the transaction if it was found within the
 

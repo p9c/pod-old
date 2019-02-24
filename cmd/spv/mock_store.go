@@ -5,9 +5,9 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/spv/headerfs"
 	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 // mockBlockHeaderStore is an implementation of the BlockHeaderStore backed by

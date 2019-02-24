@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 
-	rpc "git.parallelcoin.io/pod/pkg/rpcclient"
+	rpc "git.parallelcoin.io/pod/pkg/rpc/client"
 	"git.parallelcoin.io/pod/pkg/util"
 )
 

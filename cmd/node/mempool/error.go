@@ -2,7 +2,7 @@ package mempool
 
 import (
 	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 // RuleError identifies a rule violation.  It is used to indicate that

@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/txscript"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 )
 
 // TestCheckBlockScripts ensures that validating the all of the scripts in a known-good block doesn't return an error.

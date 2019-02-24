@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/txscript"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 const (

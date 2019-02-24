@@ -10,8 +10,8 @@ import (
 
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/netparams"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"

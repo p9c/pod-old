@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 const (

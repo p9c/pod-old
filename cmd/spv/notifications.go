@@ -3,8 +3,8 @@ package spv
 import (
 	"errors"
 
-	"git.parallelcoin.io/pod/pkg/addrmgr"
-	"git.parallelcoin.io/pod/pkg/connmgr"
+	"git.parallelcoin.io/pod/pkg/peer/addrmgr"
+	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 )
 
 type getConnCountMsg struct {

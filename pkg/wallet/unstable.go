@@ -4,9 +4,9 @@
 package wallet
 
 import (
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
+	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
 )
 
 type unstableAPI struct {

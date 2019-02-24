@@ -6,7 +6,7 @@ import (
 	"io"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"github.com/aead/siphash"
 	"github.com/kkdai/bstream"
 )

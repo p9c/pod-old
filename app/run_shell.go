@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/interrupt"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/interrupt"
 )
 
 func runShell() (

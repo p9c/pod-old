@@ -10,16 +10,16 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"git.parallelcoin.io/pod/pkg/cfgutil"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/json"
-	"git.parallelcoin.io/pod/pkg/netparams"
-	"git.parallelcoin.io/pod/pkg/rpcclient"
-	"git.parallelcoin.io/pod/pkg/txscript"
+	"git.parallelcoin.io/pod/pkg/util/config"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/pod/pkg/rpc/client"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/txauthor"
-	"git.parallelcoin.io/pod/pkg/wallet/txrules"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/tx/author"
+	"git.parallelcoin.io/pod/pkg/chain/tx/rules"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"github.com/jessevdk/go-flags"
 )
 

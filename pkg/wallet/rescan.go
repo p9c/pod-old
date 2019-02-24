@@ -4,13 +4,13 @@
 package wallet
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/txscript"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	chain "git.parallelcoin.io/pod/pkg/wchain"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
 )
 
 

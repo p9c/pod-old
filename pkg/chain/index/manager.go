@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"fmt"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
 	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 var (

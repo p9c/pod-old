@@ -8,19 +8,18 @@ import (
 	_ "net/http/pprof"
 	"sync"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/fork"
-	"git.parallelcoin.io/pod/pkg/interrupt"
-	"git.parallelcoin.io/pod/pkg/netparams"
-	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
+	"git.parallelcoin.io/pod/pkg/rpc/legacy"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/interrupt"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	chain "git.parallelcoin.io/pod/pkg/wchain"
+	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
 )
 
 var (
 	cfg *Config
 )
-
 
 // Main is a work-around main function that is required since deferred functions (such as log flushing) are not called with calls to os.Exit.
 
@@ -55,7 +54,6 @@ func Main(
 			return err
 		}
 	}
-
 
 	// Create and start HTTP server to serve wallet client connections.
 
@@ -100,7 +98,6 @@ func Main(
 	}
 	log <- cl.Trc("adding interrupt handler to unload wallet")
 
-
 	// Add interrupt handlers to shutdown the various process components
 
 	// before exiting.  Interrupt handlers run in LIFO order, so the wallet
@@ -118,7 +115,6 @@ func Main(
 	if rpcs != nil {
 		log <- cl.Trc("starting rpc server")
 		interrupt.AddHandler(func() {
-
 
 			// TODO: Does this need to wait for the grpc server to
 
@@ -146,7 +142,6 @@ func Main(
 	return nil
 }
 
-
 // rpcClientConnectLoop continuously attempts a connection to the consensus RPC server.  When a connection is established, the client is used to sync the loaded wallet, either immediately or when loaded at a later time.
 
 //
@@ -171,7 +166,6 @@ func rpcClientConnectLoop(
 			chainClient chain.Interface
 			err         error
 		)
-
 
 		// if cfg.UseSPV {
 
@@ -243,7 +237,6 @@ func rpcClientConnectLoop(
 
 		// }
 
-
 		// Rather than inlining this logic directly into the loader
 
 		// callback, a function variable is used to avoid running any of
@@ -290,7 +283,6 @@ func rpcClientConnectLoop(
 
 			loadedWallet.SetChainSynced(false)
 
-
 			// TODO: Rework the wallet so changing the RPC client does not require stopping and restarting everything.
 			loadedWallet.Stop()
 			loadedWallet.WaitForShutdown()
@@ -322,7 +314,6 @@ func readCAFile() []byte {
 
 	return certs
 }
-
 
 // startChainRPC opens a RPC client connection to a pod server for blockchain
 

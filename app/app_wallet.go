@@ -5,7 +5,7 @@ import (
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	w "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"github.com/tucnak/climax"
 )
 

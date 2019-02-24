@@ -3,7 +3,7 @@ package hdkeychain_test
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
+	"git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 )
 

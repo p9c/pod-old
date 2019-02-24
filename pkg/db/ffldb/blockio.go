@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 const (

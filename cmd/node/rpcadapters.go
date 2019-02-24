@@ -5,11 +5,11 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/netsync"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/sync"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
 )
 
 // rpcPeer provides a peer for use with the RPC server and implements the rpcserverPeer interface.

@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/txscript"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 

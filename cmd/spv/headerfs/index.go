@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 var (

@@ -7,26 +7,24 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/ec"
-	"git.parallelcoin.io/pod/pkg/legacy/keystore"
-	"git.parallelcoin.io/pod/pkg/netparams"
-	"git.parallelcoin.io/pod/pkg/prompt"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/elliptic"
+	"git.parallelcoin.io/pod/pkg/util/legacy/keystore"
+	"git.parallelcoin.io/pod/pkg/util/prompt"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	"git.parallelcoin.io/pod/pkg/walletdb"
-	_ "git.parallelcoin.io/pod/pkg/walletdb/bdb"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
 )
-
 
 // NetworkDir returns the directory name of a network directory to hold wallet files.
 func NetworkDir(
 	dataDir string, chainParams *chaincfg.Params) string {
 	netname := chainParams.Name
-
 
 	// For now, we must always name the testnet data directory as "testnet" and not "testnet3" or any other version, as the chaincfg testnet3 paramaters will likely be switched to being named "testnet3" in the future.  This is done to future proof that change, and an upgrade plan to move the testnet3 data directory can be worked out later.
 	if chainParams.Net == wire.TestNet3 {
@@ -35,7 +33,6 @@ func NetworkDir(
 
 	return filepath.Join(dataDir, netname)
 }
-
 
 // convertLegacyKeystore converts all of the addresses in the passed legacy key store to the new waddrmgr.Manager format.  Both the legacy keystore and the new manager must be unlocked.
 func convertLegacyKeystore(
@@ -95,13 +92,11 @@ func convertLegacyKeystore(
 	return nil
 }
 
-
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
 func CreateWallet(
 	cfg *Config, activeNet *netparams.Params) error {
 	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
-
 
 	// When there is a legacy keystore, open it now to ensure any errors
 
@@ -113,7 +108,6 @@ func CreateWallet(
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)
 	if err != nil && !os.IsNotExist(err) {
-
 
 		// A stat error not due to a non-existant file should be
 
@@ -128,7 +122,6 @@ func CreateWallet(
 		}
 	}
 
-
 	// Start by prompting for the private passphrase.  When there is an existing keystore, the user will be promped for that passphrase, otherwise they will be prompted for a new one.
 	reader := bufio.NewReader(os.Stdin)
 	privPass, err := prompt.PrivatePass(reader, legacyKeyStore)
@@ -138,14 +131,12 @@ func CreateWallet(
 		return err
 	}
 
-
 	// When there exists a legacy keystore, unlock it now and set up a callback to import all keystore keys into the new walletdb wallet
 	if legacyKeyStore != nil {
 		err = legacyKeyStore.Unlock(privPass)
 		if err != nil {
 			return err
 		}
-
 
 		// Import the addresses in the legacy keystore to the new wallet if any exist, locking each wallet again when finished.
 		loader.RunAfterLoad(func(w *wallet.Wallet) {
@@ -173,7 +164,6 @@ func CreateWallet(
 				return
 			}
 
-
 			// Remove the legacy key store.
 			err = os.Remove(keystorePath)
 			if err != nil {
@@ -183,7 +173,6 @@ func CreateWallet(
 		})
 	}
 
-
 	// Ascertain the public passphrase.  This will either be a value specified by the user or the default hard-coded public passphrase if the user does not want the additional public data encryption.
 	pubPass, err := prompt.PublicPass(reader, privPass,
 		[]byte(""), []byte(cfg.WalletPass))
@@ -192,7 +181,6 @@ func CreateWallet(
 		time.Sleep(time.Second * 5)
 		return err
 	}
-
 
 	// Ascertain the wallet generation seed.  This will either be an
 
@@ -219,7 +207,6 @@ func CreateWallet(
 	return nil
 }
 
-
 // CreateSimulationWallet is intended to be called from the rpcclient
 
 // and used to create a wallet for actors involved in simulations.
@@ -229,17 +216,14 @@ func CreateSimulationWallet(
 	// Simulation wallet password is 'password'.
 	privPass := []byte("password")
 
-
 	// Public passphrase is the default.
 	pubPass := []byte(wallet.InsecurePubPassphrase)
 
 	netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 
-
 	// Create the wallet.
 	dbPath := filepath.Join(netDir, WalletDbName)
 	fmt.Println("Creating the wallet...")
-
 
 	// Create the wallet database backed by bolt db.
 	db, err := walletdb.Create("bdb", dbPath)
@@ -247,7 +231,6 @@ func CreateSimulationWallet(
 		return err
 	}
 	defer db.Close()
-
 
 	// Create the wallet.
 	err = wallet.Create(db, pubPass, privPass, nil, ActiveNet.Params, time.Now())
@@ -259,7 +242,6 @@ func CreateSimulationWallet(
 	return nil
 }
 
-
 // checkCreateDir checks that the path exists and is a directory.
 
 // If path does not exist, it is created.
@@ -267,7 +249,6 @@ func checkCreateDir(
 	path string) error {
 	if fi, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
-
 
 			// Attempt data directory creation
 			if err = os.MkdirAll(path, 0700); err != nil {

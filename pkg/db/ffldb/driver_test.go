@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
+	"git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/util"

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	"git.parallelcoin.io/pod/pkg/ec"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/util/base58"
 )
 

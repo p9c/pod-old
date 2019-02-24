@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 )
 
 // TODO: tighten maxAllowedOffsetSecs for hf1 - also, consider changing to a mode, as this makes it harder to manipulate even with huge hash power

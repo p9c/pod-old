@@ -7,12 +7,12 @@ import (
 	"path/filepath"
 
 	l "git.parallelcoin.io/pod/pkg/log"
-	"git.parallelcoin.io/pod/pkg/rpcclient"
-	"git.parallelcoin.io/pod/pkg/wchain"
-	"git.parallelcoin.io/pod/pkg/rpc/legacyrpc"
-	"git.parallelcoin.io/pod/pkg/rpc/rpcserver"
+	"git.parallelcoin.io/pod/pkg/rpc/client"
+	"git.parallelcoin.io/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/pod/pkg/rpc/legacy"
+	"git.parallelcoin.io/pod/pkg/rpc/server"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
 	"github.com/jrick/logrotate/rotator"
 )
 

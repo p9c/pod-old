@@ -7,14 +7,14 @@ import (
 	"bytes"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/txscript"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/walletdb"
-	"git.parallelcoin.io/pod/pkg/wire"
-	"git.parallelcoin.io/pod/pkg/wtxmgr"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
 )
 
 

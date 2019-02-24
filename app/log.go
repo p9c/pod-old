@@ -1,7 +1,7 @@
 package app
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 )
 
 // Log is the logger for node

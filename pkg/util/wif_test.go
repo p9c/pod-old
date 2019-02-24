@@ -3,8 +3,8 @@ package util_test
 import (
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/ec"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	. "git.parallelcoin.io/pod/pkg/util"
 )
 

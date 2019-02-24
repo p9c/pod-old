@@ -18,11 +18,11 @@ import (
 	"git.parallelcoin.io/pod/cmd/shell"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/connmgr"
-	"git.parallelcoin.io/pod/pkg/fork"
-	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
+	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/tucnak/climax"
 )
@@ -162,7 +162,6 @@ func configShell(
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
-	fmt.Println(ShellConfig., ShellConfig.GetWalletActiveNet())
 	time.Sleep(time.Second * 9)
 	ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 	ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)

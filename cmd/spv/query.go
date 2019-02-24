@@ -9,12 +9,12 @@ import (
 	"git.parallelcoin.io/pod/cmd/spv/cache"
 	"git.parallelcoin.io/pod/cmd/spv/filterdb"
 	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"github.com/davecgh/go-spew/spew"
 )
 

@@ -1,8 +1,8 @@
 package blockchain
 
 import (
-	"git.parallelcoin.io/pod/pkg/ec"
-	"git.parallelcoin.io/pod/pkg/txscript"
+	"git.parallelcoin.io/pod/pkg/util/elliptic"
+	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 )
 
 // A variable length quantity (VLQ) is an encoding that uses an arbitrary number of binary octets to represent an arbitrarily large integer.  The scheme employs a most significant byte (MSB) base-128 encoding where the high bit in each byte indicates whether or not the byte is the final one.  In addition, to ensure there are no redundant encodings, an offset is subtracted every time a group of 7 bits is shifted out.  Therefore each integer can be represented in exactly one way, and each representation stands for exactly one integer.

@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/prompt"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
-	"git.parallelcoin.io/pod/pkg/walletdb"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/prompt"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 const (

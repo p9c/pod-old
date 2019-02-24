@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/fork"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/util"
 )
 

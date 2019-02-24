@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
+	"git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/database"
 	"git.parallelcoin.io/pod/pkg/util"
 )

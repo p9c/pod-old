@@ -3,8 +3,8 @@ package spv
 import (
 	"fmt"
 
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/wire"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 

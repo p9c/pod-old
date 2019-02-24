@@ -9,9 +9,9 @@ import (
 
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/pod/pkg/clog"
-	"git.parallelcoin.io/pod/pkg/fork"
-	"git.parallelcoin.io/pod/pkg/netparams"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"github.com/tucnak/climax"
 )
 

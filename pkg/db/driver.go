@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/util/clog"
 )
 
 

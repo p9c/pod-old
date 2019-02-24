@@ -1,8 +1,8 @@
 package node
 
 import (
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	"git.parallelcoin.io/pod/pkg/wire"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 // Params is used to group parameters for various networks such as the main network and test networks.

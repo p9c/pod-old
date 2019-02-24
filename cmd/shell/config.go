@@ -3,7 +3,7 @@ package shell
 import (
 	"git.parallelcoin.io/pod/cmd/node"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/netparams"
+	"git.parallelcoin.io/pod/pkg/chain/config/params"
 )
 
 // Config is the combined app and logging configuration data

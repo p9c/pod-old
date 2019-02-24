@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/davecgh/go-spew/spew"
 )

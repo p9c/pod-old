@@ -3,8 +3,8 @@ package blockchain
 import (
 	"math"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg"
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/chain/config"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
 )
 
 const (

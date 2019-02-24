@@ -10,12 +10,12 @@ import (
 	"sort"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chaincfg/chainhash"
-	cl "git.parallelcoin.io/pod/pkg/clog"
+	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/db/internal/treap"
 	u "git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wire"
+	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/treap"
 	"github.com/btcsuite/goleveldb/leveldb"
 	"github.com/btcsuite/goleveldb/leveldb/comparer"
 	ldberrors "github.com/btcsuite/goleveldb/leveldb/errors"
@@ -548,7 +548,6 @@ func (b *bucket) Bucket(key []byte) database.Bucket {
 // This function is part of the database.Bucket interface implementation.
 func (b *bucket) CreateBucket(key []byte) (database.Bucket, error) {
 
-
 	// Ensure transaction state is valid.
 	if err := b.tx.checkClosed(); err != nil {
 		return nil, err
@@ -604,7 +603,6 @@ func (b *bucket) CreateBucket(key []byte) (database.Bucket, error) {
 //   - ErrTxClosed if the transaction has already been closed
 // This function is part of the database.Bucket interface implementation.
 func (b *bucket) CreateBucketIfNotExists(key []byte) (database.Bucket, error) {
-
 
 	// Ensure transaction state is valid.
 	if err := b.tx.checkClosed(); err != nil {
@@ -861,7 +859,6 @@ var _ database.Tx = (*transaction)(nil)
 // removeActiveIter removes the passed iterator from the list of active iterators against the pending keys treap.
 func (tx *transaction) removeActiveIter(iter *treap.Iterator) {
 
-
 	// An indexing for loop is intentionally used over a range here as range does not reevaluate the slice on each iteration nor does it adjust the index for the modified slice.
 	tx.activeIterLock.Lock()
 	for i := 0; i < len(tx.activeIters); i++ {
@@ -954,7 +951,6 @@ func (tx *transaction) fetchKey(key []byte) []byte {
 // deleteKey adds the provided key to the list of keys to be deleted from the database when the transaction is committed.  The notify iterators flag is useful to delay notifying iterators about the changes during bulk deletes. NOTE: This function must only be called on a writable transaction.  Since it is an internal helper function, it does not check.
 func (tx *transaction) deleteKey(key []byte, notifyIterators bool) {
 
-
 	// Remove the key from the list of pendings keys to be written on transaction commit if needed.
 	tx.pendingKeys.Delete(key)
 
@@ -969,7 +965,6 @@ func (tx *transaction) deleteKey(key []byte, notifyIterators bool) {
 
 // nextBucketID returns the next bucket ID to use for creating a new bucket. NOTE: This function must only be called on a writable transaction.  Since it is an internal helper function, it does not check.
 func (tx *transaction) nextBucketID() ([4]byte, error) {
-
 
 	// Load the currently highest used bucket ID.
 	curIDBytes := tx.fetchKey(curBucketIDKeyName)
@@ -1051,7 +1046,6 @@ func (tx *transaction) StoreBlock(block *u.Block) error {
 // This function is part of the database.Tx interface implementation.
 func (tx *transaction) HasBlock(hash *chainhash.Hash) (bool, error) {
 
-
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
 		return false, err
@@ -1064,7 +1058,6 @@ func (tx *transaction) HasBlock(hash *chainhash.Hash) (bool, error) {
 //   - ErrTxClosed if the transaction has already been closed
 // This function is part of the database.Tx interface implementation.
 func (tx *transaction) HasBlocks(hashes []chainhash.Hash) ([]bool, error) {
-
 
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
@@ -1129,7 +1122,6 @@ func (tx *transaction) FetchBlockHeaders(hashes []chainhash.Hash) ([][]byte, err
 // NOTE: The data returned by this function is only valid during a database transaction.  Attempting to access it after a transaction has ended results in undefined behavior.  This constraint prevents additional data copies and allows support for memory-mapped database implementations. This function is part of the database.Tx interface implementation.
 func (tx *transaction) FetchBlock(hash *chainhash.Hash) ([]byte, error) {
 
-
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
 		return nil, err
@@ -1164,7 +1156,6 @@ func (tx *transaction) FetchBlock(hash *chainhash.Hash) ([]byte, error) {
 // NOTE: The data returned by this function is only valid during a database transaction.  Attempting to access it after a transaction has ended results in undefined behavior.  This constraint prevents additional data copies and allows support for memory-mapped database implementations. This function is part of the database.Tx interface implementation.
 func (tx *transaction) FetchBlocks(hashes []chainhash.Hash) ([][]byte, error) {
 
-
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
 		return nil, err
@@ -1184,7 +1175,6 @@ func (tx *transaction) FetchBlocks(hashes []chainhash.Hash) ([][]byte, error) {
 
 // fetchPendingRegion attempts to fetch the provided region from any block which are pending to be written on commit.  It will return nil for the byte slice when the region references a block which is not pending.  When the region does reference a pending block, it is bounds checked and returns ErrBlockRegionInvalid if invalid.
 func (tx *transaction) fetchPendingRegion(region *database.BlockRegion) ([]byte, error) {
-
 
 	// Nothing to do if the block is not pending to be written on commit.
 	idx, exists := tx.pendingBlocks[*region.Hash]
@@ -1218,7 +1208,6 @@ func (tx *transaction) fetchPendingRegion(region *database.BlockRegion) ([]byte,
 // In addition, returns ErrDriverSpecific if any failures occur when reading the block files.
 // NOTE: The data returned by this function is only valid during a database transaction.  Attempting to access it after a transaction has ended results in undefined behavior.  This constraint prevents additional data copies and allows support for memory-mapped database implementations. This function is part of the database.Tx interface implementation.
 func (tx *transaction) FetchBlockRegion(region *database.BlockRegion) ([]byte, error) {
-
 
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
@@ -1273,7 +1262,6 @@ func (tx *transaction) FetchBlockRegion(region *database.BlockRegion) ([]byte, e
 // In addition, returns ErrDriverSpecific if any failures occur when reading the block files.
 // NOTE: The data returned by this function is only valid during a database transaction.  Attempting to access it after a transaction has ended results in undefined behavior.  This constraint prevents additional data copies and allows support for memory-mapped database implementations. This function is part of the database.Tx interface implementation.
 func (tx *transaction) FetchBlockRegions(regions []database.BlockRegion) ([][]byte, error) {
-
 
 	// Ensure transaction state is valid.
 	if err := tx.checkClosed(); err != nil {
@@ -1470,7 +1458,6 @@ func (db *db) Type() string {
 // begin is the implementation function for the Begin database method.  See its documentation for more details. This function is only separate because it returns the internal transaction which is used by the managed transaction code while the database method returns the interface.
 func (db *db) begin(writable bool) (*transaction, error) {
 
-
 	// Whenever a new writable transaction is started, grab the write lock to ensure only a single write transaction can be active at the same time.  This lock will not be released until the transaction is closed (via Rollback or Commit).
 	if writable {
 		db.writeLock.Lock()
@@ -1642,7 +1629,6 @@ func initDB(
 // openDB opens the database at the provided path.  database.ErrDbDoesNotExist is returned if the database doesn't exist and the create flag is not set.
 func openDB(
 	dbPath string, network wire.BitcoinNet, create bool) (database.DB, error) {
-
 
 	// Error if the database doesn't exist and the create flag is not set.
 	metadataDbPath := filepath.Join(dbPath, metadataDbName)

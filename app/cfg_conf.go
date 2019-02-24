@@ -11,7 +11,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/shell"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/fork"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/tucnak/climax"
 )

@@ -1,7 +1,7 @@
 package ffldb
 
 import (
-	"git.parallelcoin.io/pod/pkg/db/internal/treap"
+	"git.parallelcoin.io/pod/pkg/util/treap"
 	"github.com/btcsuite/goleveldb/leveldb/iterator"
 	"github.com/btcsuite/goleveldb/leveldb/util"
 )

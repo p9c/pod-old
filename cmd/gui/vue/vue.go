@@ -1,8 +1,8 @@
 package vue
 
 import (
-	"git.parallelcoin.io/pod/pkg/json"
-	"git.parallelcoin.io/pod/pkg/waddrmgr"
+	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	// "github.com/parallelcointeam/pod/rpcclient"
 )
