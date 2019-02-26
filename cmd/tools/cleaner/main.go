@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"regexp"
+	// "regexp"
 	"sort"
 	"strings"
 
@@ -31,51 +31,51 @@ func (
 
 }
 
-func liner(
-	bb []byte) []byte {
+// func liner(
+// 	bb []byte) []byte {
 
-	changed := true
-	for changed {
+// 	changed := true
+// 	for changed {
 
-		changed = false
+// 		changed = false
 
-		rea := regexp.MustCompile("func [(]([*._a-zA-Z0-9]+)[)]")
-		bb = rea.ReplaceAll(bb, []byte("func(_ $1)"))
+// 		rea := regexp.MustCompile("func [(]([*._a-zA-Z0-9]+)[)]")
+// 		bb = rea.ReplaceAll(bb, []byte("func(_ $1)"))
 
-		reor := regexp.MustCompile(
-			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
-		bb = reor.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+// 		reor := regexp.MustCompile(
+// 			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
+// 		bb = reor.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
 
-		reors := regexp.MustCompile(
-			"func [(]\n\t([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
-		bb = reors.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+// 		reors := regexp.MustCompile(
+// 			"func [(]\n\t([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+)[)]")
+// 		bb = reors.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
 
-		reore := regexp.MustCompile(
-			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+),\n[)]")
-		bb = reore.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
+// 		reore := regexp.MustCompile(
+// 			"func [(]([_a-zA-Z0-9]+[ ][*._a-zA-Z0-9]+),\n[)]")
+// 		bb = reore.ReplaceAll(bb, []byte("func (\n\t$1,\n)"))
 
-		rep := regexp.MustCompile(
-			"(\n[)] [_a-zA-Z0-9]+[(])([_a-zA-Z0-9])",
-		)
-		bb = rep.ReplaceAll(bb, []byte("$1\n\t$2"))
+// 		rep := regexp.MustCompile(
+// 			"(\n[)] [_a-zA-Z0-9]+[(])([_a-zA-Z0-9])",
+// 		)
+// 		bb = rep.ReplaceAll(bb, []byte("$1\n\t$2"))
 
-	}
-	// testing
-	return bb
-}
+// 	}
+// 	// testing
+// 	return bb
+// }
 
 func main() {
 
-	bb, e := ioutil.ReadFile(os.Args[1])
-	if e != nil {
+	// bb, e := ioutil.ReadFile(os.Args[1])
+	// if e != nil {
 
-		panic(e)
-	}
-	bb = liner(bb)
-	if e := ioutil.WriteFile(os.Args[1], bb, 0644); e != nil {
-		panic(e)
-	}
-	bb, e = ioutil.ReadFile(os.Args[1])
+	// 	panic(e)
+	// }
+	// bb = liner(bb)
+	// if e := ioutil.WriteFile(os.Args[1], bb, 0644); e != nil {
+	// 	panic(e)
+	// }
+	bb, e := ioutil.ReadFile(os.Args[1])
 	if e != nil {
 
 		panic(e)
