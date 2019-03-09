@@ -25,6 +25,11 @@ var App = cli.App{
 			Usage:  "sets the base for all subsystem logging",
 			EnvVar: "POD_LOGLEVEL",
 		},
+		cli.StringSliceFlag{
+			Name:  "subsystems, S",
+			Value: &cli.StringSlice{""},
+			Usage: "sets individual subsystems log levels, use 'help' to list available with list syntax",
+		},
 	},
 	Commands: []cli.Command{
 		{
@@ -55,9 +60,11 @@ var App = cli.App{
 			},
 		},
 		{
-			Name:    "ctl",
-			Aliases: []string{"c"},
-			Usage:   "send RPC commands to a node or wallet and print the result",
+			Name:        "ctl",
+			Aliases:     []string{"c"},
+			Usage:       "send RPC commands to a node or wallet and print the result",
+			Subcommands: ctlCommands,
+			Flags:       ctlFlags,
 			Action: func(c *cli.Context) error {
 				fmt.Println("calling ctl")
 				return nil

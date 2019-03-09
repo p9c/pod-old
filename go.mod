@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	ekyu.moe/cryptonight v0.3.0
+	git.parallelcoin.io/clog v0.0.0-20190304235059-94d4e8409174
 	github.com/DataDog/zstd v1.3.5 // indirect
 	github.com/aead/siphash v1.0.1
 	github.com/aead/skein v0.0.0-20160722084837-9365ae6e95d2

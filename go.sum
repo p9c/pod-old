@@ -3,6 +3,8 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 ekyu.moe/cryptonight v0.3.0 h1:Ur4LA+koVyo52/G7GF/5QKyVcloXkIQWjsw0vNvSKEA=
 ekyu.moe/cryptonight v0.3.0/go.mod h1:ZSoDow0HyP4oPny5lywoY1Szuo4eH+fpZn7J5YRCVBc=
 git.apache.org/thrift.git v0.0.0-20181218151757-9b75e4fe745a/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
+git.parallelcoin.io/clog v0.0.0-20190304235059-94d4e8409174 h1:wT768XTXEgcYnf2nn7As1gckJRyoO+EHbzSYYQA3QFo=
+git.parallelcoin.io/clog v0.0.0-20190304235059-94d4e8409174/go.mod h1:UiBcvgA/J/t7RR6NRo78mWNaQV899hC6U9Q//plpXnU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.3.5 h1:DtpNbljikUepEPD16hD4LvIcmhnhdLTiW/5pHgbmp14=
