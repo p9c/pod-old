@@ -4,7 +4,7 @@ Fully integrated all-in-one cli client, full node, wallet server, miner and GUI 
 
 > ## IMPORTANT
 > 
-> Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library github.com/urfave/cli
+> Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library [github.com/urfave/cli](https://github.com/urfave/cli)
 > 
 > Development branch can be found [here](https://seed1.parallelcoin.io/dev/pod/src/branch/dev).
 >  
