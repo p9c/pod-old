@@ -342,9 +342,8 @@ func init() {
 						Usage: "Mirror some JSON-RPC quirks of Bitcoin Core -- NOTE: Discouraged unless interoperability issues need to be worked around",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "norpc",
-						Value: "",
 						Usage: "Disable built-in RPC server -- NOTE: The RPC server is disabled by default if no rpcuser/rpcpass or rpclimituser/rpclimitpass is specified",
 						// Destination: nil,
 					},
@@ -443,6 +442,7 @@ func init() {
 					},
 					cli.StringFlag{
 						Name:  "minerlistener",
+						Value: "127.0.0.1:11045",
 						Usage: "listen address for miner controller",
 						// Destination: nil,
 					},
@@ -594,45 +594,42 @@ func init() {
 						Usage: "Generate a new TLS certpair at startup, but only write the certificate to disk",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "rpclisten",
-						Value: "",
 						Usage: "Listen for legacy RPC connections on this interface/port (default port: 11046, testnet: 21046, simnet: 41046)",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "rpcmaxclients",
-						Value: "",
+						Value: 8,
 						Usage: "Max number of legacy RPC clients for standard connections",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "rpcmaxwebsockets",
-						Value: "",
+						Value: 8,
 						Usage: "Max number of legacy RPC websocket connections",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "username",
-						Value: "",
+						Value: "user",
 						Usage: "Username for legacy RPC and pod authentication (if podusername is unset)",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "password",
-						Value: "",
+						Value: "pa55word",
 						Usage: "Password for legacy RPC and pod authentication (if podpassword is unset)",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "profile",
-						Value: "",
 						Usage: "Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "experimentalrpclisten",
-						Value: "",
 						Usage: "Listen for RPC connections on this interface/port",
 						// Destination: nil,
 					},
