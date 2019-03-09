@@ -1,6 +1,8 @@
 package app
 
 import (
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	"time"
 	"git.parallelcoin.io/pod/cmd/node"
 	"fmt"
 	"github.com/urfave/cli"
@@ -255,7 +257,7 @@ func init() {
 					cli.StringSliceFlag{
 						Name:  "listen",
 						Value: &cli.StringSlice{node.DefaultListener},
-						Usage: "Add an interface/port to listen for connections (default all interfaces port: 11047, testnet: 21047)",
+						Usage: "Add an interface/port to listen for connections",
 						// Destination: nil,
 					},
 					cli.IntFlag{
@@ -272,7 +274,7 @@ func init() {
 					cli.DurationFlag{
 						Name:  "banduration",
 						Value: time.Hour * 24,
-						Usage: "How long to ban misbehaving peers.  Valid time units are {s, m, h, d}.  Minimum 1 second",
+						Usage: "How long to ban misbehaving peers",
 						// Destination: nil,
 					},
 					cli.IntFlag{
@@ -288,56 +290,55 @@ func init() {
 					},
 					cli.StringFlag{
 						Name:  "rpcuser",
-						Value: "",
+						Value: "user",
 						Usage: "Username for RPC connections",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "rpcpass",
-						Value: "",
+						Value: "pa55word",
 						Usage: "Password for RPC connections",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "rpclimituser",
-						Value: "",
+						Value: "user",
 						Usage: "Username for limited RPC connections",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "rpclimitpass",
-						Value: "",
+						Value: "pa55word",
 						Usage: "Password for limited RPC connections",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "rpclisten",
-						Value: "",
+						Value: &cli.StringSlice{node.DefaultRPCListener},
 						Usage: "Add an interface/port to listen for RPC connections (default port: 11048, testnet: 21048) gives sha256d block templates",
 						// Destination: nil,
 					},
 
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "rpcmaxclients",
-						Value: "",
+						Value: node.DefaultMaxRPCClients,
 						Usage: "Max number of RPC clients for standard connections",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "rpcmaxwebsockets",
-						Value: "",
+						Value: node.DefaultMaxRPCWebsockets,
 						Usage: "Max number of RPC websocket connections",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "rpcmaxconcurrentreqs",
-						Value: "",
+						Value: node.DefaultMaxRPCConcurrentReqs,
 						Usage: "Max number of concurrent RPC requests that may be processed concurrently",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "rpcquirks",
-						Value: "",
 						Usage: "Mirror some JSON-RPC quirks of Bitcoin Core -- NOTE: Discouraged unless interoperability issues need to be worked around",
 						// Destination: nil,
 					},
@@ -348,27 +349,23 @@ func init() {
 						// Destination: nil,
 					},
 
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nodnsseed",
-						Value: "",
 						Usage: "Disable DNS seeding for peers",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "externalip",
-						Value: "",
 						Usage: "Add an ip to the list of local addresses we claim to listen on to peers",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "addcheckpoint",
-						Value: "",
 						Usage: "Add a custom checkpoint.  Format: '<height>:<hash>'",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nocheckpoints",
-						Value: "",
 						Usage: "Disable built-in checkpoints.  Don't do this unless you know what you're doing.",
 						// Destination: nil,
 					},
@@ -380,43 +377,39 @@ func init() {
 					},
 					cli.StringFlag{
 						Name:  "profile",
-						Value: "",
 						Usage: "Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "cpuprofile",
-						Value: "",
 						Usage: "Write CPU profile to the specified file",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "upnp",
-						Value: "",
 						Usage: "Use UPnP to map our listening port outside of NAT",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.Float64Flag{
 						Name:  "minrelaytxfee",
-						Value: "",
+						Value: mempool.DefaultMinRelayTxFee.ToDUO(),
 						Usage: "The minimum transaction fee in DUO/kB to be considered a non-zero fee.",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.Float64Flag{
 						Name:  "limitfreerelay",
-						Value: "",
+						Value: node.DefaultFreeTxRelayLimit,
 						Usage: "Limit relay of transactions with no transaction fee to the given amount in thousands of bytes per minute",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "norelaypriority",
-						Value: "",
 						Usage: "Do not require free or low-fee transactions to have high priority for relaying",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.DurationFlag{
 						Name:  "trickleinterval",
-						Value: "",
+						Value: node.DefaultTrickleInterval,
 						Usage: "Minimum time between attempts to send new inventory to a connected peer",
 						// Destination: nil,
 					},
@@ -428,91 +421,84 @@ func init() {
 					},
 					cli.StringFlag{
 						Name:  "algo",
-						Value: "",
+						Value: "random",
 						Usage: "Sets the algorithm for the CPU miner ( blake14lr, cryptonight7v2, keccak, lyra2rev2, scrypt, sha256d, stribog, skein, x11 default is 'random')",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "generate",
-						Value: "",
 						Usage: "Generate (mine) DUO using the CPU",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "genthreads",
-						Value: "",
+						Value: -1,
 						Usage: "Number of CPU threads to use with CPU miner -1 = all cores",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "miningaddr",
-						Value: "",
 						Usage: "Add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerport are set",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "minerlistener",
-						Value: "",
 						Usage: "listen address for miner controller",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "minerpass",
-						Value: "",
+						Value: "pa55word",
 						Usage: "Encryption password required for miner clients to subscribe to work updates, for use over insecure connections",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "blockminsize",
-						Value: "",
+						Value: node.BlockMaxSizeMin,
 						Usage: "Mininum block size in bytes to be used when creating a block",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "blockmaxsize",
-						Value: "",
+						Value: node.BlockMaxSizeMax,
 						Usage: "Maximum block size in bytes to be used when creating a block",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "blockminweight",
-						Value: "",
+						Value: node.BlockMaxWeightMin,
 						Usage: "Mininum block weight to be used when creating a block",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "blockmaxweight",
-						Value: "",
+						Value: node.BlockMaxWeightMax,
 						Usage: "Maximum block weight to be used when creating a block",
 						// Destination: nil,
 					},
 					cli.StringFlag{
 						Name:  "blockprioritysize",
-						Value: "",
 						Usage: "Size in bytes for high-priority/low-fee transactions when creating a block",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "uacomment",
-						Value: "",
 						Usage: "Comment to add to the user agent -- See BIP 14 for more information.",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nopeerbloomfilters",
-						Value: "",
 						Usage: "Disable bloom filtering support",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nocfilters",
-						Value: "",
 						Usage: "Disable committed filtering (CF) support",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "sigcachemaxsize",
-						Value: "",
+						Value: node.DefaultSigCacheMaxSize,
 						Usage: "The maximum number of entries in the signature verification cache",
 						// Destination: nil,
 					},
@@ -531,15 +517,13 @@ func init() {
 						Usage: "Disable address-based transaction index which makes the searchrawtransactions RPC available",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "relaynonstd",
-						Value: "",
 						Usage: "Relay non-standard transactions regardless of the default settings for the active network.",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "rejectnonstd",
-						Value: "",
 						Usage: "Reject non-standard transactions regardless of the default settings for the active network.",
 						// Destination: nil,
 					},
