@@ -60,13 +60,62 @@ var App = cli.App{
 			},
 		},
 		{
-			Name:        "ctl",
-			Aliases:     []string{"c"},
-			Usage:       "send RPC commands to a node or wallet and print the result",
-			Subcommands: ctlCommands,
-			Flags:       ctlFlags,
+			Name:    "ctl",
+			Aliases: []string{"c"},
+			Usage:   "send RPC commands to a node or wallet and print the result",
+			Subcommands: []cli.Command{
+				{
+					Name:    "help",
+					Aliases: []string{"?", "h"},
+					Usage:   "show help",
+				},
+				{
+					Name:  "listcommands, list, l",
+					Usage: "list commands available at endpoint",
+				},
+				{
+					Name:    "wallet",
+					Aliases: []string{"walletserver", "W"},
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:        "server, s",
+							Usage:       "set address of wallet server",
+							Value:       "localhost:11046",
+							Destination: &ctlConfig.Wallet,
+						},
+					},
+					Usage: "set address for wallet",
+					Action: func(c *cli.Context) error {
+						fmt.Println("starting with connection to wallet")
+						return nil
+					},
+				},
+			},
+			Flags: ctlFlags,
 			Action: func(c *cli.Context) error {
-				fmt.Println("calling ctl")
+				args := c.Args()
+				var wallet, help bool
+				var action func(*cli.Context) error
+				for _, x := range args {
+					switch x {
+					case "w", "wallet":
+						for _, y := range c.App.Commands {
+							if y.Name == "wallet" {
+								wallet = true
+								action = y.Action.(func(*cli.Context) error)
+							}
+						}
+					case "h", "help":
+						help = true
+					}
+				}
+				if wallet {
+					if help {
+						fmt.Println("help should be here")
+					} else {
+						_ = action(c)
+					}
+				}
 				return nil
 			},
 		},

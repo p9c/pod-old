@@ -5,17 +5,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-var ctlCommands = []cli.Command{
-	{
-		Name:  "listcommands, list, l",
-		Usage: "list commands available at endpoint",
-	},
-	{
-		Name:  "wallet, w",
-		Usage: "use wallet rpc server address for connection",
-	},
-}
-
 var ctlConfig = ctl.Config{}
 
 var ctlFlags = []cli.Flag{
@@ -23,13 +12,7 @@ var ctlFlags = []cli.Flag{
 		Name:        "rpcserver, server, s",
 		Value:       "localhost:11048",
 		Usage:       "set rpc password",
-		Destination: &ctlConfig.RPCPass,
-	},
-	cli.StringFlag{
-		Name:        "wallet, walletserver, W",
-		Value:       "localhost:11046",
-		Usage:       "set address for wallet",
-		Destination: &ctlConfig.Wallet,
+		Destination: &ctlConfig.RPCServer,
 	},
 	cli.StringFlag{
 		Name:        "rpcusername, rpcuser, u",
@@ -53,19 +36,19 @@ var ctlFlags = []cli.Flag{
 		Name:        "proxyserver, S",
 		Value:       "localhost:9050",
 		Usage:       "set proxy server address",
-		Destination: &ctlConfig.RPCPass,
+		Destination: &ctlConfig.Proxy,
 	},
 	cli.StringFlag{
 		Name:        "proxyusername, proxyuser, U",
 		Value:       "user",
 		Usage:       "set proxy username",
-		Destination: &ctlConfig.RPCUser,
+		Destination: &ctlConfig.ProxyUser,
 	},
 	cli.StringFlag{
 		Name:        "proxypassword, proxypass, P",
 		Value:       "pa55word",
 		Usage:       "set proxy password",
-		Destination: &ctlConfig.RPCPass,
+		Destination: &ctlConfig.ProxyPass,
 	},
 	cli.BoolFlag{
 		Name:        "tls, T",
@@ -75,7 +58,7 @@ var ctlFlags = []cli.Flag{
 	cli.BoolFlag{
 		Name:        "skipverify",
 		Usage:       "disable TLS certificate verification (not recommended)",
-		Destination: &ctlConfig.TLS,
+		Destination: &ctlConfig.TLSSkipVerify,
 	},
 	cli.BoolFlag{
 		Name:        "testnet3, testnet",
