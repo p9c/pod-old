@@ -12,7 +12,48 @@ var App = cli.App{
 	Description:          "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 	Copyright:            "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 	EnableBashCompletion: true,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:   "datadir, d",
+			Value:  "~/.pod",
+			Usage:  "sets the data directory base for a pod instance",
+			EnvVar: "POD_DATADIR",
+		},
+		cli.StringFlag{
+			Name:   "loglevel, l",
+			Value:  "info",
+			Usage:  "sets the base for all subsystem logging",
+			EnvVar: "POD_LOGLEVEL",
+		},
+	},
 	Commands: []cli.Command{
+		{
+			Name:    "version",
+			Aliases: []string{"v"},
+			Usage:   "print version and exit",
+			Action: func(c *cli.Context) error {
+				fmt.Println(c.App.Version)
+				return nil
+			},
+		},
+		{
+			Name:    "init",
+			Aliases: []string{"i"},
+			Usage:   "resets configuration to factory",
+			Action: func(c *cli.Context) error {
+				fmt.Println("resetting configuration")
+				return nil
+			},
+		},
+		{
+			Name:    "conf",
+			Aliases: []string{"C"},
+			Usage:   "automate configuration setup for testnets etc",
+			Action: func(c *cli.Context) error {
+				fmt.Println("calling conf")
+				return nil
+			},
+		},
 		{
 			Name:    "ctl",
 			Aliases: []string{"c"},
@@ -27,7 +68,7 @@ var App = cli.App{
 			Aliases: []string{"n"},
 			Usage:   "start parallelcoin full node",
 			Action: func(c *cli.Context) error {
-				fmt.Println("calling ctl")
+				fmt.Println("calling node")
 				return nil
 			},
 		},
@@ -36,7 +77,7 @@ var App = cli.App{
 			Aliases: []string{"w"},
 			Usage:   "start parallelcoin wallet server",
 			Action: func(c *cli.Context) error {
-				fmt.Println("calling ctl")
+				fmt.Println("calling wallet")
 				return nil
 			},
 		},
@@ -45,7 +86,7 @@ var App = cli.App{
 			Aliases: []string{"s"},
 			Usage:   "start combined wallet/node shell",
 			Action: func(c *cli.Context) error {
-				fmt.Println("calling ctl")
+				fmt.Println("calling shell")
 				return nil
 			},
 		},
@@ -54,7 +95,7 @@ var App = cli.App{
 			Aliases: []string{"g"},
 			Usage:   "start GUI (TODO: should ultimately be default)",
 			Action: func(c *cli.Context) error {
-				fmt.Println("calling ctl")
+				fmt.Println("calling gui")
 				return nil
 			},
 		},
