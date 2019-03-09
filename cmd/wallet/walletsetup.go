@@ -11,7 +11,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/util/legacy/keystore"
 	"git.parallelcoin.io/pod/pkg/util/prompt"

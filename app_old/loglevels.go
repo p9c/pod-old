@@ -19,7 +19,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/rpc/legacy"
 	"git.parallelcoin.io/pod/pkg/rpc/server"
 	"git.parallelcoin.io/pod/pkg/rpc/client"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 	chain "git.parallelcoin.io/pod/pkg/wallet/chain"

@@ -5,7 +5,7 @@ package wtxmgr
 
 import (
 	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/wallet/db"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 )

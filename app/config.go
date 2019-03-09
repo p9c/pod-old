@@ -27,5 +27,9 @@ type ConfigCommon struct {
 }
 
 var appConfigCommon = ConfigCommon{}
-
+var ctlDatadir = "ctl"
 var defaultDatadir = "~/.pod"
+var guiDataDir = "/gui"
+var nodeDataDir = "/node"
+var shellDataDir = "/shell"
+var walletDataDir = "/wallet"

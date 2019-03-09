@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"

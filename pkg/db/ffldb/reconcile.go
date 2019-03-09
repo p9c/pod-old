@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"hash/crc32"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	database "git.parallelcoin.io/pod/pkg/db"
 )
 

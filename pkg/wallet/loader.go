@@ -1,4 +1,3 @@
-
 // Copyright (c) 2015-2016 The btcsuite developers
 
 package wallet
@@ -11,36 +10,11 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/pkg/chain/config"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/prompt"
 	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 	"git.parallelcoin.io/pod/pkg/wallet/db"
 )
-
-const (
-	WalletDbName = "wallet.db"
-)
-
-var (
-
-	// ErrLoaded describes the error condition of attempting to load or
-
-	// create a wallet when the loader has already done so.
-	ErrLoaded = errors.New("wallet already loaded")
-
-
-	// ErrNotLoaded describes the error condition of attempting to close a
-
-	// loaded wallet when a wallet has not been loaded.
-	ErrNotLoaded = errors.New("wallet is not loaded")
-
-
-	// ErrExists describes the error condition of attempting to create a new
-
-	// wallet when one exists already.
-	ErrExists = errors.New("wallet already exists")
-)
-
 
 // Loader implements the creating of new and opening of existing wallets, while
 
@@ -65,49 +39,33 @@ type Loader struct {
 	mu             sync.Mutex
 }
 
+const (
+	WalletDbName = "wallet.db"
+)
 
-// NewLoader constructs a Loader with an optional recovery window. If the recovery window is non-zero, the wallet will attempt to recovery addresses starting from the last SyncedTo height.
-func NewLoader(
-	chainParams *chaincfg.Params, dbDirPath string,
-	recoveryWindow uint32) *Loader {
+var (
+	// ErrExists describes the error condition of attempting to create a new
 
-	return &Loader{
-		chainParams:    chainParams,
-		dbDirPath:      dbDirPath,
-		recoveryWindow: recoveryWindow,
-	}
-}
+	// wallet when one exists already.
+	ErrExists = errors.New("wallet already exists")
+)
 
+var (
 
-// onLoaded executes each added callback and prevents loader from loading any
+	// ErrLoaded describes the error condition of attempting to load or
 
-// additional wallets.  Requires mutex to be locked.
-func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
+	// create a wallet when the loader has already done so.
+	ErrLoaded = errors.New("wallet already loaded")
+)
 
-	for _, fn := range l.callbacks {
-		fn(w)
-	}
+var (
+	// ErrNotLoaded describes the error condition of attempting to close a
 
-	l.wallet = w
-	l.db = db
-	l.callbacks = nil // not needed anymore
-}
+	// loaded wallet when a wallet has not been loaded.
+	ErrNotLoaded = errors.New("wallet is not loaded")
+)
 
-
-// RunAfterLoad adds a function to be executed when the loader creates or opens a wallet.  Functions are executed in a single goroutine in the order they are added.
-func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
-
-	l.mu.Lock()
-	if l.wallet != nil {
-		w := l.wallet
-		l.mu.Unlock()
-		fn(w)
-	} else {
-		l.callbacks = append(l.callbacks, fn)
-		l.mu.Unlock()
-	}
-}
-
+var errNoConsole = errors.New("db upgrade requires console access for additional input")
 
 // CreateNewWallet creates a new wallet using the provided public and private passphrases.  The seed is optional.  If non-nil, addresses are derived from this seed.  If nil, a secure random seed is generated.
 func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
@@ -128,8 +86,6 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	if exists {
 		return nil, errors.New("ERROR: " + dbPath + " already exists")
 	}
-
-
 	// Create the wallet database backed by bolt db.
 	err = os.MkdirAll(l.dbDirPath, 0700)
 	if err != nil {
@@ -139,8 +95,6 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	if err != nil {
 		return nil, err
 	}
-
-
 	// Initialize the newly created database for the wallet before opening.
 	err = Create(
 		db, pubPassphrase, privPassphrase, seed, l.chainParams, bday,
@@ -148,8 +102,6 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	if err != nil {
 		return nil, err
 	}
-
-
 	// Open the newly-created wallet.
 	w, err := Open(db, pubPassphrase, nil, l.chainParams, l.recoveryWindow)
 	if err != nil {
@@ -161,13 +113,18 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	return w, nil
 }
 
-var errNoConsole = errors.New("db upgrade requires console access for additional input")
+// LoadedWallet returns the loaded wallet, if any, and a bool for whether the
 
-func noConsole() ([]byte, error) {
+// wallet has been loaded or not.  If true, the wallet pointer should be safe to
 
-	return nil, errNoConsole
+// dereference.
+func (l *Loader) LoadedWallet() (*Wallet, bool) {
+
+	l.mu.Lock()
+	w := l.wallet
+	l.mu.Unlock()
+	return w, w != nil
 }
-
 
 // OpenExistingWallet opens the wallet from the loader's wallet database path and the public passphrase.  If the loader is being called by a context where standard input prompts may be used during wallet upgrades, setting canConsolePrompt will enables these prompts.
 func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool) (*Wallet, error) {
@@ -181,15 +138,11 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		log <- cl.Trc("already loaded wallet")
 		return nil, ErrLoaded
 	}
-
-
 	// Ensure that the network directory exists.
 	if err := checkCreateDir(l.dbDirPath); err != nil {
 		log <- cl.Error{"cannot create directory", l.dbDirPath}
 		return nil, err
 	}
-
-
 	// Open the database using the boltdb backend.
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
@@ -230,30 +183,19 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	return w, nil
 }
 
-
-// WalletExists returns whether a file exists at the loader's database path.
-
-// This may return an error for unexpected I/O failures.
-func (l *Loader) WalletExists() (bool, error) {
-
-	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
-	return fileExists(dbPath)
-}
-
-
-// LoadedWallet returns the loaded wallet, if any, and a bool for whether the
-
-// wallet has been loaded or not.  If true, the wallet pointer should be safe to
-
-// dereference.
-func (l *Loader) LoadedWallet() (*Wallet, bool) {
+// RunAfterLoad adds a function to be executed when the loader creates or opens a wallet.  Functions are executed in a single goroutine in the order they are added.
+func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 
 	l.mu.Lock()
-	w := l.wallet
-	l.mu.Unlock()
-	return w, w != nil
+	if l.wallet != nil {
+		w := l.wallet
+		l.mu.Unlock()
+		fn(w)
+	} else {
+		l.callbacks = append(l.callbacks, fn)
+		l.mu.Unlock()
+	}
 }
-
 
 // UnloadWallet stops the loaded wallet, if any, and closes the wallet database.
 
@@ -282,6 +224,41 @@ func (l *Loader) UnloadWallet() error {
 	return nil
 }
 
+// WalletExists returns whether a file exists at the loader's database path.
+
+// This may return an error for unexpected I/O failures.
+func (l *Loader) WalletExists() (bool, error) {
+
+	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
+	return fileExists(dbPath)
+}
+
+// onLoaded executes each added callback and prevents loader from loading any
+
+// additional wallets.  Requires mutex to be locked.
+func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
+
+	for _, fn := range l.callbacks {
+		fn(w)
+	}
+
+	l.wallet = w
+	l.db = db
+	l.callbacks = nil // not needed anymore
+}
+
+// NewLoader constructs a Loader with an optional recovery window. If the recovery window is non-zero, the wallet will attempt to recovery addresses starting from the last SyncedTo height.
+func NewLoader(
+	chainParams *chaincfg.Params, dbDirPath string,
+	recoveryWindow uint32) *Loader {
+
+	return &Loader{
+		chainParams:    chainParams,
+		dbDirPath:      dbDirPath,
+		recoveryWindow: recoveryWindow,
+	}
+}
+
 func fileExists(
 	filePath string) (bool, error) {
 
@@ -294,4 +271,9 @@ func fileExists(
 		return false, err
 	}
 	return true, nil
+}
+
+func noConsole() ([]byte, error) {
+
+	return nil, errNoConsole
 }

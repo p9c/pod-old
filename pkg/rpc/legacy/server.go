@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wallet/chain"

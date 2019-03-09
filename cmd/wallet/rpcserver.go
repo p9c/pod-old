@@ -15,7 +15,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/rpc/legacy"
 	"git.parallelcoin.io/pod/pkg/rpc/server"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

@@ -34,7 +34,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/bloom"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 )
 

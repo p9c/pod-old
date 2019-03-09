@@ -11,7 +11,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"github.com/tucnak/climax"
 )
 

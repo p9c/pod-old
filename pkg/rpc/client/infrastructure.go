@@ -19,7 +19,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/clog"
 
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"github.com/btcsuite/go-socks/socks"

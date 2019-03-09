@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 )
 
 func runCtl(

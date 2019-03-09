@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"git.parallelcoin.io/pod/cmd/ctl"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"github.com/tucnak/climax"
 )
 

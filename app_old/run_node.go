@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"git.parallelcoin.io/pod/cmd/node"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 )
 
 func runNode(

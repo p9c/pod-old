@@ -9,7 +9,7 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/ctl"
 	w "git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"github.com/tucnak/climax"
 )
 

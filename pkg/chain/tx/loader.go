@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/pkg/chain/config"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/prompt"
 	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 	"git.parallelcoin.io/pod/pkg/wallet/db"

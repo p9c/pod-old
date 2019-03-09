@@ -21,7 +21,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/rpc/client"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	"github.com/davecgh/go-spew/spew"
 

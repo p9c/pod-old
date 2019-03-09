@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 )
 
 // Address is the parameter and reply type for subscriptions

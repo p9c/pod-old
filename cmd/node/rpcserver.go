@@ -36,7 +36,7 @@ import (
 	p "git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
 	"github.com/btcsuite/websocket"
 )

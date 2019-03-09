@@ -3,9 +3,8 @@ package database
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/clog"
 )
-
 
 // Driver defines a structure for backend drivers to use when they registered themselves as a backend which implements the DB interface.
 type Driver struct {
@@ -23,33 +22,8 @@ type Driver struct {
 	UseLogger func(logger cl.SubSystem)
 }
 
-
 // driverList holds all of the registered database backends.
 var drivers = make(map[string]*Driver)
-
-
-// RegisterDriver adds a backend database driver to available interfaces. ErrDbTypeRegistered will be returned if the database type for the driver has already been registered.
-func RegisterDriver(
-	driver Driver) error {
-	if _, exists := drivers[driver.DbType]; exists {
-		str := fmt.Sprintf("driver %q is already registered",
-			driver.DbType)
-		return makeError(ErrDbTypeRegistered, str, nil)
-	}
-	drivers[driver.DbType] = &driver
-	return nil
-}
-
-
-// SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
-func SupportedDrivers() []string {
-	supportedDBs := make([]string, 0, len(drivers))
-	for _, drv := range drivers {
-		supportedDBs = append(supportedDBs, drv.DbType)
-	}
-	return supportedDBs
-}
-
 
 // Create initializes and opens a database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
 func Create(
@@ -63,7 +37,6 @@ func Create(
 	return drv.Create(args...)
 }
 
-
 // Open opens an existing database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
 func Open(
 	dbType string, args ...interface{}) (DB, error) {
@@ -74,4 +47,25 @@ func Open(
 		return nil, makeError(ErrDbUnknownType, str, nil)
 	}
 	return drv.Open(args...)
+}
+
+// RegisterDriver adds a backend database driver to available interfaces. ErrDbTypeRegistered will be returned if the database type for the driver has already been registered.
+func RegisterDriver(
+	driver Driver) error {
+	if _, exists := drivers[driver.DbType]; exists {
+		str := fmt.Sprintf("driver %q is already registered",
+			driver.DbType)
+		return makeError(ErrDbTypeRegistered, str, nil)
+	}
+	drivers[driver.DbType] = &driver
+	return nil
+}
+
+// SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
+func SupportedDrivers() []string {
+	supportedDBs := make([]string, 0, len(drivers))
+	for _, drv := range drivers {
+		supportedDBs = append(supportedDBs, drv.DbType)
+	}
+	return supportedDBs
 }

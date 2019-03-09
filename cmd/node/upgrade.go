@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 )
 
 // dirEmpty returns whether or not the specified directory path is empty.

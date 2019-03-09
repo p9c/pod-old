@@ -1,6 +1,7 @@
 package app
 
 import (
+	"git.parallelcoin.io/pod/cmd/node"
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
@@ -223,10 +224,16 @@ func init() {
 				Usage:   "start parallelcoin full node",
 				Subcommands: []cli.Command{
 					{
-						Name:    "listcommands",
-						Aliases: []string{"list", "l"},
-						Usage:   "list commands available at endpoint",
-						Action:  ctlHandleList,
+						Name:  "droptxindex",
+						Usage: "Deletes the hash-based transaction index from the database on start up and then exits.",
+					},
+					{
+						Name:  "dropaddrindex",
+						Usage: "Deletes the address-based transaction index from the database on start up and then exits.",
+					},
+					{
+						Name:  "dropcfindex",
+						Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and then exits.",
 					},
 				},
 				Flags: []cli.Flag{
@@ -240,45 +247,42 @@ func init() {
 						Usage: "Connect only to the specified peers at startup",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nolisten",
-						Value: "",
 						Usage: "Disable listening for incoming connections -- NOTE: Listening is automatically disabled if the --connect or --proxy options are used without also specifying listen interfaces via --listen",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "listen",
-						Value: "",
+						Value: &cli.StringSlice{node.DefaultListener},
 						Usage: "Add an interface/port to listen for connections (default all interfaces port: 11047, testnet: 21047)",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "maxpeers",
-						Value: "",
+						Value: node.DefaultMaxPeers,
 						Usage: "Max number of inbound and outbound peers",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "nobanning",
-						Value: "",
 						Usage: "Disable banning of misbehaving peers",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.DurationFlag{
 						Name:  "banduration",
-						Value: "",
+						Value: time.Hour * 24,
 						Usage: "How long to ban misbehaving peers.  Valid time units are {s, m, h, d}.  Minimum 1 second",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.IntFlag{
 						Name:  "banthreshold",
-						Value: "",
+						Value: node.DefaultBanThreshold,
 						Usage: "Maximum allowed ban score before disconnecting and banning misbehaving peers.",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.StringSliceFlag{
 						Name:  "whitelist",
-						Value: "",
 						Usage: "Add an IP network or IP that will not be banned. (eg. 192.168.1.0/24 or ::1)",
 						// Destination: nil,
 					},
@@ -507,45 +511,24 @@ func init() {
 						// Destination: nil,
 					},
 					cli.StringFlag{
-						Name:  "dropcfindex",
-						Value: "",
-						Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and then exits.",
-						// Destination: nil,
-					},
-					cli.StringFlag{
 						Name:  "sigcachemaxsize",
 						Value: "",
 						Usage: "The maximum number of entries in the signature verification cache",
 						// Destination: nil,
 					},
-					cli.StringFlag{
+					cli.BoolFlag{
 						Name:  "blocksonly",
-						Value: "",
 						Usage: "Do not accept transactions from remote peers.",
 						// Destination: nil,
 					},
-					cli.StringFlag{
-						Name:  "txindex",
-						Value: "",
-						Usage: "Maintain a full hash-based transaction index which makes all transactions available via the getrawtransaction RPC",
+					cli.BoolFlag{
+						Name:  "notxindex",
+						Usage: "Disable the transaction index which makes all transactions available via the getrawtransaction RPC",
 						// Destination: nil,
 					},
-					cli.StringFlag{
-						Name:  "droptxindex",
-						Value: "",
-						Usage: "Deletes the hash-based transaction index from the database on start up and then exits.",
-						// Destination: nil,
-					},
-					cli.StringFlag{
-						Name:  "addrindex",
-						Value: "",
-						Usage: "Maintain a full address-based transaction index which makes the searchrawtransactions RPC available",
-						// Destination: nil,
-					},
-					cli.StringFlag{
-						Name:  "dropaddrindex",
-						Value: "",
-						Usage: "Deletes the address-based transaction index from the database on start up and then exits.",
+					cli.BoolFlag{
+						Name:  "noaddrindex",
+						Usage: "Disable address-based transaction index which makes the searchrawtransactions RPC available",
 						// Destination: nil,
 					},
 					cli.StringFlag{

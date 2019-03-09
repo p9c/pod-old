@@ -1,7 +1,7 @@
 package netsync
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 )
 
 // Log is the logger for the netsync package

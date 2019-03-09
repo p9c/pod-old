@@ -3,10 +3,9 @@ package spv
 import (
 	"fmt"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
-
 
 // blockMessage is a notification from the block manager to a block
 
@@ -15,7 +14,6 @@ type blockMessage struct {
 	header  *wire.BlockHeader
 	msgType messageType
 }
-
 
 // blockSubscription allows a client to subscribe to and unsubscribe from block
 
@@ -34,7 +32,6 @@ type blockSubscription struct {
 	intQuit     chan struct{}
 }
 
-
 // messageType describes the type of blockMessage.
 type messageType int
 
@@ -44,14 +41,11 @@ const (
 
 	// new set of basic filter headers to the end of the main chain.
 	connectBasic messageType = iota
-
-
 	// disconnect is a type of filter notification that is sent whenever a
 
 	// block is disconnected from the end of the main chain.
 	disconnect
 )
-
 
 // sendSubscribedMsg sends all block subscribers a message if they request this
 
@@ -74,7 +68,6 @@ func (
 	}
 	s.mtxSubscribers.RUnlock()
 }
-
 
 // subscribeBlockMsg handles adding block subscriptions to the ChainService.
 
@@ -103,8 +96,6 @@ func (
 		notifyBlock:    make(chan *blockMessage),
 		intQuit:        make(chan struct{}),
 	}
-
-
 	// At this point, we'll now check to see if we need to deliver any
 
 	// backlog notifications as its possible that while the caller is
@@ -116,8 +107,6 @@ func (
 
 		s.blockSubscribers[&subscription] = struct{}{}
 		go subscription.subscriptionHandler()
-
-
 		// If the best height matches the filter header tip, then we're
 
 		// done and don't need to proceed any further.
@@ -130,8 +119,6 @@ func (
 			"delivering backlog block notifications from height=%v, to height=%v",
 			bestHeight, filterHeaderTip,
 		}
-
-
 		// Otherwise, we need to read block headers from disk to
 
 		// deliver a backlog to the caller before we proceed. We'll use
@@ -170,7 +157,6 @@ func (
 	return &subscription, nil
 }
 
-
 // unsubscribeBlockMsgs handles removing block subscriptions from the
 
 // ChainService.
@@ -192,8 +178,6 @@ func (
 	s.mtxSubscribers.Unlock()
 
 	close(subscription.intQuit)
-
-
 	// Drain the inbound notification channel
 cleanup:
 	for {
@@ -209,20 +193,15 @@ cleanup:
 	}
 }
 
-
 // subscriptionHandler must be run as a goroutine and queues notification
 
 // messages from the chain service to the subscriber.
 func (
 	s *blockSubscription,
 ) subscriptionHandler() {
-
-
 	// Start with a small queue; it will grow if needed.
 	ntfns := make([]*blockMessage, 0, 5)
 	var next *blockMessage
-
-
 	// Try to send on the specified channel. If a new message arrives while
 
 	// we try to send, queue it and continue with the loop. If a quit
@@ -274,14 +253,10 @@ func (
 			return false
 		}
 	}
-
-
 	// Loop until we get a signal on s.quit or s.intQuit.
 	for {
 
 		if next != nil {
-
-
 			// If selectChan returns false, we were signalled on
 
 			// s.quit or s.intQuit.
@@ -331,7 +306,6 @@ func (
 	}
 }
 
-
 // sendMsgToSubscriber is a helper function that sends the target message to
 
 // the subscription client over the proper channel based on the type of the new
@@ -354,8 +328,6 @@ func sendMsgToSubscriber(
 		// package.
 		panic("invalid message type")
 	}
-
-
 	// If the subscription channel was found for this subscription based on
 
 	// the new update, then we'll wait to either send this notification, or

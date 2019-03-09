@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"

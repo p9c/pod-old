@@ -6,7 +6,7 @@
 //  import (
 //          "flag"
 //          "fmt"
-//          "git.parallelcoin.io/pod/pkg/util/clog"
+//          "git.parallelcoin.io/clog"
 //          "git.parallelcoin.io/pod/pkg/util"
 //          "git.parallelcoin.io/pod/pkg/chain/config"
 //  )

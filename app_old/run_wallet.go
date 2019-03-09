@@ -6,7 +6,7 @@ import (
 
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/chain/config/params"
 )
 

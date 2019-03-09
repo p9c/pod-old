@@ -14,7 +14,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/pod/pkg/db"
 	u "git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/treap"
 	"github.com/btcsuite/goleveldb/leveldb"
 	"github.com/btcsuite/goleveldb/leveldb/comparer"
