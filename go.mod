@@ -33,8 +33,7 @@ require (
 	github.com/klauspost/cpuid v1.2.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.0 // indirect
 	github.com/lightninglabs/gozmq v0.0.0-20180324010646-462a8a753885
-	github.com/mdempsky/gocode v0.0.0-20190203001940-7fb65232883f // indirect
-	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/nanobox-io/golang-scribble v0.0.0-20180621225840-336beac0a992
 	github.com/obsilp/rmnp v0.0.0-20181020095946-f937c1003aae
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
@@ -54,5 +53,6 @@ require (
 	golang.org/x/crypto v0.0.0-20190228161510-8dd112bcdc25
 	golang.org/x/net v0.0.0-20190301231341-16b79f2e4e95
 	google.golang.org/grpc v1.19.0
+	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

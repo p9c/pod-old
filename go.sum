@@ -178,8 +178,6 @@ github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaO
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/mdempsky/gocode v0.0.0-20190203001940-7fb65232883f h1:ee+twVCignaZjt7jpbMSLxAeTN/Nfq9W/nm91E7QO1A=
-github.com/mdempsky/gocode v0.0.0-20190203001940-7fb65232883f/go.mod h1:hltEC42XzfMNgg0S1v6JTywwra2Mu6F6cLR03debVQ8=
 github.com/miekg/dns v1.0.8/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db h1:62I3jR2EmQ4l5rM/4FEfDWcRD+abF5XlKShorW5LRoQ=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db/go.mod h1:l0dey0ia/Uv7NcFFVbCLtqEBQbrT4OCwCSKTEv6enCw=
@@ -335,6 +333,8 @@ gopkg.in/src-d/go-billy.v4 v4.3.0 h1:KtlZ4c1OWbIs4jCv5ZXrTqG8EQocr0g/d4DjNg70aek
 gopkg.in/src-d/go-billy.v4 v4.3.0/go.mod h1:tm33zBoOwxjYHZIE+OV8bxTWFMJLrconzFMd38aARFk=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 h1:uRGJdciOHaEIrze2W8Q3AKkepLTh2hOroT7a+7czfdQ=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=
+gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 h1:Ggy3mWN4l3PUFPfSG0YB3n5fVYggzysUmiUQ89SnX6Y=
+gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8/go.mod h1:cKXr3E0k4aosgycml1b5z33BVV6hai1Kh7uDgFOkbcs=
 gopkg.in/vmihailenco/msgpack.v2 v2.9.1 h1:kb0VV7NuIojvRfzwslQeP3yArBqJHW9tOl4t38VS1jM=
 gopkg.in/vmihailenco/msgpack.v2 v2.9.1/go.mod h1:/3Dn1Npt9+MYyLpYYXjInO/5jvMLamn+AEGwNEOatn8=
 gopkg.in/yaml.v2 v2.2.1 h1:mUhvW9EsL+naU5Q3cakzfE91YhliOondGd6ZrsDBHQE=
