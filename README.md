@@ -5,7 +5,7 @@ Fully integrated all-in-one cli client, full node, wallet server, miner and GUI 
 > ## IMPORTANT
 > 
 > Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library github.com/urfave/cli
-> > 
+>  
 > Once this node again syncs and relays correctly on the legacy mainnet, hardfork will be debugged and integrated on a side-branch and once this works the master will be merged back and interested testing users will be able to run their own testnets with configurable activation height to iron out the remaining wrinkles in the new protocol, and we will be implementing the GUI and move into beta phase.
 > 
 > **This code will not function correctly currently, please be patient while it is fixed.**
