@@ -32,6 +32,7 @@ require (
 	github.com/klauspost/cpuid v1.2.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.0 // indirect
 	github.com/lightninglabs/gozmq v0.0.0-20180324010646-462a8a753885
+	github.com/mdempsky/gocode v0.0.0-20190203001940-7fb65232883f // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nanobox-io/golang-scribble v0.0.0-20180621225840-336beac0a992
 	github.com/obsilp/rmnp v0.0.0-20181020095946-f937c1003aae
@@ -44,6 +45,7 @@ require (
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect
 	github.com/tjfoc/gmsm v1.0.1 // indirect
 	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
+	github.com/urfave/cli v1.20.0
 	github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b
 	github.com/xtaci/kcp-go v5.0.7+incompatible
 	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb

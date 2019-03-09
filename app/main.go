@@ -1,32 +1,23 @@
 package app
 
 import (
-	"github.com/tucnak/climax"
+	"github.com/urfave/cli"
+	"os"
 )
 
-// PodApp is the climax main app controller for pod
-var PodApp = climax.Application{
-	Name:     "pod",
-	Brief:    "multi-application launcher for Parallelcoin Pod",
-	Version:  Version(),
-	Commands: []climax.Command{},
-	Topics:   []climax.Topic{},
-	Groups:   []climax.Group{},
 
-	// Default:  GUICommand.Handle,
+
+var App = cli.App{
+	Name:        "pod",
+	Version:     "v0.9.9",
+	Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
+	Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 }
 
-// Main is the real pod main
 func Main() int {
-
-	PodApp.AddCommand(VersionCommand)
-	PodApp.AddCommand(ConfCommand)
-	// PodApp.AddCommand(GUICommand)
-	PodApp.AddCommand(CtlCommand)
-	PodApp.AddCommand(NodeCommand)
-	PodApp.AddCommand(WalletCommand)
-	PodApp.AddCommand(ShellCommand)
-	PodApp.AddCommand(CreateCommand)
-	PodApp.AddCommand(SetupCommand)
-	return PodApp.Run()
+	e := App.Run(os.Args)
+	if e != nil {
+		return 1
+	}
+	return 0
 }
