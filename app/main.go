@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+// TODO: create common base with all common common fields linked as pointers
+
 var App = cli.NewApp()
 
 func Main() int {
