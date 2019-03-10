@@ -6,6 +6,8 @@ ekyu.moe/cryptonight/internal/sha3
 ekyu.moe/cryptonight/jh
 # git.parallelcoin.io/clog v0.0.0-20190304235059-94d4e8409174
 git.parallelcoin.io/clog
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
 # github.com/DataDog/zstd v1.3.5
 github.com/DataDog/zstd
 # github.com/aead/siphash v1.0.1
@@ -145,7 +147,7 @@ github.com/tjfoc/gmsm/sm4
 # github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
 github.com/tucnak/climax
 # github.com/urfave/cli v1.20.0
-github.com/urfave/cli
+github.com/urfave/cli/altsrc
 # github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b
 github.com/vivint/infectious
 # github.com/xtaci/kcp-go v5.0.7+incompatible
@@ -233,3 +235,7 @@ google.golang.org/grpc/credentials/internal
 google.golang.org/grpc/balancer/base
 google.golang.org/grpc/binarylog/grpc_binarylog_v1
 google.golang.org/grpc/internal/syscall
+# gopkg.in/urfave/cli.v1 v1.20.0
+gopkg.in/urfave/cli.v1
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2

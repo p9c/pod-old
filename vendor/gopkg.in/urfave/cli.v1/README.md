@@ -140,7 +140,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -161,7 +161,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -199,7 +199,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -262,7 +262,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -291,7 +291,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -335,7 +335,7 @@ import (
   "os"
   "fmt"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -388,7 +388,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -429,7 +429,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -470,7 +470,7 @@ import (
   "os"
   "sort"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -535,7 +535,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -567,7 +567,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -632,7 +632,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
   "github.com/urfave/cli/altsrc"
 )
 
@@ -671,7 +671,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -739,7 +739,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -787,7 +787,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -827,7 +827,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -898,7 +898,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -943,7 +943,7 @@ import (
   "io"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -1000,7 +1000,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -1035,7 +1035,7 @@ package main
 import (
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func main() {
@@ -1064,7 +1064,7 @@ import (
   "fmt"
   "os"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 var (
@@ -1103,7 +1103,7 @@ import (
   "os"
   "time"
 
-  "gopkg.in/urfave/cli.v1"
+  "github.com/urfave/cli"
 )
 
 func init() {
