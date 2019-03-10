@@ -21,40 +21,8 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// openRPCKeyPair creates or loads the RPC TLS keypair specified by the
-
-// application config.  This function respects the cfg.OneTimeTLSKey setting.
-func openRPCKeyPair() (tls.Certificate, error) {
-
-	// Check for existence of the TLS key file.  If one time TLS keys are
-
-	// enabled but a key already exists, this function should error since
-
-	// it's possible that a persistent certificate was copied to a remote
-
-	// machine.  Otherwise, generate a new keypair when the key is missing.
-
-	// When generating new persistent keys, overwriting an existing cert is
-
-	// acceptable if the previous execution used a one time TLS key.
-
-	// Otherwise, both the cert and key should be read from disk.  If the
-
-	// cert is missing, the read error will occur in LoadX509KeyPair.
-	_, e := os.Stat(cfg.RPCKey)
-	keyExists := !os.IsNotExist(e)
-	switch {
-	case cfg.OneTimeTLSKey && keyExists:
-		err := fmt.Errorf("one time TLS keys are enabled, but TLS key `%s` already exists", cfg.RPCKey)
-		return tls.Certificate{}, err
-	case cfg.OneTimeTLSKey:
-		return generateRPCKeyPair(false)
-	case !keyExists:
-		return generateRPCKeyPair(true)
-	default:
-		return tls.LoadX509KeyPair(cfg.RPCCert, cfg.RPCKey)
-	}
-}
+type listenFunc func(
+	net string, laddr string) (net.Listener, error)
 
 // generateRPCKeyPair generates a new RPC TLS keypair and writes the cert and
 
@@ -109,88 +77,6 @@ func generateRPCKeyPair(
 	log <- cl.Inf("done generating TLS certificates")
 	return keyPair, nil
 }
-
-func startRPCServers(
-	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
-
-	log <- cl.Trc("startRPCServers")
-	var (
-		server       *grpc.Server
-		legacyServer *legacyrpc.Server
-		legacyListen = net.Listen
-		keyPair      tls.Certificate
-		err          error
-	)
-	if !cfg.EnableServerTLS {
-		log <- cl.Inf("server TLS is disabled - only legacy RPC may be used")
-	} else {
-		keyPair, err = openRPCKeyPair()
-		if err != nil {
-			return nil, nil, err
-		}
-
-		// Change the standard net.Listen function to the tls one.
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{keyPair},
-			MinVersion:   tls.VersionTLS12,
-			NextProtos:   []string{"h2"}, // HTTP/2 over TLS
-		}
-		legacyListen = func(net string, laddr string) (net.Listener, error) {
-
-			return tls.Listen(net, laddr, tlsConfig)
-		}
-
-		if len(cfg.ExperimentalRPCListeners) != 0 {
-			listeners := makeListeners(cfg.ExperimentalRPCListeners, net.Listen)
-			if len(listeners) == 0 {
-				err := errors.New("failed to create listeners for RPC server")
-				return nil, nil, err
-			}
-			creds := credentials.NewServerTLSFromCert(&keyPair)
-			server = grpc.NewServer(grpc.Creds(creds))
-			rpcserver.StartVersionService(server)
-			rpcserver.StartWalletLoaderService(server, walletLoader, ActiveNet)
-			for _, lis := range listeners {
-				lis := lis
-				go func() {
-
-					log <- cl.Info{"experimental RPC server listening on", lis.Addr()}
-					err = server.Serve(lis)
-					log <- cl.Trace{"finished serving expimental RPC:", err}
-				}()
-			}
-		}
-	}
-
-	if cfg.Username == "" || cfg.Password == "" {
-		log <- cl.Inf(
-			"legacy RPC server disabled (requires username and password)",
-		)
-	} else if len(cfg.LegacyRPCListeners) != 0 {
-		listeners := makeListeners(cfg.LegacyRPCListeners, legacyListen)
-		if len(listeners) == 0 {
-			err := errors.New("failed to create listeners for legacy RPC server")
-			return nil, nil, err
-		}
-		opts := legacyrpc.Options{
-			Username:            cfg.Username,
-			Password:            cfg.Password,
-			MaxPOSTClients:      cfg.LegacyRPCMaxClients,
-			MaxWebsocketClients: cfg.LegacyRPCMaxWebsockets,
-		}
-		legacyServer = legacyrpc.NewServer(&opts, walletLoader, listeners)
-	}
-
-	// Error when neither the GRPC nor legacy RPC servers can be started.
-	if server == nil && legacyServer == nil {
-		return nil, nil, errors.New("no suitable RPC services can be started")
-	}
-
-	return server, legacyServer, nil
-}
-
-type listenFunc func(
-	net string, laddr string) (net.Listener, error)
 
 // makeListeners splits the normalized listen addresses into IPv4 and IPv6
 
@@ -266,6 +152,112 @@ func makeListeners(
 		listeners = append(listeners, listener)
 	}
 	return listeners
+}
+
+// openRPCKeyPair creates or loads the RPC TLS keypair specified by the
+// application config.  This function respects the cfg.OneTimeTLSKey setting.
+func openRPCKeyPair() (tls.Certificate, error) {
+
+	// Check for existence of the TLS key file.  If one time TLS keys are
+	// enabled but a key already exists, this function should error since
+	// it's possible that a persistent certificate was copied to a remote
+	// machine.  Otherwise, generate a new keypair when the key is missing.
+	// When generating new persistent keys, overwriting an existing cert is
+	// acceptable if the previous execution used a one time TLS key.
+	// Otherwise, both the cert and key should be read from disk.  If the
+	// cert is missing, the read error will occur in LoadX509KeyPair.
+	_, e := os.Stat(cfg.RPCKey)
+	keyExists := !os.IsNotExist(e)
+	switch {
+	case cfg.OneTimeTLSKey && keyExists:
+		err := fmt.Errorf("one time TLS keys are enabled, but TLS key `%s` already exists", cfg.RPCKey)
+		return tls.Certificate{}, err
+	case cfg.OneTimeTLSKey:
+		return generateRPCKeyPair(false)
+	case !keyExists:
+		return generateRPCKeyPair(true)
+	default:
+		return tls.LoadX509KeyPair(cfg.RPCCert, cfg.RPCKey)
+	}
+}
+
+func startRPCServers(
+	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
+
+	log <- cl.Trc("startRPCServers")
+	var (
+		server       *grpc.Server
+		legacyServer *legacyrpc.Server
+		legacyListen = net.Listen
+		keyPair      tls.Certificate
+		err          error
+	)
+	if !cfg.EnableServerTLS {
+		log <- cl.Inf("server TLS is disabled - only legacy RPC may be used")
+	} else {
+		keyPair, err = openRPCKeyPair()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Change the standard net.Listen function to the tls one.
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{keyPair},
+			MinVersion:   tls.VersionTLS12,
+			NextProtos:   []string{"h2"}, // HTTP/2 over TLS
+		}
+		legacyListen = func(net string, laddr string) (net.Listener, error) {
+
+			return tls.Listen(net, laddr, tlsConfig)
+		}
+
+		if len(cfg.ExperimentalRPCListeners) != 0 {
+			listeners := makeListeners(cfg.ExperimentalRPCListeners, net.Listen)
+			if len(listeners) == 0 {
+				err := errors.New("failed to create listeners for RPC server")
+				return nil, nil, err
+			}
+			creds := credentials.NewServerTLSFromCert(&keyPair)
+			server = grpc.NewServer(grpc.Creds(creds))
+			rpcserver.StartVersionService(server)
+			rpcserver.StartWalletLoaderService(server, walletLoader, ActiveNet)
+			for _, lis := range listeners {
+				lis := lis
+				go func() {
+
+					log <- cl.Info{"experimental RPC server listening on", lis.Addr()}
+					err = server.Serve(lis)
+					log <- cl.Trace{"finished serving expimental RPC:", err}
+				}()
+			}
+		}
+	}
+
+	if cfg.Username == "" || cfg.Password == "" {
+		log <- cl.Inf(
+			"legacy RPC server disabled (requires username and password)",
+		)
+	} else if len(cfg.LegacyRPCListeners) != 0 {
+		listeners := makeListeners(cfg.LegacyRPCListeners, legacyListen)
+		if len(listeners) == 0 {
+			err := errors.New("failed to create listeners for legacy RPC server")
+			return nil, nil, err
+		}
+		opts := legacyrpc.Options{
+			Username:            cfg.Username,
+			Password:            cfg.Password,
+			MaxPOSTClients:      int64(cfg.LegacyRPCMaxClients),
+			MaxWebsocketClients: int64(cfg.LegacyRPCMaxWebsockets),
+		}
+		legacyServer = legacyrpc.NewServer(&opts, walletLoader, listeners)
+	}
+
+	// Error when neither the GRPC nor legacy RPC servers can be started.
+	if server == nil && legacyServer == nil {
+		return nil, nil, errors.New("no suitable RPC services can be started")
+	}
+
+	return server, legacyServer, nil
 }
 
 // startWalletRPCServices associates each of the (optionally-nil) RPC servers

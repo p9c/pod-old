@@ -1,7 +1,9 @@
 package app
 
 import (
+	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/wallet"
 	"github.com/urfave/cli"
 )
 
@@ -28,6 +30,7 @@ type ConfigCommon struct {
 }
 
 var appConfigCommon = ConfigCommon{}
+var ctlConfig = ctl.Config{}
 var ctlDatadir = "ctl"
 var defaultDatadir = "~/.pod"
 var guiDataDir = "/gui"
@@ -38,4 +41,5 @@ var nodeConfig = node.Config{
 }
 var nodeDataDir = "/node"
 var shellDataDir = "/shell"
+var walletConfig = walletmain.Config{}
 var walletDataDir = "/wallet"

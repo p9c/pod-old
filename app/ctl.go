@@ -4,10 +4,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/urfave/cli"
 	"fmt"
-	"git.parallelcoin.io/pod/cmd/ctl"
 )
-
-var ctlConfig = ctl.Config{}
 
 func ctlHandle(c *cli.Context) error {
 	fmt.Println("running ctl")

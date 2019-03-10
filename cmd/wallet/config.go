@@ -1,6 +1,7 @@
 package walletmain
 
 import (
+	"github.com/urfave/cli"
 	"fmt"
 	"io"
 	"os"
@@ -11,33 +12,6 @@ import (
 	"time"
 
 	"git.parallelcoin.io/pod/pkg/util"
-)
-
-const (
-	DefaultAppDataDirname   = "wallet"
-	DefaultCAFilename       = "wallet.cert"
-	DefaultConfigFilename   = "conf.json"
-	DefaultLogLevel         = "info"
-	DefaultLogDirname       = ""
-	DefaultLogFilename      = "wallet/log"
-	DefaultRPCMaxClients    = 10
-	DefaultRPCMaxWebsockets = 25
-
-	WalletDbName = "wallet.db"
-)
-
-var (
-	DefaultDataDir    = util.AppDataDir("pod", false)
-	DefaultAppDataDir = filepath.Join(
-		DefaultDataDir, DefaultAppDataDirname)
-	DefaultCAFile      = filepath.Join(DefaultDataDir, "cafile")
-	DefaultConfigFile  = filepath.Join(DefaultAppDataDir, DefaultConfigFilename)
-	DefaultRPCKeyFile  = filepath.Join(DefaultDataDir, "rpc.key")
-	DefaultRPCCertFile = filepath.Join(DefaultDataDir, "rpc.cert")
-	DefaultLogFilePath = filepath.Join(DefaultAppDataDir, "log")
-	DefaultLogDir      = DefaultAppDataDir
-	DefaultGUI         = false
-	DefaultListener    = "127.0.0.1:11046"
 )
 
 type Config struct {
@@ -57,8 +31,6 @@ type Config struct {
 
 	// Wallet options
 	WalletPass string `long:"walletpass" default-mask:"-" description:"The public wallet password -- Only required if the wallet was created with one"`
-
-
 	// RPC client options
 	RPCConnect      string `short:"c" long:"rpcconnect" description:"Hostname/IP and port of pod RPC server to connect to (default localhost:11048, testnet: localhost:21048, simnet: localhost:41048)"`
 	CAFile          string `long:"cafile" description:"File containing root certificates to authenticate a TLS connections with pod"`
@@ -68,17 +40,13 @@ type Config struct {
 	Proxy           string `long:"proxy" description:"Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)"`
 	ProxyUser       string `long:"proxyuser" description:"Username for proxy server"`
 	ProxyPass       string `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
-
-
 	// SPV client options
-	UseSPV       bool          `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
-	AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
-	ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
-	MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
-	BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
-	BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
-
-
+	UseSPV       bool            `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
+	AddPeers     cli.StringSlice `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
+	ConnectPeers cli.StringSlice `long:"connect" description:"Connect only to the specified peers at startup"`
+	MaxPeers     int             `long:"maxpeers" description:"Max number of inbound and outbound peers"`
+	BanDuration  time.Duration   `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
+	BanThreshold uint32          `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
 	// RPC server options
 
 	//
@@ -94,17 +62,15 @@ type Config struct {
 	// Usernames can also be used for the consensus RPC client, so they
 
 	// aren't considered legacy.
-	RPCCert                string   `long:"rpccert" description:"File containing the certificate file"`
-	RPCKey                 string   `long:"rpckey" description:"File containing the certificate key"`
-	OneTimeTLSKey          bool     `long:"onetimetlskey" description:"Generate a new TLS certpair at startup, but only write the certificate to disk"`
-	EnableServerTLS        bool     `long:"servertls" description:"Enable TLS for the RPC server"`
-	LegacyRPCListeners     []string `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 11046, testnet: 21046, simnet: 41046)"`
-	LegacyRPCMaxClients    int64    `long:"rpcmaxclients" description:"Max number of legacy RPC clients for standard connections"`
-	LegacyRPCMaxWebsockets int64    `long:"rpcmaxwebsockets" description:"Max number of legacy RPC websocket connections"`
-	Username               string   `short:"u" long:"username" description:"Username for legacy RPC and pod authentication (if podusername is unset)"`
-	Password               string   `short:"P" long:"password" default-mask:"-" description:"Password for legacy RPC and pod authentication (if podpassword is unset)"`
-
-
+	RPCCert                string          `long:"rpccert" description:"File containing the certificate file"`
+	RPCKey                 string          `long:"rpckey" description:"File containing the certificate key"`
+	OneTimeTLSKey          bool            `long:"onetimetlskey" description:"Generate a new TLS certpair at startup, but only write the certificate to disk"`
+	EnableServerTLS        bool            `long:"servertls" description:"Enable TLS for the RPC server"`
+	LegacyRPCListeners     cli.StringSlice `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 11046, testnet: 21046, simnet: 41046)"`
+	LegacyRPCMaxClients    int             `long:"rpcmaxclients" description:"Max number of legacy RPC clients for standard connections"`
+	LegacyRPCMaxWebsockets int             `long:"rpcmaxwebsockets" description:"Max number of legacy RPC websocket connections"`
+	Username               string          `short:"u" long:"username" description:"Username for legacy RPC and pod authentication (if podusername is unset)"`
+	Password               string          `short:"P" long:"password" default-mask:"-" description:"Password for legacy RPC and pod authentication (if podpassword is unset)"`
 	// EXPERIMENTAL RPC server options
 
 	//
@@ -112,13 +78,64 @@ type Config struct {
 	// These options will change (and require changes to config files, etc.)
 
 	// when the new gRPC server is enabled.
-	ExperimentalRPCListeners []string `long:"experimentalrpclisten" description:"Listen for RPC connections on this interface/port"`
-
-
+	ExperimentalRPCListeners cli.StringSlice `long:"experimentalrpclisten" description:"Listen for RPC connections on this interface/port"`
 	// Deprecated options
 	DataDir string `short:"b" long:"datadir" default-mask:"-" description:"DEPRECATED -- use appdata instead"`
 }
 
+const (
+	DefaultAppDataDirname   = "wallet"
+	DefaultCAFilename       = "wallet.cert"
+	DefaultConfigFilename   = "conf.json"
+	DefaultLogLevel         = "info"
+	DefaultLogDirname       = ""
+	DefaultLogFilename      = "wallet/log"
+	DefaultRPCMaxClients    = 10
+	DefaultRPCMaxWebsockets = 25
+
+	WalletDbName = "wallet.db"
+)
+
+var (
+	DefaultAppDataDir = filepath.Join(
+		DefaultDataDir, DefaultAppDataDirname)
+)
+
+var (
+	DefaultCAFile = filepath.Join(DefaultDataDir, "cafile")
+)
+
+var (
+	DefaultConfigFile = filepath.Join(DefaultAppDataDir, DefaultConfigFilename)
+)
+
+var (
+	DefaultDataDir = util.AppDataDir("pod", false)
+)
+
+var (
+	DefaultGUI = false
+)
+
+var (
+	DefaultListener = "127.0.0.1:11046"
+)
+
+var (
+	DefaultLogDir = DefaultAppDataDir
+)
+
+var (
+	DefaultLogFilePath = filepath.Join(DefaultAppDataDir, "log")
+)
+
+var (
+	DefaultRPCCertFile = filepath.Join(DefaultDataDir, "rpc.cert")
+)
+
+var (
+	DefaultRPCKeyFile = filepath.Join(DefaultDataDir, "rpc.key")
+)
 
 // cleanAndExpandPath expands environement variables and leading ~ in the
 
@@ -137,8 +154,6 @@ func cleanAndExpandPath(
 
 		return filepath.Clean(path)
 	}
-
-
 	// Expand initial ~ to the current user's home directory, or ~otheruser to otheruser's home directory.  On Windows, both forward and backward slashes can be used.
 	path = path[1:]
 
@@ -175,25 +190,121 @@ func cleanAndExpandPath(
 	return filepath.Join(homeDir, path)
 }
 
+/*
 
-// validLogLevel returns whether or not logLevel is a valid debug log level.
-func validLogLevel(
-	logLevel string) bool {
-	switch logLevel {
-	case "trace":
-		fallthrough
-	case "debug":
-		fallthrough
-	case "info":
-		fallthrough
-	case "warn":
-		fallthrough
-	case "error":
-		fallthrough
-	case "critical":
-		return true
+// createDefaultConfig creates a basic config file at the given destination path.
+
+// For this it tries to read the config file for the RPC server (either pod or
+
+// sac), and extract the RPC user and password from it.
+func createDefaultConfigFile(	destinationPath, serverConfigPath, serverDataDir, walletDataDir string) error {
+
+	// fmt.Println("server config path", serverConfigPath)
+
+	// Read the RPC server config
+	serverConfigFile, err := os.Open(serverConfigPath)
+	if err != nil {
+		return err
 	}
-	return false
+	defer serverConfigFile.Close()
+	content, err := ioutil.ReadAll(serverConfigFile)
+	if err != nil {
+		return err
+	}
+
+	// content := []byte(samplePodCtlConf)
+
+
+	// Extract the rpcuser
+	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
+	if err != nil {
+		return err
+	}
+	userSubmatches := rpcUserRegexp.FindSubmatch(content)
+	if userSubmatches == nil {
+
+		// No user found, nothing to do
+		return nil
+	}
+
+
+	// Extract the rpcpass
+	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
+	if err != nil {
+		return err
+	}
+	passSubmatches := rpcPassRegexp.FindSubmatch(content)
+	if passSubmatches == nil {
+
+		// No password found, nothing to do
+		return nil
+	}
+
+
+	// Extract the TLS
+	TLSRegexp, err := regexp.Compile(`(?m)^\s*tls=(0|1)(?:\s|$)`)
+	if err != nil {
+		return err
+	}
+	TLSSubmatches := TLSRegexp.FindSubmatch(content)
+
+
+	// Create the destination directory if it does not exists
+	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
+	if err != nil {
+		return err
+	}
+
+	// fmt.Println("config path", destinationPath)
+
+	// Create the destination file and write the rpcuser and rpcpass to it
+	dest, err := os.OpenFile(destinationPath,
+		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		fmt.Println("ERROR", err)
+		return err
+	}
+	defer dest.Close()
+
+	destString := fmt.Sprintf("username=%s\npassword=%s\n",
+		string(userSubmatches[1]), string(passSubmatches[1]))
+	if TLSSubmatches != nil {
+		fmt.Println("TLS is enabled but more than likely the certificates will fail verification because of the CA. Currently there is no adequate tool for this, but will be soon.")
+		destString += fmt.Sprintf("clienttls=%s\n", TLSSubmatches[1])
+	}
+	output := ";;; Defaults created from local pod/sac configuration:\n" + destString + "\n" + string(sampleModConf)
+	dest.WriteString(output)
+
+	return nil
+}
+*/
+
+func copy(
+	src, dst string) (int64, error) {
+	// fmt.Println(src, dst)
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
 }
 
 /*
@@ -283,7 +394,6 @@ func parseAndSetDebugLevels(debugLevel string) error {
 	return nil
 }
 */
-
 
 // loadConfig initializes and parses the config using a config file and command
 
@@ -1279,121 +1389,22 @@ func loadConfig(
 	return cfg, nil, nil
 }
 
-/*
-
-// createDefaultConfig creates a basic config file at the given destination path.
-
-// For this it tries to read the config file for the RPC server (either pod or
-
-// sac), and extract the RPC user and password from it.
-func createDefaultConfigFile(	destinationPath, serverConfigPath, serverDataDir, walletDataDir string) error {
-
-	// fmt.Println("server config path", serverConfigPath)
-
-	// Read the RPC server config
-	serverConfigFile, err := os.Open(serverConfigPath)
-	if err != nil {
-		return err
+// validLogLevel returns whether or not logLevel is a valid debug log level.
+func validLogLevel(
+	logLevel string) bool {
+	switch logLevel {
+	case "trace":
+		fallthrough
+	case "debug":
+		fallthrough
+	case "info":
+		fallthrough
+	case "warn":
+		fallthrough
+	case "error":
+		fallthrough
+	case "critical":
+		return true
 	}
-	defer serverConfigFile.Close()
-	content, err := ioutil.ReadAll(serverConfigFile)
-	if err != nil {
-		return err
-	}
-
-	// content := []byte(samplePodCtlConf)
-
-
-	// Extract the rpcuser
-	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
-	if err != nil {
-		return err
-	}
-	userSubmatches := rpcUserRegexp.FindSubmatch(content)
-	if userSubmatches == nil {
-
-		// No user found, nothing to do
-		return nil
-	}
-
-
-	// Extract the rpcpass
-	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
-	if err != nil {
-		return err
-	}
-	passSubmatches := rpcPassRegexp.FindSubmatch(content)
-	if passSubmatches == nil {
-
-		// No password found, nothing to do
-		return nil
-	}
-
-
-	// Extract the TLS
-	TLSRegexp, err := regexp.Compile(`(?m)^\s*tls=(0|1)(?:\s|$)`)
-	if err != nil {
-		return err
-	}
-	TLSSubmatches := TLSRegexp.FindSubmatch(content)
-
-
-	// Create the destination directory if it does not exists
-	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
-	if err != nil {
-		return err
-	}
-
-	// fmt.Println("config path", destinationPath)
-
-	// Create the destination file and write the rpcuser and rpcpass to it
-	dest, err := os.OpenFile(destinationPath,
-		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		fmt.Println("ERROR", err)
-		return err
-	}
-	defer dest.Close()
-
-	destString := fmt.Sprintf("username=%s\npassword=%s\n",
-		string(userSubmatches[1]), string(passSubmatches[1]))
-	if TLSSubmatches != nil {
-		fmt.Println("TLS is enabled but more than likely the certificates will fail verification because of the CA. Currently there is no adequate tool for this, but will be soon.")
-		destString += fmt.Sprintf("clienttls=%s\n", TLSSubmatches[1])
-	}
-	output := ";;; Defaults created from local pod/sac configuration:\n" + destString + "\n" + string(sampleModConf)
-	dest.WriteString(output)
-
-	return nil
-}
-*/
-
-func copy(
-	src, dst string) (int64, error) {
-
-
-	// fmt.Println(src, dst)
-	sourceFileStat, err := os.Stat(src)
-	if err != nil {
-		return 0, err
-	}
-
-	if !sourceFileStat.Mode().IsRegular() {
-
-		return 0, fmt.Errorf("%s is not a regular file", src)
-	}
-
-	source, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
-	defer source.Close()
-
-	destination, err := os.Create(dst)
-	if err != nil {
-		return 0, err
-	}
-	defer destination.Close()
-	nBytes, err := io.Copy(destination, source)
-	return nBytes, err
+	return false
 }
