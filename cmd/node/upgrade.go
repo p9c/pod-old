@@ -26,6 +26,15 @@ func dirEmpty(
 	return len(names) == 0, nil
 }
 
+// doUpgrades performs upgrades to pod as new versions require it.
+func doUpgrades() error {
+	err := upgradeDBPaths()
+	if err != nil {
+		return err
+	}
+	return upgradeDataPaths()
+}
+
 // oldPodHomeDir returns the OS specific home directory pod used prior to version 0.3.3.  This has since been replaced with util.AppDataDir, but this function is still provided for the automatic upgrade path.
 func oldPodHomeDir() string {
 
@@ -58,7 +67,7 @@ func upgradeDBPathNet(
 			oldDbType = "leveldb"
 		}
 		// The new database name is based on the database type and resides in a directory named after the network type.
-		newDbRoot := filepath.Join(filepath.Dir(cfg.DataDir), netName)
+		newDbRoot := filepath.Join(filepath.Dir(*cfg.DataDir), netName)
 		newDbName := blockDbNamePrefix + "_" + oldDbType
 		if oldDbType == "sqlite" {
 			newDbName = newDbName + ".db"
@@ -150,13 +159,4 @@ func upgradeDataPaths() error {
 		}
 	}
 	return nil
-}
-
-// doUpgrades performs upgrades to pod as new versions require it.
-func doUpgrades() error {
-	err := upgradeDBPaths()
-	if err != nil {
-		return err
-	}
-	return upgradeDataPaths()
 }

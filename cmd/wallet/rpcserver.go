@@ -35,8 +35,8 @@ func generateRPCKeyPair(
 	log <- cl.Inf("generating TLS certificates...")
 
 	// Create directories for cert and key files if they do not yet exist.
-	certDir, _ := filepath.Split(cfg.RPCCert)
-	keyDir, _ := filepath.Split(cfg.RPCKey)
+	certDir, _ := filepath.Split(*cfg.RPCCert)
+	keyDir, _ := filepath.Split(*cfg.RPCKey)
 	err := os.MkdirAll(certDir, 0700)
 	if err != nil {
 		return tls.Certificate{}, err
@@ -59,14 +59,14 @@ func generateRPCKeyPair(
 	}
 
 	// Write cert and (potentially) the key files.
-	err = ioutil.WriteFile(cfg.RPCCert, cert, 0600)
+	err = ioutil.WriteFile(*cfg.RPCCert, cert, 0600)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
 	if writeKey {
-		err = ioutil.WriteFile(cfg.RPCKey, key, 0600)
+		err = ioutil.WriteFile(*cfg.RPCKey, key, 0600)
 		if err != nil {
-			rmErr := os.Remove(cfg.RPCCert)
+			rmErr := os.Remove(*cfg.RPCCert)
 			if rmErr != nil {
 				log <- cl.Warn{"cannot remove written certificates:", rmErr}
 			}
@@ -166,18 +166,18 @@ func openRPCKeyPair() (tls.Certificate, error) {
 	// acceptable if the previous execution used a one time TLS key.
 	// Otherwise, both the cert and key should be read from disk.  If the
 	// cert is missing, the read error will occur in LoadX509KeyPair.
-	_, e := os.Stat(cfg.RPCKey)
+	_, e := os.Stat(*cfg.RPCKey)
 	keyExists := !os.IsNotExist(e)
 	switch {
-	case cfg.OneTimeTLSKey && keyExists:
+	case *cfg.OneTimeTLSKey && keyExists:
 		err := fmt.Errorf("one time TLS keys are enabled, but TLS key `%s` already exists", cfg.RPCKey)
 		return tls.Certificate{}, err
-	case cfg.OneTimeTLSKey:
+	case *cfg.OneTimeTLSKey:
 		return generateRPCKeyPair(false)
 	case !keyExists:
 		return generateRPCKeyPair(true)
 	default:
-		return tls.LoadX509KeyPair(cfg.RPCCert, cfg.RPCKey)
+		return tls.LoadX509KeyPair(*cfg.RPCCert, *cfg.RPCKey)
 	}
 }
 
@@ -192,7 +192,7 @@ func startRPCServers(
 		keyPair      tls.Certificate
 		err          error
 	)
-	if !cfg.EnableServerTLS {
+	if !*cfg.EnableServerTLS {
 		log <- cl.Inf("server TLS is disabled - only legacy RPC may be used")
 	} else {
 		keyPair, err = openRPCKeyPair()
@@ -211,8 +211,8 @@ func startRPCServers(
 			return tls.Listen(net, laddr, tlsConfig)
 		}
 
-		if len(cfg.ExperimentalRPCListeners) != 0 {
-			listeners := makeListeners(cfg.ExperimentalRPCListeners, net.Listen)
+		if len(*cfg.ExperimentalRPCListeners) != 0 {
+			listeners := makeListeners(*cfg.ExperimentalRPCListeners, net.Listen)
 			if len(listeners) == 0 {
 				err := errors.New("failed to create listeners for RPC server")
 				return nil, nil, err
@@ -233,21 +233,21 @@ func startRPCServers(
 		}
 	}
 
-	if cfg.Username == "" || cfg.Password == "" {
+	if *cfg.Username == "" || *cfg.Password == "" {
 		log <- cl.Inf(
 			"legacy RPC server disabled (requires username and password)",
 		)
-	} else if len(cfg.LegacyRPCListeners) != 0 {
-		listeners := makeListeners(cfg.LegacyRPCListeners, legacyListen)
+	} else if len(*cfg.LegacyRPCListeners) != 0 {
+		listeners := makeListeners(*cfg.LegacyRPCListeners, legacyListen)
 		if len(listeners) == 0 {
 			err := errors.New("failed to create listeners for legacy RPC server")
 			return nil, nil, err
 		}
 		opts := legacyrpc.Options{
-			Username:            cfg.Username,
-			Password:            cfg.Password,
-			MaxPOSTClients:      int64(cfg.LegacyRPCMaxClients),
-			MaxWebsocketClients: int64(cfg.LegacyRPCMaxWebsockets),
+			Username:            *cfg.Username,
+			Password:            *cfg.Password,
+			MaxPOSTClients:      int64(*cfg.LegacyRPCMaxClients),
+			MaxWebsocketClients: int64(*cfg.LegacyRPCMaxWebsockets),
 		}
 		legacyServer = legacyrpc.NewServer(&opts, walletLoader, listeners)
 	}

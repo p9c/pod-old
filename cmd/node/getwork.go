@@ -72,7 +72,7 @@ func handleGetWork(
 				"via --miningaddr",
 		}
 	}
-	if !(cfg.RegressionTest || cfg.SimNet) &&
+	if !(*cfg.RegressionTest || *cfg.SimNet) &&
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCClientNotConnected,

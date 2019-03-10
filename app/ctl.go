@@ -9,10 +9,10 @@ import (
 func ctlHandle(c *cli.Context) error {
 	fmt.Println("running ctl")
 	if !c.IsSet("wallet") {
-		ctlConfig.Wallet = ""
+		*ctlConfig.Wallet = ""
 	}
 	if !c.IsSet("useproxy") {
-		ctlConfig.Proxy = ""
+		*ctlConfig.Proxy = ""
 	}
 	spew.Dump(ctlConfig)
 	return nil
@@ -20,12 +20,12 @@ func ctlHandle(c *cli.Context) error {
 
 func ctlHandleList(c *cli.Context) error {
 	fmt.Println("running ctl listcommands")
-	ctlConfig.ListCommands = true
+	*ctlConfig.ListCommands = true
 	if !c.IsSet("wallet") {
-		ctlConfig.Wallet = ""
+		*ctlConfig.Wallet = ""
 	}
 	if !c.IsSet("useproxy") {
-		ctlConfig.Proxy = ""
+		*ctlConfig.Proxy = ""
 	}
 	spew.Dump(ctlConfig)
 	return nil

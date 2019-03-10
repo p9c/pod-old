@@ -29,15 +29,14 @@ type ConfigCommon struct {
 	Torisolation bool
 }
 
-var appConfigCommon = ConfigCommon{}
+var appConfigCommon = &ConfigCommon{}
 var ctlConfig = ctl.Config{}
 var ctlDatadir = "ctl"
 var defaultDatadir = "~/.pod"
 var guiDataDir = "/gui"
-
 var nodeConfig = node.Config{
-	Listeners:    cli.StringSlice{node.DefaultListener},
-	RPCListeners: cli.StringSlice{node.DefaultRPCListener},
+	Listeners:    &cli.StringSlice{node.DefaultListener},
+	RPCListeners: &cli.StringSlice{node.DefaultRPCListener},
 }
 var nodeDataDir = "/node"
 var shellDataDir = "/shell"

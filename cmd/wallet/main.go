@@ -31,10 +31,10 @@ func Main(
 	if ActiveNet.Name == "testnet" {
 		fork.IsTestnet = true
 	}
-	if cfg.Profile != "" {
+	if *cfg.Profile != "" {
 		go func() {
 
-			listenAddr := net.JoinHostPort("127.0.0.1", cfg.Profile)
+			listenAddr := net.JoinHostPort("127.0.0.1", *cfg.Profile)
 			log <- cl.Info{
 				"profile server listening on", listenAddr,
 			}
@@ -45,10 +45,10 @@ func Main(
 		}()
 	}
 
-	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
-	log <- cl.Debug{"dbDir", dbDir, cfg.DataDir, cfg.AppDataDir, activeNet.Params.Name}
+	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
+	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
-	if cfg.Create {
+	if *cfg.Create {
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
 			log <- cl.Error{"failed to create wallet", err}
 			return err
@@ -72,7 +72,7 @@ func Main(
 	// Create and start chain RPC client so it's ready to connect to
 
 	// the wallet when loaded later.
-	if !cfg.NoInitialLoad {
+	if !*cfg.NoInitialLoad {
 		log <- cl.Trc("starting rpcClientConnectLoop")
 		go rpcClientConnectLoop(legacyRPCServer, loader)
 	}
@@ -83,13 +83,13 @@ func Main(
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
-	if !cfg.NoInitialLoad {
+	if !*cfg.NoInitialLoad {
 		log <- cl.Debug{"loading database"}
 
 		// Load the wallet database.  It must have been created already
 
 		// or this will return an appropriate error.
-		_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
+		_, err = loader.OpenExistingWallet([]byte(*cfg.WalletPass), true)
 		if err != nil {
 			fmt.Println(err)
 			log <- cl.Error{err}
@@ -140,6 +140,30 @@ func Main(
 	<-interrupt.HandlersDone
 	log <- cl.Inf("shutdown complete")
 	return nil
+}
+
+func readCAFile() []byte {
+
+	// Read certificate file if TLS is not disabled.
+	var certs []byte
+	if *cfg.EnableClientTLS {
+		var err error
+		certs, err = ioutil.ReadFile(*cfg.CAFile)
+		if err != nil {
+			log <- cl.Warn{
+				"cannot open CA file:", err,
+			}
+
+			// If there's an error reading the CA file, continue
+
+			// with nil certs and without the client connection.
+			certs = nil
+		}
+	} else {
+		log <- cl.Inf("chain server RPC TLS is disabled")
+	}
+
+	return certs
 }
 
 // rpcClientConnectLoop continuously attempts a connection to the consensus RPC server.  When a connection is established, the client is used to sync the loaded wallet, either immediately or when loaded at a later time.
@@ -291,30 +315,6 @@ func rpcClientConnectLoop(
 	}
 }
 
-func readCAFile() []byte {
-
-	// Read certificate file if TLS is not disabled.
-	var certs []byte
-	if cfg.EnableClientTLS {
-		var err error
-		certs, err = ioutil.ReadFile(cfg.CAFile)
-		if err != nil {
-			log <- cl.Warn{
-				"cannot open CA file:", err,
-			}
-
-			// If there's an error reading the CA file, continue
-
-			// with nil certs and without the client connection.
-			certs = nil
-		}
-	} else {
-		log <- cl.Inf("chain server RPC TLS is disabled")
-	}
-
-	return certs
-}
-
 // startChainRPC opens a RPC client connection to a pod server for blockchain
 
 // services.  This function uses the RPC options from the global config and
@@ -327,10 +327,10 @@ func startChainRPC(
 
 	log <- cl.Infof{
 		"attempting RPC client connection to %v, TLS: %s",
-		cfg.RPCConnect, fmt.Sprint(cfg.EnableClientTLS),
+		cfg.RPCConnect, fmt.Sprint(*cfg.EnableClientTLS),
 	}
-	rpcc, err := chain.NewRPCClient(ActiveNet.Params, cfg.RPCConnect,
-		cfg.PodUsername, cfg.PodPassword, certs, !cfg.EnableClientTLS, 0)
+	rpcc, err := chain.NewRPCClient(ActiveNet.Params, *cfg.RPCConnect,
+		*cfg.PodUsername, *cfg.PodPassword, certs, !*cfg.EnableClientTLS, 0)
 	if err != nil {
 		return nil, err
 	}
