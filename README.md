@@ -4,11 +4,6 @@
 
 Fully integrated all-in-one cli client, full node, wallet server, miner and GUI wallet for Parallelcoin
 
-> ## IMPORTANT
-> 
-> Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library [github.com/urfave/cli](https://github.com/urfave/cli)
-> 
-
 Pod is a multi-application with multiple submodules for different functions. It is self-configuring and configurations can be changed from the commandline as well as editing the json files directly, so the binary itself is the complete distribution for the suite.
 
 It consists of 4 main modules:
