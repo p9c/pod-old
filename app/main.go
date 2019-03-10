@@ -1,12 +1,12 @@
 package app
 
 import (
-	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"time"
-	"git.parallelcoin.io/pod/cmd/node"
 	"fmt"
+	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"github.com/urfave/cli"
 	"os"
+	"time"
 )
 
 // TODO: create common base with all common common fields linked as pointers
@@ -109,16 +109,16 @@ func init() {
 				Usage:       "Password for proxy server",
 				Destination: &appConfigCommon.Proxypass,
 			},
-			cli.BoolTFlag{
-				Name:        "noonion",
+			cli.BoolFlag{
+				Name:        "onion",
 				Usage:       "Enable connecting to tor hidden services",
-				Destination: &appConfigCommon.NoOnion,
+				Destination: &appConfigCommon.Onion,
 			},
 			cli.StringFlag{
-				Name:        "onion",
+				Name:        "onionproxy",
 				Value:       "localhost:9050",
 				Usage:       "Connect to tor hidden services via SOCKS5 proxy (eg. 127.0.0.1:9050)",
-				Destination: &appConfigCommon.Onion,
+				Destination: &appConfigCommon.OnionProxy,
 			},
 			cli.StringFlag{
 				Name:        "onionuser",
@@ -224,6 +224,7 @@ func init() {
 				Name:    "node",
 				Aliases: []string{"n"},
 				Usage:   "start parallelcoin full node",
+				Action:  nodeHandle,
 				Subcommands: []cli.Command{
 					{
 						Name:  "droptxindex",
@@ -525,15 +526,12 @@ func init() {
 						Destination: nodeConfig.RejectNonStd,
 					},
 				},
-				Action: func(c *cli.Context) error {
-					fmt.Println("calling node")
-					return nil
-				},
 			},
 			{
 				Name:    "wallet",
 				Aliases: []string{"w"},
 				Usage:   "start parallelcoin wallet server",
+				Action:  walletHandle,
 				Subcommands: []cli.Command{
 					{
 						Name:  "create",
@@ -622,10 +620,6 @@ func init() {
 						Usage: "Listen for RPC connections on this interface/port",
 						Value: walletConfig.ExperimentalRPCListeners,
 					},
-				},
-				Action: func(c *cli.Context) error {
-					fmt.Println("calling wallet")
-					return nil
 				},
 			},
 			{

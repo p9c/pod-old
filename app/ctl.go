@@ -1,9 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/urfave/cli"
-	"fmt"
 )
 
 func ctlHandle(c *cli.Context) error {
@@ -11,7 +11,7 @@ func ctlHandle(c *cli.Context) error {
 	if !c.IsSet("wallet") {
 		*ctlConfig.Wallet = ""
 	}
-	if !c.IsSet("useproxy") {
+	if !c.Parent().IsSet("useproxy") {
 		*ctlConfig.Proxy = ""
 	}
 	spew.Dump(ctlConfig)
@@ -24,7 +24,7 @@ func ctlHandleList(c *cli.Context) error {
 	if !c.IsSet("wallet") {
 		*ctlConfig.Wallet = ""
 	}
-	if !c.IsSet("useproxy") {
+	if !c.Parent().IsSet("useproxy") {
 		*ctlConfig.Proxy = ""
 	}
 	spew.Dump(ctlConfig)

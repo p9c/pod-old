@@ -17,6 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	"git.parallelcoin.io/pod/pkg/chain/config"
@@ -34,7 +35,6 @@ import (
 	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/util/bloom"
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 )
 
@@ -2412,7 +2412,7 @@ func addrStringToNetAddr(
 	// Tor addresses cannot be resolved to an IP, so just return an onion address instead.
 	if strings.HasSuffix(host, ".onion") {
 
-		if *cfg.NoOnion {
+		if !*cfg.Onion {
 			return nil, errors.New("tor has been disabled")
 		}
 		return &onionAddr{addr: addr}, nil

@@ -1,12 +1,12 @@
 package node
 
 import (
-	"github.com/urfave/cli"
 	"bufio"
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/urfave/cli"
 	"io"
 	"net"
 	"os"
@@ -63,7 +63,7 @@ type Config struct {
 	OnionProxy           *string          `long:"onion" description:"Connect to tor hidden services via SOCKS5 proxy (eg. 127.0.0.1:9050)"`
 	OnionProxyUser       *string          `long:"onionuser" description:"Username for onion proxy server"`
 	OnionProxyPass       *string          `long:"onionpass" default-mask:"-" description:"Password for onion proxy server"`
-	NoOnion              *bool            `long:"noonion" description:"Disable connecting to tor hidden services"`
+	Onion                *bool            `long:"noonion" description:"Disable connecting to tor hidden services"`
 	TorIsolation         *bool            `long:"torisolation" description:"Enable Tor stream isolation by randomizing user credentials for each connection."`
 	TestNet3             *bool            `long:"testnet" description:"Use the test network"`
 	RegressionTest       *bool            `long:"regtest" description:"Use the regression test network"`
