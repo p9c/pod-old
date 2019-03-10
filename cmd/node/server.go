@@ -2173,7 +2173,7 @@ func (
 	if transient == 0 && persistent == 0 {
 		// The score is not being increased, but a warning message is still logged if the score is above the warn threshold.
 		score := sp.banScore.Int()
-		if score > warnThreshold {
+		if int(score) > warnThreshold {
 			log <- cl.Warnf{
 				"misbehaving peer %s: %s -- ban score is %d, it was not increased this time",
 				sp, reason, score,
@@ -2182,12 +2182,12 @@ func (
 		return
 	}
 	score := sp.banScore.Increase(persistent, transient)
-	if score > warnThreshold {
+	if int(score) > warnThreshold {
 		log <- cl.Warnf{
 			"misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score,
 		}
-		if score > cfg.BanThreshold {
+		if int(score) > cfg.BanThreshold {
 			log <- cl.Warnf{
 				"misbehaving peer %s -- banning and disconnecting", sp,
 			}
@@ -2700,8 +2700,8 @@ func newServer(
 		db:                   db,
 		timeSource:           blockchain.NewMedianTime(),
 		services:             services,
-		sigCache:             txscript.NewSigCache(cfg.SigCacheMaxSize),
-		hashCache:            txscript.NewHashCache(cfg.SigCacheMaxSize),
+		sigCache:             txscript.NewSigCache(uint(cfg.SigCacheMaxSize)),
+		hashCache:            txscript.NewHashCache(uint(cfg.SigCacheMaxSize)),
 		cfCheckptCaches:      make(map[wire.FilterType][]cfHeaderKV),
 		numthreads:           thr,
 		algo:                 algo,
@@ -2829,11 +2829,11 @@ func newServer(
 
 	// NOTE: The CPU miner relies on the mempool, so the mempool has to be created before calling the function to create the CPU miner.
 	policy := mining.Policy{
-		BlockMinWeight:    cfg.BlockMinWeight,
-		BlockMaxWeight:    cfg.BlockMaxWeight,
-		BlockMinSize:      cfg.BlockMinSize,
-		BlockMaxSize:      cfg.BlockMaxSize,
-		BlockPrioritySize: cfg.BlockPrioritySize,
+		BlockMinWeight:    uint32(cfg.BlockMinWeight),
+		BlockMaxWeight:    uint32(cfg.BlockMaxWeight),
+		BlockMinSize:      uint32(cfg.BlockMinSize),
+		BlockMaxSize:      uint32(cfg.BlockMaxSize),
+		BlockPrioritySize: uint32(cfg.BlockPrioritySize),
 		TxMinFreeFee:      StateCfg.ActiveMinRelayTxFee,
 	}
 	blockTemplateGenerator := mining.NewBlkTmplGenerator(&policy,

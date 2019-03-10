@@ -1,6 +1,7 @@
 package app
 
 import (
+	"git.parallelcoin.io/pod/cmd/node"
 	"github.com/urfave/cli"
 )
 
@@ -30,6 +31,11 @@ var appConfigCommon = ConfigCommon{}
 var ctlDatadir = "ctl"
 var defaultDatadir = "~/.pod"
 var guiDataDir = "/gui"
+
+var nodeConfig = node.Config{
+	Listeners:    cli.StringSlice{node.DefaultListener},
+	RPCListeners: cli.StringSlice{node.DefaultRPCListener},
+}
 var nodeDataDir = "/node"
 var shellDataDir = "/shell"
 var walletDataDir = "/wallet"
