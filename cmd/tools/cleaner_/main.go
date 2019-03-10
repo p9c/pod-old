@@ -20,15 +20,8 @@ type alias int
 
 var fset = token.NewFileSet()
 
-func (
-	_ *alias,
-) String(
-	p1, p2 int,
-	bb string,
-) string {
-
-	return ""
-
+func (*alias) String(p1, p2 int,bb string) string {
+return ""
 }
 
 // func liner(
