@@ -53,5 +53,6 @@ require (
 	golang.org/x/crypto v0.0.0-20190228161510-8dd112bcdc25
 	golang.org/x/net v0.0.0-20190301231341-16b79f2e4e95
 	google.golang.org/grpc v1.19.0
+	gopkg.in/urfave/cli.v1 v1.20.0
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

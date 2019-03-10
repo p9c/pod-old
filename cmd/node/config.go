@@ -6,7 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
 	"io"
 	"net"
 	"os"

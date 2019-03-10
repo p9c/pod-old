@@ -1,11 +1,11 @@
 package main
 
 import (
-  "fmt"
-  "log"
-  "os"
+	"fmt"
+	"log"
+	"os"
 
-  "github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
 )
 
 func main() {

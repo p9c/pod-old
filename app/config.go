@@ -4,7 +4,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
 	"time"
 )
 

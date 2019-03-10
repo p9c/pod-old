@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/altsrc"
+	"gopkg.in/urfave/cli.v1"
 	"os"
 	"time"
 )
@@ -28,13 +29,13 @@ func init() {
 		Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			altsrc.NewStringFlag(cli.StringFlag{
 				Name:        "datadir",
 				Value:       "~/.pod",
 				Usage:       "sets the data directory base for a pod instance",
 				EnvVar:      "POD_DATADIR",
 				Destination: &appConfigCommon.Datadir,
-			},
+			}),
 			cli.BoolFlag{
 				Name:        "save",
 				Usage:       "save settings as effective from invocation",

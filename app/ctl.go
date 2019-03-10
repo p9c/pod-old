@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
 )
 
 func ctlHandle(c *cli.Context) error {

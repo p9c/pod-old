@@ -1,9 +1,10 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/urfave/cli"
+	// "github.com/davecgh/go-spew/spew"
+	"gopkg.in/urfave/cli.v1"
 )
 
 func nodeHandle(c *cli.Context) error {
@@ -14,7 +15,12 @@ func nodeHandle(c *cli.Context) error {
 	if !*nodeConfig.Onion {
 		*nodeConfig.OnionProxy = ""
 	}
-	spew.Dump(nodeConfig)
-	spew.Dump(c.Args(), c.FlagNames())
+	// TODO: get user input datadir flag to set file paths
+	j, e := json.MarshalIndent(nodeConfig, "", "  ")
+	if e == nil {
+		fmt.Println(string(j))
+	}
+	// spew.Dump(nodeConfig)
+	// spew.Dump(c.Args(), c.FlagNames())
 	return nil
 }
