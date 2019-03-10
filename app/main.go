@@ -109,10 +109,10 @@ func init() {
 				Usage:       "Password for proxy server",
 				Destination: &appConfigCommon.Proxypass,
 			},
-			cli.BoolFlag{
-				Name:        "useonion",
+			cli.BoolTFlag{
+				Name:        "noonion",
 				Usage:       "Enable connecting to tor hidden services",
-				Destination: &appConfigCommon.Useonion,
+				Destination: &appConfigCommon.NoOnion,
 			},
 			cli.StringFlag{
 				Name:        "onion",
