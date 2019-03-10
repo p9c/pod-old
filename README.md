@@ -1,14 +1,8 @@
+> ### development branch
+
 # Parallelcoin Pod
 
 Fully integrated all-in-one cli client, full node, wallet server, miner and GUI wallet for Parallelcoin
-
-> ## IMPORTANT
-> 
-> Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library [github.com/urfave/cli](https://github.com/urfave/cli)
-> 
-> **Development branch** can be found [here](https://seed1.parallelcoin.io/dev/pod/src/branch/dev), where the current work is located.
->  
-> **This code will not function correctly currently, please be patient while it is fixed on the Development Branch.**
 
 Pod is a multi-application with multiple submodules for different functions. It is self-configuring and configurations can be changed from the commandline as well as editing the json files directly, so the binary itself is the complete distribution for the suite.
 
