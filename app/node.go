@@ -15,7 +15,7 @@ func nodeHandle(c *cli.Context) error {
 	if !*nodeConfig.Onion {
 		*nodeConfig.OnionProxy = ""
 	}
-	// TODO: get user input datadir flag to set file paths
+
 	j, e := json.MarshalIndent(nodeConfig, "", "  ")
 	if e == nil {
 		fmt.Println(string(j))

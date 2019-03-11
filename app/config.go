@@ -5,6 +5,8 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
+	"path/filepath"
 	"time"
 )
 
@@ -157,3 +159,13 @@ var walletConfig = walletmain.Config{
 }
 
 var walletDataDir = "/wallet"
+
+// NewYamlSourceFromFlagAndNameFunc creates a new Yaml
+//InputSourceContext from a provided flag name and source context.
+func NewYamlSourceFromFlagAndNameFunc(confName, flagFileName string,
+) func(context *cli.Context) (altsrc.InputSourceContext, error) {
+	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
+		filePath := context.String(flagFileName)
+		return altsrc.NewYamlSourceFromFile(filepath.Join(filePath, confName))
+	}
+}
