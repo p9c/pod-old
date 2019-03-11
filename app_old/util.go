@@ -58,12 +58,7 @@ func EnsureDir(
 }
 
 // FileExists reports whether the named file or directory exists.
-func FileExists(
-	filePath string,
-) (
-	bool,
-	error,
-) {
+func FileExists(filePath string) (bool, error) {
 
 	_, err := os.Stat(filePath)
 	if err != nil {

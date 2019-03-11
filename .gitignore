@@ -19,5 +19,6 @@ test/docker/legacy/data/
 bin/pod
 bin/bld
 test?/*
-
+test/*
 testnet/*
+test/pod.yaml

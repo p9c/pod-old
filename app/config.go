@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
@@ -166,7 +167,10 @@ func NewYamlSourceFromFlagAndNameFunc(confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
 		filePath := context.String(flagFileName)
-		return altsrc.NewYamlSourceFromFile(filepath.Join(filePath, confName))
+		fmt.Println(filePath)
+		filePath = filepath.Join(filePath, confName)
+		fmt.Println(filePath)
+		return altsrc.NewYamlSourceFromFile(filePath)
 	}
 }
 

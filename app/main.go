@@ -15,6 +15,8 @@ import (
 var App = cli.NewApp()
 
 func Main() int {
+	App.Before = altsrc.InitInputSourceWithContext(App.Flags,
+		NewYamlSourceFromFlagAndNameFunc("pod.yaml", "datadir"))
 	e := App.Run(os.Args)
 	if e != nil {
 		return 1
@@ -28,10 +30,9 @@ func init() {
 		Version:     "v0.0.1",
 		Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
-
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:        "datadir",
+				Name:        "datadir, D",
 				Value:       "~/.pod",
 				Usage:       "sets the data directory base for a pod instance",
 				EnvVar:      "POD_DATADIR",
@@ -644,6 +645,4 @@ func init() {
 			},
 		},
 	}
-	App.Before = altsrc.InitInputSourceWithContext(App.Flags,
-		NewYamlSourceFromFlagAndNameFunc("pod.yaml", "datadir"))
 }
