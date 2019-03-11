@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"git.parallelcoin.io/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 	"os"
@@ -26,6 +25,7 @@ func Main() int {
 }
 
 func init() {
+
 	*App = cli.App{
 		Name:        "pod",
 		Version:     "v0.0.1",
@@ -34,7 +34,7 @@ func init() {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:        "datadir, D",
-				Value:       util.AppDataDir("pod", false),
+				Value:       appDatadir,
 				Usage:       "sets the data directory base for a pod instance",
 				EnvVar:      "POD_DATADIR",
 				Destination: &appConfigCommon.Datadir,

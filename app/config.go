@@ -4,6 +4,7 @@ import (
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
+	"git.parallelcoin.io/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 	"io/ioutil"
@@ -12,9 +13,13 @@ import (
 )
 
 const appName = "pod"
-const podConfigFilename = "pod.yaml"
-const nodePath = "node"
-const nodeConfigFilename = "node.yaml"
+
+var appDatadir = util.AppDataDir(appName, false)
+
+const podConfigFilename = appName + ".yaml"
+
+const nodeAppName = "node"
+const nodeConfigFilename = nodeAppName + ".yaml"
 
 type ConfigCommon struct {
 	Datadir      string

@@ -20,7 +20,7 @@ func nodeHandle(c *cli.Context) error {
 		appConfigCommon.Save = false
 		*nodeConfig.DataDir = filepath.Join(
 			appConfigCommon.Datadir,
-			nodePath)
+			nodeAppName)
 		*nodeConfig.ConfigFile = filepath.Join(
 			*nodeConfig.DataDir,
 			nodeConfigFilename)
