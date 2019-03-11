@@ -256,15 +256,15 @@ var nodeCommand = cli.Command{
 	Subcommands: []cli.Command{
 		{
 			Name:  "droptxindex",
-			Usage: "Deletes the hash-based transaction index from the database on start up and then exits.",
+			Usage: "Deletes the hash-based transaction index from the database on start up and exits.",
 		},
 		{
 			Name:  "dropaddrindex",
-			Usage: "Deletes the address-based transaction index from the database on start up and then exits.",
+			Usage: "Deletes the address-based transaction index from the database on start up and exits.",
 		},
 		{
 			Name:  "dropcfindex",
-			Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and then exits.",
+			Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and exits.",
 		},
 	},
 	Flags: []cli.Flag{

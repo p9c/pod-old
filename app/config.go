@@ -21,6 +21,9 @@ const podConfigFilename = appName + ".yaml"
 const nodeAppName = "node"
 const nodeConfigFilename = nodeAppName + ".yaml"
 
+const ctlAppName = "ctl"
+const ctlConfigFilename = ctlAppName + ".yaml"
+
 type ConfigCommon struct {
 	Datadir      string
 	Save         bool
