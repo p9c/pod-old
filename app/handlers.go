@@ -77,6 +77,12 @@ func ctlHandle(c *cli.Context) error {
 	if !c.Parent().Bool("useproxy") {
 		*ctlConfig.Proxy = ""
 	}
+	loglevel := c.Parent().String("loglevel")
+	switch loglevel {
+	case "trace", "debug", "info", "warn", "error", "fatal":
+	default:
+		*ctlConfig.DebugLevel = "warn"
+	}
 	network := c.Parent().String("network")
 	switch network {
 	case "testnet", "testnet3", "t":
@@ -115,6 +121,12 @@ func nodeHandle(c *cli.Context) error {
 		nodeConfigFilename)
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""
+	}
+	loglevel := c.Parent().String("loglevel")
+	switch loglevel {
+	case "trace", "debug", "info", "warn", "error", "fatal":
+	default:
+		*nodeConfig.DebugLevel = "info"
 	}
 	network := c.Parent().String("network")
 	switch network {
@@ -160,6 +172,12 @@ func walletHandle(c *cli.Context) error {
 	)
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""
+	}
+	loglevel := c.Parent().String("loglevel")
+	switch loglevel {
+	case "trace", "debug", "info", "warn", "error", "fatal":
+	default:
+		*walletConfig.LogLevel = "info"
 	}
 	network := c.Parent().String("network")
 	switch network {
