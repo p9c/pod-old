@@ -10,30 +10,13 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
-func podHandleSave() {
-	podconfig := filepath.Join(appConfigCommon.Datadir, podConfigFilename)
-	yp, e := yaml.Marshal(appConfigCommon)
-	if e == nil {
-		EnsureDir(podconfig)
-		ioutil.WriteFile(
-			podconfig,
-			yp, 0600)
-	} else {
-		panic(e)
-	}
-}
-
-func nodeHandleSave() {
+func ctlHandleSave() {
 	appConfigCommon.Save = false
-	*nodeConfig.LogDir = *nodeConfig.DataDir
-	podHandleSave()
-	yn, e := yaml.Marshal(nodeConfig)
+	yn, e := yaml.Marshal(ctlConfig)
 	if e == nil {
-		EnsureDir(*nodeConfig.ConfigFile)
+		EnsureDir(*ctlConfig.ConfigFile)
 		e = ioutil.WriteFile(
-			*nodeConfig.ConfigFile,
-			yn,
-			0600)
+			*ctlConfig.ConfigFile, yn, 0600)
 		if e != nil {
 			panic(e)
 		}
@@ -42,23 +25,46 @@ func nodeHandleSave() {
 	}
 }
 
-func nodeHandle(c *cli.Context) error {
-	*nodeConfig.DataDir = filepath.Join(
-		appConfigCommon.Datadir,
-		nodeAppName)
-	*nodeConfig.ConfigFile = filepath.Join(
-		*nodeConfig.DataDir,
-		nodeConfigFilename)
-	if !c.Parent().IsSet("useproxy") {
-		*nodeConfig.Proxy = ""
+func nodeHandleSave() {
+	appConfigCommon.Save = false
+	*nodeConfig.LogDir = *nodeConfig.DataDir
+	yn, e := yaml.Marshal(nodeConfig)
+	if e == nil {
+		EnsureDir(*nodeConfig.ConfigFile)
+		e = ioutil.WriteFile(
+			*nodeConfig.ConfigFile, yn, 0600)
+		if e != nil {
+			panic(e)
+		}
+	} else {
+		panic(e)
 	}
-	if !*nodeConfig.Onion {
-		*nodeConfig.OnionProxy = ""
+}
+
+func walletHandleSave() {
+	appConfigCommon.Save = false
+	*walletConfig.LogDir = *walletConfig.DataDir
+	yn, e := yaml.Marshal(walletConfig)
+	if e == nil {
+		EnsureDir(*walletConfig.ConfigFile)
+		if e := ioutil.WriteFile(*walletConfig.ConfigFile, yn, 0600); e != nil {
+			panic(e)
+		}
+	} else {
+		panic(e)
 	}
-	if appConfigCommon.Save {
-		nodeHandleSave()
+}
+
+func podHandleSave() {
+	podconfig := filepath.Join(appConfigCommon.Datadir, podConfigFilename)
+	if yp, e := yaml.Marshal(appConfigCommon); e == nil {
+		EnsureDir(podconfig)
+		if e := ioutil.WriteFile(podconfig, yp, 0600); e != nil {
+			panic(e)
+		}
+	} else {
+		panic(e)
 	}
-	return nil
 }
 
 func ctlHandle(c *cli.Context) error {
@@ -68,38 +74,122 @@ func ctlHandle(c *cli.Context) error {
 	*ctlConfig.ConfigFile = filepath.Join(
 		datadir,
 		ctlConfigFilename)
-	if !c.Parent().IsSet("useproxy") {
+	if !c.Parent().Bool("useproxy") {
 		*ctlConfig.Proxy = ""
 	}
-	if appConfigCommon.Save {
-		appConfigCommon.Save = false
-		podHandleSave()
-		yn, e := yaml.Marshal(ctlConfig)
-		if e == nil {
-			EnsureDir(*ctlConfig.ConfigFile)
-			e = ioutil.WriteFile(
-				*ctlConfig.ConfigFile,
-				yn,
-				0600)
-			if e != nil {
-				panic(e)
-			}
-		} else {
-			panic(e)
+	network := c.Parent().String("network")
+	switch network {
+	case "testnet", "testnet3", "t":
+		*ctlConfig.TestNet3 = true
+		*ctlConfig.SimNet = false
+	case "simnet", "s":
+		*ctlConfig.TestNet3 = false
+		*ctlConfig.SimNet = true
+	default:
+		if network != "mainnet" && network != "m" {
+			fmt.Println("using mainnet for ctl")
 		}
+		*ctlConfig.TestNet3 = false
+		*ctlConfig.SimNet = false
+	}
+	if appConfigCommon.Save {
+		podHandleSave()
+		ctlHandleSave()
 	}
 	return nil
 }
 
 func ctlHandleList(c *cli.Context) error {
 	fmt.Println("running ctl listcommands")
-	*ctlConfig.ListCommands = true
-	if !c.IsSet("wallet") {
-		*ctlConfig.Wallet = ""
-	}
-	if !c.Parent().IsSet("useproxy") {
-		*ctlConfig.Proxy = ""
-	}
+	_ = ctlHandle(c)
 	spew.Dump(ctlConfig)
+	return nil
+}
+
+func nodeHandle(c *cli.Context) error {
+	*nodeConfig.DataDir = filepath.Join(
+		appConfigCommon.Datadir,
+		nodeAppName)
+	*nodeConfig.ConfigFile = filepath.Join(
+		*nodeConfig.DataDir,
+		nodeConfigFilename)
+	if !c.Parent().Bool("useproxy") {
+		*nodeConfig.Proxy = ""
+	}
+	network := c.Parent().String("network")
+	switch network {
+	case "testnet", "testnet3", "t":
+		*nodeConfig.TestNet3 = true
+		*nodeConfig.SimNet = false
+		*nodeConfig.RegressionTest = false
+	case "regtestnet", "regressiontest", "r":
+		*nodeConfig.TestNet3 = false
+		*nodeConfig.SimNet = false
+		*nodeConfig.RegressionTest = true
+	case "simnet", "s":
+		*nodeConfig.TestNet3 = false
+		*nodeConfig.SimNet = true
+		*nodeConfig.RegressionTest = false
+	default:
+		if network != "mainnet" && network != "m" {
+			fmt.Println("using mainnet for node")
+		}
+		*nodeConfig.TestNet3 = false
+		*nodeConfig.SimNet = false
+		*nodeConfig.RegressionTest = false
+	}
+	if !*nodeConfig.Onion {
+		*nodeConfig.OnionProxy = ""
+	}
+	if appConfigCommon.Save {
+		podHandleSave()
+		nodeHandleSave()
+	}
+	return nil
+}
+
+func walletHandle(c *cli.Context) error {
+	*walletConfig.DataDir = appConfigCommon.Datadir
+	*walletConfig.AppDataDir = filepath.Join(
+		appConfigCommon.Datadir,
+		walletAppName,
+	)
+	*walletConfig.ConfigFile = filepath.Join(
+		*walletConfig.AppDataDir,
+		walletConfigFilename,
+	)
+	if !c.Parent().Bool("useproxy") {
+		*nodeConfig.Proxy = ""
+	}
+	network := c.Parent().String("network")
+	switch network {
+	case "testnet", "testnet3", "t":
+		*walletConfig.TestNet3 = true
+		*walletConfig.SimNet = false
+	case "simnet", "s":
+		*walletConfig.TestNet3 = false
+		*walletConfig.SimNet = true
+	default:
+		if network != "mainnet" && network != "m" {
+			fmt.Println("using mainnet for wallet")
+		}
+		*walletConfig.TestNet3 = false
+		*walletConfig.SimNet = false
+	}
+	if appConfigCommon.Save {
+		podHandleSave()
+		walletHandleSave()
+	}
+	return nil
+}
+
+func confHandle(c *cli.Context) error {
+	appConfigCommon.Save = true
+	_ = ctlHandle(c)
+	appConfigCommon.Save = true
+	_ = nodeHandle(c)
+	appConfigCommon.Save = true
+	_ = walletHandle(c)
+	appConfigCommon.Save = true
 	return nil
 }

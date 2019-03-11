@@ -54,7 +54,6 @@ func EnsureDir(
 
 			panic(merr)
 		}
-		fmt.Println("created", dirName)
 	}
 }
 

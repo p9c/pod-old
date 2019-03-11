@@ -9,6 +9,7 @@ type Config struct {
 	// General application behavior
 	ConfigFile    *string `short:"C" long:"configfile" description:"Path to configuration file"`
 	ShowVersion   *bool   `short:"V" long:"version" description:"Display version information and exit"`
+	LogLevel      *string
 	Create        *bool   `long:"create" description:"Create the wallet if it does not exist"`
 	CreateTemp    *bool   `long:"createtemp" description:"Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir"`
 	AppDataDir    *string `short:"A" long:"appdata" description:"Application data directory for wallet config, databases and logs"`
@@ -35,7 +36,7 @@ type Config struct {
 	ConnectPeers *cli.StringSlice `long:"connect" description:"Connect only to the specified peers at startup"`
 	MaxPeers     *int             `long:"maxpeers" description:"Max number of inbound and outbound peers"`
 	BanDuration  *time.Duration   `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
-	BanThreshold *uint32          `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
+	BanThreshold *int             `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
 	// RPC server options
 	//
 	// The legacy server is still enabled by default (and eventually will be

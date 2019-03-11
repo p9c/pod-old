@@ -6,17 +6,77 @@ import (
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"time"
 )
-
-// TODO: create common base with all common common fields linked as pointers
 
 var App = cli.NewApp()
 
 func Main() int {
-	App.Before = altsrc.InitInputSourceWithContext(App.Flags,
-		NewYamlSourceFromFlagAndNameFunc(podConfigFilename, "datadir"))
+	datadir := ""
+	App.Before = func(c *cli.Context) error {
+		datadir = c.String("datadir")
+		configfilepath := filepath.Join(datadir, podConfigFilename)
+		if !FileExists(configfilepath) {
+			EnsureDir(configfilepath)
+			if e := ioutil.WriteFile(
+				configfilepath, []byte{'\n'}, 0600); e != nil {
+				panic(e)
+			}
+		}
+		altsrc.InitInputSourceWithContext(
+			App.Flags,
+			NewYamlSourceFromFlagAndNameFunc(
+				c, podConfigFilename, "datadir"))
+		return nil
+	}
+	ctlCommand.Before = func(c *cli.Context) error {
+		configfilepath := filepath.Join(filepath.Join(datadir, ctlAppName), ctlConfigFilename)
+		if !FileExists(configfilepath) {
+			EnsureDir(configfilepath)
+			if e := ioutil.WriteFile(
+				configfilepath, []byte{'\n'}, 0600); e != nil {
+				panic(e)
+			}
+		}
+		altsrc.InitInputSourceWithContext(
+			ctlCommand.Flags,
+			NewYamlSourceFromFlagAndNameFunc(
+				c.Parent(), ctlConfigFilename, "datadir"))
+		return nil
+	}
+	nodeCommand.Before = func(c *cli.Context) error {
+		configfilepath := filepath.Join(filepath.Join(datadir, nodeAppName), nodeConfigFilename)
+		if !FileExists(configfilepath) {
+			EnsureDir(configfilepath)
+			if e := ioutil.WriteFile(
+				configfilepath, []byte{'\n'}, 0600); e != nil {
+				panic(e)
+			}
+		}
+		altsrc.InitInputSourceWithContext(
+			nodeCommand.Flags,
+			NewYamlSourceFromFlagAndNameFunc(
+				c.Parent(), nodeConfigFilename, "datadir"))
+		return nil
+	}
+	walletCommand.Before = func(c *cli.Context) error {
+		configfilepath := filepath.Join(filepath.Join(datadir, walletAppName), walletConfigFilename)
+		if !FileExists(configfilepath) {
+			EnsureDir(configfilepath)
+			if e := ioutil.WriteFile(
+				configfilepath, []byte{'\n'}, 0600); e != nil {
+				panic(e)
+			}
+		}
+		altsrc.InitInputSourceWithContext(
+			walletCommand.Flags,
+			NewYamlSourceFromFlagAndNameFunc(
+				c.Parent(), walletConfigFilename, "datadir"))
+		return nil
+	}
 	e := App.Run(os.Args)
 	if e != nil {
 		return 1
@@ -32,25 +92,25 @@ func init() {
 		Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			altsrc.NewStringFlag(cli.StringFlag{
 				Name:        "datadir, D",
 				Value:       appDatadir,
 				Usage:       "sets the data directory base for a pod instance",
 				EnvVar:      "POD_DATADIR",
 				Destination: &appConfigCommon.Datadir,
-			},
+			}),
 			cli.BoolFlag{
 				Name:        "save, i",
 				Usage:       "save settings as effective from invocation",
 				Destination: &appConfigCommon.Save,
 			},
-			altsrc.NewStringFlag(cli.StringFlag{
+			cli.StringFlag{
 				Name:        "loglevel",
 				Value:       "info",
 				Usage:       "sets the base for all subsystem logging",
 				EnvVar:      "POD_LOGLEVEL",
 				Destination: &appConfigCommon.Loglevel,
-			}),
+			},
 			cli.StringSliceFlag{
 				Name:  "subsystems",
 				Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available with list syntax",
@@ -161,50 +221,7 @@ func init() {
 					return nil
 				},
 			},
-			{
-				Name:    "ctl",
-				Aliases: []string{"c"},
-				Usage:   "send RPC commands to a node or wallet and print the result",
-				Action:  ctlHandle,
-				Subcommands: []cli.Command{
-					{
-						Name:    "listcommands",
-						Aliases: []string{"list", "l"},
-						Usage:   "list commands available at endpoint",
-						Action:  ctlHandleList,
-					},
-				},
-				Flags: []cli.Flag{
-					cli.StringFlag{
-						Name:        "rpcserver, server, s",
-						Value:       "localhost:11048",
-						Usage:       "set rpc password",
-						Destination: ctlConfig.RPCServer,
-					},
-					cli.StringFlag{
-						Name:        "walletserver, ws",
-						Value:       "localhost:11046",
-						Usage:       "set wallet server to use",
-						Destination: ctlConfig.Wallet,
-					},
-					cli.StringFlag{
-						Name:        "rpcusername, username, user, u",
-						Value:       "user",
-						Usage:       "set rpc username",
-						Destination: ctlConfig.RPCUser,
-					},
-					cli.StringFlag{
-						Name:        "rpcpassword, password, pass, p",
-						Value:       "pa55word",
-						Usage:       "set rpc password",
-						Destination: ctlConfig.RPCPass,
-					},
-					cli.BoolFlag{
-						Name:  "wallet, w",
-						Usage: "use configured wallet rpc address",
-					},
-				},
-			},
+			ctlCommand,
 			nodeCommand,
 			walletCommand,
 			{
@@ -219,11 +236,8 @@ func init() {
 			{
 				Name:    "conf",
 				Aliases: []string{"C"},
-				Usage:   "automate configuration setup for testnets etc",
-				Action: func(c *cli.Context) error {
-					fmt.Println("calling conf")
-					return nil
-				},
+				Usage:   "populate all of the initial default configuration of a new data directory, all set globals will also apply",
+				Action:  confHandle,
 			},
 
 			{
@@ -246,6 +260,51 @@ func init() {
 			},
 		},
 	}
+}
+
+var ctlCommand = cli.Command{
+	Name:    "ctl",
+	Aliases: []string{"c"},
+	Usage:   "send RPC commands to a node or wallet and print the result",
+	Action:  ctlHandle,
+	Subcommands: []cli.Command{
+		{
+			Name:    "listcommands",
+			Aliases: []string{"list", "l"},
+			Usage:   "list commands available at endpoint",
+			Action:  ctlHandleList,
+		},
+	},
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:        "rpcserver, server, s",
+			Value:       "localhost:11048",
+			Usage:       "set rpc password",
+			Destination: ctlConfig.RPCServer,
+		},
+		cli.StringFlag{
+			Name:        "walletserver, ws",
+			Value:       "localhost:11046",
+			Usage:       "set wallet server to use",
+			Destination: ctlConfig.Wallet,
+		},
+		cli.StringFlag{
+			Name:        "rpcusername, username, user, u",
+			Value:       "user",
+			Usage:       "set rpc username",
+			Destination: ctlConfig.RPCUser,
+		},
+		cli.StringFlag{
+			Name:        "rpcpassword, password, pass, p",
+			Value:       "pa55word",
+			Usage:       "set rpc password",
+			Destination: ctlConfig.RPCPass,
+		},
+		cli.BoolFlag{
+			Name:  "wallet, w",
+			Usage: "use configured wallet rpc address",
+		},
+	},
 }
 
 var nodeCommand = cli.Command{

@@ -18,11 +18,14 @@ var appDatadir = util.AppDataDir(appName, false)
 
 const podConfigFilename = appName + ".yaml"
 
+const ctlAppName = "ctl"
+const ctlConfigFilename = ctlAppName + ".yaml"
+
 const nodeAppName = "node"
 const nodeConfigFilename = nodeAppName + ".yaml"
 
-const ctlAppName = "ctl"
-const ctlConfigFilename = ctlAppName + ".yaml"
+const walletAppName = "wallet"
+const walletConfigFilename = walletAppName + ".yaml"
 
 type ConfigCommon struct {
 	Datadir      string
@@ -161,15 +164,43 @@ var nodeDataDir = "/node"
 var shellDataDir = "/shell"
 
 var walletConfig = walletmain.Config{
-	CAFile:          &appConfigCommon.CAfile,
-	EnableClientTLS: &appConfigCommon.ClientTLS,
-	Proxy:           &appConfigCommon.Proxy,
-	ProxyUser:       &appConfigCommon.Proxyuser,
-	ProxyPass:       &appConfigCommon.Proxypass,
-	UseSPV:          new(bool),
-	RPCCert:         &appConfigCommon.RPCcert,
-	RPCKey:          &appConfigCommon.RPCkey,
-	EnableServerTLS: &appConfigCommon.ServerTLS,
+	CAFile:                   &appConfigCommon.CAfile,
+	EnableClientTLS:          &appConfigCommon.ClientTLS,
+	Proxy:                    &appConfigCommon.Proxy,
+	ProxyUser:                &appConfigCommon.Proxyuser,
+	ProxyPass:                &appConfigCommon.Proxypass,
+	UseSPV:                   new(bool),
+	RPCCert:                  &appConfigCommon.RPCcert,
+	RPCKey:                   &appConfigCommon.RPCkey,
+	EnableServerTLS:          &appConfigCommon.ServerTLS,
+	ConfigFile:               new(string),
+	ShowVersion:              new(bool),
+	LogLevel:                 &appConfigCommon.Loglevel,
+	Create:                   new(bool),
+	CreateTemp:               new(bool),
+	AppDataDir:               new(string),
+	TestNet3:                 new(bool),
+	SimNet:                   new(bool),
+	NoInitialLoad:            new(bool),
+	LogDir:                   new(string),
+	Profile:                  new(string),
+	WalletPass:               new(string),
+	RPCConnect:               new(string),
+	PodUsername:              new(string),
+	PodPassword:              new(string),
+	AddPeers:                 new(cli.StringSlice),
+	ConnectPeers:             new(cli.StringSlice),
+	MaxPeers:                 new(int),
+	BanDuration:              new(time.Duration),
+	BanThreshold:             new(int),
+	OneTimeTLSKey:            new(bool),
+	LegacyRPCListeners:       new(cli.StringSlice),
+	LegacyRPCMaxClients:      new(int),
+	LegacyRPCMaxWebsockets:   new(int),
+	Username:                 new(string),
+	Password:                 new(string),
+	ExperimentalRPCListeners: new(cli.StringSlice),
+	DataDir:                  new(string),
 }
 
 var walletDataDir = "/wallet"
@@ -177,10 +208,10 @@ var walletDataDir = "/wallet"
 // NewYamlSourceFromFlagAndNameFunc creates a new Yaml
 // InputSourceContext from a provided flag name and source context.
 // If file doesn't exist, make one, empty is same as whatever is default
-func NewYamlSourceFromFlagAndNameFunc(confName, flagFileName string,
+func NewYamlSourceFromFlagAndNameFunc(c *cli.Context, confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
-		filePath := context.String(flagFileName)
+		filePath := c.String(flagFileName)
 		filePath = filepath.Join(filePath, confName)
 		EnsureDir(filePath)
 		if !FileExists(filePath) {
