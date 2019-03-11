@@ -1,12 +1,12 @@
 package app
 
 import (
-	"fmt"
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
+	"os"
 	"path/filepath"
 	"time"
 )
@@ -162,14 +162,20 @@ var walletConfig = walletmain.Config{
 var walletDataDir = "/wallet"
 
 // NewYamlSourceFromFlagAndNameFunc creates a new Yaml
-//InputSourceContext from a provided flag name and source context.
+// InputSourceContext from a provided flag name and source context.
+// If file doesn't exist, make one, empty is same as whatever is default
 func NewYamlSourceFromFlagAndNameFunc(confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
 		filePath := context.String(flagFileName)
-		fmt.Println(filePath)
+		EnsureDir(filePath)
 		filePath = filepath.Join(filePath, confName)
-		fmt.Println(filePath)
+		if !FileExists(filePath) {
+			_, err := os.Create(filePath)
+			if err != nil {
+				panic(err)
+			}
+		}
 		return altsrc.NewYamlSourceFromFile(filePath)
 	}
 }
