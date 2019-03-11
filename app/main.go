@@ -42,13 +42,13 @@ func init() {
 				Usage:       "save settings as effective from invocation",
 				Destination: &appConfigCommon.Save,
 			},
-			cli.StringFlag{
+			altsrc.NewStringFlag(cli.StringFlag{
 				Name:        "loglevel",
 				Value:       "info",
 				Usage:       "sets the base for all subsystem logging",
 				EnvVar:      "POD_LOGLEVEL",
 				Destination: &appConfigCommon.Loglevel,
-			},
+			}),
 			cli.StringSliceFlag{
 				Name:  "subsystems",
 				Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available with list syntax",
