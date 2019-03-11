@@ -6,10 +6,15 @@ import (
 	"git.parallelcoin.io/pod/cmd/wallet"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
-	"os"
+	"io/ioutil"
 	"path/filepath"
 	"time"
 )
+
+const appName = "pod"
+const podConfigFilename = "pod.yaml"
+const nodePath = "node"
+const nodeConfigFilename = "node.yaml"
 
 type ConfigCommon struct {
 	Datadir      string
@@ -168,10 +173,10 @@ func NewYamlSourceFromFlagAndNameFunc(confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
 		filePath := context.String(flagFileName)
-		EnsureDir(filePath)
 		filePath = filepath.Join(filePath, confName)
+		EnsureDir(filePath)
 		if !FileExists(filePath) {
-			_, err := os.Create(filePath)
+			err := ioutil.WriteFile(filePath, []byte{'\n'}, 0600)
 			if err != nil {
 				panic(err)
 			}
