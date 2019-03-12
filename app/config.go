@@ -57,29 +57,7 @@ type ConfigCommon struct {
 var True, False = true, false
 
 var appConfigCommon = &ConfigCommon{
-	// Datadir:      "",
-	// Save:         false,
-	// Loglevel:     "",
-	// Subsystems:   make(cli.StringSlice, 0),
-	// Network:      "",
-	// ServerUser:   "server",
-	// ServerPass:   "pa55word",
-	// ClientUser:   "client",
-	// ClientPass:   "pa55word1",
-	// RPCcert:      "",
-	// RPCkey:       "",
-	// CAfile:       "",
-	// ClientTLS:    false,
-	// ServerTLS:    false,
-	// Useproxy:     false,
-	// Proxy:        "",
-	// Proxyuser:    "",
-	// Proxypass:    "",
-	// Onion:        false,
-	// OnionProxy:   "",
-	// Onionuser:    "",
-	// Onionpass:    "",
-	// Torisolation: false,
+	Subsystems: cli.StringSlice{},
 }
 
 var ctlConfig = ctl.Config{
