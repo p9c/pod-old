@@ -1,15 +1,11 @@
 package app
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
 	"net"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 
 	"git.parallelcoin.io/pod/cmd/node"
 	"github.com/tucnak/climax"
@@ -81,55 +77,6 @@ func GenFlag(
 	}
 }
 
-// GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
-func GenKey() string {
-
-	k, _ := rand.Int(rand.Reader, big.NewInt(int64(^uint32(0))))
-	key := k.Uint64()
-	return fmt.Sprintf("%0x", key)
-}
-
-// GenLog is a short declaration for a variable with a short version
-func GenLog(
-	name string,
-) climax.Flag {
-	return climax.Flag{
-		Name:     name,
-		Usage:    "--" + name + `="info"`,
-		Variable: true,
-	}
-}
-
-// GenShort is a short declaration for a variable with a short version
-func GenShort(
-	name,
-	short,
-	usage,
-	help string,
-) climax.Flag {
-	return climax.Flag{
-		Name:     name,
-		Short:    short,
-		Usage:    "--" + name + `="` + usage + `"`,
-		Help:     help,
-		Variable: true,
-	}
-}
-
-// GenTrig is a short declaration for a trigger type
-func GenTrig(
-	name,
-	short,
-	help string,
-) climax.Flag {
-	return climax.Flag{
-		Name:     name,
-		Short:    short,
-		Help:     help,
-		Variable: false,
-	}
-}
-
 // NormalizeAddress reads and corrects an address if it is missing pieces
 func NormalizeAddress(
 	addr,
@@ -177,113 +124,6 @@ func NormalizeAddresses(
 
 		*out = *O
 	}
-}
-
-// ParseDuration takes a string of the format `Xd/h/m/s` and returns a time.Duration corresponding with that specification
-func ParseDuration(
-	d, name string,
-	out *time.Duration,
-) (
-	err error,
-) {
-
-	var t int
-	var ti time.Duration
-	switch d[len(d)-1] {
-	case 's':
-		t, err = strconv.Atoi(d[:len(d)-1])
-		ti = time.Duration(t) * time.Second
-	case 'm':
-		t, err = strconv.Atoi(d[:len(d)-1])
-		ti = time.Duration(t) * time.Minute
-	case 'h':
-		t, err = strconv.Atoi(d[:len(d)-1])
-		ti = time.Duration(t) * time.Hour
-	case 'd':
-		t, err = strconv.Atoi(d[:len(d)-1])
-		ti = time.Duration(t) * 24 * time.Hour
-	}
-	if err != nil {
-
-		err = fmt.Errorf("malformed %s `%s` leaving set at `%s` err: %s", name, d, *out, err.Error())
-	} else {
-		*out = ti
-	}
-	return
-}
-
-// ParseFloat reads a string that should contain a floating point number and returns it and any parsing error
-func ParseFloat(
-	f, name string,
-	original *float64,
-) (
-	err error,
-) {
-
-	var out float64
-	_, err = fmt.Sscanf(f, "%0.f", out)
-	if err != nil {
-
-		err = fmt.Errorf("malformed %s `%s` leaving set at `%0.f` err: %s", name, f, *original, err.Error())
-	} else {
-		*original = out
-	}
-	return
-}
-
-// ParseInteger reads a string that should contain a integer and returns the number and any parsing error
-func ParseInteger(
-	integer,
-	name string,
-	original *int,
-) (
-	err error,
-) {
-
-	var out int
-	out, err = strconv.Atoi(integer)
-	if err != nil {
-
-		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
-	} else {
-		*original = out
-	}
-	return
-}
-
-// ParseUint32 reads a string that should contain a integer and returns the number and any parsing error
-func ParseUint32(
-	integer,
-	name string,
-	original *uint32,
-) (
-	err error,
-) {
-
-	var out int
-	out, err = strconv.Atoi(integer)
-	if err != nil {
-
-		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
-	} else {
-		*original = uint32(out)
-	}
-	return
-}
-
-func getIfIs(
-	ctx *climax.Context,
-	name string,
-) (
-	out string,
-	ok bool,
-) {
-
-	if ctx.Is(name) {
-
-		return ctx.Get(name)
-	}
-	return
 }
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
