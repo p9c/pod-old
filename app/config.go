@@ -1,15 +1,16 @@
 package app
 
 import (
-	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/util"
-	"gopkg.in/urfave/cli.v1"
-	"gopkg.in/urfave/cli.v1/altsrc"
 	"io/ioutil"
 	"path/filepath"
 	"time"
+
+	"git.parallelcoin.io/pod/cmd/ctl"
+	"git.parallelcoin.io/pod/cmd/node"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	"git.parallelcoin.io/pod/pkg/util"
+	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 const appName = "pod"
@@ -33,6 +34,10 @@ type ConfigCommon struct {
 	Loglevel     string
 	Subsystems   cli.StringSlice
 	Network      string
+	ServerUser   string
+	ServerPass   string
+	ClientUser   string
+	ClientPass   string
 	RPCcert      string
 	RPCkey       string
 	CAfile       string
@@ -52,7 +57,29 @@ type ConfigCommon struct {
 var True, False = true, false
 
 var appConfigCommon = &ConfigCommon{
-	Subsystems: make(cli.StringSlice, 0),
+	// Datadir:      "",
+	// Save:         false,
+	// Loglevel:     "",
+	// Subsystems:   make(cli.StringSlice, 0),
+	// Network:      "",
+	// ServerUser:   "server",
+	// ServerPass:   "pa55word",
+	// ClientUser:   "client",
+	// ClientPass:   "pa55word1",
+	// RPCcert:      "",
+	// RPCkey:       "",
+	// CAfile:       "",
+	// ClientTLS:    false,
+	// ServerTLS:    false,
+	// Useproxy:     false,
+	// Proxy:        "",
+	// Proxyuser:    "",
+	// Proxypass:    "",
+	// Onion:        false,
+	// OnionProxy:   "",
+	// Onionuser:    "",
+	// Onionpass:    "",
+	// Torisolation: false,
 }
 
 var ctlConfig = ctl.Config{
@@ -61,19 +88,18 @@ var ctlConfig = ctl.Config{
 	ListCommands:  new(bool),
 	ConfigFile:    new(string),
 	DebugLevel:    &appConfigCommon.Loglevel,
-	RPCUser:       new(string),
-	RPCPass:       new(string),
-	RPCServer:     new(string),
+	RPCUser:       &appConfigCommon.ServerUser,
+	RPCPass:       &appConfigCommon.ServerPass,
+	RPCServer:     &(*nodeConfig.RPCListeners)[0],
 	TestNet3:      new(bool),
 	SimNet:        new(bool),
 	TLSSkipVerify: new(bool),
-	Wallet:        new(string),
-
-	RPCCert:   &appConfigCommon.RPCcert,
-	TLS:       &appConfigCommon.ClientTLS,
-	Proxy:     &appConfigCommon.Proxy,
-	ProxyUser: &appConfigCommon.Proxyuser,
-	ProxyPass: &appConfigCommon.Proxypass,
+	Wallet:        &(*walletConfig.LegacyRPCListeners)[0],
+	RPCCert:       &appConfigCommon.RPCcert,
+	TLS:           &appConfigCommon.ClientTLS,
+	Proxy:         &appConfigCommon.Proxy,
+	ProxyUser:     &appConfigCommon.Proxyuser,
+	ProxyPass:     &appConfigCommon.Proxypass,
 }
 var ctlDatadir = "ctl"
 
@@ -109,10 +135,10 @@ var nodeConfig = node.Config{
 	BanDuration:          new(time.Duration),
 	BanThreshold:         new(int),
 	Whitelists:           new(cli.StringSlice),
-	RPCUser:              new(string),
-	RPCPass:              new(string),
-	RPCLimitUser:         new(string),
-	RPCLimitPass:         new(string),
+	RPCUser:              &appConfigCommon.ServerUser,
+	RPCPass:              &appConfigCommon.ServerPass,
+	RPCLimitUser:         &appConfigCommon.ClientUser,
+	RPCLimitPass:         &appConfigCommon.ClientPass,
 	RPCMaxClients:        new(int),
 	RPCMaxWebsockets:     new(int),
 	RPCMaxConcurrentReqs: new(int),
@@ -185,20 +211,20 @@ var walletConfig = walletmain.Config{
 	LogDir:                   new(string),
 	Profile:                  new(string),
 	WalletPass:               new(string),
-	RPCConnect:               new(string),
-	PodUsername:              new(string),
-	PodPassword:              new(string),
+	RPCConnect:               &(*nodeConfig.RPCListeners)[0],
+	PodUsername:              &appConfigCommon.ServerUser,
+	PodPassword:              &appConfigCommon.ServerPass,
 	AddPeers:                 new(cli.StringSlice),
 	ConnectPeers:             new(cli.StringSlice),
 	MaxPeers:                 new(int),
 	BanDuration:              new(time.Duration),
 	BanThreshold:             new(int),
 	OneTimeTLSKey:            new(bool),
-	LegacyRPCListeners:       new(cli.StringSlice),
+	LegacyRPCListeners:       &cli.StringSlice{"localhost:11048"},
 	LegacyRPCMaxClients:      new(int),
 	LegacyRPCMaxWebsockets:   new(int),
-	Username:                 new(string),
-	Password:                 new(string),
+	Username:                 &appConfigCommon.ClientUser,
+	Password:                 &appConfigCommon.ClientPass,
 	ExperimentalRPCListeners: new(cli.StringSlice),
 	DataDir:                  new(string),
 }
@@ -223,5 +249,3 @@ func NewYamlSourceFromFlagAndNameFunc(c *cli.Context, confName, flagFileName str
 		return altsrc.NewYamlSourceFromFile(filePath)
 	}
 }
-
-// TODO: need a yaml writer for the save flag

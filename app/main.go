@@ -128,6 +128,30 @@ func init() {
 				Destination: &appConfigCommon.Network,
 			},
 			cli.StringFlag{
+				Name:        "serveruser",
+				Value:       "server",
+				Usage:       "sets the username for services",
+				Destination: &appConfigCommon.ServerUser,
+			},
+			cli.StringFlag{
+				Name:        "serverpass",
+				Value:       "pa55word",
+				Usage:       "sets the password for services",
+				Destination: &appConfigCommon.ServerPass,
+			},
+			cli.StringFlag{
+				Name:        "clientuser",
+				Value:       "client",
+				Usage:       "sets the username for clients of services",
+				Destination: &appConfigCommon.ClientUser,
+			},
+			cli.StringFlag{
+				Name:        "clientpass",
+				Value:       "pa55word1",
+				Usage:       "sets the password for clients of services",
+				Destination: &appConfigCommon.ClientPass,
+			},
+			cli.StringFlag{
 				Name:        "rpccert",
 				Value:       defaultDatadir + "/rpc.cert",
 				Usage:       "File containing the certificate file",
@@ -286,26 +310,14 @@ var ctlCommand = cli.Command{
 		cli.StringFlag{
 			Name:        "rpcserver, server, s",
 			Value:       "localhost:11048",
-			Usage:       "set rpc password",
+			Usage:       "set node to connect to",
 			Destination: ctlConfig.RPCServer,
 		},
 		cli.StringFlag{
 			Name:        "walletserver, ws",
 			Value:       "localhost:11046",
-			Usage:       "set wallet server to use",
+			Usage:       "set wallet connect to",
 			Destination: ctlConfig.Wallet,
-		},
-		cli.StringFlag{
-			Name:        "rpcusername, username, user, u",
-			Value:       "user",
-			Usage:       "set rpc username",
-			Destination: ctlConfig.RPCUser,
-		},
-		cli.StringFlag{
-			Name:        "rpcpassword, password, pass, p",
-			Value:       "pa55word",
-			Usage:       "set rpc password",
-			Destination: ctlConfig.RPCPass,
 		},
 		cli.BoolFlag{
 			Name:  "wallet, w",
@@ -381,30 +393,6 @@ var nodeCommand = cli.Command{
 			Name:  "whitelist",
 			Usage: "Add an IP network or IP that will not be banned. (eg. 192.168.1.0/24 or ::1)",
 			Value: nodeConfig.Whitelists,
-		},
-		cli.StringFlag{
-			Name:        "rpcuser",
-			Value:       "user",
-			Usage:       "Username for RPC connections",
-			Destination: nodeConfig.RPCUser,
-		},
-		cli.StringFlag{
-			Name:        "rpcpass",
-			Value:       "pa55word",
-			Usage:       "Password for RPC connections",
-			Destination: nodeConfig.RPCPass,
-		},
-		cli.StringFlag{
-			Name:        "rpclimituser",
-			Value:       "user",
-			Usage:       "Username for limited RPC connections",
-			Destination: nodeConfig.RPCLimitUser,
-		},
-		cli.StringFlag{
-			Name:        "rpclimitpass",
-			Value:       "pa55word",
-			Usage:       "Password for limited RPC connections",
-			Destination: nodeConfig.RPCLimitPass,
 		},
 		cli.StringSliceFlag{
 			Name:  "rpclisten",
@@ -540,7 +528,6 @@ var nodeCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:        "minerpass",
-			Value:       "pa55word",
 			Usage:       "Encryption password required for miner clients to subscribe to work updates, for use over insecure connections",
 			Destination: nodeConfig.MinerPass,
 		},
@@ -659,18 +646,6 @@ var walletCommand = cli.Command{
 			Usage:       "The public wallet password -- Only required if the wallet was created with one",
 			Destination: walletConfig.WalletPass,
 		},
-		cli.StringFlag{
-			Name:        "podusername",
-			Value:       "user",
-			Usage:       "Username for pod authentication",
-			Destination: walletConfig.PodUsername,
-		},
-		cli.StringFlag{
-			Name:        "podpassword",
-			Value:       "pa55word",
-			Usage:       "Password for pod authentication",
-			Destination: walletConfig.PodPassword,
-		},
 		cli.BoolFlag{
 			Name:        "onetimetlskey",
 			Usage:       "Generate a new TLS certpair at startup, but only write the certificate to disk",
@@ -692,18 +667,6 @@ var walletCommand = cli.Command{
 			Value:       8,
 			Usage:       "Max number of legacy RPC websocket connections",
 			Destination: walletConfig.LegacyRPCMaxWebsockets,
-		},
-		cli.StringFlag{
-			Name:        "username",
-			Value:       "user",
-			Usage:       "Username for legacy RPC and pod authentication (if podusername is unset)",
-			Destination: walletConfig.Username,
-		},
-		cli.StringFlag{
-			Name:        "password",
-			Value:       "pa55word",
-			Usage:       "Password for legacy RPC and pod authentication (if podpassword is unset)",
-			Destination: walletConfig.Password,
 		},
 		cli.StringFlag{
 			Name:        "profile",
