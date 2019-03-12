@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -58,6 +59,7 @@ func walletHandleSave() {
 
 func podHandleSave() {
 	podconfig := filepath.Join(appConfigCommon.Datadir, podConfigFilename)
+	fmt.Println("saving to", podconfig)
 	if yp, e := yaml.Marshal(appConfigCommon); e == nil {
 		EnsureDir(podconfig)
 		if e := ioutil.WriteFile(podconfig, yp, 0600); e != nil {
@@ -103,6 +105,7 @@ func ctlHandle(c *cli.Context) error {
 		activeNetParams = &netparams.MainNetParams
 	}
 	if appConfigCommon.Save {
+		appConfigCommon.Save = false
 		podHandleSave()
 		ctlHandleSave()
 		return nil
@@ -124,6 +127,7 @@ func nodeHandle(c *cli.Context) error {
 	*nodeConfig.ConfigFile = filepath.Join(
 		*nodeConfig.DataDir,
 		nodeConfigFilename)
+	*nodeConfig.LogDir = *nodeConfig.DataDir
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""
 	}
@@ -164,6 +168,7 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.OnionProxy = ""
 	}
 	if appConfigCommon.Save {
+		appConfigCommon.Save = false
 		podHandleSave()
 		nodeHandleSave()
 		return nil
@@ -209,6 +214,7 @@ func walletHandle(c *cli.Context) error {
 		activeNetParams = &netparams.MainNetParams
 	}
 	if appConfigCommon.Save {
+		appConfigCommon.Save = false
 		podHandleSave()
 		walletHandleSave()
 		return nil
@@ -217,12 +223,30 @@ func walletHandle(c *cli.Context) error {
 }
 
 func confHandle(c *cli.Context) error {
-	appConfigCommon.Save = true
-	_ = ctlHandle(c)
-	appConfigCommon.Save = true
-	_ = nodeHandle(c)
-	appConfigCommon.Save = true
-	_ = walletHandle(c)
-	appConfigCommon.Save = true
+	appendNum := false
+	number := 1
+	if c.IsSet("number") {
+		appendNum = true
+		number = c.Int("number")
+		if number > 10 {
+			return errors.New("cannot make more than 10 (0-9) test profiles")
+		}
+	}
+	base := c.String("base")
+	var working string
+	fmt.Println("base:", base)
+	for i := 0; i < number; i++ {
+		working = "" + base
+		if appendNum {
+			working += fmt.Sprint(i)
+		}
+		apps := []string{"c", "n", "w", "s", "g"}
+		for _, x := range apps {
+			e := App.Run([]string{"pod", "-i", "-D", working, x})
+			if e != nil {
+				panic(e)
+			}
+		}
+	}
 	return nil
 }

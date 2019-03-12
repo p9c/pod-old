@@ -83,6 +83,7 @@ func Main() int {
 	}
 	e := App.Run(os.Args)
 	if e != nil {
+		fmt.Println("ERROR:", e)
 		return 1
 	}
 	return 0
@@ -121,7 +122,7 @@ func init() {
 				Value: &appConfigCommon.Subsystems,
 			},
 			cli.StringFlag{
-				Name:        "network",
+				Name:        "network, n",
 				Value:       "mainnet",
 				Usage:       "connect to mainnet/testnet3/simnet",
 				Destination: &appConfigCommon.Network,
@@ -242,6 +243,17 @@ func init() {
 				Aliases: []string{"C"},
 				Usage:   "populate all of the initial default configuration of a new data directory, all set globals will also apply. Exits after saving",
 				Action:  confHandle,
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "base, b",
+						Usage: "base name to extend with one number character for testnet configurations",
+						Value: "./test",
+					},
+					cli.IntFlag{
+						Name:  "number, n",
+						Usage: "number of test? profiles to make based ",
+					},
+				},
 			},
 
 			{
