@@ -45,7 +45,6 @@ require (
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect
 	github.com/tjfoc/gmsm v1.0.1 // indirect
 	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
-	github.com/urfave/cli v1.20.0
 	github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b
 	github.com/xtaci/kcp-go v5.0.7+incompatible
 	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb

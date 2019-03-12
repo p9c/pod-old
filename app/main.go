@@ -230,15 +230,6 @@ func init() {
 			nodeCommand,
 			walletCommand,
 			{
-				Name:    "init",
-				Aliases: []string{"i"},
-				Usage:   "resets configuration to factory",
-				Action: func(c *cli.Context) error {
-					fmt.Println("resetting configuration")
-					return nil
-				},
-			},
-			{
 				Name:    "conf",
 				Aliases: []string{"C"},
 				Usage:   "populate all of the initial default configuration of a new data directory, all set globals will also apply. Exits after saving",

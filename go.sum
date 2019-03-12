@@ -251,8 +251,6 @@ github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8/go.mod h1:aN8AHR3MaH
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
 github.com/u35s/rudp v0.0.0-20171228014240-b384c469e861/go.mod h1:RoS9SX0MyvunzHkI0fntze/G3apwbDXz12uvz48QA1s=
 github.com/ugorji/go v1.1.1/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJQ=
-github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
-github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/valyala/fastrand v0.0.0-20170531153657-19dd0f0bf014/go.mod h1:HWqCzkrkg6QXT8V2EXWvXCoow7vLwOFN002oeRzjapQ=
 github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b h1:dLkqBELopfQNhe8S9ucnSf+HhiUCgK/hPIjVG0f9GlY=
 github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b/go.mod h1:5oyMAv4hrBEKqBwORFsiqIrCNCmL2qcZLQTdJLYeYIc=
