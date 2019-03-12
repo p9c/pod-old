@@ -102,8 +102,9 @@ func ctlHandle(c *cli.Context) error {
 	if appConfigCommon.Save {
 		podHandleSave()
 		ctlHandleSave()
+		return nil
 	}
-	return nil
+	return launchCtl(c)
 }
 
 func ctlHandleList(c *cli.Context) error {
@@ -160,8 +161,9 @@ func nodeHandle(c *cli.Context) error {
 	if appConfigCommon.Save {
 		podHandleSave()
 		nodeHandleSave()
+		return nil
 	}
-	return nil
+	return launchNode(c)
 }
 
 func walletHandle(c *cli.Context) error {
@@ -204,8 +206,9 @@ func walletHandle(c *cli.Context) error {
 	if appConfigCommon.Save {
 		podHandleSave()
 		walletHandleSave()
+		return nil
 	}
-	return nil
+	return launchWallet(c)
 }
 
 func confHandle(c *cli.Context) error {
