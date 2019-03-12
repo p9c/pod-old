@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"gopkg.in/urfave/cli.v1"
 	"io"
 	"net"
 	"os"
@@ -16,9 +15,11 @@ import (
 	"strings"
 	"time"
 
+	"gopkg.in/urfave/cli.v1"
+
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	database "git.parallelcoin.io/pod/pkg/db"
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/peer"
@@ -165,34 +166,20 @@ const (
 	DefaultAlgo      = "random"
 )
 
-var (
-	DefaultConfigFile = filepath.Join(
-		DefaultHomeDir, DefaultConfigFilename)
-)
+var DefaultConfigFile = filepath.Join(
+	DefaultHomeDir, DefaultConfigFilename)
 
-var (
-	DefaultDataDir = filepath.Join(DefaultHomeDir, DefaultDataDirname)
-)
+var DefaultDataDir = filepath.Join(DefaultHomeDir, DefaultDataDirname)
 
-var (
-	DefaultHomeDir = util.AppDataDir("pod", false)
-)
+var DefaultHomeDir = util.AppDataDir("pod", false)
 
-var (
-	DefaultLogDir = filepath.Join(DefaultHomeDir, DefaultLogDirname)
-)
+var DefaultLogDir = filepath.Join(DefaultHomeDir, DefaultLogDirname)
 
-var (
-	DefaultRPCCertFile = filepath.Join(DefaultHomeDir, "rpc.cert")
-)
+var DefaultRPCCertFile = filepath.Join(DefaultHomeDir, "rpc.cert")
 
-var (
-	DefaultRPCKeyFile = filepath.Join(DefaultHomeDir, "rpc.key")
-)
+var DefaultRPCKeyFile = filepath.Join(DefaultHomeDir, "rpc.key")
 
-var (
-	KnownDbTypes = database.SupportedDrivers()
-)
+var KnownDbTypes = database.SupportedDrivers()
 
 // runServiceCommand is only set to a real function on Windows.  It is used to parse and execute service commands specified via the -s flag.
 var runServiceCommand func(string) error

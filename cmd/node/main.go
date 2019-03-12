@@ -16,19 +16,12 @@ import (
 	database "git.parallelcoin.io/pod/pkg/db"
 )
 
-const (
+// blockDbNamePrefix is the prefix for the block database name.  The database type is appended to this value to form the full block database name.
+const blockDbNamePrefix = "blocks"
 
-	// blockDbNamePrefix is the prefix for the block database name.  The database type is appended to this value to form the full block database name.
-	blockDbNamePrefix = "blocks"
-)
+var StateCfg = new(StateConfig)
 
-var (
-	StateCfg = new(StateConfig)
-)
-
-var (
-	cfg *Config
-)
+var cfg *Config
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
 var winServiceMain func() (bool, error)
@@ -38,7 +31,8 @@ func Main(
 	c *Config,
 	activeNet *Params,
 	serverChan chan<- *server,
-) (err error,
+) (
+	err error,
 ) {
 
 	cfg = c

@@ -2,17 +2,20 @@ package app
 
 import (
 	"fmt"
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
-	"gopkg.in/urfave/cli.v1"
-	"gopkg.in/urfave/cli.v1/altsrc"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
+
+	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/pod/cmd/node/mempool"
+	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 var App = cli.NewApp()
+
+var activeNetParams *node.Params
 
 func Main() int {
 	datadir := ""
