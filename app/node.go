@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
+	"git.parallelcoin.io/pod/cmd/node"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
@@ -73,6 +75,15 @@ func nodeHandle(c *cli.Context) error {
 	if !*nodeConfig.Onion {
 		*nodeConfig.OnionProxy = ""
 	}
+	// TODO: now to sanitize the rest
+	port := node.DefaultPort
+	NormalizeStringSliceAddresses(nodeConfig.AddPeers, port)
+	NormalizeStringSliceAddresses(nodeConfig.ConnectPeers, port)
+	NormalizeStringSliceAddresses(nodeConfig.Listeners, port)
+	NormalizeStringSliceAddresses(nodeConfig.Whitelists, port)
+	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
+
+	_ = podHandle(c)
 	if appConfigCommon.Save {
 		appConfigCommon.Save = false
 		podHandleSave()
@@ -80,4 +91,12 @@ func nodeHandle(c *cli.Context) error {
 		return nil
 	}
 	return launchNode(c)
+}
+
+func NormalizeStringSliceAddresses(a *cli.StringSlice, port string) {
+	variable := []string(*a)
+	NormalizeAddresses(
+		strings.Join(variable, " "),
+		port, &variable)
+	*a = variable
 }

@@ -7,5 +7,7 @@ func shellHandleSave() {
 }
 
 func shellHandle(c *cli.Context) error {
+	_ = podHandle(c)
+
 	return nil
 }

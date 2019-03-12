@@ -1,6 +1,9 @@
 package app
 
 import (
+	"fmt"
+
+	"git.parallelcoin.io/pod/cmd/node"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -16,6 +19,11 @@ func launchGUI(c *cli.Context) error {
 
 func launchNode(c *cli.Context) error {
 	spew.Dump(nodeConfig)
+	err := node.Main(&nodeConfig, activeNetParams, nil)
+	if err != nil {
+		fmt.Print(err)
+		return err
+	}
 	return nil
 }
 

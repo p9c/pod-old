@@ -8,25 +8,26 @@ import (
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 const appName = "pod"
-
-var appDatadir = util.AppDataDir(appName, false)
-
-const podConfigFilename = appName + ".yaml"
-
+const confExt = ".yaml"
+const podConfigFilename = appName + confExt
 const ctlAppName = "ctl"
-const ctlConfigFilename = ctlAppName + ".yaml"
-
+const ctlConfigFilename = ctlAppName + confExt
 const nodeAppName = "node"
-const nodeConfigFilename = nodeAppName + ".yaml"
-
+const nodeConfigFilename = nodeAppName + confExt
 const walletAppName = "wallet"
-const walletConfigFilename = walletAppName + ".yaml"
+const walletConfigFilename = walletAppName + confExt
+
+var App = cli.NewApp()
+var activeNetParams *netparams.Params
+var DefaultHomeDir = util.AppDataDir(appName, false)
+var appDatadir = util.AppDataDir(appName, false)
 
 type ConfigCommon struct {
 	Datadir      string

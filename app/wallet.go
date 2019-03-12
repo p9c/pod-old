@@ -61,6 +61,7 @@ func walletHandle(c *cli.Context) error {
 		*walletConfig.SimNet = false
 		activeNetParams = &netparams.MainNetParams
 	}
+	_ = podHandle(c)
 	if appConfigCommon.Save {
 		appConfigCommon.Save = false
 		podHandleSave()

@@ -9,6 +9,7 @@ import (
 	"runtime/pprof"
 
 	cl "git.parallelcoin.io/clog"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 
@@ -29,7 +30,7 @@ var winServiceMain func() (bool, error)
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
 func Main(
 	c *Config,
-	activeNet *Params,
+	activeNet *netparams.Params,
 	serverChan chan<- *server,
 ) (
 	err error,
@@ -37,11 +38,13 @@ func Main(
 
 	cfg = c
 	switch activeNet.Name {
-	case "testnet":
+	case "testnet", "testnet3", "t":
 		fork.IsTestnet = true
 		ActiveNetParams = &TestNet3Params
-	case "simnet":
+	case "simnet", "s":
 		ActiveNetParams = &SimNetParams
+	case "regressiontest", "regtestnet", "r":
+		ActiveNetParams = &RegressionNetParams
 	default:
 		ActiveNetParams = &MainNetParams
 	}

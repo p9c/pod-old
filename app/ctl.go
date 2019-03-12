@@ -59,6 +59,7 @@ func ctlHandle(c *cli.Context) error {
 		*ctlConfig.SimNet = false
 		activeNetParams = &netparams.MainNetParams
 	}
+	_ = podHandle(c)
 	if appConfigCommon.Save {
 		appConfigCommon.Save = false
 		podHandleSave()
