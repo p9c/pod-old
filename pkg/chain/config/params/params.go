@@ -1,7 +1,7 @@
 package netparams
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 )
 
 // Params is used to group parameters for various networks such as the main network and test networks.
@@ -30,4 +30,11 @@ var TestNet3Params = Params{
 	Params:        &chaincfg.TestNet3Params,
 	RPCClientPort: "21048",
 	RPCServerPort: "21046",
+}
+
+// RegressionTestParams contains parameters specific to the simulation test network (wire.SimNet).
+var RegressionTestParams = Params{
+	Params:        &chaincfg.RegressionNetParams,
+	RPCClientPort: "31048",
+	RPCServerPort: "31046",
 }

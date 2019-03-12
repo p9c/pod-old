@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/node"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
@@ -89,15 +89,18 @@ func ctlHandle(c *cli.Context) error {
 	case "testnet", "testnet3", "t":
 		*ctlConfig.TestNet3 = true
 		*ctlConfig.SimNet = false
+		activeNetParams = &netparams.TestNet3Params
 	case "simnet", "s":
 		*ctlConfig.TestNet3 = false
 		*ctlConfig.SimNet = true
+		activeNetParams = &netparams.SimNetParams
 	default:
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for ctl")
 		}
 		*ctlConfig.TestNet3 = false
 		*ctlConfig.SimNet = false
+		activeNetParams = &netparams.MainNetParams
 	}
 	if appConfigCommon.Save {
 		podHandleSave()
@@ -136,17 +139,17 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.TestNet3 = true
 		*nodeConfig.SimNet = false
 		*nodeConfig.RegressionTest = false
-		activeNetParams = &node.TestNet3Params
+		activeNetParams = &netparams.TestNet3Params
 	case "regtestnet", "regressiontest", "r":
 		*nodeConfig.TestNet3 = false
 		*nodeConfig.SimNet = false
 		*nodeConfig.RegressionTest = true
-		activeNetParams = &node.SimNetParams
+		activeNetParams = &netparams.RegressionTestParams
 	case "simnet", "s":
 		*nodeConfig.TestNet3 = false
 		*nodeConfig.SimNet = true
 		*nodeConfig.RegressionTest = false
-		activeNetParams = &node.MainNetParams
+		activeNetParams = &netparams.SimNetParams
 	default:
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for node")
@@ -154,6 +157,8 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.TestNet3 = false
 		*nodeConfig.SimNet = false
 		*nodeConfig.RegressionTest = false
+		activeNetParams = &netparams.MainNetParams
+
 	}
 	if !*nodeConfig.Onion {
 		*nodeConfig.OnionProxy = ""
@@ -190,18 +195,18 @@ func walletHandle(c *cli.Context) error {
 	case "testnet", "testnet3", "t":
 		*walletConfig.TestNet3 = true
 		*walletConfig.SimNet = false
-		activeNetParams = &node.TestNet3Params
+		activeNetParams = &netparams.TestNet3Params
 	case "simnet", "s":
 		*walletConfig.TestNet3 = false
 		*walletConfig.SimNet = true
-		activeNetParams = &node.SimNetParams
+		activeNetParams = &netparams.SimNetParams
 	default:
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for wallet")
 		}
 		*walletConfig.TestNet3 = false
 		*walletConfig.SimNet = false
-		activeNetParams = &node.MainNetParams
+		activeNetParams = &netparams.MainNetParams
 	}
 	if appConfigCommon.Save {
 		podHandleSave()

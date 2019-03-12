@@ -9,13 +9,14 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 var App = cli.NewApp()
 
-var activeNetParams *node.Params
+var activeNetParams *netparams.Params
 
 func Main() int {
 	datadir := ""
