@@ -223,8 +223,8 @@ var walletConfig = walletmain.Config{
 	LegacyRPCListeners:       &cli.StringSlice{"localhost:11048"},
 	LegacyRPCMaxClients:      new(int),
 	LegacyRPCMaxWebsockets:   new(int),
-	Username:                 &appConfigCommon.ClientUser,
-	Password:                 &appConfigCommon.ClientPass,
+	Username:                 new(string),
+	Password:                 new(string),
 	ExperimentalRPCListeners: new(cli.StringSlice),
 	DataDir:                  new(string),
 }
