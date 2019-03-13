@@ -193,7 +193,7 @@ func (s *SubSystem) SetLevel(level string) {
 	}
 }
 
-const errFmt = "ERR:FMT\n  "
+// const errFmt = "ERR:FMT\n  "
 
 // Color turns on and off colouring of error type tag
 var Color = true
@@ -215,153 +215,148 @@ func NewSubSystem(
 	ss.SetLevel(level)
 	go func() {
 
-		for {
-			// fmt.Println("loop:NewSubSystem")
+		for i := range ss.Ch {
+			// fmt.Println("chan:i := <-ss.Ch")
+			if ShuttingDown {
+				break
+			}
+			if i == nil {
+				fmt.Println("got nil")
+				continue
+			}
+			n := name
+			if Color {
+				n = colorstring.Color("[bold]" + n + "[reset]")
+			} else {
+				n += ":"
+			}
+			switch I := i.(type) {
 
-			select {
-			case i := <-ss.Ch:
-				// fmt.Println("chan:i := <-ss.Ch")
-				if ShuttingDown {
-					break
+			case Ftl:
+				if ss.Level > _off {
+					Og <- Ftl(n+" ") + I
 				}
-				if i == nil {
-					fmt.Println("got nil")
-					continue
+			case Err:
+				if ss.Level > _fatal {
+					Og <- Err(n+" ") + I
 				}
-				n := name
-				if Color {
-					n = colorstring.Color("[bold]" + n + "[reset]")
-				} else {
-					n += ":"
+			case Wrn:
+				if ss.Level > _error {
+					Og <- Wrn(n+" ") + I
 				}
-				switch i.(type) {
-
-				case Ftl:
-					if ss.Level > _off {
-						Og <- Ftl(n+" ") + i.(Ftl)
+			case Inf:
+				if ss.Level > _warn {
+					Og <- Inf(n+" ") + I
+				}
+			case Dbg:
+				if ss.Level > _info {
+					Og <- Dbg(n+" ") + I
+				}
+			case Trc:
+				if ss.Level > _debug {
+					Og <- Trc(n+" ") + I
+				}
+			case Fatalc:
+				if ss.Level > _off {
+					fn := func() string {
+						o := n + " "
+						o += i.(Fatalc)()
+						return o
 					}
-				case Err:
-					if ss.Level > _fatal {
-						Og <- Err(n+" ") + i.(Err)
+					Og <- Fatalc(fn)
+				}
+			case Errorc:
+				if ss.Level > _fatal {
+					fn := func() string {
+						o := n + " "
+						o += i.(Errorc)()
+						return o
 					}
-				case Wrn:
-					if ss.Level > _error {
-						Og <- Wrn(n+" ") + i.(Wrn)
+					Og <- Errorc(fn)
+				}
+			case Warnc:
+				if ss.Level > _error {
+					fn := func() string {
+						o := n + " "
+						o += i.(Warnc)()
+						return o
 					}
-				case Inf:
-					if ss.Level > _warn {
-						Og <- Inf(n+" ") + i.(Inf)
+					Og <- Warnc(fn)
+				}
+			case Infoc:
+				if ss.Level > _warn {
+					fn := func() string {
+						o := n + " "
+						o += i.(Infoc)()
+						return o
 					}
-				case Dbg:
-					if ss.Level > _info {
-						Og <- Dbg(n+" ") + i.(Dbg)
+					Og <- Infoc(fn)
+				}
+			case Debugc:
+				if ss.Level > _info {
+					fn := func() string {
+						o := n + " "
+						o += i.(Debugc)()
+						return o
 					}
-				case Trc:
-					if ss.Level > _debug {
-						Og <- Trc(n+" ") + i.(Trc)
+					Og <- Debugc(fn)
+				}
+			case Tracec:
+				if ss.Level > _debug {
+					fn := func() string {
+						o := n + " "
+						o += i.(Tracec)()
+						return o
 					}
-				case Fatalc:
-					if ss.Level > _off {
-						fn := func() string {
-							o := n + " "
-							o += i.(Fatalc)()
-							return o
-						}
-						Og <- Fatalc(fn)
-					}
-				case Errorc:
-					if ss.Level > _fatal {
-						fn := func() string {
-							o := n + " "
-							o += i.(Errorc)()
-							return o
-						}
-						Og <- Errorc(fn)
-					}
-				case Warnc:
-					if ss.Level > _error {
-						fn := func() string {
-							o := n + " "
-							o += i.(Warnc)()
-							return o
-						}
-						Og <- Warnc(fn)
-					}
-				case Infoc:
-					if ss.Level > _warn {
-						fn := func() string {
-							o := n + " "
-							o += i.(Infoc)()
-							return o
-						}
-						Og <- Infoc(fn)
-					}
-				case Debugc:
-					if ss.Level > _info {
-						fn := func() string {
-							o := n + " "
-							o += i.(Debugc)()
-							return o
-						}
-						Og <- Debugc(fn)
-					}
-				case Tracec:
-					if ss.Level > _debug {
-						fn := func() string {
-							o := n + " "
-							o += i.(Tracec)()
-							return o
-						}
-						Og <- Tracec(fn)
-					}
-				case Fatal:
-					if ss.Level > _off {
-						Og <- append(Fatal{n}, i.(Fatal)...)
-					}
-				case Error:
-					if ss.Level > _fatal {
-						Og <- append(Error{n}, i.(Error)...)
-					}
-				case Warn:
-					if ss.Level > _error {
-						Og <- append(Warn{n}, i.(Warn)...)
-					}
-				case Info:
-					if ss.Level > _warn {
-						Og <- append(Info{n}, i.(Info)...)
-					}
-				case Debug:
-					if ss.Level > _info {
-						Og <- append(Debug{n}, i.(Debug)...)
-					}
-				case Trace:
-					if ss.Level > _debug {
-						Og <- append(Trace{n}, i.(Trace)...)
-					}
-				case Fatalf:
-					if ss.Level > _off {
-						Og <- append(Fatalf{n + " " + i.(Fatalf)[0].(string)}, i.(Fatalf)[1:]...)
-					}
-				case Errorf:
-					if ss.Level > _fatal {
-						Og <- append(Errorf{n + " " + i.(Errorf)[0].(string)}, i.(Errorf)[1:]...)
-					}
-				case Warnf:
-					if ss.Level > _error {
-						Og <- append(Warnf{n + " " + i.(Warnf)[0].(string)}, i.(Warnf)[1:]...)
-					}
-				case Infof:
-					if ss.Level > _warn {
-						Og <- append(Infof{n + " " + i.(Infof)[0].(string)}, i.(Infof)[1:]...)
-					}
-				case Debugf:
-					if ss.Level > _info {
-						Og <- append(Debugf{n + " " + i.(Debugf)[0].(string)}, i.(Debugf)[1:]...)
-					}
-				case Tracef:
-					if ss.Level > _debug {
-						Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
-					}
+					Og <- Tracec(fn)
+				}
+			case Fatal:
+				if ss.Level > _off {
+					Og <- append(Fatal{n}, i.(Fatal)...)
+				}
+			case Error:
+				if ss.Level > _fatal {
+					Og <- append(Error{n}, i.(Error)...)
+				}
+			case Warn:
+				if ss.Level > _error {
+					Og <- append(Warn{n}, i.(Warn)...)
+				}
+			case Info:
+				if ss.Level > _warn {
+					Og <- append(Info{n}, i.(Info)...)
+				}
+			case Debug:
+				if ss.Level > _info {
+					Og <- append(Debug{n}, i.(Debug)...)
+				}
+			case Trace:
+				if ss.Level > _debug {
+					Og <- append(Trace{n}, i.(Trace)...)
+				}
+			case Fatalf:
+				if ss.Level > _off {
+					Og <- append(Fatalf{n + " " + i.(Fatalf)[0].(string)}, i.(Fatalf)[1:]...)
+				}
+			case Errorf:
+				if ss.Level > _fatal {
+					Og <- append(Errorf{n + " " + i.(Errorf)[0].(string)}, i.(Errorf)[1:]...)
+				}
+			case Warnf:
+				if ss.Level > _error {
+					Og <- append(Warnf{n + " " + i.(Warnf)[0].(string)}, i.(Warnf)[1:]...)
+				}
+			case Infof:
+				if ss.Level > _warn {
+					Og <- append(Infof{n + " " + i.(Infof)[0].(string)}, i.(Infof)[1:]...)
+				}
+			case Debugf:
+				if ss.Level > _info {
+					Og <- append(Debugf{n + " " + i.(Debugf)[0].(string)}, i.(Debugf)[1:]...)
+				}
+			case Tracef:
+				if ss.Level > _debug {
+					Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
 				}
 			}
 		}
@@ -399,85 +394,67 @@ func init() {
 					s = colorstring.Color("[reset]")
 				}
 				t = time.Now().UTC().Format("06-01-02 15:04:05.000")
-				switch i.(type) {
+				switch ii := i.(type) {
 
 				case Fatalc:
-					s += i.(Fatalc)() + "\n"
+					s += ii() + "\n"
 				case Errorc:
-					s += i.(Errorc)() + "\n"
+					s += ii() + "\n"
 				case Warnc:
-					s += i.(Warnc)() + "\n"
+					s += ii() + "\n"
 				case Infoc:
-					s += i.(Infoc)() + "\n"
+					s += ii() + "\n"
 				case Debugc:
-					s += i.(Debugc)() + "\n"
+					s += ii() + "\n"
 				case Tracec:
-					s += i.(Tracec)() + "\n"
+					s += ii() + "\n"
 				case Ftl:
-					s += string(i.(Ftl)) + "\n"
+					s += string(ii) + "\n"
 				case Err:
-					s += string(i.(Err)) + "\n"
+					s += string(ii) + "\n"
 				case Wrn:
-					s += string(i.(Wrn)) + "\n"
+					s += string(ii) + "\n"
 				case Inf:
-					s += string(i.(Inf)) + "\n"
+					s += string(ii) + "\n"
 				case Dbg:
-					s += string(i.(Dbg)) + "\n"
+					s += string(ii) + "\n"
 				case Trc:
-					s += string(i.(Trc)) + "\n"
+					s += string(ii) + "\n"
 				case Fatal:
-					s += fmt.Sprintln(i.(Fatal)...)
+					s += fmt.Sprintln(ii...)
 				case Error:
-					s += fmt.Sprintln(i.(Error)...)
+					s += fmt.Sprintln(ii...)
 				case Warn:
-					s += fmt.Sprintln(i.(Warn)...)
+					s += fmt.Sprintln(ii...)
 				case Info:
-					s += fmt.Sprintln(i.(Info)...)
+					s += fmt.Sprintln(ii...)
 				case Debug:
-					s += fmt.Sprintln(i.(Debug)...)
+					s += fmt.Sprintln(ii...)
 				case Trace:
-					s += fmt.Sprintln(i.(Trace)...)
+					s += fmt.Sprintln(ii...)
 				case Fatalf:
-					I := i.(Fatalf)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Errorf:
-					I := i.(Errorf)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Warnf:
-					I := i.(Warnf)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Infof:
-					I := i.(Infof)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Debugf:
-					I := i.(Debugf)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Tracef:
-					I := i.(Tracef)
-					switch I[0].(type) {
-
-					case string:
-						s += fmt.Sprintf(I[0].(string), I[1:]...) + "\n"
+					if I, ok := ii[0].(string); ok {
+						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				}
 				switch i.(type) {
