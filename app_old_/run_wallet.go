@@ -1,13 +1,13 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
 	"fmt"
 
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 
 	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
 )
 
 func runWallet(

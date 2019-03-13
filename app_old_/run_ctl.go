@@ -1,10 +1,10 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
 
-	"git.parallelcoin.io/pod/cmd/ctl"
 	cl "git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/cmd/ctl"
 )
 
 func runCtl(

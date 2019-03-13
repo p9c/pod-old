@@ -1,12 +1,12 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/ctl"
 	cl "git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/cmd/ctl"
 	"github.com/tucnak/climax"
 )
 

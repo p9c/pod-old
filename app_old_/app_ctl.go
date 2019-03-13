@@ -1,4 +1,4 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
@@ -7,9 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/ctl"
 	w "git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/clog"
 	"github.com/tucnak/climax"
 )
 

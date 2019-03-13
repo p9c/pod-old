@@ -1,11 +1,11 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"git.parallelcoin.io/pod/cmd/node"
 	cl "git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/cmd/node"
 )
 
 func runNode(

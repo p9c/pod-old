@@ -1,4 +1,4 @@
-package app
+package app_old
 
 import (
 	"github.com/tucnak/climax"

@@ -1,4 +1,4 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
@@ -6,14 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 
+	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/shell"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	cl "git.parallelcoin.io/clog"
 	"github.com/tucnak/climax"
 )
-
 
 // ConfCfg is the settings that can be set to synchronise across all pod modules
 type ConfCfg struct {
@@ -36,7 +35,6 @@ type ConfCfg struct {
 	Network          string
 }
 
-
 // ConfConfigs are the configurations for each app that are applied
 type ConfConfigs struct {
 	Ctl    ctl.Config
@@ -46,7 +44,6 @@ type ConfConfigs struct {
 }
 
 const lH = "127.0.0.1:"
-
 
 // ConfCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
 var ConfCommand = climax.Command{
@@ -152,7 +149,6 @@ var ConfCommand = climax.Command{
 			// Set the correct listeners and add the correct addpeers entries
 			for i, ts := range testConfigSet {
 
-
 				// conf
 				tc := ts.Conf
 				tc.NodeListeners = []string{
@@ -178,7 +174,6 @@ var ConfCommand = climax.Command{
 				// node
 				tnn := ts.Node.Node
 				for j := range ps {
-
 
 					// add all other peers in the portset list
 					if j != i {
@@ -215,7 +210,6 @@ var ConfCommand = climax.Command{
 				tsn.TestNet3 = true
 				tsn.SimNet = true
 				for j := range ps {
-
 
 					// add all other peers in the portset list
 					if j != i {
@@ -307,10 +301,8 @@ var ConfCommand = climax.Command{
 	// Handle:
 }
 
-
 // ConfConfig is the configuration for this tool
 var ConfConfig ConfCfg
-
 
 // Confs is the central repository of all the other app configurations
 var Confs ConfConfigs

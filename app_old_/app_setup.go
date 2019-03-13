@@ -1,4 +1,4 @@
-package app
+package app_old
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )

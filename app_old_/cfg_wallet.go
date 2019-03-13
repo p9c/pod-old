@@ -1,4 +1,4 @@
-package app
+package app_old
 
 import (
 	"encoding/json"
@@ -7,11 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	n "git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/wallet"
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/pod/pkg/chain/fork"
 	cl "git.parallelcoin.io/clog"
+	n "git.parallelcoin.io/pod/cmd/node"
+	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"github.com/tucnak/climax"
 )
 
