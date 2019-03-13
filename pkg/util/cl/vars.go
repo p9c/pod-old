@@ -52,3 +52,5 @@ var wg sync.WaitGroup
 var Quit = make(chan struct{})
 
 var Register = make(Registry)
+
+var maxLen int

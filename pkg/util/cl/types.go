@@ -101,6 +101,7 @@ type SubSystem struct {
 	Ch          chan interface{}
 	Level       int
 	LevelString string
+	MaxLen      int
 }
 
 type Registry map[string]*SubSystem

@@ -2,6 +2,7 @@ package cl
 
 // Add appends a new subsystem to its map for access and introspeection
 func (r *Registry) Add(s *SubSystem) {
+
 	_, ok := (*r)[s.Name]
 	if ok {
 		Og <- Error{s.Name, "subsystem already registered"}

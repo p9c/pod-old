@@ -36,6 +36,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	ss.Name = name
 	ss.SetLevel(level)
 	Register.Add(ss)
+	if len(name) > maxLen {
+		maxLen = len(name)
+	}
 
 	// The main subsystem processing loop
 	go func() {
@@ -49,7 +52,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				fmt.Println("got nil")
 				continue
 			}
-			n := name
+			n := fmt.Sprintf("%-"+fmt.Sprint(maxLen)+"v", name)
 			if Color {
 				n = colorstring.Color("[bold]" + n + "[reset]")
 			} else {
@@ -298,7 +301,7 @@ func init() {
 					s = trcTag(color) + s
 				}
 				if color {
-					t = colorstring.Color("[light_gray]" + fmt.Sprintf("%-16v", t) + "[dark_gray]")
+					t = colorstring.Color("[light_gray]" + t + "[dark_gray]")
 				}
 				fmt.Fprint(Writer, t+s)
 			}

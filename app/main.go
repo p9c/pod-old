@@ -105,7 +105,7 @@ func init() {
 				Destination: &appConfigCommon.Save,
 			},
 			cli.StringFlag{
-				Name:        "loglevel",
+				Name:        "loglevel, l",
 				Value:       "info",
 				Usage:       "sets the base for all subsystem logging",
 				EnvVar:      "POD_LOGLEVEL",
