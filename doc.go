@@ -3,4 +3,4 @@
 // It slices, it dices
 //
 // This is currently just a probe to see the godoc changes.
-package main
+package pod
