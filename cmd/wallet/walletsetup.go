@@ -7,95 +7,59 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/util/legacy/keystore"
 	"git.parallelcoin.io/pod/pkg/util/prompt"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
 )
 
-// NetworkDir returns the directory name of a network directory to hold wallet files.
-func NetworkDir(
-	dataDir string, chainParams *chaincfg.Params) string {
-	netname := chainParams.Name
+// CreateSimulationWallet is intended to be called from the rpcclient
 
-	// For now, we must always name the testnet data directory as "testnet" and not "testnet3" or any other version, as the chaincfg testnet3 paramaters will likely be switched to being named "testnet3" in the future.  This is done to future proof that change, and an upgrade plan to move the testnet3 data directory can be worked out later.
-	if chainParams.Net == wire.TestNet3 {
-		netname = "testnet"
+// and used to create a wallet for actors involved in simulations.
+func CreateSimulationWallet(
+	cfg *Config) error {
+
+	// Simulation wallet password is 'password'.
+	privPass := []byte("password")
+
+	// Public passphrase is the default.
+	pubPass := []byte(wallet.InsecurePubPassphrase)
+
+	netDir := NetworkDir(*cfg.AppDataDir, ActiveNet.Params)
+
+	// Create the wallet.
+	dbPath := filepath.Join(netDir, WalletDbName)
+	fmt.Println("Creating the wallet...")
+
+	// Create the wallet database backed by bolt db.
+	db, err := walletdb.Create("bdb", dbPath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	// Create the wallet.
+	err = wallet.Create(db, pubPass, privPass, nil, ActiveNet.Params, time.Now())
+	if err != nil {
+		return err
 	}
 
-	return filepath.Join(dataDir, netname)
-}
-
-// convertLegacyKeystore converts all of the addresses in the passed legacy key store to the new waddrmgr.Manager format.  Both the legacy keystore and the new manager must be unlocked.
-func convertLegacyKeystore(
-	legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
-	netParams := legacyKeyStore.Net()
-	blockStamp := waddrmgr.BlockStamp{
-		Height: 0,
-		Hash:   *netParams.GenesisHash,
-	}
-	for _, walletAddr := range legacyKeyStore.ActiveAddresses() {
-
-		switch addr := walletAddr.(type) {
-
-		case keystore.PubKeyAddress:
-			privKey, err := addr.PrivKey()
-			if err != nil {
-				fmt.Printf("WARN: Failed to obtain private key "+
-					"for address %v: %v\n", addr.Address(),
-					err)
-				continue
-			}
-
-			wif, err := util.NewWIF((*ec.PrivateKey)(privKey),
-				netParams, addr.Compressed())
-			if err != nil {
-				fmt.Printf("WARN: Failed to create wallet "+
-					"import format for address %v: %v\n",
-					addr.Address(), err)
-				continue
-			}
-
-			_, err = w.ImportPrivateKey(waddrmgr.KeyScopeBIP0044,
-				wif, &blockStamp, false)
-			if err != nil {
-				fmt.Printf("WARN: Failed to import private "+
-					"key for address %v: %v\n",
-					addr.Address(), err)
-				continue
-			}
-
-		case keystore.ScriptAddress:
-			_, err := w.ImportP2SHRedeemScript(addr.Script())
-			if err != nil {
-				fmt.Printf("WARN: Failed to import "+
-					"pay-to-script-hash script for "+
-					"address %v: %v\n", addr.Address(), err)
-				continue
-			}
-
-		default:
-			fmt.Printf("WARN: Skipping unrecognized legacy "+
-				"keystore type: %T\n", addr)
-			continue
-		}
-	}
-
+	fmt.Println("The wallet has been created successfully.")
 	return nil
 }
 
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
 func CreateWallet(
 	cfg *Config, activeNet *netparams.Params) error {
-	dbDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
+	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
 	// When there is a legacy keystore, open it now to ensure any errors
@@ -103,7 +67,7 @@ func CreateWallet(
 	// don't end up exiting the process after the user has spent time
 
 	// entering a bunch of information.
-	netDir := NetworkDir(cfg.AppDataDir, activeNet.Params)
+	netDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
 	keystorePath := filepath.Join(netDir, keystore.Filename)
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)
@@ -175,7 +139,7 @@ func CreateWallet(
 
 	// Ascertain the public passphrase.  This will either be a value specified by the user or the default hard-coded public passphrase if the user does not want the additional public data encryption.
 	pubPass, err := prompt.PublicPass(reader, privPass,
-		[]byte(""), []byte(cfg.WalletPass))
+		[]byte(""), []byte(*cfg.WalletPass))
 	if err != nil {
 		log <- cl.Debug{err}
 		time.Sleep(time.Second * 5)
@@ -207,39 +171,17 @@ func CreateWallet(
 	return nil
 }
 
-// CreateSimulationWallet is intended to be called from the rpcclient
+// NetworkDir returns the directory name of a network directory to hold wallet files.
+func NetworkDir(
+	dataDir string, chainParams *chaincfg.Params) string {
+	netname := chainParams.Name
 
-// and used to create a wallet for actors involved in simulations.
-func CreateSimulationWallet(
-	cfg *Config) error {
-
-	// Simulation wallet password is 'password'.
-	privPass := []byte("password")
-
-	// Public passphrase is the default.
-	pubPass := []byte(wallet.InsecurePubPassphrase)
-
-	netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
-
-	// Create the wallet.
-	dbPath := filepath.Join(netDir, WalletDbName)
-	fmt.Println("Creating the wallet...")
-
-	// Create the wallet database backed by bolt db.
-	db, err := walletdb.Create("bdb", dbPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Create the wallet.
-	err = wallet.Create(db, pubPass, privPass, nil, ActiveNet.Params, time.Now())
-	if err != nil {
-		return err
+	// For now, we must always name the testnet data directory as "testnet" and not "testnet3" or any other version, as the chaincfg testnet3 paramaters will likely be switched to being named "testnet3" in the future.  This is done to future proof that change, and an upgrade plan to move the testnet3 data directory can be worked out later.
+	if chainParams.Net == wire.TestNet3 {
+		netname = "testnet"
 	}
 
-	fmt.Println("The wallet has been created successfully.")
-	return nil
+	return filepath.Join(dataDir, netname)
 }
 
 // checkCreateDir checks that the path exists and is a directory.
@@ -261,6 +203,64 @@ func checkCreateDir(
 		if !fi.IsDir() {
 
 			return fmt.Errorf("path '%s' is not a directory", path)
+		}
+	}
+
+	return nil
+}
+
+// convertLegacyKeystore converts all of the addresses in the passed legacy key store to the new waddrmgr.Manager format.  Both the legacy keystore and the new manager must be unlocked.
+func convertLegacyKeystore(
+	legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
+	netParams := legacyKeyStore.Net()
+	blockStamp := waddrmgr.BlockStamp{
+		Height: 0,
+		Hash:   *netParams.GenesisHash,
+	}
+	for _, walletAddr := range legacyKeyStore.ActiveAddresses() {
+
+		switch addr := walletAddr.(type) {
+
+		case keystore.PubKeyAddress:
+			privKey, err := addr.PrivKey()
+			if err != nil {
+				fmt.Printf("WARN: Failed to obtain private key "+
+					"for address %v: %v\n", addr.Address(),
+					err)
+				continue
+			}
+
+			wif, err := util.NewWIF((*ec.PrivateKey)(privKey),
+				netParams, addr.Compressed())
+			if err != nil {
+				fmt.Printf("WARN: Failed to create wallet "+
+					"import format for address %v: %v\n",
+					addr.Address(), err)
+				continue
+			}
+
+			_, err = w.ImportPrivateKey(waddrmgr.KeyScopeBIP0044,
+				wif, &blockStamp, false)
+			if err != nil {
+				fmt.Printf("WARN: Failed to import private "+
+					"key for address %v: %v\n",
+					addr.Address(), err)
+				continue
+			}
+
+		case keystore.ScriptAddress:
+			_, err := w.ImportP2SHRedeemScript(addr.Script())
+			if err != nil {
+				fmt.Printf("WARN: Failed to import "+
+					"pay-to-script-hash script for "+
+					"address %v: %v\n", addr.Address(), err)
+				continue
+			}
+
+		default:
+			fmt.Printf("WARN: Skipping unrecognized legacy "+
+				"keystore type: %T\n", addr)
+			continue
 		}
 	}
 

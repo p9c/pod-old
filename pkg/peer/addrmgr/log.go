@@ -1,9 +1,9 @@
 package addrmgr
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // Log is the logger for the addrmgr package
-var Log = cl.NewSubSystem("pkg/addrmgr    ", "info")
+var Log = cl.NewSubSystem("peer/addrmgr", "info")
 var log = Log.Ch

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"hash/crc32"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	database "git.parallelcoin.io/pod/pkg/db"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // The serialized write cursor location format is:
@@ -27,7 +27,6 @@ func serializeWriteRow(
 func deserializeWriteRow(
 	writeRow []byte) (uint32, uint32, error) {
 
-
 	// Ensure the checksum matches.  The checksum is at the end.
 	gotChecksum := crc32.Checksum(writeRow[:8], castagnoli)
 	wantChecksumBytes := writeRow[8:12]
@@ -46,7 +45,6 @@ func deserializeWriteRow(
 // reconcileDB reconciles the metadata with the flat block files on disk.  It will also initialize the underlying database if the create flag is set.
 func reconcileDB(
 	pdb *db, create bool) (database.DB, error) {
-
 
 	// Perform initial internal bucket and value creation during database creation.
 	if create {

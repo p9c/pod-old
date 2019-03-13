@@ -14,23 +14,15 @@ import (
 	"github.com/btcsuite/go-socks/socks"
 )
 
-
 // newHTTPClient returns a new HTTP client that is configured according to the proxy and TLS settings in the associated connection configuration.
-func newHTTPClient(
-	cfg *Config,
-) (
-	*http.Client,
-	error,
-) {
-
-
+func newHTTPClient(cfg *Config) (*http.Client, error) {
 	// Configure proxy if needed.
 	var dial func(network, addr string) (net.Conn, error)
-	if cfg.Proxy != "" {
+	if *cfg.Proxy != "" {
 		proxy := &socks.Proxy{
-			Addr:     cfg.Proxy,
-			Username: cfg.ProxyUser,
-			Password: cfg.ProxyPass,
+			Addr:     *cfg.Proxy,
+			Username: *cfg.ProxyUser,
+			Password: *cfg.ProxyPass,
 		}
 		dial = func(network, addr string) (net.Conn, error) {
 
@@ -44,8 +36,8 @@ func newHTTPClient(
 
 	// Configure TLS if needed.
 	var tlsConfig *tls.Config
-	if cfg.TLS && cfg.RPCCert != "" {
-		pem, err := ioutil.ReadFile(cfg.RPCCert)
+	if *cfg.TLS && *cfg.RPCCert != "" {
+		pem, err := ioutil.ReadFile(*cfg.RPCCert)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +45,7 @@ func newHTTPClient(
 		pool.AppendCertsFromPEM(pem)
 		tlsConfig = &tls.Config{
 			RootCAs:            pool,
-			InsecureSkipVerify: cfg.TLSSkipVerify,
+			InsecureSkipVerify: *cfg.TLSSkipVerify,
 		}
 	}
 
@@ -67,23 +59,14 @@ func newHTTPClient(
 	return &client, nil
 }
 
-
 // sendPostRequest sends the marshalled JSON-RPC command using HTTP-POST mode to the server described in the passed config struct.  It also attempts to unmarshal the response as a JSON-RPC response and returns either the result field or the error field depending on whether or not there is an error.
-func sendPostRequest(
-	marshalledJSON []byte,
-	cfg *Config,
-) (
-	[]byte,
-	error,
-) {
-
-
+func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	// Generate a request to the configured RPC server.
 	protocol := "http"
-	if cfg.TLS {
+	if *cfg.TLS {
 		protocol = "https"
 	}
-	url := protocol + "://" + cfg.RPCServer
+	url := protocol + "://" + *cfg.RPCServer
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
 	if err != nil {
@@ -93,7 +76,7 @@ func sendPostRequest(
 	httpRequest.Header.Set("Content-Type", "application/json")
 
 	// Configure basic access authorization.
-	httpRequest.SetBasicAuth(cfg.RPCUser, cfg.RPCPass)
+	httpRequest.SetBasicAuth(*cfg.RPCUser, *cfg.RPCPass)
 
 	// Create the new HTTP client that is configured according to the user- specified options and submit the request.
 	httpClient, err := newHTTPClient(cfg)

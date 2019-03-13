@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/chain/mining"
-	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
 	"github.com/xtaci/kcp-go"
 )
 
@@ -190,7 +190,6 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
 func (c *Controller) generateBlocks(quit chan struct{}) {
-
 
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second / 2)

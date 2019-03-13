@@ -1,11 +1,11 @@
 package blockchain
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/chain      ", "info")
+var Log = cl.NewSubSystem("blockchain", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.

@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
-	database "git.parallelcoin.io/pod/pkg/db"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/pod/pkg/db"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 const (
@@ -307,7 +307,6 @@ func determineMainChainBlocks(
 //    - 0x1d...e6: script hash
 func deserializeUtxoEntryV0(
 	serialized []byte) (map[uint32]*UtxoEntry, error) {
-
 
 	// Deserialize the version.
 

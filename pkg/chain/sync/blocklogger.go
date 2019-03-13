@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 
 	"git.parallelcoin.io/pod/pkg/util"
 )

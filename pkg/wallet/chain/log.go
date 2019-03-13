@@ -1,11 +1,11 @@
 package chain
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/wchain     ", "info")
+var Log = cl.NewSubSystem("wallet/chain", "info")
 var log = Log.Ch
 
 /*

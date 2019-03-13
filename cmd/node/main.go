@@ -8,27 +8,21 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 
 	indexers "git.parallelcoin.io/pod/pkg/chain/index"
 	database "git.parallelcoin.io/pod/pkg/db"
 )
 
-const (
+// blockDbNamePrefix is the prefix for the block database name.  The database type is appended to this value to form the full block database name.
+const blockDbNamePrefix = "blocks"
 
-	// blockDbNamePrefix is the prefix for the block database name.  The database type is appended to this value to form the full block database name.
-	blockDbNamePrefix = "blocks"
-)
+var StateCfg = new(StateConfig)
 
-var (
-	StateCfg = new(StateConfig)
-)
-
-var (
-	cfg *Config
-)
+var cfg *Config
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
 var winServiceMain func() (bool, error)
@@ -36,18 +30,21 @@ var winServiceMain func() (bool, error)
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
 func Main(
 	c *Config,
-	activeNet *Params,
+	activeNet *netparams.Params,
 	serverChan chan<- *server,
-) (err error,
+) (
+	err error,
 ) {
 
 	cfg = c
 	switch activeNet.Name {
-	case "testnet":
+	case "testnet", "testnet3", "t":
 		fork.IsTestnet = true
 		ActiveNetParams = &TestNet3Params
-	case "simnet":
+	case "simnet", "s":
 		ActiveNetParams = &SimNetParams
+	case "regressiontest", "regtestnet", "r":
+		ActiveNetParams = &RegressionNetParams
 	default:
 		ActiveNetParams = &MainNetParams
 	}
@@ -65,12 +62,12 @@ func Main(
 	log <- cl.Info{"version", Version()}
 
 	// Enable http profiling server if requested.
-	if cfg.Profile != "" {
+	if *cfg.Profile != "" {
 
 		log <- cl.Dbg("profiling requested")
 		go func() {
 
-			listenAddr := net.JoinHostPort("", cfg.Profile)
+			listenAddr := net.JoinHostPort("", *cfg.Profile)
 			log <- cl.Info{"profile server listening on", listenAddr}
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
@@ -80,10 +77,10 @@ func Main(
 	}
 
 	// Write cpu profile if requested.
-	if cfg.CPUProfile != "" {
+	if *cfg.CPUProfile != "" {
 
 		var f *os.File
-		f, err = os.Create(cfg.CPUProfile)
+		f, err = os.Create(*cfg.CPUProfile)
 		if err != nil {
 
 			log <- cl.Error{"unable to create cpu profile:", err}
@@ -113,7 +110,7 @@ func Main(
 
 	// Load the block database.
 	var db database.DB
-	log <- cl.Debug{"loading db with", activeNet.Params.Name, cfg.TestNet3}
+	log <- cl.Debug{"loading db with", activeNet.Params.Name, *cfg.TestNet3}
 	db, err = loadBlockDB()
 	if err != nil {
 
@@ -134,7 +131,7 @@ func Main(
 	}
 
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
-	if cfg.DropAddrIndex {
+	if *cfg.DropAddrIndex {
 
 		if err = indexers.DropAddrIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
@@ -143,7 +140,7 @@ func Main(
 		}
 		return nil
 	}
-	if cfg.DropTxIndex {
+	if *cfg.DropTxIndex {
 
 		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
@@ -152,7 +149,7 @@ func Main(
 		}
 		return nil
 	}
-	if cfg.DropCfIndex {
+	if *cfg.DropCfIndex {
 
 		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
@@ -163,11 +160,11 @@ func Main(
 	}
 
 	// Create server and start it.
-	server, err := newServer(cfg.Listeners, db, ActiveNetParams.Params, interrupt.ShutdownRequestChan, cfg.Algo)
+	server, err := newServer(*cfg.Listeners, db, ActiveNetParams.Params, interrupt.ShutdownRequestChan, *cfg.Algo)
 	if err != nil {
 
 		// TODO: this logging could do with some beautifying.
-		log <- cl.Errorf{"unable to start server on %v: %v", cfg.Listeners, err}
+		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
 		return err
 	}
 	interrupt.AddHandler(func() {
@@ -203,7 +200,7 @@ func blockDbPath(
 
 		dbName += ".db"
 	}
-	dbPath := filepath.Join(cfg.DataDir, dbName)
+	dbPath := filepath.Join(*cfg.DataDir, dbName)
 	return dbPath
 }
 
@@ -212,13 +209,11 @@ func loadBlockDB() (
 	database.DB,
 	error,
 ) {
-
-
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
-	if cfg.DbType == "memdb" {
+	if *cfg.DbType == "memdb" {
 
 		log <- cl.Inf("creating block database in memory")
-		db, err := database.Create(cfg.DbType)
+		db, err := database.Create(*cfg.DbType)
 		if err != nil {
 
 			return nil, err
@@ -228,7 +223,7 @@ func loadBlockDB() (
 	warnMultipleDBs()
 
 	// The database name is based on the database type.
-	dbPath := blockDbPath(cfg.DbType)
+	dbPath := blockDbPath(*cfg.DbType)
 
 	// The regression test is special in that it needs a clean database for each run, so remove it now if it already exists.
 	e := removeRegressionDB(dbPath)
@@ -237,7 +232,7 @@ func loadBlockDB() (
 		log <- cl.Debug{"failed to remove regression db:", e}
 	}
 	log <- cl.Infof{"loading block database from '%s'", dbPath}
-	db, err := database.Open(cfg.DbType, dbPath, ActiveNetParams.Net)
+	db, err := database.Open(*cfg.DbType, dbPath, ActiveNetParams.Net)
 	if err != nil {
 
 		// Return the error if it's not because the database doesn't exist.
@@ -246,12 +241,12 @@ func loadBlockDB() (
 			return nil, err
 		}
 		// Create the db if it does not exist.
-		err = os.MkdirAll(cfg.DataDir, 0700)
+		err = os.MkdirAll(*cfg.DataDir, 0700)
 		if err != nil {
 
 			return nil, err
 		}
-		db, err = database.Create(cfg.DbType, dbPath, ActiveNetParams.Net)
+		db, err = database.Create(*cfg.DbType, dbPath, ActiveNetParams.Net)
 		if err != nil {
 
 			return nil, err
@@ -306,7 +301,7 @@ func removeRegressionDB(
 ) error {
 
 	// Don't do anything if not in regression test mode.
-	if !cfg.RegressionTest {
+	if *cfg.RegressionTest {
 
 		return nil
 	}
@@ -336,14 +331,12 @@ func removeRegressionDB(
 
 // warnMultipleDBs shows a warning if multiple block database types are detected. This is not a situation most users want.  It is handy for development however to support multiple side-by-side databases.
 func warnMultipleDBs() {
-
-
 	// This is intentionally not using the known db types which depend on the database types compiled into the binary since we want to detect legacy db types as well.
 	dbTypes := []string{"ffldb", "leveldb", "sqlite"}
 	duplicateDbPaths := make([]string, 0, len(dbTypes)-1)
 	for _, dbType := range dbTypes {
 
-		if dbType == cfg.DbType {
+		if dbType == *cfg.DbType {
 
 			continue
 		}
@@ -358,7 +351,7 @@ func warnMultipleDBs() {
 	// Warn if there are extra databases.
 	if len(duplicateDbPaths) > 0 {
 
-		selectedDbPath := blockDbPath(cfg.DbType)
+		selectedDbPath := blockDbPath(*cfg.DbType)
 		log <- cl.Warnf{
 			"\nThere are multiple block chain databases using different database types.\n" +
 				"You probably don't want to waste disk space by having more than one.\n" +

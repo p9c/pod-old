@@ -7,9 +7,9 @@ import (
 	"math/big"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 var ScryptPowLimit = scryptPowLimit

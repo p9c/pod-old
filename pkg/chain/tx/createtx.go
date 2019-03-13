@@ -1,4 +1,3 @@
-
 // Copyright (c) 2013-2017 The btcsuite developers
 
 // Copyright (c) 2015-2016 The btcsuite developers
@@ -9,17 +8,16 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/chain/tx/author"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	txauthor "git.parallelcoin.io/pod/pkg/chain/tx/author"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
-
 
 // byAmount defines the methods needed to satisify sort.Interface to
 
@@ -37,7 +35,6 @@ func makeInputSource(
 
 	// previous tx creation code, not because it's a good idea.
 	sort.Sort(sort.Reverse(byAmount(eligible)))
-
 
 	// Current inputs and their total value.  These are closed over by the
 
@@ -62,7 +59,6 @@ func makeInputSource(
 		return currentTotal, currentInputs, currentInputValues, currentScripts, nil
 	}
 }
-
 
 // secretSource is an implementation of txauthor.SecretSource for the wallet's
 
@@ -108,7 +104,6 @@ func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
 	return msa.Script()
 }
 
-
 // txToOutputs creates a signed transaction which includes each output from
 
 // outputs.  Previous outputs to reedeem are chosen from the passed account's
@@ -129,7 +124,6 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 	err = walletdb.Update(w.db, func(dbtx walletdb.ReadWriteTx) error {
 		addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)
 
-
 		// Get current block's height and hash.
 		bs, err := chainClient.BlockStamp()
 		if err != nil {
@@ -143,7 +137,6 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		inputSource := makeInputSource(eligible)
 		changeSource := func() ([]byte, error) {
-
 
 			// Derive the change output script.  As a hack to allow
 
@@ -167,7 +160,6 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 		if err != nil {
 			return err
 		}
-
 
 		// Randomize change position, if change exists, before signing.
 
@@ -211,7 +203,6 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		return nil, err
 	}
 
-
 	// TODO: Eventually all of these filters (except perhaps output locking)
 
 	// should be handled by the call to UnspentOutputs (or similar).
@@ -224,7 +215,6 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 	eligible := make([]wtxmgr.Credit, 0, len(unspent))
 	for i := range unspent {
 		output := &unspent[i]
-
 
 		// Only include this output if it meets the required number of
 
@@ -243,13 +233,11 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 			}
 		}
 
-
 		// Locked unspent outputs are skipped.
 		if w.LockedOutpoint(output.OutPoint) {
 
 			continue
 		}
-
 
 		// Only include the output if it is associated with the passed
 
@@ -273,7 +261,6 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 	}
 	return eligible, nil
 }
-
 
 // validateMsgTx verifies transaction input scripts for tx.  All previous output
 

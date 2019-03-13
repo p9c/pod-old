@@ -11,65 +11,44 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 )
 
-
 // Config defines the configuration options for podctl. See loadConfig for details on the configuration load process.
 type Config struct {
-	ShowVersion   bool   `short:"V" long:"version" description:"Display version information and exit"`
-	ListCommands  bool   `short:"l" long:"Listcommands" description:"List all of the supported commands and exit"`
-	ConfigFile    string `short:"C" long:"configfile" description:"Path to configuration file"`
-	DebugLevel    string `long:"debuglevel" description:" set debug level for development"`
-	RPCUser       string `short:"u" long:"rpcuser" description:"RPC username"`
-	RPCPass       string `short:"P" long:"rpcpass" default-mask:"-" description:"RPC password"`
-	RPCServer     string `short:"s" long:"rpcserver" description:"RPC server to connect to"`
-	RPCCert       string `short:"c" long:"rpccert" description:"RPC server certificate chain for validation"`
-	TLS           bool   `long:"tls" description:"Enable TLS"`
-	Proxy         string `long:"proxy" description:"Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)"`
-	ProxyUser     string `long:"proxyuser" description:"Username for proxy server"`
-	ProxyPass     string `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
-	TestNet3      bool   `long:"testnet" description:"Connect to testnet"`
-	SimNet        bool   `long:"simnet" description:"Connect to the simulation test network"`
-	TLSSkipVerify bool   `long:"skipverify" description:"Do not verify tls certificates (not recommended!)"`
-	Wallet        string `long:"walletrpc" description:"Connect to wallet at address"`
+	ShowVersion   *bool   `short:"V" long:"version" description:"Display version information and exit"`
+	ListCommands  *bool   `short:"l" long:"Listcommands" description:"List all of the supported commands and exit"`
+	ConfigFile    *string `short:"C" long:"configfile" description:"Path to configuration file"`
+	DebugLevel    *string `long:"debuglevel" description:" set debug level for development"`
+	RPCUser       *string `short:"u" long:"rpcuser" description:"RPC username"`
+	RPCPass       *string `short:"P" long:"rpcpass" default-mask:"-" description:"RPC password"`
+	RPCServer     *string `short:"s" long:"rpcserver" description:"RPC server to connect to"`
+	RPCCert       *string `short:"c" long:"rpccert" description:"RPC server certificate chain for validation"`
+	TLS           *bool   `long:"tls" description:"Enable TLS"`
+	Proxy         *string `long:"proxy" description:"Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)"`
+	ProxyUser     *string `long:"proxyuser" description:"Username for proxy server"`
+	ProxyPass     *string `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
+	TestNet3      *bool   `long:"testnet" description:"Connect to testnet"`
+	SimNet        *bool   `long:"simnet" description:"Connect to the simulation test network"`
+	TLSSkipVerify *bool   `long:"skipverify" description:"Do not verify tls certificates (not recommended!)"`
+	Wallet        *string `long:"walletrpc" description:"Connect to wallet at address"`
 }
 
-const (
+// unusableFlags are the command usage flags which this utility are not able to use.  In particular it doesn't support websockets and consequently notifications.
+const unusableFlags = json.UFWebsocketOnly | json.UFNotification
 
-	// unusableFlags are the command usage flags which this utility are not able to use.  In particular it doesn't support websockets and consequently notifications.
-	unusableFlags = json.UFWebsocketOnly | json.UFNotification
-)
+var DefaultConfigFile = filepath.Join(PodCtlHomeDir, "conf.json")
 
-var (
-	DefaultConfigFile = filepath.Join(PodCtlHomeDir, "conf.json")
-)
+var DefaultRPCCertFile = filepath.Join(NodeHomeDir, "rpc.cert")
 
-var (
-	DefaultRPCCertFile = filepath.Join(NodeHomeDir, "rpc.cert")
-)
+var DefaultRPCServer = "127.0.0.1:11048"
 
-var (
-	DefaultRPCServer = "127.0.0.1:11048"
-)
+var DefaultWallet = "127.0.0.1:11046"
 
-var (
-	DefaultWallet = "127.0.0.1:11046"
-)
+var DefaultWalletCertFile = filepath.Join(SPVHomeDir, "rpc.cert")
 
-var (
-	DefaultWalletCertFile = filepath.Join(SPVHomeDir, "rpc.cert")
-)
+var NodeHomeDir = util.AppDataDir("pod", false)
 
-var (
-	NodeHomeDir = util.AppDataDir("pod", false)
-)
+var PodCtlHomeDir = util.AppDataDir("pod/ctl", false)
 
-var (
-	PodCtlHomeDir = util.AppDataDir("pod/ctl", false)
-)
-
-var (
-	SPVHomeDir = util.AppDataDir("pod/spv", false)
-)
-
+var SPVHomeDir = util.AppDataDir("pod/spv", false)
 
 // ListCommands categorizes and lists all of the usable commands along with their one-line usage.
 func ListCommands() {
@@ -124,13 +103,10 @@ func ListCommands() {
 	}
 }
 
-
 // cleanAndExpandPath expands environement variables and leading ~ in the passed path, cleans the result, and returns it.
 func cleanAndExpandPath(
 	path string,
 ) string {
-
-
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 
@@ -226,6 +202,7 @@ func loadConfig() (*Config, []string, error) {
 		}
 	}
 
+	
 	// Parse command line options again to ensure they take precedence.
 	remainingArgs, err := parser.Parse()
 	if err != nil {
@@ -341,7 +318,6 @@ func createDefaultConfigFile(
 	return nil
 }
 */
-
 
 // normalizeAddress returns addr with the passed default port appended if there is not already a port specified.
 func normalizeAddress(

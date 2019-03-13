@@ -1,18 +1,16 @@
-
 // Copyright (c) 2013-2017 The btcsuite developers
 
 package wallet
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
 )
-
 
 // RescanProgressMsg reports the current progress made by a rescan for a
 
@@ -22,7 +20,6 @@ type RescanProgressMsg struct {
 	Notification *chain.RescanProgress
 }
 
-
 // RescanFinishedMsg reports the addresses that were rescanned when a
 
 // rescanfinished message was received rescanning a batch of addresses.
@@ -30,7 +27,6 @@ type RescanFinishedMsg struct {
 	Addresses    []util.Address
 	Notification *chain.RescanFinished
 }
-
 
 // RescanJob is a job to be processed by the RescanManager.  The job includes
 
@@ -49,7 +45,6 @@ type RescanJob struct {
 	err         chan error
 }
 
-
 // rescanBatch is a collection of one or more RescanJobs that were merged
 
 // together before a rescan is performed.
@@ -60,7 +55,6 @@ type rescanBatch struct {
 	bs          waddrmgr.BlockStamp
 	errChans    []chan error
 }
-
 
 // SubmitRescan submits a RescanJob to the RescanManager.  A channel is
 
@@ -74,7 +68,6 @@ func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 	return errChan
 }
 
-
 // batch creates the rescanBatch for a single rescan job.
 func (job *RescanJob) batch() *rescanBatch {
 	return &rescanBatch{
@@ -85,7 +78,6 @@ func (job *RescanJob) batch() *rescanBatch {
 		errChans:    []chan error{job.err},
 	}
 }
-
 
 // merge merges the work from k into j, setting the starting height to
 
@@ -109,7 +101,6 @@ func (b *rescanBatch) merge(job *RescanJob) {
 	b.errChans = append(b.errChans, job.err)
 }
 
-
 // done iterates through all error channels, duplicating sending the error
 
 // to inform callers that the rescan finished (or could not complete due
@@ -121,7 +112,6 @@ func (b *rescanBatch) done(err error) {
 		c <- err
 	}
 }
-
 
 // rescanBatchHandler handles incoming rescan request, serializing rescan
 
@@ -203,7 +193,6 @@ out:
 	w.wg.Done()
 }
 
-
 // rescanProgressHandler handles notifications for partially and fully completed rescans by marking each rescanned address as partially or fully synced.
 func (w *Wallet) rescanProgressHandler() {
 
@@ -234,7 +223,6 @@ out:
 	}
 	w.wg.Done()
 }
-
 
 // rescanRPCHandler reads batch jobs sent by rescanBatchHandler and sends the
 
@@ -280,7 +268,6 @@ out:
 	w.wg.Done()
 }
 
-
 // Rescan begins a rescan for all active addresses and unspent outputs of
 
 // a wallet.  This is intended to be used to sync a wallet back up to the
@@ -291,7 +278,6 @@ out:
 func (w *Wallet) Rescan(addrs []util.Address, unspent []wtxmgr.Credit) error {
 	return w.rescanWithTarget(addrs, unspent, nil)
 }
-
 
 // rescanWithTarget performs a rescan starting at the optional startStamp. If
 
@@ -311,7 +297,6 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 		outpoints[output.OutPoint] = outputAddrs[0]
 	}
 
-
 	// If a start block stamp was provided, we will use that as the initial
 
 	// starting point for the rescan.
@@ -326,7 +311,6 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 		OutPoints:   outpoints,
 		BlockStamp:  *startStamp,
 	}
-
 
 	// Submit merged job and block until rescan completes.
 	return <-w.SubmitRescan(job)

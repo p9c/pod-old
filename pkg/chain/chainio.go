@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 const (
@@ -252,7 +252,6 @@ func putSpentTxOut(
 func decodeSpentTxOut(
 	serialized []byte, stxo *SpentTxOut) (int, error) {
 
-
 	// Ensure there are bytes to decode.
 	if len(serialized) == 0 {
 		return 0, errDeserialize("no serialized bytes")
@@ -303,7 +302,6 @@ func decodeSpentTxOut(
 // deserializeSpendJournalEntry decodes the passed serialized byte slice into a slice of spent txouts according to the format described in detail above. Since the serialization format is not self describing, as noted in the format comments, this function also requires the transactions that spend the txouts.
 func deserializeSpendJournalEntry(
 	serialized []byte, txns []*wire.MsgTx) ([]SpentTxOut, error) {
-
 
 	// Calculate the total number of stxos.
 	var numStxos int
@@ -372,7 +370,6 @@ func serializeSpendJournalEntry(
 // dbFetchSpendJournalEntry fetches the spend journal entry for the passed block and deserializes it into a slice of spent txout entries. NOTE: Legacy entries will not have the coinbase flag or height set unless it was the final output spend in the containing transaction.  It is up to the caller to handle this properly by looking the information up in the utxo set.
 func dbFetchSpendJournalEntry(
 	dbTx database.Tx, block *util.Block) ([]SpentTxOut, error) {
-
 
 	// Exclude the coinbase transaction since it can't spend anything.
 	spendBucket := dbTx.Metadata().Bucket(spendJournalBucketName)
@@ -520,7 +517,6 @@ func utxoEntryHeaderCode(
 func serializeUtxoEntry(
 	entry *UtxoEntry) ([]byte, error) {
 
-
 	// Spent outputs have no serialization.
 	if entry.IsSpent() {
 
@@ -550,7 +546,6 @@ func serializeUtxoEntry(
 // deserializeUtxoEntry decodes a utxo entry from the passed serialized byte slice into a new UtxoEntry using a format that is suitable for long-term storage.  The format is described in detail above.
 func deserializeUtxoEntry(
 	serialized []byte) (*UtxoEntry, error) {
-
 
 	// Deserialize the header code.
 	code, offset := deserializeVLQ(serialized)
@@ -590,7 +585,6 @@ func deserializeUtxoEntry(
 func dbFetchUtxoEntryByHash(
 	dbTx database.Tx, hash *chainhash.Hash) (*UtxoEntry, error) {
 
-
 	// Attempt to find an entry by seeking for the hash along with a zero index.  Due to the fact the keys are serialized as <hash><index>, where the index uses an MSB encoding, if there are any entries for the hash at all, one will be found.
 	cursor := dbTx.Metadata().Bucket(utxoSetBucketName).Cursor()
 	key := outpointKey(wire.OutPoint{Hash: *hash, Index: 0})
@@ -615,7 +609,6 @@ func dbFetchUtxoEntryByHash(
 // dbFetchUtxoEntry uses an existing database transaction to fetch the specified transaction output from the utxo set. When there is no entry for the provided output, nil will be returned for both the entry and the error.
 func dbFetchUtxoEntry(
 	dbTx database.Tx, outpoint wire.OutPoint) (*UtxoEntry, error) {
-
 
 	// Fetch the unspent transaction output information for the passed transaction output.  Return now when there is no entry.
 	key := outpointKey(outpoint)
@@ -817,7 +810,6 @@ func serializeBestChainState(
 // deserializeBestChainState deserializes the passed serialized best chain state.  This is data stored in the chain state bucket and is updated after every block is connected or disconnected form the main chain. block.
 func deserializeBestChainState(
 	serializedData []byte) (bestChainState, error) {
-
 
 	// Ensure the serialized data has enough bytes to properly deserialize the hash, height, total transactions, and work sum length.
 	if len(serializedData) < chainhash.HashSize+16 {
@@ -1129,7 +1121,6 @@ func dbFetchHeaderByHeight(
 func dbFetchBlockByNode(
 	dbTx database.Tx, node *blockNode) (*util.Block, error) {
 
-
 	// Load the raw block bytes from the database.
 	blockBytes, err := dbTx.FetchBlock(&node.hash)
 	if err != nil {
@@ -1193,7 +1184,6 @@ func blockIndexKey(
 // BlockByHeight returns the block at the given height in the main chain. This function is safe for concurrent access.
 func (b *BlockChain) BlockByHeight(blockHeight int32) (*util.Block, error) {
 
-
 	// Lookup the block height in the best chain.
 	node := b.bestChain.NodeByHeight(blockHeight)
 	if node == nil {
@@ -1213,7 +1203,6 @@ func (b *BlockChain) BlockByHeight(blockHeight int32) (*util.Block, error) {
 
 // BlockByHash returns the block from the main chain with the given hash with the appropriate chain height set. This function is safe for concurrent access.
 func (b *BlockChain) BlockByHash(hash *chainhash.Hash) (*util.Block, error) {
-
 
 	// Lookup the block hash in block index and ensure it is in the best chain.
 	node := b.Index.LookupNode(hash)

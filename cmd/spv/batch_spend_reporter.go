@@ -1,11 +1,10 @@
 package spv
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 )
-
 
 // batchSpendReporter orchestrates the delivery of spend reports to
 
@@ -22,8 +21,6 @@ type batchSpendReporter struct {
 
 	// UTXO's spend report.
 	requests map[wire.OutPoint][]*GetUtxoRequest
-
-
 	// initialTxns contains a map from an outpoint to the "unspent" version
 
 	// of it's spend report. This value is populated by fetching the output
@@ -34,14 +31,10 @@ type batchSpendReporter struct {
 
 	// duration of the scan.
 	initialTxns map[wire.OutPoint]*SpendReport
-
-
 	// outpoints caches the filter entry for each outpoint, conserving
 
 	// allocations when reconstructing the current filterEntries.
 	outpoints map[wire.OutPoint][]byte
-
-
 	// filterEntries holds the current set of watched outpoint, and is
 
 	// applied to cfilters to guage whether we should download the block.
@@ -52,16 +45,19 @@ type batchSpendReporter struct {
 	filterEntries [][]byte
 }
 
+// FailRemaining will return an error to all remaining requests in the event we
 
-// newBatchSpendReporter instantiates a fresh batchSpendReporter.
-func newBatchSpendReporter() *batchSpendReporter {
-	return &batchSpendReporter{
-		requests:    make(map[wire.OutPoint][]*GetUtxoRequest),
-		initialTxns: make(map[wire.OutPoint]*SpendReport),
-		outpoints:   make(map[wire.OutPoint][]byte),
+// experience a critical rescan error. The error is threaded through to allow
+
+// the syntax:
+
+//     return reporter.FailRemaining(err)
+func (b *batchSpendReporter) FailRemaining(err error) error {
+	for outpoint, requests := range b.requests {
+		b.notifyRequests(&outpoint, requests, nil, err)
 	}
+	return err
 }
-
 
 // NotifyUnspentAndUnfound iterates through any requests for which no spends
 
@@ -90,45 +86,6 @@ func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 	}
 }
 
-
-// FailRemaining will return an error to all remaining requests in the event we
-
-// experience a critical rescan error. The error is threaded through to allow
-
-// the syntax:
-
-//     return reporter.FailRemaining(err)
-func (b *batchSpendReporter) FailRemaining(err error) error {
-	for outpoint, requests := range b.requests {
-		b.notifyRequests(&outpoint, requests, nil, err)
-	}
-	return err
-}
-
-
-// notifyRequests delivers the same final response to the given requests, and
-
-// cleans up any remaining state for the outpoint.
-
-//
-
-// NOTE: AT MOST ONE of `report` or `err` may be non-nil.
-func (b *batchSpendReporter) notifyRequests(
-	outpoint *wire.OutPoint,
-	requests []*GetUtxoRequest,
-	report *SpendReport,
-	err error) {
-
-	delete(b.requests, *outpoint)
-	delete(b.initialTxns, *outpoint)
-	delete(b.outpoints, *outpoint)
-
-	for _, request := range requests {
-		request.deliver(report, err)
-	}
-}
-
-
 // ProcessBlock accepts a block, block height, and any new requests whose start
 
 // height matches the provided height. If a non-zero number of new requests are
@@ -142,8 +99,6 @@ func (b *batchSpendReporter) notifyRequests(
 // the next block.
 func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 	newReqs []*GetUtxoRequest, height uint32) {
-
-
 	// If any requests want the UTXOs at this height, scan the block to find
 
 	// the original outputs that might be spent from.
@@ -151,14 +106,10 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 		b.addNewRequests(newReqs)
 		b.findInitialTransactions(blk, newReqs, height)
 	}
-
-
 	// Next, filter the block for any spends using the current set of
 
 	// watched outpoints. This will include any new requests added above.
 	spends := b.notifySpends(blk, height)
-
-
 	// Finally, rebuild filter entries from cached entries remaining in
 
 	// outpoints map. This will provide an updated watchlist used to scan
@@ -172,7 +123,6 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 		}
 	}
 }
-
 
 // addNewRequests adds a set of new GetUtxoRequests to the spend reporter's
 
@@ -189,8 +139,6 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 		}
 
 		b.requests[outpoint] = append(b.requests[outpoint], req)
-
-
 		// Build the filter entry only if it is the first time seeing
 
 		// the outpoint.
@@ -201,7 +149,6 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 		}
 	}
 }
-
 
 // findInitialTransactions searches the given block for the creation of the
 
@@ -216,8 +163,6 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 // UTXO was not found.
 func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 	newReqs []*GetUtxoRequest, height uint32) map[wire.OutPoint]*SpendReport {
-
-
 	// First, construct  a reverse index from txid to all a list of requests
 
 	// whose outputs share the same txid.
@@ -227,8 +172,6 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			txidReverseIndex[req.Input.OutPoint.Hash], req,
 		)
 	}
-
-
 	// Iterate over the transactions in this block, hashing each and
 
 	// querying our reverse index to see if any requests depend on the txn.
@@ -246,16 +189,12 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			continue
 		}
 		delete(txidReverseIndex, hash)
-
-
 		// For all requests that are watching this txid, use the output
 
 		// index of each to grab the initial output.
 		txOuts := tx.TxOut
 		for _, req := range txidReqs {
 			op := req.Input.OutPoint
-
-
 			// Ensure that the outpoint's index references an actual
 
 			// output on the transaction. If not, we will be unable
@@ -275,8 +214,6 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			}
 		}
 	}
-
-
 	// Finally, we must reconcile any requests for which the txid did not
 
 	// exist in this block. A nil spend report is saved for every initial
@@ -308,6 +245,27 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 	return initialTxns
 }
 
+// notifyRequests delivers the same final response to the given requests, and
+
+// cleans up any remaining state for the outpoint.
+
+//
+
+// NOTE: AT MOST ONE of `report` or `err` may be non-nil.
+func (b *batchSpendReporter) notifyRequests(
+	outpoint *wire.OutPoint,
+	requests []*GetUtxoRequest,
+	report *SpendReport,
+	err error) {
+
+	delete(b.requests, *outpoint)
+	delete(b.initialTxns, *outpoint)
+	delete(b.outpoints, *outpoint)
+
+	for _, request := range requests {
+		request.deliver(report, err)
+	}
+}
 
 // notifySpends finds any transactions in the block that spend from our watched
 
@@ -325,8 +283,6 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 		// watched outpoints.
 		for i, ti := range tx.TxIn {
 			outpoint := ti.PreviousOutPoint
-
-
 			// Find the requests this spend relates to.
 			requests, ok := b.requests[outpoint]
 			if !ok {
@@ -344,8 +300,6 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 			}
 
 			spends[outpoint] = spend
-
-
 			// With the requests located, we remove this outpoint
 
 			// from both the requests, outpoints, and initial txns
@@ -358,4 +312,13 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 	}
 
 	return spends
+}
+
+// newBatchSpendReporter instantiates a fresh batchSpendReporter.
+func newBatchSpendReporter() *batchSpendReporter {
+	return &batchSpendReporter{
+		requests:    make(map[wire.OutPoint][]*GetUtxoRequest),
+		initialTxns: make(map[wire.OutPoint]*SpendReport),
+		outpoints:   make(map[wire.OutPoint][]byte),
+	}
 }

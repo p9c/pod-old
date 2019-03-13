@@ -1,12 +1,21 @@
 package spv
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
+// logClosure is used to provide a closure over expensive logging operations so
+// don't have to be performed when the logging level doesn't warrant it.
+type logClosure func() string
+
 // Log is the logger for node
-var Log = cl.NewSubSystem("cmd/spv        ", "info")
+var Log = cl.NewSubSystem("cmd/spv", "info")
 var log = Log.Ch
+
+// String invokes the underlying function and returns the result.
+func (c logClosure) String() string {
+	return c()
+}
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
@@ -14,15 +23,6 @@ func UseLogger(
 
 	Log = logger
 	log = Log.Ch
-}
-
-// logClosure is used to provide a closure over expensive logging operations so
-// don't have to be performed when the logging level doesn't warrant it.
-type logClosure func() string
-
-// String invokes the underlying function and returns the result.
-func (c logClosure) String() string {
-	return c()
 }
 
 // newLogClosure returns a new closure over a function that returns a string

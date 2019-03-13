@@ -8,13 +8,13 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/spv/cache"
 	"git.parallelcoin.io/pod/cmd/spv/filterdb"
-	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -25,7 +25,6 @@ var (
 	// query.
 	QueryTimeout = time.Second * 3
 
-
 	// QueryNumRetries specifies how many times to retry sending a query to
 
 	// each peer before we've concluded we aren't going to get a valid
@@ -35,7 +34,6 @@ var (
 	// instances.
 	QueryNumRetries = 2
 
-
 	// QueryPeerConnectTimeout specifies how long to wait for the
 
 	// underlying chain service to connect to a peer before giving up
@@ -43,13 +41,11 @@ var (
 	// on a query in case we don't have any peers.
 	QueryPeerConnectTimeout = time.Second * 30
 
-
 	// QueryEncoding specifies the default encoding (witness or not) for
 
 	// `getdata` and other similar messages.
 	QueryEncoding = wire.WitnessEncoding
 )
-
 
 // queries are a set of options that can be modified per-query, unlike global
 
@@ -65,12 +61,10 @@ type queryOptions struct {
 	// the query before moving onto the next peer.
 	timeout time.Duration
 
-
 	// numRetries tells the query how many times to retry asking each peer
 
 	// the query.
 	numRetries uint8
-
 
 	// peerConnectTimeout lets the query know how long to wait for the
 
@@ -79,18 +73,15 @@ type queryOptions struct {
 	// on a query in case we don't have any peers.
 	peerConnectTimeout time.Duration
 
-
 	// encoding lets the query know which encoding to use when queueing
 
 	// messages to a peer.
 	encoding wire.MessageEncoding
 
-
 	// doneChan lets the query signal the caller when it's done, in case
 
 	// it's run in a goroutine.
 	doneChan chan<- struct{}
-
 
 	// persistToDisk indicates whether the filter should also be written
 
@@ -102,13 +93,11 @@ type queryOptions struct {
 	persistToDisk bool
 }
 
-
 // filterCacheKey represents the key used for FilterCache of the ChainService.
 type filterCacheKey struct {
 	blockHash  *chainhash.Hash
 	filterType filterdb.FilterType
 }
-
 
 // QueryOption is a functional option argument to any of the network query
 
@@ -118,7 +107,6 @@ type filterCacheKey struct {
 
 // earlier ones.
 type QueryOption func(*queryOptions)
-
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
 func defaultQueryOptions() *queryOptions {
@@ -130,7 +118,6 @@ func defaultQueryOptions() *queryOptions {
 	}
 }
 
-
 // applyQueryOptions updates a queryOptions set with functional options.
 func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 
@@ -138,7 +125,6 @@ func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 		option(qo)
 	}
 }
-
 
 // Timeout is a query option that lets the query know how long to wait for each
 
@@ -151,7 +137,6 @@ func Timeout(
 	}
 }
 
-
 // NumRetries is a query option that lets the query know the maximum number of
 
 // times each peer should be queried. The default is one.
@@ -162,7 +147,6 @@ func NumRetries(
 		qo.numRetries = numRetries
 	}
 }
-
 
 // PeerConnectTimeout is a query option that lets the query know how long to
 
@@ -177,7 +161,6 @@ func PeerConnectTimeout(
 	}
 }
 
-
 // Encoding is a query option that allows the caller to set a message encoding
 
 // for the query messages.
@@ -188,7 +171,6 @@ func Encoding(
 		qo.encoding = encoding
 	}
 }
-
 
 // DoneChan allows the caller to pass a channel that will get closed when the
 
@@ -201,7 +183,6 @@ func DoneChan(
 	}
 }
 
-
 // PersistToDisk allows the caller to tell that the filter should be kept
 
 // on disk once it's found.
@@ -211,7 +192,6 @@ func PersistToDisk() QueryOption {
 		qo.persistToDisk = true
 	}
 }
-
 
 // queryState is an atomically updated per-query state for each query in a
 
@@ -237,15 +217,12 @@ const (
 	// Waiting to be submitted to a peer.
 	queryWaitSubmit queryState = iota
 
-
 	// Submitted to a peer, waiting for reply.
 	queryWaitResponse
-
 
 	// Valid reply received.
 	queryAnswered
 )
-
 
 // We provide 3 kinds of queries:
 
@@ -279,7 +256,6 @@ const (
 
 // the query API into its own package?
 
-
 // queryChainServiceBatch is a helper function that sends a batch of queries to
 
 // the entire pool of peers of the given ChainService, attempting to get them
@@ -312,10 +288,8 @@ func queryChainServiceBatch(
 	// s is the ChainService to use.
 	s *ChainService,
 
-
 	// queryMsgs is a slice of queries for which the caller wants responses.
 	queryMsgs []wire.Message,
-
 
 	// checkResponse is called for every received message to see if it
 
@@ -323,14 +297,11 @@ func queryChainServiceBatch(
 	checkResponse func(sp *ServerPeer, query wire.Message,
 		resp wire.Message) bool,
 
-
 	// queryQuit forces the query to end before it's complete.
 	queryQuit <-chan struct{},
 
-
 	// options takes functional options for executing the query.
 	options ...QueryOption) {
-
 
 	// Starting with the set of default options, we'll apply any specified
 
@@ -338,10 +309,8 @@ func queryChainServiceBatch(
 	qo := defaultQueryOptions()
 	qo.applyQueryOptions(options...)
 
-
 	// Shared state between this goroutine and the per-peer goroutines.
 	queryStates := make([]uint32, len(queryMsgs))
-
 
 	// subscription allows us to subscribe to notifications from peers.
 	msgChan := make(chan spMsg, len(queryMsgs))
@@ -352,7 +321,6 @@ func queryChainServiceBatch(
 	}
 	defer close(subQuit)
 
-
 	// peerStates and its companion mutex allow the peer goroutines to
 
 	// tell the main goroutine what query they're currently working on.
@@ -361,7 +329,6 @@ func queryChainServiceBatch(
 
 	peerGoroutine := func(sp *ServerPeer, quit <-chan struct{},
 		matchSignal <-chan struct{}) {
-
 
 		// Subscribe to messages from the peer.
 		sp.subscribeRecvMsg(subscription)
@@ -372,7 +339,6 @@ func queryChainServiceBatch(
 			delete(peerStates, sp.Addr())
 			mtxPeerStates.Unlock()
 		}()
-
 
 		// Track the last query our peer failed to answer and skip over
 
@@ -412,7 +378,6 @@ func queryChainServiceBatch(
 					continue
 				}
 
-
 				// We check to see if the query is waiting to
 
 				// be handled. If so, we mark it as being
@@ -430,7 +395,6 @@ func queryChainServiceBatch(
 					continue
 				}
 
-
 				// The query is now marked as in-process. We
 
 				// begin to process it.
@@ -440,7 +404,6 @@ func queryChainServiceBatch(
 				break
 			}
 
-
 			// Regardless of whether we have a query or not, we
 
 			// need a timeout.
@@ -448,11 +411,9 @@ func queryChainServiceBatch(
 			if handleQuery == -1 {
 				if firstUnfinished == len(queryMsgs) {
 
-
 					// We've now answered all the queries.
 					return
 				}
-
 
 				// We have nothing to work on but not all
 
@@ -477,7 +438,6 @@ func queryChainServiceBatch(
 					}
 				}
 			}
-
 
 			// We have a query we're working on.
 			mtxPeerStates.Lock()
@@ -524,12 +484,10 @@ func queryChainServiceBatch(
 		}
 	}
 
-
 	// peerQuits holds per-peer quit channels so we can kill the goroutines
 
 	// when they disconnect.
 	peerQuits := make(map[string]chan struct{})
-
 
 	// matchSignals holds per-peer answer channels that get a notice that
 
@@ -539,7 +497,6 @@ func queryChainServiceBatch(
 
 	// timeout.
 	matchSignals := make(map[string]chan struct{})
-
 
 	// Clean up on exit.
 	defer func() {
@@ -617,7 +574,6 @@ func queryChainServiceBatch(
 	}
 }
 
-
 // queryAllPeers is a helper function that sends a query to all peers and waits
 
 // for a timeout specified by the QueryTimeout package-level variable or the
@@ -629,7 +585,6 @@ func (s *ChainService) queryAllPeers(
 
 	// queryMsg is the message to broadcast to all peers.
 	queryMsg wire.Message,
-
 
 	// checkResponse is called for every message within the timeout period.
 
@@ -647,10 +602,8 @@ func (s *ChainService) queryAllPeers(
 	checkResponse func(sp *ServerPeer, resp wire.Message,
 		quit chan<- struct{}, peerQuit chan<- struct{}),
 
-
 	// options takes functional options for executing the query.
 	options ...QueryOption) {
-
 
 	// Starting with the set of default options, we'll apply any specified
 
@@ -658,7 +611,6 @@ func (s *ChainService) queryAllPeers(
 	qo := defaultQueryOptions()
 	qo.numRetries = 1
 	qo.applyQueryOptions(options...)
-
 
 	// This is done in a single-threaded query because the peerState is
 
@@ -669,7 +621,6 @@ func (s *ChainService) queryAllPeers(
 	// query.
 	peers := s.Peers()
 
-
 	// This will be shared state between the per-peer goroutines.
 	queryQuit := make(chan struct{})
 	allQuit := make(chan struct{})
@@ -679,7 +630,6 @@ func (s *ChainService) queryAllPeers(
 		msgChan:  msgChan,
 		quitChan: allQuit,
 	}
-
 
 	// Now we start a goroutine for each peer which manages the peer's
 
@@ -712,7 +662,6 @@ func (s *ChainService) queryAllPeers(
 		}(sp, peerQuits[sp.Addr()])
 	}
 
-
 	// This goroutine will wait until all of the peer-query goroutines have
 
 	// terminated, and then initiate a query shutdown.
@@ -720,19 +669,16 @@ func (s *ChainService) queryAllPeers(
 
 		wg.Wait()
 
-
 		// Make sure our main goroutine and the subscription know to
 
 		// quit.
 		close(allQuit)
-
 
 		// Close the done channel, if any.
 		if qo.doneChan != nil {
 			close(qo.doneChan)
 		}
 	}()
-
 
 	// Loop for any messages sent to us via our subscription channel and
 
@@ -750,7 +696,6 @@ checkResponses:
 
 		case <-allQuit:
 			break checkResponses
-
 
 		// A message has arrived over the subscription channel, so we
 
@@ -774,7 +719,6 @@ checkResponses:
 	}
 }
 
-
 // queryChainServicePeers is a helper function that sends a query to one or
 
 // more peers of the given ChainService, and waits for an answer. The timeout
@@ -787,10 +731,8 @@ func queryChainServicePeers(
 	// s is the ChainService to use.
 	s *ChainService,
 
-
 	// queryMsg is the message to send to each peer selected by selectPeer.
 	queryMsg wire.Message,
-
 
 	// checkResponse is called for every message within the timeout period.
 
@@ -802,10 +744,8 @@ func queryChainServicePeers(
 	checkResponse func(sp *ServerPeer, resp wire.Message,
 		quit chan<- struct{}),
 
-
 	// options takes functional options for executing the query.
 	options ...QueryOption) {
-
 
 	// Starting with the set of default options, we'll apply any specified
 
@@ -813,18 +753,15 @@ func queryChainServicePeers(
 	qo := defaultQueryOptions()
 	qo.applyQueryOptions(options...)
 
-
 	// We get an initial view of our peers, to be updated each time a peer
 
 	// query times out.
 	queryPeer := s.blockManager.SyncPeer()
 	peerTries := make(map[string]uint8)
 
-
 	// This will be state used by the peer query goroutine.
 	queryQuit := make(chan struct{})
 	subQuit := make(chan struct{})
-
 
 	// Increase this number to be able to handle more queries at once as
 
@@ -838,7 +775,6 @@ func queryChainServicePeers(
 		msgChan:  msgChan,
 		quitChan: subQuit,
 	}
-
 
 	// Loop for any messages sent to us via our subscription channel and
 
@@ -879,7 +815,6 @@ checkResponses:
 			}
 			break checkResponses
 
-
 		// A message has arrived over the subscription channel, so we
 
 		// execute the checkResponses callback to see if this ends our
@@ -893,7 +828,6 @@ checkResponses:
 
 			// fixed before exposing this function for public use.
 			checkResponse(sm.sp, sm.msg, queryQuit)
-
 
 		// The current peer we're querying has failed to answer the
 
@@ -912,7 +846,6 @@ checkResponses:
 					curPeer := curPeer
 					queryPeer = curPeer
 
-
 					// Found a peer we can query.
 					peerTries[queryPeer.Addr()]++
 					queryPeer.subscribeRecvMsg(subscription)
@@ -923,7 +856,6 @@ checkResponses:
 				}
 			}
 
-
 			// If at this point, we don't yet have a query peer,
 
 			// then we'll exit now as all the peers are exhausted.
@@ -933,7 +865,6 @@ checkResponses:
 		}
 	}
 
-
 	// Close the subscription quit channel and the done channel, if any.
 	close(subQuit)
 	peerTimeout.Stop()
@@ -941,7 +872,6 @@ checkResponses:
 		close(qo.doneChan)
 	}
 }
-
 
 // getFilterFromCache returns a filter from ChainService's FilterCache if it
 
@@ -959,7 +889,6 @@ func (s *ChainService) getFilterFromCache(blockHash *chainhash.Hash,
 	return filterValue.(*cache.CacheableFilter).Filter, nil
 }
 
-
 // putFilterToCache inserts a given filter in ChainService's FilterCache.
 func (s *ChainService) putFilterToCache(blockHash *chainhash.Hash,
 	filterType filterdb.FilterType, filter *gcs.Filter) error {
@@ -967,7 +896,6 @@ func (s *ChainService) putFilterToCache(blockHash *chainhash.Hash,
 	cacheKey := filterCacheKey{blockHash: blockHash, filterType: filterType}
 	return s.FilterCache.Put(cacheKey, &cache.CacheableFilter{Filter: filter})
 }
-
 
 // GetCFilter gets a cfilter from the database. Failing that, it requests the
 
@@ -979,7 +907,6 @@ func (s *ChainService) putFilterToCache(blockHash *chainhash.Hash,
 func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	filterType wire.FilterType, options ...QueryOption) (*gcs.Filter, error) {
 
-
 	// The only supported filter atm is the regular filter, so we'll reject
 
 	// all other filters.
@@ -987,20 +914,17 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		return nil, fmt.Errorf("unknown filter type: %v", filterType)
 	}
 
-
 	// Only get one CFilter at a time to avoid redundancy from mutliple
 
 	// rescans running at once.
 	s.mtxCFilter.Lock()
 	defer s.mtxCFilter.Unlock()
 
-
 	// Based on if extended is true or not, we'll set up our set of
 
 	// querying, and db-write functions.
 	getHeader := s.RegFilterHeaders.FetchHeader
 	dbFilterType := filterdb.RegularFilter
-
 
 	// First check the cache to see if we already have this filter. If
 
@@ -1013,7 +937,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		return nil, err
 	}
 
-
 	// If not in cache, check if it's in database, returning early if yes.
 	filter, err = s.FilterDB.FetchFilter(&blockHash, dbFilterType)
 	if err == nil && filter != nil {
@@ -1023,12 +946,10 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		return nil, err
 	}
 
-
 	// We didn't get the filter from the DB, so we'll set it to nil and try
 
 	// to get it from the network.
 	filter = nil
-
 
 	// In order to verify the authenticity of the filter, we'll fetch the
 
@@ -1050,7 +971,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		height, blockHash,
 	}
 
-
 	// In addition to fetching the block header, we'll fetch the filter
 
 	// headers (for this particular filter type) from the database. These
@@ -1067,7 +987,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 			"from database", blockHash)
 	}
 
-
 	// With all the necessary items retrieved, we'll launch our concurrent
 
 	// query to the set of connected peers.
@@ -1076,14 +995,12 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// Send a wire.MsgGetCFilters
 		wire.NewMsgGetCFilters(filterType, height, &blockHash),
 
-
 		// Check responses and if we get one that matches, end the
 
 		// query early.
 		func(sp *ServerPeer, resp wire.Message, quit chan<- struct{}) {
 
 			switch response := resp.(type) {
-
 
 			// We're only interested in "cfilter" messages.
 			case *wire.MsgCFilter:
@@ -1096,7 +1013,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				if filter != nil {
 					return
 				}
-
 
 				// If the response doesn't match our request.
 
@@ -1118,7 +1034,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 					return
 				}
 
-
 				// Now that we have a proper filter, ensure
 
 				// that re-calculating the filter header hash
@@ -1134,7 +1049,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 					gotHeader != *curHeader {
 					return
 				}
-
 
 				// At this point, the filter matches what we
 
@@ -1181,7 +1095,6 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	return filter, nil
 }
 
-
 // GetBlock gets a block by requesting it from the network, one peer at a
 
 // time, until one answers. If the block is found in the cache, it will be
@@ -1190,14 +1103,12 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	options ...QueryOption) (*util.Block, error) {
 
-
 	// Fetch the corresponding block header from the database. If this isn't found, then we don't have the header for this so we can't request it.
 	blockHeader, height, err := s.BlockHeaders.FetchHeader(&blockHash)
 	if err != nil || blockHeader.BlockHash() != blockHash {
 		return nil, fmt.Errorf("Couldn't get header for block %s "+
 			"from database", blockHash)
 	}
-
 
 	// Starting with the set of default options, we'll apply any specified
 
@@ -1211,10 +1122,8 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 		invType = wire.InvTypeBlock
 	}
 
-
 	// Create an inv vector for getting this block.
 	inv := wire.NewInvVect(invType, &blockHash)
-
 
 	// If the block is already in the cache, we can return it immediately.
 	blockValue, err := s.BlockCache.Get(*inv)
@@ -1225,11 +1134,9 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 		return nil, err
 	}
 
-
 	// Construct the appropriate getdata message to fetch the target block.
 	getData := wire.NewMsgGetData()
 	getData.AddInvVect(inv)
-
 
 	// The block is only updated from the checkResponse function argument,
 
@@ -1244,7 +1151,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 		// Send a wire.GetDataMsg
 		getData,
 
-
 		// Check responses and if we get one that matches, end the
 
 		// query early.
@@ -1252,7 +1158,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 			quit chan<- struct{}) {
 
 			switch response := resp.(type) {
-
 
 			// We're only interested in "block" messages.
 			case *wire.MsgBlock:
@@ -1266,13 +1171,11 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 					return
 				}
 
-
 				// If this isn't our block, ignore it.
 				if response.BlockHash() != blockHash {
 					return
 				}
 				block := util.NewBlock(response)
-
 
 				// Only set height if util hasn't
 
@@ -1280,7 +1183,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				if block.Height() == util.BlockHeightUnknown {
 					block.SetHeight(int32(height))
 				}
-
 
 				// If this claims our block but doesn't pass
 
@@ -1305,11 +1207,9 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 					return
 				}
 
-
 				// TODO(roasbeef): modify CheckBlockSanity to
 
 				// also check witness commitment
-
 
 				// At this point, the block matches what we
 
@@ -1330,7 +1230,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 			"network", blockHash)
 	}
 
-
 	// Add block to the cache before returning it.
 	err = s.BlockCache.Put(*inv, &cache.CacheableBlock{foundBlock})
 	if err != nil {
@@ -1339,7 +1238,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 
 	return foundBlock, nil
 }
-
 
 // SendTransaction sends a transaction to all peers. It returns an error if any
 
@@ -1353,7 +1251,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) error {
 
 	var err error
-
 
 	// Starting with the set of default options, we'll apply any specified
 
@@ -1369,12 +1266,10 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 		invType = wire.InvTypeTx
 	}
 
-
 	// Create an inv.
 	txHash := tx.TxHash()
 	inv := wire.NewMsgInv()
 	inv.AddInvVect(wire.NewInvVect(invType, &txHash))
-
 
 	// Send the peer query and listen for getdata.
 	s.queryAllPeers(

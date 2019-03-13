@@ -1,12 +1,12 @@
 package chain
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/util/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 )
 
 // BlockFilterer is used to iteratively scan blocks for a set of addresses of
@@ -33,18 +33,15 @@ type BlockFilterer struct {
 	// Params specifies the chain params of the current network.
 	Params *chaincfg.Params
 
-
 	// ExReverseFilter holds a reverse index mapping an external address to
 
 	// the scoped index from which it was derived.
 	ExReverseFilter map[string]waddrmgr.ScopedIndex
 
-
 	// InReverseFilter holds a reverse index mapping an internal address to
 
 	// the scoped index from which it was derived.
 	InReverseFilter map[string]waddrmgr.ScopedIndex
-
 
 	// WathcedOutPoints is a global set of outpoints being tracked by the
 
@@ -53,24 +50,20 @@ type BlockFilterer struct {
 	// outpoint we own.
 	WatchedOutPoints map[wire.OutPoint]util.Address
 
-
 	// FoundExternal is a two-layer map recording the scope and index of
 
 	// external addresses found in a single block.
 	FoundExternal map[waddrmgr.KeyScope]map[uint32]struct{}
-
 
 	// FoundInternal is a two-layer map recording the scope and index of
 
 	// internal addresses found in a single block.
 	FoundInternal map[waddrmgr.KeyScope]map[uint32]struct{}
 
-
 	// FoundOutPoints is a set of outpoints found in a single block whose
 
 	// address belongs to the wallet.
 	FoundOutPoints map[wire.OutPoint]util.Address
-
 
 	// RelevantTxns records the transactions found in a particular block
 
@@ -88,7 +81,6 @@ func NewBlockFilterer(
 	params *chaincfg.Params,
 	req *FilterBlocksRequest) *BlockFilterer {
 
-
 	// Construct a reverse index by address string for the requested
 
 	// external addresses.
@@ -97,7 +89,6 @@ func NewBlockFilterer(
 	for scopedIndex, addr := range req.ExternalAddrs {
 		exReverseFilter[addr.EncodeAddress()] = scopedIndex
 	}
-
 
 	// Construct a reverse index by address string for the requested
 
@@ -149,7 +140,6 @@ func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
 func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 	var isRelevant bool
 
-
 	// First, check the inputs to this transaction to see if they spend any
 
 	// inputs belonging to the wallet. In addition to checking
@@ -165,7 +155,6 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 			isRelevant = true
 		}
 	}
-
 
 	// Now, parse all of the outputs created by this transactions, and see
 

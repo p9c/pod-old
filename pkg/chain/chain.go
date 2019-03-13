@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/pod/pkg/db"
+	"git.parallelcoin.io/pod/pkg/util"
 )
 
 const (
@@ -180,7 +180,6 @@ func (b *BlockChain) GetOrphanRoot(hash *chainhash.Hash) *chainhash.Hash {
 // removeOrphanBlock removes the passed orphan block from the orphan pool and previous orphan index.
 func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 
-
 	// Protect concurrent access.
 	b.orphanLock.Lock()
 	defer b.orphanLock.Unlock()
@@ -212,7 +211,6 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 
 // addOrphanBlock adds the passed block (which is already determined to be an orphan prior calling this function) to the orphan pool.  It lazily cleans up any expired blocks so a separate cleanup poller doesn't need to be run. It also imposes a maximum limit on the number of outstanding orphan blocks and will remove the oldest received orphan block if the limit is exceeded.
 func (b *BlockChain) addOrphanBlock(block *util.Block) {
-
 
 	// Remove expired orphan blocks.
 	for _, oBlock := range b.orphans {
@@ -268,7 +266,6 @@ func (b *BlockChain) CalcSequenceLock(tx *util.Tx, utxoView *UtxoViewpoint, memp
 
 // calcSequenceLock computes the relative lock-times for the passed transaction. See the exported version, CalcSequenceLock for further details. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *UtxoViewpoint, mempool bool) (*SequenceLock, error) {
-
 
 	// A value of -1 for each relative lock type represents a relative time lock value that will allow a transaction to be included in a block at any given height or time. This value is returned as the relative lock time in the case that BIP 68 is disabled, or has not yet been activated.
 	sequenceLock := &SequenceLock{Seconds: -1, BlockHeight: -1}
@@ -1060,7 +1057,6 @@ func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, erro
 // HeightRange returns a range of block hashes for the given start and end heights.  It is inclusive of the start height and exclusive of the end height.  The end height will be limited to the current main chain height. This function is safe for concurrent access.
 func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash, error) {
 
-
 	// Ensure requested heights are sane.
 	if startHeight < 0 {
 		return nil, fmt.Errorf("start height of fetch range must not be less than zero - got %d", startHeight)
@@ -1171,7 +1167,6 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 // - When locators are provided, but none of them are known, nodes starting after the genesis block will be returned
 // This is primarily a helper function for the locateBlocks and locateHeaders functions. This function MUST be called with the chain state lock held (for reads).
 func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.Hash, maxEntries uint32) (*blockNode, uint32) {
-
 
 	// There are no block locators so a specific block is being requested as identified by the stop hash.
 	stopNode := b.Index.LookupNode(hashStop)
@@ -1316,7 +1311,6 @@ type Config struct {
 // New returns a BlockChain instance using the provided configuration details.
 func New(
 	config *Config) (*BlockChain, error) {
-
 
 	// Enforce required config fields.
 	if config.DB == nil {

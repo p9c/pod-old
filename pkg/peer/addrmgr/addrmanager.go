@@ -18,9 +18,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // AddrManager provides a concurrency safe address manager for caching potential peers on the bitcoin network.
@@ -138,7 +138,6 @@ const (
 // updateAddress is a helper function to either update an address already known to the address manager, or to add the address if not already known.
 func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 
-
 	// Filter out non-routable addresses. Note that non-routable also includes invalid and local addresses.
 	if !IsRoutable(netAddr) {
 
@@ -198,7 +197,6 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 
 // expireNew makes space in the new buckets by expiring the really bad entries. If no bad entries are available we look at a few and remove the oldest.
 func (a *AddrManager) expireNew(bucket int) {
-
 
 	// First see if there are any entries that are so bad we can just throw them away. otherwise we throw away the oldest entry in the cache. Bitcoind here chooses four random and just throws the oldest of those away, but we keep track of oldest in the initial traversal and use that information instead.
 	var oldest *KnownAddress
@@ -498,7 +496,6 @@ func (a *AddrManager) DeserializeNetAddress(addr string) (*wire.NetAddress, erro
 // Start begins the core address handler which manages a pool of known addresses, timeouts, and interval based writes.
 func (a *AddrManager) Start() {
 
-
 	// Already started?
 	if atomic.AddInt32(&a.started, 1) != 1 {
 		return
@@ -631,7 +628,6 @@ func (a *AddrManager) reset() {
 
 // HostToNetAddress returns a netaddress given a host address.  If the address is a Tor .onion address this will be taken care of.  Else if the host is not an IP address it will be resolved (via Tor if required).
 func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.ServiceFlag) (*wire.NetAddress, error) {
-
 
 	// Tor address is 16 char base32 + ".onion"
 	var ip net.IP

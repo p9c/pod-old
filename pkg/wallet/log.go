@@ -1,12 +1,22 @@
 package wallet
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
+// LogClosure is a closure that can be printed with %v to be used to
+// generate expensive-to-create data for a detailed log level and avoid doing
+// the work if the data isn't printed.
+type logClosure func() string
+
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/wallet     ", "info")
+var Log = cl.NewSubSystem("wallet", "info")
 var log = Log.Ch
+
+// String invokes the log closure and returns the results string.
+func (c logClosure) String() string {
+	return c()
+}
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
@@ -14,16 +24,6 @@ func UseLogger(
 
 	Log = logger
 	log = Log.Ch
-}
-
-// LogClosure is a closure that can be printed with %v to be used to
-// generate expensive-to-create data for a detailed log level and avoid doing
-// the work if the data isn't printed.
-type logClosure func() string
-
-// String invokes the log closure and returns the results string.
-func (c logClosure) String() string {
-	return c()
 }
 
 // newLogClosure returns a new closure over the passed function which allows

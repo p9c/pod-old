@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
 var (
@@ -23,7 +23,6 @@ var (
 		"to use this feature")
 )
 
-
 // notificationState is used to track the current state of successfully registered notification so the state can be automatically re-established on reconnect.
 type notificationState struct {
 	notifyBlocks       bool
@@ -32,7 +31,6 @@ type notificationState struct {
 	notifyReceived     map[string]struct{}
 	notifySpent        map[json.OutPoint]struct{}
 }
-
 
 // Copy returns a deep copy of the receiver.
 func (s *notificationState) Copy() *notificationState {
@@ -51,7 +49,6 @@ func (s *notificationState) Copy() *notificationState {
 	return &stateCopy
 }
 
-
 // newNotificationState returns a new notification state ready to be populated.
 func newNotificationState() *notificationState {
 	return &notificationState{
@@ -60,14 +57,12 @@ func newNotificationState() *notificationState {
 	}
 }
 
-
 // newNilFutureResult returns a new future result channel that already has the result waiting on the channel with the reply set to nil.  This is useful to ignore things such as notifications when the caller didn't specify any notification handlers.
 func newNilFutureResult() chan *response {
 	responseChan := make(chan *response, 1)
 	responseChan <- &response{result: nil, err: nil}
 	return responseChan
 }
-
 
 // NotificationHandlers defines callback function pointers to invoke with notifications.  Since all of the functions are nil by default, all notifications are effectively ignored until their handlers are set to a concrete callback.
 
@@ -134,10 +129,8 @@ type NotificationHandlers struct {
 	OnUnknownNotification func(method string, params []js.RawMessage)
 }
 
-
 // handleNotification examines the passed notification type, performs conversions to get the raw notification types into higher level types and delivers the notification to the appropriate On<X> handler registered with the client.
 func (c *Client) handleNotification(ntfn *rawNotification) {
-
 
 	// Ignore the notification if the client is not interested in any notifications.
 	if c.ntfnHandlers == nil {
@@ -356,16 +349,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	}
 }
 
-
 // wrongNumParams is an error type describing an unparseable JSON-RPC notificiation due to an incorrect number of parameters for the expected notification type.  The value is the number of parameters of the invalid notification.
 type wrongNumParams int
-
 
 // Error satisifies the builtin error interface.
 func (e wrongNumParams) Error() string {
 	return fmt.Sprintf("wrong number of parameters (%d)", e)
 }
-
 
 // parseChainNtfnParams parses out the block hash and height from the parameters of blockconnected and blockdisconnected notifications.
 func parseChainNtfnParams(
@@ -407,7 +397,6 @@ func parseChainNtfnParams(
 	blockTime := time.Unix(blockTimeUnix, 0)
 	return blockHash, blockHeight, blockTime, nil
 }
-
 
 // parseFilteredBlockConnectedParams parses out the parameters included in a filteredblockconnected notification. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 func parseFilteredBlockConnectedParams(
@@ -460,7 +449,6 @@ func parseFilteredBlockConnectedParams(
 	return blockHeight, &blockHeader, transactions, nil
 }
 
-
 // parseFilteredBlockDisconnectedParams parses out the parameters included in a filteredblockdisconnected notification.: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 func parseFilteredBlockDisconnectedParams(
 	params []js.RawMessage) (int32,
@@ -502,7 +490,6 @@ func parseHexParam(
 	return hex.DecodeString(s)
 }
 
-
 // parseRelevantTxAcceptedParams parses out the parameter included in a relevanttxaccepted notification.
 func parseRelevantTxAcceptedParams(
 	params []js.RawMessage) (transaction []byte, err error) {
@@ -512,7 +499,6 @@ func parseRelevantTxAcceptedParams(
 	}
 	return parseHexParam(params[0])
 }
-
 
 // parseChainTxNtfnParams parses out the transaction and optional details about the block it's mined in from the parameters of recvtx and redeemingtx notifications.
 func parseChainTxNtfnParams(
@@ -554,7 +540,6 @@ func parseChainTxNtfnParams(
 	return util.NewTx(&msgTx), block, nil
 }
 
-
 // parseRescanProgressParams parses out the height of the last rescanned block from the parameters of rescanfinished and rescanprogress notifications.
 func parseRescanProgressParams(
 	params []js.RawMessage) (*chainhash.Hash, int32, time.Time, error) {
@@ -591,7 +576,6 @@ func parseRescanProgressParams(
 	}
 	return hash, height, time.Unix(blkTime, 0), nil
 }
-
 
 // parseTxAcceptedNtfnParams parses out the transaction hash and total amount from the parameters of a txaccepted notification.
 func parseTxAcceptedNtfnParams(
@@ -630,7 +614,6 @@ func parseTxAcceptedNtfnParams(
 	return txHash, amt, nil
 }
 
-
 // parseTxAcceptedVerboseNtfnParams parses out details about a raw transaction from the parameters of a txacceptedverbose notification.
 func parseTxAcceptedVerboseNtfnParams(
 	params []js.RawMessage) (*json.TxRawResult,
@@ -651,7 +634,6 @@ func parseTxAcceptedVerboseNtfnParams(
 	return &rawTx, nil
 }
 
-
 // parsePodConnectedNtfnParams parses out the connection status of pod and btcwallet from the parameters of a podconnected notification.
 func parsePodConnectedNtfnParams(
 	params []js.RawMessage) (bool, error) {
@@ -668,7 +650,6 @@ func parsePodConnectedNtfnParams(
 	}
 	return connected, nil
 }
-
 
 // parseAccountBalanceNtfnParams parses out the account name, total balance, and whether or not the balance is confirmed or unconfirmed from the parameters of an accountbalance notification.
 func parseAccountBalanceNtfnParams(
@@ -706,7 +687,6 @@ func parseAccountBalanceNtfnParams(
 	return account, bal, confirmed, nil
 }
 
-
 // parseWalletLockStateNtfnParams parses out the account name and locked state of an account from the parameters of a walletlockstate notification.
 func parseWalletLockStateNtfnParams(
 	params []js.RawMessage) (account string,
@@ -730,17 +710,14 @@ func parseWalletLockStateNtfnParams(
 	return account, locked, nil
 }
 
-
 // FutureNotifyBlocksResult is a future promise to deliver the result of a NotifyBlocksAsync RPC invocation (or an applicable error).
 type FutureNotifyBlocksResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
 func (r FutureNotifyBlocksResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // NotifyBlocksAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See NotifyBlocks for the blocking version and more details. NOTE: This is a pod extension and requires a websocket connection.
 func (c *Client) NotifyBlocksAsync() FutureNotifyBlocksResult {
@@ -758,23 +735,19 @@ func (c *Client) NotifyBlocksAsync() FutureNotifyBlocksResult {
 	return c.sendCmd(cmd)
 }
 
-
 // NotifyBlocks registers the client to receive notifications when blocks are connected and disconnected from the main chain.  The notifications are delivered to the notification handlers associated with the client.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode. The notifications delivered as a result of this call will be via one of or OnBlockDisconnected. NOTE: This is a pod extension and requires a websocket connection.
 func (c *Client) NotifyBlocks() error {
 	return c.NotifyBlocksAsync().Receive()
 }
 
-
 // FutureNotifySpentResult is a future promise to deliver the result of a NotifySpentAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureLoadTxFilterResult instead.
 type FutureNotifySpentResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
 func (r FutureNotifySpentResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // notifySpentInternal is the same as notifySpentAsync except it accepts the converted outpoints as a parameter so the client can more efficiently recreate the previous notification state on reconnect.
 func (c *Client) notifySpentInternal(outpoints []json.OutPoint) FutureNotifySpentResult {
@@ -792,7 +765,6 @@ func (c *Client) notifySpentInternal(outpoints []json.OutPoint) FutureNotifySpen
 	return c.sendCmd(cmd)
 }
 
-
 // newOutPointFromWire constructs the json representation of a transaction outpoint from the wire type.
 func newOutPointFromWire(
 	op *wire.OutPoint) json.OutPoint {
@@ -801,7 +773,6 @@ func newOutPointFromWire(
 		Index: op.Index,
 	}
 }
-
 
 // NotifySpentAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See NotifySpent for the blocking version and more details. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use LoadTxFilterAsync instead.
 func (c *Client) NotifySpentAsync(outpoints []*wire.OutPoint) FutureNotifySpentResult {
@@ -823,23 +794,19 @@ func (c *Client) NotifySpentAsync(outpoints []*wire.OutPoint) FutureNotifySpentR
 	return c.sendCmd(cmd)
 }
 
-
 // NotifySpent registers the client to receive notifications when the passed transaction outputs are spent.  The notifications are delivered to the notification handlers associated with the client.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode. The notifications delivered as a result of this call will be via OnRedeemingTx. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use LoadTxFilter instead.
 func (c *Client) NotifySpent(outpoints []*wire.OutPoint) error {
 	return c.NotifySpentAsync(outpoints).Receive()
 }
 
-
 // FutureNotifyNewTransactionsResult is a future promise to deliver the result of a NotifyNewTransactionsAsync RPC invocation (or an applicable error).
 type FutureNotifyNewTransactionsResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
 func (r FutureNotifyNewTransactionsResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // NotifyNewTransactionsAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See NotifyNewTransactionsAsync for the blocking version and more details. NOTE: This is a pod extension and requires a websocket connection.
 func (c *Client) NotifyNewTransactionsAsync(verbose bool) FutureNotifyNewTransactionsResult {
@@ -857,23 +824,19 @@ func (c *Client) NotifyNewTransactionsAsync(verbose bool) FutureNotifyNewTransac
 	return c.sendCmd(cmd)
 }
 
-
 // NotifyNewTransactions registers the client to receive notifications every time a new transaction is accepted to the memory pool.  The notifications are delivered to the notification handlers associated with the client.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode. The notifications delivered as a result of this call will be via one of OnTxAccepted (when verbose is false) or OnTxAcceptedVerbose (when verbose is true). NOTE: This is a pod extension and requires a websocket connection.
 func (c *Client) NotifyNewTransactions(verbose bool) error {
 	return c.NotifyNewTransactionsAsync(verbose).Receive()
 }
 
-
 // FutureNotifyReceivedResult is a future promise to deliver the result of a NotifyReceivedAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureLoadTxFilterResult instead.
 type FutureNotifyReceivedResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
 func (r FutureNotifyReceivedResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // notifyReceivedInternal is the same as notifyReceivedAsync except it accepts the converted addresses as a parameter so the client can more efficiently recreate the previous notification state on reconnect.
 func (c *Client) notifyReceivedInternal(addresses []string) FutureNotifyReceivedResult {
@@ -892,7 +855,6 @@ func (c *Client) notifyReceivedInternal(addresses []string) FutureNotifyReceived
 	cmd := json.NewNotifyReceivedCmd(addresses)
 	return c.sendCmd(cmd)
 }
-
 
 // NotifyReceivedAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See NotifyReceived for the blocking version and more details. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use LoadTxFilterAsync instead.
 func (c *Client) NotifyReceivedAsync(addresses []util.Address) FutureNotifyReceivedResult {
@@ -916,23 +878,19 @@ func (c *Client) NotifyReceivedAsync(addresses []util.Address) FutureNotifyRecei
 	return c.sendCmd(cmd)
 }
 
-
 // NotifyReceived registers the client to receive notifications every time a new transaction which pays to one of the passed addresses is accepted to memory pool or in a block connected to the block chain.  In addition, when one of these transactions is detected, the client is also automatically registered for notifications when the new transaction outpoints the address now has available are spent (See NotifySpent).  The notifications are delivered to the notification handlers associated with the client.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode. The notifications delivered as a result of this call will be via one of *OnRecvTx (for transactions that receive funds to one of the passed addresses) or OnRedeemingTx (for transactions which spend from one of the outpoints which are automatically registered upon receipt of funds to the address). NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use LoadTxFilter instead.
 func (c *Client) NotifyReceived(addresses []util.Address) error {
 	return c.NotifyReceivedAsync(addresses).Receive()
 }
 
-
 // FutureRescanResult is a future promise to deliver the result of a RescanAsync or RescanEndHeightAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureRescanBlocksResult instead.
 type FutureRescanResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the rescan was not successful.
 func (r FutureRescanResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // RescanAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See Rescan for the blocking version and more details. NOTE: Rescan requests are not issued on client reconnect and must be performed manually (ideally with a new start height based on the last rescan progress notification).  See the OnClientConnected notification callback for a good callsite to reissue rescan requests on connect and reconnect. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use RescanBlocksAsync instead.
 func (c *Client) RescanAsync(startBlock *chainhash.Hash,
@@ -970,7 +928,6 @@ func (c *Client) RescanAsync(startBlock *chainhash.Hash,
 	return c.sendCmd(cmd)
 }
 
-
 // Rescan rescans the block chain starting from the provided starting block to the end of the longest chain for transactions that pay to the passed addresses and transactions which spend the passed outpoints. The notifications of found transactions are delivered to the notification handlers associated with client and this call will not return until the rescan has completed.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode.
 
 // The notifications delivered as a result of this call will be via one of OnRedeemingTx (for transactions which spend from the one of the passed outpoints), OnRecvTx (for transactions that receive funds to one of the passed addresses), and OnRescanProgress (for rescan progress updates).
@@ -981,7 +938,6 @@ func (c *Client) Rescan(startBlock *chainhash.Hash,
 	outpoints []*wire.OutPoint) error {
 	return c.RescanAsync(startBlock, addresses, outpoints).Receive()
 }
-
 
 // RescanEndBlockAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See RescanEndBlock for the blocking version and more details. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use RescanBlocksAsync instead.
 func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
@@ -1023,7 +979,6 @@ func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
 	return c.sendCmd(cmd)
 }
 
-
 // RescanEndHeight rescans the block chain starting from the provided starting block up to the provided ending block for transactions that pay to the passed addresses and transactions which spend the passed outpoints. The notifications of found transactions are delivered to the notification handlers associated with client and this call will not return until the rescan has completed.  Calling this function has no effect if there are no notification handlers and will result in an error if the client is configured to run in HTTP POST mode. The notifications delivered as a result of this call will be via one of OnRedeemingTx (for transactions which spend from the one of the passed outpoints), OnRecvTx (for transactions that receive funds to one of the passed addresses), and OnRescanProgress (for rescan progress updates). See Rescan to also perform a rescan through current end of the longest chain. NOTE: This is a pod extension and requires a websocket connection. NOTE: Deprecated. Use RescanBlocks instead.
 func (c *Client) RescanEndHeight(startBlock *chainhash.Hash,
 	addresses []util.Address, outpoints []*wire.OutPoint,
@@ -1032,17 +987,14 @@ func (c *Client) RescanEndHeight(startBlock *chainhash.Hash,
 		endBlock).Receive()
 }
 
-
 // FutureLoadTxFilterResult is a future promise to deliver the result of a LoadTxFilterAsync RPC invocation (or an applicable error). NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 type FutureLoadTxFilterResult chan *response
-
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 func (r FutureLoadTxFilterResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
 }
-
 
 // LoadTxFilterAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See LoadTxFilter for the blocking version and more details. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 func (c *Client) LoadTxFilterAsync(reload bool, addresses []util.Address,
@@ -1061,7 +1013,6 @@ func (c *Client) LoadTxFilterAsync(reload bool, addresses []util.Address,
 	cmd := json.NewLoadTxFilterCmd(reload, addrStrs, outPointObjects)
 	return c.sendCmd(cmd)
 }
-
 
 // LoadTxFilter loads, reloads, or adds data to a websocket client's transaction filter.  The filter is consistently updated based on inspected transactions during mempool acceptance, block acceptance, and for all rescanned blocks. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
 func (c *Client) LoadTxFilter(reload bool, addresses []util.Address, outPoints []wire.OutPoint) error {

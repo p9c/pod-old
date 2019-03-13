@@ -1,11 +1,11 @@
 package indexers
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("chain/index    ", "info")
+var Log = cl.NewSubSystem("chain/index", "info")
 
 var log = Log.Ch
 

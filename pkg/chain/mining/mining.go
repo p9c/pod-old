@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
 )
 
 const (
@@ -205,7 +205,6 @@ func standardCoinbaseScript(
 // createCoinbaseTx returns a coinbase transaction paying an appropriate subsidy based on the passed block height to the provided address.  When the address is nil, the coinbase transaction will instead be redeemable by anyone. See the comment for NewBlockTemplate for more information about why the nil address handling is useful.
 func createCoinbaseTx(
 	params *chaincfg.Params, coinbaseScript []byte, nextBlockHeight int32, addr util.Address) (*util.Tx, error) {
-
 
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte

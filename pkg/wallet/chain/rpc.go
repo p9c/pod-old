@@ -5,17 +5,17 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/clog"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
-	"git.parallelcoin.io/pod/pkg/rpc/client"
 	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 )
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server
@@ -100,7 +100,6 @@ func (c *RPCClient) Start() error {
 	if err != nil {
 		return err
 	}
-
 
 	// Verify that the server is running on the expected network.
 	net, err := c.GetCurrentNet()
@@ -195,7 +194,6 @@ func (c *RPCClient) FilterBlocks(
 
 	blockFilterer := NewBlockFilterer(c.chainParams, req)
 
-
 	// Construct the watchlist using the addresses and outpoints contained
 
 	// in the filter blocks request.
@@ -203,7 +201,6 @@ func (c *RPCClient) FilterBlocks(
 	if err != nil {
 		return nil, err
 	}
-
 
 	// Iterate over the requested blocks, fetching the compact filter for
 
@@ -274,7 +271,6 @@ func (c *RPCClient) FilterBlocks(
 
 		return resp, nil
 	}
-
 
 	// No addresses were found for this range.
 	return nil, nil
@@ -365,7 +361,6 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
 
-
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
@@ -402,7 +397,6 @@ func (c *RPCClient) handler() {
 	}
 
 	bs := &waddrmgr.BlockStamp{Hash: *hash, Height: height}
-
 
 	// TODO: Rather than leaving this as an unbounded queue for all types of
 

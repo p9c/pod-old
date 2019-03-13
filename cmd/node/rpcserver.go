@@ -24,19 +24,19 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	indexers "git.parallelcoin.io/pod/pkg/chain/index"
-	"git.parallelcoin.io/pod/pkg/chain/mining/cpu"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/pod/pkg/chain/mining"
+	cpuminer "git.parallelcoin.io/pod/pkg/chain/mining/cpu"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/chain/mining"
 	p "git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
 	"github.com/btcsuite/websocket"
 )
@@ -1118,7 +1118,7 @@ func (
 
 		With RPC quirks enabled, such requests will be responded to if the reqeust does not indicate JSON-RPC version. RPC quirks can be enabled by the user to avoid compatibility issues with software relying on Core's behavior.
 		*/
-		if request.ID == nil && !(cfg.RPCQuirks && request.Jsonrpc == "") {
+		if request.ID == nil && !(*cfg.RPCQuirks && request.Jsonrpc == "") {
 
 			return
 		}
@@ -1195,7 +1195,7 @@ func (
 	w http.ResponseWriter,
 	remoteAddr string,
 ) bool {
-	if int(atomic.LoadInt32(&s.numClients)+1) > cfg.RPCMaxClients {
+	if int(atomic.LoadInt32(&s.numClients)+1) > *cfg.RPCMaxClients {
 
 		log <- cl.Infof{
 			"max RPC clients exceeded [%d] - disconnecting client %s",
@@ -2785,7 +2785,7 @@ func handleGetBlockTemplateRequest(
 	}
 
 	// Return an error if there are no peers connected since there is no way to relay a found block or receive transactions to work on. However, allow this state when running in the regression test or simulation test mode.
-	if !(cfg.RegressionTest || cfg.SimNet) &&
+	if !(*cfg.RegressionTest || *cfg.SimNet) &&
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCClientNotConnected,
@@ -3071,13 +3071,13 @@ func handleGetInfo(
 			Blocks:            best.Height,
 			TimeOffset:        int64(s.cfg.TimeSource.Offset().Seconds()),
 			Connections:       s.cfg.ConnMgr.ConnectedCount(),
-			Proxy:             cfg.Proxy,
+			Proxy:             *cfg.Proxy,
 			PowAlgoID:         fork.GetAlgoID(s.cfg.Algo, height),
 			PowAlgo:           s.cfg.Algo,
 			Difficulty:        Difficulty,
 			DifficultySHA256D: dSHA256D,
 			DifficultyScrypt:  dScrypt,
-			TestNet:           cfg.TestNet3,
+			TestNet:           *cfg.TestNet3,
 			RelayFee:          StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
 	case 1:
@@ -3181,7 +3181,7 @@ func handleGetInfo(
 			Blocks:              best.Height,
 			TimeOffset:          int64(s.cfg.TimeSource.Offset().Seconds()),
 			Connections:         s.cfg.ConnMgr.ConnectedCount(),
-			Proxy:               cfg.Proxy,
+			Proxy:               *cfg.Proxy,
 			PowAlgoID:           fork.GetAlgoID(s.cfg.Algo, height),
 			PowAlgo:             s.cfg.Algo,
 			Difficulty:          Difficulty,
@@ -3194,7 +3194,7 @@ func handleGetInfo(
 			DifficultySkein:     dSkein,
 			DifficultyStribog:   dStribog,
 			DifficultyX11:       dX11,
-			TestNet:             cfg.TestNet3,
+			TestNet:             *cfg.TestNet3,
 			RelayFee:            StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
 	}
@@ -3290,7 +3290,7 @@ func handleGetMiningInfo(
 			HashesPerSec:       int64(s.cfg.CPUMiner.HashesPerSecond()),
 			NetworkHashPS:      networkHashesPerSec,
 			PooledTx:           uint64(s.cfg.TxMemPool.Count()),
-			TestNet:            cfg.TestNet3,
+			TestNet:            *cfg.TestNet3,
 		}
 	case 1:
 		foundcount, height := 0, best.Height
@@ -3410,7 +3410,7 @@ func handleGetMiningInfo(
 			HashesPerSec:        int64(s.cfg.CPUMiner.HashesPerSecond()),
 			NetworkHashPS:       networkHashesPerSec,
 			PooledTx:            uint64(s.cfg.TxMemPool.Count()),
-			TestNet:             cfg.TestNet3,
+			TestNet:             *cfg.TestNet3,
 		}
 	}
 	return ret, nil
@@ -4581,15 +4581,15 @@ func newRPCServer(
 		requestProcessShutdown: make(chan struct{}),
 		quit:                   make(chan int),
 	}
-	if cfg.RPCUser != "" && cfg.RPCPass != "" {
+	if *cfg.RPCUser != "" && *cfg.RPCPass != "" {
 
-		login := cfg.RPCUser + ":" + cfg.RPCPass
+		login := *cfg.RPCUser + ":" + *cfg.RPCPass
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.authsha = sha256.Sum256([]byte(auth))
 	}
-	if cfg.RPCLimitUser != "" && cfg.RPCLimitPass != "" {
+	if *cfg.RPCLimitUser != "" && *cfg.RPCLimitPass != "" {
 
-		login := cfg.RPCLimitUser + ":" + cfg.RPCLimitPass
+		login := *cfg.RPCLimitUser + ":" + *cfg.RPCLimitPass
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.limitauthsha = sha256.Sum256([]byte(auth))
 	}

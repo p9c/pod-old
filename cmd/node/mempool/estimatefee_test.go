@@ -5,11 +5,11 @@ import (
 	"math/rand"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/mining"
-	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // estimateFeeTester interacts with the FeeEstimator to keep track of its expected state.
