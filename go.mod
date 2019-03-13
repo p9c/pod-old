@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	ekyu.moe/cryptonight v0.3.0
-	git.parallelcoin.io/clog v0.1.2
+	git.parallelcoin.io/clog v0.1.0
 	github.com/aead/siphash v1.0.1
 	github.com/aead/skein v0.0.0-20160722084837-9365ae6e95d2
 	github.com/bitbandi/go-x11 v0.0.0-20171024232457-5fddbc9b2b09
