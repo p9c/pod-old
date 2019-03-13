@@ -10,7 +10,7 @@ import (
 type logClosure func() string
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/wallet     ", "info")
+var Log = cl.NewSubSystem("wallet", "info")
 var log = Log.Ch
 
 // String invokes the log closure and returns the results string.

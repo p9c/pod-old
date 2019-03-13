@@ -5,17 +5,15 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
 	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
-
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/peer       ", "info")
+var Log = cl.NewSubSystem("peer", "info")
 var log = Log.Ch
-
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
@@ -31,7 +29,6 @@ const (
 	maxRejectReasonLen = 250
 )
 
-
 // LogClosure is a closure that can be printed with %v to be used to generate expensive-to-create data for a detailed log level and avoid doing the work if the data isn't printed.
 type logClosure func() string
 
@@ -43,7 +40,6 @@ func newLogClosure(
 	return logClosure(c)
 }
 
-
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
 func directionString(
 	inbound bool) string {
@@ -52,7 +48,6 @@ func directionString(
 	}
 	return "outbound"
 }
-
 
 // formatLockTime returns a transaction lock time as a human-readable string.
 func formatLockTime(
@@ -64,7 +59,6 @@ func formatLockTime(
 	}
 	return time.Unix(int64(lockTime), 0).String()
 }
-
 
 // invSummary returns an inventory message as a human-readable string.
 func invSummary(
@@ -98,7 +92,6 @@ func invSummary(
 	return fmt.Sprintf("size %d", invLen)
 }
 
-
 // locatorSummary returns a block locator as a human-readable string.
 func locatorSummary(
 	locator []*chainhash.Hash, stopHash *chainhash.Hash) string {
@@ -107,7 +100,6 @@ func locatorSummary(
 	}
 	return fmt.Sprintf("no locator, stop %s", stopHash)
 }
-
 
 // sanitizeString strips any characters which are even remotely dangerous, such as html control characters, from the passed string.  It also limits it to the passed maximum size, which can be 0 for unlimited.  When the string is limited, it will also add "..." to the string to indicate it was truncated.
 func sanitizeString(
@@ -131,7 +123,6 @@ func sanitizeString(
 	}
 	return str
 }
-
 
 // messageSummary returns a human-readable string which summarizes a message. Not all messages have or need a summary.  This is used for debug logging.
 func messageSummary(

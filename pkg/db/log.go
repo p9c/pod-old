@@ -5,7 +5,7 @@ import (
 )
 
 // Log is the logger for the peer package
-var Log = cl.NewSubSystem("pkg/db         ", "info")
+var Log = cl.NewSubSystem("db", "info")
 var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.

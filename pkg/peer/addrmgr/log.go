@@ -5,5 +5,5 @@ import (
 )
 
 // Log is the logger for the addrmgr package
-var Log = cl.NewSubSystem("pkg/addrmgr    ", "info")
+var Log = cl.NewSubSystem("peer/addrmgr", "info")
 var log = Log.Ch

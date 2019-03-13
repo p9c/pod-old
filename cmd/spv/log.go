@@ -9,7 +9,7 @@ import (
 type logClosure func() string
 
 // Log is the logger for node
-var Log = cl.NewSubSystem("cmd/spv        ", "info")
+var Log = cl.NewSubSystem("cmd/spv", "info")
 var log = Log.Ch
 
 // String invokes the underlying function and returns the result.
