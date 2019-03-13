@@ -22,3 +22,4 @@ test?/*
 test/*
 testnet/*
 test/pod.yaml
+cmd/pod/pod
