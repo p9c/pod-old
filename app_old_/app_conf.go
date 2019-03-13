@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/ctl"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/shell"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"github.com/tucnak/climax"
 )
 

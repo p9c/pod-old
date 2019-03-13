@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 
-	"git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/mining"
 	"git.parallelcoin.io/pod/pkg/util"
 )

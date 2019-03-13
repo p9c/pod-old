@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/node"
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )

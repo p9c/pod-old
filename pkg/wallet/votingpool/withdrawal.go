@@ -12,13 +12,13 @@ import (
 	"strconv"
 	"time"
 
-	"git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 // Maximum tx size (in bytes). This should be the same as bitcoind's
@@ -53,14 +53,11 @@ type OutputRequest struct {
 	Amount   util.Amount
 	PkScript []byte
 
-
 	// The notary server that received the outbailment request.
 	Server string
 
-
 	// The server-specific transaction number for the outbailment request.
 	Transaction uint32
-
 
 	// cachedHash is used to cache the hash of the outBailmentID so it
 
@@ -308,10 +305,8 @@ type withdrawalTx struct {
 	outputs []*withdrawalTxOut
 	fee     util.Amount
 
-
 	// changeOutput holds information about the change for this transaction.
 	changeOutput *wire.TxOut
-
 
 	// calculateSize returns the estimated serialized size (in bytes) of this
 
@@ -479,7 +474,6 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 // be handled separately (by the split output procedure).
 func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error) {
 
-
 	// Check precondition: At least two outputs are required in the transaction.
 	if len(tx.outputs) < 2 {
 		str := fmt.Sprintf("at least two outputs expected; got %d", len(tx.outputs))
@@ -495,7 +489,6 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 
 		removedInputs = append(removedInputs, tx.removeInput())
 	}
-
 
 	// Re-add the last item from removedInputs, which is the last popped input.
 	tx.addInput(removedInputs[len(removedInputs)-1])
@@ -709,7 +702,6 @@ func (w *withdrawal) finalizeCurrentTx() error {
 			OutBailmentOutpoint{ntxid: ntxid, index: uint32(i), amount: txOut.amount})
 	}
 
-
 	// Check that WithdrawalOutput entries with status==success have the sum of
 
 	// their outpoint amounts matching the requested amount.
@@ -768,7 +760,6 @@ func (w *withdrawal) fulfillRequests() error {
 		return nil
 	}
 
-
 	// Sort outputs by outBailmentID (hash(server ID, tx #))
 	sort.Sort(byOutBailmentID(w.pendingRequests))
 
@@ -789,7 +780,6 @@ func (w *withdrawal) fulfillRequests() error {
 	if err := w.finalizeCurrentTx(); err != nil {
 		return err
 	}
-
 
 	// TODO: Update w.status.nextInputAddr. Not yet implemented as in some
 
@@ -835,7 +825,6 @@ func (w *withdrawal) splitLastOutput() error {
 	log <- cl.Debug{
 		"updated output amount to", output.amount,
 	}
-
 
 	// Create a new OutputRequest with the amount being the difference between
 
@@ -1097,7 +1086,6 @@ func signMultiSigUTXO(
 		return newError(ErrTxSigning, errStr, nil)
 	}
 
-
 	// Construct the unlocking script.
 
 	// Start with an OP_0 because of the bug in bitcoind, then add nRequired signatures.
@@ -1105,7 +1093,6 @@ func signMultiSigUTXO(
 	for _, sig := range sigs[:nRequired] {
 		unlockingScript.AddData(sig)
 	}
-
 
 	// Combine the redeem script and the unlocking script to get the actual signature script.
 	sigScript := unlockingScript.AddData(redeemScript)

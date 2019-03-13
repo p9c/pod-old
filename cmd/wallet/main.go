@@ -8,10 +8,10 @@ import (
 	_ "net/http/pprof"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
-	"git.parallelcoin.io/pod/pkg/rpc/legacy"
-	cl "git.parallelcoin.io/clog"
+	legacyrpc "git.parallelcoin.io/pod/pkg/rpc/legacy"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	chain "git.parallelcoin.io/pod/pkg/wallet/chain"

@@ -1,4 +1,4 @@
-module git.parallelcoin.io/clog
+module git.parallelcoin.io/pod/pkg/util/cl
 
 go 1.12
 

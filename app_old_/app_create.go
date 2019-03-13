@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"time"
 
-	cl "git.parallelcoin.io/clog"
 	w "git.parallelcoin.io/pod/cmd/wallet"
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	"github.com/tucnak/climax"

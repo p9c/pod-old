@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/clog"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 const (
@@ -19,15 +19,12 @@ const (
 	secondsIn4Days int32 = 24 * 60 * 60 * 4
 )
 
-
 // OnSeed is the signature of the callback function which is invoked when DNS seeding is succesfull.
 type OnSeed func(addrs []*wire.NetAddress)
-
 
 // LookupFunc is the signature of the DNS lookup function.
 type LookupFunc func(
 	string) ([]net.IP, error)
-
 
 // SeedFromDNS uses DNS seeding to populate the address manager with peers.
 func SeedFromDNS(

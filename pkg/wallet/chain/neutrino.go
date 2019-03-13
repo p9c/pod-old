@@ -7,17 +7,17 @@ import (
 	"time"
 
 	sac "git.parallelcoin.io/pod/cmd/spv"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/rpc/client"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
 	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/gcs"
 	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.
@@ -25,7 +25,6 @@ type NeutrinoClient struct {
 	CS *sac.ChainService
 
 	chainParams *chaincfg.Params
-
 
 	// We currently support one rescan/notifiction goroutine per client
 	rescan *sac.Rescan
@@ -109,7 +108,6 @@ func (s *NeutrinoClient) WaitForShutdown() {
 
 // GetBlock replicates the RPC client's GetBlock command.
 func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) {
-
 
 	// TODO(roasbeef): add a block cache?
 
@@ -195,7 +193,6 @@ func (s *NeutrinoClient) FilterBlocks(
 
 	blockFilterer := NewBlockFilterer(s.chainParams, req)
 
-
 	// Construct the watchlist using the addresses and outpoints contained
 
 	// in the filter blocks request.
@@ -203,7 +200,6 @@ func (s *NeutrinoClient) FilterBlocks(
 	if err != nil {
 		return nil, err
 	}
-
 
 	// Iterate over the requested blocks, fetching the compact filter for
 
@@ -265,7 +261,6 @@ func (s *NeutrinoClient) FilterBlocks(
 		return resp, nil
 	}
 
-
 	// No addresses were found for this range.
 	return nil, nil
 }
@@ -276,7 +271,6 @@ func (s *NeutrinoClient) FilterBlocks(
 // request.
 func buildFilterBlocksWatchList(
 	req *FilterBlocksRequest) ([][]byte, error) {
-
 
 	// Construct a watch list containing the script addresses of all
 
@@ -383,7 +377,6 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 			bestBlock.Hash, err)
 	}
 
-
 	// If the wallet is already fully caught up, or the rescan has started
 
 	// with state that indicates a "fresh" wallet, we'll send a
@@ -453,7 +446,6 @@ func (s *NeutrinoClient) NotifyBlocks() error {
 func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
 	s.clientMtx.Lock()
 
-
 	// If we have a rescan running, we just need to add the appropriate
 
 	// addresses to the watch list.
@@ -465,11 +457,9 @@ func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
 	s.rescanQuit = make(chan struct{})
 	s.scanning = true
 
-
 	// Don't need RescanFinished or RescanProgress notifications.
 	s.finished = true
 	s.lastProgressSent = true
-
 
 	// Rescan with just the specified addresses.
 	newRescan := s.CS.NewRescan(
@@ -541,7 +531,6 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		return
 	}
 
-
 	// Handle RescanFinished notification if required.
 	bs, err := s.CS.BestBlock()
 	if err != nil {
@@ -600,7 +589,6 @@ func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 
 func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	time time.Time) {
-
 
 	// TODO: Move this closure out and parameterize it? Is it useful
 
@@ -677,7 +665,6 @@ func (s *NeutrinoClient) notificationHandler() {
 	}
 
 	bs := &waddrmgr.BlockStamp{Hash: *hash, Height: height}
-
 
 	// TODO: Rather than leaving this as an unbounded queue for all types of
 

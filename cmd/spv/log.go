@@ -1,7 +1,7 @@
 package spv
 
 import (
-	cl "git.parallelcoin.io/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // logClosure is used to provide a closure over expensive logging operations so

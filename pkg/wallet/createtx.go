@@ -8,15 +8,15 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/chain/tx/author"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	txauthor "git.parallelcoin.io/pod/pkg/chain/tx/author"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 // byAmount defines the methods needed to satisify sort.Interface to

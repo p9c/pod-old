@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/node"
 	n "git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
@@ -23,6 +22,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/chain/fork"
 	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/tucnak/climax"
 )

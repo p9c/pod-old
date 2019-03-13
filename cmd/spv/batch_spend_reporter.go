@@ -1,9 +1,9 @@
 package spv
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // batchSpendReporter orchestrates the delivery of spend reports to

@@ -9,15 +9,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 )
 
 var (

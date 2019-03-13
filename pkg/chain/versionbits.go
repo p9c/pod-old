@@ -3,8 +3,8 @@ package blockchain
 import (
 	"math"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	cl "git.parallelcoin.io/clog"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 const (
@@ -115,7 +115,6 @@ func (c deploymentChecker) Condition(node *blockNode) (bool, error) {
 
 // calcNextBlockVersion calculates the expected version of the block after the passed previous block node based on the state of started and locked in rule change deployments. This function differs from the exported CalcNextBlockVersion in that the exported version uses the current best chain as the previous block node while this function accepts any block node. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) calcNextBlockVersion(prevNode *blockNode) (uint32, error) {
-
 
 	// Set the appropriate bits for each actively defined rule deployment that is either in the process of being voted on, or locked in for the/ activation at the next threshold window change.
 	expectedVersion := uint32(vbTopBits)

@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 
-	cl "git.parallelcoin.io/clog"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/util/interrupt"
 
 	indexers "git.parallelcoin.io/pod/pkg/chain/index"

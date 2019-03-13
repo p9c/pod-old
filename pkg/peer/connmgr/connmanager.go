@@ -8,9 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 )
-
 
 // maxFailedAttempts is the maximum number of successive failed connection attempts after which network failure is assumed and new connections will be delayed by the configured retry duration.
 const maxFailedAttempts = 9
@@ -32,10 +31,8 @@ var (
 	defaultTargetOutbound = uint32(9)
 )
 
-
 // ConnState represents the state of the requested connection.
 type ConnState uint8
-
 
 // ConnState can be either pending, established, disconnected or failed.  When a new connection is requested, it is attempted and categorized as established or failed depending on the connection result.  An established connection which was disconnected is categorized as disconnected.
 const (
@@ -45,7 +42,6 @@ const (
 	ConnEstablished
 	ConnDisconnected
 )
-
 
 // ConnReq is the connection request to a network address. If permanent, the connection will be retried on disconnection.
 type ConnReq struct {
@@ -60,7 +56,6 @@ type ConnReq struct {
 	retryCount uint32
 }
 
-
 // updateState updates the state of the connection request.
 func (c *ConnReq) updateState(state ConnState) {
 
@@ -69,12 +64,10 @@ func (c *ConnReq) updateState(state ConnState) {
 	c.stateMtx.Unlock()
 }
 
-
 // ID returns a unique identifier for the connection request.
 func (c *ConnReq) ID() uint64 {
 	return atomic.LoadUint64(&c.id)
 }
-
 
 // State is the connection state of the requested connection.
 func (c *ConnReq) State() ConnState {
@@ -84,7 +77,6 @@ func (c *ConnReq) State() ConnState {
 	return state
 }
 
-
 // String returns a human-readable string for the connection request.
 func (c *ConnReq) String() string {
 	if c.Addr == nil || c.Addr.String() == "" {
@@ -92,7 +84,6 @@ func (c *ConnReq) String() string {
 	}
 	return fmt.Sprintf("%s (reqid %d)", c.Addr, atomic.LoadUint64(&c.id))
 }
-
 
 // Config holds the configuration options related to the connection manager.
 type Config struct {
@@ -130,13 +121,11 @@ type Config struct {
 	Dial func(net.Addr) (net.Conn, error)
 }
 
-
 // registerPending is used to register a pending connection attempt. By registering pending connection attempts we allow callers to cancel pending connection attempts before their successful or in the case they're not longer wanted.
 type registerPending struct {
 	c    *ConnReq
 	done chan struct{}
 }
-
 
 // handleConnected is used to queue a successful connection.
 type handleConnected struct {
@@ -144,20 +133,17 @@ type handleConnected struct {
 	conn net.Conn
 }
 
-
 // handleDisconnected is used to remove a connection.
 type handleDisconnected struct {
 	id    uint64
 	retry bool
 }
 
-
 // handleFailed is used to remove a pending connection.
 type handleFailed struct {
 	c   *ConnReq
 	err error
 }
-
 
 // ConnManager provides a manager to handle network connections.
 type ConnManager struct {
@@ -172,7 +158,6 @@ type ConnManager struct {
 	requests       chan interface{}
 	quit           chan struct{}
 }
-
 
 // handleFailedConn handles a connection failed due to a disconnect or any other failure. If permanent, it retries the connection after the configured retry duration. Otherwise, if required, it makes a new connection request. After maxFailedConnectionAttempts new connections will be retried after the configured retry duration.
 func (cm *ConnManager) handleFailedConn(c *ConnReq) {
@@ -208,7 +193,6 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 		}
 	}
 }
-
 
 // connHandler handles all connection related requests.  It must be run as a goroutine. The connection handler makes sure that we maintain a pool of active outbound connections so that we remain connected to the network.  Connection requests are processed and mapped by their assigned ids.
 func (cm *ConnManager) connHandler() {
@@ -314,7 +298,6 @@ out:
 	cm.wg.Done()
 }
 
-
 // NewConnReq creates a new connection request and connects to the corresponding address.
 func (cm *ConnManager) NewConnReq() {
 
@@ -366,7 +349,6 @@ func (cm *ConnManager) NewConnReq() {
 	c.Addr = addr
 	cm.Connect(c)
 }
-
 
 // Connect assigns an id and dials a connection to the address of the connection request.
 func (cm *ConnManager) Connect(c *ConnReq) {
@@ -423,7 +405,6 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 	}
 }
 
-
 // Disconnect disconnects the connection corresponding to the given connection id. If permanent, the connection will be retried with an increasing backoff
 
 // duration.
@@ -442,7 +423,6 @@ func (cm *ConnManager) Disconnect(id uint64) {
 	}
 }
 
-
 // Remove removes the connection corresponding to the given connection id from known connections. NOTE: This method can also be used to cancel a lingering connection attempt that hasn't yet succeeded.
 func (cm *ConnManager) Remove(id uint64) {
 
@@ -458,7 +438,6 @@ func (cm *ConnManager) Remove(id uint64) {
 		// fmt.Println("chan:<-cm.quit")
 	}
 }
-
 
 // listenHandler accepts incoming connections on a given listener.  It must be run as a goroutine.
 func (cm *ConnManager) listenHandler(listener net.Listener) {
@@ -484,10 +463,8 @@ func (cm *ConnManager) listenHandler(listener net.Listener) {
 	})
 }
 
-
 // Start launches the connection manager and begins connecting to the network.
 func (cm *ConnManager) Start() {
-
 
 	// Already started?
 	if atomic.AddInt32(&cm.start, 1) != 1 {
@@ -508,13 +485,11 @@ func (cm *ConnManager) Start() {
 	}
 }
 
-
 // Wait blocks until the connection manager halts gracefully.
 func (cm *ConnManager) Wait() {
 
 	cm.wg.Wait()
 }
-
 
 // Stop gracefully shuts down the connection manager.
 func (cm *ConnManager) Stop() {
@@ -532,7 +507,6 @@ func (cm *ConnManager) Stop() {
 	}
 	close(cm.quit)
 }
-
 
 // New returns a new connection manager. Use Start to start connecting to the network.
 func New(

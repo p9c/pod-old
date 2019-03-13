@@ -1,7 +1,6 @@
 package app_old
 
 import (
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
 	"git.parallelcoin.io/pod/cmd/spv"
@@ -21,6 +20,7 @@ import (
 	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
 	legacyrpc "git.parallelcoin.io/pod/pkg/rpc/legacy"
 	rpcserver "git.parallelcoin.io/pod/pkg/rpc/server"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"git.parallelcoin.io/pod/pkg/wallet"
 	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 	chain "git.parallelcoin.io/pod/pkg/wallet/chain"

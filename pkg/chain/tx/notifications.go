@@ -1,4 +1,3 @@
-
 // Copyright (c) 2015-2016 The btcsuite developers
 
 package wallettx
@@ -7,23 +6,21 @@ import (
 	"bytes"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
-
 
 // TODO: It would be good to send errors during notification creation to the rpc
 
 // server instead of just logging them here so the client is aware that wallet
 
 // isn't working correctly and notifications are missing.
-
 
 // TODO: Anything dealing with accounts here is expensive because the database
 
@@ -32,7 +29,6 @@ import (
 // instead of the easy thing since the db can be fixed later, and we want the
 
 // api correct now.
-
 
 // NotificationServer is a server that interested clients may hook into to
 
@@ -64,7 +60,6 @@ func lookupInputAccount(
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails, deb wtxmgr.DebitRecord) uint32 {
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
-
 
 	// TODO: Debits should record which account(s?) they
 
@@ -231,7 +226,6 @@ func relevantAccounts(
 
 func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails) {
 
-
 	// Sanity check: should not be currently coalescing a notification for
 
 	// mined transactions at the same time that an unmined tx is notified.
@@ -309,7 +303,6 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
 
-
 	// Add block details if it wasn't already included for previously
 
 	// notified mined transactions.
@@ -321,7 +314,6 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 			Timestamp: block.Time.Unix(),
 		})
 	}
-
 
 	// For now (until notification coalescing isn't necessary) just use
 
@@ -341,7 +333,6 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 		s.currentTxNtfn = nil
 		return
 	}
-
 
 	// The UnminedTransactions field is intentionally not set.  Since the
 
@@ -383,7 +374,6 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	}
 	s.currentTxNtfn = nil
 }
-
 
 // TransactionNotifications is a notification of changes to the wallet's
 
@@ -428,7 +418,6 @@ type TransactionNotifications struct {
 	NewBalances              []AccountBalance
 }
 
-
 // Block contains the properties and all relevant transactions of an attached
 
 // block.
@@ -438,7 +427,6 @@ type Block struct {
 	Timestamp    int64
 	Transactions []TransactionSummary
 }
-
 
 // TransactionSummary contains a transaction relevant to the wallet and marks
 
@@ -451,7 +439,6 @@ type TransactionSummary struct {
 	Fee         util.Amount
 	Timestamp   int64
 }
-
 
 // TransactionSummaryInput describes a transaction input that is relevant to the
 
@@ -466,7 +453,6 @@ type TransactionSummaryInput struct {
 	PreviousAmount  util.Amount
 }
 
-
 // TransactionSummaryOutput describes wallet properties of a transaction output
 
 // controlled by the wallet.  The Index field marks the transaction output index
@@ -477,7 +463,6 @@ type TransactionSummaryOutput struct {
 	Account  uint32
 	Internal bool
 }
-
 
 // AccountBalance associates a total (zero confirmation) balance with an
 
@@ -491,7 +476,6 @@ type AccountBalance struct {
 	TotalBalance util.Amount
 }
 
-
 // TransactionNotificationsClient receives TransactionNotifications from the
 
 // NotificationServer over the channel C.
@@ -499,7 +483,6 @@ type TransactionNotificationsClient struct {
 	C      <-chan *TransactionNotifications
 	server *NotificationServer
 }
-
 
 // TransactionNotifications returns a client for receiving
 
@@ -523,7 +506,6 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 	}
 }
 
-
 // Done deregisters the client from the server and drains any remaining
 
 // messages.  It must be called exactly once when the client is finished
@@ -532,7 +514,6 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 func (c *TransactionNotificationsClient) Done() {
 
 	go func() {
-
 
 		// Drain notifications until the client channel is removed from
 
@@ -557,7 +538,6 @@ func (c *TransactionNotificationsClient) Done() {
 	}()
 }
 
-
 // SpentnessNotifications is a notification that is fired for transaction
 
 // outputs controlled by some account's keys.  The notification may be about a
@@ -574,18 +554,15 @@ type SpentnessNotifications struct {
 	spenderIndex uint32
 }
 
-
 // Hash returns the transaction hash of the spent output.
 func (n *SpentnessNotifications) Hash() *chainhash.Hash {
 	return n.hash
 }
 
-
 // Index returns the transaction output index of the spent output.
 func (n *SpentnessNotifications) Index() uint32 {
 	return n.index
 }
-
 
 // Spender returns the spending transction's hash and input index, if any.  If
 
@@ -594,7 +571,6 @@ func (n *SpentnessNotifications) Spender() (*chainhash.Hash, uint32, bool) {
 
 	return n.spenderHash, n.spenderIndex, n.spenderHash != nil
 }
-
 
 // notifyUnspentOutput notifies registered clients of a new unspent output that
 
@@ -615,7 +591,6 @@ func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash
 		c <- n
 	}
 }
-
 
 // notifySpentOutput notifies registered clients that a previously-unspent
 
@@ -641,7 +616,6 @@ func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint
 	}
 }
 
-
 // SpentnessNotificationsClient receives SpentnessNotifications from the
 
 // NotificationServer over the channel C.
@@ -650,7 +624,6 @@ type SpentnessNotificationsClient struct {
 	account uint32
 	server  *NotificationServer
 }
-
 
 // AccountSpentnessNotifications registers a client for spentness changes of
 
@@ -667,7 +640,6 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 	}
 }
 
-
 // Done deregisters the client from the server and drains any remaining
 
 // messages.  It must be called exactly once when the client is finished
@@ -676,7 +648,6 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 func (c *SpentnessNotificationsClient) Done() {
 
 	go func() {
-
 
 		// Drain notifications until the client channel is removed from
 
@@ -700,7 +671,6 @@ func (c *SpentnessNotificationsClient) Done() {
 		s.mu.Unlock()
 	}()
 }
-
 
 // AccountNotification contains properties regarding an account, such as its
 
@@ -735,13 +705,11 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 	}
 }
 
-
 // AccountNotificationsClient receives AccountNotifications over the channel C.
 type AccountNotificationsClient struct {
 	C      chan *AccountNotification
 	server *NotificationServer
 }
-
 
 // AccountNotifications returns a client for receiving AccountNotifications over
 
@@ -758,7 +726,6 @@ func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 		server: s,
 	}
 }
-
 
 // Done deregisters the client from the server and drains any remaining
 

@@ -1,7 +1,7 @@
 package wallet
 
 import (
-	cl "git.parallelcoin.io/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // LogClosure is a closure that can be printed with %v to be used to

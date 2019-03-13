@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/clog"
-	database "git.parallelcoin.io/pod/pkg/db"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/pod/pkg/db"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 const (
@@ -184,7 +184,6 @@ func blockFilePath(
 // openWriteFile returns a file handle for the passed flat file number in read/write mode.  The file will be created if needed.  It is typically used for the current file that will have all new data appended.  Unlike openFile, this function does not keep track of the open file and it is not subject to the maxOpenFiles limit.
 func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
 
-
 	// The current block file needs to be read-write so it is possible to append to it.  Also, it shouldn't be part of the least recently used file.
 	filePath := blockFilePath(s.basePath, fileNum)
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0666)
@@ -198,7 +197,6 @@ func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
 // openFile returns a read-only file handle for the passed flat file number. The function also keeps track of the open files, performs least recently used tracking, and limits the number of open files to maxOpenFiles by closing the least recently used file as needed.
 // This function MUST be called with the overall files mutex (s.obfMutex) locked for WRITES.
 func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
-
 
 	// Open the appropriate file as read-only.
 	filePath := blockFilePath(s.basePath, fileNum)
@@ -246,7 +244,6 @@ func (s *blockStore) deleteFile(fileNum uint32) error {
 // blockFile attempts to return an existing file handle for the passed flat file number if it is already open as well as marking it as most recently used.  It will also open the file when it's not already open subject to the rules described in openFile.
 // NOTE: The returned block file will already have the read lock acquired and the caller MUST call .RUnlock() to release it once it has finished all read operations.  This is necessary because otherwise it would be possible for a separate goroutine to close the file after it is returned from here, but before the caller has acquired a read lock.
 func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
-
 
 	// When the requested block file is open for writes, return it.
 	wc := s.writeCursor
@@ -309,7 +306,6 @@ func (s *blockStore) writeData(data []byte, fieldName string) error {
 // writeBlock appends the specified raw block bytes to the store's write cursor location and increments it accordingly.  When the block would exceed the max file size for the current flat file, this function will close the current file, create the next file, update the write cursor, and write the block to the new file.
 // The write cursor will also be advanced the number of bytes actually written in the event of failure. Format: <network><block length><serialized block><checksum>
 func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
-
 
 	// Compute how many bytes will be written.
 
@@ -392,7 +388,6 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 // Returns ErrDriverSpecific if the data fails to read for any reason and ErrCorruption if the checksum of the read data doesn't match the checksum read from the file. Format: <network><block length><serialized block><checksum>
 func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte, error) {
 
-
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
 	if err != nil {
@@ -434,7 +429,6 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 
 // readBlockRegion reads the specified amount of data at the provided offset for a given block location.  The offset is relative to the start of the serialized block (as opposed to the beginning of the block record).  This function automatically handles all file management such as opening and closing files as necessary to stay within the maximum allowed open files limit. Returns ErrDriverSpecific if the data fails to read for any reason.
 func (s *blockStore) readBlockRegion(loc blockLocation, offset, numBytes uint32) ([]byte, error) {
-
 
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
@@ -488,7 +482,6 @@ func (s *blockStore) syncBlocks() error {
 // For the first scenario, this will lead to any data which failed to be undone being overwritten and thus behaves as desired as the system continues to run. For the second scenario, the metadata which stores the current write cursor position within the block files will not have been updated yet and thus if the system eventually recovers (perhaps the hard drive is reconnected), it will also lead to any data which failed to be undone being overwritten and thus behaves as desired.
 // Therefore, any errors are simply logged at a warning level rather than being returned since there is nothing more that could be done about it anyways.
 func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
-
 
 	// Grab the write cursor mutex since it is modified throughout this function.
 	wc := s.writeCursor

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 const eligibleInputMinConfirmations = 100
@@ -54,7 +54,6 @@ func (c byAddress) Less(i, j int) bool {
 		return false
 	}
 
-
 	// The seriesID are equal, so compare index.
 	if iAddr.index < jAddr.index {
 		return true
@@ -62,7 +61,6 @@ func (c byAddress) Less(i, j int) bool {
 	if iAddr.index > jAddr.index {
 		return false
 	}
-
 
 	// The seriesID and index are equal, so compare branch.
 	if iAddr.branch < jAddr.branch {
@@ -72,7 +70,6 @@ func (c byAddress) Less(i, j int) bool {
 		return false
 	}
 
-
 	// The seriesID, index, and branch are equal, so compare hash.
 	txidComparison := bytes.Compare(c[i].OutPoint.Hash[:], c[j].OutPoint.Hash[:])
 	if txidComparison < 0 {
@@ -81,7 +78,6 @@ func (c byAddress) Less(i, j int) bool {
 	if txidComparison > 0 {
 		return false
 	}
-
 
 	// The seriesID, index, branch, and hash are equal, so compare output
 

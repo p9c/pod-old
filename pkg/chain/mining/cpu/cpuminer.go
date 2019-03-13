@@ -8,15 +8,15 @@ import (
 	"sync"
 	"time"
 
-	cl "git.parallelcoin.io/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/mining"
-	"git.parallelcoin.io/pod/pkg/util"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
 )
 
 // CPUMiner provides facilities for solving blocks (mining) using the CPU in a concurrency-safe manner.  It consists of two main goroutines -- a speed monitor and a controller for worker goroutines which generate and solve blocks.  The number of goroutines can be set via the SetMaxGoRoutines function, but the default is based on the number of processor cores in the system which is typically sufficient.

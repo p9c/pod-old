@@ -4,10 +4,10 @@
 package wtxmgr
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
 
 // insertMemPoolTx inserts the unmined transaction record.  It also marks
@@ -22,7 +22,6 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		// collision?
 		return nil
 	}
-
 
 	// Since transaction records within the store are keyed by their
 
@@ -56,7 +55,6 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 			return err
 		}
 	}
-
 
 	// TODO: increment credit amount for each credit (but those are unknown
 
@@ -153,7 +151,6 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 			return err
 		}
 	}
-
 
 	// If this tx spends any previous credits (either mined or unmined), set
 

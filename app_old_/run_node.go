@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	cl "git.parallelcoin.io/clog"
 	"git.parallelcoin.io/pod/cmd/node"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 func runNode(

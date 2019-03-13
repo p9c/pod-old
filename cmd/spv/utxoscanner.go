@@ -6,10 +6,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/clog"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
 )
 
 // GetUtxoRequest is a request to scan for InputWithScript from the height

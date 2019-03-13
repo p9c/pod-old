@@ -3,18 +3,17 @@ package wallettx
 import (
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
-
 
 // RecoveryManager maintains the state required to recover previously used
 
@@ -26,29 +25,24 @@ type RecoveryManager struct {
 	// attempting to recover the set of used addresses.
 	recoveryWindow uint32
 
-
 	// started is true after the first block has been added to the batch.
 	started bool
-
 
 	// blockBatch contains a list of blocks that have not yet been searched
 
 	// for recovered addresses.
 	blockBatch []wtxmgr.BlockMeta
 
-
 	// state encapsulates and allocates the necessary recovery state for all
 
 	// key scopes and subsidiary derivation paths.
 	state *RecoveryState
-
 
 	// chainParams are the parameters that describe the chain we're trying
 
 	// to recover funds on.
 	chainParams *chaincfg.Params
 }
-
 
 // NewRecoveryManager initializes a new RecoveryManager with a derivation
 
@@ -67,7 +61,6 @@ func NewRecoveryManager(
 	}
 }
 
-
 // Resurrect restores all known addresses for the provided scopes that can be
 
 // found in the walletdb namespace, in addition to restoring all outpoints that
@@ -80,7 +73,6 @@ func NewRecoveryManager(
 func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 	scopedMgrs map[waddrmgr.KeyScope]*waddrmgr.ScopedKeyManager,
 	credits []wtxmgr.Credit) error {
-
 
 	// First, for each scope that we are recovering, rederive all of the
 
@@ -102,12 +94,10 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 			return err
 		}
 
-
 		// Fetch the external key count, which bounds the indexes we
 
 		// will need to rederive.
 		externalCount := acctProperties.ExternalKeyCount
-
 
 		// Walk through all indexes through the last external key,
 
@@ -127,12 +117,10 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 			scopeState.ExternalBranch.AddAddr(i, addr.Address())
 		}
 
-
 		// Fetch the internal key count, which bounds the indexes we
 
 		// will need to rederive.
 		internalCount := acctProperties.InternalKeyCount
-
 
 		// Walk through all indexes through the last internal key,
 
@@ -152,7 +140,6 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 			scopeState.InternalBranch.AddAddr(i, addr.Address())
 		}
 
-
 		// The key counts will point to the next key that can be
 
 		// derived, so we subtract one to point to last known key. If
@@ -165,7 +152,6 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 			scopeState.InternalBranch.ReportFound(internalCount - 1)
 		}
 	}
-
 
 	// In addition, we will re-add any outpoints that are known the wallet
 
@@ -185,7 +171,6 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 	return nil
 }
-
 
 // AddToBlockBatch appends the block information, consisting of hash and height,
 
@@ -215,12 +200,10 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 	rm.blockBatch = append(rm.blockBatch, block)
 }
 
-
 // BlockBatch returns a buffer of blocks that have not yet been searched.
 func (rm *RecoveryManager) BlockBatch() []wtxmgr.BlockMeta {
 	return rm.blockBatch
 }
-
 
 // ResetBlockBatch resets the internal block buffer to conserve memory.
 func (rm *RecoveryManager) ResetBlockBatch() {
@@ -228,12 +211,10 @@ func (rm *RecoveryManager) ResetBlockBatch() {
 	rm.blockBatch = rm.blockBatch[:0]
 }
 
-
 // State returns the current RecoveryState.
 func (rm *RecoveryManager) State() *RecoveryState {
 	return rm.state
 }
-
 
 // RecoveryState manages the initialization and lookup of ScopeRecoveryStates
 
@@ -271,12 +252,10 @@ type RecoveryState struct {
 	// used to instantiate a new RecoveryState for each requested scope.
 	recoveryWindow uint32
 
-
 	// scopes maintains a map of each requested key scope to its active
 
 	// RecoveryState.
 	scopes map[waddrmgr.KeyScope]*ScopeRecoveryState
-
 
 	// watchedOutPoints contains the set of all outpoints known to the
 
@@ -285,7 +264,6 @@ type RecoveryState struct {
 	// a rescan.
 	watchedOutPoints map[wire.OutPoint]util.Address
 }
-
 
 // NewRecoveryState creates a new RecoveryState using the provided
 
@@ -303,7 +281,6 @@ func NewRecoveryState(
 	}
 }
 
-
 // StateForScope returns a ScopeRecoveryState for the provided key scope. If one
 
 // does not already exist, a new one will be generated with the RecoveryState's
@@ -312,12 +289,10 @@ func NewRecoveryState(
 func (rs *RecoveryState) StateForScope(
 	keyScope waddrmgr.KeyScope) *ScopeRecoveryState {
 
-
 	// If the account recovery state already exists, return it.
 	if scopeState, ok := rs.scopes[keyScope]; ok {
 		return scopeState
 	}
-
 
 	// Otherwise, initialize the recovery state for this scope with the
 
@@ -327,14 +302,12 @@ func (rs *RecoveryState) StateForScope(
 	return rs.scopes[keyScope]
 }
 
-
 // WatchedOutPoints returns the global set of outpoints that are known to belong
 
 // to the wallet during recovery.
 func (rs *RecoveryState) WatchedOutPoints() map[wire.OutPoint]util.Address {
 	return rs.watchedOutPoints
 }
-
 
 // AddWatchedOutPoint updates the recovery state's set of known outpoints that
 
@@ -344,7 +317,6 @@ func (rs *RecoveryState) AddWatchedOutPoint(outPoint *wire.OutPoint,
 
 	rs.watchedOutPoints[*outPoint] = addr
 }
-
 
 // ScopeRecoveryState is used to manage the recovery of addresses generated
 
@@ -358,13 +330,11 @@ type ScopeRecoveryState struct {
 	// external use, i.e. receiving addresses.
 	ExternalBranch *BranchRecoveryState
 
-
 	// InternalBranch is the recovery state of addresses generated for
 
 	// internal use, i.e. change addresses.
 	InternalBranch *BranchRecoveryState
 }
-
 
 // NewScopeRecoveryState initializes an ScopeRecoveryState with the chosen
 
@@ -376,7 +346,6 @@ func NewScopeRecoveryState(
 		InternalBranch: NewBranchRecoveryState(recoveryWindow),
 	}
 }
-
 
 // BranchRecoveryState maintains the required state in-order to properly
 
@@ -406,29 +375,24 @@ type BranchRecoveryState struct {
 	// attempting to recover the set of addresses on this branch.
 	recoveryWindow uint32
 
-
 	// horizion records the highest child index watched by this branch.
 	horizon uint32
-
 
 	// nextUnfound maintains the child index of the successor to the highest
 
 	// index that has been found during recovery of this branch.
 	nextUnfound uint32
 
-
 	// addresses is a map of child index to address for all actively watched
 
 	// addresses belonging to this branch.
 	addresses map[uint32]util.Address
-
 
 	// invalidChildren records the set of child indexes that derive to
 
 	// invalid keys.
 	invalidChildren map[uint32]struct{}
 }
-
 
 // NewBranchRecoveryState creates a new BranchRecoveryState that can be used to
 
@@ -442,12 +406,10 @@ func NewBranchRecoveryState(
 	}
 }
 
-
 // ExtendHorizon returns the current horizon and the number of addresses that
 
 // must be derived in order to maintain the desired recovery window.
 func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
-
 
 	// Compute the new horizon, which should surpass our last found address
 
@@ -457,14 +419,12 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 	nInvalid := brs.NumInvalidInHorizon()
 	minValidHorizon := brs.nextUnfound + brs.recoveryWindow + nInvalid
 
-
 	// If the current horizon is sufficient, we will not have to derive any
 
 	// new keys.
 	if curHorizon >= minValidHorizon {
 		return curHorizon, 0
 	}
-
 
 	// Otherwise, the number of addresses we should derive corresponds to
 
@@ -475,7 +435,6 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 	return curHorizon, delta
 }
 
-
 // AddAddr adds a freshly derived address from our lookahead into the map of
 
 // known addresses for this branch.
@@ -484,12 +443,10 @@ func (brs *BranchRecoveryState) AddAddr(index uint32, addr util.Address) {
 	brs.addresses[index] = addr
 }
 
-
 // GetAddr returns the address derived from a given child index.
 func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 	return brs.addresses[index]
 }
-
 
 // ReportFound updates the last found index if the reported index exceeds the
 
@@ -498,7 +455,6 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 
 	if index >= brs.nextUnfound {
 		brs.nextUnfound = index + 1
-
 
 		// Prune all invalid child indexes that fall below our last
 
@@ -512,7 +468,6 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 		}
 	}
 }
-
 
 // MarkInvalidChild records that a particular child index results in deriving an
 
@@ -529,7 +484,6 @@ func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 	brs.horizon++
 }
 
-
 // NextUnfound returns the child index of the successor to the highest found
 
 // child index.
@@ -537,14 +491,12 @@ func (brs *BranchRecoveryState) NextUnfound() uint32 {
 	return brs.nextUnfound
 }
 
-
 // Addrs returns a map of all currently derived child indexes to the their
 
 // corresponding addresses.
 func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 	return brs.addresses
 }
-
 
 // NumInvalidInHorizon computes the number of invalid child indexes that lie
 

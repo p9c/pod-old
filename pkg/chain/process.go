@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/clog"
-	database "git.parallelcoin.io/pod/pkg/db"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	database "git.parallelcoin.io/pod/pkg/db"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 // BehaviorFlags is a bitmask defining tweaks to the normal behavior when performing chain processing and consensus rules checks.

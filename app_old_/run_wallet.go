@@ -7,7 +7,7 @@ import (
 	walletmain "git.parallelcoin.io/pod/cmd/wallet"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 
-	cl "git.parallelcoin.io/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 )
 
 func runWallet(

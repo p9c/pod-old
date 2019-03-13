@@ -3,12 +3,12 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 ekyu.moe/cryptonight v0.3.0 h1:Ur4LA+koVyo52/G7GF/5QKyVcloXkIQWjsw0vNvSKEA=
 ekyu.moe/cryptonight v0.3.0/go.mod h1:ZSoDow0HyP4oPny5lywoY1Szuo4eH+fpZn7J5YRCVBc=
 git.apache.org/thrift.git v0.0.0-20181218151757-9b75e4fe745a/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
-git.parallelcoin.io/clog v0.1.0 h1:VhVZIa6yNV5HiK1pQH5nG6jKpsmdASNu7NfWohJz8wA=
-git.parallelcoin.io/clog v0.1.0/go.mod h1:laXE0HPhfhk5TCWQKCNgphzCKe4GkGXZqx3rujqLMi8=
-git.parallelcoin.io/clog v0.1.2 h1:/JPZOCPCREjrzRCsP2WbPF7t0nfdHiP74BfFHmrqTQY=
-git.parallelcoin.io/clog v0.1.2/go.mod h1:qDxexzymmd4E8BaqVJmYK1BVtDpJiIZaGPBumWTbH58=
 git.parallelcoin.io/pod v0.0.0-20190304132448-d2ba7d87546b/go.mod h1:zSXfsAVeWkDzYedjcA1PIRnj0b1NZIyGSjl/N96Pi2I=
 git.parallelcoin.io/pod v0.0.0-20190309135708-5e8411022f86/go.mod h1:zSXfsAVeWkDzYedjcA1PIRnj0b1NZIyGSjl/N96Pi2I=
+git.parallelcoin.io/pod/pkg/util/cl v0.1.0 h1:VhVZIa6yNV5HiK1pQH5nG6jKpsmdASNu7NfWohJz8wA=
+git.parallelcoin.io/pod/pkg/util/cl v0.1.0/go.mod h1:laXE0HPhfhk5TCWQKCNgphzCKe4GkGXZqx3rujqLMi8=
+git.parallelcoin.io/pod/pkg/util/cl v0.1.2 h1:/JPZOCPCREjrzRCsP2WbPF7t0nfdHiP74BfFHmrqTQY=
+git.parallelcoin.io/pod/pkg/util/cl v0.1.2/go.mod h1:qDxexzymmd4E8BaqVJmYK1BVtDpJiIZaGPBumWTbH58=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
@@ -321,6 +321,7 @@ google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9Ywl
 google.golang.org/appengine v1.3.0 h1:FBSsiFRMz3LBeXIomRnVzrQwSDj4ibvcRexLG0LZGQk=
 google.golang.org/appengine v1.3.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=
+google.golang.org/genproto v0.0.0-20180831171423-11092d34479b h1:lohp5blsw53GBXtLyLNaTXPXS9pJ1tiTw61ZHUoE9Qw=
 google.golang.org/genproto v0.0.0-20180831171423-11092d34479b/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=
 google.golang.org/genproto v0.0.0-20181219182458-5a97ab628bfb h1:dQshZyyJ5W/Xk8myF4GKBak1pZW6EywJuQ8+44EQhGA=
 google.golang.org/genproto v0.0.0-20181219182458-5a97ab628bfb/go.mod h1:7Ep/1NZk928CDR8SjdVbjWNpdIf6nzjE3BTgJDr2Atg=

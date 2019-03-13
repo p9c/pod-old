@@ -1,4 +1,3 @@
-
 // Copyright (c) 2013-2017 The btcsuite developers
 
 // Copyright (c) 2015-2016 The Decred developers
@@ -9,16 +8,15 @@ import (
 	"bytes"
 	"time"
 
-	"git.parallelcoin.io/clog"
+	"git.parallelcoin.io/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	blockchain "git.parallelcoin.io/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 )
-
 
 // Block contains the minimum amount of data to uniquely identify any block on
 
@@ -27,7 +25,6 @@ type Block struct {
 	Hash   chainhash.Hash
 	Height int32
 }
-
 
 // BlockMeta contains the unique identification for a block and any metadata
 
@@ -39,7 +36,6 @@ type BlockMeta struct {
 	Time time.Time
 }
 
-
 // blockRecord is an in-memory representation of the block record saved in the
 
 // database.
@@ -48,7 +44,6 @@ type blockRecord struct {
 	Time         time.Time
 	transactions []chainhash.Hash
 }
-
 
 // incidence records the block hash and blockchain height of a mined transaction.
 
@@ -62,7 +57,6 @@ type incidence struct {
 	block  Block
 }
 
-
 // indexedIncidence records the transaction incidence and an input or output
 
 // index.
@@ -70,7 +64,6 @@ type indexedIncidence struct {
 	incidence
 	index uint32
 }
-
 
 // debit records the debits a transaction record makes from previous wallet
 
@@ -82,7 +75,6 @@ type debit struct {
 	spends indexedIncidence
 }
 
-
 // credit describes a transaction output which was or is spendable by wallet.
 type credit struct {
 	outPoint wire.OutPoint
@@ -92,7 +84,6 @@ type credit struct {
 	spentBy  indexedIncidence // Index == ^uint32(0) if unspent
 }
 
-
 // TxRecord represents a transaction managed by the Store.
 type TxRecord struct {
 	MsgTx        wire.MsgTx
@@ -100,7 +91,6 @@ type TxRecord struct {
 	Received     time.Time
 	SerializedTx []byte // Optional: may be nil
 }
-
 
 // NewTxRecord creates a new transaction record that may be inserted into the
 
@@ -122,7 +112,6 @@ func NewTxRecord(
 	copy(rec.Hash[:], chainhash.DoubleHashB(serializedTx))
 	return rec, nil
 }
-
 
 // NewTxRecordFromMsgTx creates a new transaction record that may be inserted
 
@@ -146,7 +135,6 @@ func NewTxRecordFromMsgTx(
 	return rec, nil
 }
 
-
 // Credit is the type representing a transaction output which was spent or
 
 // is still spendable by wallet.  A UTXO is an unspent Credit, but not all
@@ -161,20 +149,17 @@ type Credit struct {
 	FromCoinBase bool
 }
 
-
 // Store implements a transaction store for storing and managing wallet
 
 // transactions.
 type Store struct {
 	chainParams *chaincfg.Params
 
-
 	// Event callbacks.  These execute in the same goroutine as the wtxmgr
 
 	// caller.
 	NotifyUnspent func(hash *chainhash.Hash, index uint32)
 }
-
 
 // DoUpgrades performs any necessary upgrades to the transaction history
 
@@ -188,13 +173,11 @@ func DoUpgrades(
 	return nil
 }
 
-
 // Open opens the wallet transaction store from a walletdb namespace.  If the
 
 // store does not exist, ErrNoExist is returned.
 func Open(
 	ns walletdb.ReadBucket, chainParams *chaincfg.Params) (*Store, error) {
-
 
 	// Open the store.
 	err := openStore(ns)
@@ -204,7 +187,6 @@ func Open(
 	s := &Store{chainParams, nil} // TODO: set callbacks
 	return s, nil
 }
-
 
 // Create creates a new persistent transaction store in the walletdb namespace.
 
@@ -216,20 +198,17 @@ func Create(
 	return createStore(ns)
 }
 
-
 // updateMinedBalance updates the mined balance within the store, if changed,
 
 // after processing the given transaction record.
 func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	block *BlockMeta) error {
 
-
 	// Fetch the mined balance in case we need to update it.
 	minedBalance, err := fetchMinedBalance(ns)
 	if err != nil {
 		return err
 	}
-
 
 	// Add a debit record for each unspent credit spent by this transaction.
 
@@ -280,7 +259,6 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 			continue
 		}
 
-
 		// If this output is relevant to us, we'll mark the it as spent
 
 		// and remove its amount from the store.
@@ -302,7 +280,6 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 		newMinedBalance -= amt
 	}
 
-
 	// For each output of the record that is marked as a credit, if the
 
 	// output is marked as a credit by the unconfirmed store, remove the
@@ -322,7 +299,6 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 
 	it := makeUnminedCreditIterator(ns, &rec.Hash)
 	for it.next() {
-
 
 		// TODO: This should use the raw apis.  The credit value (it.cv)
 
@@ -358,7 +334,6 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 		return it.err
 	}
 
-
 	// Update the balance if it has changed.
 	if newMinedBalance != minedBalance {
 		return putMinedBalance(ns, newMinedBalance)
@@ -366,7 +341,6 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 
 	return nil
 }
-
 
 // deleteUnminedTx deletes an unmined transaction from the store.
 
@@ -384,7 +358,6 @@ func (s *Store) deleteUnminedTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 	return deleteRawUnmined(ns, rec.Hash[:])
 }
 
-
 // InsertTx records a transaction as belonging to a wallet's transaction
 
 // history.  If block is nil, the transaction is considered unspent, and the
@@ -396,7 +369,6 @@ func (s *Store) InsertTx(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Bloc
 	}
 	return s.insertMinedTx(ns, rec, block)
 }
-
 
 // RemoveUnminedTx attempts to remove an unmined transaction from the
 
@@ -419,7 +391,6 @@ func (s *Store) RemoveUnminedTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 	return s.removeConflict(ns, rec)
 }
 
-
 // insertMinedTx inserts a new transaction record for a mined transaction into
 
 // the database under the confirmed bucket. It guarantees that, if the
@@ -432,14 +403,12 @@ func (s *Store) RemoveUnminedTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	block *BlockMeta) error {
 
-
 	// If a transaction record for this hash and block already exists, we
 
 	// can exit early.
 	if _, v := existsTxRecord(ns, &rec.Hash, &block.Block); v != nil {
 		return nil
 	}
-
 
 	// If a block record does not yet exist for any transactions from this
 
@@ -464,14 +433,12 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 		return err
 	}
 
-
 	// Determine if this transaction has affected our balance, and if so,
 
 	// update it.
 	if err := s.updateMinedBalance(ns, rec, block); err != nil {
 		return err
 	}
-
 
 	// If this transaction previously existed within the store as unmined,
 
@@ -487,7 +454,6 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 		}
 	}
 
-
 	// As there may be unconfirmed transactions that are invalidated by this
 
 	// transaction (either being duplicates, or double spends), remove them
@@ -499,7 +465,6 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	// outputs of the removed double spend.
 	return s.removeDoubleSpends(ns, rec)
 }
-
 
 // AddCredit marks a transaction record as containing a transaction output
 
@@ -527,7 +492,6 @@ func (s *Store) AddCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 	}
 	return err
 }
-
 
 // addCredit is an AddCredit helper that runs in an update transaction.  The
 
@@ -592,7 +556,6 @@ func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 	return true, putUnspent(ns, &cred.outPoint, &block.Block)
 }
 
-
 // Rollback removes all blocks at height onwards, moving any transactions within
 
 // each block to the unconfirmed pool.
@@ -605,7 +568,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 	if err != nil {
 		return err
 	}
-
 
 	// Keep track of all credits that were removed from coinbase
 
@@ -654,7 +616,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 				return err
 			}
 
-
 			// Handle coinbase transactions specially since they are
 
 			// not moved to the unconfirmed store.  A coinbase cannot
@@ -697,7 +658,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 				return err
 			}
 
-
 			// For each debit recorded for this transaction, mark
 
 			// the credit it spends as unspent (as long as it still
@@ -716,7 +676,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 					return err
 				}
 
-
 				// If this input is a debit, remove the debit
 
 				// record and mark the credit that it spent as
@@ -730,7 +689,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 				if debKey == nil {
 					continue
 				}
-
 
 				// unspendRawCredit does not error in case the
 
@@ -755,7 +713,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 					return err
 				}
 
-
 				// If the credit was previously removed in the
 
 				// rollback, the credit amount is zero.  Only
@@ -776,7 +733,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 					return err
 				}
 			}
-
 
 			// For each detached non-coinbase credit, move the
 
@@ -823,12 +779,10 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			}
 		}
 
-
 		// reposition cursor before deleting this k/v pair and advancing to the
 
 		// previous.
 		it.reposition(it.elem.Height)
-
 
 		// Avoid cursor deletion until bolt issue #620 is resolved.
 
@@ -843,7 +797,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 	if it.err != nil {
 		return it.err
 	}
-
 
 	// Delete the block records outside of the iteration since cursor deletion
 
@@ -860,7 +813,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 		unminedSpendTxHashKeys := fetchUnminedInputSpendTxHashes(ns, opKey)
 		for _, unminedSpendTxHashKey := range unminedSpendTxHashKeys {
 			unminedVal := existsRawUnmined(ns, unminedSpendTxHashKey[:])
-
 
 			// If the spending transaction spends multiple outputs
 
@@ -895,7 +847,6 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 
 	return putMinedBalance(ns, minedBalance)
 }
-
 
 // UnspentOutputs returns all unspent received transaction outputs.
 
@@ -974,7 +925,6 @@ func (s *Store) UnspentOutputs(ns walletdb.ReadBucket) ([]Credit, error) {
 			return err
 		}
 
-
 		// TODO(jrick): Reading/parsing the entire transaction record
 
 		// just for the output amount and script can be avoided.
@@ -1010,7 +960,6 @@ func (s *Store) UnspentOutputs(ns walletdb.ReadBucket) ([]Credit, error) {
 	return unspent, nil
 }
 
-
 // Balance returns the spendable wallet balance (total value of all unspent
 
 // transaction outputs) given a minimum of minConf confirmations, calculated
@@ -1030,7 +979,6 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 	if err != nil {
 		return 0, err
 	}
-
 
 	// Subtract the balance for each credit that is spent by an unmined
 
@@ -1063,7 +1011,6 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 		str := "failed iterating unspent outputs"
 		return 0, storeError(ErrDatabase, str, err)
 	}
-
 
 	// Decrement the balance for any unspent credit with less than
 
@@ -1125,7 +1072,6 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 	if blockIt.err != nil {
 		return 0, blockIt.err
 	}
-
 
 	// If unmined outputs are included, increment the balance for each
 

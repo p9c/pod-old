@@ -9,14 +9,14 @@ import (
 	"math/rand"
 	"time"
 
-	cl "git.parallelcoin.io/clog"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"git.parallelcoin.io/pod/pkg/rpc/json"
 	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
 	"github.com/conformal/fastsha256"
 )
 

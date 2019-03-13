@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
+	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/clog"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/util/legacy/keystore"
 	"git.parallelcoin.io/pod/pkg/util/prompt"
 	"git.parallelcoin.io/pod/pkg/wallet"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
 )
 
