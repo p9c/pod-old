@@ -688,16 +688,6 @@ func configNode(
 		return 1
 	}
 
-	// --addrindex and --droptxindex do not mix.
-	if nc.AddrIndex && nc.DropTxIndex {
-		err := fmt.Errorf("%s: the --addrindex and --droptxindex options may not be activated at the same time "+
-			"because the address index relies on the transaction index",
-			funcName)
-		log <- cl.Err(err.Error())
-		fmt.Fprintln(os.Stderr, usageMessage)
-		return 1
-	}
-
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(nc.MiningAddrs))
 	for _, strAddr := range nc.MiningAddrs {

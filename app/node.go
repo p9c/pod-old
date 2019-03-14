@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -14,8 +15,10 @@ import (
 	blockchain "git.parallelcoin.io/pod/pkg/chain"
 	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	"git.parallelcoin.io/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/pod/pkg/util"
 	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"github.com/btcsuite/go-socks/socks"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )
@@ -372,6 +375,186 @@ func nodeHandle(c *cli.Context) error {
 			log <- cl.Err(err.Error())
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
+		}
+	}
+	// --addrindex and --dropaddrindex do not mix.
+	if *nodeConfig.AddrIndex && *nodeConfig.DropAddrIndex {
+		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex options may not be activated at the same time",
+			funcName)
+		log <- cl.Error{err}
+		// fmt.Fprintln(os.Stderr, usageMessage)
+		return err
+	}
+
+	// Check mining addresses are valid and saved parsed versions.
+	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(*nodeConfig.MiningAddrs))
+	for _, strAddr := range *nodeConfig.MiningAddrs {
+		addr, err := util.DecodeAddress(strAddr, activeNetParams.Params)
+		if err != nil {
+			str := "%s: mining address '%s' failed to decode: %v"
+			err := fmt.Errorf(str, funcName, strAddr, err)
+			log <- cl.Err(err.Error())
+			// fmt.Fprintln(os.Stderr, usageMessage)
+			return err
+		}
+		if !addr.IsForNet(activeNetParams.Params) {
+			str := "%s: mining address '%s' is on the wrong network"
+			err := fmt.Errorf(str, funcName, strAddr)
+			log <- cl.Error{err}
+			// fmt.Fprintln(os.Stderr, usageMessage)
+			return err
+		}
+		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
+	}
+
+	// Ensure there is at least one mining address when the generate flag is set.
+	if (*nodeConfig.Generate || *nodeConfig.MinerListener != "") && len(*nodeConfig.MiningAddrs) == 0 {
+		str := "%s: the generate flag is set, but there are no mining addresses specified "
+		err := fmt.Errorf(str, funcName)
+		log <- cl.Err(err.Error())
+		fmt.Fprintln(os.Stderr, usageMessage)
+		os.Exit(1)
+	}
+	if *nodeConfig.MinerPass != "" {
+		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(*nodeConfig.MinerPass))
+	}
+
+	// Add default port to all rpc listener addresses if needed and remove duplicate addresses.
+	*nodeConfig.RPCListeners = node.NormalizeAddresses(*nodeConfig.RPCListeners,
+		activeNetParams.RPCClientPort)
+	if !*nodeConfig.DisableRPC && !*nodeConfig.TLS {
+		for _, addr := range *nodeConfig.RPCListeners {
+			if err != nil {
+				str := "%s: RPC listen interface '%s' is invalid: %v"
+				err := fmt.Errorf(str, funcName, addr, err)
+				log <- cl.Error{err}
+				// fmt.Fprintln(os.Stderr, usageMessage)
+				return err
+			}
+		}
+	}
+
+	// Add default port to all listener addresses if needed and remove duplicate addresses.
+	*nodeConfig.Listeners = node.NormalizeAddresses(*nodeConfig.Listeners,
+		activeNetParams.DefaultPort)
+
+	// Add default port to all added peer addresses if needed and remove duplicate addresses.
+	*nodeConfig.AddPeers = node.NormalizeAddresses(*nodeConfig.AddPeers,
+		activeNetParams.DefaultPort)
+	*nodeConfig.ConnectPeers = node.NormalizeAddresses(*nodeConfig.ConnectPeers,
+		activeNetParams.DefaultPort)
+
+	// --onionproxy and not --onion are contradictory (TODO: this is kinda stupid hm? switch *and* toggle by presence of flag value, one should be enough)
+	if !*nodeConfig.Onion && *nodeConfig.OnionProxy != "" {
+		err := fmt.Errorf("%s: the --onionproxy and --onion options may not be activated at the same time", funcName)
+		log <- cl.Error{err}
+		// fmt.Fprintln(os.Stderr, usageMessage)
+		return err
+	}
+
+	// Check the checkpoints for syntax errors.
+	StateCfg.AddedCheckpoints, err = node.ParseCheckpoints(*nodeConfig.AddCheckpoints)
+	if err != nil {
+		str := "%s: Error parsing checkpoints: %v"
+		err := fmt.Errorf(str, funcName, err)
+		log <- cl.Err(err.Error())
+		// fmt.Fprintln(os.Stderr, usageMessage)
+		return err
+	}
+
+	// Tor stream isolation requires either proxy or onion proxy to be set.
+	if *nodeConfig.TorIsolation &&
+		*nodeConfig.Proxy == "" &&
+		*nodeConfig.OnionProxy == "" {
+		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
+		err := fmt.Errorf(str, funcName)
+		log <- cl.Error{err}
+		// fmt.Fprintln(os.Stderr, usageMessage)
+		return err
+	}
+
+	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
+	StateCfg.Dial = net.DialTimeout
+	StateCfg.Lookup = net.LookupIP
+	if *nodeConfig.Proxy != "" {
+		_, _, err := net.SplitHostPort(*nodeConfig.Proxy)
+		if err != nil {
+			str := "%s: Proxy address '%s' is invalid: %v"
+			err := fmt.Errorf(str, funcName, *nodeConfig.Proxy, err)
+			log <- cl.Error{err}
+			// fmt.Fprintln(os.Stderr, usageMessage)
+			return err
+		}
+	}
+
+	// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overriddenode.
+	torIsolation := false
+	if *nodeConfig.TorIsolation &&
+		*nodeConfig.OnionProxy == "" &&
+		(*nodeConfig.ProxyUser != "" ||
+			*nodeConfig.ProxyPass != "") {
+		torIsolation = true
+		fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
+			"overriding specified proxy user credentials")
+	}
+	proxy := &socks.Proxy{
+		Addr:         *nodeConfig.Proxy,
+		Username:     *nodeConfig.ProxyUser,
+		Password:     *nodeConfig.ProxyPass,
+		TorIsolation: torIsolation,
+	}
+	StateCfg.Dial = proxy.DialTimeout
+
+	// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
+	if *nodeConfig.Onion &&
+		*nodeConfig.OnionProxy == "" {
+		StateCfg.Lookup = func(host string) ([]net.IP, error) {
+			return connmgr.TorLookupIP(host, *nodeConfig.Proxy)
+		}
+	}
+
+	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
+	if *nodeConfig.OnionProxy != "" {
+		_, _, err := net.SplitHostPort(*nodeConfig.OnionProxy)
+		if err != nil {
+			str := "%s: Onion proxy address '%s' is invalid: %v"
+			err := fmt.Errorf(str, funcName, *nodeConfig.OnionProxy, err)
+			log <- cl.Error{err}
+			// fmt.Fprintln(os.Stderr, usageMessage)
+			return err
+		}
+
+		// Tor isolation flag means onion proxy credentials will be overriddenode.
+		if *nodeConfig.TorIsolation &&
+			(*nodeConfig.OnionProxyUser != "" || *nodeConfig.OnionProxyPass != "") {
+			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
+				"overriding specified onionproxy user "+
+				"credentials ")
+		}
+		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+			proxy := &socks.Proxy{
+				Addr:         *nodeConfig.OnionProxy,
+				Username:     *nodeConfig.OnionProxyUser,
+				Password:     *nodeConfig.OnionProxyPass,
+				TorIsolation: *nodeConfig.TorIsolation,
+			}
+			return proxy.DialTimeout(network, addr, timeout)
+		}
+
+		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
+		if *nodeConfig.Proxy != "" {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+				return connmgr.TorLookupIP(host, *nodeConfig.OnionProxy)
+			}
+		}
+	} else {
+		StateCfg.Oniondial = StateCfg.Dial
+	}
+
+	// Specifying --noonion means the onion address dial function results in an error.
+	if !*nodeConfig.Onion {
+		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+			return nil, errors.New("tor has been disabled")
 		}
 	}
 
