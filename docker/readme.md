@@ -6,4 +6,6 @@ The directories ending in .AppDir contain materials that when combined with the 
 
 To use the docker, you first need docker installed and the server running, then you can just `source init.sh` in the `legacy/` folder and then `halp` will show you all the short commands you can use and the long version they will invoke.
 
+Then just copy those AppDir folders into a the `src/` subdirectory of the repository linked above, and for the Qt wallet you need to first run `linuxdeployqt-continuous-x86_64.AppImage` inside (it is a qmake dir, you can reinitialise like this using `qmake ../`) and then for the main currently just build, copy the binary in place and if necessary update the binaries in the `usr/lib` folder.
+
 With these as a base it should be possible to create universal binaries that run everywhere on the same OS and ABI.
