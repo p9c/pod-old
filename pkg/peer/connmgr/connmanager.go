@@ -12,24 +12,22 @@ import (
 )
 
 // maxFailedAttempts is the maximum number of successive failed connection attempts after which network failure is assumed and new connections will be delayed by the configured retry duration.
-const maxFailedAttempts = 9
+const maxFailedAttempts = 3
 
-var (
+//ErrDialNil is used to indicate that Dial cannot be nil in the configuration.
+var ErrDialNil = errors.New("config: Dial cannot be nil")
 
-	//ErrDialNil is used to indicate that Dial cannot be nil in the configuration.
-	ErrDialNil = errors.New("config: Dial cannot be nil")
+// maxRetryDuration is the max duration of time retrying of a persistent
+// connection is allowed to grow to.  This is necessary since the retry logic
+// uses a backoff mechanism which increases the interval base times
+// the number of retries that have been done.
+var maxRetryDuration = time.Minute * 1
 
-	// maxRetryDuration is the max duration of time retrying of a persistent connection is allowed to grow to.  This is necessary since the retry logic uses a backoff mechanism which increases the interval base times
+// defaultRetryDuration is the default duration of time for retrying persistent connections.
+var defaultRetryDuration = time.Second * 9
 
-	// the number of retries that have been done.
-	maxRetryDuration = time.Minute * 2
-
-	// defaultRetryDuration is the default duration of time for retrying persistent connections.
-	defaultRetryDuration = time.Second * 9
-
-	// defaultTargetOutbound is the default number of outbound connections to maintain.
-	defaultTargetOutbound = uint32(9)
-)
+// defaultTargetOutbound is the default number of outbound connections to maintain.
+var defaultTargetOutbound = uint32(18)
 
 // ConnState represents the state of the requested connection.
 type ConnState uint8
@@ -364,10 +362,10 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		select {
 		case cm.requests <- registerPending{c, done}:
 
-			// fmt.Println("chan:cm.requests <- registerPending{c, done}")
+			fmt.Println("chan:cm.requests <- registerPending{c, done}")
 		case <-cm.quit:
 
-			// fmt.Println("chan:<-cm.quit")
+			fmt.Println("chan:<-cm.quit")
 			return
 		}
 
@@ -375,10 +373,10 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		select {
 		case <-done:
 
-			// fmt.Println("chan:<-done")
+			fmt.Println("chan:<-done")
 		case <-cm.quit:
 
-			// fmt.Println("chan:<-cm.quit")
+			fmt.Println("chan:<-cm.quit")
 			return
 		}
 	}
@@ -388,20 +386,20 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		select {
 		case cm.requests <- handleFailed{c, err}:
 
-			// fmt.Println("chan:cm.requests <- handleFailed{c, err}")
+			fmt.Println("chan:cm.requests <- handleFailed{c, err}")
 		case <-cm.quit:
 
-			// fmt.Println("chan:<-cm.quit")
+			fmt.Println("chan:<-cm.quit")
 		}
 		return
 	}
 	select {
 	case cm.requests <- handleConnected{c, conn}:
 
-		// fmt.Println("chan:cm.requests <- handleConnected{c, conn}")
+		fmt.Println("chan:cm.requests <- handleConnected{c, conn}")
 	case <-cm.quit:
 
-		// fmt.Println("chan:<-cm.quit")
+		fmt.Println("chan:<-cm.quit")
 	}
 }
 
