@@ -24,9 +24,14 @@ const nodeConfigFilename = nodeAppName + confExt
 const walletAppName = "wallet"
 const walletConfigFilename = walletAppName + confExt
 
+// App is the heart of the application system, this creates and initialises it.
 var App = cli.NewApp()
-var activeNetParams *netparams.Params
+
+// DefaultHomeDir is the default location where the data directory is located
+// when none is specified.
 var DefaultHomeDir = util.AppDataDir(appName, false)
+
+var activeNetParams *netparams.Params
 var appDatadir = util.AppDataDir(appName, false)
 
 type ConfigCommon struct {
@@ -55,6 +60,7 @@ type ConfigCommon struct {
 	Torisolation bool
 }
 
+// These are in a form usable for getting a *bool
 var True, False = true, false
 
 var appConfigCommon = &ConfigCommon{
@@ -210,10 +216,10 @@ var walletConfig = walletmain.Config{
 
 var walletDataDir = "/wallet"
 
-// NewYamlSourceFromFlagAndNameFunc creates a new Yaml
+// NewSourceFromFlagAndBase creates a new Yaml
 // InputSourceContext from a provided flag name and source context.
 // If file doesn't exist, make one, empty is same as whatever is default
-func NewYamlSourceFromFlagAndNameFunc(c *cli.Context, confName, flagFileName string,
+func NewSourceFromFlagAndBase(c *cli.Context, confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
 		filePath := c.String(flagFileName)

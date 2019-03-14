@@ -88,7 +88,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _off {
 					fn := func() string {
 						o := n + " "
-						o += i.(Fatalc)()
+						o += I()
 						return o
 					}
 					Og <- Fatalc(fn)
@@ -97,7 +97,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _fatal {
 					fn := func() string {
 						o := n + " "
-						o += i.(Errorc)()
+						o += I()
 						return o
 					}
 					Og <- Errorc(fn)
@@ -106,7 +106,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _error {
 					fn := func() string {
 						o := n + " "
-						o += i.(Warnc)()
+						o += I()
 						return o
 					}
 					Og <- Warnc(fn)
@@ -115,7 +115,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _warn {
 					fn := func() string {
 						o := n + " "
-						o += i.(Infoc)()
+						o += I()
 						return o
 					}
 					Og <- Infoc(fn)
@@ -124,7 +124,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _info {
 					fn := func() string {
 						o := n + " "
-						o += i.(Debugc)()
+						o += I()
 						return o
 					}
 					Og <- Debugc(fn)
@@ -133,7 +133,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				if ss.Level > _debug {
 					fn := func() string {
 						o := n + " "
-						o += i.(Tracec)()
+						o += I()
 						return o
 					}
 					Og <- Tracec(fn)

@@ -27,7 +27,7 @@ func Main() int {
 		}
 		altsrc.InitInputSourceWithContext(
 			App.Flags,
-			NewYamlSourceFromFlagAndNameFunc(
+			NewSourceFromFlagAndBase(
 				c, podConfigFilename, "datadir"))
 		return nil
 	}
@@ -42,7 +42,7 @@ func Main() int {
 		}
 		altsrc.InitInputSourceWithContext(
 			ctlCommand.Flags,
-			NewYamlSourceFromFlagAndNameFunc(
+			NewSourceFromFlagAndBase(
 				c.Parent(), ctlConfigFilename, "datadir"))
 		return nil
 	}
@@ -57,7 +57,7 @@ func Main() int {
 		}
 		altsrc.InitInputSourceWithContext(
 			nodeCommand.Flags,
-			NewYamlSourceFromFlagAndNameFunc(
+			NewSourceFromFlagAndBase(
 				c.Parent(), nodeConfigFilename, "datadir"))
 		return nil
 	}
@@ -72,7 +72,7 @@ func Main() int {
 		}
 		altsrc.InitInputSourceWithContext(
 			walletCommand.Flags,
-			NewYamlSourceFromFlagAndNameFunc(
+			NewSourceFromFlagAndBase(
 				c.Parent(), walletConfigFilename, "datadir"))
 		return nil
 	}

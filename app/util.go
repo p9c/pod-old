@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"path/filepath"
@@ -10,29 +9,29 @@ import (
 	"git.parallelcoin.io/pod/cmd/node"
 )
 
-// CheckCreateDir checks that the path exists and is a directory. If path does not exist, it is created.
-func CheckCreateDir(path string) error {
+// // CheckCreateDir checks that the path exists and is a directory. If path does not exist, it is created.
+// func CheckCreateDir(path string) error {
 
-	if fi, err := os.Stat(path); err != nil {
+// 	if fi, err := os.Stat(path); err != nil {
 
-		if os.IsNotExist(err) {
+// 		if os.IsNotExist(err) {
 
-			// Attempt data directory creation
-			if err = os.MkdirAll(path, 0700); err != nil {
+// 			// Attempt data directory creation
+// 			if err = os.MkdirAll(path, 0700); err != nil {
 
-				return fmt.Errorf("cannot create directory: %s", err)
-			}
-		} else {
-			return fmt.Errorf("error checking directory: %s", err)
-		}
-	} else {
-		if !fi.IsDir() {
+// 				return fmt.Errorf("cannot create directory: %s", err)
+// 			}
+// 		} else {
+// 			return fmt.Errorf("error checking directory: %s", err)
+// 		}
+// 	} else {
+// 		if !fi.IsDir() {
 
-			return fmt.Errorf("path '%s' is not a directory", path)
-		}
-	}
-	return nil
-}
+// 			return fmt.Errorf("path '%s' is not a directory", path)
+// 		}
+// 	}
+// 	return nil
+// }
 
 // EnsureDir checks a file could be written to a path, creates the directories as needed
 func EnsureDir(fileName string) {
