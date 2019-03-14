@@ -1,6 +1,8 @@
 // Parallelcoin Pod is a multi-function universal binary that does all the things.
 //
-// Parallelcoin Pod - this is the heart of configuration and coordination of
+// Parallelcoin Pod
+//
+// This is the heart of configuration and coordination of
 // the parts that compose the parallelcoin Pod - Ctl, Node and Wallet, and
 // the extended, combined Shell and the webview GUI.
 //
