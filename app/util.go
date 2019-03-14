@@ -8,13 +8,10 @@ import (
 	"strings"
 
 	"git.parallelcoin.io/pod/cmd/node"
-	"github.com/tucnak/climax"
 )
 
 // CheckCreateDir checks that the path exists and is a directory. If path does not exist, it is created.
-func CheckCreateDir(
-	path string,
-) error {
+func CheckCreateDir(path string) error {
 
 	if fi, err := os.Stat(path); err != nil {
 
@@ -38,9 +35,7 @@ func CheckCreateDir(
 }
 
 // EnsureDir checks a file could be written to a path, creates the directories as needed
-func EnsureDir(
-	fileName string,
-) {
+func EnsureDir(fileName string) {
 
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
@@ -63,26 +58,8 @@ func FileExists(filePath string) bool {
 	return true
 }
 
-// GenFlag allows a flag to be more concisely declared
-func GenFlag(
-	name,
-	usage,
-	help string,
-) climax.Flag {
-	return climax.Flag{
-		Name:     name,
-		Usage:    "--" + name + `="` + usage + `"`,
-		Help:     help,
-		Variable: true,
-	}
-}
-
 // NormalizeAddress reads and corrects an address if it is missing pieces
-func NormalizeAddress(
-	addr,
-	defaultPort string,
-	out *string,
-) {
+func NormalizeAddress(addr, defaultPort string, out *string) {
 
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
@@ -99,11 +76,7 @@ func NormalizeAddress(
 }
 
 // NormalizeAddresses reads and collects a space separated list of addresses contained in a string
-func NormalizeAddresses(
-	addrs string,
-	defaultPort string,
-	out *[]string,
-) {
+func NormalizeAddresses(addrs string, defaultPort string, out *[]string) {
 
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")
@@ -127,9 +100,7 @@ func NormalizeAddresses(
 }
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
-func minUint32(
-	a, b uint32,
-) uint32 {
+func minUint32(a, b uint32) uint32 {
 
 	if a < b {
 
@@ -139,9 +110,7 @@ func minUint32(
 }
 
 // CleanAndExpandPath expands environment variables and leading ~ in the passed path, cleans the result, and returns it.
-func CleanAndExpandPath(
-	path string,
-) string {
+func CleanAndExpandPath(path string) string {
 
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {

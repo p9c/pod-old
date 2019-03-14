@@ -27,3 +27,10 @@ func (r *Registry) Get(name string) (out *SubSystem) {
 	}
 	return
 }
+
+func (r *Registry) SetAllLevels(level string) {
+	loggers := r.List()
+	for _, x := range loggers {
+		r.Get(x).SetLevel(level)
+	}
+}

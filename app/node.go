@@ -94,6 +94,7 @@ func nodeHandle(c *cli.Context) error {
 	NormalizeStringSliceAddresses(nodeConfig.Whitelists, port)
 	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
 
+	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 	_ = podHandle(c)
 	if appConfigCommon.Save {
 		appConfigCommon.Save = false
