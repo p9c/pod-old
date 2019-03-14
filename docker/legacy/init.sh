@@ -11,7 +11,7 @@ alias   .where="echo $DATADIR"
          ### [ show where the current instance activated by init.sh lives ]
 alias      .cd="cd $DATADIR"
          ### [ change working directory to instance folder ]
-alias     .run="sudo docker run --network=\"host\" -v $DATADIR/data:/root/.parallelcoin -d=true -p 11047:11047 -p 11048:11048 -p 21047:21047 -p 21048:21048 --name $NAME $NAME"
+alias     .run="sudo docker run --network=\"host\" -v $DATADIR/data:/root/.parallelcoin -d=true -p 11047:11047 -p 11048:11048 -p 21047:21047 -p 21048:21048 --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined --name $NAME $NAME"
          ### [ start up the container (after building, to restart. for a'.stop'ed container, use '.start') ]
 alias   .start="sudo docker start $NAME"
          ### [ start the container that was previously '.stop'ed ]

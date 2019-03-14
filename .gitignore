@@ -24,3 +24,5 @@ test/*
 testnet/*
 test/pod.yaml
 cmd/pod/pod
+docker/legacy-2/data/*
+*.o
