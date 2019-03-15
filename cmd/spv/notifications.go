@@ -44,14 +44,10 @@ type forAllPeersMsg struct {
 	closure func(*ServerPeer)
 }
 
-
 // TODO: General - abstract out more of blockmanager into queries. It'll make
-
 // this way more maintainable and usable.
 
-
 // handleQuery is the central handler for all queries and commands from other
-
 // goroutines related to peer state.
 func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
@@ -83,7 +79,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 	case connectNodeMsg:
 
 		// TODO: duplicate oneshots?
-
 		// Limit max number of total peers.
 		if state.Count() >= MaxPeers {
 			msg.reply <- errors.New("max peers reached")
@@ -106,7 +101,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			return
 		}
 
-
 		// TODO: if too many, nuke a non-perm peer.
 		go s.connManager.Connect(&connmgr.ConnReq{
 			Addr:      netAddr,
@@ -116,7 +110,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 	case removeNodeMsg:
 		found := disconnectPeer(state.persistentPeers, msg.cmp, func(sp *ServerPeer) {
-
 
 			// Keep group counts ok since we remove from
 
@@ -138,7 +131,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			msg.reply <- 0
 		}
 
-
 	// Request a list of the persistent (added) peers.
 	case getAddedNodesMsg:
 
@@ -153,7 +145,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 		// Check outbound peers.
 		found := disconnectPeer(state.outboundPeers, msg.cmp, func(sp *ServerPeer) {
-
 
 			// Keep group counts ok since we remove from
 
@@ -196,7 +187,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 	}
 }
 
-
 // ConnectedCount returns the number of currently connected peers.
 func (s *ChainService) ConnectedCount() int32 {
 	replyChan := make(chan int32)
@@ -216,7 +206,6 @@ func (s *ChainService) ConnectedCount() int32 {
 
 }
 
-
 // OutboundGroupCount returns the number of peers connected to the given
 
 // outbound group key.
@@ -230,7 +219,6 @@ func (s *ChainService) OutboundGroupCount(key string) int {
 		return 0
 	}
 }
-
 
 // AddedNodeInfo returns an array of btcjson.GetAddedNodeInfoResult structures
 
@@ -246,7 +234,6 @@ func (s *ChainService) AddedNodeInfo() []*ServerPeer {
 	}
 }
 
-
 // Peers returns an array of all connected peers.
 func (s *ChainService) Peers() []*ServerPeer {
 	replyChan := make(chan []*ServerPeer)
@@ -258,7 +245,6 @@ func (s *ChainService) Peers() []*ServerPeer {
 		return nil
 	}
 }
-
 
 // DisconnectNodeByAddr disconnects a peer by target address. Both outbound and
 
@@ -279,7 +265,6 @@ func (s *ChainService) DisconnectNodeByAddr(addr string) error {
 	}
 }
 
-
 // DisconnectNodeByID disconnects a peer by target node id. Both outbound and
 
 // inbound nodes will be searched for the target node. An error message will be
@@ -299,7 +284,6 @@ func (s *ChainService) DisconnectNodeByID(id int32) error {
 	}
 }
 
-
 // RemoveNodeByAddr removes a peer from the list of persistent peers if
 
 // present. An error will be returned if the peer was not found.
@@ -317,7 +301,6 @@ func (s *ChainService) RemoveNodeByAddr(addr string) error {
 	}
 }
 
-
 // RemoveNodeByID removes a peer by node ID from the list of persistent peers
 
 // if present. An error will be returned if the peer was not found.
@@ -334,7 +317,6 @@ func (s *ChainService) RemoveNodeByID(id int32) error {
 		return nil
 	}
 }
-
 
 // ConnectNode adds `addr' as a new outbound peer. If permanent is true then the
 
@@ -355,7 +337,6 @@ func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 		return nil
 	}
 }
-
 
 // ForAllPeers runs a closure over all peers (outbound and persistent) to which
 

@@ -722,10 +722,7 @@ func (
 }
 
 // handleQuery is the central handler for all queries and commands from other goroutines related to peer state.
-func (
-	s *server,
-) handleQuery(
-	state *peerState, querymsg interface{}) {
+func (s *server) handleQuery(state *peerState, querymsg interface{}) {
 
 	switch msg := querymsg.(type) {
 

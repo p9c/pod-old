@@ -380,7 +380,7 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 			return
 		}
 	}
-	log <- cl.Debug{"attempting to connect to", c}
+	log <- cl.Debug{"attempting to connect to", c.Addr}
 	conn, err := cm.cfg.Dial(c.Addr)
 	log <- cl.Trace{cl.Ine(&err), c.Addr}
 	if err != nil {
@@ -508,10 +508,10 @@ func (cm *ConnManager) Stop() {
 }
 
 // New returns a new connection manager. Use Start to start connecting to the network.
-func New(
-	cfg *Config) (*ConnManager, error) {
+func New(cfg *Config) (*ConnManager, error) {
 
 	if cfg.Dial == nil {
+		log <- cl.Error{"cfg.Dial is nil"}
 		return nil, ErrDialNil
 	}
 
