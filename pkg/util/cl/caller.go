@@ -5,12 +5,8 @@ import (
 	"runtime"
 )
 
-// Ine (cl.Ine) prefixes error string with  location in source code
-var Ine = func(e *error) error {
-	s := (*e).Error()
-	_, file, line, ok := runtime.Caller(1)
-	if ok {
-		*e = fmt.Errorf("[%s:%d]:'%s'", file, line, s)
-	}
-	return *e
+// Ine (cl.Ine) returns caller location in source code
+var Ine = func() error {
+	_, file, line, _ := runtime.Caller(1)
+	return fmt.Errorf("[%s:%d]", file, line)
 }

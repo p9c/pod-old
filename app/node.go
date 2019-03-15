@@ -201,7 +201,7 @@ func nodeHandle(c *cli.Context) error {
 		for _, addr := range *nodeConfig.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
-				cl.Ine(&err)
+				err = fmt.Errorf("%s '%s'", cl.Ine(), err.Error())
 				ip = net.ParseIP(addr)
 				if ip == nil {
 					str := err.Error() + " %s: The whitelist value of '%s' is invalid"
@@ -480,6 +480,7 @@ func nodeHandle(c *cli.Context) error {
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
 	if *nodeConfig.Proxy != "" {
+		log <- cl.Info{"we are loading a proxy!"}
 		_, _, err := net.SplitHostPort(*nodeConfig.Proxy)
 		if err != nil {
 			str := "%s: Proxy address '%s' is invalid: %v"
@@ -488,31 +489,30 @@ func nodeHandle(c *cli.Context) error {
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
-	}
 
-	// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overriddenode.
-	torIsolation := false
-	if *nodeConfig.TorIsolation &&
-		*nodeConfig.OnionProxy == "" &&
-		(*nodeConfig.ProxyUser != "" ||
-			*nodeConfig.ProxyPass != "") {
-		torIsolation = true
-		fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
-			"overriding specified proxy user credentials")
-	}
-	proxy := &socks.Proxy{
-		Addr:         *nodeConfig.Proxy,
-		Username:     *nodeConfig.ProxyUser,
-		Password:     *nodeConfig.ProxyPass,
-		TorIsolation: torIsolation,
-	}
-	StateCfg.Dial = proxy.DialTimeout
-
-	// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
-	if *nodeConfig.Onion &&
-		*nodeConfig.OnionProxy == "" {
-		StateCfg.Lookup = func(host string) ([]net.IP, error) {
-			return connmgr.TorLookupIP(host, *nodeConfig.Proxy)
+		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
+		torIsolation := false
+		if *nodeConfig.TorIsolation &&
+			*nodeConfig.OnionProxy == "" &&
+			(*nodeConfig.ProxyUser != "" ||
+				*nodeConfig.ProxyPass != "") {
+			torIsolation = true
+			log <- cl.Warn{
+				"Tor isolation set -- overriding specified proxy user credentials"}
+		}
+		proxy := &socks.Proxy{
+			Addr:         *nodeConfig.Proxy,
+			Username:     *nodeConfig.ProxyUser,
+			Password:     *nodeConfig.ProxyPass,
+			TorIsolation: torIsolation,
+		}
+		StateCfg.Dial = proxy.DialTimeout
+		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
+		if *nodeConfig.Onion &&
+			*nodeConfig.OnionProxy == "" {
+			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+				return connmgr.TorLookupIP(host, *nodeConfig.Proxy)
+			}
 		}
 	}
 

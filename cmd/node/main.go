@@ -167,17 +167,18 @@ func Main(
 		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
 		return err
 	}
-	interrupt.AddHandler(func() {
+	interrupt.AddHandler(
+		func() {
+			log <- cl.Inf("gracefully shutting down the server...")
+			e := server.Stop()
+			if e != nil {
 
-		log <- cl.Inf("gracefully shutting down the server...")
-		e := server.Stop()
-		if e != nil {
-
-			log <- cl.Warn{"failed to stop server", e}
-		}
-		server.WaitForShutdown()
-		log <- cl.Inf("server shutdown complete")
-	})
+				log <- cl.Warn{"failed to stop server", e}
+			}
+			server.WaitForShutdown()
+			log <- cl.Inf("server shutdown complete")
+		},
+	)
 	server.Start()
 	if serverChan != nil {
 

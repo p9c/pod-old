@@ -24,6 +24,7 @@ import (
 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/pod/pkg/peer"
 	"git.parallelcoin.io/pod/pkg/util"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -1143,7 +1144,12 @@ func podDial(
 			DefaultConnectTimeout)
 	}
 
-	return StateCfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
+	log <- cl.Trace{"StateCfg.Dial", addr.Network(), addr.String(), DefaultConnectTimeout}
+	con, er := StateCfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
+	if er != nil {
+		log <- cl.Trace{con, er}
+	}
+	return con, er
 }
 
 // podLookup resolves the IP of the given host using the correct DNS lookup function depending on the configuration options.  For example, addresses will be resolved using tor when the --proxy flag was specified unless --noonion was also specified in which case the normal system DNS resolver will be used. Any attempt to resolve a tor address (.onion) will return an error since they are not intended to be resolved outside of the tor proxy.

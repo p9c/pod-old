@@ -2652,36 +2652,45 @@ func newPeerConfig(
 
 // newServer returns a new pod server configured to listen on addr for the bitcoin network type specified by chainParams.  Use start to begin accepting connections from peers.
 func newServer(
-	listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interruptChan <-chan struct{}, algo string) (*server, error) {
+	listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interruptChan <-chan struct{}, algo string,
+) (*server, error) {
 
 	services := defaultServices
 	if *cfg.NoPeerBloomFilters {
+
 		services &^= wire.SFNodeBloom
 	}
 	if *cfg.NoCFilters {
+
 		services &^= wire.SFNodeCF
 	}
 	amgr := addrmgr.New(*cfg.DataDir, podLookup)
 	var listeners []net.Listener
 	var nat NAT
 	if !*cfg.DisableListen {
+
 		var err error
 		listeners, nat, err = initListeners(amgr, listenAddrs, services)
 		if err != nil {
+
 			return nil, err
 		}
 		if len(listeners) == 0 {
+
 			return nil, errors.New("no valid listen address")
 		}
 	}
 	nthr := uint32(runtime.NumCPU())
 	var thr uint32
 	if *cfg.GenThreads == -1 || thr > nthr {
+
 		thr = uint32(nthr)
 	} else {
+
 		thr = uint32(*cfg.GenThreads)
 	}
 	s := server{
+
 		chainParams:          chainParams,
 		addrManager:          amgr,
 		newPeers:             make(chan *serverPeer, *cfg.MaxPeers),
@@ -2709,10 +2718,12 @@ func newServer(
 	// CAUTION: the txindex needs to be first in the indexes array because the addrindex uses data from the txindex during catchup.  If the addrindex is run first, it may not have the transactions from the current block indexed.
 	var indexes []indexers.Indexer
 	if *cfg.TxIndex || *cfg.AddrIndex {
+
 		// Enable transaction index if address index is enabled since it requires it.
 		if !*cfg.TxIndex {
-			log <- cl.Infof{"transaction index enabled because it " +
-				"is required by the address index"}
+
+			log <- cl.Infof{
+				"transaction index enabled because it is required by the address index"}
 			*cfg.TxIndex = true
 		} else {
 			log <- cl.Info{"transaction index is enabled"}
@@ -2726,6 +2737,7 @@ func newServer(
 		indexes = append(indexes, s.addrIndex)
 	}
 	if !*cfg.NoCFilters {
+
 		log <- cl.Info{"committed filter index is enabled"}
 		s.cfIndex = indexers.NewCfIndex(db, chainParams)
 		indexes = append(indexes, s.cfIndex)
@@ -2734,57 +2746,75 @@ func newServer(
 	// Create an index manager if any of the optional indexes are enabled.
 	var indexManager blockchain.IndexManager
 	if len(indexes) > 0 {
+
 		indexManager = indexers.NewManager(db, indexes)
 	}
 
 	// Merge given checkpoints with the default ones unless they are disabled.
 	var checkpoints []chaincfg.Checkpoint
 	if !*cfg.DisableCheckpoints {
-		checkpoints = mergeCheckpoints(s.chainParams.Checkpoints, StateCfg.AddedCheckpoints)
+
+		checkpoints = mergeCheckpoints(
+			s.chainParams.Checkpoints, StateCfg.AddedCheckpoints)
 	}
 
 	// Create a new block chain instance with the appropriate configuration.
 	var err error
-	s.chain, err = blockchain.New(&blockchain.Config{
-		DB:           s.db,
-		Interrupt:    interruptChan,
-		ChainParams:  s.chainParams,
-		Checkpoints:  checkpoints,
-		TimeSource:   s.timeSource,
-		SigCache:     s.sigCache,
-		IndexManager: indexManager,
-		HashCache:    s.hashCache,
-	})
+	s.chain, err = blockchain.New(
+
+		&blockchain.Config{
+
+			DB:           s.db,
+			Interrupt:    interruptChan,
+			ChainParams:  s.chainParams,
+			Checkpoints:  checkpoints,
+			TimeSource:   s.timeSource,
+			SigCache:     s.sigCache,
+			IndexManager: indexManager,
+			HashCache:    s.hashCache,
+		},
+	)
 	if err != nil {
+
 		return nil, err
 	}
 	s.chain.DifficultyAdjustments = make(map[string]float64)
 
 	// Search for a FeeEstimator state in the database. If none can be found or if it cannot be loaded, create a new one.
-	db.Update(func(tx database.Tx) error {
+	e := db.Update(func(tx database.Tx) error {
 		metadata := tx.Metadata()
 		feeEstimationData := metadata.Get(mempool.EstimateFeeDatabaseKey)
 		if feeEstimationData != nil {
 			// delete it from the database so that we don't try to restore the same thing again somehow.
-			metadata.Delete(mempool.EstimateFeeDatabaseKey)
+			e := metadata.Delete(mempool.EstimateFeeDatabaseKey)
+			if e != nil {
+				return e
+			}
 			// If there is an error, log it and make a new fee estimator.
 			var err error
 			s.feeEstimator, err = mempool.RestoreFeeEstimator(feeEstimationData)
 			if err != nil {
-				log <- cl.Errorf{"Failed to restore fee estimator %v", err}
+				return fmt.Errorf("Failed to restore fee estimator %v", err)
 			}
 		}
 		return nil
 	})
+	if e != nil {
+		log <- cl.Error{e}
+	}
 
 	// If no feeEstimator has been found, or if the one that has been found is behind somehow, create a new one and start over.
 	if s.feeEstimator == nil || s.feeEstimator.LastKnownHeight() != s.chain.BestSnapshot().Height {
+
 		s.feeEstimator = mempool.NewFeeEstimator(
 			mempool.DefaultEstimateFeeMaxRollback,
-			mempool.DefaultEstimateFeeMinRegisteredBlocks)
+			mempool.DefaultEstimateFeeMinRegisteredBlocks,
+		)
 	}
 	txC := mempool.Config{
+
 		Policy: mempool.Policy{
+
 			DisableRelayPriority: *cfg.NoRelayPriority,
 			AcceptNonStd:         *cfg.RelayNonStd,
 			FreeTxRelayLimit:     *cfg.FreeTxRelayLimit,
@@ -2794,10 +2824,14 @@ func newServer(
 			MinRelayTxFee:        StateCfg.ActiveMinRelayTxFee,
 			MaxTxVersion:         2,
 		},
-		ChainParams:    chainParams,
-		FetchUtxoView:  s.chain.FetchUtxoView,
-		BestHeight:     func() int32 { return s.chain.BestSnapshot().Height },
-		MedianTimePast: func() time.Time { return s.chain.BestSnapshot().MedianTime },
+		ChainParams:   chainParams,
+		FetchUtxoView: s.chain.FetchUtxoView,
+		BestHeight: func() int32 {
+			return s.chain.BestSnapshot().Height
+		},
+		MedianTimePast: func() time.Time {
+			return s.chain.BestSnapshot().MedianTime
+		},
 		CalcSequenceLock: func(tx *util.Tx, view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
 
 			return s.chain.CalcSequenceLock(tx, view, true)
@@ -2809,15 +2843,20 @@ func newServer(
 		FeeEstimator:       s.feeEstimator,
 	}
 	s.txMemPool = mempool.New(&txC)
-	s.syncManager, err = netsync.New(&netsync.Config{
-		PeerNotifier:       &s,
-		Chain:              s.chain,
-		TxMemPool:          s.txMemPool,
-		ChainParams:        s.chainParams,
-		DisableCheckpoints: *cfg.DisableCheckpoints,
-		MaxPeers:           *cfg.MaxPeers,
-		FeeEstimator:       s.feeEstimator,
-	})
+	s.syncManager, err =
+		netsync.New(
+
+			&netsync.Config{
+
+				PeerNotifier:       &s,
+				Chain:              s.chain,
+				TxMemPool:          s.txMemPool,
+				ChainParams:        s.chainParams,
+				DisableCheckpoints: *cfg.DisableCheckpoints,
+				MaxPeers:           *cfg.MaxPeers,
+				FeeEstimator:       s.feeEstimator,
+			},
+		)
 	if err != nil {
 		return nil, err
 	}
@@ -2904,15 +2943,18 @@ func newServer(
 	if *cfg.MaxPeers < targetOutbound {
 		targetOutbound = *cfg.MaxPeers
 	}
-	cmgr, err := connmgr.New(&connmgr.Config{
-		Listeners:      listeners,
-		OnAccept:       s.inboundPeerConnected,
-		RetryDuration:  connectionRetryInterval,
-		TargetOutbound: uint32(targetOutbound),
-		Dial:           podDial,
-		OnConnection:   s.outboundPeerConnected,
-		GetNewAddress:  newAddressFunc,
-	})
+	cmgr, err :=
+		connmgr.New(
+			&connmgr.Config{
+				Listeners:      listeners,
+				OnAccept:       s.inboundPeerConnected,
+				RetryDuration:  connectionRetryInterval,
+				TargetOutbound: uint32(targetOutbound),
+				Dial:           podDial,
+				OnConnection:   s.outboundPeerConnected,
+				GetNewAddress:  newAddressFunc,
+			},
+		)
 	if err != nil {
 		return nil, err
 	}
@@ -2924,14 +2966,19 @@ func newServer(
 		permanentPeers = *cfg.AddPeers
 	}
 	for _, addr := range permanentPeers {
+
 		netAddr, err := addrStringToNetAddr(addr)
 		if err != nil {
+
 			return nil, err
 		}
-		go s.connManager.Connect(&connmgr.ConnReq{
-			Addr:      netAddr,
-			Permanent: true,
-		})
+		go s.connManager.Connect(
+			&connmgr.ConnReq{
+
+				Addr:      netAddr,
+				Permanent: true,
+			},
+		)
 	}
 	if !*cfg.DisableRPC {
 		/*	Setup listeners for the configured RPC listen addresses and
@@ -2983,8 +3030,7 @@ func newServer(
 }
 
 // newServerPeer returns a new serverPeer instance. The peer needs to be set by the caller.
-func newServerPeer(
-	s *server, isPersistent bool) *serverPeer {
+func newServerPeer(s *server, isPersistent bool) *serverPeer {
 	return &serverPeer{
 		server:         s,
 		persistent:     isPersistent,

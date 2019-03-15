@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be done when executing a script pair.
@@ -169,7 +170,21 @@ func (vm *Engine) executeOpcode(pop *parsedOpcode) error {
 
 // disasm is a helper function to produce the output for DisasmPC and DisasmScript.  It produces the opcode prefixed by the program counter at the provided position in the script.  It does no error checking and leaves that to the caller to provide a valid offset.
 func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
-	return fmt.Sprintf("%02x:%04x: %s", scriptIdx, scriptOff,
+
+	if scriptIdx >= len(vm.scripts) {
+
+		log <- cl.Warn{"disasm array index out of bounds"}
+		return ""
+		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
+	}
+	if scriptOff >= len(vm.scripts[scriptIdx]) {
+
+		log <- cl.Warn{"disasm array index out of bounds"}
+		return ""
+		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
+	}
+	return fmt.Sprintf(
+		"%02x:%04x: %s", scriptIdx, scriptOff,
 		vm.scripts[scriptIdx][scriptOff].print(false))
 }
 
@@ -363,7 +378,6 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 
 // Step will execute the next instruction and move the program counter to the next opcode in the script, or the next script if the current has ended.  Step will return true in the case that the last opcode was successfully executed. The result of calling Step or any other method is undefined if an error is returned.
 func (vm *Engine) Step() (done bool, err error) {
-
 
 	// Verify that it is pointing to a valid script address.
 	err = vm.validPC()
@@ -700,7 +714,6 @@ func getStack(
 func setStack(
 	stack *stack, data [][]byte) {
 
-
 	// This can not error. Only errors are for invalid arguments.
 	_ = stack.DropN(stack.Depth())
 	for i := range data {
@@ -734,7 +747,6 @@ func (vm *Engine) SetAltStack(data [][]byte) {
 func NewEngine(
 	scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags,
 	sigCache *SigCache, hashCache *TxSigHashes, inputAmount int64) (*Engine, error) {
-
 
 	// The provided transaction input index must refer to a valid input.
 	if txIdx < 0 || txIdx >= len(tx.TxIn) {
