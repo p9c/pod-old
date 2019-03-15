@@ -19,6 +19,7 @@ import (
 	"git.parallelcoin.io/pod/pkg/util"
 	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"github.com/btcsuite/go-socks/socks"
+	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )
@@ -43,12 +44,25 @@ func nodeHandleSave() {
 }
 
 func nodeHandle(c *cli.Context) error {
+	Log.SetLevel("debug")
+	log <- cl.Debug{"running node"}
+
 	*nodeConfig.DataDir = filepath.Join(
 		appConfigCommon.Datadir,
 		nodeAppName)
 	*nodeConfig.ConfigFile = filepath.Join(
 		*nodeConfig.DataDir,
 		nodeConfigFilename)
+	ncb, e := ioutil.ReadFile(*nodeConfig.ConfigFile)
+	if e != nil {
+		panic(e)
+	}
+	ncf := &node.Config{}
+	e = yaml.Unmarshal(ncb, ncf)
+	if e != nil {
+		panic(e)
+	}
+	nodeConfig = ncf
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""
@@ -62,27 +76,27 @@ func nodeHandle(c *cli.Context) error {
 	network := c.Parent().String("network")
 	switch network {
 	case "testnet", "testnet3", "t":
-		*nodeConfig.TestNet3 = true
-		*nodeConfig.SimNet = false
-		*nodeConfig.RegressionTest = false
+		nodeConfig.TestNet3 = &True
+		nodeConfig.SimNet = &False
+		nodeConfig.RegressionTest = &False
 		activeNetParams = &netparams.TestNet3Params
 	case "regtestnet", "regressiontest", "r":
-		*nodeConfig.TestNet3 = false
-		*nodeConfig.SimNet = false
-		*nodeConfig.RegressionTest = true
+		nodeConfig.TestNet3 = &False
+		nodeConfig.SimNet = &False
+		nodeConfig.RegressionTest = &True
 		activeNetParams = &netparams.RegressionTestParams
 	case "simnet", "s":
-		*nodeConfig.TestNet3 = false
-		*nodeConfig.SimNet = true
-		*nodeConfig.RegressionTest = false
+		nodeConfig.TestNet3 = &False
+		nodeConfig.SimNet = &True
+		nodeConfig.RegressionTest = &False
 		activeNetParams = &netparams.SimNetParams
 	default:
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for node")
 		}
-		*nodeConfig.TestNet3 = false
-		*nodeConfig.SimNet = false
-		*nodeConfig.RegressionTest = false
+		nodeConfig.TestNet3 = &False
+		nodeConfig.SimNet = &False
+		nodeConfig.RegressionTest = &False
 		activeNetParams = &netparams.MainNetParams
 
 	}
@@ -97,6 +111,7 @@ func nodeHandle(c *cli.Context) error {
 	NormalizeStringSliceAddresses(nodeConfig.Whitelists, port)
 	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
 
+	log <- cl.Debug{spew.Sdump(nodeConfig)}
 	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 	_ = podHandle(c)
 	if appConfigCommon.Save {
@@ -250,7 +265,7 @@ func nodeHandle(c *cli.Context) error {
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(*nodeConfig.Listeners) == 0 {
 		*nodeConfig.Listeners = []string{
-			net.JoinHostPort("localhost", activeNetParams.DefaultPort),
+			net.JoinHostPort("127.0.0.1", activeNetParams.DefaultPort),
 		}
 	}
 
@@ -269,7 +284,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
-		fmt.Fprintln(os.Stderr, usageMessage)
+		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
 

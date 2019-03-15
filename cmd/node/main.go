@@ -302,8 +302,8 @@ func removeRegressionDB(
 ) error {
 
 	// Don't do anything if not in regression test mode.
-	if *cfg.RegressionTest {
-
+	if !*cfg.RegressionTest {
+		log <- cl.Debug{"not in regression mode"}
 		return nil
 	}
 

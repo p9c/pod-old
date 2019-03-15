@@ -470,6 +470,7 @@ func (vm *Engine) Execute() (err error) {
 			var o string
 			dis, err := vm.DisasmPC()
 			if err != nil {
+				log <- cl.Debug{"stepping (", err, ")"}
 				o = fmt.Sprint("stepping (", err, ")")
 			}
 			o = fmt.Sprint("stepping ", dis)

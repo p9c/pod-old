@@ -3048,6 +3048,7 @@ func parseListeners(
 
 	netAddrs := make([]net.Addr, 0, len(addrs)*2)
 	for _, addr := range addrs {
+		log <- cl.Debug{"addr", addr}
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil {
 			// Shouldn't happen due to already being normalized.

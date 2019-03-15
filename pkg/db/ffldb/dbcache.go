@@ -15,10 +15,10 @@ import (
 const (
 
 	// defaultCacheSize is the default size for the database cache.
-	defaultCacheSize = 50 * 1024 * 1024 // 100 MB
+	defaultCacheSize = 100 * 1024 * 1024 // 100 MB
 
 	// defaultFlushSecs is the default number of seconds to use as a threshold in between database cache flushes when the cache size has not been exceeded.
-	defaultFlushSecs = 30 // 0.5 minutes
+	defaultFlushSecs = 300 // 5 minutes
 
 	// ldbBatchHeaderSize is the size of a leveldb batch header which includes the sequence header and record counter.
 

@@ -18,11 +18,8 @@ docker/legacy/data/*
 test/docker/legacy/data/
 bin/pod
 bin/bld
-test?/*
-test??/*
-test/*
-testnet/*
-test/pod.yaml
-cmd/pod/pod
+test*/*
+pod
+pod.log
 docker/legacy-2/data/*
 *.o

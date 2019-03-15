@@ -92,7 +92,7 @@ var defaultDatadir = "~/.pod"
 
 var guiDataDir = "/gui"
 
-var nodeConfig = node.Config{
+var nodeConfig = &node.Config{
 
 	RPCCert:              &appConfigCommon.RPCcert,
 	RPCKey:               &appConfigCommon.RPCkey,
@@ -205,7 +205,7 @@ var walletConfig = walletmain.Config{
 	BanDuration:              new(time.Duration),
 	BanThreshold:             new(int),
 	OneTimeTLSKey:            new(bool),
-	LegacyRPCListeners:       &cli.StringSlice{"localhost:11048"},
+	LegacyRPCListeners:       &cli.StringSlice{"127.0.0.1:11048"},
 	LegacyRPCMaxClients:      new(int),
 	LegacyRPCMaxWebsockets:   new(int),
 	Username:                 new(string),

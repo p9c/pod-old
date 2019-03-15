@@ -9,14 +9,17 @@ import (
 
 	"git.parallelcoin.io/pod/cmd/node"
 	"git.parallelcoin.io/pod/cmd/node/mempool"
+	cl "git.parallelcoin.io/pod/pkg/util/cl"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 func Main() int {
+	log <- cl.Debug{"starting up node"}
 	datadir := ""
 	App.Before = func(c *cli.Context) error {
 		datadir = c.String("datadir")
+		log <- cl.Debug{"App.Before"}
 		configfilepath := filepath.Join(datadir, podConfigFilename)
 		if !FileExists(configfilepath) {
 			EnsureDir(configfilepath)
@@ -25,10 +28,14 @@ func Main() int {
 				panic(e)
 			}
 		}
+		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+			src, err := altsrc.NewYamlSourceFromFile(filepath.Join(datadir, podConfigFilename))
+			return src, err
+		}
 		altsrc.InitInputSourceWithContext(
 			App.Flags,
-			NewSourceFromFlagAndBase(
-				c, podConfigFilename, "datadir"))
+			src,
+		)
 		return nil
 	}
 	ctlCommand.Before = func(c *cli.Context) error {
@@ -40,14 +47,18 @@ func Main() int {
 				panic(e)
 			}
 		}
+		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
+			return src, err
+		}
 		altsrc.InitInputSourceWithContext(
 			ctlCommand.Flags,
-			NewSourceFromFlagAndBase(
-				c.Parent(), ctlConfigFilename, "datadir"))
+			src)
 		return nil
 	}
 	nodeCommand.Before = func(c *cli.Context) error {
-		configfilepath := filepath.Join(filepath.Join(datadir, nodeAppName), nodeConfigFilename)
+		configfilepath :=
+			filepath.Join(filepath.Join(datadir, nodeAppName), nodeConfigFilename)
 		if !FileExists(configfilepath) {
 			EnsureDir(configfilepath)
 			if e := ioutil.WriteFile(
@@ -55,10 +66,13 @@ func Main() int {
 				panic(e)
 			}
 		}
+		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
+			return src, err
+		}
 		altsrc.InitInputSourceWithContext(
 			nodeCommand.Flags,
-			NewSourceFromFlagAndBase(
-				c.Parent(), nodeConfigFilename, "datadir"))
+			src)
 		return nil
 	}
 	walletCommand.Before = func(c *cli.Context) error {
@@ -70,12 +84,16 @@ func Main() int {
 				panic(e)
 			}
 		}
+		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
+			return src, err
+		}
 		altsrc.InitInputSourceWithContext(
 			walletCommand.Flags,
-			NewSourceFromFlagAndBase(
-				c.Parent(), walletConfigFilename, "datadir"))
+			src)
 		return nil
 	}
+	log <- cl.Debug{"running App"}
 	e := App.Run(os.Args)
 	if e != nil {
 		fmt.Println("ERROR:", e)
@@ -92,139 +110,185 @@ func init() {
 		Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 		Flags: []cli.Flag{
-			altsrc.NewStringFlag(cli.StringFlag{
-				Name:        "datadir, D",
-				Value:       appDatadir,
-				Usage:       "sets the data directory base for a pod instance",
-				EnvVar:      "POD_DATADIR",
-				Destination: &appConfigCommon.Datadir,
-			}),
-			cli.BoolFlag{
-				Name:        "save, i",
-				Usage:       "save settings as effective from invocation",
-				Destination: &appConfigCommon.Save,
-			},
-			cli.StringFlag{
-				Name:        "loglevel, l",
-				Value:       "info",
-				Usage:       "sets the base for all subsystem logging",
-				EnvVar:      "POD_LOGLEVEL",
-				Destination: &appConfigCommon.Loglevel,
-			},
-			cli.StringSliceFlag{
-				Name:  "subsystems",
-				Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available with list syntax",
-				Value: &appConfigCommon.Subsystems,
-			},
-			cli.StringFlag{
-				Name:        "network, n",
-				Value:       "mainnet",
-				Usage:       "connect to mainnet/testnet3/simnet",
-				Destination: &appConfigCommon.Network,
-			},
-			cli.StringFlag{
-				Name:        "serveruser",
-				Value:       "server",
-				Usage:       "sets the username for services",
-				Destination: &appConfigCommon.ServerUser,
-			},
-			cli.StringFlag{
-				Name:        "serverpass",
-				Value:       "pa55word",
-				Usage:       "sets the password for services",
-				Destination: &appConfigCommon.ServerPass,
-			},
-			cli.StringFlag{
-				Name:        "clientuser",
-				Value:       "client",
-				Usage:       "sets the username for clients of services",
-				Destination: &appConfigCommon.ClientUser,
-			},
-			cli.StringFlag{
-				Name:        "clientpass",
-				Value:       "pa55word1",
-				Usage:       "sets the password for clients of services",
-				Destination: &appConfigCommon.ClientPass,
-			},
-			cli.StringFlag{
-				Name:        "rpccert",
-				Value:       defaultDatadir + "/rpc.cert",
-				Usage:       "File containing the certificate file",
-				Destination: &appConfigCommon.RPCcert,
-			},
-			cli.StringFlag{
-				Name:        "rpckey",
-				Value:       defaultDatadir + "/rpc.key",
-				Usage:       "File containing the certificate key",
-				Destination: &appConfigCommon.RPCkey,
-			},
-			cli.StringFlag{
-				Name:        "cafile",
-				Value:       defaultDatadir + "/cafile",
-				Usage:       "File containing root certificates to authenticate a TLS connections with pod",
-				Destination: &appConfigCommon.CAfile,
-			},
-			cli.BoolFlag{
-				Name:        "tls, clienttls",
-				Usage:       "Enable TLS for client connections",
-				Destination: &appConfigCommon.ClientTLS,
-			},
-			cli.BoolFlag{
-				Name:        "servertls",
-				Usage:       "Enable TLS for server connections",
-				Destination: &appConfigCommon.ServerTLS,
-			},
-			cli.BoolFlag{
-				Name:        "useproxy, r",
-				Usage:       "use configured proxy",
-				Destination: &appConfigCommon.Useproxy,
-			},
-			cli.StringFlag{
-				Name:        "proxy",
-				Value:       "localhost:9050",
-				Usage:       "Connect via SOCKS5 proxy",
-				Destination: &appConfigCommon.Proxy,
-			},
-			cli.StringFlag{
-				Name:        "proxyuser",
-				Value:       "user",
-				Usage:       "Username for proxy server",
-				Destination: &appConfigCommon.Proxyuser,
-			},
-			cli.StringFlag{
-				Name:        "proxypass",
-				Value:       "pa55word",
-				Usage:       "Password for proxy server",
-				Destination: &appConfigCommon.Proxypass,
-			},
-			cli.BoolFlag{
-				Name:        "onion",
-				Usage:       "Enable connecting to tor hidden services",
-				Destination: &appConfigCommon.Onion,
-			},
-			cli.StringFlag{
-				Name:        "onionproxy",
-				Value:       "localhost:9050",
-				Usage:       "Connect to tor hidden services via SOCKS5 proxy (eg. 127.0.0.1:9050)",
-				Destination: &appConfigCommon.OnionProxy,
-			},
-			cli.StringFlag{
-				Name:        "onionuser",
-				Value:       "user",
-				Usage:       "Username for onion proxy server",
-				Destination: &appConfigCommon.Onionuser,
-			},
-			cli.StringFlag{
-				Name:        "onionpass",
-				Value:       "pa55word",
-				Usage:       "Password for onion proxy server",
-				Destination: &appConfigCommon.Onionpass,
-			},
-			cli.BoolFlag{
-				Name:        "torisolation",
-				Usage:       "Enable Tor stream isolation by randomizing user credentials for each connection.",
-				Destination: &appConfigCommon.Torisolation,
-			},
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "datadir, D",
+					Value:       appDatadir,
+					Usage:       "sets the data directory base for a pod instance",
+					EnvVar:      "POD_DATADIR",
+					Destination: &appConfigCommon.Datadir,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "save, i",
+					Usage:       "save settings as effective from invocation",
+					Destination: &appConfigCommon.Save,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "loglevel, l",
+					Value:       "info",
+					Usage:       "sets the base for all subsystem logging",
+					EnvVar:      "POD_LOGLEVEL",
+					Destination: &appConfigCommon.Loglevel,
+				},
+			),
+			altsrc.NewStringSliceFlag(
+				cli.StringSliceFlag{
+					Name:  "subsystems",
+					Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available with list syntax",
+					Value: &appConfigCommon.Subsystems,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "network, n",
+					Value:       "mainnet",
+					Usage:       "connect to mainnet/testnet3/simnet",
+					Destination: &appConfigCommon.Network,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "serveruser",
+					Value:       "server",
+					Usage:       "sets the username for services",
+					Destination: &appConfigCommon.ServerUser,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "serverpass",
+					Value:       "pa55word",
+					Usage:       "sets the password for services",
+					Destination: &appConfigCommon.ServerPass,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "clientuser",
+					Value:       "client",
+					Usage:       "sets the username for clients of services",
+					Destination: &appConfigCommon.ClientUser,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "clientpass",
+					Value:       "pa55word1",
+					Usage:       "sets the password for clients of services",
+					Destination: &appConfigCommon.ClientPass,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "rpccert",
+					Value:       defaultDatadir + "/rpc.cert",
+					Usage:       "File containing the certificate file",
+					Destination: &appConfigCommon.RPCcert,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "rpckey",
+					Value:       defaultDatadir + "/rpc.key",
+					Usage:       "File containing the certificate key",
+					Destination: &appConfigCommon.RPCkey,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "cafile",
+					Value:       defaultDatadir + "/cafile",
+					Usage:       "File containing root certificates to authenticate a TLS connections with pod",
+					Destination: &appConfigCommon.CAfile,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "tls, clienttls",
+					Usage:       "Enable TLS for client connections",
+					Destination: &appConfigCommon.ClientTLS,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "servertls",
+					Usage:       "Enable TLS for server connections",
+					Destination: &appConfigCommon.ServerTLS,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "useproxy, r",
+					Usage:       "use configured proxy",
+					Destination: &appConfigCommon.Useproxy,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "proxy",
+					Value:       "127.0.0.1:9050",
+					Usage:       "Connect via SOCKS5 proxy",
+					Destination: &appConfigCommon.Proxy,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "proxyuser",
+					Value:       "user",
+					Usage:       "Username for proxy server",
+					Destination: &appConfigCommon.Proxyuser,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "proxypass",
+					Value:       "pa55word",
+					Usage:       "Password for proxy server",
+					Destination: &appConfigCommon.Proxypass,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "onion",
+					Usage:       "Enable connecting to tor hidden services",
+					Destination: &appConfigCommon.Onion,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "onionproxy",
+					Value:       "127.0.0.1:9050",
+					Usage:       "Connect to tor hidden services via SOCKS5 proxy (eg. 127.0.0.1:9050)",
+					Destination: &appConfigCommon.OnionProxy,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "onionuser",
+					Value:       "user",
+					Usage:       "Username for onion proxy server",
+					Destination: &appConfigCommon.Onionuser,
+				},
+			),
+			altsrc.NewStringFlag(
+				cli.StringFlag{
+					Name:        "onionpass",
+					Value:       "pa55word",
+					Usage:       "Password for onion proxy server",
+					Destination: &appConfigCommon.Onionpass,
+				},
+			),
+			altsrc.NewBoolFlag(
+				cli.BoolFlag{
+					Name:        "torisolation",
+					Usage:       "Enable Tor stream isolation by randomizing user credentials for each connection.",
+					Destination: &appConfigCommon.Torisolation,
+				},
+			),
 		},
 		Commands: []cli.Command{
 			{
@@ -304,13 +368,13 @@ var ctlCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:        "rpcserver, server, s",
-			Value:       "localhost:11048",
+			Value:       "127.0.0.1:11048",
 			Usage:       "set node to connect to",
 			Destination: ctlConfig.RPCServer,
 		},
 		cli.StringFlag{
 			Name:        "walletserver, ws",
-			Value:       "localhost:11046",
+			Value:       "127.0.0.1:11046",
 			Usage:       "set wallet connect to",
 			Destination: ctlConfig.Wallet,
 		},
@@ -633,7 +697,7 @@ var walletCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:        "rpcconnect",
-			Usage:       "Hostname/IP and port of pod RPC server to connect to (default localhost:11048, testnet: localhost:21048, simnet: localhost:41048)",
+			Usage:       "Hostname/IP and port of pod RPC server to connect to (default 127.0.0.1:11048, testnet: 127.0.0.1:21048, simnet: 127.0.0.1:41048)",
 			Destination: walletConfig.RPCConnect,
 		},
 		cli.StringFlag{
