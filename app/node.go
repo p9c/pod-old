@@ -146,7 +146,7 @@ func nodeHandle(c *cli.Context) error {
 	case *nodeConfig.RelayNonStd && *nodeConfig.RejectNonStd:
 		errf := "%s: rejectnonstd and relaynonstd cannot be used together -- choose only one"
 		log <- cl.Errorf{errf, funcName}
-		log <- cl.Err(usageMessage)
+		// log <- cl.Err(usageMessage)
 		return fmt.Errorf(errf, funcName)
 
 	case *nodeConfig.RejectNonStd:
@@ -158,10 +158,12 @@ func nodeHandle(c *cli.Context) error {
 	*nodeConfig.RelayNonStd = relayNonStd
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
+	log <- cl.Debug{"netname", activeNetParams.Name}
 	*nodeConfig.DataDir = CleanAndExpandPath(*nodeConfig.DataDir)
-	log <- cl.Debug{
-		"netname", activeNetParams.Name}
 	*nodeConfig.DataDir = filepath.Join(
+		*nodeConfig.DataDir, activeNetParams.Name)
+	*nodeConfig.LogDir = CleanAndExpandPath(*nodeConfig.DataDir)
+	*nodeConfig.LogDir = filepath.Join(
 		*nodeConfig.DataDir, activeNetParams.Name)
 
 	// Validate database type.
@@ -199,9 +201,10 @@ func nodeHandle(c *cli.Context) error {
 		for _, addr := range *nodeConfig.Whitelists {
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
+				cl.Ine(&err)
 				ip = net.ParseIP(addr)
 				if ip == nil {
-					str := "%s: The whitelist value of '%s' is invalid"
+					str := err.Error() + " %s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
 					fmt.Fprintln(os.Stderr, usageMessage)

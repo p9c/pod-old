@@ -87,14 +87,14 @@ func (c *ConnReq) String() string {
 type Config struct {
 
 	// Listeners defines a slice of listeners for which the connection manager will take ownership of and accept connections.  When a connection is accepted, the OnAccept handler will be invoked with the connection.  Since the connection manager takes ownership of these listeners, they will be closed when the connection manager is stopped.
-
+	//
 	// This field will not have any effect if the OnAccept field is not specified.  It may be nil if the caller does not wish to listen
-
+	//
 	// for incoming connections.
 	Listeners []net.Listener
 
 	// OnAccept is a callback that is fired when an inbound connection is accepted.  It is the caller's responsibility to close the connection. Failure to close the connection will result in the connection manager believing the connection is still active and thus have undesirable side effects such as still counting toward maximum connection limits.
-
+	//
 	// This field will not have any effect if the Listeners field is not also specified since there couldn't possibly be any accepted connections in that case.
 	OnAccept func(net.Conn)
 
@@ -104,11 +104,11 @@ type Config struct {
 	// RetryDuration is the duration to wait before retrying connection requests. Defaults to 5s.
 	RetryDuration time.Duration
 
-	// OnConnection is a callback that is fired when a new outbound connection is established.
+	// OnConnection is a callback that is fired when a new outbound connection
+	// is established.
 	OnConnection func(*ConnReq, net.Conn)
 
 	// OnDisconnection is a callback that is fired when an outbound
-
 	// connection is disconnected.
 	OnDisconnection func(*ConnReq)
 
@@ -362,10 +362,10 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		select {
 		case cm.requests <- registerPending{c, done}:
 
-			fmt.Println("chan:cm.requests <- registerPending{c, done}")
+			// fmt.Println("chan:cm.requests <- registerPending{c, done}")
 		case <-cm.quit:
 
-			fmt.Println("chan:<-cm.quit")
+			// fmt.Println("chan:<-cm.quit")
 			return
 		}
 
@@ -373,33 +373,34 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		select {
 		case <-done:
 
-			fmt.Println("chan:<-done")
+			// fmt.Println("chan:<-done")
 		case <-cm.quit:
 
-			fmt.Println("chan:<-cm.quit")
+			// fmt.Println("chan:<-cm.quit")
 			return
 		}
 	}
 	log <- cl.Debug{"attempting to connect to", c}
 	conn, err := cm.cfg.Dial(c.Addr)
+	log <- cl.Trace{cl.Ine(&err), c.Addr}
 	if err != nil {
 		select {
 		case cm.requests <- handleFailed{c, err}:
 
-			fmt.Println("chan:cm.requests <- handleFailed{c, err}")
+			// fmt.Println("chan:cm.requests <- handleFailed{c, err}")
 		case <-cm.quit:
 
-			fmt.Println("chan:<-cm.quit")
+			// fmt.Println("chan:<-cm.quit")
 		}
 		return
 	}
 	select {
 	case cm.requests <- handleConnected{c, conn}:
 
-		fmt.Println("chan:cm.requests <- handleConnected{c, conn}")
+		// fmt.Println("chan:cm.requests <- handleConnected{c, conn}")
 	case <-cm.quit:
 
-		fmt.Println("chan:<-cm.quit")
+		// fmt.Println("chan:<-cm.quit")
 	}
 }
 

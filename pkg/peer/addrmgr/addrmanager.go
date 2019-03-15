@@ -90,7 +90,7 @@ const (
 	needAddressThreshold = 1000
 
 	// dumpAddressInterval is the interval used to dump the address cache to disk for future use.
-	dumpAddressInterval = time.Minute * 10
+	dumpAddressInterval = time.Minute * 5
 
 	// triedBucketSize is the maximum number of addresses in each tried address bucket.
 	triedBucketSize = 256
@@ -654,8 +654,7 @@ func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.S
 }
 
 // ipString returns a string for the ip from the provided NetAddress. If the ip is in the range used for Tor addresses then it will be transformed into the relevant .onion address.
-func ipString(
-	na *wire.NetAddress) string {
+func ipString(na *wire.NetAddress) string {
 	if IsOnionCatTor(na) {
 
 		// We know now that na.IP is long enough.
@@ -666,8 +665,7 @@ func ipString(
 }
 
 // NetAddressKey returns a string key in the form of ip:port for IPv4 addresses or [ip]:port for IPv6 addresses.
-func NetAddressKey(
-	na *wire.NetAddress) string {
+func NetAddressKey(na *wire.NetAddress) string {
 	port := strconv.FormatUint(uint64(na.Port), 10)
 	return net.JoinHostPort(ipString(na), port)
 }
@@ -713,7 +711,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 		}
 	} else {
 		// new node.
-		// XXX use a closure/function to avoid repeating this.
+		// TODO: use a closure/function to avoid repeating this.
 		large := 1 << 30
 		factor := 1.0
 		for {
