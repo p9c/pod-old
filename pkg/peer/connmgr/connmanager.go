@@ -380,9 +380,9 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 			return
 		}
 	}
-	log <- cl.Debug{"attempting to connect to", c.Addr}
+	log <- cl.Debugf{"attempting to connect to '%s'", c.Addr}
 	conn, err := cm.cfg.Dial(c.Addr)
-	log <- cl.Trace{cl.Ine(&err), c.Addr}
+	log <- cl.Trace{cl.Ine(), err, c.Addr}
 	if err != nil {
 		select {
 		case cm.requests <- handleFailed{c, err}:
