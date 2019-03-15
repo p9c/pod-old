@@ -44,7 +44,7 @@ func nodeHandleSave() {
 }
 
 func nodeHandle(c *cli.Context) error {
-	Log.SetLevel("debug")
+	Log.SetLevel("trace")
 	log <- cl.Debug{"running node"}
 
 	*nodeConfig.DataDir = filepath.Join(
@@ -53,16 +53,20 @@ func nodeHandle(c *cli.Context) error {
 	*nodeConfig.ConfigFile = filepath.Join(
 		*nodeConfig.DataDir,
 		nodeConfigFilename)
-	ncb, e := ioutil.ReadFile(*nodeConfig.ConfigFile)
-	if e != nil {
-		panic(e)
+	if FileExists(*nodeConfig.ConfigFile) {
+		ncb, e := ioutil.ReadFile(*nodeConfig.ConfigFile)
+		if e != nil {
+			panic(e)
+		}
+		ncf := &node.Config{}
+		e = yaml.Unmarshal(ncb, ncf)
+		if e != nil {
+			panic(e)
+		}
+		nodeConfig = ncf
+	} else {
+		appConfigCommon.Save = true
 	}
-	ncf := &node.Config{}
-	e = yaml.Unmarshal(ncb, ncf)
-	if e != nil {
-		panic(e)
-	}
-	nodeConfig = ncf
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""

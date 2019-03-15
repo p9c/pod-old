@@ -86,6 +86,8 @@ func (
 	switch fork.GetCurrent(nH) {
 	case 0:
 
+		log <- cl.Debug{"on pre-hardfork"}
+
 		algo := fork.GetAlgoVer(algoname, nH)
 		algoName := fork.GetAlgoName(algo, nH)
 		newTargetBits = fork.GetMinBits(algoName, nH)
@@ -98,10 +100,12 @@ func (
 			return newTargetBits, nil
 		}
 		prevNode := lastNode
+		log <- cl.Debug{"prevNode version", prevNode.version}
 		if prevNode.version != algo {
 			prevNode = prevNode.GetPrevWithAlgo(algo)
 		}
-		firstNode := prevNode.GetPrevWithAlgo(algo)
+		log <- cl.Debug{"found version", prevNode.version, prevNode.height}
+		firstNode := prevNode // .GetPrevWithAlgo(algo)
 		i := int64(1)
 		for ; firstNode != nil && i < fork.GetAveragingInterval(nH); i++ {
 			firstNode = firstNode.RelativeAncestor(1).GetPrevWithAlgo(algo)
@@ -147,6 +151,8 @@ func (
 		return newTargetBits, nil
 
 	case 1: // Plan 9 from Crypto Space
+
+		log <- cl.Debug{"on plan 9 hardfork"}
 
 		if lastNode.height == 0 {
 			return fork.FirstPowLimitBits, nil

@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	database "git.parallelcoin.io/pod/pkg/db"
+	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
 	"git.parallelcoin.io/pod/pkg/chain/fork"
+	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/pod/pkg/db"
 )
 
 // blockStatus is a bit field representing the validation state of the block.
@@ -284,29 +284,30 @@ func (node *blockNode) GetAlgo() int32 {
 // GetPrevWithAlgo returns the previous block from the current with the same algorithm
 func (node *blockNode) GetPrevWithAlgo(algo int32) (prev *blockNode) {
 
+	prev = node
 	if node == nil {
 		return nil
 	}
 	if node.GetAlgo() == algo {
 		return node
 	}
-
 	// Until HF1, 514 = scrypt and anything else is sha256d ver 2
+	prevversion := int32(514)
 	if fork.GetCurrent(node.height) == 0 {
 		if algo != 514 {
 			algo = 2
 		}
+		if prev.version != 514 {
+			prevversion = 2
+		}
 	}
-	prev = node.RelativeAncestor(1)
-	if prev == nil {
-		return node
-	}
-	for algo != prev.version {
+	for algo != prevversion {
 		p := prev.RelativeAncestor(1)
 		if p == nil {
 			return prev
 		}
 		prev = p
+		prevversion = prev.version
 	}
 	return
 }
