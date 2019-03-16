@@ -13,6 +13,15 @@ import (
 
 func main() {
 
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	debug.SetGCPercent(100)
+	if err := limits.SetLimits(); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
+		os.Exit(1)
+	}
+
+	os.Exit(app.Main())
+
 	/*
 
 		f, err := os.Create("trace.out")
@@ -26,14 +35,6 @@ func main() {
 		}
 		defer trace.Stop()
 	*/
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	debug.SetGCPercent(100)
-	if err := limits.SetLimits(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
-		os.Exit(1)
-	}
-
-	os.Exit(app.Main())
 	/*
 		cf, err := os.Create("cpu.prof")
 		if err != nil {
