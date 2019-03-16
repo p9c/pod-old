@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util/txsort"
+	txsort "git.parallelcoin.io/pod/pkg/chain/tx/sort"
 	"git.parallelcoin.io/pod/pkg/chain/wire"
 )
 
