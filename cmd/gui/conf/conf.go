@@ -3,7 +3,7 @@ package conf
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/cmd/gui/jdb"
+	"git.parallelcoin.io/dev/pod/cmd/gui/jdb"
 )
 
 type Conf struct {

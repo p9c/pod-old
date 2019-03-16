@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	w "git.parallelcoin.io/pod/cmd/wallet"
-	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/pod/pkg/wallet"
+	w "git.parallelcoin.io/dev/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/dev/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 

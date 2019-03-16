@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
 )
 
 // ErrorCode identifies a kind of error.

@@ -1,7 +1,7 @@
 # connmgr
 
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/git.parallelcoin.io/pod/connmgr)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/git.parallelcoin.io/dev/pod/connmgr)
 
 Package connmgr implements a generic Bitcoin network connection manager.
 
@@ -22,7 +22,7 @@ In addition the connection manager provides the following utilities:
 ## Installation and Updating
 
 ```bash
-$ go get -u git.parallelcoin.io/pod/connmgr
+$ go get -u git.parallelcoin.io/dev/pod/connmgr
 ```
 
 ## License

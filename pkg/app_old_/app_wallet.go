@@ -3,9 +3,9 @@ package app_old
 import (
 	"fmt"
 
-	n "git.parallelcoin.io/pod/cmd/node"
-	w "git.parallelcoin.io/pod/cmd/wallet"
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
+	n "git.parallelcoin.io/dev/pod/cmd/node"
+	w "git.parallelcoin.io/dev/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"github.com/tucnak/climax"
 )
 

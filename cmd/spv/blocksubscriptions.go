@@ -3,8 +3,8 @@ package spv
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // blockMessage is a notification from the block manager to a block

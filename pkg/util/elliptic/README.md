@@ -1,7 +1,7 @@
 # ec
 
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://godoc.org/git.parallelcoin.io/pod/btcec?status.png)](http://godoc.org/git.parallelcoin.io/pod/btcec)
+[![GoDoc](https://godoc.org/git.parallelcoin.io/dev/pod/btcec?status.png)](http://godoc.org/git.parallelcoin.io/dev/pod/btcec)
 
 Package ec implements elliptic curve cryptography needed for working with
 
@@ -11,24 +11,24 @@ Although this package was primarily written for pod, it has intentionally been d
 ## Installation and Updating
 
 ```bash
-$ go get -u git.parallelcoin.io/pod/btcec
+$ go get -u git.parallelcoin.io/dev/pod/btcec
 ```
 
 ## Examples
 
-- [Sign Message](http://godoc.org/git.parallelcoin.io/pod/btcec#example-package--SignMessage)  
+- [Sign Message](http://godoc.org/git.parallelcoin.io/dev/pod/btcec#example-package--SignMessage)  
   Demonstrates signing a message with a secp256k1 private key that is first
   parsed form raw bytes and serializing the generated signature.
 
-- [Verify Signature](http://godoc.org/git.parallelcoin.io/pod/btcec#example-package--VerifySignature)  
+- [Verify Signature](http://godoc.org/git.parallelcoin.io/dev/pod/btcec#example-package--VerifySignature)  
   Demonstrates verifying a secp256k1 signature against a public key that is
   first parsed from raw bytes. The signature is also parsed from raw bytes.
 
-- [Encryption](http://godoc.org/git.parallelcoin.io/pod/btcec#example-package--EncryptMessage)
+- [Encryption](http://godoc.org/git.parallelcoin.io/dev/pod/btcec#example-package--EncryptMessage)
   Demonstrates encrypting a message for a public key that is first parsed from
   raw bytes, then decrypting it using the corresponding private key.
 
-- [Decryption](http://godoc.org/git.parallelcoin.io/pod/btcec#example-package--DecryptMessage)
+- [Decryption](http://godoc.org/git.parallelcoin.io/dev/pod/btcec#example-package--DecryptMessage)
   Demonstrates decrypting a message using a private key that is first parsed
   from raw bytes.
 

@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/cmd/node"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )

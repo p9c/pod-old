@@ -3,8 +3,8 @@ package txscript
 import (
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // TxSigHashes houses the partial set of sighashes introduced within BIP0143. This partial set of sighashes may be re-used within each input across a transaction when validating all inputs. As a result, validation complexity for SigHashAll can be reduced by a polynomial factor.

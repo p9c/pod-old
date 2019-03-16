@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var (

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // Bip16Activation is the timestamp where BIP0016 is valid to use in the blockchain.  To be used to determine if BIP0016 should be called for or not. This timestamp corresponds to Sun Apr 1 00:00:00 UTC 2012.

@@ -17,10 +17,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/wallet"
-	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/wallet"
+	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
 	"github.com/btcsuite/websocket"
 )
 

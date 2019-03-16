@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
 )
 
 // JoinType is an enum representing a particular type of "node join". A node join is a synchronization tool used to wait until a subset of nodes have a consistent state with respect to an attribute.

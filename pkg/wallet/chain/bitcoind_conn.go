@@ -8,11 +8,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"github.com/lightninglabs/gozmq"
 )
 

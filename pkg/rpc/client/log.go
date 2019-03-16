@@ -1,7 +1,7 @@
 package rpcclient
 
 import (
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // Log is the logger for the rpcclient package

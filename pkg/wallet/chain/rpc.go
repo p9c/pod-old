@@ -5,17 +5,17 @@ import (
 	"sync"
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
-	"git.parallelcoin.io/pod/pkg/rpc/json"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/util/gcs"
-	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server

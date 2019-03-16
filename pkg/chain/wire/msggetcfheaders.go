@@ -3,7 +3,7 @@ package wire
 import (
 	"io"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 

@@ -8,16 +8,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 
-	"git.parallelcoin.io/pod/cmd/node/mempool"
-	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	database "git.parallelcoin.io/pod/pkg/db"
-	peerpkg "git.parallelcoin.io/pod/pkg/peer"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	peerpkg "git.parallelcoin.io/dev/pod/pkg/peer"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // SyncManager is used to communicate block related messages with peers. The SyncManager is started as by executing Start() in a goroutine. Once started, it selects peers to sync from and starts the initial block download. Once the chain is in sync, the SyncManager handles incoming block and header notifications and relays announcements of new blocks to peers.

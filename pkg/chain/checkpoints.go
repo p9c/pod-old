@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // CheckpointConfirmations is the number of blocks before the end of the current best block chain that a good checkpoint candidate must be.

@@ -1,7 +1,7 @@
 # controller
 
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/git.parallelcoin.io/pod/mining/controller)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/git.parallelcoin.io/dev/pod/mining/controller)
 
 ## Overview
 
@@ -10,7 +10,7 @@ This is a miner controller that implements an ultra low-latency mining control s
 ## Installation and Updating
 
 ```bash
-$ go get -u git.parallelcoin.io/pod/mining/controller
+$ go get -u git.parallelcoin.io/dev/pod/mining/controller
 ```
 
 ## License

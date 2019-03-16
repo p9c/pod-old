@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )

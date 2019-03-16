@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // maxFailedAttempts is the maximum number of successive failed connection attempts after which network failure is assumed and new connections will be delayed by the configured retry duration.

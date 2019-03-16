@@ -3,16 +3,16 @@ package wallettx
 import (
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // RecoveryManager maintains the state required to recover previously used

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"sort"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/cl"
-	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 const eligibleInputMinConfirmations = 100

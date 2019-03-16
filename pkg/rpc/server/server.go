@@ -6,11 +6,11 @@
 // Full documentation of the API implemented by this package is maintained in a
 // language-agnostic document:
 //
-//   https://git.parallelcoin.io/pod/walletmain/blob/master/rpc/documentation/api.md
+//   https://git.parallelcoin.io/dev/pod/walletmain/blob/master/rpc/documentation/api.md
 //
 // Any API changes must be performed according to the steps listed here:
 //
-//   https://git.parallelcoin.io/pod/walletmain/blob/master/rpc/documentation/serverchanges.md
+//   https://git.parallelcoin.io/dev/pod/walletmain/blob/master/rpc/documentation/serverchanges.md
 package rpcserver
 
 import (
@@ -19,24 +19,24 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/wallet"
+	"git.parallelcoin.io/dev/pod/pkg/wallet"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	"git.parallelcoin.io/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/rpc/client"
-	pb "git.parallelcoin.io/pod/pkg/rpc/wallet"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/config"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/util/zero"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	pb "git.parallelcoin.io/dev/pod/pkg/rpc/wallet"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/config"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	"git.parallelcoin.io/dev/pod/pkg/util/zero"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // Public API version constants

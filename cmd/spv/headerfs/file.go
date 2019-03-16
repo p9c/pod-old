@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // appendRaw appends a new raw header to the end of the flat file.

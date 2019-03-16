@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/ctl"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/cmd/ctl"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"github.com/tucnak/climax"
 )
 

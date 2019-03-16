@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"github.com/tucnak/climax"
 )
 

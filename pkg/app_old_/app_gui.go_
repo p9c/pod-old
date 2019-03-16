@@ -3,7 +3,7 @@ package app_old
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/cmd/gui"
+	"git.parallelcoin.io/dev/pod/cmd/gui"
 	"github.com/tucnak/climax"
 )
 

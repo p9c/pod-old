@@ -1,12 +1,12 @@
 package chain
 
 import (
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/cl"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 // BlockFilterer is used to iteratively scan blocks for a set of addresses of

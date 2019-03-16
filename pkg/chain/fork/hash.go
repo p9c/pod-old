@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	"ekyu.moe/cryptonight"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/aead/skein"
 	x11 "github.com/bitbandi/go-x11"
 	"github.com/bitgoin/lyra2rev2"

@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // Log is the logger for the peer package

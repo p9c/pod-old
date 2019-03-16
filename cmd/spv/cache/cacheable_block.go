@@ -1,6 +1,6 @@
 package cache
 
-import "git.parallelcoin.io/pod/pkg/util"
+import "git.parallelcoin.io/dev/pod/pkg/util"
 
 // CacheableBlock is a wrapper around the util.Block type which provides a
 // Size method used by the cache to target certain memory usage.

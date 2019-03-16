@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 const (

@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/cmd/ctl"
-	"git.parallelcoin.io/pod/cmd/node"
-	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/cmd/ctl"
+	"git.parallelcoin.io/dev/pod/cmd/node"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 )

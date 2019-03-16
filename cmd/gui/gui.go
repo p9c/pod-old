@@ -5,13 +5,13 @@ import (
 	"net/url"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/gui/jdb"
+	"git.parallelcoin.io/dev/pod/cmd/gui/jdb"
 
-	"git.parallelcoin.io/pod/cmd/gui/apps"
-	"git.parallelcoin.io/pod/cmd/gui/conf"
-	"git.parallelcoin.io/pod/cmd/gui/libs"
-	"git.parallelcoin.io/pod/cmd/gui/vue"
-	"git.parallelcoin.io/pod/cmd/shell"
+	"git.parallelcoin.io/dev/pod/cmd/gui/apps"
+	"git.parallelcoin.io/dev/pod/cmd/gui/conf"
+	"git.parallelcoin.io/dev/pod/cmd/gui/libs"
+	"git.parallelcoin.io/dev/pod/cmd/gui/vue"
+	"git.parallelcoin.io/dev/pod/cmd/shell"
 	scribble "github.com/nanobox-io/golang-scribble"
 	"github.com/zserge/webview"
 )

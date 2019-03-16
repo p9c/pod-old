@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"git.parallelcoin.io/pod/btcjson"
-	"git.parallelcoin.io/pod/pkg/internal/rpchelp"
+	"git.parallelcoin.io/dev/pod/btcjson"
+	"git.parallelcoin.io/dev/pod/pkg/internal/rpchelp"
 )
 
 var outputFile = func() *os.File {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	n "git.parallelcoin.io/pod/cmd/node"
-	w "git.parallelcoin.io/pod/cmd/wallet"
+	n "git.parallelcoin.io/dev/pod/cmd/node"
+	w "git.parallelcoin.io/dev/pod/cmd/wallet"
 	"github.com/tucnak/climax"
 )
 

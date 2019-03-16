@@ -3,13 +3,13 @@
 package wallet
 
 import (
-	wtxmgr "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
 )
 
 // RescanProgressMsg reports the current progress made by a rescan for a

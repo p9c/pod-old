@@ -8,7 +8,7 @@ import (
 	"math"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 const (

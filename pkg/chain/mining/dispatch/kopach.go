@@ -3,8 +3,8 @@ package controller
 import (
 	"errors"
 
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // Address is the parameter and reply type for subscriptions

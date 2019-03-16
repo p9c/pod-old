@@ -6,14 +6,14 @@ package txauthor
 import (
 	"errors"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/tx/rules"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 
-	"git.parallelcoin.io/pod/pkg/chain/tx/sizes"
-	h "git.parallelcoin.io/pod/pkg/util/helpers"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/sizes"
+	h "git.parallelcoin.io/dev/pod/pkg/util/helpers"
 )
 
 // InputSource provides transaction inputs referencing spendable outputs to

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/cmd/gui/libs"
+	"git.parallelcoin.io/dev/pod/cmd/gui/libs"
 )
 
 func InitApps() {

@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
-	w "git.parallelcoin.io/pod/cmd/wallet"
-	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/wallet"
+	w "git.parallelcoin.io/dev/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	"git.parallelcoin.io/dev/pod/pkg/wallet"
 	"github.com/tucnak/climax"
 )
 

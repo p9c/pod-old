@@ -18,9 +18,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // AddrManager provides a concurrency safe address manager for caching potential peers on the bitcoin network.

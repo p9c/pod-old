@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/cmd/node"
 	"github.com/tucnak/climax"
 )
 

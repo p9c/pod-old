@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util/cl"
-	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be done when executing a script pair.

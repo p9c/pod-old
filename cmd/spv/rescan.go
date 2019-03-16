@@ -8,17 +8,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	txscript "git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	rpcclient "git.parallelcoin.io/pod/pkg/rpc/client"
-	"git.parallelcoin.io/pod/pkg/rpc/json"
-	"git.parallelcoin.io/pod/pkg/util"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/util/gcs"
-	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/dev/pod/cmd/spv/headerfs"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 var (

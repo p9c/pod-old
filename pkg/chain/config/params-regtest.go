@@ -3,7 +3,7 @@ package chaincfg
 import (
 	"math"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // RegressionNetParams defines the network parameters for the regression test Bitcoin network.  Not to be confused with the test Bitcoin network (version 3), this network is sometimes simply called "testnet".

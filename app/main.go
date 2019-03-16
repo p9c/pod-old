@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/cmd/node/mempool"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
 )

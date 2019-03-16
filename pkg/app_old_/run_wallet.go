@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	walletmain "git.parallelcoin.io/pod/cmd/wallet"
-	netparams "git.parallelcoin.io/pod/pkg/chain/config/params"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/wallet"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 func runWallet(

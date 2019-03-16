@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // Config defines the configuration options for podctl. See loadConfig for details on the configuration load process.

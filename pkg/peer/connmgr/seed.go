@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 const (

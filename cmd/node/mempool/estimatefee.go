@@ -12,11 +12,11 @@ import (
 	"strings"
 	"sync"
 
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/mining"
-	"git.parallelcoin.io/pod/pkg/util"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/mining"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // BtcPerKilobyte is number with units of bitcoins per kilobyte.

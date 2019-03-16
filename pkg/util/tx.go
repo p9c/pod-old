@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"io"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // TxIndexUnknown is the value returned for a transaction index that is unknown. This is typically because the transaction has not been inserted into a block yet.

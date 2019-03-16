@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"git.parallelcoin.io/pod/cmd/gui/jdb"
-	"git.parallelcoin.io/pod/cmd/gui/vue"
+	"git.parallelcoin.io/dev/pod/cmd/gui/jdb"
+	"git.parallelcoin.io/dev/pod/cmd/gui/vue"
 )
 
 type AddressBook struct {

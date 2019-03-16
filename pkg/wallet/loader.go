@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	cl "git.parallelcoin.io/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/util/prompt"
-	waddrmgr "git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/prompt"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // Loader implements the creating of new and opening of existing wallets, while

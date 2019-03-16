@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // OutOfRangeError describes an error due to accessing an element that is out of range.

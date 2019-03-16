@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"hash"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"golang.org/x/crypto/ripemd160"
 )
 

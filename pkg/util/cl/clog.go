@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/interrupt"
+	"git.parallelcoin.io/dev/pod/pkg/util/interrupt"
 
 	"github.com/mitchellh/colorstring"
 )

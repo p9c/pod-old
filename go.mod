@@ -1,4 +1,4 @@
-module git.parallelcoin.io/pod
+module git.parallelcoin.io/dev/pod
 
 go 1.12
 

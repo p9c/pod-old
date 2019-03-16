@@ -8,14 +8,14 @@ import (
 	"bytes"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/util/cl"
+	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 
-	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	chaincfg "git.parallelcoin.io/pod/pkg/chain/config"
-	chainhash "git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/util"
-	walletdb "git.parallelcoin.io/pod/pkg/wallet/db"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // Block contains the minimum amount of data to uniquely identify any block on

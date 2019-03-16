@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/cmd/node"
 )
 
 // // CheckCreateDir checks that the path exists and is a directory. If path does not exist, it is created.

@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	ec "git.parallelcoin.io/pod/pkg/util/elliptic"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 func main(

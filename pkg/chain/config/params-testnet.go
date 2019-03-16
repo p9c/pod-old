@@ -1,8 +1,8 @@
 package chaincfg
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain/fork"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/fork"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // TestNet3Params defines the network parameters for the test Bitcoin network (version 3).  Not to be confused with the regression test network, this network is sometimes simply called "testnet".

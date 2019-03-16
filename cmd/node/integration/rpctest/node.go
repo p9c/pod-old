@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 
-	rpc "git.parallelcoin.io/pod/pkg/rpc/client"
-	"git.parallelcoin.io/pod/pkg/util"
+	rpc "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // nodeConfig contains all the args, and data required to launch a pod process and connect the rpc client to it.

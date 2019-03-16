@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"git.parallelcoin.io/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/cmd/node"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
 )

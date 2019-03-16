@@ -4,7 +4,7 @@ import (
 	js "encoding/json"
 	"errors"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 

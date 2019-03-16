@@ -3,10 +3,10 @@
 package txsizes
 
 import (
-	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 
-	h "git.parallelcoin.io/pod/pkg/util/helpers"
+	h "git.parallelcoin.io/dev/pod/pkg/util/helpers"
 )
 
 // Worst case script and input/output size estimates.

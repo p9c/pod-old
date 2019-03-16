@@ -12,7 +12,7 @@ import (
 	"io"
 	"runtime/debug"
 
-	"git.parallelcoin.io/pod/pkg/util/zero"
+	"git.parallelcoin.io/dev/pod/pkg/util/zero"
 	"github.com/btcsuite/golangcrypto/nacl/secretbox"
 	"github.com/btcsuite/golangcrypto/scrypt"
 )

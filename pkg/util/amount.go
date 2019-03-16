@@ -51,7 +51,7 @@ func round(
 	return Amount(f + 0.5)
 }
 
-// NewAmount creates an Amount from a floating point value representing some value in bitcoin.  NewAmount errors if f is NaN or +-Infinity, but does not check that the amount is within the total amount of bitcoin producible as f may not refer to an amount at a single moment in time. NewAmount is for specifically for converting DUO to Satoshi. For creating a new Amount with an int64 value which denotes a quantity of Satoshi, do a simple type conversion from type int64 to Amount. See GoDoc for example: http://godoc.org/git.parallelcoin.io/pod/util#example-Amount
+// NewAmount creates an Amount from a floating point value representing some value in bitcoin.  NewAmount errors if f is NaN or +-Infinity, but does not check that the amount is within the total amount of bitcoin producible as f may not refer to an amount at a single moment in time. NewAmount is for specifically for converting DUO to Satoshi. For creating a new Amount with an int64 value which denotes a quantity of Satoshi, do a simple type conversion from type int64 to Amount. See GoDoc for example: http://godoc.org/git.parallelcoin.io/dev/pod/util#example-Amount
 func NewAmount(
 	f float64) (Amount, error) {
 

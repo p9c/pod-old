@@ -3,8 +3,8 @@ package app_old
 import (
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/cmd/node"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // AppName is the name of this application

@@ -5,7 +5,7 @@
 package rpchelp
 
 import (
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 // HelpDescs contains the locale-specific help strings along with the locale.
