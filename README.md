@@ -1,5 +1,6 @@
 > ### development branch
 
+[![godoc](https://img.shields.io/badge/godoc-documentation-blue.svg)]()
 # Parallelcoin Pod
 
 Fully integrated all-in-one cli client, full node, wallet server, miner and GUI wallet for Parallelcoin
