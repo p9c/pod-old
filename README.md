@@ -8,9 +8,17 @@ Fully integrated all-in-one cli client, full node, wallet server, miner and GUI 
 
 > ## IMPORTANT
 > 
+<<<<<<< HEAD
 > **Development branch** can be found [here](https://seed1.parallelcoin.io/dev/pod/src/branch/dev), where the current work is located.
 > 
 > here's our own godoc server documentation for this package: [here](http://89.40.12.55:8008/pkg/git.parallelcoin.io/pod/)
+=======
+> Currently this code is not working on mainnet and upstream configuration provider is being replaced with a new library [github.com/urfave/cli](https://github.com/urfave/cli)
+> 
+> **Development branch** can be found [here](https://git.parallelcoin.io/dev/pod/src/branch/dev), where the current work is located.
+>
+> here's our own godoc server documentation for this package: [here](https://doc.parallelcoin.io/pkg/git.parallelcoin.io/pod/)
+>>>>>>> master
 > 
 > **This code will not function correctly currently, please be patient while it is fixed on the Development Branch.**
 
