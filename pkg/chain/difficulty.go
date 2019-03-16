@@ -94,36 +94,56 @@ func (
 		algoName := fork.GetAlgoName(algo, nH)
 		newTargetBits = fork.GetMinBits(algoName, nH)
 
-		log <- cl.Debugf{
-			"newTargetBits %064x", CompactToBig(newTargetBits),
-		}
+		// log <- cl.Debugf{
+		// 	"newTargetBits %064x", CompactToBig(newTargetBits),
+		// }
 
 		if lastNode == nil {
+
 			return newTargetBits, nil
 		}
+
 		prevNode := lastNode.RelativeAncestor(1)
-		log <- cl.Debug{"prevNode version", prevNode.version}
+		log <- cl.Debug{"prevNode version", prevNode.version, prevNode.height}
 		prevversion := prevNode.version
 
-		if fork.GetCurrent(nH) == 0 {
+		if fork.GetCurrent(prevNode.height) == 0 {
 
 			if prevversion != 514 &&
 				prevversion != 2 {
 
 				log <- cl.Warn{"irregular block version, assuming 2 (sha256d)"}
+				prevversion = 2
 			}
 
 		}
+
 		if prevversion != algo {
 
 			prevNode = prevNode.GetLastWithAlgo(algo)
 		}
 
-		log <- cl.Debug{"found version", prevNode.version, "corrected", prevversion, prevNode.height}
+		if prevNode == nil {
+
+			return newTargetBits, nil
+		}
+
+		prevversion = prevNode.version
+		log <- cl.Debugf{
+			"found version %d corrected %d height %d bits %8x",
+			prevNode.version, prevversion, prevNode.height, prevNode.bits}
 		firstNode := prevNode // .GetPrevWithAlgo(algo)
 		i := int64(1)
 		for ; firstNode != nil && i < fork.GetAveragingInterval(nH); i++ {
 			firstNode = firstNode.RelativeAncestor(1).GetLastWithAlgo(algo)
+
+			if firstNode == nil {
+
+				log <- cl.Debug{"passed genesis block"}
+				return newTargetBits, nil
+			}
+
+			log <- cl.Debugf{"found a prev %d %d %8x", firstNode.version, firstNode.height, firstNode.bits}
 		}
 
 		if firstNode == nil {

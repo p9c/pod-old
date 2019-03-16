@@ -27,7 +27,7 @@ func main() {
 		defer trace.Stop()
 	*/
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	debug.SetGCPercent(50)
+	debug.SetGCPercent(100)
 	if err := limits.SetLimits(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
 		os.Exit(1)
