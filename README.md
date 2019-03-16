@@ -1,4 +1,4 @@
-[![development branch](https://img.shields.io/badge/branch-development-orange.svg)](https://git.parallelcoin.io/dev/pod) [![GoDoc](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://doc.parallelcoin.io/pkg/git.parallelcoin.io/pod)
+[![development branch](https://img.shields.io/badge/branch-development-orange.svg)](https://git.parallelcoin.io/dev/pod/src/branch/dev) [![GoDoc](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://doc.parallelcoin.io/pkg/git.parallelcoin.io/pod)
 
 # Parallelcoin Pod
 
