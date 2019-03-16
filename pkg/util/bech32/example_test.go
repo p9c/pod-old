@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"git.parallelcoin.io/pod/pkg/util/bech32"
+	"git.parallelcoin.io/dev/pod/pkg/util/bech32"
 )
 
 // This example demonstrates how to decode a bech32 encoded string.

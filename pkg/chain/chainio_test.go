@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	database "git.parallelcoin.io/pod/pkg/db"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // TestErrNotInMainChain ensures the functions related to errNotInMainChain work as expected.

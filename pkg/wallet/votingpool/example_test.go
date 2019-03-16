@@ -24,14 +24,14 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/votingpool"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/votingpool"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 )
 
 var (

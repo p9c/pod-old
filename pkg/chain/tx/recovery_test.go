@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/wallet"
+	"git.parallelcoin.io/dev/pod/pkg/wallet"
 )
 
 

@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"git.parallelcoin.io/pod/app"
-	"git.parallelcoin.io/pod/pkg/util/limits"
+	"git.parallelcoin.io/dev/pod/app"
+	"git.parallelcoin.io/dev/pod/pkg/util/limits"
 )
 
 func main() {

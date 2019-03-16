@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	vp "git.parallelcoin.io/pod/pkg/wallet/votingpool"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	vp "git.parallelcoin.io/dev/pod/pkg/wallet/votingpool"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
 func TestLoadPoolAndDepositScript(

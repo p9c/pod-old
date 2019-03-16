@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // TestParseOpcode tests for opcode parsing with bad data templates.

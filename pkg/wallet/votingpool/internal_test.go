@@ -1,10 +1,10 @@
 package votingpool
 
 import (
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var TstLastErr = lastErr

@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
 // This example demonstrates creating a new database.
@@ -20,9 +20,9 @@ func ExampleCreate() {
 
 	// import (
 
-	// 	"git.parallelcoin.io/pod/pkg/wallet/db"
+	// 	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 
-	// 	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
+	// 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 
 	// )
 
@@ -126,9 +126,9 @@ func Example_basicUsage() {
 
 	// import (
 
-	// 	"git.parallelcoin.io/pod/pkg/wallet/db"
+	// 	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 
-	// 	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
+	// 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 
 	// )
 

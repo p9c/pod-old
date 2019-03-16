@@ -9,8 +9,8 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"git.parallelcoin.io/pod/integration/rpctest"
-	"git.parallelcoin.io/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/integration/rpctest"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
 )
 
 func testGetBestBlock(

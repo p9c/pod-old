@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"git.parallelcoin.io/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/cmd/spv/headerfs"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 

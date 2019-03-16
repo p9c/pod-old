@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 // TestChainSvrCustomResults ensures any results that have custom marshalling work as intended and unmarshal code of results are as expected.

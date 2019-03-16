@@ -3,7 +3,7 @@ This test file is part of the ffldb package rather than than the ffldb_test pack
 */
 package ffldb
 
-import "git.parallelcoin.io/pod/pkg/database"
+import "git.parallelcoin.io/dev/pod/pkg/database"
 
 // TstRunWithMaxBlockFileSize runs the passed function with the maximum allowed file size for the database set to the provided value.  The value will be set back to the original value upon completion.
 func TstRunWithMaxBlockFileSize(

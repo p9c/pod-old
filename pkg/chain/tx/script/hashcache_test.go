@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"github.com/davecgh/go-spew/spew"
 )
 

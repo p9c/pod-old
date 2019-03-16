@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util/bloom"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util/bloom"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 // This example demonstrates how to create a new bloom filter, add a transaction hash to it, and check if the filter matches the transaction.

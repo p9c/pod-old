@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/database"
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/database"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // BenchmarkBlockHeader benchmarks how long it takes to load the mainnet genesis

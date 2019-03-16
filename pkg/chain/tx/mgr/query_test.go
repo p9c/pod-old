@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	. "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	. "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 )
 
 type queryState struct {

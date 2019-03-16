@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/pod/pkg/wallet/db/bdb"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
-	"git.parallelcoin.io/pod/pkg/chain/tx/mgr"
-	. "git.parallelcoin.io/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	. "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 )
 
 // Received transaction output for mainnet outpoint

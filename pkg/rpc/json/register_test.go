@@ -5,7 +5,7 @@ import (
 	"sort"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 // TestUsageFlagStringer tests the stringized output for the UsageFlag type.

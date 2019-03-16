@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/integration/rpctest"
-	"git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/integration/rpctest"
+	"git.parallelcoin.io/dev/pod/pkg/chain"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 const (

@@ -3,7 +3,7 @@ package blockchain
 import (
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // TestMerkle tests the BuildMerkleTreeStore API.

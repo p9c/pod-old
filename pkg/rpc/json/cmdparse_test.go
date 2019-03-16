@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 // TestAssignField tests the assignField function handles supported combinations properly.

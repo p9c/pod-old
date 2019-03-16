@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util/bech32"
+	"git.parallelcoin.io/dev/pod/pkg/util/bech32"
 )
 
 func TestBech32(

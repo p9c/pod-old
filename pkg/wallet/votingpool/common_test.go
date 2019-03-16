@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 func init() {

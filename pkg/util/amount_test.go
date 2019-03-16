@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	. "git.parallelcoin.io/pod/pkg/util"
+	. "git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 func TestAmountCreation(

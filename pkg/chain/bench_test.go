@@ -3,7 +3,7 @@ package blockchain
 import (
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // BenchmarkIsCoinBase performs a simple benchmark against the IsCoinBase function.

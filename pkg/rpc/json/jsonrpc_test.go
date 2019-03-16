@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
 // TestIsValidIDType ensures the IsValidIDType function behaves as expected.

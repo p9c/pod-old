@@ -3,9 +3,9 @@ package util_test
 import (
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/util/elliptic"
-	. "git.parallelcoin.io/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	. "git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 func TestEncodeDecodeWIF(

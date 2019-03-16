@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	database "git.parallelcoin.io/pod/pkg/db"
-	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
-	"git.parallelcoin.io/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
+	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 const (

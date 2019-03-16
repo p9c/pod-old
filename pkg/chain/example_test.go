@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	blockchain "git.parallelcoin.io/pod/pkg/chain"
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	database "git.parallelcoin.io/pod/pkg/db"
-	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
-	"git.parallelcoin.io/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // This example demonstrates how to create a new chain instance and use ProcessBlock to attempt to add a block to the chain.  As the package overview documentation describes, this includes all of the Bitcoin consensus rules.  This example intentionally attempts to insert a duplicate genesis block to illustrate how an invalid block is handled.

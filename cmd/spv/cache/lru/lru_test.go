@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"git.parallelcoin.io/pod/cmd/spv/cache"
+	"git.parallelcoin.io/dev/pod/cmd/spv/cache"
 )
 
 func assertEqual(

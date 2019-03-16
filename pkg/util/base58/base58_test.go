@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util/base58"
+	"git.parallelcoin.io/dev/pod/pkg/util/base58"
 )
 
 var stringTests = []struct {

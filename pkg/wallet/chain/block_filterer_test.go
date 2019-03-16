@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	"git.parallelcoin.io/pod/pkg/chain/hash"
-	"git.parallelcoin.io/pod/pkg/util"
-	chain "git.parallelcoin.io/pod/pkg/wallet/chain"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var Block100000 = wire.MsgBlock{

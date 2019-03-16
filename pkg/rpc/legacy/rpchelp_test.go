@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/rpc/json"
-	"git.parallelcoin.io/pod/pkg/rpchelp"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/rpchelp"
 )
 
 func serverMethods() map[string]struct{} {

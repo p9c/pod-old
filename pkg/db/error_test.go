@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	database "git.parallelcoin.io/pod/pkg/db"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
 )
 
 

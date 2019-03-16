@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/pod/pkg/chain/config"
-	database "git.parallelcoin.io/pod/pkg/db"
-	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
-	util "git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
+	util "git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 
@@ -24,9 +24,9 @@ func ExampleCreate() {
 
 	// import (
 
-	// 	"git.parallelcoin.io/pod/pkg/db"
+	// 	"git.parallelcoin.io/dev/pod/pkg/db"
 
-	// 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
+	// 	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
 
 	// )
 
@@ -62,9 +62,9 @@ func Example_basicUsage() {
 
 	// import (
 
-	// 	"git.parallelcoin.io/pod/pkg/db"
+	// 	"git.parallelcoin.io/dev/pod/pkg/db"
 
-	// 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
+	// 	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
 
 	// )
 
@@ -148,9 +148,9 @@ func Example_blockStorageAndRetrieval() {
 
 	// import (
 
-	// 	"git.parallelcoin.io/pod/pkg/db"
+	// 	"git.parallelcoin.io/dev/pod/pkg/db"
 
-	// 	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
+	// 	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
 
 	// )
 

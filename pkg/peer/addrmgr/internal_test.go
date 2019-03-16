@@ -3,7 +3,7 @@ package addrmgr
 import (
 	"time"
 
-	"git.parallelcoin.io/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 func TstKnownAddressIsBad(

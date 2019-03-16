@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
-	"git.parallelcoin.io/pod/pkg/util"
-	"git.parallelcoin.io/pod/pkg/util/hdkeychain"
-	vp "git.parallelcoin.io/pod/pkg/wallet/votingpool"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
+	vp "git.parallelcoin.io/dev/pod/pkg/wallet/votingpool"
 )
 
 func TestStartWithdrawal(

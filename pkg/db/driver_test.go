@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	database "git.parallelcoin.io/pod/pkg/db"
-	_ "git.parallelcoin.io/pod/pkg/db/ffldb"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
 )
 
 var (
