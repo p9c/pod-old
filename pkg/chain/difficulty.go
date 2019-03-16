@@ -84,6 +84,8 @@ func (
 ) {
 	nH := lastNode.height + 1
 	switch fork.GetCurrent(nH) {
+
+	// Legacy difficulty adjustment
 	case 0:
 
 		log <- cl.Debug{"on pre-hardfork"}
@@ -99,20 +101,36 @@ func (
 		if lastNode == nil {
 			return newTargetBits, nil
 		}
-		prevNode := lastNode
+		prevNode := lastNode.RelativeAncestor(1)
 		log <- cl.Debug{"prevNode version", prevNode.version}
-		if prevNode.version != algo {
-			prevNode = prevNode.GetPrevWithAlgo(algo)
+		prevversion := prevNode.version
+
+		if fork.GetCurrent(nH) == 0 {
+
+			if prevversion != 514 &&
+				prevversion != 2 {
+
+				log <- cl.Warn{"irregular block version, assuming 2 (sha256d)"}
+			}
+
 		}
-		log <- cl.Debug{"found version", prevNode.version, prevNode.height}
+		if prevversion != algo {
+
+			prevNode = prevNode.GetLastWithAlgo(algo)
+		}
+
+		log <- cl.Debug{"found version", prevNode.version, "corrected", prevversion, prevNode.height}
 		firstNode := prevNode // .GetPrevWithAlgo(algo)
 		i := int64(1)
 		for ; firstNode != nil && i < fork.GetAveragingInterval(nH); i++ {
-			firstNode = firstNode.RelativeAncestor(1).GetPrevWithAlgo(algo)
+			firstNode = firstNode.RelativeAncestor(1).GetLastWithAlgo(algo)
 		}
+
 		if firstNode == nil {
+
 			return newTargetBits, nil
 		}
+
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
 		adjustedTimespan := actualTimespan
 		if actualTimespan < b.chainParams.MinActualTimespan {
@@ -165,7 +183,7 @@ func (
 		// find the most recent block of the same algo
 		if last.version != algo {
 			l := last.RelativeAncestor(1)
-			l = l.GetPrevWithAlgo(algo)
+			l = l.GetLastWithAlgo(algo)
 
 			// ignore the first block as its time is not a normal timestamp
 			if l.height < 1 {
@@ -185,7 +203,7 @@ func (
 				if p.height == 0 {
 					return fork.SecondPowLimitBits, nil
 				}
-				pb = p.GetPrevWithAlgo(algo)
+				pb = p.GetLastWithAlgo(algo)
 			} else {
 				break
 			}

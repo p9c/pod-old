@@ -94,7 +94,7 @@ func (
 		log <- cl.Debug{"found no previous node"}
 		DoNotCheckPow = true
 	}
-	pb := pn.GetPrevWithAlgo(algo)
+	pb := pn.GetLastWithAlgo(algo)
 	if pb == nil {
 		pl = &chaincfg.AllOnes
 		DoNotCheckPow = true
