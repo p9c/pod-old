@@ -208,11 +208,13 @@ func (
 
 		return false, false, err
 	}
+
 	log <- cl.Debugf{
 
 		"accepted block %d %v %s ",
 		blockHeight,
 		blockHashWithAlgo(),
+
 		fork.GetAlgoName(block.MsgBlock().Header.Version, blockHeight),
 	}
 	return isMainChain, false, nil

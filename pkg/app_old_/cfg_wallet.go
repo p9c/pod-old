@@ -26,8 +26,11 @@ func DefaultWalletConfig(
 	log <- cl.Dbg("getting default config")
 
 	appdatadir := filepath.Join(datadir, walletmain.DefaultAppDataDirname)
+
 	return &WalletCfg{
+
 		Wallet: &walletmain.Config{
+
 			ConfigFile: filepath.Join(
 				appdatadir, walletmain.DefaultConfigFilename),
 			DataDir:         datadir,
@@ -45,7 +48,9 @@ func DefaultWalletConfig(
 			Proxy:           "",
 			ProxyUser:       "",
 			ProxyPass:       "",
+
 			LegacyRPCListeners: []string{
+
 				walletmain.DefaultListener,
 			},
 
@@ -72,6 +77,7 @@ func WriteDefaultWalletConfig(
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 
 	if err != nil {
+
 		log <- cl.Error{"marshalling configuration", err}
 
 		panic(err)
@@ -79,12 +85,14 @@ func WriteDefaultWalletConfig(
 
 	j = append(j, '\n')
 	EnsureDir(defCfg.Wallet.ConfigFile)
+
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
 
 	EnsureDir(defCfg.Wallet.ConfigFile)
 	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
 
 	if err != nil {
+
 		log <- cl.Error{"writing app config file", err}
 
 		panic(err)
@@ -105,6 +113,7 @@ func WriteWalletConfig(
 	j, err := json.MarshalIndent(c, "", "  ")
 
 	if err != nil {
+
 		panic(err.Error())
 	}
 
@@ -113,6 +122,7 @@ func WriteWalletConfig(
 	err = ioutil.WriteFile(c.Wallet.ConfigFile, j, 0600)
 
 	if err != nil {
+
 		panic(err.Error())
 	}
 
@@ -135,91 +145,113 @@ func configWallet(
 	}
 
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
+
 		log <- cl.Debug{"appdatadir set to", r}
 
 		wc.AppDataDir = n.CleanAndExpandPath(r)
 	}
 
 	if r, ok := getIfIs(ctx, "logdir"); ok {
+
 		wc.LogDir = n.CleanAndExpandPath(r)
 	}
 
 	if r, ok := getIfIs(ctx, "profile"); ok {
+
 		NormalizeAddress(r, "3131", &wc.Profile)
 	}
 
 	if r, ok := getIfIs(ctx, "walletpass"); ok {
+
 		wc.WalletPass = r
 	}
 
 	if r, ok := getIfIs(ctx, "rpcconnect"); ok {
+
 		NormalizeAddress(r, "11048", &wc.RPCConnect)
 	}
 
 	if r, ok := getIfIs(ctx, "cafile"); ok {
+
 		wc.CAFile = n.CleanAndExpandPath(r)
 	}
 
 	if r, ok := getIfIs(ctx, "enableclienttls"); ok {
+
 		wc.EnableClientTLS = r == "true"
 	}
 
 	if r, ok := getIfIs(ctx, "podusername"); ok {
+
 		wc.PodUsername = r
 	}
 
 	if r, ok := getIfIs(ctx, "podpassword"); ok {
+
 		wc.PodPassword = r
 	}
 
 	if r, ok := getIfIs(ctx, "proxy"); ok {
+
 		NormalizeAddress(r, "11048", &wc.Proxy)
 	}
 
 	if r, ok := getIfIs(ctx, "proxyuser"); ok {
+
 		wc.ProxyUser = r
 	}
 
 	if r, ok := getIfIs(ctx, "proxypass"); ok {
+
 		wc.ProxyPass = r
 	}
 
 	if r, ok := getIfIs(ctx, "rpccert"); ok {
+
 		wc.RPCCert = n.CleanAndExpandPath(r)
 	}
 
 	if r, ok := getIfIs(ctx, "rpckey"); ok {
+
 		wc.RPCKey = n.CleanAndExpandPath(r)
 	}
 
 	if r, ok := getIfIs(ctx, "onetimetlskey"); ok {
+
 		wc.OneTimeTLSKey = r == "true"
 	}
 
 	if r, ok := getIfIs(ctx, "enableservertls"); ok {
+
 		wc.EnableServerTLS = r == "true"
 	}
 
 	if r, ok := getIfIs(ctx, "legacyrpclisteners"); ok {
+
 		NormalizeAddresses(r, "11046", &wc.LegacyRPCListeners)
 	}
 
 	if r, ok := getIfIs(ctx, "legacyrpcmaxclients"); ok {
+
 		var bt int
 
 		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
+
 			log <- cl.Wrn(err.Error())
 
 		} else {
+
 			wc.LegacyRPCMaxClients = int64(bt)
 		}
 
 	}
 
 	if r, ok := getIfIs(ctx, "legacyrpcmaxwebsockets"); ok {
+
 		_, err := fmt.Sscanf(r, "%d", wc.LegacyRPCMaxWebsockets)
 
 		if err != nil {
+
 			log <- cl.Errorf{
 
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
@@ -231,24 +263,31 @@ func configWallet(
 	}
 
 	if r, ok := getIfIs(ctx, "username"); ok {
+
 		wc.Username = r
 	}
 
 	if r, ok := getIfIs(ctx, "password"); ok {
+
 		wc.Password = r
 	}
 
 	if r, ok := getIfIs(ctx, "experimentalrpclisteners"); ok {
+
 		NormalizeAddresses(r, "11045", &wc.ExperimentalRPCListeners)
 	}
 
 	if r, ok := getIfIs(ctx, "datadir"); ok {
+
 		wc.DataDir = r
 	}
 
 	if r, ok := getIfIs(ctx, "network"); ok {
+
 		switch r {
+
 		case "testnet":
+
 			fork.IsTestnet = true
 			wc.TestNet3, wc.SimNet = true, false
 			WalletConfig.activeNet = &netparams.TestNet3Params
@@ -272,11 +311,13 @@ func configWallet(
 		j, err := json.MarshalIndent(WalletConfig, "", "  ")
 
 		if err != nil {
+
 			log <- cl.Error{"writing app config file", err}
 
 		}
 
 		j = append(j, '\n')
+
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
 
 		e := ioutil.WriteFile(cfgFile, j, 0600)
@@ -305,10 +346,12 @@ func init() {
 		var ok bool
 
 		if dl, ok = ctx.Get("debuglevel"); ok {
+
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
 
 			for i := range ll {
+
 				ll[i].SetLevel(dl)
 			}
 
@@ -329,13 +372,16 @@ func init() {
 		var datadir, cfgFile string
 
 		if datadir, ok = ctx.Get("datadir"); !ok {
+
 			datadir = walletmain.DefaultDataDir
 		}
 
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
+
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
+
 			cfgFile = filepath.Join(
 				filepath.Join(datadir, "wallet"), walletmain.DefaultConfigFilename)
 		}
@@ -356,11 +402,13 @@ func init() {
 			WriteDefaultWalletConfig(cfgFile)
 
 		} else {
+
 			log <- cl.Debug{"reading app configuration from", cfgFile}
 
 			cfgData, err := ioutil.ReadFile(cfgFile)
 
 			if err != nil {
+
 				log <- cl.Error{"reading app config file", err.Error()}
 
 				WriteDefaultWalletConfig(cfgFile)
@@ -371,6 +419,7 @@ func init() {
 			err = json.Unmarshal(cfgData, &WalletConfig)
 
 			if err != nil {
+
 				log <- cl.Error{"parsing app config file", err.Error()}
 
 				WriteDefaultWalletConfig(cfgFile)
@@ -379,10 +428,12 @@ func init() {
 			WalletConfig.activeNet = &netparams.MainNetParams
 
 			if WalletConfig.Wallet.TestNet3 {
+
 				WalletConfig.activeNet = &netparams.TestNet3Params
 			}
 
 			if WalletConfig.Wallet.SimNet {
+
 				WalletConfig.activeNet = &netparams.SimNetParams
 			}
 
@@ -391,7 +442,9 @@ func init() {
 		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
 
 		if dl, ok = ctx.Get("debuglevel"); ok {
+
 			for i := range WalletConfig.Levels {
+
 				WalletConfig.Levels[i] = dl
 			}
 

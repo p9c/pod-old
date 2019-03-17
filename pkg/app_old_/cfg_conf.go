@@ -42,7 +42,9 @@ func DefaultConfConfig(
 
 	u := GenKey()
 	p := GenKey()
+
 	return &ConfCfg{
+
 		DataDir:          datadir,
 		ConfigFile:       filepath.Join(datadir, "conf.json"),
 		NodeListeners:    []string{node.DefaultListener},
@@ -86,7 +88,9 @@ func GenPortSet(
 	and next would be 21147, 21148, 21146
 	*/
 	t := portbase
+
 	ps = &PortSet{
+
 		P2P:       fmt.Sprint(t),
 		NodeRPC:   fmt.Sprint(t + 1),
 		WalletRPC: fmt.Sprint(t - 1),
@@ -119,6 +123,7 @@ func SyncToConfs(
 ) {
 
 	if in == nil {
+
 		panic("received nil configset")
 	}
 
@@ -128,6 +133,7 @@ func SyncToConfs(
 		in.Wallet == nil ||
 
 		in.Shell == nil {
+
 		panic("configset had a nil element\n" + spew.Sdump(in))
 	}
 
@@ -430,6 +436,7 @@ func configConf(
 		r = strings.ToLower(r)
 
 		switch r {
+
 		case "mainnet", "testnet", "regtestnet", "simnet":
 		default:
 			r = "mainnet"
@@ -439,6 +446,7 @@ func configConf(
 		fmt.Println("configured for", r, "network")
 
 		switch r {
+
 		case "mainnet":
 			cs.Ctl.TestNet3 = false
 			cs.Ctl.SimNet = false
@@ -453,6 +461,7 @@ func configConf(
 			cs.Shell.Wallet.TestNet3 = false
 			cs.Shell.Wallet.SimNet = false
 		case "testnet":
+
 			fork.IsTestnet = true
 			cs.Ctl.TestNet3 = true
 			cs.Ctl.SimNet = false
@@ -522,9 +531,13 @@ func configConf(
 func getConfs(
 	datadir string,
 
+
 ) {
 
+
+
 	confs = []string{
+
 		datadir + "/ctl/conf.json",
 		datadir + "/node/conf.json",
 		datadir + "/wallet/conf.json",

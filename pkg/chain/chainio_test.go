@@ -57,9 +57,13 @@ func TestStxoSerialization(
 	}{
 
 		// From block 170 in main blockchain.
+
 		{
+
 			name: "Spends last output of coinbase",
+
 			stxo: SpentTxOut{
+
 				Amount:     5000000000,
 				PkScript:   hexToBytes("410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"),
 				IsCoinBase: true,
@@ -70,9 +74,13 @@ func TestStxoSerialization(
 		},
 
 		// Adapted from block 100025 in main blockchain.
+
 		{
+
 			name: "Spends last output of non coinbase",
+
 			stxo: SpentTxOut{
+
 				Amount:     13761000000,
 				PkScript:   hexToBytes("76a914b2fb57eadf61e106a100a7445a8c3f67898841ec88ac"),
 				IsCoinBase: false,
@@ -83,9 +91,13 @@ func TestStxoSerialization(
 		},
 
 		// Adapted from block 100025 in main blockchain.
+
 		{
+
 			name: "Does not spend last output, legacy format",
+
 			stxo: SpentTxOut{
+
 				Amount:   34405000000,
 				PkScript: hexToBytes("76a9146edbc6c4d31bae9f1ccc38538a114bf42de65e8688ac"),
 			},
@@ -174,6 +186,7 @@ func TestStxoDecodeErrors(
 	}{
 
 		{
+
 			name:       "nothing serialized",
 			stxo:       SpentTxOut{},
 			serialized: hexToBytes(""),
@@ -182,6 +195,7 @@ func TestStxoDecodeErrors(
 		},
 
 		{
+
 			name:       "no data after header code w/o reserved",
 			stxo:       SpentTxOut{},
 			serialized: hexToBytes("00"),
@@ -190,6 +204,7 @@ func TestStxoDecodeErrors(
 		},
 
 		{
+
 			name:       "no data after header code with reserved",
 			stxo:       SpentTxOut{},
 			serialized: hexToBytes("13"),
@@ -198,6 +213,7 @@ func TestStxoDecodeErrors(
 		},
 
 		{
+
 			name:       "no data after reserved",
 			stxo:       SpentTxOut{},
 			serialized: hexToBytes("1300"),
@@ -206,6 +222,7 @@ func TestStxoDecodeErrors(
 		},
 
 		{
+
 			name:       "incomplete compressed txout",
 			stxo:       SpentTxOut{},
 			serialized: hexToBytes("1332"),
@@ -257,7 +274,9 @@ func TestSpendJournalSerialization(
 	}{
 
 		// From block 2 in main blockchain.
+
 		{
+
 			name:       "No spends",
 			entry:      nil,
 			blockTxns:  nil,
@@ -265,9 +284,13 @@ func TestSpendJournalSerialization(
 		},
 
 		// From block 170 in main blockchain.
+
 		{
+
 			name: "One tx with one input spends last output of coinbase",
+
 			entry: []SpentTxOut{{
+
 				Amount:     5000000000,
 				PkScript:   hexToBytes("410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"),
 				IsCoinBase: true,
@@ -276,8 +299,11 @@ func TestSpendJournalSerialization(
 
 			blockTxns: []*wire.MsgTx{{ // Coinbase omitted.
 				Version: 1,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  *newHashFromStr("0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"),
 						Index: 0,
 					},
@@ -287,10 +313,13 @@ func TestSpendJournalSerialization(
 				}},
 
 				TxOut: []*wire.TxOut{{
+
 					Value:    1000000000,
 					PkScript: hexToBytes("4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"),
 				},
+
 					{
+
 						Value:    4000000000,
 						PkScript: hexToBytes("410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"),
 					}},
@@ -302,15 +331,21 @@ func TestSpendJournalSerialization(
 		},
 
 		// Adapted from block 100025 in main blockchain.
+
 		{
+
 			name: "Two txns when one spends last output, one doesn't",
+
 			entry: []SpentTxOut{{
+
 				Amount:     34405000000,
 				PkScript:   hexToBytes("76a9146edbc6c4d31bae9f1ccc38538a114bf42de65e8688ac"),
 				IsCoinBase: false,
 				Height:     100024,
 			},
+
 				{
+
 					Amount:     13761000000,
 					PkScript:   hexToBytes("76a914b2fb57eadf61e106a100a7445a8c3f67898841ec88ac"),
 					IsCoinBase: false,
@@ -319,8 +354,11 @@ func TestSpendJournalSerialization(
 
 			blockTxns: []*wire.MsgTx{{ // Coinbase omitted.
 				Version: 1,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  *newHashFromStr("c0ed017828e59ad5ed3cf70ee7c6fb0f426433047462477dc7a5d470f987a537"),
 						Index: 1,
 					},
@@ -330,20 +368,28 @@ func TestSpendJournalSerialization(
 				}},
 
 				TxOut: []*wire.TxOut{{
+
 					Value:    5000000,
 					PkScript: hexToBytes("76a914f419b8db4ba65f3b6fcc233acb762ca6f51c23d488ac"),
 				},
+
 					{
+
 						Value:    34400000000,
 						PkScript: hexToBytes("76a914cadf4fc336ab3c6a4610b75f31ba0676b7f663d288ac"),
 					}},
 
 				LockTime: 0,
 			},
+
 				{
+
 					Version: 1,
+
 					TxIn: []*wire.TxIn{{
+
 						PreviousOutPoint: wire.OutPoint{
+
 							Hash:  *newHashFromStr("92fbe1d4be82f765dfabc9559d4620864b05cc897c4db0e29adac92d294e52b7"),
 							Index: 0,
 						},
@@ -353,10 +399,13 @@ func TestSpendJournalSerialization(
 					}},
 
 					TxOut: []*wire.TxOut{{
+
 						Value:    5000000,
 						PkScript: hexToBytes("76a914a983ad7c92c38fc0e2025212e9f972204c6e687088ac"),
 					},
+
 						{
+
 							Value:    13756000000,
 							PkScript: hexToBytes("76a914a6ebd69952ab486a7a300bfffdcb395dc7d47c2388ac"),
 						}},
@@ -422,12 +471,17 @@ func TestSpendJournalErrors(
 	}{
 
 		// Adapted from block 170 in main blockchain.
+
 		{
+
 			name: "Force assertion due to missing stxos",
 			blockTxns: []*wire.MsgTx{{ // Coinbase omitted.
 				Version: 1,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  *newHashFromStr("0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"),
 						Index: 0,
 					},
@@ -444,11 +498,15 @@ func TestSpendJournalErrors(
 		},
 
 		{
+
 			name: "Force deserialization error in stxos",
 			blockTxns: []*wire.MsgTx{{ // Coinbase omitted.
 				Version: 1,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  *newHashFromStr("0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9"),
 						Index: 0,
 					},
@@ -505,9 +563,13 @@ func TestUtxoSerialization(
 	}{
 
 		// From tx in main blockchain: 0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098:0
+
 		{
+
 			name: "height 1, coinbase",
+
 			entry: &UtxoEntry{
+
 				amount:      5000000000,
 				pkScript:    hexToBytes("410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac"),
 				blockHeight: 1,
@@ -518,9 +580,13 @@ func TestUtxoSerialization(
 		},
 
 		// From tx in main blockchain: 0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098:0
+
 		{
+
 			name: "height 1, coinbase, spent",
+
 			entry: &UtxoEntry{
+
 				amount:      5000000000,
 				pkScript:    hexToBytes("410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac"),
 				blockHeight: 1,
@@ -531,9 +597,13 @@ func TestUtxoSerialization(
 		},
 
 		// From tx in main blockchain: 8131ffb0a2c945ecaf9b9063e59558784f9c3a74741ce6ae2a18d0571dac15bb:1
+
 		{
+
 			name: "height 100001, not coinbase",
+
 			entry: &UtxoEntry{
+
 				amount:      1000000,
 				pkScript:    hexToBytes("76a914ee8bd501094a7d5ca318da2506de35e1cb025ddc88ac"),
 				blockHeight: 100001,
@@ -544,9 +614,13 @@ func TestUtxoSerialization(
 		},
 
 		// From tx in main blockchain: 8131ffb0a2c945ecaf9b9063e59558784f9c3a74741ce6ae2a18d0571dac15bb:1
+
 		{
+
 			name: "height 100001, not coinbase, spent",
+
 			entry: &UtxoEntry{
+
 				amount:      1000000,
 				pkScript:    hexToBytes("76a914ee8bd501094a7d5ca318da2506de35e1cb025ddc88ac"),
 				blockHeight: 100001,
@@ -656,6 +730,7 @@ func TestUtxoEntryHeaderCodeErrors(
 	}{
 
 		{
+
 			name:    "Force assertion due to spent output",
 			entry:   &UtxoEntry{packedFlags: tfSpent},
 			errType: AssertError(""),
@@ -700,12 +775,14 @@ func TestUtxoEntryDeserializeErrors(
 	}{
 
 		{
+
 			name:       "no data after header code",
 			serialized: hexToBytes("02"),
 			errType:    errDeserialize(""),
 		},
 
 		{
+
 			name:       "incomplete compressed txout",
 			serialized: hexToBytes("0232"),
 			errType:    errDeserialize(""),
@@ -751,8 +828,11 @@ func TestBestChainStateSerialization(
 	}{
 
 		{
+
 			name: "genesis",
+
 			state: bestChainState{
+
 				hash:      *newHashFromStr("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				height:    0,
 				totalTxns: 1,
@@ -769,8 +849,11 @@ func TestBestChainStateSerialization(
 		},
 
 		{
+
 			name: "block 1",
+
 			state: bestChainState{
+
 				hash:      *newHashFromStr("00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048"),
 				height:    1,
 				totalTxns: 2,
@@ -836,18 +919,21 @@ func TestBestChainStateDeserializeErrors(
 	}{
 
 		{
+
 			name:       "nothing serialized",
 			serialized: hexToBytes(""),
 			errType:    database.Error{ErrorCode: database.ErrCorruption},
 		},
 
 		{
+
 			name:       "short data in hash",
 			serialized: hexToBytes("0000"),
 			errType:    database.Error{ErrorCode: database.ErrCorruption},
 		},
 
 		{
+
 			name:       "short data in work sum",
 			serialized: hexToBytes("6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d61900000000000000000001000000000000000500000001000100"),
 			errType:    database.Error{ErrorCode: database.ErrCorruption},

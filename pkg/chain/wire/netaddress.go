@@ -15,6 +15,7 @@ func maxNetAddressPayload(
 	plen := uint32(26)
 
 	// NetAddressTimeVersion added a timestamp field.
+
 	if pver >= NetAddressTimeVersion {
 
 		// Timestamp 4 bytes.
@@ -86,15 +87,18 @@ func readNetAddress(
 	var ip [16]byte
 
 	// NOTE: The bitcoin protocol uses a uint32 for the timestamp so it will stop working somewhere around 2106.  Also timestamp wasn't added until protocol version >= NetAddressTimeVersion
+
 	if ts && pver >= NetAddressTimeVersion {
 
 		err := readElement(r, (*uint32Time)(&na.Timestamp))
+
 		if err != nil {
 
 			return err
 		}
 	}
 	err := readElements(r, &na.Services, &ip)
+
 	if err != nil {
 
 		return err
@@ -102,6 +106,7 @@ func readNetAddress(
 
 	// Sigh.  Bitcoin protocol mixes little and big endian.
 	port, err := binarySerializer.Uint16(r, bigEndian)
+
 	if err != nil {
 
 		return err
@@ -120,9 +125,11 @@ func writeNetAddress(
 	w io.Writer, pver uint32, na *NetAddress, ts bool) error {
 
 	// NOTE: The bitcoin protocol uses a uint32 for the timestamp so it will stop working somewhere around 2106.  Also timestamp wasn't added until until protocol version >= NetAddressTimeVersion.
+
 	if ts && pver >= NetAddressTimeVersion {
 
 		err := writeElement(w, uint32(na.Timestamp.Unix()))
+
 		if err != nil {
 
 			return err
@@ -131,11 +138,13 @@ func writeNetAddress(
 
 	// Ensure to always write 16 bytes even if the ip is nil.
 	var ip [16]byte
+
 	if na.IP != nil {
 
 		copy(ip[:], na.IP.To16())
 	}
 	err := writeElements(w, na.Services, ip)
+
 	if err != nil {
 
 		return err

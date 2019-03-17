@@ -29,17 +29,24 @@ func solveBlock(
 	solver := func(hdr wire.BlockHeader, startNonce, stopNonce uint32) {
 
 		// We need to modify the nonce field of the header, so make sure we work with a copy of the original header.
+
 		for i := startNonce; i >= startNonce && i <= stopNonce; i++ {
+
 			select {
+
 			case <-quit:
 				return
+
 			default:
 				hdr.Nonce = i
 				hash := hdr.BlockHash()
 				if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
+
 					select {
+
 					case results <- sbResult{true, i}:
 						return
+
 					case <-quit:
 						return
 					}
@@ -48,6 +55,7 @@ func solveBlock(
 		}
 		select {
 		case results <- sbResult{false, 0}:
+
 		case <-quit:
 			return
 		}
@@ -56,28 +64,36 @@ func solveBlock(
 	stopNonce := uint32(math.MaxUint32)
 	numCores := uint32(runtime.NumCPU())
 	noncesPerCore := (stopNonce - startNonce) / numCores
+
 	for i := uint32(0); i < numCores; i++ {
+
 		rangeStart := startNonce + (noncesPerCore * i)
 		rangeStop := startNonce + (noncesPerCore * (i + 1)) - 1
 		if i == numCores-1 {
+
 			rangeStop = stopNonce
 		}
+
 		go solver(*header, rangeStart, rangeStop)
 	}
+
 	for i := uint32(0); i < numCores; i++ {
+
 		result := <-results
+
 		if result.found {
+
 			close(quit)
 			header.Nonce = result.nonce
 			return true
 		}
+
 	}
 	return false
 }
 
 // standardCoinbaseScript returns a standard script suitable for use as the signature script of the coinbase transaction of a new block. In particular, it starts with the block height that is required by version 2 blocks.
-func standardCoinbaseScript(
-	nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
+func standardCoinbaseScript(nextBlockHeight int32, extraNonce uint64) ([]byte, error) {
 
 	return txscript.NewScriptBuilder().AddInt64(int64(nextBlockHeight)).
 		AddInt64(int64(extraNonce)).Script()
@@ -91,27 +107,39 @@ func createCoinbaseTx(
 
 	// Create the script to pay to the provided payment address.
 	pkScript, err := txscript.PayToAddrScript(addr)
+
 	if err != nil {
+
 		return nil, err
 	}
+
 	tx := wire.NewMsgTx(wire.TxVersion)
 	tx.AddTxIn(&wire.TxIn{
+
 		// Coinbase transactions have no inputs, so previous outpoint is zero hash and max index.
 		PreviousOutPoint: *wire.NewOutPoint(&chainhash.Hash{},
 			wire.MaxPrevOutIndex),
 		SignatureScript: coinbaseScript,
 		Sequence:        wire.MaxTxInSequenceNum,
 	})
+
 	if len(mineTo) == 0 {
+
 		tx.AddTxOut(&wire.TxOut{
+
 			Value:    blockchain.CalcBlockSubsidy(nextBlockHeight, net),
 			PkScript: pkScript,
 		})
+
 	} else {
+
 		for i := range mineTo {
+
 			tx.AddTxOut(&mineTo[i])
 		}
+
 	}
+
 	return util.NewTx(tx), nil
 }
 
@@ -128,55 +156,76 @@ func CreateBlock(
 	)
 	// If the previous block isn't specified, then we'll construct a block that builds off of the genesis block for the chain.
 	if prevBlock == nil {
+
 		prevHash = net.GenesisHash
 		blockHeight = 1
 		prevBlockTime = net.GenesisBlock.Header.Timestamp.Add(time.Minute)
 	} else {
+
 		prevHash = prevBlock.Hash()
 		blockHeight = prevBlock.Height() + 1
 		prevBlockTime = prevBlock.MsgBlock().Header.Timestamp
 	}
 	// If a target block time was specified, then use that as the header's timestamp. Otherwise, add one second to the previous block unless it's the genesis block in which case use the current time.
 	var ts time.Time
+
 	switch {
+
 	case !blockTime.IsZero():
 		ts = blockTime
+
 	default:
 		ts = prevBlockTime.Add(time.Second)
 	}
+
 	extraNonce := uint64(0)
 	coinbaseScript, err := standardCoinbaseScript(blockHeight, extraNonce)
+
 	if err != nil {
+
 		return nil, err
 	}
-	coinbaseTx, err := createCoinbaseTx(coinbaseScript, blockHeight,
-		miningAddr, mineTo, net)
+
+	coinbaseTx, err := createCoinbaseTx(
+		coinbaseScript, blockHeight, miningAddr, mineTo, net)
+
 	if err != nil {
+
 		return nil, err
 	}
+
 	// Create a new block ready to be solved.
 	blockTxns := []*util.Tx{coinbaseTx}
+
 	if inclusionTxs != nil {
+
 		blockTxns = append(blockTxns, inclusionTxs...)
 	}
+
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns, false)
 	var block wire.MsgBlock
 	block.Header = wire.BlockHeader{
+
 		Version:    blockVersion,
 		PrevBlock:  *prevHash,
 		MerkleRoot: *merkles[len(merkles)-1],
 		Timestamp:  ts,
 		Bits:       net.PowLimitBits,
 	}
+
 	for _, tx := range blockTxns {
+
 		if err := block.AddTransaction(tx.MsgTx()); err != nil {
+
 			return nil, err
 		}
 	}
 	found := solveBlock(&block.Header, net.PowLimit)
 	if !found {
+
 		return nil, errors.New("Unable to solve block")
 	}
+
 	utilBlock := util.NewBlock(&block)
 	utilBlock.SetHeight(blockHeight)
 	return utilBlock, nil

@@ -15,6 +15,7 @@ func newHashFromStr(
 	hexStr string) *chainhash.Hash {
 
 	hash, err := chainhash.NewHashFromStr(hexStr)
+
 	if err != nil {
 
 		panic("invalid hash in source file: " + hexStr)
@@ -27,6 +28,7 @@ func hexToBytes(
 	s string) []byte {
 
 	b, err := hex.DecodeString(s)
+
 	if err != nil {
 
 		panic("invalid hex in source file: " + s)
@@ -43,6 +45,7 @@ func newUtxoViewpoint(
 		panic("each transaction must have its block height specified")
 	}
 	view := blockchain.NewUtxoViewpoint()
+
 	for i, tx := range sourceTxns {
 
 		view.AddTxOuts(util.NewTx(tx), sourceTxHeights[i])
@@ -153,9 +156,11 @@ func TestCalcPriority(
 			want:       3083333333333.3335,
 		},
 	}
+
 	for i, test := range tests {
 
 		got := CalcPriority(test.tx, test.utxoView, test.nextHeight)
+
 		if got != test.want {
 
 			t.Errorf("CalcPriority #%d (%q): unexpected priority "+

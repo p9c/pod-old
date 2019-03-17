@@ -17,6 +17,7 @@ func TestOpcodeDisabled(
 		OP_AND, OP_OR, OP_2MUL, OP_2DIV, OP_MUL, OP_DIV, OP_MOD,
 		OP_LSHIFT, OP_RSHIFT,
 	}
+
 	for _, opcodeVal := range tests {
 
 		pop := parsedOpcode{opcode: &opcodeArray[opcodeVal], data: nil}
@@ -72,9 +73,11 @@ func TestOpcodeDisasm(
 		0xfd: "OP_PUBKEYHASH", 0xfe: "OP_PUBKEY",
 		0xff: "OP_INVALIDOPCODE",
 	}
+
 	for opcodeVal, expectedStr := range expectedStrings {
 
 		var data []byte
+
 		switch {
 
 		// OP_DATA_1 through OP_DATA_65 display the pushed data.
@@ -100,6 +103,7 @@ func TestOpcodeDisasm(
 			expectedStr = strconv.Itoa(int(val))
 		// OP_NOP1 through OP_NOP10.
 		case opcodeVal >= 0xb0 && opcodeVal <= 0xb9:
+
 			switch opcodeVal {
 
 			case 0xb1:
@@ -130,9 +134,11 @@ func TestOpcodeDisasm(
 	// Now, replace the relevant fields and test the full disassembly.
 	expectedStrings[0x00] = "OP_0"
 	expectedStrings[0x4f] = "OP_1NEGATE"
+
 	for opcodeVal, expectedStr := range expectedStrings {
 
 		var data []byte
+
 		switch {
 
 		// OP_DATA_1 through OP_DATA_65 display the opcode followed by the pushed data.
@@ -162,6 +168,7 @@ func TestOpcodeDisasm(
 			expectedStr = "OP_" + strconv.Itoa(int(val))
 		// OP_NOP1 through OP_NOP10.
 		case opcodeVal >= 0xb0 && opcodeVal <= 0xb9:
+
 			switch opcodeVal {
 
 			case 0xb1:

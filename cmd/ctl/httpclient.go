@@ -24,6 +24,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 	if *cfg.Proxy != "" {
 
 		proxy := &socks.Proxy{
+
 			Addr:     *cfg.Proxy,
 			Username: *cfg.ProxyUser,
 			Password: *cfg.ProxyPass,
@@ -57,7 +58,9 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 
 		pool := x509.NewCertPool()
 		pool.AppendCertsFromPEM(pem)
+
 		tlsConfig = &tls.Config{
+
 			RootCAs:            pool,
 			InsecureSkipVerify: *cfg.TLSSkipVerify,
 		}
@@ -65,8 +68,11 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 	}
 
 	// Create and return the new HTTP client potentially configured with a proxy and TLS.
+
 	client := http.Client{
+
 		Transport: &http.Transport{
+
 			Dial:            dial,
 			TLSClientConfig: tlsConfig,
 		},

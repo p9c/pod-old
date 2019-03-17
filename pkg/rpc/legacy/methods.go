@@ -177,20 +177,24 @@ func lazyApplyHandler(
 	request *json.Request, w *wallet.Wallet, chainClient chain.Interface) lazyHandler {
 
 	handlerData, ok := rpcHandlers[request.Method]
+
 	if ok && handlerData.handlerWithChain != nil && w != nil && chainClient != nil {
 
 		return func() (interface{}, *json.RPCError) {
 
 			cmd, err := json.UnmarshalCmd(request)
+
 			if err != nil {
 
 				return nil, json.ErrRPCInvalidRequest
 			}
+
 			switch client := chainClient.(type) {
 
 			case *chain.RPCClient:
 				resp, err := handlerData.handlerWithChain(cmd,
 					w, client)
+
 				if err != nil {
 
 					return nil, jsonError(err)
@@ -204,16 +208,19 @@ func lazyApplyHandler(
 			}
 		}
 	}
+
 	if ok && handlerData.handler != nil && w != nil {
 
 		return func() (interface{}, *json.RPCError) {
 
 			cmd, err := json.UnmarshalCmd(request)
+
 			if err != nil {
 
 				return nil, json.ErrRPCInvalidRequest
 			}
 			resp, err := handlerData.handler(cmd, w)
+
 			if err != nil {
 
 				return nil, jsonError(err)
@@ -232,11 +239,13 @@ func lazyApplyHandler(
 				Message: "Chain RPC is inactive",
 			}
 		}
+
 		switch client := chainClient.(type) {
 
 		case *chain.RPCClient:
 			resp, err := client.RawRequest(request.Method,
 				request.Params)
+
 			if err != nil {
 
 				return nil, jsonError(err)
@@ -258,6 +267,7 @@ func makeResponse(
 	id, result interface{}, err error) json.Response {
 
 	idPtr := idPointer(id)
+
 	if err != nil {
 
 		return json.Response{
@@ -266,6 +276,7 @@ func makeResponse(
 		}
 	}
 	resultBytes, err := js.Marshal(result)
+
 	if err != nil {
 
 		return json.Response{
@@ -292,6 +303,7 @@ func jsonError(
 	}
 
 	code := json.ErrRPCWallet
+
 	switch e := err.(type) {
 
 	case json.RPCError:
@@ -305,6 +317,7 @@ func jsonError(
 	case ParseError:
 		code = json.ErrRPCParse.Code
 	case waddrmgr.ManagerError:
+
 		switch e.ErrorCode {
 
 		case waddrmgr.ErrWrongPassphrase:
@@ -327,10 +340,12 @@ func makeMultiSigScript(
 	// The address list will made up either of addreseses (pubkey hash), for
 	// which we need to look up the keys in wallet, straight pubkeys, or a
 	// mixture of the two.
+
 	for i, a := range keys {
 
 		// try to parse as pubkey address
 		a, err := decodeAddress(a, w.ChainParams())
+
 		if err != nil {
 
 			return nil, err
@@ -342,12 +357,14 @@ func makeMultiSigScript(
 			keysesPrecious[i] = addr
 		default:
 			pubKey, err := w.PubKeyForAddress(addr)
+
 			if err != nil {
 
 				return nil, err
 			}
 			pubKeyAddr, err := util.NewAddressPubKey(
 				pubKey.SerializeCompressed(), w.ChainParams())
+
 			if err != nil {
 
 				return nil, err
@@ -367,15 +384,18 @@ func addMultiSigAddress(
 	cmd := icmd.(*json.AddMultisigAddressCmd)
 
 	// If an account is specified, ensure that is the imported account.
+
 	if cmd.Account != nil && *cmd.Account != waddrmgr.ImportedAddrAccountName {
 
 		return nil, &ErrNotImportedAccount
 	}
 
 	secp256k1Addrs := make([]util.Address, len(cmd.Keys))
+
 	for i, k := range cmd.Keys {
 
 		addr, err := decodeAddress(k, w.ChainParams())
+
 		if err != nil {
 
 			return nil, ParseError{err}
@@ -384,12 +404,14 @@ func addMultiSigAddress(
 	}
 
 	script, err := w.MakeMultiSigScript(secp256k1Addrs, cmd.NRequired)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	p2shAddr, err := w.ImportP2SHRedeemScript(script)
+
 	if err != nil {
 
 		return nil, err
@@ -406,12 +428,14 @@ func createMultiSig(
 	cmd := icmd.(*json.CreateMultisigCmd)
 
 	script, err := makeMultiSigScript(w, cmd.Keys, cmd.NRequired)
+
 	if err != nil {
 
 		return nil, ParseError{err}
 	}
 
 	address, err := util.NewAddressScriptHash(script, w.ChainParams())
+
 	if err != nil {
 
 		// above is a valid script, shouldn't happen.
@@ -433,12 +457,14 @@ func dumpPrivKey(
 	cmd := icmd.(*json.DumpPrivKeyCmd)
 
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	key, err := w.DumpWIFPrivateKey(addr)
+
 	if waddrmgr.IsError(err, waddrmgr.ErrLocked) {
 
 		// Address was found, but the private key isn't
@@ -455,6 +481,7 @@ func dumpWallet(
 	icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 
 	keys, err := w.DumpPrivKeys()
+
 	if waddrmgr.IsError(err, waddrmgr.ErrLocked) {
 
 		return nil, &ErrWalletUnlockNeeded
@@ -472,18 +499,21 @@ func getAddressesByAccount(
 	cmd := icmd.(*json.GetAddressesByAccountCmd)
 
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.Account)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	addrs, err := w.AccountAddresses(account)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	addrStrs := make([]string, len(addrs))
+
 	for i, a := range addrs {
 
 		addrStrs[i] = a.EncodeAddress()
@@ -502,13 +532,16 @@ func getBalance(
 	var balance util.Amount
 	var err error
 	accountName := "*"
+
 	if cmd.Account != nil {
 
 		accountName = *cmd.Account
 	}
+
 	if accountName == "*" {
 
 		balance, err = w.CalculateBalance(int32(*cmd.MinConf))
+
 		if err != nil {
 
 			return nil, err
@@ -517,11 +550,13 @@ func getBalance(
 
 		var account uint32
 		account, err = w.AccountNumber(waddrmgr.KeyScopeBIP0044, accountName)
+
 		if err != nil {
 
 			return nil, err
 		}
 		bals, err := w.CalculateAccountBalances(account, int32(*cmd.MinConf))
+
 		if err != nil {
 
 			return nil, err
@@ -571,12 +606,14 @@ func getInfo(
 	// Call down to pod for all of the information in this command known
 	// by them.
 	info, err := chainClient.GetInfo()
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	bal, err := w.CalculateBalance(1)
+
 	if err != nil {
 
 		return nil, err
@@ -599,6 +636,7 @@ func decodeAddress(
 	s string, params *chaincfg.Params) (util.Address, error) {
 
 	addr, err := util.DecodeAddress(s, params)
+
 	if err != nil {
 
 		msg := fmt.Sprintf("Invalid address %q: decode failed with %#q", s, err)
@@ -607,6 +645,7 @@ func decodeAddress(
 			Message: msg,
 		}
 	}
+
 	if !addr.IsForNet(params) {
 
 		msg := fmt.Sprintf("Invalid address %q: not intended for use on %s",
@@ -627,6 +666,7 @@ func getAccount(
 	cmd := icmd.(*json.GetAccountCmd)
 
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		return nil, err
@@ -634,12 +674,14 @@ func getAccount(
 
 	// Fetch the associated account
 	account, err := w.AccountOfAddress(addr)
+
 	if err != nil {
 
 		return nil, &ErrAddressNotInWallet
 	}
 
 	acctName, err := w.AccountName(waddrmgr.KeyScopeBIP0044, account)
+
 	if err != nil {
 
 		return nil, &ErrAccountNameNotFound
@@ -659,11 +701,13 @@ func getAccountAddress(
 	cmd := icmd.(*json.GetAccountAddressCmd)
 
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.Account)
+
 	if err != nil {
 
 		return nil, err
 	}
 	addr, err := w.CurrentAddress(account, waddrmgr.KeyScopeBIP0044)
+
 	if err != nil {
 
 		return nil, err
@@ -680,16 +724,19 @@ func getUnconfirmedBalance(
 	cmd := icmd.(*json.GetUnconfirmedBalanceCmd)
 
 	acctName := "default"
+
 	if cmd.Account != nil {
 
 		acctName = *cmd.Account
 	}
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+
 	if err != nil {
 
 		return nil, err
 	}
 	bals, err := w.CalculateAccountBalances(account, 1)
+
 	if err != nil {
 
 		return nil, err
@@ -708,12 +755,14 @@ func importPrivKey(
 	// Ensure that private keys are only imported to the correct account.
 	//
 	// Yes, Label is the account name.
+
 	if cmd.Label != nil && *cmd.Label != waddrmgr.ImportedAddrAccountName {
 
 		return nil, &ErrNotImportedAccount
 	}
 
 	wif, err := util.DecodeWIF(cmd.PrivKey)
+
 	if err != nil {
 
 		return nil, &json.RPCError{
@@ -721,6 +770,7 @@ func importPrivKey(
 			Message: "WIF decode failed: " + err.Error(),
 		}
 	}
+
 	if !wif.IsForNet(w.ChainParams()) {
 
 		return nil, &json.RPCError{
@@ -731,6 +781,7 @@ func importPrivKey(
 
 	// Import the private key, handling any errors.
 	_, err = w.ImportPrivateKey(waddrmgr.KeyScopeBIP0044, wif, nil, *cmd.Rescan)
+
 	switch {
 
 	case waddrmgr.IsError(err, waddrmgr.ErrDuplicateAddress):
@@ -761,12 +812,14 @@ func createNewAccount(
 
 	// The wildcard * is reserved by the rpc server with the special meaning
 	// of "all accounts", so disallow naming accounts to this string.
+
 	if cmd.Account == "*" {
 
 		return nil, &ErrReservedAccountName
 	}
 
 	_, err := w.NextAccount(waddrmgr.KeyScopeBIP0044, cmd.Account)
+
 	if waddrmgr.IsError(err, waddrmgr.ErrLocked) {
 
 		return nil, &json.RPCError{
@@ -787,6 +840,7 @@ func renameAccount(
 
 	// The wildcard * is reserved by the rpc server with the special meaning
 	// of "all accounts", so disallow naming accounts to this string.
+
 	if cmd.NewAccount == "*" {
 
 		return nil, &ErrReservedAccountName
@@ -794,6 +848,7 @@ func renameAccount(
 
 	// Check that given account exists
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.OldAccount)
+
 	if err != nil {
 
 		return nil, err
@@ -812,16 +867,19 @@ func getNewAddress(
 	cmd := icmd.(*json.GetNewAddressCmd)
 
 	acctName := "default"
+
 	if cmd.Account != nil {
 
 		acctName = *cmd.Account
 	}
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+
 	if err != nil {
 
 		return nil, err
 	}
 	addr, err := w.NewAddress(account, waddrmgr.KeyScopeBIP0044)
+
 	if err != nil {
 
 		return nil, err
@@ -842,16 +900,19 @@ func getRawChangeAddress(
 	cmd := icmd.(*json.GetRawChangeAddressCmd)
 
 	acctName := "default"
+
 	if cmd.Account != nil {
 
 		acctName = *cmd.Account
 	}
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+
 	if err != nil {
 
 		return nil, err
 	}
 	addr, err := w.NewChangeAddress(account, waddrmgr.KeyScopeBIP0044)
+
 	if err != nil {
 
 		return nil, err
@@ -869,6 +930,7 @@ func getReceivedByAccount(
 	cmd := icmd.(*json.GetReceivedByAccountCmd)
 
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.Account)
+
 	if err != nil {
 
 		return nil, err
@@ -880,11 +942,13 @@ func getReceivedByAccount(
 	results, err := w.TotalReceivedForAccounts(
 		waddrmgr.KeyScopeBIP0044, int32(*cmd.MinConf),
 	)
+
 	if err != nil {
 
 		return nil, err
 	}
 	acctIndex := int(account)
+
 	if account == waddrmgr.ImportedAddrAccount {
 
 		acctIndex = len(results) - 1
@@ -900,11 +964,13 @@ func getReceivedByAddress(
 	cmd := icmd.(*json.GetReceivedByAddressCmd)
 
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		return nil, err
 	}
 	total, err := w.TotalReceivedForAddr(addr, int32(*cmd.MinConf))
+
 	if err != nil {
 
 		return nil, err
@@ -921,6 +987,7 @@ func getTransaction(
 	cmd := icmd.(*json.GetTransactionCmd)
 
 	txHash, err := chainhash.NewHashFromStr(cmd.Txid)
+
 	if err != nil {
 
 		return nil, &json.RPCError{
@@ -930,10 +997,12 @@ func getTransaction(
 	}
 
 	details, err := wallet.UnstableAPI(w).TxDetails(txHash)
+
 	if err != nil {
 
 		return nil, err
 	}
+
 	if details == nil {
 
 		return nil, &ErrNoTransactionInfo
@@ -946,6 +1015,7 @@ func getTransaction(
 	var txBuf bytes.Buffer
 	txBuf.Grow(details.MsgTx.SerializeSize())
 	err = details.MsgTx.Serialize(&txBuf)
+
 	if err != nil {
 
 		return nil, err
@@ -975,10 +1045,12 @@ func getTransaction(
 		fee         util.Amount
 		feeF64      float64
 	)
+
 	for _, deb := range details.Debits {
 
 		debitTotal += deb.Amount
 	}
+
 	for _, cred := range details.Credits {
 
 		if !cred.Change {
@@ -987,9 +1059,11 @@ func getTransaction(
 		}
 	}
 	// Fee can only be determined if every input is a debit.
+
 	if len(details.Debits) == len(details.MsgTx.TxIn) {
 
 		var outputTotal util.Amount
+
 		for _, output := range details.MsgTx.TxOut {
 
 			outputTotal += util.Amount(output.Value)
@@ -1027,9 +1101,11 @@ func getTransaction(
 	}
 
 	credCat := wallet.RecvCategory(details, syncBlock.Height, w.ChainParams()).String()
+
 	for _, cred := range details.Credits {
 
 		// Change is ignored.
+
 		if cred.Change {
 
 			continue
@@ -1039,14 +1115,17 @@ func getTransaction(
 		var accountName string
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			details.MsgTx.TxOut[cred.Index].PkScript, w.ChainParams())
+
 		if err == nil && len(addrs) == 1 {
 
 			addr := addrs[0]
 			address = addr.EncodeAddress()
 			account, err := w.AccountOfAddress(addr)
+
 			if err == nil {
 
 				name, err := w.AccountName(waddrmgr.KeyScopeBIP0044, account)
+
 				if err == nil {
 
 					accountName = name
@@ -1137,25 +1216,30 @@ func help(
 			return nil
 		}
 		c, err := chainClient.POSTClient()
+
 		if err != nil {
 
 			return nil
 		}
 		return c
 	}
+
 	if cmd.Command == nil || *cmd.Command == "" {
 
 		// Prepend chain server usage if it is available.
 		usages := requestUsages
 		client := postClient()
+
 		if client != nil {
 
 			rawChainUsage, err := client.RawRequest("help", nil)
 			var chainUsage string
+
 			if err == nil {
 
 				_ = js.Unmarshal([]byte(rawChainUsage), &chainUsage)
 			}
+
 			if chainUsage != "" {
 
 				usages = "Chain server usage:\n\n" + chainUsage + "\n\n" +
@@ -1178,6 +1262,7 @@ func help(
 	}
 
 	helpText, ok := helpDescs[*cmd.Command]
+
 	if ok {
 
 		return helpText, nil
@@ -1186,6 +1271,7 @@ func help(
 	// Return the chain server's detailed help if possible.
 	var chainHelp string
 	client := postClient()
+
 	if client != nil {
 
 		param := make([]byte, len(*cmd.Command)+2)
@@ -1193,11 +1279,13 @@ func help(
 		copy(param[1:], *cmd.Command)
 		param[len(param)-1] = '"'
 		rawChainHelp, err := client.RawRequest("help", []js.RawMessage{param})
+
 		if err == nil {
 
 			_ = js.Unmarshal([]byte(rawChainHelp), &chainHelp)
 		}
 	}
+
 	if chainHelp != "" {
 
 		return chainHelp, nil
@@ -1217,10 +1305,12 @@ func listAccounts(
 
 	accountBalances := map[string]float64{}
 	results, err := w.AccountBalances(waddrmgr.KeyScopeBIP0044, int32(*cmd.MinConf))
+
 	if err != nil {
 
 		return nil, err
 	}
+
 	for _, result := range results {
 
 		accountBalances[result.AccountName] = result.AccountBalance.ToDUO()
@@ -1255,12 +1345,14 @@ func listReceivedByAccount(
 	results, err := w.TotalReceivedForAccounts(
 		waddrmgr.KeyScopeBIP0044, int32(*cmd.MinConf),
 	)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	jsonResults := make([]json.ListReceivedByAccountResult, 0, len(results))
+
 	for _, result := range results {
 
 		jsonResults = append(jsonResults, json.ListReceivedByAccountResult{
@@ -1308,10 +1400,12 @@ func listReceivedByAddress(
 	// Create an AddrData entry for each active address in the account.
 	// Otherwise we'll just get addresses from transactions later.
 	sortedAddrs, err := w.SortedActivePaymentAddresses()
+
 	if err != nil {
 
 		return nil, err
 	}
+
 	for _, address := range sortedAddrs {
 
 		// There might be duplicates, just overwrite them.
@@ -1320,6 +1414,7 @@ func listReceivedByAddress(
 
 	minConf := *cmd.MinConf
 	var endHeight int32
+
 	if minConf == 0 {
 
 		endHeight = -1
@@ -1330,6 +1425,7 @@ func listReceivedByAddress(
 	err = wallet.UnstableAPI(w).RangeTransactions(0, endHeight, func(details []wtxmgr.TxDetails) (bool, error) {
 
 		confirmations := confirms(details[0].Block.Height, syncBlock.Height)
+
 		for _, tx := range details {
 
 			for _, cred := range tx.Credits {
@@ -1337,15 +1433,18 @@ func listReceivedByAddress(
 				pkScript := tx.MsgTx.TxOut[cred.Index].PkScript
 				_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 					pkScript, w.ChainParams())
+
 				if err != nil {
 
 					// Non standard script, skip.
 					continue
 				}
+
 				for _, addr := range addrs {
 
 					addrStr := addr.EncodeAddress()
 					addrData, ok := allAddrData[addrStr]
+
 					if ok {
 
 						addrData.amount += cred.Amount
@@ -1365,6 +1464,7 @@ func listReceivedByAddress(
 		}
 		return false, nil
 	})
+
 	if err != nil {
 
 		return nil, err
@@ -1374,6 +1474,7 @@ func listReceivedByAddress(
 	numAddresses := len(allAddrData)
 	ret := make([]json.ListReceivedByAddressResult, numAddresses, numAddresses)
 	idx := 0
+
 	for address, addrData := range allAddrData {
 
 		ret[idx] = json.ListReceivedByAddressResult{
@@ -1403,14 +1504,17 @@ func listSinceBlock(
 	gbh := chainClient.GetBlockHashAsync(int64(syncBlock.Height) + 1 - targetConf)
 
 	var start int32
+
 	if cmd.BlockHash != nil {
 
 		hash, err := chainhash.NewHashFromStr(*cmd.BlockHash)
+
 		if err != nil {
 
 			return nil, DeserializationError{err}
 		}
 		block, err := chainClient.GetBlockVerboseTx(hash)
+
 		if err != nil {
 
 			return nil, err
@@ -1419,6 +1523,7 @@ func listSinceBlock(
 	}
 
 	txInfoList, err := w.ListSinceBlock(start, -1, syncBlock.Height)
+
 	if err != nil {
 
 		return nil, err
@@ -1426,6 +1531,7 @@ func listSinceBlock(
 
 	// Done with work, get the response.
 	blockHash, err := gbh.Receive()
+
 	if err != nil {
 
 		return nil, err
@@ -1483,9 +1589,11 @@ func listAddressTransactions(
 
 	// Decode addresses.
 	hash160Map := make(map[string]struct{})
+
 	for _, addrStr := range cmd.Addresses {
 
 		addr, err := decodeAddress(addrStr, w.ChainParams())
+
 		if err != nil {
 
 			return nil, err
@@ -1523,13 +1631,16 @@ func listUnspent(
 	cmd := icmd.(*json.ListUnspentCmd)
 
 	var addresses map[string]struct{}
+
 	if cmd.Addresses != nil {
 
 		addresses = make(map[string]struct{})
 		// confirm that all of them are good:
+
 		for _, as := range *cmd.Addresses {
 
 			a, err := decodeAddress(as, w.ChainParams())
+
 			if err != nil {
 
 				return nil, err
@@ -1552,14 +1663,17 @@ func lockUnspent(
 	case cmd.Unlock && len(cmd.Transactions) == 0:
 		w.ResetLockedOutpoints()
 	default:
+
 		for _, input := range cmd.Transactions {
 
 			txHash, err := chainhash.NewHashFromStr(input.Txid)
+
 			if err != nil {
 
 				return nil, ParseError{err}
 			}
 			op := wire.OutPoint{Hash: *txHash, Index: input.Vout}
+
 			if cmd.Unlock {
 
 				w.UnlockOutpoint(op)
@@ -1580,15 +1694,18 @@ func makeOutputs(
 	pairs map[string]util.Amount, chainParams *chaincfg.Params) ([]*wire.TxOut, error) {
 
 	outputs := make([]*wire.TxOut, 0, len(pairs))
+
 	for addrStr, amt := range pairs {
 
 		addr, err := util.DecodeAddress(addrStr, chainParams)
+
 		if err != nil {
 
 			return nil, fmt.Errorf("cannot decode address: %s", err)
 		}
 
 		pkScript, err := txscript.PayToAddrScript(addr)
+
 		if err != nil {
 
 			return nil, fmt.Errorf("cannot create txout script: %s", err)
@@ -1607,21 +1724,25 @@ func sendPairs(
 	account uint32, minconf int32, feeSatPerKb util.Amount) (string, error) {
 
 	outputs, err := makeOutputs(amounts, w.ChainParams())
+
 	if err != nil {
 
 		return "", err
 	}
 	txHash, err := w.SendOutputs(outputs, account, minconf, feeSatPerKb)
+
 	if err != nil {
 
 		if err == txrules.ErrAmountNegative {
 
 			return "", ErrNeedPositiveAmount
 		}
+
 		if waddrmgr.IsError(err, waddrmgr.ErrLocked) {
 
 			return "", &ErrWalletUnlockNeeded
 		}
+
 		switch err.(type) {
 
 		case json.RPCError:
@@ -1635,6 +1756,7 @@ func sendPairs(
 	}
 
 	txHashStr := txHash.String()
+
 	log <- cl.Info{"successfully sent transaction", txHashStr}
 
 	return txHashStr, nil
@@ -1658,6 +1780,7 @@ func sendFrom(
 
 	// Transaction comments are not yet supported.  Error instead of
 	// pretending to save them.
+
 	if !isNilOrEmpty(cmd.Comment) || !isNilOrEmpty(cmd.CommentTo) {
 
 		return nil, &json.RPCError{
@@ -1669,23 +1792,27 @@ func sendFrom(
 	account, err := w.AccountNumber(
 		waddrmgr.KeyScopeBIP0044, cmd.FromAccount,
 	)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	// Check that signed integer parameters are positive.
+
 	if cmd.Amount < 0 {
 
 		return nil, ErrNeedPositiveAmount
 	}
 	minConf := int32(*cmd.MinConf)
+
 	if minConf < 0 {
 
 		return nil, ErrNeedPositiveMinconf
 	}
 	// Create map of address and amount pairs.
 	amt, err := util.NewAmount(cmd.Amount)
+
 	if err != nil {
 
 		return nil, err
@@ -1710,6 +1837,7 @@ func sendMany(
 
 	// Transaction comments are not yet supported.  Error instead of
 	// pretending to save them.
+
 	if !isNilOrEmpty(cmd.Comment) {
 
 		return nil, &json.RPCError{
@@ -1719,6 +1847,7 @@ func sendMany(
 	}
 
 	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.FromAccount)
+
 	if err != nil {
 
 		return nil, err
@@ -1726,6 +1855,7 @@ func sendMany(
 
 	// Check that minconf is positive.
 	minConf := int32(*cmd.MinConf)
+
 	if minConf < 0 {
 
 		return nil, ErrNeedPositiveMinconf
@@ -1733,9 +1863,11 @@ func sendMany(
 
 	// Recreate address/amount pairs, using dcrutil.Amount.
 	pairs := make(map[string]util.Amount, len(cmd.Amounts))
+
 	for k, v := range cmd.Amounts {
 
 		amt, err := util.NewAmount(v)
+
 		if err != nil {
 
 			return nil, err
@@ -1758,6 +1890,7 @@ func sendToAddress(
 
 	// Transaction comments are not yet supported.  Error instead of
 	// pretending to save them.
+
 	if !isNilOrEmpty(cmd.Comment) || !isNilOrEmpty(cmd.CommentTo) {
 
 		return nil, &json.RPCError{
@@ -1767,12 +1900,14 @@ func sendToAddress(
 	}
 
 	amt, err := util.NewAmount(cmd.Amount)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	// Check that signed integer parameters are positive.
+
 	if amt < 0 {
 
 		return nil, ErrNeedPositiveAmount
@@ -1795,6 +1930,7 @@ func setTxFee(
 	cmd := icmd.(*json.SetTxFeeCmd)
 
 	// Check that amount is not negative.
+
 	if cmd.Amount < 0 {
 
 		return nil, ErrNeedPositiveAmount
@@ -1812,12 +1948,14 @@ func signMessage(
 	cmd := icmd.(*json.SignMessageCmd)
 
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	privKey, err := w.PrivKeyForAddress(addr)
+
 	if err != nil {
 
 		return nil, err
@@ -1829,6 +1967,7 @@ func signMessage(
 	messageHash := chainhash.DoubleHashB(buf.Bytes())
 	sigbytes, err := ec.SignCompact(ec.S256(), privKey,
 		messageHash, true)
+
 	if err != nil {
 
 		return nil, err
@@ -1844,12 +1983,14 @@ func signRawTransaction(
 	cmd := icmd.(*json.SignRawTransactionCmd)
 
 	serializedTx, err := decodeHexStr(cmd.RawTx)
+
 	if err != nil {
 
 		return nil, err
 	}
 	var tx wire.MsgTx
 	err = tx.Deserialize(bytes.NewBuffer(serializedTx))
+
 	if err != nil {
 
 		e := errors.New("TX decode failed")
@@ -1857,6 +1998,7 @@ func signRawTransaction(
 	}
 
 	var hashType txscript.SigHashType
+
 	switch *cmd.Flags {
 
 	case "ALL":
@@ -1881,19 +2023,23 @@ func signRawTransaction(
 	inputs := make(map[wire.OutPoint][]byte)
 	scripts := make(map[string][]byte)
 	var cmdInputs []json.RawTxInput
+
 	if cmd.Inputs != nil {
 
 		cmdInputs = *cmd.Inputs
 	}
+
 	for _, rti := range cmdInputs {
 
 		inputHash, err := chainhash.NewHashFromStr(rti.Txid)
+
 		if err != nil {
 
 			return nil, DeserializationError{err}
 		}
 
 		script, err := decodeHexStr(rti.ScriptPubKey)
+
 		if err != nil {
 
 			return nil, err
@@ -1905,9 +2051,11 @@ func signRawTransaction(
 		// get scripts from the wallet.
 		// Empty strings are ok for this one and hex.DecodeString will
 		// DTRT.
+
 		if cmd.PrivKeys != nil && len(*cmd.PrivKeys) != 0 {
 
 			redeemScript, err := decodeHexStr(rti.RedeemScript)
+
 			if err != nil {
 
 				return nil, err
@@ -1915,6 +2063,7 @@ func signRawTransaction(
 
 			addr, err := util.NewAddressScriptHash(redeemScript,
 				w.ChainParams())
+
 			if err != nil {
 
 				return nil, DeserializationError{err}
@@ -1932,9 +2081,11 @@ func signRawTransaction(
 	// requests and will wait for replies after we have checked the rest of
 	// the arguments.
 	requested := make(map[wire.OutPoint]rpcclient.FutureGetTxOutResult)
+
 	for _, txIn := range tx.TxIn {
 
 		// Did we get this outpoint from the arguments?
+
 		if _, ok := inputs[txIn.PreviousOutPoint]; ok {
 
 			continue
@@ -1950,6 +2101,7 @@ func signRawTransaction(
 	// they are the keys that we may use for signing. If empty we will
 	// use any keys known to us already.
 	var keys map[string]*util.WIF
+
 	if cmd.PrivKeys != nil {
 
 		keys = make(map[string]*util.WIF)
@@ -1957,6 +2109,7 @@ func signRawTransaction(
 		for _, key := range *cmd.PrivKeys {
 
 			wif, err := util.DecodeWIF(key)
+
 			if err != nil {
 
 				return nil, DeserializationError{err}
@@ -1970,6 +2123,7 @@ func signRawTransaction(
 
 			addr, err := util.NewAddressPubKey(wif.SerializePubKey(),
 				w.ChainParams())
+
 			if err != nil {
 
 				return nil, DeserializationError{err}
@@ -1981,14 +2135,17 @@ func signRawTransaction(
 	// We have checked the rest of the args. now we can collect the async
 	// txs. TODO: If we don't mind the possibility of wasting work we could
 	// move waiting to the following loop and be slightly more asynchronous.
+
 	for outPoint, resp := range requested {
 
 		result, err := resp.Receive()
+
 		if err != nil {
 
 			return nil, err
 		}
 		script, err := hex.DecodeString(result.ScriptPubKey.Hex)
+
 		if err != nil {
 
 			return nil, err
@@ -2001,6 +2158,7 @@ func signRawTransaction(
 	// all scripts will run to completion. This is returned as part of the
 	// reply.
 	signErrs, err := w.SignTransaction(&tx, hashType, inputs, keys, scripts)
+
 	if err != nil {
 
 		return nil, err
@@ -2011,12 +2169,14 @@ func signRawTransaction(
 
 	// All returned errors (not OOM, which panics) encounted during
 	// bytes.Buffer writes are unexpected.
+
 	if err = tx.Serialize(&buf); err != nil {
 
 		panic(err)
 	}
 
 	signErrors := make([]json.SignRawTransactionError, 0, len(signErrs))
+
 	for _, e := range signErrs {
 
 		input := tx.TxIn[e.InputIndex]
@@ -2044,6 +2204,7 @@ func validateAddress(
 
 	result := json.ValidateAddressWalletResult{}
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		// Use result zero value (IsValid=false).
@@ -2058,6 +2219,7 @@ func validateAddress(
 	result.IsValid = true
 
 	ainfo, err := w.AddressInfo(addr)
+
 	if err != nil {
 
 		if waddrmgr.IsError(err, waddrmgr.ErrAddressNotFound) {
@@ -2072,6 +2234,7 @@ func validateAddress(
 	// information about it available and it is "mine".
 	result.IsMine = true
 	acctName, err := w.AccountName(waddrmgr.KeyScopeBIP0044, ainfo.Account())
+
 	if err != nil {
 
 		return nil, &ErrAccountNameNotFound
@@ -2090,6 +2253,7 @@ func validateAddress(
 		// The script is only available if the manager is unlocked, so
 		// just break out now if there is an error.
 		script, err := ma.Script()
+
 		if err != nil {
 
 			break
@@ -2102,6 +2266,7 @@ func validateAddress(
 		// a non-standard and break out now.
 		class, addrs, reqSigs, err := txscript.ExtractPkScriptAddrs(
 			script, w.ChainParams())
+
 		if err != nil {
 
 			result.Script = txscript.NonStandardTy.String()
@@ -2109,6 +2274,7 @@ func validateAddress(
 		}
 
 		addrStrings := make([]string, len(addrs))
+
 		for i, a := range addrs {
 
 			addrStrings[i] = a.EncodeAddress()
@@ -2118,6 +2284,7 @@ func validateAddress(
 		// Multi-signature scripts also provide the number of required
 		// signatures.
 		result.Script = class.String()
+
 		if class == txscript.MultiSigTy {
 
 			result.SigsRequired = int32(reqSigs)
@@ -2135,6 +2302,7 @@ func verifyMessage(
 	cmd := icmd.(*json.VerifyMessageCmd)
 
 	addr, err := decodeAddress(cmd.Address, w.ChainParams())
+
 	if err != nil {
 
 		return nil, err
@@ -2142,6 +2310,7 @@ func verifyMessage(
 
 	// decode base64 signature
 	sig, err := base64.StdEncoding.DecodeString(cmd.Signature)
+
 	if err != nil {
 
 		return nil, err
@@ -2155,12 +2324,14 @@ func verifyMessage(
 	expectedMessageHash := chainhash.DoubleHashB(buf.Bytes())
 	pk, wasCompressed, err := ec.RecoverCompact(ec.S256(), sig,
 		expectedMessageHash)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	var serializedPubKey []byte
+
 	if wasCompressed {
 
 		serializedPubKey = pk.SerializeCompressed()
@@ -2169,6 +2340,7 @@ func verifyMessage(
 		serializedPubKey = pk.SerializeUncompressed()
 	}
 	// Verify that the signed-by address matches the given address
+
 	switch checkAddr := addr.(type) {
 
 	case *util.AddressPubKeyHash: // ok
@@ -2209,6 +2381,7 @@ func walletPassphrase(
 
 	timeout := time.Second * time.Duration(cmd.Timeout)
 	var unlockAfter <-chan time.Time
+
 	if timeout != 0 {
 
 		unlockAfter = time.After(timeout)
@@ -2231,6 +2404,7 @@ func walletPassphraseChange(
 
 	err := w.ChangePrivatePassphrase([]byte(cmd.OldPassphrase),
 		[]byte(cmd.NewPassphrase))
+
 	if waddrmgr.IsError(err, waddrmgr.ErrWrongPassphrase) {
 
 		return nil, &json.RPCError{
@@ -2253,6 +2427,7 @@ func decodeHexStr(
 		hexStr = "0" + hexStr
 	}
 	decoded, err := hex.DecodeString(hexStr)
+
 	if err != nil {
 
 		return nil, &json.RPCError{

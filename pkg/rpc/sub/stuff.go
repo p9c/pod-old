@@ -39,6 +39,7 @@ func EncodeAddrToBytes(
 	o := make([]byte, 2)
 	var ou16 uint16
 	_, err := fmt.Sscanf(addr, ipv4Format, out[0], out[1], out[2], out[3], ou16)
+
 	if err != nil {
 
 		return []byte{}

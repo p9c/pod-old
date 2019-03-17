@@ -68,6 +68,7 @@ func (w *Wallet) handleChainNotifications() {
 		// the notification, to roll back and restart the
 
 		// rescan.
+
 		log <- cl.Info{
 
 			"catching up block hashes to height %d, this might take a while", height,
@@ -96,6 +97,7 @@ func (w *Wallet) handleChainNotifications() {
 				}
 
 				bs := waddrmgr.BlockStamp{
+
 					Height:    i,
 					Hash:      *hash,
 					Timestamp: header.Timestamp,
@@ -236,7 +238,9 @@ func (w *Wallet) handleChainNotifications() {
 				// send a debug message.
 				errStr := "failed to process consensus server " +
 					"notification (name: `%s`, detail: `%v`)"
+
 				if notificationName == "blockconnected" &&
+
 					strings.Contains(err.Error(),
 
 						"couldn't get hash from database") {
@@ -270,6 +274,7 @@ func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) err
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 	bs := waddrmgr.BlockStamp{
+
 		Height:    b.Height,
 		Hash:      b.Hash,
 		Timestamp: b.Time,
@@ -323,6 +328,7 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 		if bytes.Equal(hash[:], b.Hash[:]) {
 
 			bs := waddrmgr.BlockStamp{
+
 				Height: b.Height - 1,
 			}
 

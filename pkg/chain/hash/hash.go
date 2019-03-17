@@ -39,6 +39,7 @@ func (hash *Hash) CloneBytes() []byte {
 func (hash *Hash) SetBytes(newHash []byte) error {
 
 	nhlen := len(newHash)
+
 	if nhlen != HashSize {
 
 		return fmt.Errorf("invalid hash length of %v, want %v", nhlen,
@@ -55,6 +56,7 @@ func (hash *Hash) IsEqual(target *Hash) bool {
 
 		return true
 	}
+
 	if hash == nil || target == nil {
 
 		return false
@@ -68,6 +70,7 @@ func NewHash(
 
 	var sh Hash
 	err := sh.SetBytes(newHash)
+
 	if err != nil {
 
 		return nil, err
@@ -81,6 +84,7 @@ func NewHashFromStr(
 
 	ret := new(Hash)
 	err := Decode(ret, hash)
+
 	if err != nil {
 
 		return nil, err
@@ -93,6 +97,7 @@ func Decode(
 	dst *Hash, src string) error {
 
 	// Return error if hash string is too long.
+
 	if len(src) > MaxHashStringSize {
 
 		return ErrHashStrSize
@@ -100,6 +105,7 @@ func Decode(
 
 	// Hex decoder expects the hash to be a multiple of two.  When not, pad with a leading zero.
 	var srcBytes []byte
+
 	if len(src)%2 == 0 {
 
 		srcBytes = []byte(src)
@@ -113,12 +119,14 @@ func Decode(
 	// Hex decode the source bytes to a temporary destination.
 	var reversedHash Hash
 	_, err := hex.Decode(reversedHash[HashSize-hex.DecodedLen(len(srcBytes)):], srcBytes)
+
 	if err != nil {
 
 		return err
 	}
 
 	// Reverse copy from the temporary hash to destination.  Because the temporary was zeroed, the written result will be correctly padded.
+
 	for i, b := range reversedHash[:HashSize/2] {
 
 		dst[i], dst[HashSize-1-i] = reversedHash[HashSize-1-i], b

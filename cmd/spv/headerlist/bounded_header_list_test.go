@@ -155,6 +155,7 @@ func TestBoundedMemoryChainSizeLimit(
 	// the as we expect, and that they have the proper prev element.
 
 	for i, node := range memChain.chain {
+
 		if node.Height != totalElems[15+i].Height {
 			t.Fatalf("wrong node: expected %v, got %v",
 				spew.Sdump(node),
@@ -162,6 +163,7 @@ func TestBoundedMemoryChainSizeLimit(
 		}
 
 		if i == 0 {
+
 			if node.Prev() != nil {
 				t.Fatalf("prev of first elem should be nil")
 			}

@@ -58,6 +58,7 @@ func TestSort(
 			sortedHash:   "9a6c24746de024f77cac9b2138694f11101d1c66289261224ca52a25155a7c94",
 		},
 	}
+
 	for _, test := range tests {
 
 		// Load and deserialize the test transaction.

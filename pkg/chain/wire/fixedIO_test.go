@@ -15,6 +15,7 @@ type fixedWriter struct {
 func (w *fixedWriter) Write(p []byte) (n int, err error) {
 
 	lenp := len(p)
+
 	if w.pos+lenp > cap(w.b) {
 
 		return 0, io.ErrShortWrite
@@ -59,6 +60,7 @@ func newFixedReader(
 	max int, buf []byte) io.Reader {
 
 	b := make([]byte, max)
+
 	if buf != nil {
 
 		copy(b[:], buf)

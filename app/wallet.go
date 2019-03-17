@@ -36,13 +36,9 @@ func walletHandle(c *cli.Context) error {
 
 	*walletConfig.DataDir = appConfigCommon.Datadir
 	*walletConfig.AppDataDir = filepath.Join(
-		appConfigCommon.Datadir,
-		walletAppName,
-	)
+		appConfigCommon.Datadir, walletAppName)
 	*walletConfig.ConfigFile = filepath.Join(
-		*walletConfig.AppDataDir,
-		walletConfigFilename,
-	)
+		*walletConfig.AppDataDir, walletConfigFilename)
 
 	if !c.Parent().Bool("useproxy") {
 
@@ -54,6 +50,7 @@ func walletHandle(c *cli.Context) error {
 	switch loglevel {
 
 	case "trace", "debug", "info", "warn", "error", "fatal":
+
 	default:
 		*walletConfig.LogLevel = "info"
 	}
@@ -66,10 +63,12 @@ func walletHandle(c *cli.Context) error {
 		*walletConfig.TestNet3 = true
 		*walletConfig.SimNet = false
 		activeNetParams = &netparams.TestNet3Params
+
 	case "simnet", "s":
 		*walletConfig.TestNet3 = false
 		*walletConfig.SimNet = true
 		activeNetParams = &netparams.SimNetParams
+
 	default:
 
 		if network != "mainnet" && network != "m" {

@@ -16,6 +16,7 @@ func (h *headerStore) singleTruncate() error {
 
 	// of the file as it stands currently.
 	fileInfo, err := h.file.Stat()
+
 	if err != nil {
 		return err
 	}
@@ -26,6 +27,7 @@ func (h *headerStore) singleTruncate() error {
 
 	// the end of the file.
 	var truncateLength int64
+
 	switch h.indexType {
 	case Block:
 		truncateLength = 80

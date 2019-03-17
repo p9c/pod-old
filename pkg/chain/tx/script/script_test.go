@@ -3668,6 +3668,7 @@ func TestUnparsingInvalidOpcodes(
 			expectedErr: scriptError(ErrInternal, ""),
 		},
 	}
+
 	for _, test := range tests {
 
 		_, err := test.pop.bytes()
@@ -3721,6 +3722,7 @@ func TestPushedData(
 			false,
 		},
 	}
+
 	for i, test := range tests {
 
 		script := mustParseShortForm(test.script)
@@ -3748,6 +3750,7 @@ func TestHasCanonicalPush(
 	t *testing.T) {
 
 	t.Parallel()
+
 	for i := 0; i < 65535; i++ {
 
 		script, err := NewScriptBuilder().AddInt64(int64(i)).Script()
@@ -3769,6 +3772,7 @@ func TestHasCanonicalPush(
 			t.Errorf("parseScript: #%d failed: %v", i, err)
 			continue
 		}
+
 		for _, pop := range pops {
 
 			if result := canonicalPush(pop); !result {
@@ -3779,6 +3783,7 @@ func TestHasCanonicalPush(
 			}
 		}
 	}
+
 	for i := 0; i <= MaxScriptElementSize; i++ {
 
 		builder := NewScriptBuilder()
@@ -3800,6 +3805,7 @@ func TestHasCanonicalPush(
 			t.Errorf("StandardPushesTests #%d failed to TstParseScript: %v", i, err)
 			continue
 		}
+
 		for _, pop := range pops {
 
 			if result := canonicalPush(pop); !result {
@@ -3850,6 +3856,7 @@ func TestGetPreciseSigOps(
 	// The signature in the p2sh script is nonsensical for the tests since this script will never be executed.  What matters is that it matches the right pattern.
 	pkScript := mustParseShortForm("HASH160 DATA_20 0x433ec2ac1ffa1b7b7d0" +
 		"27f564529c57197f9ae88 EQUAL")
+
 	for _, test := range tests {
 
 		count := GetPreciseSigOpCount(test.scriptSig, pkScript, true)
@@ -3931,6 +3938,7 @@ func TestGetWitnessSigOpCount(
 			},
 		},
 	}
+
 	for _, test := range tests {
 
 		count := GetWitnessSigOpCount(test.sigScript, test.pkScript,
@@ -4007,6 +4015,7 @@ func TestRemoveOpcodes(
 		pops = removeOpcode(pops, opcode)
 		return unparseScript(pops)
 	}
+
 	for _, test := range tests {
 
 		before := mustParseShortForm(test.before)
@@ -4159,6 +4168,7 @@ func TestRemoveOpcodeByData(
 		pops = removeOpcodeByData(pops, data)
 		return unparseScript(pops)
 	}
+
 	for _, test := range tests {
 
 		result, err := tstRemoveOpcodeByData(test.before, test.remove)
@@ -4180,6 +4190,7 @@ func TestIsPayToScriptHash(
 	t *testing.T) {
 
 	t.Parallel()
+
 	for _, test := range scriptClassTests {
 
 		script := mustParseShortForm(test.script)
@@ -4198,6 +4209,7 @@ func TestIsPayToWitnessScriptHash(
 	t *testing.T) {
 
 	t.Parallel()
+
 	for _, test := range scriptClassTests {
 
 		script := mustParseShortForm(test.script)
@@ -4216,6 +4228,7 @@ func TestIsPayToWitnessPubKeyHash(
 	t *testing.T) {
 
 	t.Parallel()
+
 	for _, test := range scriptClassTests {
 
 		script := mustParseShortForm(test.script)
@@ -4251,6 +4264,7 @@ func TestHasCanonicalPushes(
 			expected: false,
 		},
 	}
+
 	for i, test := range tests {
 
 		script := mustParseShortForm(test.script)
@@ -4263,6 +4277,7 @@ func TestHasCanonicalPushes(
 			}
 			continue
 		}
+
 		for _, pop := range pops {
 
 			if canonicalPush(pop) != test.expected {
@@ -4322,6 +4337,7 @@ func TestIsUnspendable(
 			expected: false,
 		},
 	}
+
 	for i, test := range tests {
 
 		res := IsUnspendable(test.pkScript)

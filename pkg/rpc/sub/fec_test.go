@@ -18,11 +18,13 @@ func TestPadData(
 
 	actualAligned := hex.EncodeToString(padData(testDataAligned))
 	actualUnaligned := hex.EncodeToString(padData(testDataUnaligned))
+
 	if actualAligned != expectedAligned {
 
 		t.Fatalf("Padding did not produce expected result:\ngot      '%s'\nexpected '%s'",
 			actualAligned, expectedAligned)
 	}
+
 	if actualUnaligned != expectedUnaligned {
 
 		t.Fatalf("Padding did not produce expected result:\ngot      '%s'\nexpected '%s'",
@@ -47,6 +49,7 @@ func TestFECCodec(
 
 	// Here we only need 3 packets
 	data, err := rsDecode(chunks[4:7])
+
 	if err != nil {
 
 		panic(err)
@@ -54,6 +57,7 @@ func TestFECCodec(
 
 	// Requires one more across the punctured chunk to recover. This would not normally happen as the checksums would usually filter out incorrect chunks.
 	data, err = rsDecode(chunks[3:6])
+
 	if err != nil {
 
 		panic(err)
@@ -62,6 +66,7 @@ func TestFECCodec(
 	result := data[2 : dataLen+2]
 	dataString := hex.EncodeToString(data[2 : dataLen+2])
 	resultString := hex.EncodeToString(result)
+
 	if dataString != resultString {
 
 		t.Fatalf("FEC encode/decode failed:\ngot      '%s'\nexpected '%s'", dataString, resultString)

@@ -13,6 +13,7 @@ const (
 
 // parseArgs parses the arguments from the database Open/Create methods.
 func parseArgs(
+
 	funcName string, args ...interface{}) (string, wire.BitcoinNet, error) {
 
 	if len(args) != 2 {
@@ -23,6 +24,7 @@ func parseArgs(
 	}
 
 	dbPath, ok := args[0].(string)
+
 	if !ok {
 
 		return "", 0, fmt.Errorf("first argument to %s.%s is invalid -- "+
@@ -30,6 +32,7 @@ func parseArgs(
 	}
 
 	network, ok := args[1].(wire.BitcoinNet)
+
 	if !ok {
 
 		return "", 0, fmt.Errorf("second argument to %s.%s is invalid -- "+
@@ -41,9 +44,11 @@ func parseArgs(
 
 // openDBDriver is the callback provided during driver registration that opens an existing database for use.
 func openDBDriver(
+
 	args ...interface{}) (database.DB, error) {
 
 	dbPath, network, err := parseArgs("Open", args...)
+
 	if err != nil {
 
 		return nil, err
@@ -54,9 +59,11 @@ func openDBDriver(
 
 // createDBDriver is the callback provided during driver registration that creates, initializes, and opens a database for use.
 func createDBDriver(
+
 	args ...interface{}) (database.DB, error) {
 
 	dbPath, network, err := parseArgs("Create", args...)
+
 	if err != nil {
 
 		return nil, err
@@ -68,7 +75,9 @@ func createDBDriver(
 func init() {
 
 	// Register the driver.
+
 	driver := database.Driver{
+
 		DbType: dbType,
 		Create: createDBDriver,
 		Open:   openDBDriver,

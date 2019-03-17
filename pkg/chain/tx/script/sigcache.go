@@ -54,6 +54,7 @@ func (s *SigCache) Add(sigHash chainhash.Hash, sig *ec.Signature, pubKey *ec.Pub
 	if uint(len(s.validSigs)+1) > s.maxEntries {
 
 		// Remove a random entry from the map. Relying on the random starting point of Go's map iteration. It's worth noting that the random iteration starting point is not 100% guaranteed by the spec, however most Go compilers support it. Ultimately, the iteration order isn't important here because in order to manipulate which items are evicted, an adversary would need to be able to execute preimage attacks on the hashing function in order to start eviction at a specific entry.
+
 		for sigEntry := range s.validSigs {
 
 			delete(s.validSigs, sigEntry)

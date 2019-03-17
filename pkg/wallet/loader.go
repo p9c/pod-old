@@ -188,6 +188,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	if canConsolePrompt {
 
 		cbs = &waddrmgr.OpenCallbacks{
+
 			ObtainSeed:        prompt.ProvideSeed,
 			ObtainPrivatePass: prompt.ProvidePrivPassphrase,
 		}
@@ -195,6 +196,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	} else {
 
 		cbs = &waddrmgr.OpenCallbacks{
+
 			ObtainSeed:        noConsole,
 			ObtainPrivatePass: noConsole,
 		}
@@ -312,6 +314,7 @@ func NewLoader(
 	recoveryWindow uint32) *Loader {
 
 	return &Loader{
+
 		chainParams:    chainParams,
 		dbDirPath:      dbDirPath,
 		recoveryWindow: recoveryWindow,

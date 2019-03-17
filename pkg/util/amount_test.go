@@ -19,7 +19,9 @@ func TestAmountCreation(
 	}{
 
 		// Positive tests.
+
 		{
+
 			name:     "zero",
 			amount:   0,
 			valid:    true,
@@ -27,6 +29,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "max producible",
 			amount:   21e6,
 			valid:    true,
@@ -34,6 +37,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "min producible",
 			amount:   -21e6,
 			valid:    true,
@@ -41,6 +45,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "exceeds max producible",
 			amount:   21e6 + 1e-8,
 			valid:    true,
@@ -48,6 +53,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "exceeds min producible",
 			amount:   -21e6 - 1e-8,
 			valid:    true,
@@ -55,6 +61,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "one hundred",
 			amount:   100,
 			valid:    true,
@@ -62,6 +69,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "fraction",
 			amount:   0.01234567,
 			valid:    true,
@@ -69,6 +77,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "rounding up",
 			amount:   54.999999999999943157,
 			valid:    true,
@@ -76,6 +85,7 @@ func TestAmountCreation(
 		},
 
 		{
+
 			name:     "rounding down",
 			amount:   55.000000000000056843,
 			valid:    true,
@@ -83,19 +93,23 @@ func TestAmountCreation(
 		},
 
 		// Negative tests.
+
 		{
+
 			name:   "not-a-number",
 			amount: math.NaN(),
 			valid:  false,
 		},
 
 		{
+
 			name:   "-infinity",
 			amount: math.Inf(-1),
 			valid:  false,
 		},
 
 		{
+
 			name:   "+infinity",
 			amount: math.Inf(1),
 			valid:  false,
@@ -139,6 +153,7 @@ func TestAmountUnitConversions(
 	}{
 
 		{
+
 			name:      "MDUO",
 			amount:    MaxSatoshi,
 			unit:      AmountMegaDUO,
@@ -147,6 +162,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "kDUO",
 			amount:    44433322211100,
 			unit:      AmountKiloDUO,
@@ -155,6 +171,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "DUO",
 			amount:    44433322211100,
 			unit:      AmountDUO,
@@ -163,6 +180,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "mDUO",
 			amount:    44433322211100,
 			unit:      AmountMilliDUO,
@@ -171,6 +189,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "μDUO",
 			amount:    44433322211100,
 			unit:      AmountMicroDUO,
@@ -179,6 +198,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "satoshi",
 			amount:    44433322211100,
 			unit:      AmountSatoshi,
@@ -187,6 +207,7 @@ func TestAmountUnitConversions(
 		},
 
 		{
+
 			name:      "non-standard unit",
 			amount:    44433322211100,
 			unit:      AmountUnit(-1),
@@ -247,6 +268,7 @@ func TestAmountMulF64(
 	}{
 
 		{
+
 			name: "Multiply 0.1 DUO by 2",
 			amt:  100e5, // 0.1 DUO
 			mul:  2,
@@ -254,6 +276,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 0.2 DUO by 0.02",
 			amt:  200e5, // 0.2 DUO
 			mul:  1.02,
@@ -261,6 +284,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 0.1 DUO by -2",
 			amt:  100e5, // 0.1 DUO
 			mul:  -2,
@@ -268,6 +292,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 0.2 DUO by -0.02",
 			amt:  200e5, // 0.2 DUO
 			mul:  -1.02,
@@ -275,6 +300,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply -0.1 DUO by 2",
 			amt:  -100e5, // -0.1 DUO
 			mul:  2,
@@ -282,6 +308,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply -0.2 DUO by 0.02",
 			amt:  -200e5, // -0.2 DUO
 			mul:  1.02,
@@ -289,6 +316,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply -0.1 DUO by -2",
 			amt:  -100e5, // -0.1 DUO
 			mul:  -2,
@@ -296,6 +324,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply -0.2 DUO by -0.02",
 			amt:  -200e5, // -0.2 DUO
 			mul:  -1.02,
@@ -303,6 +332,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Round down",
 			amt:  49, // 49 Satoshis
 			mul:  0.01,
@@ -310,6 +340,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Round up",
 			amt:  50, // 50 Satoshis
 			mul:  0.01,
@@ -317,6 +348,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply by 0.",
 			amt:  1e8, // 1 DUO
 			mul:  0,
@@ -324,6 +356,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 1 by 0.5.",
 			amt:  1, // 1 Satoshi
 			mul:  0.5,
@@ -331,6 +364,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 100 by 66%.",
 			amt:  100, // 100 Satoshis
 			mul:  0.66,
@@ -338,6 +372,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 100 by 66.6%.",
 			amt:  100, // 100 Satoshis
 			mul:  0.666,
@@ -345,6 +380,7 @@ func TestAmountMulF64(
 		},
 
 		{
+
 			name: "Multiply 100 by 2/3.",
 			amt:  100, // 100 Satoshis
 			mul:  2.0 / 3,

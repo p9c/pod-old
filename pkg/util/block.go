@@ -242,6 +242,7 @@ func NewBlock(
 	msgBlock *wire.MsgBlock) *Block {
 
 	return &Block{
+
 		msgBlock:    msgBlock,
 		blockHeight: BlockHeightUnknown,
 	}
@@ -280,6 +281,7 @@ func NewBlockFromReader(
 	}
 
 	b := Block{
+
 		msgBlock:    &msgBlock,
 		blockHeight: BlockHeightUnknown,
 	}
@@ -293,6 +295,7 @@ func NewBlockFromBlockAndBytes(
 	msgBlock *wire.MsgBlock, serializedBlock []byte) *Block {
 
 	return &Block{
+
 		msgBlock:        msgBlock,
 		serializedBlock: serializedBlock,
 		blockHeight:     BlockHeightUnknown,

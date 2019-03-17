@@ -27,15 +27,18 @@ func TestChainSvrWsResults(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		marshalled, err := json.Marshal(test.result)
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if string(marshalled) != test.expected {
 
 			t.Errorf("Test #%d (%s) unexpected marhsalled data - "+

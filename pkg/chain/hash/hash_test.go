@@ -21,6 +21,7 @@ func TestHash(
 	// Hash of block 234439.
 	blockHashStr := "14a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
 	blockHash, err := NewHashFromStr(blockHashStr)
+
 	if err != nil {
 
 		t.Errorf("NewHashFromStr: %v", err)
@@ -34,12 +35,14 @@ func TestHash(
 		0xa6, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	}
 	hash, err := NewHash(buf)
+
 	if err != nil {
 
 		t.Errorf("NewHash: unexpected error %v", err)
 	}
 
 	// Ensure proper size.
+
 	if len(hash) != HashSize {
 
 		t.Errorf("NewHash: hash length mismatch - got: %v, want: %v",
@@ -47,6 +50,7 @@ func TestHash(
 	}
 
 	// Ensure contents match.
+
 	if !bytes.Equal(hash[:], buf) {
 
 		t.Errorf("NewHash: hash contents mismatch - got: %v, want: %v",
@@ -54,6 +58,7 @@ func TestHash(
 	}
 
 	// Ensure contents of hash of block 234440 don't match 234439.
+
 	if hash.IsEqual(blockHash) {
 
 		t.Errorf("IsEqual: hash contents should not match - got: %v, want: %v",
@@ -62,10 +67,12 @@ func TestHash(
 
 	// Set hash from byte slice and ensure contents match.
 	err = hash.SetBytes(blockHash.CloneBytes())
+
 	if err != nil {
 
 		t.Errorf("SetBytes: %v", err)
 	}
+
 	if !hash.IsEqual(blockHash) {
 
 		t.Errorf("IsEqual: hash contents mismatch - got: %v, want: %v",
@@ -73,10 +80,12 @@ func TestHash(
 	}
 
 	// Ensure nil hashes are handled properly.
+
 	if !(*Hash)(nil).IsEqual(nil) {
 
 		t.Error("IsEqual: nil hashes should match")
 	}
+
 	if hash.IsEqual(nil) {
 
 		t.Error("IsEqual: non-nil hash matches nil hash")
@@ -84,6 +93,7 @@ func TestHash(
 
 	// Invalid size for SetBytes.
 	err = hash.SetBytes([]byte{0x00})
+
 	if err == nil {
 
 		t.Errorf("SetBytes: failed to received expected err - got: nil")
@@ -92,6 +102,7 @@ func TestHash(
 	// Invalid size for NewHash.
 	invalidHash := make([]byte, HashSize+1)
 	_, err = NewHash(invalidHash)
+
 	if err == nil {
 
 		t.Errorf("NewHash: failed to received expected err - got: nil")
@@ -111,6 +122,7 @@ func TestHashString(
 		0x27, 0xba, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
 	})
 	hashStr := hash.String()
+
 	if hashStr != wantStr {
 
 		t.Errorf("String: wrong hash string - got %v, want %v",
@@ -183,9 +195,11 @@ func TestNewHashFromStr(
 	unexpectedErrStr := "NewHashFromStr #%d failed to detect expected error - got: %v want: %v"
 	unexpectedResultStr := "NewHashFromStr #%d got: %v want: %v"
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result, err := NewHashFromStr(test.in)
+
 		if err != test.err {
 
 			t.Errorf(unexpectedErrStr, i, err, test.err)
@@ -195,6 +209,7 @@ func TestNewHashFromStr(
 			// Got expected error. Move on to the next test.
 			continue
 		}
+
 		if !test.want.IsEqual(result) {
 
 			t.Errorf(unexpectedResultStr, i, result, &test.want)

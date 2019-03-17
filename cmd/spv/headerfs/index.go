@@ -134,6 +134,7 @@ func (h headerBatch) Swap(i, j int) {
 // addHeaders writes a batch of header entries in a single atomic batch
 func (h *headerIndex) addHeaders(batch headerBatch) error {
 	// If we're writing a 0-length batch, make no changes and return.
+
 	if len(batch) == 0 {
 		return nil
 	}
@@ -152,6 +153,7 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 		// so we can update the index once all the header entries have
 		// been updated.
 		// TODO(roasbeef): only need block tip?
+
 		switch h.indexType {
 		case Block:
 			tipKey = bitcoinTip
@@ -170,12 +172,14 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 			var heightBytes [4]byte
 			binary.BigEndian.PutUint32(heightBytes[:], header.height)
 			err := rootBucket.Put(header.hash[:], heightBytes[:])
+
 			if err != nil {
 				return err
 			}
 
 			// TODO(roasbeef): need to remedy if side-chain
 			// tracking added
+
 			if header.height >= chainTipHeight {
 				chainTipHash = header.hash
 				chainTipHeight = header.height
@@ -198,6 +202,7 @@ func (h *headerIndex) heightFromHash(hash *chainhash.Hash) (uint32, error) {
 		rootBucket := tx.ReadBucket(indexBucket)
 
 		heightBytes := rootBucket.Get(hash[:])
+
 		if heightBytes == nil {
 			// If the hash wasn't found, then we don't know of this
 			// hash within the index.
@@ -231,6 +236,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		// Based on the specified index type of this instance of the
 		// index, we'll grab the particular key that tracks the chain
 		// tip.
+
 		switch h.indexType {
 		case Block:
 			tipKey = bitcoinTip
@@ -245,6 +251,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		// we'll fetch the height that corresponds to that hash.
 		tipHashBytes := rootBucket.Get(tipKey)
 		tipHeightBytes := rootBucket.Get(tipHashBytes)
+
 		if len(tipHeightBytes) != 4 {
 			return ErrHeightNotFound
 		}
@@ -252,6 +259,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		// With the height fetched, we can now populate our return
 		// parameters.
 		h, err := chainhash.NewHash(tipHashBytes)
+
 		if err != nil {
 			return err
 		}
@@ -282,6 +290,7 @@ func (h *headerIndex) truncateIndex(newTip *chainhash.Hash, delete bool) error {
 		// Based on the specified index type of this instance of the
 		// index, we'll grab the key that tracks the tip of the chain
 		// we need to update.
+
 		switch h.indexType {
 		case Block:
 			tipKey = bitcoinTip
@@ -294,8 +303,10 @@ func (h *headerIndex) truncateIndex(newTip *chainhash.Hash, delete bool) error {
 		// If the delete flag is set, then we'll also delete this entry
 		// from the database as the primary index (block headers) is
 		// being rolled back.
+
 		if delete {
 			prevTipHash := rootBucket.Get(tipKey)
+
 			if err := rootBucket.Delete(prevTipHash); err != nil {
 				return err
 			}

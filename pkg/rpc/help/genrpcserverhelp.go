@@ -17,6 +17,7 @@ import (
 var outputFile = func() *os.File {
 
 	fi, err := os.Create("rpcserverhelp.go")
+
 	if err != nil {
 
 		log.Fatal(err)
@@ -25,14 +26,17 @@ var outputFile = func() *os.File {
 }()
 
 func writefln(
+
 	format string, args ...interface{}) {
 
 	_, err := fmt.Fprintf(outputFile, format, args...)
+
 	if err != nil {
 
 		log.Fatal(err)
 	}
 	_, err = outputFile.Write([]byte{'\n'})
+
 	if err != nil {
 
 		log.Fatal(err)
@@ -45,10 +49,12 @@ func writeLocaleHelp(
 	funcName := "helpDescs" + goLocale
 	writefln("func %s() map[string]string {", funcName)
 	writefln("return map[string]string{")
+
 	for i := range rpchelp.Methods {
 
 		m := &rpchelp.Methods[i]
 		helpText, err := btcjson.GenerateHelp(m.Method, descs, m.ResultTypes...)
+
 		if err != nil {
 
 			log.Fatal(err)
@@ -62,6 +68,7 @@ func writeLocaleHelp(
 func writeLocales() {
 
 	writefln("var localeHelpDescs = map[string]func() map[string]string{")
+
 	for _, h := range rpchelp.HelpDescs {
 
 		writefln("%q: helpDescs%s,", h.Locale, h.GoLocale)
@@ -73,9 +80,11 @@ func writeUsage() {
 
 	usageStrs := make([]string, len(rpchelp.Methods))
 	var err error
+
 	for i := range rpchelp.Methods {
 
 		usageStrs[i], err = btcjson.MethodUsageText(rpchelp.Methods[i].Method)
+
 		if err != nil {
 
 			log.Fatal(err)
@@ -90,6 +99,7 @@ func main() {
 	defer outputFile.Close()
 
 	packageName := "main"
+
 	if len(os.Args) > 1 {
 
 		packageName = os.Args[1]
@@ -99,6 +109,7 @@ func main() {
 	writefln("")
 	writefln("package %s", packageName)
 	writefln("")
+
 	for _, h := range rpchelp.HelpDescs {
 
 		writeLocaleHelp(h.Locale, h.GoLocale, h.Descs)

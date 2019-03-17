@@ -32,42 +32,39 @@ func Main() int {
 			EnsureDir(configfilepath)
 
 			if e := ioutil.WriteFile(
-				configfilepath, []byte{'\n'}, 0600); e != nil {
+				configfilepath, []byte{'\n'}, 0600,
+			); e != nil {
 
 				panic(e)
 			}
-
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
 
-			src, err := altsrc.NewYamlSourceFromFile(filepath.Join(datadir, podConfigFilename))
+			src, err :=
+				altsrc.NewYamlSourceFromFile(filepath.Join(datadir, podConfigFilename))
 			return src, err
 		}
 
-		altsrc.InitInputSourceWithContext(
-			App.Flags,
-			src,
-		)
+		altsrc.InitInputSourceWithContext(App.Flags, src)
 		return nil
 	}
 
 	ctlCommand.Before = func(c *cli.Context) error {
 
 		configfilepath :=
-			filepath.Join(
-				filepath.Join(datadir, ctlAppName),
-				ctlConfigFilename)
+			filepath.Join(filepath.Join(datadir, ctlAppName), ctlConfigFilename)
 
 		if !FileExists(configfilepath) {
 
 			EnsureDir(configfilepath)
+
 			if e := ioutil.WriteFile(
+
 				configfilepath, []byte{'\n'}, 0600); e != nil {
 
 				panic(e)
 			}
-
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
@@ -75,7 +72,6 @@ func Main() int {
 			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
 			return src, err
 		}
-
 		altsrc.InitInputSourceWithContext(ctlCommand.Flags, src)
 		return nil
 	}
@@ -88,12 +84,13 @@ func Main() int {
 		if !FileExists(configfilepath) {
 
 			EnsureDir(configfilepath)
+
 			if e := ioutil.WriteFile(
+
 				configfilepath, []byte{'\n'}, 0600); e != nil {
 
 				panic(e)
 			}
-
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
@@ -119,6 +116,7 @@ func Main() int {
 			EnsureDir(configfilepath)
 
 			if e := ioutil.WriteFile(
+
 				configfilepath, []byte{'\n'}, 0600); e != nil {
 
 				panic(e)
@@ -132,14 +130,11 @@ func Main() int {
 			return src, err
 		}
 
-		altsrc.InitInputSourceWithContext(
-			walletCommand.Flags,
-			src)
+		altsrc.InitInputSourceWithContext(walletCommand.Flags, src)
 		return nil
 	}
 
 	log <- cl.Debug{"running App"}
-
 	e := App.Run(os.Args)
 
 	if e != nil {
@@ -147,7 +142,6 @@ func Main() int {
 		fmt.Println("ERROR:", e)
 		return 1
 	}
-
 	return 0
 }
 
@@ -172,7 +166,6 @@ func init() {
 					Destination: &appConfigCommon.Datadir,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -182,7 +175,6 @@ func init() {
 					Destination: &appConfigCommon.Save,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -194,7 +186,6 @@ func init() {
 					Destination: &appConfigCommon.Loglevel,
 				},
 			),
-
 			altsrc.NewStringSliceFlag(
 
 				cli.StringSliceFlag{
@@ -204,7 +195,6 @@ func init() {
 					Value: &appConfigCommon.Subsystems,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -215,7 +205,6 @@ func init() {
 					Destination: &appConfigCommon.Network,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -226,7 +215,6 @@ func init() {
 					Destination: &appConfigCommon.ServerUser,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -237,7 +225,6 @@ func init() {
 					Destination: &appConfigCommon.ServerPass,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -248,7 +235,6 @@ func init() {
 					Destination: &appConfigCommon.ClientUser,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -259,7 +245,6 @@ func init() {
 					Destination: &appConfigCommon.ClientPass,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -270,7 +255,6 @@ func init() {
 					Destination: &appConfigCommon.RPCcert,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -281,7 +265,6 @@ func init() {
 					Destination: &appConfigCommon.RPCkey,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -292,7 +275,6 @@ func init() {
 					Destination: &appConfigCommon.CAfile,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -302,7 +284,6 @@ func init() {
 					Destination: &appConfigCommon.ClientTLS,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -312,7 +293,6 @@ func init() {
 					Destination: &appConfigCommon.ServerTLS,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -322,7 +302,6 @@ func init() {
 					Destination: &appConfigCommon.Useproxy,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -333,7 +312,6 @@ func init() {
 					Destination: &appConfigCommon.Proxy,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -344,7 +322,6 @@ func init() {
 					Destination: &appConfigCommon.Proxyuser,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -355,7 +332,6 @@ func init() {
 					Destination: &appConfigCommon.Proxypass,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -365,7 +341,6 @@ func init() {
 					Destination: &appConfigCommon.Onion,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -376,7 +351,6 @@ func init() {
 					Destination: &appConfigCommon.OnionProxy,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -387,7 +361,6 @@ func init() {
 					Destination: &appConfigCommon.Onionuser,
 				},
 			),
-
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -398,7 +371,6 @@ func init() {
 					Destination: &appConfigCommon.Onionpass,
 				},
 			),
-
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -411,6 +383,7 @@ func init() {
 		},
 
 		Commands: []cli.Command{
+
 			{
 				Name:    "version",
 				Aliases: []string{"v"},
@@ -432,7 +405,6 @@ func init() {
 					return nil
 				},
 			},
-
 			ctlCommand,
 			nodeCommand,
 			walletCommand,
@@ -481,7 +453,6 @@ func init() {
 			},
 		},
 	}
-
 }
 
 var ctlCommand = cli.Command{

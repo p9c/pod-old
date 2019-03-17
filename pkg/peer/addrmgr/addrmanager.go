@@ -200,6 +200,7 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 	// Add to new bucket.
 	ka.refs++
 	a.addrNew[bucket][addr] = ka
+
 	log <- cl.Tracef{"added new address %s for a total of %d addresses", addr, a.nTried + a.nNew}
 
 }
@@ -209,6 +210,7 @@ func (a *AddrManager) expireNew(bucket int) {
 
 	// First see if there are any entries that are so bad we can just throw them away. otherwise we throw away the oldest entry in the cache. Bitcoind here chooses four random and just throws the oldest of those away, but we keep track of oldest in the initial traversal and use that information instead.
 	var oldest *KnownAddress
+
 	for k, v := range a.addrNew[bucket] {
 
 		if v.isBad() {
@@ -235,6 +237,7 @@ func (a *AddrManager) expireNew(bucket int) {
 	if oldest != nil {
 
 		key := NetAddressKey(oldest.na)
+
 		log <- cl.Tracef{"expiring oldest address %v", key}
 
 		delete(a.addrNew[bucket], key)
@@ -252,6 +255,7 @@ func (a *AddrManager) pickTried(bucket int) *list.Element {
 
 	var oldest *KnownAddress
 	var oldestElem *list.Element
+
 	for e := a.addrTried[bucket].Front(); e != nil; e = e.Next() {
 
 		ka := e.Value.(*KnownAddress)
@@ -311,6 +315,7 @@ func (a *AddrManager) addressHandler() {
 	dumpAddressTicker := time.NewTicker(dumpAddressInterval)
 	defer dumpAddressTicker.Stop()
 out:
+
 	for {
 
 		// fmt.Println("loop:addressHandler")
@@ -327,6 +332,7 @@ out:
 	}
 	a.savePeers()
 	a.wg.Done()
+
 	log <- cl.Trace{"address handler done"}
 
 }
@@ -343,6 +349,7 @@ func (a *AddrManager) savePeers() {
 	copy(sam.Key[:], a.key[:])
 	sam.Addresses = make([]*serializedKnownAddress, len(a.addrIndex))
 	i := 0
+
 	for k, v := range a.addrIndex {
 
 		ska := new(serializedKnownAddress)
@@ -356,20 +363,24 @@ func (a *AddrManager) savePeers() {
 		sam.Addresses[i] = ska
 		i++
 	}
+
 	for i := range a.addrNew {
 
 		sam.NewBuckets[i] = make([]string, len(a.addrNew[i]))
 		j := 0
+
 		for k := range a.addrNew[i] {
 
 			sam.NewBuckets[i][j] = k
 			j++
 		}
 	}
+
 	for i := range a.addrTried {
 
 		sam.TriedBuckets[i] = make([]string, a.addrTried[i].Len())
 		j := 0
+
 		for e := a.addrTried[i].Front(); e != nil; e = e.Next() {
 
 			ka := e.Value.(*KnownAddress)
@@ -456,6 +467,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 		)
 	}
 	copy(a.key[:], sam.Key[:])
+
 	for _, v := range sam.Addresses {
 
 		ka := new(KnownAddress)
@@ -476,6 +488,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 		ka.lastsuccess = time.Unix(v.LastSuccess, 0)
 		a.addrIndex[NetAddressKey(ka.na)] = ka
 	}
+
 	for i := range sam.NewBuckets {
 
 		for _, val := range sam.NewBuckets[i] {
@@ -494,6 +507,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 			a.addrNew[i][val] = ka
 		}
 	}
+
 	for i := range sam.TriedBuckets {
 
 		for _, val := range sam.TriedBuckets[i] {
@@ -513,6 +527,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 	}
 
 	// Sanity checking.
+
 	for k, v := range a.addrIndex {
 
 		if v.refs == 0 && !v.tried {
@@ -571,6 +586,7 @@ func (a *AddrManager) Stop() error {
 
 		return nil
 	}
+
 	log <- cl.Inf("address manager shutting down")
 
 	close(a.quit)
@@ -583,6 +599,7 @@ func (a *AddrManager) AddAddresses(addrs []*wire.NetAddress, srcAddr *wire.NetAd
 
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
+
 	for _, na := range addrs {
 
 		a.updateAddress(na, srcAddr)
@@ -658,6 +675,7 @@ func (a *AddrManager) AddressCache() []*wire.NetAddress {
 	allAddr := make([]*wire.NetAddress, 0, addrIndexLen)
 
 	// Iteration order is undefined here, but we randomise it anyway.
+
 	for _, v := range a.addrIndex {
 
 		allAddr = append(allAddr, v.na)
@@ -669,6 +687,7 @@ func (a *AddrManager) AddressCache() []*wire.NetAddress {
 	}
 
 	// Fisher-Yates shuffle the array. We only need to do the first `numAddresses' since we are throwing the rest.
+
 	for i := 0; i < numAddresses; i++ {
 
 		// pick a number between current index and the end
@@ -687,10 +706,12 @@ func (a *AddrManager) reset() {
 
 	// fill key with bytes from a good random source.
 	io.ReadFull(crand.Reader, a.key[:])
+
 	for i := range a.addrNew {
 
 		a.addrNew[i] = make(map[string]*KnownAddress)
 	}
+
 	for i := range a.addrTried {
 
 		a.addrTried[i] = list.New()
@@ -765,6 +786,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 		// Tried entry.
 		large := 1 << 30
 		factor := 1.0
+
 		for {
 
 			// pick a random bucket.
@@ -775,6 +797,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 			}
 			// Pick a random entry in the list
 			e := a.addrTried[bucket].Front()
+
 			for i :=
 				a.rand.Int63n(int64(a.addrTried[bucket].Len())); i > 0; i-- {
 
@@ -798,6 +821,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 		// TODO: use a closure/function to avoid repeating this.
 		large := 1 << 30
 		factor := 1.0
+
 		for {
 
 			// Pick a random bucket.
@@ -809,6 +833,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 			// Then, a random entry in it.
 			var ka *KnownAddress
 			nth := a.rand.Intn(len(a.addrNew[bucket]))
+
 			for _, value := range a.addrNew[bucket] {
 
 				if nth == 0 {
@@ -901,6 +926,7 @@ func (a *AddrManager) Good(addr *wire.NetAddress) {
 	// ok, need to move it to tried. remove from all new buckets. record one of the buckets in question and call it the `first'
 	addrKey := NetAddressKey(addr)
 	oldBucket := -1
+
 	for i := range a.addrNew {
 
 		// we check for existence so we can record the first one
@@ -953,6 +979,7 @@ func (a *AddrManager) Good(addr *wire.NetAddress) {
 	// We don't touch a.nTried here since the number of tried stays the same but we decemented new above, raise it again since we're putting something back.
 	a.nNew++
 	rmkey := NetAddressKey(rmka.na)
+
 	log <- cl.Tracef{"replacing %s with %s in tried", rmkey, addrKey}
 
 	// We made sure there is space here just above.
@@ -1096,6 +1123,7 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 	bestreach := 0
 	var bestscore AddressPriority
 	var bestAddress *wire.NetAddress
+
 	for _, la := range a.localAddresses {
 
 		reach := getReachabilityFrom(la.na, remoteAddr)

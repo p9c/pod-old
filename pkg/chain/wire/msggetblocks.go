@@ -34,6 +34,7 @@ func (msg *MsgGetBlocks) AddBlockLocatorHash(hash *chainhash.Hash) error {
 func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	err := readElement(r, &msg.ProtocolVersion)
+
 	if err != nil {
 
 		return err
@@ -41,10 +42,12 @@ func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 
 	// Read num block locator hashes and limit to max.
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
+
 	if count > MaxBlockLocatorsPerMsg {
 
 		str := fmt.Sprintf("too many block locator hashes for message "+
@@ -55,10 +58,12 @@ func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 	// Create a contiguous slice of hashes to deserialize into in order to reduce the number of allocations.
 	locatorHashes := make([]chainhash.Hash, count)
 	msg.BlockLocatorHashes = make([]*chainhash.Hash, 0, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		hash := &locatorHashes[i]
 		err := readElement(r, hash)
+
 		if err != nil {
 
 			return err
@@ -72,6 +77,7 @@ func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 func (msg *MsgGetBlocks) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
 	count := len(msg.BlockLocatorHashes)
+
 	if count > MaxBlockLocatorsPerMsg {
 
 		str := fmt.Sprintf("too many block locator hashes for message "+
@@ -79,18 +85,22 @@ func (msg *MsgGetBlocks) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding
 		return messageError("MsgGetBlocks.BtcEncode", str)
 	}
 	err := writeElement(w, msg.ProtocolVersion)
+
 	if err != nil {
 
 		return err
 	}
 	err = WriteVarInt(w, pver, uint64(count))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, hash := range msg.BlockLocatorHashes {
 
 		err = writeElement(w, hash)
+
 		if err != nil {
 
 			return err

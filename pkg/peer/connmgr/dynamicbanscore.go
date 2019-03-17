@@ -97,6 +97,7 @@ func (s *DynamicBanScore) Reset() {
 func (s *DynamicBanScore) int(t time.Time) uint32 {
 
 	dt := t.Unix() - s.lastUnix
+
 	if s.transient < 1 || dt < 0 || Lifetime < dt {
 
 		return s.persistent
@@ -110,6 +111,7 @@ func (s *DynamicBanScore) increase(persistent, transient uint32, t time.Time) ui
 	s.persistent += persistent
 	tu := t.Unix()
 	dt := tu - s.lastUnix
+
 	if transient > 0 {
 
 		if Lifetime < dt {

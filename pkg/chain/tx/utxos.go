@@ -36,6 +36,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 		// TODO: actually stream outputs from the db instead of fetching
 		// all of them at once.
 		outputs, err := w.TxStore.UnspentOutputs(txmgrNs)
+
 		if err != nil {
 
 			return err
@@ -45,6 +46,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 
 			// Ignore outputs that haven't reached the required
 			// number of confirmations.
+
 			if !policy.meetsRequiredConfs(output.Height, syncBlock.Height) {
 
 				continue
@@ -53,6 +55,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			// Ignore outputs that are not controlled by the account.
 			_, addrs, _, err := txscript.ExtractPkScriptAddrs(output.PkScript,
 				w.chainParams)
+
 			if err != nil || len(addrs) == 0 {
 
 				// Cannot determine which account this belongs
@@ -62,10 +65,12 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 				continue
 			}
 			_, outputAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
+
 			if err != nil {
 
 				return err
 			}
+
 			if outputAcct != policy.Account {
 
 				continue
@@ -74,6 +79,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			// Stakebase isn't exposed by wtxmgr so those will be
 			// OutputKindNormal for now.
 			outputSource := OutputKindNormal
+
 			if output.FromCoinBase {
 
 				outputSource = OutputKindCoinbase

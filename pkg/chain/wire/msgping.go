@@ -15,9 +15,11 @@ type MsgPing struct {
 func (msg *MsgPing) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	// There was no nonce for BIP0031Version and earlier. NOTE: > is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver > BIP0031Version {
 
 		err := readElement(r, &msg.Nonce)
+
 		if err != nil {
 
 			return err
@@ -30,9 +32,11 @@ func (msg *MsgPing) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) err
 func (msg *MsgPing) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
 	// There was no nonce for BIP0031Version and earlier. NOTE: > is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver > BIP0031Version {
 
 		err := writeElement(w, msg.Nonce)
+
 		if err != nil {
 
 			return err
@@ -53,6 +57,7 @@ func (msg *MsgPing) MaxPayloadLength(pver uint32) uint32 {
 	plen := uint32(0)
 
 	// There was no nonce for BIP0031Version and earlier. NOTE: > is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver > BIP0031Version {
 
 		// Nonce 8 bytes.

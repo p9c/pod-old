@@ -19,6 +19,7 @@ func TestNotFound(
 	// Ensure the command is expected value.
 	wantCmd := "notfound"
 	msg := NewMsgNotFound()
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgNotFound: wrong command - got %v want %v",
@@ -28,6 +29,7 @@ func TestNotFound(
 	// Ensure max payload is expected value for latest protocol version. Num inventory vectors (varInt) + max allowed inventory vectors.
 	wantPayload := uint32(1800009)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -39,10 +41,12 @@ func TestNotFound(
 	hash := chainhash.Hash{}
 	iv := NewInvVect(InvTypeBlock, &hash)
 	err := msg.AddInvVect(iv)
+
 	if err != nil {
 
 		t.Errorf("AddInvVect: %v", err)
 	}
+
 	if msg.InvList[0] != iv {
 
 		t.Errorf("AddInvVect: wrong invvect added - got %v, want %v",
@@ -50,10 +54,12 @@ func TestNotFound(
 	}
 
 	// Ensure adding more than the max allowed inventory vectors per message returns an error.
+
 	for i := 0; i < MaxInvPerMsg; i++ {
 
 		err = msg.AddInvVect(iv)
 	}
+
 	if err == nil {
 
 		t.Errorf("AddInvVect: expected error on too many inventory " +
@@ -68,6 +74,7 @@ func TestNotFoundWire(
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
+
 	if err != nil {
 
 		t.Errorf("NewHashFromStr: %v", err)
@@ -76,6 +83,7 @@ func TestNotFoundWire(
 	// Transaction 1 of Block 203707 hash.
 	hashStr = "d28a3dc7392bf00a9855ee93dd9a81eff82a2c4fe57fbd42cfe71b487accfaf0"
 	txHash, err := chainhash.NewHashFromStr(hashStr)
+
 	if err != nil {
 
 		t.Errorf("NewHashFromStr: %v", err)
@@ -205,16 +213,19 @@ func TestNotFoundWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -226,11 +237,13 @@ func TestNotFoundWire(
 		var msg MsgNotFound
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&msg, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -250,6 +263,7 @@ func TestNotFoundWireErrors(
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
+
 	if err != nil {
 
 		t.Errorf("NewHashFromStr: %v", err)
@@ -270,6 +284,7 @@ func TestNotFoundWireErrors(
 
 	// Message that forces an error by having more than the max allowed inv vectors.
 	maxNotFound := NewMsgNotFound()
+
 	for i := 0; i < MaxInvPerMsg; i++ {
 
 		maxNotFound.AddInvVect(iv)
@@ -298,11 +313,13 @@ func TestNotFoundWireErrors(
 		{maxNotFound, maxNotFoundEncoded, pver, BaseEncoding, 3, wireErr, wireErr},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -311,6 +328,7 @@ func TestNotFoundWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -325,6 +343,7 @@ func TestNotFoundWireErrors(
 		var msg MsgNotFound
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -333,6 +352,7 @@ func TestNotFoundWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {

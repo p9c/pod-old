@@ -22,9 +22,11 @@ func TestServiceFlagStringer(
 		{0xffffffff, "SFNodeNetwork|SFNodeGetUTXO|SFNodeBloom|SFNodeWitness|SFNodeXthin|SFNodeBit5|SFNodeCF|SFNode2X|0xffffff00"},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
@@ -49,9 +51,11 @@ func TestBitcoinNetStringer(
 		{0xffffffff, "Unknown BitcoinNet (4294967295)"},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,

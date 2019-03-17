@@ -27,12 +27,14 @@ func (msg *MsgNotFound) AddInvVect(iv *InvVect) error {
 func (msg *MsgNotFound) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
 
 	// Limit to max inventory vectors per message.
+
 	if count > MaxInvPerMsg {
 
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
@@ -42,10 +44,12 @@ func (msg *MsgNotFound) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding)
 	// Create a contiguous slice of inventory vectors to deserialize into in order to reduce the number of allocations.
 	invList := make([]InvVect, count)
 	msg.InvList = make([]*InvVect, 0, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		iv := &invList[i]
 		err := readInvVect(r, pver, iv)
+
 		if err != nil {
 
 			return err
@@ -60,19 +64,23 @@ func (msg *MsgNotFound) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding)
 
 	// Limit to max inventory vectors per message.
 	count := len(msg.InvList)
+
 	if count > MaxInvPerMsg {
 
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
 		return messageError("MsgNotFound.BtcEncode", str)
 	}
 	err := WriteVarInt(w, pver, uint64(count))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, iv := range msg.InvList {
 
 		err := writeInvVect(w, pver, iv)
+
 		if err != nil {
 
 			return err

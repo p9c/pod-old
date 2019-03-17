@@ -64,6 +64,7 @@ func TestErrorCodeStringer(
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\ngot: %s\nwant: %s", i, result,

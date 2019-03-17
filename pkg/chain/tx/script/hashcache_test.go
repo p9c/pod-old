@@ -15,6 +15,7 @@ func genTestTx() (*wire.MsgTx, error) {
 	tx := wire.NewMsgTx(2)
 	tx.Version = rand.Int31()
 	numTxins := rand.Intn(11)
+
 	for i := 0; i < numTxins; i++ {
 
 		randTxIn := wire.TxIn{
@@ -31,6 +32,7 @@ func genTestTx() (*wire.MsgTx, error) {
 		tx.TxIn = append(tx.TxIn, &randTxIn)
 	}
 	numTxouts := rand.Intn(11)
+
 	for i := 0; i < numTxouts; i++ {
 
 		randTxOut := wire.TxOut{
@@ -58,6 +60,7 @@ func TestHashCacheAddContainsHashes(
 	// First, we'll generate 10 random transactions for use within our tests.
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
+
 	for i := 0; i < numTxns; i++ {
 
 		txns[i], err = genTestTx()
@@ -68,12 +71,14 @@ func TestHashCacheAddContainsHashes(
 	}
 
 	// With the transactions generated, we'll add each of them to the hash cache.
+
 	for _, tx := range txns {
 
 		cache.AddSigHashes(tx)
 	}
 
 	// Next, we'll ensure that each of the transactions inserted into the cache are properly located by the ContainsHashes method.
+
 	for _, tx := range txns {
 
 		txid := tx.TxHash()
@@ -145,6 +150,7 @@ func TestHashCachePurge(
 	// First we'll start by inserting numTxns transactions into the hash cache.
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
+
 	for i := 0; i < numTxns; i++ {
 
 		txns[i], err = genTestTx()
@@ -153,12 +159,14 @@ func TestHashCachePurge(
 			t.Fatalf("unable to generate test tx: %v", err)
 		}
 	}
+
 	for _, tx := range txns {
 
 		cache.AddSigHashes(tx)
 	}
 
 	// Once all the transactions have been inserted, we'll purge them from the hash cache.
+
 	for _, tx := range txns {
 
 		txid := tx.TxHash()
@@ -166,6 +174,7 @@ func TestHashCachePurge(
 	}
 
 	// At this point, none of the transactions inserted into the hash cache should be found within the cache.
+
 	for _, tx := range txns {
 
 		txid := tx.TxHash()

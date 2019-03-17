@@ -26,6 +26,7 @@ func TestGetEligibleInputs(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -46,6 +47,7 @@ func TestGetEligibleInputs(
 	expNoEligibleInputs := 2 * len(scripts)
 	eligibleAmounts := []int64{int64(dustThreshold + 1), int64(dustThreshold + 1)}
 	var inputs []wtxmgr.Credit
+
 	for i := 0; i < len(scripts); i++ {
 
 		created := TstCreateCreditsOnStore(t, dbtx, store, scripts[i], eligibleAmounts)
@@ -63,12 +65,14 @@ func TestGetEligibleInputs(
 			store, txmgrNs, *startAddr, lastSeriesID, dustThreshold, int32(currentBlock),
 			eligibleInputMinConfirmations)
 	})
+
 	if err != nil {
 
 		t.Fatal("InputSelection failed:", err)
 	}
 
 	// Check we got the expected number of eligible inputs.
+
 	if len(eligibles) != expNoEligibleInputs {
 
 		t.Fatalf("Wrong number of eligible inputs returned. Got: %d, want: %d.",
@@ -76,6 +80,7 @@ func TestGetEligibleInputs(
 	}
 
 	// Check that the returned eligibles are reverse sorted by address.
+
 	if !sort.IsSorted(sort.Reverse(byAddress(eligibles))) {
 
 		t.Fatal("Eligible inputs are not sorted.")
@@ -92,6 +97,7 @@ func TestNextAddrWithVaryingHighestIndices(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -121,6 +127,7 @@ func TestNextAddrWithVaryingHighestIndices(
 
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
+
 	if err != nil {
 
 		t.Fatalf("Failed to get next address: %v", err)
@@ -134,6 +141,7 @@ func TestNextAddrWithVaryingHighestIndices(
 
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
+
 	if err != nil {
 
 		t.Fatalf("Failed to get next address: %v", err)
@@ -147,10 +155,12 @@ func TestNextAddrWithVaryingHighestIndices(
 
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
+
 	if err != nil {
 
 		t.Fatalf("Failed to get next address: %v", err)
 	}
+
 	if addr != nil {
 
 		t.Fatalf("Wrong next addr; got '%s', want 'nil'", addr.addrIdentifier())
@@ -164,6 +174,7 @@ func TestNextAddr(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -183,6 +194,7 @@ func TestNextAddr(
 	// Populate used addresses DB with entries for seriesID==1, branch==0..3,
 
 	// idx==0..10.
+
 	for _, i := range []int{0, 1, 2, 3} {
 
 		TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(i), lastIdx)
@@ -192,12 +204,14 @@ func TestNextAddr(
 	// nextAddr() first increments just the branch, which ranges from 0 to 3
 
 	// here (because our series has 3 public keys).
+
 	for _, i := range []int{1, 2, 3} {
 
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
+
 		if err != nil {
 
 			t.Fatalf("Failed to get next address: %v", err)
@@ -210,12 +224,14 @@ func TestNextAddr(
 	// idx=lastIdx-1, so the next 4 calls should give us the addresses with
 
 	// branch=[0-3] and idx=lastIdx.
+
 	for _, i := range []int{0, 1, 2, 3} {
 
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
+
 		if err != nil {
 
 			t.Fatalf("Failed to get next address: %v", err)
@@ -226,6 +242,7 @@ func TestNextAddr(
 	// Populate used addresses DB with entries for seriesID==2, branch==0..3,
 
 	// idx==0..10.
+
 	for _, i := range []int{0, 1, 2, 3} {
 
 		TstEnsureUsedAddr(t, dbtx, pool, 2, Branch(i), lastIdx)
@@ -234,12 +251,14 @@ func TestNextAddr(
 	// Now we've gone through all the available branch/idx combinations, so
 
 	// we should move to the next series and start again with branch=0, idx=0.
+
 	for _, i := range []int{0, 1, 2, 3} {
 
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
+
 		if err != nil {
 
 			t.Fatalf("Failed to get next address: %v", err)
@@ -255,10 +274,12 @@ func TestNextAddr(
 
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
+
 	if err != nil {
 
 		t.Fatalf("Failed to get next address: %v", err)
 	}
+
 	if addr != nil {
 
 		t.Fatalf("Wrong WithdrawalAddress; got %s, want nil", addr.addrIdentifier())
@@ -272,6 +293,7 @@ func TestEligibleInputsAreEligible(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -298,6 +320,7 @@ func TestNonEligibleInputsAreNotEligible(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -312,6 +335,7 @@ func TestNonEligibleInputsAreNotEligible(
 	c.BlockMeta.Height = int32(eligibleInputMinConfirmations)
 
 	// Check that credit below dustThreshold is rejected.
+
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
 
 		t.Errorf("Input is eligible and it should not be.")
@@ -327,6 +351,7 @@ func TestNonEligibleInputsAreNotEligible(
 
 	// is *that* makes 1000 - 902 +1 = 99 >= 100 false
 	c.BlockMeta.Height = int32(902)
+
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
 
 		t.Errorf("Input is eligible and it should not be.")
@@ -340,6 +365,7 @@ func TestCreditSortingByAddress(
 	defer teardown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -401,6 +427,7 @@ func newDummyCredit(
 	txHash []byte, outpointIdx uint32) credit {
 
 	var hash chainhash.Hash
+
 	if err := hash.SetBytes(txHash); err != nil {
 
 		t.Fatal(err)
@@ -432,6 +459,7 @@ func checkUniqueness(
 	}
 
 	uniqMap := make(map[uniq]bool)
+
 	for _, c := range credits {
 
 		u := uniq{
@@ -441,6 +469,7 @@ func checkUniqueness(
 			hash:        c.OutPoint.Hash,
 			outputIndex: c.OutPoint.Index,
 		}
+
 		if _, exists := uniqMap[u]; exists {
 
 			t.Fatalf("Duplicate found: %v", u)
@@ -456,6 +485,7 @@ func getPKScriptsForAddressRange(
 	startBranch, stopBranch Branch, startIdx, stopIdx Index) [][]byte {
 
 	var pkScripts [][]byte
+
 	for idx := startIdx; idx <= stopIdx; idx++ {
 
 		for branch := startBranch; branch <= stopBranch; branch++ {
@@ -474,10 +504,12 @@ func checkWithdrawalAddressMatches(
 
 		t.Fatalf("Wrong seriesID; got %d, want %d", addr.SeriesID(), seriesID)
 	}
+
 	if addr.Branch() != branch {
 
 		t.Fatalf("Wrong branch; got %d, want %d", addr.Branch(), branch)
 	}
+
 	if addr.Index() != index {
 
 		t.Fatalf("Wrong index; got %d, want %d", addr.Index(), index)

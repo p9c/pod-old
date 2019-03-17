@@ -79,8 +79,10 @@ func TestCalcMinRequiredTxRelayFee(
 			1994,
 		},
 	}
+
 	for _, test := range tests {
 		got := calcMinRequiredTxRelayFee(test.size, test.relayFee)
+
 		if got != test.want {
 			t.Errorf("TestCalcMinRequiredTxRelayFee test '%s' "+
 				"failed: got %v want %v", test.name, got,
@@ -95,8 +97,10 @@ func TestCheckPkScriptStandard(
 	t *testing.T) {
 
 	var pubKeys [][]byte
+
 	for i := 0; i < 4; i++ {
 		pk, err := ec.NewPrivateKey(ec.S256())
+
 		if err != nil {
 			t.Fatalf("TestCheckPkScriptStandard NewPrivateKey failed: %v",
 				err)
@@ -181,8 +185,10 @@ func TestCheckPkScriptStandard(
 			false,
 		},
 	}
+
 	for _, test := range tests {
 		script, err := test.script.Script()
+
 		if err != nil {
 			t.Fatalf("TestCheckPkScriptStandard test '%s' "+
 				"failed: %v", test.name, err)
@@ -190,6 +196,7 @@ func TestCheckPkScriptStandard(
 		}
 		scriptClass := txscript.GetScriptClass(script)
 		got := checkPkScriptStandard(script, scriptClass)
+
 		if (test.isStandard && got != nil) ||
 			(!test.isStandard && got == nil) {
 
@@ -263,8 +270,10 @@ func TestDust(
 			true,
 		},
 	}
+
 	for _, test := range tests {
 		res := isDust(&test.txOut, test.relayFee)
+
 		if res != test.isDust {
 			t.Fatalf("Dust test '%s' failed: want %v got %v",
 				test.name, test.isDust, res)
@@ -279,6 +288,7 @@ func TestCheckTransactionStandard(
 
 	// Create some dummy, but otherwise standard, data for transactions.
 	prevOutHash, err := chainhash.NewHashFromStr("01")
+
 	if err != nil {
 		t.Fatalf("NewShaHashFromStr: unexpected error: %v", err)
 	}
@@ -292,10 +302,12 @@ func TestCheckTransactionStandard(
 	addrHash := [20]byte{0x01}
 	addr, err := util.NewAddressPubKeyHash(addrHash[:],
 		&chaincfg.TestNet3Params)
+
 	if err != nil {
 		t.Fatalf("NewAddressPubKeyHash: unexpected error: %v", err)
 	}
 	dummyPkScript, err := txscript.PayToAddrScript(addr)
+
 	if err != nil {
 		t.Fatalf("PayToAddrScript: unexpected error: %v", err)
 	}
@@ -463,19 +475,23 @@ func TestCheckTransactionStandard(
 		},
 	}
 	pastMedianTime := time.Now()
+
 	for _, test := range tests {
 		// Ensure standardness is as expected.
 		err := checkTransactionStandard(util.NewTx(&test.tx),
 			test.height, pastMedianTime, DefaultMinRelayTxFee, 1)
+
 		if err == nil && test.isStandard {
 			// Test passes since function returned standard for a transaction which is intended to be standard.
 			continue
 		}
+
 		if err == nil && !test.isStandard {
 			t.Errorf("checkTransactionStandard (%s): standard when "+
 				"it should not be", test.name)
 			continue
 		}
+
 		if err != nil && test.isStandard {
 			t.Errorf("checkTransactionStandard (%s): nonstandard "+
 				"when it should not be: %v", test.name, err)
@@ -483,18 +499,21 @@ func TestCheckTransactionStandard(
 		}
 		// Ensure error type is a TxRuleError inside of a RuleError.
 		rerr, ok := err.(RuleError)
+
 		if !ok {
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error type - got %T", test.name, err)
 			continue
 		}
 		txrerr, ok := rerr.Err.(TxRuleError)
+
 		if !ok {
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error type - got %T", test.name, rerr.Err)
 			continue
 		}
 		// Ensure the reject code is the expected one.
+
 		if txrerr.RejectCode != test.code {
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error code - got %v, want %v", test.name,

@@ -58,6 +58,7 @@ As discussed in the bitcoin message overview section, this package reads and wri
 	// Assumes msg is already a valid concrete message such as one created
 
 	// via NewMsgVersion or read via ReadMessage.
+
 	switch msg := msg.(type) {
 
 
@@ -84,6 +85,7 @@ In order to unmarshall bitcoin messages from the wire, use the ReadMessage funct
 
 	// raw payload, and a possible error.
 	msg, rawPayload, err := wire.ReadMessage(conn, pver, btcnet)
+
 	if err != nil {
 
 
@@ -104,6 +106,7 @@ In order to marshall bitcoin messages to the wire, use the WriteMessage function
 
 	// error.
 	err := wire.WriteMessage(conn, msg, pver, btcnet)
+
 	if err != nil {
 
 

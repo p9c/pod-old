@@ -28,6 +28,7 @@ func rollbackValues(
 	values map[string]string) map[string]string {
 
 	retMap := make(map[string]string, len(values))
+
 	for k := range values {
 
 		retMap[k] = ""
@@ -178,6 +179,7 @@ func testReadWriteBucketInterface(
 	}
 
 	// Ensure all keys were iterated.
+
 	for k := range keyValues {
 
 		if _, ok := keysFound[k]; !ok {
@@ -610,6 +612,7 @@ func testNamespaceAndTxInterfaces(
 	// Also, put a series of values and force a rollback so the following
 
 	// code can ensure the values were not stored.
+
 	forceRollbackError := fmt.Errorf("force rollback")
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
 

@@ -21,19 +21,23 @@ var (
 )
 
 // mockFile implements the filer interface and used in order to force failures the database code related to reading and writing from the flat block files. A maxSize of -1 is unlimited.
+
 type mockFile struct {
 	sync.RWMutex
-	maxSize      int64
-	data         []byte
+	maxSize int64
+	data    []byte
+
 	forceSyncErr bool
 	closed       bool
 }
 
 // Close closes the mock file without releasing any data associated with it. This allows it to be "reopened" without losing the data. This is part of the jebote implementation.
+
 func (f *mockFile) Close() error {
 
 	f.Lock()
 	defer f.Unlock()
+
 	if f.closed {
 
 		return errMockFileClosed
@@ -44,16 +48,19 @@ func (f *mockFile) Close() error {
 }
 
 // ReadAt reads len(b) bytes from the mock file starting at byte offset off. It returns the number of bytes read and the error, if any.  ReadAt always returns a non-nil error when n < len(b). At end of file, that error is io.EOF. This is part of the filer implementation.
+
 func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 
 	f.RLock()
 	defer f.RUnlock()
+
 	if f.closed {
 
 		return 0, errMockFileClosed
 	}
 
 	maxSize := int64(len(f.data))
+
 	if f.maxSize > -1 && maxSize > f.maxSize {
 
 		maxSize = f.maxSize
@@ -67,12 +74,14 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	// Limit to the max size field, if set.
 	numToRead := int64(len(b))
 	endOffset := off + numToRead
+
 	if endOffset > maxSize {
 
 		numToRead = maxSize - off
 	}
 
 	copy(b, f.data[off:off+numToRead])
+
 	if numToRead < int64(len(b)) {
 
 		return int(numToRead), io.EOF
@@ -82,16 +91,19 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 }
 
 // Truncate changes the size of the mock file. This is part of the filer implementation.
+
 func (f *mockFile) Truncate(size int64) error {
 
 	f.Lock()
 	defer f.Unlock()
+
 	if f.closed {
 
 		return errMockFileClosed
 	}
 
 	maxSize := int64(len(f.data))
+
 	if f.maxSize > -1 && maxSize > f.maxSize {
 
 		maxSize = f.maxSize
@@ -107,16 +119,19 @@ func (f *mockFile) Truncate(size int64) error {
 }
 
 // Write writes len(b) bytes to the mock file. It returns the number of bytes written and an error, if any.  Write returns a non-nil error any time n != len(b). This is part of the filer implementation.
+
 func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 
 	f.Lock()
 	defer f.Unlock()
+
 	if f.closed {
 
 		return 0, errMockFileClosed
 	}
 
 	maxSize := f.maxSize
+
 	if maxSize < 0 {
 
 		maxSize = 100 * 1024 // 100KiB
@@ -129,6 +144,7 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 
 	// Limit to the max size field, if set, and grow the slice if needed.
 	numToWrite := int64(len(b))
+
 	if off+numToWrite > maxSize {
 
 		numToWrite = maxSize - off
@@ -142,6 +158,7 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 	}
 
 	copy(f.data[off:], b[:numToWrite])
+
 	if numToWrite < int64(len(b)) {
 
 		return int(numToWrite), io.EOF
@@ -152,6 +169,7 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 
 // Sync doesn't do anything for mock files.  However, it will return an error if the mock file's forceSyncErr flag is set.
 // This is part of the filer implementation.
+
 func (f *mockFile) Sync() error {
 
 	if f.forceSyncErr {

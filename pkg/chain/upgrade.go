@@ -81,6 +81,7 @@ func migrateBlockIndex(
 
 			return fmt.Errorf("Bucket %s does not exist", v1BucketName)
 		}
+
 		log <- cl.Inf("Re-indexing block information in the database. This might take a while...")
 
 		v2BlockIdxBucket, err :=
@@ -160,6 +161,7 @@ func migrateBlockIndex(
 
 		return err
 	}
+
 	log <- cl.Inf("Block database migration complete")
 
 	return nil
@@ -486,7 +488,9 @@ func deserializeUtxoEntryV0(
 		}
 		offset += bytesRead
 		// Create a new utxo entry with the details deserialized above.
+
 		entries[outputIndex] = &UtxoEntry{
+
 			amount:      int64(amount),
 			pkScript:    pkScript,
 			blockHeight: int32(blockHeight),
@@ -509,6 +513,7 @@ func upgradeUtxoSetToV2(
 		v1BucketName = []byte("utxoset")
 		v2BucketName = []byte("utxosetv2")
 	)
+
 	log <- cl.Inf("Upgrading utxo set to v2.  This will take a while...")
 
 	start := time.Now()
@@ -549,6 +554,7 @@ func upgradeUtxoSetToV2(
 		// Migrate utxos so long as the max number of utxos for this
 		// batch has not been exceeded.
 		var numUtxos uint32
+
 		for ok := v1Cursor.First(); ok && numUtxos < maxUtxos; ok =
 
 			v1Cursor.Next() {
@@ -576,7 +582,9 @@ func upgradeUtxoSetToV2(
 
 					return 0, err
 				}
+
 				key := outpointKey(wire.OutPoint{
+
 					Hash:  txHash,
 					Index: txOutIdx,
 				})
@@ -641,6 +649,7 @@ func upgradeUtxoSetToV2(
 			break
 		}
 		totalUtxos += uint64(numUtxos)
+
 		log <- cl.Infof{"Migrated %d utxos (%d total)", numUtxos, totalUtxos}
 
 	}
@@ -665,6 +674,7 @@ func upgradeUtxoSetToV2(
 		return err
 	}
 	seconds := int64(time.Since(start) / time.Second)
+
 	log <- cl.Infof{
 
 		"Done upgrading utxo set.  Total utxos: %d in %d seconds",

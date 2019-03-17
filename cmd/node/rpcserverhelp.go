@@ -10,6 +10,7 @@ import (
 )
 
 // helpDescsEnUS defines the English descriptions used for the help strings.
+
 var helpDescsEnUS = map[string]string{
 
 	// DebugLevelCmd help.
@@ -669,7 +670,9 @@ var helpDescsEnUS = map[string]string{
 }
 
 // rpcResultTypes specifies the result types that each RPC command can return. This information is used to generate the help.  Each result type must be a pointer to the type (or nil to indicate no return value).
+
 var rpcResultTypes = map[string][]interface{}{
+
 	"addnode":               nil,
 	"createrawtransaction":  {(*string)(nil)},
 	"debuglevel":            {(*string)(nil), (*string)(nil)},
@@ -832,6 +835,7 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 func newHelpCacher() *helpCacher {
 
 	return &helpCacher{
+
 		methodHelp: make(map[string]string),
 	}
 

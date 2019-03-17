@@ -590,6 +590,7 @@ func TestInsertsCreditsDebitsRollbacks(
 
 				t.Fatalf("%s: failed to fetch unspent outputs: %v", test.name, err)
 			}
+
 			for _, cred := range unspent {
 
 				if _, ok := test.unspents[cred.OutPoint]; !ok {
@@ -609,6 +610,7 @@ func TestInsertsCreditsDebitsRollbacks(
 
 				t.Fatalf("%s: cannot load unmined transactions: %v", test.name, err)
 			}
+
 			for _, tx := range unmined {
 
 				txHash := tx.TxHash()
@@ -723,6 +725,7 @@ func newCoinBase(
 			},
 		},
 	}
+
 	for _, val := range outputValues {
 
 		tx.TxOut = append(tx.TxOut, &wire.TxOut{Value: val})
@@ -740,6 +743,7 @@ func spendOutput(
 			},
 		},
 	}
+
 	for _, val := range outputValues {
 
 		tx.TxOut = append(tx.TxOut, &wire.TxOut{Value: val})
@@ -751,10 +755,12 @@ func spendOutputs(
 	outputs []wire.OutPoint, outputValues ...int64) *wire.MsgTx {
 
 	tx := &wire.MsgTx{}
+
 	for _, output := range outputs {
 
 		tx.TxIn = append(tx.TxIn, &wire.TxIn{PreviousOutPoint: output})
 	}
+
 	for _, value := range outputValues {
 
 		tx.TxOut = append(tx.TxOut, &wire.TxOut{Value: value})
@@ -897,6 +903,7 @@ func TestCoinbases(
 			bal:     0,
 		},
 	}
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -986,6 +993,7 @@ func TestCoinbases(
 		},
 	}
 	balTestsBeforeMaturity := balTests
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -1074,6 +1082,7 @@ func TestCoinbases(
 			bal:     0,
 		},
 	}
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -1119,6 +1128,7 @@ func TestCoinbases(
 
 		t.Fatal(err)
 	}
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -1145,6 +1155,7 @@ func TestCoinbases(
 		t.Fatal(err)
 	}
 	balTests = balTestsBeforeMaturity
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -1199,6 +1210,7 @@ func TestCoinbases(
 			bal:     0,
 		},
 	}
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
@@ -1404,6 +1416,7 @@ func TestMoveMultipleToSameBlock(
 			bal:     0,
 		},
 	}
+
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)

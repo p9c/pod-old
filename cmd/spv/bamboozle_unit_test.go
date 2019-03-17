@@ -54,29 +54,35 @@ type resolveCFHTestCase struct {
 
 var (
 	checkpoints1 = []*chainhash.Hash{
+
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 	}
 
 	checkpoints2 = []*chainhash.Hash{
+
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 	}
 
 	checkpoints3 = []*chainhash.Hash{
+
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 	}
 
 	checkpoints4 = []*chainhash.Hash{
+
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 	}
 
 	checkpoints5 = []*chainhash.Hash{
+
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 	}
 
 	script1 = []byte{
+
 		0x41, // OP_DATA_65
 		0x04, 0xd6, 0x4b, 0xdf, 0xd0, 0x9e, 0xb1, 0xc5,
 		0xfe, 0x29, 0x5a, 0xbd, 0xeb, 0x1d, 0xca, 0x42,
@@ -91,6 +97,7 @@ var (
 	}
 
 	script2 = []byte{
+
 		0x00, // Version 0 witness program
 		0x14, // OP_DATA_20
 		0x9d, 0xda, 0xc6, 0xf3, 0x9d, 0x51, 0xe0, 0x39,
@@ -99,6 +106,7 @@ var (
 	}
 
 	script3 = []byte{
+
 		0x6a, // OP_RETURN
 		0x24, // OP_PUSH_DATA_36
 		0xaa, 0x21, 0xa9, 0xed, 0x26, 0xe6, 0xdd, 0xfa,
@@ -111,27 +119,39 @@ var (
 	// For the purpose of the cfheader mismatch test, we actually only need
 
 	// to have the scripts of each transaction present.
+
 	block = &wire.MsgBlock{
+
 		Transactions: []*wire.MsgTx{
+
 			{
+
 				TxOut: []*wire.TxOut{
+
 					{
+
 						PkScript: script1,
 					},
 				},
 			},
 
 			{
+
 				TxOut: []*wire.TxOut{
+
 					{
+
 						PkScript: script2,
 					},
 				},
 			},
 
 			{
+
 				TxOut: []*wire.TxOut{
+
 					{
+
 						PkScript: script3,
 					},
 				},
@@ -142,6 +162,7 @@ var (
 	correctFilter, _ = builder.BuildBasicFilter(block, nil)
 
 	fakeFilter1, _ = gcs.FromBytes(2, builder.DefaultP, builder.DefaultM, []byte{
+
 		0x30, 0x43, 0x02, 0x1f, 0x4d, 0x23, 0x81, 0xdc,
 		0x97, 0xf1, 0x82, 0xab, 0xd8, 0x18, 0x5f, 0x51,
 		0x75, 0x30, 0x18, 0x52, 0x32, 0x12, 0xf5, 0xdd,
@@ -154,6 +175,7 @@ var (
 	})
 
 	fakeFilter2, _ = gcs.FromBytes(2, builder.DefaultP, builder.DefaultM, []byte{
+
 		0x03, 0x07, 0xea, 0xd0, 0x84, 0x80, 0x7e, 0xb7,
 		0x63, 0x46, 0xdf, 0x69, 0x77, 0x00, 0x0c, 0x89,
 		0x39, 0x2f, 0x45, 0xc7, 0x64, 0x25, 0xb2, 0x61,
@@ -162,20 +184,26 @@ var (
 	})
 
 	headers1 = &wire.MsgCFHeaders{
+
 		FilterHashes: []*chainhash.Hash{
+
 			decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 			decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		},
 	}
 
 	headers2 = &wire.MsgCFHeaders{
+
 		FilterHashes: []*chainhash.Hash{
+
 			decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		},
 	}
 
 	headers3 = &wire.MsgCFHeaders{
+
 		FilterHashes: []*chainhash.Hash{
+
 			decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 			decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		},
@@ -184,7 +212,9 @@ var (
 	headers4 = func() *wire.MsgCFHeaders {
 
 		cfh := &wire.MsgCFHeaders{
+
 			FilterHashes: []*chainhash.Hash{
+
 				decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 			},
 		}
@@ -196,9 +226,13 @@ var (
 	}()
 
 	cfCheckptTestCases = []*cfCheckptTestCase{
+
 		{
+
 			name: "all match 1",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints1,
 				"2": checkpoints1,
 			},
@@ -209,8 +243,11 @@ var (
 		},
 
 		{
+
 			name: "all match 2",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints2,
 				"2": checkpoints2,
 			},
@@ -221,8 +258,11 @@ var (
 		},
 
 		{
+
 			name: "all match 3",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints1,
 				"2": checkpoints2,
 			},
@@ -233,8 +273,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 1",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
@@ -245,8 +288,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 2",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
@@ -257,8 +303,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 3",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
@@ -269,8 +318,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 4",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
@@ -281,8 +333,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 5",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints4,
 				"2": checkpoints5,
 			},
@@ -293,8 +348,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 6",
+
 			checkpoints: map[string][]*chainhash.Hash{
+
 				"1": checkpoints2,
 				"2": checkpoints4,
 			},
@@ -306,9 +364,13 @@ var (
 	}
 
 	checkCFHTestCases = []*checkCFHTestCase{
+
 		{
+
 			name: "match 1",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers1,
 				"b": headers1,
 			},
@@ -318,8 +380,11 @@ var (
 		},
 
 		{
+
 			name: "match 2",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers1,
 				"b": headers2,
 			},
@@ -329,8 +394,11 @@ var (
 		},
 
 		{
+
 			name: "match 3",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers1,
 				"b": headers2,
 			},
@@ -340,8 +408,11 @@ var (
 		},
 
 		{
+
 			name: "match 4",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers2,
 				"b": headers3,
 			},
@@ -351,8 +422,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 1",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers1,
 				"b": headers3,
 			},
@@ -362,8 +436,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 2",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers1,
 				"b": headers3,
 			},
@@ -373,8 +450,11 @@ var (
 		},
 
 		{
+
 			name: "mismatch 3",
+
 			headers: map[string]*wire.MsgCFHeaders{
+
 				"a": headers2,
 				"b": headers3,
 			},
@@ -385,10 +465,14 @@ var (
 	}
 
 	resolveCFHTestCases = []*resolveCFHTestCase{
+
 		{
+
 			name:  "all bad 1",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": fakeFilter1,
 				"b": fakeFilter1,
 			},
@@ -398,9 +482,12 @@ var (
 		},
 
 		{
+
 			name:  "all bad 2",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": fakeFilter2,
 				"b": fakeFilter2,
 			},
@@ -410,9 +497,12 @@ var (
 		},
 
 		{
+
 			name:  "all bad 3",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": fakeFilter2,
 				"b": fakeFilter2,
 			},
@@ -422,9 +512,12 @@ var (
 		},
 
 		{
+
 			name:  "all bad 4",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": fakeFilter1,
 				"b": fakeFilter2,
 			},
@@ -434,9 +527,12 @@ var (
 		},
 
 		{
+
 			name:  "all bad 5",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": fakeFilter2,
 				"b": fakeFilter1,
 			},
@@ -446,9 +542,12 @@ var (
 		},
 
 		{
+
 			name:  "one good",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": correctFilter,
 				"b": fakeFilter1,
 				"c": fakeFilter2,
@@ -459,9 +558,12 @@ var (
 		},
 
 		{
+
 			name:  "all good",
 			block: block,
+
 			peerFilters: map[string]*gcs.Filter{
+
 				"a": correctFilter,
 				"b": correctFilter,
 			},
@@ -536,11 +638,13 @@ func runCheckCFCheckptSanityTestCase(
 			header := heightToHeader(height)
 
 			hdrBatch = append(hdrBatch, headerfs.BlockHeader{
+
 				BlockHeader: header,
 				Height:      height,
 			})
 
 			cfBatch = append(cfBatch, headerfs.FilterHeader{
+
 				FilterHash: zeroHash,
 				HeaderHash: header.BlockHash(),
 				Height:     height,
@@ -551,12 +655,15 @@ func runCheckCFCheckptSanityTestCase(
 		height := uint32((i + 1) * wire.CFCheckptInterval)
 
 		header := heightToHeader(height)
+
 		hdrBatch = append(hdrBatch, headerfs.BlockHeader{
+
 			BlockHeader: header,
 			Height:      height,
 		})
 
 		cfBatch = append(cfBatch, headerfs.FilterHeader{
+
 			FilterHash: *point,
 			HeaderHash: header.BlockHash(),
 			Height:     height,
@@ -581,6 +688,7 @@ func runCheckCFCheckptSanityTestCase(
 		header = heightToHeader(height)
 
 		if err = hdrStore.WriteHeaders(headerfs.BlockHeader{
+
 			BlockHeader: header,
 			Height:      height,
 		}); err != nil {
@@ -589,6 +697,7 @@ func runCheckCFCheckptSanityTestCase(
 		}
 
 		if err = cfStore.WriteHeaders(headerfs.FilterHeader{
+
 			FilterHash: zeroHash,
 			HeaderHash: zeroHash,
 			Height:     height,

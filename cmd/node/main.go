@@ -42,6 +42,7 @@ func Main(
 	switch activeNet.Name {
 
 	case "testnet", "testnet3", "t":
+
 		fork.IsTestnet = true
 		ActiveNetParams = &TestNet3Params
 	case "simnet", "s":
@@ -64,6 +65,7 @@ func Main(
 	)
 
 	// Show version at startup.
+
 	log <- cl.Info{"version", Version()}
 
 	// Enable http profiling server if requested.
@@ -75,11 +77,13 @@ func Main(
 		go func() {
 
 			listenAddr := net.JoinHostPort("", *cfg.Profile)
+
 			log <- cl.Info{"profile server listening on", listenAddr}
 
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
+
 			log <- cl.Error{"profile server", http.ListenAndServe(listenAddr, nil)}
 
 		}()
@@ -130,6 +134,7 @@ func Main(
 
 	// Load the block database.
 	var db database.DB
+
 	log <- cl.Debug{"loading db with", activeNet.Params.Name, *cfg.TestNet3}
 
 	db, err = loadBlockDB()
@@ -144,6 +149,7 @@ func Main(
 	defer func() {
 
 		// Ensure the database is sync'd and closed on shutdown.
+
 		log <- cl.Inf("gracefully shutting down the database...")
 
 		db.Close()
@@ -200,6 +206,7 @@ func Main(
 	if err != nil {
 
 		// TODO: this logging could do with some beautifying.
+
 		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
 
 		return err
@@ -220,6 +227,7 @@ func Main(
 			}
 
 			server.WaitForShutdown()
+
 			log <- cl.Inf("server shutdown complete")
 
 		},
@@ -298,6 +306,7 @@ func loadBlockDB() (
 	if err != nil {
 
 		// Return the error if it's not because the database doesn't exist.
+
 		if dbErr, ok := err.(database.Error); !ok || dbErr.ErrorCode !=
 
 			database.ErrDbDoesNotExist {
@@ -330,7 +339,9 @@ func loadBlockDB() (
 /*
 
 
+
 func PreMain() {
+
 
 
 
@@ -343,7 +354,10 @@ func PreMain() {
 	// Up some limits.
 
 
+
+
 	if err := limits.SetLimits(); err != nil {
+
 
 
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
@@ -354,13 +368,19 @@ func PreMain() {
 	// Call serviceMain on Windows to handle running as a service.  When the return isService flag is true, exit now since we ran as a service.  Otherwise, just fall through to normal operation.
 
 
+
+
 	if runtime.GOOS == "windows" {
+
 
 
 		isService, err := winServiceMain()
 
 
+
+
 		if err != nil {
+
 
 
 			fmt.Println(err)
@@ -369,7 +389,10 @@ func PreMain() {
 
 
 
+
+
 		if isService {
+
 
 
 			os.Exit(0)
@@ -381,7 +404,10 @@ func PreMain() {
 	// Work around defer not working after os.Exit()
 
 
+
+
 	if err := Main(nil); err != nil {
+
 
 
 		os.Exit(1)
@@ -467,6 +493,7 @@ func warnMultipleDBs() {
 	if len(duplicateDbPaths) > 0 {
 
 		selectedDbPath := blockDbPath(*cfg.DbType)
+
 		log <- cl.Warnf{
 
 			"\nThere are multiple block chain databases using different database types.\n" +

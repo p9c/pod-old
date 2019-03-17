@@ -87,6 +87,7 @@ func TestErrorCodeStringer(
 			"associated stringer test")
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
@@ -118,6 +119,7 @@ func TestError(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.Error()

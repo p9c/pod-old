@@ -19,8 +19,11 @@ func TestDeserializeUtxoEntryV0(
 
 		// From tx in main blockchain:
 		// 0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098
+
 		{
+
 			name: "Only output 0, coinbase",
+
 			entries: map[uint32]*UtxoEntry{
 
 				0: {
@@ -37,8 +40,11 @@ func TestDeserializeUtxoEntryV0(
 
 		// From tx in main blockchain:
 		// 8131ffb0a2c945ecaf9b9063e59558784f9c3a74741ce6ae2a18d0571dac15bb
+
 		{
+
 			name: "Only output 1, not coinbase",
+
 			entries: map[uint32]*UtxoEntry{
 
 				1: {
@@ -55,8 +61,11 @@ func TestDeserializeUtxoEntryV0(
 
 		// Adapted from tx in main blockchain:
 		// df3f3f442d9699857f7f49de4ff0b5d0f3448bec31cdc7b5bf6d25f2abd637d5
+
 		{
+
 			name: "Only output 2, coinbase",
+
 			entries: map[uint32]*UtxoEntry{
 
 				2: {
@@ -73,8 +82,11 @@ func TestDeserializeUtxoEntryV0(
 
 		// Adapted from tx in main blockchain:
 		// 4a16969aa4764dd7507fc1de7f0baa4850a246de90c45e59a3207f9a26b5036f
+
 		{
+
 			name: "outputs 0 and 2 not coinbase",
+
 			entries: map[uint32]*UtxoEntry{
 
 				0: {
@@ -99,8 +111,11 @@ func TestDeserializeUtxoEntryV0(
 
 		// Adapted from tx in main blockchain:
 		// 1b02d1c8cfef60a189017b9a420c682cf4a0028175f2f563209e4ff61c8c3620
+
 		{
+
 			name: "Only output 22, not coinbase",
+
 			entries: map[uint32]*UtxoEntry{
 
 				22: {

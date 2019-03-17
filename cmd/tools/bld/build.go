@@ -13,7 +13,9 @@ import (
 func main() {
 
 	gomod, err := ioutil.ReadFile("go.mod")
+
 	if err != nil {
+
 		log.Fatal(err)
 	}
 
@@ -27,19 +29,26 @@ func main() {
 
 	var dir string
 	dir, err = os.Getwd()
+
 	if err != nil {
+
 		log.Fatal(err)
 	}
 
 	dir += "/bin/pod"
 	verbose := ""
+
 	if len(os.Args) > 1 {
+
 		for i := range os.Args {
+
 			if i == 0 {
+
 				continue
 			}
 
 			if os.Args[i] == "-h" || os.Args[i] == "--help" {
+
 				fmt.Println(`bld - builds and stamps builds with custom variables
 
 usage: 	bld [-v] [-h]
@@ -52,6 +61,7 @@ usage: 	bld [-v] [-h]
 			}
 
 			if os.Args[i] == "-v" || os.Args[i] == "--verbose" {
+
 				verbose = "-v"
 			}
 
@@ -60,13 +70,17 @@ usage: 	bld [-v] [-h]
 	}
 
 	cmd := exec.Command("go", "build", "-o", dir, "-ldflags", args, verbose)
+
 	if verbose != "" {
+
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 	}
 
 	err = cmd.Run()
+
 	if err != nil {
+
 		fmt.Println("ERR", err)
 	}
 

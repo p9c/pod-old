@@ -427,6 +427,7 @@ func (p *Peer) String() string {
 func (p *Peer) UpdateLastBlockHeight(newHeight int32) {
 
 	p.statsMtx.Lock()
+
 	log <- cl.Tracef{
 
 		"updating last block height of peer %v from %v to %v",
@@ -471,7 +472,9 @@ func (p *Peer) StatsSnapshot() *StatsSnap {
 	p.flagsMtx.Unlock()
 
 	// Get a copy of all relevant flags and stats.
+
 	statsSnap := &StatsSnap{
+
 		ID:             id,
 		Addr:           addr,
 		UserAgent:      userAgent,
@@ -1229,6 +1232,7 @@ out:
 				deadlineOffset += duration
 				handlerActive = false
 			default:
+
 				log <- cl.Warn{
 
 					"Unsupported message command", msg.command,
@@ -1596,6 +1600,7 @@ out:
 			}
 
 		default:
+
 			log <- cl.Debugf{
 
 				"Received unhandled message of type %v from %v",
@@ -1617,6 +1622,7 @@ out:
 	// Ensure connection is closed.
 	p.Disconnect()
 	close(p.inQuit)
+
 	log <- cl.Trace{"peer input handler done for", p}
 
 }
@@ -1690,6 +1696,7 @@ out:
 			if p.VersionKnown() {
 
 				// If this is a new block, then we'll blast it out immediately, sipping the inv trickle queue.
+
 				if iv.Type == wire.InvTypeBlock ||
 
 					iv.Type == wire.InvTypeWitnessBlock {
@@ -1711,6 +1718,7 @@ out:
 			// fmt.Println("chan:<-trickleTicker.C")
 
 			// Don't send anything if we're disconnecting or there is no queued inventory. version is known if send queue has any entries.
+
 			if atomic.LoadInt32(&p.disconnect) != 0 ||
 
 				invSendQueue.Len() == 0 {
@@ -1800,6 +1808,7 @@ cleanup:
 	}
 
 	close(p.queueQuit)
+
 	log <- cl.Trace{"peer queue handler done for", p}
 
 }
@@ -1924,6 +1933,7 @@ cleanup:
 	}
 
 	close(p.outQuit)
+
 	log <- cl.Trace{"peer output handler done for", p}
 
 }
@@ -2078,6 +2088,7 @@ func (p *Peer) readRemoteVersionMsg() error {
 	p.versionKnown = true
 	p.services = msg.Services
 	p.flagsMtx.Unlock()
+
 	log <- cl.Debugf{
 
 		"negotiated protocol version %d for peer %s",
@@ -2186,7 +2197,9 @@ func (p *Peer) localVersionMsg() (*wire.MsgVersion, error) {
 	// Older nodes previously added the IP and port information to the address manager which proved to be unreliable as an inbound connection from a peer didn't necessarily mean the peer itself accepted inbound connections.
 
 	// Also, the timestamp is unused in the version message.
+
 	ourNA := &wire.NetAddress{
+
 		Services: p.cfg.Services,
 	}
 
@@ -2388,6 +2401,7 @@ func newPeerBase(
 	}
 
 	p := Peer{
+
 		inbound:         inbound,
 		wireEncoding:    wire.BaseEncoding,
 		knownInventory:  newMruInventoryMap(maxKnownInventory),

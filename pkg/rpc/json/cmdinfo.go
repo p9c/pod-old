@@ -15,6 +15,7 @@ func CmdMethod(
 	registerLock.RLock()
 	method, ok := concreteTypeToMethod[rt]
 	registerLock.RUnlock()
+
 	if !ok {
 
 		str := fmt.Sprintf("%q is not registered", method)
@@ -31,6 +32,7 @@ func MethodUsageFlags(
 	registerLock.RLock()
 	info, ok := methodToInfo[method]
 	registerLock.RUnlock()
+
 	if !ok {
 
 		str := fmt.Sprintf("%q is not registered", method)
@@ -45,10 +47,12 @@ func subStructUsage(
 
 	numFields := structType.NumField()
 	fieldUsages := make([]string, 0, numFields)
+
 	for i := 0; i < structType.NumField(); i++ {
 
 		rtf := structType.Field(i)
 		// When the field has a jsonrpcusage struct tag specified use that instead of automatically generating it.
+
 		if tag := rtf.Tag.Get("jsonrpcusage"); tag != "" {
 
 			fieldUsages = append(fieldUsages, tag)
@@ -58,9 +62,11 @@ func subStructUsage(
 		fieldName := strings.ToLower(rtf.Name)
 		fieldValue := fieldName
 		fieldKind := rtf.Type.Kind()
+
 		switch {
 
 		case isNumeric(fieldKind):
+
 			if fieldKind == reflect.Float32 || fieldKind == reflect.Float64 {
 
 				fieldValue = "n.nnn"
@@ -87,6 +93,7 @@ func subArrayUsage(
 
 	// Convert plural field names to singular.  Only works for English.
 	singularFieldName := fieldName
+
 	if strings.HasSuffix(fieldName, "ies") {
 
 		singularFieldName = strings.TrimSuffix(fieldName, "ies")
@@ -99,6 +106,7 @@ func subArrayUsage(
 		singularFieldName = strings.TrimSuffix(fieldName, "s")
 	}
 	elemType := arrayType.Elem()
+
 	switch elemType.Kind() {
 
 	case reflect.String:
@@ -116,6 +124,7 @@ func fieldUsage(
 	structField reflect.StructField, defaultVal *reflect.Value) string {
 
 	// When the field has a jsonrpcusage struct tag specified use that instead of automatically generating it.
+
 	if tag := structField.Tag.Get("jsonrpcusage"); tag != "" {
 
 		return tag
@@ -123,12 +132,14 @@ func fieldUsage(
 
 	// Indirect the pointer if needed.
 	fieldType := structField.Type
+
 	if fieldType.Kind() == reflect.Ptr {
 
 		fieldType = fieldType.Elem()
 	}
 
 	// When there is a default value, it must also be a pointer due to the rules enforced by RegisterCmd.
+
 	if defaultVal != nil {
 
 		indirect := defaultVal.Elem()
@@ -137,9 +148,11 @@ func fieldUsage(
 
 	// Handle certain types uniquely to provide nicer usage.
 	fieldName := strings.ToLower(structField.Name)
+
 	switch fieldType.Kind() {
 
 	case reflect.String:
+
 		if defaultVal != nil {
 
 			return fmt.Sprintf("%s=%q", fieldName,
@@ -153,6 +166,7 @@ func fieldUsage(
 	}
 
 	// Simply return the field name when none of the above special cases apply.
+
 	if defaultVal != nil {
 
 		return fmt.Sprintf("%s=%v", fieldName, defaultVal.Interface())
@@ -169,21 +183,25 @@ func methodUsageText(
 	numFields := rt.NumField()
 	reqFieldUsages := make([]string, 0, numFields)
 	optFieldUsages := make([]string, 0, numFields)
+
 	for i := 0; i < numFields; i++ {
 
 		rtf := rt.Field(i)
 		var isOptional bool
+
 		if kind := rtf.Type.Kind(); kind == reflect.Ptr {
 
 			isOptional = true
 		}
 		var defaultVal *reflect.Value
+
 		if defVal, ok := defaults[i]; ok {
 
 			defaultVal = &defVal
 		}
 		// Add human-readable usage to the appropriate slice that is later used to generate the one-line usage.
 		usage := fieldUsage(rtf, defaultVal)
+
 		if isOptional {
 
 			optFieldUsages = append(optFieldUsages, usage)
@@ -195,10 +213,12 @@ func methodUsageText(
 
 	// Generate and return the one-line usage string.
 	usageStr := method
+
 	if len(reqFieldUsages) > 0 {
 
 		usageStr += " " + strings.Join(reqFieldUsages, " ")
 	}
+
 	if len(optFieldUsages) > 0 {
 
 		usageStr += fmt.Sprintf(" (%s)", strings.Join(optFieldUsages, " "))
@@ -215,6 +235,7 @@ func MethodUsageText(
 	rtp, ok := methodToConcreteType[method]
 	info := methodToInfo[method]
 	registerLock.RUnlock()
+
 	if !ok {
 
 		str := fmt.Sprintf("%q is not registered", method)
@@ -222,6 +243,7 @@ func MethodUsageText(
 	}
 
 	// When the usage for this method has already been generated, simply return it.
+
 	if info.usage != "" {
 
 		return info.usage, nil

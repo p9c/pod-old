@@ -16,6 +16,7 @@ func (c *CacheableFilter) Size() (uint64, error) {
 	f, err := c.Filter.NBytes()
 
 	if err != nil {
+
 		return 0, err
 	}
 

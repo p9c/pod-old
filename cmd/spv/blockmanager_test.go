@@ -66,6 +66,7 @@ func TestBlockManagerInitialInterval(
 			for _, rep := range b {
 
 				testCases = append(testCases, testCase{
+
 					permute:         perm,
 					partialInterval: part,
 					repeat:          rep,
@@ -294,7 +295,9 @@ func TestBlockManagerInvalidInterval(
 		// the wrong genesis, the block manager should be able to
 
 		// determine that the first interval doesn't line up.
+
 		{
+
 			wrongGenesis: true,
 			firstInvalid: 0,
 		},
@@ -304,7 +307,9 @@ func TestBlockManagerInvalidInterval(
 		// partial set of filter headers already written, the first
 
 		// interval should be considered invalid.
+
 		{
+
 			wrongGenesis:    true,
 			partialInterval: true,
 			firstInvalid:    0,
@@ -313,7 +318,9 @@ func TestBlockManagerInvalidInterval(
 		// With intervals not lining up, the second interval should
 
 		// be determined invalid.
+
 		{
+
 			intervalMisaligned: true,
 			firstInvalid:       1,
 		},
@@ -321,7 +328,9 @@ func TestBlockManagerInvalidInterval(
 		// With misaligned intervals and a partial interval written, the
 
 		// second interval should be considered invalid.
+
 		{
+
 			intervalMisaligned: true,
 			partialInterval:    true,
 			firstInvalid:       1,
@@ -330,7 +339,9 @@ func TestBlockManagerInvalidInterval(
 		// With responses having invalid prev hashes, the second
 
 		// interval should be deemed invalid.
+
 		{
+
 			invalidPrevHash: true,
 			firstInvalid:    1,
 		},
@@ -539,13 +550,17 @@ func generateHeaders(
 	onCheckpoint func(*chainhash.Hash)) (*headers, error) {
 
 	var blockHeaders []headerfs.BlockHeader
+
 	blockHeaders = append(blockHeaders, headerfs.BlockHeader{
+
 		BlockHeader: genesisBlockHeader,
 		Height:      0,
 	})
 
 	var cfHeaders []headerfs.FilterHeader
+
 	cfHeaders = append(cfHeaders, headerfs.FilterHeader{
+
 		HeaderHash: genesisBlockHeader.BlockHash(),
 		FilterHash: *genesisFilterHeader,
 		Height:     0,
@@ -592,7 +607,9 @@ func generateHeaders(
 	for height := uint32(1); height <= maxHeight; height++ {
 
 		header := heightToHeader(height)
+
 		blockHeader := headerfs.BlockHeader{
+
 			BlockHeader: header,
 			Height:      height,
 		}
@@ -614,7 +631,9 @@ func generateHeaders(
 		currentCFHeader = chainhash.DoubleHashH(
 			append(filterHash[:], currentCFHeader[:]...),
 		)
+
 		cfHeaders = append(cfHeaders, headerfs.FilterHeader{
+
 			HeaderHash: header.BlockHash(),
 			FilterHash: currentCFHeader,
 			Height:     height,
@@ -640,6 +659,7 @@ func generateHeaders(
 	}
 
 	return &headers{
+
 			blockHeaders: blockHeaders,
 			cfHeaders:    cfHeaders,
 			checkpoints:  checkpoints,
@@ -696,6 +716,7 @@ func generateResponses(
 		}
 
 		resp := &wire.MsgCFHeaders{
+
 			FilterType:       q.FilterType,
 			StopHash:         q.StopHash,
 			PrevFilterHeader: prevFilterHeader,
@@ -779,7 +800,9 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	// Set up a chain service for the block manager. Each test should set
 
 	// custom query methods on this chain service.
+
 	cs := &ChainService{
+
 		chainParams:      chaincfg.SimNetParams,
 		BlockHeaders:     hdrStore,
 		RegFilterHeaders: cfStore,

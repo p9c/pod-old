@@ -196,7 +196,9 @@ func chainSetup(
 	paramsCopy := *params
 
 	// Create the main chain instance.
+
 	chain, err := New(&Config{
+
 		DB:          db,
 		ChainParams: &paramsCopy,
 		Checkpoints: nil,
@@ -415,7 +417,9 @@ func newFakeChain(
 	targetTimespan := int64(params.TargetTimespan)
 	targetTimePerBlock := int64(params.TargetTimePerBlock)
 	adjustmentFactor := params.RetargetAdjustmentFactor
+
 	return &BlockChain{
+
 		chainParams:         params,
 		timeSource:          NewMedianTime(),
 		minRetargetTimespan: targetTimespan / adjustmentFactor,
@@ -434,7 +438,9 @@ func newFakeNode(
 	parent *blockNode, blockVersion int32, bits uint32, timestamp time.Time) *blockNode {
 
 	// Make up a header and create a block node from it.
+
 	header := &wire.BlockHeader{
+
 		Version:   blockVersion,
 		PrevBlock: parent.hash,
 		Bits:      bits,

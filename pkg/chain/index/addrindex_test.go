@@ -17,6 +17,7 @@ type addrIndexBucket struct {
 func (b *addrIndexBucket) Clone() *addrIndexBucket {
 
 	levels := make(map[[levelKeySize]byte][]byte)
+
 	for k, v := range b.levels {
 
 		vCopy := make([]byte, len(v))
@@ -59,6 +60,7 @@ func (b *addrIndexBucket) Delete(key []byte) error {
 func (b *addrIndexBucket) printLevels(addrKey [addrKeySize]byte) string {
 
 	highestLevel := uint8(0)
+
 	for k := range b.levels {
 
 		if !bytes.Equal(k[:levelOffset], addrKey[:]) {
@@ -66,6 +68,7 @@ func (b *addrIndexBucket) printLevels(addrKey [addrKeySize]byte) string {
 			continue
 		}
 		level := uint8(k[levelOffset])
+
 		if level > highestLevel {
 
 			highestLevel = level
@@ -74,16 +77,19 @@ func (b *addrIndexBucket) printLevels(addrKey [addrKeySize]byte) string {
 	var levelBuf bytes.Buffer
 	_, _ = levelBuf.WriteString("\n")
 	maxEntries := level0MaxEntries
+
 	for level := uint8(0); level <= highestLevel; level++ {
 
 		data := b.levels[keyForLevel(addrKey, level)]
 		numEntries := len(data) / txEntrySize
+
 		for i := 0; i < numEntries; i++ {
 
 			start := i * txEntrySize
 			num := byteOrder.Uint32(data[start:])
 			_, _ = levelBuf.WriteString(fmt.Sprintf("%02d ", num))
 		}
+
 		for i := numEntries; i < maxEntries; i++ {
 
 			_, _ = levelBuf.WriteString("_  ")
@@ -99,6 +105,7 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 
 	// Find the highest level for the key.
 	highestLevel := uint8(0)
+
 	for k := range b.levels {
 
 		if !bytes.Equal(k[:levelOffset], addrKey[:]) {
@@ -106,6 +113,7 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 			continue
 		}
 		level := uint8(k[levelOffset])
+
 		if level > highestLevel {
 
 			highestLevel = level
@@ -114,12 +122,14 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 	// Ensure the expected total number of entries are present and that all levels adhere to the rules described in the address index documentation.
 	var totalEntries int
 	maxEntries := level0MaxEntries
+
 	for level := uint8(0); level <= highestLevel; level++ {
 
 		// Level 0 can'have more entries than the max allowed if the levels after it have data and it can't be empty.  All other levels must either be half full or full.
 		data := b.levels[keyForLevel(addrKey, level)]
 		numEntries := len(data) / txEntrySize
 		totalEntries += numEntries
+
 		if level == 0 {
 
 			if (highestLevel != 0 && numEntries == 0) ||
@@ -135,6 +145,7 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 		}
 		maxEntries *= 2
 	}
+
 	if totalEntries != expectedTotal {
 
 		return fmt.Errorf("expected %d entries - got %d", expectedTotal,
@@ -142,14 +153,17 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 	}
 	// Ensure all of the numbers are in order starting from the highest level moving to the lowest level.
 	expectedNum := uint32(0)
+
 	for level := highestLevel + 1; level > 0; level-- {
 
 		data := b.levels[keyForLevel(addrKey, level)]
 		numEntries := len(data) / txEntrySize
+
 		for i := 0; i < numEntries; i++ {
 
 			start := i * txEntrySize
 			num := byteOrder.Uint32(data[start:])
+
 			if num != expectedNum {
 
 				return fmt.Errorf("level %d offset %d does "+
@@ -212,17 +226,20 @@ func TestAddrIndexLevels(
 		},
 	}
 nextTest:
+
 	for testNum, test := range tests {
 
 		// Insert entries in order.
 		populatedBucket := &addrIndexBucket{
 			levels: make(map[[levelKeySize]byte][]byte),
 		}
+
 		for i := 0; i < test.numInsert; i++ {
 
 			txLoc := wire.TxLoc{TxStart: i * 2}
 			err := dbPutAddrIndexEntry(populatedBucket, test.key,
 				uint32(i), txLoc)
+
 			if err != nil {
 
 				t.Errorf("dbPutAddrIndexEntry #%d (%s) - "+
@@ -231,11 +248,13 @@ nextTest:
 				continue nextTest
 			}
 		}
+
 		if test.printLevels {
 
 			t.Log(populatedBucket.printLevels(test.key))
 		}
 		// Delete entries from the populated bucket until all entries have been deleted.  The bucket is reset to the fully populated bucket on each iteration so every combination is tested.  Notice the upper limit purposes exceeds the number of entries to ensure attempting to delete more entries than there are works correctly.
+
 		for numDelete := 0; numDelete <= test.numInsert+1; numDelete++ {
 
 			// Clone populated bucket to run each delete against.
@@ -243,6 +262,7 @@ nextTest:
 			// Remove the number of entries for this iteration.
 			err := dbRemoveAddrIndexEntries(bucket, test.key,
 				numDelete)
+
 			if err != nil {
 
 				if numDelete <= test.numInsert {
@@ -253,17 +273,20 @@ nextTest:
 					continue nextTest
 				}
 			}
+
 			if test.printLevels {
 
 				t.Log(bucket.printLevels(test.key))
 			}
 			// Sanity check the levels to ensure the adhere to all rules.
 			numExpected := test.numInsert
+
 			if numDelete <= test.numInsert {
 
 				numExpected -= numDelete
 			}
 			err = bucket.sanityCheck(test.key, numExpected)
+
 			if err != nil {
 
 				t.Errorf("sanity check fail (%s) delete %d: %v",

@@ -264,6 +264,7 @@ func readRawBlockRecord(
 	block.Time = time.Unix(int64(byteOrder.Uint64(v[32:40])), 0)
 	block.transactions = make([]chainhash.Hash, numTransactions)
 	off := 44
+
 	for i := range block.transactions {
 
 		copy(block.transactions[i][:], v[off:])
@@ -595,6 +596,7 @@ func latestTxRecord(
 	c := ns.NestedReadBucket(bucketTxRecords).ReadCursor()
 	ck, cv := c.Seek(prefix)
 	var lastKey, lastVal []byte
+
 	for bytes.HasPrefix(ck, prefix) {
 
 		lastKey, lastVal = ck, cv
@@ -1500,6 +1502,7 @@ func fetchUnminedInputSpendTxHashes(
 
 	// Each transaction hash is 32 bytes.
 	spendTxHashes := make([]chainhash.Hash, 0, len(rawSpendTxHashes)/32)
+
 	for len(rawSpendTxHashes) > 0 {
 
 		var spendTxHash chainhash.Hash

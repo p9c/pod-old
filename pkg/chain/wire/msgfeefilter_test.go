@@ -17,6 +17,7 @@ func TestFeeFilterLatest(
 	pver := ProtocolVersion
 	minfee := rand.Int63()
 	msg := NewMsgFeeFilter(minfee)
+
 	if msg.MinFee != minfee {
 
 		t.Errorf("NewMsgFeeFilter: wrong minfee - got %v, want %v",
@@ -25,6 +26,7 @@ func TestFeeFilterLatest(
 
 	// Ensure the command is expected value.
 	wantCmd := "feefilter"
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgFeeFilter: wrong command - got %v want %v",
@@ -34,6 +36,7 @@ func TestFeeFilterLatest(
 	// Ensure max payload is expected value for latest protocol version.
 	wantPayload := uint32(8)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -44,6 +47,7 @@ func TestFeeFilterLatest(
 	// Test encode with latest protocol version.
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, BaseEncoding)
+
 	if err != nil {
 
 		t.Errorf("encode of MsgFeeFilter failed %v err <%v>", msg, err)
@@ -52,12 +56,14 @@ func TestFeeFilterLatest(
 	// Test decode with latest protocol version.
 	readmsg := NewMsgFeeFilter(0)
 	err = readmsg.BtcDecode(&buf, pver, BaseEncoding)
+
 	if err != nil {
 
 		t.Errorf("decode of MsgFeeFilter failed [%v] err <%v>", buf, err)
 	}
 
 	// Ensure minfee is the same.
+
 	if msg.MinFee != readmsg.MinFee {
 
 		t.Errorf("Should get same minfee for protocol version %d", pver)
@@ -92,16 +98,19 @@ func TestFeeFilterWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, BaseEncoding)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -113,11 +122,13 @@ func TestFeeFilterWire(
 		var msg MsgFeeFilter
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, BaseEncoding)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(msg, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -154,11 +165,13 @@ func TestFeeFilterWireErrors(
 		{baseFeeFilter, baseFeeFilterEncoded, pverNoFeeFilter, 4, wireErr, wireErr},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, BaseEncoding)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -167,6 +180,7 @@ func TestFeeFilterWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -181,6 +195,7 @@ func TestFeeFilterWireErrors(
 		var msg MsgFeeFilter
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, BaseEncoding)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -189,6 +204,7 @@ func TestFeeFilterWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {

@@ -293,6 +293,7 @@ func TestBlockFiltererOneInOneOut(
 
 	// outpoints.
 	match := blockFilterer.FilterBlock(&Block100000)
+
 	if !match {
 
 		t.Fatalf("failed to find matches when filtering for " +
@@ -315,6 +316,7 @@ func assertNumRelevantTxns(
 	t *testing.T, bf *chain.BlockFilterer, size int) {
 
 	count := len(bf.RelevantTxns)
+
 	if count != size {
 
 		t.Fatalf("unexpected number of relevant txns: "+

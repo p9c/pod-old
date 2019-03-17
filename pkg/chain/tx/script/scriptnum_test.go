@@ -68,6 +68,7 @@ func TestScriptNumBytes(
 		{9223372036854775807, hexToBytes("ffffffffffffff7f")},
 		{-9223372036854775807, hexToBytes("ffffffffffffffff")},
 	}
+
 	for _, test := range tests {
 
 		gotBytes := test.num.Bytes()
@@ -175,6 +176,7 @@ func TestMakeScriptNum(
 		{hexToBytes("00007000"), 7340032, defaultScriptNumLen, false, nil},
 		{hexToBytes("0009000100"), 16779520, 5, false, nil},
 	}
+
 	for _, test := range tests {
 
 		// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
@@ -243,6 +245,7 @@ func TestScriptNumInt32(
 		{9223372036854775807, 2147483647},
 		{-9223372036854775808, -2147483648},
 	}
+
 	for _, test := range tests {
 
 		got := test.in.Int32()

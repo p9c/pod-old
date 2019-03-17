@@ -20,6 +20,7 @@ func TestAddr(
 	// Ensure the command is expected value.
 	wantCmd := "addr"
 	msg := NewMsgAddr()
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgAddr: wrong command - got %v want %v",
@@ -29,6 +30,7 @@ func TestAddr(
 	// Ensure max payload is expected value for latest protocol version. Num addresses (varInt) + max allowed addresses.
 	wantPayload := uint32(30009)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -40,10 +42,12 @@ func TestAddr(
 	tcpAddr := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 11047}
 	na := NewNetAddress(tcpAddr, SFNodeNetwork)
 	err := msg.AddAddress(na)
+
 	if err != nil {
 
 		t.Errorf("AddAddress: %v", err)
 	}
+
 	if msg.AddrList[0] != na {
 
 		t.Errorf("AddAddress: wrong address added - got %v, want %v",
@@ -52,6 +56,7 @@ func TestAddr(
 
 	// Ensure the address list is cleared properly.
 	msg.ClearAddresses()
+
 	if len(msg.AddrList) != 0 {
 
 		t.Errorf("ClearAddresses: address list is not empty - "+
@@ -60,16 +65,19 @@ func TestAddr(
 	}
 
 	// Ensure adding more than the max allowed addresses per message returns error.
+
 	for i := 0; i < MaxAddrPerMsg+1; i++ {
 
 		err = msg.AddAddress(na)
 	}
+
 	if err == nil {
 
 		t.Errorf("AddAddress: expected error on too many addresses " +
 			"not received")
 	}
 	err = msg.AddAddresses(na)
+
 	if err == nil {
 
 		t.Errorf("AddAddresses: expected error on too many addresses " +
@@ -80,6 +88,7 @@ func TestAddr(
 	pver = NetAddressTimeVersion - 1
 	wantPayload = uint32(26009)
 	maxPayload = msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -91,6 +100,7 @@ func TestAddr(
 	pver = MultipleAddressVersion - 1
 	wantPayload = uint32(35)
 	maxPayload = msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -172,16 +182,19 @@ func TestAddrWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -192,11 +205,13 @@ func TestAddrWire(
 		var msg MsgAddr
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&msg, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -247,6 +262,7 @@ func TestAddrWireErrors(
 
 	// Message that forces an error by having more than the max allowed addresses.
 	maxAddr := NewMsgAddr()
+
 	for i := 0; i < MaxAddrPerMsg; i++ {
 
 		maxAddr.AddAddress(na)
@@ -275,11 +291,13 @@ func TestAddrWireErrors(
 		{maxAddr, maxAddrEncoded, pverMA - 1, BaseEncoding, 3, wireErr, wireErr},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -287,6 +305,7 @@ func TestAddrWireErrors(
 			continue
 		}
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -300,6 +319,7 @@ func TestAddrWireErrors(
 		var msg MsgAddr
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -307,6 +327,7 @@ func TestAddrWireErrors(
 			continue
 		}
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {

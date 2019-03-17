@@ -79,6 +79,7 @@ func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 func (job *RescanJob) batch() *rescanBatch {
 
 	return &rescanBatch{
+
 		initialSync: job.InitialSync,
 		addrs:       job.Addrs,
 		outpoints:   job.OutPoints,
@@ -191,6 +192,7 @@ out:
 				}
 
 				w.rescanProgress <- &RescanProgressMsg{
+
 					Addresses:    curBatch.addrs,
 					Notification: n,
 				}
@@ -207,6 +209,7 @@ out:
 				}
 
 				w.rescanFinished <- &RescanFinishedMsg{
+
 					Addresses:    curBatch.addrs,
 					Notification: n,
 				}
@@ -248,6 +251,7 @@ out:
 
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
+
 			log <- cl.Infof{
 
 				"rescanned through block %v (height %d)",
@@ -258,6 +262,7 @@ out:
 			n := msg.Notification
 			addrs := msg.Addresses
 			noun := pickNoun(len(addrs), "address", "addresses")
+
 			log <- cl.Infof{
 
 				"finished rescan for %d %s (synced to block %s, height %d)",
@@ -305,6 +310,7 @@ out:
 			// Log the newly-started rescan.
 			numAddrs := len(batch.addrs)
 			noun := pickNoun(numAddrs, "address", "addresses")
+
 			log <- cl.Infof{
 
 				"started rescan from block %v (height %d) for %d %s",
@@ -380,6 +386,7 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 	}
 
 	job := &RescanJob{
+
 		InitialSync: true,
 		Addrs:       addrs,
 		OutPoints:   outpoints,

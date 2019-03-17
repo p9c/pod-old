@@ -17,7 +17,9 @@ func TestTimeSorter(
 	}{
 
 		{
+
 			in: []int64{
+
 				1351228575, // Fri Oct 26 05:16:15 UTC 2012 (Block #205000)
 				1348310759, // Sat Sep 22 10:45:59 UTC 2012 (Block #200000)
 				1305758502, // Wed May 18 22:41:42 UTC 2011 (Block #125000)
@@ -26,6 +28,7 @@ func TestTimeSorter(
 			},
 
 			want: []int64{
+
 				1305758502, // Wed May 18 22:41:42 UTC 2011 (Block #125000)
 				1347777156, // Sun Sep 16 06:32:36 UTC 2012 (Block #199000)
 				1348310759, // Sat Sep 22 10:45:59 UTC 2012 (Block #200000)

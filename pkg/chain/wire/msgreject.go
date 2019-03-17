@@ -72,6 +72,7 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 
 	// Command that was rejected.
 	cmd, err := ReadVarString(r, pver)
+
 	if err != nil {
 
 		return err
@@ -80,6 +81,7 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 
 	// Code indicating why the command was rejected.
 	err = readElement(r, &msg.Code)
+
 	if err != nil {
 
 		return err
@@ -87,6 +89,7 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 
 	// Human readable string with specific details (over and above the reject code above) about why the command was rejected.
 	reason, err := ReadVarString(r, pver)
+
 	if err != nil {
 
 		return err
@@ -94,9 +97,11 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 	msg.Reason = reason
 
 	// CmdBlock and CmdTx messages have an additional hash field that identifies the specific block or transaction.
+
 	if msg.Cmd == CmdBlock || msg.Cmd == CmdTx {
 
 		err := readElement(r, &msg.Hash)
+
 		if err != nil {
 
 			return err
@@ -117,6 +122,7 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 
 	// Command that was rejected.
 	err := WriteVarString(w, pver, msg.Cmd)
+
 	if err != nil {
 
 		return err
@@ -124,6 +130,7 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 
 	// Code indicating why the command was rejected.
 	err = writeElement(w, msg.Code)
+
 	if err != nil {
 
 		return err
@@ -131,15 +138,18 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 
 	// Human readable string with specific details (over and above the reject code above) about why the command was rejected.
 	err = WriteVarString(w, pver, msg.Reason)
+
 	if err != nil {
 
 		return err
 	}
 
 	// CmdBlock and CmdTx messages have an additional hash field that identifies the specific block or transaction.
+
 	if msg.Cmd == CmdBlock || msg.Cmd == CmdTx {
 
 		err := writeElement(w, &msg.Hash)
+
 		if err != nil {
 
 			return err
@@ -160,6 +170,7 @@ func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
 	plen := uint32(0)
 
 	// The reject message did not exist before protocol version RejectVersion.
+
 	if pver >= RejectVersion {
 
 		// Unfortunately the bitcoin protocol does not enforce a sane limit on the length of the reason, so the max payload is the overall maximum message payload.

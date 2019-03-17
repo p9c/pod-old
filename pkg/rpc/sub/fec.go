@@ -15,6 +15,7 @@ var (
 	rsFEC      = func() *infectious.FEC {
 
 		fec, err := infectious.NewFEC(3, 9)
+
 		if err != nil {
 
 			panic(err)
@@ -32,12 +33,14 @@ func padData(
 	binary.LittleEndian.PutUint16(prefixBytes, uint16(dataLen))
 	data = append(prefixBytes, data...)
 	dataLen = len(data)
+
 	if dataLen > maxMessageSize {
 
 		return []byte{}
 	}
 	chunkLen := (dataLen) / rsTotal
 	chunkMod := (dataLen) % rsTotal
+
 	if chunkMod != 0 {
 
 		chunkLen++
@@ -58,10 +61,12 @@ func rsEncode(
 		shares[s.Number] = s.DeepCopy()
 	}
 	err := rsFEC.Encode(data, output)
+
 	if err != nil {
 
 		panic(err)
 	}
+
 	for i := range shares {
 
 		// Append the chunk number to the front of the chunk
@@ -88,6 +93,7 @@ func rsDecode(
 		}
 	}()
 	var shares []infectious.Share
+
 	for i := range chunks {
 
 		bodyLen := len(chunks[i])

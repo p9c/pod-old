@@ -74,6 +74,7 @@ func (n scriptNum) Bytes() []byte {
 
 	// Encode to little endian.  The maximum number of encoded bytes is 9 (8 bytes for max int64 plus a potential byte for sign extension).
 	result := make([]byte, 0, 9)
+
 	for n > 0 {
 
 		result = append(result, byte(n&0xff))
@@ -146,6 +147,7 @@ func makeScriptNum(
 
 	// Decode from little endian.
 	var result int64
+
 	for i, val := range v {
 
 		result |= int64(val) << uint8(8*i)

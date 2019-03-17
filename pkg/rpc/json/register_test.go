@@ -30,20 +30,24 @@ func TestUsageFlagStringer(
 	// Detect additional usage flags that don't have the stringer added.
 	numUsageFlags := 0
 	highestUsageFlagBit := json.TstHighestUsageFlagBit
+
 	for highestUsageFlagBit > 1 {
 
 		numUsageFlags++
 		highestUsageFlagBit >>= 1
 	}
+
 	if len(tests)-3 != numUsageFlags {
 
 		t.Errorf("It appears a usage flag was added without adding " +
 			"an associated stringer test")
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
@@ -221,10 +225,12 @@ func TestRegisterCmdErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		err := json.RegisterCmd(test.method, test.cmdFunc(),
 			test.flags)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T, "+
@@ -232,6 +238,7 @@ func TestRegisterCmdErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
@@ -271,6 +278,7 @@ func TestRegisteredCmdMethods(
 
 	// Ensure the registered methods are returned.
 	methods := json.RegisteredCmdMethods()
+
 	if len(methods) == 0 {
 
 		t.Fatal("RegisteredCmdMethods: no methods")
@@ -280,6 +288,7 @@ func TestRegisteredCmdMethods(
 	sortedMethods := make([]string, len(methods))
 	copy(sortedMethods, methods)
 	sort.Sort(sort.StringSlice(sortedMethods))
+
 	if !reflect.DeepEqual(sortedMethods, methods) {
 
 		t.Fatal("RegisteredCmdMethods: methods are not sorted")

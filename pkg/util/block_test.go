@@ -62,7 +62,9 @@ func TestBlock(
 	}
 
 	// Hashes for the transactions in Block100000.
+
 	wantTxHashes := []string{
+
 		"8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87",
 		"fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4",
 		"6359f0868171b1d194cbee1af2f16ea598ae8fad666d9b012c8ed2b79a236ec4",
@@ -185,7 +187,9 @@ func TestBlock(
 	}
 
 	// Transaction offsets and length for the transaction in Block100000.
+
 	wantTxLocs := []wire.TxLoc{
+
 		{TxStart: 81, TxLen: 135},
 		{TxStart: 216, TxLen: 259},
 		{TxStart: 475, TxLen: 257},
@@ -396,8 +400,11 @@ func TestBlockErrors(
 }
 
 // Block100000 defines block 100,000 of the block chain.  It is used to test Block operations.
+
 var Block100000 = wire.MsgBlock{
+
 	Header: wire.BlockHeader{
+
 		Version: 1,
 		PrevBlock: chainhash.Hash([32]byte{ // Make go vet happy.
 			0x50, 0x12, 0x01, 0x19, 0x17, 0x2a, 0x61, 0x04,
@@ -419,16 +426,23 @@ var Block100000 = wire.MsgBlock{
 	},
 
 	Transactions: []*wire.MsgTx{
+
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  chainhash.Hash{},
 						Index: 0xffffffff,
 					},
 
 					SignatureScript: []byte{
+
 						0x04, 0x4c, 0x86, 0x04, 0x1b, 0x02, 0x06, 0x02,
 					},
 
@@ -437,9 +451,13 @@ var Block100000 = wire.MsgBlock{
 			},
 
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0x12a05f200, // 5000000000
+
 					PkScript: []byte{
+
 						0x41, // OP_DATA_65
 						0x04, 0x1b, 0x0e, 0x8c, 0x25, 0x67, 0xc1, 0x25,
 						0x36, 0xaa, 0x13, 0x35, 0x7b, 0x79, 0xa0, 0x73,
@@ -459,10 +477,15 @@ var Block100000 = wire.MsgBlock{
 		},
 
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0x03, 0x2e, 0x38, 0xe9, 0xc0, 0xa8, 0x4c, 0x60,
 							0x46, 0xd6, 0x87, 0xd1, 0x05, 0x56, 0xdc, 0xac,
@@ -474,6 +497,7 @@ var Block100000 = wire.MsgBlock{
 					},
 
 					SignatureScript: []byte{
+
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xc3, 0x52, 0xd3,
 						0xdd, 0x99, 0x3a, 0x98, 0x1b, 0xeb, 0xa4, 0xa6,
@@ -502,9 +526,13 @@ var Block100000 = wire.MsgBlock{
 			},
 
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0x2123e300, // 556000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -517,8 +545,11 @@ var Block100000 = wire.MsgBlock{
 				},
 
 				{
+
 					Value: 0x108e20f00, // 4444000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -535,10 +566,15 @@ var Block100000 = wire.MsgBlock{
 		},
 
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0xc3, 0x3e, 0xbf, 0xf2, 0xa7, 0x09, 0xf1, 0x3d,
 							0x9f, 0x9a, 0x75, 0x69, 0xab, 0x16, 0xa3, 0x27,
@@ -550,6 +586,7 @@ var Block100000 = wire.MsgBlock{
 					},
 
 					SignatureScript: []byte{
+
 						0x47, // OP_DATA_71
 						0x30, 0x44, 0x02, 0x20, 0x03, 0x2d, 0x30, 0xdf,
 						0x5e, 0xe6, 0xf5, 0x7f, 0xa4, 0x6c, 0xdd, 0xb5,
@@ -577,9 +614,13 @@ var Block100000 = wire.MsgBlock{
 			},
 
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0xf4240, // 1000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -592,8 +633,11 @@ var Block100000 = wire.MsgBlock{
 				},
 
 				{
+
 					Value: 0x11d260c0, // 299000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -610,10 +654,15 @@ var Block100000 = wire.MsgBlock{
 		},
 
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0x0b, 0x60, 0x72, 0xb3, 0x86, 0xd4, 0xa7, 0x73,
 							0x23, 0x52, 0x37, 0xf6, 0x4c, 0x11, 0x26, 0xac,
@@ -625,6 +674,7 @@ var Block100000 = wire.MsgBlock{
 					},
 
 					SignatureScript: []byte{
+
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xbb, 0x1a, 0xd2,
 						0x6d, 0xf9, 0x30, 0xa5, 0x1c, 0xce, 0x11, 0x0c,
@@ -653,9 +703,13 @@ var Block100000 = wire.MsgBlock{
 			},
 
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0xf4240, // 1000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20

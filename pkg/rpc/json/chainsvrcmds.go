@@ -215,6 +215,7 @@ func convertTemplateRequestField(
 	case bool:
 		return val, nil
 	case float64:
+
 		if val == float64(int64(val)) {
 
 			return int64(val), nil
@@ -230,6 +231,7 @@ func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 
 	type templateRequest TemplateRequest
 	request := (*templateRequest)(t)
+
 	if err := json.Unmarshal(data, &request); err != nil {
 
 		return err
@@ -237,6 +239,7 @@ func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 
 	// The SigOpLimit field can only be nil, bool, or int64.
 	val, err := convertTemplateRequestField("sigoplimit", request.SigOpLimit)
+
 	if err != nil {
 
 		return err
@@ -245,6 +248,7 @@ func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 
 	// The SizeLimit field can only be nil, bool, or int64.
 	val, err = convertTemplateRequestField("sizelimit", request.SizeLimit)
+
 	if err != nil {
 
 		return err

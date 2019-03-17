@@ -31,6 +31,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 	// transaction's outputs to determine if we've already seen them to
 
 	// prevent from adding this transaction to the unconfirmed bucket.
+
 	for i := range rec.MsgTx.TxOut {
 
 		k := canonicalOutPoint(&rec.Hash, uint32(i))
@@ -41,6 +42,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 	}
 
 	log <- cl.Info{"inserting unconfirmed transaction", rec.Hash}
+
 	v, err := valueTxRecord(rec)
 	if err != nil {
 
@@ -82,6 +84,7 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 		prevOutKey := canonicalOutPoint(&prevOut.Hash, prevOut.Index)
 
 		doubleSpendHashes := fetchUnminedInputSpendTxHashes(ns, prevOutKey)
+
 		for _, doubleSpendHash := range doubleSpendHashes {
 
 			doubleSpendVal := existsRawUnmined(ns, doubleSpendHash[:])
@@ -107,6 +110,7 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 			}
 
 			log <- cl.Debug{
+
 				"removing double spending transaction", doubleSpend.Hash,
 			}
 			if err := s.removeConflict(ns, &doubleSpend); err != nil {
@@ -130,10 +134,12 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 	// be recursively removed as well.  Once the spenders are removed, the
 
 	// credit is deleted.
+
 	for i := range rec.MsgTx.TxOut {
 
 		k := canonicalOutPoint(&rec.Hash, uint32(i))
 		spenderHashes := fetchUnminedInputSpendTxHashes(ns, k)
+
 		for _, spenderHash := range spenderHashes {
 
 			spenderVal := existsRawUnmined(ns, spenderHash[:])
@@ -157,6 +163,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 			}
 
 			log <- cl.Debugf{
+
 				"transaction %v is part of a removed conflict chain -- removing as well",
 				spender.Hash,
 			}
@@ -176,6 +183,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 	// each unspent.  Mined transactions are only marked spent by having the
 
 	// output in the unmined inputs bucket.
+
 	for _, input := range rec.MsgTx.TxIn {
 
 		prevOut := &input.PreviousOutPoint
@@ -202,6 +210,7 @@ func (s *Store) UnminedTxs(ns walletdb.ReadBucket) ([]*wire.MsgTx, error) {
 
 	recs := dependencySort(recSet)
 	txs := make([]*wire.MsgTx, 0, len(recs))
+
 	for _, rec := range recs {
 
 		txs = append(txs, &rec.MsgTx)

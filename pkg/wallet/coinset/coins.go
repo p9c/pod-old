@@ -44,6 +44,7 @@ func NewCoinSet(
 		totalValue:    0,
 		totalValueAge: 0,
 	}
+
 	for _, coin := range coins {
 
 		newCoinSet.PushCoin(coin)
@@ -55,6 +56,7 @@ func NewCoinSet(
 func (cs *CoinSet) Coins() []Coin {
 
 	coins := make([]Coin, cs.coinList.Len())
+
 	for i, e := 0, cs.coinList.Front(); e != nil; i, e = i+1, e.Next() {
 
 		coins[i] = e.Value.(Coin)
@@ -92,6 +94,7 @@ func (cs *CoinSet) PushCoin(c Coin) {
 func (cs *CoinSet) PopCoin() Coin {
 
 	back := cs.coinList.Back()
+
 	if back == nil {
 
 		return nil
@@ -103,6 +106,7 @@ func (cs *CoinSet) PopCoin() Coin {
 func (cs *CoinSet) ShiftCoin() Coin {
 
 	front := cs.coinList.Front()
+
 	if front == nil {
 
 		return nil
@@ -127,6 +131,7 @@ func NewMsgTxWithInputCoins(
 	msgTx := wire.NewMsgTx(txVersion)
 	coins := inputCoins.Coins()
 	msgTx.TxIn = make([]*wire.TxIn, len(coins))
+
 	for i, coin := range coins {
 
 		msgTx.TxIn[i] = &wire.TxIn{
@@ -170,9 +175,11 @@ type MinIndexCoinSelector struct {
 func (s MinIndexCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error) {
 
 	cs := NewCoinSet(nil)
+
 	for n := 0; n < len(coins) && n < s.MaxInputs; n++ {
 
 		cs.PushCoin(coins[n])
+
 		if satisfiesTargetValue(targetValue, s.MinChangeAmount, cs.TotalValue()) {
 
 			return cs, nil
@@ -227,6 +234,7 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 
 	// find the first coin with sufficient valueAge
 	cutoffIndex := -1
+
 	for i := 0; i < len(possibleCoins); i++ {
 
 		if possibleCoins[i].ValueAge() >= s.MinAvgValueAgePerInput {
@@ -235,12 +243,14 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 			break
 		}
 	}
+
 	if cutoffIndex < 0 {
 
 		return nil, ErrCoinsNoSelectionAvailable
 	}
 
 	// create sets of input coins that will obey minimum average valueAge
+
 	for i := cutoffIndex; i < len(possibleCoins); i++ {
 
 		possibleHighCoins := possibleCoins[cutoffIndex : i+1]
@@ -249,14 +259,17 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 			MaxInputs:       s.MaxInputs,
 			MinChangeAmount: s.MinChangeAmount,
 		}).CoinSelect(targetValue, possibleHighCoins)
+
 		if err != nil {
 
 			// attempt to add available low priority to make a solution
+
 			for numLow := 1; numLow <= cutoffIndex && numLow+(i-cutoffIndex) <= s.MaxInputs; numLow++ {
 
 				allHigh := NewCoinSet(possibleCoins[cutoffIndex : i+1])
 				newTargetValue := targetValue - allHigh.TotalValue()
 				newMaxInputs := allHigh.Num() + numLow
+
 				if newMaxInputs > numLow {
 
 					newMaxInputs = numLow
@@ -268,10 +281,12 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 					MinChangeAmount:        s.MinChangeAmount,
 					MinAvgValueAgePerInput: newMinAvgValueAge,
 				}).CoinSelect(newTargetValue, possibleCoins[0:cutoffIndex])
+
 				if err != nil {
 
 					continue
 				}
+
 				for _, coin := range lowSelect.Coins() {
 
 					allHigh.PushCoin(coin)
@@ -283,17 +298,20 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 
 			extendedCoins := NewCoinSet(highSelect.Coins())
 			// attempt to lower priority towards target with lowest ones first
+
 			for n := 0; n < cutoffIndex; n++ {
 
 				if extendedCoins.Num() >= s.MaxInputs {
 
 					break
 				}
+
 				if possibleCoins[n].ValueAge() == 0 {
 
 					continue
 				}
 				extendedCoins.PushCoin(possibleCoins[n])
+
 				if extendedCoins.TotalValueAge()/int64(extendedCoins.Num()) < s.MinAvgValueAgePerInput {
 
 					extendedCoins.PopCoin()

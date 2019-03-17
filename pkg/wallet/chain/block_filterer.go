@@ -86,6 +86,7 @@ func NewBlockFilterer(
 	// external addresses.
 	nExAddrs := len(req.ExternalAddrs)
 	exReverseFilter := make(map[string]waddrmgr.ScopedIndex, nExAddrs)
+
 	for scopedIndex, addr := range req.ExternalAddrs {
 
 		exReverseFilter[addr.EncodeAddress()] = scopedIndex
@@ -96,6 +97,7 @@ func NewBlockFilterer(
 	// internal addresses.
 	nInAddrs := len(req.InternalAddrs)
 	inReverseFilter := make(map[string]waddrmgr.ScopedIndex, nInAddrs)
+
 	for scopedIndex, addr := range req.InternalAddrs {
 
 		inReverseFilter[addr.EncodeAddress()] = scopedIndex
@@ -124,6 +126,7 @@ func NewBlockFilterer(
 func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
 
 	var hasRelevantTxns bool
+
 	for _, tx := range block.Transactions {
 
 		if bf.FilterTx(tx) {
@@ -152,12 +155,14 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 	// WatchedOutPoints, we also check FoundOutPoints, in case a txn spends
 
 	// from an outpoint created in the same block.
+
 	for _, in := range tx.TxIn {
 
 		if _, ok := bf.WatchedOutPoints[in.PreviousOutPoint]; ok {
 
 			isRelevant = true
 		}
+
 		if _, ok := bf.FoundOutPoints[in.PreviousOutPoint]; ok {
 
 			isRelevant = true
@@ -171,11 +176,13 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 	// indexes for both external and internal addresses. If a new output is
 
 	// found, we will add the outpoint to our set of FoundOutPoints.
+
 	for i, out := range tx.TxOut {
 
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			out.PkScript, bf.Params,
 		)
+
 		if err != nil {
 
 			log <- cl.Warnf{
@@ -217,14 +224,17 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 func (bf *BlockFilterer) FilterOutputAddrs(addrs []util.Address) bool {
 
 	var isRelevant bool
+
 	for _, addr := range addrs {
 
 		addrStr := addr.EncodeAddress()
+
 		if scopedIndex, ok := bf.ExReverseFilter[addrStr]; ok {
 
 			bf.foundExternal(scopedIndex)
 			isRelevant = true
 		}
+
 		if scopedIndex, ok := bf.InReverseFilter[addrStr]; ok {
 
 			bf.foundInternal(scopedIndex)

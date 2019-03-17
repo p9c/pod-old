@@ -684,6 +684,7 @@ func (w *Wallet) syncWithChain() error {
 				if birthdayStamp == nil {
 
 					birthdayStamp = &waddrmgr.BlockStamp{
+
 						Height:    height,
 						Hash:      *hash,
 						Timestamp: timestamp,
@@ -707,6 +708,7 @@ func (w *Wallet) syncWithChain() error {
 			}
 
 			err = w.Manager.SetSyncedTo(ns, &waddrmgr.BlockStamp{
+
 				Hash:      *hash,
 				Height:    height,
 				Timestamp: timestamp,
@@ -1259,6 +1261,7 @@ func externalKeyPath(
 	index uint32) waddrmgr.DerivationPath {
 
 	return waddrmgr.DerivationPath{
+
 		Account: waddrmgr.DefaultAccountNum,
 		Branch:  waddrmgr.ExternalBranch,
 		Index:   index,
@@ -1272,6 +1275,7 @@ func internalKeyPath(
 	index uint32) waddrmgr.DerivationPath {
 
 	return waddrmgr.DerivationPath{
+
 		Account: waddrmgr.DefaultAccountNum,
 		Branch:  waddrmgr.InternalBranch,
 		Index:   index,
@@ -1289,6 +1293,7 @@ func newFilterBlocksRequest(
 	recoveryState *RecoveryState) *chain.FilterBlocksRequest {
 
 	filterReq := &chain.FilterBlocksRequest{
+
 		Blocks:           batch,
 		ExternalAddrs:    make(map[waddrmgr.ScopedIndex]util.Address),
 		InternalAddrs:    make(map[waddrmgr.ScopedIndex]util.Address),
@@ -1306,6 +1311,7 @@ func newFilterBlocksRequest(
 		for index, addr := range scopeState.ExternalBranch.Addrs() {
 
 			scopedIndex := waddrmgr.ScopedIndex{
+
 				Scope: scope,
 				Index: index,
 			}
@@ -1316,6 +1322,7 @@ func newFilterBlocksRequest(
 		for index, addr := range scopeState.InternalBranch.Addrs() {
 
 			scopedIndex := waddrmgr.ScopedIndex{
+
 				Scope: scope,
 				Index: index,
 			}
@@ -1614,6 +1621,7 @@ func (w *Wallet) CreateSimpleTx(account uint32, outputs []*wire.TxOut,
 	minconf int32, satPerKb util.Amount) (*txauthor.AuthoredTx, error) {
 
 	req := createTxRequest{
+
 		account:     account,
 		outputs:     outputs,
 		minconf:     minconf,
@@ -1811,7 +1819,9 @@ out:
 func (w *Wallet) Unlock(passphrase []byte, lock <-chan time.Time) error {
 
 	err := make(chan error, 1)
+
 	w.unlockRequests <- unlockRequest{
+
 		passphrase: passphrase,
 		lockAfter:  lock,
 		err:        err,
@@ -1857,7 +1867,9 @@ func (w *Wallet) holdUnlock() (heldUnlock, error) {
 		// TODO(davec): This should be defined and exported from
 
 		// waddrmgr.
+
 		return nil, waddrmgr.ManagerError{
+
 			ErrorCode:   waddrmgr.ErrLocked,
 			Description: "address manager is locked",
 		}
@@ -1889,7 +1901,9 @@ func (c heldUnlock) release() {
 func (w *Wallet) ChangePrivatePassphrase(old, new []byte) error {
 
 	err := make(chan error, 1)
+
 	w.changePassphrase <- changePassphraseRequest{
+
 		old:     old,
 		new:     new,
 		private: true,
@@ -1904,7 +1918,9 @@ func (w *Wallet) ChangePrivatePassphrase(old, new []byte) error {
 func (w *Wallet) ChangePublicPassphrase(old, new []byte) error {
 
 	err := make(chan error, 1)
+
 	w.changePassphrase <- changePassphraseRequest{
+
 		old:     old,
 		new:     new,
 		private: false,
@@ -1922,7 +1938,9 @@ func (w *Wallet) ChangePassphrases(publicOld, publicNew, privateOld,
 	privateNew []byte) error {
 
 	err := make(chan error, 1)
+
 	w.changePassphrases <- changePassphrasesRequest{
+
 		publicOld:  publicOld,
 		publicNew:  publicNew,
 		privateOld: privateOld,
@@ -2079,6 +2097,7 @@ func (w *Wallet) CalculateAccountBalances(account uint32, confirms int32) (Balan
 			}
 
 			bals.Total += output.Amount
+
 			if output.FromCoinBase && !confirmed(int32(w.chainParams.CoinbaseMaturity),
 
 				output.Height, syncBlock.Height) {
@@ -2661,6 +2680,7 @@ outputs:
 		}
 
 		amountF64 := util.Amount(output.Value).ToDUO()
+
 		result := json.ListTransactionsResult{
 
 			// Fields left zeroed:
@@ -3151,7 +3171,9 @@ func (w *Wallet) GetTransactions(startBlock, endBlock *BlockIdentifier, cancel <
 			if details[0].Block.Height != -1 {
 
 				blockHash := details[0].Block.Hash
+
 				res.MinedTransactions = append(res.MinedTransactions, Block{
+
 					Hash:         &blockHash,
 					Height:       details[0].Block.Height,
 					Timestamp:    details[0].Block.Time.Unix(),
@@ -3248,6 +3270,7 @@ func (w *Wallet) Accounts(scope waddrmgr.KeyScope) (*AccountsResult, error) {
 			}
 
 			accounts = append(accounts, AccountResult{
+
 				AccountProperties: *props,
 
 				// TotalBalance set below
@@ -3297,6 +3320,7 @@ func (w *Wallet) Accounts(scope waddrmgr.KeyScope) (*AccountsResult, error) {
 	})
 
 	return &AccountsResult{
+
 			Accounts:           accounts,
 			CurrentBlockHash:   syncBlockHash,
 			CurrentBlockHeight: syncBlockHeight,
@@ -3652,6 +3676,7 @@ func (w *Wallet) ListUnspent(minconf, maxconf int32,
 			}
 
 			result := &json.ListUnspentResult{
+
 				TxID:          output.OutPoint.Hash.String(),
 				Vout:          output.OutPoint.Index,
 				Account:       acctName,
@@ -3797,6 +3822,7 @@ func (w *Wallet) ImportPrivateKey(scope waddrmgr.KeyScope, wif *util.WIF,
 	if bs == nil {
 
 		bs = &waddrmgr.BlockStamp{
+
 			Hash:   *w.chainParams.GenesisHash,
 			Height: 0,
 		}
@@ -3854,6 +3880,7 @@ func (w *Wallet) ImportPrivateKey(scope waddrmgr.KeyScope, wif *util.WIF,
 	if rescan {
 
 		job := &RescanJob{
+
 			Addrs:      []util.Address{addr},
 			OutPoints:  nil,
 			BlockStamp: *bs,
@@ -3881,6 +3908,7 @@ func (w *Wallet) ImportPrivateKey(scope waddrmgr.KeyScope, wif *util.WIF,
 	}
 
 	addrStr := addr.EncodeAddress()
+
 	log <- cl.Info{"imported payment address", addrStr}
 
 	w.NtfnServer.notifyAccountProperties(props)
@@ -3940,6 +3968,7 @@ func (w *Wallet) LockedOutpoints() []json.TransactionInput {
 	for op := range w.lockedOutpoints {
 
 		locked[i] = json.TransactionInput{
+
 			Txid: op.Hash.String(),
 			Vout: op.Index,
 		}
@@ -4331,6 +4360,7 @@ func (w *Wallet) TotalReceivedForAccounts(scope waddrmgr.KeyScope,
 			}
 
 			results = append(results, AccountTotalReceivedResult{
+
 				AccountNumber: account,
 				AccountName:   accountName,
 			})
@@ -4661,6 +4691,7 @@ func (w *Wallet) SignTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 			// corresponding output. However this could be already signed,
 
 			// so we always verify the output.
+
 			if (hashType&txscript.SigHashSingle) !=
 
 				txscript.SigHashSingle || i < len(tx.TxOut) {
@@ -4676,6 +4707,7 @@ func (w *Wallet) SignTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 				if err != nil {
 
 					signErrors = append(signErrors, SignatureError{
+
 						InputIndex: uint32(i),
 						Error:      err,
 					})
@@ -4700,6 +4732,7 @@ func (w *Wallet) SignTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 			if err != nil {
 
 				signErrors = append(signErrors, SignatureError{
+
 					InputIndex: uint32(i),
 					Error:      err,
 				})
@@ -4997,6 +5030,7 @@ func Open(
 	log <- cl.Infof{"opened wallet"} // TODO: log balance? last sync height?
 
 	w := &Wallet{
+
 		publicPassphrase:    pubPass,
 		db:                  db,
 		Manager:             addrMgr,

@@ -20,6 +20,7 @@ func TestPutUsedAddrHash(
 		ns, _ := TstRWNamespaces(tx)
 		return putUsedAddrHash(ns, pool.ID, 0, 0, 0, dummyHash)
 	})
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -32,10 +33,12 @@ func TestPutUsedAddrHash(
 		storedHash = getUsedAddrHash(ns, pool.ID, 0, 0, 0)
 		return nil
 	})
+
 	if err != nil {
 
 		t.Fatal(err)
 	}
+
 	if !bytes.Equal(storedHash, dummyHash) {
 
 		t.Fatalf("Wrong stored hash; got %x, want %x", storedHash, dummyHash)
@@ -51,10 +54,12 @@ func TestGetMaxUsedIdx(
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 		ns, _ := TstRWNamespaces(tx)
+
 		for i, idx := range []int{0, 7, 9, 3001, 41, 500, 6} {
 
 			dummyHash := bytes.Repeat([]byte{byte(i)}, 10)
 			err := putUsedAddrHash(ns, pool.ID, 0, 0, Index(idx), dummyHash)
+
 			if err != nil {
 
 				return err
@@ -62,6 +67,7 @@ func TestGetMaxUsedIdx(
 		}
 		return nil
 	})
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -75,10 +81,12 @@ func TestGetMaxUsedIdx(
 		maxIdx, err = getMaxUsedIdx(ns, pool.ID, 0, 0)
 		return err
 	})
+
 	if err != nil {
 
 		t.Fatal(err)
 	}
+
 	if maxIdx != Index(3001) {
 
 		t.Fatalf("Wrong max idx; got %d, want %d", maxIdx, Index(3001))
@@ -92,6 +100,7 @@ func TestWithdrawalSerialization(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -104,6 +113,7 @@ func TestWithdrawalSerialization(
 
 	serialized, err := serializeWithdrawal(wi.requests, wi.startAddress, wi.lastSeriesID,
 		wi.changeStart, wi.dustThreshold, wi.status)
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -113,6 +123,7 @@ func TestWithdrawalSerialization(
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 		wInfo, err = deserializeWithdrawal(pool, ns, addrmgrNs, serialized)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -161,6 +172,7 @@ func TestPutAndGetWithdrawal(
 		ns, _ := TstRWNamespaces(tx)
 		return putWithdrawal(ns, poolID, roundID, serialized)
 	})
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -173,6 +185,7 @@ func TestPutAndGetWithdrawal(
 		retrieved = getWithdrawal(ns, poolID, roundID)
 		return nil
 	})
+
 	if err != nil {
 
 		t.Fatal(err)

@@ -34,6 +34,7 @@ func SeedFromDNS(
 	for _, dnsseed := range chainParams.DNSSeeds {
 
 		var host string
+
 		if !dnsseed.HasFiltering || reqServices == wire.SFNodeNetwork {
 
 			host = dnsseed.Host
@@ -45,6 +46,7 @@ func SeedFromDNS(
 
 			randSource := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 			seedpeers, err := lookupFn(host)
+
 			if err != nil {
 
 				log <- cl.Infof{"DNS discovery failed on seed %s: %v", host, err}
@@ -52,6 +54,7 @@ func SeedFromDNS(
 				return
 			}
 			numPeers := len(seedpeers)
+
 			log <- cl.Infof{"%d addresses found from DNS seed %s", numPeers, host}
 
 			if numPeers == 0 {
@@ -62,6 +65,7 @@ func SeedFromDNS(
 
 			// if this errors then we have *real* problems
 			intPort, _ := strconv.Atoi(chainParams.DefaultPort)
+
 			for i, peer := range seedpeers {
 
 				addresses[i] = wire.NewNetAddressTimestamp(

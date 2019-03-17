@@ -97,6 +97,7 @@ func (
 	n uint32, algo string) ([]*chainhash.Hash, error) {
 
 	m.Lock()
+
 	log <- cl.Infof{"Generating %s blocks...", m.cfg.Algo}
 
 	// Respond with an error if server is already mining.
@@ -112,13 +113,16 @@ func (
 	m.wg.Add(1)
 	go m.speedMonitor()
 	m.Unlock()
+
 	log <- cl.Tracef{"Generating %d blocks", n}
+
 	i := uint32(0)
 	blockHashes := make([]*chainhash.Hash, n)
 
 	// Start a ticker which is used to signal checks for stale work and updates to the speed monitor.
 	ticker := time.NewTicker(time.Second * hashUpdateSecs)
 	defer ticker.Stop()
+
 	for {
 
 		// Read updateNumWorkers in case someone tries a `setgenerate` while we're generating. We can ignore it as the `generate` RPC call only uses 1 worker.
@@ -144,6 +148,7 @@ func (
 		if err != nil {
 
 			log <- cl.Error{"failed to create new block template:", err}
+
 			continue
 		}
 
@@ -157,6 +162,7 @@ func (
 			if i == n {
 
 				log <- cl.Tracef{"Generated %d blocks", i}
+
 				m.Lock()
 				close(m.speedMonitorQuit)
 				m.wg.Wait()
@@ -275,7 +281,9 @@ func (
 	go m.speedMonitor()
 	go m.miningWorkerController()
 	m.started = true
+
 	log <- cl.Info{"CPU miner started mining", m.cfg.Algo}
+
 }
 
 // Stop gracefully stops the mining process by signalling all workers, and the speed monitor to quit.  Calling this function when the CPU miner has not already been started will have no effect. This function is safe for concurrent access.
@@ -294,7 +302,9 @@ func (
 	close(m.quit)
 	m.wg.Wait()
 	m.started = false
+
 	log <- cl.Inf("CPU miner stopped")
+
 }
 
 // generateBlocks is a worker that is controlled by the miningWorkerController. It is self contained in that it creates block templates and attempts to solve them while detecting when it is performing stale work and reacting accordingly by generating a new block template.  When a block is solved, it is submitted. It must be run as a goroutine.
@@ -307,6 +317,7 @@ func (
 	ticker := time.NewTicker(time.Second * hashUpdateSecs)
 	defer ticker.Stop()
 out:
+
 	for {
 
 		// Quit when the miner is stopped.
@@ -351,6 +362,7 @@ out:
 		if err != nil {
 
 			log <- cl.Error{"Failed to create new block template:", err}
+
 			continue
 		}
 
@@ -393,12 +405,14 @@ func (
 			go m.generateBlocks(quit)
 		}
 	}
+
 	log <- cl.Debugf{"Spawning %d worker(s)", m.numWorkers}
 
 	// Launch the current number of workers by default.
 	runningWorkers = make([]chan struct{}, 0, m.numWorkers)
 	launchWorkers(m.numWorkers)
 out:
+
 	for {
 
 		select {
@@ -423,6 +437,7 @@ out:
 			}
 
 			// Signal the most recently created goroutines to exit.
+
 			for i := numRunning - 1; i >= m.numWorkers; i-- {
 
 				close(runningWorkers[i])
@@ -431,6 +446,7 @@ out:
 			}
 		case <-m.quit:
 			fmt.Println("<-m.quit")
+
 			for _, quit := range runningWorkers {
 
 				close(quit)
@@ -459,6 +475,7 @@ func (
 	if err != nil {
 
 		log <- cl.Error{"Unexpected error while generating random extra nonce offset:", err}
+
 		enOffset = 0
 	}
 
@@ -473,6 +490,7 @@ func (
 
 	// Note that the entire extra nonce range is iterated and the offset is added relying on the fact that overflow will wrap around 0 as provided by the Go spec.
 	eN, _ := wire.RandomUint64()
+
 	for extraNonce := eN; extraNonce < eN+maxExtraNonce; extraNonce++ {
 
 		// Update the extra nonce in the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
@@ -489,7 +507,9 @@ func (
 
 			mn = 27
 		}
+
 		log <- cl.Info{mn, "rounds of", algoName, m.b.DifficultyAdjustments[algoName]}
+
 		for i := uint32(rnonce); i <= rnonce+mn; i++ {
 
 			select {
@@ -548,6 +568,7 @@ func (
 	ticker := time.NewTicker(time.Second * hpsUpdateSecs)
 	defer ticker.Stop()
 out:
+
 	for {
 
 		select {
@@ -570,6 +591,7 @@ out:
 			if hashesPerSec != 0 {
 
 				log <- cl.Infof{
+
 					"%s Hash speed: %6.4f Kh/s %0.2f h/s",
 					m.cfg.Algo,
 					hashesPerSec / 1000,
@@ -608,6 +630,7 @@ func (
 	if !msgBlock.Header.PrevBlock.IsEqual(&m.g.BestSnapshot().Hash) {
 
 		log <- cl.Debugf{
+
 			"Block submitted via CPU miner with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
 		}
@@ -622,11 +645,14 @@ func (
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			log <- cl.Warn{
+
 				"Unexpected error while processing block submitted via CPU miner:", err,
 			}
 			return false
 		}
+
 		log <- cl.Warn{"Block submitted via CPU miner rejected:", err}
+
 		return false
 	}
 	if isOrphan {
@@ -651,6 +677,7 @@ func (
 			block.MsgBlock().Header.Timestamp.Unix(),
 			block.MsgBlock().Header.Bits,
 			util.Amount(coinbaseTx.Value),
+
 			fork.GetAlgoName(block.MsgBlock().Header.Version, block.Height()),
 			since,
 		)
@@ -661,6 +688,7 @@ func (
 
 		return fmt.Sprintf(
 			"Block submitted via CPU miner accepted (algo %s, hash %s, amount %v)",
+
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
 				block.Height()),
 			block.MsgBlock().BlockHashWithAlgos(block.Height()),

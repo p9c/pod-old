@@ -14,6 +14,7 @@ var fontawesome, _ = ioutil.ReadFile("./gui/assets/vue/css/fontawesome.css")
 var materialdesignicons, _ = ioutil.ReadFile("./gui/assets/vue/css/materialdesignicons.css")
 
 var CSS cSS = cSS{
+
 	"fontawesome":         fontawesome,
 	"materialdesignicons": materialdesignicons,
 	"buefycss":            buefycss,

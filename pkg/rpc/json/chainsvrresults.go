@@ -494,6 +494,7 @@ func (
 		}
 		return json.Marshal(coinbaseStruct)
 	}
+
 	if v.HasWitness() {
 
 		txStruct := struct {
@@ -557,6 +558,7 @@ func (
 		}
 		return json.Marshal(coinbaseStruct)
 	}
+
 	if v.HasWitness() {
 
 		txStruct := struct {

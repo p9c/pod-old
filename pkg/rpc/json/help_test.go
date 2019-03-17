@@ -232,10 +232,12 @@ func TestHelpReflectInternals(
 		return key
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Ensure the description key is the expected value.
 		key := json.TstReflectTypeToJSONType(xT, test.reflectType)
+
 		if key != test.key {
 
 			t.Errorf("Test #%d (%s) unexpected key - got: %v, "+
@@ -245,6 +247,7 @@ func TestHelpReflectInternals(
 		// Ensure the generated example is as expected.
 		examples, isComplex := json.TstReflectTypeToJSONExample(xT,
 			test.reflectType, test.indentLevel, "fdk")
+
 		if isComplex != test.isComplex {
 
 			t.Errorf("Test #%d (%s) unexpected isComplex - got: %v, "+
@@ -252,6 +255,7 @@ func TestHelpReflectInternals(
 				test.isComplex)
 			continue
 		}
+
 		if len(examples) != len(test.examples) {
 
 			t.Errorf("Test #%d (%s) unexpected result length - "+
@@ -259,6 +263,7 @@ func TestHelpReflectInternals(
 				len(test.examples))
 			continue
 		}
+
 		for j, example := range examples {
 
 			if example != test.examples[j] {
@@ -271,6 +276,7 @@ func TestHelpReflectInternals(
 		}
 		// Ensure the generated result type help is as expected.
 		helpText := json.TstResultTypeHelp(xT, test.reflectType, "fdk")
+
 		if helpText != test.help {
 
 			t.Errorf("Test #%d (%s) unexpected result help - "+
@@ -279,6 +285,7 @@ func TestHelpReflectInternals(
 			continue
 		}
 		isValid := json.TstIsValidResultType(test.reflectType.Kind())
+
 		if isValid != !test.isInvalid {
 
 			t.Errorf("Test #%d (%s) unexpected result type validity "+
@@ -409,9 +416,11 @@ func TestResultStructHelp(
 		return key
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		results := json.TstResultStructHelp(xT, test.reflectType, 0)
+
 		if len(results) != len(test.expected) {
 
 			t.Errorf("Test #%d (%s) unexpected result length - "+
@@ -419,6 +428,7 @@ func TestResultStructHelp(
 				len(test.expected))
 			continue
 		}
+
 		for j, result := range results {
 
 			if result != test.expected[j] {
@@ -574,10 +584,12 @@ func TestHelpArgInternals(
 		return key
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		help := json.TstArgHelp(xT, test.reflectType, test.defaults,
 			test.method)
+
 		if help != test.help {
 
 			t.Errorf("Test #%d (%s) unexpected help - got:\n%v\n"+
@@ -673,10 +685,12 @@ func TestMethodHelp(
 		return key
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		help := json.TestMethodHelp(xT, test.reflectType,
 			test.defaults, test.method, test.resultTypes)
+
 		if help != test.help {
 
 			t.Errorf("Test #%d (%s) unexpected help - got:\n%v\n"+
@@ -722,10 +736,12 @@ func TestGenerateHelpErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		_, err := json.GenerateHelp(test.method, nil,
 			test.resultTypes...)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
@@ -733,6 +749,7 @@ func TestGenerateHelpErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
@@ -753,6 +770,7 @@ func TestGenerateHelp(
 		"help-command":   "test",
 	}
 	help, err := json.GenerateHelp("help", descs)
+
 	if err != nil {
 
 		t.Fatalf("GenerateHelp: unexpected error: %v", err)
@@ -760,6 +778,7 @@ func TestGenerateHelp(
 	wantHelp := "help (\"command\")\n\n" +
 		"test\n\nArguments:\n1. command (string, optional) test\n\n" +
 		"Result:\nNothing\n"
+
 	if help != wantHelp {
 
 		t.Fatalf("GenerateHelp: unexpected help - got\n%v\nwant\n%v",

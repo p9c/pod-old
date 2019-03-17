@@ -102,8 +102,10 @@ func ParsePubKey(
 
 		return nil, errors.New("pubkey string is empty")
 	}
+
 	format := pubKeyStr[0]
 	ybit := (format & 0x1) == 0x1
+
 	format &= ^byte(0x1)
 
 	switch len(pubKeyStr) {
@@ -189,6 +191,7 @@ func (p *PublicKey) SerializeUncompressed() []byte {
 func (p *PublicKey) SerializeCompressed() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenCompressed)
+
 	format := pubkeyCompressed
 
 	if isOdd(p.Y) {
@@ -204,6 +207,7 @@ func (p *PublicKey) SerializeCompressed() []byte {
 func (p *PublicKey) SerializeHybrid() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenHybrid)
+
 	format := pubkeyHybrid
 
 	if isOdd(p.Y) {

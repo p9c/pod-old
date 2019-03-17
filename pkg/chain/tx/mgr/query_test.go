@@ -34,9 +34,11 @@ func newQueryState() *queryState {
 func (q *queryState) deepCopy() *queryState {
 
 	cpy := newQueryState()
+
 	for _, blockDetails := range q.blocks {
 
 		var cpyDetails []TxDetails
+
 		for _, detail := range blockDetails {
 
 			cpyDetails = append(cpyDetails, *deepCopyTxDetails(&detail))
@@ -44,9 +46,11 @@ func (q *queryState) deepCopy() *queryState {
 		cpy.blocks = append(cpy.blocks, cpyDetails)
 	}
 	cpy.txDetails = make(map[chainhash.Hash][]TxDetails)
+
 	for txHash, details := range q.txDetails {
 
 		detailsSlice := make([]TxDetails, len(details))
+
 		for i, detail := range details {
 
 			detailsSlice[i] = *deepCopyTxDetails(&detail)
@@ -79,6 +83,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 	fwdBlocks := q.blocks
 	revBlocks := make([][]TxDetails, len(q.blocks))
 	copy(revBlocks, q.blocks)
+
 	for i := 0; i < len(revBlocks)/2; i++ {
 
 		revBlocks[i], revBlocks[len(revBlocks)-1-i] = revBlocks[len(revBlocks)-1-i], revBlocks[i]
@@ -99,6 +104,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 					"in transaction range, expected %d",
 					len(got), len(exp))
 			}
+
 			for i := range got {
 
 				err := equalTxDetails(&got[i], &exp[i])
@@ -211,6 +217,7 @@ func equalTxDetails(
 		return fmt.Errorf("credit slice lengths differ: got %d, "+
 			"expected %d", len(got.Credits), len(exp.Credits))
 	}
+
 	for i := range got.Credits {
 
 		if got.Credits[i] != exp.Credits[i] {
@@ -224,6 +231,7 @@ func equalTxDetails(
 		return fmt.Errorf("debit slice lengths differ: got %d, "+
 			"expected %d", len(got.Debits), len(exp.Debits))
 	}
+
 	for i := range got.Debits {
 
 		if got.Debits[i] != exp.Debits[i] {
@@ -516,6 +524,7 @@ func TestStoreQueries(
 			{&recB.Hash, &missingBlock.Block},
 			{&recB.Hash, nil},
 		}
+
 		for _, tst := range missingUniqueTests {
 
 			missingDetails, err = s.UniqueTxDetails(ns, tst.hash, tst.block)
@@ -732,6 +741,7 @@ func TestPreviousPkScripts(
 				tst.rec.Hash, height, len(scripts), len(tst.scripts))
 			return
 		}
+
 		for i := range scripts {
 
 			if !bytes.Equal(scripts[i], tst.scripts[i]) {
@@ -771,6 +781,7 @@ func TestPreviousPkScripts(
 		{recC, nil, nil},
 		{recC, &b100.Block, nil},
 	}
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)
@@ -798,6 +809,7 @@ func TestPreviousPkScripts(
 		{recC, nil, [][]byte{scriptB0, scriptB1}},
 		{recC, &b100.Block, nil},
 	}
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)
@@ -809,6 +821,7 @@ func TestPreviousPkScripts(
 
 	// Mine tx A in block 100.  Test results should be identical.
 	insertTx(ns, recA, &b100)
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)
@@ -828,6 +841,7 @@ func TestPreviousPkScripts(
 		{recC, nil, [][]byte{scriptB0, scriptB1}},
 		{recC, &b101.Block, nil},
 	}
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)
@@ -849,6 +863,7 @@ func TestPreviousPkScripts(
 		{recC, nil, nil},
 		{recC, &b101.Block, [][]byte{scriptB0, scriptB1}},
 	}
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)
@@ -864,6 +879,7 @@ func TestPreviousPkScripts(
 	insertTx(ns, recD, nil)
 	tests = append(tests, scriptTest{recD, nil, [][]byte{scriptC0}})
 	tests = append(tests, scriptTest{recD, &b101.Block, nil})
+
 	for _, tst := range tests {
 
 		runTest(ns, &tst)

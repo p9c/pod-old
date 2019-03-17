@@ -333,6 +333,7 @@ func (b *Backend) print(lvl, tag string, args ...interface{}) {
 
 		file, line = callsite(b.flag)
 	}
+
 	formatHeader(bytebuf, t, lvl, tag, file, line)
 	*bytebuf = append(*bytebuf, colorOff...)
 	buf := bytes.NewBuffer(*bytebuf)
@@ -360,6 +361,7 @@ func (b *Backend) printf(lvl, tag string, format string, args ...interface{}) {
 
 		file, line = callsite(b.flag)
 	}
+
 	formatHeader(bytebuf, t, lvl, tag, file, line)
 	buf := bytes.NewBuffer(*bytebuf)
 	fmt.Fprintf(buf, format, args...)

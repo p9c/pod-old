@@ -202,6 +202,7 @@ func newTxValidator(
 	sigCache *txscript.SigCache, hashCache *txscript.HashCache) *txValidator {
 
 	return &txValidator{
+
 		validateChan: make(chan *txValidateItem),
 		quitChan:     make(chan struct{}),
 		resultChan:   make(chan error),
@@ -224,6 +225,7 @@ func ValidateTransactionScripts(
 	segwitActive := flags&txscript.ScriptVerifyWitness == txscript.ScriptVerifyWitness
 
 	// If the hashcache doesn't yet has the sighash midstate for this transaction, then we'll compute them now so we can re-use them amongst all worker validation goroutines.
+
 	if segwitActive && tx.MsgTx().HasWitness() &&
 
 		!hashCache.ContainsHashes(tx.Hash()) {
@@ -253,6 +255,7 @@ func ValidateTransactionScripts(
 		}
 
 		txVI := &txValidateItem{
+
 			txInIndex: txInIdx,
 			txIn:      txIn,
 			tx:        tx,
@@ -292,6 +295,7 @@ func checkBlockScripts(
 
 		hash := tx.Hash()
 		// If the HashCache is present, and it doesn't yet contain the partial sighashes for this transaction, then we add the sighashes for the transaction. This allows us to take advantage of the potential speed savings due to the new digest algorithm (BIP0143).
+
 		if segwitActive && tx.HasWitness() && hashCache != nil &&
 
 			!hashCache.ContainsHashes(hash) {
@@ -324,6 +328,7 @@ func checkBlockScripts(
 			}
 
 			txVI := &txValidateItem{
+
 				txInIndex: txInIdx,
 				txIn:      txIn,
 				tx:        tx,

@@ -29,6 +29,7 @@ var _ headerfs.BlockHeaderStore = (*mockBlockHeaderStore)(nil)
 func newMockBlockHeaderStore() headerfs.BlockHeaderStore {
 
 	return &mockBlockHeaderStore{
+
 		headers: make(map[chainhash.Hash]wire.BlockHeader),
 	}
 

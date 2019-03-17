@@ -1001,10 +1001,12 @@ func TestStack(
 			nil,
 		},
 	}
+
 	for _, test := range tests {
 
 		// Setup the initial stack state and perform the test operation.
 		s := stack{}
+
 		for i := range test.before {
 
 			s.PushByteArray(test.before[i])
@@ -1029,6 +1031,7 @@ func TestStack(
 			continue
 		}
 		// Ensure all items of the resulting stack are the expected values.
+
 		for i := range test.after {
 
 			val, err := s.PeekByteArray(s.Depth() - int32(i) - 1)

@@ -23,9 +23,11 @@ func TestInvTypeStringer(
 		{0xffffffff, "Unknown InvType (4294967295)"},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
@@ -44,11 +46,13 @@ func TestInvVect(
 
 	// Ensure we get the same payload and signature back out.
 	iv := NewInvVect(ivType, &hash)
+
 	if iv.Type != ivType {
 
 		t.Errorf("NewInvVect: wrong type - got %v, want %v",
 			iv.Type, ivType)
 	}
+
 	if !iv.Hash.IsEqual(&hash) {
 
 		t.Errorf("NewInvVect: wrong hash - got %v, want %v",
@@ -63,6 +67,7 @@ func TestInvVectWire(
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	baseHash, err := chainhash.NewHashFromStr(hashStr)
+
 	if err != nil {
 
 		t.Errorf("NewHashFromStr: %v", err)
@@ -240,16 +245,19 @@ func TestInvVectWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		var buf bytes.Buffer
 		err := writeInvVect(&buf, test.pver, &test.in)
+
 		if err != nil {
 
 			t.Errorf("writeInvVect #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("writeInvVect #%d\n got: %s want: %s", i,
@@ -261,11 +269,13 @@ func TestInvVectWire(
 		var iv InvVect
 		rbuf := bytes.NewReader(test.buf)
 		err = readInvVect(rbuf, test.pver, &iv)
+
 		if err != nil {
 
 			t.Errorf("readInvVect #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(iv, test.out) {
 
 			t.Errorf("readInvVect #%d\n got: %s want: %s", i,

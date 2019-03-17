@@ -79,17 +79,21 @@ func TestError(
 	}{
 
 		{
+
 			database.Error{Description: "some error"},
 			"some error",
 		},
 
 		{
+
 			database.Error{Description: "human-readable error"},
 			"human-readable error",
 		},
 
 		{
+
 			database.Error{
+
 				ErrorCode:   database.ErrDriverSpecific,
 				Description: "some error",
 				Err:         errors.New("driver-specific error"),

@@ -29,6 +29,7 @@ func TstAddressPubKeyHash(
 	netID byte) *AddressPubKeyHash {
 
 	return &AddressPubKeyHash{
+
 		hash:  hash,
 		netID: netID,
 	}
@@ -42,6 +43,7 @@ func TstAddressScriptHash(
 	netID byte) *AddressScriptHash {
 
 	return &AddressScriptHash{
+
 		hash:  hash,
 		netID: netID,
 	}
@@ -55,6 +57,7 @@ func TstAddressWitnessPubKeyHash(
 	hrp string) *AddressWitnessPubKeyHash {
 
 	return &AddressWitnessPubKeyHash{
+
 		hrp:            hrp,
 		witnessVersion: version,
 		witnessProgram: program,
@@ -69,6 +72,7 @@ func TstAddressWitnessScriptHash(
 	hrp string) *AddressWitnessScriptHash {
 
 	return &AddressWitnessScriptHash{
+
 		hrp:            hrp,
 		witnessVersion: version,
 		witnessProgram: program,
@@ -83,7 +87,9 @@ func TstAddressPubKey(
 	netID byte) *AddressPubKey {
 
 	pubKey, _ := ec.ParsePubKey(serializedPubKey, ec.S256())
+
 	return &AddressPubKey{
+
 		pubKeyFormat: pubKeyFormat,
 		pubKey:       (*ec.PublicKey)(pubKey),
 		pubKeyHashID: netID,

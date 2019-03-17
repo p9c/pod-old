@@ -16,25 +16,33 @@ type Params struct {
 var ActiveNetParams = &MainNetParams
 
 // MainNetParams contains parameters specific to the main network (wire.MainNet).  NOTE: The RPC port is intentionally different than the reference implementation because pod does not handle wallet requests.  The separate wallet process listens on the well-known port and forwards requests it does not handle on to pod.  This approach allows the wallet process to emulate the full reference implementation RPC API.
+
 var MainNetParams = Params{
+
 	Params:  &chaincfg.MainNetParams,
 	RPCPort: "11048",
 }
 
 // RegressionNetParams contains parameters specific to the regression test network (wire.TestNet).  NOTE: The RPC port is intentionally different than the reference implementation - see the MainNetParams comment for details.
+
 var RegressionNetParams = Params{
+
 	Params:  &chaincfg.RegressionNetParams,
 	RPCPort: "31048",
 }
 
 // SimNetParams contains parameters specific to the simulation test network (wire.SimNet).
+
 var SimNetParams = Params{
+
 	Params:  &chaincfg.SimNetParams,
 	RPCPort: "41048",
 }
 
 // TestNet3Params contains parameters specific to the test network (version 3) (wire.TestNet3).  NOTE: The RPC port is intentionally different than the reference implementation - see the MainNetParams comment for details.
+
 var TestNet3Params = Params{
+
 	Params:  &chaincfg.TestNet3Params,
 	RPCPort: "21048",
 }

@@ -79,6 +79,7 @@ func NewRPCClient(
 		OnRescanProgress:    client.onRescanProgress,
 	}
 	rpcClient, err := rpcclient.New(client.connConfig, ntfnCallbacks)
+
 	if err != nil {
 
 		return nil, err
@@ -101,6 +102,7 @@ func (c *RPCClient) BackEnd() string {
 func (c *RPCClient) Start() error {
 
 	err := c.Connect(c.reconnectAttempts)
+
 	if err != nil {
 
 		return err
@@ -108,11 +110,13 @@ func (c *RPCClient) Start() error {
 
 	// Verify that the server is running on the expected network.
 	net, err := c.GetCurrentNet()
+
 	if err != nil {
 
 		c.Disconnect()
 		return err
 	}
+
 	if net != c.chainParams.Net {
 
 		c.Disconnect()
@@ -156,6 +160,7 @@ func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 	outPoints map[wire.OutPoint]util.Address) error {
 
 	flatOutpoints := make([]*wire.OutPoint, 0, len(outPoints))
+
 	for ops := range outPoints {
 
 		flatOutpoints = append(flatOutpoints, &ops)
@@ -210,6 +215,7 @@ func (c *RPCClient) FilterBlocks(
 
 	// in the filter blocks request.
 	watchList, err := buildFilterBlocksWatchList(req)
+
 	if err != nil {
 
 		return nil, err
@@ -222,15 +228,18 @@ func (c *RPCClient) FilterBlocks(
 	// the filter returns a positive match, the full block is then requested
 
 	// and scanned for addresses using the block filterer.
+
 	for i, blk := range req.Blocks {
 
 		rawFilter, err := c.GetCFilter(&blk.Hash, wire.GCSFilterRegular)
+
 		if err != nil {
 
 			return nil, err
 		}
 
 		// Ensure the filter is large enough to be deserialized.
+
 		if len(rawFilter.Data) < 4 {
 
 			continue
@@ -239,12 +248,14 @@ func (c *RPCClient) FilterBlocks(
 		filter, err := gcs.FromNBytes(
 			builder.DefaultP, builder.DefaultM, rawFilter.Data,
 		)
+
 		if err != nil {
 
 			return nil, err
 		}
 
 		// Skip any empty filters.
+
 		if filter.N() == 0 {
 
 			continue
@@ -252,6 +263,7 @@ func (c *RPCClient) FilterBlocks(
 
 		key := builder.DeriveKey(&blk.Hash)
 		matched, err := filter.MatchAny(key, watchList)
+
 		if err != nil {
 
 			return nil, err
@@ -267,6 +279,7 @@ func (c *RPCClient) FilterBlocks(
 		}
 
 		rawBlock, err := c.GetBlock(&blk.Hash)
+
 		if err != nil {
 
 			return nil, err
@@ -309,6 +322,7 @@ func parseBlock(
 		return nil, nil
 	}
 	blkHash, err := chainhash.NewHashFromStr(block.Hash)
+
 	if err != nil {
 
 		return nil, err
@@ -365,9 +379,11 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 	blk, err := parseBlock(block)
+
 	if err != nil {
 
 		// Log and drop improper notification.
+
 		log <- cl.Error{
 
 			"recvtx notification bad block:", err,
@@ -376,6 +392,7 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 	}
 
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx(), time.Now())
+
 	if err != nil {
 
 		log <- cl.Error{
@@ -421,6 +438,7 @@ func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime
 func (c *RPCClient) handler() {
 
 	hash, height, err := c.GetBestBlock()
+
 	if err != nil {
 
 		log <- cl.Error{
@@ -451,15 +469,18 @@ func (c *RPCClient) handler() {
 	var dequeue chan interface{}
 	var next interface{}
 out:
+
 	for {
 
 		select {
 
 		case n, ok := <-enqueue:
+
 			if !ok {
 
 				// If no notifications are queued for handling,
 				// the queue is finished.
+
 				if len(notifications) == 0 {
 
 					break out
@@ -468,6 +489,7 @@ out:
 				enqueue = nil
 				continue
 			}
+
 			if len(notifications) == 0 {
 
 				next = n
@@ -476,6 +498,7 @@ out:
 			notifications = append(notifications, n)
 
 		case dequeue <- next:
+
 			if n, ok := next.(BlockConnected); ok {
 
 				bs = &waddrmgr.BlockStamp{
@@ -486,6 +509,7 @@ out:
 
 			notifications[0] = nil
 			notifications = notifications[1:]
+
 			if len(notifications) != 0 {
 
 				next = notifications[0]
@@ -493,6 +517,7 @@ out:
 
 				// If no more notifications can be enqueued, the
 				// queue is finished.
+
 				if enqueue == nil {
 
 					break out

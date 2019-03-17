@@ -173,6 +173,7 @@ func (m *memWallet) ingestBlock(update *chainUpdate) {
 	undo := &undoEntry{
 		utxosDestroyed: make(map[wire.OutPoint]*utxo),
 	}
+
 	for _, tx := range update.filteredTxns {
 		mtx := tx.MsgTx()
 		isCoinbase := blockchain.IsCoinBaseTx(mtx)
@@ -193,6 +194,7 @@ func (m *memWallet) ingestBlock(update *chainUpdate) {
 func (m *memWallet) chainSyncer() {
 
 	var update *chainUpdate
+
 	for range m.chainUpdateSignal {
 		// A new update is available, so pop the new chain update from
 		// the front of the update queue.
@@ -220,6 +222,7 @@ func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 		pkScript := output.PkScript
 		// Scan all the addresses we currently control to see if the
 		// output is paying to us.
+
 		for keyIndex, addr := range m.addrs {
 			pkHash := addr.ScriptAddress()
 			if !bytes.Contains(pkScript, pkHash) {
@@ -285,9 +288,11 @@ func (m *memWallet) UnwindBlock(height int32, header *wire.BlockHeader) {
 func (m *memWallet) unwindBlock(update *chainUpdate) {
 
 	undo := m.reorgJournal[update.blockHeight]
+
 	for _, utxo := range undo.utxosCreated {
 		delete(m.utxos, utxo)
 	}
+
 	for outPoint, utxo := range undo.utxosDestroyed {
 		m.utxos[outPoint] = utxo
 	}
@@ -349,6 +354,7 @@ func (m *memWallet) fundTx(tx *wire.MsgTx, amt util.Amount,
 		amtSelected util.Amount
 		txSize      int
 	)
+
 	for outPoint, utxo := range m.utxos {
 		// Skip any outputs that are still currently immature or are
 		// currently locked.
@@ -436,6 +442,7 @@ func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 	// Tally up the total amount to be sent in order to perform coin
 	// selection shortly below.
 	var outputAmt util.Amount
+
 	for _, output := range outputs {
 		outputAmt += util.Amount(output.Value)
 		tx.AddTxOut(output)
@@ -448,6 +455,7 @@ func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 	// Along the way record all outputs being spent in order to avoid a
 	// potential double spend.
 	spentOutputs := make([]*utxo, 0, len(tx.TxIn))
+
 	for i, txIn := range tx.TxIn {
 		outPoint := txIn.PreviousOutPoint
 		utxo := m.utxos[outPoint]
@@ -471,6 +479,7 @@ func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 	// transaction, mark the outputs are "locked". This action ensures
 	// these outputs won't be double spent by any subsequent transactions.
 	// These locked outputs can be freed via a call to UnlockOutputs.
+
 	for _, utxo := range spentOutputs {
 		utxo.isLocked = true
 	}
@@ -485,6 +494,7 @@ func (m *memWallet) UnlockOutputs(inputs []*wire.TxIn) {
 
 	m.Lock()
 	defer m.Unlock()
+
 	for _, input := range inputs {
 		utxo, ok := m.utxos[input.PreviousOutPoint]
 		if !ok {
@@ -501,6 +511,7 @@ func (m *memWallet) ConfirmedBalance() util.Amount {
 	m.RLock()
 	defer m.RUnlock()
 	var balance util.Amount
+
 	for _, utxo := range m.utxos {
 		// Prevent any immature or locked outputs from contributing to
 		// the wallet's total confirmed balance.

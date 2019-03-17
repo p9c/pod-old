@@ -138,7 +138,9 @@ func chainSetup(
 	paramsCopy := *params
 
 	// Create the main chain instance.
+
 	chain, err := blockchain.New(&blockchain.Config{
+
 		DB:          db,
 		ChainParams: &paramsCopy,
 		Checkpoints: nil,
@@ -332,6 +334,7 @@ func TestFullBlocks(
 			item.Name, block.Hash(), blockHeight)
 		// Ensure hash and height match.
 		best := chain.BestSnapshot()
+
 		if best.Hash != item.Block.BlockHash() ||
 
 			best.Height != blockHeight {

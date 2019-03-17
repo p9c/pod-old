@@ -89,6 +89,7 @@ func reconcileDB(
 
 	// When the write cursor position found by scanning the block files on disk is AFTER the position the metadata believes to be true, truncate the files on disk to match the metadata.  This can be a fairly common occurrence in unclean shutdown scenarios while the block files are in the middle of being written.  Since the metadata isn't updated until after the block data is written, this is effectively just a rollback to the known good point before the unclean shutdown.
 	wc := pdb.store.writeCursor
+
 	if wc.curFileNum > curFileNum || (wc.curFileNum == curFileNum &&
 
 		wc.curOffset > curOffset) {
@@ -105,11 +106,13 @@ func reconcileDB(
 		}
 
 		pdb.store.handleRollback(curFileNum, curOffset)
+
 		log <- cl.Inf("Database sync complete")
 
 	}
 
 	// When the write cursor position found by scanning the block files on disk is BEFORE the position the metadata believes to be true, return a corruption error.  Since sync is called after each block is written and before the metadata is updated, this should only happen in the case of missing, deleted, or truncated block files, which generally is not an easily recoverable scenario.  In the future, it might be possible to rescan and rebuild the metadata from the block files, however, that would need to happen with coordination from a higher layer since it could invalidate other metadata.
+
 	if wc.curFileNum < curFileNum || (wc.curFileNum == curFileNum &&
 
 		wc.curOffset < curOffset) {
@@ -117,6 +120,7 @@ func reconcileDB(
 		str := fmt.Sprintf("metadata claims file %d, offset %d, but "+
 			"block data is at file %d, offset %d", curFileNum,
 			curOffset, wc.curFileNum, wc.curOffset)
+
 		log <- cl.Warn{"***Database corruption detected***:", str}
 
 		return nil, makeDbErr(database.ErrCorruption, str, nil)

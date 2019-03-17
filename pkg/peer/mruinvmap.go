@@ -119,6 +119,7 @@ func newMruInventoryMap(
 	limit uint) *mruInventoryMap {
 
 	m := mruInventoryMap{
+
 		invMap:  make(map[wire.InvVect]*list.Element),
 		invList: list.New(),
 		limit:   limit,

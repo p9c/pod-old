@@ -83,6 +83,7 @@ func NewBitcoindConn(
 	}
 
 	client, err := rpcclient.New(clientCfg, nil)
+
 	if err != nil {
 
 		return nil, err
@@ -115,11 +116,13 @@ func (c *BitcoindConn) Start() error {
 
 	// Verify that the node is running on the expected network.
 	net, err := c.getCurrentNet()
+
 	if err != nil {
 
 		c.client.Disconnect()
 		return err
 	}
+
 	if net != c.chainParams.Net {
 
 		c.client.Disconnect()
@@ -137,6 +140,7 @@ func (c *BitcoindConn) Start() error {
 	zmqBlockConn, err := gozmq.Subscribe(
 		c.zmqBlockHost, []string{"rawblock"}, c.zmqPollInterval,
 	)
+
 	if err != nil {
 
 		c.client.Disconnect()
@@ -147,6 +151,7 @@ func (c *BitcoindConn) Start() error {
 	zmqTxConn, err := gozmq.Subscribe(
 		c.zmqTxHost, []string{"rawtx"}, c.zmqPollInterval,
 	)
+
 	if err != nil {
 
 		c.client.Disconnect()
@@ -209,12 +214,14 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 
 		// Poll an event from the ZMQ socket.
 		msgBytes, err := conn.Receive()
+
 		if err != nil {
 
 			// It's possible that the connection to the socket
 			// continuously times out, so we'll prevent logging this
 			// error to prevent spamming the logs.
 			netErr, ok := err.(net.Error)
+
 			if ok && netErr.Timeout() {
 
 				continue
@@ -231,11 +238,13 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 		// deserialize it, and report it to the different rescan
 		// clients.
 		eventType := string(msgBytes[0])
+
 		switch eventType {
 
 		case "rawblock":
 			block := &wire.MsgBlock{}
 			r := bytes.NewReader(msgBytes[1])
+
 			if err := block.Deserialize(r); err != nil {
 
 				log <- cl.Error{
@@ -246,6 +255,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			}
 
 			c.rescanClientsMtx.Lock()
+
 			for _, client := range c.rescanClients {
 
 				select {
@@ -263,6 +273,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			// bitcoind shuts down, which will produce an unreadable
 			// event type. To prevent from logging it, we'll make
 			// sure it conforms to the ASCII standard.
+
 			if eventType == "" || !isASCII(eventType) {
 
 				continue
@@ -305,12 +316,14 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 
 		// Poll an event from the ZMQ socket.
 		msgBytes, err := conn.Receive()
+
 		if err != nil {
 
 			// It's possible that the connection to the socket
 			// continuously times out, so we'll prevent logging this
 			// error to prevent spamming the logs.
 			netErr, ok := err.(net.Error)
+
 			if ok && netErr.Timeout() {
 
 				continue
@@ -327,11 +340,13 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 		// deserialize it, and report it to the different rescan
 		// clients.
 		eventType := string(msgBytes[0])
+
 		switch eventType {
 
 		case "rawtx":
 			tx := &wire.MsgTx{}
 			r := bytes.NewReader(msgBytes[1])
+
 			if err := tx.Deserialize(r); err != nil {
 
 				log <- cl.Error{
@@ -342,6 +357,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			}
 
 			c.rescanClientsMtx.Lock()
+
 			for _, client := range c.rescanClients {
 
 				select {
@@ -359,6 +375,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			// bitcoind shuts down, which will produce an unreadable
 			// event type. To prevent from logging it, we'll make
 			// sure it conforms to the ASCII standard.
+
 			if eventType == "" || !isASCII(eventType) {
 
 				continue
@@ -377,6 +394,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 func (c *BitcoindConn) getCurrentNet() (wire.BitcoinNet, error) {
 
 	hash, err := c.client.GetBlockHash(0)
+
 	if err != nil {
 
 		return 0, err

@@ -17,6 +17,7 @@ func (h *headerStore) singleTruncate() error {
 	// In order to truncate the file, we'll need to grab the absolute size
 	// of the file as it stands currently.
 	fileInfo, err := h.file.Stat()
+
 	if err != nil {
 		return err
 	}
@@ -26,6 +27,7 @@ func (h *headerStore) singleTruncate() error {
 	// Next, we'll determine the number of bytes we need to truncate from
 	// the end of the file.
 	var truncateLength int64
+
 	switch h.indexType {
 	case Block:
 		truncateLength = 80
@@ -43,6 +45,7 @@ func (h *headerStore) singleTruncate() error {
 	// file handle to truncate it. This means we have to close, truncate,
 	// and reopen it.
 	fileName := h.file.Name()
+
 	if err = h.file.Close(); err != nil {
 		return err
 	}

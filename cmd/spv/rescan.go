@@ -618,6 +618,7 @@ rescanLoop:
 		// If we've reached the ending height or hash for this rescan,
 
 		// then we'll exit.
+
 		if curStamp.Hash == ro.endBlock.Hash ||
 			(ro.endBlock.Height > 0 &&
 
@@ -712,6 +713,7 @@ rescanLoop:
 				// continue forwards to avoid an unnecessary
 
 				// state transition back to the !current state.
+
 				if header.PrevBlock != curStamp.Hash &&
 
 					header.BlockHash() != curStamp.Hash {
@@ -739,6 +741,7 @@ rescanLoop:
 				// duplicate block notification, then we can
 
 				// re-process it without any issues.
+
 				if header.BlockHash() != curStamp.Hash &&
 
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
@@ -840,6 +843,7 @@ rescanLoop:
 				blockReFetchTimer = nil
 
 			case header := <-blockDisconnected:
+
 				log <- cl.Debugf{
 
 					"rescan disconnect block %d (%s)\n",

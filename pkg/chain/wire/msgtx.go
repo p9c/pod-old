@@ -92,6 +92,7 @@ func (c scriptFreeList) Borrow(size uint64) []byte {
 func (c scriptFreeList) Return(buf []byte) {
 
 	// Ignore any buffers returned that aren't the expected size for the free list.
+
 	if cap(buf) != freeListMaxScriptSize {
 
 		return
@@ -177,6 +178,7 @@ func (t TxWitness) SerializeSize() int {
 	n := VarIntSerializeSize(uint64(len(t)))
 
 	// For each element in the witness, we'll need a varint to signal the size of the element, then finally the number of bytes the element itself comprises.
+
 	for _, witItem := range t {
 
 		n += VarIntSerializeSize(uint64(len(witItem)))
@@ -261,6 +263,7 @@ func (msg *MsgTx) Copy() *MsgTx {
 	}
 
 	// Deep copy the old TxIn data.
+
 	for _, oldTxIn := range msg.TxIn {
 
 		// Deep copy the old previous outpoint.
@@ -273,6 +276,7 @@ func (msg *MsgTx) Copy() *MsgTx {
 		var newScript []byte
 		oldScript := oldTxIn.SignatureScript
 		oldScriptLen := len(oldScript)
+
 		if oldScriptLen > 0 {
 
 			newScript = make([]byte, oldScriptLen)
@@ -287,10 +291,12 @@ func (msg *MsgTx) Copy() *MsgTx {
 		}
 
 		// If the transaction is witnessy, then also copy the witnesses.
+
 		if len(oldTxIn.Witness) != 0 {
 
 			// Deep copy the old witness data.
 			newTxIn.Witness = make([][]byte, len(oldTxIn.Witness))
+
 			for i, oldItem := range oldTxIn.Witness {
 
 				newItem := make([]byte, len(oldItem))
@@ -304,12 +310,14 @@ func (msg *MsgTx) Copy() *MsgTx {
 	}
 
 	// Deep copy the old TxOut data.
+
 	for _, oldTxOut := range msg.TxOut {
 
 		// Deep copy the old PkScript
 		var newScript []byte
 		oldScript := oldTxOut.PkScript
 		oldScriptLen := len(oldScript)
+
 		if oldScriptLen > 0 {
 
 			newScript = make([]byte, oldScriptLen)
@@ -330,12 +338,14 @@ func (msg *MsgTx) Copy() *MsgTx {
 func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	version, err := binarySerializer.Uint32(r, littleEndian)
+
 	if err != nil {
 
 		return err
 	}
 	msg.Version = int32(version)
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
@@ -343,15 +353,18 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 	// A count of zero (meaning no TxIn's to the uninitiated) indicates this is a transaction with witness data.
 	var flag [1]byte
+
 	if count == 0 && enc == WitnessEncoding {
 
 		// Next, we need to read the flag, which is a single byte.
+
 		if _, err = io.ReadFull(r, flag[:]); err != nil {
 
 			return err
 		}
 
 		// At the moment, the flag MUST be 0x01. In the future other flag types may be supported.
+
 		if flag[0] != 0x01 {
 
 			str := fmt.Sprintf("witness tx but flag byte is %x", flag)
@@ -360,6 +373,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 		// With the Segregated Witness specific fields decoded, we can now read in the actual txin count.
 		count, err = ReadVarInt(r, pver)
+
 		if err != nil {
 
 			return err
@@ -367,6 +381,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 
 	// Prevent more input transactions than could possibly fit into a message.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
+
 	if count > uint64(maxTxInPerMessage) {
 
 		str := fmt.Sprintf("too many input transactions to fit into "+
@@ -384,10 +399,12 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 				continue
 			}
+
 			if txIn.SignatureScript != nil {
 
 				scriptPool.Return(txIn.SignatureScript)
 			}
+
 			for _, witnessElem := range txIn.Witness {
 
 				if witnessElem != nil {
@@ -396,6 +413,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 				}
 			}
 		}
+
 		for _, txOut := range msg.TxOut {
 
 			if txOut == nil || txOut.PkScript == nil {
@@ -410,12 +428,14 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	var totalScriptSize uint64
 	txIns := make([]TxIn, count)
 	msg.TxIn = make([]*TxIn, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		// The pointer is set now in case a script buffer is borrowed and needs to be returned to the pool on error.
 		ti := &txIns[i]
 		msg.TxIn[i] = ti
 		err = readTxIn(r, pver, msg.Version, ti)
+
 		if err != nil {
 
 			returnScriptBuffers()
@@ -424,6 +444,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 		totalScriptSize += uint64(len(ti.SignatureScript))
 	}
 	count, err = ReadVarInt(r, pver)
+
 	if err != nil {
 
 		returnScriptBuffers()
@@ -431,6 +452,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 
 	// Prevent more output transactions than could possibly fit into a message.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
+
 	if count > uint64(maxTxOutPerMessage) {
 
 		returnScriptBuffers()
@@ -443,12 +465,14 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	// Deserialize the outputs.
 	txOuts := make([]TxOut, count)
 	msg.TxOut = make([]*TxOut, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		// The pointer is set now in case a script buffer is borrowed and needs to be returned to the pool on error.
 		to := &txOuts[i]
 		msg.TxOut[i] = to
 		err = readTxOut(r, pver, msg.Version, to)
+
 		if err != nil {
 
 			returnScriptBuffers()
@@ -458,12 +482,14 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	}
 
 	// If the transaction's flag byte isn't 0x00 at this point, then one or more of its inputs has accompanying witness data.
+
 	if flag[0] != 0 && enc == WitnessEncoding {
 
 		for _, txin := range msg.TxIn {
 
 			// For each input, the witness is encoded as a stack with one or more items. Therefore, we first read a varint which encodes the number of stack items.
 			witCount, err := ReadVarInt(r, pver)
+
 			if err != nil {
 
 				returnScriptBuffers()
@@ -471,6 +497,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 			}
 
 			// Prevent a possible memory exhaustion attack by limiting the witCount value to a sane upper bound.
+
 			if witCount > maxWitnessItemsPerInput {
 
 				returnScriptBuffers()
@@ -482,10 +509,12 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 			// Then for witCount number of stack items, each item has a varint length prefix, followed by the witness item itself.
 			txin.Witness = make([][]byte, witCount)
+
 			for j := uint64(0); j < witCount; j++ {
 
 				txin.Witness[j], err = readScript(r, pver,
 					maxWitnessItemSize, "script witness item")
+
 				if err != nil {
 
 					returnScriptBuffers()
@@ -496,6 +525,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 		}
 	}
 	msg.LockTime, err = binarySerializer.Uint32(r, littleEndian)
+
 	if err != nil {
 
 		returnScriptBuffers()
@@ -505,6 +535,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	// Create a single allocation to house all of the scripts and set each input signature script and output public key script to the appropriate subslice of the overall contiguous buffer.  Then, return each individual script buffer back to the pool so they can be reused for future deserializations.  This is done because it significantly reduces the number of allocations the garbage collector needs to track, which in turn improves performance and drastically reduces the amount of runtime overhead that would otherwise be needed to keep track of millions of small allocations. NOTE: It is no longer valid to call the returnScriptBuffers closure after these blocks of code run because it is already done and the scripts in the transaction inputs and outputs no longer point to the buffers.
 	var offset uint64
 	scripts := make([]byte, totalScriptSize)
+
 	for i := 0; i < len(msg.TxIn); i++ {
 
 		// Copy the signature script into the contiguous buffer at the appropriate offset.
@@ -519,6 +550,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 		// Return the temporary script buffer to the pool.
 		scriptPool.Return(signatureScript)
+
 		for j := 0; j < len(msg.TxIn[i].Witness); j++ {
 
 			// Copy each item within the witness stack for this input into the contiguous buffer at the appropriate offset.
@@ -535,6 +567,7 @@ func (msg *MsgTx) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 			scriptPool.Return(witnessElem)
 		}
 	}
+
 	for i := 0; i < len(msg.TxOut); i++ {
 
 		// Copy the public key script into the contiguous buffer at the appropriate offset.
@@ -570,6 +603,7 @@ func (msg *MsgTx) DeserializeNoWitness(r io.Reader) error {
 func (msg *MsgTx) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
 	err := binarySerializer.PutUint32(w, littleEndian, uint32(msg.Version))
+
 	if err != nil {
 
 		return err
@@ -577,9 +611,11 @@ func (msg *MsgTx) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 
 	// If the encoding version is set to WitnessEncoding, and the Flags field for the MsgTx aren't 0x00, then this indicates the transaction is to be encoded using the new witness inclusionary structure defined in BIP0144.
 	doWitness := enc == WitnessEncoding && msg.HasWitness()
+
 	if doWitness {
 
 		// After the txn's Version field, we include two additional bytes specific to the witness encoding. The first byte is an always 0x00 marker byte, which allows decoders to distinguish a serialized transaction with witnesses from a regular (legacy) one. The second byte is the Flag field, which at the moment is always 0x01, but may be extended in the future to accommodate auxiliary non-committed fields.
+
 		if _, err := w.Write(witessMarkerBytes); err != nil {
 
 			return err
@@ -587,13 +623,16 @@ func (msg *MsgTx) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 	}
 	count := uint64(len(msg.TxIn))
 	err = WriteVarInt(w, pver, count)
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, ti := range msg.TxIn {
 
 		err = writeTxIn(w, pver, msg.Version, ti)
+
 		if err != nil {
 
 			return err
@@ -601,13 +640,16 @@ func (msg *MsgTx) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 	}
 	count = uint64(len(msg.TxOut))
 	err = WriteVarInt(w, pver, count)
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, to := range msg.TxOut {
 
 		err = WriteTxOut(w, pver, msg.Version, to)
+
 		if err != nil {
 
 			return err
@@ -615,11 +657,13 @@ func (msg *MsgTx) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 	}
 
 	// If this transaction is a witness transaction, and the witness encoded is desired, then encode the witness for each of the inputs within the transaction.
+
 	if doWitness {
 
 		for _, ti := range msg.TxIn {
 
 			err = writeTxWitness(w, pver, msg.Version, ti.Witness)
+
 			if err != nil {
 
 				return err
@@ -661,10 +705,12 @@ func (msg *MsgTx) baseSize() int {
 	// Version 4 bytes + LockTime 4 bytes + Serialized varint size for the number of transaction inputs and outputs.
 	n := 8 + VarIntSerializeSize(uint64(len(msg.TxIn))) +
 		VarIntSerializeSize(uint64(len(msg.TxOut)))
+
 	for _, txIn := range msg.TxIn {
 
 		n += txIn.SerializeSize()
 	}
+
 	for _, txOut := range msg.TxOut {
 
 		n += txOut.SerializeSize()
@@ -676,12 +722,14 @@ func (msg *MsgTx) baseSize() int {
 func (msg *MsgTx) SerializeSize() int {
 
 	n := msg.baseSize()
+
 	if msg.HasWitness() {
 
 		// The marker, and flag fields take up two additional bytes.
 		n += 2
 
 		// Additionally, factor in the serialized size of each of the witnesses for each txin.
+
 		for _, txin := range msg.TxIn {
 
 			n += txin.Witness.SerializeSize()
@@ -712,6 +760,7 @@ func (msg *MsgTx) MaxPayloadLength(pver uint32) uint32 {
 func (msg *MsgTx) PkScriptLocs() []int {
 
 	numTxOut := len(msg.TxOut)
+
 	if numTxOut == 0 {
 
 		return nil
@@ -724,10 +773,12 @@ func (msg *MsgTx) PkScriptLocs() []int {
 		VarIntSerializeSize(uint64(numTxOut))
 
 	// If this transaction has a witness input, the an additional two bytes for the marker, and flag byte need to be taken into account.
+
 	if len(msg.TxIn) > 0 && msg.TxIn[0].Witness != nil {
 
 		n += 2
 	}
+
 	for _, txIn := range msg.TxIn {
 
 		n += txIn.SerializeSize()
@@ -735,6 +786,7 @@ func (msg *MsgTx) PkScriptLocs() []int {
 
 	// Calculate and set the appropriate offset for each public key script.
 	pkScriptLocs := make([]int, numTxOut)
+
 	for i, txOut := range msg.TxOut {
 
 		// The offset of the script in the transaction output is:
@@ -763,6 +815,7 @@ func readOutPoint(
 	r io.Reader, pver uint32, version int32, op *OutPoint) error {
 
 	_, err := io.ReadFull(r, op.Hash[:])
+
 	if err != nil {
 
 		return err
@@ -776,6 +829,7 @@ func writeOutPoint(
 	w io.Writer, pver uint32, version int32, op *OutPoint) error {
 
 	_, err := w.Write(op.Hash[:])
+
 	if err != nil {
 
 		return err
@@ -788,12 +842,14 @@ func readScript(
 	r io.Reader, pver uint32, maxAllowed uint32, fieldName string) ([]byte, error) {
 
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	// Prevent byte array larger than the max message size.  It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
+
 	if count > uint64(maxAllowed) {
 
 		str := fmt.Sprintf("%s is larger than the max allowed size "+
@@ -802,6 +858,7 @@ func readScript(
 	}
 	b := scriptPool.Borrow(count)
 	_, err = io.ReadFull(r, b)
+
 	if err != nil {
 
 		scriptPool.Return(b)
@@ -815,12 +872,14 @@ func readTxIn(
 	r io.Reader, pver uint32, version int32, ti *TxIn) error {
 
 	err := readOutPoint(r, pver, version, &ti.PreviousOutPoint)
+
 	if err != nil {
 
 		return err
 	}
 	ti.SignatureScript, err = readScript(r, pver, MaxMessagePayload,
 		"transaction input signature script")
+
 	if err != nil {
 
 		return err
@@ -833,11 +892,13 @@ func writeTxIn(
 	w io.Writer, pver uint32, version int32, ti *TxIn) error {
 
 	err := writeOutPoint(w, pver, version, &ti.PreviousOutPoint)
+
 	if err != nil {
 
 		return err
 	}
 	err = WriteVarBytes(w, pver, ti.SignatureScript)
+
 	if err != nil {
 
 		return err
@@ -850,6 +911,7 @@ func readTxOut(
 	r io.Reader, pver uint32, version int32, to *TxOut) error {
 
 	err := readElement(r, &to.Value)
+
 	if err != nil {
 
 		return err
@@ -864,6 +926,7 @@ func WriteTxOut(
 	w io.Writer, pver uint32, version int32, to *TxOut) error {
 
 	err := binarySerializer.PutUint64(w, littleEndian, uint64(to.Value))
+
 	if err != nil {
 
 		return err
@@ -876,13 +939,16 @@ func writeTxWitness(
 	w io.Writer, pver uint32, version int32, wit [][]byte) error {
 
 	err := WriteVarInt(w, pver, uint64(len(wit)))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, item := range wit {
 
 		err = WriteVarBytes(w, pver, item)
+
 		if err != nil {
 
 			return err

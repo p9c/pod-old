@@ -18,7 +18,9 @@ func DefaultCtlConfig(
 	datadir string,
 
 ) *ctl.Config {
+
 	return &ctl.Config{
+
 		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
 		DebugLevel:    "off",
 		RPCUser:       "user",
@@ -52,6 +54,7 @@ func WriteCtlConfig(
 	}
 
 	j = append(j, '\n')
+
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
 
 	EnsureDir(cc.ConfigFile)
@@ -86,6 +89,7 @@ func WriteDefaultCtlConfig(
 	}
 
 	j = append(j, '\n')
+
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
 
 	EnsureDir(defCfg.ConfigFile)
@@ -120,6 +124,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "debuglevel"); ok {
 
 		CtlCfg.DebugLevel = r
+
 		log <- cl.Trace{
 
 			"set", "debuglevel", "to", r,
@@ -130,6 +135,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "rpcuser"); ok {
 
 		CtlCfg.RPCUser = r
+
 		log <- cl.Tracef{
 
 			"set %s to %s", "rpcuser", r,
@@ -140,6 +146,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "rpcpass"); ok {
 
 		CtlCfg.RPCPass = r
+
 		log <- cl.Tracef{
 
 			"set %s to %s", "rpcpass", r,
@@ -150,6 +157,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "rpcserver"); ok {
 
 		CtlCfg.RPCServer = r
+
 		log <- cl.Tracef{
 
 			"set %s to %s", "rpcserver", r,
@@ -160,6 +168,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "rpccert"); ok {
 
 		CtlCfg.RPCCert = r
+
 		log <- cl.Tracef{"set %s to %s", "rpccert", r}
 
 	}
@@ -167,6 +176,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "tls"); ok {
 
 		CtlCfg.TLS = r == "true"
+
 		log <- cl.Tracef{"set %s to %s", "tls", r}
 
 	}
@@ -174,6 +184,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "proxy"); ok {
 
 		CtlCfg.Proxy = r
+
 		log <- cl.Tracef{"set %s to %s", "proxy", r}
 
 	}
@@ -181,6 +192,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
 
 		CtlCfg.ProxyUser = r
+
 		log <- cl.Tracef{"set %s to %s", "proxyuser", r}
 
 	}
@@ -188,6 +200,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
 
 		CtlCfg.ProxyPass = r
+
 		log <- cl.Tracef{"set %s to %s", "proxypass", r}
 
 	}
@@ -230,6 +243,7 @@ func configCtl(
 	if ctx.Is("skipverify") {
 
 		CtlCfg.TLSSkipVerify = true
+
 		log <- cl.Tracef{
 
 			"set %s to true", "skipverify",
@@ -240,6 +254,7 @@ func configCtl(
 	if ctx.Is("wallet") {
 
 		CtlCfg.RPCServer = CtlCfg.Wallet
+
 		log <- cl.Trc("using configured wallet rpc server")
 
 	}
@@ -247,6 +262,7 @@ func configCtl(
 	if r, ok = getIfIs(ctx, "walletrpc"); ok {
 
 		CtlCfg.Wallet = r
+
 		log <- cl.Tracef{
 
 			"set %s to true", "walletrpc",
@@ -271,6 +287,7 @@ func configCtl(
 		}
 
 		j = append(j, '\n')
+
 		log <- cl.Trace{
 
 			"JSON formatted config file\n", string(j),
@@ -279,6 +296,7 @@ func configCtl(
 		e := ioutil.WriteFile(cfgFile, j, 0600)
 
 		if e != nil {
+
 			log <- cl.Error{
 
 				"error writing configuration file:", e,

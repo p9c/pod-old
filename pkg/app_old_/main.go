@@ -5,7 +5,9 @@ import (
 )
 
 // PodApp is the climax main app controller for pod
+
 var PodApp = climax.Application{
+
 	Name:     "pod",
 	Brief:    "multi-application launcher for Parallelcoin Pod",
 	Version:  Version(),

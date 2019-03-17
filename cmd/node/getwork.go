@@ -44,6 +44,7 @@ func bigToLEUint256(
 		pad = uint256Size - nlen
 
 	} else {
+
 		start = nlen - uint256Size
 	}
 
@@ -77,6 +78,7 @@ func handleGetWork(
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
 
 		return nil, &json.RPCError{
+
 			Code: json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified " +
 				"via --miningaddr",
@@ -87,7 +89,9 @@ func handleGetWork(
 	if !(*cfg.RegressionTest || *cfg.SimNet) &&
 
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
+
 		return nil, &json.RPCError{
+
 			Code:    json.ErrRPCClientNotConnected,
 			Message: "Pod is not connected to network",
 		}
@@ -100,6 +104,7 @@ func handleGetWork(
 	if latestHeight != 0 && !s.cfg.SyncMgr.IsCurrent() {
 
 		return nil, &json.RPCError{
+
 			Code:    json.ErrRPCClientInInitialDownload,
 			Message: "Pod is not yet synchronised...",
 		}
@@ -135,6 +140,7 @@ func handleGetWork(
 	}
 
 	msgBlock := state.template.Block
+
 	if msgBlock == nil || state.prevHash == nil ||
 		!state.prevHash.IsEqual(latestHash) ||
 		(state.lastTxUpdate != lastTxUpdate &&
@@ -166,9 +172,11 @@ func handleGetWork(
 		if err != nil {
 
 			errStr := fmt.Sprintf("Failed to create new block template: %v", err)
+
 			log <- cl.Err(errStr)
 
 			return nil, &json.RPCError{
+
 				Code:    json.ErrRPCInternal.Code,
 				Message: errStr,
 			}
@@ -183,6 +191,7 @@ func handleGetWork(
 		state.prevHash = latestHash
 
 		Log.Dbgc(func() string {
+
 			return fmt.Sprintf(
 				"generated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
 				msgBlock.Header.Timestamp,
@@ -205,6 +214,7 @@ func handleGetWork(
 		}
 
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
+
 		log <- cl.Debugf{
 
 			"updated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
@@ -219,7 +229,9 @@ func handleGetWork(
 	//	In order to efficiently store the variations of block templates that have been provided to callers, save a pointer to the block as well as the modified signature script keyed by the merkle root.  This information, along with the data that is included in a work submission, is used to rebuild the block before checking the submitted solution.
 	/*
 		coinbaseTx := msgBlock.Transactions[0]
+
 		state.blockInfo[msgBlock.Header.MerkleRoot] = &workStateBlockInfo{
+
 			msgBlock:        msgBlock,
 			signatureScript: coinbaseTx.TxIn[0].SignatureScript,
 		}
@@ -234,9 +246,11 @@ func handleGetWork(
 	if err != nil {
 
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
+
 		log <- cl.Wrn(errStr)
 
 		return nil, &json.RPCError{
+
 			Code:    json.ErrRPCInternal.Code,
 			Message: errStr,
 		}
@@ -263,7 +277,9 @@ func handleGetWork(
 	reverseUint32Array(hash1)
 	reverseUint32Array(midstate[:])
 	target := bigToLEUint256(blockchain.CompactToBig(msgBlock.Header.Bits))
+
 	reply := &json.GetWorkResult{
+
 		Data:     hex.EncodeToString(data),
 		Hash1:    hex.EncodeToString(hash1),
 		Midstate: hex.EncodeToString(midstate[:]),
@@ -295,6 +311,7 @@ func handleGetWorkSubmission(
 	if err != nil {
 
 		return nil, &json.RPCError{
+
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
 				"hexadecimal string (not %q)", hexData),
@@ -305,6 +322,7 @@ func handleGetWorkSubmission(
 	if len(data) != getworkDataLen {
 
 		return false, &json.RPCError{
+
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument must be "+
 				"%d bytes (not %d)", getworkDataLen,
@@ -324,6 +342,7 @@ func handleGetWorkSubmission(
 	if err != nil {
 
 		return false, &json.RPCError{
+
 			Code: json.ErrRPCInvalidParameter,
 			Message: fmt.Sprintf("argument does not "+
 				"contain a valid block header: %v", err),
@@ -356,6 +375,7 @@ func handleGetWorkSubmission(
 
 	// Ensure the submitted block hash is less than the target difficulty.
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
+
 	log <- cl.Info{"powlimit", pl}
 
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
@@ -367,6 +387,7 @@ func handleGetWorkSubmission(
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			return nil, &json.RPCError{
+
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while checking proof of work: %v", err),
 			}
@@ -404,6 +425,7 @@ func handleGetWorkSubmission(
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			return nil, &json.RPCError{
+
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while processing block: %v", err),
 			}
@@ -417,6 +439,7 @@ func handleGetWorkSubmission(
 
 	// The block was accepted.
 	blockSha := block.Hash()
+
 	log <- cl.Info{"block submitted via getwork accepted:", blockSha}
 
 	return true, nil

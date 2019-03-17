@@ -50,7 +50,9 @@ func (c conn) RemoteAddr() net.Addr {
 
 	host, strPort, _ := net.SplitHostPort(c.raddr)
 	port, _ := strconv.Atoi(strPort)
+
 	return &socks.ProxiedAddr{
+
 		Net:  c.rnet,
 		Host: host,
 		Port: port,
@@ -252,7 +254,9 @@ func TestPeerConnection(
 	t *testing.T) {
 
 	verack := make(chan struct{})
+
 	peer1Cfg := &peer.Config{
+
 		Listeners: peer.MessageListeners{
 
 			OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
@@ -282,6 +286,7 @@ func TestPeerConnection(
 	}
 
 	peer2Cfg := &peer.Config{
+
 		Listeners:         peer1Cfg.Listeners,
 		UserAgentName:     "peer",
 		UserAgentVersion:  "1.0",
@@ -292,6 +297,7 @@ func TestPeerConnection(
 	}
 
 	wantStats1 := peerStats{
+
 		wantUserAgent:       wire.DefaultUserAgent + "peer:1.0(comment)/",
 		wantServices:        0,
 		wantProtocolVersion: wire.RejectVersion,
@@ -308,6 +314,7 @@ func TestPeerConnection(
 	}
 
 	wantStats2 := peerStats{
+
 		wantUserAgent:       wire.DefaultUserAgent + "peer:1.0(comment)/",
 		wantServices:        wire.SFNodeNetwork | wire.SFNodeWitness,
 		wantProtocolVersion: wire.RejectVersion,
@@ -329,6 +336,7 @@ func TestPeerConnection(
 	}{
 
 		{
+
 			"basic handshake",
 
 			func() (*peer.Peer, *peer.Peer, error) {
@@ -364,6 +372,7 @@ func TestPeerConnection(
 		},
 
 		{
+
 			"socks proxy",
 
 			func() (*peer.Peer, *peer.Peer, error) {
@@ -428,7 +437,9 @@ func TestPeerListeners(
 
 	verack := make(chan struct{}, 1)
 	ok := make(chan wire.Message, 20)
+
 	peerCfg := &peer.Config{
+
 		Listeners: peer.MessageListeners{
 
 			OnGetAddr: func(p *peer.Peer, msg *wire.MsgGetAddr) {
@@ -587,6 +598,7 @@ func TestPeerListeners(
 	)
 	inPeer := peer.NewInboundPeer(peerCfg)
 	inPeer.AssociateConnection(inConn)
+
 	peerCfg.Listeners = peer.MessageListeners{
 
 		OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
@@ -623,135 +635,162 @@ func TestPeerListeners(
 	}{
 
 		{
+
 			"OnGetAddr",
 			wire.NewMsgGetAddr(),
 		},
 
 		{
+
 			"OnAddr",
 			wire.NewMsgAddr(),
 		},
 
 		{
+
 			"OnPing",
 			wire.NewMsgPing(42),
 		},
 
 		{
+
 			"OnPong",
 			wire.NewMsgPong(42),
 		},
 
 		{
+
 			"OnAlert",
 			wire.NewMsgAlert([]byte("payload"), []byte("signature")),
 		},
 
 		{
+
 			"OnMemPool",
 			wire.NewMsgMemPool(),
 		},
 
 		{
+
 			"OnTx",
 			wire.NewMsgTx(wire.TxVersion),
 		},
 
 		{
+
 			"OnBlock",
 			wire.NewMsgBlock(wire.NewBlockHeader(1,
 				&chainhash.Hash{}, &chainhash.Hash{}, 1, 1)),
 		},
 
 		{
+
 			"OnInv",
 			wire.NewMsgInv(),
 		},
 
 		{
+
 			"OnHeaders",
 			wire.NewMsgHeaders(),
 		},
 
 		{
+
 			"OnNotFound",
 			wire.NewMsgNotFound(),
 		},
 
 		{
+
 			"OnGetData",
 			wire.NewMsgGetData(),
 		},
 
 		{
+
 			"OnGetBlocks",
 			wire.NewMsgGetBlocks(&chainhash.Hash{}),
 		},
 
 		{
+
 			"OnGetHeaders",
 			wire.NewMsgGetHeaders(),
 		},
 
 		{
+
 			"OnGetCFilters",
 			wire.NewMsgGetCFilters(wire.GCSFilterRegular, 0, &chainhash.Hash{}),
 		},
 
 		{
+
 			"OnGetCFHeaders",
 			wire.NewMsgGetCFHeaders(wire.GCSFilterRegular, 0, &chainhash.Hash{}),
 		},
 
 		{
+
 			"OnGetCFCheckpt",
 			wire.NewMsgGetCFCheckpt(wire.GCSFilterRegular, &chainhash.Hash{}),
 		},
 
 		{
+
 			"OnCFilter",
 			wire.NewMsgCFilter(wire.GCSFilterRegular, &chainhash.Hash{},
 				[]byte("payload")),
 		},
 
 		{
+
 			"OnCFHeaders",
 			wire.NewMsgCFHeaders(),
 		},
 
 		{
+
 			"OnFeeFilter",
 			wire.NewMsgFeeFilter(15000),
 		},
 
 		{
+
 			"OnFilterAdd",
 			wire.NewMsgFilterAdd([]byte{0x01}),
 		},
 
 		{
+
 			"OnFilterClear",
 			wire.NewMsgFilterClear(),
 		},
 
 		{
+
 			"OnFilterLoad",
 			wire.NewMsgFilterLoad([]byte{0x01}, 10, 0, wire.BloomUpdateNone),
 		},
 
 		{
+
 			"OnMerkleBlock",
 			wire.NewMsgMerkleBlock(wire.NewBlockHeader(1,
 				&chainhash.Hash{}, &chainhash.Hash{}, 1, 1)),
 		},
 
 		// only one verack message is allowed
+
 		{
+
 			"OnReject",
 			wire.NewMsgReject("block", wire.RejectDuplicate, "dupe block"),
 		},
 
 		{
+
 			"OnSendHeaders",
 			wire.NewMsgSendHeaders(),
 		},
@@ -959,6 +998,7 @@ func TestUnsupportedVersionPeer(
 	t *testing.T) {
 
 	peerCfg := &peer.Config{
+
 		UserAgentName:     "peer",
 		UserAgentVersion:  "1.0",
 		UserAgentComments: []string{"comment"},
@@ -1091,7 +1131,9 @@ func TestDuplicateVersionMsg(
 
 	// Create a pair of peers that are connected to each other using a fake connection.
 	verack := make(chan struct{})
+
 	peerCfg := &peer.Config{
+
 		Listeners: peer.MessageListeners{
 
 			OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {

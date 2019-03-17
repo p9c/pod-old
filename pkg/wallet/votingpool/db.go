@@ -132,6 +132,7 @@ func putUsedAddrHash(
 
 	usedAddrs := ns.NestedReadWriteBucket(poolID).NestedReadWriteBucket(usedAddrsBucketName)
 	bucket, err := usedAddrs.CreateBucketIfNotExists(getUsedAddrBucketID(seriesID, branch))
+
 	if err != nil {
 
 		return newError(ErrDatabase, "failed to store used address hash", err)
@@ -147,6 +148,7 @@ func getUsedAddrHash(
 
 	usedAddrs := ns.NestedReadBucket(poolID).NestedReadBucket(usedAddrsBucketName)
 	bucket := usedAddrs.NestedReadBucket(getUsedAddrBucketID(seriesID, branch))
+
 	if bucket == nil {
 
 		return nil
@@ -162,6 +164,7 @@ func getMaxUsedIdx(
 	maxIdx := Index(0)
 	usedAddrs := ns.NestedReadBucket(poolID).NestedReadBucket(usedAddrsBucketName)
 	bucket := usedAddrs.NestedReadBucket(getUsedAddrBucketID(seriesID, branch))
+
 	if bucket == nil {
 
 		return maxIdx, nil
@@ -182,12 +185,14 @@ func getMaxUsedIdx(
 		func(k, v []byte) error {
 
 			idx := Index(bytesToUint32(k))
+
 			if idx > maxIdx {
 
 				maxIdx = idx
 			}
 			return nil
 		})
+
 	if err != nil {
 
 		return Index(0), newError(ErrDatabase, "failed to get highest idx of used addresses", err)
@@ -202,23 +207,27 @@ func putPool(
 	ns walletdb.ReadWriteBucket, poolID []byte) error {
 
 	poolBucket, err := ns.CreateBucket(poolID)
+
 	if err != nil {
 
 		return newError(ErrDatabase, fmt.Sprintf("cannot create pool %v", poolID), err)
 	}
 	_, err = poolBucket.CreateBucket(seriesBucketName)
+
 	if err != nil {
 
 		return newError(ErrDatabase, fmt.Sprintf("cannot create series bucket for pool %v",
 			poolID), err)
 	}
 	_, err = poolBucket.CreateBucket(usedAddrsBucketName)
+
 	if err != nil {
 
 		return newError(ErrDatabase, fmt.Sprintf("cannot create used addrs bucket for pool %v",
 			poolID), err)
 	}
 	_, err = poolBucket.CreateBucket(withdrawalsBucketName)
+
 	if err != nil {
 
 		return newError(
@@ -239,6 +248,7 @@ func loadAllSeries(
 
 			seriesID := bytesToUint32(k)
 			series, err := deserializeSeriesRow(v)
+
 			if err != nil {
 
 				return err
@@ -246,6 +256,7 @@ func loadAllSeries(
 			allSeries[seriesID] = series
 			return nil
 		})
+
 	if err != nil {
 
 		return nil, err
@@ -284,22 +295,26 @@ func putSeriesRow(
 	ns walletdb.ReadWriteBucket, poolID []byte, ID uint32, row *dbSeriesRow) error {
 
 	bucket, err := ns.CreateBucketIfNotExists(poolID)
+
 	if err != nil {
 
 		str := fmt.Sprintf("cannot create bucket %v", poolID)
 		return newError(ErrDatabase, str, err)
 	}
 	bucket, err = bucket.CreateBucketIfNotExists(seriesBucketName)
+
 	if err != nil {
 
 		return err
 	}
 	serialized, err := serializeSeriesRow(row)
+
 	if err != nil {
 
 		return err
 	}
 	err = bucket.Put(uint32ToBytes(ID), serialized)
+
 	if err != nil {
 
 		str := fmt.Sprintf("cannot put series %v into bucket %v", serialized, poolID)
@@ -325,6 +340,7 @@ func deserializeSeriesRow(
 	// Given the above, the length of the serialized series should be
 
 	// at minimum the length of the constants.
+
 	if len(serializedSeries) < seriesMinSerial {
 
 		str := fmt.Sprintf("serialized series is too short: %v", serializedSeries)
@@ -334,6 +350,7 @@ func deserializeSeriesRow(
 	// Maximum number of public keys is 15 and the same for public keys
 
 	// this gives us an upper bound.
+
 	if len(serializedSeries) > seriesMaxSerial {
 
 		str := fmt.Sprintf("serialized series is too long: %v", serializedSeries)
@@ -345,6 +362,7 @@ func deserializeSeriesRow(
 	row := dbSeriesRow{}
 
 	row.version = bytesToUint32(serializedSeries[current : current+4])
+
 	if row.version > seriesMaxVersion {
 
 		str := fmt.Sprintf("deserialization supports up to version %v not %v",
@@ -363,6 +381,7 @@ func deserializeSeriesRow(
 	current += 4
 
 	// Check to see if we have the right number of bytes to consume.
+
 	if len(serializedSeries) < current+int(nKeys)*seriesKeyLength*2 {
 
 		str := fmt.Sprintf("serialized series has not enough data: %v", serializedSeries)
@@ -376,6 +395,7 @@ func deserializeSeriesRow(
 	// Deserialize the pubkey/privkey pairs.
 	row.pubKeysEncrypted = make([][]byte, nKeys)
 	row.privKeysEncrypted = make([][]byte, nKeys)
+
 	for i := 0; i < int(nKeys); i++ {
 
 		pubKeyStart := current + seriesKeyLength*i*2
@@ -383,6 +403,7 @@ func deserializeSeriesRow(
 		privKeyEnd := current + seriesKeyLength*(i+1)*2
 		row.pubKeysEncrypted[i] = serializedSeries[pubKeyStart:pubKeyEnd]
 		privKeyEncrypted := serializedSeries[pubKeyEnd:privKeyEnd]
+
 		if bytes.Equal(privKeyEncrypted, seriesNullPrivKey[:]) {
 
 			row.privKeysEncrypted[i] = nil
@@ -427,6 +448,7 @@ func serializeSeriesRow(
 
 	serialized := make([]byte, 0, serializedLen)
 	serialized = append(serialized, uint32ToBytes(row.version)...)
+
 	if row.active {
 
 		serialized = append(serialized, 0x01)
@@ -439,9 +461,11 @@ func serializeSeriesRow(
 	serialized = append(serialized, uint32ToBytes(nKeys)...)
 
 	var privKeyEncrypted []byte
+
 	for i, pubKeyEncrypted := range row.pubKeysEncrypted {
 
 		// check that the encrypted length is correct
+
 		if len(pubKeyEncrypted) != seriesKeyLength {
 
 			str := fmt.Sprintf("wrong length of Encrypted Public Key: %v",
@@ -491,6 +515,7 @@ func serializeWithdrawal(
 		Index:    startAddress.Index(),
 	}
 	dbRequests := make([]dbOutputRequest, len(requests))
+
 	for i, request := range requests {
 
 		dbRequests[i] = dbOutputRequest{
@@ -501,9 +526,11 @@ func serializeWithdrawal(
 		}
 	}
 	dbOutputs := make(map[OutBailmentID]dbWithdrawalOutput, len(status.outputs))
+
 	for oid, output := range status.outputs {
 
 		dbOutpoints := make([]dbOutBailmentOutpoint, len(output.outpoints))
+
 		for i, outpoint := range output.outpoints {
 
 			dbOutpoints[i] = dbOutBailmentOutpoint{
@@ -519,10 +546,12 @@ func serializeWithdrawal(
 		}
 	}
 	dbTransactions := make(map[Ntxid]dbChangeAwareTx, len(status.transactions))
+
 	for ntxid, tx := range status.transactions {
 
 		var buf bytes.Buffer
 		buf.Grow(tx.SerializeSize())
+
 		if err := tx.Serialize(&buf); err != nil {
 
 			return nil, err
@@ -552,6 +581,7 @@ func serializeWithdrawal(
 		Status:        dbStatus,
 	}
 	var buf bytes.Buffer
+
 	if err := gob.NewEncoder(&buf).Encode(row); err != nil {
 
 		return nil, err
@@ -566,6 +596,7 @@ func deserializeWithdrawal(
 	p *Pool, ns, addrmgrNs walletdb.ReadBucket, serialized []byte) (*withdrawalInfo, error) {
 
 	var row dbWithdrawalRow
+
 	if err := gob.NewDecoder(bytes.NewReader(serialized)).Decode(&row); err != nil {
 
 		return nil, newError(ErrWithdrawalStorage, "cannot deserialize withdrawal information",
@@ -582,15 +613,18 @@ func deserializeWithdrawal(
 
 	// WithdrawalStatus.Outputs later on.
 	requestsByOID := make(map[OutBailmentID]OutputRequest)
+
 	for i, req := range row.Requests {
 
 		addr, err := util.DecodeAddress(req.Addr, chainParams)
+
 		if err != nil {
 
 			return nil, newError(ErrWithdrawalStorage,
 				"cannot deserialize addr for requested output", err)
 		}
 		pkScript, err := txscript.PayToAddrScript(addr)
+
 		if err != nil {
 
 			return nil, newError(ErrWithdrawalStorage, "invalid addr for requested output", err)
@@ -607,6 +641,7 @@ func deserializeWithdrawal(
 	}
 	startAddr := row.StartAddress
 	wAddr, err := p.WithdrawalAddress(ns, addrmgrNs, startAddr.SeriesID, startAddr.Branch, startAddr.Index)
+
 	if err != nil {
 
 		return nil, newError(ErrWithdrawalStorage, "cannot deserialize startAddress", err)
@@ -614,6 +649,7 @@ func deserializeWithdrawal(
 	wInfo.startAddress = *wAddr
 
 	cAddr, err := p.ChangeAddress(row.ChangeStart.SeriesID, row.ChangeStart.Index)
+
 	if err != nil {
 
 		return nil, newError(ErrWithdrawalStorage, "cannot deserialize changeStart", err)
@@ -625,6 +661,7 @@ func deserializeWithdrawal(
 	// does not update that yet.
 	nextChangeAddr := row.Status.NextChangeAddr
 	cAddr, err = p.ChangeAddress(nextChangeAddr.SeriesID, nextChangeAddr.Index)
+
 	if err != nil {
 
 		return nil, newError(ErrWithdrawalStorage,
@@ -637,9 +674,11 @@ func deserializeWithdrawal(
 		sigs:           row.Status.Sigs,
 		transactions:   make(map[Ntxid]changeAwareTx, len(row.Status.Transactions)),
 	}
+
 	for oid, output := range row.Status.Outputs {
 
 		outpoints := make([]OutBailmentOutpoint, len(output.Outpoints))
+
 		for i, outpoint := range output.Outpoints {
 
 			outpoints[i] = OutBailmentOutpoint{
@@ -654,9 +693,11 @@ func deserializeWithdrawal(
 			outpoints: outpoints,
 		}
 	}
+
 	for ntxid, tx := range row.Status.Transactions {
 
 		var msgtx wire.MsgTx
+
 		if err := msgtx.Deserialize(bytes.NewBuffer(tx.SerializedMsgTx)); err != nil {
 
 			return nil, newError(ErrWithdrawalStorage, "cannot deserialize transaction", err)

@@ -763,6 +763,7 @@ func (pop *parsedOpcode) print(oneline bool) string {
 
 	// Add length for the OP_PUSHDATA# opcodes.
 	retString := opcodeName
+
 	switch pop.opcode.length {
 
 	case -1:
@@ -805,6 +806,7 @@ func (pop *parsedOpcode) bytes() ([]byte, error) {
 
 		l := len(pop.data)
 		// tempting just to hardcode to avoid the complexity here.
+
 		switch pop.opcode.length {
 
 		case -1:
@@ -1016,6 +1018,7 @@ func opcodeElse(
 		return scriptError(ErrUnbalancedConditional, str)
 	}
 	conditionalIdx := len(vm.condStack) - 1
+
 	switch vm.condStack[conditionalIdx] {
 
 	case OpCondTrue:
@@ -2160,6 +2163,7 @@ func opcodeCheckMultiSig(
 		return scriptError(ErrTooManyOperations, str)
 	}
 	pubKeys := make([][]byte, 0, numPubKeys)
+
 	for i := 0; i < numPubKeys; i++ {
 
 		pubKey, err := vm.dstack.PopByteArray()
@@ -2188,6 +2192,7 @@ func opcodeCheckMultiSig(
 		return scriptError(ErrInvalidSignatureCount, str)
 	}
 	signatures := make([]*parsedSigInfo, 0, numSignatures)
+
 	for i := 0; i < numSignatures; i++ {
 
 		signature, err := vm.dstack.PopByteArray()
@@ -2229,6 +2234,7 @@ func opcodeCheckMultiSig(
 	numPubKeys++
 	pubKeyIdx := -1
 	signatureIdx := 0
+
 	for numSignatures > 0 {
 
 		// When there are more signatures than public keys remaining, there is no way to succeed since too many signatures are invalid, so exit early.
@@ -2380,6 +2386,7 @@ var OpcodeByName = make(map[string]byte)
 func init() {
 
 	// Initialize the opcode name to value map using the contents of the opcode array.  Also add entries for "OP_FALSE", "OP_TRUE", and "OP_NOP2" since they are aliases for "OP_0", "OP_1", and "OP_CHECKLOCKTIMEVERIFY" respectively.
+
 	for _, op := range opcodeArray {
 
 		OpcodeByName[op.name] = op.value

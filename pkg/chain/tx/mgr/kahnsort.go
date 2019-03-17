@@ -28,6 +28,7 @@ func makeGraph(
 		}
 
 	inputLoop:
+
 		for _, input := range rec.MsgTx.TxIn {
 
 			// Transaction inputs that reference transactions not
@@ -41,6 +42,7 @@ func makeGraph(
 			inputNode := graph[input.PreviousOutPoint.Hash]
 
 			// Skip duplicate edges.
+
 			for _, outEdge := range inputNode.outEdges {
 
 				if *outEdge == input.PreviousOutPoint.Hash {
@@ -80,6 +82,7 @@ func graphRoots(
 	graph hashGraph) []*TxRecord {
 
 	roots := make([]*TxRecord, 0, len(graph))
+
 	for _, node := range graph {
 
 		if node.inDegree == 0 {
@@ -107,6 +110,7 @@ func dependencySort(
 	}
 
 	sorted := make([]*TxRecord, 0, len(txs))
+
 	for len(s) != 0 {
 
 		rec := s[0]
@@ -114,6 +118,7 @@ func dependencySort(
 		sorted = append(sorted, rec)
 
 		n := graph[rec.Hash]
+
 		for _, mHash := range n.outEdges {
 
 			m := graph[*mHash]

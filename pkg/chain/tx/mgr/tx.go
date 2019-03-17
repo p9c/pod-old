@@ -226,6 +226,7 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	}
 
 	newMinedBalance := minedBalance
+
 	for i, input := range rec.MsgTx.TxIn {
 
 		unspentKey, credKey := existsUnspent(ns, &input.PreviousOutPoint)
@@ -307,6 +308,7 @@ func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	}
 
 	it := makeUnminedCreditIterator(ns, &rec.Hash)
+
 	for it.next() {
 
 		// TODO: This should use the raw apis.  The credit value (it.cv)
@@ -473,6 +475,7 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	if v := existsRawUnmined(ns, rec.Hash[:]); v != nil {
 
 		log <- cl.Infof{
+
 			"marking unconfirmed transaction %v mined in block %d",
 			&rec.Hash, block.Height,
 		}
@@ -558,7 +561,9 @@ func (s *Store) addCredit(ns walletdb.ReadWriteBucket, rec *TxRecord, block *Blo
 	}
 
 	txOutAmt := util.Amount(rec.MsgTx.TxOut[index].Value)
+
 	log <- cl.Debugf{
+
 		"marking transaction %v output %d (%v) spendable",
 		rec.Hash, index, txOutAmt,
 	}
@@ -626,6 +631,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 	var heightsToRemove []int32
 
 	it := makeReverseBlockIterator(ns)
+
 	for it.prev() {
 
 		b := &it.elem
@@ -637,6 +643,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 		heightsToRemove = append(heightsToRemove, it.elem.Height)
 
 		log <- cl.Infof{
+
 			"rolling back %d transactions from block %v height %d",
 			len(b.transactions), b.Hash, b.Height,
 		}
@@ -670,6 +677,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			if blockchain.IsCoinBaseTx(&rec.MsgTx) {
 
 				op := wire.OutPoint{Hash: rec.Hash}
+
 				for i, output := range rec.MsgTx.TxOut {
 
 					k, v := existsCredit(ns, &rec.Hash,
@@ -717,6 +725,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			// recorded in the unconfirmed store for every previous
 
 			// output, not just debits.
+
 			for i, input := range rec.MsgTx.TxIn {
 
 				prevOut := &input.PreviousOutPoint
@@ -804,6 +813,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			//
 
 			// TODO: use a credit iterator
+
 			for i, output := range rec.MsgTx.TxOut {
 
 				k, v := existsCredit(ns, &rec.Hash, uint32(i),
@@ -868,6 +878,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 	// Delete the block records outside of the iteration since cursor deletion
 
 	// is broken.
+
 	for _, h := range heightsToRemove {
 
 		err = deleteBlockRecord(ns, h)
@@ -881,6 +892,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 
 		opKey := canonicalOutPoint(&op.Hash, op.Index)
 		unminedSpendTxHashKeys := fetchUnminedInputSpendTxHashes(ns, opKey)
+
 		for _, unminedSpendTxHashKey := range unminedSpendTxHashKeys {
 
 			unminedVal := existsRawUnmined(ns, unminedSpendTxHashKey[:])
@@ -908,6 +920,7 @@ func (s *Store) rollback(ns walletdb.ReadWriteBucket, height int32) error {
 			}
 
 			log <- cl.Debugf{
+
 				"transaction %v spends a removed coinbase output -- removing as well",
 				unminedRec.Hash,
 			}
@@ -1117,6 +1130,7 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 	}
 	lastHeight := syncHeight - stopConf
 	blockIt := makeReadReverseBlockIterator(ns)
+
 	for blockIt.prev() {
 
 		block := &blockIt.elem
@@ -1135,6 +1149,7 @@ func (s *Store) Balance(ns walletdb.ReadBucket, minConf int32, syncHeight int32)
 				return 0, err
 			}
 			numOuts := uint32(len(rec.MsgTx.TxOut))
+
 			for i := uint32(0); i < numOuts; i++ {
 
 				// Avoid double decrementing the credit amount

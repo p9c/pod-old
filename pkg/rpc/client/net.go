@@ -83,6 +83,7 @@ type FutureGetAddedNodeInfoResult chan *response
 func (r FutureGetAddedNodeInfoResult) Receive() ([]json.GetAddedNodeInfoResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -91,6 +92,7 @@ func (r FutureGetAddedNodeInfoResult) Receive() ([]json.GetAddedNodeInfoResult, 
 	// Unmarshal as an array of getaddednodeinfo result objects.
 	var nodeInfo []json.GetAddedNodeInfoResult
 	err = js.Unmarshal(res, &nodeInfo)
+
 	if err != nil {
 
 		return nil, err
@@ -118,6 +120,7 @@ type FutureGetAddedNodeInfoNoDNSResult chan *response
 func (r FutureGetAddedNodeInfoNoDNSResult) Receive() ([]string, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -126,6 +129,7 @@ func (r FutureGetAddedNodeInfoNoDNSResult) Receive() ([]string, error) {
 	// Unmarshal result as an array of strings.
 	var nodes []string
 	err = js.Unmarshal(res, &nodes)
+
 	if err != nil {
 
 		return nil, err
@@ -153,6 +157,7 @@ type FutureGetConnectionCountResult chan *response
 func (r FutureGetConnectionCountResult) Receive() (int64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return 0, err
@@ -161,6 +166,7 @@ func (r FutureGetConnectionCountResult) Receive() (int64, error) {
 	// Unmarshal result as an int64.
 	var count int64
 	err = js.Unmarshal(res, &count)
+
 	if err != nil {
 
 		return 0, err
@@ -211,6 +217,7 @@ type FutureGetPeerInfoResult chan *response
 func (r FutureGetPeerInfoResult) Receive() ([]json.GetPeerInfoResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -219,6 +226,7 @@ func (r FutureGetPeerInfoResult) Receive() ([]json.GetPeerInfoResult, error) {
 	// Unmarshal result as an array of getpeerinfo result objects.
 	var peerInfo []json.GetPeerInfoResult
 	err = js.Unmarshal(res, &peerInfo)
+
 	if err != nil {
 
 		return nil, err
@@ -246,6 +254,7 @@ type FutureGetNetTotalsResult chan *response
 func (r FutureGetNetTotalsResult) Receive() (*json.GetNetTotalsResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -254,6 +263,7 @@ func (r FutureGetNetTotalsResult) Receive() (*json.GetNetTotalsResult, error) {
 	// Unmarshal result as a getnettotals result object.
 	var totals json.GetNetTotalsResult
 	err = js.Unmarshal(res, &totals)
+
 	if err != nil {
 
 		return nil, err

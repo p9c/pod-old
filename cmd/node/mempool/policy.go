@@ -30,10 +30,12 @@ func calcMinRequiredTxRelayFee(
 	serializedSize int64, minRelayTxFee util.Amount) int64 {
 	// Calculate the minimum fee for a transaction to be allowed into the mempool and relayed by scaling the base fee (which is the minimum free transaction relay fee).  minTxRelayFee is in Satoshi/kB so multiply by serializedSize (which is in bytes) and divide by 1000 to get minimum Satoshis.
 	minFee := (serializedSize * int64(minRelayTxFee)) / 1000
+
 	if minFee == 0 && minRelayTxFee > 0 {
 		minFee = int64(minRelayTxFee)
 	}
 	// Set the minimum fee to the maximum possible value if the calculated fee is not in the valid range for monetary amounts.
+
 	if minFee < 0 || minFee > util.MaxSatoshi {
 		minFee = util.MaxSatoshi
 	}
@@ -44,15 +46,18 @@ func calcMinRequiredTxRelayFee(
 func checkInputsStandard(
 	tx *util.Tx, utxoView *blockchain.UtxoViewpoint) error {
 	// NOTE: The reference implementation also does a coinbase check here, but coinbases have already been rejected prior to calling this function so no need to recheck.
+
 	for i, txIn := range tx.MsgTx().TxIn {
 		// It is safe to elide existence and index checks here since they have already been checked prior to calling this function.
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		originPkScript := entry.PkScript()
+
 		switch txscript.GetScriptClass(originPkScript) {
 
 		case txscript.ScriptHashTy:
 			numSigOps := txscript.GetPreciseSigOpCount(
 				txIn.SignatureScript, originPkScript, true)
+
 			if numSigOps > maxStandardP2SHSigOps {
 				str := fmt.Sprintf("transaction input #%d has "+
 					"%d signature operations which is more "+
@@ -72,19 +77,23 @@ func checkInputsStandard(
 // checkPkScriptStandard performs a series of checks on a transaction output script (public key script) to ensure it is a "standard" public key script. A standard public key script is one that is a recognized form, and for multi-signature scripts, only contains from 1 to maxStandardMultiSigKeys public keys.
 func checkPkScriptStandard(
 	pkScript []byte, scriptClass txscript.ScriptClass) error {
+
 	switch scriptClass {
 	case txscript.MultiSigTy:
 		numPubKeys, numSigs, err := txscript.CalcMultiSigStats(pkScript)
+
 		if err != nil {
 			str := fmt.Sprintf("multi-signature script parse "+
 				"failure: %v", err)
 			return txRuleError(wire.RejectNonstandard, str)
 		}
 		// A standard multi-signature public key script must contain from 1 to maxStandardMultiSigKeys public keys.
+
 		if numPubKeys < 1 {
 			str := "multi-signature script with no pubkeys"
 			return txRuleError(wire.RejectNonstandard, str)
 		}
+
 		if numPubKeys > maxStandardMultiSigKeys {
 			str := fmt.Sprintf("multi-signature script with %d "+
 				"public keys which is more than the allowed "+
@@ -92,10 +101,12 @@ func checkPkScriptStandard(
 			return txRuleError(wire.RejectNonstandard, str)
 		}
 		// A standard multi-signature public key script must have at least 1 signature and no more signatures than available public keys.
+
 		if numSigs < 1 {
 			return txRuleError(wire.RejectNonstandard,
 				"multi-signature script with no signatures")
 		}
+
 		if numSigs > numPubKeys {
 			str := fmt.Sprintf("multi-signature script with %d "+
 				"signatures which is more than the available "+
@@ -113,6 +124,7 @@ func checkPkScriptStandard(
 func isDust(
 	txOut *wire.TxOut, minRelayTxFee util.Amount) bool {
 	// Unspendable outputs are considered dust.
+
 	if txscript.IsUnspendable(txOut.PkScript) {
 
 		return true
@@ -151,6 +163,7 @@ func isDust(
 	// The segwit analogue to p2pkh is a p2wkh output. This is the smallest output possible using the new segwit features. The 107 bytes of witness data is discounted by a factor of 4, leading to a computed value of 67 bytes of witness data.
 	// Both cases share a 41 byte preamble required to reference the input being spent and the sequence number of the input.
 	totalSize := txOut.SerializeSize() + 41
+
 	if txscript.IsWitnessProgram(txOut.PkScript) {
 
 		totalSize += (107 / blockchain.WitnessScaleFactor)
@@ -170,6 +183,7 @@ func checkTransactionStandard(
 	maxTxVersion int32) error {
 	// The transaction must be a currently supported version.
 	msgTx := tx.MsgTx()
+
 	if msgTx.Version > maxTxVersion || msgTx.Version < 1 {
 		str := fmt.Sprintf("transaction version %d is not in the "+
 			"valid range of %d-%d", msgTx.Version, 1,
@@ -177,6 +191,7 @@ func checkTransactionStandard(
 		return txRuleError(wire.RejectNonstandard, str)
 	}
 	// The transaction must be finalized to be standard and therefore considered for inclusion in a block.
+
 	if !blockchain.IsFinalizedTransaction(tx, height, medianTimePast) {
 
 		return txRuleError(wire.RejectNonstandard,
@@ -184,14 +199,17 @@ func checkTransactionStandard(
 	}
 	// Since extremely large transactions with a lot of inputs can cost almost as much to process as the sender fees, limit the maximum size of a transaction.  This also helps mitigate CPU exhaustion attacks.
 	txWeight := blockchain.GetTransactionWeight(tx)
+
 	if txWeight > maxStandardTxWeight {
 		str := fmt.Sprintf("weight of transaction %v is larger than max "+
 			"allowed weight of %v", txWeight, maxStandardTxWeight)
 		return txRuleError(wire.RejectNonstandard, str)
 	}
+
 	for i, txIn := range msgTx.TxIn {
 		// Each transaction input signature script must not exceed the maximum size allowed for a standard transaction.  See the comment on maxStandardSigScriptSize for more details.
 		sigScriptLen := len(txIn.SignatureScript)
+
 		if sigScriptLen > maxStandardSigScriptSize {
 			str := fmt.Sprintf("transaction input %d: signature "+
 				"script size of %d bytes is large than max "+
@@ -200,6 +218,7 @@ func checkTransactionStandard(
 			return txRuleError(wire.RejectNonstandard, str)
 		}
 		// Each transaction input signature script must only contain opcodes which push data onto the stack.
+
 		if !txscript.IsPushOnlyScript(txIn.SignatureScript) {
 
 			str := fmt.Sprintf("transaction input %d: signature "+
@@ -209,12 +228,15 @@ func checkTransactionStandard(
 	}
 	// None of the output public key scripts can be a non-standard script or be "dust" (except when the script is a null data script).
 	numNullDataOutputs := 0
+
 	for i, txOut := range msgTx.TxOut {
 		scriptClass := txscript.GetScriptClass(txOut.PkScript)
 		err := checkPkScriptStandard(txOut.PkScript, scriptClass)
+
 		if err != nil {
 			// Attempt to extract a reject code from the error so it can be retained.  When not possible, fall back to a non standard error.
 			rejectCode := wire.RejectNonstandard
+
 			if rejCode, found := extractRejectCode(err); found {
 				rejectCode = rejCode
 			}
@@ -222,6 +244,7 @@ func checkTransactionStandard(
 			return txRuleError(rejectCode, str)
 		}
 		// Accumulate the number of outputs which only carry data.  For all other script types, ensure the output value is not "dust".
+
 		if scriptClass == txscript.NullDataTy {
 			numNullDataOutputs++
 		} else if isDust(txOut, minRelayTxFee) {
@@ -232,6 +255,7 @@ func checkTransactionStandard(
 		}
 	}
 	// A standard transaction must not have more than one output script that only carries data.
+
 	if numNullDataOutputs > 1 {
 		str := "more than one transaction output in a nulldata script"
 		return txRuleError(wire.RejectNonstandard, str)

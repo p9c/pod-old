@@ -16,6 +16,7 @@ func TestPoolEnsureUsedAddr(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,10 +32,12 @@ func TestPoolEnsureUsedAddr(
 
 		err = pool.EnsureUsedAddr(ns, addrmgrNs, 1, 0, idx)
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to ensure used addresses: %v", err)
 	}
 	addr, err = pool.getUsedAddr(ns, addrmgrNs, 1, 0, 0)
+
 	if err != nil {
 		t.Fatalf("Failed to get addr from used addresses set: %v", err)
 	}
@@ -42,10 +45,12 @@ func TestPoolEnsureUsedAddr(
 
 		script, err = addr.Script()
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to get script: %v", err)
 	}
 	wantScript, _ := pool.DepositScript(1, 0, 0)
+
 	if !bytes.Equal(script, wantScript) {
 
 		t.Fatalf("Script from looked up addr is not what we expect")
@@ -56,11 +61,14 @@ func TestPoolEnsureUsedAddr(
 
 		err = pool.EnsureUsedAddr(ns, addrmgrNs, 1, 0, idx)
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to ensure used addresses: %v", err)
 	}
+
 	for _, i := range []int{0, 1, 2, 3} {
 		addr, err = pool.getUsedAddr(ns, addrmgrNs, 1, 0, Index(i))
+
 		if err != nil {
 			t.Fatalf("Failed to get addr from used addresses set: %v", err)
 		}
@@ -68,10 +76,12 @@ func TestPoolEnsureUsedAddr(
 
 			script, err = addr.Script()
 		})
+
 		if err != nil {
 			t.Fatalf("Failed to get script: %v", err)
 		}
 		wantScript, _ := pool.DepositScript(1, 0, Index(i))
+
 		if !bytes.Equal(script, wantScript) {
 
 			t.Fatalf("Script from looked up addr is not what we expect")
@@ -86,6 +96,7 @@ func TestPoolGetUsedAddr(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,9 +109,11 @@ func TestPoolGetUsedAddr(
 
 	// return nil.
 	addr, err := pool.getUsedAddr(ns, addrmgrNs, 1, 0, 10)
+
 	if err != nil {
 		t.Fatalf("Error when looking up used addr: %v", err)
 	}
+
 	if addr != nil {
 		t.Fatalf("Unused address found in used addresses DB: %v", addr)
 	}
@@ -112,11 +125,13 @@ func TestPoolGetUsedAddr(
 
 		err = pool.addUsedAddr(ns, addrmgrNs, 1, 0, 10)
 	})
+
 	if err != nil {
 		t.Fatalf("Error when storing addr in used addresses DB: %v", err)
 	}
 	var script []byte
 	addr, err = pool.getUsedAddr(ns, addrmgrNs, 1, 0, 10)
+
 	if err != nil {
 		t.Fatalf("Error when looking up used addr: %v", err)
 	}
@@ -124,10 +139,12 @@ func TestPoolGetUsedAddr(
 
 		script, err = addr.Script()
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to get script: %v", err)
 	}
 	wantScript, _ := pool.DepositScript(1, 0, 10)
+
 	if !bytes.Equal(script, wantScript) {
 
 		t.Fatalf("Script from looked up addr is not what we expect")
@@ -141,6 +158,7 @@ func TestSerializationErrors(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,8 +197,10 @@ func TestSerializationErrors(
 	}
 
 	active := true
+
 	for testNum, test := range tests {
 		encryptedPubs, err := encryptKeys(test.pubKeys, pool.Manager(), waddrmgr.CKTPublic)
+
 		if err != nil {
 			t.Fatalf("Test #%d - Error encrypting pubkeys: %v", testNum, err)
 		}
@@ -189,6 +209,7 @@ func TestSerializationErrors(
 
 			encryptedPrivs, err = encryptKeys(test.privKeys, pool.Manager(), waddrmgr.CKTPrivate)
 		})
+
 		if err != nil {
 			t.Fatalf("Test #%d - Error encrypting privkeys: %v", testNum, err)
 		}
@@ -212,6 +233,7 @@ func TestSerialization(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -255,8 +277,10 @@ func TestSerialization(
 	}
 
 	var encryptedPrivs [][]byte
+
 	for testNum, test := range tests {
 		encryptedPubs, err := encryptKeys(test.pubKeys, pool.Manager(), waddrmgr.CKTPublic)
+
 		if err != nil {
 			t.Fatalf("Test #%d - Error encrypting pubkeys: %v", testNum, err)
 		}
@@ -264,6 +288,7 @@ func TestSerialization(
 
 			encryptedPrivs, err = encryptKeys(test.privKeys, pool.Manager(), waddrmgr.CKTPrivate)
 		})
+
 		if err != nil {
 			t.Fatalf("Test #%d - Error encrypting privkeys: %v", testNum, err)
 		}
@@ -276,11 +301,13 @@ func TestSerialization(
 			privKeysEncrypted: encryptedPrivs,
 		}
 		serialized, err := serializeSeriesRow(row)
+
 		if err != nil {
 			t.Fatalf("Test #%d - Error in serialization %v", testNum, err)
 		}
 
 		row, err = deserializeSeriesRow(serialized)
+
 		if err != nil {
 			t.Fatalf("Test #%d - Failed to deserialize %v %v", testNum, serialized, err)
 		}
@@ -384,6 +411,7 @@ func TestValidateAndDecryptKeys(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -391,6 +419,7 @@ func TestValidateAndDecryptKeys(
 	_, addrmgrNs := TstRWNamespaces(dbtx)
 
 	rawPubKeys, err := encryptKeys(TstPubKeys[0:2], pool.Manager(), waddrmgr.CKTPublic)
+
 	if err != nil {
 		t.Fatalf("Failed to encrypt public keys: %v", err)
 	}
@@ -400,6 +429,7 @@ func TestValidateAndDecryptKeys(
 
 		rawPrivKeys, err = encryptKeys([]string{TstPrivKeys[0], ""}, pool.Manager(), waddrmgr.CKTPrivate)
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to encrypt private keys: %v", err)
 	}
@@ -409,6 +439,7 @@ func TestValidateAndDecryptKeys(
 
 		pubKeys, privKeys, err = validateAndDecryptKeys(rawPubKeys, rawPrivKeys, pool)
 	})
+
 	if err != nil {
 		t.Fatalf("Error when validating/decrypting keys: %v", err)
 	}
@@ -416,6 +447,7 @@ func TestValidateAndDecryptKeys(
 	if len(pubKeys) != 2 {
 		t.Fatalf("Unexpected number of decrypted public keys: got %d, want 2", len(pubKeys))
 	}
+
 	if len(privKeys) != 2 {
 		t.Fatalf("Unexpected number of decrypted private keys: got %d, want 2", len(privKeys))
 	}
@@ -429,9 +461,11 @@ func TestValidateAndDecryptKeys(
 	}
 
 	neuteredKey, err := privKeys[0].Neuter()
+
 	if err != nil {
 		t.Fatalf("Unable to neuter private key: %v", err)
 	}
+
 	if pubKeys[0].String() != neuteredKey.String() {
 
 		t.Errorf("Public key (%v) does not match neutered private key (%v)",
@@ -446,6 +480,7 @@ func TestValidateAndDecryptKeysErrors(
 	defer tearDown()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -453,6 +488,7 @@ func TestValidateAndDecryptKeysErrors(
 	_, addrmgrNs := TstRWNamespaces(dbtx)
 
 	encryptedPubKeys, err := encryptKeys(TstPubKeys[0:1], pool.Manager(), waddrmgr.CKTPublic)
+
 	if err != nil {
 		t.Fatalf("Failed to encrypt public key: %v", err)
 	}
@@ -462,6 +498,7 @@ func TestValidateAndDecryptKeysErrors(
 
 		encryptedPrivKeys, err = encryptKeys(TstPrivKeys[1:2], pool.Manager(), waddrmgr.CKTPrivate)
 	})
+
 	if err != nil {
 		t.Fatalf("Failed to encrypt private key: %v", err)
 	}
@@ -511,12 +548,15 @@ func encryptKeys(
 
 	encryptedKeys := make([][]byte, len(keys))
 	var err error
+
 	for i, key := range keys {
+
 		if key == "" {
 			encryptedKeys[i] = nil
 		} else {
 			encryptedKeys[i], err = mgr.Encrypt(keyType, []byte(key))
 		}
+
 		if err != nil {
 			return nil, err
 		}

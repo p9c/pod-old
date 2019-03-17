@@ -33,6 +33,7 @@ func (msg *MsgCFilter) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) er
 
 	// Read filter type
 	err := readElement(r, &msg.FilterType)
+
 	if err != nil {
 
 		return err
@@ -40,6 +41,7 @@ func (msg *MsgCFilter) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) er
 
 	// Read the hash of the filter's block
 	err = readElement(r, &msg.BlockHash)
+
 	if err != nil {
 
 		return err
@@ -55,6 +57,7 @@ func (msg *MsgCFilter) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) er
 func (msg *MsgCFilter) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 
 	size := len(msg.Data)
+
 	if size > MaxCFilterDataSize {
 
 		str := fmt.Sprintf("cfilter size too large for message "+
@@ -62,11 +65,13 @@ func (msg *MsgCFilter) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) er
 		return messageError("MsgCFilter.BtcEncode", str)
 	}
 	err := writeElement(w, msg.FilterType)
+
 	if err != nil {
 
 		return err
 	}
 	err = writeElement(w, msg.BlockHash)
+
 	if err != nil {
 
 		return err

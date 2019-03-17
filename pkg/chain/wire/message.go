@@ -86,6 +86,7 @@ func makeEmptyMessage(
 	command string) (Message, error) {
 
 	var msg Message
+
 	switch command {
 
 	case CmdVersion:
@@ -173,6 +174,7 @@ func readMessageHeader(
 	// since the header is a fixed size.
 	var headerBytes [MessageHeaderSize]byte
 	n, err := io.ReadFull(r, headerBytes[:])
+
 	if err != nil {
 
 		return n, nil, err
@@ -196,14 +198,17 @@ func discardInput(
 	maxSize := uint32(10 * 1024) // 10k at a time
 	numReads := n / maxSize
 	bytesRemaining := n % maxSize
+
 	if n > 0 {
 
 		buf := make([]byte, maxSize)
+
 		for i := uint32(0); i < numReads; i++ {
 
 			io.ReadFull(r, buf)
 		}
 	}
+
 	if bytesRemaining > 0 {
 
 		buf := make([]byte, bytesRemaining)
@@ -236,6 +241,7 @@ func WriteMessageWithEncodingN(
 	// Enforce max command size.
 	var command [CommandSize]byte
 	cmd := msg.Command()
+
 	if len(cmd) > CommandSize {
 
 		str := fmt.Sprintf("command [%s] is too long [max %v]",
@@ -247,6 +253,7 @@ func WriteMessageWithEncodingN(
 	// Encode the message payload.
 	var bw bytes.Buffer
 	err := msg.BtcEncode(&bw, pver, encoding)
+
 	if err != nil {
 
 		return totalBytes, err
@@ -255,6 +262,7 @@ func WriteMessageWithEncodingN(
 	lenp := len(payload)
 
 	// Enforce maximum overall message payload.
+
 	if lenp > MaxMessagePayload {
 
 		str := fmt.Sprintf("message payload is too large - encoded "+
@@ -265,6 +273,7 @@ func WriteMessageWithEncodingN(
 
 	// Enforce maximum message payload based on the message type.
 	mpl := msg.MaxPayloadLength(pver)
+
 	if uint32(lenp) > mpl {
 
 		str := fmt.Sprintf("message payload is too large - encoded "+
@@ -291,6 +300,7 @@ func WriteMessageWithEncodingN(
 	// Write header.
 	n, err := w.Write(hw.Bytes())
 	totalBytes += n
+
 	if err != nil {
 
 		return totalBytes, err
@@ -310,12 +320,14 @@ func ReadMessageWithEncodingN(
 	totalBytes := 0
 	n, hdr, err := readMessageHeader(r)
 	totalBytes += n
+
 	if err != nil {
 
 		return totalBytes, nil, nil, err
 	}
 
 	// Enforce maximum message payload.
+
 	if hdr.length > MaxMessagePayload {
 
 		str := fmt.Sprintf("message payload is too large - header "+
@@ -325,6 +337,7 @@ func ReadMessageWithEncodingN(
 	}
 
 	// Check for messages from the wrong bitcoin network.
+
 	if hdr.magic != btcnet {
 
 		discardInput(r, hdr.length)
@@ -334,6 +347,7 @@ func ReadMessageWithEncodingN(
 
 	// Check for malformed commands.
 	command := hdr.command
+
 	if !utf8.ValidString(command) {
 
 		discardInput(r, hdr.length)
@@ -343,6 +357,7 @@ func ReadMessageWithEncodingN(
 
 	// Create struct of appropriate message type based on the command.
 	msg, err := makeEmptyMessage(command)
+
 	if err != nil {
 
 		discardInput(r, hdr.length)
@@ -356,6 +371,7 @@ func ReadMessageWithEncodingN(
 
 	// numbers in order to exhaust the machine's memory.
 	mpl := msg.MaxPayloadLength(pver)
+
 	if hdr.length > mpl {
 
 		discardInput(r, hdr.length)
@@ -369,6 +385,7 @@ func ReadMessageWithEncodingN(
 	payload := make([]byte, hdr.length)
 	n, err = io.ReadFull(r, payload)
 	totalBytes += n
+
 	if err != nil {
 
 		return totalBytes, nil, nil, err
@@ -376,6 +393,7 @@ func ReadMessageWithEncodingN(
 
 	// Test checksum.
 	checksum := chainhash.DoubleHashB(payload)[0:4]
+
 	if !bytes.Equal(checksum[:], hdr.checksum[:]) {
 
 		str := fmt.Sprintf("payload checksum failed - header "+
@@ -389,6 +407,7 @@ func ReadMessageWithEncodingN(
 	// MsgVersion BtcDecode function requires it.
 	pr := bytes.NewBuffer(payload)
 	err = msg.BtcDecode(pr, pver, enc)
+
 	if err != nil {
 
 		return totalBytes, nil, nil, err

@@ -206,6 +206,7 @@ func (s *stack) DropN(n int32) error {
 		str := fmt.Sprintf("attempt to drop %d items from stack", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
+
 	for ; n > 0; n-- {
 
 		_, err := s.PopByteArray()
@@ -230,6 +231,7 @@ func (s *stack) DupN(n int32) error {
 	}
 
 	// Iteratively duplicate the value n-1 down the stack n times. This leaves an in-order duplicate of the top n items on the stack.
+
 	for i := n; i > 0; i-- {
 
 		so, err := s.PeekByteArray(n - 1)
@@ -256,6 +258,7 @@ func (s *stack) RotN(n int32) error {
 
 	// Nip the 3n-1th item from the stack to the top n times to rotate them up to the head of the stack.
 	entry := 3*n - 1
+
 	for i := n; i > 0; i-- {
 
 		so, err := s.nipN(entry)
@@ -280,6 +283,7 @@ func (s *stack) SwapN(n int32) error {
 		return scriptError(ErrInvalidStackOperation, str)
 	}
 	entry := 2*n - 1
+
 	for i := n; i > 0; i-- {
 
 		// Swap 2n-1th entry to top.
@@ -308,6 +312,7 @@ func (s *stack) OverN(n int32) error {
 
 	// Copy 2n-1th entry to top of the stack.
 	entry := 2*n - 1
+
 	for ; n > 0; n-- {
 
 		so, err := s.PeekByteArray(entry)
@@ -356,6 +361,7 @@ func (s *stack) RollN(n int32) error {
 func (s *stack) String() string {
 
 	var result string
+
 	for _, stack := range s.stk {
 
 		if len(stack) == 0 {

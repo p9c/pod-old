@@ -59,6 +59,7 @@ func TestCacheNeverExceedsSize(
 	c.Put(1, &sizeable{value: 1, size: 1})
 	c.Put(2, &sizeable{value: 2, size: 1})
 	assertEqual(t, c.Len(), 2, "")
+
 	for i := 0; i < 10; i++ {
 		c.Put(i, &sizeable{value: i, size: 1})
 		assertEqual(t, c.Len(), 2, "")

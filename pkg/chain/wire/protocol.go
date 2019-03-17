@@ -98,6 +98,7 @@ var orderedSFStrings = []ServiceFlag{
 func (f ServiceFlag) String() string {
 
 	// No flags are set.
+
 	if f == 0 {
 
 		return "0x0"
@@ -105,6 +106,7 @@ func (f ServiceFlag) String() string {
 
 	// Add individual bit flags.
 	s := ""
+
 	for _, flag := range orderedSFStrings {
 
 		if f&flag == flag {
@@ -116,6 +118,7 @@ func (f ServiceFlag) String() string {
 
 	// Add any remaining flags which aren't accounted for as hex.
 	s = strings.TrimRight(s, "|")
+
 	if f != 0 {
 
 		s += "|0x" + strconv.FormatUint(uint64(f), 16)

@@ -11,6 +11,7 @@ import (
 func serverMethods() map[string]struct{} {
 
 	m := make(map[string]struct{})
+
 	for method, handlerData := range rpcHandlers {
 
 		if !handlerData.noHelp {
@@ -34,6 +35,7 @@ func TestRPCMethodHelpGeneration(
 			t.Error("Generated help texts are out of date: run 'go generate'")
 			return
 		}
+
 		if t.Failed() {
 
 			t.Log("Regenerate help texts with 'go generate' after fixing")
@@ -45,17 +47,20 @@ func TestRPCMethodHelpGeneration(
 		svrMethods := serverMethods()
 		locale := rpchelp.HelpDescs[i].Locale
 		generatedDescs := localeHelpDescs[locale]()
+
 		for _, m := range rpchelp.Methods {
 
 			delete(svrMethods, m.Method)
 
 			helpText, err := json.GenerateHelp(m.Method, rpchelp.HelpDescs[i].Descs, m.ResultTypes...)
+
 			if err != nil {
 
 				t.Errorf("Cannot generate '%s' help for method '%s': missing description for '%s'",
 					locale, m.Method, err)
 				continue
 			}
+
 			if !needsGenerate && helpText != generatedDescs[m.Method] {
 
 				needsGenerate = true
@@ -83,6 +88,7 @@ func TestRPCMethodUsageGeneration(
 			t.Error("Generated help usages are out of date: run 'go generate'")
 			return
 		}
+
 		if t.Failed() {
 
 			t.Log("Regenerate help usage with 'go generate' after fixing")
@@ -91,11 +97,13 @@ func TestRPCMethodUsageGeneration(
 
 	svrMethods := serverMethods()
 	usageStrs := make([]string, 0, len(rpchelp.Methods))
+
 	for _, m := range rpchelp.Methods {
 
 		delete(svrMethods, m.Method)
 
 		usage, err := json.MethodUsageText(m.Method)
+
 		if err != nil {
 
 			t.Errorf("Cannot generate single line usage for method '%s': %v",

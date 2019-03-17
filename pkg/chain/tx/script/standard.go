@@ -123,6 +123,7 @@ func isMultiSig(
 
 		return false
 	}
+
 	for _, pop := range pops[1 : l-2] {
 
 		// Valid pubkeys are either 33 or 65 bytes.
@@ -263,6 +264,7 @@ func CalcScriptInfo(
 			"signature script is not push only")
 	}
 	si.ExpectedInputs = expectedInputs(pkPops, si.PkScriptClass)
+
 	switch {
 
 	// Count sigops taking into account pay-to-script-hash.
@@ -396,6 +398,7 @@ func PayToAddrScript(
 	addr util.Address) ([]byte, error) {
 
 	const nilAddrErrStr = "unable to generate payment script for nil address"
+
 	switch addr := addr.(type) {
 
 	case *util.AddressPubKeyHash:
@@ -464,6 +467,7 @@ func MultiSigScript(
 		return nil, scriptError(ErrTooManyRequiredSigs, str)
 	}
 	builder := NewScriptBuilder().AddInt64(int64(nrequired))
+
 	for _, key := range pubkeys {
 
 		builder.AddData(key.ScriptAddress())
@@ -483,6 +487,7 @@ func PushedData(
 		return nil, err
 	}
 	var data [][]byte
+
 	for _, pop := range pops {
 
 		if pop.data != nil {
@@ -510,6 +515,7 @@ func ExtractPkScriptAddrs(
 		return NonStandardTy, nil, 0, err
 	}
 	scriptClass := typeOfScript(pops)
+
 	switch scriptClass {
 
 	case PubKeyHashTy:
@@ -562,6 +568,7 @@ func ExtractPkScriptAddrs(
 		numPubKeys := asSmallInt(pops[len(pops)-2].opcode)
 		// Extract the public keys while skipping any that are invalid.
 		addrs = make([]util.Address, 0, numPubKeys)
+
 		for i := 0; i < numPubKeys; i++ {
 
 			addr, err := util.NewAddressPubKey(pops[i+1].data,

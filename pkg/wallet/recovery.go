@@ -56,6 +56,7 @@ func NewRecoveryManager(
 	chainParams *chaincfg.Params) *RecoveryManager {
 
 	return &RecoveryManager{
+
 		recoveryWindow: recoveryWindow,
 		blockBatch:     make([]wtxmgr.BlockMeta, 0, batchSize),
 		chainParams:    chainParams,
@@ -219,7 +220,9 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 	}
 
 	block := wtxmgr.BlockMeta{
+
 		Block: wtxmgr.Block{
+
 			Hash:   *hash,
 			Height: height,
 		},
@@ -313,6 +316,7 @@ func NewRecoveryState(
 	scopes := make(map[waddrmgr.KeyScope]*ScopeRecoveryState)
 
 	return &RecoveryState{
+
 		recoveryWindow:   recoveryWindow,
 		scopes:           scopes,
 		watchedOutPoints: make(map[wire.OutPoint]util.Address),
@@ -390,6 +394,7 @@ func NewScopeRecoveryState(
 	recoveryWindow uint32) *ScopeRecoveryState {
 
 	return &ScopeRecoveryState{
+
 		ExternalBranch: NewBranchRecoveryState(recoveryWindow),
 		InternalBranch: NewBranchRecoveryState(recoveryWindow),
 	}
@@ -452,6 +457,7 @@ func NewBranchRecoveryState(
 	recoveryWindow uint32) *BranchRecoveryState {
 
 	return &BranchRecoveryState{
+
 		recoveryWindow:  recoveryWindow,
 		addresses:       make(map[uint32]util.Address),
 		invalidChildren: make(map[uint32]struct{}),

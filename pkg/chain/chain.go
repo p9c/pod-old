@@ -57,6 +57,7 @@ func newBestState(
 	totalTxns uint64, medianTime time.Time) *BestState {
 
 	return &BestState{
+
 		Hash:        node.hash,
 		Height:      node.height,
 		Version:     node.version,
@@ -274,7 +275,9 @@ func (b *BlockChain) addOrphanBlock(block *util.Block) {
 
 	// Insert the block into the orphan map with an expiration time 1 hour from now.
 	expiration := time.Now().Add(time.Hour)
+
 	oBlock := &orphanBlock{
+
 		block:      block,
 		expiration: expiration,
 	}
@@ -442,6 +445,7 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 	// Find the fork point (if any) adding each block to the list of nodes to attach to the main tree.  Push them onto the list in reverse order so they are attached in the appropriate order when iterating the list
 
 	// later.
+
 	forkNode := b.bestChain.FindFork(node)
 	invalidChain := false
 
@@ -494,6 +498,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	if !prevHash.IsEqual(&b.bestChain.Tip().hash) {
 
 		str := "connectBlock must be called with a block that extends the main chain"
+
 		log <- cl.Dbg(str)
 
 		return AssertError(str)
@@ -504,6 +509,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	if len(stxos) != countSpentOutputs(block) {
 
 		str := "connectBlock called with inconsistent spent transaction out information"
+
 		log <- cl.Dbg(str)
 
 		return AssertError(str)
@@ -1052,7 +1058,9 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		log <- cl.Infof{
 
 			"REORGANIZE: Chain forks at %v (height %v)",
+
 			forkNode.hash,
+
 			forkNode.height,
 		}
 
@@ -1240,6 +1248,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	detachNodes, attachNodes := b.getReorganizeNodes(node)
 
 	// Reorganize the chain.
+
 	log <- cl.Infof{
 
 		"REORGANIZE: block %v is causing a reorganize", node.hash,
@@ -1576,6 +1585,7 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 
 	// Calculate how many entries are needed.
 	total := uint32((b.bestChain.Tip().height - startNode.height) + 1)
+
 	if stopNode != nil && b.bestChain.Contains(stopNode) &&
 
 		stopNode.height >= startNode.height {
@@ -1760,7 +1770,9 @@ func New(
 	targetTimespan := int64(params.TargetTimespan)
 	targetTimePerBlock := int64(params.TargetTimePerBlock)
 	adjustmentFactor := params.RetargetAdjustmentFactor
+
 	b := BlockChain{
+
 		checkpoints:           config.Checkpoints,
 		checkpointsByHeight:   checkpointsByHeight,
 		db:                    config.DB,
@@ -1816,6 +1828,7 @@ func New(
 	}
 
 	bestNode := b.bestChain.Tip()
+
 	log <- cl.Infof{
 
 		"chain state (height %d, hash %v, totaltx %d, work %v)",

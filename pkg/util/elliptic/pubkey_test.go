@@ -8,8 +8,9 @@ import (
 )
 
 type pubKeyTest struct {
-	name    string
-	key     []byte
+	name string
+	key  []byte
+
 	format  byte
 	isValid bool
 }
@@ -31,7 +32,8 @@ var pubKeyTests = []pubKeyTest{
 			0xb4, 0x12, 0xa3,
 		},
 		isValid: true,
-		format:  pubkeyUncompressed,
+
+		format: pubkeyUncompressed,
 	},
 	{
 		name: "uncompressed x changed",
@@ -84,7 +86,8 @@ var pubKeyTests = []pubKeyTest{
 			0xb4, 0x12, 0xa3,
 		},
 		isValid: true,
-		format:  pubkeyHybrid,
+
+		format: pubkeyHybrid,
 	},
 	{
 		name: "uncompressed as hybrid wrong",
@@ -109,7 +112,8 @@ var pubKeyTests = []pubKeyTest{
 			0xa9, 0xa1, 0xf4, 0x80, 0x9d, 0x3b, 0x4d,
 		},
 		isValid: true,
-		format:  pubkeyCompressed,
+
+		format: pubkeyCompressed,
 	},
 
 	// from tx fdeb8e72524e8dab0da507ddbaf5f88fe4a933eb10a66bc4745bb0aa11ea393c
@@ -121,7 +125,8 @@ var pubKeyTests = []pubKeyTest{
 			0x7f, 0x5b, 0x2a, 0x4b, 0x7d, 0x44, 0x8e,
 		},
 		isValid: true,
-		format:  pubkeyCompressed,
+
+		format: pubkeyCompressed,
 	},
 	{
 		name: "compressed claims uncompressed (ybit = 0)",
@@ -209,6 +214,7 @@ var pubKeyTests = []pubKeyTest{
 			0xa6, 0x85, 0x54, 0x19, 0x9c, 0x47, 0xd0, 0x8f, 0xfb,
 			0x10, 0xd4, 0xb8,
 		},
+
 		format:  pubkeyHybrid,
 		isValid: true,
 	},

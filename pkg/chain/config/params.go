@@ -77,6 +77,7 @@ func HDPrivateKeyToPublicKeyID(
 	var key [4]byte
 	copy(key[:], id)
 	pubBytes, ok := hdPrivToPubKeyIDs[key]
+
 	if !ok {
 
 		return nil, ErrUnknownHDKeyID
@@ -89,6 +90,7 @@ func newHashFromStr(
 	hexStr string) *chainhash.Hash {
 
 	hash, err := chainhash.NewHashFromStr(hexStr)
+
 	if err != nil {
 
 		// Ordinarily I don't like panics in library code since it can take applications down without them having a chance to recover which is extremely annoying, however an exception is being made in this case because the only way this can panic is if there is an error in the hard-coded hashes.  Thus it will only ever potentially panic on init and therefore is 100% predictable.
@@ -128,6 +130,7 @@ func CompactToBig(
 
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes to represent the full 256-bit number.  So, treat the exponent as the number of bytes and shift the mantissa right or left accordingly.  This is equivalent to: N = mantissa * 256^(exponent-3)
 	var bn *big.Int
+
 	if exponent <= 3 {
 
 		mantissa >>= 8 * (3 - exponent)
@@ -139,6 +142,7 @@ func CompactToBig(
 	}
 
 	// Make it negative if the sign bit is set.
+
 	if isNegative {
 
 		bn = bn.Neg(bn)
@@ -151,6 +155,7 @@ func BigToCompact(
 	n *big.Int) uint32 {
 
 	// No need to do any work if it's zero.
+
 	if n.Sign() == 0 {
 
 		return 0
@@ -159,6 +164,7 @@ func BigToCompact(
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes.  So, shift the number right or left accordingly.  This is equivalent to: mantissa = mantissa / 256^(exponent-3)
 	var mantissa uint32
 	exponent := uint(len(n.Bytes()))
+
 	if exponent <= 3 {
 
 		mantissa = uint32(n.Bits()[0])
@@ -171,6 +177,7 @@ func BigToCompact(
 	}
 
 	// When the mantissa already has the sign bit set, the number is too large to fit into the available 23-bits, so divide the number by 256 and increment the exponent accordingly.
+
 	if mantissa&0x00800000 != 0 {
 
 		mantissa >>= 8
@@ -179,6 +186,7 @@ func BigToCompact(
 
 	// Pack the exponent, sign bit, and mantissa into an unsigned 32-bit int and return it.
 	compact := uint32(exponent<<24) | mantissa
+
 	if n.Sign() < 0 {
 
 		compact |= 0x00800000

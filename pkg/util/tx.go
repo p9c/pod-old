@@ -97,6 +97,7 @@ func NewTx(
 	msgTx *wire.MsgTx) *Tx {
 
 	return &Tx{
+
 		msgTx:   msgTx,
 		txIndex: TxIndexUnknown,
 	}
@@ -127,6 +128,7 @@ func NewTxFromReader(
 	}
 
 	t := Tx{
+
 		msgTx:   &msgTx,
 		txIndex: TxIndexUnknown,
 	}

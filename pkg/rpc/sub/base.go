@@ -32,11 +32,13 @@ func (b *Base) Start() (err error) {
 
 	var addr *net.UDPAddr
 	addr, err = net.ResolveUDPAddr(uNet, b.cfg.Listener)
+
 	if err != nil {
 
 		panic(err)
 	}
 	b.listener, err = net.ListenUDP(uNet, addr)
+
 	if err != nil {
 
 		panic(err)
@@ -91,10 +93,12 @@ func (b *Base) readFromSocket() {
 		}
 		var data = make([]byte, b.cfg.BufferSize)
 		count, _, err := b.listener.ReadFromUDP(data[0:])
+
 		if err != nil {
 
 			continue
 		}
+
 		if count > 12 {
 
 			data = data[:count]
@@ -103,6 +107,7 @@ func (b *Base) readFromSocket() {
 			check := data[count-4:]
 			checkSum := binary.LittleEndian.Uint32(check)
 			cs := crc32.Checksum(body, crc32.MakeTable(crc32.Castagnoli))
+
 			if cs != checkSum {
 
 				continue
@@ -136,6 +141,7 @@ func (b *Base) processPackets() {
 					select {
 
 					case <-b.doneRet:
+
 						for i := range b.returning {
 
 							b.incoming <- i
@@ -148,6 +154,7 @@ func (b *Base) processPackets() {
 					}
 				}
 			}()
+
 			for bi := range b.incoming {
 
 				if bi.sender == sender {
@@ -156,11 +163,13 @@ func (b *Base) processPackets() {
 					b.returning <- bi
 					break
 				}
+
 				if len(bi.packets) > 2 {
 
 					b.incoming <- bi
 					continue
 				}
+
 				if bi.received.Sub(time.Now()) > latencyMax {
 
 					b.trash <- bi
@@ -191,6 +200,7 @@ func (b *Base) processBundles() {
 
 		case bundle := <-b.incoming:
 			data, err := rsDecode(bundle.packets)
+
 			if err == nil &&
 				bundle.uuid != uuid {
 
@@ -217,16 +227,19 @@ func (b *Base) Send(data []byte, addr *net.UDPAddr) (err error) {
 		err = errors.New("maximum message size is " + fmt.Sprint(maxMessageSize) + " bytes")
 	}
 	addr, err = net.ResolveUDPAddr(uNet, addr.String())
+
 	if err != nil {
 
 		panic(err)
 	}
 	conn, err := net.DialUDP(uNet, nil, addr)
+
 	if err != nil {
 
 		panic(err)
 	}
 	_, err = conn.Write(data)
+
 	if err != nil {
 
 		panic(err)

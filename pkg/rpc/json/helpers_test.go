@@ -115,9 +115,11 @@ func TestHelpers(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.f()
+
 		if !reflect.DeepEqual(result, test.expected) {
 
 			t.Errorf("Test #%d (%s) unexpected value - got %v, "+

@@ -34,6 +34,7 @@ func ExampleCreate() {
 	// up after itself.
 	dbPath := filepath.Join(os.TempDir(), "examplecreate.db")
 	db, err := walletdb.Create("bdb", dbPath)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -55,6 +56,7 @@ func exampleLoadDB() (walletdb.DB, func(), error) {
 	dbName := fmt.Sprintf("exampleload%d.db", exampleNum)
 	dbPath := filepath.Join(os.TempDir(), dbName)
 	db, err := walletdb.Create("bdb", dbPath)
+
 	if err != nil {
 
 		return nil, nil, err
@@ -78,6 +80,7 @@ func ExampleDB_createTopLevelBucket() {
 
 	// details on what this step is doing.
 	db, teardownFunc, err := exampleLoadDB()
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -86,6 +89,7 @@ func ExampleDB_createTopLevelBucket() {
 	defer teardownFunc()
 
 	dbtx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -100,6 +104,7 @@ func ExampleDB_createTopLevelBucket() {
 	// their own area to work in without worrying about conflicting keys.
 	bucketKey := []byte("walletsubpackage")
 	bucket, err := dbtx.CreateTopLevelBucket(bucketKey)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -138,6 +143,7 @@ func Example_basicUsage() {
 	// up after itself.
 	dbPath := filepath.Join(os.TempDir(), "exampleusage.db")
 	db, err := walletdb.Create("bdb", dbPath)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -155,9 +161,11 @@ func Example_basicUsage() {
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 		bucket := tx.ReadWriteBucket(bucketKey)
+
 		if bucket == nil {
 
 			_, err = tx.CreateTopLevelBucket(bucketKey)
+
 			if err != nil {
 
 				return err
@@ -165,6 +173,7 @@ func Example_basicUsage() {
 		}
 		return nil
 	})
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -188,12 +197,14 @@ func Example_basicUsage() {
 		// Store a key/value pair directly in the root bucket.
 		key := []byte("mykey")
 		value := []byte("myvalue")
+
 		if err := rootBucket.Put(key, value); err != nil {
 
 			return err
 		}
 
 		// Read the key back and ensure it matches.
+
 		if !bytes.Equal(rootBucket.Get(key), value) {
 
 			return fmt.Errorf("unexpected value for key '%s'", key)
@@ -202,6 +213,7 @@ func Example_basicUsage() {
 		// Create a new nested bucket under the root bucket.
 		nestedBucketKey := []byte("mybucket")
 		nestedBucket, err := rootBucket.CreateBucket(nestedBucketKey)
+
 		if err != nil {
 
 			return err
@@ -209,6 +221,7 @@ func Example_basicUsage() {
 
 		// The key from above that was set in the root bucket does not
 		// exist in this new nested bucket.
+
 		if nestedBucket.Get(key) != nil {
 
 			return fmt.Errorf("key '%s' is not expected nil", key)
@@ -216,6 +229,7 @@ func Example_basicUsage() {
 
 		return nil
 	})
+
 	if err != nil {
 
 		fmt.Println(err)

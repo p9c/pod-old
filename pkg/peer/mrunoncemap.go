@@ -117,6 +117,7 @@ func newMruNonceMap(
 	limit uint) *mruNonceMap {
 
 	m := mruNonceMap{
+
 		nonceMap:  make(map[uint64]*list.Element),
 		nonceList: list.New(),
 		limit:     limit,

@@ -189,6 +189,7 @@ func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
 	// The current block file needs to be read-write so it is possible to append to it.  Also, it shouldn't be part of the least recently used file.
 	filePath := blockFilePath(s.basePath, fileNum)
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0666)
+
 	if err != nil {
 
 		str := fmt.Sprintf("failed to open file %q: %v", filePath, err)
@@ -205,6 +206,7 @@ func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
 	// Open the appropriate file as read-only.
 	filePath := blockFilePath(s.basePath, fileNum)
 	file, err := os.Open(filePath)
+
 	if err != nil {
 
 		return nil, makeDbErr(database.ErrDriverSpecific, err.Error(),
@@ -220,6 +222,7 @@ func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
 	// Also, add the file that was just opened to the front of the least recently used list to indicate it is the most recently used file and therefore should be closed last.
 	s.lruMutex.Lock()
 	lruList := s.openBlocksLRU
+
 	if lruList.Len() >= maxOpenFiles {
 
 		lruFileNum := lruList.Remove(lruList.Back()).(uint32)
@@ -244,6 +247,7 @@ func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
 func (s *blockStore) deleteFile(fileNum uint32) error {
 
 	filePath := blockFilePath(s.basePath, fileNum)
+
 	if err := os.Remove(filePath); err != nil {
 
 		return makeDbErr(database.ErrDriverSpecific, err.Error(), err)
@@ -259,6 +263,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 	// When the requested block file is open for writes, return it.
 	wc := s.writeCursor
 	wc.RLock()
+
 	if fileNum == wc.curFileNum && wc.curFile.file != nil {
 
 		obf := wc.curFile
@@ -271,6 +276,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 
 	// Try to return an open file under the overall files read lock.
 	s.obfMutex.RLock()
+
 	if obf, ok := s.openBlockFiles[fileNum]; ok {
 
 		s.lruMutex.Lock()
@@ -285,6 +291,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 
 	// Since the file isn't open already, need to check the open block files map again under write lock in case multiple readers got here and a separate one is already opening the file.
 	s.obfMutex.Lock()
+
 	if obf, ok := s.openBlockFiles[fileNum]; ok {
 
 		obf.RLock()
@@ -294,6 +301,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 
 	// The file isn't open, so open it while potentially closing the least recently used one as needed.
 	obf, err := s.openFileFunc(fileNum)
+
 	if err != nil {
 
 		s.obfMutex.Unlock()
@@ -313,6 +321,7 @@ func (s *blockStore) writeData(data []byte, fieldName string) error {
 	wc := s.writeCursor
 	n, err := wc.curFile.file.WriteAt(data, int64(wc.curOffset))
 	wc.curOffset += uint32(n)
+
 	if err != nil {
 
 		str := fmt.Sprintf("failed to write %s to file %d at "+
@@ -341,12 +350,14 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	// NOTE: The writeCursor.offset field isn't protected by the mutex since it's only read/changed during this function which can only be called during a write transaction, of which there can be only one at a time.
 	wc := s.writeCursor
 	finalOffset := wc.curOffset + fullLen
+
 	if finalOffset < wc.curOffset || finalOffset > s.maxBlockFileSize {
 
 		// This is done under the write cursor lock since the curFileNum field is accessed elsewhere by readers.
 		// Close the current write file to force a read-only reopen with LRU tracking.  The close is done under the write lock for the file to prevent it from being closed out from under any readers currently reading from it.
 		wc.Lock()
 		wc.curFile.Lock()
+
 		if wc.curFile.file != nil {
 
 			_ = wc.curFile.file.Close()
@@ -365,9 +376,11 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	defer wc.curFile.Unlock()
 
 	// Open the current file if needed.  This will typically only be the case when moving to the next file to write to or on initial database load.  However, it might also be the case if rollbacks happened after file writes started during a transaction commit.
+
 	if wc.curFile.file == nil {
 
 		file, err := s.openWriteFileFunc(wc.curFileNum)
+
 		if err != nil {
 
 			return blockLocation{}, err
@@ -381,6 +394,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	hasher := crc32.New(castagnoli)
 	var scratch [4]byte
 	byteOrder.PutUint32(scratch[:], uint32(s.network))
+
 	if err := s.writeData(scratch[:], "network"); err != nil {
 
 		return blockLocation{}, err
@@ -390,6 +404,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 
 	// Block length.
 	byteOrder.PutUint32(scratch[:], blockLen)
+
 	if err := s.writeData(scratch[:], "block length"); err != nil {
 
 		return blockLocation{}, err
@@ -398,6 +413,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	_, _ = hasher.Write(scratch[:])
 
 	// Serialized block.
+
 	if err := s.writeData(rawBlock[:], "block"); err != nil {
 
 		return blockLocation{}, err
@@ -406,6 +422,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	_, _ = hasher.Write(rawBlock)
 
 	// Castagnoli CRC-32 as a checksum of all the previous.
+
 	if err := s.writeData(hasher.Sum(nil), "checksum"); err != nil {
 
 		return blockLocation{}, err
@@ -426,6 +443,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
+
 	if err != nil {
 
 		return nil, err
@@ -434,6 +452,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 	serializedData := make([]byte, loc.blockLen)
 	n, err := blockFile.file.ReadAt(serializedData, int64(loc.fileOffset))
 	blockFile.RUnlock()
+
 	if err != nil {
 
 		str := fmt.Sprintf("failed to read block %s from file %d, "+
@@ -445,6 +464,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 	// Calculate the checksum of the read data and ensure it matches the serialized checksum.  This will detect any data corruption in the flat file without having to do much more expensive merkle root calculations on the loaded block.
 	serializedChecksum := binary.BigEndian.Uint32(serializedData[n-4:])
 	calculatedChecksum := crc32.Checksum(serializedData[:n-4], castagnoli)
+
 	if serializedChecksum != calculatedChecksum {
 
 		str := fmt.Sprintf("block data for block %s checksum "+
@@ -455,6 +475,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 
 	// The network associated with the block must match the current active network, otherwise somebody probably put the block files for the wrong network in the directory.
 	serializedNet := byteOrder.Uint32(serializedData[:4])
+
 	if serializedNet != uint32(s.network) {
 
 		str := fmt.Sprintf("block data for block %s is for the "+
@@ -472,6 +493,7 @@ func (s *blockStore) readBlockRegion(loc blockLocation, offset, numBytes uint32)
 
 	// Get the referenced block file handle opening the file as needed.  The function also handles closing files as needed to avoid going over the max allowed open files.
 	blockFile, err := s.blockFile(loc.blockFileNum)
+
 	if err != nil {
 
 		return nil, err
@@ -482,6 +504,7 @@ func (s *blockStore) readBlockRegion(loc blockLocation, offset, numBytes uint32)
 	serializedData := make([]byte, numBytes)
 	_, err = blockFile.file.ReadAt(serializedData, int64(readOffset))
 	blockFile.RUnlock()
+
 	if err != nil {
 
 		str := fmt.Sprintf("failed to read region from block file %d, "+
@@ -504,12 +527,14 @@ func (s *blockStore) syncBlocks() error {
 	// Nothing to do if there is no current file associated with the write cursor.
 	wc.curFile.RLock()
 	defer wc.curFile.RUnlock()
+
 	if wc.curFile.file == nil {
 
 		return nil
 	}
 
 	// Sync the file to disk.
+
 	if err := wc.curFile.file.Sync(); err != nil {
 
 		str := fmt.Sprintf("failed to sync file %d: %v", wc.curFileNum,
@@ -536,6 +561,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	defer wc.Unlock()
 
 	// Nothing to do if the rollback point is the same as the current write cursor.
+
 	if wc.curFileNum == oldBlockFileNum && wc.curOffset == oldBlockOffset {
 
 		return
@@ -556,9 +582,11 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}
 
 	// Close the current write file if it needs to be deleted.  Then delete all files that are newer than the provided rollback file while also moving the write cursor file backwards accordingly.
+
 	if wc.curFileNum > oldBlockFileNum {
 
 		wc.curFile.Lock()
+
 		if wc.curFile.file != nil {
 
 			_ = wc.curFile.file.Close()
@@ -586,12 +614,15 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 
 	// Open the file for the current write cursor if needed.
 	wc.curFile.Lock()
+
 	if wc.curFile.file == nil {
 
 		obf, err := s.openWriteFileFunc(wc.curFileNum)
+
 		if err != nil {
 
 			wc.curFile.Unlock()
+
 			log <- cl.Warn{"ROLLBACK:", err}
 
 			return
@@ -601,9 +632,11 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}
 
 	// Truncate the to the provided rollback offset.
+
 	if err := wc.curFile.file.Truncate(int64(oldBlockOffset)); err != nil {
 
 		wc.curFile.Unlock()
+
 		log <- cl.Warnf{
 
 			"ROLLBACK: Failed to truncate file %d: %v",
@@ -617,6 +650,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	// Sync the file to disk.
 	err := wc.curFile.file.Sync()
 	wc.curFile.Unlock()
+
 	if err != nil {
 
 		log <- cl.Warnf{
@@ -637,10 +671,12 @@ func scanBlockFiles(
 
 	lastFile := -1
 	fileLen := uint32(0)
+
 	for i := 0; ; i++ {
 
 		filePath := blockFilePath(dbPath, uint32(i))
 		st, err := os.Stat(filePath)
+
 		if err != nil {
 
 			break
@@ -668,6 +704,7 @@ func newBlockStore(
 
 	// disk.
 	fileNum, fileOff := scanBlockFiles(basePath)
+
 	if fileNum == -1 {
 
 		fileNum = 0

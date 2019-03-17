@@ -208,6 +208,7 @@ func CreateWallet(
 	}
 
 	w.Manager.Close()
+
 	log <- cl.Dbg("The wallet has been created successfully.")
 
 	return nil
@@ -271,7 +272,9 @@ func convertLegacyKeystore(
 	legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
 
 	netParams := legacyKeyStore.Net()
+
 	blockStamp := waddrmgr.BlockStamp{
+
 		Height: 0,
 		Hash:   *netParams.GenesisHash,
 	}

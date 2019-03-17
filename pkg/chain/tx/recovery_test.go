@@ -134,6 +134,7 @@ func (m MarkInvalid) Apply(i int, h *Harness) {
 func (r ReportFound) Apply(i int, h *Harness) {
 
 	h.brs.ReportFound(r.child)
+
 	if r.child >= h.expNextUnfound {
 
 		h.expNextUnfound = r.child + 1
@@ -306,6 +307,7 @@ func assertHaveWant(
 	t *testing.T, i int, msg string, have, want uint32) {
 
 	_, _, line, _ := runtime.Caller(2)
+
 	if want != have {
 
 		t.Fatalf("[line: %d, step: %d] %s: got %d, want %d",

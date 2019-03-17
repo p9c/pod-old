@@ -90,8 +90,11 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			}
 
 			result := &TransactionOutput{
+
 				OutPoint: output.OutPoint,
+
 				Output: wire.TxOut{
+
 					Value:    int64(output.Amount),
 					PkScript: output.PkScript,
 				},

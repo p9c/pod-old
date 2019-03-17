@@ -22,7 +22,9 @@ const (
 var (
 
 	// WitnessMagicBytes is the prefix marker within the public key script of a coinbase output to indicate that this output holds the witness commitment for a block.
+
 	WitnessMagicBytes = []byte{
+
 		txscript.OP_RETURN,
 		txscript.OP_DATA_36,
 		0xaa,
@@ -147,6 +149,7 @@ func ExtractWitnessCommitment(
 
 		// The public key script that contains the witness commitment must shared a prefix with the WitnessMagicBytes, and be at least 38 bytes.
 		pkScript := msgTx.TxOut[i].PkScript
+
 		if len(pkScript) >= CoinbaseWitnessPkScriptLength &&
 
 			bytes.HasPrefix(pkScript, WitnessMagicBytes) {

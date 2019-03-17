@@ -23,11 +23,13 @@ func TstCheckError(
 	t *testing.T, testName string, gotErr error, wantErrCode ErrorCode) {
 
 	vpErr, ok := gotErr.(Error)
+
 	if !ok {
 
 		t.Errorf("%s: unexpected error type - got %T (%s), want %T",
 			testName, gotErr, gotErr, Error{})
 	}
+
 	if vpErr.ErrorCode != wantErrCode {
 
 		t.Errorf("%s: unexpected error code - got %s (%s), want %s",
@@ -90,6 +92,7 @@ func TstCheckWithdrawalStatusMatches(
 	// the individual checks above and use this one as a catch-all check in case
 
 	// we forget to check any of the individual fields.
+
 	if !reflect.DeepEqual(s1, s2) {
 
 		t.Fatalf("Wrong WithdrawalStatus; got %v, want %v", s1, s2)

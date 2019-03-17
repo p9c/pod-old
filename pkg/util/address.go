@@ -452,6 +452,7 @@ func NewAddressPubKey(
 	}
 
 	return &AddressPubKey{
+
 			pubKeyFormat: pkFormat,
 			pubKey:       pubKey,
 			pubKeyHashID: net.PubKeyHashAddrID,
@@ -565,6 +566,7 @@ func newAddressWitnessPubKeyHash(
 	}
 
 	addr := &AddressWitnessPubKeyHash{
+
 		hrp:            strings.ToLower(hrp),
 		witnessVersion: 0x00,
 	}
@@ -667,6 +669,7 @@ func newAddressWitnessScriptHash(
 	}
 
 	addr := &AddressWitnessScriptHash{
+
 		hrp:            strings.ToLower(hrp),
 		witnessVersion: 0x00,
 	}

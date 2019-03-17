@@ -18,6 +18,7 @@ func TestFilterAddLatest(
 
 	// Ensure the command is expected value.
 	wantCmd := "filteradd"
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgFilterAdd: wrong command - got %v want %v",
@@ -27,6 +28,7 @@ func TestFilterAddLatest(
 	// Ensure max payload is expected value for latest protocol version.
 	wantPayload := uint32(523)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -37,6 +39,7 @@ func TestFilterAddLatest(
 	// Test encode with latest protocol version.
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
+
 	if err != nil {
 
 		t.Errorf("encode of MsgFilterAdd failed %v err <%v>", msg, err)
@@ -45,6 +48,7 @@ func TestFilterAddLatest(
 	// Test decode with latest protocol version.
 	var readmsg MsgFilterAdd
 	err = readmsg.BtcDecode(&buf, pver, enc)
+
 	if err != nil {
 
 		t.Errorf("decode of MsgFilterAdd failed [%v] err <%v>", buf, err)
@@ -57,6 +61,7 @@ func TestFilterAddCrossProtocol(
 
 	data := []byte{0x01, 0x02}
 	msg := NewMsgFilterAdd(data)
+
 	if !bytes.Equal(msg.Data, data) {
 
 		t.Errorf("should get same data back out")
@@ -65,6 +70,7 @@ func TestFilterAddCrossProtocol(
 	// Encode with latest protocol version.
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
+
 	if err != nil {
 
 		t.Errorf("encode of MsgFilterAdd failed %v err <%v>", msg, err)
@@ -73,6 +79,7 @@ func TestFilterAddCrossProtocol(
 	// Decode with old protocol version.
 	var readmsg MsgFilterAdd
 	err = readmsg.BtcDecode(&buf, BIP0031Version, LatestEncoding)
+
 	if err == nil {
 
 		t.Errorf("decode of MsgFilterAdd succeeded when it shouldn't "+
@@ -80,6 +87,7 @@ func TestFilterAddCrossProtocol(
 	}
 
 	// Since one of the protocol versions doesn't support the filteradd message, make sure the data didn't get encoded and decoded back out.
+
 	if bytes.Equal(msg.Data, readmsg.Data) {
 
 		t.Error("should not get same data for cross protocol")
@@ -96,6 +104,7 @@ func TestFilterAddMaxDataSize(
 	// Encode with latest protocol version.
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
+
 	if err == nil {
 
 		t.Errorf("encode of MsgFilterAdd succeeded when it shouldn't "+
@@ -105,6 +114,7 @@ func TestFilterAddMaxDataSize(
 	// Decode with latest protocol version.
 	readbuf := bytes.NewReader(data)
 	err = msg.BtcDecode(readbuf, ProtocolVersion, LatestEncoding)
+
 	if err == nil {
 
 		t.Errorf("decode of MsgFilterAdd succeeded when it shouldn't "+
@@ -151,11 +161,13 @@ func TestFilterAddWireErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -164,6 +176,7 @@ func TestFilterAddWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -178,6 +191,7 @@ func TestFilterAddWireErrors(
 		var msg MsgFilterAdd
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -186,6 +200,7 @@ func TestFilterAddWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {

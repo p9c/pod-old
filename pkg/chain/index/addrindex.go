@@ -87,11 +87,13 @@ func deserializeAddrIndexEntry(
 	serialized []byte, region *database.BlockRegion, fetchBlockHash fetchBlockHashFunc) error {
 
 	// Ensure there are enough bytes to decode.
+
 	if len(serialized) < txEntrySize {
 
 		return errDeserialize("unexpected end of data")
 	}
 	hash, err := fetchBlockHash(serialized[0:4])
+
 	if err != nil {
 
 		return err
@@ -123,9 +125,11 @@ func dbPutAddrIndexEntry(
 	newData := serializeAddrIndexEntry(blockID, txLoc)
 	level0Key := keyForLevel(addrKey, 0)
 	level0Data := bucket.Get(level0Key[:])
+
 	if len(level0Data)+len(newData) <= maxLevelBytes {
 
 		mergedData := newData
+
 		if len(level0Data) > 0 {
 
 			mergedData = make([]byte, len(level0Data)+len(newData))
@@ -136,6 +140,7 @@ func dbPutAddrIndexEntry(
 	}
 	// At this point, level 0 is full, so merge each level into higher levels as many times as needed to free up level 0.
 	prevLevelData := level0Data
+
 	for {
 
 		// Each new level holds twice as much as the previous one.
@@ -144,6 +149,7 @@ func dbPutAddrIndexEntry(
 		// Move to the next level as long as the current level is full.
 		curLevelKey := keyForLevel(addrKey, curLevel)
 		curLevelData := bucket.Get(curLevelKey[:])
+
 		if len(curLevelData) == maxLevelBytes {
 
 			prevLevelData = curLevelData
@@ -151,6 +157,7 @@ func dbPutAddrIndexEntry(
 		}
 		// The current level has room for the data in the previous one, so merge the data from previous level into it.
 		mergedData := prevLevelData
+
 		if len(curLevelData) > 0 {
 
 			mergedData = make([]byte, len(curLevelData)+
@@ -159,17 +166,20 @@ func dbPutAddrIndexEntry(
 			copy(mergedData[len(curLevelData):], prevLevelData)
 		}
 		err := bucket.Put(curLevelKey[:], mergedData)
+
 		if err != nil {
 
 			return err
 		}
 		// Move all of the levels before the previous one up a level.
+
 		for mergeLevel := curLevel - 1; mergeLevel > 0; mergeLevel-- {
 
 			mergeLevelKey := keyForLevel(addrKey, mergeLevel)
 			prevLevelKey := keyForLevel(addrKey, mergeLevel-1)
 			prevData := bucket.Get(prevLevelKey[:])
 			err := bucket.Put(mergeLevelKey[:], prevData)
+
 			if err != nil {
 
 				return err
@@ -188,10 +198,12 @@ func dbFetchAddrIndexEntries(
 	// When the reverse flag is not set, all levels need to be fetched because numToSkip and numRequested are counted from the oldest transactions (highest level) and thus the total count is needed. However, when the reverse flag is set, only enough records to satisfy the requested amount are needed.
 	var level uint8
 	var serialized []byte
+
 	for !reverse || len(serialized) < int(numToSkip+numRequested)*txEntrySize {
 
 		curLevelKey := keyForLevel(addrKey, level)
 		levelData := bucket.Get(curLevelKey[:])
+
 		if levelData == nil {
 
 			// Stop when there are no more levels.
@@ -206,27 +218,32 @@ func dbFetchAddrIndexEntries(
 	}
 	// When the requested number of entries to skip is larger than the number available, skip them all and return now with the actual number skipped.
 	numEntries := uint32(len(serialized) / txEntrySize)
+
 	if numToSkip >= numEntries {
 
 		return nil, numEntries, nil
 	}
 	// Nothing more to do when there are no requested entries.
+
 	if numRequested == 0 {
 
 		return nil, numToSkip, nil
 	}
 	// Limit the number to load based on the number of available entries, the number to skip, and the number requested.
 	numToLoad := numEntries - numToSkip
+
 	if numToLoad > numRequested {
 
 		numToLoad = numRequested
 	}
 	// Start the offset after all skipped entries and load the calculated number.
 	results := make([]database.BlockRegion, numToLoad)
+
 	for i := uint32(0); i < numToLoad; i++ {
 
 		// Calculate the read offset according to the reverse flag.
 		var offset uint32
+
 		if reverse {
 
 			offset = (numEntries - numToSkip - i - 1) * txEntrySize
@@ -237,9 +254,11 @@ func dbFetchAddrIndexEntries(
 		// Deserialize and populate the result.
 		err := deserializeAddrIndexEntry(serialized[offset:],
 			&results[i], fetchBlockHash)
+
 		if err != nil {
 
 			// Ensure any deserialization errors are returned as database corruption errors.
+
 			if isDeserializeErr(err) {
 
 				err = database.Error{
@@ -261,6 +280,7 @@ func minEntriesToReachLevel(
 
 	maxEntriesForLevel := level0MaxEntries
 	minRequired := 1
+
 	for l := uint8(1); l <= level; l++ {
 
 		minRequired += maxEntriesForLevel
@@ -274,6 +294,7 @@ func maxEntriesForLevel(
 	level uint8) int {
 
 	numEntries := level0MaxEntries
+
 	for l := level; l > 0; l-- {
 
 		numEntries *= 2
@@ -286,6 +307,7 @@ func dbRemoveAddrIndexEntries(
 	bucket internalBucket, addrKey [addrKeySize]byte, count int) error {
 
 	// Nothing to do if no entries are being deleted.
+
 	if count <= 0 {
 
 		return nil
@@ -297,9 +319,11 @@ func dbRemoveAddrIndexEntries(
 		for level, data := range pendingUpdates {
 
 			curLevelKey := keyForLevel(addrKey, level)
+
 			if len(data) == 0 {
 
 				err := bucket.Delete(curLevelKey[:])
+
 				if err != nil {
 
 					return err
@@ -307,6 +331,7 @@ func dbRemoveAddrIndexEntries(
 				continue
 			}
 			err := bucket.Put(curLevelKey[:], data)
+
 			if err != nil {
 
 				return err
@@ -317,11 +342,13 @@ func dbRemoveAddrIndexEntries(
 	// Loop forwards through the levels while removing entries until the specified number has been removed.  This will potentially result in  entirely empty lower levels which will be backfilled below.
 	var highestLoadedLevel uint8
 	numRemaining := count
+
 	for level := uint8(0); numRemaining > 0; level++ {
 
 		// Load the data for the level from the database.
 		curLevelKey := keyForLevel(addrKey, level)
 		curLevelData := bucket.Get(curLevelKey[:])
+
 		if len(curLevelData) == 0 && numRemaining > 0 {
 
 			return AssertError(fmt.Sprintf("dbRemoveAddrIndexEntries "+
@@ -332,6 +359,7 @@ func dbRemoveAddrIndexEntries(
 		highestLoadedLevel = level
 		// Delete the entire level as needed.
 		numEntries := len(curLevelData) / txEntrySize
+
 		if numRemaining >= numEntries {
 
 			pendingUpdates[level] = nil
@@ -344,6 +372,7 @@ func dbRemoveAddrIndexEntries(
 		break
 	}
 	// When all elements in level 0 were not removed there is nothing left to do other than updating the database.
+
 	if len(pendingUpdates[0]) != 0 {
 
 		return applyPending()
@@ -353,12 +382,14 @@ func dbRemoveAddrIndexEntries(
 	lowestEmptyLevel := uint8(255)
 	curLevelData := pendingUpdates[highestLoadedLevel]
 	curLevelMaxEntries := maxEntriesForLevel(highestLoadedLevel)
+
 	for level := highestLoadedLevel; level > 0; level-- {
 
 		// When there are not enough entries left in the current level for the number that would be required to reach it, clear the the current level which effectively moves them all up to the previous level on the next iteration.  Otherwise, there are are sufficient entries, so update the current level to contain as many entries as possible while still leaving enough remaining entries required to reach the level.
 		numEntries := len(curLevelData) / txEntrySize
 		prevLevelMaxEntries := curLevelMaxEntries / 2
 		minPrevRequired := minEntriesToReachLevel(level - 1)
+
 		if numEntries < prevLevelMaxEntries+minPrevRequired {
 
 			lowestEmptyLevel = level
@@ -367,6 +398,7 @@ func dbRemoveAddrIndexEntries(
 
 			// This level can only be completely full or half full, so choose the appropriate offset to ensure enough entries remain to reach the level.
 			var offset int
+
 			if numEntries-curLevelMaxEntries >= minPrevRequired {
 
 				offset = curLevelMaxEntries * txEntrySize
@@ -380,17 +412,20 @@ func dbRemoveAddrIndexEntries(
 		curLevelMaxEntries = prevLevelMaxEntries
 	}
 	pendingUpdates[0] = curLevelData
+
 	if len(curLevelData) == 0 {
 
 		lowestEmptyLevel = 0
 	}
 	// When the highest loaded level is empty, it's possible the level after it still has data and thus that data needs to be backfilled as well.
+
 	for len(pendingUpdates[highestLoadedLevel]) == 0 {
 
 		// When the next level is empty too, the is no data left to continue backfilling, so there is nothing left to do. Otherwise, populate the pending updates map with the newly loaded data and update the highest loaded level accordingly.
 		level := highestLoadedLevel + 1
 		curLevelKey := keyForLevel(addrKey, level)
 		levelData := bucket.Get(curLevelKey[:])
+
 		if len(levelData) == 0 {
 
 			break
@@ -399,6 +434,7 @@ func dbRemoveAddrIndexEntries(
 		highestLoadedLevel = level
 		// At this point the highest level is not empty, but it might be half full.  When that is the case, move it up a level to simplify the code below which backfills all lower levels that are still empty.  This also means the current level will be empty, so the loop will perform another another iteration to potentially backfill this level with data from the next one.
 		curLevelMaxEntries := maxEntriesForLevel(level)
+
 		if len(levelData)/txEntrySize != curLevelMaxEntries {
 
 			pendingUpdates[level] = nil
@@ -407,6 +443,7 @@ func dbRemoveAddrIndexEntries(
 			curLevelMaxEntries /= 2
 		}
 		// Backfill all lower levels that are still empty by iteratively halfing the data until the lowest empty level is filled.
+
 		for level > lowestEmptyLevel {
 
 			offset := (curLevelMaxEntries / 2) * txEntrySize
@@ -521,13 +558,16 @@ func (idx *AddrIndex) indexPkScript(data writeIndexData, pkScript []byte, txIdx 
 	// Nothing to index if the script is non-standard or otherwise doesn't contain any addresses.
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		idx.chainParams)
+
 	if err != nil || len(addrs) == 0 {
 
 		return
 	}
+
 	for _, addr := range addrs {
 
 		addrKey, err := addrToKey(addr)
+
 		if err != nil {
 
 			// Ignore unsupported address types.
@@ -536,6 +576,7 @@ func (idx *AddrIndex) indexPkScript(data writeIndexData, pkScript []byte, txIdx 
 		// Avoid inserting the transaction more than once.  Since the transactions are indexed serially any duplicates will be indexed in a row, so checking the most recent entry for the address is enough to detect duplicates.
 		indexedTxns := data[addrKey]
 		numTxns := len(indexedTxns)
+
 		if numTxns > 0 && indexedTxns[numTxns-1] == txIdx {
 
 			continue
@@ -550,9 +591,11 @@ func (idx *AddrIndex) indexBlock(data writeIndexData, block *util.Block,
 	stxos []blockchain.SpentTxOut) {
 
 	stxoIndex := 0
+
 	for txIdx, tx := range block.Transactions() {
 
 		// Coinbases do not reference any inputs.  Since the block is required to have already gone through full validation, it has already been proven on the first transaction in the block is a coinbase.
+
 		if txIdx != 0 {
 
 			for range tx.MsgTx().TxIn {
@@ -564,6 +607,7 @@ func (idx *AddrIndex) indexBlock(data writeIndexData, block *util.Block,
 				stxoIndex++
 			}
 		}
+
 		for _, txOut := range tx.MsgTx().TxOut {
 
 			idx.indexPkScript(data, txOut.PkScript, txIdx)
@@ -577,12 +621,14 @@ func (idx *AddrIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 
 	// The offset and length of the transactions within the serialized block.
 	txLocs, err := block.TxLoc()
+
 	if err != nil {
 
 		return err
 	}
 	// Get the internal block ID associated with the block.
 	blockID, err := dbFetchBlockIDByHash(dbTx, block.Hash())
+
 	if err != nil {
 
 		return err
@@ -592,12 +638,14 @@ func (idx *AddrIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 	idx.indexBlock(addrsToTxns, block, stxos)
 	// Add all of the index entries for each address.
 	addrIdxBucket := dbTx.Metadata().Bucket(addrIndexKey)
+
 	for addrKey, txIdxs := range addrsToTxns {
 
 		for _, txIdx := range txIdxs {
 
 			err := dbPutAddrIndexEntry(addrIdxBucket, addrKey,
 				blockID, txLocs[txIdx])
+
 			if err != nil {
 
 				return err
@@ -616,9 +664,11 @@ func (idx *AddrIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 	idx.indexBlock(addrsToTxns, block, stxos)
 	// Remove all of the index entries for each address.
 	bucket := dbTx.Metadata().Bucket(addrIndexKey)
+
 	for addrKey, txIdxs := range addrsToTxns {
 
 		err := dbRemoveAddrIndexEntries(bucket, addrKey, len(txIdxs))
+
 		if err != nil {
 
 			return err
@@ -631,6 +681,7 @@ func (idx *AddrIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 func (idx *AddrIndex) TxRegionsForAddress(dbTx database.Tx, addr util.Address, numToSkip, numRequested uint32, reverse bool) ([]database.BlockRegion, uint32, error) {
 
 	addrKey, err := addrToKey(addr)
+
 	if err != nil {
 
 		return nil, 0, err
@@ -661,10 +712,12 @@ func (idx *AddrIndex) indexUnconfirmedAddresses(pkScript []byte, tx *util.Tx) {
 	// The error is ignored here since the only reason it can fail is if the script fails to parse and it was already validated before being admitted to the mempool.
 	_, addresses, _, _ := txscript.ExtractPkScriptAddrs(pkScript,
 		idx.chainParams)
+
 	for _, addr := range addresses {
 
 		// Ignore unsupported address types.
 		addrKey, err := addrToKey(addr)
+
 		if err != nil {
 
 			continue
@@ -672,6 +725,7 @@ func (idx *AddrIndex) indexUnconfirmedAddresses(pkScript []byte, tx *util.Tx) {
 		// Add a mapping from the address to the transaction.
 		idx.unconfirmedLock.Lock()
 		addrIndexEntry := idx.txnsByAddr[addrKey]
+
 		if addrIndexEntry == nil {
 
 			addrIndexEntry = make(map[chainhash.Hash]*util.Tx)
@@ -680,6 +734,7 @@ func (idx *AddrIndex) indexUnconfirmedAddresses(pkScript []byte, tx *util.Tx) {
 		addrIndexEntry[*tx.Hash()] = tx
 		// Add a mapping from the transaction to the address.
 		addrsByTxEntry := idx.addrsByTx[*tx.Hash()]
+
 		if addrsByTxEntry == nil {
 
 			addrsByTxEntry = make(map[[addrKeySize]byte]struct{})
@@ -695,9 +750,11 @@ func (idx *AddrIndex) AddUnconfirmedTx(tx *util.Tx, utxoView *blockchain.UtxoVie
 
 	// Index addresses of all referenced previous transaction outputs.
 	// The existence checks are elided since this is only called after the transaction has already been validated and thus all inputs are already known to exist.
+
 	for _, txIn := range tx.MsgTx().TxIn {
 
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
+
 		if entry == nil {
 
 			// Ignore missing entries.  This should never happen in practice since the function comments specifically call out all inputs must be available.
@@ -706,6 +763,7 @@ func (idx *AddrIndex) AddUnconfirmedTx(tx *util.Tx, utxoView *blockchain.UtxoVie
 		idx.indexUnconfirmedAddresses(entry.PkScript(), tx)
 	}
 	// Index addresses of all created outputs.
+
 	for _, txOut := range tx.MsgTx().TxOut {
 
 		idx.indexUnconfirmedAddresses(txOut.PkScript, tx)
@@ -718,9 +776,11 @@ func (idx *AddrIndex) RemoveUnconfirmedTx(hash *chainhash.Hash) {
 	idx.unconfirmedLock.Lock()
 	defer idx.unconfirmedLock.Unlock()
 	// Remove all address references to the transaction from the address index and remove the entry for the address altogether if it no longer references any transactions.
+
 	for addrKey := range idx.addrsByTx[*hash] {
 
 		delete(idx.txnsByAddr[addrKey], *hash)
+
 		if len(idx.txnsByAddr[addrKey]) == 0 {
 
 			delete(idx.txnsByAddr, addrKey)
@@ -735,6 +795,7 @@ func (idx *AddrIndex) UnconfirmedTxnsForAddress(addr util.Address) []*util.Tx {
 
 	// Ignore unsupported address types.
 	addrKey, err := addrToKey(addr)
+
 	if err != nil {
 
 		return nil
@@ -743,9 +804,11 @@ func (idx *AddrIndex) UnconfirmedTxnsForAddress(addr util.Address) []*util.Tx {
 	idx.unconfirmedLock.RLock()
 	defer idx.unconfirmedLock.RUnlock()
 	// Return a new slice with the results if there are any.  This ensures safe concurrency.
+
 	if txns, exists := idx.txnsByAddr[addrKey]; exists {
 
 		addressTxns := make([]*util.Tx, 0, len(txns))
+
 		for _, tx := range txns {
 
 			addressTxns = append(addressTxns, tx)

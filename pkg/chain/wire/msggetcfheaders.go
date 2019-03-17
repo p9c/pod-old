@@ -17,11 +17,13 @@ type MsgGetCFHeaders struct {
 func (msg *MsgGetCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
 
 	err := readElement(r, &msg.FilterType)
+
 	if err != nil {
 
 		return err
 	}
 	err = readElement(r, &msg.StartHeight)
+
 	if err != nil {
 
 		return err
@@ -33,11 +35,13 @@ func (msg *MsgGetCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncodin
 func (msg *MsgGetCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 
 	err := writeElement(w, msg.FilterType)
+
 	if err != nil {
 
 		return err
 	}
 	err = writeElement(w, &msg.StartHeight)
+
 	if err != nil {
 
 		return err

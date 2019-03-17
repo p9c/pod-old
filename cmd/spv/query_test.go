@@ -66,6 +66,7 @@ func TestBigFilterEvictsEverything(
 	b3, f3, s3 := genRandFilter(10, t)
 
 	cs := &ChainService{
+
 		FilterCache: lru.NewCache(s3),
 	}
 
@@ -112,6 +113,7 @@ func TestBlockCache(
 	for i, b := range blocks {
 
 		header := headerfs.BlockHeader{
+
 			BlockHeader: &b.MsgBlock().Header,
 			Height:      uint32(i),
 		}
@@ -130,10 +132,14 @@ func TestBlockCache(
 	// Set up a ChainService with a BlockCache that can fit the first half
 
 	// of the blocks.
+
 	cs := &ChainService{
+
 		BlockCache:   lru.NewCache(size),
 		BlockHeaders: headers,
+
 		chainParams: chaincfg.Params{
+
 			PowLimit: maxPowLimit,
 		},
 
@@ -322,6 +328,7 @@ func TestCacheBigEnoughHoldsAllFilter(
 	b3, f3, s3 := genRandFilter(100, t)
 
 	cs := &ChainService{
+
 		FilterCache: lru.NewCache(s1 + s2 + s3),
 	}
 

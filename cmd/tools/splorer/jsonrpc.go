@@ -10,6 +10,7 @@ import (
 )
 
 // JSONRPC is a handler for sending queries and receiving responses from a JSONRPC endpoint
+
 type JSONRPC struct {
 	User     string
 	Password string
@@ -18,12 +19,15 @@ type JSONRPC struct {
 }
 
 // Call the RPC server and send a query
+
 func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 
 	baseURL := fmt.Sprintf("http://%s:%d", c.Host, c.Port)
 	client := new(http.Client)
 	req, err := http.NewRequest("POST", baseURL, nil)
+
 	if err != nil {
+
 		return "", err
 	}
 
@@ -35,7 +39,9 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	args["method"] = method
 	args["params"] = params
 	j, err := json.Marshal(args)
+
 	if err != nil {
+
 		fmt.Println(err)
 		return nil, err
 	}
@@ -43,7 +49,9 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	req.Body = ioutil.NopCloser(strings.NewReader(string(j)))
 	req.ContentLength = int64(len(string(j)))
 	resp, err := client.Do(req)
+
 	if err != nil {
+
 		return "", err
 	}
 
@@ -51,12 +59,15 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	var data map[string]interface{}
 	json.Unmarshal(bytes, &data)
+
 	if err, found := data["error"]; found && err != nil {
+
 		str, _ := json.Marshal(err)
 		return nil, errors.New(string(str))
 	}
 
 	if result, found := data["result"]; found {
+
 		return result, nil
 	}
 
@@ -65,7 +76,9 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 
 // NewJSONRPC creates a new structure for a JSONRPC connection
 func NewJSONRPC(
+
 	user string, password string, host string, port int64) *JSONRPC {
+
 	c := JSONRPC{user, password, host, port}
 	return &c
 }

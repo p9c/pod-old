@@ -288,6 +288,7 @@ func (c *chainView) findFork(node *blockNode) *blockNode {
 func (c *chainView) FindFork(node *blockNode) *blockNode {
 
 	c.mtx.Lock()
+
 	fork := c.findFork(node)
 	c.mtx.Unlock()
 	return fork

@@ -163,6 +163,7 @@ func isPushOnly(
 	pops []parsedOpcode) bool {
 
 	// NOTE: This function does NOT verify opcodes directly since it is internal and is only called with parsed opcodes for scripts that did not have any parse errors.  Thus, consensus is properly maintained.
+
 	for _, pop := range pops {
 
 		// All opcodes up to OP_16 are data push instructions. NOTE: This does consider OP_RESERVED to be a data push instruction, but execution of OP_RESERVED will fail anyways and matches the behavior required by consensus.
@@ -191,12 +192,14 @@ func parseScriptTemplate(
 	script []byte, opcodes *[256]opcode) ([]parsedOpcode, error) {
 
 	retScript := make([]parsedOpcode, 0, len(script))
+
 	for i := 0; i < len(script); {
 
 		instr := script[i]
 		op := &opcodes[instr]
 		pop := parsedOpcode{opcode: op}
 		// Parse data out of instruction.
+
 		switch {
 
 		// No additional data.  Note that some of the opcodes, notably OP_1NEGATE, OP_0, and OP_[1-16] represent the data themselves.
@@ -228,6 +231,7 @@ func parseScriptTemplate(
 					str)
 			}
 			// Next -length bytes are little endian length of data.
+
 			switch op.length {
 
 			case -1:
@@ -277,6 +281,7 @@ func unparseScript(
 	pops []parsedOpcode) ([]byte, error) {
 
 	script := make([]byte, 0, len(pops))
+
 	for _, pop := range pops {
 
 		b, err := pop.bytes()
@@ -295,6 +300,7 @@ func DisasmString(
 
 	var disbuf bytes.Buffer
 	opcodes, err := parseScript(buf)
+
 	for _, pop := range opcodes {
 
 		disbuf.WriteString(pop.print(true))
@@ -316,6 +322,7 @@ func removeOpcode(
 	pkscript []parsedOpcode, opcode byte) []parsedOpcode {
 
 	retScript := make([]parsedOpcode, 0, len(pkscript))
+
 	for _, pop := range pkscript {
 
 		if pop.opcode.value != opcode {
@@ -361,6 +368,7 @@ func removeOpcodeByData(
 	pkscript []parsedOpcode, data []byte) []parsedOpcode {
 
 	retScript := make([]parsedOpcode, 0, len(pkscript))
+
 	for _, pop := range pkscript {
 
 		if !canonicalPush(pop) || !bytes.Contains(pop.data, data) {
@@ -376,6 +384,7 @@ func calcHashPrevOuts(
 	tx *wire.MsgTx) chainhash.Hash {
 
 	var b bytes.Buffer
+
 	for _, in := range tx.TxIn {
 
 		// First write out the 32-byte transaction ID one of whose outputs are being referenced by this input.
@@ -393,6 +402,7 @@ func calcHashSequence(
 	tx *wire.MsgTx) chainhash.Hash {
 
 	var b bytes.Buffer
+
 	for _, in := range tx.TxIn {
 
 		var buf [4]byte
@@ -407,6 +417,7 @@ func calcHashOutputs(
 	tx *wire.MsgTx) chainhash.Hash {
 
 	var b bytes.Buffer
+
 	for _, out := range tx.TxOut {
 
 		wire.WriteTxOut(&b, 0, 0, out)
@@ -538,12 +549,14 @@ func shallowCopyTx(
 		LockTime: tx.LockTime,
 	}
 	txIns := make([]wire.TxIn, len(tx.TxIn))
+
 	for i, oldTxIn := range tx.TxIn {
 
 		txIns[i] = *oldTxIn
 		txCopy.TxIn[i] = &txIns[i]
 	}
 	txOuts := make([]wire.TxOut, len(tx.TxOut))
+
 	for i, oldTxOut := range tx.TxOut {
 
 		txOuts[i] = *oldTxOut
@@ -587,6 +600,7 @@ func calcSignatureHash(
 
 	// Make a shallow copy of the transaction, zeroing out the script for all inputs that are not currently being processed.
 	txCopy := shallowCopyTx(tx)
+
 	for i := range txCopy.TxIn {
 
 		if i == idx {
@@ -599,10 +613,12 @@ func calcSignatureHash(
 			txCopy.TxIn[i].SignatureScript = nil
 		}
 	}
+
 	switch hashType & sigHashMask {
 
 	case SigHashNone:
 		txCopy.TxOut = txCopy.TxOut[0:0] // Empty slice.
+
 		for i := range txCopy.TxIn {
 
 			if i != idx {
@@ -614,12 +630,14 @@ func calcSignatureHash(
 		// Resize output array to up to and including requested index.
 		txCopy.TxOut = txCopy.TxOut[:idx+1]
 		// All but current output get zeroed out.
+
 		for i := 0; i < idx; i++ {
 
 			txCopy.TxOut[i].Value = -1
 			txCopy.TxOut[i].PkScript = nil
 		}
 		// Sequence on all other inputs is 0, too.
+
 		for i := range txCopy.TxIn {
 
 			if i != idx {
@@ -663,6 +681,7 @@ func getSigOpCount(
 	pops []parsedOpcode, precise bool) int {
 
 	nSigs := 0
+
 	for i, pop := range pops {
 
 		switch pop.opcode.value {
@@ -774,9 +793,11 @@ func getWitnessSigOps(
 
 		return 0
 	}
+
 	switch witnessVersion {
 
 	case 0:
+
 		switch {
 
 		case len(witnessProgram) == payToWitnessPubKeyHashDataSize:

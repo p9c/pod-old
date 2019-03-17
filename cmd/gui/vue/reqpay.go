@@ -24,13 +24,18 @@ type RequestedPaymentHistory struct {
 func (ab *RequestedPaymentHistory) RequestedPaymentHistory() {
 
 	reqpays, err := jdb.JDB.ReadAll("reqpay")
+
 	if err != nil {
+
 		fmt.Println("Error", err)
 	}
 
 	for _, f := range reqpays {
+
 		var reqPay RequestedPayment
+
 		if err := json.Unmarshal([]byte(f), &reqPay); err != nil {
+
 			fmt.Println("Error", err)
 		}
 

@@ -228,6 +228,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 	if tx.ChangeIndex >= 0 && account == waddrmgr.ImportedAddrAccount {
 
 		changeAmount := util.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
+
 		log <- cl.Warnf{
 
 			"spend from imported account produced change: " +

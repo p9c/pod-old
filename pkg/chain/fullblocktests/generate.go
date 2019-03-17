@@ -195,6 +195,7 @@ func payToScriptHashScript(
 	script, err := txscript.NewScriptBuilder().
 		AddOp(txscript.OP_HASH160).AddData(redeemScriptHash).
 		AddOp(txscript.OP_EQUAL).Script()
+
 	if err != nil {
 
 		panic(err)
@@ -207,11 +208,13 @@ func pushDataScript(
 	items ...[]byte) []byte {
 
 	builder := txscript.NewScriptBuilder()
+
 	for _, item := range items {
 
 		builder.AddData(item)
 	}
 	script, err := builder.Script()
+
 	if err != nil {
 
 		panic(err)
@@ -233,6 +236,7 @@ func opReturnScript(
 
 	builder := txscript.NewScriptBuilder()
 	script, err := builder.AddOp(txscript.OP_RETURN).AddData(data).Script()
+
 	if err != nil {
 
 		panic(err)
@@ -244,6 +248,7 @@ func opReturnScript(
 func uniqueOpReturnScript() []byte {
 
 	rand, err := wire.RandomUint64()
+
 	if err != nil {
 
 		panic(err)
@@ -258,6 +263,7 @@ func (g *testGenerator) createCoinbaseTx(blockHeight int32) *wire.MsgTx {
 
 	extraNonce := uint64(0)
 	coinbaseScript, err := standardCoinbaseScript(blockHeight, extraNonce)
+
 	if err != nil {
 
 		panic(err)
@@ -286,6 +292,7 @@ func calcMerkleRoot(
 		return chainhash.Hash{}
 	}
 	utilTxns := make([]*util.Tx, 0, len(txns))
+
 	for _, tx := range txns {
 
 		utilTxns = append(utilTxns, util.NewTx(tx))
@@ -311,6 +318,7 @@ func solveBlock(
 	solver := func(hdr wire.BlockHeader, startNonce, stopNonce uint32) {
 
 		// We need to modify the nonce field of the header, so make sure we work with a copy of the original header.
+
 		for i := startNonce; i >= startNonce && i <= stopNonce; i++ {
 
 			select {
@@ -320,6 +328,7 @@ func solveBlock(
 			default:
 				hdr.Nonce = i
 				hash := hdr.BlockHashWithAlgos(height)
+
 				if blockchain.HashToBig(&hash).Cmp(
 					targetDifficulty) <= 0 {
 
@@ -334,19 +343,23 @@ func solveBlock(
 	stopNonce := uint32(math.MaxUint32)
 	numCores := uint32(runtime.NumCPU())
 	noncesPerCore := (stopNonce - startNonce) / numCores
+
 	for i := uint32(0); i < numCores; i++ {
 
 		rangeStart := startNonce + (noncesPerCore * i)
 		rangeStop := startNonce + (noncesPerCore * (i + 1)) - 1
+
 		if i == numCores-1 {
 
 			rangeStop = stopNonce
 		}
 		go solver(*header, rangeStart, rangeStop)
 	}
+
 	for i := uint32(0); i < numCores; i++ {
 
 		result := <-results
+
 		if result.found {
 
 			close(quit)
@@ -376,6 +389,7 @@ func additionalSpendFee(
 	return func(b *wire.MsgBlock) {
 
 		// Increase the fee of the spending transaction by reducing the amount paid.
+
 		if int64(fee) > b.Transactions[1].TxOut[0].Value {
 
 			panic(fmt.Sprintf("additionalSpendFee: fee of %d "+
@@ -461,6 +475,7 @@ func (g *testGenerator) nextBlock(blockName string, spend *spendableOut, mungers
 	nextHeight := g.tipHeight + 1
 	coinbaseTx := g.createCoinbaseTx(nextHeight)
 	txns := []*wire.MsgTx{coinbaseTx}
+
 	if spend != nil {
 
 		// Create the transaction with a fee of 1 atom for the miner and increase the coinbase subsidy accordingly.
@@ -471,6 +486,7 @@ func (g *testGenerator) nextBlock(blockName string, spend *spendableOut, mungers
 	}
 	// Use a timestamp that is one second after the previous block unless this is the first block in which case the current time is used.
 	var ts time.Time
+
 	if nextHeight == 1 {
 
 		ts = time.Unix(time.Now().Unix(), 0)
@@ -492,15 +508,18 @@ func (g *testGenerator) nextBlock(blockName string, spend *spendableOut, mungers
 	// Perform any block munging just before solving.  Only recalculate the merkle root if it wasn't manually changed by a munge function.
 	curMerkleRoot := block.Header.MerkleRoot
 	curNonce := block.Header.Nonce
+
 	for _, f := range mungers {
 
 		f(&block)
 	}
+
 	if block.Header.MerkleRoot == curMerkleRoot {
 
 		block.Header.MerkleRoot = calcMerkleRoot(block.Transactions)
 	}
 	// Only solve the block if the nonce wasn't manually changed by a munge function.
+
 	if block.Header.Nonce == curNonce && !solveBlock(&block.Header, nextHeight) {
 
 		panic(fmt.Sprintf("Unable to solve block at height %d",
@@ -564,6 +583,7 @@ func (g *testGenerator) saveSpendableCoinbaseOuts() {
 	defer g.setTip(curTipName)
 	// Loop through the ancestors of the current tip until the reaching the block that has already had the coinbase outputs collected.
 	var collectBlocks []*wire.MsgBlock
+
 	for b := g.tip; b != nil; b = g.blocks[b.Header.PrevBlock] {
 
 		if b.BlockHash() == g.prevCollectedHash {
@@ -572,6 +592,7 @@ func (g *testGenerator) saveSpendableCoinbaseOuts() {
 		}
 		collectBlocks = append(collectBlocks, b)
 	}
+
 	for i := range collectBlocks {
 
 		g.tip = collectBlocks[len(collectBlocks)-1-i]
@@ -596,6 +617,7 @@ func encodeNonCanonicalBlock(
 	var buf bytes.Buffer
 	b.Header.BtcEncode(&buf, 0, wire.BaseEncoding)
 	buf.Write(nonCanonicalVarInt(uint32(len(b.Transactions))))
+
 	for _, tx := range b.Transactions {
 
 		tx.BtcEncode(&buf, 0, wire.BaseEncoding)
@@ -609,6 +631,7 @@ func cloneBlock(
 
 	var blockCopy wire.MsgBlock
 	blockCopy.Header = b.Header
+
 	for _, tx := range b.Transactions {
 
 		blockCopy.AddTransaction(tx.Copy())
@@ -628,6 +651,7 @@ func assertScriptSigOpsCount(
 	script []byte, expected int) {
 
 	numSigOps := txscript.GetSigOpCount(script)
+
 	if numSigOps != expected {
 
 		_, file, line, _ := runtime.Caller(1)
@@ -642,6 +666,7 @@ func countBlockSigOps(
 	block *wire.MsgBlock) int {
 
 	totalSigOps := 0
+
 	for _, tx := range block.Transactions {
 
 		for _, txIn := range tx.TxIn {
@@ -649,6 +674,7 @@ func countBlockSigOps(
 			numSigOps := txscript.GetSigOpCount(txIn.SignatureScript)
 			totalSigOps += numSigOps
 		}
+
 		for _, txOut := range tx.TxOut {
 
 			numSigOps := txscript.GetSigOpCount(txOut.PkScript)
@@ -662,6 +688,7 @@ func countBlockSigOps(
 func (g *testGenerator) assertTipBlockSigOpsCount(expected int) {
 
 	numSigOps := countBlockSigOps(g.tip)
+
 	if numSigOps != expected {
 
 		panic(fmt.Sprintf("generated number of sigops for block %q "+
@@ -674,6 +701,7 @@ func (g *testGenerator) assertTipBlockSigOpsCount(expected int) {
 func (g *testGenerator) assertTipBlockSize(expected int) {
 
 	serializeSize := g.tip.SerializeSize()
+
 	if serializeSize != expected {
 
 		panic(fmt.Sprintf("block size of block %q (height %d) is %d "+
@@ -686,6 +714,7 @@ func (g *testGenerator) assertTipBlockSize(expected int) {
 func (g *testGenerator) assertTipNonCanonicalBlockSize(expected int) {
 
 	serializeSize := len(encodeNonCanonicalBlock(g.tip))
+
 	if serializeSize != expected {
 
 		panic(fmt.Sprintf("block size of block %q (height %d) is %d "+
@@ -698,6 +727,7 @@ func (g *testGenerator) assertTipNonCanonicalBlockSize(expected int) {
 func (g *testGenerator) assertTipBlockNumTxns(expected int) {
 
 	numTxns := len(g.tip.Transactions)
+
 	if numTxns != expected {
 
 		panic(fmt.Sprintf("number of txns in block %q (height %d) is "+
@@ -710,6 +740,7 @@ func (g *testGenerator) assertTipBlockNumTxns(expected int) {
 func (g *testGenerator) assertTipBlockHash(expected chainhash.Hash) {
 
 	hash := g.tip.BlockHash()
+
 	if hash != expected {
 
 		panic(fmt.Sprintf("block hash of block %q (height %d) is %v "+
@@ -722,6 +753,7 @@ func (g *testGenerator) assertTipBlockHash(expected chainhash.Hash) {
 func (g *testGenerator) assertTipBlockMerkleRoot(expected chainhash.Hash) {
 
 	hash := g.tip.Header.MerkleRoot
+
 	if hash != expected {
 
 		panic(fmt.Sprintf("merkle root of block %q (height %d) is %v "+
@@ -740,6 +772,7 @@ func (g *testGenerator) assertTipBlockTxOutOpReturn(txIndex, txOutIndex uint32) 
 			g.tipHeight))
 	}
 	tx := g.tip.Transactions[txIndex]
+
 	if txOutIndex >= uint32(len(tx.TxOut)) {
 
 		panic(fmt.Sprintf("transaction index %d output %d in block %q "+
@@ -747,6 +780,7 @@ func (g *testGenerator) assertTipBlockTxOutOpReturn(txIndex, txOutIndex uint32) 
 			g.tipName, g.tipHeight))
 	}
 	txOut := tx.TxOut[txOutIndex]
+
 	if txOut.PkScript[0] != txscript.OP_RETURN {
 
 		panic(fmt.Sprintf("transaction index %d output %d in block %q "+
@@ -765,6 +799,7 @@ func Generate(
 		if r := recover(); r != nil {
 
 			tests = nil
+
 			switch rt := r.(type) {
 
 			case string:
@@ -778,6 +813,7 @@ func Generate(
 	}()
 	// Create a test generator instance initialized with the genesis block as the tip.
 	g, err := makeTestGenerator(regressionNetParams)
+
 	if err != nil {
 
 		return nil, err
@@ -859,6 +895,7 @@ func Generate(
 	// ---------------------------------------------------------------------
 	coinbaseMaturity := g.params.CoinbaseMaturity
 	var testInstances []TestInstance
+
 	for i := uint16(0); i < coinbaseMaturity; i++ {
 
 		blockName := fmt.Sprintf("bm%d", i)
@@ -870,6 +907,7 @@ func Generate(
 	tests = append(tests, testInstances)
 	// Collect spendable outputs.  This simplifies the code below.
 	var outs []*spendableOut
+
 	for i := uint16(0); i < coinbaseMaturity; i++ {
 
 		op := g.oldestCoinbaseOut()
@@ -1195,6 +1233,7 @@ func Generate(
 		p2shScript := payToScriptHashScript(redeemScript)
 		txnsNeeded := (maxBlockSigOps / redeemScriptSigOps) + 1
 		prevTx := b.Transactions[1]
+
 		for i := 0; i < txnsNeeded; i++ {
 
 			prevTx = createSpendTxForTx(prevTx, lowFee)
@@ -1213,6 +1252,7 @@ func Generate(
 	g.nextBlock("b40", outs[12], func(b *wire.MsgBlock) {
 
 		txnsNeeded := (maxBlockSigOps / redeemScriptSigOps)
+
 		for i := 0; i < txnsNeeded; i++ {
 
 			// Create a signed transaction that spends from the associated p2sh output in b39.
@@ -1220,6 +1260,7 @@ func Generate(
 			tx := createSpendTx(&spend, lowFee)
 			sig, err := txscript.RawTxInSignature(tx, 0,
 				redeemScript, txscript.SigHashAll, g.privKey)
+
 			if err != nil {
 
 				panic(err)
@@ -1243,12 +1284,14 @@ func Generate(
 	g.nextBlock("b41", outs[12], func(b *wire.MsgBlock) {
 
 		txnsNeeded := (maxBlockSigOps / redeemScriptSigOps)
+
 		for i := 0; i < txnsNeeded; i++ {
 
 			spend := makeSpendableOutForTx(b39.Transactions[i+2], 2)
 			tx := createSpendTx(&spend, lowFee)
 			sig, err := txscript.RawTxInSignature(tx, 0,
 				redeemScript, txscript.SigHashAll, g.privKey)
+
 			if err != nil {
 
 				panic(err)
@@ -1259,6 +1302,7 @@ func Generate(
 		}
 		// Create a final tx that includes a non-pay-to-script-hash output with the number of signature operations needed to push the block to exactly the max allowed.
 		fill := maxBlockSigOps - (txnsNeeded * redeemScriptSigOps)
+
 		if fill == 0 {
 
 			return
@@ -1313,12 +1357,14 @@ func Generate(
 	// This can't be done inside a munge function passed to nextBlock because the block is solved after the function returns and this test requires an unsolved block.
 	{
 		origHash := b46.BlockHash()
+
 		for {
 
 			// Keep incrementing the nonce until the hash treated as a uint256 is higher than the limit.
 			b46.Header.Nonce++
 			blockHash := b46.BlockHash()
 			hashNum := blockchain.HashToBig(&blockHash)
+
 			if hashNum.Cmp(g.params.PowLimit) >= 0 {
 
 				break
@@ -1422,6 +1468,7 @@ func Generate(
 	g.nextBlock("b54", outs[15], func(b *wire.MsgBlock) {
 
 		medianBlock := g.blocks[b.Header.PrevBlock]
+
 		for i := 0; i < medianTimeBlocks/2; i++ {
 
 			medianBlock = g.blocks[medianBlock.Header.PrevBlock]
@@ -1436,6 +1483,7 @@ func Generate(
 	g.nextBlock("b55", outs[15], func(b *wire.MsgBlock) {
 
 		medianBlock := g.blocks[b.Header.PrevBlock]
+
 		for i := 0; i < medianTimeBlocks/2; i++ {
 
 			medianBlock = g.blocks[medianBlock.Header.PrevBlock]
@@ -1522,6 +1570,7 @@ func Generate(
 
 		// Create 4 transactions that each spend from the previous tx in the block.
 		spendTx := b.Transactions[1]
+
 		for i := 0; i < 4; i++ {
 
 			spendTx = createSpendTxForTx(spendTx, lowFee)
@@ -1780,6 +1829,7 @@ func Generate(
 		const numAdditionalOutputs = 4
 		const zeroCoin = int64(0)
 		spendTx := b.Transactions[1]
+
 		for i := 0; i < numAdditionalOutputs; i++ {
 
 			spendTx.AddTxOut(wire.NewTxOut(zeroCoin, opTrueScript))
@@ -1788,6 +1838,7 @@ func Generate(
 		//
 		// NOTE: The createSpendTx func adds the OP_RETURN output.
 		zeroFee := util.Amount(0)
+
 		for i := uint32(0); i < numAdditionalOutputs; i++ {
 
 			spend := makeSpendableOut(b, 1, i+2)
@@ -1837,12 +1888,14 @@ func Generate(
 		const numAdditionalOutputs = 4
 		const zeroCoin = int64(0)
 		spendTx := b.Transactions[1]
+
 		for i := 0; i < numAdditionalOutputs; i++ {
 
 			opRetScript := uniqueOpReturnScript()
 			spendTx.AddTxOut(wire.NewTxOut(zeroCoin, opRetScript))
 		}
 	})
+
 	for i := uint32(2); i < 6; i++ {
 
 		g.assertTipBlockTxOutOpReturn(1, i)
@@ -1851,6 +1904,7 @@ func Generate(
 	// ---------------------------------------------------------------------
 	// Large block re-org test.
 	// ---------------------------------------------------------------------
+
 	if !includeLargeReorg {
 
 		return tests, nil
@@ -1869,6 +1923,7 @@ func Generate(
 	reorgSpend := *outs[spendableOutOffset]
 	reorgStartBlockName := g.tipName
 	chain1TipName := g.tipName
+
 	for i := int32(0); i < numLargeReorgBlocks; i++ {
 
 		chain1TipName = fmt.Sprintf("br%d", i)
@@ -1883,6 +1938,7 @@ func Generate(
 		testInstances = append(testInstances, acceptBlock(g.tipName,
 			g.tip, true, false))
 		// Use the next available spendable output.  First use up any remaining spendable outputs that were already popped into the outs slice, then just pop them from the stack.
+
 		if spendableOutOffset+1+i < int32(len(outs)) {
 
 			reorgSpend = *outs[spendableOutOffset+1+i]
@@ -1899,6 +1955,7 @@ func Generate(
 	g.setTip(reorgStartBlockName)
 	testInstances = nil
 	chain2TipName := g.tipName
+
 	for i := uint16(0); i < numLargeReorgBlocks; i++ {
 
 		chain2TipName = fmt.Sprintf("bralt%d", i)

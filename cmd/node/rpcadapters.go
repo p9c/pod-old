@@ -65,7 +65,9 @@ var _ rpcserverConnManager = &rpcConnManager{}
 func (cm *rpcConnManager) Connect(addr string, permanent bool) error {
 
 	replyChan := make(chan error)
+
 	cm.server.query <- connectNodeMsg{
+
 		addr:      addr,
 		permanent: permanent,
 		reply:     replyChan,
@@ -79,7 +81,9 @@ func (cm *rpcConnManager) Connect(addr string, permanent bool) error {
 func (cm *rpcConnManager) RemoveByID(id int32) error {
 
 	replyChan := make(chan error)
+
 	cm.server.query <- removeNodeMsg{
+
 		cmp:   func(sp *serverPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}
@@ -92,7 +96,9 @@ func (cm *rpcConnManager) RemoveByID(id int32) error {
 func (cm *rpcConnManager) RemoveByAddr(addr string) error {
 
 	replyChan := make(chan error)
+
 	cm.server.query <- removeNodeMsg{
+
 		cmp:   func(sp *serverPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}
@@ -105,7 +111,9 @@ func (cm *rpcConnManager) RemoveByAddr(addr string) error {
 func (cm *rpcConnManager) DisconnectByID(id int32) error {
 
 	replyChan := make(chan error)
+
 	cm.server.query <- disconnectNodeMsg{
+
 		cmp:   func(sp *serverPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}
@@ -118,7 +126,9 @@ func (cm *rpcConnManager) DisconnectByID(id int32) error {
 func (cm *rpcConnManager) DisconnectByAddr(addr string) error {
 
 	replyChan := make(chan error)
+
 	cm.server.query <- disconnectNodeMsg{
+
 		cmp:   func(sp *serverPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}

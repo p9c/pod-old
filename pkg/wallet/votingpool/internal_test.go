@@ -24,11 +24,13 @@ func (vp *Pool) TstExistsSeries(dbtx walletdb.ReadTx, seriesID uint32) (bool, er
 
 	ns, _ := TstRNamespaces(dbtx)
 	poolBucket := ns.NestedReadBucket(vp.ID)
+
 	if poolBucket == nil {
 
 		return false, nil
 	}
 	bucket := poolBucket.NestedReadBucket(seriesBucketName)
+
 	if bucket == nil {
 
 		return false, nil
@@ -40,6 +42,7 @@ func (vp *Pool) TstExistsSeries(dbtx walletdb.ReadTx, seriesID uint32) (bool, er
 func (s *SeriesData) TstGetRawPublicKeys() []string {
 
 	rawKeys := make([]string, len(s.publicKeys))
+
 	for i, key := range s.publicKeys {
 
 		rawKeys[i] = key.String()
@@ -51,6 +54,7 @@ func (s *SeriesData) TstGetRawPublicKeys() []string {
 func (s *SeriesData) TstGetRawPrivateKeys() []string {
 
 	rawKeys := make([]string, len(s.privateKeys))
+
 	for i, key := range s.privateKeys {
 
 		if key != nil {

@@ -77,6 +77,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 	// First, for each scope that we are recovering, rederive all of the
 
 	// addresses up to the last found address known to each branch.
+
 	for keyScope, scopedMgr := range scopedMgrs {
 
 		// Load the current account properties for this scope, using the
@@ -90,6 +91,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		acctProperties, err := scopedMgr.AccountProperties(
 			ns, waddrmgr.DefaultAccountNum,
 		)
+
 		if err != nil {
 
 			return err
@@ -105,10 +107,12 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// deriving each address and adding it to the external branch
 
 		// recovery state's set of addresses to look for.
+
 		for i := uint32(0); i < externalCount; i++ {
 
 			keyPath := externalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
+
 			if err != nil && err != hdkeychain.ErrInvalidChild {
 
 				return err
@@ -131,10 +135,12 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// deriving each address and adding it to the internal branch
 
 		// recovery state's set of addresses to look for.
+
 		for i := uint32(0); i < internalCount; i++ {
 
 			keyPath := internalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
+
 			if err != nil && err != hdkeychain.ErrInvalidChild {
 
 				return err
@@ -152,10 +158,12 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// derived, so we subtract one to point to last known key. If
 
 		// the key count is zero, then no addresses have been found.
+
 		if externalCount > 0 {
 
 			scopeState.ExternalBranch.ReportFound(externalCount - 1)
 		}
+
 		if internalCount > 0 {
 
 			scopeState.InternalBranch.ReportFound(internalCount - 1)
@@ -167,11 +175,13 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 	// to our global set of watched outpoints, so that we can watch them for
 
 	// spends.
+
 	for _, credit := range credits {
 
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			credit.PkScript, rm.chainParams,
 		)
+
 		if err != nil {
 
 			return err
@@ -306,6 +316,7 @@ func (rs *RecoveryState) StateForScope(
 	keyScope waddrmgr.KeyScope) *ScopeRecoveryState {
 
 	// If the account recovery state already exists, return it.
+
 	if scopeState, ok := rs.scopes[keyScope]; ok {
 
 		return scopeState
@@ -442,6 +453,7 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 	// If the current horizon is sufficient, we will not have to derive any
 
 	// new keys.
+
 	if curHorizon >= minValidHorizon {
 
 		return curHorizon, 0
@@ -484,6 +496,7 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 		// found index. We don't need to keep these entries any longer,
 
 		// since they will not affect our required look-ahead.
+
 		for childIndex := range brs.invalidChildren {
 
 			if childIndex < index {
@@ -535,6 +548,7 @@ func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 func (brs *BranchRecoveryState) NumInvalidInHorizon() uint32 {
 
 	var nInvalid uint32
+
 	for childIndex := range brs.invalidChildren {
 
 		if brs.nextUnfound <= childIndex && childIndex < brs.horizon {

@@ -130,11 +130,13 @@ func (w *Wallet) rescanBatchHandler() {
 	quit := w.quitChan()
 
 out:
+
 	for {
 
 		select {
 
 		case job := <-w.rescanAddJob:
+
 			if curBatch == nil {
 
 				// Set current batch as this job and send
@@ -147,6 +149,7 @@ out:
 				// Create next batch if it doesn't exist, or
 
 				// merge the job.
+
 				if nextBatch == nil {
 
 					nextBatch = job.batch()
@@ -157,9 +160,11 @@ out:
 			}
 
 		case n := <-w.rescanNotifications:
+
 			switch n := n.(type) {
 
 			case *chain.RescanProgress:
+
 				if curBatch == nil {
 
 					log <- cl.Wrn(
@@ -174,6 +179,7 @@ out:
 				}
 
 			case *chain.RescanFinished:
+
 				if curBatch == nil {
 
 					log <- cl.Wrn(
@@ -215,6 +221,7 @@ func (w *Wallet) rescanProgressHandler() {
 
 	quit := w.quitChan()
 out:
+
 	for {
 
 		// These can't be processed out of order since both chans are
@@ -226,6 +233,7 @@ out:
 
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
+
 			log <- cl.Infof{
 
 				"rescanned through block %v (height %d)",
@@ -237,6 +245,7 @@ out:
 			n := msg.Notification
 			addrs := msg.Addresses
 			noun := pickNoun(len(addrs), "address", "addresses")
+
 			log <- cl.Infof{
 
 				"finished rescan for %d %s (synced to block %s, height %d)",
@@ -262,6 +271,7 @@ out:
 func (w *Wallet) rescanRPCHandler() {
 
 	chainClient, err := w.requireChainClient()
+
 	if err != nil {
 
 		log <- cl.Errorf{
@@ -275,6 +285,7 @@ func (w *Wallet) rescanRPCHandler() {
 	quit := w.quitChan()
 
 out:
+
 	for {
 
 		select {
@@ -284,6 +295,7 @@ out:
 			// Log the newly-started rescan.
 			numAddrs := len(batch.addrs)
 			noun := pickNoun(numAddrs, "address", "addresses")
+
 			log <- cl.Infof{
 
 				"started rescan from block %v (height %d) for %d %s",
@@ -295,6 +307,7 @@ out:
 
 			err := chainClient.Rescan(&batch.bs.Hash, batch.addrs,
 				batch.outpoints)
+
 			if err != nil {
 
 				log <- cl.Errorf{
@@ -333,11 +346,13 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 	unspent []wtxmgr.Credit, startStamp *waddrmgr.BlockStamp) error {
 
 	outpoints := make(map[wire.OutPoint]util.Address, len(unspent))
+
 	for _, output := range unspent {
 
 		_, outputAddrs, _, err := txscript.ExtractPkScriptAddrs(
 			output.PkScript, w.chainParams,
 		)
+
 		if err != nil {
 
 			return err
@@ -349,6 +364,7 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 	// If a start block stamp was provided, we will use that as the initial
 
 	// starting point for the rescan.
+
 	if startStamp == nil {
 
 		startStamp = &waddrmgr.BlockStamp{}

@@ -128,6 +128,7 @@ func txPQByPriority(
 	pq *txPriorityQueue, i, j int) bool {
 
 	// Using > here so that pop gives the highest priority item as opposed to the lowest.  Sort by priority first, then fee.
+
 	if pq.items[i].priority == pq.items[j].priority {
 
 		return pq.items[i].feePerKB > pq.items[j].feePerKB
@@ -140,6 +141,7 @@ func txPQByFee(
 	pq *txPriorityQueue, i, j int) bool {
 
 	// Using > here so that pop gives the highest fee item as opposed to the lowest.  Sort by fee first, then priority.
+
 	if pq.items[i].feePerKB == pq.items[j].feePerKB {
 
 		return pq.items[i].priority > pq.items[j].priority
@@ -154,6 +156,7 @@ func newTxPriorityQueue(
 	pq := &txPriorityQueue{
 		items: make([]*txPrioItem, 0, reserve),
 	}
+
 	if sortByFee {
 
 		pq.SetLessFunc(txPQByFee)
@@ -191,6 +194,7 @@ func mergeUtxoView(
 	viewA *blockchain.UtxoViewpoint, viewB *blockchain.UtxoViewpoint) {
 
 	viewAEntries := viewA.Entries()
+
 	for outpoint, entryB := range viewB.Entries() {
 
 		if entryA, exists := viewAEntries[outpoint]; !exists ||
@@ -216,10 +220,12 @@ func createCoinbaseTx(
 
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte
+
 	if addr != nil {
 
 		var err error
 		pkScript, err = txscript.PayToAddrScript(addr)
+
 		if err != nil {
 
 			return nil, err
@@ -229,6 +235,7 @@ func createCoinbaseTx(
 		var err error
 		scriptBuilder := txscript.NewScriptBuilder()
 		pkScript, err = scriptBuilder.AddOp(txscript.OP_TRUE).Script()
+
 		if err != nil {
 
 			return nil, err
@@ -256,6 +263,7 @@ func spendTransaction(
 	for _, txIn := range tx.MsgTx().TxIn {
 
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
+
 		if entry != nil {
 
 			entry.Spend()
@@ -273,6 +281,7 @@ func logSkippedDeps(
 
 		return
 	}
+
 	for _, item := range deps {
 
 		log <- cl.Tracef{
@@ -298,6 +307,7 @@ func medianAdjustedTime(
 	// The timestamp for the block must not be before the median timestamp of the last several blocks.  Thus, choose the maximum between the current time and one second after the past median time.  The current timestamp is truncated to a second boundary before comparison since a block timestamp does not supported a precision greater than one second.
 	newTimestamp := timeSource.AdjustedTime()
 	minTimestamp := MinimumMedianTime(chainState)
+
 	if newTimestamp.Before(minTimestamp) {
 
 		newTimestamp = minTimestamp
@@ -382,12 +392,14 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	// Create a standard coinbase transaction paying to the provided address.  NOTE: The coinbase value will be updated to include the fees from the selected transactions later after they have actually been selected.  It is created here to detect any errors early before potentially doing a lot of work below.  The extra nonce helps ensure the transaction is not a duplicate transaction (paying the same value to the same public key address would otherwise be an identical transaction for block version 1).
 	extraNonce := uint64(0)
 	coinbaseScript, err := standardCoinbaseScript(nextBlockHeight, extraNonce)
+
 	if err != nil {
 
 		return nil, err
 	}
 	coinbaseTx, err := createCoinbaseTx(g.chainParams, coinbaseScript,
 		nextBlockHeight, payToAddress)
+
 	if err != nil {
 
 		return nil, err
@@ -412,16 +424,19 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	txSigOpCosts := make([]int64, 0, len(sourceTxns))
 	txFees = append(txFees, -1) // Updated once known
 	txSigOpCosts = append(txSigOpCosts, coinbaseSigOpCost)
+
 	log <- cl.Tracef{
 
 		"considering %d transactions for inclusion to new block",
 		len(sourceTxns),
 	}
 mempoolLoop:
+
 	for _, txDesc := range sourceTxns {
 
 		// A block can't have more than one coinbase or contain non-finalized transactions.
 		tx := txDesc.Tx
+
 		if blockchain.IsCoinBase(tx) {
 
 			Log.Trcc(func() string {
@@ -430,6 +445,7 @@ mempoolLoop:
 			})
 			continue
 		}
+
 		if !blockchain.IsFinalizedTransaction(tx, nextBlockHeight,
 			g.timeSource.AdjustedTime()) {
 
@@ -441,6 +457,7 @@ mempoolLoop:
 		}
 		// Fetch all of the utxos referenced by the this transaction. NOTE: This intentionally does not fetch inputs from the mempool since a transaction which depends on other transactions in the mempool must come after those dependencies in the final generated block.
 		utxos, err := g.chain.FetchUtxoView(tx)
+
 		if err != nil {
 
 			Log.Wrnc(func() string {
@@ -451,10 +468,12 @@ mempoolLoop:
 		}
 		// Setup dependencies for any transactions which reference other transactions in the mempool so they can be properly ordered below.
 		prioItem := &txPrioItem{tx: tx}
+
 		for _, txIn := range tx.MsgTx().TxIn {
 
 			originHash := &txIn.PreviousOutPoint.Hash
 			entry := utxos.LookupEntry(txIn.PreviousOutPoint)
+
 			if entry == nil || entry.IsSpent() {
 
 				if !g.txSource.HaveTransaction(originHash) {
@@ -469,12 +488,14 @@ mempoolLoop:
 				}
 				// The transaction is referencing another transaction in the source pool, so setup an ordering dependency.
 				deps, exists := dependers[*originHash]
+
 				if !exists {
 
 					deps = make(map[chainhash.Hash]*txPrioItem)
 					dependers[*originHash] = deps
 				}
 				deps[*prioItem.tx.Hash()] = prioItem
+
 				if prioItem.dependsOn == nil {
 
 					prioItem.dependsOn = make(
@@ -492,6 +513,7 @@ mempoolLoop:
 		prioItem.feePerKB = txDesc.FeePerKB
 		prioItem.fee = txDesc.Fee
 		// Add the transaction to the priority queue to mark it ready for inclusion in the block unless it has dependencies.
+
 		if prioItem.dependsOn == nil {
 
 			heap.Push(priorityQueue, prioItem)
@@ -516,6 +538,7 @@ mempoolLoop:
 
 	// Query the version bits state to see if segwit has been activated, if so then this means that we'll include any transactions with witness data in the mempool, and also add the witness commitment as an OP_RETURN output in the coinbase transaction.
 	segwitState, err := g.chain.ThresholdState(chaincfg.DeploymentSegwit)
+
 	if err != nil {
 
 		return nil, err
@@ -524,11 +547,13 @@ mempoolLoop:
 	witnessIncluded := false
 
 	// Choose which transactions make it into the block.
+
 	for priorityQueue.Len() > 0 {
 
 		// Grab the highest priority (or highest fee per kilobyte depending on the sort order) transaction.
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		tx := prioItem.tx
+
 		switch {
 
 		// If segregated witness has not been activated yet, then we shouldn't include any witness transactions in the block.
@@ -557,6 +582,7 @@ mempoolLoop:
 		// Enforce maximum block size.  Also check for overflow.
 		txWeight := uint32(blockchain.GetTransactionWeight(tx))
 		blockPlusTxWeight := blockWeight + txWeight
+
 		if blockPlusTxWeight < blockWeight ||
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
 
@@ -570,6 +596,7 @@ mempoolLoop:
 		// Enforce maximum signature operation cost per block.  Also check for overflow.
 		sigOpCost, err := blockchain.GetSigOpCost(tx, false,
 			blockUtxos, true, segwitActive)
+
 		if err != nil {
 
 			Log.Trcc(func() string {
@@ -580,6 +607,7 @@ mempoolLoop:
 			logSkippedDeps(tx, deps)
 			continue
 		}
+
 		if blockSigOpCost+int64(sigOpCost) < blockSigOpCost ||
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
 
@@ -592,6 +620,7 @@ mempoolLoop:
 			continue
 		}
 		// Skip free transactions once the block is larger than the minimum block size.
+
 		if sortedByFee &&
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
@@ -610,6 +639,7 @@ mempoolLoop:
 			continue
 		}
 		// Prioritize by fee per kilobyte once the block is larger than the priority size or there are no more high-priority transactions.
+
 		if !sortedByFee && (blockPlusTxWeight >= g.policy.BlockPrioritySize ||
 			prioItem.priority <= MinHighPriority) {
 
@@ -626,6 +656,7 @@ mempoolLoop:
 			sortedByFee = true
 			priorityQueue.SetLessFunc(txPQByFee)
 			// Put the transaction back into the priority queue and skip it so it is re-priortized by fees if it won't fit into the high-priority section or the priority is too low.  Otherwise this transaction will be the final one in the high-priority section, so just fall though to the code below so it is added now.
+
 			if blockPlusTxWeight > g.policy.BlockPrioritySize ||
 				prioItem.priority < MinHighPriority {
 
@@ -636,6 +667,7 @@ mempoolLoop:
 		// Ensure the transaction inputs pass all of the necessary preconditions before allowing it to be added to the block.
 		_, err = blockchain.CheckTransactionInputs(tx, nextBlockHeight,
 			blockUtxos, g.chainParams)
+
 		if err != nil {
 
 			log <- cl.Tracef{
@@ -650,6 +682,7 @@ mempoolLoop:
 		err = blockchain.ValidateTransactionScripts(tx, blockUtxos,
 			txscript.StandardVerifyFlags, g.sigCache,
 			g.hashCache)
+
 		if err != nil {
 
 			log <- cl.Tracef{
@@ -670,6 +703,7 @@ mempoolLoop:
 		totalFees += prioItem.fee
 		txFees = append(txFees, prioItem.fee)
 		txSigOpCosts = append(txSigOpCosts, int64(sigOpCost))
+
 		log <- cl.Tracef{
 
 			"adding tx %s (priority %.2f, feePerKB %.2f)",
@@ -678,10 +712,12 @@ mempoolLoop:
 			prioItem.feePerKB,
 		}
 		// Add transactions which depend on this one (and also do not have any other unsatisified dependencies) to the priority queue.
+
 		for _, item := range deps {
 
 			// Add the transaction to the priority queue if there are no more dependencies after this one.
 			delete(item.dependsOn, *tx.Hash())
+
 			if len(item.dependsOn) == 0 {
 
 				heap.Push(priorityQueue, item)
@@ -698,6 +734,7 @@ mempoolLoop:
 
 	// If segwit is active and we included transactions with witness data, then we'll need to include a commitment to the witness data in an OP_RETURN output within the coinbase transaction.
 	var witnessCommitment []byte
+
 	if witnessIncluded {
 
 		// The witness of the coinbase transaction MUST be exactly 32-bytes of all zeroes.
@@ -726,6 +763,7 @@ mempoolLoop:
 	// Calculate the required difficulty for the block.  The timestamp is potentially adjusted to ensure it comes after the median time of the last several blocks per the chain consensus rules.
 	ts := medianAdjustedTime(best, g.timeSource)
 	reqDifficulty, err := g.chain.CalcNextRequiredDifficulty(ts, algo)
+
 	if err != nil {
 
 		return nil, err
@@ -743,6 +781,7 @@ mempoolLoop:
 		Timestamp:  ts,
 		Bits:       reqDifficulty,
 	}
+
 	for _, tx := range blockTxns {
 
 		if err := msgBlock.AddTransaction(tx.MsgTx()); err != nil {
@@ -755,6 +794,7 @@ mempoolLoop:
 	block := util.NewBlock(&msgBlock)
 	block.SetHeight(nextBlockHeight)
 	err = g.chain.CheckConnectBlockTemplate(block)
+
 	if err != nil {
 
 		log <- cl.Debug{"checkconnectblocktemplate err:", err}
@@ -815,10 +855,12 @@ func (g *BlkTmplGenerator) UpdateBlockTime(msgBlock *wire.MsgBlock) error {
 func (g *BlkTmplGenerator) UpdateExtraNonce(msgBlock *wire.MsgBlock, blockHeight int32, extraNonce uint64) error {
 
 	coinbaseScript, err := standardCoinbaseScript(blockHeight, extraNonce)
+
 	if err != nil {
 
 		return err
 	}
+
 	if len(coinbaseScript) > blockchain.MaxCoinbaseScriptLen {
 
 		return fmt.Errorf(

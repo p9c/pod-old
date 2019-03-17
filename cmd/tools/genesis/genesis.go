@@ -40,10 +40,13 @@ var (
 
 // This function reverses the bytes in a byte array
 func byteswap(
+
 	buf []byte) {
 
 	length := len(buf)
+
 	for i := 0; i < length/2; i++ {
+
 		buf[i], buf[length-i-1] = buf[length-i-1], buf[i]
 	}
 
@@ -65,14 +68,18 @@ func initTransaction() (t transaction) {
 func main() {
 
 	args := os.Args
+
 	if len(args) != 4 {
+
 		fmt.Println("Bitcoin fork genesis block generator")
 		fmt.Println("Usage:")
 		fmt.Println("    ", args[0], "<pubkey> <timestamp> <nBits>")
 		fmt.Println("Example:")
 		fmt.Println("    ", args[0], "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f \"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks\" 486604799")
 		fmt.Println("\nIf you execute this without parameters another one in the source code will be generated, using a random public key")
+
 		args = []string{
+
 			os.Args[0],
 			"04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f",
 			"“All rational action is in the first place individual action. Only the individual thinks. Only the individual reasons. Only the individual acts.” - Ludwig von Mises, Socialism: An Economic and Sociological Analysis",
@@ -82,63 +89,83 @@ func main() {
 	}
 
 	var pubkey []byte
+
 	if args[1] == "" {
+
 		pubkey = make([]byte, 65)
 		n, err := rand.Read(pubkey)
+
 		if err != nil {
+
 			fmt.Println("error: ", err)
 			os.Exit(1)
 		}
 
 		if n != 65 {
+
 			fmt.Println("For some reason did not get 65 random bytes")
 			os.Exit(1)
 		}
 
 		fmt.Printf("\nGenerated random public key:\n0x%x\n", pubkey)
+
 	} else {
+
 		if len(args[1]) != 130 {
+
 			fmt.Println("Invalid public key length. Should be 130 hex digits,")
 			os.Exit(1)
 		}
 
 		var err error
 		pubkey, err = hex.DecodeString(args[1])
+
 		if err != nil {
+
 			fmt.Println("Public key had invalid characters")
 		}
 
 	}
 
 	timestamp := args[2]
+
 	if len(timestamp) > 254 || len(timestamp) < 1 {
+
 		fmt.Println("Timestamp was either longer than 254 characters or zero length")
 		os.Exit(1)
 	}
 
 	tx := initTransaction()
 	nbits, err := strconv.ParseInt(args[3], 10, 32)
+
 	if err != nil {
+
 		fmt.Println("nBits was not a decimal number or exceeded the precision of 32 bits")
 		os.Exit(0)
 	}
 
 	nBits := uint32(nbits)
 	tx.pubkeyScript = joinBytes([]byte{0x41}, pubkey, []byte{op_checksig})
+
 	switch {
+
 	case nBits <= 255:
 		tx.scriptSig = append([]byte{1}, byte(nBits))
 	case nBits <= 65535:
 		tx.scriptSig = joinBytes([]byte{2, byte(nBits)}, []byte{byte(nBits >> 8)})
 	case nBits <= 16777215:
 		tx.scriptSig = append([]byte{3}, byte(nBits))
+
 		for i := uint(1); i < 3; i++ {
+
 			tx.scriptSig = append(tx.scriptSig, byte(nBits>>(8*i)))
 		}
 
 	default:
 		tx.scriptSig = append([]byte{4}, byte(nBits))
+
 		for i := uint(1); i < 4; i++ {
+
 			tx.scriptSig = append(tx.scriptSig, byte(nBits>>(8*i)))
 		}
 
@@ -180,23 +207,31 @@ func main() {
 	// bytes := 31
 	body := nBits << 8 >> 8
 	var bits uint32
+
 	for bits < 24 {
+
 		bits++
+
 		if body<<bits == 0 {
+
 			break
 		}
 
 	}
 
 	bits = 32 - bits
+
 	if bits < 31 {
+
 		bytes = bytes - bits/8
 		bits = bits % 8
 	}
 
 	fmt.Printf("\nSearching for nonce/unixtime combination that satisfies minimum target %d with %d threads on %d cores...\nPlease wait... ", nBits, runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	start := time.Now()
+
 	for i := 0; i < runtime.NumCPU(); i++ {
+
 		go findNonce(blockHeader, bytes, bits, start)
 		time.Sleep(time.Second)
 	}
@@ -205,16 +240,21 @@ func main() {
 }
 
 func findNonce(
+
 	b []byte, bytes, bits uint32, start time.Time) []byte {
+
 	blockHeader := append([]byte(nil), b...)
 	unixtime = uint32(time.Now().Unix())
 	blockHeader[68] = byte(unixtime)
 	blockHeader[69] = byte(unixtime >> 8)
 	blockHeader[70] = byte(unixtime >> 16)
 	blockHeader[71] = byte(unixtime >> 24)
+
 	for {
+
 		blockhash1 := sha256.Sum256(blockHeader)
 		blockhash2 := sha256.Sum256(blockhash1[:])
+
 		if undertarget(blockhash2[bytes:], bits) {
 
 			byteswap(blockhash2[:])
@@ -225,12 +265,16 @@ func findNonce(
 		}
 
 		startNonce++
+
 		if startNonce < maxNonce {
+
 			blockHeader[76] = byte(startNonce)
 			blockHeader[77] = byte(startNonce >> 8)
 			blockHeader[78] = byte(startNonce >> 16)
 			blockHeader[79] = byte(startNonce >> 24)
+
 		} else {
+
 			startNonce = 0
 			unixtime = uint32(time.Now().Unix())
 			blockHeader[68] = byte(unixtime)
@@ -244,10 +288,13 @@ func findNonce(
 }
 
 func joinBytes(
+
 	segment ...[]byte) (joined []byte) {
 
 	joined = make([]byte, 0)
+
 	for i := range segment {
+
 		joined = append(joined, segment[i]...)
 	}
 
@@ -255,20 +302,29 @@ func joinBytes(
 }
 
 func undertarget(
+
 	hash []byte, bits uint32) bool {
+
 	// for i:=len(hash)-1; i>0; i-- { hash[i]=0 }
 	// fmt.Println(hash)
+
 	for i := len(hash) - 1; i > 0; i-- {
+
 		// fmt.Println(hash[i])
+
 		if hash[i] != 0 {
+
 			return false
 		}
 
 	}
 
 	// hash[0] = 0
+
 	for i := bits; i > 0; i-- {
+
 		if hash[0]<<i != 0 {
+
 			return false
 		}
 
@@ -278,10 +334,14 @@ func undertarget(
 }
 
 func uint32tobytes(
+
 	u uint32) []byte {
+
 	b := make([]byte, 4)
 	b[0] = byte(u)
+
 	for i := uint(1); i < 4; i++ {
+
 		b[i] = byte(u >> (i * 8))
 	}
 
@@ -289,13 +349,18 @@ func uint32tobytes(
 }
 
 func bytestouint32(
+
 	b []byte) uint32 {
+
 	if len(b) > 4 {
+
 		return 0
 	}
 
 	var u uint32
+
 	for i := uint32(3); i > 0; i-- {
+
 		u += uint32(b[i]) << (i * 8)
 	}
 
@@ -303,10 +368,14 @@ func bytestouint32(
 }
 
 func uint64tobytes(
+
 	u uint64) []byte {
+
 	b := make([]byte, 8)
 	b[0] = byte(u)
+
 	for i := uint(1); i < 8; i++ {
+
 		b[i] = byte(u >> (i * 8))
 	}
 

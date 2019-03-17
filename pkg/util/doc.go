@@ -23,7 +23,10 @@ pay-to-script-hash address types. To decode/encode an address:
 	addr, err := util.DecodeAddress(addrString, defaultNet)
 
 
+
+
 	if err != nil {
+
 
 fmt.Println(err)
 		return

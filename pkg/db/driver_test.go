@@ -65,7 +65,9 @@ func TestAddDuplicateDriver(
 	}
 
 	// Create a driver that tries to replace an existing one.  Set its create and open functions to a function that causes a test failure if they are invoked.
+
 	driver := database.Driver{
+
 		DbType: dbType,
 		Create: bogusCreateDB,
 		Open:   bogusCreateDB,
@@ -97,7 +99,9 @@ func TestCreateOpenFail(
 	}
 
 	// Create and add driver that intentionally fails when created or opened to ensure errors on database open and create are handled properly.
+
 	driver := database.Driver{
+
 		DbType: dbType,
 		Create: bogusCreateDB,
 		Open:   bogusCreateDB,

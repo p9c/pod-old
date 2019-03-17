@@ -17,6 +17,7 @@ type FutureGetBestBlockHashResult chan *response
 func (r FutureGetBestBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -25,6 +26,7 @@ func (r FutureGetBestBlockHashResult) Receive() (*chainhash.Hash, error) {
 	// Unmarshal result as a string.
 	var txHashStr string
 	err = js.Unmarshal(res, &txHashStr)
+
 	if err != nil {
 
 		return nil, err
@@ -52,6 +54,7 @@ type FutureGetBlockResult chan *response
 func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -60,6 +63,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 	// Unmarshal result as a string.
 	var blockHex string
 	err = js.Unmarshal(res, &blockHex)
+
 	if err != nil {
 
 		return nil, err
@@ -67,6 +71,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 
 	// Decode the serialized block hex to raw bytes.
 	serializedBlock, err := hex.DecodeString(blockHex)
+
 	if err != nil {
 
 		return nil, err
@@ -75,6 +80,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 	// Deserialize the block and return it.
 	var msgBlock wire.MsgBlock
 	err = msgBlock.Deserialize(bytes.NewReader(serializedBlock))
+
 	if err != nil {
 
 		return nil, err
@@ -86,6 +92,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 func (c *Client) GetBlockAsync(blockHash *chainhash.Hash) FutureGetBlockResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -107,6 +114,7 @@ type FutureGetBlockVerboseResult chan *response
 func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -115,6 +123,7 @@ func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, err
 	// Unmarshal the raw result into a BlockResult.
 	var blockResult json.GetBlockVerboseResult
 	err = js.Unmarshal(res, &blockResult)
+
 	if err != nil {
 
 		return nil, err
@@ -126,6 +135,7 @@ func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, err
 func (c *Client) GetBlockVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockVerboseResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -144,6 +154,7 @@ func (c *Client) GetBlockVerbose(blockHash *chainhash.Hash) (*json.GetBlockVerbo
 func (c *Client) GetBlockVerboseTxAsync(blockHash *chainhash.Hash) FutureGetBlockVerboseResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -165,6 +176,7 @@ type FutureGetBlockCountResult chan *response
 func (r FutureGetBlockCountResult) Receive() (int64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return 0, err
@@ -173,6 +185,7 @@ func (r FutureGetBlockCountResult) Receive() (int64, error) {
 	// Unmarshal the result as an int64.
 	var count int64
 	err = js.Unmarshal(res, &count)
+
 	if err != nil {
 
 		return 0, err
@@ -200,6 +213,7 @@ type FutureGetDifficultyResult chan *response
 func (r FutureGetDifficultyResult) Receive() (float64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return 0, err
@@ -208,6 +222,7 @@ func (r FutureGetDifficultyResult) Receive() (float64, error) {
 	// Unmarshal the result as a float64.
 	var difficulty float64
 	err = js.Unmarshal(res, &difficulty)
+
 	if err != nil {
 
 		return 0, err
@@ -235,11 +250,13 @@ type FutureGetBlockChainInfoResult chan *response
 func (r FutureGetBlockChainInfoResult) Receive() (*json.GetBlockChainInfoResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
 	}
 	var chainInfo json.GetBlockChainInfoResult
+
 	if err := js.Unmarshal(res, &chainInfo); err != nil {
 
 		return nil, err
@@ -267,6 +284,7 @@ type FutureGetBlockHashResult chan *response
 func (r FutureGetBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -275,6 +293,7 @@ func (r FutureGetBlockHashResult) Receive() (*chainhash.Hash, error) {
 	// Unmarshal the result as a string-encoded sha.
 	var txHashStr string
 	err = js.Unmarshal(res, &txHashStr)
+
 	if err != nil {
 
 		return nil, err
@@ -302,6 +321,7 @@ type FutureGetBlockHeaderResult chan *response
 func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -310,11 +330,13 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 	// Unmarshal result as a string.
 	var bhHex string
 	err = js.Unmarshal(res, &bhHex)
+
 	if err != nil {
 
 		return nil, err
 	}
 	serializedBH, err := hex.DecodeString(bhHex)
+
 	if err != nil {
 
 		return nil, err
@@ -323,6 +345,7 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 	// Deserialize the blockheader and return it.
 	var bh wire.BlockHeader
 	err = bh.Deserialize(bytes.NewReader(serializedBH))
+
 	if err != nil {
 
 		return nil, err
@@ -334,6 +357,7 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 func (c *Client) GetBlockHeaderAsync(blockHash *chainhash.Hash) FutureGetBlockHeaderResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -355,6 +379,7 @@ type FutureGetBlockHeaderVerboseResult chan *response
 func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerboseResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -363,6 +388,7 @@ func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerbos
 	// Unmarshal result as a string.
 	var bh json.GetBlockHeaderVerboseResult
 	err = js.Unmarshal(res, &bh)
+
 	if err != nil {
 
 		return nil, err
@@ -374,6 +400,7 @@ func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerbos
 func (c *Client) GetBlockHeaderVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockHeaderVerboseResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -395,6 +422,7 @@ type FutureGetMempoolEntryResult chan *response
 func (r FutureGetMempoolEntryResult) Receive() (*json.GetMempoolEntryResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -403,6 +431,7 @@ func (r FutureGetMempoolEntryResult) Receive() (*json.GetMempoolEntryResult, err
 	// Unmarshal the result as an array of strings.
 	var mempoolEntryResult json.GetMempoolEntryResult
 	err = js.Unmarshal(res, &mempoolEntryResult)
+
 	if err != nil {
 
 		return nil, err
@@ -430,6 +459,7 @@ type FutureGetRawMempoolResult chan *response
 func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -438,6 +468,7 @@ func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 	// Unmarshal the result as an array of strings.
 	var txHashStrs []string
 	err = js.Unmarshal(res, &txHashStrs)
+
 	if err != nil {
 
 		return nil, err
@@ -445,9 +476,11 @@ func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 
 	// Create a slice of ShaHash arrays from the string slice.
 	txHashes := make([]*chainhash.Hash, 0, len(txHashStrs))
+
 	for _, hashStr := range txHashStrs {
 
 		txHash, err := chainhash.NewHashFromStr(hashStr)
+
 		if err != nil {
 
 			return nil, err
@@ -477,6 +510,7 @@ type FutureGetRawMempoolVerboseResult chan *response
 func (r FutureGetRawMempoolVerboseResult) Receive() (map[string]json.GetRawMempoolVerboseResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -485,6 +519,7 @@ func (r FutureGetRawMempoolVerboseResult) Receive() (map[string]json.GetRawMempo
 	// Unmarshal the result as a map of strings (tx shas) to their detailed results.
 	var mempoolItems map[string]json.GetRawMempoolVerboseResult
 	err = js.Unmarshal(res, &mempoolItems)
+
 	if err != nil {
 
 		return nil, err
@@ -512,6 +547,7 @@ type FutureEstimateFeeResult chan *response
 func (r FutureEstimateFeeResult) Receive() (float64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return -1, err
@@ -520,6 +556,7 @@ func (r FutureEstimateFeeResult) Receive() (float64, error) {
 	// Unmarshal result as a getinfo result object.
 	var fee float64
 	err = js.Unmarshal(res, &fee)
+
 	if err != nil {
 
 		return -1, err
@@ -547,6 +584,7 @@ type FutureVerifyChainResult chan *response
 func (r FutureVerifyChainResult) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return false, err
@@ -555,6 +593,7 @@ func (r FutureVerifyChainResult) Receive() (bool, error) {
 	// Unmarshal the result as a boolean.
 	var verified bool
 	err = js.Unmarshal(res, &verified)
+
 	if err != nil {
 
 		return false, err
@@ -608,12 +647,14 @@ type FutureGetTxOutResult chan *response
 func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	// take care of the special case where the output has been spent already it should return the string "null"
+
 	if string(res) == "null" {
 
 		return nil, nil
@@ -622,6 +663,7 @@ func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 	// Unmarshal result as an gettxout result object.
 	var txOutInfo *json.GetTxOutResult
 	err = js.Unmarshal(res, &txOutInfo)
+
 	if err != nil {
 
 		return nil, err
@@ -633,6 +675,7 @@ func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 func (c *Client) GetTxOutAsync(txHash *chainhash.Hash, index uint32, mempool bool) FutureGetTxOutResult {
 
 	hash := ""
+
 	if txHash != nil {
 
 		hash = txHash.String()
@@ -654,12 +697,14 @@ type FutureRescanBlocksResult chan *response
 func (r FutureRescanBlocksResult) Receive() ([]json.RescannedBlock, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
 	}
 	var rescanBlocksResult []json.RescannedBlock
 	err = js.Unmarshal(res, &rescanBlocksResult)
+
 	if err != nil {
 
 		return nil, err
@@ -671,6 +716,7 @@ func (r FutureRescanBlocksResult) Receive() ([]json.RescannedBlock, error) {
 func (c *Client) RescanBlocksAsync(blockHashes []chainhash.Hash) FutureRescanBlocksResult {
 
 	strBlockHashes := make([]string, len(blockHashes))
+
 	for i := range blockHashes {
 
 		strBlockHashes[i] = blockHashes[i].String()
@@ -699,6 +745,7 @@ func (r FutureInvalidateBlockResult) Receive() error {
 func (c *Client) InvalidateBlockAsync(blockHash *chainhash.Hash) FutureInvalidateBlockResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -720,6 +767,7 @@ type FutureGetCFilterResult chan *response
 func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -728,6 +776,7 @@ func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 	// Unmarshal result as a string.
 	var filterHex string
 	err = js.Unmarshal(res, &filterHex)
+
 	if err != nil {
 
 		return nil, err
@@ -735,6 +784,7 @@ func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 
 	// Decode the serialized cf hex to raw bytes.
 	serializedFilter, err := hex.DecodeString(filterHex)
+
 	if err != nil {
 
 		return nil, err
@@ -751,6 +801,7 @@ func (c *Client) GetCFilterAsync(blockHash *chainhash.Hash,
 	filterType wire.FilterType) FutureGetCFilterResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()
@@ -773,6 +824,7 @@ type FutureGetCFilterHeaderResult chan *response
 func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -781,6 +833,7 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 	// Unmarshal result as a string.
 	var headerHex string
 	err = js.Unmarshal(res, &headerHex)
+
 	if err != nil {
 
 		return nil, err
@@ -788,6 +841,7 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 
 	// Assign the decoded header into a hash
 	headerHash, err := chainhash.NewHashFromStr(headerHex)
+
 	if err != nil {
 
 		return nil, err
@@ -803,6 +857,7 @@ func (c *Client) GetCFilterHeaderAsync(blockHash *chainhash.Hash,
 	filterType wire.FilterType) FutureGetCFilterHeaderResult {
 
 	hash := ""
+
 	if blockHash != nil {
 
 		hash = blockHash.String()

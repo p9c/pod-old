@@ -33,10 +33,12 @@ func CheckCreateDir(
 			}
 
 		} else {
+
 			return fmt.Errorf("error checking directory: %s", err)
 		}
 
 	} else {
+
 		if !fi.IsDir() {
 
 			return fmt.Errorf("path '%s' is not a directory", path)
@@ -94,7 +96,9 @@ func GenFlag(
 	help string,
 
 ) climax.Flag {
+
 	return climax.Flag{
+
 		Name:     name,
 		Usage:    "--" + name + `="` + usage + `"`,
 		Help:     help,
@@ -117,7 +121,9 @@ func GenLog(
 	name string,
 
 ) climax.Flag {
+
 	return climax.Flag{
+
 		Name:     name,
 		Usage:    "--" + name + `="info"`,
 		Variable: true,
@@ -133,7 +139,9 @@ func GenShort(
 	help string,
 
 ) climax.Flag {
+
 	return climax.Flag{
+
 		Name:     name,
 		Short:    short,
 		Usage:    "--" + name + `="` + usage + `"`,
@@ -150,7 +158,9 @@ func GenTrig(
 	help string,
 
 ) climax.Flag {
+
 	return climax.Flag{
+
 		Name:     name,
 		Short:    short,
 		Help:     help,
@@ -180,6 +190,7 @@ func NormalizeAddress(
 		}
 
 	} else {
+
 		*out = o
 	}
 
@@ -232,6 +243,7 @@ func ParseDuration(
 	var ti time.Duration
 
 	switch d[len(d)-1] {
+
 	case 's':
 		t, err = strconv.Atoi(d[:len(d)-1])
 		ti = time.Duration(t) * time.Second
@@ -251,6 +263,7 @@ func ParseDuration(
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%s` err: %s", name, d, *out, err.Error())
 
 	} else {
+
 		*out = ti
 	}
 
@@ -274,6 +287,7 @@ func ParseFloat(
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%0.f` err: %s", name, f, *original, err.Error())
 
 	} else {
+
 		*original = out
 	}
 
@@ -298,6 +312,7 @@ func ParseInteger(
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
 
 	} else {
+
 		*original = out
 	}
 
@@ -322,6 +337,7 @@ func ParseUint32(
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
 
 	} else {
+
 		*original = uint32(out)
 	}
 

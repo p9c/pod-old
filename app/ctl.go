@@ -14,11 +14,13 @@ func ctlHandleSave() {
 
 	appConfigCommon.Save = false
 	yn, e := yaml.Marshal(ctlConfig)
+
 	if e == nil {
 
 		EnsureDir(*ctlConfig.ConfigFile)
 		e =
 			ioutil.WriteFile(*ctlConfig.ConfigFile, yn, 0600)
+
 		if e != nil {
 
 			panic(e)
@@ -59,6 +61,7 @@ func ctlHandle(c *cli.Context) error {
 	}
 
 	network := c.Parent().String("network")
+
 	switch network {
 
 	case "testnet", "testnet3", "t":
@@ -72,6 +75,7 @@ func ctlHandle(c *cli.Context) error {
 		activeNetParams = &netparams.SimNetParams
 
 	default:
+
 		if network != "mainnet" && network != "m" {
 
 			fmt.Println("using mainnet for ctl")
@@ -83,6 +87,7 @@ func ctlHandle(c *cli.Context) error {
 	}
 
 	_ = podHandle(c)
+
 	if appConfigCommon.Save {
 
 		appConfigCommon.Save = false

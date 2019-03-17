@@ -39,6 +39,7 @@ func GUI(
 	}
 
 	w := webview.New(webview.Settings{
+
 		Title:     "ParallelCoin - DUO - True Story",
 		Width:     1800,
 		Height:    960,
@@ -83,6 +84,7 @@ func GUI(
 		w.Bind("conf", &conf.Conf{})
 
 		w.Bind("vuedata", &VDATA{
+
 			Config: conf.VCF,
 			Pages:  libs.PGS,
 			Icons:  libs.VIC,

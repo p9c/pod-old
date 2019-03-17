@@ -17,6 +17,7 @@ func TestFilterClearLatest(
 
 	// Ensure the command is expected value.
 	wantCmd := "filterclear"
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgFilterClear: wrong command - got %v want %v",
@@ -26,6 +27,7 @@ func TestFilterClearLatest(
 	// Ensure max payload is expected value for latest protocol version.
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -43,6 +45,7 @@ func TestFilterClearCrossProtocol(
 	// Encode with latest protocol version.
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
+
 	if err != nil {
 
 		t.Errorf("encode of MsgFilterClear failed %v err <%v>", msg, err)
@@ -51,6 +54,7 @@ func TestFilterClearCrossProtocol(
 	// Decode with old protocol version.
 	var readmsg MsgFilterClear
 	err = readmsg.BtcDecode(&buf, BIP0031Version, LatestEncoding)
+
 	if err == nil {
 
 		t.Errorf("decode of MsgFilterClear succeeded when it "+
@@ -100,16 +104,19 @@ func TestFilterClearWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -121,11 +128,13 @@ func TestFilterClearWire(
 		var msg MsgFilterClear
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&msg, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -160,11 +169,13 @@ func TestFilterClearWireErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -173,6 +184,7 @@ func TestFilterClearWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -187,6 +199,7 @@ func TestFilterClearWireErrors(
 		var msg MsgFilterClear
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -195,6 +208,7 @@ func TestFilterClearWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {

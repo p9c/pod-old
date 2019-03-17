@@ -617,6 +617,7 @@ waitForHeaders:
 	// sync is faster, than fetching each header from each peer during the
 
 	// normal "at tip" syncing.
+
 	log <- cl.Infof{
 
 		"waiting for more block headers, then will start cfheaders sync from height %v...",
@@ -914,6 +915,7 @@ waitForHeaders:
 		// At this point, we know that there're a set of new filter
 
 		// headers to fetch, so we'll grab them now.
+
 		if err = b.getUncheckpointedCFHeaders(
 			store, fType,
 		); err != nil {
@@ -1289,6 +1291,7 @@ func (b *blockManager) getCheckpointedCFHeaders(checkpoints []*chainhash.Hash,
 			}
 
 			// The response doesn't match the query.
+
 			if q.FilterType != r.FilterType ||
 
 				q.StopHash != r.StopHash {
@@ -2132,6 +2135,7 @@ func (b *blockManager) getCFHeadersForAllPeers(height uint32,
 			switch m := resp.(type) {
 
 			case *wire.MsgCFHeaders:
+
 				if m.StopHash == stopHash &&
 
 					m.FilterType == fType {
@@ -2187,6 +2191,7 @@ func (b *blockManager) fetchFilterFromAllPeers(
 				// If the response doesn't match our request.
 
 				// Ignore this message.
+
 				if blockHash != response.BlockHash ||
 
 					filterType != response.FilterType {
@@ -2246,6 +2251,7 @@ func (b *blockManager) getCheckpts(lastHash *chainhash.Hash,
 			switch m := resp.(type) {
 
 			case *wire.MsgCFCheckpt:
+
 				if m.FilterType == fType &&
 
 					m.StopHash == *lastHash {
@@ -2413,6 +2419,7 @@ out:
 				b.handleDonePeerMsg(candidatePeers, msg.peer)
 
 			default:
+
 				log <- cl.Warnf{
 
 					"invalid message type in block handler: %T", msg,
@@ -2427,6 +2434,7 @@ out:
 	}
 
 	b.wg.Done()
+
 	log <- cl.Trace{"block handler done"}
 
 }
@@ -2915,6 +2923,7 @@ func (b *blockManager) handleInvMsg(imsg *invMsg) {
 		// Only send getheaders if we don't already know about the last
 
 		// block hash being announced.
+
 		if lastHash != invVects[lastBlock].Hash && lastEl != nil &&
 
 			b.lastRequested != invVects[lastBlock].Hash {
@@ -3296,6 +3305,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 			switch knownWork.Cmp(totalWork) {
 
 			case 1:
+
 				log <- cl.Warnf{
 
 					"reorg attempt that has less work than known chain from peer %s -- disconnecting",
@@ -3368,6 +3378,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 			if nodeHash.IsEqual(b.nextCheckpoint.Hash) {
 
 				receivedCheckpoint = true
+
 				log <- cl.Infof{
 
 					"verified downloaded block header against checkpoint at height %d/hash %s",
@@ -3635,7 +3646,14 @@ func (b *blockManager) calcNextRequiredDifficulty(newBlockTime time.Time,
 
 	// Log new target difficulty and return it.  The new target logging is intentionally converting the bits back to a number instead of using newTarget since conversion to the compact representation loses precision.
 	newTargetBits := blockchain.BigToCompact(newTarget)
+
 	log <- cl.Debugf{`
+
+
+
+
+
+
 
 difficulty retarget at block height %d
 old target %08x (%064x)
@@ -3673,6 +3691,7 @@ func (b *blockManager) findPrevTestNetDifficulty(hList headerlist.Chain) (uint32
 	iterEl := startNode
 	iterNode := &startNode.Header
 	iterHeight := startNode.Height
+
 	for iterNode != nil && iterHeight%b.blocksPerRetarget != 0 &&
 
 		iterNode.Bits == b.server.chainParams.PowLimitBits {

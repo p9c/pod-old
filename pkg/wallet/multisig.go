@@ -110,7 +110,9 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		// TODO(oga) blockstamp current block?
+
 		bs := &waddrmgr.BlockStamp{
+
 			Hash:   *w.ChainParams().GenesisHash,
 			Height: 0,
 		}

@@ -84,6 +84,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	if !msgBlock.Header.PrevBlock.IsEqual(&c.g.BestSnapshot().Hash) {
 
 		log <- cl.Debugf{
+
 			"Block submitted via miner with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
 		}
@@ -98,17 +99,21 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			log <- cl.Error{
+
 				"Unexpected error while processing block submitted via miner worker:",
 				err,
 			}
 			return false
 		}
+
 		log <- cl.Debug{"Block submitted via miner rejected:", err}
+
 		return false
 	}
 	if isOrphan {
 
 		log <- cl.Dbg("Block submitted via miner is an orphan")
+
 		return false
 	}
 
@@ -128,6 +133,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 			block.MsgBlock().Header.Timestamp.Unix(),
 			block.MsgBlock().Header.Bits,
 			util.Amount(coinbaseTx.Value),
+
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
 				block.Height()),
 			since,
@@ -144,6 +150,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	if err != nil {
 
 		log <- cl.Error{"Unexpected error while generating random extra nonce offset:", err}
+
 		enOffset = 0
 	}
 	header := &msgBlock.Header
@@ -152,11 +159,13 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	lastTxUpdate := c.g.TxSource().LastUpdated()
 
 	// Note that the entire extra nonce range is iterated and the offset is added relying on the fact that overflow will wrap around 0 as provided by the Go spec.
+
 	for extraNonce := uint64(0); extraNonce < maxExtraNonce; extraNonce++ {
 
 		// Update the extra nonce in the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		c.g.UpdateExtraNonce(msgBlock, blockHeight, extraNonce+enOffset)
 		// Search through the entire nonce range for a solution while periodically checking for early quit and stale block conditions along with updates to the speed monitor.
+
 		for i := uint32(0); i <= maxNonce; i++ {
 
 			select {
@@ -208,6 +217,7 @@ func (c *Controller) generateBlocks(quit chan struct{}) {
 	// Create a channel to receive block submissions
 	var submission chan *wire.MsgBlock
 out:
+
 	for {
 
 		select {
@@ -241,6 +251,7 @@ out:
 		if err != nil {
 
 			log <- cl.Error{"Failed to create new block template: %v", err}
+
 			continue
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
@@ -259,6 +270,7 @@ func (c *Controller) minerController() {
 	quit := make(chan struct{})
 	go c.generateBlocks(quit)
 out:
+
 	for {
 
 		select {
@@ -285,7 +297,9 @@ func (c *Controller) Start() {
 	c.wg.Add(1)
 	go c.minerController()
 	c.started = true
+
 	log <- cl.Inf("Miner controller started")
+
 }
 
 // Stop gracefully stops the mining process by signalling all workers, and the speed monitor to quit.  Calling this function when the miner controller has not already been started will have no effect.
@@ -300,7 +314,9 @@ func (c *Controller) Stop() {
 	close(c.quit)
 	c.wg.Wait()
 	c.started = false
+
 	log <- cl.Inf("Miner controller stopped")
+
 }
 
 // IsMining returns whether or not the miner controller has been started and is therefore currenting mining. This function is safe for concurrent access.

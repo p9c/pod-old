@@ -138,6 +138,7 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 
 	case r.resultChan <- &getUtxoResult{report, err}:
 	default:
+
 		log <- cl.Warnf{
 
 			"duplicate getutxo result delivered for outpoint=%v, spend=%v, err=%v",

@@ -16,6 +16,7 @@ type MsgPong struct {
 func (msg *MsgPong) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	// NOTE: <= is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver <= BIP0031Version {
 
 		str := fmt.Sprintf("pong message invalid for protocol "+
@@ -29,6 +30,7 @@ func (msg *MsgPong) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) err
 func (msg *MsgPong) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
 	// NOTE: <= is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver <= BIP0031Version {
 
 		str := fmt.Sprintf("pong message invalid for protocol "+
@@ -50,6 +52,7 @@ func (msg *MsgPong) MaxPayloadLength(pver uint32) uint32 {
 	plen := uint32(0)
 
 	// The pong message did not exist for BIP0031Version and earlier. NOTE: > is not a mistake here.  The BIP0031 was defined as AFTER the version unlike most others.
+
 	if pver > BIP0031Version {
 
 		// Nonce 8 bytes.

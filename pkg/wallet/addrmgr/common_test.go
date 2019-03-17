@@ -214,12 +214,14 @@ func checkManagerError(
 	t *testing.T, testName string, gotErr error, wantErrCode waddrmgr.ErrorCode) bool {
 
 	merr, ok := gotErr.(waddrmgr.ManagerError)
+
 	if !ok {
 
 		t.Errorf("%s: unexpected error type - got %T, want %T",
 			testName, gotErr, waddrmgr.ManagerError{})
 		return false
 	}
+
 	if merr.ErrorCode != wantErrCode {
 
 		t.Errorf("%s: unexpected error code - got %s (%s), want %s",
@@ -236,6 +238,7 @@ func hexToBytes(
 	origHex string) []byte {
 
 	buf, err := hex.DecodeString(origHex)
+
 	if err != nil {
 
 		panic(err)
@@ -247,12 +250,14 @@ func emptyDB(
 	t *testing.T) (tearDownFunc func(), db walletdb.DB) {
 
 	dirName, err := ioutil.TempDir("", "mgrtest")
+
 	if err != nil {
 
 		t.Fatalf("Failed to create db temp dir: %v", err)
 	}
 	dbPath := filepath.Join(dirName, "mgrtest.db")
 	db, err = walletdb.Create("bdb", dbPath)
+
 	if err != nil {
 
 		_ = os.RemoveAll(dirName)
@@ -273,12 +278,14 @@ func setupManager(
 
 	// Create a new manager in a temp directory.
 	dirName, err := ioutil.TempDir("", "mgrtest")
+
 	if err != nil {
 
 		t.Fatalf("Failed to create db temp dir: %v", err)
 	}
 	dbPath := filepath.Join(dirName, "mgrtest.db")
 	db, err = walletdb.Create("bdb", dbPath)
+
 	if err != nil {
 
 		_ = os.RemoveAll(dirName)
@@ -287,6 +294,7 @@ func setupManager(
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
+
 		if err != nil {
 
 			return err
@@ -295,6 +303,7 @@ func setupManager(
 			ns, seed, pubPassphrase, privPassphrase,
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
+
 		if err != nil {
 
 			return err
@@ -302,6 +311,7 @@ func setupManager(
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
+
 	if err != nil {
 
 		db.Close()

@@ -35,18 +35,22 @@ func TestCmdMethod(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		method, err := json.CmdMethod(test.cmd)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
 		}
+
 		if err != nil {
 
 			gotErrorCode := err.(json.Error).ErrorCode
+
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
 
 				t.Errorf("Test #%d (%s) mismatched error code "+
@@ -58,6 +62,7 @@ func TestCmdMethod(
 			continue
 		}
 		// Ensure method matches the expected value.
+
 		if method != test.method {
 
 			t.Errorf("Test #%d (%s) mismatched method - got %v, "+
@@ -95,18 +100,22 @@ func TestMethodUsageFlags(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		flags, err := json.MethodUsageFlags(test.method)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
 		}
+
 		if err != nil {
 
 			gotErrorCode := err.(json.Error).ErrorCode
+
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
 
 				t.Errorf("Test #%d (%s) mismatched error code "+
@@ -118,6 +127,7 @@ func TestMethodUsageFlags(
 			continue
 		}
 		// Ensure flags match the expected value.
+
 		if flags != test.flags {
 
 			t.Errorf("Test #%d (%s) mismatched flags - got %v, "+
@@ -155,18 +165,22 @@ func TestMethodUsageText(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		usage, err := json.MethodUsageText(test.method)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
 				"want %T", i, test.name, err, test.err)
 			continue
 		}
+
 		if err != nil {
 
 			gotErrorCode := err.(json.Error).ErrorCode
+
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
 
 				t.Errorf("Test #%d (%s) mismatched error code "+
@@ -178,6 +192,7 @@ func TestMethodUsageText(
 			continue
 		}
 		// Ensure usage matches the expected value.
+
 		if usage != test.expected {
 
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+
@@ -186,6 +201,7 @@ func TestMethodUsageText(
 		}
 		// Get the usage again to exercise caching.
 		usage, err = json.MethodUsageText(test.method)
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
@@ -193,6 +209,7 @@ func TestMethodUsageText(
 			continue
 		}
 		// Ensure usage still matches the expected value.
+
 		if usage != test.expected {
 
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+
@@ -436,10 +453,12 @@ func TestFieldUsage(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Ensure usage matches the expected value.
 		usage := json.TstFieldUsage(test.field, test.defValue)
+
 		if usage != test.expected {
 
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+

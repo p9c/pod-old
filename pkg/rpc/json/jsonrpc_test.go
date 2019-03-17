@@ -41,6 +41,7 @@ func TestIsValidIDType(
 		}, false},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		if json.IsValidIDType(test.id) != test.isValid {
@@ -82,16 +83,19 @@ func TestMarshalResponse(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		_, _ = i, test
 		marshalled, err := json.MarshalResponse(testID, test.result, test.jsonErr)
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(marshalled, test.expected) {
 
 			t.Errorf("Test #%d (%s) mismatched result - got %s, "+
@@ -111,6 +115,7 @@ func TestMiscErrors(
 
 	// not supported.
 	_, err := json.NewRequest(nil, "test", []interface{}{make(chan int)})
+
 	if err == nil {
 
 		t.Error("NewRequest: did not receive error")
@@ -122,6 +127,7 @@ func TestMiscErrors(
 	// supported.
 	wantErr := json.Error{ErrorCode: json.ErrInvalidType}
 	_, err = json.MarshalResponse(make(chan int), nil, nil)
+
 	if jerr, ok := err.(json.Error); !ok || jerr.ErrorCode != wantErr.ErrorCode {
 
 		t.Errorf("MarshalResult: did not receive expected error - got "+
@@ -131,6 +137,7 @@ func TestMiscErrors(
 
 	// Force an error in MarshalResponse by giving it a result type that can't be marshalled.
 	_, err = json.MarshalResponse(1, make(chan int), nil)
+
 	if _, ok := err.(*json.UnsupportedTypeError); !ok {
 
 		wantErr := &json.UnsupportedTypeError{}
@@ -159,9 +166,11 @@ func TestRPCError(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.Error()
+
 		if result != test.want {
 
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,

@@ -151,6 +151,7 @@ func upgradeDataPaths() error {
 	if FileExists(oldHomePath) && !FileExists(newHomePath) {
 
 		// Create the new path.
+
 		log <- cl.Infof{
 
 			"migrating application home path from '%s' to '%s'",

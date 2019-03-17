@@ -41,11 +41,13 @@ func (msg *MsgMerkleBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncodi
 		return messageError("MsgMerkleBlock.BtcDecode", str)
 	}
 	err := readBlockHeader(r, pver, &msg.Header)
+
 	if err != nil {
 
 		return err
 	}
 	err = readElement(r, &msg.Transactions)
+
 	if err != nil {
 
 		return err
@@ -53,10 +55,12 @@ func (msg *MsgMerkleBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncodi
 
 	// Read num block locator hashes and limit to max.
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
+
 	if count > maxTxPerBlock {
 
 		str := fmt.Sprintf("too many transaction hashes for message "+
@@ -67,10 +71,12 @@ func (msg *MsgMerkleBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncodi
 	// Create a contiguous slice of hashes to deserialize into in order to reduce the number of allocations.
 	hashes := make([]chainhash.Hash, count)
 	msg.Hashes = make([]*chainhash.Hash, 0, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		hash := &hashes[i]
 		err := readElement(r, hash)
+
 		if err != nil {
 
 			return err
@@ -94,6 +100,7 @@ func (msg *MsgMerkleBlock) BtcEncode(w io.Writer, pver uint32, enc MessageEncodi
 
 	// Read num transaction hashes and limit to max.
 	numHashes := len(msg.Hashes)
+
 	if numHashes > maxTxPerBlock {
 
 		str := fmt.Sprintf("too many transaction hashes for message "+
@@ -101,6 +108,7 @@ func (msg *MsgMerkleBlock) BtcEncode(w io.Writer, pver uint32, enc MessageEncodi
 		return messageError("MsgMerkleBlock.BtcDecode", str)
 	}
 	numFlagBytes := len(msg.Flags)
+
 	if numFlagBytes > maxFlagsPerMerkleBlock {
 
 		str := fmt.Sprintf("too many flag bytes for message [count %v, "+
@@ -108,23 +116,28 @@ func (msg *MsgMerkleBlock) BtcEncode(w io.Writer, pver uint32, enc MessageEncodi
 		return messageError("MsgMerkleBlock.BtcDecode", str)
 	}
 	err := writeBlockHeader(w, pver, &msg.Header)
+
 	if err != nil {
 
 		return err
 	}
 	err = writeElement(w, msg.Transactions)
+
 	if err != nil {
 
 		return err
 	}
 	err = WriteVarInt(w, pver, uint64(numHashes))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, hash := range msg.Hashes {
 
 		err = writeElement(w, hash)
+
 		if err != nil {
 
 			return err

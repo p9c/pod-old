@@ -16,6 +16,7 @@ type MsgGetCFCheckpt struct {
 func (msg *MsgGetCFCheckpt) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
 
 	err := readElement(r, &msg.FilterType)
+
 	if err != nil {
 
 		return err
@@ -27,6 +28,7 @@ func (msg *MsgGetCFCheckpt) BtcDecode(r io.Reader, pver uint32, _ MessageEncodin
 func (msg *MsgGetCFCheckpt) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 
 	err := writeElement(w, msg.FilterType)
+
 	if err != nil {
 
 		return err

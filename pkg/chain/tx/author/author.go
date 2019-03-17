@@ -101,6 +101,7 @@ func NewUnsignedTransaction(
 		// We count the types of inputs, which we'll use to estimate
 		// the vsize of the transaction.
 		var nested, p2wpkh, p2pkh int
+
 		for _, pkScript := range scripts {
 
 			switch {

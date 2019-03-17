@@ -21,6 +21,7 @@ const (
 // JoinNodes is a synchronization tool used to block until all passed nodes are fully synced with respect to an attribute. This function will block for a period of time, finally returning once all nodes are synced according to the passed JoinType. This function be used to to ensure all active test harnesses are at a consistent state before proceeding to an assertion or check within rpc tests.
 func JoinNodes(
 	nodes []*Harness, joinType JoinType) error {
+
 	switch joinType {
 	case Blocks:
 		return syncBlocks(nodes)
@@ -35,12 +36,14 @@ func syncMempools(
 	nodes []*Harness) error {
 	poolsMatch := false
 retry:
+
 	for !poolsMatch {
 		firstPool, err := nodes[0].Node.GetRawMempool()
 		if err != nil {
 			return err
 		}
 		// If all nodes have an identical mempool with respect to the first node, then we're done. Otherwise, drop back to the top of the loop and retry after a short wait period.
+
 		for _, node := range nodes[1:] {
 			nodePool, err := node.Node.GetRawMempool()
 			if err != nil {
@@ -62,9 +65,11 @@ func syncBlocks(
 	nodes []*Harness) error {
 	blocksMatch := false
 retry:
+
 	for !blocksMatch {
 		var prevHash *chainhash.Hash
 		var prevHeight int32
+
 		for _, node := range nodes {
 			blockHash, blockHeight, err := node.Node.GetBestBlock()
 			if err != nil {
@@ -100,6 +105,7 @@ func ConnectNode(
 	if err != nil {
 		return err
 	}
+
 	for len(peerInfo) <= numPeers {
 		peerInfo, err = from.Node.GetPeerInfo()
 		if err != nil {
@@ -113,6 +119,7 @@ func ConnectNode(
 func TearDownAll() error {
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
+
 	for _, harness := range testInstances {
 		if err := harness.tearDown(); err != nil {
 			return err
@@ -126,6 +133,7 @@ func ActiveHarnesses() []*Harness {
 	harnessStateMtx.RLock()
 	defer harnessStateMtx.RUnlock()
 	activeNodes := make([]*Harness, 0, len(testInstances))
+
 	for _, harness := range testInstances {
 		activeNodes = append(activeNodes, harness)
 	}

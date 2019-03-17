@@ -63,6 +63,7 @@ func TestSigCacheAddEvictEntry(
 	sigCache := NewSigCache(sigCacheSize)
 
 	// Fill the sigcache up with some random sig triplets.
+
 	for i := uint(0); i < sigCacheSize; i++ {
 
 		msg, sig, key, err := genRandomSig()

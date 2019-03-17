@@ -120,6 +120,7 @@ func makeListeners(
 		if err != nil {
 
 			// Shouldn't happen due to already being normalized.
+
 			log <- cl.Errorf{
 
 				"`%s` is not a normalized listener address", addr,
@@ -158,6 +159,7 @@ func makeListeners(
 		switch {
 
 		case ip == nil:
+
 			log <- cl.Warnf{"`%s` is not a valid IP address", host}
 
 		case ip.To4() == nil:
@@ -266,7 +268,9 @@ func startRPCServers(
 		}
 
 		// Change the standard net.Listen function to the tls one.
+
 		tlsConfig := &tls.Config{
+
 			Certificates: []tls.Certificate{keyPair},
 			MinVersion:   tls.VersionTLS12,
 			NextProtos:   []string{"h2"}, // HTTP/2 over TLS
@@ -301,6 +305,7 @@ func startRPCServers(
 					log <- cl.Info{"experimental RPC server listening on", lis.Addr()}
 
 					err = server.Serve(lis)
+
 					log <- cl.Trace{"finished serving expimental RPC:", err}
 
 				}()
@@ -329,6 +334,7 @@ func startRPCServers(
 		}
 
 		opts := legacyrpc.Options{
+
 			Username:            *cfg.Username,
 			Password:            *cfg.Password,
 			MaxPOSTClients:      int64(*cfg.LegacyRPCMaxClients),

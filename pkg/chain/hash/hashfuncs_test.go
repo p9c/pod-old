@@ -47,9 +47,11 @@ func TestHashFuncs(
 	}
 
 	// Ensure the hash function which returns a byte slice returns the expected result.
+
 	for _, test := range tests {
 
 		h := fmt.Sprintf("%x", HashB([]byte(test.in)))
+
 		if h != test.out {
 
 			t.Errorf("HashB(%q) = %s, want %s", test.in, h, test.out)
@@ -58,10 +60,12 @@ func TestHashFuncs(
 	}
 
 	// Ensure the hash function which returns a Hash returns the expected result.
+
 	for _, test := range tests {
 
 		hash := HashH([]byte(test.in))
 		h := fmt.Sprintf("%x", hash[:])
+
 		if h != test.out {
 
 			t.Errorf("HashH(%q) = %s, want %s", test.in, h, test.out)
@@ -112,9 +116,11 @@ func TestDoubleHashFuncs(
 	}
 
 	// Ensure the hash function which returns a byte slice returns the expected result.
+
 	for _, test := range tests {
 
 		h := fmt.Sprintf("%x", DoubleHashB([]byte(test.in)))
+
 		if h != test.out {
 
 			t.Errorf("DoubleHashB(%q) = %s, want %s", test.in, h,
@@ -124,10 +130,12 @@ func TestDoubleHashFuncs(
 	}
 
 	// Ensure the hash function which returns a Hash returns the expected result.
+
 	for _, test := range tests {
 
 		hash := DoubleHashH([]byte(test.in))
 		h := fmt.Sprintf("%x", hash[:])
+
 		if h != test.out {
 
 			t.Errorf("DoubleHashH(%q) = %s, want %s", test.in, h,

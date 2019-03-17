@@ -57,6 +57,7 @@ func (m *Manager) SetSyncedTo(ns walletdb.ReadWriteBucket, bs *BlockStamp) error
 	// Use the stored start blockstamp and reset recent hashes and height
 
 	// when the provided blockstamp is nil.
+
 	if bs == nil {
 
 		bs = &m.syncState.startBlock
@@ -64,6 +65,7 @@ func (m *Manager) SetSyncedTo(ns walletdb.ReadWriteBucket, bs *BlockStamp) error
 
 	// Update the database.
 	err := putSyncedTo(ns, bs)
+
 	if err != nil {
 
 		return err

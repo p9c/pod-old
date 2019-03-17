@@ -204,16 +204,19 @@ func TestPodExtCmds(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Marshal the command as created by the new static command creation function.
 		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
+
 		if err != nil {
 
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
 
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
@@ -223,6 +226,7 @@ func TestPodExtCmds(
 		}
 		// Ensure the command is created without error via the generic new command creation function.
 		cmd, err := test.newCmd()
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
@@ -230,12 +234,14 @@ func TestPodExtCmds(
 		}
 		// Marshal the command as created by the generic new command creation function.
 		marshalled, err = json.MarshalCmd(testID, cmd)
+
 		if err != nil {
 
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
 
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
@@ -244,6 +250,7 @@ func TestPodExtCmds(
 			continue
 		}
 		var request json.Request
+
 		if err := json.Unmarshal(marshalled, &request); err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error while "+
@@ -252,12 +259,14 @@ func TestPodExtCmds(
 			continue
 		}
 		cmd, err = json.UnmarshalCmd(&request)
+
 		if err != nil {
 
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
 
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+

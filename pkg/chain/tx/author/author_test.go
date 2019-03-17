@@ -17,6 +17,7 @@ func p2pkhOutputs(
 	amounts ...util.Amount) []*wire.TxOut {
 
 	v := make([]*wire.TxOut, 0, len(amounts))
+
 	for _, a := range amounts {
 
 		outScript := make([]byte, txsizes.P2PKHOutputSize)
@@ -204,6 +205,7 @@ func TestNewUnsignedTransaction(
 
 		inputSource := makeInputSource(test.UnspentOutputs)
 		tx, err := NewUnsignedTransaction(test.Outputs, test.RelayFee, inputSource, changeSource)
+
 		switch e := err.(type) {
 
 		case nil:

@@ -36,7 +36,9 @@ func printGoHexes(
 	in []byte) {
 
 	fmt.Print("\t")
+
 	for i := range in {
+
 		if i%8 == 0 && i != 0 {
 			fmt.Println()
 			fmt.Print("\t")
@@ -50,6 +52,7 @@ func rev(
 
 	o := make([]byte, len(in))
 	out = &o
+
 	for i := range in {
 		(*out)[len(in)-i-1] = in[i]
 	}

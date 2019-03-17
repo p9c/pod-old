@@ -69,6 +69,7 @@ func (l binaryFreeList) Return(buf []byte) {
 func (l binaryFreeList) Uint8(r io.Reader) (uint8, error) {
 
 	buf := l.Borrow()[:1]
+
 	if _, err := io.ReadFull(r, buf); err != nil {
 
 		l.Return(buf)
@@ -85,6 +86,7 @@ func (l binaryFreeList) Uint8(r io.Reader) (uint8, error) {
 func (l binaryFreeList) Uint16(r io.Reader, byteOrder binary.ByteOrder) (uint16, error) {
 
 	buf := l.Borrow()[:2]
+
 	if _, err := io.ReadFull(r, buf); err != nil {
 
 		l.Return(buf)
@@ -101,6 +103,7 @@ func (l binaryFreeList) Uint16(r io.Reader, byteOrder binary.ByteOrder) (uint16,
 func (l binaryFreeList) Uint32(r io.Reader, byteOrder binary.ByteOrder) (uint32, error) {
 
 	buf := l.Borrow()[:4]
+
 	if _, err := io.ReadFull(r, buf); err != nil {
 
 		l.Return(buf)
@@ -117,6 +120,7 @@ func (l binaryFreeList) Uint32(r io.Reader, byteOrder binary.ByteOrder) (uint32,
 func (l binaryFreeList) Uint64(r io.Reader, byteOrder binary.ByteOrder) (uint64, error) {
 
 	buf := l.Borrow()[:8]
+
 	if _, err := io.ReadFull(r, buf); err != nil {
 
 		l.Return(buf)
@@ -193,10 +197,12 @@ func readElement(
 	// Attempt to read the element based on the concrete type via fast
 
 	// type assertions first.
+
 	switch e := element.(type) {
 
 	case *int32:
 		rv, err := binarySerializer.Uint32(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -205,6 +211,7 @@ func readElement(
 		return nil
 	case *uint32:
 		rv, err := binarySerializer.Uint32(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -213,6 +220,7 @@ func readElement(
 		return nil
 	case *int64:
 		rv, err := binarySerializer.Uint64(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -221,6 +229,7 @@ func readElement(
 		return nil
 	case *uint64:
 		rv, err := binarySerializer.Uint64(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -229,10 +238,12 @@ func readElement(
 		return nil
 	case *bool:
 		rv, err := binarySerializer.Uint8(r)
+
 		if err != nil {
 
 			return err
 		}
+
 		if rv == 0x00 {
 
 			*e = false
@@ -245,6 +256,7 @@ func readElement(
 	// Unix timestamp encoded as a uint32.
 	case *uint32Time:
 		rv, err := binarySerializer.Uint32(r, binary.LittleEndian)
+
 		if err != nil {
 
 			return err
@@ -255,6 +267,7 @@ func readElement(
 	// Unix timestamp encoded as an int64.
 	case *int64Time:
 		rv, err := binarySerializer.Uint64(r, binary.LittleEndian)
+
 		if err != nil {
 
 			return err
@@ -265,6 +278,7 @@ func readElement(
 	// Message header checksum.
 	case *[4]byte:
 		_, err := io.ReadFull(r, e[:])
+
 		if err != nil {
 
 			return err
@@ -274,6 +288,7 @@ func readElement(
 	// Message header command.
 	case *[CommandSize]uint8:
 		_, err := io.ReadFull(r, e[:])
+
 		if err != nil {
 
 			return err
@@ -283,6 +298,7 @@ func readElement(
 	// IP address.
 	case *[16]byte:
 		_, err := io.ReadFull(r, e[:])
+
 		if err != nil {
 
 			return err
@@ -290,6 +306,7 @@ func readElement(
 		return nil
 	case *chainhash.Hash:
 		_, err := io.ReadFull(r, e[:])
+
 		if err != nil {
 
 			return err
@@ -297,6 +314,7 @@ func readElement(
 		return nil
 	case *ServiceFlag:
 		rv, err := binarySerializer.Uint64(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -305,6 +323,7 @@ func readElement(
 		return nil
 	case *InvType:
 		rv, err := binarySerializer.Uint32(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -313,6 +332,7 @@ func readElement(
 		return nil
 	case *BitcoinNet:
 		rv, err := binarySerializer.Uint32(r, littleEndian)
+
 		if err != nil {
 
 			return err
@@ -321,6 +341,7 @@ func readElement(
 		return nil
 	case *BloomUpdateType:
 		rv, err := binarySerializer.Uint8(r)
+
 		if err != nil {
 
 			return err
@@ -329,6 +350,7 @@ func readElement(
 		return nil
 	case *RejectCode:
 		rv, err := binarySerializer.Uint8(r)
+
 		if err != nil {
 
 			return err
@@ -350,6 +372,7 @@ func readElements(
 	for _, element := range elements {
 
 		err := readElement(r, element)
+
 		if err != nil {
 
 			return err
@@ -365,10 +388,12 @@ func writeElement(
 	// Attempt to write the element based on the concrete type via fast
 
 	// type assertions first.
+
 	switch e := element.(type) {
 
 	case int32:
 		err := binarySerializer.PutUint32(w, littleEndian, uint32(e))
+
 		if err != nil {
 
 			return err
@@ -376,6 +401,7 @@ func writeElement(
 		return nil
 	case uint32:
 		err := binarySerializer.PutUint32(w, littleEndian, e)
+
 		if err != nil {
 
 			return err
@@ -383,6 +409,7 @@ func writeElement(
 		return nil
 	case int64:
 		err := binarySerializer.PutUint64(w, littleEndian, uint64(e))
+
 		if err != nil {
 
 			return err
@@ -390,6 +417,7 @@ func writeElement(
 		return nil
 	case uint64:
 		err := binarySerializer.PutUint64(w, littleEndian, e)
+
 		if err != nil {
 
 			return err
@@ -397,6 +425,7 @@ func writeElement(
 		return nil
 	case bool:
 		var err error
+
 		if e {
 
 			err = binarySerializer.PutUint8(w, 0x01)
@@ -404,6 +433,7 @@ func writeElement(
 
 			err = binarySerializer.PutUint8(w, 0x00)
 		}
+
 		if err != nil {
 
 			return err
@@ -413,6 +443,7 @@ func writeElement(
 	// Message header checksum.
 	case [4]byte:
 		_, err := w.Write(e[:])
+
 		if err != nil {
 
 			return err
@@ -422,6 +453,7 @@ func writeElement(
 	// Message header command.
 	case [CommandSize]uint8:
 		_, err := w.Write(e[:])
+
 		if err != nil {
 
 			return err
@@ -431,6 +463,7 @@ func writeElement(
 	// IP address.
 	case [16]byte:
 		_, err := w.Write(e[:])
+
 		if err != nil {
 
 			return err
@@ -438,6 +471,7 @@ func writeElement(
 		return nil
 	case *chainhash.Hash:
 		_, err := w.Write(e[:])
+
 		if err != nil {
 
 			return err
@@ -445,6 +479,7 @@ func writeElement(
 		return nil
 	case ServiceFlag:
 		err := binarySerializer.PutUint64(w, littleEndian, uint64(e))
+
 		if err != nil {
 
 			return err
@@ -452,6 +487,7 @@ func writeElement(
 		return nil
 	case InvType:
 		err := binarySerializer.PutUint32(w, littleEndian, uint32(e))
+
 		if err != nil {
 
 			return err
@@ -459,6 +495,7 @@ func writeElement(
 		return nil
 	case BitcoinNet:
 		err := binarySerializer.PutUint32(w, littleEndian, uint32(e))
+
 		if err != nil {
 
 			return err
@@ -466,6 +503,7 @@ func writeElement(
 		return nil
 	case BloomUpdateType:
 		err := binarySerializer.PutUint8(w, uint8(e))
+
 		if err != nil {
 
 			return err
@@ -473,6 +511,7 @@ func writeElement(
 		return nil
 	case RejectCode:
 		err := binarySerializer.PutUint8(w, uint8(e))
+
 		if err != nil {
 
 			return err
@@ -493,6 +532,7 @@ func writeElements(
 	for _, element := range elements {
 
 		err := writeElement(w, element)
+
 		if err != nil {
 
 			return err
@@ -506,15 +546,18 @@ func ReadVarInt(
 	r io.Reader, pver uint32) (uint64, error) {
 
 	discriminant, err := binarySerializer.Uint8(r)
+
 	if err != nil {
 
 		return 0, err
 	}
 	var rv uint64
+
 	switch discriminant {
 
 	case 0xff:
 		sv, err := binarySerializer.Uint64(r, littleEndian)
+
 		if err != nil {
 
 			return 0, err
@@ -525,6 +568,7 @@ func ReadVarInt(
 
 		// encoded using fewer bytes.
 		min := uint64(0x100000000)
+
 		if rv < min {
 
 			return 0, messageError("ReadVarInt", fmt.Sprintf(
@@ -532,6 +576,7 @@ func ReadVarInt(
 		}
 	case 0xfe:
 		sv, err := binarySerializer.Uint32(r, littleEndian)
+
 		if err != nil {
 
 			return 0, err
@@ -542,6 +587,7 @@ func ReadVarInt(
 
 		// encoded using fewer bytes.
 		min := uint64(0x10000)
+
 		if rv < min {
 
 			return 0, messageError("ReadVarInt", fmt.Sprintf(
@@ -549,6 +595,7 @@ func ReadVarInt(
 		}
 	case 0xfd:
 		sv, err := binarySerializer.Uint16(r, littleEndian)
+
 		if err != nil {
 
 			return 0, err
@@ -559,6 +606,7 @@ func ReadVarInt(
 
 		// encoded using fewer bytes.
 		min := uint64(0xfd)
+
 		if rv < min {
 
 			return 0, messageError("ReadVarInt", fmt.Sprintf(
@@ -578,18 +626,22 @@ func WriteVarInt(
 
 		return binarySerializer.PutUint8(w, uint8(val))
 	}
+
 	if val <= math.MaxUint16 {
 
 		err := binarySerializer.PutUint8(w, 0xfd)
+
 		if err != nil {
 
 			return err
 		}
 		return binarySerializer.PutUint16(w, littleEndian, uint16(val))
 	}
+
 	if val <= math.MaxUint32 {
 
 		err := binarySerializer.PutUint8(w, 0xfe)
+
 		if err != nil {
 
 			return err
@@ -597,6 +649,7 @@ func WriteVarInt(
 		return binarySerializer.PutUint32(w, littleEndian, uint32(val))
 	}
 	err := binarySerializer.PutUint8(w, 0xff)
+
 	if err != nil {
 
 		return err
@@ -611,18 +664,21 @@ func VarIntSerializeSize(
 	// The value is small enough to be represented by itself, so it's
 
 	// just 1 byte.
+
 	if val < 0xfd {
 
 		return 1
 	}
 
 	// Discriminant 1 byte plus 2 bytes for the uint16.
+
 	if val <= math.MaxUint16 {
 
 		return 3
 	}
 
 	// Discriminant 1 byte plus 4 bytes for the uint32.
+
 	if val <= math.MaxUint32 {
 
 		return 5
@@ -637,6 +693,7 @@ func ReadVarString(
 	r io.Reader, pver uint32) (string, error) {
 
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return "", err
@@ -647,6 +704,7 @@ func ReadVarString(
 	// message size.  It would be possible to cause memory exhaustion and
 
 	// panics without a sane upper bound on this count.
+
 	if count > MaxMessagePayload {
 
 		str := fmt.Sprintf("variable length string is too long "+
@@ -655,6 +713,7 @@ func ReadVarString(
 	}
 	buf := make([]byte, count)
 	_, err = io.ReadFull(r, buf)
+
 	if err != nil {
 
 		return "", err
@@ -667,6 +726,7 @@ func WriteVarString(
 	w io.Writer, pver uint32, str string) error {
 
 	err := WriteVarInt(w, pver, uint64(len(str)))
+
 	if err != nil {
 
 		return err
@@ -681,6 +741,7 @@ func ReadVarBytes(
 	fieldName string) ([]byte, error) {
 
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return nil, err
@@ -691,6 +752,7 @@ func ReadVarBytes(
 	// be possible to cause memory exhaustion and panics without a sane
 
 	// upper bound on this count.
+
 	if count > uint64(maxAllowed) {
 
 		str := fmt.Sprintf("%s is larger than the max allowed size "+
@@ -699,6 +761,7 @@ func ReadVarBytes(
 	}
 	b := make([]byte, count)
 	_, err = io.ReadFull(r, b)
+
 	if err != nil {
 
 		return nil, err
@@ -712,6 +775,7 @@ func WriteVarBytes(
 
 	slen := uint64(len(bytes))
 	err := WriteVarInt(w, pver, slen)
+
 	if err != nil {
 
 		return err
@@ -727,6 +791,7 @@ func randomUint64(
 	r io.Reader) (uint64, error) {
 
 	rv, err := binarySerializer.Uint64(r, bigEndian)
+
 	if err != nil {
 
 		return 0, err

@@ -118,6 +118,7 @@ func signMultiSig(
 	// We start with a single OP_FALSE to work around the (now standard) but in the reference implementation that causes a spurious pop at the end of OP_CHECKMULTISIG.
 	builder := NewScriptBuilder().AddOp(OP_FALSE)
 	signed := 0
+
 	for _, addr := range addresses {
 
 		key, _, err := kdb.GetKey(addr)
@@ -151,6 +152,7 @@ func sign(
 
 		return nil, NonStandardTy, nil, 0, err
 	}
+
 	switch class {
 
 	case PubKeyTy:
@@ -208,6 +210,7 @@ func mergeScripts(
 	nRequired int, sigScript, prevScript []byte) []byte {
 
 	// TODO: the scripthash and multisig paths here are overly inefficient in that they will recompute already known data. some internal refactoring could probably make this avoid needless extra calculations.
+
 	switch class {
 
 	case ScriptHashTy:
@@ -290,6 +293,7 @@ func mergeMultiSig(
 	// Now we need to match the signatures to pubkeys, the only real way to do that is to try to verify them all and match it to the pubkey that verifies it. we then can go through the addresses in order to build our script. Anything that doesn't parse or doesn't verify we throw away.
 	addrToSig := make(map[string][]byte)
 sigLoop:
+
 	for _, sig := range possibleSigs {
 
 		// can't have a valid signature that doesn't at least have a hashtype, in practise it is even longer than this. but that'll be checked next.
@@ -306,6 +310,7 @@ sigLoop:
 		}
 		// We have to do this each round since hash types may vary between signatures and so the hash will vary. We can, however, assume no sigs etc are in the script since that would make the transaction nonstandard and thus not MultiSigTy, so we just need to hash the full thing.
 		hash := calcSignatureHash(pkPops, hashType, tx, idx)
+
 		for _, addr := range addresses {
 
 			// All multisig addresses should be pubkey addresses it is an error to call this internal function with bad input.
@@ -329,6 +334,7 @@ sigLoop:
 	doneSigs := 0
 
 	// This assumes that addresses are in the same order as in the script.
+
 	for _, addr := range addresses {
 
 		sig, ok := addrToSig[addr.EncodeAddress()]
@@ -345,6 +351,7 @@ sigLoop:
 	}
 
 	// padding for missing ones.
+
 	for i := doneSigs; i < nRequired; i++ {
 
 		builder.AddOp(OP_0)

@@ -339,6 +339,7 @@ func newSecSource(
 	params *chaincfg.Params) *secSource {
 
 	return &secSource{
+
 		keys:    make(map[string]*ec.PrivateKey),
 		scripts: make(map[string]*[]byte),
 		params:  params,
@@ -361,27 +362,33 @@ type syncTestCase struct {
 }
 
 var testCases = []*syncTestCase{
+
 	{
+
 		name: "initial sync",
 		test: testInitialSync,
 	},
 
 	{
+
 		name: "one-shot rescan",
 		test: testRescan,
 	},
 
 	{
+
 		name: "start long-running rescan",
 		test: testStartRescan,
 	},
 
 	{
+
 		name: "test blocks and filters in random order",
 		test: testRandomBlocks,
 	},
 
 	{
+
 		name: "check long-running rescan results",
 		test: testRescanResults,
 	},
@@ -448,6 +455,7 @@ func testRescan(
 	}
 
 	out1 := wire.TxOut{
+
 		PkScript: script1,
 		Value:    1000000000,
 	}
@@ -491,6 +499,7 @@ func testRescan(
 	}
 
 	out2 := wire.TxOut{
+
 		PkScript: script2,
 		Value:    1000000000,
 	}
@@ -541,6 +550,7 @@ func testRescan(
 	if ourIndex != 1<<30 {
 
 		ourOutPoint = wire.OutPoint{
+
 			Hash:  tx1.TxHash(),
 			Index: uint32(ourIndex),
 		}
@@ -552,7 +562,9 @@ func testRescan(
 	}
 
 	spendReport, err := harness.svc.GetUtxo(
+
 		neutrino.WatchInputs(neutrino.InputWithScript{
+
 			PkScript: script1,
 			OutPoint: ourOutPoint,
 		}),
@@ -661,9 +673,13 @@ func testStartRescan(
 			}
 
 			total = target
+
 			inputs = []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  tx.TxHash(),
 						Index: uint32(ourIndex),
 					},
@@ -671,6 +687,7 @@ func testStartRescan(
 			}
 
 			inputValues = []util.Amount{
+
 				util.Amount(tx.TxOut[ourIndex].Value)}
 			scripts = [][]byte{tx.TxOut[ourIndex].PkScript}
 			err = nil
@@ -706,13 +723,16 @@ func testStartRescan(
 	}
 
 	out3 := wire.TxOut{
+
 		PkScript: script3,
 		Value:    500000000,
 	}
 
 	// Spend the first transaction and mine a block.
 	authTx1, err := txauthor.NewUnsignedTransaction(
+
 		[]*wire.TxOut{
+
 			&out3,
 		},
 
@@ -773,7 +793,9 @@ func testStartRescan(
 
 	// Spend the second transaction and mine a block.
 	authTx2, err := txauthor.NewUnsignedTransaction(
+
 		[]*wire.TxOut{
+
 			&out3,
 		},
 
@@ -863,7 +885,9 @@ func testStartRescan(
 	// filter with 0 entries.
 	_, err = harness.h1.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 		[]*util.Tx{}, rpctest.BlockVersion, time.Time{},
+
 		[]wire.TxOut{{
+
 			Value:    0,
 			PkScript: []byte{},
 		}})
@@ -883,7 +907,9 @@ func testStartRescan(
 
 	// Check and make sure the previous UTXO is now spent.
 	spendReport, err := harness.svc.GetUtxo(
+
 		neutrino.WatchInputs(neutrino.InputWithScript{
+
 			PkScript: script1,
 			OutPoint: ourOutPoint,
 		}),
@@ -1204,6 +1230,7 @@ func testRandomBlocks(
 			}
 
 			// Check that network and RPC blocks match.
+
 			if !reflect.DeepEqual(*haveBlock.MsgBlock(),
 
 				*wantBlock) {
@@ -1546,7 +1573,9 @@ func TestNeutrinoSync(
 		}
 
 		modParams.Checkpoints = append(modParams.Checkpoints,
+
 			chaincfg.Checkpoint{
+
 				Hash:   hash,
 				Height: int32(height),
 			})
@@ -1573,10 +1602,13 @@ func TestNeutrinoSync(
 	}
 
 	config := neutrino.Config{
+
 		DataDir:     tempDir,
 		Database:    db,
 		ChainParams: modParams,
+
 		AddPeers: []string{
+
 			h3.P2PAddress(),
 			h2.P2PAddress(),
 			h1.P2PAddress(),
@@ -1925,7 +1957,9 @@ func startRescan(
 		neutrino.WatchAddrs(addr),
 		neutrino.StartBlock(startBlock),
 		neutrino.NotificationHandlers(
+
 			rpcclient.NotificationHandlers{
+
 				OnBlockConnected: func(
 					hash *chainhash.Hash,
 

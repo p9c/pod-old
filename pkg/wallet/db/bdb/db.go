@@ -62,6 +62,7 @@ func (tx *transaction) ReadBucket(key []byte) walletdb.ReadBucket {
 func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 
 	boltBucket := tx.boltTx.Bucket(key)
+
 	if boltBucket == nil {
 
 		return nil
@@ -72,6 +73,7 @@ func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 
 	boltBucket, err := tx.boltTx.CreateBucket(key)
+
 	if err != nil {
 
 		return nil, convertErr(err)
@@ -82,6 +84,7 @@ func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucke
 func (tx *transaction) DeleteTopLevelBucket(key []byte) error {
 
 	err := tx.boltTx.DeleteBucket(key)
+
 	if err != nil {
 
 		return convertErr(err)
@@ -123,6 +126,7 @@ func (b *bucket) NestedReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 	boltBucket := (*bolt.Bucket)(b).Bucket(key)
 
 	// Don't return a non-nil interface to a nil pointer.
+
 	if boltBucket == nil {
 
 		return nil
@@ -144,6 +148,7 @@ func (b *bucket) NestedReadBucket(key []byte) walletdb.ReadBucket {
 func (b *bucket) CreateBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucket(key)
+
 	if err != nil {
 
 		return nil, convertErr(err)
@@ -159,6 +164,7 @@ func (b *bucket) CreateBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 func (b *bucket) CreateBucketIfNotExists(key []byte) (walletdb.ReadWriteBucket, error) {
 
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucketIfNotExists(key)
+
 	if err != nil {
 
 		return nil, convertErr(err)
@@ -309,6 +315,7 @@ var _ walletdb.DB = (*db)(nil)
 func (db *db) beginTx(writable bool) (*transaction, error) {
 
 	boltTx, err := (*bolt.DB)(db).Begin(writable)
+
 	if err != nil {
 
 		return nil, convertErr(err)

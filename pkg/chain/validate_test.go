@@ -21,6 +21,7 @@ func TestSequenceLocksActive(
 	seqLock := func(h int32, s int64) *SequenceLock {
 
 		return &SequenceLock{
+
 			Seconds:     s,
 			BlockHeight: h,
 		}
@@ -32,6 +33,7 @@ func TestSequenceLocksActive(
 		mtp         time.Time
 		want        bool
 	}{
+
 		// Block based sequence lock with equal block height.
 		{seqLock: seqLock(1000, -1), blockHeight: 1001, mtp: time.Unix(9, 0), want: true},
 		// Time based sequence lock with mtp past the absolute time.
@@ -87,7 +89,9 @@ func TestCheckConnectBlockTemplate(
 	// (genesis block) -> 1 -> 2 -> 3 -> 4
 
 	//                          \-> 3a
+
 	testFiles := []string{
+
 		"blk_0_to_4.dat.bz2",
 		"blk_3A.dat.bz2",
 	}
@@ -213,10 +217,14 @@ func TestCheckSerializedHeight(
 	coinbaseTx.AddTxIn(wire.NewTxIn(coinbaseOutpoint, nil, nil))
 
 	// Expected rule errors.
+
 	missingHeightError := RuleError{
+
 		ErrorCode: ErrMissingCoinbaseHeight,
 	}
+
 	badHeightError := RuleError{
+
 		ErrorCode: ErrBadCoinbaseHeight,
 	}
 
@@ -224,7 +232,9 @@ func TestCheckSerializedHeight(
 		sigScript  []byte // Serialized data
 		wantHeight int32  // Expected height
 		err        error  // Expected error type
+
 	}{
+
 		// No serialized height length.
 		{[]byte{}, 0, missingHeightError},
 		// Serialized height length with no height bytes.
@@ -275,8 +285,11 @@ func TestCheckSerializedHeight(
 
 // Block100000 defines block 100,000 of the block chain.  It is used to
 // test Block operations.
+
 var Block100000 = wire.MsgBlock{
+
 	Header: wire.BlockHeader{
+
 		Version: 1,
 		PrevBlock: chainhash.Hash([32]byte{ // Make go vet happy.
 			0x50, 0x12, 0x01, 0x19, 0x17, 0x2a, 0x61, 0x04,
@@ -294,25 +307,39 @@ var Block100000 = wire.MsgBlock{
 		Bits:      0x1b04864c,               // 453281356
 		Nonce:     0x10572b0f,               // 274148111
 	},
+
 	Transactions: []*wire.MsgTx{
+
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash:  chainhash.Hash{},
 						Index: 0xffffffff,
 					},
+
 					SignatureScript: []byte{
+
 						0x04, 0x4c, 0x86, 0x04, 0x1b, 0x02, 0x06, 0x02,
 					},
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0x12a05f200, // 5000000000
+
 					PkScript: []byte{
+
 						0x41, // OP_DATA_65
 						0x04, 0x1b, 0x0e, 0x8c, 0x25, 0x67, 0xc1, 0x25,
 						0x36, 0xaa, 0x13, 0x35, 0x7b, 0x79, 0xa0, 0x73,
@@ -329,11 +356,17 @@ var Block100000 = wire.MsgBlock{
 			},
 			LockTime: 0,
 		},
+
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0x03, 0x2e, 0x38, 0xe9, 0xc0, 0xa8, 0x4c, 0x60,
 							0x46, 0xd6, 0x87, 0xd1, 0x05, 0x56, 0xdc, 0xac,
@@ -342,7 +375,9 @@ var Block100000 = wire.MsgBlock{
 						}), // 87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
+
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xc3, 0x52, 0xd3,
 						0xdd, 0x99, 0x3a, 0x98, 0x1b, 0xeb, 0xa4, 0xa6,
@@ -368,10 +403,15 @@ var Block100000 = wire.MsgBlock{
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0x2123e300, // 556000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -382,9 +422,13 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
+
 					Value: 0x108e20f00, // 4444000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -398,11 +442,17 @@ var Block100000 = wire.MsgBlock{
 			},
 			LockTime: 0,
 		},
+
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0xc3, 0x3e, 0xbf, 0xf2, 0xa7, 0x09, 0xf1, 0x3d,
 							0x9f, 0x9a, 0x75, 0x69, 0xab, 0x16, 0xa3, 0x27,
@@ -411,7 +461,9 @@ var Block100000 = wire.MsgBlock{
 						}), // cf4e2978d0611ce46592e02d7e7daf8627a316ab69759a9f3df109a7f2bf3ec3
 						Index: 1,
 					},
+
 					SignatureScript: []byte{
+
 						0x47, // OP_DATA_71
 						0x30, 0x44, 0x02, 0x20, 0x03, 0x2d, 0x30, 0xdf,
 						0x5e, 0xe6, 0xf5, 0x7f, 0xa4, 0x6c, 0xdd, 0xb5,
@@ -436,10 +488,15 @@ var Block100000 = wire.MsgBlock{
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0xf4240, // 1000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -450,9 +507,13 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
+
 					Value: 0x11d260c0, // 299000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20
@@ -466,11 +527,17 @@ var Block100000 = wire.MsgBlock{
 			},
 			LockTime: 0,
 		},
+
 		{
+
 			Version: 1,
+
 			TxIn: []*wire.TxIn{
+
 				{
+
 					PreviousOutPoint: wire.OutPoint{
+
 						Hash: chainhash.Hash([32]byte{ // Make go vet happy.
 							0x0b, 0x60, 0x72, 0xb3, 0x86, 0xd4, 0xa7, 0x73,
 							0x23, 0x52, 0x37, 0xf6, 0x4c, 0x11, 0x26, 0xac,
@@ -479,7 +546,9 @@ var Block100000 = wire.MsgBlock{
 						}), // f4515fed3dc4a19b90a317b9840c243bac26114cf637522373a7d486b372600b
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
+
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xbb, 0x1a, 0xd2,
 						0x6d, 0xf9, 0x30, 0xa5, 0x1c, 0xce, 0x11, 0x0c,
@@ -505,10 +574,15 @@ var Block100000 = wire.MsgBlock{
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
+
 				{
+
 					Value: 0xf4240, // 1000000
+
 					PkScript: []byte{
+
 						0x76, // OP_DUP
 						0xa9, // OP_HASH160
 						0x14, // OP_DATA_20

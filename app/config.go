@@ -64,6 +64,7 @@ type ConfigCommon struct {
 var True, False = true, false
 
 var appConfigCommon = &ConfigCommon{
+
 	Subsystems: cli.StringSlice{},
 }
 
@@ -176,6 +177,7 @@ var nodeDataDir = "/node"
 var shellDataDir = "/shell"
 
 var walletConfig = walletmain.Config{
+
 	CAFile:                   &appConfigCommon.CAfile,
 	EnableClientTLS:          &appConfigCommon.ClientTLS,
 	Proxy:                    &appConfigCommon.Proxy,
@@ -221,6 +223,7 @@ var walletDataDir = "/wallet"
 // InputSourceContext from a provided flag name and source context.
 // If file doesn't exist, make one, empty is same as whatever is default
 func NewSourceFromFlagAndBase(c *cli.Context, confName, flagFileName string,
+
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
 
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
@@ -228,9 +231,11 @@ func NewSourceFromFlagAndBase(c *cli.Context, confName, flagFileName string,
 		filePath := c.String(flagFileName)
 		filePath = filepath.Join(filePath, confName)
 		EnsureDir(filePath)
+
 		if !FileExists(filePath) {
 
 			err := ioutil.WriteFile(filePath, []byte{'\n'}, 0600)
+
 			if err != nil {
 
 				panic(err)

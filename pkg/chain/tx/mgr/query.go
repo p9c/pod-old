@@ -65,6 +65,7 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 	}
 
 	credIter := makeReadCreditIterator(ns, recKey)
+
 	for credIter.next() {
 
 		if int(credIter.elem.Index) >= len(details.MsgTx.TxOut) {
@@ -89,6 +90,7 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 	}
 
 	debIter := makeReadDebitIterator(ns, recKey)
+
 	for debIter.next() {
 
 		if int(debIter.elem.Index) >= len(details.MsgTx.TxIn) {
@@ -116,6 +118,7 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 	}
 
 	it := makeReadUnminedCreditIterator(ns, txHash)
+
 	for it.next() {
 
 		if int(it.elem.Index) >= len(details.MsgTx.TxOut) {
@@ -144,6 +147,7 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 	// when spent by an unmined transaction), and credits from other unmined
 
 	// transactions.  Both situations must be considered.
+
 	for i, output := range details.MsgTx.TxIn {
 
 		opKey := canonicalOutPoint(&output.PreviousOutPoint.Hash,
@@ -324,6 +328,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 	}
 
 	var details []TxDetails
+
 	for advance(&blockIter) {
 
 		block := &blockIter.elem
@@ -359,6 +364,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 			}
 
 			credIter := makeReadCreditIterator(ns, k)
+
 			for credIter.next() {
 
 				if int(credIter.elem.Index) >= len(detail.MsgTx.TxOut) {
@@ -384,6 +390,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 			}
 
 			debIter := makeReadDebitIterator(ns, k)
+
 			for debIter.next() {
 
 				if int(debIter.elem.Index) >= len(detail.MsgTx.TxIn) {
@@ -506,6 +513,7 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 
 	recKey := keyTxRecord(&rec.Hash, block)
 	it := makeReadDebitIterator(ns, recKey)
+
 	for it.next() {
 
 		credKey := extractRawDebitCreditKey(it.cv)

@@ -325,6 +325,7 @@ func TestExtractPkScriptAddrs(
 		},
 	}
 	t.Logf("Running %d tests.", len(tests))
+
 	for i, test := range tests {
 
 		class, addrs, reqSigs, err := ExtractPkScriptAddrs(
@@ -508,11 +509,13 @@ func TestCalcScriptInfo(
 			},
 		},
 	}
+
 	for _, test := range tests {
 
 		sigScript := mustParseShortForm(test.sigScript)
 		pkScript := mustParseShortForm(test.pkScript)
 		var witness wire.TxWitness
+
 		for _, witElement := range test.witness {
 
 			wit, err := hex.DecodeString(witElement)
@@ -672,6 +675,7 @@ func TestPayToAddrScript(
 		{&bogusAddress{}, "", errUnsupportedAddress},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		pkScript, err := PayToAddrScript(test.in)
@@ -783,6 +787,7 @@ func TestMultiSigScript(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		script, err := MultiSigScript(test.keys, test.nrequired)
@@ -835,6 +840,7 @@ func TestCalcMultiSigStats(
 			err: nil,
 		},
 	}
+
 	for i, test := range tests {
 
 		script := mustParseShortForm(test.script)
@@ -1030,6 +1036,7 @@ func TestScriptClass(
 	t *testing.T) {
 
 	t.Parallel()
+
 	for _, test := range scriptClassTests {
 
 		script := mustParseShortForm(test.script)
@@ -1099,6 +1106,7 @@ func TestStringifyClass(
 			stringed: "Invalid",
 		},
 	}
+
 	for _, test := range tests {
 
 		typeString := test.class.String()
@@ -1169,6 +1177,7 @@ func TestNullDataScript(
 			class:    NonStandardTy,
 		},
 	}
+
 	for i, test := range tests {
 
 		script, err := NullDataScript(test.data)

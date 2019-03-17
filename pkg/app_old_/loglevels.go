@@ -34,7 +34,9 @@ var LogLevels = GetDefaultLogLevelsConfig()
 // GetAllSubSystems returns a map with all the SubSystems in Parallelcoin Pod
 
 func GetAllSubSystems() map[string]*cl.SubSystem {
+
 	return map[string]*cl.SubSystem{
+
 		"lib-addrmgr":         addrmgr.Log,
 		"lib-blockchain":      blockchain.Log,
 		"lib-connmgr":         connmgr.Log,
@@ -67,6 +69,7 @@ func GetAllSubSystems() map[string]*cl.SubSystem {
 func GetDefaultLogLevelsConfig() map[string]string {
 
 	return map[string]string{
+
 		"lib-addrmgr":         "info",
 		"lib-blockchain":      "info",
 		"lib-connmgr":         "info",
@@ -130,6 +133,7 @@ func SetLogging(
 			ss[i].SetLevel(lvl)
 
 		} else {
+
 			ss[i].SetLevel(baselevel)
 		}
 

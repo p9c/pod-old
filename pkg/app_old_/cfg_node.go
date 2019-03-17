@@ -41,8 +41,11 @@ func DefaultNodeConfig(datadir string) *NodeCfg {
 	}
 
 	appdir := filepath.Join(datadir, "node")
+
 	return &NodeCfg{
+
 		Node: &node.Config{
+
 			RPCUser:      user,
 			RPCPass:      pass,
 			Listeners:    []string{node.DefaultListener},
@@ -105,6 +108,7 @@ func WriteDefaultNodeConfig(
 	}
 
 	j = append(j, '\n')
+
 	log <- cl.Tracef{
 
 		"JSON formatted config file\n%s",
@@ -145,6 +149,7 @@ func WriteNodeConfig(
 	}
 
 	j = append(j, '\n')
+
 	log <- cl.Tracef{
 
 		"JSON formatted config file\n%s",
@@ -232,6 +237,7 @@ func configNode(
 			log <- cl.Wrn(err.Error())
 
 		} else {
+
 			nc.BanThreshold = uint32(bt)
 		}
 
@@ -337,6 +343,7 @@ func configNode(
 		switch r {
 
 		case "testnet":
+
 			fork.IsTestnet = true
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
 			NodeConfig.params = &node.TestNet3Params
@@ -455,6 +462,7 @@ func configNode(
 			log <- cl.Wrn(err.Error())
 
 		} else {
+
 			nc.GenThreads = int32(gt)
 		}
 
@@ -554,6 +562,7 @@ func configNode(
 			log <- cl.Wrn(err.Error())
 
 		} else {
+
 			nc.SigCacheMaxSize = uint(scms)
 		}
 
@@ -620,6 +629,7 @@ func configNode(
 		}
 
 		j = append(j, '\n')
+
 		log <- cl.Tracef{
 
 			"JSON formatted config file\n%s",
@@ -691,6 +701,7 @@ func configNode(
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	nc.DataDir = node.CleanAndExpandPath(nc.DataDir)
+
 	log <- cl.Debug{"netname", NodeConfig.params.Name, node.NetName(NodeConfig.params)}
 
 	nc.DataDir = filepath.Join(nc.DataDir, node.NetName(NodeConfig.params))
@@ -754,6 +765,7 @@ func configNode(
 
 					str := "%s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
+
 					log <- cl.Err(err.Error())
 
 					fmt.Fprintln(os.Stderr, usageMessage)
@@ -768,10 +780,12 @@ func configNode(
 					bits = 128
 
 				} else {
+
 					bits = 32
 				}
 
 				ipnet = &net.IPNet{
+
 					IP:   ip,
 					Mask: net.CIDRMask(bits, bits),
 				}
@@ -790,15 +804,18 @@ func configNode(
 		str := "%s: the --addpeer and --connect options can not be " +
 			"mixed"
 		err := fmt.Errorf(str, funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
 
 	// --proxy or --connect without --listen disables listening.
+
 	if (nc.Proxy != "" || len(nc.ConnectPeers) > 0) &&
 
 		len(nc.Listeners) == 0 {
+
 		nc.DisableListen = true
 	}
 
@@ -814,6 +831,7 @@ func configNode(
 	if len(nc.Listeners) == 0 {
 
 		nc.Listeners = []string{
+
 			net.JoinHostPort("", NodeConfig.params.DefaultPort),
 		}
 
@@ -825,6 +843,7 @@ func configNode(
 
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -838,6 +857,7 @@ func configNode(
 		str := "%s: --rpcpass and --rpclimitpass must not specify the " +
 			"same password"
 		err := fmt.Errorf(str, funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -845,9 +865,11 @@ func configNode(
 	}
 
 	// The RPC server is disabled if no username or password is provided.
+
 	if (nc.RPCUser == "" || nc.RPCPass == "") &&
 
 		(nc.RPCLimitUser == "" || nc.RPCLimitPass == "") {
+
 		nc.DisableRPC = true
 	}
 
@@ -884,6 +906,7 @@ func configNode(
 
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, nc.RPCMaxConcurrentReqs)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -897,6 +920,7 @@ func configNode(
 
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -904,12 +928,15 @@ func configNode(
 	}
 
 	// Limit the max block size to a sane value.
+
 	if nc.BlockMaxSize < node.BlockMaxSizeMin || nc.BlockMaxSize >
 
 		node.BlockMaxSizeMax {
+
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxSizeMin,
 			node.BlockMaxSizeMax, nc.BlockMaxSize)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -917,12 +944,15 @@ func configNode(
 	}
 
 	// Limit the max block weight to a sane value.
+
 	if nc.BlockMaxWeight < node.BlockMaxWeightMin ||
 
 		nc.BlockMaxWeight > node.BlockMaxWeightMax {
+
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxWeightMin,
 			node.BlockMaxWeightMax, nc.BlockMaxWeight)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -935,6 +965,7 @@ func configNode(
 
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, nc.MaxOrphanTxs)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -968,6 +999,7 @@ func configNode(
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
+
 			log <- cl.Err(err.Error())
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -983,6 +1015,7 @@ func configNode(
 
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
 			funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -997,6 +1030,7 @@ func configNode(
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex "+
 			"options may not be activated at the same time",
 			funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -1014,6 +1048,7 @@ func configNode(
 
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
+
 			log <- cl.Err(err.Error())
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -1024,6 +1059,7 @@ func configNode(
 
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
+
 			log <- cl.Err(err.Error())
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -1039,6 +1075,7 @@ func configNode(
 
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -1066,6 +1103,7 @@ func configNode(
 
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
+
 				log <- cl.Err(err.Error())
 
 				fmt.Fprintln(os.Stderr, usageMessage)
@@ -1087,6 +1125,7 @@ func configNode(
 	if nc.NoOnion && nc.OnionProxy != "" {
 
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -1100,6 +1139,7 @@ func configNode(
 
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -1112,6 +1152,7 @@ func configNode(
 
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
+
 		log <- cl.Err(err.Error())
 
 		fmt.Fprintln(os.Stderr, usageMessage)
@@ -1130,6 +1171,7 @@ func configNode(
 
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, nc.Proxy, err)
+
 			log <- cl.Err(err.Error())
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -1138,15 +1180,18 @@ func configNode(
 
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overriddenode.
 		torIsolation := false
+
 		if nc.TorIsolation && nc.OnionProxy == "" &&
 
 			(nc.ProxyUser != "" || nc.ProxyPass != "") {
+
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified proxy user credentials")
 		}
 
 		proxy := &socks.Proxy{
+
 			Addr:         nc.Proxy,
 			Username:     nc.ProxyUser,
 			Password:     nc.ProxyPass,
@@ -1160,6 +1205,7 @@ func configNode(
 		if !nc.NoOnion && nc.OnionProxy == "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, nc.Proxy)
 			}
 
@@ -1177,6 +1223,7 @@ func configNode(
 
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, nc.OnionProxy, err)
+
 			log <- cl.Err(err.Error())
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -1184,16 +1231,20 @@ func configNode(
 		}
 
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
+
 		if nc.TorIsolation &&
 
 			(nc.OnionProxyUser != "" || nc.OnionProxyPass != "") {
+
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+
 			proxy := &socks.Proxy{
+
 				Addr:         nc.OnionProxy,
 				Username:     nc.OnionProxyUser,
 				Password:     nc.OnionProxyPass,
@@ -1208,12 +1259,14 @@ func configNode(
 		if nc.Proxy != "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, nc.OnionProxy)
 			}
 
 		}
 
 	} else {
+
 		StateCfg.Oniondial = StateCfg.Dial
 	}
 
@@ -1222,6 +1275,7 @@ func configNode(
 	if nc.NoOnion {
 
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+
 			return nil, errors.New("tor has been disabled")
 		}
 

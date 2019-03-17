@@ -1,11 +1,13 @@
 package conf
 
 // type VSettings struct {
+
 // 	InfSet InfSet `json:"inf"`
 // 	NetSet NetSet `json:"net"`
 // 	SecSet SecSet `json:"sec"`
 // 	Mining Mining `json:"mining"`
 // }
+
 type InfConf struct {
 	Lang  string `json:"lang"`
 	Deno  string `json:"deno"`
@@ -39,5 +41,6 @@ type MiningConf struct {
 // var appHtml, _ = ioutil.ReadFile("./assets/vue/app.html")
 
 // var VST VSettings = VSettings{
+
 // 	// "apphtml": appHtml,
 // }

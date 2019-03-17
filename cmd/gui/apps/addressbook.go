@@ -21,17 +21,23 @@ type AddressBookLabel struct {
 
 func (
 	ab *AddressBook,
+
 ) AddressBookData() {
 
 	ab.AddressBookLabel = nil
 	addressbooks, err := jdb.JDB.ReadAll("addressbook")
+
 	if err != nil {
+
 		fmt.Println("Error", err)
 	}
 
 	for _, f := range addressbooks {
+
 		var addressbook AddressBookLabel
+
 		if err := json.Unmarshal([]byte(f), &addressbook); err != nil {
+
 			fmt.Println("Error", err)
 		}
 
@@ -45,9 +51,11 @@ func (
 	ab *AddressBookLabel,
 ) AddressBookLabelDelete(
 	label string,
+
 ) {
 
 	if err := jdb.JDB.Delete("addressbook", label); err != nil {
+
 		fmt.Println("Error", err)
 	}
 
@@ -57,6 +65,7 @@ func (
 func (
 	ab *AddressBookLabel,
 ) AddressBookLabelWrite(
+
 	label, address string) {
 
 	ab.Label = label

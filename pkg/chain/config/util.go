@@ -25,6 +25,7 @@ func compactToBig(
 
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes to represent the full 256-bit number.  So, treat the exponent as the number of bytes and shift the mantissa right or left accordingly.  This is equivalent to `N = mantissa * 256^(exponent-3)``
 	var bn *big.Int
+
 	if exponent <= 3 {
 
 		mantissa >>= 8 * (3 - exponent)
@@ -36,6 +37,7 @@ func compactToBig(
 	}
 
 	// Make it negative if the sign bit is set.
+
 	if isNegative {
 
 		bn = bn.Neg(bn)

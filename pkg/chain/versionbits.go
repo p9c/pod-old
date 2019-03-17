@@ -211,6 +211,7 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 		case ThresholdLockedIn:
 			window := int32(checker.MinerConfirmationWindow())
 			activationHeight := window - (node.height % window)
+
 			log <- cl.Warnf{
 
 				"Unknown new rules are about to activate in %d blocks (bit %d)",

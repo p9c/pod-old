@@ -4,10 +4,12 @@ import "io"
 
 // fakeMessage implements the Message interface and is used to force encode errors in messages.
 type fakeMessage struct {
-	command        string
-	payload        []byte
+	command string
+	payload []byte
+
 	forceEncodeErr bool
-	forceLenErr    bool
+
+	forceLenErr bool
 }
 
 // BtcDecode doesn't do anything.  It just satisfies the wire.Message interface.
@@ -41,6 +43,7 @@ func (msg *fakeMessage) Command() string {
 func (msg *fakeMessage) MaxPayloadLength(pver uint32) uint32 {
 
 	lenp := uint32(len(msg.payload))
+
 	if msg.forceLenErr {
 
 		return lenp - 1

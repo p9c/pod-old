@@ -54,6 +54,7 @@ func (cq *ConcurrentQueue) Start() {
 		for {
 
 			nextElement := cq.overflow.Front()
+
 			if nextElement == nil {
 
 				// The overflow queue is empty, so incoming

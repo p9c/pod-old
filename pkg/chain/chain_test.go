@@ -21,7 +21,9 @@ func TestHaveBlock(
 	// (genesis block) -> 1 -> 2 -> 3 -> 4
 
 	//                          \-> 3a
+
 	testFiles := []string{
+
 		"blk_0_to_4.dat.bz2",
 		"blk_3A.dat.bz2",
 	}
@@ -162,8 +164,11 @@ func TestCalcSequenceLock(
 	}
 
 	// Create a utxo view with a fake utxo for the inputs used in the transactions created below.  This utxo is added such that it has an age of 4 blocks.
+
 	targetTx := util.NewTx(&wire.MsgTx{
+
 		TxOut: []*wire.TxOut{{
+
 			PkScript: nil,
 			Value:    10,
 		}},
@@ -174,7 +179,9 @@ func TestCalcSequenceLock(
 	utxoView.SetBestHash(&node.hash)
 
 	// Create a utxo that spends the fake utxo created above for use in the transactions created in the tests.  It has an age of 4 blocks.  Note that the sequence lock heights are always calculated from the same point of view that they were originally calculated from for a given utxo.  That is to say, the height prior to it.
+
 	utxo := wire.OutPoint{
+
 		Hash:  *targetTx.Hash(),
 		Index: 0,
 	}
@@ -189,14 +196,18 @@ func TestCalcSequenceLock(
 	nextBlockHeight := int32(numBlocksToActivate) + 1
 
 	// Add an additional transaction which will serve as our unconfirmed output.
+
 	unConfTx := &wire.MsgTx{
+
 		TxOut: []*wire.TxOut{{
+
 			PkScript: nil,
 			Value:    5,
 		}},
 	}
 
 	unConfUtxo := wire.OutPoint{
+
 		Hash:  unConfTx.TxHash(),
 		Index: 0,
 	}
@@ -212,86 +223,123 @@ func TestCalcSequenceLock(
 	}{
 
 		// A transaction of version one should disable sequence locks as the new sequence number semantics only apply to transactions version 2 or higher.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 1,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(false, 3),
 				}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     -1,
 				BlockHeight: -1,
 			},
 		},
 
 		// A transaction with a single input with max sequence number. This sequence number has the high bit set, so sequence locks should be disabled.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         wire.MaxTxInSequenceNum,
 				}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     -1,
 				BlockHeight: -1,
 			},
 		},
 
 		// A transaction with a single input whose lock time is expressed in seconds.  However, the specified lock time is below the required floor for time based lock times since they have time granularity of 512 seconds.  As a result, the seconds lock-time should be just before the median time of the targeted block.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 2),
 				}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     medianTime - 1,
 				BlockHeight: -1,
 			},
 		},
 
 		// A transaction with a single input whose lock time is expressed in seconds.  The number of seconds should be 1023 seconds after the median past time of the last block in the chain.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 1024),
 				}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     medianTime + 1023,
 				BlockHeight: -1,
 			},
 		},
 
 		// A transaction with multiple inputs.  The first input has a lock time expressed in seconds.  The second input has a sequence lock in blocks with a value of 4.  The last input has a sequence number with a value of 5, but has the disable bit set.  So the first lock should be selected as it's the latest lock that isn't disabled.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 2560),
 				},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(false, 4),
 					},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence: LockTimeToSequence(false, 5) |
 							wire.SequenceLockTimeDisabled,
@@ -299,105 +347,150 @@ func TestCalcSequenceLock(
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     medianTime + (5 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: prevUtxoHeight + 3,
 			},
 		},
 
 		// Transaction with a single input.  The input's sequence number encodes a relative lock-time in blocks (3 blocks).  The sequence lock should  have a value of -1 for seconds, but a height of 2 meaning it can be included at height 3.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(false, 3),
 				}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     -1,
 				BlockHeight: prevUtxoHeight + 2,
 			},
 		},
 
 		// A transaction with two inputs with lock times expressed in seconds.  The selected sequence lock value for seconds should be the time further in the future.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 5120),
 				},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(true, 2560),
 					}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     medianTime + (10 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: -1,
 			},
 		},
 
 		// A transaction with two inputs with lock times expressed in blocks.  The selected sequence lock value for blocks should be the height further in the future, so a height of 10 indicating it can be included at height 11.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(false, 1),
 				},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(false, 11),
 					}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     -1,
 				BlockHeight: prevUtxoHeight + 10,
 			},
 		},
 
 		// A transaction with multiple inputs.  Two inputs are time based, and the other two are block based. The lock lying further into the future for both inputs should be chosen.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 2560),
 				},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(true, 6656),
 					},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(false, 3),
 					},
+
 					{
+
 						PreviousOutPoint: utxo,
 						Sequence:         LockTimeToSequence(false, 9),
 					}},
 			},
 
 			view: utxoView,
+
 			want: &SequenceLock{
+
 				Seconds:     medianTime + (13 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: prevUtxoHeight + 8,
 			},
 		},
 
 		// A transaction with a single unconfirmed input.  As the input is confirmed, the height of the input should be interpreted as the height of the *next* block.  So, a 2 block relative lock means the sequence lock should be for 1 block after the *next* block height, indicating it can be included 2 blocks after that.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: unConfUtxo,
 					Sequence:         LockTimeToSequence(false, 2),
 				}},
@@ -405,17 +498,24 @@ func TestCalcSequenceLock(
 
 			view:    utxoView,
 			mempool: true,
+
 			want: &SequenceLock{
+
 				Seconds:     -1,
 				BlockHeight: nextBlockHeight + 1,
 			},
 		},
 
 		// A transaction with a single unconfirmed input.  The input has a time based lock, so the lock time should be based off the MTP of the *next* block.
+
 		{
+
 			tx: &wire.MsgTx{
+
 				Version: 2,
+
 				TxIn: []*wire.TxIn{{
+
 					PreviousOutPoint: unConfUtxo,
 					Sequence:         LockTimeToSequence(true, 1024),
 				}},
@@ -423,7 +523,9 @@ func TestCalcSequenceLock(
 
 			view:    utxoView,
 			mempool: true,
+
 			want: &SequenceLock{
+
 				Seconds:     nextMedianTime + 1023,
 				BlockHeight: -1,
 			},
@@ -538,6 +640,7 @@ func TestLocateInventory(
 	}{
 
 		{
+
 			// Empty block locators and unknown stop hash.  No inventory should be located.
 			name:     "no locators, no stop",
 			locator:  nil,
@@ -547,6 +650,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Empty block locators and stop hash in side chain. The expected result is the requested block.
 			name:     "no locators, stop in side",
 			locator:  nil,
@@ -556,6 +660,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Empty block locators and stop hash in main chain. The expected result is the requested block.
 			name:     "no locators, stop in main",
 			locator:  nil,
@@ -565,6 +670,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash local node doesn't know about.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, unknown stop",
 			locator:  remoteView.BlockLocator(nil),
@@ -574,6 +680,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash in side chain.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in side",
 			locator:  remoteView.BlockLocator(nil),
@@ -583,6 +690,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash in main chain, but before fork point. The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in main before",
 			locator:  remoteView.BlockLocator(nil),
@@ -592,6 +700,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash in main chain, but exactly at the fork point.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in main exact",
 			locator:  remoteView.BlockLocator(nil),
@@ -601,6 +710,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash in main chain just after the fork point. The expected result is the blocks after the fork point in the main chain up to and including the stop hash.
 			name:     "remote side chain, stop in main after",
 			locator:  remoteView.BlockLocator(nil),
@@ -610,6 +720,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on side chain and a stop hash in main chain some time after the fork point.  The expected result is the blocks after the fork point in the main chain up to and including the stop hash.
 			name:     "remote side chain, stop in main after more",
 			locator:  remoteView.BlockLocator(nil),
@@ -619,6 +730,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash local node doesn't know about. The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, unknown stop",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -628,6 +740,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash in a side chain.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in side",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -637,6 +750,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain before that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main before",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -646,6 +760,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain exactly at that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main exact",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -655,6 +770,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain just after that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main after",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -664,6 +780,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain some time after that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main after more",
 			locator:  localView.BlockLocator(branch0Nodes[12]),
@@ -673,6 +790,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being at exactly the same point in the main chain and a stop hash local node doesn't know about.  The expected result is no located inventory.
 			name:     "remote main chain same, unknown stop",
 			locator:  localView.BlockLocator(nil),
@@ -682,6 +800,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators based on remote being at exactly the same point in the main chain and a stop hash at exactly the same point.  The expected result is no located inventory.
 			name:     "remote main chain same, stop same point",
 			locator:  localView.BlockLocator(nil),
@@ -691,6 +810,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators from remote that don't include any blocks the local node knows.  This would happen if the remote node is on a completely separate chain that isn't rooted with the same genesis block.  The expected result is the blocks after the genesis block.
 			name:     "remote unrelated chain",
 			locator:  unrelatedView.BlockLocator(nil),
@@ -702,6 +822,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Locators from remote for second block in main chain and no stop hash, but with an overridden max limit. The expected result is the blocks after the second block limited by the max.
 			name:       "remote genesis",
 			locator:    locatorHashes(branch0Nodes, 0),
@@ -712,6 +833,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Poorly formed locator.
 			// Locator from remote that only includes a single block on a side chain the local node knows.  The expected result is the blocks after the genesis block since even though the block is known, it is on a side chain and there are no more locators to find the fork point.
 			name:     "weak locator, single known side block",
@@ -724,6 +846,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Poorly formed locator.
 			// Locator from remote that only includes multiple blocks on a side chain the local node knows however none in the main chain.  The expected result is the blocks after the genesis block since even though the blocks are known, they are all on a side chain and there are no more locators to find the fork point.
 			name:     "weak locator, multiple known side blocks",
@@ -736,6 +859,7 @@ func TestLocateInventory(
 		},
 
 		{
+
 			// Poorly formed locator.
 			// Locator from remote that only includes multiple blocks on a side chain the local node knows however none in the main chain but includes a stop hash in the main chain.  The expected result is the blocks after the genesis block up to the stop hash since even though the blocks are known, they are all on a side chain and there are no more locators to find the fork point.
 			name:     "weak locator, multiple known side blocks, stop in main",
@@ -841,6 +965,7 @@ func TestHeightToHashRange(
 	}{
 
 		{
+
 			name:        "blocks below tip",
 			startHeight: 11,
 			endHash:     branch0Nodes[14].hash,
@@ -849,6 +974,7 @@ func TestHeightToHashRange(
 		},
 
 		{
+
 			name:        "blocks on main chain",
 			startHeight: 15,
 			endHash:     branch0Nodes[17].hash,
@@ -857,6 +983,7 @@ func TestHeightToHashRange(
 		},
 
 		{
+
 			name:        "blocks on stale chain",
 			startHeight: 15,
 			endHash:     branch1Nodes[1].hash,
@@ -866,6 +993,7 @@ func TestHeightToHashRange(
 		},
 
 		{
+
 			name:        "invalid start height",
 			startHeight: 19,
 			endHash:     branch0Nodes[17].hash,
@@ -874,6 +1002,7 @@ func TestHeightToHashRange(
 		},
 
 		{
+
 			name:        "too many results",
 			startHeight: 1,
 			endHash:     branch0Nodes[17].hash,
@@ -882,6 +1011,7 @@ func TestHeightToHashRange(
 		},
 
 		{
+
 			name:        "unvalidated block",
 			startHeight: 15,
 			endHash:     branch1Nodes[2].hash,
@@ -957,6 +1087,7 @@ func TestIntervalBlockHashes(
 	}{
 
 		{
+
 			name:     "blocks on main chain",
 			endHash:  branch0Nodes[17].hash,
 			interval: 8,
@@ -964,6 +1095,7 @@ func TestIntervalBlockHashes(
 		},
 
 		{
+
 			name:     "blocks on stale chain",
 			endHash:  branch1Nodes[1].hash,
 			interval: 8,
@@ -972,6 +1104,7 @@ func TestIntervalBlockHashes(
 		},
 
 		{
+
 			name:     "no results",
 			endHash:  branch0Nodes[17].hash,
 			interval: 20,
@@ -979,6 +1112,7 @@ func TestIntervalBlockHashes(
 		},
 
 		{
+
 			name:        "unvalidated block",
 			endHash:     branch1Nodes[2].hash,
 			interval:    8,

@@ -48,11 +48,15 @@ type ConfConfigs struct {
 const lH = "127.0.0.1:"
 
 // ConfCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var ConfCommand = climax.Command{
+
 	Name:  "conf",
 	Brief: "sets configurations common across modules",
 	Help:  "automates synchronising common settings between servers and clients",
+
 	Flags: []climax.Flag{
+
 		t("version", "V", "show version number and quit"),
 		t("init", "i", "resets configuration to defaults"),
 		t("show", "s", "prints currently configuration"),
@@ -88,13 +92,16 @@ var ConfCommand = climax.Command{
 	},
 
 	Examples: []climax.Example{
+
 		{
+
 			Usecase:     "--D test --init",
 			Description: "creates a new data directory at test",
 		},
 	},
 
 	Handle: func(ctx climax.Context) int {
+
 		var dl, ct, tpb string
 		var ok bool
 
@@ -121,9 +128,11 @@ var ConfCommand = climax.Command{
 			testname := "test"
 			testnum := 1
 			testportbase := 21047
+
 			if err := ParseInteger(
 				ct, "createtest", &testnum,
 			); err != nil {
+
 				log <- cl.Wrn(err.Error())
 
 			}
@@ -138,6 +147,7 @@ var ConfCommand = climax.Command{
 				if err := ParseInteger(
 					tpb, "testportbase", &testportbase,
 				); err != nil {
+
 					log <- cl.Wrn(err.Error())
 
 				}
@@ -169,15 +179,19 @@ var ConfCommand = climax.Command{
 
 				// conf
 				tc := ts.Conf
+
 				tc.NodeListeners = []string{
+
 					lH + ps[i].P2P,
 				}
 
 				tc.NodeRPCListeners = []string{
+
 					lH + ps[i].NodeRPC,
 				}
 
 				tc.WalletListeners = []string{
+
 					lH + ps[i].WalletRPC,
 				}
 
@@ -279,6 +293,7 @@ var ConfCommand = climax.Command{
 		}
 
 		confs = []string{
+
 			DefaultDataDir + "/ctl/conf.json",
 			DefaultDataDir + "/node/conf.json",
 			DefaultDataDir + "/wallet/conf.json",
@@ -301,11 +316,13 @@ var ConfCommand = climax.Command{
 			WriteDefaultShellConfig(DefaultDataDir)
 
 		} else {
+
 			if _, err := os.Stat(confFile); os.IsNotExist(err) {
 
 				WriteDefaultConfConfig(DefaultDataDir)
 
 			} else {
+
 				cfgData, err := ioutil.ReadFile(confFile)
 
 				if err != nil {

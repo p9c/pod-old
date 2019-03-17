@@ -41,8 +41,11 @@ func (k *BlockChain) GetInfoData() {
 
 	// List Send Transactions
 	var listallsendtransactions []json.ListTransactionsResult
+
 	for _, sent := range k.ListAllTransactions {
+
 		if sent.Category == "send" {
+
 			listallsendtransactions = append(listallsendtransactions, sent)
 		}
 
@@ -53,9 +56,13 @@ func (k *BlockChain) GetInfoData() {
 	// // Balance
 	// var balance btcutil.Amount
 	// accountName := "*"
+
 	// if accountName == "*" {
+
 	// 	balance, err = WLT.CalculateBalance(1)
+
 	// 	if err != nil {
+
 	// 	}
 	// }
 	// k.Balance = balance.ToDUO()
@@ -63,11 +70,15 @@ func (k *BlockChain) GetInfoData() {
 	// UnConfirmed
 	acctName := "default"
 	account, err := WLT.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+
 	if err != nil {
+
 	}
 
 	bals, err := WLT.CalculateAccountBalances(account, 1)
+
 	if err != nil {
+
 	}
 
 	unconfirmed := (bals.Total - bals.Spendable).ToDUO()
@@ -75,6 +86,7 @@ func (k *BlockChain) GetInfoData() {
 	k.UnConfirmed = unconfirmed
 
 	// t, err := follower.New("/home/marcetin/.mod/logs/testnet/mod.log", follower.Config{
+
 	// 	Whence: io.SeekEnd,
 	// 	Offset: 0,
 	// 	Reopen: true,

@@ -32,6 +32,7 @@ func (msg *MsgAddr) AddAddresses(netAddrs ...*NetAddress) error {
 	for _, na := range netAddrs {
 
 		err := msg.AddAddress(na)
+
 		if err != nil {
 
 			return err
@@ -50,12 +51,14 @@ func (msg *MsgAddr) ClearAddresses() {
 func (msg *MsgAddr) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
 
 	// Limit to max addresses per message.
+
 	if count > MaxAddrPerMsg {
 
 		str := fmt.Sprintf("too many addresses for message "+
@@ -64,10 +67,12 @@ func (msg *MsgAddr) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) err
 	}
 	addrList := make([]NetAddress, count)
 	msg.AddrList = make([]*NetAddress, 0, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		na := &addrList[i]
 		err := readNetAddress(r, pver, na, true)
+
 		if err != nil {
 
 			return err
@@ -82,12 +87,14 @@ func (msg *MsgAddr) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) err
 
 	// Protocol versions before MultipleAddressVersion only allowed 1 address per message.
 	count := len(msg.AddrList)
+
 	if pver < MultipleAddressVersion && count > 1 {
 
 		str := fmt.Sprintf("too many addresses for message of "+
 			"protocol version %v [count %v, max 1]", pver, count)
 		return messageError("MsgAddr.BtcEncode", str)
 	}
+
 	if count > MaxAddrPerMsg {
 
 		str := fmt.Sprintf("too many addresses for message "+
@@ -95,13 +102,16 @@ func (msg *MsgAddr) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) err
 		return messageError("MsgAddr.BtcEncode", str)
 	}
 	err := WriteVarInt(w, pver, uint64(count))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, na := range msg.AddrList {
 
 		err = writeNetAddress(w, pver, na, true)
+
 		if err != nil {
 
 			return err

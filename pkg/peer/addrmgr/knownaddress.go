@@ -35,6 +35,7 @@ func (ka *KnownAddress) chance() float64 {
 
 	now := time.Now()
 	lastAttempt := now.Sub(ka.lastattempt)
+
 	if lastAttempt < 0 {
 
 		lastAttempt = 0
@@ -42,12 +43,14 @@ func (ka *KnownAddress) chance() float64 {
 	c := 1.0
 
 	// Very recent attempts are less likely to be retried.
+
 	if lastAttempt < 10*time.Minute {
 
 		c *= 0.01
 	}
 
 	// Failed attempts deprioritise.
+
 	for i := ka.attempts; i > 0; i-- {
 
 		c /= 1.5
@@ -69,24 +72,28 @@ func (ka *KnownAddress) isBad() bool {
 	}
 
 	// From the future?
+
 	if ka.na.Timestamp.After(time.Now().Add(10 * time.Minute)) {
 
 		return true
 	}
 
 	// Over a month old?
+
 	if ka.na.Timestamp.Before(time.Now().Add(-1 * numMissingDays * time.Hour * 24)) {
 
 		return true
 	}
 
 	// Never succeeded?
+
 	if ka.lastsuccess.IsZero() && ka.attempts >= numRetries {
 
 		return true
 	}
 
 	// Hasn't succeeded in too long?
+
 	if !ka.lastsuccess.After(time.Now().Add(-1*minBadDays*time.Hour*24)) &&
 		ka.attempts >= maxFailures {
 

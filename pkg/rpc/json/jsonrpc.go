@@ -63,11 +63,13 @@ func MarshalResponse(
 	id interface{}, result interface{}, rpcErr *RPCError) ([]byte, error) {
 
 	marshalledResult, err := json.Marshal(result)
+
 	if err != nil {
 
 		return nil, err
 	}
 	response, err := NewResponse(id, marshalledResult, rpcErr)
+
 	if err != nil {
 
 		return nil, err
@@ -95,9 +97,11 @@ func NewRequest(
 		return nil, makeError(ErrInvalidType, str)
 	}
 	rawParams := make([]json.RawMessage, 0, len(params))
+
 	for _, param := range params {
 
 		marshalledParam, err := json.Marshal(param)
+
 		if err != nil {
 
 			return nil, err

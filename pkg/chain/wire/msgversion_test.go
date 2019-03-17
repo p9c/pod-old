@@ -25,6 +25,7 @@ func TestVersion(
 	tcpAddrYou := &net.TCPAddr{IP: net.ParseIP("192.168.0.1"), Port: 11047}
 	you := NewNetAddress(tcpAddrYou, SFNodeNetwork)
 	nonce, err := RandomUint64()
+
 	if err != nil {
 
 		t.Errorf("RandomUint64: error generating nonce: %v", err)
@@ -32,36 +33,43 @@ func TestVersion(
 
 	// Ensure we get the correct data back out.
 	msg := NewMsgVersion(me, you, nonce, lastBlock)
+
 	if msg.ProtocolVersion != int32(pver) {
 
 		t.Errorf("NewMsgVersion: wrong protocol version - got %v, want %v",
 			msg.ProtocolVersion, pver)
 	}
+
 	if !reflect.DeepEqual(&msg.AddrMe, me) {
 
 		t.Errorf("NewMsgVersion: wrong me address - got %v, want %v",
 			spew.Sdump(&msg.AddrMe), spew.Sdump(me))
 	}
+
 	if !reflect.DeepEqual(&msg.AddrYou, you) {
 
 		t.Errorf("NewMsgVersion: wrong you address - got %v, want %v",
 			spew.Sdump(&msg.AddrYou), spew.Sdump(you))
 	}
+
 	if msg.Nonce != nonce {
 
 		t.Errorf("NewMsgVersion: wrong nonce - got %v, want %v",
 			msg.Nonce, nonce)
 	}
+
 	if msg.UserAgent != DefaultUserAgent {
 
 		t.Errorf("NewMsgVersion: wrong user agent - got %v, want %v",
 			msg.UserAgent, DefaultUserAgent)
 	}
+
 	if msg.LastBlock != lastBlock {
 
 		t.Errorf("NewMsgVersion: wrong last block - got %v, want %v",
 			msg.LastBlock, lastBlock)
 	}
+
 	if msg.DisableRelayTx {
 
 		t.Errorf("NewMsgVersion: disable relay tx is not false by "+
@@ -69,6 +77,7 @@ func TestVersion(
 	}
 	msg.AddUserAgent("myclient", "1.2.3", "optional", "comments")
 	customUserAgent := DefaultUserAgent + "myclient:1.2.3(optional; comments)/"
+
 	if msg.UserAgent != customUserAgent {
 
 		t.Errorf("AddUserAgent: wrong user agent - got %s, want %s",
@@ -76,6 +85,7 @@ func TestVersion(
 	}
 	msg.AddUserAgent("mygui", "3.4.5")
 	customUserAgent += "mygui:3.4.5/"
+
 	if msg.UserAgent != customUserAgent {
 
 		t.Errorf("AddUserAgent: wrong user agent - got %s, want %s",
@@ -85,6 +95,7 @@ func TestVersion(
 	// accounting for ":", "/"
 	err = msg.AddUserAgent(strings.Repeat("t",
 		MaxUserAgentLen-len(customUserAgent)-2+1), "")
+
 	if _, ok := err.(*MessageError); !ok {
 
 		t.Errorf("AddUserAgent: expected error not received "+
@@ -92,11 +103,13 @@ func TestVersion(
 	}
 
 	// Version message should not have any services set by default.
+
 	if msg.Services != 0 {
 
 		t.Errorf("NewMsgVersion: wrong default services - got %v, want %v",
 			msg.Services, 0)
 	}
+
 	if msg.HasService(SFNodeNetwork) {
 
 		t.Errorf("HasService: SFNodeNetwork service is set")
@@ -104,6 +117,7 @@ func TestVersion(
 
 	// Ensure the command is expected value.
 	wantCmd := "version"
+
 	if cmd := msg.Command(); cmd != wantCmd {
 
 		t.Errorf("NewMsgVersion: wrong command - got %v want %v",
@@ -113,6 +127,7 @@ func TestVersion(
 	// Ensure max payload is expected value. Protocol version 4 bytes + services 8 bytes + timestamp 8 bytes + remote and local net addresses + nonce 8 bytes + length of user agent (varInt) + max allowed user agent length + last block 4 bytes + relay transactions flag 1 byte.
 	wantPayload := uint32(358)
 	maxPayload := msg.MaxPayloadLength(pver)
+
 	if maxPayload != wantPayload {
 
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
@@ -122,11 +137,13 @@ func TestVersion(
 
 	// Ensure adding the full service node flag works.
 	msg.AddService(SFNodeNetwork)
+
 	if msg.Services != SFNodeNetwork {
 
 		t.Errorf("AddService: wrong services - got %v, want %v",
 			msg.Services, SFNodeNetwork)
 	}
+
 	if !msg.HasService(SFNodeNetwork) {
 
 		t.Errorf("HasService: SFNodeNetwork service not set")
@@ -216,16 +233,19 @@ func TestVersionWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -237,11 +257,13 @@ func TestVersionWire(
 		var msg MsgVersion
 		rbuf := bytes.NewBuffer(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&msg, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -262,6 +284,7 @@ func TestVersionWireErrors(
 
 	// Ensure calling MsgVersion.BtcDecode with a non *bytes.Buffer returns error.
 	fr := newFixedReader(0, []byte{})
+
 	if err := baseVersion.BtcDecode(fr, pver, enc); err == nil {
 
 		t.Errorf("Did not received error when calling " +
@@ -277,6 +300,7 @@ func TestVersionWireErrors(
 	// Encode the new UA length as a varint.
 	var newUAVarIntBuf bytes.Buffer
 	err := WriteVarInt(&newUAVarIntBuf, pver, uint64(len(newUA)))
+
 	if err != nil {
 
 		t.Errorf("WriteVarInt: error %v", err)
@@ -337,11 +361,13 @@ func TestVersionWireErrors(
 		{exceedUAVer, exceedUAVerEncoded, pver, BaseEncoding, newLen, wireErr, wireErr},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
 
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
@@ -350,6 +376,7 @@ func TestVersionWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.writeErr {
@@ -364,6 +391,7 @@ func TestVersionWireErrors(
 		var msg MsgVersion
 		buf := bytes.NewBuffer(test.buf[0:test.max])
 		err = msg.BtcDecode(buf, test.pver, test.enc)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
@@ -372,6 +400,7 @@ func TestVersionWireErrors(
 		}
 
 		// For errors which are not of type MessageError, check them for equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {
@@ -468,17 +497,20 @@ func TestVersionOptionalFields(
 			BaseEncoding,
 		},
 	}
+
 	for i, test := range tests {
 
 		// Decode the message from wire format.
 		var msg MsgVersion
 		rbuf := bytes.NewBuffer(test.buf)
 		err := msg.BtcDecode(rbuf, test.pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&msg, test.msg) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,

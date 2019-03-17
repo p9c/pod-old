@@ -112,6 +112,7 @@ func TestChainView(
 		// expected tip of side chain view
 		sideTip *blockNode
 		// expected fork node
+
 		fork *blockNode
 		// expected nodes in active view
 		contains []*blockNode
@@ -126,13 +127,15 @@ func TestChainView(
 	}{
 
 		{
+
 			// Create a view for branch 0 as the active chain and another view for branch 1 as the side chain.
-			name:       "chain0-chain1",
-			view:       newChainView(tip(branch0Nodes)),
-			genesis:    branch0Nodes[0],
-			tip:        tip(branch0Nodes),
-			side:       newChainView(tip(branch1Nodes)),
-			sideTip:    tip(branch1Nodes),
+			name:    "chain0-chain1",
+			view:    newChainView(tip(branch0Nodes)),
+			genesis: branch0Nodes[0],
+			tip:     tip(branch0Nodes),
+			side:    newChainView(tip(branch1Nodes)),
+			sideTip: tip(branch1Nodes),
+
 			fork:       branch0Nodes[1],
 			contains:   branch0Nodes,
 			noContains: branch1Nodes,
@@ -142,13 +145,15 @@ func TestChainView(
 		},
 
 		{
+
 			// Create a view for branch 1 as the active chain and another view for branch 2 as the side chain.
-			name:       "chain1-chain2",
-			view:       newChainView(tip(branch1Nodes)),
-			genesis:    branch0Nodes[0],
-			tip:        tip(branch1Nodes),
-			side:       newChainView(tip(branch2Nodes)),
-			sideTip:    tip(branch2Nodes),
+			name:    "chain1-chain2",
+			view:    newChainView(tip(branch1Nodes)),
+			genesis: branch0Nodes[0],
+			tip:     tip(branch1Nodes),
+			side:    newChainView(tip(branch2Nodes)),
+			sideTip: tip(branch2Nodes),
+
 			fork:       branch1Nodes[0],
 			contains:   branch1Nodes,
 			noContains: branch2Nodes,
@@ -161,13 +166,15 @@ func TestChainView(
 		},
 
 		{
+
 			// Create a view for branch 2 as the active chain and another view for branch 0 as the side chain.
-			name:       "chain2-chain0",
-			view:       newChainView(tip(branch2Nodes)),
-			genesis:    branch0Nodes[0],
-			tip:        tip(branch2Nodes),
-			side:       newChainView(tip(branch0Nodes)),
-			sideTip:    tip(branch0Nodes),
+			name:    "chain2-chain0",
+			view:    newChainView(tip(branch2Nodes)),
+			genesis: branch0Nodes[0],
+			tip:     tip(branch2Nodes),
+			side:    newChainView(tip(branch0Nodes)),
+			sideTip: tip(branch0Nodes),
+
 			fork:       branch0Nodes[1],
 			contains:   branch2Nodes,
 			noContains: branch0Nodes[2:],
@@ -236,6 +243,7 @@ testLoop:
 		}
 
 		// Ensure that regardless of the order the two chains are compared they both return the expected fork point.
+
 		forkNode := test.view.FindFork(test.side.Tip())
 
 		if forkNode != test.fork {
@@ -257,6 +265,7 @@ testLoop:
 		}
 
 		// Ensure that the fork point for a node that is already part of the chain view is the node itself.
+
 		forkNode = test.view.FindFork(test.view.Tip())
 
 		if forkNode != test.view.Tip() {
@@ -398,6 +407,7 @@ func TestChainViewForkCorners(
 		if fork := view2.FindFork(node); fork != nil {
 
 			t.Fatalf("FindFork: unexpected fork -- got %v, want nil",
+
 				fork)
 		}
 
@@ -408,6 +418,7 @@ func TestChainViewForkCorners(
 		if fork := view1.FindFork(node); fork != nil {
 
 			t.Fatalf("FindFork: unexpected fork -- got %v, want nil",
+
 				fork)
 		}
 
@@ -434,9 +445,11 @@ func TestChainViewSetTip(
 		view     *chainView     // active view
 		tips     []*blockNode   // tips to set
 		contains [][]*blockNode // expected nodes in view for each tip
+
 	}{
 
 		{
+
 			// Create an empty view and set the tip to increasingly longer chains.
 			name:     "increasing",
 			view:     newChainView(nil),
@@ -445,6 +458,7 @@ func TestChainViewSetTip(
 		},
 
 		{
+
 			// Create a view with a longer chain and set the tip to increasingly shorter chains.
 			name:     "decreasing",
 			view:     newChainView(tip(branch1Nodes)),
@@ -453,6 +467,7 @@ func TestChainViewSetTip(
 		},
 
 		{
+
 			// Create a view with a shorter chain and set the tip to a longer chain followed by setting it back to the shorter chain.
 			name:     "small-large-small",
 			view:     newChainView(tip(branch0Nodes)),
@@ -461,6 +476,7 @@ func TestChainViewSetTip(
 		},
 
 		{
+
 			// Create a view with a longer chain and set the tip to a smaller chain followed by setting it back to the longer chain.
 			name:     "large-small-large",
 			view:     newChainView(tip(branch1Nodes)),

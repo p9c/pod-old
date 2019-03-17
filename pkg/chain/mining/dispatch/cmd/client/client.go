@@ -27,6 +27,7 @@ func main() {
 	server.PacketHandler = handleServerPacket
 	server.Start()
 	defer server.Stop()
+
 	for {
 
 		if !connected {
@@ -58,6 +59,7 @@ func serverConnect(
 		conn.SendReliableOrdered([]byte("subscribe " + myListener))
 		time.Sleep(heartbeat)
 	}
+
 	for conn.Addr != nil && connected {
 
 		fmt.Println("ping", conn.Addr)
@@ -141,6 +143,7 @@ func handleServerPacket(
 
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
+
 	switch {
 
 	case !connected:

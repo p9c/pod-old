@@ -10,6 +10,7 @@ import (
 
 // appendRaw appends a new raw header to the end of the flat file.
 func (h *headerStore) appendRaw(header []byte) error {
+
 	if _, err := h.file.Write(header); err != nil {
 		return err
 	}
@@ -26,6 +27,7 @@ func (h *headerStore) readRaw(seekDist uint64) ([]byte, error) {
 
 	// Based on the defined header type, we'll determine the number of
 	// bytes that we need to read past the sync point.
+
 	switch h.indexType {
 	case Block:
 		headerSize = 80
@@ -43,6 +45,7 @@ func (h *headerStore) readRaw(seekDist uint64) ([]byte, error) {
 	// for that number of bytes, and read directly from the file into the
 	// buffer.
 	rawHeader := make([]byte, headerSize)
+
 	if _, err := h.file.ReadAt(rawHeader[:], int64(seekDist)); err != nil {
 		return nil, err
 	}
@@ -62,6 +65,7 @@ func (h *blockHeaderStore) readHeaderRange(startHeight uint32,
 	// Based on the defined header type, we'll determine the number of
 	// bytes that we need to read past the sync point.
 	var headerSize uint32
+
 	switch h.indexType {
 	case Block:
 		headerSize = 80
@@ -85,6 +89,7 @@ func (h *blockHeaderStore) readHeaderRange(startHeight uint32,
 	// Now that we have our slice allocated, we'll read out the entire
 	// range of headers with a single system call.
 	_, err := h.file.ReadAt(rawHeaderBytes, int64(seekDistance))
+
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +98,10 @@ func (h *blockHeaderStore) readHeaderRange(startHeight uint32,
 	// our set of serialized contiguous raw headers.
 	headerReader := bytes.NewReader(rawHeaderBytes)
 	headers := make([]wire.BlockHeader, 0, numHeaders)
+
 	for headerReader.Len() != 0 {
 		var nextHeader wire.BlockHeader
+
 		if err := nextHeader.Deserialize(headerReader); err != nil {
 			return nil, err
 		}
@@ -118,6 +125,7 @@ func (h *blockHeaderStore) readHeader(height uint32) (wire.BlockHeader, error) {
 	// With the distance calculated, we'll raw a raw header start from that
 	// offset.
 	rawHeader, err := h.readRaw(seekDistance)
+
 	if err != nil {
 		return header, err
 	}
@@ -125,6 +133,7 @@ func (h *blockHeaderStore) readHeader(height uint32) (wire.BlockHeader, error) {
 	headerReader := bytes.NewReader(rawHeader)
 
 	// Finally, decode the raw bytes into a proper bitcoin header.
+
 	if err := header.Deserialize(headerReader); err != nil {
 		return header, err
 	}
@@ -139,6 +148,7 @@ func (f *FilterHeaderStore) readHeader(height uint32) (*chainhash.Hash, error) {
 	seekDistance := uint64(height) * 32
 
 	rawHeader, err := f.readRaw(seekDistance)
+
 	if err != nil {
 		return nil, err
 	}

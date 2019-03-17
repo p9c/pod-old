@@ -70,6 +70,7 @@ func (s sortableInputSlice) Less(i, j int) bool {
 	}
 	// At this point, the hashes are not equal, so reverse them to big-endian and return the result of the comparison.
 	const hashSize = chainhash.HashSize
+
 	for b := 0; b < hashSize/2; b++ {
 
 		ihash[b], ihash[hashSize-1-b] = ihash[hashSize-1-b], ihash[b]

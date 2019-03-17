@@ -156,6 +156,7 @@ func (n *nodeConfig) cleanup() error {
 		n.dataDir,
 	}
 	var err error
+
 	for _, dir := range dirs {
 		if err = os.RemoveAll(dir); err != nil {
 			log.Printf("Cannot remove dir %s: %v", dir, err)

@@ -177,14 +177,17 @@ func GetAlgoVer(
 
 	n := "sha256d"
 	hf := GetCurrent(height)
+
 	if name == "random" {
 
 		rn, _ := rand.Int(rand.Reader,
 			big.NewInt(int64(len(P9AlgoVers)-1)))
 		randomalgover := int32(rn.Uint64())
+
 		switch hf {
 
 		case 0:
+
 			switch randomalgover & 1 {
 
 			case 0:
@@ -234,6 +237,7 @@ func GetCurrent(
 			}
 		}
 	}
+
 	for i := range List {
 
 		if height > List[i].ActivationHeight {

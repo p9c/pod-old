@@ -20,6 +20,7 @@ type FutureDebugLevelResult chan *response
 func (r FutureDebugLevelResult) Receive() (string, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return "", err
@@ -28,6 +29,7 @@ func (r FutureDebugLevelResult) Receive() (string, error) {
 	// Unmashal the result as a string.
 	var result string
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return "", err
@@ -86,6 +88,7 @@ type FutureListAddressTransactionsResult chan *response
 func (r FutureListAddressTransactionsResult) Receive() ([]json.ListTransactionsResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -94,6 +97,7 @@ func (r FutureListAddressTransactionsResult) Receive() ([]json.ListTransactionsR
 	// Unmarshal the result as an array of listtransactions objects.
 	var transactions []json.ListTransactionsResult
 	err = js.Unmarshal(res, &transactions)
+
 	if err != nil {
 
 		return nil, err
@@ -106,6 +110,7 @@ func (c *Client) ListAddressTransactionsAsync(addresses []util.Address, account 
 
 	// Convert addresses to strings.
 	addrs := make([]string, 0, len(addresses))
+
 	for _, addr := range addresses {
 
 		addrs = append(addrs, addr.EncodeAddress())
@@ -127,6 +132,7 @@ type FutureGetBestBlockResult chan *response
 func (r FutureGetBestBlockResult) Receive() (*chainhash.Hash, int32, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, 0, err
@@ -135,6 +141,7 @@ func (r FutureGetBestBlockResult) Receive() (*chainhash.Hash, int32, error) {
 	// Unmarshal result as a getbestblock result object.
 	var bestBlock json.GetBestBlockResult
 	err = js.Unmarshal(res, &bestBlock)
+
 	if err != nil {
 
 		return nil, 0, err
@@ -142,6 +149,7 @@ func (r FutureGetBestBlockResult) Receive() (*chainhash.Hash, int32, error) {
 
 	// Convert to hash from string.
 	hash, err := chainhash.NewHashFromStr(bestBlock.Hash)
+
 	if err != nil {
 
 		return nil, 0, err
@@ -169,6 +177,7 @@ type FutureGetCurrentNetResult chan *response
 func (r FutureGetCurrentNetResult) Receive() (wire.BitcoinNet, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return 0, err
@@ -177,6 +186,7 @@ func (r FutureGetCurrentNetResult) Receive() (wire.BitcoinNet, error) {
 	// Unmarshal result as an int64.
 	var net int64
 	err = js.Unmarshal(res, &net)
+
 	if err != nil {
 
 		return 0, err
@@ -204,6 +214,7 @@ type FutureGetHeadersResult chan *response
 func (r FutureGetHeadersResult) Receive() ([]wire.BlockHeader, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -212,6 +223,7 @@ func (r FutureGetHeadersResult) Receive() ([]wire.BlockHeader, error) {
 	// Unmarshal result as a slice of strings.
 	var result []string
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return nil, err
@@ -219,14 +231,17 @@ func (r FutureGetHeadersResult) Receive() ([]wire.BlockHeader, error) {
 
 	// Deserialize the []string into []wire.BlockHeader.
 	headers := make([]wire.BlockHeader, len(result))
+
 	for i, headerHex := range result {
 
 		serialized, err := hex.DecodeString(headerHex)
+
 		if err != nil {
 
 			return nil, err
 		}
 		err = headers[i].Deserialize(bytes.NewReader(serialized))
+
 		if err != nil {
 
 			return nil, err
@@ -239,11 +254,13 @@ func (r FutureGetHeadersResult) Receive() ([]wire.BlockHeader, error) {
 func (c *Client) GetHeadersAsync(blockLocators []chainhash.Hash, hashStop *chainhash.Hash) FutureGetHeadersResult {
 
 	locators := make([]string, len(blockLocators))
+
 	for i := range blockLocators {
 
 		locators[i] = blockLocators[i].String()
 	}
 	hash := ""
+
 	if hashStop != nil {
 
 		hash = hashStop.String()
@@ -265,6 +282,7 @@ type FutureExportWatchingWalletResult chan *response
 func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, nil, err
@@ -273,6 +291,7 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 	// Unmarshal result as a JSON object.
 	var obj map[string]interface{}
 	err = js.Unmarshal(res, &obj)
+
 	if err != nil {
 
 		return nil, nil, err
@@ -280,6 +299,7 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 
 	// Check for the wallet and tx string fields in the object.
 	base64Wallet, ok := obj["wallet"].(string)
+
 	if !ok {
 
 		return nil, nil, fmt.Errorf("unexpected response type for "+
@@ -287,6 +307,7 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 			obj["wallet"])
 	}
 	base64TxStore, ok := obj["tx"].(string)
+
 	if !ok {
 
 		return nil, nil, fmt.Errorf("unexpected response type for "+
@@ -294,11 +315,13 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 			obj["tx"])
 	}
 	walletBytes, err := base64.StdEncoding.DecodeString(base64Wallet)
+
 	if err != nil {
 
 		return nil, nil, err
 	}
 	txStoreBytes, err := base64.StdEncoding.DecodeString(base64TxStore)
+
 	if err != nil {
 
 		return nil, nil, err
@@ -326,6 +349,7 @@ type FutureSessionResult chan *response
 func (r FutureSessionResult) Receive() (*json.SessionResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -334,6 +358,7 @@ func (r FutureSessionResult) Receive() (*json.SessionResult, error) {
 	// Unmarshal result as a session result object.
 	var session json.SessionResult
 	err = js.Unmarshal(res, &session)
+
 	if err != nil {
 
 		return nil, err
@@ -345,6 +370,7 @@ func (r FutureSessionResult) Receive() (*json.SessionResult, error) {
 func (c *Client) SessionAsync() FutureSessionResult {
 
 	// Not supported in HTTP POST mode.
+
 	if c.config.HTTPPostMode {
 
 		return newFutureError(ErrWebsocketsRequired)
@@ -367,6 +393,7 @@ func (r FutureVersionResult) Receive() (map[string]json.VersionResult,
 	error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -375,6 +402,7 @@ func (r FutureVersionResult) Receive() (map[string]json.VersionResult,
 	// Unmarshal result as a version result object.
 	var vr map[string]json.VersionResult
 	err = js.Unmarshal(res, &vr)
+
 	if err != nil {
 
 		return nil, err

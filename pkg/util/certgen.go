@@ -134,8 +134,11 @@ func NewTLSCertPair(
 	}
 
 	template := x509.Certificate{
+
 		SerialNumber: serialNumber,
+
 		Subject: pkix.Name{
+
 			Organization: []string{organization},
 			CommonName:   host,
 		},

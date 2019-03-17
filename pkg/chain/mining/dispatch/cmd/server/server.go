@@ -36,6 +36,7 @@ func serverConnect(
 
 	// fmt.Println("serverConnect")
 	originAddr := conn.Addr.String()
+
 	for conn.Addr != nil {
 
 		for i := range clients {
@@ -57,6 +58,7 @@ func serverDisconnect(
 
 	fmt.Println("server disconnect")
 	addr := clientsMap[conn.Addr.String()]
+
 	for mapWrite {
 
 	}
@@ -72,6 +74,7 @@ func serverTimeout(
 
 	// fmt.Println("server timeout")
 	addr := clientsMap[conn.Addr.String()]
+
 	for mapWrite {
 
 	}
@@ -105,6 +108,7 @@ func clientDisconnect(
 
 	// fmt.Println("client disconnect")
 	addr := clientsMap[conn.Addr.String()]
+
 	for mapWrite {
 
 	}
@@ -120,6 +124,7 @@ func clientTimeout(
 
 	// fmt.Println("client timeout")
 	addr := clientsMap[conn.Addr.String()]
+
 	for mapWrite {
 
 	}
@@ -147,6 +152,7 @@ func handleServerPacket(
 
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
+
 	switch {
 
 	case str[:9] == "subscribe":
@@ -162,6 +168,7 @@ func handleServerPacket(
 		newClient.ServerTimeout = serverTimeout
 		newClient.PacketHandler = handleClientPacket
 		newClient.ConnectWithData([]byte("nachalnik"))
+
 		for mapWrite {
 
 		}

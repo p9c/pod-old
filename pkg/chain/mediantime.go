@@ -123,6 +123,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	copy(sortedOffsets, m.offsets)
 	sort.Sort(int64Sorter(sortedOffsets))
 	offsetDuration := time.Duration(offsetSecs) * time.Second
+
 	log <- cl.Debugf{
 
 		"Added time sample of %v (total: %v)",
@@ -182,6 +183,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	}
 
 	medianDuration := time.Duration(m.offsetSecs) * time.Second
+
 	log <- cl.Debug{"new time offset:", medianDuration}
 
 }
@@ -200,6 +202,7 @@ func (m *medianTime) Offset() time.Duration {
 func NewMedianTime() MedianTimeSource {
 
 	return &medianTime{
+
 		knownIDs: make(map[string]struct{}),
 		offsets:  make([]int64, 0, maxMedianTimeEntries),
 	}

@@ -17,6 +17,7 @@ type FutureGenerateResult chan *response
 func (r FutureGenerateResult) Receive() ([]*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -25,6 +26,7 @@ func (r FutureGenerateResult) Receive() ([]*chainhash.Hash, error) {
 	// Unmarshal result as a list of strings.
 	var result []string
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return nil, err
@@ -32,9 +34,11 @@ func (r FutureGenerateResult) Receive() ([]*chainhash.Hash, error) {
 
 	// Convert each block hash to a chainhash.Hash and store a pointer to each.
 	convertedResult := make([]*chainhash.Hash, len(result))
+
 	for i, hashString := range result {
 
 		convertedResult[i], err = chainhash.NewHashFromStr(hashString)
+
 		if err != nil {
 
 			return nil, err
@@ -63,6 +67,7 @@ type FutureGetGenerateResult chan *response
 func (r FutureGetGenerateResult) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return false, err
@@ -71,6 +76,7 @@ func (r FutureGetGenerateResult) Receive() (bool, error) {
 	// Unmarshal result as a boolean.
 	var result bool
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return false, err
@@ -121,6 +127,7 @@ type FutureGetHashesPerSecResult chan *response
 func (r FutureGetHashesPerSecResult) Receive() (int64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return -1, err
@@ -129,6 +136,7 @@ func (r FutureGetHashesPerSecResult) Receive() (int64, error) {
 	// Unmarshal result as an int64.
 	var result int64
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return 0, err
@@ -156,6 +164,7 @@ type FutureGetMiningInfoResult chan *response
 func (r FutureGetMiningInfoResult) Receive() (*json.GetMiningInfoResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -164,6 +173,7 @@ func (r FutureGetMiningInfoResult) Receive() (*json.GetMiningInfoResult, error) 
 	// Unmarshal result as a getmininginfo result object.
 	var infoResult json.GetMiningInfoResult
 	err = js.Unmarshal(res, &infoResult)
+
 	if err != nil {
 
 		return nil, err
@@ -191,6 +201,7 @@ type FutureGetNetworkHashPS chan *response
 func (r FutureGetNetworkHashPS) Receive() (int64, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return -1, err
@@ -199,6 +210,7 @@ func (r FutureGetNetworkHashPS) Receive() (int64, error) {
 	// Unmarshal result as an int64.
 	var result int64
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return 0, err
@@ -252,6 +264,7 @@ type FutureGetWork chan *response
 func (r FutureGetWork) Receive() (*json.GetWorkResult, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return nil, err
@@ -260,6 +273,7 @@ func (r FutureGetWork) Receive() (*json.GetWorkResult, error) {
 	// Unmarshal result as a getwork result object.
 	var result json.GetWorkResult
 	err = js.Unmarshal(res, &result)
+
 	if err != nil {
 
 		return nil, err
@@ -287,6 +301,7 @@ type FutureGetWorkSubmit chan *response
 func (r FutureGetWorkSubmit) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return false, err
@@ -295,6 +310,7 @@ func (r FutureGetWorkSubmit) Receive() (bool, error) {
 	// Unmarshal result as a boolean.
 	var accepted bool
 	err = js.Unmarshal(res, &accepted)
+
 	if err != nil {
 
 		return false, err
@@ -322,14 +338,17 @@ type FutureSubmitBlockResult chan *response
 func (r FutureSubmitBlockResult) Receive() error {
 
 	res, err := receiveFuture(r)
+
 	if err != nil {
 
 		return err
 	}
+
 	if string(res) != "null" {
 
 		var result string
 		err = js.Unmarshal(res, &result)
+
 		if err != nil {
 
 			return err
@@ -343,9 +362,11 @@ func (r FutureSubmitBlockResult) Receive() error {
 func (c *Client) SubmitBlockAsync(block *util.Block, options *json.SubmitBlockOptions) FutureSubmitBlockResult {
 
 	blockHex := ""
+
 	if block != nil {
 
 		blockBytes, err := block.Bytes()
+
 		if err != nil {
 
 			return newFutureError(err)

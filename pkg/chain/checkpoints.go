@@ -70,6 +70,7 @@ func (b *BlockChain) verifyCheckpoint(height int32, hash *chainhash.Hash) bool {
 
 		return false
 	}
+
 	log <- cl.Infof{
 
 		"Verified checkpoint at height %d/block %s",

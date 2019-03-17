@@ -35,9 +35,11 @@ func TestScriptBuilderAddOp(
 	// Run tests and individually add each op via AddOp.
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		builder.Reset()
+
 		for _, opcode := range test.opcodes {
 
 			builder.AddOp(opcode)
@@ -60,6 +62,7 @@ func TestScriptBuilderAddOp(
 
 	// Run tests and bulk add ops via AddOps.
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		builder.Reset()
@@ -131,6 +134,7 @@ func TestScriptBuilderAddInt64(
 	}
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		builder.Reset().AddInt64(test.val)
@@ -254,6 +258,7 @@ func TestScriptBuilderAddData(
 	}
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		if !test.useFull {

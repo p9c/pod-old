@@ -121,7 +121,9 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 		}
 
 		// TODO: if too many, nuke a non-perm peer.
+
 		go s.connManager.Connect(&connmgr.ConnReq{
+
 			Addr:      netAddr,
 			Permanent: msg.permanent,
 		})
@@ -312,6 +314,7 @@ func (s *ChainService) DisconnectNodeByAddr(addr string) error {
 	select {
 
 	case s.query <- disconnectNodeMsg{
+
 		cmp:   func(sp *ServerPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}:
@@ -336,6 +339,7 @@ func (s *ChainService) DisconnectNodeByID(id int32) error {
 	select {
 
 	case s.query <- disconnectNodeMsg{
+
 		cmp:   func(sp *ServerPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}:
@@ -358,6 +362,7 @@ func (s *ChainService) RemoveNodeByAddr(addr string) error {
 	select {
 
 	case s.query <- removeNodeMsg{
+
 		cmp:   func(sp *ServerPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}:
@@ -380,6 +385,7 @@ func (s *ChainService) RemoveNodeByID(id int32) error {
 	select {
 
 	case s.query <- removeNodeMsg{
+
 		cmp:   func(sp *ServerPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}:
@@ -404,6 +410,7 @@ func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 	select {
 
 	case s.query <- connectNodeMsg{
+
 		addr:      addr,
 		permanent: permanent,
 		reply:     replyChan,

@@ -32,7 +32,9 @@ const (
 )
 
 // thresholdStateStrings is a map of ThresholdState values back to their constant names for pretty printing.
+
 var thresholdStateStrings = map[ThresholdState]string{
+
 	ThresholdDefined:  "ThresholdDefined",
 	ThresholdStarted:  "ThresholdStarted",
 	ThresholdLockedIn: "ThresholdLockedIn",
@@ -104,6 +106,7 @@ func newThresholdCaches(
 	for i := 0; i < len(caches); i++ {
 
 		caches[i] = thresholdStateCache{
+
 			entries: make(map[chainhash.Hash]ThresholdState),
 		}
 	}

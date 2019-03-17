@@ -29,10 +29,13 @@ type serviceOptions struct {
 }
 
 // NodeCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var NodeCommand = climax.Command{
+
 	Name:  "node",
 	Brief: "parallelcoin full node",
 	Help:  "distrubutes, verifies and mines blocks for the parallelcoin duo cryptocurrency, as well as optionally providing search indexes for transactions in the database",
+
 	Flags: []climax.Flag{
 
 		t("version", "V", "show version number and quit"),
@@ -148,22 +151,27 @@ var NodeCommand = climax.Command{
 	},
 
 	Examples: []climax.Example{
+
 		{
+
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},
 
 		{
+
 			Usecase:     " -D test -d trace",
 			Description: "run using the configuration in the 'test' directory with trace logging",
 		},
 	},
 
 	Handle: func(ctx climax.Context) int {
+
 		var dl string
 		var ok bool
 
 		if dl, ok = ctx.Get("debuglevel"); ok {
+
 			log <- cl.Tracef{"setting debug level %s", dl}
 
 			NodeConfig.Node.DebugLevel = dl
@@ -171,12 +179,14 @@ var NodeCommand = climax.Command{
 			ll := GetAllSubSystems()
 
 			for i := range ll {
+
 				ll[i].SetLevel(dl)
 			}
 
 		}
 
 		if ctx.Is("version") {
+
 			fmt.Println("pod/node version", node.Version())
 			return 0
 		}
@@ -189,6 +199,7 @@ var NodeCommand = climax.Command{
 		}
 
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
+
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
@@ -242,15 +253,19 @@ var NodeCommand = climax.Command{
 			}
 
 			switch {
+
 			case NodeConfig.Node.TestNet3:
+
 				log <- cl.Info{"running on testnet"}
 
 				NodeConfig.params = &node.TestNet3Params
 			case NodeConfig.Node.SimNet:
+
 				log <- cl.Info{"running on simnet"}
 
 				NodeConfig.params = &node.SimNetParams
 			default:
+
 				log <- cl.Info{"running on mainnet"}
 
 				NodeConfig.params = &node.MainNetParams

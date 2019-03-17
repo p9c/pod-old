@@ -16,11 +16,15 @@ var DefaultShellAppDataDir = filepath.Join(w.DefaultDataDir, "shell")
 var DefaultShellConfigFile = filepath.Join(DefaultShellAppDataDir, "conf.json")
 
 // ShellCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var ShellCommand = climax.Command{
+
 	Name:  "shell",
 	Brief: "parallelcoin shell",
 	Help:  "check balances, make payments, manage contacts, search the chain, it slices, it dices",
+
 	Flags: []climax.Flag{
+
 		t("version", "V", "show version number and quit"),
 
 		s("configfile", "C", DefaultShellConfFileName, "path to configuration file"),
@@ -156,7 +160,9 @@ var ShellCommand = climax.Command{
 	},
 
 	Examples: []climax.Example{
+
 		{
+
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},

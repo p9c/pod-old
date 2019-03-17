@@ -89,11 +89,13 @@ func TestRuleError(
 	}{
 
 		{
+
 			RuleError{Description: "duplicate block"},
 			"duplicate block",
 		},
 
 		{
+
 			RuleError{Description: "human-readable error"},
 			"human-readable error",
 		},
@@ -129,16 +131,19 @@ func TestDeploymentError(
 	}{
 
 		{
+
 			DeploymentError(0),
 			"deployment ID 0 does not exist",
 		},
 
 		{
+
 			DeploymentError(10),
 			"deployment ID 10 does not exist",
 		},
 
 		{
+
 			DeploymentError(123),
 			"deployment ID 123 does not exist",
 		},

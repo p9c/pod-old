@@ -29,6 +29,7 @@ var (
 
 		b := big.NewInt(1)
 		t := make([]byte, 32)
+
 		for i := range t {
 
 			t[i] = ^byte(0)

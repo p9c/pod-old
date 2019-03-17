@@ -41,6 +41,7 @@ func Main(
 		go func() {
 
 			listenAddr := net.JoinHostPort("127.0.0.1", *cfg.Profile)
+
 			log <- cl.Info{
 
 				"profile server listening on", listenAddr,
@@ -49,6 +50,7 @@ func Main(
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
+
 			log <- cl.Error{http.ListenAndServe(listenAddr, nil)}
 
 		}()
@@ -56,6 +58,7 @@ func Main(
 	}
 
 	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
+
 	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
 
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
@@ -76,6 +79,7 @@ func Main(
 	// This will be updated with the wallet and chain server RPC client
 
 	// created below after each is created.
+
 	log <- cl.Trc("startRPCServers loader")
 
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
@@ -120,6 +124,7 @@ func Main(
 		if err != nil {
 
 			fmt.Println(err)
+
 			log <- cl.Error{err}
 
 			return err
@@ -159,9 +164,11 @@ func Main(
 			// TODO: Does this need to wait for the grpc server to
 
 			// finish up any requests?
+
 			log <- cl.Wrn("stopping RPC server...")
 
 			rpcs.Stop()
+
 			log <- cl.Inf("RPC server shutdown")
 
 		})
@@ -175,6 +182,7 @@ func Main(
 			log <- cl.Wrn("stopping legacy RPC server...")
 
 			legacyRPCServer.Stop()
+
 			log <- cl.Inf("legacy RPC server shutdown")
 
 		})
@@ -188,6 +196,7 @@ func Main(
 	}
 
 	<-interrupt.HandlersDone
+
 	log <- cl.Inf("shutdown complete")
 
 	return nil

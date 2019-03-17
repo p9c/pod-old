@@ -245,16 +245,19 @@ func View(
 	db DB, f func(tx ReadTx) error) error {
 
 	tx, err := db.BeginReadTx()
+
 	if err != nil {
 
 		return err
 	}
 	err = f(tx)
 	rollbackErr := tx.Rollback()
+
 	if err != nil {
 
 		return err
 	}
+
 	if rollbackErr != nil {
 
 		return rollbackErr
@@ -272,11 +275,13 @@ func Update(
 	db DB, f func(tx ReadWriteTx) error) error {
 
 	tx, err := db.BeginReadWriteTx()
+
 	if err != nil {
 
 		return err
 	}
 	err = f(tx)
+
 	if err != nil {
 
 		// Want to return the original error, not a rollback error if
@@ -334,6 +339,7 @@ func RegisterDriver(
 func SupportedDrivers() []string {
 
 	supportedDBs := make([]string, 0, len(drivers))
+
 	for _, drv := range drivers {
 
 		supportedDBs = append(supportedDBs, drv.DbType)
@@ -350,6 +356,7 @@ func Create(
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
+
 	if !exists {
 
 		return nil, ErrDbUnknownType
@@ -367,6 +374,7 @@ func Open(
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
+
 	if !exists {
 
 		return nil, ErrDbUnknownType

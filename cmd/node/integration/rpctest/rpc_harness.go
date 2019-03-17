@@ -65,6 +65,7 @@ func New(
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 	// Add a flag for the appropriate network type based on the provided chain params.
+
 	switch activeNet.Net {
 	case wire.MainNet:
 		// No extra flags since mainnet is the default
@@ -184,6 +185,7 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 		return err
 	}
 	ticker := time.NewTicker(time.Millisecond * 100)
+
 	for range ticker.C {
 		walletHeight := h.wallet.SyncedHeight()
 		if walletHeight == height {
@@ -222,6 +224,7 @@ func (h *Harness) connectRPCClient() error {
 	var client *rpcclient.Client
 	var err error
 	rpcConf := h.node.config.rpcConnConfig()
+
 	for i := 0; i < h.maxConnRetries; i++ {
 		if client, err = rpcclient.New(&rpcConf, h.handlers); err != nil {
 			time.Sleep(time.Duration(i) * 50 * time.Millisecond)

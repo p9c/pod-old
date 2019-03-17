@@ -182,12 +182,14 @@ func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
 	if scriptIdx >= len(vm.scripts) {
 
 		log <- cl.Warn{"disasm array index out of bounds"}
+
 		return ""
 		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
 	if scriptOff >= len(vm.scripts[scriptIdx]) {
 
 		log <- cl.Warn{"disasm array index out of bounds"}
+
 		return ""
 		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
@@ -314,6 +316,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 	if vm.isWitnessVersionActive(0) {
 
 		// All elements within the witness stack must not be greater than the maximum bytes which are allowed to be pushed onto the stack.
+
 		for _, witElement := range vm.GetStack() {
 
 			if len(witElement) > MaxScriptElementSize {
@@ -349,6 +352,7 @@ func (vm *Engine) DisasmScript(idx int) (string, error) {
 		return "", scriptError(ErrInvalidIndex, str)
 	}
 	var disstr string
+
 	for i := range vm.scripts[idx] {
 
 		disstr = disstr + vm.disasm(idx, i) + "\n"
@@ -500,6 +504,7 @@ func (vm *Engine) Step() (done bool, err error) {
 func (vm *Engine) Execute() (err error) {
 
 	done := false
+
 	for !done {
 
 		done, err = vm.Step()
@@ -514,6 +519,7 @@ func (vm *Engine) Execute() (err error) {
 			if err != nil {
 
 				log <- cl.Debug{"stepping (", err, ")"}
+
 				o = fmt.Sprint("stepping (", err, ")")
 			}
 			o = fmt.Sprint("stepping ", dis)
@@ -772,6 +778,7 @@ func getStack(
 	stack *stack) [][]byte {
 
 	array := make([][]byte, stack.Depth())
+
 	for i := range array {
 
 		// PeekByteArry can't fail due to overflow, already checked
@@ -786,6 +793,7 @@ func setStack(
 
 	// This can not error. Only errors are for invalid arguments.
 	_ = stack.DropN(stack.Depth())
+
 	for i := range data {
 
 		stack.PushByteArray(data[i])
@@ -859,6 +867,7 @@ func NewEngine(
 	// The engine stores the scripts in parsed form using a slice.  This allows multiple scripts to be executed in sequence.  For example, with a pay-to-script-hash transaction, there will be ultimately be a third script to execute.
 	scripts := [][]byte{scriptSig, scriptPubKey}
 	vm.scripts = make([][]parsedOpcode, len(scripts))
+
 	for i, scr := range scripts {
 
 		if len(scr) > MaxScriptSize {
@@ -906,6 +915,7 @@ func NewEngine(
 			return nil, scriptError(ErrInvalidFlags, errStr)
 		}
 		var witProgram []byte
+
 		switch {
 
 		case isWitnessProgram(vm.scripts[1]):

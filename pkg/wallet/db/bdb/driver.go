@@ -21,6 +21,7 @@ func parseArgs(
 	}
 
 	dbPath, ok := args[0].(string)
+
 	if !ok {
 
 		return "", fmt.Errorf("first argument to %s.%s is invalid -- "+
@@ -36,6 +37,7 @@ func openDBDriver(
 	args ...interface{}) (walletdb.DB, error) {
 
 	dbPath, err := parseArgs("Open", args...)
+
 	if err != nil {
 
 		return nil, err
@@ -50,6 +52,7 @@ func createDBDriver(
 	args ...interface{}) (walletdb.DB, error) {
 
 	dbPath, err := parseArgs("Create", args...)
+
 	if err != nil {
 
 		return nil, err
@@ -66,6 +69,7 @@ func init() {
 		Create: createDBDriver,
 		Open:   openDBDriver,
 	}
+
 	if err := walletdb.RegisterDriver(driver); err != nil {
 
 		panic(fmt.Sprintf("Failed to regiser database driver '%s': %v",

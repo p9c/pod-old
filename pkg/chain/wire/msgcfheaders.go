@@ -42,6 +42,7 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 
 	// Read filter type
 	err := readElement(r, &msg.FilterType)
+
 	if err != nil {
 
 		return err
@@ -49,6 +50,7 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 
 	// Read stop hash
 	err = readElement(r, &msg.StopHash)
+
 	if err != nil {
 
 		return err
@@ -56,6 +58,7 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 
 	// Read prev filter header
 	err = readElement(r, &msg.PrevFilterHeader)
+
 	if err != nil {
 
 		return err
@@ -63,12 +66,14 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 
 	// Read number of filter headers
 	count, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
 
 	// Limit to max committed filter headers per message.
+
 	if count > MaxCFHeadersPerMsg {
 
 		str := fmt.Sprintf("too many committed filter headers for "+
@@ -79,10 +84,12 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 
 	// Create a contiguous slice of hashes to deserialize into in order to reduce the number of allocations.
 	msg.FilterHashes = make([]*chainhash.Hash, 0, count)
+
 	for i := uint64(0); i < count; i++ {
 
 		var cfh chainhash.Hash
 		err := readElement(r, &cfh)
+
 		if err != nil {
 
 			return err
@@ -97,6 +104,7 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 
 	// Write filter type
 	err := writeElement(w, msg.FilterType)
+
 	if err != nil {
 
 		return err
@@ -104,6 +112,7 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 
 	// Write stop hash
 	err = writeElement(w, msg.StopHash)
+
 	if err != nil {
 
 		return err
@@ -111,6 +120,7 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 
 	// Write prev filter header
 	err = writeElement(w, msg.PrevFilterHeader)
+
 	if err != nil {
 
 		return err
@@ -118,6 +128,7 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 
 	// Limit to max committed headers per message.
 	count := len(msg.FilterHashes)
+
 	if count > MaxCFHeadersPerMsg {
 
 		str := fmt.Sprintf("too many committed filter headers for "+
@@ -126,13 +137,16 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 		return messageError("MsgCFHeaders.BtcEncode", str)
 	}
 	err = WriteVarInt(w, pver, uint64(count))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, cfh := range msg.FilterHashes {
 
 		err := writeElement(w, cfh)
+
 		if err != nil {
 
 			return err

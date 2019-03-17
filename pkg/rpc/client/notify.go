@@ -40,11 +40,13 @@ func (s *notificationState) Copy() *notificationState {
 	stateCopy.notifyNewTx = s.notifyNewTx
 	stateCopy.notifyNewTxVerbose = s.notifyNewTxVerbose
 	stateCopy.notifyReceived = make(map[string]struct{})
+
 	for addr := range s.notifyReceived {
 
 		stateCopy.notifyReceived[addr] = struct{}{}
 	}
 	stateCopy.notifySpent = make(map[json.OutPoint]struct{})
+
 	for op := range s.notifySpent {
 
 		stateCopy.notifySpent[op] = struct{}{}
@@ -142,6 +144,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 
 		return
 	}
+
 	switch ntfn.Method {
 
 	// OnBlockConnected
@@ -496,6 +499,7 @@ func parseFilteredBlockConnectedParams(
 
 	// Create slice of transactions from slice of strings by hex-decoding.
 	transactions := make([]*util.Tx, len(hexTransactions))
+
 	for i, hexTx := range hexTransactions {
 
 		transaction, err := hex.DecodeString(hexTx)
@@ -894,6 +898,7 @@ func (c *Client) NotifySpentAsync(outpoints []*wire.OutPoint) FutureNotifySpentR
 		return newNilFutureResult()
 	}
 	ops := make([]json.OutPoint, 0, len(outpoints))
+
 	for _, outpoint := range outpoints {
 
 		ops = append(ops, newOutPointFromWire(outpoint))
@@ -989,6 +994,7 @@ func (c *Client) NotifyReceivedAsync(addresses []util.Address) FutureNotifyRecei
 
 	// Convert addresses to strings.
 	addrs := make([]string, 0, len(addresses))
+
 	for _, addr := range addresses {
 
 		addrs = append(addrs, addr.String())
@@ -1039,6 +1045,7 @@ func (c *Client) RescanAsync(startBlock *chainhash.Hash,
 
 	// Convert addresses to strings.
 	addrs := make([]string, 0, len(addresses))
+
 	for _, addr := range addresses {
 
 		addrs = append(addrs, addr.String())
@@ -1046,6 +1053,7 @@ func (c *Client) RescanAsync(startBlock *chainhash.Hash,
 
 	// Convert outpoints.
 	ops := make([]json.OutPoint, 0, len(outpoints))
+
 	for _, op := range outpoints {
 
 		ops = append(ops, newOutPointFromWire(op))
@@ -1096,6 +1104,7 @@ func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
 
 	// Convert addresses to strings.
 	addrs := make([]string, 0, len(addresses))
+
 	for _, addr := range addresses {
 
 		addrs = append(addrs, addr.String())
@@ -1103,6 +1112,7 @@ func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
 
 	// Convert outpoints.
 	ops := make([]json.OutPoint, 0, len(outpoints))
+
 	for _, op := range outpoints {
 
 		ops = append(ops, newOutPointFromWire(op))
@@ -1136,11 +1146,13 @@ func (c *Client) LoadTxFilterAsync(reload bool, addresses []util.Address,
 	outPoints []wire.OutPoint) FutureLoadTxFilterResult {
 
 	addrStrs := make([]string, len(addresses))
+
 	for i, a := range addresses {
 
 		addrStrs[i] = a.EncodeAddress()
 	}
 	outPointObjects := make([]json.OutPoint, len(outPoints))
+
 	for i := range outPoints {
 
 		outPointObjects[i] = json.OutPoint{

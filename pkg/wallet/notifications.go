@@ -264,7 +264,9 @@ func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 	s.mu.Lock()
 	s.accountClients = append(s.accountClients, c)
 	s.mu.Unlock()
+
 	return AccountNotificationsClient{
+
 		C:      c,
 		server: s,
 	}
@@ -281,7 +283,9 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 	s.mu.Lock()
 	s.spentness[account] = append(s.spentness[account], c)
 	s.mu.Unlock()
+
 	return SpentnessNotificationsClient{
+
 		C:       c,
 		account: account,
 		server:  s,
@@ -307,7 +311,9 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 	s.mu.Lock()
 	s.transactions = append(s.transactions, c)
 	s.mu.Unlock()
+
 	return TransactionNotificationsClient{
+
 		C:      c,
 		server: s,
 	}
@@ -326,6 +332,7 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 	}
 
 	n := &AccountNotification{
+
 		AccountNumber:    props.AccountNumber,
 		AccountName:      props.AccountName,
 		ExternalKeyCount: props.ExternalKeyCount,
@@ -355,6 +362,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	if n == 0 || *s.currentTxNtfn.AttachedBlocks[n-1].Hash != block.Hash {
 
 		s.currentTxNtfn.AttachedBlocks = append(s.currentTxNtfn.AttachedBlocks, Block{
+
 			Hash:      &block.Hash,
 			Height:    block.Height,
 			Timestamp: block.Time.Unix(),
@@ -463,6 +471,7 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 	if n == 0 || *s.currentTxNtfn.AttachedBlocks[n-1].Hash != block.Hash {
 
 		s.currentTxNtfn.AttachedBlocks = append(s.currentTxNtfn.AttachedBlocks, Block{
+
 			Hash:      &block.Hash,
 			Height:    block.Height,
 			Timestamp: block.Time.Unix(),
@@ -494,6 +503,7 @@ func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint
 	}
 
 	n := &SpentnessNotifications{
+
 		hash:         &op.Hash,
 		index:        op.Index,
 		spenderHash:  spenderHash,
@@ -561,6 +571,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	}
 
 	n := &TransactionNotifications{
+
 		UnminedTransactions:      unminedTxs,
 		UnminedTransactionHashes: unminedHashes,
 		NewBalances:              flattenBalanceMap(bals),
@@ -589,6 +600,7 @@ func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash
 	}
 
 	n := &SpentnessNotifications{
+
 		hash:  hash,
 		index: index,
 	}
@@ -853,6 +865,7 @@ func makeTxSummary(
 		for i, d := range details.Debits {
 
 			inputs[i] = TransactionSummaryInput{
+
 				Index:           d.Index,
 				PreviousAccount: lookupInputAccount(dbtx, w, details, d),
 				PreviousAmount:  d.Amount,
@@ -875,7 +888,9 @@ func makeTxSummary(
 		}
 
 		acct, internal := lookupOutputChain(dbtx, w, details, details.Credits[credIndex])
+
 		output := TransactionSummaryOutput{
+
 			Index:    uint32(i),
 			Account:  acct,
 			Internal: internal,
@@ -885,6 +900,7 @@ func makeTxSummary(
 	}
 
 	return TransactionSummary{
+
 		Hash:        &details.Hash,
 		Transaction: serializedTx,
 		MyInputs:    inputs,
@@ -900,6 +916,7 @@ func newNotificationServer(
 	wallet *Wallet) *NotificationServer {
 
 	return &NotificationServer{
+
 		spentness: make(map[uint32][]chan *SpentnessNotifications),
 		wallet:    wallet,
 	}

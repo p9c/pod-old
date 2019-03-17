@@ -17,6 +17,7 @@ type RuleError struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e RuleError) Error() string {
+
 	if e.Err == nil {
 		return "<nil>"
 	}
@@ -63,14 +64,17 @@ func extractRejectCode(
 	err error) (wire.RejectCode, bool) {
 
 	// Pull the underlying error out of a RuleError.
+
 	if rerr, ok := err.(RuleError); ok {
 		err = rerr.Err
 	}
+
 	switch err := err.(type) {
 
 	case blockchain.RuleError:
 		// Convert the chain error to a reject code.
 		var code wire.RejectCode
+
 		switch err.ErrorCode {
 		// Rejected due to duplicate.
 		case blockchain.ErrDuplicateBlock:
@@ -108,6 +112,7 @@ func ErrToRejectErr(
 	// Return the reject code along with the error text if it can be
 	// extracted from the error.
 	rejectCode, found := extractRejectCode(err)
+
 	if found {
 		return rejectCode, err.Error()
 	}
@@ -116,6 +121,7 @@ func ErrToRejectErr(
 	// as it should be, but it's best to be safe and simply return a generic
 	// string rather than allowing the following code that dereferences the
 	// err to panic.
+
 	if err == nil {
 		return wire.RejectInvalid, "rejected"
 	}

@@ -106,6 +106,7 @@ func (
 		newTargetBits = fork.GetMinBits(algoName, nH)
 
 		// log <- cl.Debugf{
+
 		// 	"newTargetBits %064x", CompactToBig(newTargetBits),
 		// }
 
@@ -115,6 +116,7 @@ func (
 		}
 
 		prevNode := lastNode.RelativeAncestor(1)
+
 		log <- cl.Debug{"prevNode version", prevNode.version, prevNode.height}
 
 		prevversion := prevNode.version
@@ -143,6 +145,7 @@ func (
 		}
 
 		prevversion = prevNode.version
+
 		log <- cl.Debugf{
 
 			"found version %d corrected %d height %d bits %8x",
@@ -194,6 +197,7 @@ func (
 		}
 
 		newTargetBits = BigToCompact(newTarget)
+
 		log <- cl.Debugf{
 
 			"difficulty retarget at block height %d, old %08x new %08x",
@@ -294,6 +298,7 @@ func (
 		}
 
 		trailHeight := int32(int64(lastNode.height) -
+
 			fork.GetAveragingInterval(nH)*int64(len(fork.List[1].Algos)))
 
 		if trailHeight < 0 {
@@ -378,6 +383,7 @@ func (
 		trailingTimestamps = append(
 			trailingTimestamps, float64(pb.timestamp))
 		counter = 1
+
 		for ; counter < int(fork.GetAveragingInterval(nH)) &&
 
 			pb.height > 2; counter++ {
@@ -443,6 +449,7 @@ func (
 		allTimeDivergence := allTimeAverage / ttpb
 		trailTimeDivergence := trailTimeAverage / ttpb
 		trailingTimeDivergence := trailingAdjusted / trailingTargetAdjusted
+
 		log <- cl.Trace{
 
 			"trailingtimedivergence",
@@ -503,6 +510,7 @@ func (
 					weighted * ttpb,
 					counter,
 					(1 - adjustment) * 100,
+
 					fork.List[1].AlgoVers[algo],
 				}
 

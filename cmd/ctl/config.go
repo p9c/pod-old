@@ -156,12 +156,16 @@ func cleanAndExpandPath(
 // The above results in functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
 
 
+
 func loadConfig() (*Config, []string, error) {
 
 
 
+
 	// Default config.
+
 	cfg := Config{
+
 		ConfigFile: DefaultConfigFile,
 		RPCServer:  DefaultRPCServer,
 		RPCCert:    DefaultRPCCertFile,
@@ -174,11 +178,16 @@ func loadConfig() (*Config, []string, error) {
 	_, err := preParser.Parse()
 
 
+
+
 	if err != nil {
 
 
 
+
+
 if e, ok := err.(*flags.Error); ok && e.Type == flags.ErrHelp {
+
 
 fmt.Fprintln(os.Stderr, err)
 			fmt.Fprintln(os.Stderr, "")
@@ -198,7 +207,10 @@ fmt.Fprintln(os.Stderr, err)
 	usageMessage := fmt.Sprintf("Use %s -h to show options", appName)
 
 
+
+
 	if preCfg.ShowVersion {
+
 
 fmt.Println(appName, "version", version())
 		os.Exit(0)
@@ -208,7 +220,10 @@ fmt.Println(appName, "version", version())
 	// Show the available commands and exit if the associated flag was specified.
 
 
+
+
 	if preCfg.ListCommands {
+
 
 ListCommands()
 		os.Exit(0)
@@ -216,7 +231,10 @@ ListCommands()
 
 
 
+
+
 	if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
+
 
 
 
@@ -224,12 +242,17 @@ ListCommands()
 		var serverConfigPath string
 
 
+
+
 		if preCfg.Wallet != "" {
+
 
 serverConfigPath = filepath.Join(SPVHomeDir, "sac.conf")
 
 
+
 		} else {
+
 
 serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
 		}
@@ -238,7 +261,10 @@ serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
 		err := createDefaultConfigFile(preCfg.ConfigFile, serverConfigPath)
 
 
+
+
 		if err != nil {
+
 
 fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)
 		}
@@ -251,11 +277,16 @@ fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)
 	err = flags.NewIniParser(parser).ParseFile(preCfg.ConfigFile)
 
 
+
+
 	if err != nil {
 
 
 
+
+
 if _, ok := err.(*os.PathError); !ok {
+
 
 fmt.Fprintf(os.Stderr, "Error parsing config file: %v\n",
 				err)
@@ -271,11 +302,16 @@ fmt.Fprintf(os.Stderr, "Error parsing config file: %v\n",
 	remainingArgs, err := parser.Parse()
 
 
+
+
 	if err != nil {
 
 
 
+
+
 if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
+
 
 fmt.Fprintln(os.Stderr, usageMessage)
 		}
@@ -288,21 +324,30 @@ fmt.Fprintln(os.Stderr, usageMessage)
 	numNets := 0
 
 
+
+
 	if cfg.TestNet3 {
+
 
 numNets++
 	}
+
+
 
 
 
 	if cfg.SimNet {
 
+
 numNets++
 	}
 
 
 
+
+
 	if numNets > 1 {
+
 
 str := "%s: The testnet and simnet params can't be used " +
 			"together -- choose one of the two"
@@ -315,7 +360,10 @@ str := "%s: The testnet and simnet params can't be used " +
 	// Override the RPC certificate if the --wallet flag was specified and the user did not specify one.
 
 
+
+
 	if cfg.Wallet != "" && cfg.RPCCert == DefaultRPCCertFile {
+
 
 cfg.RPCCert = DefaultWalletCertFile
 	}
@@ -339,14 +387,19 @@ cfg.RPCCert = DefaultWalletCertFile
 func createDefaultConfigFile(
 
 
+
 		destinationPath, serverConfigPath string) error {
+
 
 
 	// Read the RPC server config
 	serverConfigFile, err := os.Open(serverConfigPath)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -355,7 +408,10 @@ return err
 	content, err := ioutil.ReadAll(serverConfigFile)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -367,7 +423,10 @@ return err
 	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -375,7 +434,10 @@ return err
 	userSubmatches := rpcUserRegexp.FindSubmatch(content)
 
 
+
+
 	if userSubmatches == nil {
+
 
 
 		// No user found, nothing to do
@@ -387,7 +449,10 @@ return err
 	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -395,7 +460,10 @@ return err
 	passSubmatches := rpcPassRegexp.FindSubmatch(content)
 
 
+
+
 	if passSubmatches == nil {
+
 
 
 		// No password found, nothing to do
@@ -407,7 +475,10 @@ return err
 	TLSRegexp, err := regexp.Compile(`(?m)^\s*TLS=(0|1)(?:\s|$)`)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -418,7 +489,10 @@ return err
 	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
 
 
+
+
 	if err != nil {
+
 
 return err
 	}
@@ -429,7 +503,10 @@ return err
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 
 
+
+
 	if err != nil {
+
 
 fmt.Println("ERROR", err)
 		return err
@@ -440,7 +517,10 @@ fmt.Println("ERROR", err)
 		string(userSubmatches[1]), string(passSubmatches[1]))
 
 
+
+
 	if TLSSubmatches != nil {
+
 
 destString += fmt.Sprintf("TLS=%s\n", TLSSubmatches[1])
 	}

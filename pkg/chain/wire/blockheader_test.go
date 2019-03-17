@@ -14,6 +14,7 @@ func TestBlockHeader(
 	t *testing.T) {
 
 	nonce64, err := RandomUint64()
+
 	if err != nil {
 
 		t.Errorf("RandomUint64: Error generating nonce: %v", err)
@@ -25,21 +26,25 @@ func TestBlockHeader(
 	bh := NewBlockHeader(1, &hash, &merkleHash, bits, nonce)
 
 	// Ensure we get the same data back out.
+
 	if !bh.PrevBlock.IsEqual(&hash) {
 
 		t.Errorf("NewBlockHeader: wrong prev hash - got %v, want %v",
 			spew.Sprint(bh.PrevBlock), spew.Sprint(hash))
 	}
+
 	if !bh.MerkleRoot.IsEqual(&merkleHash) {
 
 		t.Errorf("NewBlockHeader: wrong merkle root - got %v, want %v",
 			spew.Sprint(bh.MerkleRoot), spew.Sprint(merkleHash))
 	}
+
 	if bh.Bits != bits {
 
 		t.Errorf("NewBlockHeader: wrong bits - got %v, want %v",
 			bh.Bits, bits)
 	}
+
 	if bh.Nonce != nonce {
 
 		t.Errorf("NewBlockHeader: wrong nonce - got %v, want %v",
@@ -134,16 +139,19 @@ func TestBlockHeaderWire(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		var buf bytes.Buffer
 		err := writeBlockHeader(&buf, test.pver, test.in)
+
 		if err != nil {
 
 			t.Errorf("writeBlockHeader #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("writeBlockHeader #%d\n got: %s want: %s", i,
@@ -152,11 +160,13 @@ func TestBlockHeaderWire(
 		}
 		buf.Reset()
 		err = test.in.BtcEncode(&buf, pver, 0)
+
 		if err != nil {
 
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("BtcEncode #%d\n got: %s want: %s", i,
@@ -168,11 +178,13 @@ func TestBlockHeaderWire(
 		var bh BlockHeader
 		rbuf := bytes.NewReader(test.buf)
 		err = readBlockHeader(rbuf, test.pver, &bh)
+
 		if err != nil {
 
 			t.Errorf("readBlockHeader #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&bh, test.out) {
 
 			t.Errorf("readBlockHeader #%d\n got: %s want: %s", i,
@@ -181,11 +193,13 @@ func TestBlockHeaderWire(
 		}
 		rbuf = bytes.NewReader(test.buf)
 		err = bh.BtcDecode(rbuf, pver, test.enc)
+
 		if err != nil {
 
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&bh, test.out) {
 
 			t.Errorf("BtcDecode #%d\n got: %s want: %s", i,
@@ -239,16 +253,19 @@ func TestBlockHeaderSerialize(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Serialize the block header.
 		var buf bytes.Buffer
 		err := test.in.Serialize(&buf)
+
 		if err != nil {
 
 			t.Errorf("Serialize #%d error %v", i, err)
 			continue
 		}
+
 		if !bytes.Equal(buf.Bytes(), test.buf) {
 
 			t.Errorf("Serialize #%d\n got: %s want: %s", i,
@@ -260,11 +277,13 @@ func TestBlockHeaderSerialize(
 		var bh BlockHeader
 		rbuf := bytes.NewReader(test.buf)
 		err = bh.Deserialize(rbuf)
+
 		if err != nil {
 
 			t.Errorf("Deserialize #%d error %v", i, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(&bh, test.out) {
 
 			t.Errorf("Deserialize #%d\n got: %s want: %s", i,

@@ -294,6 +294,7 @@ func Example_basicUsage() {
 		fmt.Println(err)
 	}
 	expectedOutPoint := wire.OutPoint{Hash: exampleTxRecordB.Hash, Index: 1}
+
 	for _, utxo := range utxos {
 
 		fmt.Println(utxo.OutPoint == expectedOutPoint)

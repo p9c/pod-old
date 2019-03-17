@@ -452,6 +452,7 @@ func dbFetchSpendJournalEntry(
 		if isDeserializeErr(err) {
 
 			return nil, database.Error{
+
 				ErrorCode: database.ErrCorruption,
 				Description: fmt.Sprintf(
 					"corrupt spend information for %v: %v",
@@ -542,6 +543,7 @@ var maxUint32VLQSerializeSize = serializeSizeVLQ(1<<32 - 1)
 
 // outpointKeyPool defines a concurrent safe free list of byte slices used to
 // provide temporary buffers for outpoint database keys.
+
 var outpointKeyPool = sync.Pool{
 
 	New: func() interface{} {
@@ -657,7 +659,9 @@ func deserializeUtxoEntry(
 			"unable to decode utxo:", err,
 		))
 	}
+
 	entry := &UtxoEntry{
+
 		amount:      int64(amount),
 		pkScript:    pkScript,
 		blockHeight: blockHeight,
@@ -738,6 +742,7 @@ func dbFetchUtxoEntry(
 		if isDeserializeErr(err) {
 
 			return nil, database.Error{
+
 				ErrorCode: database.ErrCorruption,
 				Description: fmt.Sprintf(
 					"corrupt utxo entry for %v: %v",
@@ -947,6 +952,7 @@ func deserializeBestChainState(
 	if len(serializedData) < chainhash.HashSize+16 {
 
 		return bestChainState{}, database.Error{
+
 			ErrorCode:   database.ErrCorruption,
 			Description: "corrupt best chain state",
 		}
@@ -966,6 +972,7 @@ func deserializeBestChainState(
 	if uint32(len(serializedData[offset:])) < workSumBytesLen {
 
 		return bestChainState{}, database.Error{
+
 			ErrorCode:   database.ErrCorruption,
 			Description: "corrupt best chain state",
 		}
@@ -981,7 +988,9 @@ func dbPutBestState(
 	dbTx database.Tx, snapshot *BestState, workSum *big.Int) error {
 
 	// Serialize the current best chain state.
+
 	serializedData := serializeBestChainState(bestChainState{
+
 		hash:      snapshot.Hash,
 		height:    uint32(snapshot.Height),
 		totalTxns: snapshot.TotalTxns,
@@ -1143,6 +1152,7 @@ func (b *BlockChain) initChainState() error {
 
 		// Fetch the stored chain state from the database metadata. When it doesn't exist, it means the database hasn't been initialized for use with chain yet, so break out now to allow that to happen under a writable database transaction.
 		serializedData := dbTx.Metadata().Get(chainStateKeyName)
+
 		log <- cl.Tracef{"serialized chain state: %0x", serializedData}
 
 		state, err := deserializeBestChainState(serializedData)
@@ -1152,6 +1162,7 @@ func (b *BlockChain) initChainState() error {
 			return err
 		}
 		// Load all of the headers from the data for the known best chain and construct the block index accordingly.  Since the number of nodes are already known, perform a single alloc for them versus a whole bunch of little ones to reduce pressure on the GC.
+
 		log <- cl.Dbg("loading block index...")
 
 		blockIndexBucket := dbTx.Metadata().Bucket(blockIndexBucketName)

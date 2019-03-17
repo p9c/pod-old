@@ -29,11 +29,15 @@ type CreateCfg struct {
 }
 
 // CreateCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var CreateCommand = climax.Command{
+
 	Name:  "create",
 	Brief: "creates a new wallet",
 	Help:  "creates a new wallet in specified data directory for a specified network",
+
 	Flags: []climax.Flag{
+
 		t("help", "h", "show help text"),
 		s("datadir", "D", walletmain.DefaultAppDataDir, "specify where the wallet will be created"),
 		s("seed", "s", "", "input pre-existing seed"),
@@ -44,6 +48,7 @@ var CreateCommand = climax.Command{
 	},
 
 	Handle: func(ctx climax.Context) int {
+
 		if ctx.Is("help") {
 
 			fmt.Print(`Usage: create [-h] [-d] [-s] [-p] [-P] [-c] [--network]
@@ -74,6 +79,7 @@ Available options:
 		CreateConfig.DataDir = w.DefaultDataDir
 
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
+
 			CreateConfig.DataDir = r
 		}
 
@@ -81,6 +87,7 @@ Available options:
 		var ok bool
 
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
+
 			cfgFile = filepath.Join(
 				filepath.Join(CreateConfig.DataDir, "wallet"),
 				w.DefaultConfigFilename)
@@ -93,10 +100,12 @@ Available options:
 			WriteDefaultWalletConfig(CreateConfig.DataDir)
 
 		} else {
+
 			fmt.Println("reading app configuration from", cfgFile)
 			cfgData, err := ioutil.ReadFile(cfgFile)
 
 			if err != nil {
+
 				fmt.Println("reading app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
@@ -106,6 +115,7 @@ Available options:
 			err = json.Unmarshal(cfgData, &WalletConfig)
 
 			if err != nil {
+
 				fmt.Println("parsing app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
@@ -118,7 +128,9 @@ Available options:
 		CreateConfig.Config.SimNet = false
 
 		if r, ok := getIfIs(&ctx, "network"); ok {
+
 			switch r {
+
 			case "testnet":
 				activeNet = &netparams.TestNet3Params
 				CreateConfig.Config.TestNet3 = true
@@ -136,12 +148,14 @@ Available options:
 		}
 
 		if CreateConfig.Config.TestNet3 {
+
 			activeNet = &netparams.TestNet3Params
 			CreateConfig.Config.TestNet3 = true
 			CreateConfig.Config.SimNet = false
 		}
 
 		if CreateConfig.Config.SimNet {
+
 			activeNet = &netparams.SimNetParams
 			CreateConfig.Config.TestNet3 = false
 			CreateConfig.Config.SimNet = true
@@ -157,6 +171,7 @@ Available options:
 		exists, err := loader.WalletExists()
 
 		if err != nil {
+
 			fmt.Println("ERROR", err)
 			return 1
 		}
@@ -164,6 +179,7 @@ Available options:
 		if !exists {
 
 		} else {
+
 			fmt.Println("\n!!! A wallet already exists at '" + dbDir + "' !!! \n")
 			fmt.Println("if you are sure it isn't valuable you can delete it before running this again")
 			return 1
@@ -174,6 +190,7 @@ Available options:
 			e := walletmain.CreateWallet(CreateConfig.Config, activeNet)
 
 			if e != nil {
+
 				fmt.Println("\nerror creating wallet:", e)
 			}
 
@@ -182,30 +199,37 @@ Available options:
 		}
 
 		if r, ok := getIfIs(&ctx, "seed"); ok {
+
 			CreateConfig.Seed = []byte(r)
 			argsGiven = true
 		}
 
 		if r, ok := getIfIs(&ctx, "password"); ok {
+
 			CreateConfig.Password = r
 			argsGiven = true
 		}
 
 		if r, ok := getIfIs(&ctx, "publicpass"); ok {
+
 			CreateConfig.PublicPass = r
 			argsGiven = true
 		}
 
 		if argsGiven {
+
 			if CreateConfig.Password == "" {
+
 				fmt.Println("no password given")
 				return 1
 			}
 
 			if CreateConfig.Seed == nil {
+
 				seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
 
 				if err != nil {
+
 					fmt.Println("failed to generate new seed")
 					return 1
 				}
@@ -224,6 +248,7 @@ Available options:
 				time.Now())
 
 			if err != nil {
+
 				fmt.Println(err)
 				return 1
 			}
@@ -242,7 +267,9 @@ Available options:
 }
 
 // CreateConfig is
+
 var CreateConfig = CreateCfg{
+
 	DataDir: walletmain.DefaultAppDataDir,
 	Network: "mainnet",
 }

@@ -50,15 +50,18 @@ func calcInputValueAge(
 	tx *wire.MsgTx, utxoView *blockchain.UtxoViewpoint, nextBlockHeight int32) float64 {
 
 	var totalInputAge float64
+
 	for _, txIn := range tx.TxIn {
 
 		// Don't attempt to accumulate the total input age if the referenced transaction output doesn't exist.
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
+
 		if entry != nil && !entry.IsSpent() {
 
 			// Inputs with dependencies currently in the mempool have their block height set to a special constant. Their input age should computed as zero since their parent hasn't made it into a block yet.
 			var inputAge int32
 			originHeight := entry.BlockHeight()
+
 			if originHeight == UnminedHeight {
 
 				inputAge = 0
@@ -86,12 +89,14 @@ func CalcPriority(
 
 	// Thus 1 + 73 + 1 + 1 + 33 + 1 = 110
 	overhead := 0
+
 	for _, txIn := range tx.TxIn {
 
 		// Max inputs + size can't possibly overflow here.
 		overhead += 41 + minInt(110, len(txIn.SignatureScript))
 	}
 	serializedTxSize := tx.SerializeSize()
+
 	if overhead >= serializedTxSize {
 
 		return 0.0

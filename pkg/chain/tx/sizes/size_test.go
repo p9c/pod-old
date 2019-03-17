@@ -18,6 +18,7 @@ func makeInts(
 	value int, n int) []int {
 
 	v := make([]int, n)
+
 	for i := range v {
 
 		v[i] = value
@@ -56,9 +57,11 @@ func TestEstimateSerializeSize(
 		15: {0xfc, []int{}, false, 37558},
 		16: {0xfd, []int{}, false, 37558 + RedeemP2PKHInputSize + 2},
 	}
+
 	for i, test := range tests {
 
 		outputs := make([]*wire.TxOut, 0, len(test.OutputScriptLengths))
+
 		for _, l := range test.OutputScriptLengths {
 
 			outputs = append(outputs, &wire.TxOut{PkScript: make([]byte, l)})

@@ -127,7 +127,9 @@ func (entry *UtxoEntry) Clone() *UtxoEntry {
 
 		return nil
 	}
+
 	return &UtxoEntry{
+
 		amount:      entry.amount,
 		pkScript:    entry.pkScript,
 		blockHeight: entry.blockHeight,
@@ -302,7 +304,9 @@ func (view *UtxoViewpoint) connectTransaction(tx *util.Tx, blockHeight int32, st
 		if stxos != nil {
 
 			// Populate the stxo details using the utxo entry.
+
 			var stxo = SpentTxOut{
+
 				Amount:     entry.Amount(),
 				PkScript:   entry.PkScript(),
 				Height:     entry.BlockHeight(),
@@ -442,6 +446,7 @@ func (view *UtxoViewpoint) disconnectTransactions(db database.DB, block *util.Bl
 			if entry == nil {
 
 				entry = &UtxoEntry{
+
 					amount:      txOut.Value,
 					pkScript:    txOut.PkScript,
 					blockHeight: block.Height(),
@@ -689,6 +694,7 @@ func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) er
 			// than the actual position of the transaction within
 			// the block due to skipping the coinbase.
 			originHash := &txIn.PreviousOutPoint.Hash
+
 			if inFlightIndex, ok := txInFlight[*originHash]; ok &&
 
 				i >= inFlightIndex {
@@ -717,6 +723,7 @@ func (view *UtxoViewpoint) fetchInputUtxos(db database.DB, block *util.Block) er
 func NewUtxoViewpoint() *UtxoViewpoint {
 
 	return &UtxoViewpoint{
+
 		entries: make(map[wire.OutPoint]*UtxoEntry),
 	}
 }

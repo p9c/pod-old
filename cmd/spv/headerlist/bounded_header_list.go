@@ -65,6 +65,7 @@ func (b *BoundedMemoryChain) ResetHeaderState(n Node) {
 //
 // NOTE: Part of the Chain interface.
 func (b *BoundedMemoryChain) Back() *Node {
+
 	if b.tailPtr == -1 && b.headPtr == -1 {
 		return nil
 	}
@@ -77,6 +78,7 @@ func (b *BoundedMemoryChain) Back() *Node {
 //
 // NOTE: Part of the Chain interface.
 func (b *BoundedMemoryChain) Front() *Node {
+
 	if b.tailPtr == -1 && b.headPtr == -1 {
 		return nil
 	}
@@ -94,6 +96,7 @@ func (b *BoundedMemoryChain) PushBack(n Node) *Node {
 	// Before we do any insertion, we'll fetch the prior element to be able
 	// to easily set the prev pointer of the new entry.
 	var prevElem *Node
+
 	if b.tailPtr != -1 {
 		prevElem = &b.chain[b.tailPtr]
 	}
@@ -106,6 +109,7 @@ func (b *BoundedMemoryChain) PushBack(n Node) *Node {
 	// If we've wrapped around, or this is the first insertion, then we'll
 	// increment the head pointer as well so it tracks the "start" of the
 	// queue properly.
+
 	if b.tailPtr <= b.headPtr || b.headPtr == -1 {
 		b.headPtr++
 		b.headPtr %= b.maxSize
@@ -132,6 +136,7 @@ func (b *BoundedMemoryChain) PushBack(n Node) *Node {
 	// Finally, we'll increment the length of the chain, and clamp down the
 	// size if needed to the max possible length.
 	b.len++
+
 	if b.len > b.maxSize {
 		b.len = b.maxSize
 	}

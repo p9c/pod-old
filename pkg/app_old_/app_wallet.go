@@ -18,11 +18,15 @@ type WalletCfg struct {
 }
 
 // WalletCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var WalletCommand = climax.Command{
+
 	Name:  "wallet",
 	Brief: "parallelcoin wallet",
 	Help:  "check balances, make payments, manage contacts",
+
 	Flags: []climax.Flag{
+
 		t("version", "V", "show version number and quit"),
 
 		s("configfile", "C", w.DefaultConfigFilename,

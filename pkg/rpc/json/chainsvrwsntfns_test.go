@@ -242,16 +242,19 @@ func TestChainSvrWsNtfns(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Marshal the notification as created by the new static creation function.  The ID is nil for notifications.
 		marshalled, err := json.MarshalCmd(nil, test.staticNtfn())
+
 		if err != nil {
 
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
 
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
@@ -261,6 +264,7 @@ func TestChainSvrWsNtfns(
 		}
 		// Ensure the notification is created without error via the generic new notification creation function.
 		cmd, err := test.newNtfn()
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
@@ -268,12 +272,14 @@ func TestChainSvrWsNtfns(
 		}
 		// Marshal the notification as created by the generic new notification creation function. The ID is nil for notifications.
 		marshalled, err = json.MarshalCmd(nil, cmd)
+
 		if err != nil {
 
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(marshalled, []byte(test.marshalled)) {
 
 			t.Errorf("Test #%d (%s) unexpected marshalled data - "+
@@ -282,6 +288,7 @@ func TestChainSvrWsNtfns(
 			continue
 		}
 		var request json.Request
+
 		if err := json.Unmarshal(marshalled, &request); err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error while "+
@@ -290,12 +297,14 @@ func TestChainSvrWsNtfns(
 			continue
 		}
 		cmd, err = json.UnmarshalCmd(&request)
+
 		if err != nil {
 
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
+
 		if !reflect.DeepEqual(cmd, test.unmarshalled) {
 
 			t.Errorf("Test #%d (%s) unexpected unmarshalled command "+

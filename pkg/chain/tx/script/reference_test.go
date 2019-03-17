@@ -62,6 +62,7 @@ func parseWitnessStack(
 	elements []interface{}) ([][]byte, error) {
 
 	witness := make([][]byte, len(elements))
+
 	for i, e := range elements {
 
 		witElement, err := hex.DecodeString(e.(string))
@@ -91,6 +92,7 @@ func parseShortForm(
 	if shortFormOps == nil {
 
 		ops := make(map[string]byte)
+
 		for opcodeName, opcodeValue := range OpcodeByName {
 
 			if strings.Contains(opcodeName, "OP_UNKNOWN") {
@@ -114,6 +116,7 @@ func parseShortForm(
 	script = strings.Replace(script, "\t", " ", -1)
 	tokens := strings.Split(script, " ")
 	builder := NewScriptBuilder()
+
 	for _, tok := range tokens {
 
 		if len(tok) == 0 {
@@ -153,6 +156,7 @@ func parseScriptFlags(
 
 	var flags ScriptFlags
 	sFlags := strings.Split(flagStr, ",")
+
 	for _, flag := range sFlags {
 
 		switch flag {
@@ -329,6 +333,7 @@ func testScripts(
 
 		sigCache = NewSigCache(10)
 	}
+
 	for i, test := range tests {
 
 		// "Format is: [[wit..., amount]?, scriptSig, scriptPubKey,
@@ -445,6 +450,7 @@ func testScripts(
 		}
 		// At this point an error was expected so ensure the result of the execution matches it.
 		success := false
+
 		for _, code := range allowedErrorCodes {
 
 			if IsErrorCode(err, code) {
@@ -522,6 +528,7 @@ func TestTxInvalidTests(
 
 	//	serializedTransaction, verifyFlags]
 testloop:
+
 	for i, test := range tests {
 
 		inputs, ok := test[0].([]interface{})
@@ -567,6 +574,7 @@ testloop:
 			continue
 		}
 		prevOuts := make(map[wire.OutPoint]scriptWithInputVal)
+
 		for j, iinput := range inputs {
 
 			input, ok := iinput.([]interface{})
@@ -635,6 +643,7 @@ testloop:
 			}
 			prevOuts[*wire.NewOutPoint(prevhash, idx)] = v
 		}
+
 		for k, txin := range tx.MsgTx().TxIn {
 
 			prevOut, ok := prevOuts[txin.PreviousOutPoint]
@@ -688,6 +697,7 @@ func TestTxValidTests(
 
 	//	serializedTransaction, verifyFlags]
 testloop:
+
 	for i, test := range tests {
 
 		inputs, ok := test[0].([]interface{})
@@ -733,6 +743,7 @@ testloop:
 			continue
 		}
 		prevOuts := make(map[wire.OutPoint]scriptWithInputVal)
+
 		for j, iinput := range inputs {
 
 			input, ok := iinput.([]interface{})
@@ -801,6 +812,7 @@ testloop:
 			}
 			prevOuts[*wire.NewOutPoint(prevhash, idx)] = v
 		}
+
 		for k, txin := range tx.MsgTx().TxIn {
 
 			prevOut, ok := prevOuts[txin.PreviousOutPoint]
@@ -846,6 +858,7 @@ func TestCalcSignatureHash(
 		t.Fatalf("TestCalcSignatureHash couldn't Unmarshal: %v\n",
 			err)
 	}
+
 	for i, test := range tests {
 
 		if i == 0 {

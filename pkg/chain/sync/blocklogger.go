@@ -40,6 +40,7 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 	b.receivedLogTx += int64(len(block.MsgBlock().Transactions))
 	now := time.Now()
 	duration := now.Sub(b.lastBlockLogTime)
+
 	if duration < time.Second*2 {
 
 		return
@@ -51,11 +52,13 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 
 	// Log information about new block height.
 	blockStr := "blocks"
+
 	if b.receivedLogBlocks == 1 {
 
 		blockStr = "block "
 	}
 	txStr := "transactions"
+
 	if b.receivedLogTx == 1 {
 
 		txStr = "transaction "

@@ -172,6 +172,7 @@ func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 	if len(a.privKeyCT) == 0 {
 
 		privKey, err := key.Decrypt(a.privKeyEncrypted)
+
 		if err != nil {
 
 			str := fmt.Sprintf("failed to decrypt private key for "+
@@ -314,6 +315,7 @@ func (a *managedAddress) ExportPubKey() string {
 func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 
 	// No private keys are available for a watching-only address manager.
+
 	if a.manager.rootManager.WatchOnly() {
 
 		return nil, managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -323,6 +325,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 	defer a.manager.mtx.Unlock()
 
 	// Account manager must be unlocked to decrypt the private key.
+
 	if a.manager.rootManager.IsLocked() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
@@ -334,6 +337,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 
 	// the returned private key could be invalidated from under the caller.
 	privKeyCopy, err := a.unlock(a.manager.rootManager.cryptoKeyPriv)
+
 	if err != nil {
 
 		return nil, err
@@ -351,6 +355,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 func (a *managedAddress) ExportPrivKey() (*util.WIF, error) {
 
 	pk, err := a.PrivKey()
+
 	if err != nil {
 
 		return nil, err
@@ -375,6 +380,7 @@ func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
 	// If this key is imported, then we can't return any information as we
 
 	// don't know precisely how the key was derived.
+
 	if a.imported {
 
 		return scope, path, false
@@ -393,6 +399,7 @@ func newManagedAddressWithoutPrivKey(
 
 	// Create a pay-to-pubkey-hash address from the public key.
 	var pubKeyHash []byte
+
 	if compressed {
 
 		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
@@ -416,6 +423,7 @@ func newManagedAddressWithoutPrivKey(
 		witAddr, err := util.NewAddressWitnessPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -424,6 +432,7 @@ func newManagedAddressWithoutPrivKey(
 		// Next we'll generate the witness program which can be used as a
 		// pkScript to pay to this generated address.
 		witnessProgram, err := txscript.PayToAddrScript(witAddr)
+
 		if err != nil {
 
 			return nil, err
@@ -436,6 +445,7 @@ func newManagedAddressWithoutPrivKey(
 		address, err = util.NewAddressScriptHash(
 			witnessProgram, m.rootManager.chainParams,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -445,6 +455,7 @@ func newManagedAddressWithoutPrivKey(
 		address, err = util.NewAddressPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -454,6 +465,7 @@ func newManagedAddressWithoutPrivKey(
 		address, err = util.NewAddressWitnessPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -491,6 +503,7 @@ func newManagedAddress(
 	// are cleared when locked, so they aren't cleared here.
 	privKeyBytes := privKey.Serialize()
 	privKeyEncrypted, err := s.rootManager.cryptoKeyPriv.Encrypt(privKeyBytes)
+
 	if err != nil {
 
 		str := "failed to encrypt private key"
@@ -504,6 +517,7 @@ func newManagedAddress(
 	managedAddr, err := newManagedAddressWithoutPrivKey(
 		s, derivationPath, ecPubKey, compressed, addrType,
 	)
+
 	if err != nil {
 
 		return nil, err
@@ -527,9 +541,11 @@ func newManagedAddressFromExtKey(
 
 	// depending on whether the generated key is private.
 	var managedAddr *managedAddress
+
 	if key.IsPrivate() {
 
 		privKey, err := key.ECPrivKey()
+
 		if err != nil {
 
 			return nil, err
@@ -540,6 +556,7 @@ func newManagedAddressFromExtKey(
 		managedAddr, err = newManagedAddress(
 			s, derivationPath, privKey, true, addrType,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -547,6 +564,7 @@ func newManagedAddressFromExtKey(
 	} else {
 
 		pubKey, err := key.ECPubKey()
+
 		if err != nil {
 
 			return nil, err
@@ -556,6 +574,7 @@ func newManagedAddressFromExtKey(
 			s, derivationPath, pubKey, true,
 			addrType,
 		)
+
 		if err != nil {
 
 			return nil, err
@@ -592,6 +611,7 @@ func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 	if len(a.scriptCT) == 0 {
 
 		script, err := key.Decrypt(a.scriptEncrypted)
+
 		if err != nil {
 
 			str := fmt.Sprintf("failed to decrypt script for %s",
@@ -692,6 +712,7 @@ func (a *scriptAddress) Used(ns walletdb.ReadBucket) bool {
 func (a *scriptAddress) Script() ([]byte, error) {
 
 	// No script is available for a watching-only address manager.
+
 	if a.manager.rootManager.WatchOnly() {
 
 		return nil, managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -701,6 +722,7 @@ func (a *scriptAddress) Script() ([]byte, error) {
 	defer a.manager.mtx.Unlock()
 
 	// Account manager must be unlocked to decrypt the script.
+
 	if a.manager.rootManager.IsLocked() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
@@ -722,6 +744,7 @@ func newScriptAddress(
 	address, err := util.NewAddressScriptHashFromHash(
 		scriptHash, m.rootManager.chainParams,
 	)
+
 	if err != nil {
 
 		return nil, err

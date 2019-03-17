@@ -3781,6 +3781,7 @@ func computeKdfParameters(
 
 	allItersSec := float64(0)
 	nIter := uint32(1)
+
 	for allItersSec < 0.02 { // This is a magic number straight from armory's source.
 		nIter *= 2
 		before := time.Now()

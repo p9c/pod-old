@@ -17,11 +17,15 @@ import (
 var CtlCfg = new(ctl.Config)
 
 // CtlCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var CtlCommand = climax.Command{
+
 	Name:  "ctl",
 	Brief: "sends RPC commands and prints the reply",
 	Help:  "Send queries to bitcoin JSON-RPC servers using command line shell and prints the reply to stdout",
+
 	Flags: []climax.Flag{
+
 		t("version", "V", "show version number and quit"),
 		s("configfile", "C", ctl.DefaultConfigFile, "Path to configuration file"),
 		s("datadir", "D", w.DefaultDataDir,
@@ -50,13 +54,16 @@ var CtlCommand = climax.Command{
 	},
 
 	Examples: []climax.Example{
+
 		{
+
 			Usecase:     "-l",
 			Description: "lists available commands",
 		},
 	},
 
 	Handle: func(ctx climax.Context) int {
+
 		Log.SetLevel("off")
 
 		if dl, ok := ctx.Get("debuglevel"); ok {
@@ -85,6 +92,7 @@ var CtlCommand = climax.Command{
 			ctl.ListCommands()
 
 		} else {
+
 			var cfgFile, datadir string
 			var ok bool
 
@@ -94,10 +102,12 @@ var CtlCommand = climax.Command{
 			}
 
 			if datadir, ok = ctx.Get("datadir"); ok {
+
 				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
 				CtlCfg.ConfigFile = cfgFile
 
 			} else {
+
 				datadir = w.DefaultDataDir
 			}
 
@@ -111,6 +121,7 @@ var CtlCommand = climax.Command{
 				WriteDefaultCtlConfig(datadir)
 
 			} else {
+
 				log <- cl.Info{
 
 					"loading configuration from", cfgFile,
@@ -125,6 +136,7 @@ var CtlCommand = climax.Command{
 					configCtl(&ctx, cfgFile)
 
 				} else {
+
 					log <- cl.Debug{"reading from", cfgFile}
 
 					cfgData, err := ioutil.ReadFile(cfgFile)
@@ -132,6 +144,7 @@ var CtlCommand = climax.Command{
 					if err != nil {
 
 						WriteDefaultCtlConfig(datadir)
+
 						log <- cl.Error{err}
 
 					}

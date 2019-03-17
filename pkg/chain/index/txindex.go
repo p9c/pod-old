@@ -66,6 +66,7 @@ func dbPutBlockIDIndexEntry(
 	// Add the block hash to ID mapping to the index.
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(idByHashIndexBucketName)
+
 	if err := hashIndex.Put(hash[:], serializedID[:]); err != nil {
 
 		return err
@@ -83,10 +84,12 @@ func dbRemoveBlockIDIndexEntry(
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(idByHashIndexBucketName)
 	serializedID := hashIndex.Get(hash[:])
+
 	if serializedID == nil {
 
 		return nil
 	}
+
 	if err := hashIndex.Delete(hash[:]); err != nil {
 
 		return err
@@ -102,6 +105,7 @@ func dbFetchBlockIDByHash(
 
 	hashIndex := dbTx.Metadata().Bucket(idByHashIndexBucketName)
 	serializedID := hashIndex.Get(hash[:])
+
 	if serializedID == nil {
 
 		return 0, errNoBlockIDEntry
@@ -115,6 +119,7 @@ func dbFetchBlockHashBySerializedID(
 
 	idIndex := dbTx.Metadata().Bucket(hashByIDIndexBucketName)
 	hashBytes := idIndex.Get(serializedID)
+
 	if hashBytes == nil {
 
 		return nil, errNoBlockIDEntry
@@ -157,11 +162,13 @@ func dbFetchTxIndexEntry(
 	// Load the record from the database and return now if it doesn't exist.
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	serializedData := txIndex.Get(txHash[:])
+
 	if len(serializedData) == 0 {
 
 		return nil, nil
 	}
 	// Ensure the serialized data has enough bytes to properly deserialize.
+
 	if len(serializedData) < 12 {
 
 		return nil, database.Error{
@@ -172,6 +179,7 @@ func dbFetchTxIndexEntry(
 	}
 	// Load the block hash associated with the block ID.
 	hash, err := dbFetchBlockHashBySerializedID(dbTx, serializedData[0:4])
+
 	if err != nil {
 
 		return nil, database.Error{
@@ -194,6 +202,7 @@ func dbAddTxIndexEntries(
 
 	// The offset and length of the transactions within the serialized block.
 	txLocs, err := block.TxLoc()
+
 	if err != nil {
 
 		return err
@@ -201,12 +210,14 @@ func dbAddTxIndexEntries(
 	// As an optimization, allocate a single slice big enough to hold all of the serialized transaction index entries for the block and serialize them directly into the slice.  Then, pass the appropriate subslice to the database to be written.  This approach significantly cuts down on the number of required allocations.
 	offset := 0
 	serializedValues := make([]byte, len(block.Transactions())*txEntrySize)
+
 	for i, tx := range block.Transactions() {
 
 		putTxIndexEntry(serializedValues[offset:], blockID, txLocs[i])
 		endOffset := offset + txEntrySize
 		err := dbPutTxIndexEntry(dbTx, tx.Hash(),
 			serializedValues[offset:endOffset:endOffset])
+
 		if err != nil {
 
 			return err
@@ -222,6 +233,7 @@ func dbRemoveTxIndexEntry(
 
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	serializedData := txIndex.Get(txHash[:])
+
 	if len(serializedData) == 0 {
 
 		return fmt.Errorf("can't remove non-existent transaction %s "+
@@ -237,6 +249,7 @@ func dbRemoveTxIndexEntries(
 	for _, tx := range block.Transactions() {
 
 		err := dbRemoveTxIndexEntry(dbTx, tx.Hash())
+
 		if err != nil {
 
 			return err
@@ -264,9 +277,11 @@ func (idx *TxIndex) Init() error {
 		var highestKnown, nextUnknown uint32
 		testBlockID := uint32(1)
 		increment := uint32(100000)
+
 		for {
 
 			_, err := dbFetchBlockHashByID(dbTx, testBlockID)
+
 			if err != nil {
 
 				nextUnknown = testBlockID
@@ -275,21 +290,26 @@ func (idx *TxIndex) Init() error {
 			highestKnown = testBlockID
 			testBlockID += increment
 		}
+
 		log <- cl.Tracef{
+
 			"forward scan (highest known %d, next unknown %d)",
 			highestKnown,
 			nextUnknown,
 		}
 		// No used block IDs due to new database.
+
 		if nextUnknown == 1 {
 
 			return nil
 		}
 		// Use a binary search to find the final highest used block id. This will take at most ceil(log_2(increment)) attempts.
+
 		for {
 
 			testBlockID = (highestKnown + nextUnknown) / 2
 			_, err := dbFetchBlockHashByID(dbTx, testBlockID)
+
 			if err != nil {
 
 				nextUnknown = testBlockID
@@ -297,11 +317,14 @@ func (idx *TxIndex) Init() error {
 
 				highestKnown = testBlockID
 			}
+
 			log <- cl.Tracef{
+
 				"binary scan (highest known %d, next unknown %d)",
 				highestKnown,
 				nextUnknown,
 			}
+
 			if highestKnown+1 == nextUnknown {
 
 				break
@@ -310,11 +333,14 @@ func (idx *TxIndex) Init() error {
 		idx.curBlockID = highestKnown
 		return nil
 	})
+
 	if err != nil {
 
 		return err
 	}
+
 	log <- cl.Debug{"Current internal block ID:", idx.curBlockID}
+
 	return nil
 }
 
@@ -334,10 +360,12 @@ func (idx *TxIndex) Name() string {
 func (idx *TxIndex) Create(dbTx database.Tx) error {
 
 	meta := dbTx.Metadata()
+
 	if _, err := meta.CreateBucket(idByHashIndexBucketName); err != nil {
 
 		return err
 	}
+
 	if _, err := meta.CreateBucket(hashByIDIndexBucketName); err != nil {
 
 		return err
@@ -352,12 +380,14 @@ func (idx *TxIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 
 	// Increment the internal block ID to use for the block being connected and add all of the transactions in the block to the index.
 	newBlockID := idx.curBlockID + 1
+
 	if err := dbAddTxIndexEntries(dbTx, block, newBlockID); err != nil {
 
 		return err
 	}
 	// Add the new block ID index entry for the block being connected and update the current internal block ID accordingly.
 	err := dbPutBlockIDIndexEntry(dbTx, block.Hash(), newBlockID)
+
 	if err != nil {
 
 		return err
@@ -371,11 +401,13 @@ func (idx *TxIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 	stxos []blockchain.SpentTxOut) error {
 
 	// Remove all of the transactions in the block from the index.
+
 	if err := dbRemoveTxIndexEntries(dbTx, block); err != nil {
 
 		return err
 	}
 	// Remove the block ID index entry for the block being disconnected and decrement the current internal block ID to account for it.
+
 	if err := dbRemoveBlockIDIndexEntry(dbTx, block.Hash()); err != nil {
 
 		return err
@@ -412,6 +444,7 @@ func dropBlockIDIndex(
 
 		meta := dbTx.Metadata()
 		err := meta.DeleteBucket(idByHashIndexBucketName)
+
 		if err != nil {
 
 			return err
@@ -425,6 +458,7 @@ func DropTxIndex(
 	db database.DB, interrupt <-chan struct{}) error {
 
 	err := dropIndex(db, addrIndexKey, addrIndexName, interrupt)
+
 	if err != nil {
 
 		return err

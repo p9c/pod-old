@@ -49,17 +49,20 @@ func (msg *MsgBlock) ClearTransactions() {
 func (msg *MsgBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 
 	err := readBlockHeader(r, pver, &msg.Header)
+
 	if err != nil {
 
 		return err
 	}
 	txCount, err := ReadVarInt(r, pver)
+
 	if err != nil {
 
 		return err
 	}
 
 	// Prevent more transactions than could possibly fit into a block. It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
+
 	if txCount > maxTxPerBlock {
 
 		str := fmt.Sprintf("too many transactions to fit into a block "+
@@ -67,10 +70,12 @@ func (msg *MsgBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 		return messageError("MsgBlock.BtcDecode", str)
 	}
 	msg.Transactions = make([]*MsgTx, 0, txCount)
+
 	for i := uint64(0); i < txCount; i++ {
 
 		tx := MsgTx{}
 		err := tx.BtcDecode(r, pver, enc)
+
 		if err != nil {
 
 			return err
@@ -100,17 +105,20 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 
 	// At the current time, there is no difference between the wire encoding at protocol version 0 and the stable long-term storage format.  As a result, make use of existing wire protocol functions.
 	err := readBlockHeader(r, 0, &msg.Header)
+
 	if err != nil {
 
 		return nil, err
 	}
 	txCount, err := ReadVarInt(r, 0)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	// Prevent more transactions than could possibly fit into a block. It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
+
 	if txCount > maxTxPerBlock {
 
 		str := fmt.Sprintf("too many transactions to fit into a block "+
@@ -121,11 +129,13 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 	// Deserialize each transaction while keeping track of its location within the byte stream.
 	msg.Transactions = make([]*MsgTx, 0, txCount)
 	txLocs := make([]TxLoc, txCount)
+
 	for i := uint64(0); i < txCount; i++ {
 
 		txLocs[i].TxStart = fullLen - r.Len()
 		tx := MsgTx{}
 		err := tx.Deserialize(r)
+
 		if err != nil {
 
 			return nil, err
@@ -140,18 +150,22 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 func (msg *MsgBlock) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
 	err := writeBlockHeader(w, pver, &msg.Header)
+
 	if err != nil {
 
 		return err
 	}
 	err = WriteVarInt(w, pver, uint64(len(msg.Transactions)))
+
 	if err != nil {
 
 		return err
 	}
+
 	for _, tx := range msg.Transactions {
 
 		err = tx.BtcEncode(w, pver, enc)
+
 		if err != nil {
 
 			return err
@@ -180,6 +194,7 @@ func (msg *MsgBlock) SerializeSize() int {
 
 	// Block header bytes + Serialized varint size for the number of transactions.
 	n := blockHeaderLen + VarIntSerializeSize(uint64(len(msg.Transactions)))
+
 	for _, tx := range msg.Transactions {
 
 		n += tx.SerializeSize()
@@ -192,6 +207,7 @@ func (msg *MsgBlock) SerializeSizeStripped() int {
 
 	// Block header bytes + Serialized varint size for the number of transactions.
 	n := blockHeaderLen + VarIntSerializeSize(uint64(len(msg.Transactions)))
+
 	for _, tx := range msg.Transactions {
 
 		n += tx.SerializeSizeStripped()
@@ -228,6 +244,7 @@ func (msg *MsgBlock) BlockHashWithAlgos(h int32) chainhash.Hash {
 func (msg *MsgBlock) TxHashes() ([]chainhash.Hash, error) {
 
 	hashList := make([]chainhash.Hash, 0, len(msg.Transactions))
+
 	for _, tx := range msg.Transactions {
 
 		hashList = append(hashList, tx.TxHash())

@@ -166,11 +166,13 @@ func TestAssignField(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
 		err := json.TstAssignField(1, "testField", dst, src)
+
 		if err != nil {
 
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
@@ -178,10 +180,12 @@ func TestAssignField(
 			continue
 		}
 		// Inidirect through to the base types to ensure their values are the same.
+
 		for dst.Kind() == reflect.Ptr {
 
 			dst = dst.Elem()
 		}
+
 		if !reflect.DeepEqual(dst.Interface(), test.expected) {
 
 			t.Errorf("Test #%d (%s) unexpected value - got %v, "+
@@ -331,11 +335,13 @@ func TestAssignFieldErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
 		err := json.TstAssignField(1, "testField", dst, src)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%[3]v), "+
@@ -343,6 +349,7 @@ func TestAssignFieldErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
@@ -390,9 +397,11 @@ func TestNewCmdErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		_, err := json.NewCmd(test.method, test.args...)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
@@ -400,6 +409,7 @@ func TestNewCmdErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
@@ -441,9 +451,11 @@ func TestMarshalCmdErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		_, err := json.MarshalCmd(test.id, test.cmd)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
@@ -451,6 +463,7 @@ func TestMarshalCmdErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
@@ -513,9 +526,11 @@ func TestUnmarshalCmdErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		_, err := json.UnmarshalCmd(&test.request)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("Test #%d (%s) wrong error - got %T (%v), "+
@@ -523,6 +538,7 @@ func TestUnmarshalCmdErrors(
 			continue
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
+
 		if gotErrorCode != test.err.ErrorCode {
 
 			t.Errorf("Test #%d (%s) mismatched error code - got "+

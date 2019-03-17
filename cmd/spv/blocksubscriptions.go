@@ -96,6 +96,7 @@ func (
 	quit <-chan struct{}) (*blockSubscription, error) {
 
 	subscription := blockSubscription{
+
 		onConnectBasic: onConnectBasic,
 		onDisconnect:   onDisconnect,
 		quit:           quit,
@@ -156,6 +157,7 @@ func (
 			}
 
 			sendMsgToSubscriber(&subscription, &blockMessage{
+
 				msgType: connectBasic,
 				header:  blockHeader,
 			})

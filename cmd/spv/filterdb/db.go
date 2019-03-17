@@ -75,6 +75,7 @@ func New(
 		// level filter bucket. If this already exists, then we can
 		// exit early.
 		filters, err := tx.CreateTopLevelBucket(filterBucket)
+
 		if err != nil {
 			return err
 		}
@@ -87,6 +88,7 @@ func New(
 
 		// First we'll create the bucket for the regular filters.
 		regFilters, err := filters.CreateBucketIfNotExists(regBucket)
+
 		if err != nil {
 			return err
 		}
@@ -94,6 +96,7 @@ func New(
 		// With the bucket created, we'll now construct the initial
 		// basic genesis filter and store it within the database.
 		basicFilter, err := builder.BuildBasicFilter(genesisBlock, nil)
+
 		if err != nil {
 			return err
 		}
@@ -123,6 +126,7 @@ func putFilter(
 	}
 
 	bytes, err := filter.NBytes()
+
 	if err != nil {
 		return err
 	}
@@ -141,6 +145,7 @@ func (f *FilterStore) PutFilter(hash *chainhash.Hash,
 		filters := tx.ReadWriteBucket(filterBucket)
 
 		var targetBucket walletdb.ReadWriteBucket
+
 		switch fType {
 		case RegularFilter:
 			targetBucket = filters.NestedReadWriteBucket(regBucket)
@@ -153,6 +158,7 @@ func (f *FilterStore) PutFilter(hash *chainhash.Hash,
 		}
 
 		bytes, err := filter.NBytes()
+
 		if err != nil {
 			return err
 		}
@@ -175,6 +181,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		filters := tx.ReadBucket(filterBucket)
 
 		var targetBucket walletdb.ReadBucket
+
 		switch filterType {
 		case RegularFilter:
 			targetBucket = filters.NestedReadBucket(regBucket)
@@ -183,6 +190,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		}
 
 		filterBytes := targetBucket.Get(blockHash[:])
+
 		if filterBytes == nil {
 			return ErrFilterNotFound
 		}
@@ -194,6 +202,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		dbFilter, err := gcs.FromNBytes(
 			builder.DefaultP, builder.DefaultM, filterBytes,
 		)
+
 		if err != nil {
 			return err
 		}

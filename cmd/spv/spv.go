@@ -743,6 +743,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	}
 
 	// Add the new peer and start it.
+
 	log <- cl.Debug{"new peer", sp}
 
 	state.outboundGroups[addrmgr.GroupKey(sp.NA())]++
@@ -813,6 +814,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 		}
 
 		delete(list, sp.ID())
+
 		log <- cl.Debug{"Removed peer", sp}
 
 		return
@@ -1392,6 +1394,7 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 
 	// so we can find compatible peers.
 	peerServices := sp.Services()
+
 	if peerServices&wire.SFNodeWitness != wire.SFNodeWitness ||
 
 		peerServices&wire.SFNodeCF != wire.SFNodeCF {
@@ -1822,6 +1825,7 @@ func NewChainService(
 				}
 
 				// allow nondefault ports after 50 failed tries.
+
 				if tries < 50 && fmt.Sprintf("%d", addr.NetAddress().Port) !=
 
 					s.chainParams.DefaultPort {

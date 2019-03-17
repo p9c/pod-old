@@ -65,6 +65,7 @@ func Hash(
 	bytes []byte, name string, height int32) (out chainhash.Hash) {
 
 	// time.Sleep(time.Millisecond * 2000)
+
 	switch name {
 
 	case "blake2b":
@@ -80,6 +81,7 @@ func Hash(
 		b := Argon2i(Cryptonight7v2(Lyra2REv2(bytes)))
 		out.SetBytes(rightShift(Lyra2REv2(b)))
 	case "scrypt":
+
 		if GetCurrent(height) > 0 {
 
 			b := Argon2i(Cryptonight7v2(Scrypt(bytes)))
@@ -89,6 +91,7 @@ func Hash(
 			out.SetBytes(Scrypt(bytes))
 		}
 	case "sha256d": // sha256d
+
 		if GetCurrent(height) > 0 {
 
 			b := Argon2i(Cryptonight7v2(chainhash.DoubleHashB(bytes)))
@@ -148,11 +151,13 @@ func Scrypt(
 	c := make([]byte, len(b))
 	copy(c, b)
 	dk, err := scrypt.Key(c, c, 1024, 1, 1, 32)
+
 	if err != nil {
 
 		return make([]byte, 32)
 	}
 	o := make([]byte, 32)
+
 	for i := range dk {
 
 		o[i] = dk[len(dk)-1-i]

@@ -21,11 +21,13 @@ func TestThrottle(
 	)
 
 	codes := make(chan int, 2)
+
 	for i := 0; i < cap(codes); i++ {
 
 		go func() {
 
 			res, err := http.Get(srv.URL)
+
 			if err != nil {
 
 				t.Fatal(err)
@@ -35,6 +37,7 @@ func TestThrottle(
 	}
 
 	got := make(map[int]int, cap(codes))
+
 	for i := 0; i < cap(codes); i++ {
 
 		got[<-codes]++
@@ -46,6 +49,7 @@ func TestThrottle(
 	}
 
 	want := map[int]int{200: 1, 429: 1}
+
 	if !reflect.DeepEqual(want, got) {
 
 		t.Fatalf("status codes: want: %v, got: %v", want, got)

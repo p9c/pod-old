@@ -20,17 +20,22 @@ type SetupCfg struct {
 }
 
 // SetupCommand is a command to send RPC queries to bitcoin RPC protocol server for node and wallet queries
+
 var SetupCommand = climax.Command{
+
 	Name:  "setup",
 	Brief: "initialises configuration and creates a new wallet",
 	Help:  "initialises configuration and creates a new wallet in specified data directory for a specified network",
+
 	Flags: []climax.Flag{
+
 		t("help", "h", "show help text"),
 		s("datadir", "D", walletmain.DefaultAppDataDir, "specify where the wallet will be created"),
 		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
 
 	Handle: func(ctx climax.Context) int {
+
 		fmt.Println("pod wallet setup")
 
 		if ctx.Is("help") {
@@ -55,6 +60,7 @@ Available options:
 		SetupConfig.DataDir = w.DefaultDataDir
 
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
+
 			SetupConfig.DataDir = r
 		}
 
@@ -65,7 +71,9 @@ Available options:
 		SetupConfig.Config.SimNet = false
 
 		if r, ok := getIfIs(&ctx, "network"); ok {
+
 			switch r {
+
 			case "testnet":
 				activeNet = &netparams.TestNet3Params
 				SetupConfig.Config.TestNet3 = true
@@ -88,11 +96,13 @@ Available options:
 		exists, err := loader.WalletExists()
 
 		if err != nil {
+
 			fmt.Println("ERROR", err)
 			return 1
 		}
 
 		if exists {
+
 			fmt.Print("\n!!! A wallet already exists at '" + dbDir + "/wallet.db' !!! \n")
 			fmt.Println(`if you are sure it isn't valuable you can delete it before running this again:
 
@@ -111,6 +121,7 @@ Available options:
 		e := walletmain.CreateWallet(SetupConfig.Config, activeNet)
 
 		if e != nil {
+
 			panic(e)
 		}
 
@@ -120,7 +131,9 @@ Available options:
 }
 
 // SetupConfig is
+
 var SetupConfig = SetupCfg{
+
 	DataDir: walletmain.DefaultAppDataDir,
 	Network: "mainnet",
 }

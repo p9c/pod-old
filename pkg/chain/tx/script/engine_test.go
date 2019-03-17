@@ -48,6 +48,7 @@ func TestBadPC(
 		LockTime: 0,
 	}
 	pkScript := mustParseShortForm("NOP")
+
 	for _, test := range tests {
 
 		vm, err := NewEngine(pkScript, tx, 0, 0, nil, nil, -1)
@@ -112,6 +113,7 @@ func TestCheckErrorCondition(
 
 		t.Errorf("failed to create script: %v", err)
 	}
+
 	for i := 0; i < len(pkScript)-1; i++ {
 
 		done, err := vm.Step()
@@ -186,6 +188,7 @@ func TestInvalidFlagCombinations(
 		LockTime: 0,
 	}
 	pkScript := []byte{OP_NOP}
+
 	for i, test := range tests {
 
 		_, err := NewEngine(pkScript, tx, 0, test, nil, nil, -1)
@@ -242,6 +245,7 @@ func TestCheckPubKeyEncoding(
 		},
 	}
 	vm := Engine{flags: ScriptVerifyStrictEncoding}
+
 	for _, test := range tests {
 
 		err := vm.checkPubKeyEncoding(test.key)
@@ -415,6 +419,7 @@ func TestCheckSignatureEncoding(
 		},
 	}
 	vm := Engine{flags: ScriptVerifyStrictEncoding}
+
 	for _, test := range tests {
 
 		err := vm.checkSignatureEncoding(test.sig)

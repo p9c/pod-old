@@ -27,6 +27,7 @@ var icoUnconfirmed, _ = ioutil.ReadFile("./gui/assets/icons/IcoUnconfirmed.svg")
 var icoTxNumber, _ = ioutil.ReadFile("./gui/assets/icons/IcoTxNumber.svg")
 
 var VIC VIcons = VIcons{
+
 	"logo":        string(icoLogo),
 	"overview":    string(icoOverview),
 	"send":        string(icoSend),

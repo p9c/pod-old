@@ -69,6 +69,7 @@ func (
 ) String() string {
 
 	// No flags are set.
+
 	if fl == 0 {
 
 		return "0x0"
@@ -76,6 +77,7 @@ func (
 
 	// Add individual bit flags.
 	s := ""
+
 	for flag := UFWalletOnly; flag < highestUsageFlagBit; flag <<= 1 {
 
 		if fl&flag == flag {
@@ -87,6 +89,7 @@ func (
 
 	// Add remaining value as raw hex.
 	s = strings.TrimRight(s, "|")
+
 	if fl != 0 {
 
 		s += "|0x" + strconv.FormatUint(uint64(fl), 16)
@@ -126,6 +129,7 @@ func RegisterCmd(
 
 	registerLock.Lock()
 	defer registerLock.Unlock()
+
 	if _, ok := methodToConcreteType[method]; ok {
 
 		str := fmt.Sprintf("method %q is already registered", method)
@@ -133,6 +137,7 @@ func RegisterCmd(
 	}
 
 	// Ensure that no unrecognized flag bits were specified.
+
 	if ^(highestUsageFlagBit-1)&flags != 0 {
 
 		str := fmt.Sprintf("invalid usage flags specified for method "+
@@ -140,6 +145,7 @@ func RegisterCmd(
 		return makeError(ErrInvalidUsageFlags, str)
 	}
 	rtp := reflect.TypeOf(cmd)
+
 	if rtp.Kind() != reflect.Ptr {
 
 		str := fmt.Sprintf("type must be *struct not '%s (%s)'", rtp,
@@ -147,6 +153,7 @@ func RegisterCmd(
 		return makeError(ErrInvalidType, str)
 	}
 	rt := rtp.Elem()
+
 	if rt.Kind() != reflect.Struct {
 
 		str := fmt.Sprintf("type must be *struct not '%s (*%s)'",
@@ -158,15 +165,18 @@ func RegisterCmd(
 	numFields := rt.NumField()
 	numOptFields := 0
 	defaults := make(map[int]reflect.Value)
+
 	for i := 0; i < numFields; i++ {
 
 		rtf := rt.Field(i)
+
 		if rtf.Anonymous {
 
 			str := fmt.Sprintf("embedded fields are not supported "+
 				"(field name: %q)", rtf.Name)
 			return makeError(ErrEmbeddedType, str)
 		}
+
 		if rtf.PkgPath != "" {
 
 			str := fmt.Sprintf("unexported fields are not supported "+
@@ -175,6 +185,7 @@ func RegisterCmd(
 		}
 		// Disallow types that can't be JSON encoded.  Also, determine if the field is optional based on it being a pointer.
 		var isOptional bool
+
 		switch kind := rtf.Type.Kind(); kind {
 
 		case reflect.Ptr:
@@ -182,6 +193,7 @@ func RegisterCmd(
 			kind = rtf.Type.Elem().Kind()
 			fallthrough
 		default:
+
 			if !isAcceptableKind(kind) {
 
 				str := fmt.Sprintf("unsupported field type "+
@@ -191,6 +203,7 @@ func RegisterCmd(
 			}
 		}
 		// Count the optional fields and ensure all fields after the first optional field are also optional.
+
 		if isOptional {
 
 			numOptFields++
@@ -205,6 +218,7 @@ func RegisterCmd(
 			}
 		}
 		// Ensure the default value can be unsmarshalled into the type and that defaults are only specified for optional fields.
+
 		if tag := rtf.Tag.Get("jsonrpcdefault"); tag != "" {
 
 			if !isOptional {
@@ -216,6 +230,7 @@ func RegisterCmd(
 			}
 			rvf := reflect.New(rtf.Type.Elem())
 			err := json.Unmarshal([]byte(tag), rvf.Interface())
+
 			if err != nil {
 
 				str := fmt.Sprintf("default value of %q is "+
@@ -246,6 +261,7 @@ func RegisteredCmdMethods() []string {
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	methods := make([]string, 0, len(methodToInfo))
+
 	for k := range methodToInfo {
 
 		methods = append(methods, k)
@@ -259,6 +275,7 @@ func baseKindString(
 	rt reflect.Type) string {
 
 	numIndirects := 0
+
 	for rt.Kind() == reflect.Ptr {
 
 		numIndirects++

@@ -111,11 +111,13 @@ func TestMessage(
 		{msgCFCheckpt, msgCFCheckpt, pver, MainNet, 58},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		var buf bytes.Buffer
 		nw, err := WriteMessageN(&buf, test.in, test.pver, test.btcnet)
+
 		if err != nil {
 
 			t.Errorf("WriteMessage #%d error %v", i, err)
@@ -123,6 +125,7 @@ func TestMessage(
 		}
 
 		// Ensure the number of bytes written match the expected value.
+
 		if nw != test.bytes {
 
 			t.Errorf("WriteMessage #%d unexpected num bytes "+
@@ -132,12 +135,14 @@ func TestMessage(
 		// Decode from wire format.
 		rbuf := bytes.NewReader(buf.Bytes())
 		nr, msg, _, err := ReadMessageN(rbuf, test.pver, test.btcnet)
+
 		if err != nil {
 
 			t.Errorf("ReadMessage #%d error %v, msg %v", i, err,
 				spew.Sdump(msg))
 			continue
 		}
+
 		if !reflect.DeepEqual(msg, test.out) {
 
 			t.Errorf("ReadMessage #%d\n got: %v want: %v", i,
@@ -146,6 +151,7 @@ func TestMessage(
 		}
 
 		// Ensure the number of bytes read match the expected value.
+
 		if nr != test.bytes {
 
 			t.Errorf("ReadMessage #%d unexpected num bytes read - "+
@@ -157,11 +163,13 @@ func TestMessage(
 
 	// they don't return them.
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode to wire format.
 		var buf bytes.Buffer
 		err := WriteMessage(&buf, test.in, test.pver, test.btcnet)
+
 		if err != nil {
 
 			t.Errorf("WriteMessage #%d error %v", i, err)
@@ -171,12 +179,14 @@ func TestMessage(
 		// Decode from wire format.
 		rbuf := bytes.NewReader(buf.Bytes())
 		msg, _, err := ReadMessage(rbuf, test.pver, test.btcnet)
+
 		if err != nil {
 
 			t.Errorf("ReadMessage #%d error %v, msg %v", i, err,
 				spew.Sdump(msg))
 			continue
 		}
+
 		if !reflect.DeepEqual(msg, test.out) {
 
 			t.Errorf("ReadMessage #%d\n got: %v want: %v", i,
@@ -198,6 +208,7 @@ func TestReadMessageWireErrors(
 	// Ensure message errors are as expected with no function specified.
 	wantErr := "something bad happened"
 	testErr := MessageError{Description: wantErr}
+
 	if testErr.Error() != wantErr {
 
 		t.Errorf("MessageError: wrong error - got %v, want %v",
@@ -207,6 +218,7 @@ func TestReadMessageWireErrors(
 	// Ensure message errors are as expected with a function specified.
 	wantFunc := "foo"
 	testErr = MessageError{Func: wantFunc, Description: wantErr}
+
 	if testErr.Error() != wantFunc+": "+wantErr {
 
 		t.Errorf("MessageError: wrong error - got %v, want %v",
@@ -371,11 +383,13 @@ func TestReadMessageWireErrors(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Decode from wire format.
 		r := newFixedReader(test.max, test.buf)
 		nr, _, _, err := ReadMessageN(r, test.pver, test.btcnet)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
 
 			t.Errorf("ReadMessage #%d wrong error got: %v <%T>, "+
@@ -384,6 +398,7 @@ func TestReadMessageWireErrors(
 		}
 
 		// Ensure the number of bytes written match the expected value.
+
 		if nr != test.bytes {
 
 			t.Errorf("ReadMessage #%d unexpected num bytes read - "+
@@ -393,6 +408,7 @@ func TestReadMessageWireErrors(
 		// For errors which are not of type MessageError, check them for
 
 		// equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.readErr {
@@ -463,11 +479,13 @@ func TestWriteMessageWireErrors(
 		{bogusMsg, pver, btcnet, 24, io.ErrShortWrite, 24},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		// Encode wire format.
 		w := newFixedWriter(test.max)
 		nw, err := WriteMessageN(w, test.msg, test.pver, test.btcnet)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("WriteMessage #%d wrong error got: %v <%T>, "+
@@ -476,6 +494,7 @@ func TestWriteMessageWireErrors(
 		}
 
 		// Ensure the number of bytes written match the expected value.
+
 		if nw != test.bytes {
 
 			t.Errorf("WriteMessage #%d unexpected num bytes "+
@@ -485,6 +504,7 @@ func TestWriteMessageWireErrors(
 		// For errors which are not of type MessageError, check them for
 
 		// equality.
+
 		if _, ok := err.(*MessageError); !ok {
 
 			if err != test.err {

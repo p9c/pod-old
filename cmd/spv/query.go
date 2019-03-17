@@ -397,6 +397,7 @@ func queryChainServiceBatch(
 				// If this query is finished and we're at
 
 				// firstUnfinished, update firstUnfinished.
+
 				if i == firstUnfinished &&
 					atomic.LoadUint32(&queryStates[i]) ==
 
@@ -417,6 +418,7 @@ func queryChainServiceBatch(
 				// be handled. If so, we mark it as being
 
 				// handled. If not, we move to the next one.
+
 				if !atomic.CompareAndSwapUint32(
 					&queryStates[i],
 					uint32(queryWaitSubmit),
@@ -1107,6 +1109,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	if block.BlockHash() != blockHash {
 
 		str := "couldn't get header for block %s from database"
+
 		log <- cl.Debug{str, blockHash}
 
 		return nil, fmt.Errorf(str, blockHash)
@@ -1172,6 +1175,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				// If the response doesn't match our request.
 
 				// Ignore this message.
+
 				if blockHash != response.BlockHash ||
 
 					filterType != response.FilterType {
@@ -1201,6 +1205,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				// chain checks out. If not, we can ignore this
 
 				// response.
+
 				if gotHeader, err := builder.
 					MakeHeaderForFilter(gotFilter,
 						*prevHeader); err != nil ||
@@ -1379,6 +1384,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				// the sanity check, the peer is trying to
 
 				// bamboozle us. Disconnect it.
+
 				if err := blockchain.CheckBlockSanity(
 					block,
 
@@ -1503,6 +1509,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						"rejected by %s: %s",
 						tx.TxHash(), sp.Addr(),
 						response.Reason)
+
 					log <- cl.Error{err}
 
 					close(quit)

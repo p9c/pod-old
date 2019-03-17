@@ -280,7 +280,9 @@ func TestBranchRecoveryState(
 	}
 
 	brs := wallet.NewBranchRecoveryState(recoveryWindow)
+
 	harness := &Harness{
+
 		t:              t,
 		brs:            brs,
 		recoveryWindow: recoveryWindow,
