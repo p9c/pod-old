@@ -97,10 +97,8 @@ var MainNetParams = Params{
 	MaxAdjustUp:             MaxAdjustUp,
 	TargetTimespanAdjDown: AveragingTargetTimespan *
 		(Interval + MaxAdjustDown) / Interval,
-	MinActualTimespan: AveragingTargetTimespan *
-		(Interval - MaxAdjustUp) / Interval,
-	MaxActualTimespan: AveragingTargetTimespan *
-		(Interval + MaxAdjustDown) / Interval,
+	MinActualTimespan:  2400,
+	MaxActualTimespan:  3300,
 	ScryptPowLimit:     &scryptPowLimit,
 	ScryptPowLimitBits: ScryptPowLimitBits,
 }

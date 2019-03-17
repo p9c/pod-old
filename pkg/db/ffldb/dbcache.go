@@ -15,18 +15,18 @@ import (
 const (
 
 	// defaultCacheSize is the default size for the database cache.
-	defaultCacheSize = 100 * 1024 * 1024 // 100 MB
+	defaultCacheSize = 200 * 1024 * 1024 // 100 MB
 
 	// defaultFlushSecs is the default number of seconds to use as a threshold in between database cache flushes when the cache size has not been exceeded.
-	defaultFlushSecs = 300 // 5 minutes
+	defaultFlushSecs = 3000 // 5 minutes
 
 	// ldbBatchHeaderSize is the size of a leveldb batch header which includes the sequence header and record counter.
+	ldbBatchHeaderSize = 12
 
 	// ldbRecordIKeySize is the size of the ikey used internally by leveldb when appending a record to a batch.
+	ldbRecordIKeySize = 8
 
 	// These are used to help preallocate space needed for a batch in one allocation instead of letting leveldb itself constantly grow it. This results in far less pressure on the GC and consequently helps prevent the GC from allocating a lot of extra unneeded space.
-	ldbBatchHeaderSize = 12
-	ldbRecordIKeySize  = 8
 )
 
 // ldbCacheIter wraps a treap iterator to provide the additional functionality needed to satisfy the leveldb iterator.Iterator interface.

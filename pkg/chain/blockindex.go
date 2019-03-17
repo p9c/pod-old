@@ -341,6 +341,23 @@ func (node *blockNode) GetAlgo() int32 {
 // GetLastWithAlgo returns the newest block from node with specified algo
 func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 
+	if prev == nil {
+
+		return nil
+	}
+
+	if fork.GetCurrent(prev.height) == 0 {
+
+		if algo != 514 &&
+
+			algo != 2 {
+
+			log <- cl.Debug{"irregular version block, assuming 2 (sha256d)"}
+
+			algo = 2
+		}
+
+	}
 	prev = node
 
 	for {
@@ -350,20 +367,27 @@ func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 			return nil
 		}
 
+		// log <- cl.Debugf{"node %d %d %8x",prev.height, prev.version, prev.bits}
+
+		prevversion := prev.version
 		if fork.GetCurrent(prev.height) == 0 {
 
-			if algo != 514 &&
+			if prev.version != 514 &&
 
-				algo != 2 {
+				prev.version != 2 {
 
 				log <- cl.Debug{"irregular version block, assuming 2 (sha256d)"}
 
-				algo = 2
+				prevversion = 2
 			}
 
 		}
 
-		if prev.version == algo {
+		if prevversion == algo {
+
+			log <- cl.Debugf{
+				"found %d %d %d %8x",
+				prev.height, prev.version, prevversion, prev.bits}
 
 			return
 		}
@@ -372,5 +396,4 @@ func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 
 	}
 
-	return
 }

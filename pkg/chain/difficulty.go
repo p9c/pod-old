@@ -101,29 +101,35 @@ func (
 
 		log <- cl.Debug{"on pre-hardfork"}
 
-		algo := fork.GetAlgoVer(algoname, nH)
-		algoName := fork.GetAlgoName(algo, nH)
-		newTargetBits = fork.GetMinBits(algoName, nH)
-
-		// log <- cl.Debugf{
-
-		// 	"newTargetBits %064x", CompactToBig(newTargetBits),
-		// }
-
 		if lastNode == nil {
 
 			return newTargetBits, nil
 		}
 
+		algo := fork.GetAlgoVer(algoname, nH)
+		algoName := fork.GetAlgoName(algo, nH)
+		newTargetBits = fork.GetMinBits(algoName, nH)
+
+		log <- cl.Debugf{"last %d %d %8x",
+			lastNode.height, lastNode.version, lastNode.bits}
+
 		prevNode := lastNode.GetLastWithAlgo(algo)
+
+		if prevNode == nil {
+
+			return newTargetBits, nil
+		}
+
 		firstNode := prevNode
 
 		for i := int64(0); firstNode != nil &&
 			i < fork.GetAveragingInterval(nH)-1; i++ {
 
+			log <- cl.Debugf{"%d: prev %d %d %8x",
+				i, firstNode.height, firstNode.version, firstNode.bits}
+
 			firstNode = firstNode.RelativeAncestor(1)
 			firstNode = firstNode.GetLastWithAlgo(algo)
-
 		}
 
 		if firstNode == nil {
@@ -131,8 +137,13 @@ func (
 			return newTargetBits, nil
 		}
 
+		log <- cl.Debugf{"9: first %d %d %8x",
+			firstNode.height, firstNode.version, firstNode.bits}
+
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
 		adjustedTimespan := actualTimespan
+
+		log <- cl.Debug{"actual %d", actualTimespan}
 
 		if actualTimespan < b.chainParams.MinActualTimespan {
 
@@ -142,6 +153,8 @@ func (
 
 			adjustedTimespan = b.chainParams.MaxActualTimespan
 		}
+
+		log <- cl.Debug{"adjusted %d", adjustedTimespan}
 
 		oldTarget := CompactToBig(prevNode.bits)
 		newTarget := new(big.Int).
@@ -197,17 +210,17 @@ func (
 
 		if last.version != algo {
 
-			l := last.RelativeAncestor(1)
-			l = l.GetLastWithAlgo(algo)
+			ln := last.RelativeAncestor(1)
+			ln = ln.GetLastWithAlgo(algo)
 
 			// ignore the first block as its time is not a normal timestamp
 
-			if l.height < 1 {
+			if ln.height < 1 {
 
 				break
 			}
 
-			last = l
+			last = ln
 		}
 
 		counter := 1
