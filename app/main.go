@@ -43,6 +43,7 @@ func Main() int {
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
 
 			src, err :=
+
 				altsrc.NewYamlSourceFromFile(filepath.Join(datadir, podConfigFilename))
 			return src, err
 		}
@@ -166,6 +167,7 @@ func init() {
 					Destination: &appConfigCommon.Datadir,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -175,6 +177,7 @@ func init() {
 					Destination: &appConfigCommon.Save,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -186,6 +189,7 @@ func init() {
 					Destination: &appConfigCommon.Loglevel,
 				},
 			),
+
 			altsrc.NewStringSliceFlag(
 
 				cli.StringSliceFlag{
@@ -195,6 +199,7 @@ func init() {
 					Value: &appConfigCommon.Subsystems,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -205,6 +210,7 @@ func init() {
 					Destination: &appConfigCommon.Network,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -215,6 +221,7 @@ func init() {
 					Destination: &appConfigCommon.ServerUser,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -225,6 +232,7 @@ func init() {
 					Destination: &appConfigCommon.ServerPass,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -235,6 +243,7 @@ func init() {
 					Destination: &appConfigCommon.ClientUser,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -245,6 +254,7 @@ func init() {
 					Destination: &appConfigCommon.ClientPass,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -255,6 +265,7 @@ func init() {
 					Destination: &appConfigCommon.RPCcert,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -265,6 +276,7 @@ func init() {
 					Destination: &appConfigCommon.RPCkey,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -275,6 +287,7 @@ func init() {
 					Destination: &appConfigCommon.CAfile,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -284,6 +297,7 @@ func init() {
 					Destination: &appConfigCommon.ClientTLS,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -293,6 +307,7 @@ func init() {
 					Destination: &appConfigCommon.ServerTLS,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -302,6 +317,7 @@ func init() {
 					Destination: &appConfigCommon.Useproxy,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -312,6 +328,7 @@ func init() {
 					Destination: &appConfigCommon.Proxy,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -322,6 +339,7 @@ func init() {
 					Destination: &appConfigCommon.Proxyuser,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -332,6 +350,7 @@ func init() {
 					Destination: &appConfigCommon.Proxypass,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -341,6 +360,7 @@ func init() {
 					Destination: &appConfigCommon.Onion,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -351,6 +371,7 @@ func init() {
 					Destination: &appConfigCommon.OnionProxy,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -361,6 +382,7 @@ func init() {
 					Destination: &appConfigCommon.Onionuser,
 				},
 			),
+
 			altsrc.NewStringFlag(
 
 				cli.StringFlag{
@@ -371,6 +393,7 @@ func init() {
 					Destination: &appConfigCommon.Onionpass,
 				},
 			),
+
 			altsrc.NewBoolFlag(
 
 				cli.BoolFlag{
@@ -388,6 +411,7 @@ func init() {
 				Name:    "version",
 				Aliases: []string{"v"},
 				Usage:   "print version and exit",
+
 				Action: func(c *cli.Context) error {
 
 					fmt.Println(c.App.Name, c.App.Version)
@@ -399,6 +423,7 @@ func init() {
 				Name:    "listsubsystems",
 				Aliases: []string{"l"},
 				Usage:   "list available logging subsystems",
+
 				Action: func(c *cli.Context) error {
 
 					fmt.Println("todo list logging subsystems")
@@ -413,6 +438,7 @@ func init() {
 				Aliases: []string{"C"},
 				Usage:   "populate all of the initial default configuration of a new data directory, all set globals will also apply. Exits after saving",
 				Action:  confHandle,
+
 				Flags: []cli.Flag{
 
 					cli.StringFlag{
@@ -434,6 +460,7 @@ func init() {
 				Name:    "shell",
 				Aliases: []string{"s"},
 				Usage:   "start combined wallet/node shell",
+
 				Action: func(c *cli.Context) error {
 
 					fmt.Println("calling shell")
@@ -445,6 +472,7 @@ func init() {
 				Name:    "gui",
 				Aliases: []string{"g"},
 				Usage:   "start GUI (TODO: should ultimately be default)",
+
 				Action: func(c *cli.Context) error {
 
 					fmt.Println("calling gui")

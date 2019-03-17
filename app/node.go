@@ -350,7 +350,6 @@ func nodeHandle(c *cli.Context) error {
 	// --proxy or --connect without --listen disables listening.
 
 	if (*nodeConfig.Proxy != "" || len(*nodeConfig.ConnectPeers) > 0) &&
-
 		len(*nodeConfig.Listeners) == 0 {
 
 		*nodeConfig.DisableListen = true
@@ -377,7 +376,6 @@ func nodeHandle(c *cli.Context) error {
 	// Check to make sure limited and admin users don't have the same username
 
 	if *nodeConfig.RPCUser != "" &&
-
 		*nodeConfig.RPCUser == *nodeConfig.RPCLimitUser {
 
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
@@ -391,7 +389,6 @@ func nodeHandle(c *cli.Context) error {
 	// Check to make sure limited and admin users don't have the same password
 
 	if *nodeConfig.RPCPass != "" &&
-
 		*nodeConfig.RPCPass == *nodeConfig.RPCLimitPass {
 
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
@@ -406,7 +403,6 @@ func nodeHandle(c *cli.Context) error {
 	// The RPC server is disabled if no username or password is provided.
 
 	if (*nodeConfig.RPCUser == "" || *nodeConfig.RPCPass == "") &&
-
 		(*nodeConfig.RPCLimitUser == "" || *nodeConfig.RPCLimitPass == "") {
 
 		*nodeConfig.DisableRPC = true
@@ -453,6 +449,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	var err error
+
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(*nodeConfig.MinRelayTxFee)
 
@@ -468,9 +465,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Limit the max block size to a sane value.
-
 	if *nodeConfig.BlockMaxSize < node.BlockMaxSizeMin ||
-
 		*nodeConfig.BlockMaxSize > node.BlockMaxSizeMax {
 
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
@@ -484,9 +479,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Limit the max block weight to a sane value.
-
 	if *nodeConfig.BlockMaxWeight < node.BlockMaxWeightMin ||
-
 		*nodeConfig.BlockMaxWeight > node.BlockMaxWeightMax {
 
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
@@ -500,7 +493,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Limit the max orphan count to a sane vlue.
-
 	if *nodeConfig.MaxOrphanTxs < 0 {
 
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
@@ -651,7 +643,6 @@ func nodeHandle(c *cli.Context) error {
 		activeNetParams.DefaultPort)
 
 	// --onionproxy and not --onion are contradictory (TODO: this is kinda stupid hm? switch *and* toggle by presence of flag value, one should be enough)
-
 	if !*nodeConfig.Onion && *nodeConfig.OnionProxy != "" {
 
 		err := fmt.Errorf("%s: the --onionproxy and --onion options may not be activated at the same time", funcName)
@@ -677,11 +668,8 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Tor stream isolation requires either proxy or onion proxy to be set.
-
 	if *nodeConfig.TorIsolation &&
-
 		*nodeConfig.Proxy == "" &&
-
 		*nodeConfig.OnionProxy == "" {
 
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
@@ -718,16 +706,13 @@ func nodeHandle(c *cli.Context) error {
 		torIsolation := false
 
 		if *nodeConfig.TorIsolation &&
-
 			*nodeConfig.OnionProxy == "" &&
 			(*nodeConfig.ProxyUser != "" ||
-
 				*nodeConfig.ProxyPass != "") {
 
 			torIsolation = true
 
 			log <- cl.Warn{
-
 				"Tor isolation set -- overriding specified proxy user credentials"}
 		}
 
@@ -743,7 +728,6 @@ func nodeHandle(c *cli.Context) error {
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 
 		if *nodeConfig.Onion &&
-
 			*nodeConfig.OnionProxy == "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -775,7 +759,6 @@ func nodeHandle(c *cli.Context) error {
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
 
 		if *nodeConfig.TorIsolation &&
-
 			(*nodeConfig.OnionProxyUser != "" || *nodeConfig.OnionProxyPass != "") {
 
 			log <- cl.Warn{
