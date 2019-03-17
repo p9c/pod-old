@@ -14,6 +14,7 @@ var testNoncePrng = rand.New(rand.NewSource(0))
 
 // chainedNodes returns the specified number of nodes constructed such that each subsequent node points to the previous one to create a chain.  The first node will point to the passed parent which can be nil if desired.
 func chainedNodes(
+
 	parent *blockNode, numNodes int) []*blockNode {
 
 	nodes := make([]*blockNode, numNodes)
@@ -37,6 +38,7 @@ func chainedNodes(
 }
 
 // String returns the block node as a human-readable name.
+
 func (node blockNode) String() string {
 
 	return fmt.Sprintf("%s(%d)", node.hash, node.height)
@@ -44,6 +46,7 @@ func (node blockNode) String() string {
 
 // tstTip is a convenience function to grab the tip of a chain of block nodes created via chainedNodes.
 func tstTip(
+
 	nodes []*blockNode) *blockNode {
 
 	return nodes[len(nodes)-1]
@@ -51,6 +54,7 @@ func tstTip(
 
 // locatorHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected block locators in the tests.
 func locatorHashes(
+
 	nodes []*blockNode, indexes ...int) BlockLocator {
 
 	hashes := make(BlockLocator, 0, len(indexes))
@@ -65,6 +69,7 @@ func locatorHashes(
 
 // zipLocators is a convenience function that returns a single block locator given a variable number of them and is used in the tests.
 func zipLocators(
+
 	locators ...BlockLocator) BlockLocator {
 
 	var hashes BlockLocator
@@ -79,6 +84,7 @@ func zipLocators(
 
 // TestChainView ensures all of the exported functionality of chain views works as intended with the exception of some special cases which are handled in other tests.
 func TestChainView(
+
 	t *testing.T) {
 
 	// Construct a synthetic block index consisting of the following structure.
@@ -92,6 +98,7 @@ func TestChainView(
 	branch1Nodes := chainedNodes(branch0Nodes[1], 25)
 	branch2Nodes := chainedNodes(branch1Nodes[0], 3)
 	tip := tstTip
+
 	tests := []struct {
 		name string
 		// active view
@@ -366,6 +373,7 @@ testLoop:
 
 // TestChainViewForkCorners ensures that finding the fork between two chains works in some corner cases such as when the two chains have completely unrelated histories.
 func TestChainViewForkCorners(
+
 	t *testing.T) {
 
 	// Construct two unrelated single branch synthetic block indexes.
@@ -409,6 +417,7 @@ func TestChainViewForkCorners(
 
 // TestChainViewSetTip ensures changing the tip works as intended including capacity changes.
 func TestChainViewSetTip(
+
 	t *testing.T) {
 
 	// Construct a synthetic block index consisting of the following structure.
@@ -419,6 +428,7 @@ func TestChainViewSetTip(
 	branch0Nodes := chainedNodes(nil, 5)
 	branch1Nodes := chainedNodes(branch0Nodes[1], 25)
 	tip := tstTip
+
 	tests := []struct {
 		name     string
 		view     *chainView     // active view
@@ -497,6 +507,7 @@ testLoop:
 
 // TestChainViewNil ensures that creating and accessing a nil chain view behaves as expected.
 func TestChainViewNil(
+
 	t *testing.T) {
 
 	// Ensure two unininitialized views are considered equal.

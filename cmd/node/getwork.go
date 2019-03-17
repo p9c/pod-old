@@ -30,6 +30,7 @@ var hash1Len = (1 + ((chainhash.HashSize + 8) / fastsha256.BlockSize)) * fastsha
 // bigToLEUint256 returns the passed big integer as an unsigned 256-bit integer encoded as little-endian bytes.  Numbers which are larger than the max unsigned 256-bit integer are truncated.
 func bigToLEUint256(
 	n *big.Int,
+
 ) [uint256Size]byte {
 
 	// Pad or truncate the big-endian big int to correct number of bytes.
@@ -37,9 +38,11 @@ func bigToLEUint256(
 	nlen := len(nBytes)
 	pad := 0
 	start := 0
+
 	if nlen <= uint256Size {
 
 		pad = uint256Size - nlen
+
 	} else {
 		start = nlen - uint256Size
 	}
@@ -48,6 +51,7 @@ func bigToLEUint256(
 	copy(buf[pad:], nBytes[start:])
 
 	// Reverse the bytes to little endian and return them.
+
 	for i := 0; i < uint256Size/2; i++ {
 
 		buf[i], buf[uint256Size-1-i] = buf[uint256Size-1-i], buf[i]
@@ -60,13 +64,16 @@ func handleGetWork(
 	s *rpcServer,
 	cmd interface{},
 	closeChan <-chan struct{},
+
 ) (interface {
 },
 
 	error,
+
 ) {
 
 	c := cmd.(*json.GetWorkCmd)
+
 	if len(StateCfg.ActiveMiningAddrs) == 0 {
 
 		return nil, &json.RPCError{
@@ -78,6 +85,7 @@ func handleGetWork(
 	}
 
 	if !(*cfg.RegressionTest || *cfg.SimNet) &&
+
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCClientNotConnected,
@@ -88,6 +96,7 @@ func handleGetWork(
 
 	// No point in generating or accepting work before the chain is synced.
 	latestHeight := s.cfg.Chain.BestSnapshot().Height
+
 	if latestHeight != 0 && !s.cfg.SyncMgr.IsCurrent() {
 
 		return nil, &json.RPCError{
@@ -100,6 +109,7 @@ func handleGetWork(
 	state := s.gbtWorkState
 	state.Lock()
 	defer state.Unlock()
+
 	if c.Data != nil {
 
 		return handleGetWorkSubmission(s, *c.Data)
@@ -111,10 +121,12 @@ func handleGetWork(
 	lastTxUpdate := s.gbtWorkState.lastTxUpdate
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	generator := s.cfg.Generator
+
 	if state.template == nil {
 
 		var err error
 		state.template, err = generator.NewBlockTemplate(payToAddr, s.cfg.Algo)
+
 		if err != nil {
 
 			return nil, err
@@ -126,13 +138,16 @@ func handleGetWork(
 	if msgBlock == nil || state.prevHash == nil ||
 		!state.prevHash.IsEqual(latestHash) ||
 		(state.lastTxUpdate != lastTxUpdate &&
+
 			time.Now().After(state.lastGenerated.Add(time.Minute))) {
 
 		/*	Reset the extra nonce and clear all cached template
 			variations if the best block changed. */
+
 		if state.prevHash != nil && !state.prevHash.IsEqual(latestHash) {
 
 			e := state.updateBlockTemplate(s, false)
+
 			if e != nil {
 
 				log <- cl.Warn{"failed to update block template", e}
@@ -146,6 +161,7 @@ func handleGetWork(
 		state.prevHash = nil
 		var err error
 		state.template, err = generator.NewBlockTemplate(payToAddr, s.cfg.Algo)
+
 		if err != nil {
 
 			errStr := fmt.Sprintf("Failed to create new block template: %v", err)
@@ -163,6 +179,7 @@ func handleGetWork(
 		state.lastGenerated = time.Now()
 		state.lastTxUpdate = lastTxUpdate
 		state.prevHash = latestHash
+
 		Log.Dbgc(func() string {
 			return fmt.Sprintf(
 				"generated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
@@ -178,6 +195,7 @@ func handleGetWork(
 		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.
 		// So, update the existing block template and track the variations so each variation can be regenerated if a caller finds an answer and makes a submission against it. Update the time of the block template to the current time while accounting for the median time of the past several blocks per the chain consensus rules.
 		e := generator.UpdateBlockTime(msgBlock)
+
 		if e != nil {
 
 			log <- cl.Warn{"failed to update block time", e}
@@ -208,6 +226,7 @@ func handleGetWork(
 	data := make([]byte, 0, getworkDataLen)
 	buf := bytes.NewBuffer(data)
 	err := msgBlock.Header.Serialize(buf)
+
 	if err != nil {
 
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
@@ -256,15 +275,18 @@ func handleGetWorkSubmission(
 ) (
 	interface{},
 	error,
+
 ) {
 
 	// Ensure the provided data is sane.
+
 	if len(hexData)%2 != 0 {
 
 		hexData = "0" + hexData
 	}
 
 	data, err := hex.DecodeString(hexData)
+
 	if err != nil {
 
 		return nil, &json.RPCError{
@@ -293,6 +315,7 @@ func handleGetWorkSubmission(
 	var submittedHeader wire.BlockHeader
 	bhBuf := bytes.NewBuffer(data[0:wire.MaxBlockHeaderPayload])
 	err = submittedHeader.Deserialize(bhBuf)
+
 	if err != nil {
 
 		return false, &json.RPCError{
@@ -305,6 +328,7 @@ func handleGetWorkSubmission(
 
 	// Look up the full block for the provided data based on the merkle root.  Return false to indicate the solve failed if it's not available.
 	state := s.gbtWorkState
+
 	if state.template.Block.Header.MerkleRoot.String() == "" {
 
 		log <- cl.Debug{
@@ -328,9 +352,11 @@ func handleGetWorkSubmission(
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
 	log <- cl.Info{"powlimit", pl}
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
+
 	if err != nil {
 
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
+
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			return nil, &json.RPCError{
@@ -348,6 +374,7 @@ func handleGetWorkSubmission(
 	}
 
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
+
 	if !msgBlock.Header.PrevBlock.IsEqual(latestHash) {
 
 		log <- cl.Debugf{
@@ -360,9 +387,11 @@ func handleGetWorkSubmission(
 
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
 	_, isOrphan, err := s.cfg.Chain.ProcessBlock(block, 0, s.cfg.Chain.BestSnapshot().Height)
+
 	if err != nil || isOrphan {
 
 		// Anything other than a rule violation is an unexpected error, so return that error as an internal error.
+
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			return nil, &json.RPCError{
@@ -385,9 +414,11 @@ func handleGetWorkSubmission(
 // reverseUint32Array treats the passed bytes as a series of uint32s and reverses the byte order of each uint32.  The passed byte slice must be a multiple of 4 for a correct result.  The passed bytes slice is modified.
 func reverseUint32Array(
 	b []byte,
+
 ) {
 
 	blen := len(b)
+
 	for i := 0; i < blen; i += 4 {
 
 		b[i], b[i+3] = b[i+3], b[i]

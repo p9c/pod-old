@@ -25,10 +25,12 @@ var (
 
 // Instead, main runs this function and checks for a non-nil error, at point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
 func Main(
+
 	c *Config, activeNet *netparams.Params) error {
 
 	cfg = c
 	ActiveNet = activeNet
+
 	if ActiveNet.Name == "testnet" {
 
 		fork.IsTestnet = true
@@ -54,6 +56,7 @@ func Main(
 	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
 	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
+
 	if *cfg.Create {
 
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
@@ -71,6 +74,7 @@ func Main(
 	// created below after each is created.
 	log <- cl.Trc("startRPCServers loader")
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
+
 	if err != nil {
 
 		log <- cl.Error{
@@ -83,6 +87,7 @@ func Main(
 	// Create and start chain RPC client so it's ready to connect to
 
 	// the wallet when loaded later.
+
 	if !*cfg.NoInitialLoad {
 
 		log <- cl.Trc("starting rpcClientConnectLoop")
@@ -103,6 +108,7 @@ func Main(
 
 		// or this will return an appropriate error.
 		_, err = loader.OpenExistingWallet([]byte(*cfg.WalletPass), true)
+
 		if err != nil {
 
 			fmt.Println(err)
@@ -119,9 +125,11 @@ func Main(
 	// before exiting.  Interrupt handlers run in LIFO order, so the wallet
 
 	// (which should be closed last) is added first.
+
 	interrupt.AddHandler(func() {
 
 		err := loader.UnloadWallet()
+
 		if err != nil && err != wallet.ErrNotLoaded {
 
 			log <- cl.Error{
@@ -135,6 +143,7 @@ func Main(
 	if rpcs != nil {
 
 		log <- cl.Trc("starting rpc server")
+
 		interrupt.AddHandler(func() {
 
 			// TODO: Does this need to wait for the grpc server to
@@ -173,10 +182,12 @@ func readCAFile() []byte {
 
 	// Read certificate file if TLS is not disabled.
 	var certs []byte
+
 	if *cfg.EnableClientTLS {
 
 		var err error
 		certs, err = ioutil.ReadFile(*cfg.CAFile)
+
 		if err != nil {
 
 			log <- cl.Warn{
@@ -207,6 +218,7 @@ func readCAFile() []byte {
 
 // methods.
 func rpcClientConnectLoop(
+
 	legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
 
 	var certs []byte
@@ -287,6 +299,7 @@ func rpcClientConnectLoop(
 		// } else {
 
 		chainClient, err = startChainRPC(certs)
+
 		if err != nil {
 
 			log <- cl.Error{
@@ -307,9 +320,11 @@ func rpcClientConnectLoop(
 		// later time with a client that has already disconnected.  A
 
 		// mutex is used to make this concurrent safe.
+
 		associateRPCClient := func(w *wallet.Wallet) {
 
 			w.SynchronizeRPC(chainClient)
+
 			if legacyRPCServer != nil {
 
 				legacyRPCServer.SetChainServer(chainClient)
@@ -318,11 +333,13 @@ func rpcClientConnectLoop(
 		}
 
 		mu := new(sync.Mutex)
+
 		loader.RunAfterLoad(func(w *wallet.Wallet) {
 
 			mu.Lock()
 			associate := associateRPCClient
 			mu.Unlock()
+
 			if associate != nil {
 
 				associate(w)
@@ -337,9 +354,11 @@ func rpcClientConnectLoop(
 		mu.Unlock()
 
 		loadedWallet, ok := loader.LoadedWallet()
+
 		if ok {
 
 			// Do not attempt a reconnect when the wallet was explicitly stopped.
+
 			if loadedWallet.ShuttingDown() {
 
 				return
@@ -365,6 +384,7 @@ func rpcClientConnectLoop(
 
 // authentication error.  Instead, all requests to the client will simply error.
 func startChainRPC(
+
 	certs []byte) (*chain.RPCClient, error) {
 
 	log <- cl.Infof{
@@ -374,6 +394,7 @@ func startChainRPC(
 
 	rpcc, err := chain.NewRPCClient(ActiveNet.Params, *cfg.RPCConnect,
 		*cfg.PodUsername, *cfg.PodPassword, certs, !*cfg.EnableClientTLS, 0)
+
 	if err != nil {
 
 		return nil, err

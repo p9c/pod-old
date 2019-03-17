@@ -9,6 +9,7 @@ var (
 )
 
 // Cache represents a generic cache.
+
 type Cache interface {
 
 	// Put stores the given (key,value) pair, replacing existing value if
@@ -24,6 +25,7 @@ type Cache interface {
 }
 
 // Value represents a value stored in the Cache.
+
 type Value interface {
 
 	// Size determines how big this entry would be in the cache. For

@@ -9,6 +9,7 @@ package cfgutil
 // the user or left as a default.  Without recording this, it would be
 // impossible to determine whether flag with a default value was unmodified or
 // explicitly set to the default.
+
 type ExplicitString struct {
 	Value         string
 	explicitlySet bool
@@ -16,6 +17,7 @@ type ExplicitString struct {
 
 // NewExplicitString creates a string flag with the provided default value.
 func NewExplicitString(
+
 	defaultValue string) *ExplicitString {
 
 	return &ExplicitString{Value: defaultValue, explicitlySet: false}
@@ -26,12 +28,14 @@ func NewExplicitString(
 func (e *ExplicitString) ExplicitlySet() bool { return e.explicitlySet }
 
 // MarshalFlag implements the flags.Marshaler interface.
+
 func (e *ExplicitString) MarshalFlag() (string, error) {
 
 	return e.Value, nil
 }
 
 // UnmarshalFlag implements the flags.Unmarshaler interface.
+
 func (e *ExplicitString) UnmarshalFlag(value string) error {
 
 	e.Value = value

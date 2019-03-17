@@ -13,6 +13,7 @@ var ErrInvalidFormat = errors.New("invalid format: version and/or checksum bytes
 
 // checksum: first four bytes of sha256^2
 func checksum(
+
 	input []byte) (cksum [4]byte) {
 
 	h := sha256.Sum256(input)
@@ -23,6 +24,7 @@ func checksum(
 
 // CheckEncode prepends a version byte and appends a four byte checksum.
 func CheckEncode(
+
 	input []byte, version byte) string {
 
 	b := make([]byte, 0, 1+len(input)+4)
@@ -35,9 +37,11 @@ func CheckEncode(
 
 // CheckDecode decodes a string that was encoded with CheckEncode and verifies the checksum.
 func CheckDecode(
+
 	input string) (result []byte, version byte, err error) {
 
 	decoded := Decode(input)
+
 	if len(decoded) < 5 {
 
 		return nil, 0, ErrInvalidFormat
@@ -45,6 +49,7 @@ func CheckDecode(
 	version = decoded[0]
 	var cksum [4]byte
 	copy(cksum[:], decoded[len(decoded)-4:])
+
 	if checksum(decoded[:len(decoded)-4]) != cksum {
 
 		return nil, 0, ErrChecksum

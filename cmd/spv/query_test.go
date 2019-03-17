@@ -57,6 +57,7 @@ var (
 
 // and verifies that it's the only one remaining.
 func TestBigFilterEvictsEverything(
+
 	t *testing.T) {
 
 	// Create different sized filters.
@@ -85,12 +86,14 @@ func TestBigFilterEvictsEverything(
 
 // before peers are queried.
 func TestBlockCache(
+
 	t *testing.T) {
 
 	t.Parallel()
 
 	// Load the first 255 blocks from disk.
 	blocks, err := loadBlocks(t, blockDataFile, blockDataNet)
+
 	if err != nil {
 
 		t.Fatalf("loadBlocks: Unexpected error: %v", err)
@@ -105,6 +108,7 @@ func TestBlockCache(
 
 	// and writing them to the header store.
 	var size uint64
+
 	for i, b := range blocks {
 
 		header := headerfs.BlockHeader{
@@ -115,6 +119,7 @@ func TestBlockCache(
 		headers.WriteHeaders(header)
 
 		sz, _ := (&cache.CacheableBlock{b}).Size()
+
 		if i < len(blocks)/2 {
 
 			size += sz
@@ -142,9 +147,11 @@ func TestBlockCache(
 	// channel.
 	queries := make(chan chainhash.Hash, 1)
 	cs.queryPeers = func(msg wire.Message, f func(*ServerPeer,
+
 		wire.Message, chan<- struct{}), qo ...QueryOption) {
 
 		getData, ok := msg.(*wire.MsgGetData)
+
 		if !ok {
 
 			t.Fatalf("unexpected type: %T", msg)
@@ -157,12 +164,14 @@ func TestBlockCache(
 		}
 
 		inv := getData.InvList[0]
+
 		if inv.Type != wire.InvTypeWitnessBlock {
 
 			t.Fatalf("unexpected inv type: %v", inv.Type)
 		}
 
 		// Serve the block that matches the requested block header.
+
 		for _, b := range blocks {
 
 			if *b.Hash() == inv.Hash {
@@ -181,6 +190,7 @@ func TestBlockCache(
 				}
 
 				// Notify the test about the query.
+
 				select {
 
 				case queries <- inv.Hash:
@@ -199,9 +209,11 @@ func TestBlockCache(
 	// fetchAndAssertPeersQueried calls GetBlock and makes sure the block
 
 	// is fetched from the peers.
+
 	fetchAndAssertPeersQueried := func(hash chainhash.Hash) {
 
 		found, err := cs.GetBlock(hash)
+
 		if err != nil {
 
 			t.Fatalf("error getting block: %v", err)
@@ -216,6 +228,7 @@ func TestBlockCache(
 		select {
 
 		case q := <-queries:
+
 			if q != hash {
 
 				t.Fatalf("expected hash %v to be queried, "+
@@ -231,9 +244,11 @@ func TestBlockCache(
 	// fetchAndAssertInCache calls GetBlock and makes sure the block is not
 
 	// fetched from the peers.
+
 	fetchAndAssertInCache := func(hash chainhash.Hash) {
 
 		found, err := cs.GetBlock(hash)
+
 		if err != nil {
 
 			t.Fatalf("error getting block: %v", err)
@@ -246,6 +261,7 @@ func TestBlockCache(
 		}
 
 		// Make sure we didn't query the peers for this block.
+
 		select {
 
 		case q := <-queries:
@@ -258,6 +274,7 @@ func TestBlockCache(
 	// Get the first half of the blocks. Since this is the first time we
 
 	// request them, we expect them all to be fetched from peers.
+
 	for _, b := range blocks[:len(blocks)/2] {
 
 		fetchAndAssertPeersQueried(*b.Hash())
@@ -266,6 +283,7 @@ func TestBlockCache(
 	// Get the first half of the blocks again. This time we expect them all
 
 	// to be fetched from the cache.
+
 	for _, b := range blocks[:len(blocks)/2] {
 
 		fetchAndAssertInCache(*b.Hash())
@@ -274,6 +292,7 @@ func TestBlockCache(
 	// Get the second half of the blocks. These have not been fetched
 
 	// before, and we expect them to be fetched from peers.
+
 	for _, b := range blocks[len(blocks)/2:] {
 
 		fetchAndAssertPeersQueried(*b.Hash())
@@ -294,6 +313,7 @@ func TestBlockCache(
 
 // filters, then gets them in random order and makes sure they are always there.
 func TestCacheBigEnoughHoldsAllFilter(
+
 	t *testing.T) {
 
 	// Create different sized filters.
@@ -327,6 +347,7 @@ func TestCacheBigEnoughHoldsAllFilter(
 }
 
 func assertEqual(
+
 	t *testing.T, a interface{}, b interface{}, message string) {
 
 	if a == b {
@@ -355,12 +376,15 @@ func assertEqual(
 // originally taken from filterdb/db_test.go.
 func genRandFilter(
 	numElements uint32, t *testing.T) (
+
 	*chainhash.Hash, *gcs.Filter, uint64) {
 
 	elements := make([][]byte, numElements)
+
 	for i := uint32(0); i < numElements; i++ {
 
 		var elem [20]byte
+
 		if _, err := rand.Read(elem[:]); err != nil {
 
 			t.Fatalf("unable to create random filter: %v", err)
@@ -371,6 +395,7 @@ func genRandFilter(
 	}
 
 	var key [16]byte
+
 	if _, err := rand.Read(key[:]); err != nil {
 
 		t.Fatalf("unable to create random filter: %v", err)
@@ -379,6 +404,7 @@ func genRandFilter(
 
 	filter, err := gcs.BuildGCSFilter(
 		builder.DefaultP, builder.DefaultM, key, elements)
+
 	if err != nil {
 
 		t.Fatalf("unable to create random filter: %v", err)
@@ -388,6 +414,7 @@ func genRandFilter(
 	// Convert into CacheableFilter and compute Size.
 	c := &cache.CacheableFilter{Filter: filter}
 	s, err := c.Size()
+
 	if err != nil {
 
 		t.Fatalf("unable to create random filter: %v", err)
@@ -398,6 +425,7 @@ func genRandFilter(
 }
 
 // genRandomBlockHash generates a random block hash using math/rand.
+
 func genRandomBlockHash() *chainhash.Hash {
 
 	var seed [32]byte
@@ -410,9 +438,11 @@ func genRandomBlockHash() *chainhash.Hash {
 
 // and handle errors, it makes the test code easier to follow.
 func getFilter(
+
 	cs *ChainService, b *chainhash.Hash, t *testing.T) *gcs.Filter {
 
 	val, err := cs.getFilterFromCache(b, filterdb.RegularFilter)
+
 	if err != nil {
 
 		t.Fatal(err)
@@ -430,10 +460,12 @@ func getFilter(
 // NOTE: copied from btcsuite/btcd/database/ffldb/interface_test.go
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) (
+
 	[]*util.Block, error) {
 
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
+
 	if err != nil {
 
 		t.Errorf("failed to open file %v, err %v", dataFile, err)
@@ -458,10 +490,12 @@ func loadBlocks(
 	blocks = append(blocks, genesis)
 
 	// Load the remaining blocks.
+
 	for height := 1; ; height++ {
 
 		var net uint32
 		err := binary.Read(dr, binary.LittleEndian, &net)
+
 		if err == io.EOF {
 
 			// Hit end of file at the expected offset.  No error.
@@ -484,6 +518,7 @@ func loadBlocks(
 
 		var blockLen uint32
 		err = binary.Read(dr, binary.LittleEndian, &blockLen)
+
 		if err != nil {
 
 			t.Errorf("Failed to load block size for block %d: %v",
@@ -494,6 +529,7 @@ func loadBlocks(
 		// Read the block.
 		blockBytes := make([]byte, blockLen)
 		_, err = io.ReadFull(dr, blockBytes)
+
 		if err != nil {
 
 			t.Errorf("Failed to load block %d: %v", height, err)
@@ -502,6 +538,7 @@ func loadBlocks(
 
 		// Deserialize and store the block.
 		block, err := util.NewBlockFromBytes(blockBytes)
+
 		if err != nil {
 
 			t.Errorf("Failed to parse block %v: %v", height, err)

@@ -35,6 +35,7 @@ var errInterruptRequested = errors.New("interrupt requested")
 // This simplifies early shutdown slightly since the caller can just use an if
 // statement instead of a select.
 func interruptRequested(
+
 	interrupted <-chan struct{}) bool {
 
 	select {
@@ -50,6 +51,7 @@ func interruptRequested(
 // blockChainContext represents a particular block's placement in the block
 // chain. This is used by the block index migration to track block metadata that
 // will be written to disk.
+
 type blockChainContext struct {
 	parent    *chainhash.Hash
 	children  []*chainhash.Hash
@@ -62,6 +64,7 @@ type blockChainContext struct {
 // whereas the v2 bucket stores the exact same values, but keyed instead by
 // block height + hash.
 func migrateBlockIndex(
+
 	db database.DB) error {
 
 	// Hardcoded bucket names so updates to the global values do not affect
@@ -69,9 +72,11 @@ func migrateBlockIndex(
 	// old upgrades.
 	v1BucketName := []byte("ffldb-blockidx")
 	v2BucketName := []byte("blockheaderidx")
+
 	err := db.Update(func(dbTx database.Tx) error {
 
 		v1BlockIdxBucket := dbTx.Metadata().Bucket(v1BucketName)
+
 		if v1BlockIdxBucket == nil {
 
 			return fmt.Errorf("Bucket %s does not exist", v1BucketName)
@@ -79,6 +84,7 @@ func migrateBlockIndex(
 		log <- cl.Inf("Re-indexing block information in the database. This might take a while...")
 		v2BlockIdxBucket, err :=
 			dbTx.Metadata().CreateBucketIfNotExists(v2BucketName)
+
 		if err != nil {
 
 			return err
@@ -86,6 +92,7 @@ func migrateBlockIndex(
 		// Get tip of the main chain.
 		serializedData := dbTx.Metadata().Get(chainStateKeyName)
 		state, err := deserializeBestChainState(serializedData)
+
 		if err != nil {
 
 			return err
@@ -94,12 +101,14 @@ func migrateBlockIndex(
 		// Scan the old block index bucket and construct a mapping of each block
 		// to parent block and all child blocks.
 		blocksMap, err := readBlockTree(v1BlockIdxBucket)
+
 		if err != nil {
 
 			return err
 		}
 		// Use the block graph to calculate the height of each block.
 		err = determineBlockHeights(blocksMap)
+
 		if err != nil {
 
 			return err
@@ -108,6 +117,7 @@ func migrateBlockIndex(
 		determineMainChainBlocks(blocksMap, tip)
 		// Now that we have heights for all blocks, scan the old block index
 		// bucket and insert all rows into the new one.
+
 		return v1BlockIdxBucket.ForEach(func(hashBytes, blockRow []byte) error {
 
 			endOffset := blockHdrOffset + blockHdrSize
@@ -115,6 +125,7 @@ func migrateBlockIndex(
 			var hash chainhash.Hash
 			copy(hash[:], hashBytes[0:chainhash.HashSize])
 			chainContext := blocksMap[hash]
+
 			if chainContext.height == -1 {
 
 				return fmt.Errorf("Unable to calculate chain height for "+
@@ -122,6 +133,7 @@ func migrateBlockIndex(
 			}
 			// Mark blocks as valid if they are part of the main chain.
 			status := statusDataStored
+
 			if chainContext.mainChain {
 
 				status |= statusValid
@@ -132,6 +144,7 @@ func migrateBlockIndex(
 			value[blockHdrSize] = byte(status)
 			key := blockIndexKey(&hash, uint32(chainContext.height))
 			err := v2BlockIdxBucket.Put(key, value)
+
 			if err != nil {
 
 				return err
@@ -141,6 +154,7 @@ func migrateBlockIndex(
 			return v1BlockIdxBucket.Put(hashBytes, truncatedRow)
 		})
 	})
+
 	if err != nil {
 
 		return err
@@ -154,25 +168,30 @@ func migrateBlockIndex(
 // the full tree of blocks. This function does not populate the height or
 // mainChain fields of the returned blockChainContext values.
 func readBlockTree(
+
 	v1BlockIdxBucket database.Bucket) (map[chainhash.Hash]*blockChainContext, error) {
 
 	blocksMap := make(map[chainhash.Hash]*blockChainContext)
+
 	err := v1BlockIdxBucket.ForEach(func(_, blockRow []byte) error {
 
 		var header wire.BlockHeader
 		endOffset := blockHdrOffset + blockHdrSize
 		headerBytes := blockRow[blockHdrOffset:endOffset:endOffset]
 		err := header.Deserialize(bytes.NewReader(headerBytes))
+
 		if err != nil {
 
 			return err
 		}
 		blockHash := header.BlockHash()
 		prevHash := header.PrevBlock
+
 		if blocksMap[blockHash] == nil {
 
 			blocksMap[blockHash] = &blockChainContext{height: -1}
 		}
+
 		if blocksMap[prevHash] == nil {
 
 			blocksMap[prevHash] = &blockChainContext{height: -1}
@@ -192,6 +211,7 @@ func readBlockTree(
 // genesis block. This function modifies the height field on the blocksMap
 // entries.
 func determineBlockHeights(
+
 	blocksMap map[chainhash.Hash]*blockChainContext) error {
 
 	queue := list.New()
@@ -200,15 +220,18 @@ func determineBlockHeights(
 
 	// because that is the value of the PrevBlock field in the genesis header.
 	preGenesisContext, exists := blocksMap[zeroHash]
+
 	if !exists || len(preGenesisContext.children) == 0 {
 
 		return fmt.Errorf("Unable to find genesis block")
 	}
+
 	for _, genesisHash := range preGenesisContext.children {
 
 		blocksMap[*genesisHash].height = 0
 		queue.PushBack(genesisHash)
 	}
+
 	for e := queue.Front(); e != nil; e = queue.Front() {
 
 		queue.Remove(e)
@@ -216,6 +239,7 @@ func determineBlockHeights(
 		height := blocksMap[*hash].height
 		// For each block with this one as a parent, assign it a height and
 		// push to queue for future processing.
+
 		for _, childHash := range blocksMap[*hash].children {
 
 			blocksMap[*childHash].height = height + 1
@@ -229,6 +253,7 @@ func determineBlockHeights(
 // determine which block hashes that are part of the main chain. This function
 // modifies the mainChain field on the blocksMap entries.
 func determineMainChainBlocks(
+
 	blocksMap map[chainhash.Hash]*blockChainContext, tip *chainhash.Hash) {
 
 	for nextHash := tip; *nextHash != zeroHash; nextHash = blocksMap[*nextHash].parent {
@@ -328,6 +353,7 @@ func determineMainChainBlocks(
 //    - 0x01: special script type pay-to-script-hash
 //    - 0x1d...e6: script hash
 func deserializeUtxoEntryV0(
+
 	serialized []byte) (map[uint32]*UtxoEntry, error) {
 
 	// Deserialize the version.
@@ -337,6 +363,7 @@ func deserializeUtxoEntryV0(
 	// NOTE: Ignore version since it is no longer used in the new format.
 	_, bytesRead := deserializeVLQ(serialized)
 	offset := bytesRead
+
 	if offset >= len(serialized) {
 
 		return nil, errDeserialize("unexpected end of data after version")
@@ -345,6 +372,7 @@ func deserializeUtxoEntryV0(
 	// Deserialize the block height.
 	blockHeight, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
+
 	if offset >= len(serialized) {
 
 		return nil, errDeserialize("unexpected end of data after height")
@@ -353,6 +381,7 @@ func deserializeUtxoEntryV0(
 	// Deserialize the header code.
 	code, bytesRead := deserializeVLQ(serialized[offset:])
 	offset += bytesRead
+
 	if offset >= len(serialized) {
 
 		return nil, errDeserialize("unexpected end of data after header")
@@ -375,6 +404,7 @@ func deserializeUtxoEntryV0(
 	output0Unspent := code&0x02 != 0
 	output1Unspent := code&0x04 != 0
 	numBitmapBytes := code >> 3
+
 	if !output0Unspent && !output1Unspent {
 
 		numBitmapBytes++
@@ -383,6 +413,7 @@ func deserializeUtxoEntryV0(
 	// Ensure there are enough bytes left to deserialize the unspentness
 
 	// bitmap.
+
 	if uint64(len(serialized[offset:])) < numBitmapBytes {
 
 		return nil, errDeserialize("unexpected end of data for " +
@@ -393,10 +424,12 @@ func deserializeUtxoEntryV0(
 
 	// details provided by the header code.
 	var outputIndexes []uint32
+
 	if output0Unspent {
 
 		outputIndexes = append(outputIndexes, 0)
 	}
+
 	if output1Unspent {
 
 		outputIndexes = append(outputIndexes, 1)
@@ -405,9 +438,11 @@ func deserializeUtxoEntryV0(
 	// Decode the unspentness bitmap adding a sparse output for each unspent
 
 	// output.
+
 	for i := uint32(0); i < uint32(numBitmapBytes); i++ {
 
 		unspentBits := serialized[offset]
+
 		for j := uint32(0); j < 8; j++ {
 
 			if unspentBits&0x01 != 0 {
@@ -428,17 +463,20 @@ func deserializeUtxoEntryV0(
 
 	// All entries will need to potentially be marked as a coinbase.
 	var packedFlags txoFlags
+
 	if isCoinBase {
 
 		packedFlags |= tfCoinBase
 	}
 
 	// Decode and add all of the utxos.
+
 	for i, outputIndex := range outputIndexes {
 
 		// Decode the next utxo.
 		amount, pkScript, bytesRead, err := decodeCompressedTxOut(
 			serialized[offset:])
+
 		if err != nil {
 
 			return nil, errDeserialize(fmt.Sprintf("unable to "+
@@ -459,6 +497,7 @@ func deserializeUtxoEntryV0(
 // upgradeUtxoSetToV2 migrates the utxo set entries from version 1 to 2 in
 // batches.  It is guaranteed to updated if this returns without failure.
 func upgradeUtxoSetToV2(
+
 	db database.DB, interrupt <-chan struct{}) error {
 
 	// Hardcoded bucket names so updates to the global values do not affect
@@ -472,11 +511,13 @@ func upgradeUtxoSetToV2(
 	start := time.Now()
 
 	// Create the new utxo set bucket as needed.
+
 	err := db.Update(func(dbTx database.Tx) error {
 
 		_, err := dbTx.Metadata().CreateBucketIfNotExists(v2BucketName)
 		return err
 	})
+
 	if err != nil {
 
 		return err
@@ -496,6 +537,7 @@ func upgradeUtxoSetToV2(
 
 	// It returns the number of utxos processed.
 	const maxUtxos = 200000
+
 	doBatch := func(dbTx database.Tx) (uint32, error) {
 
 		v1Bucket := dbTx.Metadata().Bucket(v1BucketName)
@@ -505,6 +547,7 @@ func upgradeUtxoSetToV2(
 		// batch has not been exceeded.
 		var numUtxos uint32
 		for ok := v1Cursor.First(); ok && numUtxos < maxUtxos; ok =
+
 			v1Cursor.Next() {
 
 			// Old key was the transaction hash.
@@ -514,15 +557,18 @@ func upgradeUtxoSetToV2(
 			// Deserialize the old entry which included all utxos
 			// for the given transaction.
 			utxos, err := deserializeUtxoEntryV0(v1Cursor.Value())
+
 			if err != nil {
 
 				return 0, err
 			}
 			// Add an entry for each utxo into the new bucket using
 			// the new format.
+
 			for txOutIdx, utxo := range utxos {
 
 				reserialized, err := serializeUtxoEntry(utxo)
+
 				if err != nil {
 
 					return 0, err
@@ -537,6 +583,7 @@ func upgradeUtxoSetToV2(
 				// prohibits modifications.  It will be garbage
 				// collected normally when the database is done
 				// with it.
+
 				if err != nil {
 
 					return 0, err
@@ -544,11 +591,13 @@ func upgradeUtxoSetToV2(
 			}
 			// Remove old entry.
 			err = v1Bucket.Delete(oldKey)
+
 			if err != nil {
 
 				return 0, err
 			}
 			numUtxos += uint32(len(utxos))
+
 			if interruptRequested(interrupt) {
 
 				// No error here so the database transaction
@@ -562,23 +611,28 @@ func upgradeUtxoSetToV2(
 
 	// Migrate all entries in batches for the reasons mentioned above.
 	var totalUtxos uint64
+
 	for {
 
 		var numUtxos uint32
+
 		err := db.Update(func(dbTx database.Tx) error {
 
 			var err error
 			numUtxos, err = doBatch(dbTx)
 			return err
 		})
+
 		if err != nil {
 
 			return err
 		}
+
 		if interruptRequested(interrupt) {
 
 			return errInterruptRequested
 		}
+
 		if numUtxos == 0 {
 
 			break
@@ -590,15 +644,18 @@ func upgradeUtxoSetToV2(
 	// Remove the old bucket and update the utxo set version once it has
 
 	// been fully migrated.
+
 	err = db.Update(func(dbTx database.Tx) error {
 
 		err := dbTx.Metadata().DeleteBucket(v1BucketName)
+
 		if err != nil {
 
 			return err
 		}
 		return dbPutVersion(dbTx, utxoSetVersionKeyName, 2)
 	})
+
 	if err != nil {
 
 		return err
@@ -616,10 +673,12 @@ func upgradeUtxoSetToV2(
 // package and performs any needed upgrades to bring them to the latest version.
 // All buckets used by this package are guaranteed to be the latest version if
 // this function returns without error.
+
 func (b *BlockChain) maybeUpgradeDbBuckets(interrupt <-chan struct{}) error {
 
 	// Load or create bucket versions as needed.
 	var utxoSetVersion uint32
+
 	err := b.db.Update(func(dbTx database.Tx) error {
 
 		// Load the utxo set version from the database or create it and
@@ -629,12 +688,14 @@ func (b *BlockChain) maybeUpgradeDbBuckets(interrupt <-chan struct{}) error {
 			utxoSetVersionKeyName, 1)
 		return err
 	})
+
 	if err != nil {
 
 		return err
 	}
 
 	// Update the utxo set to v2 if needed.
+
 	if utxoSetVersion < 2 {
 
 		if err := upgradeUtxoSetToV2(b.db, interrupt); err != nil {

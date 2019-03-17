@@ -7,6 +7,7 @@ import (
 )
 
 // Driver defines a structure for backend drivers to use when they registered themselves as a backend which implements the DB interface.
+
 type Driver struct {
 
 	// DbType is the identifier used to uniquely identify a specific database driver.  There can be only one driver with the same name.
@@ -27,6 +28,7 @@ var drivers = make(map[string]*Driver)
 
 // Create initializes and opens a database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
 func Create(
+
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
@@ -42,6 +44,7 @@ func Create(
 
 // Open opens an existing database for the specified type.  The arguments are specific to the database type driver.  See the documentation for the database driver for further details. ErrDbUnknownType will be returned if the the database type is not registered.
 func Open(
+
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
@@ -57,6 +60,7 @@ func Open(
 
 // RegisterDriver adds a backend database driver to available interfaces. ErrDbTypeRegistered will be returned if the database type for the driver has already been registered.
 func RegisterDriver(
+
 	driver Driver) error {
 
 	if _, exists := drivers[driver.DbType]; exists {
@@ -71,6 +75,7 @@ func RegisterDriver(
 }
 
 // SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
+
 func SupportedDrivers() []string {
 
 	supportedDBs := make([]string, 0, len(drivers))

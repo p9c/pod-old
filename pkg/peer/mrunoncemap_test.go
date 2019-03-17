@@ -7,6 +7,7 @@ import (
 
 // TestMruNonceMap ensures the mruNonceMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
 func TestMruNonceMap(
+
 	t *testing.T) {
 
 	// Create a bunch of fake nonces to use in testing the mru nonce code.
@@ -121,6 +122,7 @@ testLoop:
 
 // TestMruNonceMapStringer tests the stringized output for the mruNonceMap type.
 func TestMruNonceMapStringer(
+
 	t *testing.T) {
 
 	// Create a couple of fake nonces to use in testing the mru nonce stringer code.
@@ -147,6 +149,7 @@ func TestMruNonceMapStringer(
 
 // BenchmarkMruNonceList performs basic benchmarks on the most recently used nonce handling.
 func BenchmarkMruNonceList(
+
 	b *testing.B) {
 
 	// Create a bunch of fake nonces to use in benchmarking the mru nonce code.

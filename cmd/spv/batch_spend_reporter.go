@@ -15,6 +15,7 @@ import (
 // filter generates a match using current filterEntries. This instance supports
 
 // multiple requests for the same outpoint.
+
 type batchSpendReporter struct {
 
 	// requests maps an outpoint to list of GetUtxoRequests waiting for that
@@ -52,6 +53,7 @@ type batchSpendReporter struct {
 // the syntax:
 
 //     return reporter.FailRemaining(err)
+
 func (b *batchSpendReporter) FailRemaining(err error) error {
 
 	for outpoint, requests := range b.requests {
@@ -69,6 +71,7 @@ func (b *batchSpendReporter) FailRemaining(err error) error {
 // delivered signaling that no spend was detected. If the original output could
 
 // not be found, a nil spend report is returned.
+
 func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 
 	log <- cl.Debugf{
@@ -79,6 +82,7 @@ func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 
 		// A nil SpendReport indicates the output was not found.
 		tx, ok := b.initialTxns[outpoint]
+
 		if !ok {
 
 			log <- cl.Warnf{
@@ -104,11 +108,13 @@ func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 
 // the next block.
 func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
+
 	newReqs []*GetUtxoRequest, height uint32) {
 
 	// If any requests want the UTXOs at this height, scan the block to find
 
 	// the original outputs that might be spent from.
+
 	if len(newReqs) > 0 {
 
 		b.addNewRequests(newReqs)
@@ -125,9 +131,11 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 
 	// the subsequent filters.
 	rebuildWatchlist := len(newReqs) > 0 || len(spends) > 0
+
 	if rebuildWatchlist {
 
 		b.filterEntries = b.filterEntries[:0]
+
 		for _, entry := range b.outpoints {
 
 			b.filterEntries = append(b.filterEntries, entry)
@@ -142,6 +150,7 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 // state. This method immediately adds the request's outpoints to the reporter's
 
 // watchlist.
+
 func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 
 	for _, req := range reqs {
@@ -156,6 +165,7 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 		// Build the filter entry only if it is the first time seeing
 
 		// the outpoint.
+
 		if _, ok := b.outpoints[outpoint]; !ok {
 
 			entry := req.Input.PkScript
@@ -179,12 +189,14 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 
 // UTXO was not found.
 func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
+
 	newReqs []*GetUtxoRequest, height uint32) map[wire.OutPoint]*SpendReport {
 
 	// First, construct  a reverse index from txid to all a list of requests
 
 	// whose outputs share the same txid.
 	txidReverseIndex := make(map[chainhash.Hash][]*GetUtxoRequest)
+
 	for _, req := range newReqs {
 
 		txidReverseIndex[req.Input.OutPoint.Hash] = append(
@@ -196,9 +208,11 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 
 	// querying our reverse index to see if any requests depend on the txn.
 	initialTxns := make(map[wire.OutPoint]*SpendReport)
+
 	for _, tx := range block.Transactions {
 
 		// If our reverse index has been cleared, we are done.
+
 		if len(txidReverseIndex) == 0 {
 
 			break
@@ -206,6 +220,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 
 		hash := tx.TxHash()
 		txidReqs, ok := txidReverseIndex[hash]
+
 		if !ok {
 
 			continue
@@ -216,6 +231,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 
 		// index of each to grab the initial output.
 		txOuts := tx.TxOut
+
 		for _, req := range txidReqs {
 
 			op := req.Input.OutPoint
@@ -224,6 +240,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			// output on the transaction. If not, we will be unable
 
 			// to find the initial output.
+
 			if op.Index >= uint32(len(txOuts)) {
 
 				log <- cl.Errorf{
@@ -251,9 +268,11 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 	// above. The copied values can include valid initial txns, as well as
 
 	// nil spend report if the output index was invalid.
+
 	for _, req := range newReqs {
 
 		tx, ok := initialTxns[req.Input.OutPoint]
+
 		switch {
 
 		case !ok:
@@ -288,6 +307,7 @@ func (b *batchSpendReporter) notifyRequests(
 	outpoint *wire.OutPoint,
 	requests []*GetUtxoRequest,
 	report *SpendReport,
+
 	err error) {
 
 	delete(b.requests, *outpoint)
@@ -307,19 +327,23 @@ func (b *batchSpendReporter) notifyRequests(
 
 // from the reporter's internal state.
 func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
+
 	height uint32) map[wire.OutPoint]*SpendReport {
 
 	spends := make(map[wire.OutPoint]*SpendReport)
+
 	for _, tx := range block.Transactions {
 
 		// Check each input to see if this transaction spends one of our
 
 		// watched outpoints.
+
 		for i, ti := range tx.TxIn {
 
 			outpoint := ti.PreviousOutPoint
 			// Find the requests this spend relates to.
 			requests, ok := b.requests[outpoint]
+
 			if !ok {
 
 				continue
@@ -352,6 +376,7 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 }
 
 // newBatchSpendReporter instantiates a fresh batchSpendReporter.
+
 func newBatchSpendReporter() *batchSpendReporter {
 
 	return &batchSpendReporter{

@@ -32,6 +32,7 @@ import (
 var LogLevels = GetDefaultLogLevelsConfig()
 
 // GetAllSubSystems returns a map with all the SubSystems in Parallelcoin Pod
+
 func GetAllSubSystems() map[string]*cl.SubSystem {
 	return map[string]*cl.SubSystem{
 		"lib-addrmgr":         addrmgr.Log,
@@ -62,6 +63,7 @@ func GetAllSubSystems() map[string]*cl.SubSystem {
 }
 
 // GetDefaultLogLevelsConfig returns a fresh shiny new default levels map
+
 func GetDefaultLogLevelsConfig() map[string]string {
 
 	return map[string]string{
@@ -95,9 +97,11 @@ func GetDefaultLogLevelsConfig() map[string]string {
 // SetAllLogging sets all the logging to a particular level
 func SetAllLogging(
 	level string,
+
 ) {
 
 	ss := GetAllSubSystems()
+
 	for i := range ss {
 
 		ss[i].SetLevel(level)
@@ -108,10 +112,12 @@ func SetAllLogging(
 // SetLogging sets the logging settings according to the provided context
 func SetLogging(
 	ctx *climax.Context,
+
 ) {
 
 	ss := GetAllSubSystems()
 	var baselevel = "info"
+
 	if r, ok := getIfIs(ctx, "debuglevel"); ok {
 
 		baselevel = r
@@ -122,6 +128,7 @@ func SetLogging(
 		if lvl, ok := ctx.Get(i); ok {
 
 			ss[i].SetLevel(lvl)
+
 		} else {
 			ss[i].SetLevel(baselevel)
 		}

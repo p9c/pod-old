@@ -38,6 +38,7 @@ func (c *MockChainClient) SetBlock(hash *chainhash.Hash, block *util.Block) {
 }
 
 func (c *MockChainClient) GetBlockFromNetwork(blockHash chainhash.Hash,
+
 	options ...QueryOption) (*util.Block, error) {
 
 	return c.getBlockResponse[blockHash], nil
@@ -69,6 +70,7 @@ func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
 }
 
 func (c *MockChainClient) blockFilterMatches(ro *rescanOptions,
+
 	blockHash *chainhash.Hash) (bool, error) {
 
 	return true, nil
@@ -92,6 +94,7 @@ func makeTestInputWithScript() *InputWithScript {
 
 // TestFindSpends tests that findSpends properly returns spend reports.
 func TestFindSpends(
+
 	t *testing.T) {
 
 	height := uint32(100000)
@@ -108,6 +111,7 @@ func TestFindSpends(
 	// spends.
 	r := newBatchSpendReporter()
 	spends := r.notifySpends(&Block100000, height)
+
 	if len(spends) != 0 {
 
 		t.Fatalf("unexpected number of spend reports -- "+
@@ -119,6 +123,7 @@ func TestFindSpends(
 
 	// Ensure that a spend report is now returned.
 	spends = r.notifySpends(&Block100000, height)
+
 	if len(spends) != 1 {
 
 		t.Fatalf("unexpected number of spend reports -- "+
@@ -133,6 +138,7 @@ func TestFindSpends(
 
 // given block.
 func TestFindInitialTransactions(
+
 	t *testing.T) {
 
 	hash, _ := chainhash.NewHashFromStr("e9a66845e05d5abc0ad04ec80f774a7e585c6e8db975962d069a522137b80c1d")
@@ -154,6 +160,7 @@ func TestFindInitialTransactions(
 	// First, try to find the outpoint within the block.
 	r := newBatchSpendReporter()
 	initialTxns := r.findInitialTransactions(&Block100000, reqs, height)
+
 	if len(initialTxns) != 1 {
 
 		t.Fatalf("unexpected number of spend reports -- "+
@@ -161,6 +168,7 @@ func TestFindInitialTransactions(
 	}
 
 	output := initialTxns[*outpoint]
+
 	if output == nil || output.Output == nil || output.Output.Value != 1000000 {
 
 		t.Fatalf("Expected spend report to contain initial output -- "+
@@ -173,6 +181,7 @@ func TestFindInitialTransactions(
 	// Try to find the invalid outpoint in the same block.
 	r = newBatchSpendReporter()
 	initialTxns = r.findInitialTransactions(&Block100000, reqs, height)
+
 	if len(initialTxns) != 1 {
 
 		t.Fatalf("unexpected number of spend reports -- "+
@@ -181,6 +190,7 @@ func TestFindInitialTransactions(
 
 	// The spend report should be nil since the output index is invalid.
 	output = initialTxns[*outpoint]
+
 	if output != nil {
 
 		t.Fatalf("Expected spend report to be nil since the output index "+
@@ -194,6 +204,7 @@ func TestFindInitialTransactions(
 	// Try to find the outpoint with an invalid txid in the same block.
 	r = newBatchSpendReporter()
 	initialTxns = r.findInitialTransactions(&Block100000, reqs, height)
+
 	if len(initialTxns) != 1 {
 
 		t.Fatalf("unexpected number of spend reports -- "+
@@ -202,6 +213,7 @@ func TestFindInitialTransactions(
 
 	// Again, the spend report should be nil because of the invalid txid.
 	output = initialTxns[*outpoint]
+
 	if output != nil {
 
 		t.Fatalf("Expected spend report to be nil since the txid "+
@@ -220,6 +232,7 @@ func TestFindInitialTransactions(
 
 // slice.
 func TestDequeueAtHeight(
+
 	t *testing.T) {
 
 	mockChainClient := NewMockChainClient()
@@ -232,12 +245,14 @@ func TestDequeueAtHeight(
 
 	// Add the requests in order of their block heights.
 	req100000, err := scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
 	req100001, err := scanner.Enqueue(makeTestInputWithScript(), 100001)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -248,6 +263,7 @@ func TestDequeueAtHeight(
 	// requests without failure.
 
 	reqs := scanner.dequeueAtHeight(100000)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -262,6 +278,7 @@ func TestDequeueAtHeight(
 
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -276,12 +293,14 @@ func TestDequeueAtHeight(
 
 	// Now, add the requests in order of their block heights.
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -289,6 +308,7 @@ func TestDequeueAtHeight(
 
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -305,6 +325,7 @@ func TestDequeueAtHeight(
 
 	// request since we've already passed it.
 	reqs = scanner.dequeueAtHeight(100000)
+
 	if len(reqs) != 0 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -313,12 +334,14 @@ func TestDequeueAtHeight(
 
 	// Now, add the requests out of order wrt. their block heights.
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -329,6 +352,7 @@ func TestDequeueAtHeight(
 	// requests without failure.
 
 	reqs = scanner.dequeueAtHeight(100000)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -342,6 +366,7 @@ func TestDequeueAtHeight(
 	}
 
 	reqs = scanner.dequeueAtHeight(100001)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -356,12 +381,14 @@ func TestDequeueAtHeight(
 
 	// Again, add the requests out of order wrt. their block heights.
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -369,6 +396,7 @@ func TestDequeueAtHeight(
 
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
+
 	if len(reqs) != 1 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -385,6 +413,7 @@ func TestDequeueAtHeight(
 
 	// request since we've already passed it.
 	reqs = scanner.dequeueAtHeight(100000)
+
 	if len(reqs) != 0 {
 
 		t.Fatalf("Unexpected number of requests returned -- "+
@@ -397,6 +426,7 @@ func TestDequeueAtHeight(
 
 // of the spend returns a correct spend report.
 func TestUtxoScannerScanBasic(
+
 	t *testing.T) {
 
 	mockChainClient := NewMockChainClient()
@@ -422,12 +452,14 @@ func TestUtxoScannerScanBasic(
 	)
 
 	req, err := scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue utxo scan request: %v", err)
 	}
 
 	spendReport, scanErr = req.Result(nil)
+
 	if scanErr != nil {
 
 		t.Fatalf("unable to complete scan for utxo: %v", scanErr)
@@ -449,6 +481,7 @@ func TestUtxoScannerScanBasic(
 
 // the best height after a rescan, and then continues scans up to the new tip.
 func TestUtxoScannerScanAddBlocks(
+
 	t *testing.T) {
 
 	mockChainClient := NewMockChainClient()
@@ -468,6 +501,7 @@ func TestUtxoScannerScanAddBlocks(
 	scanner := NewUtxoScanner(&UtxoScannerConfig{
 		GetBlock:     mockChainClient.GetBlockFromNetwork,
 		GetBlockHash: mockChainClient.GetBlockHash,
+
 		BestSnapshot: func() (*waddrmgr.BlockStamp, error) {
 
 			<-waitForSnapshot
@@ -489,6 +523,7 @@ func TestUtxoScannerScanAddBlocks(
 	)
 
 	req, err := scanner.Enqueue(makeTestInputWithScript(), 99999)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -517,6 +552,7 @@ func TestUtxoScannerScanAddBlocks(
 	waitForSnapshot <- struct{}{}
 
 	spendReport, scanErr = req.Result(nil)
+
 	if scanErr != nil {
 
 		t.Fatalf("unable to complete scan for utxo: %v", scanErr)
@@ -536,6 +572,7 @@ func TestUtxoScannerScanAddBlocks(
 
 // stopped during a batch scan.
 func TestUtxoScannerCancelRequest(
+
 	t *testing.T) {
 
 	mockChainClient := NewMockChainClient()
@@ -555,6 +592,7 @@ func TestUtxoScannerCancelRequest(
 	block := make(chan struct{})
 	scanner := NewUtxoScanner(&UtxoScannerConfig{
 		GetBlock: func(chainhash.Hash, ...QueryOption,
+
 		) (*util.Block, error) {
 
 			<-block
@@ -571,12 +609,14 @@ func TestUtxoScannerCancelRequest(
 
 	// Add the requests in order of their block heights.
 	req100000, err := scanner.Enqueue(makeTestInputWithScript(), 100000)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
 	req100001, err := scanner.Enqueue(makeTestInputWithScript(), 100001)
+
 	if err != nil {
 
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -587,6 +627,7 @@ func TestUtxoScannerCancelRequest(
 	// sure it can break away early.
 	cancel100000 := make(chan struct{})
 	err100000 := make(chan error, 1)
+
 	go func() {
 
 		_, err := req100000.Result(cancel100000)
@@ -597,6 +638,7 @@ func TestUtxoScannerCancelRequest(
 
 	// ability to break if the scanner is stopped.
 	err100001 := make(chan error, 1)
+
 	go func() {
 
 		_, err := req100001.Result(nil)
@@ -604,6 +646,7 @@ func TestUtxoScannerCancelRequest(
 	}()
 
 	// Check that neither succeed without any further action.
+
 	select {
 
 	case <-err100000:
@@ -626,6 +669,7 @@ func TestUtxoScannerCancelRequest(
 	select {
 
 	case err := <-err100000:
+
 		if err != ErrGetUtxoCancelled {
 
 			t.Fatalf("unexpected error returned "+
@@ -640,6 +684,7 @@ func TestUtxoScannerCancelRequest(
 	// The second task shouldn't have been started yet, and should deliver a
 
 	// message since it wasn't tied to the same cancel chan.
+
 	select {
 
 	case <-err100001:
@@ -652,6 +697,7 @@ func TestUtxoScannerCancelRequest(
 	// sure it cleans up at the end of the test.
 	var wg sync.WaitGroup
 	wg.Add(1)
+
 	go func() {
 
 		defer wg.Done()
@@ -661,9 +707,11 @@ func TestUtxoScannerCancelRequest(
 	// The second request should be cancelled as soon as the utxoscanner
 
 	// begins shut down, returning ErrShuttingDown.
+
 	select {
 
 	case err := <-err100001:
+
 		if err != ErrShuttingDown {
 
 			t.Fatalf("unexpected error returned "+
@@ -678,6 +726,7 @@ func TestUtxoScannerCancelRequest(
 	// Ensure that GetBlock gets unblocked so the batchManager can properly
 
 	// exit.
+
 	select {
 
 	case block <- struct{}{}:

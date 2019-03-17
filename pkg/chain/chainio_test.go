@@ -13,6 +13,7 @@ import (
 
 // TestErrNotInMainChain ensures the functions related to errNotInMainChain work as expected.
 func TestErrNotInMainChain(
+
 	t *testing.T) {
 
 	errStr := "no block at height 1 exists"
@@ -44,9 +45,11 @@ func TestErrNotInMainChain(
 
 // TestStxoSerialization ensures serializing and deserializing spent transaction output entries works as expected.
 func TestStxoSerialization(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		stxo       SpentTxOut
@@ -157,9 +160,11 @@ func TestStxoSerialization(
 
 // TestStxoDecodeErrors performs negative tests against decoding spent transaction outputs to ensure error paths work as expected.
 func TestStxoDecodeErrors(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		stxo       SpentTxOut
@@ -239,9 +244,11 @@ func TestStxoDecodeErrors(
 
 // TestSpendJournalSerialization ensures serializing and deserializing spend journal entries works as expected.
 func TestSpendJournalSerialization(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		entry      []SpentTxOut
@@ -402,9 +409,11 @@ func TestSpendJournalSerialization(
 
 // TestSpendJournalErrors performs negative tests against deserializing spend journal entries to ensure error paths work as expected.
 func TestSpendJournalErrors(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		blockTxns  []*wire.MsgTx
@@ -484,9 +493,11 @@ func TestSpendJournalErrors(
 
 // TestUtxoSerialization ensures serializing and deserializing unspent trasaction output entries works as expected.
 func TestUtxoSerialization(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		entry      *UtxoEntry
@@ -632,9 +643,11 @@ func TestUtxoSerialization(
 
 // TestUtxoEntryHeaderCodeErrors performs negative tests against unspent transaction output header codes to ensure error paths work as expected.
 func TestUtxoEntryHeaderCodeErrors(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name    string
 		entry   *UtxoEntry
@@ -675,9 +688,11 @@ func TestUtxoEntryHeaderCodeErrors(
 
 // TestUtxoEntryDeserializeErrors performs negative tests against deserializing unspent transaction outputs to ensure error paths work as expected.
 func TestUtxoEntryDeserializeErrors(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		serialized []byte
@@ -723,10 +738,12 @@ func TestUtxoEntryDeserializeErrors(
 
 // TestBestChainStateSerialization ensures serializing and deserializing the best chain state works as expected.
 func TestBestChainStateSerialization(
+
 	t *testing.T) {
 
 	t.Parallel()
 	workSum := new(big.Int)
+
 	tests := []struct {
 		name       string
 		state      bestChainState
@@ -739,6 +756,7 @@ func TestBestChainStateSerialization(
 				hash:      *newHashFromStr("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				height:    0,
 				totalTxns: 1,
+
 				workSum: func() *big.Int {
 
 					workSum.Add(workSum, CalcWork(486604799, 0, 2))
@@ -756,6 +774,7 @@ func TestBestChainStateSerialization(
 				hash:      *newHashFromStr("00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048"),
 				height:    1,
 				totalTxns: 2,
+
 				workSum: func() *big.Int {
 
 					workSum.Add(workSum, CalcWork(486604799, 1, 2))
@@ -805,9 +824,11 @@ func TestBestChainStateSerialization(
 
 // TestBestChainStateDeserializeErrors performs negative tests against deserializing the chain state to ensure error paths work as expected.
 func TestBestChainStateDeserializeErrors(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		name       string
 		serialized []byte

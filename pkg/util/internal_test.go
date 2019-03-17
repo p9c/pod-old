@@ -8,6 +8,7 @@ import (
 )
 
 // SetBlockBytes sets the internal serialized block byte buffer to the passed buffer.  It is used to inject errors and is only available to the test package.
+
 func (b *Block) SetBlockBytes(buf []byte) {
 
 	b.serializedBlock = buf
@@ -15,6 +16,7 @@ func (b *Block) SetBlockBytes(buf []byte) {
 
 // TstAppDataDir makes the internal appDataDir function available to the test package.
 func TstAppDataDir(
+
 	goos, appName string, roaming bool) string {
 
 	return appDataDir(goos, appName, roaming)
@@ -23,6 +25,7 @@ func TstAppDataDir(
 // TstAddressPubKeyHash makes an AddressPubKeyHash, setting the unexported fields with the parameters hash and netID.
 func TstAddressPubKeyHash(
 	hash [ripemd160.Size]byte,
+
 	netID byte) *AddressPubKeyHash {
 
 	return &AddressPubKeyHash{
@@ -35,6 +38,7 @@ func TstAddressPubKeyHash(
 // TstAddressScriptHash makes an AddressScriptHash, setting the unexported fields with the parameters hash and netID.
 func TstAddressScriptHash(
 	hash [ripemd160.Size]byte,
+
 	netID byte) *AddressScriptHash {
 
 	return &AddressScriptHash{
@@ -47,6 +51,7 @@ func TstAddressScriptHash(
 // TstAddressWitnessPubKeyHash creates an AddressWitnessPubKeyHash, initiating the fields as given.
 func TstAddressWitnessPubKeyHash(
 	version byte, program [20]byte,
+
 	hrp string) *AddressWitnessPubKeyHash {
 
 	return &AddressWitnessPubKeyHash{
@@ -60,6 +65,7 @@ func TstAddressWitnessPubKeyHash(
 // TstAddressWitnessScriptHash creates an AddressWitnessScriptHash, initiating the fields as given.
 func TstAddressWitnessScriptHash(
 	version byte, program [32]byte,
+
 	hrp string) *AddressWitnessScriptHash {
 
 	return &AddressWitnessScriptHash{
@@ -73,6 +79,7 @@ func TstAddressWitnessScriptHash(
 // TstAddressPubKey makes an AddressPubKey, setting the unexported fields with the parameters.
 func TstAddressPubKey(
 	serializedPubKey []byte, pubKeyFormat PubKeyFormat,
+
 	netID byte) *AddressPubKey {
 
 	pubKey, _ := ec.ParsePubKey(serializedPubKey, ec.S256())
@@ -86,6 +93,7 @@ func TstAddressPubKey(
 
 // TstAddressSAddr returns the expected script address bytes for P2PKH and P2SH bitcoin addresses.
 func TstAddressSAddr(
+
 	addr string) []byte {
 
 	decoded := base58.Decode(addr)
@@ -94,9 +102,11 @@ func TstAddressSAddr(
 
 // TstAddressSegwitSAddr returns the expected witness program bytes for bech32 encoded P2WPKH and P2WSH bitcoin addresses.
 func TstAddressSegwitSAddr(
+
 	addr string) []byte {
 
 	_, data, err := bech32.Decode(addr)
+
 	if err != nil {
 
 		return []byte{}
@@ -104,6 +114,7 @@ func TstAddressSegwitSAddr(
 
 	// First byte is version, rest is base 32 encoded data.
 	data, err = bech32.ConvertBits(data[1:], 5, 8, false)
+
 	if err != nil {
 
 		return []byte{}

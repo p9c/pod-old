@@ -17,6 +17,7 @@ import (
 )
 
 // headers wraps the different headers and filters used throughout the tests.
+
 type headers struct {
 	blockHeaders []headerfs.BlockHeader
 	cfHeaders    []headerfs.FilterHeader
@@ -33,6 +34,7 @@ const maxHeight = 20 * uint32(wire.CFCheckptInterval)
 
 // a partial interval is already written to the store.
 func TestBlockManagerInitialInterval(
+
 	t *testing.T) {
 
 	t.Parallel()
@@ -56,6 +58,7 @@ func TestBlockManagerInitialInterval(
 	// Generate all combinations of testcases.
 	var testCases []testCase
 	b := []bool{false, true}
+
 	for _, perm := range b {
 
 		for _, part := range b {
@@ -80,6 +83,7 @@ func TestBlockManagerInitialInterval(
 			test.permute, test.partialInterval, test.repeat)
 
 		bm, hdrStore, cfStore, cleanUp, err := setupBlockManager()
+
 		if err != nil {
 
 			t.Fatalf("unable to set up ChainService: %v", err)
@@ -93,12 +97,14 @@ func TestBlockManagerInitialInterval(
 
 		// is created, we query it to add to the slices.
 		genesisBlockHeader, _, err := hdrStore.ChainTip()
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
 
 		genesisFilterHeader, _, err := cfStore.ChainTip()
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -106,6 +112,7 @@ func TestBlockManagerInitialInterval(
 
 		headers, err := generateHeaders(genesisBlockHeader,
 			genesisFilterHeader, nil)
+
 		if err != nil {
 
 			t.Fatalf("unable to generate headers: %v", err)
@@ -114,6 +121,7 @@ func TestBlockManagerInitialInterval(
 		// Write all block headers but the genesis, since it is already
 
 		// in the store.
+
 		if err = hdrStore.WriteHeaders(headers.blockHeaders[1:]...); err != nil {
 
 			t.Fatalf("Error writing batch of headers: %s", err)
@@ -122,11 +130,13 @@ func TestBlockManagerInitialInterval(
 		// We emulate the case where a few filter headers are already
 
 		// written to the store by writing 1/3 of the first interval.
+
 		if test.partialInterval {
 
 			err = cfStore.WriteHeaders(
 				headers.cfHeaders[1 : wire.CFCheckptInterval/3]...,
 			)
+
 			if err != nil {
 
 				t.Fatalf("Error writing batch of headers: %s",
@@ -142,9 +152,11 @@ func TestBlockManagerInitialInterval(
 		// responses.
 		bm.server.queryBatch = func(msgs []wire.Message,
 			f func(*ServerPeer, wire.Message, wire.Message) bool,
+
 			q <-chan struct{}, qo ...QueryOption) {
 
 			responses, err := generateResponses(msgs, headers)
+
 			if err != nil {
 
 				t.Fatalf("unable to generate responses: %v",
@@ -155,9 +167,11 @@ func TestBlockManagerInitialInterval(
 
 			// that.
 			perm := rand.Perm(len(responses))
+
 			for i, v := range perm {
 
 				index := i
+
 				if test.permute {
 
 					index = v
@@ -171,6 +185,7 @@ func TestBlockManagerInitialInterval(
 				r := *responses[index]
 
 				// Let the blockmanager handle the message.
+
 				if !f(nil, msgs[index], responses[index]) {
 
 					t.Fatalf("got response false on "+
@@ -181,12 +196,14 @@ func TestBlockManagerInitialInterval(
 				// If we are not testing repeated responses, go
 
 				// on to the next response.
+
 				if !test.repeat {
 
 					continue
 				}
 
 				// Otherwise resend the response we just sent.
+
 				if !f(nil, msgs[index], &r) {
 
 					t.Fatalf("got response false on "+
@@ -207,6 +224,7 @@ func TestBlockManagerInitialInterval(
 
 		// Finally make sure the filter header tip is what we expect.
 		tip, tipHeight, err := cfStore.ChainTip()
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -219,6 +237,7 @@ func TestBlockManagerInitialInterval(
 		}
 
 		lastCheckpoint := headers.checkpoints[len(headers.checkpoints)-1]
+
 		if *tip != *lastCheckpoint {
 
 			t.Fatalf("expected tip to be %v, was %v",
@@ -233,6 +252,7 @@ func TestBlockManagerInitialInterval(
 
 // determine it is receiving corrupt checkpoints and filter headers.
 func TestBlockManagerInvalidInterval(
+
 	t *testing.T) {
 
 	t.Parallel()
@@ -319,6 +339,7 @@ func TestBlockManagerInvalidInterval(
 	for _, test := range testCases {
 
 		bm, hdrStore, cfStore, cleanUp, err := setupBlockManager()
+
 		if err != nil {
 
 			t.Fatalf("unable to set up ChainService: %v", err)
@@ -332,12 +353,14 @@ func TestBlockManagerInvalidInterval(
 
 		// is created, we query it to add to the slices.
 		genesisBlockHeader, _, err := hdrStore.ChainTip()
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
 
 		genesisFilterHeader, _, err := cfStore.ChainTip()
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -348,6 +371,7 @@ func TestBlockManagerInvalidInterval(
 		// from different genesis than what we have, we flip a bit in
 
 		// the genesis filter header.
+
 		if test.wrongGenesis {
 
 			genesisFilterHeader[0] ^= 1
@@ -355,6 +379,7 @@ func TestBlockManagerInvalidInterval(
 
 		headers, err := generateHeaders(genesisBlockHeader,
 			genesisFilterHeader,
+
 			func(currentCFHeader *chainhash.Hash) {
 
 				// If we are testing that each interval doesn't
@@ -364,6 +389,7 @@ func TestBlockManagerInvalidInterval(
 				// a bit in the current header before
 
 				// calculating the next interval checkpoint.
+
 				if test.intervalMisaligned {
 
 					currentCFHeader[0] ^= 1
@@ -379,6 +405,7 @@ func TestBlockManagerInvalidInterval(
 		// Write all block headers but the genesis, since it is already
 
 		// in the store.
+
 		if err = hdrStore.WriteHeaders(headers.blockHeaders[1:]...); err != nil {
 
 			t.Fatalf("Error writing batch of headers: %s", err)
@@ -387,11 +414,13 @@ func TestBlockManagerInvalidInterval(
 		// We emulate the case where a few filter headers are already
 
 		// written to the store by writing 1/3 of the first interval.
+
 		if test.partialInterval {
 
 			err = cfStore.WriteHeaders(
 				headers.cfHeaders[1 : wire.CFCheckptInterval/3]...,
 			)
+
 			if err != nil {
 
 				t.Fatalf("Error writing batch of headers: %s",
@@ -402,9 +431,11 @@ func TestBlockManagerInvalidInterval(
 
 		bm.server.queryBatch = func(msgs []wire.Message,
 			f func(*ServerPeer, wire.Message, wire.Message) bool,
+
 			q <-chan struct{}, qo ...QueryOption) {
 
 			responses, err := generateResponses(msgs, headers)
+
 			if err != nil {
 
 				t.Fatalf("unable to generate responses: %v",
@@ -420,6 +451,7 @@ func TestBlockManagerInvalidInterval(
 			// are checking for misaligned intervals. This to
 
 			// ensure we don't hit the invalid prev hash case.
+
 			if test.intervalMisaligned {
 
 				for i := range responses {
@@ -439,6 +471,7 @@ func TestBlockManagerInvalidInterval(
 			// hashes, we flip a bit to corrup them, regardless of
 
 			// whether we are testing misaligned intervals.
+
 			if test.invalidPrevHash {
 
 				for i := range responses {
@@ -456,9 +489,11 @@ func TestBlockManagerInvalidInterval(
 			// Check that the success of the callback match what we
 
 			// expect.
+
 			for i := range responses {
 
 				success := f(nil, msgs[i], responses[i])
+
 				if i == test.firstInvalid {
 
 					if success {
@@ -500,6 +535,7 @@ func TestBlockManagerInvalidInterval(
 func generateHeaders(
 	genesisBlockHeader *wire.BlockHeader,
 	genesisFilterHeader *chainhash.Hash,
+
 	onCheckpoint func(*chainhash.Hash)) (*headers, error) {
 
 	var blockHeaders []headerfs.BlockHeader
@@ -523,6 +559,7 @@ func generateHeaders(
 	genesisFilter, err := builder.BuildBasicFilter(
 		chaincfg.SimNetParams.GenesisBlock, nil,
 	)
+
 	if err != nil {
 
 		return nil, fmt.Errorf("unable to build genesis filter: %v",
@@ -530,6 +567,7 @@ func generateHeaders(
 	}
 
 	genesisFilterHash, err := builder.GetFilterHash(genesisFilter)
+
 	if err != nil {
 
 		return nil, fmt.Errorf("unable to get genesis filter hash: %v",
@@ -583,6 +621,7 @@ func generateHeaders(
 		})
 
 		// Each interval we must record a checkpoint.
+
 		if height%wire.CFCheckptInterval == 0 {
 
 			// We must make a copy of the current header to
@@ -614,14 +653,17 @@ func generateHeaders(
 // and headers.
 func generateResponses(
 	msgs []wire.Message,
+
 	headers *headers) ([]*wire.MsgCFHeaders, error) {
 
 	// Craft a response for each message.
 	var responses []*wire.MsgCFHeaders
+
 	for _, msg := range msgs {
 
 		// Only GetCFHeaders expected.
 		q, ok := msg.(*wire.MsgGetCFHeaders)
+
 		if !ok {
 
 			return nil, fmt.Errorf("got unexpected message %T",
@@ -629,6 +671,7 @@ func generateResponses(
 		}
 
 		// The start height must be set to a checkpoint height+1.
+
 		if q.StartHeight%wire.CFCheckptInterval != 1 {
 
 			return nil, fmt.Errorf("unexpexted start height %v",
@@ -636,6 +679,7 @@ func generateResponses(
 		}
 
 		var prevFilterHeader chainhash.Hash
+
 		switch q.StartHeight {
 
 		// If the start height is 1 the prevFilterHeader is set to the
@@ -658,6 +702,7 @@ func generateResponses(
 		}
 
 		// Keep adding filter hashes until we reach the stop hash.
+
 		for h := q.StartHeight; ; h++ {
 
 			resp.FilterHashes = append(
@@ -665,6 +710,7 @@ func generateResponses(
 			)
 
 			blockHash := headers.blockHeaders[h].BlockHash()
+
 			if blockHash == q.StopHash {
 
 				break
@@ -680,10 +726,12 @@ func generateResponses(
 
 // setupBlockManager initialises a blockManager to be used in tests.
 func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
+
 	*headerfs.FilterHeaderStore, func(), error) {
 
 	// Set up the block and filter header stores.
 	tempDir, err := ioutil.TempDir("", "neutrino")
+
 	if err != nil {
 
 		return nil, nil, nil, nil, fmt.Errorf("Failed to create "+
@@ -691,6 +739,7 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	}
 
 	db, err := walletdb.Create("bdb", tempDir+"/weks.db")
+
 	if err != nil {
 
 		os.RemoveAll(tempDir)
@@ -701,6 +750,7 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	hdrStore, err := headerfs.NewBlockHeaderStore(
 		tempDir, db, &chaincfg.SimNetParams,
 	)
+
 	if err != nil {
 
 		db.Close()
@@ -718,6 +768,7 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 		tempDir, db, headerfs.RegularFilter,
 		&chaincfg.SimNetParams,
 	)
+
 	if err != nil {
 
 		cleanUp()
@@ -736,6 +787,7 @@ func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 
 	// Set up a blockManager with the chain service we defined.
 	bm, err := newBlockManager(cs)
+
 	if err != nil {
 
 		return nil, nil, nil, nil, fmt.Errorf("unable to create "+

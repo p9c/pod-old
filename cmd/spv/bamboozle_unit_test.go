@@ -16,9 +16,11 @@ import (
 )
 
 func decodeHashNoError(
+
 	str string) *chainhash.Hash {
 
 	hash, err := chainhash.NewHashFromStr(str)
+
 	if err != nil {
 
 		panic("Got error decoding hash: " + err.Error())
@@ -471,6 +473,7 @@ var (
 )
 
 func heightToHeader(
+
 	height uint32) *wire.BlockHeader {
 
 	header := &wire.BlockHeader{Nonce: height}
@@ -478,9 +481,11 @@ func heightToHeader(
 }
 
 func runCheckCFCheckptSanityTestCase(
+
 	t *testing.T, testCase *cfCheckptTestCase) {
 
 	tempDir, err := ioutil.TempDir("", "neutrino")
+
 	if err != nil {
 
 		t.Fatalf("Failed to create temporary directory: %s", err)
@@ -489,6 +494,7 @@ func runCheckCFCheckptSanityTestCase(
 	defer os.RemoveAll(tempDir)
 
 	db, err := walletdb.Create("bdb", tempDir+"/weks.db")
+
 	if err != nil {
 
 		t.Fatalf("Error opening DB: %s", err)
@@ -499,6 +505,7 @@ func runCheckCFCheckptSanityTestCase(
 	hdrStore, err := headerfs.NewBlockHeaderStore(
 		tempDir, db, &chaincfg.SimNetParams,
 	)
+
 	if err != nil {
 
 		t.Fatalf("Error creating block header store: %s", err)
@@ -507,6 +514,7 @@ func runCheckCFCheckptSanityTestCase(
 	cfStore, err := headerfs.NewFilterHeaderStore(
 		tempDir, db, headerfs.RegularFilter, &chaincfg.SimNetParams,
 	)
+
 	if err != nil {
 
 		t.Fatalf("Error creating filter header store: %s", err)
@@ -516,6 +524,7 @@ func runCheckCFCheckptSanityTestCase(
 		height uint32
 		header *wire.BlockHeader
 	)
+
 	for i, point := range testCase.storepoints {
 
 		cfBatch := make([]headerfs.FilterHeader, 0, wire.CFCheckptInterval)
@@ -591,6 +600,7 @@ func runCheckCFCheckptSanityTestCase(
 	}
 
 	heightDiff, err := checkCFCheckptSanity(testCase.checkpoints, cfStore)
+
 	if err != nil {
 
 		t.Fatalf("Error from checkCFCheckptSanity: %s", err)
@@ -605,6 +615,7 @@ func runCheckCFCheckptSanityTestCase(
 }
 
 func TestCheckCFCheckptSanity(
+
 	t *testing.T) {
 
 	t.Parallel()
@@ -621,6 +632,7 @@ func TestCheckCFCheckptSanity(
 }
 
 func TestCheckForCFHeadersMismatch(
+
 	t *testing.T) {
 
 	t.Parallel()
@@ -632,6 +644,7 @@ func TestCheckForCFHeadersMismatch(
 			mismatch := checkForCFHeaderMismatch(
 				testCase.headers, testCase.idx,
 			)
+
 			if mismatch != testCase.mismatch {
 
 				t.Fatalf("Wrong mismatch detected. Expected: "+
@@ -646,6 +659,7 @@ func TestCheckForCFHeadersMismatch(
 }
 
 func TestResolveCFHeadersMismatch(
+
 	t *testing.T) {
 
 	t.Parallel()
@@ -657,6 +671,7 @@ func TestResolveCFHeadersMismatch(
 			badPeers, err := resolveCFHeaderMismatch(
 				block, wire.GCSFilterRegular, testCase.peerFilters,
 			)
+
 			if err != nil {
 
 				t.Fatalf("Couldn't resolve cfheader "+
@@ -671,6 +686,7 @@ func TestResolveCFHeadersMismatch(
 			}
 
 			sort.Strings(badPeers)
+
 			for i := 0; i < len(badPeers); i++ {
 
 				if badPeers[i] != testCase.badPeers[i] {

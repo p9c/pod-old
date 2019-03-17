@@ -8,6 +8,7 @@ import (
 // TestSetInt ensures that setting a field value to various native integers
 // works as expected.
 func TestSetInt(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -23,9 +24,11 @@ func TestSetInt(
 		{4294967295, [10]uint32{4294967295, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetInt(test.in)
+
 		if !reflect.DeepEqual(f.n, test.raw) {
 
 			t.Errorf("fieldVal.Set #%d wrong result\ngot: %v\n"+
@@ -37,10 +40,12 @@ func TestSetInt(
 
 // TestZero ensures that zeroing a field value zero works as expected.
 func TestZero(
+
 	t *testing.T) {
 
 	f := new(fieldVal).SetInt(2)
 	f.Zero()
+
 	for idx, rawInt := range f.n {
 
 		if rawInt != 0 {
@@ -53,21 +58,25 @@ func TestZero(
 
 // TestIsZero ensures that checking if a field IsZero works as expected.
 func TestIsZero(
+
 	t *testing.T) {
 
 	f := new(fieldVal)
+
 	if !f.IsZero() {
 
 		t.Errorf("new field value is not zero - got %v (rawints %x)", f,
 			f.n)
 	}
 	f.SetInt(1)
+
 	if f.IsZero() {
 
 		t.Errorf("field claims it's zero when it's not - got %v "+
 			"(raw rawints %x)", f, f.n)
 	}
 	f.Zero()
+
 	if !f.IsZero() {
 
 		t.Errorf("field claims it's not zero when it is - got %v "+
@@ -77,6 +86,7 @@ func TestIsZero(
 
 // TestStringer ensures the stringer returns the appropriate hex string.
 func TestStringer(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -148,10 +158,12 @@ func TestStringer(
 		{"i1", "0000000000000000000000000000000000000000000000000000000000000000"},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in)
 		result := f.String()
+
 		if result != test.expected {
 
 			t.Errorf("fieldVal.String #%d wrong result\ngot: %v\n"+
@@ -164,6 +176,7 @@ func TestStringer(
 // TestNormalize ensures that normalizing the internal field words works as
 // expected.
 func TestNormalize(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -318,11 +331,13 @@ func TestNormalize(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal)
 		f.n = test.raw
 		f.Normalize()
+
 		if !reflect.DeepEqual(f.n, test.normalized) {
 
 			t.Errorf("fieldVal.Normalize #%d wrong result\n"+
@@ -334,6 +349,7 @@ func TestNormalize(
 
 // TestIsOdd ensures that checking if a field value IsOdd works as expected.
 func TestIsOdd(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -351,10 +367,12 @@ func TestIsOdd(
 		{"fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", true},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in)
 		result := f.IsOdd()
+
 		if result != test.expected {
 
 			t.Errorf("fieldVal.IsOdd #%d wrong result\n"+
@@ -367,6 +385,7 @@ func TestIsOdd(
 // TestEquals ensures that checking two field values for equality via Equals
 // works as expected.
 func TestEquals(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -387,11 +406,13 @@ func TestEquals(
 		{"1", "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30", true},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		f2 := new(fieldVal).SetHex(test.in2).Normalize()
 		result := f.Equals(f2)
+
 		if result != test.expected {
 
 			t.Errorf("fieldVal.Equals #%d wrong result\n"+
@@ -403,6 +424,7 @@ func TestEquals(
 
 // TestNegate ensures that negating field values via Negate works as expected.
 func TestNegate(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -438,11 +460,13 @@ func TestNegate(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Negate(1).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Negate #%d wrong result\n"+
@@ -455,6 +479,7 @@ func TestNegate(
 // TestAddInt ensures that adding an integer to field values via AddInt works as
 // expected.
 func TestAddInt(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -492,11 +517,13 @@ func TestAddInt(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.AddInt(test.in2).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.AddInt #%d wrong result\n"+
@@ -509,6 +536,7 @@ func TestAddInt(
 // TestAdd ensures that adding two field values together via Add works as
 // expected.
 func TestAdd(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -546,12 +574,14 @@ func TestAdd(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		f2 := new(fieldVal).SetHex(test.in2).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Add(f2).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Add #%d wrong result\n"+
@@ -564,6 +594,7 @@ func TestAdd(
 // TestAdd2 ensures that adding two field values together via Add2 works as
 // expected.
 func TestAdd2(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -603,12 +634,14 @@ func TestAdd2(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		f2 := new(fieldVal).SetHex(test.in2).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Add2(f, f2).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Add2 #%d wrong result\n"+
@@ -621,6 +654,7 @@ func TestAdd2(
 // TestMulInt ensures that adding an integer to field values via MulInt works as
 // expected.
 func TestMulInt(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -671,11 +705,13 @@ func TestMulInt(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.MulInt(test.in2).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.MulInt #%d wrong result\n"+
@@ -687,6 +723,7 @@ func TestMulInt(
 
 // TestMul ensures that multiplying two field valuess via Mul works as expected.
 func TestMul(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -741,12 +778,14 @@ func TestMul(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in1).Normalize()
 		f2 := new(fieldVal).SetHex(test.in2).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Mul(f2).Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Mul #%d wrong result\n"+
@@ -758,6 +797,7 @@ func TestMul(
 
 // TestSquare ensures that squaring field values via Square works as expected.
 func TestSquare(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -791,11 +831,13 @@ func TestSquare(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Square().Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Square #%d wrong result\n"+
@@ -808,6 +850,7 @@ func TestSquare(
 // TestInverse ensures that finding the multiplicative inverse via Inverse works
 // as expected.
 func TestInverse(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -847,11 +890,13 @@ func TestInverse(
 		},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		f := new(fieldVal).SetHex(test.in).Normalize()
 		expected := new(fieldVal).SetHex(test.expected).Normalize()
 		result := f.Inverse().Normalize()
+
 		if !result.Equals(expected) {
 
 			t.Errorf("fieldVal.Inverse #%d wrong result\n"+

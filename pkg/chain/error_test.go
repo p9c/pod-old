@@ -6,6 +6,7 @@ import (
 
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -61,9 +62,11 @@ func TestErrorCodeStringer(
 	}
 
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
@@ -77,6 +80,7 @@ func TestErrorCodeStringer(
 
 // TestRuleError tests the error output for the RuleError type.
 func TestRuleError(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -96,9 +100,11 @@ func TestRuleError(
 	}
 
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.Error()
+
 		if result != test.want {
 
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,
@@ -112,9 +118,11 @@ func TestRuleError(
 
 // TestDeploymentError tests the stringized output for the DeploymentError type.
 func TestDeploymentError(
+
 	t *testing.T) {
 
 	t.Parallel()
+
 	tests := []struct {
 		in   DeploymentError
 		want string
@@ -137,9 +145,11 @@ func TestDeploymentError(
 	}
 
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		result := test.in.Error()
+
 		if result != test.want {
 
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,

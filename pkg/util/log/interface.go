@@ -3,6 +3,7 @@ package log
 // Logger is an interface which describes a level-based logger.  A default
 // implementation of Logger is implemented by this package and can be created
 // by calling (*Backend).Logger.
+
 type Logger interface {
 
 	// Tracef formats message according to format specifier and writes to

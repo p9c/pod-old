@@ -16,6 +16,7 @@ import (
 // the cursor.  After invalidation, the cursor must be repositioned, or the keys
 
 // and values returned may be unpredictable.
+
 type Cursor interface {
 
 	// Bucket returns the bucket the cursor was created for.
@@ -77,6 +78,7 @@ type Cursor interface {
 }
 
 // Bucket represents a collection of key/value pairs.
+
 type Bucket interface {
 
 	// Bucket retrieves a nested bucket with the given key.  Returns nil if
@@ -308,6 +310,7 @@ type Bucket interface {
 // BlockRegion specifies a particular region of a block identified by the
 
 // specified hash, given an offset and length.
+
 type BlockRegion struct {
 	Hash   *chainhash.Hash
 	Offset uint32
@@ -327,6 +330,7 @@ type BlockRegion struct {
 // view of the database at the time it was created.  Transactions should not be
 
 // long running operations.
+
 type Tx interface {
 
 	// Metadata returns the top-most bucket for all metadata storage.
@@ -707,6 +711,7 @@ type Tx interface {
 // is kept in a database.  However, this interface aims to be generic enough to
 
 // support blocks in the database too, if needed by a particular backend.
+
 type DB interface {
 
 	// Type returns the database driver type the current database instance

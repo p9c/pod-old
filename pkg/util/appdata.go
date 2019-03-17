@@ -11,6 +11,7 @@ import (
 
 // appDataDir returns an operating system specific directory to be used for storing application data for an application.  See AppDataDir for more details.  This unexported version takes an operating system argument primarily to enable the testing package to properly test the function by forcing an operating system that is not the currently one.
 func appDataDir(
+
 	goos, appName string, roaming bool) string {
 
 	if appName == "" || appName == "." {
@@ -26,12 +27,14 @@ func appDataDir(
 	// Get the OS specific home directory via the Go standard lib.
 	var homeDir string
 	usr, err := user.Current()
+
 	if err == nil {
 
 		homeDir = usr.HomeDir
 	}
 
 	// Fall back to standard HOME environment variable that works for most POSIX OSes if the directory from the Go standard lib failed.
+
 	if err != nil || homeDir == "" {
 
 		homeDir = os.Getenv("HOME")
@@ -43,6 +46,7 @@ func appDataDir(
 	case "windows":
 		// Windows XP and before didn't have a LOCALAPPDATA, so fallback to regular APPDATA when LOCALAPPDATA is not set.
 		appData := os.Getenv("LOCALAPPDATA")
+
 		if roaming || appData == "" {
 
 			appData = os.Getenv("APPDATA")
@@ -54,6 +58,7 @@ func appDataDir(
 		}
 
 	case "darwin":
+
 		if homeDir != "" {
 
 			return filepath.Join(homeDir, "Library",
@@ -61,12 +66,14 @@ func appDataDir(
 		}
 
 	case "plan9":
+
 		if homeDir != "" {
 
 			return filepath.Join(homeDir, appNameLower)
 		}
 
 	default:
+
 		if homeDir != "" {
 
 			return filepath.Join(homeDir, "."+appNameLower)
@@ -86,6 +93,7 @@ func appDataDir(
 //   Windows: %LOCALAPPDATA%\Myapp
 //   Plan 9: $home/myapp
 func AppDataDir(
+
 	appName string, roaming bool) string {
 
 	return appDataDir(runtime.GOOS, appName, roaming)

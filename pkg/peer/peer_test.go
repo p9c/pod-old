@@ -16,6 +16,7 @@ import (
 )
 
 // conn mocks a network connection by implementing the net.Conn interface.  It is used to test peer connection without actually opening a network connection.
+
 type conn struct {
 	io.Reader
 	io.Writer
@@ -32,12 +33,14 @@ type conn struct {
 }
 
 // LocalAddr returns the local address for the connection.
+
 func (c conn) LocalAddr() net.Addr {
 
 	return &addr{c.lnet, c.laddr}
 }
 
 // Remote returns the remote address for the connection.
+
 func (c conn) RemoteAddr() net.Addr {
 
 	if !c.proxy {
@@ -56,6 +59,7 @@ func (c conn) RemoteAddr() net.Addr {
 }
 
 // Close handles closing the connection.
+
 func (c conn) Close() error {
 
 	if c.Closer == nil {
@@ -71,6 +75,7 @@ func (c conn) SetReadDeadline(t time.Time) error  { return nil }
 func (c conn) SetWriteDeadline(t time.Time) error { return nil }
 
 // addr mocks a network address
+
 type addr struct {
 	net, address string
 }
@@ -80,6 +85,7 @@ func (m addr) String() string  { return m.address }
 
 // pipe turns two mock connections into a full-duplex connection similar to net.Pipe to allow pipe's with (fake) addresses.
 func pipe(
+
 	c1, c2 *conn) (*conn, *conn) {
 
 	r1, w1 := io.Pipe()
@@ -94,6 +100,7 @@ func pipe(
 }
 
 // peerStats holds the expected peer stats used for testing peer.
+
 type peerStats struct {
 	wantUserAgent       string
 	wantServices        wire.ServiceFlag
@@ -114,6 +121,7 @@ type peerStats struct {
 
 // testPeer tests the given peer's flags and stats
 func testPeer(
+
 	t *testing.T, p *peer.Peer, s peerStats) {
 
 	if p.UserAgent() != s.wantUserAgent {
@@ -240,17 +248,20 @@ func testPeer(
 
 // TestPeerConnection tests connection between inbound and outbound peers.
 func TestPeerConnection(
+
 	t *testing.T) {
 
 	verack := make(chan struct{})
 	peer1Cfg := &peer.Config{
 		Listeners: peer.MessageListeners{
+
 			OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
 
 				verack <- struct{}{}
 			},
 
 			OnWrite: func(p *peer.Peer, bytesWritten int, msg wire.Message,
+
 				err error) {
 
 				if _, ok := msg.(*wire.MsgVerAck); ok {
@@ -319,6 +330,7 @@ func TestPeerConnection(
 
 		{
 			"basic handshake",
+
 			func() (*peer.Peer, *peer.Peer, error) {
 
 				inConn, outConn := pipe(
@@ -353,6 +365,7 @@ func TestPeerConnection(
 
 		{
 			"socks proxy",
+
 			func() (*peer.Peer, *peer.Peer, error) {
 
 				inConn, outConn := pipe(
@@ -410,12 +423,14 @@ func TestPeerConnection(
 
 // TestPeerListeners tests that the peer listeners are called as expected.
 func TestPeerListeners(
+
 	t *testing.T) {
 
 	verack := make(chan struct{}, 1)
 	ok := make(chan wire.Message, 20)
 	peerCfg := &peer.Config{
 		Listeners: peer.MessageListeners{
+
 			OnGetAddr: func(p *peer.Peer, msg *wire.MsgGetAddr) {
 
 				ok <- msg
@@ -573,6 +588,7 @@ func TestPeerListeners(
 	inPeer := peer.NewInboundPeer(peerCfg)
 	inPeer.AssociateConnection(inConn)
 	peerCfg.Listeners = peer.MessageListeners{
+
 		OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
 
 			verack <- struct{}{}
@@ -747,6 +763,7 @@ func TestPeerListeners(
 
 		// Queue the test message
 		outPeer.QueueMessage(test.msg, nil)
+
 		select {
 
 		case <-ok:
@@ -763,9 +780,11 @@ func TestPeerListeners(
 
 // TestOutboundPeer tests that the outbound peer works as expected.
 func TestOutboundPeer(
+
 	t *testing.T) {
 
 	peerCfg := &peer.Config{
+
 		NewestBlock: func() (*chainhash.Hash, int32, error) {
 
 			return nil, 0, errors.New("newest block not found")
@@ -793,6 +812,7 @@ func TestOutboundPeer(
 	p.AssociateConnection(c)
 	p.AssociateConnection(c)
 	disconnected := make(chan struct{})
+
 	go func() {
 
 		p.WaitForDisconnect()
@@ -828,6 +848,7 @@ func TestOutboundPeer(
 	p.Disconnect()
 
 	// Test NewestBlock
+
 	var newestBlock = func() (*chainhash.Hash, int32, error) {
 
 		hashStr := "14a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
@@ -934,6 +955,7 @@ func TestOutboundPeer(
 
 // Tests that the node disconnects from peers with an unsupported protocol version.
 func TestUnsupportedVersionPeer(
+
 	t *testing.T) {
 
 	peerCfg := &peer.Config{
@@ -970,6 +992,7 @@ func TestUnsupportedVersionPeer(
 
 	// Read outbound messages to peer into a channel
 	outboundMessages := make(chan wire.Message)
+
 	go func() {
 
 		for {
@@ -998,6 +1021,7 @@ func TestUnsupportedVersionPeer(
 	}()
 
 	// Read version message sent to remote peer
+
 	select {
 
 	case msg := <-outboundMessages:
@@ -1028,6 +1052,7 @@ func TestUnsupportedVersionPeer(
 
 	// Expect peer to disconnect automatically
 	disconnected := make(chan struct{})
+
 	go func() {
 
 		p.WaitForDisconnect()
@@ -1043,6 +1068,7 @@ func TestUnsupportedVersionPeer(
 	}
 
 	// Expect no further outbound messages from peer
+
 	select {
 
 	case msg, chanOpen := <-outboundMessages:
@@ -1060,12 +1086,14 @@ func TestUnsupportedVersionPeer(
 
 // TestDuplicateVersionMsg ensures that receiving a version message after one has already been received results in the peer being disconnected.
 func TestDuplicateVersionMsg(
+
 	t *testing.T) {
 
 	// Create a pair of peers that are connected to each other using a fake connection.
 	verack := make(chan struct{})
 	peerCfg := &peer.Config{
 		Listeners: peer.MessageListeners{
+
 			OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
 
 				verack <- struct{}{}
@@ -1109,6 +1137,7 @@ func TestDuplicateVersionMsg(
 	// Queue a duplicate version message from the outbound peer and wait until it is sent.
 	done := make(chan struct{})
 	outPeer.QueueMessage(&wire.MsgVersion{}, done)
+
 	select {
 
 	case <-done:
@@ -1118,6 +1147,7 @@ func TestDuplicateVersionMsg(
 
 	// Ensure the peer that is the recipient of the duplicate version closes the connection.
 	disconnected := make(chan struct{}, 1)
+
 	go func() {
 
 		inPeer.WaitForDisconnect()

@@ -15,6 +15,7 @@ import (
 )
 
 // ConfCfg is the settings that can be set to synchronise across all pod modules
+
 type ConfCfg struct {
 	DataDir          string
 	ConfigFile       string
@@ -36,6 +37,7 @@ type ConfCfg struct {
 }
 
 // ConfConfigs are the configurations for each app that are applied
+
 type ConfConfigs struct {
 	Ctl    ctl.Config
 	Node   node.Config
@@ -95,6 +97,7 @@ var ConfCommand = climax.Command{
 	Handle: func(ctx climax.Context) int {
 		var dl, ct, tpb string
 		var ok bool
+
 		if dl, ok = ctx.Get("debuglevel"); ok {
 
 			log <- cl.Tracef{
@@ -104,6 +107,7 @@ var ConfCommand = climax.Command{
 
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
+
 			for i := range ll {
 
 				ll[i].SetLevel(dl)
@@ -139,6 +143,7 @@ var ConfCommand = climax.Command{
 
 			// Generate a full set of default configs first
 			var testConfigSet []ConfigSet
+
 			for i := 0; i < testnum; i++ {
 
 				tn := fmt.Sprintf("%s%d", testname, i)
@@ -148,6 +153,7 @@ var ConfCommand = climax.Command{
 			}
 
 			var ps []PortSet
+
 			for i := 0; i < testnum; i++ {
 
 				p := GenPortSet(testportbase + 100*i)
@@ -155,6 +161,7 @@ var ConfCommand = climax.Command{
 			}
 
 			// Set the correct listeners and add the correct addpeers entries
+
 			for i, ts := range testConfigSet {
 
 				// conf
@@ -184,9 +191,11 @@ var ConfCommand = climax.Command{
 
 				// node
 				tnn := ts.Node.Node
+
 				for j := range ps {
 
 					// add all other peers in the portset list
+
 					if j != i {
 
 						tnn.AddPeers = append(
@@ -222,9 +231,11 @@ var ConfCommand = climax.Command{
 				tsn.RPCListeners = tnn.RPCListeners
 				tsn.TestNet3 = true
 				tsn.SimNet = true
+
 				for j := range ps {
 
 					// add all other peers in the portset list
+
 					if j != i {
 
 						tsn.AddPeers = append(
@@ -257,6 +268,7 @@ var ConfCommand = climax.Command{
 		}
 
 		confFile = DefaultDataDir + "/conf.json"
+
 		if r, ok := ctx.Get("datadir"); ok {
 
 			DefaultDataDir = r
@@ -276,6 +288,7 @@ var ConfCommand = climax.Command{
 		}
 
 		EnsureDir(confFile)
+
 		if ctx.Is("init") {
 
 			WriteDefaultConfConfig(DefaultDataDir)
@@ -283,18 +296,22 @@ var ConfCommand = climax.Command{
 			WriteDefaultNodeConfig(DefaultDataDir)
 			WriteDefaultWalletConfig(DefaultDataDir)
 			WriteDefaultShellConfig(DefaultDataDir)
+
 		} else {
 			if _, err := os.Stat(confFile); os.IsNotExist(err) {
 
 				WriteDefaultConfConfig(DefaultDataDir)
+
 			} else {
 				cfgData, err := ioutil.ReadFile(confFile)
+
 				if err != nil {
 
 					WriteDefaultConfConfig(DefaultDataDir)
 				}
 
 				err = json.Unmarshal(cfgData, &ConfConfig)
+
 				if err != nil {
 
 					WriteDefaultConfConfig(DefaultDataDir)

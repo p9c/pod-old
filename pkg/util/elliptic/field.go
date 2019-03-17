@@ -129,11 +129,13 @@ const (
 // 	n[1] * 2^(26*1) = 2^23 * 2^26  = 2^49
 // 	n[0] * 2^(26*0) = 1    * 2^0   = 1
 // 	Sum: 0 + 0 + ... + 2^49 + 1 = 2^49 + 1
+
 type fieldVal struct {
 	n [10]uint32
 }
 
 // String returns the field value as a human-readable hex string.
+
 func (f fieldVal) String() string {
 
 	t := new(fieldVal).Set(&f).Normalize()
@@ -143,6 +145,7 @@ func (f fieldVal) String() string {
 // Zero sets the field value to zero.  A newly created field value is already
 // set to zero.  This function can be useful to clear an existing field value
 // for reuse.
+
 func (f *fieldVal) Zero() {
 
 	f.n[0] = 0
@@ -161,6 +164,7 @@ func (f *fieldVal) Zero() {
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).Set(f2).Add(1) so that f = f2 + 1 where f2 is not
 // modified.
+
 func (f *fieldVal) Set(val *fieldVal) *fieldVal {
 
 	*f = *val
@@ -172,6 +176,7 @@ func (f *fieldVal) Set(val *fieldVal) *fieldVal {
 // native integers.
 // The field value is returned to support chaining.  This enables syntax such
 // as f := new(fieldVal).SetInt(2).Mul(f2) so that f = 2 * f2.
+
 func (f *fieldVal) SetInt(ui uint) *fieldVal {
 
 	f.Zero()
@@ -183,6 +188,7 @@ func (f *fieldVal) SetInt(ui uint) *fieldVal {
 // value representation.
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).SetBytes(byteArray).Mul(f2) so that f = ba * f2.
+
 func (f *fieldVal) SetBytes(b *[32]byte) *fieldVal {
 
 	// Pack the 256 total bits across the 10 uint32 words with a max of
@@ -220,9 +226,11 @@ func (f *fieldVal) SetBytes(b *[32]byte) *fieldVal {
 // will be truncated.
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).SetByteSlice(byteSlice)
+
 func (f *fieldVal) SetByteSlice(b []byte) *fieldVal {
 
 	var b32 [32]byte
+
 	for i := 0; i < len(b); i++ {
 
 		if i < 32 {
@@ -237,6 +245,7 @@ func (f *fieldVal) SetByteSlice(b []byte) *fieldVal {
 // representation.  Only the first 32-bytes are used.
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).SetHex("0abc").Add(1) so that f = 0x0abc + 1
+
 func (f *fieldVal) SetHex(hexString string) *fieldVal {
 
 	if len(hexString)%2 != 0 {
@@ -250,6 +259,7 @@ func (f *fieldVal) SetHex(hexString string) *fieldVal {
 // Normalize normalizes the internal field words into the desired range and
 // performs fast modular reduction over the secp256k1 prime by making use of the
 // special form of the prime.
+
 func (f *fieldVal) Normalize() *fieldVal {
 
 	// The field representation leaves 6 bits of overflow in each word so
@@ -356,30 +366,38 @@ func (f *fieldVal) Normalize() *fieldVal {
 
 	// changed when 'm' is zero.
 	m = 1
+
 	if t9 == fieldMSBMask {
 
 		m &= 1
+
 	} else {
 
 		m &= 0
 	}
+
 	if t2&t3&t4&t5&t6&t7&t8 == fieldBaseMask {
 
 		m &= 1
+
 	} else {
 
 		m &= 0
 	}
+
 	if ((t0+977)>>fieldBase + t1 + 64) > fieldBaseMask {
 
 		m &= 1
+
 	} else {
 
 		m &= 0
 	}
+
 	if t9>>fieldMSBBits != 0 {
 
 		m |= 1
+
 	} else {
 
 		m |= 0
@@ -426,6 +444,7 @@ func (f *fieldVal) Normalize() *fieldVal {
 // the caller to reuse a buffer.
 // The field value must be normalized for this function to return the correct
 // result.
+
 func (f *fieldVal) PutBytes(b *[32]byte) {
 
 	// Unpack the 256 total bits from the 10 uint32 words with a max of
@@ -475,6 +494,7 @@ func (f *fieldVal) PutBytes(b *[32]byte) {
 // buffer.
 // The field value must be normalized for this function to return correct
 // result.
+
 func (f *fieldVal) Bytes() *[32]byte {
 
 	b := new([32]byte)
@@ -483,6 +503,7 @@ func (f *fieldVal) Bytes() *[32]byte {
 }
 
 // IsZero returns whether or not the field value is equal to zero.
+
 func (f *fieldVal) IsZero() bool {
 
 	// The value can only be zero if no bits are set in any of the words.
@@ -496,6 +517,7 @@ func (f *fieldVal) IsZero() bool {
 // IsOdd returns whether or not the field value is an odd number.
 // The field value must be normalized for this function to return correct
 // result.
+
 func (f *fieldVal) IsOdd() bool {
 
 	// Only odd numbers have the bottom bit set.
@@ -505,6 +527,7 @@ func (f *fieldVal) IsOdd() bool {
 // Equals returns whether or not the two field values are the same.  Both
 // field values being compared must be normalized for this function to return
 // the correct result.
+
 func (f *fieldVal) Equals(val *fieldVal) bool {
 
 	// Xor only sets bits when they are different, so the two field values
@@ -523,6 +546,7 @@ func (f *fieldVal) Equals(val *fieldVal) bool {
 // must provide the magnitude of the passed value for a correct result.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.NegateVal(f2).AddInt(1) so that f = -f2 + 1.
+
 func (f *fieldVal) NegateVal(val *fieldVal, magnitude uint32) *fieldVal {
 
 	// Negation in the field is just the prime minus the value.  However,
@@ -577,6 +601,7 @@ func (f *fieldVal) NegateVal(val *fieldVal, magnitude uint32) *fieldVal {
 // caller must provide the magnitude of the field value for a correct result.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Negate().AddInt(1) so that f = -f + 1.
+
 func (f *fieldVal) Negate(magnitude uint32) *fieldVal {
 
 	return f.NegateVal(f, magnitude)
@@ -587,6 +612,7 @@ func (f *fieldVal) Negate(magnitude uint32) *fieldVal {
 // perform some arithemetic with small native integers.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.AddInt(1).Add(f2) so that f = f + 1 + f2.
+
 func (f *fieldVal) AddInt(ui uint) *fieldVal {
 
 	// Since the field representation intentionally provides overflow bits,
@@ -602,6 +628,7 @@ func (f *fieldVal) AddInt(ui uint) *fieldVal {
 // in f.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Add(f2).AddInt(1) so that f = f + f2 + 1.
+
 func (f *fieldVal) Add(val *fieldVal) *fieldVal {
 
 	// Since the field representation intentionally provides overflow bits,
@@ -627,6 +654,7 @@ func (f *fieldVal) Add(val *fieldVal) *fieldVal {
 // Add2 adds the passed two field values together and stores the result in f.
 // The field value is returned to support chaining.  This enables syntax like:
 // f3.Add2(f, f2).AddInt(1) so that f3 = f + f2 + 1.
+
 func (f *fieldVal) Add2(val *fieldVal, val2 *fieldVal) *fieldVal {
 
 	// Since the field representation intentionally provides overflow bits,
@@ -655,6 +683,7 @@ func (f *fieldVal) Add2(val *fieldVal, val2 *fieldVal) *fieldVal {
 // the caller ensures no overflows will occur before using this function.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.MulInt(2).Add(f2) so that f = 2 * f + f2.
+
 func (f *fieldVal) MulInt(val uint) *fieldVal {
 
 	// Since each word of the field representation can hold up to
@@ -689,6 +718,7 @@ func (f *fieldVal) MulInt(val uint) *fieldVal {
 // 8.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Mul(f2).AddInt(1) so that f = (f * f2) + 1.
+
 func (f *fieldVal) Mul(val *fieldVal) *fieldVal {
 
 	return f.Mul2(f, val)
@@ -701,6 +731,7 @@ func (f *fieldVal) Mul(val *fieldVal) *fieldVal {
 // 8.
 // The field value is returned to support chaining.  This enables syntax like:
 // f3.Mul2(f, f2).AddInt(1) so that f3 = (f * f2) + 1.
+
 func (f *fieldVal) Mul2(val *fieldVal, val2 *fieldVal) *fieldVal {
 
 	// This could be done with a couple of for loops and an array to store
@@ -1011,6 +1042,7 @@ func (f *fieldVal) Mul2(val *fieldVal, val2 *fieldVal) *fieldVal {
 // must be a max of 8 to prevent overflow.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Square().Mul(f2) so that f = f^2 * f2.
+
 func (f *fieldVal) Square() *fieldVal {
 
 	return f.SquareVal(f)
@@ -1022,6 +1054,7 @@ func (f *fieldVal) Square() *fieldVal {
 // being squred must be a max of 8 to prevent overflow.
 // The field value is returned to support chaining.  This enables syntax like:
 // f3.SquareVal(f).Mul(f) so that f3 = f^2 * f = f^3.
+
 func (f *fieldVal) SquareVal(val *fieldVal) *fieldVal {
 
 	// This could be done with a couple of for loops and an array to store
@@ -1283,6 +1316,7 @@ func (f *fieldVal) SquareVal(val *fieldVal) *fieldVal {
 // existing field value is modified.
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Inverse().Mul(f2) so that f = f^-1 * f2.
+
 func (f *fieldVal) Inverse() *fieldVal {
 
 	// Fermat's little theorem states that for a nonzero number a and prime

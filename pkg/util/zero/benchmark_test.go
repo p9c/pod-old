@@ -21,6 +21,7 @@ var (
 // by calling runtime.memclr), replace the "optimized" versions with
 // this.
 func xor(
+
 	b []byte) {
 
 	for i := range b {
@@ -34,6 +35,7 @@ func xor(
 // in a future Go release.  Switch to this or the xor implementation
 // if they ever become faster.
 func zrange(
+
 	b []byte) {
 
 	for i := range b {
@@ -43,6 +45,7 @@ func zrange(
 }
 
 func BenchmarkXor32(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -52,6 +55,7 @@ func BenchmarkXor32(
 }
 
 func BenchmarkXor64(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -61,6 +65,7 @@ func BenchmarkXor64(
 }
 
 func BenchmarkRange32(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -70,6 +75,7 @@ func BenchmarkRange32(
 }
 
 func BenchmarkRange64(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -79,6 +85,7 @@ func BenchmarkRange64(
 }
 
 func BenchmarkBytes32(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -88,6 +95,7 @@ func BenchmarkBytes32(
 }
 
 func BenchmarkBytes64(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -97,6 +105,7 @@ func BenchmarkBytes64(
 }
 
 func BenchmarkBytea32(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
@@ -106,6 +115,7 @@ func BenchmarkBytea32(
 }
 
 func BenchmarkBytea64(
+
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {

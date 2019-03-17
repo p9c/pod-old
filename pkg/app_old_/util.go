@@ -18,6 +18,7 @@ import (
 // CheckCreateDir checks that the path exists and is a directory. If path does not exist, it is created.
 func CheckCreateDir(
 	path string,
+
 ) error {
 
 	if fi, err := os.Stat(path); err != nil {
@@ -25,6 +26,7 @@ func CheckCreateDir(
 		if os.IsNotExist(err) {
 
 			// Attempt data directory creation
+
 			if err = os.MkdirAll(path, 0700); err != nil {
 
 				return fmt.Errorf("cannot create directory: %s", err)
@@ -48,12 +50,15 @@ func CheckCreateDir(
 // EnsureDir checks a file could be written to a path, creates the directories as needed
 func EnsureDir(
 	fileName string,
+
 ) {
 
 	dirName := filepath.Dir(fileName)
+
 	if _, serr := os.Stat(dirName); serr != nil {
 
 		merr := os.MkdirAll(dirName, os.ModePerm)
+
 		if merr != nil {
 
 			panic(merr)
@@ -64,9 +69,11 @@ func EnsureDir(
 }
 
 // FileExists reports whether the named file or directory exists.
+
 func FileExists(filePath string) (bool, error) {
 
 	_, err := os.Stat(filePath)
+
 	if err != nil {
 
 		if os.IsNotExist(err) {
@@ -85,6 +92,7 @@ func GenFlag(
 	name,
 	usage,
 	help string,
+
 ) climax.Flag {
 	return climax.Flag{
 		Name:     name,
@@ -96,6 +104,7 @@ func GenFlag(
 }
 
 // GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
+
 func GenKey() string {
 
 	k, _ := rand.Int(rand.Reader, big.NewInt(int64(^uint32(0))))
@@ -106,6 +115,7 @@ func GenKey() string {
 // GenLog is a short declaration for a variable with a short version
 func GenLog(
 	name string,
+
 ) climax.Flag {
 	return climax.Flag{
 		Name:     name,
@@ -121,6 +131,7 @@ func GenShort(
 	short,
 	usage,
 	help string,
+
 ) climax.Flag {
 	return climax.Flag{
 		Name:     name,
@@ -137,6 +148,7 @@ func GenTrig(
 	name,
 	short,
 	help string,
+
 ) climax.Flag {
 	return climax.Flag{
 		Name:     name,
@@ -152,13 +164,16 @@ func NormalizeAddress(
 	addr,
 	defaultPort string,
 	out *string,
+
 ) {
 
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
+
 	if err != nil {
 
 		ip := net.ParseIP(addr)
+
 		if ip != nil {
 
 			*out = o
@@ -175,16 +190,19 @@ func NormalizeAddresses(
 	addrs string,
 	defaultPort string,
 	out *[]string,
+
 ) {
 
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")
+
 	for i := range addrS {
 
 		a := addrS[i]
 
 		// o := ""
 		NormalizeAddress(a, defaultPort, &a)
+
 		if a != "" {
 
 			*O = append(*O, a)
@@ -193,6 +211,7 @@ func NormalizeAddresses(
 	}
 
 	// atomically switch out if there was valid addresses
+
 	if len(*O) > 0 {
 
 		*out = *O
@@ -206,10 +225,12 @@ func ParseDuration(
 	out *time.Duration,
 ) (
 	err error,
+
 ) {
 
 	var t int
 	var ti time.Duration
+
 	switch d[len(d)-1] {
 	case 's':
 		t, err = strconv.Atoi(d[:len(d)-1])
@@ -228,6 +249,7 @@ func ParseDuration(
 	if err != nil {
 
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%s` err: %s", name, d, *out, err.Error())
+
 	} else {
 		*out = ti
 	}
@@ -241,13 +263,16 @@ func ParseFloat(
 	original *float64,
 ) (
 	err error,
+
 ) {
 
 	var out float64
 	_, err = fmt.Sscanf(f, "%0.f", out)
+
 	if err != nil {
 
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%0.f` err: %s", name, f, *original, err.Error())
+
 	} else {
 		*original = out
 	}
@@ -262,13 +287,16 @@ func ParseInteger(
 	original *int,
 ) (
 	err error,
+
 ) {
 
 	var out int
 	out, err = strconv.Atoi(integer)
+
 	if err != nil {
 
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
+
 	} else {
 		*original = out
 	}
@@ -283,13 +311,16 @@ func ParseUint32(
 	original *uint32,
 ) (
 	err error,
+
 ) {
 
 	var out int
 	out, err = strconv.Atoi(integer)
+
 	if err != nil {
 
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%d` err: %s", name, integer, *original, err.Error())
+
 	} else {
 		*original = uint32(out)
 	}
@@ -303,6 +334,7 @@ func getIfIs(
 ) (
 	out string,
 	ok bool,
+
 ) {
 
 	if ctx.Is(name) {
@@ -316,6 +348,7 @@ func getIfIs(
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(
 	a, b uint32,
+
 ) uint32 {
 
 	if a < b {

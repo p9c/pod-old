@@ -11,6 +11,7 @@ import (
 
 // OutputSelectionPolicy describes the rules for selecting an output from the
 // wallet.
+
 type OutputSelectionPolicy struct {
 	Account               uint32
 	RequiredConfirmations int32
@@ -23,9 +24,11 @@ func (p *OutputSelectionPolicy) meetsRequiredConfs(txHeight, curHeight int32) bo
 
 // UnspentOutputs fetches all unspent outputs from the wallet that match rules
 // described in the passed policy.
+
 func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOutput, error) {
 
 	var outputResults []*TransactionOutput
+
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 
 		addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
@@ -36,6 +39,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 		// TODO: actually stream outputs from the db instead of fetching
 		// all of them at once.
 		outputs, err := w.TxStore.UnspentOutputs(txmgrNs)
+
 		if err != nil {
 
 			return err
@@ -45,6 +49,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 
 			// Ignore outputs that haven't reached the required
 			// number of confirmations.
+
 			if !policy.meetsRequiredConfs(output.Height, syncBlock.Height) {
 
 				continue
@@ -53,6 +58,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			// Ignore outputs that are not controlled by the account.
 			_, addrs, _, err := txscript.ExtractPkScriptAddrs(output.PkScript,
 				w.chainParams)
+
 			if err != nil || len(addrs) == 0 {
 
 				// Cannot determine which account this belongs
@@ -63,6 +69,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			}
 
 			_, outputAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
+
 			if err != nil {
 
 				return err
@@ -76,6 +83,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			// Stakebase isn't exposed by wtxmgr so those will be
 			// OutputKindNormal for now.
 			outputSource := OutputKindNormal
+
 			if output.FromCoinBase {
 
 				outputSource = OutputKindCoinbase

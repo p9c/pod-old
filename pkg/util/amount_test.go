@@ -8,6 +8,7 @@ import (
 )
 
 func TestAmountCreation(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -104,6 +105,7 @@ func TestAmountCreation(
 	for _, test := range tests {
 
 		a, err := NewAmount(test.amount)
+
 		switch {
 
 		case test.valid && err != nil:
@@ -125,6 +127,7 @@ func TestAmountCreation(
 }
 
 func TestAmountUnitConversions(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -195,6 +198,7 @@ func TestAmountUnitConversions(
 	for _, test := range tests {
 
 		f := test.amount.ToUnit(test.unit)
+
 		if f != test.converted {
 
 			t.Errorf("%v: converted value %v does not match expected %v", test.name, f, test.converted)
@@ -202,6 +206,7 @@ func TestAmountUnitConversions(
 		}
 
 		s := test.amount.Format(test.unit)
+
 		if s != test.s {
 
 			t.Errorf("%v: format '%v' does not match expected '%v'", test.name, s, test.s)
@@ -211,6 +216,7 @@ func TestAmountUnitConversions(
 		// Verify that Amount.ToDUO works as advertised.
 		f1 := test.amount.ToUnit(AmountDUO)
 		f2 := test.amount.ToDUO()
+
 		if f1 != f2 {
 
 			t.Errorf("%v: ToDUO does not match ToUnit(AmountDUO): %v != %v", test.name, f1, f2)
@@ -219,6 +225,7 @@ func TestAmountUnitConversions(
 		// Verify that Amount.String works as advertised.
 		s1 := test.amount.Format(AmountDUO)
 		s2 := test.amount.String()
+
 		if s1 != s2 {
 
 			t.Errorf("%v: String does not match Format(AmountBitcoin): %v != %v", test.name, s1, s2)
@@ -229,6 +236,7 @@ func TestAmountUnitConversions(
 }
 
 func TestAmountMulF64(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -347,6 +355,7 @@ func TestAmountMulF64(
 	for _, test := range tests {
 
 		a := test.amt.MulF64(test.mul)
+
 		if a != test.res {
 
 			t.Errorf("%v: expected %v got %v", test.name, test.res, a)

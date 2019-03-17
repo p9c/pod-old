@@ -12,6 +12,7 @@ import (
 // used, provides access to the test object, and tracks the expected horizon
 
 // and next unfound values.
+
 type Harness struct {
 	t              *testing.T
 	brs            *wallet.BranchRecoveryState
@@ -25,6 +26,7 @@ type (
 	// Stepper is a generic interface that performs an action or assertion
 
 	// against a test Harness.
+
 	Stepper interface {
 
 		// Apply performs an action or assertion against branch recovery
@@ -47,6 +49,7 @@ type (
 	// horizon, and checks that the returned delta meets our expected
 
 	// `delta`.
+
 	CheckDelta struct {
 		delta uint32
 	}
@@ -54,6 +57,7 @@ type (
 	// CheckNumInvalid is a Step that asserts that the branch recovery
 
 	// state reports `total` invalid children with the current horizon.
+
 	CheckNumInvalid struct {
 		total uint32
 	}
@@ -61,6 +65,7 @@ type (
 	// MarkInvalid is a Step that marks the `child` as invalid in the branch
 
 	// recovery state.
+
 	MarkInvalid struct {
 		child uint32
 	}
@@ -68,6 +73,7 @@ type (
 	// ReportFound is a Step that reports `child` as being found to the
 
 	// branch recovery state.
+
 	ReportFound struct {
 		child uint32
 	}
@@ -84,6 +90,7 @@ type (
 //
 
 // NOTE: This should be used before applying any CheckDelta steps.
+
 func (_ InitialDelta) Apply(i int, h *Harness) {
 
 	curHorizon, delta := h.brs.ExtendHorizon()
@@ -95,6 +102,7 @@ func (_ InitialDelta) Apply(i int, h *Harness) {
 // Apply extends the current horizon of the branch recovery state, and checks
 
 // that the returned delta is equal to the CheckDelta's child value.
+
 func (d CheckDelta) Apply(i int, h *Harness) {
 
 	curHorizon, delta := h.brs.ExtendHorizon()
@@ -108,6 +116,7 @@ func (d CheckDelta) Apply(i int, h *Harness) {
 // that lie between the last found address and the current horizon, and compares
 
 // that to the CheckNumInvalid's total.
+
 func (m CheckNumInvalid) Apply(i int, h *Harness) {
 
 	assertNumInvalid(h.t, i, h.brs.NumInvalidInHorizon(), m.total)
@@ -116,6 +125,7 @@ func (m CheckNumInvalid) Apply(i int, h *Harness) {
 // Apply marks the MarkInvalid's child index as invalid in the branch recovery
 
 // state, and increments the harness's expected horizon.
+
 func (m MarkInvalid) Apply(i int, h *Harness) {
 
 	h.brs.MarkInvalidChild(m.child)
@@ -131,9 +141,11 @@ func (m MarkInvalid) Apply(i int, h *Harness) {
 // this step asserts that the branch recovery state's next reported unfound
 
 // value matches our potentially-updated value.
+
 func (r ReportFound) Apply(i int, h *Harness) {
 
 	h.brs.ReportFound(r.child)
+
 	if r.child >= h.expNextUnfound {
 
 		h.expNextUnfound = r.child + 1
@@ -159,6 +171,7 @@ var _ Stepper = ReportFound{}
 
 //   - marking invalid children expands the horizon
 func TestBranchRecoveryState(
+
 	t *testing.T) {
 
 	const recoveryWindow = 10
@@ -281,33 +294,39 @@ func TestBranchRecoveryState(
 }
 
 func assertHorizon(
+
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect horizon", have, want)
 }
 
 func assertDelta(
+
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect delta", have, want)
 }
 
 func assertNextUnfound(
+
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect next unfound", have, want)
 }
 
 func assertNumInvalid(
+
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect num invalid children", have, want)
 }
 
 func assertHaveWant(
+
 	t *testing.T, i int, msg string, have, want uint32) {
 
 	_, _, line, _ := runtime.Caller(2)
+
 	if want != have {
 
 		t.Fatalf("[line: %d, step: %d] %s: got %d, want %d",

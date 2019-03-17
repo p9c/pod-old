@@ -10,6 +10,7 @@ import (
 )
 
 // WalletCfg is the combined app and logging configuration data
+
 type WalletCfg struct {
 	Wallet    *w.Config
 	Levels    map[string]string

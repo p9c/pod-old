@@ -12,6 +12,7 @@ import (
 )
 
 // Config defines the configuration options for podctl. See loadConfig for details on the configuration load process.
+
 type Config struct {
 	ShowVersion   *bool   `short:"V" long:"version" description:"Display version information and exit"`
 	ListCommands  *bool   `short:"l" long:"Listcommands" description:"List all of the supported commands and exit"`
@@ -51,6 +52,7 @@ var PodCtlHomeDir = util.AppDataDir("pod/ctl", false)
 var SPVHomeDir = util.AppDataDir("pod/spv", false)
 
 // ListCommands categorizes and lists all of the usable commands along with their one-line usage.
+
 func ListCommands() {
 
 	const (
@@ -62,9 +64,11 @@ func ListCommands() {
 	// Get a list of registered commands and categorize and filter them.
 	cmdMethods := json.RegisteredCmdMethods()
 	categorized := make([][]string, numCategories)
+
 	for _, method := range cmdMethods {
 
 		flags, err := json.MethodUsageFlags(method)
+
 		if err != nil {
 
 			// This should never happen since the method was just returned from the package, but be safe.
@@ -72,12 +76,14 @@ func ListCommands() {
 		}
 
 		// Skip the commands that aren't usable from this utility.
+
 		if flags&unusableFlags != 0 {
 
 			continue
 		}
 
 		usage, err := json.MethodUsageText(method)
+
 		if err != nil {
 
 			// This should never happen since the method was just returned from the package, but be safe.
@@ -86,6 +92,7 @@ func ListCommands() {
 
 		// Categorize the command based on the usage flags.
 		category := categoryChain
+
 		if flags&json.UFWalletOnly != 0 {
 
 			category = categoryWallet
@@ -98,10 +105,12 @@ func ListCommands() {
 	categoryTitles := make([]string, numCategories)
 	categoryTitles[categoryChain] = "Chain Server Commands:"
 	categoryTitles[categoryWallet] = "Wallet Server Commands (--wallet):"
+
 	for category := uint8(0); category < numCategories; category++ {
 
 		fmt.Println(categoryTitles[category])
 		fmt.Println()
+
 		for _, usage := range categorized[category] {
 
 			fmt.Println("  ", usage)
@@ -115,9 +124,11 @@ func ListCommands() {
 // cleanAndExpandPath expands environement variables and leading ~ in the passed path, cleans the result, and returns it.
 func cleanAndExpandPath(
 	path string,
+
 ) string {
 
 	// Expand initial ~ to OS specific home directory.
+
 	if strings.HasPrefix(path, "~") {
 
 		homeDir := filepath.Dir(PodCtlHomeDir)
@@ -143,6 +154,8 @@ func cleanAndExpandPath(
 // 	4) Parse CLI options and overwrite/add any specified options
 
 // The above results in functioning properly without any config settings while still allowing the user to override settings with config files and command line options.  Command line options always take precedence.
+
+
 func loadConfig() (*Config, []string, error) {
 
 
@@ -159,7 +172,11 @@ func loadConfig() (*Config, []string, error) {
 	preCfg := cfg
 	preParser := flags.NewParser(&preCfg, flags.HelpFlag)
 	_, err := preParser.Parse()
+
+
 	if err != nil {
+
+
 
 if e, ok := err.(*flags.Error); ok && e.Type == flags.ErrHelp {
 
@@ -179,6 +196,8 @@ fmt.Fprintln(os.Stderr, err)
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
 	usageMessage := fmt.Sprintf("Use %s -h to show options", appName)
+
+
 	if preCfg.ShowVersion {
 
 fmt.Println(appName, "version", version())
@@ -187,11 +206,15 @@ fmt.Println(appName, "version", version())
 
 
 	// Show the available commands and exit if the associated flag was specified.
+
+
 	if preCfg.ListCommands {
 
 ListCommands()
 		os.Exit(0)
 	}
+
+
 
 	if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
 
@@ -199,9 +222,13 @@ ListCommands()
 
 		// Use config file for RPC server to create default podctl config
 		var serverConfigPath string
+
+
 		if preCfg.Wallet != "" {
 
 serverConfigPath = filepath.Join(SPVHomeDir, "sac.conf")
+
+
 		} else {
 
 serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
@@ -209,6 +236,8 @@ serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
 
 		fmt.Println("Creating default config...")
 		err := createDefaultConfigFile(preCfg.ConfigFile, serverConfigPath)
+
+
 		if err != nil {
 
 fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)
@@ -220,7 +249,11 @@ fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)
 	// Load additional config from file.
 	parser := flags.NewParser(&cfg, flags.Default)
 	err = flags.NewIniParser(parser).ParseFile(preCfg.ConfigFile)
+
+
 	if err != nil {
+
+
 
 if _, ok := err.(*os.PathError); !ok {
 
@@ -236,7 +269,11 @@ fmt.Fprintf(os.Stderr, "Error parsing config file: %v\n",
 
 	// Parse command line options again to ensure they take precedence.
 	remainingArgs, err := parser.Parse()
+
+
 	if err != nil {
+
+
 
 if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
 
@@ -249,15 +286,21 @@ fmt.Fprintln(os.Stderr, usageMessage)
 
 	// Multiple networks can't be selected simultaneously.
 	numNets := 0
+
+
 	if cfg.TestNet3 {
 
 numNets++
 	}
 
+
+
 	if cfg.SimNet {
 
 numNets++
 	}
+
+
 
 	if numNets > 1 {
 
@@ -270,6 +313,8 @@ str := "%s: The testnet and simnet params can't be used " +
 
 
 	// Override the RPC certificate if the --wallet flag was specified and the user did not specify one.
+
+
 	if cfg.Wallet != "" && cfg.RPCCert == DefaultRPCCertFile {
 
 cfg.RPCCert = DefaultWalletCertFile
@@ -292,11 +337,15 @@ cfg.RPCCert = DefaultWalletCertFile
 
 // createDefaultConfig creates a basic config file at the given destination path. For this it tries to read the config file for the RPC server (either pod or sac), and extract the RPC user and password from it.
 func createDefaultConfigFile(
+
+
 		destinationPath, serverConfigPath string) error {
 
 
 	// Read the RPC server config
 	serverConfigFile, err := os.Open(serverConfigPath)
+
+
 	if err != nil {
 
 return err
@@ -304,6 +353,8 @@ return err
 
 	defer serverConfigFile.Close()
 	content, err := ioutil.ReadAll(serverConfigFile)
+
+
 	if err != nil {
 
 return err
@@ -314,12 +365,16 @@ return err
 
 	// Extract the rpcuser
 	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
+
+
 	if err != nil {
 
 return err
 	}
 
 	userSubmatches := rpcUserRegexp.FindSubmatch(content)
+
+
 	if userSubmatches == nil {
 
 
@@ -330,12 +385,16 @@ return err
 
 	// Extract the rpcpass
 	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
+
+
 	if err != nil {
 
 return err
 	}
 
 	passSubmatches := rpcPassRegexp.FindSubmatch(content)
+
+
 	if passSubmatches == nil {
 
 
@@ -346,6 +405,8 @@ return err
 
 	// Extract the TLS
 	TLSRegexp, err := regexp.Compile(`(?m)^\s*TLS=(0|1)(?:\s|$)`)
+
+
 	if err != nil {
 
 return err
@@ -355,6 +416,8 @@ return err
 
 	// Create the destination directory if it does not exists
 	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
+
+
 	if err != nil {
 
 return err
@@ -364,6 +427,8 @@ return err
 	// Create the destination file and write the rpcuser and rpcpass to it
 	dest, err := os.OpenFile(destinationPath,
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+
+
 	if err != nil {
 
 fmt.Println("ERROR", err)
@@ -373,6 +438,8 @@ fmt.Println("ERROR", err)
 	defer dest.Close()
 	destString := fmt.Sprintf("rpcuser=%s\nrpcpass=%s\n",
 		string(userSubmatches[1]), string(passSubmatches[1]))
+
+
 	if TLSSubmatches != nil {
 
 destString += fmt.Sprintf("TLS=%s\n", TLSSubmatches[1])
@@ -391,36 +458,45 @@ func normalizeAddress(
 	useTestNet3,
 	useSimNet,
 	useWallet bool,
+
 ) string {
 
 	_, _, err := net.SplitHostPort(addr)
+
 	if err != nil {
 
 		var defaultPort string
+
 		switch {
 
 		case useTestNet3:
+
 			if useWallet {
 
 				defaultPort = "21046"
+
 			} else {
 
 				defaultPort = "21048"
 			}
 
 		case useSimNet:
+
 			if useWallet {
 
 				defaultPort = "41046"
+
 			} else {
 
 				defaultPort = "41048"
 			}
 
 		default:
+
 			if useWallet {
 
 				defaultPort = "11046"
+
 			} else {
 
 				defaultPort = "11048"

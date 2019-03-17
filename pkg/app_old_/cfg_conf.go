@@ -17,6 +17,7 @@ import (
 )
 
 // ConfigSet is a full set of configuration structs
+
 type ConfigSet struct {
 	Conf   *ConfCfg
 	Ctl    *ctl.Config
@@ -26,6 +27,7 @@ type ConfigSet struct {
 }
 
 // PortSet is a single set of ports for a configuration
+
 type PortSet struct {
 	P2P       string
 	NodeRPC   string
@@ -35,6 +37,7 @@ type PortSet struct {
 // DefaultConfConfig returns a crispy fresh default conf configuration
 func DefaultConfConfig(
 	datadir string,
+
 ) *ConfCfg {
 
 	u := GenKey()
@@ -67,6 +70,7 @@ func GenPortSet(
 	portbase int,
 ) (
 	ps *PortSet,
+
 ) {
 
 	/* From the base, each element is as follows:
@@ -96,6 +100,7 @@ func GetDefaultConfs(
 	datadir string,
 ) (
 	out *ConfigSet,
+
 ) {
 
 	out = new(ConfigSet)
@@ -110,6 +115,7 @@ func GetDefaultConfs(
 // SyncToConfs takes a ConfigSet and synchronises the values according to the ConfCfg settings
 func SyncToConfs(
 	in *ConfigSet,
+
 ) {
 
 	if in == nil {
@@ -120,6 +126,7 @@ func SyncToConfs(
 		in.Ctl == nil ||
 		in.Node == nil ||
 		in.Wallet == nil ||
+
 		in.Shell == nil {
 		panic("configset had a nil element\n" + spew.Sdump(in))
 	}
@@ -202,9 +209,11 @@ func SyncToConfs(
 // WriteConfConfig creates and writes the config file in the requested location
 func WriteConfConfig(
 	cfg *ConfCfg,
+
 ) {
 
 	j, err := json.MarshalIndent(cfg, "", "  ")
+
 	if err != nil {
 
 		panic(err.Error())
@@ -213,6 +222,7 @@ func WriteConfConfig(
 	j = append(j, '\n')
 	EnsureDir(cfg.ConfigFile)
 	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
+
 	if err != nil {
 
 		panic(err.Error())
@@ -223,6 +233,7 @@ func WriteConfConfig(
 // WriteConfigSet writes a set of configurations to disk
 func WriteConfigSet(
 	in *ConfigSet,
+
 ) {
 
 	WriteConfConfig(in.Conf)
@@ -235,10 +246,12 @@ func WriteConfigSet(
 // WriteDefaultConfConfig creates and writes a default config file in the requested location
 func WriteDefaultConfConfig(
 	datadir string,
+
 ) {
 
 	defCfg := DefaultConfConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
+
 	if err != nil {
 
 		panic(err.Error())
@@ -247,6 +260,7 @@ func WriteDefaultConfConfig(
 	j = append(j, '\n')
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
+
 	if err != nil {
 
 		panic(err.Error())
@@ -264,6 +278,7 @@ func configConf(
 	ctx *climax.Context,
 	datadir,
 	portbase string,
+
 ) {
 
 	cs := GetDefaultConfs(datadir)
@@ -271,6 +286,7 @@ func configConf(
 	var r string
 	var ok bool
 	var listeners []string
+
 	if r, ok = getIfIs(ctx, "nodelistener"); ok {
 
 		NormalizeAddresses(r, portbase, &listeners)
@@ -412,6 +428,7 @@ func configConf(
 	if r, ok = getIfIs(ctx, "network"); ok {
 
 		r = strings.ToLower(r)
+
 		switch r {
 		case "mainnet", "testnet", "regtestnet", "simnet":
 		default:
@@ -420,6 +437,7 @@ func configConf(
 
 		ConfConfig.Network = r
 		fmt.Println("configured for", r, "network")
+
 		switch r {
 		case "mainnet":
 			cs.Ctl.TestNet3 = false
@@ -485,9 +503,11 @@ func configConf(
 	WriteNodeConfig(cs.Node)
 	WriteWalletConfig(cs.Wallet)
 	WriteShellConfig(cs.Shell)
+
 	if ctx.Is("show") {
 
 		j, err := json.MarshalIndent(cs.Conf, "", "  ")
+
 		if err != nil {
 
 			panic(err.Error())
@@ -501,6 +521,7 @@ func configConf(
 /*
 func getConfs(
 	datadir string,
+
 ) {
 
 	confs = []string{

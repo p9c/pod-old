@@ -13,6 +13,7 @@ import (
 
 // TestHaveBlock tests the HaveBlock API to ensure proper functionality.
 func TestHaveBlock(
+
 	t *testing.T) {
 
 	// Load up blocks such that there is a side chain.
@@ -137,6 +138,7 @@ func TestHaveBlock(
 
 // TestCalcSequenceLock tests the LockTimeToSequence function, and the CalcSequenceLock method of a Chain instance. The tests exercise several combinations of inputs to the CalcSequenceLock function in order to ensure the returned SequenceLocks are correct for each test instance.
 func TestCalcSequenceLock(
+
 	t *testing.T) {
 
 	netParams := &chaincfg.SimNetParams
@@ -201,6 +203,7 @@ func TestCalcSequenceLock(
 
 	// Adding a utxo with a height of 0x7fffffff indicates that the output is currently unmined.
 	utxoView.AddTxOuts(util.NewTx(unConfTx), 0x7fffffff)
+
 	tests := []struct {
 		tx      *wire.MsgTx
 		view    *UtxoViewpoint
@@ -457,6 +460,7 @@ func TestCalcSequenceLock(
 
 // nodeHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected hash slices in the tests.
 func nodeHashes(
+
 	nodes []*blockNode, indexes ...int) []chainhash.Hash {
 
 	hashes := make([]chainhash.Hash, 0, len(indexes))
@@ -471,6 +475,7 @@ func nodeHashes(
 
 // nodeHeaders is a convenience function that returns the headers for all of the passed indexes of the provided nodes.  It is used to construct expected located headers in the tests.
 func nodeHeaders(
+
 	nodes []*blockNode, indexes ...int) []wire.BlockHeader {
 
 	headers := make([]wire.BlockHeader, 0, len(indexes))
@@ -485,6 +490,7 @@ func nodeHeaders(
 
 // TestLocateInventory ensures that locating inventory via the LocateHeaders and LocateBlocks functions behaves as expected.
 func TestLocateInventory(
+
 	t *testing.T) {
 
 	// Construct a synthetic block chain with a block index consisting of the following structure.
@@ -516,6 +522,7 @@ func TestLocateInventory(
 	// Create a chain view for a completely unrelated block chain to simulate a remote node on a totally different chain.
 	unrelatedBranchNodes := chainedNodes(nil, 5)
 	unrelatedView := newChainView(tip(unrelatedBranchNodes))
+
 	tests := []struct {
 		name string
 		// locator for requested inventory
@@ -751,6 +758,7 @@ func TestLocateInventory(
 			headers = chain.locateHeaders(test.locator,
 				&test.hashStop, test.maxAllowed)
 			chain.chainLock.RUnlock()
+
 		} else {
 
 			headers = chain.LocateHeaders(test.locator,
@@ -788,6 +796,7 @@ func TestLocateInventory(
 
 // TestHeightToHashRange ensures that fetching a range of block hashes by start height and end hash works as expected.
 func TestHeightToHashRange(
+
 	t *testing.T) {
 
 	// Construct a synthetic block chain with a block index consisting of the following structure.
@@ -817,6 +826,7 @@ func TestHeightToHashRange(
 	}
 
 	chain.bestChain.SetTip(tip(branch0Nodes))
+
 	tests := []struct {
 		name string
 		// locator for requested inventory
@@ -907,6 +917,7 @@ func TestHeightToHashRange(
 
 // TestIntervalBlockHashes ensures that fetching block hashes at specified intervals by end hash works as expected.
 func TestIntervalBlockHashes(
+
 	t *testing.T) {
 
 	// Construct a synthetic block chain with a block index consisting of the following structure.
@@ -936,6 +947,7 @@ func TestIntervalBlockHashes(
 	}
 
 	chain.bestChain.SetTip(tip(branch0Nodes))
+
 	tests := []struct {
 		name        string
 		endHash     chainhash.Hash

@@ -6,6 +6,7 @@ import (
 )
 
 // Ine (cl.Ine) returns caller location in source code
+
 var Ine = func() error {
 
 	_, file, line, _ := runtime.Caller(1)

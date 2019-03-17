@@ -16,6 +16,7 @@ var CtlFlags = GetFlags(CtlCommand)
 // DefaultCtlConfig returns an allocated, default CtlCfg
 func DefaultCtlConfig(
 	datadir string,
+
 ) *ctl.Config {
 	return &ctl.Config{
 		ConfigFile:    filepath.Join(datadir, "ctl/conf.json"),
@@ -39,9 +40,11 @@ func DefaultCtlConfig(
 // WriteCtlConfig writes the current config in the requested location
 func WriteCtlConfig(
 	cc *ctl.Config,
+
 ) {
 
 	j, err := json.MarshalIndent(cc, "", "  ")
+
 	if err != nil {
 
 		log <- cl.Err(err.Error())
@@ -51,6 +54,7 @@ func WriteCtlConfig(
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
 	EnsureDir(cc.ConfigFile)
 	err = ioutil.WriteFile(cc.ConfigFile, j, 0600)
+
 	if err != nil {
 
 		log <- cl.Fatal{
@@ -66,10 +70,12 @@ func WriteCtlConfig(
 // WriteDefaultCtlConfig writes a default config in the requested location
 func WriteDefaultCtlConfig(
 	datadir string,
+
 ) {
 
 	defCfg := DefaultCtlConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
+
 	if err != nil {
 
 		log <- cl.Err(err.Error())
@@ -79,6 +85,7 @@ func WriteDefaultCtlConfig(
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
+
 	if err != nil {
 
 		log <- cl.Fatal{
@@ -96,12 +103,14 @@ func WriteDefaultCtlConfig(
 func configCtl(
 	ctx *climax.Context,
 	cfgFile string,
+
 ) {
 
 	var r string
 	var ok bool
 
 	// Apply all configurations specified on commandline
+
 	if r, ok = getIfIs(ctx, "debuglevel"); ok {
 
 		CtlCfg.DebugLevel = r
@@ -169,6 +178,7 @@ func configCtl(
 	}
 
 	otn, osn := "false", "false"
+
 	if CtlCfg.TestNet3 {
 
 		otn = "true"
@@ -181,6 +191,7 @@ func configCtl(
 
 	tn, ts := ctx.Get("testnet")
 	sn, ss := ctx.Get("simnet")
+
 	if ts {
 
 		CtlCfg.TestNet3 = tn == "true"
@@ -232,6 +243,7 @@ func configCtl(
 		}
 
 		j, err := json.MarshalIndent(CtlCfg, "", "  ")
+
 		if err != nil {
 
 			log <- cl.Err(err.Error())
@@ -243,6 +255,7 @@ func configCtl(
 		}
 
 		e := ioutil.WriteFile(cfgFile, j, 0600)
+
 		if e != nil {
 			log <- cl.Error{
 				"error writing configuration file:", e,

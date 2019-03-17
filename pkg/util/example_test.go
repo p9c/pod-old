@@ -28,6 +28,7 @@ func ExampleAmount() {
 func ExampleNewAmount() {
 
 	amountOne, err := util.NewAmount(1)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -36,6 +37,7 @@ func ExampleNewAmount() {
 
 	fmt.Println(amountOne) //Output 1
 	amountFraction, err := util.NewAmount(0.01234567)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -44,6 +46,7 @@ func ExampleNewAmount() {
 
 	fmt.Println(amountFraction) //Output 2
 	amountZero, err := util.NewAmount(0)
+
 	if err != nil {
 
 		fmt.Println(err)
@@ -52,6 +55,7 @@ func ExampleNewAmount() {
 
 	fmt.Println(amountZero) //Output 3
 	amountNaN, err := util.NewAmount(math.NaN())
+
 	if err != nil {
 
 		fmt.Println(err)

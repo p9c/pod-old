@@ -15,6 +15,7 @@ import (
 // TestSequenceLocksActive tests the SequenceLockActive function to ensure it
 // works as expected in all possible combinations/scenarios.
 func TestSequenceLocksActive(
+
 	t *testing.T) {
 
 	seqLock := func(h int32, s int64) *SequenceLock {
@@ -24,6 +25,7 @@ func TestSequenceLocksActive(
 			BlockHeight: h,
 		}
 	}
+
 	tests := []struct {
 		seqLock     *SequenceLock
 		blockHeight int32
@@ -44,10 +46,12 @@ func TestSequenceLocksActive(
 		{seqLock: seqLock(-1, 30), blockHeight: 2, mtp: time.Unix(30, 0), want: false},
 	}
 	t.Logf("Running %d sequence locks tests", len(tests))
+
 	for i, test := range tests {
 
 		got := SequenceLockActive(test.seqLock,
 			test.blockHeight, test.mtp)
+
 		if got != test.want {
 
 			t.Fatalf("SequenceLockActive #%d got %v want %v", i,
@@ -59,11 +63,13 @@ func TestSequenceLocksActive(
 // TestCheckConnectBlockTemplate tests the CheckConnectBlockTemplate function to
 // ensure it fails.
 func TestCheckConnectBlockTemplate(
+
 	t *testing.T) {
 
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("checkconnectblocktemplate",
 		&chaincfg.MainNetParams)
+
 	if err != nil {
 
 		t.Errorf("Failed to setup chain instance: %v", err)
@@ -86,24 +92,29 @@ func TestCheckConnectBlockTemplate(
 		"blk_3A.dat.bz2",
 	}
 	var blocks []*util.Block
+
 	for _, file := range testFiles {
 
 		blockTmp, err := loadBlocks(file)
+
 		if err != nil {
 
 			t.Fatalf("Error loading file: %v\n", err)
 		}
 		blocks = append(blocks, blockTmp...)
 	}
+
 	for i := 1; i <= 3; i++ {
 
 		isMainChain, _, err := chain.ProcessBlock(
 			blocks[i], BFNone, blocks[i].Height())
+
 		if err != nil {
 
 			t.Fatalf("CheckConnectBlockTemplate: Received unexpected error "+
 				"processing block %d: %v", i, err)
 		}
+
 		if !isMainChain {
 
 			t.Fatalf("CheckConnectBlockTemplate: Expected block %d to connect "+
@@ -113,6 +124,7 @@ func TestCheckConnectBlockTemplate(
 
 	// Block 3 should fail to connect since it's already inserted.
 	err = chain.CheckConnectBlockTemplate(blocks[3])
+
 	if err == nil {
 
 		t.Fatal("CheckConnectBlockTemplate: Did not received expected error " +
@@ -121,6 +133,7 @@ func TestCheckConnectBlockTemplate(
 
 	// Block 4 should connect successfully to tip of chain.
 	err = chain.CheckConnectBlockTemplate(blocks[4])
+
 	if err != nil {
 
 		t.Fatalf("CheckConnectBlockTemplate: Received unexpected error on "+
@@ -129,6 +142,7 @@ func TestCheckConnectBlockTemplate(
 
 	// Block 3a should fail to connect since does not build on chain tip.
 	err = chain.CheckConnectBlockTemplate(blocks[5])
+
 	if err == nil {
 
 		t.Fatal("CheckConnectBlockTemplate: Did not received expected error " +
@@ -139,6 +153,7 @@ func TestCheckConnectBlockTemplate(
 	invalidPowBlock := *blocks[4].MsgBlock()
 	invalidPowBlock.Header.Nonce++
 	err = chain.CheckConnectBlockTemplate(util.NewBlock(&invalidPowBlock))
+
 	if err != nil {
 
 		t.Fatalf("CheckConnectBlockTemplate: Received unexpected error on "+
@@ -149,6 +164,7 @@ func TestCheckConnectBlockTemplate(
 	invalidBlock := *blocks[4].MsgBlock()
 	invalidBlock.Header.Bits--
 	err = chain.CheckConnectBlockTemplate(util.NewBlock(&invalidBlock))
+
 	if err == nil {
 
 		t.Fatal("CheckConnectBlockTemplate: Did not received expected error " +
@@ -158,12 +174,14 @@ func TestCheckConnectBlockTemplate(
 
 // TestCheckBlockSanity tests the CheckBlockSanity function to ensure it works as expected.
 func TestCheckBlockSanity(
+
 	t *testing.T) {
 
 	powLimit := chaincfg.MainNetParams.PowLimit
 	block := util.NewBlock(&Block100000)
 	timeSource := NewMedianTime()
 	err := CheckBlockSanity(block, powLimit, timeSource, false, 1, false)
+
 	if err != nil {
 
 		t.Errorf("CheckBlockSanity: %v", err)
@@ -175,6 +193,7 @@ func TestCheckBlockSanity(
 	timestamp := block.MsgBlock().Header.Timestamp
 	block.MsgBlock().Header.Timestamp = timestamp.Add(time.Nanosecond)
 	err = CheckBlockSanity(block, powLimit, timeSource, false, 1, false)
+
 	if err == nil {
 
 		t.Errorf("CheckBlockSanity: error is nil when it shouldn't be")
@@ -185,6 +204,7 @@ func TestCheckBlockSanity(
 // various serialized heights and also does negative tests to ensure errors
 // and handled properly.
 func TestCheckSerializedHeight(
+
 	t *testing.T) {
 
 	// Create an empty coinbase template to be used in the tests below.
@@ -199,6 +219,7 @@ func TestCheckSerializedHeight(
 	badHeightError := RuleError{
 		ErrorCode: ErrBadCoinbaseHeight,
 	}
+
 	tests := []struct {
 		sigScript  []byte // Serialized data
 		wantHeight int32  // Expected height
@@ -222,21 +243,25 @@ func TestCheckSerializedHeight(
 		{[]byte{0x03, 0x40, 0x0d, 0x03}, 1074594560, badHeightError},
 	}
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		msgTx := coinbaseTx.Copy()
 		msgTx.TxIn[0].SignatureScript = test.sigScript
 		tx := util.NewTx(msgTx)
 		err := checkSerializedHeight(tx, test.wantHeight)
+
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
 			t.Errorf("checkSerializedHeight #%d wrong error type "+
 				"got: %v <%T>, want: %T", i, err, err, test.err)
 			continue
 		}
+
 		if rerr, ok := err.(RuleError); ok {
 
 			trerr := test.err.(RuleError)
+
 			if rerr.ErrorCode != trerr.ErrorCode {
 
 				t.Errorf("checkSerializedHeight #%d wrong "+

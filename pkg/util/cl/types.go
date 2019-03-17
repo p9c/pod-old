@@ -96,6 +96,7 @@ type (
 )
 
 // A SubSystem is a logger with a specific prefix name prepended  to the entry
+
 type SubSystem struct {
 	Name        string
 	Ch          chan interface{}

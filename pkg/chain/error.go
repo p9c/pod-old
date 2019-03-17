@@ -8,6 +8,7 @@ import (
 type DeploymentError uint32
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
+
 func (e DeploymentError) Error() string {
 
 	return fmt.Sprintf("deployment ID %d does not exist", uint32(e))
@@ -17,6 +18,7 @@ func (e DeploymentError) Error() string {
 type AssertError string
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
+
 func (e AssertError) Error() string {
 
 	return "assertion failed: " + string(e)
@@ -206,6 +208,7 @@ var errorCodeStrings = map[ErrorCode]string{
 }
 
 // String returns the ErrorCode as a human-readable name.
+
 func (e ErrorCode) String() string {
 
 	if s := errorCodeStrings[e]; s != "" {
@@ -217,12 +220,14 @@ func (e ErrorCode) String() string {
 }
 
 // RuleError identifies a rule violation.  It is used to indicate that processing of a block or transaction failed due to one of the many validation rules.  The caller can use type assertions to determine if a failure was specifically due to a rule violation and access the ErrorCode field to ascertain the specific reason for the rule violation.
+
 type RuleError struct {
 	ErrorCode   ErrorCode // Describes the kind of error
 	Description string    // Human readable description of the issue
 }
 
 // Error satisfies the error interface and prints human-readable errors.
+
 func (e RuleError) Error() string {
 
 	return e.Description
@@ -230,6 +235,7 @@ func (e RuleError) Error() string {
 
 // ruleError creates an RuleError given a set of arguments.
 func ruleError(
+
 	c ErrorCode, desc string) RuleError {
 
 	return RuleError{ErrorCode: c, Description: desc}

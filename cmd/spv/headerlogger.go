@@ -12,6 +12,7 @@ import (
 // to show users progress of certain "actions" involving some or all current
 
 // blocks. Ex: syncing to best chain, indexing all blocks, etc.
+
 type headerProgressLogger struct {
 	receivedLogBlocks int64
 	lastBlockLogTime  time.Time
@@ -28,6 +29,7 @@ type headerProgressLogger struct {
 // progress to the user. In order to prevent spam, it limits logging to one
 
 // message every 10 seconds with duration and totals included.
+
 func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32) {
 
 	b.Lock()
@@ -40,6 +42,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 
 	now := time.Now()
 	duration := now.Sub(b.lastBlockLogTime)
+
 	if duration < time.Second*10 {
 
 		return
@@ -50,6 +53,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	tDuration := 10 * time.Millisecond * time.Duration(durationMillis/10)
 	// Log information about new block height.
 	entityStr := b.entityType
+
 	if b.receivedLogBlocks > 1 {
 
 		entityStr += "s"
@@ -78,6 +82,7 @@ func (b *headerProgressLogger) SetLastLogTime(time time.Time) {
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
 func newBlockProgressLogger(
 	progressMessage string,
+
 	entityType string, logger *cl.SubSystem) *headerProgressLogger {
 
 	return &headerProgressLogger{

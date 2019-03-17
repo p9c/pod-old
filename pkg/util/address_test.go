@@ -14,6 +14,7 @@ import (
 )
 
 func TestAddresses(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -37,6 +38,7 @@ func TestAddresses(
 					0xe3, 0x4c, 0xce, 0x70, 0xc8, 0x63, 0x73, 0x27, 0x3e, 0xfc,
 					0xc5, 0x4c, 0xe7, 0xd2, 0xa4, 0x91, 0xbb, 0x4a, 0x0e, 0x84},
 				chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -58,6 +60,7 @@ func TestAddresses(
 					0x0e, 0xf0, 0x30, 0x10, 0x7f, 0xd2, 0x6e, 0x0b, 0x6b, 0xf4,
 					0x05, 0x12, 0xbc, 0xa2, 0xce, 0xb1, 0xdd, 0x80, 0xad, 0xaa},
 				chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -79,6 +82,7 @@ func TestAddresses(
 					0x78, 0xb3, 0x16, 0xa0, 0x86, 0x47, 0xd5, 0xb7, 0x72, 0x83,
 					0xe5, 0x12, 0xd3, 0x60, 0x3f, 0x1f, 0x1c, 0x8d, 0xe6, 0x8f},
 				chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -95,6 +99,7 @@ func TestAddresses(
 			name:  "p2pkh wrong hash length",
 			addr:  "",
 			valid: false,
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -128,6 +133,7 @@ func TestAddresses(
 					0xf8, 0x15, 0xb0, 0x36, 0xd9, 0xbb, 0xbc, 0xe5, 0xe9, 0xf2,
 					0xa0, 0x0a, 0xbd, 0x1b, 0xf3, 0xdc, 0x91, 0xe9, 0x55, 0x10},
 				chaincfg.MainNetParams.ScriptHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				script := []byte{
@@ -171,6 +177,7 @@ func TestAddresses(
 					0xe8, 0xc3, 0x00, 0xc8, 0x79, 0x86, 0xef, 0xa8, 0x4c, 0x37,
 					0xc0, 0x51, 0x99, 0x29, 0x01, 0x9e, 0xf8, 0x6e, 0xb5, 0xb4},
 				chaincfg.MainNetParams.ScriptHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				hash := []byte{
@@ -193,6 +200,7 @@ func TestAddresses(
 					0xc5, 0x79, 0x34, 0x2c, 0x2c, 0x4c, 0x92, 0x20, 0x20, 0x5e,
 					0x2c, 0xdc, 0x28, 0x56, 0x17, 0x04, 0x0c, 0x92, 0x4a, 0x0a},
 				chaincfg.TestNet3Params.ScriptHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				hash := []byte{
@@ -209,6 +217,7 @@ func TestAddresses(
 			name:  "p2sh wrong hash length",
 			addr:  "",
 			valid: false,
+
 			f: func() (util.Address, error) {
 
 				hash := []byte{
@@ -234,6 +243,7 @@ func TestAddresses(
 					0xc3, 0xeb, 0xec, 0x3a, 0x95, 0x77, 0x24, 0x89, 0x5d, 0xca,
 					0x52, 0xc6, 0xb4},
 				util.PKFCompressed, chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -259,6 +269,7 @@ func TestAddresses(
 					0x01, 0xf9, 0x13, 0x7f, 0x23, 0xc2, 0xc4, 0x09, 0x27, 0x3e,
 					0xb1, 0x6e, 0x65},
 				util.PKFCompressed, chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -288,6 +299,7 @@ func TestAddresses(
 					0x8b, 0x64, 0xf9, 0xd4, 0xc0, 0x3f, 0x99, 0x9b, 0x86, 0x43,
 					0xf6, 0x56, 0xb4, 0x12, 0xa3},
 				util.PKFUncompressed, chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -320,6 +332,7 @@ func TestAddresses(
 					0x76, 0x83, 0x01, 0x60, 0xc6, 0xd2, 0xeb, 0x5e, 0x6a, 0x4c,
 					0x44, 0xd3, 0x3f, 0x45, 0x3e},
 				util.PKFHybrid, chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -352,6 +365,7 @@ func TestAddresses(
 					0x17, 0xab, 0x65, 0x12, 0x9b, 0x8a, 0x2e, 0x68, 0x1f, 0x3c,
 					0x1e, 0x09, 0x08, 0xef, 0x7b},
 				util.PKFHybrid, chaincfg.MainNetParams.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -380,6 +394,7 @@ func TestAddresses(
 					0xc3, 0xeb, 0xec, 0x3a, 0x95, 0x77, 0x24, 0x89, 0x5d, 0xca,
 					0x52, 0xc6, 0xb4},
 				util.PKFCompressed, chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -405,6 +420,7 @@ func TestAddresses(
 					0x01, 0xf9, 0x13, 0x7f, 0x23, 0xc2, 0xc4, 0x09, 0x27, 0x3e,
 					0xb1, 0x6e, 0x65},
 				util.PKFCompressed, chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -434,6 +450,7 @@ func TestAddresses(
 					0x8b, 0x64, 0xf9, 0xd4, 0xc0, 0x3f, 0x99, 0x9b, 0x86, 0x43,
 					0xf6, 0x56, 0xb4, 0x12, 0xa3},
 				util.PKFUncompressed, chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -466,6 +483,7 @@ func TestAddresses(
 					0x76, 0x83, 0x01, 0x60, 0xc6, 0xd2, 0xeb, 0x5e, 0x6a, 0x4c,
 					0x44, 0xd3, 0x3f, 0x45, 0x3e},
 				util.PKFHybrid, chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -498,6 +516,7 @@ func TestAddresses(
 					0x17, 0xab, 0x65, 0x12, 0x9b, 0x8a, 0x2e, 0x68, 0x1f, 0x3c,
 					0x1e, 0x09, 0x08, 0xef, 0x7b},
 				util.PKFHybrid, chaincfg.TestNet3Params.PubKeyHashAddrID),
+
 			f: func() (util.Address, error) {
 
 				serializedPubKey := []byte{
@@ -526,6 +545,7 @@ func TestAddresses(
 					0x75, 0x1e, 0x76, 0xe8, 0x19, 0x91, 0x96, 0xd4, 0x54, 0x94,
 					0x1c, 0x45, 0xd1, 0xb3, 0xa3, 0x23, 0xf1, 0x43, 0x3b, 0xd6},
 				chaincfg.MainNetParams.Bech32HRPSegwit),
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -550,6 +570,7 @@ func TestAddresses(
 					0x6c, 0x98, 0x56, 0x78, 0xcd, 0x4d, 0x27, 0xa1,
 					0xb8, 0xc6, 0x32, 0x96, 0x04, 0x90, 0x32, 0x62},
 				chaincfg.MainNetParams.Bech32HRPSegwit),
+
 			f: func() (util.Address, error) {
 
 				scriptHash := []byte{
@@ -574,6 +595,7 @@ func TestAddresses(
 					0x75, 0x1e, 0x76, 0xe8, 0x19, 0x91, 0x96, 0xd4, 0x54, 0x94,
 					0x1c, 0x45, 0xd1, 0xb3, 0xa3, 0x23, 0xf1, 0x43, 0x3b, 0xd6},
 				chaincfg.TestNet3Params.Bech32HRPSegwit),
+
 			f: func() (util.Address, error) {
 
 				pkHash := []byte{
@@ -598,6 +620,7 @@ func TestAddresses(
 					0x6c, 0x98, 0x56, 0x78, 0xcd, 0x4d, 0x27, 0xa1,
 					0xb8, 0xc6, 0x32, 0x96, 0x04, 0x90, 0x32, 0x62},
 				chaincfg.TestNet3Params.Bech32HRPSegwit),
+
 			f: func() (util.Address, error) {
 
 				scriptHash := []byte{
@@ -624,6 +647,7 @@ func TestAddresses(
 					0x36, 0x2b, 0x99, 0xd5, 0xe9, 0x1c, 0x6c, 0xe2,
 					0x4d, 0x16, 0x5d, 0xab, 0x93, 0xe8, 0x64, 0x33},
 				chaincfg.TestNet3Params.Bech32HRPSegwit),
+
 			f: func() (util.Address, error) {
 
 				scriptHash := []byte{
@@ -728,6 +752,7 @@ func TestAddresses(
 
 		// Decode addr and compare error against valid.
 		decoded, err := util.DecodeAddress(test.addr, test.net)
+
 		if (err == nil) != test.valid {
 
 			t.Errorf("%v: decoding test failed: %v", test.name, err)
@@ -738,12 +763,14 @@ func TestAddresses(
 
 			// Ensure the stringer returns the same address as the
 			// original.
+
 			if decodedStringer, ok := decoded.(fmt.Stringer); ok {
 
 				addr := test.addr
 				// For Segwit addresses the string representation
 				// will always be lower case, so in that case we
 				// convert the original to lower case first.
+
 				if strings.Contains(test.name, "segwit") {
 
 					addr = strings.ToLower(addr)
@@ -760,6 +787,7 @@ func TestAddresses(
 
 			// Encode again and compare against the original.
 			encoded := decoded.EncodeAddress()
+
 			if test.encoded != encoded {
 
 				t.Errorf("%v: decoding and encoding produced different addressess: %v != %v",
@@ -769,6 +797,7 @@ func TestAddresses(
 
 			// Perform type-specific calculations.
 			var saddr []byte
+
 			switch d := decoded.(type) {
 
 			case *util.AddressPubKeyHash:
@@ -787,6 +816,7 @@ func TestAddresses(
 
 			// Check script address, as well as the Hash160 method for P2PKH and
 			// P2SH addresses.
+
 			if !bytes.Equal(saddr, decoded.ScriptAddress()) {
 
 				t.Errorf("%v: script addresses do not match:\n%x != \n%x",
@@ -797,6 +827,7 @@ func TestAddresses(
 			switch a := decoded.(type) {
 
 			case *util.AddressPubKeyHash:
+
 				if h := a.Hash160()[:]; !bytes.Equal(saddr, h) {
 
 					t.Errorf("%v: hashes do not match:\n%x != \n%x",
@@ -805,6 +836,7 @@ func TestAddresses(
 				}
 
 			case *util.AddressScriptHash:
+
 				if h := a.Hash160()[:]; !bytes.Equal(saddr, h) {
 
 					t.Errorf("%v: hashes do not match:\n%x != \n%x",
@@ -813,6 +845,7 @@ func TestAddresses(
 				}
 
 			case *util.AddressWitnessPubKeyHash:
+
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
 
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
@@ -821,6 +854,7 @@ func TestAddresses(
 				}
 
 				expVer := test.result.(*util.AddressWitnessPubKeyHash).WitnessVersion()
+
 				if v := a.WitnessVersion(); v != expVer {
 
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
@@ -836,6 +870,7 @@ func TestAddresses(
 				}
 
 			case *util.AddressWitnessScriptHash:
+
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
 
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
@@ -844,6 +879,7 @@ func TestAddresses(
 				}
 
 				expVer := test.result.(*util.AddressWitnessScriptHash).WitnessVersion()
+
 				if v := a.WitnessVersion(); v != expVer {
 
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
@@ -861,6 +897,7 @@ func TestAddresses(
 			}
 
 			// Ensure the address is for the expected network.
+
 			if !decoded.IsForNet(test.net) {
 
 				t.Errorf("%v: calculated network does not match expected",
@@ -874,9 +911,11 @@ func TestAddresses(
 
 			// If address is invalid, but a creation function exists,
 			// verify that it returns a nil addr and non-nil error.
+
 			if test.f != nil {
 
 				_, err := test.f()
+
 				if err == nil {
 
 					t.Errorf("%v: address is invalid but creating new address succeeded",
@@ -891,6 +930,7 @@ func TestAddresses(
 
 		// Valid test, compare address created with f against expected result.
 		addr, err := test.f()
+
 		if err != nil {
 
 			t.Errorf("%v: address is valid but creating new address failed with error %v",

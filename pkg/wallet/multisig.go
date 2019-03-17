@@ -24,12 +24,14 @@ import (
 //
 
 // This function only works with pubkeys and P2PKH addresses derived from them.
+
 func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte, error) {
 
 	pubKeys := make([]*util.AddressPubKey, len(addrs))
 
 	var dbtx walletdb.ReadTx
 	var addrmgrNs walletdb.ReadBucket
+
 	defer func() {
 
 		if dbtx != nil {
@@ -98,9 +100,11 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 }
 
 // ImportP2SHRedeemScript adds a P2SH redeem script to the wallet.
+
 func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash, error) {
 
 	var p2shAddr *util.AddressScriptHash
+
 	err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)

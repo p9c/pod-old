@@ -12,6 +12,7 @@ var log = Log.Ch
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
 	logger *cl.SubSystem,
+
 ) {
 
 	Log = logger
@@ -21,6 +22,7 @@ func UseLogger(
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
 func directionString(
 	inbound bool,
+
 ) string {
 
 	if inbound {
@@ -36,6 +38,7 @@ func pickNoun(
 	n uint64,
 	singular,
 	plural string,
+
 ) string {
 
 	if n == 1 {

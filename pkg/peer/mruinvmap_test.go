@@ -11,6 +11,7 @@ import (
 
 // TestMruInventoryMap ensures the MruInventoryMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
 func TestMruInventoryMap(
+
 	t *testing.T) {
 
 	// Create a bunch of fake inventory vectors to use in testing the mru inventory code.
@@ -129,6 +130,7 @@ testLoop:
 
 // TestMruInventoryMapStringer tests the stringized output for the MruInventoryMap type.
 func TestMruInventoryMapStringer(
+
 	t *testing.T) {
 
 	// Create a couple of fake inventory vectors to use in testing the mru inventory stringer code.
@@ -157,6 +159,7 @@ func TestMruInventoryMapStringer(
 
 // BenchmarkMruInventoryList performs basic benchmarks on the most recently used inventory handling.
 func BenchmarkMruInventoryList(
+
 	b *testing.B) {
 
 	// Create a bunch of fake inventory vectors to use in benchmarking the mru inventory code.

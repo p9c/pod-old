@@ -10,12 +10,14 @@ import (
 
 // TestCheckBlockScripts ensures that validating the all of the scripts in a known-good block doesn't return an error.
 func TestCheckBlockScripts(
+
 	t *testing.T) {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	testBlockNum := 277647
 	blockDataFile := fmt.Sprintf("%d.dat.bz2", testBlockNum)
 	blocks, err := loadBlocks(blockDataFile)
+
 	if err != nil {
 
 		t.Errorf("Error loading file: %v\n", err)
@@ -36,6 +38,7 @@ func TestCheckBlockScripts(
 
 	storeDataFile := fmt.Sprintf("%d.utxostore.bz2", testBlockNum)
 	view, err := loadUtxoView(storeDataFile)
+
 	if err != nil {
 
 		t.Errorf("Error loading txstore: %v\n", err)
@@ -44,6 +47,7 @@ func TestCheckBlockScripts(
 
 	scriptFlags := txscript.ScriptBip16
 	err = checkBlockScripts(blocks[0], view, scriptFlags, nil, nil)
+
 	if err != nil {
 
 		t.Errorf("Transaction script validation failed: %v\n", err)

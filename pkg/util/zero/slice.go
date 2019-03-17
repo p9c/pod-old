@@ -14,6 +14,7 @@ import "math/big"
 // when zeroing bytes as they are much more efficient than the variable
 // sized zeroing func Bytes.
 func Bytes(
+
 	b []byte) {
 
 	for i := range b {
@@ -27,9 +28,11 @@ func Bytes(
 // specifically clears the underlying bytes whereas simply setting the value
 // does not.  This is mostly useful to forcefully clear private keys.
 func BigInt(
+
 	x *big.Int) {
 
 	b := x.Bits()
+
 	for i := range b {
 
 		b[i] = 0

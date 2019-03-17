@@ -6,6 +6,7 @@ import (
 )
 
 // Params is used to group parameters for various networks such as the main network and test networks.
+
 type Params struct {
 	*chaincfg.Params
 	RPCPort string
@@ -41,6 +42,7 @@ var TestNet3Params = Params{
 // NetName returns the name used when referring to a bitcoin network.  At the time of writing, pod currently places blocks for testnet version 3 in the data and log directory "testnet", which does not match the Name field of the chaincfg parameters.  This function can be used to override this directory name as "testnet" when the passed active network matches wire.TestNet3. A proper upgrade to move the data and log directories for this network to "testnet3" is planned for the future, at which point this function can be removed and the network parameter's name used instead.
 func NetName(
 	chainParams *Params,
+
 ) string {
 
 	switch chainParams.Net {

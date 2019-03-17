@@ -14,6 +14,7 @@ import (
 )
 
 // This example demonstrates how to create a new chain instance and use ProcessBlock to attempt to add a block to the chain.  As the package overview documentation describes, this includes all of the Bitcoin consensus rules.  This example intentionally attempts to insert a duplicate genesis block to illustrate how an invalid block is handled.
+
 func ExampleBlockChain_ProcessBlock() {
 
 	// Create a new database to store the accepted blocks into.  Typically this would be opening an existing database and would not be deleting and creating a new database like this, but it is done here so this is a complete working example and does not leave temporary files laying around.
@@ -63,6 +64,7 @@ func ExampleBlockChain_ProcessBlock() {
 }
 
 // This example demonstrates how to convert the compact "bits" in a block header which represent the target difficulty to a big integer and display it using the typical hex notation.
+
 func ExampleCompactToBig() {
 
 	// Convert the bits from block 300000 in the main block chain.
@@ -78,6 +80,7 @@ func ExampleCompactToBig() {
 }
 
 // This example demonstrates how to convert a target difficulty into the compact "bits" in a block header which represent that target difficulty .
+
 func ExampleBigToCompact() {
 
 	// Convert the target difficulty from block 300000 in the main block

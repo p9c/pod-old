@@ -18,6 +18,7 @@ import (
 // RecoveryManager maintains the state required to recover previously used
 
 // addresses, and coordinates batched processing of the blocks to search.
+
 type RecoveryManager struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when
@@ -51,6 +52,7 @@ type RecoveryManager struct {
 // array for `batchSize` blocks to scan at once.
 func NewRecoveryManager(
 	recoveryWindow, batchSize uint32,
+
 	chainParams *chaincfg.Params) *RecoveryManager {
 
 	return &RecoveryManager{
@@ -73,11 +75,13 @@ func NewRecoveryManager(
 // attempt.
 func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 	scopedMgrs map[waddrmgr.KeyScope]*waddrmgr.ScopedKeyManager,
+
 	credits []wtxmgr.Credit) error {
 
 	// First, for each scope that we are recovering, rederive all of the
 
 	// addresses up to the last found address known to each branch.
+
 	for keyScope, scopedMgr := range scopedMgrs {
 
 		// Load the current account properties for this scope, using the
@@ -91,6 +95,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		acctProperties, err := scopedMgr.AccountProperties(
 			ns, waddrmgr.DefaultAccountNum,
 		)
+
 		if err != nil {
 
 			return err
@@ -106,13 +111,16 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// deriving each address and adding it to the external branch
 
 		// recovery state's set of addresses to look for.
+
 		for i := uint32(0); i < externalCount; i++ {
 
 			keyPath := externalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
+
 			if err != nil && err != hdkeychain.ErrInvalidChild {
 
 				return err
+
 			} else if err == hdkeychain.ErrInvalidChild {
 
 				scopeState.ExternalBranch.MarkInvalidChild(i)
@@ -132,13 +140,16 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// deriving each address and adding it to the internal branch
 
 		// recovery state's set of addresses to look for.
+
 		for i := uint32(0); i < internalCount; i++ {
 
 			keyPath := internalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
+
 			if err != nil && err != hdkeychain.ErrInvalidChild {
 
 				return err
+
 			} else if err == hdkeychain.ErrInvalidChild {
 
 				scopeState.InternalBranch.MarkInvalidChild(i)
@@ -153,6 +164,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		// derived, so we subtract one to point to last known key. If
 
 		// the key count is zero, then no addresses have been found.
+
 		if externalCount > 0 {
 
 			scopeState.ExternalBranch.ReportFound(externalCount - 1)
@@ -170,11 +182,13 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 	// to our global set of watched outpoints, so that we can watch them for
 
 	// spends.
+
 	for _, credit := range credits {
 
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			credit.PkScript, rm.chainParams,
 		)
+
 		if err != nil {
 
 			return err
@@ -190,6 +204,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 // to the batch of blocks to be searched.
 func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
+
 	timestamp time.Time) {
 
 	if !rm.started {
@@ -215,18 +230,21 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 }
 
 // BlockBatch returns a buffer of blocks that have not yet been searched.
+
 func (rm *RecoveryManager) BlockBatch() []wtxmgr.BlockMeta {
 
 	return rm.blockBatch
 }
 
 // ResetBlockBatch resets the internal block buffer to conserve memory.
+
 func (rm *RecoveryManager) ResetBlockBatch() {
 
 	rm.blockBatch = rm.blockBatch[:0]
 }
 
 // State returns the current RecoveryState.
+
 func (rm *RecoveryManager) State() *RecoveryState {
 
 	return rm.state
@@ -259,6 +277,7 @@ func (rm *RecoveryManager) State() *RecoveryState {
 //       of the first address used in any block and the last address used in the
 
 //       same block.
+
 type RecoveryState struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when
@@ -287,6 +306,7 @@ type RecoveryState struct {
 
 // particular key scope will receive the same recoveryWindow.
 func NewRecoveryState(
+
 	recoveryWindow uint32) *RecoveryState {
 
 	scopes := make(map[waddrmgr.KeyScope]*ScopeRecoveryState)
@@ -305,9 +325,11 @@ func NewRecoveryState(
 
 // recoveryWindow.
 func (rs *RecoveryState) StateForScope(
+
 	keyScope waddrmgr.KeyScope) *ScopeRecoveryState {
 
 	// If the account recovery state already exists, return it.
+
 	if scopeState, ok := rs.scopes[keyScope]; ok {
 
 		return scopeState
@@ -324,6 +346,7 @@ func (rs *RecoveryState) StateForScope(
 // WatchedOutPoints returns the global set of outpoints that are known to belong
 
 // to the wallet during recovery.
+
 func (rs *RecoveryState) WatchedOutPoints() map[wire.OutPoint]util.Address {
 
 	return rs.watchedOutPoints
@@ -333,6 +356,7 @@ func (rs *RecoveryState) WatchedOutPoints() map[wire.OutPoint]util.Address {
 
 // we will monitor for spends during recovery.
 func (rs *RecoveryState) AddWatchedOutPoint(outPoint *wire.OutPoint,
+
 	addr util.Address) {
 
 	rs.watchedOutPoints[*outPoint] = addr
@@ -343,6 +367,7 @@ func (rs *RecoveryState) AddWatchedOutPoint(outPoint *wire.OutPoint,
 // under a particular BIP32 account. Each account tracks both an external and
 
 // internal branch recovery state, both of which use the same recovery window.
+
 type ScopeRecoveryState struct {
 
 	// ExternalBranch is the recovery state of addresses generated for
@@ -360,6 +385,7 @@ type ScopeRecoveryState struct {
 
 // recovery window.
 func NewScopeRecoveryState(
+
 	recoveryWindow uint32) *ScopeRecoveryState {
 
 	return &ScopeRecoveryState{
@@ -390,6 +416,7 @@ func NewScopeRecoveryState(
 //  - Retrieving all currently derived addresses for the branch.
 
 //  - Looking up a particular address by its child index.
+
 type BranchRecoveryState struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when
@@ -420,6 +447,7 @@ type BranchRecoveryState struct {
 
 // track either the external or internal branch of an account's derivation path.
 func NewBranchRecoveryState(
+
 	recoveryWindow uint32) *BranchRecoveryState {
 
 	return &BranchRecoveryState{
@@ -433,6 +461,7 @@ func NewBranchRecoveryState(
 // ExtendHorizon returns the current horizon and the number of addresses that
 
 // must be derived in order to maintain the desired recovery window.
+
 func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 
 	// Compute the new horizon, which should surpass our last found address
@@ -446,6 +475,7 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 	// If the current horizon is sufficient, we will not have to derive any
 
 	// new keys.
+
 	if curHorizon >= minValidHorizon {
 
 		return curHorizon, 0
@@ -463,12 +493,14 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 // AddAddr adds a freshly derived address from our lookahead into the map of
 
 // known addresses for this branch.
+
 func (brs *BranchRecoveryState) AddAddr(index uint32, addr util.Address) {
 
 	brs.addresses[index] = addr
 }
 
 // GetAddr returns the address derived from a given child index.
+
 func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 
 	return brs.addresses[index]
@@ -477,6 +509,7 @@ func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 // ReportFound updates the last found index if the reported index exceeds the
 
 // current value.
+
 func (brs *BranchRecoveryState) ReportFound(index uint32) {
 
 	if index >= brs.nextUnfound {
@@ -488,6 +521,7 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 		// found index. We don't need to keep these entries any longer,
 
 		// since they will not affect our required look-ahead.
+
 		for childIndex := range brs.invalidChildren {
 
 			if childIndex < index {
@@ -510,6 +544,7 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 // This is used to ensure that we are always have the proper lookahead when an
 
 // invalid child is encountered.
+
 func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 
 	brs.invalidChildren[index] = struct{}{}
@@ -519,6 +554,7 @@ func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 // NextUnfound returns the child index of the successor to the highest found
 
 // child index.
+
 func (brs *BranchRecoveryState) NextUnfound() uint32 {
 
 	return brs.nextUnfound
@@ -527,6 +563,7 @@ func (brs *BranchRecoveryState) NextUnfound() uint32 {
 // Addrs returns a map of all currently derived child indexes to the their
 
 // corresponding addresses.
+
 func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 
 	return brs.addresses
@@ -539,9 +576,11 @@ func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 // indexes to derive in order to maintain the proper number of valid addresses
 
 // within our horizon.
+
 func (brs *BranchRecoveryState) NumInvalidInHorizon() uint32 {
 
 	var nInvalid uint32
+
 	for childIndex := range brs.invalidChildren {
 
 		if brs.nextUnfound <= childIndex && childIndex < brs.horizon {

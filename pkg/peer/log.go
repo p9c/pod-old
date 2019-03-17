@@ -17,6 +17,7 @@ var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
+
 	logger *cl.SubSystem) {
 
 	Log = logger
@@ -38,6 +39,7 @@ func (c logClosure) String() string {
 }
 
 func newLogClosure(
+
 	c func() string) logClosure {
 
 	return logClosure(c)
@@ -45,6 +47,7 @@ func newLogClosure(
 
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
 func directionString(
+
 	inbound bool) string {
 
 	if inbound {
@@ -57,6 +60,7 @@ func directionString(
 
 // formatLockTime returns a transaction lock time as a human-readable string.
 func formatLockTime(
+
 	lockTime uint32) string {
 
 	// The lock time field of a transaction is either a block height at which the transaction is finalized or a timestamp depending on if the value is before the lockTimeThreshold.  When it is under the threshold it is a block height.
@@ -71,6 +75,7 @@ func formatLockTime(
 
 // invSummary returns an inventory message as a human-readable string.
 func invSummary(
+
 	invList []*wire.InvVect) string {
 
 	// No inventory.
@@ -110,6 +115,7 @@ func invSummary(
 
 // locatorSummary returns a block locator as a human-readable string.
 func locatorSummary(
+
 	locator []*chainhash.Hash, stopHash *chainhash.Hash) string {
 
 	if len(locator) > 0 {
@@ -122,12 +128,14 @@ func locatorSummary(
 
 // sanitizeString strips any characters which are even remotely dangerous, such as html control characters, from the passed string.  It also limits it to the passed maximum size, which can be 0 for unlimited.  When the string is limited, it will also add "..." to the string to indicate it was truncated.
 func sanitizeString(
+
 	str string, maxLength uint) string {
 
 	const safeChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY" +
 		"Z01234567890 .,;_/:?@"
 
 	// Strip any characters not in the safeChars string removed.
+
 	str = strings.Map(func(r rune) rune {
 
 		if strings.ContainsRune(safeChars, r) {
@@ -152,6 +160,7 @@ func sanitizeString(
 
 // messageSummary returns a human-readable string which summarizes a message. Not all messages have or need a summary.  This is used for debug logging.
 func messageSummary(
+
 	msg wire.Message) string {
 
 	switch msg := msg.(type) {

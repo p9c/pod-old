@@ -21,6 +21,8 @@ pay-to-script-hash address types. To decode/encode an address:
 		"8a4c702b6bf11d5f"
 	defaultNet := &chaincfg.MainNetParams
 	addr, err := util.DecodeAddress(addrString, defaultNet)
+
+
 	if err != nil {
 
 fmt.Println(err)

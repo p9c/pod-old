@@ -113,6 +113,7 @@ var errorCodeStrings = map[ErrorCode]string{
 }
 
 // String returns the ErrorCode as a human-readable name.
+
 func (e ErrorCode) String() string {
 
 	if s := errorCodeStrings[e]; s != "" {
@@ -126,6 +127,7 @@ func (e ErrorCode) String() string {
 // Error provides a single type for errors that can happen during database operation.  It is used to indicate several types of failures including errors with caller requests such as specifying invalid block regions or attempting to access data against closed database transactions, driver errors, errors retrieving data, and errors communicating with database servers.
 
 // The caller can use type assertions to determine if an error is an Error and access the ErrorCode field to ascertain the specific reason for the failure. The ErrDriverSpecific error code will also have the Err field set with the underlying error.  Depending on the backend driver, the Err field might be set to the underlying error for other error codes as well.
+
 type Error struct {
 	ErrorCode   ErrorCode // Describes the kind of error
 	Description string    // Human readable description of the issue
@@ -133,6 +135,7 @@ type Error struct {
 }
 
 // Error satisfies the error interface and prints human-readable errors.
+
 func (e Error) Error() string {
 
 	if e.Err != nil {
@@ -145,6 +148,7 @@ func (e Error) Error() string {
 
 // makeError creates an Error given a set of arguments.  The error code must be one of the error codes provided by this package.
 func makeError(
+
 	c ErrorCode, desc string, err error) Error {
 
 	return Error{ErrorCode: c, Description: desc, Err: err}

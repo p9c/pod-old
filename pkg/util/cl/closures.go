@@ -1,6 +1,7 @@
 package cl
 
 // Ftlc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Ftlc(closure StringClosure) {
 
 	if s.Level > _off {
@@ -10,6 +11,7 @@ func (s *SubSystem) Ftlc(closure StringClosure) {
 }
 
 // Errc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Errc(closure StringClosure) {
 
 	if s.Level > _fatal {
@@ -19,6 +21,7 @@ func (s *SubSystem) Errc(closure StringClosure) {
 }
 
 // Wrnc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Wrnc(closure StringClosure) {
 
 	if s.Level > _error {
@@ -28,6 +31,7 @@ func (s *SubSystem) Wrnc(closure StringClosure) {
 }
 
 // Infc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Infc(closure StringClosure) {
 
 	if s.Level > _warn {
@@ -37,6 +41,7 @@ func (s *SubSystem) Infc(closure StringClosure) {
 }
 
 // Dbgc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Dbgc(closure StringClosure) {
 
 	if s.Level > _info {
@@ -46,6 +51,7 @@ func (s *SubSystem) Dbgc(closure StringClosure) {
 }
 
 // Trcc appends the subsystem name to the front of a closure's output and this runs only if the log entry is called
+
 func (s *SubSystem) Trcc(closure StringClosure) {
 
 	if s.Level > _debug {

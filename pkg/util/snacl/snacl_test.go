@@ -14,10 +14,12 @@ var (
 )
 
 func TestNewSecretKey(
+
 	t *testing.T) {
 
 	var err error
 	key, err = NewSecretKey(&password, DefaultN, DefaultR, DefaultP)
+
 	if err != nil {
 
 		t.Error(err)
@@ -26,15 +28,18 @@ func TestNewSecretKey(
 }
 
 func TestMarshalSecretKey(
+
 	t *testing.T) {
 
 	params = key.Marshal()
 }
 
 func TestUnmarshalSecretKey(
+
 	t *testing.T) {
 
 	var sk SecretKey
+
 	if err := sk.Unmarshal(params); err != nil {
 
 		t.Errorf("unexpected unmarshal error: %v", err)
@@ -54,9 +59,11 @@ func TestUnmarshalSecretKey(
 }
 
 func TestUnmarshalSecretKeyInvalid(
+
 	t *testing.T) {
 
 	var sk SecretKey
+
 	if err := sk.Unmarshal(params); err != nil {
 
 		t.Errorf("unexpected unmarshal error: %v", err)
@@ -64,6 +71,7 @@ func TestUnmarshalSecretKeyInvalid(
 	}
 
 	p := []byte("wrong password")
+
 	if err := sk.DeriveKey(&p); err != ErrInvalidPassword {
 
 		t.Errorf("wrong password didn't fail")
@@ -72,11 +80,13 @@ func TestUnmarshalSecretKeyInvalid(
 }
 
 func TestEncrypt(
+
 	t *testing.T) {
 
 	var err error
 
 	blob, err = key.Encrypt(message)
+
 	if err != nil {
 
 		t.Error(err)
@@ -85,9 +95,11 @@ func TestEncrypt(
 }
 
 func TestDecrypt(
+
 	t *testing.T) {
 
 	decryptedMessage, err := key.Decrypt(blob)
+
 	if err != nil {
 
 		t.Error(err)
@@ -102,10 +114,12 @@ func TestDecrypt(
 }
 
 func TestDecryptCorrupt(
+
 	t *testing.T) {
 
 	blob[len(blob)-15] = blob[len(blob)-15] + 1
 	_, err := key.Decrypt(blob)
+
 	if err == nil {
 
 		t.Errorf("corrupt message decrypted")
@@ -114,11 +128,13 @@ func TestDecryptCorrupt(
 }
 
 func TestZero(
+
 	t *testing.T) {
 
 	var zeroKey [32]byte
 
 	key.Zero()
+
 	if !bytes.Equal(key.Key[:], zeroKey[:]) {
 
 		t.Errorf("zero key failed")
@@ -126,6 +142,7 @@ func TestZero(
 }
 
 func TestDeriveKey(
+
 	t *testing.T) {
 
 	if err := key.DeriveKey(&password); err != nil {
@@ -135,9 +152,11 @@ func TestDeriveKey(
 }
 
 func TestDeriveKeyInvalid(
+
 	t *testing.T) {
 
 	bogusPass := []byte("bogus")
+
 	if err := key.DeriveKey(&bogusPass); err != ErrInvalidPassword {
 
 		t.Errorf("unexpected DeriveKey key failure: %v", err)

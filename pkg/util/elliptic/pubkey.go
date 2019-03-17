@@ -15,6 +15,7 @@ const (
 )
 
 func isOdd(
+
 	a *big.Int) bool {
 
 	return a.Bit(0) == 1
@@ -23,6 +24,7 @@ func isOdd(
 // decompressPoint decompresses a point on the given curve given the X point and
 // the solution to use.
 func decompressPoint(
+
 	curve *KoblitzCurve, x *big.Int, ybit bool) (*big.Int, error) {
 
 	// TODO: This will probably only work for secp256k1 due to
@@ -43,6 +45,7 @@ func decompressPoint(
 
 	// https://bitcointalk.org/index.php?topic=162805.msg1712294#msg1712294
 	y := new(big.Int).Exp(x3, curve.QPlus1Div4(), curve.Params().P)
+
 	if ybit != isOdd(y) {
 
 		y.Sub(curve.Params().P, y)
@@ -51,12 +54,14 @@ func decompressPoint(
 	// Check that y is a square root of x^3 + B.
 	y2 := new(big.Int).Mul(y, y)
 	y2.Mod(y2, curve.Params().P)
+
 	if y2.Cmp(x3) != 0 {
 
 		return nil, fmt.Errorf("invalid square root")
 	}
 
 	// Verify that y-coord has expected parity.
+
 	if ybit != isOdd(y) {
 
 		return nil, fmt.Errorf("ybit doesn't match oddness")
@@ -73,6 +78,7 @@ const (
 // IsCompressedPubKey returns true the the passed serialized public key has
 // been encoded in compressed format, and false otherwise.
 func IsCompressedPubKey(
+
 	pubKey []byte) bool {
 
 	// The public key is only compressed if it is the correct length and
@@ -86,10 +92,12 @@ func IsCompressedPubKey(
 // ecdsa.Publickey, verifying that it is valid. It supports compressed,
 // uncompressed and hybrid signature formats.
 func ParsePubKey(
+
 	pubKeyStr []byte, curve *KoblitzCurve) (key *PublicKey, err error) {
 
 	pubkey := PublicKey{}
 	pubkey.Curve = curve
+
 	if len(pubKeyStr) == 0 {
 
 		return nil, errors.New("pubkey string is empty")
@@ -97,9 +105,11 @@ func ParsePubKey(
 	format := pubKeyStr[0]
 	ybit := (format & 0x1) == 0x1
 	format &= ^byte(0x1)
+
 	switch len(pubKeyStr) {
 
 	case PubKeyBytesLenUncompressed:
+
 		if format != pubkeyUncompressed && format != pubkeyHybrid {
 
 			return nil, fmt.Errorf("invalid magic in pubkey str: "+
@@ -108,6 +118,7 @@ func ParsePubKey(
 		pubkey.X = new(big.Int).SetBytes(pubKeyStr[1:33])
 		pubkey.Y = new(big.Int).SetBytes(pubKeyStr[33:])
 		// hybrid keys have extra information, make use of it.
+
 		if format == pubkeyHybrid && ybit != isOdd(pubkey.Y) {
 
 			return nil, fmt.Errorf("ybit doesn't match oddness")
@@ -116,6 +127,7 @@ func ParsePubKey(
 		// format is 0x2 | solution, <X coordinate>
 		// solution determines which solution of the curve we use.
 		/// y^2 = x^3 + Curve.B
+
 		if format != pubkeyCompressed {
 
 			return nil, fmt.Errorf("invalid magic in compressed "+
@@ -123,6 +135,7 @@ func ParsePubKey(
 		}
 		pubkey.X = new(big.Int).SetBytes(pubKeyStr[1:33])
 		pubkey.Y, err = decompressPoint(curve, pubkey.X, ybit)
+
 		if err != nil {
 
 			return nil, err
@@ -131,14 +144,17 @@ func ParsePubKey(
 		return nil, fmt.Errorf("invalid pub key length %d",
 			len(pubKeyStr))
 	}
+
 	if pubkey.X.Cmp(pubkey.Curve.Params().P) >= 0 {
 
 		return nil, fmt.Errorf("pubkey X parameter is >= to P")
 	}
+
 	if pubkey.Y.Cmp(pubkey.Curve.Params().P) >= 0 {
 
 		return nil, fmt.Errorf("pubkey Y parameter is >= to P")
 	}
+
 	if !pubkey.Curve.IsOnCurve(pubkey.X, pubkey.Y) {
 
 		return nil, fmt.Errorf("pubkey isn't on secp256k1 curve")
@@ -151,6 +167,7 @@ func ParsePubKey(
 type PublicKey ecdsa.PublicKey
 
 // ToECDSA returns the public key as a *ecdsa.PublicKey.
+
 func (p *PublicKey) ToECDSA() *ecdsa.PublicKey {
 
 	return (*ecdsa.PublicKey)(p)
@@ -158,6 +175,7 @@ func (p *PublicKey) ToECDSA() *ecdsa.PublicKey {
 
 // SerializeUncompressed serializes a public key in a 65-byte uncompressed
 // format.
+
 func (p *PublicKey) SerializeUncompressed() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenUncompressed)
@@ -167,10 +185,12 @@ func (p *PublicKey) SerializeUncompressed() []byte {
 }
 
 // SerializeCompressed serializes a public key in a 33-byte compressed format.
+
 func (p *PublicKey) SerializeCompressed() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenCompressed)
 	format := pubkeyCompressed
+
 	if isOdd(p.Y) {
 
 		format |= 0x1
@@ -180,10 +200,12 @@ func (p *PublicKey) SerializeCompressed() []byte {
 }
 
 // SerializeHybrid serializes a public key in a 65-byte hybrid format.
+
 func (p *PublicKey) SerializeHybrid() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenHybrid)
 	format := pubkeyHybrid
+
 	if isOdd(p.Y) {
 
 		format |= 0x1
@@ -196,6 +218,7 @@ func (p *PublicKey) SerializeHybrid() []byte {
 // IsEqual compares this PublicKey instance to the one passed, returning true if
 // both PublicKeys are equivalent. A PublicKey is equivalent to another, if they
 // both have the same X and Y coordinate.
+
 func (p *PublicKey) IsEqual(otherPubKey *PublicKey) bool {
 
 	return p.X.Cmp(otherPubKey.X) == 0 &&
@@ -206,6 +229,7 @@ func (p *PublicKey) IsEqual(otherPubKey *PublicKey) bool {
 // If the length of the source is smaller than the passed size, leading zero
 // bytes are appended to the dst slice before appending src.
 func paddedAppend(
+
 	size uint, dst, src []byte) []byte {
 
 	for i := 0; i < int(size)-len(src); i++ {

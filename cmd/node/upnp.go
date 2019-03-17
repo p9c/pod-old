@@ -38,6 +38,7 @@ import (
 )
 
 // NAT is an interface representing a NAT traversal options for example UPNP or NAT-PMP. It provides methods to query and manipulate this traversal to allow access to services.
+
 type NAT interface {
 
 	// Get the external address from outside the NAT.
@@ -56,15 +57,18 @@ type upnpNAT struct {
 }
 
 // Discover searches the local network for a UPnP router returning a NAT for the network if so, nil if not.
+
 func Discover() (nat NAT, err error) {
 
 	ssdp, err := net.ResolveUDPAddr("udp4", "239.255.255.250:1900")
+
 	if err != nil {
 
 		return
 	}
 
 	conn, err := net.ListenPacket("udp4", ":0")
+
 	if err != nil {
 
 		return
@@ -73,6 +77,7 @@ func Discover() (nat NAT, err error) {
 	socket := conn.(*net.UDPConn)
 	defer socket.Close()
 	err = socket.SetDeadline(time.Now().Add(3 * time.Second))
+
 	if err != nil {
 
 		return
@@ -87,9 +92,11 @@ func Discover() (nat NAT, err error) {
 			"MX: 2\r\n\r\n")
 	message := buf.Bytes()
 	answerBytes := make([]byte, 1024)
+
 	for i := 0; i < 3; i++ {
 
 		_, err = socket.WriteToUDP(message, ssdp)
+
 		if err != nil {
 
 			return
@@ -97,6 +104,7 @@ func Discover() (nat NAT, err error) {
 
 		var n int
 		n, _, err = socket.ReadFromUDP(answerBytes)
+
 		if err != nil {
 
 			continue
@@ -105,6 +113,7 @@ func Discover() (nat NAT, err error) {
 		}
 
 		answer := string(answerBytes[0:n])
+
 		if !strings.Contains(answer, "\r\n"+st) {
 
 			continue
@@ -113,6 +122,7 @@ func Discover() (nat NAT, err error) {
 		// HTTP header field names are case-insensitive. http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
 		locString := "\r\nlocation: "
 		locIndex := strings.Index(strings.ToLower(answer), locString)
+
 		if locIndex < 0 {
 
 			continue
@@ -120,6 +130,7 @@ func Discover() (nat NAT, err error) {
 
 		loc := answer[locIndex+len(locString):]
 		endIndex := strings.Index(loc, "\r\n")
+
 		if endIndex < 0 {
 
 			continue
@@ -128,6 +139,7 @@ func Discover() (nat NAT, err error) {
 		locURL := loc[0:endIndex]
 		var serviceURL string
 		serviceURL, err = getServiceURL(locURL)
+
 		if err != nil {
 
 			return
@@ -135,6 +147,7 @@ func Discover() (nat NAT, err error) {
 
 		var ourIP string
 		ourIP, err = getOurIP()
+
 		if err != nil {
 
 			return
@@ -149,24 +162,28 @@ func Discover() (nat NAT, err error) {
 }
 
 // service represents the Service type in an UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type service struct {
 	ServiceType string `xml:"serviceType"`
 	ControlURL  string `xml:"controlURL"`
 }
 
 // deviceList represents the deviceList type in an UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type deviceList struct {
 	XMLName xml.Name `xml:"deviceList"`
 	Device  []device `xml:"device"`
 }
 
 // serviceList represents the serviceList type in an UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type serviceList struct {
 	XMLName xml.Name  `xml:"serviceList"`
 	Service []service `xml:"service"`
 }
 
 // device represents the device type in an UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type device struct {
 	XMLName     xml.Name    `xml:"device"`
 	DeviceType  string      `xml:"deviceType"`
@@ -175,6 +192,7 @@ type device struct {
 }
 
 // specVersion represents the specVersion in a UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type specVersion struct {
 	XMLName xml.Name `xml:"specVersion"`
 	Major   int      `xml:"major"`
@@ -182,6 +200,7 @@ type specVersion struct {
 }
 
 // root represents the Root document for a UPnP xml description. Only the parts we care about are present and thus the xml may have more fields than present in the structure.
+
 type root struct {
 	XMLName     xml.Name `xml:"root"`
 	SpecVersion specVersion
@@ -190,6 +209,7 @@ type root struct {
 
 // getChildDevice searches the children of device for a device with the given type.
 func getChildDevice(
+
 	d *device, deviceType string) *device {
 
 	for i := range d.DeviceList.Device {
@@ -206,6 +226,7 @@ func getChildDevice(
 
 // getChildDevice searches the service list of device for a service with the given type.
 func getChildService(
+
 	d *device, serviceType string) *service {
 
 	for i := range d.ServiceList.Service {
@@ -221,9 +242,11 @@ func getChildService(
 }
 
 // getOurIP returns a best guess at what the local IP is.
+
 func getOurIP() (ip string, err error) {
 
 	hostname, err := os.Hostname()
+
 	if err != nil {
 
 		return
@@ -234,15 +257,18 @@ func getOurIP() (ip string, err error) {
 
 // getServiceURL parses the xml description at the given root url to find the url for the WANIPConnection service to be used for port forwarding.
 func getServiceURL(
+
 	rootURL string) (url string, err error) {
 
 	r, err := http.Get(rootURL)
+
 	if err != nil {
 
 		return
 	}
 
 	defer r.Body.Close()
+
 	if r.StatusCode >= 400 {
 
 		err = errors.New(string(r.StatusCode))
@@ -251,12 +277,14 @@ func getServiceURL(
 
 	var root root
 	err = xml.NewDecoder(r.Body).Decode(&root)
+
 	if err != nil {
 
 		return
 	}
 
 	a := &root.Device
+
 	if a.DeviceType != "urn:schemas-upnp-org:device:InternetGatewayDevice:1" {
 
 		err = errors.New("no InternetGatewayDevice")
@@ -264,6 +292,7 @@ func getServiceURL(
 	}
 
 	b := getChildDevice(a, "urn:schemas-upnp-org:device:WANDevice:1")
+
 	if b == nil {
 
 		err = errors.New("no WANDevice")
@@ -271,6 +300,7 @@ func getServiceURL(
 	}
 
 	c := getChildDevice(b, "urn:schemas-upnp-org:device:WANConnectionDevice:1")
+
 	if c == nil {
 
 		err = errors.New("no WANConnectionDevice")
@@ -278,6 +308,7 @@ func getServiceURL(
 	}
 
 	d := getChildService(c, "urn:schemas-upnp-org:service:WANIPConnection:1")
+
 	if d == nil {
 
 		err = errors.New("no WANIPConnection")
@@ -290,6 +321,7 @@ func getServiceURL(
 
 // combineURL appends subURL onto rootURL.
 func combineURL(
+
 	rootURL, subURL string) string {
 
 	protocolEnd := "://"
@@ -300,12 +332,14 @@ func combineURL(
 }
 
 // soapBody represents the <s:Body> element in a SOAP reply. fields we don't care about are elided.
+
 type soapBody struct {
 	XMLName xml.Name `xml:"Body"`
 	Data    []byte   `xml:",innerxml"`
 }
 
 // soapEnvelope represents the <s:Envelope> element in a SOAP reply. fields we don't care about are elided.
+
 type soapEnvelope struct {
 	XMLName xml.Name `xml:"Envelope"`
 	Body    soapBody `xml:"Body"`
@@ -313,12 +347,14 @@ type soapEnvelope struct {
 
 // soapRequests performs a soap request with the given parameters and returns the xml replied stripped of the soap headers. in the case that the request is unsuccessful the an error is returned.
 func soapRequest(
+
 	url, function, message string) (replyXML []byte, err error) {
 
 	fullMessage := "<?xml version=\"1.0\" ?>" +
 		"<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">\r\n" +
 		"<s:Body>" + message + "</s:Body></s:Envelope>"
 	req, err := http.NewRequest("POST", url, strings.NewReader(fullMessage))
+
 	if err != nil {
 
 		return nil, err
@@ -333,6 +369,7 @@ func soapRequest(
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Pragma", "no-cache")
 	r, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 
 		return nil, err
@@ -353,6 +390,7 @@ func soapRequest(
 
 	var reply soapEnvelope
 	err = xml.NewDecoder(r.Body).Decode(&reply)
+
 	if err != nil {
 
 		return nil, err
@@ -362,16 +400,19 @@ func soapRequest(
 }
 
 // getExternalIPAddressResponse represents the XML response to a GetExternalIPAddress SOAP request.
+
 type getExternalIPAddressResponse struct {
 	XMLName           xml.Name `xml:"GetExternalIPAddressResponse"`
 	ExternalIPAddress string   `xml:"NewExternalIPAddress"`
 }
 
 // GetExternalAddress implements the NAT interface by fetching the external IP from the UPnP router.
+
 func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 
 	message := "<u:GetExternalIPAddress xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\"/>\r\n"
 	response, err := soapRequest(n.serviceURL, "GetExternalIPAddress", message)
+
 	if err != nil {
 
 		return nil, err
@@ -379,12 +420,14 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 
 	var reply getExternalIPAddressResponse
 	err = xml.Unmarshal(response, &reply)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	addr = net.ParseIP(reply.ExternalIPAddress)
+
 	if addr == nil {
 
 		return nil, errors.New("unable to parse ip address")
@@ -394,6 +437,7 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 }
 
 // AddPortMapping implements the NAT interface by setting up a port forwarding from the UPnP router to the local machine with the given ports and protocol.
+
 func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error) {
 
 	// A single concatenation would break ARM compilation.
@@ -407,6 +451,7 @@ func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int
 		"</NewPortMappingDescription><NewLeaseDuration>" + strconv.Itoa(timeout) +
 		"</NewLeaseDuration></u:AddPortMapping>"
 	response, err := soapRequest(n.serviceURL, "AddPortMapping", message)
+
 	if err != nil {
 
 		return
@@ -421,6 +466,7 @@ func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int
 }
 
 // DeletePortMapping implements the NAT interface by removing up a port forwarding from the UPnP router to the local machine with the given ports and.
+
 func (n *upnpNAT) DeletePortMapping(protocol string, externalPort, internalPort int) (err error) {
 
 	message := "<u:DeletePortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">\r\n" +
@@ -428,6 +474,7 @@ func (n *upnpNAT) DeletePortMapping(protocol string, externalPort, internalPort 
 		"</NewExternalPort><NewProtocol>" + strings.ToUpper(protocol) + "</NewProtocol>" +
 		"</u:DeletePortMapping>"
 	response, err := soapRequest(n.serviceURL, "DeletePortMapping", message)
+
 	if err != nil {
 
 		return

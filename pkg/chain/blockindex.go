@@ -43,24 +43,28 @@ const (
 )
 
 // HaveData returns whether the full block data is stored in the database. This will return false for a block node where only the header is downloaded or kept.
+
 func (status blockStatus) HaveData() bool {
 
 	return status&statusDataStored != 0
 }
 
 // KnownValid returns whether the block is known to be valid. This will return false for a valid block that has not been fully validated yet.
+
 func (status blockStatus) KnownValid() bool {
 
 	return status&statusValid != 0
 }
 
 // KnownInvalid returns whether the block is known to be invalid. This may be because the block itself failed validation or any of its ancestors is invalid. This will return false for invalid blocks that have not been proven invalid yet.
+
 func (status blockStatus) KnownInvalid() bool {
 
 	return status&(statusValidateFailed|statusInvalidAncestor) != 0
 }
 
 // blockNode represents a block within the block chain and is primarily used to aid in selecting the best chain to be the main chain.  The main chain is stored into the block database.
+
 type blockNode struct {
 
 	// NOTE: Additions, deletions, or modifications to the order of the definitions in this struct should not be changed without considering how it affects alignment on 64-bit platforms.  The current order is specifically crafted to result in minimal padding.  There will be hundreds of thousands of these in memory, so a few extra bytes of padding adds up.
@@ -90,6 +94,7 @@ type blockNode struct {
 
 // initBlockNode initializes a block node from the given header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.  It must only be called when initially creating a node.
 func initBlockNode(
+
 	node *blockNode, blockHeader *wire.BlockHeader, parent *blockNode) {
 
 	*node = blockNode{
@@ -115,6 +120,7 @@ func initBlockNode(
 
 // newBlockNode returns a new block node for the given block header and parent node, calculating the height and workSum from the respective fields on the parent. This function is NOT safe for concurrent access.
 func newBlockNode(
+
 	blockHeader *wire.BlockHeader, parent *blockNode) *blockNode {
 
 	var node blockNode
@@ -123,10 +129,12 @@ func newBlockNode(
 }
 
 // Header constructs a block header from the node and returns it. This function is safe for concurrent access.
+
 func (node *blockNode) Header() wire.BlockHeader {
 
 	// No lock is needed because all accessed fields are immutable.
 	prevHash := &zeroHash
+
 	if node.parent != nil {
 
 		prevHash = &node.parent.hash
@@ -145,6 +153,7 @@ func (node *blockNode) Header() wire.BlockHeader {
 }
 
 // Ancestor returns the ancestor block node at the provided height by following the chain backwards from this node.  The returned block will be nil when a height is requested that is after the height of the passed node or is less than zero. This function is safe for concurrent access.
+
 func (node *blockNode) Ancestor(height int32) *blockNode {
 
 	if height < 0 || height > node.height {
@@ -153,6 +162,7 @@ func (node *blockNode) Ancestor(height int32) *blockNode {
 	}
 
 	n := node
+
 	for ; n != nil && n.height != height; n = n.parent {
 
 		// Intentionally left blank
@@ -163,18 +173,21 @@ func (node *blockNode) Ancestor(height int32) *blockNode {
 
 // RelativeAncestor returns the ancestor block node a relative 'distance' blocks before this node.  This is equivalent to calling Ancestor with the node's height minus provided distance.
 // This function is safe for concurrent access.
+
 func (node *blockNode) RelativeAncestor(distance int32) *blockNode {
 
 	return node.Ancestor(node.height - distance)
 }
 
 // CalcPastMedianTime calculates the median time of the previous few blocks prior to, and including, the block node. This function is safe for concurrent access.
+
 func (node *blockNode) CalcPastMedianTime() time.Time {
 
 	// Create a slice of the previous few block timestamps used to calculate the median per the number defined by the constant medianTimeBlocks.
 	timestamps := make([]int64, medianTimeBlocks)
 	numNodes := 0
 	iterNode := node
+
 	for i := 0; i < medianTimeBlocks && iterNode != nil; i++ {
 
 		timestamps[i] = iterNode.timestamp
@@ -194,6 +207,7 @@ func (node *blockNode) CalcPastMedianTime() time.Time {
 }
 
 // blockIndex provides facilities for keeping track of an in-memory index of the block chain.  Although the name block chain suggests a single chain of blocks, it is actually a tree-shaped structure where any node can have multiple children.  However, there can only be one active branch which does indeed form a chain from the tip all the way back to the genesis block.
+
 type blockIndex struct {
 
 	// The following fields are set when the instance is created and can't be changed afterwards, so there is no need to protect them with a separate mutex.
@@ -206,6 +220,7 @@ type blockIndex struct {
 
 // newBlockIndex returns a new empty instance of a block index.  The index will be dynamically populated as block nodes are loaded from the database and manually added.
 func newBlockIndex(
+
 	db database.DB, chainParams *chaincfg.Params) *blockIndex {
 
 	return &blockIndex{
@@ -219,6 +234,7 @@ func newBlockIndex(
 }
 
 // HaveBlock returns whether or not the block index contains the provided hash. This function is safe for concurrent access.
+
 func (bi *blockIndex) HaveBlock(hash *chainhash.Hash) bool {
 
 	bi.RLock()
@@ -228,6 +244,7 @@ func (bi *blockIndex) HaveBlock(hash *chainhash.Hash) bool {
 }
 
 // LookupNode returns the block node identified by the provided hash.  It will return nil if there is no entry for the hash. This function is safe for concurrent access.
+
 func (bi *blockIndex) LookupNode(hash *chainhash.Hash) *blockNode {
 
 	bi.RLock()
@@ -237,6 +254,7 @@ func (bi *blockIndex) LookupNode(hash *chainhash.Hash) *blockNode {
 }
 
 // AddNode adds the provided node to the block index and marks it as dirty. Duplicate entries are not checked so it is up to caller to avoid adding them. This function is safe for concurrent access.
+
 func (bi *blockIndex) AddNode(node *blockNode) {
 
 	bi.Lock()
@@ -247,12 +265,14 @@ func (bi *blockIndex) AddNode(node *blockNode) {
 }
 
 // addNode adds the provided node to the block index, but does not mark it as dirty. This can be used while initializing the block index. This function is NOT safe for concurrent access.
+
 func (bi *blockIndex) addNode(node *blockNode) {
 
 	bi.index[node.hash] = node
 }
 
 // NodeStatus provides concurrent-safe access to the status field of a node. This function is safe for concurrent access.
+
 func (bi *blockIndex) NodeStatus(node *blockNode) blockStatus {
 
 	bi.RLock()
@@ -262,6 +282,7 @@ func (bi *blockIndex) NodeStatus(node *blockNode) blockStatus {
 }
 
 // SetStatusFlags flips the provided status flags on the block node to on, regardless of whether they were on or off previously. This does not unset any flags currently on. This function is safe for concurrent access.
+
 func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
 
 	bi.Lock()
@@ -272,6 +293,7 @@ func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
 }
 
 // UnsetStatusFlags flips the provided status flags on the block node to off, regardless of whether they were on or off previously. This function is safe for concurrent access.
+
 func (bi *blockIndex) UnsetStatusFlags(node *blockNode, flags blockStatus) {
 
 	bi.Lock()
@@ -282,9 +304,11 @@ func (bi *blockIndex) UnsetStatusFlags(node *blockNode, flags blockStatus) {
 }
 
 // flushToDB writes all dirty block nodes to the database. If all writes succeed, this clears the dirty set.
+
 func (bi *blockIndex) flushToDB() error {
 
 	bi.Lock()
+
 	if len(bi.dirty) == 0 {
 
 		bi.Unlock()
@@ -293,11 +317,13 @@ func (bi *blockIndex) flushToDB() error {
 
 	err :=
 		bi.db.Update(
+
 			func(dbTx database.Tx) error {
 
 				for node := range bi.dirty {
 
 					err := dbStoreBlockNode(dbTx, node)
+
 					if err != nil {
 
 						return err
@@ -310,6 +336,7 @@ func (bi *blockIndex) flushToDB() error {
 		)
 
 	// If write was successful, clear the dirty set.
+
 	if err == nil {
 
 		bi.dirty = make(map[*blockNode]struct{})
@@ -320,15 +347,18 @@ func (bi *blockIndex) flushToDB() error {
 }
 
 // GetAlgo returns the algorithm of a block node
+
 func (node *blockNode) GetAlgo() int32 {
 
 	return node.version
 }
 
 // GetLastWithAlgo returns the newest block from node with specified algo
+
 func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 
 	prev = node
+
 	for {
 
 		if prev == nil {
@@ -339,6 +369,7 @@ func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 		if fork.GetCurrent(prev.height) == 0 {
 
 			if algo != 514 &&
+
 				algo != 2 {
 
 				log <- cl.Debug{"irregular version block, assuming 2 (sha256d)"}

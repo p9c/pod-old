@@ -11,13 +11,16 @@ func GetFlags(
 	cmd climax.Command,
 ) (
 	out map[string]string,
+
 ) {
 
 	out = make(map[string]string)
+
 	for i := range cmd.Flags {
 		usage := strings.Split(cmd.Flags[i].Usage, " ")
 		if cmd.Flags[i].Usage == `""` ||
 			len(cmd.Flags[i].Usage) < 2 ||
+
 			len(usage) < 2 {
 			out[cmd.Flags[i].Name] = ""
 		}

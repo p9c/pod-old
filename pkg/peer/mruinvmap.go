@@ -10,6 +10,7 @@ import (
 )
 
 // mruInventoryMap provides a concurrency safe map that is limited to a maximum number of items with eviction for the oldest entry when the limit is exceeded.
+
 type mruInventoryMap struct {
 	invMtx  sync.Mutex
 	invMap  map[wire.InvVect]*list.Element // nearly O(1) lookups
@@ -18,6 +19,7 @@ type mruInventoryMap struct {
 }
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
+
 func (m *mruInventoryMap) String() string {
 
 	m.invMtx.Lock()
@@ -43,6 +45,7 @@ func (m *mruInventoryMap) String() string {
 }
 
 // Exists returns whether or not the passed inventory item is in the map. This function is safe for concurrent access.
+
 func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 
 	m.invMtx.Lock()
@@ -52,6 +55,7 @@ func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 }
 
 // Add adds the passed inventory to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
+
 func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 
 	m.invMtx.Lock()
@@ -95,6 +99,7 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 }
 
 // Delete deletes the passed inventory item from the map (if it exists). This function is safe for concurrent access.
+
 func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 
 	m.invMtx.Lock()
@@ -110,6 +115,7 @@ func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 
 // newMruInventoryMap returns a new inventory map that is limited to the number of entries specified by limit.  When the number of entries exceeds the limit, the oldest (least recently used) entry will be removed to make room for the new entry.
 func newMruInventoryMap(
+
 	limit uint) *mruInventoryMap {
 
 	m := mruInventoryMap{

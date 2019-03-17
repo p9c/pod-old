@@ -20,6 +20,7 @@ func DefaultWalletConfig(
 	datadir string,
 ) (
 	wc *WalletCfg,
+
 ) {
 
 	log <- cl.Dbg("getting default config")
@@ -63,10 +64,12 @@ func DefaultWalletConfig(
 // WriteDefaultWalletConfig creates and writes a default config to the requested location
 func WriteDefaultWalletConfig(
 	datadir string,
+
 ) {
 
 	defCfg := DefaultWalletConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
+
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err}
 		panic(err)
@@ -77,6 +80,7 @@ func WriteDefaultWalletConfig(
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
 	EnsureDir(defCfg.Wallet.ConfigFile)
 	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
+
 	if err != nil {
 		log <- cl.Error{"writing app config file", err}
 		panic(err)
@@ -89,10 +93,12 @@ func WriteDefaultWalletConfig(
 // WriteWalletConfig creates and writes the config file in the requested location
 func WriteWalletConfig(
 	c *WalletCfg,
+
 ) {
 
 	log <- cl.Dbg("writing config")
 	j, err := json.MarshalIndent(c, "", "  ")
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -100,6 +106,7 @@ func WriteWalletConfig(
 	j = append(j, '\n')
 	EnsureDir(c.Wallet.ConfigFile)
 	err = ioutil.WriteFile(c.Wallet.ConfigFile, j, 0600)
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -110,9 +117,11 @@ func configWallet(
 	wc *walletmain.Config,
 	ctx *climax.Context,
 	cfgFile string,
+
 ) {
 
 	log <- cl.Trace{"configuring from command line flags ", os.Args}
+
 	if ctx.Is("createtemp") {
 
 		log <- cl.Dbg("request to make temp wallet")
@@ -190,8 +199,10 @@ func configWallet(
 
 	if r, ok := getIfIs(ctx, "legacyrpcmaxclients"); ok {
 		var bt int
+
 		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			wc.LegacyRPCMaxClients = int64(bt)
 		}
@@ -200,6 +211,7 @@ func configWallet(
 
 	if r, ok := getIfIs(ctx, "legacyrpcmaxwebsockets"); ok {
 		_, err := fmt.Sscanf(r, "%d", wc.LegacyRPCMaxWebsockets)
+
 		if err != nil {
 			log <- cl.Errorf{
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
@@ -249,6 +261,7 @@ func configWallet(
 
 		log <- cl.Info{"saving config file to", cfgFile}
 		j, err := json.MarshalIndent(WalletConfig, "", "  ")
+
 		if err != nil {
 			log <- cl.Error{"writing app config file", err}
 		}
@@ -256,6 +269,7 @@ func configWallet(
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
 		e := ioutil.WriteFile(cfgFile, j, 0600)
+
 		if e != nil {
 
 			log <- cl.Error{
@@ -271,14 +285,17 @@ func configWallet(
 func init() {
 
 	// Loads after the var clauses run
+
 	WalletCommand.Handle = func(ctx climax.Context) int {
 
 		Log.SetLevel("off")
 		var dl string
 		var ok bool
+
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
+
 			for i := range ll {
 				ll[i].SetLevel(dl)
 			}
@@ -288,6 +305,7 @@ func init() {
 		log <- cl.Tracef{"setting debug level %s", dl}
 		log <- cl.Trc("starting wallet app")
 		log <- cl.Debugf{"pod/wallet version %s", walletmain.Version()}
+
 		if ctx.Is("version") {
 
 			fmt.Println("pod/wallet version", walletmain.Version())
@@ -295,12 +313,14 @@ func init() {
 		}
 
 		var datadir, cfgFile string
+
 		if datadir, ok = ctx.Get("datadir"); !ok {
 			datadir = walletmain.DefaultDataDir
 		}
 
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = filepath.Join(
 				filepath.Join(datadir, "wallet"), walletmain.DefaultConfigFilename)
@@ -313,13 +333,16 @@ func init() {
 		}
 
 		log <- cl.Info{"loading configuration from", cfgFile}
+
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 			log <- cl.Wrn("configuration file does not exist, creating new one")
 			WriteDefaultWalletConfig(cfgFile)
+
 		} else {
 			log <- cl.Debug{"reading app configuration from", cfgFile}
 			cfgData, err := ioutil.ReadFile(cfgFile)
+
 			if err != nil {
 				log <- cl.Error{"reading app config file", err.Error()}
 				WriteDefaultWalletConfig(cfgFile)
@@ -327,12 +350,14 @@ func init() {
 
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &WalletConfig)
+
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
 				WriteDefaultWalletConfig(cfgFile)
 			}
 
 			WalletConfig.activeNet = &netparams.MainNetParams
+
 			if WalletConfig.Wallet.TestNet3 {
 				WalletConfig.activeNet = &netparams.TestNet3Params
 			}
@@ -344,6 +369,7 @@ func init() {
 		}
 
 		configWallet(WalletConfig.Wallet, &ctx, cfgFile)
+
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			for i := range WalletConfig.Levels {
 				WalletConfig.Levels[i] = dl

@@ -8,9 +8,11 @@ import (
 
 // TestNotifications ensures that notification callbacks are fired on events.
 func TestNotifications(
+
 	t *testing.T) {
 
 	blocks, err := loadBlocks("blk_0_to_4.dat.bz2")
+
 	if err != nil {
 
 		t.Fatalf("Error loading file: %v\n", err)
@@ -19,6 +21,7 @@ func TestNotifications(
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("notifications",
 		&chaincfg.MainNetParams)
+
 	if err != nil {
 
 		t.Fatalf("Failed to setup chain instance: %v", err)
@@ -26,6 +29,7 @@ func TestNotifications(
 
 	defer teardownFunc()
 	notificationCount := 0
+
 	callback := func(notification *Notification) {
 
 		if notification.Type == NTBlockAccepted {
@@ -37,12 +41,14 @@ func TestNotifications(
 
 	// Register callback multiple times then assert it is called that many times.
 	const numSubscribers = 3
+
 	for i := 0; i < numSubscribers; i++ {
 
 		chain.Subscribe(callback)
 	}
 
 	_, _, err = chain.ProcessBlock(blocks[1], BFNone, blocks[1].Height())
+
 	if err != nil {
 
 		t.Fatalf("ProcessBlock fail on block 1: %v\n", err)

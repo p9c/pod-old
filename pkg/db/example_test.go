@@ -14,6 +14,7 @@ import (
 )
 
 // This example demonstrates creating a new database.
+
 func ExampleCreate() {
 
 	// This example assumes the ffldb driver is imported.
@@ -53,6 +54,7 @@ func ExampleCreate() {
 // This example demonstrates creating a new database and using a managed
 
 // read-write transaction to store and retrieve metadata.
+
 func Example_basicUsage() {
 
 	// This example assumes the ffldb driver is imported.
@@ -91,6 +93,7 @@ func Example_basicUsage() {
 	// read-write transaction.  The transaction will automatically be rolled
 
 	// back if the supplied inner function returns a non-nil error.
+
 	err = db.Update(func(tx database.Tx) error {
 
 		// Store a key/value pair directly in the metadata bucket.
@@ -150,6 +153,7 @@ func Example_basicUsage() {
 // transaction to store a block, and using a managed read-only transaction to
 
 // fetch the block.
+
 func Example_blockStorageAndRetrieval() {
 
 	// This example assumes the ffldb driver is imported.
@@ -188,6 +192,7 @@ func Example_blockStorageAndRetrieval() {
 	// read-write transaction and store a genesis block in the database as
 
 	// and example.
+
 	err = db.Update(func(tx database.Tx) error {
 
 		genesisBlock := chaincfg.MainNetParams.GenesisBlock
@@ -204,6 +209,7 @@ func Example_blockStorageAndRetrieval() {
 
 	// transaction and fetch the block stored above.
 	var loadedBlockBytes []byte
+
 	err = db.Update(func(tx database.Tx) error {
 
 		genesisHash := chaincfg.MainNetParams.GenesisHash

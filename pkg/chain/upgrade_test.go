@@ -8,6 +8,7 @@ import (
 // TestDeserializeUtxoEntryV0 ensures deserializing unspent trasaction output
 // entries from the legacy version 0 format works as expected.
 func TestDeserializeUtxoEntryV0(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -21,6 +22,7 @@ func TestDeserializeUtxoEntryV0(
 		{
 			name: "Only output 0, coinbase",
 			entries: map[uint32]*UtxoEntry{
+
 				0: {
 
 					amount:      5000000000,
@@ -38,6 +40,7 @@ func TestDeserializeUtxoEntryV0(
 		{
 			name: "Only output 1, not coinbase",
 			entries: map[uint32]*UtxoEntry{
+
 				1: {
 
 					amount:      1000000,
@@ -55,6 +58,7 @@ func TestDeserializeUtxoEntryV0(
 		{
 			name: "Only output 2, coinbase",
 			entries: map[uint32]*UtxoEntry{
+
 				2: {
 
 					amount:      100937281,
@@ -72,6 +76,7 @@ func TestDeserializeUtxoEntryV0(
 		{
 			name: "outputs 0 and 2 not coinbase",
 			entries: map[uint32]*UtxoEntry{
+
 				0: {
 
 					amount:      20000000,
@@ -97,6 +102,7 @@ func TestDeserializeUtxoEntryV0(
 		{
 			name: "Only output 22, not coinbase",
 			entries: map[uint32]*UtxoEntry{
+
 				22: {
 
 					amount:      366875659,
@@ -114,6 +120,7 @@ func TestDeserializeUtxoEntryV0(
 
 		// Deserialize to map of utxos keyed by the output index.
 		entries, err := deserializeUtxoEntryV0(test.serialized)
+
 		if err != nil {
 
 			t.Errorf("deserializeUtxoEntryV0 #%d (%s) unexpected "+
@@ -123,6 +130,7 @@ func TestDeserializeUtxoEntryV0(
 
 		// Ensure the deserialized entry has the same properties as the
 		// ones in the test entry.
+
 		if !reflect.DeepEqual(entries, test.entries) {
 
 			t.Errorf("deserializeUtxoEntryV0 #%d (%s) unexpected "+

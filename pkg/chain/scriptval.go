@@ -12,6 +12,7 @@ import (
 )
 
 // txValidateItem holds a transaction along with which input to validate.
+
 type txValidateItem struct {
 	txInIndex int
 	txIn      *wire.TxIn
@@ -20,6 +21,7 @@ type txValidateItem struct {
 }
 
 // txValidator provides a type which asynchronously validates transaction inputs.  It provides several channels for communication and a processing function that is intended to be in run multiple goroutines.
+
 type txValidator struct {
 	validateChan chan *txValidateItem
 	quitChan     chan struct{}
@@ -31,6 +33,7 @@ type txValidator struct {
 }
 
 // sendResult sends the result of a script pair validation on the internal result channel while respecting the quit channel.  This allows orderly shutdown when the validation process is aborted early due to a validation error in one of the other goroutines.
+
 func (v *txValidator) sendResult(result error) {
 
 	select {
@@ -44,6 +47,7 @@ func (v *txValidator) sendResult(result error) {
 }
 
 // validateHandler consumes items to validate from the internal validate channel and returns the result of the validation on the internal result channel. It must be run as a goroutine.
+
 func (v *txValidator) validateHandler() {
 
 out:
@@ -51,6 +55,7 @@ out:
 	for {
 
 		// fmt.Println("loop:validateHandler")
+
 		select {
 
 		case txVI := <-v.validateChan:
@@ -122,6 +127,7 @@ out:
 }
 
 // Validate validates the scripts for all of the passed transaction inputs using multiple goroutines.
+
 func (v *txValidator) Validate(items []*txValidateItem) error {
 
 	if len(items) == 0 {
@@ -192,6 +198,7 @@ func (v *txValidator) Validate(items []*txValidateItem) error {
 // newTxValidator returns a new instance of txValidator to be used for validating transaction scripts asynchronously.
 func newTxValidator(
 	utxoView *UtxoViewpoint, flags txscript.ScriptFlags,
+
 	sigCache *txscript.SigCache, hashCache *txscript.HashCache) *txValidator {
 
 	return &txValidator{
@@ -210,6 +217,7 @@ func newTxValidator(
 func ValidateTransactionScripts(
 	tx *util.Tx, utxoView *UtxoViewpoint,
 	flags txscript.ScriptFlags, sigCache *txscript.SigCache,
+
 	hashCache *txscript.HashCache) error {
 
 	// First determine if segwit is active according to the scriptFlags. If it isn't then we don't need to interact with the HashCache.
@@ -217,6 +225,7 @@ func ValidateTransactionScripts(
 
 	// If the hashcache doesn't yet has the sighash midstate for this transaction, then we'll compute them now so we can re-use them amongst all worker validation goroutines.
 	if segwitActive && tx.MsgTx().HasWitness() &&
+
 		!hashCache.ContainsHashes(tx.Hash()) {
 
 		hashCache.AddSigHashes(tx.MsgTx())
@@ -262,6 +271,7 @@ func ValidateTransactionScripts(
 func checkBlockScripts(
 	block *util.Block, utxoView *UtxoViewpoint,
 	scriptFlags txscript.ScriptFlags, sigCache *txscript.SigCache,
+
 	hashCache *txscript.HashCache) error {
 
 	// First determine if segwit is active according to the scriptFlags. If it isn't then we don't need to interact with the HashCache.
@@ -283,6 +293,7 @@ func checkBlockScripts(
 		hash := tx.Hash()
 		// If the HashCache is present, and it doesn't yet contain the partial sighashes for this transaction, then we add the sighashes for the transaction. This allows us to take advantage of the potential speed savings due to the new digest algorithm (BIP0143).
 		if segwitActive && tx.HasWitness() && hashCache != nil &&
+
 			!hashCache.ContainsHashes(hash) {
 
 			hashCache.AddSigHashes(tx.MsgTx())
@@ -295,6 +306,7 @@ func checkBlockScripts(
 			if hashCache != nil {
 
 				cachedHashes, _ = hashCache.GetSigHashes(hash)
+
 			} else {
 
 				cachedHashes = txscript.NewTxSigHashes(tx.MsgTx())
@@ -333,6 +345,7 @@ func checkBlockScripts(
 	}
 
 	elapsed := time.Since(start)
+
 	Log.Trcc(func() string {
 
 		return fmt.Sprintf("block %v took %v to verify", block.Hash(), elapsed)

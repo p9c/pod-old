@@ -18,6 +18,7 @@ import (
 )
 
 // CreateCfg is the type for the default config data
+
 type CreateCfg struct {
 	DataDir    string
 	Password   string
@@ -71,12 +72,14 @@ Available options:
 
 		argsGiven := false
 		CreateConfig.DataDir = w.DefaultDataDir
+
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			CreateConfig.DataDir = r
 		}
 
 		var cfgFile string
 		var ok bool
+
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
 			cfgFile = filepath.Join(
 				filepath.Join(CreateConfig.DataDir, "wallet"),
@@ -88,9 +91,11 @@ Available options:
 
 			fmt.Println("configuration file does not exist, creating new one")
 			WriteDefaultWalletConfig(CreateConfig.DataDir)
+
 		} else {
 			fmt.Println("reading app configuration from", cfgFile)
 			cfgData, err := ioutil.ReadFile(cfgFile)
+
 			if err != nil {
 				fmt.Println("reading app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
@@ -98,6 +103,7 @@ Available options:
 
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &WalletConfig)
+
 			if err != nil {
 				fmt.Println("parsing app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
@@ -109,6 +115,7 @@ Available options:
 		activeNet := walletmain.ActiveNet
 		CreateConfig.Config.TestNet3 = false
 		CreateConfig.Config.SimNet = false
+
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
@@ -147,6 +154,7 @@ Available options:
 		loader := wallet.NewLoader(
 			walletmain.ActiveNet.Params, dbDir, 250)
 		exists, err := loader.WalletExists()
+
 		if err != nil {
 			fmt.Println("ERROR", err)
 			return 1
@@ -163,6 +171,7 @@ Available options:
 		if ctx.Is("cli") {
 
 			e := walletmain.CreateWallet(CreateConfig.Config, activeNet)
+
 			if e != nil {
 				fmt.Println("\nerror creating wallet:", e)
 			}
@@ -194,6 +203,7 @@ Available options:
 
 			if CreateConfig.Seed == nil {
 				seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
+
 				if err != nil {
 					fmt.Println("failed to generate new seed")
 					return 1
@@ -211,6 +221,7 @@ Available options:
 				[]byte(CreateConfig.Password),
 				CreateConfig.Seed,
 				time.Now())
+
 			if err != nil {
 				fmt.Println(err)
 				return 1

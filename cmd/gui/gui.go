@@ -26,11 +26,13 @@ type VDATA struct {
 // GUI is the main entry point for the GUI interface
 func GUI(
 	sh *shell.Config,
+
 ) {
 
 	// wlt =
 	var err error
 	jdb.JDB, err = scribble.New(filepath.Join(sh.DataDir, "gui"), nil)
+
 	if err != nil {
 
 		panic(err)
@@ -55,6 +57,7 @@ func GUI(
 	apps.InitApps()
 
 	// vue.WLT = _
+
 	w.Dispatch(func() {
 
 		w.Bind("blockchaindata", &vue.BlockChain{})
@@ -63,6 +66,7 @@ func GUI(
 		w.Bind("language", &vue.Language{})
 		w.Bind("addressbook", &apps.AddressBook{})
 		w.Bind("addressbooklabel", &apps.AddressBookLabel{})
+
 		for mn, md := range vue.MODS {
 
 			w.Bind(mn, &md)

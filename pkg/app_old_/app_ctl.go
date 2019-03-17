@@ -58,6 +58,7 @@ var CtlCommand = climax.Command{
 
 	Handle: func(ctx climax.Context) int {
 		Log.SetLevel("off")
+
 		if dl, ok := ctx.Get("debuglevel"); ok {
 
 			log <- cl.Trace{
@@ -80,9 +81,11 @@ var CtlCommand = climax.Command{
 		if ctx.Is("listcommands") {
 
 			ctl.ListCommands()
+
 		} else {
 			var cfgFile, datadir string
 			var ok bool
+
 			if cfgFile, ok = ctx.Get("configfile"); !ok {
 
 				cfgFile = ctl.DefaultConfigFile
@@ -91,6 +94,7 @@ var CtlCommand = climax.Command{
 			if datadir, ok = ctx.Get("datadir"); ok {
 				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
 				CtlCfg.ConfigFile = cfgFile
+
 			} else {
 				datadir = w.DefaultDataDir
 			}
@@ -102,6 +106,7 @@ var CtlCommand = climax.Command{
 				}
 
 				WriteDefaultCtlConfig(datadir)
+
 			} else {
 				log <- cl.Info{
 					"loading configuration from", cfgFile,
@@ -113,9 +118,11 @@ var CtlCommand = climax.Command{
 					WriteDefaultCtlConfig(datadir)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
+
 				} else {
 					log <- cl.Debug{"reading from", cfgFile}
 					cfgData, err := ioutil.ReadFile(cfgFile)
+
 					if err != nil {
 
 						WriteDefaultCtlConfig(datadir)
@@ -124,6 +131,7 @@ var CtlCommand = climax.Command{
 
 					log <- cl.Trace{"read in config file\n", string(cfgData)}
 					err = json.Unmarshal(cfgData, CtlCfg)
+
 					if err != nil {
 
 						log <- cl.Err(err.Error())

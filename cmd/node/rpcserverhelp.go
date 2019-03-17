@@ -733,6 +733,7 @@ var rpcResultTypes = map[string][]interface{}{
 }
 
 // helpCacher provides a concurrent safe type that provides help and usage for the RPC server commands and caches the results for future calls.
+
 type helpCacher struct {
 	sync.Mutex
 	usage      string
@@ -740,12 +741,14 @@ type helpCacher struct {
 }
 
 // rpcMethodHelp returns an RPC help string for the provided method. This function is safe for concurrent access.
+
 func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 
 	c.Lock()
 	defer c.Unlock()
 
 	// Return the cached method help if it exists.
+
 	if help, exists := c.methodHelp[method]; exists {
 
 		return help, nil
@@ -753,6 +756,7 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 
 	// Look up the result types for the method.
 	resultTypes, ok := rpcResultTypes[method]
+
 	if !ok {
 
 		return "", errors.New("no result types specified for method " +
@@ -761,6 +765,7 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 
 	// Generate, cache, and return the help.
 	help, err := json.GenerateHelp(method, helpDescsEnUS, resultTypes...)
+
 	if err != nil {
 
 		return "", err
@@ -771,12 +776,14 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 }
 
 // rpcUsage returns one-line usage for all support RPC commands. This function is safe for concurrent access.
+
 func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 	c.Lock()
 	defer c.Unlock()
 
 	// Return the cached usage if it is available.
+
 	if c.usage != "" {
 
 		return c.usage, nil
@@ -784,9 +791,11 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 	// Generate a list of one-line usage for every command.
 	usageTexts := make([]string, 0, len(rpcHandlers))
+
 	for k := range rpcHandlers {
 
 		usage, err := json.MethodUsageText(k)
+
 		if err != nil {
 
 			return "", err
@@ -796,11 +805,13 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 	}
 
 	// Include websockets commands if requested.
+
 	if includeWebsockets {
 
 		for k := range wsHandlers {
 
 			usage, err := json.MethodUsageText(k)
+
 			if err != nil {
 
 				return "", err
@@ -817,6 +828,7 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 }
 
 // newHelpCacher returns a new instance of a help cacher which provides help and usage for the RPC server commands and caches the results for future calls.
+
 func newHelpCacher() *helpCacher {
 
 	return &helpCacher{

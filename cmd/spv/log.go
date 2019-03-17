@@ -13,6 +13,7 @@ var Log = cl.NewSubSystem("cmd/spv", "info")
 var log = Log.Ch
 
 // String invokes the underlying function and returns the result.
+
 func (c logClosure) String() string {
 
 	return c()
@@ -20,6 +21,7 @@ func (c logClosure) String() string {
 
 // UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 func UseLogger(
+
 	logger *cl.SubSystem) {
 
 	Log = logger
@@ -30,6 +32,7 @@ func UseLogger(
 // which itself provides a Stringer interface so that it can be used with the
 // logging system.
 func newLogClosure(
+
 	c func() string) logClosure {
 
 	return logClosure(c)

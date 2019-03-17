@@ -15,10 +15,12 @@ import (
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the proxy and TLS settings in the associated connection configuration.
+
 func newHTTPClient(cfg *Config) (*http.Client, error) {
 
 	// Configure proxy if needed.
 	var dial func(network, addr string) (net.Conn, error)
+
 	if *cfg.Proxy != "" {
 
 		proxy := &socks.Proxy{
@@ -30,6 +32,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 		dial = func(network, addr string) (net.Conn, error) {
 
 			c, err := proxy.Dial(network, addr)
+
 			if err != nil {
 
 				return nil, err
@@ -42,9 +45,11 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 
 	// Configure TLS if needed.
 	var tlsConfig *tls.Config
+
 	if *cfg.TLS && *cfg.RPCCert != "" {
 
 		pem, err := ioutil.ReadFile(*cfg.RPCCert)
+
 		if err != nil {
 
 			return nil, err
@@ -71,10 +76,12 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 }
 
 // sendPostRequest sends the marshalled JSON-RPC command using HTTP-POST mode to the server described in the passed config struct.  It also attempts to unmarshal the response as a JSON-RPC response and returns either the result field or the error field depending on whether or not there is an error.
+
 func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 
 	// Generate a request to the configured RPC server.
 	protocol := "http"
+
 	if *cfg.TLS {
 
 		protocol = "https"
@@ -83,6 +90,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	url := protocol + "://" + *cfg.RPCServer
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
+
 	if err != nil {
 
 		return nil, err
@@ -96,12 +104,14 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 
 	// Create the new HTTP client that is configured according to the user- specified options and submit the request.
 	httpClient, err := newHTTPClient(cfg)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	httpResponse, err := httpClient.Do(httpRequest)
+
 	if err != nil {
 
 		return nil, err
@@ -110,6 +120,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	// Read the raw bytes and close the response.
 	respBytes, err := ioutil.ReadAll(httpResponse.Body)
 	httpResponse.Body.Close()
+
 	if err != nil {
 
 		err = fmt.Errorf("error reading json reply: %v", err)
@@ -117,9 +128,11 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	}
 
 	// Handle unsuccessful HTTP responses
+
 	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 
 		// Generate a standard error to return if the server body is empty.  This should not happen very often, but it's better than showing nothing in case the target server has a poor implementation.
+
 		if len(respBytes) == 0 {
 
 			return nil, fmt.Errorf("%d %s", httpResponse.StatusCode,
@@ -131,6 +144,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 
 	// Unmarshal the response.
 	var resp json.Response
+
 	if err := js.Unmarshal(respBytes, &resp); err != nil {
 
 		return nil, err

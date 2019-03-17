@@ -29,6 +29,7 @@ func (s byAmount) Less(i, j int) bool { return s[i].Amount < s[j].Amount }
 func (s byAmount) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func makeInputSource(
+
 	eligible []wtxmgr.Credit) txauthor.InputSource {
 
 	// Pick largest outputs first.  This is only done for compatibility with
@@ -45,6 +46,7 @@ func makeInputSource(
 	currentInputValues := make([]util.Amount, 0, len(eligible))
 
 	return func(target util.Amount) (util.Amount, []*wire.TxIn,
+
 		[]util.Amount, [][]byte, error) {
 
 		for currentTotal < target && len(eligible) != 0 {
@@ -66,6 +68,7 @@ func makeInputSource(
 // secretSource is an implementation of txauthor.SecretSource for the wallet's
 
 // address manager.
+
 type secretSource struct {
 	*waddrmgr.Manager
 	addrmgrNs walletdb.ReadBucket
@@ -74,12 +77,14 @@ type secretSource struct {
 func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 
 	ma, err := s.Address(s.addrmgrNs, addr)
+
 	if err != nil {
 
 		return nil, false, err
 	}
 
 	mpka, ok := ma.(waddrmgr.ManagedPubKeyAddress)
+
 	if !ok {
 
 		e := fmt.Errorf("managed address type for %v is `%T` but "+
@@ -88,6 +93,7 @@ func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 	}
 
 	privKey, err := mpka.PrivKey()
+
 	if err != nil {
 
 		return nil, false, err
@@ -99,12 +105,14 @@ func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
 
 	ma, err := s.Address(s.addrmgrNs, addr)
+
 	if err != nil {
 
 		return nil, err
 	}
 
 	msa, ok := ma.(waddrmgr.ManagedScriptAddress)
+
 	if !ok {
 
 		e := fmt.Errorf("managed address type for %v is `%T` but "+
@@ -125,9 +133,11 @@ func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
 
 // current relay fee.  The wallet must be unlocked to create the transaction.
 func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
+
 	minconf int32, feeSatPerKb util.Amount) (tx *txauthor.AuthoredTx, err error) {
 
 	chainClient, err := w.requireChainClient()
+
 	if err != nil {
 
 		return nil, err
@@ -139,18 +149,21 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		// Get current block's height and hash.
 		bs, err := chainClient.BlockStamp()
+
 		if err != nil {
 
 			return err
 		}
 
 		eligible, err := w.findEligibleOutputs(dbtx, account, minconf, bs)
+
 		if err != nil {
 
 			return err
 		}
 
 		inputSource := makeInputSource(eligible)
+
 		changeSource := func() ([]byte, error) {
 
 			// Derive the change output script.  As a hack to allow
@@ -160,9 +173,11 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 			// are created from account 0.
 			var changeAddr util.Address
 			var err error
+
 			if account == waddrmgr.ImportedAddrAccount {
 
 				changeAddr, err = w.newChangeAddress(addrmgrNs, 0)
+
 			} else {
 
 				changeAddr, err = w.newChangeAddress(addrmgrNs, account)
@@ -178,6 +193,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		tx, err = txauthor.NewUnsignedTransaction(outputs, feeSatPerKb,
 			inputSource, changeSource)
+
 		if err != nil {
 
 			return err
@@ -188,6 +204,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 		// This doesn't affect the serialize size, so the change amount
 
 		// will still be valid.
+
 		if tx.ChangeIndex >= 0 {
 
 			tx.RandomizeChangePosition()
@@ -202,6 +219,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 	}
 
 	err = validateMsgTx(tx.Tx, tx.PrevScripts, tx.PrevInputValues)
+
 	if err != nil {
 
 		return nil, err
@@ -227,6 +245,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 	txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 
 	unspent, err := w.TxStore.UnspentOutputs(txmgrNs)
+
 	if err != nil {
 
 		return nil, err
@@ -242,6 +261,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 
 	// dependancy and requesting unspent outputs for a single account.
 	eligible := make([]wtxmgr.Credit, 0, len(unspent))
+
 	for i := range unspent {
 
 		output := &unspent[i]
@@ -251,6 +271,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		// confirmations.  Coinbase transactions must have have reached
 
 		// maturity before their outputs may be spent.
+
 		if !confirmed(minconf, output.Height, bs.Height) {
 
 			continue
@@ -259,6 +280,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		if output.FromCoinBase {
 
 			target := int32(w.chainParams.CoinbaseMaturity)
+
 			if !confirmed(target, output.Height, bs.Height) {
 
 				continue
@@ -267,6 +289,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		}
 
 		// Locked unspent outputs are skipped.
+
 		if w.LockedOutpoint(output.OutPoint) {
 
 			continue
@@ -283,12 +306,14 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		// addresses are controlled.
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			output.PkScript, w.chainParams)
+
 		if err != nil || len(addrs) != 1 {
 
 			continue
 		}
 
 		_, addrAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
+
 		if err != nil || addrAcct != account {
 
 			continue
@@ -306,19 +331,23 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 
 // spent, must be passed in the prevScripts slice.
 func validateMsgTx(
+
 	tx *wire.MsgTx, prevScripts [][]byte, inputValues []util.Amount) error {
 
 	hashCache := txscript.NewTxSigHashes(tx)
+
 	for i, prevScript := range prevScripts {
 
 		vm, err := txscript.NewEngine(prevScript, tx, i,
 			txscript.StandardVerifyFlags, nil, hashCache, int64(inputValues[i]))
+
 		if err != nil {
 
 			return fmt.Errorf("cannot create script engine: %s", err)
 		}
 
 		err = vm.Execute()
+
 		if err != nil {
 
 			return fmt.Errorf("cannot validate transaction: %s", err)

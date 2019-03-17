@@ -12,6 +12,7 @@ import (
 )
 
 // SetupCfg is the type for the default config data
+
 type SetupCfg struct {
 	DataDir string
 	Network string
@@ -31,6 +32,7 @@ var SetupCommand = climax.Command{
 
 	Handle: func(ctx climax.Context) int {
 		fmt.Println("pod wallet setup")
+
 		if ctx.Is("help") {
 
 			fmt.Print(`Usage: create [-h] [-D] [--network]
@@ -51,6 +53,7 @@ Available options:
 		}
 
 		SetupConfig.DataDir = w.DefaultDataDir
+
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			SetupConfig.DataDir = r
 		}
@@ -60,6 +63,7 @@ Available options:
 		SetupConfig.Config = wc.Wallet
 		SetupConfig.Config.TestNet3 = false
 		SetupConfig.Config.SimNet = false
+
 		if r, ok := getIfIs(&ctx, "network"); ok {
 			switch r {
 			case "testnet":
@@ -82,6 +86,7 @@ Available options:
 		loader := wallet.NewLoader(
 			walletmain.ActiveNet.Params, dbDir, 250)
 		exists, err := loader.WalletExists()
+
 		if err != nil {
 			fmt.Println("ERROR", err)
 			return 1
@@ -104,6 +109,7 @@ Available options:
 		WriteDefaultWalletConfig(SetupConfig.DataDir)
 		WriteDefaultShellConfig(SetupConfig.DataDir)
 		e := walletmain.CreateWallet(SetupConfig.Config, activeNet)
+
 		if e != nil {
 			panic(e)
 		}

@@ -10,6 +10,7 @@ import (
 func runCtl(
 	args []string,
 	cc *ctl.Config,
+
 ) {
 
 	j, _ := json.MarshalIndent(cc, "", "  ")

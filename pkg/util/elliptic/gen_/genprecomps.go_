@@ -14,10 +14,12 @@ import (
 )
 
 func main(
+
 	) {
 
 
 	fi, err := os.Create("secp256k1.go")
+
 	if err != nil {
 		
 log.Fatal(err)
@@ -28,6 +30,7 @@ log.Fatal(err)
 	serialized := ec.S256().SerializedBytePoints()
 	var compressed bytes.Buffer
 	w := zlib.NewWriter(&compressed)
+
 	if _, err := w.Write(serialized); err != nil {
 		
 fmt.Println(err)

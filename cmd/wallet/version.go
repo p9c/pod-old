@@ -33,6 +33,7 @@ var appBuild string
 // Version returns the application version as a properly formed string per the
 
 // semantic versioning 2.0.0 spec (http://semver.org/).
+
 func Version() string {
 
 	// Start with the major, minor, and path versions.
@@ -46,6 +47,7 @@ func Version() string {
 
 	// is not appended if it contains invalid characters.
 	preRelease := normalizeVerString(appPreRelease)
+
 	if preRelease != "" {
 
 		version = fmt.Sprintf("%s-%s", version, preRelease)
@@ -59,6 +61,7 @@ func Version() string {
 
 	// string is not appended if it contains invalid characters.
 	build := normalizeVerString(appBuild)
+
 	if build != "" {
 
 		version = fmt.Sprintf("%s+%s", version, build)
@@ -75,9 +78,11 @@ func Version() string {
 
 // characters in semanticAlphabet.
 func normalizeVerString(
+
 	str string) string {
 
 	result := bytes.Buffer{}
+
 	for _, r := range str {
 
 		if strings.ContainsRune(semanticAlphabet, r) {
@@ -87,6 +92,7 @@ func normalizeVerString(
 			// Writing to a bytes.Buffer panics on OOM, and all
 
 			// errors are unexpected.
+
 			if err != nil {
 
 				panic(err)

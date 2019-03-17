@@ -13,6 +13,7 @@
 
 declare GREEN='\033[0;32m'
 declare NC='\033[0m'
+
 print () {
     echo -e "${GREEN}$1${NC}"
 }
@@ -20,6 +21,7 @@ print () {
 # test_with_profile run test coverage on each subdirectories and merge the
 # coverage profile. Be aware that we are skipping the integration tests, as the
 # tool won't gather any useful coverage information from them.
+
 test_with_coverage_profile() {
     print "* Running tests with creating coverage profile"
 
@@ -59,6 +61,7 @@ test_with_coverage_profile() {
 
 # test_race_conditions run standard go test without creating coverage
 # profile but with race condition checks.
+
 test_race_conditions() {
     print "* Running tests with the race condition detector"
 
@@ -67,6 +70,7 @@ test_race_conditions() {
 }
 
 # lint_check runs static checks.
+
 lint_check() {
     print "* Run static checks"
 

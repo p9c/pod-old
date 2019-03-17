@@ -26,6 +26,7 @@ var (
 )
 
 // MedianTimeSource provides a mechanism to add several time samples which are used to determine a median time which is then used as an offset to the local clock.
+
 type MedianTimeSource interface {
 
 	// AdjustedTime returns the current time adjusted by the median time offset as calculated from the time samples added by AddTimeSample.
@@ -42,24 +43,28 @@ type MedianTimeSource interface {
 type int64Sorter []int64
 
 // Len returns the number of 64-bit integers in the slice.  It is part of the sort.Interface implementation.
+
 func (s int64Sorter) Len() int {
 
 	return len(s)
 }
 
 // Swap swaps the 64-bit integers at the passed indices.  It is part of the sort.Interface implementation.
+
 func (s int64Sorter) Swap(i, j int) {
 
 	s[i], s[j] = s[j], s[i]
 }
 
 // Less returns whether the 64-bit integer with index i should sort before the 64-bit integer with index j.  It is part of the sort.Interface implementation.
+
 func (s int64Sorter) Less(i, j int) bool {
 
 	return s[i] < s[j]
 }
 
 // medianTime provides an implementation of the MedianTimeSource interface. It is limited to maxMedianTimeEntries includes the same buggy behavior as the time offset mechanism in Bitcoin Core.  This is necessary because it is used in the consensus code.
+
 type medianTime struct {
 	mtx                sync.Mutex
 	knownIDs           map[string]struct{}
@@ -72,6 +77,7 @@ type medianTime struct {
 var _ MedianTimeSource = (*medianTime)(nil)
 
 // AdjustedTime returns the current time adjusted by the median time offset as calculated from the time samples added by AddTimeSample. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
+
 func (m *medianTime) AdjustedTime() time.Time {
 
 	m.mtx.Lock()
@@ -83,12 +89,14 @@ func (m *medianTime) AdjustedTime() time.Time {
 }
 
 // AddTimeSample adds a time sample that is used when determining the median time of the added samples. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
+
 func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	// Don't add time data from the same source.
+
 	if _, exists := m.knownIDs[sourceID]; exists {
 
 		return
@@ -100,6 +108,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	now := time.Unix(time.Now().Unix(), 0)
 	offsetSecs := int64(timeVal.Sub(now).Seconds())
 	numOffsets := len(m.offsets)
+
 	if numOffsets == maxMedianTimeEntries && maxMedianTimeEntries > 0 {
 
 		m.offsets = m.offsets[1:]
@@ -121,6 +130,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	}
 
 	// NOTE: The following code intentionally has a bug to mirror the buggy behavior in Bitcoin Core since the median time is used in the consensus rules. In particular, the offset is only updated when the number of entries is odd, but the max number of entries is 200, an even number.  Thus, the offset will never be updated again once the max number of entries is reached. The median offset is only updated when there are enough offsets and the number of offsets is odd so the middle value is the true median. Thus, there is nothing to do when those conditions are not met.
+
 	if numOffsets < 5 || numOffsets&0x01 != 1 {
 
 		return
@@ -130,18 +140,22 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	median := sortedOffsets[numOffsets/2]
 
 	// Set the new offset when the median offset is within the allowed offset range.
+
 	if math.Abs(float64(median)) < maxAllowedOffsetSecs {
 
 		m.offsetSecs = median
+
 	} else {
 
 		// The median offset of all added time data is larger than the maximum allowed offset, so don't use an offset.  This effectively limits how far the local clock can be skewed.
 		m.offsetSecs = 0
+
 		if !m.invalidTimeChecked {
 
 			m.invalidTimeChecked = true
 			// Find if any time samples have a time that is close to the local time.
 			var remoteHasCloseTime bool
+
 			for _, offset := range sortedOffsets {
 
 				if math.Abs(float64(offset)) < similarTimeSecs {
@@ -153,6 +167,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 			}
 
 			// Warn if none of the time samples are close.
+
 			if !remoteHasCloseTime {
 
 				log <- cl.Wrn(
@@ -169,6 +184,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 }
 
 // Offset returns the number of seconds to adjust the local clock based upon the median of the time samples added by AddTimeData. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
+
 func (m *medianTime) Offset() time.Duration {
 
 	m.mtx.Lock()
@@ -177,6 +193,7 @@ func (m *medianTime) Offset() time.Duration {
 }
 
 // NewMedianTime returns a new instance of concurrency-safe implementation of the MedianTimeSource interface.  The returned implementation contains the rules necessary for proper time handling in the chain consensus rules and expects the time samples to be added from the timestamp field of the version message received from remote peers that successfully connect and negotiate.
+
 func NewMedianTime() MedianTimeSource {
 
 	return &medianTime{

@@ -215,11 +215,13 @@ var pubKeyTests = []pubKeyTest{
 }
 
 func TestPubKeys(
+
 	t *testing.T) {
 
 	for _, test := range pubKeyTests {
 
 		pk, err := ParsePubKey(test.key, S256())
+
 		if err != nil {
 
 			if test.isValid {
@@ -229,6 +231,7 @@ func TestPubKeys(
 			}
 			continue
 		}
+
 		if !test.isValid {
 
 			t.Errorf("%s counted as valid when it should fail",
@@ -236,6 +239,7 @@ func TestPubKeys(
 			continue
 		}
 		var pkStr []byte
+
 		switch test.format {
 
 		case pubkeyUncompressed:
@@ -245,6 +249,7 @@ func TestPubKeys(
 		case pubkeyHybrid:
 			pkStr = (*PublicKey)(pk).SerializeHybrid()
 		}
+
 		if !bytes.Equal(test.key, pkStr) {
 
 			t.Errorf("%s pubkey: serialized keys do not match.",
@@ -255,6 +260,7 @@ func TestPubKeys(
 	}
 }
 func TestPublicKeyIsEqual(
+
 	t *testing.T) {
 
 	pubKey1, err := ParsePubKey(
@@ -265,6 +271,7 @@ func TestPublicKeyIsEqual(
 		},
 		S256(),
 	)
+
 	if err != nil {
 
 		t.Fatalf("failed to parse raw bytes for pubKey1: %v", err)
@@ -277,15 +284,18 @@ func TestPublicKeyIsEqual(
 		},
 		S256(),
 	)
+
 	if err != nil {
 
 		t.Fatalf("failed to parse raw bytes for pubKey2: %v", err)
 	}
+
 	if !pubKey1.IsEqual(pubKey1) {
 
 		t.Fatalf("value of IsEqual is incorrect, %v is "+
 			"equal to %v", pubKey1, pubKey1)
 	}
+
 	if pubKey1.IsEqual(pubKey2) {
 
 		t.Fatalf("value of IsEqual is incorrect, %v is not "+
@@ -293,12 +303,14 @@ func TestPublicKeyIsEqual(
 	}
 }
 func TestIsCompressed(
+
 	t *testing.T) {
 
 	for _, test := range pubKeyTests {
 
 		isCompressed := IsCompressedPubKey(test.key)
 		wantCompressed := (test.format == pubkeyCompressed)
+
 		if isCompressed != wantCompressed {
 
 			t.Fatalf("%s (%x) pubkey: unexpected compressed result, "+

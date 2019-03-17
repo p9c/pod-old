@@ -16,6 +16,7 @@ var (
 
 // checkDbError ensures the passed error is a database.Error with an error code that matches the passed  error code.
 func checkDbError(
+
 	t *testing.T, testName string, gotErr error, wantErrCode database.ErrorCode) bool {
 
 	dbErr, ok := gotErr.(database.Error)
@@ -40,6 +41,7 @@ func checkDbError(
 
 // TestAddDuplicateDriver ensures that adding a duplicate driver does not overwrite an existing one.
 func TestAddDuplicateDriver(
+
 	t *testing.T) {
 
 	supportedDrivers := database.SupportedDrivers()
@@ -55,6 +57,7 @@ func TestAddDuplicateDriver(
 	// bogusCreateDB is a function which acts as a bogus create and open driver function and intentionally returns a failure that can be detected if the interface allows a duplicate driver to overwrite an
 
 	// existing one.
+
 	bogusCreateDB := func(args ...interface{}) (database.DB, error) {
 
 		return nil, fmt.Errorf("duplicate driver allowed for database "+
@@ -80,12 +83,14 @@ func TestAddDuplicateDriver(
 
 // TestCreateOpenFail ensures that errors which occur while opening or closing a database are handled properly.
 func TestCreateOpenFail(
+
 	t *testing.T) {
 
 	// bogusCreateDB is a function which acts as a bogus create and open driver function that intentionally returns a failure which can be detected.
 	dbType := "createopenfail"
 	openError := fmt.Errorf("failed to create or open database for "+
 		"database type [%v]", dbType)
+
 	bogusCreateDB := func(args ...interface{}) (database.DB, error) {
 
 		return nil, openError
@@ -124,6 +129,7 @@ func TestCreateOpenFail(
 
 // TestCreateOpenUnsupported ensures that attempting to create or open an unsupported database type is handled properly.
 func TestCreateOpenUnsupported(
+
 	t *testing.T) {
 
 	// Ensure creating a database with an unsupported type fails with the expected error.

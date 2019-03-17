@@ -10,6 +10,7 @@ import "net"
 
 // is not valid.
 func NormalizeAddress(
+
 	addr string, defaultPort string) (hostport string, err error) {
 
 	// If the first SplitHostPort errors because of a missing port and not
@@ -20,12 +21,14 @@ func NormalizeAddress(
 
 	// returned.
 	host, port, origErr := net.SplitHostPort(addr)
+
 	if origErr == nil {
 
 		return net.JoinHostPort(host, port), nil
 	}
 	addr = net.JoinHostPort(addr, defaultPort)
 	_, _, err = net.SplitHostPort(addr)
+
 	if err != nil {
 
 		return "", origErr
@@ -37,6 +40,7 @@ func NormalizeAddress(
 
 // normalized with the given default port, and all duplicates removed.
 func NormalizeAddresses(
+
 	addrs []string, defaultPort string) ([]string, error) {
 
 	var (
@@ -47,11 +51,13 @@ func NormalizeAddresses(
 	for _, addr := range addrs {
 
 		normalizedAddr, err := NormalizeAddress(addr, defaultPort)
+
 		if err != nil {
 
 			return nil, err
 		}
 		_, seen := seenSet[normalizedAddr]
+
 		if !seen {
 
 			normalized = append(normalized, normalizedAddr)

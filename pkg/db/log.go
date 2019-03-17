@@ -10,6 +10,7 @@ var log = Log.Ch
 
 // UseLogger uses a specified Logger to output package logging info.
 func UseLogger(
+
 	logger *cl.SubSystem) {
 
 	Log = logger

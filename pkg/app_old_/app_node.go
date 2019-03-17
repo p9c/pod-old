@@ -15,6 +15,7 @@ import (
 )
 
 // NodeCfg is the combined app and logging configuration data
+
 type NodeCfg struct {
 	Node      *node.Config
 	LogLevels map[string]string
@@ -22,6 +23,7 @@ type NodeCfg struct {
 }
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.
+
 type serviceOptions struct {
 	ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
 }
@@ -160,11 +162,13 @@ var NodeCommand = climax.Command{
 	Handle: func(ctx climax.Context) int {
 		var dl string
 		var ok bool
+
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			log <- cl.Tracef{"setting debug level %s", dl}
 			NodeConfig.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
+
 			for i := range ll {
 				ll[i].SetLevel(dl)
 			}
@@ -177,6 +181,7 @@ var NodeCommand = climax.Command{
 		}
 
 		var datadir, cfgFile string
+
 		if datadir, ok = ctx.Get("datadir"); !ok {
 
 			datadir = util.AppDataDir("pod", false)
@@ -184,6 +189,7 @@ var NodeCommand = climax.Command{
 
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
+
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
 
 			cfgFile = r
@@ -193,25 +199,31 @@ var NodeCommand = climax.Command{
 
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
 			WriteDefaultNodeConfig(datadir)
+
 		} else {
 
 			log <- cl.Infof{"loading configuration from %s", cfgFile}
+
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 				log <- cl.Wrn("configuration file does not exist, creating new one")
 				WriteDefaultNodeConfig(datadir)
+
 			} else {
 
 				log <- cl.Debug{"reading app configuration from", cfgFile}
 				cfgData, err := ioutil.ReadFile(cfgFile)
+
 				if err != nil {
 
 					log <- cl.Error{"reading app config file:", err.Error()}
 					WriteDefaultNodeConfig(datadir)
+
 				} else {
 
 					log <- cl.Trace{"parsing app configuration", string(cfgData)}
 					err = json.Unmarshal(cfgData, &NodeConfig)
+
 					if err != nil {
 
 						log <- cl.Error{"parsing app config file:", err.Error()}

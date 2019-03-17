@@ -25,6 +25,7 @@ import (
 )
 
 // DefaultNodeConfig is the default configuration for node
+
 func DefaultNodeConfig(datadir string) *NodeCfg {
 
 	user := GenKey()
@@ -86,6 +87,7 @@ func DefaultNodeConfig(datadir string) *NodeCfg {
 // WriteDefaultNodeConfig creates a default config and writes it to the requested location
 func WriteDefaultNodeConfig(
 	datadir string,
+
 ) {
 
 	log <- cl.Dbg("writing default config")
@@ -121,6 +123,7 @@ func WriteDefaultNodeConfig(
 // WriteNodeConfig writes the current config to the requested location
 func WriteNodeConfig(
 	c *NodeCfg,
+
 ) {
 
 	log <- cl.Dbg("writing config")
@@ -154,6 +157,7 @@ func configNode(
 	nc *node.Config,
 	ctx *climax.Context,
 	cfgFile string,
+
 ) int {
 
 	var err error
@@ -214,6 +218,7 @@ func configNode(
 		if err := ParseInteger(r, "banthtreshold", &bt); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			nc.BanThreshold = uint32(bt)
 		}
@@ -431,6 +436,7 @@ func configNode(
 		if err := ParseInteger(r, "genthreads", &gt); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			nc.GenThreads = int32(gt)
 		}
@@ -524,6 +530,7 @@ func configNode(
 		if err := ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			nc.SigCacheMaxSize = uint(scms)
 		}
@@ -731,6 +738,7 @@ func configNode(
 
 					// IPv6
 					bits = 128
+
 				} else {
 					bits = 32
 				}
@@ -760,6 +768,7 @@ func configNode(
 
 	// --proxy or --connect without --listen disables listening.
 	if (nc.Proxy != "" || len(nc.ConnectPeers) > 0) &&
+
 		len(nc.Listeners) == 0 {
 		nc.DisableListen = true
 	}
@@ -806,6 +815,7 @@ func configNode(
 
 	// The RPC server is disabled if no username or password is provided.
 	if (nc.RPCUser == "" || nc.RPCPass == "") &&
+
 		(nc.RPCLimitUser == "" || nc.RPCLimitPass == "") {
 		nc.DisableRPC = true
 	}
@@ -860,6 +870,7 @@ func configNode(
 
 	// Limit the max block size to a sane value.
 	if nc.BlockMaxSize < node.BlockMaxSizeMin || nc.BlockMaxSize >
+
 		node.BlockMaxSizeMax {
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxSizeMin,
@@ -871,6 +882,7 @@ func configNode(
 
 	// Limit the max block weight to a sane value.
 	if nc.BlockMaxWeight < node.BlockMaxWeightMin ||
+
 		nc.BlockMaxWeight > node.BlockMaxWeightMax {
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxWeightMin,
@@ -1078,6 +1090,7 @@ func configNode(
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overriddenode.
 		torIsolation := false
 		if nc.TorIsolation && nc.OnionProxy == "" &&
+
 			(nc.ProxyUser != "" || nc.ProxyPass != "") {
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
@@ -1122,6 +1135,7 @@ func configNode(
 
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
 		if nc.TorIsolation &&
+
 			(nc.OnionProxyUser != "" || nc.OnionProxyPass != "") {
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+

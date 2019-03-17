@@ -13,6 +13,7 @@ import (
 
 // TestAppDataDir tests the API for AppDataDir to ensure it gives expected results for various operating systems.
 func TestAppDataDir(
+
 	t *testing.T) {
 
 	// App name plus upper and lowercase variants.
@@ -23,10 +24,12 @@ func TestAppDataDir(
 	// When we're on Windows, set the expected local and roaming directories per the environment vars.  When we aren't on Windows, the function should return the current directory when forced to provide the Windows path since the environment variables won't exist.
 	winLocal := "."
 	winRoaming := "."
+
 	if runtime.GOOS == "windows" {
 
 		localAppData := os.Getenv("LOCALAPPDATA")
 		roamingAppData := os.Getenv("APPDATA")
+
 		if localAppData == "" {
 
 			localAppData = roamingAppData
@@ -39,6 +42,7 @@ func TestAppDataDir(
 	// Get the home directory to use for testing expected results.
 	var homeDir string
 	usr, err := user.Current()
+
 	if err != nil {
 
 		t.Errorf("user.Current: %v", err)
@@ -49,6 +53,7 @@ func TestAppDataDir(
 
 	// Mac app data directory.
 	macAppData := filepath.Join(homeDir, "Library", "Application Support")
+
 	tests := []struct {
 		goos    string
 		appName string
@@ -117,9 +122,11 @@ func TestAppDataDir(
 	}
 
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
 
 		ret := util.TstAppDataDir(test.goos, test.appName, test.roaming)
+
 		if ret != test.want {
 
 			t.Errorf("appDataDir #%d (%s) does not match - "+

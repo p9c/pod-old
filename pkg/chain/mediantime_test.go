@@ -8,6 +8,7 @@ import (
 
 // TestMedianTime tests the medianTime implementation.
 func TestMedianTime(
+
 	t *testing.T) {
 
 	tests := []struct {
@@ -41,6 +42,7 @@ func TestMedianTime(
 
 	// Modify the max number of allowed median time entries for these tests.
 	maxMedianTimeEntries = 10
+
 	defer func() {
 
 		maxMedianTimeEntries = 200
@@ -49,6 +51,7 @@ func TestMedianTime(
 	for i, test := range tests {
 
 		filter := NewMedianTime()
+
 		for j, offset := range test.in {
 
 			id := strconv.Itoa(j)
@@ -56,6 +59,7 @@ func TestMedianTime(
 			tOffset := now.Add(time.Duration(offset) * time.Second)
 			filter.AddTimeSample(id, tOffset)
 			// Ensure the duplicate IDs are ignored.
+
 			if test.useDupID {
 
 				// Modify the offsets to ensure the final median would be different if the duplicate is added.
@@ -70,6 +74,7 @@ func TestMedianTime(
 		gotOffset := filter.Offset()
 		wantOffset := time.Duration(test.wantOffset) * time.Second
 		wantOffset2 := time.Duration(test.wantOffset-1) * time.Second
+
 		if gotOffset != wantOffset && gotOffset != wantOffset2 {
 
 			t.Errorf("Offset #%d: unexpected offset -- got %v, "+
@@ -83,6 +88,7 @@ func TestMedianTime(
 		now := time.Unix(time.Now().Unix(), 0)
 		wantTime := now.Add(filter.Offset())
 		wantTime2 := now.Add(filter.Offset() - time.Second)
+
 		if !adjustedTime.Equal(wantTime) && !adjustedTime.Equal(wantTime2) {
 
 			t.Errorf("AdjustedTime #%d: unexpected result -- got %v, "+

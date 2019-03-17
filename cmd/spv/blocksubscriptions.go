@@ -10,6 +10,7 @@ import (
 // blockMessage is a notification from the block manager to a block
 
 // subscription's goroutine to be forwarded on via the appropriate channel.
+
 type blockMessage struct {
 	header  *wire.BlockHeader
 	msgType messageType
@@ -22,6 +23,7 @@ type blockMessage struct {
 // TODO(aakselrod): Move this to its own package so that the subscriber can't
 
 // access internals, in particular the notifyBlock and intQuit members.
+
 type blockSubscription struct {
 	onConnectBasic chan<- wire.BlockHeader
 	onDisconnect   chan<- wire.BlockHeader
@@ -59,9 +61,11 @@ const (
 func (
 	s *ChainService,
 ) sendSubscribedMsg(
+
 	bm *blockMessage) {
 
 	s.mtxSubscribers.RLock()
+
 	for sub := range s.blockSubscribers {
 
 		sendMsgToSubscriber(sub, bm)
@@ -88,6 +92,7 @@ func (
 ) subscribeBlockMsg(
 	bestHeight uint32,
 	onConnectBasic, onDisconnect chan<- wire.BlockHeader,
+
 	quit <-chan struct{}) (*blockSubscription, error) {
 
 	subscription := blockSubscription{
@@ -103,6 +108,7 @@ func (
 	// backlog notifications as its possible that while the caller is
 
 	// requesting right after a new set of blocks has been connected.
+
 	err := s.blockManager.SynchronizeFilterHeaders(func(filterHeaderTip uint32) error {
 
 		s.mtxSubscribers.Lock()
@@ -113,6 +119,7 @@ func (
 		// If the best height matches the filter header tip, then we're
 
 		// done and don't need to proceed any further.
+
 		if filterHeaderTip == bestHeight {
 
 			return nil
@@ -132,11 +139,13 @@ func (
 		// state doesn't change until we're finished catching up the
 
 		// caller.
+
 		for currentHeight := bestHeight + 1; currentHeight <= filterHeaderTip; currentHeight++ {
 
 			blockHeader, err := s.BlockHeaders.FetchHeaderByHeight(
 				currentHeight,
 			)
+
 			if err != nil {
 
 				return fmt.Errorf(
@@ -177,6 +186,7 @@ func (
 func (
 	s *ChainService,
 ) unsubscribeBlockMsgs(
+
 	subscription *blockSubscription) {
 
 	s.mtxSubscribers.Lock()
@@ -186,6 +196,7 @@ func (
 	close(subscription.intQuit)
 	// Drain the inbound notification channel
 cleanup:
+
 	for {
 
 		select {
@@ -207,6 +218,7 @@ cleanup:
 // messages from the chain service to the subscriber.
 func (
 	s *blockSubscription,
+
 ) subscriptionHandler() {
 
 	// Start with a small queue; it will grow if needed.
@@ -217,6 +229,7 @@ func (
 	// we try to send, queue it and continue with the loop. If a quit
 
 	// signal is sent, let the loop know.
+
 	selectChan := func(notify chan<- wire.BlockHeader) bool {
 
 		if notify == nil {
@@ -269,6 +282,7 @@ func (
 	}
 
 	// Loop until we get a signal on s.quit or s.intQuit.
+
 	for {
 
 		if next != nil {
@@ -276,15 +290,18 @@ func (
 			// If selectChan returns false, we were signalled on
 
 			// s.quit or s.intQuit.
+
 			switch next.msgType {
 
 			case connectBasic:
+
 				if !selectChan(s.onConnectBasic) {
 
 					return
 				}
 
 			case disconnect:
+
 				if !selectChan(s.onDisconnect) {
 
 					return
@@ -299,11 +316,13 @@ func (
 			// notification from the queue. If not, we wait for a
 
 			// notification on s.notifyBlock or quit if signalled.
+
 			if len(ntfns) > 0 {
 
 				next = ntfns[0]
 				ntfns[0] = nil // Set to nil to avoid GC leak.
 				ntfns = ntfns[1:]
+
 			} else {
 
 				select {
@@ -336,6 +355,7 @@ func (
 
 // block notification.
 func sendMsgToSubscriber(
+
 	sub *blockSubscription, bm *blockMessage) {
 
 	var subChan chan<- wire.BlockHeader
@@ -359,6 +379,7 @@ func sendMsgToSubscriber(
 	// the new update, then we'll wait to either send this notification, or
 
 	// quit from either signal.
+
 	if subChan != nil {
 
 		select {
