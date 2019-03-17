@@ -46,7 +46,6 @@ func newWebsocketClient(
 		quit:          make(chan struct{}),
 	}
 }
-
 func (c *websocketClient) send(b []byte) error {
 
 	select {
@@ -455,7 +454,6 @@ func (s *Server) invalidAuth(req *json.Request) bool {
 	authSha := sha256.Sum256([]byte(auth))
 	return subtle.ConstantTimeCompare(authSha[:], s.authsha[:]) != 1
 }
-
 func (s *Server) websocketClientRead(wsc *websocketClient) {
 
 	for {
@@ -478,7 +476,6 @@ func (s *Server) websocketClientRead(wsc *websocketClient) {
 		wsc.allRequests <- request
 	}
 }
-
 func (s *Server) websocketClientRespond(wsc *websocketClient) {
 
 	// A for-select with a read of the quit channel is used instead of a
@@ -615,7 +612,6 @@ out:
 	close(wsc.responses)
 	s.wg.Done()
 }
-
 func (s *Server) websocketClientSend(wsc *websocketClient) {
 
 	const deadline time.Duration = 2 * time.Second
@@ -796,7 +792,6 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 		s.requestProcessShutdown()
 	}
 }
-
 func (s *Server) requestProcessShutdown() {
 
 	select {

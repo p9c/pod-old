@@ -44,21 +44,18 @@ type MedianTimeSource interface {
 type int64Sorter []int64
 
 // Len returns the number of 64-bit integers in the slice.  It is part of the sort.Interface implementation.
-
 func (s int64Sorter) Len() int {
 
 	return len(s)
 }
 
 // Swap swaps the 64-bit integers at the passed indices.  It is part of the sort.Interface implementation.
-
 func (s int64Sorter) Swap(i, j int) {
 
 	s[i], s[j] = s[j], s[i]
 }
 
 // Less returns whether the 64-bit integer with index i should sort before the 64-bit integer with index j.  It is part of the sort.Interface implementation.
-
 func (s int64Sorter) Less(i, j int) bool {
 
 	return s[i] < s[j]
@@ -78,7 +75,6 @@ type medianTime struct {
 var _ MedianTimeSource = (*medianTime)(nil)
 
 // AdjustedTime returns the current time adjusted by the median time offset as calculated from the time samples added by AddTimeSample. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
-
 func (m *medianTime) AdjustedTime() time.Time {
 
 	m.mtx.Lock()
@@ -90,7 +86,6 @@ func (m *medianTime) AdjustedTime() time.Time {
 }
 
 // AddTimeSample adds a time sample that is used when determining the median time of the added samples. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
-
 func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 
 	m.mtx.Lock()
@@ -190,7 +185,6 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 }
 
 // Offset returns the number of seconds to adjust the local clock based upon the median of the time samples added by AddTimeData. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.
-
 func (m *medianTime) Offset() time.Duration {
 
 	m.mtx.Lock()
@@ -199,7 +193,6 @@ func (m *medianTime) Offset() time.Duration {
 }
 
 // NewMedianTime returns a new instance of concurrency-safe implementation of the MedianTimeSource interface.  The returned implementation contains the rules necessary for proper time handling in the chain consensus rules and expects the time samples to be added from the timestamp field of the version message received from remote peers that successfully connect and negotiate.
-
 func NewMedianTime() MedianTimeSource {
 
 	return &medianTime{

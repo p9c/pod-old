@@ -109,7 +109,6 @@ func WriteDefaultCtlConfig(
 	// if we are writing default config we also want to use it
 	CtlCfg = defCfg
 }
-
 func configCtl(
 	ctx *climax.Context,
 	cfgFile string,

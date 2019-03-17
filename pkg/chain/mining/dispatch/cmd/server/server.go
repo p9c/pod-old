@@ -30,7 +30,6 @@ func main() {
 }
 
 // Client callbacks
-
 func serverConnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -53,7 +52,6 @@ func serverConnect(
 		}
 	}
 }
-
 func serverDisconnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -69,7 +67,6 @@ func serverDisconnect(
 	mapWrite = false
 	conn.Disconnect([]byte("disconn"))
 }
-
 func serverTimeout(
 	conn *rmnp.Connection, data []byte) {
 
@@ -85,7 +82,6 @@ func serverTimeout(
 	mapWrite = false
 	conn.Disconnect([]byte("timeout"))
 }
-
 func handleClientPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 
@@ -93,7 +89,6 @@ func handleClientPacket(
 }
 
 // Server callbacks
-
 func clientConnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -103,7 +98,6 @@ func clientConnect(
 		conn.Disconnect([]byte("wrong handshake"))
 	}
 }
-
 func clientDisconnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -119,7 +113,6 @@ func clientDisconnect(
 	mapWrite = false
 	conn.Disconnect([]byte("timeout"))
 }
-
 func clientTimeout(
 	conn *rmnp.Connection, data []byte) {
 
@@ -135,7 +128,6 @@ func clientTimeout(
 	mapWrite = false
 	conn.Disconnect([]byte("timeout"))
 }
-
 func validateClient(
 	addr *net.UDPAddr, data []byte) (valid bool) {
 
@@ -147,7 +139,6 @@ func validateClient(
 	}
 	return
 }
-
 func handleServerPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 

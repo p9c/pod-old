@@ -45,7 +45,6 @@ func (ab *RequestedPaymentHistory) RequestedPaymentHistory() {
 	fmt.Println("Ersssssssssssssssssssssssssssror", ab.RequestedPayment)
 
 }
-
 func (ab *RequestedPayment) RequestedPaymentWrite(time, label, address, amount, desc string) {
 
 	ab.Time = time

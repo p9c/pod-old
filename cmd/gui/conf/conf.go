@@ -38,7 +38,6 @@ func (cf *Conf) ConfData() {
 		fmt.Println("Error", err)
 	}
 }
-
 func (cf *Conf) SaveInterfaceConf(lang string) {
 
 	ICF := InfConf{

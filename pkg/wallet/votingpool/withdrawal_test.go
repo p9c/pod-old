@@ -127,7 +127,6 @@ func TestStartWithdrawal(
 	}
 	vp.TstCheckWithdrawalStatusMatches(t, *status, *status2)
 }
-
 func checkWithdrawalOutputs(
 	t *testing.T, wStatus *vp.WithdrawalStatus, amounts map[string]util.Amount) {
 

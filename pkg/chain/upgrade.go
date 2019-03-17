@@ -688,7 +688,6 @@ func upgradeUtxoSetToV2(
 // package and performs any needed upgrades to bring them to the latest version.
 // All buckets used by this package are guaranteed to be the latest version if
 // this function returns without error.
-
 func (b *BlockChain) maybeUpgradeDbBuckets(interrupt <-chan struct{}) error {
 
 	// Load or create bucket versions as needed.

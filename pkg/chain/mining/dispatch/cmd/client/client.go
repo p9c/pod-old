@@ -48,7 +48,6 @@ func main() {
 }
 
 // Client callbacks
-
 func serverConnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -67,7 +66,6 @@ func serverConnect(
 		time.Sleep(heartbeat)
 	}
 }
-
 func serverDisconnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -76,7 +74,6 @@ func serverDisconnect(
 	connected = false
 	conn.Disconnect([]byte("disconn"))
 }
-
 func serverTimeout(
 	conn *rmnp.Connection, data []byte) {
 
@@ -85,7 +82,6 @@ func serverTimeout(
 	connected = false
 	conn.Disconnect([]byte("timeout"))
 }
-
 func handleClientPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 
@@ -97,7 +93,6 @@ func handleClientPacket(
 }
 
 // Client callbacks
-
 func clientConnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -109,7 +104,6 @@ func clientConnect(
 	subscribed = true
 	connected = true
 }
-
 func clientDisconnect(
 	conn *rmnp.Connection, data []byte) {
 
@@ -117,7 +111,6 @@ func clientDisconnect(
 	subscribed = false
 	connected = false
 }
-
 func clientTimeout(
 	conn *rmnp.Connection, data []byte) {
 
@@ -125,7 +118,6 @@ func clientTimeout(
 	subscribed = false
 	connected = false
 }
-
 func validateClient(
 	addr *net.UDPAddr, data []byte) (valid bool) {
 
@@ -137,7 +129,6 @@ func validateClient(
 	}
 	return
 }
-
 func handleServerPacket(
 	conn *rmnp.Connection, data []byte, channel rmnp.Channel) {
 

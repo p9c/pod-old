@@ -12,7 +12,6 @@ var VueIcons map[string]string
 var VueImgs map[string]string
 
 /*
-
 func init() {
 
 

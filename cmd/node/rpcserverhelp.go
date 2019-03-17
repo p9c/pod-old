@@ -744,7 +744,6 @@ type helpCacher struct {
 }
 
 // rpcMethodHelp returns an RPC help string for the provided method. This function is safe for concurrent access.
-
 func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 
 	c.Lock()
@@ -779,7 +778,6 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 }
 
 // rpcUsage returns one-line usage for all support RPC commands. This function is safe for concurrent access.
-
 func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 	c.Lock()
@@ -831,7 +829,6 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 }
 
 // newHelpCacher returns a new instance of a help cacher which provides help and usage for the RPC server commands and caches the results for future calls.
-
 func newHelpCacher() *helpCacher {
 
 	return &helpCacher{

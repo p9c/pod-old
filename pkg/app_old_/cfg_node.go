@@ -25,7 +25,6 @@ import (
 )
 
 // DefaultNodeConfig is the default configuration for node
-
 func DefaultNodeConfig(datadir string) *NodeCfg {
 
 	user := GenKey()
@@ -167,7 +166,6 @@ func WriteNodeConfig(
 	}
 
 }
-
 func configNode(
 	nc *node.Config,
 	ctx *climax.Context,

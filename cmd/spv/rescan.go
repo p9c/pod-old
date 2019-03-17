@@ -255,7 +255,6 @@ func updateChan(
 // rescan is a single-threaded function that uses headers from the database and
 
 // functional options as arguments.
-
 func (s *ChainService) rescan(options ...RescanOption) error {
 
 	// First, we'll apply the set of default options, then serially apply
@@ -1319,7 +1318,6 @@ func (s *ChainService) blockFilterMatches(ro *rescanOptions,
 // hasFilterHeadersByHeight checks whether both the basic and extended filter
 
 // headers for a particular height are known.
-
 func (s *ChainService) hasFilterHeadersByHeight(height uint32) bool {
 
 	_, regFetchErr := s.RegFilterHeaders.FetchHeaderByHeight(height)
@@ -1422,7 +1420,6 @@ func (ro *rescanOptions) updateFilter(update *updateOptions,
 // spendsWatchedInput returns whether the transaction matches the filter by
 
 // spending a watched input.
-
 func (ro *rescanOptions) spendsWatchedInput(tx *util.Tx) bool {
 
 	for _, in := range tx.MsgTx().TxIn {
@@ -1446,7 +1443,6 @@ func (ro *rescanOptions) spendsWatchedInput(tx *util.Tx) bool {
 // an output paying to a watched address. If that is the case, this also
 
 // updates the filter to watch the newly created output going forward.
-
 func (ro *rescanOptions) paysWatchedAddr(tx *util.Tx) (bool, error) {
 
 	anyMatchingOutputs := false
@@ -1538,7 +1534,6 @@ type Rescan struct {
 // updatable filter. It returns the long-running rescan object, and a channel
 
 // which returns any error on termination of the rescan process.
-
 func (s *ChainService) NewRescan(options ...RescanOption) *Rescan {
 
 	return &Rescan{
@@ -1555,7 +1550,6 @@ func (s *ChainService) NewRescan(options ...RescanOption) *Rescan {
 // exited. This method is to be called once the passed quitchan (if any) has
 
 // been closed.
-
 func (r *Rescan) WaitForShutdown() {
 
 	r.wg.Wait()
@@ -1564,7 +1558,6 @@ func (r *Rescan) WaitForShutdown() {
 // Start kicks off the rescan goroutine, which will begin to scan the chain
 
 // according to the specified rescan options.
-
 func (r *Rescan) Start() <-chan error {
 
 	errChan := make(chan error, 1)
@@ -1672,7 +1665,6 @@ func DisableDisconnectedNtfns(
 }
 
 // Update sends an update to a long-running rescan/notification goroutine.
-
 func (r *Rescan) Update(options ...UpdateOption) error {
 
 	ro := defaultRescanOptions()
@@ -1777,7 +1769,6 @@ type SpendReport struct {
 //
 
 // TODO(roasbeef): WTB utxo-commitments
-
 func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 
 	// Before we start we'll fetch the set of default options, and apply
@@ -1841,7 +1832,6 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 //
 
 // TODO(aakselrod): Get rid of this as described above.
-
 func (s *ChainService) getReorgTip(hash chainhash.Hash) *wire.BlockHeader {
 
 	s.mtxReorgHeader.RLock()

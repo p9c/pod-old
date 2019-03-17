@@ -26,7 +26,6 @@ func UnstableAPI(
 }
 
 // TxDetails calls wtxmgr.Store.TxDetails under a single database view transaction.
-
 func (u unstableAPI) TxDetails(txHash *chainhash.Hash) (*wtxmgr.TxDetails, error) {
 
 	var details *wtxmgr.TxDetails
@@ -44,7 +43,6 @@ func (u unstableAPI) TxDetails(txHash *chainhash.Hash) (*wtxmgr.TxDetails, error
 
 // RangeTransactions calls wtxmgr.Store.RangeTransactions under a single
 // database view tranasction.
-
 func (u unstableAPI) RangeTransactions(begin, end int32, f func([]wtxmgr.TxDetails) (bool, error)) error {
 
 	return walletdb.View(u.w.db, func(dbtx walletdb.ReadTx) error {

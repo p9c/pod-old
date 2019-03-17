@@ -6,7 +6,15 @@ Usage
 
 This package is only a driver to the walletdb package and provides the database
 
+
+
+
 type of "bdb".  The only parameter the Open and Create functions take is the
+
+
+
+
+
 
 database path as a string:
 

@@ -345,7 +345,6 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 
 	return nil
 }
-
 func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, block *wtxmgr.BlockMeta) error {
 
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)

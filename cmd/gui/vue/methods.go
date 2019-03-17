@@ -107,7 +107,6 @@ type RPCInterface struct {
 
 // confirmed checks whether a transaction at height txHeight has met minconf
 // confirmations for a blockchain at height curHeight.
-
 func confirmed(minconf, txHeight, curHeight int32) bool {
 
 	return confirms(txHeight, curHeight) >= minconf
@@ -116,7 +115,6 @@ func confirmed(minconf, txHeight, curHeight int32) bool {
 // confirms returns the number of confirmations for a transaction in a block at
 // height txHeight (or -1 for an unconfirmed tx) given the chain height
 // curHeight.
-
 func confirms(txHeight, curHeight int32) int32 {
 
 	switch {
@@ -166,7 +164,6 @@ var RPCHandlers = &rpcHandlers
 
 // unimplemented handles an unimplemented RPC request with the
 // appropiate error.
-
 func unimplemented(interface{}, *wallet.Wallet) (interface{}, error) {
 
 	return nil, &json.RPCError{
@@ -179,7 +176,6 @@ func unimplemented(interface{}, *wallet.Wallet) (interface{}, error) {
 
 // unsupported handles a standard bitcoind RPC request which is
 // unsupported by btcwallet due to design differences.
-
 func unsupported(interface{}, *wallet.Wallet) (interface{}, error) {
 
 	return nil, &json.RPCError{
@@ -200,7 +196,6 @@ type lazyHandler func() (interface{}, *json.RPCError)
 // returning a closure that will execute it with the (required) wallet and
 // (optional) consensus RPC server.  If no handlers are found and the
 // chainClient is not nil, the returned handler performs RPC passthrough.
-
 func lazyApplyHandler(request *json.Request, chainClient chain.Interface) lazyHandler {
 
 	handlerData, ok := rpcHandlers[request.Method]
@@ -345,7 +340,6 @@ func lazyApplyHandler(request *json.Request, chainClient chain.Interface) lazyHa
 // }
 
 // jsonError creates a JSON-RPC error from the Go error.
-
 func jsonError(err error) *json.RPCError {
 
 	if err == nil {
@@ -387,7 +381,6 @@ func jsonError(err error) *json.RPCError {
 
 // makeMultiSigScript is a helper function to combine common logic for
 // AddMultiSig and CreateMultiSig.
-
 func makeMultiSigScript(w *wallet.Wallet, keys []string, nRequired int) ([]byte, error) {
 
 	keysesPrecious := make([]*util.AddressPubKey, len(keys))
@@ -436,7 +429,6 @@ func makeMultiSigScript(w *wallet.Wallet, keys []string, nRequired int) ([]byte,
 
 // addMultiSigAddress handles an addmultisigaddress request by adding a
 // multisig address to the given wallet.
-
 func addMultiSigAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.AddMultisigAddressCmd)
@@ -481,7 +473,6 @@ func addMultiSigAddress(icmd interface{}) (interface{}, error) {
 
 // createMultiSig handles an createmultisig request by returning a
 // multisig address for the given inputs.
-
 func createMultiSig(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.CreateMultisigCmd)
@@ -512,7 +503,6 @@ func createMultiSig(icmd interface{}) (interface{}, error) {
 // dumpPrivKey handles a dumpprivkey request with the private key
 // for a single address, or an appropiate error if the wallet
 // is locked.
-
 func dumpPrivKey(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.DumpPrivKeyCmd)
@@ -539,7 +529,6 @@ func dumpPrivKey(icmd interface{}) (interface{}, error) {
 // dumpWallet handles a dumpwallet request by returning  all private
 // keys in a wallet, or an appropiate error if the wallet is locked.
 // TODO: finish this to match bitcoind by writing the dump to a file.
-
 func dumpWallet(icmd interface{}) (interface{}, error) {
 
 	keys, err := WLT.DumpPrivKeys()
@@ -555,7 +544,6 @@ func dumpWallet(icmd interface{}) (interface{}, error) {
 // getAddressesByAccount handles a getaddressesbyaccount request by returning
 // all addresses for an account, or an error if the requested account does
 // not exist.
-
 func getAddressesByAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetAddressesByAccountCmd)
@@ -587,7 +575,6 @@ func getAddressesByAccount(icmd interface{}) (interface{}, error) {
 // getBalance handles a getbalance request by returning the balance for an
 // account (wallet), or an error if the requested account does not
 // exist.
-
 func getBalance(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetBalanceCmd)
@@ -635,7 +622,6 @@ func getBalance(icmd interface{}) (interface{}, error) {
 
 // getBestBlock handles a getbestblock request by returning a JSON object
 // with the height and hash of the most recently processed block.
-
 func (rpc *RPCInterface) GetBestBlock() {
 
 	// blk := WLT.Manager.SyncedTo()
@@ -650,7 +636,6 @@ func (rpc *RPCInterface) GetBestBlock() {
 
 // getBestBlockHash handles a getbestblockhash request by returning the hash
 // of the most recently processed block.
-
 func (rpc *RPCInterface) getBestBlockHash(icmd interface{}) (interface{}, error) {
 
 	blk := WLT.Manager.SyncedTo()
@@ -661,7 +646,6 @@ func (rpc *RPCInterface) getBestBlockHash(icmd interface{}) (interface{}, error)
 // of the most recently processed block.
 
 // func (rpc *RPCInterface) GetBlockCount() {
-
 func (rpc *RPCInterface) GetBlockCount() {
 
 	blk := WLT.Manager.SyncedTo()
@@ -672,7 +656,6 @@ func (rpc *RPCInterface) GetBlockCount() {
 // getInfo handles a getinfo request by returning the a structure containing
 // information about the current state of btcwallet.
 // exist.
-
 func (rpc *RPCInterface) GetInfo() {
 
 	// Call down to pod for all of the information in this command known
@@ -703,7 +686,6 @@ func (rpc *RPCInterface) GetInfo() {
 	//  - errors
 	rpc.Getinfo = info
 }
-
 func decodeAddress(s string, params *chaincfg.Params) (util.Address, error) {
 
 	addr, err := util.DecodeAddress(s, params)
@@ -738,7 +720,6 @@ func decodeAddress(s string, params *chaincfg.Params) (util.Address, error) {
 
 // getAccount handles a getaccount request by returning the account name
 // associated with a single address.
-
 func getAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetAccountCmd)
@@ -774,7 +755,6 @@ func getAccount(icmd interface{}) (interface{}, error) {
 // If the most recently-requested address has been used, a new address (the
 // next chained address in the keypool) is used.  This can fail if the keypool
 // runs out (and will return json.ErrRPCWalletKeypoolRanOut if that happens).
-
 func getAccountAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetAccountAddressCmd)
@@ -798,7 +778,6 @@ func getAccountAddress(icmd interface{}) (interface{}, error) {
 
 // getUnconfirmedBalance handles a getunconfirmedbalance extension request
 // by returning the current unconfirmed balance of an account.
-
 func (rpc *RPCInterface) getUnconfirmedBalance(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetUnconfirmedBalanceCmd)
@@ -829,7 +808,6 @@ func (rpc *RPCInterface) getUnconfirmedBalance(icmd interface{}) (interface{}, e
 
 // importPrivKey handles an importprivkey request by parsing
 // a WIF-encoded private key and adding it to an account.
-
 func importPrivKey(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ImportPrivKeyCmd)
@@ -882,7 +860,6 @@ func importPrivKey(icmd interface{}) (interface{}, error) {
 
 // keypoolRefill handles the keypoolrefill command. Since we handle the keypool
 // automatically this does nothing since refilling is never manually required.
-
 func keypoolRefill(icmd interface{}) (interface{}, error) {
 
 	return nil, nil
@@ -891,7 +868,6 @@ func keypoolRefill(icmd interface{}) (interface{}, error) {
 // createNewAccount handles a createnewaccount request by creating and
 // returning a new account. If the last account has no transaction history
 // as per BIP 0044 a new account cannot be created so an error will be returned.
-
 func createNewAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.CreateNewAccountCmd)
@@ -922,7 +898,6 @@ func createNewAccount(icmd interface{}) (interface{}, error) {
 
 // renameAccount handles a renameaccount request by renaming an account.
 // If the account does not exist an appropiate error will be returned.
-
 func renameAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.RenameAccountCmd)
@@ -951,7 +926,6 @@ func renameAccount(icmd interface{}) (interface{}, error) {
 // error is returned.
 // TODO: Follow BIP 0044 and warn if number of unused addresses exceeds
 // the gap limit.
-
 func (rpc *RPCInterface) GetNewAddress() {
 
 	acctName := "default"
@@ -981,7 +955,6 @@ func (rpc *RPCInterface) GetNewAddress() {
 //
 // Note: bitcoind allows specifying the account as an optional parameter,
 // but ignores the parameter.
-
 func getRawChangeAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetRawChangeAddressCmd)
@@ -1013,7 +986,6 @@ func getRawChangeAddress(icmd interface{}) (interface{}, error) {
 
 // getReceivedByAccount handles a getreceivedbyaccount request by returning
 // the total amount received by addresses of an account.
-
 func getReceivedByAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetReceivedByAccountCmd)
@@ -1049,7 +1021,6 @@ func getReceivedByAccount(icmd interface{}) (interface{}, error) {
 
 // getReceivedByAddress handles a getreceivedbyaddress request by returning
 // the total amount received by a single address.
-
 func getReceivedByAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetReceivedByAddressCmd)
@@ -1073,7 +1044,6 @@ func getReceivedByAddress(icmd interface{}) (interface{}, error) {
 
 // getTransaction handles a gettransaction request by returning details about
 // a single transaction saved by wallet.
-
 func getTransaction(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.GetTransactionCmd)
@@ -1275,7 +1245,6 @@ func getTransaction(icmd interface{}) (interface{}, error) {
 
 // listAccounts handles a listaccounts request by returning a map of account
 // names to their balances.
-
 func listAccounts(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListAccountsCmd)
@@ -1299,7 +1268,6 @@ func listAccounts(icmd interface{}) (interface{}, error) {
 
 // listLockUnspent handles a listlockunspent request by returning an slice of
 // all locked outpoints.
-
 func listLockUnspent(icmd interface{}) (interface{}, error) {
 
 	return WLT.LockedOutpoints(), nil
@@ -1315,7 +1283,6 @@ func listLockUnspent(icmd interface{}) (interface{}, error) {
 //             default: one;
 //  "includeempty": whether or not to include addresses that have no transactions -
 //                  default: false.
-
 func listReceivedByAccount(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListReceivedByAccountCmd)
@@ -1356,7 +1323,6 @@ func listReceivedByAccount(icmd interface{}) (interface{}, error) {
 //             default: one;
 //  "includeempty": whether or not to include addresses that have no transactions -
 //                  default: false.
-
 func listReceivedByAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListReceivedByAddressCmd)
@@ -1484,7 +1450,6 @@ func listReceivedByAddress(icmd interface{}) (interface{}, error) {
 
 // listSinceBlock handles a listsinceblock request by returning an array of maps
 // with details of sent and received wallet transactions since the given block.
-
 func listSinceBlock(icmd interface{}, chainClient *chain.RPCClient) (interface{}, error) {
 
 	cmd := icmd.(*json.ListSinceBlockCmd)
@@ -1544,7 +1509,6 @@ func listSinceBlock(icmd interface{}, chainClient *chain.RPCClient) (interface{}
 
 // listTransactions handles a listtransactions request by returning an
 // array of maps with details of sent and recevied wallet transactions.
-
 func listTransactions(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListTransactionsCmd)
@@ -1575,7 +1539,6 @@ func listTransactions(icmd interface{}) (interface{}, error) {
 // transactions.  The form of the reply is identical to listtransactions,
 // but the array elements are limited to transaction details which are
 // about the addresess included in the request.
-
 func listAddressTransactions(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListAddressTransactionsCmd)
@@ -1612,7 +1575,6 @@ func listAddressTransactions(icmd interface{}) (interface{}, error) {
 // a map with details of sent and recevied wallet transactions.  This is
 // similar to ListTransactions, except it takes only a single optional
 // argument for the account name and replies with all transactions.
-
 func listAllTransactions(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListAllTransactionsCmd)
@@ -1631,7 +1593,6 @@ func listAllTransactions(icmd interface{}) (interface{}, error) {
 }
 
 // listUnspent handles the listunspent command.
-
 func listUnspent(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ListUnspentCmd)
@@ -1661,7 +1622,6 @@ func listUnspent(icmd interface{}) (interface{}, error) {
 }
 
 // lockUnspent handles the lockunspent command.
-
 func lockUnspent(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.LockUnspentCmd)
@@ -1703,7 +1663,6 @@ func lockUnspent(icmd interface{}) (interface{}, error) {
 // strings to amounts.  This is used to create the outputs to include in newly
 // created transactions from a JSON object describing the output destinations
 // and amounts.
-
 func makeOutputs(pairs map[string]util.Amount, chainParams *chaincfg.Params) ([]*wire.TxOut, error) {
 
 	outputs := make([]*wire.TxOut, 0, len(pairs))
@@ -1776,7 +1735,6 @@ func sendPairs(w *wallet.Wallet, amounts map[string]util.Amount,
 	log.Infof("Successfully sent transaction %v", txHashStr)
 	return txHashStr, nil
 }
-
 func isNilOrEmpty(s *string) bool {
 
 	return s == nil || *s == ""
@@ -1787,7 +1745,6 @@ func isNilOrEmpty(s *string) bool {
 // address.  Leftover inputs not sent to the payment address or a fee for
 // the miner are sent back to a new address in the wallet.  Upon success,
 // the TxID for the created transaction is returned.
-
 func sendFrom(icmd interface{}, chainClient *chain.RPCClient) (interface{}, error) {
 
 	cmd := icmd.(*json.SendFromCmd)
@@ -1850,7 +1807,6 @@ func sendFrom(icmd interface{}, chainClient *chain.RPCClient) (interface{}, erro
 // payment addresses.  Leftover inputs not sent to the payment address
 // or a fee for the miner are sent back to a new address in the wallet.
 // Upon success, the TxID for the created transaction is returned.
-
 func sendMany(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.SendManyCmd)
@@ -1906,7 +1862,6 @@ func sendMany(icmd interface{}) (interface{}, error) {
 // payment address.  Leftover inputs not sent to the payment address or a fee
 // for the miner are sent back to a new address in the wallet.  Upon success,
 // the TxID for the created transaction is returned.
-
 func (rpc *RPCInterface) SendToAddress(vaddress string, vlabel string, vamount interface{}) {
 
 	amount, err := strconv.ParseFloat(vamount.(string), 64)
@@ -1945,7 +1900,6 @@ func (rpc *RPCInterface) SendToAddress(vaddress string, vlabel string, vamount i
 }
 
 // setTxFee sets the transaction fee per kilobyte added to transactions.
-
 func setTxFee(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.SetTxFeeCmd)
@@ -1963,7 +1917,6 @@ func setTxFee(icmd interface{}) (interface{}, error) {
 
 // signMessage signs the given message with the private key for the given
 // address
-
 func signMessage(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.SignMessageCmd)
@@ -1998,7 +1951,6 @@ func signMessage(icmd interface{}) (interface{}, error) {
 }
 
 // signRawTransaction handles the signrawtransaction command.
-
 func signRawTransaction(icmd interface{}, chainClient *chain.RPCClient) (interface{}, error) {
 
 	cmd := icmd.(*json.SignRawTransactionCmd)
@@ -2231,7 +2183,6 @@ func signRawTransaction(icmd interface{}, chainClient *chain.RPCClient) (interfa
 }
 
 // validateAddress handles the validateaddress command.
-
 func validateAddress(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.ValidateAddressCmd)
@@ -2335,7 +2286,6 @@ func validateAddress(icmd interface{}) (interface{}, error) {
 
 // verifyMessage handles the verifymessage command by verifying the provided
 // compact signature for the given address and message.
-
 func verifyMessage(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.VerifyMessageCmd)
@@ -2397,7 +2347,6 @@ func verifyMessage(icmd interface{}) (interface{}, error) {
 // walletIsLocked handles the walletislocked extension request by
 // returning the current lock state (false for unlocked, true for locked)
 // of an account.
-
 func WalletIsLocked(icmd interface{}) (interface{}, error) {
 
 	return WLT.Locked(), nil
@@ -2406,7 +2355,6 @@ func WalletIsLocked(icmd interface{}) (interface{}, error) {
 // walletLock handles a walletlock request by locking the all account
 // wallets, returning an error if any wallet is not encrypted (for example,
 // a watching-only wallet).
-
 func walletLock(icmd interface{}) (interface{}, error) {
 
 	WLT.Lock()
@@ -2416,7 +2364,6 @@ func walletLock(icmd interface{}) (interface{}, error) {
 // walletPassphrase responds to the walletpassphrase request by unlocking
 // the wallet.  The decryption key is saved in the wallet until timeout
 // seconds expires, after which the wallet is locked.
-
 func (rpc *RPCInterface) WalletPassphrase(wpp string, tmo int64) {
 
 	timeout := time.Second * time.Duration(tmo)
@@ -2467,7 +2414,6 @@ func (rpc *RPCInterface) WalletPassphrase(wpp string, tmo int64) {
 //
 // If the old passphrase is correct and the passphrase is changed, all
 // wallets will be immediately locked.
-
 func walletPassphraseChange(icmd interface{}) (interface{}, error) {
 
 	cmd := icmd.(*json.WalletPassphraseChangeCmd)
@@ -2492,7 +2438,6 @@ func walletPassphraseChange(icmd interface{}) (interface{}, error) {
 // leading '0' character if there is an odd number of bytes in the hex string.
 // This is to prevent an error for an invalid hex string when using an odd
 // number of bytes when calling hex.Decode.
-
 func decodeHexStr(hexStr string) ([]byte, error) {
 
 	if len(hexStr)%2 != 0 {

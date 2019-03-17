@@ -581,7 +581,6 @@ func heightToHeader(
 	header := &wire.BlockHeader{Nonce: height}
 	return header
 }
-
 func runCheckCFCheckptSanityTestCase(
 
 	t *testing.T, testCase *cfCheckptTestCase) {
@@ -722,7 +721,6 @@ func runCheckCFCheckptSanityTestCase(
 	}
 
 }
-
 func TestCheckCFCheckptSanity(
 
 	t *testing.T) {
@@ -739,7 +737,6 @@ func TestCheckCFCheckptSanity(
 	}
 
 }
-
 func TestCheckForCFHeadersMismatch(
 
 	t *testing.T) {
@@ -766,7 +763,6 @@ func TestCheckForCFHeadersMismatch(
 	}
 
 }
-
 func TestResolveCFHeadersMismatch(
 
 	t *testing.T) {

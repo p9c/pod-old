@@ -709,14 +709,12 @@ func deserializeWithdrawal(
 	}
 	return wInfo, nil
 }
-
 func putWithdrawal(
 	ns walletdb.ReadWriteBucket, poolID []byte, roundID uint32, serialized []byte) error {
 
 	bucket := ns.NestedReadWriteBucket(poolID)
 	return bucket.Put(uint32ToBytes(roundID), serialized)
 }
-
 func getWithdrawal(
 	ns walletdb.ReadBucket, poolID []byte, roundID uint32) []byte {
 

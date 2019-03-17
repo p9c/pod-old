@@ -315,7 +315,6 @@ func (l *Loader) UnloadWallet() error {
 	l.db = nil
 	return nil
 }
-
 func fileExists(
 	filePath string) (bool, error) {
 

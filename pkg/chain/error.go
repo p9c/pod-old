@@ -9,7 +9,6 @@ import (
 type DeploymentError uint32
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
-
 func (e DeploymentError) Error() string {
 
 	return fmt.Sprintf("deployment ID %d does not exist", uint32(e))
@@ -20,7 +19,6 @@ func (e DeploymentError) Error() string {
 type AssertError string
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
-
 func (e AssertError) Error() string {
 
 	return "assertion failed: " + string(e)
@@ -213,7 +211,6 @@ var errorCodeStrings = map[ErrorCode]string{
 }
 
 // String returns the ErrorCode as a human-readable name.
-
 func (e ErrorCode) String() string {
 
 	if s := errorCodeStrings[e]; s != "" {
@@ -232,7 +229,6 @@ type RuleError struct {
 }
 
 // Error satisfies the error interface and prints human-readable errors.
-
 func (e RuleError) Error() string {
 
 	return e.Description

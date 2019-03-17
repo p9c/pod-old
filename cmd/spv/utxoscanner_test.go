@@ -31,35 +31,29 @@ func NewMockChainClient() *MockChainClient {
 	}
 
 }
-
 func (c *MockChainClient) SetBlock(hash *chainhash.Hash, block *util.Block) {
 
 	c.getBlockResponse[*hash] = block
 }
-
 func (c *MockChainClient) GetBlockFromNetwork(blockHash chainhash.Hash,
 
 	options ...QueryOption) (*util.Block, error) {
 
 	return c.getBlockResponse[blockHash], nil
 }
-
 func (c *MockChainClient) SetBlockHash(height int64, hash *chainhash.Hash) {
 
 	c.getBlockHashResponse[height] = hash
 }
-
 func (c *MockChainClient) GetBlockHash(height int64) (*chainhash.Hash, error) {
 
 	return c.getBlockHashResponse[height], nil
 }
-
 func (c *MockChainClient) SetBestSnapshot(hash *chainhash.Hash, height int32) {
 
 	c.getBestBlockHash = hash
 	c.getBestBlockHeight = height
 }
-
 func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
 
 	return &waddrmgr.BlockStamp{
@@ -68,14 +62,12 @@ func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
 		},
 		nil
 }
-
 func (c *MockChainClient) blockFilterMatches(ro *rescanOptions,
 
 	blockHash *chainhash.Hash) (bool, error) {
 
 	return true, nil
 }
-
 func makeTestInputWithScript() *InputWithScript {
 
 	hash, _ := chainhash.NewHashFromStr("87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03")

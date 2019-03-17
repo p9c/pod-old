@@ -53,7 +53,6 @@ func createWaddrmgr(
 	}
 	return waddrmgr.Open(ns, pubPassphrase, params)
 }
-
 func ExampleCreate() {
 
 	// Create a new walletdb.DB. See the walletdb docs for instructions on how
@@ -305,7 +304,6 @@ func Example_startWithdrawal() {
 
 	//
 }
-
 func createWalletDB() (walletdb.DB, func(), error) {
 
 	dir, err := ioutil.TempDir("", "votingpool_example")
@@ -339,19 +337,16 @@ func addrmgrNamespace(
 
 	return dbtx.ReadWriteBucket(addrmgrNamespaceKey)
 }
-
 func txmgrNamespace(
 	dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 
 	return dbtx.ReadWriteBucket(txmgrNamespaceKey)
 }
-
 func votingpoolNamespace(
 	dbtx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 
 	return dbtx.ReadWriteBucket(votingpoolNamespaceKey)
 }
-
 func exampleCreateDBAndMgr() (teardown func(), db walletdb.DB, mgr *waddrmgr.Manager) {
 
 	db, dbTearDown, err := createWalletDB()
@@ -402,7 +397,6 @@ func exampleCreateDBAndMgr() (teardown func(), db walletdb.DB, mgr *waddrmgr.Man
 
 	return teardown, db, mgr
 }
-
 func exampleCreatePoolAndSeries(
 	db walletdb.DB, mgr *waddrmgr.Manager) (pool *votingpool.Pool, seriesID uint32) {
 
@@ -441,7 +435,6 @@ func exampleCreatePoolAndSeries(
 
 	return pool, seriesID
 }
-
 func exampleCreateTxStore(
 	ns walletdb.ReadWriteBucket) *wtxmgr.Store {
 

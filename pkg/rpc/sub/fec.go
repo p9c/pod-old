@@ -49,7 +49,6 @@ func padData(
 	out = append(data, make([]byte, padLen)...)
 	return
 }
-
 func rsEncode(
 	data []byte) (chunks [][]byte) {
 
@@ -81,7 +80,6 @@ func rsEncode(
 	}
 	return
 }
-
 func rsDecode(
 	chunks [][]byte) (data []byte, err error) {
 

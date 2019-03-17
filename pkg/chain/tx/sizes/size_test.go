@@ -25,7 +25,6 @@ func makeInts(
 	}
 	return v
 }
-
 func TestEstimateSerializeSize(
 	t *testing.T) {
 
@@ -74,7 +73,6 @@ func TestEstimateSerializeSize(
 		}
 	}
 }
-
 func TestEstimateVirtualSize(
 	t *testing.T) {
 

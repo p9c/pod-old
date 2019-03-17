@@ -279,31 +279,26 @@ func TestBranchRecoveryState(
 		step.Apply(i, harness)
 	}
 }
-
 func assertHorizon(
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect horizon", have, want)
 }
-
 func assertDelta(
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect delta", have, want)
 }
-
 func assertNextUnfound(
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect next unfound", have, want)
 }
-
 func assertNumInvalid(
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect num invalid children", have, want)
 }
-
 func assertHaveWant(
 	t *testing.T, i int, msg string, have, want uint32) {
 

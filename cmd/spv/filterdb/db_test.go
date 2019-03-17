@@ -43,7 +43,6 @@ func createTestDatabase() (func(), FilterDatabase, error) {
 
 	return cleanUp, filterDB, nil
 }
-
 func TestGenesisFilterCreation(
 	t *testing.T) {
 
@@ -72,7 +71,6 @@ func TestGenesisFilterCreation(
 	}
 
 }
-
 func genRandFilter(
 	numElements uint32) (*gcs.Filter, error) {
 
@@ -105,7 +103,6 @@ func genRandFilter(
 
 	return filter, nil
 }
-
 func TestFilterStorage(
 	t *testing.T) {
 

@@ -49,7 +49,6 @@ type forAllPeersMsg struct {
 
 // handleQuery is the central handler for all queries and commands from other
 // goroutines related to peer state.
-
 func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 	switch msg := querymsg.(type) {
@@ -228,7 +227,6 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 }
 
 // ConnectedCount returns the number of currently connected peers.
-
 func (s *ChainService) ConnectedCount() int32 {
 
 	replyChan := make(chan int32)
@@ -252,7 +250,6 @@ func (s *ChainService) ConnectedCount() int32 {
 // OutboundGroupCount returns the number of peers connected to the given
 
 // outbound group key.
-
 func (s *ChainService) OutboundGroupCount(key string) int {
 
 	replyChan := make(chan int)
@@ -270,7 +267,6 @@ func (s *ChainService) OutboundGroupCount(key string) int {
 // AddedNodeInfo returns an array of btcjson.GetAddedNodeInfoResult structures
 
 // describing the persistent (added) nodes.
-
 func (s *ChainService) AddedNodeInfo() []*ServerPeer {
 
 	replyChan := make(chan []*ServerPeer)
@@ -286,7 +282,6 @@ func (s *ChainService) AddedNodeInfo() []*ServerPeer {
 }
 
 // Peers returns an array of all connected peers.
-
 func (s *ChainService) Peers() []*ServerPeer {
 
 	replyChan := make(chan []*ServerPeer)
@@ -306,7 +301,6 @@ func (s *ChainService) Peers() []*ServerPeer {
 // inbound nodes will be searched for the target node. An error message will
 
 // be returned if the peer was not found.
-
 func (s *ChainService) DisconnectNodeByAddr(addr string) error {
 
 	replyChan := make(chan error)
@@ -331,7 +325,6 @@ func (s *ChainService) DisconnectNodeByAddr(addr string) error {
 // inbound nodes will be searched for the target node. An error message will be
 
 // returned if the peer was not found.
-
 func (s *ChainService) DisconnectNodeByID(id int32) error {
 
 	replyChan := make(chan error)
@@ -354,7 +347,6 @@ func (s *ChainService) DisconnectNodeByID(id int32) error {
 // RemoveNodeByAddr removes a peer from the list of persistent peers if
 
 // present. An error will be returned if the peer was not found.
-
 func (s *ChainService) RemoveNodeByAddr(addr string) error {
 
 	replyChan := make(chan error)
@@ -377,7 +369,6 @@ func (s *ChainService) RemoveNodeByAddr(addr string) error {
 // RemoveNodeByID removes a peer by node ID from the list of persistent peers
 
 // if present. An error will be returned if the peer was not found.
-
 func (s *ChainService) RemoveNodeByID(id int32) error {
 
 	replyChan := make(chan error)
@@ -402,7 +393,6 @@ func (s *ChainService) RemoveNodeByID(id int32) error {
 // peer will be persistent and reconnect if the connection is lost.
 
 // It is an error to call this with an already existing peer.
-
 func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 
 	replyChan := make(chan error)
@@ -430,7 +420,6 @@ func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 // ForAllPeers method doesn't return anything as the closure passed to it
 
 // doesn't return anything.
-
 func (s *ChainService) ForAllPeers(closure func(sp *ServerPeer)) {
 
 	select {

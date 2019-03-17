@@ -57,7 +57,6 @@ func newNotificationServer(
 		wallet:    wallet,
 	}
 }
-
 func lookupInputAccount(
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails, deb wtxmgr.DebitRecord) uint32 {
 
@@ -108,7 +107,6 @@ func lookupInputAccount(
 	}
 	return inputAcct
 }
-
 func lookupOutputChain(
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails,
 	cred wtxmgr.CreditRecord) (account uint32, internal bool) {
@@ -137,7 +135,6 @@ func lookupOutputChain(
 	}
 	return
 }
-
 func makeTxSummary(
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) TransactionSummary {
 
@@ -214,7 +211,6 @@ func makeTxSummary(
 		Timestamp:   details.Received.Unix(),
 	}
 }
-
 func totalBalances(
 	dbtx walletdb.ReadTx, w *Wallet, m map[uint32]util.Amount) error {
 
@@ -250,7 +246,6 @@ func totalBalances(
 	}
 	return nil
 }
-
 func flattenBalanceMap(
 	m map[uint32]util.Amount) []AccountBalance {
 
@@ -262,7 +257,6 @@ func flattenBalanceMap(
 	}
 	return s
 }
-
 func relevantAccounts(
 	w *Wallet, m map[uint32]util.Amount, txs []TransactionSummary) {
 
@@ -279,7 +273,6 @@ func relevantAccounts(
 		}
 	}
 }
-
 func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails) {
 
 	// Sanity check: should not be currently coalescing a notification for
@@ -338,7 +331,6 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 		c <- n
 	}
 }
-
 func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 
 	if s.currentTxNtfn == nil {
@@ -347,7 +339,6 @@ func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 	}
 	s.currentTxNtfn.DetachedBlocks = append(s.currentTxNtfn.DetachedBlocks, hash)
 }
-
 func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails, block *wtxmgr.BlockMeta) {
 
 	if s.currentTxNtfn == nil {
@@ -369,7 +360,6 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 	s.currentTxNtfn.AttachedBlocks[n-1].Transactions =
 		append(txs, makeTxSummary(dbtx, s.wallet, details))
 }
-
 func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wtxmgr.BlockMeta) {
 
 	if s.currentTxNtfn == nil {

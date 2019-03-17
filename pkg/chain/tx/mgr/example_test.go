@@ -142,7 +142,6 @@ func ExampleStore_Balance() {
 
 	// 10 DUO, 10 DUO, 10 DUO
 }
-
 func ExampleStore_Rollback() {
 
 	s, db, teardown, err := testStore()
@@ -198,7 +197,6 @@ func ExampleStore_Rollback() {
 
 	// -1
 }
-
 func Example_basicUsage() {
 
 	// Open the database.

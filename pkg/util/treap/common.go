@@ -52,14 +52,12 @@ type parentStack struct {
 }
 
 // Len returns the current number of items in the stack.
-
 func (s *parentStack) Len() int {
 
 	return s.index
 }
 
 // At returns the item n number of items from the top of the stack, where 0 is the topmost item, without removing it.  It returns nil if n exceeds the number of items on the stack.
-
 func (s *parentStack) At(n int) *treapNode {
 
 	index := s.index - n - 1
@@ -77,7 +75,6 @@ func (s *parentStack) At(n int) *treapNode {
 }
 
 // Pop removes the top item from the stack.  It returns nil if the stack is empty.
-
 func (s *parentStack) Pop() *treapNode {
 
 	if s.index == 0 {
@@ -98,7 +95,6 @@ func (s *parentStack) Pop() *treapNode {
 }
 
 // Push pushes the passed item onto the top of the stack.
-
 func (s *parentStack) Push(node *treapNode) {
 
 	if s.index < staticDepth {
@@ -119,7 +115,6 @@ func (s *parentStack) Push(node *treapNode) {
 	s.overflow[index] = node
 	s.index++
 }
-
 func init() {
 
 	rand.Seed(time.Now().UnixNano())

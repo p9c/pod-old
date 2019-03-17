@@ -268,7 +268,6 @@ func (w *Wallet) handleChainNotifications() {
 // that's currently in-sync with the chain server as being synced up to
 
 // the passed block.
-
 func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) error {
 
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)
@@ -301,7 +300,6 @@ func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) err
 // block history from the reorged block for a wallet in-sync with the chain
 
 // server.
-
 func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) error {
 
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)
@@ -373,7 +371,6 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 
 	return nil
 }
-
 func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, block *wtxmgr.BlockMeta) error {
 
 	addrmgrNs := dbtx.ReadWriteBucket(waddrmgrNamespaceKey)

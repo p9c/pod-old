@@ -65,7 +65,6 @@ type KoblitzCurve struct {
 }
 
 // Params returns the parameters for the curve.
-
 func (curve *KoblitzCurve) Params() *elliptic.CurveParams {
 
 	return curve.CurveParams
@@ -73,7 +72,6 @@ func (curve *KoblitzCurve) Params() *elliptic.CurveParams {
 
 // bigAffineToField takes an affine point (x, y) as big integers and converts
 // it to an affine point as field values.
-
 func (curve *KoblitzCurve) bigAffineToField(x, y *big.Int) (*fieldVal, *fieldVal) {
 
 	x3, y3 := new(fieldVal), new(fieldVal)
@@ -84,7 +82,6 @@ func (curve *KoblitzCurve) bigAffineToField(x, y *big.Int) (*fieldVal, *fieldVal
 
 // fieldJacobianToBigAffine takes a Jacobian point (x, y, z) as field values and
 // converts it to an affine point as big integers.
-
 func (curve *KoblitzCurve) fieldJacobianToBigAffine(x, y, z *fieldVal) (*big.Int, *big.Int) {
 
 	// Inversions are expensive and both point addition and point doubling
@@ -115,7 +112,6 @@ func (curve *KoblitzCurve) fieldJacobianToBigAffine(x, y, z *fieldVal) (*big.Int
 // IsOnCurve returns boolean if the point (x,y) is on the curve.
 // Part of the elliptic.Curve interface. This function differs from the
 // crypto/elliptic algorithm since a = 0 not -3.
-
 func (curve *KoblitzCurve) IsOnCurve(x, y *big.Int) bool {
 
 	// Convert big ints to field values for faster arithmetic.
@@ -132,7 +128,6 @@ func (curve *KoblitzCurve) IsOnCurve(x, y *big.Int) bool {
 // (x1, y1, 1) + (x2, y2, 1) = (x3, y3, z3).  It performs faster addition than
 // the generic add routine since less arithmetic is needed due to the ability to
 // avoid the z value multiplications.
-
 func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
 	// To compute the point addition efficiently, this implementation splits
@@ -216,7 +211,6 @@ func (curve *KoblitzCurve) addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *f
 // (x1, y1, z1) + (x2, y2, z1) = (x3, y3, z3).  It performs faster addition than
 // the generic add routine since less arithmetic is needed due to the known
 // equivalence.
-
 func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
 	// To compute the point addition efficiently, this implementation splits
@@ -304,7 +298,6 @@ func (curve *KoblitzCurve) addZ1EqualsZ2(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVa
 // (x2, y2, 1) = (x3, y3, z3).  It performs faster addition than the generic
 // add routine since less arithmetic is needed due to the ability to avoid
 // multiplications by the second point's z value.
-
 func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldVal) {
 
 	// To compute the point addition efficiently, this implementation splits
@@ -403,7 +396,6 @@ func (curve *KoblitzCurve) addZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3 *fieldV
 // assumptions about the z values of the two points and stores the result in
 // (x3, y3, z3).  That is to say (x1, y1, z1) + (x2, y2, z2) = (x3, y3, z3).  It
 // is the slowest of the add routines due to requiring the most arithmetic.
-
 func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldVal) {
 
 	// To compute the point addition efficiently, this implementation splits
@@ -498,7 +490,6 @@ func (curve *KoblitzCurve) addGeneric(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldV
 
 // addJacobian adds the passed Jacobian points (x1, y1, z1) and (x2, y2, z2)
 // together and stores the result in (x3, y3, z3).
-
 func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *fieldVal) {
 
 	// A point at infinity is the identity according to the group law for
@@ -556,7 +547,6 @@ func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *field
 
 // Add returns the sum of (x1,y1) and (x2,y2). Part of the elliptic.Curve
 // interface.
-
 func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 
 	// A point at infinity is the identity according to the group law for
@@ -593,7 +583,6 @@ func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 // the result in (x3, y3, z3).  That is to say (x3, y3, z3) = 2*(x1, y1, 1).  It
 // performs faster point doubling than the generic routine since less arithmetic
 // is needed due to the ability to avoid multiplication by the z value.
-
 func (curve *KoblitzCurve) doubleZ1EqualsOne(x1, y1, x3, y3, z3 *fieldVal) {
 
 	// This function uses the assumptions that z1 is 1, thus the point
@@ -667,7 +656,6 @@ func (curve *KoblitzCurve) doubleZ1EqualsOne(x1, y1, x3, y3, z3 *fieldVal) {
 // any assumptions about the z value and stores the result in (x3, y3, z3).
 // That is to say (x3, y3, z3) = 2*(x1, y1, z1).  It is the slowest of the point
 // doubling routines due to requiring the most arithmetic.
-
 func (curve *KoblitzCurve) doubleGeneric(x1, y1, z1, x3, y3, z3 *fieldVal) {
 
 	// Point doubling formula for Jacobian coordinates for the secp256k1
@@ -737,7 +725,6 @@ func (curve *KoblitzCurve) doubleGeneric(x1, y1, z1, x3, y3, z3 *fieldVal) {
 
 // doubleJacobian doubles the passed Jacobian point (x1, y1, z1) and stores the
 // result in (x3, y3, z3).
-
 func (curve *KoblitzCurve) doubleJacobian(x1, y1, z1, x3, y3, z3 *fieldVal) {
 
 	// Doubling a point at infinity is still infinity.
@@ -771,7 +758,6 @@ func (curve *KoblitzCurve) doubleJacobian(x1, y1, z1, x3, y3, z3 *fieldVal) {
 }
 
 // Double returns 2*(x1,y1). Part of the elliptic.Curve interface.
-
 func (curve *KoblitzCurve) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 
 	if y1.Sign() == 0 {
@@ -799,7 +785,6 @@ func (curve *KoblitzCurve) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 // the final equation of k = k1 + k2 * lambda (mod n) will hold.  This is
 // provable mathematically due to how a1/b1/a2/b2 are computed.
 // c1 and c2 are chosen to minimize the max(k1,k2).
-
 func (curve *KoblitzCurve) splitK(k []byte) ([]byte, []byte, int, int) {
 
 	// All math here is done with big.Int, which is slow.
@@ -849,7 +834,6 @@ func (curve *KoblitzCurve) splitK(k []byte) ([]byte, []byte, int, int) {
 // moduloReduce reduces k from more than 32 bytes to 32 bytes and under.  This
 // is done by doing a simple modulo curve.N.  We can do this since G^N = 1 and
 // thus any other valid point on the elliptic curve has the same order.
-
 func (curve *KoblitzCurve) moduloReduce(k []byte) []byte {
 
 	// Since the order of G is curve.N, we can use a much smaller number
@@ -984,7 +968,6 @@ func NAF(
 
 // ScalarMult returns k*(Bx, By) where k is a big endian integer.
 // Part of the elliptic.Curve interface.
-
 func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big.Int) {
 
 	// Point Q = ∞ (point at infinity).
@@ -1129,7 +1112,6 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 // ScalarBaseMult returns k*G where G is the base point of the group and k is a
 // big endian integer.
 // Part of the elliptic.Curve interface.
-
 func (curve *KoblitzCurve) ScalarBaseMult(k []byte) (*big.Int, *big.Int) {
 
 	newK := curve.moduloReduce(k)
@@ -1158,7 +1140,6 @@ func (curve *KoblitzCurve) ScalarBaseMult(k []byte) (*big.Int, *big.Int) {
 
 // QPlus1Div4 returns the Q+1/4 constant for the curve for use in calculating
 // square roots via exponention.
-
 func (curve *KoblitzCurve) QPlus1Div4() *big.Int {
 
 	return curve.q
@@ -1188,7 +1169,6 @@ func fromHex(
 	}
 	return r
 }
-
 func initS256() {
 
 	// Curve parameters taken from [SECG] section 2.4.1.
@@ -1254,7 +1234,6 @@ func initS256() {
 }
 
 // S256 returns a Curve which implements secp256k1.
-
 func S256() *KoblitzCurve {
 
 	initonce.Do(initAll)

@@ -8,7 +8,6 @@ import (
 )
 
 // This example demonstrates how to generate a cryptographically random seed then use it to create a new master node (extended key).
-
 func ExampleNewMaster() {
 
 	// Generate a random seed at the recommended length.
@@ -38,7 +37,6 @@ func ExampleNewMaster() {
 }
 
 // This example demonstrates the default hierarchical deterministic wallet layout as described in BIP0032.
-
 func Example_defaultWalletLayout() {
 
 	// The default wallet layout described in BIP0032 is:
@@ -140,7 +138,6 @@ func Example_defaultWalletLayout() {
 }
 
 // This example demonstrates the audits use case in BIP0032.
-
 func Example_audits() {
 
 	// The audits use case described in BIP0032 is://

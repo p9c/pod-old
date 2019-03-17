@@ -49,7 +49,6 @@ func createTestBlockHeaderStore() (func(), walletdb.DB, string,
 
 	return cleanUp, db, tempDir, hStore.(*blockHeaderStore), nil
 }
-
 func createTestBlockHeaderChain(
 	numHeaders uint32) []BlockHeader {
 	blockHeaders := make([]BlockHeader, numHeaders)
@@ -73,7 +72,6 @@ func createTestBlockHeaderChain(
 
 	return blockHeaders
 }
-
 func TestBlockHeaderStoreOperations(
 	t *testing.T) {
 
@@ -208,7 +206,6 @@ func TestBlockHeaderStoreOperations(
 	}
 
 }
-
 func TestBlockHeaderStoreRecovery(
 	t *testing.T) {
 
@@ -278,7 +275,6 @@ func TestBlockHeaderStoreRecovery(
 	}
 
 }
-
 func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderStore, error) {
 
 	tempDir, err := ioutil.TempDir("", "store_test")
@@ -309,7 +305,6 @@ func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderSt
 
 	return cleanUp, db, tempDir, hStore, nil
 }
-
 func createTestFilterHeaderChain(
 	numHeaders uint32) []FilterHeader {
 	filterHeaders := make([]FilterHeader, numHeaders)
@@ -325,7 +320,6 @@ func createTestFilterHeaderChain(
 
 	return filterHeaders
 }
-
 func TestFilterHeaderStoreOperations(
 	t *testing.T) {
 
@@ -474,7 +468,6 @@ func TestFilterHeaderStoreOperations(
 	}
 
 }
-
 func TestFilterHeaderStoreRecovery(
 	t *testing.T) {
 

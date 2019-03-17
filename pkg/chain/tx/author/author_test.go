@@ -25,7 +25,6 @@ func p2pkhOutputs(
 	}
 	return v
 }
-
 func makeInputSource(
 	unspents []*wire.TxOut) InputSource {
 
@@ -48,7 +47,6 @@ func makeInputSource(
 	}
 	return InputSource(f)
 }
-
 func TestNewUnsignedTransaction(
 	t *testing.T) {
 

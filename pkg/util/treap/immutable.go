@@ -38,21 +38,18 @@ func newImmutable(
 }
 
 // Len returns the number of items stored in the treap.
-
 func (t *Immutable) Len() int {
 
 	return t.count
 }
 
 // Size returns a best estimate of the total number of bytes the treap is consuming including all of the fields used to represent the nodes as well as the size of the keys and values.  Shared values are not detected, so the returned size assumes each value is pointing to different memory.
-
 func (t *Immutable) Size() uint64 {
 
 	return t.totalSize
 }
 
 // get returns the treap node that contains the passed key.  It will return nil when the key does not exist.
-
 func (t *Immutable) get(key []byte) *treapNode {
 
 	for node := t.root; node != nil; {
@@ -79,7 +76,6 @@ func (t *Immutable) get(key []byte) *treapNode {
 }
 
 // Has returns whether or not the passed key exists.
-
 func (t *Immutable) Has(key []byte) bool {
 
 	if node := t.get(key); node != nil {
@@ -90,7 +86,6 @@ func (t *Immutable) Has(key []byte) bool {
 }
 
 // Get returns the value for the passed key.  The function will return nil when the key does not exist.
-
 func (t *Immutable) Get(key []byte) []byte {
 
 	if node := t.get(key); node != nil {
@@ -101,7 +96,6 @@ func (t *Immutable) Get(key []byte) []byte {
 }
 
 // Put inserts the passed key/value pair.
-
 func (t *Immutable) Put(key, value []byte) *Immutable {
 
 	// Use an empty byte slice for the value when none was provided.  This ultimately allows key existence to be determined from the value since an empty byte slice is distinguishable from nil.
@@ -215,7 +209,6 @@ func (t *Immutable) Put(key, value []byte) *Immutable {
 }
 
 // Delete removes the passed key from the treap and returns the resulting treap if it exists.  The original immutable treap is returned if the key does not exist.
-
 func (t *Immutable) Delete(key []byte) *Immutable {
 
 	// Find the node for the key while constructing a list of parents while doing so.
@@ -349,7 +342,6 @@ func (t *Immutable) Delete(key []byte) *Immutable {
 }
 
 // ForEach invokes the passed function with every key/value pair in the treap in ascending order.
-
 func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, have been traversed.
@@ -378,7 +370,6 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 }
 
 // NewImmutable returns a new empty immutable treap ready for use.  See the documentation for the Immutable structure for more details.
-
 func NewImmutable() *Immutable {
 
 	return &Immutable{}

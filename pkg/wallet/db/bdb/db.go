@@ -59,7 +59,6 @@ func (tx *transaction) ReadBucket(key []byte) walletdb.ReadBucket {
 
 	return tx.ReadWriteBucket(key)
 }
-
 func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 
 	boltBucket := tx.boltTx.Bucket(key)
@@ -70,7 +69,6 @@ func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 	}
 	return (*bucket)(boltBucket)
 }
-
 func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 
 	boltBucket, err := tx.boltTx.CreateBucket(key)
@@ -81,7 +79,6 @@ func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucke
 	}
 	return (*bucket)(boltBucket), nil
 }
-
 func (tx *transaction) DeleteTopLevelBucket(key []byte) error {
 
 	err := tx.boltTx.DeleteBucket(key)
@@ -135,7 +132,6 @@ func (b *bucket) NestedReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
 	}
 	return (*bucket)(boltBucket)
 }
-
 func (b *bucket) NestedReadBucket(key []byte) walletdb.ReadBucket {
 
 	return b.NestedReadWriteBucket(key)
@@ -230,7 +226,6 @@ func (b *bucket) Delete(key []byte) error {
 
 	return convertErr((*bolt.Bucket)(b).Delete(key))
 }
-
 func (b *bucket) ReadCursor() walletdb.ReadCursor {
 
 	return b.ReadWriteCursor()
@@ -326,12 +321,10 @@ func (db *db) beginTx(writable bool) (*transaction, error) {
 	}
 	return &transaction{boltTx: boltTx}, nil
 }
-
 func (db *db) BeginReadTx() (walletdb.ReadTx, error) {
 
 	return db.beginTx(false)
 }
-
 func (db *db) BeginReadWriteTx() (walletdb.ReadWriteTx, error) {
 
 	return db.beginTx(true)

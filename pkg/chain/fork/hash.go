@@ -191,7 +191,6 @@ func X11(
 	x.Hash(bytes, o[:])
 	return bytes
 }
-
 func rightShift(
 	b []byte) (out []byte) {
 

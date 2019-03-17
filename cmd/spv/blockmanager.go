@@ -316,7 +316,6 @@ func newBlockManager(
 }
 
 // Start begins the core block handler which processes block and inv messages.
-
 func (b *blockManager) Start() {
 
 	// Already started?
@@ -334,7 +333,6 @@ func (b *blockManager) Start() {
 // Stop gracefully shuts down the block manager by stopping all asynchronous
 
 // handlers and waiting for them to finish.
-
 func (b *blockManager) Stop() error {
 
 	if atomic.AddInt32(&b.shutdown, 1) != 1 {
@@ -384,7 +382,6 @@ func (b *blockManager) Stop() error {
 }
 
 // NewPeer informs the block manager of a newly active peer.
-
 func (b *blockManager) NewPeer(sp *ServerPeer) {
 
 	// Ignore if we are shutting down.
@@ -412,7 +409,6 @@ func (b *blockManager) NewPeer(sp *ServerPeer) {
 // also starts syncing if needed.  It is invoked from the syncHandler
 
 // goroutine.
-
 func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
 
 	// Ignore if in the process of shutting down.
@@ -477,7 +473,6 @@ func (b *blockManager) handleNewPeerMsg(peers *list.List, sp *ServerPeer) {
 }
 
 // DonePeer informs the blockmanager that a peer has disconnected.
-
 func (b *blockManager) DonePeer(sp *ServerPeer) {
 
 	// Ignore if we are shutting down.
@@ -508,7 +503,6 @@ func (b *blockManager) DonePeer(sp *ServerPeer) {
 // current sync peer, attempts to select a new best peer to sync from.  It is
 
 // invoked from the syncHandler goroutine.
-
 func (b *blockManager) handleDonePeerMsg(peers *list.List, sp *ServerPeer) {
 
 	// Remove the peer from the list of candidate peers.
@@ -556,7 +550,6 @@ func (b *blockManager) handleDonePeerMsg(peers *list.List, sp *ServerPeer) {
 // run as a goroutine. It requests and processes cfheaders messages in a
 
 // separate goroutine from the peer handlers.
-
 func (b *blockManager) cfHandler() {
 
 	// If a loop ends with a quit, we want to signal that the goroutine is
@@ -2382,7 +2375,6 @@ func checkCFCheckptSanity(
 // because the block manager controls which blocks are needed and how
 
 // the fetching should proceed.
-
 func (b *blockManager) blockHandler() {
 
 	candidatePeers := list.New()
@@ -2442,7 +2434,6 @@ out:
 }
 
 // SyncPeer returns the current sync peer.
-
 func (b *blockManager) SyncPeer() *ServerPeer {
 
 	b.syncPeerMutex.Lock()
@@ -2454,7 +2445,6 @@ func (b *blockManager) SyncPeer() *ServerPeer {
 // isSyncCandidate returns whether or not the peer is a candidate to consider
 
 // syncing from.
-
 func (b *blockManager) isSyncCandidate(sp *ServerPeer) bool {
 
 	// The peer is not a candidate for sync if it's not a full node.
@@ -2466,7 +2456,6 @@ func (b *blockManager) isSyncCandidate(sp *ServerPeer) bool {
 // It returns nil when there is not one either because the height is already
 
 // later than the final checkpoint or there are none for the current network.
-
 func (b *blockManager) findNextHeaderCheckpoint(height int32) *chaincfg.Checkpoint {
 
 	// There is no next checkpoint if there are none for this current
@@ -2514,7 +2503,6 @@ func (b *blockManager) findNextHeaderCheckpoint(height int32) *chaincfg.Checkpoi
 // current network. This is used for resetting state when a malicious peer
 
 // sends us headers that don't lead up to a known checkpoint.
-
 func (b *blockManager) findPreviousHeaderCheckpoint(height int32) *chaincfg.Checkpoint {
 
 	// Start with the genesis block - earliest checkpoint to which our code
@@ -2550,7 +2538,6 @@ func (b *blockManager) findPreviousHeaderCheckpoint(height int32) *chaincfg.Chec
 // simply returns.  It also examines the candidates for any which are no longer
 
 // candidates and removes them as needed.
-
 func (b *blockManager) startSync(peers *list.List) {
 
 	// Return now if we're already syncing.
@@ -2687,7 +2674,6 @@ func (b *blockManager) startSync(peers *list.List) {
 // synced to the connected peers, meaning both block headers and filter headers
 
 // are current.
-
 func (b *blockManager) IsFullySynced() bool {
 
 	_, blockHeaderHeight, err := b.server.BlockHeaders.ChainTip()
@@ -2722,7 +2708,6 @@ func (b *blockManager) IsFullySynced() bool {
 // BlockHeadersSynced returns whether or not the block manager believes its
 
 // block headers are synced with the connected peers.
-
 func (b *blockManager) BlockHeadersSynced() bool {
 
 	b.syncPeerMutex.RLock()
@@ -2801,7 +2786,6 @@ func (b *blockManager) BlockHeadersSynced() bool {
 // them. Each execution of the closure will have the current filter header tip
 
 // passed in to ensue that the caller gets a consistent view.
-
 func (b *blockManager) SynchronizeFilterHeaders(f func(uint32) error) error {
 
 	b.newFilterHeadersMtx.RLock()
@@ -2811,7 +2795,6 @@ func (b *blockManager) SynchronizeFilterHeaders(f func(uint32) error) error {
 }
 
 // QueueInv adds the passed inv message and peer to the block handling queue.
-
 func (b *blockManager) QueueInv(inv *wire.MsgInv, sp *ServerPeer) {
 
 	// No channel handling here because peers do not need to block on inv
@@ -2839,7 +2822,6 @@ func (b *blockManager) QueueInv(inv *wire.MsgInv, sp *ServerPeer) {
 // handleInvMsg handles inv messages from all peers.
 
 // We examine the inventory advertised by the remote peer and act accordingly.
-
 func (b *blockManager) handleInvMsg(imsg *invMsg) {
 
 	// Attempt to find the final block in the inventory list.  There may
@@ -2970,7 +2952,6 @@ func (b *blockManager) handleInvMsg(imsg *invMsg) {
 // QueueHeaders adds the passed headers message and peer to the block handling
 
 // queue.
-
 func (b *blockManager) QueueHeaders(headers *wire.MsgHeaders, sp *ServerPeer) {
 
 	// No channel handling here because peers do not need to block on
@@ -2997,7 +2978,6 @@ func (b *blockManager) QueueHeaders(headers *wire.MsgHeaders, sp *ServerPeer) {
 }
 
 // handleHeadersMsg handles headers messages from all peers.
-
 func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 
 	msg := hmsg.headers
@@ -3675,7 +3655,6 @@ actual timespan %v, adjusted timespan %v, target timespan %v`,
 // findPrevTestNetDifficulty returns the difficulty of the previous block which
 
 // did not have the special testnet minimum difficulty rule applied.
-
 func (b *blockManager) findPrevTestNetDifficulty(hList headerlist.Chain) (uint32, error) {
 
 	startNode := hList.Back()

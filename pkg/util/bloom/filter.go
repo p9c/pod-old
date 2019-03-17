@@ -77,7 +77,6 @@ func LoadFilter(
 }
 
 // IsLoaded returns true if a filter is loaded, otherwise false. This function is safe for concurrent access.
-
 func (bf *Filter) IsLoaded() bool {
 
 	bf.mtx.Lock()
@@ -87,7 +86,6 @@ func (bf *Filter) IsLoaded() bool {
 }
 
 // Reload loads a new filter replacing any existing filter. This function is safe for concurrent access.
-
 func (bf *Filter) Reload(filter *wire.MsgFilterLoad) {
 
 	bf.mtx.Lock()
@@ -96,7 +94,6 @@ func (bf *Filter) Reload(filter *wire.MsgFilterLoad) {
 }
 
 // Unload unloads the bloom filter. This function is safe for concurrent access.
-
 func (bf *Filter) Unload() {
 
 	bf.mtx.Lock()
@@ -105,7 +102,6 @@ func (bf *Filter) Unload() {
 }
 
 // hash returns the bit offset in the bloom filter which corresponds to the passed data for the given indepedent hash function number.
-
 func (bf *Filter) hash(hashNum uint32, data []byte) uint32 {
 
 	// bitcoind: 0xfba4c795 chosen as it guarantees a reasonable bit difference between hashNum values. Note that << 3 is equivalent to multiplying by 8, but is faster. Thus the returned hash is brought into range of the number of bits the filter has and returned.
@@ -114,7 +110,6 @@ func (bf *Filter) hash(hashNum uint32, data []byte) uint32 {
 }
 
 // matches returns true if the bloom filter might contain the passed data and false if it definitely does not. This function MUST be called with the filter lock held.
-
 func (bf *Filter) matches(data []byte) bool {
 
 	if bf.msgFilterLoad == nil {
@@ -139,7 +134,6 @@ func (bf *Filter) matches(data []byte) bool {
 }
 
 // Matches returns true if the bloom filter might contain the passed data and false if it definitely does not. This function is safe for concurrent access.
-
 func (bf *Filter) Matches(data []byte) bool {
 
 	bf.mtx.Lock()
@@ -149,7 +143,6 @@ func (bf *Filter) Matches(data []byte) bool {
 }
 
 // matchesOutPoint returns true if the bloom filter might contain the passed outpoint and false if it definitely does not. This function MUST be called with the filter lock held.
-
 func (bf *Filter) matchesOutPoint(outpoint *wire.OutPoint) bool {
 
 	// Serialize
@@ -160,7 +153,6 @@ func (bf *Filter) matchesOutPoint(outpoint *wire.OutPoint) bool {
 }
 
 // MatchesOutPoint returns true if the bloom filter might contain the passed outpoint and false if it definitely does not. This function is safe for concurrent access.
-
 func (bf *Filter) MatchesOutPoint(outpoint *wire.OutPoint) bool {
 
 	bf.mtx.Lock()
@@ -170,7 +162,6 @@ func (bf *Filter) MatchesOutPoint(outpoint *wire.OutPoint) bool {
 }
 
 // add adds the passed byte slice to the bloom filter. This function MUST be called with the filter lock held.
-
 func (bf *Filter) add(data []byte) {
 
 	if bf.msgFilterLoad == nil {
@@ -191,7 +182,6 @@ func (bf *Filter) add(data []byte) {
 }
 
 // Add adds the passed byte slice to the bloom filter. This function is safe for concurrent access.
-
 func (bf *Filter) Add(data []byte) {
 
 	bf.mtx.Lock()
@@ -200,7 +190,6 @@ func (bf *Filter) Add(data []byte) {
 }
 
 // AddHash adds the passed chainhash.Hash to the Filter. This function is safe for concurrent access.
-
 func (bf *Filter) AddHash(hash *chainhash.Hash) {
 
 	bf.mtx.Lock()
@@ -209,7 +198,6 @@ func (bf *Filter) AddHash(hash *chainhash.Hash) {
 }
 
 // addOutPoint adds the passed transaction outpoint to the bloom filter. This function MUST be called with the filter lock held.
-
 func (bf *Filter) addOutPoint(outpoint *wire.OutPoint) {
 
 	// Serialize
@@ -220,7 +208,6 @@ func (bf *Filter) addOutPoint(outpoint *wire.OutPoint) {
 }
 
 // AddOutPoint adds the passed transaction outpoint to the bloom filter. This function is safe for concurrent access.
-
 func (bf *Filter) AddOutPoint(outpoint *wire.OutPoint) {
 
 	bf.mtx.Lock()
@@ -229,7 +216,6 @@ func (bf *Filter) AddOutPoint(outpoint *wire.OutPoint) {
 }
 
 // maybeAddOutpoint potentially adds the passed outpoint to the bloom filter depending on the bloom update flags and the type of the passed public key script. This function MUST be called with the filter lock held.
-
 func (bf *Filter) maybeAddOutpoint(pkScript []byte, outHash *chainhash.Hash, outIdx uint32) {
 
 	switch bf.msgFilterLoad.Flags {
@@ -249,7 +235,6 @@ func (bf *Filter) maybeAddOutpoint(pkScript []byte, outHash *chainhash.Hash, out
 }
 
 // matchTxAndUpdate returns true if the bloom filter matches data within the passed transaction, otherwise false is returned.  If the filter does match the passed transaction, it will also update the filter depending on the bloom update flags set via the loaded filter if needed. This function MUST be called with the filter lock held.
-
 func (bf *Filter) matchTxAndUpdate(tx *util.Tx) bool {
 
 	// Check if the filter matches the hash of the transaction. This is useful for finding transactions when they appear in a block.
@@ -309,7 +294,6 @@ func (bf *Filter) matchTxAndUpdate(tx *util.Tx) bool {
 }
 
 // MatchTxAndUpdate returns true if the bloom filter matches data within the passed transaction, otherwise false is returned.  If the filter does match the passed transaction, it will also update the filter depending on the bloom update flags set via the loaded filter if needed. This function is safe for concurrent access.
-
 func (bf *Filter) MatchTxAndUpdate(tx *util.Tx) bool {
 
 	bf.mtx.Lock()
@@ -319,7 +303,6 @@ func (bf *Filter) MatchTxAndUpdate(tx *util.Tx) bool {
 }
 
 // MsgFilterLoad returns the underlying wire.MsgFilterLoad for the bloom filter. This function is safe for concurrent access.
-
 func (bf *Filter) MsgFilterLoad() *wire.MsgFilterLoad {
 
 	bf.mtx.Lock()

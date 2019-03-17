@@ -25,7 +25,6 @@ var AddHandlerChannel = make(chan func())
 var HandlersDone = make(chan struct{})
 
 // Listener listens for interrupt signals, registers interrupt callbacks, and responds to custom shutdown signals as required
-
 func Listener() {
 
 	var interruptCallbacks []func()
@@ -82,14 +81,12 @@ func AddHandler(
 }
 
 // Request programatically requests a shutdown
-
 func Request() {
 
 	close(ShutdownRequestChan)
 }
 
 // Requested returns true if an interrupt has been requested
-
 func Requested() bool {
 
 	return requested

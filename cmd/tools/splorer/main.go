@@ -17,7 +17,6 @@ func main() {
 	http.HandleFunc("/getallblocks", getallblocksHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
 func getinfoHandler(
 
 	w http.ResponseWriter, r *http.Request) {
@@ -32,14 +31,12 @@ func getinfoHandler(
 	jsonResponse, err := json.MarshalIndent(response, "  ", "")
 	fmt.Fprintf(w, string(jsonResponse))
 }
-
 func rootHandler(
 
 	w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "This is the root")
 }
-
 func getallblocksHandler(
 
 	w http.ResponseWriter, r *http.Request) {

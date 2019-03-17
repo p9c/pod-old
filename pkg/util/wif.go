@@ -44,7 +44,6 @@ func NewWIF(
 }
 
 // IsForNet returns whether or not the decoded WIF structure is associated with the passed bitcoin network.
-
 func (w *WIF) IsForNet(net *chaincfg.Params) bool {
 
 	return w.netID == net.PrivateKeyID
@@ -110,7 +109,6 @@ func DecodeWIF(
 }
 
 // String creates the Wallet Import Format string encoding of a WIF structure. See DecodeWIF for a detailed breakdown of the format and requirements of a valid WIF string.
-
 func (w *WIF) String() string {
 
 	// Precalculate size.  Maximum number of bytes before base58 encoding is one byte for the network, 32 bytes of private key, possibly one extra byte if the pubkey is to be compressed, and finally four bytes of checksum.
@@ -138,7 +136,6 @@ func (w *WIF) String() string {
 }
 
 // SerializePubKey serializes the associated public key of the imported or exported private key in either a compressed or uncompressed format.  The serialization format chosen depends on the value of w.CompressPubKey.
-
 func (w *WIF) SerializePubKey() []byte {
 
 	pk := (*ec.PublicKey)(&w.PrivKey.PublicKey)

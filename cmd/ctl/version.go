@@ -47,7 +47,6 @@ func normalizeVerString(
 }
 
 // version returns the application version as a properly formed string per the semantic versioning 2.0.0 spec (http://semver.org/).
-
 func version() string {
 
 	// Start with the major, minor, and patch versions.

@@ -26,14 +26,12 @@ func TestNewSecretKey(
 		return
 	}
 }
-
 func TestMarshalSecretKey(
 
 	t *testing.T) {
 
 	params = key.Marshal()
 }
-
 func TestUnmarshalSecretKey(
 
 	t *testing.T) {
@@ -57,7 +55,6 @@ func TestUnmarshalSecretKey(
 		t.Errorf("keys not equal")
 	}
 }
-
 func TestUnmarshalSecretKeyInvalid(
 
 	t *testing.T) {
@@ -78,7 +75,6 @@ func TestUnmarshalSecretKeyInvalid(
 		return
 	}
 }
-
 func TestEncrypt(
 
 	t *testing.T) {
@@ -93,7 +89,6 @@ func TestEncrypt(
 		return
 	}
 }
-
 func TestDecrypt(
 
 	t *testing.T) {
@@ -112,7 +107,6 @@ func TestDecrypt(
 		return
 	}
 }
-
 func TestDecryptCorrupt(
 
 	t *testing.T) {
@@ -126,7 +120,6 @@ func TestDecryptCorrupt(
 		return
 	}
 }
-
 func TestZero(
 
 	t *testing.T) {
@@ -140,7 +133,6 @@ func TestZero(
 		t.Errorf("zero key failed")
 	}
 }
-
 func TestDeriveKey(
 
 	t *testing.T) {
@@ -150,7 +142,6 @@ func TestDeriveKey(
 		t.Errorf("unexpected DeriveKey key failure: %v", err)
 	}
 }
-
 func TestDeriveKeyInvalid(
 
 	t *testing.T) {

@@ -33,14 +33,12 @@ type conn struct {
 }
 
 // LocalAddr returns the local address for the connection.
-
 func (c conn) LocalAddr() net.Addr {
 
 	return &addr{c.lnet, c.laddr}
 }
 
 // Remote returns the remote address for the connection.
-
 func (c conn) RemoteAddr() net.Addr {
 
 	if !c.proxy {
@@ -61,7 +59,6 @@ func (c conn) RemoteAddr() net.Addr {
 }
 
 // Close handles closing the connection.
-
 func (c conn) Close() error {
 
 	if c.Closer == nil {
@@ -71,7 +68,6 @@ func (c conn) Close() error {
 
 	return c.Closer.Close()
 }
-
 func (c conn) SetDeadline(t time.Time) error      { return nil }
 func (c conn) SetReadDeadline(t time.Time) error  { return nil }
 func (c conn) SetWriteDeadline(t time.Time) error { return nil }
@@ -1204,7 +1200,6 @@ func TestDuplicateVersionMsg(
 	}
 
 }
-
 func init() {
 
 	// Allow self connection when running the tests.

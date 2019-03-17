@@ -35,7 +35,6 @@ var notificationTypeStrings = map[NotificationType]string{
 }
 
 // String returns the NotificationType in human-readable form.
-
 func (n NotificationType) String() string {
 
 	if s, ok := notificationTypeStrings[n]; ok {
@@ -57,7 +56,6 @@ type Notification struct {
 }
 
 // Subscribe to block chain notifications. Registers a callback to be executed when various events take place. See the documentation on Notification and NotificationType for details on the types and contents of notifications.
-
 func (b *BlockChain) Subscribe(callback NotificationCallback) {
 
 	b.notificationsLock.Lock()
@@ -66,7 +64,6 @@ func (b *BlockChain) Subscribe(callback NotificationCallback) {
 }
 
 // sendNotification sends a notification with the passed type and data if the caller requested notifications by providing a callback function in the call to New.
-
 func (b *BlockChain) sendNotification(typ NotificationType, data interface{}) {
 
 	// Log.Debug <- "sendNotification"

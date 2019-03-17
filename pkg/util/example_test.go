@@ -24,7 +24,6 @@ func ExampleAmount() {
 
 	// 100,000 Satoshis: 0.001 DUO
 }
-
 func ExampleNewAmount() {
 
 	amountOne, err := util.NewAmount(1)
@@ -72,7 +71,6 @@ func ExampleNewAmount() {
 
 	// invalid bitcoin amount
 }
-
 func ExampleAmount_unitConversions() {
 
 	amount := util.Amount(44433322211100)

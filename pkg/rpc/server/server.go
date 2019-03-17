@@ -59,7 +59,6 @@ func translateError(
 	code := errorCode(err)
 	return grpc.Errorf(code, "%s", err.Error())
 }
-
 func errorCode(
 	err error) codes.Code {
 
@@ -133,7 +132,6 @@ func StartVersionService(
 
 	pb.RegisterVersionServiceServer(server, &versionServer{})
 }
-
 func (*versionServer) Version(ctx context.Context, req *pb.VersionRequest) (*pb.VersionResponse, error) {
 
 	return &pb.VersionResponse{
@@ -152,18 +150,15 @@ func StartWalletService(
 	service := &walletServer{wallet}
 	pb.RegisterWalletServiceServer(server, service)
 }
-
 func (s *walletServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
 
 	return &pb.PingResponse{}, nil
 }
-
 func (s *walletServer) Network(ctx context.Context, req *pb.NetworkRequest) (
 	*pb.NetworkResponse, error) {
 
 	return &pb.NetworkResponse{ActiveNetwork: uint32(s.wallet.ChainParams().Net)}, nil
 }
-
 func (s *walletServer) AccountNumber(ctx context.Context, req *pb.AccountNumberRequest) (
 	*pb.AccountNumberResponse, error) {
 
@@ -176,7 +171,6 @@ func (s *walletServer) AccountNumber(ctx context.Context, req *pb.AccountNumberR
 
 	return &pb.AccountNumberResponse{AccountNumber: accountNum}, nil
 }
-
 func (s *walletServer) Accounts(ctx context.Context, req *pb.AccountsRequest) (
 	*pb.AccountsResponse, error) {
 
@@ -206,7 +200,6 @@ func (s *walletServer) Accounts(ctx context.Context, req *pb.AccountsRequest) (
 		CurrentBlockHeight: resp.CurrentBlockHeight,
 	}, nil
 }
-
 func (s *walletServer) RenameAccount(ctx context.Context, req *pb.RenameAccountRequest) (
 	*pb.RenameAccountResponse, error) {
 
@@ -219,7 +212,6 @@ func (s *walletServer) RenameAccount(ctx context.Context, req *pb.RenameAccountR
 
 	return &pb.RenameAccountResponse{}, nil
 }
-
 func (s *walletServer) NextAccount(ctx context.Context, req *pb.NextAccountRequest) (
 	*pb.NextAccountResponse, error) {
 
@@ -251,7 +243,6 @@ func (s *walletServer) NextAccount(ctx context.Context, req *pb.NextAccountReque
 
 	return &pb.NextAccountResponse{AccountNumber: account}, nil
 }
-
 func (s *walletServer) NextAddress(ctx context.Context, req *pb.NextAddressRequest) (
 	*pb.NextAddressResponse, error) {
 
@@ -277,7 +268,6 @@ func (s *walletServer) NextAddress(ctx context.Context, req *pb.NextAddressReque
 
 	return &pb.NextAddressResponse{Address: addr.EncodeAddress()}, nil
 }
-
 func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPrivateKeyRequest) (
 	*pb.ImportPrivateKeyResponse, error) {
 
@@ -321,7 +311,6 @@ func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPriva
 
 	return &pb.ImportPrivateKeyResponse{}, nil
 }
-
 func (s *walletServer) Balance(ctx context.Context, req *pb.BalanceRequest) (
 	*pb.BalanceResponse, error) {
 
@@ -366,7 +355,6 @@ func confirms(
 		return curHeight - txHeight + 1
 	}
 }
-
 func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransactionRequest) (
 	*pb.FundTransactionResponse, error) {
 
@@ -426,7 +414,6 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 		ChangePkScript:  changeScript,
 	}, nil
 }
-
 func marshalGetTransactionsResult(
 	wresp *wallet.GetTransactionsResult) (
 	*pb.GetTransactionsResponse, error) {
@@ -511,7 +498,6 @@ func (s *walletServer) GetTransactions(ctx context.Context, req *pb.GetTransacti
 	}
 	return marshalGetTransactionsResult(gtr)
 }
-
 func (s *walletServer) ChangePassphrase(ctx context.Context, req *pb.ChangePassphraseRequest) (
 	*pb.ChangePassphraseResponse, error) {
 
@@ -626,7 +612,6 @@ func (s *walletServer) PublishTransaction(ctx context.Context, req *pb.PublishTr
 
 	return &pb.PublishTransactionResponse{}, nil
 }
-
 func marshalTransactionInputs(
 	v []wallet.TransactionSummaryInput) []*pb.TransactionDetails_Input {
 
@@ -643,7 +628,6 @@ func marshalTransactionInputs(
 	}
 	return inputs
 }
-
 func marshalTransactionOutputs(
 	v []wallet.TransactionSummaryOutput) []*pb.TransactionDetails_Output {
 
@@ -660,7 +644,6 @@ func marshalTransactionOutputs(
 	}
 	return outputs
 }
-
 func marshalTransactionDetails(
 	v []wallet.TransactionSummary) []*pb.TransactionDetails {
 
@@ -680,7 +663,6 @@ func marshalTransactionDetails(
 	}
 	return txs
 }
-
 func marshalBlocks(
 	v []wallet.Block) []*pb.BlockDetails {
 
@@ -698,7 +680,6 @@ func marshalBlocks(
 	}
 	return blocks
 }
-
 func marshalHashes(
 	v []*chainhash.Hash) [][]byte {
 
@@ -710,7 +691,6 @@ func marshalHashes(
 	}
 	return hashes
 }
-
 func marshalAccountBalances(
 	v []wallet.AccountBalance) []*pb.AccountBalance {
 
@@ -726,7 +706,6 @@ func marshalAccountBalances(
 	}
 	return balances
 }
-
 func (s *walletServer) TransactionNotifications(req *pb.TransactionNotificationsRequest,
 	svr pb.WalletService_TransactionNotificationsServer) error {
 
@@ -758,7 +737,6 @@ func (s *walletServer) TransactionNotifications(req *pb.TransactionNotifications
 		}
 	}
 }
-
 func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequest,
 	svr pb.WalletService_SpentnessNotificationsServer) error {
 
@@ -809,7 +787,6 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 		}
 	}
 }
-
 func (s *walletServer) AccountNotifications(req *pb.AccountNotificationsRequest,
 	svr pb.WalletService_AccountNotificationsServer) error {
 
@@ -852,7 +829,6 @@ func StartWalletLoaderService(
 	service := &loaderServer{loader: loader, activeNet: activeNet}
 	pb.RegisterWalletLoaderServiceServer(server, service)
 }
-
 func (s *loaderServer) CreateWallet(ctx context.Context, req *pb.CreateWalletRequest) (
 	*pb.CreateWalletResponse, error) {
 
@@ -889,7 +865,6 @@ func (s *loaderServer) CreateWallet(ctx context.Context, req *pb.CreateWalletReq
 
 	return &pb.CreateWalletResponse{}, nil
 }
-
 func (s *loaderServer) OpenWallet(ctx context.Context, req *pb.OpenWalletRequest) (
 	*pb.OpenWalletResponse, error) {
 
@@ -918,7 +893,6 @@ func (s *loaderServer) OpenWallet(ctx context.Context, req *pb.OpenWalletRequest
 
 	return &pb.OpenWalletResponse{}, nil
 }
-
 func (s *loaderServer) WalletExists(ctx context.Context, req *pb.WalletExistsRequest) (
 	*pb.WalletExistsResponse, error) {
 
@@ -930,7 +904,6 @@ func (s *loaderServer) WalletExists(ctx context.Context, req *pb.WalletExistsReq
 	}
 	return &pb.WalletExistsResponse{Exists: exists}, nil
 }
-
 func (s *loaderServer) CloseWallet(ctx context.Context, req *pb.CloseWalletRequest) (
 	*pb.CloseWalletResponse, error) {
 
@@ -948,7 +921,6 @@ func (s *loaderServer) CloseWallet(ctx context.Context, req *pb.CloseWalletReque
 
 	return &pb.CloseWalletResponse{}, nil
 }
-
 func (s *loaderServer) StartConsensusRPC(ctx context.Context, req *pb.StartConsensusRPCRequest) (
 	*pb.StartConsensusRPCResponse, error) {
 

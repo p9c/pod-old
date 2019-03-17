@@ -30,7 +30,6 @@ func newQueryState() *queryState {
 		txDetails: make(map[chainhash.Hash][]TxDetails),
 	}
 }
-
 func (q *queryState) deepCopy() *queryState {
 
 	cpy := newQueryState()
@@ -59,7 +58,6 @@ func (q *queryState) deepCopy() *queryState {
 	}
 	return cpy
 }
-
 func deepCopyTxDetails(
 	d *TxDetails) *TxDetails {
 
@@ -76,7 +74,6 @@ func deepCopyTxDetails(
 	copy(cpy.Debits, d.Debits)
 	return &cpy
 }
-
 func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 	changeDesc string) error {
 
@@ -188,7 +185,6 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 
 	return nil
 }
-
 func equalTxDetails(
 	got, exp *TxDetails) error {
 
@@ -251,7 +247,6 @@ func equalTxDetails(
 
 	return nil
 }
-
 func equalTxs(
 	got, exp *wire.MsgTx) error {
 
@@ -289,7 +284,6 @@ func stripSerializedTx(
 	ret.SerializedTx = nil
 	return &ret
 }
-
 func makeBlockMeta(
 	height int32) BlockMeta {
 
@@ -308,7 +302,6 @@ func makeBlockMeta(
 	binary.LittleEndian.PutUint64(b.Hash[4:12], uint64(b.Time.Unix()))
 	return b
 }
-
 func TestStoreQueries(
 	t *testing.T) {
 
@@ -655,7 +648,6 @@ func TestStoreQueries(
 		}
 	}
 }
-
 func TestPreviousPkScripts(
 	t *testing.T) {
 

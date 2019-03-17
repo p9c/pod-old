@@ -31,7 +31,6 @@ func walletHandleSave() {
 	}
 
 }
-
 func walletHandle(c *cli.Context) error {
 
 	*walletConfig.DataDir = appConfigCommon.Datadir

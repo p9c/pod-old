@@ -106,7 +106,6 @@ func testStore() (*Store, walletdb.DB, func(), error) {
 
 	return s, db, teardown, err
 }
-
 func serializeTx(
 	tx *util.Tx) []byte {
 
@@ -118,7 +117,6 @@ func serializeTx(
 	}
 	return buf.Bytes()
 }
-
 func TestInsertsCreditsDebitsRollbacks(
 	t *testing.T) {
 
@@ -664,7 +662,6 @@ func TestInsertsCreditsDebitsRollbacks(
 		}
 	}
 }
-
 func TestFindingSpentCredits(
 	t *testing.T) {
 
@@ -746,7 +743,6 @@ func TestFindingSpentCredits(
 		t.Fatal("has more than one unspent credit")
 	}
 }
-
 func newCoinBase(
 	outputValues ...int64) *wire.MsgTx {
 
@@ -764,7 +760,6 @@ func newCoinBase(
 	}
 	return &tx
 }
-
 func spendOutput(
 	txHash *chainhash.Hash, index uint32, outputValues ...int64) *wire.MsgTx {
 
@@ -782,7 +777,6 @@ func spendOutput(
 	}
 	return &tx
 }
-
 func spendOutputs(
 	outputs []wire.OutPoint, outputValues ...int64) *wire.MsgTx {
 
@@ -800,7 +794,6 @@ func spendOutputs(
 
 	return tx
 }
-
 func TestCoinbases(
 	t *testing.T) {
 

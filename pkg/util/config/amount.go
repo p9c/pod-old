@@ -25,14 +25,12 @@ func NewAmountFlag(
 }
 
 // MarshalFlag satisifes the flags.Marshaler interface.
-
 func (a *AmountFlag) MarshalFlag() (string, error) {
 
 	return a.Amount.String(), nil
 }
 
 // UnmarshalFlag satisifes the flags.Unmarshaler interface.
-
 func (a *AmountFlag) UnmarshalFlag(value string) error {
 
 	value = strings.TrimSuffix(value, " DUO")

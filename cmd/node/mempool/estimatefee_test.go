@@ -62,7 +62,6 @@ func (
 		}
 	}
 }
-
 func (
 	eft *estimateFeeTester,
 ) estimates() [estimateFeeDepth]BtcPerKilobyte {
@@ -86,7 +85,6 @@ func (
 	}
 	return estimates
 }
-
 func (
 	eft *estimateFeeTester,
 ) newBlock(
@@ -124,7 +122,6 @@ func (
 	eft.height--
 	eft.last = eft.last.prev
 }
-
 func (
 	eft *estimateFeeTester,
 ) round(
@@ -175,7 +172,6 @@ func (
 	// Return results
 	return append(txHistory, newTxs), append(estimateHistory, estimates)
 }
-
 func (
 	eft *estimateFeeTester,
 ) testTx(

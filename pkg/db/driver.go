@@ -75,7 +75,6 @@ func RegisterDriver(
 }
 
 // SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
-
 func SupportedDrivers() []string {
 
 	supportedDBs := make([]string, 0, len(drivers))

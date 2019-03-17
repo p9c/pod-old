@@ -30,7 +30,6 @@ type BlockIdentity struct {
 // None returns whether there is no block described by the instance.  When
 
 // associated with a transaction, this indicates the transaction is unmined.
-
 func (b *BlockIdentity) None() bool {
 
 	// BUG: Because dcrwallet uses both 0 and -1 in various places to refer

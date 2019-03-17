@@ -17,7 +17,6 @@ type mruNonceMap struct {
 }
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
-
 func (m *mruNonceMap) String() string {
 
 	m.mtx.Lock()
@@ -43,7 +42,6 @@ func (m *mruNonceMap) String() string {
 }
 
 // Exists returns whether or not the passed nonce is in the map. This function is safe for concurrent access.
-
 func (m *mruNonceMap) Exists(nonce uint64) bool {
 
 	m.mtx.Lock()
@@ -53,7 +51,6 @@ func (m *mruNonceMap) Exists(nonce uint64) bool {
 }
 
 // Add adds the passed nonce to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
-
 func (m *mruNonceMap) Add(nonce uint64) {
 
 	m.mtx.Lock()
@@ -97,7 +94,6 @@ func (m *mruNonceMap) Add(nonce uint64) {
 }
 
 // Delete deletes the passed nonce from the map (if it exists). This function is safe for concurrent access.
-
 func (m *mruNonceMap) Delete(nonce uint64) {
 
 	m.mtx.Lock()

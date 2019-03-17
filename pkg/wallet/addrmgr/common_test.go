@@ -245,7 +245,6 @@ func hexToBytes(
 	}
 	return buf
 }
-
 func emptyDB(
 	t *testing.T) (tearDownFunc func(), db walletdb.DB) {
 

@@ -71,7 +71,6 @@ func createDBDriver(
 
 	return openDB(dbPath, network, true)
 }
-
 func init() {
 
 	// Register the driver.

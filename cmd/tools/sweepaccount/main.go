@@ -36,7 +36,6 @@ func fatalf(
 	os.Stderr.Write(newlineBytes)
 	os.Exit(1)
 }
-
 func errContext(
 
 	err error, context string) error {
@@ -70,7 +69,6 @@ var opts = struct {
 }
 
 // Parse and validate flags.
-
 func init() {
 
 	// Unset localhost defaults if certificate file can not be found.
@@ -261,7 +259,6 @@ func makeDestinationScriptSource(
 	}
 
 }
-
 func main() {
 
 	err := sweep()
@@ -272,7 +269,6 @@ func main() {
 	}
 
 }
-
 func sweep() error {
 
 	rpcPassword, err := promptSecret("Wallet RPC password")
@@ -436,7 +432,6 @@ func sweep() error {
 
 	return nil
 }
-
 func promptSecret(
 
 	what string) (string, error) {
@@ -453,14 +448,12 @@ func promptSecret(
 
 	return string(input), nil
 }
-
 func saneOutputValue(
 
 	amount util.Amount) bool {
 
 	return amount >= 0 && amount <= util.MaxSatoshi
 }
-
 func parseOutPoint(
 
 	input *json.ListUnspentResult) (wire.OutPoint, error) {
@@ -474,7 +467,6 @@ func parseOutPoint(
 
 	return wire.OutPoint{Hash: *txHash, Index: input.Vout}, nil
 }
-
 func pickNoun(
 
 	n int, singularForm, pluralForm string) string {

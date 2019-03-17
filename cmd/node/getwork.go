@@ -60,7 +60,6 @@ func bigToLEUint256(
 
 	return buf
 }
-
 func handleGetWork(
 	s *rpcServer,
 	cmd interface{},

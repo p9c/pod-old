@@ -83,7 +83,6 @@ func TestOutputSplittingNotEnoughInputs(
 	newAmount := tx.inputTotal() - output1Amount - tx.calculateFee()
 	checkLastOutputWasSplit(t, w, tx, output2Amount, newAmount)
 }
-
 func TestOutputSplittingOversizeTx(
 	t *testing.T) {
 
@@ -168,7 +167,6 @@ func TestOutputSplittingOversizeTx(
 		t.Fatalf("Wrong output status; got '%s', want '%s'", status, statusSplit)
 	}
 }
-
 func TestSplitLastOutputNoOutputs(
 	t *testing.T) {
 
@@ -417,7 +415,6 @@ func TestRollbackLastOutput(
 	checkTxOutputs(t, tx, initialOutputs[:len(initialOutputs)-1])
 	checkTxInputs(t, tx, initialInputs[:len(initialInputs)-1])
 }
-
 func TestRollbackLastOutputMultipleInputsRolledBack(
 	t *testing.T) {
 
@@ -687,7 +684,6 @@ func TestRollbackLastOutputWhenNewInputAdded(
 	wantInputs := []credit{eligible[4], eligible[3], eligible[2]}
 	checkTxInputs(t, secondTx, wantInputs)
 }
-
 func TestWithdrawalTxRemoveOutput(
 	t *testing.T) {
 
@@ -732,7 +728,6 @@ func TestWithdrawalTxRemoveOutput(
 		t.Fatalf("Wrong output: got %v, want %v", tx.outputs[0], remainingOutput)
 	}
 }
-
 func TestWithdrawalTxRemoveInput(
 	t *testing.T) {
 
@@ -773,7 +768,6 @@ func TestWithdrawalTxRemoveInput(
 		t.Fatalf("Wrong input: got %v, want %v", tx.inputs[0], remainingInput)
 	}
 }
-
 func TestWithdrawalTxAddChange(
 	t *testing.T) {
 
@@ -844,7 +838,6 @@ func TestWithdrawalTxAddChangeNoChange(
 		t.Fatalf("Unexpected number of txouts; got %d, want 1", len(msgtx.TxOut))
 	}
 }
-
 func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(
 	t *testing.T) {
 
@@ -864,7 +857,6 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(
 	compareMsgTxAndWithdrawalTxOutputs(t, msgtx, tx)
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
-
 func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(
 	t *testing.T) {
 
@@ -887,7 +879,6 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(
 	compareMsgTxAndWithdrawalTxOutputs(t, msgtx, tx)
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
-
 func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(
 	t *testing.T) {
 
@@ -910,7 +901,6 @@ func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(
 	compareMsgTxAndWithdrawalTxOutputs(t, msgtx, tx)
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
-
 func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(
 	t *testing.T) {
 
@@ -933,7 +923,6 @@ func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(
 	compareMsgTxAndWithdrawalTxOutputs(t, msgtx, tx)
 	compareMsgTxAndWithdrawalTxInputs(t, msgtx, tx)
 }
-
 func TestWithdrawalTxInputTotal(
 	t *testing.T) {
 
@@ -955,7 +944,6 @@ func TestWithdrawalTxInputTotal(
 		t.Fatalf("Wrong total output; got %v, want %v", tx.outputTotal(), util.Amount(5))
 	}
 }
-
 func TestWithdrawalTxOutputTotal(
 	t *testing.T) {
 
@@ -978,7 +966,6 @@ func TestWithdrawalTxOutputTotal(
 		t.Fatalf("Wrong total output; got %v, want %v", tx.outputTotal(), util.Amount(4))
 	}
 }
-
 func TestWithdrawalInfoMatch(
 	t *testing.T) {
 
@@ -1074,7 +1061,6 @@ func TestWithdrawalInfoMatch(
 		t.Fatal("Should not match as changeStart is not equal.")
 	}
 }
-
 func TestGetWithdrawalStatus(
 	t *testing.T) {
 
@@ -1141,7 +1127,6 @@ func TestGetWithdrawalStatus(
 		t.Fatalf("Expected a nil status, got %v", status)
 	}
 }
-
 func TestSignMultiSigUTXO(
 	t *testing.T) {
 
@@ -1180,7 +1165,6 @@ func TestSignMultiSigUTXO(
 		}
 	})
 }
-
 func TestSignMultiSigUTXOUnparseablePkScript(
 	t *testing.T) {
 
@@ -1205,7 +1189,6 @@ func TestSignMultiSigUTXOUnparseablePkScript(
 
 	TstCheckError(t, "", err, ErrTxSigning)
 }
-
 func TestSignMultiSigUTXOPkScriptNotP2SH(
 	t *testing.T) {
 
@@ -1231,7 +1214,6 @@ func TestSignMultiSigUTXOPkScriptNotP2SH(
 
 	TstCheckError(t, "", err, ErrTxSigning)
 }
-
 func TestSignMultiSigUTXORedeemScriptNotFound(
 	t *testing.T) {
 
@@ -1266,7 +1248,6 @@ func TestSignMultiSigUTXORedeemScriptNotFound(
 
 	TstCheckError(t, "", err, ErrTxSigning)
 }
-
 func TestSignMultiSigUTXONotEnoughSigs(
 	t *testing.T) {
 
@@ -1306,7 +1287,6 @@ func TestSignMultiSigUTXONotEnoughSigs(
 
 	TstCheckError(t, "", err, ErrTxSigning)
 }
-
 func TestSignMultiSigUTXOWrongRawSigs(
 	t *testing.T) {
 
@@ -1335,7 +1315,6 @@ func TestSignMultiSigUTXOWrongRawSigs(
 
 	TstCheckError(t, "", err, ErrTxSigning)
 }
-
 func TestGetRawSigs(
 	t *testing.T) {
 
@@ -1376,7 +1355,6 @@ func TestGetRawSigs(
 	// valid.
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, txSigs, tx.inputs)
 }
-
 func TestGetRawSigsOnlyOnePrivKeyAvailable(
 	t *testing.T) {
 
@@ -1417,7 +1395,6 @@ func TestGetRawSigsOnlyOnePrivKeyAvailable(
 
 	checkNonEmptySigsForPrivKeys(t, txSigs, series.privateKeys)
 }
-
 func TestGetRawSigsUnparseableRedeemScript(
 	t *testing.T) {
 
@@ -1443,7 +1420,6 @@ func TestGetRawSigsUnparseableRedeemScript(
 
 	TstCheckError(t, "", err, ErrRawSigning)
 }
-
 func TestGetRawSigsInvalidAddrBranch(
 	t *testing.T) {
 
@@ -1490,7 +1466,6 @@ func TestOutBailmentIDSort(
 		t.Fatalf("Sort failed; got %v, want %v", random, want)
 	}
 }
-
 func TestTxTooBig(
 	t *testing.T) {
 
@@ -1532,7 +1507,6 @@ func TestTxTooBig(
 			tx.calculateSize(), txMaxSize)
 	}
 }
-
 func TestTxSizeCalculation(
 	t *testing.T) {
 
@@ -1606,7 +1580,6 @@ func TestTxSizeCalculation(
 		t.Fatalf("Tx size (%d) bigger than estimated size (%d)", msgtx.SerializeSize(), size)
 	}
 }
-
 func TestTxFeeEstimationForSmallTx(
 	t *testing.T) {
 
@@ -1625,7 +1598,6 @@ func TestTxFeeEstimationForSmallTx(
 		t.Fatalf("Unexpected tx fee; got %v, want %v", fee, wantFee)
 	}
 }
-
 func TestTxFeeEstimationForLargeTx(
 	t *testing.T) {
 
@@ -1644,7 +1616,6 @@ func TestTxFeeEstimationForLargeTx(
 		t.Fatalf("Unexpected tx fee; got %v, want %v", fee, wantFee)
 	}
 }
-
 func TestStoreTransactionsWithoutChangeOutput(
 	t *testing.T) {
 
@@ -1680,7 +1651,6 @@ func TestStoreTransactionsWithoutChangeOutput(
 		t.Fatalf("Unexpected number of credits in txstore; got %d, want 0", len(credits))
 	}
 }
-
 func TestStoreTransactionsWithChangeOutput(
 	t *testing.T) {
 
@@ -1920,7 +1890,6 @@ func signTxAndValidate(
 		})
 	}
 }
-
 func compareMsgTxAndWithdrawalTxInputs(
 	t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
 
@@ -1939,7 +1908,6 @@ func compareMsgTxAndWithdrawalTxInputs(
 		}
 	}
 }
-
 func compareMsgTxAndWithdrawalTxOutputs(
 	t *testing.T, msgtx *wire.MsgTx, tx *withdrawalTx) {
 
@@ -1988,7 +1956,6 @@ func compareMsgTxAndWithdrawalTxOutputs(
 		}
 	}
 }
-
 func checkTxChangeAmount(
 	t *testing.T, tx *withdrawalTx, amount util.Amount) {
 

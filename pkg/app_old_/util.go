@@ -71,7 +71,6 @@ func EnsureDir(
 }
 
 // FileExists reports whether the named file or directory exists.
-
 func FileExists(filePath string) (bool, error) {
 
 	_, err := os.Stat(filePath)
@@ -108,7 +107,6 @@ func GenFlag(
 }
 
 // GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
-
 func GenKey() string {
 
 	k, _ := rand.Int(rand.Reader, big.NewInt(int64(^uint32(0))))
@@ -343,7 +341,6 @@ func ParseUint32(
 
 	return
 }
-
 func getIfIs(
 	ctx *climax.Context,
 	name string,

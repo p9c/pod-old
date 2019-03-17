@@ -42,7 +42,6 @@ func writefln(
 		log.Fatal(err)
 	}
 }
-
 func writeLocaleHelp(
 	locale, goLocale string, descs map[string]string) {
 
@@ -64,7 +63,6 @@ func writeLocaleHelp(
 	writefln("}")
 	writefln("}")
 }
-
 func writeLocales() {
 
 	writefln("var localeHelpDescs = map[string]func() map[string]string{")
@@ -75,7 +73,6 @@ func writeLocales() {
 	}
 	writefln("}")
 }
-
 func writeUsage() {
 
 	usageStrs := make([]string, len(rpchelp.Methods))
@@ -93,7 +90,6 @@ func writeUsage() {
 	usages := strings.Join(usageStrs, "\n")
 	writefln("var requestUsages = %q", usages)
 }
-
 func main() {
 
 	defer outputFile.Close()

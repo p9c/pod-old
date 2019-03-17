@@ -60,7 +60,6 @@ func createDBDriver(
 
 	return openDB(dbPath, true)
 }
-
 func init() {
 
 	// Register the driver.

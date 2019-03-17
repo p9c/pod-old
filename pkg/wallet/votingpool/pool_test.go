@@ -57,7 +57,6 @@ func TestLoadPoolAndDepositScript(
 			strScript, want)
 	}
 }
-
 func TestLoadPoolAndCreateSeries(
 	t *testing.T) {
 
@@ -93,7 +92,6 @@ func TestLoadPoolAndCreateSeries(
 		t.Fatalf("Loading voting pool and Creating series failed: %v", err)
 	}
 }
-
 func TestLoadPoolAndReplaceSeries(
 	t *testing.T) {
 
@@ -127,7 +125,6 @@ func TestLoadPoolAndReplaceSeries(
 		t.Fatalf("Failed to replace series: %v", err)
 	}
 }
-
 func TestLoadPoolAndEmpowerSeries(
 	t *testing.T) {
 
@@ -163,7 +160,6 @@ func TestLoadPoolAndEmpowerSeries(
 		t.Fatalf("Load voting pool and Empower series failed: %v", err)
 	}
 }
-
 func TestDepositScriptAddress(
 	t *testing.T) {
 
@@ -228,7 +224,6 @@ func TestDepositScriptAddress(
 		}
 	}
 }
-
 func TestDepositScriptAddressForNonExistentSeries(
 	t *testing.T) {
 
@@ -239,7 +234,6 @@ func TestDepositScriptAddressForNonExistentSeries(
 
 	vp.TstCheckError(t, "", err, vp.ErrSeriesNotExists)
 }
-
 func TestDepositScriptAddressForHardenedPubKey(
 	t *testing.T) {
 
@@ -267,7 +261,6 @@ func TestDepositScriptAddressForHardenedPubKey(
 
 	vp.TstCheckError(t, "", err, vp.ErrKeyChain)
 }
-
 func TestLoadPool(
 	t *testing.T) {
 
@@ -295,7 +288,6 @@ func TestLoadPool(
 		t.Errorf("Voting pool obtained from DB does not match the created one")
 	}
 }
-
 func TestCreatePool(
 	t *testing.T) {
 
@@ -323,7 +315,6 @@ func TestCreatePool(
 		t.Errorf("Pool ID mismatch: got %v, want %v", pool2.ID, []byte{0x02})
 	}
 }
-
 func TestCreatePoolWhenAlreadyExists(
 	t *testing.T) {
 
@@ -343,7 +334,6 @@ func TestCreatePoolWhenAlreadyExists(
 
 	vp.TstCheckError(t, "", err, vp.ErrPoolAlreadyExists)
 }
-
 func TestCreateSeries(
 	t *testing.T) {
 
@@ -412,7 +402,6 @@ func TestCreateSeries(
 		}
 	}
 }
-
 func TestPoolCreateSeriesInvalidID(
 	t *testing.T) {
 
@@ -432,7 +421,6 @@ func TestPoolCreateSeriesInvalidID(
 
 	vp.TstCheckError(t, "", err, vp.ErrSeriesIDInvalid)
 }
-
 func TestPoolCreateSeriesWhenAlreadyExists(
 	t *testing.T) {
 
@@ -459,7 +447,6 @@ func TestPoolCreateSeriesWhenAlreadyExists(
 
 	vp.TstCheckError(t, "", err, vp.ErrSeriesAlreadyExists)
 }
-
 func TestPoolCreateSeriesIDNotSequential(
 	t *testing.T) {
 
@@ -486,7 +473,6 @@ func TestPoolCreateSeriesIDNotSequential(
 
 	vp.TstCheckError(t, "", err, vp.ErrSeriesIDNotSequential)
 }
-
 func TestPutSeriesErrors(
 	t *testing.T) {
 
@@ -543,7 +529,6 @@ func TestPutSeriesErrors(
 		vp.TstCheckError(t, fmt.Sprintf("Create series #%d", i), err, test.err)
 	}
 }
-
 func TestCannotReplaceEmpoweredSeries(
 	t *testing.T) {
 
@@ -579,7 +564,6 @@ func TestCannotReplaceEmpoweredSeries(
 
 	vp.TstCheckError(t, "", err, vp.ErrSeriesAlreadyEmpowered)
 }
-
 func TestReplaceNonExistingSeries(
 	t *testing.T) {
 
@@ -733,7 +717,6 @@ func validateReplaceSeries(
 			testID, seriesID)
 	}
 }
-
 func TestEmpowerSeries(
 	t *testing.T) {
 
@@ -764,7 +747,6 @@ func TestEmpowerSeries(
 		}
 	})
 }
-
 func TestEmpowerSeriesErrors(
 	t *testing.T) {
 
@@ -825,7 +807,6 @@ func TestEmpowerSeriesErrors(
 	}
 
 }
-
 func TestPoolSeries(
 	t *testing.T) {
 
@@ -951,7 +932,6 @@ func setUpLoadAllSeries(
 	}
 	return pool
 }
-
 func TestLoadAllSeries(
 	t *testing.T) {
 
@@ -985,7 +965,6 @@ func TestLoadAllSeries(
 		}
 	}
 }
-
 func validateLoadAllSeries(
 	t *testing.T, pool *vp.Pool, testID int, seriesData seriesRaw) {
 
@@ -1043,7 +1022,6 @@ func validateLoadAllSeries(
 			testID, seriesData.id, foundPrivKeys, privKeys)
 	}
 }
-
 func reverse(
 	inKeys []*hdkeychain.ExtendedKey) []*hdkeychain.ExtendedKey {
 
@@ -1056,7 +1034,6 @@ func reverse(
 	}
 	return revKeys
 }
-
 func TestBranchOrderZero(
 	t *testing.T) {
 
@@ -1090,7 +1067,6 @@ func TestBranchOrderZero(
 		}
 	}
 }
-
 func TestBranchOrderNonZero(
 	t *testing.T) {
 
@@ -1139,7 +1115,6 @@ func TestBranchOrderNonZero(
 		}
 	}
 }
-
 func TestBranchOrderNilKeys(
 	t *testing.T) {
 
@@ -1147,7 +1122,6 @@ func TestBranchOrderNilKeys(
 
 	vp.TstCheckError(t, "", err, vp.ErrInvalidValue)
 }
-
 func TestBranchOrderInvalidBranch(
 	t *testing.T) {
 
@@ -1155,7 +1129,6 @@ func TestBranchOrderInvalidBranch(
 
 	vp.TstCheckError(t, "", err, vp.ErrInvalidBranch)
 }
-
 func branchErrorFormat(
 	orig, want, got []*hdkeychain.ExtendedKey) (origOrder, wantOrder, gotOrder []int) {
 
@@ -1184,7 +1157,6 @@ func branchErrorFormat(
 
 	return origOrder, wantOrder, gotOrder
 }
-
 func createTestPubKeys(
 	t *testing.T, number, offset int) []*hdkeychain.ExtendedKey {
 
@@ -1210,7 +1182,6 @@ func createTestPubKeys(
 	}
 	return keys
 }
-
 func TestReverse(
 	t *testing.T) {
 
@@ -1239,7 +1210,6 @@ func TestReverse(
 		}
 	}
 }
-
 func TestEmpowerSeriesNeuterFailed(
 	t *testing.T) {
 
@@ -1273,7 +1243,6 @@ func TestEmpowerSeriesNeuterFailed(
 
 	vp.TstCheckError(t, "", err, vp.ErrKeyNeuter)
 }
-
 func TestDecryptExtendedKeyCannotCreateResultKey(
 	t *testing.T) {
 
@@ -1292,7 +1261,6 @@ func TestDecryptExtendedKeyCannotCreateResultKey(
 
 	vp.TstCheckError(t, "", err, vp.ErrKeyChain)
 }
-
 func TestDecryptExtendedKeyCannotDecrypt(
 	t *testing.T) {
 
@@ -1303,7 +1271,6 @@ func TestDecryptExtendedKeyCannotDecrypt(
 
 	vp.TstCheckError(t, "", err, vp.ErrCrypto)
 }
-
 func TestPoolChangeAddress(
 	t *testing.T) {
 
@@ -1331,7 +1298,6 @@ func TestPoolChangeAddress(
 	_, err = pool.ChangeAddress(2, 0)
 	vp.TstCheckError(t, "", err, vp.ErrSeriesNotActive)
 }
-
 func TestPoolWithdrawalAddress(
 	t *testing.T) {
 
@@ -1358,7 +1324,6 @@ func TestPoolWithdrawalAddress(
 	_, err = pool.WithdrawalAddress(ns, addrmgrNs, 1, 2, 3)
 	vp.TstCheckError(t, "", err, vp.ErrWithdrawFromUnusedAddr)
 }
-
 func checkPoolAddress(
 	t *testing.T, addr vp.PoolAddress, seriesID uint32, branch vp.Branch,
 	index vp.Index) {

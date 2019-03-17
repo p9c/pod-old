@@ -297,35 +297,30 @@ func newAddressPubKeyHash(
 }
 
 // EncodeAddress returns the string encoding of a pay-to-pubkey-hash address.  Part of the Address interface.
-
 func (a *AddressPubKeyHash) EncodeAddress() string {
 
 	return encodeAddress(a.hash[:], a.netID)
 }
 
 // ScriptAddress returns the bytes to be included in a txout script to pay to a pubkey hash.  Part of the Address interface.
-
 func (a *AddressPubKeyHash) ScriptAddress() []byte {
 
 	return a.hash[:]
 }
 
 // IsForNet returns whether or not the pay-to-pubkey-hash address is associated with the passed bitcoin network.
-
 func (a *AddressPubKeyHash) IsForNet(net *chaincfg.Params) bool {
 
 	return a.netID == net.PubKeyHashAddrID
 }
 
 // String returns a human-readable string for the pay-to-pubkey-hash address. This is equivalent to calling EncodeAddress, but is provided so the type can be used as a fmt.Stringer.
-
 func (a *AddressPubKeyHash) String() string {
 
 	return a.EncodeAddress()
 }
 
 // Hash160 returns the underlying array of the pubkey hash.  This can be useful when an array is more appropiate than a slice (for example, when used as map keys).
-
 func (a *AddressPubKeyHash) Hash160() *[ripemd160.Size]byte {
 
 	return &a.hash
@@ -373,35 +368,30 @@ func newAddressScriptHashFromHash(
 }
 
 // EncodeAddress returns the string encoding of a pay-to-script-hash address.  Part of the Address interface.
-
 func (a *AddressScriptHash) EncodeAddress() string {
 
 	return encodeAddress(a.hash[:], a.netID)
 }
 
 // ScriptAddress returns the bytes to be included in a txout script to pay to a script hash.  Part of the Address interface.
-
 func (a *AddressScriptHash) ScriptAddress() []byte {
 
 	return a.hash[:]
 }
 
 // IsForNet returns whether or not the pay-to-script-hash address is associated with the passed bitcoin network.
-
 func (a *AddressScriptHash) IsForNet(net *chaincfg.Params) bool {
 
 	return a.netID == net.ScriptHashAddrID
 }
 
 // String returns a human-readable string for the pay-to-script-hash address. This is equivalent to calling EncodeAddress, but is provided so the type can be used as a fmt.Stringer.
-
 func (a *AddressScriptHash) String() string {
 
 	return a.EncodeAddress()
 }
 
 // Hash160 returns the underlying array of the script hash.  This can be useful when an array is more appropiate than a slice (for example, when used as map keys).
-
 func (a *AddressScriptHash) Hash160() *[ripemd160.Size]byte {
 
 	return &a.hash
@@ -464,7 +454,6 @@ func NewAddressPubKey(
 }
 
 // serialize returns the serialization of the public key according to the format associated with the address.
-
 func (a *AddressPubKey) serialize() []byte {
 
 	switch a.pubKeyFormat {
@@ -482,49 +471,42 @@ func (a *AddressPubKey) serialize() []byte {
 }
 
 // EncodeAddress returns the string encoding of the public key as a pay-to-pubkey-hash.  Note that the public key format (uncompressed, compressed, etc) will change the resulting address.  This is expected since pay-to-pubkey-hash is a hash of the serialized public key which obviously differs with the format.  At the time of this writing, most Bitcoin addresses are pay-to-pubkey-hash constructed from the uncompressed public key. Part of the Address interface.
-
 func (a *AddressPubKey) EncodeAddress() string {
 
 	return encodeAddress(Hash160(a.serialize()), a.pubKeyHashID)
 }
 
 // ScriptAddress returns the bytes to be included in a txout script to pay to a public key.  Setting the public key format will affect the output of this function accordingly.  Part of the Address interface.
-
 func (a *AddressPubKey) ScriptAddress() []byte {
 
 	return a.serialize()
 }
 
 // IsForNet returns whether or not the pay-to-pubkey address is associated with the passed bitcoin network.
-
 func (a *AddressPubKey) IsForNet(net *chaincfg.Params) bool {
 
 	return a.pubKeyHashID == net.PubKeyHashAddrID
 }
 
 // String returns the hex-encoded human-readable string for the pay-to-pubkey address.  This is not the same as calling EncodeAddress.
-
 func (a *AddressPubKey) String() string {
 
 	return hex.EncodeToString(a.serialize())
 }
 
 // Format returns the format (uncompressed, compressed, etc) of the pay-to-pubkey address.
-
 func (a *AddressPubKey) Format() PubKeyFormat {
 
 	return a.pubKeyFormat
 }
 
 // SetFormat sets the format (uncompressed, compressed, etc) of the pay-to-pubkey address.
-
 func (a *AddressPubKey) SetFormat(pkFormat PubKeyFormat) {
 
 	a.pubKeyFormat = pkFormat
 }
 
 // AddressPubKeyHash returns the pay-to-pubkey address converted to a pay-to-pubkey-hash address.  Note that the public key format (uncompressed, compressed, etc) will change the resulting address.  This is expected since pay-to-pubkey-hash is a hash of the serialized public key which obviously differs with the format.  At the time of this writing, most Bitcoin addresses are pay-to-pubkey-hash constructed from the uncompressed public key.
-
 func (a *AddressPubKey) AddressPubKeyHash() *AddressPubKeyHash {
 
 	addr := &AddressPubKeyHash{netID: a.pubKeyHashID}
@@ -533,7 +515,6 @@ func (a *AddressPubKey) AddressPubKeyHash() *AddressPubKeyHash {
 }
 
 // PubKey returns the underlying public key for the address.
-
 func (a *AddressPubKey) PubKey() *ec.PublicKey {
 
 	return a.pubKey
@@ -579,7 +560,6 @@ func newAddressWitnessPubKeyHash(
 }
 
 // EncodeAddress returns the bech32 string encoding of an AddressWitnessPubKeyHash. Part of the Address interface.
-
 func (a *AddressWitnessPubKeyHash) EncodeAddress() string {
 
 	str, err := encodeSegWitAddress(a.hrp, a.witnessVersion,
@@ -594,49 +574,42 @@ func (a *AddressWitnessPubKeyHash) EncodeAddress() string {
 }
 
 // ScriptAddress returns the witness program for this address. Part of the Address interface.
-
 func (a *AddressWitnessPubKeyHash) ScriptAddress() []byte {
 
 	return a.witnessProgram[:]
 }
 
 // IsForNet returns whether or not the AddressWitnessPubKeyHash is associated with the passed bitcoin network. Part of the Address interface.
-
 func (a *AddressWitnessPubKeyHash) IsForNet(net *chaincfg.Params) bool {
 
 	return a.hrp == net.Bech32HRPSegwit
 }
 
 // String returns a human-readable string for the AddressWitnessPubKeyHash. This is equivalent to calling EncodeAddress, but is provided so the type can be used as a fmt.Stringer. Part of the Address interface.
-
 func (a *AddressWitnessPubKeyHash) String() string {
 
 	return a.EncodeAddress()
 }
 
 // Hrp returns the human-readable part of the bech32 encoded AddressWitnessPubKeyHash.
-
 func (a *AddressWitnessPubKeyHash) Hrp() string {
 
 	return a.hrp
 }
 
 // WitnessVersion returns the witness version of the AddressWitnessPubKeyHash.
-
 func (a *AddressWitnessPubKeyHash) WitnessVersion() byte {
 
 	return a.witnessVersion
 }
 
 // WitnessProgram returns the witness program of the AddressWitnessPubKeyHash.
-
 func (a *AddressWitnessPubKeyHash) WitnessProgram() []byte {
 
 	return a.witnessProgram[:]
 }
 
 // Hash160 returns the witness program of the AddressWitnessPubKeyHash as a byte array.
-
 func (a *AddressWitnessPubKeyHash) Hash160() *[20]byte {
 
 	return &a.witnessProgram
@@ -682,7 +655,6 @@ func newAddressWitnessScriptHash(
 }
 
 // EncodeAddress returns the bech32 string encoding of an AddressWitnessScriptHash. Part of the Address interface.
-
 func (a *AddressWitnessScriptHash) EncodeAddress() string {
 
 	str, err := encodeSegWitAddress(a.hrp, a.witnessVersion,
@@ -697,42 +669,36 @@ func (a *AddressWitnessScriptHash) EncodeAddress() string {
 }
 
 // ScriptAddress returns the witness program for this address. Part of the Address interface.
-
 func (a *AddressWitnessScriptHash) ScriptAddress() []byte {
 
 	return a.witnessProgram[:]
 }
 
 // IsForNet returns whether or not the AddressWitnessScriptHash is associated with the passed bitcoin network. Part of the Address interface.
-
 func (a *AddressWitnessScriptHash) IsForNet(net *chaincfg.Params) bool {
 
 	return a.hrp == net.Bech32HRPSegwit
 }
 
 // String returns a human-readable string for the AddressWitnessScriptHash. This is equivalent to calling EncodeAddress, but is provided so the type can be used as a fmt.Stringer. Part of the Address interface.
-
 func (a *AddressWitnessScriptHash) String() string {
 
 	return a.EncodeAddress()
 }
 
 // Hrp returns the human-readable part of the bech32 encoded AddressWitnessScriptHash.
-
 func (a *AddressWitnessScriptHash) Hrp() string {
 
 	return a.hrp
 }
 
 // WitnessVersion returns the witness version of the AddressWitnessScriptHash.
-
 func (a *AddressWitnessScriptHash) WitnessVersion() byte {
 
 	return a.witnessVersion
 }
 
 // WitnessProgram returns the witness program of the AddressWitnessScriptHash.
-
 func (a *AddressWitnessScriptHash) WitnessProgram() []byte {
 
 	return a.witnessProgram[:]

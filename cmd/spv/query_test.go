@@ -352,7 +352,6 @@ func TestCacheBigEnoughHoldsAllFilter(
 
 	assertEqual(t, cs.FilterCache.Len(), 3, "")
 }
-
 func assertEqual(
 
 	t *testing.T, a interface{}, b interface{}, message string) {
@@ -432,7 +431,6 @@ func genRandFilter(
 }
 
 // genRandomBlockHash generates a random block hash using math/rand.
-
 func genRandomBlockHash() *chainhash.Hash {
 
 	var seed [32]byte

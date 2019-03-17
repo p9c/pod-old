@@ -63,7 +63,6 @@ var (
 type errNotInMainChain string
 
 // Error implements the error interface.
-
 func (e errNotInMainChain) Error() string {
 
 	return string(e)
@@ -219,7 +218,6 @@ type SpentTxOut struct {
 }
 
 // FetchSpendJournal attempts to retrieve the spend journal, or the set of outputs spent for the target block. This provides a view of all the outputs that will be consumed once the target block is connected to the end of the main chain. This function is safe for concurrent access.
-
 func (b *BlockChain) FetchSpendJournal(targetBlock *util.Block) ([]SpentTxOut, error) {
 
 	b.chainLock.RLock()
@@ -1004,7 +1002,6 @@ func dbPutBestState(
 }
 
 // createChainState initializes both the database and the chain state to the genesis block.  This includes creating the necessary buckets and inserting the genesis block, so it must only be called on an uninitialized database.
-
 func (b *BlockChain) createChainState() error {
 
 	// Create a new node from the genesis block and set it as the best node.
@@ -1114,7 +1111,6 @@ func (b *BlockChain) createChainState() error {
 }
 
 // initChainState attempts to load and initialize the chain state from the database.  When the db does not yet contain any chain state, both it and the chain state are initialized to the genesis block.
-
 func (b *BlockChain) initChainState() error {
 
 	// Determine the state of the chain database. We may need to initialize everything from scratch or upgrade certain buckets.
@@ -1429,7 +1425,6 @@ func blockIndexKey(
 }
 
 // BlockByHeight returns the block at the given height in the main chain. This function is safe for concurrent access.
-
 func (b *BlockChain) BlockByHeight(blockHeight int32) (*util.Block, error) {
 
 	// Lookup the block height in the best chain.
@@ -1454,7 +1449,6 @@ func (b *BlockChain) BlockByHeight(blockHeight int32) (*util.Block, error) {
 }
 
 // BlockByHash returns the block from the main chain with the given hash with the appropriate chain height set. This function is safe for concurrent access.
-
 func (b *BlockChain) BlockByHash(hash *chainhash.Hash) (*util.Block, error) {
 
 	// Lookup the block hash in block index and ensure it is in the best chain.

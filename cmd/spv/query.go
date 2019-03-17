@@ -112,7 +112,6 @@ type filterCacheKey struct {
 type QueryOption func(*queryOptions)
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
-
 func defaultQueryOptions() *queryOptions {
 
 	return &queryOptions{
@@ -125,7 +124,6 @@ func defaultQueryOptions() *queryOptions {
 }
 
 // applyQueryOptions updates a queryOptions set with functional options.
-
 func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 
 	for _, option := range options {
@@ -210,7 +208,6 @@ func DoneChan(
 // PersistToDisk allows the caller to tell that the filter should be kept
 
 // on disk once it's found.
-
 func PersistToDisk() QueryOption {
 
 	return func(qo *queryOptions) {
@@ -1459,7 +1456,6 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 // TODO: Better privacy by sending to only one random peer and watching
 
 // propagation, requires better peer selection support in query API.
-
 func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) error {
 
 	var err error

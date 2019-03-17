@@ -19,7 +19,6 @@ type mruInventoryMap struct {
 }
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
-
 func (m *mruInventoryMap) String() string {
 
 	m.invMtx.Lock()
@@ -45,7 +44,6 @@ func (m *mruInventoryMap) String() string {
 }
 
 // Exists returns whether or not the passed inventory item is in the map. This function is safe for concurrent access.
-
 func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 
 	m.invMtx.Lock()
@@ -55,7 +53,6 @@ func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 }
 
 // Add adds the passed inventory to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
-
 func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 
 	m.invMtx.Lock()
@@ -99,7 +96,6 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 }
 
 // Delete deletes the passed inventory item from the map (if it exists). This function is safe for concurrent access.
-
 func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 
 	m.invMtx.Lock()

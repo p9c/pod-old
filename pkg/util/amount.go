@@ -21,7 +21,6 @@ const (
 )
 
 // String returns the unit as a string.  For recognized units, the SI prefix is used, or "Satoshi" for the base unit.  For all unrecognized units, "1eN DUO" is returned, where N is the AmountUnit.
-
 func (u AmountUnit) String() string {
 
 	switch u {
@@ -82,21 +81,18 @@ func NewAmount(
 }
 
 // ToUnit converts a monetary amount counted in bitcoin base units to a floating point value representing an amount of bitcoin.
-
 func (a Amount) ToUnit(u AmountUnit) float64 {
 
 	return float64(a) / math.Pow10(int(u+8))
 }
 
 // ToDUO is the equivalent of calling ToUnit with AmountDUO.
-
 func (a Amount) ToDUO() float64 {
 
 	return a.ToUnit(AmountDUO)
 }
 
 // Format formats a monetary amount counted in bitcoin base units as a string for a given unit.  The conversion will succeed for any unit, however, known units will be formated with an appended label describing the units with SI notation, or "Satoshi" for the base unit.
-
 func (a Amount) Format(u AmountUnit) string {
 
 	units := " " + u.String()
@@ -104,14 +100,12 @@ func (a Amount) Format(u AmountUnit) string {
 }
 
 // String is the equivalent of calling Format with AmountDUO.
-
 func (a Amount) String() string {
 
 	return a.Format(AmountDUO)
 }
 
 // MulF64 multiplies an Amount by a floating point value.  While this is not an operation that must typically be done by a full node or wallet, it is useful for services that build on top of bitcoin (for example, calculating a fee by multiplying by a percentage).
-
 func (a Amount) MulF64(f float64) Amount {
 
 	return round(float64(a) * f)

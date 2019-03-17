@@ -2063,7 +2063,6 @@ func (
 
 	return subscribed
 }
-
 func (
 	s semaphore,
 
@@ -2071,7 +2070,6 @@ func (
 
 	s <- struct{}{}
 }
-
 func (
 	s semaphore,
 
@@ -2935,12 +2933,10 @@ func handleWebsocketHelp(
 
 	return help, nil
 }
-
 func init() {
 
 	wsHandlers = wsHandlersBeforeInit
 }
-
 func makeSemaphore(
 
 	n int) semaphore {

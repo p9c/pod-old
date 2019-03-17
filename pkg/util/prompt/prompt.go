@@ -18,7 +18,6 @@ import (
 // ProvideSeed is used to prompt for the wallet seed which maybe required during
 
 // upgrades.
-
 func ProvideSeed() ([]byte, error) {
 
 	reader := bufio.NewReader(os.Stdin)
@@ -53,7 +52,6 @@ func ProvideSeed() ([]byte, error) {
 // ProvidePrivPassphrase is used to prompt for the private passphrase which
 
 // maybe required during upgrades.
-
 func ProvidePrivPassphrase() ([]byte, error) {
 
 	prompt := "enter the private passphrase for your wallet: "

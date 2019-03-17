@@ -80,8 +80,6 @@ const WalletDbName = "wallet.db"
 // cleanAndExpandPath expands environement variables and leading ~ in the
 // passed path, cleans the result, and returns it.
 
-
-
 func cleanAndExpandPath(path string) string {
 
 
@@ -322,8 +320,6 @@ fmt.Println("TLS is enabled but more than likely the certificates will fail veri
 
 
 
-
-
 func copy(src, dst string) (int64, error) {
 
 
@@ -382,8 +378,6 @@ return 0, err
 // supportedSubsystems returns a sorted slice of the supported subsystems for
 // logging purposes.
 
-
-
 func supportedSubsystems() []string {
 
 
@@ -408,8 +402,6 @@ subsystems = append(subsystems, subsysID)
 // parseAndSetDebugLevels attempts to parse the specified debug level and set
 // the levels accordingly.  An appropriate error is returned if anything is
 // invalid.
-
-
 
 func parseAndSetDebugLevels(debugLevel string) error {
 

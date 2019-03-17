@@ -57,7 +57,6 @@ type upnpNAT struct {
 }
 
 // Discover searches the local network for a UPnP router returning a NAT for the network if so, nil if not.
-
 func Discover() (nat NAT, err error) {
 
 	ssdp, err := net.ResolveUDPAddr("udp4", "239.255.255.250:1900")
@@ -242,7 +241,6 @@ func getChildService(
 }
 
 // getOurIP returns a best guess at what the local IP is.
-
 func getOurIP() (ip string, err error) {
 
 	hostname, err := os.Hostname()
@@ -407,7 +405,6 @@ type getExternalIPAddressResponse struct {
 }
 
 // GetExternalAddress implements the NAT interface by fetching the external IP from the UPnP router.
-
 func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 
 	message := "<u:GetExternalIPAddress xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\"/>\r\n"
@@ -437,7 +434,6 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 }
 
 // AddPortMapping implements the NAT interface by setting up a port forwarding from the UPnP router to the local machine with the given ports and protocol.
-
 func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error) {
 
 	// A single concatenation would break ARM compilation.
@@ -466,7 +462,6 @@ func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int
 }
 
 // DeletePortMapping implements the NAT interface by removing up a port forwarding from the UPnP router to the local machine with the given ports and.
-
 func (n *upnpNAT) DeletePortMapping(protocol string, externalPort, internalPort int) (err error) {
 
 	message := "<u:DeletePortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">\r\n" +

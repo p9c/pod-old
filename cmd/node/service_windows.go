@@ -45,7 +45,6 @@ func logServiceStartOfDay(
 type podService struct{}
 
 // Execute is the main entry point the winsvc package calls when receiving information from the Windows service control manager.  It launches the long-running podMain (which is the real meat of pod), handles service change requests, and notifies the service control manager of changes.
-
 func (s *podService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
 
 	// Service start is pending.
@@ -113,7 +112,6 @@ loop:
 }
 
 // installService attempts to install the pod service.  Typically this should be done by the msi installer, but it is provided here since it can be useful for development.
-
 func installService() error {
 
 	// Get the path of the current executable.  This is needed because os.Args[0] can vary depending on how the application was launched. For example, under cmd.exe it will only be the name of the app without the path or extension, but under mingw it will be the full path including the extension.
@@ -170,7 +168,6 @@ func installService() error {
 }
 
 // removeService attempts to uninstall the pod service.  Typically this should be done by the msi uninstaller, but it is provided here since it can be useful for development.  Not the eventlog entry is intentionally not removed since it would invalidate any existing event log messages.
-
 func removeService() error {
 
 	// Connect to the windows service manager.
@@ -198,7 +195,6 @@ func removeService() error {
 }
 
 // startService attempts to start the pod service.
-
 func startService() error {
 
 	// Connect to the windows service manager.
@@ -307,7 +303,6 @@ func performServiceCommand(
 }
 
 // serviceMain checks whether we're being invoked as a service, and if so uses the service control manager to start the long-running server.  A flag is returned to the caller so the application can determine whether to exit (when running as a service) or launch in normal interactive mode.
-
 func serviceMain() (bool, error) {
 
 	// Don't run as a service if we're running interactively (or that can't be determined due to an error).
@@ -343,7 +338,6 @@ func serviceMain() (bool, error) {
 }
 
 // Set windows specific functions to real functions.
-
 func init() {
 
 	runServiceCommand = performServiceCommand

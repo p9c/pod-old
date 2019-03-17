@@ -24,7 +24,6 @@ func (p *OutputSelectionPolicy) meetsRequiredConfs(txHeight, curHeight int32) bo
 
 // UnspentOutputs fetches all unspent outputs from the wallet that match rules
 // described in the passed policy.
-
 func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOutput, error) {
 
 	var outputResults []*TransactionOutput

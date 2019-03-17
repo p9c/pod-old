@@ -469,7 +469,6 @@ func putScopeAddrTypes(
 	schemaBytes := scopeSchemaToBytes(schema)
 	return scopeSchemaBucket.Put(scopeKey[:], schemaBytes)
 }
-
 func fetchReadScopeBucket(
 	ns walletdb.ReadBucket, scope *KeyScope) (walletdb.ReadBucket, error) {
 
@@ -486,7 +485,6 @@ func fetchReadScopeBucket(
 
 	return scopedBucket, nil
 }
-
 func fetchWriteScopeBucket(
 	ns walletdb.ReadWriteBucket,
 	scope *KeyScope) (walletdb.ReadWriteBucket, error) {

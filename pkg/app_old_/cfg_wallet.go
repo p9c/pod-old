@@ -127,7 +127,6 @@ func WriteWalletConfig(
 	}
 
 }
-
 func configWallet(
 	wc *walletmain.Config,
 	ctx *climax.Context,
@@ -335,7 +334,6 @@ func configWallet(
 	}
 
 }
-
 func init() {
 
 	// Loads after the var clauses run

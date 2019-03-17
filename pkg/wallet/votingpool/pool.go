@@ -646,7 +646,6 @@ func (p *Pool) DepositScriptAddress(seriesID uint32, branch Branch, index Index)
 	}
 	return p.addressFor(script)
 }
-
 func (p *Pool) addressFor(script []byte) (util.Address, error) {
 
 	scriptHash := util.Hash160(script)
@@ -788,7 +787,6 @@ func (p *Pool) WithdrawalAddress(ns, addrmgrNs walletdb.ReadBucket, seriesID uin
 	}
 	return &WithdrawalAddress{poolAddress: pAddr}, nil
 }
-
 func (p *Pool) poolAddress(seriesID uint32, branch Branch, index Index, script []byte) (
 	*poolAddress, error) {
 
@@ -1010,33 +1008,27 @@ func (a *poolAddress) String() string {
 
 	return a.addr.EncodeAddress()
 }
-
 func (a *poolAddress) addrIdentifier() string {
 
 	return fmt.Sprintf("PoolAddress seriesID:%d, branch:%d, index:%d", a.seriesID, a.branch,
 		a.index)
 }
-
 func (a *poolAddress) redeemScript() []byte {
 
 	return a.script
 }
-
 func (a *poolAddress) series() *SeriesData {
 
 	return a.pool.Series(a.seriesID)
 }
-
 func (a *poolAddress) SeriesID() uint32 {
 
 	return a.seriesID
 }
-
 func (a *poolAddress) Branch() Branch {
 
 	return a.branch
 }
-
 func (a *poolAddress) Index() Index {
 
 	return a.index
@@ -1055,7 +1047,6 @@ func (s *SeriesData) IsEmpowered() bool {
 	}
 	return false
 }
-
 func (s *SeriesData) getPrivKeyFor(pubKey *hdkeychain.ExtendedKey) (*hdkeychain.ExtendedKey, error) {
 
 	for i, key := range s.publicKeys {

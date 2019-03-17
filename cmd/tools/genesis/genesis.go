@@ -51,7 +51,6 @@ func byteswap(
 	}
 
 }
-
 func initTransaction() (t transaction) {
 
 	t.version = 1
@@ -64,7 +63,6 @@ func initTransaction() (t transaction) {
 	t.prevOutput = make([]byte, 32, 32)
 	return
 }
-
 func main() {
 
 	args := os.Args
@@ -238,7 +236,6 @@ func main() {
 
 	time.Sleep(time.Hour)
 }
-
 func findNonce(
 
 	b []byte, bytes, bits uint32, start time.Time) []byte {
@@ -286,7 +283,6 @@ func findNonce(
 	}
 
 }
-
 func joinBytes(
 
 	segment ...[]byte) (joined []byte) {
@@ -300,7 +296,6 @@ func joinBytes(
 
 	return
 }
-
 func undertarget(
 
 	hash []byte, bits uint32) bool {
@@ -332,7 +327,6 @@ func undertarget(
 
 	return true
 }
-
 func uint32tobytes(
 
 	u uint32) []byte {
@@ -347,7 +341,6 @@ func uint32tobytes(
 
 	return b
 }
-
 func bytestouint32(
 
 	b []byte) uint32 {
@@ -366,7 +359,6 @@ func bytestouint32(
 
 	return u
 }
-
 func uint64tobytes(
 
 	u uint64) []byte {

@@ -50,7 +50,6 @@ func nodeHandleSave() {
 	}
 
 }
-
 func nodeHandle(c *cli.Context) error {
 
 	Log.SetLevel("trace")
@@ -836,7 +835,6 @@ func nodeHandle(c *cli.Context) error {
 
 	return launchNode(c)
 }
-
 func NormalizeStringSliceAddresses(a *cli.StringSlice, port string) {
 
 	variable := []string(*a)

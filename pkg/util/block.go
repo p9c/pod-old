@@ -17,7 +17,6 @@ type OutOfRangeError string
 const BlockHeightUnknown = int32(-1)
 
 // Error satisfies the error interface and prints human-readable errors.
-
 func (e OutOfRangeError) Error() string {
 
 	return string(e)
@@ -36,7 +35,6 @@ type Block struct {
 }
 
 // MsgBlock returns the underlying wire.MsgBlock for the Block.
-
 func (b *Block) MsgBlock() *wire.MsgBlock {
 
 	// Return the cached block.
@@ -44,7 +42,6 @@ func (b *Block) MsgBlock() *wire.MsgBlock {
 }
 
 // Bytes returns the serialized bytes for the Block.  This is equivalent to calling Serialize on the underlying wire.MsgBlock, however it caches the result so subsequent calls are more efficient.
-
 func (b *Block) Bytes() ([]byte, error) {
 
 	// Return the cached serialized bytes if it has already been generated.
@@ -71,7 +68,6 @@ func (b *Block) Bytes() ([]byte, error) {
 }
 
 // BytesNoWitness returns the serialized bytes for the block with transactions encoded without any witness data.
-
 func (b *Block) BytesNoWitness() ([]byte, error) {
 
 	// Return the cached serialized bytes if it has already been generated.
@@ -98,7 +94,6 @@ func (b *Block) BytesNoWitness() ([]byte, error) {
 }
 
 // Hash returns the block identifier hash for the Block.  This is equivalent to calling BlockHash on the underlying wire.MsgBlock, however it caches the result so subsequent calls are more efficient.
-
 func (b *Block) Hash() *chainhash.Hash {
 
 	// Return the cached block hash if it has already been generated.
@@ -115,7 +110,6 @@ func (b *Block) Hash() *chainhash.Hash {
 }
 
 // Tx returns a wrapped transaction (util.Tx) for the transaction at the specified index in the Block.  The supplied index is 0 based.  That is to say, the first transaction in the block is txNum 0.  This is nearly equivalent to accessing the raw transaction (wire.MsgTx) from the underlying wire.MsgBlock, however the wrapped transaction has some helpful properties such as caching the hash so subsequent calls are more efficient.
-
 func (b *Block) Tx(txNum int) (*Tx, error) {
 
 	// Ensure the requested transaction is in range.
@@ -150,7 +144,6 @@ func (b *Block) Tx(txNum int) (*Tx, error) {
 }
 
 // Transactions returns a slice of wrapped transactions (util.Tx) for all transactions in the Block.  This is nearly equivalent to accessing the raw transactions (wire.MsgTx) in the underlying wire.MsgBlock, however it instead provides easy access to wrapped versions (util.Tx) of them.
-
 func (b *Block) Transactions() []*Tx {
 
 	// Return transactions if they have ALL already been generated.  This flag is necessary because the wrapped transactions are lazily generated in a sparse fashion.
@@ -185,7 +178,6 @@ func (b *Block) Transactions() []*Tx {
 }
 
 // TxHash returns the hash for the requested transaction number in the Block. The supplied index is 0 based.  That is to say, the first transaction in the block is txNum 0.  This is equivalent to calling TxHash on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
-
 func (b *Block) TxHash(txNum int) (*chainhash.Hash, error) {
 
 	// Attempt to get a wrapped transaction for the specified index.  It will be created lazily if needed or simply return the cached version if it has already been generated.
@@ -201,7 +193,6 @@ func (b *Block) TxHash(txNum int) (*chainhash.Hash, error) {
 }
 
 // TxLoc returns the offsets and lengths of each transaction in a raw block. It is used to allow fast indexing into transactions within the raw byte stream.
-
 func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 
 	rawMsg, err := b.Bytes()
@@ -224,14 +215,12 @@ func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 }
 
 // Height returns the saved height of the block in the block chain.  This value will be BlockHeightUnknown if it hasn't already explicitly been set.
-
 func (b *Block) Height() int32 {
 
 	return b.blockHeight
 }
 
 // SetHeight sets the height of the block in the block chain.
-
 func (b *Block) SetHeight(height int32) {
 
 	b.blockHeight = height

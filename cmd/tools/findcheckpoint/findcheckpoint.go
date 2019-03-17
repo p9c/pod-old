@@ -18,7 +18,6 @@ var (
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
-
 func loadBlockDB() (database.DB, error) {
 
 	// The database name is based on the database type.
@@ -151,7 +150,6 @@ func showCandidate(
 	fmt.Printf("Candidate %d -- Height: %d, Hash: %v\n", candidateNum,
 		checkpoint.Height, checkpoint.Hash)
 }
-
 func main() {
 
 	// Load configuration and parse command line.

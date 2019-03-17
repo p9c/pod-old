@@ -314,7 +314,6 @@ func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 }
 
 // GetScript is required by the txscript.ScriptDB interface
-
 func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 
 	script, ok := s.scripts[addr.String()]
@@ -328,12 +327,10 @@ func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 }
 
 // ChainParams is required by the SecretsSource interface
-
 func (s *secSource) ChainParams() *chaincfg.Params {
 
 	return s.params
 }
-
 func newSecSource(
 
 	params *chaincfg.Params) *secSource {
@@ -584,7 +581,6 @@ func testRescan(
 	}
 
 }
-
 func testStartRescan(
 
 	harness *neutrinoHarness, t *testing.T) {
@@ -935,7 +931,6 @@ func testStartRescan(
 	}
 
 }
-
 func fetchPrevInputScripts(
 
 	block *wire.MsgBlock, client *rpctest.Harness) ([][]byte, error) {
@@ -970,7 +965,6 @@ func fetchPrevInputScripts(
 
 	return inputScripts, nil
 }
-
 func testRescanResults(
 
 	harness *neutrinoHarness, t *testing.T) {
@@ -1434,7 +1428,6 @@ func testRandomBlocks(
 
 	return
 }
-
 func TestNeutrinoSync(
 
 	t *testing.T) {
@@ -2079,7 +2072,6 @@ func startRescan(
 // checkRescanStatus returns the number of relevant transactions we currently
 
 // know about and the currently known height.
-
 func checkRescanStatus() (int, int32, error) {
 
 	var txCount [2]int
@@ -2145,7 +2137,6 @@ func banPeer(
 // goroutineDump returns a string with the current goroutine dump in order to
 
 // show what's going on in case of timeout.
-
 func goroutineDump() string {
 
 	buf := make([]byte, 1<<18)

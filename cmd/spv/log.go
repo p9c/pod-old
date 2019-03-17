@@ -14,7 +14,6 @@ var Log = cl.NewSubSystem("cmd/spv", "info")
 var log = Log.Ch
 
 // String invokes the underlying function and returns the result.
-
 func (c logClosure) String() string {
 
 	return c()

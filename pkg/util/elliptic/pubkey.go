@@ -170,7 +170,6 @@ func ParsePubKey(
 type PublicKey ecdsa.PublicKey
 
 // ToECDSA returns the public key as a *ecdsa.PublicKey.
-
 func (p *PublicKey) ToECDSA() *ecdsa.PublicKey {
 
 	return (*ecdsa.PublicKey)(p)
@@ -178,7 +177,6 @@ func (p *PublicKey) ToECDSA() *ecdsa.PublicKey {
 
 // SerializeUncompressed serializes a public key in a 65-byte uncompressed
 // format.
-
 func (p *PublicKey) SerializeUncompressed() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenUncompressed)
@@ -188,7 +186,6 @@ func (p *PublicKey) SerializeUncompressed() []byte {
 }
 
 // SerializeCompressed serializes a public key in a 33-byte compressed format.
-
 func (p *PublicKey) SerializeCompressed() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenCompressed)
@@ -205,7 +202,6 @@ func (p *PublicKey) SerializeCompressed() []byte {
 }
 
 // SerializeHybrid serializes a public key in a 65-byte hybrid format.
-
 func (p *PublicKey) SerializeHybrid() []byte {
 
 	b := make([]byte, 0, PubKeyBytesLenHybrid)
@@ -225,7 +221,6 @@ func (p *PublicKey) SerializeHybrid() []byte {
 // IsEqual compares this PublicKey instance to the one passed, returning true if
 // both PublicKeys are equivalent. A PublicKey is equivalent to another, if they
 // both have the same X and Y coordinate.
-
 func (p *PublicKey) IsEqual(otherPubKey *PublicKey) bool {
 
 	return p.X.Cmp(otherPubKey.X) == 0 &&

@@ -80,7 +80,6 @@ func (b *Base) Stop() {
 	b.quit <- true
 	b.listener.Close()
 }
-
 func (b *Base) readFromSocket() {
 
 	for {
@@ -119,7 +118,6 @@ func (b *Base) readFromSocket() {
 		}
 	}
 }
-
 func (b *Base) processPackets() {
 
 	for {
@@ -184,7 +182,6 @@ func (b *Base) processPackets() {
 		}
 	}
 }
-
 func (b *Base) processBundles() {
 
 	for {

@@ -139,7 +139,6 @@ func TestAmountCreation(
 	}
 
 }
-
 func TestAmountUnitConversions(
 
 	t *testing.T) {
@@ -255,7 +254,6 @@ func TestAmountUnitConversions(
 	}
 
 }
-
 func TestAmountMulF64(
 
 	t *testing.T) {

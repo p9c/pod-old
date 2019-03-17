@@ -18,14 +18,12 @@ type merkleBlock struct {
 }
 
 // calcTreeWidth calculates and returns the the number of nodes (width) or a merkle tree at the given depth-first height.
-
 func (m *merkleBlock) calcTreeWidth(height uint32) uint32 {
 
 	return (m.numTx + (1 << height) - 1) >> height
 }
 
 // calcHash returns the hash for a sub-tree given a depth-first height and node position.
-
 func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
 
 	if height == 0 {
@@ -47,7 +45,6 @@ func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
 }
 
 // traverseAndBuild builds a partial merkle tree using a recursive depth-first approach.  As it calculates the hashes, it also saves whether or not each node is a parent node and a list of final hashes to be included in the merkle block.
-
 func (m *merkleBlock) traverseAndBuild(height, pos uint32) {
 
 	// Determine whether this node is a parent of a matched node.

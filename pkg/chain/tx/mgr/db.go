@@ -100,7 +100,6 @@ func fetchMinedBalance(
 	}
 	return util.Amount(byteOrder.Uint64(v)), nil
 }
-
 func putMinedBalance(
 	ns walletdb.ReadWriteBucket, amt util.Amount) error {
 
@@ -125,7 +124,6 @@ func putMinedBalance(
 //   [32:36] Output index (4 bytes)
 //
 // The canonical transaction hash serialization is simply the hash.
-
 func canonicalOutPoint(
 	txHash *chainhash.Hash, index uint32) []byte {
 
@@ -134,7 +132,6 @@ func canonicalOutPoint(
 	byteOrder.PutUint32(k[32:36], index)
 	return k
 }
-
 func readCanonicalOutPoint(
 	k []byte, op *wire.OutPoint) error {
 
@@ -156,7 +153,6 @@ func readCanonicalOutPoint(
 //   [40:44] Number of transaction hashes (4 bytes)
 //   [44:]   For each transaction hash:
 //             Hash (32 bytes)
-
 func keyBlockRecord(
 	height int32) []byte {
 
@@ -164,7 +160,6 @@ func keyBlockRecord(
 	byteOrder.PutUint32(k, uint32(height))
 	return k
 }
-
 func valueBlockRecord(
 	block *BlockMeta, txHash *chainhash.Hash) []byte {
 
@@ -192,7 +187,6 @@ func appendRawBlockRecord(
 	byteOrder.PutUint32(newv[40:44], n+1)
 	return newv, nil
 }
-
 func putRawBlockRecord(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -204,7 +198,6 @@ func putRawBlockRecord(
 	}
 	return nil
 }
-
 func putBlockRecord(
 	ns walletdb.ReadWriteBucket, block *BlockMeta, txHash *chainhash.Hash) error {
 
@@ -212,7 +205,6 @@ func putBlockRecord(
 	v := valueBlockRecord(block, txHash)
 	return putRawBlockRecord(ns, k, v)
 }
-
 func fetchBlockTime(
 	ns walletdb.ReadBucket, height int32) (time.Time, error) {
 
@@ -226,7 +218,6 @@ func fetchBlockTime(
 	}
 	return time.Unix(int64(byteOrder.Uint64(v[32:40])), 0), nil
 }
-
 func existsBlockRecord(
 	ns walletdb.ReadBucket, height int32) (k, v []byte) {
 
@@ -234,7 +225,6 @@ func existsBlockRecord(
 	v = ns.NestedReadBucket(bucketBlocks).Get(k)
 	return
 }
-
 func readRawBlockRecord(
 	k, v []byte, block *blockRecord) error {
 
@@ -291,7 +281,6 @@ func makeBlockIterator(
 	c := ns.NestedReadWriteBucket(bucketBlocks).ReadWriteCursor()
 	return blockIterator{c: c, seek: seek}
 }
-
 func makeReadBlockIterator(
 	ns walletdb.ReadBucket, height int32) blockIterator {
 
@@ -311,7 +300,6 @@ func makeReverseBlockIterator(
 	c := ns.NestedReadWriteBucket(bucketBlocks).ReadWriteCursor()
 	return blockIterator{c: c, seek: seek}
 }
-
 func makeReadReverseBlockIterator(
 	ns walletdb.ReadBucket) blockIterator {
 
@@ -320,7 +308,6 @@ func makeReadReverseBlockIterator(
 	c := ns.NestedReadBucket(bucketBlocks).ReadCursor()
 	return blockIterator{c: readCursor{c}, seek: seek}
 }
-
 func (it *blockIterator) next() bool {
 
 	if it.c == nil {
@@ -351,7 +338,6 @@ func (it *blockIterator) next() bool {
 
 	return true
 }
-
 func (it *blockIterator) prev() bool {
 
 	if it.c == nil {
@@ -408,12 +394,10 @@ func (it *blockIterator) prev() bool {
 // 	}
 // 	return nil
 // }
-
 func (it *blockIterator) reposition(height int32) {
 
 	it.c.Seek(keyBlockRecord(height))
 }
-
 func deleteBlockRecord(
 	ns walletdb.ReadWriteBucket, height int32) error {
 
@@ -435,7 +419,6 @@ func deleteBlockRecord(
 //
 //   [0:8]   Received time (8 bytes)
 //   [8:]    Serialized transaction (varies)
-
 func keyTxRecord(
 	txHash *chainhash.Hash, block *Block) []byte {
 
@@ -445,7 +428,6 @@ func keyTxRecord(
 	copy(k[36:68], block.Hash[:])
 	return k
 }
-
 func valueTxRecord(
 	rec *TxRecord) ([]byte, error) {
 
@@ -470,7 +452,6 @@ func valueTxRecord(
 	byteOrder.PutUint64(v, uint64(rec.Received.Unix()))
 	return v, nil
 }
-
 func putTxRecord(
 	ns walletdb.ReadWriteBucket, rec *TxRecord, block *Block) error {
 
@@ -488,7 +469,6 @@ func putTxRecord(
 	}
 	return nil
 }
-
 func putRawTxRecord(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -500,7 +480,6 @@ func putRawTxRecord(
 	}
 	return nil
 }
-
 func readRawTxRecord(
 	txHash *chainhash.Hash, v []byte, rec *TxRecord) error {
 
@@ -521,7 +500,6 @@ func readRawTxRecord(
 	}
 	return nil
 }
-
 func readRawTxRecordBlock(
 	k []byte, block *Block) error {
 
@@ -535,7 +513,6 @@ func readRawTxRecordBlock(
 	copy(block.Hash[:], k[36:68])
 	return nil
 }
-
 func fetchTxRecord(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, block *Block) (*TxRecord, error) {
 
@@ -566,7 +543,6 @@ func fetchRawTxRecordPkScript(
 	}
 	return rec.MsgTx.TxOut[index].PkScript, nil
 }
-
 func existsTxRecord(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, block *Block) (k, v []byte) {
 
@@ -574,13 +550,11 @@ func existsTxRecord(
 	v = ns.NestedReadBucket(bucketTxRecords).Get(k)
 	return
 }
-
 func existsRawTxRecord(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
 
 	return ns.NestedReadBucket(bucketTxRecords).Get(k)
 }
-
 func deleteTxRecord(
 	ns walletdb.ReadWriteBucket, txHash *chainhash.Hash, block *Block) error {
 
@@ -631,7 +605,6 @@ func latestTxRecord(
 //
 // The optional debits key is only included if the credit is spent by another
 // mined debit.
-
 func keyCredit(
 	txHash *chainhash.Hash, index uint32, block *Block) []byte {
 
@@ -657,7 +630,6 @@ func valueUnspentCredit(
 	}
 	return v
 }
-
 func putRawCredit(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -680,13 +652,11 @@ func putUnspentCredit(
 	v := valueUnspentCredit(cred)
 	return putRawCredit(ns, k, v)
 }
-
 func extractRawCreditTxRecordKey(
 	k []byte) []byte {
 
 	return k[0:68]
 }
-
 func extractRawCreditIndex(
 	k []byte) uint32 {
 
@@ -791,7 +761,6 @@ func unspendRawCredit(
 	}
 	return util.Amount(byteOrder.Uint64(v[0:8])), nil
 }
-
 func existsCredit(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash, index uint32, block *Block) (k, v []byte) {
 
@@ -799,13 +768,11 @@ func existsCredit(
 	v = ns.NestedReadBucket(bucketCredits).Get(k)
 	return
 }
-
 func existsRawCredit(
 	ns walletdb.ReadBucket, k []byte) []byte {
 
 	return ns.NestedReadBucket(bucketCredits).Get(k)
 }
-
 func deleteRawCredit(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -856,14 +823,12 @@ func makeCreditIterator(
 	c := ns.NestedReadWriteBucket(bucketCredits).ReadWriteCursor()
 	return creditIterator{c: c, prefix: prefix}
 }
-
 func makeReadCreditIterator(
 	ns walletdb.ReadBucket, prefix []byte) creditIterator {
 
 	c := ns.NestedReadBucket(bucketCredits).ReadCursor()
 	return creditIterator{c: readCursor{c}, prefix: prefix}
 }
-
 func (it *creditIterator) readElem() error {
 
 	if len(it.ck) < 72 {
@@ -884,7 +849,6 @@ func (it *creditIterator) readElem() error {
 	it.elem.Change = it.cv[8]&(1<<1) != 0
 	return nil
 }
-
 func (it *creditIterator) next() bool {
 
 	if it.c == nil {
@@ -927,7 +891,6 @@ func (it *creditIterator) next() bool {
 //
 //   [0:4]   Block height (4 bytes)
 //   [4:36]  Block hash (32 bytes)
-
 func valueUnspent(
 	block *Block) []byte {
 
@@ -936,7 +899,6 @@ func valueUnspent(
 	copy(v[4:36], block.Hash[:])
 	return v
 }
-
 func putUnspent(
 	ns walletdb.ReadWriteBucket, outPoint *wire.OutPoint, block *Block) error {
 
@@ -950,7 +912,6 @@ func putUnspent(
 	}
 	return nil
 }
-
 func putRawUnspent(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -962,7 +923,6 @@ func putRawUnspent(
 	}
 	return nil
 }
-
 func readUnspentBlock(
 	v []byte, block *Block) error {
 
@@ -1007,7 +967,6 @@ func existsRawUnspent(
 	copy(credKey[68:72], k[32:36])
 	return credKey
 }
-
 func deleteRawUnspent(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -1038,7 +997,6 @@ func deleteRawUnspent(
 //             [40:44] Block height (4 bytes)
 //             [44:76] Block hash (32 bytes)
 //             [76:80] Output index (4 bytes)
-
 func keyDebit(
 	txHash *chainhash.Hash, index uint32, block *Block) []byte {
 
@@ -1049,7 +1007,6 @@ func keyDebit(
 	byteOrder.PutUint32(k[68:72], index)
 	return k
 }
-
 func putDebit(
 	ns walletdb.ReadWriteBucket, txHash *chainhash.Hash, index uint32, amount util.Amount, block *Block, credKey []byte) error {
 
@@ -1068,7 +1025,6 @@ func putDebit(
 	}
 	return nil
 }
-
 func extractRawDebitCreditKey(
 	v []byte) []byte {
 
@@ -1095,7 +1051,6 @@ func existsDebit(
 	}
 	return k, v[8:80], nil
 }
-
 func deleteRawDebit(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -1140,14 +1095,12 @@ func makeDebitIterator(
 	c := ns.NestedReadWriteBucket(bucketDebits).ReadWriteCursor()
 	return debitIterator{c: c, prefix: prefix}
 }
-
 func makeReadDebitIterator(
 	ns walletdb.ReadBucket, prefix []byte) debitIterator {
 
 	c := ns.NestedReadBucket(bucketDebits).ReadCursor()
 	return debitIterator{c: readCursor{c}, prefix: prefix}
 }
-
 func (it *debitIterator) readElem() error {
 
 	if len(it.ck) < 72 {
@@ -1166,7 +1119,6 @@ func (it *debitIterator) readElem() error {
 	it.elem.Amount = util.Amount(byteOrder.Uint64(it.cv))
 	return nil
 }
-
 func (it *debitIterator) next() bool {
 
 	if it.c == nil {
@@ -1201,7 +1153,6 @@ func (it *debitIterator) next() bool {
 //
 //   [0:8]   Received time (8 bytes)
 //   [8:]    Serialized transaction (varies)
-
 func putRawUnmined(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -1213,7 +1164,6 @@ func putRawUnmined(
 	}
 	return nil
 }
-
 func readRawUnminedHash(
 	k []byte, txHash *chainhash.Hash) error {
 
@@ -1225,13 +1175,11 @@ func readRawUnminedHash(
 	copy(txHash[:], k)
 	return nil
 }
-
 func existsRawUnmined(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
 
 	return ns.NestedReadBucket(bucketUnmined).Get(k)
 }
-
 func deleteRawUnmined(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -1256,7 +1204,6 @@ func deleteRawUnmined(
 //   [0:8]   Amount (8 bytes)
 //   [8]     Flags (1 byte)
 //             0x02: Change
-
 func valueUnminedCredit(
 	amount util.Amount, change bool) []byte {
 
@@ -1268,7 +1215,6 @@ func valueUnminedCredit(
 	}
 	return v
 }
-
 func putRawUnminedCredit(
 	ns walletdb.ReadWriteBucket, k, v []byte) error {
 
@@ -1280,7 +1226,6 @@ func putRawUnminedCredit(
 	}
 	return nil
 }
-
 func fetchRawUnminedCreditIndex(
 	k []byte) (uint32, error) {
 
@@ -1291,7 +1236,6 @@ func fetchRawUnminedCreditIndex(
 	}
 	return byteOrder.Uint32(k[32:36]), nil
 }
-
 func fetchRawUnminedCreditAmount(
 	v []byte) (util.Amount, error) {
 
@@ -1302,7 +1246,6 @@ func fetchRawUnminedCreditAmount(
 	}
 	return util.Amount(byteOrder.Uint64(v)), nil
 }
-
 func fetchRawUnminedCreditAmountChange(
 	v []byte) (util.Amount, bool, error) {
 
@@ -1315,13 +1258,11 @@ func fetchRawUnminedCreditAmountChange(
 	change := v[8]&(1<<1) != 0
 	return amt, change, nil
 }
-
 func existsRawUnminedCredit(
 	ns walletdb.ReadBucket, k []byte) []byte {
 
 	return ns.NestedReadBucket(bucketUnminedCredits).Get(k)
 }
-
 func deleteRawUnminedCredit(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -1374,21 +1315,18 @@ func (r readCursor) Delete() error {
 	str := "failed to delete current cursor item from read-only cursor"
 	return storeError(ErrDatabase, str, walletdb.ErrTxNotWritable)
 }
-
 func makeUnminedCreditIterator(
 	ns walletdb.ReadWriteBucket, txHash *chainhash.Hash) unminedCreditIterator {
 
 	c := ns.NestedReadWriteBucket(bucketUnminedCredits).ReadWriteCursor()
 	return unminedCreditIterator{c: c, prefix: txHash[:]}
 }
-
 func makeReadUnminedCreditIterator(
 	ns walletdb.ReadBucket, txHash *chainhash.Hash) unminedCreditIterator {
 
 	c := ns.NestedReadBucket(bucketUnminedCredits).ReadCursor()
 	return unminedCreditIterator{c: readCursor{c}, prefix: txHash[:]}
 }
-
 func (it *unminedCreditIterator) readElem() error {
 
 	index, err := fetchRawUnminedCreditIndex(it.ck)
@@ -1410,7 +1348,6 @@ func (it *unminedCreditIterator) readElem() error {
 
 	return nil
 }
-
 func (it *unminedCreditIterator) next() bool {
 
 	if it.c == nil {
@@ -1451,7 +1388,6 @@ func (it *unminedCreditIterator) next() bool {
 // 	}
 // 	return nil
 // }
-
 func (it *unminedCreditIterator) reposition(txHash *chainhash.Hash, index uint32) {
 
 	it.c.Seek(canonicalOutPoint(txHash, index))
@@ -1487,7 +1423,6 @@ func putRawUnminedInput(
 
 	return nil
 }
-
 func existsRawUnminedInput(
 	ns walletdb.ReadBucket, k []byte) (v []byte) {
 
@@ -1518,7 +1453,6 @@ func fetchUnminedInputSpendTxHashes(
 
 	return spendTxHashes
 }
-
 func deleteRawUnminedInput(
 	ns walletdb.ReadWriteBucket, k []byte) error {
 
@@ -1685,7 +1619,6 @@ func createStore(
 
 	return nil
 }
-
 func scopedUpdate(
 	db walletdb.DB, namespaceKey []byte, f func(walletdb.ReadWriteBucket) error) error {
 
@@ -1723,7 +1656,6 @@ func scopedUpdate(
 	}
 	return nil
 }
-
 func scopedView(
 	db walletdb.DB, namespaceKey []byte, f func(walletdb.ReadBucket) error) error {
 

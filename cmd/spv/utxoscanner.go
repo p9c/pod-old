@@ -99,7 +99,6 @@ type getUtxoResult struct {
 }
 
 // Result is callback returning either a spend report or an error.
-
 func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
 
 	r.mu.Lock()
@@ -132,7 +131,6 @@ func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
 // deliver tries to deliver the report or error to any subscribers. If
 
 // resultChan cannot accept a new update, this method will not block.
-
 func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 
 	select {
@@ -151,14 +149,12 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 }
 
 // IsEmpty returns true if the queue has no elements.
-
 func (pq *GetUtxoRequestPQ) IsEmpty() bool {
 
 	return pq.Len() == 0
 }
 
 // Peek returns the least height element in the queue without removing it.
-
 func (pq *GetUtxoRequestPQ) Peek() *GetUtxoRequest {
 
 	return (*pq)[0]
@@ -169,7 +165,6 @@ func (pq *GetUtxoRequestPQ) Peek() *GetUtxoRequest {
 // the end of the backing store. The heap library will then maintain the heap
 
 // invariant.
-
 func (pq *GetUtxoRequestPQ) Pop() interface{} {
 
 	old := *pq
@@ -184,7 +179,6 @@ func (pq *GetUtxoRequestPQ) Pop() interface{} {
 // end of the backing store. The heap library will then maintain the heap
 
 // invariant.
-
 func (pq *GetUtxoRequestPQ) Push(x interface{}) {
 
 	item := x.(*GetUtxoRequest)
@@ -231,7 +225,6 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 }
 
 // Start begins running scan batches.
-
 func (s *UtxoScanner) Start() error {
 
 	if !atomic.CompareAndSwapUint32(&s.started, 0, 1) {
@@ -246,7 +239,6 @@ func (s *UtxoScanner) Start() error {
 }
 
 // Stop any in-progress scan.
-
 func (s *UtxoScanner) Stop() error {
 
 	if !atomic.CompareAndSwapUint32(&s.stopped, 0, 1) {
@@ -292,7 +284,6 @@ batchShutdown:
 //
 
 // NOTE: This method MUST be spawned as a goroutine.
-
 func (s *UtxoScanner) batchManager() {
 
 	defer close(s.shutdown)
@@ -359,7 +350,6 @@ func (s *UtxoScanner) batchManager() {
 // dequeueAtHeight returns all GetUtxoRequests that have starting height of the
 
 // given height.
-
 func (s *UtxoScanner) dequeueAtHeight(height uint32) []*GetUtxoRequest {
 
 	s.cv.L.Lock()
@@ -390,7 +380,6 @@ func (s *UtxoScanner) dequeueAtHeight(height uint32) []*GetUtxoRequest {
 // above the batch's last processed height. If there was an error, then return
 
 // the outstanding requests.
-
 func (s *UtxoScanner) scanFromHeight(initHeight uint32) error {
 
 	// Before beginning the scan, grab the best block stamp we know of,
@@ -555,15 +544,12 @@ scanToEnd:
 
 	return nil
 }
-
 func (pq GetUtxoRequestPQ) Len() int { return len(pq) }
-
 func (pq GetUtxoRequestPQ) Less(i, j int) bool {
 
 	// We want Pop to give us the least BirthHeight.
 	return pq[i].BirthHeight < pq[j].BirthHeight
 }
-
 func (pq GetUtxoRequestPQ) Swap(i, j int) {
 
 	pq[i], pq[j] = pq[j], pq[i]

@@ -39,7 +39,6 @@ func write(
 		log.Fatal(err)
 	}
 }
-
 func main() {
 
 	fi, err := os.Create("alphabet.go")

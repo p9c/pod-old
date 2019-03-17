@@ -97,7 +97,6 @@ func testSendOutputs(
 
 	assertTxMined(txid, blockHashes[0])
 }
-
 func assertConnectedTo(t *testing.T, nodeA *Harness, nodeB *Harness) {
 
 	nodeAPeers, err := nodeA.Node.GetPeerInfo()
@@ -126,7 +125,6 @@ func assertConnectedTo(t *testing.T, nodeA *Harness, nodeB *Harness) {
 	}
 
 }
-
 func testConnectNode(r *Harness, t *testing.T) {
 
 	// Create a fresh test harness.
@@ -153,7 +151,6 @@ func testConnectNode(r *Harness, t *testing.T) {
 	// The main harness should show up in our local harness' peer's list, and vice verse.
 	assertConnectedTo(t, harness, r)
 }
-
 func testTearDownAll(t *testing.T) {
 
 	// Grab a local copy of the currently active harnesses before attempting to tear them all down.
@@ -183,7 +180,6 @@ func testTearDownAll(t *testing.T) {
 	}
 
 }
-
 func testActiveHarnesses(r *Harness, t *testing.T) {
 
 	numInitialHarnesses := len(ActiveHarnesses())
@@ -208,7 +204,6 @@ func testActiveHarnesses(r *Harness, t *testing.T) {
 	}
 
 }
-
 func testJoinMempools(r *Harness, t *testing.T) {
 
 	// Assert main test harness has no transactions in its mempool.
@@ -400,7 +395,6 @@ func testJoinBlocks(
 	}
 
 }
-
 func testGenerateAndSubmitBlock(r *Harness, t *testing.T) {
 
 	// Generate a few test spend transactions.

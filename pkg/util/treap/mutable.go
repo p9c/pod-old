@@ -15,21 +15,18 @@ type Mutable struct {
 }
 
 // Len returns the number of items stored in the treap.
-
 func (t *Mutable) Len() int {
 
 	return t.count
 }
 
 // Size returns a best estimate of the total number of bytes the treap is consuming including all of the fields used to represent the nodes as well as the size of the keys and values.  Shared values are not detected, so the  returned size assumes each value is pointing to different memory.
-
 func (t *Mutable) Size() uint64 {
 
 	return t.totalSize
 }
 
 // get returns the treap node that contains the passed key and its parent.  When the found node is the root of the tree, the parent will be nil.  When the key does not exist, both the node and the parent will be nil.
-
 func (t *Mutable) get(key []byte) (*treapNode, *treapNode) {
 
 	var parent *treapNode
@@ -60,7 +57,6 @@ func (t *Mutable) get(key []byte) (*treapNode, *treapNode) {
 }
 
 // Has returns whether or not the passed key exists.
-
 func (t *Mutable) Has(key []byte) bool {
 
 	if node, _ := t.get(key); node != nil {
@@ -71,7 +67,6 @@ func (t *Mutable) Has(key []byte) bool {
 }
 
 // Get returns the value for the passed key.  The function will return nil when the key does not exist.
-
 func (t *Mutable) Get(key []byte) []byte {
 
 	if node, _ := t.get(key); node != nil {
@@ -82,7 +77,6 @@ func (t *Mutable) Get(key []byte) []byte {
 }
 
 // relinkGrandparent relinks the node into the treap after it has been rotated by changing the passed grandparent's left or right pointer, depending on where the old parent was, to point at the passed node.  Otherwise, when there is no grandparent, it means the node is now the root of the tree, so update it accordingly.
-
 func (t *Mutable) relinkGrandparent(node, parent, grandparent *treapNode) {
 
 	// The node is now the root of the tree when there is no grandparent.
@@ -105,7 +99,6 @@ func (t *Mutable) relinkGrandparent(node, parent, grandparent *treapNode) {
 }
 
 // Put inserts the passed key/value pair.
-
 func (t *Mutable) Put(key, value []byte) {
 
 	// Use an empty byte slice for the value when none was provided.  This ultimately allows key existence to be determined from the value since an empty byte slice is distinguishable from nil.
@@ -190,7 +183,6 @@ func (t *Mutable) Put(key, value []byte) {
 }
 
 // Delete removes the passed key if it exists.
-
 func (t *Mutable) Delete(key []byte) {
 
 	// Find the node for the key along with its parent.  There is nothing to do if the key does not exist.
@@ -266,7 +258,6 @@ func (t *Mutable) Delete(key []byte) {
 }
 
 // ForEach invokes the passed function with every key/value pair in the treap in ascending order.
-
 func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, been traversed.
@@ -295,7 +286,6 @@ func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 }
 
 // Reset efficiently removes all items in the treap.
-
 func (t *Mutable) Reset() {
 
 	t.count = 0
@@ -304,7 +294,6 @@ func (t *Mutable) Reset() {
 }
 
 // NewMutable returns a new empty mutable treap ready for use.  See the documentation for the Mutable structure for more details.
-
 func NewMutable() *Mutable {
 
 	return &Mutable{}

@@ -157,7 +157,6 @@ func (*VersionResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{1}
 }
-
 func (m *VersionResponse) GetVersionString() string {
 
 	if m != nil {
@@ -166,7 +165,6 @@ func (m *VersionResponse) GetVersionString() string {
 	}
 	return ""
 }
-
 func (m *VersionResponse) GetMajor() uint32 {
 
 	if m != nil {
@@ -175,7 +173,6 @@ func (m *VersionResponse) GetMajor() uint32 {
 	}
 	return 0
 }
-
 func (m *VersionResponse) GetMinor() uint32 {
 
 	if m != nil {
@@ -184,7 +181,6 @@ func (m *VersionResponse) GetMinor() uint32 {
 	}
 	return 0
 }
-
 func (m *VersionResponse) GetPatch() uint32 {
 
 	if m != nil {
@@ -193,7 +189,6 @@ func (m *VersionResponse) GetPatch() uint32 {
 	}
 	return 0
 }
-
 func (m *VersionResponse) GetPrerelease() string {
 
 	if m != nil {
@@ -202,7 +197,6 @@ func (m *VersionResponse) GetPrerelease() string {
 	}
 	return ""
 }
-
 func (m *VersionResponse) GetBuildMetadata() string {
 
 	if m != nil {
@@ -228,7 +222,6 @@ func (*TransactionDetails) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{2}
 }
-
 func (m *TransactionDetails) GetHash() []byte {
 
 	if m != nil {
@@ -237,7 +230,6 @@ func (m *TransactionDetails) GetHash() []byte {
 	}
 	return nil
 }
-
 func (m *TransactionDetails) GetTransaction() []byte {
 
 	if m != nil {
@@ -246,7 +238,6 @@ func (m *TransactionDetails) GetTransaction() []byte {
 	}
 	return nil
 }
-
 func (m *TransactionDetails) GetDebits() []*TransactionDetails_Input {
 
 	if m != nil {
@@ -255,7 +246,6 @@ func (m *TransactionDetails) GetDebits() []*TransactionDetails_Input {
 	}
 	return nil
 }
-
 func (m *TransactionDetails) GetCredits() []*TransactionDetails_Output {
 
 	if m != nil {
@@ -264,7 +254,6 @@ func (m *TransactionDetails) GetCredits() []*TransactionDetails_Output {
 	}
 	return nil
 }
-
 func (m *TransactionDetails) GetFee() int64 {
 
 	if m != nil {
@@ -273,7 +262,6 @@ func (m *TransactionDetails) GetFee() int64 {
 	}
 	return 0
 }
-
 func (m *TransactionDetails) GetTimestamp() int64 {
 
 	if m != nil {
@@ -296,7 +284,6 @@ func (*TransactionDetails_Input) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{2, 0}
 }
-
 func (m *TransactionDetails_Input) GetIndex() uint32 {
 
 	if m != nil {
@@ -305,7 +292,6 @@ func (m *TransactionDetails_Input) GetIndex() uint32 {
 	}
 	return 0
 }
-
 func (m *TransactionDetails_Input) GetPreviousAccount() uint32 {
 
 	if m != nil {
@@ -314,7 +300,6 @@ func (m *TransactionDetails_Input) GetPreviousAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *TransactionDetails_Input) GetPreviousAmount() int64 {
 
 	if m != nil {
@@ -337,7 +322,6 @@ func (*TransactionDetails_Output) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{2, 1}
 }
-
 func (m *TransactionDetails_Output) GetIndex() uint32 {
 
 	if m != nil {
@@ -346,7 +330,6 @@ func (m *TransactionDetails_Output) GetIndex() uint32 {
 	}
 	return 0
 }
-
 func (m *TransactionDetails_Output) GetAccount() uint32 {
 
 	if m != nil {
@@ -355,7 +338,6 @@ func (m *TransactionDetails_Output) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *TransactionDetails_Output) GetInternal() bool {
 
 	if m != nil {
@@ -379,7 +361,6 @@ func (*BlockDetails) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{3}
 }
-
 func (m *BlockDetails) GetHash() []byte {
 
 	if m != nil {
@@ -388,7 +369,6 @@ func (m *BlockDetails) GetHash() []byte {
 	}
 	return nil
 }
-
 func (m *BlockDetails) GetHeight() int32 {
 
 	if m != nil {
@@ -397,7 +377,6 @@ func (m *BlockDetails) GetHeight() int32 {
 	}
 	return 0
 }
-
 func (m *BlockDetails) GetTimestamp() int64 {
 
 	if m != nil {
@@ -406,7 +385,6 @@ func (m *BlockDetails) GetTimestamp() int64 {
 	}
 	return 0
 }
-
 func (m *BlockDetails) GetTransactions() []*TransactionDetails {
 
 	if m != nil {
@@ -428,7 +406,6 @@ func (*AccountBalance) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{4}
 }
-
 func (m *AccountBalance) GetAccount() uint32 {
 
 	if m != nil {
@@ -437,7 +414,6 @@ func (m *AccountBalance) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountBalance) GetTotalBalance() int64 {
 
 	if m != nil {
@@ -491,7 +467,6 @@ func (*NetworkResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{8}
 }
-
 func (m *NetworkResponse) GetActiveNetwork() uint32 {
 
 	if m != nil {
@@ -512,7 +487,6 @@ func (*AccountNumberRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{9}
 }
-
 func (m *AccountNumberRequest) GetAccountName() string {
 
 	if m != nil {
@@ -533,7 +507,6 @@ func (*AccountNumberResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{10}
 }
-
 func (m *AccountNumberResponse) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -567,7 +540,6 @@ func (*AccountsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{12}
 }
-
 func (m *AccountsResponse) GetAccounts() []*AccountsResponse_Account {
 
 	if m != nil {
@@ -576,7 +548,6 @@ func (m *AccountsResponse) GetAccounts() []*AccountsResponse_Account {
 	}
 	return nil
 }
-
 func (m *AccountsResponse) GetCurrentBlockHash() []byte {
 
 	if m != nil {
@@ -585,7 +556,6 @@ func (m *AccountsResponse) GetCurrentBlockHash() []byte {
 	}
 	return nil
 }
-
 func (m *AccountsResponse) GetCurrentBlockHeight() int32 {
 
 	if m != nil {
@@ -611,7 +581,6 @@ func (*AccountsResponse_Account) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{12, 0}
 }
-
 func (m *AccountsResponse_Account) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -620,7 +589,6 @@ func (m *AccountsResponse_Account) GetAccountNumber() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountsResponse_Account) GetAccountName() string {
 
 	if m != nil {
@@ -629,7 +597,6 @@ func (m *AccountsResponse_Account) GetAccountName() string {
 	}
 	return ""
 }
-
 func (m *AccountsResponse_Account) GetTotalBalance() int64 {
 
 	if m != nil {
@@ -638,7 +605,6 @@ func (m *AccountsResponse_Account) GetTotalBalance() int64 {
 	}
 	return 0
 }
-
 func (m *AccountsResponse_Account) GetExternalKeyCount() uint32 {
 
 	if m != nil {
@@ -647,7 +613,6 @@ func (m *AccountsResponse_Account) GetExternalKeyCount() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountsResponse_Account) GetInternalKeyCount() uint32 {
 
 	if m != nil {
@@ -656,7 +621,6 @@ func (m *AccountsResponse_Account) GetInternalKeyCount() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountsResponse_Account) GetImportedKeyCount() uint32 {
 
 	if m != nil {
@@ -678,7 +642,6 @@ func (*RenameAccountRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{13}
 }
-
 func (m *RenameAccountRequest) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -687,7 +650,6 @@ func (m *RenameAccountRequest) GetAccountNumber() uint32 {
 	}
 	return 0
 }
-
 func (m *RenameAccountRequest) GetNewName() string {
 
 	if m != nil {
@@ -720,7 +682,6 @@ func (*NextAccountRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{15}
 }
-
 func (m *NextAccountRequest) GetPassphrase() []byte {
 
 	if m != nil {
@@ -729,7 +690,6 @@ func (m *NextAccountRequest) GetPassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *NextAccountRequest) GetAccountName() string {
 
 	if m != nil {
@@ -750,7 +710,6 @@ func (*NextAccountResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{16}
 }
-
 func (m *NextAccountResponse) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -772,7 +731,6 @@ func (*NextAddressRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{17}
 }
-
 func (m *NextAddressRequest) GetAccount() uint32 {
 
 	if m != nil {
@@ -781,7 +739,6 @@ func (m *NextAddressRequest) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *NextAddressRequest) GetKind() NextAddressRequest_Kind {
 
 	if m != nil {
@@ -802,7 +759,6 @@ func (*NextAddressResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{18}
 }
-
 func (m *NextAddressResponse) GetAddress() string {
 
 	if m != nil {
@@ -826,7 +782,6 @@ func (*ImportPrivateKeyRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{19}
 }
-
 func (m *ImportPrivateKeyRequest) GetPassphrase() []byte {
 
 	if m != nil {
@@ -835,7 +790,6 @@ func (m *ImportPrivateKeyRequest) GetPassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *ImportPrivateKeyRequest) GetAccount() uint32 {
 
 	if m != nil {
@@ -844,7 +798,6 @@ func (m *ImportPrivateKeyRequest) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *ImportPrivateKeyRequest) GetPrivateKeyWif() string {
 
 	if m != nil {
@@ -853,7 +806,6 @@ func (m *ImportPrivateKeyRequest) GetPrivateKeyWif() string {
 	}
 	return ""
 }
-
 func (m *ImportPrivateKeyRequest) GetRescan() bool {
 
 	if m != nil {
@@ -886,7 +838,6 @@ func (*BalanceRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{21}
 }
-
 func (m *BalanceRequest) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -895,7 +846,6 @@ func (m *BalanceRequest) GetAccountNumber() uint32 {
 	}
 	return 0
 }
-
 func (m *BalanceRequest) GetRequiredConfirmations() int32 {
 
 	if m != nil {
@@ -918,7 +868,6 @@ func (*BalanceResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{22}
 }
-
 func (m *BalanceResponse) GetTotal() int64 {
 
 	if m != nil {
@@ -927,7 +876,6 @@ func (m *BalanceResponse) GetTotal() int64 {
 	}
 	return 0
 }
-
 func (m *BalanceResponse) GetSpendable() int64 {
 
 	if m != nil {
@@ -936,7 +884,6 @@ func (m *BalanceResponse) GetSpendable() int64 {
 	}
 	return 0
 }
-
 func (m *BalanceResponse) GetImmatureReward() int64 {
 
 	if m != nil {
@@ -977,7 +924,6 @@ func (*GetTransactionsRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{23}
 }
-
 func (m *GetTransactionsRequest) GetStartingBlockHash() []byte {
 
 	if m != nil {
@@ -986,7 +932,6 @@ func (m *GetTransactionsRequest) GetStartingBlockHash() []byte {
 	}
 	return nil
 }
-
 func (m *GetTransactionsRequest) GetStartingBlockHeight() int32 {
 
 	if m != nil {
@@ -995,7 +940,6 @@ func (m *GetTransactionsRequest) GetStartingBlockHeight() int32 {
 	}
 	return 0
 }
-
 func (m *GetTransactionsRequest) GetEndingBlockHash() []byte {
 
 	if m != nil {
@@ -1004,7 +948,6 @@ func (m *GetTransactionsRequest) GetEndingBlockHash() []byte {
 	}
 	return nil
 }
-
 func (m *GetTransactionsRequest) GetEndingBlockHeight() int32 {
 
 	if m != nil {
@@ -1013,7 +956,6 @@ func (m *GetTransactionsRequest) GetEndingBlockHeight() int32 {
 	}
 	return 0
 }
-
 func (m *GetTransactionsRequest) GetMinimumRecentTransactions() int32 {
 
 	if m != nil {
@@ -1035,7 +977,6 @@ func (*GetTransactionsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{24}
 }
-
 func (m *GetTransactionsResponse) GetMinedTransactions() []*BlockDetails {
 
 	if m != nil {
@@ -1044,7 +985,6 @@ func (m *GetTransactionsResponse) GetMinedTransactions() []*BlockDetails {
 	}
 	return nil
 }
-
 func (m *GetTransactionsResponse) GetUnminedTransactions() []*TransactionDetails {
 
 	if m != nil {
@@ -1067,7 +1007,6 @@ func (*ChangePassphraseRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{25}
 }
-
 func (m *ChangePassphraseRequest) GetKey() ChangePassphraseRequest_Key {
 
 	if m != nil {
@@ -1076,7 +1015,6 @@ func (m *ChangePassphraseRequest) GetKey() ChangePassphraseRequest_Key {
 	}
 	return ChangePassphraseRequest_PRIVATE
 }
-
 func (m *ChangePassphraseRequest) GetOldPassphrase() []byte {
 
 	if m != nil {
@@ -1085,7 +1023,6 @@ func (m *ChangePassphraseRequest) GetOldPassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *ChangePassphraseRequest) GetNewPassphrase() []byte {
 
 	if m != nil {
@@ -1121,7 +1058,6 @@ func (*FundTransactionRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{27}
 }
-
 func (m *FundTransactionRequest) GetAccount() uint32 {
 
 	if m != nil {
@@ -1130,7 +1066,6 @@ func (m *FundTransactionRequest) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *FundTransactionRequest) GetTargetAmount() int64 {
 
 	if m != nil {
@@ -1139,7 +1074,6 @@ func (m *FundTransactionRequest) GetTargetAmount() int64 {
 	}
 	return 0
 }
-
 func (m *FundTransactionRequest) GetRequiredConfirmations() int32 {
 
 	if m != nil {
@@ -1148,7 +1082,6 @@ func (m *FundTransactionRequest) GetRequiredConfirmations() int32 {
 	}
 	return 0
 }
-
 func (m *FundTransactionRequest) GetIncludeImmatureCoinbases() bool {
 
 	if m != nil {
@@ -1157,7 +1090,6 @@ func (m *FundTransactionRequest) GetIncludeImmatureCoinbases() bool {
 	}
 	return false
 }
-
 func (m *FundTransactionRequest) GetIncludeChangeScript() bool {
 
 	if m != nil {
@@ -1180,7 +1112,6 @@ func (*FundTransactionResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{28}
 }
-
 func (m *FundTransactionResponse) GetSelectedOutputs() []*FundTransactionResponse_PreviousOutput {
 
 	if m != nil {
@@ -1189,7 +1120,6 @@ func (m *FundTransactionResponse) GetSelectedOutputs() []*FundTransactionRespons
 	}
 	return nil
 }
-
 func (m *FundTransactionResponse) GetTotalAmount() int64 {
 
 	if m != nil {
@@ -1198,7 +1128,6 @@ func (m *FundTransactionResponse) GetTotalAmount() int64 {
 	}
 	return 0
 }
-
 func (m *FundTransactionResponse) GetChangePkScript() []byte {
 
 	if m != nil {
@@ -1227,7 +1156,6 @@ func (*FundTransactionResponse_PreviousOutput) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{28, 0}
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetTransactionHash() []byte {
 
 	if m != nil {
@@ -1236,7 +1164,6 @@ func (m *FundTransactionResponse_PreviousOutput) GetTransactionHash() []byte {
 	}
 	return nil
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetOutputIndex() uint32 {
 
 	if m != nil {
@@ -1245,7 +1172,6 @@ func (m *FundTransactionResponse_PreviousOutput) GetOutputIndex() uint32 {
 	}
 	return 0
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetAmount() int64 {
 
 	if m != nil {
@@ -1254,7 +1180,6 @@ func (m *FundTransactionResponse_PreviousOutput) GetAmount() int64 {
 	}
 	return 0
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetPkScript() []byte {
 
 	if m != nil {
@@ -1263,7 +1188,6 @@ func (m *FundTransactionResponse_PreviousOutput) GetPkScript() []byte {
 	}
 	return nil
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetReceiveTime() int64 {
 
 	if m != nil {
@@ -1272,7 +1196,6 @@ func (m *FundTransactionResponse_PreviousOutput) GetReceiveTime() int64 {
 	}
 	return 0
 }
-
 func (m *FundTransactionResponse_PreviousOutput) GetFromCoinbase() bool {
 
 	if m != nil {
@@ -1300,7 +1223,6 @@ func (*SignTransactionRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{29}
 }
-
 func (m *SignTransactionRequest) GetPassphrase() []byte {
 
 	if m != nil {
@@ -1309,7 +1231,6 @@ func (m *SignTransactionRequest) GetPassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *SignTransactionRequest) GetSerializedTransaction() []byte {
 
 	if m != nil {
@@ -1318,7 +1239,6 @@ func (m *SignTransactionRequest) GetSerializedTransaction() []byte {
 	}
 	return nil
 }
-
 func (m *SignTransactionRequest) GetInputIndexes() []uint32 {
 
 	if m != nil {
@@ -1340,7 +1260,6 @@ func (*SignTransactionResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{30}
 }
-
 func (m *SignTransactionResponse) GetTransaction() []byte {
 
 	if m != nil {
@@ -1349,7 +1268,6 @@ func (m *SignTransactionResponse) GetTransaction() []byte {
 	}
 	return nil
 }
-
 func (m *SignTransactionResponse) GetUnsignedInputIndexes() []uint32 {
 
 	if m != nil {
@@ -1370,7 +1288,6 @@ func (*PublishTransactionRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{31}
 }
-
 func (m *PublishTransactionRequest) GetSignedTransaction() []byte {
 
 	if m != nil {
@@ -1429,7 +1346,6 @@ func (*TransactionNotificationsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{34}
 }
-
 func (m *TransactionNotificationsResponse) GetAttachedBlocks() []*BlockDetails {
 
 	if m != nil {
@@ -1438,7 +1354,6 @@ func (m *TransactionNotificationsResponse) GetAttachedBlocks() []*BlockDetails {
 	}
 	return nil
 }
-
 func (m *TransactionNotificationsResponse) GetDetachedBlocks() [][]byte {
 
 	if m != nil {
@@ -1447,7 +1362,6 @@ func (m *TransactionNotificationsResponse) GetDetachedBlocks() [][]byte {
 	}
 	return nil
 }
-
 func (m *TransactionNotificationsResponse) GetUnminedTransactions() []*TransactionDetails {
 
 	if m != nil {
@@ -1456,7 +1370,6 @@ func (m *TransactionNotificationsResponse) GetUnminedTransactions() []*Transacti
 	}
 	return nil
 }
-
 func (m *TransactionNotificationsResponse) GetUnminedTransactionHashes() [][]byte {
 
 	if m != nil {
@@ -1479,7 +1392,6 @@ func (*SpentnessNotificationsRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{35}
 }
-
 func (m *SpentnessNotificationsRequest) GetAccount() uint32 {
 
 	if m != nil {
@@ -1488,7 +1400,6 @@ func (m *SpentnessNotificationsRequest) GetAccount() uint32 {
 	}
 	return 0
 }
-
 func (m *SpentnessNotificationsRequest) GetNoNotifyUnspent() bool {
 
 	if m != nil {
@@ -1497,7 +1408,6 @@ func (m *SpentnessNotificationsRequest) GetNoNotifyUnspent() bool {
 	}
 	return false
 }
-
 func (m *SpentnessNotificationsRequest) GetNoNotifySpent() bool {
 
 	if m != nil {
@@ -1520,7 +1430,6 @@ func (*SpentnessNotificationsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{36}
 }
-
 func (m *SpentnessNotificationsResponse) GetTransactionHash() []byte {
 
 	if m != nil {
@@ -1529,7 +1438,6 @@ func (m *SpentnessNotificationsResponse) GetTransactionHash() []byte {
 	}
 	return nil
 }
-
 func (m *SpentnessNotificationsResponse) GetOutputIndex() uint32 {
 
 	if m != nil {
@@ -1538,7 +1446,6 @@ func (m *SpentnessNotificationsResponse) GetOutputIndex() uint32 {
 	}
 	return 0
 }
-
 func (m *SpentnessNotificationsResponse) GetSpender() *SpentnessNotificationsResponse_Spender {
 
 	if m != nil {
@@ -1563,7 +1470,6 @@ func (*SpentnessNotificationsResponse_Spender) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{36, 0}
 }
-
 func (m *SpentnessNotificationsResponse_Spender) GetTransactionHash() []byte {
 
 	if m != nil {
@@ -1572,7 +1478,6 @@ func (m *SpentnessNotificationsResponse_Spender) GetTransactionHash() []byte {
 	}
 	return nil
 }
-
 func (m *SpentnessNotificationsResponse_Spender) GetInputIndex() uint32 {
 
 	if m != nil {
@@ -1608,7 +1513,6 @@ func (*AccountNotificationsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{38}
 }
-
 func (m *AccountNotificationsResponse) GetAccountNumber() uint32 {
 
 	if m != nil {
@@ -1617,7 +1521,6 @@ func (m *AccountNotificationsResponse) GetAccountNumber() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountNotificationsResponse) GetAccountName() string {
 
 	if m != nil {
@@ -1626,7 +1529,6 @@ func (m *AccountNotificationsResponse) GetAccountName() string {
 	}
 	return ""
 }
-
 func (m *AccountNotificationsResponse) GetExternalKeyCount() uint32 {
 
 	if m != nil {
@@ -1635,7 +1537,6 @@ func (m *AccountNotificationsResponse) GetExternalKeyCount() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountNotificationsResponse) GetInternalKeyCount() uint32 {
 
 	if m != nil {
@@ -1644,7 +1545,6 @@ func (m *AccountNotificationsResponse) GetInternalKeyCount() uint32 {
 	}
 	return 0
 }
-
 func (m *AccountNotificationsResponse) GetImportedKeyCount() uint32 {
 
 	if m != nil {
@@ -1667,7 +1567,6 @@ func (*CreateWalletRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{39}
 }
-
 func (m *CreateWalletRequest) GetPublicPassphrase() []byte {
 
 	if m != nil {
@@ -1676,7 +1575,6 @@ func (m *CreateWalletRequest) GetPublicPassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *CreateWalletRequest) GetPrivatePassphrase() []byte {
 
 	if m != nil {
@@ -1685,7 +1583,6 @@ func (m *CreateWalletRequest) GetPrivatePassphrase() []byte {
 	}
 	return nil
 }
-
 func (m *CreateWalletRequest) GetSeed() []byte {
 
 	if m != nil {
@@ -1717,7 +1614,6 @@ func (*OpenWalletRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{41}
 }
-
 func (m *OpenWalletRequest) GetPublicPassphrase() []byte {
 
 	if m != nil {
@@ -1782,7 +1678,6 @@ func (*WalletExistsResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{46}
 }
-
 func (m *WalletExistsResponse) GetExists() bool {
 
 	if m != nil {
@@ -1806,7 +1701,6 @@ func (*StartConsensusRPCRequest) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{47}
 }
-
 func (m *StartConsensusRPCRequest) GetNetworkAddress() string {
 
 	if m != nil {
@@ -1815,7 +1709,6 @@ func (m *StartConsensusRPCRequest) GetNetworkAddress() string {
 	}
 	return ""
 }
-
 func (m *StartConsensusRPCRequest) GetUsername() string {
 
 	if m != nil {
@@ -1824,7 +1717,6 @@ func (m *StartConsensusRPCRequest) GetUsername() string {
 	}
 	return ""
 }
-
 func (m *StartConsensusRPCRequest) GetPassword() []byte {
 
 	if m != nil {
@@ -1833,7 +1725,6 @@ func (m *StartConsensusRPCRequest) GetPassword() []byte {
 	}
 	return nil
 }
-
 func (m *StartConsensusRPCRequest) GetCertificate() []byte {
 
 	if m != nil {
@@ -1853,7 +1744,6 @@ func (*StartConsensusRPCResponse) Descriptor() ([]byte, []int) {
 
 	return fileDescriptor0, []int{48}
 }
-
 func init() {
 
 	proto.RegisterType((*VersionRequest)(nil), "walletrpc.VersionRequest")
@@ -1937,7 +1827,6 @@ func NewVersionServiceClient(
 
 	return &versionServiceClient{cc}
 }
-
 func (c *versionServiceClient) Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error) {
 
 	out := new(VersionResponse)
@@ -1961,7 +1850,6 @@ func RegisterVersionServiceServer(
 
 	s.RegisterService(&_VersionService_serviceDesc, srv)
 }
-
 func _VersionService_Version_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2035,7 +1923,6 @@ func NewWalletServiceClient(
 
 	return &walletServiceClient{cc}
 }
-
 func (c *walletServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 
 	out := new(PingResponse)
@@ -2047,7 +1934,6 @@ func (c *walletServiceClient) Ping(ctx context.Context, in *PingRequest, opts ..
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) Network(ctx context.Context, in *NetworkRequest, opts ...grpc.CallOption) (*NetworkResponse, error) {
 
 	out := new(NetworkResponse)
@@ -2059,7 +1945,6 @@ func (c *walletServiceClient) Network(ctx context.Context, in *NetworkRequest, o
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) AccountNumber(ctx context.Context, in *AccountNumberRequest, opts ...grpc.CallOption) (*AccountNumberResponse, error) {
 
 	out := new(AccountNumberResponse)
@@ -2071,7 +1956,6 @@ func (c *walletServiceClient) AccountNumber(ctx context.Context, in *AccountNumb
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) Accounts(ctx context.Context, in *AccountsRequest, opts ...grpc.CallOption) (*AccountsResponse, error) {
 
 	out := new(AccountsResponse)
@@ -2083,7 +1967,6 @@ func (c *walletServiceClient) Accounts(ctx context.Context, in *AccountsRequest,
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) Balance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceResponse, error) {
 
 	out := new(BalanceResponse)
@@ -2095,7 +1978,6 @@ func (c *walletServiceClient) Balance(ctx context.Context, in *BalanceRequest, o
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
 
 	out := new(GetTransactionsResponse)
@@ -2107,7 +1989,6 @@ func (c *walletServiceClient) GetTransactions(ctx context.Context, in *GetTransa
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) TransactionNotifications(ctx context.Context, in *TransactionNotificationsRequest, opts ...grpc.CallOption) (WalletService_TransactionNotificationsClient, error) {
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[0], c.cc, "/walletrpc.WalletService/TransactionNotifications", opts...)
@@ -2149,7 +2030,6 @@ func (x *walletServiceTransactionNotificationsClient) Recv() (*TransactionNotifi
 	}
 	return m, nil
 }
-
 func (c *walletServiceClient) SpentnessNotifications(ctx context.Context, in *SpentnessNotificationsRequest, opts ...grpc.CallOption) (WalletService_SpentnessNotificationsClient, error) {
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[1], c.cc, "/walletrpc.WalletService/SpentnessNotifications", opts...)
@@ -2191,7 +2071,6 @@ func (x *walletServiceSpentnessNotificationsClient) Recv() (*SpentnessNotificati
 	}
 	return m, nil
 }
-
 func (c *walletServiceClient) AccountNotifications(ctx context.Context, in *AccountNotificationsRequest, opts ...grpc.CallOption) (WalletService_AccountNotificationsClient, error) {
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[2], c.cc, "/walletrpc.WalletService/AccountNotifications", opts...)
@@ -2233,7 +2112,6 @@ func (x *walletServiceAccountNotificationsClient) Recv() (*AccountNotificationsR
 	}
 	return m, nil
 }
-
 func (c *walletServiceClient) ChangePassphrase(ctx context.Context, in *ChangePassphraseRequest, opts ...grpc.CallOption) (*ChangePassphraseResponse, error) {
 
 	out := new(ChangePassphraseResponse)
@@ -2245,7 +2123,6 @@ func (c *walletServiceClient) ChangePassphrase(ctx context.Context, in *ChangePa
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) RenameAccount(ctx context.Context, in *RenameAccountRequest, opts ...grpc.CallOption) (*RenameAccountResponse, error) {
 
 	out := new(RenameAccountResponse)
@@ -2257,7 +2134,6 @@ func (c *walletServiceClient) RenameAccount(ctx context.Context, in *RenameAccou
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) NextAccount(ctx context.Context, in *NextAccountRequest, opts ...grpc.CallOption) (*NextAccountResponse, error) {
 
 	out := new(NextAccountResponse)
@@ -2269,7 +2145,6 @@ func (c *walletServiceClient) NextAccount(ctx context.Context, in *NextAccountRe
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) NextAddress(ctx context.Context, in *NextAddressRequest, opts ...grpc.CallOption) (*NextAddressResponse, error) {
 
 	out := new(NextAddressResponse)
@@ -2281,7 +2156,6 @@ func (c *walletServiceClient) NextAddress(ctx context.Context, in *NextAddressRe
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) ImportPrivateKey(ctx context.Context, in *ImportPrivateKeyRequest, opts ...grpc.CallOption) (*ImportPrivateKeyResponse, error) {
 
 	out := new(ImportPrivateKeyResponse)
@@ -2293,7 +2167,6 @@ func (c *walletServiceClient) ImportPrivateKey(ctx context.Context, in *ImportPr
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) FundTransaction(ctx context.Context, in *FundTransactionRequest, opts ...grpc.CallOption) (*FundTransactionResponse, error) {
 
 	out := new(FundTransactionResponse)
@@ -2305,7 +2178,6 @@ func (c *walletServiceClient) FundTransaction(ctx context.Context, in *FundTrans
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
 
 	out := new(SignTransactionResponse)
@@ -2317,7 +2189,6 @@ func (c *walletServiceClient) SignTransaction(ctx context.Context, in *SignTrans
 	}
 	return out, nil
 }
-
 func (c *walletServiceClient) PublishTransaction(ctx context.Context, in *PublishTransactionRequest, opts ...grpc.CallOption) (*PublishTransactionResponse, error) {
 
 	out := new(PublishTransactionResponse)
@@ -2361,7 +2232,6 @@ func RegisterWalletServiceServer(
 
 	s.RegisterService(&_WalletService_serviceDesc, srv)
 }
-
 func _WalletService_Ping_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2386,7 +2256,6 @@ func _WalletService_Ping_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_Network_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2411,7 +2280,6 @@ func _WalletService_Network_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_AccountNumber_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2436,7 +2304,6 @@ func _WalletService_AccountNumber_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_Accounts_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2461,7 +2328,6 @@ func _WalletService_Accounts_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_Balance_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2486,7 +2352,6 @@ func _WalletService_Balance_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_GetTransactions_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2511,7 +2376,6 @@ func _WalletService_GetTransactions_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_TransactionNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
 
@@ -2537,7 +2401,6 @@ func (x *walletServiceTransactionNotificationsServer) Send(m *TransactionNotific
 
 	return x.ServerStream.SendMsg(m)
 }
-
 func _WalletService_SpentnessNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
 
@@ -2563,7 +2426,6 @@ func (x *walletServiceSpentnessNotificationsServer) Send(m *SpentnessNotificatio
 
 	return x.ServerStream.SendMsg(m)
 }
-
 func _WalletService_AccountNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
 
@@ -2589,7 +2451,6 @@ func (x *walletServiceAccountNotificationsServer) Send(m *AccountNotificationsRe
 
 	return x.ServerStream.SendMsg(m)
 }
-
 func _WalletService_ChangePassphrase_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2614,7 +2475,6 @@ func _WalletService_ChangePassphrase_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_RenameAccount_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2639,7 +2499,6 @@ func _WalletService_RenameAccount_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_NextAccount_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2664,7 +2523,6 @@ func _WalletService_NextAccount_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_NextAddress_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2689,7 +2547,6 @@ func _WalletService_NextAddress_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_ImportPrivateKey_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2714,7 +2571,6 @@ func _WalletService_ImportPrivateKey_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_FundTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2739,7 +2595,6 @@ func _WalletService_FundTransaction_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_SignTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2764,7 +2619,6 @@ func _WalletService_SignTransaction_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletService_PublishTransaction_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2890,7 +2744,6 @@ func NewWalletLoaderServiceClient(
 
 	return &walletLoaderServiceClient{cc}
 }
-
 func (c *walletLoaderServiceClient) WalletExists(ctx context.Context, in *WalletExistsRequest, opts ...grpc.CallOption) (*WalletExistsResponse, error) {
 
 	out := new(WalletExistsResponse)
@@ -2902,7 +2755,6 @@ func (c *walletLoaderServiceClient) WalletExists(ctx context.Context, in *Wallet
 	}
 	return out, nil
 }
-
 func (c *walletLoaderServiceClient) CreateWallet(ctx context.Context, in *CreateWalletRequest, opts ...grpc.CallOption) (*CreateWalletResponse, error) {
 
 	out := new(CreateWalletResponse)
@@ -2914,7 +2766,6 @@ func (c *walletLoaderServiceClient) CreateWallet(ctx context.Context, in *Create
 	}
 	return out, nil
 }
-
 func (c *walletLoaderServiceClient) OpenWallet(ctx context.Context, in *OpenWalletRequest, opts ...grpc.CallOption) (*OpenWalletResponse, error) {
 
 	out := new(OpenWalletResponse)
@@ -2926,7 +2777,6 @@ func (c *walletLoaderServiceClient) OpenWallet(ctx context.Context, in *OpenWall
 	}
 	return out, nil
 }
-
 func (c *walletLoaderServiceClient) CloseWallet(ctx context.Context, in *CloseWalletRequest, opts ...grpc.CallOption) (*CloseWalletResponse, error) {
 
 	out := new(CloseWalletResponse)
@@ -2938,7 +2788,6 @@ func (c *walletLoaderServiceClient) CloseWallet(ctx context.Context, in *CloseWa
 	}
 	return out, nil
 }
-
 func (c *walletLoaderServiceClient) StartConsensusRPC(ctx context.Context, in *StartConsensusRPCRequest, opts ...grpc.CallOption) (*StartConsensusRPCResponse, error) {
 
 	out := new(StartConsensusRPCResponse)
@@ -2966,7 +2815,6 @@ func RegisterWalletLoaderServiceServer(
 
 	s.RegisterService(&_WalletLoaderService_serviceDesc, srv)
 }
-
 func _WalletLoaderService_WalletExists_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -2991,7 +2839,6 @@ func _WalletLoaderService_WalletExists_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletLoaderService_CreateWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -3016,7 +2863,6 @@ func _WalletLoaderService_CreateWallet_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletLoaderService_OpenWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -3041,7 +2887,6 @@ func _WalletLoaderService_OpenWallet_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletLoaderService_CloseWallet_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 
@@ -3066,7 +2911,6 @@ func _WalletLoaderService_CloseWallet_Handler(
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _WalletLoaderService_StartConsensusRPC_Handler(
 	srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 

@@ -38,7 +38,6 @@ func chainedNodes(
 }
 
 // String returns the block node as a human-readable name.
-
 func (node blockNode) String() string {
 
 	return fmt.Sprintf("%s(%d)", node.hash, node.height)

@@ -576,7 +576,6 @@ func (
 	ef.numBlocksRegistered--
 	ef.lastKnownHeight--
 }
-
 func (
 	b *estimateFeeSet,
 ) Len() int {
@@ -638,7 +637,6 @@ func (
 	}
 	return b.feeRate[feeIndex]
 }
-
 func (
 	o *observedTransaction,
 ) Serialize(
@@ -673,7 +671,6 @@ func (
 
 	}
 }
-
 func (
 	rb *registeredBlock,
 ) serialize(
@@ -733,7 +730,6 @@ func (
 	}
 	return BtcPerKilobyte(float64(rate) * bytePerKb * btcPerSatoshi)
 }
-
 func (
 	q observedTxSet,
 ) Len() int {
@@ -954,7 +950,6 @@ func deserializeObservedTransaction(
 	}
 	return &ot, nil
 }
-
 func deserializeRegisteredBlock(
 	r io.Reader, txs map[uint32]*observedTransaction) (*registeredBlock, error) {
 

@@ -22,7 +22,6 @@ type Tx struct {
 }
 
 // MsgTx returns the underlying wire.MsgTx for the transaction.
-
 func (t *Tx) MsgTx() *wire.MsgTx {
 
 	// Return the cached transaction.
@@ -30,7 +29,6 @@ func (t *Tx) MsgTx() *wire.MsgTx {
 }
 
 // Hash returns the hash of the transaction.  This is equivalent to calling TxHash on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
-
 func (t *Tx) Hash() *chainhash.Hash {
 
 	// Return the cached hash if it has already been generated.
@@ -47,7 +45,6 @@ func (t *Tx) Hash() *chainhash.Hash {
 }
 
 // WitnessHash returns the witness hash (wtxid) of the transaction.  This is equivalent to calling WitnessHash on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
-
 func (t *Tx) WitnessHash() *chainhash.Hash {
 
 	// Return the cached hash if it has already been generated.
@@ -64,7 +61,6 @@ func (t *Tx) WitnessHash() *chainhash.Hash {
 }
 
 // HasWitness returns false if none of the inputs within the transaction contain witness data, true false otherwise. This equivalent to calling HasWitness on the underlying wire.MsgTx, however it caches the result so subsequent calls are more efficient.
-
 func (t *Tx) HasWitness() bool {
 
 	if t.txHashWitness != nil {
@@ -78,14 +74,12 @@ func (t *Tx) HasWitness() bool {
 }
 
 // Index returns the saved index of the transaction within a block.  This value will be TxIndexUnknown if it hasn't already explicitly been set.
-
 func (t *Tx) Index() int {
 
 	return t.txIndex
 }
 
 // SetIndex sets the index of the transaction in within a block.
-
 func (t *Tx) SetIndex(index int) {
 
 	t.txIndex = index

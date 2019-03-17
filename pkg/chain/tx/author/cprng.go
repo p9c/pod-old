@@ -31,7 +31,6 @@ func init() {
 	seed := int64(binary.LittleEndian.Uint64(buf))
 	cprng.r = mrand.New(mrand.NewSource(seed))
 }
-
 func (c *cprngType) Int31n(n int32) int32 {
 
 	defer c.mu.Unlock() // Int31n may panic

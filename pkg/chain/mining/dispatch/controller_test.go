@@ -27,7 +27,6 @@ func TestKCPClientServer(
 	time.Sleep(time.Second)
 	runClient(t)
 }
-
 func runServer(
 	t *testing.T) {
 
@@ -49,7 +48,6 @@ func runServer(
 	ready <- true
 	fmt.Println("Finished running server")
 }
-
 func runClient(
 	t *testing.T) {
 

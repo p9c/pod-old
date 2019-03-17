@@ -90,7 +90,6 @@ type (
 //
 
 // NOTE: This should be used before applying any CheckDelta steps.
-
 func (_ InitialDelta) Apply(i int, h *Harness) {
 
 	curHorizon, delta := h.brs.ExtendHorizon()
@@ -102,7 +101,6 @@ func (_ InitialDelta) Apply(i int, h *Harness) {
 // Apply extends the current horizon of the branch recovery state, and checks
 
 // that the returned delta is equal to the CheckDelta's child value.
-
 func (d CheckDelta) Apply(i int, h *Harness) {
 
 	curHorizon, delta := h.brs.ExtendHorizon()
@@ -116,7 +114,6 @@ func (d CheckDelta) Apply(i int, h *Harness) {
 // that lie between the last found address and the current horizon, and compares
 
 // that to the CheckNumInvalid's total.
-
 func (m CheckNumInvalid) Apply(i int, h *Harness) {
 
 	assertNumInvalid(h.t, i, h.brs.NumInvalidInHorizon(), m.total)
@@ -125,7 +122,6 @@ func (m CheckNumInvalid) Apply(i int, h *Harness) {
 // Apply marks the MarkInvalid's child index as invalid in the branch recovery
 
 // state, and increments the harness's expected horizon.
-
 func (m MarkInvalid) Apply(i int, h *Harness) {
 
 	h.brs.MarkInvalidChild(m.child)
@@ -141,7 +137,6 @@ func (m MarkInvalid) Apply(i int, h *Harness) {
 // this step asserts that the branch recovery state's next reported unfound
 
 // value matches our potentially-updated value.
-
 func (r ReportFound) Apply(i int, h *Harness) {
 
 	h.brs.ReportFound(r.child)
@@ -294,35 +289,30 @@ func TestBranchRecoveryState(
 	}
 
 }
-
 func assertHorizon(
 
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect horizon", have, want)
 }
-
 func assertDelta(
 
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect delta", have, want)
 }
-
 func assertNextUnfound(
 
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect next unfound", have, want)
 }
-
 func assertNumInvalid(
 
 	t *testing.T, i int, have, want uint32) {
 
 	assertHaveWant(t, i, "incorrect num invalid children", have, want)
 }
-
 func assertHaveWant(
 
 	t *testing.T, i int, msg string, have, want uint32) {

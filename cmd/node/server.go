@@ -889,7 +889,6 @@ func (
 }
 
 // handleQuery is the central handler for all queries and commands from other goroutines related to peer state.
-
 func (s *server) handleQuery(state *peerState, querymsg interface{}) {
 
 	switch msg := querymsg.(type) {
@@ -1665,7 +1664,6 @@ func (
 	}
 
 }
-
 func (
 	s *server,
 
@@ -4013,7 +4011,6 @@ func newServer(
 }
 
 // newServerPeer returns a new serverPeer instance. The peer needs to be set by the caller.
-
 func newServerPeer(s *server, isPersistent bool) *serverPeer {
 
 	return &serverPeer{

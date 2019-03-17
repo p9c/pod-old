@@ -108,7 +108,6 @@ func NewExtendedKey(
 
 // pubKeyBytes returns bytes for the serialized compressed public key associated with this extended key in an efficient manner including memoization as necessary.
 // When the extended key is already a public key, the key is simply returned as is since it's already in the correct form.  However, when the extended key is a private key, the public key will be calculated and memoized so future accesses can simply return the cached result.
-
 func (k *ExtendedKey) pubKeyBytes() []byte {
 
 	// Just return the key if it's already an extended public key.
@@ -130,21 +129,18 @@ func (k *ExtendedKey) pubKeyBytes() []byte {
 }
 
 // IsPrivate returns whether or not the extended key is a private extended key. A private extended key can be used to derive both hardened and non-hardened child private and public extended keys.  A public extended key can only be used to derive non-hardened child public extended keys.
-
 func (k *ExtendedKey) IsPrivate() bool {
 
 	return k.isPrivate
 }
 
 // Depth returns the current derivation level with respect to the root. The root key has depth zero, and the field has a maximum of 255 due to how depth is serialized.
-
 func (k *ExtendedKey) Depth() uint8 {
 
 	return k.depth
 }
 
 // ParentFingerprint returns a fingerprint of the parent extended key from which this one was derived.
-
 func (k *ExtendedKey) ParentFingerprint() uint32 {
 
 	return binary.BigEndian.Uint32(k.parentFP)
@@ -153,7 +149,6 @@ func (k *ExtendedKey) ParentFingerprint() uint32 {
 // Child returns a derived child extended key at the given index.  When this extended key is a private extended key (as determined by the IsPrivate function), a private extended key will be derived.  Otherwise, the derived extended key will be also be a public extended key.
 // When the index is greater to or equal than the HardenedKeyStart constant, the derived extended key will be a hardened extended key.  It is only possible to derive a hardended extended key from a private extended key.  Consequently, this function will return ErrDeriveHardFromPublic if a hardened child extended key is requested from a public extended key.
 // A hardened extended key is useful since, as previously mentioned, it requires a parent private extended key to derive.  In other words, normal child extended public keys can be derived from a parent public extended key (no knowledge of the parent private key) whereas hardened extended keys may not be. NOTE: There is an extremely small chance (< 1 in 2^127) the specific child index does not derive to a usable child.  The ErrInvalidChild error will be returned if this should occur, and the caller is expected to ignore the invalid child and simply increment to the next index.
-
 func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
 
 	// Prevent derivation of children beyond the max allowed depth.
@@ -284,7 +279,6 @@ func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
 
 // Neuter returns a new extended public key from this extended private key.  The same extended key will be returned unaltered if it is already an extended public key.
 // As the name implies, an extended public key does not have access to the private key, so it is not capable of signing transactions or deriving child extended private keys.  However, it is capable of deriving further child extended public keys.
-
 func (k *ExtendedKey) Neuter() (*ExtendedKey, error) {
 
 	// Already an extended public key.
@@ -307,14 +301,12 @@ func (k *ExtendedKey) Neuter() (*ExtendedKey, error) {
 }
 
 // ECPubKey converts the extended key to a ec public key and returns it.
-
 func (k *ExtendedKey) ECPubKey() (*ec.PublicKey, error) {
 
 	return ec.ParsePubKey(k.pubKeyBytes(), ec.S256())
 }
 
 // ECPrivKey converts the extended key to a ec private key and returns it. As you might imagine this is only possible if the extended key is a private extended key (as determined by the IsPrivate function).  The ErrNotPrivExtKey error will be returned if this function is called on a public extended key.
-
 func (k *ExtendedKey) ECPrivKey() (*ec.PrivateKey, error) {
 
 	if !k.isPrivate {
@@ -326,7 +318,6 @@ func (k *ExtendedKey) ECPrivKey() (*ec.PrivateKey, error) {
 }
 
 // Address converts the extended key to a standard bitcoin pay-to-pubkey-hash address for the passed network.
-
 func (k *ExtendedKey) Address(net *chaincfg.Params) (*util.AddressPubKeyHash, error) {
 
 	pkHash := util.Hash160(k.pubKeyBytes())
@@ -346,7 +337,6 @@ func paddedAppend(
 }
 
 // String returns the extended key as a human-readable base58-encoded string.
-
 func (k *ExtendedKey) String() string {
 
 	if len(k.key) == 0 {
@@ -380,7 +370,6 @@ func (k *ExtendedKey) String() string {
 }
 
 // IsForNet returns whether or not the extended key is associated with the passed bitcoin network.
-
 func (k *ExtendedKey) IsForNet(net *chaincfg.Params) bool {
 
 	return bytes.Equal(k.version, net.HDPrivateKeyID[:]) ||
@@ -388,7 +377,6 @@ func (k *ExtendedKey) IsForNet(net *chaincfg.Params) bool {
 }
 
 // SetNet associates the extended key, and any child keys yet to be derived from it, with the passed network.
-
 func (k *ExtendedKey) SetNet(net *chaincfg.Params) {
 
 	if k.isPrivate {
@@ -415,7 +403,6 @@ func zero(
 }
 
 // Zero manually clears all fields and bytes in the extended key.  This can be used to explicitly clear key material from memory for enhanced security against memory scraping.  This function only clears this particular key and not any children that have already been derived.
-
 func (k *ExtendedKey) Zero() {
 
 	zero(k.key)

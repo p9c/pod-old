@@ -218,7 +218,6 @@ type TransactionSummaryOutput struct {
 // messages.  It must be called exactly once when the client is finished
 
 // receiving notifications.
-
 func (c *AccountNotificationsClient) Done() {
 
 	go func() {
@@ -257,7 +256,6 @@ func (c *AccountNotificationsClient) Done() {
 // a channel.  The channel is unbuffered.  When finished, the client's Done
 
 // method should be called to disassociate the client from the server.
-
 func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 
 	c := make(chan *AccountNotification)
@@ -276,7 +274,6 @@ func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 // AccountSpentnessNotifications registers a client for spentness changes of
 
 // outputs controlled by the account.
-
 func (s *NotificationServer) AccountSpentnessNotifications(account uint32) SpentnessNotificationsClient {
 
 	c := make(chan *SpentnessNotifications)
@@ -304,7 +301,6 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 // When finished, the Done method should be called on the client to disassociate
 
 // it from the server.
-
 func (s *NotificationServer) TransactionNotifications() TransactionNotificationsClient {
 
 	c := make(chan *TransactionNotifications)
@@ -319,7 +315,6 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 	}
 
 }
-
 func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProperties) {
 
 	defer s.mu.Unlock()
@@ -346,7 +341,6 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 	}
 
 }
-
 func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wtxmgr.BlockMeta) {
 
 	if s.currentTxNtfn == nil {
@@ -448,7 +442,6 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 
 	s.currentTxNtfn = nil
 }
-
 func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 
 	if s.currentTxNtfn == nil {
@@ -458,7 +451,6 @@ func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 
 	s.currentTxNtfn.DetachedBlocks = append(s.currentTxNtfn.DetachedBlocks, hash)
 }
-
 func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails, block *wtxmgr.BlockMeta) {
 
 	if s.currentTxNtfn == nil {
@@ -490,7 +482,6 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 // output is now spent, and includes the spender hash and input index in the
 
 // notification.
-
 func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint, spenderHash *chainhash.Hash, spenderIndex uint32) {
 
 	defer s.mu.Unlock()
@@ -516,7 +507,6 @@ func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint
 	}
 
 }
-
 func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails) {
 
 	// Sanity check: should not be currently coalescing a notification for
@@ -587,7 +577,6 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 // notifyUnspentOutput notifies registered clients of a new unspent output that
 
 // is controlled by the wallet.
-
 func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash.Hash, index uint32) {
 
 	defer s.mu.Unlock()
@@ -613,14 +602,12 @@ func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash
 }
 
 // Hash returns the transaction hash of the spent output.
-
 func (n *SpentnessNotifications) Hash() *chainhash.Hash {
 
 	return n.hash
 }
 
 // Index returns the transaction output index of the spent output.
-
 func (n *SpentnessNotifications) Index() uint32 {
 
 	return n.index
@@ -629,7 +616,6 @@ func (n *SpentnessNotifications) Index() uint32 {
 // Spender returns the spending transction's hash and input index, if any.  If
 
 // the output is unspent, the final bool return is false.
-
 func (n *SpentnessNotifications) Spender() (*chainhash.Hash, uint32, bool) {
 
 	return n.spenderHash, n.spenderIndex, n.spenderHash != nil
@@ -640,7 +626,6 @@ func (n *SpentnessNotifications) Spender() (*chainhash.Hash, uint32, bool) {
 // messages.  It must be called exactly once when the client is finished
 
 // receiving notifications.
-
 func (c *SpentnessNotificationsClient) Done() {
 
 	go func() {
@@ -683,7 +668,6 @@ func (c *SpentnessNotificationsClient) Done() {
 // messages.  It must be called exactly once when the client is finished
 
 // receiving notifications.
-
 func (c *TransactionNotificationsClient) Done() {
 
 	go func() {
@@ -720,7 +704,6 @@ func (c *TransactionNotificationsClient) Done() {
 	}()
 
 }
-
 func flattenBalanceMap(
 
 	m map[uint32]util.Amount) []AccountBalance {
@@ -734,7 +717,6 @@ func flattenBalanceMap(
 
 	return s
 }
-
 func lookupInputAccount(
 
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails, deb wtxmgr.DebitRecord) uint32 {
@@ -788,7 +770,6 @@ func lookupInputAccount(
 
 	return inputAcct
 }
-
 func lookupOutputChain(
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails,
 
@@ -819,7 +800,6 @@ func lookupOutputChain(
 
 	return
 }
-
 func makeTxSummary(
 
 	dbtx walletdb.ReadTx, w *Wallet, details *wtxmgr.TxDetails) TransactionSummary {
@@ -910,7 +890,6 @@ func makeTxSummary(
 	}
 
 }
-
 func newNotificationServer(
 
 	wallet *Wallet) *NotificationServer {
@@ -922,7 +901,6 @@ func newNotificationServer(
 	}
 
 }
-
 func relevantAccounts(
 
 	w *Wallet, m map[uint32]util.Amount, txs []TransactionSummary) {
@@ -942,7 +920,6 @@ func relevantAccounts(
 	}
 
 }
-
 func totalBalances(
 
 	dbtx walletdb.ReadTx, w *Wallet, m map[uint32]util.Amount) error {

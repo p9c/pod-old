@@ -39,7 +39,6 @@ func createTestIndex() (func(), *headerIndex, error) {
 
 	return cleanUp, filterDB, nil
 }
-
 func TestAddHeadersIndexRetrieve(
 	t *testing.T) {
 

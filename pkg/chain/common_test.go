@@ -399,7 +399,6 @@ func convertUtxoStore(
 }
 
 // TstSetCoinbaseMaturity makes the ability to set the coinbase maturity available when running tests.
-
 func (b *BlockChain) TstSetCoinbaseMaturity(maturity uint16) {
 
 	b.chainParams.CoinbaseMaturity = maturity

@@ -3225,7 +3225,6 @@ func (s creditSlice) Len() int {
 
 	return len(s)
 }
-
 func (s creditSlice) Less(i, j int) bool {
 
 	switch {
@@ -3249,7 +3248,6 @@ func (s creditSlice) Less(i, j int) bool {
 		return s[i].Height < s[j].Height
 	}
 }
-
 func (s creditSlice) Swap(i, j int) {
 
 	s[i], s[j] = s[j], s[i]
@@ -3904,7 +3902,6 @@ func (w *Wallet) NewAddress(account uint32,
 
 	return addr, nil
 }
-
 func (w *Wallet) newAddress(addrmgrNs walletdb.ReadWriteBucket, account uint32,
 	scope waddrmgr.KeyScope) (util.Address, *waddrmgr.AccountProperties, error) {
 
@@ -3973,7 +3970,6 @@ func (w *Wallet) NewChangeAddress(account uint32,
 
 	return addr, nil
 }
-
 func (w *Wallet) newChangeAddress(addrmgrNs walletdb.ReadWriteBucket,
 	account uint32) (util.Address, error) {
 

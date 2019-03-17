@@ -90,7 +90,6 @@ func TestPoolEnsureUsedAddr(
 		}
 	}
 }
-
 func TestPoolGetUsedAddr(
 	t *testing.T) {
 
@@ -152,7 +151,6 @@ func TestPoolGetUsedAddr(
 		t.Fatalf("Script from looked up addr is not what we expect")
 	}
 }
-
 func TestSerializationErrors(
 	t *testing.T) {
 
@@ -229,7 +227,6 @@ func TestSerializationErrors(
 		TstCheckError(t, fmt.Sprintf("Test #%d", testNum), err, test.err)
 	}
 }
-
 func TestSerialization(
 	t *testing.T) {
 
@@ -373,7 +370,6 @@ func TestSerialization(
 		}
 	}
 }
-
 func TestDeserializationErrors(
 	t *testing.T) {
 
@@ -416,7 +412,6 @@ func TestDeserializationErrors(
 		TstCheckError(t, fmt.Sprintf("Test #%d", testNum), err, test.err)
 	}
 }
-
 func TestValidateAndDecryptKeys(
 	t *testing.T) {
 
@@ -485,7 +480,6 @@ func TestValidateAndDecryptKeys(
 			pubKeys[0].String(), neuteredKey.String())
 	}
 }
-
 func TestValidateAndDecryptKeysErrors(
 	t *testing.T) {
 
@@ -555,7 +549,6 @@ func TestValidateAndDecryptKeysErrors(
 		TstCheckError(t, fmt.Sprintf("Test #%d", i), err, test.err)
 	}
 }
-
 func encryptKeys(
 	keys []string, mgr *waddrmgr.Manager, keyType waddrmgr.CryptoKeyType) ([][]byte, error) {
 

@@ -31,7 +31,6 @@ func TestPadData(
 			actualUnaligned, expectedUnaligned)
 	}
 }
-
 func TestFECCodec(
 	t *testing.T) {
 

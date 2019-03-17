@@ -44,21 +44,18 @@ const (
 )
 
 // HaveData returns whether the full block data is stored in the database. This will return false for a block node where only the header is downloaded or kept.
-
 func (status blockStatus) HaveData() bool {
 
 	return status&statusDataStored != 0
 }
 
 // KnownValid returns whether the block is known to be valid. This will return false for a valid block that has not been fully validated yet.
-
 func (status blockStatus) KnownValid() bool {
 
 	return status&statusValid != 0
 }
 
 // KnownInvalid returns whether the block is known to be invalid. This may be because the block itself failed validation or any of its ancestors is invalid. This will return false for invalid blocks that have not been proven invalid yet.
-
 func (status blockStatus) KnownInvalid() bool {
 
 	return status&(statusValidateFailed|statusInvalidAncestor) != 0
@@ -130,7 +127,6 @@ func newBlockNode(
 }
 
 // Header constructs a block header from the node and returns it. This function is safe for concurrent access.
-
 func (node *blockNode) Header() wire.BlockHeader {
 
 	// No lock is needed because all accessed fields are immutable.
@@ -154,7 +150,6 @@ func (node *blockNode) Header() wire.BlockHeader {
 }
 
 // Ancestor returns the ancestor block node at the provided height by following the chain backwards from this node.  The returned block will be nil when a height is requested that is after the height of the passed node or is less than zero. This function is safe for concurrent access.
-
 func (node *blockNode) Ancestor(height int32) *blockNode {
 
 	if height < 0 || height > node.height {
@@ -174,14 +169,12 @@ func (node *blockNode) Ancestor(height int32) *blockNode {
 
 // RelativeAncestor returns the ancestor block node a relative 'distance' blocks before this node.  This is equivalent to calling Ancestor with the node's height minus provided distance.
 // This function is safe for concurrent access.
-
 func (node *blockNode) RelativeAncestor(distance int32) *blockNode {
 
 	return node.Ancestor(node.height - distance)
 }
 
 // CalcPastMedianTime calculates the median time of the previous few blocks prior to, and including, the block node. This function is safe for concurrent access.
-
 func (node *blockNode) CalcPastMedianTime() time.Time {
 
 	// Create a slice of the previous few block timestamps used to calculate the median per the number defined by the constant medianTimeBlocks.
@@ -235,7 +228,6 @@ func newBlockIndex(
 }
 
 // HaveBlock returns whether or not the block index contains the provided hash. This function is safe for concurrent access.
-
 func (bi *blockIndex) HaveBlock(hash *chainhash.Hash) bool {
 
 	bi.RLock()
@@ -245,7 +237,6 @@ func (bi *blockIndex) HaveBlock(hash *chainhash.Hash) bool {
 }
 
 // LookupNode returns the block node identified by the provided hash.  It will return nil if there is no entry for the hash. This function is safe for concurrent access.
-
 func (bi *blockIndex) LookupNode(hash *chainhash.Hash) *blockNode {
 
 	bi.RLock()
@@ -255,7 +246,6 @@ func (bi *blockIndex) LookupNode(hash *chainhash.Hash) *blockNode {
 }
 
 // AddNode adds the provided node to the block index and marks it as dirty. Duplicate entries are not checked so it is up to caller to avoid adding them. This function is safe for concurrent access.
-
 func (bi *blockIndex) AddNode(node *blockNode) {
 
 	bi.Lock()
@@ -266,14 +256,12 @@ func (bi *blockIndex) AddNode(node *blockNode) {
 }
 
 // addNode adds the provided node to the block index, but does not mark it as dirty. This can be used while initializing the block index. This function is NOT safe for concurrent access.
-
 func (bi *blockIndex) addNode(node *blockNode) {
 
 	bi.index[node.hash] = node
 }
 
 // NodeStatus provides concurrent-safe access to the status field of a node. This function is safe for concurrent access.
-
 func (bi *blockIndex) NodeStatus(node *blockNode) blockStatus {
 
 	bi.RLock()
@@ -283,7 +271,6 @@ func (bi *blockIndex) NodeStatus(node *blockNode) blockStatus {
 }
 
 // SetStatusFlags flips the provided status flags on the block node to on, regardless of whether they were on or off previously. This does not unset any flags currently on. This function is safe for concurrent access.
-
 func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
 
 	bi.Lock()
@@ -294,7 +281,6 @@ func (bi *blockIndex) SetStatusFlags(node *blockNode, flags blockStatus) {
 }
 
 // UnsetStatusFlags flips the provided status flags on the block node to off, regardless of whether they were on or off previously. This function is safe for concurrent access.
-
 func (bi *blockIndex) UnsetStatusFlags(node *blockNode, flags blockStatus) {
 
 	bi.Lock()
@@ -305,7 +291,6 @@ func (bi *blockIndex) UnsetStatusFlags(node *blockNode, flags blockStatus) {
 }
 
 // flushToDB writes all dirty block nodes to the database. If all writes succeed, this clears the dirty set.
-
 func (bi *blockIndex) flushToDB() error {
 
 	bi.Lock()
@@ -348,14 +333,12 @@ func (bi *blockIndex) flushToDB() error {
 }
 
 // GetAlgo returns the algorithm of a block node
-
 func (node *blockNode) GetAlgo() int32 {
 
 	return node.version
 }
 
 // GetLastWithAlgo returns the newest block from node with specified algo
-
 func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 
 	prev = node

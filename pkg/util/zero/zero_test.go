@@ -23,7 +23,6 @@ func makeOneBytes(
 	}
 	return b
 }
-
 func checkZeroBytes(
 
 	b []byte) error {
@@ -37,7 +36,6 @@ func checkZeroBytes(
 	}
 	return nil
 }
-
 func TestBytes(
 
 	t *testing.T) {
@@ -75,7 +73,6 @@ func TestBytes(
 		}
 	}
 }
-
 func checkZeroWords(
 
 	b []big.Word) error {
@@ -148,7 +145,6 @@ func TestBigInt(
 		}
 	}
 }
-
 func TestBytea32(
 
 	t *testing.T) {
@@ -166,7 +162,6 @@ func TestBytea32(
 		t.Error(err)
 	}
 }
-
 func TestBytea64(
 
 	t *testing.T) {

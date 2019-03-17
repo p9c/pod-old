@@ -72,7 +72,6 @@ func netName(
 }
 
 // loadConfig initializes and parses the config using command line options.
-
 func loadConfig() (*config, []string, error) {
 
 	// Default config.

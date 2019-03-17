@@ -279,7 +279,6 @@ func WriteDefaultConfConfig(
 // // cf is the list of flags and the default values stored in the Usage field
 
 // var cf = GetFlags(ConfCommand)
-
 func configConf(
 	ctx *climax.Context,
 	datadir,

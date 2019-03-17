@@ -33,7 +33,6 @@ type txValidator struct {
 }
 
 // sendResult sends the result of a script pair validation on the internal result channel while respecting the quit channel.  This allows orderly shutdown when the validation process is aborted early due to a validation error in one of the other goroutines.
-
 func (v *txValidator) sendResult(result error) {
 
 	select {
@@ -47,7 +46,6 @@ func (v *txValidator) sendResult(result error) {
 }
 
 // validateHandler consumes items to validate from the internal validate channel and returns the result of the validation on the internal result channel. It must be run as a goroutine.
-
 func (v *txValidator) validateHandler() {
 
 out:
@@ -127,7 +125,6 @@ out:
 }
 
 // Validate validates the scripts for all of the passed transaction inputs using multiple goroutines.
-
 func (v *txValidator) Validate(items []*txValidateItem) error {
 
 	if len(items) == 0 {

@@ -10,7 +10,6 @@ import (
 
 // This example demonstrates decrypting a message using a private key that is
 // first parsed from raw bytes.
-
 func Example_decryptMessage() {
 
 	// Decode the hex-encoded private key.
@@ -46,7 +45,6 @@ func Example_decryptMessage() {
 
 // This example demonstrates encrypting a message for a public key that is first
 // parsed from raw bytes, then decrypting it using the corresponding private key.
-
 func Example_encryptMessage() {
 
 	// Decode the hex-encoded pubkey of the recipient.
@@ -107,7 +105,6 @@ func Example_encryptMessage() {
 
 // This example demonstrates signing a message with a secp256k1 private key that
 // is first parsed form raw bytes and serializing the generated signature.
-
 func Example_signMessage() {
 
 	// Decode a hex-encoded private key.
@@ -149,7 +146,6 @@ func Example_signMessage() {
 // This example demonstrates verifying a secp256k1 signature against a public
 // key that is first parsed from raw bytes.  The signature is also parsed from
 // raw bytes.
-
 func Example_verifySignature() {
 
 	// Decode hex-encoded serialized public key.

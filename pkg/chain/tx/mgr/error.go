@@ -108,7 +108,6 @@ func (e Error) Error() string {
 	}
 	return e.Desc
 }
-
 func storeError(
 	c ErrorCode, desc string, err error) Error {
 

@@ -157,7 +157,6 @@ func (s byOutBailmentID) Less(i, j int) bool {
 
 	return bytes.Compare(s[i].outBailmentIDHash(), s[j].outBailmentIDHash()) < 0
 }
-
 func (s outputStatus) String() string {
 
 	strings := map[outputStatus]string{
@@ -167,7 +166,6 @@ func (s outputStatus) String() string {
 	}
 	return strings[s]
 }
-
 func (tx *changeAwareTx) addSelfToStore(store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket) error {
 
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx, time.Now())
@@ -232,7 +230,6 @@ func (r OutputRequest) String() string {
 
 	return fmt.Sprintf("OutputRequest %s to send %v to %s", r.outBailmentID(), r.Amount, r.Address)
 }
-
 func (r OutputRequest) outBailmentID() OutBailmentID {
 
 	return OutBailmentID(fmt.Sprintf("%s:%d", r.Server, r.Transaction))
@@ -255,12 +252,10 @@ func (r OutputRequest) outBailmentIDHash() []byte {
 	r.cachedHash = id
 	return id
 }
-
 func (o *WithdrawalOutput) String() string {
 
 	return fmt.Sprintf("WithdrawalOutput for %s", o.request)
 }
-
 func (o *WithdrawalOutput) addOutpoint(outpoint OutBailmentOutpoint) {
 
 	o.outpoints = append(o.outpoints, outpoint)
@@ -333,7 +328,6 @@ func (o *withdrawalTxOut) String() string {
 
 	return fmt.Sprintf("withdrawalTxOut fulfilling %v of %s", o.amount, o.request)
 }
-
 func (o *withdrawalTxOut) pkScript() []byte {
 
 	return o.request.PkScript
@@ -566,12 +560,10 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 	removedInputs = removedInputs[:len(removedInputs)-1]
 	return removedInputs, removedOutput, nil
 }
-
 func defaultTxOptions(
 	tx *withdrawalTx) {
 
 }
-
 func newWithdrawal(
 	roundID uint32, requests []OutputRequest, inputs []credit,
 	changeStart ChangeAddress) *withdrawal {
@@ -889,7 +881,6 @@ func (w *withdrawal) maybeDropRequests() {
 		w.status.outputs[request.outBailmentID()].status = statusPartial
 	}
 }
-
 func (w *withdrawal) fulfillRequests() error {
 
 	w.maybeDropRequests()
@@ -951,7 +942,6 @@ func (w *withdrawal) fulfillRequests() error {
 	}
 	return nil
 }
-
 func (w *withdrawal) splitLastOutput() error {
 
 	if len(w.current.outputs) == 0 {
@@ -999,7 +989,6 @@ func (w *withdrawal) splitLastOutput() error {
 	w.status.outputs[request.outBailmentID()].status = statusPartial
 	return nil
 }
-
 func (s *WithdrawalStatus) updateStatusFor(tx *withdrawalTx) {
 
 	for _, output := range s.outputs {
@@ -1392,7 +1381,6 @@ func calculateTxSize(
 	}
 	return msgtx.SerializeSize()
 }
-
 func nextChangeAddress(
 	a ChangeAddress) (ChangeAddress, error) {
 
@@ -1410,7 +1398,6 @@ func nextChangeAddress(
 	addr, err := a.pool.ChangeAddress(seriesID, index)
 	return *addr, err
 }
-
 func storeTransactions(
 	store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket, transactions []*changeAwareTx) error {
 

@@ -25,21 +25,18 @@ func newHashFromStr(
 }
 
 // Checkpoints returns a slice of checkpoints (regardless of whether they are already known).  When there are no checkpoints for the chain, it will return nil. This function is safe for concurrent access.
-
 func (b *BlockChain) Checkpoints() []chaincfg.Checkpoint {
 
 	return b.checkpoints
 }
 
 // HasCheckpoints returns whether this BlockChain has checkpoints defined. This function is safe for concurrent access.
-
 func (b *BlockChain) HasCheckpoints() bool {
 
 	return len(b.checkpoints) > 0
 }
 
 // LatestCheckpoint returns the most recent checkpoint (regardless of whether it is already known). When there are no defined checkpoints for the active chain instance, it will return nil. This function is safe for concurrent access.
-
 func (b *BlockChain) LatestCheckpoint() *chaincfg.Checkpoint {
 
 	if !b.HasCheckpoints() {
@@ -50,7 +47,6 @@ func (b *BlockChain) LatestCheckpoint() *chaincfg.Checkpoint {
 }
 
 // verifyCheckpoint returns whether the passed block height and hash combination match the checkpoint data.  It also returns true if there is no checkpoint data for the passed block height.
-
 func (b *BlockChain) verifyCheckpoint(height int32, hash *chainhash.Hash) bool {
 
 	if !b.HasCheckpoints() {
@@ -81,7 +77,6 @@ func (b *BlockChain) verifyCheckpoint(height int32, hash *chainhash.Hash) bool {
 }
 
 // findPreviousCheckpoint finds the most recent checkpoint that is already available in the downloaded portion of the block chain and returns the associated block node.  It returns nil if a checkpoint can't be found (this should really only happen for blocks before the first checkpoint). This function MUST be called with the chain lock held (for reads).
-
 func (b *BlockChain) findPreviousCheckpoint() (*blockNode, error) {
 
 	if !b.HasCheckpoints() {
@@ -194,7 +189,6 @@ func isNonstandardTransaction(
 //  - The block must not contain any strange transaction such as those with
 //    nonstandard scripts
 // The intent is that candidates are reviewed by a developer to make the final decision and then manually added to the list of checkpoints for a network. This function is safe for concurrent access.
-
 func (b *BlockChain) IsCheckpointCandidate(block *util.Block) (bool, error) {
 
 	b.chainLock.RLock()

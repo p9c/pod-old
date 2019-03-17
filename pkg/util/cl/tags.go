@@ -20,7 +20,6 @@ func ftlTag(
 	}
 	return " " + tag + " "
 }
-
 func errTag(
 
 	color bool) string {
@@ -40,7 +39,6 @@ func errTag(
 	return " " + tag + " "
 
 }
-
 func wrnTag(
 
 	color bool) string {
@@ -60,7 +58,6 @@ func wrnTag(
 	return " " + tag + " "
 
 }
-
 func infTag(
 
 	color bool) string {

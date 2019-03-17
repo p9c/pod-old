@@ -275,7 +275,6 @@ out:
 	}
 	c.workerWg.Done()
 }
-
 func (c *Controller) minerController() {
 
 	c.workerWg.Add(1)

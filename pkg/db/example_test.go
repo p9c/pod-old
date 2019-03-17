@@ -14,7 +14,6 @@ import (
 )
 
 // This example demonstrates creating a new database.
-
 func ExampleCreate() {
 
 	// This example assumes the ffldb driver is imported.
@@ -54,7 +53,6 @@ func ExampleCreate() {
 // This example demonstrates creating a new database and using a managed
 
 // read-write transaction to store and retrieve metadata.
-
 func Example_basicUsage() {
 
 	// This example assumes the ffldb driver is imported.
@@ -153,7 +151,6 @@ func Example_basicUsage() {
 // transaction to store a block, and using a managed read-only transaction to
 
 // fetch the block.
-
 func Example_blockStorageAndRetrieval() {
 
 	// This example assumes the ffldb driver is imported.

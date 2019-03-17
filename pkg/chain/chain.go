@@ -145,7 +145,6 @@ type BlockChain struct {
 }
 
 // HaveBlock returns whether or not the chain instance has the block represented by the passed hash.  This includes checking the various places a block can be like part of the main chain, on a side chain, or in the orphan pool. This function is safe for concurrent access.
-
 func (b *BlockChain) HaveBlock(hash *chainhash.Hash) (bool, error) {
 
 	exists, err := b.blockExists(hash)
@@ -159,7 +158,6 @@ func (b *BlockChain) HaveBlock(hash *chainhash.Hash) (bool, error) {
 }
 
 // IsKnownOrphan returns whether the passed hash is currently a known orphan. Keep in mind that only a limited number of orphans are held onto for a limited amount of time, so this function must not be used as an absolute way to test if a block is an orphan block.  A full block (as opposed to just its hash) must be passed to ProcessBlock for that purpose.  However, calling ProcessBlock with an orphan that already exists results in an error, so this function provides a mechanism for a caller to intelligently detect *recent* duplicate orphans and react accordingly. This function is safe for concurrent access.
-
 func (b *BlockChain) IsKnownOrphan(hash *chainhash.Hash) bool {
 
 	// Protect concurrent access.  Using a read lock only so multiple readers can query without blocking each other.
@@ -170,7 +168,6 @@ func (b *BlockChain) IsKnownOrphan(hash *chainhash.Hash) bool {
 }
 
 // GetOrphanRoot returns the head of the chain for the provided hash from the map of orphan blocks. This function is safe for concurrent access.
-
 func (b *BlockChain) GetOrphanRoot(hash *chainhash.Hash) *chainhash.Hash {
 
 	// Protect concurrent access.  Using a read lock only so multiple readers can query without blocking each other.
@@ -198,7 +195,6 @@ func (b *BlockChain) GetOrphanRoot(hash *chainhash.Hash) *chainhash.Hash {
 }
 
 // removeOrphanBlock removes the passed orphan block from the orphan pool and previous orphan index.
-
 func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 
 	// Protect concurrent access.
@@ -239,7 +235,6 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 }
 
 // addOrphanBlock adds the passed block (which is already determined to be an orphan prior calling this function) to the orphan pool.  It lazily cleans up any expired blocks so a separate cleanup poller doesn't need to be run. It also imposes a maximum limit on the number of outstanding orphan blocks and will remove the oldest received orphan block if the limit is exceeded.
-
 func (b *BlockChain) addOrphanBlock(block *util.Block) {
 
 	// Remove expired orphan blocks.
@@ -298,7 +293,6 @@ type SequenceLock struct {
 }
 
 // CalcSequenceLock computes a relative lock-time SequenceLock for the passed transaction using the passed UtxoViewpoint to obtain the past median time for blocks in which the referenced inputs of the transactions were included within. The generated SequenceLock lock can be used in conjunction with a block height, and adjusted median block time to determine if all the inputs referenced within a transaction have reached sufficient maturity allowing the candidate transaction to be included in a block. This function is safe for concurrent access.
-
 func (b *BlockChain) CalcSequenceLock(tx *util.Tx, utxoView *UtxoViewpoint, mempool bool) (*SequenceLock, error) {
 
 	b.chainLock.Lock()
@@ -307,7 +301,6 @@ func (b *BlockChain) CalcSequenceLock(tx *util.Tx, utxoView *UtxoViewpoint, memp
 }
 
 // calcSequenceLock computes the relative lock-times for the passed transaction. See the exported version, CalcSequenceLock for further details. This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *UtxoViewpoint, mempool bool) (*SequenceLock, error) {
 
 	// A value of -1 for each relative lock type represents a relative time lock value that will allow a transaction to be included in a block at any given height or time. This value is returned as the relative lock time in the case that BIP 68 is disabled, or has not yet been activated.
@@ -429,7 +422,6 @@ func LockTimeToSequence(
 }
 
 // getReorganizeNodes finds the fork point between the main chain and the passed node and returns a list of block nodes that would need to be detached from the main chain and a list of block nodes that would need to be attached to the fork point (which will be the end of the main chain after detaching the returned list of block nodes) in order to reorganize the chain such that the passed node is the new end of the main chain.  The lists will be empty if the passed node is not on a side chain. This function may modify node statuses in the block index without flushing. This function MUST be called with the chain state lock held (for reads).
-
 func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List) {
 
 	attachNodes := list.New()
@@ -640,7 +632,6 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 }
 
 // disconnectBlock handles disconnecting the passed node/block from the end of the main (best) chain. This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *UtxoViewpoint) error {
 
 	// Make sure the node being disconnected is the end of the best chain.
@@ -785,7 +776,6 @@ func countSpentOutputs(
 }
 
 // reorganizeChain reorganizes the block chain by disconnecting the nodes in the detachNodes list and connecting the nodes in the attach list.  It expects that the lists are already in the correct order and are in sync with the end of the current best chain.  Specifically, nodes that are being disconnected must be in reverse order (think of popping them off the end of the chain) and nodes the are being attached must be in forwards order (think pushing them onto the end of the chain). This function may modify node statuses in the block index without flushing. This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error {
 
 	// Nothing to do if no reorganize nodes were provided.
@@ -1089,7 +1079,6 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 //  - BFFastAdd: Avoids several expensive transaction validation operations.
 //    This is useful when using checkpoints.
 // This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags BehaviorFlags) (bool, error) {
 
 	fastAdd := flags&BFFastAdd == BFFastAdd
@@ -1276,7 +1265,6 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 //  - Latest block height is after the latest checkpoint (if enabled)
 //  - Latest block has a timestamp newer than 24 hours ago
 // This function MUST be called with the chain state lock held (for reads).
-
 func (b *BlockChain) isCurrent() bool {
 
 	// Not current if the latest main (best) chain height is before the
@@ -1300,7 +1288,6 @@ func (b *BlockChain) isCurrent() bool {
 //  - Latest block height is after the latest checkpoint (if enabled)
 //  - Latest block has a timestamp newer than 24 hours ago
 // This function is safe for concurrent access.
-
 func (b *BlockChain) IsCurrent() bool {
 
 	b.chainLock.RLock()
@@ -1309,7 +1296,6 @@ func (b *BlockChain) IsCurrent() bool {
 }
 
 // BestSnapshot returns information about the current best chain block and related state as of the current point in time.  The returned instance must be treated as immutable since it is shared by all callers. This function is safe for concurrent access.
-
 func (b *BlockChain) BestSnapshot() *BestState {
 
 	b.stateLock.RLock()
@@ -1319,7 +1305,6 @@ func (b *BlockChain) BestSnapshot() *BestState {
 }
 
 // HeaderByHash returns the block header identified by the given hash or an error if it doesn't exist. Note that this will return headers from both the main and side chains.
-
 func (b *BlockChain) HeaderByHash(hash *chainhash.Hash) (wire.BlockHeader, error) {
 
 	node := b.Index.LookupNode(hash)
@@ -1334,7 +1319,6 @@ func (b *BlockChain) HeaderByHash(hash *chainhash.Hash) (wire.BlockHeader, error
 }
 
 // MainChainHasBlock returns whether or not the block with the given hash is in the main chain. This function is safe for concurrent access.
-
 func (b *BlockChain) MainChainHasBlock(hash *chainhash.Hash) bool {
 
 	node := b.Index.LookupNode(hash)
@@ -1342,7 +1326,6 @@ func (b *BlockChain) MainChainHasBlock(hash *chainhash.Hash) bool {
 }
 
 // BlockLocatorFromHash returns a block locator for the passed block hash. See BlockLocator for details on the algorithm used to create a block locator. In addition to the general algorithm referenced above, this function will return the block locator for the latest known tip of the main (best) chain if the passed hash is not currently known. This function is safe for concurrent access.
-
 func (b *BlockChain) BlockLocatorFromHash(hash *chainhash.Hash) BlockLocator {
 
 	b.chainLock.RLock()
@@ -1353,7 +1336,6 @@ func (b *BlockChain) BlockLocatorFromHash(hash *chainhash.Hash) BlockLocator {
 }
 
 // LatestBlockLocator returns a block locator for the latest known tip of the main (best) chain. This function is safe for concurrent access.
-
 func (b *BlockChain) LatestBlockLocator() (BlockLocator, error) {
 
 	b.chainLock.RLock()
@@ -1363,7 +1345,6 @@ func (b *BlockChain) LatestBlockLocator() (BlockLocator, error) {
 }
 
 // BlockHeightByHash returns the height of the block with the given hash in the main chain. This function is safe for concurrent access.
-
 func (b *BlockChain) BlockHeightByHash(hash *chainhash.Hash) (int32, error) {
 
 	node := b.Index.LookupNode(hash)
@@ -1378,7 +1359,6 @@ func (b *BlockChain) BlockHeightByHash(hash *chainhash.Hash) (int32, error) {
 }
 
 // BlockHashByHeight returns the hash of the block at the given height in the main chain. This function is safe for concurrent access.
-
 func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, error) {
 
 	node := b.bestChain.NodeByHeight(blockHeight)
@@ -1393,7 +1373,6 @@ func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, erro
 }
 
 // HeightRange returns a range of block hashes for the given start and end heights.  It is inclusive of the start height and exclusive of the end height.  The end height will be limited to the current main chain height. This function is safe for concurrent access.
-
 func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash, error) {
 
 	// Ensure requested heights are sane.
@@ -1545,7 +1524,6 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 // - When no locators are provided, the stop hash is treated as a request for that block, so it will either return the node associated with the stop hash if it is known, or nil if it is unknown
 // - When locators are provided, but none of them are known, nodes starting after the genesis block will be returned
 // This is primarily a helper function for the locateBlocks and locateHeaders functions. This function MUST be called with the chain state lock held (for reads).
-
 func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.Hash, maxEntries uint32) (*blockNode, uint32) {
 
 	// There are no block locators so a specific block is being requested as identified by the stop hash.
@@ -1604,7 +1582,6 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 }
 
 // locateBlocks returns the hashes of the blocks after the first known block in the locator until the provided stop hash is reached, or up to the provided max number of block hashes. See the comment on the exported function for more details on special cases. This function MUST be called with the chain state lock held (for reads).
-
 func (b *BlockChain) locateBlocks(locator BlockLocator, hashStop *chainhash.Hash, maxHashes uint32) []chainhash.Hash {
 
 	// Find the node after the first known block in the locator and the total number of nodes after it needed while respecting the stop hash and max entries.
@@ -1632,7 +1609,6 @@ func (b *BlockChain) locateBlocks(locator BlockLocator, hashStop *chainhash.Hash
 // - When no locators are provided, the stop hash is treated as a request for that block, so it will either return the stop hash itself if it is known, or nil if it is unknown
 // - When locators are provided, but none of them are known, hashes starting after the genesis block will be returned
 // This function is safe for concurrent access.
-
 func (b *BlockChain) LocateBlocks(locator BlockLocator, hashStop *chainhash.Hash, maxHashes uint32) []chainhash.Hash {
 
 	b.chainLock.RLock()
@@ -1642,7 +1618,6 @@ func (b *BlockChain) LocateBlocks(locator BlockLocator, hashStop *chainhash.Hash
 }
 
 // locateHeaders returns the headers of the blocks after the first known block in the locator until the provided stop hash is reached, or up to the provided max number of block headers. See the comment on the exported function for more details on special cases. This function MUST be called with the chain state lock held (for reads).
-
 func (b *BlockChain) locateHeaders(locator BlockLocator, hashStop *chainhash.Hash, maxHeaders uint32) []wire.BlockHeader {
 
 	// Find the node after the first known block in the locator and the total number of nodes after it needed while respecting the stop hash and max entries.
@@ -1670,7 +1645,6 @@ func (b *BlockChain) locateHeaders(locator BlockLocator, hashStop *chainhash.Has
 // - When no locators are provided, the stop hash is treated as a request for that header, so it will either return the header for the stop hash itself if it is known, or nil if it is unknown
 // - When locators are provided, but none of them are known, headers starting after the genesis block will be returned
 // This function is safe for concurrent access.
-
 func (b *BlockChain) LocateHeaders(locator BlockLocator, hashStop *chainhash.Hash) []wire.BlockHeader {
 
 	b.chainLock.RLock()

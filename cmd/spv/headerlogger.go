@@ -29,7 +29,6 @@ type headerProgressLogger struct {
 // progress to the user. In order to prevent spam, it limits logging to one
 
 // message every 10 seconds with duration and totals included.
-
 func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32) {
 
 	b.Lock()
@@ -67,7 +66,6 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	b.receivedLogBlocks = 0
 	b.lastBlockLogTime = now
 }
-
 func (b *headerProgressLogger) SetLastLogTime(time time.Time) {
 
 	b.lastBlockLogTime = time

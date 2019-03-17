@@ -46,7 +46,6 @@ func (
 
 	// fmt.Println("Ersssssssssssssssssssssssssssror", ab.AddressBookLabel)
 }
-
 func (
 	ab *AddressBookLabel,
 ) AddressBookLabelDelete(
@@ -61,7 +60,6 @@ func (
 
 	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
 }
-
 func (
 	ab *AddressBookLabel,
 ) AddressBookLabelWrite(
@@ -74,7 +72,6 @@ func (
 	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
 
 }
-
 func init() {
 
 	vue.MODS["addressbook"] = AddressBook{}

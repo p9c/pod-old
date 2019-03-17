@@ -57,7 +57,6 @@ func newChainView(
 }
 
 // genesis returns the genesis block for the chain view. This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) genesis() *blockNode {
 
 	if len(c.nodes) == 0 {
@@ -69,7 +68,6 @@ func (c *chainView) genesis() *blockNode {
 }
 
 // Genesis returns the genesis block for the chain view. This function is safe for concurrent access.
-
 func (c *chainView) Genesis() *blockNode {
 
 	c.mtx.Lock()
@@ -79,7 +77,6 @@ func (c *chainView) Genesis() *blockNode {
 }
 
 // tip returns the current tip block node for the chain view.  It will return nil if there is no tip.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) tip() *blockNode {
 
 	if len(c.nodes) == 0 {
@@ -91,7 +88,6 @@ func (c *chainView) tip() *blockNode {
 }
 
 // Tip returns the current tip block node for the chain view.  It will return nil if there is no tip. This function is safe for concurrent access.
-
 func (c *chainView) Tip() *blockNode {
 
 	c.mtx.Lock()
@@ -101,7 +97,6 @@ func (c *chainView) Tip() *blockNode {
 }
 
 // setTip sets the chain view to use the provided block node as the current tip and ensures the view is consistent by populating it with the nodes obtained by walking backwards all the way to genesis block as necessary.  Further calls will only perform the minimum work needed, so switching between chain tips is efficient.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for writes).
-
 func (c *chainView) setTip(node *blockNode) {
 
 	if node == nil {
@@ -141,7 +136,6 @@ func (c *chainView) setTip(node *blockNode) {
 }
 
 // SetTip sets the chain view to use the provided block node as the current tip and ensures the view is consistent by populating it with the nodes obtained by walking backwards all the way to genesis block as necessary.  Further calls will only perform the minimum work needed, so switching between chain tips is efficient. This function is safe for concurrent access.
-
 func (c *chainView) SetTip(node *blockNode) {
 
 	c.mtx.Lock()
@@ -150,14 +144,12 @@ func (c *chainView) SetTip(node *blockNode) {
 }
 
 // height returns the height of the tip of the chain view.  It will return -1 if there is no tip (which only happens if the chain view has not been initialized).  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) height() int32 {
 
 	return int32(len(c.nodes) - 1)
 }
 
 // Height returns the height of the tip of the chain view.  It will return -1 if there is no tip (which only happens if the chain view has not been initialized). This function is safe for concurrent access.
-
 func (c *chainView) Height() int32 {
 
 	c.mtx.Lock()
@@ -167,7 +159,6 @@ func (c *chainView) Height() int32 {
 }
 
 // nodeByHeight returns the block node at the specified height.  Nil will be returned if the height does not exist.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) nodeByHeight(height int32) *blockNode {
 
 	if height < 0 || height >= int32(len(c.nodes)) {
@@ -179,7 +170,6 @@ func (c *chainView) nodeByHeight(height int32) *blockNode {
 }
 
 // NodeByHeight returns the block node at the specified height.  Nil will be returned if the height does not exist. This function is safe for concurrent access.
-
 func (c *chainView) NodeByHeight(height int32) *blockNode {
 
 	c.mtx.Lock()
@@ -189,7 +179,6 @@ func (c *chainView) NodeByHeight(height int32) *blockNode {
 }
 
 // Equals returns whether or not two chain views are the same.  Uninitialized views (tip set to nil) are considered equal. This function is safe for concurrent access.
-
 func (c *chainView) Equals(other *chainView) bool {
 
 	c.mtx.Lock()
@@ -201,14 +190,12 @@ func (c *chainView) Equals(other *chainView) bool {
 }
 
 // contains returns whether or not the chain view contains the passed block node.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) contains(node *blockNode) bool {
 
 	return c.nodeByHeight(node.height) == node
 }
 
 // Contains returns whether or not the chain view contains the passed block node. This function is safe for concurrent access.
-
 func (c *chainView) Contains(node *blockNode) bool {
 
 	c.mtx.Lock()
@@ -218,7 +205,6 @@ func (c *chainView) Contains(node *blockNode) bool {
 }
 
 // next returns the successor to the provided node for the chain view.  It will return nil if there is no successor or the provided node is not part of the view.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the comment on the exported function for more details. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) next(node *blockNode) *blockNode {
 
 	if node == nil || !c.contains(node) {
@@ -237,7 +223,6 @@ func (c *chainView) next(node *blockNode) *blockNode {
 //   genesis -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 // Invoking this function with block node 5 would return block node 6 while invoking it with block node 5a would return nil since that node is not part of the view.
 // This function is safe for concurrent access.
-
 func (c *chainView) Next(node *blockNode) *blockNode {
 
 	c.mtx.Lock()
@@ -247,7 +232,6 @@ func (c *chainView) Next(node *blockNode) *blockNode {
 }
 
 // findFork returns the final common block between the provided node and the the chain view.  It will return nil if there is no common block.  This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the exported FindFork comments for more details. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) findFork(node *blockNode) *blockNode {
 
 	// No fork point for node that doesn't exist.
@@ -284,7 +268,6 @@ func (c *chainView) findFork(node *blockNode) *blockNode {
 // Further, assume the view is for the longer chain depicted above.  That is to say it consists of:
 //   genesis -> 1 -> 2 -> ... -> 5 -> 6 -> 7 -> 8.
 // Invoking this function with block node 7a would return block node 5 while invoking it with block node 7 would return itself since it is already part of the branch formed by the view. This function is safe for concurrent access.
-
 func (c *chainView) FindFork(node *blockNode) *blockNode {
 
 	c.mtx.Lock()
@@ -295,7 +278,6 @@ func (c *chainView) FindFork(node *blockNode) *blockNode {
 }
 
 // blockLocator returns a block locator for the passed block node.  The passed node can be nil in which case the block locator for the current tip associated with the view will be returned. This only differs from the exported version in that it is up to the caller to ensure the lock is held. See the exported BlockLocator function comments for more details. This function MUST be called with the view mutex locked (for reads).
-
 func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 
 	// Use the current tip if requested.
@@ -369,7 +351,6 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 }
 
 // BlockLocator returns a block locator for the passed block node.  The passed node can be nil in which case the block locator for the current tip associated with the view will be returned. See the BlockLocator type for details on the algorithm used to create a block locator. This function is safe for concurrent access.
-
 func (c *chainView) BlockLocator(node *blockNode) BlockLocator {
 
 	c.mtx.Lock()

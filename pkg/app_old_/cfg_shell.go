@@ -171,7 +171,6 @@ func WriteShellConfig(
 	}
 
 }
-
 func configShell(
 	ctx *climax.Context,
 	cfgFile string,
@@ -1394,7 +1393,6 @@ func configShell(
 
 	return 0
 }
-
 func shellHandle(
 	ctx climax.Context,
 

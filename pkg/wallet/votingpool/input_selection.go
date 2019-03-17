@@ -28,7 +28,6 @@ func newCredit(
 
 	return credit{Credit: c, addr: addr}
 }
-
 func (c *credit) String() string {
 
 	return fmt.Sprintf("credit of %v locked to %v", c.Amount, c.addr)

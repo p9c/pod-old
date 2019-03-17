@@ -30,7 +30,6 @@ type GCSBuilder struct {
 }
 
 // RandomKey is a utility function that returns a cryptographically random [gcs.KeySize]byte usable as a key for a GCS filter.
-
 func RandomKey() ([gcs.KeySize]byte, error) {
 
 	var key [gcs.KeySize]byte
@@ -59,7 +58,6 @@ func DeriveKey(
 }
 
 // Key retrieves the key with which the builder will build a filter. This is useful if the builder is created with a random initial key.
-
 func (b *GCSBuilder) Key() ([gcs.KeySize]byte, error) {
 
 	// Do nothing if the builder's errored out.
@@ -72,7 +70,6 @@ func (b *GCSBuilder) Key() ([gcs.KeySize]byte, error) {
 }
 
 // SetKey sets the key with which the builder will build a filter to the passed [gcs.KeySize]byte.
-
 func (b *GCSBuilder) SetKey(key [gcs.KeySize]byte) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -86,7 +83,6 @@ func (b *GCSBuilder) SetKey(key [gcs.KeySize]byte) *GCSBuilder {
 }
 
 // SetKeyFromHash sets the key with which the builder will build a filter to a key derived from the passed chainhash.Hash using DeriveKey().
-
 func (b *GCSBuilder) SetKeyFromHash(keyHash *chainhash.Hash) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -99,7 +95,6 @@ func (b *GCSBuilder) SetKeyFromHash(keyHash *chainhash.Hash) *GCSBuilder {
 }
 
 // SetP sets the filter's probability after calling Builder().
-
 func (b *GCSBuilder) SetP(p uint8) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -120,7 +115,6 @@ func (b *GCSBuilder) SetP(p uint8) *GCSBuilder {
 }
 
 // SetM sets the filter's modulous value after calling Builder().
-
 func (b *GCSBuilder) SetM(m uint64) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -141,7 +135,6 @@ func (b *GCSBuilder) SetM(m uint64) *GCSBuilder {
 }
 
 // Preallocate sets the estimated filter size after calling Builder() to reduce the probability of memory reallocations. If the builder has already had data added to it, Preallocate has no effect.
-
 func (b *GCSBuilder) Preallocate(n uint32) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -159,7 +152,6 @@ func (b *GCSBuilder) Preallocate(n uint32) *GCSBuilder {
 }
 
 // AddEntry adds a []byte to the list of entries to be included in the GCS filter when it's built.
-
 func (b *GCSBuilder) AddEntry(data []byte) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -173,7 +165,6 @@ func (b *GCSBuilder) AddEntry(data []byte) *GCSBuilder {
 }
 
 // AddEntries adds all the []byte entries in a [][]byte to the list of entries to be included in the GCS filter when it's built.
-
 func (b *GCSBuilder) AddEntries(data [][]byte) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -191,7 +182,6 @@ func (b *GCSBuilder) AddEntries(data [][]byte) *GCSBuilder {
 }
 
 // AddHash adds a chainhash.Hash to the list of entries to be included in the GCS filter when it's built.
-
 func (b *GCSBuilder) AddHash(hash *chainhash.Hash) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -204,7 +194,6 @@ func (b *GCSBuilder) AddHash(hash *chainhash.Hash) *GCSBuilder {
 }
 
 // AddWitness adds each item of the passed filter stack to the filter, and then adds each item as a script.
-
 func (b *GCSBuilder) AddWitness(witness wire.TxWitness) *GCSBuilder {
 
 	// Do nothing if the builder's already errored out.
@@ -217,7 +206,6 @@ func (b *GCSBuilder) AddWitness(witness wire.TxWitness) *GCSBuilder {
 }
 
 // Build returns a function which builds a GCS filter with the given parameters and data.
-
 func (b *GCSBuilder) Build() (*gcs.Filter, error) {
 
 	// Do nothing if the builder's already errored out.
@@ -320,7 +308,6 @@ func WithRandomKeyPM(
 }
 
 // WithRandomKey creates a GCSBuilder with a cryptographically random key. Probability is set to 20 (2^-20 collision probability). Estimated filter size is set to zero, which means more reallocations are done when building the filter.
-
 func WithRandomKey() *GCSBuilder {
 
 	return WithRandomKeyPNM(DefaultP, 0, DefaultM)

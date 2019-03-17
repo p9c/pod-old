@@ -76,7 +76,6 @@ func createWithdrawalTx(
 	}
 	return tx
 }
-
 func createMsgTx(
 	pkScript []byte, amts []int64) *wire.MsgTx {
 
@@ -101,7 +100,6 @@ func createMsgTx(
 	}
 	return msgtx
 }
-
 func TstNewDepositScript(
 	t *testing.T, p *Pool, seriesID uint32, branch Branch, idx Index) []byte {
 
@@ -114,19 +112,16 @@ func TstNewDepositScript(
 	}
 	return script
 }
-
 func TstRNamespaces(
 	tx walletdb.ReadTx) (votingpoolNs, addrmgrNs walletdb.ReadBucket) {
 
 	return tx.ReadBucket(votingpoolNamespaceKey), tx.ReadBucket(addrmgrNamespaceKey)
 }
-
 func TstRWNamespaces(
 	tx walletdb.ReadWriteTx) (votingpoolNs, addrmgrNs walletdb.ReadWriteBucket) {
 
 	return tx.ReadWriteBucket(votingpoolNamespaceKey), tx.ReadWriteBucket(addrmgrNamespaceKey)
 }
-
 func TstTxStoreRWNamespace(
 	tx walletdb.ReadWriteTx) walletdb.ReadWriteBucket {
 
@@ -169,7 +164,6 @@ func TstEnsureUsedAddr(
 	}
 	return TstNewDepositScript(t, p, seriesID, branch, idx)
 }
-
 func TstCreatePkScript(
 	t *testing.T, dbtx walletdb.ReadWriteTx, p *Pool, seriesID uint32, branch Branch, idx Index) []byte {
 
@@ -226,7 +220,6 @@ func TstCreateSeries(
 		pool.Series(def.SeriesID).active = !def.Inactive
 	}
 }
-
 func TstCreateMasterKey(
 	t *testing.T, seed []byte) *hdkeychain.ExtendedKey {
 
@@ -271,7 +264,6 @@ func TstCreateSeriesDef(
 	return TstSeriesDef{
 		ReqSigs: reqSigs, SeriesID: seriesID, PubKeys: pubKeys, PrivKeys: privKeys}
 }
-
 func TstCreatePoolAndTxStore(
 	t *testing.T) (tearDown func(), db walletdb.DB, pool *Pool, store *wtxmgr.Store) {
 
@@ -472,7 +464,6 @@ func TstCreatePool(
 	}
 	return tearDownFunc, db, pool
 }
-
 func TstCreateTxStore(
 	t *testing.T, db walletdb.DB) *wtxmgr.Store {
 
@@ -501,7 +492,6 @@ func TstCreateTxStore(
 	}
 	return store
 }
-
 func TstNewOutputRequest(
 	t *testing.T, transaction uint32, address string, amount util.Amount,
 	net *chaincfg.Params) OutputRequest {
@@ -526,7 +516,6 @@ func TstNewOutputRequest(
 		Transaction: transaction,
 	}
 }
-
 func TstNewWithdrawalOutput(
 	r OutputRequest, status outputStatus,
 	outpoints []OutBailmentOutpoint) *WithdrawalOutput {
@@ -538,7 +527,6 @@ func TstNewWithdrawalOutput(
 	}
 	return output
 }
-
 func TstNewWithdrawalAddress(
 	t *testing.T, dbtx walletdb.ReadWriteTx, p *Pool, seriesID uint32, branch Branch,
 	index Index) (addr *WithdrawalAddress) {
@@ -557,7 +545,6 @@ func TstNewWithdrawalAddress(
 	}
 	return addr
 }
-
 func TstNewChangeAddress(
 	t *testing.T, p *Pool, seriesID uint32, idx Index) (addr *ChangeAddress) {
 
@@ -569,13 +556,11 @@ func TstNewChangeAddress(
 	}
 	return addr
 }
-
 func TstConstantFee(
 	fee util.Amount) func() util.Amount {
 
 	return func() util.Amount { return fee }
 }
-
 func createAndFulfillWithdrawalRequests(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, roundID uint32) withdrawalInfo {
 

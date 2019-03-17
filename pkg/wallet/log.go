@@ -15,7 +15,6 @@ var Log = cl.NewSubSystem("wallet", "info")
 var log = Log.Ch
 
 // String invokes the log closure and returns the results string.
-
 func (c logClosure) String() string {
 
 	return c()

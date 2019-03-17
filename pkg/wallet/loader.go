@@ -138,7 +138,6 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 // wallet has been loaded or not.  If true, the wallet pointer should be safe to
 
 // dereference.
-
 func (l *Loader) LoadedWallet() (*Wallet, bool) {
 
 	l.mu.Lock()
@@ -148,7 +147,6 @@ func (l *Loader) LoadedWallet() (*Wallet, bool) {
 }
 
 // OpenExistingWallet opens the wallet from the loader's wallet database path and the public passphrase.  If the loader is being called by a context where standard input prompts may be used during wallet upgrades, setting canConsolePrompt will enables these prompts.
-
 func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool) (*Wallet, error) {
 
 	defer l.mu.Unlock()
@@ -230,7 +228,6 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 }
 
 // RunAfterLoad adds a function to be executed when the loader creates or opens a wallet.  Functions are executed in a single goroutine in the order they are added.
-
 func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 
 	l.mu.Lock()
@@ -256,7 +253,6 @@ func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 // CreateNewWallet or LoadExistingWallet.  The Loader may be reused if this
 
 // function returns without error.
-
 func (l *Loader) UnloadWallet() error {
 
 	defer l.mu.Unlock()
@@ -284,7 +280,6 @@ func (l *Loader) UnloadWallet() error {
 // WalletExists returns whether a file exists at the loader's database path.
 
 // This may return an error for unexpected I/O failures.
-
 func (l *Loader) WalletExists() (bool, error) {
 
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
@@ -294,7 +289,6 @@ func (l *Loader) WalletExists() (bool, error) {
 // onLoaded executes each added callback and prevents loader from loading any
 
 // additional wallets.  Requires mutex to be locked.
-
 func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
 
 	for _, fn := range l.callbacks {
@@ -321,7 +315,6 @@ func NewLoader(
 	}
 
 }
-
 func fileExists(
 
 	filePath string) (bool, error) {
@@ -340,7 +333,6 @@ func fileExists(
 
 	return true, nil
 }
-
 func noConsole() ([]byte, error) {
 
 	return nil, errNoConsole

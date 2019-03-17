@@ -227,7 +227,6 @@ func (s *Store) UnminedTxs(ns walletdb.ReadBucket) ([]*wire.MsgTx, error) {
 	}
 	return txs, nil
 }
-
 func (s *Store) unminedTxRecords(ns walletdb.ReadBucket) (map[chainhash.Hash]*TxRecord, error) {
 
 	unmined := make(map[chainhash.Hash]*TxRecord)
@@ -260,7 +259,6 @@ func (s *Store) UnminedTxHashes(ns walletdb.ReadBucket) ([]*chainhash.Hash, erro
 
 	return s.unminedTxHashes(ns)
 }
-
 func (s *Store) unminedTxHashes(ns walletdb.ReadBucket) ([]*chainhash.Hash, error) {
 
 	var hashes []*chainhash.Hash

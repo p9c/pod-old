@@ -175,7 +175,6 @@ func FromNBytes(
 }
 
 // Bytes returns the serialized format of the GCS filter, which does not include N or P (returned by separate methods) or the key used by SipHash.
-
 func (f *Filter) Bytes() ([]byte, error) {
 
 	filterData := make([]byte, len(f.filterData))
@@ -184,7 +183,6 @@ func (f *Filter) Bytes() ([]byte, error) {
 }
 
 // NBytes returns the serialized format of the GCS filter with N, which does not include P (returned by a separate method) or the key used by SipHash.
-
 func (f *Filter) NBytes() ([]byte, error) {
 
 	var buffer bytes.Buffer
@@ -205,7 +203,6 @@ func (f *Filter) NBytes() ([]byte, error) {
 }
 
 // PBytes returns the serialized format of the GCS filter with P, which does not include N (returned by a separate method) or the key used by SipHash.
-
 func (f *Filter) PBytes() ([]byte, error) {
 
 	filterData := make([]byte, len(f.filterData)+1)
@@ -215,7 +212,6 @@ func (f *Filter) PBytes() ([]byte, error) {
 }
 
 // NPBytes returns the serialized format of the GCS filter with N and P, which does not include the key used by SipHash.
-
 func (f *Filter) NPBytes() ([]byte, error) {
 
 	var buffer bytes.Buffer
@@ -242,21 +238,18 @@ func (f *Filter) NPBytes() ([]byte, error) {
 }
 
 // P returns the filter's collision probability as a negative power of 2 (that is, a collision probability of `1/2**20` is represented as 20).
-
 func (f *Filter) P() uint8 {
 
 	return f.p
 }
 
 // N returns the size of the data set used to build the filter.
-
 func (f *Filter) N() uint32 {
 
 	return f.n
 }
 
 // Match checks whether a []byte value is likely (within collision probability) to be a member of the set represented by the filter.
-
 func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 
 	// Create a filter bitstream.
@@ -302,7 +295,6 @@ func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 }
 
 // MatchAny returns checks whether any []byte value is likely (within collision probability) to be a member of the set represented by the filter faster than calling Match() for each value individually.
-
 func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 
 	// Basic sanity check.
@@ -377,7 +369,6 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 }
 
 // readFullUint64 reads a value represented by the sum of a unary multiple of the filter's P modulus (`2**P`) and a big-endian P-bit remainder.
-
 func (f *Filter) readFullUint64(b *bstream.BStream) (uint64, error) {
 
 	var quotient uint64

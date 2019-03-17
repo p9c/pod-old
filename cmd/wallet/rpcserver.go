@@ -212,7 +212,6 @@ func makeListeners(
 
 // openRPCKeyPair creates or loads the RPC TLS keypair specified by the
 // application config.  This function respects the cfg.OneTimeTLSKey setting.
-
 func openRPCKeyPair() (tls.Certificate, error) {
 
 	// Check for existence of the TLS key file.  If one time TLS keys are
@@ -240,7 +239,6 @@ func openRPCKeyPair() (tls.Certificate, error) {
 	}
 
 }
-
 func startRPCServers(
 
 	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {

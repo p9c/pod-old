@@ -7,7 +7,6 @@ The functions are only exported while the tests are being run.
 package peer
 
 // TstAllowSelfConns allows the test package to allow self connections by disabling the detection logic.
-
 func TstAllowSelfConns() {
 
 	allowSelfConns = true

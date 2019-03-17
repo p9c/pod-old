@@ -5565,7 +5565,6 @@ func handleVersion(
 
 	return result, nil
 }
-
 func init() {
 
 	rpcHandlers = rpcHandlersBeforeInit
@@ -5774,7 +5773,6 @@ func softForkStatus(
 	}
 
 }
-
 func verifyChain(
 	s *rpcServer,
 	level,
@@ -5841,8 +5839,6 @@ func verifyChain(
 
 /*
 // handleDebugLevel handles debuglevel commands.
-
-
 
 func handleDebugLevel(	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
 

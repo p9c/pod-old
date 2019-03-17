@@ -19,7 +19,6 @@ type JSONRPC struct {
 }
 
 // Call the RPC server and send a query
-
 func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 
 	baseURL := fmt.Sprintf("http://%s:%d", c.Host, c.Port)

@@ -89,7 +89,6 @@ func TestGetEligibleInputs(
 	// Check that all credits are unique
 	checkUniqueness(t, eligibles)
 }
-
 func TestNextAddrWithVaryingHighestIndices(
 	t *testing.T) {
 
@@ -166,7 +165,6 @@ func TestNextAddrWithVaryingHighestIndices(
 		t.Fatalf("Wrong next addr; got '%s', want 'nil'", addr.addrIdentifier())
 	}
 }
-
 func TestNextAddr(
 	t *testing.T) {
 
@@ -285,7 +283,6 @@ func TestNextAddr(
 		t.Fatalf("Wrong WithdrawalAddress; got %s, want nil", addr.addrIdentifier())
 	}
 }
-
 func TestEligibleInputsAreEligible(
 	t *testing.T) {
 
@@ -312,7 +309,6 @@ func TestEligibleInputsAreEligible(
 		t.Errorf("Input is not eligible and it should be.")
 	}
 }
-
 func TestNonEligibleInputsAreNotEligible(
 	t *testing.T) {
 
@@ -357,7 +353,6 @@ func TestNonEligibleInputsAreNotEligible(
 		t.Errorf("Input is eligible and it should not be.")
 	}
 }
-
 func TestCreditSortingByAddress(
 	t *testing.T) {
 
@@ -446,7 +441,6 @@ func newDummyCredit(
 	}
 	return newCredit(c, *addr)
 }
-
 func checkUniqueness(
 	t *testing.T, credits byAddress) {
 
@@ -479,7 +473,6 @@ func checkUniqueness(
 		}
 	}
 }
-
 func getPKScriptsForAddressRange(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, seriesID uint32,
 	startBranch, stopBranch Branch, startIdx, stopIdx Index) [][]byte {
@@ -495,7 +488,6 @@ func getPKScriptsForAddressRange(
 	}
 	return pkScripts
 }
-
 func checkWithdrawalAddressMatches(
 	t *testing.T, addr *WithdrawalAddress, seriesID uint32,
 	branch Branch, index Index) {

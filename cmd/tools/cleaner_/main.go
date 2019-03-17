@@ -60,7 +60,6 @@ func (*alias) String(p1, p2 int, bb string) string {
 // 	// testing
 // 	return bb
 // }
-
 func main() {
 
 	// bb, e := ioutil.ReadFile(os.Args[1])
@@ -90,7 +89,6 @@ func main() {
 	}
 
 }
-
 func sorter(
 
 	bb []byte) []byte {

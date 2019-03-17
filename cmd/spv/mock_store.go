@@ -25,7 +25,6 @@ var _ headerfs.BlockHeaderStore = (*mockBlockHeaderStore)(nil)
 // backed by an in-memory map. This instance is meant to be used by callers
 // outside the package to unit test components that require a BlockHeaderStore
 // interface.
-
 func newMockBlockHeaderStore() headerfs.BlockHeaderStore {
 
 	return &mockBlockHeaderStore{
@@ -34,7 +33,6 @@ func newMockBlockHeaderStore() headerfs.BlockHeaderStore {
 	}
 
 }
-
 func (m *mockBlockHeaderStore) ChainTip() (*wire.BlockHeader,
 
 	uint32, error) {
@@ -42,41 +40,35 @@ func (m *mockBlockHeaderStore) ChainTip() (*wire.BlockHeader,
 	return nil, 0, nil
 
 }
-
 func (m *mockBlockHeaderStore) LatestBlockLocator() (
 
 	blockchain.BlockLocator, error) {
 
 	return nil, nil
 }
-
 func (m *mockBlockHeaderStore) FetchHeaderByHeight(height uint32) (
 
 	*wire.BlockHeader, error) {
 
 	return nil, nil
 }
-
 func (m *mockBlockHeaderStore) FetchHeaderAncestors(uint32,
 
 	*chainhash.Hash) ([]wire.BlockHeader, uint32, error) {
 
 	return nil, 0, nil
 }
-
 func (m *mockBlockHeaderStore) HeightFromHash(*chainhash.Hash) (uint32, error) {
 
 	return 0, nil
 
 }
-
 func (m *mockBlockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp,
 
 	error) {
 
 	return nil, nil
 }
-
 func (m *mockBlockHeaderStore) FetchHeader(h *chainhash.Hash) (
 
 	*wire.BlockHeader, uint32, error) {
@@ -88,7 +80,6 @@ func (m *mockBlockHeaderStore) FetchHeader(h *chainhash.Hash) (
 
 	return nil, 0, fmt.Errorf("not found")
 }
-
 func (m *mockBlockHeaderStore) WriteHeaders(headers ...headerfs.BlockHeader) error {
 
 	for _, h := range headers {

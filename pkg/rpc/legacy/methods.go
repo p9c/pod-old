@@ -634,7 +634,6 @@ func getInfo(
 
 	return info, nil
 }
-
 func decodeAddress(
 	s string, params *chaincfg.Params) (util.Address, error) {
 
@@ -1765,7 +1764,6 @@ func sendPairs(
 
 	return txHashStr, nil
 }
-
 func isNilOrEmpty(
 	s *string) bool {
 

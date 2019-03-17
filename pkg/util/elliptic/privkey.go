@@ -48,14 +48,12 @@ func NewPrivateKey(
 }
 
 // PubKey returns the PublicKey corresponding to this private key.
-
 func (p *PrivateKey) PubKey() *PublicKey {
 
 	return (*PublicKey)(&p.PublicKey)
 }
 
 // ToECDSA returns the private key as a *ecdsa.PrivateKey.
-
 func (p *PrivateKey) ToECDSA() *ecdsa.PrivateKey {
 
 	return (*ecdsa.PrivateKey)(p)
@@ -65,7 +63,6 @@ func (p *PrivateKey) ToECDSA() *ecdsa.PrivateKey {
 // of hashing a larger message) using the private key. Produced signature
 // is deterministic (same message and same key yield the same signature) and canonical
 // in accordance with RFC6979 and BIP0062.
-
 func (p *PrivateKey) Sign(hash []byte) (*Signature, error) {
 
 	return signRFC6979(p, hash)
@@ -76,7 +73,6 @@ const PrivKeyBytesLen = 32
 
 // Serialize returns the private key number d as a big-endian binary-encoded
 // number, padded to a length of 32 bytes.
-
 func (p *PrivateKey) Serialize() []byte {
 
 	b := make([]byte, 0, PrivKeyBytesLen)

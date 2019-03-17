@@ -34,7 +34,6 @@ func dirEmpty(
 }
 
 // doUpgrades performs upgrades to pod as new versions require it.
-
 func doUpgrades() error {
 
 	err := upgradeDBPaths()
@@ -48,7 +47,6 @@ func doUpgrades() error {
 }
 
 // oldPodHomeDir returns the OS specific home directory pod used prior to version 0.3.3.  This has since been replaced with util.AppDataDir, but this function is still provided for the automatic upgrade path.
-
 func oldPodHomeDir() string {
 
 	// Search for Windows APPDATA first.  This won't exist on POSIX OSes.
@@ -120,7 +118,6 @@ func upgradeDBPathNet(
 }
 
 // upgradeDBPaths moves the databases from their locations prior to pod version 0.2.0 to their new locations.
-
 func upgradeDBPaths() error {
 
 	// Prior to version 0.2.0, the databases were in the "db" directory and their names were suffixed by "testnet" and "regtest" for their respective networks.  Check for the old database and update it to the new path introduced with version 0.2.0 accordingly.
@@ -134,7 +131,6 @@ func upgradeDBPaths() error {
 }
 
 // upgradeDataPaths moves the application data from its location prior to pod version 0.3.3 to its new location.
-
 func upgradeDataPaths() error {
 
 	// No need to migrate if the old and new home paths are the same.

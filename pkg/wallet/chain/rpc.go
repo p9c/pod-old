@@ -337,7 +337,6 @@ func parseBlock(
 	}
 	return blk, nil
 }
-
 func (c *RPCClient) onClientConnect() {
 
 	select {
@@ -346,7 +345,6 @@ func (c *RPCClient) onClientConnect() {
 	case <-c.quit:
 	}
 }
-
 func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time time.Time) {
 
 	select {
@@ -361,7 +359,6 @@ func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time ti
 	case <-c.quit:
 	}
 }
-
 func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time time.Time) {
 
 	select {
@@ -376,7 +373,6 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 	case <-c.quit:
 	}
 }
-
 func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 	blk, err := parseBlock(block)
@@ -408,13 +404,11 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 	case <-c.quit:
 	}
 }
-
 func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
 
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
-
 func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime time.Time) {
 
 	select {
@@ -423,7 +417,6 @@ func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime
 	case <-c.quit:
 	}
 }
-
 func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime time.Time) {
 
 	select {

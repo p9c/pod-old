@@ -65,7 +65,6 @@ type rescanBatch struct {
 // returned with the final error of the rescan.  The channel is buffered
 
 // and does not need to be read to prevent a deadlock.
-
 func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 
 	errChan := make(chan error, 1)
@@ -75,7 +74,6 @@ func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 }
 
 // batch creates the rescanBatch for a single rescan job.
-
 func (job *RescanJob) batch() *rescanBatch {
 
 	return &rescanBatch{
@@ -94,7 +92,6 @@ func (job *RescanJob) batch() *rescanBatch {
 // the minimum of the two jobs.  This method does not check for
 
 // duplicate addresses or outpoints.
-
 func (b *rescanBatch) merge(job *RescanJob) {
 
 	if job.InitialSync {
@@ -122,7 +119,6 @@ func (b *rescanBatch) merge(job *RescanJob) {
 // to inform callers that the rescan finished (or could not complete due
 
 // to an error).
-
 func (b *rescanBatch) done(err error) {
 
 	for _, c := range b.errChans {
@@ -137,7 +133,6 @@ func (b *rescanBatch) done(err error) {
 // submissions, and possibly batching many waiting requests together so they
 
 // can be handled by a single rescan after the current one completes.
-
 func (w *Wallet) rescanBatchHandler() {
 
 	var curBatch, nextBatch *rescanBatch
@@ -237,7 +232,6 @@ out:
 }
 
 // rescanProgressHandler handles notifications for partially and fully completed rescans by marking each rescanned address as partially or fully synced.
-
 func (w *Wallet) rescanProgressHandler() {
 
 	quit := w.quitChan()
@@ -284,7 +278,6 @@ out:
 // RPC requests to perform a rescan.  New jobs are not read until a rescan
 
 // finishes.
-
 func (w *Wallet) rescanRPCHandler() {
 
 	chainClient, err := w.requireChainClient()
@@ -346,7 +339,6 @@ out:
 // current best block in the main chain, and is considered an initial sync
 
 // rescan.
-
 func (w *Wallet) Rescan(addrs []util.Address, unspent []wtxmgr.Credit) error {
 
 	return w.rescanWithTarget(addrs, unspent, nil)

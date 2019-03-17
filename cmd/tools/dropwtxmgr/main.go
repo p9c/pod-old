@@ -67,7 +67,6 @@ func yes(
 	}
 
 }
-
 func no(
 
 	s string) bool {
@@ -81,12 +80,10 @@ func no(
 	}
 
 }
-
 func main() {
 
 	os.Exit(mainInt())
 }
-
 func mainInt() int {
 
 	fmt.Println("Database path:", opts.DbPath)

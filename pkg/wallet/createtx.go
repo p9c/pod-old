@@ -28,7 +28,6 @@ type byAmount []wtxmgr.Credit
 func (s byAmount) Len() int           { return len(s) }
 func (s byAmount) Less(i, j int) bool { return s[i].Amount < s[j].Amount }
 func (s byAmount) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-
 func makeInputSource(
 
 	eligible []wtxmgr.Credit) txauthor.InputSource {
@@ -102,7 +101,6 @@ func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 
 	return privKey, ma.Compressed(), nil
 }
-
 func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
 
 	ma, err := s.Address(s.addrmgrNs, addr)
@@ -241,7 +239,6 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 	return tx, nil
 }
-
 func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minconf int32, bs *waddrmgr.BlockStamp) ([]wtxmgr.Credit, error) {
 
 	addrmgrNs := dbtx.ReadBucket(waddrmgrNamespaceKey)

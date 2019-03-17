@@ -16,7 +16,6 @@ type Iterator struct {
 }
 
 // limitIterator clears the current iterator node if it is outside of the range specified when the iterator was created.  It returns whether the iterator is valid.
-
 func (iter *Iterator) limitIterator() bool {
 
 	if iter.node == nil {
@@ -40,7 +39,6 @@ func (iter *Iterator) limitIterator() bool {
 }
 
 // seek moves the iterator based on the provided key and flags. When the exact match flag is set, the iterator will either be moved to first key in the treap that exactly matches the provided key, or the one before/after it depending on the greater flag. When the exact match flag is NOT set, the iterator will be moved to the first key in the treap before/after the provided key depending on the greater flag. In all cases, the limits specified when the iterator was created are respected.
-
 func (iter *Iterator) seek(key []byte, exactMatch bool, greater bool) bool {
 
 	iter.node = nil
@@ -103,7 +101,6 @@ func (iter *Iterator) seek(key []byte, exactMatch bool, greater bool) bool {
 }
 
 // First moves the iterator to the first key/value pair.  When there is only a single key/value pair both First and Last will point to the same pair. Returns false if there are no key/value pairs.
-
 func (iter *Iterator) First() bool {
 
 	// Seek the start key if the iterator was created with one.  This will result in either an exact match, the first greater key, or an exhausted iterator if no such key exists.
@@ -129,7 +126,6 @@ func (iter *Iterator) First() bool {
 }
 
 // Last moves the iterator to the last key/value pair.  When there is only a single key/value pair both First and Last will point to the same pair. Returns false if there are no key/value pairs.
-
 func (iter *Iterator) Last() bool {
 
 	// Seek the limit key if the iterator was created with one.  This will result in the first key smaller than the limit key, or an exhausted iterator if no such key exists.
@@ -155,7 +151,6 @@ func (iter *Iterator) Last() bool {
 }
 
 // Next moves the iterator to the next key/value pair and returns false when the iterator is exhausted.  When invoked on a newly created iterator it will position the iterator at the first item.
-
 func (iter *Iterator) Next() bool {
 
 	if iter.isNew {
@@ -201,7 +196,6 @@ func (iter *Iterator) Next() bool {
 }
 
 // Prev moves the iterator to the previous key/value pair and returns false when the iterator is exhausted.  When invoked on a newly created iterator it will position the iterator at the last item.
-
 func (iter *Iterator) Prev() bool {
 
 	if iter.isNew {
@@ -247,7 +241,6 @@ func (iter *Iterator) Prev() bool {
 }
 
 // Seek moves the iterator to the first key/value pair with a key that is greater than or equal to the given key and returns true if successful.
-
 func (iter *Iterator) Seek(key []byte) bool {
 
 	iter.isNew = false
@@ -256,7 +249,6 @@ func (iter *Iterator) Seek(key []byte) bool {
 
 // Key returns the key of the current key/value pair or nil when the iterator is exhausted.  The caller should not modify the contents of the returned
 // slice.
-
 func (iter *Iterator) Key() []byte {
 
 	if iter.node == nil {
@@ -268,7 +260,6 @@ func (iter *Iterator) Key() []byte {
 
 // Value returns the value of the current key/value pair or nil when the iterator is exhausted.  The caller should not modify the contents of the
 // returned slice.
-
 func (iter *Iterator) Value() []byte {
 
 	if iter.node == nil {
@@ -279,7 +270,6 @@ func (iter *Iterator) Value() []byte {
 }
 
 // Valid indicates whether the iterator is positioned at a valid key/value pair. It will be considered invalid when the iterator is newly created or exhausted.
-
 func (iter *Iterator) Valid() bool {
 
 	return iter.node != nil
@@ -287,7 +277,6 @@ func (iter *Iterator) Valid() bool {
 
 // ForceReseek notifies the iterator that the underlying mutable treap has been updated, so the next call to Prev or Next needs to reseek in order to allow the iterator to continue working properly.
 // NOTE: Calling this function when the iterator is associated with an immutable treap has no effect as you would expect.
-
 func (iter *Iterator) ForceReseek() {
 
 	// Nothing to do when the iterator is associated with an immutable treap.
@@ -320,7 +309,6 @@ func (iter *Iterator) ForceReseek() {
 //   		iter.ForceReseek()
 //   	}
 //   }
-
 func (t *Mutable) Iterator(startKey, limitKey []byte) *Iterator {
 
 	iter := &Iterator{
@@ -334,7 +322,6 @@ func (t *Mutable) Iterator(startKey, limitKey []byte) *Iterator {
 }
 
 // Iterator returns a new iterator for the immutable treap.  The newly returned iterator is not pointing to a valid item until a call to one of the methods to position it is made. The start key and limit key parameters cause the iterator to be limited to a range of keys.  The start key is inclusive and the limit key is exclusive. Either or both can be nil if the functionality is not desired.
-
 func (t *Immutable) Iterator(startKey, limitKey []byte) *Iterator {
 
 	iter := &Iterator{

@@ -13,7 +13,6 @@ const (
 )
 
 // SetLimits raises some process limits to values which allow pod and associated utilities to run.
-
 func SetLimits() error {
 
 	var rLimit syscall.Rlimit

@@ -32,7 +32,6 @@ import (
 var LogLevels = GetDefaultLogLevelsConfig()
 
 // GetAllSubSystems returns a map with all the SubSystems in Parallelcoin Pod
-
 func GetAllSubSystems() map[string]*cl.SubSystem {
 
 	return map[string]*cl.SubSystem{
@@ -65,7 +64,6 @@ func GetAllSubSystems() map[string]*cl.SubSystem {
 }
 
 // GetDefaultLogLevelsConfig returns a fresh shiny new default levels map
-
 func GetDefaultLogLevelsConfig() map[string]string {
 
 	return map[string]string{

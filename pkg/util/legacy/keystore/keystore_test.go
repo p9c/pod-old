@@ -28,7 +28,6 @@ func makeBS(
 		Height: height,
 	}
 }
-
 func TestBtcAddressSerializer(
 
 	t *testing.T) {
@@ -97,7 +96,6 @@ func TestBtcAddressSerializer(
 		t.Error("Original and read btcAddress differ.")
 	}
 }
-
 func TestScriptAddressSerializer(
 
 	t *testing.T) {
@@ -136,7 +134,6 @@ func TestScriptAddressSerializer(
 		t.Error("Original and read btcAddress differ.")
 	}
 }
-
 func TestWalletCreationSerialization(
 
 	t *testing.T) {
@@ -193,7 +190,6 @@ func TestWalletCreationSerialization(
 
 	//	}
 }
-
 func TestChaining(
 
 	t *testing.T) {
@@ -396,7 +392,6 @@ func TestChaining(
 		}
 	}
 }
-
 func TestWalletPubkeyChaining(
 
 	t *testing.T) {
@@ -612,7 +607,6 @@ func TestWalletPubkeyChaining(
 		return
 	}
 }
-
 func TestWatchingWalletExport(
 
 	t *testing.T) {
@@ -880,7 +874,6 @@ func TestWatchingWalletExport(
 		return
 	}
 }
-
 func TestImportPrivateKey(
 
 	t *testing.T) {
@@ -1105,7 +1098,6 @@ func TestImportPrivateKey(
 	}
 
 }
-
 func TestImportScript(
 
 	t *testing.T) {
@@ -1470,7 +1462,6 @@ func TestImportScript(
 		return
 	}
 }
-
 func TestChangePassphrase(
 
 	t *testing.T) {

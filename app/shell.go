@@ -6,7 +6,6 @@ func shellHandleSave() {
 
 	appConfigCommon.Save = false
 }
-
 func shellHandle(c *cli.Context) error {
 
 	_ = podHandle(c)

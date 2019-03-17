@@ -668,7 +668,6 @@ func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 	case <-s.rescanQuit:
 	}
 }
-
 func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	time time.Time) {
 

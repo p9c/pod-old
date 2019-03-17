@@ -234,21 +234,18 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 }
 
 // BlockBatch returns a buffer of blocks that have not yet been searched.
-
 func (rm *RecoveryManager) BlockBatch() []wtxmgr.BlockMeta {
 
 	return rm.blockBatch
 }
 
 // ResetBlockBatch resets the internal block buffer to conserve memory.
-
 func (rm *RecoveryManager) ResetBlockBatch() {
 
 	rm.blockBatch = rm.blockBatch[:0]
 }
 
 // State returns the current RecoveryState.
-
 func (rm *RecoveryManager) State() *RecoveryState {
 
 	return rm.state
@@ -351,7 +348,6 @@ func (rs *RecoveryState) StateForScope(
 // WatchedOutPoints returns the global set of outpoints that are known to belong
 
 // to the wallet during recovery.
-
 func (rs *RecoveryState) WatchedOutPoints() map[wire.OutPoint]util.Address {
 
 	return rs.watchedOutPoints
@@ -468,7 +464,6 @@ func NewBranchRecoveryState(
 // ExtendHorizon returns the current horizon and the number of addresses that
 
 // must be derived in order to maintain the desired recovery window.
-
 func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 
 	// Compute the new horizon, which should surpass our last found address
@@ -500,14 +495,12 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 // AddAddr adds a freshly derived address from our lookahead into the map of
 
 // known addresses for this branch.
-
 func (brs *BranchRecoveryState) AddAddr(index uint32, addr util.Address) {
 
 	brs.addresses[index] = addr
 }
 
 // GetAddr returns the address derived from a given child index.
-
 func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 
 	return brs.addresses[index]
@@ -516,7 +509,6 @@ func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 // ReportFound updates the last found index if the reported index exceeds the
 
 // current value.
-
 func (brs *BranchRecoveryState) ReportFound(index uint32) {
 
 	if index >= brs.nextUnfound {
@@ -551,7 +543,6 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 // This is used to ensure that we are always have the proper lookahead when an
 
 // invalid child is encountered.
-
 func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 
 	brs.invalidChildren[index] = struct{}{}
@@ -561,7 +552,6 @@ func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 // NextUnfound returns the child index of the successor to the highest found
 
 // child index.
-
 func (brs *BranchRecoveryState) NextUnfound() uint32 {
 
 	return brs.nextUnfound
@@ -570,7 +560,6 @@ func (brs *BranchRecoveryState) NextUnfound() uint32 {
 // Addrs returns a map of all currently derived child indexes to the their
 
 // corresponding addresses.
-
 func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 
 	return brs.addresses
@@ -583,7 +572,6 @@ func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 // indexes to derive in order to maintain the proper number of valid addresses
 
 // within our horizon.
-
 func (brs *BranchRecoveryState) NumInvalidInHorizon() uint32 {
 
 	var nInvalid uint32

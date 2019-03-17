@@ -44,7 +44,6 @@ var thresholdStateStrings = map[ThresholdState]string{
 }
 
 // String returns the ThresholdState as a human-readable name.
-
 func (t ThresholdState) String() string {
 
 	if s := thresholdStateStrings[t]; s != "" {
@@ -83,7 +82,6 @@ type thresholdStateCache struct {
 }
 
 // Lookup returns the threshold state associated with the given hash along with a boolean that indicates whether or not it is valid.
-
 func (c *thresholdStateCache) Lookup(hash *chainhash.Hash) (ThresholdState, bool) {
 
 	state, ok := c.entries[*hash]
@@ -91,7 +89,6 @@ func (c *thresholdStateCache) Lookup(hash *chainhash.Hash) (ThresholdState, bool
 }
 
 // Update updates the cache to contain the provided hash to threshold state mapping.
-
 func (c *thresholdStateCache) Update(hash *chainhash.Hash, state ThresholdState) {
 
 	c.entries[*hash] = state
@@ -115,7 +112,6 @@ func newThresholdCaches(
 }
 
 // thresholdState returns the current rule change threshold state for the block AFTER the given node and deployment ID.  The cache is used to ensure the threshold states for previous windows are only calculated once. This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdConditionChecker, cache *thresholdStateCache) (ThresholdState, error) {
 
 	// The threshold state for the window that contains the genesis block is defined by definition.
@@ -243,7 +239,6 @@ func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdCondit
 }
 
 // ThresholdState returns the current rule change threshold state of the given deployment ID for the block AFTER the end of the current best chain. This function is safe for concurrent access.
-
 func (b *BlockChain) ThresholdState(deploymentID uint32) (ThresholdState, error) {
 
 	b.chainLock.Lock()
@@ -253,7 +248,6 @@ func (b *BlockChain) ThresholdState(deploymentID uint32) (ThresholdState, error)
 }
 
 // IsDeploymentActive returns true if the target deploymentID is active, and false otherwise. This function is safe for concurrent access.
-
 func (b *BlockChain) IsDeploymentActive(deploymentID uint32) (bool, error) {
 
 	b.chainLock.Lock()
@@ -268,7 +262,6 @@ func (b *BlockChain) IsDeploymentActive(deploymentID uint32) (bool, error) {
 }
 
 // deploymentState returns the current rule change threshold for a given deploymentID. The threshold is evaluated from the point of view of the block node passed in as the first argument to this method. It is important to note that, as the variable name indicates, this function expects the block node prior to the block for which the deployment state is desired.  In other words, the returned deployment state is for the block AFTER the passed node. This function MUST be called with the chain state lock held (for writes).
-
 func (b *BlockChain) deploymentState(prevNode *blockNode, deploymentID uint32) (ThresholdState, error) {
 
 	if deploymentID > uint32(len(b.chainParams.Deployments)) {
@@ -282,7 +275,6 @@ func (b *BlockChain) deploymentState(prevNode *blockNode, deploymentID uint32) (
 }
 
 // initThresholdCaches initializes the threshold state caches for each warning bit and defined deployment and provides warnings if the chain is current per the warnUnknownVersions and warnUnknownRuleActivations functions.
-
 func (b *BlockChain) initThresholdCaches() error {
 
 	// Initialize the warning and deployment caches by calculating the threshold state for each of them.  This will ensure the caches are populated and any states that needed to be recalculated due to definition changes is done now.

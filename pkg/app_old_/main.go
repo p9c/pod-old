@@ -19,7 +19,6 @@ var PodApp = climax.Application{
 }
 
 // Main is the real pod main
-
 func Main() int {
 
 	PodApp.AddCommand(VersionCommand)

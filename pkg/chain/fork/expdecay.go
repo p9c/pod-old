@@ -39,13 +39,11 @@ t2 = Mul(t2, potx)
 	}
 	return x
 }
-
 func Abs(a *big.Float) *big.Float {
 
 
 return Zero().Abs(a)
 }
-
 func Exp(a *big.Float, e uint64) *big.Float {
 
 
@@ -57,7 +55,6 @@ result = Mul(result, a)
 	}
 	return result
 }
-
 func New(f float64) *big.Float {
 
 
@@ -65,13 +62,11 @@ r := big.NewFloat(f)
 	r.SetPrec(256)
 	return r
 }
-
 func Div(a, b *big.Float) *big.Float {
 
 
 return Zero().Quo(a, b)
 }
-
 func Zero() *big.Float {
 
 
@@ -79,25 +74,21 @@ r := big.NewFloat(0.0)
 	r.SetPrec(256)
 	return r
 }
-
 func Mul(a, b *big.Float) *big.Float {
 
 
 return Zero().Mul(a, b)
 }
-
 func Add(a, b *big.Float) *big.Float {
 
 
 return Zero().Add(a, b)
 }
-
 func Sub(a, b *big.Float) *big.Float {
 
 
 return Zero().Sub(a, b)
 }
-
 func Lesser(x, y *big.Float) bool {
 
 

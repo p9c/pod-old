@@ -10,14 +10,12 @@ import (
 )
 
 // Close a SubSystem logger
-
 func (s *SubSystem) Close() {
 
 	close(s.Ch)
 }
 
 // SetLevel changes the level of a subsystem by level name
-
 func (s *SubSystem) SetLevel(level string) {
 
 	if i, ok := Levels[level]; ok {
@@ -33,7 +31,6 @@ func (s *SubSystem) SetLevel(level string) {
 }
 
 // NewSubSystem starts up a new subsystem logger
-
 func NewSubSystem(name, level string) (ss *SubSystem) {
 
 	wg.Add(1)
@@ -265,7 +262,6 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	wg.Done()
 	return
 }
-
 func init() {
 
 	wg.Add(1)
@@ -412,7 +408,6 @@ func init() {
 }
 
 // Shutdown the application, allowing the logger a moment to clear the channels
-
 func Shutdown() {
 
 	close(Quit)

@@ -44,7 +44,6 @@ func TestPutUsedAddrHash(
 		t.Fatalf("Wrong stored hash; got %x, want %x", storedHash, dummyHash)
 	}
 }
-
 func TestGetMaxUsedIdx(
 	t *testing.T) {
 
@@ -92,7 +91,6 @@ func TestGetMaxUsedIdx(
 		t.Fatalf("Wrong max idx; got %d, want %d", maxIdx, Index(3001))
 	}
 }
-
 func TestWithdrawalSerialization(
 	t *testing.T) {
 
@@ -157,7 +155,6 @@ func TestWithdrawalSerialization(
 
 	TstCheckWithdrawalStatusMatches(t, wInfo.status, wi.status)
 }
-
 func TestPutAndGetWithdrawal(
 	t *testing.T) {
 

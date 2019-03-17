@@ -202,7 +202,6 @@ func Main(
 
 	return nil
 }
-
 func readCAFile() []byte {
 
 	// Read certificate file if TLS is not disabled.

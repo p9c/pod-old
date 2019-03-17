@@ -35,7 +35,6 @@ var (
 )
 
 // Serialize returns the ECDSA signature in the more strict DER format.  Note that the serialized bytes returned do not include the appended hash type used in Bitcoin signature scripts. encoding/asn1 is broken so we hand roll this output: 0x30 <length> 0x02 <length r> r 0x02 <length s> s
-
 func (sig *Signature) Serialize() []byte {
 
 	// low 'S' malleability breaker
@@ -65,14 +64,12 @@ func (sig *Signature) Serialize() []byte {
 }
 
 // Verify calls ecdsa.Verify to verify the signature of hash using the public key.  It returns true if the signature is valid, false otherwise.
-
 func (sig *Signature) Verify(hash []byte, pubKey *PublicKey) bool {
 
 	return ecdsa.Verify(pubKey.ToECDSA(), hash, sig.R, sig.S)
 }
 
 // IsEqual compares this Signature instance to the one passed, returning true if both Signatures are equivalent. A signature is equivalent to another, if they both have the same scalar value for R and S.
-
 func (sig *Signature) IsEqual(otherSig *Signature) bool {
 
 	return sig.R.Cmp(otherSig.R) == 0 &&
