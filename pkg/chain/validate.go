@@ -283,7 +283,8 @@ func (
 		// Ensure the difficulty specified in the block header matches the calculated difficulty based on the previous block and difficulty retarget rules.
 		a := fork.GetAlgoName(header.Version, prevNode.height+1)
 
-		log <- cl.Info{"algo", a, header.Version, prevNode.height + 1}
+		log <- cl.Infof{
+			"algo %s %d %8x %d", a, header.Version, header.Bits, prevNode.height + 1}
 
 		expectedDifficulty, err := b.calcNextRequiredDifficulty(prevNode,
 			header.Timestamp, a, true)

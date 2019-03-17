@@ -23,15 +23,12 @@ type estimateFeeTester struct {
 }
 
 // lastBlock is a linked list of the block hashes which have been processed by the test FeeEstimator.
-
 type lastBlock struct {
 	hash *chainhash.Hash
 	prev *lastBlock
 }
 
-func (
-	eft *estimateFeeTester,
-) checkSaveAndRestore(
+func (eft *estimateFeeTester) checkSaveAndRestore(
 	previousEstimates [estimateFeeDepth]BtcPerKilobyte) {
 
 	// Get the save state.

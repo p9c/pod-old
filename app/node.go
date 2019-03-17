@@ -177,7 +177,6 @@ func nodeHandle(c *cli.Context) error {
 	serviceOpts := serviceOptions{}
 
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
-
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
 
 		err := runServiceCommand(serviceOpts.ServiceCommand)
@@ -200,7 +199,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Set the mining algorithm correctly, default to random if unrecognised
-
 	switch *nodeConfig.Algo {
 
 	case fork.P9AlgoVers[0], fork.P9AlgoVers[1], fork.P9AlgoVers[2], fork.P9AlgoVers[3], fork.P9AlgoVers[4], fork.P9AlgoVers[5], fork.P9AlgoVers[6], fork.P9AlgoVers[7], fork.P9AlgoVers[8], "random", "easy":
@@ -254,7 +252,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Validate profile port number
-
 	if *nodeConfig.Profile != "" {
 
 		profilePort, err := strconv.Atoi(*nodeConfig.Profile)
@@ -272,7 +269,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Don't allow ban durations that are too short.
-
 	if *nodeConfig.BanDuration < time.Second {
 
 		err := fmt.Errorf("%s: The banduration option may not be less than 1s -- parsed [%v]", funcName, *nodeConfig.BanDuration)
@@ -283,7 +279,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Validate any given whitelisted IP addresses and networks.
-
 	if len(*nodeConfig.Whitelists) > 0 {
 
 		var ip net.IP
@@ -335,7 +330,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// --addPeer and --connect do not mix.
-
 	if len(*nodeConfig.AddPeers) > 0 && len(*nodeConfig.ConnectPeers) > 0 {
 
 		err := fmt.Errorf(
@@ -348,7 +342,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// --proxy or --connect without --listen disables listening.
-
 	if (*nodeConfig.Proxy != "" || len(*nodeConfig.ConnectPeers) > 0) &&
 		len(*nodeConfig.Listeners) == 0 {
 
@@ -356,14 +349,12 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Connect means no DNS seeding.
-
 	if len(*nodeConfig.ConnectPeers) > 0 {
 
 		*nodeConfig.DisableDNSSeed = true
 	}
 
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
-
 	if len(*nodeConfig.Listeners) == 0 {
 
 		*nodeConfig.Listeners = []string{
@@ -374,7 +365,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Check to make sure limited and admin users don't have the same username
-
 	if *nodeConfig.RPCUser != "" &&
 		*nodeConfig.RPCUser == *nodeConfig.RPCLimitUser {
 
@@ -387,7 +377,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Check to make sure limited and admin users don't have the same password
-
 	if *nodeConfig.RPCPass != "" &&
 		*nodeConfig.RPCPass == *nodeConfig.RPCLimitPass {
 
@@ -401,7 +390,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// The RPC server is disabled if no username or password is provided.
-
 	if (*nodeConfig.RPCUser == "" || *nodeConfig.RPCPass == "") &&
 		(*nodeConfig.RPCLimitUser == "" || *nodeConfig.RPCLimitPass == "") {
 
@@ -415,7 +403,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Default RPC to listen on localhost only.
-
 	if !*nodeConfig.DisableRPC && len(*nodeConfig.RPCListeners) == 0 {
 
 		addrs, err := net.LookupHost(node.DefaultRPCListener)
@@ -529,7 +516,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Look for illegal characters in the user agent comments.
-
 	for _, uaComment := range *nodeConfig.UserAgentComments {
 
 		if strings.ContainsAny(uaComment, "/:()") {
@@ -547,7 +533,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// --addrindex and --dropaddrindex do not mix.
-
 	if *nodeConfig.AddrIndex && *nodeConfig.DropAddrIndex {
 
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex options may not be activated at the same time",
@@ -592,7 +577,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Ensure there is at least one mining address when the generate flag is set.
-
 	if (*nodeConfig.Generate || *nodeConfig.MinerListener != "") && len(*nodeConfig.MiningAddrs) == 0 {
 
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
@@ -725,8 +709,8 @@ func nodeHandle(c *cli.Context) error {
 		}
 
 		StateCfg.Dial = proxy.DialTimeout
-		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 
+		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if *nodeConfig.Onion &&
 			*nodeConfig.OnionProxy == "" {
 
@@ -740,7 +724,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
-
 	if *nodeConfig.OnionProxy != "" {
 
 		_, _, err := net.SplitHostPort(*nodeConfig.OnionProxy)
@@ -757,7 +740,6 @@ func nodeHandle(c *cli.Context) error {
 		}
 
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
-
 		if *nodeConfig.TorIsolation &&
 			(*nodeConfig.OnionProxyUser != "" || *nodeConfig.OnionProxyPass != "") {
 
@@ -782,7 +764,6 @@ func nodeHandle(c *cli.Context) error {
 			}
 
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
-
 		if *nodeConfig.Proxy != "" {
 
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
@@ -798,7 +779,6 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	// Specifying --noonion means the onion address dial function results in an error.
-
 	if !*nodeConfig.Onion {
 
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
@@ -818,6 +798,7 @@ func nodeHandle(c *cli.Context) error {
 
 	return launchNode(c)
 }
+
 func NormalizeStringSliceAddresses(a *cli.StringSlice, port string) {
 
 	variable := []string(*a)
