@@ -81,6 +81,7 @@ func NewLoader(
 func (l *Loader) onLoaded(w *Wallet, db walletdb.DB) {
 
 	for _, fn := range l.callbacks {
+
 		fn(w)
 	}
 
@@ -98,10 +99,12 @@ func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 
 	l.mu.Lock()
 	if l.wallet != nil {
+
 		w := l.wallet
 		l.mu.Unlock()
 		fn(w)
 	} else {
+
 		l.callbacks = append(l.callbacks, fn)
 		l.mu.Unlock()
 	}
@@ -119,25 +122,30 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 	l.mu.Lock()
 
 	if l.wallet != nil {
+
 		return nil, ErrLoaded
 	}
 
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	exists, err := fileExists(dbPath)
 	if err != nil {
+
 		return nil, err
 	}
 	if exists {
+
 		return nil, errors.New("ERROR: " + dbPath + " already exists")
 	}
 
 	// Create the wallet database backed by bolt db.
 	err = os.MkdirAll(l.dbDirPath, 0700)
 	if err != nil {
+
 		return nil, err
 	}
 	db, err := walletdb.Create("bdb", dbPath)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -146,12 +154,14 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase, seed []byte,
 		db, pubPassphrase, privPassphrase, seed, l.chainParams, bday,
 	)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Open the newly-created wallet.
 	w, err := Open(db, pubPassphrase, nil, l.chainParams, l.recoveryWindow)
 	if err != nil {
+
 		return nil, err
 	}
 	w.Start()
@@ -180,11 +190,13 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	l.mu.Lock()
 
 	if l.wallet != nil {
+
 		return nil, ErrLoaded
 	}
 
 	// Ensure that the network directory exists.
 	if err := checkCreateDir(l.dbDirPath); err != nil {
+
 		return nil, err
 	}
 
@@ -192,6 +204,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	dbPath := filepath.Join(l.dbDirPath, WalletDbName)
 	db, err := walletdb.Open("bdb", dbPath)
 	if err != nil {
+
 		log <- cl.Error{
 			"failed to open database:", err,
 		}
@@ -200,11 +213,13 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 
 	var cbs *waddrmgr.OpenCallbacks
 	if canConsolePrompt {
+
 		cbs = &waddrmgr.OpenCallbacks{
 			ObtainSeed:        prompt.ProvideSeed,
 			ObtainPrivatePass: prompt.ProvidePrivPassphrase,
 		}
 	} else {
+
 		cbs = &waddrmgr.OpenCallbacks{
 			ObtainSeed:        noConsole,
 			ObtainPrivatePass: noConsole,
@@ -220,6 +235,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		// allow future calls to walletdb.Open().
 		e := db.Close()
 		if e != nil {
+
 			log <- cl.Warn{
 				"error closing database:", e,
 			}
@@ -262,10 +278,12 @@ func (l *Loader) LoadedWallet() (*Wallet, bool) {
 
 // function returns without error.
 func (l *Loader) UnloadWallet() error {
+
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
 	if l.wallet == nil {
+
 		return ErrNotLoaded
 	}
 
@@ -273,6 +291,7 @@ func (l *Loader) UnloadWallet() error {
 	l.wallet.WaitForShutdown()
 	err := l.db.Close()
 	if err != nil {
+
 		return err
 	}
 
@@ -286,6 +305,7 @@ func fileExists(
 
 	_, err := os.Stat(filePath)
 	if err != nil {
+
 		if os.IsNotExist(err) {
 
 			return false, nil

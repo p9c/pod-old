@@ -24,10 +24,12 @@ func TstCheckError(
 
 	vpErr, ok := gotErr.(Error)
 	if !ok {
+
 		t.Errorf("%s: unexpected error type - got %T (%s), want %T",
 			testName, gotErr, gotErr, Error{})
 	}
 	if vpErr.ErrorCode != wantErrCode {
+
 		t.Errorf("%s: unexpected error code - got %s (%s), want %s",
 			testName, vpErr.ErrorCode, vpErr, wantErrCode)
 	}
@@ -39,6 +41,7 @@ func TstRunWithManagerUnlocked(
 	t *testing.T, mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, callback func()) {
 
 	if err := mgr.Unlock(addrmgrNs, privPassphrase); err != nil {
+
 		t.Fatal(err)
 	}
 	defer mgr.Lock()

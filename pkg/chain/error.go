@@ -9,6 +9,7 @@ type DeploymentError uint32
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
 func (e DeploymentError) Error() string {
+
 	return fmt.Sprintf("deployment ID %d does not exist", uint32(e))
 }
 
@@ -17,6 +18,7 @@ type AssertError string
 
 // Error returns the assertion error as a human-readable string and satisfies the error interface.
 func (e AssertError) Error() string {
+
 	return "assertion failed: " + string(e)
 }
 
@@ -222,11 +224,13 @@ type RuleError struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e RuleError) Error() string {
+
 	return e.Description
 }
 
 // ruleError creates an RuleError given a set of arguments.
 func ruleError(
 	c ErrorCode, desc string) RuleError {
+
 	return RuleError{ErrorCode: c, Description: desc}
 }

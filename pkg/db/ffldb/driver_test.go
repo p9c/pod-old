@@ -102,6 +102,7 @@ func TestCreateOpenFail(
 	_ = os.RemoveAll(dbPath)
 	db, err := database.Create(dbType, dbPath, blockDataNet)
 	if err != nil {
+
 		t.Errorf("Create: unexpected error: %v", err)
 		return
 	}
@@ -110,6 +111,7 @@ func TestCreateOpenFail(
 	db.Close()
 	wantErrCode = database.ErrDbNotOpen
 	err = db.View(func(tx database.Tx) error {
+
 		return nil
 	})
 
@@ -120,6 +122,7 @@ func TestCreateOpenFail(
 
 	wantErrCode = database.ErrDbNotOpen
 	err = db.Update(func(tx database.Tx) error {
+
 		return nil
 	})
 
@@ -162,6 +165,7 @@ func TestPersistence(
 	_ = os.RemoveAll(dbPath)
 	db, err := database.Create(dbType, dbPath, blockDataNet)
 	if err != nil {
+
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
 		return
 	}
@@ -180,20 +184,25 @@ func TestPersistence(
 	genesisBlock := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	genesisHash := chaincfg.MainNetParams.GenesisHash
 	err = db.Update(func(tx database.Tx) error {
+
 		metadataBucket := tx.Metadata()
 		if metadataBucket == nil {
+
 			return fmt.Errorf("Metadata: unexpected nil bucket")
 		}
 
 		bucket1, err := metadataBucket.CreateBucket(bucket1Key)
 		if err != nil {
+
 			return fmt.Errorf("CreateBucket: unexpected error: %v",
 				err)
 		}
 
 		for k, v := range storeValues {
+
 			err := bucket1.Put([]byte(k), []byte(v))
 			if err != nil {
+
 				return fmt.Errorf("Put: unexpected error: %v",
 					err)
 			}
@@ -201,6 +210,7 @@ func TestPersistence(
 		}
 
 		if err := tx.StoreBlock(genesisBlock); err != nil {
+
 			return fmt.Errorf("StoreBlock: unexpected error: %v",
 				err)
 		}
@@ -209,6 +219,7 @@ func TestPersistence(
 	})
 
 	if err != nil {
+
 		t.Errorf("Update: unexpected error: %v", err)
 		return
 	}
@@ -217,6 +228,7 @@ func TestPersistence(
 	db.Close()
 	db, err = database.Open(dbType, dbPath, blockDataNet)
 	if err != nil {
+
 		t.Errorf("Failed to open test database (%s) %v", dbType, err)
 		return
 	}
@@ -225,17 +237,21 @@ func TestPersistence(
 
 	// Ensure the values previously stored in the 3rd namespace still exist and are correct.
 	err = db.View(func(tx database.Tx) error {
+
 		metadataBucket := tx.Metadata()
 		if metadataBucket == nil {
+
 			return fmt.Errorf("Metadata: unexpected nil bucket")
 		}
 
 		bucket1 := metadataBucket.Bucket(bucket1Key)
 		if bucket1 == nil {
+
 			return fmt.Errorf("Bucket1: unexpected nil bucket")
 		}
 
 		for k, v := range storeValues {
+
 			gotVal := bucket1.Get([]byte(k))
 			if !reflect.DeepEqual(gotVal, []byte(v)) {
 
@@ -249,6 +265,7 @@ func TestPersistence(
 		genesisBlockBytes, _ := genesisBlock.Bytes()
 		gotBytes, err := tx.FetchBlock(genesisHash)
 		if err != nil {
+
 			return fmt.Errorf("FetchBlock: unexpected error: %v",
 				err)
 		}
@@ -262,6 +279,7 @@ func TestPersistence(
 	})
 
 	if err != nil {
+
 		t.Errorf("View: unexpected error: %v", err)
 		return
 	}
@@ -279,6 +297,7 @@ func TestInterface(
 	_ = os.RemoveAll(dbPath)
 	db, err := database.Create(dbType, dbPath, blockDataNet)
 	if err != nil {
+
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
 		return
 	}
@@ -289,6 +308,7 @@ func TestInterface(
 	// Ensure the driver type is the expected value.
 	gotDbType := db.Type()
 	if gotDbType != dbType {
+
 		t.Errorf("Type: unepxected driver type - got %v, want %v",
 			gotDbType, dbType)
 		return

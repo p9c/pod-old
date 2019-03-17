@@ -47,6 +47,7 @@ type MsgVersion struct {
 
 // HasService returns whether the specified service is supported by the peer that generated the message.
 func (msg *MsgVersion) HasService(service ServiceFlag) bool {
+
 	return msg.Services&service == service
 }
 
@@ -58,41 +59,52 @@ func (msg *MsgVersion) AddService(service ServiceFlag) {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. The version message is special in that the protocol version hasn't been negotiated yet.  As a result, the pver field is ignored and any fields which are added in new versions are optional.  This also mean that r must be a *bytes.Buffer so the number of remaining bytes can be ascertained. This is part of the Message interface implementation.
 func (msg *MsgVersion) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	buf, ok := r.(*bytes.Buffer)
 	if !ok {
+
 		return fmt.Errorf("MsgVersion.BtcDecode reader is not a " +
 			"*bytes.Buffer")
 	}
 	err := readElements(buf, &msg.ProtocolVersion, &msg.Services,
 		(*int64Time)(&msg.Timestamp))
 	if err != nil {
+
 		return err
 	}
 	err = readNetAddress(buf, pver, &msg.AddrYou, false)
 	if err != nil {
+
 		return err
 	}
 
 	// Protocol versions >= 106 added a from address, nonce, and user agent field and they are only considered present if there are bytes remaining in the message.
 	if buf.Len() > 0 {
+
 		err = readNetAddress(buf, pver, &msg.AddrMe, false)
 		if err != nil {
+
 			return err
 		}
 	}
 	if buf.Len() > 0 {
+
 		err = readElement(buf, &msg.Nonce)
 		if err != nil {
+
 			return err
 		}
 	}
 	if buf.Len() > 0 {
+
 		userAgent, err := ReadVarString(buf, pver)
 		if err != nil {
+
 			return err
 		}
 		err = validateUserAgent(userAgent)
 		if err != nil {
+
 			return err
 		}
 		msg.UserAgent = userAgent
@@ -100,8 +112,10 @@ func (msg *MsgVersion) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 
 	// Protocol versions >= 209 added a last known block field.  It is only considered present if there are bytes remaining in the message.
 	if buf.Len() > 0 {
+
 		err = readElement(buf, &msg.LastBlock)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -119,40 +133,50 @@ func (msg *MsgVersion) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgVersion) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	err := validateUserAgent(msg.UserAgent)
 	if err != nil {
+
 		return err
 	}
 	err = writeElements(w, msg.ProtocolVersion, msg.Services,
 		msg.Timestamp.Unix())
 	if err != nil {
+
 		return err
 	}
 	err = writeNetAddress(w, pver, &msg.AddrYou, false)
 	if err != nil {
+
 		return err
 	}
 	err = writeNetAddress(w, pver, &msg.AddrMe, false)
 	if err != nil {
+
 		return err
 	}
 	err = writeElement(w, msg.Nonce)
 	if err != nil {
+
 		return err
 	}
 	err = WriteVarString(w, pver, msg.UserAgent)
 	if err != nil {
+
 		return err
 	}
 	err = writeElement(w, msg.LastBlock)
 	if err != nil {
+
 		return err
 	}
 
 	// There was no relay transactions field before BIP0037Version.  Also, the wire encoding for the field is true when transactions should be relayed, so reverse it from the DisableRelayTx field.
 	if pver >= BIP0037Version {
+
 		err = writeElement(w, !msg.DisableRelayTx)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -161,6 +185,7 @@ func (msg *MsgVersion) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgVersion) Command() string {
+
 	return CmdVersion
 }
 
@@ -202,7 +227,9 @@ func NewMsgVersion(
 // validateUserAgent checks userAgent length against MaxUserAgentLen
 func validateUserAgent(
 	userAgent string) error {
+
 	if len(userAgent) > MaxUserAgentLen {
+
 		str := fmt.Sprintf("user agent too long [len %v, max %v]",
 			len(userAgent), MaxUserAgentLen)
 		return messageError("MsgVersion", str)
@@ -213,14 +240,17 @@ func validateUserAgent(
 // AddUserAgent adds a user agent to the user agent string for the version message.  The version string is not defined to any strict format, although it is recommended to use the form "major.minor.revision" e.g. "2.6.41".
 func (msg *MsgVersion) AddUserAgent(name string, version string,
 	comments ...string) error {
+
 	newUserAgent := fmt.Sprintf("%s:%s", name, version)
 	if len(comments) != 0 {
+
 		newUserAgent = fmt.Sprintf("%s(%s)", newUserAgent,
 			strings.Join(comments, "; "))
 	}
 	newUserAgent = fmt.Sprintf("%s%s/", msg.UserAgent, newUserAgent)
 	err := validateUserAgent(newUserAgent)
 	if err != nil {
+
 		return err
 	}
 	msg.UserAgent = newUserAgent

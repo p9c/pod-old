@@ -36,6 +36,7 @@ var _, _ error = RPCError{}, (*RPCError)(nil)
 func (
 	e RPCError,
 ) Error() string {
+
 	return fmt.Sprintf("%d: %s", e.Code, e.Message)
 }
 
@@ -43,6 +44,7 @@ func (
 // The functions which accept an ID in this package already call this function to ensure the provided id is valid.
 func IsValidIDType(
 	id interface{}) bool {
+
 	switch id.(type) {
 
 	case int, int8, int16, int32, int64,
@@ -62,10 +64,12 @@ func MarshalResponse(
 
 	marshalledResult, err := json.Marshal(result)
 	if err != nil {
+
 		return nil, err
 	}
 	response, err := NewResponse(id, marshalledResult, rpcErr)
 	if err != nil {
+
 		return nil, err
 	}
 	return json.Marshal(&response)
@@ -74,6 +78,7 @@ func MarshalResponse(
 // NewRPCError constructs and returns a new JSON-RPC error that is suitable for use in a JSON-RPC Response object.
 func NewRPCError(
 	code RPCErrorCode, message string) *RPCError {
+
 	return &RPCError{
 		Code:    code,
 		Message: message,
@@ -91,8 +96,10 @@ func NewRequest(
 	}
 	rawParams := make([]json.RawMessage, 0, len(params))
 	for _, param := range params {
+
 		marshalledParam, err := json.Marshal(param)
 		if err != nil {
+
 			return nil, err
 		}
 		rawMessage := json.RawMessage(marshalledParam)

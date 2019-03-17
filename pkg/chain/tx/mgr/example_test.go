@@ -30,6 +30,7 @@ func init() {
 	tx := spendOutput(&chainhash.Hash{}, 0, 10e8)
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx, timeNow())
 	if err != nil {
+
 		panic(err)
 	}
 	exampleTxRecordA = rec
@@ -37,6 +38,7 @@ func init() {
 	tx = spendOutput(&exampleTxRecordA.Hash, 0, 5e8, 5e8)
 	rec, err = wtxmgr.NewTxRecordFromMsgTx(tx, timeNow())
 	if err != nil {
+
 		panic(err)
 	}
 	exampleTxRecordB = rec
@@ -52,6 +54,7 @@ func ExampleStore_Balance() {
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -63,6 +66,7 @@ func ExampleStore_Balance() {
 
 		dbtx, err := db.BeginReadTx()
 		if err != nil {
+
 			fmt.Println(err)
 			return
 		}
@@ -70,16 +74,19 @@ func ExampleStore_Balance() {
 		ns := dbtx.ReadBucket(namespaceKey)
 		zeroConfBal, err := s.Balance(ns, 0, syncHeight)
 		if err != nil {
+
 			fmt.Println(err)
 			return
 		}
 		oneConfBal, err := s.Balance(ns, 1, syncHeight)
 		if err != nil {
+
 			fmt.Println(err)
 			return
 		}
 		sixConfBal, err := s.Balance(ns, 6, syncHeight)
 		if err != nil {
+
 			fmt.Println(err)
 			return
 		}
@@ -90,14 +97,17 @@ func ExampleStore_Balance() {
 
 	// as a credit.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(namespaceKey)
 		err := s.InsertTx(ns, exampleTxRecordA, nil)
 		if err != nil {
+
 			return err
 		}
 		return s.AddCredit(ns, exampleTxRecordA, nil, 0, false)
 	})
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -107,10 +117,12 @@ func ExampleStore_Balance() {
 
 	// sync height of 100 and 105 blocks.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(namespaceKey)
 		return s.InsertTx(ns, exampleTxRecordA, &exampleBlock100)
 	})
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -131,37 +143,44 @@ func ExampleStore_Rollback() {
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(namespaceKey)
 
 		// Insert a transaction which outputs 10 DUO in a block at height 100.
 		err := s.InsertTx(ns, exampleTxRecordA, &exampleBlock100)
 		if err != nil {
+
 			return err
 		}
 
 		// Rollback everything from block 100 onwards.
 		err = s.Rollback(ns, 100)
 		if err != nil {
+
 			return err
 		}
 
 		// Assert that the transaction is now unmined.
 		details, err := s.TxDetails(ns, &exampleTxRecordA.Hash)
 		if err != nil {
+
 			return err
 		}
 		if details == nil {
+
 			return fmt.Errorf("no details found")
 		}
 		fmt.Println(details.Block.Height)
 		return nil
 	})
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -177,6 +196,7 @@ func Example_basicUsage() {
 	db, dbTeardown, err := testDB()
 	defer dbTeardown()
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -184,6 +204,7 @@ func Example_basicUsage() {
 	// Open a read-write transaction to operate on the database.
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -192,6 +213,7 @@ func Example_basicUsage() {
 	// Create a bucket for the transaction store.
 	b, err := dbtx.CreateTopLevelBucket([]byte("txstore"))
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -199,11 +221,13 @@ func Example_basicUsage() {
 	// Create and open the transaction store in the provided namespace.
 	err = wtxmgr.Create(b)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	s, err := wtxmgr.Open(b, &chaincfg.TestNet3Params)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -213,11 +237,13 @@ func Example_basicUsage() {
 	// at output 0.
 	err = s.InsertTx(b, exampleTxRecordA, nil)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	err = s.AddCredit(b, exampleTxRecordA, nil, 0, false)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -227,11 +253,13 @@ func Example_basicUsage() {
 	// outputs.  Mark the second one (5 DUO) as wallet change.
 	err = s.InsertTx(b, exampleTxRecordB, nil)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	err = s.AddCredit(b, exampleTxRecordB, nil, 1, true)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -239,11 +267,13 @@ func Example_basicUsage() {
 	// Mine each transaction in a block at height 100.
 	err = s.InsertTx(b, exampleTxRecordA, &exampleBlock100)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	err = s.InsertTx(b, exampleTxRecordB, &exampleBlock100)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -251,6 +281,7 @@ func Example_basicUsage() {
 	// Print the one confirmation balance.
 	bal, err := s.Balance(b, 1, 100)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -259,10 +290,12 @@ func Example_basicUsage() {
 	// Fetch unspent outputs.
 	utxos, err := s.UnspentOutputs(b)
 	if err != nil {
+
 		fmt.Println(err)
 	}
 	expectedOutPoint := wire.OutPoint{Hash: exampleTxRecordB.Hash, Index: 1}
 	for _, utxo := range utxos {
+
 		fmt.Println(utxo.OutPoint == expectedOutPoint)
 	}
 

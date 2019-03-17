@@ -23,6 +23,7 @@ type logClosure func() string
 
 // String invokes the log closure and returns the results string.
 func (c logClosure) String() string {
+
 	return c()
 }
 
@@ -31,6 +32,7 @@ func (c logClosure) String() string {
 // the logging level is such that the message will actually be logged.
 func newLogClosure(
 	c func() string) logClosure {
+
 	return logClosure(c)
 }
 
@@ -38,7 +40,9 @@ func newLogClosure(
 // on the count n.
 func pickNoun(
 	n int, singular, plural string) string {
+
 	if n == 1 {
+
 		return singular
 	}
 	return plural

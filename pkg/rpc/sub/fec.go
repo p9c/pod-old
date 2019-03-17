@@ -13,8 +13,10 @@ var (
 	rsTotal    = 9
 	rsRequired = 3
 	rsFEC      = func() *infectious.FEC {
+
 		fec, err := infectious.NewFEC(3, 9)
 		if err != nil {
+
 			panic(err)
 		}
 		return fec
@@ -31,11 +33,13 @@ func padData(
 	data = append(prefixBytes, data...)
 	dataLen = len(data)
 	if dataLen > maxMessageSize {
+
 		return []byte{}
 	}
 	chunkLen := (dataLen) / rsTotal
 	chunkMod := (dataLen) % rsTotal
 	if chunkMod != 0 {
+
 		chunkLen++
 	}
 	padLen := rsTotal*chunkLen - dataLen
@@ -55,6 +59,7 @@ func rsEncode(
 	}
 	err := rsFEC.Encode(data, output)
 	if err != nil {
+
 		panic(err)
 	}
 	for i := range shares {
@@ -78,11 +83,13 @@ func rsDecode(
 	defer func() {
 
 		if r := recover(); r != nil {
+
 			log.Print("Recovered in f", r)
 		}
 	}()
 	var shares []infectious.Share
 	for i := range chunks {
+
 		bodyLen := len(chunks[i])
 		body := chunks[i][:bodyLen-4]
 		share := infectious.Share{

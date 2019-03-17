@@ -48,16 +48,19 @@ var MainNetParams = Params{
 	MinerConfirmationWindow:       2016, //
 	Deployments: [DefinedDeployments]ConsensusDeployment{
 		DeploymentTestDummy: {
+
 			BitNumber:  28,
 			StartTime:  1199145601, // January 1, 2008 UTC
 			ExpireTime: 1230767999, // December 31, 2008 UTC
 		},
 		DeploymentCSV: {
+
 			BitNumber:  0,
 			StartTime:  1462060800, // May 1st, 2016
 			ExpireTime: 1493596800, // May 1st, 2017
 		},
 		DeploymentSegwit: {
+
 			BitNumber:  1,
 			StartTime:  1479168000, // November 15, 2016 UTC
 			ExpireTime: 1510704000, // November 15, 2017 UTC.

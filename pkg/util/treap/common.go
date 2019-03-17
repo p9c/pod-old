@@ -29,12 +29,14 @@ type treapNode struct {
 // nodeSize returns the number of bytes the specified node occupies including the struct fields and the contents of the key and value.
 func nodeSize(
 	node *treapNode) uint64 {
+
 	return nodeFieldsSize + uint64(len(node.key)+len(node.value))
 }
 
 // newTreapNode returns a new node from the given key, value, and priority.  The node is not initially linked to any others.
 func newTreapNode(
 	key, value []byte, priority int) *treapNode {
+
 	return &treapNode{key: key, value: value, priority: priority}
 }
 
@@ -47,16 +49,20 @@ type parentStack struct {
 
 // Len returns the current number of items in the stack.
 func (s *parentStack) Len() int {
+
 	return s.index
 }
 
 // At returns the item n number of items from the top of the stack, where 0 is the topmost item, without removing it.  It returns nil if n exceeds the number of items on the stack.
 func (s *parentStack) At(n int) *treapNode {
+
 	index := s.index - n - 1
 	if index < 0 {
+
 		return nil
 	}
 	if index < staticDepth {
+
 		return s.items[index]
 	}
 	return s.overflow[index-staticDepth]
@@ -64,11 +70,14 @@ func (s *parentStack) At(n int) *treapNode {
 
 // Pop removes the top item from the stack.  It returns nil if the stack is empty.
 func (s *parentStack) Pop() *treapNode {
+
 	if s.index == 0 {
+
 		return nil
 	}
 	s.index--
 	if s.index < staticDepth {
+
 		node := s.items[s.index]
 		s.items[s.index] = nil
 		return node
@@ -82,6 +91,7 @@ func (s *parentStack) Pop() *treapNode {
 func (s *parentStack) Push(node *treapNode) {
 
 	if s.index < staticDepth {
+
 		s.items[s.index] = node
 		s.index++
 		return

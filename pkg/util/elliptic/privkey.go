@@ -37,6 +37,7 @@ func NewPrivateKey(
 
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
+
 		return nil, err
 	}
 	return (*PrivateKey)(key), nil
@@ -44,11 +45,13 @@ func NewPrivateKey(
 
 // PubKey returns the PublicKey corresponding to this private key.
 func (p *PrivateKey) PubKey() *PublicKey {
+
 	return (*PublicKey)(&p.PublicKey)
 }
 
 // ToECDSA returns the private key as a *ecdsa.PrivateKey.
 func (p *PrivateKey) ToECDSA() *ecdsa.PrivateKey {
+
 	return (*ecdsa.PrivateKey)(p)
 }
 
@@ -67,6 +70,7 @@ const PrivKeyBytesLen = 32
 // Serialize returns the private key number d as a big-endian binary-encoded
 // number, padded to a length of 32 bytes.
 func (p *PrivateKey) Serialize() []byte {
+
 	b := make([]byte, 0, PrivKeyBytesLen)
 	return paddedAppend(PrivKeyBytesLen, b, p.ToECDSA().D.Bytes())
 }

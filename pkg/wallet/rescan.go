@@ -62,6 +62,7 @@ type rescanBatch struct {
 
 // and does not need to be read to prevent a deadlock.
 func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
+
 	errChan := make(chan error, 1)
 	job.err = errChan
 	w.rescanAddJob <- job
@@ -70,6 +71,7 @@ func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 
 // batch creates the rescanBatch for a single rescan job.
 func (job *RescanJob) batch() *rescanBatch {
+
 	return &rescanBatch{
 		initialSync: job.InitialSync,
 		addrs:       job.Addrs,
@@ -136,6 +138,7 @@ out:
 	for {
 
 		select {
+
 		case job := <-w.rescanAddJob:
 
 			if curBatch == nil {
@@ -155,6 +158,7 @@ out:
 
 					nextBatch = job.batch()
 				} else {
+
 					nextBatch.merge(job)
 				}
 
@@ -226,6 +230,7 @@ out:
 
 		// These can't be processed out of order since both chans are unbuffured and are sent from same context (the batch handler).
 		select {
+
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
 			log <- cl.Infof{
@@ -275,6 +280,7 @@ out:
 	for {
 
 		select {
+
 		case batch := <-w.rescanBatch:
 
 			// Log the newly-started rescan.
@@ -314,6 +320,7 @@ out:
 
 // rescan.
 func (w *Wallet) Rescan(addrs []util.Address, unspent []wtxmgr.Credit) error {
+
 	return w.rescanWithTarget(addrs, unspent, nil)
 }
 

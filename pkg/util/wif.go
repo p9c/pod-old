@@ -34,6 +34,7 @@ func NewWIF(
 	privKey *ec.PrivateKey, net *chaincfg.Params, compress bool) (*WIF, error) {
 
 	if net == nil {
+
 		return nil, errors.New("no network")
 	}
 
@@ -42,6 +43,7 @@ func NewWIF(
 
 // IsForNet returns whether or not the decoded WIF structure is associated with the passed bitcoin network.
 func (w *WIF) IsForNet(net *chaincfg.Params) bool {
+
 	return w.netID == net.PrivateKeyID
 }
 
@@ -62,8 +64,10 @@ func DecodeWIF(
 
 	// Length of base58 decoded WIF must be 32 bytes + an optional 1 byte (0x01) if compressed, plus 1 byte for netID + 4 bytes of checksum.
 	switch decodedLen {
+
 	case 1 + ec.PrivKeyBytesLen + 1 + 4:
 		if decoded[33] != compressMagic {
+
 			return nil, ErrMalformedPrivateKey
 		}
 
@@ -77,8 +81,10 @@ func DecodeWIF(
 	// Checksum is first four bytes of double SHA256 of the identifier byte and privKey.  Verify this matches the final 4 bytes of the decoded private key.
 	var tosum []byte
 	if compress {
+
 		tosum = decoded[:1+ec.PrivKeyBytesLen+1]
 	} else {
+
 		tosum = decoded[:1+ec.PrivKeyBytesLen]
 	}
 
@@ -100,6 +106,7 @@ func (w *WIF) String() string {
 	// Precalculate size.  Maximum number of bytes before base58 encoding is one byte for the network, 32 bytes of private key, possibly one extra byte if the pubkey is to be compressed, and finally four bytes of checksum.
 	encodeLen := 1 + ec.PrivKeyBytesLen + 4
 	if w.CompressPubKey {
+
 		encodeLen++
 	}
 
@@ -109,6 +116,7 @@ func (w *WIF) String() string {
 	// Pad and append bytes manually, instead of using Serialize, to avoid another call to make.
 	a = paddedAppend(ec.PrivKeyBytesLen, a, w.PrivKey.D.Bytes())
 	if w.CompressPubKey {
+
 		a = append(a, compressMagic)
 	}
 
@@ -119,8 +127,10 @@ func (w *WIF) String() string {
 
 // SerializePubKey serializes the associated public key of the imported or exported private key in either a compressed or uncompressed format.  The serialization format chosen depends on the value of w.CompressPubKey.
 func (w *WIF) SerializePubKey() []byte {
+
 	pk := (*ec.PublicKey)(&w.PrivKey.PublicKey)
 	if w.CompressPubKey {
+
 		return pk.SerializeCompressed()
 	}
 
@@ -130,7 +140,9 @@ func (w *WIF) SerializePubKey() []byte {
 // paddedAppend appends the src byte slice to dst, returning the new slice. If the length of the source is smaller than the passed size, leading zero bytes are appended to the dst slice before appending src.
 func paddedAppend(
 	size uint, dst, src []byte) []byte {
+
 	for i := 0; i < int(size)-len(src); i++ {
+
 		dst = append(dst, 0)
 	}
 

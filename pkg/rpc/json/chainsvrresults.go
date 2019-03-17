@@ -75,6 +75,7 @@ type GetBlockHeaderVerboseResult struct {
 
 // GetBlockTemplateResult models the data returned from the getblocktemplate command.
 type GetBlockTemplateResult struct {
+
 	// Base fields from BIP 0022.  CoinbaseAux is optional.  One of CoinbaseTxn or CoinbaseValue must be specified, but not both.
 	Bits          string                     `json:"bits"`
 	CurTime       int64                      `json:"curtime"`
@@ -463,6 +464,7 @@ type Vout struct {
 func (
 	v *Vin,
 ) HasWitness() bool {
+
 	return len(v.Witness) > 0
 }
 
@@ -470,6 +472,7 @@ func (
 func (
 	v *Vin,
 ) IsCoinBase() bool {
+
 	return len(v.Coinbase) > 0
 }
 
@@ -526,6 +529,7 @@ func (
 func (
 	v *VinPrevOut,
 ) HasWitness() bool {
+
 	return len(v.Witness) > 0
 }
 
@@ -533,6 +537,7 @@ func (
 func (
 	v *VinPrevOut,
 ) IsCoinBase() bool {
+
 	return len(v.Coinbase) > 0
 }
 

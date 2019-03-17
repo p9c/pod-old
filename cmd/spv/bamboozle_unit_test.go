@@ -17,8 +17,10 @@ import (
 
 func decodeHashNoError(
 	str string) *chainhash.Hash {
+
 	hash, err := chainhash.NewHashFromStr(str)
 	if err != nil {
+
 		panic("Got error decoding hash: " + err.Error())
 	}
 
@@ -178,6 +180,7 @@ var (
 	}
 
 	headers4 = func() *wire.MsgCFHeaders {
+
 		cfh := &wire.MsgCFHeaders{
 			FilterHashes: []*chainhash.Hash{
 				decodeHashNoError("fedcba09f7654321001234567890abcdef"),
@@ -469,6 +472,7 @@ var (
 
 func heightToHeader(
 	height uint32) *wire.BlockHeader {
+
 	header := &wire.BlockHeader{Nonce: height}
 	return header
 }
@@ -478,6 +482,7 @@ func runCheckCFCheckptSanityTestCase(
 
 	tempDir, err := ioutil.TempDir("", "neutrino")
 	if err != nil {
+
 		t.Fatalf("Failed to create temporary directory: %s", err)
 	}
 
@@ -485,6 +490,7 @@ func runCheckCFCheckptSanityTestCase(
 
 	db, err := walletdb.Create("bdb", tempDir+"/weks.db")
 	if err != nil {
+
 		t.Fatalf("Error opening DB: %s", err)
 	}
 
@@ -494,6 +500,7 @@ func runCheckCFCheckptSanityTestCase(
 		tempDir, db, &chaincfg.SimNetParams,
 	)
 	if err != nil {
+
 		t.Fatalf("Error creating block header store: %s", err)
 	}
 
@@ -501,6 +508,7 @@ func runCheckCFCheckptSanityTestCase(
 		tempDir, db, headerfs.RegularFilter, &chaincfg.SimNetParams,
 	)
 	if err != nil {
+
 		t.Fatalf("Error creating filter header store: %s", err)
 	}
 
@@ -509,10 +517,12 @@ func runCheckCFCheckptSanityTestCase(
 		header *wire.BlockHeader
 	)
 	for i, point := range testCase.storepoints {
+
 		cfBatch := make([]headerfs.FilterHeader, 0, wire.CFCheckptInterval)
 		hdrBatch := make([]headerfs.BlockHeader, 0, wire.CFCheckptInterval)
 
 		for j := 1; j < wire.CFCheckptInterval; j++ {
+
 			height := uint32(i*wire.CFCheckptInterval + j)
 			header := heightToHeader(height)
 
@@ -544,16 +554,19 @@ func runCheckCFCheckptSanityTestCase(
 		})
 
 		if err = hdrStore.WriteHeaders(hdrBatch...); err != nil {
+
 			t.Fatalf("Error writing batch of headers: %s", err)
 		}
 
 		if err = cfStore.WriteHeaders(cfBatch...); err != nil {
+
 			t.Fatalf("Error writing batch of cfheaders: %s", err)
 		}
 
 	}
 
 	for i := 0; i < testCase.storeAddHeight; i++ {
+
 		height = uint32(len(testCase.storepoints)*
 			wire.CFCheckptInterval + i)
 		header = heightToHeader(height)
@@ -562,6 +575,7 @@ func runCheckCFCheckptSanityTestCase(
 			BlockHeader: header,
 			Height:      height,
 		}); err != nil {
+
 			t.Fatalf("Error writing single block header: %s", err)
 		}
 
@@ -570,6 +584,7 @@ func runCheckCFCheckptSanityTestCase(
 			HeaderHash: zeroHash,
 			Height:     height,
 		}); err != nil {
+
 			t.Fatalf("Error writing single cfheader: %s", err)
 		}
 
@@ -577,10 +592,12 @@ func runCheckCFCheckptSanityTestCase(
 
 	heightDiff, err := checkCFCheckptSanity(testCase.checkpoints, cfStore)
 	if err != nil {
+
 		t.Fatalf("Error from checkCFCheckptSanity: %s", err)
 	}
 
 	if heightDiff != testCase.heightDiff {
+
 		t.Fatalf("Height difference mismatch. Expected: %d, got: %d",
 			testCase.heightDiff, heightDiff)
 	}
@@ -593,6 +610,7 @@ func TestCheckCFCheckptSanity(
 	t.Parallel()
 
 	for _, testCase := range cfCheckptTestCases {
+
 		t.Run(testCase.name, func(t *testing.T) {
 
 			runCheckCFCheckptSanityTestCase(t, testCase)
@@ -608,12 +626,14 @@ func TestCheckForCFHeadersMismatch(
 	t.Parallel()
 
 	for _, testCase := range checkCFHTestCases {
+
 		t.Run(testCase.name, func(t *testing.T) {
 
 			mismatch := checkForCFHeaderMismatch(
 				testCase.headers, testCase.idx,
 			)
 			if mismatch != testCase.mismatch {
+
 				t.Fatalf("Wrong mismatch detected. Expected: "+
 					"%t, got: %t", testCase.mismatch,
 					mismatch)
@@ -631,12 +651,14 @@ func TestResolveCFHeadersMismatch(
 	t.Parallel()
 
 	for _, testCase := range resolveCFHTestCases {
+
 		t.Run(testCase.name, func(t *testing.T) {
 
 			badPeers, err := resolveCFHeaderMismatch(
 				block, wire.GCSFilterRegular, testCase.peerFilters,
 			)
 			if err != nil {
+
 				t.Fatalf("Couldn't resolve cfheader "+
 					"mismatch: %v", err)
 			}
@@ -650,7 +672,9 @@ func TestResolveCFHeadersMismatch(
 
 			sort.Strings(badPeers)
 			for i := 0; i < len(badPeers); i++ {
+
 				if badPeers[i] != testCase.badPeers[i] {
+
 					t.Fatalf("Banned wrong peers.\n"+
 						"Expected: %#v\nGot: %#v",
 						testCase.badPeers, badPeers)

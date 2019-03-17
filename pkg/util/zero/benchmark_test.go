@@ -24,6 +24,7 @@ func xor(
 	b []byte) {
 
 	for i := range b {
+
 		b[i] ^= b[i]
 	}
 }
@@ -36,6 +37,7 @@ func zrange(
 	b []byte) {
 
 	for i := range b {
+
 		b[i] = 0
 	}
 }
@@ -44,6 +46,7 @@ func BenchmarkXor32(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		xor(bytes32)
 	}
 }
@@ -52,6 +55,7 @@ func BenchmarkXor64(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		xor(bytes64)
 	}
 }
@@ -60,6 +64,7 @@ func BenchmarkRange32(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		zrange(bytes32)
 	}
 }
@@ -68,6 +73,7 @@ func BenchmarkRange64(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		zrange(bytes64)
 	}
 }
@@ -76,6 +82,7 @@ func BenchmarkBytes32(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		Bytes(bytes32)
 	}
 }
@@ -84,6 +91,7 @@ func BenchmarkBytes64(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		Bytes(bytes64)
 	}
 }
@@ -92,6 +100,7 @@ func BenchmarkBytea32(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		Bytea32(bytea32)
 	}
 }
@@ -100,6 +109,7 @@ func BenchmarkBytea64(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		Bytea64(bytea64)
 	}
 }

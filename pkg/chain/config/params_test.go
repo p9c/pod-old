@@ -9,6 +9,7 @@ func TestInvalidHashStr(
 	defer func() {
 
 		if r := recover(); r == nil {
+
 			t.Errorf("Expected panic for invalid hash, got nil")
 		}
 	}()
@@ -28,6 +29,7 @@ func TestMustRegisterPanic(
 	defer func() {
 
 		if err := recover(); err == nil {
+
 			t.Error("mustRegister did not panic as expected")
 		}
 	}()

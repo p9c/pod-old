@@ -29,7 +29,9 @@ func (k *Kopach) Subscribe(args *Address, reply *Address) (err error) {
 	log <- cl.Info{"Subscribe called with", *args}
 	err = errors.New("already subscribed")
 	for i := range *k {
+
 		if (*k)[i].Address == (*args).Address {
+
 			return
 		}
 	}
@@ -45,11 +47,15 @@ func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
 	log <- cl.Info{"Unsubscribe called with", *args}
 	err = errors.New("not subscribed")
 	for i := range *k {
+
 		if (*k)[i].Address == (*args).Address {
+
 			err = nil
 			if len(*k)-1 > i {
+
 				*k = append((*k)[:i], (*k)[i+1:]...)
 			} else {
+
 				*k = (*k)[:i]
 			}
 		}

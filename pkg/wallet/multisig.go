@@ -102,6 +102,7 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 
 	var p2shAddr *util.AddressScriptHash
 	err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
+
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		// TODO(oga) blockstamp current block?

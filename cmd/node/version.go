@@ -31,12 +31,14 @@ func Version() string {
 	// Append pre-release version if there is one.  The hyphen called for by the semantic versioning spec is automatically appended and should not be contained in the pre-release string.  The pre-release version is not appended if it contains invalid characters.
 	preRelease := normalizeVerString(appPreRelease)
 	if preRelease != "" {
+
 		version = fmt.Sprintf("%s-%s", version, preRelease)
 	}
 
 	// Append build metadata if there is any.  The plus called for by the semantic versioning spec is automatically appended and should not be contained in the build metadata string.  The build metadata string is not appended if it contains invalid characters.
 	build := normalizeVerString(appBuild)
 	if build != "" {
+
 		version = fmt.Sprintf("%s+%s", version, build)
 	}
 
@@ -46,8 +48,10 @@ func Version() string {
 // normalizeVerString returns the passed string stripped of all characters which are not valid according to the semantic versioning guidelines for pre-release version and build metadata strings.  In particular they MUST only contain characters in semanticAlphabet.
 func normalizeVerString(
 	str string) string {
+
 	var result bytes.Buffer
 	for _, r := range str {
+
 		if strings.ContainsRune(semanticAlphabet, r) {
 
 			result.WriteRune(r)

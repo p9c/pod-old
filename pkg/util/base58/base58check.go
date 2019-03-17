@@ -24,6 +24,7 @@ func checksum(
 // CheckEncode prepends a version byte and appends a four byte checksum.
 func CheckEncode(
 	input []byte, version byte) string {
+
 	b := make([]byte, 0, 1+len(input)+4)
 	b = append(b, version)
 	b = append(b, input[:]...)
@@ -38,12 +39,14 @@ func CheckDecode(
 
 	decoded := Decode(input)
 	if len(decoded) < 5 {
+
 		return nil, 0, ErrInvalidFormat
 	}
 	version = decoded[0]
 	var cksum [4]byte
 	copy(cksum[:], decoded[len(decoded)-4:])
 	if checksum(decoded[:len(decoded)-4]) != cksum {
+
 		return nil, 0, ErrChecksum
 	}
 	payload := decoded[1 : len(decoded)-4]

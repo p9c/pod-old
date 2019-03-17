@@ -747,12 +747,14 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 
 	// Return the cached method help if it exists.
 	if help, exists := c.methodHelp[method]; exists {
+
 		return help, nil
 	}
 
 	// Look up the result types for the method.
 	resultTypes, ok := rpcResultTypes[method]
 	if !ok {
+
 		return "", errors.New("no result types specified for method " +
 			method)
 	}
@@ -760,6 +762,7 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 	// Generate, cache, and return the help.
 	help, err := json.GenerateHelp(method, helpDescsEnUS, resultTypes...)
 	if err != nil {
+
 		return "", err
 	}
 
@@ -775,14 +778,17 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 	// Return the cached usage if it is available.
 	if c.usage != "" {
+
 		return c.usage, nil
 	}
 
 	// Generate a list of one-line usage for every command.
 	usageTexts := make([]string, 0, len(rpcHandlers))
 	for k := range rpcHandlers {
+
 		usage, err := json.MethodUsageText(k)
 		if err != nil {
+
 			return "", err
 		}
 
@@ -791,9 +797,12 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 	// Include websockets commands if requested.
 	if includeWebsockets {
+
 		for k := range wsHandlers {
+
 			usage, err := json.MethodUsageText(k)
 			if err != nil {
+
 				return "", err
 			}
 
@@ -809,6 +818,7 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 
 // newHelpCacher returns a new instance of a help cacher which provides help and usage for the RPC server commands and caches the results for future calls.
 func newHelpCacher() *helpCacher {
+
 	return &helpCacher{
 		methodHelp: make(map[string]string),
 	}

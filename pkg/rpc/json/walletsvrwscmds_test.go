@@ -30,6 +30,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("createencryptedwallet", "pass")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewCreateEncryptedWalletCmd("pass")
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"createencryptedwallet","params":["pass"],"id":1}`,
@@ -42,6 +43,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("exportwatchingwallet")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewExportWatchingWalletCmd(nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"exportwatchingwallet","params":[],"id":1}`,
@@ -57,6 +59,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("exportwatchingwallet", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewExportWatchingWalletCmd(json.String("acct"), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"exportwatchingwallet","params":["acct"],"id":1}`,
@@ -72,6 +75,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("exportwatchingwallet", "acct", true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewExportWatchingWalletCmd(json.String("acct"),
 					json.Bool(true))
 			},
@@ -88,6 +92,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("getunconfirmedbalance")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetUnconfirmedBalanceCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getunconfirmedbalance","params":[],"id":1}`,
@@ -102,6 +107,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("getunconfirmedbalance", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetUnconfirmedBalanceCmd(json.String("acct"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getunconfirmedbalance","params":["acct"],"id":1}`,
@@ -116,6 +122,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("listaddresstransactions", `["1Address"]`)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAddressTransactionsCmd([]string{"1Address"}, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listaddresstransactions","params":[["1Address"]],"id":1}`,
@@ -131,6 +138,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("listaddresstransactions", `["1Address"]`, "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAddressTransactionsCmd([]string{"1Address"},
 					json.String("acct"))
 			},
@@ -147,6 +155,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("listalltransactions")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAllTransactionsCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listalltransactions","params":[],"id":1}`,
@@ -161,6 +170,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("listalltransactions", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAllTransactionsCmd(json.String("acct"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listalltransactions","params":["acct"],"id":1}`,
@@ -175,6 +185,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("recoveraddresses", "acct", 10)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewRecoverAddressesCmd("acct", 10)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"recoveraddresses","params":["acct",10],"id":1}`,
@@ -190,6 +201,7 @@ func TestWalletSvrWsCmds(
 				return json.NewCmd("walletislocked")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewWalletIsLockedCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"walletislocked","params":[],"id":1}`,
@@ -198,9 +210,11 @@ func TestWalletSvrWsCmds(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Marshal the command as created by the new static command creation function.
 		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -215,12 +229,14 @@ func TestWalletSvrWsCmds(
 		// Ensure the command is created without error via the generic new command creation function.
 		cmd, err := test.newCmd()
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
 				i, test.name, err)
 		}
 		// Marshal the command as created by the generic new command creation function.
 		marshalled, err = json.MarshalCmd(testID, cmd)
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -234,6 +250,7 @@ func TestWalletSvrWsCmds(
 		}
 		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
@@ -241,6 +258,7 @@ func TestWalletSvrWsCmds(
 		}
 		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
+
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue

@@ -25,6 +25,7 @@ type blockProgressLogger struct {
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
 func newBlockProgressLogger(
 	progressMessage string, logger *cl.SubSystem) *blockProgressLogger {
+
 	return &blockProgressLogger{
 		lastBlockLogTime: time.Now(),
 		progressAction:   progressMessage,
@@ -42,6 +43,7 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 	now := time.Now()
 	duration := now.Sub(b.lastBlockLogTime)
 	if duration < time.Second*10 {
+
 		return
 	}
 	// Truncate the duration to 10s of milliseconds.
@@ -50,10 +52,12 @@ func (b *blockProgressLogger) LogBlockHeight(block *util.Block) {
 	// Log information about new block height.
 	blockStr := "blocks"
 	if b.receivedLogBlocks == 1 {
+
 		blockStr = "block "
 	}
 	txStr := "transactions"
 	if b.receivedLogTx == 1 {
+
 		txStr = "transaction "
 	}
 	b.subsystemLogger.Ch <- cl.Infof{"%s %6d %s in the last %s (%6d %s, height %6d, %s)",

@@ -186,6 +186,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		}
 
 	} else {
+
 		cbs = &waddrmgr.OpenCallbacks{
 			ObtainSeed:        noConsole,
 			ObtainPrivatePass: noConsole,
@@ -229,6 +230,7 @@ func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 		l.mu.Unlock()
 		fn(w)
 	} else {
+
 		l.callbacks = append(l.callbacks, fn)
 		l.mu.Unlock()
 	}
@@ -243,6 +245,7 @@ func (l *Loader) RunAfterLoad(fn func(*Wallet)) {
 
 // function returns without error.
 func (l *Loader) UnloadWallet() error {
+
 	defer l.mu.Unlock()
 	l.mu.Lock()
 

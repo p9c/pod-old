@@ -11,8 +11,10 @@ import (
 // fromHex converts the passed hex string into a byte slice and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called for initialization purposes.
 func fromHex(
 	s string) []byte {
+
 	r, err := hex.DecodeString(s)
 	if err != nil {
+
 		panic("invalid hex in source file: " + s)
 	}
 	return r
@@ -21,6 +23,7 @@ func fromHex(
 // serializeUint32 returns the big-endian encoding of the passed uint32.
 func serializeUint32(
 	ui uint32) []byte {
+
 	var ret [4]byte
 	binary.BigEndian.PutUint32(ret[:], ui)
 	return ret[:]
@@ -40,8 +43,10 @@ func TestParentStack(
 	}
 testLoop:
 	for i, test := range tests {
+
 		nodes := make([]*treapNode, 0, test.numNodes)
 		for j := 0; j < test.numNodes; j++ {
+
 			var key [4]byte
 			binary.BigEndian.PutUint32(key[:], uint32(j))
 			node := newTreapNode(key[:], key[:], 0)
@@ -51,9 +56,11 @@ testLoop:
 		// various stack properties.
 		stack := &parentStack{}
 		for j, node := range nodes {
+
 			stack.Push(node)
 			// Ensure the stack length is the expected value.
 			if stack.Len() != j+1 {
+
 				t.Errorf("Len #%d (%d): unexpected stack "+
 					"length - got %d, want %d", i, j,
 					stack.Len(), j+1)
@@ -61,6 +68,7 @@ testLoop:
 			}
 			// Ensure the node at each index is the expected one.
 			for k := 0; k <= j; k++ {
+
 				atNode := stack.At(j - k)
 				if !reflect.DeepEqual(atNode, nodes[k]) {
 
@@ -73,6 +81,7 @@ testLoop:
 		}
 		// Ensure each popped node is the expected one.
 		for j := 0; j < len(nodes); j++ {
+
 			node := stack.Pop()
 			expected := nodes[len(nodes)-j-1]
 			if !reflect.DeepEqual(node, expected) {
@@ -84,6 +93,7 @@ testLoop:
 		}
 		// Ensure the stack is now empty.
 		if stack.Len() != 0 {
+
 			t.Errorf("Len #%d: stack is not empty - got %d", i,
 				stack.Len())
 			continue testLoop
@@ -91,6 +101,7 @@ testLoop:
 		// Ensure attempting to retrieve a node at an index beyond the
 		// stack's length returns nil.
 		if node := stack.At(2); node != nil {
+
 			t.Errorf("At #%d: did not give back nil - got %v", i,
 				node)
 			continue testLoop
@@ -98,6 +109,7 @@ testLoop:
 		// Ensure attempting to pop a node from an empty stack returns
 		// nil.
 		if node := stack.Pop(); node != nil {
+
 			t.Errorf("Pop #%d: did not give back nil - got %v", i,
 				node)
 			continue testLoop

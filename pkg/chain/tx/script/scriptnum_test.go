@@ -9,8 +9,10 @@ import (
 // hexToBytes converts the passed hex string into bytes and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called with hard-coded values.
 func hexToBytes(
 	s string) []byte {
+
 	b, err := hex.DecodeString(s)
 	if err != nil {
+
 		panic("invalid hex in source file: " + s)
 	}
 	return b
@@ -67,6 +69,7 @@ func TestScriptNumBytes(
 		{-9223372036854775807, hexToBytes("ffffffffffffffff")},
 	}
 	for _, test := range tests {
+
 		gotBytes := test.num.Bytes()
 		if !bytes.Equal(gotBytes, test.serialized) {
 
@@ -173,14 +176,17 @@ func TestMakeScriptNum(
 		{hexToBytes("0009000100"), 16779520, 5, false, nil},
 	}
 	for _, test := range tests {
+
 		// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
 		gotNum, err := makeScriptNum(test.serialized, test.minimalEncoding,
 			test.numLen)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("makeScriptNum(%#x): %v", test.serialized, e)
 			continue
 		}
 		if gotNum != test.num {
+
 			t.Errorf("makeScriptNum(%#x): did not get expected "+
 				"number - got %d, want %d", test.serialized,
 				gotNum, test.num)
@@ -238,8 +244,10 @@ func TestScriptNumInt32(
 		{-9223372036854775808, -2147483648},
 	}
 	for _, test := range tests {
+
 		got := test.in.Int32()
 		if got != test.want {
+
 			t.Errorf("Int32: did not get expected value for %d - "+
 				"got %d, want %d", test.in, got, test.want)
 			continue

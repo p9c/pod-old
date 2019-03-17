@@ -28,6 +28,7 @@ func TestBlock(
 	wantCmd := "block"
 	msg := NewMsgBlock(bh)
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgBlock: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -36,6 +37,7 @@ func TestBlock(
 	wantPayload := uint32(4000000)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -61,6 +63,7 @@ func TestBlock(
 	// Ensure transactions are properly cleared.
 	msg.ClearTransactions()
 	if len(msg.Transactions) != 0 {
+
 		t.Errorf("ClearTransactions: wrong transactions - got %v, want %v",
 			len(msg.Transactions), 0)
 	}
@@ -74,12 +77,14 @@ func TestBlockTxHashes(
 	hashStr := "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098"
 	wantHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 		return
 	}
 	wantHashes := []chainhash.Hash{*wantHash}
 	hashes, err := blockOne.TxHashes()
 	if err != nil {
+
 		t.Errorf("TxHashes: %v", err)
 	}
 	if !reflect.DeepEqual(hashes, wantHashes) {
@@ -97,6 +102,7 @@ func TestBlockHash(
 	hashStr := "839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048"
 	wantHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 
@@ -181,6 +187,7 @@ func TestBlockWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -196,6 +203,7 @@ func TestBlockWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -255,6 +263,7 @@ func TestBlockWireErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
 		if err != test.writeErr {
+
 			t.Errorf("BtcEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -265,6 +274,7 @@ func TestBlockWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = msg.BtcDecode(r, test.pver, test.enc)
 		if err != test.readErr {
+
 			t.Errorf("BtcDecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
@@ -296,6 +306,7 @@ func TestBlockSerialize(
 		var buf bytes.Buffer
 		err := test.in.Serialize(&buf)
 		if err != nil {
+
 			t.Errorf("Serialize #%d error %v", i, err)
 			continue
 		}
@@ -311,6 +322,7 @@ func TestBlockSerialize(
 		rbuf := bytes.NewReader(test.buf)
 		err = block.Deserialize(rbuf)
 		if err != nil {
+
 			t.Errorf("Deserialize #%d error %v", i, err)
 			continue
 		}
@@ -326,6 +338,7 @@ func TestBlockSerialize(
 		br := bytes.NewBuffer(test.buf)
 		txLocs, err := txLocBlock.DeserializeTxLoc(br)
 		if err != nil {
+
 			t.Errorf("DeserializeTxLoc #%d error %v", i, err)
 			continue
 		}
@@ -387,6 +400,7 @@ func TestBlockSerializeErrors(
 		w := newFixedWriter(test.max)
 		err := test.in.Serialize(w)
 		if err != test.writeErr {
+
 			t.Errorf("Serialize #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -397,6 +411,7 @@ func TestBlockSerializeErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = block.Deserialize(r)
 		if err != test.readErr {
+
 			t.Errorf("Deserialize #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
@@ -405,6 +420,7 @@ func TestBlockSerializeErrors(
 		br := bytes.NewBuffer(test.buf[0:test.max])
 		_, err = txLocBlock.DeserializeTxLoc(br)
 		if err != test.readErr {
+
 			t.Errorf("DeserializeTxLoc #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
@@ -500,8 +516,10 @@ func TestBlockSerializeSize(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		serializedSize := test.in.SerializeSize()
 		if serializedSize != test.size {
+
 			t.Errorf("MsgBlock.SerializeSize: #%d got: %d, want: "+
 				"%d", i, serializedSize, test.size)
 			continue

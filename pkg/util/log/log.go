@@ -58,6 +58,7 @@ func init() {
 	for _, f := range strings.Split(os.Getenv("LOGFLAGS"), ",") {
 
 		switch f {
+
 		case "longfile":
 			defaultFlags |= Llongfile
 		case "shortfile":
@@ -114,7 +115,9 @@ func LevelFromString(
 // String returns the tag of the logger used in log messages, or "OFF" if
 // the level will not produce any log output.
 func (l Level) String() string {
+
 	if l >= LevelOff {
+
 		return "OFF"
 	}
 	return levelStrs[l]
@@ -123,8 +126,10 @@ func (l Level) String() string {
 // NewBackend creates a logger backend from a Writer.
 func NewBackend(
 	w io.Writer, opts ...BackendOption) *Backend {
+
 	b := &Backend{w: w, flag: defaultFlags}
 	for _, o := range opts {
+
 		o(b)
 	}
 	return b
@@ -147,6 +152,7 @@ type BackendOption func(b *Backend)
 // variable.
 func WithFlags(
 	flags uint32) BackendOption {
+
 	return func(b *Backend) {
 
 		b.flag = flags
@@ -157,6 +163,7 @@ func WithFlags(
 // temporary buffers for formatting log messages prior to outputting them.
 var bufferPool = sync.Pool{
 	New: func() interface{} {
+
 		b := make([]byte, 0, 120)
 		return &b // pointer to slice to avoid boxing alloc
 	},
@@ -167,6 +174,7 @@ var bufferPool = sync.Pool{
 // be returned to the fee list by using the recycleBuffer function when the
 // caller is done with it.
 func buffer() *[]byte {
+
 	return bufferPool.Get().(*[]byte)
 }
 
@@ -189,6 +197,7 @@ func itoa(
 	var b [20]byte
 	bp := len(b) - 1
 	for i >= 10 || wid > 1 {
+
 		wid--
 		q := i / 10
 		b[bp] = byte('0' + i - q*10)
@@ -226,6 +235,7 @@ func formatHeader(
 	itoa(buf, ms, 3)
 	tagC := colorGray
 	switch lvl {
+
 	case "TRC":
 		tagC = colorBlueB
 	case "DBG":
@@ -246,6 +256,7 @@ func formatHeader(
 	*buf = append(*buf, colorGray...)
 	*buf = append(*buf, tag...)
 	if file != "" {
+
 		*buf = append(*buf, ' ')
 		*buf = append(*buf, file...)
 		*buf = append(*buf, ':')
@@ -268,11 +279,14 @@ func callsite(
 
 	_, file, line, ok := runtime.Caller(calldepth)
 	if !ok {
+
 		return "???", 0
 	}
 	if flag&Lshortfile != 0 {
+
 		short := file
 		for i := len(file) - 1; i > 0; i-- {
+
 			if os.IsPathSeparator(file[i]) {
 
 				short = file[i+1:]
@@ -295,6 +309,7 @@ func (b *Backend) print(lvl, tag string, args ...interface{}) {
 	var file string
 	var line int
 	if b.flag&(Lshortfile|Llongfile) != 0 {
+
 		file, line = callsite(b.flag)
 	}
 	formatHeader(bytebuf, t, lvl, tag, file, line)
@@ -319,6 +334,7 @@ func (b *Backend) printf(lvl, tag string, format string, args ...interface{}) {
 	var file string
 	var line int
 	if b.flag&(Lshortfile|Llongfile) != 0 {
+
 		file, line = callsite(b.flag)
 	}
 	formatHeader(bytebuf, t, lvl, tag, file, line)
@@ -335,6 +351,7 @@ func (b *Backend) printf(lvl, tag string, format string, args ...interface{}) {
 // Backend b.  A tag describes the subsystem and is included in all log
 // messages.  The logger uses the info verbosity level by default.
 func (b *Backend) Logger(subsystemTag string) Logger {
+
 	return &slog{LevelInfo, subsystemTag, b}
 }
 
@@ -352,6 +369,7 @@ func (l *slog) Trace(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelTrace {
+
 		l.b.print("TRC", l.tag, args...)
 	}
 }
@@ -363,6 +381,7 @@ func (l *slog) Tracef(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelTrace {
+
 		l.b.printf("TRC", l.tag, format, args...)
 	}
 }
@@ -374,6 +393,7 @@ func (l *slog) Debug(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelDebug {
+
 		l.b.print("DBG", l.tag, args...)
 	}
 }
@@ -385,6 +405,7 @@ func (l *slog) Debugf(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelDebug {
+
 		l.b.printf("DBG", l.tag, format, args...)
 	}
 }
@@ -396,6 +417,7 @@ func (l *slog) Info(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelInfo {
+
 		l.b.print("INF", l.tag, args...)
 	}
 }
@@ -407,6 +429,7 @@ func (l *slog) Infof(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelInfo {
+
 		l.b.printf("INF", l.tag, format, args...)
 	}
 }
@@ -418,6 +441,7 @@ func (l *slog) Warn(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelWarn {
+
 		l.b.print("WRN", l.tag, args...)
 	}
 }
@@ -429,6 +453,7 @@ func (l *slog) Warnf(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelWarn {
+
 		l.b.printf("WRN", l.tag, format, args...)
 	}
 }
@@ -440,6 +465,7 @@ func (l *slog) Error(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelError {
+
 		l.b.print("ERR", l.tag, args...)
 	}
 }
@@ -451,6 +477,7 @@ func (l *slog) Errorf(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelError {
+
 		l.b.printf("ERR", l.tag, format, args...)
 	}
 }
@@ -462,6 +489,7 @@ func (l *slog) Critical(args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelCritical {
+
 		l.b.print("CRT", l.tag, args...)
 	}
 }
@@ -473,6 +501,7 @@ func (l *slog) Criticalf(format string, args ...interface{}) {
 
 	lvl := l.Level()
 	if lvl <= LevelCritical {
+
 		l.b.printf("CRT", l.tag, format, args...)
 	}
 }
@@ -480,6 +509,7 @@ func (l *slog) Criticalf(format string, args ...interface{}) {
 // Level returns the current logging level
 // This is part of the Logger interface implementation.
 func (l *slog) Level() Level {
+
 	return Level(atomic.LoadUint32((*uint32)(&l.lvl)))
 }
 

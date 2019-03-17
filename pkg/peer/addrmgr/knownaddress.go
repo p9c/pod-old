@@ -20,30 +20,36 @@ type KnownAddress struct {
 
 // NetAddress returns the underlying wire.NetAddress associated with the known address.
 func (ka *KnownAddress) NetAddress() *wire.NetAddress {
+
 	return ka.na
 }
 
 // LastAttempt returns the last time the known address was attempted.
 func (ka *KnownAddress) LastAttempt() time.Time {
+
 	return ka.lastattempt
 }
 
 // chance returns the selection probability for a known address.  The priority depends upon how recently the address has been seen, how recently it was last attempted and how often attempts to connect to it have failed.
 func (ka *KnownAddress) chance() float64 {
+
 	now := time.Now()
 	lastAttempt := now.Sub(ka.lastattempt)
 	if lastAttempt < 0 {
+
 		lastAttempt = 0
 	}
 	c := 1.0
 
 	// Very recent attempts are less likely to be retried.
 	if lastAttempt < 10*time.Minute {
+
 		c *= 0.01
 	}
 
 	// Failed attempts deprioritise.
 	for i := ka.attempts; i > 0; i-- {
+
 		c /= 1.5
 	}
 	return c
@@ -56,6 +62,7 @@ func (ka *KnownAddress) chance() float64 {
 // 4) It has failed ten times in the last week
 // All addresses that meet these criteria are assumed to be worthless and not worth keeping hold of.
 func (ka *KnownAddress) isBad() bool {
+
 	if ka.lastattempt.After(time.Now().Add(-1 * time.Minute)) {
 
 		return false
@@ -75,12 +82,14 @@ func (ka *KnownAddress) isBad() bool {
 
 	// Never succeeded?
 	if ka.lastsuccess.IsZero() && ka.attempts >= numRetries {
+
 		return true
 	}
 
 	// Hasn't succeeded in too long?
 	if !ka.lastsuccess.After(time.Now().Add(-1*minBadDays*time.Hour*24)) &&
 		ka.attempts >= maxFailures {
+
 		return true
 	}
 	return false

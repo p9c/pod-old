@@ -14,19 +14,23 @@ func TestImmutableEmpty(
 	// Ensure the treap length is the expected value.
 	testTreap := NewImmutable()
 	if gotLen := testTreap.Len(); gotLen != 0 {
+
 		t.Fatalf("Len: unexpected length - got %d, want %d", gotLen, 0)
 	}
 	// Ensure the reported size is 0.
 	if gotSize := testTreap.Size(); gotSize != 0 {
+
 		t.Fatalf("Size: unexpected byte size - got %d, want 0",
 			gotSize)
 	}
 	// Ensure there are no errors with requesting keys from an empty treap.
 	key := serializeUint32(0)
 	if gotVal := testTreap.Has(key); gotVal {
+
 		t.Fatalf("Has: unexpected result - got %v, want false", gotVal)
 	}
 	if gotVal := testTreap.Get(key); gotVal != nil {
+
 		t.Fatalf("Get: unexpected result - got %x, want nil", gotVal)
 	}
 	// Ensure there are no panics when deleting keys from an empty treap.
@@ -35,10 +39,12 @@ func TestImmutableEmpty(
 	// zero.
 	var numIterated int
 	testTreap.ForEach(func(k, v []byte) bool {
+
 		numIterated++
 		return true
 	})
 	if numIterated != 0 {
+
 		t.Fatalf("ForEach: unexpected iterate count - got %d, want 0",
 			numIterated)
 	}
@@ -54,10 +60,12 @@ func TestImmutableSequential(
 	numItems := 1000
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Put(key, key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != i+1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, i+1)
 		}
@@ -75,6 +83,7 @@ func TestImmutableSequential(
 		// Ensure the expected size is reported.
 		expectedSize += (nodeFieldsSize + 8)
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -82,6 +91,7 @@ func TestImmutableSequential(
 	// Ensure the all keys are iterated by ForEach in order.
 	var numIterated int
 	testTreap.ForEach(func(k, v []byte) bool {
+
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
@@ -100,15 +110,18 @@ func TestImmutableSequential(
 	})
 	// Ensure all items were iterated.
 	if numIterated != numItems {
+
 		t.Fatalf("ForEach: unexpected iterate count - got %d, want %d",
 			numIterated, numItems)
 	}
 	// Delete the keys one-by-one while checking several of the treap functions work as expected.
 	for i := 0; i < numItems; i++ {
+
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Delete(key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != numItems-i-1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, numItems-i-1)
 		}
@@ -119,12 +132,14 @@ func TestImmutableSequential(
 		}
 		// Get the key that no longer exists from the treap and ensure it is nil.
 		if gotVal := testTreap.Get(key); gotVal != nil {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want nil",
 				i, gotVal)
 		}
 		// Ensure the expected size is reported.
 		expectedSize -= (nodeFieldsSize + 8)
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -141,10 +156,12 @@ func TestImmutableReverseSequential(
 	numItems := 1000
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		key := serializeUint32(uint32(numItems - i - 1))
 		testTreap = testTreap.Put(key, key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != i+1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, i+1)
 		}
@@ -163,6 +180,7 @@ func TestImmutableReverseSequential(
 		// Ensure the expected size is reported.
 		expectedSize += (nodeFieldsSize + 8)
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -170,6 +188,7 @@ func TestImmutableReverseSequential(
 	// Ensure the all keys are iterated by ForEach in order.
 	var numIterated int
 	testTreap.ForEach(func(k, v []byte) bool {
+
 		wantKey := serializeUint32(uint32(numIterated))
 		// Ensure the key is as expected.
 		if !bytes.Equal(k, wantKey) {
@@ -188,16 +207,19 @@ func TestImmutableReverseSequential(
 	})
 	// Ensure all items were iterated.
 	if numIterated != numItems {
+
 		t.Fatalf("ForEach: unexpected iterate count - got %d, want %d",
 			numIterated, numItems)
 	}
 	// Delete the keys one-by-one while checking several of the treap functions work as expected.
 	for i := 0; i < numItems; i++ {
+
 		// Intentionally use the reverse order they were inserted here.
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Delete(key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != numItems-i-1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, numItems-i-1)
 		}
@@ -209,12 +231,14 @@ func TestImmutableReverseSequential(
 		// Get the key that no longer exists from the treap and ensure
 		// it is nil.
 		if gotVal := testTreap.Get(key); gotVal != nil {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want nil",
 				i, gotVal)
 		}
 		// Ensure the expected size is reported.
 		expectedSize -= (nodeFieldsSize + 8)
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -231,12 +255,14 @@ func TestImmutableUnordered(
 	numItems := 1000
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		// Hash the serialized int to generate out-of-order keys.
 		hash := sha256.Sum256(serializeUint32(uint32(i)))
 		key := hash[:]
 		testTreap = testTreap.Put(key, key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != i+1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, i+1)
 		}
@@ -255,18 +281,21 @@ func TestImmutableUnordered(
 		// Ensure the expected size is reported.
 		expectedSize += nodeFieldsSize + uint64(len(key)+len(key))
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
 	}
 	// Delete the keys one-by-one while checking several of the treap functions work as expected.
 	for i := 0; i < numItems; i++ {
+
 		// Hash the serialized int to generate out-of-order keys.
 		hash := sha256.Sum256(serializeUint32(uint32(i)))
 		key := hash[:]
 		testTreap = testTreap.Delete(key)
 		// Ensure the treap length is the expected value.
 		if gotLen := testTreap.Len(); gotLen != numItems-i-1 {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, numItems-i-1)
 		}
@@ -278,12 +307,14 @@ func TestImmutableUnordered(
 		// Get the key that no longer exists from the treap and ensure
 		// it is nil.
 		if gotVal := testTreap.Get(key); gotVal != nil {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want nil",
 				i, gotVal)
 		}
 		// Ensure the expected size is reported.
 		expectedSize -= (nodeFieldsSize + 64)
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -300,6 +331,7 @@ func TestImmutableDuplicatePut(
 	numItems := 1000
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Put(key, key)
 		expectedSize += nodeFieldsSize + uint64(len(key)+len(key))
@@ -307,6 +339,7 @@ func TestImmutableDuplicatePut(
 		testTreap = testTreap.Put(key, expectedVal)
 		// Ensure the key still exists and is the new value.
 		if gotVal := testTreap.Has(key); !gotVal {
+
 			t.Fatalf("Has: unexpected result - got %v, want true",
 				gotVal)
 		}
@@ -319,6 +352,7 @@ func TestImmutableDuplicatePut(
 		expectedSize -= uint64(len(key))
 		expectedSize += uint64(len(expectedVal))
 		if gotSize := testTreap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size: unexpected byte size - got %d, want %d",
 				gotSize, expectedSize)
 		}
@@ -336,12 +370,15 @@ func TestImmutableNilValue(
 	testTreap = testTreap.Put(key, nil)
 	// Ensure the key exists and is an empty byte slice.
 	if gotVal := testTreap.Has(key); !gotVal {
+
 		t.Fatalf("Has: unexpected result - got %v, want true", gotVal)
 	}
 	if gotVal := testTreap.Get(key); gotVal == nil {
+
 		t.Fatalf("Get: unexpected result - got nil, want empty slice")
 	}
 	if gotVal := testTreap.Get(key); len(gotVal) != 0 {
+
 		t.Fatalf("Get: unexpected result - got %x, want empty slice",
 			gotVal)
 	}
@@ -356,16 +393,19 @@ func TestImmutableForEachStopIterator(
 	numItems := 10
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Put(key, key)
 	}
 	// Ensure ForEach exits early on false return by caller.
 	var numIterated int
 	testTreap.ForEach(func(k, v []byte) bool {
+
 		numIterated++
 		return numIterated != numItems/2
 	})
 	if numIterated != numItems/2 {
+
 		t.Fatalf("ForEach: unexpected iterate count - got %d, want %d",
 			numIterated, numItems/2)
 	}
@@ -381,12 +421,14 @@ func TestImmutableSnapshot(
 	numItems := 1000
 	testTreap := NewImmutable()
 	for i := 0; i < numItems; i++ {
+
 		treapSnap := testTreap
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Put(key, key)
 		// Ensure the length of the treap snapshot is the expected
 		// value.
 		if gotLen := treapSnap.Len(); gotLen != i {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, i)
 		}
@@ -398,11 +440,13 @@ func TestImmutableSnapshot(
 		// Get the key that doesn't exist in the treap snapshot and
 		// ensure it is nil.
 		if gotVal := treapSnap.Get(key); gotVal != nil {
+
 			t.Fatalf("Get #%d: unexpected value - got %x, want nil",
 				i, gotVal)
 		}
 		// Ensure the expected size is reported.
 		if gotSize := treapSnap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}
@@ -410,11 +454,13 @@ func TestImmutableSnapshot(
 	}
 	// Delete the keys one-by-one while checking several of the treap functions work as expected.
 	for i := 0; i < numItems; i++ {
+
 		treapSnap := testTreap
 		key := serializeUint32(uint32(i))
 		testTreap = testTreap.Delete(key)
 		// Ensure the length of the treap snapshot is the expected value.
 		if gotLen := treapSnap.Len(); gotLen != numItems-i {
+
 			t.Fatalf("Len #%d: unexpected length - got %d, want %d",
 				i, gotLen, numItems-i)
 		}
@@ -431,6 +477,7 @@ func TestImmutableSnapshot(
 		}
 		// Ensure the expected size is reported.
 		if gotSize := treapSnap.Size(); gotSize != expectedSize {
+
 			t.Fatalf("Size #%d: unexpected byte size - got %d, "+
 				"want %d", i, gotSize, expectedSize)
 		}

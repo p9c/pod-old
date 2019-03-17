@@ -19,19 +19,23 @@ func Main() int {
 	log <- cl.Debug{"starting up node"}
 	datadir := ""
 	App.Before = func(c *cli.Context) error {
+
 		datadir = c.String("datadir")
 		log <- cl.Debug{"App.Before"}
 		configfilepath := filepath.Join(datadir, podConfigFilename)
 		if !FileExists(configfilepath) {
+
 			EnsureDir(configfilepath)
 			if e := ioutil.WriteFile(
 				configfilepath, []byte{'\n'}, 0600); e != nil {
+
 				panic(e)
 			}
 
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 			src, err := altsrc.NewYamlSourceFromFile(filepath.Join(datadir, podConfigFilename))
 			return src, err
 		}
@@ -44,17 +48,21 @@ func Main() int {
 	}
 
 	ctlCommand.Before = func(c *cli.Context) error {
+
 		configfilepath := filepath.Join(filepath.Join(datadir, ctlAppName), ctlConfigFilename)
 		if !FileExists(configfilepath) {
+
 			EnsureDir(configfilepath)
 			if e := ioutil.WriteFile(
 				configfilepath, []byte{'\n'}, 0600); e != nil {
+
 				panic(e)
 			}
 
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
 			return src, err
 		}
@@ -66,18 +74,22 @@ func Main() int {
 	}
 
 	nodeCommand.Before = func(c *cli.Context) error {
+
 		configfilepath :=
 			filepath.Join(filepath.Join(datadir, nodeAppName), nodeConfigFilename)
 		if !FileExists(configfilepath) {
+
 			EnsureDir(configfilepath)
 			if e := ioutil.WriteFile(
 				configfilepath, []byte{'\n'}, 0600); e != nil {
+
 				panic(e)
 			}
 
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
 			return src, err
 		}
@@ -89,17 +101,21 @@ func Main() int {
 	}
 
 	walletCommand.Before = func(c *cli.Context) error {
+
 		configfilepath := filepath.Join(filepath.Join(datadir, walletAppName), walletConfigFilename)
 		if !FileExists(configfilepath) {
+
 			EnsureDir(configfilepath)
 			if e := ioutil.WriteFile(
 				configfilepath, []byte{'\n'}, 0600); e != nil {
+
 				panic(e)
 			}
 
 		}
 
 		src := func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 			src, err := altsrc.NewYamlSourceFromFile(configfilepath)
 			return src, err
 		}
@@ -113,6 +129,7 @@ func Main() int {
 	log <- cl.Debug{"running App"}
 	e := App.Run(os.Args)
 	if e != nil {
+
 		fmt.Println("ERROR:", e)
 		return 1
 	}
@@ -315,6 +332,7 @@ func init() {
 				Aliases: []string{"v"},
 				Usage:   "print version and exit",
 				Action: func(c *cli.Context) error {
+
 					fmt.Println(c.App.Name, c.App.Version)
 					return nil
 				},
@@ -325,6 +343,7 @@ func init() {
 				Aliases: []string{"l"},
 				Usage:   "list available logging subsystems",
 				Action: func(c *cli.Context) error {
+
 					fmt.Println("todo list logging subsystems")
 					return nil
 				},
@@ -357,6 +376,7 @@ func init() {
 				Aliases: []string{"s"},
 				Usage:   "start combined wallet/node shell",
 				Action: func(c *cli.Context) error {
+
 					fmt.Println("calling shell")
 					return nil
 				},
@@ -367,6 +387,7 @@ func init() {
 				Aliases: []string{"g"},
 				Usage:   "start GUI (TODO: should ultimately be default)",
 				Action: func(c *cli.Context) error {
+
 					fmt.Println("calling gui")
 					return nil
 				},
@@ -753,6 +774,7 @@ var walletCommand = cli.Command{
 			Name:  "create",
 			Usage: "Create the wallet if it does not exist",
 			Action: func(c *cli.Context) error {
+
 				return nil
 			},
 		},
@@ -761,6 +783,7 @@ var walletCommand = cli.Command{
 			Name:  "createtemp",
 			Usage: "Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir",
 			Action: func(c *cli.Context) error {
+
 				return nil
 			},
 		},

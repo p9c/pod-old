@@ -33,7 +33,9 @@ const (
 // filesExists returns whether or not the named file or directory exists.
 func fileExists(
 	name string) bool {
+
 	if _, err := os.Stat(name); err != nil {
+
 		if os.IsNotExist(err) {
 
 			return false
@@ -47,9 +49,12 @@ func fileExists(
 // isSupportedDbType returns whether or not the passed database type is currently supported.
 func isSupportedDbType(
 	dbType string) bool {
+
 	supportedDrivers := database.SupportedDrivers()
 	for _, driver := range supportedDrivers {
+
 		if dbType == driver {
+
 			return true
 		}
 
@@ -71,8 +76,10 @@ func chainSetup(
 	var db database.DB
 	var teardown func()
 	if testDbType == "memdb" {
+
 		ndb, err := database.Create(testDbType)
 		if err != nil {
+
 			return nil, nil, fmt.Errorf("error creating db: %v", err)
 		}
 
@@ -84,10 +91,12 @@ func chainSetup(
 		}
 
 	} else {
+
 		// Create the root directory for test databases.
 		if !fileExists(testDbRoot) {
 
 			if err := os.MkdirAll(testDbRoot, 0700); err != nil {
+
 				err := fmt.Errorf("unable to create test db "+
 					"root: %v", err)
 				return nil, nil, err
@@ -100,6 +109,7 @@ func chainSetup(
 		_ = os.RemoveAll(dbPath)
 		ndb, err := database.Create(testDbType, dbPath, blockDataNet)
 		if err != nil {
+
 			return nil, nil, fmt.Errorf("error creating db: %v", err)
 		}
 
@@ -127,6 +137,7 @@ func chainSetup(
 	})
 
 	if err != nil {
+
 		teardown()
 		err := fmt.Errorf("failed to create chain instance: %v", err)
 		return nil, nil, err
@@ -141,6 +152,7 @@ func TestFullBlocks(
 
 	tests, err := fullblocktests.Generate(false)
 	if err != nil {
+
 		t.Fatalf("failed to generate tests: %v", err)
 	}
 
@@ -148,6 +160,7 @@ func TestFullBlocks(
 	chain, teardownFunc, err := chainSetup("fullblocktest",
 		&chaincfg.RegressionNetParams)
 	if err != nil {
+
 		t.Errorf("Failed to setup chain instance: %v", err)
 		return
 	}
@@ -165,6 +178,7 @@ func TestFullBlocks(
 		isMainChain, isOrphan, err := chain.ProcessBlock(block,
 			blockchain.BFNone, block.Height())
 		if err != nil {
+
 			t.Fatalf("block %q (hash %s, height %d) should "+
 				"have been accepted: %v", item.Name,
 				block.Hash(), blockHeight, err)
@@ -172,6 +186,7 @@ func TestFullBlocks(
 
 		// Ensure the main chain and orphan flags match the values specified in the test.
 		if isMainChain != item.IsMainChain {
+
 			t.Fatalf("block %q (hash %s, height %d) unexpected main "+
 				"chain flag -- got %v, want %v", item.Name,
 				block.Hash(), blockHeight, isMainChain,
@@ -179,6 +194,7 @@ func TestFullBlocks(
 		}
 
 		if isOrphan != item.IsOrphan {
+
 			t.Fatalf("block %q (hash %s, height %d) unexpected "+
 				"orphan flag -- got %v, want %v", item.Name,
 				block.Hash(), blockHeight, isOrphan,
@@ -198,6 +214,7 @@ func TestFullBlocks(
 		_, _, err := chain.ProcessBlock(
 			block, blockchain.BFNone, block.Height())
 		if err == nil {
+
 			t.Fatalf("block %q (hash %s, height %d) should not "+
 				"have been accepted", item.Name, block.Hash(),
 				blockHeight)
@@ -206,6 +223,7 @@ func TestFullBlocks(
 		// Ensure the error code is of the expected type and the reject code matches the value specified in the test instance.
 		rerr, ok := err.(blockchain.RuleError)
 		if !ok {
+
 			t.Fatalf("block %q (hash %s, height %d) returned "+
 				"unexpected error type -- got %T, want "+
 				"blockchain.RuleError", item.Name, block.Hash(),
@@ -213,6 +231,7 @@ func TestFullBlocks(
 		}
 
 		if rerr.ErrorCode != item.RejectCode {
+
 			t.Fatalf("block %q (hash %s, height %d) does not have "+
 				"expected reject code -- got %v, want %v",
 				item.Name, block.Hash(), blockHeight,
@@ -226,6 +245,7 @@ func TestFullBlocks(
 
 		headerLen := len(item.RawBlock)
 		if headerLen > 80 {
+
 			headerLen = 80
 		}
 
@@ -237,6 +257,7 @@ func TestFullBlocks(
 		var msgBlock wire.MsgBlock
 		err := msgBlock.BtcDecode(bytes.NewReader(item.RawBlock), 0, wire.BaseEncoding)
 		if _, ok := err.(*wire.MessageError); !ok {
+
 			t.Fatalf("block %q (hash %s, height %d) should have "+
 				"failed to decode", item.Name, blockHash,
 				blockHeight)
@@ -255,8 +276,10 @@ func TestFullBlocks(
 		_, isOrphan, err := chain.ProcessBlock(
 			block, blockchain.BFNone, block.Height())
 		if err != nil {
+
 			// Ensure the error code is of the expected type.
 			if _, ok := err.(blockchain.RuleError); !ok {
+
 				t.Fatalf("block %q (hash %s, height %d) "+
 					"returned unexpected error type -- "+
 					"got %T, want blockchain.RuleError",
@@ -265,6 +288,7 @@ func TestFullBlocks(
 			}
 		}
 		if !isOrphan {
+
 			t.Fatalf("block %q (hash %s, height %d) was accepted, "+
 				"but is not considered an orphan", item.Name,
 				block.Hash(), blockHeight)
@@ -283,6 +307,7 @@ func TestFullBlocks(
 		best := chain.BestSnapshot()
 		if best.Hash != item.Block.BlockHash() ||
 			best.Height != blockHeight {
+
 			t.Fatalf("block %q (hash %s, height %d) should be "+
 				"the current tip -- got (hash %s, height %d)",
 				item.Name, block.Hash(), blockHeight, best.Hash,
@@ -290,7 +315,9 @@ func TestFullBlocks(
 		}
 	}
 	for testNum, test := range tests {
+
 		for itemNum, item := range test {
+
 			switch item := item.(type) {
 
 			case fullblocktests.AcceptedBlock:

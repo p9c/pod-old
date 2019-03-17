@@ -18,15 +18,18 @@ func RawTxInWitnessSignature(
 
 	parsedScript, err := parseScript(subScript)
 	if err != nil {
+
 		return nil, fmt.Errorf("cannot parse output script: %v", err)
 	}
 	hash, err := calcWitnessSignatureHash(parsedScript, sigHashes, hashType, tx,
 		idx, amt)
 	if err != nil {
+
 		return nil, err
 	}
 	signature, err := key.Sign(hash)
 	if err != nil {
+
 		return nil, fmt.Errorf("cannot sign tx input: %s", err)
 	}
 	return append(signature.Serialize(), byte(hashType)), nil
@@ -41,13 +44,16 @@ func WitnessSignature(
 	sig, err := RawTxInWitnessSignature(tx, sigHashes, idx, amt, subscript,
 		hashType, privKey)
 	if err != nil {
+
 		return nil, err
 	}
 	pk := (*ec.PublicKey)(&privKey.PublicKey)
 	var pkData []byte
 	if compress {
+
 		pkData = pk.SerializeCompressed()
 	} else {
+
 		pkData = pk.SerializeUncompressed()
 	}
 
@@ -62,10 +68,12 @@ func RawTxInSignature(
 
 	hash, err := CalcSignatureHash(subScript, hashType, tx, idx)
 	if err != nil {
+
 		return nil, err
 	}
 	signature, err := key.Sign(hash)
 	if err != nil {
+
 		return nil, fmt.Errorf("cannot sign tx input: %s", err)
 	}
 	return append(signature.Serialize(), byte(hashType)), nil
@@ -77,13 +85,16 @@ func SignatureScript(
 
 	sig, err := RawTxInSignature(tx, idx, subscript, hashType, privKey)
 	if err != nil {
+
 		return nil, err
 	}
 	pk := (*ec.PublicKey)(&privKey.PublicKey)
 	var pkData []byte
 	if compress {
+
 		pkData = pk.SerializeCompressed()
 	} else {
+
 		pkData = pk.SerializeUncompressed()
 	}
 	return NewScriptBuilder().AddData(sig).AddData(pkData).Script()
@@ -93,6 +104,7 @@ func p2pkSignatureScript(
 
 	sig, err := RawTxInSignature(tx, idx, subScript, hashType, privKey)
 	if err != nil {
+
 		return nil, err
 	}
 	return NewScriptBuilder().AddData(sig).Script()
@@ -107,17 +119,21 @@ func signMultiSig(
 	builder := NewScriptBuilder().AddOp(OP_FALSE)
 	signed := 0
 	for _, addr := range addresses {
+
 		key, _, err := kdb.GetKey(addr)
 		if err != nil {
+
 			continue
 		}
 		sig, err := RawTxInSignature(tx, idx, subScript, hashType, key)
 		if err != nil {
+
 			continue
 		}
 		builder.AddData(sig)
 		signed++
 		if signed == nRequired {
+
 			break
 		}
 	}
@@ -132,18 +148,22 @@ func sign(
 	class, addresses, nrequired, err := ExtractPkScriptAddrs(subScript,
 		chainParams)
 	if err != nil {
+
 		return nil, NonStandardTy, nil, 0, err
 	}
 	switch class {
+
 	case PubKeyTy:
 		// look up key for address
 		key, _, err := kdb.GetKey(addresses[0])
 		if err != nil {
+
 			return nil, class, nil, 0, err
 		}
 		script, err := p2pkSignatureScript(tx, idx, subScript, hashType,
 			key)
 		if err != nil {
+
 			return nil, class, nil, 0, err
 		}
 		return script, class, addresses, nrequired, nil
@@ -151,17 +171,20 @@ func sign(
 		// look up key for address
 		key, compressed, err := kdb.GetKey(addresses[0])
 		if err != nil {
+
 			return nil, class, nil, 0, err
 		}
 		script, err := SignatureScript(tx, idx, subScript, hashType,
 			key, compressed)
 		if err != nil {
+
 			return nil, class, nil, 0, err
 		}
 		return script, class, addresses, nrequired, nil
 	case ScriptHashTy:
 		script, err := sdb.GetScript(addresses[0])
 		if err != nil {
+
 			return nil, class, nil, 0, err
 		}
 		return script, class, addresses, nrequired, nil
@@ -186,14 +209,17 @@ func mergeScripts(
 
 	// TODO: the scripthash and multisig paths here are overly inefficient in that they will recompute already known data. some internal refactoring could probably make this avoid needless extra calculations.
 	switch class {
+
 	case ScriptHashTy:
 		// Remove the last push in the script and then recurse. this could be a lot less inefficient.
 		sigPops, err := parseScript(sigScript)
 		if err != nil || len(sigPops) == 0 {
+
 			return prevScript
 		}
 		prevPops, err := parseScript(prevScript)
 		if err != nil || len(prevPops) == 0 {
+
 			return sigScript
 		}
 		// assume that script in sigPops is the correct one, we just made it.
@@ -236,17 +262,22 @@ func mergeMultiSig(
 	pkPops, _ := parseScript(pkScript)
 	sigPops, err := parseScript(sigScript)
 	if err != nil || len(sigPops) == 0 {
+
 		return prevScript
 	}
 	prevPops, err := parseScript(prevScript)
 	if err != nil || len(prevPops) == 0 {
+
 		return sigScript
 	}
 
 	// Convenience function to avoid duplication.
 	extractSigs := func(pops []parsedOpcode, sigs [][]byte) [][]byte {
+
 		for _, pop := range pops {
+
 			if len(pop.data) != 0 {
+
 				sigs = append(sigs, pop.data)
 			}
 		}
@@ -260,19 +291,23 @@ func mergeMultiSig(
 	addrToSig := make(map[string][]byte)
 sigLoop:
 	for _, sig := range possibleSigs {
+
 		// can't have a valid signature that doesn't at least have a hashtype, in practise it is even longer than this. but that'll be checked next.
 		if len(sig) < 1 {
+
 			continue
 		}
 		tSig := sig[:len(sig)-1]
 		hashType := SigHashType(sig[len(sig)-1])
 		pSig, err := ec.ParseDERSignature(tSig, ec.S256())
 		if err != nil {
+
 			continue
 		}
 		// We have to do this each round since hash types may vary between signatures and so the hash will vary. We can, however, assume no sigs etc are in the script since that would make the transaction nonstandard and thus not MultiSigTy, so we just need to hash the full thing.
 		hash := calcSignatureHash(pkPops, hashType, tx, idx)
 		for _, addr := range addresses {
+
 			// All multisig addresses should be pubkey addresses it is an error to call this internal function with bad input.
 			pkaddr := addr.(*util.AddressPubKey)
 			pubKey := pkaddr.PubKey()
@@ -281,6 +316,7 @@ sigLoop:
 
 				aStr := addr.EncodeAddress()
 				if _, ok := addrToSig[aStr]; !ok {
+
 					addrToSig[aStr] = sig
 				}
 				continue sigLoop
@@ -294,19 +330,23 @@ sigLoop:
 
 	// This assumes that addresses are in the same order as in the script.
 	for _, addr := range addresses {
+
 		sig, ok := addrToSig[addr.EncodeAddress()]
 		if !ok {
+
 			continue
 		}
 		builder.AddData(sig)
 		doneSigs++
 		if doneSigs == nRequired {
+
 			break
 		}
 	}
 
 	// padding for missing ones.
 	for i := doneSigs; i < nRequired; i++ {
+
 		builder.AddOp(OP_0)
 	}
 	script, _ := builder.Script()
@@ -351,13 +391,16 @@ func SignTxOutput(
 	sigScript, class, addresses, nrequired, err := sign(chainParams, tx,
 		idx, pkScript, hashType, kdb, sdb)
 	if err != nil {
+
 		return nil, err
 	}
 	if class == ScriptHashTy {
+
 		// TODO keep the sub addressed and pass down to merge.
 		realSigScript, _, _, _, err := sign(chainParams, tx, idx,
 			sigScript, hashType, kdb, sdb)
 		if err != nil {
+
 			return nil, err
 		}
 		// Append the p2sh script as the last push in the script.

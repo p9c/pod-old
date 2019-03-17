@@ -50,7 +50,9 @@ var ivStrings = map[InvType]string{
 
 // String returns the InvType in human-readable form.
 func (invtype InvType) String() string {
+
 	if s, ok := ivStrings[invtype]; ok {
+
 		return s
 	}
 	return fmt.Sprintf("Unknown InvType (%d)", uint32(invtype))
@@ -65,6 +67,7 @@ type InvVect struct {
 // NewInvVect returns a new InvVect using the provided type and hash.
 func NewInvVect(
 	typ InvType, hash *chainhash.Hash) *InvVect {
+
 	return &InvVect{
 		Type: typ,
 		Hash: *hash,
@@ -74,11 +77,13 @@ func NewInvVect(
 // readInvVect reads an encoded InvVect from r depending on the protocol version.
 func readInvVect(
 	r io.Reader, pver uint32, iv *InvVect) error {
+
 	return readElements(r, &iv.Type, &iv.Hash)
 }
 
 // writeInvVect serializes an InvVect to w depending on the protocol version.
 func writeInvVect(
 	w io.Writer, pver uint32, iv *InvVect) error {
+
 	return writeElements(w, iv.Type, &iv.Hash)
 }

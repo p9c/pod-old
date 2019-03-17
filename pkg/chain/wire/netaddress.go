@@ -41,6 +41,7 @@ type NetAddress struct {
 
 // HasService returns whether the specified service is supported by the address.
 func (na *NetAddress) HasService(service ServiceFlag) bool {
+
 	return na.Services&service == service
 }
 
@@ -53,6 +54,7 @@ func (na *NetAddress) AddService(service ServiceFlag) {
 // NewNetAddressIPPort returns a new NetAddress using the provided IP, port, and supported services with defaults for the remaining fields.
 func NewNetAddressIPPort(
 	ip net.IP, port uint16, services ServiceFlag) *NetAddress {
+
 	return NewNetAddressTimestamp(time.Now(), services, ip, port)
 }
 
@@ -73,29 +75,35 @@ func NewNetAddressTimestamp(
 // NewNetAddress returns a new NetAddress using the provided TCP address and supported services with defaults for the remaining fields.
 func NewNetAddress(
 	addr *net.TCPAddr, services ServiceFlag) *NetAddress {
+
 	return NewNetAddressIPPort(addr.IP, uint16(addr.Port), services)
 }
 
 // readNetAddress reads an encoded NetAddress from r depending on the protocol version and whether or not the timestamp is included per ts.  Some messages like version do not include the timestamp.
 func readNetAddress(
 	r io.Reader, pver uint32, na *NetAddress, ts bool) error {
+
 	var ip [16]byte
 
 	// NOTE: The bitcoin protocol uses a uint32 for the timestamp so it will stop working somewhere around 2106.  Also timestamp wasn't added until protocol version >= NetAddressTimeVersion
 	if ts && pver >= NetAddressTimeVersion {
+
 		err := readElement(r, (*uint32Time)(&na.Timestamp))
 		if err != nil {
+
 			return err
 		}
 	}
 	err := readElements(r, &na.Services, &ip)
 	if err != nil {
+
 		return err
 	}
 
 	// Sigh.  Bitcoin protocol mixes little and big endian.
 	port, err := binarySerializer.Uint16(r, bigEndian)
 	if err != nil {
+
 		return err
 	}
 	*na = NetAddress{
@@ -113,8 +121,10 @@ func writeNetAddress(
 
 	// NOTE: The bitcoin protocol uses a uint32 for the timestamp so it will stop working somewhere around 2106.  Also timestamp wasn't added until until protocol version >= NetAddressTimeVersion.
 	if ts && pver >= NetAddressTimeVersion {
+
 		err := writeElement(w, uint32(na.Timestamp.Unix()))
 		if err != nil {
+
 			return err
 		}
 	}
@@ -122,10 +132,12 @@ func writeNetAddress(
 	// Ensure to always write 16 bytes even if the ip is nil.
 	var ip [16]byte
 	if na.IP != nil {
+
 		copy(ip[:], na.IP.To16())
 	}
 	err := writeElements(w, na.Services, ip)
 	if err != nil {
+
 		return err
 	}
 

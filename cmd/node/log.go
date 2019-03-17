@@ -24,6 +24,7 @@ func directionString(
 ) string {
 
 	if inbound {
+
 		return "inbound"
 	}
 
@@ -38,6 +39,7 @@ func pickNoun(
 ) string {
 
 	if n == 1 {
+
 		return singular
 	}
 

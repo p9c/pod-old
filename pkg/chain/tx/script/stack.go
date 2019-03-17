@@ -8,10 +8,14 @@ import (
 // asBool gets the boolean value of the byte array.
 func asBool(
 	t []byte) bool {
+
 	for i := range t {
+
 		if t[i] != 0 {
+
 			// Negative 0 is also considered false.
 			if i == len(t)-1 && t[i] == 0x80 {
+
 				return false
 			}
 			return true
@@ -23,7 +27,9 @@ func asBool(
 // fromBool converts a boolean into the appropriate byte array.
 func fromBool(
 	v bool) []byte {
+
 	if v {
+
 		return []byte{1}
 	}
 	return nil
@@ -37,6 +43,7 @@ type stack struct {
 
 // Depth returns the number of items on the stack.
 func (s *stack) Depth() int32 {
+
 	return int32(len(s.stk))
 }
 
@@ -72,6 +79,7 @@ func (s *stack) PopInt() (scriptNum, error) {
 
 	so, err := s.PopByteArray()
 	if err != nil {
+
 		return 0, err
 	}
 	return makeScriptNum(so, s.verifyMinimalData, defaultScriptNumLen)
@@ -83,6 +91,7 @@ func (s *stack) PopBool() (bool, error) {
 
 	so, err := s.PopByteArray()
 	if err != nil {
+
 		return false, err
 	}
 	return asBool(so), nil
@@ -93,6 +102,7 @@ func (s *stack) PeekByteArray(idx int32) ([]byte, error) {
 
 	sz := int32(len(s.stk))
 	if idx < 0 || idx >= sz {
+
 		str := fmt.Sprintf("index %d is invalid for stack size %d", idx,
 			sz)
 		return nil, scriptError(ErrInvalidStackOperation, str)
@@ -105,6 +115,7 @@ func (s *stack) PeekInt(idx int32) (scriptNum, error) {
 
 	so, err := s.PeekByteArray(idx)
 	if err != nil {
+
 		return 0, err
 	}
 	return makeScriptNum(so, s.verifyMinimalData, defaultScriptNumLen)
@@ -115,6 +126,7 @@ func (s *stack) PeekBool(idx int32) (bool, error) {
 
 	so, err := s.PeekByteArray(idx)
 	if err != nil {
+
 		return false, err
 	}
 	return asBool(so), nil
@@ -129,18 +141,22 @@ func (s *stack) nipN(idx int32) ([]byte, error) {
 
 	sz := int32(len(s.stk))
 	if idx < 0 || idx > sz-1 {
+
 		str := fmt.Sprintf("index %d is invalid for stack size %d", idx,
 			sz)
 		return nil, scriptError(ErrInvalidStackOperation, str)
 	}
 	so := s.stk[sz-idx-1]
 	if idx == 0 {
+
 		s.stk = s.stk[:sz-1]
 	} else if idx == sz-1 {
+
 		s1 := make([][]byte, sz-1)
 		copy(s1, s.stk[1:])
 		s.stk = s1
 	} else {
+
 		s1 := s.stk[sz-idx : sz]
 		s.stk = s.stk[:sz-idx-1]
 		s.stk = append(s.stk, s1...)
@@ -154,6 +170,7 @@ func (s *stack) nipN(idx int32) ([]byte, error) {
 // NipN(1): [... x1 x2 x3] -> [... x1 x3]
 // NipN(2): [... x1 x2 x3] -> [... x2 x3]
 func (s *stack) NipN(idx int32) error {
+
 	_, err := s.nipN(idx)
 	return err
 }
@@ -161,12 +178,15 @@ func (s *stack) NipN(idx int32) error {
 // Tuck copies the item at the top of the stack and inserts it before the 2nd to top item.
 // Stack transformation: [... x1 x2] -> [... x2 x1 x2]
 func (s *stack) Tuck() error {
+
 	so2, err := s.PopByteArray()
 	if err != nil {
+
 		return err
 	}
 	so1, err := s.PopByteArray()
 	if err != nil {
+
 		return err
 	}
 	s.PushByteArray(so2) // stack [... x2]
@@ -180,13 +200,17 @@ func (s *stack) Tuck() error {
 // DropN(1): [... x1 x2] -> [... x1]
 // DropN(2): [... x1 x2] -> [...]
 func (s *stack) DropN(n int32) error {
+
 	if n < 1 {
+
 		str := fmt.Sprintf("attempt to drop %d items from stack", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
 	for ; n > 0; n-- {
+
 		_, err := s.PopByteArray()
 		if err != nil {
+
 			return err
 		}
 	}
@@ -198,15 +222,19 @@ func (s *stack) DropN(n int32) error {
 // DupN(1): [... x1 x2] -> [... x1 x2 x2]
 // DupN(2): [... x1 x2] -> [... x1 x2 x1 x2]
 func (s *stack) DupN(n int32) error {
+
 	if n < 1 {
+
 		str := fmt.Sprintf("attempt to dup %d stack items", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
 
 	// Iteratively duplicate the value n-1 down the stack n times. This leaves an in-order duplicate of the top n items on the stack.
 	for i := n; i > 0; i-- {
+
 		so, err := s.PeekByteArray(n - 1)
 		if err != nil {
+
 			return err
 		}
 		s.PushByteArray(so)
@@ -219,7 +247,9 @@ func (s *stack) DupN(n int32) error {
 // RotN(1): [... x1 x2 x3] -> [... x2 x3 x1]
 // RotN(2): [... x1 x2 x3 x4 x5 x6] -> [... x3 x4 x5 x6 x1 x2]
 func (s *stack) RotN(n int32) error {
+
 	if n < 1 {
+
 		str := fmt.Sprintf("attempt to rotate %d stack items", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
@@ -227,8 +257,10 @@ func (s *stack) RotN(n int32) error {
 	// Nip the 3n-1th item from the stack to the top n times to rotate them up to the head of the stack.
 	entry := 3*n - 1
 	for i := n; i > 0; i-- {
+
 		so, err := s.nipN(entry)
 		if err != nil {
+
 			return err
 		}
 		s.PushByteArray(so)
@@ -241,15 +273,19 @@ func (s *stack) RotN(n int32) error {
 // SwapN(1): [... x1 x2] -> [... x2 x1]
 // SwapN(2): [... x1 x2 x3 x4] -> [... x3 x4 x1 x2]
 func (s *stack) SwapN(n int32) error {
+
 	if n < 1 {
+
 		str := fmt.Sprintf("attempt to swap %d stack items", n)
 		return scriptError(ErrInvalidStackOperation, str)
 	}
 	entry := 2*n - 1
 	for i := n; i > 0; i-- {
+
 		// Swap 2n-1th entry to top.
 		so, err := s.nipN(entry)
 		if err != nil {
+
 			return err
 		}
 		s.PushByteArray(so)
@@ -262,7 +298,9 @@ func (s *stack) SwapN(n int32) error {
 // OverN(1): [... x1 x2 x3] -> [... x1 x2 x3 x2]
 // OverN(2): [... x1 x2 x3 x4] -> [... x1 x2 x3 x4 x1 x2]
 func (s *stack) OverN(n int32) error {
+
 	if n < 1 {
+
 		str := fmt.Sprintf("attempt to perform over on %d stack items",
 			n)
 		return scriptError(ErrInvalidStackOperation, str)
@@ -271,8 +309,10 @@ func (s *stack) OverN(n int32) error {
 	// Copy 2n-1th entry to top of the stack.
 	entry := 2*n - 1
 	for ; n > 0; n-- {
+
 		so, err := s.PeekByteArray(entry)
 		if err != nil {
+
 			return err
 		}
 		s.PushByteArray(so)
@@ -286,8 +326,10 @@ func (s *stack) OverN(n int32) error {
 // PickN(1): [x1 x2 x3] -> [x1 x2 x3 x2]
 // PickN(2): [x1 x2 x3] -> [x1 x2 x3 x1]
 func (s *stack) PickN(n int32) error {
+
 	so, err := s.PeekByteArray(n)
 	if err != nil {
+
 		return err
 	}
 	s.PushByteArray(so)
@@ -300,8 +342,10 @@ func (s *stack) PickN(n int32) error {
 // RollN(1): [x1 x2 x3] -> [x1 x3 x2]
 // RollN(2): [x1 x2 x3] -> [x2 x3 x1]
 func (s *stack) RollN(n int32) error {
+
 	so, err := s.nipN(n)
 	if err != nil {
+
 		return err
 	}
 	s.PushByteArray(so)
@@ -310,9 +354,12 @@ func (s *stack) RollN(n int32) error {
 
 // String returns the stack in a readable format.
 func (s *stack) String() string {
+
 	var result string
 	for _, stack := range s.stk {
+
 		if len(stack) == 0 {
+
 			result += "00000000  <empty>\n"
 		}
 		result += hex.Dump(stack)

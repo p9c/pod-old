@@ -42,6 +42,7 @@ func maybeConvertDbError(
 
 	// When the error is already a ManagerError, just return it.
 	if _, ok := err.(ManagerError); ok {
+
 		return err
 	}
 
@@ -327,6 +328,7 @@ var (
 // little-endian order: 1 -> [1 0 0 0].
 func uint32ToBytes(
 	number uint32) []byte {
+
 	buf := make([]byte, 4)
 	binary.LittleEndian.PutUint32(buf, number)
 	return buf
@@ -336,6 +338,7 @@ func uint32ToBytes(
 // little-endian order: 1 -> [1 0 0 0 0 0 0 0].
 func uint64ToBytes(
 	number uint64) []byte {
+
 	buf := make([]byte, 8)
 	binary.LittleEndian.PutUint64(buf, number)
 	return buf
@@ -368,6 +371,7 @@ const scopeKeySize = 8
 // under
 func scopeToBytes(
 	scope *KeyScope) [scopeKeySize]byte {
+
 	var scopeBytes [scopeKeySize]byte
 	binary.LittleEndian.PutUint32(scopeBytes[:], scope.Purpose)
 	binary.LittleEndian.PutUint32(scopeBytes[4:], scope.Coin)
@@ -379,6 +383,7 @@ func scopeToBytes(
 // scope struct.
 func scopeFromBytes(
 	scopeBytes []byte) KeyScope {
+
 	return KeyScope{
 		Purpose: binary.LittleEndian.Uint32(scopeBytes[:]),
 		Coin:    binary.LittleEndian.Uint32(scopeBytes[4:]),
@@ -389,6 +394,7 @@ func scopeFromBytes(
 // suitable for storage within the database.
 func scopeSchemaToBytes(
 	schema *ScopeAddrSchema) []byte {
+
 	var schemaBytes [2]byte
 	schemaBytes[0] = byte(schema.InternalAddrType)
 	schemaBytes[1] = byte(schema.ExternalAddrType)
@@ -400,6 +406,7 @@ func scopeSchemaToBytes(
 // serialized bytes.
 func scopeSchemaFromBytes(
 	schemaBytes []byte) *ScopeAddrSchema {
+
 	return &ScopeAddrSchema{
 		InternalAddrType: AddressType(schemaBytes[0]),
 		ExternalAddrType: AddressType(schemaBytes[1]),
@@ -415,6 +422,7 @@ func fetchScopeAddrSchema(
 
 	schemaBucket := ns.NestedReadBucket(scopeSchemaBucketName)
 	if schemaBucket == nil {
+
 		str := fmt.Sprintf("unable to find scope schema bucket")
 		return nil, managerError(ErrScopeNotFound, str, nil)
 	}
@@ -422,6 +430,7 @@ func fetchScopeAddrSchema(
 	scopeKey := scopeToBytes(scope)
 	schemaBytes := schemaBucket.Get(scopeKey[:])
 	if schemaBytes == nil {
+
 		str := fmt.Sprintf("unable to find scope %v", scope)
 		return nil, managerError(ErrScopeNotFound, str, nil)
 	}
@@ -437,6 +446,7 @@ func putScopeAddrTypes(
 
 	scopeSchemaBucket := ns.NestedReadWriteBucket(scopeSchemaBucketName)
 	if scopeSchemaBucket == nil {
+
 		str := fmt.Sprintf("unable to find scope schema bucket")
 		return managerError(ErrScopeNotFound, str, nil)
 	}
@@ -454,6 +464,7 @@ func fetchReadScopeBucket(
 	scopeKey := scopeToBytes(scope)
 	scopedBucket := rootScopeBucket.NestedReadBucket(scopeKey[:])
 	if scopedBucket == nil {
+
 		str := fmt.Sprintf("unable to find scope %v", scope)
 		return nil, managerError(ErrScopeNotFound, str, nil)
 	}
@@ -470,6 +481,7 @@ func fetchWriteScopeBucket(
 	scopeKey := scopeToBytes(scope)
 	scopedBucket := rootScopeBucket.NestedReadWriteBucket(scopeKey[:])
 	if scopedBucket == nil {
+
 		str := fmt.Sprintf("unable to find scope %v", scope)
 		return nil, managerError(ErrScopeNotFound, str, nil)
 	}
@@ -484,6 +496,7 @@ func fetchManagerVersion(
 	mainBucket := ns.NestedReadBucket(mainBucketName)
 	verBytes := mainBucket.Get(mgrVersionName)
 	if verBytes == nil {
+
 		str := "required version number not stored in database"
 		return 0, managerError(ErrDatabase, str, nil)
 	}
@@ -494,11 +507,13 @@ func fetchManagerVersion(
 // putManagerVersion stores the provided version to the database.
 func putManagerVersion(
 	ns walletdb.ReadWriteBucket, version uint32) error {
+
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
 	verBytes := uint32ToBytes(version)
 	err := bucket.Put(mgrVersionName, verBytes)
 	if err != nil {
+
 		str := "failed to store version"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -517,6 +532,7 @@ func fetchMasterKeyParams(
 	// Load the master public key parameters.  Required.
 	val := bucket.Get(masterPubKeyName)
 	if val == nil {
+
 		str := "required master public key parameters not stored in " +
 			"database"
 		return nil, nil, managerError(ErrDatabase, str, nil)
@@ -528,6 +544,7 @@ func fetchMasterKeyParams(
 	var privParams []byte
 	val = bucket.Get(masterPrivKeyName)
 	if val != nil {
+
 		privParams = make([]byte, len(val))
 		copy(privParams, val)
 	}
@@ -540,19 +557,24 @@ func fetchMasterKeyParams(
 // written for the parameter.
 func putMasterKeyParams(
 	ns walletdb.ReadWriteBucket, pubParams, privParams []byte) error {
+
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
 	if privParams != nil {
+
 		err := bucket.Put(masterPrivKeyName, privParams)
 		if err != nil {
+
 			str := "failed to store master private key parameters"
 			return managerError(ErrDatabase, str, err)
 		}
 	}
 
 	if pubParams != nil {
+
 		err := bucket.Put(masterPubKeyName, pubParams)
 		if err != nil {
+
 			str := "failed to store master public key parameters"
 			return managerError(ErrDatabase, str, err)
 		}
@@ -569,17 +591,20 @@ func fetchCoinTypeKeys(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return nil, nil, err
 	}
 
 	coinTypePubKeyEnc := scopedBucket.Get(coinTypePubKeyName)
 	if coinTypePubKeyEnc == nil {
+
 		str := "required encrypted cointype public key not stored in database"
 		return nil, nil, managerError(ErrDatabase, str, nil)
 	}
 
 	coinTypePrivKeyEnc := scopedBucket.Get(coinTypePrivKeyName)
 	if coinTypePrivKeyEnc == nil {
+
 		str := "required encrypted cointype private key not stored in database"
 		return nil, nil, managerError(ErrDatabase, str, nil)
 	}
@@ -597,20 +622,25 @@ func putCoinTypeKeys(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
 	if coinTypePubKeyEnc != nil {
+
 		err := scopedBucket.Put(coinTypePubKeyName, coinTypePubKeyEnc)
 		if err != nil {
+
 			str := "failed to store encrypted cointype public key"
 			return managerError(ErrDatabase, str, err)
 		}
 	}
 
 	if coinTypePrivKeyEnc != nil {
+
 		err := scopedBucket.Put(coinTypePrivKeyName, coinTypePrivKeyEnc)
 		if err != nil {
+
 			str := "failed to store encrypted cointype private key"
 			return managerError(ErrDatabase, str, err)
 		}
@@ -636,16 +666,20 @@ func putMasterHDKeys(
 
 	// these keys might not be available.
 	if masterHDPrivEnc != nil {
+
 		err := bucket.Put(masterHDPrivName, masterHDPrivEnc)
 		if err != nil {
+
 			str := "failed to store encrypted master HD private key"
 			return managerError(ErrDatabase, str, err)
 		}
 	}
 
 	if masterHDPubEnc != nil {
+
 		err := bucket.Put(masterHDPubName, masterHDPubEnc)
 		if err != nil {
+
 			str := "failed to store encrypted master HD public key"
 			return managerError(ErrDatabase, str, err)
 		}
@@ -671,12 +705,14 @@ func fetchMasterHDKeys(
 	// found on disk.
 	key := bucket.Get(masterHDPrivName)
 	if key != nil {
+
 		masterHDPrivEnc = make([]byte, len(key))
 		copy(masterHDPrivEnc[:], key)
 	}
 
 	key = bucket.Get(masterHDPubName)
 	if key != nil {
+
 		masterHDPubEnc = make([]byte, len(key))
 		copy(masterHDPubEnc[:], key)
 	}
@@ -696,6 +732,7 @@ func fetchCryptoKeys(
 	// Load the crypto public key parameters.  Required.
 	val := bucket.Get(cryptoPubKeyName)
 	if val == nil {
+
 		str := "required encrypted crypto public not stored in database"
 		return nil, nil, nil, managerError(ErrDatabase, str, nil)
 	}
@@ -706,6 +743,7 @@ func fetchCryptoKeys(
 	var privKey []byte
 	val = bucket.Get(cryptoPrivKeyName)
 	if val != nil {
+
 		privKey = make([]byte, len(val))
 		copy(privKey, val)
 	}
@@ -714,6 +752,7 @@ func fetchCryptoKeys(
 	var scriptKey []byte
 	val = bucket.Get(cryptoScriptKeyName)
 	if val != nil {
+
 		scriptKey = make([]byte, len(val))
 		copy(scriptKey, val)
 	}
@@ -731,24 +770,30 @@ func putCryptoKeys(
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
 	if pubKeyEncrypted != nil {
+
 		err := bucket.Put(cryptoPubKeyName, pubKeyEncrypted)
 		if err != nil {
+
 			str := "failed to store encrypted crypto public key"
 			return managerError(ErrDatabase, str, err)
 		}
 	}
 
 	if privKeyEncrypted != nil {
+
 		err := bucket.Put(cryptoPrivKeyName, privKeyEncrypted)
 		if err != nil {
+
 			str := "failed to store encrypted crypto private key"
 			return managerError(ErrDatabase, str, err)
 		}
 	}
 
 	if scriptKeyEncrypted != nil {
+
 		err := bucket.Put(cryptoScriptKeyName, scriptKeyEncrypted)
 		if err != nil {
+
 			str := "failed to store encrypted crypto script key"
 			return managerError(ErrDatabase, str, err)
 		}
@@ -765,6 +810,7 @@ func fetchWatchingOnly(
 
 	buf := bucket.Get(watchingOnlyName)
 	if len(buf) != 1 {
+
 		str := "malformed watching-only flag stored in database"
 		return false, managerError(ErrDatabase, str, nil)
 	}
@@ -775,14 +821,17 @@ func fetchWatchingOnly(
 // putWatchingOnly stores the watching-only flag to the database.
 func putWatchingOnly(
 	ns walletdb.ReadWriteBucket, watchingOnly bool) error {
+
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
 	var encoded byte
 	if watchingOnly {
+
 		encoded = 1
 	}
 
 	if err := bucket.Put(watchingOnlyName, []byte{encoded}); err != nil {
+
 		str := "failed to store watching only flag"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -807,6 +856,7 @@ func deserializeAccountRow(
 
 	// the constant value sizes.
 	if len(serializedAccount) < 5 {
+
 		str := fmt.Sprintf("malformed serialized account for key %x",
 			accountID)
 		return nil, managerError(ErrDatabase, str, nil)
@@ -863,6 +913,7 @@ func deserializeDefaultAccountRow(
 
 	// the constant value sizes.
 	if len(row.rawData) < 20 {
+
 		str := fmt.Sprintf("malformed serialized bip0044 account for "+
 			"key %x", accountID)
 		return nil, managerError(ErrDatabase, str, nil)
@@ -936,11 +987,14 @@ func serializeDefaultAccountRow(
 // within the set of scopes known by the root manager.
 func forEachKeyScope(
 	ns walletdb.ReadBucket, fn func(KeyScope) error) error {
+
 	bucket := ns.NestedReadBucket(scopeBucketName)
 
 	return bucket.ForEach(func(k, v []byte) error {
+
 		// skip non-bucket
 		if len(k) != 8 {
+
 			return nil
 		}
 
@@ -961,13 +1015,16 @@ func forEachAccount(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
 	acctBucket := scopedBucket.NestedReadBucket(acctBucketName)
 	return acctBucket.ForEach(func(k, v []byte) error {
+
 		// Skip buckets.
 		if v == nil {
+
 			return nil
 		}
 		return fn(binary.LittleEndian.Uint32(k))
@@ -980,6 +1037,7 @@ func fetchLastAccount(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -987,6 +1045,7 @@ func fetchLastAccount(
 
 	val := metaBucket.Get(lastAccountName)
 	if len(val) != 4 {
+
 		str := fmt.Sprintf("malformed metadata '%s' stored in database",
 			lastAccountName)
 		return 0, managerError(ErrDatabase, str, nil)
@@ -1004,6 +1063,7 @@ func fetchAccountName(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return "", err
 	}
 
@@ -1011,6 +1071,7 @@ func fetchAccountName(
 
 	val := acctIDxBucket.Get(uint32ToBytes(account))
 	if val == nil {
+
 		str := fmt.Sprintf("account %d not found", account)
 		return "", managerError(ErrAccountNotFound, str, nil)
 	}
@@ -1031,6 +1092,7 @@ func fetchAccountByName(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1038,6 +1100,7 @@ func fetchAccountByName(
 
 	val := idxBucket.Get(stringToBytes(name))
 	if val == nil {
+
 		str := fmt.Sprintf("account name '%s' not found", name)
 		return 0, managerError(ErrAccountNotFound, str, nil)
 	}
@@ -1053,6 +1116,7 @@ func fetchAccountInfo(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1061,16 +1125,19 @@ func fetchAccountInfo(
 	accountID := uint32ToBytes(account)
 	serializedRow := acctBucket.Get(accountID)
 	if serializedRow == nil {
+
 		str := fmt.Sprintf("account %d not found", account)
 		return nil, managerError(ErrAccountNotFound, str, nil)
 	}
 
 	row, err := deserializeAccountRow(accountID, serializedRow)
 	if err != nil {
+
 		return nil, err
 	}
 
 	switch row.acctType {
+
 	case accountDefault:
 		return deserializeDefaultAccountRow(accountID, row)
 	}
@@ -1086,6 +1153,7 @@ func deleteAccountNameIndex(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1094,6 +1162,7 @@ func deleteAccountNameIndex(
 	// Delete the account name key
 	err = bucket.Delete(stringToBytes(name))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to delete account name index key %s", name)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1107,6 +1176,7 @@ func deleteAccountIDIndex(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1115,6 +1185,7 @@ func deleteAccountIDIndex(
 	// Delete the account id key
 	err = bucket.Delete(uint32ToBytes(account))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to delete account id index key %d", account)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1129,6 +1200,7 @@ func putAccountNameIndex(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1137,6 +1209,7 @@ func putAccountNameIndex(
 	// Write the account number keyed by the account name.
 	err = bucket.Put(stringToBytes(name), uint32ToBytes(account))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store account name index key %s", name)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1150,6 +1223,7 @@ func putAccountIDIndex(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1158,6 +1232,7 @@ func putAccountIDIndex(
 	// Write the account number keyed by the account id.
 	err = bucket.Put(uint32ToBytes(account), stringToBytes(name))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store account id index key %s", name)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1172,6 +1247,7 @@ func putAddrAccountIndex(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1180,17 +1256,20 @@ func putAddrAccountIndex(
 	// Write account keyed by address hash
 	err = bucket.Put(addrHash, uint32ToBytes(account))
 	if err != nil {
+
 		return nil
 	}
 
 	bucket, err = bucket.CreateBucketIfNotExists(uint32ToBytes(account))
 	if err != nil {
+
 		return err
 	}
 
 	// In account bucket, write a null value keyed by the address hash
 	err = bucket.Put(addrHash, nullVal)
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store address account index key %s", addrHash)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1205,6 +1284,7 @@ func putAccountRow(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1213,6 +1293,7 @@ func putAccountRow(
 	// Write the serialized value keyed by the account number.
 	err = bucket.Put(uint32ToBytes(account), serializeAccountRow(row))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store account %d", account)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1237,16 +1318,19 @@ func putAccountInfo(
 		rawData:  rawData,
 	}
 	if err := putAccountRow(ns, scope, account, &acctRow); err != nil {
+
 		return err
 	}
 
 	// Update account id index.
 	if err := putAccountIDIndex(ns, scope, account, name); err != nil {
+
 		return err
 	}
 
 	// Update account name index.
 	if err := putAccountNameIndex(ns, scope, account, name); err != nil {
+
 		return err
 	}
 
@@ -1261,6 +1345,7 @@ func putLastAccount(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1268,6 +1353,7 @@ func putLastAccount(
 
 	err = bucket.Put(lastAccountName, uint32ToBytes(account))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to update metadata '%s'", lastAccountName)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1294,6 +1380,7 @@ func deserializeAddressRow(
 
 	// the constant value sizes.
 	if len(serializedAddress) < 18 {
+
 		str := "malformed serialized address"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -1349,6 +1436,7 @@ func deserializeChainedAddress(
 
 	// 4 bytes branch + 4 bytes address index
 	if len(row.rawData) != 8 {
+
 		str := "malformed serialized chained address"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -1400,6 +1488,7 @@ func deserializeImportedAddress(
 
 	// the constant value sizes.
 	if len(row.rawData) < 8 {
+
 		str := "malformed serialized imported address"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -1465,6 +1554,7 @@ func deserializeScriptAddress(
 
 	// the constant value sizes.
 	if len(row.rawData) < 8 {
+
 		str := "malformed serialized script address"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -1523,6 +1613,7 @@ func fetchAddressByHash(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1530,16 +1621,19 @@ func fetchAddressByHash(
 
 	serializedRow := bucket.Get(addrHash[:])
 	if serializedRow == nil {
+
 		str := "address not found"
 		return nil, managerError(ErrAddressNotFound, str, nil)
 	}
 
 	row, err := deserializeAddressRow(serializedRow)
 	if err != nil {
+
 		return nil, err
 	}
 
 	switch row.addrType {
+
 	case adtChain:
 		return deserializeChainedAddress(row)
 	case adtImport:
@@ -1559,6 +1653,7 @@ func fetchAddressUsed(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return false
 	}
 
@@ -1575,6 +1670,7 @@ func markAddressUsed(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1583,11 +1679,13 @@ func markAddressUsed(
 	addrHash := sha256.Sum256(addressID)
 	val := bucket.Get(addrHash[:])
 	if val != nil {
+
 		return nil
 	}
 
 	err = bucket.Put(addrHash[:], []byte{0})
 	if err != nil {
+
 		str := fmt.Sprintf("failed to mark address used %x", addressID)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1616,6 +1714,7 @@ func putAddress(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1629,6 +1728,7 @@ func putAddress(
 	addrHash := sha256.Sum256(addressID)
 	err = bucket.Put(addrHash[:], serializeAddressRow(row))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store address %x", addressID)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1646,6 +1746,7 @@ func putChainedAddress(
 
 	scopedBucket, err := fetchWriteScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1657,6 +1758,7 @@ func putChainedAddress(
 		rawData:    serializeChainedAddress(branch, index),
 	}
 	if err := putAddress(ns, scope, addressID, &addrRow); err != nil {
+
 		return err
 	}
 
@@ -1670,10 +1772,12 @@ func putChainedAddress(
 	// Deserialize the account row.
 	row, err := deserializeAccountRow(accountID, serializedAccount)
 	if err != nil {
+
 		return err
 	}
 	arow, err := deserializeDefaultAccountRow(accountID, row)
 	if err != nil {
+
 		return err
 	}
 
@@ -1683,8 +1787,10 @@ func putChainedAddress(
 	nextExternalIndex := arow.nextExternalIndex
 	nextInternalIndex := arow.nextInternalIndex
 	if branch == InternalBranch {
+
 		nextInternalIndex = index + 1
 	} else {
+
 		nextExternalIndex = index + 1
 	}
 
@@ -1695,6 +1801,7 @@ func putChainedAddress(
 	)
 	err = bucket.Put(accountID, serializeAccountRow(row))
 	if err != nil {
+
 		str := fmt.Sprintf("failed to update next index for "+
 			"address %x, account %d", addressID, account)
 		return managerError(ErrDatabase, str, err)
@@ -1736,6 +1843,7 @@ func putScriptAddress(
 		rawData:    rawData,
 	}
 	if err := putAddress(ns, scope, addressID, &addrRow); err != nil {
+
 		return err
 	}
 
@@ -1745,8 +1853,10 @@ func putScriptAddress(
 // existsAddress returns whether or not the address id exists in the database.
 func existsAddress(
 	ns walletdb.ReadBucket, scope *KeyScope, addressID []byte) bool {
+
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return false
 	}
 
@@ -1765,6 +1875,7 @@ func fetchAddrAccount(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1773,6 +1884,7 @@ func fetchAddrAccount(
 	addrHash := sha256.Sum256(addressID)
 	val := bucket.Get(addrHash[:])
 	if val == nil {
+
 		str := "address not found"
 		return 0, managerError(ErrAddressNotFound, str, nil)
 	}
@@ -1787,6 +1899,7 @@ func forEachAccountAddress(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
@@ -1797,18 +1910,23 @@ func forEachAccountAddress(
 
 	// address entries yet
 	if bucket == nil {
+
 		return nil
 	}
 
 	err = bucket.ForEach(func(k, v []byte) error {
+
 		// Skip buckets.
 		if v == nil {
+
 			return nil
 		}
 
 		addrRow, err := fetchAddressByHash(ns, scope, k)
 		if err != nil {
+
 			if merr, ok := err.(*ManagerError); ok {
+
 				desc := fmt.Sprintf("failed to fetch address hash '%s': %v",
 					k, merr.Description)
 				merr.Description = desc
@@ -1820,6 +1938,7 @@ func forEachAccountAddress(
 		return fn(addrRow)
 	})
 	if err != nil {
+
 		return maybeConvertDbError(err)
 	}
 	return nil
@@ -1833,14 +1952,17 @@ func forEachActiveAddress(
 
 	scopedBucket, err := fetchReadScopeBucket(ns, scope)
 	if err != nil {
+
 		return err
 	}
 
 	bucket := scopedBucket.NestedReadBucket(addrBucketName)
 
 	err = bucket.ForEach(func(k, v []byte) error {
+
 		// Skip buckets.
 		if v == nil {
+
 			return nil
 		}
 
@@ -1848,18 +1970,21 @@ func forEachActiveAddress(
 		// values.
 		addrRow, err := fetchAddressByHash(ns, scope, k)
 		if merr, ok := err.(*ManagerError); ok {
+
 			desc := fmt.Sprintf("failed to fetch address hash '%s': %v",
 				k, merr.Description)
 			merr.Description = desc
 			return merr
 		}
 		if err != nil {
+
 			return err
 		}
 
 		return fn(addrRow)
 	})
 	if err != nil {
+
 		return maybeConvertDbError(err)
 	}
 	return nil
@@ -1874,24 +1999,29 @@ func forEachActiveAddress(
 // keys unrecoverable unless there is a backup copy available.
 func deletePrivateKeys(
 	ns walletdb.ReadWriteBucket) error {
+
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
 	// Delete the master private key params and the crypto private and
 
 	// script keys.
 	if err := bucket.Delete(masterPrivKeyName); err != nil {
+
 		str := "failed to delete master private key parameters"
 		return managerError(ErrDatabase, str, err)
 	}
 	if err := bucket.Delete(cryptoPrivKeyName); err != nil {
+
 		str := "failed to delete crypto private key"
 		return managerError(ErrDatabase, str, err)
 	}
 	if err := bucket.Delete(cryptoScriptKeyName); err != nil {
+
 		str := "failed to delete crypto script key"
 		return managerError(ErrDatabase, str, err)
 	}
 	if err := bucket.Delete(masterHDPrivName); err != nil {
+
 		str := "failed to delete master HD priv key"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -1901,13 +2031,16 @@ func deletePrivateKeys(
 	// delete the keys for all known scopes as well.
 	scopeBucket := ns.NestedReadWriteBucket(scopeBucketName)
 	err := scopeBucket.ForEach(func(scopeKey, _ []byte) error {
+
 		if len(scopeKey) != 8 {
+
 			return nil
 		}
 
 		managerScopeBucket := scopeBucket.NestedReadWriteBucket(scopeKey)
 
 		if err := managerScopeBucket.Delete(coinTypePrivKeyName); err != nil {
+
 			str := "failed to delete cointype private key"
 			return managerError(ErrDatabase, str, err)
 		}
@@ -1915,21 +2048,26 @@ func deletePrivateKeys(
 		// Delete the account extended private key for all accounts.
 		bucket = managerScopeBucket.NestedReadWriteBucket(acctBucketName)
 		err := bucket.ForEach(func(k, v []byte) error {
+
 			// Skip buckets.
 			if v == nil {
+
 				return nil
 			}
 
 			// Deserialize the account row first to determine the type.
 			row, err := deserializeAccountRow(k, v)
 			if err != nil {
+
 				return err
 			}
 
 			switch row.acctType {
+
 			case accountDefault:
 				arow, err := deserializeDefaultAccountRow(k, row)
 				if err != nil {
+
 					return err
 				}
 
@@ -1942,6 +2080,7 @@ func deletePrivateKeys(
 				)
 				err = bucket.Put(k, serializeAccountRow(row))
 				if err != nil {
+
 					str := "failed to delete account private key"
 					return managerError(ErrDatabase, str, err)
 				}
@@ -1950,14 +2089,17 @@ func deletePrivateKeys(
 			return nil
 		})
 		if err != nil {
+
 			return maybeConvertDbError(err)
 		}
 
 		// Delete the private key for all imported addresses.
 		bucket = managerScopeBucket.NestedReadWriteBucket(addrBucketName)
 		err = bucket.ForEach(func(k, v []byte) error {
+
 			// Skip buckets.
 			if v == nil {
+
 				return nil
 			}
 
@@ -1965,13 +2107,16 @@ func deletePrivateKeys(
 			// values.
 			row, err := deserializeAddressRow(v)
 			if err != nil {
+
 				return err
 			}
 
 			switch row.addrType {
+
 			case adtImport:
 				irow, err := deserializeImportedAddress(row)
 				if err != nil {
+
 					return err
 				}
 
@@ -1981,6 +2126,7 @@ func deletePrivateKeys(
 					irow.encryptedPubKey, nil)
 				err = bucket.Put(k, serializeAddressRow(row))
 				if err != nil {
+
 					str := "failed to delete imported private key"
 					return managerError(ErrDatabase, str, err)
 				}
@@ -1988,6 +2134,7 @@ func deletePrivateKeys(
 			case adtScript:
 				srow, err := deserializeScriptAddress(row)
 				if err != nil {
+
 					return err
 				}
 
@@ -1997,6 +2144,7 @@ func deletePrivateKeys(
 					nil)
 				err = bucket.Put(k, serializeAddressRow(row))
 				if err != nil {
+
 					str := "failed to delete imported script"
 					return managerError(ErrDatabase, str, err)
 				}
@@ -2005,12 +2153,14 @@ func deletePrivateKeys(
 			return nil
 		})
 		if err != nil {
+
 			return maybeConvertDbError(err)
 		}
 
 		return nil
 	})
 	if err != nil {
+
 		return maybeConvertDbError(err)
 	}
 
@@ -2033,6 +2183,7 @@ func fetchSyncedTo(
 	// 4 bytes block height + 32 bytes hash length
 	buf := bucket.Get(syncedToName)
 	if len(buf) < 36 {
+
 		str := "malformed sync information stored in database"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -2042,6 +2193,7 @@ func fetchSyncedTo(
 	copy(bs.Hash[:], buf[4:36])
 
 	if len(buf) == 40 {
+
 		bs.Timestamp = time.Unix(
 			int64(binary.LittleEndian.Uint32(buf[36:])), 0,
 		)
@@ -2053,6 +2205,7 @@ func fetchSyncedTo(
 // putSyncedTo stores the provided synced to blockstamp to the database.
 func putSyncedTo(
 	ns walletdb.ReadWriteBucket, bs *BlockStamp) error {
+
 	bucket := ns.NestedReadWriteBucket(syncBucketName)
 	errStr := fmt.Sprintf("failed to store sync information %v", bs.Hash)
 
@@ -2064,7 +2217,9 @@ func putSyncedTo(
 
 	// order, making writes more efficient for some database backends.
 	if bs.Height > 0 {
+
 		if _, err := fetchBlockHash(ns, bs.Height-1); err != nil {
+
 			return managerError(ErrDatabase, errStr, err)
 		}
 	}
@@ -2074,6 +2229,7 @@ func putSyncedTo(
 	binary.BigEndian.PutUint32(height, uint32(bs.Height))
 	err := bucket.Put(height, bs.Hash[0:32])
 	if err != nil {
+
 		return managerError(ErrDatabase, errStr, err)
 	}
 
@@ -2091,6 +2247,7 @@ func putSyncedTo(
 
 	err = bucket.Put(syncedToName, buf)
 	if err != nil {
+
 		return managerError(ErrDatabase, errStr, err)
 	}
 	return nil
@@ -2108,11 +2265,13 @@ func fetchBlockHash(
 	binary.BigEndian.PutUint32(heightBytes, uint32(height))
 	hashBytes := bucket.Get(heightBytes)
 	if len(hashBytes) != 32 {
+
 		err := fmt.Errorf("couldn't get hash from database")
 		return nil, managerError(ErrDatabase, errStr, err)
 	}
 	var hash chainhash.Hash
 	if err := hash.SetBytes(hashBytes); err != nil {
+
 		return nil, managerError(ErrDatabase, errStr, err)
 	}
 	return &hash, nil
@@ -2134,6 +2293,7 @@ func fetchStartBlock(
 	// 4 bytes block height + 32 bytes hash length
 	buf := bucket.Get(startBlockName)
 	if len(buf) != 36 {
+
 		str := "malformed start block stored in database"
 		return nil, managerError(ErrDatabase, str, nil)
 	}
@@ -2147,6 +2307,7 @@ func fetchStartBlock(
 // putStartBlock stores the provided start block stamp to the database.
 func putStartBlock(
 	ns walletdb.ReadWriteBucket, bs *BlockStamp) error {
+
 	bucket := ns.NestedReadWriteBucket(syncBucketName)
 
 	// The serialized start block format is:
@@ -2162,6 +2323,7 @@ func putStartBlock(
 
 	err := bucket.Put(startBlockName, buf)
 	if err != nil {
+
 		str := fmt.Sprintf("failed to store start block %v", bs.Hash)
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2178,6 +2340,7 @@ func fetchBirthday(
 
 	buf := bucket.Get(birthdayName)
 	if len(buf) != 8 {
+
 		str := "malformed birthday stored in database"
 		return t, managerError(ErrDatabase, str, nil)
 	}
@@ -2189,6 +2352,7 @@ func fetchBirthday(
 // putBirthday stores the provided birthday timestamp to the database.
 func putBirthday(
 	ns walletdb.ReadWriteBucket, t time.Time) error {
+
 	bucket := ns.NestedReadWriteBucket(syncBucketName)
 
 	buf := make([]byte, 8)
@@ -2196,6 +2360,7 @@ func putBirthday(
 
 	err := bucket.Put(birthdayName, buf)
 	if err != nil {
+
 		str := "failed to store birthday"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2206,7 +2371,9 @@ func putBirthday(
 // in the given database namespace.
 func managerExists(
 	ns walletdb.ReadBucket) bool {
+
 	if ns == nil {
+
 		return false
 	}
 	mainBucket := ns.NestedReadBucket(mainBucketName)
@@ -2225,18 +2392,21 @@ func createScopedManagerNS(
 	scopeKey := scopeToBytes(scope)
 	scopeBucket, err := ns.CreateBucket(scopeKey[:])
 	if err != nil {
+
 		str := "failed to create sync bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(acctBucketName)
 	if err != nil {
+
 		str := "failed to create account bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(addrBucketName)
 	if err != nil {
+
 		str := "failed to create address bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2244,30 +2414,35 @@ func createScopedManagerNS(
 	// usedAddrBucketName bucket was added after manager version 1 release
 	_, err = scopeBucket.CreateBucket(usedAddrBucketName)
 	if err != nil {
+
 		str := "failed to create used addresses bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(addrAcctIdxBucketName)
 	if err != nil {
+
 		str := "failed to create address index bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(acctNameIdxBucketName)
 	if err != nil {
+
 		str := "failed to create an account name index bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(acctIDIdxBucketName)
 	if err != nil {
+
 		str := "failed to create an account id index bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	_, err = scopeBucket.CreateBucket(metaBucketName)
 	if err != nil {
+
 		str := "failed to create a meta bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2289,11 +2464,13 @@ func createManagerNS(
 	// main bucket.
 	mainBucket, err := ns.CreateBucket(mainBucketName)
 	if err != nil {
+
 		str := "failed to create main bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 	_, err = ns.CreateBucket(syncBucketName)
 	if err != nil {
+
 		str := "failed to create sync bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2303,11 +2480,13 @@ func createManagerNS(
 	// preparation for the operations below.
 	scopeBucket, err := ns.CreateBucket(scopeBucketName)
 	if err != nil {
+
 		str := "failed to create scope bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 	scopeSchemas, err := ns.CreateBucket(scopeSchemaBucketName)
 	if err != nil {
+
 		str := "failed to create scope schema bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2316,6 +2495,7 @@ func createManagerNS(
 
 	// manager scopes.
 	for scope, scopeSchema := range defaultScopes {
+
 		// Before we create the entire namespace of this scope, we'll
 		// update the schema mapping to note what types of addresses it
 		// prefers.
@@ -2323,21 +2503,25 @@ func createManagerNS(
 		schemaBytes := scopeSchemaToBytes(&scopeSchema)
 		err := scopeSchemas.Put(scopeKey[:], schemaBytes)
 		if err != nil {
+
 			return err
 		}
 
 		err = createScopedManagerNS(scopeBucket, &scope)
 		if err != nil {
+
 			return err
 		}
 
 		err = putLastAccount(ns, &scope, DefaultAccountNum)
 		if err != nil {
+
 			return err
 		}
 	}
 
 	if err := putManagerVersion(ns, latestMgrVersion); err != nil {
+
 		return err
 	}
 
@@ -2346,6 +2530,7 @@ func createManagerNS(
 	binary.LittleEndian.PutUint64(dateBytes[:], createDate)
 	err = mainBucket.Put(mgrCreateDateName, dateBytes[:])
 	if err != nil {
+
 		str := "failed to store database creation time"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2358,10 +2543,12 @@ func createManagerNS(
 // initialized and it will be updated on the next rescan.
 func upgradeToVersion2(
 	ns walletdb.ReadWriteBucket) error {
+
 	currentMgrVersion := uint32(2)
 
 	_, err := ns.CreateBucketIfNotExists(usedAddrBucketName)
 	if err != nil {
+
 		str := "failed to create used addresses bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2377,22 +2564,27 @@ func upgradeManager(
 
 	var version uint32
 	err := walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(namespaceKey)
 		var err error
 		version, err = fetchManagerVersion(ns)
 		return err
 	})
 	if err != nil {
+
 		str := "failed to fetch version for update"
 		return managerError(ErrDatabase, str, err)
 	}
 
 	if version < 5 {
+
 		err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(namespaceKey)
 			return upgradeToVersion5(ns, pubPassPhrase)
 		})
 		if err != nil {
+
 			return err
 		}
 
@@ -2406,6 +2598,7 @@ func upgradeManager(
 
 	// without writing code to handle the upgrade.
 	if version < latestMgrVersion {
+
 		str := fmt.Sprintf("the latest manager version is %d, but the "+
 			"current version after upgrades is only %d",
 			latestMgrVersion, version)
@@ -2430,11 +2623,14 @@ func upgradeToVersion5(
 	// user.
 	err := ns.NestedReadBucket(addrBucketName).ForEach(
 		func(k []byte, v []byte) error {
+
 			row, err := deserializeAddressRow(v)
 			if err != nil {
+
 				return err
 			}
 			if row.addrType > adtScript {
+
 				return fmt.Errorf("segwit address exists in " +
 					"wallet, can't upgrade from v4 to " +
 					"v5: well, we tried  ¯\\_(ツ)_/¯")
@@ -2442,11 +2638,13 @@ func upgradeToVersion5(
 			return nil
 		})
 	if err != nil {
+
 		return err
 	}
 
 	// Next, we'll write out the new database version.
 	if err := putManagerVersion(ns, 5); err != nil {
+
 		return err
 	}
 
@@ -2455,11 +2653,13 @@ func upgradeToVersion5(
 	// database version.
 	scopeBucket, err := ns.CreateBucket(scopeBucketName)
 	if err != nil {
+
 		str := "failed to create scope bucket"
 		return managerError(ErrDatabase, str, err)
 	}
 	scopeSchemas, err := ns.CreateBucket(scopeSchemaBucketName)
 	if err != nil {
+
 		str := "failed to create scope schema bucket"
 		return managerError(ErrDatabase, str, err)
 	}
@@ -2473,9 +2673,11 @@ func upgradeToVersion5(
 	scopeSchema := ScopeAddrMap[KeyScopeBIP0044]
 	schemaBytes := scopeSchemaToBytes(&scopeSchema)
 	if err := scopeSchemas.Put(scopeKey[:], schemaBytes); err != nil {
+
 		return err
 	}
 	if err := createScopedManagerNS(scopeBucket, &KeyScopeBIP0044); err != nil {
+
 		return err
 	}
 
@@ -2494,17 +2696,21 @@ func upgradeToVersion5(
 
 	err = bip44Bucket.Put(coinTypePrivKeyName, encCoinPrivKeys)
 	if err != nil {
+
 		return err
 	}
 	err = bip44Bucket.Put(coinTypePubKeyName, encCoinPubKeys)
 	if err != nil {
+
 		return err
 	}
 
 	if err := mainBucket.Delete(coinTypePrivKeyName); err != nil {
+
 		return err
 	}
 	if err := mainBucket.Delete(coinTypePubKeyName); err != nil {
+
 		return err
 	}
 
@@ -2514,12 +2720,14 @@ func upgradeToVersion5(
 	metaBucket := ns.NestedReadWriteBucket(metaBucketName)
 	lastAccount := metaBucket.Get(lastAccountName)
 	if err := metaBucket.Delete(lastAccountName); err != nil {
+
 		return err
 	}
 
 	scopedMetaBucket := bip44Bucket.NestedReadWriteBucket(metaBucketName)
 	err = scopedMetaBucket.Put(lastAccountName, lastAccount)
 	if err != nil {
+
 		return err
 	}
 
@@ -2539,8 +2747,10 @@ func upgradeToVersion5(
 
 	// Migrate each bucket recursively.
 	for _, bucketKey := range keysToMigrate {
+
 		err := migrateRecursively(ns, bip44Bucket, bucketKey)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -2558,27 +2768,33 @@ func migrateRecursively(
 	bucketToMigrate := src.NestedReadWriteBucket(bucketKey)
 	newBucket, err := dst.CreateBucketIfNotExists(bucketKey)
 	if err != nil {
+
 		return err
 	}
 	err = bucketToMigrate.ForEach(func(k, v []byte) error {
+
 		if nestedBucket := bucketToMigrate.
 			NestedReadBucket(k); nestedBucket != nil {
+
 			// We have a nested bucket, so recurse into it.
 			return migrateRecursively(bucketToMigrate, newBucket, k)
 		}
 
 		if err := newBucket.Put(k, v); err != nil {
+
 			return err
 		}
 
 		return bucketToMigrate.Delete(k)
 	})
 	if err != nil {
+
 		return err
 	}
 
 	// Finally, we'll delete the bucket itself.
 	if err := src.DeleteNestedBucket(bucketKey); err != nil {
+
 		return err
 	}
 	return nil

@@ -15,6 +15,7 @@ func BenchmarkBase58Encode(
 	b.SetBytes(int64(len(data)))
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		base58.Encode(data)
 	}
 }
@@ -27,6 +28,7 @@ func BenchmarkBase58Decode(
 	b.SetBytes(int64(len(encoded)))
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		base58.Decode(encoded)
 	}
 }

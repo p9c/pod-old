@@ -19,9 +19,11 @@ func (s *SubSystem) Close() {
 func (s *SubSystem) SetLevel(level string) {
 
 	if i, ok := Levels[level]; ok {
+
 		s.Level = i
 		s.LevelString = level
 	} else {
+
 		s.Level = _off
 		s.LevelString = "off"
 	}
@@ -37,6 +39,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	ss.SetLevel(level)
 	Register.Add(ss)
 	if len(name) > maxLen {
+
 		maxLen = len(name)
 	}
 
@@ -44,49 +47,62 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	go func() {
 
 		for i := range ss.Ch {
+
 			// fmt.Println("chan:i := <-ss.Ch")
 			if ShuttingDown {
+
 				break
 			}
 			if i == nil {
+
 				fmt.Println("got nil")
 				continue
 			}
 			n := fmt.Sprintf("%-"+fmt.Sprint(maxLen)+"v", name)
 			if Color {
+
 				n = colorstring.Color("[bold]" + n + "[reset]")
 			} else {
+
 				n += ":"
 			}
 			switch I := i.(type) {
 
 			case Ftl:
 				if ss.Level > _off {
+
 					Og <- Ftl(n+" ") + I
 				}
 			case Err:
 				if ss.Level > _fatal {
+
 					Og <- Err(n+" ") + I
 				}
 			case Wrn:
 				if ss.Level > _error {
+
 					Og <- Wrn(n+" ") + I
 				}
 			case Inf:
 				if ss.Level > _warn {
+
 					Og <- Inf(n+" ") + I
 				}
 			case Dbg:
 				if ss.Level > _info {
+
 					Og <- Dbg(n+" ") + I
 				}
 			case Trc:
 				if ss.Level > _debug {
+
 					Og <- Trc(n+" ") + I
 				}
 			case Fatalc:
 				if ss.Level > _off {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -95,7 +111,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Errorc:
 				if ss.Level > _fatal {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -104,7 +122,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Warnc:
 				if ss.Level > _error {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -113,7 +133,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Infoc:
 				if ss.Level > _warn {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -122,7 +144,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Debugc:
 				if ss.Level > _info {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -131,7 +155,9 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Tracec:
 				if ss.Level > _debug {
+
 					fn := func() string {
+
 						o := n + " "
 						o += I()
 						return o
@@ -140,50 +166,62 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Fatal:
 				if ss.Level > _off {
+
 					Og <- append(Fatal{n}, i.(Fatal)...)
 				}
 			case Error:
 				if ss.Level > _fatal {
+
 					Og <- append(Error{n}, i.(Error)...)
 				}
 			case Warn:
 				if ss.Level > _error {
+
 					Og <- append(Warn{n}, i.(Warn)...)
 				}
 			case Info:
 				if ss.Level > _warn {
+
 					Og <- append(Info{n}, i.(Info)...)
 				}
 			case Debug:
 				if ss.Level > _info {
+
 					Og <- append(Debug{n}, i.(Debug)...)
 				}
 			case Trace:
 				if ss.Level > _debug {
+
 					Og <- append(Trace{n}, i.(Trace)...)
 				}
 			case Fatalf:
 				if ss.Level > _off {
+
 					Og <- append(Fatalf{n + " " + i.(Fatalf)[0].(string)}, i.(Fatalf)[1:]...)
 				}
 			case Errorf:
 				if ss.Level > _fatal {
+
 					Og <- append(Errorf{n + " " + i.(Errorf)[0].(string)}, i.(Errorf)[1:]...)
 				}
 			case Warnf:
 				if ss.Level > _error {
+
 					Og <- append(Warnf{n + " " + i.(Warnf)[0].(string)}, i.(Warnf)[1:]...)
 				}
 			case Infof:
 				if ss.Level > _warn {
+
 					Og <- append(Infof{n + " " + i.(Infof)[0].(string)}, i.(Infof)[1:]...)
 				}
 			case Debugf:
 				if ss.Level > _info {
+
 					Og <- append(Debugf{n + " " + i.(Debugf)[0].(string)}, i.(Debugf)[1:]...)
 				}
 			case Tracef:
 				if ss.Level > _debug {
+
 					Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
 				}
 			}
@@ -200,8 +238,10 @@ func init() {
 
 		var t, s string
 		for {
+
 			// fmt.Println("clog loop")
 			select {
+
 			case <-Quit:
 				// fmt.Println("chan:<-Quit")
 				ShuttingDown = true
@@ -211,14 +251,17 @@ func init() {
 			case i := <-Og:
 				// fmt.Println("chan:i := <-Og")
 				if ShuttingDown {
+
 					break
 				}
 				if i == nil {
+
 					fmt.Println("received nil")
 					continue
 				}
 				color := Color
 				if color {
+
 					s = colorstring.Color("[reset]")
 				}
 				t = time.Now().UTC().Format("06-01-02 15:04:05.000")
@@ -262,26 +305,32 @@ func init() {
 					s += fmt.Sprintln(ii...)
 				case Fatalf:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Errorf:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Warnf:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Infof:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Debugf:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				case Tracef:
 					if I, ok := ii[0].(string); ok {
+
 						s += fmt.Sprintf(I, ii[1:]...) + "\n"
 					}
 				}
@@ -301,6 +350,7 @@ func init() {
 					s = trcTag(color) + s
 				}
 				if color {
+
 					t = colorstring.Color("[light_gray]" + t + "[dark_gray]")
 				}
 				fmt.Fprint(Writer, t+s)

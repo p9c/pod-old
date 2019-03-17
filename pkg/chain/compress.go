@@ -72,12 +72,14 @@ func compressTxOutAmount(
 
 	// No need to do any work if it's zero.
 	if amount == 0 {
+
 		return 0
 	}
 
 	// Find the largest power of 10 (max of 9) that evenly divides the value.
 	exponent := uint64(0)
 	for amount%10 == 0 && exponent < 9 {
+
 		amount /= 10
 		exponent++
 	}
@@ -86,6 +88,7 @@ func compressTxOutAmount(
 
 	// 1 + 10*(9*n + d-1) + e
 	if exponent < 9 {
+
 		lastDigit := amount % 10
 		amount /= 10
 		return 1 + 10*(9*amount+lastDigit-1) + exponent
@@ -103,16 +106,19 @@ func compressedScriptSize(
 
 	// Pay-to-pubkey-hash script.
 	if valid, _ := isPubKeyHash(pkScript); valid {
+
 		return 21
 	}
 
 	// Pay-to-script-hash script.
 	if valid, _ := isScriptHash(pkScript); valid {
+
 		return 21
 	}
 
 	// Pay-to-pubkey (compressed or uncompressed) script.
 	if valid, _ := isPubKey(pkScript); valid {
+
 		return 33
 	}
 
@@ -131,6 +137,7 @@ func compressedScriptSize(
 // compressedTxOutSize returns the number of bytes the passed transaction output fields would take when encoded with the format described above.
 func compressedTxOutSize(
 	amount uint64, pkScript []byte) int {
+
 	return serializeSizeVLQ(compressTxOutAmount(amount)) +
 		compressedScriptSize(pkScript)
 }
@@ -138,11 +145,14 @@ func compressedTxOutSize(
 // decodeCompressedScriptSize treats the passed serialized bytes as a compressed script, possibly followed by other data, and returns the number of bytes it occupies taking into account the special encoding of the script size by the domain specific compression algorithm described above.
 func decodeCompressedScriptSize(
 	serialized []byte) int {
+
 	scriptSize, bytesRead := deserializeVLQ(serialized)
 	if bytesRead == 0 {
+
 		return 0
 	}
 	switch scriptSize {
+
 	case cstPayToPubKeyHash:
 		return 21
 	case cstPayToScriptHash:
@@ -159,6 +169,7 @@ func decodeCompressedScriptSize(
 // decodeCompressedTxOut decodes the passed compressed txout, possibly followed by other data, into its uncompressed amount and script and returns them along with the number of bytes they occupied prior to decompression.
 func decodeCompressedTxOut(
 	serialized []byte) (uint64, []byte, int, error) {
+
 	// Deserialize the compressed amount and ensure there are bytes remaining for the compressed script.
 	compressedAmount, bytesRead := deserializeVLQ(serialized)
 	if bytesRead >= len(serialized) {
@@ -170,6 +181,7 @@ func decodeCompressedTxOut(
 	// Decode the compressed script size and ensure there are enough bytes left in the slice for it.
 	scriptSize := decodeCompressedScriptSize(serialized[bytesRead:])
 	if len(serialized[bytesRead:]) < scriptSize {
+
 		return 0, nil, bytesRead, errDeserialize("unexpected end of " +
 			"data after script size")
 	}
@@ -186,6 +198,7 @@ func decompressScript(
 
 	// In practice this function will not be called with a zero-length or nil script since the nil script encoding includes the length, however the code below assumes the length exists, so just return nil now if the function ever ends up being called with a nil script in the future.
 	if len(compressedPkScript) == 0 {
+
 		return nil
 	}
 
@@ -238,6 +251,7 @@ func decompressScript(
 		copy(compressedKey[1:], compressedPkScript[1:])
 		key, err := ec.ParsePubKey(compressedKey, ec.S256())
 		if err != nil {
+
 			return nil
 		}
 		pkScript := make([]byte, 67)
@@ -260,6 +274,7 @@ func decompressTxOutAmount(
 
 	// No need to do any work if it's zero.
 	if amount == 0 {
+
 		return 0
 	}
 
@@ -285,15 +300,18 @@ func decompressTxOutAmount(
 	// x = n - 1        | where e = 9
 	n := uint64(0)
 	if exponent < 9 {
+
 		lastDigit := amount%9 + 1
 		amount /= 9
 		n = amount*10 + lastDigit
 	} else {
+
 		n = amount + 1
 	}
 
 	// Apply the exponent.
 	for ; exponent > 0; exponent-- {
+
 		n *= 10
 	}
 	return n
@@ -306,9 +324,11 @@ func deserializeVLQ(
 	var n uint64
 	var size int
 	for _, val := range serialized {
+
 		size++
 		n = (n << 7) | uint64(val&0x7f)
 		if val&0x80 != 0x80 {
+
 			break
 		}
 		n++
@@ -319,6 +339,7 @@ func deserializeVLQ(
 // isPubKey returns whether or not the passed public key script is a standard pay-to-pubkey script that pays to a valid compressed or uncompressed public key along with the serialized pubkey it is paying to if it is. NOTE: This function ensures the public key is actually valid since the compression algorithm requires valid pubkeys.  It does not support hybrid pubkeys.  This means that even if the script has the correct form for a pay-to-pubkey script, this function will only return true when it is paying to a valid compressed or uncompressed pubkey.
 func isPubKey(
 	script []byte) (bool, []byte) {
+
 	// Pay-to-compressed-pubkey script.
 	if len(script) == 35 && script[0] == txscript.OP_DATA_33 &&
 		script[34] == txscript.OP_CHECKSIG && (script[1] == 0x02 ||
@@ -328,6 +349,7 @@ func isPubKey(
 		serializedPubKey := script[1:34]
 		_, err := ec.ParsePubKey(serializedPubKey, ec.S256())
 		if err == nil {
+
 			return true, serializedPubKey
 		}
 	}
@@ -335,10 +357,12 @@ func isPubKey(
 	// Pay-to-uncompressed-pubkey script.
 	if len(script) == 67 && script[0] == txscript.OP_DATA_65 &&
 		script[66] == txscript.OP_CHECKSIG && script[1] == 0x04 {
+
 		// Ensure the public key is valid.
 		serializedPubKey := script[1:66]
 		_, err := ec.ParsePubKey(serializedPubKey, ec.S256())
 		if err == nil {
+
 			return true, serializedPubKey
 		}
 	}
@@ -354,6 +378,7 @@ func isPubKeyHash(
 		script[2] == txscript.OP_DATA_20 &&
 		script[23] == txscript.OP_EQUALVERIFY &&
 		script[24] == txscript.OP_CHECKSIG {
+
 		return true, script[3:23]
 	}
 	return false, nil
@@ -366,6 +391,7 @@ func isScriptHash(
 	if len(script) == 23 && script[0] == txscript.OP_HASH160 &&
 		script[1] == txscript.OP_DATA_20 &&
 		script[22] == txscript.OP_EQUAL {
+
 		return true, script[2:22]
 	}
 	return false, nil
@@ -377,6 +403,7 @@ func putCompressedScript(
 
 	// Pay-to-pubkey-hash script.
 	if valid, hash := isPubKeyHash(pkScript); valid {
+
 		target[0] = cstPayToPubKeyHash
 		copy(target[1:21], hash)
 		return 21
@@ -384,6 +411,7 @@ func putCompressedScript(
 
 	// Pay-to-script-hash script.
 	if valid, hash := isScriptHash(pkScript); valid {
+
 		target[0] = cstPayToScriptHash
 		copy(target[1:21], hash)
 		return 21
@@ -391,8 +419,10 @@ func putCompressedScript(
 
 	// Pay-to-pubkey (compressed or uncompressed) script.
 	if valid, serializedPubKey := isPubKey(pkScript); valid {
+
 		pubKeyFormat := serializedPubKey[0]
 		switch pubKeyFormat {
+
 		case 0x02, 0x03:
 			target[0] = pubKeyFormat
 			copy(target[1:33], serializedPubKey[1:33])
@@ -416,6 +446,7 @@ func putCompressedScript(
 // putCompressedTxOut compresses the passed amount and script according to their domain specific compression algorithms and encodes them directly into the passed target byte slice with the format described above.  The target byte slice must be at least large enough to handle the number of bytes returned by the compressedTxOutSize function or it will panic.
 func putCompressedTxOut(
 	target []byte, amount uint64, pkScript []byte) int {
+
 	offset := putVLQ(target, compressTxOutAmount(amount))
 	offset += putCompressedScript(target[offset:], pkScript)
 	return offset
@@ -424,15 +455,19 @@ func putCompressedTxOut(
 // putVLQ serializes the provided number to a variable-length quantity according to the format described above and returns the number of bytes of the encoded value.  The result is placed directly into the passed byte slice which must be at least large enough to handle the number of bytes returned by the serializeSizeVLQ function or it will panic.
 func putVLQ(
 	target []byte, n uint64) int {
+
 	offset := 0
 	for ; ; offset++ {
+
 		// The high bit is set when another byte follows.
 		highBitMask := byte(0x80)
 		if offset == 0 {
+
 			highBitMask = 0x00
 		}
 		target[offset] = byte(n&0x7f) | highBitMask
 		if n <= 0x7f {
+
 			break
 		}
 		n = (n >> 7) - 1
@@ -440,6 +475,7 @@ func putVLQ(
 
 	// Reverse the bytes so it is MSB-encoded.
 	for i, j := 0, offset; i < j; i, j = i+1, j-1 {
+
 		target[i], target[j] = target[j], target[i]
 	}
 	return offset + 1
@@ -469,8 +505,10 @@ func putVLQ(
 // serializeSizeVLQ returns the number of bytes it would take to serialize the passed number as a variable-length quantity according to the format described above.
 func serializeSizeVLQ(
 	n uint64) int {
+
 	size := 1
 	for ; n > 0x7f; n = (n >> 7) - 1 {
+
 		size++
 	}
 	return size

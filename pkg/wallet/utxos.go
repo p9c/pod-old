@@ -17,6 +17,7 @@ type OutputSelectionPolicy struct {
 }
 
 func (p *OutputSelectionPolicy) meetsRequiredConfs(txHeight, curHeight int32) bool {
+
 	return confirmed(p.RequiredConfirmations, txHeight, curHeight)
 }
 
@@ -26,6 +27,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 
 	var outputResults []*TransactionOutput
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
+
 		addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -35,10 +37,12 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 		// all of them at once.
 		outputs, err := w.TxStore.UnspentOutputs(txmgrNs)
 		if err != nil {
+
 			return err
 		}
 
 		for _, output := range outputs {
+
 			// Ignore outputs that haven't reached the required
 			// number of confirmations.
 			if !policy.meetsRequiredConfs(output.Height, syncBlock.Height) {
@@ -50,6 +54,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			_, addrs, _, err := txscript.ExtractPkScriptAddrs(output.PkScript,
 				w.chainParams)
 			if err != nil || len(addrs) == 0 {
+
 				// Cannot determine which account this belongs
 				// to without a valid address.  TODO: Fix this
 				// by saving outputs per account, or accounts
@@ -59,10 +64,12 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 
 			_, outputAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
 			if err != nil {
+
 				return err
 			}
 
 			if outputAcct != policy.Account {
+
 				continue
 			}
 
@@ -70,6 +77,7 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 			// OutputKindNormal for now.
 			outputSource := OutputKindNormal
 			if output.FromCoinBase {
+
 				outputSource = OutputKindCoinbase
 			}
 

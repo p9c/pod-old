@@ -36,12 +36,15 @@ func TestScriptBuilderAddOp(
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		builder.Reset()
 		for _, opcode := range test.opcodes {
+
 			builder.AddOp(opcode)
 		}
 		result, err := builder.Script()
 		if err != nil {
+
 			t.Errorf("ScriptBuilder.AddOp #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
@@ -58,9 +61,11 @@ func TestScriptBuilderAddOp(
 	// Run tests and bulk add ops via AddOps.
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		builder.Reset()
 		result, err := builder.AddOps(test.opcodes).Script()
 		if err != nil {
+
 			t.Errorf("ScriptBuilder.AddOps #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
@@ -127,9 +132,11 @@ func TestScriptBuilderAddInt64(
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		builder.Reset().AddInt64(test.val)
 		result, err := builder.Script()
 		if err != nil {
+
 			t.Errorf("ScriptBuilder.AddInt64 #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
@@ -248,9 +255,12 @@ func TestScriptBuilderAddData(
 	builder := NewScriptBuilder()
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		if !test.useFull {
+
 			builder.Reset().AddData(test.data)
 		} else {
+
 			builder.Reset().AddFullData(test.data)
 		}
 		result, _ := builder.Script()
@@ -275,12 +285,14 @@ func TestExceedMaxScriptSize(
 	builder.Reset().AddFullData(make([]byte, MaxScriptSize-3))
 	origScript, err := builder.Script()
 	if err != nil {
+
 		t.Fatalf("Unexpected error for max size script: %v", err)
 	}
 
 	// Ensure adding data that would exceed the maximum size of the script does not add the data.
 	script, err := builder.AddData([]byte{0x00}).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatalf("ScriptBuilder.AddData allowed exceeding max script "+
 			"size: %v", len(script))
 	}
@@ -294,6 +306,7 @@ func TestExceedMaxScriptSize(
 	builder.Reset().AddFullData(make([]byte, MaxScriptSize-3))
 	script, err = builder.AddOp(OP_0).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatalf("ScriptBuilder.AddOp unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -307,6 +320,7 @@ func TestExceedMaxScriptSize(
 	builder.Reset().AddFullData(make([]byte, MaxScriptSize-3))
 	script, err = builder.AddInt64(0).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatalf("ScriptBuilder.AddInt64 unexpected modified script - "+
 			"got len %d, want len %d", len(script), len(origScript))
 	}
@@ -328,10 +342,12 @@ func TestErroredScript(
 	builder.Reset().AddFullData(make([]byte, MaxScriptSize-8))
 	origScript, err := builder.Script()
 	if err != nil {
+
 		t.Fatalf("ScriptBuilder.AddFullData unexpected error: %v", err)
 	}
 	script, err := builder.AddData([]byte{0x00, 0x00, 0x00, 0x00, 0x00}).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatalf("ScriptBuilder.AddData allowed exceeding max script "+
 			"size: %v", len(script))
 	}
@@ -344,6 +360,7 @@ func TestErroredScript(
 	// Ensure adding data, even using the non-canonical path, to a script that has errored doesn't succeed.
 	script, err = builder.AddFullData([]byte{0x00}).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatal("ScriptBuilder.AddFullData succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
@@ -356,6 +373,7 @@ func TestErroredScript(
 	// Ensure adding data to a script that has errored doesn't succeed.
 	script, err = builder.AddData([]byte{0x00}).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatal("ScriptBuilder.AddData succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
@@ -368,6 +386,7 @@ func TestErroredScript(
 	// Ensure adding an opcode to a script that has errored doesn't succeed.
 	script, err = builder.AddOp(OP_0).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatal("ScriptBuilder.AddOp succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
@@ -379,6 +398,7 @@ func TestErroredScript(
 	// Ensure adding an integer to a script that has errored doesn't succeed.
 	script, err = builder.AddInt64(0).Script()
 	if _, ok := err.(ErrScriptNotCanonical); !ok || err == nil {
+
 		t.Fatal("ScriptBuilder.AddInt64 succeeded on errored script")
 	}
 	if !bytes.Equal(script, origScript) {
@@ -389,6 +409,7 @@ func TestErroredScript(
 
 	// Ensure the error has a message set.
 	if err.Error() == "" {
+
 		t.Fatal("ErrScriptNotCanonical.Error does not have any text")
 	}
 }

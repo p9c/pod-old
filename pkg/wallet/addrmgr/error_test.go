@@ -41,8 +41,10 @@ func TestErrorCodeStringer(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\ngot: %s\nwant: %s", i, result,
 				test.want)
 			continue
@@ -103,8 +105,10 @@ func TestManagerError(
 
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.Error()
 		if result != test.want {
+
 			t.Errorf("Error #%d\ngot: %s\nwant: %s", i, result,
 				test.want)
 			continue
@@ -151,8 +155,10 @@ func TestIsError(
 	}
 
 	for i, test := range tests {
+
 		got := waddrmgr.IsError(test.err, test.code)
 		if got != test.exp {
+
 			t.Errorf("Test %d: got %v expected %v", i, got, test.exp)
 		}
 	}

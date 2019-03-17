@@ -26,13 +26,16 @@ var (
 // Instead, main runs this function and checks for a non-nil error, at point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
 func Main(
 	c *Config, activeNet *netparams.Params) error {
+
 	cfg = c
 	ActiveNet = activeNet
 	if ActiveNet.Name == "testnet" {
+
 		fork.IsTestnet = true
 	}
 
 	if *cfg.Profile != "" {
+
 		go func() {
 
 			listenAddr := net.JoinHostPort("127.0.0.1", *cfg.Profile)
@@ -52,7 +55,9 @@ func Main(
 	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 	if *cfg.Create {
+
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
+
 			log <- cl.Error{"failed to create wallet", err}
 			return err
 		}
@@ -67,6 +72,7 @@ func Main(
 	log <- cl.Trc("startRPCServers loader")
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
 	if err != nil {
+
 		log <- cl.Error{
 			"unable to create RPC servers:", err,
 		}
@@ -78,6 +84,7 @@ func Main(
 
 	// the wallet when loaded later.
 	if !*cfg.NoInitialLoad {
+
 		log <- cl.Trc("starting rpcClientConnectLoop")
 		go rpcClientConnectLoop(legacyRPCServer, loader)
 	}
@@ -89,6 +96,7 @@ func Main(
 	})
 
 	if !*cfg.NoInitialLoad {
+
 		log <- cl.Debug{"loading database"}
 
 		// Load the wallet database.  It must have been created already
@@ -96,6 +104,7 @@ func Main(
 		// or this will return an appropriate error.
 		_, err = loader.OpenExistingWallet([]byte(*cfg.WalletPass), true)
 		if err != nil {
+
 			fmt.Println(err)
 			log <- cl.Error{err}
 			return err
@@ -114,6 +123,7 @@ func Main(
 
 		err := loader.UnloadWallet()
 		if err != nil && err != wallet.ErrNotLoaded {
+
 			log <- cl.Error{
 				"failed to close wallet:", err,
 			}
@@ -123,6 +133,7 @@ func Main(
 	})
 
 	if rpcs != nil {
+
 		log <- cl.Trc("starting rpc server")
 		interrupt.AddHandler(func() {
 
@@ -137,6 +148,7 @@ func Main(
 	}
 
 	if legacyRPCServer != nil {
+
 		interrupt.AddHandler(func() {
 
 			log <- cl.Wrn("stopping legacy RPC server...")
@@ -162,9 +174,11 @@ func readCAFile() []byte {
 	// Read certificate file if TLS is not disabled.
 	var certs []byte
 	if *cfg.EnableClientTLS {
+
 		var err error
 		certs, err = ioutil.ReadFile(*cfg.CAFile)
 		if err != nil {
+
 			log <- cl.Warn{
 				"cannot open CA file:", err,
 			}
@@ -176,6 +190,7 @@ func readCAFile() []byte {
 		}
 
 	} else {
+
 		log <- cl.Inf("chain server RPC TLS is disabled")
 	}
 
@@ -197,11 +212,13 @@ func rpcClientConnectLoop(
 	var certs []byte
 
 	// if !cfg.UseSPV {
+
 	certs = readCAFile()
 
 	// }
 
 	for {
+
 		var (
 			chainClient chain.Interface
 			err         error
@@ -268,8 +285,10 @@ func rpcClientConnectLoop(
 		// 	}
 
 		// } else {
+
 		chainClient, err = startChainRPC(certs)
 		if err != nil {
+
 			log <- cl.Error{
 				"unable to open connection to consensus RPC server:", err}
 			continue
@@ -292,6 +311,7 @@ func rpcClientConnectLoop(
 
 			w.SynchronizeRPC(chainClient)
 			if legacyRPCServer != nil {
+
 				legacyRPCServer.SetChainServer(chainClient)
 			}
 
@@ -304,6 +324,7 @@ func rpcClientConnectLoop(
 			associate := associateRPCClient
 			mu.Unlock()
 			if associate != nil {
+
 				associate(w)
 			}
 
@@ -354,6 +375,7 @@ func startChainRPC(
 	rpcc, err := chain.NewRPCClient(ActiveNet.Params, *cfg.RPCConnect,
 		*cfg.PodUsername, *cfg.PodPassword, certs, !*cfg.EnableClientTLS, 0)
 	if err != nil {
+
 		return nil, err
 	}
 

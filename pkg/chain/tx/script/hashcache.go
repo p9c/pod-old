@@ -17,6 +17,7 @@ type TxSigHashes struct {
 // NewTxSigHashes computes, and returns the cached sighashes of the given transaction.
 func NewTxSigHashes(
 	tx *wire.MsgTx) *TxSigHashes {
+
 	return &TxSigHashes{
 		HashPrevOuts: calcHashPrevOuts(tx),
 		HashSequence: calcHashSequence(tx),
@@ -33,6 +34,7 @@ type HashCache struct {
 // NewHashCache returns a new instance of the HashCache given a maximum number of entries which may exist within it at anytime.
 func NewHashCache(
 	maxSize uint) *HashCache {
+
 	return &HashCache{
 		sigHashes: make(map[chainhash.Hash]*TxSigHashes, maxSize),
 	}
@@ -48,6 +50,7 @@ func (h *HashCache) AddSigHashes(tx *wire.MsgTx) {
 
 // ContainsHashes returns true if the partial sighashes for the passed transaction currently exist within the HashCache, and false otherwise.
 func (h *HashCache) ContainsHashes(txid *chainhash.Hash) bool {
+
 	h.RLock()
 	_, found := h.sigHashes[*txid]
 	h.RUnlock()

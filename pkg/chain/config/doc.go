@@ -18,6 +18,7 @@
 //          flag.Parse()
 //          // Modify active network parameters if operating on testnet.
 //          if *testnet {
+
 //                  chainParams = &chaincfg.TestNet3Params
 //          }
 //          // later...
@@ -25,6 +26,7 @@
 //          pubKeyHash := make([]byte, 20)
 //          addr, err := util.NewAddressPubKeyHash(pubKeyHash, chainParams)
 //          if err != nil {
+
 //                  Log.Fatal <- err.Error()
 //          }
 //          fmt.Println(addr)

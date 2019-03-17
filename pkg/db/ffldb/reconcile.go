@@ -15,6 +15,7 @@ import (
 // serializeWriteRow serialize the current block file and offset where new will be written into a format suitable for storage into the metadata.
 func serializeWriteRow(
 	curBlockFileNum, curFileOffset uint32) []byte {
+
 	var serializedRow [12]byte
 	byteOrder.PutUint32(serializedRow[0:4], curBlockFileNum)
 	byteOrder.PutUint32(serializedRow[4:8], curFileOffset)
@@ -32,6 +33,7 @@ func deserializeWriteRow(
 	wantChecksumBytes := writeRow[8:12]
 	wantChecksum := byteOrder.Uint32(wantChecksumBytes)
 	if gotChecksum != wantChecksum {
+
 		str := fmt.Sprintf("metadata for write cursor does not match "+
 			"the expected checksum - got %d, want %d", gotChecksum,
 			wantChecksum)
@@ -49,7 +51,9 @@ func reconcileDB(
 
 	// Perform initial internal bucket and value creation during database creation.
 	if create {
+
 		if err := initDB(pdb.cache.ldb); err != nil {
+
 			return nil, err
 		}
 
@@ -58,8 +62,10 @@ func reconcileDB(
 	// Load the current write cursor position from the metadata.
 	var curFileNum, curOffset uint32
 	err := pdb.View(func(tx database.Tx) error {
+
 		writeRow := tx.Metadata().Get(writeLocKeyName)
 		if writeRow == nil {
+
 			str := "write cursor does not exist"
 			return makeDbErr(database.ErrCorruption, str, nil)
 		}
@@ -70,6 +76,7 @@ func reconcileDB(
 	})
 
 	if err != nil {
+
 		return nil, err
 	}
 

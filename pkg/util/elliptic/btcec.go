@@ -65,6 +65,7 @@ type KoblitzCurve struct {
 
 // Params returns the parameters for the curve.
 func (curve *KoblitzCurve) Params() *elliptic.CurveParams {
+
 	return curve.CurveParams
 }
 
@@ -518,6 +519,7 @@ func (curve *KoblitzCurve) addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3 *field
 	isZ1One := z1.Equals(fieldOne)
 	isZ2One := z2.Equals(fieldOne)
 	switch {
+
 	case isZ1One && isZ2One:
 		curve.addZ1AndZ2EqualsOne(x1, y1, z1, x2, y2, x3, y3, z3)
 		return
@@ -543,9 +545,11 @@ func (curve *KoblitzCurve) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 
 	// elliptic curve cryptography.  Thus, ∞ + P = P and P + ∞ = P.
 	if x1.Sign() == 0 && y1.Sign() == 0 {
+
 		return x2, y2
 	}
 	if x2.Sign() == 0 && y2.Sign() == 0 {
+
 		return x1, y1
 	}
 
@@ -745,6 +749,7 @@ func (curve *KoblitzCurve) doubleJacobian(x1, y1, z1, x3, y3, z3 *fieldVal) {
 func (curve *KoblitzCurve) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 
 	if y1.Sign() == 0 {
+
 		return new(big.Int), new(big.Int)
 	}
 
@@ -823,6 +828,7 @@ func (curve *KoblitzCurve) moduloReduce(k []byte) []byte {
 
 	// by doing modulo curve.N
 	if len(k) > curve.byteSize {
+
 		// Reduce k by performing modulo curve.N.
 		tmpK := new(big.Int).SetBytes(k)
 		tmpK.Mod(tmpK, curve.N)
@@ -865,31 +871,42 @@ func NAF(
 	retPos := make([]byte, len(k)+1)
 	retNeg := make([]byte, len(k)+1)
 	for i := len(k) - 1; i >= 0; i-- {
+
 		curByte := k[i]
 		for j := uint(0); j < 8; j++ {
+
 			curIsOne = curByte&1 == 1
 			if j == 7 {
+
 				if i == 0 {
+
 					nextIsOne = false
 				} else {
+
 					nextIsOne = k[i-1]&1 == 1
 				}
 			} else {
+
 				nextIsOne = curByte&2 == 2
 			}
 			if carry {
+
 				if curIsOne {
+
 					// This bit is 1, so continue to carry
 					// and don't need to do anything.
 				} else {
+
 					// We've hit a 0 after some number of
 					// 1s.
 					if nextIsOne {
+
 						// Start carrying again since
 						// a new sequence of 1s is
 						// starting.
 						retNeg[i+1] += 1 << j
 					} else {
+
 						// Stop carrying since 1s have
 						// stopped.
 						carry = false
@@ -897,13 +914,16 @@ func NAF(
 					}
 				}
 			} else if curIsOne {
+
 				if nextIsOne {
+
 					// If this is the start of at least 2
 					// consecutive 1s, set the current one
 					// to -1 and start carrying.
 					retNeg[i+1] += 1 << j
 					carry = true
 				} else {
+
 					// This is a singleton, not consecutive
 					// 1s.
 					retPos[i+1] += 1 << j
@@ -913,6 +933,7 @@ func NAF(
 		}
 	}
 	if carry {
+
 		retPos[0] = 1
 		return retPos, retNeg
 	}
@@ -962,9 +983,11 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 
 	// simplifies the code to just make the point negative.
 	if signK1 == -1 {
+
 		p1y, p1yNeg = p1yNeg, p1y
 	}
 	if signK2 == -1 {
+
 		p2y, p2yNeg = p2yNeg, p2y
 	}
 
@@ -981,6 +1004,7 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 	k2Len := len(k2PosNAF)
 	m := k1Len
 	if m < k2Len {
+
 		m = k2Len
 	}
 
@@ -993,35 +1017,45 @@ func (curve *KoblitzCurve) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big
 	// at the cost of 1 possible extra doubling.
 	var k1BytePos, k1ByteNeg, k2BytePos, k2ByteNeg byte
 	for i := 0; i < m; i++ {
+
 		// Since we're going left-to-right, pad the front with 0s.
 		if i < m-k1Len {
+
 			k1BytePos = 0
 			k1ByteNeg = 0
 		} else {
+
 			k1BytePos = k1PosNAF[i-(m-k1Len)]
 			k1ByteNeg = k1NegNAF[i-(m-k1Len)]
 		}
 		if i < m-k2Len {
+
 			k2BytePos = 0
 			k2ByteNeg = 0
 		} else {
+
 			k2BytePos = k2PosNAF[i-(m-k2Len)]
 			k2ByteNeg = k2NegNAF[i-(m-k2Len)]
 		}
 		for j := 7; j >= 0; j-- {
+
 			// Q = 2 * Q
 			curve.doubleJacobian(qx, qy, qz, qx, qy, qz)
 			if k1BytePos&0x80 == 0x80 {
+
 				curve.addJacobian(qx, qy, qz, p1x, p1y, p1z,
 					qx, qy, qz)
 			} else if k1ByteNeg&0x80 == 0x80 {
+
 				curve.addJacobian(qx, qy, qz, p1x, p1yNeg, p1z,
 					qx, qy, qz)
 			}
 			if k2BytePos&0x80 == 0x80 {
+
 				curve.addJacobian(qx, qy, qz, p2x, p2y, p2z,
 					qx, qy, qz)
 			} else if k2ByteNeg&0x80 == 0x80 {
+
 				curve.addJacobian(qx, qy, qz, p2x, p2yNeg, p2z,
 					qx, qy, qz)
 			}
@@ -1057,6 +1091,7 @@ func (curve *KoblitzCurve) ScalarBaseMult(k []byte) (*big.Int, *big.Int) {
 
 	// and added together.
 	for i, byteVal := range newK {
+
 		p := curve.bytePoints[diff+i][byteVal]
 		curve.addJacobian(qx, qy, qz, &p[0], &p[1], &p[2], qx, qy, qz)
 	}
@@ -1066,6 +1101,7 @@ func (curve *KoblitzCurve) ScalarBaseMult(k []byte) (*big.Int, *big.Int) {
 // QPlus1Div4 returns the Q+1/4 constant for the curve for use in calculating
 // square roots via exponention.
 func (curve *KoblitzCurve) QPlus1Div4() *big.Int {
+
 	return curve.q
 }
 
@@ -1083,8 +1119,10 @@ func initAll() {
 // must only) be called for initialization purposes.
 func fromHex(
 	s string) *big.Int {
+
 	r, ok := new(big.Int).SetString(s, 16)
 	if !ok {
+
 		panic("invalid hex in source file: " + s)
 	}
 	return r
@@ -1113,6 +1151,7 @@ func initS256() {
 
 	// panics because it means something is wrong in the source code.
 	if err := loadS256BytePoints(); err != nil {
+
 		panic(err)
 	}
 
@@ -1153,6 +1192,7 @@ func initS256() {
 
 // S256 returns a Curve which implements secp256k1.
 func S256() *KoblitzCurve {
+
 	initonce.Do(initAll)
 	return &secp256k1
 }

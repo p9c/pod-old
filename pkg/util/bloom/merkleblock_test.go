@@ -24,11 +24,13 @@ func TestMerkleBlock3(
 		"672bb15ad5d4cac00000000"
 	blockBytes, err := hex.DecodeString(blockStr)
 	if err != nil {
+
 		t.Errorf("TestMerkleBlock3 DecodeString failed: %v", err)
 		return
 	}
 	blk, err := util.NewBlockFromBytes(blockBytes)
 	if err != nil {
+
 		t.Errorf("TestMerkleBlock3 NewBlockFromBytes failed: %v", err)
 		return
 	}
@@ -36,6 +38,7 @@ func TestMerkleBlock3(
 	inputStr := "63194f18be0af63f2c6bc9dc0f777cbefed3d9415c4af83f3ee3a3d669c00cb5"
 	hash, err := chainhash.NewHashFromStr(inputStr)
 	if err != nil {
+
 		t.Errorf("TestMerkleBlock3 NewHashFromStr failed: %v", err)
 		return
 	}
@@ -48,12 +51,14 @@ func TestMerkleBlock3(
 		"30101"
 	want, err := hex.DecodeString(wantStr)
 	if err != nil {
+
 		t.Errorf("TestMerkleBlock3 DecodeString failed: %v", err)
 		return
 	}
 	got := bytes.NewBuffer(nil)
 	err = mBlock.BtcEncode(got, wire.ProtocolVersion, wire.LatestEncoding)
 	if err != nil {
+
 		t.Errorf("TestMerkleBlock3 BtcEncode failed: %v", err)
 		return
 	}

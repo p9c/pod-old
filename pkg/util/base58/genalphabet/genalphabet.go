@@ -33,6 +33,7 @@ func write(
 
 	_, err := w.Write(b)
 	if err != nil {
+
 		log.Fatal(err)
 	}
 }
@@ -40,22 +41,28 @@ func main() {
 
 	fi, err := os.Create("alphabet.go")
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	defer fi.Close()
 	write(fi, start)
 	write(fi, nl)
 	for i := byte(0); i < 32; i++ {
+
 		write(fi, tab)
 		for j := byte(0); j < 8; j++ {
+
 			idx := bytes.IndexByte(alphabet, i*8+j)
 			if idx == -1 {
+
 				write(fi, invalid)
 			} else {
+
 				write(fi, strconv.AppendInt(nil, int64(idx), 10))
 			}
 			write(fi, comma)
 			if j != 7 {
+
 				write(fi, space)
 			}
 		}

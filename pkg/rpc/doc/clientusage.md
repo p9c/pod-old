@@ -65,14 +65,17 @@ var certificateFile = filepath.Join(btcutil.AppDataDir("mod", false), "rpc.cert"
 func main(
 	) {
 
+
 	creds, err := credentials.NewClientTLSFromFile(certificateFile, "localhost")
 	if err != nil {
-		fmt.Println(err)
+		
+fmt.Println(err)
 		return
 	}
 	conn, err := grpc.Dial("localhost:18332", grpc.WithTransportCredentials(creds))
 	if err != nil {
-		fmt.Println(err)
+		
+fmt.Println(err)
 		return
 	}
 	defer conn.Close()
@@ -84,7 +87,8 @@ func main(
 	}
 	balanceResponse, err := c.Balance(context.Background(), balanceRequest)
 	if err != nil {
-		fmt.Println(err)
+		
+fmt.Println(err)
 		return
 	}
 
@@ -132,12 +136,15 @@ thread on all gRPC IO.
 using namespace std::string_literals;
 
 struct NoHomeDirectoryException : std::exception {
+
     char const* what() const noexcept override {
+
         return "Failed to lookup home directory";
     }
 };
 
 auto read_file(std::string const& file_path) -> std::string {
+
     std::ifstream in{file_path};
     std::stringstream ss{};
     ss << in.rdbuf();
@@ -145,6 +152,7 @@ auto read_file(std::string const& file_path) -> std::string {
 }
 
 auto main() -> int {
+
     // Before the gRPC native library (gRPC Core) is lazily loaded and
     // initialized, an environment variable must be set so BoringSSL is
     // configured to use ECDSA TLS certificates (required by btcwallet).
@@ -156,6 +164,7 @@ auto main() -> int {
     auto wallet_tls_cert_file = []{
         auto pw = getpwuid(getuid());
         if (pw == nullptr || pw->pw_dir == nullptr) {
+
 
             throw NoHomeDirectoryException{};
         }
@@ -179,8 +188,10 @@ auto main() -> int {
     auto status = stub->Balance(&context, request, &response);
     if (!status.ok()) {
 
+
         std::cout << status.error_message() << std::endl;
     } else {
+
         std::cout << "Spendable balance: " << response.spendable() << " Satoshis" << std::endl;
     }
 }
@@ -240,13 +251,16 @@ namespace Example
 {
     static class Program
     {
+
         static void Main(string[] args)
         {
+
             ExampleAsync().Wait();
         }
 
         static async Task ExampleAsync()
         {
+
             // Before the gRPC native library (gRPC Core) is lazily loaded and initialized,
             // an environment variable must be set so BoringSSL is configured to use ECDSA TLS
             // certificates (required by btcwallet).
@@ -258,9 +272,11 @@ namespace Example
             var channel = new Channel("localhost:18332", new SslCredentials(cert));
             try
             {
+
                 var c = WalletService.NewClient(channel);
                 var balanceRequest = new BalanceRequest
                 {
+
                     AccountNumber = 0,
                     RequiredConfirmations = 1,
                 };
@@ -269,6 +285,7 @@ namespace Example
             }
             finally
             {
+
                 await channel.ShutdownAsync();
             }
         }
@@ -276,10 +293,13 @@ namespace Example
 
     static class FileUtils
     {
+
         public static async Task<string> ReadFileAsync(string filePath)
         {
+
             using (var r = new StreamReader(filePath, Encoding.UTF8))
             {
+
                 return await r.ReadToEndAsync();
             }
         }
@@ -287,8 +307,10 @@ namespace Example
 
     static class Portability
     {
+
         public static string LocalAppData(PlatformID platform, string processName)
         {
+
             if (processName == null)
                 throw new ArgumentNullException(nameof(processName));
             if (processName.Length == 0)
@@ -296,6 +318,7 @@ namespace Example
 
             switch (platform)
             {
+
                 case PlatformID.Win32NT:
                     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                         ToUpper(processName));
@@ -312,6 +335,7 @@ namespace Example
 
         private static string ToUpper(string value)
         {
+
             var firstChar = value[0];
             if (char.IsUpper(firstChar))
                 return value;
@@ -321,6 +345,7 @@ namespace Example
 
         private static string ToDotLower(string value)
         {
+
             var firstChar = value[0];
             return "." + char.ToLower(firstChar) + value.Substring(1);
         }
@@ -364,8 +389,10 @@ var walletrpc = protoDescriptor.walletrpc;
 var certPath = path.join(process.env.HOME, '.btcwallet', 'rpc.cert');
 if (os.platform == 'win32') {
 
+
     certPath = path.join(process.env.LOCALAPPDATA, 'Btcwallet', 'rpc.cert');
 } else if (os.platform == 'darwin') {
+
 
     certPath = path.join(process.env.HOME, 'Library', 'Application Support',
         'Btcwallet', 'rpc.cert');
@@ -376,15 +403,19 @@ var creds = grpc.credentials.createSsl(cert);
 var client = new walletrpc.WalletService('localhost:18332', creds);
 
 var request = {
+
     account_number: 0,
     required_confirmations: 1
 };
 client.balance(request, function(err, response) {
 
+
     if (err) {
+
 
         console.error(err);
     } else {
+
         console.log('Spendable balance:', response.spendable, 'Satoshis');
     }
 });

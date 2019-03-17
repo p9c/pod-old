@@ -13,8 +13,10 @@ import (
 
 func makeOneBytes(
 	n int) []byte {
+
 	b := make([]byte, n)
 	for i := range b {
+
 		b[i] = 1
 	}
 	return b
@@ -22,8 +24,11 @@ func makeOneBytes(
 
 func checkZeroBytes(
 	b []byte) error {
+
 	for i, v := range b {
+
 		if v != 0 {
+
 			return fmt.Errorf("b[%d] = %d", i, v)
 		}
 	}
@@ -54,10 +59,12 @@ func TestBytes(
 	}
 
 	for i, n := range tests {
+
 		b := makeOneBytes(n)
 		Bytes(b)
 		err := checkZeroBytes(b)
 		if err != nil {
+
 			t.Errorf("Test %d (n=%d) failed: %v", i, n, err)
 			continue
 		}
@@ -66,8 +73,11 @@ func TestBytes(
 
 func checkZeroWords(
 	b []big.Word) error {
+
 	for i, v := range b {
+
 		if v != 0 {
+
 			return fmt.Errorf("b[%d] = %d", i, v)
 		}
 	}
@@ -106,8 +116,10 @@ func TestBigInt(
 	}
 
 	for i, s := range tests {
+
 		v, ok := new(big.Int).SetString(s, 16)
 		if !ok {
+
 			t.Errorf("Test %d includes invalid hex number %s", i, s)
 			continue
 		}
@@ -115,10 +127,12 @@ func TestBigInt(
 		BigInt(v)
 		err := checkZeroWords(v.Bits())
 		if err != nil {
+
 			t.Errorf("Test %d (s=%s) failed: %v", i, s, err)
 			continue
 		}
 		if v.Cmp(bigZero) != 0 {
+
 			t.Errorf("Test %d (s=%s) zeroed big.Int represents non-zero number %v", i, s, v)
 			continue
 		}
@@ -136,6 +150,7 @@ func TestBytea32(
 
 	err := checkZeroBytes(b[:])
 	if err != nil {
+
 		t.Error(err)
 	}
 }
@@ -151,6 +166,7 @@ func TestBytea64(
 
 	err := checkZeroBytes(b[:])
 	if err != nil {
+
 		t.Error(err)
 	}
 }

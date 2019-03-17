@@ -26,6 +26,7 @@ type NodeCmd struct {
 // The parameters which are pointers indicate they are optional.  Passing nil for optional parameters will use the default value.
 func NewNodeCmd(
 	subCmd NodeSubCmd, target string, connectSubCmd *string) *NodeCmd {
+
 	return &NodeCmd{
 		SubCmd:        subCmd,
 		Target:        target,
@@ -41,6 +42,7 @@ type DebugLevelCmd struct {
 // NewDebugLevelCmd returns a new DebugLevelCmd which can be used to issue a debuglevel JSON-RPC command.  This command is not a standard Bitcoin command. It is an extension for pod.
 func NewDebugLevelCmd(
 	levelSpec string) *DebugLevelCmd {
+
 	return &DebugLevelCmd{
 		LevelSpec: levelSpec,
 	}
@@ -54,6 +56,7 @@ type GenerateCmd struct {
 // NewGenerateCmd returns a new instance which can be used to issue a generate JSON-RPC command.
 func NewGenerateCmd(
 	numBlocks uint32) *GenerateCmd {
+
 	return &GenerateCmd{
 		NumBlocks: numBlocks,
 	}
@@ -64,6 +67,7 @@ type GetBestBlockCmd struct{}
 
 // NewGetBestBlockCmd returns a new instance which can be used to issue a getbestblock JSON-RPC command.
 func NewGetBestBlockCmd() *GetBestBlockCmd {
+
 	return &GetBestBlockCmd{}
 }
 
@@ -72,6 +76,7 @@ type GetCurrentNetCmd struct{}
 
 // NewGetCurrentNetCmd returns a new instance which can be used to issue a getcurrentnet JSON-RPC command.
 func NewGetCurrentNetCmd() *GetCurrentNetCmd {
+
 	return &GetCurrentNetCmd{}
 }
 
@@ -85,6 +90,7 @@ type GetHeadersCmd struct {
 // github.com/decred/dcrd/dcrjson.
 func NewGetHeadersCmd(
 	blockLocators []string, hashStop string) *GetHeadersCmd {
+
 	return &GetHeadersCmd{
 		BlockLocators: blockLocators,
 		HashStop:      hashStop,
@@ -97,6 +103,7 @@ type VersionCmd struct{}
 // NewVersionCmd returns a new instance which can be used to issue a JSON-RPC version command. NOTE: This is a btcsuite extension ported from
 // github.com/decred/dcrd/dcrjson.
 func NewVersionCmd() *VersionCmd {
+
 	return new(VersionCmd)
 }
 func init() {

@@ -740,6 +740,7 @@ func TestBestChainStateSerialization(
 				height:    0,
 				totalTxns: 1,
 				workSum: func() *big.Int {
+
 					workSum.Add(workSum, CalcWork(486604799, 0, 2))
 					return new(big.Int).Set(workSum)
 				}(),
@@ -756,6 +757,7 @@ func TestBestChainStateSerialization(
 				height:    1,
 				totalTxns: 2,
 				workSum: func() *big.Int {
+
 					workSum.Add(workSum, CalcWork(486604799, 1, 2))
 					return new(big.Int).Set(workSum)
 				}(),

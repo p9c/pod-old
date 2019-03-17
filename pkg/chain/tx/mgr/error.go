@@ -80,6 +80,7 @@ var errStrs = [...]string{
 
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
+
 	if e < ErrorCode(len(errStrs)) {
 
 		return errStrs[e]
@@ -98,7 +99,9 @@ type Error struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e Error) Error() string {
+
 	if e.Err != nil {
+
 		return e.Desc + ": " + e.Err.Error()
 	}
 	return e.Desc
@@ -106,6 +109,7 @@ func (e Error) Error() string {
 
 func storeError(
 	c ErrorCode, desc string, err error) Error {
+
 	return Error{Code: c, Desc: desc, Err: err}
 }
 
@@ -114,6 +118,7 @@ func storeError(
 // code.
 func IsNoExists(
 	err error) bool {
+
 	serr, ok := err.(Error)
 	return ok && serr.Code == ErrNoExists
 }

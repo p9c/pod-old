@@ -20,9 +20,11 @@ func TestHelpers(
 		{
 			name: "bool",
 			f: func() interface{} {
+
 				return json.Bool(true)
 			},
 			expected: func() interface{} {
+
 				val := true
 				return &val
 			}(),
@@ -30,9 +32,11 @@ func TestHelpers(
 		{
 			name: "int",
 			f: func() interface{} {
+
 				return json.Int(5)
 			},
 			expected: func() interface{} {
+
 				val := int(5)
 				return &val
 			}(),
@@ -40,9 +44,11 @@ func TestHelpers(
 		{
 			name: "uint",
 			f: func() interface{} {
+
 				return json.Uint(5)
 			},
 			expected: func() interface{} {
+
 				val := uint(5)
 				return &val
 			}(),
@@ -50,9 +56,11 @@ func TestHelpers(
 		{
 			name: "int32",
 			f: func() interface{} {
+
 				return json.Int32(5)
 			},
 			expected: func() interface{} {
+
 				val := int32(5)
 				return &val
 			}(),
@@ -60,9 +68,11 @@ func TestHelpers(
 		{
 			name: "uint32",
 			f: func() interface{} {
+
 				return json.Uint32(5)
 			},
 			expected: func() interface{} {
+
 				val := uint32(5)
 				return &val
 			}(),
@@ -70,9 +80,11 @@ func TestHelpers(
 		{
 			name: "int64",
 			f: func() interface{} {
+
 				return json.Int64(5)
 			},
 			expected: func() interface{} {
+
 				val := int64(5)
 				return &val
 			}(),
@@ -80,9 +92,11 @@ func TestHelpers(
 		{
 			name: "uint64",
 			f: func() interface{} {
+
 				return json.Uint64(5)
 			},
 			expected: func() interface{} {
+
 				val := uint64(5)
 				return &val
 			}(),
@@ -90,9 +104,11 @@ func TestHelpers(
 		{
 			name: "string",
 			f: func() interface{} {
+
 				return json.String("abc")
 			},
 			expected: func() interface{} {
+
 				val := "abc"
 				return &val
 			}(),
@@ -100,6 +116,7 @@ func TestHelpers(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.f()
 		if !reflect.DeepEqual(result, test.expected) {
 

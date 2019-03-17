@@ -84,6 +84,7 @@ func NewBitcoindConn(
 
 	client, err := rpcclient.New(clientCfg, nil)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -106,6 +107,7 @@ func NewBitcoindConn(
 // attempts. This is done to prevent waiting forever on the connection to be
 // established in the case that the node is down.
 func (c *BitcoindConn) Start() error {
+
 	if !atomic.CompareAndSwapInt32(&c.started, 0, 1) {
 
 		return nil
@@ -114,10 +116,12 @@ func (c *BitcoindConn) Start() error {
 	// Verify that the node is running on the expected network.
 	net, err := c.getCurrentNet()
 	if err != nil {
+
 		c.client.Disconnect()
 		return err
 	}
 	if net != c.chainParams.Net {
+
 		c.client.Disconnect()
 		return fmt.Errorf("expected network %v, got %v",
 			c.chainParams.Net, net)
@@ -134,6 +138,7 @@ func (c *BitcoindConn) Start() error {
 		c.zmqBlockHost, []string{"rawblock"}, c.zmqPollInterval,
 	)
 	if err != nil {
+
 		c.client.Disconnect()
 		return fmt.Errorf("unable to subscribe for zmq block events: "+
 			"%v", err)
@@ -143,6 +148,7 @@ func (c *BitcoindConn) Start() error {
 		c.zmqTxHost, []string{"rawtx"}, c.zmqPollInterval,
 	)
 	if err != nil {
+
 		c.client.Disconnect()
 		return fmt.Errorf("unable to subscribe for zmq tx events: %v",
 			err)
@@ -165,6 +171,7 @@ func (c *BitcoindConn) Stop() {
 	}
 
 	for _, client := range c.rescanClients {
+
 		client.Stop()
 	}
 
@@ -189,9 +196,11 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 	}
 
 	for {
+
 		// Before attempting to read from the ZMQ socket, we'll make
 		// sure to check if we've been requested to shut down.
 		select {
+
 		case <-c.quit:
 			return
 		default:
@@ -200,6 +209,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 		// Poll an event from the ZMQ socket.
 		msgBytes, err := conn.Receive()
 		if err != nil {
+
 			// It's possible that the connection to the socket
 			// continuously times out, so we'll prevent logging this
 			// error to prevent spamming the logs.
@@ -220,10 +230,12 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 		// clients.
 		eventType := string(msgBytes[0])
 		switch eventType {
+
 		case "rawblock":
 			block := &wire.MsgBlock{}
 			r := bytes.NewReader(msgBytes[1])
 			if err := block.Deserialize(r); err != nil {
+
 				log <- cl.Error{
 					"unable to deserialize block:", err,
 				}
@@ -232,7 +244,9 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 
 			c.rescanClientsMtx.Lock()
 			for _, client := range c.rescanClients {
+
 				select {
+
 				case client.zmqBlockNtfns <- block:
 				case <-client.quit:
 				case <-c.quit:
@@ -274,9 +288,11 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 	}
 
 	for {
+
 		// Before attempting to read from the ZMQ socket, we'll make
 		// sure to check if we've been requested to shut down.
 		select {
+
 		case <-c.quit:
 			return
 		default:
@@ -285,6 +301,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 		// Poll an event from the ZMQ socket.
 		msgBytes, err := conn.Receive()
 		if err != nil {
+
 			// It's possible that the connection to the socket
 			// continuously times out, so we'll prevent logging this
 			// error to prevent spamming the logs.
@@ -305,10 +322,12 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 		// clients.
 		eventType := string(msgBytes[0])
 		switch eventType {
+
 		case "rawtx":
 			tx := &wire.MsgTx{}
 			r := bytes.NewReader(msgBytes[1])
 			if err := tx.Deserialize(r); err != nil {
+
 				log <- cl.Error{
 					"unable to deserialize transaction:", err,
 				}
@@ -317,7 +336,9 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 
 			c.rescanClientsMtx.Lock()
 			for _, client := range c.rescanClients {
+
 				select {
+
 				case client.zmqTxNtfns <- tx:
 				case <-client.quit:
 				case <-c.quit:
@@ -349,10 +370,12 @@ func (c *BitcoindConn) getCurrentNet() (wire.BitcoinNet, error) {
 
 	hash, err := c.client.GetBlockHash(0)
 	if err != nil {
+
 		return 0, err
 	}
 
 	switch *hash {
+
 	case *chaincfg.TestNet3Params.GenesisHash:
 		return chaincfg.TestNet3Params.Net, nil
 	case *chaincfg.RegressionNetParams.GenesisHash:
@@ -368,6 +391,7 @@ func (c *BitcoindConn) getCurrentNet() (wire.BitcoinNet, error) {
 // connection. This allows us to share the same connection using multiple
 // clients.
 func (c *BitcoindConn) NewBitcoindClient() *BitcoindClient {
+
 	return &BitcoindClient{
 		quit: make(chan struct{}),
 
@@ -420,8 +444,11 @@ func (c *BitcoindConn) RemoveClient(id uint64) {
 // printable ASCII characters if interpreted as a string.
 func isASCII(
 	s string) bool {
+
 	for _, c := range s {
+
 		if c < 32 || c > 126 {
+
 			return false
 		}
 	}

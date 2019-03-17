@@ -19,7 +19,9 @@ type MsgGetBlocks struct {
 
 // AddBlockLocatorHash adds a new block locator hash to the message.
 func (msg *MsgGetBlocks) AddBlockLocatorHash(hash *chainhash.Hash) error {
+
 	if len(msg.BlockLocatorHashes)+1 > MaxBlockLocatorsPerMsg {
+
 		str := fmt.Sprintf("too many block locator hashes for message [max %v]",
 			MaxBlockLocatorsPerMsg)
 		return messageError("MsgGetBlocks.AddBlockLocatorHash", str)
@@ -30,17 +32,21 @@ func (msg *MsgGetBlocks) AddBlockLocatorHash(hash *chainhash.Hash) error {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	err := readElement(r, &msg.ProtocolVersion)
 	if err != nil {
+
 		return err
 	}
 
 	// Read num block locator hashes and limit to max.
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 	if count > MaxBlockLocatorsPerMsg {
+
 		str := fmt.Sprintf("too many block locator hashes for message "+
 			"[count %v, max %v]", count, MaxBlockLocatorsPerMsg)
 		return messageError("MsgGetBlocks.BtcDecode", str)
@@ -50,9 +56,11 @@ func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 	locatorHashes := make([]chainhash.Hash, count)
 	msg.BlockLocatorHashes = make([]*chainhash.Hash, 0, count)
 	for i := uint64(0); i < count; i++ {
+
 		hash := &locatorHashes[i]
 		err := readElement(r, hash)
 		if err != nil {
+
 			return err
 		}
 		msg.AddBlockLocatorHash(hash)
@@ -62,23 +70,29 @@ func (msg *MsgGetBlocks) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgGetBlocks) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	count := len(msg.BlockLocatorHashes)
 	if count > MaxBlockLocatorsPerMsg {
+
 		str := fmt.Sprintf("too many block locator hashes for message "+
 			"[count %v, max %v]", count, MaxBlockLocatorsPerMsg)
 		return messageError("MsgGetBlocks.BtcEncode", str)
 	}
 	err := writeElement(w, msg.ProtocolVersion)
 	if err != nil {
+
 		return err
 	}
 	err = WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for _, hash := range msg.BlockLocatorHashes {
+
 		err = writeElement(w, hash)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -87,6 +101,7 @@ func (msg *MsgGetBlocks) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgGetBlocks) Command() string {
+
 	return CmdGetBlocks
 }
 
@@ -100,6 +115,7 @@ func (msg *MsgGetBlocks) MaxPayloadLength(pver uint32) uint32 {
 // NewMsgGetBlocks returns a new bitcoin getblocks message that conforms to the Message interface using the passed parameters and defaults for the remaining fields.
 func NewMsgGetBlocks(
 	hashStop *chainhash.Hash) *MsgGetBlocks {
+
 	return &MsgGetBlocks{
 		ProtocolVersion:    ProtocolVersion,
 		BlockLocatorHashes: make([]*chainhash.Hash, 0, MaxBlockLocatorsPerMsg),

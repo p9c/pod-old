@@ -97,9 +97,11 @@ var NextAddressRequest_Kind_value = map[string]int32{
 }
 
 func (x NextAddressRequest_Kind) String() string {
+
 	return proto.EnumName(NextAddressRequest_Kind_name, int32(x))
 }
 func (NextAddressRequest_Kind) EnumDescriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{17, 0}
 }
 
@@ -120,6 +122,7 @@ var ChangePassphraseRequest_Key_value = map[string]int32{
 }
 
 func (x ChangePassphraseRequest_Key) String() string {
+
 	return proto.EnumName(ChangePassphraseRequest_Key_name, int32(x))
 }
 func (ChangePassphraseRequest_Key) EnumDescriptor() ([]byte, []int) {
@@ -134,6 +137,7 @@ func (m *VersionRequest) Reset()         { *m = VersionRequest{} }
 func (m *VersionRequest) String() string { return proto.CompactTextString(m) }
 func (*VersionRequest) ProtoMessage()    {}
 func (*VersionRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{0}
 }
 
@@ -150,46 +154,59 @@ func (m *VersionResponse) Reset()         { *m = VersionResponse{} }
 func (m *VersionResponse) String() string { return proto.CompactTextString(m) }
 func (*VersionResponse) ProtoMessage()    {}
 func (*VersionResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{1}
 }
 
 func (m *VersionResponse) GetVersionString() string {
+
 	if m != nil {
+
 		return m.VersionString
 	}
 	return ""
 }
 
 func (m *VersionResponse) GetMajor() uint32 {
+
 	if m != nil {
+
 		return m.Major
 	}
 	return 0
 }
 
 func (m *VersionResponse) GetMinor() uint32 {
+
 	if m != nil {
+
 		return m.Minor
 	}
 	return 0
 }
 
 func (m *VersionResponse) GetPatch() uint32 {
+
 	if m != nil {
+
 		return m.Patch
 	}
 	return 0
 }
 
 func (m *VersionResponse) GetPrerelease() string {
+
 	if m != nil {
+
 		return m.Prerelease
 	}
 	return ""
 }
 
 func (m *VersionResponse) GetBuildMetadata() string {
+
 	if m != nil {
+
 		return m.BuildMetadata
 	}
 	return ""
@@ -208,46 +225,59 @@ func (m *TransactionDetails) Reset()         { *m = TransactionDetails{} }
 func (m *TransactionDetails) String() string { return proto.CompactTextString(m) }
 func (*TransactionDetails) ProtoMessage()    {}
 func (*TransactionDetails) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{2}
 }
 
 func (m *TransactionDetails) GetHash() []byte {
+
 	if m != nil {
+
 		return m.Hash
 	}
 	return nil
 }
 
 func (m *TransactionDetails) GetTransaction() []byte {
+
 	if m != nil {
+
 		return m.Transaction
 	}
 	return nil
 }
 
 func (m *TransactionDetails) GetDebits() []*TransactionDetails_Input {
+
 	if m != nil {
+
 		return m.Debits
 	}
 	return nil
 }
 
 func (m *TransactionDetails) GetCredits() []*TransactionDetails_Output {
+
 	if m != nil {
+
 		return m.Credits
 	}
 	return nil
 }
 
 func (m *TransactionDetails) GetFee() int64 {
+
 	if m != nil {
+
 		return m.Fee
 	}
 	return 0
 }
 
 func (m *TransactionDetails) GetTimestamp() int64 {
+
 	if m != nil {
+
 		return m.Timestamp
 	}
 	return 0
@@ -263,25 +293,32 @@ func (m *TransactionDetails_Input) Reset()         { *m = TransactionDetails_Inp
 func (m *TransactionDetails_Input) String() string { return proto.CompactTextString(m) }
 func (*TransactionDetails_Input) ProtoMessage()    {}
 func (*TransactionDetails_Input) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{2, 0}
 }
 
 func (m *TransactionDetails_Input) GetIndex() uint32 {
+
 	if m != nil {
+
 		return m.Index
 	}
 	return 0
 }
 
 func (m *TransactionDetails_Input) GetPreviousAccount() uint32 {
+
 	if m != nil {
+
 		return m.PreviousAccount
 	}
 	return 0
 }
 
 func (m *TransactionDetails_Input) GetPreviousAmount() int64 {
+
 	if m != nil {
+
 		return m.PreviousAmount
 	}
 	return 0
@@ -297,25 +334,32 @@ func (m *TransactionDetails_Output) Reset()         { *m = TransactionDetails_Ou
 func (m *TransactionDetails_Output) String() string { return proto.CompactTextString(m) }
 func (*TransactionDetails_Output) ProtoMessage()    {}
 func (*TransactionDetails_Output) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{2, 1}
 }
 
 func (m *TransactionDetails_Output) GetIndex() uint32 {
+
 	if m != nil {
+
 		return m.Index
 	}
 	return 0
 }
 
 func (m *TransactionDetails_Output) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *TransactionDetails_Output) GetInternal() bool {
+
 	if m != nil {
+
 		return m.Internal
 	}
 	return false
@@ -332,32 +376,41 @@ func (m *BlockDetails) Reset()         { *m = BlockDetails{} }
 func (m *BlockDetails) String() string { return proto.CompactTextString(m) }
 func (*BlockDetails) ProtoMessage()    {}
 func (*BlockDetails) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{3}
 }
 
 func (m *BlockDetails) GetHash() []byte {
+
 	if m != nil {
+
 		return m.Hash
 	}
 	return nil
 }
 
 func (m *BlockDetails) GetHeight() int32 {
+
 	if m != nil {
+
 		return m.Height
 	}
 	return 0
 }
 
 func (m *BlockDetails) GetTimestamp() int64 {
+
 	if m != nil {
+
 		return m.Timestamp
 	}
 	return 0
 }
 
 func (m *BlockDetails) GetTransactions() []*TransactionDetails {
+
 	if m != nil {
+
 		return m.Transactions
 	}
 	return nil
@@ -372,18 +425,23 @@ func (m *AccountBalance) Reset()         { *m = AccountBalance{} }
 func (m *AccountBalance) String() string { return proto.CompactTextString(m) }
 func (*AccountBalance) ProtoMessage()    {}
 func (*AccountBalance) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{4}
 }
 
 func (m *AccountBalance) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *AccountBalance) GetTotalBalance() int64 {
+
 	if m != nil {
+
 		return m.TotalBalance
 	}
 	return 0
@@ -396,6 +454,7 @@ func (m *PingRequest) Reset()         { *m = PingRequest{} }
 func (m *PingRequest) String() string { return proto.CompactTextString(m) }
 func (*PingRequest) ProtoMessage()    {}
 func (*PingRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{5}
 }
 
@@ -406,6 +465,7 @@ func (m *PingResponse) Reset()         { *m = PingResponse{} }
 func (m *PingResponse) String() string { return proto.CompactTextString(m) }
 func (*PingResponse) ProtoMessage()    {}
 func (*PingResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{6}
 }
 
@@ -416,6 +476,7 @@ func (m *NetworkRequest) Reset()         { *m = NetworkRequest{} }
 func (m *NetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*NetworkRequest) ProtoMessage()    {}
 func (*NetworkRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{7}
 }
 
@@ -427,11 +488,14 @@ func (m *NetworkResponse) Reset()         { *m = NetworkResponse{} }
 func (m *NetworkResponse) String() string { return proto.CompactTextString(m) }
 func (*NetworkResponse) ProtoMessage()    {}
 func (*NetworkResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{8}
 }
 
 func (m *NetworkResponse) GetActiveNetwork() uint32 {
+
 	if m != nil {
+
 		return m.ActiveNetwork
 	}
 	return 0
@@ -445,11 +509,14 @@ func (m *AccountNumberRequest) Reset()         { *m = AccountNumberRequest{} }
 func (m *AccountNumberRequest) String() string { return proto.CompactTextString(m) }
 func (*AccountNumberRequest) ProtoMessage()    {}
 func (*AccountNumberRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{9}
 }
 
 func (m *AccountNumberRequest) GetAccountName() string {
+
 	if m != nil {
+
 		return m.AccountName
 	}
 	return ""
@@ -463,11 +530,14 @@ func (m *AccountNumberResponse) Reset()         { *m = AccountNumberResponse{} }
 func (m *AccountNumberResponse) String() string { return proto.CompactTextString(m) }
 func (*AccountNumberResponse) ProtoMessage()    {}
 func (*AccountNumberResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{10}
 }
 
 func (m *AccountNumberResponse) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
@@ -480,6 +550,7 @@ func (m *AccountsRequest) Reset()         { *m = AccountsRequest{} }
 func (m *AccountsRequest) String() string { return proto.CompactTextString(m) }
 func (*AccountsRequest) ProtoMessage()    {}
 func (*AccountsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{11}
 }
 
@@ -493,25 +564,32 @@ func (m *AccountsResponse) Reset()         { *m = AccountsResponse{} }
 func (m *AccountsResponse) String() string { return proto.CompactTextString(m) }
 func (*AccountsResponse) ProtoMessage()    {}
 func (*AccountsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{12}
 }
 
 func (m *AccountsResponse) GetAccounts() []*AccountsResponse_Account {
+
 	if m != nil {
+
 		return m.Accounts
 	}
 	return nil
 }
 
 func (m *AccountsResponse) GetCurrentBlockHash() []byte {
+
 	if m != nil {
+
 		return m.CurrentBlockHash
 	}
 	return nil
 }
 
 func (m *AccountsResponse) GetCurrentBlockHeight() int32 {
+
 	if m != nil {
+
 		return m.CurrentBlockHeight
 	}
 	return 0
@@ -530,46 +608,59 @@ func (m *AccountsResponse_Account) Reset()         { *m = AccountsResponse_Accou
 func (m *AccountsResponse_Account) String() string { return proto.CompactTextString(m) }
 func (*AccountsResponse_Account) ProtoMessage()    {}
 func (*AccountsResponse_Account) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{12, 0}
 }
 
 func (m *AccountsResponse_Account) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
 }
 
 func (m *AccountsResponse_Account) GetAccountName() string {
+
 	if m != nil {
+
 		return m.AccountName
 	}
 	return ""
 }
 
 func (m *AccountsResponse_Account) GetTotalBalance() int64 {
+
 	if m != nil {
+
 		return m.TotalBalance
 	}
 	return 0
 }
 
 func (m *AccountsResponse_Account) GetExternalKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.ExternalKeyCount
 	}
 	return 0
 }
 
 func (m *AccountsResponse_Account) GetInternalKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.InternalKeyCount
 	}
 	return 0
 }
 
 func (m *AccountsResponse_Account) GetImportedKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.ImportedKeyCount
 	}
 	return 0
@@ -584,18 +675,23 @@ func (m *RenameAccountRequest) Reset()         { *m = RenameAccountRequest{} }
 func (m *RenameAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*RenameAccountRequest) ProtoMessage()    {}
 func (*RenameAccountRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{13}
 }
 
 func (m *RenameAccountRequest) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
 }
 
 func (m *RenameAccountRequest) GetNewName() string {
+
 	if m != nil {
+
 		return m.NewName
 	}
 	return ""
@@ -608,6 +704,7 @@ func (m *RenameAccountResponse) Reset()         { *m = RenameAccountResponse{} }
 func (m *RenameAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*RenameAccountResponse) ProtoMessage()    {}
 func (*RenameAccountResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{14}
 }
 
@@ -620,18 +717,23 @@ func (m *NextAccountRequest) Reset()         { *m = NextAccountRequest{} }
 func (m *NextAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*NextAccountRequest) ProtoMessage()    {}
 func (*NextAccountRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{15}
 }
 
 func (m *NextAccountRequest) GetPassphrase() []byte {
+
 	if m != nil {
+
 		return m.Passphrase
 	}
 	return nil
 }
 
 func (m *NextAccountRequest) GetAccountName() string {
+
 	if m != nil {
+
 		return m.AccountName
 	}
 	return ""
@@ -645,11 +747,14 @@ func (m *NextAccountResponse) Reset()         { *m = NextAccountResponse{} }
 func (m *NextAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*NextAccountResponse) ProtoMessage()    {}
 func (*NextAccountResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{16}
 }
 
 func (m *NextAccountResponse) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
@@ -664,18 +769,23 @@ func (m *NextAddressRequest) Reset()         { *m = NextAddressRequest{} }
 func (m *NextAddressRequest) String() string { return proto.CompactTextString(m) }
 func (*NextAddressRequest) ProtoMessage()    {}
 func (*NextAddressRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{17}
 }
 
 func (m *NextAddressRequest) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *NextAddressRequest) GetKind() NextAddressRequest_Kind {
+
 	if m != nil {
+
 		return m.Kind
 	}
 	return NextAddressRequest_BIP0044_EXTERNAL
@@ -689,11 +799,14 @@ func (m *NextAddressResponse) Reset()         { *m = NextAddressResponse{} }
 func (m *NextAddressResponse) String() string { return proto.CompactTextString(m) }
 func (*NextAddressResponse) ProtoMessage()    {}
 func (*NextAddressResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{18}
 }
 
 func (m *NextAddressResponse) GetAddress() string {
+
 	if m != nil {
+
 		return m.Address
 	}
 	return ""
@@ -710,32 +823,41 @@ func (m *ImportPrivateKeyRequest) Reset()         { *m = ImportPrivateKeyRequest
 func (m *ImportPrivateKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*ImportPrivateKeyRequest) ProtoMessage()    {}
 func (*ImportPrivateKeyRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{19}
 }
 
 func (m *ImportPrivateKeyRequest) GetPassphrase() []byte {
+
 	if m != nil {
+
 		return m.Passphrase
 	}
 	return nil
 }
 
 func (m *ImportPrivateKeyRequest) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *ImportPrivateKeyRequest) GetPrivateKeyWif() string {
+
 	if m != nil {
+
 		return m.PrivateKeyWif
 	}
 	return ""
 }
 
 func (m *ImportPrivateKeyRequest) GetRescan() bool {
+
 	if m != nil {
+
 		return m.Rescan
 	}
 	return false
@@ -748,6 +870,7 @@ func (m *ImportPrivateKeyResponse) Reset()         { *m = ImportPrivateKeyRespon
 func (m *ImportPrivateKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*ImportPrivateKeyResponse) ProtoMessage()    {}
 func (*ImportPrivateKeyResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{20}
 }
 
@@ -760,18 +883,23 @@ func (m *BalanceRequest) Reset()         { *m = BalanceRequest{} }
 func (m *BalanceRequest) String() string { return proto.CompactTextString(m) }
 func (*BalanceRequest) ProtoMessage()    {}
 func (*BalanceRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{21}
 }
 
 func (m *BalanceRequest) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
 }
 
 func (m *BalanceRequest) GetRequiredConfirmations() int32 {
+
 	if m != nil {
+
 		return m.RequiredConfirmations
 	}
 	return 0
@@ -787,31 +915,39 @@ func (m *BalanceResponse) Reset()         { *m = BalanceResponse{} }
 func (m *BalanceResponse) String() string { return proto.CompactTextString(m) }
 func (*BalanceResponse) ProtoMessage()    {}
 func (*BalanceResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{22}
 }
 
 func (m *BalanceResponse) GetTotal() int64 {
+
 	if m != nil {
+
 		return m.Total
 	}
 	return 0
 }
 
 func (m *BalanceResponse) GetSpendable() int64 {
+
 	if m != nil {
+
 		return m.Spendable
 	}
 	return 0
 }
 
 func (m *BalanceResponse) GetImmatureReward() int64 {
+
 	if m != nil {
+
 		return m.ImmatureReward
 	}
 	return 0
 }
 
 type GetTransactionsRequest struct {
+
 	// Optionally specify the starting block from which to begin including all transactions.
 	// Either the starting block hash or height may be specified, but not both.
 	// If a block height is specified and is negative, the absolute value becomes the number of
@@ -838,39 +974,50 @@ func (m *GetTransactionsRequest) Reset()         { *m = GetTransactionsRequest{}
 func (m *GetTransactionsRequest) String() string { return proto.CompactTextString(m) }
 func (*GetTransactionsRequest) ProtoMessage()    {}
 func (*GetTransactionsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{23}
 }
 
 func (m *GetTransactionsRequest) GetStartingBlockHash() []byte {
+
 	if m != nil {
+
 		return m.StartingBlockHash
 	}
 	return nil
 }
 
 func (m *GetTransactionsRequest) GetStartingBlockHeight() int32 {
+
 	if m != nil {
+
 		return m.StartingBlockHeight
 	}
 	return 0
 }
 
 func (m *GetTransactionsRequest) GetEndingBlockHash() []byte {
+
 	if m != nil {
+
 		return m.EndingBlockHash
 	}
 	return nil
 }
 
 func (m *GetTransactionsRequest) GetEndingBlockHeight() int32 {
+
 	if m != nil {
+
 		return m.EndingBlockHeight
 	}
 	return 0
 }
 
 func (m *GetTransactionsRequest) GetMinimumRecentTransactions() int32 {
+
 	if m != nil {
+
 		return m.MinimumRecentTransactions
 	}
 	return 0
@@ -885,18 +1032,23 @@ func (m *GetTransactionsResponse) Reset()         { *m = GetTransactionsResponse
 func (m *GetTransactionsResponse) String() string { return proto.CompactTextString(m) }
 func (*GetTransactionsResponse) ProtoMessage()    {}
 func (*GetTransactionsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{24}
 }
 
 func (m *GetTransactionsResponse) GetMinedTransactions() []*BlockDetails {
+
 	if m != nil {
+
 		return m.MinedTransactions
 	}
 	return nil
 }
 
 func (m *GetTransactionsResponse) GetUnminedTransactions() []*TransactionDetails {
+
 	if m != nil {
+
 		return m.UnminedTransactions
 	}
 	return nil
@@ -912,25 +1064,32 @@ func (m *ChangePassphraseRequest) Reset()         { *m = ChangePassphraseRequest
 func (m *ChangePassphraseRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangePassphraseRequest) ProtoMessage()    {}
 func (*ChangePassphraseRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{25}
 }
 
 func (m *ChangePassphraseRequest) GetKey() ChangePassphraseRequest_Key {
+
 	if m != nil {
+
 		return m.Key
 	}
 	return ChangePassphraseRequest_PRIVATE
 }
 
 func (m *ChangePassphraseRequest) GetOldPassphrase() []byte {
+
 	if m != nil {
+
 		return m.OldPassphrase
 	}
 	return nil
 }
 
 func (m *ChangePassphraseRequest) GetNewPassphrase() []byte {
+
 	if m != nil {
+
 		return m.NewPassphrase
 	}
 	return nil
@@ -943,6 +1102,7 @@ func (m *ChangePassphraseResponse) Reset()         { *m = ChangePassphraseRespon
 func (m *ChangePassphraseResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangePassphraseResponse) ProtoMessage()    {}
 func (*ChangePassphraseResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{26}
 }
 
@@ -958,39 +1118,50 @@ func (m *FundTransactionRequest) Reset()         { *m = FundTransactionRequest{}
 func (m *FundTransactionRequest) String() string { return proto.CompactTextString(m) }
 func (*FundTransactionRequest) ProtoMessage()    {}
 func (*FundTransactionRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{27}
 }
 
 func (m *FundTransactionRequest) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *FundTransactionRequest) GetTargetAmount() int64 {
+
 	if m != nil {
+
 		return m.TargetAmount
 	}
 	return 0
 }
 
 func (m *FundTransactionRequest) GetRequiredConfirmations() int32 {
+
 	if m != nil {
+
 		return m.RequiredConfirmations
 	}
 	return 0
 }
 
 func (m *FundTransactionRequest) GetIncludeImmatureCoinbases() bool {
+
 	if m != nil {
+
 		return m.IncludeImmatureCoinbases
 	}
 	return false
 }
 
 func (m *FundTransactionRequest) GetIncludeChangeScript() bool {
+
 	if m != nil {
+
 		return m.IncludeChangeScript
 	}
 	return false
@@ -1006,25 +1177,32 @@ func (m *FundTransactionResponse) Reset()         { *m = FundTransactionResponse
 func (m *FundTransactionResponse) String() string { return proto.CompactTextString(m) }
 func (*FundTransactionResponse) ProtoMessage()    {}
 func (*FundTransactionResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{28}
 }
 
 func (m *FundTransactionResponse) GetSelectedOutputs() []*FundTransactionResponse_PreviousOutput {
+
 	if m != nil {
+
 		return m.SelectedOutputs
 	}
 	return nil
 }
 
 func (m *FundTransactionResponse) GetTotalAmount() int64 {
+
 	if m != nil {
+
 		return m.TotalAmount
 	}
 	return 0
 }
 
 func (m *FundTransactionResponse) GetChangePkScript() []byte {
+
 	if m != nil {
+
 		return m.ChangePkScript
 	}
 	return nil
@@ -1051,42 +1229,54 @@ func (*FundTransactionResponse_PreviousOutput) Descriptor() ([]byte, []int) {
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetTransactionHash() []byte {
+
 	if m != nil {
+
 		return m.TransactionHash
 	}
 	return nil
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetOutputIndex() uint32 {
+
 	if m != nil {
+
 		return m.OutputIndex
 	}
 	return 0
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetAmount() int64 {
+
 	if m != nil {
+
 		return m.Amount
 	}
 	return 0
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetPkScript() []byte {
+
 	if m != nil {
+
 		return m.PkScript
 	}
 	return nil
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetReceiveTime() int64 {
+
 	if m != nil {
+
 		return m.ReceiveTime
 	}
 	return 0
 }
 
 func (m *FundTransactionResponse_PreviousOutput) GetFromCoinbase() bool {
+
 	if m != nil {
+
 		return m.FromCoinbase
 	}
 	return false
@@ -1107,25 +1297,32 @@ func (m *SignTransactionRequest) Reset()         { *m = SignTransactionRequest{}
 func (m *SignTransactionRequest) String() string { return proto.CompactTextString(m) }
 func (*SignTransactionRequest) ProtoMessage()    {}
 func (*SignTransactionRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{29}
 }
 
 func (m *SignTransactionRequest) GetPassphrase() []byte {
+
 	if m != nil {
+
 		return m.Passphrase
 	}
 	return nil
 }
 
 func (m *SignTransactionRequest) GetSerializedTransaction() []byte {
+
 	if m != nil {
+
 		return m.SerializedTransaction
 	}
 	return nil
 }
 
 func (m *SignTransactionRequest) GetInputIndexes() []uint32 {
+
 	if m != nil {
+
 		return m.InputIndexes
 	}
 	return nil
@@ -1140,18 +1337,23 @@ func (m *SignTransactionResponse) Reset()         { *m = SignTransactionResponse
 func (m *SignTransactionResponse) String() string { return proto.CompactTextString(m) }
 func (*SignTransactionResponse) ProtoMessage()    {}
 func (*SignTransactionResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{30}
 }
 
 func (m *SignTransactionResponse) GetTransaction() []byte {
+
 	if m != nil {
+
 		return m.Transaction
 	}
 	return nil
 }
 
 func (m *SignTransactionResponse) GetUnsignedInputIndexes() []uint32 {
+
 	if m != nil {
+
 		return m.UnsignedInputIndexes
 	}
 	return nil
@@ -1165,11 +1367,14 @@ func (m *PublishTransactionRequest) Reset()         { *m = PublishTransactionReq
 func (m *PublishTransactionRequest) String() string { return proto.CompactTextString(m) }
 func (*PublishTransactionRequest) ProtoMessage()    {}
 func (*PublishTransactionRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{31}
 }
 
 func (m *PublishTransactionRequest) GetSignedTransaction() []byte {
+
 	if m != nil {
+
 		return m.SignedTransaction
 	}
 	return nil
@@ -1182,6 +1387,7 @@ func (m *PublishTransactionResponse) Reset()         { *m = PublishTransactionRe
 func (m *PublishTransactionResponse) String() string { return proto.CompactTextString(m) }
 func (*PublishTransactionResponse) ProtoMessage()    {}
 func (*PublishTransactionResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{32}
 }
 
@@ -1197,6 +1403,7 @@ func (*TransactionNotificationsRequest) Descriptor() ([]byte, []int) {
 }
 
 type TransactionNotificationsResponse struct {
+
 	// Sorted by increasing height.  This is a repeated field so many new blocks
 	// in a new best chain can be notified at once during a reorganize.
 	AttachedBlocks []*BlockDetails `protobuf:"bytes,1,rep,name=attached_blocks,json=attachedBlocks" json:"attached_blocks,omitempty"`
@@ -1224,28 +1431,36 @@ func (*TransactionNotificationsResponse) Descriptor() ([]byte, []int) {
 }
 
 func (m *TransactionNotificationsResponse) GetAttachedBlocks() []*BlockDetails {
+
 	if m != nil {
+
 		return m.AttachedBlocks
 	}
 	return nil
 }
 
 func (m *TransactionNotificationsResponse) GetDetachedBlocks() [][]byte {
+
 	if m != nil {
+
 		return m.DetachedBlocks
 	}
 	return nil
 }
 
 func (m *TransactionNotificationsResponse) GetUnminedTransactions() []*TransactionDetails {
+
 	if m != nil {
+
 		return m.UnminedTransactions
 	}
 	return nil
 }
 
 func (m *TransactionNotificationsResponse) GetUnminedTransactionHashes() [][]byte {
+
 	if m != nil {
+
 		return m.UnminedTransactionHashes
 	}
 	return nil
@@ -1261,25 +1476,32 @@ func (m *SpentnessNotificationsRequest) Reset()         { *m = SpentnessNotifica
 func (m *SpentnessNotificationsRequest) String() string { return proto.CompactTextString(m) }
 func (*SpentnessNotificationsRequest) ProtoMessage()    {}
 func (*SpentnessNotificationsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{35}
 }
 
 func (m *SpentnessNotificationsRequest) GetAccount() uint32 {
+
 	if m != nil {
+
 		return m.Account
 	}
 	return 0
 }
 
 func (m *SpentnessNotificationsRequest) GetNoNotifyUnspent() bool {
+
 	if m != nil {
+
 		return m.NoNotifyUnspent
 	}
 	return false
 }
 
 func (m *SpentnessNotificationsRequest) GetNoNotifySpent() bool {
+
 	if m != nil {
+
 		return m.NoNotifySpent
 	}
 	return false
@@ -1295,25 +1517,32 @@ func (m *SpentnessNotificationsResponse) Reset()         { *m = SpentnessNotific
 func (m *SpentnessNotificationsResponse) String() string { return proto.CompactTextString(m) }
 func (*SpentnessNotificationsResponse) ProtoMessage()    {}
 func (*SpentnessNotificationsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{36}
 }
 
 func (m *SpentnessNotificationsResponse) GetTransactionHash() []byte {
+
 	if m != nil {
+
 		return m.TransactionHash
 	}
 	return nil
 }
 
 func (m *SpentnessNotificationsResponse) GetOutputIndex() uint32 {
+
 	if m != nil {
+
 		return m.OutputIndex
 	}
 	return 0
 }
 
 func (m *SpentnessNotificationsResponse) GetSpender() *SpentnessNotificationsResponse_Spender {
+
 	if m != nil {
+
 		return m.Spender
 	}
 	return nil
@@ -1336,14 +1565,18 @@ func (*SpentnessNotificationsResponse_Spender) Descriptor() ([]byte, []int) {
 }
 
 func (m *SpentnessNotificationsResponse_Spender) GetTransactionHash() []byte {
+
 	if m != nil {
+
 		return m.TransactionHash
 	}
 	return nil
 }
 
 func (m *SpentnessNotificationsResponse_Spender) GetInputIndex() uint32 {
+
 	if m != nil {
+
 		return m.InputIndex
 	}
 	return 0
@@ -1356,6 +1589,7 @@ func (m *AccountNotificationsRequest) Reset()         { *m = AccountNotification
 func (m *AccountNotificationsRequest) String() string { return proto.CompactTextString(m) }
 func (*AccountNotificationsRequest) ProtoMessage()    {}
 func (*AccountNotificationsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{37}
 }
 
@@ -1371,39 +1605,50 @@ func (m *AccountNotificationsResponse) Reset()         { *m = AccountNotificatio
 func (m *AccountNotificationsResponse) String() string { return proto.CompactTextString(m) }
 func (*AccountNotificationsResponse) ProtoMessage()    {}
 func (*AccountNotificationsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{38}
 }
 
 func (m *AccountNotificationsResponse) GetAccountNumber() uint32 {
+
 	if m != nil {
+
 		return m.AccountNumber
 	}
 	return 0
 }
 
 func (m *AccountNotificationsResponse) GetAccountName() string {
+
 	if m != nil {
+
 		return m.AccountName
 	}
 	return ""
 }
 
 func (m *AccountNotificationsResponse) GetExternalKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.ExternalKeyCount
 	}
 	return 0
 }
 
 func (m *AccountNotificationsResponse) GetInternalKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.InternalKeyCount
 	}
 	return 0
 }
 
 func (m *AccountNotificationsResponse) GetImportedKeyCount() uint32 {
+
 	if m != nil {
+
 		return m.ImportedKeyCount
 	}
 	return 0
@@ -1419,25 +1664,32 @@ func (m *CreateWalletRequest) Reset()         { *m = CreateWalletRequest{} }
 func (m *CreateWalletRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateWalletRequest) ProtoMessage()    {}
 func (*CreateWalletRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{39}
 }
 
 func (m *CreateWalletRequest) GetPublicPassphrase() []byte {
+
 	if m != nil {
+
 		return m.PublicPassphrase
 	}
 	return nil
 }
 
 func (m *CreateWalletRequest) GetPrivatePassphrase() []byte {
+
 	if m != nil {
+
 		return m.PrivatePassphrase
 	}
 	return nil
 }
 
 func (m *CreateWalletRequest) GetSeed() []byte {
+
 	if m != nil {
+
 		return m.Seed
 	}
 	return nil
@@ -1450,6 +1702,7 @@ func (m *CreateWalletResponse) Reset()         { *m = CreateWalletResponse{} }
 func (m *CreateWalletResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateWalletResponse) ProtoMessage()    {}
 func (*CreateWalletResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{40}
 }
 
@@ -1461,11 +1714,14 @@ func (m *OpenWalletRequest) Reset()         { *m = OpenWalletRequest{} }
 func (m *OpenWalletRequest) String() string { return proto.CompactTextString(m) }
 func (*OpenWalletRequest) ProtoMessage()    {}
 func (*OpenWalletRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{41}
 }
 
 func (m *OpenWalletRequest) GetPublicPassphrase() []byte {
+
 	if m != nil {
+
 		return m.PublicPassphrase
 	}
 	return nil
@@ -1478,6 +1734,7 @@ func (m *OpenWalletResponse) Reset()         { *m = OpenWalletResponse{} }
 func (m *OpenWalletResponse) String() string { return proto.CompactTextString(m) }
 func (*OpenWalletResponse) ProtoMessage()    {}
 func (*OpenWalletResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{42}
 }
 
@@ -1488,6 +1745,7 @@ func (m *CloseWalletRequest) Reset()         { *m = CloseWalletRequest{} }
 func (m *CloseWalletRequest) String() string { return proto.CompactTextString(m) }
 func (*CloseWalletRequest) ProtoMessage()    {}
 func (*CloseWalletRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{43}
 }
 
@@ -1498,6 +1756,7 @@ func (m *CloseWalletResponse) Reset()         { *m = CloseWalletResponse{} }
 func (m *CloseWalletResponse) String() string { return proto.CompactTextString(m) }
 func (*CloseWalletResponse) ProtoMessage()    {}
 func (*CloseWalletResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{44}
 }
 
@@ -1508,6 +1767,7 @@ func (m *WalletExistsRequest) Reset()         { *m = WalletExistsRequest{} }
 func (m *WalletExistsRequest) String() string { return proto.CompactTextString(m) }
 func (*WalletExistsRequest) ProtoMessage()    {}
 func (*WalletExistsRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{45}
 }
 
@@ -1519,11 +1779,14 @@ func (m *WalletExistsResponse) Reset()         { *m = WalletExistsResponse{} }
 func (m *WalletExistsResponse) String() string { return proto.CompactTextString(m) }
 func (*WalletExistsResponse) ProtoMessage()    {}
 func (*WalletExistsResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{46}
 }
 
 func (m *WalletExistsResponse) GetExists() bool {
+
 	if m != nil {
+
 		return m.Exists
 	}
 	return false
@@ -1540,32 +1803,41 @@ func (m *StartConsensusRPCRequest) Reset()         { *m = StartConsensusRPCReque
 func (m *StartConsensusRPCRequest) String() string { return proto.CompactTextString(m) }
 func (*StartConsensusRPCRequest) ProtoMessage()    {}
 func (*StartConsensusRPCRequest) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{47}
 }
 
 func (m *StartConsensusRPCRequest) GetNetworkAddress() string {
+
 	if m != nil {
+
 		return m.NetworkAddress
 	}
 	return ""
 }
 
 func (m *StartConsensusRPCRequest) GetUsername() string {
+
 	if m != nil {
+
 		return m.Username
 	}
 	return ""
 }
 
 func (m *StartConsensusRPCRequest) GetPassword() []byte {
+
 	if m != nil {
+
 		return m.Password
 	}
 	return nil
 }
 
 func (m *StartConsensusRPCRequest) GetCertificate() []byte {
+
 	if m != nil {
+
 		return m.Certificate
 	}
 	return nil
@@ -1578,6 +1850,7 @@ func (m *StartConsensusRPCResponse) Reset()         { *m = StartConsensusRPCResp
 func (m *StartConsensusRPCResponse) String() string { return proto.CompactTextString(m) }
 func (*StartConsensusRPCResponse) ProtoMessage()    {}
 func (*StartConsensusRPCResponse) Descriptor() ([]byte, []int) {
+
 	return fileDescriptor0, []int{48}
 }
 
@@ -1661,6 +1934,7 @@ type versionServiceClient struct {
 
 func NewVersionServiceClient(
 	cc *grpc.ClientConn) VersionServiceClient {
+
 	return &versionServiceClient{cc}
 }
 
@@ -1669,6 +1943,7 @@ func (c *versionServiceClient) Version(ctx context.Context, in *VersionRequest, 
 	out := new(VersionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.VersionService/Version", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1691,9 +1966,11 @@ func _VersionService_Version_Handler(
 
 	in := new(VersionRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(VersionServiceServer).Version(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -1723,6 +2000,7 @@ var _VersionService_serviceDesc = grpc.ServiceDesc{
 // Client API for WalletService service
 
 type WalletServiceClient interface {
+
 	// Queries
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	Network(ctx context.Context, in *NetworkRequest, opts ...grpc.CallOption) (*NetworkResponse, error)
@@ -1751,6 +2029,7 @@ type walletServiceClient struct {
 
 func NewWalletServiceClient(
 	cc *grpc.ClientConn) WalletServiceClient {
+
 	return &walletServiceClient{cc}
 }
 
@@ -1759,6 +2038,7 @@ func (c *walletServiceClient) Ping(ctx context.Context, in *PingRequest, opts ..
 	out := new(PingResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Ping", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1769,6 +2049,7 @@ func (c *walletServiceClient) Network(ctx context.Context, in *NetworkRequest, o
 	out := new(NetworkResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Network", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1779,6 +2060,7 @@ func (c *walletServiceClient) AccountNumber(ctx context.Context, in *AccountNumb
 	out := new(AccountNumberResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/AccountNumber", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1789,6 +2071,7 @@ func (c *walletServiceClient) Accounts(ctx context.Context, in *AccountsRequest,
 	out := new(AccountsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Accounts", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1799,6 +2082,7 @@ func (c *walletServiceClient) Balance(ctx context.Context, in *BalanceRequest, o
 	out := new(BalanceResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/Balance", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1809,6 +2093,7 @@ func (c *walletServiceClient) GetTransactions(ctx context.Context, in *GetTransa
 	out := new(GetTransactionsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/GetTransactions", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1818,13 +2103,16 @@ func (c *walletServiceClient) TransactionNotifications(ctx context.Context, in *
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[0], c.cc, "/walletrpc.WalletService/TransactionNotifications", opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	x := &walletServiceTransactionNotificationsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
+
 		return nil, err
 	}
 	if err := x.ClientStream.CloseSend(); err != nil {
+
 		return nil, err
 	}
 	return x, nil
@@ -1843,6 +2131,7 @@ func (x *walletServiceTransactionNotificationsClient) Recv() (*TransactionNotifi
 
 	m := new(TransactionNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
+
 		return nil, err
 	}
 	return m, nil
@@ -1852,13 +2141,16 @@ func (c *walletServiceClient) SpentnessNotifications(ctx context.Context, in *Sp
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[1], c.cc, "/walletrpc.WalletService/SpentnessNotifications", opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	x := &walletServiceSpentnessNotificationsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
+
 		return nil, err
 	}
 	if err := x.ClientStream.CloseSend(); err != nil {
+
 		return nil, err
 	}
 	return x, nil
@@ -1877,6 +2169,7 @@ func (x *walletServiceSpentnessNotificationsClient) Recv() (*SpentnessNotificati
 
 	m := new(SpentnessNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
+
 		return nil, err
 	}
 	return m, nil
@@ -1886,13 +2179,16 @@ func (c *walletServiceClient) AccountNotifications(ctx context.Context, in *Acco
 
 	stream, err := grpc.NewClientStream(ctx, &_WalletService_serviceDesc.Streams[2], c.cc, "/walletrpc.WalletService/AccountNotifications", opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	x := &walletServiceAccountNotificationsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
+
 		return nil, err
 	}
 	if err := x.ClientStream.CloseSend(); err != nil {
+
 		return nil, err
 	}
 	return x, nil
@@ -1911,6 +2207,7 @@ func (x *walletServiceAccountNotificationsClient) Recv() (*AccountNotificationsR
 
 	m := new(AccountNotificationsResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
+
 		return nil, err
 	}
 	return m, nil
@@ -1921,6 +2218,7 @@ func (c *walletServiceClient) ChangePassphrase(ctx context.Context, in *ChangePa
 	out := new(ChangePassphraseResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/ChangePassphrase", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1931,6 +2229,7 @@ func (c *walletServiceClient) RenameAccount(ctx context.Context, in *RenameAccou
 	out := new(RenameAccountResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/RenameAccount", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1941,6 +2240,7 @@ func (c *walletServiceClient) NextAccount(ctx context.Context, in *NextAccountRe
 	out := new(NextAccountResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/NextAccount", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1951,6 +2251,7 @@ func (c *walletServiceClient) NextAddress(ctx context.Context, in *NextAddressRe
 	out := new(NextAddressResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/NextAddress", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1961,6 +2262,7 @@ func (c *walletServiceClient) ImportPrivateKey(ctx context.Context, in *ImportPr
 	out := new(ImportPrivateKeyResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/ImportPrivateKey", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1971,6 +2273,7 @@ func (c *walletServiceClient) FundTransaction(ctx context.Context, in *FundTrans
 	out := new(FundTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/FundTransaction", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1981,6 +2284,7 @@ func (c *walletServiceClient) SignTransaction(ctx context.Context, in *SignTrans
 	out := new(SignTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/SignTransaction", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1991,6 +2295,7 @@ func (c *walletServiceClient) PublishTransaction(ctx context.Context, in *Publis
 	out := new(PublishTransactionResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletService/PublishTransaction", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -1999,6 +2304,7 @@ func (c *walletServiceClient) PublishTransaction(ctx context.Context, in *Publis
 // Server API for WalletService service
 
 type WalletServiceServer interface {
+
 	// Queries
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	Network(context.Context, *NetworkRequest) (*NetworkResponse, error)
@@ -2032,9 +2338,11 @@ func _WalletService_Ping_Handler(
 
 	in := new(PingRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).Ping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2053,9 +2361,11 @@ func _WalletService_Network_Handler(
 
 	in := new(NetworkRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).Network(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2074,9 +2384,11 @@ func _WalletService_AccountNumber_Handler(
 
 	in := new(AccountNumberRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).AccountNumber(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2095,9 +2407,11 @@ func _WalletService_Accounts_Handler(
 
 	in := new(AccountsRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).Accounts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2116,9 +2430,11 @@ func _WalletService_Balance_Handler(
 
 	in := new(BalanceRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).Balance(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2137,9 +2453,11 @@ func _WalletService_GetTransactions_Handler(
 
 	in := new(GetTransactionsRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).GetTransactions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2155,8 +2473,10 @@ func _WalletService_GetTransactions_Handler(
 
 func _WalletService_TransactionNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
+
 	m := new(TransactionNotificationsRequest)
 	if err := stream.RecvMsg(m); err != nil {
+
 		return err
 	}
 	return srv.(WalletServiceServer).TransactionNotifications(m, &walletServiceTransactionNotificationsServer{stream})
@@ -2172,13 +2492,16 @@ type walletServiceTransactionNotificationsServer struct {
 }
 
 func (x *walletServiceTransactionNotificationsServer) Send(m *TransactionNotificationsResponse) error {
+
 	return x.ServerStream.SendMsg(m)
 }
 
 func _WalletService_SpentnessNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
+
 	m := new(SpentnessNotificationsRequest)
 	if err := stream.RecvMsg(m); err != nil {
+
 		return err
 	}
 	return srv.(WalletServiceServer).SpentnessNotifications(m, &walletServiceSpentnessNotificationsServer{stream})
@@ -2194,13 +2517,16 @@ type walletServiceSpentnessNotificationsServer struct {
 }
 
 func (x *walletServiceSpentnessNotificationsServer) Send(m *SpentnessNotificationsResponse) error {
+
 	return x.ServerStream.SendMsg(m)
 }
 
 func _WalletService_AccountNotifications_Handler(
 	srv interface{}, stream grpc.ServerStream) error {
+
 	m := new(AccountNotificationsRequest)
 	if err := stream.RecvMsg(m); err != nil {
+
 		return err
 	}
 	return srv.(WalletServiceServer).AccountNotifications(m, &walletServiceAccountNotificationsServer{stream})
@@ -2216,6 +2542,7 @@ type walletServiceAccountNotificationsServer struct {
 }
 
 func (x *walletServiceAccountNotificationsServer) Send(m *AccountNotificationsResponse) error {
+
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -2224,9 +2551,11 @@ func _WalletService_ChangePassphrase_Handler(
 
 	in := new(ChangePassphraseRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).ChangePassphrase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2245,9 +2574,11 @@ func _WalletService_RenameAccount_Handler(
 
 	in := new(RenameAccountRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).RenameAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2266,9 +2597,11 @@ func _WalletService_NextAccount_Handler(
 
 	in := new(NextAccountRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).NextAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2287,9 +2620,11 @@ func _WalletService_NextAddress_Handler(
 
 	in := new(NextAddressRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).NextAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2308,9 +2643,11 @@ func _WalletService_ImportPrivateKey_Handler(
 
 	in := new(ImportPrivateKeyRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).ImportPrivateKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2329,9 +2666,11 @@ func _WalletService_FundTransaction_Handler(
 
 	in := new(FundTransactionRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).FundTransaction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2350,9 +2689,11 @@ func _WalletService_SignTransaction_Handler(
 
 	in := new(SignTransactionRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).SignTransaction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2371,9 +2712,11 @@ func _WalletService_PublishTransaction_Handler(
 
 	in := new(PublishTransactionRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletServiceServer).PublishTransaction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2484,6 +2827,7 @@ type walletLoaderServiceClient struct {
 
 func NewWalletLoaderServiceClient(
 	cc *grpc.ClientConn) WalletLoaderServiceClient {
+
 	return &walletLoaderServiceClient{cc}
 }
 
@@ -2492,6 +2836,7 @@ func (c *walletLoaderServiceClient) WalletExists(ctx context.Context, in *Wallet
 	out := new(WalletExistsResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/WalletExists", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -2502,6 +2847,7 @@ func (c *walletLoaderServiceClient) CreateWallet(ctx context.Context, in *Create
 	out := new(CreateWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/CreateWallet", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -2512,6 +2858,7 @@ func (c *walletLoaderServiceClient) OpenWallet(ctx context.Context, in *OpenWall
 	out := new(OpenWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/OpenWallet", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -2522,6 +2869,7 @@ func (c *walletLoaderServiceClient) CloseWallet(ctx context.Context, in *CloseWa
 	out := new(CloseWalletResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/CloseWallet", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -2532,6 +2880,7 @@ func (c *walletLoaderServiceClient) StartConsensusRPC(ctx context.Context, in *S
 	out := new(StartConsensusRPCResponse)
 	err := grpc.Invoke(ctx, "/walletrpc.WalletLoaderService/StartConsensusRPC", in, out, c.cc, opts...)
 	if err != nil {
+
 		return nil, err
 	}
 	return out, nil
@@ -2558,9 +2907,11 @@ func _WalletLoaderService_WalletExists_Handler(
 
 	in := new(WalletExistsRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletLoaderServiceServer).WalletExists(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2579,9 +2930,11 @@ func _WalletLoaderService_CreateWallet_Handler(
 
 	in := new(CreateWalletRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletLoaderServiceServer).CreateWallet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2600,9 +2953,11 @@ func _WalletLoaderService_OpenWallet_Handler(
 
 	in := new(OpenWalletRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletLoaderServiceServer).OpenWallet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2621,9 +2976,11 @@ func _WalletLoaderService_CloseWallet_Handler(
 
 	in := new(CloseWalletRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletLoaderServiceServer).CloseWallet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2642,9 +2999,11 @@ func _WalletLoaderService_StartConsensusRPC_Handler(
 
 	in := new(StartConsensusRPCRequest)
 	if err := dec(in); err != nil {
+
 		return nil, err
 	}
 	if interceptor == nil {
+
 		return srv.(WalletLoaderServiceServer).StartConsensusRPC(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
@@ -2688,6 +3047,7 @@ var _WalletLoaderService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
+
 	proto.RegisterFile("api.proto", fileDescriptor0)
 }
 

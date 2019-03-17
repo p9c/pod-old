@@ -725,17 +725,21 @@ func TestAddresses(
 	}
 
 	for _, test := range tests {
+
 		// Decode addr and compare error against valid.
 		decoded, err := util.DecodeAddress(test.addr, test.net)
 		if (err == nil) != test.valid {
+
 			t.Errorf("%v: decoding test failed: %v", test.name, err)
 			return
 		}
 
 		if err == nil {
+
 			// Ensure the stringer returns the same address as the
 			// original.
 			if decodedStringer, ok := decoded.(fmt.Stringer); ok {
+
 				addr := test.addr
 				// For Segwit addresses the string representation
 				// will always be lower case, so in that case we
@@ -757,6 +761,7 @@ func TestAddresses(
 			// Encode again and compare against the original.
 			encoded := decoded.EncodeAddress()
 			if test.encoded != encoded {
+
 				t.Errorf("%v: decoding and encoding produced different addressess: %v != %v",
 					test.name, test.encoded, encoded)
 				return
@@ -809,6 +814,7 @@ func TestAddresses(
 
 			case *util.AddressWitnessPubKeyHash:
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
+
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
 						test.name, test.net.Bech32HRPSegwit, hrp)
 					return
@@ -816,6 +822,7 @@ func TestAddresses(
 
 				expVer := test.result.(*util.AddressWitnessPubKeyHash).WitnessVersion()
 				if v := a.WitnessVersion(); v != expVer {
+
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
 						test.name, expVer, v)
 					return
@@ -830,6 +837,7 @@ func TestAddresses(
 
 			case *util.AddressWitnessScriptHash:
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
+
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
 						test.name, test.net.Bech32HRPSegwit, hrp)
 					return
@@ -837,6 +845,7 @@ func TestAddresses(
 
 				expVer := test.result.(*util.AddressWitnessScriptHash).WitnessVersion()
 				if v := a.WitnessVersion(); v != expVer {
+
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
 						test.name, expVer, v)
 					return
@@ -862,11 +871,14 @@ func TestAddresses(
 		}
 
 		if !test.valid {
+
 			// If address is invalid, but a creation function exists,
 			// verify that it returns a nil addr and non-nil error.
 			if test.f != nil {
+
 				_, err := test.f()
 				if err == nil {
+
 					t.Errorf("%v: address is invalid but creating new address succeeded",
 						test.name)
 					return
@@ -880,6 +892,7 @@ func TestAddresses(
 		// Valid test, compare address created with f against expected result.
 		addr, err := test.f()
 		if err != nil {
+
 			t.Errorf("%v: address is valid but creating new address failed with error %v",
 				test.name, err)
 			return

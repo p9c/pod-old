@@ -19,6 +19,7 @@ func TestFilterAddLatest(
 	// Ensure the command is expected value.
 	wantCmd := "filteradd"
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgFilterAdd: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -27,6 +28,7 @@ func TestFilterAddLatest(
 	wantPayload := uint32(523)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -36,6 +38,7 @@ func TestFilterAddLatest(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("encode of MsgFilterAdd failed %v err <%v>", msg, err)
 	}
 
@@ -43,6 +46,7 @@ func TestFilterAddLatest(
 	var readmsg MsgFilterAdd
 	err = readmsg.BtcDecode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("decode of MsgFilterAdd failed [%v] err <%v>", buf, err)
 	}
 }
@@ -62,6 +66,7 @@ func TestFilterAddCrossProtocol(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
 	if err != nil {
+
 		t.Errorf("encode of MsgFilterAdd failed %v err <%v>", msg, err)
 	}
 
@@ -69,6 +74,7 @@ func TestFilterAddCrossProtocol(
 	var readmsg MsgFilterAdd
 	err = readmsg.BtcDecode(&buf, BIP0031Version, LatestEncoding)
 	if err == nil {
+
 		t.Errorf("decode of MsgFilterAdd succeeded when it shouldn't "+
 			"have %v", msg)
 	}
@@ -91,6 +97,7 @@ func TestFilterAddMaxDataSize(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
 	if err == nil {
+
 		t.Errorf("encode of MsgFilterAdd succeeded when it shouldn't "+
 			"have %v", msg)
 	}
@@ -99,6 +106,7 @@ func TestFilterAddMaxDataSize(
 	readbuf := bytes.NewReader(data)
 	err = msg.BtcDecode(readbuf, ProtocolVersion, LatestEncoding)
 	if err == nil {
+
 		t.Errorf("decode of MsgFilterAdd succeeded when it shouldn't "+
 			"have %v", msg)
 	}
@@ -157,7 +165,9 @@ func TestFilterAddWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -177,7 +187,9 @@ func TestFilterAddWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

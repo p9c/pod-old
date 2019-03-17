@@ -122,9 +122,11 @@ const (
 // incremented for an additional P2PKH change output if addChangeOutput is true.
 func EstimateSerializeSize(
 	inputCount int, txOuts []*wire.TxOut, addChangeOutput bool) int {
+
 	changeSize := 0
 	outputCount := len(txOuts)
 	if addChangeOutput {
+
 		changeSize = P2PKHOutputSize
 		outputCount++
 	}
@@ -145,9 +147,11 @@ func EstimateSerializeSize(
 func EstimateVirtualSize(
 	numP2PKHIns, numP2WPKHIns, numNestedP2WPKHIns int,
 	txOuts []*wire.TxOut, addChangeOutput bool) int {
+
 	changeSize := 0
 	outputCount := len(txOuts)
 	if addChangeOutput {
+
 		// We are always using P2WPKH as change output.
 		changeSize = P2WPKHOutputSize
 		outputCount++
@@ -170,6 +174,7 @@ func EstimateVirtualSize(
 	// witness data.
 	witnessWeight := 0
 	if numP2WPKHIns+numNestedP2WPKHIns > 0 {
+
 		// Additional 2 weight units for segwit marker + flag.
 		witnessWeight = 2 +
 			wire.VarIntSerializeSize(

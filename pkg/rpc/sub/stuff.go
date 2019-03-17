@@ -20,6 +20,7 @@ func EncodedAddrToString(
 	encoded string) (out string) {
 
 	if len(encoded) != 6 {
+
 		return
 	}
 	e := []byte(encoded)
@@ -39,6 +40,7 @@ func EncodeAddrToBytes(
 	var ou16 uint16
 	_, err := fmt.Sscanf(addr, ipv4Format, out[0], out[1], out[2], out[3], ou16)
 	if err != nil {
+
 		return []byte{}
 	}
 	binary.LittleEndian.PutUint16(o, ou16)

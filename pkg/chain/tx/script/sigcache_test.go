@@ -13,14 +13,17 @@ func genRandomSig() (*chainhash.Hash, *ec.Signature, *ec.PublicKey, error) {
 
 	privKey, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
+
 		return nil, nil, nil, err
 	}
 	var msgHash chainhash.Hash
 	if _, err := rand.Read(msgHash[:]); err != nil {
+
 		return nil, nil, nil, err
 	}
 	sig, err := privKey.Sign(msgHash[:])
 	if err != nil {
+
 		return nil, nil, nil, err
 	}
 	return &msgHash, sig, privKey.PubKey(), nil
@@ -35,6 +38,7 @@ func TestSigCacheAddExists(
 	// Generate a random sigCache entry triplet.
 	msg1, sig1, key1, err := genRandomSig()
 	if err != nil {
+
 		t.Errorf("unable to generate random signature test data")
 	}
 
@@ -60,8 +64,10 @@ func TestSigCacheAddEvictEntry(
 
 	// Fill the sigcache up with some random sig triplets.
 	for i := uint(0); i < sigCacheSize; i++ {
+
 		msg, sig, key, err := genRandomSig()
 		if err != nil {
+
 			t.Fatalf("unable to generate random signature test data")
 		}
 		sigCache.Add(*msg, sig, key)
@@ -76,6 +82,7 @@ func TestSigCacheAddEvictEntry(
 
 	// The sigcache should now have sigCacheSize entries within it.
 	if uint(len(sigCache.validSigs)) != sigCacheSize {
+
 		t.Fatalf("sigcache should now have %v entries, instead it has %v",
 			sigCacheSize, len(sigCache.validSigs))
 	}
@@ -83,12 +90,14 @@ func TestSigCacheAddEvictEntry(
 	// Add a new entry, this should cause eviction of a randomly chosen previous entry.
 	msgNew, sigNew, keyNew, err := genRandomSig()
 	if err != nil {
+
 		t.Fatalf("unable to generate random signature test data")
 	}
 	sigCache.Add(*msgNew, sigNew, keyNew)
 
 	// The sigcache should still have sigCache entries.
 	if uint(len(sigCache.validSigs)) != sigCacheSize {
+
 		t.Fatalf("sigcache should now have %v entries, instead it has %v",
 			sigCacheSize, len(sigCache.validSigs))
 	}
@@ -112,6 +121,7 @@ func TestSigCacheAddMaxEntriesZeroOrNegative(
 	// Generate a random sigCache entry triplet.
 	msg1, sig1, key1, err := genRandomSig()
 	if err != nil {
+
 		t.Errorf("unable to generate random signature test data")
 	}
 
@@ -129,6 +139,7 @@ func TestSigCacheAddMaxEntriesZeroOrNegative(
 
 	// There shouldn't be any entries in the sigCache.
 	if len(sigCache.validSigs) != 0 {
+
 		t.Errorf("%v items found in sigcache, no items should have"+
 			"been added", len(sigCache.validSigs))
 	}

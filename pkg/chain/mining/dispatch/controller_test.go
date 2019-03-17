@@ -36,10 +36,12 @@ func runServer(
 	pass := argon2.IDKey([]byte(cryptKey), []byte(cryptSalt), 1, 4096, 32, 32)
 	bc, err := kcp.NewAESBlockCrypt(pass)
 	if err != nil {
+
 		fmt.Println(err)
 	}
 	ln, err := kcp.ListenWithOptions(nodeAddr, bc, 10, 3)
 	if err != nil {
+
 		fmt.Println(err)
 	}
 	fmt.Println("Running server")
@@ -63,8 +65,10 @@ func runClient(
 	err := client.Call("Kopach.Subscribe", &args, &reply)
 	fmt.Println("Got reply", reply)
 	if err != nil {
+
 		fmt.Printf("error for Kopach: %s, %v\n", *args, err)
 	} else {
+
 		fmt.Printf("Subscribe: %s : %s\n", *args, *reply)
 	}
 	fmt.Println("closing connection")

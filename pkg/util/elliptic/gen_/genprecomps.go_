@@ -16,9 +16,11 @@ import (
 func main(
 	) {
 
+
 	fi, err := os.Create("secp256k1.go")
 	if err != nil {
-		log.Fatal(err)
+		
+log.Fatal(err)
 	}
 	defer fi.Close()
 
@@ -27,7 +29,8 @@ func main(
 	var compressed bytes.Buffer
 	w := zlib.NewWriter(&compressed)
 	if _, err := w.Write(serialized); err != nil {
-		fmt.Println(err)
+		
+fmt.Println(err)
 		os.Exit(1)
 	}
 	w.Close()

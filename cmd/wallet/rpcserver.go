@@ -39,11 +39,13 @@ func generateRPCKeyPair(
 	keyDir, _ := filepath.Split(*cfg.RPCKey)
 	err := os.MkdirAll(certDir, 0700)
 	if err != nil {
+
 		return tls.Certificate{}, err
 	}
 
 	err = os.MkdirAll(keyDir, 0700)
 	if err != nil {
+
 		return tls.Certificate{}, err
 	}
 
@@ -52,25 +54,31 @@ func generateRPCKeyPair(
 	validUntil := time.Now().Add(time.Hour * 24 * 365 * 10)
 	cert, key, err := util.NewTLSCertPair(org, validUntil, nil)
 	if err != nil {
+
 		return tls.Certificate{}, err
 	}
 
 	keyPair, err := tls.X509KeyPair(cert, key)
 	if err != nil {
+
 		return tls.Certificate{}, err
 	}
 
 	// Write cert and (potentially) the key files.
 	err = ioutil.WriteFile(*cfg.RPCCert, cert, 0600)
 	if err != nil {
+
 		return tls.Certificate{}, err
 	}
 
 	if writeKey {
+
 		err = ioutil.WriteFile(*cfg.RPCKey, key, 0600)
 		if err != nil {
+
 			rmErr := os.Remove(*cfg.RPCCert)
 			if rmErr != nil {
+
 				log <- cl.Warn{"cannot remove written certificates:", rmErr}
 			}
 
@@ -90,9 +98,11 @@ func generateRPCKeyPair(
 // Invalid addresses are logged and skipped.
 func makeListeners(
 	normalizedListenAddrs []string, listen listenFunc) []net.Listener {
+
 	ipv4Addrs := make([]string, 0, len(normalizedListenAddrs)*2)
 	ipv6Addrs := make([]string, 0, len(normalizedListenAddrs)*2)
 	for _, addr := range normalizedListenAddrs {
+
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil {
 
@@ -123,11 +133,13 @@ func makeListeners(
 		// hostname and not an IP address.
 		zoneIndex := strings.Index(host, "%")
 		if zoneIndex != -1 {
+
 			host = host[:zoneIndex]
 		}
 
 		ip := net.ParseIP(host)
 		switch {
+
 		case ip == nil:
 			log <- cl.Warnf{"`%s` is not a valid IP address", host}
 		case ip.To4() == nil:
@@ -140,8 +152,10 @@ func makeListeners(
 
 	listeners := make([]net.Listener, 0, len(ipv6Addrs)+len(ipv4Addrs))
 	for _, addr := range ipv4Addrs {
+
 		listener, err := listen("tcp4", addr)
 		if err != nil {
+
 			log <- cl.Warnf{
 				"Can't listen on %s: %v", addr, err,
 			}
@@ -153,8 +167,10 @@ func makeListeners(
 	}
 
 	for _, addr := range ipv6Addrs {
+
 		listener, err := listen("tcp6", addr)
 		if err != nil {
+
 			log <- cl.Warnf{
 				"Can't listen on %s: %v", addr, err,
 			}
@@ -183,6 +199,7 @@ func openRPCKeyPair() (tls.Certificate, error) {
 	_, e := os.Stat(*cfg.RPCKey)
 	keyExists := !os.IsNotExist(e)
 	switch {
+
 	case *cfg.OneTimeTLSKey && keyExists:
 		err := fmt.Errorf("one time TLS keys are enabled, but TLS key `%s` already exists", cfg.RPCKey)
 		return tls.Certificate{}, err
@@ -208,10 +225,13 @@ func startRPCServers(
 		err          error
 	)
 	if !*cfg.EnableServerTLS {
+
 		log <- cl.Inf("server TLS is disabled - only legacy RPC may be used")
 	} else {
+
 		keyPair, err = openRPCKeyPair()
 		if err != nil {
+
 			return nil, nil, err
 		}
 
@@ -228,8 +248,10 @@ func startRPCServers(
 		}
 
 		if len(*cfg.ExperimentalRPCListeners) != 0 {
+
 			listeners := makeListeners(*cfg.ExperimentalRPCListeners, net.Listen)
 			if len(listeners) == 0 {
+
 				err := errors.New("failed to create listeners for RPC server")
 				return nil, nil, err
 			}
@@ -239,6 +261,7 @@ func startRPCServers(
 			rpcserver.StartVersionService(server)
 			rpcserver.StartWalletLoaderService(server, walletLoader, ActiveNet)
 			for _, lis := range listeners {
+
 				lis := lis
 				go func() {
 
@@ -254,12 +277,15 @@ func startRPCServers(
 	}
 
 	if *cfg.Username == "" || *cfg.Password == "" {
+
 		log <- cl.Inf(
 			"legacy RPC server disabled (requires username and password)",
 		)
 	} else if len(*cfg.LegacyRPCListeners) != 0 {
+
 		listeners := makeListeners(*cfg.LegacyRPCListeners, legacyListen)
 		if len(listeners) == 0 {
+
 			err := errors.New("failed to create listeners for legacy RPC server")
 			return nil, nil, err
 		}
@@ -276,6 +302,7 @@ func startRPCServers(
 
 	// Error when neither the GRPC nor legacy RPC servers can be started.
 	if server == nil && legacyServer == nil {
+
 		return nil, nil, errors.New("no suitable RPC services can be started")
 	}
 
@@ -293,10 +320,12 @@ func startWalletRPCServices(
 	wallet *wallet.Wallet, server *grpc.Server, legacyServer *legacyrpc.Server) {
 
 	if server != nil {
+
 		rpcserver.StartWalletService(server, wallet)
 	}
 
 	if legacyServer != nil {
+
 		legacyServer.RegisterWallet(wallet)
 	}
 

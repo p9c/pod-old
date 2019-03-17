@@ -8,6 +8,7 @@ import (
 // cloneTreapNode returns a shallow copy of the passed node.
 func cloneTreapNode(
 	node *treapNode) *treapNode {
+
 	return &treapNode{
 		key:      node.key,
 		value:    node.value,
@@ -29,29 +30,36 @@ type Immutable struct {
 // newImmutable returns a new immutable treap given the passed parameters.
 func newImmutable(
 	root *treapNode, count int, totalSize uint64) *Immutable {
+
 	return &Immutable{root: root, count: count, totalSize: totalSize}
 }
 
 // Len returns the number of items stored in the treap.
 func (t *Immutable) Len() int {
+
 	return t.count
 }
 
 // Size returns a best estimate of the total number of bytes the treap is consuming including all of the fields used to represent the nodes as well as the size of the keys and values.  Shared values are not detected, so the returned size assumes each value is pointing to different memory.
 func (t *Immutable) Size() uint64 {
+
 	return t.totalSize
 }
 
 // get returns the treap node that contains the passed key.  It will return nil when the key does not exist.
 func (t *Immutable) get(key []byte) *treapNode {
+
 	for node := t.root; node != nil; {
+
 		// Traverse left or right depending on the result of the comparison.
 		compareResult := bytes.Compare(key, node.key)
 		if compareResult < 0 {
+
 			node = node.left
 			continue
 		}
 		if compareResult > 0 {
+
 			node = node.right
 			continue
 		}
@@ -64,7 +72,9 @@ func (t *Immutable) get(key []byte) *treapNode {
 
 // Has returns whether or not the passed key exists.
 func (t *Immutable) Has(key []byte) bool {
+
 	if node := t.get(key); node != nil {
+
 		return true
 	}
 	return false
@@ -72,7 +82,9 @@ func (t *Immutable) Has(key []byte) bool {
 
 // Get returns the value for the passed key.  The function will return nil when the key does not exist.
 func (t *Immutable) Get(key []byte) []byte {
+
 	if node := t.get(key); node != nil {
+
 		return node.value
 	}
 	return nil
@@ -80,12 +92,15 @@ func (t *Immutable) Get(key []byte) []byte {
 
 // Put inserts the passed key/value pair.
 func (t *Immutable) Put(key, value []byte) *Immutable {
+
 	// Use an empty byte slice for the value when none was provided.  This ultimately allows key existence to be determined from the value since an empty byte slice is distinguishable from nil.
 	if value == nil {
+
 		value = emptySlice
 	}
 	// The node is the root of the tree if there isn't already one.
 	if t.root == nil {
+
 		root := newTreapNode(key, value, rand.Int())
 		return newImmutable(root, 1, nodeSize(root))
 	}
@@ -94,12 +109,16 @@ func (t *Immutable) Put(key, value []byte) *Immutable {
 	var parents parentStack
 	var compareResult int
 	for node := t.root; node != nil; {
+
 		// Clone the node and link its parent to it if needed.
 		nodeCopy := cloneTreapNode(node)
 		if oldParent := parents.At(0); oldParent != nil {
+
 			if oldParent.left == node {
+
 				oldParent.left = nodeCopy
 			} else {
+
 				oldParent.right = nodeCopy
 			}
 		}
@@ -107,10 +126,12 @@ func (t *Immutable) Put(key, value []byte) *Immutable {
 		// Traverse left or right depending on the result of comparing the keys.
 		compareResult = bytes.Compare(key, node.key)
 		if compareResult < 0 {
+
 			node = node.left
 			continue
 		}
 		if compareResult > 0 {
+
 			node = node.right
 			continue
 		}
@@ -126,31 +147,40 @@ func (t *Immutable) Put(key, value []byte) *Immutable {
 	node := newTreapNode(key, value, rand.Int())
 	parent := parents.At(0)
 	if compareResult < 0 {
+
 		parent.left = node
 	} else {
+
 		parent.right = node
 	}
 	// Perform any rotations needed to maintain the min-heap and replace the ancestors up to and including the tree root.
 	newRoot := parents.At(parents.Len() - 1)
 	for parents.Len() > 0 {
+
 		// There is nothing left to do when the node's priority is greater than or equal to its parent's priority.
 		parent = parents.Pop()
 		if node.priority >= parent.priority {
+
 			break
 		}
 		// Perform a right rotation if the node is on the left side or a left rotation if the node is on the right side.
 		if parent.left == node {
+
 			node.right, parent.left = parent, node.right
 		} else {
+
 			node.left, parent.right = parent, node.left
 		}
 		// Either set the new root of the tree when there is no grandparent or relink the grandparent to the node based on which side the old parent the node is replacing was on.
 		grandparent := parents.At(0)
 		if grandparent == nil {
+
 			newRoot = node
 		} else if grandparent.left == parent {
+
 			grandparent.left = node
 		} else {
+
 			grandparent.right = node
 		}
 	}
@@ -159,18 +189,22 @@ func (t *Immutable) Put(key, value []byte) *Immutable {
 
 // Delete removes the passed key from the treap and returns the resulting treap if it exists.  The original immutable treap is returned if the key does not exist.
 func (t *Immutable) Delete(key []byte) *Immutable {
+
 	// Find the node for the key while constructing a list of parents while doing so.
 	var parents parentStack
 	var delNode *treapNode
 	for node := t.root; node != nil; {
+
 		parents.Push(node)
 		// Traverse left or right depending on the result of the comparison.
 		compareResult := bytes.Compare(key, node.key)
 		if compareResult < 0 {
+
 			node = node.left
 			continue
 		}
 		if compareResult > 0 {
+
 			node = node.right
 			continue
 		}
@@ -180,22 +214,28 @@ func (t *Immutable) Delete(key []byte) *Immutable {
 	}
 	// There is nothing to do if the key does not exist.
 	if delNode == nil {
+
 		return t
 	}
 	// When the only node in the tree is the root node and it is the one being deleted, there is nothing else to do besides removing it.
 	parent := parents.At(1)
 	if parent == nil && delNode.left == nil && delNode.right == nil {
+
 		return newImmutable(nil, 0, 0)
 	}
 	// Construct a replaced list of parents and the node to delete itself. This is done because this is an immutable data structure and therefore all ancestors of the node that will be deleted, up to and including the root, need to be replaced.
 	var newParents parentStack
 	for i := parents.Len(); i > 0; i-- {
+
 		node := parents.At(i - 1)
 		nodeCopy := cloneTreapNode(node)
 		if oldParent := newParents.At(0); oldParent != nil {
+
 			if oldParent.left == node {
+
 				oldParent.left = nodeCopy
 			} else {
+
 				oldParent.right = nodeCopy
 			}
 		}
@@ -207,33 +247,43 @@ func (t *Immutable) Delete(key []byte) *Immutable {
 	var child *treapNode
 	newRoot := newParents.At(newParents.Len() - 1)
 	for delNode.left != nil || delNode.right != nil {
+
 		// Choose the child with the higher priority.
 		var isLeft bool
 		if delNode.left == nil {
+
 			child = delNode.right
 		} else if delNode.right == nil {
+
 			child = delNode.left
 			isLeft = true
 		} else if delNode.left.priority >= delNode.right.priority {
+
 			child = delNode.left
 			isLeft = true
 		} else {
+
 			child = delNode.right
 		}
 		// Rotate left or right depending on which side the child node is on.  This has the effect of moving the node to delete towards the bottom of the tree while maintaining the min-heap.
 		child = cloneTreapNode(child)
 		if isLeft {
+
 			child.right, delNode.left = delNode, child.right
 		} else {
+
 			child.left, delNode.right = delNode, child.left
 		}
 		// Either set the new root of the tree when there is no grandparent or relink the grandparent to the node based on which side the old parent the node is replacing was on.
 		// Since the node to be deleted was just moved down a level, the new grandparent is now the current parent and the new parent is the current child.
 		if parent == nil {
+
 			newRoot = child
 		} else if parent.left == delNode {
+
 			parent.left = child
 		} else {
+
 			parent.right = child
 		}
 		// The parent for the node to delete is now what was previously its child.
@@ -241,8 +291,10 @@ func (t *Immutable) Delete(key []byte) *Immutable {
 	}
 	// Delete the node, which is now a leaf node, by disconnecting it from its parent.
 	if parent.right == delNode {
+
 		parent.right = nil
 	} else {
+
 		parent.left = nil
 	}
 	return newImmutable(newRoot, t.count-1, t.totalSize-nodeSize(delNode))
@@ -254,9 +306,11 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, have been traversed.
 	var parents parentStack
 	for node := t.root; node != nil; node = node.left {
+
 		parents.Push(node)
 	}
 	for parents.Len() > 0 {
+
 		node := parents.Pop()
 		if !fn(node.key, node.value) {
 
@@ -264,6 +318,7 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 		}
 		// Extend the nodes to traverse by all children to the left of the current node's right child.
 		for node := node.right; node != nil; node = node.left {
+
 			parents.Push(node)
 		}
 	}
@@ -271,5 +326,6 @@ func (t *Immutable) ForEach(fn func(k, v []byte) bool) {
 
 // NewImmutable returns a new empty immutable treap ready for use.  See the documentation for the Immutable structure for more details.
 func NewImmutable() *Immutable {
+
 	return &Immutable{}
 }

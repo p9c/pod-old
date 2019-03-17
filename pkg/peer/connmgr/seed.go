@@ -32,10 +32,13 @@ func SeedFromDNS(
 	lookupFn LookupFunc, seedFn OnSeed) {
 
 	for _, dnsseed := range chainParams.DNSSeeds {
+
 		var host string
 		if !dnsseed.HasFiltering || reqServices == wire.SFNodeNetwork {
+
 			host = dnsseed.Host
 		} else {
+
 			host = fmt.Sprintf("x%x.%s", uint64(reqServices), dnsseed.Host)
 		}
 		go func(host string) {
@@ -43,12 +46,14 @@ func SeedFromDNS(
 			randSource := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 			seedpeers, err := lookupFn(host)
 			if err != nil {
+
 				log <- cl.Infof{"DNS discovery failed on seed %s: %v", host, err}
 				return
 			}
 			numPeers := len(seedpeers)
 			log <- cl.Infof{"%d addresses found from DNS seed %s", numPeers, host}
 			if numPeers == 0 {
+
 				return
 			}
 			addresses := make([]*wire.NetAddress, len(seedpeers))
@@ -56,6 +61,7 @@ func SeedFromDNS(
 			// if this errors then we have *real* problems
 			intPort, _ := strconv.Atoi(chainParams.DefaultPort)
 			for i, peer := range seedpeers {
+
 				addresses[i] = wire.NewNetAddressTimestamp(
 
 					// bitcoind seeds with addresses from a time randomly selected between 3 and 7 days ago.

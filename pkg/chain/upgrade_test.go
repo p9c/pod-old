@@ -22,6 +22,7 @@ func TestDeserializeUtxoEntryV0(
 			name: "Only output 0, coinbase",
 			entries: map[uint32]*UtxoEntry{
 				0: {
+
 					amount:      5000000000,
 					pkScript:    hexToBytes("410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac"),
 					blockHeight: 1,
@@ -38,6 +39,7 @@ func TestDeserializeUtxoEntryV0(
 			name: "Only output 1, not coinbase",
 			entries: map[uint32]*UtxoEntry{
 				1: {
+
 					amount:      1000000,
 					pkScript:    hexToBytes("76a914ee8bd501094a7d5ca318da2506de35e1cb025ddc88ac"),
 					blockHeight: 100001,
@@ -54,6 +56,7 @@ func TestDeserializeUtxoEntryV0(
 			name: "Only output 2, coinbase",
 			entries: map[uint32]*UtxoEntry{
 				2: {
+
 					amount:      100937281,
 					pkScript:    hexToBytes("76a914da33f77cee27c2a975ed5124d7e4f7f97513510188ac"),
 					blockHeight: 99004,
@@ -70,6 +73,7 @@ func TestDeserializeUtxoEntryV0(
 			name: "outputs 0 and 2 not coinbase",
 			entries: map[uint32]*UtxoEntry{
 				0: {
+
 					amount:      20000000,
 					pkScript:    hexToBytes("76a914e2ccd6ec7c6e2e581349c77e067385fa8236bf8a88ac"),
 					blockHeight: 113931,
@@ -77,6 +81,7 @@ func TestDeserializeUtxoEntryV0(
 				},
 
 				2: {
+
 					amount:      15000000,
 					pkScript:    hexToBytes("76a914b8025be1b3efc63b0ad48e7f9f10e87544528d5888ac"),
 					blockHeight: 113931,
@@ -93,6 +98,7 @@ func TestDeserializeUtxoEntryV0(
 			name: "Only output 22, not coinbase",
 			entries: map[uint32]*UtxoEntry{
 				22: {
+
 					amount:      366875659,
 					pkScript:    hexToBytes("a9141dd46a006572d820e448e12d2bbb38640bc718e687"),
 					blockHeight: 338156,
@@ -105,9 +111,11 @@ func TestDeserializeUtxoEntryV0(
 	}
 
 	for i, test := range tests {
+
 		// Deserialize to map of utxos keyed by the output index.
 		entries, err := deserializeUtxoEntryV0(test.serialized)
 		if err != nil {
+
 			t.Errorf("deserializeUtxoEntryV0 #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue

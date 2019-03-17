@@ -41,6 +41,7 @@ In order to unmarshal bitcoin messages from the wire, use the `ReadMessage` func
 	msg, rawPayload, err := wire.ReadMessage(conn, pver, btcnet)
 	if err != nil {
 
+
 		// Log and handle the error
 	}
 ```
@@ -69,6 +70,7 @@ In order to marshal bitcoin messages to the wire, use the `WriteMessage` functio
 	// error.
 	err := wire.WriteMessage(conn, msg, pver, btcnet)
 	if err != nil {
+
 
 		// Log and handle the error
 	}

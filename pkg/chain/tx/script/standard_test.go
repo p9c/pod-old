@@ -14,8 +14,10 @@ import (
 // mustParseShortForm parses the passed short form script and returns the resulting bytes.  It panics if an error occurs.  This is only used in the tests as a helper since the only way it can fail is if there is an error in the test source code.
 func mustParseShortForm(
 	script string) []byte {
+
 	s, err := parseShortForm(script)
 	if err != nil {
+
 		panic("invalid short form script in test source: err " +
 			err.Error() + ", script: " + script)
 	}
@@ -25,9 +27,11 @@ func mustParseShortForm(
 // newAddressPubKey returns a new util.AddressPubKey from the provided serialized public key.  It panics if an error occurs.  This is only used in the tests as a helper since the only way it can fail is if there is an error in the test source code.
 func newAddressPubKey(
 	serializedPubKey []byte) util.Address {
+
 	addr, err := util.NewAddressPubKey(serializedPubKey,
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		panic("invalid public key in test source")
 	}
 	return addr
@@ -36,8 +40,10 @@ func newAddressPubKey(
 // newAddressPubKeyHash returns a new util.AddressPubKeyHash from the provided hash.  It panics if an error occurs.  This is only used in the tests as a helper since the only way it can fail is if there is an error in the test source code.
 func newAddressPubKeyHash(
 	pkHash []byte) util.Address {
+
 	addr, err := util.NewAddressPubKeyHash(pkHash, &chaincfg.MainNetParams)
 	if err != nil {
+
 		panic("invalid public key hash in test source")
 	}
 	return addr
@@ -46,9 +52,11 @@ func newAddressPubKeyHash(
 // newAddressScriptHash returns a new util.AddressScriptHash from the provided hash.  It panics if an error occurs.  This is only used in the tests as a helper since the only way it can fail is if there is an error in the test source code.
 func newAddressScriptHash(
 	scriptHash []byte) util.Address {
+
 	addr, err := util.NewAddressScriptHashFromHash(scriptHash,
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		panic("invalid script hash in test source")
 	}
 	return addr
@@ -318,9 +326,11 @@ func TestExtractPkScriptAddrs(
 	}
 	t.Logf("Running %d tests.", len(tests))
 	for i, test := range tests {
+
 		class, addrs, reqSigs, err := ExtractPkScriptAddrs(
 			test.script, &chaincfg.MainNetParams)
 		if err != nil {
+
 		}
 		if !reflect.DeepEqual(addrs, test.addrs) {
 
@@ -330,12 +340,14 @@ func TestExtractPkScriptAddrs(
 			continue
 		}
 		if reqSigs != test.reqSigs {
+
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
 				"number of required signatures - got %d, "+
 				"want %d", i, test.name, reqSigs, test.reqSigs)
 			continue
 		}
 		if class != test.class {
+
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
 				"script type - got %s, want %s", i, test.name,
 				class, test.class)
@@ -497,12 +509,15 @@ func TestCalcScriptInfo(
 		},
 	}
 	for _, test := range tests {
+
 		sigScript := mustParseShortForm(test.sigScript)
 		pkScript := mustParseShortForm(test.pkScript)
 		var witness wire.TxWitness
 		for _, witElement := range test.witness {
+
 			wit, err := hex.DecodeString(witElement)
 			if err != nil {
+
 				t.Fatalf("unable to decode witness "+
 					"element: %v", err)
 			}
@@ -511,13 +526,16 @@ func TestCalcScriptInfo(
 		si, err := CalcScriptInfo(sigScript, pkScript, witness,
 			test.bip16, test.segwit)
 		if e := tstCheckScriptError(err, test.scriptInfoErr); e != nil {
+
 			t.Errorf("scriptinfo test %q: %v", test.name, e)
 			continue
 		}
 		if err != nil {
+
 			continue
 		}
 		if *si != test.scriptInfo {
+
 			t.Errorf("%s: scriptinfo doesn't match expected. "+
 				"got: %q expected %q", test.name, *si,
 				test.scriptInfo)
@@ -531,21 +549,25 @@ type bogusAddress struct{}
 
 // EncodeAddress simply returns an empty string.  It exists to satisfy the util.Address interface.
 func (b *bogusAddress) EncodeAddress() string {
+
 	return ""
 }
 
 // ScriptAddress simply returns an empty byte slice.  It exists to satisfy the util.Address interface.
 func (b *bogusAddress) ScriptAddress() []byte {
+
 	return nil
 }
 
 // IsForNet lies blatantly to satisfy the util.Address interface.
 func (b *bogusAddress) IsForNet(chainParams *chaincfg.Params) bool {
+
 	return true // why not?
 }
 
 // String simply returns an empty string.  It exists to satisfy the util.Address interface.
 func (b *bogusAddress) String() string {
+
 	return ""
 }
 
@@ -559,6 +581,7 @@ func TestPayToAddrScript(
 	p2pkhMain, err := util.NewAddressPubKeyHash(hexToBytes("e34cce70c86"+
 		"373273efcc54ce7d2a491bb4a0e84"), &chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create public key hash address: %v", err)
 	}
 
@@ -566,6 +589,7 @@ func TestPayToAddrScript(
 	p2shMain, _ := util.NewAddressScriptHashFromHash(hexToBytes("e8c300"+
 		"c87986efa84c37c0519929019ef86eb5b4"), &chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create script hash address: %v", err)
 	}
 
@@ -574,6 +598,7 @@ func TestPayToAddrScript(
 		"74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (compressed): %v",
 			err)
 	}
@@ -581,6 +606,7 @@ func TestPayToAddrScript(
 		"d634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65"),
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (compressed 2): %v",
 			err)
 	}
@@ -589,6 +615,7 @@ func TestPayToAddrScript(
 		"cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b4"+
 		"12a3"), &chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (uncompressed): %v",
 			err)
 	}
@@ -646,8 +673,10 @@ func TestPayToAddrScript(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		pkScript, err := PayToAddrScript(test.in)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("PayToAddrScript #%d unexpected error - "+
 				"got %v, want %v", i, err, test.err)
 			continue
@@ -673,6 +702,7 @@ func TestMultiSigScript(
 		"74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (compressed): %v",
 			err)
 	}
@@ -680,6 +710,7 @@ func TestMultiSigScript(
 		"d634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65"),
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (compressed 2): %v",
 			err)
 	}
@@ -688,6 +719,7 @@ func TestMultiSigScript(
 		"cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b4"+
 		"12a3"), &chaincfg.MainNetParams)
 	if err != nil {
+
 		t.Fatalf("Unable to create pubkey address (uncompressed): %v",
 			err)
 	}
@@ -752,8 +784,10 @@ func TestMultiSigScript(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		script, err := MultiSigScript(test.keys, test.nrequired)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("MultiSigScript #%d: %v", i, e)
 			continue
 		}
@@ -802,9 +836,11 @@ func TestCalcMultiSigStats(
 		},
 	}
 	for i, test := range tests {
+
 		script := mustParseShortForm(test.script)
 		_, _, err := CalcMultiSigStats(script)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("CalcMultiSigStats #%d (%s): %v", i, test.name,
 				e)
 			continue
@@ -995,9 +1031,11 @@ func TestScriptClass(
 
 	t.Parallel()
 	for _, test := range scriptClassTests {
+
 		script := mustParseShortForm(test.script)
 		class := GetScriptClass(script)
 		if class != test.class {
+
 			t.Errorf("%s: expected %s got %s (script %x)", test.name,
 				test.class, class, script)
 			continue
@@ -1062,8 +1100,10 @@ func TestStringifyClass(
 		},
 	}
 	for _, test := range tests {
+
 		typeString := test.class.String()
 		if typeString != test.stringed {
+
 			t.Errorf("%s: got %#q, want %#q", test.name,
 				typeString, test.stringed)
 		}
@@ -1130,8 +1170,10 @@ func TestNullDataScript(
 		},
 	}
 	for i, test := range tests {
+
 		script, err := NullDataScript(test.data)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("NullDataScript: #%d (%s): %v", i, test.name,
 				e)
 			continue
@@ -1147,6 +1189,7 @@ func TestNullDataScript(
 		// Check that the script has the correct type.
 		scriptType := GetScriptClass(script)
 		if scriptType != test.class {
+
 			t.Errorf("GetScriptClass: #%d (%s) wrong result -- "+
 				"got: %v, want: %v", i, test.name, scriptType,
 				test.class)

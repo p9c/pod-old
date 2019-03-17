@@ -50,6 +50,7 @@ func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
 	var nonce [NonceSize]byte
 	_, err := io.ReadFull(prng, nonce[:])
 	if err != nil {
+
 		return nil, err
 	}
 	blob := secretbox.Seal(nil, in, &nonce, (*[KeySize]byte)(ck))
@@ -62,6 +63,7 @@ func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
 func (ck *CryptoKey) Decrypt(in []byte) ([]byte, error) {
 
 	if len(in) < NonceSize {
+
 		return nil, ErrMalformed
 	}
 
@@ -71,6 +73,7 @@ func (ck *CryptoKey) Decrypt(in []byte) ([]byte, error) {
 
 	opened, ok := secretbox.Open(nil, blob, &nonce, (*[KeySize]byte)(ck))
 	if !ok {
+
 		return nil, ErrDecryptFailed
 	}
 
@@ -95,6 +98,7 @@ func GenerateCryptoKey() (*CryptoKey, error) {
 	var key CryptoKey
 	_, err := io.ReadFull(prng, key[:])
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -120,12 +124,14 @@ type SecretKey struct {
 
 // deriveKey fills out the Key field.
 func (sk *SecretKey) deriveKey(password *[]byte) error {
+
 	key, err := scrypt.Key(*password, sk.Parameters.Salt[:],
 		sk.Parameters.N,
 		sk.Parameters.R,
 		sk.Parameters.P,
 		len(sk.Key))
 	if err != nil {
+
 		return err
 	}
 	copy(sk.Key[:], key)
@@ -151,6 +157,7 @@ func (sk *SecretKey) deriveKey(password *[]byte) error {
 
 // storage.  This result of this can be stored in clear text.
 func (sk *SecretKey) Marshal() []byte {
+
 	params := &sk.Parameters
 
 	// The marshalled format for the the params is as follows:
@@ -180,7 +187,9 @@ func (sk *SecretKey) Marshal() []byte {
 
 // passphrase into sk.
 func (sk *SecretKey) Unmarshal(marshalled []byte) error {
+
 	if sk.Key == nil {
+
 		sk.Key = (*CryptoKey)(&[KeySize]byte{})
 	}
 
@@ -192,6 +201,7 @@ func (sk *SecretKey) Unmarshal(marshalled []byte) error {
 
 	// KeySize + sha256.Size + N (8 bytes) + R (8 bytes) + P (8 bytes)
 	if len(marshalled) != KeySize+sha256.Size+24 {
+
 		return ErrMalformed
 	}
 
@@ -225,13 +235,16 @@ func (sk *SecretKey) Zero() {
 
 // Zero function or on an initial Unmarshal.
 func (sk *SecretKey) DeriveKey(password *[]byte) error {
+
 	if err := sk.deriveKey(password); err != nil {
+
 		return err
 	}
 
 	// verify password
 	digest := sha256.Sum256(sk.Key[:])
 	if subtle.ConstantTimeCompare(digest[:], sk.Parameters.Digest[:]) != 1 {
+
 		return ErrInvalidPassword
 	}
 
@@ -264,12 +277,14 @@ func NewSecretKey(
 	sk.Parameters.P = p
 	_, err := io.ReadFull(prng, sk.Parameters.Salt[:])
 	if err != nil {
+
 		return nil, err
 	}
 
 	// derive key
 	err = sk.deriveKey(password)
 	if err != nil {
+
 		return nil, err
 	}
 

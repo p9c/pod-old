@@ -96,6 +96,7 @@ var (
 
 		// 124 blocks with nothing
 		for i := 1102; i <= 1225; i++ {
+
 			log = append(log, []byte("fc")...)
 			log = append(log, 0x00)
 			log = append(log, []byte("bc")...)
@@ -140,6 +141,7 @@ var (
 
 		// 124 blocks with nothing
 		for i := 1102; i <= 1225; i++ {
+
 			log = append(log, []byte("fc")...)
 			log = append(log, 0x00)
 			log = append(log, []byte("bc")...)
@@ -147,6 +149,7 @@ var (
 
 		// 2 blocks with 1 redeeming transaction each
 		for i := 1226; i <= 1227; i++ {
+
 			log = append(log, []byte("rdfc")...)
 			log = append(log, 0x01)
 			log = append(log, []byte("bc")...)
@@ -159,11 +162,13 @@ var (
 
 		// 3 block rollback
 		for i := 1228; i >= 1226; i-- {
+
 			log = append(log, []byte("fdbd")...)
 		}
 
 		// 5 block empty reorg
 		for i := 1226; i <= 1230; i++ {
+
 			log = append(log, []byte("fc")...)
 			log = append(log, 0x00)
 			log = append(log, []byte("bc")...)
@@ -171,11 +176,13 @@ var (
 
 		// 5 block rollback
 		for i := 1230; i >= 1226; i-- {
+
 			log = append(log, []byte("fdbd")...)
 		}
 
 		// 2 blocks with 1 redeeming transaction each
 		for i := 1226; i <= 1227; i++ {
+
 			log = append(log, []byte("rdfc")...)
 			log = append(log, 0x01)
 			log = append(log, []byte("bc")...)
@@ -183,6 +190,7 @@ var (
 
 		// 8 block rest of reorg
 		for i := 1228; i <= 1235; i++ {
+
 			log = append(log, []byte("fc")...)
 			log = append(log, 0x00)
 			log = append(log, []byte("bc")...)
@@ -248,11 +256,13 @@ func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
 	pubKeyHash := util.Hash160(privKey.PubKey().SerializeCompressed())
 	addr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, s.params)
 	if err != nil {
+
 		return nil, err
 	}
 
 	script, err := txscript.PayToAddrScript(addr)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -260,6 +270,7 @@ func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
 	s.scripts[addr.String()] = &script
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(script, s.params)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -278,6 +289,7 @@ func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 
 	privKey, ok := s.keys[addr.String()]
 	if !ok {
+
 		return nil, true, fmt.Errorf("No key for address %s", addr)
 	}
 
@@ -289,6 +301,7 @@ func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 
 	script, ok := s.scripts[addr.String()]
 	if !ok {
+
 		return nil, fmt.Errorf("No script for address %s", addr)
 	}
 
@@ -297,11 +310,13 @@ func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 
 // ChainParams is required by the SecretsSource interface
 func (s *secSource) ChainParams() *chaincfg.Params {
+
 	return s.params
 }
 
 func newSecSource(
 	params *chaincfg.Params) *secSource {
+
 	return &secSource{
 		keys:    make(map[string]*ec.PrivateKey),
 		scripts: make(map[string]*[]byte),
@@ -357,6 +372,7 @@ func testInitialSync(
 
 	err := waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
@@ -388,16 +404,19 @@ func testRescan(
 	secSrc = newSecSource(&modParams)
 	privKey1, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
+
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
 
 	addr1, err = secSrc.add(privKey1)
 	if err != nil {
+
 		t.Fatalf("Couldn't create address from key: %s", err)
 	}
 
 	script1, err = secSrc.GetScript(addr1)
 	if err != nil {
+
 		t.Fatalf("Couldn't create script from address: %s", err)
 	}
 
@@ -411,26 +430,31 @@ func testRescan(
 		[]*wire.TxOut{&out1}, 1000, true,
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create transaction from script: %s", err)
 	}
 
 	_, err = harness.h1.Node.SendRawTransaction(tx1, true)
 	if err != nil {
+
 		t.Fatalf("Unable to send raw transaction to node: %s", err)
 	}
 
 	privKey2, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
+
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
 
 	addr2, err = secSrc.add(privKey2)
 	if err != nil {
+
 		t.Fatalf("Couldn't create address from key: %s", err)
 	}
 
 	script2, err = secSrc.GetScript(addr2)
 	if err != nil {
+
 		t.Fatalf("Couldn't create script from address: %s", err)
 	}
 
@@ -444,27 +468,32 @@ func testRescan(
 		[]*wire.TxOut{&out2}, 1000, true,
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create transaction from script: %s", err)
 	}
 
 	_, err = harness.h1.Node.SendRawTransaction(tx2, true)
 	if err != nil {
+
 		t.Fatalf("Unable to send raw transaction to node: %s", err)
 	}
 
 	_, err = harness.h1.Node.Generate(1)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit block: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	// Call GetUtxo for our output in tx1 to see if it's spent.
 	ourIndex := 1 << 30 // Should work on 32-bit systems
 	for i, txo := range tx1.TxOut {
+
 		if bytes.Equal(txo.PkScript, script1) {
 
 			ourIndex = i
@@ -473,12 +502,14 @@ func testRescan(
 	}
 
 	if ourIndex != 1<<30 {
+
 		ourOutPoint = wire.OutPoint{
 			Hash:  tx1.TxHash(),
 			Index: uint32(ourIndex),
 		}
 
 	} else {
+
 		t.Fatalf("Couldn't find the index of our output in transaction"+
 			" %s", tx1.TxHash())
 	}
@@ -492,6 +523,7 @@ func testRescan(
 		neutrino.StartBlock(&waddrmgr.BlockStamp{Height: 1101}),
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't get UTXO %s: %s", ourOutPoint, err)
 	}
 
@@ -517,17 +549,20 @@ func testStartRescan(
 		quitRescan)
 	err := waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err := checkRescanStatus()
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Checking rescan status failed: %s", err)
 	}
 
 	if numTXs != 1 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 1, got:"+
 			" %d", numTXs)
 	}
@@ -538,6 +573,7 @@ func testStartRescan(
 	harness.h1.Node.Generate(124)
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
@@ -545,6 +581,7 @@ func testStartRescan(
 	// Connect/sync/disconnect h2 to make it reorg to the h1 chain.
 	err = csd([]*rpctest.Harness{harness.h1, harness.h2})
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync h2 to h1: %s", err)
 	}
@@ -556,6 +593,7 @@ func testStartRescan(
 
 		ourIndex := 1 << 30 // Should work on 32-bit systems
 		for i, txo := range tx.TxOut {
+
 			if bytes.Equal(txo.PkScript, script1) ||
 				bytes.Equal(txo.PkScript, script2) {
 
@@ -569,6 +607,7 @@ func testStartRescan(
 			scripts [][]byte, err error) {
 
 			if ourIndex == 1<<30 {
+
 				err = fmt.Errorf("Couldn't find our address " +
 					"in the passed transaction's outputs.")
 				return
@@ -600,16 +639,19 @@ func testStartRescan(
 	// receipt by addresses.
 	privKey3, err := ec.NewPrivateKey(ec.S256())
 	if err != nil {
+
 		t.Fatalf("Couldn't generate private key: %s", err)
 	}
 
 	addr3, err = secSrc.add(privKey3)
 	if err != nil {
+
 		t.Fatalf("Couldn't create address from key: %s", err)
 	}
 
 	script3, err = secSrc.GetScript(addr3)
 	if err != nil {
+
 		t.Fatalf("Couldn't create script from address: %s", err)
 	}
 
@@ -633,11 +675,13 @@ func testStartRescan(
 		},
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create unsigned transaction: %s", err)
 	}
 
 	err = authTx1.AddAllInputScripts(secSrc)
 	if err != nil {
+
 		t.Fatalf("Couldn't sign transaction: %s", err)
 	}
 
@@ -652,17 +696,20 @@ func testStartRescan(
 
 	_, err = harness.h1.Node.Generate(1)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit block: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err = checkRescanStatus()
 	if numTXs != 2 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 2, got:"+
 			" %d", numTXs)
 	}
@@ -682,11 +729,13 @@ func testStartRescan(
 		},
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create unsigned transaction: %s", err)
 	}
 
 	err = authTx2.AddAllInputScripts(secSrc)
 	if err != nil {
+
 		t.Fatalf("Couldn't sign transaction: %s", err)
 	}
 
@@ -701,17 +750,20 @@ func testStartRescan(
 
 	_, err = harness.h1.Node.Generate(1)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit block: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err = checkRescanStatus()
 	if numTXs != 2 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 2, got:"+
 			" %d", numTXs)
 	}
@@ -721,17 +773,20 @@ func testStartRescan(
 	// relevant transactions.
 	err = rescan.Update(neutrino.AddAddrs(addr2), neutrino.Rewind(1095))
 	if err != nil {
+
 		t.Fatalf("Couldn't update the rescan filter: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err = checkRescanStatus()
 	if numTXs != 4 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 4, got:"+
 			" %d", numTXs)
 	}
@@ -747,11 +802,13 @@ func testStartRescan(
 		}})
 
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit block: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
@@ -766,10 +823,12 @@ func testStartRescan(
 		neutrino.StartBlock(&waddrmgr.BlockStamp{Height: 801}),
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't get UTXO %s: %s", ourOutPoint, err)
 	}
 
 	if spendReport.SpendingTx == nil {
+
 		t.Fatalf("Unable to find initial transaction")
 	}
 
@@ -787,15 +846,19 @@ func fetchPrevInputScripts(
 
 	var inputScripts [][]byte
 	for i, tx := range block.Transactions {
+
 		if i == 0 {
+
 			continue
 		}
 
 		for _, txIn := range tx.TxIn {
+
 			prevTxHash := txIn.PreviousOutPoint.Hash
 
 			prevTx, err := client.Node.GetRawTransaction(&prevTxHash)
 			if err != nil {
+
 				return nil, err
 			}
 
@@ -822,17 +885,20 @@ func testRescanResults(
 	// status has updated for the correct number of transactions.
 	_, err := harness.h2.Node.Generate(5)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit blocks: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h2)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err := checkRescanStatus()
 	if numTXs != 2 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 2, got:"+
 			" %d", numTXs)
 	}
@@ -842,17 +908,20 @@ func testRescanResults(
 	// newly-best chain on h1.
 	_, err = harness.h1.Node.Generate(7)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate/submit block: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
 	numTXs, _, err = checkRescanStatus()
 	if numTXs != 4 {
+
 		t.Fatalf("Wrong number of relevant transactions. Want: 4, got:"+
 			" %d", numTXs)
 	}
@@ -861,12 +930,15 @@ func testRescanResults(
 
 		leastBytes := len(wantLog)
 		if len(gotLog) < leastBytes {
+
 			leastBytes = len(gotLog)
 		}
 
 		diffIndex := 0
 		for i := 0; i < leastBytes; i++ {
+
 			if wantLog[i] != gotLog[i] {
+
 				diffIndex = i
 				break
 			}
@@ -884,17 +956,20 @@ func testRescanResults(
 	// ChainService synchronization status.
 	err = rpctest.ConnectNode(harness.h1, harness.h2)
 	if err != nil {
+
 		t.Fatalf("Couldn't connect h1 to h2: %s", err)
 	}
 
 	err = rpctest.JoinNodes([]*rpctest.Harness{harness.h1, harness.h2},
 		rpctest.Blocks)
 	if err != nil {
+
 		t.Fatalf("Couldn't sync h1 and h2: %s", err)
 	}
 
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
@@ -913,6 +988,7 @@ func testRescanResults(
 	err = rpctest.JoinNodes([]*rpctest.Harness{harness.h1, harness.h2},
 		rpctest.Blocks)
 	if err != nil {
+
 		t.Fatalf("Couldn't sync h1 and h2: %s", err)
 	}
 
@@ -922,6 +998,7 @@ func testRescanResults(
 	syncTimeout *= 2
 	err = waitForSync(t, harness.svc, harness.h1)
 	if err != nil {
+
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
@@ -930,6 +1007,7 @@ func testRescanResults(
 	err = <-errChan
 	quitRescan = nil
 	if err != neutrino.ErrRescanExit {
+
 		t.Fatalf("Rescan ended with error: %s", err)
 	}
 
@@ -939,6 +1017,7 @@ func testRescanResults(
 	rescan.WaitForShutdown()
 	err = rescan.Update(neutrino.AddAddrs(addr2), neutrino.Rewind(1095))
 	if err == nil {
+
 		t.Fatalf("Expected update call to fail, it did not")
 	}
 
@@ -959,6 +1038,7 @@ func testRandomBlocks(
 	var haveBest *waddrmgr.BlockStamp
 	haveBest, err := harness.svc.BestBlock()
 	if err != nil {
+
 		t.Fatalf("Couldn't get best snapshot from ChainService: %s", err)
 	}
 
@@ -971,6 +1051,7 @@ func testRandomBlocks(
 	var wg sync.WaitGroup
 	workerQueue := make(chan struct{}, numQueryThreads)
 	for i := int32(1); i <= haveBest.Height; i++ {
+
 		wg.Add(1)
 		height := uint32(i)
 
@@ -992,6 +1073,7 @@ func testRandomBlocks(
 			blockHeader, err := harness.svc.BlockHeaders.
 				FetchHeaderByHeight(height)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get block "+
 					"header by height %d: %s", height, err)
 				return
@@ -1002,6 +1084,7 @@ func testRandomBlocks(
 			// Get block via RPC.
 			wantBlock, err := harness.h1.Node.GetBlock(&blockHash)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get block %d "+
 					"(%s) by RPC", height, blockHash)
 				return
@@ -1012,11 +1095,13 @@ func testRandomBlocks(
 				blockHash, queryOptions...,
 			)
 			if err != nil {
+
 				errChan <- err
 				return
 			}
 
 			if haveBlock == nil {
+
 				errChan <- fmt.Errorf("Couldn't get block %d "+
 					"(%s) from network", height, blockHash)
 				return
@@ -1048,6 +1133,7 @@ func testRandomBlocks(
 			haveFilter, err := harness.svc.GetCFilter(blockHash,
 				wire.GCSFilterRegular, queryOptions...)
 			if err != nil {
+
 				errChan <- err
 				return
 			}
@@ -1056,6 +1142,7 @@ func testRandomBlocks(
 			wantFilter, err := harness.h1.Node.GetCFilter(
 				&blockHash, wire.GCSFilterRegular)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get basic "+
 					"filter for block %d (%s) via RPC: %s",
 					height, blockHash, err)
@@ -1065,8 +1152,10 @@ func testRandomBlocks(
 			// Check that network and RPC cfilters match.
 			var haveBytes []byte
 			if haveFilter != nil {
+
 				haveBytes, err = haveFilter.NBytes()
 				if err != nil {
+
 					errChan <- fmt.Errorf("Couldn't get "+
 						"basic filter for block %d "+
 						"(%s) via P2P: %s", height,
@@ -1092,6 +1181,7 @@ func testRandomBlocks(
 				harness.h1,
 			)
 			if err != nil {
+
 				errChan <- fmt.Errorf("unable to create prev "+
 					"input scripts: %v", err)
 				return
@@ -1102,6 +1192,7 @@ func testRandomBlocks(
 				haveBlock.MsgBlock(), inputScripts,
 			)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't build basic "+
 					"filter for block %d (%s): %s", height,
 					blockHash, err)
@@ -1110,6 +1201,7 @@ func testRandomBlocks(
 
 			calcBytes, err := calcFilter.NBytes()
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get bytes from"+
 					" calculated basic filter for block "+
 					"%d (%s): %s", height, blockHash, err)
@@ -1131,6 +1223,7 @@ func testRandomBlocks(
 			prevHeader, err := harness.svc.RegFilterHeaders.
 				FetchHeader(&blockHeader.PrevBlock)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get basic "+
 					"filter header for block %d (%s) from "+
 					"DB: %s", height-1,
@@ -1142,6 +1235,7 @@ func testRandomBlocks(
 			curHeader, err := harness.svc.RegFilterHeaders.
 				FetchHeader(&blockHash)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't get basic "+
 					"filter header for block %d (%s) from "+
 					"DB: %s", height, blockHash, err)
@@ -1152,6 +1246,7 @@ func testRandomBlocks(
 			calcHeader, err := builder.MakeHeaderForFilter(
 				calcFilter, *prevHeader)
 			if err != nil {
+
 				errChan <- fmt.Errorf("Couldn't calculate "+
 					"header for basic filter for block "+
 					"%d (%s): %s", height, blockHash, err)
@@ -1179,7 +1274,9 @@ func testRandomBlocks(
 	close(errChan)
 	var lastErr error
 	for err := range errChan {
+
 		if err != nil {
+
 			t.Errorf("%s", err)
 			lastErr = fmt.Errorf("Couldn't validate all " +
 				"blocks, filters, and filter headers.")
@@ -1188,11 +1285,13 @@ func testRandomBlocks(
 	}
 
 	if logLevel != log.LevelOff {
+
 		t.Logf("Finished checking %d blocks and their cfilters",
 			haveBest.Height)
 	}
 
 	if lastErr != nil {
+
 		t.Fatal(lastErr)
 	}
 
@@ -1216,17 +1315,20 @@ func TestNeutrinoSync(
 		&chaincfg.SimNetParams, nil, []string{"--txindex"},
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create harness: %s", err)
 	}
 
 	defer h1.TearDown()
 	err = h1.SetUp(false, 0)
 	if err != nil {
+
 		t.Fatalf("Couldn't set up harness: %s", err)
 	}
 
 	_, err = h1.Node.Generate(800)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
@@ -1235,12 +1337,14 @@ func TestNeutrinoSync(
 		&chaincfg.SimNetParams, nil, []string{"--txindex"},
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create harness: %s", err)
 	}
 
 	defer h2.TearDown()
 	err = h2.SetUp(false, 0)
 	if err != nil {
+
 		t.Fatalf("Couldn't set up harness: %s", err)
 	}
 
@@ -1249,34 +1353,40 @@ func TestNeutrinoSync(
 		&chaincfg.SimNetParams, nil, []string{"--txindex"},
 	)
 	if err != nil {
+
 		t.Fatalf("Couldn't create harness: %s", err)
 	}
 
 	defer h3.TearDown()
 	err = h3.SetUp(false, 0)
 	if err != nil {
+
 		t.Fatalf("Couldn't set up harness: %s", err)
 	}
 
 	_, err = h3.Node.Generate(1200)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
 	// Connect, sync, and disconnect h1 and h2
 	err = csd([]*rpctest.Harness{h1, h2})
 	if err != nil {
+
 		t.Fatalf("Couldn't connect/sync/disconnect h1 and h2: %s", err)
 	}
 
 	// Generate 300 blocks on the first node and 350 on the second
 	_, err = h1.Node.Generate(300)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
 	_, err = h2.Node.Generate(350)
 	if err != nil {
+
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
@@ -1303,8 +1413,10 @@ func TestNeutrinoSync(
 	// Copy parameters and insert checkpoints
 	modParams := chaincfg.SimNetParams
 	for _, height := range []int64{111, 333, 555, 777, 999} {
+
 		hash, err := h1.Node.GetBlockHash(height)
 		if err != nil {
+
 			t.Fatalf("Couldn't get block hash for height %d: %s",
 				height, err)
 		}
@@ -1322,6 +1434,7 @@ func TestNeutrinoSync(
 	// SPV chain namespace, and create a configuration for the ChainService.
 	tempDir, err := ioutil.TempDir("", "neutrino")
 	if err != nil {
+
 		t.Fatalf("Failed to create temporary directory: %s", err)
 	}
 
@@ -1329,6 +1442,7 @@ func TestNeutrinoSync(
 	db, err := walletdb.Create("bdb", tempDir+"/weks.db")
 	defer db.Close()
 	if err != nil {
+
 		t.Fatalf("Error opening DB: %s\n", err)
 	}
 
@@ -1348,6 +1462,7 @@ func TestNeutrinoSync(
 	neutrino.QueryPeerConnectTimeout = 10 * time.Second
 	svc, err := neutrino.NewChainService(config)
 	if err != nil {
+
 		t.Fatalf("Error creating ChainService: %s", err)
 	}
 
@@ -1358,6 +1473,7 @@ func TestNeutrinoSync(
 	testHarness := &neutrinoHarness{h1, h2, h3, svc}
 
 	for _, test := range testCases {
+
 		t.Run(test.name, func(t *testing.T) {
 
 			test.test(testHarness, t)
@@ -1374,8 +1490,10 @@ func TestNeutrinoSync(
 // nodes try to reconnect to each other which results in unintended reorgs.
 func csd(
 	harnesses []*rpctest.Harness) error {
+
 	hTemp, err := rpctest.New(&chaincfg.SimNetParams, nil, nil)
 	if err != nil {
+
 		return err
 	}
 
@@ -1383,12 +1501,15 @@ func csd(
 	defer hTemp.TearDown()
 	err = hTemp.SetUp(false, 0)
 	if err != nil {
+
 		return err
 	}
 
 	for _, harness := range harnesses {
+
 		err = rpctest.ConnectNode(hTemp, harness)
 		if err != nil {
+
 			return err
 		}
 
@@ -1406,6 +1527,7 @@ func checkErrChan(
 	t *testing.T, errChan <-chan error) {
 
 	select {
+
 	case err := <-errChan:
 		t.Logf("Got error from rescan: %s", err)
 	default:
@@ -1417,32 +1539,39 @@ func checkErrChan(
 func waitForSync(
 	t *testing.T, svc *neutrino.ChainService,
 	correctSyncNode *rpctest.Harness) error {
+
 	knownBestHash, knownBestHeight, err :=
 		correctSyncNode.Node.GetBestBlock()
 	if err != nil {
+
 		return err
 	}
 
 	if logLevel != log.LevelOff {
+
 		t.Logf("Syncing to %d (%s)", knownBestHeight, knownBestHash)
 	}
 
 	var haveBest *waddrmgr.BlockStamp
 	haveBest, err = svc.BestBlock()
 	if err != nil {
+
 		return fmt.Errorf("Couldn't get best snapshot from "+
 			"ChainService: %s", err)
 	}
 
 	var total time.Duration
 	for haveBest.Hash != *knownBestHash {
+
 		if total > syncTimeout {
+
 			return fmt.Errorf("Timed out after %v waiting for "+
 				"header synchronization.\n%s", syncTimeout,
 				goroutineDump())
 		}
 
 		if haveBest.Height > knownBestHeight {
+
 			return fmt.Errorf("synchronized to the wrong chain")
 		}
 
@@ -1450,6 +1579,7 @@ func waitForSync(
 		total += syncUpdate
 		haveBest, err = svc.BestBlock()
 		if err != nil {
+
 			return fmt.Errorf("Couldn't get best snapshot from "+
 				"ChainService: %s", err)
 		}
@@ -1467,6 +1597,7 @@ func waitForSync(
 	knownBasicHeader, err := correctSyncNode.Node.GetCFilterHeader(
 		knownBestHash, wire.GCSFilterRegular)
 	if err != nil {
+
 		return fmt.Errorf("Couldn't get latest basic header from "+
 			"%s: %s", correctSyncNode.P2PAddress(), err)
 	}
@@ -1474,7 +1605,9 @@ func waitForSync(
 	haveBasicHeader := &chainhash.Hash{}
 
 	for knownBasicHeader.PrevFilterHeader != *haveBasicHeader {
+
 		if total > syncTimeout {
+
 			return fmt.Errorf("Timed out after %v waiting for "+
 				"cfheaders synchronization.\n%s", syncTimeout,
 				goroutineDump())
@@ -1482,7 +1615,9 @@ func waitForSync(
 
 		haveBasicHeader, err = svc.RegFilterHeaders.FetchHeader(knownBestHash)
 		if err != nil {
+
 			if err == io.EOF {
+
 				haveBasicHeader = &chainhash.Hash{}
 				time.Sleep(syncUpdate)
 				total += syncUpdate
@@ -1498,6 +1633,7 @@ func waitForSync(
 	}
 
 	if logLevel != log.LevelOff {
+
 		t.Logf("Synced cfheaders to %d (%s)", haveBest.Height,
 			haveBest.Hash)
 	}
@@ -1506,7 +1642,9 @@ func waitForSync(
 
 	// rescan, if one is going, to catch up.
 	for {
+
 		if total > syncTimeout {
+
 			return fmt.Errorf("Timed out after %v waiting for "+
 				"rescan to catch up.\n%s", syncTimeout,
 				goroutineDump())
@@ -1520,6 +1658,7 @@ func waitForSync(
 
 		// yet.
 		if len(gotLog) == 0 {
+
 			rescanMtx.RUnlock()
 			break
 		}
@@ -1537,10 +1676,12 @@ func waitForSync(
 		}
 
 		if logLevel != log.LevelOff {
+
 			t.Logf("Rescan caught up to block %d", rescanHeight)
 		}
 
 		if rescanHeight == haveBest.Height {
+
 			rescanMtx.RUnlock()
 			break
 		}
@@ -1558,7 +1699,9 @@ func waitForSync(
 
 	// up.
 	for i := int32(0); i <= haveBest.Height; i++ {
+
 		if total > syncTimeout {
+
 			return fmt.Errorf("Timed out after %v waiting for "+
 				"cfheaders DB to catch up.\n%s", syncTimeout,
 				goroutineDump())
@@ -1566,6 +1709,7 @@ func waitForSync(
 
 		head, err := svc.BlockHeaders.FetchHeaderByHeight(uint32(i))
 		if err != nil {
+
 			return fmt.Errorf("Couldn't read block by "+
 				"height: %s", err)
 		}
@@ -1586,6 +1730,7 @@ func waitForSync(
 		}
 
 		if err != nil {
+
 			return fmt.Errorf("Couldn't get basic header "+
 				"for %d (%s) from DB: %v\n%s", i, hash,
 				err, goroutineDump())
@@ -1595,12 +1740,14 @@ func waitForSync(
 			&hash, wire.GCSFilterRegular,
 		)
 		if err != nil {
+
 			return fmt.Errorf("Couldn't get basic header "+
 				"for %d (%s) from node %s", i, hash,
 				correctSyncNode.P2PAddress())
 		}
 
 		if *haveBasicHeader != knownBasicHeader.PrevFilterHeader {
+
 			return fmt.Errorf("Basic header for %d (%s) "+
 				"doesn't match node %s. DB: %s, node: %s", i,
 				hash, correctSyncNode.P2PAddress(),
@@ -1662,6 +1809,7 @@ func startRescan(
 						NewHashFromStr(
 							details.Hash)
 					if err != nil {
+
 						t.Errorf("Couldn't "+
 							"decode hash "+
 							"%s: %s",
@@ -1685,6 +1833,7 @@ func startRescan(
 						NewHashFromStr(
 							details.Hash)
 					if err != nil {
+
 						t.Errorf("Couldn't "+
 							"decode hash "+
 							"%s: %s",
@@ -1746,25 +1895,31 @@ func checkRescanStatus() (int, int32, error) {
 	rescanMtx.RLock()
 	defer rescanMtx.RUnlock()
 	for _, list := range ourKnownTxsByBlock {
+
 		for range list {
+
 			txCount[0]++
 		}
 
 	}
 
 	for _, list := range ourKnownTxsByFilteredBlock {
+
 		for range list {
+
 			txCount[1]++
 		}
 
 	}
 
 	if txCount[0] != txCount[1] {
+
 		return 0, 0, fmt.Errorf("Conflicting transaction count " +
 			"between notifications.")
 	}
 
 	if curBlockHeight != curFilteredBlockHeight {
+
 		return 0, 0, fmt.Errorf("Conflicting block height between "+
 			"notifications: onBlockConnected=%d, "+
 			"onFilteredBlockConnected=%d.", curBlockHeight,
@@ -1782,6 +1937,7 @@ func banPeer(
 
 	peers := svc.Peers()
 	for _, peer := range peers {
+
 		if peer.Addr() == harness.P2PAddress() {
 
 			svc.BanPeer(peer)
@@ -1796,6 +1952,7 @@ func banPeer(
 
 // show what's going on in case of timeout.
 func goroutineDump() string {
+
 	buf := make([]byte, 1<<18)
 	runtime.Stack(buf, true)
 	return string(buf)

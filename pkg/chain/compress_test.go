@@ -9,8 +9,10 @@ import (
 // hexToBytes converts the passed hex string into bytes and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called with hard-coded values.
 func hexToBytes(
 	s string) []byte {
+
 	b, err := hex.DecodeString(s)
 	if err != nil {
+
 		panic("invalid hex in source file: " + s)
 	}
 
@@ -53,6 +55,7 @@ func TestVLQ(
 	}
 
 	for _, test := range tests {
+
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := serializeSizeVLQ(test.val)
 		if gotSize != len(test.serialized) {
@@ -85,6 +88,7 @@ func TestVLQ(
 		// Ensure the serialized bytes deserialize to the expected value.
 		gotVal, gotBytesRead := deserializeVLQ(test.serialized)
 		if gotVal != test.val {
+
 			t.Errorf("deserializeVLQ: did not get expected value "+
 				"for %x - got %d, want %d", test.serialized,
 				gotVal, test.val)
@@ -191,6 +195,7 @@ func TestScriptCompression(
 	}
 
 	for _, test := range tests {
+
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := compressedScriptSize(test.uncompressed)
 		if gotSize != len(test.compressed) {
@@ -254,12 +259,14 @@ func TestScriptCompressionErrors(
 
 	// A nil script must result in a decoded size of 0.
 	if gotSize := decodeCompressedScriptSize(nil); gotSize != 0 {
+
 		t.Fatalf("decodeCompressedScriptSize with nil script did not "+
 			"return 0 - got %d", gotSize)
 	}
 
 	// A nil script must result in a nil decompressed script.
 	if gotScript := decompressScript(nil); gotScript != nil {
+
 		t.Fatalf("decompressScript with nil script did not return nil "+
 			"decompressed script - got %x", gotScript)
 	}
@@ -268,6 +275,7 @@ func TestScriptCompressionErrors(
 	compressedScript := hexToBytes("04012d74d0cb94344c9569c2e77901573d8d" +
 		"7903c3ebec3a957724895dca52c6b4")
 	if gotScript := decompressScript(compressedScript); gotScript != nil {
+
 		t.Fatalf("decompressScript with compressed pay-to-"+
 			"uncompressed-pubkey that is invalid did not return "+
 			"nil decompressed script - got %x", gotScript)
@@ -342,9 +350,11 @@ func TestAmountCompression(
 	}
 
 	for _, test := range tests {
+
 		// Ensure the amount compresses to the expected value.
 		gotCompressed := compressTxOutAmount(test.uncompressed)
 		if gotCompressed != test.compressed {
+
 			t.Errorf("compressTxOutAmount (%s): did not get "+
 				"expected value - got %d, want %d", test.name,
 				gotCompressed, test.compressed)
@@ -354,6 +364,7 @@ func TestAmountCompression(
 		// Ensure the value decompresses to the expected value.
 		gotDecompressed := decompressTxOutAmount(test.compressed)
 		if gotDecompressed != test.uncompressed {
+
 			t.Errorf("decompressTxOutAmount (%s): did not get "+
 				"expected value - got %d, want %d", test.name,
 				gotDecompressed, test.uncompressed)
@@ -399,6 +410,7 @@ func TestCompressedTxOut(
 	}
 
 	for _, test := range tests {
+
 		// Ensure the function to calculate the serialized size without actually serializing the txout is calculated properly.
 		gotSize := compressedTxOutSize(test.amount, test.pkScript)
 		if gotSize != len(test.compressed) {
@@ -434,12 +446,14 @@ func TestCompressedTxOut(
 		gotAmount, gotScript, gotBytesRead, err := decodeCompressedTxOut(
 			test.compressed)
 		if err != nil {
+
 			t.Errorf("decodeCompressedTxOut (%s): unexpected "+
 				"error: %v", test.name, err)
 			continue
 		}
 
 		if gotAmount != test.amount {
+
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
 				"expected amount - got %d, want %d",
 				test.name, gotAmount, test.amount)

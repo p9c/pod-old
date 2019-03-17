@@ -25,24 +25,30 @@ type queryState struct {
 }
 
 func newQueryState() *queryState {
+
 	return &queryState{
 		txDetails: make(map[chainhash.Hash][]TxDetails),
 	}
 }
 
 func (q *queryState) deepCopy() *queryState {
+
 	cpy := newQueryState()
 	for _, blockDetails := range q.blocks {
+
 		var cpyDetails []TxDetails
 		for _, detail := range blockDetails {
+
 			cpyDetails = append(cpyDetails, *deepCopyTxDetails(&detail))
 		}
 		cpy.blocks = append(cpy.blocks, cpyDetails)
 	}
 	cpy.txDetails = make(map[chainhash.Hash][]TxDetails)
 	for txHash, details := range q.txDetails {
+
 		detailsSlice := make([]TxDetails, len(details))
 		for i, detail := range details {
+
 			detailsSlice[i] = *deepCopyTxDetails(&detail)
 		}
 		cpy.txDetails[txHash] = detailsSlice
@@ -52,9 +58,11 @@ func (q *queryState) deepCopy() *queryState {
 
 func deepCopyTxDetails(
 	d *TxDetails) *TxDetails {
+
 	cpy := *d
 	cpy.MsgTx = *d.MsgTx.Copy()
 	if cpy.SerializedTx != nil {
+
 		cpy.SerializedTx = make([]byte, len(cpy.SerializedTx))
 		copy(cpy.SerializedTx, d.SerializedTx)
 	}
@@ -72,6 +80,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 	revBlocks := make([][]TxDetails, len(q.blocks))
 	copy(revBlocks, q.blocks)
 	for i := 0; i < len(revBlocks)/2; i++ {
+
 		revBlocks[i], revBlocks[len(revBlocks)-1-i] = revBlocks[len(revBlocks)-1-i], revBlocks[i]
 	}
 	checkBlock := func(blocks [][]TxDetails) func([]TxDetails) (bool, error) {
@@ -79,6 +88,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 		return func(got []TxDetails) (bool, error) {
 
 			if len(fwdBlocks) == 0 {
+
 				return false, errors.New("entered range " +
 					"when no more details expected")
 			}
@@ -90,8 +100,10 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 					len(got), len(exp))
 			}
 			for i := range got {
+
 				err := equalTxDetails(&got[i], &exp[i])
 				if err != nil {
+
 					return false, fmt.Errorf("failed "+
 						"comparing range of "+
 						"transaction details: %v", err)
@@ -103,31 +115,39 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 	}
 	err := s.RangeTransactions(ns, 0, -1, checkBlock(fwdBlocks))
 	if err != nil {
+
 		return fmt.Errorf("%s: failed in RangeTransactions (forwards "+
 			"iteration): %v", changeDesc, err)
 	}
 	err = s.RangeTransactions(ns, -1, 0, checkBlock(revBlocks))
 	if err != nil {
+
 		return fmt.Errorf("%s: failed in RangeTransactions (reverse "+
 			"iteration): %v", changeDesc, err)
 	}
 
 	for txHash, details := range q.txDetails {
+
 		for _, detail := range details {
+
 			blk := &detail.Block.Block
 			if blk.Height == -1 {
+
 				blk = nil
 			}
 			d, err := s.UniqueTxDetails(ns, &txHash, blk)
 			if err != nil {
+
 				return err
 			}
 			if d == nil {
+
 				return fmt.Errorf("found no matching "+
 					"transaction at height %d",
 					detail.Block.Height)
 			}
 			if err := equalTxDetails(d, &detail); err != nil {
+
 				return fmt.Errorf("%s: failed querying latest "+
 					"details regarding transaction %v",
 					changeDesc, txHash)
@@ -142,9 +162,11 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 		detail := &details[len(details)-1]
 		d, err := s.TxDetails(ns, &txHash)
 		if err != nil {
+
 			return err
 		}
 		if err := equalTxDetails(d, detail); err != nil {
+
 			return fmt.Errorf("%s: failed querying latest details "+
 				"regarding transaction %v", changeDesc, txHash)
 		}
@@ -160,14 +182,17 @@ func equalTxDetails(
 
 	// returns false for nil vs non-nil zero length slices.
 	if err := equalTxs(&got.MsgTx, &exp.MsgTx); err != nil {
+
 		return err
 	}
 
 	if got.Hash != exp.Hash {
+
 		return fmt.Errorf("found mismatched hashes: got %v, expected %v",
 			got.Hash, exp.Hash)
 	}
 	if got.Received != exp.Received {
+
 		return fmt.Errorf("found mismatched receive time: got %v, "+
 			"expected %v", got.Received, exp.Received)
 	}
@@ -177,6 +202,7 @@ func equalTxDetails(
 			"expected %v", got.SerializedTx, exp.SerializedTx)
 	}
 	if got.Block != exp.Block {
+
 		return fmt.Errorf("found mismatched block meta: got %v, "+
 			"expected %v", got.Block, exp.Block)
 	}
@@ -186,7 +212,9 @@ func equalTxDetails(
 			"expected %d", len(got.Credits), len(exp.Credits))
 	}
 	for i := range got.Credits {
+
 		if got.Credits[i] != exp.Credits[i] {
+
 			return fmt.Errorf("found mismatched credit[%d]: got %v, "+
 				"expected %v", i, got.Credits[i], exp.Credits[i])
 		}
@@ -197,7 +225,9 @@ func equalTxDetails(
 			"expected %d", len(got.Debits), len(exp.Debits))
 	}
 	for i := range got.Debits {
+
 		if got.Debits[i] != exp.Debits[i] {
+
 			return fmt.Errorf("found mismatched debit[%d]: got %v, "+
 				"expected %v", i, got.Debits[i], exp.Debits[i])
 		}
@@ -208,13 +238,16 @@ func equalTxDetails(
 
 func equalTxs(
 	got, exp *wire.MsgTx) error {
+
 	var bufGot, bufExp bytes.Buffer
 	err := got.Serialize(&bufGot)
 	if err != nil {
+
 		return err
 	}
 	err = exp.Serialize(&bufExp)
 	if err != nil {
+
 		return err
 	}
 	if !bytes.Equal(bufGot.Bytes(), bufExp.Bytes()) {
@@ -228,12 +261,14 @@ func equalTxs(
 
 // Returns time.Now() with seconds resolution, this is what Store saves.
 func timeNow() time.Time {
+
 	return time.Unix(time.Now().Unix(), 0)
 }
 
 // Returns a copy of a TxRecord without the serialized tx.
 func stripSerializedTx(
 	rec *TxRecord) *TxRecord {
+
 	ret := *rec
 	ret.SerializedTx = nil
 	return &ret
@@ -241,7 +276,9 @@ func stripSerializedTx(
 
 func makeBlockMeta(
 	height int32) BlockMeta {
+
 	if height == -1 {
+
 		return BlockMeta{Block: Block{Height: -1}}
 	}
 
@@ -272,6 +309,7 @@ func TestStoreQueries(
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	lastState := newQueryState()
@@ -285,6 +323,7 @@ func TestStoreQueries(
 	txA := spendOutput(&chainhash.Hash{}, 0, 100e8)
 	recA, err := NewTxRecordFromMsgTx(txA, timeNow())
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	newState := lastState.deepCopy()
@@ -303,6 +342,7 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "insert tx A unmined",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.InsertTx(ns, recA, nil)
 		},
 		state: newState,
@@ -323,6 +363,7 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "mark unconfirmed txA:0 as credit",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.AddCredit(ns, recA, nil, 0, true)
 		},
 		state: newState,
@@ -334,6 +375,7 @@ func TestStoreQueries(
 	txB := spendOutput(&recA.Hash, 0, 40e8, 60e8)
 	recB, err := NewTxRecordFromMsgTx(txB, timeNow())
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	newState = lastState.deepCopy()
@@ -354,6 +396,7 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "insert tx B unmined",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.InsertTx(ns, recB, nil)
 		},
 		state: newState,
@@ -372,6 +415,7 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "mark txB:0 as non-change credit",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.AddCredit(ns, recB, nil, 0, false)
 		},
 		state: newState,
@@ -388,6 +432,7 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "mine tx A",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.InsertTx(ns, recA, &b100)
 		},
 		state: newState,
@@ -402,20 +447,25 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "mine tx B",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.InsertTx(ns, recB, &b101)
 		},
 		state: newState,
 	})
 
 	for _, tst := range tests {
+
 		err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(namespaceKey)
 			if err := tst.updates(ns); err != nil {
+
 				return err
 			}
 			return tst.state.compare(s, ns, tst.desc)
 		})
 		if err != nil {
+
 			t.Fatal(err)
 		}
 	}
@@ -435,19 +485,23 @@ func TestStoreQueries(
 	//     iteration.
 
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(namespaceKey)
 
 		missingTx := spendOutput(&recB.Hash, 0, 40e8)
 		missingRec, err := NewTxRecordFromMsgTx(missingTx, timeNow())
 		if err != nil {
+
 			return err
 		}
 		missingBlock := makeBlockMeta(102)
 		missingDetails, err := s.TxDetails(ns, &missingRec.Hash)
 		if err != nil {
+
 			return err
 		}
 		if missingDetails != nil {
+
 			return fmt.Errorf("Expected no details, found details "+
 				"for tx %v", missingDetails.Hash)
 		}
@@ -463,11 +517,14 @@ func TestStoreQueries(
 			{&recB.Hash, nil},
 		}
 		for _, tst := range missingUniqueTests {
+
 			missingDetails, err = s.UniqueTxDetails(ns, tst.hash, tst.block)
 			if err != nil {
+
 				t.Fatal(err)
 			}
 			if missingDetails != nil {
+
 				t.Errorf("Expected no details, found details for tx %v", missingDetails.Hash)
 			}
 		}
@@ -479,6 +536,7 @@ func TestStoreQueries(
 			return true, nil
 		})
 		if iterations != 1 {
+
 			t.Errorf("RangeTransactions (forwards) ran func %d times", iterations)
 		}
 		iterations = 0
@@ -488,11 +546,13 @@ func TestStoreQueries(
 			return true, nil
 		})
 		if iterations != 1 {
+
 			t.Errorf("RangeTransactions (reverse) ran func %d times", iterations)
 		}
 
 		// Make sure it also breaks early after one iteration through unmined transactions.
 		if err := s.Rollback(ns, b101.Height); err != nil {
+
 			return err
 		}
 		iterations = 0
@@ -502,11 +562,13 @@ func TestStoreQueries(
 			return true, nil
 		})
 		if iterations != 1 {
+
 			t.Errorf("RangeTransactions (reverse) ran func %d times", iterations)
 		}
 		return nil
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -526,6 +588,7 @@ func TestStoreQueries(
 	tests = append(tests[:0:0], queryTest{
 		desc: "move tx B to block 100",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.InsertTx(ns, recB, &b100)
 		},
 		state: newState,
@@ -539,20 +602,25 @@ func TestStoreQueries(
 	tests = append(tests, queryTest{
 		desc: "rollback block 100",
 		updates: func(ns walletdb.ReadWriteBucket) error {
+
 			return s.Rollback(ns, b100.Height)
 		},
 		state: newState,
 	})
 
 	for _, tst := range tests {
+
 		err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(namespaceKey)
 			if err := tst.updates(ns); err != nil {
+
 				return err
 			}
 			return tst.state.compare(s, ns, tst.desc)
 		})
 		if err != nil {
+
 			t.Fatal(err)
 		}
 	}
@@ -566,6 +634,7 @@ func TestPreviousPkScripts(
 	s, db, teardown, err := testStore()
 	defer teardown()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -583,6 +652,7 @@ func TestPreviousPkScripts(
 
 	// new outputs the passed pkScipts.  Spends outputs 0 and 1 from prevHash.
 	buildTx := func(prevHash *chainhash.Hash, script0, script1 []byte) *wire.MsgTx {
+
 		return &wire.MsgTx{
 			TxIn: []*wire.TxIn{
 				{PreviousOutPoint: wire.OutPoint{
@@ -601,8 +671,10 @@ func TestPreviousPkScripts(
 	}
 
 	newTxRecordFromMsgTx := func(tx *wire.MsgTx) *TxRecord {
+
 		rec, err := NewTxRecordFromMsgTx(tx, timeNow())
 		if err != nil {
+
 			t.Fatal(err)
 		}
 		return rec
@@ -624,6 +696,7 @@ func TestPreviousPkScripts(
 
 		err := s.InsertTx(ns, rec, block)
 		if err != nil {
+
 			t.Fatal(err)
 		}
 	}
@@ -631,6 +704,7 @@ func TestPreviousPkScripts(
 
 		err := s.AddCredit(ns, rec, block, index, false)
 		if err != nil {
+
 			t.Fatal(err)
 		}
 	}
@@ -644,10 +718,12 @@ func TestPreviousPkScripts(
 
 		scripts, err := s.PreviousPkScripts(ns, tst.rec, tst.block)
 		if err != nil {
+
 			t.Fatal(err)
 		}
 		height := int32(-1)
 		if tst.block != nil {
+
 			height = tst.block.Height
 		}
 		if len(scripts) != len(tst.scripts) {
@@ -657,6 +733,7 @@ func TestPreviousPkScripts(
 			return
 		}
 		for i := range scripts {
+
 			if !bytes.Equal(scripts[i], tst.scripts[i]) {
 
 				// Format scripts with %s since they are (should be) ascii.
@@ -668,6 +745,7 @@ func TestPreviousPkScripts(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -694,6 +772,7 @@ func TestPreviousPkScripts(
 		{recC, &b100.Block, nil},
 	}
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
@@ -720,6 +799,7 @@ func TestPreviousPkScripts(
 		{recC, &b100.Block, nil},
 	}
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
@@ -730,6 +810,7 @@ func TestPreviousPkScripts(
 	// Mine tx A in block 100.  Test results should be identical.
 	insertTx(ns, recA, &b100)
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
@@ -748,6 +829,7 @@ func TestPreviousPkScripts(
 		{recC, &b101.Block, nil},
 	}
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
@@ -768,6 +850,7 @@ func TestPreviousPkScripts(
 		{recC, &b101.Block, [][]byte{scriptB0, scriptB1}},
 	}
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {
@@ -782,6 +865,7 @@ func TestPreviousPkScripts(
 	tests = append(tests, scriptTest{recD, nil, [][]byte{scriptC0}})
 	tests = append(tests, scriptTest{recD, &b101.Block, nil})
 	for _, tst := range tests {
+
 		runTest(ns, &tst)
 	}
 	if t.Failed() {

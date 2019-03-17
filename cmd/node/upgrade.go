@@ -14,6 +14,7 @@ func dirEmpty(
 
 	f, err := os.Open(dirPath)
 	if err != nil {
+
 		return false, err
 	}
 
@@ -22,6 +23,7 @@ func dirEmpty(
 	// Read the names of a max of one entry from the directory.  When the directory is empty, an io.EOF error will be returned, so allow it.
 	names, err := f.Readdirnames(1)
 	if err != nil && err != io.EOF {
+
 		return false, err
 	}
 
@@ -30,8 +32,10 @@ func dirEmpty(
 
 // doUpgrades performs upgrades to pod as new versions require it.
 func doUpgrades() error {
+
 	err := upgradeDBPaths()
 	if err != nil {
+
 		return err
 	}
 
@@ -44,12 +48,14 @@ func oldPodHomeDir() string {
 	// Search for Windows APPDATA first.  This won't exist on POSIX OSes.
 	appData := os.Getenv("APPDATA")
 	if appData != "" {
+
 		return filepath.Join(appData, "pod")
 	}
 
 	// Fall back to standard HOME directory that works for most POSIX OSes.
 	home := os.Getenv("HOME")
 	if home != "" {
+
 		return filepath.Join(home, ".pod")
 	}
 
@@ -64,6 +70,7 @@ func upgradeDBPathNet(
 	// Prior to version 0.2.0, the database was named the same thing for both sqlite and leveldb.  Use heuristics to figure out the type of the database and move it to the new path and name introduced with version 0.2.0 accordingly.
 	fi, err := os.Stat(oldDbPath)
 	if err == nil {
+
 		oldDbType := "sqlite"
 		if fi.IsDir() {
 
@@ -74,6 +81,7 @@ func upgradeDBPathNet(
 		newDbRoot := filepath.Join(filepath.Dir(*cfg.DataDir), netName)
 		newDbName := blockDbNamePrefix + "_" + oldDbType
 		if oldDbType == "sqlite" {
+
 			newDbName = newDbName + ".db"
 		}
 
@@ -81,12 +89,14 @@ func upgradeDBPathNet(
 		// Create the new path if needed.
 		err = os.MkdirAll(newDbRoot, 0700)
 		if err != nil {
+
 			return err
 		}
 
 		// Move and rename the old database.
 		err := os.Rename(oldDbPath, newDbPath)
 		if err != nil {
+
 			return err
 		}
 
@@ -115,6 +125,7 @@ func upgradeDataPaths() error {
 	oldHomePath := oldPodHomeDir()
 	newHomePath := DefaultHomeDir
 	if oldHomePath == newHomePath {
+
 		return nil
 	}
 
@@ -129,6 +140,7 @@ func upgradeDataPaths() error {
 
 		err := os.MkdirAll(newHomePath, 0700)
 		if err != nil {
+
 			return err
 		}
 
@@ -139,6 +151,7 @@ func upgradeDataPaths() error {
 
 			err := os.Rename(oldConfPath, newConfPath)
 			if err != nil {
+
 				return err
 			}
 
@@ -151,6 +164,7 @@ func upgradeDataPaths() error {
 
 			err := os.Rename(oldDataPath, newDataPath)
 			if err != nil {
+
 				return err
 			}
 
@@ -159,16 +173,20 @@ func upgradeDataPaths() error {
 		// Remove the old home if it is empty or show a warning if not.
 		ohpEmpty, err := dirEmpty(oldHomePath)
 		if err != nil {
+
 			return err
 		}
 
 		if ohpEmpty {
+
 			err := os.Remove(oldHomePath)
 			if err != nil {
+
 				return err
 			}
 
 		} else {
+
 			log <- cl.Warnf{
 				"not removing '%s' since it contains files not created by this application," +
 					"you may want to manually move them or delete them.", oldHomePath}

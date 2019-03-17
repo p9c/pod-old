@@ -413,11 +413,13 @@ func (s *ChainService) BestBlock() (*waddrmgr.BlockStamp, error) {
 
 	bestHeader, bestHeight, err := s.BlockHeaders.ChainTip()
 	if err != nil {
+
 		return nil, err
 	}
 
 	_, filterHeight, err := s.RegFilterHeaders.ChainTip()
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -425,11 +427,13 @@ func (s *ChainService) BestBlock() (*waddrmgr.BlockStamp, error) {
 
 	// previous block header if the filter headers are not caught up.
 	if filterHeight < bestHeight {
+
 		bestHeight = filterHeight
 		bestHeader, err = s.BlockHeaders.FetchHeaderByHeight(
 			bestHeight,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -444,6 +448,7 @@ func (s *ChainService) BestBlock() (*waddrmgr.BlockStamp, error) {
 
 // ChainParams returns a copy of the ChainService's chaincfg.Params.
 func (s *ChainService) ChainParams() chaincfg.Params {
+
 	return s.chainParams
 }
 
@@ -452,6 +457,7 @@ func (s *ChainService) GetBlockHash(height int64) (*chainhash.Hash, error) {
 
 	header, err := s.BlockHeaders.FetchHeaderByHeight(uint32(height))
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -476,6 +482,7 @@ func (s *ChainService) GetBlockHeight(hash *chainhash.Hash) (int32, error) {
 
 	_, height, err := s.BlockHeaders.FetchHeader(hash)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -486,6 +493,7 @@ func (s *ChainService) GetBlockHeight(hash *chainhash.Hash) (int32, error) {
 
 // thinks its view of the network is current.
 func (s *ChainService) IsCurrent() bool {
+
 	return s.blockManager.IsFullySynced()
 }
 
@@ -502,9 +510,11 @@ func (s *ChainService) NetTotals() (uint64, uint64) {
 
 // table, if connected to that peer address.
 func (s *ChainService) PeerByAddr(addr string) *ServerPeer {
+
 	for _, peer := range s.Peers() {
 
 		if peer.Addr() == addr {
+
 			return peer
 		}
 
@@ -527,8 +537,10 @@ func (s *ChainService) PublishTransaction(tx *wire.MsgTx) error {
 
 // Start begins connecting to peers and syncing the blockchain.
 func (s *ChainService) Start() {
+
 	// Already started?
 	if atomic.AddInt32(&s.started, 1) != 1 {
+
 		return
 	}
 
@@ -546,6 +558,7 @@ func (s *ChainService) Stop() error {
 
 	// Make sure this only happens once.
 	if atomic.AddInt32(&s.shutdown, 1) != 1 {
+
 		return nil
 	}
 
@@ -583,6 +596,7 @@ func (s *ChainService) addrStringToNetAddr(addr string) (net.Addr, error) {
 
 	host, strPort, err := net.SplitHostPort(addr)
 	if err != nil {
+
 		switch err.(type) {
 
 		case *net.AddrError:
@@ -597,15 +611,18 @@ func (s *ChainService) addrStringToNetAddr(addr string) (net.Addr, error) {
 	// Attempt to look up an IP address associated with the parsed host.
 	ips, err := s.nameResolver(host)
 	if err != nil {
+
 		return nil, err
 	}
 
 	if len(ips) == 0 {
+
 		return nil, fmt.Errorf("no addresses found for %s", host)
 	}
 
 	port, err := strconv.Atoi(strPort)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -620,12 +637,15 @@ func (s *ChainService) addrStringToNetAddr(addr string) (net.Addr, error) {
 
 // peerHandler goroutine.
 func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
+
 	if sp == nil {
+
 		return false
 	}
 
 	// Ignore new peers if we're shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
+
 		log <- cl.Infof{"new peer %s ignored - server is shutting down", sp}
 		sp.Disconnect()
 		return false
@@ -634,12 +654,14 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	// Disconnect banned peers.
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
+
 		log <- cl.Debug{"can't split host/port:", err}
 		sp.Disconnect()
 		return false
 	}
 
 	if banEnd, ok := state.banned[host]; ok {
+
 		if time.Now().Before(banEnd) {
 
 			log <- cl.Debugf{
@@ -662,6 +684,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 
 	// Limit max number of total peers.
 	if state.Count() >= MaxPeers {
+
 		log <- cl.Infof{
 			"max peers reached [%d] - disconnecting peer %s",
 			MaxPeers, sp,
@@ -679,8 +702,10 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	log <- cl.Debug{"new peer", sp}
 	state.outboundGroups[addrmgr.GroupKey(sp.NA())]++
 	if sp.persistent {
+
 		state.persistentPeers[sp.ID()] = sp
 	} else {
+
 		state.outboundPeers[sp.ID()] = sp
 	}
 
@@ -694,6 +719,7 @@ func (s *ChainService) handleBanPeerMsg(state *peerState, sp *ServerPeer) {
 
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
+
 		log <- cl.Debugf{
 			"can't split ban peer %s: %s",
 			sp.Addr(), err,
@@ -713,18 +739,22 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 
 	var list map[int32]*ServerPeer
 	if sp.persistent {
+
 		list = state.persistentPeers
 	} else {
+
 		list = state.outboundPeers
 	}
 
 	if _, ok := list[sp.ID()]; ok {
+
 		if !sp.Inbound() && sp.VersionKnown() {
 
 			state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
 		}
 
 		if !sp.Inbound() && sp.connReq != nil {
+
 			s.connManager.Disconnect(sp.connReq.ID())
 		}
 
@@ -734,6 +764,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 	}
 
 	if sp.connReq != nil {
+
 		s.connManager.Disconnect(sp.connReq.ID())
 	}
 
@@ -741,6 +772,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 
 	// our version and has sent us its version as well.
 	if sp.VerAckReceived() && sp.VersionKnown() && sp.NA() != nil {
+
 		s.addrManager.Connected(sp.NA())
 	}
 
@@ -755,8 +787,10 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 func (s *ChainService) handleUpdatePeerHeights(state *peerState, umsg updatePeerHeightsMsg) {
 
 	state.forAllPeers(func(sp *ServerPeer) {
+
 		// The origin peer should already have the updated height.
 		if sp == umsg.originPeer {
+
 			return
 		}
 
@@ -766,6 +800,7 @@ func (s *ChainService) handleUpdatePeerHeights(state *peerState, umsg updatePeer
 		latestBlkHash := sp.LastAnnouncedBlock()
 		// Skip this peer if it hasn't recently announced any new blocks.
 		if latestBlkHash == nil {
+
 			return
 		}
 
@@ -775,6 +810,7 @@ func (s *ChainService) handleUpdatePeerHeights(state *peerState, umsg updatePeer
 
 		// height.
 		if *latestBlkHash == *umsg.newHash {
+
 			sp.UpdateLastBlockHeight(umsg.newHeight)
 			sp.UpdateLastAnnouncedBlock(nil)
 		}
@@ -797,6 +833,7 @@ func (s *ChainService) outboundPeerConnected(c *connmgr.ConnReq, conn net.Conn) 
 	sp := newServerPeer(s, c.Permanent)
 	p, err := peer.NewOutboundPeer(newPeerConfig(sp), c.Addr.String())
 	if err != nil {
+
 		log <- cl.Debugf{
 			"cannot create outbound peer %s: %s", c.Addr, err,
 		}
@@ -833,6 +870,7 @@ func (s *ChainService) peerDoneHandler(sp *ServerPeer) {
 
 // peers.  It must be run in a goroutine.
 func (s *ChainService) peerHandler() {
+
 	// Start the address manager and block manager, both of which are
 
 	// needed by peers.  This is done here since their lifecycle is closely
@@ -858,6 +896,7 @@ func (s *ChainService) peerHandler() {
 		// Add peers discovered through DNS to the address manager.
 		connmgr.SeedFromDNS(&s.chainParams, RequiredServices,
 			s.nameResolver, func(addrs []*wire.NetAddress) {
+
 				// Bitcoind uses a lookup of the dns seeder
 
 				// here. This is rather strange since the
@@ -878,6 +917,7 @@ func (s *ChainService) peerHandler() {
 
 out:
 	for {
+
 		select {
 
 		// New peers connected to the server.
@@ -922,7 +962,9 @@ out:
 	// to send.
 cleanup:
 	for {
+
 		select {
+
 		case <-s.newPeers:
 		case <-s.donePeers:
 		case <-s.banPeers:
@@ -944,6 +986,7 @@ func (s *ChainService) rollBackToHeight(height uint32) (*waddrmgr.BlockStamp, er
 
 	header, headerHeight, err := s.BlockHeaders.ChainTip()
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -954,20 +997,25 @@ func (s *ChainService) rollBackToHeight(height uint32) (*waddrmgr.BlockStamp, er
 
 	_, regHeight, err := s.RegFilterHeaders.ChainTip()
 	if err != nil {
+
 		return nil, err
 	}
 
 	for uint32(bs.Height) > height {
+
 		header, _, err := s.BlockHeaders.FetchHeader(&bs.Hash)
 		if err != nil {
+
 			return nil, err
 		}
 
 		newTip := &header.PrevBlock
 		// Only roll back filter headers if they've caught up this far.
 		if uint32(bs.Height) <= regHeight {
+
 			newFilterTip, err := s.RegFilterHeaders.RollbackLastBlock(newTip)
 			if err != nil {
+
 				return nil, err
 			}
 
@@ -976,6 +1024,7 @@ func (s *ChainService) rollBackToHeight(height uint32) (*waddrmgr.BlockStamp, er
 
 		bs, err = s.BlockHeaders.RollbackLastBlock()
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -994,6 +1043,7 @@ func (s *ChainService) rollBackToHeight(height uint32) (*waddrmgr.BlockStamp, er
 		// factored out into their own package.
 		lastHeader, _, err := s.BlockHeaders.FetchHeader(newTip)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -1015,6 +1065,7 @@ func (s *ChainService) rollBackToHeight(height uint32) (*waddrmgr.BlockStamp, er
 
 // used to notify the server about advertised addresses.
 func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
+
 	// Ignore addresses when running on the simulation test network.  This
 
 	// helps prevent the network from becoming another public test network
@@ -1023,16 +1074,19 @@ func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
 
 	// specifically been provided.
 	if sp.server.chainParams.Net == chaincfg.SimNetParams.Net {
+
 		return
 	}
 
 	// Ignore old style addresses which don't include a timestamp.
 	if sp.ProtocolVersion() < wire.NetAddressTimeVersion {
+
 		return
 	}
 
 	// A message that has no addresses is invalid.
 	if len(msg.AddrList) == 0 {
+
 		log <- cl.Errorf{
 			"command [%s] from %s does not contain any addresses",
 			msg.Command(), sp.Addr(),
@@ -1085,8 +1139,10 @@ func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
 
 // disconnected if an invalid fee filter value is provided.
 func (sp *ServerPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
+
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
+
 		log <- cl.Debugf{
 			"peer %v sent an invalid feefilter '%v' -- disconnecting",
 			sp, util.Amount(msg.MinFee),
@@ -1127,13 +1183,16 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 
 	newInv := wire.NewMsgInvSizeHint(uint(len(msg.InvList)))
 	for _, invVect := range msg.InvList {
+
 		if invVect.Type == wire.InvTypeTx {
+
 			log <- cl.Tracef{
 				"ignoring tx %s in inv from %v -- SPV mode",
 				invVect.Hash, sp,
 			}
 
 			if sp.ProtocolVersion() >= wire.BIP0037Version {
+
 				log <- cl.Infof{
 					"peer %v is announcing transactions -- disconnecting", sp,
 				}
@@ -1147,6 +1206,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 
 		err := newInv.AddInvVect(invVect)
 		if err != nil {
+
 			log <- cl.Error{"failed to add inventory vector:", err}
 			break
 		}
@@ -1154,6 +1214,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 	}
 
 	if len(newInv.InvList) > 0 {
+
 		sp.server.blockManager.QueueInv(newInv, sp)
 	}
 
@@ -1174,9 +1235,11 @@ func (sp *ServerPeer) OnRead(_ *peer.Peer, bytesRead int, msg wire.Message,
 	sp.mtxSubscribers.RLock()
 	defer sp.mtxSubscribers.RUnlock()
 	for subscription := range sp.recvSubscribers {
+
 		go func(subscription spMsgSubscription) {
 
 			select {
+
 			case <-subscription.quitChan:
 			case subscription.msgChan <- spMsg{
 				msg: msg,
@@ -1249,6 +1312,7 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 
 	// discovered peers.
 	if sp.server.chainParams.Net != chaincfg.SimNetParams.Net {
+
 		addrManager := sp.server.addrManager
 
 		// Request known addresses if the server address manager needs
@@ -1259,6 +1323,7 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 		hasTimestamp := sp.ProtocolVersion() >=
 			wire.NetAddressTimeVersion
 		if addrManager.NeedMoreAddresses() && hasTimestamp {
+
 			sp.QueueMessage(wire.NewMsgGetAddr(), nil)
 		}
 
@@ -1289,6 +1354,7 @@ func (sp *ServerPeer) OnWrite(_ *peer.Peer, bytesWritten int, msg wire.Message, 
 
 // disconnected.
 func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
+
 	// No warning is logged and no score is calculated if banning is disabled.
 	warnThreshold := BanThreshold >> 1
 	if transient == 0 && persistent == 0 {
@@ -1298,6 +1364,7 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 		// logged if the score is above the warn threshold.
 		score := sp.banScore.Int()
 		if score > warnThreshold {
+
 			log <- cl.Warnf{
 				"misbehaving peer %s: %s -- ban score is %d, it was not increased this time",
 				sp, reason, score,
@@ -1310,12 +1377,14 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 
 	score := sp.banScore.Increase(persistent, transient)
 	if score > warnThreshold {
+
 		log <- cl.Warnf{
 			"misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score,
 		}
 
 		if score > BanThreshold {
+
 			log <- cl.Warnf{
 				"misbehaving peer %s -- banning and disconnecting",
 				sp,
@@ -1335,6 +1404,7 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 func (sp *ServerPeer) addKnownAddresses(addresses []*wire.NetAddress) {
 
 	for _, na := range addresses {
+
 		sp.knownAddresses[addrmgr.NetAddressKey(na)] = struct{}{}
 	}
 
@@ -1342,6 +1412,7 @@ func (sp *ServerPeer) addKnownAddresses(addresses []*wire.NetAddress) {
 
 // addressKnown true if the given address is already known to the peer.
 func (sp *ServerPeer) addressKnown(na *wire.NetAddress) bool {
+
 	_, exists := sp.knownAddresses[addrmgr.NetAddressKey(na)]
 	return exists
 }
@@ -1353,6 +1424,7 @@ func (sp *ServerPeer) newestBlock() (*chainhash.Hash, int32, error) {
 
 	bestHeader, bestHeight, err := sp.server.BlockHeaders.ChainTip()
 	if err != nil {
+
 		return nil, 0, err
 	}
 
@@ -1362,9 +1434,11 @@ func (sp *ServerPeer) newestBlock() (*chainhash.Hash, int32, error) {
 
 // pushSendHeadersMsg sends a sendheaders message to the connected peer.
 func (sp *ServerPeer) pushSendHeadersMsg() error {
+
 	if sp.VersionKnown() {
 
 		if sp.ProtocolVersion() > wire.SendHeadersVersion {
+
 			sp.QueueMessage(wire.NewMsgSendHeaders(), nil)
 		}
 
@@ -1393,6 +1467,7 @@ func (sp *ServerPeer) unsubscribeRecvMsgs(subscription spMsgSubscription) {
 
 // Count returns the count of all known peers.
 func (ps *peerState) Count() int {
+
 	return len(ps.outboundPeers) + len(ps.persistentPeers)
 }
 
@@ -1402,10 +1477,12 @@ func (ps *peerState) Count() int {
 func (ps *peerState) forAllOutboundPeers(closure func(sp *ServerPeer)) {
 
 	for _, e := range ps.outboundPeers {
+
 		closure(e)
 	}
 
 	for _, e := range ps.persistentPeers {
+
 		closure(e)
 	}
 
@@ -1426,6 +1503,7 @@ func (ps *peerState) forAllPeers(closure func(sp *ServerPeer)) {
 // with peers.
 func NewChainService(
 	cfg Config) (*ChainService, error) {
+
 	// First, we'll sort out the methods that we'll use to established
 
 	// outbound TCP connections, as well as perform any DNS queries.
@@ -1440,8 +1518,10 @@ func NewChainService(
 		dialer       func(net.Addr) (net.Conn, error)
 	)
 	if cfg.Dialer != nil {
+
 		dialer = cfg.Dialer
 	} else {
+
 		dialer = func(addr net.Addr) (net.Conn, error) {
 
 			return net.Dial(addr.Network(), addr.String())
@@ -1453,8 +1533,10 @@ func NewChainService(
 
 	// resolution, then we'll use that everywhere as well.
 	if cfg.NameResolver != nil {
+
 		nameResolver = cfg.NameResolver
 	} else {
+
 		nameResolver = net.LookupIP
 	}
 
@@ -1507,11 +1589,13 @@ func NewChainService(
 
 	s.FilterDB, err = filterdb.New(cfg.Database, cfg.ChainParams)
 	if err != nil {
+
 		return nil, err
 	}
 
 	filterCacheSize := DefaultFilterCacheSize
 	if cfg.FilterCacheSize != 0 {
+
 		filterCacheSize = cfg.FilterCacheSize
 	}
 
@@ -1519,6 +1603,7 @@ func NewChainService(
 
 	blockCacheSize := DefaultBlockCacheSize
 	if cfg.BlockCacheSize != 0 {
+
 		blockCacheSize = cfg.BlockCacheSize
 	}
 
@@ -1528,6 +1613,7 @@ func NewChainService(
 		cfg.DataDir, cfg.Database, &cfg.ChainParams,
 	)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1535,11 +1621,13 @@ func NewChainService(
 		cfg.DataDir, cfg.Database, headerfs.RegularFilter, &cfg.ChainParams,
 	)
 	if err != nil {
+
 		return nil, err
 	}
 
 	bm, err := newBlockManager(&s)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1555,11 +1643,14 @@ func NewChainService(
 	// peers in order to prevent it from becoming a public test network.
 	var newAddressFunc func() (net.Addr, error)
 	if s.chainParams.Net != chaincfg.SimNetParams.Net {
+
 		newAddressFunc = func() (net.Addr, error) {
 
 			for tries := 0; tries < 100; tries++ {
+
 				addr := s.addrManager.GetAddress()
 				if addr == nil {
+
 					break
 				}
 
@@ -1576,6 +1667,7 @@ func NewChainService(
 				// others.
 				key := addrmgr.GroupKey(addr.NetAddress())
 				if s.OutboundGroupCount(key) != 0 {
+
 					continue
 				}
 
@@ -1583,12 +1675,14 @@ func NewChainService(
 
 				// times
 				if tries < 30 && time.Since(addr.LastAttempt()) < 10*time.Minute {
+
 					continue
 				}
 
 				// allow nondefault ports after 50 failed tries.
 				if tries < 50 && fmt.Sprintf("%d", addr.NetAddress().Port) !=
 					s.chainParams.DefaultPort {
+
 					continue
 				}
 
@@ -1609,16 +1703,19 @@ func NewChainService(
 	}
 
 	if len(cfg.ConnectPeers) == 0 {
+
 		cmgrCfg.GetNewAddress = newAddressFunc
 	}
 
 	// Create a connection manager.
 	if MaxPeers < TargetOutbound {
+
 		TargetOutbound = MaxPeers
 	}
 
 	cmgr, err := connmgr.New(cmgrCfg)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1626,12 +1723,15 @@ func NewChainService(
 	// Start up persistent peers.
 	permanentPeers := cfg.ConnectPeers
 	if len(permanentPeers) == 0 {
+
 		permanentPeers = cfg.AddPeers
 	}
 
 	for _, addr := range permanentPeers {
+
 		tcpAddr, err := s.addrStringToNetAddr(addr)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -1668,10 +1768,13 @@ func NewChainService(
 func disconnectPeer(
 	peerList map[int32]*ServerPeer, compareFunc func(
 		*ServerPeer) bool, whenFound func(*ServerPeer)) bool {
+
 	for addr, peer := range peerList {
+
 		if compareFunc(peer) {
 
 			if whenFound != nil {
+
 				whenFound(peer)
 			}
 
@@ -1691,6 +1794,7 @@ func disconnectPeer(
 // newPeerConfig returns the configuration for the given ServerPeer.
 func newPeerConfig(
 	sp *ServerPeer) *peer.Config {
+
 	return &peer.Config{
 		Listeners: peer.MessageListeners{
 			OnVersion: sp.OnVersion,
@@ -1730,6 +1834,7 @@ func newPeerConfig(
 // the caller.
 func newServerPeer(
 	s *ChainService, isPersistent bool) *ServerPeer {
+
 	return &ServerPeer{
 		server:          s,
 		persistent:      isPersistent,

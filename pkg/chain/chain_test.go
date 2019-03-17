@@ -458,6 +458,7 @@ func TestCalcSequenceLock(
 // nodeHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected hash slices in the tests.
 func nodeHashes(
 	nodes []*blockNode, indexes ...int) []chainhash.Hash {
+
 	hashes := make([]chainhash.Hash, 0, len(indexes))
 
 	for _, idx := range indexes {
@@ -471,6 +472,7 @@ func nodeHashes(
 // nodeHeaders is a convenience function that returns the headers for all of the passed indexes of the provided nodes.  It is used to construct expected located headers in the tests.
 func nodeHeaders(
 	nodes []*blockNode, indexes ...int) []wire.BlockHeader {
+
 	headers := make([]wire.BlockHeader, 0, len(indexes))
 
 	for _, idx := range indexes {
@@ -750,6 +752,7 @@ func TestLocateInventory(
 				&test.hashStop, test.maxAllowed)
 			chain.chainLock.RUnlock()
 		} else {
+
 			headers = chain.LocateHeaders(test.locator,
 				&test.hashStop)
 		}

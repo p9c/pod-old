@@ -44,6 +44,7 @@ func GetDustThreshold(
 // not standard and are rejected by mempools with default policies.
 func IsDustAmount(
 	amount util.Amount, scriptSize int, relayFeePerKb util.Amount) bool {
+
 	return amount < GetDustThreshold(scriptSize, relayFeePerKb)
 }
 
@@ -55,6 +56,7 @@ func IsDustOutput(
 
 	// Unspendable outputs which solely carry data are not checked for dust.
 	if txscript.GetScriptClass(output.PkScript) == txscript.NullDataTy {
+
 		return false
 	}
 
@@ -79,10 +81,13 @@ var (
 // output.
 func CheckOutput(
 	output *wire.TxOut, relayFeePerKb util.Amount) error {
+
 	if output.Value < 0 {
+
 		return ErrAmountNegative
 	}
 	if output.Value > util.MaxSatoshi {
+
 		return ErrAmountExceedsMax
 	}
 	if IsDustOutput(output, relayFeePerKb) {
@@ -96,13 +101,16 @@ func CheckOutput(
 // arbitrary size given a mempool's relay fee policy.
 func FeeForSerializeSize(
 	relayFeePerKb util.Amount, txSerializeSize int) util.Amount {
+
 	fee := relayFeePerKb * util.Amount(txSerializeSize) / 1000
 
 	if fee == 0 && relayFeePerKb > 0 {
+
 		fee = relayFeePerKb
 	}
 
 	if fee < 0 || fee > util.MaxSatoshi {
+
 		fee = util.MaxSatoshi
 	}
 

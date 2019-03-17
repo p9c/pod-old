@@ -37,7 +37,9 @@ type Policy struct {
 // minInt is a helper function to return the minimum of two ints.  This avoids a math import and the need to cast to floats.
 func minInt(
 	a, b int) int {
+
 	if a < b {
+
 		return a
 	}
 	return b
@@ -46,8 +48,10 @@ func minInt(
 // calcInputValueAge is a helper function used to calculate the input age of a transaction.  The input age for a txin is the number of confirmations since the referenced txout multiplied by its output value.  The total input age is the sum of this value for each txin.  Any inputs to the transaction which are currently in the mempool and hence not mined into a block yet, contribute no additional input age to the transaction.
 func calcInputValueAge(
 	tx *wire.MsgTx, utxoView *blockchain.UtxoViewpoint, nextBlockHeight int32) float64 {
+
 	var totalInputAge float64
 	for _, txIn := range tx.TxIn {
+
 		// Don't attempt to accumulate the total input age if the referenced transaction output doesn't exist.
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		if entry != nil && !entry.IsSpent() {
@@ -56,8 +60,10 @@ func calcInputValueAge(
 			var inputAge int32
 			originHeight := entry.BlockHeight()
 			if originHeight == UnminedHeight {
+
 				inputAge = 0
 			} else {
+
 				inputAge = nextBlockHeight - originHeight
 			}
 			// Sum the input value times age.
@@ -81,11 +87,13 @@ func CalcPriority(
 	// Thus 1 + 73 + 1 + 1 + 33 + 1 = 110
 	overhead := 0
 	for _, txIn := range tx.TxIn {
+
 		// Max inputs + size can't possibly overflow here.
 		overhead += 41 + minInt(110, len(txIn.SignatureScript))
 	}
 	serializedTxSize := tx.SerializeSize()
 	if overhead >= serializedTxSize {
+
 		return 0.0
 	}
 	inputValueAge := calcInputValueAge(tx, utxoView, nextBlockHeight)

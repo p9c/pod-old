@@ -23,8 +23,10 @@ func TestServiceFlagStringer(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue
@@ -48,8 +50,10 @@ func TestBitcoinNetStringer(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue

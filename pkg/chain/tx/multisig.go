@@ -33,6 +33,7 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 	defer func() {
 
 		if dbtx != nil {
+
 			dbtx.Rollback()
 		}
 	}()
@@ -43,6 +44,7 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 
 	// mixture of the two.
 	for i, addr := range addrs {
+
 		switch addr := addr.(type) {
 
 		default:
@@ -54,15 +56,18 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 
 		case *util.AddressPubKeyHash:
 			if dbtx == nil {
+
 				var err error
 				dbtx, err = w.db.BeginReadTx()
 				if err != nil {
+
 					return nil, err
 				}
 				addrmgrNs = dbtx.ReadBucket(waddrmgrNamespaceKey)
 			}
 			addrInfo, err := w.Manager.Address(addrmgrNs, addr)
 			if err != nil {
+
 				return nil, err
 			}
 			serializedPubKey := addrInfo.(waddrmgr.ManagedPubKeyAddress).
@@ -71,6 +76,7 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 			pubKeyAddr, err := util.NewAddressPubKey(
 				serializedPubKey, w.chainParams)
 			if err != nil {
+
 				return nil, err
 			}
 			pubKeys[i] = pubKeyAddr
@@ -85,6 +91,7 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 
 	var p2shAddr *util.AddressScriptHash
 	err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
+
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		// TODO(oga) blockstamp current block?
@@ -100,6 +107,7 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 			waddrmgr.KeyScopeBIP0084,
 		)
 		if err != nil {
+
 			return err
 		}
 

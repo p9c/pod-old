@@ -15,6 +15,7 @@ var testNoncePrng = rand.New(rand.NewSource(0))
 // chainedNodes returns the specified number of nodes constructed such that each subsequent node points to the previous one to create a chain.  The first node will point to the passed parent which can be nil if desired.
 func chainedNodes(
 	parent *blockNode, numNodes int) []*blockNode {
+
 	nodes := make([]*blockNode, numNodes)
 	tip := parent
 
@@ -37,18 +38,21 @@ func chainedNodes(
 
 // String returns the block node as a human-readable name.
 func (node blockNode) String() string {
+
 	return fmt.Sprintf("%s(%d)", node.hash, node.height)
 }
 
 // tstTip is a convenience function to grab the tip of a chain of block nodes created via chainedNodes.
 func tstTip(
 	nodes []*blockNode) *blockNode {
+
 	return nodes[len(nodes)-1]
 }
 
 // locatorHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected block locators in the tests.
 func locatorHashes(
 	nodes []*blockNode, indexes ...int) BlockLocator {
+
 	hashes := make(BlockLocator, 0, len(indexes))
 
 	for _, idx := range indexes {
@@ -62,6 +66,7 @@ func locatorHashes(
 // zipLocators is a convenience function that returns a single block locator given a variable number of them and is used in the tests.
 func zipLocators(
 	locators ...BlockLocator) BlockLocator {
+
 	var hashes BlockLocator
 
 	for _, locator := range locators {

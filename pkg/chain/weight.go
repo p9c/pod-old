@@ -32,6 +32,7 @@ const (
 // GetBlockWeight computes the value of the weight metric for a given block. Currently the weight metric is simply the sum of the block's serialized size without any witness data scaled proportionally by the WitnessScaleFactor, and the block's serialized size including any witness data.
 func GetBlockWeight(
 	blk *util.Block) int64 {
+
 	msgBlock := blk.MsgBlock()
 	baseSize := msgBlock.SerializeSizeStripped()
 	totalSize := msgBlock.SerializeSize()
@@ -43,6 +44,7 @@ func GetBlockWeight(
 // GetTransactionWeight computes the value of the weight metric for a given transaction. Currently the weight metric is simply the sum of the transactions's serialized size without any witness data scaled proportionally by the WitnessScaleFactor, and the transaction's serialized size including any witness data.
 func GetTransactionWeight(
 	tx *util.Tx) int64 {
+
 	msgTx := tx.MsgTx()
 	baseSize := msgTx.SerializeSizeStripped()
 	totalSize := msgTx.SerializeSize()
@@ -57,8 +59,10 @@ func GetSigOpCost(
 
 	numSigOps := CountSigOps(tx) * WitnessScaleFactor
 	if bip16 {
+
 		numP2SHSigOps, err := CountP2SHSigOps(tx, isCoinBaseTx, utxoView)
 		if err != nil {
+
 			return 0, nil
 		}
 
@@ -66,8 +70,10 @@ func GetSigOpCost(
 	}
 
 	if segWit && !isCoinBaseTx {
+
 		msgTx := tx.MsgTx()
 		for txInIndex, txIn := range msgTx.TxIn {
+
 			// Ensure the referenced output is available and hasn't already been spent.
 			utxo := utxoView.LookupEntry(txIn.PreviousOutPoint)
 			if utxo == nil || utxo.IsSpent() {

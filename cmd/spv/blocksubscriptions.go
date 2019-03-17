@@ -104,6 +104,7 @@ func (
 
 	// requesting right after a new set of blocks has been connected.
 	err := s.blockManager.SynchronizeFilterHeaders(func(filterHeaderTip uint32) error {
+
 		s.mtxSubscribers.Lock()
 		defer s.mtxSubscribers.Unlock()
 
@@ -188,6 +189,7 @@ cleanup:
 	for {
 
 		select {
+
 		case <-subscription.notifyBlock:
 
 			// fmt.Println("chan:<-subscription.notifyBlock")
@@ -206,6 +208,7 @@ cleanup:
 func (
 	s *blockSubscription,
 ) subscriptionHandler() {
+
 	// Start with a small queue; it will grow if needed.
 	ntfns := make([]*blockMessage, 0, 5)
 	var next *blockMessage
@@ -215,9 +218,11 @@ func (
 
 	// signal is sent, let the loop know.
 	selectChan := func(notify chan<- wire.BlockHeader) bool {
+
 		if notify == nil {
 
 			select {
+
 			case <-s.quit:
 
 				// fmt.Println("chan:<-s.quit")
@@ -267,6 +272,7 @@ func (
 	for {
 
 		if next != nil {
+
 			// If selectChan returns false, we were signalled on
 
 			// s.quit or s.intQuit.
@@ -299,7 +305,9 @@ func (
 				ntfns[0] = nil // Set to nil to avoid GC leak.
 				ntfns = ntfns[1:]
 			} else {
+
 				select {
+
 				case next = <-s.notifyBlock:
 
 					// fmt.Println("chan:next = <-s.notifyBlock")
@@ -333,6 +341,7 @@ func sendMsgToSubscriber(
 	var subChan chan<- wire.BlockHeader
 
 	switch bm.msgType {
+
 	case connectBasic:
 		subChan = sub.onConnectBasic
 	case disconnect:
@@ -353,6 +362,7 @@ func sendMsgToSubscriber(
 	if subChan != nil {
 
 		select {
+
 		case sub.notifyBlock <- bm:
 
 			// fmt.Println("chan:sub.notifyBlock <- bm")

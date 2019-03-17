@@ -30,6 +30,7 @@ func TestAssignField(
 			name: "same types - more source pointers",
 			dest: int8(0),
 			src: func() interface{} {
+
 				i := int8(100)
 				return &i
 			}(),
@@ -38,6 +39,7 @@ func TestAssignField(
 		{
 			name: "same types - more dest pointers",
 			dest: func() interface{} {
+
 				i := int8(0)
 				return &i
 			}(),
@@ -48,6 +50,7 @@ func TestAssignField(
 			name: "convertible types - more source pointers",
 			dest: int16(0),
 			src: func() interface{} {
+
 				i := int8(100)
 				return &i
 			}(),
@@ -56,10 +59,12 @@ func TestAssignField(
 		{
 			name: "convertible types - both pointers",
 			dest: func() interface{} {
+
 				i := int8(0)
 				return &i
 			}(),
 			src: func() interface{} {
+
 				i := int16(100)
 				return &i
 			}(),
@@ -129,6 +134,7 @@ func TestAssignField(
 			name: "convertible types - typecase string -> string",
 			dest: "",
 			src: func() interface{} {
+
 				type foo string
 				return foo("foo")
 			}(),
@@ -161,16 +167,19 @@ func TestAssignField(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
 		err := json.TstAssignField(1, "testField", dst, src)
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
 		// Inidirect through to the base types to ensure their values are the same.
 		for dst.Kind() == reflect.Ptr {
+
 			dst = dst.Elem()
 		}
 		if !reflect.DeepEqual(dst.Interface(), test.expected) {
@@ -323,6 +332,7 @@ func TestAssignFieldErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		dst := reflect.New(reflect.TypeOf(test.dest)).Elem()
 		src := reflect.ValueOf(test.src)
 		err := json.TstAssignField(1, "testField", dst, src)
@@ -334,6 +344,7 @@ func TestAssignFieldErrors(
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
+
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
 				err, test.err.ErrorCode)
@@ -380,6 +391,7 @@ func TestNewCmdErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		_, err := json.NewCmd(test.method, test.args...)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -389,6 +401,7 @@ func TestNewCmdErrors(
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
+
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
 				err, test.err.ErrorCode)
@@ -429,6 +442,7 @@ func TestMarshalCmdErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		_, err := json.MarshalCmd(test.id, test.cmd)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -438,6 +452,7 @@ func TestMarshalCmdErrors(
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
+
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
 				err, test.err.ErrorCode)
@@ -499,6 +514,7 @@ func TestUnmarshalCmdErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		_, err := json.UnmarshalCmd(&test.request)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -508,6 +524,7 @@ func TestUnmarshalCmdErrors(
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
+
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v (%v), want %v", i, test.name, gotErrorCode,
 				err, test.err.ErrorCode)

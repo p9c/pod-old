@@ -26,9 +26,11 @@ var (
 
 	// AllOnes is 32 bytes of 0xff, the maximum target
 	AllOnes = func() big.Int {
+
 		b := big.NewInt(1)
 		t := make([]byte, 32)
 		for i := range t {
+
 			t[i] = ^byte(0)
 		}
 		b.SetBytes(t)
@@ -37,6 +39,7 @@ var (
 
 	// mainPowLimit is the highest proof of work value a Parallelcoin block can have for the main network.
 	mainPowLimit = func() big.Int {
+
 		mplb, _ := hex.DecodeString("00000fffff000000000000000000000000000000000000000000000000000000")
 		return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
 	}()
@@ -47,6 +50,7 @@ var (
 	// MainPowLimitBits is the bits version of the above
 	MainPowLimitBits = BigToCompact(&MainPowLimit)
 	scryptPowLimit   = func() big.Int {
+
 		mplb, _ := hex.DecodeString("0000fffff0000000000000000000000000000000000000000000000000000000")
 		return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
 	}()

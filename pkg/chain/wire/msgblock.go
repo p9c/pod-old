@@ -34,6 +34,7 @@ type MsgBlock struct {
 
 // AddTransaction adds a transaction to the message.
 func (msg *MsgBlock) AddTransaction(tx *MsgTx) error {
+
 	msg.Transactions = append(msg.Transactions, tx)
 	return nil
 }
@@ -46,26 +47,32 @@ func (msg *MsgBlock) ClearTransactions() {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation. See Deserialize for decoding blocks stored to disk, such as in a database, as opposed to decoding blocks from the wire.
 func (msg *MsgBlock) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	err := readBlockHeader(r, pver, &msg.Header)
 	if err != nil {
+
 		return err
 	}
 	txCount, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 
 	// Prevent more transactions than could possibly fit into a block. It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
 	if txCount > maxTxPerBlock {
+
 		str := fmt.Sprintf("too many transactions to fit into a block "+
 			"[count %d, max %d]", txCount, maxTxPerBlock)
 		return messageError("MsgBlock.BtcDecode", str)
 	}
 	msg.Transactions = make([]*MsgTx, 0, txCount)
 	for i := uint64(0); i < txCount; i++ {
+
 		tx := MsgTx{}
 		err := tx.BtcDecode(r, pver, enc)
 		if err != nil {
+
 			return err
 		}
 		msg.Transactions = append(msg.Transactions, &tx)
@@ -82,6 +89,7 @@ func (msg *MsgBlock) Deserialize(r io.Reader) error {
 
 // DeserializeNoWitness decodes a block from r into the receiver similar to Deserialize, however DeserializeWitness strips all (if any) witness data from the transactions within the block before encoding them.
 func (msg *MsgBlock) DeserializeNoWitness(r io.Reader) error {
+
 	return msg.BtcDecode(r, 0, BaseEncoding)
 }
 
@@ -93,15 +101,18 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 	// At the current time, there is no difference between the wire encoding at protocol version 0 and the stable long-term storage format.  As a result, make use of existing wire protocol functions.
 	err := readBlockHeader(r, 0, &msg.Header)
 	if err != nil {
+
 		return nil, err
 	}
 	txCount, err := ReadVarInt(r, 0)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Prevent more transactions than could possibly fit into a block. It would be possible to cause memory exhaustion and panics without a sane upper bound on this count.
 	if txCount > maxTxPerBlock {
+
 		str := fmt.Sprintf("too many transactions to fit into a block "+
 			"[count %d, max %d]", txCount, maxTxPerBlock)
 		return nil, messageError("MsgBlock.DeserializeTxLoc", str)
@@ -111,10 +122,12 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 	msg.Transactions = make([]*MsgTx, 0, txCount)
 	txLocs := make([]TxLoc, txCount)
 	for i := uint64(0); i < txCount; i++ {
+
 		txLocs[i].TxStart = fullLen - r.Len()
 		tx := MsgTx{}
 		err := tx.Deserialize(r)
 		if err != nil {
+
 			return nil, err
 		}
 		msg.Transactions = append(msg.Transactions, &tx)
@@ -125,17 +138,22 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation. See Serialize for encoding blocks to be stored to disk, such as in a database, as opposed to encoding blocks for the wire.
 func (msg *MsgBlock) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	err := writeBlockHeader(w, pver, &msg.Header)
 	if err != nil {
+
 		return err
 	}
 	err = WriteVarInt(w, pver, uint64(len(msg.Transactions)))
 	if err != nil {
+
 		return err
 	}
 	for _, tx := range msg.Transactions {
+
 		err = tx.BtcEncode(w, pver, enc)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -153,6 +171,7 @@ func (msg *MsgBlock) Serialize(w io.Writer) error {
 
 // SerializeNoWitness encodes a block to w using an identical format to Serialize, with all (if any) witness data stripped from all transactions. This method is provided in additon to the regular Serialize, in order to allow one to selectively encode transaction witness data to non-upgraded peers which are unaware of the new encoding.
 func (msg *MsgBlock) SerializeNoWitness(w io.Writer) error {
+
 	return msg.BtcEncode(w, 0, BaseEncoding)
 }
 
@@ -162,6 +181,7 @@ func (msg *MsgBlock) SerializeSize() int {
 	// Block header bytes + Serialized varint size for the number of transactions.
 	n := blockHeaderLen + VarIntSerializeSize(uint64(len(msg.Transactions)))
 	for _, tx := range msg.Transactions {
+
 		n += tx.SerializeSize()
 	}
 	return n
@@ -173,6 +193,7 @@ func (msg *MsgBlock) SerializeSizeStripped() int {
 	// Block header bytes + Serialized varint size for the number of transactions.
 	n := blockHeaderLen + VarIntSerializeSize(uint64(len(msg.Transactions)))
 	for _, tx := range msg.Transactions {
+
 		n += tx.SerializeSizeStripped()
 	}
 	return n
@@ -180,6 +201,7 @@ func (msg *MsgBlock) SerializeSizeStripped() int {
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgBlock) Command() string {
+
 	return CmdBlock
 }
 
@@ -192,11 +214,13 @@ func (msg *MsgBlock) MaxPayloadLength(pver uint32) uint32 {
 
 // BlockHash computes the block identifier hash for this block.
 func (msg *MsgBlock) BlockHash() chainhash.Hash {
+
 	return msg.Header.BlockHash()
 }
 
 // BlockHashWithAlgos computes the block identifier hash for this block.
 func (msg *MsgBlock) BlockHashWithAlgos(h int32) chainhash.Hash {
+
 	return msg.Header.BlockHashWithAlgos(h)
 }
 
@@ -205,6 +229,7 @@ func (msg *MsgBlock) TxHashes() ([]chainhash.Hash, error) {
 
 	hashList := make([]chainhash.Hash, 0, len(msg.Transactions))
 	for _, tx := range msg.Transactions {
+
 		hashList = append(hashList, tx.TxHash())
 	}
 	return hashList, nil
@@ -213,6 +238,7 @@ func (msg *MsgBlock) TxHashes() ([]chainhash.Hash, error) {
 // NewMsgBlock returns a new bitcoin block message that conforms to the Message interface.  See MsgBlock for details.
 func NewMsgBlock(
 	blockHeader *BlockHeader) *MsgBlock {
+
 	return &MsgBlock{
 		Header:       *blockHeader,
 		Transactions: make([]*MsgTx, 0, defaultTransactionAlloc),

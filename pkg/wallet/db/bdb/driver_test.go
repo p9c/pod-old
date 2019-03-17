@@ -23,6 +23,7 @@ func TestCreateOpenFail(
 	// the expected error.
 	wantErr := walletdb.ErrDbDoesNotExist
 	if _, err := walletdb.Open(dbType, "noexist.db"); err != wantErr {
+
 		t.Errorf("Open: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -82,6 +83,7 @@ func TestCreateOpenFail(
 	dbPath := "createfail.db"
 	db, err := walletdb.Create(dbType, dbPath)
 	if err != nil {
+
 		t.Errorf("Create: unexpected error: %v", err)
 		return
 	}
@@ -90,6 +92,7 @@ func TestCreateOpenFail(
 
 	wantErr = walletdb.ErrDbNotOpen
 	if _, err := db.BeginReadTx(); err != wantErr {
+
 		t.Errorf("Namespace: did not receive expected error - got %v, "+
 			"want %v", err, wantErr)
 		return
@@ -105,6 +108,7 @@ func TestPersistence(
 	dbPath := "persistencetest.db"
 	db, err := walletdb.Create(dbType, dbPath)
 	if err != nil {
+
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
 		return
 	}
@@ -121,13 +125,17 @@ func TestPersistence(
 	}
 	ns1Key := []byte("ns1")
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns1, err := tx.CreateTopLevelBucket(ns1Key)
 		if err != nil {
+
 			return err
 		}
 
 		for k, v := range storeValues {
+
 			if err := ns1.Put([]byte(k), []byte(v)); err != nil {
+
 				return fmt.Errorf("Put: unexpected error: %v", err)
 			}
 		}
@@ -135,6 +143,7 @@ func TestPersistence(
 		return nil
 	})
 	if err != nil {
+
 		t.Errorf("ns1 Update: unexpected error: %v", err)
 		return
 	}
@@ -143,6 +152,7 @@ func TestPersistence(
 	db.Close()
 	db, err = walletdb.Open(dbType, dbPath)
 	if err != nil {
+
 		t.Errorf("Failed to open test database (%s) %v", dbType, err)
 		return
 	}
@@ -152,12 +162,15 @@ func TestPersistence(
 
 	// and are correct.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns1 := tx.ReadBucket(ns1Key)
 		if ns1 == nil {
+
 			return fmt.Errorf("ReadTx.ReadBucket: unexpected nil root bucket")
 		}
 
 		for k, v := range storeValues {
+
 			gotVal := ns1.Get([]byte(k))
 			if !reflect.DeepEqual(gotVal, []byte(v)) {
 
@@ -170,6 +183,7 @@ func TestPersistence(
 		return nil
 	})
 	if err != nil {
+
 		t.Errorf("ns1 View: unexpected error: %v", err)
 		return
 	}

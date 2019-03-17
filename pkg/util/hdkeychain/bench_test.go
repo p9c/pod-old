@@ -17,10 +17,12 @@ func BenchmarkDeriveHardened(
 	b.StopTimer()
 	masterKey, err := hdkeychain.NewKeyFromString(bip0032MasterPriv1)
 	if err != nil {
+
 		b.Errorf("Failed to decode master seed: %v", err)
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		masterKey.Child(hdkeychain.HardenedKeyStart)
 	}
 }
@@ -32,10 +34,12 @@ func BenchmarkDeriveNormal(
 	b.StopTimer()
 	masterKey, err := hdkeychain.NewKeyFromString(bip0032MasterPriv1)
 	if err != nil {
+
 		b.Errorf("Failed to decode master seed: %v", err)
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		masterKey.Child(0)
 	}
 }
@@ -47,10 +51,12 @@ func BenchmarkPrivToPub(
 	b.StopTimer()
 	masterKey, err := hdkeychain.NewKeyFromString(bip0032MasterPriv1)
 	if err != nil {
+
 		b.Errorf("Failed to decode master seed: %v", err)
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		masterKey.Neuter()
 	}
 }
@@ -60,6 +66,7 @@ func BenchmarkDeserialize(
 	b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
+
 		hdkeychain.NewKeyFromString(bip0032MasterPriv1)
 	}
 }
@@ -71,10 +78,12 @@ func BenchmarkSerialize(
 	b.StopTimer()
 	masterKey, err := hdkeychain.NewKeyFromString(bip0032MasterPriv1)
 	if err != nil {
+
 		b.Errorf("Failed to decode master seed: %v", err)
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		_ = masterKey.String()
 	}
 }

@@ -19,6 +19,7 @@ func TestHeaders(
 	wantCmd := "headers"
 	msg := NewMsgHeaders()
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgHeaders: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -27,6 +28,7 @@ func TestHeaders(
 	wantPayload := uint32(162009)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -45,6 +47,7 @@ func TestHeaders(
 	// Ensure adding more than the max allowed headers per message returns error.
 	var err error
 	for i := 0; i < MaxBlockHeadersPerMsg+1; i++ {
+
 		err = msg.AddBlockHeader(bh)
 	}
 	if reflect.TypeOf(err) != reflect.TypeOf(&MessageError{}) {
@@ -196,6 +199,7 @@ func TestHeadersWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -211,6 +215,7 @@ func TestHeadersWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -260,6 +265,7 @@ func TestHeadersWireErrors(
 	// Message that forces an error by having more than the max allowed headers.
 	maxHeaders := NewMsgHeaders()
 	for i := 0; i < MaxBlockHeadersPerMsg; i++ {
+
 		maxHeaders.AddBlockHeader(bh)
 	}
 	maxHeaders.Headers = append(maxHeaders.Headers, bh)
@@ -329,7 +335,9 @@ func TestHeadersWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -349,7 +357,9 @@ func TestHeadersWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

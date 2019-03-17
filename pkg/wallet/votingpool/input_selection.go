@@ -24,10 +24,12 @@ type credit struct {
 
 func newCredit(
 	c wtxmgr.Credit, addr WithdrawalAddress) credit {
+
 	return credit{Credit: c, addr: addr}
 }
 
 func (c *credit) String() string {
+
 	return fmt.Sprintf("credit of %v locked to %v", c.Amount, c.addr)
 }
 
@@ -37,6 +39,7 @@ type byAddress []credit
 
 func (c byAddress) Len() int { return len(c) }
 func (c byAddress) Swap(i, j int) {
+
 	c[i], c[j] = c[j], c[i]
 }
 
@@ -45,37 +48,46 @@ func (c byAddress) Swap(i, j int) {
 // the lexicographic ordering defined on the tuple (SeriesID, Index,
 // Branch, TxSha, OutputIndex).
 func (c byAddress) Less(i, j int) bool {
+
 	iAddr := c[i].addr
 	jAddr := c[j].addr
 	if iAddr.seriesID < jAddr.seriesID {
+
 		return true
 	}
 	if iAddr.seriesID > jAddr.seriesID {
+
 		return false
 	}
 
 	// The seriesID are equal, so compare index.
 	if iAddr.index < jAddr.index {
+
 		return true
 	}
 	if iAddr.index > jAddr.index {
+
 		return false
 	}
 
 	// The seriesID and index are equal, so compare branch.
 	if iAddr.branch < jAddr.branch {
+
 		return true
 	}
 	if iAddr.branch > jAddr.branch {
+
 		return false
 	}
 
 	// The seriesID, index, and branch are equal, so compare hash.
 	txidComparison := bytes.Compare(c[i].OutPoint.Hash[:], c[j].OutPoint.Hash[:])
 	if txidComparison < 0 {
+
 		return true
 	}
 	if txidComparison > 0 {
+
 		return false
 	}
 
@@ -93,27 +105,34 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 	minConf int) ([]credit, error) {
 
 	if p.Series(lastSeriesID) == nil {
+
 		str := fmt.Sprintf("lastSeriesID (%d) does not exist", lastSeriesID)
 		return nil, newError(ErrSeriesNotExists, str, nil)
 	}
 	unspents, err := store.UnspentOutputs(txmgrNs)
 	if err != nil {
+
 		return nil, newError(ErrInputSelection, "failed to get unspent outputs", err)
 	}
 	addrMap, err := groupCreditsByAddr(unspents, p.manager.ChainParams())
 	if err != nil {
+
 		return nil, err
 	}
 	var inputs []credit
 	address := startAddress
 	for {
+
 		Log.Dbgc(func() string {
+
 			return "looking for eligible inputs at address" +
 				address.addrIdentifier()
 		})
 		if candidates, ok := addrMap[address.addr.EncodeAddress()]; ok {
+
 			var eligibles []credit
 			for _, c := range candidates {
+
 				candidate := newCredit(c, address)
 				if p.isCreditEligible(candidate, minConf, chainHeight, dustThreshold) {
 
@@ -124,8 +143,10 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 		}
 		nAddr, err := nextAddr(p, ns, addrmgrNs, address.seriesID, address.branch, address.index, lastSeriesID+1)
 		if err != nil {
+
 			return nil, newError(ErrInputSelection, "failed to get next withdrawal address", err)
 		} else if nAddr == nil {
+
 			log <- cl.Dbg(
 				"getEligibleInputs: reached last addr, stopping",
 			)
@@ -146,6 +167,7 @@ func nextAddr(
 
 	series := p.Series(seriesID)
 	if series == nil {
+
 		return nil, newError(ErrSeriesNotExists, fmt.Sprintf("unknown seriesID: %d", seriesID), nil)
 	}
 	branch++
@@ -153,9 +175,11 @@ func nextAddr(
 
 		highestIdx, err := p.highestUsedSeriesIndex(ns, seriesID)
 		if err != nil {
+
 			return nil, err
 		}
 		if index > highestIdx {
+
 			seriesID++
 			log <- cl.Debugf{
 				"nextAddr(): reached last branch (%d) and highest used index (%d), " +
@@ -166,17 +190,20 @@ func nextAddr(
 			}
 			index = 0
 		} else {
+
 			index++
 		}
 		branch = 0
 	}
 
 	if seriesID >= stopSeriesID {
+
 		return nil, nil
 	}
 
 	addr, err := p.WithdrawalAddress(ns, addrmgrNs, seriesID, branch, index)
 	if err != nil && err.(Error).ErrorCode == ErrWithdrawFromUnusedAddr {
+
 		// The used indices will vary between branches so sometimes we'll try to
 		// get a WithdrawalAddress that hasn't been used before, and in such
 		// cases we just need to move on to the next one.
@@ -200,15 +227,19 @@ func (p *Pool) highestUsedSeriesIndex(ns walletdb.ReadBucket, seriesID uint32) (
 	maxIdx := Index(0)
 	series := p.Series(seriesID)
 	if series == nil {
+
 		return maxIdx,
 			newError(ErrSeriesNotExists, fmt.Sprintf("unknown seriesID: %d", seriesID), nil)
 	}
 	for i := range series.publicKeys {
+
 		idx, err := p.highestUsedIndexFor(ns, seriesID, Branch(i))
 		if err != nil {
+
 			return Index(0), err
 		}
 		if idx > maxIdx {
+
 			maxIdx = idx
 		}
 	}
@@ -224,20 +255,25 @@ func groupCreditsByAddr(
 
 	addrMap := make(map[string][]wtxmgr.Credit)
 	for _, c := range credits {
+
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(c.PkScript, chainParams)
 		if err != nil {
+
 			return nil, newError(ErrInputSelection, "failed to obtain input address", err)
 		}
 		// As our credits are all P2SH we should never have more than one
 		// address per credit, so let's error out if that assumption is
 		// violated.
 		if len(addrs) != 1 {
+
 			return nil, newError(ErrInputSelection, "input doesn't have exactly one address", nil)
 		}
 		encAddr := addrs[0].EncodeAddress()
 		if v, ok := addrMap[encAddr]; ok {
+
 			addrMap[encAddr] = append(v, c)
 		} else {
+
 			addrMap[encAddr] = []wtxmgr.Credit{c}
 		}
 	}
@@ -250,7 +286,9 @@ func groupCreditsByAddr(
 // the charter output.
 func (p *Pool) isCreditEligible(c credit, minConf int, chainHeight int32,
 	dustThreshold util.Amount) bool {
+
 	if c.Amount < dustThreshold {
+
 		return false
 	}
 	if confirms(c.BlockMeta.Block.Height, chainHeight) < int32(minConf) {
@@ -268,6 +306,7 @@ func (p *Pool) isCreditEligible(c credit, minConf int, chainHeight int32,
 // isCharterOutput - TODO: In order to determine this, we need the txid
 // and the output index of the current charter output, which we don't have yet.
 func (p *Pool) isCharterOutput(c credit) bool {
+
 	return false
 }
 
@@ -276,7 +315,9 @@ func (p *Pool) isCharterOutput(c credit) bool {
 // curHeight.
 func confirms(
 	txHeight, curHeight int32) int32 {
+
 	switch {
+
 	case txHeight == -1, txHeight > curHeight:
 		return 0
 	default:

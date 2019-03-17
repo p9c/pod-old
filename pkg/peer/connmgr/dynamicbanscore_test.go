@@ -14,14 +14,17 @@ func TestDynamicBanScoreDecay(
 	base := time.Now()
 	r := bs.increase(100, 50, base)
 	if r != 150 {
+
 		t.Errorf("Unexpected result %d after ban score increase.", r)
 	}
 	r = bs.int(base.Add(time.Minute))
 	if r != 125 {
+
 		t.Errorf("Halflife check failed - %d instead of 125", r)
 	}
 	r = bs.int(base.Add(7 * time.Minute))
 	if r != 100 {
+
 		t.Errorf("Decay after 7m - %d instead of 100", r)
 	}
 }
@@ -39,6 +42,7 @@ func TestDynamicBanScoreLifetime(
 	}
 	r = bs.int(base.Add((Lifetime + 1) * time.Second))
 	if r != 0 {
+
 		t.Errorf("Zero after max age check failed - %d instead of 0", r)
 	}
 }
@@ -49,15 +53,18 @@ func TestDynamicBanScoreReset(
 
 	var bs DynamicBanScore
 	if bs.Int() != 0 {
+
 		t.Errorf("Initial state is not zero.")
 	}
 	bs.Increase(100, 0)
 	r := bs.Int()
 	if r != 100 {
+
 		t.Errorf("Unexpected result %d after ban score increase.", r)
 	}
 	bs.Reset()
 	if bs.Int() != 0 {
+
 		t.Errorf("Failed to reset ban score.")
 	}
 }

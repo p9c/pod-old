@@ -91,6 +91,7 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 			ns, waddrmgr.DefaultAccountNum,
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -105,11 +106,14 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 		// recovery state's set of addresses to look for.
 		for i := uint32(0); i < externalCount; i++ {
+
 			keyPath := externalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
 			if err != nil && err != hdkeychain.ErrInvalidChild {
+
 				return err
 			} else if err == hdkeychain.ErrInvalidChild {
+
 				scopeState.ExternalBranch.MarkInvalidChild(i)
 				continue
 			}
@@ -128,11 +132,14 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 		// recovery state's set of addresses to look for.
 		for i := uint32(0); i < internalCount; i++ {
+
 			keyPath := internalKeyPath(i)
 			addr, err := scopedMgr.DeriveFromKeyPath(ns, keyPath)
 			if err != nil && err != hdkeychain.ErrInvalidChild {
+
 				return err
 			} else if err == hdkeychain.ErrInvalidChild {
+
 				scopeState.InternalBranch.MarkInvalidChild(i)
 				continue
 			}
@@ -146,9 +153,11 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 		// the key count is zero, then no addresses have been found.
 		if externalCount > 0 {
+
 			scopeState.ExternalBranch.ReportFound(externalCount - 1)
 		}
 		if internalCount > 0 {
+
 			scopeState.InternalBranch.ReportFound(internalCount - 1)
 		}
 	}
@@ -159,10 +168,12 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 
 	// spends.
 	for _, credit := range credits {
+
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			credit.PkScript, rm.chainParams,
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -179,6 +190,7 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 	timestamp time.Time) {
 
 	if !rm.started {
+
 		log <- cl.Infof{
 			"seed birthday surpassed, " +
 				"starting recovery of wallet from height=%d hash=%v " +
@@ -202,6 +214,7 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 
 // BlockBatch returns a buffer of blocks that have not yet been searched.
 func (rm *RecoveryManager) BlockBatch() []wtxmgr.BlockMeta {
+
 	return rm.blockBatch
 }
 
@@ -213,6 +226,7 @@ func (rm *RecoveryManager) ResetBlockBatch() {
 
 // State returns the current RecoveryState.
 func (rm *RecoveryManager) State() *RecoveryState {
+
 	return rm.state
 }
 
@@ -272,6 +286,7 @@ type RecoveryState struct {
 // particular key scope will receive the same recoveryWindow.
 func NewRecoveryState(
 	recoveryWindow uint32) *RecoveryState {
+
 	scopes := make(map[waddrmgr.KeyScope]*ScopeRecoveryState)
 
 	return &RecoveryState{
@@ -291,6 +306,7 @@ func (rs *RecoveryState) StateForScope(
 
 	// If the account recovery state already exists, return it.
 	if scopeState, ok := rs.scopes[keyScope]; ok {
+
 		return scopeState
 	}
 
@@ -306,6 +322,7 @@ func (rs *RecoveryState) StateForScope(
 
 // to the wallet during recovery.
 func (rs *RecoveryState) WatchedOutPoints() map[wire.OutPoint]util.Address {
+
 	return rs.watchedOutPoints
 }
 
@@ -341,6 +358,7 @@ type ScopeRecoveryState struct {
 // recovery window.
 func NewScopeRecoveryState(
 	recoveryWindow uint32) *ScopeRecoveryState {
+
 	return &ScopeRecoveryState{
 		ExternalBranch: NewBranchRecoveryState(recoveryWindow),
 		InternalBranch: NewBranchRecoveryState(recoveryWindow),
@@ -399,6 +417,7 @@ type BranchRecoveryState struct {
 // track either the external or internal branch of an account's derivation path.
 func NewBranchRecoveryState(
 	recoveryWindow uint32) *BranchRecoveryState {
+
 	return &BranchRecoveryState{
 		recoveryWindow:  recoveryWindow,
 		addresses:       make(map[uint32]util.Address),
@@ -423,6 +442,7 @@ func (brs *BranchRecoveryState) ExtendHorizon() (uint32, uint32) {
 
 	// new keys.
 	if curHorizon >= minValidHorizon {
+
 		return curHorizon, 0
 	}
 
@@ -445,6 +465,7 @@ func (brs *BranchRecoveryState) AddAddr(index uint32, addr util.Address) {
 
 // GetAddr returns the address derived from a given child index.
 func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
+
 	return brs.addresses[index]
 }
 
@@ -454,6 +475,7 @@ func (brs *BranchRecoveryState) GetAddr(index uint32) util.Address {
 func (brs *BranchRecoveryState) ReportFound(index uint32) {
 
 	if index >= brs.nextUnfound {
+
 		brs.nextUnfound = index + 1
 
 		// Prune all invalid child indexes that fall below our last
@@ -462,7 +484,9 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 
 		// since they will not affect our required look-ahead.
 		for childIndex := range brs.invalidChildren {
+
 			if childIndex < index {
+
 				delete(brs.invalidChildren, childIndex)
 			}
 		}
@@ -488,6 +512,7 @@ func (brs *BranchRecoveryState) MarkInvalidChild(index uint32) {
 
 // child index.
 func (brs *BranchRecoveryState) NextUnfound() uint32 {
+
 	return brs.nextUnfound
 }
 
@@ -495,6 +520,7 @@ func (brs *BranchRecoveryState) NextUnfound() uint32 {
 
 // corresponding addresses.
 func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
+
 	return brs.addresses
 }
 
@@ -506,9 +532,12 @@ func (brs *BranchRecoveryState) Addrs() map[uint32]util.Address {
 
 // within our horizon.
 func (brs *BranchRecoveryState) NumInvalidInHorizon() uint32 {
+
 	var nInvalid uint32
 	for childIndex := range brs.invalidChildren {
+
 		if brs.nextUnfound <= childIndex && childIndex < brs.horizon {
+
 			nInvalid++
 		}
 	}

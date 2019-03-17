@@ -30,6 +30,7 @@ func main() {
 	podHomeDir := util.AppDataDir("pod", false)
 	certs, err := ioutil.ReadFile(filepath.Join(podHomeDir, "rpc.cert"))
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	connCfg := &rpcclient.ConnConfig{
@@ -41,16 +42,19 @@ func main() {
 	}
 	client, err := rpcclient.New(connCfg, &ntfnHandlers)
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	// Register for block connect and disconnect notifications.
 	if err := client.NotifyBlocks(); err != nil {
+
 		log.Fatal(err)
 	}
 	log.Println("NotifyBlocks: Registration Complete")
 	// Get the current block count.
 	blockCount, err := client.GetBlockCount()
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	log.Printf("Block count: %d", blockCount)

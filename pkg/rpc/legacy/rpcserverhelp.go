@@ -3,6 +3,7 @@
 package legacyrpc
 
 func helpDescsEnUS() map[string]string {
+
 	return map[string]string{
 		"addmultisigaddress":      "addmultisigaddress nrequired [\"key\",...] (\"account\")\n\nGenerates and imports a multisig address and redeeming script to the 'imported' account.\n\nArguments:\n1. nrequired (numeric, required)         The number of signatures required to redeem outputs paid to this address\n2. keys      (array of string, required) Pubkeys and/or pay-to-pubkey-hash addresses to partially control the multisig address\n3. account   (string, optional)          DEPRECATED -- Unused (all imported addresses belong to the imported account)\n\nResult:\n\"value\" (string) The imported pay-to-script-hash address\n",
 		"createmultisig":          "createmultisig nrequired [\"key\",...]\n\nGenerate a multisig address and redeem script.\n\nArguments:\n1. nrequired (numeric, required)         The number of signatures required to redeem outputs paid to this address\n2. keys      (array of string, required) Pubkeys and/or pay-to-pubkey-hash addresses to partially control the multisig address\n\nResult:\n{\n \"address\": \"value\",      (string) The generated pay-to-script-hash address\n \"redeemScript\": \"value\", (string) The script required to redeem outputs paid to the multisig address\n}                         \n",

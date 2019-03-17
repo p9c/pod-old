@@ -36,6 +36,7 @@ type websocketClient struct {
 
 func newWebsocketClient(
 	c *websocket.Conn, authenticated bool, remoteAddr string) *websocketClient {
+
 	return &websocketClient{
 		conn:          c,
 		authenticated: authenticated,
@@ -47,7 +48,9 @@ func newWebsocketClient(
 }
 
 func (c *websocketClient) send(b []byte) error {
+
 	select {
+
 	case c.responses <- b:
 		return nil
 	case <-c.quit:
@@ -91,6 +94,7 @@ func jsonAuthFail(
 // both HTTP POST and websocket.
 func NewServer(
 	opts *Options, walletLoader *wallet.Loader, listeners []net.Listener) *Server {
+
 	serveMux := http.NewServeMux()
 	const rpcAuthTimeoutSeconds = 10
 
@@ -125,6 +129,7 @@ func NewServer(
 			r.Close = true
 
 			if err := server.checkAuthHeader(r); err != nil {
+
 				log <- cl.Wrn("unauthorized client connection attempt")
 				jsonAuthFail(w)
 				return
@@ -154,6 +159,7 @@ func NewServer(
 
 			conn, err := server.upgrader.Upgrade(w, r, nil)
 			if err != nil {
+
 				log <- cl.Warnf{
 					"cannot websocket upgrade client %s: %v",
 					r.RemoteAddr, err,
@@ -165,6 +171,7 @@ func NewServer(
 		}))
 
 	for _, lis := range listeners {
+
 		server.serve(lis)
 	}
 
@@ -177,6 +184,7 @@ func NewServer(
 //   "Basic " + base64(username + ":" + password)
 func httpBasicAuth(
 	username, password string) []byte {
+
 	const header = "Basic "
 	base64 := base64.StdEncoding
 
@@ -220,6 +228,7 @@ func (s *Server) Stop() {
 
 	s.quitMtx.Lock()
 	select {
+
 	case <-s.quit:
 		s.quitMtx.Unlock()
 		return
@@ -232,16 +241,20 @@ func (s *Server) Stop() {
 	chainClient := s.chainClient
 	s.handlerMu.Unlock()
 	if wallet != nil {
+
 		wallet.Stop()
 	}
 	if chainClient != nil {
+
 		chainClient.Stop()
 	}
 
 	// Stop all the listeners.
 	for _, listener := range s.listeners {
+
 		err := listener.Close()
 		if err != nil {
+
 			log <- cl.Errorf{
 				"cannot close listener `%s`: %v",
 				listener.Addr(), err,
@@ -256,9 +269,11 @@ func (s *Server) Stop() {
 	// First wait for the wallet and chain server to stop, if they
 	// were ever set.
 	if wallet != nil {
+
 		wallet.WaitForShutdown()
 	}
 	if chainClient != nil {
+
 		chainClient.WaitForShutdown()
 	}
 
@@ -285,11 +300,13 @@ func (s *Server) SetChainServer(chainClient chain.Interface) {
 // method.  Each of these must be checked beforehand (the method is already
 // known) and handled accordingly.
 func (s *Server) handlerClosure(request *json.Request) lazyHandler {
+
 	s.handlerMu.Lock()
 	// With the lock held, make copies of these pointers for the closure.
 	wallet := s.wallet
 	chainClient := s.chainClient
 	if wallet != nil && chainClient == nil {
+
 		chainClient = wallet.ChainClient()
 		s.chainClient = chainClient
 	}
@@ -309,14 +326,17 @@ var ErrNoAuth = errors.New("no auth")
 //
 // This check is time-constant.
 func (s *Server) checkAuthHeader(r *http.Request) error {
+
 	authhdr := r.Header["Authorization"]
 	if len(authhdr) == 0 {
+
 		return ErrNoAuth
 	}
 
 	authsha := sha256.Sum256([]byte(authhdr[0]))
 	cmp := subtle.ConstantTimeCompare(authsha[:], s.authsha[:])
 	if cmp != 1 {
+
 		return errors.New("bad auth")
 	}
 	return nil
@@ -326,6 +346,7 @@ func (s *Server) checkAuthHeader(r *http.Request) error {
 // clients by responding with an HTTP 429 when the threshold is crossed.
 func throttledFn(
 	threshold int64, f http.HandlerFunc) http.Handler {
+
 	return throttled(threshold, f)
 }
 
@@ -333,6 +354,7 @@ func throttledFn(
 // clients by responding with an HTTP 429 when the threshold is crossed.
 func throttled(
 	threshold int64, h http.Handler) http.Handler {
+
 	var active int64
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -341,6 +363,7 @@ func throttled(
 		defer atomic.AddInt64(&active, -1)
 
 		if current-1 >= threshold {
+
 			log <- cl.Warnf{
 				"reached threshold of %d concurrent active clients", threshold,
 			}
@@ -357,8 +380,10 @@ func throttled(
 // other secrets from request parameters before they may be saved to a log file.
 func sanitizeRequest(
 	r *json.Request) string {
+
 	// These are considered unsafe to log, so sanitize parameters.
 	switch r.Method {
+
 	case "encryptwallet", "importprivkey", "importwallet",
 		"signrawtransaction", "walletpassphrase",
 		"walletpassphrasechange":
@@ -379,6 +404,7 @@ func idPointer(
 	id interface{}) (p *interface{}) {
 
 	if id != nil {
+
 		p = &id
 	}
 	return
@@ -388,12 +414,15 @@ func idPointer(
 // authenticate request and checks the supplied username and passphrase
 // against the server auth.
 func (s *Server) invalidAuth(req *json.Request) bool {
+
 	cmd, err := json.UnmarshalCmd(req)
 	if err != nil {
+
 		return false
 	}
 	authCmd, ok := cmd.(*json.AuthenticateCmd)
 	if !ok {
+
 		return false
 	}
 	// Check credentials.
@@ -406,9 +435,12 @@ func (s *Server) invalidAuth(req *json.Request) bool {
 func (s *Server) websocketClientRead(wsc *websocketClient) {
 
 	for {
+
 		_, request, err := wsc.conn.ReadMessage()
 		if err != nil {
+
 			if err != io.EOF && err != io.ErrUnexpectedEOF {
+
 				log <- cl.Warnf{
 					"websocket receive failed from client %s: %v",
 					wsc.remoteAddr, err,
@@ -430,9 +462,12 @@ func (s *Server) websocketClientRespond(wsc *websocketClient) {
 	// connected.
 out:
 	for {
+
 		select {
+
 		case reqBytes, ok := <-wsc.allRequests:
 			if !ok {
+
 				// client disconnected
 				break out
 			}
@@ -440,7 +475,9 @@ out:
 			var req json.Request
 			err := js.Unmarshal(reqBytes, &req)
 			if err != nil {
+
 				if !wsc.authenticated {
+
 					// Disconnect immediately.
 					break out
 				}
@@ -451,16 +488,19 @@ out:
 				// doesn't, it indicates some non-marshalable
 				// type in the response.
 				if err != nil {
+
 					panic(err)
 				}
 				err = wsc.send(mresp)
 				if err != nil {
+
 					break out
 				}
 				continue
 			}
 
 			if req.Method == "authenticate" {
+
 				if wsc.authenticated || s.invalidAuth(&req) {
 
 					// Disconnect immediately.
@@ -471,31 +511,37 @@ out:
 				// Expected to never fail.
 				mresp, err := js.Marshal(resp)
 				if err != nil {
+
 					panic(err)
 				}
 				err = wsc.send(mresp)
 				if err != nil {
+
 					break out
 				}
 				continue
 			}
 
 			if !wsc.authenticated {
+
 				// Disconnect immediately.
 				break out
 			}
 
 			switch req.Method {
+
 			case "stop":
 				resp := makeResponse(req.ID,
 					"wallet stopping.", nil)
 				mresp, err := js.Marshal(resp)
 				// Expected to never fail.
 				if err != nil {
+
 					panic(err)
 				}
 				err = wsc.send(mresp)
 				if err != nil {
+
 					break out
 				}
 				s.requestProcessShutdown()
@@ -510,10 +556,12 @@ out:
 					resp, jsonErr := f()
 					mresp, err := json.MarshalResponse(req.ID, resp, jsonErr)
 					if err != nil {
+
 						log <- cl.Error{
 							"unable to marshal response:", err,
 						}
 					} else {
+
 						_ = wsc.send(mresp)
 					}
 					wsc.wg.Done()
@@ -536,14 +584,18 @@ func (s *Server) websocketClientSend(wsc *websocketClient) {
 	const deadline time.Duration = 2 * time.Second
 out:
 	for {
+
 		select {
+
 		case response, ok := <-wsc.responses:
 			if !ok {
+
 				// client disconnected
 				break out
 			}
 			err := wsc.conn.SetWriteDeadline(time.Now().Add(deadline))
 			if err != nil {
+
 				log <- cl.Warnf{
 					"cannot set write deadline on client %s: %v",
 					wsc.remoteAddr, err,
@@ -552,6 +604,7 @@ out:
 			err = wsc.conn.WriteMessage(websocket.TextMessage,
 				response)
 			if err != nil {
+
 				log <- cl.Warnf{
 					"failed websocket send to client %s: %v", wsc.remoteAddr, err,
 				}
@@ -580,6 +633,7 @@ func (s *Server) websocketClientRPC(wsc *websocketClient) {
 	// Clear the read deadline set before the websocket hijacked
 	// the connection.
 	if err := wsc.conn.SetReadDeadline(time.Time{}); err != nil {
+
 		log <- cl.Warn{
 			"cannot remove read deadline:", err,
 		}
@@ -608,6 +662,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	body := http.MaxBytesReader(w, r.Body, maxRequestSize)
 	rpcRequest, err := ioutil.ReadAll(body)
 	if err != nil {
+
 		// TODO: what if the underlying reader errored?
 		http.Error(w, "413 Request Too Large.",
 			http.StatusRequestEntityTooLarge)
@@ -621,8 +676,10 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	var req json.Request
 	err = js.Unmarshal(rpcRequest, &req)
 	if err != nil {
+
 		resp, err := json.MarshalResponse(req.ID, nil, json.ErrRPCInvalidRequest)
 		if err != nil {
+
 			log <- cl.Error{
 				"Unable to marshal response:", err,
 			}
@@ -632,6 +689,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err = w.Write(resp)
 		if err != nil {
+
 			log <- cl.Warn{
 				"cannot write invalid request request to client:", err,
 			}
@@ -645,6 +703,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	var jsonErr *json.RPCError
 	var stop bool
 	switch req.Method {
+
 	case "authenticate":
 		// Drop it.
 		return
@@ -658,6 +717,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	// Marshal and send.
 	mresp, err := json.MarshalResponse(req.ID, res, jsonErr)
 	if err != nil {
+
 		log <- cl.Error{
 			"unable to marshal response:", err,
 		}
@@ -666,12 +726,14 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = w.Write(mresp)
 	if err != nil {
+
 		log <- cl.Warn{
 			"unable to respond to client:", err,
 		}
 	}
 
 	if stop {
+
 		s.requestProcessShutdown()
 	}
 }
@@ -679,6 +741,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 func (s *Server) requestProcessShutdown() {
 
 	select {
+
 	case s.requestShutdownChan <- struct{}{}:
 	default:
 	}
@@ -687,5 +750,6 @@ func (s *Server) requestProcessShutdown() {
 // RequestProcessShutdown returns a channel that is sent to when an authorized
 // client requests remote shutdown.
 func (s *Server) RequestProcessShutdown() <-chan struct{} {
+
 	return s.requestShutdownChan
 }

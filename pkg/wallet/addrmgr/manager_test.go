@@ -26,8 +26,10 @@ import (
 // therefore known good, hashes.
 func newHash(
 	hexStr string) *chainhash.Hash {
+
 	hash, err := chainhash.NewHashFromStr(hexStr)
 	if err != nil {
+
 		panic(err)
 	}
 	return hash
@@ -89,8 +91,10 @@ type expectedAddr struct {
 // on the state of the test context.
 func testNamePrefix(
 	tc *testContext) string {
+
 	prefix := "Open "
 	if tc.create {
+
 		prefix = "Create "
 	}
 
@@ -114,6 +118,7 @@ func testManagedPubKeyAddress(
 
 		gpubBytes = gotAddr.PubKey().SerializeCompressed()
 	} else {
+
 		gpubBytes = gotAddr.PubKey().SerializeUncompressed()
 	}
 	if !reflect.DeepEqual(gpubBytes, wantAddr.pubKey) {
@@ -129,6 +134,7 @@ func testManagedPubKeyAddress(
 	gpubHex := gotAddr.ExportPubKey()
 	wantPubHex := hex.EncodeToString(wantAddr.pubKey)
 	if gpubHex != wantPubHex {
+
 		tc.t.Errorf("%s ExportPubKey: unexpected public key - got %s, "+
 			"want %s", prefix, gpubHex, wantPubHex)
 		return false
@@ -146,6 +152,7 @@ func testManagedPubKeyAddress(
 	}
 	expectedDerivationInfo := wantAddr.derivationInfo
 	if gotAddrPath != expectedDerivationInfo {
+
 		tc.t.Errorf("%s PubKey: wrong derivation info: expected %v, "+
 			"got %v", prefix, spew.Sdump(gotAddrPath),
 			spew.Sdump(expectedDerivationInfo))
@@ -159,6 +166,7 @@ func testManagedPubKeyAddress(
 	// for the expected error when the manager is locked.
 	gotPrivKey, err := gotAddr.PrivKey()
 	switch {
+
 	case tc.watchingOnly:
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s PrivKey", prefix)
@@ -168,6 +176,7 @@ func testManagedPubKeyAddress(
 		}
 	case tc.unlocked:
 		if err != nil {
+
 			tc.t.Errorf("%s PrivKey: unexpected error - got %v",
 				prefix, err)
 			return false
@@ -197,6 +206,7 @@ func testManagedPubKeyAddress(
 	// the manager is locked.
 	gotWIF, err := gotAddr.ExportPrivKey()
 	switch {
+
 	case tc.watchingOnly:
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s ExportPrivKey", prefix)
@@ -206,11 +216,13 @@ func testManagedPubKeyAddress(
 		}
 	case tc.unlocked:
 		if err != nil {
+
 			tc.t.Errorf("%s ExportPrivKey: unexpected error - "+
 				"got %v", prefix, err)
 			return false
 		}
 		if gotWIF.String() != wantAddr.privKeyWIF {
+
 			tc.t.Errorf("%s ExportPrivKey: unexpected WIF - got "+
 				"%v, want %v", prefix, gotWIF.String(),
 				wantAddr.privKeyWIF)
@@ -227,6 +239,7 @@ func testManagedPubKeyAddress(
 
 	// Imported addresses should return a nil derivation info.
 	if _, _, ok := gotAddr.DerivationInfo(); gotAddr.Imported() && ok {
+
 		tc.t.Errorf("%s Imported: expected nil derivation info", prefix)
 		return false
 	}
@@ -253,6 +266,7 @@ func testManagedScriptAddress(
 	// the expected error when the manager is locked.
 	gotScript, err := gotAddr.Script()
 	switch {
+
 	case tc.watchingOnly:
 		// Confirm expected watching-only error.
 		testName := fmt.Sprintf("%s Script", prefix)
@@ -262,6 +276,7 @@ func testManagedScriptAddress(
 		}
 	case tc.unlocked:
 		if err != nil {
+
 			tc.t.Errorf("%s Script: unexpected error - got %v",
 				prefix, err)
 			return false
@@ -294,13 +309,16 @@ func testManagedScriptAddress(
 // are checked to ensure they return the correct error.
 func testAddress(
 	tc *testContext, prefix string, gotAddr waddrmgr.ManagedAddress, wantAddr *expectedAddr) bool {
+
 	if gotAddr.Account() != tc.account {
+
 		tc.t.Errorf("ManagedAddress.Account: unexpected account - got "+
 			"%d, want %d", gotAddr.Account(), tc.account)
 		return false
 	}
 
 	if gotAddr.Address().EncodeAddress() != wantAddr.address {
+
 		tc.t.Errorf("%s EncodeAddress: unexpected address - got %s, "+
 			"want %s", prefix, gotAddr.Address().EncodeAddress(),
 			wantAddr.address)
@@ -316,12 +334,14 @@ func testAddress(
 	}
 
 	if gotAddr.Internal() != wantAddr.internal {
+
 		tc.t.Errorf("%s Internal: unexpected internal flag - got %v, "+
 			"want %v", prefix, gotAddr.Internal(), wantAddr.internal)
 		return false
 	}
 
 	if gotAddr.Compressed() != wantAddr.compressed {
+
 		tc.t.Errorf("%s Compressed: unexpected compressed flag - got "+
 			"%v, want %v", prefix, gotAddr.Compressed(),
 			wantAddr.compressed)
@@ -329,6 +349,7 @@ func testAddress(
 	}
 
 	if gotAddr.Imported() != wantAddr.imported {
+
 		tc.t.Errorf("%s Imported: unexpected imported flag - got %v, "+
 			"want %v", prefix, gotAddr.Imported(), wantAddr.imported)
 		return false
@@ -358,18 +379,22 @@ func testAddress(
 // and unlocked.
 func testExternalAddresses(
 	tc *testContext) bool {
+
 	prefix := testNamePrefix(tc) + " testExternalAddresses"
 	var addrs []waddrmgr.ManagedAddress
 	if tc.create {
+
 		prefix := prefix + " NextExternalAddresses"
 		var addrs []waddrmgr.ManagedAddress
 		err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 			var err error
 			addrs, err = tc.manager.NextExternalAddresses(ns, tc.account, 5)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("%s: unexpected error: %v", prefix, err)
 			return false
 		}
@@ -386,11 +411,13 @@ func testExternalAddresses(
 
 	// repeated with the manager locked and unlocked.
 	testResults := func() bool {
+
 		// Ensure the returned addresses are the expected ones.  When
 		// not in the create phase, there will be no addresses in the
 		// addrs slice, so this really only runs during the first phase
 		// of the tests.
 		for i := 0; i < len(addrs); i++ {
+
 			prefix := fmt.Sprintf("%s ExternalAddress #%d", prefix, i)
 			if !testAddress(tc, prefix, addrs[i], &expectedExternalAddrs[i]) {
 
@@ -402,12 +429,14 @@ func testExternalAddresses(
 		leaPrefix := prefix + " LastExternalAddress"
 		var lastAddr waddrmgr.ManagedAddress
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			var err error
 			lastAddr, err = tc.manager.LastExternalAddress(ns, tc.account)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("%s: unexpected error: %v", leaPrefix, err)
 			return false
 		}
@@ -420,11 +449,13 @@ func testExternalAddresses(
 		// addresses and ensure they're accurate.
 		chainParams := tc.manager.ChainParams()
 		for i := 0; i < len(expectedExternalAddrs); i++ {
+
 			pkHash := expectedExternalAddrs[i].addressHash
 			utilAddr, err := util.NewAddressPubKeyHash(
 				pkHash, chainParams,
 			)
 			if err != nil {
+
 				tc.t.Errorf("%s NewAddressPubKeyHash #%d: "+
 					"unexpected error: %v", prefix, i, err)
 				return false
@@ -433,12 +464,14 @@ func testExternalAddresses(
 			prefix := fmt.Sprintf("%s Address #%d", prefix, i)
 			var addr waddrmgr.ManagedAddress
 			err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 				ns := tx.ReadBucket(waddrmgrNamespaceKey)
 				var err error
 				addr, err = tc.manager.Address(ns, utilAddr)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s: unexpected error: %v", prefix,
 					err)
 				return false
@@ -469,6 +502,7 @@ func testExternalAddresses(
 
 	// just exit now in that case.
 	if tc.watchingOnly {
+
 		return true
 	}
 
@@ -476,10 +510,12 @@ func testExternalAddresses(
 
 	// private information is valid as well.
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		tc.t.Errorf("Unlock: unexpected error: %v", err)
 		return false
 	}
@@ -491,6 +527,7 @@ func testExternalAddresses(
 
 	// Relock the manager for future tests.
 	if err := tc.rootManager.Lock(); err != nil {
+
 		tc.t.Errorf("Lock: unexpected error: %v", err)
 		return false
 	}
@@ -516,13 +553,16 @@ func testInternalAddresses(
 
 	// locked manager and unlock it afterwards.
 	if !tc.watchingOnly {
+
 		// Unlock the manager and retest all of the addresses to ensure the
 		// private information is valid as well.
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			return tc.rootManager.Unlock(ns, privPassphrase)
 		})
 		if err != nil {
+
 			tc.t.Errorf("Unlock: unexpected error: %v", err)
 			return false
 		}
@@ -532,14 +572,17 @@ func testInternalAddresses(
 	prefix := testNamePrefix(tc) + " testInternalAddresses"
 	var addrs []waddrmgr.ManagedAddress
 	if tc.create {
+
 		prefix := prefix + " NextInternalAddress"
 		err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 			var err error
 			addrs, err = tc.manager.NextInternalAddresses(ns, tc.account, 5)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("%s: unexpected error: %v", prefix, err)
 			return false
 		}
@@ -556,11 +599,13 @@ func testInternalAddresses(
 
 	// repeated with the manager locked and unlocked.
 	testResults := func() bool {
+
 		// Ensure the returned addresses are the expected ones.  When
 		// not in the create phase, there will be no addresses in the
 		// addrs slice, so this really only runs during the first phase
 		// of the tests.
 		for i := 0; i < len(addrs); i++ {
+
 			prefix := fmt.Sprintf("%s InternalAddress #%d", prefix, i)
 			if !testAddress(tc, prefix, addrs[i], &expectedInternalAddrs[i]) {
 
@@ -572,12 +617,14 @@ func testInternalAddresses(
 		liaPrefix := prefix + " LastInternalAddress"
 		var lastAddr waddrmgr.ManagedAddress
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			var err error
 			lastAddr, err = tc.manager.LastInternalAddress(ns, tc.account)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("%s: unexpected error: %v", liaPrefix, err)
 			return false
 		}
@@ -590,11 +637,13 @@ func testInternalAddresses(
 		// addresses and ensure they're accurate.
 		chainParams := tc.manager.ChainParams()
 		for i := 0; i < len(expectedInternalAddrs); i++ {
+
 			pkHash := expectedInternalAddrs[i].addressHash
 			utilAddr, err := util.NewAddressPubKeyHash(
 				pkHash, chainParams,
 			)
 			if err != nil {
+
 				tc.t.Errorf("%s NewAddressPubKeyHash #%d: "+
 					"unexpected error: %v", prefix, i, err)
 				return false
@@ -603,12 +652,14 @@ func testInternalAddresses(
 			prefix := fmt.Sprintf("%s Address #%d", prefix, i)
 			var addr waddrmgr.ManagedAddress
 			err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 				ns := tx.ReadBucket(waddrmgrNamespaceKey)
 				var err error
 				addr, err = tc.manager.Address(ns, utilAddr)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s: unexpected error: %v", prefix,
 					err)
 				return false
@@ -647,6 +698,7 @@ func testInternalAddresses(
 
 	// that case.
 	if tc.watchingOnly {
+
 		return true
 	}
 
@@ -656,6 +708,7 @@ func testInternalAddresses(
 
 	// the expected error.
 	if err := tc.rootManager.Lock(); err != nil {
+
 		tc.t.Errorf("Lock: unexpected error: %v", err)
 		return false
 	}
@@ -673,7 +726,9 @@ func testInternalAddresses(
 // and unlocked conditions.
 func testLocking(
 	tc *testContext) bool {
+
 	if tc.unlocked {
+
 		tc.t.Error("testLocking called with an unlocked manager")
 		return false
 	}
@@ -691,6 +746,7 @@ func testLocking(
 	err := tc.rootManager.Lock()
 	wantErrCode := waddrmgr.ErrLocked
 	if tc.watchingOnly {
+
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, "Lock", err, wantErrCode) {
@@ -706,15 +762,18 @@ func testLocking(
 
 	// the correct error for that case.
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.Unlock(ns, privPassphrase)
 	})
 	if tc.watchingOnly {
+
 		if !checkManagerError(tc.t, "Unlock", err, waddrmgr.ErrWatchingOnly) {
 
 			return false
 		}
 	} else if err != nil {
+
 		tc.t.Errorf("Unlock: unexpected error: %v", err)
 		return false
 	}
@@ -730,15 +789,18 @@ func testLocking(
 
 	// case.
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.Unlock(ns, privPassphrase)
 	})
 	if tc.watchingOnly {
+
 		if !checkManagerError(tc.t, "Unlock2", err, waddrmgr.ErrWatchingOnly) {
 
 			return false
 		}
 	} else if err != nil {
+
 		tc.t.Errorf("Unlock: unexpected error: %v", err)
 		return false
 	}
@@ -752,11 +814,13 @@ func testLocking(
 
 	// error and a locked manager.
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.Unlock(ns, []byte("invalidpassphrase"))
 	})
 	wantErrCode = waddrmgr.ErrWrongPassphrase
 	if tc.watchingOnly {
+
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, "Unlock", err, wantErrCode) {
@@ -782,6 +846,7 @@ func testLocking(
 // with the manager locked.
 func testImportPrivateKey(
 	tc *testContext) bool {
+
 	tests := []struct {
 		name       string
 		in         string
@@ -824,11 +889,14 @@ func testImportPrivateKey(
 
 	// watching-only manager can't be unlocked.
 	if !tc.watchingOnly {
+
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			return tc.rootManager.Unlock(ns, privPassphrase)
 		})
 		if err != nil {
+
 			tc.t.Errorf("Unlock: unexpected error: %v", err)
 			return false
 		}
@@ -839,22 +907,27 @@ func testImportPrivateKey(
 	tc.account = waddrmgr.ImportedAddrAccount
 	prefix := testNamePrefix(tc) + " testImportPrivateKey"
 	if tc.create {
+
 		for i, test := range tests {
+
 			test.expected.privKeyWIF = test.in
 			wif, err := util.DecodeWIF(test.in)
 			if err != nil {
+
 				tc.t.Errorf("%s DecodeWIF #%d (%s): unexpected "+
 					"error: %v", prefix, i, test.name, err)
 				continue
 			}
 			var addr waddrmgr.ManagedPubKeyAddress
 			err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 				ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 				var err error
 				addr, err = tc.manager.ImportPrivateKey(ns, wif, &test.blockstamp)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s ImportPrivateKey #%d (%s): "+
 					"unexpected error: %v", prefix, i,
 					test.name, err)
@@ -873,8 +946,10 @@ func testImportPrivateKey(
 	// repeated with the manager unlocked and locked.
 	chainParams := tc.manager.ChainParams()
 	testResults := func() bool {
+
 		failed := false
 		for i, test := range tests {
+
 			test.expected.privKeyWIF = test.in
 
 			// Use the Address API to retrieve each of the expected
@@ -882,6 +957,7 @@ func testImportPrivateKey(
 			utilAddr, err := util.NewAddressPubKeyHash(
 				test.expected.addressHash, chainParams)
 			if err != nil {
+
 				tc.t.Errorf("%s NewAddressPubKeyHash #%d (%s): "+
 					"unexpected error: %v", prefix, i,
 					test.name, err)
@@ -892,12 +968,14 @@ func testImportPrivateKey(
 				i, test.name)
 			var ma waddrmgr.ManagedAddress
 			err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 				ns := tx.ReadBucket(waddrmgrNamespaceKey)
 				var err error
 				ma, err = tc.manager.Address(ns, utilAddr)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s: unexpected error: %v", taPrefix,
 					err)
 				failed = true
@@ -937,6 +1015,7 @@ func testImportPrivateKey(
 
 	// that case.
 	if tc.watchingOnly {
+
 		return true
 	}
 
@@ -944,6 +1023,7 @@ func testImportPrivateKey(
 
 	// private information returns the expected error.
 	if err := tc.rootManager.Lock(); err != nil {
+
 		tc.t.Errorf("Lock: unexpected error: %v", err)
 		return false
 	}
@@ -964,6 +1044,7 @@ func testImportPrivateKey(
 // with the manager locked.
 func testImportScript(
 	tc *testContext) bool {
+
 	tests := []struct {
 		name       string
 		in         []byte
@@ -1014,11 +1095,14 @@ func testImportScript(
 
 	// unlocked.
 	if !tc.watchingOnly {
+
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			return tc.rootManager.Unlock(ns, privPassphrase)
 		})
 		if err != nil {
+
 			tc.t.Errorf("Unlock: unexpected error: %v", err)
 			return false
 		}
@@ -1029,19 +1113,23 @@ func testImportScript(
 	tc.account = waddrmgr.ImportedAddrAccount
 	prefix := testNamePrefix(tc)
 	if tc.create {
+
 		for i, test := range tests {
+
 			test.expected.script = test.in
 			prefix := fmt.Sprintf("%s ImportScript #%d (%s)", prefix,
 				i, test.name)
 
 			var addr waddrmgr.ManagedScriptAddress
 			err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 				ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 				var err error
 				addr, err = tc.manager.ImportScript(ns, test.in, &test.blockstamp)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s: unexpected error: %v", prefix,
 					err)
 				continue
@@ -1058,8 +1146,10 @@ func testImportScript(
 	// repeated with the manager unlocked and locked.
 	chainParams := tc.manager.ChainParams()
 	testResults := func() bool {
+
 		failed := false
 		for i, test := range tests {
+
 			test.expected.script = test.in
 
 			// Use the Address API to retrieve each of the expected
@@ -1067,6 +1157,7 @@ func testImportScript(
 			utilAddr, err := util.NewAddressScriptHash(test.in,
 				chainParams)
 			if err != nil {
+
 				tc.t.Errorf("%s NewAddressScriptHash #%d (%s): "+
 					"unexpected error: %v", prefix, i,
 					test.name, err)
@@ -1077,12 +1168,14 @@ func testImportScript(
 				i, test.name)
 			var ma waddrmgr.ManagedAddress
 			err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 				ns := tx.ReadBucket(waddrmgrNamespaceKey)
 				var err error
 				ma, err = tc.manager.Address(ns, utilAddr)
 				return err
 			})
 			if err != nil {
+
 				tc.t.Errorf("%s: unexpected error: %v", taPrefix,
 					err)
 				failed = true
@@ -1122,6 +1215,7 @@ func testImportScript(
 
 	// that case.
 	if tc.watchingOnly {
+
 		return true
 	}
 
@@ -1129,6 +1223,7 @@ func testImportScript(
 
 	// private information returns the expected error.
 	if err := tc.rootManager.Lock(); err != nil {
+
 		tc.t.Errorf("Lock: unexpected error: %v", err)
 		return false
 	}
@@ -1144,6 +1239,7 @@ func testImportScript(
 // testMarkUsed ensures used addresses are flagged as such.
 func testMarkUsed(
 	tc *testContext) bool {
+
 	tests := []struct {
 		name string
 		typ  addrType
@@ -1164,11 +1260,13 @@ func testMarkUsed(
 	prefix := "MarkUsed"
 	chainParams := tc.manager.ChainParams()
 	for i, test := range tests {
+
 		addrHash := test.in
 
 		var addr util.Address
 		var err error
 		switch test.typ {
+
 		case addrPubKeyHash:
 			addr, err = util.NewAddressPubKeyHash(addrHash, chainParams)
 		case addrScriptHash:
@@ -1177,39 +1275,47 @@ func testMarkUsed(
 			panic("unreachable")
 		}
 		if err != nil {
+
 			tc.t.Errorf("%s #%d: NewAddress unexpected error: %v", prefix, i, err)
 			continue
 		}
 
 		err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 			maddr, err := tc.manager.Address(ns, addr)
 			if err != nil {
+
 				tc.t.Errorf("%s #%d: Address unexpected error: %v", prefix, i, err)
 				return nil
 			}
 			if tc.create {
+
 				// Test that initially the address is not flagged as used
 				used := maddr.Used(ns)
 				if used != false {
+
 					tc.t.Errorf("%s #%d: unexpected used flag -- got "+
 						"%v, want %v", prefix, i, used, false)
 				}
 			}
 			err = tc.manager.MarkUsed(ns, addr)
 			if err != nil {
+
 				tc.t.Errorf("%s #%d: unexpected error: %v", prefix, i, err)
 				return nil
 			}
 			used := maddr.Used(ns)
 			if used != true {
+
 				tc.t.Errorf("%s #%d: unexpected used flag -- got "+
 					"%v, want %v", prefix, i, used, true)
 			}
 			return nil
 		})
 		if err != nil {
+
 			tc.t.Errorf("Unexpected error %v", err)
 		}
 	}
@@ -1231,6 +1337,7 @@ func testChangePassphrase(
 
 	oldKeyGen := waddrmgr.SetSecretKeyGen(failingSecretKeyGen)
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, pubPassphrase, pubPassphrase2, false, fastScrypt,
@@ -1245,6 +1352,7 @@ func testChangePassphrase(
 	testName = "ChangePassphrase (public) with invalid old passphrase"
 	waddrmgr.SetSecretKeyGen(oldKeyGen)
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, []byte("bogus"), pubPassphrase2, false, fastScrypt,
@@ -1258,12 +1366,14 @@ func testChangePassphrase(
 	// Change the public passphrase.
 	testName = "ChangePassphrase (public)"
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, pubPassphrase, pubPassphrase2, false, fastScrypt,
 		)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", testName, err)
 		return false
 	}
@@ -1277,12 +1387,14 @@ func testChangePassphrase(
 
 	// Change the private passphrase back to what it was.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, pubPassphrase2, pubPassphrase, false, fastScrypt,
 		)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", testName, err)
 		return false
 	}
@@ -1294,6 +1406,7 @@ func testChangePassphrase(
 	// on the type of the address manager.
 	testName = "ChangePassphrase (private) with invalid old passphrase"
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, []byte("bogus"), privPassphrase2, true, fastScrypt,
@@ -1301,6 +1414,7 @@ func testChangePassphrase(
 	})
 	wantErrCode := waddrmgr.ErrWrongPassphrase
 	if tc.watchingOnly {
+
 		wantErrCode = waddrmgr.ErrWatchingOnly
 	}
 	if !checkManagerError(tc.t, testName, err, wantErrCode) {
@@ -1316,18 +1430,21 @@ func testChangePassphrase(
 
 	// case.
 	if tc.watchingOnly {
+
 		return true
 	}
 
 	// Change the private passphrase.
 	testName = "ChangePassphrase (private)"
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, privPassphrase, privPassphrase2, true, fastScrypt,
 		)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", testName, err)
 		return false
 	}
@@ -1336,10 +1453,12 @@ func testChangePassphrase(
 
 	// expected.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.Unlock(ns, privPassphrase2)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: failed to unlock with new private "+
 			"passphrase: %v", testName, err)
 		return false
@@ -1350,12 +1469,14 @@ func testChangePassphrase(
 
 	// is unlocked to ensure that path works properly as well.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.ChangePassphrase(
 			ns, privPassphrase2, privPassphrase, true, fastScrypt,
 		)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", testName, err)
 		return false
 	}
@@ -1367,6 +1488,7 @@ func testChangePassphrase(
 
 	// Relock the manager for future tests.
 	if err := tc.rootManager.Lock(); err != nil {
+
 		tc.t.Errorf("Lock: unexpected error: %v", err)
 		return false
 	}
@@ -1379,9 +1501,12 @@ func testChangePassphrase(
 // as expected.
 func testNewAccount(
 	tc *testContext) bool {
+
 	if tc.watchingOnly {
+
 		// Creating new accounts in watching-only mode should return ErrWatchingOnly
 		err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 			_, err := tc.manager.NewAccount(ns, "test")
 			return err
@@ -1397,6 +1522,7 @@ func testNewAccount(
 
 	// Creating new accounts when wallet is locked should return ErrLocked
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.NewAccount(ns, "test")
 		return err
@@ -1412,11 +1538,13 @@ func testNewAccount(
 
 	// to derive account keys
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		err := tc.rootManager.Unlock(ns, privPassphrase)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("Unlock: unexpected error: %v", err)
 		return false
 	}
@@ -1425,22 +1553,26 @@ func testNewAccount(
 	testName := "acct-create"
 	expectedAccount := tc.account + 1
 	if !tc.create {
+
 		// Create a new account in open mode
 		testName = "acct-open"
 		expectedAccount++
 	}
 	var account uint32
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		var err error
 		account, err = tc.manager.NewAccount(ns, testName)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("NewAccount: unexpected error: %v", err)
 		return false
 	}
 	if account != expectedAccount {
+
 		tc.t.Errorf("NewAccount "+
 			"account mismatch -- got %d, "+
 			"want %d", account, expectedAccount)
@@ -1449,6 +1581,7 @@ func testNewAccount(
 
 	// Test duplicate account name error
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.NewAccount(ns, testName)
 		return err
@@ -1462,6 +1595,7 @@ func testNewAccount(
 	// Test account name validation
 	testName = "" // Empty account names are not allowed
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.NewAccount(ns, testName)
 		return err
@@ -1473,6 +1607,7 @@ func testNewAccount(
 	}
 	testName = "imported" // A reserved account name
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.NewAccount(ns, testName)
 		return err
@@ -1496,18 +1631,22 @@ func testLookupAccount(
 		waddrmgr.ImportedAddrAccountName: waddrmgr.ImportedAddrAccount,
 	}
 	for acctName, expectedAccount := range expectedAccounts {
+
 		var account uint32
 		err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			var err error
 			account, err = tc.manager.LookupAccount(ns, acctName)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("LookupAccount: unexpected error: %v", err)
 			return false
 		}
 		if account != expectedAccount {
+
 			tc.t.Errorf("LookupAccount "+
 				"account mismatch -- got %d, "+
 				"want %d", account, expectedAccount)
@@ -1518,6 +1657,7 @@ func testLookupAccount(
 	// Test account not found error
 	testName := "non existent account"
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.LookupAccount(ns, testName)
 		return err
@@ -1531,6 +1671,7 @@ func testLookupAccount(
 	// Test last account
 	var lastAccount uint32
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		lastAccount, err = tc.manager.LastAccount(ns)
@@ -1539,10 +1680,12 @@ func testLookupAccount(
 	var expectedLastAccount uint32
 	expectedLastAccount = 1
 	if !tc.create {
+
 		// Existing wallet manager will have 3 accounts
 		expectedLastAccount = 2
 	}
 	if lastAccount != expectedLastAccount {
+
 		tc.t.Errorf("LookupAccount "+
 			"account mismatch -- got %d, "+
 			"want %d", lastAccount, expectedLastAccount)
@@ -1552,24 +1695,29 @@ func testLookupAccount(
 	// Test account lookup for default account adddress
 	var expectedAccount uint32
 	for i, addr := range expectedAddrs {
+
 		addr, err := util.NewAddressPubKeyHash(addr.addressHash,
 			tc.manager.ChainParams())
 		if err != nil {
+
 			tc.t.Errorf("AddrAccount #%d: unexpected error: %v", i, err)
 			return false
 		}
 		var account uint32
 		err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 			ns := tx.ReadBucket(waddrmgrNamespaceKey)
 			var err error
 			account, err = tc.manager.AddrAccount(ns, addr)
 			return err
 		})
 		if err != nil {
+
 			tc.t.Errorf("AddrAccount #%d: unexpected error: %v", i, err)
 			return false
 		}
 		if account != expectedAccount {
+
 			tc.t.Errorf("AddrAccount "+
 				"account mismatch -- got %d, "+
 				"want %d", account, expectedAccount)
@@ -1583,38 +1731,46 @@ func testLookupAccount(
 // as expected.
 func testRenameAccount(
 	tc *testContext) bool {
+
 	var acctName string
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		acctName, err = tc.manager.AccountName(ns, tc.account)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("AccountName: unexpected error: %v", err)
 		return false
 	}
 	testName := acctName + "-renamed"
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.manager.RenameAccount(ns, tc.account, testName)
 	})
 	if err != nil {
+
 		tc.t.Errorf("RenameAccount: unexpected error: %v", err)
 		return false
 	}
 	var newName string
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		newName, err = tc.manager.AccountName(ns, tc.account)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("AccountName: unexpected error: %v", err)
 		return false
 	}
 	if newName != testName {
+
 		tc.t.Errorf("RenameAccount "+
 			"account name mismatch -- got %s, "+
 			"want %s", newName, testName)
@@ -1623,6 +1779,7 @@ func testRenameAccount(
 
 	// Test duplicate account name error
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.manager.RenameAccount(ns, tc.account, testName)
 	})
@@ -1634,6 +1791,7 @@ func testRenameAccount(
 
 	// Test old account name is no longer valid
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		_, err := tc.manager.LookupAccount(ns, acctName)
 		return err
@@ -1650,9 +1808,11 @@ func testRenameAccount(
 // manager works as expected.
 func testForEachAccount(
 	tc *testContext) bool {
+
 	prefix := testNamePrefix(tc) + " testForEachAccount"
 	expectedAccounts := []uint32{0, 1}
 	if !tc.create {
+
 		// Existing wallet manager will have 3 accounts
 		expectedAccounts = append(expectedAccounts, 2)
 	}
@@ -1661,13 +1821,16 @@ func testForEachAccount(
 	expectedAccounts = append(expectedAccounts, waddrmgr.ImportedAddrAccount)
 	var accounts []uint32
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.manager.ForEachAccount(ns, func(account uint32) error {
+
 			accounts = append(accounts, account)
 			return nil
 		})
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", prefix, err)
 		return false
 	}
@@ -1679,7 +1842,9 @@ func testForEachAccount(
 		return false
 	}
 	for i, account := range accounts {
+
 		if expectedAccounts[i] != account {
+
 			tc.t.Errorf("%s #%d: "+
 				"account mismatch -- got %d, "+
 				"want %d", prefix, i, account, expectedAccounts[i])
@@ -1692,29 +1857,35 @@ func testForEachAccount(
 // account addresses using the manager API works as expected.
 func testForEachAccountAddress(
 	tc *testContext) bool {
+
 	prefix := testNamePrefix(tc) + " testForEachAccountAddress"
 
 	// Make a map of expected addresses
 	expectedAddrMap := make(map[string]*expectedAddr, len(expectedAddrs))
 	for i := 0; i < len(expectedAddrs); i++ {
+
 		expectedAddrMap[expectedAddrs[i].address] = &expectedAddrs[i]
 	}
 
 	var addrs []waddrmgr.ManagedAddress
 	err := walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return tc.manager.ForEachAccountAddress(ns, tc.account,
 			func(maddr waddrmgr.ManagedAddress) error {
+
 				addrs = append(addrs, maddr)
 				return nil
 			})
 	})
 	if err != nil {
+
 		tc.t.Errorf("%s: unexpected error: %v", prefix, err)
 		return false
 	}
 
 	for i := 0; i < len(addrs); i++ {
+
 		prefix := fmt.Sprintf("%s: #%d", prefix, i)
 		gotAddr := addrs[i]
 		wantAddr := expectedAddrMap[gotAddr.Address().String()]
@@ -1726,6 +1897,7 @@ func testForEachAccountAddress(
 	}
 
 	if len(expectedAddrMap) != 0 {
+
 		tc.t.Errorf("%s: unexpected addresses -- got %d, want %d", prefix,
 			len(expectedAddrMap), 0)
 		return false
@@ -1773,10 +1945,12 @@ func testWatchingOnly(
 	_ = os.Remove(woMgrName)
 	fi, err := os.OpenFile(woMgrName, os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
+
 		tc.t.Errorf("%v", err)
 		return false
 	}
 	if err := tc.db.Copy(fi); err != nil {
+
 		fi.Close()
 		tc.t.Errorf("%v", err)
 		return false
@@ -1787,6 +1961,7 @@ func testWatchingOnly(
 	// Open the new database copy and get the address manager namespace.
 	db, err := walletdb.Open("bdb", woMgrName)
 	if err != nil {
+
 		tc.t.Errorf("openDbNamespace: unexpected error: %v", err)
 		return false
 	}
@@ -1795,20 +1970,24 @@ func testWatchingOnly(
 	// Open the manager using the namespace and convert it to watching-only.
 	var mgr *waddrmgr.Manager
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("%v", err)
 		return false
 	}
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return mgr.ConvertToWatchingOnly(ns)
 	})
 	if err != nil {
+
 		tc.t.Errorf("%v", err)
 		return false
 	}
@@ -1820,6 +1999,7 @@ func testWatchingOnly(
 	// manager in order to use.
 	scopedMgr, err := mgr.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0044)
 	if err != nil {
+
 		tc.t.Errorf("unable to fetch bip 44 scope %v", err)
 		return false
 	}
@@ -1836,12 +2016,14 @@ func testWatchingOnly(
 
 	// Open the watching-only manager and run all the tests again.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
 	if err != nil {
+
 		tc.t.Errorf("Open Watching-Only: unexpected error: %v", err)
 		return false
 	}
@@ -1849,6 +2031,7 @@ func testWatchingOnly(
 
 	scopedMgr, err = mgr.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0044)
 	if err != nil {
+
 		tc.t.Errorf("unable to fetch bip 44 scope %v", err)
 		return false
 	}
@@ -1874,10 +2057,12 @@ func testSync(
 
 	// being the earliest block (genesis block in this case).
 	err := walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.SetSyncedTo(ns, nil)
 	})
 	if err != nil {
+
 		tc.t.Errorf("SetSyncedTo unexpected err on nil: %v", err)
 		return false
 	}
@@ -1887,6 +2072,7 @@ func testSync(
 	}
 	gotBlockStamp := tc.rootManager.SyncedTo()
 	if gotBlockStamp != blockStamp {
+
 		tc.t.Errorf("SyncedTo unexpected block stamp on nil -- "+
 			"got %v, want %v", gotBlockStamp, blockStamp)
 		return false
@@ -1897,6 +2083,7 @@ func testSync(
 	// retrieval it should be returned as the best known state.
 	latestHash, err := chainhash.NewHash(seed)
 	if err != nil {
+
 		tc.t.Errorf("%v", err)
 		return false
 	}
@@ -1906,15 +2093,18 @@ func testSync(
 		Timestamp: time.Unix(1234, 0),
 	}
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return tc.rootManager.SetSyncedTo(ns, &blockStamp)
 	})
 	if err != nil {
+
 		tc.t.Errorf("SetSyncedTo unexpected err on nil: %v", err)
 		return false
 	}
 	gotBlockStamp = tc.rootManager.SyncedTo()
 	if gotBlockStamp != blockStamp {
+
 		tc.t.Errorf("SyncedTo unexpected block stamp on nil -- "+
 			"got %v, want %v", gotBlockStamp, blockStamp)
 		return false
@@ -1938,6 +2128,7 @@ func TestManager(
 
 	// returned.
 	err := walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		_, err := waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
@@ -1950,8 +2141,10 @@ func TestManager(
 	// Create a new manager.
 	var mgr *waddrmgr.Manager
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
 		if err != nil {
+
 			return err
 		}
 		err = waddrmgr.Create(
@@ -1959,12 +2152,14 @@ func TestManager(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
 		if err != nil {
+
 			return err
 		}
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
 	if err != nil {
+
 		t.Errorf("Create/Open: unexpected error: %v", err)
 		return
 	}
@@ -1977,6 +2172,7 @@ func TestManager(
 
 	// returned.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return waddrmgr.Create(ns, seed, pubPassphrase, privPassphrase,
 			&chaincfg.MainNetParams, fastScrypt, time.Time{})
@@ -1992,6 +2188,7 @@ func TestManager(
 	// manager after they've completed
 	scopedMgr, err := mgr.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0044)
 	if err != nil {
+
 		t.Fatalf("unable to fetch default scope: %v", err)
 	}
 	testManagerAPI(&testContext{
@@ -2010,6 +2207,7 @@ func TestManager(
 	// constant is bumped without writing code to actually do the upgrade.
 	*waddrmgr.TstLatestMgrVersion++
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		_, err := waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
@@ -2024,12 +2222,14 @@ func TestManager(
 
 	// avoids reinserting new addresses like the create mode tests do.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
 	if err != nil {
+
 		t.Errorf("Open: unexpected error: %v", err)
 		return
 	}
@@ -2037,6 +2237,7 @@ func TestManager(
 
 	scopedMgr, err = mgr.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0044)
 	if err != nil {
+
 		t.Fatalf("unable to fetch default scope: %v", err)
 	}
 	tc := &testContext{
@@ -2062,10 +2263,12 @@ func TestManager(
 
 	// it works without issue.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Errorf("Unlock: unexpected error: %v", err)
 	}
 }
@@ -2082,10 +2285,12 @@ func TestEncryptDecryptErrors(
 
 	invalidKeyType := waddrmgr.CryptoKeyType(0xff)
 	if _, err := mgr.Encrypt(invalidKeyType, []byte{}); err == nil {
+
 		t.Fatalf("Encrypt accepted an invalid key type!")
 	}
 
 	if _, err := mgr.Decrypt(invalidKeyType, []byte{}); err == nil {
+
 		t.Fatalf("Encrypt accepted an invalid key type!")
 	}
 
@@ -2109,10 +2314,12 @@ func TestEncryptDecryptErrors(
 
 	// Unlock the manager for these tests
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatal("Attempted to unlock the manager, but failed:", err)
 	}
 
@@ -2145,10 +2352,12 @@ func TestEncryptDecrypt(
 
 	// Make sure address manager is unlocked
 	err := walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatal("Attempted to unlock the manager, but failed:", err)
 	}
 
@@ -2159,13 +2368,16 @@ func TestEncryptDecrypt(
 	}
 
 	for _, keyType := range keyTypes {
+
 		cipherText, err := mgr.Encrypt(keyType, plainText)
 		if err != nil {
+
 			t.Fatalf("Failed to encrypt plaintext: %v", err)
 		}
 
 		decryptedCipherText, err := mgr.Decrypt(keyType, cipherText)
 		if err != nil {
+
 			t.Fatalf("Failed to decrypt plaintext: %v", err)
 		}
 
@@ -2192,8 +2404,10 @@ func TestScopedKeyManagerManagement(
 	// used for the duration of the test.
 	var mgr *waddrmgr.Manager
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
 		if err != nil {
+
 			return err
 		}
 		err = waddrmgr.Create(
@@ -2201,6 +2415,7 @@ func TestScopedKeyManagerManagement(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -2208,12 +2423,14 @@ func TestScopedKeyManagerManagement(
 			ns, pubPassphrase, &chaincfg.MainNetParams,
 		)
 		if err != nil {
+
 			return err
 		}
 
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatalf("create/open: unexpected error: %v", err)
 	}
 
@@ -2221,8 +2438,10 @@ func TestScopedKeyManagerManagement(
 
 	// memory upon initial opening.
 	for _, scope := range waddrmgr.DefaultKeyScopes {
+
 		_, err := mgr.FetchScopedKeyManager(scope)
 		if err != nil {
+
 			t.Fatalf("unable to fetch scope %v: %v", scope, err)
 		}
 	}
@@ -2233,11 +2452,14 @@ func TestScopedKeyManagerManagement(
 
 	// their schema.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		for _, scope := range waddrmgr.DefaultKeyScopes {
+
 			sMgr, err := mgr.FetchScopedKeyManager(scope)
 			if err != nil {
+
 				t.Fatalf("unable to fetch scope %v: %v", scope, err)
 			}
 
@@ -2245,12 +2467,14 @@ func TestScopedKeyManagerManagement(
 				ns, waddrmgr.DefaultAccountNum, 1,
 			)
 			if err != nil {
+
 				t.Fatalf("unable to derive external addr: %v", err)
 			}
 
 			// The external address should match the prescribed
 			// addr schema for this scoped key manager.
 			if externalAddr[0].AddrType() != waddrmgr.ScopeAddrMap[scope].ExternalAddrType {
+
 				t.Fatalf("addr type mismatch: expected %v, got %v",
 					externalAddr[0].AddrType(),
 					waddrmgr.ScopeAddrMap[scope].ExternalAddrType)
@@ -2260,12 +2484,14 @@ func TestScopedKeyManagerManagement(
 				ns, waddrmgr.DefaultAccountNum, 1,
 			)
 			if err != nil {
+
 				t.Fatalf("unable to derive internal addr: %v", err)
 			}
 
 			// Similarly, the internal address should match the
 			// prescribed addr schema for this scoped key manager.
 			if internalAddr[0].AddrType() != waddrmgr.ScopeAddrMap[scope].InternalAddrType {
+
 				t.Fatalf("addr type mismatch: expected %v, got %v",
 					internalAddr[0].AddrType(),
 					waddrmgr.ScopeAddrMap[scope].InternalAddrType)
@@ -2275,6 +2501,7 @@ func TestScopedKeyManagerManagement(
 		return err
 	})
 	if err != nil {
+
 		t.Fatalf("unable to read db: %v", err)
 	}
 
@@ -2291,16 +2518,19 @@ func TestScopedKeyManagerManagement(
 	}
 	var scopedMgr *waddrmgr.ScopedKeyManager
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		scopedMgr, err = mgr.NewScopedKeyManager(ns, testScope, addrSchema)
 		if err != nil {
+
 			return err
 		}
 
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("unable to read db: %v", err)
 	}
 
@@ -2308,11 +2538,13 @@ func TestScopedKeyManagerManagement(
 
 	// the root manager.
 	if _, err := mgr.FetchScopedKeyManager(testScope); err != nil {
+
 		t.Fatalf("attempt to read created mgr failed: %v", err)
 	}
 
 	var externalAddr, internalAddr []waddrmgr.ManagedAddress
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		// We'll now create a new external address to ensure we
@@ -2321,6 +2553,7 @@ func TestScopedKeyManagerManagement(
 			ns, waddrmgr.DefaultAccountNum, 1,
 		)
 		if err != nil {
+
 			t.Fatalf("unable to derive external addr: %v", err)
 		}
 
@@ -2328,21 +2561,25 @@ func TestScopedKeyManagerManagement(
 			ns, waddrmgr.DefaultAccountNum, 1,
 		)
 		if err != nil {
+
 			t.Fatalf("unable to derive internal addr: %v", err)
 		}
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("open: unexpected error: %v", err)
 	}
 
 	// Ensure that the type of the address matches as expected.
 	if externalAddr[0].AddrType() != waddrmgr.NestedWitnessPubKey {
+
 		t.Fatalf("addr type mismatch: expected %v, got %v",
 			waddrmgr.NestedWitnessPubKey, externalAddr[0].AddrType())
 	}
 	_, ok := externalAddr[0].Address().(*util.AddressScriptHash)
 	if !ok {
+
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}
 
@@ -2350,11 +2587,13 @@ func TestScopedKeyManagerManagement(
 
 	// match up properly.
 	if internalAddr[0].AddrType() != waddrmgr.WitnessPubKey {
+
 		t.Fatalf("addr type mismatch: expected %v, got %v",
 			waddrmgr.WitnessPubKey, internalAddr[0].AddrType())
 	}
 	_, ok = internalAddr[0].Address().(*util.AddressWitnessPubKeyHash)
 	if !ok {
+
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}
 
@@ -2363,16 +2602,19 @@ func TestScopedKeyManagerManagement(
 	// manager.
 	mgr.Close()
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
 		var err error
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		if err != nil {
+
 			return err
 		}
 
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatalf("open: unexpected error: %v", err)
 	}
 	defer mgr.Close()
@@ -2382,6 +2624,7 @@ func TestScopedKeyManagerManagement(
 	// created.
 	scopedMgr, err = mgr.FetchScopedKeyManager(testScope)
 	if err != nil {
+
 		t.Fatalf("attempt to read created mgr failed: %v", err)
 	}
 
@@ -2390,18 +2633,21 @@ func TestScopedKeyManagerManagement(
 	// exactly to the address that we just generated.
 	var lastAddr waddrmgr.ManagedAddress
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		lastAddr, err = scopedMgr.LastExternalAddress(
 			ns, waddrmgr.DefaultAccountNum,
 		)
 		if err != nil {
+
 			return err
 		}
 
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("open: unexpected error: %v", err)
 	}
 	if !bytes.Equal(lastAddr.AddrHash(), externalAddr[0].AddrHash()) {
@@ -2412,8 +2658,10 @@ func TestScopedKeyManagerManagement(
 
 	// After the restart, all the default scopes should be been re-loaded.
 	for _, scope := range waddrmgr.DefaultKeyScopes {
+
 		_, err := mgr.FetchScopedKeyManager(scope)
 		if err != nil {
+
 			t.Fatalf("unable to fetch scope %v: %v", scope, err)
 		}
 	}
@@ -2422,15 +2670,18 @@ func TestScopedKeyManagerManagement(
 
 	// address, it should be able to locate the private key, etc.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		_, err := mgr.Address(ns, lastAddr.Address())
 		if err != nil {
+
 			return fmt.Errorf("unable to find addr: %v", err)
 		}
 
 		err = mgr.MarkUsed(ns, lastAddr.Address())
 		if err != nil {
+
 			return fmt.Errorf("unable to mark addr as "+
 				"used: %v", err)
 		}
@@ -2438,6 +2689,7 @@ func TestScopedKeyManagerManagement(
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("unable to find addr: %v", err)
 	}
 }
@@ -2457,8 +2709,10 @@ func TestRootHDKeyNeutering(
 	// used for the duration of the test.
 	var mgr *waddrmgr.Manager
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
 		if err != nil {
+
 			return err
 		}
 		err = waddrmgr.Create(
@@ -2466,6 +2720,7 @@ func TestRootHDKeyNeutering(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -2473,12 +2728,14 @@ func TestRootHDKeyNeutering(
 			ns, pubPassphrase, &chaincfg.MainNetParams,
 		)
 		if err != nil {
+
 			return err
 		}
 
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatalf("create/open: unexpected error: %v", err)
 	}
 	defer mgr.Close()
@@ -2495,26 +2752,31 @@ func TestRootHDKeyNeutering(
 		InternalAddrType: waddrmgr.WitnessPubKey,
 	}
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		_, err := mgr.NewScopedKeyManager(ns, testScope, addrSchema)
 		if err != nil {
+
 			return err
 		}
 
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("unable to read db: %v", err)
 	}
 
 	// With the manager created, we'll now neuter the root HD private key.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		return mgr.NeuterRootKey(ns)
 	})
 	if err != nil {
+
 		t.Fatalf("unable to read db: %v", err)
 	}
 
@@ -2526,16 +2788,19 @@ func TestRootHDKeyNeutering(
 		Coin:    0,
 	}
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		_, err := mgr.NewScopedKeyManager(ns, testScope, addrSchema)
 		if err != nil {
+
 			return err
 		}
 
 		return nil
 	})
 	if err == nil {
+
 		t.Fatalf("new scoped manager creation should have failed")
 	}
 }
@@ -2556,8 +2821,10 @@ func TestNewRawAccount(
 	// used for the duration of the test.
 	var mgr *waddrmgr.Manager
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
 		if err != nil {
+
 			return err
 		}
 		err = waddrmgr.Create(
@@ -2565,6 +2832,7 @@ func TestNewRawAccount(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -2572,12 +2840,14 @@ func TestNewRawAccount(
 			ns, pubPassphrase, &chaincfg.MainNetParams,
 		)
 		if err != nil {
+
 			return err
 		}
 
 		return mgr.Unlock(ns, privPassphrase)
 	})
 	if err != nil {
+
 		t.Fatalf("create/open: unexpected error: %v", err)
 	}
 	defer mgr.Close()
@@ -2587,6 +2857,7 @@ func TestNewRawAccount(
 	// scopes for usage within this test.
 	scopedMgr, err := mgr.FetchScopedKeyManager(waddrmgr.KeyScopeBIP0084)
 	if err != nil {
+
 		t.Fatalf("unable to fetch scope %v: %v", waddrmgr.KeyScopeBIP0084, err)
 	}
 
@@ -2595,10 +2866,12 @@ func TestNewRawAccount(
 	// account by number.
 	const accountNum = 1000
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 		return scopedMgr.NewRawAccount(ns, accountNum)
 	})
 	if err != nil {
+
 		t.Fatalf("unable to create new account: %v", err)
 	}
 
@@ -2607,12 +2880,14 @@ func TestNewRawAccount(
 	// from the account.
 	var accountAddrNext waddrmgr.ManagedAddress
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		addrs, err := scopedMgr.NextExternalAddresses(
 			ns, accountNum, 1,
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -2620,6 +2895,7 @@ func TestNewRawAccount(
 		return nil
 	})
 	if err != nil {
+
 		t.Fatalf("unable to create addr: %v", err)
 	}
 
@@ -2628,6 +2904,7 @@ func TestNewRawAccount(
 	// keys.
 	var accountTargetAddr waddrmgr.ManagedAddress
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
 		keyPath := waddrmgr.DerivationPath{
@@ -2641,6 +2918,7 @@ func TestNewRawAccount(
 		return err
 	})
 	if err != nil {
+
 		t.Fatalf("unable to derive addr: %v", err)
 	}
 

@@ -38,8 +38,10 @@ type InputSourceError interface {
 type insufficientFundsError struct{}
 
 func (insufficientFundsError) InputSourceError() {
+
 }
 func (insufficientFundsError) Error() string {
+
 	return "insufficient funds available to construct transaction"
 }
 
@@ -85,11 +87,14 @@ func NewUnsignedTransaction(
 	targetFee := txrules.FeeForSerializeSize(relayFeePerKb, estimatedSize)
 
 	for {
+
 		inputAmount, inputs, inputValues, scripts, err := fetchInputs(targetAmount + targetFee)
 		if err != nil {
+
 			return nil, err
 		}
 		if inputAmount < targetAmount+targetFee {
+
 			return nil, insufficientFundsError{}
 		}
 
@@ -97,7 +102,9 @@ func NewUnsignedTransaction(
 		// the vsize of the transaction.
 		var nested, p2wpkh, p2pkh int
 		for _, pkScript := range scripts {
+
 			switch {
+
 			// If this is a p2sh output, we assume this is a
 			// nested P2WKH.
 			case txscript.IsPayToScriptHash(pkScript):
@@ -114,6 +121,7 @@ func NewUnsignedTransaction(
 		maxRequiredFee := txrules.FeeForSerializeSize(relayFeePerKb, maxSignedSize)
 		remainingAmount := inputAmount - targetAmount
 		if remainingAmount < maxRequiredFee {
+
 			targetFee = maxRequiredFee
 			continue
 		}
@@ -131,9 +139,11 @@ func NewUnsignedTransaction(
 
 			changeScript, err := fetchChange()
 			if err != nil {
+
 				return nil, err
 			}
 			if len(changeScript) > txsizes.P2WPKHPkScriptSize {
+
 				return nil, errors.New("fee estimation requires change " +
 					"scripts no larger than P2WPKH output scripts")
 			}
@@ -158,6 +168,7 @@ func NewUnsignedTransaction(
 // done before signing.
 func RandomizeOutputPosition(
 	outputs []*wire.TxOut, index int) int {
+
 	r := cprng.Int31n(int32(len(outputs)))
 	outputs[r], outputs[index] = outputs[index], outputs[r]
 	return int(r)
@@ -207,9 +218,11 @@ func AddAllInputScripts(
 	}
 
 	for i := range inputs {
+
 		pkScript := prevPkScripts[i]
 
 		switch {
+
 		// If this is a p2sh output, who's script hash pre-image is a
 		// witness program, then we'll need to use a modified signing
 		// function which generates both the sigScript, and the witness
@@ -219,6 +232,7 @@ func AddAllInputScripts(
 				int64(inputValues[i]), chainParams, secrets,
 				tx, hashCache, i)
 			if err != nil {
+
 				return err
 			}
 		case txscript.IsPayToWitnessPubKeyHash(pkScript):
@@ -226,6 +240,7 @@ func AddAllInputScripts(
 				int64(inputValues[i]), chainParams, secrets,
 				tx, hashCache, i)
 			if err != nil {
+
 				return err
 			}
 		default:
@@ -234,6 +249,7 @@ func AddAllInputScripts(
 				pkScript, txscript.SigHashAll, secrets, secrets,
 				sigScript)
 			if err != nil {
+
 				return err
 			}
 			inputs[i].SignatureScript = script
@@ -257,10 +273,12 @@ func spendWitnessKeyHash(
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		chainParams)
 	if err != nil {
+
 		return err
 	}
 	privKey, compressed, err := secrets.GetKey(addrs[0])
 	if err != nil {
+
 		return err
 	}
 	pubKey := privKey.PubKey()
@@ -270,12 +288,15 @@ func spendWitnessKeyHash(
 	// the compression type of the generated key.
 	var pubKeyHash []byte
 	if compressed {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
 	} else {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
 	}
 	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
+
 		return err
 	}
 
@@ -286,11 +307,13 @@ func spendWitnessKeyHash(
 	// which will allow us to spend this output.
 	witnessProgram, err := txscript.PayToAddrScript(p2wkhAddr)
 	if err != nil {
+
 		return err
 	}
 	witnessScript, err := txscript.WitnessSignature(tx, hashCache, idx,
 		inputValue, witnessProgram, txscript.SigHashAll, privKey, true)
 	if err != nil {
+
 		return err
 	}
 
@@ -315,18 +338,22 @@ func spendNestedWitnessPubKeyHash(
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(pkScript,
 		chainParams)
 	if err != nil {
+
 		return err
 	}
 	privKey, compressed, err := secrets.GetKey(addrs[0])
 	if err != nil {
+
 		return err
 	}
 	pubKey := privKey.PubKey()
 
 	var pubKeyHash []byte
 	if compressed {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
 	} else {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
 	}
 
@@ -339,16 +366,19 @@ func spendNestedWitnessPubKeyHash(
 	// of this address.
 	p2wkhAddr, err := util.NewAddressWitnessPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
+
 		return err
 	}
 	witnessProgram, err := txscript.PayToAddrScript(p2wkhAddr)
 	if err != nil {
+
 		return err
 	}
 	bldr := txscript.NewScriptBuilder()
 	bldr.AddData(witnessProgram)
 	sigScript, err := bldr.Script()
 	if err != nil {
+
 		return err
 	}
 	txIn.SignatureScript = sigScript
@@ -359,6 +389,7 @@ func spendNestedWitnessPubKeyHash(
 	witnessScript, err := txscript.WitnessSignature(tx, hashCache, idx,
 		inputValue, witnessProgram, txscript.SigHashAll, privKey, compressed)
 	if err != nil {
+
 		return err
 	}
 
@@ -371,5 +402,6 @@ func spendNestedWitnessPubKeyHash(
 // for each input of an authored transaction.  Private keys and redeem scripts
 // are looked up using a SecretsSource based on the previous output script.
 func (tx *AuthoredTx) AddAllInputScripts(secrets SecretsSource) error {
+
 	return AddAllInputScripts(tx.Tx, tx.PrevScripts, tx.PrevInputValues, secrets)
 }

@@ -38,6 +38,7 @@ const (
 
 // String returns the SighHashType in human-readable form.
 func (s SigHashType) String() string {
+
 	return string(s)
 }
 
@@ -49,6 +50,7 @@ func (r FutureGetRawTransactionResult) Receive() (*util.Tx, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -56,18 +58,21 @@ func (r FutureGetRawTransactionResult) Receive() (*util.Tx, error) {
 	var txHex string
 	err = js.Unmarshal(res, &txHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Decode the serialized transaction hex to raw bytes.
 	serializedTx, err := hex.DecodeString(txHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Deserialize the transaction and return it.
 	var msgTx wire.MsgTx
 	if err := msgTx.Deserialize(bytes.NewReader(serializedTx)); err != nil {
+
 		return nil, err
 	}
 	return util.NewTx(&msgTx), nil
@@ -75,8 +80,10 @@ func (r FutureGetRawTransactionResult) Receive() (*util.Tx, error) {
 
 // GetRawTransactionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetRawTransaction for the blocking version and more details.
 func (c *Client) GetRawTransactionAsync(txHash *chainhash.Hash) FutureGetRawTransactionResult {
+
 	hash := ""
 	if txHash != nil {
+
 		hash = txHash.String()
 	}
 	cmd := json.NewGetRawTransactionCmd(hash, json.Int(0))
@@ -97,6 +104,7 @@ func (r FutureGetRawTransactionVerboseResult) Receive() (*json.TxRawResult, erro
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -104,6 +112,7 @@ func (r FutureGetRawTransactionVerboseResult) Receive() (*json.TxRawResult, erro
 	var rawTxResult json.TxRawResult
 	err = js.Unmarshal(res, &rawTxResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &rawTxResult, nil
@@ -111,8 +120,10 @@ func (r FutureGetRawTransactionVerboseResult) Receive() (*json.TxRawResult, erro
 
 // GetRawTransactionVerboseAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetRawTransactionVerbose for the blocking version and more details.
 func (c *Client) GetRawTransactionVerboseAsync(txHash *chainhash.Hash) FutureGetRawTransactionVerboseResult {
+
 	hash := ""
 	if txHash != nil {
+
 		hash = txHash.String()
 	}
 	cmd := json.NewGetRawTransactionCmd(hash, json.Int(1))
@@ -133,6 +144,7 @@ func (r FutureDecodeRawTransactionResult) Receive() (*json.TxRawResult, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -140,6 +152,7 @@ func (r FutureDecodeRawTransactionResult) Receive() (*json.TxRawResult, error) {
 	var rawTxResult json.TxRawResult
 	err = js.Unmarshal(res, &rawTxResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &rawTxResult, nil
@@ -147,6 +160,7 @@ func (r FutureDecodeRawTransactionResult) Receive() (*json.TxRawResult, error) {
 
 // DecodeRawTransactionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See DecodeRawTransaction for the blocking version and more details.
 func (c *Client) DecodeRawTransactionAsync(serializedTx []byte) FutureDecodeRawTransactionResult {
+
 	txHex := hex.EncodeToString(serializedTx)
 	cmd := json.NewDecodeRawTransactionCmd(txHex)
 	return c.sendCmd(cmd)
@@ -166,6 +180,7 @@ func (r FutureCreateRawTransactionResult) Receive() (*wire.MsgTx, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -173,18 +188,21 @@ func (r FutureCreateRawTransactionResult) Receive() (*wire.MsgTx, error) {
 	var txHex string
 	err = js.Unmarshal(res, &txHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Decode the serialized transaction hex to raw bytes.
 	serializedTx, err := hex.DecodeString(txHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Deserialize the transaction and return it.
 	var msgTx wire.MsgTx
 	if err := msgTx.Deserialize(bytes.NewReader(serializedTx)); err != nil {
+
 		return nil, err
 	}
 	return &msgTx, nil
@@ -193,8 +211,10 @@ func (r FutureCreateRawTransactionResult) Receive() (*wire.MsgTx, error) {
 // CreateRawTransactionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See CreateRawTransaction for the blocking version and more details.
 func (c *Client) CreateRawTransactionAsync(inputs []json.TransactionInput,
 	amounts map[util.Address]util.Amount, lockTime *int64) FutureCreateRawTransactionResult {
+
 	convertedAmts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
+
 		convertedAmts[addr.String()] = amount.ToDUO()
 	}
 	cmd := json.NewCreateRawTransactionCmd(inputs, convertedAmts, lockTime)
@@ -216,6 +236,7 @@ func (r FutureSendRawTransactionResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -223,6 +244,7 @@ func (r FutureSendRawTransactionResult) Receive() (*chainhash.Hash, error) {
 	var txHashStr string
 	err = js.Unmarshal(res, &txHashStr)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHashStr)
@@ -230,12 +252,14 @@ func (r FutureSendRawTransactionResult) Receive() (*chainhash.Hash, error) {
 
 // SendRawTransactionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See SendRawTransaction for the blocking version and more details.
 func (c *Client) SendRawTransactionAsync(tx *wire.MsgTx, allowHighFees bool) FutureSendRawTransactionResult {
+
 	txHex := ""
 	if tx != nil {
 
 		// Serialize the transaction and convert to hex string.
 		buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(buf); err != nil {
+
 			return newFutureError(err)
 		}
 		txHex = hex.EncodeToString(buf.Bytes())
@@ -258,6 +282,7 @@ func (r FutureSignRawTransactionResult) Receive() (*wire.MsgTx, bool, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, false, err
 	}
 
@@ -265,18 +290,21 @@ func (r FutureSignRawTransactionResult) Receive() (*wire.MsgTx, bool, error) {
 	var signRawTxResult json.SignRawTransactionResult
 	err = js.Unmarshal(res, &signRawTxResult)
 	if err != nil {
+
 		return nil, false, err
 	}
 
 	// Decode the serialized transaction hex to raw bytes.
 	serializedTx, err := hex.DecodeString(signRawTxResult.Hex)
 	if err != nil {
+
 		return nil, false, err
 	}
 
 	// Deserialize the transaction and return it.
 	var msgTx wire.MsgTx
 	if err := msgTx.Deserialize(bytes.NewReader(serializedTx)); err != nil {
+
 		return nil, false, err
 	}
 	return &msgTx, signRawTxResult.Complete, nil
@@ -284,12 +312,14 @@ func (r FutureSignRawTransactionResult) Receive() (*wire.MsgTx, bool, error) {
 
 // SignRawTransactionAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on returned instance. See SignRawTransaction for the blocking version and more details.
 func (c *Client) SignRawTransactionAsync(tx *wire.MsgTx) FutureSignRawTransactionResult {
+
 	txHex := ""
 	if tx != nil {
 
 		// Serialize the transaction and convert to hex string.
 		buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(buf); err != nil {
+
 			return newFutureError(err)
 		}
 		txHex = hex.EncodeToString(buf.Bytes())
@@ -306,12 +336,14 @@ func (c *Client) SignRawTransaction(tx *wire.MsgTx) (*wire.MsgTx, bool, error) {
 
 // SignRawTransaction2Async returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive on the returned instance. See SignRawTransaction2 for the blocking version and more details.
 func (c *Client) SignRawTransaction2Async(tx *wire.MsgTx, inputs []json.RawTxInput) FutureSignRawTransactionResult {
+
 	txHex := ""
 	if tx != nil {
 
 		// Serialize the transaction and convert to hex string.
 		buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(buf); err != nil {
+
 			return newFutureError(err)
 		}
 		txHex = hex.EncodeToString(buf.Bytes())
@@ -330,12 +362,14 @@ func (c *Client) SignRawTransaction2(tx *wire.MsgTx, inputs []json.RawTxInput) (
 func (c *Client) SignRawTransaction3Async(tx *wire.MsgTx,
 	inputs []json.RawTxInput,
 	privKeysWIF []string) FutureSignRawTransactionResult {
+
 	txHex := ""
 	if tx != nil {
 
 		// Serialize the transaction and convert to hex string.
 		buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(buf); err != nil {
+
 			return newFutureError(err)
 		}
 		txHex = hex.EncodeToString(buf.Bytes())
@@ -357,12 +391,14 @@ func (c *Client) SignRawTransaction3(tx *wire.MsgTx,
 func (c *Client) SignRawTransaction4Async(tx *wire.MsgTx,
 	inputs []json.RawTxInput, privKeysWIF []string,
 	hashType SigHashType) FutureSignRawTransactionResult {
+
 	txHex := ""
 	if tx != nil {
 
 		// Serialize the transaction and convert to hex string.
 		buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(buf); err != nil {
+
 			return newFutureError(err)
 		}
 		txHex = hex.EncodeToString(buf.Bytes())
@@ -389,6 +425,7 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -396,6 +433,7 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 	var searchRawTxnsResult []string
 	err = js.Unmarshal(res, &searchRawTxnsResult)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -406,6 +444,7 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 		// Decode the serialized transaction hex to raw bytes.
 		serializedTx, err := hex.DecodeString(hexTx)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -413,6 +452,7 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 		var msgTx wire.MsgTx
 		err = msgTx.Deserialize(bytes.NewReader(serializedTx))
 		if err != nil {
+
 			return nil, err
 		}
 		msgTxns = append(msgTxns, &msgTx)
@@ -422,6 +462,7 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 
 // SearchRawTransactionsAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See SearchRawTransactions for the blocking version and more details.
 func (c *Client) SearchRawTransactionsAsync(address util.Address, skip, count int, reverse bool, filterAddrs []string) FutureSearchRawTransactionsResult {
+
 	addr := address.EncodeAddress()
 	verbose := json.Int(0)
 	cmd := json.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
@@ -443,6 +484,7 @@ func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*json.SearchRawTr
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -450,6 +492,7 @@ func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*json.SearchRawTr
 	var result []*json.SearchRawTransactionsResult
 	err = js.Unmarshal(res, &result)
 	if err != nil {
+
 		return nil, err
 	}
 	return result, nil
@@ -458,10 +501,12 @@ func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*json.SearchRawTr
 // SearchRawTransactionsVerboseAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See SearchRawTransactionsVerbose for the blocking version and more details.
 func (c *Client) SearchRawTransactionsVerboseAsync(address util.Address, skip,
 	count int, includePrevOut, reverse bool, filterAddrs *[]string) FutureSearchRawTransactionsVerboseResult {
+
 	addr := address.EncodeAddress()
 	verbose := json.Int(1)
 	var prevOut *int
 	if includePrevOut {
+
 		prevOut = json.Int(1)
 	}
 	cmd := json.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
@@ -485,6 +530,7 @@ func (r FutureDecodeScriptResult) Receive() (*json.DecodeScriptResult, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -492,6 +538,7 @@ func (r FutureDecodeScriptResult) Receive() (*json.DecodeScriptResult, error) {
 	var decodeScriptResult json.DecodeScriptResult
 	err = js.Unmarshal(res, &decodeScriptResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &decodeScriptResult, nil
@@ -499,6 +546,7 @@ func (r FutureDecodeScriptResult) Receive() (*json.DecodeScriptResult, error) {
 
 // DecodeScriptAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See DecodeScript for the blocking version and more details.
 func (c *Client) DecodeScriptAsync(serializedScript []byte) FutureDecodeScriptResult {
+
 	scriptHex := hex.EncodeToString(serializedScript)
 	cmd := json.NewDecodeScriptCmd(scriptHex)
 	return c.sendCmd(cmd)

@@ -42,12 +42,14 @@ type descLookupFunc func(
 // reflectTypeToJSONType returns a string that represents the JSON type associated with the provided Go type.
 func reflectTypeToJSONType(
 	xT descLookupFunc, rt reflect.Type) string {
+
 	kind := rt.Kind()
 	if isNumeric(kind) {
 
 		return xT("json-type-numeric")
 	}
 	switch kind {
+
 	case reflect.String:
 		return xT("json-type-string")
 	case reflect.Bool:
@@ -66,6 +68,7 @@ func reflectTypeToJSONType(
 // resultStructHelp returns a slice of strings containing the result help output for a struct.  Each line makes use of tabs to separate the relevant pieces so a tabwriter can be used later to line everything up.  The descriptions are pulled from the active help descriptions map based on the lowercase version of the provided reflect type and json name (or the lowercase version of the field name if no json tag was specified).
 func resultStructHelp(
 	xT descLookupFunc, rt reflect.Type, indentLevel int) []string {
+
 	indent := strings.Repeat(" ", indentLevel)
 	typeName := strings.ToLower(rt.Name())
 
@@ -73,17 +76,21 @@ func resultStructHelp(
 	numField := rt.NumField()
 	results := make([]string, 0, numField)
 	for i := 0; i < numField; i++ {
+
 		rtf := rt.Field(i)
 		// The field name to display is the json name when it's available, otherwise use the lowercase field name.
 		var fieldName string
 		if tag := rtf.Tag.Get("json"); tag != "" {
+
 			fieldName = strings.Split(tag, ",")[0]
 		} else {
+
 			fieldName = strings.ToLower(rtf.Name)
 		}
 		// Deference pointer if needed.
 		rtfType := rtf.Type
 		if rtfType.Kind() == reflect.Ptr {
+
 			rtfType = rtf.Type.Elem()
 		}
 		// Generate the JSON example for the result type of this struct field.  When it is a complex type, examine the type and adjust the opening bracket and brace combination accordingly.
@@ -92,11 +99,14 @@ func resultStructHelp(
 		fieldExamples, isComplex := reflectTypeToJSONExample(xT,
 			rtfType, indentLevel, fieldDescKey)
 		if isComplex {
+
 			var brace string
 			kind := rtfType.Kind()
 			if kind == reflect.Array || kind == reflect.Slice {
+
 				brace = "[{"
 			} else {
+
 				brace = "{"
 			}
 			result := fmt.Sprintf("%s\"%s\": %s\t(%s)\t%s", indent,
@@ -104,6 +114,7 @@ func resultStructHelp(
 			results = append(results, result)
 			results = append(results, fieldExamples...)
 		} else {
+
 			result := fmt.Sprintf("%s\"%s\": %s,\t(%s)\t%s", indent,
 				fieldName, fieldExamples[0], fieldType,
 				xT(fieldDescKey))
@@ -119,17 +130,20 @@ func reflectTypeToJSONExample(
 
 	// Indirect pointer if needed.
 	if rt.Kind() == reflect.Ptr {
+
 		rt = rt.Elem()
 	}
 	kind := rt.Kind()
 	if isNumeric(kind) {
 
 		if kind == reflect.Float32 || kind == reflect.Float64 {
+
 			return []string{"n.nnn"}, false
 		}
 		return []string{"n"}, false
 	}
 	switch kind {
+
 	case reflect.String:
 		return []string{`"` + xT("json-example-string") + `"`}, false
 	case reflect.Bool:
@@ -139,6 +153,7 @@ func reflectTypeToJSONExample(
 		results := resultStructHelp(xT, rt, indentLevel+1)
 		// An opening brace is needed for the first indent level.  For all others, it will be included as a part of the previous field.
 		if indentLevel == 0 {
+
 			newResults := make([]string, len(results)+1)
 			newResults[0] = "{"
 			copy(newResults[1:], results)
@@ -147,6 +162,7 @@ func reflectTypeToJSONExample(
 		// The closing brace has a comma after it except for the first indent level.  The final tabs are necessary so the tab writer lines things up properly.
 		closingBrace := indent + "}"
 		if indentLevel > 0 {
+
 			closingBrace += ","
 		}
 		results = append(results, closingBrace+"\t\t")
@@ -156,9 +172,11 @@ func reflectTypeToJSONExample(
 			indentLevel, fieldDescKey)
 		// When the result is complex, it is because this is an array of objects.
 		if isComplex {
+
 			// When this is at indent level zero, there is no previous field to house the opening array bracket, so replace the opening object brace with the array syntax.  Also, replace the final closing object brace with the variadiac array closing syntax.
 			indent := strings.Repeat(" ", indentLevel)
 			if indentLevel == 0 {
+
 				results[0] = indent + "[{"
 				results[len(results)-1] = indent + "},...]"
 				return results, true
@@ -174,6 +192,7 @@ func reflectTypeToJSONExample(
 		results := make([]string, 0, 3)
 		// An opening brace is needed for the first indent level. For all others, it will be included as a part of the previous field.
 		if indentLevel == 0 {
+
 			results = append(results, indent+"{")
 		}
 		// Maps are a bit special in that they need to have the key, value, and description of the object entry specifically called out.
@@ -196,6 +215,7 @@ func resultTypeHelp(
 
 	// When this is a primitive type, add the associated JSON type and result description into the final string, format it accordingly, and return it.
 	if !isComplex {
+
 		return fmt.Sprintf("%s (%s) %s", results[0], reflectTypeToJSONType(xT, rt), xT(fieldDescKey))
 	}
 
@@ -204,9 +224,12 @@ func resultTypeHelp(
 	w := new(tabwriter.Writer)
 	w.Init(&formatted, 0, 4, 1, ' ', 0)
 	for i, text := range results {
+
 		if i == len(results)-1 {
+
 			fmt.Fprintf(w, text)
 		} else {
+
 			fmt.Fprintln(w, text)
 		}
 	}
@@ -222,12 +245,14 @@ func argTypeHelp(
 	fieldType := structField.Type
 	var isOptional bool
 	if fieldType.Kind() == reflect.Ptr {
+
 		fieldType = fieldType.Elem()
 		isOptional = true
 	}
 
 	// When there is a default value, it must also be a pointer due to the rules enforced by RegisterCmd.
 	if defaultVal != nil {
+
 		indirect := defaultVal.Elem()
 		defaultVal = &indirect
 	}
@@ -238,17 +263,21 @@ func argTypeHelp(
 
 	// Add optional and default value to the details if needed.
 	if isOptional {
+
 		details = append(details, xT("help-optional"))
 		// Add the default value if there is one.  This is only checked when the field is optional since a non-optional field can't have a default value.
 		if defaultVal != nil {
+
 			val := defaultVal.Interface()
 			if defaultVal.Kind() == reflect.String {
+
 				val = fmt.Sprintf(`"%s"`, val)
 			}
 			str := fmt.Sprintf("%s=%v", xT("help-default"), val)
 			details = append(details, str)
 		}
 	} else {
+
 		details = append(details, xT("help-required"))
 	}
 	return strings.Join(details, ", ")
@@ -262,15 +291,18 @@ func argHelp(
 	rt := rtp.Elem()
 	numFields := rt.NumField()
 	if numFields == 0 {
+
 		return ""
 	}
 
 	// Generate the help for each argument in the command.  Several simplifying assumptions are made here because the RegisterCmd function has already rigorously enforced the layout.
 	args := make([]string, 0, numFields)
 	for i := 0; i < numFields; i++ {
+
 		rtf := rt.Field(i)
 		var defaultVal *reflect.Value
 		if defVal, ok := defaults[i]; ok {
+
 			defaultVal = &defVal
 		}
 		fieldName := strings.ToLower(rtf.Name)
@@ -281,10 +313,12 @@ func argHelp(
 		// For types which require a JSON object, or an array of JSON objects, generate the full syntax for the argument.
 		fieldType := rtf.Type
 		if fieldType.Kind() == reflect.Ptr {
+
 			fieldType = fieldType.Elem()
 		}
 		kind := fieldType.Kind()
 		switch kind {
+
 		case reflect.Struct:
 			fieldDescKey := fmt.Sprintf("%s-%s", method, fieldName)
 			resultText := resultTypeHelp(xT, fieldType, fieldDescKey)
@@ -296,6 +330,7 @@ func argHelp(
 		case reflect.Array, reflect.Slice:
 			fieldDescKey := fmt.Sprintf("%s-%s", method, fieldName)
 			if rtf.Type.Elem().Kind() == reflect.Struct {
+
 				resultText := resultTypeHelp(xT, fieldType,
 					fieldDescKey)
 				args = append(args, resultText)
@@ -308,6 +343,7 @@ func argHelp(
 	w := new(tabwriter.Writer)
 	w.Init(&formatted, 0, 4, 1, ' ', 0)
 	for _, text := range args {
+
 		fmt.Fprintln(w, text)
 	}
 	w.Flush()
@@ -324,9 +360,11 @@ func methodHelp(
 
 	// Generate the help for each argument in the command.
 	if argText := argHelp(xT, rtp, defaults, method); argText != "" {
+
 		help += fmt.Sprintf("\n%s:\n%s", xT("help-arguments"),
 			argText)
 	} else {
+
 		help += fmt.Sprintf("\n%s:\n%s\n", xT("help-arguments"),
 			xT("help-arguments-none"))
 	}
@@ -334,9 +372,11 @@ func methodHelp(
 	// Generate the help text for each result type.
 	resultTexts := make([]string, 0, len(resultTypes))
 	for i := range resultTypes {
+
 		rtp := reflect.TypeOf(resultTypes[i])
 		fieldDescKey := fmt.Sprintf("%s--result%d", method, i)
 		if resultTypes[i] == nil {
+
 			resultText := xT("help-result-nothing")
 			resultTexts = append(resultTexts, resultText)
 			continue
@@ -347,15 +387,19 @@ func methodHelp(
 
 	// Add result types and descriptions.  When there is more than one result type, also add the condition which triggers it.
 	if len(resultTexts) > 1 {
+
 		for i, resultText := range resultTexts {
+
 			condKey := fmt.Sprintf("%s--condition%d", method, i)
 			help += fmt.Sprintf("\n%s (%s):\n%s\n",
 				xT("help-result"), xT(condKey), resultText)
 		}
 	} else if len(resultTexts) > 0 {
+
 		help += fmt.Sprintf("\n%s:\n%s\n", xT("help-result"),
 			resultTexts[0])
 	} else {
+
 		help += fmt.Sprintf("\n%s:\n%s\n", xT("help-result"),
 			xT("help-result-nothing"))
 	}
@@ -366,11 +410,13 @@ func methodHelp(
 // acceptable types for results.
 func isValidResultType(
 	kind reflect.Kind) bool {
+
 	if isNumeric(kind) {
 
 		return true
 	}
 	switch kind {
+
 	case reflect.String, reflect.Struct, reflect.Array, reflect.Slice,
 		reflect.Bool, reflect.Map:
 		return true
@@ -405,17 +451,21 @@ func GenerateHelp(
 	info := methodToInfo[method]
 	registerLock.RUnlock()
 	if !ok {
+
 		str := fmt.Sprintf("%q is not registered", method)
 		return "", makeError(ErrUnregisteredMethod, str)
 	}
 
 	// Validate each result type is a pointer to a supported type (or nil).
 	for i, resultType := range resultTypes {
+
 		if resultType == nil {
+
 			continue
 		}
 		rtp := reflect.TypeOf(resultType)
 		if rtp.Kind() != reflect.Ptr {
+
 			str := fmt.Sprintf("result #%d (%v) is not a pointer",
 				i, rtp.Kind())
 			return "", makeError(ErrInvalidType, str)
@@ -432,10 +482,13 @@ func GenerateHelp(
 	// Create a closure for the description lookup function which falls back to the base help descriptions map for unrecognized keys and tracks and missing keys.
 	var missingKey string
 	xT := func(key string) string {
+
 		if desc, ok := descs[key]; ok {
+
 			return desc
 		}
 		if desc, ok := baseHelpDescs[key]; ok {
+
 			return desc
 		}
 		missingKey = key
@@ -445,6 +498,7 @@ func GenerateHelp(
 	// Generate and return the help for the method.
 	help := methodHelp(xT, rtp, info.defaults, method, resultTypes)
 	if missingKey != "" {
+
 		return help, makeError(ErrMissingDescription, missingKey)
 	}
 	return help, nil

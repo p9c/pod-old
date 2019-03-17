@@ -18,13 +18,15 @@ var secp256k1BytePoints = ""
 // 0..n-1 where n is the curve's bit size (256 in the case of secp256k1)
 // the coordinates are recorded as Jacobian coordinates.
 func (curve *KoblitzCurve) getDoublingPoints() [][3]fieldVal {
-	doublingPoints := make([][3]fieldVal, curve.BitSize)
+	
+doublingPoints := make([][3]fieldVal, curve.BitSize)
 
 	// initialize px, py, pz to the Jacobian coordinates for the base point
 	px, py := curve.bigAffineToField(curve.Gx, curve.Gy)
 	pz := new(fieldVal).SetInt(1)
 	for i := 0; i < curve.BitSize; i++ {
-		doublingPoints[i] = [3]fieldVal{*px, *py, *pz}
+		
+doublingPoints[i] = [3]fieldVal{*px, *py, *pz}
 		// P = 2*P
 		curve.doubleJacobian(px, py, pz, px, py, pz)
 	}
@@ -35,34 +37,42 @@ func (curve *KoblitzCurve) getDoublingPoints() [][3]fieldVal {
 // the possible points per 8-bit window.  This is used to when generating
 // secp256k1.go.
 func (curve *KoblitzCurve) SerializedBytePoints() []byte {
-	doublingPoints := curve.getDoublingPoints()
+	
+doublingPoints := curve.getDoublingPoints()
 
 	// Segregate the bits into byte-sized windows
 	serialized := make([]byte, curve.byteSize*256*3*10*4)
 	offset := 0
 	for byteNum := 0; byteNum < curve.byteSize; byteNum++ {
-		// Grab the 8 bits that make up this byte from doublingPoints.
+		
+// Grab the 8 bits that make up this byte from doublingPoints.
 		startingBit := 8 * (curve.byteSize - byteNum - 1)
 		computingPoints := doublingPoints[startingBit : startingBit+8]
 		// Compute all points in this window and serialize them.
 		for i := 0; i < 256; i++ {
-			px, py, pz := new(fieldVal), new(fieldVal), new(fieldVal)
+			
+px, py, pz := new(fieldVal), new(fieldVal), new(fieldVal)
 			for j := 0; j < 8; j++ {
-				if i>>uint(j)&1 == 1 {
-					curve.addJacobian(px, py, pz, &computingPoints[j][0],
+				
+if i>>uint(j)&1 == 1 {
+					
+curve.addJacobian(px, py, pz, &computingPoints[j][0],
 						&computingPoints[j][1], &computingPoints[j][2], px, py, pz)
 				}
 			}
 			for i := 0; i < 10; i++ {
-				binary.LittleEndian.PutUint32(serialized[offset:], px.n[i])
+				
+binary.LittleEndian.PutUint32(serialized[offset:], px.n[i])
 				offset += 4
 			}
 			for i := 0; i < 10; i++ {
-				binary.LittleEndian.PutUint32(serialized[offset:], py.n[i])
+				
+binary.LittleEndian.PutUint32(serialized[offset:], py.n[i])
 				offset += 4
 			}
 			for i := 0; i < 10; i++ {
-				binary.LittleEndian.PutUint32(serialized[offset:], pz.n[i])
+				
+binary.LittleEndian.PutUint32(serialized[offset:], pz.n[i])
 				offset += 4
 			}
 		}
@@ -76,6 +86,7 @@ func (curve *KoblitzCurve) SerializedBytePoints() []byte {
 func sqrt(
 	n *big.Int) *big.Int {
 
+
 	// Initial guess = 2^(log_2(n)/2)
 	guess := big.NewInt(2)
 	guess.Exp(guess, big.NewInt(int64(n.BitLen()/2)), nil)
@@ -84,11 +95,13 @@ func sqrt(
 	big2 := big.NewInt(2)
 	prevGuess := big.NewInt(0)
 	for {
-		prevGuess.Set(guess)
+		
+prevGuess.Set(guess)
 		guess.Add(guess, new(big.Int).Div(n, guess))
 		guess.Div(guess, big2)
 		if guess.Cmp(prevGuess) == 0 {
-			break
+			
+break
 		}
 	}
 	return guess
@@ -101,6 +114,7 @@ func sqrt(
 // and λ are fixed, the final results can be accelerated by storing the
 // precomputed values with the curve.
 func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
+
 
 	bigMinus1 := big.NewInt(-1)
 
@@ -120,7 +134,8 @@ func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
 	a1, b1, a2, b2 = new(big.Int), new(big.Int), new(big.Int), new(big.Int)
 	found, oneMore := false, false
 	for u.Sign() != 0 {
-		// q = v/u
+		
+// q = v/u
 		q.Div(v, u)
 		// r = v - q*u
 		qu.Mul(q, u)
@@ -141,7 +156,8 @@ func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
 		// As soon as the remainder is less than the sqrt of n, the
 		// values of a1 and b1 are known.
 		if !found && r.Cmp(nSqrt) < 0 {
-			// When this condition executes ri and ti represent the
+			
+// When this condition executes ri and ti represent the
 			// r[i] and t[i] values such that i is the greatest
 			// index for which r >= sqrt(n).  Meanwhile, the current
 			// r and t values are r[i+1] and t[i+1], respectively.
@@ -154,7 +170,8 @@ func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
 			// modified.
 			continue
 		} else if oneMore {
-			// When this condition executes ri and ti still
+			
+// When this condition executes ri and ti still
 			// represent the r[i] and t[i] values while the current
 			// r and t are r[i+2] and t[i+2], respectively.
 			// sum1 = r[i]^2 + t[i]^2
@@ -167,11 +184,13 @@ func (curve *KoblitzCurve) EndomorphismVectors() (a1, b1, a2, b2 *big.Int) {
 			sum2 := new(big.Int).Add(r2Squared, t2Squared)
 			// if (r[i]^2 + t[i]^2) <= (r[i+2]^2 + t[i+2]^2)
 			if sum1.Cmp(sum2) <= 0 {
-				// a2 = r[i], b2 = -t[i]
+				
+// a2 = r[i], b2 = -t[i]
 				a2.Set(ri)
 				b2.Mul(ti, bigMinus1)
 			} else {
-				// a2 = r[i+2], b2 = -t[i+2]
+				
+// a2 = r[i+2], b2 = -t[i+2]
 				a2.Set(r)
 				b2.Mul(t, bigMinus1)
 			}

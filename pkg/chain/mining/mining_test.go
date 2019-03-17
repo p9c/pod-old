@@ -39,6 +39,7 @@ func TestTxFeePrioHeap(
 	}()
 	prng := rand.New(rand.NewSource(randSeed))
 	for i := 0; i < 1000; i++ {
+
 		testItems = append(testItems, &txPrioItem{
 			feePerKB: int64(prng.Float64() * util.SatoshiPerBitcoin),
 			priority: prng.Float64() * 100,
@@ -49,20 +50,25 @@ func TestTxFeePrioHeap(
 	var highest *txPrioItem
 	priorityQueue := newTxPriorityQueue(len(testItems), true)
 	for i := 0; i < len(testItems); i++ {
+
 		prioItem := testItems[i]
 		if highest == nil {
+
 			highest = prioItem
 		}
 		if prioItem.feePerKB >= highest.feePerKB &&
 			prioItem.priority > highest.priority {
+
 			highest = prioItem
 		}
 		heap.Push(priorityQueue, prioItem)
 	}
 	for i := 0; i < len(testItems); i++ {
+
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		if prioItem.feePerKB >= highest.feePerKB &&
 			prioItem.priority > highest.priority {
+
 			t.Fatalf("fee sort: item (fee per KB: %v, "+
 				"priority: %v) higher than than prev "+
 				"(fee per KB: %v, priority %v)",
@@ -76,20 +82,25 @@ func TestTxFeePrioHeap(
 	highest = nil
 	priorityQueue = newTxPriorityQueue(len(testItems), false)
 	for i := 0; i < len(testItems); i++ {
+
 		prioItem := testItems[i]
 		if highest == nil {
+
 			highest = prioItem
 		}
 		if prioItem.priority >= highest.priority &&
 			prioItem.feePerKB > highest.feePerKB {
+
 			highest = prioItem
 		}
 		heap.Push(priorityQueue, prioItem)
 	}
 	for i := 0; i < len(testItems); i++ {
+
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		if prioItem.priority >= highest.priority &&
 			prioItem.feePerKB > highest.feePerKB {
+
 			t.Fatalf("priority sort: item (fee per KB: %v, "+
 				"priority: %v) higher than than prev "+
 				"(fee per KB: %v, priority %v)",

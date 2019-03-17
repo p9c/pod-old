@@ -13,6 +13,7 @@ func BenchmarkIsCoinBase(
 	tx, _ := util.NewBlock(&Block100000).Tx(1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+
 		IsCoinBase(tx)
 	}
 
@@ -25,6 +26,7 @@ func BenchmarkIsCoinBaseTx(
 	tx := Block100000.Transactions[1]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+
 		IsCoinBaseTx(tx)
 	}
 

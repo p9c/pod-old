@@ -29,8 +29,10 @@ func TestRejectCodeStringer(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue
@@ -55,14 +57,17 @@ func TestRejectLatest(
 	msg := NewMsgReject(rejCommand, rejCode, rejReason)
 	msg.Hash = rejHash
 	if msg.Cmd != rejCommand {
+
 		t.Errorf("NewMsgReject: wrong rejected command - got %v, "+
 			"want %v", msg.Cmd, rejCommand)
 	}
 	if msg.Code != rejCode {
+
 		t.Errorf("NewMsgReject: wrong rejected code - got %v, "+
 			"want %v", msg.Code, rejCode)
 	}
 	if msg.Reason != rejReason {
+
 		t.Errorf("NewMsgReject: wrong rejected reason - got %v, "+
 			"want %v", msg.Reason, rejReason)
 	}
@@ -70,6 +75,7 @@ func TestRejectLatest(
 	// Ensure the command is expected value.
 	wantCmd := "reject"
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgReject: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -78,6 +84,7 @@ func TestRejectLatest(
 	wantPayload := uint32(MaxMessagePayload)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -87,6 +94,7 @@ func TestRejectLatest(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("encode of MsgReject failed %v err <%v>", msg, err)
 	}
 
@@ -94,24 +102,29 @@ func TestRejectLatest(
 	readMsg := MsgReject{}
 	err = readMsg.BtcDecode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("decode of MsgReject failed %v err <%v>", buf.Bytes(),
 			err)
 	}
 
 	// Ensure decoded data is the same.
 	if msg.Cmd != readMsg.Cmd {
+
 		t.Errorf("Should get same reject command - got %v, want %v",
 			readMsg.Cmd, msg.Cmd)
 	}
 	if msg.Code != readMsg.Code {
+
 		t.Errorf("Should get same reject code - got %v, want %v",
 			readMsg.Code, msg.Code)
 	}
 	if msg.Reason != readMsg.Reason {
+
 		t.Errorf("Should get same reject reason - got %v, want %v",
 			readMsg.Reason, msg.Reason)
 	}
 	if msg.Hash != readMsg.Hash {
+
 		t.Errorf("Should get same reject hash - got %v, want %v",
 			readMsg.Hash, msg.Hash)
 	}
@@ -136,6 +149,7 @@ func TestRejectBeforeAdded(
 	// Ensure max payload is expected value for old protocol version.
 	size := msg.MaxPayloadLength(pver)
 	if size != 0 {
+
 		t.Errorf("Max length should be 0 for reject protocol version %d.",
 			pver)
 	}
@@ -144,6 +158,7 @@ func TestRejectBeforeAdded(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
 	if err == nil {
+
 		t.Errorf("encode of MsgReject succeeded when it shouldn't "+
 			"have %v", msg)
 	}
@@ -152,24 +167,29 @@ func TestRejectBeforeAdded(
 	readMsg := MsgReject{}
 	err = readMsg.BtcDecode(&buf, pver, enc)
 	if err == nil {
+
 		t.Errorf("decode of MsgReject succeeded when it shouldn't "+
 			"have %v", spew.Sdump(buf.Bytes()))
 	}
 
 	// Since this protocol version doesn't support reject, make sure various fields didn't get encoded and decoded back out.
 	if msg.Cmd == readMsg.Cmd {
+
 		t.Errorf("Should not get same reject command for protocol "+
 			"version %d", pver)
 	}
 	if msg.Code == readMsg.Code {
+
 		t.Errorf("Should not get same reject code for protocol "+
 			"version %d", pver)
 	}
 	if msg.Reason == readMsg.Reason {
+
 		t.Errorf("Should not get same reject reason for protocol "+
 			"version %d", pver)
 	}
 	if msg.Hash == readMsg.Hash {
+
 		t.Errorf("Should not get same reject hash for protocol "+
 			"version %d", pver)
 	}
@@ -191,6 +211,7 @@ func TestRejectCrossProtocol(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, BaseEncoding)
 	if err != nil {
+
 		t.Errorf("encode of MsgReject failed %v err <%v>", msg, err)
 	}
 
@@ -198,21 +219,26 @@ func TestRejectCrossProtocol(
 	readMsg := MsgReject{}
 	err = readMsg.BtcDecode(&buf, RejectVersion-1, BaseEncoding)
 	if err == nil {
+
 		t.Errorf("encode of MsgReject succeeded when it shouldn't "+
 			"have %v", msg)
 	}
 
 	// Since one of the protocol versions doesn't support the reject message, make sure the various fields didn't get encoded and decoded back out.
 	if msg.Cmd == readMsg.Cmd {
+
 		t.Errorf("Should not get same reject command for cross protocol")
 	}
 	if msg.Code == readMsg.Code {
+
 		t.Errorf("Should not get same reject code for cross protocol")
 	}
 	if msg.Reason == readMsg.Reason {
+
 		t.Errorf("Should not get same reject reason for cross protocol")
 	}
 	if msg.Hash == readMsg.Hash {
+
 		t.Errorf("Should not get same reject hash for cross protocol")
 	}
 }
@@ -275,6 +301,7 @@ func TestRejectWire(
 		var buf bytes.Buffer
 		err := test.msg.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -290,6 +317,7 @@ func TestRejectWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -361,7 +389,9 @@ func TestRejectWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -381,7 +411,9 @@ func TestRejectWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

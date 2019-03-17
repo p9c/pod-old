@@ -213,6 +213,7 @@ type ReadWriteCursor interface {
 // no key/value pairs or nested buckets.
 func BucketIsEmpty(
 	bucket ReadBucket) bool {
+
 	k, v := bucket.ReadCursor().First()
 	return k == nil && v == nil
 }
@@ -242,16 +243,20 @@ type DB interface {
 // occur).
 func View(
 	db DB, f func(tx ReadTx) error) error {
+
 	tx, err := db.BeginReadTx()
 	if err != nil {
+
 		return err
 	}
 	err = f(tx)
 	rollbackErr := tx.Rollback()
 	if err != nil {
+
 		return err
 	}
 	if rollbackErr != nil {
+
 		return rollbackErr
 	}
 	return nil
@@ -265,12 +270,15 @@ func View(
 // returned.
 func Update(
 	db DB, f func(tx ReadWriteTx) error) error {
+
 	tx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		return err
 	}
 	err = f(tx)
 	if err != nil {
+
 		// Want to return the original error, not a rollback error if
 		// any occur.
 		_ = tx.Rollback()
@@ -311,7 +319,9 @@ var drivers = make(map[string]*Driver)
 // already been registered.
 func RegisterDriver(
 	driver Driver) error {
+
 	if _, exists := drivers[driver.DbType]; exists {
+
 		return ErrDbTypeRegistered
 	}
 
@@ -322,8 +332,10 @@ func RegisterDriver(
 // SupportedDrivers returns a slice of strings that represent the database
 // drivers that have been registered and are therefore supported.
 func SupportedDrivers() []string {
+
 	supportedDBs := make([]string, 0, len(drivers))
 	for _, drv := range drivers {
+
 		supportedDBs = append(supportedDBs, drv.DbType)
 	}
 	return supportedDBs
@@ -339,6 +351,7 @@ func Create(
 
 	drv, exists := drivers[dbType]
 	if !exists {
+
 		return nil, ErrDbUnknownType
 	}
 
@@ -355,6 +368,7 @@ func Open(
 
 	drv, exists := drivers[dbType]
 	if !exists {
+
 		return nil, ErrDbUnknownType
 	}
 

@@ -59,6 +59,7 @@ var (
 // dbPutBlockIDIndexEntry uses an existing database transaction to update or add the index entries for the hash to id and id to hash mappings for the provided values.
 func dbPutBlockIDIndexEntry(
 	dbTx database.Tx, hash *chainhash.Hash, id uint32) error {
+
 	// Serialize the height for use in the index entries.
 	var serializedID [4]byte
 	byteOrder.PutUint32(serializedID[:], id)
@@ -66,6 +67,7 @@ func dbPutBlockIDIndexEntry(
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(idByHashIndexBucketName)
 	if err := hashIndex.Put(hash[:], serializedID[:]); err != nil {
+
 		return err
 	}
 	// Add the block ID to hash mapping to the index.
@@ -76,14 +78,17 @@ func dbPutBlockIDIndexEntry(
 // dbRemoveBlockIDIndexEntry uses an existing database transaction remove index entries from the hash to id and id to hash mappings for the provided hash.
 func dbRemoveBlockIDIndexEntry(
 	dbTx database.Tx, hash *chainhash.Hash) error {
+
 	// Remove the block hash to ID mapping.
 	meta := dbTx.Metadata()
 	hashIndex := meta.Bucket(idByHashIndexBucketName)
 	serializedID := hashIndex.Get(hash[:])
 	if serializedID == nil {
+
 		return nil
 	}
 	if err := hashIndex.Delete(hash[:]); err != nil {
+
 		return err
 	}
 	// Remove the block ID to hash mapping.
@@ -98,6 +103,7 @@ func dbFetchBlockIDByHash(
 	hashIndex := dbTx.Metadata().Bucket(idByHashIndexBucketName)
 	serializedID := hashIndex.Get(hash[:])
 	if serializedID == nil {
+
 		return 0, errNoBlockIDEntry
 	}
 	return byteOrder.Uint32(serializedID), nil
@@ -110,6 +116,7 @@ func dbFetchBlockHashBySerializedID(
 	idIndex := dbTx.Metadata().Bucket(hashByIDIndexBucketName)
 	hashBytes := idIndex.Get(serializedID)
 	if hashBytes == nil {
+
 		return nil, errNoBlockIDEntry
 	}
 	var hash chainhash.Hash
@@ -138,6 +145,7 @@ func putTxIndexEntry(
 // dbPutTxIndexEntry uses an existing database transaction to update the transaction index given the provided serialized data that is expected to have been serialized putTxIndexEntry.
 func dbPutTxIndexEntry(
 	dbTx database.Tx, txHash *chainhash.Hash, serializedData []byte) error {
+
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	return txIndex.Put(txHash[:], serializedData)
 }
@@ -150,10 +158,12 @@ func dbFetchTxIndexEntry(
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	serializedData := txIndex.Get(txHash[:])
 	if len(serializedData) == 0 {
+
 		return nil, nil
 	}
 	// Ensure the serialized data has enough bytes to properly deserialize.
 	if len(serializedData) < 12 {
+
 		return nil, database.Error{
 			ErrorCode: database.ErrCorruption,
 			Description: fmt.Sprintf("corrupt transaction index "+
@@ -163,6 +173,7 @@ func dbFetchTxIndexEntry(
 	// Load the block hash associated with the block ID.
 	hash, err := dbFetchBlockHashBySerializedID(dbTx, serializedData[0:4])
 	if err != nil {
+
 		return nil, database.Error{
 			ErrorCode: database.ErrCorruption,
 			Description: fmt.Sprintf("corrupt transaction index "+
@@ -180,9 +191,11 @@ func dbFetchTxIndexEntry(
 // dbAddTxIndexEntries uses an existing database transaction to add a transaction index entry for every transaction in the passed block.
 func dbAddTxIndexEntries(
 	dbTx database.Tx, block *util.Block, blockID uint32) error {
+
 	// The offset and length of the transactions within the serialized block.
 	txLocs, err := block.TxLoc()
 	if err != nil {
+
 		return err
 	}
 	// As an optimization, allocate a single slice big enough to hold all of the serialized transaction index entries for the block and serialize them directly into the slice.  Then, pass the appropriate subslice to the database to be written.  This approach significantly cuts down on the number of required allocations.
@@ -195,6 +208,7 @@ func dbAddTxIndexEntries(
 		err := dbPutTxIndexEntry(dbTx, tx.Hash(),
 			serializedValues[offset:endOffset:endOffset])
 		if err != nil {
+
 			return err
 		}
 		offset += txEntrySize
@@ -205,9 +219,11 @@ func dbAddTxIndexEntries(
 // dbRemoveTxIndexEntry uses an existing database transaction to remove the most recent transaction index entry for the given hash.
 func dbRemoveTxIndexEntry(
 	dbTx database.Tx, txHash *chainhash.Hash) error {
+
 	txIndex := dbTx.Metadata().Bucket(txIndexKey)
 	serializedData := txIndex.Get(txHash[:])
 	if len(serializedData) == 0 {
+
 		return fmt.Errorf("can't remove non-existent transaction %s "+
 			"from the transaction index", txHash)
 	}
@@ -217,10 +233,12 @@ func dbRemoveTxIndexEntry(
 // dbRemoveTxIndexEntries uses an existing database transaction to remove the latest transaction entry for every transaction in the passed block.
 func dbRemoveTxIndexEntries(
 	dbTx database.Tx, block *util.Block) error {
+
 	for _, tx := range block.Transactions() {
 
 		err := dbRemoveTxIndexEntry(dbTx, tx.Hash())
 		if err != nil {
+
 			return err
 		}
 	}
@@ -238,15 +256,19 @@ var _ Indexer = (*TxIndex)(nil)
 
 // Init initializes the hash-based transaction index.  In particular, it finds the highest used block ID and stores it for later use when connecting or disconnecting blocks. This is part of the Indexer interface.
 func (idx *TxIndex) Init() error {
+
 	// Find the latest known block id field for the internal block id index and initialize it.  This is done because it's a lot more efficient to do a single search at initialize time than it is to write another value to the database on every update.
 	err := idx.db.View(func(dbTx database.Tx) error {
+
 		// Scan forward in large gaps to find a block id that doesn't exist yet to serve as an upper bound for the binary search below.
 		var highestKnown, nextUnknown uint32
 		testBlockID := uint32(1)
 		increment := uint32(100000)
 		for {
+
 			_, err := dbFetchBlockHashByID(dbTx, testBlockID)
 			if err != nil {
+
 				nextUnknown = testBlockID
 				break
 			}
@@ -260,15 +282,19 @@ func (idx *TxIndex) Init() error {
 		}
 		// No used block IDs due to new database.
 		if nextUnknown == 1 {
+
 			return nil
 		}
 		// Use a binary search to find the final highest used block id. This will take at most ceil(log_2(increment)) attempts.
 		for {
+
 			testBlockID = (highestKnown + nextUnknown) / 2
 			_, err := dbFetchBlockHashByID(dbTx, testBlockID)
 			if err != nil {
+
 				nextUnknown = testBlockID
 			} else {
+
 				highestKnown = testBlockID
 			}
 			log <- cl.Tracef{
@@ -277,6 +303,7 @@ func (idx *TxIndex) Init() error {
 				nextUnknown,
 			}
 			if highestKnown+1 == nextUnknown {
+
 				break
 			}
 		}
@@ -284,6 +311,7 @@ func (idx *TxIndex) Init() error {
 		return nil
 	})
 	if err != nil {
+
 		return err
 	}
 	log <- cl.Debug{"Current internal block ID:", idx.curBlockID}
@@ -292,21 +320,26 @@ func (idx *TxIndex) Init() error {
 
 // Key returns the database key to use for the index as a byte slice. This is part of the Indexer interface.
 func (idx *TxIndex) Key() []byte {
+
 	return txIndexKey
 }
 
 // Name returns the human-readable name of the index. This is part of the Indexer interface.
 func (idx *TxIndex) Name() string {
+
 	return txIndexName
 }
 
 // Create is invoked when the indexer manager determines the index needs to be created for the first time.  It creates the buckets for the hash-based transaction index and the internal block ID indexes. This is part of the Indexer interface.
 func (idx *TxIndex) Create(dbTx database.Tx) error {
+
 	meta := dbTx.Metadata()
 	if _, err := meta.CreateBucket(idByHashIndexBucketName); err != nil {
+
 		return err
 	}
 	if _, err := meta.CreateBucket(hashByIDIndexBucketName); err != nil {
+
 		return err
 	}
 	_, err := meta.CreateBucket(txIndexKey)
@@ -316,14 +349,17 @@ func (idx *TxIndex) Create(dbTx database.Tx) error {
 // ConnectBlock is invoked by the index manager when a new block has been connected to the main chain.  This indexer adds a hash-to-transaction mapping for every transaction in the passed block. This is part of the Indexer interface.
 func (idx *TxIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 	stxos []blockchain.SpentTxOut) error {
+
 	// Increment the internal block ID to use for the block being connected and add all of the transactions in the block to the index.
 	newBlockID := idx.curBlockID + 1
 	if err := dbAddTxIndexEntries(dbTx, block, newBlockID); err != nil {
+
 		return err
 	}
 	// Add the new block ID index entry for the block being connected and update the current internal block ID accordingly.
 	err := dbPutBlockIDIndexEntry(dbTx, block.Hash(), newBlockID)
 	if err != nil {
+
 		return err
 	}
 	idx.curBlockID = newBlockID
@@ -333,12 +369,15 @@ func (idx *TxIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 // DisconnectBlock is invoked by the index manager when a block has been disconnected from the main chain.  This indexer removes the hash-to-transaction mapping for every transaction in the block. This is part of the Indexer interface.
 func (idx *TxIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 	stxos []blockchain.SpentTxOut) error {
+
 	// Remove all of the transactions in the block from the index.
 	if err := dbRemoveTxIndexEntries(dbTx, block); err != nil {
+
 		return err
 	}
 	// Remove the block ID index entry for the block being disconnected and decrement the current internal block ID to account for it.
 	if err := dbRemoveBlockIDIndexEntry(dbTx, block.Hash()); err != nil {
+
 		return err
 	}
 	idx.curBlockID--
@@ -350,6 +389,7 @@ func (idx *TxIndex) TxBlockRegion(hash *chainhash.Hash) (*database.BlockRegion, 
 
 	var region *database.BlockRegion
 	err := idx.db.View(func(dbTx database.Tx) error {
+
 		var err error
 		region, err = dbFetchTxIndexEntry(dbTx, hash)
 		return err
@@ -360,16 +400,20 @@ func (idx *TxIndex) TxBlockRegion(hash *chainhash.Hash) (*database.BlockRegion, 
 // NewTxIndex returns a new instance of an indexer that is used to create a mapping of the hashes of all transactions in the blockchain to the respective block, location within the block, and size of the transaction. It implements the Indexer interface which plugs into the IndexManager that in turn is used by the blockchain package.  This allows the index to be seamlessly maintained along with the chain.
 func NewTxIndex(
 	db database.DB) *TxIndex {
+
 	return &TxIndex{db: db}
 }
 
 // dropBlockIDIndex drops the internal block id index.
 func dropBlockIDIndex(
 	db database.DB) error {
+
 	return db.Update(func(dbTx database.Tx) error {
+
 		meta := dbTx.Metadata()
 		err := meta.DeleteBucket(idByHashIndexBucketName)
 		if err != nil {
+
 			return err
 		}
 		return meta.DeleteBucket(hashByIDIndexBucketName)
@@ -379,8 +423,10 @@ func dropBlockIDIndex(
 // DropTxIndex drops the transaction index from the provided database if it exists.  Since the address index relies on it, the address index will also be dropped when it exists.
 func DropTxIndex(
 	db database.DB, interrupt <-chan struct{}) error {
+
 	err := dropIndex(db, addrIndexKey, addrIndexName, interrupt)
 	if err != nil {
+
 		return err
 	}
 	return dropIndex(db, txIndexKey, txIndexName, interrupt)

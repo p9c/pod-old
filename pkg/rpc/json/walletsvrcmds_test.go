@@ -30,6 +30,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("addmultisigaddress", 2, []string{"031234", "035678"})
 			},
 			staticCmd: func() interface{} {
+
 				keys := []string{"031234", "035678"}
 				return json.NewAddMultisigAddressCmd(2, keys, nil)
 			},
@@ -47,6 +48,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("addmultisigaddress", 2, []string{"031234", "035678"}, "test")
 			},
 			staticCmd: func() interface{} {
+
 				keys := []string{"031234", "035678"}
 				return json.NewAddMultisigAddressCmd(2, keys, json.String("test"))
 			},
@@ -64,6 +66,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("addwitnessaddress", "1address")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewAddWitnessAddressCmd("1address")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"addwitnessaddress","params":["1address"],"id":1}`,
@@ -78,6 +81,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("createmultisig", 2, []string{"031234", "035678"})
 			},
 			staticCmd: func() interface{} {
+
 				keys := []string{"031234", "035678"}
 				return json.NewCreateMultisigCmd(2, keys)
 			},
@@ -94,6 +98,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("dumpprivkey", "1Address")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewDumpPrivKeyCmd("1Address")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"dumpprivkey","params":["1Address"],"id":1}`,
@@ -108,6 +113,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("encryptwallet", "pass")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewEncryptWalletCmd("pass")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"encryptwallet","params":["pass"],"id":1}`,
@@ -122,6 +128,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("estimatefee", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewEstimateFeeCmd(6)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"estimatefee","params":[6],"id":1}`,
@@ -136,6 +143,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("estimatepriority", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewEstimatePriorityCmd(6)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"estimatepriority","params":[6],"id":1}`,
@@ -150,6 +158,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getaccount", "1Address")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetAccountCmd("1Address")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getaccount","params":["1Address"],"id":1}`,
@@ -164,6 +173,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getaccountaddress", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetAccountAddressCmd("acct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getaccountaddress","params":["acct"],"id":1}`,
@@ -178,6 +188,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getaddressesbyaccount", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetAddressesByAccountCmd("acct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getaddressesbyaccount","params":["acct"],"id":1}`,
@@ -192,6 +203,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getbalance")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetBalanceCmd(nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getbalance","params":[],"id":1}`,
@@ -207,6 +219,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getbalance", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetBalanceCmd(json.String("acct"), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getbalance","params":["acct"],"id":1}`,
@@ -222,6 +235,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getbalance", "acct", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetBalanceCmd(json.String("acct"), json.Int(6))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getbalance","params":["acct",6],"id":1}`,
@@ -237,6 +251,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getnewaddress")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetNewAddressCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getnewaddress","params":[],"id":1}`,
@@ -251,6 +266,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getnewaddress", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetNewAddressCmd(json.String("acct"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getnewaddress","params":["acct"],"id":1}`,
@@ -265,6 +281,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getrawchangeaddress")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetRawChangeAddressCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawchangeaddress","params":[],"id":1}`,
@@ -279,6 +296,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getrawchangeaddress", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetRawChangeAddressCmd(json.String("acct"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getrawchangeaddress","params":["acct"],"id":1}`,
@@ -293,6 +311,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getreceivedbyaccount", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetReceivedByAccountCmd("acct", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getreceivedbyaccount","params":["acct"],"id":1}`,
@@ -308,6 +327,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getreceivedbyaccount", "acct", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetReceivedByAccountCmd("acct", json.Int(6))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getreceivedbyaccount","params":["acct",6],"id":1}`,
@@ -323,6 +343,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getreceivedbyaddress", "1Address")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetReceivedByAddressCmd("1Address", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getreceivedbyaddress","params":["1Address"],"id":1}`,
@@ -338,6 +359,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getreceivedbyaddress", "1Address", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetReceivedByAddressCmd("1Address", json.Int(6))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"getreceivedbyaddress","params":["1Address",6],"id":1}`,
@@ -353,6 +375,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("gettransaction", "123")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetTransactionCmd("123", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettransaction","params":["123"],"id":1}`,
@@ -368,6 +391,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("gettransaction", "123", true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetTransactionCmd("123", json.Bool(true))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"gettransaction","params":["123",true],"id":1}`,
@@ -383,6 +407,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("getwalletinfo")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewGetWalletInfoCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"getwalletinfo","params":[],"id":1}`,
@@ -395,6 +420,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("importprivkey", "abc")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportPrivKeyCmd("abc", nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importprivkey","params":["abc"],"id":1}`,
@@ -411,6 +437,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("importprivkey", "abc", "label")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportPrivKeyCmd("abc", json.String("label"), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importprivkey","params":["abc","label"],"id":1}`,
@@ -427,6 +454,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("importprivkey", "abc", "label", false)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportPrivKeyCmd("abc", json.String("label"), json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importprivkey","params":["abc","label",false],"id":1}`,
@@ -443,6 +471,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("keypoolrefill")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewKeyPoolRefillCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"keypoolrefill","params":[],"id":1}`,
@@ -457,6 +486,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("keypoolrefill", 200)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewKeyPoolRefillCmd(json.Uint(200))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"keypoolrefill","params":[200],"id":1}`,
@@ -471,6 +501,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listaccounts")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAccountsCmd(nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listaccounts","params":[],"id":1}`,
@@ -485,6 +516,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listaccounts", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAccountsCmd(json.Int(6))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listaccounts","params":[6],"id":1}`,
@@ -499,6 +531,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listaddressgroupings")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListAddressGroupingsCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"listaddressgroupings","params":[],"id":1}`,
@@ -511,6 +544,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listlockunspent")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListLockUnspentCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"listlockunspent","params":[],"id":1}`,
@@ -523,6 +557,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaccount")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAccountCmd(nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaccount","params":[],"id":1}`,
@@ -539,6 +574,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaccount", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAccountCmd(json.Int(6), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaccount","params":[6],"id":1}`,
@@ -555,6 +591,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaccount", 6, true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAccountCmd(json.Int(6), json.Bool(true), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaccount","params":[6,true],"id":1}`,
@@ -571,6 +608,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaccount", 6, true, false)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAccountCmd(json.Int(6), json.Bool(true), json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaccount","params":[6,true,false],"id":1}`,
@@ -587,6 +625,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaddress")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAddressCmd(nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaddress","params":[],"id":1}`,
@@ -603,6 +642,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaddress", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAddressCmd(json.Int(6), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaddress","params":[6],"id":1}`,
@@ -619,6 +659,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaddress", 6, true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAddressCmd(json.Int(6), json.Bool(true), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaddress","params":[6,true],"id":1}`,
@@ -635,6 +676,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listreceivedbyaddress", 6, true, false)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListReceivedByAddressCmd(json.Int(6), json.Bool(true), json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listreceivedbyaddress","params":[6,true,false],"id":1}`,
@@ -651,6 +693,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listsinceblock")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListSinceBlockCmd(nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listsinceblock","params":[],"id":1}`,
@@ -667,6 +710,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listsinceblock", "123")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListSinceBlockCmd(json.String("123"), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listsinceblock","params":["123"],"id":1}`,
@@ -683,6 +727,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listsinceblock", "123", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListSinceBlockCmd(json.String("123"), json.Int(6), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listsinceblock","params":["123",6],"id":1}`,
@@ -699,6 +744,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listsinceblock", "123", 6, true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListSinceBlockCmd(json.String("123"), json.Int(6), json.Bool(true))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listsinceblock","params":["123",6,true],"id":1}`,
@@ -715,6 +761,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listtransactions")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListTransactionsCmd(nil, nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listtransactions","params":[],"id":1}`,
@@ -732,6 +779,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listtransactions", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListTransactionsCmd(json.String("acct"), nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listtransactions","params":["acct"],"id":1}`,
@@ -749,6 +797,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listtransactions", "acct", 20)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListTransactionsCmd(json.String("acct"), json.Int(20), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listtransactions","params":["acct",20],"id":1}`,
@@ -766,6 +815,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listtransactions", "acct", 20, 1)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListTransactionsCmd(json.String("acct"), json.Int(20),
 					json.Int(1), nil)
 			},
@@ -784,6 +834,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listtransactions", "acct", 20, 1, true)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListTransactionsCmd(json.String("acct"), json.Int(20),
 					json.Int(1), json.Bool(true))
 			},
@@ -802,6 +853,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listunspent")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListUnspentCmd(nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listunspent","params":[],"id":1}`,
@@ -818,6 +870,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listunspent", 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListUnspentCmd(json.Int(6), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listunspent","params":[6],"id":1}`,
@@ -834,6 +887,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listunspent", 6, 100)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListUnspentCmd(json.Int(6), json.Int(100), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"listunspent","params":[6,100],"id":1}`,
@@ -850,6 +904,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("listunspent", 6, 100, []string{"1Address", "1Address2"})
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewListUnspentCmd(json.Int(6), json.Int(100),
 					&[]string{"1Address", "1Address2"})
 			},
@@ -867,6 +922,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("lockunspent", true, `[{"txid":"123","vout":1}]`)
 			},
 			staticCmd: func() interface{} {
+
 				txInputs := []json.TransactionInput{
 					{Txid: "123", Vout: 1},
 				}
@@ -887,6 +943,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("move", "from", "to", 0.5)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewMoveCmd("from", "to", 0.5, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"move","params":["from","to",0.5],"id":1}`,
@@ -905,6 +962,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("move", "from", "to", 0.5, 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewMoveCmd("from", "to", 0.5, json.Int(6), nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"move","params":["from","to",0.5,6],"id":1}`,
@@ -923,6 +981,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("move", "from", "to", 0.5, 6, "comment")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewMoveCmd("from", "to", 0.5, json.Int(6), json.String("comment"))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"move","params":["from","to",0.5,6,"comment"],"id":1}`,
@@ -941,6 +1000,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendFromCmd("from", "1Address", 0.5, nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"sendfrom","params":["from","1Address",0.5],"id":1}`,
@@ -960,6 +1020,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendFromCmd("from", "1Address", 0.5, json.Int(6), nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"sendfrom","params":["from","1Address",0.5,6],"id":1}`,
@@ -979,6 +1040,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6, "comment")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendFromCmd("from", "1Address", 0.5, json.Int(6),
 					json.String("comment"), nil)
 			},
@@ -999,6 +1061,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendfrom", "from", "1Address", 0.5, 6, "comment", "commentto")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendFromCmd("from", "1Address", 0.5, json.Int(6),
 					json.String("comment"), json.String("commentto"))
 			},
@@ -1019,6 +1082,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`)
 			},
 			staticCmd: func() interface{} {
+
 				amounts := map[string]float64{"1Address": 0.5}
 				return json.NewSendManyCmd("from", amounts, nil, nil)
 			},
@@ -1037,6 +1101,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`, 6)
 			},
 			staticCmd: func() interface{} {
+
 				amounts := map[string]float64{"1Address": 0.5}
 				return json.NewSendManyCmd("from", amounts, json.Int(6), nil)
 			},
@@ -1055,6 +1120,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendmany", "from", `{"1Address":0.5}`, 6, "comment")
 			},
 			staticCmd: func() interface{} {
+
 				amounts := map[string]float64{"1Address": 0.5}
 				return json.NewSendManyCmd("from", amounts, json.Int(6), json.String("comment"))
 			},
@@ -1073,6 +1139,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendtoaddress", "1Address", 0.5)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendToAddressCmd("1Address", 0.5, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"sendtoaddress","params":["1Address",0.5],"id":1}`,
@@ -1090,6 +1157,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("sendtoaddress", "1Address", 0.5, "comment", "commentto")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSendToAddressCmd("1Address", 0.5, json.String("comment"),
 					json.String("commentto"))
 			},
@@ -1108,6 +1176,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("setaccount", "1Address", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSetAccountCmd("1Address", "acct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"setaccount","params":["1Address","acct"],"id":1}`,
@@ -1123,6 +1192,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("settxfee", 0.0001)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSetTxFeeCmd(0.0001)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"settxfee","params":[0.0001],"id":1}`,
@@ -1137,6 +1207,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("signmessage", "1Address", "message")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSignMessageCmd("1Address", "message")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"signmessage","params":["1Address","message"],"id":1}`,
@@ -1152,6 +1223,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("signrawtransaction", "001122")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewSignRawTransactionCmd("001122", nil, nil, nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"signrawtransaction","params":["001122"],"id":1}`,
@@ -1169,6 +1241,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("signrawtransaction", "001122", `[{"txid":"123","vout":1,"scriptPubKey":"00","redeemScript":"01"}]`)
 			},
 			staticCmd: func() interface{} {
+
 				txInputs := []json.RawTxInput{
 					{
 						Txid:         "123",
@@ -1201,6 +1274,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("signrawtransaction", "001122", `[]`, `["abc"]`)
 			},
 			staticCmd: func() interface{} {
+
 				txInputs := []json.RawTxInput{}
 				privKeys := []string{"abc"}
 				return json.NewSignRawTransactionCmd("001122", &txInputs, &privKeys, nil)
@@ -1220,6 +1294,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("signrawtransaction", "001122", `[]`, `[]`, "ALL")
 			},
 			staticCmd: func() interface{} {
+
 				txInputs := []json.RawTxInput{}
 				privKeys := []string{}
 				return json.NewSignRawTransactionCmd("001122", &txInputs, &privKeys,
@@ -1240,6 +1315,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("walletlock")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewWalletLockCmd()
 			},
 			marshalled:   `{"jsonrpc":"1.0","method":"walletlock","params":[],"id":1}`,
@@ -1252,6 +1328,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("walletpassphrase", "pass", 60)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewWalletPassphraseCmd("pass", 60)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"walletpassphrase","params":["pass",60],"id":1}`,
@@ -1267,6 +1344,7 @@ func TestWalletSvrCmds(
 				return json.NewCmd("walletpassphrasechange", "old", "new")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewWalletPassphraseChangeCmd("old", "new")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"walletpassphrasechange","params":["old","new"],"id":1}`,
@@ -1278,9 +1356,11 @@ func TestWalletSvrCmds(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Marshal the command as created by the new static command creation function.
 		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i, test.name, err)
 			continue
 		}
@@ -1294,12 +1374,14 @@ func TestWalletSvrCmds(
 		// Ensure the command is created without error via the generic new command creation function.
 		cmd, err := test.newCmd()
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
 				i, test.name, err)
 		}
 		// Marshal the command as created by the generic new command creation function.
 		marshalled, err = json.MarshalCmd(testID, cmd)
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -1313,6 +1395,7 @@ func TestWalletSvrCmds(
 		}
 		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
@@ -1320,6 +1403,7 @@ func TestWalletSvrCmds(
 		}
 		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
+
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue

@@ -225,7 +225,9 @@ var errorCodeStrings = map[ErrorCode]string{
 
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
+
 	if s := errorCodeStrings[e]; s != "" {
+
 		return s
 	}
 	return fmt.Sprintf("Unknown ErrorCode (%d)", int(e))
@@ -233,7 +235,9 @@ func (e ErrorCode) String() string {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e ManagerError) Error() string {
+
 	if e.Err != nil {
+
 		return e.Description + ": " + e.Err.Error()
 	}
 	return e.Description
@@ -243,6 +247,7 @@ func (e ManagerError) Error() string {
 // code.
 func IsError(
 	err error, code ErrorCode) bool {
+
 	e, ok := err.(ManagerError)
 	return ok && e.ErrorCode == code
 }
@@ -250,5 +255,6 @@ func IsError(
 // managerError creates a ManagerError given a set of arguments.
 func managerError(
 	c ErrorCode, desc string, err error) ManagerError {
+
 	return ManagerError{ErrorCode: c, Description: desc, Err: err}
 }

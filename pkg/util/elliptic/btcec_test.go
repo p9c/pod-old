@@ -220,6 +220,7 @@ func TestAddJacobian(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Convert hex to field values.
 		x1 := new(fieldVal).SetHex(test.x1)
 		y1 := new(fieldVal).SetHex(test.y1)
@@ -323,6 +324,7 @@ func TestAddAffine(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Convert hex to field values.
 		x1, y1 := fromHex(test.x1), fromHex(test.y1)
 		x2, y2 := fromHex(test.x2), fromHex(test.y2)
@@ -350,6 +352,7 @@ func TestAddAffine(
 		rx, ry := S256().Add(x1, y1, x2, y2)
 		// Ensure result matches expected.
 		if rx.Cmp(x3) != 00 || ry.Cmp(y3) != 0 {
+
 			t.Errorf("#%d wrong result\ngot: (%x, %x)\n"+
 				"want: (%x, %x)", i, rx, ry, x3, y3)
 			continue
@@ -404,6 +407,7 @@ func TestDoubleJacobian(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Convert hex to field values.
 		x1 := new(fieldVal).SetHex(test.x1)
 		y1 := new(fieldVal).SetHex(test.y1)
@@ -481,6 +485,7 @@ func TestDoubleAffine(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Convert hex to field values.
 		x1, y1 := fromHex(test.x1), fromHex(test.y1)
 		x3, y3 := fromHex(test.x3), fromHex(test.y3)
@@ -501,6 +506,7 @@ func TestDoubleAffine(
 		rx, ry := S256().Double(x1, y1)
 		// Ensure result matches expected.
 		if rx.Cmp(x3) != 00 || ry.Cmp(y3) != 0 {
+
 			t.Errorf("#%d wrong result\ngot: (%x, %x)\n"+
 				"want: (%x, %x)", i, rx, ry, x3, y3)
 			continue
@@ -557,15 +563,19 @@ func TestBaseMult(
 
 	s256 := S256()
 	for i, e := range s256BaseMultTests {
+
 		k, ok := new(big.Int).SetString(e.k, 16)
 		if !ok {
+
 			t.Errorf("%d: bad value for k: %s", i, e.k)
 		}
 		x, y := s256.ScalarBaseMult(k.Bytes())
 		if fmt.Sprintf("%X", x) != e.x || fmt.Sprintf("%X", y) != e.y {
+
 			t.Errorf("%d: bad output for k=%s: got (%X, %X), want (%s, %s)", i, e.k, x, y, e.x, e.y)
 		}
 		if testing.Short() && i > 5 {
+
 			break
 		}
 	}
@@ -575,19 +585,24 @@ func TestBaseMultVerify(
 
 	s256 := S256()
 	for bytes := 1; bytes < 40; bytes++ {
+
 		for i := 0; i < 30; i++ {
+
 			data := make([]byte, bytes)
 			_, err := rand.Read(data)
 			if err != nil {
+
 				t.Errorf("failed to read random data for %d", i)
 				continue
 			}
 			x, y := s256.ScalarBaseMult(data)
 			xWant, yWant := s256.ScalarMult(s256.Gx, s256.Gy, data)
 			if x.Cmp(xWant) != 0 || y.Cmp(yWant) != 0 {
+
 				t.Errorf("%d: bad output for %X: got (%X, %X), want (%X, %X)", i, data, x, y, xWant, yWant)
 			}
 			if testing.Short() && i > 2 {
+
 				break
 			}
 		}
@@ -622,6 +637,7 @@ func TestScalarMult(
 	}
 	s256 := S256()
 	for i, test := range tests {
+
 		x, _ := new(big.Int).SetString(test.x, 16)
 		y, _ := new(big.Int).SetString(test.y, 16)
 		k, _ := new(big.Int).SetString(test.k, 16)
@@ -629,6 +645,7 @@ func TestScalarMult(
 		yWant, _ := new(big.Int).SetString(test.ry, 16)
 		xGot, yGot := s256.ScalarMult(x, y, k.Bytes())
 		if xGot.Cmp(xWant) != 0 || yGot.Cmp(yWant) != 0 {
+
 			t.Fatalf("%d: bad output: got (%X, %X), want (%X, %X)", i, xGot, yGot, xWant, yWant)
 		}
 	}
@@ -643,9 +660,11 @@ func TestScalarMultRand(
 	x, y := s256.Gx, s256.Gy
 	exponent := big.NewInt(1)
 	for i := 0; i < 1024; i++ {
+
 		data := make([]byte, 32)
 		_, err := rand.Read(data)
 		if err != nil {
+
 			t.Fatalf("failed to read random data at %d", i)
 			break
 		}
@@ -653,6 +672,7 @@ func TestScalarMultRand(
 		exponent.Mul(exponent, new(big.Int).SetBytes(data))
 		xWant, yWant := s256.ScalarBaseMult(exponent.Bytes())
 		if x.Cmp(xWant) != 0 || y.Cmp(yWant) != 0 {
+
 			t.Fatalf("%d: bad output for %X: got (%X, %X), want (%X, %X)", i, data, x, y, xWant, yWant)
 			break
 		}
@@ -711,23 +731,29 @@ func TestSplitK(
 	}
 	s256 := S256()
 	for i, test := range tests {
+
 		k, ok := new(big.Int).SetString(test.k, 16)
 		if !ok {
+
 			t.Errorf("%d: bad value for k: %s", i, test.k)
 		}
 		k1, k2, k1Sign, k2Sign := s256.splitK(k.Bytes())
 		k1str := fmt.Sprintf("%064x", k1)
 		if test.k1 != k1str {
+
 			t.Errorf("%d: bad k1: got %v, want %v", i, k1str, test.k1)
 		}
 		k2str := fmt.Sprintf("%064x", k2)
 		if test.k2 != k2str {
+
 			t.Errorf("%d: bad k2: got %v, want %v", i, k2str, test.k2)
 		}
 		if test.s1 != k1Sign {
+
 			t.Errorf("%d: bad k1 sign: got %d, want %d", i, k1Sign, test.s1)
 		}
 		if test.s2 != k2Sign {
+
 			t.Errorf("%d: bad k2 sign: got %d, want %d", i, k2Sign, test.s2)
 		}
 		k1Int := new(big.Int).SetBytes(k1)
@@ -740,6 +766,7 @@ func TestSplitK(
 		gotK.Add(k1Int, gotK)
 		gotK.Mod(gotK, s256.N)
 		if k.Cmp(gotK) != 0 {
+
 			t.Errorf("%d: bad k: got %X, want %X", i, gotK.Bytes(), k.Bytes())
 		}
 	}
@@ -749,9 +776,11 @@ func TestSplitKRand(
 
 	s256 := S256()
 	for i := 0; i < 1024; i++ {
+
 		bytesK := make([]byte, 32)
 		_, err := rand.Read(bytesK)
 		if err != nil {
+
 			t.Fatalf("failed to read random data at %d", i)
 			break
 		}
@@ -767,6 +796,7 @@ func TestSplitKRand(
 		gotK.Add(k1Int, gotK)
 		gotK.Mod(gotK, s256.N)
 		if k.Cmp(gotK) != 0 {
+
 			t.Errorf("%d: bad k: got %X, want %X", i, gotK.Bytes(), k.Bytes())
 		}
 	}
@@ -778,6 +808,7 @@ func testKeyGeneration(
 
 	priv, err := NewPrivateKey(c)
 	if err != nil {
+
 		t.Errorf("%s: error: %s", tag, err)
 		return
 	}
@@ -799,6 +830,7 @@ func testSignAndVerify(
 	hashed := []byte("testing")
 	sig, err := priv.Sign(hashed)
 	if err != nil {
+
 		t.Errorf("%s: error signing: %s", tag, err)
 		return
 	}
@@ -831,18 +863,23 @@ func TestNAF(
 	one := big.NewInt(1)
 	two := big.NewInt(2)
 	for i, test := range tests {
+
 		want, _ := new(big.Int).SetString(test, 16)
 		nafPos, nafNeg := NAF(want.Bytes())
 		got := big.NewInt(0)
 		// Check that the NAF representation comes up with the right number
 		for i := 0; i < len(nafPos); i++ {
+
 			bytePos := nafPos[i]
 			byteNeg := nafNeg[i]
 			for j := 7; j >= 0; j-- {
+
 				got.Mul(got, two)
 				if bytePos&0x80 == 0x80 {
+
 					got.Add(got, one)
 				} else if byteNeg&0x80 == 0x80 {
+
 					got.Add(got, negOne)
 				}
 				bytePos <<= 1
@@ -850,6 +887,7 @@ func TestNAF(
 			}
 		}
 		if got.Cmp(want) != 0 {
+
 			t.Errorf("%d: Failed NAF got %X want %X", i, got, want)
 		}
 	}
@@ -861,9 +899,11 @@ func TestNAFRand(
 	one := big.NewInt(1)
 	two := big.NewInt(2)
 	for i := 0; i < 1024; i++ {
+
 		data := make([]byte, 32)
 		_, err := rand.Read(data)
 		if err != nil {
+
 			t.Fatalf("failed to read random data at %d", i)
 			break
 		}
@@ -872,13 +912,17 @@ func TestNAFRand(
 		got := big.NewInt(0)
 		// Check that the NAF representation comes up with the right number
 		for i := 0; i < len(nafPos); i++ {
+
 			bytePos := nafPos[i]
 			byteNeg := nafNeg[i]
 			for j := 7; j >= 0; j-- {
+
 				got.Mul(got, two)
 				if bytePos&0x80 == 0x80 {
+
 					got.Add(got, one)
 				} else if byteNeg&0x80 == 0x80 {
+
 					got.Add(got, negOne)
 				}
 				bytePos <<= 1
@@ -886,6 +930,7 @@ func TestNAFRand(
 			}
 		}
 		if got.Cmp(want) != 0 {
+
 			t.Errorf("%d: Failed NAF got %X want %X", i, got, want)
 		}
 	}

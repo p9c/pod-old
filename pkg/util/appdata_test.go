@@ -24,9 +24,11 @@ func TestAppDataDir(
 	winLocal := "."
 	winRoaming := "."
 	if runtime.GOOS == "windows" {
+
 		localAppData := os.Getenv("LOCALAPPDATA")
 		roamingAppData := os.Getenv("APPDATA")
 		if localAppData == "" {
+
 			localAppData = roamingAppData
 		}
 
@@ -38,6 +40,7 @@ func TestAppDataDir(
 	var homeDir string
 	usr, err := user.Current()
 	if err != nil {
+
 		t.Errorf("user.Current: %v", err)
 		return
 	}
@@ -115,8 +118,10 @@ func TestAppDataDir(
 
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		ret := util.TstAppDataDir(test.goos, test.appName, test.roaming)
 		if ret != test.want {
+
 			t.Errorf("appDataDir #%d (%s) does not match - "+
 				"expected got %s, want %s", i, test.goos, ret,
 				test.want)

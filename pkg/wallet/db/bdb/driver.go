@@ -15,12 +15,14 @@ func parseArgs(
 	funcName string, args ...interface{}) (string, error) {
 
 	if len(args) != 1 {
+
 		return "", fmt.Errorf("invalid arguments to %s.%s -- "+
 			"expected database path", dbType, funcName)
 	}
 
 	dbPath, ok := args[0].(string)
 	if !ok {
+
 		return "", fmt.Errorf("first argument to %s.%s is invalid -- "+
 			"expected database path string", dbType, funcName)
 	}
@@ -35,6 +37,7 @@ func openDBDriver(
 
 	dbPath, err := parseArgs("Open", args...)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -48,6 +51,7 @@ func createDBDriver(
 
 	dbPath, err := parseArgs("Create", args...)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -63,6 +67,7 @@ func init() {
 		Open:   openDBDriver,
 	}
 	if err := walletdb.RegisterDriver(driver); err != nil {
+
 		panic(fmt.Sprintf("Failed to regiser database driver '%s': %v",
 			dbType, err))
 	}

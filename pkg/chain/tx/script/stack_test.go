@@ -19,18 +19,21 @@ func tstCheckScriptError(
 			gotErr, wantErr)
 	}
 	if gotErr == nil {
+
 		return nil
 	}
 
 	// Ensure the want error type is a script error.
 	werr, ok := wantErr.(Error)
 	if !ok {
+
 		return fmt.Errorf("unexpected test error type %T", wantErr)
 	}
 
 	// Ensure the error codes match.  It's safe to use a raw type assert here since the code above already proved they are the same type and the want error is a script error.
 	gotErrorCode := gotErr.(Error).ErrorCode
 	if gotErrorCode != werr.ErrorCode {
+
 		return fmt.Errorf("mismatched error code - got %v (%v), want %v",
 			gotErrorCode, gotErr, werr.ErrorCode)
 	}
@@ -53,6 +56,7 @@ func TestStack(
 			"noop",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				return nil
 			},
 			nil,
@@ -62,6 +66,7 @@ func TestStack(
 			"peek underflow (byte)",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				_, err := s.PeekByteArray(5)
 				return err
 			},
@@ -72,6 +77,7 @@ func TestStack(
 			"peek underflow (int)",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				_, err := s.PeekInt(5)
 				return err
 			},
@@ -82,6 +88,7 @@ func TestStack(
 			"peek underflow (bool)",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				_, err := s.PeekBool(5)
 				return err
 			},
@@ -92,8 +99,10 @@ func TestStack(
 			"pop",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				val, err := s.PopByteArray()
 				if err != nil {
+
 					return err
 				}
 				if !bytes.Equal(val, []byte{5}) {
@@ -109,9 +118,12 @@ func TestStack(
 			"pop everything",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				for i := 0; i < 5; i++ {
+
 					_, err := s.PopByteArray()
 					if err != nil {
+
 						return err
 					}
 				}
@@ -124,9 +136,12 @@ func TestStack(
 			"pop underflow",
 			[][]byte{{1}, {2}, {3}, {4}, {5}},
 			func(s *stack) error {
+
 				for i := 0; i < 6; i++ {
+
 					_, err := s.PopByteArray()
 					if err != nil {
+
 						return err
 					}
 				}
@@ -139,11 +154,14 @@ func TestStack(
 			"pop bool",
 			[][]byte{nil},
 			func(s *stack) error {
+
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -155,11 +173,14 @@ func TestStack(
 			"pop bool",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if !val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -171,6 +192,7 @@ func TestStack(
 			"pop bool",
 			nil,
 			func(s *stack) error {
+
 				_, err := s.PopBool()
 				return err
 			},
@@ -181,11 +203,14 @@ func TestStack(
 			"popInt 0",
 			[][]byte{{0x0}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != 0 {
+
 					return errors.New("0 != 0 on popInt")
 				}
 				return nil
@@ -197,11 +222,14 @@ func TestStack(
 			"popInt -0",
 			[][]byte{{0x80}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != 0 {
+
 					return errors.New("-0 != 0 on popInt")
 				}
 				return nil
@@ -213,11 +241,14 @@ func TestStack(
 			"popInt 1",
 			[][]byte{{0x01}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != 1 {
+
 					return errors.New("1 != 1 on popInt")
 				}
 				return nil
@@ -229,11 +260,14 @@ func TestStack(
 			"popInt 1 leading 0",
 			[][]byte{{0x01, 0x00, 0x00, 0x00}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != 1 {
+
 					fmt.Printf("%v != %v\n", v, 1)
 					return errors.New("1 != 1 on popInt")
 				}
@@ -246,11 +280,14 @@ func TestStack(
 			"popInt -1",
 			[][]byte{{0x81}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != -1 {
+
 					return errors.New("-1 != -1 on popInt")
 				}
 				return nil
@@ -262,11 +299,14 @@ func TestStack(
 			"popInt -1 leading 0",
 			[][]byte{{0x01, 0x00, 0x00, 0x80}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != -1 {
+
 					fmt.Printf("%v != %v\n", v, -1)
 					return errors.New("-1 != -1 on popInt")
 				}
@@ -280,11 +320,14 @@ func TestStack(
 			"popInt -513",
 			[][]byte{{0x1, 0x82}},
 			func(s *stack) error {
+
 				v, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if v != -513 {
+
 					fmt.Printf("%v != %v\n", v, -513)
 					return errors.New("1 != 1 on popInt")
 				}
@@ -298,11 +341,14 @@ func TestStack(
 			"peekint nomodify -1",
 			[][]byte{{0x01, 0x00, 0x00, 0x80}},
 			func(s *stack) error {
+
 				v, err := s.PeekInt(0)
 				if err != nil {
+
 					return err
 				}
 				if v != -1 {
+
 					fmt.Printf("%v != %v\n", v, -1)
 					return errors.New("-1 != -1 on popInt")
 				}
@@ -315,6 +361,7 @@ func TestStack(
 			"PushInt 0",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(0))
 				return nil
 			},
@@ -325,6 +372,7 @@ func TestStack(
 			"PushInt 1",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(1))
 				return nil
 			},
@@ -335,6 +383,7 @@ func TestStack(
 			"PushInt -1",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(-1))
 				return nil
 			},
@@ -345,6 +394,7 @@ func TestStack(
 			"PushInt two bytes",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(256))
 				return nil
 			},
@@ -356,6 +406,7 @@ func TestStack(
 			"PushInt leading zeros",
 			nil,
 			func(s *stack) error {
+
 				// this will have the highbit set
 				s.PushInt(scriptNum(128))
 				return nil
@@ -367,6 +418,7 @@ func TestStack(
 			"dup",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.DupN(1)
 			},
 			nil,
@@ -376,6 +428,7 @@ func TestStack(
 			"dup2",
 			[][]byte{{1}, {2}},
 			func(s *stack) error {
+
 				return s.DupN(2)
 			},
 			nil,
@@ -385,6 +438,7 @@ func TestStack(
 			"dup3",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.DupN(3)
 			},
 			nil,
@@ -394,6 +448,7 @@ func TestStack(
 			"dup0",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.DupN(0)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -403,6 +458,7 @@ func TestStack(
 			"dup-1",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.DupN(-1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -412,6 +468,7 @@ func TestStack(
 			"dup too much",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.DupN(2)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -421,6 +478,7 @@ func TestStack(
 			"PushBool true",
 			nil,
 			func(s *stack) error {
+
 				s.PushBool(true)
 				return nil
 			},
@@ -431,6 +489,7 @@ func TestStack(
 			"PushBool false",
 			nil,
 			func(s *stack) error {
+
 				s.PushBool(false)
 				return nil
 			},
@@ -441,12 +500,15 @@ func TestStack(
 			"PushBool PopBool",
 			nil,
 			func(s *stack) error {
+
 				s.PushBool(true)
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if !val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -458,12 +520,15 @@ func TestStack(
 			"PushBool PopBool 2",
 			nil,
 			func(s *stack) error {
+
 				s.PushBool(false)
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -475,12 +540,15 @@ func TestStack(
 			"PushInt PopBool",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(1))
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if !val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -492,12 +560,15 @@ func TestStack(
 			"PushInt PopBool 2",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(0))
 				val, err := s.PopBool()
 				if err != nil {
+
 					return err
 				}
 				if val {
+
 					return errors.New("unexpected value")
 				}
 				return nil
@@ -509,6 +580,7 @@ func TestStack(
 			"Nip top",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.NipN(0)
 			},
 			nil,
@@ -518,6 +590,7 @@ func TestStack(
 			"Nip middle",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.NipN(1)
 			},
 			nil,
@@ -527,6 +600,7 @@ func TestStack(
 			"Nip low",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.NipN(2)
 			},
 			nil,
@@ -536,6 +610,7 @@ func TestStack(
 			"Nip too much",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				// bite off more than we can chew
 				return s.NipN(3)
 			},
@@ -546,6 +621,7 @@ func TestStack(
 			"keep on tucking",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.Tuck()
 			},
 			nil,
@@ -555,6 +631,7 @@ func TestStack(
 			"a little tucked up",
 			[][]byte{{1}}, // too few arguments for tuck
 			func(s *stack) error {
+
 				return s.Tuck()
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -564,6 +641,7 @@ func TestStack(
 			"all tucked up",
 			nil, // too few arguments  for tuck
 			func(s *stack) error {
+
 				return s.Tuck()
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -573,6 +651,7 @@ func TestStack(
 			"drop 1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(1)
 			},
 			nil,
@@ -582,6 +661,7 @@ func TestStack(
 			"drop 2",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(2)
 			},
 			nil,
@@ -591,6 +671,7 @@ func TestStack(
 			"drop 3",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(3)
 			},
 			nil,
@@ -600,6 +681,7 @@ func TestStack(
 			"drop 4",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(4)
 			},
 			nil,
@@ -609,6 +691,7 @@ func TestStack(
 			"drop 4/5",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(5)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -618,6 +701,7 @@ func TestStack(
 			"drop invalid",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.DropN(0)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -627,6 +711,7 @@ func TestStack(
 			"Rot1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.RotN(1)
 			},
 			nil,
@@ -636,6 +721,7 @@ func TestStack(
 			"Rot2",
 			[][]byte{{1}, {2}, {3}, {4}, {5}, {6}},
 			func(s *stack) error {
+
 				return s.RotN(2)
 			},
 			nil,
@@ -645,6 +731,7 @@ func TestStack(
 			"Rot too little",
 			[][]byte{{1}, {2}},
 			func(s *stack) error {
+
 				return s.RotN(1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -654,6 +741,7 @@ func TestStack(
 			"Rot0",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.RotN(0)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -663,6 +751,7 @@ func TestStack(
 			"Swap1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.SwapN(1)
 			},
 			nil,
@@ -672,6 +761,7 @@ func TestStack(
 			"Swap2",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.SwapN(2)
 			},
 			nil,
@@ -681,6 +771,7 @@ func TestStack(
 			"Swap too little",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.SwapN(1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -690,6 +781,7 @@ func TestStack(
 			"Swap0",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.SwapN(0)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -699,6 +791,7 @@ func TestStack(
 			"Over1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.OverN(1)
 			},
 			nil,
@@ -708,6 +801,7 @@ func TestStack(
 			"Over2",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.OverN(2)
 			},
 			nil,
@@ -717,6 +811,7 @@ func TestStack(
 			"Over too little",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.OverN(1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -726,6 +821,7 @@ func TestStack(
 			"Over0",
 			[][]byte{{1}, {2}, {3}},
 			func(s *stack) error {
+
 				return s.OverN(0)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -735,6 +831,7 @@ func TestStack(
 			"Pick1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.PickN(1)
 			},
 			nil,
@@ -744,6 +841,7 @@ func TestStack(
 			"Pick2",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.PickN(2)
 			},
 			nil,
@@ -753,6 +851,7 @@ func TestStack(
 			"Pick too little",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.PickN(1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -762,6 +861,7 @@ func TestStack(
 			"Roll1",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.RollN(1)
 			},
 			nil,
@@ -771,6 +871,7 @@ func TestStack(
 			"Roll2",
 			[][]byte{{1}, {2}, {3}, {4}},
 			func(s *stack) error {
+
 				return s.RollN(2)
 			},
 			nil,
@@ -780,6 +881,7 @@ func TestStack(
 			"Roll too little",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				return s.RollN(1)
 			},
 			scriptError(ErrInvalidStackOperation, ""),
@@ -789,12 +891,15 @@ func TestStack(
 			"Peek bool",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				// Peek bool is otherwise pretty well tested, just check it works.
 				val, err := s.PeekBool(0)
 				if err != nil {
+
 					return err
 				}
 				if !val {
+
 					return errors.New("invalid result")
 				}
 				return nil
@@ -806,12 +911,15 @@ func TestStack(
 			"Peek bool 2",
 			[][]byte{nil},
 			func(s *stack) error {
+
 				// Peek bool is otherwise pretty well tested, just check it works.
 				val, err := s.PeekBool(0)
 				if err != nil {
+
 					return err
 				}
 				if val {
+
 					return errors.New("invalid result")
 				}
 				return nil
@@ -823,12 +931,15 @@ func TestStack(
 			"Peek int",
 			[][]byte{{1}},
 			func(s *stack) error {
+
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PeekInt(0)
 				if err != nil {
+
 					return err
 				}
 				if val != 1 {
+
 					return errors.New("invalid result")
 				}
 				return nil
@@ -840,12 +951,15 @@ func TestStack(
 			"Peek int 2",
 			[][]byte{{0}},
 			func(s *stack) error {
+
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PeekInt(0)
 				if err != nil {
+
 					return err
 				}
 				if val != 0 {
+
 					return errors.New("invalid result")
 				}
 				return nil
@@ -857,13 +971,16 @@ func TestStack(
 			"pop int",
 			nil,
 			func(s *stack) error {
+
 				s.PushInt(scriptNum(1))
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PopInt()
 				if err != nil {
+
 					return err
 				}
 				if val != 1 {
+
 					return errors.New("invalid result")
 				}
 				return nil
@@ -875,6 +992,7 @@ func TestStack(
 			"pop empty",
 			nil,
 			func(s *stack) error {
+
 				// Peek int is otherwise pretty well tested, just check it works.
 				_, err := s.PopInt()
 				return err
@@ -884,18 +1002,22 @@ func TestStack(
 		},
 	}
 	for _, test := range tests {
+
 		// Setup the initial stack state and perform the test operation.
 		s := stack{}
 		for i := range test.before {
+
 			s.PushByteArray(test.before[i])
 		}
 		err := test.operation(&s)
 		// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
 		if err != nil {
+
 			continue
 		}
 		// Ensure the resulting stack is the expected length.
@@ -908,8 +1030,10 @@ func TestStack(
 		}
 		// Ensure all items of the resulting stack are the expected values.
 		for i := range test.after {
+
 			val, err := s.PeekByteArray(s.Depth() - int32(i) - 1)
 			if err != nil {
+
 				t.Errorf("%s: can't peek %dth stack entry: %v",
 					test.name, i, err)
 				break

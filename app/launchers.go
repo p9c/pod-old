@@ -24,6 +24,7 @@ func launchNode(c *cli.Context) error {
 	// spew.Dump(nodeConfig)
 	err := node.Main(nodeConfig, activeNetParams, nil)
 	if err != nil {
+
 		fmt.Print(err)
 		return err
 	}

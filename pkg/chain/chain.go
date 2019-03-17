@@ -52,6 +52,7 @@ type BestState struct {
 func newBestState(
 	node *blockNode, blockSize, blockWeight, numTxns,
 	totalTxns uint64, medianTime time.Time) *BestState {
+
 	return &BestState{
 		Hash:        node.hash,
 		Height:      node.height,
@@ -142,6 +143,7 @@ func (b *BlockChain) HaveBlock(hash *chainhash.Hash) (bool, error) {
 
 	exists, err := b.blockExists(hash)
 	if err != nil {
+
 		return false, err
 	}
 
@@ -169,8 +171,10 @@ func (b *BlockChain) GetOrphanRoot(hash *chainhash.Hash) *chainhash.Hash {
 	orphanRoot := hash
 	prevHash := hash
 	for {
+
 		orphan, exists := b.orphans[*prevHash]
 		if !exists {
+
 			break
 		}
 
@@ -196,6 +200,7 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 	prevHash := &orphan.block.MsgBlock().Header.PrevBlock
 	orphans := b.prevOrphans[*prevHash]
 	for i := 0; i < len(orphans); i++ {
+
 		hash := orphans[i].block.Hash()
 		if hash.IsEqual(orphanHash) {
 
@@ -211,6 +216,7 @@ func (b *BlockChain) removeOrphanBlock(orphan *orphanBlock) {
 
 	// Remove the map entry altogether if there are no longer any orphans which depend on the parent hash.
 	if len(b.prevOrphans[*prevHash]) == 0 {
+
 		delete(b.prevOrphans, *prevHash)
 	}
 
@@ -221,6 +227,7 @@ func (b *BlockChain) addOrphanBlock(block *util.Block) {
 
 	// Remove expired orphan blocks.
 	for _, oBlock := range b.orphans {
+
 		if time.Now().After(oBlock.expiration) {
 
 			b.removeOrphanBlock(oBlock)
@@ -237,6 +244,7 @@ func (b *BlockChain) addOrphanBlock(block *util.Block) {
 
 	// Limit orphan blocks to prevent memory exhaustion.
 	if len(b.orphans)+1 > maxOrphanBlocks {
+
 		// Remove the oldest orphan to make room for the new one.
 		b.removeOrphanBlock(b.oldestOrphan)
 		b.oldestOrphan = nil
@@ -285,9 +293,11 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 
 	// If we're performing block validation, then we need to query the BIP9 state.
 	if !csvSoftforkActive {
+
 		// Obtain the latest BIP9 version bits state for the CSV-package soft-fork deployment. The adherence of sequence locks depends on the current soft-fork state.
 		csvState, err := b.deploymentState(node.parent, chaincfg.DeploymentCSV)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -305,8 +315,10 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 	// Grab the next height from the PoV of the passed blockNode to use for inputs present in the mempool.
 	nextHeight := node.height + 1
 	for txInIndex, txIn := range mTx.TxIn {
+
 		utxo := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		if utxo == nil {
+
 			str := fmt.Sprintf(
 				"output %v referenced from transaction %s:%d either does not exist or has already been spent",
 				txIn.PreviousOutPoint, tx.Hash(), txInIndex,
@@ -317,6 +329,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 		// If the input height is set to the mempool height, then we assume the transaction makes it into the next block when evaluating its sequence blocks.
 		inputHeight := utxo.BlockHeight()
 		if inputHeight == 0x7fffffff {
+
 			inputHeight = nextHeight
 		}
 
@@ -324,6 +337,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 		sequenceNum := txIn.Sequence
 		relativeLock := int64(sequenceNum & wire.SequenceLockTimeMask)
 		switch {
+
 		// Relative time locks are disabled for this input, so we can skip any further calculation.
 		case sequenceNum&wire.SequenceLockTimeDisabled == wire.SequenceLockTimeDisabled:
 			continue
@@ -331,6 +345,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 			// This input requires a relative time lock expressed in seconds before it can be spent.  Therefore, we need to query for the block prior to the one in which this input was included within so we can compute the past median time for the block prior to the one which included this referenced output.
 			prevInputHeight := inputHeight - 1
 			if prevInputHeight < 0 {
+
 				prevInputHeight = 0
 			}
 
@@ -340,6 +355,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 			timeLockSeconds := (relativeLock << wire.SequenceLockTimeGranularity) - 1
 			timeLock := medianTime.Unix() + timeLockSeconds
 			if timeLock > sequenceLock.Seconds {
+
 				sequenceLock.Seconds = timeLock
 			}
 
@@ -347,6 +363,7 @@ func (b *BlockChain) calcSequenceLock(node *blockNode, tx *util.Tx, utxoView *Ut
 			// The relative lock-time for this input is expressed in blocks so we calculate the relative offset from the input's height as its converted absolute lock-time. We subtract one from the relative lock in order to maintain the original lockTime semantics.
 			blockHeight := inputHeight + int32(relativeLock-1)
 			if blockHeight > sequenceLock.BlockHeight {
+
 				sequenceLock.BlockHeight = blockHeight
 			}
 
@@ -365,6 +382,7 @@ func LockTimeToSequence(
 
 	// If we're expressing the relative lock time in blocks, then the corresponding sequence number is simply the desired input age.
 	if !isSeconds {
+
 		return locktime
 	}
 
@@ -392,6 +410,7 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 	forkNode := b.bestChain.FindFork(node)
 	invalidChain := false
 	for n := node; n != nil && n != forkNode; n = n.parent {
+
 		if b.Index.NodeStatus(n).KnownInvalid() {
 
 			invalidChain = true
@@ -403,8 +422,10 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 
 	// If any of the node's ancestors are invalid, unwind attachNodes, marking each one as invalid for future reference.
 	if invalidChain {
+
 		var next *list.Element
 		for e := attachNodes.Front(); e != nil; e = next {
+
 			next = e.Next()
 			n := attachNodes.Remove(e).(*blockNode)
 			b.Index.SetStatusFlags(n, statusInvalidAncestor)
@@ -415,6 +436,7 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 
 	// Start from the end of the main chain and work backwards until the common ancestor adding each block to the list of nodes to detach from the main chain.
 	for n := b.bestChain.Tip(); n != nil && n != forkNode; n = n.parent {
+
 		detachNodes.PushBack(n)
 	}
 
@@ -448,7 +470,9 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 
 		// Warn if any unknown new rules are either about to activate or have already been activated.
 		if err := b.warnUnknownRuleActivations(node); err != nil {
+
 			Log.Trcc(func() string {
+
 				return "warnUnknownRuleActivations " + err.Error()
 			})
 
@@ -460,6 +484,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	// Write any block status changes to DB before updating best state.
 	err := b.Index.flushToDB()
 	if err != nil {
+
 		return err
 	}
 
@@ -475,9 +500,11 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 
 	// Atomically insert info into the database.
 	err = b.db.Update(func(dbTx database.Tx) error {
+
 		// update best block state.
 		err := dbPutBestState(dbTx, state, node.workSum)
 		if err != nil {
+
 			log <- cl.Trace{"dbPutBestState", err}
 			return err
 		}
@@ -485,6 +512,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		// Add the block hash and height to the block index which tracks the main chain.
 		err = dbPutBlockIndex(dbTx, block.Hash(), node.height)
 		if err != nil {
+
 			log <- cl.Trace{"dbPutBlockIndex", err}
 			return err
 		}
@@ -492,6 +520,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		// update the utxo set using the state of the utxo view.  This entails removing all of the utxos spent and adding the new ones created by the block.
 		err = dbPutUtxoView(dbTx, view)
 		if err != nil {
+
 			log <- cl.Trace{"dbPutUtxoView", err}
 			return err
 		}
@@ -499,14 +528,17 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		// Update the transaction spend journal by adding a record for the block that contains all txos spent by it.
 		err = dbPutSpendJournalEntry(dbTx, block.Hash(), stxos)
 		if err != nil {
+
 			log <- cl.Trace{"dbPutSpendJournalEntry", err}
 			return err
 		}
 
 		// Allow the index manager to call each of the currently active optional indexes with the block being connected so they can update themselves accordingly
 		if b.indexManager != nil {
+
 			err := b.indexManager.ConnectBlock(dbTx, block, stxos)
 			if err != nil {
+
 				log <- cl.Trace{"connectBlock ", err}
 				return err
 			}
@@ -517,6 +549,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	})
 
 	if err != nil {
+
 		log <- cl.Trace{"error updating database ", err}
 		return err
 	}
@@ -554,18 +587,21 @@ func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *U
 	prevNode := node.parent
 	var prevBlock *util.Block
 	err := b.db.View(func(dbTx database.Tx) error {
+
 		var err error
 		prevBlock, err = dbFetchBlockByNode(dbTx, prevNode)
 		return err
 	})
 
 	if err != nil {
+
 		return err
 	}
 
 	// Write any block status changes to DB before updating best state.
 	err = b.Index.flushToDB()
 	if err != nil {
+
 		return err
 	}
 
@@ -580,40 +616,48 @@ func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *U
 	state := newBestState(prevNode, blockSize, blockWeight, numTxns,
 		newTotalTxns, prevNode.CalcPastMedianTime())
 	err = b.db.Update(func(dbTx database.Tx) error {
+
 		// Update best block state.
 		err := dbPutBestState(dbTx, state, node.workSum)
 		if err != nil {
+
 			return err
 		}
 
 		// Remove the block hash and height from the block index which tracks the main chain.
 		err = dbRemoveBlockIndex(dbTx, block.Hash(), node.height)
 		if err != nil {
+
 			return err
 		}
 
 		// Update the utxo set using the state of the utxo view.  This entails restoring all of the utxos spent and removing the new ones created by the block.
 		err = dbPutUtxoView(dbTx, view)
 		if err != nil {
+
 			return err
 		}
 
 		// Before we delete the spend journal entry for this back, we'll fetch it as is so the indexers can utilize if needed.
 		stxos, err := dbFetchSpendJournalEntry(dbTx, block)
 		if err != nil {
+
 			return err
 		}
 
 		// Update the transaction spend journal by removing the record that contains all txos spent by the block.
 		err = dbRemoveSpendJournalEntry(dbTx, block.Hash())
 		if err != nil {
+
 			return err
 		}
 
 		// Allow the index manager to call each of the currently active optional indexes with the block being disconnected so they can update themselves accordingly.
 		if b.indexManager != nil {
+
 			err := b.indexManager.DisconnectBlock(dbTx, block, stxos)
 			if err != nil {
+
 				return err
 			}
 
@@ -623,6 +667,7 @@ func (b *BlockChain) disconnectBlock(node *blockNode, block *util.Block, view *U
 	})
 
 	if err != nil {
+
 		return err
 	}
 
@@ -651,6 +696,7 @@ func countSpentOutputs(
 	// Exclude the coinbase transaction since it can't spend anything.
 	var numSpent int
 	for _, tx := range block.Transactions()[1:] {
+
 		numSpent += len(tx.MsgTx().TxIn)
 	}
 
@@ -662,14 +708,17 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 	// Nothing to do if no reorganize nodes were provided.
 	if detachNodes.Len() == 0 && attachNodes.Len() == 0 {
+
 		return nil
 	}
 
 	// Ensure the provided nodes match the current best chain.
 	tip := b.bestChain.Tip()
 	if detachNodes.Len() != 0 {
+
 		firstDetachNode := detachNodes.Front().Value.(*blockNode)
 		if firstDetachNode.hash != tip.hash {
+
 			return AssertError(fmt.Sprintf("reorganize nodes to detach are "+
 				"not for the current best chain -- first detach node %v, "+
 				"current chain %v", &firstDetachNode.hash, &tip.hash))
@@ -679,9 +728,11 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 	// Ensure the provided nodes are for the same fork point.
 	if attachNodes.Len() != 0 && detachNodes.Len() != 0 {
+
 		firstAttachNode := attachNodes.Front().Value.(*blockNode)
 		lastDetachNode := detachNodes.Back().Value.(*blockNode)
 		if firstAttachNode.parent.hash != lastDetachNode.parent.hash {
+
 			return AssertError(fmt.Sprintf(
 				"reorganize nodes do not have the same fork point -- first attach parent %v, last detach parent %v",
 				&firstAttachNode.parent.hash, &lastDetachNode.parent.hash))
@@ -706,12 +757,14 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		n := e.Value.(*blockNode)
 		var block *util.Block
 		err := b.db.View(func(dbTx database.Tx) error {
+
 			var err error
 			block, err = dbFetchBlockByNode(dbTx, n)
 			return err
 		})
 
 		if err != nil {
+
 			return err
 		}
 
@@ -726,17 +779,20 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// Load all of the utxos referenced by the block that aren't already in the view.
 		err = view.fetchInputUtxos(b.db, block)
 		if err != nil {
+
 			return err
 		}
 
 		// Load all of the spent txos for the block from the spend journal.
 		var stxos []SpentTxOut
 		err = b.db.View(func(dbTx database.Tx) error {
+
 			stxos, err = dbFetchSpendJournalEntry(dbTx, block)
 			return err
 		})
 
 		if err != nil {
+
 			return err
 		}
 
@@ -745,6 +801,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		detachSpentTxOuts = append(detachSpentTxOuts, stxos)
 		err = view.disconnectTransactions(b.db, block, stxos)
 		if err != nil {
+
 			return err
 		}
 
@@ -754,6 +811,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	// Set the fork point only if there are nodes to attach since otherwise blocks are only being disconnected and thus there is no fork point.
 	var forkNode *blockNode
 	if attachNodes.Len() > 0 {
+
 		forkNode = newBest
 	}
 
@@ -765,12 +823,14 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		n := e.Value.(*blockNode)
 		var block *util.Block
 		err := b.db.View(func(dbTx database.Tx) error {
+
 			var err error
 			block, err = dbFetchBlockByNode(dbTx, n)
 			return err
 		})
 
 		if err != nil {
+
 			return err
 		}
 
@@ -783,11 +843,13 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 			err = view.fetchInputUtxos(b.db, block)
 			if err != nil {
+
 				return err
 			}
 
 			err = view.connectTransactions(block, nil)
 			if err != nil {
+
 				return err
 			}
 
@@ -799,7 +861,9 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// In the case the block is determined to be invalid due to a rule violation, mark it as invalid and mark all of its descendants as having an invalid ancestor.
 		err = b.checkConnectBlock(n, block, view, nil)
 		if err != nil {
+
 			if _, ok := err.(RuleError); ok {
+
 				b.Index.SetStatusFlags(n, statusValidateFailed)
 				for de := e.Next(); de != nil; de = de.Next() {
 
@@ -828,6 +892,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// Load all of the utxos referenced by the block that aren't already in the view.
 		err := view.fetchInputUtxos(b.db, block)
 		if err != nil {
+
 			return err
 		}
 
@@ -835,12 +900,14 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		err = view.disconnectTransactions(b.db, block,
 			detachSpentTxOuts[i])
 		if err != nil {
+
 			return err
 		}
 
 		// Update the database and chain state.
 		err = b.disconnectBlock(n, block, view)
 		if err != nil {
+
 			return err
 		}
 
@@ -854,6 +921,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// Load all of the utxos referenced by the block that aren't already in the view.
 		err := view.fetchInputUtxos(b.db, block)
 		if err != nil {
+
 			return err
 		}
 
@@ -861,12 +929,14 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		stxos := make([]SpentTxOut, 0, countSpentOutputs(block))
 		err = view.connectTransactions(block, &stxos)
 		if err != nil {
+
 			return err
 		}
 
 		// Update the database and chain state.
 		err = b.connectBlock(n, block, view, stxos)
 		if err != nil {
+
 			return err
 		}
 
@@ -876,6 +946,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 	// heads.
 	if forkNode != nil {
+
 		log <- cl.Infof{
 			"REORGANIZE: Chain forks at %v (height %v)",
 			forkNode.hash,
@@ -910,6 +981,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 
 		// Intentionally ignore errors writing updated node status to DB. If it fails to write, it's not the end of the world. If the block is valid, we flush in connectBlock and if the block is invalid, the worst that can happen is we revalidate the block after a restart.
 		if writeErr := b.Index.flushToDB(); writeErr != nil {
+
 			log <- cl.Warn{
 				"Error flushing block index changes to disk:", writeErr,
 			}
@@ -929,17 +1001,22 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		view.SetBestHash(parentHash)
 		stxos := make([]SpentTxOut, 0, countSpentOutputs(block))
 		if !fastAdd {
+
 			err := b.checkConnectBlock(node, block, view, &stxos)
 			if err == nil {
+
 				b.Index.SetStatusFlags(node, statusValid)
 			} else if _, ok := err.(RuleError); ok {
+
 				b.Index.SetStatusFlags(node, statusValidateFailed)
 			} else {
+
 				return false, err
 			}
 
 			flushIndexState()
 			if err != nil {
+
 				log <- cl.Trace{"error", err}
 				return false, err
 			}
@@ -948,13 +1025,16 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 
 		// In the fast add case the code to check the block connection was skipped, so the utxo view needs to load the referenced utxos, spend them, and add the new utxos being created by this block.
 		if fastAdd {
+
 			err := view.fetchInputUtxos(b.db, block)
 			if err != nil {
+
 				return false, err
 			}
 
 			err = view.connectTransactions(block, &stxos)
 			if err != nil {
+
 				return false, err
 			}
 
@@ -963,9 +1043,11 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		// Connect the block to the main chain.
 		err := b.connectBlock(node, block, view, stxos)
 		if err != nil {
+
 			log <- cl.Trace{"connect block error: ", err}
 			// If we got hit with a rule error, then we'll mark that status of the block as invalid and flush the index state to disk before returning with the error.
 			if _, ok := err.(RuleError); ok {
+
 				b.Index.SetStatusFlags(
 					node, statusValidateFailed,
 				)
@@ -986,6 +1068,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	}
 
 	if fastAdd {
+
 		log <- cl.Warnf{
 			"fastAdd set in the side chain case? %v\n", block.Hash(),
 		}
@@ -996,6 +1079,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 
 	// We're extending (or creating) a side chain, but the cumulative work for this new side chain is not enough to make it the new chain.
 	if node.workSum.Cmp(b.bestChain.Tip().workSum) <= 0 {
+
 		// Log information about how the block is forking the chain.
 		f := b.bestChain.FindFork(node)
 		if f.hash.IsEqual(parentHash) {
@@ -1009,6 +1093,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 			}
 
 		} else {
+
 			log <- cl.Infof{
 				"EXTEND FORK: " +
 					"Block %v extends a side chain which forks the chain at height %d/block %v. workSum=%d",
@@ -1035,6 +1120,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 
 	// Either getReorganizeNodes or reorganizeChain could have made unsaved changes to the block index, so flush regardless of whether there was an error. The index would only be dirty if the block failed to connect, so we can ignore any errors writing.
 	if writeErr := b.Index.flushToDB(); writeErr != nil {
+
 		log <- cl.Warn{
 			"Error flushing block index changes to disk:", writeErr,
 		}
@@ -1055,6 +1141,7 @@ func (b *BlockChain) isCurrent() bool {
 	// latest known good checkpoint (when checkpoints are enabled).
 	checkpoint := b.LatestCheckpoint()
 	if checkpoint != nil && b.bestChain.Tip().height < checkpoint.Height {
+
 		return false
 	}
 
@@ -1070,6 +1157,7 @@ func (b *BlockChain) isCurrent() bool {
 //  - Latest block has a timestamp newer than 24 hours ago
 // This function is safe for concurrent access.
 func (b *BlockChain) IsCurrent() bool {
+
 	b.chainLock.RLock()
 	defer b.chainLock.RUnlock()
 	return b.isCurrent()
@@ -1077,6 +1165,7 @@ func (b *BlockChain) IsCurrent() bool {
 
 // BestSnapshot returns information about the current best chain block and related state as of the current point in time.  The returned instance must be treated as immutable since it is shared by all callers. This function is safe for concurrent access.
 func (b *BlockChain) BestSnapshot() *BestState {
+
 	b.stateLock.RLock()
 	snapshot := b.stateSnapshot
 	b.stateLock.RUnlock()
@@ -1088,6 +1177,7 @@ func (b *BlockChain) HeaderByHash(hash *chainhash.Hash) (wire.BlockHeader, error
 
 	node := b.Index.LookupNode(hash)
 	if node == nil {
+
 		err := fmt.Errorf("block %s is not known", hash)
 		return wire.BlockHeader{}, err
 	}
@@ -1097,12 +1187,14 @@ func (b *BlockChain) HeaderByHash(hash *chainhash.Hash) (wire.BlockHeader, error
 
 // MainChainHasBlock returns whether or not the block with the given hash is in the main chain. This function is safe for concurrent access.
 func (b *BlockChain) MainChainHasBlock(hash *chainhash.Hash) bool {
+
 	node := b.Index.LookupNode(hash)
 	return node != nil && b.bestChain.Contains(node)
 }
 
 // BlockLocatorFromHash returns a block locator for the passed block hash. See BlockLocator for details on the algorithm used to create a block locator. In addition to the general algorithm referenced above, this function will return the block locator for the latest known tip of the main (best) chain if the passed hash is not currently known. This function is safe for concurrent access.
 func (b *BlockChain) BlockLocatorFromHash(hash *chainhash.Hash) BlockLocator {
+
 	b.chainLock.RLock()
 	node := b.Index.LookupNode(hash)
 	locator := b.bestChain.blockLocator(node)
@@ -1137,6 +1229,7 @@ func (b *BlockChain) BlockHashByHeight(blockHeight int32) (*chainhash.Hash, erro
 
 	node := b.bestChain.NodeByHeight(blockHeight)
 	if node == nil {
+
 		str := fmt.Sprintf("BlockHashByHeight: no block at height %d exists", blockHeight)
 		return nil, errNotInMainChain(str)
 	}
@@ -1149,16 +1242,19 @@ func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash
 
 	// Ensure requested heights are sane.
 	if startHeight < 0 {
+
 		return nil, fmt.Errorf("start height of fetch range must not be less than zero - got %d", startHeight)
 	}
 
 	if endHeight < startHeight {
+
 		return nil, fmt.Errorf("end height of fetch range must not be less than the start height - got start %d, end %d",
 			startHeight, endHeight)
 	}
 
 	// There is nothing to do when the start and end heights are the same, so return now to avoid the chain view lock.
 	if startHeight == endHeight {
+
 		return nil, nil
 	}
 
@@ -1169,17 +1265,20 @@ func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash
 	// When the requested start height is after the most recent best chain height, there is nothing to do.
 	latestHeight := b.bestChain.tip().height
 	if startHeight > latestHeight {
+
 		return nil, nil
 	}
 
 	// Limit the ending height to the latest height of the chain.
 	if endHeight > latestHeight+1 {
+
 		endHeight = latestHeight + 1
 	}
 
 	// Fetch as many as are available within the specified range.
 	hashes := make([]chainhash.Hash, 0, endHeight-startHeight)
 	for i := startHeight; i < endHeight; i++ {
+
 		hashes = append(hashes, b.bestChain.nodeByHeight(i).hash)
 	}
 
@@ -1192,6 +1291,7 @@ func (b *BlockChain) HeightToHashRange(startHeight int32,
 
 	endNode := b.Index.LookupNode(endHash)
 	if endNode == nil {
+
 		return nil, fmt.Errorf("no known block header with hash %v", endHash)
 	}
 
@@ -1202,16 +1302,19 @@ func (b *BlockChain) HeightToHashRange(startHeight int32,
 
 	endHeight := endNode.height
 	if startHeight < 0 {
+
 		return nil, fmt.Errorf("start height (%d) is below 0", startHeight)
 	}
 
 	if startHeight > endHeight {
+
 		return nil, fmt.Errorf("start height (%d) is past end height (%d)",
 			startHeight, endHeight)
 	}
 
 	resultsLength := int(endHeight - startHeight + 1)
 	if resultsLength > maxResults {
+
 		return nil, fmt.Errorf("number of results (%d) would exceed max (%d)",
 			resultsLength, maxResults)
 	}
@@ -1220,6 +1323,7 @@ func (b *BlockChain) HeightToHashRange(startHeight int32,
 	node := endNode
 	hashes := make([]chainhash.Hash, resultsLength)
 	for i := resultsLength - 1; i >= 0; i-- {
+
 		hashes[i] = node.hash
 		node = node.parent
 	}
@@ -1233,6 +1337,7 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 
 	endNode := b.Index.LookupNode(endHash)
 	if endNode == nil {
+
 		return nil, fmt.Errorf("no known block header with hash %v", endHash)
 	}
 
@@ -1248,12 +1353,14 @@ func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 	defer b.bestChain.mtx.Unlock()
 	blockNode := endNode
 	for index := int(endHeight) / interval; index > 0; index-- {
+
 		// Use the bestChain chainView for faster lookups once lookup intersects the best chain.
 		blockHeight := int32(index * interval)
 		if b.bestChain.contains(blockNode) {
 
 			blockNode = b.bestChain.nodeByHeight(blockHeight)
 		} else {
+
 			blockNode = blockNode.Ancestor(blockHeight)
 		}
 
@@ -1272,7 +1379,9 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	// There are no block locators so a specific block is being requested as identified by the stop hash.
 	stopNode := b.Index.LookupNode(hashStop)
 	if len(locator) == 0 {
+
 		if stopNode == nil {
+
 			// No blocks with the stop hash were found so there is nothing to do.
 			return nil, 0
 		}
@@ -1283,6 +1392,7 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	// Find the most recent locator block hash in the main chain.  In the case none of the hashes in the locator are in the main chain, fall back to the genesis block.
 	startNode := b.bestChain.Genesis()
 	for _, hash := range locator {
+
 		node := b.Index.LookupNode(hash)
 		if node != nil && b.bestChain.Contains(node) {
 
@@ -1295,6 +1405,7 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	// Start at the block after the most recently known block.  When there is no next block it means the most recently known block is the tip of the best chain, so there is nothing more to do.
 	startNode = b.bestChain.Next(startNode)
 	if startNode == nil {
+
 		return nil, 0
 	}
 
@@ -1302,10 +1413,12 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	total := uint32((b.bestChain.Tip().height - startNode.height) + 1)
 	if stopNode != nil && b.bestChain.Contains(stopNode) &&
 		stopNode.height >= startNode.height {
+
 		total = uint32((stopNode.height - startNode.height) + 1)
 	}
 
 	if total > maxEntries {
+
 		total = maxEntries
 	}
 
@@ -1318,12 +1431,14 @@ func (b *BlockChain) locateBlocks(locator BlockLocator, hashStop *chainhash.Hash
 	// Find the node after the first known block in the locator and the total number of nodes after it needed while respecting the stop hash and max entries.
 	node, total := b.locateInventory(locator, hashStop, maxHashes)
 	if total == 0 {
+
 		return nil
 	}
 
 	// Populate and return the found hashes.
 	hashes := make([]chainhash.Hash, 0, total)
 	for i := uint32(0); i < total; i++ {
+
 		hashes = append(hashes, node.hash)
 		node = b.bestChain.Next(node)
 	}
@@ -1337,6 +1452,7 @@ func (b *BlockChain) locateBlocks(locator BlockLocator, hashStop *chainhash.Hash
 // - When locators are provided, but none of them are known, hashes starting after the genesis block will be returned
 // This function is safe for concurrent access.
 func (b *BlockChain) LocateBlocks(locator BlockLocator, hashStop *chainhash.Hash, maxHashes uint32) []chainhash.Hash {
+
 	b.chainLock.RLock()
 	hashes := b.locateBlocks(locator, hashStop, maxHashes)
 	b.chainLock.RUnlock()
@@ -1349,12 +1465,14 @@ func (b *BlockChain) locateHeaders(locator BlockLocator, hashStop *chainhash.Has
 	// Find the node after the first known block in the locator and the total number of nodes after it needed while respecting the stop hash and max entries.
 	node, total := b.locateInventory(locator, hashStop, maxHeaders)
 	if total == 0 {
+
 		return nil
 	}
 
 	// Populate and return the found headers.
 	headers := make([]wire.BlockHeader, 0, total)
 	for i := uint32(0); i < total; i++ {
+
 		headers = append(headers, node.Header())
 		node = b.bestChain.Next(node)
 	}
@@ -1368,6 +1486,7 @@ func (b *BlockChain) locateHeaders(locator BlockLocator, hashStop *chainhash.Has
 // - When locators are provided, but none of them are known, headers starting after the genesis block will be returned
 // This function is safe for concurrent access.
 func (b *BlockChain) LocateHeaders(locator BlockLocator, hashStop *chainhash.Hash) []wire.BlockHeader {
+
 	b.chainLock.RLock()
 	headers := b.locateHeaders(locator, hashStop, wire.MaxBlockHeadersPerMsg)
 	b.chainLock.RUnlock()
@@ -1421,14 +1540,17 @@ func New(
 
 	// Enforce required config fields.
 	if config.DB == nil {
+
 		return nil, AssertError("blockchain.New database is nil")
 	}
 
 	if config.ChainParams == nil {
+
 		return nil, AssertError("blockchain.New chain parameters nil")
 	}
 
 	if config.TimeSource == nil {
+
 		return nil, AssertError("blockchain.New timesource is nil")
 	}
 
@@ -1436,10 +1558,13 @@ func New(
 	var checkpointsByHeight map[int32]*chaincfg.Checkpoint
 	var prevCheckpointHeight int32
 	if len(config.Checkpoints) > 0 {
+
 		checkpointsByHeight = make(map[int32]*chaincfg.Checkpoint)
 		for i := range config.Checkpoints {
+
 			checkpoint := &config.Checkpoints[i]
 			if checkpoint.Height <= prevCheckpointHeight {
+
 				return nil, AssertError(
 					"blockchain.New checkpoints are not sorted by height")
 			}
@@ -1477,18 +1602,22 @@ func New(
 
 	// Initialize the chain state from the passed database.  When the db does not yet contain any chain state, both it and the chain state will be initialized to contain only the genesis block.
 	if err := b.initChainState(); err != nil {
+
 		return nil, err
 	}
 
 	// Perform any upgrades to the various chain-specific buckets as needed.
 	if err := b.maybeUpgradeDbBuckets(config.Interrupt); err != nil {
+
 		return nil, err
 	}
 
 	// Initialize and catch up all of the currently active optional indexes as needed.
 	if config.IndexManager != nil {
+
 		err := config.IndexManager.Init(&b, config.Interrupt)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -1496,6 +1625,7 @@ func New(
 
 	// Initialize rule change threshold state caches.
 	if err := b.initThresholdCaches(); err != nil {
+
 		return nil, err
 	}
 

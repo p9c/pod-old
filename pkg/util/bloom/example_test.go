@@ -21,6 +21,7 @@ func ExampleNewFilter() {
 	txHashStr := "fd611c56ca0d378cdcd16244b45c2ba9588da3adac367c4ef43e808b280b8a45"
 	txHash, err := chainhash.NewHashFromStr(txHashStr)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}

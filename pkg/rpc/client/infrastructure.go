@@ -124,16 +124,19 @@ type Client struct {
 
 // NextID returns the next id to be used when sending a JSON-RPC message.  This ID allows responses to be associated with particular requests per the JSON-RPC specification.  Typically the consumer of the client does not need to call this function, however, if a custom request is being created and used this function should be used to ensure the ID is unique amongst all requests being made.
 func (c *Client) NextID() uint64 {
+
 	return atomic.AddUint64(&c.id, 1)
 }
 
 // addRequest associates the passed jsonRequest with its id.  This allows the response from the remote server to be unmarshalled to the appropriate type and sent to the specified channel when it is received. If the client has already begun shutting down, ErrClientShutdown is returned and the request is not added. This function is safe for concurrent access.
 func (c *Client) addRequest(jReq *jsonRequest) error {
+
 	c.requestLock.Lock()
 	defer c.requestLock.Unlock()
 
 	// A non-blocking read of the shutdown channel with the request lock held avoids adding the request to the client's internal data structures if the client is in the process of shutting down (and has not yet grabbed the request lock), or has finished shutdown already (responding to each outstanding request with ErrClientShutdown).
 	select {
+
 	case <-c.shutdown:
 		// fmt.Println("chan:<-c.shutdown")
 		return ErrClientShutdown
@@ -146,10 +149,12 @@ func (c *Client) addRequest(jReq *jsonRequest) error {
 
 // removeRequest returns and removes the jsonRequest which contains the response channel and original method associated with the passed id or nil if there is no association. This function is safe for concurrent access.
 func (c *Client) removeRequest(id uint64) *jsonRequest {
+
 	c.requestLock.Lock()
 	defer c.requestLock.Unlock()
 	element := c.requestMap[id]
 	if element != nil {
+
 		delete(c.requestMap, id)
 		request := c.requestList.Remove(element).(*jsonRequest)
 		return request
@@ -169,6 +174,7 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 
 	// Nothing to do if the caller is not interested in notifications.
 	if c.ntfnHandlers == nil {
+
 		return
 	}
 	c.ntfnStateLock.Lock()
@@ -179,16 +185,20 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 		c.ntfnState.notifyBlocks = true
 	case *json.NotifyNewTransactionsCmd:
 		if bcmd.Verbose != nil && *bcmd.Verbose {
+
 			c.ntfnState.notifyNewTxVerbose = true
 		} else {
+
 			c.ntfnState.notifyNewTx = true
 		}
 	case *json.NotifySpentCmd:
 		for _, op := range bcmd.OutPoints {
+
 			c.ntfnState.notifySpent[op] = struct{}{}
 		}
 	case *json.NotifyReceivedCmd:
 		for _, addr := range bcmd.Addresses {
+
 			c.ntfnState.notifyReceived[addr] = struct{}{}
 		}
 	}
@@ -226,6 +236,7 @@ type response struct {
 func (r rawResponse) result() (result []byte, err error) {
 
 	if r.Error != nil {
+
 		return nil, r.Error
 	}
 	return r.Result, nil
@@ -240,23 +251,28 @@ func (c *Client) handleMessage(msg []byte) {
 	in.rawNotification = new(rawNotification)
 	err := js.Unmarshal(msg, &in)
 	if err != nil {
+
 		log <- cl.Warn{"remote server sent invalid message:", err}
 		return
 	}
 
 	// JSON-RPC 1.0 notifications are requests with a null id.
 	if in.ID == nil {
+
 		ntfn := in.rawNotification
 		if ntfn == nil {
+
 			log <- cl.Wrn("malformed notification: missing method and parameters")
 			return
 		}
 		if ntfn.Method == "" {
+
 			log <- cl.Wrn("malformed notification: missing method")
 			return
 		}
 		// params are not optional: nil isn't valid (but len == 0 is)
 		if ntfn.Params == nil {
+
 			log <- cl.Wrn("malformed notification: missing params")
 			return
 		}
@@ -273,6 +289,7 @@ func (c *Client) handleMessage(msg []byte) {
 		return
 	}
 	if in.rawResponse == nil {
+
 		log <- cl.Wrn("malformed response: missing result and error")
 		return
 	}
@@ -282,6 +299,7 @@ func (c *Client) handleMessage(msg []byte) {
 
 	// Nothing more to do if there is no request associated with this reply.
 	if request == nil || request.responseChan == nil {
+
 		log <- cl.Warnf{"received unexpected reply: %s (id %d)", in.Result, id}
 		return
 	}
@@ -299,6 +317,7 @@ func (c *Client) shouldLogReadError(err error) bool {
 
 	// No logging when the connetion is being forcibly disconnected.
 	select {
+
 	case <-c.shutdown:
 		// fmt.Println("chan:<-c.shutdown")
 		return false
@@ -307,6 +326,7 @@ func (c *Client) shouldLogReadError(err error) bool {
 
 	// No logging when the connection has been disconnected.
 	if err == io.EOF {
+
 		return false
 	}
 	if opErr, ok := err.(*net.OpError); ok && !opErr.Temporary() {
@@ -321,8 +341,10 @@ func (c *Client) wsInHandler() {
 
 out:
 	for {
+
 		// Break out of the loop once the shutdown channel has been closed.  Use a non-blocking select here so we fall through otherwise.
 		select {
+
 		case <-c.shutdown:
 			// fmt.Println("chan:<-c.shutdown")
 			break out
@@ -330,6 +352,7 @@ out:
 		}
 		_, msg, err := c.wsConn.ReadMessage()
 		if err != nil {
+
 			// Log the error if it's not due to disconnecting.
 			if c.shouldLogReadError(err) {
 
@@ -348,6 +371,7 @@ out:
 
 // disconnectChan returns a copy of the current disconnect channel.  The channel is read protected by the client mutex, and is safe to call while the channel is being reassigned during a reconnect.
 func (c *Client) disconnectChan() <-chan struct{} {
+
 	c.mtx.Lock()
 	ch := c.disconnect
 	c.mtx.Unlock()
@@ -359,12 +383,15 @@ func (c *Client) wsOutHandler() {
 
 out:
 	for {
+
 		// Send any messages ready for send until the client is disconnected closed.
 		select {
+
 		case msg := <-c.sendChan:
 			// fmt.Println("chan:msg := <-c.sendChan")
 			err := c.wsConn.WriteMessage(websocket.TextMessage, msg)
 			if err != nil {
+
 				c.Disconnect()
 				break out
 			}
@@ -377,7 +404,9 @@ out:
 	// Drain any channels before exiting so nothing is left waiting around send.
 cleanup:
 	for {
+
 		select {
+
 		case <-c.sendChan:
 			// fmt.Println("chan:<-c.sendChan")
 		default:
@@ -393,6 +422,7 @@ func (c *Client) sendMessage(marshalledJSON []byte) {
 
 	// Don't send the message if disconnected.
 	select {
+
 	case c.sendChan <- marshalledJSON:
 		// fmt.Println("chan:c.sendChan <- marshalledJSON")
 	case <-c.disconnectChan():
@@ -406,6 +436,7 @@ func (c *Client) reregisterNtfns() error {
 
 	// Nothing to do if the caller is not interested in notifications.
 	if c.ntfnHandlers == nil {
+
 		return nil
 	}
 
@@ -418,20 +449,24 @@ func (c *Client) reregisterNtfns() error {
 
 	// Reregister notifyblocks if needed.
 	if stateCopy.notifyBlocks {
+
 		log <- cl.Dbg("reregistering [notifyblocks]")
 		if err := c.NotifyBlocks(); err != nil {
+
 			return err
 		}
 	}
 
 	// Reregister notifynewtransactions if needed.
 	if stateCopy.notifyNewTx || stateCopy.notifyNewTxVerbose {
+
 		log <- cl.Debugf{
 			"reregistering [notifynewtransactions] (verbose=%v)",
 			stateCopy.notifyNewTxVerbose,
 		}
 		err := c.NotifyNewTransactions(stateCopy.notifyNewTxVerbose)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -439,14 +474,17 @@ func (c *Client) reregisterNtfns() error {
 	// Reregister the combination of all previously registered notifyspent outpoints in one command if needed.
 	nslen := len(stateCopy.notifySpent)
 	if nslen > 0 {
+
 		outpoints := make([]json.OutPoint, 0, nslen)
 		for op := range stateCopy.notifySpent {
+
 			outpoints = append(outpoints, op)
 		}
 		log <- cl.Debugf{
 			"reregistering [notifyspent] outpoints: %v", outpoints,
 		}
 		if err := c.notifySpentInternal(outpoints).Receive(); err != nil {
+
 			return err
 		}
 	}
@@ -454,12 +492,15 @@ func (c *Client) reregisterNtfns() error {
 	// Reregister the combination of all previously registered notifyreceived addresses in one command if needed.
 	nrlen := len(stateCopy.notifyReceived)
 	if nrlen > 0 {
+
 		addresses := make([]string, 0, nrlen)
 		for addr := range stateCopy.notifyReceived {
+
 			addresses = append(addresses, addr)
 		}
 		log <- cl.Debug{"reregistering [notifyreceived] addresses:", addresses}
 		if err := c.notifyReceivedInternal(addresses).Receive(); err != nil {
+
 			return err
 		}
 	}
@@ -476,6 +517,7 @@ func (c *Client) resendRequests() {
 
 	// Set the notification state back up.  If anything goes wrong, disconnect the client.
 	if err := c.reregisterNtfns(); err != nil {
+
 		log <- cl.Warn{"unable to re-establish notification state:", err}
 		c.Disconnect()
 		return
@@ -486,18 +528,22 @@ func (c *Client) resendRequests() {
 	resendReqs := make([]*jsonRequest, 0, c.requestList.Len())
 	var nextElem *list.Element
 	for e := c.requestList.Front(); e != nil; e = nextElem {
+
 		nextElem = e.Next()
 		jReq := e.Value.(*jsonRequest)
 		if _, ok := ignoreResends[jReq.method]; ok {
+
 			// If a request is not sent on reconnect, remove it from the request structures, since no reply is expected.
 			delete(c.requestMap, jReq.id)
 			c.requestList.Remove(e)
 		} else {
+
 			resendReqs = append(resendReqs, jReq)
 		}
 	}
 	c.requestLock.Unlock()
 	for _, jReq := range resendReqs {
+
 		// Stop resending commands if the client disconnected again since the next reconnect will handle them.
 		if c.Disconnected() {
 
@@ -513,7 +559,9 @@ func (c *Client) wsReconnectHandler() {
 
 out:
 	for {
+
 		select {
+
 		case <-c.disconnect:
 			// fmt.Println("chan:<-c.disconnect")
 			// On disconnect, fallthrough to reestablish the connection.
@@ -523,7 +571,9 @@ out:
 		}
 	reconnect:
 		for {
+
 			select {
+
 			case <-c.shutdown:
 				// fmt.Println("chan:<-c.shutdown")
 				break out
@@ -531,12 +581,14 @@ out:
 			}
 			wsConn, err := dial(c.config)
 			if err != nil {
+
 				c.retryCount++
 				log <- cl.Infof{"failed to connect to %s: %v", c.config.Host, err}
 				// Scale the retry interval by the number of retries so there is a backoff up to a max of 1 minute.
 				scaledInterval := connectionRetryInterval.Nanoseconds() * c.retryCount
 				scaledDuration := time.Duration(scaledInterval)
 				if scaledDuration > time.Minute {
+
 					scaledDuration = time.Minute
 				}
 				log <- cl.Infof{"retrying connection to %s in %s", c.config.Host, scaledDuration}
@@ -570,6 +622,7 @@ func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	log <- cl.Tracef{"sending command [%s] with id %d", jReq.method, jReq.id}
 	httpResponse, err := c.httpClient.Do(details.httpRequest)
 	if err != nil {
+
 		jReq.responseChan <- &response{err: err}
 		return
 	}
@@ -578,6 +631,7 @@ func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	respBytes, err := ioutil.ReadAll(httpResponse.Body)
 	httpResponse.Body.Close()
 	if err != nil {
+
 		err = fmt.Errorf("error reading json reply: %v", err)
 		jReq.responseChan <- &response{err: err}
 		return
@@ -587,6 +641,7 @@ func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	var resp rawResponse
 	err = js.Unmarshal(respBytes, &resp)
 	if err != nil {
+
 		// When the response itself isn't a valid JSON-RPC response return an error which includes the HTTP status code and raw response bytes.
 		err = fmt.Errorf("status code: %d, response: %q",
 			httpResponse.StatusCode, string(respBytes))
@@ -602,8 +657,10 @@ func (c *Client) sendPostHandler() {
 
 out:
 	for {
+
 		// Send any messages ready for send until the shutdown channel is closed.
 		select {
+
 		case details := <-c.sendPostChan:
 			// fmt.Println("chan:details := <-c.sendPostChan")
 			c.handleSendPostMessage(details)
@@ -616,7 +673,9 @@ out:
 	// Drain any wait channels before exiting so nothing is left waiting around to send.
 cleanup:
 	for {
+
 		select {
+
 		case details := <-c.sendPostChan:
 			// fmt.Println("chan:details := <-c.sendPostChan")
 			details.jsonRequest.responseChan <- &response{
@@ -636,6 +695,7 @@ func (c *Client) sendPostRequest(httpReq *http.Request, jReq *jsonRequest) {
 
 	// Don't send the message if shutting down.
 	select {
+
 	case <-c.shutdown:
 		// fmt.Println("chan:<-c.shutdown")
 		jReq.responseChan <- &response{result: nil, err: ErrClientShutdown}
@@ -650,6 +710,7 @@ func (c *Client) sendPostRequest(httpReq *http.Request, jReq *jsonRequest) {
 // newFutureError returns a new future result channel that already has the passed error waitin on the channel with the reply set to nil.  This is useful to easily return errors from the various Async functions.
 func newFutureError(
 	err error) chan *response {
+
 	responseChan := make(chan *response, 1)
 	responseChan <- &response{err: err}
 	return responseChan
@@ -670,12 +731,14 @@ func (c *Client) sendPost(jReq *jsonRequest) {
 	// Generate a request to the configured RPC server.
 	protocol := "http"
 	if c.config.TLS {
+
 		protocol = "https"
 	}
 	url := protocol + "://" + c.config.Host
 	bodyReader := bytes.NewReader(jReq.marshalledJSON)
 	httpReq, err := http.NewRequest("POST", url, bodyReader)
 	if err != nil {
+
 		jReq.responseChan <- &response{result: nil, err: err}
 		return
 	}
@@ -693,12 +756,14 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 
 	// Choose which marshal and send function to use depending on whether the client running in HTTP POST mode or not.  When running in HTTP POST mode, the command is issued via an HTTP client.  Otherwise, the command is issued via the asynchronous websocket channels.
 	if c.config.HTTPPostMode {
+
 		c.sendPost(jReq)
 		return
 	}
 
 	// Check whether the websocket connection has never been established, in which case the handler goroutines are not running.
 	select {
+
 	case <-c.connEstablished:
 		// fmt.Println("chan:<-c.connEstablished")
 	default:
@@ -708,6 +773,7 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 
 	// Add the request to the internal tracking map so the response from the remote server can be properly detected and routed to the response channel.  Then send the marshalled request via the websocket connection.
 	if err := c.addRequest(jReq); err != nil {
+
 		jReq.responseChan <- &response{err: err}
 		return
 	}
@@ -721,6 +787,7 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 	// Get the method associated with the command.
 	method, err := json.CmdMethod(cmd)
 	if err != nil {
+
 		return newFutureError(err)
 	}
 
@@ -728,6 +795,7 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 	id := c.NextID()
 	marshalledJSON, err := json.MarshalCmd(id, cmd)
 	if err != nil {
+
 		return newFutureError(err)
 	}
 
@@ -753,9 +821,11 @@ func (c *Client) sendCmdAndWait(cmd interface{}) (interface{}, error) {
 
 // Disconnected returns whether or not the server is disconnected.  If a websocket client was created but never connected, this also returns false.
 func (c *Client) Disconnected() bool {
+
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 	select {
+
 	case <-c.connEstablished:
 		// fmt.Println("chan:<-c.connEstablished")
 		return c.disconnected
@@ -766,7 +836,9 @@ func (c *Client) Disconnected() bool {
 
 // doDisconnect disconnects the websocket associated with the client if it hasn't already been disconnected.  It will return false if the disconnect is not needed or the client is running in HTTP POST mode. This function is safe for concurrent access.
 func (c *Client) doDisconnect() bool {
+
 	if c.config.HTTPPostMode {
+
 		return false
 	}
 	c.mtx.Lock()
@@ -774,11 +846,13 @@ func (c *Client) doDisconnect() bool {
 
 	// Nothing to do if already disconnected.
 	if c.disconnected {
+
 		return false
 	}
 	log <- cl.Trace{"disconnecting RPC client", c.config.Host}
 	close(c.disconnect)
 	if c.wsConn != nil {
+
 		c.wsConn.Close()
 	}
 	c.disconnected = true
@@ -790,6 +864,7 @@ func (c *Client) doShutdown() bool {
 
 	// Ignore the shutdown request if the client is already in the process of shutting down or already shutdown.
 	select {
+
 	case <-c.shutdown:
 		// fmt.Println("chan:<-c.shutdown")
 		return false
@@ -813,6 +888,7 @@ func (c *Client) Disconnect() {
 
 	// When operating without auto reconnect, send errors to any pending requests and shutdown the client.
 	if c.config.DisableAutoReconnect {
+
 		for e := c.requestList.Front(); e != nil; e = e.Next() {
 
 			req := e.Value.(*jsonRequest)
@@ -861,14 +937,18 @@ func (c *Client) start() {
 
 	// Start the I/O processing handlers depending on whether the client is in HTTP POST mode or the default websocket mode.
 	if c.config.HTTPPostMode {
+
 		c.wg.Add(1)
 		go c.sendPostHandler()
 	} else {
+
 		c.wg.Add(3)
 		go func() {
 
 			if c.ntfnHandlers != nil {
+
 				if c.ntfnHandlers.OnClientConnected != nil {
+
 					c.ntfnHandlers.OnClientConnected()
 				}
 			}
@@ -938,8 +1018,10 @@ func newHTTPClient(
 	var proxyFunc func(
 		*http.Request) (*url.URL, error)
 	if config.Proxy != "" {
+
 		proxyURL, err := url.Parse(config.Proxy)
 		if err != nil {
+
 			return nil, err
 		}
 		proxyFunc = http.ProxyURL(proxyURL)
@@ -948,7 +1030,9 @@ func newHTTPClient(
 	// Configure TLS if needed.
 	var tlsConfig *tls.Config
 	if !config.TLS {
+
 		if len(config.Certificates) > 0 {
+
 			pool := x509.NewCertPool()
 			pool.AppendCertsFromPEM(config.Certificates)
 			tlsConfig = &tls.Config{
@@ -973,10 +1057,12 @@ func dial(
 	var tlsConfig *tls.Config
 	var scheme = "ws"
 	if !config.TLS {
+
 		tlsConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
 		}
 		if len(config.Certificates) > 0 {
+
 			pool := x509.NewCertPool()
 			pool.AppendCertsFromPEM(config.Certificates)
 			tlsConfig.RootCAs = pool
@@ -989,6 +1075,7 @@ func dial(
 
 	// Setup the proxy if one is configured.
 	if config.Proxy != "" {
+
 		proxy := &socks.Proxy{
 			Addr:     config.Proxy,
 			Username: config.ProxyUser,
@@ -1007,16 +1094,20 @@ func dial(
 	url := fmt.Sprintf("%s://%s/%s", scheme, config.Host, config.Endpoint)
 	wsConn, resp, err := dialer.Dial(url, requestHeader)
 	if err != nil {
+
 		if err != websocket.ErrBadHandshake || resp == nil {
+
 			return nil, err
 		}
 		// Detect HTTP authentication error status codes.
 		if resp.StatusCode == http.StatusUnauthorized ||
 			resp.StatusCode == http.StatusForbidden {
+
 			return nil, ErrInvalidAuth
 		}
 		// The connection was authenticated and the status response was ok, but the websocket handshake still failed, so the endpoint is invalid in some way.
 		if resp.StatusCode == http.StatusOK {
+
 			return nil, ErrInvalidEndpoint
 		}
 		// Return the status text from the server if none of the special cases above apply.
@@ -1035,18 +1126,23 @@ func New(
 	connEstablished := make(chan struct{})
 	var start bool
 	if config.HTTPPostMode {
+
 		ntfnHandlers = nil
 		start = true
 		var err error
 		httpClient, err = newHTTPClient(config)
 		if err != nil {
+
 			return nil, err
 		}
 	} else {
+
 		if !config.DisableConnectOnNew {
+
 			var err error
 			wsConn, err = dial(config)
 			if err != nil {
+
 				return nil, err
 			}
 			start = true
@@ -1067,12 +1163,14 @@ func New(
 		shutdown:        make(chan struct{}),
 	}
 	if start {
+
 		log <- cl.Info{
 			"established connection to RPC server", config.Host,
 		}
 		close(connEstablished)
 		client.start()
 		if !client.config.HTTPPostMode && !client.config.DisableAutoReconnect {
+
 			client.wg.Add(1)
 			go client.wsReconnectHandler()
 		}
@@ -1082,12 +1180,15 @@ func New(
 
 // Connect establishes the initial websocket connection.  This is necessary when a client was created after setting the DisableConnectOnNew field of the Config struct. Up to tries number of connections (each after an increasing backoff) will be tried if the connection can not be established.  The special value of 0 indicates an unlimited number of connection attempts. This method will error if the client is not configured for websockets, if the connection has already been established, or if none of the connection attempts were successful.
 func (c *Client) Connect(tries int) error {
+
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 	if c.config.HTTPPostMode {
+
 		return ErrNotWebsocketClient
 	}
 	if c.wsConn != nil {
+
 		return ErrClientAlreadyConnected
 	}
 
@@ -1095,11 +1196,14 @@ func (c *Client) Connect(tries int) error {
 	var err error
 	var backoff time.Duration
 	for i := 0; tries == 0 || i < tries; i++ {
+
 		var wsConn *websocket.Conn
 		wsConn, err = dial(c.config)
 		if err != nil {
+
 			backoff = connectionRetryInterval * time.Duration(i+1)
 			if backoff > time.Minute {
+
 				backoff = time.Minute
 			}
 			time.Sleep(backoff)
@@ -1113,6 +1217,7 @@ func (c *Client) Connect(tries int) error {
 		close(c.connEstablished)
 		c.start()
 		if !c.config.DisableAutoReconnect {
+
 			c.wg.Add(1)
 			go c.wsReconnectHandler()
 		}

@@ -42,6 +42,7 @@ func CreateSimulationWallet(
 	// Create the wallet database backed by bolt db.
 	db, err := walletdb.Create("bdb", dbPath)
 	if err != nil {
+
 		return err
 	}
 
@@ -50,6 +51,7 @@ func CreateSimulationWallet(
 	// Create the wallet.
 	err = wallet.Create(db, pubPass, privPass, nil, ActiveNet.Params, time.Now())
 	if err != nil {
+
 		return err
 	}
 
@@ -60,6 +62,7 @@ func CreateSimulationWallet(
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
 func CreateWallet(
 	cfg *Config, activeNet *netparams.Params) error {
+
 	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
@@ -83,6 +86,7 @@ func CreateWallet(
 		// Keystore file exists.
 		legacyKeyStore, err = keystore.OpenDir(netDir)
 		if err != nil {
+
 			return err
 		}
 
@@ -92,6 +96,7 @@ func CreateWallet(
 	reader := bufio.NewReader(os.Stdin)
 	privPass, err := prompt.PrivatePass(reader, legacyKeyStore)
 	if err != nil {
+
 		log <- cl.Debug{err}
 		time.Sleep(time.Second * 3)
 		return err
@@ -99,8 +104,10 @@ func CreateWallet(
 
 	// When there exists a legacy keystore, unlock it now and set up a callback to import all keystore keys into the new walletdb wallet
 	if legacyKeyStore != nil {
+
 		err = legacyKeyStore.Unlock(privPass)
 		if err != nil {
+
 			return err
 		}
 
@@ -119,6 +126,7 @@ func CreateWallet(
 
 			err := w.Unlock(privPass, lockChan)
 			if err != nil {
+
 				fmt.Printf("ERR: Failed to unlock new wallet "+
 					"during old wallet key import: %v", err)
 				return
@@ -126,6 +134,7 @@ func CreateWallet(
 
 			err = convertLegacyKeystore(legacyKeyStore, w)
 			if err != nil {
+
 				fmt.Printf("ERR: Failed to import keys from old "+
 					"wallet format: %v", err)
 				return
@@ -134,6 +143,7 @@ func CreateWallet(
 			// Remove the legacy key store.
 			err = os.Remove(keystorePath)
 			if err != nil {
+
 				fmt.Printf("WARN: Failed to remove legacy wallet "+
 					"from'%s'\n", keystorePath)
 			}
@@ -146,6 +156,7 @@ func CreateWallet(
 	pubPass, err := prompt.PublicPass(reader, privPass,
 		[]byte(""), []byte(*cfg.WalletPass))
 	if err != nil {
+
 		log <- cl.Debug{err}
 		time.Sleep(time.Second * 5)
 		return err
@@ -158,6 +169,7 @@ func CreateWallet(
 	// value the user has entered which has already been validated.
 	seed, err := prompt.Seed(reader)
 	if err != nil {
+
 		log <- cl.Debug{err}
 		time.Sleep(time.Second * 5)
 		return err
@@ -166,6 +178,7 @@ func CreateWallet(
 	log <- cl.Dbg("Creating the wallet...")
 	w, err := loader.CreateNewWallet(pubPass, privPass, seed, time.Now())
 	if err != nil {
+
 		log <- cl.Debug{err}
 		time.Sleep(time.Second * 5)
 		return err
@@ -179,10 +192,12 @@ func CreateWallet(
 // NetworkDir returns the directory name of a network directory to hold wallet files.
 func NetworkDir(
 	dataDir string, chainParams *chaincfg.Params) string {
+
 	netname := chainParams.Name
 
 	// For now, we must always name the testnet data directory as "testnet" and not "testnet3" or any other version, as the chaincfg testnet3 paramaters will likely be switched to being named "testnet3" in the future.  This is done to future proof that change, and an upgrade plan to move the testnet3 data directory can be worked out later.
 	if chainParams.Net == wire.TestNet3 {
+
 		netname = "testnet"
 	}
 
@@ -194,19 +209,24 @@ func NetworkDir(
 // If path does not exist, it is created.
 func checkCreateDir(
 	path string) error {
+
 	if fi, err := os.Stat(path); err != nil {
+
 		if os.IsNotExist(err) {
 
 			// Attempt data directory creation
 			if err = os.MkdirAll(path, 0700); err != nil {
+
 				return fmt.Errorf("cannot create directory: %s", err)
 			}
 
 		} else {
+
 			return fmt.Errorf("error checking directory: %s", err)
 		}
 
 	} else {
+
 		if !fi.IsDir() {
 
 			return fmt.Errorf("path '%s' is not a directory", path)
@@ -220,6 +240,7 @@ func checkCreateDir(
 // convertLegacyKeystore converts all of the addresses in the passed legacy key store to the new waddrmgr.Manager format.  Both the legacy keystore and the new manager must be unlocked.
 func convertLegacyKeystore(
 	legacyKeyStore *keystore.Store, w *wallet.Wallet) error {
+
 	netParams := legacyKeyStore.Net()
 	blockStamp := waddrmgr.BlockStamp{
 		Height: 0,
@@ -233,6 +254,7 @@ func convertLegacyKeystore(
 		case keystore.PubKeyAddress:
 			privKey, err := addr.PrivKey()
 			if err != nil {
+
 				fmt.Printf("WARN: Failed to obtain private key "+
 					"for address %v: %v\n", addr.Address(),
 					err)
@@ -242,6 +264,7 @@ func convertLegacyKeystore(
 			wif, err := util.NewWIF((*ec.PrivateKey)(privKey),
 				netParams, addr.Compressed())
 			if err != nil {
+
 				fmt.Printf("WARN: Failed to create wallet "+
 					"import format for address %v: %v\n",
 					addr.Address(), err)
@@ -251,6 +274,7 @@ func convertLegacyKeystore(
 			_, err = w.ImportPrivateKey(waddrmgr.KeyScopeBIP0044,
 				wif, &blockStamp, false)
 			if err != nil {
+
 				fmt.Printf("WARN: Failed to import private "+
 					"key for address %v: %v\n",
 					addr.Address(), err)
@@ -260,6 +284,7 @@ func convertLegacyKeystore(
 		case keystore.ScriptAddress:
 			_, err := w.ImportP2SHRedeemScript(addr.Script())
 			if err != nil {
+
 				fmt.Printf("WARN: Failed to import "+
 					"pay-to-script-hash script for "+
 					"address %v: %v\n", addr.Address(), err)

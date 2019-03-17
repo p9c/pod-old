@@ -25,6 +25,7 @@ func Main(
 ) {
 
 	if len(args) < 1 {
+
 		usage("No command specified")
 		os.Exit(1)
 	}
@@ -33,12 +34,14 @@ func Main(
 	method := args[0]
 	usageFlags, err := json.MethodUsageFlags(method)
 	if err != nil {
+
 		fmt.Fprintf(os.Stderr, "Unrecognized command '%s'\n", method)
 		fmt.Fprintln(os.Stderr, listCmdMessage)
 		os.Exit(1)
 	}
 
 	if usageFlags&unusableFlags != 0 {
+
 		fmt.Fprintf(
 			os.Stderr,
 			"The '%s' command can only be used via websockets\n", method)
@@ -52,15 +55,19 @@ func Main(
 	bio := bufio.NewReader(os.Stdin)
 	params := make([]interface{}, 0, len(args[1:]))
 	for _, arg := range args[1:] {
+
 		if arg == "-" {
+
 			param, err := bio.ReadString('\n')
 			if err != nil && err != io.EOF {
+
 				fmt.Fprintf(os.Stderr,
 					"Failed to read data from stdin: %v\n", err)
 				os.Exit(1)
 			}
 
 			if err == io.EOF && len(param) == 0 {
+
 				fmt.Fprintln(os.Stderr, "Not enough lines provided on stdin")
 				os.Exit(1)
 			}
@@ -79,6 +86,7 @@ func Main(
 
 		// Show the error along with its error code when it's a json.Error as it realistically will always be since the NewCmd function is only supposed to return errors of that type.
 		if jerr, ok := err.(json.Error); ok {
+
 			fmt.Fprintf(os.Stderr, "%s command: %v (code: %s)\n",
 				method, err, jerr.ErrorCode)
 			commandUsage(method)
@@ -94,6 +102,7 @@ func Main(
 	// Marshal the command into a JSON-RPC byte slice in preparation for sending it to the RPC server.
 	marshalledJSON, err := json.MarshalCmd(1, cmd)
 	if err != nil {
+
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -101,6 +110,7 @@ func Main(
 	// Send the JSON-RPC request to the server using the user-specified connection configuration.
 	result, err := sendPostRequest(marshalledJSON, cfg)
 	if err != nil {
+
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -111,6 +121,7 @@ func Main(
 
 		var dst bytes.Buffer
 		if err := js.Indent(&dst, result, "", "  "); err != nil {
+
 			fmt.Fprintf(os.Stderr, "Failed to format result: %v",
 				err)
 			os.Exit(1)
@@ -121,6 +132,7 @@ func Main(
 
 		var str string
 		if err := js.Unmarshal(result, &str); err != nil {
+
 			fmt.Fprintf(os.Stderr, "Failed to unmarshal result: %v",
 				err)
 			os.Exit(1)
@@ -128,6 +140,7 @@ func Main(
 
 		fmt.Println(str)
 	} else if strResult != "null" {
+
 		fmt.Println(strResult)
 	}
 

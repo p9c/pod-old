@@ -31,17 +31,21 @@ func TestUsageFlagStringer(
 	numUsageFlags := 0
 	highestUsageFlagBit := json.TstHighestUsageFlagBit
 	for highestUsageFlagBit > 1 {
+
 		numUsageFlags++
 		highestUsageFlagBit >>= 1
 	}
 	if len(tests)-3 != numUsageFlags {
+
 		t.Errorf("It appears a usage flag was added without adding " +
 			"an associated stringer test")
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue
@@ -65,6 +69,7 @@ func TestRegisterCmdErrors(
 			name:   "duplicate method",
 			method: "getblock",
 			cmdFunc: func() interface{} {
+
 				return struct{}{}
 			},
 			err: json.Error{ErrorCode: json.ErrDuplicateMethod},
@@ -73,6 +78,7 @@ func TestRegisterCmdErrors(
 			name:   "invalid usage flags",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				return 0
 			},
 			flags: json.TstHighestUsageFlagBit,
@@ -82,6 +88,7 @@ func TestRegisterCmdErrors(
 			name:   "invalid type",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				return 0
 			},
 			err: json.Error{ErrorCode: json.ErrInvalidType},
@@ -90,6 +97,7 @@ func TestRegisterCmdErrors(
 			name:   "invalid type 2",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				return &[]string{}
 			},
 			err: json.Error{ErrorCode: json.ErrInvalidType},
@@ -98,6 +106,7 @@ func TestRegisterCmdErrors(
 			name:   "embedded field",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ int }
 				return (*test)(nil)
 			},
@@ -107,6 +116,7 @@ func TestRegisterCmdErrors(
 			name:   "unexported field",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ a int }
 				return (*test)(nil)
 			},
@@ -116,6 +126,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 1",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A **int }
 				return (*test)(nil)
 			},
@@ -125,6 +136,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 2",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A chan int }
 				return (*test)(nil)
 			},
@@ -134,6 +146,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 3",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A complex64 }
 				return (*test)(nil)
 			},
@@ -143,6 +156,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 4",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A complex128 }
 				return (*test)(nil)
 			},
@@ -152,6 +166,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 5",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A func() }
 				return (*test)(nil)
 			},
@@ -161,6 +176,7 @@ func TestRegisterCmdErrors(
 			name:   "unsupported field type 6",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct{ A interface{} }
 				return (*test)(nil)
 			},
@@ -170,6 +186,7 @@ func TestRegisterCmdErrors(
 			name:   "required after optional",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct {
 					A *int
 					B int
@@ -182,6 +199,7 @@ func TestRegisterCmdErrors(
 			name:   "non-optional with default",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct {
 					A int `jsonrpcdefault:"1"`
 				}
@@ -193,6 +211,7 @@ func TestRegisterCmdErrors(
 			name:   "mismatched default",
 			method: "registertestcmd",
 			cmdFunc: func() interface{} {
+
 				type test struct {
 					A *int `jsonrpcdefault:"1.7"`
 				}
@@ -203,6 +222,7 @@ func TestRegisterCmdErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		err := json.RegisterCmd(test.method, test.cmdFunc(),
 			test.flags)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
@@ -213,6 +233,7 @@ func TestRegisterCmdErrors(
 		}
 		gotErrorCode := err.(json.Error).ErrorCode
 		if gotErrorCode != test.err.ErrorCode {
+
 			t.Errorf("Test #%d (%s) mismatched error code - got "+
 				"%v, want %v", i, test.name, gotErrorCode,
 				test.err.ErrorCode)
@@ -233,6 +254,7 @@ func TestMustRegisterCmdPanic(
 	defer func() {
 
 		if err := recover(); err == nil {
+
 			t.Error("MustRegisterCmd did not panic as expected")
 		}
 	}()
@@ -250,6 +272,7 @@ func TestRegisteredCmdMethods(
 	// Ensure the registered methods are returned.
 	methods := json.RegisteredCmdMethods()
 	if len(methods) == 0 {
+
 		t.Fatal("RegisteredCmdMethods: no methods")
 	}
 

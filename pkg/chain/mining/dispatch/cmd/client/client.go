@@ -28,7 +28,9 @@ func main() {
 	server.Start()
 	defer server.Stop()
 	for {
+
 		if !connected {
+
 			subscribed = false
 			connected = true
 			client = rmnp.NewClient(serverAddr)
@@ -38,6 +40,7 @@ func main() {
 			client.PacketHandler = handleClientPacket
 			client.ConnectWithData([]byte("kopach"))
 		} else {
+
 			time.Sleep(heartbeat)
 		}
 	}
@@ -50,11 +53,13 @@ func serverConnect(
 
 	// fmt.Println("serverConnect")
 	if !subscribed && connected {
+
 		fmt.Println("subscribe", serverAddr)
 		conn.SendReliableOrdered([]byte("subscribe " + myListener))
 		time.Sleep(heartbeat)
 	}
 	for conn.Addr != nil && connected {
+
 		fmt.Println("ping", conn.Addr)
 		conn.SendReliableOrdered([]byte("ping " + myListener))
 		time.Sleep(heartbeat)
@@ -84,6 +89,7 @@ func handleClientPacket(
 
 	fmt.Println("->" + string(data))
 	if string(data)[:10] == "subscribed" {
+
 		subscribed = true
 	}
 }
@@ -95,6 +101,7 @@ func clientConnect(
 
 	// fmt.Println("clientConnection")
 	if string(data) != "nachalnik" {
+
 		conn.Disconnect([]byte("wrong handshake"))
 	}
 	subscribed = true
@@ -123,6 +130,7 @@ func validateClient(
 	// fmt.Println("validateClient")
 	valid = string(data) == "nachalnik"
 	if !valid {
+
 		fmt.Println("Wrong handshake from", addr.IP, addr.Port, addr.Network(), addr.Zone)
 	}
 	return
@@ -134,6 +142,7 @@ func handleServerPacket(
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
 	switch {
+
 	case !connected:
 		conn.Disconnect([]byte("already connected"))
 	case str[:10] == "subscribed":

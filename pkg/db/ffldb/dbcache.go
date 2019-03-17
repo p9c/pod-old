@@ -39,6 +39,7 @@ var _ iterator.Iterator = (*ldbCacheIter)(nil)
 
 // Error is only provided to satisfy the iterator interface as there are no errors for this memory-only structure. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *ldbCacheIter) Error() error {
+
 	return nil
 }
 
@@ -55,6 +56,7 @@ func (iter *ldbCacheIter) Release() {
 // newLdbCacheIter creates a new treap iterator for the given slice against the pending keys for the passed cache snapshot and returns it wrapped in an ldbCacheIter so it can be used as a leveldb iterator.
 func newLdbCacheIter(
 	snap *dbCacheSnapshot, slice *util.Range) *ldbCacheIter {
+
 	iter := snap.pendingKeys.Iterator(slice.Start, slice.Limit)
 	return &ldbCacheIter{Iterator: iter}
 }
@@ -87,12 +89,15 @@ func (iter *dbCacheIterator) skipPendingUpdates(forwards bool) {
 		}
 
 		if !skip {
+
 			break
 		}
 
 		if forwards {
+
 			iter.dbIter.Next()
 		} else {
+
 			iter.dbIter.Prev()
 		}
 
@@ -133,6 +138,7 @@ func (iter *dbCacheIterator) chooseIterator(forwards bool) bool {
 
 		iter.currentIter = iter.cacheIter
 	} else {
+
 		iter.currentIter = iter.dbIter
 	}
 
@@ -162,6 +168,7 @@ func (iter *dbCacheIterator) Next() bool {
 
 	// Nothing to return if cursor is exhausted.
 	if iter.currentIter == nil {
+
 		return false
 	}
 
@@ -175,6 +182,7 @@ func (iter *dbCacheIterator) Prev() bool {
 
 	// Nothing to return if cursor is exhausted.
 	if iter.currentIter == nil {
+
 		return false
 	}
 
@@ -194,6 +202,7 @@ func (iter *dbCacheIterator) Seek(key []byte) bool {
 
 // Valid indicates whether the iterator is positioned at a valid key/value pair. It will be considered invalid when the iterator is newly created or exhausted. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *dbCacheIterator) Valid() bool {
+
 	return iter.currentIter != nil
 }
 
@@ -202,6 +211,7 @@ func (iter *dbCacheIterator) Key() []byte {
 
 	// Nothing to return if iterator is exhausted.
 	if iter.currentIter == nil {
+
 		return nil
 	}
 
@@ -213,6 +223,7 @@ func (iter *dbCacheIterator) Value() []byte {
 
 	// Nothing to return if iterator is exhausted.
 	if iter.currentIter == nil {
+
 		return nil
 	}
 
@@ -228,6 +239,7 @@ func (iter *dbCacheIterator) SetReleaser(releaser util.Releaser) {
 func (iter *dbCacheIterator) Release() {
 
 	if !iter.released {
+
 		iter.dbIter.Release()
 		iter.cacheIter.Release()
 		iter.currentIter = nil
@@ -238,6 +250,7 @@ func (iter *dbCacheIterator) Release() {
 
 // Error is only provided to satisfy the iterator interface as there are no errors for this memory-only structure. This is part of the leveldb iterator.Iterator interface implementation.
 func (iter *dbCacheIterator) Error() error {
+
 	return nil
 }
 
@@ -277,12 +290,14 @@ func (snap *dbCacheSnapshot) Get(key []byte) []byte {
 	}
 
 	if value := snap.pendingKeys.Get(key); value != nil {
+
 		return value
 	}
 
 	// Consult the database.
 	value, err := snap.dbSnapshot.Get(key, nil)
 	if err != nil {
+
 		return nil
 	}
 
@@ -300,6 +315,7 @@ func (snap *dbCacheSnapshot) Release() {
 // NewIterator returns a new iterator for the snapshot.  The newly returned iterator is not pointing to a valid item until a call to one of the methods to position it is made.
 // The slice parameter allows the iterator to be limited to a range of keys. The start key is inclusive and the limit key is exclusive.  Either or both can be nil if the functionality is not desired.
 func (snap *dbCacheSnapshot) NewIterator(slice *util.Range) *dbCacheIterator {
+
 	return &dbCacheIterator{
 		dbIter:        snap.dbSnapshot.NewIterator(slice, nil),
 		cacheIter:     newLdbCacheIter(snap, slice),
@@ -341,6 +357,7 @@ func (c *dbCache) Snapshot() (*dbCacheSnapshot, error) {
 
 	dbSnapshot, err := c.ldb.GetSnapshot()
 	if err != nil {
+
 		str := "failed to open transaction"
 		return nil, convertErr(str, err)
 	}
@@ -363,16 +380,19 @@ func (c *dbCache) updateDB(fn func(ldbTx *leveldb.Transaction) error) error {
 	// Start a leveldb transaction.
 	ldbTx, err := c.ldb.OpenTransaction()
 	if err != nil {
+
 		return convertErr("failed to open ldb transaction", err)
 	}
 
 	if err := fn(ldbTx); err != nil {
+
 		ldbTx.Discard()
 		return err
 	}
 
 	// Commit the leveldb transaction and convert any errors as needed.
 	if err := ldbTx.Commit(); err != nil {
+
 		return convertErr("failed to commit leveldb transaction", err)
 	}
 
@@ -389,9 +409,12 @@ func (c *dbCache) commitTreaps(pendingKeys, pendingRemove TreapForEacher) error 
 
 	// Perform all leveldb updates using an atomic transaction.
 	return c.updateDB(func(ldbTx *leveldb.Transaction) error {
+
 		var innerErr error
 		pendingKeys.ForEach(func(k, v []byte) bool {
+
 			if dbErr := ldbTx.Put(k, v, nil); dbErr != nil {
+
 				str := fmt.Sprintf("failed to put key %q to "+
 					"ldb transaction", k)
 				innerErr = convertErr(str, dbErr)
@@ -402,11 +425,14 @@ func (c *dbCache) commitTreaps(pendingKeys, pendingRemove TreapForEacher) error 
 		})
 
 		if innerErr != nil {
+
 			return innerErr
 		}
 
 		pendingRemove.ForEach(func(k, v []byte) bool {
+
 			if dbErr := ldbTx.Delete(k, nil); dbErr != nil {
+
 				str := fmt.Sprintf("failed to delete "+
 					"key %q from ldb transaction",
 					k)
@@ -424,10 +450,12 @@ func (c *dbCache) commitTreaps(pendingKeys, pendingRemove TreapForEacher) error 
 
 // flush flushes the database cache to persistent storage.  This involes syncing the block store and replaying all transactions that have been applied to the cache to the underlying database. This function MUST be called with the database write lock held.
 func (c *dbCache) flush() error {
+
 	c.lastFlush = time.Now()
 
 	// Sync the current write file associated with the block store.  This is necessary before writing the metadata to prevent the case where the metadata contains information about a block which actually hasn't been written yet in unexpected shutdown scenarios.
 	if err := c.store.syncBlocks(); err != nil {
+
 		return err
 	}
 
@@ -439,11 +467,13 @@ func (c *dbCache) flush() error {
 
 	// Nothing to do if there is no data to flush.
 	if cachedKeys.Len() == 0 && cachedRemove.Len() == 0 {
+
 		return nil
 	}
 
 	// Perform all leveldb updates using an atomic transaction.
 	if err := c.commitTreaps(cachedKeys, cachedRemove); err != nil {
+
 		return err
 	}
 
@@ -460,6 +490,7 @@ func (c *dbCache) needsFlush(tx *transaction) bool {
 
 	// A flush is needed when more time has elapsed than the configured flush interval.
 	if time.Since(c.lastFlush) > c.flushInterval {
+
 		return true
 	}
 
@@ -478,12 +509,14 @@ func (c *dbCache) commitTx(tx *transaction) error {
 	if c.needsFlush(tx) {
 
 		if err := c.flush(); err != nil {
+
 			return err
 		}
 
 		// Perform all leveldb updates using an atomic transaction.
 		err := c.commitTreaps(tx.pendingKeys, tx.pendingRemove)
 		if err != nil {
+
 			return err
 		}
 
@@ -503,6 +536,7 @@ func (c *dbCache) commitTx(tx *transaction) error {
 
 	// Apply every key to add in the database transaction to the cache.
 	tx.pendingKeys.ForEach(func(k, v []byte) bool {
+
 		newCachedRemove = newCachedRemove.Delete(k)
 		newCachedKeys = newCachedKeys.Put(k, v)
 		return true
@@ -512,6 +546,7 @@ func (c *dbCache) commitTx(tx *transaction) error {
 
 	// Apply every key to remove in the database transaction to the cache.
 	tx.pendingRemove.ForEach(func(k, v []byte) bool {
+
 		newCachedKeys = newCachedKeys.Delete(k)
 		newCachedRemove = newCachedRemove.Put(k, nil)
 		return true
@@ -532,6 +567,7 @@ func (c *dbCache) Close() error {
 
 	// Flush any outstanding cached entries to disk.
 	if err := c.flush(); err != nil {
+
 		// Even if there is an error while flushing, attempt to close the underlying database.  The error is ignored since it would mask the flush error.
 		_ = c.ldb.Close()
 		return err
@@ -539,6 +575,7 @@ func (c *dbCache) Close() error {
 
 	// Close the underlying leveldb database.
 	if err := c.ldb.Close(); err != nil {
+
 		str := "failed to close underlying leveldb database"
 		return convertErr(str, err)
 	}
@@ -549,6 +586,7 @@ func (c *dbCache) Close() error {
 // newDbCache returns a new database cache instance backed by the provided leveldb instance.  The cache will be flushed to leveldb when the max size exceeds the provided value or it has been longer than the provided interval since the last flush.
 func newDbCache(
 	ldb *leveldb.DB, store *blockStore, maxSize uint64, flushIntervalSecs uint32) *dbCache {
+
 	return &dbCache{
 		ldb:           ldb,
 		store:         store,

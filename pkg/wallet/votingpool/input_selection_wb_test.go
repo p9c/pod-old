@@ -27,6 +27,7 @@ func TestGetEligibleInputs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -46,6 +47,7 @@ func TestGetEligibleInputs(
 	eligibleAmounts := []int64{int64(dustThreshold + 1), int64(dustThreshold + 1)}
 	var inputs []wtxmgr.Credit
 	for i := 0; i < len(scripts); i++ {
+
 		created := TstCreateCreditsOnStore(t, dbtx, store, scripts[i], eligibleAmounts)
 		inputs = append(inputs, created...)
 	}
@@ -62,11 +64,13 @@ func TestGetEligibleInputs(
 			eligibleInputMinConfirmations)
 	})
 	if err != nil {
+
 		t.Fatal("InputSelection failed:", err)
 	}
 
 	// Check we got the expected number of eligible inputs.
 	if len(eligibles) != expNoEligibleInputs {
+
 		t.Fatalf("Wrong number of eligible inputs returned. Got: %d, want: %d.",
 			len(eligibles), expNoEligibleInputs)
 	}
@@ -89,6 +93,7 @@ func TestNextAddrWithVaryingHighestIndices(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -117,6 +122,7 @@ func TestNextAddrWithVaryingHighestIndices(
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
+
 		t.Fatalf("Failed to get next address: %v", err)
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(1), 1)
@@ -129,6 +135,7 @@ func TestNextAddrWithVaryingHighestIndices(
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
+
 		t.Fatalf("Failed to get next address: %v", err)
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(0), 2)
@@ -141,9 +148,11 @@ func TestNextAddrWithVaryingHighestIndices(
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
+
 		t.Fatalf("Failed to get next address: %v", err)
 	}
 	if addr != nil {
+
 		t.Fatalf("Wrong next addr; got '%s', want 'nil'", addr.addrIdentifier())
 	}
 }
@@ -156,6 +165,7 @@ func TestNextAddr(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -174,6 +184,7 @@ func TestNextAddr(
 
 	// idx==0..10.
 	for _, i := range []int{0, 1, 2, 3} {
+
 		TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(i), lastIdx)
 	}
 	addr := TstNewWithdrawalAddress(t, dbtx, pool, 1, 0, lastIdx-1)
@@ -182,11 +193,13 @@ func TestNextAddr(
 
 	// here (because our series has 3 public keys).
 	for _, i := range []int{1, 2, 3} {
+
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
+
 			t.Fatalf("Failed to get next address: %v", err)
 		}
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx-1)
@@ -198,11 +211,13 @@ func TestNextAddr(
 
 	// branch=[0-3] and idx=lastIdx.
 	for _, i := range []int{0, 1, 2, 3} {
+
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
+
 			t.Fatalf("Failed to get next address: %v", err)
 		}
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx)
@@ -212,6 +227,7 @@ func TestNextAddr(
 
 	// idx==0..10.
 	for _, i := range []int{0, 1, 2, 3} {
+
 		TstEnsureUsedAddr(t, dbtx, pool, 2, Branch(i), lastIdx)
 	}
 
@@ -219,11 +235,13 @@ func TestNextAddr(
 
 	// we should move to the next series and start again with branch=0, idx=0.
 	for _, i := range []int{0, 1, 2, 3} {
+
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
 
 			addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 		})
 		if err != nil {
+
 			t.Fatalf("Failed to get next address: %v", err)
 		}
 		checkWithdrawalAddressMatches(t, addr, 2, Branch(i), 0)
@@ -238,9 +256,11 @@ func TestNextAddr(
 		addr, err = nextAddr(pool, ns, addrmgrNs, addr.seriesID, addr.branch, addr.index, stopSeriesID)
 	})
 	if err != nil {
+
 		t.Fatalf("Failed to get next address: %v", err)
 	}
 	if addr != nil {
+
 		t.Fatalf("Wrong WithdrawalAddress; got %s, want nil", addr.addrIdentifier())
 	}
 }
@@ -253,6 +273,7 @@ func TestEligibleInputsAreEligible(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -278,6 +299,7 @@ func TestNonEligibleInputsAreNotEligible(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -319,6 +341,7 @@ func TestCreditSortingByAddress(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -349,6 +372,7 @@ func TestCreditSortingByAddress(
 	want := []credit{c0, c1, c2, c3, c4, c5, c6}
 
 	for _, random := range randomCredits {
+
 		sort.Sort(byAddress(random))
 		got := random
 
@@ -359,6 +383,7 @@ func TestCreditSortingByAddress(
 		}
 
 		for idx := 0; idx < len(want); idx++ {
+
 			if !reflect.DeepEqual(got[idx], want[idx]) {
 
 				t.Errorf("Wrong output index. Got: %v, want: %v",
@@ -374,8 +399,10 @@ func TestCreditSortingByAddress(
 func newDummyCredit(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, series uint32, index Index, branch Branch,
 	txHash []byte, outpointIdx uint32) credit {
+
 	var hash chainhash.Hash
 	if err := hash.SetBytes(txHash); err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -406,6 +433,7 @@ func checkUniqueness(
 
 	uniqMap := make(map[uniq]bool)
 	for _, c := range credits {
+
 		u := uniq{
 			series:      c.addr.SeriesID(),
 			branch:      c.addr.Branch(),
@@ -414,8 +442,10 @@ func checkUniqueness(
 			outputIndex: c.OutPoint.Index,
 		}
 		if _, exists := uniqMap[u]; exists {
+
 			t.Fatalf("Duplicate found: %v", u)
 		} else {
+
 			uniqMap[u] = true
 		}
 	}
@@ -424,9 +454,12 @@ func checkUniqueness(
 func getPKScriptsForAddressRange(
 	t *testing.T, dbtx walletdb.ReadWriteTx, pool *Pool, seriesID uint32,
 	startBranch, stopBranch Branch, startIdx, stopIdx Index) [][]byte {
+
 	var pkScripts [][]byte
 	for idx := startIdx; idx <= stopIdx; idx++ {
+
 		for branch := startBranch; branch <= stopBranch; branch++ {
+
 			pkScripts = append(pkScripts, TstCreatePkScript(t, dbtx, pool, seriesID, branch, idx))
 		}
 	}
@@ -438,12 +471,15 @@ func checkWithdrawalAddressMatches(
 	branch Branch, index Index) {
 
 	if addr.SeriesID() != seriesID {
+
 		t.Fatalf("Wrong seriesID; got %d, want %d", addr.SeriesID(), seriesID)
 	}
 	if addr.Branch() != branch {
+
 		t.Fatalf("Wrong branch; got %d, want %d", addr.Branch(), branch)
 	}
 	if addr.Index() != index {
+
 		t.Fatalf("Wrong index; got %d, want %d", addr.Index(), index)
 	}
 }

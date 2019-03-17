@@ -10,12 +10,14 @@ database path as a string:
 
 	db, err := walletdb.Open("bdb", "path/to/database.db")
 	if err != nil {
-		// Handle error
+
+// Handle error
 	}
 
 	db, err := walletdb.Create("bdb", "path/to/database.db")
 	if err != nil {
-		// Handle error
+
+// Handle error
 	}
 */
 package bdb

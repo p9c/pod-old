@@ -22,6 +22,7 @@ type ConcurrentQueue struct {
 // structure.
 func NewConcurrentQueue(
 	bufferSize int) *ConcurrentQueue {
+
 	return &ConcurrentQueue{
 		chanIn:   make(chan interface{}),
 		chanOut:  make(chan interface{}, bufferSize),
@@ -32,11 +33,13 @@ func NewConcurrentQueue(
 
 // ChanIn returns a channel that can be used to push new items into the queue.
 func (cq *ConcurrentQueue) ChanIn() chan<- interface{} {
+
 	return cq.chanIn
 }
 
 // ChanOut returns a channel that can be used to pop items from the queue.
 func (cq *ConcurrentQueue) ChanOut() <-chan interface{} {
+
 	return cq.chanOut
 }
 
@@ -49,15 +52,19 @@ func (cq *ConcurrentQueue) Start() {
 	go func() {
 
 		for {
+
 			nextElement := cq.overflow.Front()
 			if nextElement == nil {
+
 				// The overflow queue is empty, so incoming
 				// items can be pushed directly to the output
 				// channel. However, if output channel is full,
 				// we'll push to the overflow list instead.
 				select {
+
 				case item := <-cq.chanIn:
 					select {
+
 					case cq.chanOut <- item:
 					case <-cq.quit:
 						return
@@ -68,10 +75,12 @@ func (cq *ConcurrentQueue) Start() {
 					return
 				}
 			} else {
+
 				// The overflow queue is not empty, so any new
 				// items get pushed to the back to preserve
 				// order.
 				select {
+
 				case item := <-cq.chanIn:
 					cq.overflow.PushBack(item)
 				case cq.chanOut <- nextElement.Value:

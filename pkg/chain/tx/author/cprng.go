@@ -24,6 +24,7 @@ func init() {
 	buf := make([]byte, 8)
 	_, err := rand.Read(buf)
 	if err != nil {
+
 		panic("Failed to seed prng: " + err.Error())
 	}
 
@@ -32,6 +33,7 @@ func init() {
 }
 
 func (c *cprngType) Int31n(n int32) int32 {
+
 	defer c.mu.Unlock() // Int31n may panic
 	c.mu.Lock()
 	return c.r.Int31n(n)

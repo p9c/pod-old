@@ -37,10 +37,13 @@ func serverConnect(
 	// fmt.Println("serverConnect")
 	originAddr := conn.Addr.String()
 	for conn.Addr != nil {
+
 		for i := range clients {
+
 			returnAddr := clientsMap[originAddr]
 			time.Sleep(heartbeat)
 			if i == returnAddr {
+
 				fmt.Println("ping", conn.Addr)
 				conn.SendReliableOrdered([]byte("ping " + myListener))
 				break
@@ -55,6 +58,7 @@ func serverDisconnect(
 	fmt.Println("server disconnect")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
+
 	}
 	mapWrite = true
 	delete(clients, clientsMap[addr])
@@ -69,6 +73,7 @@ func serverTimeout(
 	// fmt.Println("server timeout")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
+
 	}
 	mapWrite = true
 	delete(clients, clientsMap[addr])
@@ -90,6 +95,7 @@ func clientConnect(
 
 	// fmt.Println("clientConnection")
 	if string(data) != "kopach" {
+
 		conn.Disconnect([]byte("wrong handshake"))
 	}
 }
@@ -100,6 +106,7 @@ func clientDisconnect(
 	// fmt.Println("client disconnect")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
+
 	}
 	mapWrite = true
 	delete(clients, clientsMap[addr])
@@ -114,6 +121,7 @@ func clientTimeout(
 	// fmt.Println("client timeout")
 	addr := clientsMap[conn.Addr.String()]
 	for mapWrite {
+
 	}
 	mapWrite = true
 	delete(clients, clientsMap[addr])
@@ -128,6 +136,7 @@ func validateClient(
 	// fmt.Println("validateClient")
 	valid = string(data) == "kopach"
 	if !valid {
+
 		fmt.Println("Wrong handshake from", addr.IP, addr.Port, addr.Network(), addr.Zone)
 	}
 	return
@@ -139,9 +148,11 @@ func handleServerPacket(
 	// fmt.Println("handleServerPacket", string(data))
 	str := string(data)
 	switch {
+
 	case str[:9] == "subscribe":
 		addr := string(str[10:])
 		if _, ok := clients[addr]; ok {
+
 			// conn.Disconnect([]byte("already subscribed"))
 			break
 		}
@@ -152,6 +163,7 @@ func handleServerPacket(
 		newClient.PacketHandler = handleClientPacket
 		newClient.ConnectWithData([]byte("nachalnik"))
 		for mapWrite {
+
 		}
 		mapWrite = true
 		clients[addr] = newClient

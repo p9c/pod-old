@@ -23,21 +23,25 @@ func TestChance(
 				0, time.Now().Add(-30*time.Minute), time.Now(), false, 0),
 			1.0,
 		}, {
+
 			//Test case in which lastseen < 0
 			addrmgr.TstNewKnownAddress(&wire.NetAddress{Timestamp: now.Add(20 * time.Second)},
 				0, time.Now().Add(-30*time.Minute), time.Now(), false, 0),
 			1.0,
 		}, {
+
 			//Test case in which lastattempt < 0
 			addrmgr.TstNewKnownAddress(&wire.NetAddress{Timestamp: now.Add(-35 * time.Second)},
 				0, time.Now().Add(30*time.Minute), time.Now(), false, 0),
 			1.0 * .01,
 		}, {
+
 			//Test case in which lastattempt < ten minutes
 			addrmgr.TstNewKnownAddress(&wire.NetAddress{Timestamp: now.Add(-35 * time.Second)},
 				0, time.Now().Add(-5*time.Minute), time.Now(), false, 0),
 			1.0 * .01,
 		}, {
+
 			//Test case with several failed attempts.
 			addrmgr.TstNewKnownAddress(&wire.NetAddress{Timestamp: now.Add(-35 * time.Second)},
 				2, time.Now().Add(-30*time.Minute), time.Now(), false, 0),
@@ -46,8 +50,10 @@ func TestChance(
 	}
 	err := .0001
 	for i, test := range tests {
+
 		chance := addrmgr.TstKnownAddressChance(test.addr)
 		if math.Abs(test.expected-chance) >= err {
+
 			t.Errorf("case %d: got %f, expected %f", i, chance, test.expected)
 		}
 	}

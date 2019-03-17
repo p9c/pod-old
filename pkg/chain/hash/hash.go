@@ -19,7 +19,9 @@ type Hash [HashSize]byte
 
 // String returns the Hash as the hexadecimal string of the byte-reversed hash.
 func (hash Hash) String() string {
+
 	for i := 0; i < HashSize/2; i++ {
+
 		hash[i], hash[HashSize-1-i] = hash[HashSize-1-i], hash[i]
 	}
 	return hex.EncodeToString(hash[:])
@@ -27,6 +29,7 @@ func (hash Hash) String() string {
 
 // CloneBytes returns a copy of the bytes which represent the hash as a byte slice. NOTE: It is generally cheaper to just slice the hash directly thereby reusing the same bytes rather than calling this method.
 func (hash *Hash) CloneBytes() []byte {
+
 	newHash := make([]byte, HashSize)
 	copy(newHash, hash[:])
 	return newHash
@@ -34,8 +37,10 @@ func (hash *Hash) CloneBytes() []byte {
 
 // SetBytes sets the bytes which represent the hash.  An error is returned if the number of bytes passed in is not HashSize.
 func (hash *Hash) SetBytes(newHash []byte) error {
+
 	nhlen := len(newHash)
 	if nhlen != HashSize {
+
 		return fmt.Errorf("invalid hash length of %v, want %v", nhlen,
 			HashSize)
 	}
@@ -45,10 +50,13 @@ func (hash *Hash) SetBytes(newHash []byte) error {
 
 // IsEqual returns true if target is the same as hash.
 func (hash *Hash) IsEqual(target *Hash) bool {
+
 	if hash == nil && target == nil {
+
 		return true
 	}
 	if hash == nil || target == nil {
+
 		return false
 	}
 	return *hash == *target
@@ -61,6 +69,7 @@ func NewHash(
 	var sh Hash
 	err := sh.SetBytes(newHash)
 	if err != nil {
+
 		return nil, err
 	}
 	return &sh, err
@@ -73,6 +82,7 @@ func NewHashFromStr(
 	ret := new(Hash)
 	err := Decode(ret, hash)
 	if err != nil {
+
 		return nil, err
 	}
 	return ret, nil
@@ -84,14 +94,17 @@ func Decode(
 
 	// Return error if hash string is too long.
 	if len(src) > MaxHashStringSize {
+
 		return ErrHashStrSize
 	}
 
 	// Hex decoder expects the hash to be a multiple of two.  When not, pad with a leading zero.
 	var srcBytes []byte
 	if len(src)%2 == 0 {
+
 		srcBytes = []byte(src)
 	} else {
+
 		srcBytes = make([]byte, 1+len(src))
 		srcBytes[0] = '0'
 		copy(srcBytes[1:], src)
@@ -101,11 +114,13 @@ func Decode(
 	var reversedHash Hash
 	_, err := hex.Decode(reversedHash[HashSize-hex.DecodedLen(len(srcBytes)):], srcBytes)
 	if err != nil {
+
 		return err
 	}
 
 	// Reverse copy from the temporary hash to destination.  Because the temporary was zeroed, the written result will be correctly padded.
 	for i, b := range reversedHash[:HashSize/2] {
+
 		dst[i], dst[HashSize-1-i] = reversedHash[HashSize-1-i], b
 	}
 	return nil

@@ -61,15 +61,18 @@ func NewNeutrinoClient(
 
 // BackEnd returns the name of the driver.
 func (s *NeutrinoClient) BackEnd() string {
+
 	return "neutrino"
 }
 
 // Start replicates the RPC client's Start method.
 func (s *NeutrinoClient) Start() error {
+
 	s.CS.Start()
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
 	if !s.started {
+
 		s.enqueueNotification = make(chan interface{})
 		s.dequeueNotification = make(chan interface{})
 		s.currentBlock = make(chan *waddrmgr.BlockStamp)
@@ -79,6 +82,7 @@ func (s *NeutrinoClient) Start() error {
 		go func() {
 
 			select {
+
 			case s.enqueueNotification <- ClientConnected{}:
 			case <-s.quit:
 			}
@@ -94,6 +98,7 @@ func (s *NeutrinoClient) Stop() {
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
 	if !s.started {
+
 		return
 	}
 	close(s.quit)
@@ -116,6 +121,7 @@ func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) 
 	//  Should the block cache be INSIDE neutrino instead of in btcwallet?
 	block, err := s.CS.GetBlock(*hash)
 	if err != nil {
+
 		return nil, err
 	}
 	return block.MsgBlock(), nil
@@ -135,6 +141,7 @@ func (s *NeutrinoClient) GetBestBlock() (*chainhash.Hash, int32, error) {
 
 	chainTip, err := s.CS.BestBlock()
 	if err != nil {
+
 		return nil, 0, err
 	}
 
@@ -146,6 +153,7 @@ func (s *NeutrinoClient) GetBestBlock() (*chainhash.Hash, int32, error) {
 func (s *NeutrinoClient) BlockStamp() (*waddrmgr.BlockStamp, error) {
 
 	select {
+
 	case bs := <-s.currentBlock:
 		return bs, nil
 	case <-s.quit:
@@ -175,6 +183,7 @@ func (s *NeutrinoClient) SendRawTransaction(tx *wire.MsgTx, allowHighFees bool) 
 
 	err := s.CS.SendTransaction(tx)
 	if err != nil {
+
 		return nil, err
 	}
 	hash := tx.TxHash()
@@ -198,6 +207,7 @@ func (s *NeutrinoClient) FilterBlocks(
 	// in the filter blocks request.
 	watchList, err := buildFilterBlocksWatchList(req)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -209,21 +219,26 @@ func (s *NeutrinoClient) FilterBlocks(
 
 	// and scanned for addresses using the block filterer.
 	for i, blk := range req.Blocks {
+
 		filter, err := s.pollCFilter(&blk.Hash)
 		if err != nil {
+
 			return nil, err
 		}
 
 		// Skip any empty filters.
 		if filter == nil || filter.N() == 0 {
+
 			continue
 		}
 
 		key := builder.DeriveKey(&blk.Hash)
 		matched, err := filter.MatchAny(key, watchList)
 		if err != nil {
+
 			return nil, err
 		} else if !matched {
+
 			continue
 		}
 
@@ -236,6 +251,7 @@ func (s *NeutrinoClient) FilterBlocks(
 		// stripped blocks
 		rawBlock, err := s.GetBlock(&blk.Hash)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -284,8 +300,10 @@ func buildFilterBlocksWatchList(
 	watchList := make([][]byte, 0, watchListSize)
 
 	for _, addr := range req.ExternalAddrs {
+
 		p2shAddr, err := txscript.PayToAddrScript(addr)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -293,8 +311,10 @@ func buildFilterBlocksWatchList(
 	}
 
 	for _, addr := range req.InternalAddrs {
+
 		p2shAddr, err := txscript.PayToAddrScript(addr)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -302,8 +322,10 @@ func buildFilterBlocksWatchList(
 	}
 
 	for _, addr := range req.WatchedOutPoints {
+
 		addr, err := txscript.PayToAddrScript(addr)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -326,12 +348,15 @@ func (s *NeutrinoClient) pollCFilter(hash *chainhash.Hash) (*gcs.Filter, error) 
 
 	const maxFilterRetries = 50
 	for count < maxFilterRetries {
+
 		if count > 0 {
+
 			time.Sleep(100 * time.Millisecond)
 		}
 
 		filter, err = s.CS.GetCFilter(*hash, wire.GCSFilterRegular)
 		if err != nil {
+
 			count++
 			continue
 		}
@@ -349,10 +374,12 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 	s.clientMtx.Lock()
 	defer s.clientMtx.Unlock()
 	if !s.started {
+
 		return fmt.Errorf("can't do a rescan when the chain client " +
 			"is not started")
 	}
 	if s.scanning {
+
 		// Restart the rescan by killing the existing rescan.
 		close(s.rescanQuit)
 		s.clientMtx.Unlock()
@@ -369,10 +396,12 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 
 	bestBlock, err := s.CS.BestBlock()
 	if err != nil {
+
 		return fmt.Errorf("Can't get chain service's best block: %s", err)
 	}
 	header, err := s.CS.GetBlockHeader(&bestBlock.Hash)
 	if err != nil {
+
 		return fmt.Errorf("Can't get block header for hash %v: %s",
 			bestBlock.Hash, err)
 	}
@@ -383,8 +412,10 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 
 	// notification indicating the rescan has "finished".
 	if header.BlockHash() == *startHash {
+
 		s.finished = true
 		select {
+
 		case s.enqueueNotification <- &RescanFinished{
 			Hash:   startHash,
 			Height: int32(bestBlock.Height),
@@ -399,8 +430,10 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 
 	var inputsToWatch []sac.InputWithScript
 	for op, addr := range outPoints {
+
 		addrScript, err := txscript.PayToAddrScript(addr)
 		if err != nil {
+
 		}
 
 		inputsToWatch = append(inputsToWatch, sac.InputWithScript{
@@ -429,12 +462,14 @@ func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 
 // NotifyBlocks replicates the RPC client's NotifyBlocks command.
 func (s *NeutrinoClient) NotifyBlocks() error {
+
 	s.clientMtx.Lock()
 
 	// If we're scanning, we're already notifying on blocks. Otherwise,
 
 	// start a rescan without watching any addresses.
 	if !s.scanning {
+
 		s.clientMtx.Unlock()
 		return s.NotifyReceived([]util.Address{})
 	}
@@ -444,12 +479,14 @@ func (s *NeutrinoClient) NotifyBlocks() error {
 
 // NotifyReceived replicates the RPC client's NotifyReceived command.
 func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
+
 	s.clientMtx.Lock()
 
 	// If we have a rescan running, we just need to add the appropriate
 
 	// addresses to the watch list.
 	if s.scanning {
+
 		s.clientMtx.Unlock()
 		return s.rescan.Update(sac.AddAddrs(addrs...))
 	}
@@ -480,6 +517,7 @@ func (s *NeutrinoClient) NotifyReceived(addrs []util.Address) error {
 
 // Notifications replicates the RPC client's Notifications method.
 func (s *NeutrinoClient) Notifications() <-chan interface{} {
+
 	return s.dequeueNotification
 }
 
@@ -512,9 +550,11 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		},
 	}
 	for _, tx := range relevantTxs {
+
 		rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx(),
 			header.Timestamp)
 		if err != nil {
+
 			log <- cl.Error{
 				"cannot create transaction record for relevant tx:", err,
 			}
@@ -524,6 +564,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		ntfn.RelevantTxs = append(ntfn.RelevantTxs, rec)
 	}
 	select {
+
 	case s.enqueueNotification <- ntfn:
 	case <-s.quit:
 		return
@@ -534,6 +575,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 	// Handle RescanFinished notification if required.
 	bs, err := s.CS.BestBlock()
 	if err != nil {
+
 		log <- cl.Error{"can't get chain service's best block:", err}
 		return
 	}
@@ -543,6 +585,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		// Only send the RescanFinished notification once.
 		s.clientMtx.Lock()
 		if s.finished {
+
 			s.clientMtx.Unlock()
 			return
 		}
@@ -550,11 +593,14 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		// underlying chain service sees itself as current.
 		current := s.CS.IsCurrent() && s.lastProgressSent
 		if current {
+
 			s.finished = true
 		}
 		s.clientMtx.Unlock()
 		if current {
+
 			select {
+
 			case s.enqueueNotification <- &RescanFinished{
 				Hash:   &bs.Hash,
 				Height: bs.Height,
@@ -575,6 +621,7 @@ func (s *NeutrinoClient) onBlockDisconnected(hash *chainhash.Hash, height int32,
 	t time.Time) {
 
 	select {
+
 	case s.enqueueNotification <- BlockDisconnected{
 		Block: wtxmgr.Block{
 			Hash:   *hash,
@@ -596,6 +643,7 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 	sendRescanProgress := func() {
 
 		select {
+
 		case s.enqueueNotification <- &RescanProgress{
 			Hash:   hash,
 			Height: height,
@@ -615,21 +663,26 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 
 		// Send a RescanProgress notification every 10K blocks.
 		if height%10000 == 0 {
+
 			s.clientMtx.Lock()
 			shouldSend := s.isRescan && !s.finished
 			s.clientMtx.Unlock()
 			if shouldSend {
+
 				sendRescanProgress()
 			}
 		}
 	} else {
+
 		// Send a RescanProgress notification if we're just going over
 		// the boundary between pre-birthday and post-birthday blocks,
 		// and note that we've sent it.
 		s.clientMtx.Lock()
 		if !s.lastProgressSent {
+
 			shouldSend := s.isRescan && !s.finished
 			if shouldSend {
+
 				s.clientMtx.Unlock()
 				sendRescanProgress()
 				s.clientMtx.Lock()
@@ -638,6 +691,7 @@ func (s *NeutrinoClient) onBlockConnected(hash *chainhash.Hash, height int32,
 		}
 		s.clientMtx.Unlock()
 		select {
+
 		case s.enqueueNotification <- BlockConnected{
 			Block: wtxmgr.Block{
 				Hash:   *hash,
@@ -658,6 +712,7 @@ func (s *NeutrinoClient) notificationHandler() {
 
 	hash, height, err := s.GetBestBlock()
 	if err != nil {
+
 		log <- cl.Errorf{"failed to get best block from chain service:", err}
 		s.Stop()
 		s.wg.Done()
@@ -684,15 +739,19 @@ func (s *NeutrinoClient) notificationHandler() {
 	var next interface{}
 out:
 	for {
+
 		s.clientMtx.Lock()
 		rescanErr := s.rescanErr
 		s.clientMtx.Unlock()
 		select {
+
 		case n, ok := <-enqueue:
 			if !ok {
+
 				// If no notifications are queued for handling,
 				// the queue is finished.
 				if len(notifications) == 0 {
+
 					break out
 				}
 				// nil channel so no more reads can occur.
@@ -700,6 +759,7 @@ out:
 				continue
 			}
 			if len(notifications) == 0 {
+
 				next = n
 				dequeue = s.dequeueNotification
 			}
@@ -707,6 +767,7 @@ out:
 
 		case dequeue <- next:
 			if n, ok := next.(BlockConnected); ok {
+
 				bs = &waddrmgr.BlockStamp{
 					Height: n.Height,
 					Hash:   n.Hash,
@@ -716,11 +777,14 @@ out:
 			notifications[0] = nil
 			notifications = notifications[1:]
 			if len(notifications) != 0 {
+
 				next = notifications[0]
 			} else {
+
 				// If no more notifications can be enqueued, the
 				// queue is finished.
 				if enqueue == nil {
+
 					break out
 				}
 				dequeue = nil
@@ -728,6 +792,7 @@ out:
 
 		case err := <-rescanErr:
 			if err != nil {
+
 				log <- cl.Error{"neutrino rescan ended with error:", err}
 			}
 

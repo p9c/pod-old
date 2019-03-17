@@ -10,7 +10,9 @@ type MsgSendHeaders struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgSendHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	if pver < SendHeadersVersion {
+
 		str := fmt.Sprintf("sendheaders message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgSendHeaders.BtcDecode", str)
@@ -20,7 +22,9 @@ func (msg *MsgSendHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncodi
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgSendHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	if pver < SendHeadersVersion {
+
 		str := fmt.Sprintf("sendheaders message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgSendHeaders.BtcEncode", str)
@@ -30,15 +34,18 @@ func (msg *MsgSendHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncodi
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgSendHeaders) Command() string {
+
 	return CmdSendHeaders
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgSendHeaders) MaxPayloadLength(pver uint32) uint32 {
+
 	return 0
 }
 
 // NewMsgSendHeaders returns a new bitcoin sendheaders message that conforms to the Message interface.  See MsgSendHeaders for details.
 func NewMsgSendHeaders() *MsgSendHeaders {
+
 	return &MsgSendHeaders{}
 }

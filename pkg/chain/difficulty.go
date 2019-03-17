@@ -23,6 +23,7 @@ var bigOne = big.NewInt(1)
 var oneLsh256 = new(big.Int).Lsh(bigOne, 256)
 
 var scryptPowLimit = func() big.Int {
+
 	mplb, _ := hex.DecodeString("000000039fcaa04ac30b6384471f337748ef5c87c7aeffce5e51770ce6283137,")
 	return *big.NewInt(0).SetBytes(mplb) //AllOnes.Rsh(&AllOnes, 0)
 }()
@@ -87,6 +88,7 @@ func (
 	newTargetBits uint32,
 	err error,
 ) {
+
 	nH := lastNode.height + 1
 
 	switch fork.GetCurrent(nH) {
@@ -190,6 +192,7 @@ func (
 		}
 
 		Log.Trcc(func() string {
+
 			return fmt.Sprintf(
 				"actual timespan %v, adjusted timespan %v, target timespan %v"+
 					"\nOld %064x\nNew %064x",
@@ -254,6 +257,7 @@ func (
 
 				pb = p.GetLastWithAlgo(algo)
 			} else {
+
 				break
 			}
 
@@ -262,6 +266,7 @@ func (
 				// only add the timestamp if is not the same as the previous
 				timestamps = append(timestamps, float64(pb.timestamp))
 			} else {
+
 				break
 			}
 
@@ -327,6 +332,7 @@ func (
 
 					factor = f
 				} else {
+
 					factor = 1.0
 				}
 
@@ -347,6 +353,7 @@ func (
 			}
 
 		} else {
+
 			targetAdjusted = 100
 			adjusted = 100
 		}
@@ -359,6 +366,7 @@ func (
 		counter = 1
 		for ; counter < int(fork.GetAveragingInterval(nH)) &&
 			pb.height > 2; counter++ {
+
 			pb = pb.RelativeAncestor(1)
 			trailingTimestamps = append(
 				trailingTimestamps, float64(pb.timestamp))
@@ -389,6 +397,7 @@ func (
 
 					factor = f
 				} else {
+
 					factor = 1.0
 				}
 
@@ -409,6 +418,7 @@ func (
 			}
 
 		} else {
+
 			trailingTargetAdjusted = 100
 			trailingAdjusted = 100
 		}
@@ -592,6 +602,7 @@ func CompactToBig(compact uint32) *big.Int {
 		mantissa >>= 8 * (3 - exponent)
 		bn = big.NewInt(int64(mantissa))
 	} else {
+
 		bn = big.NewInt(int64(mantissa))
 		bn.Lsh(bn, 8*(exponent-3))
 	}

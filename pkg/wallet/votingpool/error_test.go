@@ -56,13 +56,16 @@ func TestErrorCodeStringer(
 	}
 
 	if int(vp.TstLastErr) != len(tests)-1 {
+
 		t.Errorf("Wrong number of errorCodeStrings. Got: %d, want: %d",
 			int(vp.TstLastErr), len(tests))
 	}
 
 	for i, test := range tests {
+
 		result := test.in.String()
 		if result != test.want {
+
 			t.Errorf("String #%d\ngot: %s\nwant: %s", i, result,
 				test.want)
 		}

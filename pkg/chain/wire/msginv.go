@@ -15,7 +15,9 @@ type MsgInv struct {
 
 // AddInvVect adds an inventory vector to the message.
 func (msg *MsgInv) AddInvVect(iv *InvVect) error {
+
 	if len(msg.InvList)+1 > MaxInvPerMsg {
+
 		str := fmt.Sprintf("too many invvect in message [max %v]",
 			MaxInvPerMsg)
 		return messageError("MsgInv.AddInvVect", str)
@@ -26,13 +28,16 @@ func (msg *MsgInv) AddInvVect(iv *InvVect) error {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgInv) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 
 	// Limit to max inventory vectors per message.
 	if count > MaxInvPerMsg {
+
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
 		return messageError("MsgInv.BtcDecode", str)
 	}
@@ -41,9 +46,11 @@ func (msg *MsgInv) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) erro
 	invList := make([]InvVect, count)
 	msg.InvList = make([]*InvVect, 0, count)
 	for i := uint64(0); i < count; i++ {
+
 		iv := &invList[i]
 		err := readInvVect(r, pver, iv)
 		if err != nil {
+
 			return err
 		}
 		msg.AddInvVect(iv)
@@ -57,16 +64,20 @@ func (msg *MsgInv) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) erro
 	// Limit to max inventory vectors per message.
 	count := len(msg.InvList)
 	if count > MaxInvPerMsg {
+
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
 		return messageError("MsgInv.BtcEncode", str)
 	}
 	err := WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for _, iv := range msg.InvList {
+
 		err := writeInvVect(w, pver, iv)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -75,6 +86,7 @@ func (msg *MsgInv) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) erro
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgInv) Command() string {
+
 	return CmdInv
 }
 
@@ -87,6 +99,7 @@ func (msg *MsgInv) MaxPayloadLength(pver uint32) uint32 {
 
 // NewMsgInv returns a new bitcoin inv message that conforms to the Message interface.  See MsgInv for details.
 func NewMsgInv() *MsgInv {
+
 	return &MsgInv{
 		InvList: make([]*InvVect, 0, defaultInvListAlloc),
 	}
@@ -98,6 +111,7 @@ func NewMsgInvSizeHint(
 
 	// Limit the specified hint to the maximum allow per message.
 	if sizeHint > MaxInvPerMsg {
+
 		sizeHint = MaxInvPerMsg
 	}
 	return &MsgInv{

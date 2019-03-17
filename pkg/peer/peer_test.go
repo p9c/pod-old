@@ -33,6 +33,7 @@ type conn struct {
 
 // LocalAddr returns the local address for the connection.
 func (c conn) LocalAddr() net.Addr {
+
 	return &addr{c.lnet, c.laddr}
 }
 
@@ -338,6 +339,7 @@ func TestPeerConnection(
 				for i := 0; i < 4; i++ {
 
 					select {
+
 					case <-verack:
 					case <-time.After(time.Second):
 						return nil, nil, errors.New("verack timeout")
@@ -371,6 +373,7 @@ func TestPeerConnection(
 				for i := 0; i < 4; i++ {
 
 					select {
+
 					case <-verack:
 					case <-time.After(time.Second):
 						return nil, nil, errors.New("verack timeout")
@@ -534,6 +537,7 @@ func TestPeerListeners(
 			},
 
 			OnVersion: func(p *peer.Peer, msg *wire.MsgVersion) *wire.MsgReject {
+
 				ok <- msg
 				return nil
 			},
@@ -588,6 +592,7 @@ func TestPeerListeners(
 	for i := 0; i < 2; i++ {
 
 		select {
+
 		case <-verack:
 		case <-time.After(time.Second * 1):
 			t.Errorf("TestPeerListeners: verack timeout\n")
@@ -743,6 +748,7 @@ func TestPeerListeners(
 		// Queue the test message
 		outPeer.QueueMessage(test.msg, nil)
 		select {
+
 		case <-ok:
 		case <-time.After(time.Second * 1):
 			t.Errorf("TestPeerListeners: %s timeout", test.listener)
@@ -794,6 +800,7 @@ func TestOutboundPeer(
 	}()
 
 	select {
+
 	case <-disconnected:
 		close(disconnected)
 	case <-time.After(time.Second):
@@ -992,6 +999,7 @@ func TestUnsupportedVersionPeer(
 
 	// Read version message sent to remote peer
 	select {
+
 	case msg := <-outboundMessages:
 
 		if _, ok := msg.(*wire.MsgVersion); !ok {
@@ -1027,6 +1035,7 @@ func TestUnsupportedVersionPeer(
 	}()
 
 	select {
+
 	case <-disconnected:
 		close(disconnected)
 	case <-time.After(time.Second):
@@ -1035,6 +1044,7 @@ func TestUnsupportedVersionPeer(
 
 	// Expect no further outbound messages from peer
 	select {
+
 	case msg, chanOpen := <-outboundMessages:
 
 		if chanOpen {
@@ -1088,6 +1098,7 @@ func TestDuplicateVersionMsg(
 	for i := 0; i < 2; i++ {
 
 		select {
+
 		case <-verack:
 		case <-time.After(time.Second):
 			t.Fatal("verack timeout")
@@ -1099,6 +1110,7 @@ func TestDuplicateVersionMsg(
 	done := make(chan struct{})
 	outPeer.QueueMessage(&wire.MsgVersion{}, done)
 	select {
+
 	case <-done:
 	case <-time.After(time.Second):
 		t.Fatal("send duplicate version timeout")
@@ -1113,6 +1125,7 @@ func TestDuplicateVersionMsg(
 	}()
 
 	select {
+
 	case <-disconnected:
 	case <-time.After(time.Second):
 		t.Fatal("peer did not disconnect")

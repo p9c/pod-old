@@ -11,12 +11,15 @@ import (
 // makeParams creates a slice of interface values for the given struct.
 func makeParams(
 	rt reflect.Type, rv reflect.Value) []interface{} {
+
 	numFields := rt.NumField()
 	params := make([]interface{}, 0, numFields)
 	for i := 0; i < numFields; i++ {
+
 		rtf := rt.Field(i)
 		rvf := rv.Field(i)
 		if rtf.Type.Kind() == reflect.Ptr {
+
 			if rvf.IsNil() {
 
 				break
@@ -38,6 +41,7 @@ func MarshalCmd(
 	method, ok := concreteTypeToMethod[rt]
 	registerLock.RUnlock()
 	if !ok {
+
 		str := fmt.Sprintf("%q is not registered", method)
 		return nil, makeError(ErrUnregisteredMethod, str)
 	}
@@ -56,6 +60,7 @@ func MarshalCmd(
 	// Generate and marshal the final JSON-RPC request.
 	rawCmd, err := NewRequest(id, method, params)
 	if err != nil {
+
 		return nil, err
 	}
 	return json.Marshal(rawCmd)
@@ -64,8 +69,11 @@ func MarshalCmd(
 // checkNumParams ensures the supplied number of params is at least the minimum required number for the command and less than the maximum allowed.
 func checkNumParams(
 	numParams int, info *methodInfo) error {
+
 	if numParams < info.numReqParams || numParams > info.maxParams {
+
 		if info.numReqParams == info.maxParams {
+
 			str := fmt.Sprintf("wrong number of params (expected "+
 				"%d, received %d)", info.numReqParams,
 				numParams)
@@ -85,8 +93,10 @@ func populateDefaults(
 
 	// When there are no more parameters left in the supplied parameters, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	for i := numParams; i < info.maxParams; i++ {
+
 		rvf := rv.Field(i)
 		if defaultVal, ok := info.defaults[i]; ok {
+
 			rvf.Set(defaultVal)
 		}
 	}
@@ -101,6 +111,7 @@ func UnmarshalCmd(
 	info := methodToInfo[r.Method]
 	registerLock.RUnlock()
 	if !ok {
+
 		str := fmt.Sprintf("%q is not registered", r.Method)
 		return nil, makeError(ErrUnregisteredMethod, str)
 	}
@@ -111,18 +122,22 @@ func UnmarshalCmd(
 	// Ensure the number of parameters are correct.
 	numParams := len(r.Params)
 	if err := checkNumParams(numParams, &info); err != nil {
+
 		return nil, err
 	}
 
 	// Loop through each of the struct fields and unmarshal the associated parameter into them.
 	for i := 0; i < numParams; i++ {
+
 		rvf := rv.Field(i)
 		// Unmarshal the parameter into the struct field.
 		concreteVal := rvf.Addr().Interface()
 		if err := json.Unmarshal(r.Params[i], &concreteVal); err != nil {
+
 			// The most common error is the wrong type, so explicitly detect that error and make it nicer.
 			fieldName := strings.ToLower(rt.Field(i).Name)
 			if jerr, ok := err.(*json.UnmarshalTypeError); ok {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"be type %v (got %v)", i+1, fieldName,
 					jerr.Type, jerr.Value)
@@ -137,6 +152,7 @@ func UnmarshalCmd(
 
 	// When there are less supplied parameters than the total number of params, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	if numParams < info.maxParams {
+
 		populateDefaults(numParams, &info, rv)
 	}
 	return rvp.Interface(), nil
@@ -145,7 +161,9 @@ func UnmarshalCmd(
 // isNumeric returns whether the passed reflect kind is a signed or unsigned integer of any magnitude or a float of any magnitude.
 func isNumeric(
 	kind reflect.Kind) bool {
+
 	switch kind {
+
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
 		reflect.Uint64, reflect.Float32, reflect.Float64:
@@ -160,6 +178,7 @@ func typesMaybeCompatible(
 
 	// The same types are obviously compatible.
 	if dest == src {
+
 		return true
 	}
 
@@ -171,12 +190,14 @@ func typesMaybeCompatible(
 		return true
 	}
 	if srcKind == reflect.String {
+
 		// Strings can potentially be converted to numeric types.
 		if isNumeric(destKind) {
 
 			return true
 		}
 		switch destKind {
+
 		// Strings can potentially be converted to bools by strconv.ParseBool.
 		case reflect.Bool:
 			return true
@@ -197,6 +218,7 @@ func baseType(
 
 	var numIndirects int
 	for arg.Kind() == reflect.Ptr {
+
 		arg = arg.Elem()
 		numIndirects++
 	}
@@ -219,7 +241,9 @@ func assignField(
 
 	// Check if it's possible to simply set the dest to the provided source. This is the case when the base types are the same or they are both pointers that can be indirected to be the same without needing to create pointers for the destination field.
 	if destBaseType == srcBaseType && srcIndirects >= destIndirects {
+
 		for i := 0; i < srcIndirects-destIndirects; i++ {
+
 			src = src.Elem()
 		}
 		dest.Set(src)
@@ -229,26 +253,31 @@ func assignField(
 	// When the destination has more indirects than the source, the extra pointers have to be created.  Only create enough pointers to reach the same level of indirection as the source so the dest can simply be set to the provided source when the types are the same.
 	destIndirectsRemaining := destIndirects
 	if destIndirects > srcIndirects {
+
 		indirectDiff := destIndirects - srcIndirects
 		for i := 0; i < indirectDiff; i++ {
+
 			dest.Set(reflect.New(dest.Type().Elem()))
 			dest = dest.Elem()
 			destIndirectsRemaining--
 		}
 	}
 	if destBaseType == srcBaseType {
+
 		dest.Set(src)
 		return nil
 	}
 
 	// Make any remaining pointers needed to get to the base dest type since the above direct assign was not possible and conversions are done against the base types.
 	for i := 0; i < destIndirectsRemaining; i++ {
+
 		dest.Set(reflect.New(dest.Type().Elem()))
 		dest = dest.Elem()
 	}
 
 	// Indirect through to the base source value.
 	for src.Kind() == reflect.Ptr {
+
 		src = src.Elem()
 	}
 
@@ -301,6 +330,7 @@ func assignField(
 			reflect.Int64:
 			srcUint := src.Uint()
 			if srcUint > uint64(1<<63)-1 {
+
 				str := fmt.Sprintf("parameter #%d '%s' "+
 					"overflows destination type %v",
 					paramNum, fieldName, destBaseType)
@@ -337,6 +367,7 @@ func assignField(
 	case reflect.Float32, reflect.Float64:
 		destKind := dest.Kind()
 		if destKind != reflect.Float32 && destKind != reflect.Float64 {
+
 			str := fmt.Sprintf("parameter #%d '%s' must be type "+
 				"%v (got %v)", paramNum, fieldName, destBaseType,
 				srcBaseType)
@@ -360,6 +391,7 @@ func assignField(
 		case reflect.Bool:
 			b, err := strconv.ParseBool(src.String())
 			if err != nil {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"parse to a %v", paramNum, fieldName,
 					destBaseType)
@@ -371,6 +403,7 @@ func assignField(
 			reflect.Int64:
 			srcInt, err := strconv.ParseInt(src.String(), 0, 0)
 			if err != nil {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"parse to a %v", paramNum, fieldName,
 					destBaseType)
@@ -389,6 +422,7 @@ func assignField(
 			reflect.Uint32, reflect.Uint64:
 			srcUint, err := strconv.ParseUint(src.String(), 0, 0)
 			if err != nil {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"parse to a %v", paramNum, fieldName,
 					destBaseType)
@@ -406,6 +440,7 @@ func assignField(
 		case reflect.Float32, reflect.Float64:
 			srcFloat, err := strconv.ParseFloat(src.String(), 0)
 			if err != nil {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"parse to a %v", paramNum, fieldName,
 					destBaseType)
@@ -428,6 +463,7 @@ func assignField(
 			concreteVal := dest.Addr().Interface()
 			err := json.Unmarshal([]byte(src.String()), &concreteVal)
 			if err != nil {
+
 				str := fmt.Sprintf("parameter #%d '%s' must "+
 					"be valid JSON which unsmarshals to a %v",
 					paramNum, fieldName, destBaseType)
@@ -455,6 +491,7 @@ func NewCmd(
 	info := methodToInfo[method]
 	registerLock.RUnlock()
 	if !ok {
+
 		str := fmt.Sprintf("%q is not registered", method)
 		return nil, makeError(ErrUnregisteredMethod, str)
 	}
@@ -462,6 +499,7 @@ func NewCmd(
 	// Ensure the number of parameters are correct.
 	numParams := len(args)
 	if err := checkNumParams(numParams, &info); err != nil {
+
 		return nil, err
 	}
 
@@ -472,11 +510,13 @@ func NewCmd(
 
 	// Loop through each of the struct fields and assign the associated parameter into them after checking its type validity.
 	for i := 0; i < numParams; i++ {
+
 		// Attempt to assign each of the arguments to the according struct field.
 		rvf := rv.Field(i)
 		fieldName := strings.ToLower(rt.Field(i).Name)
 		err := assignField(i+1, fieldName, rvf, reflect.ValueOf(args[i]))
 		if err != nil {
+
 			return nil, err
 		}
 	}

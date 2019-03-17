@@ -12,7 +12,9 @@ type MsgFeeFilter struct {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgFeeFilter) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	if pver < FeeFilterVersion {
+
 		str := fmt.Sprintf("feefilter message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgFeeFilter.BtcDecode", str)
@@ -22,7 +24,9 @@ func (msg *MsgFeeFilter) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgFeeFilter) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	if pver < FeeFilterVersion {
+
 		str := fmt.Sprintf("feefilter message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgFeeFilter.BtcEncode", str)
@@ -32,17 +36,20 @@ func (msg *MsgFeeFilter) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgFeeFilter) Command() string {
+
 	return CmdFeeFilter
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgFeeFilter) MaxPayloadLength(pver uint32) uint32 {
+
 	return 8
 }
 
 // NewMsgFeeFilter returns a new bitcoin feefilter message that conforms to the Message interface.  See MsgFeeFilter for details.
 func NewMsgFeeFilter(
 	minfee int64) *MsgFeeFilter {
+
 	return &MsgFeeFilter{
 		MinFee: minfee,
 	}

@@ -15,11 +15,13 @@ type Mutable struct {
 
 // Len returns the number of items stored in the treap.
 func (t *Mutable) Len() int {
+
 	return t.count
 }
 
 // Size returns a best estimate of the total number of bytes the treap is consuming including all of the fields used to represent the nodes as well as the size of the keys and values.  Shared values are not detected, so the  returned size assumes each value is pointing to different memory.
 func (t *Mutable) Size() uint64 {
+
 	return t.totalSize
 }
 
@@ -28,14 +30,17 @@ func (t *Mutable) get(key []byte) (*treapNode, *treapNode) {
 
 	var parent *treapNode
 	for node := t.root; node != nil; {
+
 		// Traverse left or right depending on the result of the comparison.
 		compareResult := bytes.Compare(key, node.key)
 		if compareResult < 0 {
+
 			parent = node
 			node = node.left
 			continue
 		}
 		if compareResult > 0 {
+
 			parent = node
 			node = node.right
 			continue
@@ -49,7 +54,9 @@ func (t *Mutable) get(key []byte) (*treapNode, *treapNode) {
 
 // Has returns whether or not the passed key exists.
 func (t *Mutable) Has(key []byte) bool {
+
 	if node, _ := t.get(key); node != nil {
+
 		return true
 	}
 	return false
@@ -57,7 +64,9 @@ func (t *Mutable) Has(key []byte) bool {
 
 // Get returns the value for the passed key.  The function will return nil when the key does not exist.
 func (t *Mutable) Get(key []byte) []byte {
+
 	if node, _ := t.get(key); node != nil {
+
 		return node.value
 	}
 	return nil
@@ -68,13 +77,16 @@ func (t *Mutable) relinkGrandparent(node, parent, grandparent *treapNode) {
 
 	// The node is now the root of the tree when there is no grandparent.
 	if grandparent == nil {
+
 		t.root = node
 		return
 	}
 	// Relink the grandparent's left or right pointer based on which side the old parent was.
 	if grandparent.left == parent {
+
 		grandparent.left = node
 	} else {
+
 		grandparent.right = node
 	}
 }
@@ -84,10 +96,12 @@ func (t *Mutable) Put(key, value []byte) {
 
 	// Use an empty byte slice for the value when none was provided.  This ultimately allows key existence to be determined from the value since an empty byte slice is distinguishable from nil.
 	if value == nil {
+
 		value = emptySlice
 	}
 	// The node is the root of the tree if there isn't already one.
 	if t.root == nil {
+
 		node := newTreapNode(key, value, rand.Int())
 		t.count = 1
 		t.totalSize = nodeSize(node)
@@ -98,13 +112,16 @@ func (t *Mutable) Put(key, value []byte) {
 	var parents parentStack
 	var compareResult int
 	for node := t.root; node != nil; {
+
 		parents.Push(node)
 		compareResult = bytes.Compare(key, node.key)
 		if compareResult < 0 {
+
 			node = node.left
 			continue
 		}
 		if compareResult > 0 {
+
 			node = node.right
 			continue
 		}
@@ -120,21 +137,27 @@ func (t *Mutable) Put(key, value []byte) {
 	t.totalSize += nodeSize(node)
 	parent := parents.At(0)
 	if compareResult < 0 {
+
 		parent.left = node
 	} else {
+
 		parent.right = node
 	}
 	// Perform any rotations needed to maintain the min-heap.
 	for parents.Len() > 0 {
+
 		// There is nothing left to do when the node's priority is greater than or equal to its parent's priority.
 		parent = parents.Pop()
 		if node.priority >= parent.priority {
+
 			break
 		}
 		// Perform a right rotation if the node is on the left side or a left rotation if the node is on the right side.
 		if parent.left == node {
+
 			node.right, parent.left = parent, node.right
 		} else {
+
 			node.left, parent.right = parent, node.left
 		}
 		t.relinkGrandparent(node, parent, parents.At(0))
@@ -147,10 +170,12 @@ func (t *Mutable) Delete(key []byte) {
 	// Find the node for the key along with its parent.  There is nothing to do if the key does not exist.
 	node, parent := t.get(key)
 	if node == nil {
+
 		return
 	}
 	// When the only node in the tree is the root node and it is the one being deleted, there is nothing else to do besides removing it.
 	if parent == nil && node.left == nil && node.right == nil {
+
 		t.root = nil
 		t.count = 0
 		t.totalSize = 0
@@ -160,24 +185,31 @@ func (t *Mutable) Delete(key []byte) {
 	var isLeft bool
 	var child *treapNode
 	for node.left != nil || node.right != nil {
+
 		// Choose the child with the higher priority.
 		if node.left == nil {
+
 			child = node.right
 			isLeft = false
 		} else if node.right == nil {
+
 			child = node.left
 			isLeft = true
 		} else if node.left.priority >= node.right.priority {
+
 			child = node.left
 			isLeft = true
 		} else {
+
 			child = node.right
 			isLeft = false
 		}
 		// Rotate left or right depending on which side the child node is on.  This has the effect of moving the node to delete towards the bottom of the tree while maintaining the min-heap.
 		if isLeft {
+
 			child.right, node.left = node, child.right
 		} else {
+
 			child.left, node.right = node, child.left
 		}
 		t.relinkGrandparent(child, node, parent)
@@ -186,8 +218,10 @@ func (t *Mutable) Delete(key []byte) {
 	}
 	// Delete the node, which is now a leaf node, by disconnecting it from its parent.
 	if parent.right == node {
+
 		parent.right = nil
 	} else {
+
 		parent.left = nil
 	}
 	t.count--
@@ -200,9 +234,11 @@ func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 	// Add the root node and all children to the left of it to the list of nodes to traverse and loop until they, and all of their child nodes, been traversed.
 	var parents parentStack
 	for node := t.root; node != nil; node = node.left {
+
 		parents.Push(node)
 	}
 	for parents.Len() > 0 {
+
 		node := parents.Pop()
 		if !fn(node.key, node.value) {
 
@@ -210,6 +246,7 @@ func (t *Mutable) ForEach(fn func(k, v []byte) bool) {
 		}
 		// Extend the nodes to traverse by all children to the left of the current node's right child.
 		for node := node.right; node != nil; node = node.left {
+
 			parents.Push(node)
 		}
 	}
@@ -225,5 +262,6 @@ func (t *Mutable) Reset() {
 
 // NewMutable returns a new empty mutable treap ready for use.  See the documentation for the Mutable structure for more details.
 func NewMutable() *Mutable {
+
 	return &Mutable{}
 }

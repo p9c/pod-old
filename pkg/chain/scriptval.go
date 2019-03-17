@@ -34,6 +34,7 @@ type txValidator struct {
 func (v *txValidator) sendResult(result error) {
 
 	select {
+
 	case v.resultChan <- result:
 		// fmt.Println("chan:v.resultChan <- result")
 	case <-v.quitChan:
@@ -51,6 +52,7 @@ out:
 
 		// fmt.Println("loop:validateHandler")
 		select {
+
 		case txVI := <-v.validateChan:
 			// fmt.Println("chan:txVI := <-v.validateChan")
 			// Ensure the referenced input utxo is available.
@@ -165,6 +167,7 @@ func (v *txValidator) Validate(items []*txValidateItem) error {
 		}
 
 		select {
+
 		case validateChan <- item:
 			// fmt.Println("chan:validateChan <- item")
 			currentItem++
@@ -190,6 +193,7 @@ func (v *txValidator) Validate(items []*txValidateItem) error {
 func newTxValidator(
 	utxoView *UtxoViewpoint, flags txscript.ScriptFlags,
 	sigCache *txscript.SigCache, hashCache *txscript.HashCache) *txValidator {
+
 	return &txValidator{
 		validateChan: make(chan *txValidateItem),
 		quitChan:     make(chan struct{}),
@@ -292,6 +296,7 @@ func checkBlockScripts(
 
 				cachedHashes, _ = hashCache.GetSigHashes(hash)
 			} else {
+
 				cachedHashes = txscript.NewTxSigHashes(tx.MsgTx())
 			}
 
@@ -329,6 +334,7 @@ func checkBlockScripts(
 
 	elapsed := time.Since(start)
 	Log.Trcc(func() string {
+
 		return fmt.Sprintf("block %v took %v to verify", block.Hash(), elapsed)
 	})
 

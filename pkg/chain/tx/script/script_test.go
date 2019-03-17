@@ -21,6 +21,7 @@ func TestParseOpcode(
 	_, err := parseScriptTemplate([]byte{OP_PUSHDATA4, 0x1, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00}, &fakeArray)
 	if err == nil {
+
 		t.Errorf("no error with dodgy opcode array!")
 	}
 }
@@ -3668,8 +3669,10 @@ func TestUnparsingInvalidOpcodes(
 		},
 	}
 	for _, test := range tests {
+
 		_, err := test.pop.bytes()
 		if e := tstCheckScriptError(err, test.expectedErr); e != nil {
+
 			t.Errorf("Parsed opcode test '%s': %v", test.name, e)
 			continue
 		}
@@ -3719,12 +3722,15 @@ func TestPushedData(
 		},
 	}
 	for i, test := range tests {
+
 		script := mustParseShortForm(test.script)
 		data, err := PushedData(script)
 		if test.valid && err != nil {
+
 			t.Errorf("TestPushedData failed test #%d: %v\n", i, err)
 			continue
 		} else if !test.valid && err == nil {
+
 			t.Errorf("TestPushedData failed test #%d: test should "+
 				"be invalid\n", i)
 			continue
@@ -3743,24 +3749,30 @@ func TestHasCanonicalPush(
 
 	t.Parallel()
 	for i := 0; i < 65535; i++ {
+
 		script, err := NewScriptBuilder().AddInt64(int64(i)).Script()
 		if err != nil {
+
 			t.Errorf("Script: test #%d unexpected error: %v\n", i,
 				err)
 			continue
 		}
 		if result := IsPushOnlyScript(script); !result {
+
 			t.Errorf("IsPushOnlyScript: test #%d failed: %x\n", i,
 				script)
 			continue
 		}
 		pops, err := parseScript(script)
 		if err != nil {
+
 			t.Errorf("parseScript: #%d failed: %v", i, err)
 			continue
 		}
 		for _, pop := range pops {
+
 			if result := canonicalPush(pop); !result {
+
 				t.Errorf("canonicalPush: test #%d failed: %x\n",
 					i, script)
 				break
@@ -3768,24 +3780,30 @@ func TestHasCanonicalPush(
 		}
 	}
 	for i := 0; i <= MaxScriptElementSize; i++ {
+
 		builder := NewScriptBuilder()
 		builder.AddData(bytes.Repeat([]byte{0x49}, i))
 		script, err := builder.Script()
 		if err != nil {
+
 			t.Errorf("StandardPushesTests test #%d unexpected error: %v\n", i, err)
 			continue
 		}
 		if result := IsPushOnlyScript(script); !result {
+
 			t.Errorf("StandardPushesTests IsPushOnlyScript test #%d failed: %x\n", i, script)
 			continue
 		}
 		pops, err := parseScript(script)
 		if err != nil {
+
 			t.Errorf("StandardPushesTests #%d failed to TstParseScript: %v", i, err)
 			continue
 		}
 		for _, pop := range pops {
+
 			if result := canonicalPush(pop); !result {
+
 				t.Errorf("StandardPushesTests TstHasCanonicalPushes test #%d failed: %x\n", i, script)
 				break
 			}
@@ -3833,8 +3851,10 @@ func TestGetPreciseSigOps(
 	pkScript := mustParseShortForm("HASH160 DATA_20 0x433ec2ac1ffa1b7b7d0" +
 		"27f564529c57197f9ae88 EQUAL")
 	for _, test := range tests {
+
 		count := GetPreciseSigOpCount(test.scriptSig, pkScript, true)
 		if count != test.nSigOps {
+
 			t.Errorf("%s: expected count of %d, got %d", test.name,
 				test.nSigOps, count)
 		}
@@ -3912,9 +3932,11 @@ func TestGetWitnessSigOpCount(
 		},
 	}
 	for _, test := range tests {
+
 		count := GetWitnessSigOpCount(test.sigScript, test.pkScript,
 			test.witness)
 		if count != test.numSigOps {
+
 			t.Errorf("%s: expected count of %d, got %d", test.name,
 				test.numSigOps, count)
 		}
@@ -3979,16 +4001,19 @@ func TestRemoveOpcodes(
 
 		pops, err := parseScript(script)
 		if err != nil {
+
 			return nil, err
 		}
 		pops = removeOpcode(pops, opcode)
 		return unparseScript(pops)
 	}
 	for _, test := range tests {
+
 		before := mustParseShortForm(test.before)
 		after := mustParseShortForm(test.after)
 		result, err := tstRemoveOpcode(before, test.remove)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
@@ -4128,14 +4153,17 @@ func TestRemoveOpcodeByData(
 
 		pops, err := parseScript(script)
 		if err != nil {
+
 			return nil, err
 		}
 		pops = removeOpcodeByData(pops, data)
 		return unparseScript(pops)
 	}
 	for _, test := range tests {
+
 		result, err := tstRemoveOpcodeByData(test.before, test.remove)
 		if e := tstCheckScriptError(err, test.err); e != nil {
+
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
@@ -4153,10 +4181,12 @@ func TestIsPayToScriptHash(
 
 	t.Parallel()
 	for _, test := range scriptClassTests {
+
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == ScriptHashTy)
 		p2sh := IsPayToScriptHash(script)
 		if p2sh != shouldBe {
+
 			t.Errorf("%s: expected p2sh %v, got %v", test.name,
 				shouldBe, p2sh)
 		}
@@ -4169,10 +4199,12 @@ func TestIsPayToWitnessScriptHash(
 
 	t.Parallel()
 	for _, test := range scriptClassTests {
+
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == WitnessV0ScriptHashTy)
 		p2wsh := IsPayToWitnessScriptHash(script)
 		if p2wsh != shouldBe {
+
 			t.Errorf("%s: expected p2wsh %v, got %v", test.name,
 				shouldBe, p2wsh)
 		}
@@ -4185,10 +4217,12 @@ func TestIsPayToWitnessPubKeyHash(
 
 	t.Parallel()
 	for _, test := range scriptClassTests {
+
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == WitnessV0PubKeyHashTy)
 		p2wkh := IsPayToWitnessPubKeyHash(script)
 		if p2wkh != shouldBe {
+
 			t.Errorf("%s: expected p2wkh %v, got %v", test.name,
 				shouldBe, p2wkh)
 		}
@@ -4218,16 +4252,21 @@ func TestHasCanonicalPushes(
 		},
 	}
 	for i, test := range tests {
+
 		script := mustParseShortForm(test.script)
 		pops, err := parseScript(script)
 		if err != nil {
+
 			if test.expected {
+
 				t.Errorf("TstParseScript #%d failed: %v", i, err)
 			}
 			continue
 		}
 		for _, pop := range pops {
+
 			if canonicalPush(pop) != test.expected {
+
 				t.Errorf("canonicalPush: #%d (%s) wrong result"+
 					"\ngot: %v\nwant: %v", i, test.name,
 					true, test.expected)
@@ -4253,6 +4292,7 @@ func TestIsPushOnlyScript(
 		expected: false,
 	}
 	if IsPushOnlyScript(test.script) != test.expected {
+
 		t.Errorf("IsPushOnlyScript (%s) wrong result\ngot: %v\nwant: "+
 			"%v", test.name, true, test.expected)
 	}
@@ -4283,8 +4323,10 @@ func TestIsUnspendable(
 		},
 	}
 	for i, test := range tests {
+
 		res := IsUnspendable(test.pkScript)
 		if res != test.expected {
+
 			t.Errorf("TestIsUnspendable #%d failed: got %v want %v",
 				i, res, test.expected)
 			continue

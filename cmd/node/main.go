@@ -38,6 +38,7 @@ func Main(
 
 	cfg = c
 	switch activeNet.Name {
+
 	case "testnet", "testnet3", "t":
 		fork.IsTestnet = true
 		ActiveNetParams = &TestNet3Params
@@ -179,6 +180,7 @@ func Main(
 
 	interrupt.AddHandler(
 		func() {
+
 			log <- cl.Inf("gracefully shutting down the server...")
 			e := server.Stop()
 			if e != nil {
@@ -222,6 +224,7 @@ func loadBlockDB() (
 	database.DB,
 	error,
 ) {
+
 	// The memdb backend does not have a file path associated with it, so handle it uniquely.  We also don't want to worry about the multiple database type warnings when running with the memory database.
 	if *cfg.DbType == "memdb" {
 
@@ -254,6 +257,7 @@ func loadBlockDB() (
 		// Return the error if it's not because the database doesn't exist.
 		if dbErr, ok := err.(database.Error); !ok || dbErr.ErrorCode !=
 			database.ErrDbDoesNotExist {
+
 			return nil, err
 		}
 
@@ -280,6 +284,7 @@ func loadBlockDB() (
 func PreMain() {
 
 
+
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -289,6 +294,7 @@ func PreMain() {
 	// Up some limits.
 	if err := limits.SetLimits(); err != nil {
 
+
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
 		os.Exit(1)
 	}
@@ -297,14 +303,17 @@ func PreMain() {
 	// Call serviceMain on Windows to handle running as a service.  When the return isService flag is true, exit now since we ran as a service.  Otherwise, just fall through to normal operation.
 	if runtime.GOOS == "windows" {
 
+
 		isService, err := winServiceMain()
 		if err != nil {
+
 
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		if isService {
+
 
 			os.Exit(0)
 		}
@@ -314,6 +323,7 @@ func PreMain() {
 
 	// Work around defer not working after os.Exit()
 	if err := Main(nil); err != nil {
+
 
 		os.Exit(1)
 	}
@@ -328,6 +338,7 @@ func removeRegressionDB(
 
 	// Don't do anything if not in regression test mode.
 	if !*cfg.RegressionTest {
+
 		log <- cl.Debug{"not in regression mode"}
 		return nil
 	}
@@ -346,6 +357,7 @@ func removeRegressionDB(
 			}
 
 		} else {
+
 			err := os.Remove(dbPath)
 			if err != nil {
 
@@ -361,6 +373,7 @@ func removeRegressionDB(
 
 // warnMultipleDBs shows a warning if multiple block database types are detected. This is not a situation most users want.  It is handy for development however to support multiple side-by-side databases.
 func warnMultipleDBs() {
+
 	// This is intentionally not using the known db types which depend on the database types compiled into the binary since we want to detect legacy db types as well.
 	dbTypes := []string{"ffldb", "leveldb", "sqlite"}
 	duplicateDbPaths := make([]string, 0, len(dbTypes)-1)

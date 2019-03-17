@@ -100,12 +100,14 @@ func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
 	defer r.mu.Unlock()
 
 	select {
+
 	case result := <-r.resultChan:
 
 		// Cache the first result returned, in case we have multiple
 
 		// readers calling Result.
 		if r.result == nil {
+
 			r.result = result
 		}
 
@@ -126,6 +128,7 @@ func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
 func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 
 	select {
+
 	case r.resultChan <- &getUtxoResult{report, err}:
 	default:
 		log <- cl.Warnf{
@@ -139,11 +142,13 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 
 // IsEmpty returns true if the queue has no elements.
 func (pq *GetUtxoRequestPQ) IsEmpty() bool {
+
 	return pq.Len() == 0
 }
 
 // Peek returns the least height element in the queue without removing it.
 func (pq *GetUtxoRequestPQ) Peek() *GetUtxoRequest {
+
 	return (*pq)[0]
 }
 
@@ -153,6 +158,7 @@ func (pq *GetUtxoRequestPQ) Peek() *GetUtxoRequest {
 
 // invariant.
 func (pq *GetUtxoRequestPQ) Pop() interface{} {
+
 	old := *pq
 	n := len(old)
 	item := old[n-1]
@@ -189,6 +195,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 
 	s.cv.L.Lock()
 	select {
+
 	case <-s.quit:
 		s.cv.L.Unlock()
 		return nil, ErrShuttingDown
@@ -208,6 +215,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 
 // Start begins running scan batches.
 func (s *UtxoScanner) Start() error {
+
 	if !atomic.CompareAndSwapUint32(&s.started, 0, 1) {
 
 		return nil
@@ -221,6 +229,7 @@ func (s *UtxoScanner) Start() error {
 
 // Stop any in-progress scan.
 func (s *UtxoScanner) Stop() error {
+
 	if !atomic.CompareAndSwapUint32(&s.stopped, 0, 1) {
 
 		return nil
@@ -230,7 +239,9 @@ func (s *UtxoScanner) Stop() error {
 
 batchShutdown:
 	for {
+
 		select {
+
 		case <-s.shutdown:
 			break batchShutdown
 		case <-time.After(50 * time.Millisecond):
@@ -265,10 +276,12 @@ func (s *UtxoScanner) batchManager() {
 	defer close(s.shutdown)
 
 	for {
+
 		s.cv.L.Lock()
 
 		// Re-queue previously skipped requests for next batch.
 		for _, request := range s.nextBatch {
+
 			heap.Push(&s.pq, request)
 		}
 
@@ -279,6 +292,7 @@ func (s *UtxoScanner) batchManager() {
 			s.cv.Wait()
 
 			select {
+
 			case <-s.quit:
 				s.cv.L.Unlock()
 				return
@@ -293,6 +307,7 @@ func (s *UtxoScanner) batchManager() {
 
 		// requested.
 		select {
+
 		case <-s.quit:
 			return
 		default:
@@ -303,6 +318,7 @@ func (s *UtxoScanner) batchManager() {
 		// least-height request currently in the queue.
 		err := s.scanFromHeight(req.BirthHeight)
 		if err != nil {
+
 			log <- cl.Errorf{
 				"UXTO scan failed: %v", err,
 			}
@@ -317,18 +333,21 @@ func (s *UtxoScanner) batchManager() {
 
 // given height.
 func (s *UtxoScanner) dequeueAtHeight(height uint32) []*GetUtxoRequest {
+
 	s.cv.L.Lock()
 	defer s.cv.L.Unlock()
 	// Take any requests that are too old to go in this batch and keep them for
 
 	// the next batch.
 	for !s.pq.IsEmpty() && s.pq.Peek().BirthHeight < height {
+
 		item := heap.Pop(&s.pq).(*GetUtxoRequest)
 		s.nextBatch = append(s.nextBatch, item)
 	}
 
 	var requests []*GetUtxoRequest
 	for !s.pq.IsEmpty() && s.pq.Peek().BirthHeight == height {
+
 		item := heap.Pop(&s.pq).(*GetUtxoRequest)
 		requests = append(requests, item)
 	}
@@ -350,6 +369,7 @@ func (s *UtxoScanner) scanFromHeight(initHeight uint32) error {
 	// scan.
 	bestStamp, err := s.cfg.BestSnapshot()
 	if err != nil {
+
 		return err
 	}
 
@@ -379,6 +399,7 @@ scanToEnd:
 
 		// utxoscanner has been signaled to exit.
 		select {
+
 		case <-s.quit:
 			return reporter.FailRemaining(ErrShuttingDown)
 		default:
@@ -386,6 +407,7 @@ scanToEnd:
 
 		hash, err := s.cfg.GetBlockHash(int64(height))
 		if err != nil {
+
 			return reporter.FailRemaining(err)
 		}
 
@@ -400,12 +422,14 @@ scanToEnd:
 		// outpoints.
 		fetch := len(newReqs) > 0
 		if !fetch {
+
 			options := rescanOptions{
 				watchList: reporter.filterEntries,
 			}
 
 			match, err := s.cfg.BlockFilterMatches(&options, hash)
 			if err != nil {
+
 				return reporter.FailRemaining(err)
 			}
 
@@ -413,6 +437,7 @@ scanToEnd:
 
 			// fetch this block, and can continue to next height.
 			if !match {
+
 				continue
 			}
 
@@ -430,6 +455,7 @@ scanToEnd:
 
 		// the rescan before performing an expensive operation.
 		select {
+
 		case <-s.quit:
 			return reporter.FailRemaining(ErrShuttingDown)
 		default:
@@ -441,11 +467,13 @@ scanToEnd:
 
 		block, err := s.cfg.GetBlock(*hash)
 		if err != nil {
+
 			return reporter.FailRemaining(err)
 		}
 
 		// Check again to see if the utxoscanner has been signaled to exit.
 		select {
+
 		case <-s.quit:
 			return reporter.FailRemaining(ErrShuttingDown)
 		default:
@@ -465,6 +493,7 @@ scanToEnd:
 	// scan started.
 	currStamp, err := s.cfg.BestSnapshot()
 	if err != nil {
+
 		return reporter.FailRemaining(err)
 	}
 
@@ -472,6 +501,7 @@ scanToEnd:
 
 	// Shift the start and end heights and continue scanning.
 	if uint32(currStamp.Height) > endHeight {
+
 		startHeight = endHeight + 1
 		endHeight = uint32(currStamp.Height)
 		goto scanToEnd
@@ -500,6 +530,7 @@ func (pq GetUtxoRequestPQ) Swap(i, j int) {
 // interface.
 func NewUtxoScanner(
 	cfg *UtxoScannerConfig) *UtxoScanner {
+
 	scanner := &UtxoScanner{
 		cfg:      cfg,
 		quit:     make(chan struct{}),

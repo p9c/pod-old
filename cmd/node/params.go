@@ -44,6 +44,7 @@ func NetName(
 ) string {
 
 	switch chainParams.Net {
+
 	case wire.TestNet3:
 		return "testnet"
 	default:

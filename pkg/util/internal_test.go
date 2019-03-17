@@ -16,6 +16,7 @@ func (b *Block) SetBlockBytes(buf []byte) {
 // TstAppDataDir makes the internal appDataDir function available to the test package.
 func TstAppDataDir(
 	goos, appName string, roaming bool) string {
+
 	return appDataDir(goos, appName, roaming)
 }
 
@@ -23,6 +24,7 @@ func TstAppDataDir(
 func TstAddressPubKeyHash(
 	hash [ripemd160.Size]byte,
 	netID byte) *AddressPubKeyHash {
+
 	return &AddressPubKeyHash{
 		hash:  hash,
 		netID: netID,
@@ -34,6 +36,7 @@ func TstAddressPubKeyHash(
 func TstAddressScriptHash(
 	hash [ripemd160.Size]byte,
 	netID byte) *AddressScriptHash {
+
 	return &AddressScriptHash{
 		hash:  hash,
 		netID: netID,
@@ -45,6 +48,7 @@ func TstAddressScriptHash(
 func TstAddressWitnessPubKeyHash(
 	version byte, program [20]byte,
 	hrp string) *AddressWitnessPubKeyHash {
+
 	return &AddressWitnessPubKeyHash{
 		hrp:            hrp,
 		witnessVersion: version,
@@ -57,6 +61,7 @@ func TstAddressWitnessPubKeyHash(
 func TstAddressWitnessScriptHash(
 	version byte, program [32]byte,
 	hrp string) *AddressWitnessScriptHash {
+
 	return &AddressWitnessScriptHash{
 		hrp:            hrp,
 		witnessVersion: version,
@@ -69,6 +74,7 @@ func TstAddressWitnessScriptHash(
 func TstAddressPubKey(
 	serializedPubKey []byte, pubKeyFormat PubKeyFormat,
 	netID byte) *AddressPubKey {
+
 	pubKey, _ := ec.ParsePubKey(serializedPubKey, ec.S256())
 	return &AddressPubKey{
 		pubKeyFormat: pubKeyFormat,
@@ -81,6 +87,7 @@ func TstAddressPubKey(
 // TstAddressSAddr returns the expected script address bytes for P2PKH and P2SH bitcoin addresses.
 func TstAddressSAddr(
 	addr string) []byte {
+
 	decoded := base58.Decode(addr)
 	return decoded[1 : 1+ripemd160.Size]
 }
@@ -88,14 +95,17 @@ func TstAddressSAddr(
 // TstAddressSegwitSAddr returns the expected witness program bytes for bech32 encoded P2WPKH and P2WSH bitcoin addresses.
 func TstAddressSegwitSAddr(
 	addr string) []byte {
+
 	_, data, err := bech32.Decode(addr)
 	if err != nil {
+
 		return []byte{}
 	}
 
 	// First byte is version, rest is base 32 encoded data.
 	data, err = bech32.ConvertBits(data[1:], 5, 8, false)
 	if err != nil {
+
 		return []byte{}
 	}
 

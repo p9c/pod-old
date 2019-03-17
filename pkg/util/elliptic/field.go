@@ -135,6 +135,7 @@ type fieldVal struct {
 
 // String returns the field value as a human-readable hex string.
 func (f fieldVal) String() string {
+
 	t := new(fieldVal).Set(&f).Normalize()
 	return hex.EncodeToString(t.Bytes()[:])
 }
@@ -161,6 +162,7 @@ func (f *fieldVal) Zero() {
 // f := new(fieldVal).Set(f2).Add(1) so that f = f2 + 1 where f2 is not
 // modified.
 func (f *fieldVal) Set(val *fieldVal) *fieldVal {
+
 	*f = *val
 	return f
 }
@@ -171,6 +173,7 @@ func (f *fieldVal) Set(val *fieldVal) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax such
 // as f := new(fieldVal).SetInt(2).Mul(f2) so that f = 2 * f2.
 func (f *fieldVal) SetInt(ui uint) *fieldVal {
+
 	f.Zero()
 	f.n[0] = uint32(ui)
 	return f
@@ -218,9 +221,12 @@ func (f *fieldVal) SetBytes(b *[32]byte) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).SetByteSlice(byteSlice)
 func (f *fieldVal) SetByteSlice(b []byte) *fieldVal {
+
 	var b32 [32]byte
 	for i := 0; i < len(b); i++ {
+
 		if i < 32 {
+
 			b32[i+(32-len(b))] = b[i]
 		}
 	}
@@ -232,7 +238,9 @@ func (f *fieldVal) SetByteSlice(b []byte) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax like:
 // f := new(fieldVal).SetHex("0abc").Add(1) so that f = 0x0abc + 1
 func (f *fieldVal) SetHex(hexString string) *fieldVal {
+
 	if len(hexString)%2 != 0 {
+
 		hexString = "0" + hexString
 	}
 	bytes, _ := hex.DecodeString(hexString)
@@ -349,23 +357,31 @@ func (f *fieldVal) Normalize() *fieldVal {
 	// changed when 'm' is zero.
 	m = 1
 	if t9 == fieldMSBMask {
+
 		m &= 1
 	} else {
+
 		m &= 0
 	}
 	if t2&t3&t4&t5&t6&t7&t8 == fieldBaseMask {
+
 		m &= 1
 	} else {
+
 		m &= 0
 	}
 	if ((t0+977)>>fieldBase + t1 + 64) > fieldBaseMask {
+
 		m &= 1
 	} else {
+
 		m &= 0
 	}
 	if t9>>fieldMSBBits != 0 {
+
 		m |= 1
 	} else {
+
 		m |= 0
 	}
 	t0 = t0 + m*977
@@ -460,6 +476,7 @@ func (f *fieldVal) PutBytes(b *[32]byte) {
 // The field value must be normalized for this function to return correct
 // result.
 func (f *fieldVal) Bytes() *[32]byte {
+
 	b := new([32]byte)
 	f.PutBytes(b)
 	return b
@@ -561,6 +578,7 @@ func (f *fieldVal) NegateVal(val *fieldVal, magnitude uint32) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Negate().AddInt(1) so that f = -f + 1.
 func (f *fieldVal) Negate(magnitude uint32) *fieldVal {
+
 	return f.NegateVal(f, magnitude)
 }
 
@@ -672,6 +690,7 @@ func (f *fieldVal) MulInt(val uint) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Mul(f2).AddInt(1) so that f = (f * f2) + 1.
 func (f *fieldVal) Mul(val *fieldVal) *fieldVal {
+
 	return f.Mul2(f, val)
 }
 
@@ -993,6 +1012,7 @@ func (f *fieldVal) Mul2(val *fieldVal, val2 *fieldVal) *fieldVal {
 // The field value is returned to support chaining.  This enables syntax like:
 // f.Square().Mul(f2) so that f = f^2 * f2.
 func (f *fieldVal) Square() *fieldVal {
+
 	return f.SquareVal(f)
 }
 

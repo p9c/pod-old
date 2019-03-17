@@ -17,6 +17,7 @@ func BenchmarkAddJacobian(
 	curve := S256()
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		curve.addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3)
 	}
 }
@@ -36,6 +37,7 @@ func BenchmarkAddJacobianNotZOne(
 	curve := S256()
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		curve.addJacobian(x1, y1, z1, x2, y2, z2, x3, y3, z3)
 	}
 }
@@ -47,6 +49,7 @@ func BenchmarkScalarBaseMult(
 	k := fromHex("d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c00575")
 	curve := S256()
 	for i := 0; i < b.N; i++ {
+
 		curve.ScalarBaseMult(k.Bytes())
 	}
 }
@@ -58,6 +61,7 @@ func BenchmarkScalarBaseMultLarge(
 	k := fromHex("d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c005751111111011111110")
 	curve := S256()
 	for i := 0; i < b.N; i++ {
+
 		curve.ScalarBaseMult(k.Bytes())
 	}
 }
@@ -71,6 +75,7 @@ func BenchmarkScalarMult(
 	k := fromHex("d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c00575")
 	curve := S256()
 	for i := 0; i < b.N; i++ {
+
 		curve.ScalarMult(x, y, k.Bytes())
 	}
 }
@@ -81,6 +86,7 @@ func BenchmarkNAF(
 
 	k := fromHex("d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c00575")
 	for i := 0; i < b.N; i++ {
+
 		NAF(k.Bytes())
 	}
 }
@@ -111,6 +117,7 @@ func BenchmarkSigVerify(
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
+
 		sig.Verify(msgHash.Bytes(), &pubKey)
 	}
 }
@@ -122,6 +129,7 @@ func BenchmarkFieldNormalize(
 	// The normalize function is constant time so default value is fine.
 	f := new(fieldVal)
 	for i := 0; i < b.N; i++ {
+
 		f.Normalize()
 	}
 }

@@ -170,8 +170,10 @@ func (a *managedAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 	defer a.privKeyMutex.Unlock()
 
 	if len(a.privKeyCT) == 0 {
+
 		privKey, err := key.Decrypt(a.privKeyEncrypted)
 		if err != nil {
+
 			str := fmt.Sprintf("failed to decrypt private key for "+
 				"%s", a.address)
 			return nil, managerError(ErrCrypto, str, err)
@@ -201,6 +203,7 @@ func (a *managedAddress) lock() {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Account() uint32 {
+
 	return a.derivationPath.Account
 }
 
@@ -209,6 +212,7 @@ func (a *managedAddress) Account() uint32 {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) AddrType() AddressType {
+
 	return a.addrType
 }
 
@@ -217,6 +221,7 @@ func (a *managedAddress) AddrType() AddressType {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Address() util.Address {
+
 	return a.address
 }
 
@@ -224,6 +229,7 @@ func (a *managedAddress) Address() util.Address {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) AddrHash() []byte {
+
 	var hash []byte
 
 	switch n := a.address.(type) {
@@ -244,6 +250,7 @@ func (a *managedAddress) AddrHash() []byte {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Imported() bool {
+
 	return a.imported
 }
 
@@ -252,6 +259,7 @@ func (a *managedAddress) Imported() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Internal() bool {
+
 	return a.internal
 }
 
@@ -259,6 +267,7 @@ func (a *managedAddress) Internal() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Compressed() bool {
+
 	return a.compressed
 }
 
@@ -266,6 +275,7 @@ func (a *managedAddress) Compressed() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *managedAddress) Used(ns walletdb.ReadBucket) bool {
+
 	return a.manager.fetchUsed(ns, a.AddrHash())
 }
 
@@ -273,13 +283,16 @@ func (a *managedAddress) Used(ns walletdb.ReadBucket) bool {
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) PubKey() *ec.PublicKey {
+
 	return a.pubKey
 }
 
 // pubKeyBytes returns the serialized public key bytes for the managed address
 // based on whether or not the managed address is marked as compressed.
 func (a *managedAddress) pubKeyBytes() []byte {
+
 	if a.compressed {
+
 		return a.pubKey.SerializeCompressed()
 	}
 	return a.pubKey.SerializeUncompressed()
@@ -290,6 +303,7 @@ func (a *managedAddress) pubKeyBytes() []byte {
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
 func (a *managedAddress) ExportPubKey() string {
+
 	return hex.EncodeToString(a.pubKeyBytes())
 }
 
@@ -321,6 +335,7 @@ func (a *managedAddress) PrivKey() (*ec.PrivateKey, error) {
 	// the returned private key could be invalidated from under the caller.
 	privKeyCopy, err := a.unlock(a.manager.rootManager.cryptoKeyPriv)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -337,6 +352,7 @@ func (a *managedAddress) ExportPrivKey() (*util.WIF, error) {
 
 	pk, err := a.PrivKey()
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -360,6 +376,7 @@ func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
 
 	// don't know precisely how the key was derived.
 	if a.imported {
+
 		return scope, path, false
 	}
 
@@ -377,8 +394,10 @@ func newManagedAddressWithoutPrivKey(
 	// Create a pay-to-pubkey-hash address from the public key.
 	var pubKeyHash []byte
 	if compressed {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeCompressed())
 	} else {
+
 		pubKeyHash = util.Hash160(pubKey.SerializeUncompressed())
 	}
 
@@ -398,6 +417,7 @@ func newManagedAddressWithoutPrivKey(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -405,6 +425,7 @@ func newManagedAddressWithoutPrivKey(
 		// pkScript to pay to this generated address.
 		witnessProgram, err := txscript.PayToAddrScript(witAddr)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -416,6 +437,7 @@ func newManagedAddressWithoutPrivKey(
 			witnessProgram, m.rootManager.chainParams,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -424,6 +446,7 @@ func newManagedAddressWithoutPrivKey(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -432,6 +455,7 @@ func newManagedAddressWithoutPrivKey(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 	}
@@ -468,6 +492,7 @@ func newManagedAddress(
 	privKeyBytes := privKey.Serialize()
 	privKeyEncrypted, err := s.rootManager.cryptoKeyPriv.Encrypt(privKeyBytes)
 	if err != nil {
+
 		str := "failed to encrypt private key"
 		return nil, managerError(ErrCrypto, str, err)
 	}
@@ -480,6 +505,7 @@ func newManagedAddress(
 		s, derivationPath, ecPubKey, compressed, addrType,
 	)
 	if err != nil {
+
 		return nil, err
 	}
 	managedAddr.privKeyEncrypted = privKeyEncrypted
@@ -505,6 +531,7 @@ func newManagedAddressFromExtKey(
 
 		privKey, err := key.ECPrivKey()
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -514,11 +541,14 @@ func newManagedAddressFromExtKey(
 			s, derivationPath, privKey, true, addrType,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 	} else {
+
 		pubKey, err := key.ECPubKey()
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -527,6 +557,7 @@ func newManagedAddressFromExtKey(
 			addrType,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 	}
@@ -559,8 +590,10 @@ func (a *scriptAddress) unlock(key EncryptorDecryptor) ([]byte, error) {
 	defer a.scriptMutex.Unlock()
 
 	if len(a.scriptCT) == 0 {
+
 		script, err := key.Decrypt(a.scriptEncrypted)
 		if err != nil {
+
 			str := fmt.Sprintf("failed to decrypt script for %s",
 				a.address)
 			return nil, managerError(ErrCrypto, str, err)
@@ -589,6 +622,7 @@ func (a *scriptAddress) lock() {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Account() uint32 {
+
 	return a.account
 }
 
@@ -597,6 +631,7 @@ func (a *scriptAddress) Account() uint32 {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) AddrType() AddressType {
+
 	return Script
 }
 
@@ -605,6 +640,7 @@ func (a *scriptAddress) AddrType() AddressType {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Address() util.Address {
+
 	return a.address
 }
 
@@ -612,6 +648,7 @@ func (a *scriptAddress) Address() util.Address {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) AddrHash() []byte {
+
 	return a.address.Hash160()[:]
 }
 
@@ -620,6 +657,7 @@ func (a *scriptAddress) AddrHash() []byte {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Imported() bool {
+
 	return true
 }
 
@@ -628,6 +666,7 @@ func (a *scriptAddress) Imported() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Internal() bool {
+
 	return false
 }
 
@@ -635,6 +674,7 @@ func (a *scriptAddress) Internal() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Compressed() bool {
+
 	return false
 }
 
@@ -642,6 +682,7 @@ func (a *scriptAddress) Compressed() bool {
 //
 // This is part of the ManagedAddress interface implementation.
 func (a *scriptAddress) Used(ns walletdb.ReadBucket) bool {
+
 	return a.manager.fetchUsed(ns, a.AddrHash())
 }
 
@@ -682,6 +723,7 @@ func newScriptAddress(
 		scriptHash, m.rootManager.chainParams,
 	)
 	if err != nil {
+
 		return nil, err
 	}
 

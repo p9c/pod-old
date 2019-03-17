@@ -15,6 +15,7 @@ func TestGenesisBlock(
 	var buf bytes.Buffer
 	err := MainNetParams.GenesisBlock.Serialize(&buf)
 	if err != nil {
+
 		t.Fatalf("TestGenesisBlock: %v", err)
 	}
 
@@ -44,6 +45,7 @@ func TestRegTestGenesisBlock(
 	var buf bytes.Buffer
 	err := RegressionNetParams.GenesisBlock.Serialize(&buf)
 	if err != nil {
+
 		t.Fatalf("TestRegTestGenesisBlock: %v", err)
 	}
 
@@ -74,6 +76,7 @@ func TestTestNet3GenesisBlock(
 	var buf bytes.Buffer
 	err := TestNet3Params.GenesisBlock.Serialize(&buf)
 	if err != nil {
+
 		t.Fatalf("TestTestNet3GenesisBlock: %v", err)
 	}
 
@@ -104,6 +107,7 @@ func TestSimNetGenesisBlock(
 	var buf bytes.Buffer
 	err := SimNetParams.GenesisBlock.Serialize(&buf)
 	if err != nil {
+
 		t.Fatalf("TestSimNetGenesisBlock: %v", err)
 	}
 

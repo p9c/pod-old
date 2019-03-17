@@ -13,8 +13,10 @@ import (
 // newHashFromStr converts the passed big-endian hex string into a wire.Hash.  It only differs from the one available in chainhash in that it panics on an error since it will only (and must only) be called with hard-coded, and therefore known good, hashes.
 func newHashFromStr(
 	hexStr string) *chainhash.Hash {
+
 	hash, err := chainhash.NewHashFromStr(hexStr)
 	if err != nil {
+
 		panic(err)
 	}
 	return hash
@@ -23,8 +25,10 @@ func newHashFromStr(
 // fromHex converts the passed hex string into a byte slice and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called for initialization purposes.
 func fromHex(
 	s string) []byte {
+
 	r, err := hex.DecodeString(s)
 	if err != nil {
+
 		panic("invalid hex in source file: " + s)
 	}
 	return r

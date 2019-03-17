@@ -16,13 +16,15 @@ type logClosure func() string
 func (
 	c logClosure,
 	) String() string {
-		return c()
+
+return c()
 	}
 
 
 	// UseLogger uses a specified Logger to output package logging info. This should be used in preference to SetLogWriter if the caller is also using log.
 	func UseLogger(
 		logger *cl.SubSystem) {
+
 
 			Log = logger
 			log = Log.Ch
@@ -33,7 +35,8 @@ func (
 		// the logging level is such that the message will actually be logged.
 		func newLogClosure(
 			c func() string) logClosure {
-				return logClosure(c)
+
+return logClosure(c)
 			}
 
 
@@ -41,8 +44,10 @@ func (
 			// on the count n.
 			func pickNoun(
 				n int, singular, plural string) string {
-					if n == 1 {
-						return singular
+
+if n == 1 {
+
+return singular
 					}
 					return plural
 				}

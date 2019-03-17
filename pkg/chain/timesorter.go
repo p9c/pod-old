@@ -7,6 +7,7 @@ type timeSorter []int64
 // Len returns the number of timestamps in the slice.  It is part of the
 // sort.Interface implementation.
 func (s timeSorter) Len() int {
+
 	return len(s)
 }
 
@@ -20,5 +21,6 @@ func (s timeSorter) Swap(i, j int) {
 // Less returns whether the timstamp with index i should sort before the
 // timestamp with index j.  It is part of the sort.Interface implementation.
 func (s timeSorter) Less(i, j int) bool {
+
 	return s[i] < s[j]
 }

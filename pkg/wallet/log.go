@@ -15,6 +15,7 @@ var log = Log.Ch
 
 // String invokes the log closure and returns the results string.
 func (c logClosure) String() string {
+
 	return c()
 }
 
@@ -31,6 +32,7 @@ func UseLogger(
 // the logging level is such that the message will actually be logged.
 func newLogClosure(
 	c func() string) logClosure {
+
 	return logClosure(c)
 }
 

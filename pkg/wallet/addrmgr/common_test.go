@@ -212,13 +212,16 @@ var (
 // code that matches the passed  error code.
 func checkManagerError(
 	t *testing.T, testName string, gotErr error, wantErrCode waddrmgr.ErrorCode) bool {
+
 	merr, ok := gotErr.(waddrmgr.ManagerError)
 	if !ok {
+
 		t.Errorf("%s: unexpected error type - got %T, want %T",
 			testName, gotErr, waddrmgr.ManagerError{})
 		return false
 	}
 	if merr.ErrorCode != wantErrCode {
+
 		t.Errorf("%s: unexpected error code - got %s (%s), want %s",
 			testName, merr.ErrorCode, merr.Description, wantErrCode)
 		return false
@@ -231,8 +234,10 @@ func checkManagerError(
 // error.  It MUST only be used with hard coded values in the tests.
 func hexToBytes(
 	origHex string) []byte {
+
 	buf, err := hex.DecodeString(origHex)
 	if err != nil {
+
 		panic(err)
 	}
 	return buf
@@ -243,11 +248,13 @@ func emptyDB(
 
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {
+
 		t.Fatalf("Failed to create db temp dir: %v", err)
 	}
 	dbPath := filepath.Join(dirName, "mgrtest.db")
 	db, err = walletdb.Create("bdb", dbPath)
 	if err != nil {
+
 		_ = os.RemoveAll(dirName)
 		t.Fatalf("createDbNamespace: unexpected error: %v", err)
 	}
@@ -267,17 +274,21 @@ func setupManager(
 	// Create a new manager in a temp directory.
 	dirName, err := ioutil.TempDir("", "mgrtest")
 	if err != nil {
+
 		t.Fatalf("Failed to create db temp dir: %v", err)
 	}
 	dbPath := filepath.Join(dirName, "mgrtest.db")
 	db, err = walletdb.Create("bdb", dbPath)
 	if err != nil {
+
 		_ = os.RemoveAll(dirName)
 		t.Fatalf("createDbNamespace: unexpected error: %v", err)
 	}
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, err := tx.CreateTopLevelBucket(waddrmgrNamespaceKey)
 		if err != nil {
+
 			return err
 		}
 		err = waddrmgr.Create(
@@ -285,12 +296,14 @@ func setupManager(
 			&chaincfg.MainNetParams, fastScrypt, time.Time{},
 		)
 		if err != nil {
+
 			return err
 		}
 		mgr, err = waddrmgr.Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
 	if err != nil {
+
 		db.Close()
 		_ = os.RemoveAll(dirName)
 		t.Fatalf("Failed to create Manager: %v", err)

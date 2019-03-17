@@ -32,6 +32,7 @@ const (
 // In our case, using 64-bit integers, log_2 is 64. As most processors don't support 128-bit arithmetic natively, we'll be super portable and unfold the operation into several operations with 64-bit arithmetic. As inputs, we the number to reduce, and our modulus N divided into its high 32-bits and lower 32-bits.
 func fastReduction(
 	v, nHi, nLo uint64) uint64 {
+
 	// First, we'll spit the item we need to reduce into its higher and lower bits.
 	vhi := v >> 32
 	vlo := uint64(uint32(v))
@@ -66,6 +67,7 @@ func BuildGCSFilter(
 		return nil, ErrNTooBig
 	}
 	if P > 32 {
+
 		return nil, ErrPTooBig
 	}
 	// Create the filter object and insert metadata.
@@ -77,6 +79,7 @@ func BuildGCSFilter(
 	f.modulusNP = uint64(f.n) * M
 	// Shortcut if the filter is empty.
 	if f.n == 0 {
+
 		return &f, nil
 	}
 	// Build the filter.
@@ -87,6 +90,7 @@ func BuildGCSFilter(
 	nphi := f.modulusNP >> 32
 	nplo := uint64(uint32(f.modulusNP))
 	for _, d := range data {
+
 		// For each datum, we assign the initial hash to a uint64.
 		v := siphash.Sum64(d, &key)
 		v = fastReduction(v, nphi, nplo)
@@ -96,6 +100,7 @@ func BuildGCSFilter(
 	// Write the sorted list of values into the filter bitstream, compressing it using Golomb coding.
 	var value, lastValue, remainder uint64
 	for _, v := range values {
+
 		// Calculate the difference between this value and the last, modulo P.
 		remainder = (v - lastValue) & ((uint64(1) << f.p) - 1)
 		// Calculate the difference between this value and the last, divided by P.
@@ -103,6 +108,7 @@ func BuildGCSFilter(
 		lastValue = v
 		// Write the P multiple into the bitstream in unary; the average should be around 1 (2 bits - 0b10).
 		for value > 0 {
+
 			b.WriteBit(true)
 			value--
 		}
@@ -121,6 +127,7 @@ func FromBytes(
 
 	// Basic sanity check.
 	if P > 32 {
+
 		return nil, ErrPTooBig
 	}
 	// Create the filter object and insert metadata.
@@ -143,6 +150,7 @@ func FromNBytes(
 	buffer := bytes.NewBuffer(d)
 	N, err := wire.ReadVarInt(buffer, varIntProtoVer)
 	if err != nil {
+
 		return nil, err
 	}
 	if N >= (1 << 32) {
@@ -167,10 +175,12 @@ func (f *Filter) NBytes() ([]byte, error) {
 	buffer.Grow(wire.VarIntSerializeSize(uint64(f.n)) + len(f.filterData))
 	err := wire.WriteVarInt(&buffer, varIntProtoVer, uint64(f.n))
 	if err != nil {
+
 		return nil, err
 	}
 	_, err = buffer.Write(f.filterData)
 	if err != nil {
+
 		return nil, err
 	}
 	return buffer.Bytes(), nil
@@ -192,14 +202,17 @@ func (f *Filter) NPBytes() ([]byte, error) {
 	buffer.Grow(wire.VarIntSerializeSize(uint64(f.n)) + 1 + len(f.filterData))
 	err := wire.WriteVarInt(&buffer, varIntProtoVer, uint64(f.n))
 	if err != nil {
+
 		return nil, err
 	}
 	err = buffer.WriteByte(f.p)
 	if err != nil {
+
 		return nil, err
 	}
 	_, err = buffer.Write(f.filterData)
 	if err != nil {
+
 		return nil, err
 	}
 	return buffer.Bytes(), nil
@@ -207,11 +220,13 @@ func (f *Filter) NPBytes() ([]byte, error) {
 
 // P returns the filter's collision probability as a negative power of 2 (that is, a collision probability of `1/2**20` is represented as 20).
 func (f *Filter) P() uint8 {
+
 	return f.p
 }
 
 // N returns the size of the data set used to build the filter.
 func (f *Filter) N() uint32 {
+
 	return f.n
 }
 
@@ -221,6 +236,7 @@ func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 	// Create a filter bitstream.
 	filterData, err := f.Bytes()
 	if err != nil {
+
 		return false, err
 	}
 	b := bstream.NewBStreamReader(filterData)
@@ -233,10 +249,13 @@ func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 	// Go through the search filter and look for the desired value.
 	var lastValue uint64
 	for lastValue < term {
+
 		// Read the difference between previous and new value from bitstream.
 		value, err := f.readFullUint64(b)
 		if err != nil {
+
 			if err == io.EOF {
+
 				return false, nil
 			}
 			return false, err
@@ -244,6 +263,7 @@ func (f *Filter) Match(key [KeySize]byte, data []byte) (bool, error) {
 		// Add the previous value to it.
 		value += lastValue
 		if value == term {
+
 			return true, nil
 		}
 		lastValue = value
@@ -256,11 +276,13 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 
 	// Basic sanity check.
 	if len(data) == 0 {
+
 		return false, nil
 	}
 	// Create a filter bitstream.
 	filterData, err := f.Bytes()
 	if err != nil {
+
 		return false, err
 	}
 	b := bstream.NewBStreamReader(filterData)
@@ -270,6 +292,7 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 	nphi := f.modulusNP >> 32
 	nplo := uint64(uint32(f.modulusNP))
 	for _, d := range data {
+
 		// For each datum, we assign the initial hash to a uint64.
 		v := siphash.Sum64(d, &key)
 		// We'll then reduce the value down to the range of our modulus.
@@ -282,8 +305,10 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 	lastValue2 = values[0]
 	i := 1
 	for lastValue1 != lastValue2 {
+
 		// Check which filter to advance to make sure we're comparing the right values.
 		switch {
+
 		case lastValue1 > lastValue2:
 			// Advance filter created from search terms or return false if we're at the end because nothing matched.
 			if i < len(values) {
@@ -291,13 +316,16 @@ func (f *Filter) MatchAny(key [KeySize]byte, data [][]byte) (bool, error) {
 				lastValue2 = values[i]
 				i++
 			} else {
+
 				return false, nil
 			}
 		case lastValue2 > lastValue1:
 			// Advance filter we're searching or return false if we're at the end because nothing matched.
 			value, err := f.readFullUint64(b)
 			if err != nil {
+
 				if err == io.EOF {
+
 					return false, nil
 				}
 				return false, err
@@ -316,18 +344,22 @@ func (f *Filter) readFullUint64(b *bstream.BStream) (uint64, error) {
 	// Count the 1s until we reach a 0.
 	c, err := b.ReadBit()
 	if err != nil {
+
 		return 0, err
 	}
 	for c {
+
 		quotient++
 		c, err = b.ReadBit()
 		if err != nil {
+
 			return 0, err
 		}
 	}
 	// Read P bits.
 	remainder, err := b.ReadBits(int(f.p))
 	if err != nil {
+
 		return 0, err
 	}
 	// Add the multiple and the remainder.

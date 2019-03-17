@@ -24,6 +24,7 @@ type NeedsInputser interface {
 
 // Indexer provides a generic interface for an indexer that is managed by an index manager such as the Manager type provided by this package.
 type Indexer interface {
+
 	// Key returns the key of the index as a byte slice.
 	Key() []byte
 	// Name returns the human-readable name of the index.
@@ -43,6 +44,7 @@ type AssertError string
 
 // Error returns the assertion error as a huma-readable string and satisfies the error interface.
 func (e AssertError) Error() string {
+
 	return "assertion failed: " + string(e)
 }
 
@@ -51,12 +53,14 @@ type errDeserialize string
 
 // Error implements the error interface.
 func (e errDeserialize) Error() string {
+
 	return string(e)
 }
 
 // isDeserializeErr returns whether or not the passed error is an errDeserialize error.
 func isDeserializeErr(
 	err error) bool {
+
 	_, ok := err.(errDeserialize)
 	return ok
 }
@@ -71,7 +75,9 @@ type internalBucket interface {
 // interruptRequested returns true when the provided channel has been closed. This simplifies early shutdown slightly since the caller can just use an if statement instead of a select.
 func interruptRequested(
 	interrupted <-chan struct{}) bool {
+
 	select {
+
 	case <-interrupted:
 		// fmt.Println("chan:<-interrupted")
 		return true

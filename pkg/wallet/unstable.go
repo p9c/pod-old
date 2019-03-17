@@ -20,6 +20,7 @@ type unstableAPI struct {
 // functionality by itself.  New code should not be written using this API.
 func UnstableAPI(
 	w *Wallet) unstableAPI {
+
 	return unstableAPI{w}
 }
 
@@ -28,6 +29,7 @@ func (u unstableAPI) TxDetails(txHash *chainhash.Hash) (*wtxmgr.TxDetails, error
 
 	var details *wtxmgr.TxDetails
 	err := walletdb.View(u.w.db, func(dbtx walletdb.ReadTx) error {
+
 		txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 		var err error
 		details, err = u.w.TxStore.TxDetails(txmgrNs, txHash)
@@ -40,7 +42,9 @@ func (u unstableAPI) TxDetails(txHash *chainhash.Hash) (*wtxmgr.TxDetails, error
 // RangeTransactions calls wtxmgr.Store.RangeTransactions under a single
 // database view tranasction.
 func (u unstableAPI) RangeTransactions(begin, end int32, f func([]wtxmgr.TxDetails) (bool, error)) error {
+
 	return walletdb.View(u.w.db, func(dbtx walletdb.ReadTx) error {
+
 		txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 		return u.w.TxStore.RangeTransactions(txmgrNs, begin, end, f)
 	})

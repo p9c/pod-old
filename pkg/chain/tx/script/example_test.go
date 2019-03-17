@@ -21,6 +21,7 @@ func ExamplePayToAddrScript() {
 	addressStr := "12gpXQVcCL2qhTNQgyLVdCFG2Qs2px98nV"
 	address, err := util.DecodeAddress(addressStr, &chaincfg.MainNetParams)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -28,12 +29,14 @@ func ExamplePayToAddrScript() {
 	// Create a public key script that pays to the address.
 	script, err := txscript.PayToAddrScript(address)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	fmt.Printf("Script Hex: %x\n", script)
 	disasm, err := txscript.DisasmString(script)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -53,6 +56,7 @@ func ExampleExtractPkScriptAddrs() {
 	scriptHex := "76a914128004ff2fcaf13b2b91eb654b1dc2b674f7ec6188ac"
 	script, err := hex.DecodeString(scriptHex)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -61,6 +65,7 @@ func ExampleExtractPkScriptAddrs() {
 	scriptClass, addresses, reqSigs, err := txscript.ExtractPkScriptAddrs(
 		script, &chaincfg.MainNetParams)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -84,6 +89,7 @@ func ExampleSignTxOutput() {
 	privKeyBytes, err := hex.DecodeString("22a47fa09a223f2aa079edf85a7c2" +
 		"d4f8720ee63e502ee2869afab7de234b80c")
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -92,6 +98,7 @@ func ExampleSignTxOutput() {
 	addr, err := util.NewAddressPubKeyHash(pubKeyHash,
 		&chaincfg.MainNetParams)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -103,6 +110,7 @@ func ExampleSignTxOutput() {
 	originTx.AddTxIn(txIn)
 	pkScript, err := txscript.PayToAddrScript(addr)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -137,6 +145,7 @@ func ExampleSignTxOutput() {
 		redeemTx, 0, originTx.TxOut[0].PkScript, txscript.SigHashAll,
 		txscript.KeyClosure(lookupKey), nil, nil)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -149,10 +158,12 @@ func ExampleSignTxOutput() {
 	vm, err := txscript.NewEngine(originTx.TxOut[0].PkScript, redeemTx, 0,
 		flags, nil, nil, -1)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
 	if err := vm.Execute(); err != nil {
+
 		fmt.Println(err)
 		return
 	}

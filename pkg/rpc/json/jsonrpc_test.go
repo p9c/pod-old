@@ -37,11 +37,14 @@ func TestIsValidIDType(
 		{"complex64", complex64(1), false},
 		{"complex128", complex128(1), false},
 		{"func", func() {
+
 		}, false},
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		if json.IsValidIDType(test.id) != test.isValid {
+
 			t.Errorf("Test #%d (%s) valid mismatch - got %v, "+
 				"want %v", i, test.name, !test.isValid,
 				test.isValid)
@@ -72,6 +75,7 @@ func TestMarshalResponse(
 			name:   "result with error",
 			result: nil,
 			jsonErr: func() *json.RPCError {
+
 				return json.NewRPCError(json.ErrRPCBlockNotFound, "123 not found")
 			}(),
 			expected: []byte(`{"result":null,"error":{"code":-5,"message":"123 not found"},"id":1}`),
@@ -79,9 +83,11 @@ func TestMarshalResponse(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		_, _ = i, test
 		marshalled, err := json.MarshalResponse(testID, test.result, test.jsonErr)
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -106,6 +112,7 @@ func TestMiscErrors(
 	// not supported.
 	_, err := json.NewRequest(nil, "test", []interface{}{make(chan int)})
 	if err == nil {
+
 		t.Error("NewRequest: did not receive error")
 		return
 	}
@@ -116,6 +123,7 @@ func TestMiscErrors(
 	wantErr := json.Error{ErrorCode: json.ErrInvalidType}
 	_, err = json.MarshalResponse(make(chan int), nil, nil)
 	if jerr, ok := err.(json.Error); !ok || jerr.ErrorCode != wantErr.ErrorCode {
+
 		t.Errorf("MarshalResult: did not receive expected error - got "+
 			"%v (%[1]T), want %v (%[2]T)", err, wantErr)
 		return
@@ -124,6 +132,7 @@ func TestMiscErrors(
 	// Force an error in MarshalResponse by giving it a result type that can't be marshalled.
 	_, err = json.MarshalResponse(1, make(chan int), nil)
 	if _, ok := err.(*json.UnsupportedTypeError); !ok {
+
 		wantErr := &json.UnsupportedTypeError{}
 		t.Errorf("MarshalResult: did not receive expected error - got "+
 			"%v (%[1]T), want %T", err, wantErr)
@@ -151,8 +160,10 @@ func TestRPCError(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		result := test.in.Error()
 		if result != test.want {
+
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue

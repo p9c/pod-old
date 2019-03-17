@@ -17,6 +17,7 @@ func TestStartWithdrawal(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -53,6 +54,7 @@ func TestStartWithdrawal(
 			store, txmgrNs, currentBlock, dustThreshold)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -76,6 +78,7 @@ func TestStartWithdrawal(
 			changeStart.SeriesID())
 	}
 	if nextChangeAddr.Index() != changeStart.Index()+1 {
+
 		t.Fatalf("Wrong nextChangeStart index; got %d, want %d", nextChangeAddr.Index(),
 			changeStart.Index()+1)
 	}
@@ -99,6 +102,7 @@ func TestStartWithdrawal(
 	vp.TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
 
 		if err = vp.SignTx(msgtx, txSigs, mgr, addrmgrNs, store, txmgrNs); err != nil {
+
 			t.Fatal(err)
 		}
 	})
@@ -113,6 +117,7 @@ func TestStartWithdrawal(
 			store, txmgrNs, currentBlock, dustThreshold)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	vp.TstCheckWithdrawalStatusMatches(t, *status, *status2)
@@ -123,24 +128,29 @@ func checkWithdrawalOutputs(
 
 	fulfilled := wStatus.Outputs()
 	if len(fulfilled) != 2 {
+
 		t.Fatalf("Unexpected number of outputs in WithdrawalStatus; got %d, want %d",
 			len(fulfilled), 2)
 	}
 	for _, output := range fulfilled {
+
 		addr := output.Address()
 		amount, ok := amounts[addr]
 		if !ok {
+
 			t.Fatalf("Unexpected output addr: %s", addr)
 		}
 
 		status := output.Status()
 		if status != "success" {
+
 			t.Fatalf(
 				"Unexpected status for output %v; got '%s', want 'success'", output, status)
 		}
 
 		outpoints := output.Outpoints()
 		if len(outpoints) != 1 {
+
 			t.Fatalf(
 				"Unexpected number of outpoints for output %v; got %d, want 1", output,
 				len(outpoints))
@@ -148,6 +158,7 @@ func checkWithdrawalOutputs(
 
 		gotAmount := outpoints[0].Amount()
 		if gotAmount != amount {
+
 			t.Fatalf("Unexpected amount for output %v; got %v, want %v", output, gotAmount, amount)
 		}
 	}

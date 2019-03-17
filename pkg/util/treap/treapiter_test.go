@@ -84,9 +84,11 @@ func TestMutableIterator(
 	}
 testLoop:
 	for i, test := range tests {
+
 		// Insert a bunch of keys.
 		testTreap := NewMutable()
 		for i := 0; i < test.numKeys; i += test.step {
+
 			key := serializeUint32(uint32(i))
 			testTreap.Put(key, key)
 		}
@@ -95,6 +97,7 @@ testLoop:
 		// Ensure the first item is accurate.
 		hasFirst := iter.First()
 		if !hasFirst && test.expectedFirst != nil {
+
 			t.Errorf("First #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -146,6 +149,7 @@ testLoop:
 		// Ensure the last item is accurate.
 		hasLast := iter.Last()
 		if !hasLast && test.expectedLast != nil {
+
 			t.Errorf("Last #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -198,6 +202,7 @@ testLoop:
 		// Seek to the provided key.
 		seekValid := iter.Seek(test.seekKey)
 		if !seekValid && test.expectedSeek != nil {
+
 			t.Errorf("Seek #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -220,6 +225,7 @@ testLoop:
 		iter = testTreap.Iterator(test.startKey, test.limitKey)
 		hasNext := iter.Next()
 		if !hasNext && test.expectedFirst != nil {
+
 			t.Errorf("Next #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -242,6 +248,7 @@ testLoop:
 		iter = testTreap.Iterator(test.startKey, test.limitKey)
 		hasPrev := iter.Prev()
 		if !hasPrev && test.expectedLast != nil {
+
 			t.Errorf("Prev #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -296,9 +303,11 @@ func TestMutableEmptyIterator(
 	}
 	// Ensure Key and Value on empty iterator are nil.
 	if gotKey := iter.Key(); gotKey != nil {
+
 		t.Fatalf("Key: should be nil - got %q", gotKey)
 	}
 	if gotVal := iter.Value(); gotVal != nil {
+
 		t.Fatalf("Value: should be nil - got %q", gotVal)
 	}
 	// Ensure Next and Prev report exhausted after forcing a reseek on an
@@ -487,9 +496,11 @@ func TestImmutableIterator(
 	}
 testLoop:
 	for i, test := range tests {
+
 		// Insert a bunch of keys.
 		testTreap := NewImmutable()
 		for i := 0; i < test.numKeys; i += test.step {
+
 			key := serializeUint32(uint32(i))
 			testTreap = testTreap.Put(key, key)
 		}
@@ -498,6 +509,7 @@ testLoop:
 		// Ensure the first item is accurate.
 		hasFirst := iter.First()
 		if !hasFirst && test.expectedFirst != nil {
+
 			t.Errorf("First #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -549,6 +561,7 @@ testLoop:
 		// Ensure the last item is accurate.
 		hasLast := iter.Last()
 		if !hasLast && test.expectedLast != nil {
+
 			t.Errorf("Last #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -601,6 +614,7 @@ testLoop:
 		// Seek to the provided key.
 		seekValid := iter.Seek(test.seekKey)
 		if !seekValid && test.expectedSeek != nil {
+
 			t.Errorf("Seek #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -623,6 +637,7 @@ testLoop:
 		iter = testTreap.Iterator(test.startKey, test.limitKey)
 		hasNext := iter.Next()
 		if !hasNext && test.expectedFirst != nil {
+
 			t.Errorf("Next #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -645,6 +660,7 @@ testLoop:
 		iter = testTreap.Iterator(test.startKey, test.limitKey)
 		hasPrev := iter.Prev()
 		if !hasPrev && test.expectedLast != nil {
+
 			t.Errorf("Prev #%d: unexpected exhausted iterator", i)
 			continue
 		}
@@ -699,9 +715,11 @@ func TestImmutableEmptyIterator(
 	}
 	// Ensure Key and Value on empty iterator are nil.
 	if gotKey := iter.Key(); gotKey != nil {
+
 		t.Fatalf("Key: should be nil - got %q", gotKey)
 	}
 	if gotVal := iter.Value(); gotVal != nil {
+
 		t.Fatalf("Value: should be nil - got %q", gotVal)
 	}
 	// Ensure calling ForceReseek on an immutable treap iterator does not

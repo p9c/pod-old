@@ -178,57 +178,71 @@ type Alert struct {
 
 // Serialize encodes the alert to w using the alert protocol encoding format.
 func (alert *Alert) Serialize(w io.Writer, pver uint32) error {
+
 	err := writeElements(w, alert.Version, alert.RelayUntil,
 		alert.Expiration, alert.ID, alert.Cancel)
 	if err != nil {
+
 		return err
 	}
 	count := len(alert.SetCancel)
 	if count > maxCountSetCancel {
+
 		str := fmt.Sprintf("too many cancel alert IDs for alert "+
 			"[count %v, max %v]", count, maxCountSetCancel)
 		return messageError("Alert.Serialize", str)
 	}
 	err = WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for i := 0; i < count; i++ {
+
 		err = writeElement(w, alert.SetCancel[i])
 		if err != nil {
+
 			return err
 		}
 	}
 	err = writeElements(w, alert.MinVer, alert.MaxVer)
 	if err != nil {
+
 		return err
 	}
 	count = len(alert.SetSubVer)
 	if count > maxCountSetSubVer {
+
 		str := fmt.Sprintf("too many sub versions for alert "+
 			"[count %v, max %v]", count, maxCountSetSubVer)
 		return messageError("Alert.Serialize", str)
 	}
 	err = WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for i := 0; i < count; i++ {
+
 		err = WriteVarString(w, pver, alert.SetSubVer[i])
 		if err != nil {
+
 			return err
 		}
 	}
 	err = writeElement(w, alert.Priority)
 	if err != nil {
+
 		return err
 	}
 	err = WriteVarString(w, pver, alert.Comment)
 	if err != nil {
+
 		return err
 	}
 	err = WriteVarString(w, pver, alert.StatusBar)
 	if err != nil {
+
 		return err
 	}
 	return WriteVarString(w, pver, alert.Reserved)
@@ -236,9 +250,11 @@ func (alert *Alert) Serialize(w io.Writer, pver uint32) error {
 
 // Deserialize decodes from r into the receiver using the alert protocol encoding format.
 func (alert *Alert) Deserialize(r io.Reader, pver uint32) error {
+
 	err := readElements(r, &alert.Version, &alert.RelayUntil,
 		&alert.Expiration, &alert.ID, &alert.Cancel)
 	if err != nil {
+
 		return err
 	}
 
@@ -247,52 +263,64 @@ func (alert *Alert) Deserialize(r io.Reader, pver uint32) error {
 	// iterate count times and read them
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 	if count > maxCountSetCancel {
+
 		str := fmt.Sprintf("too many cancel alert IDs for alert "+
 			"[count %v, max %v]", count, maxCountSetCancel)
 		return messageError("Alert.Deserialize", str)
 	}
 	alert.SetCancel = make([]int32, count)
 	for i := 0; i < int(count); i++ {
+
 		err := readElement(r, &alert.SetCancel[i])
 		if err != nil {
+
 			return err
 		}
 	}
 	err = readElements(r, &alert.MinVer, &alert.MaxVer)
 	if err != nil {
+
 		return err
 	}
 
 	// SetSubVer: similar to SetCancel but read count number of sub-version strings
 	count, err = ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 	if count > maxCountSetSubVer {
+
 		str := fmt.Sprintf("too many sub versions for alert "+
 			"[count %v, max %v]", count, maxCountSetSubVer)
 		return messageError("Alert.Deserialize", str)
 	}
 	alert.SetSubVer = make([]string, count)
 	for i := 0; i < int(count); i++ {
+
 		alert.SetSubVer[i], err = ReadVarString(r, pver)
 		if err != nil {
+
 			return err
 		}
 	}
 	err = readElement(r, &alert.Priority)
 	if err != nil {
+
 		return err
 	}
 	alert.Comment, err = ReadVarString(r, pver)
 	if err != nil {
+
 		return err
 	}
 	alert.StatusBar, err = ReadVarString(r, pver)
 	if err != nil {
+
 		return err
 	}
 	alert.Reserved, err = ReadVarString(r, pver)
@@ -305,6 +333,7 @@ func NewAlert(
 	id int32, cancel int32, setCancel []int32, minVer int32,
 	maxVer int32, setSubVer []string, priority int32, comment string,
 	statusBar string) *Alert {
+
 	return &Alert{
 		Version:    version,
 		RelayUntil: relayUntil,
@@ -330,6 +359,7 @@ func NewAlertFromPayload(
 	r := bytes.NewReader(serializedPayload)
 	err := alert.Deserialize(r, pver)
 	if err != nil {
+
 		return nil, err
 	}
 	return &alert, nil
@@ -350,14 +380,17 @@ type MsgAlert struct {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgAlert) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	var err error
 	msg.SerializedPayload, err = ReadVarBytes(r, pver, MaxMessagePayload,
 		"alert serialized payload")
 	if err != nil {
+
 		return err
 	}
 	msg.Payload, err = NewAlertFromPayload(msg.SerializedPayload, pver)
 	if err != nil {
+
 		msg.Payload = nil
 	}
 	msg.Signature, err = ReadVarBytes(r, pver, MaxMessagePayload,
@@ -367,6 +400,7 @@ func (msg *MsgAlert) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgAlert) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	var err error
 	var serializedpayload []byte
 	if msg.Payload != nil {
@@ -379,17 +413,21 @@ func (msg *MsgAlert) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 			// Serialize failed - ignore & fallback to SerializedPayload
 			serializedpayload = msg.SerializedPayload
 		} else {
+
 			serializedpayload = r.Bytes()
 		}
 	} else {
+
 		serializedpayload = msg.SerializedPayload
 	}
 	slen := uint64(len(serializedpayload))
 	if slen == 0 {
+
 		return messageError("MsgAlert.BtcEncode", "empty serialized payload")
 	}
 	err = WriteVarBytes(w, pver, serializedpayload)
 	if err != nil {
+
 		return err
 	}
 	return WriteVarBytes(w, pver, msg.Signature)
@@ -397,6 +435,7 @@ func (msg *MsgAlert) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgAlert) Command() string {
+
 	return CmdAlert
 }
 
@@ -410,6 +449,7 @@ func (msg *MsgAlert) MaxPayloadLength(pver uint32) uint32 {
 // NewMsgAlert returns a new bitcoin alert message that conforms to the Message interface.  See MsgAlert for details.
 func NewMsgAlert(
 	serializedPayload []byte, signature []byte) *MsgAlert {
+
 	return &MsgAlert{
 		SerializedPayload: serializedPayload,
 		Signature:         signature,

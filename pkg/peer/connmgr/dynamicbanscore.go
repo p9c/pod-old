@@ -29,6 +29,7 @@ var precomputedFactor [precomputedLen]float64
 func init() {
 
 	for i := range precomputedFactor {
+
 		precomputedFactor[i] = math.Exp(-1.0 * float64(i) * lambda)
 	}
 }
@@ -36,7 +37,9 @@ func init() {
 // decayFactor returns the decay factor at t seconds, using precalculated values if available, or calculating the factor if needed.
 func decayFactor(
 	t int64) float64 {
+
 	if t < precomputedLen {
+
 		return precomputedFactor[t]
 	}
 	return math.Exp(-1.0 * float64(t) * lambda)
@@ -54,6 +57,7 @@ type DynamicBanScore struct {
 
 // String returns the ban score as a human-readable string.
 func (s *DynamicBanScore) String() string {
+
 	s.mtx.Lock()
 	r := fmt.Sprintf("persistent %v + transient %v at %v = %v as of now",
 		s.persistent, s.transient, s.lastUnix, s.Int())
@@ -63,6 +67,7 @@ func (s *DynamicBanScore) String() string {
 
 // Int returns the current ban score, the sum of the persistent and decaying scores. This function is safe for concurrent access.
 func (s *DynamicBanScore) Int() uint32 {
+
 	s.mtx.Lock()
 	r := s.int(time.Now())
 	s.mtx.Unlock()
@@ -71,6 +76,7 @@ func (s *DynamicBanScore) Int() uint32 {
 
 // Increase increases both the persistent and decaying scores by the values passed as parameters. The resulting score is returned. This function is safe for concurrent access.
 func (s *DynamicBanScore) Increase(persistent, transient uint32) uint32 {
+
 	s.mtx.Lock()
 	r := s.increase(persistent, transient, time.Now())
 	s.mtx.Unlock()
@@ -89,8 +95,10 @@ func (s *DynamicBanScore) Reset() {
 
 // int returns the ban score, the sum of the persistent and decaying scores at a given point in time. This function is not safe for concurrent access. It is intended to be used internally and during testing.
 func (s *DynamicBanScore) int(t time.Time) uint32 {
+
 	dt := t.Unix() - s.lastUnix
 	if s.transient < 1 || dt < 0 || Lifetime < dt {
+
 		return s.persistent
 	}
 	return s.persistent + uint32(s.transient*decayFactor(dt))
@@ -98,13 +106,17 @@ func (s *DynamicBanScore) int(t time.Time) uint32 {
 
 // increase increases the persistent, the decaying or both scores by the values passed as parameters. The resulting score is calculated as if the action was carried out at the point time represented by the third parameter. The resulting score is returned. This function is not safe for concurrent access.
 func (s *DynamicBanScore) increase(persistent, transient uint32, t time.Time) uint32 {
+
 	s.persistent += persistent
 	tu := t.Unix()
 	dt := tu - s.lastUnix
 	if transient > 0 {
+
 		if Lifetime < dt {
+
 			s.transient = 0
 		} else if s.transient > 1 && dt > 0 {
+
 			s.transient *= decayFactor(dt)
 		}
 		s.transient += float64(transient)

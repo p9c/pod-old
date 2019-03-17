@@ -26,12 +26,14 @@ func (w *fixedWriter) Write(p []byte) (n int, err error) {
 
 // Bytes returns the bytes already written to the fixed writer.
 func (w *fixedWriter) Bytes() []byte {
+
 	return w.b
 }
 
 // newFixedWriter returns a new io.Writer that will error once more bytes than the specified max have been written.
 func newFixedWriter(
 	max int) io.Writer {
+
 	b := make([]byte, max)
 	fw := fixedWriter{b, 0}
 	return &fw
@@ -55,8 +57,10 @@ func (fr *fixedReader) Read(p []byte) (n int, err error) {
 // newFixedReader returns a new io.Reader that will error once more bytes than the specified max have been read.
 func newFixedReader(
 	max int, buf []byte) io.Reader {
+
 	b := make([]byte, max)
 	if buf != nil {
+
 		copy(b[:], buf)
 	}
 	iobuf := bytes.NewBuffer(b)

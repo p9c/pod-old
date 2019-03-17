@@ -44,16 +44,19 @@ var RegressionNetParams = Params{
 	MinerConfirmationWindow:       144,
 	Deployments: [DefinedDeployments]ConsensusDeployment{
 		DeploymentTestDummy: {
+
 			BitNumber:  28,
 			StartTime:  0,             // Always available for vote
 			ExpireTime: math.MaxInt64, // Never expires
 		},
 		DeploymentCSV: {
+
 			BitNumber:  0,
 			StartTime:  0,             // Always available for vote
 			ExpireTime: math.MaxInt64, // Never expires
 		},
 		DeploymentSegwit: {
+
 			BitNumber:  1,
 			StartTime:  0,             // Always available for vote
 			ExpireTime: math.MaxInt64, // Never expires.

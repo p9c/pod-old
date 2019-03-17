@@ -84,11 +84,13 @@ type txPriorityQueue struct {
 
 // Len returns the number of items in the priority queue.  It is part of the heap.Interface implementation.
 func (pq *txPriorityQueue) Len() int {
+
 	return len(pq.items)
 }
 
 // Less returns whether the item in the priority queue with index i should sort before the item with index j by deferring to the assigned less function.  It is part of the heap.Interface implementation.
 func (pq *txPriorityQueue) Less(i, j int) bool {
+
 	return pq.lessFunc(pq, i, j)
 }
 
@@ -106,6 +108,7 @@ func (pq *txPriorityQueue) Push(x interface{}) {
 
 // Pop removes the highest priority item (according to Less) from the priority queue and returns it.  It is part of the heap.Interface implementation.
 func (pq *txPriorityQueue) Pop() interface{} {
+
 	n := len(pq.items)
 	item := pq.items[n-1]
 	pq.items[n-1] = nil
@@ -126,6 +129,7 @@ func txPQByPriority(
 
 	// Using > here so that pop gives the highest priority item as opposed to the lowest.  Sort by priority first, then fee.
 	if pq.items[i].priority == pq.items[j].priority {
+
 		return pq.items[i].feePerKB > pq.items[j].feePerKB
 	}
 	return pq.items[i].priority > pq.items[j].priority
@@ -137,6 +141,7 @@ func txPQByFee(
 
 	// Using > here so that pop gives the highest fee item as opposed to the lowest.  Sort by fee first, then priority.
 	if pq.items[i].feePerKB == pq.items[j].feePerKB {
+
 		return pq.items[i].priority > pq.items[j].priority
 	}
 	return pq.items[i].feePerKB > pq.items[j].feePerKB
@@ -145,12 +150,15 @@ func txPQByFee(
 // newTxPriorityQueue returns a new transaction priority queue that reserves the passed amount of space for the elements.  The new priority queue uses either the txPQByPriority or the txPQByFee compare function depending on the sortByFee parameter and is already initialized for use with heap.Push/Pop. The priority queue can grow larger than the reserved space, but extra copies of the underlying array can be avoided by reserving a sane value.
 func newTxPriorityQueue(
 	reserve int, sortByFee bool) *txPriorityQueue {
+
 	pq := &txPriorityQueue{
 		items: make([]*txPrioItem, 0, reserve),
 	}
 	if sortByFee {
+
 		pq.SetLessFunc(txPQByFee)
 	} else {
+
 		pq.SetLessFunc(txPQByPriority)
 	}
 	return pq
@@ -209,16 +217,20 @@ func createCoinbaseTx(
 	// Create the script to pay to the provided payment address if one was specified.  Otherwise create a script that allows the coinbase to be redeemable by anyone.
 	var pkScript []byte
 	if addr != nil {
+
 		var err error
 		pkScript, err = txscript.PayToAddrScript(addr)
 		if err != nil {
+
 			return nil, err
 		}
 	} else {
+
 		var err error
 		scriptBuilder := txscript.NewScriptBuilder()
 		pkScript, err = scriptBuilder.AddOp(txscript.OP_TRUE).Script()
 		if err != nil {
+
 			return nil, err
 		}
 	}
@@ -240,9 +252,12 @@ func createCoinbaseTx(
 // spendTransaction updates the passed view by marking the inputs to the passed transaction as spent.  It also adds all outputs in the passed transaction which are not provably unspendable as available unspent transaction outputs.
 func spendTransaction(
 	utxoView *blockchain.UtxoViewpoint, tx *util.Tx, height int32) error {
+
 	for _, txIn := range tx.MsgTx().TxIn {
+
 		entry := utxoView.LookupEntry(txIn.PreviousOutPoint)
 		if entry != nil {
+
 			entry.Spend()
 		}
 	}
@@ -255,9 +270,11 @@ func logSkippedDeps(
 	tx *util.Tx, deps map[chainhash.Hash]*txPrioItem) {
 
 	if deps == nil {
+
 		return
 	}
 	for _, item := range deps {
+
 		log <- cl.Tracef{
 			"skipping tx %s since it depends on %s",
 			item.tx.Hash(),
@@ -269,6 +286,7 @@ func logSkippedDeps(
 // MinimumMedianTime returns the minimum allowed timestamp for a block building on the end of the provided best chain.  In particular, it is one second after the median timestamp of the last several blocks per the chain consensus rules.
 func MinimumMedianTime(
 	chainState *blockchain.BestState) time.Time {
+
 	return chainState.MedianTime.Add(time.Second)
 }
 
@@ -305,6 +323,7 @@ func NewBlkTmplGenerator(
 	timeSource blockchain.MedianTimeSource,
 	sigCache *txscript.SigCache,
 	hashCache *txscript.HashCache, algo string) *BlkTmplGenerator {
+
 	return &BlkTmplGenerator{
 		policy:      policy,
 		chainParams: params,
@@ -346,6 +365,7 @@ func NewBlkTmplGenerator(
 func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo string) (*BlockTemplate, error) {
 
 	if algo == "" {
+
 		algo = "random"
 	}
 	h := g.BestSnapshot().Height + 1
@@ -362,11 +382,13 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	extraNonce := uint64(0)
 	coinbaseScript, err := standardCoinbaseScript(nextBlockHeight, extraNonce)
 	if err != nil {
+
 		return nil, err
 	}
 	coinbaseTx, err := createCoinbaseTx(g.chainParams, coinbaseScript,
 		nextBlockHeight, payToAddress)
 	if err != nil {
+
 		return nil, err
 	}
 	coinbaseSigOpCost := int64(blockchain.CountSigOps(coinbaseTx)) * blockchain.WitnessScaleFactor
@@ -395,11 +417,13 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	}
 mempoolLoop:
 	for _, txDesc := range sourceTxns {
+
 		// A block can't have more than one coinbase or contain non-finalized transactions.
 		tx := txDesc.Tx
 		if blockchain.IsCoinBase(tx) {
 
 			Log.Trcc(func() string {
+
 				return fmt.Sprintf("skipping coinbase tx %s", tx.Hash())
 			})
 			continue
@@ -408,6 +432,7 @@ mempoolLoop:
 			g.timeSource.AdjustedTime()) {
 
 			Log.Trcc(func() string {
+
 				return "skipping non-finalized tx " + tx.Hash().String()
 			})
 			continue
@@ -415,7 +440,9 @@ mempoolLoop:
 		// Fetch all of the utxos referenced by the this transaction. NOTE: This intentionally does not fetch inputs from the mempool since a transaction which depends on other transactions in the mempool must come after those dependencies in the final generated block.
 		utxos, err := g.chain.FetchUtxoView(tx)
 		if err != nil {
+
 			Log.Wrnc(func() string {
+
 				return "unable to fetch utxo view for tx " + tx.Hash().String() + ": " + err.Error()
 			})
 			continue
@@ -423,6 +450,7 @@ mempoolLoop:
 		// Setup dependencies for any transactions which reference other transactions in the mempool so they can be properly ordered below.
 		prioItem := &txPrioItem{tx: tx}
 		for _, txIn := range tx.MsgTx().TxIn {
+
 			originHash := &txIn.PreviousOutPoint.Hash
 			entry := utxos.LookupEntry(txIn.PreviousOutPoint)
 			if entry == nil || entry.IsSpent() {
@@ -430,6 +458,7 @@ mempoolLoop:
 				if !g.txSource.HaveTransaction(originHash) {
 
 					Log.Trcc(func() string {
+
 						return "skipping tx %s because it references unspent output %s which is not available" +
 							tx.Hash().String() +
 							txIn.PreviousOutPoint.String()
@@ -439,11 +468,13 @@ mempoolLoop:
 				// The transaction is referencing another transaction in the source pool, so setup an ordering dependency.
 				deps, exists := dependers[*originHash]
 				if !exists {
+
 					deps = make(map[chainhash.Hash]*txPrioItem)
 					dependers[*originHash] = deps
 				}
 				deps[*prioItem.tx.Hash()] = prioItem
 				if prioItem.dependsOn == nil {
+
 					prioItem.dependsOn = make(
 						map[chainhash.Hash]struct{})
 				}
@@ -460,12 +491,14 @@ mempoolLoop:
 		prioItem.fee = txDesc.Fee
 		// Add the transaction to the priority queue to mark it ready for inclusion in the block unless it has dependencies.
 		if prioItem.dependsOn == nil {
+
 			heap.Push(priorityQueue, prioItem)
 		}
 		// Merge the referenced outputs from the input transactions to this transaction into the block utxo view.  This allows the code below to avoid a second lookup.
 		mergeUtxoView(blockUtxos, utxos)
 	}
 	Log.Trcc(func() string {
+
 		return fmt.Sprintf(
 			"priority queue len %d, dependers len %d",
 			priorityQueue.Len(),
@@ -482,6 +515,7 @@ mempoolLoop:
 	// Query the version bits state to see if segwit has been activated, if so then this means that we'll include any transactions with witness data in the mempool, and also add the witness commitment as an OP_RETURN output in the coinbase transaction.
 	segwitState, err := g.chain.ThresholdState(chaincfg.DeploymentSegwit)
 	if err != nil {
+
 		return nil, err
 	}
 	segwitActive := segwitState == blockchain.ThresholdActive
@@ -489,10 +523,12 @@ mempoolLoop:
 
 	// Choose which transactions make it into the block.
 	for priorityQueue.Len() > 0 {
+
 		// Grab the highest priority (or highest fee per kilobyte depending on the sort order) transaction.
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		tx := prioItem.tx
 		switch {
+
 		// If segregated witness has not been activated yet, then we shouldn't include any witness transactions in the block.
 		case !segwitActive && tx.HasWitness():
 			continue
@@ -521,6 +557,7 @@ mempoolLoop:
 		blockPlusTxWeight := blockWeight + txWeight
 		if blockPlusTxWeight < blockWeight ||
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
+
 			log <- cl.Tracef{
 				"skipping tx %s because it would exceed the max block weight", tx.Hash(),
 			}
@@ -531,7 +568,9 @@ mempoolLoop:
 		sigOpCost, err := blockchain.GetSigOpCost(tx, false,
 			blockUtxos, true, segwitActive)
 		if err != nil {
+
 			Log.Trcc(func() string {
+
 				return "skipping tx " + tx.Hash().String() +
 					"due to error in GetSigOpCost: " + err.Error()
 			})
@@ -540,7 +579,9 @@ mempoolLoop:
 		}
 		if blockSigOpCost+int64(sigOpCost) < blockSigOpCost ||
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
+
 			Log.Trcc(func() string {
+
 				return "skipping tx " + tx.Hash().String() +
 					" because it would exceed the maximum sigops per block"
 			})
@@ -551,7 +592,9 @@ mempoolLoop:
 		if sortedByFee &&
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
+
 			Log.Trcc(func() string {
+
 				return fmt.Sprint(
 					"skipping tx ", tx.Hash(),
 					" with feePerKB ", prioItem.feePerKB,
@@ -581,6 +624,7 @@ mempoolLoop:
 			// Put the transaction back into the priority queue and skip it so it is re-priortized by fees if it won't fit into the high-priority section or the priority is too low.  Otherwise this transaction will be the final one in the high-priority section, so just fall though to the code below so it is added now.
 			if blockPlusTxWeight > g.policy.BlockPrioritySize ||
 				prioItem.priority < MinHighPriority {
+
 				heap.Push(priorityQueue, prioItem)
 				continue
 			}
@@ -589,6 +633,7 @@ mempoolLoop:
 		_, err = blockchain.CheckTransactionInputs(tx, nextBlockHeight,
 			blockUtxos, g.chainParams)
 		if err != nil {
+
 			log <- cl.Tracef{
 				"skipping tx %s due to error in CheckTransactionInputs: %v",
 				tx.Hash(),
@@ -601,6 +646,7 @@ mempoolLoop:
 			txscript.StandardVerifyFlags, g.sigCache,
 			g.hashCache)
 		if err != nil {
+
 			log <- cl.Tracef{
 				"skipping tx %s due to error in ValidateTransactionScripts: %v",
 				tx.Hash(),
@@ -626,9 +672,11 @@ mempoolLoop:
 		}
 		// Add transactions which depend on this one (and also do not have any other unsatisified dependencies) to the priority queue.
 		for _, item := range deps {
+
 			// Add the transaction to the priority queue if there are no more dependencies after this one.
 			delete(item.dependsOn, *tx.Hash())
 			if len(item.dependsOn) == 0 {
+
 				heap.Push(priorityQueue, item)
 			}
 		}
@@ -644,6 +692,7 @@ mempoolLoop:
 	// If segwit is active and we included transactions with witness data, then we'll need to include a commitment to the witness data in an OP_RETURN output within the coinbase transaction.
 	var witnessCommitment []byte
 	if witnessIncluded {
+
 		// The witness of the coinbase transaction MUST be exactly 32-bytes of all zeroes.
 		var witnessNonce [blockchain.CoinbaseWitnessDataLen]byte
 		coinbaseTx.MsgTx().TxIn[0].Witness = wire.TxWitness{witnessNonce[:]}
@@ -671,6 +720,7 @@ mempoolLoop:
 	ts := medianAdjustedTime(best, g.timeSource)
 	reqDifficulty, err := g.chain.CalcNextRequiredDifficulty(ts, algo)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -687,7 +737,9 @@ mempoolLoop:
 		Bits:       reqDifficulty,
 	}
 	for _, tx := range blockTxns {
+
 		if err := msgBlock.AddTransaction(tx.MsgTx()); err != nil {
+
 			return nil, err
 		}
 	}
@@ -697,10 +749,12 @@ mempoolLoop:
 	block.SetHeight(nextBlockHeight)
 	err = g.chain.CheckConnectBlockTemplate(block)
 	if err != nil {
+
 		log <- cl.Debug{"checkconnectblocktemplate err:", err}
 		return nil, err
 	}
 	Log.Dbgc(func() string {
+
 		return fmt.Sprintf(
 			"created new block template "+
 				"(algo %s, %d transactions, %d in fees, "+
@@ -751,11 +805,14 @@ func (g *BlkTmplGenerator) UpdateBlockTime(msgBlock *wire.MsgBlock) error {
 
 // UpdateExtraNonce updates the extra nonce in the coinbase script of the passed block by regenerating the coinbase script with the passed value and block height.  It also recalculates and updates the new merkle root that results from changing the coinbase script.
 func (g *BlkTmplGenerator) UpdateExtraNonce(msgBlock *wire.MsgBlock, blockHeight int32, extraNonce uint64) error {
+
 	coinbaseScript, err := standardCoinbaseScript(blockHeight, extraNonce)
 	if err != nil {
+
 		return err
 	}
 	if len(coinbaseScript) > blockchain.MaxCoinbaseScriptLen {
+
 		return fmt.Errorf(
 			"coinbase transaction script length of %d is out of range (min: %d, max: %d)",
 			len(coinbaseScript), blockchain.MinCoinbaseScriptLen,
@@ -774,10 +831,12 @@ func (g *BlkTmplGenerator) UpdateExtraNonce(msgBlock *wire.MsgBlock, blockHeight
 
 // BestSnapshot returns information about the current best chain block and related state as of the current point in time using the chain instance associated with the block template generator.  The returned state must be treated as immutable since it is shared by all callers. This function is safe for concurrent access.
 func (g *BlkTmplGenerator) BestSnapshot() *blockchain.BestState {
+
 	return g.chain.BestSnapshot()
 }
 
 // TxSource returns the associated transaction source. This function is safe for concurrent access.
 func (g *BlkTmplGenerator) TxSource() TxSource {
+
 	return g.txSource
 }

@@ -16,20 +16,24 @@ func TestPutUsedAddrHash(
 
 	dummyHash := bytes.Repeat([]byte{0x09}, 10)
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, _ := TstRWNamespaces(tx)
 		return putUsedAddrHash(ns, pool.ID, 0, 0, 0, dummyHash)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
 	var storedHash []byte
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns, _ := TstRNamespaces(tx)
 		storedHash = getUsedAddrHash(ns, pool.ID, 0, 0, 0)
 		return nil
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if !bytes.Equal(storedHash, dummyHash) {
@@ -45,28 +49,34 @@ func TestGetMaxUsedIdx(
 	defer tearDown()
 
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, _ := TstRWNamespaces(tx)
 		for i, idx := range []int{0, 7, 9, 3001, 41, 500, 6} {
+
 			dummyHash := bytes.Repeat([]byte{byte(i)}, 10)
 			err := putUsedAddrHash(ns, pool.ID, 0, 0, Index(idx), dummyHash)
 			if err != nil {
+
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
 	var maxIdx Index
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns, _ := TstRNamespaces(tx)
 		var err error
 		maxIdx, err = getMaxUsedIdx(ns, pool.ID, 0, 0)
 		return err
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if maxIdx != Index(3001) {
@@ -83,6 +93,7 @@ func TestWithdrawalSerialization(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -94,6 +105,7 @@ func TestWithdrawalSerialization(
 	serialized, err := serializeWithdrawal(wi.requests, wi.startAddress, wi.lastSeriesID,
 		wi.changeStart, wi.dustThreshold, wi.status)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -102,6 +114,7 @@ func TestWithdrawalSerialization(
 
 		wInfo, err = deserializeWithdrawal(pool, ns, addrmgrNs, serialized)
 		if err != nil {
+
 			t.Fatal(err)
 		}
 	})
@@ -117,10 +130,12 @@ func TestWithdrawalSerialization(
 	}
 
 	if wInfo.lastSeriesID != wi.lastSeriesID {
+
 		t.Fatalf("Wrong LastSeriesID; got %d, want %d", wInfo.lastSeriesID, wi.lastSeriesID)
 	}
 
 	if wInfo.dustThreshold != wi.dustThreshold {
+
 		t.Fatalf("Wrong DustThreshold; got %d, want %d", wInfo.dustThreshold, wi.dustThreshold)
 	}
 
@@ -142,20 +157,24 @@ func TestPutAndGetWithdrawal(
 	poolID := []byte{0x00}
 	roundID := uint32(0)
 	err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
+
 		ns, _ := TstRWNamespaces(tx)
 		return putWithdrawal(ns, poolID, roundID, serialized)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
 	var retrieved []byte
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
+
 		ns, _ := TstRNamespaces(tx)
 		retrieved = getWithdrawal(ns, poolID, roundID)
 		return nil
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 

@@ -32,6 +32,7 @@ func TestNetAddress(
 			port)
 	}
 	if na.Services != 0 {
+
 		t.Errorf("NetNetAddress: wrong services - got %v, want %v",
 			na.Services, 0)
 	}
@@ -43,6 +44,7 @@ func TestNetAddress(
 	// Ensure adding the full service node flag works.
 	na.AddService(SFNodeNetwork)
 	if na.Services != SFNodeNetwork {
+
 		t.Errorf("AddService: wrong services - got %v, want %v",
 			na.Services, SFNodeNetwork)
 	}
@@ -56,6 +58,7 @@ func TestNetAddress(
 	wantPayload := uint32(30)
 	maxPayload := maxNetAddressPayload(ProtocolVersion)
 	if maxPayload != wantPayload {
+
 		t.Errorf("maxNetAddressPayload: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -66,6 +69,7 @@ func TestNetAddress(
 	wantPayload = 26
 	maxPayload = maxNetAddressPayload(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("maxNetAddressPayload: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -175,6 +179,7 @@ func TestNetAddressWire(
 		var buf bytes.Buffer
 		err := writeNetAddress(&buf, test.pver, &test.in, test.ts)
 		if err != nil {
+
 			t.Errorf("writeNetAddress #%d error %v", i, err)
 			continue
 		}
@@ -190,6 +195,7 @@ func TestNetAddressWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = readNetAddress(rbuf, test.pver, &na, test.ts)
 		if err != nil {
+
 			t.Errorf("readNetAddress #%d error %v", i, err)
 			continue
 		}
@@ -263,6 +269,7 @@ func TestNetAddressWireErrors(
 		w := newFixedWriter(test.max)
 		err := writeNetAddress(w, test.pver, test.in, test.ts)
 		if err != test.writeErr {
+
 			t.Errorf("writeNetAddress #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
@@ -273,6 +280,7 @@ func TestNetAddressWireErrors(
 		r := newFixedReader(test.max, test.buf)
 		err = readNetAddress(r, test.pver, &na, test.ts)
 		if err != test.readErr {
+
 			t.Errorf("readNetAddress #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue

@@ -3,12 +3,14 @@ syntax = "proto3";
 package walletrpc;
 
 service VersionService {
-	rpc Version (VersionRequest) returns (VersionResponse);
+	
+rpc Version (VersionRequest) returns (VersionResponse);
 }
 
 message VersionRequest {}
 message VersionResponse {
-	string version_string = 1;
+	
+string version_string = 1;
 	uint32 major = 2;
 	uint32 minor = 3;
 	uint32 patch = 4;
@@ -17,6 +19,7 @@ message VersionResponse {
 }
 
 service WalletService {
+
 
 	// Queries
 	rpc Ping (PingRequest) returns (PingResponse);
@@ -45,7 +48,8 @@ service WalletService {
 }
 
 service WalletLoaderService {
-	rpc WalletExists (WalletExistsRequest) returns (WalletExistsResponse);
+	
+rpc WalletExists (WalletExistsRequest) returns (WalletExistsResponse);
 	rpc CreateWallet (CreateWalletRequest) returns (CreateWalletResponse);
 	rpc OpenWallet (OpenWalletRequest) returns (OpenWalletResponse);
 	rpc CloseWallet (CloseWalletRequest) returns (CloseWalletResponse);
@@ -53,13 +57,16 @@ service WalletLoaderService {
 }
 
 message TransactionDetails {
-	message Input {
-		uint32 index = 1;
+	
+message Input {
+		
+uint32 index = 1;
 		uint32 previous_account = 2;
 		int64 previous_amount = 3;
 	}
 	message Output {
-		uint32 index = 1;
+		
+uint32 index = 1;
 		uint32 account = 2;
 		bool internal = 3;
 	}
@@ -72,14 +79,16 @@ message TransactionDetails {
 }
 
 message BlockDetails {
-	bytes hash = 1;
+	
+bytes hash = 1;
 	int32 height = 2;
 	int64 timestamp = 3;
 	repeated TransactionDetails transactions = 4;
 }
 
 message AccountBalance {
-	uint32 account = 1;
+	
+uint32 account = 1;
 	int64 total_balance = 2;
 }
 
@@ -88,20 +97,25 @@ message PingResponse {}
 
 message NetworkRequest {}
 message NetworkResponse {
-	uint32 active_network = 1;
+	
+uint32 active_network = 1;
 }
 
 message AccountNumberRequest {
-	string account_name = 1;
+	
+string account_name = 1;
 }
 message AccountNumberResponse {
-	uint32 account_number = 1;
+	
+uint32 account_number = 1;
 }
 
 message AccountsRequest {}
 message AccountsResponse {
-	message Account {
-		uint32 account_number = 1;
+	
+message Account {
+		
+uint32 account_number = 1;
 		string account_name = 2;
 		int64 total_balance = 3;
 		uint32 external_key_count = 4;
@@ -114,51 +128,62 @@ message AccountsResponse {
 }
 
 message RenameAccountRequest {
-	uint32 account_number = 1;
+	
+uint32 account_number = 1;
 	string new_name = 2;
 }
 message RenameAccountResponse {}
 
 message NextAccountRequest {
-	bytes passphrase = 1;
+	
+bytes passphrase = 1;
 	string account_name = 2;
 }
 message NextAccountResponse {
-	uint32 account_number = 1;
+	
+uint32 account_number = 1;
 }
 
 message NextAddressRequest {
-	uint32 account = 1;
+	
+uint32 account = 1;
 	enum Kind {
-	     BIP0044_EXTERNAL = 0;
+	
+     BIP0044_EXTERNAL = 0;
 	     BIP0044_INTERNAL = 1;
 	}
 	Kind kind = 2;
 }
 message NextAddressResponse {
-	string address = 1;
+	
+string address = 1;
 }
 
 message ImportPrivateKeyRequest {
-	bytes passphrase = 1;
+	
+bytes passphrase = 1;
 	uint32 account = 2;
 	string private_key_wif = 3;
 	bool rescan = 4;
 }
 message ImportPrivateKeyResponse {
+
 }
 
 message BalanceRequest {
-	uint32 account_number = 1;
+	
+uint32 account_number = 1;
 	int32 required_confirmations = 2;
 }
 message BalanceResponse {
-	int64 total = 1;
+	
+int64 total = 1;
 	int64 spendable = 2;
 	int64 immature_reward = 3;
 }
 
 message GetTransactionsRequest {
+
 
 	// Optionally specify the starting block from which to begin including all transactions.
 
@@ -201,13 +226,16 @@ message GetTransactionsRequest {
 	// TODO: limit max number of txs?
 }
 message GetTransactionsResponse {
-	repeated BlockDetails mined_transactions = 1;
+	
+repeated BlockDetails mined_transactions = 1;
 	repeated TransactionDetails unmined_transactions = 2;
 }
 
 message ChangePassphraseRequest {
-	enum Key {
-	     PRIVATE = 0;
+	
+enum Key {
+	
+     PRIVATE = 0;
 	     PUBLIC = 1;
 	}
 	Key key = 1;
@@ -217,15 +245,18 @@ message ChangePassphraseRequest {
 message ChangePassphraseResponse {}
 
 message FundTransactionRequest {
-	uint32 account = 1;
+	
+uint32 account = 1;
 	int64 target_amount = 2;
 	int32 required_confirmations = 3;
 	bool include_immature_coinbases = 4;
 	bool include_change_script = 5;
 }
 message FundTransactionResponse {
-	message PreviousOutput {
-		bytes transaction_hash = 1;
+	
+message PreviousOutput {
+		
+bytes transaction_hash = 1;
 		uint32 output_index = 2;
 		int64 amount = 3;
 		bytes pk_script = 4;
@@ -238,7 +269,8 @@ message FundTransactionResponse {
 }
 
 message SignTransactionRequest {
-	bytes passphrase = 1;
+	
+bytes passphrase = 1;
 	
 	bytes serialized_transaction = 2;
 
@@ -255,17 +287,20 @@ message SignTransactionRequest {
 	repeated uint32 input_indexes = 3;
 }
 message SignTransactionResponse {
-	bytes transaction = 1;
+	
+bytes transaction = 1;
 	repeated uint32 unsigned_input_indexes = 2;
 }
 
 message PublishTransactionRequest {
-	bytes signed_transaction = 1;
+	
+bytes signed_transaction = 1;
 }
 message PublishTransactionResponse {}
 
 message TransactionNotificationsRequest {}
 message TransactionNotificationsResponse {
+
 
 	// Sorted by increasing height.  This is a repeated field so many new blocks
 
@@ -300,16 +335,19 @@ message TransactionNotificationsResponse {
 }
 
 message SpentnessNotificationsRequest {
-	uint32 account = 1;
+	
+uint32 account = 1;
 	bool no_notify_unspent = 2;
 	bool no_notify_spent = 3;
 }
 
 message SpentnessNotificationsResponse {
-	bytes transaction_hash = 1;
+	
+bytes transaction_hash = 1;
 	uint32 output_index = 2;
 	message Spender {
-		bytes transaction_hash = 1;
+		
+bytes transaction_hash = 1;
 		uint32 input_index = 2;
 	}
 	Spender spender = 3;
@@ -317,7 +355,8 @@ message SpentnessNotificationsResponse {
 
 message AccountNotificationsRequest {}
 message AccountNotificationsResponse {
-	uint32 account_number = 1;
+	
+uint32 account_number = 1;
 	string account_name = 2;
 	uint32 external_key_count = 3;
 	uint32 internal_key_count = 4;
@@ -325,14 +364,16 @@ message AccountNotificationsResponse {
 }
 
 message CreateWalletRequest {
-	bytes public_passphrase = 1;
+	
+bytes public_passphrase = 1;
 	bytes private_passphrase = 2;
 	bytes seed = 3;
 }
 message CreateWalletResponse {}
 
 message OpenWalletRequest {
-	bytes public_passphrase = 1;
+	
+bytes public_passphrase = 1;
 }
 message OpenWalletResponse {}
 
@@ -341,11 +382,13 @@ message CloseWalletResponse {}
 
 message WalletExistsRequest {}
 message WalletExistsResponse {
-	bool exists = 1;
+	
+bool exists = 1;
 }
 
 message StartConsensusRPCRequest {
-	string network_address = 1;
+	
+string network_address = 1;
 	string username = 2;
 	bytes password = 3;
 	bytes certificate = 4;

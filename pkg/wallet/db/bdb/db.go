@@ -11,6 +11,7 @@ import (
 // convertErr converts some bolt errors to the equivalent walletdb error.
 func convertErr(
 	err error) error {
+
 	switch err {
 
 	// Database open/create errors.
@@ -54,12 +55,15 @@ type transaction struct {
 }
 
 func (tx *transaction) ReadBucket(key []byte) walletdb.ReadBucket {
+
 	return tx.ReadWriteBucket(key)
 }
 
 func (tx *transaction) ReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
+
 	boltBucket := tx.boltTx.Bucket(key)
 	if boltBucket == nil {
+
 		return nil
 	}
 	return (*bucket)(boltBucket)
@@ -69,14 +73,17 @@ func (tx *transaction) CreateTopLevelBucket(key []byte) (walletdb.ReadWriteBucke
 
 	boltBucket, err := tx.boltTx.CreateBucket(key)
 	if err != nil {
+
 		return nil, convertErr(err)
 	}
 	return (*bucket)(boltBucket), nil
 }
 
 func (tx *transaction) DeleteTopLevelBucket(key []byte) error {
+
 	err := tx.boltTx.DeleteBucket(key)
 	if err != nil {
+
 		return convertErr(err)
 	}
 	return nil
@@ -87,6 +94,7 @@ func (tx *transaction) DeleteTopLevelBucket(key []byte) error {
 //
 // This function is part of the walletdb.Tx interface implementation.
 func (tx *transaction) Commit() error {
+
 	return convertErr(tx.boltTx.Commit())
 }
 
@@ -95,6 +103,7 @@ func (tx *transaction) Commit() error {
 //
 // This function is part of the walletdb.Tx interface implementation.
 func (tx *transaction) Rollback() error {
+
 	return convertErr(tx.boltTx.Rollback())
 }
 
@@ -110,16 +119,19 @@ var _ walletdb.ReadWriteBucket = (*bucket)(nil)
 //
 // This function is part of the walletdb.ReadWriteBucket interface implementation.
 func (b *bucket) NestedReadWriteBucket(key []byte) walletdb.ReadWriteBucket {
+
 	boltBucket := (*bolt.Bucket)(b).Bucket(key)
 
 	// Don't return a non-nil interface to a nil pointer.
 	if boltBucket == nil {
+
 		return nil
 	}
 	return (*bucket)(boltBucket)
 }
 
 func (b *bucket) NestedReadBucket(key []byte) walletdb.ReadBucket {
+
 	return b.NestedReadWriteBucket(key)
 }
 
@@ -133,6 +145,7 @@ func (b *bucket) CreateBucket(key []byte) (walletdb.ReadWriteBucket, error) {
 
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucket(key)
 	if err != nil {
+
 		return nil, convertErr(err)
 	}
 	return (*bucket)(boltBucket), nil
@@ -147,6 +160,7 @@ func (b *bucket) CreateBucketIfNotExists(key []byte) (walletdb.ReadWriteBucket, 
 
 	boltBucket, err := (*bolt.Bucket)(b).CreateBucketIfNotExists(key)
 	if err != nil {
+
 		return nil, convertErr(err)
 	}
 	return (*bucket)(boltBucket), nil
@@ -158,6 +172,7 @@ func (b *bucket) CreateBucketIfNotExists(key []byte) (walletdb.ReadWriteBucket, 
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) DeleteNestedBucket(key []byte) error {
+
 	return convertErr((*bolt.Bucket)(b).DeleteBucket(key))
 }
 
@@ -171,6 +186,7 @@ func (b *bucket) DeleteNestedBucket(key []byte) error {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) ForEach(fn func(k, v []byte) error) error {
+
 	return convertErr((*bolt.Bucket)(b).ForEach(fn))
 }
 
@@ -180,6 +196,7 @@ func (b *bucket) ForEach(fn func(k, v []byte) error) error {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) Put(key, value []byte) error {
+
 	return convertErr((*bolt.Bucket)(b).Put(key, value))
 }
 
@@ -192,6 +209,7 @@ func (b *bucket) Put(key, value []byte) error {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) Get(key []byte) []byte {
+
 	return (*bolt.Bucket)(b).Get(key)
 }
 
@@ -201,10 +219,12 @@ func (b *bucket) Get(key []byte) []byte {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) Delete(key []byte) error {
+
 	return convertErr((*bolt.Bucket)(b).Delete(key))
 }
 
 func (b *bucket) ReadCursor() walletdb.ReadCursor {
+
 	return b.ReadWriteCursor()
 }
 
@@ -213,6 +233,7 @@ func (b *bucket) ReadCursor() walletdb.ReadCursor {
 //
 // This function is part of the walletdb.Bucket interface implementation.
 func (b *bucket) ReadWriteCursor() walletdb.ReadWriteCursor {
+
 	return (*cursor)((*bolt.Bucket)(b).Cursor())
 }
 
@@ -232,6 +253,7 @@ type cursor bolt.Cursor
 //
 // This function is part of the walletdb.Cursor interface implementation.
 func (c *cursor) Delete() error {
+
 	return convertErr((*bolt.Cursor)(c).Delete())
 }
 
@@ -288,6 +310,7 @@ func (db *db) beginTx(writable bool) (*transaction, error) {
 
 	boltTx, err := (*bolt.DB)(db).Begin(writable)
 	if err != nil {
+
 		return nil, convertErr(err)
 	}
 	return &transaction{boltTx: boltTx}, nil
@@ -308,7 +331,9 @@ func (db *db) BeginReadWriteTx() (walletdb.ReadWriteTx, error) {
 //
 // This function is part of the walletdb.Db interface implementation.
 func (db *db) Copy(w io.Writer) error {
+
 	return convertErr((*bolt.DB)(db).View(func(tx *bolt.Tx) error {
+
 		return tx.Copy(w)
 	}))
 }
@@ -317,13 +342,16 @@ func (db *db) Copy(w io.Writer) error {
 //
 // This function is part of the walletdb.Db interface implementation.
 func (db *db) Close() error {
+
 	return convertErr((*bolt.DB)(db).Close())
 }
 
 // filesExists reports whether the named file or directory exists.
 func fileExists(
 	name string) bool {
+
 	if _, err := os.Stat(name); err != nil {
+
 		if os.IsNotExist(err) {
 
 			return false

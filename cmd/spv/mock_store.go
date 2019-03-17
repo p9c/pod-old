@@ -25,6 +25,7 @@ var _ headerfs.BlockHeaderStore = (*mockBlockHeaderStore)(nil)
 // outside the package to unit test components that require a BlockHeaderStore
 // interface.
 func newMockBlockHeaderStore() headerfs.BlockHeaderStore {
+
 	return &mockBlockHeaderStore{
 		headers: make(map[chainhash.Hash]wire.BlockHeader),
 	}
@@ -72,6 +73,7 @@ func (m *mockBlockHeaderStore) FetchHeader(h *chainhash.Hash) (
 	*wire.BlockHeader, uint32, error) {
 
 	if header, ok := m.headers[*h]; ok {
+
 		return &header, 0, nil
 	}
 
@@ -79,7 +81,9 @@ func (m *mockBlockHeaderStore) FetchHeader(h *chainhash.Hash) (
 }
 
 func (m *mockBlockHeaderStore) WriteHeaders(headers ...headerfs.BlockHeader) error {
+
 	for _, h := range headers {
+
 		m.headers[h.BlockHash()] = *h.BlockHeader
 	}
 

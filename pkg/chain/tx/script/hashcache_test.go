@@ -16,6 +16,7 @@ func genTestTx() (*wire.MsgTx, error) {
 	tx.Version = rand.Int31()
 	numTxins := rand.Intn(11)
 	for i := 0; i < numTxins; i++ {
+
 		randTxIn := wire.TxIn{
 			PreviousOutPoint: wire.OutPoint{
 				Index: uint32(rand.Int31()),
@@ -24,17 +25,20 @@ func genTestTx() (*wire.MsgTx, error) {
 		}
 		_, err := rand.Read(randTxIn.PreviousOutPoint.Hash[:])
 		if err != nil {
+
 			return nil, err
 		}
 		tx.TxIn = append(tx.TxIn, &randTxIn)
 	}
 	numTxouts := rand.Intn(11)
 	for i := 0; i < numTxouts; i++ {
+
 		randTxOut := wire.TxOut{
 			Value:    rand.Int63(),
 			PkScript: make([]byte, rand.Intn(30)),
 		}
 		if _, err := rand.Read(randTxOut.PkScript); err != nil {
+
 			return nil, err
 		}
 		tx.TxOut = append(tx.TxOut, &randTxOut)
@@ -55,33 +59,40 @@ func TestHashCacheAddContainsHashes(
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
 	for i := 0; i < numTxns; i++ {
+
 		txns[i], err = genTestTx()
 		if err != nil {
+
 			t.Fatalf("unable to generate test tx: %v", err)
 		}
 	}
 
 	// With the transactions generated, we'll add each of them to the hash cache.
 	for _, tx := range txns {
+
 		cache.AddSigHashes(tx)
 	}
 
 	// Next, we'll ensure that each of the transactions inserted into the cache are properly located by the ContainsHashes method.
 	for _, tx := range txns {
+
 		txid := tx.TxHash()
 		if ok := cache.ContainsHashes(&txid); !ok {
+
 			t.Fatalf("txid %v not found in cache but should be: ",
 				txid)
 		}
 	}
 	randTx, err := genTestTx()
 	if err != nil {
+
 		t.Fatalf("unable to generate tx: %v", err)
 	}
 
 	// Finally, we'll assert that a transaction that wasn't added to the cache won't be reported as being present by the ContainsHashes method.
 	randTxid := randTx.TxHash()
 	if ok := cache.ContainsHashes(&randTxid); ok {
+
 		t.Fatalf("txid %v wasn't inserted into cache but was found",
 			randTxid)
 	}
@@ -98,6 +109,7 @@ func TestHashCacheAddGet(
 	// To start, we'll generate a random transaction and compute the set of sighashes for the transaction.
 	randTx, err := genTestTx()
 	if err != nil {
+
 		t.Fatalf("unable to generate tx: %v", err)
 	}
 	sigHashes := NewTxSigHashes(randTx)
@@ -109,11 +121,13 @@ func TestHashCacheAddGet(
 	txid := randTx.TxHash()
 	cacheHashes, ok := cache.GetSigHashes(&txid)
 	if !ok {
+
 		t.Fatalf("tx %v wasn't found in cache", txid)
 	}
 
 	// Finally, the sighashes retrieved should exactly match the sighash originally inserted into the cache.
 	if *sigHashes != *cacheHashes {
+
 		t.Fatalf("sighashes don't match: expected %v, got %v",
 			spew.Sdump(sigHashes), spew.Sdump(cacheHashes))
 	}
@@ -132,25 +146,31 @@ func TestHashCachePurge(
 	const numTxns = 10
 	txns := make([]*wire.MsgTx, numTxns)
 	for i := 0; i < numTxns; i++ {
+
 		txns[i], err = genTestTx()
 		if err != nil {
+
 			t.Fatalf("unable to generate test tx: %v", err)
 		}
 	}
 	for _, tx := range txns {
+
 		cache.AddSigHashes(tx)
 	}
 
 	// Once all the transactions have been inserted, we'll purge them from the hash cache.
 	for _, tx := range txns {
+
 		txid := tx.TxHash()
 		cache.PurgeSigHashes(&txid)
 	}
 
 	// At this point, none of the transactions inserted into the hash cache should be found within the cache.
 	for _, tx := range txns {
+
 		txid := tx.TxHash()
 		if ok := cache.ContainsHashes(&txid); ok {
+
 			t.Fatalf("tx %v found in cache but should have "+
 				"been purged: ", txid)
 		}

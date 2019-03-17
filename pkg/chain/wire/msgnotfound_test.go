@@ -20,6 +20,7 @@ func TestNotFound(
 	wantCmd := "notfound"
 	msg := NewMsgNotFound()
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgNotFound: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -28,6 +29,7 @@ func TestNotFound(
 	wantPayload := uint32(1800009)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -38,18 +40,22 @@ func TestNotFound(
 	iv := NewInvVect(InvTypeBlock, &hash)
 	err := msg.AddInvVect(iv)
 	if err != nil {
+
 		t.Errorf("AddInvVect: %v", err)
 	}
 	if msg.InvList[0] != iv {
+
 		t.Errorf("AddInvVect: wrong invvect added - got %v, want %v",
 			spew.Sprint(msg.InvList[0]), spew.Sprint(iv))
 	}
 
 	// Ensure adding more than the max allowed inventory vectors per message returns an error.
 	for i := 0; i < MaxInvPerMsg; i++ {
+
 		err = msg.AddInvVect(iv)
 	}
 	if err == nil {
+
 		t.Errorf("AddInvVect: expected error on too many inventory " +
 			"vectors not received")
 	}
@@ -63,6 +69,7 @@ func TestNotFoundWire(
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 
@@ -70,6 +77,7 @@ func TestNotFoundWire(
 	hashStr = "d28a3dc7392bf00a9855ee93dd9a81eff82a2c4fe57fbd42cfe71b487accfaf0"
 	txHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
@@ -203,6 +211,7 @@ func TestNotFoundWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -218,6 +227,7 @@ func TestNotFoundWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -241,6 +251,7 @@ func TestNotFoundWireErrors(
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
@@ -260,6 +271,7 @@ func TestNotFoundWireErrors(
 	// Message that forces an error by having more than the max allowed inv vectors.
 	maxNotFound := NewMsgNotFound()
 	for i := 0; i < MaxInvPerMsg; i++ {
+
 		maxNotFound.AddInvVect(iv)
 	}
 	maxNotFound.InvList = append(maxNotFound.InvList, iv)
@@ -300,7 +312,9 @@ func TestNotFoundWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -320,7 +334,9 @@ func TestNotFoundWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

@@ -19,6 +19,7 @@ func TestSendHeaders(
 	wantCmd := "sendheaders"
 	msg := NewMsgSendHeaders()
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgSendHeaders: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -27,6 +28,7 @@ func TestSendHeaders(
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -36,6 +38,7 @@ func TestSendHeaders(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("encode of MsgSendHeaders failed %v err <%v>", msg,
 			err)
 	}
@@ -44,6 +47,7 @@ func TestSendHeaders(
 	oldPver := SendHeadersVersion - 1
 	err = msg.BtcEncode(&buf, oldPver, enc)
 	if err == nil {
+
 		s := "encode of MsgSendHeaders passed for old protocol " +
 			"version %v err <%v>"
 		t.Errorf(s, msg, err)
@@ -53,6 +57,7 @@ func TestSendHeaders(
 	readmsg := NewMsgSendHeaders()
 	err = readmsg.BtcDecode(&buf, pver, enc)
 	if err != nil {
+
 		t.Errorf("decode of MsgSendHeaders failed [%v] err <%v>", buf,
 			err)
 	}
@@ -60,6 +65,7 @@ func TestSendHeaders(
 	// Older protocol versions should fail decode since message didn't exist yet.
 	err = readmsg.BtcDecode(&buf, oldPver, enc)
 	if err == nil {
+
 		s := "decode of MsgSendHeaders passed for old protocol " +
 			"version %v err <%v>"
 		t.Errorf(s, msg, err)
@@ -79,6 +85,7 @@ func TestSendHeadersBIP0130(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, enc)
 	if err == nil {
+
 		t.Errorf("encode of MsgSendHeaders succeeded when it should " +
 			"have failed")
 	}
@@ -87,6 +94,7 @@ func TestSendHeadersBIP0130(
 	readmsg := NewMsgSendHeaders()
 	err = readmsg.BtcDecode(&buf, pver, enc)
 	if err == nil {
+
 		t.Errorf("decode of MsgSendHeaders succeeded when it should " +
 			"have failed")
 	}
@@ -103,6 +111,7 @@ func TestSendHeadersCrossProtocol(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, enc)
 	if err != nil {
+
 		t.Errorf("encode of MsgSendHeaders failed %v err <%v>", msg,
 			err)
 	}
@@ -111,6 +120,7 @@ func TestSendHeadersCrossProtocol(
 	readmsg := NewMsgSendHeaders()
 	err = readmsg.BtcDecode(&buf, SendHeadersVersion, enc)
 	if err != nil {
+
 		t.Errorf("decode of MsgSendHeaders failed [%v] err <%v>", buf,
 			err)
 	}
@@ -164,6 +174,7 @@ func TestSendHeadersWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -179,6 +190,7 @@ func TestSendHeadersWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}

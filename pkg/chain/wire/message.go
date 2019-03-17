@@ -87,6 +87,7 @@ func makeEmptyMessage(
 
 	var msg Message
 	switch command {
+
 	case CmdVersion:
 		msg = &MsgVersion{}
 	case CmdVerAck:
@@ -173,6 +174,7 @@ func readMessageHeader(
 	var headerBytes [MessageHeaderSize]byte
 	n, err := io.ReadFull(r, headerBytes[:])
 	if err != nil {
+
 		return n, nil, err
 	}
 	hr := bytes.NewReader(headerBytes[:])
@@ -195,12 +197,15 @@ func discardInput(
 	numReads := n / maxSize
 	bytesRemaining := n % maxSize
 	if n > 0 {
+
 		buf := make([]byte, maxSize)
 		for i := uint32(0); i < numReads; i++ {
+
 			io.ReadFull(r, buf)
 		}
 	}
 	if bytesRemaining > 0 {
+
 		buf := make([]byte, bytesRemaining)
 		io.ReadFull(r, buf)
 	}
@@ -216,6 +221,7 @@ func WriteMessageN(
 // WriteMessage writes a bitcoin Message to w including the necessary header information.  This function is the same as WriteMessageN except it doesn't doesn't return the number of bytes written.  This function is mainly provided for backwards compatibility with the original API, but it's also useful for callers that don't care about byte counts.
 func WriteMessage(
 	w io.Writer, msg Message, pver uint32, btcnet BitcoinNet) error {
+
 	_, err := WriteMessageN(w, msg, pver, btcnet)
 	return err
 }
@@ -231,6 +237,7 @@ func WriteMessageWithEncodingN(
 	var command [CommandSize]byte
 	cmd := msg.Command()
 	if len(cmd) > CommandSize {
+
 		str := fmt.Sprintf("command [%s] is too long [max %v]",
 			cmd, CommandSize)
 		return totalBytes, messageError("WriteMessage", str)
@@ -241,6 +248,7 @@ func WriteMessageWithEncodingN(
 	var bw bytes.Buffer
 	err := msg.BtcEncode(&bw, pver, encoding)
 	if err != nil {
+
 		return totalBytes, err
 	}
 	payload := bw.Bytes()
@@ -248,6 +256,7 @@ func WriteMessageWithEncodingN(
 
 	// Enforce maximum overall message payload.
 	if lenp > MaxMessagePayload {
+
 		str := fmt.Sprintf("message payload is too large - encoded "+
 			"%d bytes, but maximum message payload is %d bytes",
 			lenp, MaxMessagePayload)
@@ -257,6 +266,7 @@ func WriteMessageWithEncodingN(
 	// Enforce maximum message payload based on the message type.
 	mpl := msg.MaxPayloadLength(pver)
 	if uint32(lenp) > mpl {
+
 		str := fmt.Sprintf("message payload is too large - encoded "+
 			"%d bytes, but maximum message payload size for "+
 			"messages of type [%s] is %d.", lenp, cmd, mpl)
@@ -282,6 +292,7 @@ func WriteMessageWithEncodingN(
 	n, err := w.Write(hw.Bytes())
 	totalBytes += n
 	if err != nil {
+
 		return totalBytes, err
 	}
 
@@ -300,11 +311,13 @@ func ReadMessageWithEncodingN(
 	n, hdr, err := readMessageHeader(r)
 	totalBytes += n
 	if err != nil {
+
 		return totalBytes, nil, nil, err
 	}
 
 	// Enforce maximum message payload.
 	if hdr.length > MaxMessagePayload {
+
 		str := fmt.Sprintf("message payload is too large - header "+
 			"indicates %d bytes, but max message payload is %d "+
 			"bytes.", hdr.length, MaxMessagePayload)
@@ -313,6 +326,7 @@ func ReadMessageWithEncodingN(
 
 	// Check for messages from the wrong bitcoin network.
 	if hdr.magic != btcnet {
+
 		discardInput(r, hdr.length)
 		str := fmt.Sprintf("message from other network [%v]", hdr.magic)
 		return totalBytes, nil, nil, messageError("ReadMessage", str)
@@ -330,6 +344,7 @@ func ReadMessageWithEncodingN(
 	// Create struct of appropriate message type based on the command.
 	msg, err := makeEmptyMessage(command)
 	if err != nil {
+
 		discardInput(r, hdr.length)
 		return totalBytes, nil, nil, messageError("ReadMessage",
 			err.Error())
@@ -342,6 +357,7 @@ func ReadMessageWithEncodingN(
 	// numbers in order to exhaust the machine's memory.
 	mpl := msg.MaxPayloadLength(pver)
 	if hdr.length > mpl {
+
 		discardInput(r, hdr.length)
 		str := fmt.Sprintf("payload exceeds max length - header "+
 			"indicates %v bytes, but max payload size for "+
@@ -354,6 +370,7 @@ func ReadMessageWithEncodingN(
 	n, err = io.ReadFull(r, payload)
 	totalBytes += n
 	if err != nil {
+
 		return totalBytes, nil, nil, err
 	}
 
@@ -373,6 +390,7 @@ func ReadMessageWithEncodingN(
 	pr := bytes.NewBuffer(payload)
 	err = msg.BtcDecode(pr, pver, enc)
 	if err != nil {
+
 		return totalBytes, nil, nil, err
 	}
 	return totalBytes, msg, payload, nil

@@ -67,10 +67,12 @@ func TestGCSFilterBuild(
 	t *testing.T) {
 
 	for i := 0; i < gcs.KeySize; i += 4 {
+
 		binary.BigEndian.PutUint32(key[i:], rand.Uint32())
 	}
 	filter, err = gcs.BuildGCSFilter(P, M, key, contents)
 	if err != nil {
+
 		t.Fatalf("Filter build failed: %s", err.Error())
 	}
 }
@@ -81,18 +83,22 @@ func TestGCSFilterCopy(
 
 	serialized2, err := filter.Bytes()
 	if err != nil {
+
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	filter2, err = gcs.FromBytes(filter.N(), P, M, serialized2)
 	if err != nil {
+
 		t.Fatalf("Filter copy failed: %s", err.Error())
 	}
 	serialized3, err := filter.NBytes()
 	if err != nil {
+
 		t.Fatalf("Filter NBytes() failed: %v", err)
 	}
 	filter3, err = gcs.FromNBytes(filter.P(), M, serialized3)
 	if err != nil {
+
 		t.Fatalf("Filter copy failed: %s", err.Error())
 	}
 }
@@ -102,6 +108,7 @@ func TestGCSFilterMetadata(
 	t *testing.T) {
 
 	if filter.P() != P {
+
 		t.Fatal("P not correctly stored in filter metadata")
 	}
 	if filter.N() != uint32(len(contents)) {
@@ -126,10 +133,12 @@ func TestGCSFilterMetadata(
 	}
 	serialized, err := filter.Bytes()
 	if err != nil {
+
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	serialized2, err := filter2.Bytes()
 	if err != nil {
+
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized2) {
@@ -138,6 +147,7 @@ func TestGCSFilterMetadata(
 	}
 	serialized3, err := filter3.Bytes()
 	if err != nil {
+
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized3) {
@@ -146,6 +156,7 @@ func TestGCSFilterMetadata(
 	}
 	serialized4, err := filter3.Bytes()
 	if err != nil {
+
 		t.Fatalf("Filter Bytes() failed: %v", err)
 	}
 	if !bytes.Equal(serialized, serialized4) {
@@ -160,58 +171,74 @@ func TestGCSFilterMatch(
 
 	match, err := filter.Match(key, []byte("Nate"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match when it should have!")
 	}
 	match, err = filter2.Match(key, []byte("Nate"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match when it should have!")
 	}
 	match, err = filter.Match(key, []byte("Quentin"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match when it should have!")
 	}
 	match, err = filter2.Match(key, []byte("Quentin"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match when it should have!")
 	}
 	match, err = filter.Match(key, []byte("Nates"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 	match, err = filter2.Match(key, []byte("Nates"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 	match, err = filter.Match(key, []byte("Quentins"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 	match, err = filter2.Match(key, []byte("Quentins"))
 	if err != nil {
+
 		t.Fatalf("Filter match failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 }
@@ -222,31 +249,39 @@ func TestGCSFilterMatchAny(
 
 	match, err := filter.MatchAny(key, contents2)
 	if err != nil {
+
 		t.Fatalf("Filter match any failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 	match, err = filter2.MatchAny(key, contents2)
 	if err != nil {
+
 		t.Fatalf("Filter match any failed: %s", err.Error())
 	}
 	if match {
+
 		t.Logf("False positive match, should be 1 in 2**%d!", P)
 	}
 	contents2 = append(contents2, []byte("Nate"))
 	match, err = filter.MatchAny(key, contents2)
 	if err != nil {
+
 		t.Fatalf("Filter match any failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match any when it should have!")
 	}
 	match, err = filter2.MatchAny(key, contents2)
 	if err != nil {
+
 		t.Fatalf("Filter match any failed: %s", err.Error())
 	}
 	if !match {
+
 		t.Fatal("Filter didn't match any when it should have!")
 	}
 }

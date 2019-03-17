@@ -34,12 +34,14 @@ func (msg *MsgCFilter) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) er
 	// Read filter type
 	err := readElement(r, &msg.FilterType)
 	if err != nil {
+
 		return err
 	}
 
 	// Read the hash of the filter's block
 	err = readElement(r, &msg.BlockHash)
 	if err != nil {
+
 		return err
 	}
 
@@ -51,18 +53,22 @@ func (msg *MsgCFilter) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) er
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgCFilter) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
+
 	size := len(msg.Data)
 	if size > MaxCFilterDataSize {
+
 		str := fmt.Sprintf("cfilter size too large for message "+
 			"[size %v, max %v]", size, MaxCFilterDataSize)
 		return messageError("MsgCFilter.BtcEncode", str)
 	}
 	err := writeElement(w, msg.FilterType)
 	if err != nil {
+
 		return err
 	}
 	err = writeElement(w, msg.BlockHash)
 	if err != nil {
+
 		return err
 	}
 	return WriteVarBytes(w, pver, msg.Data)
@@ -77,11 +83,13 @@ func (msg *MsgCFilter) Deserialize(r io.Reader) error {
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgCFilter) Command() string {
+
 	return CmdCFilter
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgCFilter) MaxPayloadLength(pver uint32) uint32 {
+
 	return uint32(VarIntSerializeSize(MaxCFilterDataSize)) +
 		MaxCFilterDataSize + chainhash.HashSize + 1
 }
@@ -90,6 +98,7 @@ func (msg *MsgCFilter) MaxPayloadLength(pver uint32) uint32 {
 func NewMsgCFilter(
 	filterType FilterType, blockHash *chainhash.Hash,
 	data []byte) *MsgCFilter {
+
 	return &MsgCFilter{
 		FilterType: filterType,
 		BlockHash:  *blockHash,

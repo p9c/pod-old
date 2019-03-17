@@ -29,6 +29,7 @@ func (r FutureGetTransactionResult) Receive() (*json.GetTransactionResult, error
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -36,6 +37,7 @@ func (r FutureGetTransactionResult) Receive() (*json.GetTransactionResult, error
 	var getTx json.GetTransactionResult
 	err = js.Unmarshal(res, &getTx)
 	if err != nil {
+
 		return nil, err
 	}
 	return &getTx, nil
@@ -49,8 +51,10 @@ func (r FutureGetTransactionResult) Receive() (*json.GetTransactionResult, error
 
 // See GetTransaction for the blocking version and more details.
 func (c *Client) GetTransactionAsync(txHash *chainhash.Hash) FutureGetTransactionResult {
+
 	hash := ""
 	if txHash != nil {
+
 		hash = txHash.String()
 	}
 	cmd := json.NewGetTransactionCmd(hash, nil)
@@ -79,6 +83,7 @@ func (r FutureListTransactionsResult) Receive() ([]json.ListTransactionsResult, 
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -86,6 +91,7 @@ func (r FutureListTransactionsResult) Receive() ([]json.ListTransactionsResult, 
 	var transactions []json.ListTransactionsResult
 	err = js.Unmarshal(res, &transactions)
 	if err != nil {
+
 		return nil, err
 	}
 	return transactions, nil
@@ -99,6 +105,7 @@ func (r FutureListTransactionsResult) Receive() ([]json.ListTransactionsResult, 
 
 // See ListTransactions for the blocking version and more details.
 func (c *Client) ListTransactionsAsync(account string) FutureListTransactionsResult {
+
 	cmd := json.NewListTransactionsCmd(&account, nil, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -121,6 +128,7 @@ func (c *Client) ListTransactions(account string) ([]json.ListTransactionsResult
 
 // See ListTransactionsCount for the blocking version and more details.
 func (c *Client) ListTransactionsCountAsync(account string, count int) FutureListTransactionsResult {
+
 	cmd := json.NewListTransactionsCmd(&account, &count, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -145,6 +153,7 @@ func (c *Client) ListTransactionsCount(account string, count int) ([]json.ListTr
 
 // See ListTransactionsCountFrom for the blocking version and more details.
 func (c *Client) ListTransactionsCountFromAsync(account string, count, from int) FutureListTransactionsResult {
+
 	cmd := json.NewListTransactionsCmd(&account, &count, &from, nil)
 	return c.sendCmd(cmd)
 }
@@ -179,6 +188,7 @@ func (r FutureListUnspentResult) Receive() ([]json.ListUnspentResult, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -186,6 +196,7 @@ func (r FutureListUnspentResult) Receive() ([]json.ListUnspentResult, error) {
 	var unspent []json.ListUnspentResult
 	err = js.Unmarshal(res, &unspent)
 	if err != nil {
+
 		return nil, err
 	}
 	return unspent, nil
@@ -199,6 +210,7 @@ func (r FutureListUnspentResult) Receive() ([]json.ListUnspentResult, error) {
 
 // See ListUnspent for the blocking version and more details.
 func (c *Client) ListUnspentAsync() FutureListUnspentResult {
+
 	cmd := json.NewListUnspentCmd(nil, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -211,6 +223,7 @@ func (c *Client) ListUnspentAsync() FutureListUnspentResult {
 
 // See ListUnspentMin for the blocking version and more details.
 func (c *Client) ListUnspentMinAsync(minConf int) FutureListUnspentResult {
+
 	cmd := json.NewListUnspentCmd(&minConf, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -223,6 +236,7 @@ func (c *Client) ListUnspentMinAsync(minConf int) FutureListUnspentResult {
 
 // See ListUnspentMinMax for the blocking version and more details.
 func (c *Client) ListUnspentMinMaxAsync(minConf, maxConf int) FutureListUnspentResult {
+
 	cmd := json.NewListUnspentCmd(&minConf, &maxConf, nil)
 	return c.sendCmd(cmd)
 }
@@ -235,8 +249,10 @@ func (c *Client) ListUnspentMinMaxAsync(minConf, maxConf int) FutureListUnspentR
 
 // See ListUnspentMinMaxAddresses for the blocking version and more details.
 func (c *Client) ListUnspentMinMaxAddressesAsync(minConf, maxConf int, addrs []util.Address) FutureListUnspentResult {
+
 	addrStrs := make([]string, 0, len(addrs))
 	for _, a := range addrs {
+
 		addrStrs = append(addrStrs, a.EncodeAddress())
 	}
 	cmd := json.NewListUnspentCmd(&minConf, &maxConf, &addrStrs)
@@ -299,6 +315,7 @@ func (r FutureListSinceBlockResult) Receive() (*json.ListSinceBlockResult, error
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -306,6 +323,7 @@ func (r FutureListSinceBlockResult) Receive() (*json.ListSinceBlockResult, error
 	var listResult json.ListSinceBlockResult
 	err = js.Unmarshal(res, &listResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &listResult, nil
@@ -319,8 +337,10 @@ func (r FutureListSinceBlockResult) Receive() (*json.ListSinceBlockResult, error
 
 // See ListSinceBlock for the blocking version and more details.
 func (c *Client) ListSinceBlockAsync(blockHash *chainhash.Hash) FutureListSinceBlockResult {
+
 	var hash *string
 	if blockHash != nil {
+
 		hash = json.String(blockHash.String())
 	}
 	cmd := json.NewListSinceBlockCmd(hash, nil, nil)
@@ -347,8 +367,10 @@ func (c *Client) ListSinceBlock(blockHash *chainhash.Hash) (*json.ListSinceBlock
 
 // See ListSinceBlockMinConf for the blocking version and more details.
 func (c *Client) ListSinceBlockMinConfAsync(blockHash *chainhash.Hash, minConfirms int) FutureListSinceBlockResult {
+
 	var hash *string
 	if blockHash != nil {
+
 		hash = json.String(blockHash.String())
 	}
 	cmd := json.NewListSinceBlockCmd(hash, &minConfirms, nil)
@@ -382,6 +404,7 @@ type FutureLockUnspentResult chan *response
 
 // of locking or unlocking the unspent output(s).
 func (r FutureLockUnspentResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -394,8 +417,10 @@ func (r FutureLockUnspentResult) Receive() error {
 
 // See LockUnspent for the blocking version and more details.
 func (c *Client) LockUnspentAsync(unlock bool, ops []*wire.OutPoint) FutureLockUnspentResult {
+
 	outputs := make([]json.TransactionInput, len(ops))
 	for i, op := range ops {
+
 		outputs[i] = json.TransactionInput{
 			Txid: op.Hash.String(),
 			Vout: op.Index,
@@ -433,6 +458,7 @@ func (c *Client) LockUnspentAsync(unlock bool, ops []*wire.OutPoint) FutureLockU
 
 // avoid confusion for those who are already familiar with the lockunspent RPC.
 func (c *Client) LockUnspent(unlock bool, ops []*wire.OutPoint) error {
+
 	return c.LockUnspentAsync(unlock, ops).Receive()
 }
 
@@ -448,6 +474,7 @@ func (r FutureListLockUnspentResult) Receive() ([]*wire.OutPoint, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -455,14 +482,17 @@ func (r FutureListLockUnspentResult) Receive() ([]*wire.OutPoint, error) {
 	var inputs []json.TransactionInput
 	err = js.Unmarshal(res, &inputs)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Create a slice of outpoints from the transaction input structs.
 	ops := make([]*wire.OutPoint, len(inputs))
 	for i, input := range inputs {
+
 		sha, err := chainhash.NewHashFromStr(input.Txid)
 		if err != nil {
+
 			return nil, err
 		}
 		ops[i] = wire.NewOutPoint(sha, input.Vout)
@@ -478,6 +508,7 @@ func (r FutureListLockUnspentResult) Receive() ([]*wire.OutPoint, error) {
 
 // See ListLockUnspent for the blocking version and more details.
 func (c *Client) ListLockUnspentAsync() FutureListLockUnspentResult {
+
 	cmd := json.NewListLockUnspentCmd()
 	return c.sendCmd(cmd)
 }
@@ -503,6 +534,7 @@ type FutureSetTxFeeResult chan *response
 
 // are processed quickly.  Most transaction are 1KB.
 func (r FutureSetTxFeeResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -515,6 +547,7 @@ func (r FutureSetTxFeeResult) Receive() error {
 
 // See SetTxFee for the blocking version and more details.
 func (c *Client) SetTxFeeAsync(fee util.Amount) FutureSetTxFeeResult {
+
 	cmd := json.NewSetTxFeeCmd(fee.ToDUO())
 	return c.sendCmd(cmd)
 }
@@ -523,6 +556,7 @@ func (c *Client) SetTxFeeAsync(fee util.Amount) FutureSetTxFeeResult {
 
 // transactions are processed quickly.  Most transaction are 1KB.
 func (c *Client) SetTxFee(fee util.Amount) error {
+
 	return c.SetTxFeeAsync(fee).Receive()
 }
 
@@ -538,6 +572,7 @@ func (r FutureSendToAddressResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -545,6 +580,7 @@ func (r FutureSendToAddressResult) Receive() (*chainhash.Hash, error) {
 	var txHash string
 	err = js.Unmarshal(res, &txHash)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHash)
@@ -558,6 +594,7 @@ func (r FutureSendToAddressResult) Receive() (*chainhash.Hash, error) {
 
 // See SendToAddress for the blocking version and more details.
 func (c *Client) SendToAddressAsync(address util.Address, amount util.Amount) FutureSendToAddressResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewSendToAddressCmd(addr, amount.ToDUO(), nil, nil)
 	return c.sendCmd(cmd)
@@ -589,6 +626,7 @@ func (c *Client) SendToAddress(address util.Address, amount util.Amount) (*chain
 func (c *Client) SendToAddressCommentAsync(address util.Address,
 	amount util.Amount, comment,
 	commentTo string) FutureSendToAddressResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewSendToAddressCmd(addr, amount.ToDUO(), &comment,
 		&commentTo)
@@ -634,6 +672,7 @@ func (r FutureSendFromResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -641,6 +680,7 @@ func (r FutureSendFromResult) Receive() (*chainhash.Hash, error) {
 	var txHash string
 	err = js.Unmarshal(res, &txHash)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHash)
@@ -654,6 +694,7 @@ func (r FutureSendFromResult) Receive() (*chainhash.Hash, error) {
 
 // See SendFrom for the blocking version and more details.
 func (c *Client) SendFromAsync(fromAccount string, toAddress util.Address, amount util.Amount) FutureSendFromResult {
+
 	addr := toAddress.EncodeAddress()
 	cmd := json.NewSendFromCmd(fromAccount, addr, amount.ToDUO(), nil,
 		nil, nil)
@@ -684,6 +725,7 @@ func (c *Client) SendFrom(fromAccount string, toAddress util.Address, amount uti
 
 // See SendFromMinConf for the blocking version and more details.
 func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress util.Address, amount util.Amount, minConfirms int) FutureSendFromResult {
+
 	addr := toAddress.EncodeAddress()
 	cmd := json.NewSendFromCmd(fromAccount, addr, amount.ToDUO(),
 		&minConfirms, nil, nil)
@@ -719,6 +761,7 @@ func (c *Client) SendFromMinConf(fromAccount string, toAddress util.Address, amo
 func (c *Client) SendFromCommentAsync(fromAccount string,
 	toAddress util.Address, amount util.Amount, minConfirms int,
 	comment, commentTo string) FutureSendFromResult {
+
 	addr := toAddress.EncodeAddress()
 	cmd := json.NewSendFromCmd(fromAccount, addr, amount.ToDUO(),
 		&minConfirms, &comment, &commentTo)
@@ -766,6 +809,7 @@ func (r FutureSendManyResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -773,6 +817,7 @@ func (r FutureSendManyResult) Receive() (*chainhash.Hash, error) {
 	var txHash string
 	err = js.Unmarshal(res, &txHash)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHash)
@@ -786,8 +831,10 @@ func (r FutureSendManyResult) Receive() (*chainhash.Hash, error) {
 
 // See SendMany for the blocking version and more details.
 func (c *Client) SendManyAsync(fromAccount string, amounts map[util.Address]util.Amount) FutureSendManyResult {
+
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
+
 		convertedAmounts[addr.EncodeAddress()] = amount.ToDUO()
 	}
 	cmd := json.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil)
@@ -820,8 +867,10 @@ func (c *Client) SendMany(fromAccount string, amounts map[util.Address]util.Amou
 func (c *Client) SendManyMinConfAsync(fromAccount string,
 	amounts map[util.Address]util.Amount,
 	minConfirms int) FutureSendManyResult {
+
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
+
 		convertedAmounts[addr.EncodeAddress()] = amount.ToDUO()
 	}
 	cmd := json.NewSendManyCmd(fromAccount, convertedAmounts,
@@ -859,8 +908,10 @@ func (c *Client) SendManyMinConf(fromAccount string,
 func (c *Client) SendManyCommentAsync(fromAccount string,
 	amounts map[util.Address]util.Amount, minConfirms int,
 	comment string) FutureSendManyResult {
+
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
+
 		convertedAmounts[addr.EncodeAddress()] = amount.ToDUO()
 	}
 	cmd := json.NewSendManyCmd(fromAccount, convertedAmounts,
@@ -911,6 +962,7 @@ func (r FutureAddMultisigAddressResult) Receive() (util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -918,6 +970,7 @@ func (r FutureAddMultisigAddressResult) Receive() (util.Address, error) {
 	var addr string
 	err = js.Unmarshal(res, &addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeAddress(addr, &chaincfg.MainNetParams)
@@ -931,8 +984,10 @@ func (r FutureAddMultisigAddressResult) Receive() (util.Address, error) {
 
 // See AddMultisigAddress for the blocking version and more details.
 func (c *Client) AddMultisigAddressAsync(requiredSigs int, addresses []util.Address, account string) FutureAddMultisigAddressResult {
+
 	addrs := make([]string, 0, len(addresses))
 	for _, addr := range addresses {
+
 		addrs = append(addrs, addr.String())
 	}
 	cmd := json.NewAddMultisigAddressCmd(requiredSigs, addrs, &account)
@@ -960,6 +1015,7 @@ func (r FutureCreateMultisigResult) Receive() (*json.CreateMultiSigResult, error
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -967,6 +1023,7 @@ func (r FutureCreateMultisigResult) Receive() (*json.CreateMultiSigResult, error
 	var multisigRes json.CreateMultiSigResult
 	err = js.Unmarshal(res, &multisigRes)
 	if err != nil {
+
 		return nil, err
 	}
 	return &multisigRes, nil
@@ -980,8 +1037,10 @@ func (r FutureCreateMultisigResult) Receive() (*json.CreateMultiSigResult, error
 
 // See CreateMultisig for the blocking version and more details.
 func (c *Client) CreateMultisigAsync(requiredSigs int, addresses []util.Address) FutureCreateMultisigResult {
+
 	addrs := make([]string, 0, len(addresses))
 	for _, addr := range addresses {
+
 		addrs = append(addrs, addr.String())
 	}
 	cmd := json.NewCreateMultisigCmd(requiredSigs, addrs)
@@ -1007,6 +1066,7 @@ type FutureCreateNewAccountResult chan *response
 
 // result of creating new account.
 func (r FutureCreateNewAccountResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -1019,12 +1079,14 @@ func (r FutureCreateNewAccountResult) Receive() error {
 
 // See CreateNewAccount for the blocking version and more details.
 func (c *Client) CreateNewAccountAsync(account string) FutureCreateNewAccountResult {
+
 	cmd := json.NewCreateNewAccountCmd(account)
 	return c.sendCmd(cmd)
 }
 
 // CreateNewAccount creates a new wallet account.
 func (c *Client) CreateNewAccount(account string) error {
+
 	return c.CreateNewAccountAsync(account).Receive()
 }
 
@@ -1040,6 +1102,7 @@ func (r FutureGetNewAddressResult) Receive() (util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1047,6 +1110,7 @@ func (r FutureGetNewAddressResult) Receive() (util.Address, error) {
 	var addr string
 	err = js.Unmarshal(res, &addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeAddress(addr, &chaincfg.MainNetParams)
@@ -1060,6 +1124,7 @@ func (r FutureGetNewAddressResult) Receive() (util.Address, error) {
 
 // See GetNewAddress for the blocking version and more details.
 func (c *Client) GetNewAddressAsync(account string) FutureGetNewAddressResult {
+
 	cmd := json.NewGetNewAddressCmd(&account)
 	return c.sendCmd(cmd)
 }
@@ -1084,6 +1149,7 @@ func (r FutureGetRawChangeAddressResult) Receive() (util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1091,6 +1157,7 @@ func (r FutureGetRawChangeAddressResult) Receive() (util.Address, error) {
 	var addr string
 	err = js.Unmarshal(res, &addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeAddress(addr, &chaincfg.MainNetParams)
@@ -1104,6 +1171,7 @@ func (r FutureGetRawChangeAddressResult) Receive() (util.Address, error) {
 
 // See GetRawChangeAddress for the blocking version and more details.
 func (c *Client) GetRawChangeAddressAsync(account string) FutureGetRawChangeAddressResult {
+
 	cmd := json.NewGetRawChangeAddressCmd(&account)
 	return c.sendCmd(cmd)
 }
@@ -1130,6 +1198,7 @@ func (r FutureAddWitnessAddressResult) Receive() (util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1137,6 +1206,7 @@ func (r FutureAddWitnessAddressResult) Receive() (util.Address, error) {
 	var addr string
 	err = js.Unmarshal(res, &addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeAddress(addr, &chaincfg.MainNetParams)
@@ -1150,6 +1220,7 @@ func (r FutureAddWitnessAddressResult) Receive() (util.Address, error) {
 
 // See AddWitnessAddress for the blocking version and more details.
 func (c *Client) AddWitnessAddressAsync(address string) FutureAddWitnessAddressResult {
+
 	cmd := json.NewAddWitnessAddressCmd(address)
 	return c.sendCmd(cmd)
 }
@@ -1174,6 +1245,7 @@ func (r FutureGetAccountAddressResult) Receive() (util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1181,6 +1253,7 @@ func (r FutureGetAccountAddressResult) Receive() (util.Address, error) {
 	var addr string
 	err = js.Unmarshal(res, &addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeAddress(addr, &chaincfg.MainNetParams)
@@ -1194,6 +1267,7 @@ func (r FutureGetAccountAddressResult) Receive() (util.Address, error) {
 
 // See GetAccountAddress for the blocking version and more details.
 func (c *Client) GetAccountAddressAsync(account string) FutureGetAccountAddressResult {
+
 	cmd := json.NewGetAccountAddressCmd(account)
 	return c.sendCmd(cmd)
 }
@@ -1218,6 +1292,7 @@ func (r FutureGetAccountResult) Receive() (string, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return "", err
 	}
 
@@ -1225,6 +1300,7 @@ func (r FutureGetAccountResult) Receive() (string, error) {
 	var account string
 	err = js.Unmarshal(res, &account)
 	if err != nil {
+
 		return "", err
 	}
 	return account, nil
@@ -1238,6 +1314,7 @@ func (r FutureGetAccountResult) Receive() (string, error) {
 
 // See GetAccount for the blocking version and more details.
 func (c *Client) GetAccountAsync(address util.Address) FutureGetAccountResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewGetAccountCmd(addr)
 	return c.sendCmd(cmd)
@@ -1258,6 +1335,7 @@ type FutureSetAccountResult chan *response
 
 // of setting the account to be associated with the passed address.
 func (r FutureSetAccountResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -1270,6 +1348,7 @@ func (r FutureSetAccountResult) Receive() error {
 
 // See SetAccount for the blocking version and more details.
 func (c *Client) SetAccountAsync(address util.Address, account string) FutureSetAccountResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewSetAccountCmd(addr, account)
 	return c.sendCmd(cmd)
@@ -1277,6 +1356,7 @@ func (c *Client) SetAccountAsync(address util.Address, account string) FutureSet
 
 // SetAccount sets the account associated with the passed address.
 func (c *Client) SetAccount(address util.Address, account string) error {
+
 	return c.SetAccountAsync(address, account).Receive()
 }
 
@@ -1292,6 +1372,7 @@ func (r FutureGetAddressesByAccountResult) Receive() ([]util.Address, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1299,13 +1380,16 @@ func (r FutureGetAddressesByAccountResult) Receive() ([]util.Address, error) {
 	var addrStrings []string
 	err = js.Unmarshal(res, &addrStrings)
 	if err != nil {
+
 		return nil, err
 	}
 	addrs := make([]util.Address, 0, len(addrStrings))
 	for _, addrStr := range addrStrings {
+
 		addr, err := util.DecodeAddress(addrStr,
 			&chaincfg.MainNetParams)
 		if err != nil {
+
 			return nil, err
 		}
 		addrs = append(addrs, addr)
@@ -1321,6 +1405,7 @@ func (r FutureGetAddressesByAccountResult) Receive() ([]util.Address, error) {
 
 // See GetAddressesByAccount for the blocking version and more details.
 func (c *Client) GetAddressesByAccountAsync(account string) FutureGetAddressesByAccountResult {
+
 	cmd := json.NewGetAddressesByAccountCmd(account)
 	return c.sendCmd(cmd)
 }
@@ -1347,6 +1432,7 @@ func (r FutureMoveResult) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return false, err
 	}
 
@@ -1354,6 +1440,7 @@ func (r FutureMoveResult) Receive() (bool, error) {
 	var moveResult bool
 	err = js.Unmarshal(res, &moveResult)
 	if err != nil {
+
 		return false, err
 	}
 	return moveResult, nil
@@ -1367,6 +1454,7 @@ func (r FutureMoveResult) Receive() (bool, error) {
 
 // See Move for the blocking version and more details.
 func (c *Client) MoveAsync(fromAccount, toAccount string, amount util.Amount) FutureMoveResult {
+
 	cmd := json.NewMoveCmd(fromAccount, toAccount, amount.ToDUO(), nil,
 		nil)
 	return c.sendCmd(cmd)
@@ -1391,6 +1479,7 @@ func (c *Client) Move(fromAccount, toAccount string, amount util.Amount) (bool, 
 // See MoveMinConf for the blocking version and more details.
 func (c *Client) MoveMinConfAsync(fromAccount, toAccount string,
 	amount util.Amount, minConfirms int) FutureMoveResult {
+
 	cmd := json.NewMoveCmd(fromAccount, toAccount, amount.ToDUO(),
 		&minConfirms, nil)
 	return c.sendCmd(cmd)
@@ -1419,6 +1508,7 @@ func (c *Client) MoveMinConf(fromAccount, toAccount string, amount util.Amount, 
 // See MoveComment for the blocking version and more details.
 func (c *Client) MoveCommentAsync(fromAccount, toAccount string,
 	amount util.Amount, minConfirms int, comment string) FutureMoveResult {
+
 	cmd := json.NewMoveCmd(fromAccount, toAccount, amount.ToDUO(),
 		&minConfirms, &comment)
 	return c.sendCmd(cmd)
@@ -1449,6 +1539,7 @@ type FutureRenameAccountResult chan *response
 
 // result of creating new account.
 func (r FutureRenameAccountResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -1461,12 +1552,14 @@ func (r FutureRenameAccountResult) Receive() error {
 
 // See RenameAccount for the blocking version and more details.
 func (c *Client) RenameAccountAsync(oldAccount, newAccount string) FutureRenameAccountResult {
+
 	cmd := json.NewRenameAccountCmd(oldAccount, newAccount)
 	return c.sendCmd(cmd)
 }
 
 // RenameAccount creates a new wallet account.
 func (c *Client) RenameAccount(oldAccount, newAccount string) error {
+
 	return c.RenameAccountAsync(oldAccount, newAccount).Receive()
 }
 
@@ -1482,6 +1575,7 @@ func (r FutureValidateAddressResult) Receive() (*json.ValidateAddressWalletResul
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1489,6 +1583,7 @@ func (r FutureValidateAddressResult) Receive() (*json.ValidateAddressWalletResul
 	var addrResult json.ValidateAddressWalletResult
 	err = js.Unmarshal(res, &addrResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &addrResult, nil
@@ -1502,6 +1597,7 @@ func (r FutureValidateAddressResult) Receive() (*json.ValidateAddressWalletResul
 
 // See ValidateAddress for the blocking version and more details.
 func (c *Client) ValidateAddressAsync(address util.Address) FutureValidateAddressResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewValidateAddressCmd(addr)
 	return c.sendCmd(cmd)
@@ -1522,6 +1618,7 @@ type FutureKeyPoolRefillResult chan *response
 
 // of refilling the key pool.
 func (r FutureKeyPoolRefillResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -1534,6 +1631,7 @@ func (r FutureKeyPoolRefillResult) Receive() error {
 
 // See KeyPoolRefill for the blocking version and more details.
 func (c *Client) KeyPoolRefillAsync() FutureKeyPoolRefillResult {
+
 	cmd := json.NewKeyPoolRefillCmd(nil)
 	return c.sendCmd(cmd)
 }
@@ -1542,6 +1640,7 @@ func (c *Client) KeyPoolRefillAsync() FutureKeyPoolRefillResult {
 
 // See KeyPoolRefillSize to override the size of the key pool.
 func (c *Client) KeyPoolRefill() error {
+
 	return c.KeyPoolRefillAsync().Receive()
 }
 
@@ -1553,6 +1652,7 @@ func (c *Client) KeyPoolRefill() error {
 
 // See KeyPoolRefillSize for the blocking version and more details.
 func (c *Client) KeyPoolRefillSizeAsync(newSize uint) FutureKeyPoolRefillResult {
+
 	cmd := json.NewKeyPoolRefillCmd(&newSize)
 	return c.sendCmd(cmd)
 }
@@ -1561,6 +1661,7 @@ func (c *Client) KeyPoolRefillSizeAsync(newSize uint) FutureKeyPoolRefillResult 
 
 // size.
 func (c *Client) KeyPoolRefillSize(newSize uint) error {
+
 	return c.KeyPoolRefillSizeAsync(newSize).Receive()
 }
 
@@ -1584,6 +1685,7 @@ func (r FutureListAccountsResult) Receive() (map[string]util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1591,12 +1693,15 @@ func (r FutureListAccountsResult) Receive() (map[string]util.Amount, error) {
 	var accounts map[string]float64
 	err = js.Unmarshal(res, &accounts)
 	if err != nil {
+
 		return nil, err
 	}
 	accountsMap := make(map[string]util.Amount)
 	for k, v := range accounts {
+
 		amount, err := util.NewAmount(v)
 		if err != nil {
+
 			return nil, err
 		}
 		accountsMap[k] = amount
@@ -1612,6 +1717,7 @@ func (r FutureListAccountsResult) Receive() (map[string]util.Amount, error) {
 
 // See ListAccounts for the blocking version and more details.
 func (c *Client) ListAccountsAsync() FutureListAccountsResult {
+
 	cmd := json.NewListAccountsCmd(nil)
 	return c.sendCmd(cmd)
 }
@@ -1634,6 +1740,7 @@ func (c *Client) ListAccounts() (map[string]util.Amount, error) {
 
 // See ListAccountsMinConf for the blocking version and more details.
 func (c *Client) ListAccountsMinConfAsync(minConfirms int) FutureListAccountsResult {
+
 	cmd := json.NewListAccountsCmd(&minConfirms)
 	return c.sendCmd(cmd)
 }
@@ -1662,6 +1769,7 @@ func (r FutureGetBalanceResult) Receive() (util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1669,10 +1777,12 @@ func (r FutureGetBalanceResult) Receive() (util.Amount, error) {
 	var balance float64
 	err = js.Unmarshal(res, &balance)
 	if err != nil {
+
 		return 0, err
 	}
 	amount, err := util.NewAmount(balance)
 	if err != nil {
+
 		return 0, err
 	}
 	return amount, nil
@@ -1694,6 +1804,7 @@ func (r FutureGetBalanceParseResult) Receive() (util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1701,14 +1812,17 @@ func (r FutureGetBalanceParseResult) Receive() (util.Amount, error) {
 	var balanceString string
 	err = js.Unmarshal(res, &balanceString)
 	if err != nil {
+
 		return 0, err
 	}
 	balance, err := strconv.ParseFloat(balanceString, 64)
 	if err != nil {
+
 		return 0, err
 	}
 	amount, err := util.NewAmount(balance)
 	if err != nil {
+
 		return 0, err
 	}
 	return amount, nil
@@ -1722,6 +1836,7 @@ func (r FutureGetBalanceParseResult) Receive() (util.Amount, error) {
 
 // See GetBalance for the blocking version and more details.
 func (c *Client) GetBalanceAsync(account string) FutureGetBalanceResult {
+
 	cmd := json.NewGetBalanceCmd(&account, nil)
 	return c.sendCmd(cmd)
 }
@@ -1746,6 +1861,7 @@ func (c *Client) GetBalance(account string) (util.Amount, error) {
 
 // See GetBalanceMinConf for the blocking version and more details.
 func (c *Client) GetBalanceMinConfAsync(account string, minConfirms int) FutureGetBalanceResult {
+
 	cmd := json.NewGetBalanceCmd(&account, &minConfirms)
 	return c.sendCmd(cmd)
 }
@@ -1760,6 +1876,7 @@ func (c *Client) GetBalanceMinConfAsync(account string, minConfirms int) FutureG
 func (c *Client) GetBalanceMinConf(account string, minConfirms int) (util.Amount, error) {
 
 	if c.config.EnableBCInfoHacks {
+
 		response := c.GetBalanceMinConfAsync(account, minConfirms)
 		return FutureGetBalanceParseResult(response).Receive()
 	}
@@ -1780,6 +1897,7 @@ func (r FutureGetReceivedByAccountResult) Receive() (util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1787,10 +1905,12 @@ func (r FutureGetReceivedByAccountResult) Receive() (util.Amount, error) {
 	var balance float64
 	err = js.Unmarshal(res, &balance)
 	if err != nil {
+
 		return 0, err
 	}
 	amount, err := util.NewAmount(balance)
 	if err != nil {
+
 		return 0, err
 	}
 	return amount, nil
@@ -1804,6 +1924,7 @@ func (r FutureGetReceivedByAccountResult) Receive() (util.Amount, error) {
 
 // See GetReceivedByAccount for the blocking version and more details.
 func (c *Client) GetReceivedByAccountAsync(account string) FutureGetReceivedByAccountResult {
+
 	cmd := json.NewGetReceivedByAccountCmd(account, nil)
 	return c.sendCmd(cmd)
 }
@@ -1828,6 +1949,7 @@ func (c *Client) GetReceivedByAccount(account string) (util.Amount, error) {
 
 // See GetReceivedByAccountMinConf for the blocking version and more details.
 func (c *Client) GetReceivedByAccountMinConfAsync(account string, minConfirms int) FutureGetReceivedByAccountResult {
+
 	cmd := json.NewGetReceivedByAccountCmd(account, &minConfirms)
 	return c.sendCmd(cmd)
 }
@@ -1856,6 +1978,7 @@ func (r FutureGetUnconfirmedBalanceResult) Receive() (util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1863,10 +1986,12 @@ func (r FutureGetUnconfirmedBalanceResult) Receive() (util.Amount, error) {
 	var balance float64
 	err = js.Unmarshal(res, &balance)
 	if err != nil {
+
 		return 0, err
 	}
 	amount, err := util.NewAmount(balance)
 	if err != nil {
+
 		return 0, err
 	}
 	return amount, nil
@@ -1880,6 +2005,7 @@ func (r FutureGetUnconfirmedBalanceResult) Receive() (util.Amount, error) {
 
 // See GetUnconfirmedBalance for the blocking version and more details.
 func (c *Client) GetUnconfirmedBalanceAsync(account string) FutureGetUnconfirmedBalanceResult {
+
 	cmd := json.NewGetUnconfirmedBalanceCmd(&account)
 	return c.sendCmd(cmd)
 }
@@ -1906,6 +2032,7 @@ func (r FutureGetReceivedByAddressResult) Receive() (util.Amount, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -1913,10 +2040,12 @@ func (r FutureGetReceivedByAddressResult) Receive() (util.Amount, error) {
 	var balance float64
 	err = js.Unmarshal(res, &balance)
 	if err != nil {
+
 		return 0, err
 	}
 	amount, err := util.NewAmount(balance)
 	if err != nil {
+
 		return 0, err
 	}
 	return amount, nil
@@ -1930,6 +2059,7 @@ func (r FutureGetReceivedByAddressResult) Receive() (util.Amount, error) {
 
 // See GetReceivedByAddress for the blocking version and more details.
 func (c *Client) GetReceivedByAddressAsync(address util.Address) FutureGetReceivedByAddressResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewGetReceivedByAddressCmd(addr, nil)
 	return c.sendCmd(cmd)
@@ -1955,6 +2085,7 @@ func (c *Client) GetReceivedByAddress(address util.Address) (util.Amount, error)
 
 // See GetReceivedByAddressMinConf for the blocking version and more details.
 func (c *Client) GetReceivedByAddressMinConfAsync(address util.Address, minConfirms int) FutureGetReceivedByAddressResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewGetReceivedByAddressCmd(addr, &minConfirms)
 	return c.sendCmd(cmd)
@@ -1986,6 +2117,7 @@ func (r FutureListReceivedByAccountResult) Receive() ([]json.ListReceivedByAccou
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1993,6 +2125,7 @@ func (r FutureListReceivedByAccountResult) Receive() ([]json.ListReceivedByAccou
 	var received []json.ListReceivedByAccountResult
 	err = js.Unmarshal(res, &received)
 	if err != nil {
+
 		return nil, err
 	}
 	return received, nil
@@ -2006,6 +2139,7 @@ func (r FutureListReceivedByAccountResult) Receive() ([]json.ListReceivedByAccou
 
 // See ListReceivedByAccount for the blocking version and more details.
 func (c *Client) ListReceivedByAccountAsync() FutureListReceivedByAccountResult {
+
 	cmd := json.NewListReceivedByAccountCmd(nil, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -2034,6 +2168,7 @@ func (c *Client) ListReceivedByAccount() ([]json.ListReceivedByAccountResult, er
 
 // See ListReceivedByAccountMinConf for the blocking version and more details.
 func (c *Client) ListReceivedByAccountMinConfAsync(minConfirms int) FutureListReceivedByAccountResult {
+
 	cmd := json.NewListReceivedByAccountCmd(&minConfirms, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -2062,6 +2197,7 @@ func (c *Client) ListReceivedByAccountMinConf(minConfirms int) ([]json.ListRecei
 
 // See ListReceivedByAccountIncludeEmpty for the blocking version and more details.
 func (c *Client) ListReceivedByAccountIncludeEmptyAsync(minConfirms int, includeEmpty bool) FutureListReceivedByAccountResult {
+
 	cmd := json.NewListReceivedByAccountCmd(&minConfirms, &includeEmpty,
 		nil)
 	return c.sendCmd(cmd)
@@ -2096,6 +2232,7 @@ func (r FutureListReceivedByAddressResult) Receive() ([]json.ListReceivedByAddre
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2103,6 +2240,7 @@ func (r FutureListReceivedByAddressResult) Receive() ([]json.ListReceivedByAddre
 	var received []json.ListReceivedByAddressResult
 	err = js.Unmarshal(res, &received)
 	if err != nil {
+
 		return nil, err
 	}
 	return received, nil
@@ -2116,6 +2254,7 @@ func (r FutureListReceivedByAddressResult) Receive() ([]json.ListReceivedByAddre
 
 // See ListReceivedByAddress for the blocking version and more details.
 func (c *Client) ListReceivedByAddressAsync() FutureListReceivedByAddressResult {
+
 	cmd := json.NewListReceivedByAddressCmd(nil, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -2144,6 +2283,7 @@ func (c *Client) ListReceivedByAddress() ([]json.ListReceivedByAddressResult, er
 
 // See ListReceivedByAddressMinConf for the blocking version and more details.
 func (c *Client) ListReceivedByAddressMinConfAsync(minConfirms int) FutureListReceivedByAddressResult {
+
 	cmd := json.NewListReceivedByAddressCmd(&minConfirms, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -2172,6 +2312,7 @@ func (c *Client) ListReceivedByAddressMinConf(minConfirms int) ([]json.ListRecei
 
 // See ListReceivedByAccountIncludeEmpty for the blocking version and more details.
 func (c *Client) ListReceivedByAddressIncludeEmptyAsync(minConfirms int, includeEmpty bool) FutureListReceivedByAddressResult {
+
 	cmd := json.NewListReceivedByAddressCmd(&minConfirms, &includeEmpty,
 		nil)
 	return c.sendCmd(cmd)
@@ -2205,6 +2346,7 @@ type FutureWalletLockResult chan *response
 
 // of locking the wallet.
 func (r FutureWalletLockResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -2217,6 +2359,7 @@ func (r FutureWalletLockResult) Receive() error {
 
 // See WalletLock for the blocking version and more details.
 func (c *Client) WalletLockAsync() FutureWalletLockResult {
+
 	cmd := json.NewWalletLockCmd()
 	return c.sendCmd(cmd)
 }
@@ -2229,6 +2372,7 @@ func (c *Client) WalletLockAsync() FutureWalletLockResult {
 
 // wallet to be unlocked.
 func (c *Client) WalletLock() error {
+
 	return c.WalletLockAsync().Receive()
 }
 
@@ -2238,6 +2382,7 @@ func (c *Client) WalletLock() error {
 
 // (in seconds).
 func (c *Client) WalletPassphrase(passphrase string, timeoutSecs int64) error {
+
 	cmd := json.NewWalletPassphraseCmd(passphrase, timeoutSecs)
 	_, err := c.sendCmdAndWait(cmd)
 	return err
@@ -2252,6 +2397,7 @@ type FutureWalletPassphraseChangeResult chan *response
 
 // of changing the wallet passphrase.
 func (r FutureWalletPassphraseChangeResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -2264,6 +2410,7 @@ func (r FutureWalletPassphraseChangeResult) Receive() error {
 
 // See WalletPassphraseChange for the blocking version and more details.
 func (c *Client) WalletPassphraseChangeAsync(old, new string) FutureWalletPassphraseChangeResult {
+
 	cmd := json.NewWalletPassphraseChangeCmd(old, new)
 	return c.sendCmd(cmd)
 }
@@ -2272,6 +2419,7 @@ func (c *Client) WalletPassphraseChangeAsync(old, new string) FutureWalletPassph
 
 // to new passphrase.
 func (c *Client) WalletPassphraseChange(old, new string) error {
+
 	return c.WalletPassphraseChangeAsync(old, new).Receive()
 }
 
@@ -2293,6 +2441,7 @@ func (r FutureSignMessageResult) Receive() (string, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return "", err
 	}
 
@@ -2300,6 +2449,7 @@ func (r FutureSignMessageResult) Receive() (string, error) {
 	var b64 string
 	err = js.Unmarshal(res, &b64)
 	if err != nil {
+
 		return "", err
 	}
 	return b64, nil
@@ -2313,6 +2463,7 @@ func (r FutureSignMessageResult) Receive() (string, error) {
 
 // See SignMessage for the blocking version and more details.
 func (c *Client) SignMessageAsync(address util.Address, message string) FutureSignMessageResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewSignMessageCmd(addr, message)
 	return c.sendCmd(cmd)
@@ -2340,6 +2491,7 @@ func (r FutureVerifyMessageResult) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return false, err
 	}
 
@@ -2347,6 +2499,7 @@ func (r FutureVerifyMessageResult) Receive() (bool, error) {
 	var verified bool
 	err = js.Unmarshal(res, &verified)
 	if err != nil {
+
 		return false, err
 	}
 	return verified, nil
@@ -2360,6 +2513,7 @@ func (r FutureVerifyMessageResult) Receive() (bool, error) {
 
 // See VerifyMessage for the blocking version and more details.
 func (c *Client) VerifyMessageAsync(address util.Address, signature, message string) FutureVerifyMessageResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewVerifyMessageCmd(addr, signature, message)
 	return c.sendCmd(cmd)
@@ -2395,6 +2549,7 @@ func (r FutureDumpPrivKeyResult) Receive() (*util.WIF, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2402,6 +2557,7 @@ func (r FutureDumpPrivKeyResult) Receive() (*util.WIF, error) {
 	var privKeyWIF string
 	err = js.Unmarshal(res, &privKeyWIF)
 	if err != nil {
+
 		return nil, err
 	}
 	return util.DecodeWIF(privKeyWIF)
@@ -2415,6 +2571,7 @@ func (r FutureDumpPrivKeyResult) Receive() (*util.WIF, error) {
 
 // See DumpPrivKey for the blocking version and more details.
 func (c *Client) DumpPrivKeyAsync(address util.Address) FutureDumpPrivKeyResult {
+
 	addr := address.EncodeAddress()
 	cmd := json.NewDumpPrivKeyCmd(addr)
 	return c.sendCmd(cmd)
@@ -2441,6 +2598,7 @@ type FutureImportAddressResult chan *response
 
 // of importing the passed public address.
 func (r FutureImportAddressResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -2453,12 +2611,14 @@ func (r FutureImportAddressResult) Receive() error {
 
 // See ImportAddress for the blocking version and more details.
 func (c *Client) ImportAddressAsync(address string) FutureImportAddressResult {
+
 	cmd := json.NewImportAddressCmd(address, "", nil)
 	return c.sendCmd(cmd)
 }
 
 // ImportAddress imports the passed public address.
 func (c *Client) ImportAddress(address string) error {
+
 	return c.ImportAddressAsync(address).Receive()
 }
 
@@ -2470,6 +2630,7 @@ func (c *Client) ImportAddress(address string) error {
 
 // See ImportAddress for the blocking version and more details.
 func (c *Client) ImportAddressRescanAsync(address string, account string, rescan bool) FutureImportAddressResult {
+
 	cmd := json.NewImportAddressCmd(address, account, &rescan)
 	return c.sendCmd(cmd)
 }
@@ -2478,6 +2639,7 @@ func (c *Client) ImportAddressRescanAsync(address string, account string, rescan
 
 // the block history is scanned for transactions addressed to provided address.
 func (c *Client) ImportAddressRescan(address string, account string, rescan bool) error {
+
 	return c.ImportAddressRescanAsync(address, account, rescan).Receive()
 }
 
@@ -2492,6 +2654,7 @@ type FutureImportPrivKeyResult chan *response
 
 // (WIF).
 func (r FutureImportPrivKeyResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -2504,8 +2667,10 @@ func (r FutureImportPrivKeyResult) Receive() error {
 
 // See ImportPrivKey for the blocking version and more details.
 func (c *Client) ImportPrivKeyAsync(privKeyWIF *util.WIF) FutureImportPrivKeyResult {
+
 	wif := ""
 	if privKeyWIF != nil {
+
 		wif = privKeyWIF.String()
 	}
 	cmd := json.NewImportPrivKeyCmd(wif, nil, nil)
@@ -2516,6 +2681,7 @@ func (c *Client) ImportPrivKeyAsync(privKeyWIF *util.WIF) FutureImportPrivKeyRes
 
 // format (WIF).
 func (c *Client) ImportPrivKey(privKeyWIF *util.WIF) error {
+
 	return c.ImportPrivKeyAsync(privKeyWIF).Receive()
 }
 
@@ -2527,8 +2693,10 @@ func (c *Client) ImportPrivKey(privKeyWIF *util.WIF) error {
 
 // See ImportPrivKey for the blocking version and more details.
 func (c *Client) ImportPrivKeyLabelAsync(privKeyWIF *util.WIF, label string) FutureImportPrivKeyResult {
+
 	wif := ""
 	if privKeyWIF != nil {
+
 		wif = privKeyWIF.String()
 	}
 	cmd := json.NewImportPrivKeyCmd(wif, &label, nil)
@@ -2539,6 +2707,7 @@ func (c *Client) ImportPrivKeyLabelAsync(privKeyWIF *util.WIF, label string) Fut
 
 // format (WIF). It sets the account label to the one provided.
 func (c *Client) ImportPrivKeyLabel(privKeyWIF *util.WIF, label string) error {
+
 	return c.ImportPrivKeyLabelAsync(privKeyWIF, label).Receive()
 }
 
@@ -2550,8 +2719,10 @@ func (c *Client) ImportPrivKeyLabel(privKeyWIF *util.WIF, label string) error {
 
 // See ImportPrivKey for the blocking version and more details.
 func (c *Client) ImportPrivKeyRescanAsync(privKeyWIF *util.WIF, label string, rescan bool) FutureImportPrivKeyResult {
+
 	wif := ""
 	if privKeyWIF != nil {
+
 		wif = privKeyWIF.String()
 	}
 	cmd := json.NewImportPrivKeyCmd(wif, &label, &rescan)
@@ -2564,6 +2735,7 @@ func (c *Client) ImportPrivKeyRescanAsync(privKeyWIF *util.WIF, label string, re
 
 // the block history is scanned for transactions addressed to provided privKey.
 func (c *Client) ImportPrivKeyRescan(privKeyWIF *util.WIF, label string, rescan bool) error {
+
 	return c.ImportPrivKeyRescanAsync(privKeyWIF, label, rescan).Receive()
 }
 
@@ -2576,6 +2748,7 @@ type FutureImportPubKeyResult chan *response
 
 // of importing the passed public key.
 func (r FutureImportPubKeyResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
@@ -2588,12 +2761,14 @@ func (r FutureImportPubKeyResult) Receive() error {
 
 // See ImportPubKey for the blocking version and more details.
 func (c *Client) ImportPubKeyAsync(pubKey string) FutureImportPubKeyResult {
+
 	cmd := json.NewImportPubKeyCmd(pubKey, nil)
 	return c.sendCmd(cmd)
 }
 
 // ImportPubKey imports the passed public key.
 func (c *Client) ImportPubKey(pubKey string) error {
+
 	return c.ImportPubKeyAsync(pubKey).Receive()
 }
 
@@ -2605,6 +2780,7 @@ func (c *Client) ImportPubKey(pubKey string) error {
 
 // See ImportPubKey for the blocking version and more details.
 func (c *Client) ImportPubKeyRescanAsync(pubKey string, rescan bool) FutureImportPubKeyResult {
+
 	cmd := json.NewImportPubKeyCmd(pubKey, &rescan)
 	return c.sendCmd(cmd)
 }
@@ -2613,6 +2789,7 @@ func (c *Client) ImportPubKeyRescanAsync(pubKey string, rescan bool) FutureImpor
 
 // block history is scanned for transactions addressed to provided pubkey.
 func (c *Client) ImportPubKeyRescan(pubKey string, rescan bool) error {
+
 	return c.ImportPubKeyRescanAsync(pubKey, rescan).Receive()
 }
 
@@ -2638,6 +2815,7 @@ func (r FutureGetInfoResult) Receive() (*json.InfoWalletResult, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2645,6 +2823,7 @@ func (r FutureGetInfoResult) Receive() (*json.InfoWalletResult, error) {
 	var infoRes json.InfoWalletResult
 	err = js.Unmarshal(res, &infoRes)
 	if err != nil {
+
 		return nil, err
 	}
 	return &infoRes, nil
@@ -2658,6 +2837,7 @@ func (r FutureGetInfoResult) Receive() (*json.InfoWalletResult, error) {
 
 // See GetInfo for the blocking version and more details.
 func (c *Client) GetInfoAsync() FutureGetInfoResult {
+
 	cmd := json.NewGetInfoCmd()
 	return c.sendCmd(cmd)
 }

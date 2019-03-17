@@ -19,6 +19,7 @@ func TestNewSecretKey(
 	var err error
 	key, err = NewSecretKey(&password, DefaultN, DefaultR, DefaultP)
 	if err != nil {
+
 		t.Error(err)
 		return
 	}
@@ -35,11 +36,13 @@ func TestUnmarshalSecretKey(
 
 	var sk SecretKey
 	if err := sk.Unmarshal(params); err != nil {
+
 		t.Errorf("unexpected unmarshal error: %v", err)
 		return
 	}
 
 	if err := sk.DeriveKey(&password); err != nil {
+
 		t.Errorf("unexpected DeriveKey error: %v", err)
 		return
 	}
@@ -55,12 +58,14 @@ func TestUnmarshalSecretKeyInvalid(
 
 	var sk SecretKey
 	if err := sk.Unmarshal(params); err != nil {
+
 		t.Errorf("unexpected unmarshal error: %v", err)
 		return
 	}
 
 	p := []byte("wrong password")
 	if err := sk.DeriveKey(&p); err != ErrInvalidPassword {
+
 		t.Errorf("wrong password didn't fail")
 		return
 	}
@@ -73,6 +78,7 @@ func TestEncrypt(
 
 	blob, err = key.Encrypt(message)
 	if err != nil {
+
 		t.Error(err)
 		return
 	}
@@ -83,6 +89,7 @@ func TestDecrypt(
 
 	decryptedMessage, err := key.Decrypt(blob)
 	if err != nil {
+
 		t.Error(err)
 		return
 	}
@@ -100,6 +107,7 @@ func TestDecryptCorrupt(
 	blob[len(blob)-15] = blob[len(blob)-15] + 1
 	_, err := key.Decrypt(blob)
 	if err == nil {
+
 		t.Errorf("corrupt message decrypted")
 		return
 	}
@@ -121,6 +129,7 @@ func TestDeriveKey(
 	t *testing.T) {
 
 	if err := key.DeriveKey(&password); err != nil {
+
 		t.Errorf("unexpected DeriveKey key failure: %v", err)
 	}
 }
@@ -130,6 +139,7 @@ func TestDeriveKeyInvalid(
 
 	bogusPass := []byte("bogus")
 	if err := key.DeriveKey(&bogusPass); err != ErrInvalidPassword {
+
 		t.Errorf("unexpected DeriveKey key failure: %v", err)
 	}
 }

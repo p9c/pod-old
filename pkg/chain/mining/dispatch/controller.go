@@ -75,6 +75,7 @@ type Controller struct {
 
 // submitBlock submits the passed block to network after ensuring it passes all of the consensus validation rules.
 func (c *Controller) submitBlock(block *util.Block) bool {
+
 	c.submitBlockLock.Lock()
 	defer c.submitBlockLock.Unlock()
 
@@ -92,8 +93,10 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
 	isOrphan, err := c.cfg.ProcessBlock(block, blockchain.BFNone)
 	if err != nil {
+
 		// Anything other than a rule violation is an unexpected error, so log that error as an internal error.
 		if _, ok := err.(blockchain.RuleError); !ok {
+
 			log <- cl.Error{
 				"Unexpected error while processing block submitted via miner worker:",
 				err,
@@ -104,6 +107,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 		return false
 	}
 	if isOrphan {
+
 		log <- cl.Dbg("Block submitted via miner is an orphan")
 		return false
 	}
@@ -116,6 +120,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	since := block.MsgBlock().Header.Timestamp.Unix() - prevTime
 
 	Log.Infc(func() string {
+
 		return fmt.Sprintf(
 			"new block height %d %s %10d %08x %v %s %ds since prev",
 			block.Height(),
@@ -137,6 +142,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	// Choose a random extra nonce offset for this block template and worker.
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
+
 		log <- cl.Error{"Unexpected error while generating random extra nonce offset:", err}
 		enOffset = 0
 	}
@@ -147,11 +153,14 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 
 	// Note that the entire extra nonce range is iterated and the offset is added relying on the fact that overflow will wrap around 0 as provided by the Go spec.
 	for extraNonce := uint64(0); extraNonce < maxExtraNonce; extraNonce++ {
+
 		// Update the extra nonce in the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		c.g.UpdateExtraNonce(msgBlock, blockHeight, extraNonce+enOffset)
 		// Search through the entire nonce range for a solution while periodically checking for early quit and stale block conditions along with updates to the speed monitor.
 		for i := uint32(0); i <= maxNonce; i++ {
+
 			select {
+
 			case <-quit:
 				// fmt.Println("chan:<-quit")
 				return false
@@ -181,6 +190,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 			hash := header.BlockHashWithAlgos(int32(fork.GetCurrent(blockHeight)))
 			// The block is solved when the new block hash is less than the target difficulty.  Yay!
 			if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
+
 				return true
 			}
 		}
@@ -199,7 +209,9 @@ func (c *Controller) generateBlocks(quit chan struct{}) {
 	var submission chan *wire.MsgBlock
 out:
 	for {
+
 		select {
+
 		case <-quit: // Quit when the miner is stopped.
 			// fmt.Println("chan:<-quit")
 			break out
@@ -207,6 +219,7 @@ out:
 		}
 		// Wait until there is a connection to at least one other peer since there is no way to relay a found block or receive transactions to work on when there are no connected peers.
 		if c.cfg.ConnectedCount() == 0 {
+
 			time.Sleep(time.Second)
 			continue
 		}
@@ -226,6 +239,7 @@ out:
 		template, err := c.g.NewBlockTemplate(payToAddr, "")
 		c.submitBlockLock.Unlock()
 		if err != nil {
+
 			log <- cl.Error{"Failed to create new block template: %v", err}
 			continue
 		}
@@ -246,7 +260,9 @@ func (c *Controller) minerController() {
 	go c.generateBlocks(quit)
 out:
 	for {
+
 		select {
+
 		case <-c.quit:
 			// fmt.Println("chan:<-c.quit")
 			close(quit)
@@ -261,6 +277,7 @@ func (c *Controller) Start() {
 	c.Lock()
 	defer c.Unlock()
 	if c.started {
+
 		return
 	}
 
@@ -277,6 +294,7 @@ func (c *Controller) Stop() {
 	c.Lock()
 	defer c.Unlock()
 	if !c.started {
+
 		return
 	}
 	close(c.quit)
@@ -287,6 +305,7 @@ func (c *Controller) Stop() {
 
 // IsMining returns whether or not the miner controller has been started and is therefore currenting mining. This function is safe for concurrent access.
 func (c *Controller) IsMining() bool {
+
 	c.Lock()
 	defer c.Unlock()
 	return c.started
@@ -295,6 +314,7 @@ func (c *Controller) IsMining() bool {
 // New returns a new instance of a CPU miner for the provided configuration. Use Start to begin the mining process.  See the documentation for Controller type for more details.
 func New(
 	cfg *Config) *Controller {
+
 	return &Controller{
 		b:   cfg.Blockchain,
 		g:   cfg.BlockTemplateGenerator,

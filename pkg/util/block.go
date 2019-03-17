@@ -17,6 +17,7 @@ const BlockHeightUnknown = int32(-1)
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e OutOfRangeError) Error() string {
+
 	return string(e)
 }
 
@@ -43,6 +44,7 @@ func (b *Block) Bytes() ([]byte, error) {
 
 	// Return the cached serialized bytes if it has already been generated.
 	if len(b.serializedBlock) != 0 {
+
 		return b.serializedBlock, nil
 	}
 
@@ -50,6 +52,7 @@ func (b *Block) Bytes() ([]byte, error) {
 	w := bytes.NewBuffer(make([]byte, 0, b.msgBlock.SerializeSize()))
 	err := b.msgBlock.Serialize(w)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -65,6 +68,7 @@ func (b *Block) BytesNoWitness() ([]byte, error) {
 
 	// Return the cached serialized bytes if it has already been generated.
 	if len(b.serializedBlockNoWitness) != 0 {
+
 		return b.serializedBlockNoWitness, nil
 	}
 
@@ -72,6 +76,7 @@ func (b *Block) BytesNoWitness() ([]byte, error) {
 	var w bytes.Buffer
 	err := b.msgBlock.SerializeNoWitness(&w)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -87,6 +92,7 @@ func (b *Block) Hash() *chainhash.Hash {
 
 	// Return the cached block hash if it has already been generated.
 	if b.blockHash != nil {
+
 		return b.blockHash
 	}
 
@@ -102,6 +108,7 @@ func (b *Block) Tx(txNum int) (*Tx, error) {
 	// Ensure the requested transaction is in range.
 	numTx := uint64(len(b.msgBlock.Transactions))
 	if txNum < 0 || uint64(txNum) > numTx {
+
 		str := fmt.Sprintf("transaction index %d is out of range - max %d",
 			txNum, numTx-1)
 		return nil, OutOfRangeError(str)
@@ -109,11 +116,13 @@ func (b *Block) Tx(txNum int) (*Tx, error) {
 
 	// Generate slice to hold all of the wrapped transactions if needed.
 	if len(b.transactions) == 0 {
+
 		b.transactions = make([]*Tx, numTx)
 	}
 
 	// Return the wrapped transaction if it has already been generated.
 	if b.transactions[txNum] != nil {
+
 		return b.transactions[txNum], nil
 	}
 
@@ -129,17 +138,21 @@ func (b *Block) Transactions() []*Tx {
 
 	// Return transactions if they have ALL already been generated.  This flag is necessary because the wrapped transactions are lazily generated in a sparse fashion.
 	if b.txnsGenerated {
+
 		return b.transactions
 	}
 
 	// Generate slice to hold all of the wrapped transactions if needed.
 	if len(b.transactions) == 0 {
+
 		b.transactions = make([]*Tx, len(b.msgBlock.Transactions))
 	}
 
 	// Generate and cache the wrapped transactions for all that haven't already been done.
 	for i, tx := range b.transactions {
+
 		if tx == nil {
+
 			newTx := NewTx(b.msgBlock.Transactions[i])
 			newTx.SetIndex(i)
 			b.transactions[i] = newTx
@@ -157,6 +170,7 @@ func (b *Block) TxHash(txNum int) (*chainhash.Hash, error) {
 	// Attempt to get a wrapped transaction for the specified index.  It will be created lazily if needed or simply return the cached version if it has already been generated.
 	tx, err := b.Tx(txNum)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -169,6 +183,7 @@ func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 
 	rawMsg, err := b.Bytes()
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -176,6 +191,7 @@ func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 	var mblock wire.MsgBlock
 	txLocs, err := mblock.DeserializeTxLoc(rbuf)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -184,6 +200,7 @@ func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 
 // Height returns the saved height of the block in the block chain.  This value will be BlockHeightUnknown if it hasn't already explicitly been set.
 func (b *Block) Height() int32 {
+
 	return b.blockHeight
 }
 
@@ -196,6 +213,7 @@ func (b *Block) SetHeight(height int32) {
 // NewBlock returns a new instance of a bitcoin block given an underlying wire.MsgBlock.  See Block.
 func NewBlock(
 	msgBlock *wire.MsgBlock) *Block {
+
 	return &Block{
 		msgBlock:    msgBlock,
 		blockHeight: BlockHeightUnknown,
@@ -210,6 +228,7 @@ func NewBlockFromBytes(
 	br := bytes.NewReader(serializedBlock)
 	b, err := NewBlockFromReader(br)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -225,6 +244,7 @@ func NewBlockFromReader(
 	var msgBlock wire.MsgBlock
 	err := msgBlock.Deserialize(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -239,6 +259,7 @@ func NewBlockFromReader(
 // NewBlockFromBlockAndBytes returns a new instance of a bitcoin block given an underlying wire.MsgBlock and the serialized bytes for it.  See Block.
 func NewBlockFromBlockAndBytes(
 	msgBlock *wire.MsgBlock, serializedBlock []byte) *Block {
+
 	return &Block{
 		msgBlock:        msgBlock,
 		serializedBlock: serializedBlock,

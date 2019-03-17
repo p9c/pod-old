@@ -30,6 +30,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("createnewaccount", "acct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewCreateNewAccountCmd("acct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"createnewaccount","params":["acct"],"id":1}`,
@@ -44,6 +45,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("dumpwallet", "filename")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewDumpWalletCmd("filename")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"dumpwallet","params":["filename"],"id":1}`,
@@ -58,6 +60,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("importaddress", "1Address", "")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportAddressCmd("1Address", "", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importaddress","params":["1Address",""],"id":1}`,
@@ -73,6 +76,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("importaddress", "1Address", "acct", false)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportAddressCmd("1Address", "acct", json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importaddress","params":["1Address","acct",false],"id":1}`,
@@ -89,6 +93,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("importpubkey", "031234")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportPubKeyCmd("031234", nil)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importpubkey","params":["031234"],"id":1}`,
@@ -104,6 +109,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("importpubkey", "031234", false)
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportPubKeyCmd("031234", json.Bool(false))
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importpubkey","params":["031234",false],"id":1}`,
@@ -119,6 +125,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("importwallet", "filename")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewImportWalletCmd("filename")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"importwallet","params":["filename"],"id":1}`,
@@ -133,6 +140,7 @@ func TestBtcWalletExtCmds(
 				return json.NewCmd("renameaccount", "oldacct", "newacct")
 			},
 			staticCmd: func() interface{} {
+
 				return json.NewRenameAccountCmd("oldacct", "newacct")
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"renameaccount","params":["oldacct","newacct"],"id":1}`,
@@ -144,10 +152,12 @@ func TestBtcWalletExtCmds(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Marshal the command as created by the new static command
 		// creation function.
 		marshalled, err := json.MarshalCmd(testID, test.staticCmd())
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -162,12 +172,14 @@ func TestBtcWalletExtCmds(
 		// Ensure the command is created without error via the generic new command creation function.
 		cmd, err := test.newCmd()
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
 				i, test.name, err)
 		}
 		// Marshal the command as created by the generic new command creation function.
 		marshalled, err = json.MarshalCmd(testID, cmd)
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -181,6 +193,7 @@ func TestBtcWalletExtCmds(
 		}
 		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
@@ -188,6 +201,7 @@ func TestBtcWalletExtCmds(
 		}
 		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
+
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue

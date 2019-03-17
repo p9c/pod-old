@@ -28,6 +28,7 @@ func TestAddDuplicateDriver(
 
 	supportedDrivers := walletdb.SupportedDrivers()
 	if len(supportedDrivers) == 0 {
+
 		t.Errorf("no backends to test")
 		return
 	}
@@ -58,6 +59,7 @@ func TestAddDuplicateDriver(
 	}
 	err := walletdb.RegisterDriver(driver)
 	if err != walletdb.ErrDbTypeRegistered {
+
 		t.Errorf("unexpected duplicate driver registration error - "+
 			"got %v, want %v", err, walletdb.ErrDbTypeRegistered)
 	}
@@ -65,6 +67,7 @@ func TestAddDuplicateDriver(
 	dbPath := "dupdrivertest.db"
 	db, err := walletdb.Create(dbType, dbPath)
 	if err != nil {
+
 		t.Errorf("failed to create database: %v", err)
 		return
 	}
@@ -106,6 +109,7 @@ func TestCreateOpenFail(
 	// error.
 	_, err := walletdb.Create(dbType)
 	if err != openError {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			openError)
 		return
@@ -116,6 +120,7 @@ func TestCreateOpenFail(
 	// error.
 	_, err = walletdb.Open(dbType)
 	if err != openError {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			openError)
 		return
@@ -133,6 +138,7 @@ func TestCreateOpenUnsupported(
 	dbType := "unsupported"
 	_, err := walletdb.Create(dbType)
 	if err != walletdb.ErrDbUnknownType {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			walletdb.ErrDbUnknownType)
 		return
@@ -143,6 +149,7 @@ func TestCreateOpenUnsupported(
 	// expected error.
 	_, err = walletdb.Open(dbType)
 	if err != walletdb.ErrDbUnknownType {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			walletdb.ErrDbUnknownType)
 		return

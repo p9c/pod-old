@@ -33,14 +33,17 @@ func nodeHandleSave() {
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	yn, e := yaml.Marshal(nodeConfig)
 	if e == nil {
+
 		EnsureDir(*nodeConfig.ConfigFile)
 		e = ioutil.WriteFile(
 			*nodeConfig.ConfigFile, yn, 0600)
 		if e != nil {
+
 			panic(e)
 		}
 
 	} else {
+
 		panic(e)
 	}
 
@@ -58,29 +61,35 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.DataDir,
 		nodeConfigFilename)
 	if FileExists(*nodeConfig.ConfigFile) {
+
 		ncb, e := ioutil.ReadFile(*nodeConfig.ConfigFile)
 		if e != nil {
+
 			panic(e)
 		}
 
 		ncf := &node.Config{}
 		e = yaml.Unmarshal(ncb, ncf)
 		if e != nil {
+
 			panic(e)
 		}
 
 		nodeConfig = ncf
 	} else {
+
 		appConfigCommon.Save = true
 	}
 
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	if !c.Parent().Bool("useproxy") {
+
 		*nodeConfig.Proxy = ""
 	}
 
 	loglevel := c.Parent().String("loglevel")
 	switch loglevel {
+
 	case "trace", "debug", "info", "warn", "error", "fatal":
 	default:
 		*nodeConfig.DebugLevel = "info"
@@ -88,6 +97,7 @@ func nodeHandle(c *cli.Context) error {
 
 	network := c.Parent().String("network")
 	switch network {
+
 	case "testnet", "testnet3", "t":
 		nodeConfig.TestNet3 = &True
 		nodeConfig.SimNet = &False
@@ -105,6 +115,7 @@ func nodeHandle(c *cli.Context) error {
 		activeNetParams = &netparams.SimNetParams
 	default:
 		if network != "mainnet" && network != "m" {
+
 			fmt.Println("using mainnet for node")
 		}
 
@@ -116,6 +127,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	if !*nodeConfig.Onion {
+
 		*nodeConfig.OnionProxy = ""
 	}
 
@@ -131,6 +143,7 @@ func nodeHandle(c *cli.Context) error {
 	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 	_ = podHandle(c)
 	if appConfigCommon.Save {
+
 		appConfigCommon.Save = false
 		podHandleSave()
 		nodeHandleSave()
@@ -152,8 +165,10 @@ func nodeHandle(c *cli.Context) error {
 
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
+
 		err := runServiceCommand(serviceOpts.ServiceCommand)
 		if err != nil {
+
 			log <- cl.Error{err}
 			return err
 		}
@@ -163,11 +178,13 @@ func nodeHandle(c *cli.Context) error {
 
 	// Don't add peers from the config file when in regression test mode.
 	if *nodeConfig.RegressionTest && len(*nodeConfig.AddPeers) > 0 {
+
 		nodeConfig.AddPeers = nil
 	}
 
 	// Set the mining algorithm correctly, default to random if unrecognised
 	switch *nodeConfig.Algo {
+
 	case fork.P9AlgoVers[0], fork.P9AlgoVers[1], fork.P9AlgoVers[2], fork.P9AlgoVers[3], fork.P9AlgoVers[4], fork.P9AlgoVers[5], fork.P9AlgoVers[6], fork.P9AlgoVers[7], fork.P9AlgoVers[8], "random", "easy":
 	default:
 		*nodeConfig.Algo = "random"
@@ -176,6 +193,7 @@ func nodeHandle(c *cli.Context) error {
 	relayNonStd := *nodeConfig.RelayNonStd
 	funcName := "loadConfig"
 	switch {
+
 	case *nodeConfig.RelayNonStd && *nodeConfig.RejectNonStd:
 		errf := "%s: rejectnonstd and relaynonstd cannot be used together -- choose only one"
 		log <- cl.Errorf{errf, funcName}
@@ -202,6 +220,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// Validate database type.
 	if !node.ValidDbType(*nodeConfig.DbType) {
+
 		str := "%s: The specified database type [%v] is invalid -- " +
 			"supported types %v"
 		err := fmt.Errorf(str, funcName, *nodeConfig.DbType, node.KnownDbTypes)
@@ -212,8 +231,10 @@ func nodeHandle(c *cli.Context) error {
 
 	// Validate profile port number
 	if *nodeConfig.Profile != "" {
+
 		profilePort, err := strconv.Atoi(*nodeConfig.Profile)
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
+
 			str := "%s: The profile port must be between 1024 and 65535"
 			err := fmt.Errorf(str, funcName)
 			log <- cl.Error{err}
@@ -224,6 +245,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// Don't allow ban durations that are too short.
 	if *nodeConfig.BanDuration < time.Second {
+
 		err := fmt.Errorf("%s: The banduration option may not be less than 1s -- parsed [%v]", funcName, *nodeConfig.BanDuration)
 		log <- cl.Error{err}
 		return err
@@ -231,14 +253,18 @@ func nodeHandle(c *cli.Context) error {
 
 	// Validate any given whitelisted IP addresses and networks.
 	if len(*nodeConfig.Whitelists) > 0 {
+
 		var ip net.IP
 		StateCfg.ActiveWhitelists = make([]*net.IPNet, 0, len(*nodeConfig.Whitelists))
 		for _, addr := range *nodeConfig.Whitelists {
+
 			_, ipnet, err := net.ParseCIDR(addr)
 			if err != nil {
+
 				err = fmt.Errorf("%s '%s'", cl.Ine(), err.Error())
 				ip = net.ParseIP(addr)
 				if ip == nil {
+
 					str := err.Error() + " %s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
@@ -252,6 +278,7 @@ func nodeHandle(c *cli.Context) error {
 					// IPv6
 					bits = 128
 				} else {
+
 					bits = 32
 				}
 
@@ -269,6 +296,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// --addPeer and --connect do not mix.
 	if len(*nodeConfig.AddPeers) > 0 && len(*nodeConfig.ConnectPeers) > 0 {
+
 		err := fmt.Errorf(
 			"%s: the --addpeer and --connect options can not be mixed",
 			funcName)
@@ -279,16 +307,19 @@ func nodeHandle(c *cli.Context) error {
 	// --proxy or --connect without --listen disables listening.
 	if (*nodeConfig.Proxy != "" || len(*nodeConfig.ConnectPeers) > 0) &&
 		len(*nodeConfig.Listeners) == 0 {
+
 		*nodeConfig.DisableListen = true
 	}
 
 	// Connect means no DNS seeding.
 	if len(*nodeConfig.ConnectPeers) > 0 {
+
 		*nodeConfig.DisableDNSSeed = true
 	}
 
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(*nodeConfig.Listeners) == 0 {
+
 		*nodeConfig.Listeners = []string{
 			net.JoinHostPort("127.0.0.1", activeNetParams.DefaultPort),
 		}
@@ -298,6 +329,7 @@ func nodeHandle(c *cli.Context) error {
 	// Check to make sure limited and admin users don't have the same username
 	if *nodeConfig.RPCUser != "" &&
 		*nodeConfig.RPCUser == *nodeConfig.RPCLimitUser {
+
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
@@ -307,6 +339,7 @@ func nodeHandle(c *cli.Context) error {
 	// Check to make sure limited and admin users don't have the same password
 	if *nodeConfig.RPCPass != "" &&
 		*nodeConfig.RPCPass == *nodeConfig.RPCLimitPass {
+
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
@@ -317,23 +350,28 @@ func nodeHandle(c *cli.Context) error {
 	// The RPC server is disabled if no username or password is provided.
 	if (*nodeConfig.RPCUser == "" || *nodeConfig.RPCPass == "") &&
 		(*nodeConfig.RPCLimitUser == "" || *nodeConfig.RPCLimitPass == "") {
+
 		*nodeConfig.DisableRPC = true
 	}
 
 	if *nodeConfig.DisableRPC {
+
 		log <- cl.Inf("RPC service is disabled")
 	}
 
 	// Default RPC to listen on localhost only.
 	if !*nodeConfig.DisableRPC && len(*nodeConfig.RPCListeners) == 0 {
+
 		addrs, err := net.LookupHost(node.DefaultRPCListener)
 		if err != nil {
+
 			log <- cl.Error{err}
 			return err
 		}
 
 		*nodeConfig.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
+
 			addr = net.JoinHostPort(addr, activeNetParams.RPCClientPort)
 			*nodeConfig.RPCListeners = append(*nodeConfig.RPCListeners, addr)
 		}
@@ -341,6 +379,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	if *nodeConfig.RPCMaxConcurrentReqs < 0 {
+
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, *nodeConfig.RPCMaxConcurrentReqs)
 		log <- cl.Error{err}
@@ -352,6 +391,7 @@ func nodeHandle(c *cli.Context) error {
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(*nodeConfig.MinRelayTxFee)
 	if err != nil {
+
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Error{err}
@@ -362,6 +402,7 @@ func nodeHandle(c *cli.Context) error {
 	// Limit the max block size to a sane value.
 	if *nodeConfig.BlockMaxSize < node.BlockMaxSizeMin ||
 		*nodeConfig.BlockMaxSize > node.BlockMaxSizeMax {
+
 		str := "%s: The blockmaxsize option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxSizeMin,
 			node.BlockMaxSizeMax, *nodeConfig.BlockMaxSize)
@@ -373,6 +414,7 @@ func nodeHandle(c *cli.Context) error {
 	// Limit the max block weight to a sane value.
 	if *nodeConfig.BlockMaxWeight < node.BlockMaxWeightMin ||
 		*nodeConfig.BlockMaxWeight > node.BlockMaxWeightMax {
+
 		str := "%s: The blockmaxweight option must be in between %d and %d -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, node.BlockMaxWeightMin,
 			node.BlockMaxWeightMax, *nodeConfig.BlockMaxWeight)
@@ -383,6 +425,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// Limit the max orphan count to a sane vlue.
 	if *nodeConfig.MaxOrphanTxs < 0 {
+
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, *nodeConfig.MaxOrphanTxs)
 		log <- cl.Error{err}
@@ -415,7 +458,9 @@ func nodeHandle(c *cli.Context) error {
 
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range *nodeConfig.UserAgentComments {
+
 		if strings.ContainsAny(uaComment, "/:()") {
+
 			err := fmt.Errorf("%s: The following characters must not "+
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
@@ -428,6 +473,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// --addrindex and --dropaddrindex do not mix.
 	if *nodeConfig.AddrIndex && *nodeConfig.DropAddrIndex {
+
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex options may not be activated at the same time",
 			funcName)
 		log <- cl.Error{err}
@@ -438,8 +484,10 @@ func nodeHandle(c *cli.Context) error {
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(*nodeConfig.MiningAddrs))
 	for _, strAddr := range *nodeConfig.MiningAddrs {
+
 		addr, err := util.DecodeAddress(strAddr, activeNetParams.Params)
 		if err != nil {
+
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
 			log <- cl.Err(err.Error())
@@ -448,6 +496,7 @@ func nodeHandle(c *cli.Context) error {
 		}
 
 		if !addr.IsForNet(activeNetParams.Params) {
+
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Error{err}
@@ -460,6 +509,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (*nodeConfig.Generate || *nodeConfig.MinerListener != "") && len(*nodeConfig.MiningAddrs) == 0 {
+
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
@@ -468,6 +518,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	if *nodeConfig.MinerPass != "" {
+
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(*nodeConfig.MinerPass))
 	}
 
@@ -475,8 +526,11 @@ func nodeHandle(c *cli.Context) error {
 	*nodeConfig.RPCListeners = node.NormalizeAddresses(*nodeConfig.RPCListeners,
 		activeNetParams.RPCClientPort)
 	if !*nodeConfig.DisableRPC && !*nodeConfig.TLS {
+
 		for _, addr := range *nodeConfig.RPCListeners {
+
 			if err != nil {
+
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
 				log <- cl.Error{err}
@@ -500,6 +554,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// --onionproxy and not --onion are contradictory (TODO: this is kinda stupid hm? switch *and* toggle by presence of flag value, one should be enough)
 	if !*nodeConfig.Onion && *nodeConfig.OnionProxy != "" {
+
 		err := fmt.Errorf("%s: the --onionproxy and --onion options may not be activated at the same time", funcName)
 		log <- cl.Error{err}
 		// fmt.Fprintln(os.Stderr, usageMessage)
@@ -509,6 +564,7 @@ func nodeHandle(c *cli.Context) error {
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = node.ParseCheckpoints(*nodeConfig.AddCheckpoints)
 	if err != nil {
+
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
@@ -520,6 +576,7 @@ func nodeHandle(c *cli.Context) error {
 	if *nodeConfig.TorIsolation &&
 		*nodeConfig.Proxy == "" &&
 		*nodeConfig.OnionProxy == "" {
+
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
@@ -531,9 +588,11 @@ func nodeHandle(c *cli.Context) error {
 	StateCfg.Dial = net.DialTimeout
 	StateCfg.Lookup = net.LookupIP
 	if *nodeConfig.Proxy != "" {
+
 		log <- cl.Info{"we are loading a proxy!"}
 		_, _, err := net.SplitHostPort(*nodeConfig.Proxy)
 		if err != nil {
+
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, *nodeConfig.Proxy, err)
 			log <- cl.Error{err}
@@ -547,6 +606,7 @@ func nodeHandle(c *cli.Context) error {
 			*nodeConfig.OnionProxy == "" &&
 			(*nodeConfig.ProxyUser != "" ||
 				*nodeConfig.ProxyPass != "") {
+
 			torIsolation = true
 			log <- cl.Warn{
 				"Tor isolation set -- overriding specified proxy user credentials"}
@@ -563,7 +623,9 @@ func nodeHandle(c *cli.Context) error {
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if *nodeConfig.Onion &&
 			*nodeConfig.OnionProxy == "" {
+
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, *nodeConfig.Proxy)
 			}
 
@@ -573,8 +635,10 @@ func nodeHandle(c *cli.Context) error {
 
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
 	if *nodeConfig.OnionProxy != "" {
+
 		_, _, err := net.SplitHostPort(*nodeConfig.OnionProxy)
 		if err != nil {
+
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, *nodeConfig.OnionProxy, err)
 			log <- cl.Error{err}
@@ -585,12 +649,14 @@ func nodeHandle(c *cli.Context) error {
 		// Tor isolation flag means onion proxy credentials will be overriddenode.
 		if *nodeConfig.TorIsolation &&
 			(*nodeConfig.OnionProxyUser != "" || *nodeConfig.OnionProxyPass != "") {
+
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
 
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
+
 			proxy := &socks.Proxy{
 				Addr:         *nodeConfig.OnionProxy,
 				Username:     *nodeConfig.OnionProxyUser,
@@ -603,25 +669,31 @@ func nodeHandle(c *cli.Context) error {
 
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if *nodeConfig.Proxy != "" {
+
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
+
 				return connmgr.TorLookupIP(host, *nodeConfig.OnionProxy)
 			}
 
 		}
 
 	} else {
+
 		StateCfg.Oniondial = StateCfg.Dial
 	}
 
 	// Specifying --noonion means the onion address dial function results in an error.
 	if !*nodeConfig.Onion {
+
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
+
 			return nil, errors.New("tor has been disabled")
 		}
 
 	}
 
 	if appConfigCommon.Save {
+
 		appConfigCommon.Save = false
 		podHandleSave()
 		nodeHandleSave()

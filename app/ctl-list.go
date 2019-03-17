@@ -8,6 +8,7 @@ import (
 )
 
 func ctlHandleList(c *cli.Context) error {
+
 	fmt.Println("running ctl listcommands")
 	_ = ctlHandle(c)
 	spew.Dump(ctlConfig)

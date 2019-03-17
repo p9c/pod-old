@@ -15,7 +15,9 @@ type MsgHeaders struct {
 
 // AddBlockHeader adds a new block header to the message.
 func (msg *MsgHeaders) AddBlockHeader(bh *BlockHeader) error {
+
 	if len(msg.Headers)+1 > MaxBlockHeadersPerMsg {
+
 		str := fmt.Sprintf("too many block headers in message [max %v]",
 			MaxBlockHeadersPerMsg)
 		return messageError("MsgHeaders.AddBlockHeader", str)
@@ -26,13 +28,16 @@ func (msg *MsgHeaders) AddBlockHeader(bh *BlockHeader) error {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 
 	// Limit to max block headers per message.
 	if count > MaxBlockHeadersPerMsg {
+
 		str := fmt.Sprintf("too many block headers for message "+
 			"[count %v, max %v]", count, MaxBlockHeadersPerMsg)
 		return messageError("MsgHeaders.BtcDecode", str)
@@ -42,18 +47,22 @@ func (msg *MsgHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 	headers := make([]BlockHeader, count)
 	msg.Headers = make([]*BlockHeader, 0, count)
 	for i := uint64(0); i < count; i++ {
+
 		bh := &headers[i]
 		err := readBlockHeader(r, pver, bh)
 		if err != nil {
+
 			return err
 		}
 		txCount, err := ReadVarInt(r, pver)
 		if err != nil {
+
 			return err
 		}
 
 		// Ensure the transaction count is zero for headers.
 		if txCount > 0 {
+
 			str := fmt.Sprintf("block headers may not contain "+
 				"transactions [count %v]", txCount)
 			return messageError("MsgHeaders.BtcDecode", str)
@@ -69,23 +78,28 @@ func (msg *MsgHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 	// Limit to max block headers per message.
 	count := len(msg.Headers)
 	if count > MaxBlockHeadersPerMsg {
+
 		str := fmt.Sprintf("too many block headers for message "+
 			"[count %v, max %v]", count, MaxBlockHeadersPerMsg)
 		return messageError("MsgHeaders.BtcEncode", str)
 	}
 	err := WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for _, bh := range msg.Headers {
+
 		err := writeBlockHeader(w, pver, bh)
 		if err != nil {
+
 			return err
 		}
 
 		// The wire protocol encoding always includes a 0 for the number of transactions on header messages.  This is really just an artifact of the way the original implementation serializes block headers, but it is required.
 		err = WriteVarInt(w, pver, 0)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -94,6 +108,7 @@ func (msg *MsgHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgHeaders) Command() string {
+
 	return CmdHeaders
 }
 
@@ -107,6 +122,7 @@ func (msg *MsgHeaders) MaxPayloadLength(pver uint32) uint32 {
 
 // NewMsgHeaders returns a new bitcoin headers message that conforms to the Message interface.  See MsgHeaders for details.
 func NewMsgHeaders() *MsgHeaders {
+
 	return &MsgHeaders{
 		Headers: make([]*BlockHeader, 0, MaxBlockHeadersPerMsg),
 	}

@@ -61,11 +61,13 @@ func (h *BlockHeader) BlockHashWithAlgos(height int32) (out chainhash.Hash) {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation. See Deserialize for decoding block headers stored to disk, such as in a database, as opposed to decoding block headers from the wire.
 func (h *BlockHeader) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	return readBlockHeader(r, pver, h)
 }
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation. See Serialize for encoding block headers to be stored to disk, such as in a database, as opposed to encoding block headers for the wire.
 func (h *BlockHeader) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	return writeBlockHeader(w, pver, h)
 }
 
@@ -102,6 +104,7 @@ func NewBlockHeader(
 // readBlockHeader reads a bitcoin block header from r.  See Deserialize for decoding block headers stored to disk, such as in a database, as opposed to decoding from the wire.
 func readBlockHeader(
 	r io.Reader, pver uint32, bh *BlockHeader) error {
+
 	return readElements(r, &bh.Version, &bh.PrevBlock, &bh.MerkleRoot,
 		(*uint32Time)(&bh.Timestamp), &bh.Bits, &bh.Nonce)
 }
@@ -109,6 +112,7 @@ func readBlockHeader(
 // writeBlockHeader writes a bitcoin block header to w.  See Serialize for encoding block headers to be stored to disk, such as in a database, as opposed to encoding for the wire.
 func writeBlockHeader(
 	w io.Writer, pver uint32, bh *BlockHeader) error {
+
 	sec := uint32(bh.Timestamp.Unix())
 	return writeElements(w, bh.Version, &bh.PrevBlock, &bh.MerkleRoot,
 		sec, bh.Bits, bh.Nonce)

@@ -47,6 +47,7 @@ func Version() string {
 	// is not appended if it contains invalid characters.
 	preRelease := normalizeVerString(appPreRelease)
 	if preRelease != "" {
+
 		version = fmt.Sprintf("%s-%s", version, preRelease)
 	}
 
@@ -59,6 +60,7 @@ func Version() string {
 	// string is not appended if it contains invalid characters.
 	build := normalizeVerString(appBuild)
 	if build != "" {
+
 		version = fmt.Sprintf("%s+%s", version, build)
 	}
 
@@ -74,8 +76,10 @@ func Version() string {
 // characters in semanticAlphabet.
 func normalizeVerString(
 	str string) string {
+
 	result := bytes.Buffer{}
 	for _, r := range str {
+
 		if strings.ContainsRune(semanticAlphabet, r) {
 
 			_, err := result.WriteRune(r)
@@ -84,6 +88,7 @@ func normalizeVerString(
 
 			// errors are unexpected.
 			if err != nil {
+
 				panic(err)
 			}
 

@@ -25,6 +25,7 @@ func main() {
 	certHomeDir := util.AppDataDir("mod", false)
 	certs, err := ioutil.ReadFile(filepath.Join(certHomeDir, "rpc.cert"))
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	connCfg := &rpcclient.ConnConfig{
@@ -36,15 +37,18 @@ func main() {
 	}
 	client, err := rpcclient.New(connCfg, &ntfnHandlers)
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	// Get the list of unspent transaction outputs (utxos) that the connected wallet has at least one private key for.
 	unspent, err := client.ListUnspent()
 	if err != nil {
+
 		log.Fatal(err)
 	}
 	log.Printf("Num unspent outputs (utxos): %d", len(unspent))
 	if len(unspent) > 0 {
+
 		log.Printf("First utxo:\n%v", spew.Sdump(unspent[0]))
 	}
 	// For this example gracefully shutdown the client after 10 seconds. Ordinarily when to shutdown the client is highly application specific.

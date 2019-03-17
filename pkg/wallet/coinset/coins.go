@@ -38,12 +38,14 @@ var _ Coins = NewCoinSet(nil)
 // NewCoinSet creates a CoinSet containing the coins provided. To create an empty CoinSet, you may pass null as the coins input parameter.
 func NewCoinSet(
 	coins []Coin) *CoinSet {
+
 	newCoinSet := &CoinSet{
 		coinList:      list.New(),
 		totalValue:    0,
 		totalValueAge: 0,
 	}
 	for _, coin := range coins {
+
 		newCoinSet.PushCoin(coin)
 	}
 	return newCoinSet
@@ -51,6 +53,7 @@ func NewCoinSet(
 
 // Coins returns a new slice of the coins contained in the set.
 func (cs *CoinSet) Coins() []Coin {
+
 	coins := make([]Coin, cs.coinList.Len())
 	for i, e := 0, cs.coinList.Front(); e != nil; i, e = i+1, e.Next() {
 
@@ -73,6 +76,7 @@ func (cs *CoinSet) TotalValueAge() (valueAge int64) {
 
 // Num returns the number of coins in the set
 func (cs *CoinSet) Num() int {
+
 	return cs.coinList.Len()
 }
 
@@ -86,8 +90,10 @@ func (cs *CoinSet) PushCoin(c Coin) {
 
 // PopCoin removes the last coin on the list and returns it.
 func (cs *CoinSet) PopCoin() Coin {
+
 	back := cs.coinList.Back()
 	if back == nil {
+
 		return nil
 	}
 	return cs.removeElement(back)
@@ -95,8 +101,10 @@ func (cs *CoinSet) PopCoin() Coin {
 
 // ShiftCoin removes the first coin on the list and returns it.
 func (cs *CoinSet) ShiftCoin() Coin {
+
 	front := cs.coinList.Front()
 	if front == nil {
+
 		return nil
 	}
 	return cs.removeElement(front)
@@ -104,6 +112,7 @@ func (cs *CoinSet) ShiftCoin() Coin {
 
 // removeElement updates the cached value amounts in the CoinSet, removes the element from the list, then returns the Coin that was removed to the caller.
 func (cs *CoinSet) removeElement(e *list.Element) Coin {
+
 	c := e.Value.(Coin)
 	cs.coinList.Remove(e)
 	cs.totalValue -= c.Value()
@@ -114,10 +123,12 @@ func (cs *CoinSet) removeElement(e *list.Element) Coin {
 // NewMsgTxWithInputCoins takes the coins in the CoinSet and makes them the inputs to a new wire.MsgTx which is returned.
 func NewMsgTxWithInputCoins(
 	txVersion int32, inputCoins Coins) *wire.MsgTx {
+
 	msgTx := wire.NewMsgTx(txVersion)
 	coins := inputCoins.Coins()
 	msgTx.TxIn = make([]*wire.TxIn, len(coins))
 	for i, coin := range coins {
+
 		msgTx.TxIn[i] = &wire.TxIn{
 			PreviousOutPoint: wire.OutPoint{
 				Hash:  *coin.Hash(),
@@ -139,6 +150,7 @@ var (
 // satisfiesTargetValue checks that the totalValue is either exactly the targetValue or is greater than the targetValue by at least the minChange amount.
 func satisfiesTargetValue(
 	targetValue, minChange, totalValue util.Amount) bool {
+
 	return (totalValue == targetValue || totalValue >= targetValue+minChange)
 }
 
@@ -159,6 +171,7 @@ func (s MinIndexCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) 
 
 	cs := NewCoinSet(nil)
 	for n := 0; n < len(coins) && n < s.MaxInputs; n++ {
+
 		cs.PushCoin(coins[n])
 		if satisfiesTargetValue(targetValue, s.MinChangeAmount, cs.TotalValue()) {
 
@@ -215,17 +228,21 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 	// find the first coin with sufficient valueAge
 	cutoffIndex := -1
 	for i := 0; i < len(possibleCoins); i++ {
+
 		if possibleCoins[i].ValueAge() >= s.MinAvgValueAgePerInput {
+
 			cutoffIndex = i
 			break
 		}
 	}
 	if cutoffIndex < 0 {
+
 		return nil, ErrCoinsNoSelectionAvailable
 	}
 
 	// create sets of input coins that will obey minimum average valueAge
 	for i := cutoffIndex; i < len(possibleCoins); i++ {
+
 		possibleHighCoins := possibleCoins[cutoffIndex : i+1]
 		// choose a set of high-enough valueAge coins
 		highSelect, err := (&MinNumberCoinSelector{
@@ -233,12 +250,15 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 			MinChangeAmount: s.MinChangeAmount,
 		}).CoinSelect(targetValue, possibleHighCoins)
 		if err != nil {
+
 			// attempt to add available low priority to make a solution
 			for numLow := 1; numLow <= cutoffIndex && numLow+(i-cutoffIndex) <= s.MaxInputs; numLow++ {
+
 				allHigh := NewCoinSet(possibleCoins[cutoffIndex : i+1])
 				newTargetValue := targetValue - allHigh.TotalValue()
 				newMaxInputs := allHigh.Num() + numLow
 				if newMaxInputs > numLow {
+
 					newMaxInputs = numLow
 				}
 				newMinAvgValueAge := ((s.MinAvgValueAgePerInput * int64(allHigh.Num()+numLow)) - allHigh.TotalValueAge()) / int64(numLow)
@@ -249,6 +269,7 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 					MinAvgValueAgePerInput: newMinAvgValueAge,
 				}).CoinSelect(newTargetValue, possibleCoins[0:cutoffIndex])
 				if err != nil {
+
 					continue
 				}
 				for _, coin := range lowSelect.Coins() {
@@ -259,17 +280,22 @@ func (s MinPriorityCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 			}
 			// oh well, couldn't fix, try to add more high priority to the set.
 		} else {
+
 			extendedCoins := NewCoinSet(highSelect.Coins())
 			// attempt to lower priority towards target with lowest ones first
 			for n := 0; n < cutoffIndex; n++ {
+
 				if extendedCoins.Num() >= s.MaxInputs {
+
 					break
 				}
 				if possibleCoins[n].ValueAge() == 0 {
+
 					continue
 				}
 				extendedCoins.PushCoin(possibleCoins[n])
 				if extendedCoins.TotalValueAge()/int64(extendedCoins.Num()) < s.MinAvgValueAgePerInput {
+
 					extendedCoins.PopCoin()
 					continue
 				}
@@ -304,35 +330,42 @@ var _ Coin = &SimpleCoin{}
 
 // Hash returns the hash value of the transaction on which the Coin is an output
 func (c *SimpleCoin) Hash() *chainhash.Hash {
+
 	return c.Tx.Hash()
 }
 
 // Index returns the index of the output on the transaction which the Coin represents
 func (c *SimpleCoin) Index() uint32 {
+
 	return c.TxIndex
 }
 
 // txOut returns the TxOut of the transaction the Coin represents
 func (c *SimpleCoin) txOut() *wire.TxOut {
+
 	return c.Tx.MsgTx().TxOut[c.TxIndex]
 }
 
 // Value returns the value of the Coin
 func (c *SimpleCoin) Value() util.Amount {
+
 	return util.Amount(c.txOut().Value)
 }
 
 // PkScript returns the outpoint script of the Coin. This can be used to determine what type of script the Coin uses and extract standard addresses if possible using txscript.ExtractPkScriptAddrs for example.
 func (c *SimpleCoin) PkScript() []byte {
+
 	return c.txOut().PkScript
 }
 
 // NumConfs returns the number of confirmations that the transaction the Coin references has had.
 func (c *SimpleCoin) NumConfs() int64 {
+
 	return c.TxNumConfs
 }
 
 // ValueAge returns the product of the value and the number of confirmations. This is used as an input to calculate the priority of the transaction.
 func (c *SimpleCoin) ValueAge() int64 {
+
 	return c.TxNumConfs * int64(c.Value())
 }

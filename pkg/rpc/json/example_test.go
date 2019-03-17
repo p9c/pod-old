@@ -18,6 +18,7 @@ func ExampleMarshalCmd() {
 	id := 1
 	marshalledBytes, err := json.MarshalCmd(id, gbCmd)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -37,16 +38,19 @@ func ExampleUnmarshalCmd() {
 	// Unmarshal the raw bytes from the wire into a JSON-RPC request.
 	var request json.Request
 	if err := json.Unmarshal(data, &request); err != nil {
+
 		fmt.Println(err)
 		return
 	}
 
 	// Typically there isn't any need to examine the request fields directly like this as the caller already knows what response to expect based on the command it sent.  However, this is done here to demonstrate why the unmarshal process is two steps.
 	if request.ID == nil {
+
 		fmt.Println("Unexpected notification")
 		return
 	}
 	if request.Method != "getblock" {
+
 		fmt.Println("Unexpected method")
 		return
 	}
@@ -54,6 +58,7 @@ func ExampleUnmarshalCmd() {
 	// Unmarshal the request into a concrete command.
 	cmd, err := json.UnmarshalCmd(&request)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -61,6 +66,7 @@ func ExampleUnmarshalCmd() {
 	// Type assert the command to the appropriate type.
 	gbCmd, ok := cmd.(*json.GetBlockCmd)
 	if !ok {
+
 		fmt.Printf("Incorrect command type: %T\n", cmd)
 		return
 	}
@@ -85,6 +91,7 @@ func ExampleMarshalResponse() {
 	// Marshal a new JSON-RPC response.  For example, this is a response to a getblockheight request.
 	marshalledBytes, err := json.MarshalResponse(1, 350001, nil)
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -104,12 +111,14 @@ func Example_unmarshalResponse() {
 	// Unmarshal the raw bytes from the wire into a JSON-RPC response.
 	var response json.Response
 	if err := json.Unmarshal(data, &response); err != nil {
+
 		fmt.Println("Malformed JSON-RPC response:", err)
 		return
 	}
 
 	// Check the response for an error from the server.  For example, the server might return an error if an invalid/unknown block hash is requested.
 	if response.Error != nil {
+
 		fmt.Println(response.Error)
 		return
 	}
@@ -117,6 +126,7 @@ func Example_unmarshalResponse() {
 	// Unmarshal the result into the expected type for the response.
 	var blockHeight int32
 	if err := json.Unmarshal(response.Result, &blockHeight); err != nil {
+
 		fmt.Printf("Unexpected result type: %T\n", response.Result)
 		return
 	}

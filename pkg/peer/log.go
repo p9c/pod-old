@@ -33,11 +33,13 @@ const (
 type logClosure func() string
 
 func (c logClosure) String() string {
+
 	return c()
 }
 
 func newLogClosure(
 	c func() string) logClosure {
+
 	return logClosure(c)
 }
 
@@ -121,6 +123,7 @@ func locatorSummary(
 // sanitizeString strips any characters which are even remotely dangerous, such as html control characters, from the passed string.  It also limits it to the passed maximum size, which can be 0 for unlimited.  When the string is limited, it will also add "..." to the string to indicate it was truncated.
 func sanitizeString(
 	str string, maxLength uint) string {
+
 	const safeChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY" +
 		"Z01234567890 .,;_/:?@"
 

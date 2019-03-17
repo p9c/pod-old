@@ -32,6 +32,7 @@ func GUI(
 	var err error
 	jdb.JDB, err = scribble.New(filepath.Join(sh.DataDir, "gui"), nil)
 	if err != nil {
+
 		panic(err)
 	}
 
@@ -63,6 +64,7 @@ func GUI(
 		w.Bind("addressbook", &apps.AddressBook{})
 		w.Bind("addressbooklabel", &apps.AddressBookLabel{})
 		for mn, md := range vue.MODS {
+
 			w.Bind(mn, &md)
 			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwwwwww", mn)
 		}
@@ -84,14 +86,17 @@ func GUI(
 		})
 
 		for _, c := range libs.CSS {
+
 			w.InjectCSS(string(c))
 		}
 
 		for _, j := range libs.JSL {
+
 			w.Eval(string(j))
 		}
 
 		for _, v := range libs.VJS {
+
 			w.Eval(string(v))
 		}
 

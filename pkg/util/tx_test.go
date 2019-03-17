@@ -29,6 +29,7 @@ func TestTx(
 	wantIndex := 0
 	tx.SetIndex(0)
 	if gotIndex := tx.Index(); gotIndex != wantIndex {
+
 		t.Errorf("Index: mismatched index - got %v, want %v",
 			gotIndex, wantIndex)
 	}
@@ -37,11 +38,13 @@ func TestTx(
 	wantHashStr := "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87"
 	wantHash, err := chainhash.NewHashFromStr(wantHashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 
 	// Request the hash multiple times to test generation and caching.
 	for i := 0; i < 2; i++ {
+
 		hash := tx.Hash()
 		if !hash.IsEqual(wantHash) {
 
@@ -62,6 +65,7 @@ func TestNewTxFromBytes(
 	var testTxBuf bytes.Buffer
 	err := testTx.Serialize(&testTxBuf)
 	if err != nil {
+
 		t.Errorf("Serialize: %v", err)
 	}
 
@@ -70,6 +74,7 @@ func TestNewTxFromBytes(
 	// Create a new transaction from the serialized bytes.
 	tx, err := util.NewTxFromBytes(testTxBytes)
 	if err != nil {
+
 		t.Errorf("NewTxFromBytes: %v", err)
 		return
 	}
@@ -92,6 +97,7 @@ func TestTxErrors(
 	var testTxBuf bytes.Buffer
 	err := testTx.Serialize(&testTxBuf)
 	if err != nil {
+
 		t.Errorf("Serialize: %v", err)
 	}
 
@@ -101,6 +107,7 @@ func TestTxErrors(
 	shortBytes := testTxBytes[:4]
 	_, err = util.NewTxFromBytes(shortBytes)
 	if err != io.EOF {
+
 		t.Errorf("NewTxFromBytes: did not get expected error - "+
 			"got %v, want %v", err, io.EOF)
 	}

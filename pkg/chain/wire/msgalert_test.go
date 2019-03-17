@@ -34,6 +34,7 @@ func TestMsgAlert(
 	// Ensure the command is expected value.
 	wantCmd := "alert"
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgAlert: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -42,6 +43,7 @@ func TestMsgAlert(
 	wantPayload := uint32(1024 * 1024 * 32)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -51,6 +53,7 @@ func TestMsgAlert(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, pver, encoding)
 	if err != nil {
+
 		t.Error(err.Error())
 	}
 
@@ -69,6 +72,7 @@ func TestMsgAlert(
 	buf = *new(bytes.Buffer)
 	err = msg.BtcEncode(&buf, pver, encoding)
 	if err != nil {
+
 		t.Error(err.Error())
 	}
 
@@ -155,6 +159,7 @@ func TestMsgAlertWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -170,6 +175,7 @@ func TestMsgAlertWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -233,7 +239,9 @@ func TestMsgAlertWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -253,7 +261,9 @@ func TestMsgAlertWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue
@@ -266,6 +276,7 @@ func TestMsgAlertWireErrors(
 	w := new(bytes.Buffer)
 	err := baseMsgAlert.BtcEncode(w, pver, encoding)
 	if _, ok := err.(*MessageError); !ok {
+
 		t.Errorf("MsgAlert.BtcEncode wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
@@ -276,6 +287,7 @@ func TestMsgAlertWireErrors(
 	buf := *new(bytes.Buffer)
 	err = baseMsgAlert.BtcEncode(&buf, pver, encoding)
 	if _, ok := err.(*MessageError); !ok {
+
 		t.Errorf("MsgAlert.BtcEncode wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
@@ -286,6 +298,7 @@ func TestMsgAlertWireErrors(
 	buf = *new(bytes.Buffer)
 	err = baseMsgAlert.BtcEncode(&buf, pver, encoding)
 	if _, ok := err.(*MessageError); !ok {
+
 		t.Errorf("MsgAlert.BtcEncode wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
@@ -304,30 +317,37 @@ func TestAlert(
 	w := new(bytes.Buffer)
 	err := alert.Serialize(w, pver)
 	if err != nil {
+
 		t.Error(err.Error())
 	}
 	serializedpayload := w.Bytes()
 	newAlert, err := NewAlertFromPayload(serializedpayload, pver)
 	if err != nil {
+
 		t.Error(err.Error())
 	}
 	if alert.Version != newAlert.Version {
+
 		t.Errorf("NewAlertFromPayload: wrong Version - got %v, want %v ",
 			alert.Version, newAlert.Version)
 	}
 	if alert.RelayUntil != newAlert.RelayUntil {
+
 		t.Errorf("NewAlertFromPayload: wrong RelayUntil - got %v, want %v ",
 			alert.RelayUntil, newAlert.RelayUntil)
 	}
 	if alert.Expiration != newAlert.Expiration {
+
 		t.Errorf("NewAlertFromPayload: wrong Expiration - got %v, want %v ",
 			alert.Expiration, newAlert.Expiration)
 	}
 	if alert.ID != newAlert.ID {
+
 		t.Errorf("NewAlertFromPayload: wrong ID - got %v, want %v ",
 			alert.ID, newAlert.ID)
 	}
 	if alert.Cancel != newAlert.Cancel {
+
 		t.Errorf("NewAlertFromPayload: wrong Cancel - got %v, want %v ",
 			alert.Cancel, newAlert.Cancel)
 	}
@@ -337,16 +357,20 @@ func TestAlert(
 			len(alert.SetCancel), len(newAlert.SetCancel))
 	}
 	for i := 0; i < len(alert.SetCancel); i++ {
+
 		if alert.SetCancel[i] != newAlert.SetCancel[i] {
+
 			t.Errorf("NewAlertFromPayload: wrong SetCancel[%v] - got %v, want %v ",
 				len(alert.SetCancel), alert.SetCancel[i], newAlert.SetCancel[i])
 		}
 	}
 	if alert.MinVer != newAlert.MinVer {
+
 		t.Errorf("NewAlertFromPayload: wrong MinVer - got %v, want %v ",
 			alert.MinVer, newAlert.MinVer)
 	}
 	if alert.MaxVer != newAlert.MaxVer {
+
 		t.Errorf("NewAlertFromPayload: wrong MaxVer - got %v, want %v ",
 			alert.MaxVer, newAlert.MaxVer)
 	}
@@ -356,24 +380,30 @@ func TestAlert(
 			len(alert.SetSubVer), len(newAlert.SetSubVer))
 	}
 	for i := 0; i < len(alert.SetSubVer); i++ {
+
 		if alert.SetSubVer[i] != newAlert.SetSubVer[i] {
+
 			t.Errorf("NewAlertFromPayload: wrong SetSubVer[%v] - got %v, want %v ",
 				len(alert.SetSubVer), alert.SetSubVer[i], newAlert.SetSubVer[i])
 		}
 	}
 	if alert.Priority != newAlert.Priority {
+
 		t.Errorf("NewAlertFromPayload: wrong Priority - got %v, want %v ",
 			alert.Priority, newAlert.Priority)
 	}
 	if alert.Comment != newAlert.Comment {
+
 		t.Errorf("NewAlertFromPayload: wrong Comment - got %v, want %v ",
 			alert.Comment, newAlert.Comment)
 	}
 	if alert.StatusBar != newAlert.StatusBar {
+
 		t.Errorf("NewAlertFromPayload: wrong StatusBar - got %v, want %v ",
 			alert.StatusBar, newAlert.StatusBar)
 	}
 	if alert.Reserved != newAlert.Reserved {
+
 		t.Errorf("NewAlertFromPayload: wrong Reserved - got %v, want %v ",
 			alert.Reserved, newAlert.Reserved)
 	}
@@ -437,6 +467,7 @@ func TestAlertErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		w := newFixedWriter(test.max)
 		err := test.in.Serialize(w, test.pver)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
@@ -472,6 +503,7 @@ func TestAlertErrors(
 	r := bytes.NewReader(badAlertEncoded)
 	err := alert.Deserialize(r, pver)
 	if _, ok := err.(*MessageError); !ok {
+
 		t.Errorf("Alert.Deserialize wrong error got: %T, want: %T",
 			err, MessageError{})
 	}
@@ -489,6 +521,7 @@ func TestAlertErrors(
 	r = bytes.NewReader(badAlertEncoded)
 	err = alert.Deserialize(r, pver)
 	if _, ok := err.(*MessageError); !ok {
+
 		t.Errorf("Alert.Deserialize wrong error got: %T, want: %T",
 			err, MessageError{})
 	}

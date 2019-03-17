@@ -222,13 +222,17 @@ var walletDataDir = "/wallet"
 // If file doesn't exist, make one, empty is same as whatever is default
 func NewSourceFromFlagAndBase(c *cli.Context, confName, flagFileName string,
 ) func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
+
 		filePath := c.String(flagFileName)
 		filePath = filepath.Join(filePath, confName)
 		EnsureDir(filePath)
 		if !FileExists(filePath) {
+
 			err := ioutil.WriteFile(filePath, []byte{'\n'}, 0600)
 			if err != nil {
+
 				panic(err)
 			}
 

@@ -18,12 +18,15 @@ type merkleBlock struct {
 
 // calcTreeWidth calculates and returns the the number of nodes (width) or a merkle tree at the given depth-first height.
 func (m *merkleBlock) calcTreeWidth(height uint32) uint32 {
+
 	return (m.numTx + (1 << height) - 1) >> height
 }
 
 // calcHash returns the hash for a sub-tree given a depth-first height and node position.
 func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
+
 	if height == 0 {
+
 		return m.allHashes[pos]
 	}
 	var right *chainhash.Hash
@@ -32,6 +35,7 @@ func (m *merkleBlock) calcHash(height, pos uint32) *chainhash.Hash {
 
 		right = m.calcHash(height-1, pos*2+1)
 	} else {
+
 		right = left
 	}
 	return blockchain.HashMerkleBranches(left, right)
@@ -43,11 +47,13 @@ func (m *merkleBlock) traverseAndBuild(height, pos uint32) {
 	// Determine whether this node is a parent of a matched node.
 	var isParent byte
 	for i := pos << height; i < (pos+1)<<height && i < m.numTx; i++ {
+
 		isParent |= m.matchedBits[i]
 	}
 	m.bits = append(m.bits, isParent)
 	// When the node is a leaf node or not a parent of a matched node, append the hash to the list that will be part of the final merkle block.
 	if height == 0 || isParent == 0x00 {
+
 		m.finalHashes = append(m.finalHashes, m.calcHash(height, pos))
 		return
 	}
@@ -79,6 +85,7 @@ func NewMerkleBlock(
 			mBlock.matchedBits = append(mBlock.matchedBits, 0x01)
 			matchedIndices = append(matchedIndices, uint32(txIndex))
 		} else {
+
 			mBlock.matchedBits = append(mBlock.matchedBits, 0x00)
 		}
 		mBlock.allHashes = append(mBlock.allHashes, tx.Hash())
@@ -86,6 +93,7 @@ func NewMerkleBlock(
 	// Calculate the number of merkle branches (height) in the tree.
 	height := uint32(0)
 	for mBlock.calcTreeWidth(height) > 1 {
+
 		height++
 	}
 	// Build the depth-first partial merkle tree.
@@ -98,9 +106,11 @@ func NewMerkleBlock(
 		Flags:        make([]byte, (len(mBlock.bits)+7)/8),
 	}
 	for _, hash := range mBlock.finalHashes {
+
 		msgMerkleBlock.AddTxHash(hash)
 	}
 	for i := uint32(0); i < uint32(len(mBlock.bits)); i++ {
+
 		msgMerkleBlock.Flags[i/8] |= mBlock.bits[i] << (i % 8)
 	}
 	return &msgMerkleBlock, matchedIndices

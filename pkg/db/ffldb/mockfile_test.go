@@ -31,9 +31,11 @@ type mockFile struct {
 
 // Close closes the mock file without releasing any data associated with it. This allows it to be "reopened" without losing the data. This is part of the jebote implementation.
 func (f *mockFile) Close() error {
+
 	f.Lock()
 	defer f.Unlock()
 	if f.closed {
+
 		return errMockFileClosed
 	}
 
@@ -47,15 +49,18 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	f.RLock()
 	defer f.RUnlock()
 	if f.closed {
+
 		return 0, errMockFileClosed
 	}
 
 	maxSize := int64(len(f.data))
 	if f.maxSize > -1 && maxSize > f.maxSize {
+
 		maxSize = f.maxSize
 	}
 
 	if off < 0 || off > maxSize {
+
 		return 0, errInvalidOffset
 	}
 
@@ -63,6 +68,7 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	numToRead := int64(len(b))
 	endOffset := off + numToRead
 	if endOffset > maxSize {
+
 		numToRead = maxSize - off
 	}
 
@@ -77,18 +83,22 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 
 // Truncate changes the size of the mock file. This is part of the filer implementation.
 func (f *mockFile) Truncate(size int64) error {
+
 	f.Lock()
 	defer f.Unlock()
 	if f.closed {
+
 		return errMockFileClosed
 	}
 
 	maxSize := int64(len(f.data))
 	if f.maxSize > -1 && maxSize > f.maxSize {
+
 		maxSize = f.maxSize
 	}
 
 	if size > maxSize {
+
 		return errInvalidOffset
 	}
 
@@ -102,21 +112,25 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 	f.Lock()
 	defer f.Unlock()
 	if f.closed {
+
 		return 0, errMockFileClosed
 	}
 
 	maxSize := f.maxSize
 	if maxSize < 0 {
+
 		maxSize = 100 * 1024 // 100KiB
 	}
 
 	if off < 0 || off > maxSize {
+
 		return 0, errInvalidOffset
 	}
 
 	// Limit to the max size field, if set, and grow the slice if needed.
 	numToWrite := int64(len(b))
 	if off+numToWrite > maxSize {
+
 		numToWrite = maxSize - off
 	}
 
@@ -139,7 +153,9 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 // Sync doesn't do anything for mock files.  However, it will return an error if the mock file's forceSyncErr flag is set.
 // This is part of the filer implementation.
 func (f *mockFile) Sync() error {
+
 	if f.forceSyncErr {
+
 		return errSyncFail
 	}
 

@@ -14,6 +14,7 @@ var log = Log.Ch
 
 // String invokes the underlying function and returns the result.
 func (c logClosure) String() string {
+
 	return c()
 }
 
@@ -30,5 +31,6 @@ func UseLogger(
 // logging system.
 func newLogClosure(
 	c func() string) logClosure {
+
 	return logClosure(c)
 }

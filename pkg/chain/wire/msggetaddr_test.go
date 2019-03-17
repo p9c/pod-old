@@ -18,6 +18,7 @@ func TestGetAddr(
 	wantCmd := "getaddr"
 	msg := NewMsgGetAddr()
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgGetAddr: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -26,6 +27,7 @@ func TestGetAddr(
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -98,6 +100,7 @@ func TestGetAddrWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -113,6 +116,7 @@ func TestGetAddrWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}

@@ -59,16 +59,19 @@ func TestSort(
 		},
 	}
 	for _, test := range tests {
+
 		// Load and deserialize the test transaction.
 		filePath := filepath.Join("testdata", test.hexFile)
 		txHexBytes, err := ioutil.ReadFile(filePath)
 		if err != nil {
+
 			t.Errorf("ReadFile (%s): failed to read test file: %v",
 				test.name, err)
 			continue
 		}
 		txBytes, err := hex.DecodeString(string(txHexBytes))
 		if err != nil {
+
 			t.Errorf("DecodeString (%s): failed to decode tx: %v",
 				test.name, err)
 			continue
@@ -76,12 +79,14 @@ func TestSort(
 		var tx wire.MsgTx
 		err = tx.Deserialize(bytes.NewReader(txBytes))
 		if err != nil {
+
 			t.Errorf("Deserialize (%s): unexpected error %v",
 				test.name, err)
 			continue
 		}
 		// Ensure the sort order of the original transaction matches the expected value.
 		if got := txsort.IsSorted(&tx); got != test.isSorted {
+
 			t.Errorf("IsSorted (%s): sort does not match "+
 				"expected - got %v, want %v", test.name, got,
 				test.isSorted)
@@ -90,6 +95,7 @@ func TestSort(
 		// Sort the transaction and ensure the resulting hash is the expected value.
 		sortedTx := txsort.Sort(&tx)
 		if got := sortedTx.TxHash().String(); got != test.sortedHash {
+
 			t.Errorf("Sort (%s): sorted hash does not match "+
 				"expected - got %v, want %v", test.name, got,
 				test.sortedHash)
@@ -97,6 +103,7 @@ func TestSort(
 		}
 		// Ensure the original transaction is not modified.
 		if got := tx.TxHash().String(); got != test.unsortedHash {
+
 			t.Errorf("Sort (%s): unsorted hash does not match "+
 				"expected - got %v, want %v", test.name, got,
 				test.unsortedHash)
@@ -105,6 +112,7 @@ func TestSort(
 		// Now sort the transaction using the mutable version and ensure the resulting hash is the expected value.
 		txsort.InPlaceSort(&tx)
 		if got := tx.TxHash().String(); got != test.sortedHash {
+
 			t.Errorf("SortMutate (%s): sorted hash does not match "+
 				"expected - got %v, want %v", test.name, got,
 				test.sortedHash)

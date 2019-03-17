@@ -46,6 +46,7 @@ var (
 // RFC5903 Section 9 states we should only return x.
 func GenerateSharedSecret(
 	privkey *PrivateKey, pubkey *PublicKey) []byte {
+
 	x, _ := pubkey.Curve.ScalarMult(pubkey.X, pubkey.Y, privkey.D.Bytes())
 	return x.Bytes()
 }
@@ -55,6 +56,7 @@ func GenerateSharedSecret(
 // supported curve is secp256k1. The `structure' that it encodes everything into
 // is:
 //	struct {
+
 //		// Initialization Vector used for AES-256-CBC
 //		IV [16]byte
 //		// Public Key: curve(2) + len_of_pubkeyX(2) + pubkeyX +
@@ -72,6 +74,7 @@ func Encrypt(
 
 	ephemeral, err := NewPrivateKey(S256())
 	if err != nil {
+
 		return nil, err
 	}
 	ecdhKey := GenerateSharedSecret(ephemeral, pubkey)
@@ -84,6 +87,7 @@ func Encrypt(
 	out := make([]byte, aes.BlockSize+70+len(paddedIn)+sha256.Size)
 	iv := out[:aes.BlockSize]
 	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
+
 		return nil, err
 	}
 
@@ -110,6 +114,7 @@ func Encrypt(
 	// start encryption
 	block, err := aes.NewCipher(keyE)
 	if err != nil {
+
 		return nil, err
 	}
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -128,6 +133,7 @@ func Decrypt(
 
 	// IV + Curve params/X/Y + 1 block + HMAC-256
 	if len(in) < aes.BlockSize+70+aes.BlockSize+sha256.Size {
+
 		return nil, errInputTooShort
 	}
 
@@ -163,11 +169,13 @@ func Decrypt(
 	// check if (X, Y) lies on the curve and create a Pubkey if it does
 	pubkey, err := ParsePubKey(pb, S256())
 	if err != nil {
+
 		return nil, err
 	}
 
 	// check for cipher text length
 	if (len(in)-aes.BlockSize-offset-sha256.Size)%aes.BlockSize != 0 {
+
 		return nil, errInvalidPadding // not padded to 16 bytes
 	}
 
@@ -192,6 +200,7 @@ func Decrypt(
 	// start decryption
 	block, err := aes.NewCipher(keyE)
 	if err != nil {
+
 		return nil, err
 	}
 	mode := cipher.NewCBCDecrypter(block, iv)
@@ -206,6 +215,7 @@ func Decrypt(
 // addPKCSPadding adds padding to a block of data
 func addPKCSPadding(
 	src []byte) []byte {
+
 	padding := aes.BlockSize - len(src)%aes.BlockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
@@ -218,6 +228,7 @@ func removePKCSPadding(
 	length := len(src)
 	padLength := int(src[length-1])
 	if padLength > aes.BlockSize || length < aes.BlockSize {
+
 		return nil, errInvalidPadding
 	}
 	return src[:length-padLength], nil

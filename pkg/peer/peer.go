@@ -409,6 +409,7 @@ type Peer struct {
 
 // String returns the peer's address and directionality as a human-readable string. This function is safe for concurrent access.
 func (p *Peer) String() string {
+
 	return fmt.Sprintf("%s (%s)", p.addr, directionString(p.inbound))
 }
 
@@ -444,6 +445,7 @@ func (p *Peer) AddKnownInventory(invVect *wire.InvVect) {
 
 // StatsSnapshot returns a snapshot of the current peer flags and statistics. This function is safe for concurrent access.
 func (p *Peer) StatsSnapshot() *StatsSnap {
+
 	p.statsMtx.RLock()
 	p.flagsMtx.Lock()
 	id := p.id
@@ -480,6 +482,7 @@ func (p *Peer) StatsSnapshot() *StatsSnap {
 
 // ID returns the peer id. This function is safe for concurrent access.
 func (p *Peer) ID() int32 {
+
 	p.flagsMtx.Lock()
 	id := p.id
 	p.flagsMtx.Unlock()
@@ -488,6 +491,7 @@ func (p *Peer) ID() int32 {
 
 // NA returns the peer network address. This function is safe for concurrent access.
 func (p *Peer) NA() *wire.NetAddress {
+
 	p.flagsMtx.Lock()
 	na := p.na
 	p.flagsMtx.Unlock()
@@ -503,11 +507,13 @@ func (p *Peer) Addr() string {
 
 // Inbound returns whether the peer is inbound. This function is safe for concurrent access.
 func (p *Peer) Inbound() bool {
+
 	return p.inbound
 }
 
 // Services returns the services flag of the remote peer. This function is safe for concurrent access.
 func (p *Peer) Services() wire.ServiceFlag {
+
 	p.flagsMtx.Lock()
 	services := p.services
 	p.flagsMtx.Unlock()
@@ -516,6 +522,7 @@ func (p *Peer) Services() wire.ServiceFlag {
 
 // UserAgent returns the user agent of the remote peer. This function is safe for concurrent access.
 func (p *Peer) UserAgent() string {
+
 	p.flagsMtx.Lock()
 	userAgent := p.userAgent
 	p.flagsMtx.Unlock()
@@ -524,6 +531,7 @@ func (p *Peer) UserAgent() string {
 
 // LastAnnouncedBlock returns the last announced block of the remote peer. This function is safe for concurrent access.
 func (p *Peer) LastAnnouncedBlock() *chainhash.Hash {
+
 	p.statsMtx.RLock()
 	lastAnnouncedBlock := p.lastAnnouncedBlock
 	p.statsMtx.RUnlock()
@@ -532,6 +540,7 @@ func (p *Peer) LastAnnouncedBlock() *chainhash.Hash {
 
 // LastPingNonce returns the last ping nonce of the remote peer. This function is safe for concurrent access.
 func (p *Peer) LastPingNonce() uint64 {
+
 	p.statsMtx.RLock()
 	lastPingNonce := p.lastPingNonce
 	p.statsMtx.RUnlock()
@@ -540,6 +549,7 @@ func (p *Peer) LastPingNonce() uint64 {
 
 // LastPingTime returns the last ping time of the remote peer. This function is safe for concurrent access.
 func (p *Peer) LastPingTime() time.Time {
+
 	p.statsMtx.RLock()
 	lastPingTime := p.lastPingTime
 	p.statsMtx.RUnlock()
@@ -548,6 +558,7 @@ func (p *Peer) LastPingTime() time.Time {
 
 // LastPingMicros returns the last ping micros of the remote peer. This function is safe for concurrent access.
 func (p *Peer) LastPingMicros() int64 {
+
 	p.statsMtx.RLock()
 	lastPingMicros := p.lastPingMicros
 	p.statsMtx.RUnlock()
@@ -556,6 +567,7 @@ func (p *Peer) LastPingMicros() int64 {
 
 // VersionKnown returns the whether or not the version of a peer is known locally. This function is safe for concurrent access.
 func (p *Peer) VersionKnown() bool {
+
 	p.flagsMtx.Lock()
 	versionKnown := p.versionKnown
 	p.flagsMtx.Unlock()
@@ -564,6 +576,7 @@ func (p *Peer) VersionKnown() bool {
 
 // VerAckReceived returns whether or not a verack message was received by the peer. This function is safe for concurrent access.
 func (p *Peer) VerAckReceived() bool {
+
 	p.flagsMtx.Lock()
 	verAckReceived := p.verAckReceived
 	p.flagsMtx.Unlock()
@@ -572,6 +585,7 @@ func (p *Peer) VerAckReceived() bool {
 
 // ProtocolVersion returns the negotiated peer protocol version. This function is safe for concurrent access.
 func (p *Peer) ProtocolVersion() uint32 {
+
 	p.flagsMtx.Lock()
 	protocolVersion := p.protocolVersion
 	p.flagsMtx.Unlock()
@@ -580,6 +594,7 @@ func (p *Peer) ProtocolVersion() uint32 {
 
 // LastBlock returns the last block of the peer. This function is safe for concurrent access.
 func (p *Peer) LastBlock() int32 {
+
 	p.statsMtx.RLock()
 	lastBlock := p.lastBlock
 	p.statsMtx.RUnlock()
@@ -588,16 +603,19 @@ func (p *Peer) LastBlock() int32 {
 
 // LastSend returns the last send time of the peer. This function is safe for concurrent access.
 func (p *Peer) LastSend() time.Time {
+
 	return time.Unix(atomic.LoadInt64(&p.lastSend), 0)
 }
 
 // LastRecv returns the last recv time of the peer. This function is safe for concurrent access.
 func (p *Peer) LastRecv() time.Time {
+
 	return time.Unix(atomic.LoadInt64(&p.lastRecv), 0)
 }
 
 // LocalAddr returns the local address of the connection. This function is safe fo concurrent access.
 func (p *Peer) LocalAddr() net.Addr {
+
 	var localAddr net.Addr
 
 	if atomic.LoadInt32(&p.connected) != 0 {
@@ -610,16 +628,19 @@ func (p *Peer) LocalAddr() net.Addr {
 
 // BytesSent returns the total number of bytes sent by the peer. This function is safe for concurrent access.
 func (p *Peer) BytesSent() uint64 {
+
 	return atomic.LoadUint64(&p.bytesSent)
 }
 
 // BytesReceived returns the total number of bytes received by the peer. This function is safe for concurrent access.
 func (p *Peer) BytesReceived() uint64 {
+
 	return atomic.LoadUint64(&p.bytesReceived)
 }
 
 // TimeConnected returns the time at which the peer connected. This function is safe for concurrent access.
 func (p *Peer) TimeConnected() time.Time {
+
 	p.statsMtx.RLock()
 	timeConnected := p.timeConnected
 	p.statsMtx.RUnlock()
@@ -628,6 +649,7 @@ func (p *Peer) TimeConnected() time.Time {
 
 // TimeOffset returns the number of seconds the local time was offset from the time the peer reported during the initial negotiation phase.  Negative values indicate the remote peer's time is before the local time. This function is safe for concurrent access.
 func (p *Peer) TimeOffset() int64 {
+
 	p.statsMtx.RLock()
 	timeOffset := p.timeOffset
 	p.statsMtx.RUnlock()
@@ -636,6 +658,7 @@ func (p *Peer) TimeOffset() int64 {
 
 // StartingHeight returns the last known height the peer reported during the initial negotiation phase. This function is safe for concurrent access.
 func (p *Peer) StartingHeight() int32 {
+
 	p.statsMtx.RLock()
 	startingHeight := p.startingHeight
 	p.statsMtx.RUnlock()
@@ -644,6 +667,7 @@ func (p *Peer) StartingHeight() int32 {
 
 // WantsHeaders returns if the peer wants header messages instead of inventory vectors for blocks. This function is safe for concurrent access.
 func (p *Peer) WantsHeaders() bool {
+
 	p.flagsMtx.Lock()
 	sendHeadersPreferred := p.sendHeadersPreferred
 	p.flagsMtx.Unlock()
@@ -652,6 +676,7 @@ func (p *Peer) WantsHeaders() bool {
 
 // IsWitnessEnabled returns true if the peer has signalled that it supports segregated witness. This function is safe for concurrent access.
 func (p *Peer) IsWitnessEnabled() bool {
+
 	p.flagsMtx.Lock()
 	witnessEnabled := p.witnessEnabled
 	p.flagsMtx.Unlock()
@@ -1081,6 +1106,7 @@ out:
 	for {
 
 		select {
+
 		case msg := <-p.stallControl:
 
 			// fmt.Println("chan:msg := <-p.stallControl")
@@ -1219,6 +1245,7 @@ cleanup:
 	for {
 
 		select {
+
 		case <-p.stallControl:
 
 			// fmt.Println("chan:<-p.stallControl")
@@ -1545,6 +1572,7 @@ func (p *Peer) queueHandler() {
 
 			p.sendQueue <- msg
 		} else {
+
 			list.PushBack(msg)
 		}
 
@@ -1557,6 +1585,7 @@ out:
 	for {
 
 		select {
+
 		case msg := <-p.outputQueue:
 
 			// fmt.Println("chan:msg := <-p.outputQueue")
@@ -1591,11 +1620,13 @@ out:
 				// If this is a new block, then we'll blast it out immediately, sipping the inv trickle queue.
 				if iv.Type == wire.InvTypeBlock ||
 					iv.Type == wire.InvTypeWitnessBlock {
+
 					invMsg := wire.NewMsgInvSizeHint(1)
 					invMsg.AddInvVect(iv)
 					waiting = queuePacket(outMsg{msg: invMsg},
 						pendingMsgs, waiting)
 				} else {
+
 					invSendQueue.PushBack(iv)
 				}
 
@@ -1608,6 +1639,7 @@ out:
 			// Don't send anything if we're disconnecting or there is no queued inventory. version is known if send queue has any entries.
 			if atomic.LoadInt32(&p.disconnect) != 0 ||
 				invSendQueue.Len() == 0 {
+
 				continue
 			}
 
@@ -1673,6 +1705,7 @@ cleanup:
 	for {
 
 		select {
+
 		case msg := <-p.outputQueue:
 
 			// fmt.Println("chan:msg := <-p.outputQueue")
@@ -1728,6 +1761,7 @@ out:
 	for {
 
 		select {
+
 		case msg := <-p.sendQueue:
 
 			// fmt.Println("chan:msg := <-p.sendQueue")
@@ -1793,6 +1827,7 @@ cleanup:
 	for {
 
 		select {
+
 		case msg := <-p.sendQueue:
 
 			// fmt.Println("chan:msg := <-p.sendQueue")
@@ -1823,6 +1858,7 @@ out:
 	for {
 
 		select {
+
 		case <-pingTicker.C:
 
 			// fmt.Println("chan:<-pingTicker.C")
@@ -1894,6 +1930,7 @@ func (p *Peer) QueueInventory(invVect *wire.InvVect) {
 
 // Connected returns whether or not the peer is currently connected. This function is safe for concurrent access.
 func (p *Peer) Connected() bool {
+
 	return atomic.LoadInt32(&p.connected) != 0 &&
 		atomic.LoadInt32(&p.disconnect) == 0
 }
@@ -2087,6 +2124,7 @@ func (p *Peer) localVersionMsg() (*wire.MsgVersion, error) {
 
 // writeLocalVersionMsg writes our version message to the remote peer.
 func (p *Peer) writeLocalVersionMsg() error {
+
 	localVerMsg, err := p.localVersionMsg()
 
 	if err != nil {
@@ -2121,6 +2159,7 @@ func (p *Peer) negotiateOutboundProtocol() error {
 
 // start begins processing input and output messages.
 func (p *Peer) start() error {
+
 	log <- cl.Debug{"starting peer", p}
 	negotiateErr := make(chan error, 1)
 	go func() {
@@ -2129,6 +2168,7 @@ func (p *Peer) start() error {
 
 			negotiateErr <- p.negotiateInboundProtocol()
 		} else {
+
 			negotiateErr <- p.negotiateOutboundProtocol()
 		}
 
@@ -2136,6 +2176,7 @@ func (p *Peer) start() error {
 
 	// Negotiate the protocol within the specified negotiateTimeout.
 	select {
+
 	case err := <-negotiateErr:
 
 		// fmt.Println("chan:err := <-negotiateErr")
@@ -2267,6 +2308,7 @@ func newPeerBase(
 // NewInboundPeer returns a new inbound bitcoin peer. Use Start to begin processing incoming and outgoing messages.
 func NewInboundPeer(
 	cfg *Config) *Peer {
+
 	return newPeerBase(cfg, true)
 }
 
@@ -2301,6 +2343,7 @@ func NewOutboundPeer(
 
 		p.na = na
 	} else {
+
 		p.na = wire.NewNetAddressIPPort(net.ParseIP(host), uint16(port), 0)
 	}
 

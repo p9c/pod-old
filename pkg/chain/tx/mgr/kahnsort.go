@@ -14,22 +14,27 @@ type hashGraph map[chainhash.Hash]graphNode
 
 func makeGraph(
 	set map[chainhash.Hash]*TxRecord) hashGraph {
+
 	graph := make(hashGraph)
 
 	for _, rec := range set {
+
 		// Add a node for every transaction record.  The output edges
 		// and input degree are set by iterating over each record's
 		// inputs below.
 		if _, ok := graph[rec.Hash]; !ok {
+
 			graph[rec.Hash] = graphNode{value: rec}
 		}
 
 	inputLoop:
 		for _, input := range rec.MsgTx.TxIn {
+
 			// Transaction inputs that reference transactions not
 			// included in the set do not create any (local) graph
 			// edges.
 			if _, ok := set[input.PreviousOutPoint.Hash]; !ok {
+
 				continue
 			}
 
@@ -37,7 +42,9 @@ func makeGraph(
 
 			// Skip duplicate edges.
 			for _, outEdge := range inputNode.outEdges {
+
 				if *outEdge == input.PreviousOutPoint.Hash {
+
 					continue inputLoop
 				}
 			}
@@ -47,6 +54,7 @@ func makeGraph(
 			// input degree for this record's node.
 			inputRec := inputNode.value
 			if inputRec == nil {
+
 				inputRec = set[input.PreviousOutPoint.Hash]
 			}
 			graph[input.PreviousOutPoint.Hash] = graphNode{
@@ -70,9 +78,12 @@ func makeGraph(
 // values for all nodes which contain an input degree of 0.
 func graphRoots(
 	graph hashGraph) []*TxRecord {
+
 	roots := make([]*TxRecord, 0, len(graph))
 	for _, node := range graph {
+
 		if node.inDegree == 0 {
+
 			roots = append(roots, node.value)
 		}
 	}
@@ -83,6 +94,7 @@ func graphRoots(
 // dependency order.  It is implemented using Kahn's algorithm.
 func dependencySort(
 	txs map[chainhash.Hash]*TxRecord) []*TxRecord {
+
 	graph := makeGraph(txs)
 	s := graphRoots(graph)
 
@@ -96,17 +108,21 @@ func dependencySort(
 
 	sorted := make([]*TxRecord, 0, len(txs))
 	for len(s) != 0 {
+
 		rec := s[0]
 		s = s[1:]
 		sorted = append(sorted, rec)
 
 		n := graph[rec.Hash]
 		for _, mHash := range n.outEdges {
+
 			m := graph[*mHash]
 			if m.inDegree != 0 {
+
 				m.inDegree--
 				graph[*mHash] = m
 				if m.inDegree == 0 {
+
 					s = append(s, m.value)
 				}
 			}

@@ -21,11 +21,13 @@ func (c *Client) RawRequestAsync(method string, params []js.RawMessage) FutureRa
 
 	// Method may not be empty.
 	if method == "" {
+
 		return newFutureError(errors.New("no method"))
 	}
 
 	// Marshal parameters as "[]" instead of "null" when no parameters are passed.
 	if params == nil {
+
 		params = []js.RawMessage{}
 	}
 
@@ -39,6 +41,7 @@ func (c *Client) RawRequestAsync(method string, params []js.RawMessage) FutureRa
 	}
 	marshalledJSON, err := js.Marshal(rawRequest)
 	if err != nil {
+
 		return newFutureError(err)
 	}
 

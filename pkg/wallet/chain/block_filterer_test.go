@@ -294,6 +294,7 @@ func TestBlockFiltererOneInOneOut(
 	// outpoints.
 	match := blockFilterer.FilterBlock(&Block100000)
 	if !match {
+
 		t.Fatalf("failed to find matches when filtering for " +
 			"1-in-1-out txns")
 	}
@@ -315,6 +316,7 @@ func assertNumRelevantTxns(
 
 	count := len(bf.RelevantTxns)
 	if count != size {
+
 		t.Fatalf("unexpected number of relevant txns: "+
 			"want %v, got %v", size, count)
 	}
@@ -326,6 +328,7 @@ func assertRelevantTxnsContains(
 	t *testing.T, bf *chain.BlockFilterer, wantTx *wire.MsgTx) {
 
 	for _, relevantTx := range bf.RelevantTxns {
+
 		if reflect.DeepEqual(relevantTx, wantTx) {
 
 			return

@@ -26,6 +26,7 @@ func walletHandleSave() {
 		}
 
 	} else {
+
 		panic(e)
 	}
 

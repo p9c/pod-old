@@ -18,7 +18,9 @@ type MsgFilterAdd struct {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgFilterAdd) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	if pver < BIP0037Version {
+
 		str := fmt.Sprintf("filteradd message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgFilterAdd.BtcDecode", str)
@@ -31,13 +33,16 @@ func (msg *MsgFilterAdd) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgFilterAdd) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	if pver < BIP0037Version {
+
 		str := fmt.Sprintf("filteradd message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgFilterAdd.BtcEncode", str)
 	}
 	size := len(msg.Data)
 	if size > MaxFilterAddDataSize {
+
 		str := fmt.Sprintf("filteradd size too large for message "+
 			"[size %v, max %v]", size, MaxFilterAddDataSize)
 		return messageError("MsgFilterAdd.BtcEncode", str)
@@ -47,11 +52,13 @@ func (msg *MsgFilterAdd) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgFilterAdd) Command() string {
+
 	return CmdFilterAdd
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgFilterAdd) MaxPayloadLength(pver uint32) uint32 {
+
 	return uint32(VarIntSerializeSize(MaxFilterAddDataSize)) +
 		MaxFilterAddDataSize
 }
@@ -59,6 +66,7 @@ func (msg *MsgFilterAdd) MaxPayloadLength(pver uint32) uint32 {
 // NewMsgFilterAdd returns a new bitcoin filteradd message that conforms to the Message interface.  See MsgFilterAdd for details.
 func NewMsgFilterAdd(
 	data []byte) *MsgFilterAdd {
+
 	return &MsgFilterAdd{
 		Data: data,
 	}

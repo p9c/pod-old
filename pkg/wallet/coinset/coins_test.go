@@ -28,6 +28,7 @@ func (c *TestCoin) NumConfs() int64       { return c.TxNumConfs }
 func (c *TestCoin) ValueAge() int64       { return int64(c.TxValue) * c.TxNumConfs }
 func NewCoin(
 	index int64, value util.Amount, numConfs int64) coinset.Coin {
+
 	h := sha256.New()
 	h.Write([]byte(fmt.Sprintf("%d", index)))
 	hash, _ := chainhash.NewHash(h.Sum(nil))
@@ -52,13 +53,17 @@ func testCoinSelector(
 	tests []coinSelectTest, t *testing.T) {
 
 	for testIndex, test := range tests {
+
 		cs, err := test.selector.CoinSelect(test.targetValue, test.inputCoins)
 		if err != test.expectedError {
+
 			t.Errorf("[%d] expected a different error: got=%v, expected=%v", testIndex, err, test.expectedError)
 			continue
 		}
 		if test.expectedCoins != nil {
+
 			if cs == nil {
+
 				t.Errorf("[%d] expected non-nil coinset", testIndex)
 				continue
 			}
@@ -69,13 +74,16 @@ func testCoinSelector(
 				continue
 			}
 			for n := 0; n < len(test.expectedCoins); n++ {
+
 				if coins[n] != test.expectedCoins[n] {
+
 					t.Errorf("[%d] expected different coins at coin index %d: got=%#v, expected=%#v", testIndex, n, coins[n], test.expectedCoins[n])
 					continue
 				}
 			}
 			coinSet := coinset.NewCoinSet(coins)
 			if coinSet.TotalValue() < test.targetValue {
+
 				t.Errorf("[%d] targetValue not satistifed", testIndex)
 				continue
 			}
@@ -95,22 +103,27 @@ func TestCoinSet(
 
 	cs := coinset.NewCoinSet(nil)
 	if cs.PopCoin() != nil {
+
 		t.Error("Expected popCoin of empty to be nil")
 	}
 	if cs.ShiftCoin() != nil {
+
 		t.Error("Expected shiftCoin of empty to be nil")
 	}
 	cs.PushCoin(coins[0])
 	cs.PushCoin(coins[1])
 	cs.PushCoin(coins[2])
 	if cs.PopCoin() != coins[2] {
+
 		t.Error("Expected third coin")
 	}
 	if cs.ShiftCoin() != coins[0] {
+
 		t.Error("Expected first coin")
 	}
 	mtx := coinset.NewMsgTxWithInputCoins(wire.TxVersion, cs)
 	if len(mtx.TxIn) != 1 {
+
 		t.Errorf("Expected only 1 TxIn, got %d", len(mtx.TxIn))
 	}
 	op := mtx.TxIn[0].PreviousOutPoint
@@ -246,12 +259,15 @@ func TestSimpleCoin(
 	t *testing.T) {
 
 	if testSimpleCoin.Hash().String() != testSimpleCoinTxHash {
+
 		t.Error("Different value for tx hash than expected")
 	}
 	if testSimpleCoin.Index() != 0 {
+
 		t.Error("Different value for index of outpoint than expected")
 	}
 	if testSimpleCoin.Value() != testSimpleCoinTxValue0 {
+
 		t.Error("Different value of coin value than expected")
 	}
 	if !bytes.Equal(testSimpleCoin.PkScript(), testSimpleCoinTxPkScript0Bytes) {
@@ -259,9 +275,11 @@ func TestSimpleCoin(
 		t.Error("Different value of coin pkScript than expected")
 	}
 	if testSimpleCoin.NumConfs() != 1 {
+
 		t.Error("Differet value of num confs than expected")
 	}
 	if testSimpleCoin.ValueAge() != testSimpleCoinTxValueAge0 {
+
 		t.Error("Different value of coin value * age than expected")
 	}
 }

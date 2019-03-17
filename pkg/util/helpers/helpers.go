@@ -14,6 +14,7 @@ func SumOutputValues(
 	outputs []*wire.TxOut) (totalOutput util.Amount) {
 
 	for _, txOut := range outputs {
+
 		totalOutput += util.Amount(txOut.Value)
 	}
 	return totalOutput
@@ -24,6 +25,7 @@ func SumOutputSerializeSizes(
 	outputs []*wire.TxOut) (serializeSize int) {
 
 	for _, txOut := range outputs {
+
 		serializeSize += txOut.SerializeSize()
 	}
 	return serializeSize

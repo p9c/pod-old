@@ -50,6 +50,7 @@ func dbFetchFilterIdxEntry(
 // dbStoreFilterIdxEntry stores a data blob in the filter index database.
 func dbStoreFilterIdxEntry(
 	dbTx database.Tx, key []byte, h *chainhash.Hash, f []byte) error {
+
 	idx := dbTx.Metadata().Bucket(cfIndexParentBucketKey).Bucket(key)
 	return idx.Put(h[:], f)
 }
@@ -57,6 +58,7 @@ func dbStoreFilterIdxEntry(
 // dbDeleteFilterIdxEntry deletes a data blob from the filter index database.
 func dbDeleteFilterIdxEntry(
 	dbTx database.Tx, key []byte, h *chainhash.Hash) error {
+
 	idx := dbTx.Metadata().Bucket(cfIndexParentBucketKey).Bucket(key)
 	return idx.Delete(h[:])
 }
@@ -75,46 +77,58 @@ var _ NeedsInputser = (*CfIndex)(nil)
 
 // NeedsInputs signals that the index requires the referenced inputs in order to properly create the index. This implements the NeedsInputser interface.
 func (idx *CfIndex) NeedsInputs() bool {
+
 	return true
 }
 
 // Init initializes the hash-based cf index. This is part of the Indexer interface.
 func (idx *CfIndex) Init() error {
+
 	return nil // Nothing to do.
 }
 
 // Key returns the database key to use for the index as a byte slice. This is part of the Indexer interface.
 func (idx *CfIndex) Key() []byte {
+
 	return cfIndexParentBucketKey
 }
 
 // Name returns the human-readable name of the index. This is part of the Indexer interface.
 func (idx *CfIndex) Name() string {
+
 	return cfIndexName
 }
 
 // Create is invoked when the indexer manager determines the index needs to be created for the first time. It creates buckets for the two hash-based cf indexes (regular only currently).
 func (idx *CfIndex) Create(dbTx database.Tx) error {
+
 	meta := dbTx.Metadata()
 	cfIndexParentBucket, err := meta.CreateBucket(cfIndexParentBucketKey)
 	if err != nil {
+
 		return err
 	}
 	for _, bucketName := range cfIndexKeys {
+
 		_, err = cfIndexParentBucket.CreateBucket(bucketName)
 		if err != nil {
+
 			return err
 		}
 	}
 	for _, bucketName := range cfHeaderKeys {
+
 		_, err = cfIndexParentBucket.CreateBucket(bucketName)
 		if err != nil {
+
 			return err
 		}
 	}
 	for _, bucketName := range cfHashKeys {
+
 		_, err = cfIndexParentBucket.CreateBucket(bucketName)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -125,7 +139,9 @@ func (idx *CfIndex) Create(dbTx database.Tx) error {
 func storeFilter(
 	dbTx database.Tx, block *util.Block, f *gcs.Filter,
 	filterType wire.FilterType) error {
+
 	if uint8(filterType) > maxFilterType {
+
 		return errors.New("unsupported filter type")
 	}
 	// Figure out which buckets to use.
@@ -136,19 +152,23 @@ func storeFilter(
 	h := block.Hash()
 	filterBytes, err := f.NBytes()
 	if err != nil {
+
 		return err
 	}
 	err = dbStoreFilterIdxEntry(dbTx, fkey, h, filterBytes)
 	if err != nil {
+
 		return err
 	}
 	// Next store the filter hash.
 	filterHash, err := builder.GetFilterHash(f)
 	if err != nil {
+
 		return err
 	}
 	err = dbStoreFilterIdxEntry(dbTx, hashkey, h, filterHash[:])
 	if err != nil {
+
 		return err
 	}
 	// Then fetch the previous block's filter header.
@@ -158,18 +178,22 @@ func storeFilter(
 
 		prevHeader = &zeroHash
 	} else {
+
 		pfh, err := dbFetchFilterIdxEntry(dbTx, hkey, ph)
 		if err != nil {
+
 			return err
 		}
 		// Construct the new block's filter header, and store it.
 		prevHeader, err = chainhash.NewHash(pfh)
 		if err != nil {
+
 			return err
 		}
 	}
 	fh, err := builder.MakeHeaderForFilter(f, *prevHeader)
 	if err != nil {
+
 		return err
 	}
 	return dbStoreFilterIdxEntry(dbTx, hkey, h, fh[:])
@@ -178,12 +202,15 @@ func storeFilter(
 // ConnectBlock is invoked by the index manager when a new block has been connected to the main chain. This indexer adds a hash-to-cf mapping for every passed block. This is part of the Indexer interface.
 func (idx *CfIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 	stxos []blockchain.SpentTxOut) error {
+
 	prevScripts := make([][]byte, len(stxos))
 	for i, stxo := range stxos {
+
 		prevScripts[i] = stxo.PkScript
 	}
 	f, err := builder.BuildBasicFilter(block.MsgBlock(), prevScripts)
 	if err != nil {
+
 		return err
 	}
 	return storeFilter(dbTx, block, f, wire.GCSFilterRegular)
@@ -192,21 +219,28 @@ func (idx *CfIndex) ConnectBlock(dbTx database.Tx, block *util.Block,
 // DisconnectBlock is invoked by the index manager when a block has been disconnected from the main chain.  This indexer removes the hash-to-cf mapping for every passed block. This is part of the Indexer interface.
 func (idx *CfIndex) DisconnectBlock(dbTx database.Tx, block *util.Block,
 	_ []blockchain.SpentTxOut) error {
+
 	for _, key := range cfIndexKeys {
+
 		err := dbDeleteFilterIdxEntry(dbTx, key, block.Hash())
 		if err != nil {
+
 			return err
 		}
 	}
 	for _, key := range cfHeaderKeys {
+
 		err := dbDeleteFilterIdxEntry(dbTx, key, block.Hash())
 		if err != nil {
+
 			return err
 		}
 	}
 	for _, key := range cfHashKeys {
+
 		err := dbDeleteFilterIdxEntry(dbTx, key, block.Hash())
 		if err != nil {
+
 			return err
 		}
 	}
@@ -218,11 +252,13 @@ func (idx *CfIndex) entryByBlockHash(filterTypeKeys [][]byte,
 	filterType wire.FilterType, h *chainhash.Hash) ([]byte, error) {
 
 	if uint8(filterType) > maxFilterType {
+
 		return nil, errors.New("unsupported filter type")
 	}
 	key := filterTypeKeys[filterType]
 	var entry []byte
 	err := idx.db.View(func(dbTx database.Tx) error {
+
 		var err error
 		entry, err = dbFetchFilterIdxEntry(dbTx, key, h)
 		return err
@@ -235,14 +271,18 @@ func (idx *CfIndex) entriesByBlockHashes(filterTypeKeys [][]byte,
 	filterType wire.FilterType, blockHashes []*chainhash.Hash) ([][]byte, error) {
 
 	if uint8(filterType) > maxFilterType {
+
 		return nil, errors.New("unsupported filter type")
 	}
 	key := filterTypeKeys[filterType]
 	entries := make([][]byte, 0, len(blockHashes))
 	err := idx.db.View(func(dbTx database.Tx) error {
+
 		for _, blockHash := range blockHashes {
+
 			entry, err := dbFetchFilterIdxEntry(dbTx, key, blockHash)
 			if err != nil {
+
 				return err
 			}
 			entries = append(entries, entry)
@@ -298,11 +338,13 @@ func (idx *CfIndex) FilterHashesByBlockHashes(blockHashes []*chainhash.Hash,
 // It implements the Indexer interface which plugs into the IndexManager that in turn is used by the blockchain package. This allows the index to be seamlessly maintained along with the chain.
 func NewCfIndex(
 	db database.DB, chainParams *chaincfg.Params) *CfIndex {
+
 	return &CfIndex{db: db, chainParams: chainParams}
 }
 
 // DropCfIndex drops the CF index from the provided database if exists.
 func DropCfIndex(
 	db database.DB, interrupt <-chan struct{}) error {
+
 	return dropIndex(db, cfIndexParentBucketKey, cfIndexName, interrupt)
 }

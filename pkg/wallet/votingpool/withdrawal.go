@@ -138,13 +138,16 @@ type byOutBailmentID []OutputRequest
 
 func (s byOutBailmentID) Len() int { return len(s) }
 func (s byOutBailmentID) Swap(i, j int) {
+
 	s[i], s[j] = s[j], s[i]
 }
 func (s byOutBailmentID) Less(i, j int) bool {
+
 	return bytes.Compare(s[i].outBailmentIDHash(), s[j].outBailmentIDHash()) < 0
 }
 
 func (s outputStatus) String() string {
+
 	strings := map[outputStatus]string{
 		statusSuccess: "success",
 		statusPartial: "partial-",
@@ -154,16 +157,21 @@ func (s outputStatus) String() string {
 }
 
 func (tx *changeAwareTx) addSelfToStore(store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket) error {
+
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx, time.Now())
 	if err != nil {
+
 		return newError(ErrWithdrawalTxStorage, "error constructing TxRecord for storing", err)
 	}
 
 	if err := store.InsertTx(txmgrNs, rec, nil); err != nil {
+
 		return newError(ErrWithdrawalTxStorage, "error adding tx to store", err)
 	}
 	if tx.changeIdx != -1 {
+
 		if err = store.AddCredit(txmgrNs, rec, nil, uint32(tx.changeIdx), true); err != nil {
+
 			return newError(ErrWithdrawalTxStorage, "error adding tx credits to store", err)
 		}
 	}
@@ -173,46 +181,55 @@ func (tx *changeAwareTx) addSelfToStore(store *wtxmgr.Store, txmgrNs walletdb.Re
 // Outputs returns a map of outbailment IDs to WithdrawalOutputs for all outputs
 // requested in this withdrawal.
 func (s *WithdrawalStatus) Outputs() map[OutBailmentID]*WithdrawalOutput {
+
 	return s.outputs
 }
 
 // Sigs returns a map of ntxids to signature lists for every input in the tx
 // with that ntxid.
 func (s *WithdrawalStatus) Sigs() map[Ntxid]TxSigs {
+
 	return s.sigs
 }
 
 // Fees returns the total amount of network fees included in all transactions
 // generated as part of a withdrawal.
 func (s *WithdrawalStatus) Fees() util.Amount {
+
 	return s.fees
 }
 
 // NextInputAddr returns the votingpool address that should be used as the
 // startAddress of subsequent withdrawals.
 func (s *WithdrawalStatus) NextInputAddr() WithdrawalAddress {
+
 	return s.nextInputAddr
 }
 
 // NextChangeAddr returns the votingpool address that should be used as the
 // changeStart of subsequent withdrawals.
 func (s *WithdrawalStatus) NextChangeAddr() ChangeAddress {
+
 	return s.nextChangeAddr
 }
 
 // String makes OutputRequest satisfy the Stringer interface.
 func (r OutputRequest) String() string {
+
 	return fmt.Sprintf("OutputRequest %s to send %v to %s", r.outBailmentID(), r.Amount, r.Address)
 }
 
 func (r OutputRequest) outBailmentID() OutBailmentID {
+
 	return OutBailmentID(fmt.Sprintf("%s:%d", r.Server, r.Transaction))
 }
 
 // outBailmentIDHash returns a byte slice which is used when sorting
 // OutputRequests.
 func (r OutputRequest) outBailmentIDHash() []byte {
+
 	if r.cachedHash != nil {
+
 		return r.cachedHash
 	}
 	str := r.Server + strconv.Itoa(int(r.Transaction))
@@ -226,6 +243,7 @@ func (r OutputRequest) outBailmentIDHash() []byte {
 }
 
 func (o *WithdrawalOutput) String() string {
+
 	return fmt.Sprintf("WithdrawalOutput for %s", o.request)
 }
 
@@ -236,22 +254,26 @@ func (o *WithdrawalOutput) addOutpoint(outpoint OutBailmentOutpoint) {
 
 // Status returns the status of this WithdrawalOutput.
 func (o *WithdrawalOutput) Status() string {
+
 	return o.status.String()
 }
 
 // Address returns the string representation of this WithdrawalOutput's address.
 func (o *WithdrawalOutput) Address() string {
+
 	return o.request.Address.String()
 }
 
 // Outpoints returns a slice containing the OutBailmentOutpoints created to
 // fulfill this output.
 func (o *WithdrawalOutput) Outpoints() []OutBailmentOutpoint {
+
 	return o.outpoints
 }
 
 // Amount returns the amount (in satoshis) in this OutBailmentOutpoint.
 func (o OutBailmentOutpoint) Amount() util.Amount {
+
 	return o.amount
 }
 
@@ -292,10 +314,12 @@ type withdrawalTxOut struct {
 
 // String makes withdrawalTxOut satisfy the Stringer interface.
 func (o *withdrawalTxOut) String() string {
+
 	return fmt.Sprintf("withdrawalTxOut fulfilling %v of %s", o.amount, o.request)
 }
 
 func (o *withdrawalTxOut) pkScript() []byte {
+
 	return o.request.PkScript
 }
 
@@ -325,9 +349,11 @@ type withdrawalTx struct {
 // passing the newly created tx.
 func newWithdrawalTx(
 	setOptions func(tx *withdrawalTx)) *withdrawalTx {
+
 	tx := &withdrawalTx{}
 	tx.calculateSize = func() int { return calculateTxSize(tx) }
 	tx.calculateFee = func() util.Amount {
+
 		return util.Amount(1+tx.calculateSize()/1000) * feeIncrement
 	}
 	setOptions(tx)
@@ -336,9 +362,11 @@ func newWithdrawalTx(
 
 // ntxid returns the unique ID for this transaction.
 func (tx *withdrawalTx) ntxid() Ntxid {
+
 	msgtx := tx.toMsgTx()
 	var empty []byte
 	for _, txin := range msgtx.TxIn {
+
 		txin.SignatureScript = empty
 	}
 	return Ntxid(msgtx.TxHash().String())
@@ -360,6 +388,7 @@ func (tx *withdrawalTx) isTooBig() bool {
 func (tx *withdrawalTx) inputTotal() (total util.Amount) {
 
 	for _, input := range tx.inputs {
+
 		total += input.Amount
 	}
 	return total
@@ -370,6 +399,7 @@ func (tx *withdrawalTx) inputTotal() (total util.Amount) {
 func (tx *withdrawalTx) outputTotal() (total util.Amount) {
 
 	for _, output := range tx.outputs {
+
 		total += output.amount
 	}
 	return total
@@ -377,13 +407,16 @@ func (tx *withdrawalTx) outputTotal() (total util.Amount) {
 
 // hasChange returns true if this transaction has a change output.
 func (tx *withdrawalTx) hasChange() bool {
+
 	return tx.changeOutput != nil
 }
 
 // toMsgTx generates a btcwire.MsgTx with this tx's inputs and outputs.
 func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
+
 	msgtx := wire.NewMsgTx(wire.TxVersion)
 	for _, o := range tx.outputs {
+
 		msgtx.AddTxOut(wire.NewTxOut(int64(o.amount), o.pkScript()))
 	}
 
@@ -393,6 +426,7 @@ func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
 	}
 
 	for _, i := range tx.inputs {
+
 		msgtx.AddTxIn(wire.NewTxIn(&i.OutPoint, []byte{}, nil))
 	}
 	return msgtx
@@ -411,6 +445,7 @@ func (tx *withdrawalTx) addOutput(request OutputRequest) {
 
 // removeOutput removes the last added output and returns it.
 func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
+
 	removed := tx.outputs[len(tx.outputs)-1]
 	tx.outputs = tx.outputs[:len(tx.outputs)-1]
 	log <- cl.Debugf{
@@ -432,6 +467,7 @@ func (tx *withdrawalTx) addInput(input credit) {
 
 // removeInput removes the last added input and returns it.
 func (tx *withdrawalTx) removeInput() credit {
+
 	removed := tx.inputs[len(tx.inputs)-1]
 	tx.inputs = tx.inputs[:len(tx.inputs)-1]
 	log <- cl.Debug{
@@ -448,6 +484,7 @@ func (tx *withdrawalTx) removeInput() credit {
 // added after it's called. Also, callsites must make sure adding a change
 // output won't cause the tx to exceed the size limit.
 func (tx *withdrawalTx) addChange(pkScript []byte) bool {
+
 	tx.fee = tx.calculateFee()
 	change := tx.inputTotal() - tx.outputTotal() - tx.fee
 	log <- cl.Debugf{
@@ -457,6 +494,7 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 		tx.fee,
 	}
 	if change > 0 {
+
 		tx.changeOutput = wire.NewTxOut(int64(change), pkScript)
 		log <- cl.Debug{
 			"added change output with amount", change,
@@ -476,6 +514,7 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 
 	// Check precondition: At least two outputs are required in the transaction.
 	if len(tx.outputs) < 2 {
+
 		str := fmt.Sprintf("at least two outputs expected; got %d", len(tx.outputs))
 		return nil, nil, newError(ErrPreconditionNotMet, str, nil)
 	}
@@ -498,13 +537,16 @@ func (tx *withdrawalTx) rollBackLastOutput() ([]credit, *withdrawalTxOut, error)
 
 func defaultTxOptions(
 	tx *withdrawalTx) {
+
 }
 
 func newWithdrawal(
 	roundID uint32, requests []OutputRequest, inputs []credit,
 	changeStart ChangeAddress) *withdrawal {
+
 	outputs := make(map[OutBailmentID]*WithdrawalOutput, len(requests))
 	for _, request := range requests {
+
 		outputs[request.outBailmentID()] = &WithdrawalOutput{request: request}
 	}
 	status := &WithdrawalStatus{
@@ -536,34 +578,41 @@ func (p *Pool) StartWithdrawal(ns walletdb.ReadWriteBucket, addrmgrNs walletdb.R
 	status, err := getWithdrawalStatus(p, ns, addrmgrNs, roundID, requests, startAddress, lastSeriesID,
 		changeStart, dustThreshold)
 	if err != nil {
+
 		return nil, err
 	}
 	if status != nil {
+
 		return status, nil
 	}
 
 	eligible, err := p.getEligibleInputs(ns, addrmgrNs, txStore, txmgrNs, startAddress, lastSeriesID, dustThreshold,
 		chainHeight, eligibleInputMinConfirmations)
 	if err != nil {
+
 		return nil, err
 	}
 
 	w := newWithdrawal(roundID, requests, eligible, changeStart)
 	if err := w.fulfillRequests(); err != nil {
+
 		return nil, err
 	}
 	w.status.sigs, err = getRawSigs(w.transactions)
 	if err != nil {
+
 		return nil, err
 	}
 
 	serialized, err := serializeWithdrawal(requests, startAddress, lastSeriesID, changeStart,
 		dustThreshold, *w.status)
 	if err != nil {
+
 		return nil, err
 	}
 	err = putWithdrawal(ns, p.ID, roundID, serialized)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -573,6 +622,7 @@ func (p *Pool) StartWithdrawal(ns walletdb.ReadWriteBucket, addrmgrNs walletdb.R
 // popRequest removes and returns the first request from the stack of pending
 // requests.
 func (w *withdrawal) popRequest() OutputRequest {
+
 	request := w.pendingRequests[0]
 	w.pendingRequests = w.pendingRequests[1:]
 	return request
@@ -587,6 +637,7 @@ func (w *withdrawal) pushRequest(request OutputRequest) {
 // popInput removes and returns the first input from the stack of eligible
 // inputs.
 func (w *withdrawal) popInput() credit {
+
 	input := w.eligibleInputs[len(w.eligibleInputs)-1]
 	w.eligibleInputs = w.eligibleInputs[:len(w.eligibleInputs)-1]
 	return input
@@ -602,6 +653,7 @@ func (w *withdrawal) pushInput(input credit) {
 // output plus the required fees. It also means the tx won't reach the size limit even
 // after we add a change output and sign all inputs.
 func (w *withdrawal) fulfillNextRequest() error {
+
 	request := w.popRequest()
 	output := w.status.outputs[request.outBailmentID()]
 
@@ -618,11 +670,14 @@ func (w *withdrawal) fulfillNextRequest() error {
 
 	fee := w.current.calculateFee()
 	for w.current.inputTotal() < w.current.outputTotal()+fee {
+
 		if len(w.eligibleInputs) == 0 {
+
 			log <- cl.Dbg(
 				"splitting last output because we don't have enough inputs",
 			)
 			if err := w.splitLastOutput(); err != nil {
+
 				return err
 			}
 			break
@@ -641,27 +696,34 @@ func (w *withdrawal) fulfillNextRequest() error {
 // handleOversizeTx handles the case when a transaction has become too
 // big by either rolling back an output or splitting it.
 func (w *withdrawal) handleOversizeTx() error {
+
 	if len(w.current.outputs) > 1 {
+
 		log <- cl.Dbg(
 			"rolling back last output because tx got too big",
 		)
 		inputs, output, err := w.current.rollBackLastOutput()
 		if err != nil {
+
 			return newError(ErrWithdrawalProcessing, "failed to rollback last output", err)
 		}
 		for _, input := range inputs {
+
 			w.pushInput(input)
 		}
 		w.pushRequest(output.request)
 	} else if len(w.current.outputs) == 1 {
+
 		log <- cl.Dbg(
 			"splitting last output because tx got too big...",
 		)
 		w.pushInput(w.current.removeInput())
 		if err := w.splitLastOutput(); err != nil {
+
 			return err
 		}
 	} else {
+
 		return newError(ErrPreconditionNotMet, "Oversize tx must have at least one output", nil)
 	}
 	return w.finalizeCurrentTx()
@@ -671,11 +733,13 @@ func (w *withdrawal) handleOversizeTx() error {
 // list of finalized transactions and replaces w.current with a new empty
 // transaction.
 func (w *withdrawal) finalizeCurrentTx() error {
+
 	log <- cl.Dbg(
 		"finalizing current transaction",
 	)
 	tx := w.current
 	if len(tx.outputs) == 0 {
+
 		log <- cl.Dbg(
 			"current transaction has no outputs, doing nothing",
 		)
@@ -684,6 +748,7 @@ func (w *withdrawal) finalizeCurrentTx() error {
 
 	pkScript, err := txscript.PayToAddrScript(w.status.nextChangeAddr.addr)
 	if err != nil {
+
 		return newError(ErrWithdrawalProcessing, "failed to generate pkScript for change address", err)
 	}
 	if tx.addChange(pkScript) {
@@ -691,12 +756,14 @@ func (w *withdrawal) finalizeCurrentTx() error {
 		var err error
 		w.status.nextChangeAddr, err = nextChangeAddress(w.status.nextChangeAddr)
 		if err != nil {
+
 			return newError(ErrWithdrawalProcessing, "failed to get next change address", err)
 		}
 	}
 
 	ntxid := tx.ntxid()
 	for i, txOut := range tx.outputs {
+
 		outputStatus := w.status.outputs[txOut.request.outBailmentID()]
 		outputStatus.addOutpoint(
 			OutBailmentOutpoint{ntxid: ntxid, index: uint32(i), amount: txOut.amount})
@@ -706,6 +773,7 @@ func (w *withdrawal) finalizeCurrentTx() error {
 
 	// their outpoint amounts matching the requested amount.
 	for _, txOut := range tx.outputs {
+
 		// Look up the original request we received because txOut.request may
 		// represent a split request and thus have a different amount from the
 		// original one.
@@ -713,9 +781,11 @@ func (w *withdrawal) finalizeCurrentTx() error {
 		origRequest := outputStatus.request
 		amtFulfilled := util.Amount(0)
 		for _, outpoint := range outputStatus.outpoints {
+
 			amtFulfilled += outpoint.amount
 		}
 		if outputStatus.status == statusSuccess && amtFulfilled != origRequest.Amount {
+
 			msg := fmt.Sprintf("%s was not completely fulfilled; only %v fulfilled", origRequest,
 				amtFulfilled)
 			return newError(ErrWithdrawalProcessing, msg, nil)
@@ -735,14 +805,17 @@ func (w *withdrawal) maybeDropRequests() {
 
 	inputAmount := util.Amount(0)
 	for _, input := range w.eligibleInputs {
+
 		inputAmount += input.Amount
 	}
 	outputAmount := util.Amount(0)
 	for _, request := range w.pendingRequests {
+
 		outputAmount += request.Amount
 	}
 	sort.Sort(sort.Reverse(byAmount(w.pendingRequests)))
 	for inputAmount < outputAmount {
+
 		request := w.popRequest()
 		log <- cl.Infof{
 			"not fulfilling request to send %v to %v; not enough credits.",
@@ -755,8 +828,10 @@ func (w *withdrawal) maybeDropRequests() {
 }
 
 func (w *withdrawal) fulfillRequests() error {
+
 	w.maybeDropRequests()
 	if len(w.pendingRequests) == 0 {
+
 		return nil
 	}
 
@@ -765,7 +840,9 @@ func (w *withdrawal) fulfillRequests() error {
 
 	w.current = newWithdrawalTx(w.txOptions)
 	for len(w.pendingRequests) > 0 {
+
 		if err := w.fulfillNextRequest(); err != nil {
+
 			return err
 		}
 		tx := w.current
@@ -778,6 +855,7 @@ func (w *withdrawal) fulfillRequests() error {
 	}
 
 	if err := w.finalizeCurrentTx(); err != nil {
+
 		return err
 	}
 
@@ -787,6 +865,7 @@ func (w *withdrawal) fulfillRequests() error {
 
 	w.status.transactions = make(map[Ntxid]changeAwareTx, len(w.transactions))
 	for _, tx := range w.transactions {
+
 		w.status.updateStatusFor(tx)
 		w.status.fees += tx.fee
 		msgtx := tx.toMsgTx()
@@ -806,7 +885,9 @@ func (w *withdrawal) fulfillRequests() error {
 }
 
 func (w *withdrawal) splitLastOutput() error {
+
 	if len(w.current.outputs) == 0 {
+
 		return newError(ErrPreconditionNotMet,
 			"splitLastOutput requires current tx to have at least 1 output", nil)
 	}
@@ -848,7 +929,9 @@ func (w *withdrawal) splitLastOutput() error {
 func (s *WithdrawalStatus) updateStatusFor(tx *withdrawalTx) {
 
 	for _, output := range s.outputs {
+
 		if len(output.outpoints) > 1 {
+
 			output.status = statusSplit
 		}
 		// TODO: Update outputs with status=='partial-'. For this we need an API
@@ -887,6 +970,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 		return false
 	}
 	if lastSeriesID != wi.lastSeriesID {
+
 		log <- cl.Debugf{
 			"withdrawal lastSeriesID does not match: %v != %v",
 			lastSeriesID,
@@ -895,6 +979,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 		return false
 	}
 	if dustThreshold != wi.dustThreshold {
+
 		log <- cl.Debugf{
 			"withdrawal dustThreshold does not match: %v != %v",
 			dustThreshold,
@@ -935,6 +1020,7 @@ func getWithdrawalStatus(
 	}
 	wInfo, err := deserializeWithdrawal(p, ns, addrmgrNs, serialized)
 	if err != nil {
+
 		return nil, err
 	}
 	if wInfo.match(requests, startAddress, lastSeriesID, changeStart, dustThreshold) {
@@ -952,10 +1038,12 @@ func getRawSigs(
 
 	sigs := make(map[Ntxid]TxSigs)
 	for _, tx := range transactions {
+
 		txSigs := make(TxSigs, len(tx.inputs))
 		msgtx := tx.toMsgTx()
 		ntxid := tx.ntxid()
 		for inputIdx, input := range tx.inputs {
+
 			creditAddr := input.addr
 			redeemScript := creditAddr.redeemScript()
 			series := creditAddr.series()
@@ -965,22 +1053,28 @@ func getRawSigs(
 			// series.getPrivKeyFor() to lookup the corresponding private keys.
 			pubKeys, err := branchOrder(series.publicKeys, creditAddr.Branch())
 			if err != nil {
+
 				return nil, err
 			}
 			txInSigs := make([]RawSig, len(pubKeys))
 			for i, pubKey := range pubKeys {
+
 				var sig RawSig
 				privKey, err := series.getPrivKeyFor(pubKey)
 				if err != nil {
+
 					return nil, err
 				}
 				if privKey != nil {
+
 					childKey, err := privKey.Child(uint32(creditAddr.Index()))
 					if err != nil {
+
 						return nil, newError(ErrKeyChain, "failed to derive private key", err)
 					}
 					ecPrivKey, err := childKey.ECPrivKey()
 					if err != nil {
+
 						return nil, newError(ErrKeyChain, "failed to obtain ECPrivKey", err)
 					}
 					log <- cl.Debugf{
@@ -992,9 +1086,11 @@ func getRawSigs(
 					sig, err = txscript.RawTxInSignature(
 						msgtx, inputIdx, redeemScript, txscript.SigHashAll, ecPrivKey)
 					if err != nil {
+
 						return nil, newError(ErrRawSigning, "failed to generate raw signature", err)
 					}
 				} else {
+
 					log <- cl.Debugf{
 						"not generating raw sig for input %d of %s because private key " +
 							"for %s is not available: %v",
@@ -1026,14 +1122,18 @@ func SignTx(
 	// anywhere -- we just need it to pass to store.PreviousPkScripts().
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(msgtx, time.Now())
 	if err != nil {
+
 		return newError(ErrTxSigning, "failed to construct TxRecord for signing", err)
 	}
 	pkScripts, err := store.PreviousPkScripts(txmgrNs, rec, nil)
 	if err != nil {
+
 		return newError(ErrTxSigning, "failed to obtain pkScripts for signing", err)
 	}
 	for i, pkScript := range pkScripts {
+
 		if err = signMultiSigUTXO(mgr, addrmgrNs, msgtx, i, pkScript, sigs[i]); err != nil {
+
 			return err
 		}
 	}
@@ -1047,6 +1147,7 @@ func getRedeemScript(
 
 	address, err := mgr.Address(addrmgrNs, addr)
 	if err != nil {
+
 		return nil, err
 	}
 	return address.(waddrmgr.ManagedScriptAddress).Script()
@@ -1061,26 +1162,33 @@ func getRedeemScript(
 // This function must be called with the manager unlocked.
 func signMultiSigUTXO(
 	mgr *waddrmgr.Manager, addrmgrNs walletdb.ReadBucket, tx *wire.MsgTx, idx int, pkScript []byte, sigs []RawSig) error {
+
 	class, addresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, mgr.ChainParams())
 	if err != nil {
+
 		return newError(ErrTxSigning, "unparseable pkScript", err)
 	}
 	if class != txscript.ScriptHashTy {
+
 		return newError(ErrTxSigning, fmt.Sprintf("pkScript is not P2SH: %s", class), nil)
 	}
 	redeemScript, err := getRedeemScript(mgr, addrmgrNs, addresses[0].(*util.AddressScriptHash))
 	if err != nil {
+
 		return newError(ErrTxSigning, "unable to retrieve redeem script", err)
 	}
 
 	class, _, nRequired, err := txscript.ExtractPkScriptAddrs(redeemScript, mgr.ChainParams())
 	if err != nil {
+
 		return newError(ErrTxSigning, "unparseable redeem script", err)
 	}
 	if class != txscript.MultiSigTy {
+
 		return newError(ErrTxSigning, fmt.Sprintf("redeem script is not multi-sig: %v", class), nil)
 	}
 	if len(sigs) < nRequired {
+
 		errStr := fmt.Sprintf("not enough signatures; need %d but got only %d", nRequired,
 			len(sigs))
 		return newError(ErrTxSigning, errStr, nil)
@@ -1091,6 +1199,7 @@ func signMultiSigUTXO(
 	// Start with an OP_0 because of the bug in bitcoind, then add nRequired signatures.
 	unlockingScript := txscript.NewScriptBuilder().AddOp(txscript.OP_FALSE)
 	for _, sig := range sigs[:nRequired] {
+
 		unlockingScript.AddData(sig)
 	}
 
@@ -1098,11 +1207,13 @@ func signMultiSigUTXO(
 	sigScript := unlockingScript.AddData(redeemScript)
 	script, err := sigScript.Script()
 	if err != nil {
+
 		return newError(ErrTxSigning, "error building sigscript", err)
 	}
 	tx.TxIn[idx].SignatureScript = script
 
 	if err := validateSigScript(tx, idx, pkScript); err != nil {
+
 		return err
 	}
 	return nil
@@ -1112,12 +1223,15 @@ func signMultiSigUTXO(
 // given index, returning an error if it fails.
 func validateSigScript(
 	msgtx *wire.MsgTx, idx int, pkScript []byte) error {
+
 	vm, err := txscript.NewEngine(pkScript, msgtx, idx,
 		txscript.StandardVerifyFlags, nil, nil, 0)
 	if err != nil {
+
 		return newError(ErrTxSigning, "cannot create script engine", err)
 	}
 	if err = vm.Execute(); err != nil {
+
 		return newError(ErrTxSigning, "cannot validate tx signature", err)
 	}
 	return nil
@@ -1127,6 +1241,7 @@ func validateSigScript(
 // given transaction. It assumes all tx inputs are P2SH multi-sig.
 func calculateTxSize(
 	tx *withdrawalTx) int {
+
 	msgtx := tx.toMsgTx()
 
 	// Assume that there will always be a change output, for simplicity. We
@@ -1147,6 +1262,7 @@ func calculateTxSize(
 
 	// to rely on estimations.
 	for i, txin := range msgtx.TxIn {
+
 		// 1 byte for the OP_FALSE opcode, then 73+1 bytes for each signature
 		// with their OP_DATA opcode and finally the redeem script + 1 byte
 		// for its OP_PUSHDATA opcode and N bytes for the redeem script's size.
@@ -1168,9 +1284,11 @@ func nextChangeAddress(
 	index := a.index
 	seriesID := a.seriesID
 	if index == math.MaxUint32 {
+
 		index = 0
 		seriesID++
 	} else {
+
 		index++
 	}
 	addr, err := a.pool.ChangeAddress(seriesID, index)
@@ -1179,8 +1297,11 @@ func nextChangeAddress(
 
 func storeTransactions(
 	store *wtxmgr.Store, txmgrNs walletdb.ReadWriteBucket, transactions []*changeAwareTx) error {
+
 	for _, tx := range transactions {
+
 		if err := tx.addSelfToStore(store, txmgrNs); err != nil {
+
 			return err
 		}
 	}

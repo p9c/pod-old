@@ -22,10 +22,12 @@ func TestThrottle(
 
 	codes := make(chan int, 2)
 	for i := 0; i < cap(codes); i++ {
+
 		go func() {
 
 			res, err := http.Get(srv.URL)
 			if err != nil {
+
 				t.Fatal(err)
 			}
 			codes <- res.StatusCode
@@ -34,9 +36,11 @@ func TestThrottle(
 
 	got := make(map[int]int, cap(codes))
 	for i := 0; i < cap(codes); i++ {
+
 		got[<-codes]++
 
 		if i == 0 {
+
 			close(busy)
 		}
 	}

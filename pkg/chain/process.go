@@ -43,6 +43,7 @@ func (
 	blockHeight := height
 	bb, _ := b.BlockByHash(&block.MsgBlock().Header.PrevBlock)
 	if bb != nil {
+
 		blockHeight = bb.Height() + 1
 	}
 	b.chainLock.Lock()
@@ -51,17 +52,22 @@ func (
 	blockHash := block.Hash()
 	hf := fork.GetCurrent(height)
 	blockHashWithAlgo := func() string {
+
 		return block.MsgBlock().BlockHashWithAlgos(height).String()
 	}
 	Log.Trcc(func() string {
+
 		return "processing block" + blockHashWithAlgo()
 	})
 	var algo int32
 	switch hf {
+
 	case 0:
 		if block.MsgBlock().Header.Version != 514 {
+
 			algo = 2
 		} else {
+
 			algo = 514
 		}
 	case 1:
@@ -71,15 +77,18 @@ func (
 	// The block must not already exist in the main chain or side chains.
 	exists, err := b.blockExists(blockHash)
 	if err != nil {
+
 		return false, false, err
 	}
 	if exists {
+
 		str := fmt.Sprintf("already have block %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
 	}
 
 	// The block must not already exist as an orphan.
 	if _, exists := b.orphans[*blockHash]; exists {
+
 		str := fmt.Sprintf(
 			"already have block (orphan) %v", blockHashWithAlgo())
 		return false, false, ruleError(ErrDuplicateBlock, str)
@@ -91,16 +100,19 @@ func (
 	ph := &block.MsgBlock().Header.PrevBlock
 	pn := b.Index.LookupNode(ph)
 	if pn == nil {
+
 		log <- cl.Debug{"found no previous node"}
 		DoNotCheckPow = true
 	}
 	pb := pn.GetLastWithAlgo(algo)
 	if pb == nil {
+
 		pl = &chaincfg.AllOnes
 		DoNotCheckPow = true
 	}
 	err = checkBlockSanity(block, pl, b.timeSource, flags, DoNotCheckPow, height)
 	if err != nil {
+
 		log <- cl.Debug{"ERROR", err}
 		return false, false, err
 	}
@@ -109,9 +121,11 @@ func (
 	blockHeader := &block.MsgBlock().Header
 	checkpointNode, err := b.findPreviousCheckpoint()
 	if err != nil {
+
 		return false, false, err
 	}
 	if checkpointNode != nil {
+
 		// Ensure the block timestamp is after the checkpoint timestamp.
 		checkpointTime := time.Unix(checkpointNode.timestamp, 0)
 		if blockHeader.Timestamp.Before(checkpointTime) {
@@ -122,12 +136,14 @@ func (
 			return false, false, ruleError(ErrCheckpointTimeTooOld, str)
 		}
 		if !fastAdd {
+
 			// Even though the checks prior to now have already ensured the proof of work exceeds the claimed amount, the claimed amount is a field in the block header which could be forged.  This check ensures the proof of work is at least the minimum expected based on elapsed time since the last checkpoint and maximum adjustment allowed by the retarget rules.
 			duration := blockHeader.Timestamp.Sub(checkpointTime)
 			requiredTarget := CompactToBig(b.calcEasiestDifficulty(
 				checkpointNode.bits, duration))
 			currentTarget := CompactToBig(blockHeader.Bits)
 			if currentTarget.Cmp(requiredTarget) > 0 {
+
 				str := fmt.Sprintf("processing: block target difficulty of %064x is too low when compared to the previous checkpoint", currentTarget)
 				return false, false, ruleError(ErrDifficultyTooLow, str)
 			}
@@ -138,10 +154,13 @@ func (
 	prevHash := &blockHeader.PrevBlock
 	prevHashExists, err := b.blockExists(prevHash)
 	if err != nil {
+
 		return false, false, err
 	}
 	if !prevHashExists {
+
 		Log.Infc(func() string {
+
 			return fmt.Sprintf(
 				"adding orphan block %v with parent %v",
 				blockHashWithAlgo(),
@@ -155,12 +174,14 @@ func (
 	// The block has passed all context independent checks and appears sane enough to potentially accept it into the block chain.
 	isMainChain, err := b.maybeAcceptBlock(block, flags)
 	if err != nil {
+
 		return false, false, err
 	}
 
 	// Accept any orphan blocks that depend on this block (they are no longer orphans) and repeat for those accepted blocks until there are no more.
 	err = b.processOrphans(blockHash, flags)
 	if err != nil {
+
 		return false, false, err
 	}
 	log <- cl.Debugf{
@@ -187,9 +208,11 @@ func (
 	// Check in the database.
 	var exists bool
 	err := b.db.View(func(dbTx database.Tx) error {
+
 		var err error
 		exists, err = dbTx.HasBlock(hash)
 		if err != nil || !exists {
+
 			return err
 		}
 		// Ignore side chain blocks in the database.  This is necessary because there is not currently any record of the associated block index data such as its block height, so it's not yet possible to efficiently load the block and do anything useful with it. Ultimately the entire block index should be serialized instead of only the current main chain so it can be consulted directly.
@@ -214,14 +237,17 @@ func (
 	processHashes := make([]*chainhash.Hash, 0, 10)
 	processHashes = append(processHashes, hash)
 	for len(processHashes) > 0 {
+
 		// Pop the first hash to process from the slice.
 		processHash := processHashes[0]
 		processHashes[0] = nil // Prevent GC leak.
 		processHashes = processHashes[1:]
 		// Look up all orphans that are parented by the block we just accepted.  This will typically only be one, but it could be multiple if multiple blocks are mined and broadcast around the same time.  The one with the most proof of work will eventually win out.  An indexing for loop is intentionally used over a range here as range does not reevaluate the slice on each iteration nor does it adjust the index for the modified slice.
 		for i := 0; i < len(b.prevOrphans[*processHash]); i++ {
+
 			orphan := b.prevOrphans[*processHash][i]
 			if orphan == nil {
+
 				log <- cl.Warnf{
 					"found a nil entry at index %d in the orphan dependency list for block %v",
 					i, processHash,
@@ -235,6 +261,7 @@ func (
 			// Potentially accept the block into the block chain.
 			_, err := b.maybeAcceptBlock(orphan.block, flags)
 			if err != nil {
+
 				return err
 			}
 			// Add this block to the list of blocks to process so any orphan blocks that depend on this block are handled too.

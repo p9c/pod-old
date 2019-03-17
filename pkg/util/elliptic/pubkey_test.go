@@ -218,21 +218,26 @@ func TestPubKeys(
 	t *testing.T) {
 
 	for _, test := range pubKeyTests {
+
 		pk, err := ParsePubKey(test.key, S256())
 		if err != nil {
+
 			if test.isValid {
+
 				t.Errorf("%s pubkey failed when shouldn't %v",
 					test.name, err)
 			}
 			continue
 		}
 		if !test.isValid {
+
 			t.Errorf("%s counted as valid when it should fail",
 				test.name)
 			continue
 		}
 		var pkStr []byte
 		switch test.format {
+
 		case pubkeyUncompressed:
 			pkStr = (*PublicKey)(pk).SerializeUncompressed()
 		case pubkeyCompressed:
@@ -261,6 +266,7 @@ func TestPublicKeyIsEqual(
 		S256(),
 	)
 	if err != nil {
+
 		t.Fatalf("failed to parse raw bytes for pubKey1: %v", err)
 	}
 	pubKey2, err := ParsePubKey(
@@ -272,6 +278,7 @@ func TestPublicKeyIsEqual(
 		S256(),
 	)
 	if err != nil {
+
 		t.Fatalf("failed to parse raw bytes for pubKey2: %v", err)
 	}
 	if !pubKey1.IsEqual(pubKey1) {
@@ -289,9 +296,11 @@ func TestIsCompressed(
 	t *testing.T) {
 
 	for _, test := range pubKeyTests {
+
 		isCompressed := IsCompressedPubKey(test.key)
 		wantCompressed := (test.format == pubkeyCompressed)
 		if isCompressed != wantCompressed {
+
 			t.Fatalf("%s (%x) pubkey: unexpected compressed result, "+
 				"got %v, want %v", test.name, test.key,
 				isCompressed, wantCompressed)

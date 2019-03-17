@@ -68,6 +68,7 @@ func Example_newOutboundPeer() {
 		TrickleInterval:  time.Second * 10,
 		Listeners: peer.MessageListeners{
 			OnVersion: func(p *peer.Peer, msg *wire.MsgVersion) *wire.MsgReject {
+
 				fmt.Println("outbound: received version")
 				return nil
 			},
@@ -100,6 +101,7 @@ func Example_newOutboundPeer() {
 
 	// Wait for the verack message or timeout in case of failure.
 	select {
+
 	case <-verack:
 	case <-time.After(time.Second * 1):
 		fmt.Printf("Example_peerConnection: verack timeout")

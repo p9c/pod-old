@@ -117,12 +117,14 @@ func TestMessage(
 		var buf bytes.Buffer
 		nw, err := WriteMessageN(&buf, test.in, test.pver, test.btcnet)
 		if err != nil {
+
 			t.Errorf("WriteMessage #%d error %v", i, err)
 			continue
 		}
 
 		// Ensure the number of bytes written match the expected value.
 		if nw != test.bytes {
+
 			t.Errorf("WriteMessage #%d unexpected num bytes "+
 				"written - got %d, want %d", i, nw, test.bytes)
 		}
@@ -131,6 +133,7 @@ func TestMessage(
 		rbuf := bytes.NewReader(buf.Bytes())
 		nr, msg, _, err := ReadMessageN(rbuf, test.pver, test.btcnet)
 		if err != nil {
+
 			t.Errorf("ReadMessage #%d error %v, msg %v", i, err,
 				spew.Sdump(msg))
 			continue
@@ -144,6 +147,7 @@ func TestMessage(
 
 		// Ensure the number of bytes read match the expected value.
 		if nr != test.bytes {
+
 			t.Errorf("ReadMessage #%d unexpected num bytes read - "+
 				"got %d, want %d", i, nr, test.bytes)
 		}
@@ -159,6 +163,7 @@ func TestMessage(
 		var buf bytes.Buffer
 		err := WriteMessage(&buf, test.in, test.pver, test.btcnet)
 		if err != nil {
+
 			t.Errorf("WriteMessage #%d error %v", i, err)
 			continue
 		}
@@ -167,6 +172,7 @@ func TestMessage(
 		rbuf := bytes.NewReader(buf.Bytes())
 		msg, _, err := ReadMessage(rbuf, test.pver, test.btcnet)
 		if err != nil {
+
 			t.Errorf("ReadMessage #%d error %v, msg %v", i, err,
 				spew.Sdump(msg))
 			continue
@@ -193,6 +199,7 @@ func TestReadMessageWireErrors(
 	wantErr := "something bad happened"
 	testErr := MessageError{Description: wantErr}
 	if testErr.Error() != wantErr {
+
 		t.Errorf("MessageError: wrong error - got %v, want %v",
 			testErr.Error(), wantErr)
 	}
@@ -201,6 +208,7 @@ func TestReadMessageWireErrors(
 	wantFunc := "foo"
 	testErr = MessageError{Func: wantFunc, Description: wantErr}
 	if testErr.Error() != wantFunc+": "+wantErr {
+
 		t.Errorf("MessageError: wrong error - got %v, want %v",
 			testErr.Error(), wantErr)
 	}
@@ -377,6 +385,7 @@ func TestReadMessageWireErrors(
 
 		// Ensure the number of bytes written match the expected value.
 		if nr != test.bytes {
+
 			t.Errorf("ReadMessage #%d unexpected num bytes read - "+
 				"got %d, want %d", i, nr, test.bytes)
 		}
@@ -385,7 +394,9 @@ func TestReadMessageWireErrors(
 
 		// equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("ReadMessage #%d wrong error got: %v <%T>, "+
 					"want: %v <%T>", i, err, err,
 					test.readErr, test.readErr)
@@ -466,6 +477,7 @@ func TestWriteMessageWireErrors(
 
 		// Ensure the number of bytes written match the expected value.
 		if nw != test.bytes {
+
 			t.Errorf("WriteMessage #%d unexpected num bytes "+
 				"written - got %d, want %d", i, nw, test.bytes)
 		}
@@ -474,7 +486,9 @@ func TestWriteMessageWireErrors(
 
 		// equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.err {
+
 				t.Errorf("ReadMessage #%d wrong error got: %v <%T>, "+
 					"want: %v <%T>", i, err, err,
 					test.err, test.err)

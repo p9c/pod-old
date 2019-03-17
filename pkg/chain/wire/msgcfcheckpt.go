@@ -30,6 +30,7 @@ type MsgCFCheckpt struct {
 
 // AddCFHeader adds a new committed filter header to the message.
 func (msg *MsgCFCheckpt) AddCFHeader(header *chainhash.Hash) error {
+
 	if len(msg.FilterHeaders) == cap(msg.FilterHeaders) {
 
 		str := fmt.Sprintf("FilterHeaders has insufficient capacity for "+
@@ -46,32 +47,38 @@ func (msg *MsgCFCheckpt) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 	// Read filter type
 	err := readElement(r, &msg.FilterType)
 	if err != nil {
+
 		return err
 	}
 
 	// Read stop hash
 	err = readElement(r, &msg.StopHash)
 	if err != nil {
+
 		return err
 	}
 
 	// Read number of filter headers
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
+
 		return err
 	}
 
 	// Refuse to decode an insane number of cfheaders.
 	if count > maxCFHeadersLen {
+
 		return ErrInsaneCFHeaderCount
 	}
 
 	// Create a contiguous slice of hashes to deserialize into in order to reduce the number of allocations.
 	msg.FilterHeaders = make([]*chainhash.Hash, count)
 	for i := uint64(0); i < count; i++ {
+
 		var cfh chainhash.Hash
 		err := readElement(r, &cfh)
 		if err != nil {
+
 			return err
 		}
 		msg.FilterHeaders[i] = &cfh
@@ -85,12 +92,14 @@ func (msg *MsgCFCheckpt) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 	// Write filter type
 	err := writeElement(w, msg.FilterType)
 	if err != nil {
+
 		return err
 	}
 
 	// Write stop hash
 	err = writeElement(w, msg.StopHash)
 	if err != nil {
+
 		return err
 	}
 
@@ -98,11 +107,14 @@ func (msg *MsgCFCheckpt) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 	count := len(msg.FilterHeaders)
 	err = WriteVarInt(w, pver, uint64(count))
 	if err != nil {
+
 		return err
 	}
 	for _, cfh := range msg.FilterHeaders {
+
 		err := writeElement(w, cfh)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -118,6 +130,7 @@ func (msg *MsgCFCheckpt) Deserialize(r io.Reader) error {
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgCFCheckpt) Command() string {
+
 	return CmdCFCheckpt
 }
 
@@ -132,6 +145,7 @@ func (msg *MsgCFCheckpt) MaxPayloadLength(pver uint32) uint32 {
 func NewMsgCFCheckpt(
 	filterType FilterType, stopHash *chainhash.Hash,
 	headersCount int) *MsgCFCheckpt {
+
 	return &MsgCFCheckpt{
 		FilterType:    filterType,
 		StopHash:      *stopHash,

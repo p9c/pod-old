@@ -87,6 +87,7 @@ func NewBlockFilterer(
 	nExAddrs := len(req.ExternalAddrs)
 	exReverseFilter := make(map[string]waddrmgr.ScopedIndex, nExAddrs)
 	for scopedIndex, addr := range req.ExternalAddrs {
+
 		exReverseFilter[addr.EncodeAddress()] = scopedIndex
 	}
 
@@ -96,6 +97,7 @@ func NewBlockFilterer(
 	nInAddrs := len(req.InternalAddrs)
 	inReverseFilter := make(map[string]waddrmgr.ScopedIndex, nInAddrs)
 	for scopedIndex, addr := range req.InternalAddrs {
+
 		inReverseFilter[addr.EncodeAddress()] = scopedIndex
 	}
 
@@ -120,8 +122,10 @@ func NewBlockFilterer(
 // addresses of interest, or a transaction in the block spends from outpoints
 // controlled by the wallet.
 func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
+
 	var hasRelevantTxns bool
 	for _, tx := range block.Transactions {
+
 		if bf.FilterTx(tx) {
 
 			bf.RelevantTxns = append(bf.RelevantTxns, tx)
@@ -138,6 +142,7 @@ func (bf *BlockFilterer) FilterBlock(block *wire.MsgBlock) bool {
 // addresses of interest, or the transaction spends from an outpoint that
 // belongs to the wallet.
 func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
+
 	var isRelevant bool
 
 	// First, check the inputs to this transaction to see if they spend any
@@ -148,10 +153,13 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 
 	// from an outpoint created in the same block.
 	for _, in := range tx.TxIn {
+
 		if _, ok := bf.WatchedOutPoints[in.PreviousOutPoint]; ok {
+
 			isRelevant = true
 		}
 		if _, ok := bf.FoundOutPoints[in.PreviousOutPoint]; ok {
+
 			isRelevant = true
 		}
 	}
@@ -164,10 +172,12 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 
 	// found, we will add the outpoint to our set of FoundOutPoints.
 	for i, out := range tx.TxOut {
+
 		_, addrs, _, err := txscript.ExtractPkScriptAddrs(
 			out.PkScript, bf.Params,
 		)
 		if err != nil {
+
 			log <- cl.Warnf{
 				"could not parse output script in %s:%d: %v",
 				tx.TxHash(), i, err,
@@ -204,14 +214,18 @@ func (bf *BlockFilterer) FilterTx(tx *wire.MsgTx) bool {
 // method returns true iff a non-zero number of the provided addresses are of
 // interest.
 func (bf *BlockFilterer) FilterOutputAddrs(addrs []util.Address) bool {
+
 	var isRelevant bool
 	for _, addr := range addrs {
+
 		addrStr := addr.EncodeAddress()
 		if scopedIndex, ok := bf.ExReverseFilter[addrStr]; ok {
+
 			bf.foundExternal(scopedIndex)
 			isRelevant = true
 		}
 		if scopedIndex, ok := bf.InReverseFilter[addrStr]; ok {
+
 			bf.foundInternal(scopedIndex)
 			isRelevant = true
 		}
@@ -226,6 +240,7 @@ func (bf *BlockFilterer) FilterOutputAddrs(addrs []util.Address) bool {
 func (bf *BlockFilterer) foundExternal(scopedIndex waddrmgr.ScopedIndex) {
 
 	if _, ok := bf.FoundExternal[scopedIndex.Scope]; !ok {
+
 		bf.FoundExternal[scopedIndex.Scope] = make(map[uint32]struct{})
 	}
 	bf.FoundExternal[scopedIndex.Scope][scopedIndex.Index] = struct{}{}
@@ -237,6 +252,7 @@ func (bf *BlockFilterer) foundExternal(scopedIndex waddrmgr.ScopedIndex) {
 func (bf *BlockFilterer) foundInternal(scopedIndex waddrmgr.ScopedIndex) {
 
 	if _, ok := bf.FoundInternal[scopedIndex.Scope]; !ok {
+
 		bf.FoundInternal[scopedIndex.Scope] = make(map[uint32]struct{})
 	}
 	bf.FoundInternal[scopedIndex.Scope][scopedIndex.Index] = struct{}{}

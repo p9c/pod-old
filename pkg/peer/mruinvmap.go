@@ -19,6 +19,7 @@ type mruInventoryMap struct {
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
 func (m *mruInventoryMap) String() string {
+
 	m.invMtx.Lock()
 	defer m.invMtx.Unlock()
 	lastEntryNum := len(m.invMap) - 1
@@ -43,6 +44,7 @@ func (m *mruInventoryMap) String() string {
 
 // Exists returns whether or not the passed inventory item is in the map. This function is safe for concurrent access.
 func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
+
 	m.invMtx.Lock()
 	_, exists := m.invMap[*iv]
 	m.invMtx.Unlock()
@@ -109,6 +111,7 @@ func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 // newMruInventoryMap returns a new inventory map that is limited to the number of entries specified by limit.  When the number of entries exceeds the limit, the oldest (least recently used) entry will be removed to make room for the new entry.
 func newMruInventoryMap(
 	limit uint) *mruInventoryMap {
+
 	m := mruInventoryMap{
 		invMap:  make(map[wire.InvVect]*list.Element),
 		invList: list.New(),

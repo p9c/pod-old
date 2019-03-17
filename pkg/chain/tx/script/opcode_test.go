@@ -18,6 +18,7 @@ func TestOpcodeDisabled(
 		OP_LSHIFT, OP_RSHIFT,
 	}
 	for _, opcodeVal := range tests {
+
 		pop := parsedOpcode{opcode: &opcodeArray[opcodeVal], data: nil}
 		err := opcodeDisabled(&pop, nil)
 		if !IsErrorCode(err, ErrDisabledOpcode) {
@@ -72,8 +73,10 @@ func TestOpcodeDisasm(
 		0xff: "OP_INVALIDOPCODE",
 	}
 	for opcodeVal, expectedStr := range expectedStrings {
+
 		var data []byte
 		switch {
+
 		// OP_DATA_1 through OP_DATA_65 display the pushed data.
 		case opcodeVal >= 0x01 && opcodeVal < 0x4c:
 			data = bytes.Repeat(oneBytes, opcodeVal)
@@ -98,6 +101,7 @@ func TestOpcodeDisasm(
 		// OP_NOP1 through OP_NOP10.
 		case opcodeVal >= 0xb0 && opcodeVal <= 0xb9:
 			switch opcodeVal {
+
 			case 0xb1:
 				// OP_NOP2 is an alias of OP_CHECKLOCKTIMEVERIFY
 				expectedStr = "OP_CHECKLOCKTIMEVERIFY"
@@ -115,6 +119,7 @@ func TestOpcodeDisasm(
 		pop := parsedOpcode{opcode: &opcodeArray[opcodeVal], data: data}
 		gotStr := pop.print(true)
 		if gotStr != expectedStr {
+
 			t.Errorf("pop.print (opcode %x): Unexpected disasm "+
 				"string - got %v, want %v", opcodeVal, gotStr,
 				expectedStr)
@@ -126,8 +131,10 @@ func TestOpcodeDisasm(
 	expectedStrings[0x00] = "OP_0"
 	expectedStrings[0x4f] = "OP_1NEGATE"
 	for opcodeVal, expectedStr := range expectedStrings {
+
 		var data []byte
 		switch {
+
 		// OP_DATA_1 through OP_DATA_65 display the opcode followed by the pushed data.
 		case opcodeVal >= 0x01 && opcodeVal < 0x4c:
 			data = bytes.Repeat(oneBytes, opcodeVal)
@@ -156,6 +163,7 @@ func TestOpcodeDisasm(
 		// OP_NOP1 through OP_NOP10.
 		case opcodeVal >= 0xb0 && opcodeVal <= 0xb9:
 			switch opcodeVal {
+
 			case 0xb1:
 				// OP_NOP2 is an alias of OP_CHECKLOCKTIMEVERIFY
 				expectedStr = "OP_CHECKLOCKTIMEVERIFY"
@@ -173,6 +181,7 @@ func TestOpcodeDisasm(
 		pop := parsedOpcode{opcode: &opcodeArray[opcodeVal], data: data}
 		gotStr := pop.print(false)
 		if gotStr != expectedStr {
+
 			t.Errorf("pop.print (opcode %x): Unexpected disasm "+
 				"string - got %v, want %v", opcodeVal, gotStr,
 				expectedStr)

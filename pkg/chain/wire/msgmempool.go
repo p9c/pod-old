@@ -10,7 +10,9 @@ type MsgMemPool struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgMemPool) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	if pver < BIP0035Version {
+
 		str := fmt.Sprintf("mempool message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgMemPool.BtcDecode", str)
@@ -20,7 +22,9 @@ func (msg *MsgMemPool) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgMemPool) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	if pver < BIP0035Version {
+
 		str := fmt.Sprintf("mempool message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgMemPool.BtcEncode", str)
@@ -30,15 +34,18 @@ func (msg *MsgMemPool) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgMemPool) Command() string {
+
 	return CmdMemPool
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgMemPool) MaxPayloadLength(pver uint32) uint32 {
+
 	return 0
 }
 
 // NewMsgMemPool returns a new bitcoin pong message that conforms to the Message interface.  See MsgPong for details.
 func NewMsgMemPool() *MsgMemPool {
+
 	return &MsgMemPool{}
 }

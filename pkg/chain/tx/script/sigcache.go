@@ -24,6 +24,7 @@ type SigCache struct {
 // NewSigCache creates and initializes a new instance of SigCache. Its sole parameter 'maxEntries' represents the maximum number of entries allowed to exist in the SigCache at any particular moment. Random entries are evicted make room for new entries that would cause the number of entries in the cache to exceed the max.
 func NewSigCache(
 	maxEntries uint) *SigCache {
+
 	return &SigCache{
 		validSigs:  make(map[chainhash.Hash]sigCacheEntry, maxEntries),
 		maxEntries: maxEntries,
@@ -32,6 +33,7 @@ func NewSigCache(
 
 // Exists returns true if an existing entry of 'sig' over 'sigHash' for public key 'pubKey' is found within the SigCache. Otherwise, false is returned. NOTE: This function is safe for concurrent access. Readers won't be blocked unless there exists a writer, adding an entry to the SigCache.
 func (s *SigCache) Exists(sigHash chainhash.Hash, sig *ec.Signature, pubKey *ec.PublicKey) bool {
+
 	s.RLock()
 	entry, ok := s.validSigs[sigHash]
 	s.RUnlock()
@@ -44,13 +46,16 @@ func (s *SigCache) Add(sigHash chainhash.Hash, sig *ec.Signature, pubKey *ec.Pub
 	s.Lock()
 	defer s.Unlock()
 	if s.maxEntries <= 0 {
+
 		return
 	}
 
 	// If adding this new entry will put us over the max number of allowed entries, then evict an entry.
 	if uint(len(s.validSigs)+1) > s.maxEntries {
+
 		// Remove a random entry from the map. Relying on the random starting point of Go's map iteration. It's worth noting that the random iteration starting point is not 100% guaranteed by the spec, however most Go compilers support it. Ultimately, the iteration order isn't important here because in order to manipulate which items are evicted, an adversary would need to be able to execute preimage attacks on the hashing function in order to start eviction at a specific entry.
 		for sigEntry := range s.validSigs {
+
 			delete(s.validSigs, sigEntry)
 			break
 		}

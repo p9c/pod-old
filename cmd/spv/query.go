@@ -110,6 +110,7 @@ type QueryOption func(*queryOptions)
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
 func defaultQueryOptions() *queryOptions {
+
 	return &queryOptions{
 		timeout:            QueryTimeout,
 		numRetries:         uint8(QueryNumRetries),
@@ -123,6 +124,7 @@ func defaultQueryOptions() *queryOptions {
 func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 
 	for _, option := range options {
+
 		option(qo)
 	}
 
@@ -133,6 +135,7 @@ func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 // peer we ask the query to answer it before moving on.
 func Timeout(
 	timeout time.Duration) QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.timeout = timeout
@@ -145,6 +148,7 @@ func Timeout(
 // times each peer should be queried. The default is one.
 func NumRetries(
 	numRetries uint8) QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.numRetries = numRetries
@@ -159,6 +163,7 @@ func NumRetries(
 // on a query in case we don't have any peers.
 func PeerConnectTimeout(
 	timeout time.Duration) QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.peerConnectTimeout = timeout
@@ -171,6 +176,7 @@ func PeerConnectTimeout(
 // for the query messages.
 func Encoding(
 	encoding wire.MessageEncoding) QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.encoding = encoding
@@ -183,6 +189,7 @@ func Encoding(
 // query is finished.
 func DoneChan(
 	doneChan chan<- struct{}) QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.doneChan = doneChan
@@ -194,6 +201,7 @@ func DoneChan(
 
 // on disk once it's found.
 func PersistToDisk() QueryOption {
+
 	return func(qo *queryOptions) {
 
 		qo.persistToDisk = true
@@ -359,6 +367,7 @@ func queryChainServiceBatch(
 		for firstUnfinished < len(queryMsgs) {
 
 			select {
+
 			case <-queryQuit:
 				return
 			case <-s.quit:
@@ -420,6 +429,7 @@ func queryChainServiceBatch(
 			// need a timeout.
 			timeout := time.After(qo.timeout)
 			if handleQuery == -1 {
+
 				if firstUnfinished == len(queryMsgs) {
 
 					// We've now answered all the queries.
@@ -434,6 +444,7 @@ func queryChainServiceBatch(
 
 				// anything needs our help.
 				select {
+
 				case <-queryQuit:
 					return
 				case <-s.quit:
@@ -445,6 +456,7 @@ func queryChainServiceBatch(
 
 						continue
 					} else {
+
 						return
 					}
 
@@ -457,6 +469,7 @@ func queryChainServiceBatch(
 			peerStates[sp.Addr()] = queryMsgs[handleQuery]
 			mtxPeerStates.Unlock()
 			select {
+
 			case <-queryQuit:
 				return
 			case <-s.quit:
@@ -476,6 +489,7 @@ func queryChainServiceBatch(
 				}
 
 				Log.Trcc(func() string {
+
 					return fmt.Sprintf(
 						"query for #%v failed, moving on: %v",
 						handleQuery,
@@ -519,6 +533,7 @@ func queryChainServiceBatch(
 	defer func() {
 
 		for _, quitChan := range peerQuits {
+
 			close(quitChan)
 		}
 
@@ -544,6 +559,7 @@ func queryChainServiceBatch(
 		}
 
 		for peer, quitChan := range peerQuits {
+
 			p := s.PeerByAddr(peer)
 			if p == nil || !p.Connected() {
 
@@ -556,6 +572,7 @@ func queryChainServiceBatch(
 		}
 
 		select {
+
 		case msg := <-msgChan:
 			mtxPeerStates.RLock()
 			curQuery := peerStates[msg.sp.Addr()]
@@ -563,6 +580,7 @@ func queryChainServiceBatch(
 			if checkResponse(msg.sp, curQuery, msg.msg) {
 
 				select {
+
 				case <-queryQuit:
 					return
 				case <-s.quit:
@@ -577,6 +595,7 @@ func queryChainServiceBatch(
 			// Check if we're done; if so, quit.
 			allDone := true
 			for i := 0; i < len(queryStates); i++ {
+
 				if atomic.LoadUint32(&queryStates[i]) !=
 					uint32(queryAnswered) {
 
@@ -586,6 +605,7 @@ func queryChainServiceBatch(
 			}
 
 			if allDone {
+
 				return
 			}
 
@@ -662,6 +682,7 @@ func (s *ChainService) queryAllPeers(
 	// message subscription.
 	peerQuits := make(map[string]chan struct{})
 	for _, sp := range peers {
+
 		sp.subscribeRecvMsg(subscription)
 		wg.Add(1)
 		peerQuits[sp.Addr()] = make(chan struct{})
@@ -672,10 +693,12 @@ func (s *ChainService) queryAllPeers(
 			defer sp.unsubscribeRecvMsgs(subscription)
 
 			for i := uint8(0); i < qo.numRetries; i++ {
+
 				timeout := time.After(qo.timeout)
 				sp.QueueMessageWithEncoding(queryMsg,
 					nil, qo.encoding)
 				select {
+
 				case <-queryQuit:
 					return
 				case <-s.quit:
@@ -705,6 +728,7 @@ func (s *ChainService) queryAllPeers(
 
 		// Close the done channel, if any.
 		if qo.doneChan != nil {
+
 			close(qo.doneChan)
 		}
 
@@ -717,7 +741,9 @@ func (s *ChainService) queryAllPeers(
 	// allQuit is closed.
 checkResponses:
 	for {
+
 		select {
+
 		case <-queryQuit:
 			break checkResponses
 
@@ -740,6 +766,7 @@ checkResponses:
 
 			// fixed before exposing this function for public use.
 			select {
+
 			case <-peerQuits[sm.sp.Addr()]:
 			default:
 				checkResponse(sm.sp, sm.msg, queryQuit,
@@ -817,6 +844,7 @@ func queryChainServicePeers(
 	peerTimeout := time.NewTicker(qo.timeout)
 	timeout := time.After(qo.peerConnectTimeout)
 	if queryPeer != nil {
+
 		peerTries[queryPeer.Addr()]++
 		queryPeer.subscribeRecvMsg(subscription)
 		queryPeer.QueueMessageWithEncoding(queryMsg, nil, qo.encoding)
@@ -824,11 +852,14 @@ func queryChainServicePeers(
 
 checkResponses:
 	for {
+
 		select {
+
 		case <-timeout:
 
 			// When we time out, we're done.
 			if queryPeer != nil {
+
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
 
@@ -838,6 +869,7 @@ checkResponses:
 
 			// Same when we get a quit signal.
 			if queryPeer != nil {
+
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
 
@@ -847,6 +879,7 @@ checkResponses:
 
 			// Same when chain server's quit is signaled.
 			if queryPeer != nil {
+
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
 
@@ -871,6 +904,7 @@ checkResponses:
 		// query. Time to select a new peer and query it.
 		case <-peerTimeout.C:
 			if queryPeer != nil {
+
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
 
@@ -898,6 +932,7 @@ checkResponses:
 
 			// then we'll exit now as all the peers are exhausted.
 			if queryPeer == nil {
+
 				break checkResponses
 			}
 
@@ -909,6 +944,7 @@ checkResponses:
 	close(subQuit)
 	peerTimeout.Stop()
 	if qo.doneChan != nil {
+
 		close(qo.doneChan)
 	}
 
@@ -924,6 +960,7 @@ func (s *ChainService) getFilterFromCache(blockHash *chainhash.Hash,
 
 	filterValue, err := s.FilterCache.Get(cacheKey)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -952,6 +989,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 
 	// all other filters.
 	if filterType != wire.GCSFilterRegular {
+
 		return nil, fmt.Errorf("unknown filter type: %v", filterType)
 	}
 
@@ -972,20 +1010,24 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	// so, then we can return it an exit early.
 	filter, err := s.getFilterFromCache(&blockHash, dbFilterType)
 	if err == nil && filter != nil {
+
 		return filter, nil
 	}
 
 	if err != nil && err != cache.ErrElementNotFound {
+
 		return nil, err
 	}
 
 	// If not in cache, check if it's in database, returning early if yes.
 	filter, err = s.FilterDB.FetchFilter(&blockHash, dbFilterType)
 	if err == nil && filter != nil {
+
 		return filter, nil
 	}
 
 	if err != nil && err != filterdb.ErrFilterNotFound {
+
 		return nil, err
 	}
 
@@ -1001,10 +1043,12 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	// which is required to fetch the filter header for that block.
 	block, height, err := s.BlockHeaders.FetchHeader(&blockHash)
 	if err != nil {
+
 		return nil, err
 	}
 
 	if block.BlockHash() != blockHash {
+
 		str := "couldn't get header for block %s from database"
 		log <- cl.Debug{str, blockHash}
 		return nil, fmt.Errorf(str, blockHash)
@@ -1022,12 +1066,14 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	// are required in order to verify the authenticity of the filter.
 	curHeader, err := getHeader(&blockHash)
 	if err != nil {
+
 		return nil, fmt.Errorf("Couldn't get cfheader for block %s "+
 			"from database", blockHash)
 	}
 
 	prevHeader, err := getHeader(&block.PrevBlock)
 	if err != nil {
+
 		return nil, fmt.Errorf("Couldn't get cfheader for block %s "+
 			"from database", blockHash)
 	}
@@ -1056,6 +1102,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 
 				// already closed channel.
 				if filter != nil {
+
 					return
 				}
 
@@ -1064,6 +1111,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				// Ignore this message.
 				if blockHash != response.BlockHash ||
 					filterType != response.FilterType {
+
 					return
 				}
 
@@ -1092,6 +1140,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 					MakeHeaderForFilter(gotFilter,
 						*prevHeader); err != nil ||
 					gotHeader != *curHeader {
+
 					return
 				}
 
@@ -1119,6 +1168,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		// the caller requested it.
 		err := s.putFilterToCache(&blockHash, dbFilterType, filter)
 		if err != nil {
+
 			log <- cl.Warn{
 				"couldn't write filter to cache:", err,
 			}
@@ -1128,8 +1178,10 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		qo := defaultQueryOptions()
 		qo.applyQueryOptions(options...)
 		if qo.persistToDisk {
+
 			err := s.FilterDB.PutFilter(&blockHash, filter, dbFilterType)
 			if err != nil {
+
 				return nil, err
 			}
 
@@ -1156,6 +1208,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// Fetch the corresponding block header from the database. If this isn't found, then we don't have the header for this so we can't request it.
 	blockHeader, height, err := s.BlockHeaders.FetchHeader(&blockHash)
 	if err != nil || blockHeader.BlockHash() != blockHash {
+
 		return nil, fmt.Errorf("Couldn't get header for block %s "+
 			"from database", blockHash)
 	}
@@ -1169,6 +1222,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	qo.applyQueryOptions(options...)
 	invType := wire.InvTypeWitnessBlock
 	if qo.encoding == wire.BaseEncoding {
+
 		invType = wire.InvTypeBlock
 	}
 
@@ -1178,10 +1232,12 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// If the block is already in the cache, we can return it immediately.
 	blockValue, err := s.BlockCache.Get(*inv)
 	if err == nil && blockValue != nil {
+
 		return blockValue.(*cache.CacheableBlock).Block, err
 	}
 
 	if err != nil && err != cache.ErrElementNotFound {
+
 		return nil, err
 	}
 
@@ -1219,11 +1275,13 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 
 				// closed channel.
 				if foundBlock != nil {
+
 					return
 				}
 
 				// If this isn't our block, ignore it.
 				if response.BlockHash() != blockHash {
+
 					return
 				}
 
@@ -1233,6 +1291,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 
 				// automagically put one in.
 				if block.Height() == util.BlockHeightUnknown {
+
 					block.SetHeight(int32(height))
 				}
 
@@ -1251,6 +1310,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 					block.Height(),
 					true,
 				); err != nil {
+
 					log <- cl.Warnf{
 						"Invalid block for %s received from %s -- disconnecting peer",
 						blockHash, sp.Addr(),
@@ -1281,6 +1341,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 		options...,
 	)
 	if foundBlock == nil {
+
 		return nil, fmt.Errorf("Couldn't retrieve block %s from "+
 			"network", blockHash)
 	}
@@ -1288,6 +1349,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	// Add block to the cache before returning it.
 	err = s.BlockCache.Put(*inv, &cache.CacheableBlock{foundBlock})
 	if err != nil {
+
 		log <- cl.Warn{"couldn't write block to cache:", err}
 	}
 
@@ -1318,6 +1380,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 	qo.applyQueryOptions(options...)
 	invType := wire.InvTypeWitnessTx
 	if qo.encoding == wire.BaseEncoding {
+
 		invType = wire.InvTypeTx
 	}
 
@@ -1336,7 +1399,9 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 
 			case *wire.MsgGetData:
 				for _, vec := range response.InvList {
+
 					if vec.Hash == txHash {
+
 						sp.QueueMessageWithEncoding(
 							tx, nil, qo.encoding)
 					}
@@ -1345,6 +1410,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 
 			case *wire.MsgReject:
 				if response.Hash == txHash {
+
 					err = fmt.Errorf("Transaction %s "+
 						"rejected by %s: %s",
 						tx.TxHash(), sp.Addr(),

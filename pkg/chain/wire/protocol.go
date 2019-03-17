@@ -99,13 +99,16 @@ func (f ServiceFlag) String() string {
 
 	// No flags are set.
 	if f == 0 {
+
 		return "0x0"
 	}
 
 	// Add individual bit flags.
 	s := ""
 	for _, flag := range orderedSFStrings {
+
 		if f&flag == flag {
+
 			s += sfStrings[flag] + "|"
 			f -= flag
 		}
@@ -114,6 +117,7 @@ func (f ServiceFlag) String() string {
 	// Add any remaining flags which aren't accounted for as hex.
 	s = strings.TrimRight(s, "|")
 	if f != 0 {
+
 		s += "|0x" + strconv.FormatUint(uint64(f), 16)
 	}
 	s = strings.TrimLeft(s, "|")
@@ -149,7 +153,9 @@ var bnStrings = map[BitcoinNet]string{
 
 // String returns the BitcoinNet in human-readable form.
 func (n BitcoinNet) String() string {
+
 	if s, ok := bnStrings[n]; ok {
+
 		return s
 	}
 	return fmt.Sprintf("Unknown BitcoinNet (%d)", uint32(n))

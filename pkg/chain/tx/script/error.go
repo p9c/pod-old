@@ -296,7 +296,9 @@ var errorCodeStrings = map[ErrorCode]string{
 
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
+
 	if s := errorCodeStrings[e]; s != "" {
+
 		return s
 	}
 	return fmt.Sprintf("Unknown ErrorCode (%d)", int(e))
@@ -314,18 +316,21 @@ type Error struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e Error) Error() string {
+
 	return e.Description
 }
 
 // scriptError creates an Error given a set of arguments.
 func scriptError(
 	c ErrorCode, desc string) Error {
+
 	return Error{ErrorCode: c, Description: desc}
 }
 
 // IsErrorCode returns whether or not the provided error is a script error with the provided error code.
 func IsErrorCode(
 	err error, c ErrorCode) bool {
+
 	serr, ok := err.(Error)
 	return ok && serr.ErrorCode == c
 }

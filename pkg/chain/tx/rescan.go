@@ -62,6 +62,7 @@ type rescanBatch struct {
 
 // and does not need to be read to prevent a deadlock.
 func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
+
 	errChan := make(chan error, 1)
 	job.err = errChan
 	w.rescanAddJob <- job
@@ -70,6 +71,7 @@ func (w *Wallet) SubmitRescan(job *RescanJob) <-chan error {
 
 // batch creates the rescanBatch for a single rescan job.
 func (job *RescanJob) batch() *rescanBatch {
+
 	return &rescanBatch{
 		initialSync: job.InitialSync,
 		addrs:       job.Addrs,
@@ -87,15 +89,18 @@ func (job *RescanJob) batch() *rescanBatch {
 func (b *rescanBatch) merge(job *RescanJob) {
 
 	if job.InitialSync {
+
 		b.initialSync = true
 	}
 	b.addrs = append(b.addrs, job.Addrs...)
 
 	for op, addr := range job.OutPoints {
+
 		b.outpoints[op] = addr
 	}
 
 	if job.BlockStamp.Height < b.bs.Height {
+
 		b.bs = job.BlockStamp
 	}
 	b.errChans = append(b.errChans, job.err)
@@ -109,6 +114,7 @@ func (b *rescanBatch) merge(job *RescanJob) {
 func (b *rescanBatch) done(err error) {
 
 	for _, c := range b.errChans {
+
 		c <- err
 	}
 }
@@ -125,7 +131,9 @@ func (w *Wallet) rescanBatchHandler() {
 
 out:
 	for {
+
 		select {
+
 		case job := <-w.rescanAddJob:
 			if curBatch == nil {
 
@@ -140,8 +148,10 @@ out:
 
 				// merge the job.
 				if nextBatch == nil {
+
 					nextBatch = job.batch()
 				} else {
+
 					nextBatch.merge(job)
 				}
 			}
@@ -151,6 +161,7 @@ out:
 
 			case *chain.RescanProgress:
 				if curBatch == nil {
+
 					log <- cl.Wrn(
 						"received rescan progress notification but no rescan currently running",
 					)
@@ -163,6 +174,7 @@ out:
 
 			case *chain.RescanFinished:
 				if curBatch == nil {
+
 					log <- cl.Wrn(
 						"received rescan finished notification but no rescan currently running",
 					)
@@ -176,6 +188,7 @@ out:
 				curBatch, nextBatch = nextBatch, nil
 
 				if curBatch != nil {
+
 					w.rescanBatch <- curBatch
 				}
 
@@ -208,6 +221,7 @@ out:
 
 		// handler).
 		select {
+
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
 			log <- cl.Infof{
@@ -245,6 +259,7 @@ func (w *Wallet) rescanRPCHandler() {
 
 	chainClient, err := w.requireChainClient()
 	if err != nil {
+
 		log <- cl.Errorf{
 			"rescanRPCHandler called without an RPC client",
 		}
@@ -256,7 +271,9 @@ func (w *Wallet) rescanRPCHandler() {
 
 out:
 	for {
+
 		select {
+
 		case batch := <-w.rescanBatch:
 
 			// Log the newly-started rescan.
@@ -273,6 +290,7 @@ out:
 			err := chainClient.Rescan(&batch.bs.Hash, batch.addrs,
 				batch.outpoints)
 			if err != nil {
+
 				log <- cl.Errorf{
 					"rescan for %d %s failed: %v",
 					numAddrs,
@@ -297,6 +315,7 @@ out:
 
 // rescan.
 func (w *Wallet) Rescan(addrs []util.Address, unspent []wtxmgr.Credit) error {
+
 	return w.rescanWithTarget(addrs, unspent, nil)
 }
 
@@ -308,10 +327,12 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 
 	outpoints := make(map[wire.OutPoint]util.Address, len(unspent))
 	for _, output := range unspent {
+
 		_, outputAddrs, _, err := txscript.ExtractPkScriptAddrs(
 			output.PkScript, w.chainParams,
 		)
 		if err != nil {
+
 			return err
 		}
 
@@ -322,6 +343,7 @@ func (w *Wallet) rescanWithTarget(addrs []util.Address,
 
 	// starting point for the rescan.
 	if startStamp == nil {
+
 		startStamp = &waddrmgr.BlockStamp{}
 		*startStamp = w.Manager.SyncedTo()
 	}

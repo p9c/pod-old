@@ -76,6 +76,7 @@ func binaryRead(
 	var read int
 	buf := make([]byte, binary.Size(data))
 	if read, err = io.ReadFull(r, buf); err != nil {
+
 		return int64(read), err
 	}
 	return int64(read), binary.Read(bytes.NewBuffer(buf), order, data)
@@ -87,6 +88,7 @@ func binaryWrite(
 
 	buf := bytes.Buffer{}
 	if err = binary.Write(&buf, order, data); err != nil {
+
 		return 0, err
 	}
 
@@ -101,6 +103,7 @@ func pubkeyFromPrivkey(
 	_, pk := ec.PrivKeyFromBytes(ec.S256(), privkey)
 
 	if compress {
+
 		return pk.SerializeCompressed()
 	}
 	return pk.SerializeUncompressed()
@@ -108,6 +111,7 @@ func pubkeyFromPrivkey(
 
 func keyOneIter(
 	passphrase, salt []byte, memReqts uint64) []byte {
+
 	saltedpass := append(passphrase, salt...)
 	lutbl := make([]byte, memReqts)
 
@@ -116,6 +120,7 @@ func keyOneIter(
 	copy(lutbl[:sha512.Size], seed[:])
 
 	for nByte := 0; nByte < (int(memReqts) - sha512.Size); nByte += sha512.Size {
+
 		hash := sha512.Sum512(lutbl[nByte : nByte+sha512.Size])
 		copy(lutbl[nByte+sha512.Size:nByte+2*sha512.Size], hash[:])
 	}
@@ -125,6 +130,7 @@ func keyOneIter(
 	seqCt := uint32(memReqts / sha512.Size)
 	nLookups := seqCt / 2
 	for i := uint32(0); i < nLookups; i++ {
+
 		// Armory ignores endianness here.  We assume LE.
 		newIdx := binary.LittleEndian.Uint32(x[cap(x)-4:]) % seqCt
 
@@ -134,6 +140,7 @@ func keyOneIter(
 
 		// XOR hash x with hash v
 		for j := 0; j < sha512.Size; j++ {
+
 			x[j] ^= v[j]
 		}
 
@@ -151,8 +158,10 @@ func keyOneIter(
 // (http://www.tarsnap.com/scrypt/scrypt.pdf).
 func kdf(
 	passphrase []byte, params *kdfParameters) []byte {
+
 	masterKey := passphrase
 	for i := uint32(0); i < params.nIter; i++ {
+
 		masterKey = keyOneIter(masterKey, params.salt[:], params.mem)
 	}
 	return masterKey
@@ -160,8 +169,10 @@ func kdf(
 
 func pad(
 	size int, b []byte) []byte {
+
 	// Prevent a possible panic if the input exceeds the expected size.
 	if len(b) > size {
+
 		size = len(b)
 	}
 
@@ -177,14 +188,17 @@ func chainedPrivKey(
 	privkey, pubkey, chaincode []byte) ([]byte, error) {
 
 	if len(privkey) != 32 {
+
 		return nil, fmt.Errorf("invalid privkey length %d (must be 32)",
 			len(privkey))
 	}
 	if len(chaincode) != 32 {
+
 		return nil, fmt.Errorf("invalid chaincode length %d (must be 32)",
 			len(chaincode))
 	}
 	switch n := len(pubkey); n {
+
 	case ec.PubKeyBytesLenUncompressed, ec.PubKeyBytesLenCompressed:
 		// Correct length
 	default:
@@ -194,6 +208,7 @@ func chainedPrivKey(
 	xorbytes := make([]byte, 32)
 	chainMod := chainhash.DoubleHashB(pubkey)
 	for i := range xorbytes {
+
 		xorbytes[i] = chainMod[i] ^ chaincode[i]
 	}
 	chainXor := new(big.Int).SetBytes(xorbytes)
@@ -212,6 +227,7 @@ func chainedPubKey(
 
 	var compressed bool
 	switch n := len(pubkey); n {
+
 	case ec.PubKeyBytesLenUncompressed:
 		compressed = false
 	case ec.PubKeyBytesLenCompressed:
@@ -221,6 +237,7 @@ func chainedPubKey(
 		return nil, fmt.Errorf("invalid pubkey length %d", n)
 	}
 	if len(chaincode) != 32 {
+
 		return nil, fmt.Errorf("invalid chaincode length %d (must be 32)",
 			len(chaincode))
 	}
@@ -228,15 +245,18 @@ func chainedPubKey(
 	xorbytes := make([]byte, 32)
 	chainMod := chainhash.DoubleHashB(pubkey)
 	for i := range xorbytes {
+
 		xorbytes[i] = chainMod[i] ^ chaincode[i]
 	}
 
 	oldPk, err := ec.ParsePubKey(pubkey, ec.S256())
 	if err != nil {
+
 		return nil, err
 	}
 	newX, newY := ec.S256().ScalarMult(oldPk.X, oldPk.Y, xorbytes)
 	if err != nil {
+
 		return nil, err
 	}
 	newPk := &ec.PublicKey{
@@ -246,6 +266,7 @@ func chainedPubKey(
 	}
 
 	if compressed {
+
 		return newPk.SerializeCompressed(), nil
 	}
 	return newPk.SerializeUncompressed(), nil
@@ -272,17 +293,21 @@ type readerFromVersion interface {
 }
 
 func (v version) String() string {
+
 	str := fmt.Sprintf("%d.%d", v.major, v.minor)
 	if v.bugfix != 0x00 || v.autoincrement != 0x00 {
+
 		str += fmt.Sprintf(".%d", v.bugfix)
 	}
 	if v.autoincrement != 0x00 {
+
 		str += fmt.Sprintf(".%d", v.autoincrement)
 	}
 	return str
 }
 
 func (v version) Uint32() uint32 {
+
 	return uint32(v.major)<<6 | uint32(v.minor)<<4 | uint32(v.bugfix)<<2 | uint32(v.autoincrement)
 }
 
@@ -292,6 +317,7 @@ func (v *version) ReadFrom(r io.Reader) (int64, error) {
 	var versBytes [4]byte
 	n, err := io.ReadFull(r, versBytes[:])
 	if err != nil {
+
 		return int64(n), err
 	}
 	v.major = versBytes[0]
@@ -316,7 +342,9 @@ func (v *version) WriteTo(w io.Writer) (int64, error) {
 
 // LT returns whether v is an earlier version than v2.
 func (v version) LT(v2 version) bool {
+
 	switch {
+
 	case v.major < v2.major:
 		return true
 
@@ -336,7 +364,9 @@ func (v version) LT(v2 version) bool {
 
 // EQ returns whether v2 is an equal version to v.
 func (v version) EQ(v2 version) bool {
+
 	switch {
+
 	case v.major != v2.major:
 		return false
 
@@ -356,7 +386,9 @@ func (v version) EQ(v2 version) bool {
 
 // GT returns whether v is a later version than v2.
 func (v version) GT(v2 version) bool {
+
 	switch {
+
 	case v.major > v2.major:
 		return true
 
@@ -408,8 +440,10 @@ func (v *varEntries) WriteTo(w io.Writer) (n int64, err error) {
 
 	var written int64
 	for _, s := range ss {
+
 		var err error
 		if written, err = s.WriteTo(w); err != nil {
+
 			return n + written, err
 		}
 		n += written
@@ -427,10 +461,13 @@ func (v *varEntries) ReadFrom(r io.Reader) (n int64, err error) {
 
 	// Keep reading entries until an EOF is reached.
 	for {
+
 		var header entryHeader
 		if read, err = binaryRead(r, binary.LittleEndian, &header); err != nil {
+
 			// EOF here is not an error.
 			if err == io.EOF {
+
 				return n + read, nil
 			}
 			return n + read, err
@@ -439,10 +476,12 @@ func (v *varEntries) ReadFrom(r io.Reader) (n int64, err error) {
 
 		var wt io.WriterTo
 		switch header {
+
 		case addrHeader:
 			var entry addrEntry
 			entry.addr.store = v.store
 			if read, err = entry.ReadFrom(r); err != nil {
+
 				return n + read, err
 			}
 			n += read
@@ -451,6 +490,7 @@ func (v *varEntries) ReadFrom(r io.Reader) (n int64, err error) {
 			var entry scriptEntry
 			entry.script.store = v.store
 			if read, err = entry.ReadFrom(r); err != nil {
+
 				return n + read, err
 			}
 			n += read
@@ -459,6 +499,7 @@ func (v *varEntries) ReadFrom(r io.Reader) (n int64, err error) {
 			return n, fmt.Errorf("unknown entry header: %d", uint8(header))
 		}
 		if wt != nil {
+
 			wts = append(wts, wt)
 			v.entries = wts
 		}
@@ -481,6 +522,7 @@ func (net *netParams) ReadFrom(r io.Reader) (int64, error) {
 	n, err := io.ReadFull(r, uint32Bytes)
 	n64 := int64(n)
 	if err != nil {
+
 		return n64, err
 	}
 
@@ -517,11 +559,13 @@ type comment []byte
 
 func getAddressKey(
 	addr util.Address) addressKey {
+
 	return addressKey(addr.ScriptAddress())
 }
 
 // Store represents an key store in memory.  It implements the io.ReaderFrom and io.WriterTo interfaces to read from and write to any type of byte streams, including files.
 type Store struct {
+
 	// TODO: Use atomic operations for dirty so the reader lock doesn't need to be grabbed.
 	dirty bool
 	path  string
@@ -561,22 +605,26 @@ func New(
 
 	// Check sizes of inputs.
 	if len(desc) > 256 {
+
 		return nil, errors.New("desc exceeds 256 byte maximum size")
 	}
 
 	// Randomly-generate rootkey and chaincode.
 	rootkey := make([]byte, 32)
 	if _, err := rand.Read(rootkey); err != nil {
+
 		return nil, err
 	}
 	chaincode := make([]byte, 32)
 	if _, err := rand.Read(chaincode); err != nil {
+
 		return nil, err
 	}
 
 	// Compute AES key and encrypt root address.
 	kdfp, err := computeKdfParameters(defaultKdfComputeTime, defaultKdfMaxMem)
 	if err != nil {
+
 		return nil, err
 	}
 	aeskey := kdf(passphrase, kdfp)
@@ -613,15 +661,18 @@ func New(
 	root, err := newRootBtcAddress(s, rootkey, nil, chaincode,
 		createdAt)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Verify root address keypairs.
 	if err := root.verifyKeypairs(); err != nil {
+
 		return nil, err
 	}
 
 	if err := root.encrypt(aeskey); err != nil {
+
 		return nil, err
 	}
 
@@ -634,6 +685,7 @@ func New(
 
 	// key store must be returned locked.
 	if err := s.Lock(); err != nil {
+
 		return nil, err
 	}
 
@@ -677,6 +729,7 @@ func (s *Store) ReadFrom(r io.Reader) (n int64, err error) {
 		&appendedEntries,
 	}
 	for _, data := range datas {
+
 		var err error
 		switch d := data.(type) {
 
@@ -691,11 +744,13 @@ func (s *Store) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 		n += read
 		if err != nil {
+
 			return n, err
 		}
 	}
 
 	if id != fileID {
+
 		return n, errors.New("unknown file ID")
 	}
 
@@ -708,6 +763,7 @@ func (s *Store) ReadFrom(r io.Reader) (n int64, err error) {
 	// Fill unserializied fields.
 	wts := appendedEntries.entries
 	for _, wt := range wts {
+
 		switch e := wt.(type) {
 
 		case *addrEntry:
@@ -717,8 +773,10 @@ func (s *Store) ReadFrom(r io.Reader) (n int64, err error) {
 
 				s.importedAddrs = append(s.importedAddrs, &e.addr)
 			} else {
+
 				s.chainIdxMap[e.addr.chainIndex] = addr
 				if s.lastChainIdx < e.addr.chainIndex {
+
 					s.lastChainIdx = e.addr.chainIndex
 				}
 			}
@@ -726,7 +784,9 @@ func (s *Store) ReadFrom(r io.Reader) (n int64, err error) {
 			// If the private keys have not been created yet, mark the
 			// earliest so all can be created on next key store unlock.
 			if e.addr.flags.createPrivKeyNextUnlock {
+
 				switch {
+
 				case s.missingKeysStart == rootKeyChainIdx:
 					fallthrough
 				case e.addr.chainIndex < s.missingKeysStart:
@@ -764,6 +824,7 @@ func (s *Store) writeTo(w io.Writer) (n int64, err error) {
 	var chainedAddrs = make([]io.WriterTo, len(s.chainIdxMap)-1)
 	var importedAddrs []io.WriterTo
 	for _, wAddr := range s.addrMap {
+
 		switch btcAddr := wAddr.(type) {
 
 		case *btcAddress:
@@ -776,6 +837,7 @@ func (s *Store) writeTo(w io.Writer) (n int64, err error) {
 				// No order for imported addresses.
 				importedAddrs = append(importedAddrs, e)
 			} else if btcAddr.chainIndex >= 0 {
+
 				// Chained addresses are sorted.  This is
 				// kind of nice but probably isn't necessary.
 				chainedAddrs[btcAddr.chainIndex] = e
@@ -814,13 +876,17 @@ func (s *Store) writeTo(w io.Writer) (n int64, err error) {
 	}
 	var written int64
 	for _, data := range datas {
+
 		if s, ok := data.(io.WriterTo); ok {
+
 			written, err = s.WriteTo(w)
 		} else {
+
 			written, err = binaryWrite(w, binary.LittleEndian, data)
 		}
 		n += written
 		if err != nil {
+
 			return n, err
 		}
 	}
@@ -838,8 +904,10 @@ func (s *Store) MarkDirty() {
 }
 
 func (s *Store) WriteIfDirty() error {
+
 	s.mtx.RLock()
 	if !s.dirty {
+
 		s.mtx.RUnlock()
 		return nil
 	}
@@ -847,6 +915,7 @@ func (s *Store) WriteIfDirty() error {
 	// TempFile creates the file 0600, so no need to chmod it.
 	fi, err := ioutil.TempFile(s.dir, s.file)
 	if err != nil {
+
 		s.mtx.RUnlock()
 		return err
 	}
@@ -854,12 +923,14 @@ func (s *Store) WriteIfDirty() error {
 
 	_, err = s.writeTo(fi)
 	if err != nil {
+
 		s.mtx.RUnlock()
 		fi.Close()
 		return err
 	}
 	err = fi.Sync()
 	if err != nil {
+
 		s.mtx.RUnlock()
 		fi.Close()
 		return err
@@ -870,6 +941,7 @@ func (s *Store) WriteIfDirty() error {
 	s.mtx.RUnlock()
 
 	if err == nil {
+
 		s.mtx.Lock()
 		s.dirty = false
 		s.mtx.Unlock()
@@ -888,12 +960,14 @@ func OpenDir(
 	path := filepath.Join(dir, Filename)
 	fi, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
+
 		return nil, err
 	}
 	defer fi.Close()
 	store := new(Store)
 	_, err = store.ReadFrom(fi)
 	if err != nil {
+
 		return nil, err
 	}
 	store.path = path
@@ -909,10 +983,12 @@ func OpenDir(
 // addresses created while the key store was locked without private
 // keys are created at this time.
 func (s *Store) Unlock(passphrase []byte) error {
+
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
 	if s.flags.watchingOnly {
+
 		return ErrWatchingOnly
 	}
 
@@ -921,6 +997,7 @@ func (s *Store) Unlock(passphrase []byte) error {
 
 	// Unlock root address with derived key.
 	if _, err := s.keyGenerator.unlock(key); err != nil {
+
 		return err
 	}
 
@@ -939,6 +1016,7 @@ func (s *Store) Lock() (err error) {
 	defer s.mtx.Unlock()
 
 	if s.flags.watchingOnly {
+
 		return ErrWatchingOnly
 	}
 
@@ -947,6 +1025,7 @@ func (s *Store) Lock() (err error) {
 
 		err = ErrLocked
 	} else {
+
 		zero(s.passphrase)
 		s.passphrase = nil
 		zero(s.secret)
@@ -955,7 +1034,9 @@ func (s *Store) Lock() (err error) {
 
 	// Remove clear text private keys from all address entries.
 	for _, addr := range s.addrMap {
+
 		if baddr, ok := addr.(*btcAddress); ok {
+
 			_ = baddr.lock()
 		}
 	}
@@ -966,10 +1047,12 @@ func (s *Store) Lock() (err error) {
 // ChangePassphrase creates a new AES key from a new passphrase and
 // re-encrypts all encrypted private keys with the new key.
 func (s *Store) ChangePassphrase(new []byte) error {
+
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
 	if s.flags.watchingOnly {
+
 		return ErrWatchingOnly
 	}
 
@@ -982,13 +1065,16 @@ func (s *Store) ChangePassphrase(new []byte) error {
 	newkey := kdf(new, &s.kdfParams)
 
 	for _, wa := range s.addrMap {
+
 		// Only btcAddresses curently have private keys.
 		a, ok := wa.(*btcAddress)
 		if !ok {
+
 			continue
 		}
 
 		if err := a.changeEncryptionKey(oldkey, newkey); err != nil {
+
 			return err
 		}
 	}
@@ -1008,6 +1094,7 @@ func zero(
 	b []byte) {
 
 	for i := range b {
+
 		b[i] = 0
 	}
 }
@@ -1015,6 +1102,7 @@ func zero(
 // IsLocked returns whether a key store is unlocked (in which case the
 // key is saved in memory), or locked.
 func (s *Store) IsLocked() bool {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
@@ -1022,6 +1110,7 @@ func (s *Store) IsLocked() bool {
 }
 
 func (s *Store) isLocked() bool {
+
 	return len(s.secret) != 32
 }
 
@@ -1041,6 +1130,7 @@ func (s *Store) nextChainedAddress(bs *BlockStamp) (util.Address, error) {
 
 	addr, err := s.nextChainedBtcAddress(bs)
 	if err != nil {
+
 		return nil, err
 	}
 	return addr.Address(), nil
@@ -1055,6 +1145,7 @@ func (s *Store) ChangeAddress(bs *BlockStamp) (util.Address, error) {
 
 	addr, err := s.nextChainedBtcAddress(bs)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -1069,15 +1160,19 @@ func (s *Store) nextChainedBtcAddress(bs *BlockStamp) (*btcAddress, error) {
 	// Attempt to get address hash of next chained address.
 	nextAPKH, ok := s.chainIdxMap[s.highestUsed+1]
 	if !ok {
+
 		if s.isLocked() {
 
 			// Chain pubkeys.
 			if err := s.extendLocked(bs); err != nil {
+
 				return nil, err
 			}
 		} else {
+
 			// Chain private and pubkeys.
 			if err := s.extendUnlocked(bs); err != nil {
+
 				return nil, err
 			}
 		}
@@ -1085,6 +1180,7 @@ func (s *Store) nextChainedBtcAddress(bs *BlockStamp) (*btcAddress, error) {
 		// Should be added to the internal maps, try lookup again.
 		nextAPKH, ok = s.chainIdxMap[s.highestUsed+1]
 		if !ok {
+
 			return nil, errors.New("chain index map inproperly updated")
 		}
 	}
@@ -1092,11 +1188,13 @@ func (s *Store) nextChainedBtcAddress(bs *BlockStamp) (*btcAddress, error) {
 	// Look up address.
 	addr, ok := s.addrMap[getAddressKey(nextAPKH)]
 	if !ok {
+
 		return nil, errors.New("cannot find generated address")
 	}
 
 	btcAddr, ok := addr.(*btcAddress)
 	if !ok {
+
 		return nil, errors.New("found non-pubkey chained address")
 	}
 
@@ -1109,6 +1207,7 @@ func (s *Store) nextChainedBtcAddress(bs *BlockStamp) (*btcAddress, error) {
 // address from calling NextChainedAddress, or the root address if
 // no chained addresses have been requested.
 func (s *Store) LastChainedAddress() util.Address {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
@@ -1117,11 +1216,13 @@ func (s *Store) LastChainedAddress() util.Address {
 
 // extendUnlocked grows address chain for an unlocked keystore.
 func (s *Store) extendUnlocked(bs *BlockStamp) error {
+
 	// Get last chained address.  New chained addresses will be
 	// chained off of this address's chaincode and private key.
 	a := s.chainIdxMap[s.lastChainIdx]
 	waddr, ok := s.addrMap[getAddressKey(a)]
 	if !ok {
+
 		return errors.New("expected last chained address not found")
 	}
 
@@ -1132,27 +1233,33 @@ func (s *Store) extendUnlocked(bs *BlockStamp) error {
 
 	lastAddr, ok := waddr.(*btcAddress)
 	if !ok {
+
 		return errors.New("found non-pubkey chained address")
 	}
 
 	privkey, err := lastAddr.unlock(s.secret)
 	if err != nil {
+
 		return err
 	}
 	cc := lastAddr.chaincode[:]
 
 	privkey, err = chainedPrivKey(privkey, lastAddr.pubKeyBytes(), cc)
 	if err != nil {
+
 		return err
 	}
 	newAddr, err := newBtcAddress(s, privkey, nil, bs, true)
 	if err != nil {
+
 		return err
 	}
 	if err := newAddr.verifyKeypairs(); err != nil {
+
 		return err
 	}
 	if err = newAddr.encrypt(s.secret); err != nil {
+
 		return err
 	}
 	a = newAddr.Address()
@@ -1170,14 +1277,17 @@ func (s *Store) extendUnlocked(bs *BlockStamp) error {
 // last used chained address and adds the address to the key store's internal
 // bookkeeping structures.
 func (s *Store) extendLocked(bs *BlockStamp) error {
+
 	a := s.chainIdxMap[s.lastChainIdx]
 	waddr, ok := s.addrMap[getAddressKey(a)]
 	if !ok {
+
 		return errors.New("expected last chained address not found")
 	}
 
 	addr, ok := waddr.(*btcAddress)
 	if !ok {
+
 		return errors.New("found non-pubkey chained address")
 	}
 
@@ -1185,10 +1295,12 @@ func (s *Store) extendLocked(bs *BlockStamp) error {
 
 	nextPubkey, err := chainedPubKey(addr.pubKeyBytes(), cc)
 	if err != nil {
+
 		return err
 	}
 	newaddr, err := newBtcAddressWithoutPrivkey(s, nextPubkey, nil, bs)
 	if err != nil {
+
 		return err
 	}
 	a = newaddr.Address()
@@ -1199,6 +1311,7 @@ func (s *Store) extendLocked(bs *BlockStamp) error {
 	copy(newaddr.chaincode[:], cc)
 
 	if s.missingKeysStart == rootKeyChainIdx {
+
 		s.missingKeysStart = newaddr.chainIndex
 	}
 
@@ -1206,14 +1319,17 @@ func (s *Store) extendLocked(bs *BlockStamp) error {
 }
 
 func (s *Store) createMissingPrivateKeys() error {
+
 	idx := s.missingKeysStart
 	if idx == rootKeyChainIdx {
+
 		return nil
 	}
 
 	// Lookup previous address.
 	apkh, ok := s.chainIdxMap[idx-1]
 	if !ok {
+
 		return errors.New("missing previous chained address")
 	}
 	prevWAddr := s.addrMap[getAddressKey(apkh)]
@@ -1224,19 +1340,23 @@ func (s *Store) createMissingPrivateKeys() error {
 
 	prevAddr, ok := prevWAddr.(*btcAddress)
 	if !ok {
+
 		return errors.New("found non-pubkey chained address")
 	}
 
 	prevPrivKey, err := prevAddr.unlock(s.secret)
 	if err != nil {
+
 		return err
 	}
 
 	for i := idx; ; i++ {
+
 		// Get the next private key for the ith address in the address chain.
 		ithPrivKey, err := chainedPrivKey(prevPrivKey,
 			prevAddr.pubKeyBytes(), prevAddr.chaincode[:])
 		if err != nil {
+
 			return err
 		}
 
@@ -1244,16 +1364,19 @@ func (s *Store) createMissingPrivateKeys() error {
 		// encrypt.
 		apkh, ok := s.chainIdxMap[i]
 		if !ok {
+
 			// Finished.
 			break
 		}
 		waddr := s.addrMap[getAddressKey(apkh)]
 		addr, ok := waddr.(*btcAddress)
 		if !ok {
+
 			return errors.New("found non-pubkey chained address")
 		}
 		addr.privKeyCT = ithPrivKey
 		if err := addr.encrypt(s.secret); err != nil {
+
 			// Avoid bug: see comment for VersUnsetNeedsPrivkeyFlag.
 			if err != ErrAlreadyEncrypted || s.vers.LT(VersUnsetNeedsPrivkeyFlag) {
 
@@ -1282,6 +1405,7 @@ func (s *Store) Address(a util.Address) (WalletAddress, error) {
 	// Look up address by address hash.
 	btcaddr, ok := s.addrMap[getAddressKey(a)]
 	if !ok {
+
 		return nil, ErrAddressNotFound
 	}
 
@@ -1290,6 +1414,7 @@ func (s *Store) Address(a util.Address) (WalletAddress, error) {
 
 // Net returns the bitcoin network parameters for this key store.
 func (s *Store) Net() *chaincfg.Params {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
@@ -1297,6 +1422,7 @@ func (s *Store) Net() *chaincfg.Params {
 }
 
 func (s *Store) netParams() *chaincfg.Params {
+
 	return (*chaincfg.Params)(s.net)
 }
 
@@ -1306,11 +1432,13 @@ func (s *Store) netParams() *chaincfg.Params {
 // When marking an address as unsynced, only the type Unsynced matters.
 // The value is ignored.
 func (s *Store) SetSyncStatus(a util.Address, ss SyncStatus) error {
+
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
 	wa, ok := s.addrMap[getAddressKey(a)]
 	if !ok {
+
 		return ErrAddressNotFound
 	}
 	wa.setSyncStatus(ss)
@@ -1330,6 +1458,7 @@ func (s *Store) SetSyncedWith(bs *BlockStamp) {
 	defer s.mtx.Unlock()
 
 	if bs == nil {
+
 		s.recent.hashes = s.recent.hashes[:0]
 		s.recent.lastHeight = s.keyGenerator.firstBlock
 		s.keyGenerator.setSyncStatus(Unsynced(s.keyGenerator.firstBlock))
@@ -1340,6 +1469,7 @@ func (s *Store) SetSyncedWith(bs *BlockStamp) {
 	// If so, and this bs is already saved, remove anything
 	// after and return.  Otherwire, remove previous hashes.
 	if bs.Height < s.recent.lastHeight {
+
 		maybeIdx := len(s.recent.hashes) - 1 - int(s.recent.lastHeight-bs.Height)
 		if maybeIdx >= 0 && maybeIdx < len(s.recent.hashes) &&
 			*s.recent.hashes[maybeIdx] == *bs.Hash {
@@ -1353,18 +1483,21 @@ func (s *Store) SetSyncedWith(bs *BlockStamp) {
 	}
 
 	if bs.Height != s.recent.lastHeight+1 {
+
 		s.recent.hashes = nil
 	}
 
 	s.recent.lastHeight = bs.Height
 
 	if len(s.recent.hashes) == 20 {
+
 		// Make room for the most recent hash.
 		copy(s.recent.hashes, s.recent.hashes[1:])
 
 		// Set new block in the last position.
 		s.recent.hashes[19] = bs.Hash
 	} else {
+
 		s.recent.hashes = append(s.recent.hashes, bs.Hash)
 	}
 }
@@ -1382,15 +1515,18 @@ func (s *Store) SyncedTo() (hash *chainhash.Hash, height int32) {
 	defer s.mtx.RUnlock()
 
 	switch h, ok := s.keyGenerator.SyncStatus().(PartialSync); {
+
 	case ok && int32(h) > s.recent.lastHeight:
 		height = int32(h)
 	default:
 		height = s.recent.lastHeight
 		if n := len(s.recent.hashes); n != 0 {
+
 			hash = s.recent.hashes[n-1]
 		}
 	}
 	for _, a := range s.addrMap {
+
 		var syncHeight int32
 		switch e := a.SyncStatus().(type) {
 
@@ -1402,11 +1538,13 @@ func (s *Store) SyncedTo() (hash *chainhash.Hash, height int32) {
 			continue
 		}
 		if syncHeight < height {
+
 			height = syncHeight
 			hash = nil
 
 			// Can't go lower than 0.
 			if height == 0 {
+
 				return
 			}
 		}
@@ -1418,6 +1556,7 @@ func (s *Store) SyncedTo() (hash *chainhash.Hash, height int32) {
 // The iterator starts at the most recently-added block, and Prev should
 // be used to access earlier blocks.
 func (s *Store) NewIterateRecentBlocks() *BlockIterator {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
@@ -1433,6 +1572,7 @@ func (s *Store) ImportPrivateKey(wif *util.WIF, bs *BlockStamp) (util.Address, e
 	defer s.mtx.Unlock()
 
 	if s.flags.watchingOnly {
+
 		return nil, ErrWatchingOnly
 	}
 
@@ -1440,6 +1580,7 @@ func (s *Store) ImportPrivateKey(wif *util.WIF, bs *BlockStamp) (util.Address, e
 	// in a duplicate address.
 	pkh := util.Hash160(wif.SerializePubKey())
 	if _, ok := s.addrMap[addressKey(pkh)]; ok {
+
 		return nil, ErrDuplicate
 	}
 
@@ -1453,6 +1594,7 @@ func (s *Store) ImportPrivateKey(wif *util.WIF, bs *BlockStamp) (util.Address, e
 	privKey := wif.PrivKey.Serialize()
 	btcaddr, err := newBtcAddress(s, privKey, nil, bs, wif.CompressPubKey)
 	if err != nil {
+
 		return nil, err
 	}
 	btcaddr.chainIndex = importedKeyChainIdx
@@ -1460,11 +1602,13 @@ func (s *Store) ImportPrivateKey(wif *util.WIF, bs *BlockStamp) (util.Address, e
 	// Mark as unsynced if import height is below currently-synced
 	// height.
 	if len(s.recent.hashes) != 0 && bs.Height < s.recent.lastHeight {
+
 		btcaddr.flags.unsynced = true
 	}
 
 	// Encrypt imported address with the derived AES key.
 	if err = btcaddr.encrypt(s.secret); err != nil {
+
 		return nil, err
 	}
 
@@ -1487,22 +1631,26 @@ func (s *Store) ImportScript(script []byte, bs *BlockStamp) (util.Address, error
 	defer s.mtx.Unlock()
 
 	if s.flags.watchingOnly {
+
 		return nil, ErrWatchingOnly
 	}
 
 	if _, ok := s.addrMap[addressKey(util.Hash160(script))]; ok {
+
 		return nil, ErrDuplicate
 	}
 
 	// Create new address with this private key.
 	scriptaddr, err := newScriptAddress(s, script, bs)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Mark as unsynced if import height is below currently-synced
 	// height.
 	if len(s.recent.hashes) != 0 && bs.Height < s.recent.lastHeight {
+
 		scriptaddr.flags.unsynced = true
 	}
 
@@ -1521,6 +1669,7 @@ func (s *Store) ImportScript(script []byte, bs *BlockStamp) (util.Address, error
 // is used to compare the key store creation time against block headers and
 // set a better minimum block height of where to being rescans.
 func (s *Store) CreateDate() int64 {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
@@ -1539,6 +1688,7 @@ func (s *Store) ExportWatchingWallet() (*Store, error) {
 
 	// Don't continue if key store is already watching-only.
 	if s.flags.watchingOnly {
+
 		return nil, ErrWatchingOnly
 	}
 
@@ -1569,13 +1719,16 @@ func (s *Store) ExportWatchingWallet() (*Store, error) {
 	kgwc := s.keyGenerator.watchingCopy(ws)
 	ws.keyGenerator = *(kgwc.(*btcAddress))
 	if len(s.recent.hashes) != 0 {
+
 		ws.recent.hashes = make([]*chainhash.Hash, 0, len(s.recent.hashes))
 		for _, hash := range s.recent.hashes {
+
 			hashCpy := *hash
 			ws.recent.hashes = append(ws.recent.hashes, &hashCpy)
 		}
 	}
 	for apkh, addr := range s.addrMap {
+
 		if !addr.Imported() {
 
 			// Must be a btcAddress if !imported.
@@ -1588,9 +1741,11 @@ func (s *Store) ExportWatchingWallet() (*Store, error) {
 		ws.addrMap[apkhCopy] = addr.watchingCopy(ws)
 	}
 	if len(s.importedAddrs) != 0 {
+
 		ws.importedAddrs = make([]walletAddress, 0,
 			len(s.importedAddrs))
 		for _, addr := range s.importedAddrs {
+
 			ws.importedAddrs = append(ws.importedAddrs, addr.watchingCopy(ws))
 		}
 	}
@@ -1620,14 +1775,17 @@ type (
 
 // ImplementsSyncStatus is implemented to make Unsynced a SyncStatus.
 func (u Unsynced) ImplementsSyncStatus() {
+
 }
 
 // ImplementsSyncStatus is implemented to make PartialSync a SyncStatus.
 func (p PartialSync) ImplementsSyncStatus() {
+
 }
 
 // ImplementsSyncStatus is implemented to make FullSync a SyncStatus.
 func (f FullSync) ImplementsSyncStatus() {
+
 }
 
 // WalletAddress is an interface that provides acces to information regarding an
@@ -1635,6 +1793,7 @@ func (f FullSync) ImplementsSyncStatus() {
 // provide further fields to provide information specific to that type of
 // address.
 type WalletAddress interface {
+
 	// Address returns a util.Address for the backing address.
 	Address() util.Address
 	// AddrHash returns the key or script hash related to the address
@@ -1658,19 +1817,23 @@ type WalletAddress interface {
 // the key pool.  Use this when ordered addresses are needed.  Otherwise,
 // ActiveAddresses is preferred.
 func (s *Store) SortedActiveAddresses() []WalletAddress {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
 	addrs := make([]WalletAddress, 0,
 		s.highestUsed+int64(len(s.importedAddrs))+1)
 	for i := int64(rootKeyChainIdx); i <= s.highestUsed; i++ {
+
 		a := s.chainIdxMap[i]
 		info, ok := s.addrMap[getAddressKey(a)]
 		if ok {
+
 			addrs = append(addrs, info)
 		}
 	}
 	for _, addr := range s.importedAddrs {
+
 		addrs = append(addrs, addr)
 	}
 	return addrs
@@ -1680,16 +1843,19 @@ func (s *Store) SortedActiveAddresses() []WalletAddress {
 // and their full info.  These do not include unused addresses in the
 // key pool.  If addresses must be sorted, use SortedActiveAddresses.
 func (s *Store) ActiveAddresses() map[util.Address]WalletAddress {
+
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 
 	addrs := make(map[util.Address]WalletAddress)
 	for i := int64(rootKeyChainIdx); i <= s.highestUsed; i++ {
+
 		a := s.chainIdxMap[i]
 		addr := s.addrMap[getAddressKey(a)]
 		addrs[addr.Address()] = addr
 	}
 	for _, addr := range s.importedAddrs {
+
 		addrs[addr.Address()] = addr
 	}
 	return addrs
@@ -1713,8 +1879,10 @@ func (s *Store) ExtendActiveAddresses(n int) ([]util.Address, error) {
 
 	addrs := make([]util.Address, n)
 	for i := 0; i < n; i++ {
+
 		addr, err := s.nextChainedAddress(bs)
 		if err != nil {
+
 			return nil, err
 		}
 		addrs[i] = addr
@@ -1732,6 +1900,7 @@ func (wf *walletFlags) ReadFrom(r io.Reader) (int64, error) {
 	var b [8]byte
 	n, err := io.ReadFull(r, b[:])
 	if err != nil {
+
 		return int64(n), err
 	}
 
@@ -1745,9 +1914,11 @@ func (wf *walletFlags) WriteTo(w io.Writer) (int64, error) {
 
 	var b [8]byte
 	if wf.useEncryption {
+
 		b[0] |= 1 << 0
 	}
 	if wf.watchingOnly {
+
 		b[0] |= 1 << 1
 	}
 	n, err := w.Write(b[:])
@@ -1770,6 +1941,7 @@ func (af *addrFlags) ReadFrom(r io.Reader) (int64, error) {
 	var b [8]byte
 	n, err := io.ReadFull(r, b[:])
 	if err != nil {
+
 		return int64(n), err
 	}
 
@@ -1788,6 +1960,7 @@ func (af *addrFlags) ReadFrom(r io.Reader) (int64, error) {
 	// there may not be if the keypool was extended from just the last
 	// public key and no private keys were written.
 	if af.hasPrivKey && !af.encrypted {
+
 		return int64(n), errors.New("private key is unencrypted")
 	}
 
@@ -1798,31 +1971,40 @@ func (af *addrFlags) WriteTo(w io.Writer) (int64, error) {
 
 	var b [8]byte
 	if af.hasPrivKey {
+
 		b[0] |= 1 << 0
 	}
 	if af.hasPubKey {
+
 		b[0] |= 1 << 1
 	}
 	if af.hasPrivKey && !af.encrypted {
+
 		// We only support encrypted privkeys.
 		return 0, errors.New("address must be encrypted")
 	}
 	if af.encrypted {
+
 		b[0] |= 1 << 2
 	}
 	if af.createPrivKeyNextUnlock {
+
 		b[0] |= 1 << 3
 	}
 	if af.compressed {
+
 		b[0] |= 1 << 4
 	}
 	if af.change {
+
 		b[0] |= 1 << 5
 	}
 	if af.unsynced {
+
 		b[0] |= 1 << 6
 	}
 	if af.partialSync {
+
 		b[0] |= 1 << 7
 	}
 
@@ -1855,6 +2037,7 @@ func (rb *recentBlocks) readFromVersion(v version, r io.Reader) (int64, error) {
 	n, err := io.ReadFull(r, heightBytes[:])
 	read += int64(n)
 	if err != nil {
+
 		return read, err
 	}
 	rb.lastHeight = int32(binary.LittleEndian.Uint32(heightBytes[:]))
@@ -1862,6 +2045,7 @@ func (rb *recentBlocks) readFromVersion(v version, r io.Reader) (int64, error) {
 	// If height is -1, the last synced block is unknown, so don't try
 	// to read a block hash.
 	if rb.lastHeight == -1 {
+
 		rb.hashes = nil
 		return read, nil
 	}
@@ -1871,6 +2055,7 @@ func (rb *recentBlocks) readFromVersion(v version, r io.Reader) (int64, error) {
 	n, err = io.ReadFull(r, syncedBlockHash[:])
 	read += int64(n)
 	if err != nil {
+
 		return read, err
 	}
 
@@ -1890,10 +2075,12 @@ func (rb *recentBlocks) ReadFrom(r io.Reader) (int64, error) {
 	n, err := io.ReadFull(r, nBlockBytes[:])
 	read += int64(n)
 	if err != nil {
+
 		return read, err
 	}
 	nBlocks := binary.LittleEndian.Uint32(nBlockBytes[:])
 	if nBlocks > 20 {
+
 		return read, errors.New("number of last seen blocks exceeds maximum of 20")
 	}
 
@@ -1902,6 +2089,7 @@ func (rb *recentBlocks) ReadFrom(r io.Reader) (int64, error) {
 	n, err = io.ReadFull(r, heightBytes[:])
 	read += int64(n)
 	if err != nil {
+
 		return read, err
 	}
 	height := int32(binary.LittleEndian.Uint32(heightBytes[:]))
@@ -1910,6 +2098,7 @@ func (rb *recentBlocks) ReadFrom(r io.Reader) (int64, error) {
 	// since at this point we should be reading in at least one
 	// known block.
 	if height < 0 {
+
 		return read, errors.New("expected a block but specified height is negative")
 	}
 
@@ -1921,10 +2110,12 @@ func (rb *recentBlocks) ReadFrom(r io.Reader) (int64, error) {
 	// that here.
 	rb.hashes = make([]*chainhash.Hash, 0, nBlocks)
 	for i := uint32(0); i < nBlocks; i++ {
+
 		var blockHash chainhash.Hash
 		n, err := io.ReadFull(r, blockHash[:])
 		read += int64(n)
 		if err != nil {
+
 			return read, err
 		}
 		rb.hashes = append(rb.hashes, &blockHash)
@@ -1940,9 +2131,11 @@ func (rb *recentBlocks) WriteTo(w io.Writer) (int64, error) {
 	// Write number of saved blocks.  This should not exceed 20.
 	nBlocks := uint32(len(rb.hashes))
 	if nBlocks > 20 {
+
 		return written, errors.New("number of last seen blocks exceeds maximum of 20")
 	}
 	if nBlocks != 0 && rb.lastHeight < 0 {
+
 		return written, errors.New("number of block hashes is positive, but height is negative")
 	}
 	var nBlockBytes [4]byte // 4 bytes for a uint32
@@ -1950,6 +2143,7 @@ func (rb *recentBlocks) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(nBlockBytes[:])
 	written += int64(n)
 	if err != nil {
+
 		return written, err
 	}
 
@@ -1959,14 +2153,17 @@ func (rb *recentBlocks) WriteTo(w io.Writer) (int64, error) {
 	n, err = w.Write(heightBytes[:])
 	written += int64(n)
 	if err != nil {
+
 		return written, err
 	}
 
 	// Write block hashes.
 	for _, hash := range rb.hashes {
+
 		n, err := w.Write(hash[:])
 		written += int64(n)
 		if err != nil {
+
 			return written, err
 		}
 	}
@@ -1984,7 +2181,9 @@ type BlockIterator struct {
 }
 
 func (rb *recentBlocks) iter(s *Store) *BlockIterator {
+
 	if rb.lastHeight == -1 || len(rb.hashes) == 0 {
+
 		return nil
 	}
 	return &BlockIterator{
@@ -1996,6 +2195,7 @@ func (rb *recentBlocks) iter(s *Store) *BlockIterator {
 }
 
 func (it *BlockIterator) Next() bool {
+
 	it.storeMtx.RLock()
 	defer it.storeMtx.RUnlock()
 
@@ -2008,10 +2208,12 @@ func (it *BlockIterator) Next() bool {
 }
 
 func (it *BlockIterator) Prev() bool {
+
 	it.storeMtx.RLock()
 	defer it.storeMtx.RUnlock()
 
 	if it.index-1 < 0 {
+
 		return false
 	}
 	it.index--
@@ -2019,6 +2221,7 @@ func (it *BlockIterator) Prev() bool {
 }
 
 func (it *BlockIterator) BlockStamp() BlockStamp {
+
 	it.storeMtx.RLock()
 	defer it.storeMtx.RUnlock()
 
@@ -2038,6 +2241,7 @@ type unusedSpace struct {
 
 func newUnusedSpace(
 	nBytes int, rfvs ...readerFromVersion) *unusedSpace {
+
 	return &unusedSpace{
 		nBytes: nBytes,
 		rfvs:   rfvs,
@@ -2049,8 +2253,10 @@ func (u *unusedSpace) readFromVersion(v version, r io.Reader) (int64, error) {
 	var read int64
 
 	for _, rfv := range u.rfvs {
+
 		n, err := rfv.readFromVersion(v, r)
 		if err != nil {
+
 			return read + n, err
 		}
 		read += n
@@ -2071,8 +2277,10 @@ func (u *unusedSpace) WriteTo(w io.Writer) (int64, error) {
 	var written int64
 
 	for _, wt := range u.rfvs {
+
 		n, err := wt.WriteTo(w)
 		if err != nil {
+
 			return written + n, err
 		}
 		written += n
@@ -2138,6 +2346,7 @@ func (k *publicKey) ReadFrom(r io.Reader) (n int64, err error) {
 	var format byte
 	read, err = binaryRead(r, binary.LittleEndian, &format)
 	if err != nil {
+
 		return n + read, err
 	}
 	n += read
@@ -2148,6 +2357,7 @@ func (k *publicKey) ReadFrom(r io.Reader) (n int64, err error) {
 
 	var s []byte
 	switch noodd {
+
 	case pubkeyUncompressed:
 		// Read the remaining 64 bytes.
 		s = make([]byte, 64)
@@ -2162,6 +2372,7 @@ func (k *publicKey) ReadFrom(r io.Reader) (n int64, err error) {
 
 	read, err = binaryRead(r, binary.LittleEndian, &s)
 	if err != nil {
+
 		return n + read, err
 	}
 	n += read
@@ -2199,12 +2410,14 @@ func newBtcAddress(
 	wallet *Store, privkey, iv []byte, bs *BlockStamp, compressed bool) (addr *btcAddress, err error) {
 
 	if len(privkey) != 32 {
+
 		return nil, errors.New("private key is not 32 bytes")
 	}
 
 	addr, err = newBtcAddressWithoutPrivkey(wallet,
 		pubkeyFromPrivkey(privkey, compressed), iv, bs)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2224,6 +2437,7 @@ func newBtcAddressWithoutPrivkey(
 
 	var compressed bool
 	switch n := len(pubkey); n {
+
 	case ec.PubKeyBytesLenCompressed:
 		compressed = true
 	case ec.PubKeyBytesLenUncompressed:
@@ -2232,21 +2446,26 @@ func newBtcAddressWithoutPrivkey(
 		return nil, fmt.Errorf("invalid pubkey length %d", n)
 	}
 	if len(iv) == 0 {
+
 		iv = make([]byte, 16)
 		if _, err := rand.Read(iv); err != nil {
+
 			return nil, err
 		}
 	} else if len(iv) != 16 {
+
 		return nil, errors.New("init vector must be nil or 16 bytes large")
 	}
 
 	pk, err := ec.ParsePubKey(pubkey, ec.S256())
 	if err != nil {
+
 		return nil, err
 	}
 
 	address, err := util.NewAddressPubKeyHash(util.Hash160(pubkey), s.netParams())
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2279,6 +2498,7 @@ func newRootBtcAddress(
 	bs *BlockStamp) (addr *btcAddress, err error) {
 
 	if len(chaincode) != 32 {
+
 		return nil, errors.New("chaincode is not 32 bytes")
 	}
 
@@ -2286,6 +2506,7 @@ func newRootBtcAddress(
 	// always use a compressed pubkey.
 	addr, err = newBtcAddress(s, privKey, iv, bs, true)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2301,7 +2522,9 @@ func newRootBtcAddress(
 // address will be unspendable.  This step requires an unencrypted or
 // unlocked btcAddress.
 func (a *btcAddress) verifyKeypairs() error {
+
 	if len(a.privKeyCT) != 32 {
+
 		return errors.New("private key unavailable")
 	}
 
@@ -2313,11 +2536,13 @@ func (a *btcAddress) verifyKeypairs() error {
 	data := "String to sign."
 	sig, err := privKey.Sign([]byte(data))
 	if err != nil {
+
 		return err
 	}
 
 	ok := sig.Verify([]byte(data), privKey.PubKey())
 	if !ok {
+
 		return errors.New("pubkey verification failed")
 	}
 	return nil
@@ -2359,12 +2584,16 @@ func (a *btcAddress) ReadFrom(r io.Reader) (n int64, err error) {
 		&a.partialSyncHeight,
 	}
 	for _, data := range datas {
+
 		if rf, ok := data.(io.ReaderFrom); ok {
+
 			read, err = rf.ReadFrom(r)
 		} else {
+
 			read, err = binaryRead(r, binary.LittleEndian, data)
 		}
 		if err != nil {
+
 			return n + read, err
 		}
 		n += read
@@ -2382,22 +2611,27 @@ func (a *btcAddress) ReadFrom(r io.Reader) (n int64, err error) {
 		{pubKey, chkPubKey},
 	}
 	for i := range checks {
+
 		if err = verifyAndFix(checks[i].data, checks[i].chk); err != nil {
+
 			return n, err
 		}
 	}
 
 	if !a.flags.hasPubKey {
+
 		return n, errors.New("read in an address without a public key")
 	}
 	pk, err := ec.ParsePubKey(pubKey, ec.S256())
 	if err != nil {
+
 		return n, err
 	}
 	a.pubKey = pk
 
 	addr, err := util.NewAddressPubKeyHash(pubKeyHash[:], a.store.netParams())
 	if err != nil {
+
 		return n, err
 	}
 	a.address = addr
@@ -2433,12 +2667,16 @@ func (a *btcAddress) WriteTo(w io.Writer) (n int64, err error) {
 		&a.partialSyncHeight,
 	}
 	for _, data := range datas {
+
 		if wt, ok := data.(io.WriterTo); ok {
+
 			written, err = wt.WriteTo(w)
 		} else {
+
 			written, err = binaryWrite(w, binary.LittleEndian, data)
 		}
 		if err != nil {
+
 			return n + written, err
 		}
 		n += written
@@ -2450,15 +2688,19 @@ func (a *btcAddress) WriteTo(w io.Writer) (n int64, err error) {
 // failing if the address is already encrypted or if the private key is
 // not 32 bytes.  If successful, the encryption flag is set.
 func (a *btcAddress) encrypt(key []byte) error {
+
 	if a.flags.encrypted {
+
 		return ErrAlreadyEncrypted
 	}
 	if len(a.privKeyCT) != 32 {
+
 		return errors.New("invalid clear text private key")
 	}
 
 	aesBlockEncrypter, err := aes.NewCipher(key)
 	if err != nil {
+
 		return err
 	}
 	aesEncrypter := cipher.NewCFBEncrypter(aesBlockEncrypter, a.initVector[:])
@@ -2473,7 +2715,9 @@ func (a *btcAddress) encrypt(key []byte) error {
 // lock removes the reference this address holds to its clear text
 // private key.  This function fails if the address is not encrypted.
 func (a *btcAddress) lock() error {
+
 	if !a.flags.encrypted {
+
 		return errors.New("unable to lock unencrypted address")
 	}
 
@@ -2490,12 +2734,14 @@ func (a *btcAddress) lock() error {
 func (a *btcAddress) unlock(key []byte) (privKeyCT []byte, err error) {
 
 	if !a.flags.encrypted {
+
 		return nil, errors.New("unable to unlock unencrypted address")
 	}
 
 	// Decrypt private key with AES key.
 	aesBlockDecrypter, err := aes.NewCipher(key)
 	if err != nil {
+
 		return nil, err
 	}
 	aesDecrypter := cipher.NewCFBDecrypter(aesBlockDecrypter, a.initVector[:])
@@ -2504,6 +2750,7 @@ func (a *btcAddress) unlock(key []byte) (privKeyCT []byte, err error) {
 
 	// If secret is already saved, simply compare the bytes.
 	if len(a.privKeyCT) == 32 {
+
 		if !bytes.Equal(a.privKeyCT, privkey) {
 
 			return nil, ErrWrongPassphrase
@@ -2515,6 +2762,7 @@ func (a *btcAddress) unlock(key []byte) (privKeyCT []byte, err error) {
 
 	x, y := ec.S256().ScalarBaseMult(privkey)
 	if x.Cmp(a.pubKey.X) != 0 || y.Cmp(a.pubKey.Y) != 0 {
+
 		return nil, ErrWrongPassphrase
 	}
 
@@ -2528,25 +2776,31 @@ func (a *btcAddress) unlock(key []byte) (privKeyCT []byte, err error) {
 // with a new AES encryption key.  oldkey must be the old AES encryption key
 // and is used to decrypt the private key.
 func (a *btcAddress) changeEncryptionKey(oldkey, newkey []byte) error {
+
 	// Address must have a private key and be encrypted to continue.
 	if !a.flags.hasPrivKey {
+
 		return errors.New("no private key")
 	}
 	if !a.flags.encrypted {
+
 		return errors.New("address is not encrypted")
 	}
 
 	privKeyCT, err := a.unlock(oldkey)
 	if err != nil {
+
 		return err
 	}
 
 	aesBlockEncrypter, err := aes.NewCipher(newkey)
 	if err != nil {
+
 		return err
 	}
 	newIV := make([]byte, len(a.initVector))
 	if _, err := rand.Read(newIV); err != nil {
+
 		return err
 	}
 	copy(a.initVector[:], newIV)
@@ -2558,35 +2812,41 @@ func (a *btcAddress) changeEncryptionKey(oldkey, newkey []byte) error {
 
 // Address returns the pub key address, implementing AddressInfo.
 func (a *btcAddress) Address() util.Address {
+
 	return a.address
 }
 
 // AddrHash returns the pub key hash, implementing WalletAddress.
 func (a *btcAddress) AddrHash() string {
+
 	return string(a.address.ScriptAddress())
 }
 
 // FirstBlock returns the first block the address is seen in, implementing
 // AddressInfo.
 func (a *btcAddress) FirstBlock() int32 {
+
 	return a.firstBlock
 }
 
 // Imported returns the pub if the address was imported, or a chained address,
 // implementing AddressInfo.
 func (a *btcAddress) Imported() bool {
+
 	return a.chainIndex == importedKeyChainIdx
 }
 
 // Change returns true if the address was created as a change address,
 // implementing AddressInfo.
 func (a *btcAddress) Change() bool {
+
 	return a.flags.change
 }
 
 // Compressed returns true if the address backing key is compressed,
 // implementing AddressInfo.
 func (a *btcAddress) Compressed() bool {
+
 	return a.flags.compressed
 }
 
@@ -2594,7 +2854,9 @@ func (a *btcAddress) Compressed() bool {
 // synced.  For an Unsynced type, the value is the recorded first seen
 // block height of the address.
 func (a *btcAddress) SyncStatus() SyncStatus {
+
 	switch {
+
 	case a.flags.unsynced && !a.flags.partialSync:
 		return Unsynced(a.firstBlock)
 	case a.flags.unsynced && a.flags.partialSync:
@@ -2607,10 +2869,12 @@ func (a *btcAddress) SyncStatus() SyncStatus {
 // PubKey returns the hex encoded pubkey for the address. Implementing
 // PubKeyAddress.
 func (a *btcAddress) PubKey() *ec.PublicKey {
+
 	return a.pubKey
 }
 
 func (a *btcAddress) pubKeyBytes() []byte {
+
 	if a.Compressed() {
 
 		return a.pubKey.SerializeCompressed()
@@ -2621,6 +2885,7 @@ func (a *btcAddress) pubKeyBytes() []byte {
 // ExportPubKey returns the public key associated with the address serialised as
 // a hex encoded string. Implemnts PubKeyAddress
 func (a *btcAddress) ExportPubKey() string {
+
 	return hex.EncodeToString(a.pubKeyBytes())
 }
 
@@ -2629,10 +2894,12 @@ func (a *btcAddress) ExportPubKey() string {
 func (a *btcAddress) PrivKey() (*ec.PrivateKey, error) {
 
 	if a.store.flags.watchingOnly {
+
 		return nil, ErrWatchingOnly
 	}
 
 	if !a.flags.hasPrivKey {
+
 		return nil, errors.New("no private key for address")
 	}
 
@@ -2647,6 +2914,7 @@ func (a *btcAddress) PrivKey() (*ec.PrivateKey, error) {
 	// during an address lock.
 	privKeyCT, err := a.unlock(a.store.secret)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2662,6 +2930,7 @@ func (a *btcAddress) ExportPrivKey() (*util.WIF, error) {
 
 	pk, err := a.PrivKey()
 	if err != nil {
+
 		return nil, err
 	}
 	// NewWIF only errors if the network is nil.  In this case, panic,
@@ -2671,6 +2940,7 @@ func (a *btcAddress) ExportPrivKey() (*util.WIF, error) {
 	wif, err := util.NewWIF((*ec.PrivateKey)(pk), a.store.netParams(),
 		a.Compressed())
 	if err != nil {
+
 		panic(err)
 	}
 	return wif, nil
@@ -2680,6 +2950,7 @@ func (a *btcAddress) ExportPrivKey() (*util.WIF, error) {
 // This is used to fill a watching a key store with addresses from a
 // normal key store.
 func (a *btcAddress) watchingCopy(s *Store) walletAddress {
+
 	return &btcAddress{
 		store:   s,
 		address: a.address,
@@ -2744,6 +3015,7 @@ func (sf *scriptFlags) ReadFrom(r io.Reader) (int64, error) {
 	var b [8]byte
 	n, err := io.ReadFull(r, b[:])
 	if err != nil {
+
 		return int64(n), err
 	}
 
@@ -2762,15 +3034,19 @@ func (sf *scriptFlags) WriteTo(w io.Writer) (int64, error) {
 
 	var b [8]byte
 	if sf.hasScript {
+
 		b[0] |= 1 << 1
 	}
 	if sf.change {
+
 		b[0] |= 1 << 5
 	}
 	if sf.unsynced {
+
 		b[0] |= 1 << 6
 	}
 	if sf.partialSync {
+
 		b[0] |= 1 << 7
 	}
 
@@ -2791,6 +3067,7 @@ func (a *p2SHScript) ReadFrom(r io.Reader) (n int64, err error) {
 	read, err := io.ReadFull(r, lenBytes[:])
 	n += int64(read)
 	if err != nil {
+
 		return n, err
 	}
 
@@ -2801,6 +3078,7 @@ func (a *p2SHScript) ReadFrom(r io.Reader) (n int64, err error) {
 	read, err = io.ReadFull(r, script)
 	n += int64(read)
 	if err != nil {
+
 		return n, err
 	}
 
@@ -2820,6 +3098,7 @@ func (a *p2SHScript) WriteTo(w io.Writer) (n int64, err error) {
 	written, err := w.Write(lenBytes[:])
 	n += int64(written)
 	if err != nil {
+
 		return n, err
 	}
 
@@ -2866,6 +3145,7 @@ func newScriptAddress(
 	class, addresses, reqSigs, err :=
 		txscript.ExtractPkScriptAddrs(script, s.netParams())
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2873,6 +3153,7 @@ func newScriptAddress(
 
 	address, err := util.NewAddressScriptHashFromHash(scriptHash, s.netParams())
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -2918,12 +3199,16 @@ func (sa *scriptAddress) ReadFrom(r io.Reader) (n int64, err error) {
 		&sa.partialSyncHeight,
 	}
 	for _, data := range datas {
+
 		if rf, ok := data.(io.ReaderFrom); ok {
+
 			read, err = rf.ReadFrom(r)
 		} else {
+
 			read, err = binaryRead(r, binary.LittleEndian, data)
 		}
 		if err != nil {
+
 			return n + read, err
 		}
 		n += read
@@ -2938,7 +3223,9 @@ func (sa *scriptAddress) ReadFrom(r io.Reader) (n int64, err error) {
 		{sa.script, chkScript},
 	}
 	for i := range checks {
+
 		if err = verifyAndFix(checks[i].data, checks[i].chk); err != nil {
+
 			return n, err
 		}
 	}
@@ -2946,18 +3233,21 @@ func (sa *scriptAddress) ReadFrom(r io.Reader) (n int64, err error) {
 	address, err := util.NewAddressScriptHashFromHash(scriptHash[:],
 		sa.store.netParams())
 	if err != nil {
+
 		return n, err
 	}
 
 	sa.address = address
 
 	if !sa.flags.hasScript {
+
 		return n, errors.New("read in an addresss with no script")
 	}
 
 	class, addresses, reqSigs, err :=
 		txscript.ExtractPkScriptAddrs(sa.script, sa.store.netParams())
 	if err != nil {
+
 		return n, err
 	}
 
@@ -2987,12 +3277,16 @@ func (sa *scriptAddress) WriteTo(w io.Writer) (n int64, err error) {
 		&sa.partialSyncHeight,
 	}
 	for _, data := range datas {
+
 		if wt, ok := data.(io.WriterTo); ok {
+
 			written, err = wt.WriteTo(w)
 		} else {
+
 			written, err = binaryWrite(w, binary.LittleEndian, data)
 		}
 		if err != nil {
+
 			return n + written, err
 		}
 		n += written
@@ -3002,54 +3296,64 @@ func (sa *scriptAddress) WriteTo(w io.Writer) (n int64, err error) {
 
 // address returns a util.AddressScriptHash for a btcAddress.
 func (sa *scriptAddress) Address() util.Address {
+
 	return sa.address
 }
 
 // AddrHash returns the script hash, implementing AddressInfo.
 func (sa *scriptAddress) AddrHash() string {
+
 	return string(sa.address.ScriptAddress())
 }
 
 // FirstBlock returns the first blockheight the address is known at.
 func (sa *scriptAddress) FirstBlock() int32 {
+
 	return sa.firstBlock
 }
 
 // Imported currently always returns true since script addresses are always
 // imported addressed and not part of any chain.
 func (sa *scriptAddress) Imported() bool {
+
 	return true
 }
 
 // Change returns true if the address was created as a change address.
 func (sa *scriptAddress) Change() bool {
+
 	return sa.flags.change
 }
 
 // Compressed returns false since script addresses are never compressed.
 // Implements WalletAddress.
 func (sa *scriptAddress) Compressed() bool {
+
 	return false
 }
 
 // Script returns the script that is represented by the address. It should not
 // be modified.
 func (sa *scriptAddress) Script() []byte {
+
 	return sa.script
 }
 
 // Addresses returns the list of addresses that must sign the script.
 func (sa *scriptAddress) Addresses() []util.Address {
+
 	return sa.addresses
 }
 
 // ScriptClass returns the type of script the address is.
 func (sa *scriptAddress) ScriptClass() txscript.ScriptClass {
+
 	return sa.class
 }
 
 // RequiredSigs returns the number of signatures required by the script.
 func (sa *scriptAddress) RequiredSigs() int {
+
 	return sa.reqSigs
 }
 
@@ -3058,7 +3362,9 @@ func (sa *scriptAddress) RequiredSigs() int {
 // block height of the address.
 // Implements WalletAddress.
 func (sa *scriptAddress) SyncStatus() SyncStatus {
+
 	switch {
+
 	case sa.flags.unsynced && !sa.flags.partialSync:
 		return Unsynced(sa.firstBlock)
 	case sa.flags.unsynced && sa.flags.partialSync:
@@ -3095,6 +3401,7 @@ func (sa *scriptAddress) setSyncStatus(s SyncStatus) {
 // This is used to fill a watching key store with addresses from a
 // normal key store.
 func (sa *scriptAddress) watchingCopy(s *Store) walletAddress {
+
 	return &scriptAddress{
 		store:     s,
 		address:   sa.address,
@@ -3115,6 +3422,7 @@ func (sa *scriptAddress) watchingCopy(s *Store) walletAddress {
 
 func walletHash(
 	b []byte) uint32 {
+
 	sum := chainhash.DoubleHashB(b)
 	return binary.LittleEndian.Uint32(sum)
 }
@@ -3122,7 +3430,9 @@ func walletHash(
 // TODO(jrick) add error correction.
 func verifyAndFix(
 	b []byte, chk uint32) error {
+
 	if walletHash(b) != chk {
+
 		return ErrChecksumMismatch
 	}
 	return nil
@@ -3142,6 +3452,7 @@ func computeKdfParameters(
 
 	params := &kdfParameters{}
 	if _, err := rand.Read(params.salt[:]); err != nil {
+
 		return nil, err
 	}
 
@@ -3151,6 +3462,7 @@ func computeKdfParameters(
 	approxSec := float64(0)
 
 	for approxSec <= targetSec/4 && memoryReqtBytes < maxMem {
+
 		memoryReqtBytes *= 2
 		before := time.Now()
 		_ = keyOneIter(testKey, params.salt[:], memoryReqtBytes)
@@ -3163,6 +3475,7 @@ func computeKdfParameters(
 		nIter *= 2
 		before := time.Now()
 		for i := uint32(0); i < nIter; i++ {
+
 			_ = keyOneIter(testKey, params.salt[:], memoryReqtBytes)
 		}
 		allItersSec = time.Since(before).Seconds()
@@ -3193,7 +3506,9 @@ func (params *kdfParameters) WriteTo(w io.Writer) (n int64, err error) {
 		make([]byte, 256-(binary.Size(params)+4)), // padding
 	}
 	for _, data := range datas {
+
 		if written, err = binaryWrite(w, binary.LittleEndian, data); err != nil {
+
 			return n + written, err
 		}
 		n += written
@@ -3217,7 +3532,9 @@ func (params *kdfParameters) ReadFrom(r io.Reader) (n int64, err error) {
 		padding,
 	}
 	for _, data := range datas {
+
 		if read, err = binaryRead(r, binary.LittleEndian, data); err != nil {
+
 			return n + read, err
 		}
 		n += read
@@ -3225,6 +3542,7 @@ func (params *kdfParameters) ReadFrom(r io.Reader) (n int64, err error) {
 
 	// Verify checksum
 	if err = verifyAndFix(chkedBytes, chk); err != nil {
+
 		return n, err
 	}
 
@@ -3236,7 +3554,9 @@ func (params *kdfParameters) ReadFrom(r io.Reader) (n int64, err error) {
 		&params.salt,
 	}
 	for _, data := range datas {
+
 		if err = binary.Read(buf, binary.LittleEndian, data); err != nil {
+
 			return n, err
 		}
 	}
@@ -3255,12 +3575,14 @@ func (e *addrEntry) WriteTo(w io.Writer) (n int64, err error) {
 
 	// Write header
 	if written, err = binaryWrite(w, binary.LittleEndian, addrHeader); err != nil {
+
 		return n + written, err
 	}
 	n += written
 
 	// Write hash
 	if written, err = binaryWrite(w, binary.LittleEndian, &e.pubKeyHash160); err != nil {
+
 		return n + written, err
 	}
 	n += written
@@ -3276,6 +3598,7 @@ func (e *addrEntry) ReadFrom(r io.Reader) (n int64, err error) {
 	var read int64
 
 	if read, err = binaryRead(r, binary.LittleEndian, &e.pubKeyHash160); err != nil {
+
 		return n + read, err
 	}
 	n += read
@@ -3297,12 +3620,14 @@ func (e *scriptEntry) WriteTo(w io.Writer) (n int64, err error) {
 
 	// Write header
 	if written, err = binaryWrite(w, binary.LittleEndian, scriptHeader); err != nil {
+
 		return n + written, err
 	}
 	n += written
 
 	// Write hash
 	if written, err = binaryWrite(w, binary.LittleEndian, &e.scriptHash160); err != nil {
+
 		return n + written, err
 	}
 	n += written
@@ -3319,6 +3644,7 @@ func (e *scriptEntry) ReadFrom(r io.Reader) (n int64, err error) {
 	var read int64
 
 	if read, err = binaryRead(r, binary.LittleEndian, &e.scriptHash160); err != nil {
+
 		return n + read, err
 	}
 	n += read

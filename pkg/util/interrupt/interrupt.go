@@ -32,6 +32,7 @@ func Listener() {
 
 		// run handlers in LIFO order.
 		for i := range interruptCallbacks {
+
 			idx := len(interruptCallbacks) - 1 - i
 			interruptCallbacks[idx]()
 		}
@@ -39,7 +40,9 @@ func Listener() {
 	}
 
 	for {
+
 		select {
+
 		case sig := <-InterruptChan:
 			fmt.Printf("received signal (%s) - shutting down...\n", sig)
 			_ = sig
@@ -64,6 +67,7 @@ func AddHandler(
 
 	// Create the channel and start the main interrupt handler which invokes all other callbacks and exits if not already done.
 	if InterruptChan == nil {
+
 		InterruptChan = make(chan os.Signal, 1)
 		signal.Notify(InterruptChan, InterruptSignals...)
 		go Listener()
@@ -80,5 +84,6 @@ func Request() {
 
 // Requested returns true if an interrupt has been requested
 func Requested() bool {
+
 	return requested
 }

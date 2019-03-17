@@ -13,8 +13,10 @@ import (
 // newHashFromStr converts the passed big-endian hex string into a chainhash.Hash.  It only differs from the one available in chainhash in that it panics on an error since it will only (and must only) be called with hard-coded, and therefore known good, hashes.
 func newHashFromStr(
 	hexStr string) *chainhash.Hash {
+
 	hash, err := chainhash.NewHashFromStr(hexStr)
 	if err != nil {
+
 		panic("invalid hash in source file: " + hexStr)
 	}
 	return hash
@@ -23,8 +25,10 @@ func newHashFromStr(
 // hexToBytes converts the passed hex string into bytes and will panic if there is an error.  This is only provided for the hard-coded constants so errors in the source code can be detected. It will only (and must only) be called with hard-coded values.
 func hexToBytes(
 	s string) []byte {
+
 	b, err := hex.DecodeString(s)
 	if err != nil {
+
 		panic("invalid hex in source file: " + s)
 	}
 	return b
@@ -33,12 +37,14 @@ func hexToBytes(
 // newUtxoViewpoint returns a new utxo view populated with outputs of the provided source transactions as if there were available at the respective block height specified in the heights slice.  The length of the source txns and source tx heights must match or it will panic.
 func newUtxoViewpoint(
 	sourceTxns []*wire.MsgTx, sourceTxHeights []int32) *blockchain.UtxoViewpoint {
+
 	if len(sourceTxns) != len(sourceTxHeights) {
 
 		panic("each transaction must have its block height specified")
 	}
 	view := blockchain.NewUtxoViewpoint()
 	for i, tx := range sourceTxns {
+
 		view.AddTxOuts(util.NewTx(tx), sourceTxHeights[i])
 	}
 	return view
@@ -98,6 +104,7 @@ func TestCalcPriority(
 				"397f554a7df5f142c21c1b7303b8a0626f1baded5c72" +
 				"a704f7e6cd84cac"),
 		}, {
+
 			Value: 4000000000,
 			PkScript: hexToBytes("410411db93e1dcdb8a016b49840f8c5" +
 				"3bc1eb68a382e97b1482ecad7b148a6909a5cb2e0ead" +
@@ -147,8 +154,10 @@ func TestCalcPriority(
 		},
 	}
 	for i, test := range tests {
+
 		got := CalcPriority(test.tx, test.utxoView, test.nextHeight)
 		if got != test.want {
+
 			t.Errorf("CalcPriority #%d (%q): unexpected priority "+
 				"got %v want %v", i, test.name, got, test.want)
 			continue

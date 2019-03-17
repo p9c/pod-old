@@ -22,9 +22,11 @@ import (
 // 				return fmt.Errorf("cannot create directory: %s", err)
 // 			}
 // 		} else {
+
 // 			return fmt.Errorf("error checking directory: %s", err)
 // 		}
 // 	} else {
+
 // 		if !fi.IsDir() {
 
 // 			return fmt.Errorf("path '%s' is not a directory", path)
@@ -80,6 +82,7 @@ func NormalizeAddress(addr, defaultPort string, out *string) {
 		}
 
 	} else {
+
 		*out = o
 	}
 

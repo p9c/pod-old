@@ -61,8 +61,10 @@ func TestBase58(
 
 	// Encode tests
 	for x, test := range stringTests {
+
 		tmp := []byte(test.in)
 		if res := base58.Encode(tmp); res != test.out {
+
 			t.Errorf("Encode test #%d failed: got: %s want: %s",
 				x, res, test.out)
 			continue
@@ -70,8 +72,10 @@ func TestBase58(
 	}
 	// Decode tests
 	for x, test := range hexTests {
+
 		b, err := hex.DecodeString(test.in)
 		if err != nil {
+
 			t.Errorf("hex.DecodeString failed failed #%d: got: %s", x, test.in)
 			continue
 		}
@@ -84,7 +88,9 @@ func TestBase58(
 	}
 	// Decode with invalid input
 	for x, test := range invalidStringTests {
+
 		if res := base58.Decode(test.in); string(res) != test.out {
+
 			t.Errorf("Decode invalidString test #%d failed: got: %q want: %q",
 				x, res, test.out)
 			continue

@@ -10,5 +10,6 @@ import (
 // already exists.
 func Atomic(
 	oldpath, newpath string) error {
+
 	return os.Rename(oldpath, newpath)
 }

@@ -47,6 +47,7 @@ func NewRPCClient(
 	disableTLS bool, reconnectAttempts int) (*RPCClient, error) {
 
 	if reconnectAttempts < 0 {
+
 		return nil, errors.New("reconnectAttempts must be positive")
 	}
 
@@ -79,6 +80,7 @@ func NewRPCClient(
 	}
 	rpcClient, err := rpcclient.New(client.connConfig, ntfnCallbacks)
 	if err != nil {
+
 		return nil, err
 	}
 	client.Client = rpcClient
@@ -87,6 +89,7 @@ func NewRPCClient(
 
 // BackEnd returns the name of the driver.
 func (c *RPCClient) BackEnd() string {
+
 	return "pod"
 }
 
@@ -96,18 +99,22 @@ func (c *RPCClient) BackEnd() string {
 // function gives up, and therefore will not block forever waiting for the
 // connection to be established to a server that may not exist.
 func (c *RPCClient) Start() error {
+
 	err := c.Connect(c.reconnectAttempts)
 	if err != nil {
+
 		return err
 	}
 
 	// Verify that the server is running on the expected network.
 	net, err := c.GetCurrentNet()
 	if err != nil {
+
 		c.Disconnect()
 		return err
 	}
 	if net != c.chainParams.Net {
+
 		c.Disconnect()
 		return errors.New("mismatched networks")
 	}
@@ -127,12 +134,14 @@ func (c *RPCClient) Stop() {
 
 	c.quitMtx.Lock()
 	select {
+
 	case <-c.quit:
 	default:
 		close(c.quit)
 		c.Client.Shutdown()
 
 		if !c.started {
+
 			close(c.dequeueNotification)
 		}
 	}
@@ -148,6 +157,7 @@ func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []util.Address,
 
 	flatOutpoints := make([]*wire.OutPoint, 0, len(outPoints))
 	for ops := range outPoints {
+
 		flatOutpoints = append(flatOutpoints, &ops)
 	}
 
@@ -167,6 +177,7 @@ func (c *RPCClient) WaitForShutdown() {
 // may abort for running out memory, as unread notifications are queued for
 // later reads.
 func (c *RPCClient) Notifications() <-chan interface{} {
+
 	return c.dequeueNotification
 }
 
@@ -175,6 +186,7 @@ func (c *RPCClient) Notifications() <-chan interface{} {
 func (c *RPCClient) BlockStamp() (*waddrmgr.BlockStamp, error) {
 
 	select {
+
 	case bs := <-c.currentBlock:
 		return bs, nil
 	case <-c.quit:
@@ -199,6 +211,7 @@ func (c *RPCClient) FilterBlocks(
 	// in the filter blocks request.
 	watchList, err := buildFilterBlocksWatchList(req)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -210,13 +223,16 @@ func (c *RPCClient) FilterBlocks(
 
 	// and scanned for addresses using the block filterer.
 	for i, blk := range req.Blocks {
+
 		rawFilter, err := c.GetCFilter(&blk.Hash, wire.GCSFilterRegular)
 		if err != nil {
+
 			return nil, err
 		}
 
 		// Ensure the filter is large enough to be deserialized.
 		if len(rawFilter.Data) < 4 {
+
 			continue
 		}
 
@@ -224,19 +240,23 @@ func (c *RPCClient) FilterBlocks(
 			builder.DefaultP, builder.DefaultM, rawFilter.Data,
 		)
 		if err != nil {
+
 			return nil, err
 		}
 
 		// Skip any empty filters.
 		if filter.N() == 0 {
+
 			continue
 		}
 
 		key := builder.DeriveKey(&blk.Hash)
 		matched, err := filter.MatchAny(key, watchList)
 		if err != nil {
+
 			return nil, err
 		} else if !matched {
+
 			continue
 		}
 
@@ -247,6 +267,7 @@ func (c *RPCClient) FilterBlocks(
 
 		rawBlock, err := c.GetBlock(&blk.Hash)
 		if err != nil {
+
 			return nil, err
 		}
 
@@ -283,10 +304,12 @@ func parseBlock(
 	block *json.BlockDetails) (*wtxmgr.BlockMeta, error) {
 
 	if block == nil {
+
 		return nil, nil
 	}
 	blkHash, err := chainhash.NewHashFromStr(block.Hash)
 	if err != nil {
+
 		return nil, err
 	}
 	blk := &wtxmgr.BlockMeta{
@@ -302,6 +325,7 @@ func parseBlock(
 func (c *RPCClient) onClientConnect() {
 
 	select {
+
 	case c.enqueueNotification <- ClientConnected{}:
 	case <-c.quit:
 	}
@@ -310,6 +334,7 @@ func (c *RPCClient) onClientConnect() {
 func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time time.Time) {
 
 	select {
+
 	case c.enqueueNotification <- BlockConnected{
 		Block: wtxmgr.Block{
 			Hash:   *hash,
@@ -324,6 +349,7 @@ func (c *RPCClient) onBlockConnected(hash *chainhash.Hash, height int32, time ti
 func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time time.Time) {
 
 	select {
+
 	case c.enqueueNotification <- BlockDisconnected{
 		Block: wtxmgr.Block{
 			Hash:   *hash,
@@ -339,6 +365,7 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 	blk, err := parseBlock(block)
 	if err != nil {
+
 		// Log and drop improper notification.
 		log <- cl.Error{
 			"recvtx notification bad block:", err,
@@ -348,12 +375,14 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 	rec, err := wtxmgr.NewTxRecordFromMsgTx(tx.MsgTx(), time.Now())
 	if err != nil {
+
 		log <- cl.Error{
 			"cannot create transaction record for relevant tx:", err,
 		}
 		return
 	}
 	select {
+
 	case c.enqueueNotification <- RelevantTx{rec, blk}:
 	case <-c.quit:
 	}
@@ -368,6 +397,7 @@ func (c *RPCClient) onRedeemingTx(tx *util.Tx, block *json.BlockDetails) {
 func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime time.Time) {
 
 	select {
+
 	case c.enqueueNotification <- &RescanProgress{hash, height, blkTime}:
 	case <-c.quit:
 	}
@@ -376,6 +406,7 @@ func (c *RPCClient) onRescanProgress(hash *chainhash.Hash, height int32, blkTime
 func (c *RPCClient) onRescanFinished(hash *chainhash.Hash, height int32, blkTime time.Time) {
 
 	select {
+
 	case c.enqueueNotification <- &RescanFinished{hash, height, blkTime}:
 	case <-c.quit:
 	}
@@ -388,6 +419,7 @@ func (c *RPCClient) handler() {
 
 	hash, height, err := c.GetBestBlock()
 	if err != nil {
+
 		log <- cl.Error{
 			"failed to receive best block from chain server:", err,
 		}
@@ -416,12 +448,16 @@ func (c *RPCClient) handler() {
 	var next interface{}
 out:
 	for {
+
 		select {
+
 		case n, ok := <-enqueue:
 			if !ok {
+
 				// If no notifications are queued for handling,
 				// the queue is finished.
 				if len(notifications) == 0 {
+
 					break out
 				}
 				// nil channel so no more reads can occur.
@@ -429,6 +465,7 @@ out:
 				continue
 			}
 			if len(notifications) == 0 {
+
 				next = n
 				dequeue = c.dequeueNotification
 			}
@@ -436,6 +473,7 @@ out:
 
 		case dequeue <- next:
 			if n, ok := next.(BlockConnected); ok {
+
 				bs = &waddrmgr.BlockStamp{
 					Height: n.Height,
 					Hash:   n.Hash,
@@ -445,11 +483,14 @@ out:
 			notifications[0] = nil
 			notifications = notifications[1:]
 			if len(notifications) != 0 {
+
 				next = notifications[0]
 			} else {
+
 				// If no more notifications can be enqueued, the
 				// queue is finished.
 				if enqueue == nil {
+
 					break out
 				}
 				dequeue = nil

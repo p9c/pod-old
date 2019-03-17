@@ -36,7 +36,9 @@ var rejectCodeStrings = map[RejectCode]string{
 
 // String returns the RejectCode in human-readable form.
 func (code RejectCode) String() string {
+
 	if s, ok := rejectCodeStrings[code]; ok {
+
 		return s
 	}
 	return fmt.Sprintf("Unknown RejectCode (%d)", uint8(code))
@@ -60,7 +62,9 @@ type MsgReject struct {
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+
 	if pver < RejectVersion {
+
 		str := fmt.Sprintf("reject message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgReject.BtcDecode", str)
@@ -69,6 +73,7 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 	// Command that was rejected.
 	cmd, err := ReadVarString(r, pver)
 	if err != nil {
+
 		return err
 	}
 	msg.Cmd = cmd
@@ -76,20 +81,24 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 	// Code indicating why the command was rejected.
 	err = readElement(r, &msg.Code)
 	if err != nil {
+
 		return err
 	}
 
 	// Human readable string with specific details (over and above the reject code above) about why the command was rejected.
 	reason, err := ReadVarString(r, pver)
 	if err != nil {
+
 		return err
 	}
 	msg.Reason = reason
 
 	// CmdBlock and CmdTx messages have an additional hash field that identifies the specific block or transaction.
 	if msg.Cmd == CmdBlock || msg.Cmd == CmdTx {
+
 		err := readElement(r, &msg.Hash)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -98,7 +107,9 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+
 	if pver < RejectVersion {
+
 		str := fmt.Sprintf("reject message invalid for protocol "+
 			"version %d", pver)
 		return messageError("MsgReject.BtcEncode", str)
@@ -107,25 +118,30 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 	// Command that was rejected.
 	err := WriteVarString(w, pver, msg.Cmd)
 	if err != nil {
+
 		return err
 	}
 
 	// Code indicating why the command was rejected.
 	err = writeElement(w, msg.Code)
 	if err != nil {
+
 		return err
 	}
 
 	// Human readable string with specific details (over and above the reject code above) about why the command was rejected.
 	err = WriteVarString(w, pver, msg.Reason)
 	if err != nil {
+
 		return err
 	}
 
 	// CmdBlock and CmdTx messages have an additional hash field that identifies the specific block or transaction.
 	if msg.Cmd == CmdBlock || msg.Cmd == CmdTx {
+
 		err := writeElement(w, &msg.Hash)
 		if err != nil {
+
 			return err
 		}
 	}
@@ -134,11 +150,13 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgReject) Command() string {
+
 	return CmdReject
 }
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
+
 	plen := uint32(0)
 
 	// The reject message did not exist before protocol version RejectVersion.
@@ -153,6 +171,7 @@ func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
 // NewMsgReject returns a new bitcoin reject message that conforms to the Message interface.  See MsgReject for details.
 func NewMsgReject(
 	command string, code RejectCode, reason string) *MsgReject {
+
 	return &MsgReject{
 		Cmd:    command,
 		Code:   code,

@@ -18,6 +18,7 @@ func (r FutureGetBestBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -25,6 +26,7 @@ func (r FutureGetBestBlockHashResult) Receive() (*chainhash.Hash, error) {
 	var txHashStr string
 	err = js.Unmarshal(res, &txHashStr)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHashStr)
@@ -32,6 +34,7 @@ func (r FutureGetBestBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 // GetBestBlockHashAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBestBlockHash for the blocking version and more details.
 func (c *Client) GetBestBlockHashAsync() FutureGetBestBlockHashResult {
+
 	cmd := json.NewGetBestBlockHashCmd()
 	return c.sendCmd(cmd)
 }
@@ -50,6 +53,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -57,12 +61,14 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 	var blockHex string
 	err = js.Unmarshal(res, &blockHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Decode the serialized block hex to raw bytes.
 	serializedBlock, err := hex.DecodeString(blockHex)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -70,6 +76,7 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 	var msgBlock wire.MsgBlock
 	err = msgBlock.Deserialize(bytes.NewReader(serializedBlock))
 	if err != nil {
+
 		return nil, err
 	}
 	return &msgBlock, nil
@@ -77,8 +84,10 @@ func (r FutureGetBlockResult) Receive() (*wire.MsgBlock, error) {
 
 // GetBlockAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlock for the blocking version and more details.
 func (c *Client) GetBlockAsync(blockHash *chainhash.Hash) FutureGetBlockResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetBlockCmd(hash, json.Bool(false), nil)
@@ -99,6 +108,7 @@ func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, err
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -106,6 +116,7 @@ func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, err
 	var blockResult json.GetBlockVerboseResult
 	err = js.Unmarshal(res, &blockResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &blockResult, nil
@@ -113,8 +124,10 @@ func (r FutureGetBlockVerboseResult) Receive() (*json.GetBlockVerboseResult, err
 
 // GetBlockVerboseAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockVerbose for the blocking version and more details.
 func (c *Client) GetBlockVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockVerboseResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetBlockCmd(hash, json.Bool(true), nil)
@@ -129,8 +142,10 @@ func (c *Client) GetBlockVerbose(blockHash *chainhash.Hash) (*json.GetBlockVerbo
 
 // GetBlockVerboseTxAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockVerboseTx or the blocking version and more details.
 func (c *Client) GetBlockVerboseTxAsync(blockHash *chainhash.Hash) FutureGetBlockVerboseResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetBlockCmd(hash, json.Bool(true), json.Bool(true))
@@ -151,6 +166,7 @@ func (r FutureGetBlockCountResult) Receive() (int64, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -158,6 +174,7 @@ func (r FutureGetBlockCountResult) Receive() (int64, error) {
 	var count int64
 	err = js.Unmarshal(res, &count)
 	if err != nil {
+
 		return 0, err
 	}
 	return count, nil
@@ -165,6 +182,7 @@ func (r FutureGetBlockCountResult) Receive() (int64, error) {
 
 // GetBlockCountAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockCount for the blocking version and more details.
 func (c *Client) GetBlockCountAsync() FutureGetBlockCountResult {
+
 	cmd := json.NewGetBlockCountCmd()
 	return c.sendCmd(cmd)
 }
@@ -183,6 +201,7 @@ func (r FutureGetDifficultyResult) Receive() (float64, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return 0, err
 	}
 
@@ -190,6 +209,7 @@ func (r FutureGetDifficultyResult) Receive() (float64, error) {
 	var difficulty float64
 	err = js.Unmarshal(res, &difficulty)
 	if err != nil {
+
 		return 0, err
 	}
 	return difficulty, nil
@@ -197,6 +217,7 @@ func (r FutureGetDifficultyResult) Receive() (float64, error) {
 
 // GetDifficultyAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetDifficulty for the blocking version and more details.
 func (c *Client) GetDifficultyAsync(algo string) FutureGetDifficultyResult {
+
 	cmd := json.NewGetDifficultyCmd(algo)
 	return c.sendCmd(cmd)
 }
@@ -215,10 +236,12 @@ func (r FutureGetBlockChainInfoResult) Receive() (*json.GetBlockChainInfoResult,
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 	var chainInfo json.GetBlockChainInfoResult
 	if err := js.Unmarshal(res, &chainInfo); err != nil {
+
 		return nil, err
 	}
 	return &chainInfo, nil
@@ -226,6 +249,7 @@ func (r FutureGetBlockChainInfoResult) Receive() (*json.GetBlockChainInfoResult,
 
 // GetBlockChainInfoAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. GetBlockChainInfo for the blocking version and more details.
 func (c *Client) GetBlockChainInfoAsync() FutureGetBlockChainInfoResult {
+
 	cmd := json.NewGetBlockChainInfoCmd()
 	return c.sendCmd(cmd)
 }
@@ -244,6 +268,7 @@ func (r FutureGetBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -251,6 +276,7 @@ func (r FutureGetBlockHashResult) Receive() (*chainhash.Hash, error) {
 	var txHashStr string
 	err = js.Unmarshal(res, &txHashStr)
 	if err != nil {
+
 		return nil, err
 	}
 	return chainhash.NewHashFromStr(txHashStr)
@@ -258,6 +284,7 @@ func (r FutureGetBlockHashResult) Receive() (*chainhash.Hash, error) {
 
 // GetBlockHashAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockHash for the blocking version and more details.
 func (c *Client) GetBlockHashAsync(blockHeight int64) FutureGetBlockHashResult {
+
 	cmd := json.NewGetBlockHashCmd(blockHeight)
 	return c.sendCmd(cmd)
 }
@@ -276,6 +303,7 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -283,10 +311,12 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 	var bhHex string
 	err = js.Unmarshal(res, &bhHex)
 	if err != nil {
+
 		return nil, err
 	}
 	serializedBH, err := hex.DecodeString(bhHex)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -294,6 +324,7 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 	var bh wire.BlockHeader
 	err = bh.Deserialize(bytes.NewReader(serializedBH))
 	if err != nil {
+
 		return nil, err
 	}
 	return &bh, err
@@ -301,8 +332,10 @@ func (r FutureGetBlockHeaderResult) Receive() (*wire.BlockHeader, error) {
 
 // GetBlockHeaderAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockHeader for the blocking version and more details.
 func (c *Client) GetBlockHeaderAsync(blockHash *chainhash.Hash) FutureGetBlockHeaderResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetBlockHeaderCmd(hash, json.Bool(false))
@@ -323,6 +356,7 @@ func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerbos
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -330,6 +364,7 @@ func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerbos
 	var bh json.GetBlockHeaderVerboseResult
 	err = js.Unmarshal(res, &bh)
 	if err != nil {
+
 		return nil, err
 	}
 	return &bh, nil
@@ -337,8 +372,10 @@ func (r FutureGetBlockHeaderVerboseResult) Receive() (*json.GetBlockHeaderVerbos
 
 // GetBlockHeaderVerboseAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetBlockHeader for the blocking version and more details.
 func (c *Client) GetBlockHeaderVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockHeaderVerboseResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetBlockHeaderCmd(hash, json.Bool(true))
@@ -359,6 +396,7 @@ func (r FutureGetMempoolEntryResult) Receive() (*json.GetMempoolEntryResult, err
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -366,6 +404,7 @@ func (r FutureGetMempoolEntryResult) Receive() (*json.GetMempoolEntryResult, err
 	var mempoolEntryResult json.GetMempoolEntryResult
 	err = js.Unmarshal(res, &mempoolEntryResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return &mempoolEntryResult, nil
@@ -373,6 +412,7 @@ func (r FutureGetMempoolEntryResult) Receive() (*json.GetMempoolEntryResult, err
 
 // GetMempoolEntryAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetMempoolEntry for the blocking version and more details.
 func (c *Client) GetMempoolEntryAsync(txHash string) FutureGetMempoolEntryResult {
+
 	cmd := json.NewGetMempoolEntryCmd(txHash)
 	return c.sendCmd(cmd)
 }
@@ -391,6 +431,7 @@ func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -398,14 +439,17 @@ func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 	var txHashStrs []string
 	err = js.Unmarshal(res, &txHashStrs)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Create a slice of ShaHash arrays from the string slice.
 	txHashes := make([]*chainhash.Hash, 0, len(txHashStrs))
 	for _, hashStr := range txHashStrs {
+
 		txHash, err := chainhash.NewHashFromStr(hashStr)
 		if err != nil {
+
 			return nil, err
 		}
 		txHashes = append(txHashes, txHash)
@@ -415,6 +459,7 @@ func (r FutureGetRawMempoolResult) Receive() ([]*chainhash.Hash, error) {
 
 // GetRawMempoolAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetRawMempool for the blocking version and more details.
 func (c *Client) GetRawMempoolAsync() FutureGetRawMempoolResult {
+
 	cmd := json.NewGetRawMempoolCmd(json.Bool(false))
 	return c.sendCmd(cmd)
 }
@@ -433,6 +478,7 @@ func (r FutureGetRawMempoolVerboseResult) Receive() (map[string]json.GetRawMempo
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -440,6 +486,7 @@ func (r FutureGetRawMempoolVerboseResult) Receive() (map[string]json.GetRawMempo
 	var mempoolItems map[string]json.GetRawMempoolVerboseResult
 	err = js.Unmarshal(res, &mempoolItems)
 	if err != nil {
+
 		return nil, err
 	}
 	return mempoolItems, nil
@@ -447,6 +494,7 @@ func (r FutureGetRawMempoolVerboseResult) Receive() (map[string]json.GetRawMempo
 
 // GetRawMempoolVerboseAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetRawMempoolVerbose for the blocking version and more details.
 func (c *Client) GetRawMempoolVerboseAsync() FutureGetRawMempoolVerboseResult {
+
 	cmd := json.NewGetRawMempoolCmd(json.Bool(true))
 	return c.sendCmd(cmd)
 }
@@ -465,6 +513,7 @@ func (r FutureEstimateFeeResult) Receive() (float64, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return -1, err
 	}
 
@@ -472,6 +521,7 @@ func (r FutureEstimateFeeResult) Receive() (float64, error) {
 	var fee float64
 	err = js.Unmarshal(res, &fee)
 	if err != nil {
+
 		return -1, err
 	}
 	return fee, nil
@@ -479,6 +529,7 @@ func (r FutureEstimateFeeResult) Receive() (float64, error) {
 
 // EstimateFeeAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See EstimateFee for the blocking version and more details.
 func (c *Client) EstimateFeeAsync(numBlocks int64) FutureEstimateFeeResult {
+
 	cmd := json.NewEstimateFeeCmd(numBlocks)
 	return c.sendCmd(cmd)
 }
@@ -497,6 +548,7 @@ func (r FutureVerifyChainResult) Receive() (bool, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return false, err
 	}
 
@@ -504,6 +556,7 @@ func (r FutureVerifyChainResult) Receive() (bool, error) {
 	var verified bool
 	err = js.Unmarshal(res, &verified)
 	if err != nil {
+
 		return false, err
 	}
 	return verified, nil
@@ -511,6 +564,7 @@ func (r FutureVerifyChainResult) Receive() (bool, error) {
 
 // VerifyChainAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See VerifyChain for the blocking version and more details.
 func (c *Client) VerifyChainAsync() FutureVerifyChainResult {
+
 	cmd := json.NewVerifyChainCmd(nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -523,6 +577,7 @@ func (c *Client) VerifyChain() (bool, error) {
 
 // VerifyChainLevelAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See VerifyChainLevel for the blocking version and more details.
 func (c *Client) VerifyChainLevelAsync(checkLevel int32) FutureVerifyChainResult {
+
 	cmd := json.NewVerifyChainCmd(&checkLevel, nil)
 	return c.sendCmd(cmd)
 }
@@ -535,6 +590,7 @@ func (c *Client) VerifyChainLevel(checkLevel int32) (bool, error) {
 
 // VerifyChainBlocksAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See VerifyChainBlocks for the blocking version and more details.
 func (c *Client) VerifyChainBlocksAsync(checkLevel, numBlocks int32) FutureVerifyChainResult {
+
 	cmd := json.NewVerifyChainCmd(&checkLevel, &numBlocks)
 	return c.sendCmd(cmd)
 }
@@ -553,11 +609,13 @@ func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// take care of the special case where the output has been spent already it should return the string "null"
 	if string(res) == "null" {
+
 		return nil, nil
 	}
 
@@ -565,6 +623,7 @@ func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 	var txOutInfo *json.GetTxOutResult
 	err = js.Unmarshal(res, &txOutInfo)
 	if err != nil {
+
 		return nil, err
 	}
 	return txOutInfo, nil
@@ -572,8 +631,10 @@ func (r FutureGetTxOutResult) Receive() (*json.GetTxOutResult, error) {
 
 // GetTxOutAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetTxOut for the blocking version and more details.
 func (c *Client) GetTxOutAsync(txHash *chainhash.Hash, index uint32, mempool bool) FutureGetTxOutResult {
+
 	hash := ""
 	if txHash != nil {
+
 		hash = txHash.String()
 	}
 	cmd := json.NewGetTxOutCmd(hash, index, &mempool)
@@ -594,11 +655,13 @@ func (r FutureRescanBlocksResult) Receive() ([]json.RescannedBlock, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 	var rescanBlocksResult []json.RescannedBlock
 	err = js.Unmarshal(res, &rescanBlocksResult)
 	if err != nil {
+
 		return nil, err
 	}
 	return rescanBlocksResult, nil
@@ -606,8 +669,10 @@ func (r FutureRescanBlocksResult) Receive() ([]json.RescannedBlock, error) {
 
 // RescanBlocksAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See RescanBlocks for the blocking version and more details. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
 func (c *Client) RescanBlocksAsync(blockHashes []chainhash.Hash) FutureRescanBlocksResult {
+
 	strBlockHashes := make([]string, len(blockHashes))
 	for i := range blockHashes {
+
 		strBlockHashes[i] = blockHashes[i].String()
 	}
 	cmd := json.NewRescanBlocksCmd(strBlockHashes)
@@ -625,14 +690,17 @@ type FutureInvalidateBlockResult chan *response
 
 // Receive waits for the response promised by the future and returns the raw block requested from the server given its hash.
 func (r FutureInvalidateBlockResult) Receive() error {
+
 	_, err := receiveFuture(r)
 	return err
 }
 
 // InvalidateBlockAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See InvalidateBlock for the blocking version and more details.
 func (c *Client) InvalidateBlockAsync(blockHash *chainhash.Hash) FutureInvalidateBlockResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewInvalidateBlockCmd(hash)
@@ -641,6 +709,7 @@ func (c *Client) InvalidateBlockAsync(blockHash *chainhash.Hash) FutureInvalidat
 
 // InvalidateBlock invalidates a specific block.
 func (c *Client) InvalidateBlock(blockHash *chainhash.Hash) error {
+
 	return c.InvalidateBlockAsync(blockHash).Receive()
 }
 
@@ -652,6 +721,7 @@ func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -659,12 +729,14 @@ func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 	var filterHex string
 	err = js.Unmarshal(res, &filterHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Decode the serialized cf hex to raw bytes.
 	serializedFilter, err := hex.DecodeString(filterHex)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -677,8 +749,10 @@ func (r FutureGetCFilterResult) Receive() (*wire.MsgCFilter, error) {
 // GetCFilterAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetCFilter for the blocking version and more details.
 func (c *Client) GetCFilterAsync(blockHash *chainhash.Hash,
 	filterType wire.FilterType) FutureGetCFilterResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetCFilterCmd(hash, filterType)
@@ -700,6 +774,7 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 
 	res, err := receiveFuture(r)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -707,12 +782,14 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 	var headerHex string
 	err = js.Unmarshal(res, &headerHex)
 	if err != nil {
+
 		return nil, err
 	}
 
 	// Assign the decoded header into a hash
 	headerHash, err := chainhash.NewHashFromStr(headerHex)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -724,8 +801,10 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, error) {
 // GetCFilterHeaderAsync returns an instance of a type that can be used to get the result of the RPC at some future time by invoking the Receive function on the returned instance. See GetCFilterHeader for the blocking version and more details.
 func (c *Client) GetCFilterHeaderAsync(blockHash *chainhash.Hash,
 	filterType wire.FilterType) FutureGetCFilterHeaderResult {
+
 	hash := ""
 	if blockHash != nil {
+
 		hash = blockHash.String()
 	}
 	cmd := json.NewGetCFilterHeaderCmd(hash, filterType)

@@ -18,6 +18,7 @@ func TestFilterClearLatest(
 	// Ensure the command is expected value.
 	wantCmd := "filterclear"
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgFilterClear: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -26,6 +27,7 @@ func TestFilterClearLatest(
 	wantPayload := uint32(0)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -42,6 +44,7 @@ func TestFilterClearCrossProtocol(
 	var buf bytes.Buffer
 	err := msg.BtcEncode(&buf, ProtocolVersion, LatestEncoding)
 	if err != nil {
+
 		t.Errorf("encode of MsgFilterClear failed %v err <%v>", msg, err)
 	}
 
@@ -49,6 +52,7 @@ func TestFilterClearCrossProtocol(
 	var readmsg MsgFilterClear
 	err = readmsg.BtcDecode(&buf, BIP0031Version, LatestEncoding)
 	if err == nil {
+
 		t.Errorf("decode of MsgFilterClear succeeded when it "+
 			"shouldn't have %v", msg)
 	}
@@ -102,6 +106,7 @@ func TestFilterClearWire(
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -117,6 +122,7 @@ func TestFilterClearWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -168,7 +174,9 @@ func TestFilterClearWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -188,7 +196,9 @@ func TestFilterClearWireErrors(
 
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

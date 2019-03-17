@@ -20,6 +20,7 @@ func TestGetData(
 	wantCmd := "getdata"
 	msg := NewMsgGetData()
 	if cmd := msg.Command(); cmd != wantCmd {
+
 		t.Errorf("NewMsgGetData: wrong command - got %v want %v",
 			cmd, wantCmd)
 	}
@@ -28,6 +29,7 @@ func TestGetData(
 	wantPayload := uint32(1800009)
 	maxPayload := msg.MaxPayloadLength(pver)
 	if maxPayload != wantPayload {
+
 		t.Errorf("MaxPayloadLength: wrong max payload length for "+
 			"protocol version %d - got %v, want %v", pver,
 			maxPayload, wantPayload)
@@ -38,18 +40,22 @@ func TestGetData(
 	iv := NewInvVect(InvTypeBlock, &hash)
 	err := msg.AddInvVect(iv)
 	if err != nil {
+
 		t.Errorf("AddInvVect: %v", err)
 	}
 	if msg.InvList[0] != iv {
+
 		t.Errorf("AddInvVect: wrong invvect added - got %v, want %v",
 			spew.Sprint(msg.InvList[0]), spew.Sprint(iv))
 	}
 
 	// Ensure adding more than the max allowed inventory vectors per message returns an error.
 	for i := 0; i < MaxInvPerMsg; i++ {
+
 		err = msg.AddInvVect(iv)
 	}
 	if err == nil {
+
 		t.Errorf("AddInvVect: expected error on too many inventory " +
 			"vectors not received")
 	}
@@ -58,6 +64,7 @@ func TestGetData(
 	msg = NewMsgGetDataSizeHint(MaxInvPerMsg + 1)
 	wantCap := MaxInvPerMsg
 	if cap(msg.InvList) != wantCap {
+
 		t.Errorf("NewMsgGetDataSizeHint: wrong cap for size hint - "+
 			"got %v, want %v", cap(msg.InvList), wantCap)
 	}
@@ -71,6 +78,7 @@ func TestGetDataWire(
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 
@@ -78,6 +86,7 @@ func TestGetDataWire(
 	hashStr = "d28a3dc7392bf00a9855ee93dd9a81eff82a2c4fe57fbd42cfe71b487accfaf0"
 	txHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
@@ -196,10 +205,12 @@ func TestGetDataWire(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode the message to wire format.
 		var buf bytes.Buffer
 		err := test.in.BtcEncode(&buf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -214,6 +225,7 @@ func TestGetDataWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = msg.BtcDecode(rbuf, test.pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -237,6 +249,7 @@ func TestGetDataWireErrors(
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
 	blockHash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
+
 		t.Errorf("NewHashFromStr: %v", err)
 	}
 	iv := NewInvVect(InvTypeBlock, blockHash)
@@ -258,6 +271,7 @@ func TestGetDataWireErrors(
 	// vectors.
 	maxGetData := NewMsgGetData()
 	for i := 0; i < MaxInvPerMsg; i++ {
+
 		maxGetData.AddInvVect(iv)
 	}
 	maxGetData.InvList = append(maxGetData.InvList, iv)
@@ -282,6 +296,7 @@ func TestGetDataWireErrors(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
 		err := test.in.BtcEncode(w, test.pver, test.enc)
@@ -293,7 +308,9 @@ func TestGetDataWireErrors(
 		}
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.writeErr {
+
 				t.Errorf("BtcEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
@@ -311,7 +328,9 @@ func TestGetDataWireErrors(
 		}
 		// For errors which are not of type MessageError, check them for equality.
 		if _, ok := err.(*MessageError); !ok {
+
 			if err != test.readErr {
+
 				t.Errorf("BtcDecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue

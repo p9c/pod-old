@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	app := cli.NewApp()
 
 	app.Commands = []cli.Command{
@@ -17,6 +18,7 @@ func main() {
 			Aliases: []string{"a"},
 			Usage:   "add a task to the list",
 			Action: func(c *cli.Context) error {
+
 				fmt.Println("added task: ", c.Args().First())
 				return nil
 			},
@@ -27,6 +29,7 @@ func main() {
 			Aliases: []string{"c"},
 			Usage:   "complete a task on the list",
 			Action: func(c *cli.Context) error {
+
 				fmt.Println("completed task: ", c.Args().First())
 				return nil
 			},
@@ -41,6 +44,7 @@ func main() {
 					Name:  "add",
 					Usage: "add a new template",
 					Action: func(c *cli.Context) error {
+
 						fmt.Println("new task template: ", c.Args().First())
 						return nil
 					},
@@ -50,6 +54,7 @@ func main() {
 					Name:  "remove",
 					Usage: "remove an existing template",
 					Action: func(c *cli.Context) error {
+
 						fmt.Println("removed task template: ", c.Args().First())
 						return nil
 					},
@@ -60,6 +65,7 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
+
 		log.Fatal(err)
 	}
 

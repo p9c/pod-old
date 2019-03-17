@@ -44,6 +44,7 @@ var Algos = map[string]AlgoParams{
 
 // FirstPowLimit is
 var FirstPowLimit = func() big.Int {
+
 	mplb, _ := hex.DecodeString("0fffffff00000000000000000000000000000000000000000000000000000000")
 	return *big.NewInt(0).SetBytes(mplb)
 }()
@@ -65,6 +66,7 @@ var List = []HardForks{
 		WorkBase: func() (out int64) {
 
 			for i := range Algos {
+
 				out += Algos[i].NSperOp
 			}
 			out /= int64(len(Algos))
@@ -83,6 +85,7 @@ var List = []HardForks{
 		WorkBase: func() (out int64) {
 
 			for i := range P9Algos {
+
 				out += P9Algos[i].NSperOp
 			}
 			out /= int64(len(P9Algos))
@@ -122,6 +125,7 @@ var P9Algos = map[string]AlgoParams{
 
 // SecondPowLimit is
 var SecondPowLimit = func() big.Int {
+
 	mplb, _ := hex.DecodeString("07fffffff0000000000000000000000000000000000000000000000000000000")
 	return *big.NewInt(0).SetBytes(mplb)
 }()
@@ -130,6 +134,7 @@ var SecondPowLimit = func() big.Int {
 var SecondPowLimitBits = BigToCompact(&SecondPowLimit)
 
 var mainPowLimit = func() big.Int {
+
 	mplb, _ := hex.DecodeString("00000fffff000000000000000000000000000000000000000000000000000000")
 	return *big.NewInt(0).SetBytes(mplb)
 }()
@@ -143,6 +148,7 @@ func GetAlgoID(
 ) uint32 {
 
 	if GetCurrent(height) > 1 {
+
 		return P9Algos[algoname].AlgoID
 	}
 	return Algos[algoname].AlgoID
@@ -172,12 +178,15 @@ func GetAlgoVer(
 	n := "sha256d"
 	hf := GetCurrent(height)
 	if name == "random" {
+
 		rn, _ := rand.Int(rand.Reader,
 			big.NewInt(int64(len(P9AlgoVers)-1)))
 		randomalgover := int32(rn.Uint64())
 		switch hf {
+
 		case 0:
 			switch randomalgover & 1 {
+
 			case 0:
 				version = 2
 			case 1:
@@ -190,6 +199,7 @@ func GetAlgoVer(
 			return algo
 		}
 	} else {
+
 		n = name
 	}
 	version = List[hf].Algos[n].Version
@@ -215,14 +225,19 @@ func GetCurrent(
 ) {
 
 	if IsTestnet {
+
 		for i := range List {
+
 			if height > List[i].TestnetStart {
+
 				curr = i
 			}
 		}
 	}
 	for i := range List {
+
 		if height > List[i].ActivationHeight {
+
 			curr = i
 		}
 	}

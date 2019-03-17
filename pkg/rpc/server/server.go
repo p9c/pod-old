@@ -55,19 +55,23 @@ const (
 // should return this result instead.
 func translateError(
 	err error) error {
+
 	code := errorCode(err)
 	return grpc.Errorf(code, "%s", err.Error())
 }
 
 func errorCode(
 	err error) codes.Code {
+
 	// waddrmgr.IsError is convenient, but not granular enough when the
 	// underlying error has to be checked.  Unwrap the underlying error
 	// if it exists.
 	if e, ok := err.(waddrmgr.ManagerError); ok {
+
 		// For these waddrmgr error codes, the underlying error isn't
 		// needed to determine the grpc error code.
 		switch e.ErrorCode {
+
 		case waddrmgr.ErrWrongPassphrase: // public and private
 			return codes.InvalidArgument
 		case waddrmgr.ErrAccountNotFound:
@@ -82,6 +86,7 @@ func errorCode(
 	}
 
 	switch err {
+
 	case wallet.ErrLoaded:
 		return codes.FailedPrecondition
 	case walletdb.ErrDbNotOpen:
@@ -159,6 +164,7 @@ func (s *walletServer) AccountNumber(ctx context.Context, req *pb.AccountNumberR
 
 	accountNum, err := s.wallet.AccountNumber(waddrmgr.KeyScopeBIP0044, req.AccountName)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -170,10 +176,12 @@ func (s *walletServer) Accounts(ctx context.Context, req *pb.AccountsRequest) (
 
 	resp, err := s.wallet.Accounts(waddrmgr.KeyScopeBIP0044)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 	accounts := make([]*pb.AccountsResponse_Account, len(resp.Accounts))
 	for i := range resp.Accounts {
+
 		a := &resp.Accounts[i]
 		accounts[i] = &pb.AccountsResponse_Account{
 			AccountNumber:    a.AccountNumber,
@@ -196,6 +204,7 @@ func (s *walletServer) RenameAccount(ctx context.Context, req *pb.RenameAccountR
 
 	err := s.wallet.RenameAccount(waddrmgr.KeyScopeBIP0044, req.AccountNumber, req.NewName)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -208,6 +217,7 @@ func (s *walletServer) NextAccount(ctx context.Context, req *pb.NextAccountReque
 	defer zero.Bytes(req.Passphrase)
 
 	if req.AccountName == "" {
+
 		return nil, grpc.Errorf(codes.InvalidArgument, "account name may not be empty")
 	}
 
@@ -218,11 +228,13 @@ func (s *walletServer) NextAccount(ctx context.Context, req *pb.NextAccountReque
 	}()
 	err := s.wallet.Unlock(req.Passphrase, lock)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	account, err := s.wallet.NextAccount(waddrmgr.KeyScopeBIP0044, req.AccountName)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -237,6 +249,7 @@ func (s *walletServer) NextAddress(ctx context.Context, req *pb.NextAddressReque
 		err  error
 	)
 	switch req.Kind {
+
 	case pb.NextAddressRequest_BIP0044_EXTERNAL:
 		addr, err = s.wallet.NewAddress(req.Account, waddrmgr.KeyScopeBIP0044)
 	case pb.NextAddressRequest_BIP0044_INTERNAL:
@@ -245,6 +258,7 @@ func (s *walletServer) NextAddress(ctx context.Context, req *pb.NextAddressReque
 		return nil, grpc.Errorf(codes.InvalidArgument, "kind=%v", req.Kind)
 	}
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -258,6 +272,7 @@ func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPriva
 
 	wif, err := util.DecodeWIF(req.PrivateKeyWif)
 	if err != nil {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Invalid WIF-encoded private key: %v", err)
 	}
@@ -269,18 +284,21 @@ func (s *walletServer) ImportPrivateKey(ctx context.Context, req *pb.ImportPriva
 	}()
 	err = s.wallet.Unlock(req.Passphrase, lock)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	// At the moment, only the special-cased import account can be used to
 	// import keys.
 	if req.Account != waddrmgr.ImportedAddrAccount {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Only the imported account accepts private key imports")
 	}
 
 	_, err = s.wallet.ImportPrivateKey(waddrmgr.KeyScopeBIP0044, wif, nil, req.Rescan)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -294,6 +312,7 @@ func (s *walletServer) Balance(ctx context.Context, req *pb.BalanceRequest) (
 	reqConfs := req.RequiredConfirmations
 	bals, err := s.wallet.CalculateAccountBalances(account, reqConfs)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -311,6 +330,7 @@ func (s *walletServer) Balance(ctx context.Context, req *pb.BalanceRequest) (
 // confirmations for a blockchain at height curHeight.
 func confirmed(
 	minconf, txHeight, curHeight int32) bool {
+
 	return confirms(txHeight, curHeight) >= minconf
 }
 
@@ -319,7 +339,9 @@ func confirmed(
 // curHeight.
 func confirms(
 	txHeight, curHeight int32) int32 {
+
 	switch {
+
 	case txHeight == -1, txHeight > curHeight:
 		return 0
 	default:
@@ -336,12 +358,14 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 	}
 	unspentOutputs, err := s.wallet.UnspentOutputs(policy)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	selectedOutputs := make([]*pb.FundTransactionResponse_PreviousOutput, 0, len(unspentOutputs))
 	var totalAmount util.Amount
 	for _, output := range unspentOutputs {
+
 		selectedOutputs = append(selectedOutputs, &pb.FundTransactionResponse_PreviousOutput{
 			TransactionHash: output.OutPoint.Hash[:],
 			OutputIndex:     output.OutPoint.Index,
@@ -363,10 +387,12 @@ func (s *walletServer) FundTransaction(ctx context.Context, req *pb.FundTransact
 
 		changeAddr, err := s.wallet.NewChangeAddress(req.Account, waddrmgr.KeyScopeBIP0044)
 		if err != nil {
+
 			return nil, translateError(err)
 		}
 		changeScript, err = txscript.PayToAddrScript(changeAddr)
 		if err != nil {
+
 			return nil, translateError(err)
 		}
 	}
@@ -397,40 +423,51 @@ func (s *walletServer) GetTransactions(ctx context.Context, req *pb.GetTransacti
 
 	var startBlock, endBlock *wallet.BlockIdentifier
 	if req.StartingBlockHash != nil && req.StartingBlockHeight != 0 {
+
 		return nil, errors.New(
 			"starting block hash and height may not be specified simultaneously")
 	} else if req.StartingBlockHash != nil {
+
 		startBlockHash, err := chainhash.NewHash(req.StartingBlockHash)
 		if err != nil {
+
 			return nil, grpc.Errorf(codes.InvalidArgument, "%s", err.Error())
 		}
 		startBlock = wallet.NewBlockIdentifierFromHash(startBlockHash)
 	} else if req.StartingBlockHeight != 0 {
+
 		startBlock = wallet.NewBlockIdentifierFromHeight(req.StartingBlockHeight)
 	}
 
 	if req.EndingBlockHash != nil && req.EndingBlockHeight != 0 {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"ending block hash and height may not be specified simultaneously")
 	} else if req.EndingBlockHash != nil {
+
 		endBlockHash, err := chainhash.NewHash(req.EndingBlockHash)
 		if err != nil {
+
 			return nil, grpc.Errorf(codes.InvalidArgument, "%s", err.Error())
 		}
 		endBlock = wallet.NewBlockIdentifierFromHash(endBlockHash)
 	} else if req.EndingBlockHeight != 0 {
+
 		endBlock = wallet.NewBlockIdentifierFromHeight(req.EndingBlockHeight)
 	}
 
 	var minRecentTxs int
 	if req.MinimumRecentTransactions != 0 {
+
 		if endBlock != nil {
+
 			return nil, grpc.Errorf(codes.InvalidArgument,
 				"ending block and minimum number of recent transactions "+
 					"may not be specified simultaneously")
 		}
 		minRecentTxs = int(req.MinimumRecentTransactions)
 		if minRecentTxs < 0 {
+
 			return nil, grpc.Errorf(codes.InvalidArgument,
 				"minimum number of recent transactions may not be negative")
 		}
@@ -440,6 +477,7 @@ func (s *walletServer) GetTransactions(ctx context.Context, req *pb.GetTransacti
 
 	gtr, err := s.wallet.GetTransactions(startBlock, endBlock, ctx.Done())
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 	return marshalGetTransactionsResult(gtr)
@@ -456,6 +494,7 @@ func (s *walletServer) ChangePassphrase(ctx context.Context, req *pb.ChangePassp
 
 	var err error
 	switch req.Key {
+
 	case pb.ChangePassphraseRequest_PRIVATE:
 		err = s.wallet.ChangePrivatePassphrase(req.OldPassphrase, req.NewPassphrase)
 	case pb.ChangePassphraseRequest_PUBLIC:
@@ -464,6 +503,7 @@ func (s *walletServer) ChangePassphrase(ctx context.Context, req *pb.ChangePassp
 		return nil, grpc.Errorf(codes.InvalidArgument, "Unknown key type (%d)", req.Key)
 	}
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 	return &pb.ChangePassphraseResponse{}, nil
@@ -479,6 +519,7 @@ func (s *walletServer) SignTransaction(ctx context.Context, req *pb.SignTransact
 	var tx wire.MsgTx
 	err := tx.Deserialize(bytes.NewReader(req.SerializedTransaction))
 	if err != nil {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Bytes do not represent a valid raw transaction: %v", err)
 	}
@@ -490,16 +531,19 @@ func (s *walletServer) SignTransaction(ctx context.Context, req *pb.SignTransact
 	}()
 	err = s.wallet.Unlock(req.Passphrase, lock)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	invalidSigs, err := s.wallet.SignTransaction(&tx, txscript.SigHashAll, nil, nil, nil)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	invalidInputIndexes := make([]uint32, len(invalidSigs))
 	for i, e := range invalidSigs {
+
 		invalidInputIndexes[i] = e.InputIndex
 	}
 
@@ -507,6 +551,7 @@ func (s *walletServer) SignTransaction(ctx context.Context, req *pb.SignTransact
 	serializedTransaction.Grow(tx.SerializeSize())
 	err = tx.Serialize(&serializedTransaction)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -530,12 +575,14 @@ func (s *walletServer) PublishTransaction(ctx context.Context, req *pb.PublishTr
 	var msgTx wire.MsgTx
 	err := msgTx.Deserialize(bytes.NewReader(req.SignedTransaction))
 	if err != nil {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Bytes do not represent a valid raw transaction: %v", err)
 	}
 
 	err = s.wallet.PublishTransaction(&msgTx)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -544,8 +591,10 @@ func (s *walletServer) PublishTransaction(ctx context.Context, req *pb.PublishTr
 
 func marshalTransactionInputs(
 	v []wallet.TransactionSummaryInput) []*pb.TransactionDetails_Input {
+
 	inputs := make([]*pb.TransactionDetails_Input, len(v))
 	for i := range v {
+
 		input := &v[i]
 		inputs[i] = &pb.TransactionDetails_Input{
 			Index:           input.Index,
@@ -558,8 +607,10 @@ func marshalTransactionInputs(
 
 func marshalTransactionOutputs(
 	v []wallet.TransactionSummaryOutput) []*pb.TransactionDetails_Output {
+
 	outputs := make([]*pb.TransactionDetails_Output, len(v))
 	for i := range v {
+
 		output := &v[i]
 		outputs[i] = &pb.TransactionDetails_Output{
 			Index:    output.Index,
@@ -572,8 +623,10 @@ func marshalTransactionOutputs(
 
 func marshalTransactionDetails(
 	v []wallet.TransactionSummary) []*pb.TransactionDetails {
+
 	txs := make([]*pb.TransactionDetails, len(v))
 	for i := range v {
+
 		tx := &v[i]
 		txs[i] = &pb.TransactionDetails{
 			Hash:        tx.Hash[:],
@@ -589,8 +642,10 @@ func marshalTransactionDetails(
 
 func marshalBlocks(
 	v []wallet.Block) []*pb.BlockDetails {
+
 	blocks := make([]*pb.BlockDetails, len(v))
 	for i := range v {
+
 		block := &v[i]
 		blocks[i] = &pb.BlockDetails{
 			Hash:         block.Hash[:],
@@ -604,8 +659,10 @@ func marshalBlocks(
 
 func marshalHashes(
 	v []*chainhash.Hash) [][]byte {
+
 	hashes := make([][]byte, len(v))
 	for i, hash := range v {
+
 		hashes[i] = hash[:]
 	}
 	return hashes
@@ -613,8 +670,10 @@ func marshalHashes(
 
 func marshalAccountBalances(
 	v []wallet.AccountBalance) []*pb.AccountBalance {
+
 	balances := make([]*pb.AccountBalance, len(v))
 	for i := range v {
+
 		balance := &v[i]
 		balances[i] = &pb.AccountBalance{
 			Account:      balance.Account,
@@ -632,7 +691,9 @@ func (s *walletServer) TransactionNotifications(req *pb.TransactionNotifications
 
 	ctxDone := svr.Context().Done()
 	for {
+
 		select {
+
 		case v := <-n.C:
 			resp := pb.TransactionNotificationsResponse{
 				AttachedBlocks:           marshalBlocks(v.AttachedBlocks),
@@ -642,6 +703,7 @@ func (s *walletServer) TransactionNotifications(req *pb.TransactionNotifications
 			}
 			err := svr.Send(&resp)
 			if err != nil {
+
 				return translateError(err)
 			}
 
@@ -655,6 +717,7 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 	svr pb.WalletService_SpentnessNotificationsServer) error {
 
 	if req.NoNotifyUnspent && req.NoNotifySpent {
+
 		return grpc.Errorf(codes.InvalidArgument,
 			"no_notify_unspent and no_notify_spent may not both be true")
 	}
@@ -664,7 +727,9 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 
 	ctxDone := svr.Context().Done()
 	for {
+
 		select {
+
 		case v := <-n.C:
 			spenderHash, spenderIndex, spent := v.Spender()
 			if (spent && req.NoNotifySpent) || (!spent && req.NoNotifyUnspent) {
@@ -677,6 +742,7 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 				OutputIndex:     index,
 			}
 			if spent {
+
 				resp.Spender = &pb.SpentnessNotificationsResponse_Spender{
 					TransactionHash: spenderHash[:],
 					InputIndex:      spenderIndex,
@@ -684,6 +750,7 @@ func (s *walletServer) SpentnessNotifications(req *pb.SpentnessNotificationsRequ
 			}
 			err := svr.Send(&resp)
 			if err != nil {
+
 				return translateError(err)
 			}
 
@@ -701,7 +768,9 @@ func (s *walletServer) AccountNotifications(req *pb.AccountNotificationsRequest,
 
 	ctxDone := svr.Context().Done()
 	for {
+
 		select {
+
 		case v := <-n.C:
 			resp := pb.AccountNotificationsResponse{
 				AccountNumber:    v.AccountNumber,
@@ -712,6 +781,7 @@ func (s *walletServer) AccountNotifications(req *pb.AccountNotificationsRequest,
 			}
 			err := svr.Send(&resp)
 			if err != nil {
+
 				return translateError(err)
 			}
 
@@ -743,6 +813,7 @@ func (s *loaderServer) CreateWallet(ctx context.Context, req *pb.CreateWalletReq
 	// Use an insecure public passphrase when the request's is empty.
 	pubPassphrase := req.PublicPassphrase
 	if len(pubPassphrase) == 0 {
+
 		pubPassphrase = []byte(wallet.InsecurePubPassphrase)
 	}
 
@@ -750,11 +821,13 @@ func (s *loaderServer) CreateWallet(ctx context.Context, req *pb.CreateWalletReq
 		pubPassphrase, req.PrivatePassphrase, req.Seed, time.Now(),
 	)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	s.mu.Lock()
 	if s.rpcClient != nil {
+
 		wallet.SynchronizeRPC(s.rpcClient)
 	}
 	s.mu.Unlock()
@@ -768,16 +841,19 @@ func (s *loaderServer) OpenWallet(ctx context.Context, req *pb.OpenWalletRequest
 	// Use an insecure public passphrase when the request's is empty.
 	pubPassphrase := req.PublicPassphrase
 	if len(pubPassphrase) == 0 {
+
 		pubPassphrase = []byte(wallet.InsecurePubPassphrase)
 	}
 
 	wallet, err := s.loader.OpenExistingWallet(pubPassphrase, false)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	s.mu.Lock()
 	if s.rpcClient != nil {
+
 		wallet.SynchronizeRPC(s.rpcClient)
 	}
 	s.mu.Unlock()
@@ -790,6 +866,7 @@ func (s *loaderServer) WalletExists(ctx context.Context, req *pb.WalletExistsReq
 
 	exists, err := s.loader.WalletExists()
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 	return &pb.WalletExistsResponse{Exists: exists}, nil
@@ -800,9 +877,11 @@ func (s *loaderServer) CloseWallet(ctx context.Context, req *pb.CloseWalletReque
 
 	err := s.loader.UnloadWallet()
 	if err == wallet.ErrNotLoaded {
+
 		return nil, grpc.Errorf(codes.FailedPrecondition, "wallet is not loaded")
 	}
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
@@ -818,12 +897,14 @@ func (s *loaderServer) StartConsensusRPC(ctx context.Context, req *pb.StartConse
 	s.mu.Lock()
 
 	if s.rpcClient != nil {
+
 		return nil, grpc.Errorf(codes.FailedPrecondition, "RPC client already created")
 	}
 
 	networkAddress, err := cfgutil.NormalizeAddress(req.NetworkAddress,
 		s.activeNet.RPCClientPort)
 	if err != nil {
+
 		return nil, grpc.Errorf(codes.InvalidArgument,
 			"Network address is ill-formed: %v", err)
 	}
@@ -839,12 +920,15 @@ func (s *loaderServer) StartConsensusRPC(ctx context.Context, req *pb.StartConse
 	rpcClient, err := chain.NewRPCClient(s.activeNet.Params, networkAddress, req.Username,
 		string(req.Password), req.Certificate, len(req.Certificate) == 0, 1)
 	if err != nil {
+
 		return nil, translateError(err)
 	}
 
 	err = rpcClient.Start()
 	if err != nil {
+
 		if err == rpcclient.ErrInvalidAuth {
+
 			return nil, grpc.Errorf(codes.InvalidArgument,
 				"Invalid RPC credentials: %v", err)
 		}
@@ -855,6 +939,7 @@ func (s *loaderServer) StartConsensusRPC(ctx context.Context, req *pb.StartConse
 	s.rpcClient = rpcClient
 
 	if walletLoaded {
+
 		wallet.SynchronizeRPC(rpcClient)
 	}
 

@@ -21,8 +21,10 @@ type signatureTest struct {
 // decodeHex decodes the passed hex string and returns the resulting bytes.  It panics if an error occurs.  This is only used in the tests as a helper since the only way it can fail is if there is an error in the test source code.
 func decodeHex(
 	hexStr string) []byte {
+
 	b, err := hex.DecodeString(hexStr)
 	if err != nil {
+
 		panic("invalid hex string in test source: err " + err.Error() +
 			", hex: " + hexStr)
 	}
@@ -320,22 +322,29 @@ func TestSignatures(
 	t *testing.T) {
 
 	for _, test := range signatureTests {
+
 		var err error
 		if test.der {
+
 			_, err = ParseDERSignature(test.sig, S256())
 		} else {
+
 			_, err = ParseSignature(test.sig, S256())
 		}
 		if err != nil {
+
 			if test.isValid {
+
 				t.Errorf("%s signature failed when shouldn't %v",
 					test.name, err)
 			} /* else {
-				t.Errorf("%s got error %v", test.name, err)
-			} */
+
+			t.Errorf("%s got error %v", test.name, err)
+						} */
 			continue
 		}
 		if !test.isValid {
+
 			t.Errorf("%s counted as valid when it should fail",
 				test.name)
 		}
@@ -436,6 +445,7 @@ func TestSignatureSerialize(
 		},
 	}
 	for i, test := range tests {
+
 		result := test.ecsig.Serialize()
 		if !bytes.Equal(result, test.expected) {
 
@@ -454,20 +464,24 @@ func testSignCompact(
 	hashed := []byte("testing")
 	sig, err := SignCompact(curve, priv, hashed, isCompressed)
 	if err != nil {
+
 		t.Errorf("%s: error signing: %s", tag, err)
 		return
 	}
 	pk, wasCompressed, err := RecoverCompact(curve, sig, hashed)
 	if err != nil {
+
 		t.Errorf("%s: error recovering: %s", tag, err)
 		return
 	}
 	if pk.X.Cmp(priv.X) != 0 || pk.Y.Cmp(priv.Y) != 0 {
+
 		t.Errorf("%s: recovered pubkey doesn't match original "+
 			"(%v,%v) vs (%v,%v) ", tag, pk.X, pk.Y, priv.X, priv.Y)
 		return
 	}
 	if wasCompressed != isCompressed {
+
 		t.Errorf("%s: recovered pubkey doesn't match compressed state "+
 			"(%v vs %v)", tag, isCompressed, wasCompressed)
 		return
@@ -475,12 +489,15 @@ func testSignCompact(
 
 	// If we change the compressed bit we should get the same key back, but the compressed flag should be reversed.
 	if isCompressed {
+
 		sig[0] -= 4
 	} else {
+
 		sig[0] += 4
 	}
 	pk, wasCompressed, err = RecoverCompact(curve, sig, hashed)
 	if err != nil {
+
 		t.Errorf("%s: error recovering (2): %s", tag, err)
 		return
 	}
@@ -490,6 +507,7 @@ func testSignCompact(
 		return
 	}
 	if wasCompressed == isCompressed {
+
 		t.Errorf("%s: recovered pubkey doesn't match reversed "+
 			"compressed state (%v vs %v)", tag, isCompressed,
 			wasCompressed)
@@ -500,10 +518,12 @@ func TestSignCompact(
 	t *testing.T) {
 
 	for i := 0; i < 256; i++ {
+
 		name := fmt.Sprintf("test %d", i)
 		data := make([]byte, 32)
 		_, err := rand.Read(data)
 		if err != nil {
+
 			t.Errorf("failed to read random data for %s", name)
 			continue
 		}
@@ -543,6 +563,7 @@ func TestRecoverCompact(
 	t *testing.T) {
 
 	for i, test := range recoveryTests {
+
 		msg := decodeHex(test.msg)
 		sig := decodeHex(test.sig)
 		// Magic DER constant.
@@ -559,6 +580,7 @@ func TestRecoverCompact(
 		// If check succeeded because a proper error was returned, we
 		// ignore the returned pubkey.
 		if err != nil {
+
 			continue
 		}
 		// Otherwise, ensure the correct public key was recovered.
@@ -623,6 +645,7 @@ func TestRFC6979(
 		},
 	}
 	for i, test := range tests {
+
 		privKey, _ := PrivKeyFromBytes(S256(), decodeHex(test.key))
 		hash := sha256.Sum256([]byte(test.msg))
 		// Ensure deterministically generated nonce is the expected value.
@@ -638,6 +661,7 @@ func TestRFC6979(
 		// Ensure deterministically generated signature is the expected value.
 		gotSig, err := privKey.Sign(hash[:])
 		if err != nil {
+
 			t.Errorf("Sign #%d (%s): unexpected error: %v", i,
 				test.msg, err)
 			continue

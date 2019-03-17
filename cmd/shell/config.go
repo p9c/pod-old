@@ -20,11 +20,13 @@ type Config struct {
 
 // GetNodeActiveNet returns the activenet params
 func (r *Config) GetNodeActiveNet() *node.Params {
+
 	return r.nodeActiveNet
 }
 
 // GetWalletActiveNet returns the activenet params
 func (r *Config) GetWalletActiveNet() *netparams.Params {
+
 	return r.walletActiveNet
 }
 

@@ -26,6 +26,7 @@ func TestOutputSplittingNotEnoughInputs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -51,20 +52,24 @@ func TestOutputSplittingNotEnoughInputs(
 	}
 
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal(err)
 	}
 
 	if len(w.transactions) != 1 {
+
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 1", len(w.transactions))
 	}
 
 	tx := w.transactions[0]
 	if len(tx.outputs) != 2 {
+
 		t.Fatalf("Wrong number of outputs; got %d, want 2", len(tx.outputs))
 	}
 
 	// The first output should've been left untouched.
 	if tx.outputs[0].amount != output1Amount {
+
 		t.Fatalf("Wrong amount for first tx output; got %v, want %v",
 			tx.outputs[0].amount, output1Amount)
 	}
@@ -84,6 +89,7 @@ func TestOutputSplittingOversizeTx(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -100,8 +106,10 @@ func TestOutputSplittingOversizeTx(
 
 		tx.calculateFee = TstConstantFee(0)
 		tx.calculateSize = func() int {
+
 			// Trigger an output split right after the second input is added.
 			if len(tx.inputs) == 2 {
+
 				return txMaxSize + 1
 			}
 			return txMaxSize - 1
@@ -109,15 +117,18 @@ func TestOutputSplittingOversizeTx(
 	}
 
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal(err)
 	}
 
 	if len(w.transactions) != 2 {
+
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
 
 	tx1 := w.transactions[0]
 	if len(tx1.outputs) != 1 {
+
 		t.Fatalf("Wrong number of outputs on tx1; got %d, want 1", len(tx1.outputs))
 	}
 	if tx1.outputs[0].amount != util.Amount(bigInput) {
@@ -128,6 +139,7 @@ func TestOutputSplittingOversizeTx(
 
 	tx2 := w.transactions[1]
 	if len(tx2.outputs) != 1 {
+
 		t.Fatalf("Wrong number of outputs on tx2; got %d, want 1", len(tx2.outputs))
 	}
 	if tx2.outputs[0].amount != util.Amount(smallInput) {
@@ -137,10 +149,12 @@ func TestOutputSplittingOversizeTx(
 	}
 
 	if len(w.status.outputs) != 1 {
+
 		t.Fatalf("Wrong number of output statuses; got %d, want 1", len(w.status.outputs))
 	}
 	status := w.status.outputs[request.outBailmentID()].status
 	if status != statusSplit {
+
 		t.Fatalf("Wrong output status; got '%s', want '%s'", status, statusSplit)
 	}
 }
@@ -153,6 +167,7 @@ func TestSplitLastOutputNoOutputs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -175,6 +190,7 @@ func TestWithdrawalTxOutputs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -191,10 +207,12 @@ func TestWithdrawalTxOutputs(
 
 	w := newWithdrawal(0, outputs, eligible, *changeStart)
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal(err)
 	}
 
 	if len(w.transactions) != 1 {
+
 		t.Fatalf("Unexpected number of transactions; got %d, want 1", len(w.transactions))
 	}
 
@@ -221,6 +239,7 @@ func TestFulfillRequestsNoSatisfiableOutputs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -232,20 +251,24 @@ func TestFulfillRequestsNoSatisfiableOutputs(
 
 	w := newWithdrawal(0, []OutputRequest{request}, eligible, *changeStart)
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal(err)
 	}
 
 	if len(w.transactions) != 0 {
+
 		t.Fatalf("Unexpected number of transactions; got %d, want 0", len(w.transactions))
 	}
 
 	if len(w.status.outputs) != 1 {
+
 		t.Fatalf("Unexpected number of outputs in WithdrawalStatus; got %d, want 1",
 			len(w.status.outputs))
 	}
 
 	status := w.status.outputs[request.outBailmentID()].status
 	if status != statusPartial {
+
 		t.Fatalf("Unexpected status for requested outputs; got '%s', want '%s'",
 			status, statusPartial)
 	}
@@ -261,6 +284,7 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -280,6 +304,7 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 
 	w := newWithdrawal(0, outputs, eligible, *changeStart)
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -309,7 +334,9 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 		out2.outBailmentID(): statusSuccess,
 		out3.outBailmentID(): statusPartial}
 	for _, wOutput := range w.status.outputs {
+
 		if wOutput.status != expectedStatuses[wOutput.request.outBailmentID()] {
+
 			t.Fatalf("Unexpected status for %v; got '%s', want '%s'", wOutput.request,
 				wOutput.status, expectedStatuses[wOutput.request.outBailmentID()])
 		}
@@ -326,6 +353,7 @@ func TestRollbackLastOutput(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -337,6 +365,7 @@ func TestRollbackLastOutput(
 	tx.calculateFee = TstConstantFee(1)
 	removedInputs, removedOutput, err := tx.rollBackLastOutput()
 	if err != nil {
+
 		t.Fatal("Unexpected error:", err)
 	}
 
@@ -345,9 +374,11 @@ func TestRollbackLastOutput(
 	// and the last input.
 	lastOutput := initialOutputs[len(initialOutputs)-1]
 	if removedOutput != lastOutput {
+
 		t.Fatalf("Wrong rolled back output; got %s want %s", removedOutput, lastOutput)
 	}
 	if len(removedInputs) != 1 {
+
 		t.Fatalf("Unexpected number of inputs removed; got %d, want 1", len(removedInputs))
 	}
 	lastInput := initialInputs[len(initialInputs)-1]
@@ -371,6 +402,7 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -385,14 +417,18 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 	tx.calculateFee = TstConstantFee(0)
 	removedInputs, _, err := tx.rollBackLastOutput()
 	if err != nil {
+
 		t.Fatal("Unexpected error:", err)
 	}
 
 	if len(removedInputs) != 3 {
+
 		t.Fatalf("Unexpected number of inputs removed; got %d, want 3", len(removedInputs))
 	}
 	for i, amount := range []util.Amount{4, 3, 2} {
+
 		if removedInputs[i].Amount != amount {
+
 			t.Fatalf("Unexpected input amount; got %v, want %v", removedInputs[i].Amount, amount)
 		}
 	}
@@ -414,6 +450,7 @@ func TestRollbackLastOutputNoInputsRolledBack(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -425,6 +462,7 @@ func TestRollbackLastOutputNoInputsRolledBack(
 	tx.calculateFee = TstConstantFee(1)
 	removedInputs, removedOutput, err := tx.rollBackLastOutput()
 	if err != nil {
+
 		t.Fatal("Unexpected error:", err)
 	}
 
@@ -433,9 +471,11 @@ func TestRollbackLastOutputNoInputsRolledBack(
 	// last output but no inputs.
 	lastOutput := initialOutputs[len(initialOutputs)-1]
 	if removedOutput != lastOutput {
+
 		t.Fatalf("Wrong output; got %s want %s", removedOutput, lastOutput)
 	}
 	if len(removedInputs) != 0 {
+
 		t.Fatalf("Expected no removed inputs, but got %d inputs", len(removedInputs))
 	}
 
@@ -473,6 +513,7 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -491,8 +532,10 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 
 		tx.calculateFee = TstConstantFee(0)
 		tx.calculateSize = func() int {
+
 			// Trigger an output split right after the second output is added.
 			if len(tx.outputs) > 1 {
+
 				return txMaxSize + 1
 			}
 			return txMaxSize - 1
@@ -500,11 +543,13 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 	}
 
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal("Unexpected error:", err)
 	}
 
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
+
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
 
@@ -535,6 +580,7 @@ func TestRollbackLastOutputWhenNewInputAdded(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -555,8 +601,10 @@ func TestRollbackLastOutputWhenNewInputAdded(
 
 		tx.calculateFee = TstConstantFee(0)
 		tx.calculateSize = func() int {
+
 			// Make a transaction too big as soon as a fourth input is added to it.
 			if len(tx.inputs) > 3 {
+
 				return txMaxSize + 1
 			}
 			return txMaxSize - 1
@@ -567,11 +615,13 @@ func TestRollbackLastOutputWhenNewInputAdded(
 
 	// order to fulfill the second request.
 	if err := w.fulfillRequests(); err != nil {
+
 		t.Fatal("Unexpected error:", err)
 	}
 
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
+
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
 
@@ -608,6 +658,7 @@ func TestWithdrawalTxRemoveOutput(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -627,6 +678,7 @@ func TestWithdrawalTxRemoveOutput(
 
 	// Check the popped output looks correct.
 	if gotRemovedOutput != wantRemovedOutput {
+
 		t.Fatalf("Removed output wrong; got %v, want %v", gotRemovedOutput, wantRemovedOutput)
 	}
 
@@ -635,6 +687,7 @@ func TestWithdrawalTxRemoveOutput(
 
 	// Make sure that the remaining output is really the right one.
 	if tx.outputs[0] != remainingOutput {
+
 		t.Fatalf("Wrong output: got %v, want %v", tx.outputs[0], remainingOutput)
 	}
 }
@@ -647,6 +700,7 @@ func TestWithdrawalTxRemoveInput(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -684,6 +738,7 @@ func TestWithdrawalTxAddChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -699,11 +754,13 @@ func TestWithdrawalTxAddChange(
 
 	msgtx := tx.toMsgTx()
 	if len(msgtx.TxOut) != 2 {
+
 		t.Fatalf("Unexpected number of txouts; got %d, want 2", len(msgtx.TxOut))
 	}
 	gotChange := msgtx.TxOut[1].Value
 	wantChange := input - output - fee
 	if gotChange != wantChange {
+
 		t.Fatalf("Unexpected change amount; got %v, want %v", gotChange, wantChange)
 	}
 }
@@ -719,6 +776,7 @@ func TestWithdrawalTxAddChangeNoChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -733,6 +791,7 @@ func TestWithdrawalTxAddChangeNoChange(
 	}
 	msgtx := tx.toMsgTx()
 	if len(msgtx.TxOut) != 1 {
+
 		t.Fatalf("Unexpected number of txouts; got %d, want 1", len(msgtx.TxOut))
 	}
 }
@@ -745,6 +804,7 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsOrChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -763,6 +823,7 @@ func TestWithdrawalTxToMsgTxNoInputsOrOutputsWithChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -784,6 +845,7 @@ func TestWithdrawalTxToMsgTxWithInputButNoOutputsWithChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -805,6 +867,7 @@ func TestWithdrawalTxToMsgTxWithInputOutputsAndChange(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -826,6 +889,7 @@ func TestWithdrawalTxInputTotal(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -846,6 +910,7 @@ func TestWithdrawalTxOutputTotal(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -867,6 +932,7 @@ func TestWithdrawalInfoMatch(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -888,6 +954,7 @@ func TestWithdrawalInfoMatch(
 	// First check that it matches when all fields are identical.
 	matches := wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold)
 	if !matches {
+
 		t.Fatal("Should match when everything is identical.")
 	}
 
@@ -898,6 +965,7 @@ func TestWithdrawalInfoMatch(
 	matches = wi.match(diffOrderRequests, *startAddr, wi.lastSeriesID, *changeStart,
 		wi.dustThreshold)
 	if !matches {
+
 		t.Fatal("Should match when requests are in different order.")
 	}
 
@@ -906,18 +974,21 @@ func TestWithdrawalInfoMatch(
 	diffRequests[0] = OutputRequest{}
 	matches = wi.match(diffRequests, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold)
 	if matches {
+
 		t.Fatal("Should not match as requests is not equal.")
 	}
 
 	// It should not match when lastSeriesID is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID+1, *changeStart, wi.dustThreshold)
 	if matches {
+
 		t.Fatal("Should not match as lastSeriesID is not equal.")
 	}
 
 	// It should not match when dustThreshold is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold+1)
 	if matches {
+
 		t.Fatal("Should not match as dustThreshold is not equal.")
 	}
 
@@ -927,6 +998,7 @@ func TestWithdrawalInfoMatch(
 	matches = wi.match(requestsCopy, *diffStartAddr, wi.lastSeriesID, *changeStart,
 		wi.dustThreshold)
 	if matches {
+
 		t.Fatal("Should not match as startAddress is not equal.")
 	}
 
@@ -935,6 +1007,7 @@ func TestWithdrawalInfoMatch(
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *diffChangeStart,
 		wi.dustThreshold)
 	if matches {
+
 		t.Fatal("Should not match as changeStart is not equal.")
 	}
 }
@@ -947,6 +1020,7 @@ func TestGetWithdrawalStatus(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -958,10 +1032,12 @@ func TestGetWithdrawalStatus(
 	serialized, err := serializeWithdrawal(wi.requests, wi.startAddress, wi.lastSeriesID,
 		wi.changeStart, wi.dustThreshold, wi.status)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	err = putWithdrawal(ns, pool.ID, roundID, serialized)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -973,6 +1049,7 @@ func TestGetWithdrawalStatus(
 			wi.lastSeriesID, wi.changeStart, wi.dustThreshold)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	TstCheckWithdrawalStatusMatches(t, wi.status, *status)
@@ -987,9 +1064,11 @@ func TestGetWithdrawalStatus(
 			wi.lastSeriesID, wi.changeStart, dustThreshold)
 	})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if status != nil {
+
 		t.Fatalf("Expected a nil status, got %v", status)
 	}
 }
@@ -1002,6 +1081,7 @@ func TestSignMultiSigUTXO(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1012,6 +1092,7 @@ func TestSignMultiSigUTXO(
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{4e6}, []int64{4e6})
 	sigs, err := getRawSigs([]*withdrawalTx{tx})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -1023,6 +1104,7 @@ func TestSignMultiSigUTXO(
 	TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
 
 		if err = signMultiSigUTXO(mgr, addrmgrNs, msgtx, idx, pkScript, txSigs[idx]); err != nil {
+
 			t.Fatal(err)
 		}
 	})
@@ -1036,6 +1118,7 @@ func TestSignMultiSigUTXOUnparseablePkScript(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1059,6 +1142,7 @@ func TestSignMultiSigUTXOPkScriptNotP2SH(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1083,6 +1167,7 @@ func TestSignMultiSigUTXORedeemScriptNotFound(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1096,6 +1181,7 @@ func TestSignMultiSigUTXORedeemScriptNotFound(
 	// script.
 	addr, _ := util.DecodeAddress("3Hb4xcebcKg4DiETJfwjh8sF4uDw9rqtVC", mgr.ChainParams())
 	if _, err := mgr.Address(addrmgrNs, addr); err == nil {
+
 		t.Fatalf("Address %s found in manager when it shouldn't", addr)
 	}
 	msgtx := tx.toMsgTx()
@@ -1114,6 +1200,7 @@ func TestSignMultiSigUTXONotEnoughSigs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1123,6 +1210,7 @@ func TestSignMultiSigUTXONotEnoughSigs(
 	tx := createWithdrawalTx(t, dbtx, pool, []int64{4e6}, []int64{})
 	sigs, err := getRawSigs([]*withdrawalTx{tx})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	msgtx := tx.toMsgTx()
@@ -1150,6 +1238,7 @@ func TestSignMultiSigUTXOWrongRawSigs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1177,6 +1266,7 @@ func TestGetRawSigs(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1186,6 +1276,7 @@ func TestGetRawSigs(
 
 	sigs, err := getRawSigs([]*withdrawalTx{tx})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	msgtx := tx.toMsgTx()
@@ -1213,6 +1304,7 @@ func TestGetRawSigsOnlyOnePrivKeyAvailable(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1222,11 +1314,13 @@ func TestGetRawSigsOnlyOnePrivKeyAvailable(
 	// Remove all private keys but the first one from the credit's series.
 	series := tx.inputs[0].addr.series()
 	for i := range series.privateKeys[1:] {
+
 		series.privateKeys[i] = nil
 	}
 
 	sigs, err := getRawSigs([]*withdrawalTx{tx})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 
@@ -1247,6 +1341,7 @@ func TestGetRawSigsUnparseableRedeemScript(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1271,6 +1366,7 @@ func TestGetRawSigsInvalidAddrBranch(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1316,6 +1412,7 @@ func TestTxTooBig(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1353,6 +1450,7 @@ func TestTxSizeCalculation(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1375,6 +1473,7 @@ func TestTxSizeCalculation(
 	msgtx := tx.toMsgTx()
 	sigs, err := getRawSigs([]*withdrawalTx{tx})
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, sigs[tx.ntxid()], tx.inputs)
@@ -1405,9 +1504,11 @@ func TestTxSizeCalculation(
 	// needs a uint64.
 	maxDiff += 4 * len(msgtx.TxIn)
 	if size-msgtx.SerializeSize() > maxDiff {
+
 		t.Fatalf("Size difference bigger than maximum expected: %d - %d > %d",
 			size, msgtx.SerializeSize(), maxDiff)
 	} else if size-msgtx.SerializeSize() < 0 {
+
 		t.Fatalf("Tx size (%d) bigger than estimated size (%d)", msgtx.SerializeSize(), size)
 	}
 }
@@ -1425,6 +1526,7 @@ func TestTxFeeEstimationForSmallTx(
 
 	wantFee := util.Amount(1e3)
 	if fee != wantFee {
+
 		t.Fatalf("Unexpected tx fee; got %v, want %v", fee, wantFee)
 	}
 }
@@ -1442,6 +1544,7 @@ func TestTxFeeEstimationForLargeTx(
 
 	wantFee := util.Amount(4e3)
 	if fee != wantFee {
+
 		t.Fatalf("Unexpected tx fee; got %v, want %v", fee, wantFee)
 	}
 }
@@ -1454,6 +1557,7 @@ func TestStoreTransactionsWithoutChangeOutput(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1462,14 +1566,17 @@ func TestStoreTransactionsWithoutChangeOutput(
 	wtx := createWithdrawalTxWithStoreCredits(t, dbtx, store, pool, []int64{4e6}, []int64{3e6})
 	tx := &changeAwareTx{MsgTx: wtx.toMsgTx(), changeIdx: int32(-1)}
 	if err := storeTransactions(store, txmgrNs, []*changeAwareTx{tx}); err != nil {
+
 		t.Fatal(err)
 	}
 
 	credits, err := store.UnspentOutputs(txmgrNs)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if len(credits) != 0 {
+
 		t.Fatalf("Unexpected number of credits in txstore; got %d, want 0", len(credits))
 	}
 }
@@ -1482,6 +1589,7 @@ func TestStoreTransactionsWithChangeOutput(
 
 	dbtx, err := db.BeginReadWriteTx()
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
@@ -1493,22 +1601,27 @@ func TestStoreTransactionsWithChangeOutput(
 	tx := &changeAwareTx{MsgTx: msgtx, changeIdx: int32(len(msgtx.TxOut) - 1)}
 
 	if err := storeTransactions(store, txmgrNs, []*changeAwareTx{tx}); err != nil {
+
 		t.Fatal(err)
 	}
 
 	hash := msgtx.TxHash()
 	txDetails, err := store.TxDetails(txmgrNs, &hash)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if txDetails == nil {
+
 		t.Fatal("The new tx doesn't seem to have been stored")
 	}
 
 	storedTx := txDetails.TxRecord.MsgTx
 	outputTotal := int64(0)
 	for i, txOut := range storedTx.TxOut {
+
 		if int32(i) != tx.changeIdx {
+
 			outputTotal += txOut.Value
 		}
 	}
@@ -1519,6 +1632,7 @@ func TestStoreTransactionsWithChangeOutput(
 
 	inputTotal := util.Amount(0)
 	for _, debit := range txDetails.Debits {
+
 		inputTotal += debit.Amount
 	}
 	if inputTotal != util.Amount(5e6) {
@@ -1528,13 +1642,16 @@ func TestStoreTransactionsWithChangeOutput(
 
 	credits, err := store.UnspentOutputs(txmgrNs)
 	if err != nil {
+
 		t.Fatal(err)
 	}
 	if len(credits) != 1 {
+
 		t.Fatalf("Unexpected number of credits in txstore; got %d, want 1", len(credits))
 	}
 	changeOutpoint := wire.OutPoint{Hash: hash, Index: uint32(tx.changeIdx)}
 	if credits[0].OutPoint != changeOutpoint {
+
 		t.Fatalf("Credit's outpoint (%v) doesn't match the one from change output (%v)",
 			credits[0].OutPoint, changeOutpoint)
 	}
@@ -1546,6 +1663,7 @@ func TestStoreTransactionsWithChangeOutput(
 func createWithdrawalTxWithStoreCredits(
 	t *testing.T, dbtx walletdb.ReadWriteTx, store *wtxmgr.Store, pool *Pool,
 	inputAmounts []int64, outputAmounts []int64) *withdrawalTx {
+
 	masters := []*hdkeychain.ExtendedKey{
 		TstCreateMasterKey(t, bytes.Repeat(uint32ToBytes(getUniqueID()), 4)),
 		TstCreateMasterKey(t, bytes.Repeat(uint32ToBytes(getUniqueID()), 4)),
@@ -1560,6 +1678,7 @@ func createWithdrawalTxWithStoreCredits(
 		tx.addInput(c)
 	}
 	for i, amount := range outputAmounts {
+
 		request := TstNewOutputRequest(
 			t, uint32(i), "34eVkREKgvvGASZW7hkgE2uNc1yycntMK6", util.Amount(amount), net)
 		tx.addOutput(request)
@@ -1575,17 +1694,21 @@ func checkNonEmptySigsForPrivKeys(
 	t *testing.T, txSigs TxSigs, privKeys []*hdkeychain.ExtendedKey) {
 
 	for _, txInSigs := range txSigs {
+
 		if len(txInSigs) != len(privKeys) {
 
 			t.Fatalf("Number of items in sig list (%d) does not match number of privkeys (%d)",
 				len(txInSigs), len(privKeys))
 		}
 		for sigIdx, sig := range txInSigs {
+
 			key := privKeys[sigIdx]
 			if bytes.Equal(sig, []byte{}) && key != nil {
+
 				t.Fatalf("Empty signature (idx=%d) but key (%s) is available",
 					sigIdx, key.String())
 			} else if !bytes.Equal(sig, []byte{}) && key == nil {
+
 				t.Fatalf("Signature not empty (idx=%d) but key is not available", sigIdx)
 			}
 		}
@@ -1599,9 +1722,11 @@ func checkTxOutputs(
 
 	nOutputs := len(outputs)
 	if len(tx.outputs) != nOutputs {
+
 		t.Fatalf("Wrong number of outputs in tx; got %d, want %d", len(tx.outputs), nOutputs)
 	}
 	for i, output := range tx.outputs {
+
 		if !reflect.DeepEqual(output, outputs[i]) {
 
 			t.Fatalf("Unexpected output; got %s, want %s", output, outputs[i])
@@ -1617,9 +1742,11 @@ func checkMsgTxOutputs(
 
 	nRequests := len(requests)
 	if len(msgtx.TxOut) != nRequests {
+
 		t.Fatalf("Unexpected number of TxOuts; got %d, want %d", len(msgtx.TxOut), nRequests)
 	}
 	for i, request := range requests {
+
 		txOut := msgtx.TxOut[i]
 		if !bytes.Equal(txOut.PkScript, request.PkScript) {
 
@@ -1629,6 +1756,7 @@ func checkMsgTxOutputs(
 		}
 		gotAmount := util.Amount(txOut.Value)
 		if gotAmount != request.Amount {
+
 			t.Fatalf(
 				"Unexpected amount for request %d; got %v, want %v", i, gotAmount, request.Amount)
 		}
@@ -1644,6 +1772,7 @@ func checkTxInputs(
 		t.Fatalf("Wrong number of inputs in tx; got %d, want %d", len(tx.inputs), len(inputs))
 	}
 	for i, input := range tx.inputs {
+
 		if !reflect.DeepEqual(input, inputs[i]) {
 
 			t.Fatalf("Unexpected input; got %v, want %v", input, inputs[i])
@@ -1659,10 +1788,12 @@ func signTxAndValidate(
 	credits []credit) {
 
 	for i := range tx.TxIn {
+
 		pkScript := credits[i].PkScript
 		TstRunWithManagerUnlocked(t, mgr, addrmgrNs, func() {
 
 			if err := signMultiSigUTXO(mgr, addrmgrNs, tx, i, pkScript, txSigs[i]); err != nil {
+
 				t.Fatal(err)
 			}
 		})
@@ -1678,8 +1809,10 @@ func compareMsgTxAndWithdrawalTxInputs(
 	}
 
 	for i, txin := range msgtx.TxIn {
+
 		outpoint := tx.inputs[i].OutPoint
 		if txin.PreviousOutPoint != outpoint {
+
 			t.Fatalf("Wrong outpoint; got %v expected %v", txin.PreviousOutPoint, outpoint)
 		}
 	}
@@ -1691,14 +1824,17 @@ func compareMsgTxAndWithdrawalTxOutputs(
 	nOutputs := len(tx.outputs)
 
 	if tx.changeOutput != nil {
+
 		nOutputs++
 	}
 
 	if len(msgtx.TxOut) != nOutputs {
+
 		t.Fatalf("Unexpected number of TxOuts; got %d, want %d", len(msgtx.TxOut), nOutputs)
 	}
 
 	for i, output := range tx.outputs {
+
 		outputRequest := output.request
 		txOut := msgtx.TxOut[i]
 		if !bytes.Equal(txOut.PkScript, outputRequest.PkScript) {
@@ -1709,6 +1845,7 @@ func compareMsgTxAndWithdrawalTxOutputs(
 		}
 		gotAmount := util.Amount(txOut.Value)
 		if gotAmount != outputRequest.Amount {
+
 			t.Fatalf(
 				"Unexpected amount for outputRequest %d; got %v, want %v",
 				i, gotAmount, outputRequest.Amount)
@@ -1717,8 +1854,10 @@ func compareMsgTxAndWithdrawalTxOutputs(
 
 	// Finally check the change output if it exists
 	if tx.changeOutput != nil {
+
 		msgTxChange := msgtx.TxOut[len(msgtx.TxOut)-1]
 		if msgTxChange != tx.changeOutput {
+
 			t.Fatalf("wrong TxOut in msgtx; got %v, want %v", msgTxChange, tx.changeOutput)
 		}
 	}
@@ -1749,11 +1888,13 @@ func checkLastOutputWasSplit(
 	splitRequest := w.pendingRequests[0]
 	lastOutput := tx.outputs[len(tx.outputs)-1]
 	if lastOutput.amount != newAmount {
+
 		t.Fatalf("Wrong amount in last output; got %s, want %s", lastOutput.amount, newAmount)
 	}
 
 	wantSplitAmount := origAmount - newAmount
 	if splitRequest.Amount != wantSplitAmount {
+
 		t.Fatalf("Wrong amount in split output; got %v, want %v", splitRequest.Amount,
 			wantSplitAmount)
 	}
@@ -1768,16 +1909,19 @@ func checkLastOutputWasSplit(
 			origRequest.PkScript)
 	}
 	if origRequest.Server != splitRequest.Server {
+
 		t.Fatalf("Wrong server in split request; got %s, want %s", splitRequest.Server,
 			origRequest.Server)
 	}
 	if origRequest.Transaction != splitRequest.Transaction {
+
 		t.Fatalf("Wrong transaction # in split request; got %d, want %d", splitRequest.Transaction,
 			origRequest.Transaction)
 	}
 
 	status := w.status.outputs[origRequest.outBailmentID()].status
 	if status != statusPartial {
+
 		t.Fatalf("Wrong output status; got '%s', want '%s'", status, statusPartial)
 	}
 }

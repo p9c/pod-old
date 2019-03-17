@@ -70,13 +70,16 @@ func (
 
 	// No flags are set.
 	if fl == 0 {
+
 		return "0x0"
 	}
 
 	// Add individual bit flags.
 	s := ""
 	for flag := UFWalletOnly; flag < highestUsageFlagBit; flag <<= 1 {
+
 		if fl&flag == flag {
+
 			s += usageFlagStrings[flag] + "|"
 			fl -= flag
 		}
@@ -85,6 +88,7 @@ func (
 	// Add remaining value as raw hex.
 	s = strings.TrimRight(s, "|")
 	if fl != 0 {
+
 		s += "|0x" + strconv.FormatUint(uint64(fl), 16)
 	}
 	s = strings.TrimLeft(s, "|")
@@ -96,6 +100,7 @@ func MustRegisterCmd(
 	method string, cmd interface{}, flags UsageFlag) {
 
 	if err := RegisterCmd(method, cmd, flags); err != nil {
+
 		panic(fmt.Sprintf("failed to register type %q: %v\n", method,
 			err))
 	}
@@ -118,27 +123,32 @@ NOTE: This function only needs to be able to examine the structure of the passed
 */
 func RegisterCmd(
 	method string, cmd interface{}, flags UsageFlag) error {
+
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	if _, ok := methodToConcreteType[method]; ok {
+
 		str := fmt.Sprintf("method %q is already registered", method)
 		return makeError(ErrDuplicateMethod, str)
 	}
 
 	// Ensure that no unrecognized flag bits were specified.
 	if ^(highestUsageFlagBit-1)&flags != 0 {
+
 		str := fmt.Sprintf("invalid usage flags specified for method "+
 			"%s: %v", method, flags)
 		return makeError(ErrInvalidUsageFlags, str)
 	}
 	rtp := reflect.TypeOf(cmd)
 	if rtp.Kind() != reflect.Ptr {
+
 		str := fmt.Sprintf("type must be *struct not '%s (%s)'", rtp,
 			rtp.Kind())
 		return makeError(ErrInvalidType, str)
 	}
 	rt := rtp.Elem()
 	if rt.Kind() != reflect.Struct {
+
 		str := fmt.Sprintf("type must be *struct not '%s (*%s)'",
 			rtp, rt.Kind())
 		return makeError(ErrInvalidType, str)
@@ -149,13 +159,16 @@ func RegisterCmd(
 	numOptFields := 0
 	defaults := make(map[int]reflect.Value)
 	for i := 0; i < numFields; i++ {
+
 		rtf := rt.Field(i)
 		if rtf.Anonymous {
+
 			str := fmt.Sprintf("embedded fields are not supported "+
 				"(field name: %q)", rtf.Name)
 			return makeError(ErrEmbeddedType, str)
 		}
 		if rtf.PkgPath != "" {
+
 			str := fmt.Sprintf("unexported fields are not supported "+
 				"(field name: %q)", rtf.Name)
 			return makeError(ErrUnexportedField, str)
@@ -163,6 +176,7 @@ func RegisterCmd(
 		// Disallow types that can't be JSON encoded.  Also, determine if the field is optional based on it being a pointer.
 		var isOptional bool
 		switch kind := rtf.Type.Kind(); kind {
+
 		case reflect.Ptr:
 			isOptional = true
 			kind = rtf.Type.Elem().Kind()
@@ -178,9 +192,12 @@ func RegisterCmd(
 		}
 		// Count the optional fields and ensure all fields after the first optional field are also optional.
 		if isOptional {
+
 			numOptFields++
 		} else {
+
 			if numOptFields > 0 {
+
 				str := fmt.Sprintf("all fields after the first "+
 					"optional field must also be optional "+
 					"(field name %q)", rtf.Name)
@@ -189,7 +206,9 @@ func RegisterCmd(
 		}
 		// Ensure the default value can be unsmarshalled into the type and that defaults are only specified for optional fields.
 		if tag := rtf.Tag.Get("jsonrpcdefault"); tag != "" {
+
 			if !isOptional {
+
 				str := fmt.Sprintf("required fields must not "+
 					"have a default specified (field name "+
 					"%q)", rtf.Name)
@@ -198,6 +217,7 @@ func RegisterCmd(
 			rvf := reflect.New(rtf.Type.Elem())
 			err := json.Unmarshal([]byte(tag), rvf.Interface())
 			if err != nil {
+
 				str := fmt.Sprintf("default value of %q is "+
 					"the wrong type (field name %q)", tag,
 					rtf.Name)
@@ -222,10 +242,12 @@ func RegisterCmd(
 
 // RegisteredCmdMethods returns a sorted list of methods for all registered commands.
 func RegisteredCmdMethods() []string {
+
 	registerLock.Lock()
 	defer registerLock.Unlock()
 	methods := make([]string, 0, len(methodToInfo))
 	for k := range methodToInfo {
+
 		methods = append(methods, k)
 	}
 	sort.Sort(sort.StringSlice(methods))
@@ -235,8 +257,10 @@ func RegisteredCmdMethods() []string {
 // baseKindString returns the base kind for a given reflect.Type after indirecting through all pointers.
 func baseKindString(
 	rt reflect.Type) string {
+
 	numIndirects := 0
 	for rt.Kind() == reflect.Ptr {
+
 		numIndirects++
 		rt = rt.Elem()
 	}
@@ -246,7 +270,9 @@ func baseKindString(
 // isAcceptableKind returns whether or not the passed field type is a supported type.  It is called after the first pointer indirection, so further pointers are not supported.
 func isAcceptableKind(
 	kind reflect.Kind) bool {
+
 	switch kind {
+
 	case reflect.Chan:
 		fallthrough
 	case reflect.Complex64:

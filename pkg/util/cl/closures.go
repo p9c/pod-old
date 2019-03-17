@@ -4,6 +4,7 @@ package cl
 func (s *SubSystem) Ftlc(closure StringClosure) {
 
 	if s.Level > _off {
+
 		s.Ch <- Fatalc(closure)
 	}
 }
@@ -12,6 +13,7 @@ func (s *SubSystem) Ftlc(closure StringClosure) {
 func (s *SubSystem) Errc(closure StringClosure) {
 
 	if s.Level > _fatal {
+
 		s.Ch <- Errorc(closure)
 	}
 }
@@ -20,6 +22,7 @@ func (s *SubSystem) Errc(closure StringClosure) {
 func (s *SubSystem) Wrnc(closure StringClosure) {
 
 	if s.Level > _error {
+
 		s.Ch <- Warnc(closure)
 	}
 }
@@ -28,6 +31,7 @@ func (s *SubSystem) Wrnc(closure StringClosure) {
 func (s *SubSystem) Infc(closure StringClosure) {
 
 	if s.Level > _warn {
+
 		s.Ch <- Infoc(closure)
 	}
 }
@@ -36,6 +40,7 @@ func (s *SubSystem) Infc(closure StringClosure) {
 func (s *SubSystem) Dbgc(closure StringClosure) {
 
 	if s.Level > _info {
+
 		s.Ch <- Debugc(closure)
 	}
 }
@@ -44,6 +49,7 @@ func (s *SubSystem) Dbgc(closure StringClosure) {
 func (s *SubSystem) Trcc(closure StringClosure) {
 
 	if s.Level > _debug {
+
 		s.Ch <- Tracec(closure)
 	}
 }

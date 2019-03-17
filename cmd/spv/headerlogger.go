@@ -41,6 +41,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	now := time.Now()
 	duration := now.Sub(b.lastBlockLogTime)
 	if duration < time.Second*10 {
+
 		return
 	}
 
@@ -50,6 +51,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	// Log information about new block height.
 	entityStr := b.entityType
 	if b.receivedLogBlocks > 1 {
+
 		entityStr += "s"
 	}
 

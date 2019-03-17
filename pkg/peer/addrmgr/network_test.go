@@ -35,6 +35,7 @@ func TestIPTypes(
 	newIPTest := func(ip string, rfc1918, rfc2544, rfc3849, rfc3927, rfc3964,
 		rfc4193, rfc4380, rfc4843, rfc4862, rfc5737, rfc6052, rfc6145, rfc6598,
 		local, valid, routable bool) ipTest {
+
 		nip := net.ParseIP(ip)
 		na := *wire.NewNetAddressIPPort(nip, 11047, wire.SFNodeNetwork)
 		test := ipTest{na, rfc1918, rfc2544, rfc3849, rfc3927, rfc3964, rfc4193, rfc4380,
@@ -83,43 +84,57 @@ func TestIPTypes(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for _, test := range tests {
+
 		if rv := addrmgr.IsRFC1918(&test.in); rv != test.rfc1918 {
+
 			t.Errorf("IsRFC1918 %s\n got: %v want: %v", test.in.IP, rv, test.rfc1918)
 		}
 		if rv := addrmgr.IsRFC3849(&test.in); rv != test.rfc3849 {
+
 			t.Errorf("IsRFC3849 %s\n got: %v want: %v", test.in.IP, rv, test.rfc3849)
 		}
 		if rv := addrmgr.IsRFC3927(&test.in); rv != test.rfc3927 {
+
 			t.Errorf("IsRFC3927 %s\n got: %v want: %v", test.in.IP, rv, test.rfc3927)
 		}
 		if rv := addrmgr.IsRFC3964(&test.in); rv != test.rfc3964 {
+
 			t.Errorf("IsRFC3964 %s\n got: %v want: %v", test.in.IP, rv, test.rfc3964)
 		}
 		if rv := addrmgr.IsRFC4193(&test.in); rv != test.rfc4193 {
+
 			t.Errorf("IsRFC4193 %s\n got: %v want: %v", test.in.IP, rv, test.rfc4193)
 		}
 		if rv := addrmgr.IsRFC4380(&test.in); rv != test.rfc4380 {
+
 			t.Errorf("IsRFC4380 %s\n got: %v want: %v", test.in.IP, rv, test.rfc4380)
 		}
 		if rv := addrmgr.IsRFC4843(&test.in); rv != test.rfc4843 {
+
 			t.Errorf("IsRFC4843 %s\n got: %v want: %v", test.in.IP, rv, test.rfc4843)
 		}
 		if rv := addrmgr.IsRFC4862(&test.in); rv != test.rfc4862 {
+
 			t.Errorf("IsRFC4862 %s\n got: %v want: %v", test.in.IP, rv, test.rfc4862)
 		}
 		if rv := addrmgr.IsRFC6052(&test.in); rv != test.rfc6052 {
+
 			t.Errorf("isRFC6052 %s\n got: %v want: %v", test.in.IP, rv, test.rfc6052)
 		}
 		if rv := addrmgr.IsRFC6145(&test.in); rv != test.rfc6145 {
+
 			t.Errorf("IsRFC1918 %s\n got: %v want: %v", test.in.IP, rv, test.rfc6145)
 		}
 		if rv := addrmgr.IsLocal(&test.in); rv != test.local {
+
 			t.Errorf("IsLocal %s\n got: %v want: %v", test.in.IP, rv, test.local)
 		}
 		if rv := addrmgr.IsValid(&test.in); rv != test.valid {
+
 			t.Errorf("IsValid %s\n got: %v want: %v", test.in.IP, rv, test.valid)
 		}
 		if rv := addrmgr.IsRoutable(&test.in); rv != test.routable {
+
 			t.Errorf("IsRoutable %s\n got: %v want: %v", test.in.IP, rv, test.routable)
 		}
 	}
@@ -169,9 +184,11 @@ func TestGroupKey(
 		{name: "ipv6 hurricane electric 2", ip: "2001:0470:1f10:a1::2", expected: "2001:470:1000::"},
 	}
 	for i, test := range tests {
+
 		nip := net.ParseIP(test.ip)
 		na := *wire.NewNetAddressIPPort(nip, 11047, wire.SFNodeNetwork)
 		if key := addrmgr.GroupKey(&na); key != test.expected {
+
 			t.Errorf("TestGroupKey #%d (%s): unexpected group key "+
 				"- got '%s', want '%s'", i, test.name,
 				key, test.expected)

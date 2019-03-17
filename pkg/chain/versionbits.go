@@ -39,21 +39,25 @@ var _ thresholdConditionChecker = bitConditionChecker{}
 
 // BeginTime returns the unix timestamp for the median block time after which voting on a rule change starts (at the next window). Since this implementation checks for unknown rules, it returns 0 so the rule is always treated as active. This is part of the thresholdConditionChecker interface implementation.
 func (c bitConditionChecker) BeginTime() uint64 {
+
 	return 0
 }
 
 // EndTime returns the unix timestamp for the median block time after which an attempted rule change fails if it has not already been locked in or activated. Since this implementation checks for unknown rules, it returns the maximum possible timestamp so the rule is always treated as active. This is part of the thresholdConditionChecker interface implementation.
 func (c bitConditionChecker) EndTime() uint64 {
+
 	return math.MaxUint64
 }
 
 // RuleChangeActivationThreshold is the number of blocks for which the condition must be true in order to lock in a rule change. This implementation returns the value defined by the chain params the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c bitConditionChecker) RuleChangeActivationThreshold() uint32 {
+
 	return c.chain.chainParams.RuleChangeActivationThreshold
 }
 
 // MinerConfirmationWindow is the number of blocks in each threshold state retarget window. This implementation returns the value defined by the chain params the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c bitConditionChecker) MinerConfirmationWindow() uint32 {
+
 	return c.chain.chainParams.MinerConfirmationWindow
 }
 
@@ -94,21 +98,25 @@ var _ thresholdConditionChecker = deploymentChecker{}
 
 // BeginTime returns the unix timestamp for the median block time after which voting on a rule change starts (at the next window). This implementation returns the value defined by the specific deployment the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c deploymentChecker) BeginTime() uint64 {
+
 	return c.deployment.StartTime
 }
 
 // EndTime returns the unix timestamp for the median block time after which an attempted rule change fails if it has not already been locked in or activated. This implementation returns the value defined by the specific deployment the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c deploymentChecker) EndTime() uint64 {
+
 	return c.deployment.ExpireTime
 }
 
 // RuleChangeActivationThreshold is the number of blocks for which the condition must be true in order to lock in a rule change. This implementation returns the value defined by the chain params the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c deploymentChecker) RuleChangeActivationThreshold() uint32 {
+
 	return c.chain.chainParams.RuleChangeActivationThreshold
 }
 
 // MinerConfirmationWindow is the number of blocks in each threshold state retarget window. This implementation returns the value defined by the chain params the checker is associated with. This is part of the thresholdConditionChecker interface implementation.
 func (c deploymentChecker) MinerConfirmationWindow() uint32 {
+
 	return c.chain.chainParams.MinerConfirmationWindow
 }
 
@@ -202,24 +210,30 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 
 // warnUnknownVersions logs a warning if a high enough percentage of the last blocks have unexpected versions. This function MUST be called with the chain state lock held (for writes)
 // func (b *BlockChain) warnUnknownVersions(node *blockNode) error {
+
 // 	// Nothing to do if already warned.
 // 	if b.unknownVersionsWarned {
+
 // 		return nil
 // 	}
 // 	// Warn if enough previous blocks have unexpected versions.
 // 	numUpgraded := uint32(0)
 // 	for i := uint32(0); i < unknownVerNumToCheck && node != nil; i++ {
+
 // 		expectedVersion, err := b.calcNextBlockVersion(node.parent)
 // 		if err != nil {
+
 // 			return err
 // 		}
 // 		if expectedVersion > vbLegacyBlockVersion &&
 // 			(node.version & ^expectedVersion) != 0 {
+
 // 			numUpgraded++
 // 		}
 // 		node = node.parent
 // 	}
 // 	if numUpgraded > unknownVerWarnNum {
+
 // 		log <- cl.Warn{"Unknown block versions are being mined, so new " +
 // 			"rules might be in effect.  Are you running the " +
 // 			"latest version of the software?")

@@ -36,6 +36,7 @@ func TestCmdMethod(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		method, err := json.CmdMethod(test.cmd)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -44,8 +45,10 @@ func TestCmdMethod(
 			continue
 		}
 		if err != nil {
+
 			gotErrorCode := err.(json.Error).ErrorCode
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
+
 				t.Errorf("Test #%d (%s) mismatched error code "+
 					"- got %v (%v), want %v", i, test.name,
 					gotErrorCode, err,
@@ -56,6 +59,7 @@ func TestCmdMethod(
 		}
 		// Ensure method matches the expected value.
 		if method != test.method {
+
 			t.Errorf("Test #%d (%s) mismatched method - got %v, "+
 				"want %v", i, test.name, method, test.method)
 			continue
@@ -92,6 +96,7 @@ func TestMethodUsageFlags(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		flags, err := json.MethodUsageFlags(test.method)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -100,8 +105,10 @@ func TestMethodUsageFlags(
 			continue
 		}
 		if err != nil {
+
 			gotErrorCode := err.(json.Error).ErrorCode
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
+
 				t.Errorf("Test #%d (%s) mismatched error code "+
 					"- got %v (%v), want %v", i, test.name,
 					gotErrorCode, err,
@@ -112,6 +119,7 @@ func TestMethodUsageFlags(
 		}
 		// Ensure flags match the expected value.
 		if flags != test.flags {
+
 			t.Errorf("Test #%d (%s) mismatched flags - got %v, "+
 				"want %v", i, test.name, flags, test.flags)
 			continue
@@ -148,6 +156,7 @@ func TestMethodUsageText(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		usage, err := json.MethodUsageText(test.method)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.err) {
 
@@ -156,8 +165,10 @@ func TestMethodUsageText(
 			continue
 		}
 		if err != nil {
+
 			gotErrorCode := err.(json.Error).ErrorCode
 			if gotErrorCode != test.err.(json.Error).ErrorCode {
+
 				t.Errorf("Test #%d (%s) mismatched error code "+
 					"- got %v (%v), want %v", i, test.name,
 					gotErrorCode, err,
@@ -168,6 +179,7 @@ func TestMethodUsageText(
 		}
 		// Ensure usage matches the expected value.
 		if usage != test.expected {
+
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+
 				"want %v", i, test.name, usage, test.expected)
 			continue
@@ -175,12 +187,14 @@ func TestMethodUsageText(
 		// Get the usage again to exercise caching.
 		usage, err = json.MethodUsageText(test.method)
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
 		}
 		// Ensure usage still matches the expected value.
 		if usage != test.expected {
+
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+
 				"want %v", i, test.name, usage, test.expected)
 			continue
@@ -202,6 +216,7 @@ func TestFieldUsage(
 		{
 			name: "jsonrpcusage tag override",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test int `jsonrpcusage:"testvalue"`
 				}
@@ -213,6 +228,7 @@ func TestFieldUsage(
 		{
 			name: "generic interface",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test interface{}
 				}
@@ -224,6 +240,7 @@ func TestFieldUsage(
 		{
 			name: "string without default value",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test string
 				}
@@ -235,12 +252,14 @@ func TestFieldUsage(
 		{
 			name: "string with default value",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test string
 				}
 				return reflect.TypeOf((*s)(nil)).Elem().Field(0)
 			}(),
 			defValue: func() *reflect.Value {
+
 				value := "default"
 				rv := reflect.ValueOf(&value)
 				return &rv
@@ -250,6 +269,7 @@ func TestFieldUsage(
 		{
 			name: "array of strings",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test []string
 				}
@@ -261,6 +281,7 @@ func TestFieldUsage(
 		{
 			name: "array of strings with plural field name 1",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Keys []string
 				}
@@ -272,6 +293,7 @@ func TestFieldUsage(
 		{
 			name: "array of strings with plural field name 2",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Addresses []string
 				}
@@ -283,6 +305,7 @@ func TestFieldUsage(
 		{
 			name: "array of strings with plural field name 3",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Capabilities []string
 				}
@@ -294,6 +317,7 @@ func TestFieldUsage(
 		{
 			name: "array of structs",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Txid string
 				}
@@ -308,6 +332,7 @@ func TestFieldUsage(
 		{
 			name: "array of ints",
 			field: func() reflect.StructField {
+
 				type s struct {
 					Test []int
 				}
@@ -319,6 +344,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with jsonrpcusage tag override",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Test string `jsonrpcusage:"testusage"`
 				}
@@ -333,6 +359,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with string",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Txid string
 				}
@@ -347,6 +374,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with int",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Vout int
 				}
@@ -361,6 +389,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with float",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Amount float64
 				}
@@ -375,6 +404,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with sub struct",
 			field: func() reflect.StructField {
+
 				type s3 struct {
 					Amount float64
 				}
@@ -392,6 +422,7 @@ func TestFieldUsage(
 		{
 			name: "sub struct with slice",
 			field: func() reflect.StructField {
+
 				type s2 struct {
 					Capabilities []string
 				}
@@ -406,9 +437,11 @@ func TestFieldUsage(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Ensure usage matches the expected value.
 		usage := json.TstFieldUsage(test.field, test.defValue)
 		if usage != test.expected {
+
 			t.Errorf("Test #%d (%s) mismatched usage - got %v, "+
 				"want %v", i, test.name, usage, test.expected)
 			continue

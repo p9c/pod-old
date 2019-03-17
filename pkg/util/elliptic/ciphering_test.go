@@ -11,11 +11,13 @@ func TestGenerateSharedSecret(
 
 	privKey1, err := NewPrivateKey(S256())
 	if err != nil {
+
 		t.Errorf("private key generation error: %s", err)
 		return
 	}
 	privKey2, err := NewPrivateKey(S256())
 	if err != nil {
+
 		t.Errorf("private key generation error: %s", err)
 		return
 	}
@@ -34,15 +36,18 @@ func TestCipheringBasic(
 
 	privkey, err := NewPrivateKey(S256())
 	if err != nil {
+
 		t.Fatal("failed to generate private key")
 	}
 	in := []byte("Hey there dude. How are you doing? This is a test.")
 	out, err := Encrypt(privkey.PubKey(), in)
 	if err != nil {
+
 		t.Fatal("failed to encrypt:", err)
 	}
 	dec, err := Decrypt(privkey, out)
 	if err != nil {
+
 		t.Fatal("failed to decrypt:", err)
 	}
 	if !bytes.Equal(in, dec) {
@@ -66,6 +71,7 @@ func TestCiphering(
 		"6c3f11ff572ddd5b2bedf9f9c0b327c54da02a28fcdce1f8369ffec")
 	dec, err := Decrypt(privkey, out)
 	if err != nil {
+
 		t.Fatal("failed to decrypt:", err)
 	}
 	if !bytes.Equal(in, dec) {
@@ -78,6 +84,7 @@ func TestCipheringErrors(
 
 	privkey, err := NewPrivateKey(S256())
 	if err != nil {
+
 		t.Fatal("failed to generate private key")
 	}
 	tests1 := []struct {
@@ -147,8 +154,10 @@ func TestCipheringErrors(
 		}}, // ErrInvalidMAC
 	}
 	for i, test := range tests1 {
+
 		_, err = Decrypt(privkey, test.ciphertext)
 		if err == nil {
+
 			t.Errorf("Decrypt #%d did not get error", i)
 		}
 	}
@@ -161,8 +170,10 @@ func TestCipheringErrors(
 		{bytes.Repeat([]byte{0x07}, 15)},
 	}
 	for i, test := range tests2 {
+
 		_, err = removePKCSPadding(test.in)
 		if err == nil {
+
 			t.Errorf("removePKCSPadding #%d did not get error", i)
 		}
 	}

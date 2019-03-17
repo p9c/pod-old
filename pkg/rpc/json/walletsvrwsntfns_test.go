@@ -29,6 +29,7 @@ func TestWalletSvrWsNtfns(
 				return json.NewCmd("accountbalance", "acct", 1.25, true)
 			},
 			staticNtfn: func() interface{} {
+
 				return json.NewAccountBalanceNtfn("acct", 1.25, true)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"accountbalance","params":["acct",1.25,true],"id":null}`,
@@ -45,6 +46,7 @@ func TestWalletSvrWsNtfns(
 				return json.NewCmd("podconnected", true)
 			},
 			staticNtfn: func() interface{} {
+
 				return json.NewPodConnectedNtfn(true)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"podconnected","params":[true],"id":null}`,
@@ -59,6 +61,7 @@ func TestWalletSvrWsNtfns(
 				return json.NewCmd("walletlockstate", true)
 			},
 			staticNtfn: func() interface{} {
+
 				return json.NewWalletLockStateNtfn(true)
 			},
 			marshalled: `{"jsonrpc":"1.0","method":"walletlockstate","params":[true],"id":null}`,
@@ -73,6 +76,7 @@ func TestWalletSvrWsNtfns(
 				return json.NewCmd("newtx", "acct", `{"account":"acct","address":"1Address","category":"send","amount":1.5,"bip125-replaceable":"unknown","fee":0.0001,"confirmations":1,"trusted":true,"txid":"456","walletconflicts":[],"time":12345678,"timereceived":12345876,"vout":789,"otheraccount":"otheracct"}`)
 			},
 			staticNtfn: func() interface{} {
+
 				result := json.ListTransactionsResult{
 					Abandoned:         false,
 					Account:           "acct",
@@ -117,9 +121,11 @@ func TestWalletSvrWsNtfns(
 	}
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
+
 		// Marshal the notification as created by the new static creation function.  The ID is nil for notifications.
 		marshalled, err := json.MarshalCmd(nil, test.staticNtfn())
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -134,12 +140,14 @@ func TestWalletSvrWsNtfns(
 		// Ensure the notification is created without error via the generic new notification creation function.
 		cmd, err := test.newNtfn()
 		if err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected NewCmd error: %v ",
 				i, test.name, err)
 		}
 		// Marshal the notification as created by the generic new notification creation function. The ID is nil for notifications.
 		marshalled, err = json.MarshalCmd(nil, cmd)
 		if err != nil {
+
 			t.Errorf("MarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue
@@ -153,6 +161,7 @@ func TestWalletSvrWsNtfns(
 		}
 		var request json.Request
 		if err := json.Unmarshal(marshalled, &request); err != nil {
+
 			t.Errorf("Test #%d (%s) unexpected error while "+
 				"unmarshalling JSON-RPC request: %v", i,
 				test.name, err)
@@ -160,6 +169,7 @@ func TestWalletSvrWsNtfns(
 		}
 		cmd, err = json.UnmarshalCmd(&request)
 		if err != nil {
+
 			t.Errorf("UnmarshalCmd #%d (%s) unexpected error: %v", i,
 				test.name, err)
 			continue

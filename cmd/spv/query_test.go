@@ -174,6 +174,7 @@ func TestBlockCache(
 				f(nil, b.MsgBlock(), quit)
 
 				select {
+
 				case <-quit:
 				case <-time.After(1 * time.Second):
 					t.Fatalf("channel not closed")
@@ -181,6 +182,7 @@ func TestBlockCache(
 
 				// Notify the test about the query.
 				select {
+
 				case queries <- inv.Hash:
 				case <-time.After(1 * time.Second):
 					t.Fatalf("query was not handled")
@@ -212,6 +214,7 @@ func TestBlockCache(
 		}
 
 		select {
+
 		case q := <-queries:
 			if q != hash {
 
@@ -244,6 +247,7 @@ func TestBlockCache(
 
 		// Make sure we didn't query the peers for this block.
 		select {
+
 		case q := <-queries:
 			t.Fatalf("did not expect query for block %v", q)
 		default:
@@ -407,6 +411,7 @@ func genRandomBlockHash() *chainhash.Hash {
 // and handle errors, it makes the test code easier to follow.
 func getFilter(
 	cs *ChainService, b *chainhash.Hash, t *testing.T) *gcs.Filter {
+
 	val, err := cs.getFilterFromCache(b, filterdb.RegularFilter)
 	if err != nil {
 

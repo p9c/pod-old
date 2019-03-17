@@ -15,6 +15,7 @@ func TestBlockHeader(
 
 	nonce64, err := RandomUint64()
 	if err != nil {
+
 		t.Errorf("RandomUint64: Error generating nonce: %v", err)
 	}
 	nonce := uint32(nonce64)
@@ -35,10 +36,12 @@ func TestBlockHeader(
 			spew.Sprint(bh.MerkleRoot), spew.Sprint(merkleHash))
 	}
 	if bh.Bits != bits {
+
 		t.Errorf("NewBlockHeader: wrong bits - got %v, want %v",
 			bh.Bits, bits)
 	}
 	if bh.Nonce != nonce {
+
 		t.Errorf("NewBlockHeader: wrong nonce - got %v, want %v",
 			bh.Nonce, nonce)
 	}
@@ -137,6 +140,7 @@ func TestBlockHeaderWire(
 		var buf bytes.Buffer
 		err := writeBlockHeader(&buf, test.pver, test.in)
 		if err != nil {
+
 			t.Errorf("writeBlockHeader #%d error %v", i, err)
 			continue
 		}
@@ -149,6 +153,7 @@ func TestBlockHeaderWire(
 		buf.Reset()
 		err = test.in.BtcEncode(&buf, pver, 0)
 		if err != nil {
+
 			t.Errorf("BtcEncode #%d error %v", i, err)
 			continue
 		}
@@ -164,6 +169,7 @@ func TestBlockHeaderWire(
 		rbuf := bytes.NewReader(test.buf)
 		err = readBlockHeader(rbuf, test.pver, &bh)
 		if err != nil {
+
 			t.Errorf("readBlockHeader #%d error %v", i, err)
 			continue
 		}
@@ -176,6 +182,7 @@ func TestBlockHeaderWire(
 		rbuf = bytes.NewReader(test.buf)
 		err = bh.BtcDecode(rbuf, pver, test.enc)
 		if err != nil {
+
 			t.Errorf("BtcDecode #%d error %v", i, err)
 			continue
 		}
@@ -238,6 +245,7 @@ func TestBlockHeaderSerialize(
 		var buf bytes.Buffer
 		err := test.in.Serialize(&buf)
 		if err != nil {
+
 			t.Errorf("Serialize #%d error %v", i, err)
 			continue
 		}
@@ -253,6 +261,7 @@ func TestBlockHeaderSerialize(
 		rbuf := bytes.NewReader(test.buf)
 		err = bh.Deserialize(rbuf)
 		if err != nil {
+
 			t.Errorf("Deserialize #%d error %v", i, err)
 			continue
 		}

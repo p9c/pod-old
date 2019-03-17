@@ -17,6 +17,7 @@ type mruNonceMap struct {
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
 func (m *mruNonceMap) String() string {
+
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 	lastEntryNum := len(m.nonceMap) - 1
@@ -41,6 +42,7 @@ func (m *mruNonceMap) String() string {
 
 // Exists returns whether or not the passed nonce is in the map. This function is safe for concurrent access.
 func (m *mruNonceMap) Exists(nonce uint64) bool {
+
 	m.mtx.Lock()
 	_, exists := m.nonceMap[nonce]
 	m.mtx.Unlock()
@@ -107,6 +109,7 @@ func (m *mruNonceMap) Delete(nonce uint64) {
 // newMruNonceMap returns a new nonce map that is limited to the number of entries specified by limit.  When the number of entries exceeds the limit, the oldest (least recently used) entry will be removed to make room for the new entry.
 func newMruNonceMap(
 	limit uint) *mruNonceMap {
+
 	m := mruNonceMap{
 		nonceMap:  make(map[uint64]*list.Element),
 		nonceList: list.New(),
