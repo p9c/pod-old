@@ -106,6 +106,7 @@ func CreateWallet(
 	if err != nil {
 
 		log <- cl.Debug{err}
+
 		time.Sleep(time.Second * 3)
 		return err
 	}
@@ -174,6 +175,7 @@ func CreateWallet(
 	if err != nil {
 
 		log <- cl.Debug{err}
+
 		time.Sleep(time.Second * 5)
 		return err
 	}
@@ -188,22 +190,26 @@ func CreateWallet(
 	if err != nil {
 
 		log <- cl.Debug{err}
+
 		time.Sleep(time.Second * 5)
 		return err
 	}
 
 	log <- cl.Dbg("Creating the wallet...")
+
 	w, err := loader.CreateNewWallet(pubPass, privPass, seed, time.Now())
 
 	if err != nil {
 
 		log <- cl.Debug{err}
+
 		time.Sleep(time.Second * 5)
 		return err
 	}
 
 	w.Manager.Close()
 	log <- cl.Dbg("The wallet has been created successfully.")
+
 	return nil
 }
 

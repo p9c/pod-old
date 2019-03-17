@@ -789,6 +789,7 @@ err := fmt.Errorf("The flags --create and --createtemp can not " +
 			if err != nil {
 
 log <- cl.Error{err}
+
 					return nil, nil, err
 				}
 

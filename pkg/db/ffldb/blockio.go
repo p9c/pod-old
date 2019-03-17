@@ -549,6 +549,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	}()
 
 	log <- cl.Debugf{
+
 		"ROLLBACK: Rolling back to file %d, offset %d",
 		oldBlockFileNum,
 		oldBlockOffset,
@@ -572,6 +573,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		if err := s.deleteFileFunc(wc.curFileNum); err != nil {
 
 			log <- cl.Warnf{
+
 				"ROLLBACK: Failed to delete block file number %d: %v",
 				wc.curFileNum,
 				err,
@@ -591,6 +593,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 
 			wc.curFile.Unlock()
 			log <- cl.Warn{"ROLLBACK:", err}
+
 			return
 		}
 
@@ -602,6 +605,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 
 		wc.curFile.Unlock()
 		log <- cl.Warnf{
+
 			"ROLLBACK: Failed to truncate file %d: %v",
 			wc.curFileNum,
 			err,
@@ -616,6 +620,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 	if err != nil {
 
 		log <- cl.Warnf{
+
 			"ROLLBACK: Failed to sync file %d: %v",
 			wc.curFileNum,
 			err,
@@ -646,6 +651,7 @@ func scanBlockFiles(
 	}
 
 	log <- cl.Tracef{
+
 		"Scan found latest block file #%d with length %d",
 		lastFile,
 		fileLen,

@@ -124,6 +124,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	sort.Sort(int64Sorter(sortedOffsets))
 	offsetDuration := time.Duration(offsetSecs) * time.Second
 	log <- cl.Debugf{
+
 		"Added time sample of %v (total: %v)",
 		offsetDuration,
 		numOffsets,
@@ -171,6 +172,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 			if !remoteHasCloseTime {
 
 				log <- cl.Wrn(
+
 					"Please check your date and time are correct!  pod will not work properly with an invalid time",
 				)
 			}
@@ -181,6 +183,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 
 	medianDuration := time.Duration(m.offsetSecs) * time.Second
 	log <- cl.Debug{"new time offset:", medianDuration}
+
 }
 
 // Offset returns the number of seconds to adjust the local clock based upon the median of the time samples added by AddTimeData. This function is safe for concurrent access and is part of the MedianTimeSource interface implementation.

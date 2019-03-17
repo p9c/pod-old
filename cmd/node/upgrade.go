@@ -152,6 +152,7 @@ func upgradeDataPaths() error {
 
 		// Create the new path.
 		log <- cl.Infof{
+
 			"migrating application home path from '%s' to '%s'",
 			oldHomePath, newHomePath,
 		}
@@ -213,6 +214,7 @@ func upgradeDataPaths() error {
 		} else {
 
 			log <- cl.Warnf{
+
 				"not removing '%s' since it contains files not created by this application," +
 					"you may want to manually move them or delete them.", oldHomePath}
 		}

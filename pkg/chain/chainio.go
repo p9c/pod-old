@@ -1144,6 +1144,7 @@ func (b *BlockChain) initChainState() error {
 		// Fetch the stored chain state from the database metadata. When it doesn't exist, it means the database hasn't been initialized for use with chain yet, so break out now to allow that to happen under a writable database transaction.
 		serializedData := dbTx.Metadata().Get(chainStateKeyName)
 		log <- cl.Tracef{"serialized chain state: %0x", serializedData}
+
 		state, err := deserializeBestChainState(serializedData)
 
 		if err != nil {
@@ -1152,6 +1153,7 @@ func (b *BlockChain) initChainState() error {
 		}
 		// Load all of the headers from the data for the known best chain and construct the block index accordingly.  Since the number of nodes are already known, perform a single alloc for them versus a whole bunch of little ones to reduce pressure on the GC.
 		log <- cl.Dbg("loading block index...")
+
 		blockIndexBucket := dbTx.Metadata().Bucket(blockIndexBucketName)
 		// Determine how many blocks will be loaded into the index so we can allocate the right amount.
 		var blockCount int32
@@ -1248,6 +1250,7 @@ func (b *BlockChain) initChainState() error {
 			if !iterNode.status.KnownValid() {
 
 				log <- cl.Infof{
+
 					"Block %v (height=%v) ancestor of chain tip not marked as valid, upgrading to valid for consistency",
 					iterNode.hash,
 					iterNode.height,

@@ -33,6 +33,7 @@ func DefaultShellConfig(
 ) *shell.Config {
 
 	log <- cl.Dbg("getting default config")
+
 	u := GenKey()
 	p := GenKey()
 	appdatadir := filepath.Join(datadir, "shell")
@@ -114,15 +115,18 @@ func WriteDefaultShellConfig(
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err}
+
 		panic(err)
 	}
 
 	j = append(j, '\n')
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
+
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 	if err != nil {
 		log <- cl.Error{"writing app config file", defCfg.ConfigFile, err}
+
 		panic(err)
 	}
 
@@ -136,6 +140,7 @@ func WriteShellConfig(
 ) {
 
 	log <- cl.Dbg("writing config")
+
 	j, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		panic(err.Error())
@@ -217,6 +222,7 @@ func configShell(
 			r, ShellConfig.GetNodeActiveNet().DefaultPort,
 			&ShellConfig.Node.Listeners)
 		log <- cl.Debug{"node listeners", ShellConfig.Node.Listeners}
+
 	}
 
 	if r, ok := getIfIs(ctx, "externalips"); ok {
@@ -224,6 +230,7 @@ func configShell(
 			r, ShellConfig.GetNodeActiveNet().DefaultPort,
 			&ShellConfig.Node.ExternalIPs)
 		log <- cl.Debug{ShellConfig.Node.Listeners}
+
 	}
 
 	if r, ok := getIfIs(ctx, "disablelisten"); ok {
@@ -240,6 +247,7 @@ func configShell(
 		var bt int
 		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			ShellConfig.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
@@ -250,6 +258,7 @@ func configShell(
 		_, err := fmt.Sscanf(r, "%d", ShellConfig.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
 			log <- cl.Errorf{
+
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
 				r, ShellConfig.Wallet.LegacyRPCMaxWebsockets,
 			}
@@ -362,6 +371,7 @@ func configShell(
 		if err := ParseInteger(
 			r, "maxpeers", &ShellConfig.Node.MaxPeers); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -373,6 +383,7 @@ func configShell(
 	if r, ok := getIfIs(ctx, "banduration"); ok {
 		if err := ParseDuration(r, "banduration", &ShellConfig.Node.BanDuration); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -381,6 +392,7 @@ func configShell(
 		var bt int
 		if err := ParseInteger(r, "banthtreshold", &bt); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			ShellConfig.Node.BanThreshold = uint32(bt)
 		}
@@ -395,6 +407,7 @@ func configShell(
 		if err := ParseDuration(
 			r, "trickleinterval", &ShellConfig.Node.TrickleInterval); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -403,6 +416,7 @@ func configShell(
 		if err := ParseFloat(
 			r, "minrelaytxfee", &ShellConfig.Node.MinRelayTxFee); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -411,6 +425,7 @@ func configShell(
 		if err := ParseFloat(
 			r, "freetxrelaylimit", &ShellConfig.Node.FreeTxRelayLimit); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -442,6 +457,7 @@ func configShell(
 	if r, ok := getIfIs(ctx, "maxorphantxs"); ok {
 		if err := ParseInteger(r, "maxorphantxs", &ShellConfig.Node.MaxOrphanTxs); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -450,6 +466,7 @@ func configShell(
 		var scms int
 		if err := ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			ShellConfig.Node.SigCacheMaxSize = uint(scms)
 		}
@@ -464,6 +481,7 @@ func configShell(
 		var gt int
 		if err := ParseInteger(r, "genthreads", &gt); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		} else {
 			ShellConfig.Node.GenThreads = int32(gt)
 		}
@@ -497,6 +515,7 @@ func configShell(
 	if r, ok := getIfIs(ctx, "blockminsize"); ok {
 		if err := ParseUint32(r, "blockminsize", &ShellConfig.Node.BlockMinSize); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -504,6 +523,7 @@ func configShell(
 	if r, ok := getIfIs(ctx, "blockmaxsize"); ok {
 		if err := ParseUint32(r, "blockmaxsize", &ShellConfig.Node.BlockMaxSize); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -511,6 +531,7 @@ func configShell(
 	if r, ok := getIfIs(ctx, "blockminweight"); ok {
 		if err := ParseUint32(r, "blockminweight", &ShellConfig.Node.BlockMinWeight); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -519,6 +540,7 @@ func configShell(
 		if err := ParseUint32(
 			r, "blockmaxweight", &ShellConfig.Node.BlockMaxWeight); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -527,6 +549,7 @@ func configShell(
 		if err := ParseUint32(
 			r, "blockmaxweight", &ShellConfig.Node.BlockPrioritySize); err != nil {
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -658,6 +681,7 @@ func configShell(
 					str := "%s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
+
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return 1
 				}
@@ -689,6 +713,7 @@ func configShell(
 			"mixed"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
 
@@ -716,6 +741,7 @@ func configShell(
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -725,6 +751,7 @@ func configShell(
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -738,6 +765,7 @@ func configShell(
 
 	if ShellConfig.Node.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
+
 	}
 
 	// Default RPC to listen on localhost only.
@@ -745,6 +773,7 @@ func configShell(
 		addrs, err := net.LookupHost(n.DefaultRPCListener)
 		if err != nil {
 			log <- cl.Err(err.Error())
+
 			return 1
 		}
 
@@ -760,6 +789,7 @@ func configShell(
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.RPCMaxConcurrentReqs)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -772,6 +802,7 @@ func configShell(
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -783,6 +814,7 @@ func configShell(
 		err := fmt.Errorf(str, funcName, n.BlockMaxSizeMin,
 			n.BlockMaxSizeMax, ShellConfig.Node.BlockMaxSize)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -794,6 +826,7 @@ func configShell(
 		err := fmt.Errorf(str, funcName, n.BlockMaxWeightMin,
 			n.BlockMaxWeightMax, ShellConfig.Node.BlockMaxWeight)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -803,6 +836,7 @@ func configShell(
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.MaxOrphanTxs)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -832,6 +866,7 @@ func configShell(
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 
@@ -844,6 +879,7 @@ func configShell(
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
 			funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 
@@ -855,6 +891,7 @@ func configShell(
 			"options may not be activated at the same time",
 			funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -865,6 +902,7 @@ func configShell(
 			"because the address index relies on the transaction index",
 			funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -878,6 +916,7 @@ func configShell(
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -887,6 +926,7 @@ func configShell(
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -899,6 +939,7 @@ func configShell(
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		os.Exit(1)
 
@@ -921,6 +962,7 @@ func configShell(
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
 				log <- cl.Err(err.Error())
+
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return 1
 			}
@@ -939,6 +981,7 @@ func configShell(
 	if ShellConfig.Node.NoOnion && ShellConfig.Node.OnionProxy != "" {
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -949,6 +992,7 @@ func configShell(
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -958,6 +1002,7 @@ func configShell(
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -971,6 +1016,7 @@ func configShell(
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, ShellConfig.Node.Proxy, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -1012,6 +1058,7 @@ func configShell(
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, ShellConfig.Node.OnionProxy, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -1065,15 +1112,19 @@ func configShell(
 	if ctx.Is("save") {
 
 		log <- cl.Info{"saving config file to", cfgFile}
+
 		j, err := json.MarshalIndent(ShellConfig, "", "  ")
 		if err != nil {
 			log <- cl.Error{"writing app config file", err}
+
 		}
 
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
+
 		e := ioutil.WriteFile(cfgFile, j, 0600)
 		log <- cl.Error{
+
 			"error writing configuration file:", e,
 		}
 
@@ -1090,6 +1141,7 @@ func shellHandle(
 	var ok bool
 	if dl, ok = ctx.Get("debuglevel"); ok {
 		log <- cl.Tracef{"setting debug level %s", dl}
+
 		ShellConfig.Node.DebugLevel = dl
 		Log.SetLevel(dl)
 		ll := GetAllSubSystems()
@@ -1126,26 +1178,33 @@ func shellHandle(
 	if ctx.Is("init") {
 
 		log <- cl.Debug{"writing default configuration to", cfgFile}
+
 		WriteDefaultShellConfig(datadir)
 	} else {
 
 		log <- cl.Info{"loading configuration from", cfgFile}
+
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 			log <- cl.Wrn("configuration file does not exist, creating new one")
+
 			WriteDefaultShellConfig(datadir)
 		} else {
 
 			log <- cl.Debug{"reading app configuration from", cfgFile}
+
 			cfgData, err := ioutil.ReadFile(cfgFile)
 			if err != nil {
 				log <- cl.Error{"reading app config file", err.Error()}
+
 				WriteDefaultShellConfig(datadir)
 			} else {
 				log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+
 				err = json.Unmarshal(cfgData, &ShellConfig)
 				if err != nil {
 					log <- cl.Error{"parsing app config file", err.Error()}
+
 					WriteDefaultShellConfig(datadir)
 				}
 
@@ -1157,8 +1216,10 @@ func shellHandle(
 
 	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
 	log <- cl.Tracef{"parsed configuration:\n%s", string(j)}
+
 	configShell(&ctx, cfgFile)
 	j, _ = json.MarshalIndent(ShellConfig, "", "  ")
 	log <- cl.Tracef{"after configuration:\n%s", string(j)}
+
 	return runShell()
 }

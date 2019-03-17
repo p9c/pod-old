@@ -48,16 +48,19 @@ func WriteCtlConfig(
 	if err != nil {
 
 		log <- cl.Err(err.Error())
+
 	}
 
 	j = append(j, '\n')
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
+
 	EnsureDir(cc.ConfigFile)
 	err = ioutil.WriteFile(cc.ConfigFile, j, 0600)
 
 	if err != nil {
 
 		log <- cl.Fatal{
+
 			"unable to write config file %s",
 			err.Error(),
 		}
@@ -79,16 +82,19 @@ func WriteDefaultCtlConfig(
 	if err != nil {
 
 		log <- cl.Err(err.Error())
+
 	}
 
 	j = append(j, '\n')
 	log <- cl.Tracef{"JSON formatted config file\n%s", string(j)}
+
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
 
 	if err != nil {
 
 		log <- cl.Fatal{
+
 			"unable to write config file %s",
 			err.Error(),
 		}
@@ -115,6 +121,7 @@ func configCtl(
 
 		CtlCfg.DebugLevel = r
 		log <- cl.Trace{
+
 			"set", "debuglevel", "to", r,
 		}
 
@@ -124,6 +131,7 @@ func configCtl(
 
 		CtlCfg.RPCUser = r
 		log <- cl.Tracef{
+
 			"set %s to %s", "rpcuser", r,
 		}
 
@@ -133,6 +141,7 @@ func configCtl(
 
 		CtlCfg.RPCPass = r
 		log <- cl.Tracef{
+
 			"set %s to %s", "rpcpass", r,
 		}
 
@@ -142,6 +151,7 @@ func configCtl(
 
 		CtlCfg.RPCServer = r
 		log <- cl.Tracef{
+
 			"set %s to %s", "rpcserver", r,
 		}
 
@@ -151,30 +161,35 @@ func configCtl(
 
 		CtlCfg.RPCCert = r
 		log <- cl.Tracef{"set %s to %s", "rpccert", r}
+
 	}
 
 	if r, ok = getIfIs(ctx, "tls"); ok {
 
 		CtlCfg.TLS = r == "true"
 		log <- cl.Tracef{"set %s to %s", "tls", r}
+
 	}
 
 	if r, ok = getIfIs(ctx, "proxy"); ok {
 
 		CtlCfg.Proxy = r
 		log <- cl.Tracef{"set %s to %s", "proxy", r}
+
 	}
 
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
 
 		CtlCfg.ProxyUser = r
 		log <- cl.Tracef{"set %s to %s", "proxyuser", r}
+
 	}
 
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
 
 		CtlCfg.ProxyPass = r
 		log <- cl.Tracef{"set %s to %s", "proxypass", r}
+
 	}
 
 	otn, osn := "false", "false"
@@ -205,6 +220,7 @@ func configCtl(
 	if CtlCfg.TestNet3 && CtlCfg.SimNet {
 
 		log <- cl.Error{
+
 			"cannot enable simnet and testnet at the same time. current settings testnet =", otn,
 			"simnet =", osn,
 		}
@@ -215,6 +231,7 @@ func configCtl(
 
 		CtlCfg.TLSSkipVerify = true
 		log <- cl.Tracef{
+
 			"set %s to true", "skipverify",
 		}
 
@@ -224,12 +241,14 @@ func configCtl(
 
 		CtlCfg.RPCServer = CtlCfg.Wallet
 		log <- cl.Trc("using configured wallet rpc server")
+
 	}
 
 	if r, ok = getIfIs(ctx, "walletrpc"); ok {
 
 		CtlCfg.Wallet = r
 		log <- cl.Tracef{
+
 			"set %s to true", "walletrpc",
 		}
 
@@ -238,6 +257,7 @@ func configCtl(
 	if ctx.Is("save") {
 
 		log <- cl.Info{
+
 			"saving config file to",
 			cfgFile,
 		}
@@ -247,10 +267,12 @@ func configCtl(
 		if err != nil {
 
 			log <- cl.Err(err.Error())
+
 		}
 
 		j = append(j, '\n')
 		log <- cl.Trace{
+
 			"JSON formatted config file\n", string(j),
 		}
 
@@ -258,6 +280,7 @@ func configCtl(
 
 		if e != nil {
 			log <- cl.Error{
+
 				"error writing configuration file:", e,
 			}
 

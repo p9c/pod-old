@@ -101,6 +101,7 @@ var ConfCommand = climax.Command{
 		if dl, ok = ctx.Get("debuglevel"); ok {
 
 			log <- cl.Tracef{
+
 				"setting debug level %s",
 				dl,
 			}
@@ -124,6 +125,7 @@ var ConfCommand = climax.Command{
 				ct, "createtest", &testnum,
 			); err != nil {
 				log <- cl.Wrn(err.Error())
+
 			}
 
 			if tn, ok := ctx.Get("testname"); ok {
@@ -137,6 +139,7 @@ var ConfCommand = climax.Command{
 					tpb, "testportbase", &testportbase,
 				); err != nil {
 					log <- cl.Wrn(err.Error())
+
 				}
 
 			}

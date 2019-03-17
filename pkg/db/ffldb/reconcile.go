@@ -94,7 +94,9 @@ func reconcileDB(
 		wc.curOffset > curOffset) {
 
 		log <- cl.Inf("Detected unclean shutdown - Repairing...")
+
 		log <- cl.Debugf{
+
 			"Metadata claims file %d, offset %d. Block data is at file %d, offset %d",
 			curFileNum,
 			curOffset,
@@ -104,6 +106,7 @@ func reconcileDB(
 
 		pdb.store.handleRollback(curFileNum, curOffset)
 		log <- cl.Inf("Database sync complete")
+
 	}
 
 	// When the write cursor position found by scanning the block files on disk is BEFORE the position the metadata believes to be true, return a corruption error.  Since sync is called after each block is written and before the metadata is updated, this should only happen in the case of missing, deleted, or truncated block files, which generally is not an easily recoverable scenario.  In the future, it might be possible to rescan and rebuild the metadata from the block files, however, that would need to happen with coordination from a higher layer since it could invalidate other metadata.
@@ -115,6 +118,7 @@ func reconcileDB(
 			"block data is at file %d, offset %d", curFileNum,
 			curOffset, wc.curFileNum, wc.curOffset)
 		log <- cl.Warn{"***Database corruption detected***:", str}
+
 		return nil, makeDbErr(database.ErrCorruption, str, nil)
 	}
 

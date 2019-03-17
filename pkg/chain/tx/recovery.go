@@ -192,6 +192,7 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 	if !rm.started {
 
 		log <- cl.Infof{
+
 			"seed birthday surpassed, " +
 				"starting recovery of wallet from height=%d hash=%v " +
 				"with recovery-window=%d",

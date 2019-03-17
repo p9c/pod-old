@@ -436,6 +436,7 @@ func (tx *withdrawalTx) toMsgTx() *wire.MsgTx {
 func (tx *withdrawalTx) addOutput(request OutputRequest) {
 
 	log <- cl.Debugf{
+
 		"added tx output sending %s to %s",
 		request.Amount,
 		request.Address,
@@ -449,6 +450,7 @@ func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
 	removed := tx.outputs[len(tx.outputs)-1]
 	tx.outputs = tx.outputs[:len(tx.outputs)-1]
 	log <- cl.Debugf{
+
 		"removed tx output sending %s to %s",
 		removed.amount,
 		removed.request.Address,
@@ -460,6 +462,7 @@ func (tx *withdrawalTx) removeOutput() *withdrawalTxOut {
 func (tx *withdrawalTx) addInput(input credit) {
 
 	log <- cl.Debug{
+
 		"added tx input with amount", input.Amount,
 	}
 	tx.inputs = append(tx.inputs, input)
@@ -471,6 +474,7 @@ func (tx *withdrawalTx) removeInput() credit {
 	removed := tx.inputs[len(tx.inputs)-1]
 	tx.inputs = tx.inputs[:len(tx.inputs)-1]
 	log <- cl.Debug{
+
 		"removed tx input with amount", removed.Amount,
 	}
 	return removed
@@ -488,6 +492,7 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 	tx.fee = tx.calculateFee()
 	change := tx.inputTotal() - tx.outputTotal() - tx.fee
 	log <- cl.Debugf{
+
 		"addChange: input total %v, output total %v, fee %v",
 		tx.inputTotal(),
 		tx.outputTotal(),
@@ -497,6 +502,7 @@ func (tx *withdrawalTx) addChange(pkScript []byte) bool {
 
 		tx.changeOutput = wire.NewTxOut(int64(change), pkScript)
 		log <- cl.Debug{
+
 			"added change output with amount", change,
 		}
 	}
@@ -674,6 +680,7 @@ func (w *withdrawal) fulfillNextRequest() error {
 		if len(w.eligibleInputs) == 0 {
 
 			log <- cl.Dbg(
+
 				"splitting last output because we don't have enough inputs",
 			)
 			if err := w.splitLastOutput(); err != nil {
@@ -700,6 +707,7 @@ func (w *withdrawal) handleOversizeTx() error {
 	if len(w.current.outputs) > 1 {
 
 		log <- cl.Dbg(
+
 			"rolling back last output because tx got too big",
 		)
 		inputs, output, err := w.current.rollBackLastOutput()
@@ -715,6 +723,7 @@ func (w *withdrawal) handleOversizeTx() error {
 	} else if len(w.current.outputs) == 1 {
 
 		log <- cl.Dbg(
+
 			"splitting last output because tx got too big...",
 		)
 		w.pushInput(w.current.removeInput())
@@ -735,12 +744,14 @@ func (w *withdrawal) handleOversizeTx() error {
 func (w *withdrawal) finalizeCurrentTx() error {
 
 	log <- cl.Dbg(
+
 		"finalizing current transaction",
 	)
 	tx := w.current
 	if len(tx.outputs) == 0 {
 
 		log <- cl.Dbg(
+
 			"current transaction has no outputs, doing nothing",
 		)
 		return nil
@@ -818,6 +829,7 @@ func (w *withdrawal) maybeDropRequests() {
 
 		request := w.popRequest()
 		log <- cl.Infof{
+
 			"not fulfilling request to send %v to %v; not enough credits.",
 			request.Amount,
 			request.Address,
@@ -895,6 +907,7 @@ func (w *withdrawal) splitLastOutput() error {
 	tx := w.current
 	output := tx.outputs[len(tx.outputs)-1]
 	log <- cl.Debug{
+
 		"splitting tx output for", output.request,
 	}
 	origAmount := output.amount
@@ -904,6 +917,7 @@ func (w *withdrawal) splitLastOutput() error {
 	unspentAmount := tx.inputTotal() - spentAmount
 	output.amount = unspentAmount
 	log <- cl.Debug{
+
 		"updated output amount to", output.amount,
 	}
 
@@ -919,6 +933,7 @@ func (w *withdrawal) splitLastOutput() error {
 		Amount:      origAmount - output.amount}
 	w.pushRequest(newRequest)
 	log <- cl.Debug{
+
 		"created a new pending output request with amount", newRequest.Amount,
 	}
 
@@ -954,6 +969,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	if !reflect.DeepEqual(changeStart, wi.changeStart) {
 
 		log <- cl.Debugf{
+
 			"withdrawal changeStart does not match: %v != %v",
 			changeStart,
 			wi.changeStart,
@@ -963,6 +979,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	if !reflect.DeepEqual(startAddress, wi.startAddress) {
 
 		log <- cl.Debugf{
+
 			"withdrawal startAddr does not match: %v != %v",
 			startAddress,
 			wi.startAddress,
@@ -972,6 +989,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	if lastSeriesID != wi.lastSeriesID {
 
 		log <- cl.Debugf{
+
 			"withdrawal lastSeriesID does not match: %v != %v",
 			lastSeriesID,
 			wi.lastSeriesID,
@@ -981,6 +999,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	if dustThreshold != wi.dustThreshold {
 
 		log <- cl.Debugf{
+
 			"withdrawal dustThreshold does not match: %v != %v",
 			dustThreshold,
 			wi.dustThreshold,
@@ -996,6 +1015,7 @@ func (wi *withdrawalInfo) match(requests []OutputRequest, startAddress Withdrawa
 	if !reflect.DeepEqual(r1, r2) {
 
 		log <- cl.Debugf{
+
 			"withdrawal requests does not match: %v != %v",
 			requests,
 			wi.requests,
@@ -1078,6 +1098,7 @@ func getRawSigs(
 						return nil, newError(ErrKeyChain, "failed to obtain ECPrivKey", err)
 					}
 					log <- cl.Debugf{
+
 						"generating raw sig for input %d of tx %s with privkey of %s",
 						inputIdx,
 						ntxid,
@@ -1092,6 +1113,7 @@ func getRawSigs(
 				} else {
 
 					log <- cl.Debugf{
+
 						"not generating raw sig for input %d of %s because private key " +
 							"for %s is not available: %v",
 						inputIdx,

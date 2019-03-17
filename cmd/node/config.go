@@ -798,6 +798,7 @@ func loadConfig() (
 	if cfg.Profile != "" {
 
 		log <- cl.Trace{"profiling to", cfg.Profile}
+
 		profilePort, err := strconv.Atoi(cfg.Profile)
 
 
@@ -966,6 +967,7 @@ func loadConfig() (
 	if cfg.DisableRPC {
 
 		log <- cl.Inf("RPC service is disabled")
+
 		// Default RPC to listen on localhost only.
 
 
@@ -1412,6 +1414,7 @@ func loadConfig() (
 	if configFileError != nil {
 
 		log <- cl.Warn{configFileError}
+
 	}
 
 	return &cfg, remainingArgs, nil
@@ -1453,10 +1456,12 @@ func podDial(
 	}
 
 	log <- cl.Trace{"StateCfg.Dial", addr.Network(), addr.String(), DefaultConnectTimeout}
+
 	con, er := StateCfg.Dial(addr.Network(), addr.String(), DefaultConnectTimeout)
 
 	if er != nil {
 		log <- cl.Trace{con, er}
+
 	}
 
 	return con, er

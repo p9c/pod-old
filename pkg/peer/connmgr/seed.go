@@ -48,10 +48,12 @@ func SeedFromDNS(
 			if err != nil {
 
 				log <- cl.Infof{"DNS discovery failed on seed %s: %v", host, err}
+
 				return
 			}
 			numPeers := len(seedpeers)
 			log <- cl.Infof{"%d addresses found from DNS seed %s", numPeers, host}
+
 			if numPeers == 0 {
 
 				return

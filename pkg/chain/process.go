@@ -113,6 +113,7 @@ func (
 	if pn == nil {
 
 		log <- cl.Debug{"found no previous node"}
+
 		DoNotCheckPow = true
 	}
 	pb := pn.GetLastWithAlgo(algo)
@@ -127,6 +128,7 @@ func (
 	if err != nil {
 
 		log <- cl.Debug{"ERROR", err}
+
 		return false, false, err
 	}
 
@@ -207,6 +209,7 @@ func (
 		return false, false, err
 	}
 	log <- cl.Debugf{
+
 		"accepted block %d %v %s ",
 		blockHeight,
 		blockHashWithAlgo(),
@@ -280,6 +283,7 @@ func (
 			if orphan == nil {
 
 				log <- cl.Warnf{
+
 					"found a nil entry at index %d in the orphan dependency list for block %v",
 					i, processHash,
 				}

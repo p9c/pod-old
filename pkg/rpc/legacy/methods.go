@@ -1636,6 +1636,7 @@ func sendPairs(
 
 	txHashStr := txHash.String()
 	log <- cl.Info{"successfully sent transaction", txHashStr}
+
 	return txHashStr, nil
 }
 

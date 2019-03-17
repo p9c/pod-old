@@ -684,6 +684,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	if atomic.LoadInt32(&s.shutdown) != 0 {
 
 		log <- cl.Infof{"new peer %s ignored - server is shutting down", sp}
+
 		sp.Disconnect()
 		return false
 	}
@@ -694,6 +695,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	if err != nil {
 
 		log <- cl.Debug{"can't split host/port:", err}
+
 		sp.Disconnect()
 		return false
 	}
@@ -703,6 +705,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 		if time.Now().Before(banEnd) {
 
 			log <- cl.Debugf{
+
 				"peer %s is banned for another %v - disconnecting",
 				host, banEnd.Sub(time.Now()),
 			}
@@ -712,6 +715,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 		}
 
 		log <- cl.Infof{
+
 			"peer %s is no longer banned", host,
 		}
 
@@ -725,6 +729,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 	if state.Count() >= MaxPeers {
 
 		log <- cl.Infof{
+
 			"max peers reached [%d] - disconnecting peer %s",
 			MaxPeers, sp,
 		}
@@ -739,6 +744,7 @@ func (s *ChainService) handleAddPeerMsg(state *peerState, sp *ServerPeer) bool {
 
 	// Add the new peer and start it.
 	log <- cl.Debug{"new peer", sp}
+
 	state.outboundGroups[addrmgr.GroupKey(sp.NA())]++
 
 	if sp.persistent {
@@ -764,6 +770,7 @@ func (s *ChainService) handleBanPeerMsg(state *peerState, sp *ServerPeer) {
 	if err != nil {
 
 		log <- cl.Debugf{
+
 			"can't split ban peer %s: %s",
 			sp.Addr(), err,
 		}
@@ -772,6 +779,7 @@ func (s *ChainService) handleBanPeerMsg(state *peerState, sp *ServerPeer) {
 	}
 
 	log <- cl.Infof{"banned peer %s for %v", host, BanDuration}
+
 	state.banned[host] = time.Now().Add(BanDuration)
 }
 
@@ -806,6 +814,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 
 		delete(list, sp.ID())
 		log <- cl.Debug{"Removed peer", sp}
+
 		return
 	}
 
@@ -888,6 +897,7 @@ func (s *ChainService) outboundPeerConnected(c *connmgr.ConnReq, conn net.Conn) 
 	if err != nil {
 
 		log <- cl.Debugf{
+
 			"cannot create outbound peer %s: %s", c.Addr, err,
 		}
 
@@ -1004,6 +1014,7 @@ out:
 			state.forAllPeers(func(sp *ServerPeer) {
 
 				log <- cl.Trace{"shutdown peer", sp}
+
 				sp.Disconnect()
 			})
 
@@ -1160,6 +1171,7 @@ func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
 	if len(msg.AddrList) == 0 {
 
 		log <- cl.Errorf{
+
 			"command [%s] from %s does not contain any addresses",
 			msg.Command(), sp.Addr(),
 		}
@@ -1220,6 +1232,7 @@ func (sp *ServerPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
 
 		log <- cl.Debugf{
+
 			"peer %v sent an invalid feefilter '%v' -- disconnecting",
 			sp, util.Amount(msg.MinFee),
 		}
@@ -1238,6 +1251,7 @@ func (sp *ServerPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 func (sp *ServerPeer) OnHeaders(p *peer.Peer, msg *wire.MsgHeaders) {
 
 	log <- cl.Tracef{
+
 		"got headers with %d items from %s",
 		len(msg.Headers), p.Addr(),
 	}
@@ -1256,6 +1270,7 @@ func (sp *ServerPeer) OnHeaders(p *peer.Peer, msg *wire.MsgHeaders) {
 func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 
 	log <- cl.Tracef{
+
 		"got inv with %d items from %s", len(msg.InvList), p.Addr(),
 	}
 
@@ -1266,6 +1281,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 		if invVect.Type == wire.InvTypeTx {
 
 			log <- cl.Tracef{
+
 				"ignoring tx %s in inv from %v -- SPV mode",
 				invVect.Hash, sp,
 			}
@@ -1273,6 +1289,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 			if sp.ProtocolVersion() >= wire.BIP0037Version {
 
 				log <- cl.Infof{
+
 					"peer %v is announcing transactions -- disconnecting", sp,
 				}
 
@@ -1288,6 +1305,7 @@ func (sp *ServerPeer) OnInv(p *peer.Peer, msg *wire.MsgInv) {
 		if err != nil {
 
 			log <- cl.Error{"failed to add inventory vector:", err}
+
 			break
 		}
 
@@ -1379,6 +1397,7 @@ func (sp *ServerPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 		peerServices&wire.SFNodeCF != wire.SFNodeCF {
 
 		log <- cl.Infof{
+
 			"disconnecting peer %v, cannot serve compact filters", sp,
 		}
 
@@ -1458,6 +1477,7 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 		if score > warnThreshold {
 
 			log <- cl.Warnf{
+
 				"misbehaving peer %s: %s -- ban score is %d, it was not increased this time",
 				sp, reason, score,
 			}
@@ -1472,6 +1492,7 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 	if score > warnThreshold {
 
 		log <- cl.Warnf{
+
 			"misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score,
 		}
@@ -1479,6 +1500,7 @@ func (sp *ServerPeer) addBanScore(persistent, transient uint32, reason string) {
 		if score > BanThreshold {
 
 			log <- cl.Warnf{
+
 				"misbehaving peer %s -- banning and disconnecting",
 				sp,
 			}

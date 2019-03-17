@@ -82,6 +82,7 @@ func migrateBlockIndex(
 			return fmt.Errorf("Bucket %s does not exist", v1BucketName)
 		}
 		log <- cl.Inf("Re-indexing block information in the database. This might take a while...")
+
 		v2BlockIdxBucket, err :=
 			dbTx.Metadata().CreateBucketIfNotExists(v2BucketName)
 
@@ -160,6 +161,7 @@ func migrateBlockIndex(
 		return err
 	}
 	log <- cl.Inf("Block database migration complete")
+
 	return nil
 }
 
@@ -508,6 +510,7 @@ func upgradeUtxoSetToV2(
 		v2BucketName = []byte("utxosetv2")
 	)
 	log <- cl.Inf("Upgrading utxo set to v2.  This will take a while...")
+
 	start := time.Now()
 
 	// Create the new utxo set bucket as needed.
@@ -639,6 +642,7 @@ func upgradeUtxoSetToV2(
 		}
 		totalUtxos += uint64(numUtxos)
 		log <- cl.Infof{"Migrated %d utxos (%d total)", numUtxos, totalUtxos}
+
 	}
 
 	// Remove the old bucket and update the utxo set version once it has
@@ -662,6 +666,7 @@ func upgradeUtxoSetToV2(
 	}
 	seconds := int64(time.Since(start) / time.Second)
 	log <- cl.Infof{
+
 		"Done upgrading utxo set.  Total utxos: %d in %d seconds",
 		totalUtxos,
 		seconds,

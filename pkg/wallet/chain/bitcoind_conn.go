@@ -192,6 +192,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 	defer conn.Close()
 
 	log <- cl.Info{
+
 		"started listening for bitcoind block notifications via ZMQ on", c.zmqBlockHost,
 	}
 
@@ -220,6 +221,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			}
 
 			log <- cl.Error{
+
 				"unable to receive ZMQ rawblock message:", err,
 			}
 			continue
@@ -237,6 +239,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			if err := block.Deserialize(r); err != nil {
 
 				log <- cl.Error{
+
 					"unable to deserialize block:", err,
 				}
 				continue
@@ -266,6 +269,7 @@ func (c *BitcoindConn) blockEventHandler(conn *gozmq.Conn) {
 			}
 
 			log <- cl.Warn{
+
 				"received unexpected event type from rawblock subscription:",
 				eventType,
 			}
@@ -283,6 +287,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 	defer conn.Close()
 
 	log <- cl.Info{
+
 		"started listening for bitcoind transaction notifications via ZMQ on",
 		c.zmqTxHost,
 	}
@@ -312,6 +317,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			}
 
 			log <- cl.Error{
+
 				"unable to receive ZMQ rawtx message:", err,
 			}
 			continue
@@ -329,6 +335,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			if err := tx.Deserialize(r); err != nil {
 
 				log <- cl.Error{
+
 					"unable to deserialize transaction:", err,
 				}
 				continue
@@ -358,6 +365,7 @@ func (c *BitcoindConn) txEventHandler(conn *gozmq.Conn) {
 			}
 
 			log <- cl.Warn{
+
 				"received unexpected event type from rawtx subscription:",
 				eventType,
 			}

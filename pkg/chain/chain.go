@@ -495,6 +495,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 
 		str := "connectBlock must be called with a block that extends the main chain"
 		log <- cl.Dbg(str)
+
 		return AssertError(str)
 	}
 
@@ -504,6 +505,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 
 		str := "connectBlock called with inconsistent spent transaction out information"
 		log <- cl.Dbg(str)
+
 		return AssertError(str)
 	}
 
@@ -553,6 +555,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		if err != nil {
 
 			log <- cl.Trace{"dbPutBestState", err}
+
 			return err
 		}
 
@@ -562,6 +565,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		if err != nil {
 
 			log <- cl.Trace{"dbPutBlockIndex", err}
+
 			return err
 		}
 
@@ -571,6 +575,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		if err != nil {
 
 			log <- cl.Trace{"dbPutUtxoView", err}
+
 			return err
 		}
 
@@ -580,6 +585,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 		if err != nil {
 
 			log <- cl.Trace{"dbPutSpendJournalEntry", err}
+
 			return err
 		}
 
@@ -592,6 +598,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 			if err != nil {
 
 				log <- cl.Trace{"connectBlock ", err}
+
 				return err
 			}
 
@@ -603,6 +610,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 	if err != nil {
 
 		log <- cl.Trace{"error updating database ", err}
+
 		return err
 	}
 
@@ -1042,6 +1050,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	if forkNode != nil {
 
 		log <- cl.Infof{
+
 			"REORGANIZE: Chain forks at %v (height %v)",
 			forkNode.hash,
 			forkNode.height,
@@ -1050,12 +1059,14 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	}
 
 	log <- cl.Infof{
+
 		"REORGANIZE: Old best chain head was %v (height %v)",
 		&oldBest.hash,
 		oldBest.height,
 	}
 
 	log <- cl.Infof{
+
 		"REORGANIZE: New best chain head is %v (height %v)",
 		newBest.hash,
 		newBest.height,
@@ -1080,6 +1091,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		if writeErr := b.Index.flushToDB(); writeErr != nil {
 
 			log <- cl.Warn{
+
 				"Error flushing block index changes to disk:", writeErr,
 			}
 
@@ -1121,6 +1133,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 			if err != nil {
 
 				log <- cl.Trace{"error", err}
+
 				return false, err
 			}
 
@@ -1152,6 +1165,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		if err != nil {
 
 			log <- cl.Trace{"connect block error: ", err}
+
 			// If we got hit with a rule error, then we'll mark that status of the block as invalid and flush the index state to disk before returning with the error.
 
 			if _, ok := err.(RuleError); ok {
@@ -1179,6 +1193,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	if fastAdd {
 
 		log <- cl.Warnf{
+
 			"fastAdd set in the side chain case? %v\n", block.Hash(),
 		}
 
@@ -1196,6 +1211,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		if f.hash.IsEqual(parentHash) {
 
 			log <- cl.Infof{
+
 				"FORK: Block %v forks the chain at height %d/block %v, but does not cause a reorganize. workSum=%d",
 				node.hash,
 				f.height,
@@ -1206,6 +1222,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 		} else {
 
 			log <- cl.Infof{
+
 				"EXTEND FORK: " +
 					"Block %v extends a side chain which forks the chain at height %d/block %v. workSum=%d",
 				node.hash,
@@ -1224,6 +1241,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 
 	// Reorganize the chain.
 	log <- cl.Infof{
+
 		"REORGANIZE: block %v is causing a reorganize", node.hash,
 	}
 
@@ -1234,6 +1252,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *util.Block, flags 
 	if writeErr := b.Index.flushToDB(); writeErr != nil {
 
 		log <- cl.Warn{
+
 			"Error flushing block index changes to disk:", writeErr,
 		}
 
@@ -1798,6 +1817,7 @@ func New(
 
 	bestNode := b.bestChain.Tip()
 	log <- cl.Infof{
+
 		"chain state (height %d, hash %v, totaltx %d, work %v)",
 		bestNode.height,
 		bestNode.hash,

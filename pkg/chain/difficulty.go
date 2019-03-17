@@ -116,6 +116,7 @@ func (
 
 		prevNode := lastNode.RelativeAncestor(1)
 		log <- cl.Debug{"prevNode version", prevNode.version, prevNode.height}
+
 		prevversion := prevNode.version
 
 		if fork.GetCurrent(prevNode.height) == 0 {
@@ -125,6 +126,7 @@ func (
 				prevversion != 2 {
 
 				log <- cl.Warn{"irregular block version, assuming 2 (sha256d)"}
+
 				prevversion = 2
 			}
 
@@ -142,6 +144,7 @@ func (
 
 		prevversion = prevNode.version
 		log <- cl.Debugf{
+
 			"found version %d corrected %d height %d bits %8x",
 			prevNode.version, prevversion, prevNode.height, prevNode.bits}
 		firstNode := prevNode // .GetPrevWithAlgo(algo)
@@ -154,10 +157,12 @@ func (
 			if firstNode == nil {
 
 				log <- cl.Debug{"passed genesis block"}
+
 				return newTargetBits, nil
 			}
 
 			log <- cl.Debugf{"found a prev %d %d %8x", firstNode.version, firstNode.height, firstNode.bits}
+
 		}
 
 		if firstNode == nil {
@@ -190,6 +195,7 @@ func (
 
 		newTargetBits = BigToCompact(newTarget)
 		log <- cl.Debugf{
+
 			"difficulty retarget at block height %d, old %08x new %08x",
 			lastNode.height + 1,
 			prevNode.bits,
@@ -438,6 +444,7 @@ func (
 		trailTimeDivergence := trailTimeAverage / ttpb
 		trailingTimeDivergence := trailingAdjusted / trailingTargetAdjusted
 		log <- cl.Trace{
+
 			"trailingtimedivergence",
 			trailingTimeDivergence,
 			trailingAdjusted,
@@ -486,6 +493,7 @@ func (
 			if l {
 
 				log <- cl.Infof{
+
 					"%d: old %08x, new %08x, av %3.2f, tr %3.2f, tr wgtd %3.2f, alg wgtd %3.2f, blks %d, adj %0.1f%%, alg %s",
 					lastNode.height + 1, last.bits,
 					newTargetBits,

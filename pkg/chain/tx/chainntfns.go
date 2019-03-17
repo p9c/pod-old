@@ -20,6 +20,7 @@ func (w *Wallet) handleChainNotifications() {
 	if err != nil {
 
 		log <- cl.Err("handleChainNotifications called without RPC client")
+
 		return
 	}
 
@@ -36,6 +37,7 @@ func (w *Wallet) handleChainNotifications() {
 		if err != nil && !w.ShuttingDown() {
 
 			log <- cl.Warn{"unable to synchronize wallet to chain:", err}
+
 		}
 	}
 
@@ -62,6 +64,7 @@ func (w *Wallet) handleChainNotifications() {
 
 		// rescan.
 		log <- cl.Infof{
+
 			"catching up block hashes to height %d, this might take a while",
 			height,
 		}
@@ -100,12 +103,14 @@ func (w *Wallet) handleChainNotifications() {
 		if err != nil {
 
 			log <- cl.Errorf{
+
 				"failed to update address manager sync state for height %d: %v",
 				height, err,
 			}
 		}
 
 		log <- cl.Inf("done catching up block hashes")
+
 		return err
 	}
 
@@ -130,6 +135,7 @@ func (w *Wallet) handleChainNotifications() {
 
 					err := w.connectBlock(tx, wtxmgr.BlockMeta(n))
 					log <- cl.Debug{
+
 						"connect block error " + err.Error(),
 					}
 					return err
@@ -205,11 +211,13 @@ func (w *Wallet) handleChainNotifications() {
 						"couldn't get hash from database") {
 
 					log <- cl.Debug{
+
 						errStr, notificationName, err.Error(),
 					}
 				} else {
 
 					log <- cl.Error{
+
 						errStr, notificationName, err.Error,
 					}
 				}
@@ -366,6 +374,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 					return err
 				}
 				log <- cl.Debugf{"marked address %v used", addr}
+
 				continue
 			}
 
@@ -392,6 +401,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 
 			log <- cl.Error{"cannot query transaction details for notification:", err}
+
 		}
 
 		// It's possible that the transaction was not found within the
@@ -417,6 +427,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 
 			log <- cl.Error{"Cannot query transaction details for notification:", err}
+
 		}
 
 		// We'll only notify the transaction if it was found within the

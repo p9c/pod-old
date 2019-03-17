@@ -243,6 +243,7 @@ func (s *NeutrinoClient) FilterBlocks(
 		}
 
 		log <- cl.Infof{
+
 			"fetching block height=%d hash=%v",
 			blk.Height, blk.Hash,
 		}
@@ -556,6 +557,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 		if err != nil {
 
 			log <- cl.Error{
+
 				"cannot create transaction record for relevant tx:", err,
 			}
 			// TODO(aakselrod): Return?
@@ -577,6 +579,7 @@ func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
 	if err != nil {
 
 		log <- cl.Error{"can't get chain service's best block:", err}
+
 		return
 	}
 
@@ -714,6 +717,7 @@ func (s *NeutrinoClient) notificationHandler() {
 	if err != nil {
 
 		log <- cl.Errorf{"failed to get best block from chain service:", err}
+
 		s.Stop()
 		s.wg.Done()
 		return
@@ -794,6 +798,7 @@ out:
 			if err != nil {
 
 				log <- cl.Error{"neutrino rescan ended with error:", err}
+
 			}
 
 		case s.currentBlock <- bs:

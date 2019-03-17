@@ -131,6 +131,7 @@ func NewServer(
 			if err := server.checkAuthHeader(r); err != nil {
 
 				log <- cl.Wrn("unauthorized client connection attempt")
+
 				jsonAuthFail(w)
 				return
 			}
@@ -153,6 +154,7 @@ func NewServer(
 				// If auth was supplied but incorrect, rather than simply
 				// being missing, immediately terminate the connection.
 				log <- cl.Wrn("disconnecting improperly authorized websocket client")
+
 				jsonAuthFail(w)
 				return
 			}
@@ -161,6 +163,7 @@ func NewServer(
 			if err != nil {
 
 				log <- cl.Warnf{
+
 					"cannot websocket upgrade client %s: %v",
 					r.RemoteAddr, err,
 				}
@@ -208,8 +211,10 @@ func (s *Server) serve(lis net.Listener) {
 	go func() {
 
 		log <- cl.Infof{"RPC server listening on %s", lis.Addr()}
+
 		err := s.httpServer.Serve(lis)
 		log <- cl.Tracef{"finished serving RPC: %v", err}
+
 		s.wg.Done()
 	}()
 }
@@ -256,6 +261,7 @@ func (s *Server) Stop() {
 		if err != nil {
 
 			log <- cl.Errorf{
+
 				"cannot close listener `%s`: %v",
 				listener.Addr(), err,
 			}
@@ -365,6 +371,7 @@ func throttled(
 		if current-1 >= threshold {
 
 			log <- cl.Warnf{
+
 				"reached threshold of %d concurrent active clients", threshold,
 			}
 			http.Error(w, "429 Too Many Requests", 429)
@@ -442,6 +449,7 @@ func (s *Server) websocketClientRead(wsc *websocketClient) {
 			if err != io.EOF && err != io.ErrUnexpectedEOF {
 
 				log <- cl.Warnf{
+
 					"websocket receive failed from client %s: %v",
 					wsc.remoteAddr, err,
 				}
@@ -558,6 +566,7 @@ out:
 					if err != nil {
 
 						log <- cl.Error{
+
 							"unable to marshal response:", err,
 						}
 					} else {
@@ -597,6 +606,7 @@ out:
 			if err != nil {
 
 				log <- cl.Warnf{
+
 					"cannot set write deadline on client %s: %v",
 					wsc.remoteAddr, err,
 				}
@@ -606,6 +616,7 @@ out:
 			if err != nil {
 
 				log <- cl.Warnf{
+
 					"failed websocket send to client %s: %v", wsc.remoteAddr, err,
 				}
 				break out
@@ -617,6 +628,7 @@ out:
 	}
 	close(wsc.quit)
 	log <- cl.Info{
+
 		"disconnected websocket client", wsc.remoteAddr,
 	}
 	s.wg.Done()
@@ -627,6 +639,7 @@ out:
 func (s *Server) websocketClientRPC(wsc *websocketClient) {
 
 	log <- cl.Infof{
+
 		"new websocket client", wsc.remoteAddr,
 	}
 
@@ -635,6 +648,7 @@ func (s *Server) websocketClientRPC(wsc *websocketClient) {
 	if err := wsc.conn.SetReadDeadline(time.Time{}); err != nil {
 
 		log <- cl.Warn{
+
 			"cannot remove read deadline:", err,
 		}
 	}
@@ -681,6 +695,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 
 			log <- cl.Error{
+
 				"Unable to marshal response:", err,
 			}
 			http.Error(w, "500 Internal Server Error",
@@ -691,6 +706,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 
 			log <- cl.Warn{
+
 				"cannot write invalid request request to client:", err,
 			}
 		}
@@ -719,6 +735,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		log <- cl.Error{
+
 			"unable to marshal response:", err,
 		}
 		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
@@ -728,6 +745,7 @@ func (s *Server) postClientRPC(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		log <- cl.Warn{
+
 			"unable to respond to client:", err,
 		}
 	}

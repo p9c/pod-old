@@ -140,6 +140,7 @@ func nodeHandle(c *cli.Context) error {
 	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
 
 	log <- cl.Debug{spew.Sdump(nodeConfig)}
+
 	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 	_ = podHandle(c)
 	if appConfigCommon.Save {
@@ -170,6 +171,7 @@ func nodeHandle(c *cli.Context) error {
 		if err != nil {
 
 			log <- cl.Error{err}
+
 			return err
 		}
 
@@ -197,6 +199,7 @@ func nodeHandle(c *cli.Context) error {
 	case *nodeConfig.RelayNonStd && *nodeConfig.RejectNonStd:
 		errf := "%s: rejectnonstd and relaynonstd cannot be used together -- choose only one"
 		log <- cl.Errorf{errf, funcName}
+
 		// log <- cl.Err(usageMessage)
 		return fmt.Errorf(errf, funcName)
 
@@ -211,6 +214,7 @@ func nodeHandle(c *cli.Context) error {
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	log <- cl.Debug{"netname", activeNetParams.Name}
+
 	*nodeConfig.DataDir = CleanAndExpandPath(*nodeConfig.DataDir)
 	*nodeConfig.DataDir = filepath.Join(
 		*nodeConfig.DataDir, activeNetParams.Name)
@@ -238,6 +242,7 @@ func nodeHandle(c *cli.Context) error {
 			str := "%s: The profile port must be between 1024 and 65535"
 			err := fmt.Errorf(str, funcName)
 			log <- cl.Error{err}
+
 			return err
 		}
 
@@ -248,6 +253,7 @@ func nodeHandle(c *cli.Context) error {
 
 		err := fmt.Errorf("%s: The banduration option may not be less than 1s -- parsed [%v]", funcName, *nodeConfig.BanDuration)
 		log <- cl.Error{err}
+
 		return err
 	}
 
@@ -268,6 +274,7 @@ func nodeHandle(c *cli.Context) error {
 					str := err.Error() + " %s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
+
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return err
 				}
@@ -301,6 +308,7 @@ func nodeHandle(c *cli.Context) error {
 			"%s: the --addpeer and --connect options can not be mixed",
 			funcName)
 		log <- cl.Error{err}
+
 		return err
 	}
 
@@ -333,6 +341,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
+
 		return err
 	}
 
@@ -343,6 +352,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: --rpcpass and --rpclimitpass must not specify the same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -357,6 +367,7 @@ func nodeHandle(c *cli.Context) error {
 	if *nodeConfig.DisableRPC {
 
 		log <- cl.Inf("RPC service is disabled")
+
 	}
 
 	// Default RPC to listen on localhost only.
@@ -366,6 +377,7 @@ func nodeHandle(c *cli.Context) error {
 		if err != nil {
 
 			log <- cl.Error{err}
+
 			return err
 		}
 
@@ -383,6 +395,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, *nodeConfig.RPCMaxConcurrentReqs)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -395,6 +408,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -407,6 +421,7 @@ func nodeHandle(c *cli.Context) error {
 		err := fmt.Errorf(str, funcName, node.BlockMaxSizeMin,
 			node.BlockMaxSizeMax, *nodeConfig.BlockMaxSize)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -419,6 +434,7 @@ func nodeHandle(c *cli.Context) error {
 		err := fmt.Errorf(str, funcName, node.BlockMaxWeightMin,
 			node.BlockMaxWeightMax, *nodeConfig.BlockMaxWeight)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -429,6 +445,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, *nodeConfig.MaxOrphanTxs)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -465,6 +482,7 @@ func nodeHandle(c *cli.Context) error {
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
 			log <- cl.Err(err.Error())
+
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
@@ -477,6 +495,7 @@ func nodeHandle(c *cli.Context) error {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex options may not be activated at the same time",
 			funcName)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -491,6 +510,7 @@ func nodeHandle(c *cli.Context) error {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
 			log <- cl.Err(err.Error())
+
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
@@ -500,6 +520,7 @@ func nodeHandle(c *cli.Context) error {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Error{err}
+
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
@@ -513,6 +534,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		os.Exit(1)
 	}
@@ -534,6 +556,7 @@ func nodeHandle(c *cli.Context) error {
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
 				log <- cl.Error{err}
+
 				// fmt.Fprintln(os.Stderr, usageMessage)
 				return err
 			}
@@ -557,6 +580,7 @@ func nodeHandle(c *cli.Context) error {
 
 		err := fmt.Errorf("%s: the --onionproxy and --onion options may not be activated at the same time", funcName)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -568,6 +592,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -580,6 +605,7 @@ func nodeHandle(c *cli.Context) error {
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Error{err}
+
 		// fmt.Fprintln(os.Stderr, usageMessage)
 		return err
 	}
@@ -590,12 +616,14 @@ func nodeHandle(c *cli.Context) error {
 	if *nodeConfig.Proxy != "" {
 
 		log <- cl.Info{"we are loading a proxy!"}
+
 		_, _, err := net.SplitHostPort(*nodeConfig.Proxy)
 		if err != nil {
 
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, *nodeConfig.Proxy, err)
 			log <- cl.Error{err}
+
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
@@ -609,6 +637,7 @@ func nodeHandle(c *cli.Context) error {
 
 			torIsolation = true
 			log <- cl.Warn{
+
 				"Tor isolation set -- overriding specified proxy user credentials"}
 		}
 
@@ -642,6 +671,7 @@ func nodeHandle(c *cli.Context) error {
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, *nodeConfig.OnionProxy, err)
 			log <- cl.Error{err}
+
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}

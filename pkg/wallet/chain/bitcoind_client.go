@@ -388,6 +388,7 @@ func (c *BitcoindClient) RescanBlocks(
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"unable to get header %s from bitcoind: %s",
 				hash, err,
 			}
@@ -398,6 +399,7 @@ func (c *BitcoindClient) RescanBlocks(
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"unable to get block %s from bitcoind: %s",
 				hash, err,
 			}
@@ -626,11 +628,13 @@ func (c *BitcoindClient) rescanHandler() {
 				if err := c.rescan(update); err != nil {
 
 					log <- cl.Error{
+
 						"unable to complete chain rescan:", err,
 					}
 				}
 			default:
 				log <- cl.Warnf{
+
 					"received unexpected filter type %T", update,
 				}
 			}
@@ -656,6 +660,7 @@ func (c *BitcoindClient) ntfnHandler() {
 			if _, _, err := c.filterTx(tx, nil, true); err != nil {
 
 				log <- cl.Errorf{
+
 					"unable to filter transaction %v: %v",
 					tx.TxHash(), err,
 				}
@@ -678,6 +683,7 @@ func (c *BitcoindClient) ntfnHandler() {
 				if err != nil {
 
 					log <- cl.Errorf{
+
 						"unable to filter block %v: %v",
 						newBlock.BlockHash(), err,
 					}
@@ -701,6 +707,7 @@ func (c *BitcoindClient) ntfnHandler() {
 			if err := c.reorg(bestBlock, newBlock); err != nil {
 
 				log <- cl.Error{
+
 					"unable to process chain reorg:", err,
 				}
 			}
@@ -811,6 +818,7 @@ func (c *BitcoindClient) onRelevantTx(tx *wtxmgr.TxRecord,
 	if err != nil {
 
 		log <- cl.Error{
+
 			"unable to send onRelevantTx notification, failed parse block:", err,
 		}
 		return
@@ -850,6 +858,7 @@ func (c *BitcoindClient) onRescanFinished(hash *chainhash.Hash, height int32,
 	timestamp time.Time) {
 
 	log <- cl.Infof{
+
 		"rescan finished at %d (%s)",
 		height, hash,
 	}
@@ -872,6 +881,7 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 	reorgBlock *wire.MsgBlock) error {
 
 	log <- cl.Debug{
+
 		"possible reorg at block", reorgBlock.BlockHash(),
 	}
 
@@ -890,6 +900,7 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 	if bestHeight < currentBlock.Height {
 
 		log <- cl.Dbg("detected multiple reorgs")
+
 		return nil
 	}
 
@@ -936,6 +947,7 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 		// been reorged out of the chain, so we should send a
 		// BlockDisconnected notification for it.
 		log <- cl.Debugf{
+
 			"disconnecting block %d (%v)",
 			currentBlock.Height,
 			currentBlock.Hash,
@@ -975,6 +987,7 @@ func (c *BitcoindClient) reorg(currentBlock waddrmgr.BlockStamp,
 
 	// now be the last common ancestor.
 	log <- cl.Debugf{
+
 		"disconnecting block %d (%v)",
 		currentBlock.Height, currentBlock.Hash,
 	}
@@ -1302,6 +1315,7 @@ func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 	if c.shouldNotifyBlocks() {
 
 		log <- cl.Debugf{
+
 			"filtering block %d (%s) with %d transactions",
 			height, block.BlockHash(), len(block.Transactions),
 		}
@@ -1327,6 +1341,7 @@ func (c *BitcoindClient) filterBlock(block *wire.MsgBlock, height int32,
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"Unable to filter transaction %v: %v",
 				tx.TxHash(), err,
 			}
@@ -1382,6 +1397,7 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 	if err != nil {
 
 		log <- cl.Error{
+
 			"Cannot create transaction record for relevant tx:", err,
 		}
 		return false, nil, err
@@ -1429,6 +1445,7 @@ func (c *BitcoindClient) filterTx(tx *wire.MsgTx,
 		if err != nil {
 
 			log <- cl.Debugf{
+
 				"Unable to parse output script in %s:%d: %v",
 				tx.TxHash(), i, err,
 			}

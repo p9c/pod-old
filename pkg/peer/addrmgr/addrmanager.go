@@ -201,6 +201,7 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 	ka.refs++
 	a.addrNew[bucket][addr] = ka
 	log <- cl.Tracef{"added new address %s for a total of %d addresses", addr, a.nTried + a.nNew}
+
 }
 
 // expireNew makes space in the new buckets by expiring the really bad entries. If no bad entries are available we look at a few and remove the oldest.
@@ -213,6 +214,7 @@ func (a *AddrManager) expireNew(bucket int) {
 		if v.isBad() {
 
 			log <- cl.Tracef{"expiring bad address %v", k}
+
 			delete(a.addrNew[bucket], k)
 			v.refs--
 			if v.refs == 0 {
@@ -234,6 +236,7 @@ func (a *AddrManager) expireNew(bucket int) {
 
 		key := NetAddressKey(oldest.na)
 		log <- cl.Tracef{"expiring oldest address %v", key}
+
 		delete(a.addrNew[bucket], key)
 		oldest.refs--
 		if oldest.refs == 0 {
@@ -325,6 +328,7 @@ out:
 	a.savePeers()
 	a.wg.Done()
 	log <- cl.Trace{"address handler done"}
+
 }
 
 // savePeers saves all the known addresses to a file so they can be read back in at next run.
@@ -377,6 +381,7 @@ func (a *AddrManager) savePeers() {
 	if err != nil {
 
 		log <- cl.Errorf{"error opening file %s: %v", a.peersFile, err}
+
 		return
 	}
 	enc := json.NewEncoder(w)
@@ -384,6 +389,7 @@ func (a *AddrManager) savePeers() {
 	if err := enc.Encode(&sam); err != nil {
 
 		log <- cl.Errorf{
+
 			"failed to encode file %s: %v", a.peersFile, err,
 		}
 		return
@@ -399,6 +405,7 @@ func (a *AddrManager) loadPeers() {
 	if err != nil {
 
 		log <- cl.Errorf{
+
 			"failed to parse file %s: %v", a.peersFile, err,
 		}
 		// if it is invalid we nuke the old one unconditionally.
@@ -406,6 +413,7 @@ func (a *AddrManager) loadPeers() {
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"failed to remove corrupt peers file %s: %v", a.peersFile, err,
 			}
 		}
@@ -560,9 +568,11 @@ func (a *AddrManager) Stop() error {
 	if atomic.AddInt32(&a.shutdown, 1) != 1 {
 
 		log <- cl.Wrn("address manager is already in the process of shutting down")
+
 		return nil
 	}
 	log <- cl.Inf("address manager shutting down")
+
 	close(a.quit)
 	a.wg.Wait()
 	return nil
@@ -1100,9 +1110,11 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 	if bestAddress != nil {
 
 		log <- cl.Debugf{"suggesting address %s:%d for %s:%d", bestAddress.IP, bestAddress.Port, remoteAddr.IP, remoteAddr.Port}
+
 	} else {
 
 		log <- cl.Debugf{"no worthy address for %s:%d", remoteAddr.IP, remoteAddr.Port}
+
 		// Send something unroutable if nothing suitable.
 		var ip net.IP
 		if !IsIPv4(remoteAddr) && !IsOnionCatTor(remoteAddr) {

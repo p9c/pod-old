@@ -261,6 +261,7 @@ func (c *RPCClient) FilterBlocks(
 		}
 
 		log <- cl.Infof{
+
 			"fetching block height=%d hash=%v",
 			blk.Height, blk.Hash,
 		}
@@ -368,6 +369,7 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 
 		// Log and drop improper notification.
 		log <- cl.Error{
+
 			"recvtx notification bad block:", err,
 		}
 		return
@@ -377,6 +379,7 @@ func (c *RPCClient) onRecvTx(tx *util.Tx, block *json.BlockDetails) {
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot create transaction record for relevant tx:", err,
 		}
 		return
@@ -421,6 +424,7 @@ func (c *RPCClient) handler() {
 	if err != nil {
 
 		log <- cl.Error{
+
 			"failed to receive best block from chain server:", err,
 		}
 		c.Stop()

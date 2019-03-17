@@ -151,6 +151,7 @@ func handleGetWork(
 			if e != nil {
 
 				log <- cl.Warn{"failed to update block template", e}
+
 			}
 
 		}
@@ -166,6 +167,7 @@ func handleGetWork(
 
 			errStr := fmt.Sprintf("Failed to create new block template: %v", err)
 			log <- cl.Err(errStr)
+
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCInternal.Code,
 				Message: errStr,
@@ -199,10 +201,12 @@ func handleGetWork(
 		if e != nil {
 
 			log <- cl.Warn{"failed to update block time", e}
+
 		}
 
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		log <- cl.Debugf{
+
 			"updated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
 			msgBlock.Header.Timestamp,
 			blockchain.CompactToBig(msgBlock.Header.Bits),
@@ -231,6 +235,7 @@ func handleGetWork(
 
 		errStr := fmt.Sprintf("Failed to serialize data: %v", err)
 		log <- cl.Wrn(errStr)
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInternal.Code,
 			Message: errStr,
@@ -332,6 +337,7 @@ func handleGetWorkSubmission(
 	if state.template.Block.Header.MerkleRoot.String() == "" {
 
 		log <- cl.Debug{
+
 			"Block submitted via getwork has no matching template for merkle root",
 			submittedHeader.MerkleRoot,
 		}
@@ -351,6 +357,7 @@ func handleGetWorkSubmission(
 	// Ensure the submitted block hash is less than the target difficulty.
 	pl := fork.GetMinDiff(s.cfg.Algo, s.cfg.Chain.BestSnapshot().Height)
 	log <- cl.Info{"powlimit", pl}
+
 	err = blockchain.CheckProofOfWork(block, pl, s.cfg.Chain.BestSnapshot().Height)
 
 	if err != nil {
@@ -367,6 +374,7 @@ func handleGetWorkSubmission(
 		}
 
 		log <- cl.Debug{
+
 			"block submitted via getwork does not meet the required proof of work:", err,
 		}
 
@@ -378,6 +386,7 @@ func handleGetWorkSubmission(
 	if !msgBlock.Header.PrevBlock.IsEqual(latestHash) {
 
 		log <- cl.Debugf{
+
 			"block submitted via getwork with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
 		}
@@ -402,12 +411,14 @@ func handleGetWorkSubmission(
 		}
 
 		log <- cl.Info{"block submitted via getwork rejected:", err}
+
 		return false, nil
 	}
 
 	// The block was accepted.
 	blockSha := block.Hash()
 	log <- cl.Info{"block submitted via getwork accepted:", blockSha}
+
 	return true, nil
 }
 

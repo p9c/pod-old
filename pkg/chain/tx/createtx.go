@@ -202,6 +202,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		changeAmount := util.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
 		log <- cl.Warnf{
+
 			"spend from imported account produced change: " +
 				"moving %v from imported account into default account.",
 			changeAmount,

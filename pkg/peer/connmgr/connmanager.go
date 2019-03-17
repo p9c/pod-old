@@ -177,6 +177,7 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 			d = maxRetryDuration
 		}
 		log <- cl.Debugf{"retrying connection to %v in %v", c, d}
+
 		time.AfterFunc(d, func() {
 
 			cm.Connect(c)
@@ -187,6 +188,7 @@ func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 		if cm.failedAttempts >= maxFailedAttempts {
 
 			log <- cl.Debugf{
+
 				"max failed connection attempts reached: [%d] -- retrying connection in: %v",
 				maxFailedAttempts,
 				cm.cfg.RetryDuration,
@@ -237,12 +239,14 @@ out:
 						msg.conn.Close()
 					}
 					log <- cl.Debug{"ignoring connection for canceled connreq", connReq}
+
 					continue
 				}
 				connReq.updateState(ConnEstablished)
 				connReq.conn = msg.conn
 				conns[connReq.id] = connReq
 				log <- cl.Debug{"connected to", connReq}
+
 				connReq.retryCount = 0
 				cm.failedAttempts = 0
 				delete(pending, connReq.id)
@@ -258,18 +262,21 @@ out:
 					if !ok {
 
 						log <- cl.Error{"unknown connid", msg.id}
+
 						continue
 					}
 
 					// Pending connection was found, remove it from pending map if we should ignore a later, successful connection.
 					connReq.updateState(ConnCanceled)
 					log <- cl.Debug{"canceling:", connReq}
+
 					delete(pending, msg.id)
 					continue
 				}
 
 				// An existing connection was located, mark as disconnected and execute disconnection callback.
 				log <- cl.Debug{"disconnected from", connReq}
+
 				delete(conns, msg.id)
 				if connReq.conn != nil {
 
@@ -293,6 +300,7 @@ out:
 
 					connReq.updateState(ConnPending)
 					log <- cl.Debug{"reconnecting to", connReq}
+
 					pending[msg.id] = connReq
 					cm.handleFailedConn(connReq)
 				}
@@ -301,10 +309,12 @@ out:
 				if _, ok := pending[connReq.id]; !ok {
 
 					log <- cl.Debug{"ignoring connection for canceled conn req:", connReq}
+
 					continue
 				}
 				connReq.updateState(ConnFailing)
 				log <- cl.Debugf{"failed to connect to %v: %v", connReq, msg.err}
+
 				cm.handleFailedConn(connReq)
 			}
 		case <-cm.quit:
@@ -412,8 +422,10 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		}
 	}
 	log <- cl.Debugf{"attempting to connect to '%s'", c.Addr}
+
 	conn, err := cm.cfg.Dial(c.Addr)
 	log <- cl.Trace{cl.Ine(), err, c.Addr}
+
 	if err != nil {
 
 		select {
@@ -492,6 +504,7 @@ func (cm *ConnManager) listenHandler(listener net.Listener) {
 			if atomic.LoadInt32(&cm.stop) == 0 {
 
 				log <- cl.Error{"can't accept connection:", err}
+
 			}
 			continue
 		}
@@ -542,6 +555,7 @@ func (cm *ConnManager) Stop() {
 	if atomic.AddInt32(&cm.stop, 1) != 1 {
 
 		log <- cl.Wrn("connection manager already stopped")
+
 		return
 	}
 
@@ -560,6 +574,7 @@ func New(cfg *Config) (*ConnManager, error) {
 	if cfg.Dial == nil {
 
 		log <- cl.Error{"cfg.Dial is nil"}
+
 		return nil, ErrDialNil
 	}
 

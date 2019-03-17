@@ -148,6 +148,7 @@ func (p *Pool) getEligibleInputs(ns, addrmgrNs walletdb.ReadBucket, store *wtxmg
 		} else if nAddr == nil {
 
 			log <- cl.Dbg(
+
 				"getEligibleInputs: reached last addr, stopping",
 			)
 			break
@@ -182,6 +183,7 @@ func nextAddr(
 
 			seriesID++
 			log <- cl.Debugf{
+
 				"nextAddr(): reached last branch (%d) and highest used index (%d), " +
 					"moving on to next series (%d)",
 				branch,
@@ -208,6 +210,7 @@ func nextAddr(
 		// get a WithdrawalAddress that hasn't been used before, and in such
 		// cases we just need to move on to the next one.
 		log <- cl.Debugf{
+
 			"nextAddr(): skipping addr (series #%d, branch #%d, index #%d) " +
 				"as it hasn't been used before",
 			seriesID,

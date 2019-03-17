@@ -214,8 +214,10 @@ func (
 
 	// Limit max number of websocket clients.
 	log <- cl.Info{"new websocket client", remoteAddr}
+
 	if s.ntfnMgr.NumClients()+1 > *cfg.RPCMaxWebsockets {
 		log <- cl.Infof{
+
 			"max websocket clients exceeded [%d] - disconnecting client %s",
 			cfg.RPCMaxWebsockets,
 			remoteAddr,
@@ -229,6 +231,7 @@ func (
 	client, err := newWebsocketClient(s, conn, remoteAddr, authenticated, isAdmin)
 	if err != nil {
 		log <- cl.Errorf{
+
 			"failed to serve client %s: %v", remoteAddr, err,
 		}
 
@@ -241,6 +244,7 @@ func (
 	client.WaitForShutdown()
 	s.ntfnMgr.RemoveClient(client)
 	log <- cl.Infof{
+
 		"disconnected websocket client %s", remoteAddr,
 	}
 
@@ -260,6 +264,7 @@ func (
 	}
 
 	log <- cl.Trace{"disconnecting websocket client", c.addr}
+
 	close(c.quit)
 	c.conn.Close()
 	c.disconnected = true
@@ -355,6 +360,7 @@ out:
 			// Log the error if it's not due to disconnecting.
 			if err != io.EOF {
 				log <- cl.Errorf{
+
 					"websocket receive error from %s: %v",
 					c.addr, err,
 				}
@@ -379,6 +385,7 @@ out:
 			reply, err := createMarshalledReply(nil, nil, jsonErr)
 			if err != nil {
 				log <- cl.Error{
+
 					"failed to marshal parse failure reply:", err,
 				}
 
@@ -412,6 +419,7 @@ out:
 			reply, err := createMarshalledReply(cmd.id, nil, cmd.err)
 			if err != nil {
 				log <- cl.Errorf{
+
 					"failed to marshal parse failure reply:", err,
 				}
 
@@ -423,6 +431,7 @@ out:
 		}
 
 		log <- cl.Tracef{
+
 			"received command <%s> from %s", cmd.method, c.addr,
 		}
 
@@ -430,12 +439,14 @@ out:
 		switch authCmd, ok := cmd.cmd.(*json.AuthenticateCmd); {
 		case c.authenticated && ok:
 			log <- cl.Warnf{
+
 				"websocket client %s is already authenticated", c.addr,
 			}
 
 			break out
 		case !c.authenticated && !ok:
 			log <- cl.Warnf{
+
 				"unauthenticated websocket message received"}
 			break out
 		case !c.authenticated:
@@ -447,6 +458,7 @@ out:
 			limitcmp := subtle.ConstantTimeCompare(authSha[:], c.server.limitauthsha[:])
 			if cmp != 1 && limitcmp != 1 {
 				log <- cl.Warn{"authentication failure from", c.addr}
+
 				break out
 			}
 
@@ -456,6 +468,7 @@ out:
 			reply, err := createMarshalledReply(cmd.id, nil, nil)
 			if err != nil {
 				log <- cl.Error{"failed to marshal authenticate reply:", err}
+
 				continue
 			}
 
@@ -475,6 +488,7 @@ out:
 				reply, err := createMarshalledReply(request.ID, nil, jsonErr)
 				if err != nil {
 					log <- cl.Error{"failed to marshal parse failure reply:", err}
+
 					continue
 				}
 
@@ -500,6 +514,7 @@ out:
 	c.Disconnect()
 	c.wg.Done()
 	log <- cl.Trace{"websocket client input handler done for", c.addr}
+
 }
 
 // notificationQueueHandler handles the queuing of outgoing notifications for the websocket client.  This runs as a muxer for various sources of input to ensure that queuing up notifications to be sent will not block.  Otherwise, slow clients could bog down the other systems (such as the mempool or block manager) which are queuing the data.  The data is passed on to outHandler to actually be written.  It must be run as a goroutine.
@@ -560,6 +575,7 @@ cleanup:
 
 	c.wg.Done()
 	log <- cl.Trace{
+
 		"websocket client notification queue handler done for", c.addr,
 	}
 
@@ -611,6 +627,7 @@ cleanup:
 
 	c.wg.Done()
 	log <- cl.Trace{
+
 		"websocket client output handler done for", c.addr,
 	}
 
@@ -639,6 +656,7 @@ func (
 	reply, err := createMarshalledReply(r.id, result, err)
 	if err != nil {
 		log <- cl.Errorf{
+
 			"failed to marshal reply for <%s> command: %v", r.method, err,
 		}
 
@@ -1093,6 +1111,7 @@ func (
 		spend := m.server.cfg.TxMemPool.CheckSpend(*op)
 		if spend != nil {
 			log <- cl.Debugf{
+
 				"found existing mempool spend for outpoint<%v>: %v",
 				op, spend.Hash(),
 			}
@@ -1207,6 +1226,7 @@ out:
 				delete(txNotifications, wsc.quit)
 			default:
 				log <- cl.Wrn("unhandled notification type")
+
 			}
 
 		case m.numClients <- len(clients):
@@ -1239,6 +1259,7 @@ func (
 	marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 	if err != nil {
 		log <- cl.Error{"failed to marshal block connected notification:", err}
+
 		return
 	}
 
@@ -1266,6 +1287,7 @@ func (
 	marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 	if err != nil {
 		log <- cl.Error{"failed to marshal block disconnected notification:", err}
+
 		return
 	}
 
@@ -1287,6 +1309,7 @@ func (
 	err := block.MsgBlock().Header.Serialize(&w)
 	if err != nil {
 		log <- cl.Error{
+
 			"failed to serialize header for filtered block connected notification:", err,
 		}
 
@@ -1319,6 +1342,7 @@ func (
 		marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 		if err != nil {
 			log <- cl.Errorf{
+
 				"failed to marshal filtered block connected notification:", err,
 			}
 
@@ -1347,6 +1371,7 @@ func (
 	err := block.MsgBlock().Header.Serialize(&w)
 	if err != nil {
 		log <- cl.Error{
+
 			"failed to serialize header for filtered block disconnected notification:", err,
 		}
 
@@ -1358,6 +1383,7 @@ func (
 	marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 	if err != nil {
 		log <- cl.Error{
+
 			"failed to marshal filtered block disconnected notification:", err,
 		}
 
@@ -1389,6 +1415,7 @@ func (
 	marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 	if err != nil {
 		log <- cl.Error{"failed to marshal tx notification:", err}
+
 		return
 	}
 
@@ -1413,6 +1440,7 @@ func (
 				verboseNtfn)
 			if err != nil {
 				log <- cl.Error{"failed to marshal verbose tx notification:", err}
+
 				return
 			}
 
@@ -1467,6 +1495,7 @@ func (
 			marshalledJSON, err := newRedeemingTxNotification(txHex, tx.Index(), block)
 			if err != nil {
 				log <- cl.Warn{
+
 					"failed to marshal redeemingtx notification:", err,
 				}
 
@@ -1526,6 +1555,7 @@ func (
 			marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 			if err != nil {
 				log <- cl.Error{
+
 					"Failed to marshal processedtx notification:", err,
 				}
 
@@ -1561,6 +1591,7 @@ func (
 		marshalled, err := json.MarshalCmd(nil, n)
 		if err != nil {
 			log <- cl.Error{
+
 				"failed to marshal notification:", err,
 			}
 
@@ -1598,6 +1629,7 @@ func (
 	cmap, ok := addrs[addr]
 	if !ok {
 		log <- cl.Warnf{
+
 			"attempt to remove nonexistent addr request <%s> for websocket client %s",
 			addr, wsc.addr,
 		}
@@ -1628,6 +1660,7 @@ func (
 	notifyMap, ok := ops[*op]
 	if !ok {
 		log <- cl.Warn{
+
 			"attempt to remove nonexistent spent request for websocket client", wsc.addr,
 		}
 
@@ -1768,6 +1801,7 @@ func descendantBlock(
 	if !prevHash.IsEqual(curHash) {
 
 		log <- cl.Errorf{
+
 			"stopping rescan for reorged block %v (replaced by block %v)",
 			prevHash, curHash,
 		}
@@ -1926,8 +1960,10 @@ func handleRescan(
 	numAddrs := len(cmd.Addresses)
 	if numAddrs == 1 {
 		log <- cl.Inf("beginning rescan for 1 address")
+
 	} else {
 		log <- cl.Infof{"beginning rescan for %d addresses", numAddrs}
+
 	}
 
 	// Build lookup maps.
@@ -2044,6 +2080,7 @@ fetchRange:
 		hashList, err := chain.HeightRange(minBlock, maxLoopBlock)
 		if err != nil {
 			log <- cl.Error{"error looking up block range:", err}
+
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCDatabase,
 				Message: "Database error: " + err.Error(),
@@ -2073,6 +2110,7 @@ fetchRange:
 			close(pauseGuard)
 			if err != nil {
 				log <- cl.Errorf{
+
 					"Error fetching best block hash:", err,
 				}
 
@@ -2098,6 +2136,7 @@ fetchRange:
 				if dbErr, ok := err.(database.Error); !ok ||
 					dbErr.ErrorCode != database.ErrBlockNotFound {
 					log <- cl.Error{"error looking up block:", err}
+
 					return nil, &json.RPCError{
 						Code: json.ErrRPCDatabase,
 						Message: "Database error: " +
@@ -2109,6 +2148,7 @@ fetchRange:
 				// If an absolute max block was specified, don't attempt to handle the reorg.
 				if maxBlock != math.MaxInt32 {
 					log <- cl.Error{
+
 						"stopping rescan for reorged block", cmd.EndBlock,
 					}
 
@@ -2145,6 +2185,7 @@ fetchRange:
 			case <-wsc.quit:
 				// fmt.Println("chan:<-wsc.quit")
 				log <- cl.Debugf{
+
 					"stopped rescan at height %v for disconnected client",
 					blk.Height(),
 				}
@@ -2169,6 +2210,7 @@ fetchRange:
 			mn, err := json.MarshalCmd(nil, n)
 			if err != nil {
 				log <- cl.Errorf{
+
 					"failed to marshal rescan progress notification: %v", err,
 				}
 
@@ -2178,6 +2220,7 @@ fetchRange:
 			if err = wsc.QueueNotification(mn); err == ErrClientQuit {
 				// Finished if the client disconnected.
 				log <- cl.Debugf{
+
 					"stopped rescan at height %v for disconnected client",
 					blk.Height(),
 				}
@@ -2196,6 +2239,7 @@ fetchRange:
 		lastBlock.MsgBlock().Header.Timestamp.Unix())
 	if mn, err := json.MarshalCmd(nil, n); err != nil {
 		log <- cl.Errorf{
+
 			"failed to marshal rescan finished notification: %v", err,
 		}
 
@@ -2205,6 +2249,7 @@ fetchRange:
 	}
 
 	log <- cl.Info{"finished rescan"}
+
 	return nil, nil
 }
 
@@ -2538,6 +2583,7 @@ func recoverFromReorg(
 	hashList, err := chain.HeightRange(minBlock, maxBlock)
 	if err != nil {
 		log <- cl.Error{"error looking up block range:", err}
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCDatabase,
 			Message: "Database error: " + err.Error(),
@@ -2552,6 +2598,7 @@ func recoverFromReorg(
 	blk, err := chain.BlockByHash(&hashList[0])
 	if err != nil {
 		log <- cl.Error{"error looking up possibly reorged block:", err}
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCDatabase,
 			Message: "Database error: " + err.Error(),
@@ -2592,6 +2639,7 @@ func rescanBlock(
 				marshalledJSON, err := newRedeemingTxNotification(txHex, tx.Index(), blk)
 				if err != nil {
 					log <- cl.Error{"failed to marshal redeemingtx notification:", err}
+
 					continue
 				}
 
@@ -2642,6 +2690,7 @@ func rescanBlock(
 
 					default:
 						log <- cl.Warnf{
+
 							"skipping rescanned pubkey of unknown serialized length", len(sa),
 						}
 
@@ -2686,6 +2735,7 @@ func rescanBlock(
 				marshalledJSON, err := json.MarshalCmd(nil, ntfn)
 				if err != nil {
 					log <- cl.Error{"failed to marshal recvtx notification:", err}
+
 					return
 				}
 

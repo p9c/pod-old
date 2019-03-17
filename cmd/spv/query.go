@@ -405,6 +405,7 @@ func queryChainServiceBatch(
 					firstUnfinished++
 
 					log <- cl.Tracef{
+
 						"query #%v already answered, skipping", i,
 					}
 
@@ -423,6 +424,7 @@ func queryChainServiceBatch(
 				) {
 
 					log <- cl.Tracef{
+
 						"query #%v already being queried for, skipping", i,
 					}
 
@@ -526,6 +528,7 @@ func queryChainServiceBatch(
 					uint32(queryAnswered))
 
 				log <- cl.Tracef{
+
 					"query #%v answered, updating state", handleQuery,
 				}
 
@@ -1105,10 +1108,12 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 
 		str := "couldn't get header for block %s from database"
 		log <- cl.Debug{str, blockHash}
+
 		return nil, fmt.Errorf(str, blockHash)
 	}
 
 	log <- cl.Debugf{
+
 		"fetching filter for height=%v, hash=%v",
 		height, blockHash,
 	}
@@ -1232,6 +1237,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		if err != nil {
 
 			log <- cl.Warn{
+
 				"couldn't write filter to cache:", err,
 			}
 
@@ -1250,6 +1256,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 			}
 
 			log <- cl.Tracef{
+
 				"Wrote filter for block %s, type %d",
 				blockHash, filterType,
 			}
@@ -1384,6 +1391,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				); err != nil {
 
 					log <- cl.Warnf{
+
 						"Invalid block for %s received from %s -- disconnecting peer",
 						blockHash, sp.Addr(),
 					}
@@ -1425,6 +1433,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	if err != nil {
 
 		log <- cl.Warn{"couldn't write block to cache:", err}
+
 	}
 
 	return foundBlock, nil
@@ -1495,6 +1504,7 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						tx.TxHash(), sp.Addr(),
 						response.Reason)
 					log <- cl.Error{err}
+
 					close(quit)
 				}
 

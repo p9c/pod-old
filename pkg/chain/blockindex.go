@@ -373,6 +373,7 @@ func (node *blockNode) GetLastWithAlgo(algo int32) (prev *blockNode) {
 				algo != 2 {
 
 				log <- cl.Debug{"irregular version block, assuming 2 (sha256d)"}
+
 				algo = 2
 			}
 

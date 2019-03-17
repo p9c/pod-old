@@ -428,6 +428,7 @@ func (p *Peer) UpdateLastBlockHeight(newHeight int32) {
 
 	p.statsMtx.Lock()
 	log <- cl.Tracef{
+
 		"updating last block height of peer %v from %v to %v",
 		p.addr,
 		p.lastBlock,
@@ -443,6 +444,7 @@ func (p *Peer) UpdateLastBlockHeight(newHeight int32) {
 func (p *Peer) UpdateLastAnnouncedBlock(blkHash *chainhash.Hash) {
 
 	log <- cl.Trace{"updating last blk for peer", p.addr, ",", blkHash}
+
 	p.statsMtx.Lock()
 	p.lastAnnouncedBlock = blkHash
 	p.statsMtx.Unlock()
@@ -779,6 +781,7 @@ func (p *Peer) PushGetBlocksMsg(locator blockchain.BlockLocator, stopHash *chain
 	if isDuplicate {
 
 		log <- cl.Tracef{
+
 			"filtering duplicate [getblocks] with begin hash %v, stop hash %v",
 			beginHash,
 			stopHash,
@@ -833,6 +836,7 @@ func (p *Peer) PushGetHeadersMsg(locator blockchain.BlockLocator, stopHash *chai
 	if isDuplicate {
 
 		log <- cl.Trace{
+
 			"Filtering duplicate [getheaders] with begin hash", beginHash,
 		}
 
@@ -882,6 +886,7 @@ func (p *Peer) PushRejectMsg(command string, code wire.RejectCode, reason string
 		if hash == nil {
 
 			log <- cl.Warn{
+
 				"Sending a reject message for command type", command,
 				"which should have specified a hash but does not",
 			}
@@ -1197,6 +1202,7 @@ out:
 				if handlerActive {
 
 					log <- cl.Wrn(
+
 						"Received handler start control command while a handler is already active",
 					)
 					continue
@@ -1211,6 +1217,7 @@ out:
 				if !handlerActive {
 
 					log <- cl.Warn{
+
 						"Received handler done control command when a handler is not already active",
 					}
 
@@ -1223,6 +1230,7 @@ out:
 				handlerActive = false
 			default:
 				log <- cl.Warn{
+
 					"Unsupported message command", msg.command,
 				}
 
@@ -1251,6 +1259,7 @@ out:
 				}
 
 				log <- cl.Debugf{
+
 					"Peer %s appears to be stalled or misbehaving, %s timeout -- disconnecting",
 					p,
 					command,
@@ -1307,6 +1316,7 @@ cleanup:
 	}
 
 	log <- cl.Trace{"peer stall handler done for", p}
+
 }
 
 // inHandler handles all incoming messages for the peer.  It must be run as a goroutine.
@@ -1318,6 +1328,7 @@ func (p *Peer) inHandler() {
 	idleTimer := time.AfterFunc(idleTimeout, func() {
 
 		log <- cl.Warnf{"peer %s no answer for %s -- disconnecting", p, idleTimeout}
+
 		p.Disconnect()
 	})
 
@@ -1336,6 +1347,7 @@ out:
 			if p.isAllowedReadError(err) {
 
 				log <- cl.Errorf{"allowed test error from %s: %v", p, err}
+
 				idleTimer.Reset(idleTimeout)
 				continue
 			}
@@ -1349,6 +1361,7 @@ out:
 				if err != io.ErrUnexpectedEOF {
 
 					log <- cl.Err(errMsg)
+
 				}
 
 				// Push a reject message for the malformed message and wait for the message to be sent before disconnecting.
@@ -1382,6 +1395,7 @@ out:
 			if p.verAckReceived {
 
 				log <- cl.Infof{"Already received 'verack' from peer %v -- disconnecting", p}
+
 				break out
 			}
 
@@ -1583,6 +1597,7 @@ out:
 
 		default:
 			log <- cl.Debugf{
+
 				"Received unhandled message of type %v from %v",
 				rmsg.Command(),
 				p,
@@ -1603,6 +1618,7 @@ out:
 	p.Disconnect()
 	close(p.inQuit)
 	log <- cl.Trace{"peer input handler done for", p}
+
 }
 
 // queueHandler handles the queuing of outgoing data for the peer. This runs as a muxer for various sources of input so we can ensure that server and peer handlers will not block on us sending a message.  That data is then passed on outHandler to be actually written.
@@ -1785,6 +1801,7 @@ cleanup:
 
 	close(p.queueQuit)
 	log <- cl.Trace{"peer queue handler done for", p}
+
 }
 
 // shouldLogWriteError returns whether or not the passed error, which is expected to have come from writing to the remote peer in the outHandler, should be logged.
@@ -1853,6 +1870,7 @@ out:
 				if p.shouldLogWriteError(err) {
 
 					log <- cl.Errorf{"failed to send message to %s: %v", p, err}
+
 				}
 
 				if msg.doneChan != nil {
@@ -1907,6 +1925,7 @@ cleanup:
 
 	close(p.outQuit)
 	log <- cl.Trace{"peer output handler done for", p}
+
 }
 
 // pingHandler periodically pings the peer.  It must be run as a goroutine.
@@ -1929,6 +1948,7 @@ out:
 			if err != nil {
 
 				log <- cl.Errorf{"not sending ping to %s: %v", p, err}
+
 				continue
 			}
 
@@ -2059,6 +2079,7 @@ func (p *Peer) readRemoteVersionMsg() error {
 	p.services = msg.Services
 	p.flagsMtx.Unlock()
 	log <- cl.Debugf{
+
 		"negotiated protocol version %d for peer %s",
 		p.protocolVersion,
 		p,
@@ -2234,6 +2255,7 @@ func (p *Peer) negotiateOutboundProtocol() error {
 func (p *Peer) start() error {
 
 	log <- cl.Debug{"starting peer", p}
+
 	negotiateErr := make(chan error, 1)
 
 	go func() {
@@ -2310,6 +2332,7 @@ func (p *Peer) AssociateConnection(conn net.Conn) {
 		if err != nil {
 
 			log <- cl.Error{"cannot create remote net address:", err}
+
 			p.Disconnect()
 			return
 		}
@@ -2322,6 +2345,7 @@ func (p *Peer) AssociateConnection(conn net.Conn) {
 		if err := p.start(); err != nil {
 
 			log <- cl.Debugf{"cannot start peer %v: %v", p, err}
+
 			p.Disconnect()
 		}
 

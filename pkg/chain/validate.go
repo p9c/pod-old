@@ -93,6 +93,7 @@ func (
 	if err != nil {
 
 		log <- cl.Error{"ERROR", err}
+
 		return err
 	}
 	err = b.checkBlockContext(block, tip, flags, true)
@@ -256,6 +257,7 @@ func (
 		// Ensure the difficulty specified in the block header matches the calculated difficulty based on the previous block and difficulty retarget rules.
 		a := fork.GetAlgoName(header.Version, prevNode.height+1)
 		log <- cl.Info{"algo", a, header.Version, prevNode.height + 1}
+
 		expectedDifficulty, err := b.calcNextRequiredDifficulty(prevNode,
 			header.Timestamp, a, true)
 		if err != nil {
@@ -992,12 +994,14 @@ func checkBlockSanity(
 	block *util.Block, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags, DoNotCheckPow bool, height int32) error {
 
 	log <- cl.Trc("checkBlockSanity")
+
 	msgBlock := block.MsgBlock()
 	header := &msgBlock.Header
 	err := checkBlockHeaderSanity(header, powLimit, timeSource, flags, height, fork.IsTestnet)
 	if err != nil {
 
 		log <- cl.Debug{"ERROR", err}
+
 		return err
 	}
 
@@ -1119,6 +1123,7 @@ func checkProofOfWork(
 	}
 	target := CompactToBig(header.Bits)
 	log <- cl.Tracef{"target   %064x", target}
+
 	if target.Sign() <= 0 {
 
 		str := fmt.Sprintf("block target difficulty of %064x is too low",

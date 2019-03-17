@@ -165,6 +165,7 @@ var NodeCommand = climax.Command{
 
 		if dl, ok = ctx.Get("debuglevel"); ok {
 			log <- cl.Tracef{"setting debug level %s", dl}
+
 			NodeConfig.Node.DebugLevel = dl
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
@@ -198,6 +199,7 @@ var NodeCommand = climax.Command{
 		if ctx.Is("init") {
 
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
+
 			WriteDefaultNodeConfig(datadir)
 
 		} else {
@@ -207,26 +209,31 @@ var NodeCommand = climax.Command{
 			if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 				log <- cl.Wrn("configuration file does not exist, creating new one")
+
 				WriteDefaultNodeConfig(datadir)
 
 			} else {
 
 				log <- cl.Debug{"reading app configuration from", cfgFile}
+
 				cfgData, err := ioutil.ReadFile(cfgFile)
 
 				if err != nil {
 
 					log <- cl.Error{"reading app config file:", err.Error()}
+
 					WriteDefaultNodeConfig(datadir)
 
 				} else {
 
 					log <- cl.Trace{"parsing app configuration", string(cfgData)}
+
 					err = json.Unmarshal(cfgData, &NodeConfig)
 
 					if err != nil {
 
 						log <- cl.Error{"parsing app config file:", err.Error()}
+
 						WriteDefaultNodeConfig(datadir)
 					}
 
@@ -237,12 +244,15 @@ var NodeCommand = climax.Command{
 			switch {
 			case NodeConfig.Node.TestNet3:
 				log <- cl.Info{"running on testnet"}
+
 				NodeConfig.params = &node.TestNet3Params
 			case NodeConfig.Node.SimNet:
 				log <- cl.Info{"running on simnet"}
+
 				NodeConfig.params = &node.SimNetParams
 			default:
 				log <- cl.Info{"running on mainnet"}
+
 				NodeConfig.params = &node.MainNetParams
 			}
 

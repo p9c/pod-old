@@ -159,6 +159,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	if l.wallet != nil {
 
 		log <- cl.Trc("already loaded wallet")
+
 		return nil, ErrLoaded
 	}
 
@@ -167,6 +168,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	if err := checkCreateDir(l.dbDirPath); err != nil {
 
 		log <- cl.Error{"cannot create directory", l.dbDirPath}
+
 		return nil, err
 	}
 
@@ -177,6 +179,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 	if err != nil {
 
 		log <- cl.Error{"failed to open database '", l.dbDirPath, "':", err}
+
 		return nil, err
 	}
 
@@ -212,6 +215,7 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		if e != nil {
 
 			log <- cl.Warn{"error closing database:", e}
+
 		}
 
 		return nil, err

@@ -24,6 +24,7 @@ func DefaultWalletConfig(
 ) {
 
 	log <- cl.Dbg("getting default config")
+
 	appdatadir := filepath.Join(datadir, walletmain.DefaultAppDataDirname)
 	return &WalletCfg{
 		Wallet: &walletmain.Config{
@@ -72,17 +73,20 @@ func WriteDefaultWalletConfig(
 
 	if err != nil {
 		log <- cl.Error{"marshalling configuration", err}
+
 		panic(err)
 	}
 
 	j = append(j, '\n')
 	EnsureDir(defCfg.Wallet.ConfigFile)
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
+
 	EnsureDir(defCfg.Wallet.ConfigFile)
 	err = ioutil.WriteFile(defCfg.Wallet.ConfigFile, j, 0600)
 
 	if err != nil {
 		log <- cl.Error{"writing app config file", err}
+
 		panic(err)
 	}
 
@@ -97,6 +101,7 @@ func WriteWalletConfig(
 ) {
 
 	log <- cl.Dbg("writing config")
+
 	j, err := json.MarshalIndent(c, "", "  ")
 
 	if err != nil {
@@ -125,11 +130,13 @@ func configWallet(
 	if ctx.Is("createtemp") {
 
 		log <- cl.Dbg("request to make temp wallet")
+
 		wc.CreateTemp = true
 	}
 
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		log <- cl.Debug{"appdatadir set to", r}
+
 		wc.AppDataDir = n.CleanAndExpandPath(r)
 	}
 
@@ -214,6 +221,7 @@ func configWallet(
 
 		if err != nil {
 			log <- cl.Errorf{
+
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
 				r, wc.LegacyRPCMaxWebsockets,
 			}
@@ -260,19 +268,23 @@ func configWallet(
 	if ctx.Is("save") {
 
 		log <- cl.Info{"saving config file to", cfgFile}
+
 		j, err := json.MarshalIndent(WalletConfig, "", "  ")
 
 		if err != nil {
 			log <- cl.Error{"writing app config file", err}
+
 		}
 
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
+
 		e := ioutil.WriteFile(cfgFile, j, 0600)
 
 		if e != nil {
 
 			log <- cl.Error{
+
 				"error writing configuration file:", e,
 			}
 
@@ -303,7 +315,9 @@ func init() {
 		}
 
 		log <- cl.Tracef{"setting debug level %s", dl}
+
 		log <- cl.Trc("starting wallet app")
+
 		log <- cl.Debugf{"pod/wallet version %s", walletmain.Version()}
 
 		if ctx.Is("version") {
@@ -329,6 +343,7 @@ func init() {
 		if ctx.Is("init") {
 
 			log <- cl.Debug{"writing default configuration to", cfgFile}
+
 			WriteDefaultWalletConfig(cfgFile)
 		}
 
@@ -337,22 +352,27 @@ func init() {
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 			log <- cl.Wrn("configuration file does not exist, creating new one")
+
 			WriteDefaultWalletConfig(cfgFile)
 
 		} else {
 			log <- cl.Debug{"reading app configuration from", cfgFile}
+
 			cfgData, err := ioutil.ReadFile(cfgFile)
 
 			if err != nil {
 				log <- cl.Error{"reading app config file", err.Error()}
+
 				WriteDefaultWalletConfig(cfgFile)
 			}
 
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+
 			err = json.Unmarshal(cfgData, &WalletConfig)
 
 			if err != nil {
 				log <- cl.Error{"parsing app config file", err.Error()}
+
 				WriteDefaultWalletConfig(cfgFile)
 			}
 

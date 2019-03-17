@@ -403,6 +403,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot fetch unmined transaction hashes:", err,
 		}
 
@@ -423,6 +424,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot determine balances for relevant accounts:", err,
 		}
 
@@ -514,6 +516,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	if s.currentTxNtfn != nil {
 
 		log <- cl.Error{
+
 			"notifying unmined tx notification (",
 			details.Hash.String(),
 			") while creating notification for blocks",
@@ -536,6 +539,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot fetch unmined transaction hashes:", err,
 		}
 
@@ -549,6 +553,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot determine balances for relevant accounts:", err,
 		}
 
@@ -733,6 +738,7 @@ func lookupInputAccount(
 	if err != nil {
 
 		log <- cl.Errorf{
+
 			"cannot query previous transaction details for %v: %v", prevOP.Hash, err,
 		}
 
@@ -742,6 +748,7 @@ func lookupInputAccount(
 	if prev == nil {
 
 		log <- cl.Error{
+
 			"missing previous transaction", prevOP.Hash,
 		}
 
@@ -760,6 +767,7 @@ func lookupInputAccount(
 	if err != nil {
 
 		log <- cl.Errorf{
+
 			"cannot fetch account for previous output %v: %v", prevOP, err,
 		}
 
@@ -788,6 +796,7 @@ func lookupOutputChain(
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot fetch account for wallet output:", err}
 
 	} else {
@@ -813,6 +822,7 @@ func makeTxSummary(
 		if err != nil {
 
 			log <- cl.Error{"transaction serialization:", err}
+
 		}
 
 		serializedTx = buf.Bytes()

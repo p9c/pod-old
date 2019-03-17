@@ -139,6 +139,7 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 	case r.resultChan <- &getUtxoResult{report, err}:
 	default:
 		log <- cl.Warnf{
+
 			"duplicate getutxo result delivered for outpoint=%v, spend=%v, err=%v",
 			r.Input.OutPoint, report, err,
 		}
@@ -194,6 +195,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 	birthHeight uint32) (*GetUtxoRequest, error) {
 
 	log <- cl.Debugf{
+
 		"enqueuing request for %s with birth height %d",
 		input.OutPoint.String(), birthHeight,
 	}
@@ -342,6 +344,7 @@ func (s *UtxoScanner) batchManager() {
 		if err != nil {
 
 			log <- cl.Errorf{
+
 				"UXTO scan failed: %v", err,
 			}
 
@@ -496,6 +499,7 @@ scanToEnd:
 		}
 
 		log <- cl.Debugf{
+
 			"fetching block height=%d hash=%s", height, hash,
 		}
 

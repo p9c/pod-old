@@ -13,10 +13,11 @@ import (
 
 func podHandleSave() {
 
-	podconfig := filepath.Join(
-		node.CleanAndExpandPath(
-			appConfigCommon.Datadir),
-		podConfigFilename)
+	podconfig :=
+		filepath.Join(
+			node.CleanAndExpandPath(appConfigCommon.Datadir),
+			podConfigFilename,
+		)
 	// fmt.Println("saving to", podconfig)
 
 	if yp, e := yaml.Marshal(appConfigCommon); e == nil {
@@ -40,10 +41,10 @@ func podHandle(c *cli.Context) error {
 	appConfigCommon.RPCcert = node.CleanAndExpandPath(appConfigCommon.RPCcert)
 	appConfigCommon.RPCkey = node.CleanAndExpandPath(appConfigCommon.RPCkey)
 	appConfigCommon.CAfile = node.CleanAndExpandPath(appConfigCommon.CAfile)
-	NormalizeAddress(appConfigCommon.Proxy, "9050",
-		&appConfigCommon.Proxy)
-	NormalizeAddress(appConfigCommon.OnionProxy, "9050",
-		&appConfigCommon.OnionProxy)
+	NormalizeAddress(
+		appConfigCommon.Proxy, "9050", &appConfigCommon.Proxy)
+	NormalizeAddress(
+		appConfigCommon.OnionProxy, "9050", &appConfigCommon.OnionProxy)
 	return nil
 }
 

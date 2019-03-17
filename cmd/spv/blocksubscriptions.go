@@ -126,6 +126,7 @@ func (
 		}
 
 		log <- cl.Debugf{
+
 			"delivering backlog block notifications from height=%v, to height=%v",
 			bestHeight, filterHeaderTip,
 		}

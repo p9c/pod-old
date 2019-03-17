@@ -426,6 +426,7 @@ func (
 	}
 
 	log <- cl.Warnf{"Server shutdown in %v", duration}
+
 	go func() {
 
 		remaining := duration
@@ -457,6 +458,7 @@ func (
 				}
 
 				log <- cl.Warnf{"Server shutdown in %v", remaining}
+
 			}
 
 		}
@@ -523,6 +525,7 @@ func (
 	// Make sure this only happens once.
 	if atomic.AddInt32(&s.shutdown, 1) != 1 {
 		log <- cl.Infof{"Server is already in the process of shutting down"}
+
 		return nil
 	}
 
@@ -615,6 +618,7 @@ func (
 	// Ignore new peers if we're shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
 		log <- cl.Infof{
+
 			"new peer %s ignored - server is shutting down", sp,
 		}
 
@@ -626,6 +630,7 @@ func (
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
 		log <- cl.Debug{"can't split hostport", err}
+
 		sp.Disconnect()
 		return false
 	}
@@ -634,6 +639,7 @@ func (
 		if time.Now().Before(banEnd) {
 
 			log <- cl.Debugf{
+
 				"peer %s is banned for another %v - disconnecting",
 				host, time.Until(banEnd),
 			}
@@ -643,12 +649,14 @@ func (
 		}
 
 		log <- cl.Infof{"peer %s is no longer banned", host}
+
 		delete(state.banned, host)
 	}
 
 	// TODO: Check for max peers from a single IP. Limit max number of total peers.
 	if state.Count() >= *cfg.MaxPeers {
 		log <- cl.Infof{
+
 			"max peers reached [%d] - disconnecting peer %s",
 			cfg.MaxPeers, sp,
 		}
@@ -660,6 +668,7 @@ func (
 
 	// Add the new peer and start it.
 	log <- cl.Debug{"new peer", sp}
+
 	if sp.Inbound() {
 
 		state.inboundPeers[sp.ID()] = sp
@@ -685,11 +694,13 @@ func (
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
 		log <- cl.Debugf{"can't split ban peer %s %v", sp.Addr(), err}
+
 		return
 	}
 
 	direction := directionString(sp.Inbound())
 	log <- cl.Infof{
+
 		"banned peer %s (%s) for %v", host, direction, cfg.BanDuration,
 	}
 
@@ -749,6 +760,7 @@ func (
 
 		delete(list, sp.ID())
 		log <- cl.Debug{"Removed peer", sp}
+
 		return
 	}
 
@@ -910,12 +922,14 @@ func (
 			blockHeader, ok := msg.data.(wire.BlockHeader)
 			if !ok {
 				log <- cl.Wrn("underlying data for headers is not a block header")
+
 				return
 			}
 
 			msgHeaders := wire.NewMsgHeaders()
 			if err := msgHeaders.AddBlockHeader(&blockHeader); err != nil {
 				log <- cl.Error{"failed to add block header:", err}
+
 				return
 			}
 
@@ -933,6 +947,7 @@ func (
 			txD, ok := msg.data.(*mempool.TxDesc)
 			if !ok {
 				log <- cl.Warnf{
+
 					"underlying data for tx inv relay is not a *mempool.TxDesc: %T",
 					msg.data,
 				}
@@ -1017,6 +1032,7 @@ func (
 	p, err := peer.NewOutboundPeer(newPeerConfig(sp), c.Addr.String())
 	if err != nil {
 		log <- cl.Debugf{"Cannot create outbound peer %s: %v", c.Addr, err}
+
 		s.connManager.Disconnect(c.ID())
 	}
 
@@ -1045,6 +1061,7 @@ func (
 		numEvicted := s.txMemPool.RemoveOrphansByTag(mempool.Tag(sp.ID()))
 		if numEvicted > 0 {
 			log <- cl.Debugf{
+
 				"Evicted %d %s from peer %v (id %d)",
 				numEvicted, pickNoun(numEvicted, "orphan", "orphans"),
 				sp, sp.ID(),
@@ -1066,6 +1083,7 @@ func (
 	s.addrManager.Start()
 	s.syncManager.Start()
 	log <- cl.Trc("starting peer handler")
+
 	state := &peerState{
 		inboundPeers:    make(map[int32]*serverPeer),
 		persistentPeers: make(map[int32]*serverPeer),
@@ -1076,6 +1094,7 @@ func (
 
 	if !*cfg.DisableDNSSeed {
 		log <- cl.Trc("seeding from DNS")
+
 		// Add peers discovered through DNS to the address manager.
 		connmgr.SeedFromDNS(ActiveNetParams.Params, defaultRequiredServices,
 			podLookup, func(addrs []*wire.NetAddress) {
@@ -1087,6 +1106,7 @@ func (
 	}
 
 	log <- cl.Trc("starting connmgr")
+
 	go s.connManager.Start()
 out:
 	for {
@@ -1124,6 +1144,7 @@ out:
 			state.forAllPeers(func(sp *serverPeer) {
 
 				log <- cl.Tracef{"Shutdown peer %s", sp}
+
 				sp.Disconnect()
 			})
 
@@ -1154,6 +1175,7 @@ cleanup:
 
 	s.wg.Done()
 	log <- cl.Tracef{"Peer handler done"}
+
 }
 
 // pushBlockMsg sends a block message for the provided block hash to the connected peer.  An error is returned if the block hash is not known.
@@ -1175,6 +1197,7 @@ func (
 
 	if err != nil {
 		log <- cl.Tracef{
+
 			"unable to fetch requested block hash %v: %v",
 			hash, err,
 		}
@@ -1191,6 +1214,7 @@ func (
 	err = msgBlock.Deserialize(bytes.NewReader(blockBytes))
 	if err != nil {
 		log <- cl.Tracef{
+
 			"unable to deserialize requested block hash %v: %v",
 			hash, err,
 		}
@@ -1251,6 +1275,7 @@ func (
 	blk, err := sp.server.chain.BlockByHash(hash)
 	if err != nil {
 		log <- cl.Tracef{
+
 			"unable to fetch requested block hash %v: %v",
 			hash, err,
 		}
@@ -1311,6 +1336,7 @@ func (
 	tx, err := s.txMemPool.FetchTransaction(hash)
 	if err != nil {
 		log <- cl.Tracef{
+
 			"unable to fetch tx %v from transaction pool: %v", hash, err,
 		}
 
@@ -1430,6 +1456,7 @@ out:
 				"pod listen port", 20*60)
 			if err != nil {
 				log <- cl.Warnf{"can't add UPnP port mapping: %v", err}
+
 			}
 
 			if first && err == nil {
@@ -1437,6 +1464,7 @@ out:
 				externalip, err := s.nat.GetExternalAddress()
 				if err != nil {
 					log <- cl.Warnf{"UPnP can't get external address: %v", err}
+
 					continue out
 				}
 
@@ -1448,6 +1476,7 @@ out:
 				}
 
 				log <- cl.Warnf{"Successfully bound via UPnP to %s", addrmgr.NetAddressKey(na)}
+
 				first = false
 			}
 
@@ -1463,8 +1492,10 @@ out:
 	timer.Stop()
 	if err := s.nat.DeletePortMapping("tcp", int(lport), int(lport)); err != nil {
 		log <- cl.Warnf{"unable to remove UPnP port mapping: %v", err}
+
 	} else {
 		log <- cl.Debugf{"successfully disestablished UPnP port mapping"}
+
 	}
 
 	s.wg.Done()
@@ -1489,6 +1520,7 @@ func (
 	// A message that has no addresses is invalid.
 	if len(msg.AddrList) == 0 {
 		log <- cl.Errorf{
+
 			"command [%s] from %s does not contain any addresses",
 			msg.Command(), sp.Peer,
 		}
@@ -1546,6 +1578,7 @@ func (
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > util.MaxSatoshi {
 		log <- cl.Debugf{
+
 			"peer %v sent an invalid feefilter '%v' -- disconnecting",
 			sp, util.Amount(msg.MinFee)}
 		sp.Disconnect()
@@ -1570,6 +1603,7 @@ func (
 	if !sp.filter.IsLoaded() {
 
 		log <- cl.Debugf{
+
 			"%s sent a filteradd request with no filter loaded -- disconnecting", sp,
 		}
 
@@ -1595,6 +1629,7 @@ func (
 	if !sp.filter.IsLoaded() {
 
 		log <- cl.Debugf{
+
 			"%s sent a filterclear request with no filter loaded -- disconnecting", sp,
 		}
 
@@ -1636,12 +1671,14 @@ func (
 	if !sp.Inbound() {
 
 		log <- cl.Debug{"ignoring getaddr request from outbound peer", sp}
+
 		return
 	}
 
 	// Only allow one getaddr request per connection to discourage address stamping of inv announcements.
 	if sp.sentAddrs {
 		log <- cl.Debugf{"ignoring repeated getaddr request from peer", sp}
+
 		return
 	}
 
@@ -1704,6 +1741,7 @@ func (
 		break
 	default:
 		log <- cl.Debugf{
+
 			"filter request for unknown checkpoints for filter:", msg.FilterType,
 		}
 
@@ -1716,6 +1754,7 @@ func (
 	)
 	if err != nil {
 		log <- cl.Debug{"invalid getcfilters request:", err}
+
 		return
 	}
 
@@ -1744,6 +1783,7 @@ func (
 			additionalLength := len(blockHashes) - len(checkptCache)
 			newEntries := make([]cfHeaderKV, additionalLength)
 			log <- cl.Infof{
+
 				"growing size of checkpoint cache from %v to %v block hashes",
 				len(checkptCache), len(blockHashes),
 			}
@@ -1758,6 +1798,7 @@ func (
 		// Otherwise, we'll hold onto the read lock for the remainder of this method.
 		defer sp.server.cfCheckptCachesMtx.RUnlock()
 		log <- cl.Tracef{
+
 			"serving stale cache of size %v", len(checkptCache),
 		}
 
@@ -1788,6 +1829,7 @@ func (
 	)
 	if err != nil {
 		log <- cl.Error{"error retrieving cfilter headers:", err}
+
 		return
 	}
 
@@ -1795,6 +1837,7 @@ func (
 	for i, filterHeaderBytes := range filterHeaders {
 		if len(filterHeaderBytes) == 0 {
 			log <- cl.Warn{
+
 				"could not obtain CF header for", blockHashPtrs[i],
 			}
 
@@ -1804,6 +1847,7 @@ func (
 		filterHeader, err := chainhash.NewHash(filterHeaderBytes)
 		if err != nil {
 			log <- cl.Warn{
+
 				"committed filter header deserialize failed:", err,
 			}
 
@@ -1848,6 +1892,7 @@ func (
 		break
 	default:
 		log <- cl.Debug{
+
 			"filter request for unknown headers for filter:", msg.FilterType,
 		}
 
@@ -1869,6 +1914,7 @@ func (
 	)
 	if err != nil {
 		log <- cl.Debug{
+
 			"invalid getcfheaders request:", err,
 		}
 
@@ -1878,6 +1924,7 @@ func (
 	if len(hashList) == 0 || (msg.StartHeight > 0 && len(hashList) == 1) {
 
 		log <- cl.Dbg("no results for getcfheaders request")
+
 		return
 	}
 
@@ -1893,6 +1940,7 @@ func (
 	)
 	if err != nil {
 		log <- cl.Error{"error retrieving cfilter hashes:", err}
+
 		return
 	}
 
@@ -1907,11 +1955,13 @@ func (
 			prevBlockHash, msg.FilterType)
 		if err != nil {
 			log <- cl.Error{"error retrieving CF header:", err}
+
 			return
 		}
 
 		if len(headerBytes) == 0 {
 			log <- cl.Warn{"could not obtain CF header for", prevBlockHash}
+
 			return
 		}
 
@@ -1919,6 +1969,7 @@ func (
 		err = headersMsg.PrevFilterHeader.SetBytes(headerBytes)
 		if err != nil {
 			log <- cl.Warn{
+
 				"committed filter header deserialize failed:", err,
 			}
 
@@ -1933,6 +1984,7 @@ func (
 	for i, hashBytes := range filterHashes {
 		if len(hashBytes) == 0 {
 			log <- cl.Warn{
+
 				"could not obtain CF hash for", hashList[i],
 			}
 
@@ -1943,6 +1995,7 @@ func (
 		filterHash, err := chainhash.NewHash(hashBytes)
 		if err != nil {
 			log <- cl.Warn{
+
 				"committed filter hash deserialize failed:", err,
 			}
 
@@ -1975,6 +2028,7 @@ func (
 		break
 	default:
 		log <- cl.Debug{"filter request for unknown filter:", msg.FilterType}
+
 		return
 	}
 
@@ -1983,6 +2037,7 @@ func (
 	)
 	if err != nil {
 		log <- cl.Debug{"invalid getcfilters request:", err}
+
 		return
 	}
 
@@ -1997,12 +2052,14 @@ func (
 	)
 	if err != nil {
 		log <- cl.Error{"error retrieving cfilters:", err}
+
 		return
 	}
 
 	for i, filterBytes := range filters {
 		if len(filterBytes) == 0 {
 			log <- cl.Warn{"could not obtain cfilter for", hashes[i]}
+
 			return
 		}
 
@@ -2056,6 +2113,7 @@ func (
 			err = sp.server.pushMerkleBlockMsg(sp, &iv.Hash, c, waitChan, wire.BaseEncoding)
 		default:
 			log <- cl.Warn{"unknown type in inventory request", iv.Type}
+
 			continue
 		}
 
@@ -2135,12 +2193,14 @@ func (
 	for _, invVect := range msg.InvList {
 		if invVect.Type == wire.InvTypeTx {
 			log <- cl.Tracef{
+
 				"ignoring tx %v in inv from %v -- blocksonly enabled",
 				invVect.Hash, sp,
 			}
 
 			if sp.ProtocolVersion() >= wire.BIP0037Version {
 				log <- cl.Infof{
+
 					"peer %v is announcing transactions -- disconnecting", sp,
 				}
 
@@ -2154,6 +2214,7 @@ func (
 		err := newInv.AddInvVect(invVect)
 		if err != nil {
 			log <- cl.Error{"failed to add inventory vector:", err}
+
 			break
 		}
 
@@ -2174,6 +2235,7 @@ func (
 	// Only allow mempool requests if the server has bloom filtering enabled.
 	if sp.server.services&wire.SFNodeBloom != wire.SFNodeBloom {
 		log <- cl.Debugf{
+
 			"peer", sp, "sent mempool request with bloom filtering disabled -- disconnecting",
 		}
 
@@ -2226,6 +2288,7 @@ func (
 
 	if *cfg.BlocksOnly {
 		log <- cl.Tracef{
+
 			"ignoring tx %v from %v - blocksonly enabled",
 			msg.TxHash(), sp,
 		}
@@ -2269,6 +2332,7 @@ func (
 
 		missingServices := wantServices & ^msg.Services
 		log <- cl.Debugf{
+
 			"rejecting peer %s with services %v due to not providing desired services %v",
 			sp.Peer, msg.Services, missingServices,
 		}
@@ -2285,6 +2349,7 @@ func (
 		segwitActive, err := chain.IsDeploymentActive(chaincfg.DeploymentSegwit)
 		if err != nil {
 			log <- cl.Error{
+
 				"unable to query for segwit soft-fork state:", err,
 			}
 
@@ -2294,6 +2359,7 @@ func (
 		if segwitActive && !sp.IsWitnessEnabled() {
 
 			log <- cl.Info{
+
 				"disconnecting non-segwit peer", sp,
 				"as it isn't segwit enabled and we need more segwit enabled peers",
 			}
@@ -2362,6 +2428,7 @@ func (
 
 	if sp.isWhitelisted {
 		log <- cl.Debugf{
+
 			"misbehaving whitelisted peer %s: %s", sp, reason,
 		}
 
@@ -2374,6 +2441,7 @@ func (
 		score := sp.banScore.Int()
 		if int(score) > warnThreshold {
 			log <- cl.Warnf{
+
 				"misbehaving peer %s: %s -- ban score is %d, it was not increased this time",
 				sp, reason, score,
 			}
@@ -2386,12 +2454,14 @@ func (
 	score := sp.banScore.Increase(persistent, transient)
 	if int(score) > warnThreshold {
 		log <- cl.Warnf{
+
 			"misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score,
 		}
 
 		if int(score) > *cfg.BanThreshold {
 			log <- cl.Warnf{
+
 				"misbehaving peer %s -- banning and disconnecting", sp,
 			}
 
@@ -2443,6 +2513,7 @@ func (
 
 		// Disconnect the peer regardless of protocol version or banning state.
 		log <- cl.Debugf{
+
 			"%s sent an unsupported %s request -- disconnecting", sp, cmd,
 		}
 
@@ -2481,6 +2552,7 @@ func (
 	known, err := sp.PushAddrMsg(addrs)
 	if err != nil {
 		log <- cl.Errorf{
+
 			"can't push address message to %s: %v", sp.Peer, err,
 		}
 
@@ -2729,6 +2801,7 @@ func initListeners(
 		listener, err := net.Listen(addr.Network(), addr.String())
 		if err != nil {
 			log <- cl.Warnf{"Can't listen on %s: %v", addr, err}
+
 			continue
 		}
 
@@ -2740,6 +2813,7 @@ func initListeners(
 		defaultPort, err := strconv.ParseUint(ActiveNetParams.DefaultPort, 10, 16)
 		if err != nil {
 			log <- cl.Errorf{"Can not parse default port %s for active chain: %v",
+
 				ActiveNetParams.DefaultPort, err}
 			return nil, nil, err
 		}
@@ -2754,6 +2828,7 @@ func initListeners(
 				port, err := strconv.ParseUint(portstr, 10, 16)
 				if err != nil {
 					log <- cl.Warnf{"Can not parse port from %s for " +
+
 						"externalip: %v", sip, err}
 					continue
 				}
@@ -2764,12 +2839,14 @@ func initListeners(
 			na, err := amgr.HostToNetAddress(host, eport, services)
 			if err != nil {
 				log <- cl.Warnf{"Not adding %s as externalip: %v", sip, err}
+
 				continue
 			}
 
 			err = amgr.AddLocalAddress(na, addrmgr.ManualPrio)
 			if err != nil {
 				log <- cl.Warnf{"Skipping specified external IP: %v", err}
+
 			}
 
 		}
@@ -2780,6 +2857,7 @@ func initListeners(
 			nat, err = Discover()
 			if err != nil {
 				log <- cl.Warnf{"Can't discover upnp: %v", err}
+
 			}
 
 			// nil nat here is fine, just means no upnp on network.
@@ -2791,6 +2869,7 @@ func initListeners(
 			err := addLocalAddress(amgr, addr, services)
 			if err != nil {
 				log <- cl.Warnf{"Skipping bound address %s: %v", addr, err}
+
 			}
 
 		}
@@ -2811,12 +2890,14 @@ func isWhitelisted(
 	host, _, err := net.SplitHostPort(addr.String())
 	if err != nil {
 		log <- cl.Warnf{"Unable to SplitHostPort on '%s': %v", addr, err}
+
 		return false
 	}
 
 	ip := net.ParseIP(host)
 	if ip == nil {
 		log <- cl.Warnf{"Unable to parse IP '%s'", addr}
+
 		return false
 	}
 
@@ -2987,10 +3068,12 @@ func newServer(
 		if !*cfg.TxIndex {
 
 			log <- cl.Infof{
+
 				"transaction index enabled because it is required by the address index"}
 			*cfg.TxIndex = true
 		} else {
 			log <- cl.Info{"transaction index is enabled"}
+
 		}
 
 		s.txIndex = indexers.NewTxIndex(db)
@@ -2999,6 +3082,7 @@ func newServer(
 
 	if *cfg.AddrIndex {
 		log <- cl.Info{"address index is enabled"}
+
 		s.addrIndex = indexers.NewAddrIndex(db, chainParams)
 		indexes = append(indexes, s.addrIndex)
 	}
@@ -3006,6 +3090,7 @@ func newServer(
 	if !*cfg.NoCFilters {
 
 		log <- cl.Info{"committed filter index is enabled"}
+
 		s.cfIndex = indexers.NewCfIndex(db, chainParams)
 		indexes = append(indexes, s.cfIndex)
 	}
@@ -3073,6 +3158,7 @@ func newServer(
 
 	if e != nil {
 		log <- cl.Error{e}
+
 	}
 
 	// If no feeEstimator has been found, or if the one that has been found is behind somehow, create a new one and start over.
@@ -3351,6 +3437,7 @@ func parseListeners(
 	netAddrs := make([]net.Addr, 0, len(addrs)*2)
 	for _, addr := range addrs {
 		log <- cl.Debug{"addr", addr}
+
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil {
 			// Shouldn't happen due to already being normalized.
@@ -3451,6 +3538,7 @@ func setupRPCListeners(
 		listener, err := listenFunc(addr.Network(), addr.String())
 		if err != nil {
 			log <- cl.Warnf{"Can't listen on %s: %v", addr, err}
+
 			continue
 		}
 

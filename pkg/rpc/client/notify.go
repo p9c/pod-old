@@ -156,6 +156,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid block connected notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnBlockConnected(blockHash, blockHeight, blockTime)
@@ -173,6 +174,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid filtered block connected notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnFilteredBlockConnected(blockHeight,
@@ -190,6 +192,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid block connected notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnBlockDisconnected(blockHash, blockHeight, blockTime)
@@ -207,6 +210,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid filtered block disconnected notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnFilteredBlockDisconnected(blockHeight,
@@ -224,6 +228,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid recvtx notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnRecvTx(tx, block)
@@ -240,6 +245,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid redeemingtx notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnRedeemingTx(tx, block)
@@ -256,6 +262,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid relevanttxaccepted notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnRelevantTxAccepted(transaction)
@@ -272,6 +279,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid rescanfinished notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnRescanFinished(hash, height, blkTime)
@@ -288,6 +296,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid rescanprogress notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnRescanProgress(hash, height, blkTime)
@@ -304,6 +313,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid tx accepted notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnTxAccepted(hash, amt)
@@ -320,6 +330,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid tx accepted verbose notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnTxAcceptedVerbose(rawTx)
@@ -336,6 +347,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid pod connected notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnPodConnected(connected)
@@ -352,6 +364,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid account balance notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnAccountBalance(account, bal, conf)
@@ -370,6 +383,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 		if err != nil {
 
 			log <- cl.Warn{"received invalid wallet lock state notification:", err}
+
 			return
 		}
 		c.ntfnHandlers.OnWalletLockState(locked)

@@ -91,18 +91,22 @@ func WriteDefaultNodeConfig(
 ) {
 
 	log <- cl.Dbg("writing default config")
+
 	defCfg := DefaultNodeConfig(datadir)
 	j, err := json.MarshalIndent(defCfg, "", "  ")
 
 	if err != nil {
 
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
+
 		log <- cl.Err(spew.Sdump(defCfg))
+
 		return
 	}
 
 	j = append(j, '\n')
 	log <- cl.Tracef{
+
 		"JSON formatted config file\n%s",
 		j,
 	}
@@ -113,6 +117,7 @@ func WriteDefaultNodeConfig(
 	if err != nil {
 
 		log <- cl.Error{"writing default app config file:", err.Error()}
+
 		return
 	}
 
@@ -127,17 +132,21 @@ func WriteNodeConfig(
 ) {
 
 	log <- cl.Dbg("writing config")
+
 	j, err := json.MarshalIndent(c, "", "  ")
 
 	if err != nil {
 
 		log <- cl.Error{`marshalling default app config file: "`, err, `"`}
+
 		log <- cl.Err(spew.Sdump(c))
+
 		return
 	}
 
 	j = append(j, '\n')
 	log <- cl.Tracef{
+
 		"JSON formatted config file\n%s",
 		j,
 	}
@@ -148,6 +157,7 @@ func WriteNodeConfig(
 	if err != nil {
 
 		log <- cl.Error{"writing default app config file:", err.Error()}
+
 		return
 	}
 
@@ -193,6 +203,7 @@ func configNode(
 		if err := ParseInteger(r, "maxpeers", &nc.MaxPeers); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -207,6 +218,7 @@ func configNode(
 		if err := ParseDuration(r, "banduration", &nc.BanDuration); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -340,6 +352,7 @@ func configNode(
 		}
 
 		log <- cl.Debug{NodeConfig.params.Name, r}
+
 	}
 
 	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
@@ -383,6 +396,7 @@ func configNode(
 		if err := ParseFloat(r, "minrelaytxfee", &nc.MinRelayTxFee); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -392,6 +406,7 @@ func configNode(
 		if err := ParseFloat(r, "freetxrelaylimit", &nc.FreeTxRelayLimit); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -406,6 +421,7 @@ func configNode(
 		if err := ParseDuration(r, "trickleinterval", &nc.TrickleInterval); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -415,6 +431,7 @@ func configNode(
 		if err := ParseInteger(r, "maxorphantxs", &nc.MaxOrphanTxs); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -463,6 +480,7 @@ func configNode(
 		if err := ParseUint32(r, "blockminsize", &nc.BlockMinSize); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -472,6 +490,7 @@ func configNode(
 		if err := ParseUint32(r, "blockmaxsize", &nc.BlockMaxSize); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -481,6 +500,7 @@ func configNode(
 		if err := ParseUint32(r, "blockminweight", &nc.BlockMinWeight); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -490,6 +510,7 @@ func configNode(
 		if err := ParseUint32(r, "blockmaxweight", &nc.BlockMaxWeight); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -499,6 +520,7 @@ func configNode(
 		if err := ParseUint32(r, "blockmaxweight", &nc.BlockPrioritySize); err != nil {
 
 			log <- cl.Wrn(err.Error())
+
 		}
 
 	}
@@ -580,6 +602,7 @@ func configNode(
 	if ctx.Is("save") {
 
 		log <- cl.Infof{
+
 			"saving config file to %s",
 			cfgFile,
 		}
@@ -589,6 +612,7 @@ func configNode(
 		if err != nil {
 
 			log <- cl.Error{
+
 				"saving config file:",
 				err.Error(),
 			}
@@ -597,6 +621,7 @@ func configNode(
 
 		j = append(j, '\n')
 		log <- cl.Tracef{
+
 			"JSON formatted config file\n%s",
 			j,
 		}
@@ -606,6 +631,7 @@ func configNode(
 		if err != nil {
 
 			log <- cl.Error{"writing app config file:", err.Error()}
+
 		}
 
 	}
@@ -666,6 +692,7 @@ func configNode(
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	nc.DataDir = node.CleanAndExpandPath(nc.DataDir)
 	log <- cl.Debug{"netname", NodeConfig.params.Name, node.NetName(NodeConfig.params)}
+
 	nc.DataDir = filepath.Join(nc.DataDir, node.NetName(NodeConfig.params))
 
 	// Validate database type.
@@ -728,6 +755,7 @@ func configNode(
 					str := "%s: The whitelist value of '%s' is invalid"
 					err = fmt.Errorf(str, funcName, addr)
 					log <- cl.Err(err.Error())
+
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return 1
 				}
@@ -763,6 +791,7 @@ func configNode(
 			"mixed"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 	}
 
@@ -797,6 +826,7 @@ func configNode(
 		str := "%s: --rpcuser and --rpclimituser must not specify the same username"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -809,6 +839,7 @@ func configNode(
 			"same password"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -823,6 +854,7 @@ func configNode(
 	if nc.DisableRPC {
 
 		log <- cl.Inf("RPC service is disabled")
+
 	}
 
 	// Default RPC to listen on localhost only.
@@ -834,6 +866,7 @@ func configNode(
 		if err != nil {
 
 			log <- cl.Err(err.Error())
+
 			return 1
 		}
 
@@ -852,6 +885,7 @@ func configNode(
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, nc.RPCMaxConcurrentReqs)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -864,6 +898,7 @@ func configNode(
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -876,6 +911,7 @@ func configNode(
 		err := fmt.Errorf(str, funcName, node.BlockMaxSizeMin,
 			node.BlockMaxSizeMax, nc.BlockMaxSize)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -888,6 +924,7 @@ func configNode(
 		err := fmt.Errorf(str, funcName, node.BlockMaxWeightMin,
 			node.BlockMaxWeightMax, nc.BlockMaxWeight)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -899,6 +936,7 @@ func configNode(
 		str := "%s: The maxorphantx option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, nc.MaxOrphanTxs)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -931,6 +969,7 @@ func configNode(
 				"appear in user agent comments: '/', ':', '(', ')'",
 				funcName)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 
@@ -945,6 +984,7 @@ func configNode(
 		err := fmt.Errorf("%s: the --txindex and --droptxindex options may  not be activated at the same time",
 			funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 
@@ -958,6 +998,7 @@ func configNode(
 			"options may not be activated at the same time",
 			funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -974,6 +1015,7 @@ func configNode(
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -983,6 +1025,7 @@ func configNode(
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -997,6 +1040,7 @@ func configNode(
 		str := "%s: the generate flag is set, but there are no mining addresses specified "
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		os.Exit(1)
 	}
@@ -1023,6 +1067,7 @@ func configNode(
 				str := "%s: RPC listen interface '%s' is invalid: %v"
 				err := fmt.Errorf(str, funcName, addr, err)
 				log <- cl.Err(err.Error())
+
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return 1
 			}
@@ -1043,6 +1088,7 @@ func configNode(
 
 		err := fmt.Errorf("%s: the --noonion and --onion options may not be activated at the same time", funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -1055,6 +1101,7 @@ func configNode(
 		str := "%s: Error parsing checkpoints: %v"
 		err := fmt.Errorf(str, funcName, err)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -1066,6 +1113,7 @@ func configNode(
 		str := "%s: Tor stream isolation requires either proxy or onionproxy to be set"
 		err := fmt.Errorf(str, funcName)
 		log <- cl.Err(err.Error())
+
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
@@ -1083,6 +1131,7 @@ func configNode(
 			str := "%s: Proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, nc.Proxy, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
@@ -1129,6 +1178,7 @@ func configNode(
 			str := "%s: Onion proxy address '%s' is invalid: %v"
 			err := fmt.Errorf(str, funcName, nc.OnionProxy, err)
 			log <- cl.Err(err.Error())
+
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}

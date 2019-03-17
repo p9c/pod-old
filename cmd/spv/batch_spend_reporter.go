@@ -75,6 +75,7 @@ func (b *batchSpendReporter) FailRemaining(err error) error {
 func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 
 	log <- cl.Debugf{
+
 		"finished batch, %d unspent outpoints", len(b.requests),
 	}
 
@@ -86,6 +87,7 @@ func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 		if !ok {
 
 			log <- cl.Warnf{
+
 				"unknown initial txn for getuxo request %v", outpoint,
 			}
 
@@ -158,6 +160,7 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 		outpoint := req.Input.OutPoint
 
 		log <- cl.Debugf{
+
 			"adding outpoint=%s height=%d to watchlist", outpoint, req.BirthHeight,
 		}
 
@@ -244,6 +247,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			if op.Index >= uint32(len(txOuts)) {
 
 				log <- cl.Errorf{
+
 					"failed to find outpoint %s -- invalid output index", op,
 				}
 
@@ -277,6 +281,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 
 		case !ok:
 			log <- cl.Errorf{
+
 				"failed to find outpoint %s -- txid not found in block",
 				req.Input.OutPoint,
 			}
@@ -284,6 +289,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			initialTxns[req.Input.OutPoint] = nil
 		case tx != nil:
 			log <- cl.Tracef{
+
 				"block %d creates output %s", height, req.Input.OutPoint,
 			}
 
@@ -350,6 +356,7 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 			}
 
 			log <- cl.Debugf{
+
 				"UTXO %v spent by txn %v", outpoint, tx.TxHash(),
 			}
 

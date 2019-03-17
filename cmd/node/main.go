@@ -58,6 +58,7 @@ func Main(
 		func() {
 
 			log <- cl.Inf("shutdown complete")
+
 			close(shutdownChan)
 		},
 	)
@@ -75,10 +76,12 @@ func Main(
 
 			listenAddr := net.JoinHostPort("", *cfg.Profile)
 			log <- cl.Info{"profile server listening on", listenAddr}
+
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
 			log <- cl.Error{"profile server", http.ListenAndServe(listenAddr, nil)}
+
 		}()
 
 	}
@@ -93,6 +96,7 @@ func Main(
 		if err != nil {
 
 			log <- cl.Error{"unable to create cpu profile:", err}
+
 			return
 		}
 
@@ -101,6 +105,7 @@ func Main(
 		if e != nil {
 
 			log <- cl.Warn{"failed to start up cpu profiler:", e}
+
 		}
 
 		defer f.Close()
@@ -112,6 +117,7 @@ func Main(
 	if err = doUpgrades(); err != nil {
 
 		log <- cl.Error{err}
+
 		return
 	}
 
@@ -125,11 +131,13 @@ func Main(
 	// Load the block database.
 	var db database.DB
 	log <- cl.Debug{"loading db with", activeNet.Params.Name, *cfg.TestNet3}
+
 	db, err = loadBlockDB()
 
 	if err != nil {
 
 		log <- cl.Error{err}
+
 		return
 	}
 
@@ -137,6 +145,7 @@ func Main(
 
 		// Ensure the database is sync'd and closed on shutdown.
 		log <- cl.Inf("gracefully shutting down the database...")
+
 		db.Close()
 	}()
 
@@ -154,6 +163,7 @@ func Main(
 		if err = indexers.DropAddrIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
+
 			return
 		}
 
@@ -165,6 +175,7 @@ func Main(
 		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
+
 			return
 		}
 
@@ -176,6 +187,7 @@ func Main(
 		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
+
 			return err
 		}
 
@@ -189,6 +201,7 @@ func Main(
 
 		// TODO: this logging could do with some beautifying.
 		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
+
 		return err
 	}
 
@@ -197,15 +210,18 @@ func Main(
 		func() {
 
 			log <- cl.Inf("gracefully shutting down the server...")
+
 			e := server.Stop()
 
 			if e != nil {
 
 				log <- cl.Warn{"failed to stop server", e}
+
 			}
 
 			server.WaitForShutdown()
 			log <- cl.Inf("server shutdown complete")
+
 		},
 	)
 	server.Start()
@@ -250,6 +266,7 @@ func loadBlockDB() (
 	if *cfg.DbType == "memdb" {
 
 		log <- cl.Inf("creating block database in memory")
+
 		db, err := database.Create(*cfg.DbType)
 
 		if err != nil {
@@ -271,9 +288,11 @@ func loadBlockDB() (
 	if e != nil {
 
 		log <- cl.Debug{"failed to remove regression db:", e}
+
 	}
 
 	log <- cl.Infof{"loading block database from '%s'", dbPath}
+
 	db, err := database.Open(*cfg.DbType, dbPath, ActiveNetParams.Net)
 
 	if err != nil {
@@ -304,6 +323,7 @@ func loadBlockDB() (
 	}
 
 	log <- cl.Inf("block database loaded")
+
 	return db, nil
 }
 
@@ -381,6 +401,7 @@ func removeRegressionDB(
 	if !*cfg.RegressionTest {
 
 		log <- cl.Debug{"not in regression mode"}
+
 		return nil
 	}
 
@@ -447,6 +468,7 @@ func warnMultipleDBs() {
 
 		selectedDbPath := blockDbPath(*cfg.DbType)
 		log <- cl.Warnf{
+
 			"\nThere are multiple block chain databases using different database types.\n" +
 				"You probably don't want to waste disk space by having more than one.\n" +
 				"Your current database is located at [%v].\n" +

@@ -22,6 +22,7 @@ func (w *Wallet) handleChainNotifications() {
 	if err != nil {
 
 		log <- cl.Err("handleChainNotifications called without RPC client")
+
 		return
 	}
 
@@ -39,6 +40,7 @@ func (w *Wallet) handleChainNotifications() {
 		if err != nil && !w.ShuttingDown() {
 
 			log <- cl.Warn{"unable to synchronize wallet to chain:", err}
+
 		}
 
 	}
@@ -67,6 +69,7 @@ func (w *Wallet) handleChainNotifications() {
 
 		// rescan.
 		log <- cl.Info{
+
 			"catching up block hashes to height %d, this might take a while", height,
 		}
 
@@ -113,6 +116,7 @@ func (w *Wallet) handleChainNotifications() {
 		if err != nil {
 
 			log <- cl.Errorf{
+
 				"failed to update address manager sync state for height %d: %v",
 				height, err,
 			}
@@ -120,6 +124,7 @@ func (w *Wallet) handleChainNotifications() {
 		}
 
 		log <- cl.Inf("done catching up block hashes")
+
 		return err
 	}
 
@@ -241,6 +246,7 @@ func (w *Wallet) handleChainNotifications() {
 				} else {
 
 					log <- cl.Errorf{errStr, notificationName, err}
+
 				}
 
 			}
@@ -423,6 +429,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 				}
 
 				log <- cl.Debug{"marked address used:", addr}
+
 				continue
 			}
 
@@ -454,6 +461,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 
 			log <- cl.Error{"cannot query transaction details for notification:", err}
+
 		}
 
 		// It's possible that the transaction was not found within the
@@ -482,6 +490,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if err != nil {
 
 			log <- cl.Error{"cannot query transaction details for notification:", err}
+
 		}
 
 		// We'll only notify the transaction if it was found within the

@@ -276,6 +276,7 @@ func logSkippedDeps(
 	for _, item := range deps {
 
 		log <- cl.Tracef{
+
 			"skipping tx %s since it depends on %s",
 			item.tx.Hash(),
 			tx.Hash(),
@@ -412,6 +413,7 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress util.Address, algo stri
 	txFees = append(txFees, -1) // Updated once known
 	txSigOpCosts = append(txSigOpCosts, coinbaseSigOpCost)
 	log <- cl.Tracef{
+
 		"considering %d transactions for inclusion to new block",
 		len(sourceTxns),
 	}
@@ -559,6 +561,7 @@ mempoolLoop:
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
 
 			log <- cl.Tracef{
+
 				"skipping tx %s because it would exceed the max block weight", tx.Hash(),
 			}
 			logSkippedDeps(tx, deps)
@@ -611,6 +614,7 @@ mempoolLoop:
 			prioItem.priority <= MinHighPriority) {
 
 			log <- cl.Tracef{
+
 				"switching to sort by fees per kilobyte " +
 					"blockSize %d >= BlockPrioritySize %d ||" +
 					" priority %.2f <= minHighPriority %.2f",
@@ -635,6 +639,7 @@ mempoolLoop:
 		if err != nil {
 
 			log <- cl.Tracef{
+
 				"skipping tx %s due to error in CheckTransactionInputs: %v",
 				tx.Hash(),
 				err,
@@ -648,6 +653,7 @@ mempoolLoop:
 		if err != nil {
 
 			log <- cl.Tracef{
+
 				"skipping tx %s due to error in ValidateTransactionScripts: %v",
 				tx.Hash(),
 				err,
@@ -665,6 +671,7 @@ mempoolLoop:
 		txFees = append(txFees, prioItem.fee)
 		txSigOpCosts = append(txSigOpCosts, int64(sigOpCost))
 		log <- cl.Tracef{
+
 			"adding tx %s (priority %.2f, feePerKB %.2f)",
 			prioItem.tx.Hash(),
 			prioItem.priority,
@@ -751,6 +758,7 @@ mempoolLoop:
 	if err != nil {
 
 		log <- cl.Debug{"checkconnectblocktemplate err:", err}
+
 		return nil, err
 	}
 	Log.Dbgc(func() string {

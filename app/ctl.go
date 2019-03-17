@@ -17,8 +17,8 @@ func ctlHandleSave() {
 	if e == nil {
 
 		EnsureDir(*ctlConfig.ConfigFile)
-		e = ioutil.WriteFile(
-			*ctlConfig.ConfigFile, yn, 0600)
+		e =
+			ioutil.WriteFile(*ctlConfig.ConfigFile, yn, 0600)
 		if e != nil {
 
 			panic(e)
@@ -33,21 +33,27 @@ func ctlHandleSave() {
 
 func ctlHandle(c *cli.Context) error {
 
-	datadir := filepath.Join(
-		appConfigCommon.Datadir,
-		ctlAppName)
+	datadir :=
+		filepath.Join(
+			appConfigCommon.Datadir,
+			ctlAppName,
+		)
 	*ctlConfig.ConfigFile = filepath.Join(
 		datadir,
-		ctlConfigFilename)
+		ctlConfigFilename,
+	)
+
 	if !c.Parent().Bool("useproxy") {
 
 		*ctlConfig.Proxy = ""
 	}
 
 	loglevel := c.Parent().String("loglevel")
+
 	switch loglevel {
 
 	case "trace", "debug", "info", "warn", "error", "fatal":
+
 	default:
 		*ctlConfig.DebugLevel = "warn"
 	}
@@ -59,10 +65,12 @@ func ctlHandle(c *cli.Context) error {
 		*ctlConfig.TestNet3 = true
 		*ctlConfig.SimNet = false
 		activeNetParams = &netparams.TestNet3Params
+
 	case "simnet", "s":
 		*ctlConfig.TestNet3 = false
 		*ctlConfig.SimNet = true
 		activeNetParams = &netparams.SimNetParams
+
 	default:
 		if network != "mainnet" && network != "m" {
 

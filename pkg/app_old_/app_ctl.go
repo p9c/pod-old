@@ -62,6 +62,7 @@ var CtlCommand = climax.Command{
 		if dl, ok := ctx.Get("debuglevel"); ok {
 
 			log <- cl.Trace{
+
 				"setting debug level", dl,
 			}
 
@@ -69,6 +70,7 @@ var CtlCommand = climax.Command{
 		}
 
 		log <- cl.Debug{
+
 			"pod/ctl version", ctl.Version(),
 		}
 
@@ -102,6 +104,7 @@ var CtlCommand = climax.Command{
 			if ctx.Is("init") {
 
 				log <- cl.Debug{
+
 					"writing default configuration to", cfgFile,
 				}
 
@@ -109,32 +112,38 @@ var CtlCommand = climax.Command{
 
 			} else {
 				log <- cl.Info{
+
 					"loading configuration from", cfgFile,
 				}
 
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 					log <- cl.Wrn("configuration file does not exist, creating new one")
+
 					WriteDefaultCtlConfig(datadir)
 					// then run from this config
 					configCtl(&ctx, cfgFile)
 
 				} else {
 					log <- cl.Debug{"reading from", cfgFile}
+
 					cfgData, err := ioutil.ReadFile(cfgFile)
 
 					if err != nil {
 
 						WriteDefaultCtlConfig(datadir)
 						log <- cl.Error{err}
+
 					}
 
 					log <- cl.Trace{"read in config file\n", string(cfgData)}
+
 					err = json.Unmarshal(cfgData, CtlCfg)
 
 					if err != nil {
 
 						log <- cl.Err(err.Error())
+
 						return 1
 					}
 
@@ -147,6 +156,7 @@ var CtlCommand = climax.Command{
 		}
 
 		log <- cl.Trace{ctx.Args}
+
 		runCtl(ctx.Args, CtlCfg)
 		return 0
 	},

@@ -88,6 +88,7 @@ func generateRPCKeyPair(
 			if rmErr != nil {
 
 				log <- cl.Warn{"cannot remove written certificates:", rmErr}
+
 			}
 
 			return tls.Certificate{}, err
@@ -96,6 +97,7 @@ func generateRPCKeyPair(
 	}
 
 	log <- cl.Inf("done generating TLS certificates")
+
 	return keyPair, nil
 }
 
@@ -119,6 +121,7 @@ func makeListeners(
 
 			// Shouldn't happen due to already being normalized.
 			log <- cl.Errorf{
+
 				"`%s` is not a normalized listener address", addr,
 			}
 
@@ -156,6 +159,7 @@ func makeListeners(
 
 		case ip == nil:
 			log <- cl.Warnf{"`%s` is not a valid IP address", host}
+
 		case ip.To4() == nil:
 			ipv6Addrs = append(ipv6Addrs, addr)
 		default:
@@ -173,6 +177,7 @@ func makeListeners(
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"Can't listen on %s: %v", addr, err,
 			}
 
@@ -189,6 +194,7 @@ func makeListeners(
 		if err != nil {
 
 			log <- cl.Warnf{
+
 				"Can't listen on %s: %v", addr, err,
 			}
 
@@ -237,6 +243,7 @@ func startRPCServers(
 	walletLoader *wallet.Loader) (*grpc.Server, *legacyrpc.Server, error) {
 
 	log <- cl.Trc("startRPCServers")
+
 	var (
 		server       *grpc.Server
 		legacyServer *legacyrpc.Server
@@ -292,8 +299,10 @@ func startRPCServers(
 				go func() {
 
 					log <- cl.Info{"experimental RPC server listening on", lis.Addr()}
+
 					err = server.Serve(lis)
 					log <- cl.Trace{"finished serving expimental RPC:", err}
+
 				}()
 
 			}
@@ -305,6 +314,7 @@ func startRPCServers(
 	if *cfg.Username == "" || *cfg.Password == "" {
 
 		log <- cl.Inf(
+
 			"legacy RPC server disabled (requires username and password)",
 		)
 

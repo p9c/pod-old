@@ -102,6 +102,7 @@ Available options:
 			}
 
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
+
 			err = json.Unmarshal(cfgData, &WalletConfig)
 
 			if err != nil {

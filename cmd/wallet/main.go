@@ -42,6 +42,7 @@ func Main(
 
 			listenAddr := net.JoinHostPort("127.0.0.1", *cfg.Profile)
 			log <- cl.Info{
+
 				"profile server listening on", listenAddr,
 			}
 
@@ -49,12 +50,14 @@ func Main(
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
 			log <- cl.Error{http.ListenAndServe(listenAddr, nil)}
+
 		}()
 
 	}
 
 	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
 	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
+
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
 	if *cfg.Create {
@@ -62,6 +65,7 @@ func Main(
 		if err := CreateWallet(cfg, ActiveNet); err != nil {
 
 			log <- cl.Error{"failed to create wallet", err}
+
 			return err
 		}
 
@@ -73,11 +77,13 @@ func Main(
 
 	// created below after each is created.
 	log <- cl.Trc("startRPCServers loader")
+
 	rpcs, legacyRPCServer, err := startRPCServers(loader)
 
 	if err != nil {
 
 		log <- cl.Error{
+
 			"unable to create RPC servers:", err,
 		}
 
@@ -91,12 +97,14 @@ func Main(
 	if !*cfg.NoInitialLoad {
 
 		log <- cl.Trc("starting rpcClientConnectLoop")
+
 		go rpcClientConnectLoop(legacyRPCServer, loader)
 	}
 
 	loader.RunAfterLoad(func(w *wallet.Wallet) {
 
 		log <- cl.Trc("starting startWalletRPCServices")
+
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
@@ -113,6 +121,7 @@ func Main(
 
 			fmt.Println(err)
 			log <- cl.Error{err}
+
 			return err
 		}
 
@@ -133,6 +142,7 @@ func Main(
 		if err != nil && err != wallet.ErrNotLoaded {
 
 			log <- cl.Error{
+
 				"failed to close wallet:", err,
 			}
 
@@ -150,8 +160,10 @@ func Main(
 
 			// finish up any requests?
 			log <- cl.Wrn("stopping RPC server...")
+
 			rpcs.Stop()
 			log <- cl.Inf("RPC server shutdown")
+
 		})
 
 	}
@@ -161,8 +173,10 @@ func Main(
 		interrupt.AddHandler(func() {
 
 			log <- cl.Wrn("stopping legacy RPC server...")
+
 			legacyRPCServer.Stop()
 			log <- cl.Inf("legacy RPC server shutdown")
+
 		})
 
 		go func() {
@@ -175,6 +189,7 @@ func Main(
 
 	<-interrupt.HandlersDone
 	log <- cl.Inf("shutdown complete")
+
 	return nil
 }
 
@@ -191,6 +206,7 @@ func readCAFile() []byte {
 		if err != nil {
 
 			log <- cl.Warn{
+
 				"cannot open CA file:", err,
 			}
 
@@ -203,6 +219,7 @@ func readCAFile() []byte {
 	} else {
 
 		log <- cl.Inf("chain server RPC TLS is disabled")
+
 	}
 
 	return certs
@@ -303,6 +320,7 @@ func rpcClientConnectLoop(
 		if err != nil {
 
 			log <- cl.Error{
+
 				"unable to open connection to consensus RPC server:", err}
 			continue
 		}
@@ -388,6 +406,7 @@ func startChainRPC(
 	certs []byte) (*chain.RPCClient, error) {
 
 	log <- cl.Infof{
+
 		"attempting RPC client connection to %v, TLS: %s",
 		cfg.RPCConnect, fmt.Sprint(*cfg.EnableClientTLS),
 	}

@@ -96,6 +96,7 @@ func (
 	if e != nil {
 
 		log <- cl.Warn{"failed to register block:", e}
+
 	}
 }
 func (

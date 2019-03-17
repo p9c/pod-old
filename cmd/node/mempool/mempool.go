@@ -241,6 +241,7 @@ func (
 	tx *util.Tx, allowOrphan, rateLimit bool, tag Tag) ([]*TxDesc, error) {
 
 	log <- cl.Trace{"processing transaction", tx.Hash()}
+
 	// Protect concurrent access.
 	mp.mtx.Lock()
 	defer mp.mtx.Unlock()
@@ -432,6 +433,7 @@ func (
 	if e != nil {
 
 		log <- cl.Warn{"failed to set orphan limit", e}
+
 	}
 	mp.orphans[*tx.Hash()] = &orphanTx{
 		tx:         tx,
@@ -448,6 +450,7 @@ func (
 		mp.orphansByPrev[txIn.PreviousOutPoint][*tx.Hash()] = tx
 	}
 	log <- cl.Debug{
+
 		"stored orphan transaction", tx.Hash(), "(total:", len(mp.orphans), ")",
 	}
 }
@@ -589,6 +592,7 @@ func (
 		if numExpired := origNumOrphans - numOrphans; numExpired > 0 {
 
 			log <- cl.Debugf{
+
 				"Expired %d %s (remaining: %d)",
 				numExpired,
 				pickNoun(numExpired, "orphan", "orphans"),
@@ -827,6 +831,7 @@ func (
 		oldTotal := mp.pennyTotal
 		mp.pennyTotal += float64(serializedSize)
 		log <- cl.Tracef{
+
 			"rate limit: curTotal %v, nextTotal: %v, limit %v",
 			oldTotal,
 			mp.pennyTotal,
@@ -848,6 +853,7 @@ func (
 	// Add to transaction pool.
 	txD := mp.addTransaction(utxoView, tx, bestHeight, txFee)
 	log <- cl.Debugf{
+
 		"accepted transaction %v (pool size: %v)",
 		txHash,
 		len(mp.pool),

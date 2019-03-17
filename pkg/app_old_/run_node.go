@@ -16,6 +16,7 @@ func runNode(
 
 	j, _ := json.MarshalIndent(nc, "", "  ")
 	log <- cl.Tracef{"running with configuration:\n%s", string(j)}
+
 	err := node.Main(nc, activeNet, nil)
 
 	if err != nil {

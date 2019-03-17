@@ -438,6 +438,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 	s.blockManager.newFilterHeadersMtx.RUnlock()
 
 	log <- cl.Debugf{
+
 		"waiting for filter headers (height=%v) to catch up the rescan start (height=%v)",
 		filterHeaderHeight, curStamp.Height,
 	}
@@ -520,6 +521,7 @@ filterHeaderWaitLoop:
 	}
 
 	log <- cl.Debugf{
+
 		"starting rescan from known block %d (%s)",
 		curStamp.Height, curStamp.Hash,
 	}
@@ -576,6 +578,7 @@ filterHeaderWaitLoop:
 		}
 
 		log <- cl.Infof{
+
 			"setting timer to attempt to re-fetch filter for hash=%v, height=%v",
 			headerTip.BlockHash(), height,
 		}
@@ -587,6 +590,7 @@ filterHeaderWaitLoop:
 		blockReFetchTimer = time.AfterFunc(blockRetryInterval, func() {
 
 			log <- cl.Infof{
+
 				"resending rescan header for block hash=%v, height=%v",
 				headerTip.BlockHash(), height,
 			}
@@ -675,6 +679,7 @@ rescanLoop:
 				if rewound {
 
 					log <- cl.Tracef{
+
 						"rewound to block %d (%s), no longer current",
 						curStamp.Height, curStamp.Hash,
 					}
@@ -712,6 +717,7 @@ rescanLoop:
 					header.BlockHash() != curStamp.Hash {
 
 					log <- cl.Debugf{
+
 						"rescan got out of order block %s with prevblock %s, curHeader: %s",
 						header.BlockHash(),
 						header.PrevBlock,
@@ -738,6 +744,7 @@ rescanLoop:
 					!s.hasFilterHeadersByHeight(uint32(curStamp.Height+1)) {
 
 					log <- cl.Warnf{
+
 						"missing filter header for height=%v, skipping",
 						curStamp.Height + 1,
 					}
@@ -759,6 +766,7 @@ rescanLoop:
 				}
 
 				log <- cl.Tracef{
+
 					"rescan got block %d (%s)",
 					curStamp.Height, curStamp.Hash,
 				}
@@ -833,6 +841,7 @@ rescanLoop:
 
 			case header := <-blockDisconnected:
 				log <- cl.Debugf{
+
 					"rescan disconnect block %d (%s)\n",
 					curStamp.Height, curStamp.Hash,
 				}
@@ -939,6 +948,7 @@ rescanLoop:
 			if nextHeight > bestBlock.Height {
 
 				log <- cl.Debugf{
+
 					"rescan became current at %d (%s), subscribing to block notifications",
 					curStamp.Height, curStamp.Hash,
 				}
@@ -1803,6 +1813,7 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 	if err != nil {
 
 		log <- cl.Debugf{
+
 			"error finding spends for %s: %v",
 			ro.watchInputs[0].OutPoint.String(),
 			err,

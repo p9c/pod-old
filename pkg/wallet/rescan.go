@@ -184,6 +184,7 @@ out:
 				if curBatch == nil {
 
 					log <- cl.Wrn(
+
 						"received rescan progress notification but no rescan currently running",
 					)
 					continue
@@ -199,6 +200,7 @@ out:
 				if curBatch == nil {
 
 					log <- cl.Wrn(
+
 						"received rescan finished notification but no rescan currently running",
 					)
 					continue
@@ -247,6 +249,7 @@ out:
 		case msg := <-w.rescanProgress:
 			n := msg.Notification
 			log <- cl.Infof{
+
 				"rescanned through block %v (height %d)",
 				n.Hash, n.Height,
 			}
@@ -256,6 +259,7 @@ out:
 			addrs := msg.Addresses
 			noun := pickNoun(len(addrs), "address", "addresses")
 			log <- cl.Infof{
+
 				"finished rescan for %d %s (synced to block %s, height %d)",
 				len(addrs), noun, n.Hash, n.Height,
 			}
@@ -283,6 +287,7 @@ func (w *Wallet) rescanRPCHandler() {
 	if err != nil {
 
 		log <- cl.Err("rescanRPCHandler called without an RPC client")
+
 		w.wg.Done()
 		return
 	}
@@ -301,6 +306,7 @@ out:
 			numAddrs := len(batch.addrs)
 			noun := pickNoun(numAddrs, "address", "addresses")
 			log <- cl.Infof{
+
 				"started rescan from block %v (height %d) for %d %s",
 				batch.bs.Hash, batch.bs.Height, numAddrs, noun,
 			}
@@ -311,6 +317,7 @@ out:
 			if err != nil {
 
 				log <- cl.Errorf{
+
 					"rescan for %d %s failed: %v", numAddrs, noun, err,
 				}
 

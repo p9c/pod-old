@@ -492,6 +492,7 @@ func (w *Wallet) syncWithChain() error {
 		}
 
 		log <- cl.Infof{
+
 			"catching up block hashes to height %d, this will take a while...",
 			logHeight,
 		}
@@ -511,6 +512,7 @@ func (w *Wallet) syncWithChain() error {
 		if isRecovery {
 
 			log <- cl.Infof{
+
 				"RECOVERY MODE ENABLED -- rescanning for used addresses with recovery_window=%d",
 				w.recoveryWindow,
 			}
@@ -689,6 +691,7 @@ func (w *Wallet) syncWithChain() error {
 				}
 
 				log <- cl.Info{
+
 					"Caught up to height", height,
 				}
 
@@ -926,6 +929,7 @@ func (w *Wallet) recoverScopedAddresses(
 	}
 
 	log <- cl.Infof{
+
 		"scanning %d blocks for recoverable addresses",
 		len(batch),
 	}
@@ -1344,6 +1348,7 @@ func logFilterBlocksResp(
 	if nFoundExternal > 0 {
 
 		log <- cl.Infof{
+
 			"recovered %d external addrs at height=%d hash=%v",
 			nFoundExternal,
 			block.Height,
@@ -1360,6 +1365,7 @@ func logFilterBlocksResp(
 	if nFoundInternal > 0 {
 
 		log <- cl.Infof{
+
 			"recovered %d internal addrs at height=%d hash=%v",
 			nFoundInternal,
 			block.Height,
@@ -1372,6 +1378,7 @@ func logFilterBlocksResp(
 	if nFoundOutPoints > 0 {
 
 		log <- cl.Infof{
+
 			"found %d spends from watched outpoints at height=%d hash=%v",
 			nFoundOutPoints,
 			block.Height,
@@ -1522,9 +1529,11 @@ out:
 			if timeout == nil {
 
 				log <- cl.Inf("the wallet has been unlocked without a time limit")
+
 			} else {
 
 				log <- cl.Inf("the wallet has been temporarily unlocked")
+
 			}
 			req.err <- nil
 			continue
@@ -1608,11 +1617,13 @@ out:
 		if err != nil && !waddrmgr.IsError(err, waddrmgr.ErrLocked) {
 
 			log <- cl.Error{
+
 				"could not lock wallet:", err,
 			}
 		} else {
 
 			log <- cl.Inf("the wallet has been locked")
+
 		}
 	}
 	w.wg.Done()
@@ -2185,6 +2196,7 @@ func (w *Wallet) NextAccount(scope waddrmgr.KeyScope, name string) (uint32, erro
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot fetch new account properties for notification after account creation:",
 			err,
 		}
@@ -3414,6 +3426,7 @@ func (w *Wallet) ImportPrivateKey(scope waddrmgr.KeyScope, wif *util.WIF,
 
 	addrStr := addr.EncodeAddress()
 	log <- cl.Info{
+
 		"imported payment address",
 		addrStr,
 	}
@@ -3488,6 +3501,7 @@ func (w *Wallet) resendUnminedTxs() {
 	if err != nil {
 
 		log <- cl.Err(
+
 			"no chain server available to resend unmined transactions",
 		)
 		return
@@ -3504,6 +3518,7 @@ func (w *Wallet) resendUnminedTxs() {
 	if err != nil {
 
 		log <- cl.Error{
+
 			"cannot load unmined transactions for resending:", err,
 		}
 		return
@@ -3514,6 +3529,7 @@ func (w *Wallet) resendUnminedTxs() {
 		if err != nil {
 
 			log <- cl.Debugf{
+
 				"could not resend transaction %v: %v",
 				tx.TxHash(), err,
 			}
@@ -3579,6 +3595,7 @@ func (w *Wallet) resendUnminedTxs() {
 			if err != nil {
 
 				log <- cl.Warnf{
+
 					"unable to remove conflicting tx %v: %v", tx.TxHash(), err,
 				}
 				continue
@@ -3591,6 +3608,7 @@ func (w *Wallet) resendUnminedTxs() {
 			continue
 		}
 		log <- cl.Debug{
+
 			"resent unmined transaction", resp,
 		}
 	}
@@ -3678,6 +3696,7 @@ func (w *Wallet) newAddress(addrmgrNs walletdb.ReadWriteBucket, account uint32,
 	if err != nil {
 
 		log <- cl.Errorf{
+
 			"cannot fetch account properties for notification after deriving next external address: %v",
 			err,
 		}
@@ -4374,6 +4393,7 @@ func Open(
 	}
 
 	log <- cl.Inf("opened wallet") // TODO: log balance? last sync height?
+
 	w := &Wallet{
 		publicPassphrase:    pubPass,
 		db:                  db,
