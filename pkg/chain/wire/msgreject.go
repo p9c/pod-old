@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"io"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
-
 
 // RejectCode represents a numeric value by which a remote peer indicates why a message was rejected.
 type RejectCode uint8
-
 
 // These constants define the various supported reject codes.
 const (
@@ -24,7 +22,6 @@ const (
 	RejectCheckpoint      RejectCode = 0x43
 )
 
-
 // Map of reject codes back strings for pretty printing.
 var rejectCodeStrings = map[RejectCode]string{
 	RejectMalformed:       "REJECT_MALFORMED",
@@ -37,7 +34,6 @@ var rejectCodeStrings = map[RejectCode]string{
 	RejectCheckpoint:      "REJECT_CHECKPOINT",
 }
 
-
 // String returns the RejectCode in human-readable form.
 func (code RejectCode) String() string {
 	if s, ok := rejectCodeStrings[code]; ok {
@@ -45,7 +41,6 @@ func (code RejectCode) String() string {
 	}
 	return fmt.Sprintf("Unknown RejectCode (%d)", uint8(code))
 }
-
 
 // MsgReject implements the Message interface and represents a bitcoin reject message. This message was not added until protocol version RejectVersion.
 type MsgReject struct {
@@ -62,7 +57,6 @@ type MsgReject struct {
 	// Hash identifies a specific block or transaction that was rejected and therefore only applies the MsgBlock and MsgTx messages.
 	Hash chainhash.Hash
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
@@ -102,7 +96,6 @@ func (msg *MsgReject) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if pver < RejectVersion {
@@ -139,12 +132,10 @@ func (msg *MsgReject) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) e
 	return nil
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgReject) Command() string {
 	return CmdReject
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
@@ -158,7 +149,6 @@ func (msg *MsgReject) MaxPayloadLength(pver uint32) uint32 {
 	}
 	return plen
 }
-
 
 // NewMsgReject returns a new bitcoin reject message that conforms to the Message interface.  See MsgReject for details.
 func NewMsgReject(

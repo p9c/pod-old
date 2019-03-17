@@ -16,13 +16,13 @@ import (
 	"git.parallelcoin.io/dev/pod/cmd/spv/cache/lru"
 	"git.parallelcoin.io/dev/pod/cmd/spv/filterdb"
 	"git.parallelcoin.io/dev/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var (
@@ -35,7 +35,6 @@ var (
 
 var (
 
-
 	// blockDataFile is the path to a file containing the first 256 blocks
 
 	// of the block chain.
@@ -43,7 +42,6 @@ var (
 )
 
 var (
-
 
 	// blockDataNet is the expected network in the test block data.
 	blockDataNet = wire.MainNet
@@ -53,7 +51,6 @@ var (
 	maxPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 255), bigOne)
 )
 
-
 // TestBigFilterEvictsEverything creates a cache big enough to hold a large
 
 // filter and inserts many smaller filters into. Then it inserts the big filter
@@ -61,7 +58,6 @@ var (
 // and verifies that it's the only one remaining.
 func TestBigFilterEvictsEverything(
 	t *testing.T) {
-
 
 	// Create different sized filters.
 	b1, f1, _ := genRandFilter(1, t)
@@ -72,7 +68,6 @@ func TestBigFilterEvictsEverything(
 		FilterCache: lru.NewCache(s3),
 	}
 
-
 	// Insert the smaller filters.
 	assertEqual(t, cs.FilterCache.Len(), 0, "")
 	cs.putFilterToCache(b1, filterdb.RegularFilter, f1)
@@ -80,13 +75,11 @@ func TestBigFilterEvictsEverything(
 	cs.putFilterToCache(b2, filterdb.RegularFilter, f2)
 	assertEqual(t, cs.FilterCache.Len(), 2, "")
 
-
 	// Insert the big filter and check all previous filters are evicted.
 	cs.putFilterToCache(b3, filterdb.RegularFilter, f3)
 	assertEqual(t, cs.FilterCache.Len(), 1, "")
 	assertEqual(t, getFilter(cs, b3, t), f3, "")
 }
-
 
 // TestBlockCache checks that blocks are inserted and fetched from the cache
 
@@ -96,7 +89,6 @@ func TestBlockCache(
 
 	t.Parallel()
 
-
 	// Load the first 255 blocks from disk.
 	blocks, err := loadBlocks(t, blockDataFile, blockDataNet)
 	if err != nil {
@@ -104,12 +96,10 @@ func TestBlockCache(
 		t.Fatalf("loadBlocks: Unexpected error: %v", err)
 	}
 
-
 	// We'll use a simple mock header store since the GetBlocks method
 
 	// assumes we only query for blocks with an already known header.
 	headers := newMockBlockHeaderStore()
-
 
 	// Iterate through the blocks, calculating the size of half of them,
 
@@ -130,7 +120,6 @@ func TestBlockCache(
 		}
 	}
 
-
 	// Set up a ChainService with a BlockCache that can fit the first half
 
 	// of the blocks.
@@ -142,7 +131,6 @@ func TestBlockCache(
 		},
 		timeSource: blockchain.NewMedianTime(),
 	}
-
 
 	// We'll set up the queryPeers method to make sure we are only querying
 
@@ -171,7 +159,6 @@ func TestBlockCache(
 			t.Fatalf("unexpected inv type: %v", inv.Type)
 		}
 
-
 		// Serve the block that matches the requested block header.
 		for _, b := range blocks {
 
@@ -189,7 +176,6 @@ func TestBlockCache(
 					t.Fatalf("channel not closed")
 				}
 
-
 				// Notify the test about the query.
 				select {
 				case queries <- inv.Hash:
@@ -203,7 +189,6 @@ func TestBlockCache(
 
 		t.Fatalf("queried for unknown block: %v", inv.Hash)
 	}
-
 
 	// fetchAndAssertPeersQueried calls GetBlock and makes sure the block
 
@@ -234,7 +219,6 @@ func TestBlockCache(
 		}
 	}
 
-
 	// fetchAndAssertInCache calls GetBlock and makes sure the block is not
 
 	// fetched from the peers.
@@ -252,7 +236,6 @@ func TestBlockCache(
 				hash, found.Hash())
 		}
 
-
 		// Make sure we didn't query the peers for this block.
 		select {
 		case q := <-queries:
@@ -260,7 +243,6 @@ func TestBlockCache(
 		default:
 		}
 	}
-
 
 	// Get the first half of the blocks. Since this is the first time we
 
@@ -270,7 +252,6 @@ func TestBlockCache(
 		fetchAndAssertPeersQueried(*b.Hash())
 	}
 
-
 	// Get the first half of the blocks again. This time we expect them all
 
 	// to be fetched from the cache.
@@ -279,7 +260,6 @@ func TestBlockCache(
 		fetchAndAssertInCache(*b.Hash())
 	}
 
-
 	// Get the second half of the blocks. These have not been fetched
 
 	// before, and we expect them to be fetched from peers.
@@ -287,7 +267,6 @@ func TestBlockCache(
 
 		fetchAndAssertPeersQueried(*b.Hash())
 	}
-
 
 	// Since the cache only had capacity for the first half of the blocks,
 
@@ -300,13 +279,11 @@ func TestBlockCache(
 	fetchAndAssertPeersQueried(*b.Hash())
 }
 
-
 // TestCacheBigEnoughHoldsAllFilter creates a cache big enough to hold all
 
 // filters, then gets them in random order and makes sure they are always there.
 func TestCacheBigEnoughHoldsAllFilter(
 	t *testing.T) {
-
 
 	// Create different sized filters.
 	b1, f1, s1 := genRandFilter(1, t)
@@ -317,7 +294,6 @@ func TestCacheBigEnoughHoldsAllFilter(
 		FilterCache: lru.NewCache(s1 + s2 + s3),
 	}
 
-
 	// Insert those filters into the cache making sure nothing gets evicted.
 	assertEqual(t, cs.FilterCache.Len(), 0, "")
 	cs.putFilterToCache(b1, filterdb.RegularFilter, f1)
@@ -326,7 +302,6 @@ func TestCacheBigEnoughHoldsAllFilter(
 	assertEqual(t, cs.FilterCache.Len(), 2, "")
 	cs.putFilterToCache(b3, filterdb.RegularFilter, f3)
 	assertEqual(t, cs.FilterCache.Len(), 3, "")
-
 
 	// Check that we can get those filters back independent of Get order.
 	assertEqual(t, getFilter(cs, b1, t), f1, "")
@@ -353,7 +328,6 @@ func assertEqual(
 	}
 	t.Fatal(message)
 }
-
 
 // getRandFilter generates a random GCS filter that contains numElements. It
 
@@ -398,7 +372,6 @@ func genRandFilter(
 		return nil, nil, 0
 	}
 
-
 	// Convert into CacheableFilter and compute Size.
 	c := &cache.CacheableFilter{Filter: filter}
 	s, err := c.Size()
@@ -411,7 +384,6 @@ func genRandFilter(
 	return genRandomBlockHash(), filter, s
 }
 
-
 // genRandomBlockHash generates a random block hash using math/rand.
 func genRandomBlockHash() *chainhash.Hash {
 	var seed [32]byte
@@ -419,7 +391,6 @@ func genRandomBlockHash() *chainhash.Hash {
 	hash := chainhash.Hash(seed)
 	return &hash
 }
-
 
 // getFilter is a convenience method which will extract a value from the cache
 
@@ -434,7 +405,6 @@ func getFilter(
 	return val
 }
 
-
 // loadBlocks loads the blocks contained in the testdata directory and returns
 
 // a slice of them.
@@ -445,7 +415,6 @@ func getFilter(
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) (
 	[]*util.Block, error) {
-
 
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
@@ -464,12 +433,10 @@ func loadBlocks(
 	}()
 	dr := bzip2.NewReader(fi)
 
-
 	// Set the first block as the genesis block.
 	blocks := make([]*util.Block, 0, 256)
 	genesis := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	blocks = append(blocks, genesis)
-
 
 	// Load the remaining blocks.
 	for height := 1; ; height++ {
@@ -477,7 +444,6 @@ func loadBlocks(
 		var net uint32
 		err := binary.Read(dr, binary.LittleEndian, &net)
 		if err == io.EOF {
-
 
 			// Hit end of file at the expected offset.  No error.
 			break
@@ -504,7 +470,6 @@ func loadBlocks(
 			return nil, err
 		}
 
-
 		// Read the block.
 		blockBytes := make([]byte, blockLen)
 		_, err = io.ReadFull(dr, blockBytes)
@@ -513,7 +478,6 @@ func loadBlocks(
 			t.Errorf("Failed to load block %d: %v", height, err)
 			return nil, err
 		}
-
 
 		// Deserialize and store the block.
 		block, err := util.NewBlockFromBytes(blockBytes)

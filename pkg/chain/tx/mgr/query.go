@@ -6,9 +6,9 @@ package wtxmgr
 import (
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // CreditRecord contains metadata regarding a transaction credit for a known
@@ -44,7 +44,6 @@ type TxDetails struct {
 func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, recKey, recVal []byte) (*TxDetails, error) {
 
 	var details TxDetails
-
 
 	// Parse transaction record k/v, lookup the full block record for the
 
@@ -127,7 +126,6 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 		return nil, it.err
 	}
 
-
 	// Debit records are not saved for unmined transactions.  Instead, they
 
 	// must be looked up for each transaction input manually.  There are two
@@ -183,7 +181,6 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 // a nil TxDetails is returned.
 func (s *Store) TxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash) (*TxDetails, error) {
 
-
 	// First, check whether there exists an unmined transaction with this
 
 	// hash.  Use it if found.
@@ -191,7 +188,6 @@ func (s *Store) TxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash) (*TxDe
 	if v != nil {
 		return s.unminedTxDetails(ns, txHash, v)
 	}
-
 
 	// Otherwise, if there exists a mined transaction with this matching
 
@@ -267,7 +263,6 @@ func (s *Store) rangeUnminedTransactions(ns walletdb.ReadBucket, f func([]TxDeta
 // f executes and returns true.
 func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 	f func([]TxDetails) (bool, error)) (bool, error) {
-
 
 	// Mempool height is considered a high bound.
 	if begin < 0 {

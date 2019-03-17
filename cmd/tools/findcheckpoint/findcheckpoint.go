@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	database "git.parallelcoin.io/dev/pod/pkg/db"
 )
 

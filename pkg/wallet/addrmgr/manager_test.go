@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/snacl"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	"git.parallelcoin.io/dev/pod/pkg/util/snacl"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -108,7 +108,6 @@ func testManagedPubKeyAddress(
 	tc *testContext, prefix string,
 	gotAddr waddrmgr.ManagedPubKeyAddress, wantAddr *expectedAddr) bool {
 
-
 	// Ensure pubkey is the expected value for the managed address.
 	var gpubBytes []byte
 	if gotAddr.Compressed() {
@@ -124,7 +123,6 @@ func testManagedPubKeyAddress(
 		return false
 	}
 
-
 	// Ensure exported pubkey string is the expected value for the managed
 
 	// address.
@@ -135,7 +133,6 @@ func testManagedPubKeyAddress(
 			"want %s", prefix, gpubHex, wantPubHex)
 		return false
 	}
-
 
 	// Ensure that the derivation path has been properly re-set after the
 
@@ -154,7 +151,6 @@ func testManagedPubKeyAddress(
 			spew.Sdump(expectedDerivationInfo))
 		return false
 	}
-
 
 	// Ensure private key is the expected value for the managed address.
 
@@ -192,7 +188,6 @@ func testManagedPubKeyAddress(
 		}
 	}
 
-
 	// Ensure exported private key in Wallet Import Format (WIF) is the
 
 	// expected value for the managed address.  Since this is only available
@@ -229,7 +224,6 @@ func testManagedPubKeyAddress(
 			return false
 		}
 	}
-
 
 	// Imported addresses should return a nil derivation info.
 	if _, _, ok := gotAddr.DerivationInfo(); gotAddr.Imported() && ok {
@@ -388,7 +382,6 @@ func testExternalAddresses(
 		}
 	}
 
-
 	// Setup a closure to test the results since the same tests need to be
 
 	// repeated with the manager locked and unlocked.
@@ -460,7 +453,6 @@ func testExternalAddresses(
 		return true
 	}
 
-
 	// Since the manager is locked at this point, the public address
 
 	// information is tested and the private functions are checked to ensure
@@ -471,7 +463,6 @@ func testExternalAddresses(
 		return false
 	}
 
-
 	// Everything after this point involves retesting with an unlocked
 
 	// address manager which is not possible for watching-only mode, so
@@ -480,7 +471,6 @@ func testExternalAddresses(
 	if tc.watchingOnly {
 		return true
 	}
-
 
 	// Unlock the manager and retest all of the addresses to ensure the
 
@@ -498,7 +488,6 @@ func testExternalAddresses(
 
 		return false
 	}
-
 
 	// Relock the manager for future tests.
 	if err := tc.rootManager.Lock(); err != nil {
@@ -562,7 +551,6 @@ func testInternalAddresses(
 			return false
 		}
 	}
-
 
 	// Setup a closure to test the results since the same tests need to be
 
@@ -635,7 +623,6 @@ func testInternalAddresses(
 		return true
 	}
 
-
 	// The address manager could either be locked or unlocked here depending
 
 	// on whether or not it's a watching-only manager.  When it's unlocked,
@@ -652,7 +639,6 @@ func testInternalAddresses(
 		return false
 	}
 
-
 	// Everything after this point involves locking the address manager and
 
 	// retesting the addresses with a locked manager.  However, for
@@ -663,7 +649,6 @@ func testInternalAddresses(
 	if tc.watchingOnly {
 		return true
 	}
-
 
 	// Lock the manager and retest all of the addresses to ensure the
 
@@ -698,7 +683,6 @@ func testLocking(
 		return false
 	}
 
-
 	// Locking an already lock manager should return an error.  The error
 
 	// should be ErrLocked or ErrWatchingOnly depending on the type of the
@@ -713,7 +697,6 @@ func testLocking(
 
 		return false
 	}
-
 
 	// Ensure unlocking with the correct passphrase doesn't return any
 
@@ -741,7 +724,6 @@ func testLocking(
 		return false
 	}
 
-
 	// Unlocking the manager again is allowed.  Since watching-only address
 
 	// managers can't be unlocked, also ensure the correct error for that
@@ -765,7 +747,6 @@ func testLocking(
 		tc.t.Error("IsLocked: returned true on unlocked manager")
 		return false
 	}
-
 
 	// Unlocking the manager with an invalid passphrase must result in an
 
@@ -839,7 +820,6 @@ func testImportPrivateKey(
 		},
 	}
 
-
 	// The manager must be unlocked to import a private key, however a
 
 	// watching-only manager can't be unlocked.
@@ -854,7 +834,6 @@ func testImportPrivateKey(
 		}
 		tc.unlocked = true
 	}
-
 
 	// Only import the private keys when in the create phase of testing.
 	tc.account = waddrmgr.ImportedAddrAccount
@@ -888,7 +867,6 @@ func testImportPrivateKey(
 			}
 		}
 	}
-
 
 	// Setup a closure to test the results since the same tests need to be
 
@@ -935,7 +913,6 @@ func testImportPrivateKey(
 		return !failed
 	}
 
-
 	// The address manager could either be locked or unlocked here depending
 
 	// on whether or not it's a watching-only manager.  When it's unlocked,
@@ -952,7 +929,6 @@ func testImportPrivateKey(
 		return false
 	}
 
-
 	// Everything after this point involves locking the address manager and
 
 	// retesting the addresses with a locked manager.  However, for
@@ -963,7 +939,6 @@ func testImportPrivateKey(
 	if tc.watchingOnly {
 		return true
 	}
-
 
 	// Lock the manager and retest all of the addresses to ensure the
 
@@ -1033,7 +1008,6 @@ func testImportScript(
 		},
 	}
 
-
 	// The manager must be unlocked to import a private key and also for
 
 	// testing private data.  However, a watching-only manager can't be
@@ -1050,7 +1024,6 @@ func testImportScript(
 		}
 		tc.unlocked = true
 	}
-
 
 	// Only import the scripts when in the create phase of testing.
 	tc.account = waddrmgr.ImportedAddrAccount
@@ -1079,7 +1052,6 @@ func testImportScript(
 			}
 		}
 	}
-
 
 	// Setup a closure to test the results since the same tests need to be
 
@@ -1126,7 +1098,6 @@ func testImportScript(
 		return !failed
 	}
 
-
 	// The address manager could either be locked or unlocked here depending
 
 	// on whether or not it's a watching-only manager.  When it's unlocked,
@@ -1143,7 +1114,6 @@ func testImportScript(
 		return false
 	}
 
-
 	// Everything after this point involves locking the address manager and
 
 	// retesting the addresses with a locked manager.  However, for
@@ -1154,7 +1124,6 @@ func testImportScript(
 	if tc.watchingOnly {
 		return true
 	}
-
 
 	// Lock the manager and retest all of the addresses to ensure the
 
@@ -1272,7 +1241,6 @@ func testChangePassphrase(
 		return false
 	}
 
-
 	// Attempt to change public passphrase with invalid old passphrase.
 	testName = "ChangePassphrase (public) with invalid old passphrase"
 	waddrmgr.SetSecretKeyGen(oldKeyGen)
@@ -1287,7 +1255,6 @@ func testChangePassphrase(
 		return false
 	}
 
-
 	// Change the public passphrase.
 	testName = "ChangePassphrase (public)"
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -1301,14 +1268,12 @@ func testChangePassphrase(
 		return false
 	}
 
-
 	// Ensure the public passphrase was successfully changed.
 	if !tc.rootManager.TstCheckPublicPassphrase(pubPassphrase2) {
 
 		tc.t.Errorf("%s: passphrase does not match", testName)
 		return false
 	}
-
 
 	// Change the private passphrase back to what it was.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -1321,7 +1286,6 @@ func testChangePassphrase(
 		tc.t.Errorf("%s: unexpected error: %v", testName, err)
 		return false
 	}
-
 
 	// Attempt to change private passphrase with invalid old passphrase.
 
@@ -1344,7 +1308,6 @@ func testChangePassphrase(
 		return false
 	}
 
-
 	// Everything after this point involves testing that the private
 
 	// passphrase for the address manager can be changed successfully.
@@ -1355,7 +1318,6 @@ func testChangePassphrase(
 	if tc.watchingOnly {
 		return true
 	}
-
 
 	// Change the private passphrase.
 	testName = "ChangePassphrase (private)"
@@ -1370,7 +1332,6 @@ func testChangePassphrase(
 		return false
 	}
 
-
 	// Unlock the manager with the new passphrase to ensure it changed as
 
 	// expected.
@@ -1384,7 +1345,6 @@ func testChangePassphrase(
 		return false
 	}
 	tc.unlocked = true
-
 
 	// Change the private passphrase back to what it was while the manager
 
@@ -1404,7 +1364,6 @@ func testChangePassphrase(
 		tc.t.Errorf("%s: manager is locked", testName)
 		return false
 	}
-
 
 	// Relock the manager for future tests.
 	if err := tc.rootManager.Lock(); err != nil {
@@ -1488,7 +1447,6 @@ func testNewAccount(
 		return false
 	}
 
-
 	// Test duplicate account name error
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
@@ -1570,7 +1528,6 @@ func testLookupAccount(
 		return false
 	}
 
-
 	// Test last account
 	var lastAccount uint32
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
@@ -1591,7 +1548,6 @@ func testLookupAccount(
 			"want %d", lastAccount, expectedLastAccount)
 		return false
 	}
-
 
 	// Test account lookup for default account adddress
 	var expectedAccount uint32
@@ -1792,14 +1748,12 @@ func testManagerAPI(
 	testMarkUsed(tc)
 	testChangePassphrase(tc)
 
-
 	// Reset default account
 	tc.account = 0
 	testNewAccount(tc)
 	testLookupAccount(tc)
 	testForEachAccount(tc)
 	testForEachAccountAddress(tc)
-
 
 	// Rename account 1 "acct-create"
 	tc.account = 1
@@ -1830,7 +1784,6 @@ func testWatchingOnly(
 	fi.Close()
 	defer os.Remove(woMgrName)
 
-
 	// Open the new database copy and get the address manager namespace.
 	db, err := walletdb.Open("bdb", woMgrName)
 	if err != nil {
@@ -1838,7 +1791,6 @@ func testWatchingOnly(
 		return false
 	}
 	defer db.Close()
-
 
 	// Open the manager using the namespace and convert it to watching-only.
 	var mgr *waddrmgr.Manager
@@ -1861,7 +1813,6 @@ func testWatchingOnly(
 		return false
 	}
 
-
 	// Run all of the manager API tests against the converted manager and
 
 	// close it. We'll also retrieve the default scope (BIP0044) from the
@@ -1882,7 +1833,6 @@ func testWatchingOnly(
 		watchingOnly: true,
 	})
 	mgr.Close()
-
 
 	// Open the watching-only manager and run all the tests again.
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
@@ -1942,7 +1892,6 @@ func testSync(
 		return false
 	}
 
-
 	// If we update to a new more recent block time stamp, then upon
 
 	// retrieval it should be returned as the best known state.
@@ -1985,7 +1934,6 @@ func TestManager(
 	teardown, db := emptyDB(t)
 	defer teardown()
 
-
 	// Open manager that does not exist to ensure the expected error is
 
 	// returned.
@@ -1998,7 +1946,6 @@ func TestManager(
 
 		return
 	}
-
 
 	// Create a new manager.
 	var mgr *waddrmgr.Manager
@@ -2022,11 +1969,9 @@ func TestManager(
 		return
 	}
 
-
 	// NOTE: Not using deferred close here since part of the tests is
 
 	// explicitly closing the manager and then opening the existing one.
-
 
 	// Attempt to create the manager again to ensure the expected error is
 
@@ -2041,7 +1986,6 @@ func TestManager(
 		mgr.Close()
 		return
 	}
-
 
 	// Run all of the manager API tests in create mode and close the
 
@@ -2061,7 +2005,6 @@ func TestManager(
 	})
 	mgr.Close()
 
-
 	// Ensure the expected error is returned if the latest manager version
 
 	// constant is bumped without writing code to actually do the upgrade.
@@ -2076,7 +2019,6 @@ func TestManager(
 		return
 	}
 	*waddrmgr.TstLatestMgrVersion--
-
 
 	// Open the manager and run all the tests again in open mode which
 
@@ -2108,16 +2050,13 @@ func TestManager(
 	}
 	testManagerAPI(tc)
 
-
 	// Now that the address manager has been tested in both the newly
 
 	// created and opened modes, test a watching-only version.
 	testWatchingOnly(tc)
 
-
 	// Ensure that the manager sync state functionality works as expected.
 	testSync(tc)
-
 
 	// Unlock the manager so it can be closed with it unlocked to ensure
 
@@ -2168,7 +2107,6 @@ func TestEncryptDecryptErrors(
 	checkManagerError(t, "decryption with private key fails when manager is locked",
 		err, waddrmgr.ErrLocked)
 
-
 	// Unlock the manager for these tests
 	err = walletdb.View(db, func(tx walletdb.ReadTx) error {
 		ns := tx.ReadBucket(waddrmgrNamespaceKey)
@@ -2178,14 +2116,12 @@ func TestEncryptDecryptErrors(
 		t.Fatal("Attempted to unlock the manager, but failed:", err)
 	}
 
-
 	// Make sure to cover the ErrCrypto error path in Encrypt.
 	waddrmgr.TstRunWithFailingCryptoKeyPriv(mgr, func() {
 
 		_, err = mgr.Encrypt(waddrmgr.CKTPrivate, []byte{})
 	})
 	checkManagerError(t, "failed encryption", err, waddrmgr.ErrCrypto)
-
 
 	// Make sure to cover the ErrCrypto error path in Decrypt.
 	waddrmgr.TstRunWithFailingCryptoKeyPriv(mgr, func() {
@@ -2206,7 +2142,6 @@ func TestEncryptDecrypt(
 	defer teardown()
 
 	plainText := []byte("this is a plaintext")
-
 
 	// Make sure address manager is unlocked
 	err := walletdb.View(db, func(tx walletdb.ReadTx) error {
@@ -2252,7 +2187,6 @@ func TestScopedKeyManagerManagement(
 	teardown, db := emptyDB(t)
 	defer teardown()
 
-
 	// We'll start the test by creating a new root manager that will be
 
 	// used for the duration of the test.
@@ -2283,7 +2217,6 @@ func TestScopedKeyManagerManagement(
 		t.Fatalf("create/open: unexpected error: %v", err)
 	}
 
-
 	// All the default scopes should have been created and loaded into
 
 	// memory upon initial opening.
@@ -2293,7 +2226,6 @@ func TestScopedKeyManagerManagement(
 			t.Fatalf("unable to fetch scope %v: %v", scope, err)
 		}
 	}
-
 
 	// Next, ensure that if we create an internal and external addrs for
 
@@ -2346,7 +2278,6 @@ func TestScopedKeyManagerManagement(
 		t.Fatalf("unable to read db: %v", err)
 	}
 
-
 	// Now that the manager is open, we'll create a "test" scope that we'll
 
 	// be utilizing for the remainder of the test.
@@ -2372,7 +2303,6 @@ func TestScopedKeyManagerManagement(
 	if err != nil {
 		t.Fatalf("unable to read db: %v", err)
 	}
-
 
 	// The manager was just created, we should be able to look it up within
 
@@ -2406,7 +2336,6 @@ func TestScopedKeyManagerManagement(
 		t.Fatalf("open: unexpected error: %v", err)
 	}
 
-
 	// Ensure that the type of the address matches as expected.
 	if externalAddr[0].AddrType() != waddrmgr.NestedWitnessPubKey {
 		t.Fatalf("addr type mismatch: expected %v, got %v",
@@ -2416,7 +2345,6 @@ func TestScopedKeyManagerManagement(
 	if !ok {
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}
-
 
 	// We'll also create an internal address and ensure that the types
 
@@ -2429,7 +2357,6 @@ func TestScopedKeyManagerManagement(
 	if !ok {
 		t.Fatalf("wrong type: %T", externalAddr[0].Address())
 	}
-
 
 	// We'll now simulate a restart by closing, then restarting the
 
@@ -2450,7 +2377,6 @@ func TestScopedKeyManagerManagement(
 	}
 	defer mgr.Close()
 
-
 	// We should be able to retrieve the new scoped manager that we just
 
 	// created.
@@ -2458,7 +2384,6 @@ func TestScopedKeyManagerManagement(
 	if err != nil {
 		t.Fatalf("attempt to read created mgr failed: %v", err)
 	}
-
 
 	// If we fetch the last generated external address, it should map
 
@@ -2485,7 +2410,6 @@ func TestScopedKeyManagerManagement(
 			externalAddr[0].AddrHash(), lastAddr.AddrHash())
 	}
 
-
 	// After the restart, all the default scopes should be been re-loaded.
 	for _, scope := range waddrmgr.DefaultKeyScopes {
 		_, err := mgr.FetchScopedKeyManager(scope)
@@ -2493,7 +2417,6 @@ func TestScopedKeyManagerManagement(
 			t.Fatalf("unable to fetch scope %v: %v", scope, err)
 		}
 	}
-
 
 	// Finally, if we attempt to query the root manager for this last
 
@@ -2529,7 +2452,6 @@ func TestRootHDKeyNeutering(
 	teardown, db := emptyDB(t)
 	defer teardown()
 
-
 	// We'll start the test by creating a new root manager that will be
 
 	// used for the duration of the test.
@@ -2561,7 +2483,6 @@ func TestRootHDKeyNeutering(
 	}
 	defer mgr.Close()
 
-
 	// With the root manager open, we'll now create a new scoped manager
 
 	// for usage within this test.
@@ -2587,7 +2508,6 @@ func TestRootHDKeyNeutering(
 		t.Fatalf("unable to read db: %v", err)
 	}
 
-
 	// With the manager created, we'll now neuter the root HD private key.
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 		ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
@@ -2597,7 +2517,6 @@ func TestRootHDKeyNeutering(
 	if err != nil {
 		t.Fatalf("unable to read db: %v", err)
 	}
-
 
 	// If we try to create *another* scope, this should fail, as the root
 
@@ -2632,7 +2551,6 @@ func TestNewRawAccount(
 	teardown, db := emptyDB(t)
 	defer teardown()
 
-
 	// We'll start the test by creating a new root manager that will be
 
 	// used for the duration of the test.
@@ -2664,7 +2582,6 @@ func TestNewRawAccount(
 	}
 	defer mgr.Close()
 
-
 	// Now that we have the manager created, we'll fetch one of the default
 
 	// scopes for usage within this test.
@@ -2672,7 +2589,6 @@ func TestNewRawAccount(
 	if err != nil {
 		t.Fatalf("unable to fetch scope %v: %v", waddrmgr.KeyScopeBIP0084, err)
 	}
-
 
 	// With the scoped manager retrieved, we'll attempt to create a new raw
 
@@ -2685,7 +2601,6 @@ func TestNewRawAccount(
 	if err != nil {
 		t.Fatalf("unable to create new account: %v", err)
 	}
-
 
 	// With the account created, we should be able to derive new addresses
 
@@ -2708,7 +2623,6 @@ func TestNewRawAccount(
 		t.Fatalf("unable to create addr: %v", err)
 	}
 
-
 	// Additionally, we should be able to manually derive specific target
 
 	// keys.
@@ -2729,7 +2643,6 @@ func TestNewRawAccount(
 	if err != nil {
 		t.Fatalf("unable to derive addr: %v", err)
 	}
-
 
 	// The two keys we just derived should match up perfectly.
 	if accountAddrNext.AddrType() != accountTargetAddr.AddrType() {

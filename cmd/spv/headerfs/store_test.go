@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	"github.com/davecgh/go-spew/spew"
 )
 

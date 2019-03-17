@@ -2,15 +2,15 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestVersion tests the MsgVersion API.
 func TestVersion(
@@ -121,11 +121,9 @@ func TestVersion(
 	}
 }
 
-
 // TestVersionWire tests the MsgVersion wire encode and decode for various protocol versions.
 func TestVersionWire(
 	t *testing.T) {
-
 
 	// verRelayTxFalse and verRelayTxFalseEncoded is a version message as of BIP0037Version with the transaction relay disabled.
 	baseVersionBIP0037Copy := *baseVersionBIP0037
@@ -239,11 +237,9 @@ func TestVersionWire(
 	}
 }
 
-
 // TestVersionWireErrors performs negative tests against wire encode and decode of MsgGetHeaders to confirm error paths work correctly.
 func TestVersionWireErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
@@ -368,11 +364,9 @@ func TestVersionWireErrors(
 	}
 }
 
-
 // TestVersionOptionalFields performs tests to ensure that an encoded version messages that omit optional fields are handled correctly.
 func TestVersionOptionalFields(
 	t *testing.T) {
-
 
 	// onlyRequiredVersion is a version message that only contains the required versions and all other values set to their default values.
 	onlyRequiredVersion := MsgVersion{
@@ -473,7 +467,6 @@ func TestVersionOptionalFields(
 	}
 }
 
-
 // baseVersion is used in the various tests as a baseline MsgVersion.
 var baseVersion = &MsgVersion{
 	ProtocolVersion: 60002,
@@ -495,7 +488,6 @@ var baseVersion = &MsgVersion{
 	UserAgent: "/podtest:0.0.1/",
 	LastBlock: 234234, // 0x392fa
 }
-
 
 // baseVersionEncoded is the wire encoded bytes for baseVersion using protocol version 60002 and is used in the various tests.
 var baseVersionEncoded = []byte{
@@ -521,7 +513,6 @@ var baseVersionEncoded = []byte{
 	0xfa, 0x92, 0x03, 0x00, // Last block
 }
 
-
 // baseVersionBIP0037 is used in the various tests as a baseline MsgVersion for BIP0037.
 var baseVersionBIP0037 = &MsgVersion{
 	ProtocolVersion: 70001,
@@ -543,7 +534,6 @@ var baseVersionBIP0037 = &MsgVersion{
 	UserAgent: "/podtest:0.0.1/",
 	LastBlock: 234234, // 0x392fa
 }
-
 
 // baseVersionBIP0037Encoded is the wire encoded bytes for baseVersionBIP0037 using protocol version BIP0037Version and is used in the various tests.
 var baseVersionBIP0037Encoded = []byte{

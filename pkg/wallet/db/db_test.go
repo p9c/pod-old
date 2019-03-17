@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
@@ -33,7 +33,6 @@ func TestAddDuplicateDriver(
 	}
 	dbType := supportedDrivers[0]
 
-
 	// bogusCreateDB is a function which acts as a bogus create and open
 
 	// driver function and intentionally returns a failure that can be
@@ -46,7 +45,6 @@ func TestAddDuplicateDriver(
 		return nil, fmt.Errorf("duplicate driver allowed for database "+
 			"type [%v]", dbType)
 	}
-
 
 	// Create a driver that tries to replace an existing one.  Set its
 
@@ -80,7 +78,6 @@ func TestAddDuplicateDriver(
 func TestCreateOpenFail(
 	t *testing.T) {
 
-
 	// bogusCreateDB is a function which acts as a bogus create and open
 
 	// driver function that intentionally returns a failure which can be
@@ -94,7 +91,6 @@ func TestCreateOpenFail(
 		return nil, openError
 	}
 
-
 	// Create and add driver that intentionally fails when created or opened
 
 	// to ensure errors on database open and create are handled properly.
@@ -105,7 +101,6 @@ func TestCreateOpenFail(
 	}
 	walletdb.RegisterDriver(driver)
 
-
 	// Ensure creating a database with the new type fails with the expected
 
 	// error.
@@ -115,7 +110,6 @@ func TestCreateOpenFail(
 			openError)
 		return
 	}
-
 
 	// Ensure opening a database with the new type fails with the expected
 
@@ -133,7 +127,6 @@ func TestCreateOpenFail(
 func TestCreateOpenUnsupported(
 	t *testing.T) {
 
-
 	// Ensure creating a database with an unsupported type fails with the
 
 	// expected error.
@@ -144,7 +137,6 @@ func TestCreateOpenUnsupported(
 			walletdb.ErrDbUnknownType)
 		return
 	}
-
 
 	// Ensure opening a database with the an unsupported type fails with the
 

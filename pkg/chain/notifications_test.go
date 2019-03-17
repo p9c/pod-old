@@ -3,7 +3,7 @@ package blockchain
 import (
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 )
 
 // TestNotifications ensures that notification callbacks are fired on events.

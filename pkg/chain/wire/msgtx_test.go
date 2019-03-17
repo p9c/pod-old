@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -141,7 +141,6 @@ func TestTx(
 func TestTxHash(
 	t *testing.T) {
 
-
 	// Hash of first transaction from block 113875.
 	hashStr := "f051e59b5e2503ac626d03aaeac8ab7be2d72ba4b7e97119c5852d70d52dcb86"
 	wantHash, err := chainhash.NewHashFromStr(hashStr)
@@ -272,7 +271,6 @@ func TestWTxSha(
 // TestTxWire tests the MsgTx wire encode and decode for various numbers of transaction inputs and outputs and protocol versions.
 func TestTxWire(
 	t *testing.T) {
-
 
 	// Empty tx message.
 	noTx := NewMsgTx(1)
@@ -405,7 +403,6 @@ func TestTxWire(
 // TestTxWireErrors performs negative tests against wire encode and decode of MsgTx to confirm error paths work correctly.
 func TestTxWireErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
@@ -627,7 +624,6 @@ func TestTxSerializeErrors(
 func TestTxOverflowErrors(
 	t *testing.T) {
 
-
 	// Use protocol version 70001 and transaction version 1 specifically here instead of the latest values because the test data is using bytes encoded with those versions.
 	pver := uint32(70001)
 	txVer := uint32(1)
@@ -715,7 +711,6 @@ func TestTxOverflowErrors(
 // TestTxSerializeSizeStripped performs tests to ensure the serialize size for various transactions is accurate.
 func TestTxSerializeSizeStripped(
 	t *testing.T) {
-
 
 	// Empty tx message.
 	noTx := NewMsgTx(1)

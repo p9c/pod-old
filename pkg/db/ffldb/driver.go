@@ -3,8 +3,8 @@ package ffldb
 import (
 	"fmt"
 
-	database "git.parallelcoin.io/dev/pod/pkg/db"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
 )
 
 const (
@@ -56,7 +56,6 @@ func createDBDriver(
 }
 
 func init() {
-
 
 	// Register the driver.
 	driver := database.Driver{

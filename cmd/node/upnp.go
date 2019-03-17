@@ -331,7 +331,6 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 // AddPortMapping implements the NAT interface by setting up a port forwarding from the UPnP router to the local machine with the given ports and protocol.
 func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error) {
 
-
 	// A single concatenation would break ARM compilation.
 	message := "<u:AddPortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">\r\n" +
 		"<NewRemoteHost></NewRemoteHost><NewExternalPort>" + strconv.Itoa(externalPort)

@@ -6,10 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestGetBlocks tests the MsgGetBlocks API.
 func TestGetBlocks(
@@ -77,11 +76,9 @@ func TestGetBlocks(
 	}
 }
 
-
 // TestGetBlocksWire tests the MsgGetBlocks wire encode and decode for various numbers of block locator hashes and protocol versions.
 func TestGetBlocksWire(
 	t *testing.T) {
-
 
 	// Set protocol inside getblocks message.
 	pver := uint32(60002)
@@ -272,11 +269,9 @@ func TestGetBlocksWire(
 	}
 }
 
-
 // TestGetBlocksWireErrors performs negative tests against wire encode and decode of MsgGetBlocks to confirm error paths work correctly.
 func TestGetBlocksWireErrors(
 	t *testing.T) {
-
 
 	// Set protocol inside getheaders message.  Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)

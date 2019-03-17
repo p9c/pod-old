@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"git.parallelcoin.io/dev/pod/integration/rpctest"
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 const (

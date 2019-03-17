@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // Naming
@@ -1353,7 +1353,6 @@ func fetchUnminedInputSpendTxHashes(
 		return nil
 	}
 
-
 	// Each transaction hash is 32 bytes.
 	spendTxHashes := make([]chainhash.Hash, 0, len(rawSpendTxHashes)/32)
 	for len(rawSpendTxHashes) > 0 {
@@ -1399,7 +1398,6 @@ func openStore(
 		return storeError(ErrUnknownVersion, str, nil)
 	}
 
-
 	// Upgrade the tx store as needed, one version at a time, until
 
 	// LatestVersion is reached.  Versions are not skipped when performing
@@ -1439,7 +1437,6 @@ func createStore(
 		return storeError(ErrAlreadyExists, str, nil)
 	}
 
-
 	// Write the latest store version.
 	v := make([]byte, 4)
 	byteOrder.PutUint32(v, LatestVersion)
@@ -1449,7 +1446,6 @@ func createStore(
 		return storeError(ErrDatabase, str, err)
 	}
 
-
 	// Save the creation date of the store.
 	v = make([]byte, 8)
 	byteOrder.PutUint64(v, uint64(time.Now().Unix()))
@@ -1458,7 +1454,6 @@ func createStore(
 		str := "failed to store database creation time"
 		return storeError(ErrDatabase, str, err)
 	}
-
 
 	// Write a zero balance.
 	v = make([]byte, 8)

@@ -126,7 +126,6 @@ func Encrypt(
 func Decrypt(
 	priv *PrivateKey, in []byte) ([]byte, error) {
 
-
 	// IV + Curve params/X/Y + 1 block + HMAC-256
 	if len(in) < aes.BlockSize+70+aes.BlockSize+sha256.Size {
 		return nil, errInputTooShort

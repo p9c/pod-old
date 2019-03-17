@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 const (

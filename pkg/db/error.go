@@ -2,10 +2,8 @@ package database
 
 import "fmt"
 
-
 // ErrorCode identifies a kind of error.
 type ErrorCode int
-
 
 // These constants are used to identify a specific database Error.
 const (
@@ -15,9 +13,7 @@ const (
 	// ErrDbTypeRegistered indicates two different database drivers attempt to register with the name database type.
 	ErrDbTypeRegistered ErrorCode = iota
 
-
 	// Errors related to database functions.
-
 
 	// ErrDbUnknownType indicates there is no driver registered for the specified database type.
 	ErrDbUnknownType
@@ -40,9 +36,7 @@ const (
 	// ErrCorruption indicates a checksum failure occurred which invariably means the database is corrupt.
 	ErrCorruption
 
-
 	// Errors related to database transactions.
-
 
 	// ErrTxClosed indicates an attempt was made to commit or rollback a transaction that has already had one of those operations performed.
 	ErrTxClosed
@@ -73,9 +67,7 @@ const (
 	// ErrIncompatibleValue indicates the value in question is invalid for the specific requested operation.  For example, trying create or delete a bucket with an existing non-bucket key, attempting to create or delete a non-bucket key with an existing bucket key, or trying to delete a value via a cursor when it points to a nested bucket.
 	ErrIncompatibleValue
 
-
 	// Errors related to block I/O operations.
-
 
 	// ErrBlockNotFound indicates a block with the provided hash does not exist in the database.
 	ErrBlockNotFound
@@ -86,9 +78,7 @@ const (
 	// ErrBlockRegionInvalid indicates a region that exceeds the bounds of the specified block was requested.  When the hash provided by the region does not correspond to an existing block, the error will be ErrBlockNotFound instead.
 	ErrBlockRegionInvalid
 
-
 	// Support for driver-specific errors.
-
 
 	// ErrDriverSpecific indicates the Err field is a driver-specific error. This provides a mechanism for drivers to plug-in their own custom errors for any situations which aren't already covered by the error codes provided by this package.
 	ErrDriverSpecific
@@ -96,7 +86,6 @@ const (
 	// numErrorCodes is the maximum error code number used in tests.
 	numErrorCodes
 )
-
 
 // Map of ErrorCode values back to their constant names for pretty printing.
 var errorCodeStrings = map[ErrorCode]string{
@@ -123,7 +112,6 @@ var errorCodeStrings = map[ErrorCode]string{
 	ErrDriverSpecific:     "ErrDriverSpecific",
 }
 
-
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
 	if s := errorCodeStrings[e]; s != "" {
@@ -131,7 +119,6 @@ func (e ErrorCode) String() string {
 	}
 	return fmt.Sprintf("Unknown ErrorCode (%d)", int(e))
 }
-
 
 // Error provides a single type for errors that can happen during database operation.  It is used to indicate several types of failures including errors with caller requests such as specifying invalid block regions or attempting to access data against closed database transactions, driver errors, errors retrieving data, and errors communicating with database servers.
 
@@ -142,7 +129,6 @@ type Error struct {
 	Err         error     // Underlying error
 }
 
-
 // Error satisfies the error interface and prints human-readable errors.
 func (e Error) Error() string {
 	if e.Err != nil {
@@ -150,7 +136,6 @@ func (e Error) Error() string {
 	}
 	return e.Description
 }
-
 
 // makeError creates an Error given a set of arguments.  The error code must be one of the error codes provided by this package.
 func makeError(

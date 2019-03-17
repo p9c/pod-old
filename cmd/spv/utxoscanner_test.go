@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 type MockChainClient struct {
@@ -85,7 +85,6 @@ func makeTestInputWithScript() *InputWithScript {
 
 }
 
-
 // TestFindSpends tests that findSpends properly returns spend reports.
 func TestFindSpends(
 	t *testing.T) {
@@ -99,7 +98,6 @@ func TestFindSpends(
 		},
 	}
 
-
 	// Test that finding spends with an empty outpoints index returns no
 
 	// spends.
@@ -110,10 +108,8 @@ func TestFindSpends(
 			"want %d, got %d", 0, len(spends))
 	}
 
-
 	// Now, add the test outpoint to the outpoint index.
 	r.addNewRequests(reqs)
-
 
 	// Ensure that a spend report is now returned.
 	spends = r.notifySpends(&Block100000, height)
@@ -122,7 +118,6 @@ func TestFindSpends(
 			"want %d, got %d", 1, len(spends))
 	}
 }
-
 
 // TestFindInitialTransactions tests that findInitialTransactions properly
 
@@ -147,7 +142,6 @@ func TestFindInitialTransactions(
 		},
 	}
 
-
 	// First, try to find the outpoint within the block.
 	r := newBatchSpendReporter()
 	initialTxns := r.findInitialTransactions(&Block100000, reqs, height)
@@ -162,10 +156,8 @@ func TestFindInitialTransactions(
 			"instead got: %v", output)
 	}
 
-
 	// Now, modify the output index such that is invalid.
 	outpoint.Index = 1
-
 
 	// Try to find the invalid outpoint in the same block.
 	r = newBatchSpendReporter()
@@ -175,7 +167,6 @@ func TestFindInitialTransactions(
 			"want %v, got %v", 1, len(initialTxns))
 	}
 
-
 	// The spend report should be nil since the output index is invalid.
 	output = initialTxns[*outpoint]
 	if output != nil {
@@ -183,11 +174,9 @@ func TestFindInitialTransactions(
 			"is invalid, got %v", output)
 	}
 
-
 	// Finally, restore the valid output index, but modify the txid.
 	outpoint.Index = 0
 	outpoint.Hash[0] ^= 0x01
-
 
 	// Try to find the outpoint with an invalid txid in the same block.
 	r = newBatchSpendReporter()
@@ -197,7 +186,6 @@ func TestFindInitialTransactions(
 			"want %v, got %v", 1, len(initialTxns))
 	}
 
-
 	// Again, the spend report should be nil because of the invalid txid.
 	output = initialTxns[*outpoint]
 	if output != nil {
@@ -205,7 +193,6 @@ func TestFindInitialTransactions(
 			"is not in block, got %v", output)
 	}
 }
-
 
 // TestDequeueAtHeight asserts the correct behavior of various orderings of
 
@@ -227,7 +214,6 @@ func TestDequeueAtHeight(
 		BlockFilterMatches: mockChainClient.blockFilterMatches,
 	})
 
-
 	// Add the requests in order of their block heights.
 	req100000, err := scanner.Enqueue(makeTestInputWithScript(), 100000)
 	if err != nil {
@@ -237,7 +223,6 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
-
 
 	// Dequeue the heights in the same order, this should return both
 
@@ -254,7 +239,6 @@ func TestDequeueAtHeight(
 			"want %v, got %v", reqs[0], req100000)
 	}
 
-
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
 	if len(reqs) != 1 {
@@ -266,7 +250,6 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected request returned -- "+
 			"want %v, got %v", reqs[0], req100001)
 	}
-
 
 	// Now, add the requests in order of their block heights.
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
@@ -278,7 +261,6 @@ func TestDequeueAtHeight(
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
-
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
 	if len(reqs) != 1 {
@@ -291,7 +273,6 @@ func TestDequeueAtHeight(
 			"want %v, got %v", reqs[0], req100001)
 	}
 
-
 	// Try to request requests at height 100000, which should not return a
 
 	// request since we've already passed it.
@@ -300,7 +281,6 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 0, len(reqs))
 	}
-
 
 	// Now, add the requests out of order wrt. their block heights.
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
@@ -311,7 +291,6 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
-
 
 	// Dequeue the heights in the correct order, this should return both
 
@@ -339,7 +318,6 @@ func TestDequeueAtHeight(
 			"want %v, got %v", reqs[0], req100001)
 	}
 
-
 	// Again, add the requests out of order wrt. their block heights.
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
 	if err != nil {
@@ -349,7 +327,6 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
-
 
 	// We've missed block 100000 by this point so only return 100001.
 	reqs = scanner.dequeueAtHeight(100001)
@@ -363,7 +340,6 @@ func TestDequeueAtHeight(
 			"want %v, got %v", reqs[0], req100001)
 	}
 
-
 	// Try to request requests at height 100000, which should not return a
 
 	// request since we've already passed it.
@@ -373,7 +349,6 @@ func TestDequeueAtHeight(
 			"want %v, got %v", 0, len(reqs))
 	}
 }
-
 
 // TestUtxoScannerScanBasic tests that enqueueing a spend request at the height
 
@@ -417,7 +392,6 @@ func TestUtxoScannerScanBasic(
 			"scan report: %v", spendReport)
 	}
 }
-
 
 // TestUtxoScannerScanAddBlocks tests that adding new blocks to neutrino's view
 
@@ -469,7 +443,6 @@ func TestUtxoScannerScanAddBlocks(
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
 
-
 	// The utxoscanner should currently be waiting for the block stamp at
 
 	// height 99999. Signaling will cause the initial scan to finish and
@@ -477,14 +450,12 @@ func TestUtxoScannerScanAddBlocks(
 	// block while querying again for the updated chain tip.
 	waitForSnapshot <- struct{}{}
 
-
 	// Now, add the successor block at height 100000 and update the best
 
 	// snapshot..
 	snapshotLock.Lock()
 	mockChainClient.SetBestSnapshot(&block100000Hash, 100000)
 	snapshotLock.Unlock()
-
 
 	// The rescan should now be waiting for stamp 100000, signal to allow
 
@@ -505,7 +476,6 @@ func TestUtxoScannerScanAddBlocks(
 	}
 }
 
-
 // TestUtxoScannerCancelRequest tests the ability to cancel pending GetUtxo
 
 // requests, as well as the scanners ability to exit and cancel request when
@@ -522,7 +492,6 @@ func TestUtxoScannerCancelRequest(
 	mockChainClient.SetBestSnapshot(&block100000Hash, 100000)
 
 	fetchErr := errors.New("cannot fetch block")
-
 
 	// Create a mock function that will block when the utxoscanner tries to
 
@@ -545,7 +514,6 @@ func TestUtxoScannerCancelRequest(
 	scanner.Start()
 	defer scanner.Stop()
 
-
 	// Add the requests in order of their block heights.
 	req100000, err := scanner.Enqueue(makeTestInputWithScript(), 100000)
 	if err != nil {
@@ -555,7 +523,6 @@ func TestUtxoScannerCancelRequest(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
-
 
 	// Spawn our first task with a cancel chan, which we'll test to make
 
@@ -568,7 +535,6 @@ func TestUtxoScannerCancelRequest(
 		err100000 <- err
 	}()
 
-
 	// Spawn our second task without a cancel chan, we'll be testing it's
 
 	// ability to break if the scanner is stopped.
@@ -578,7 +544,6 @@ func TestUtxoScannerCancelRequest(
 		_, err := req100001.Result(nil)
 		err100001 <- err
 	}()
-
 
 	// Check that neither succeed without any further action.
 	select {
@@ -592,7 +557,6 @@ func TestUtxoScannerCancelRequest(
 		t.Fatalf("getutxo should not have been cancelled yet")
 	case <-time.After(50 * time.Millisecond):
 	}
-
 
 	// Cancel the first request, which should cause it to return
 
@@ -610,7 +574,6 @@ func TestUtxoScannerCancelRequest(
 		t.Fatalf("getutxo should have been cancelled")
 	}
 
-
 	// The second task shouldn't have been started yet, and should deliver a
 
 	// message since it wasn't tied to the same cancel chan.
@@ -619,7 +582,6 @@ func TestUtxoScannerCancelRequest(
 		t.Fatalf("getutxo should not have been cancelled yet")
 	case <-time.After(50 * time.Millisecond):
 	}
-
 
 	// Spawn a goroutine to stop the scanner, we add a wait group to make
 
@@ -631,7 +593,6 @@ func TestUtxoScannerCancelRequest(
 		defer wg.Done()
 		scanner.Stop()
 	}()
-
 
 	// The second request should be cancelled as soon as the utxoscanner
 
@@ -647,7 +608,6 @@ func TestUtxoScannerCancelRequest(
 		t.Fatalf("getutxo should have been cancelled")
 	}
 
-
 	// Ensure that GetBlock gets unblocked so the batchManager can properly
 
 	// exit.
@@ -656,11 +616,9 @@ func TestUtxoScannerCancelRequest(
 	default:
 	}
 
-
 	// Wait for the utxo scanner to exit fully.
 	wg.Wait()
 }
-
 
 // Block99999 defines block 99,999 of the main chain. It is used to test a
 
@@ -721,7 +679,6 @@ var Block99999 = wire.MsgBlock{
 		},
 	},
 }
-
 
 // The following is taken from the btcsuite/util project.
 

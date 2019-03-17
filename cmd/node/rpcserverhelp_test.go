@@ -6,7 +6,6 @@ import "testing"
 func TestHelp(
 	t *testing.T) {
 
-
 	// Ensure there are result types specified for every handler.
 	for k := range rpcHandlers {
 		if _, ok := rpcResultTypes[k]; !ok {

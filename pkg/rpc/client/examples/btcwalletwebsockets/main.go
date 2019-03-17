@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"github.com/davecgh/go-spew/spew"
 )

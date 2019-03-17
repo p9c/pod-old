@@ -15,11 +15,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/database"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var (
@@ -37,7 +37,6 @@ var (
 // loadBlocks loads the blocks contained in the testdata directory and returns a slice of them.
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util.Block, error) {
-
 
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
@@ -2128,7 +2127,6 @@ func testConcurrentClose(
 // testInterface tests performs tests for the various interfaces of the database package which require state in the database for the given database type.
 func testInterface(
 	t *testing.T, db database.DB) {
-
 
 	// Create a test context to pass around.
 	context := testContext{t: t, db: db}

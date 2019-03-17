@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	. "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
 // Received transaction output for mainnet outpoint
@@ -111,7 +111,6 @@ func TestInsertsCreditsDebitsRollbacks(
 
 	t.Parallel()
 
-
 	// Create a double spend of the received blockchain transaction.
 	dupRecvTx, _ := util.NewTxFromBytes(TstRecvSerializedTx)
 
@@ -125,7 +124,6 @@ func TestInsertsCreditsDebitsRollbacks(
 	newDupMsgTx.TxOut[0].Value = TstDupRecvAmount
 	TstDoubleSpendTx := util.NewTx(newDupMsgTx)
 	TstDoubleSpendSerializedTx := serializeTx(TstDoubleSpendTx)
-
 
 	// Create a "signed" (with invalid sigs) tx that spends output 0 of
 
@@ -604,7 +602,6 @@ func TestFindingSpentCredits(
 	defer dbtx.Commit()
 	ns := dbtx.ReadWriteBucket(namespaceKey)
 
-
 	// Insert transaction and credit which will be spent.
 	recvRec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
 	if err != nil {
@@ -619,7 +616,6 @@ func TestFindingSpentCredits(
 	if err != nil {
 		t.Fatal(err)
 	}
-
 
 	// Insert confirmed transaction which spends the above credit.
 	spendingRec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
@@ -729,7 +725,6 @@ func TestCoinbases(
 		t.Fatal(err)
 	}
 
-
 	// Insert coinbase and mark outputs 0 and 2 as credits.
 	err = s.InsertTx(ns, cbRec, &b100)
 	if err != nil {
@@ -745,7 +740,6 @@ func TestCoinbases(
 	}
 
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
-
 
 	// Balance should be 0 if the coinbase is immature, 50 DUO at and beyond
 
@@ -844,7 +838,6 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks after inserting coinbase")
 	}
 
-
 	// Spend an output from the coinbase tx in an unmined transaction when
 
 	// the next block will mature the coinbase.
@@ -927,7 +920,6 @@ func TestCoinbases(
 
 		t.Fatal("Failed balance checks after spending coinbase with unmined transaction")
 	}
-
 
 	// Mine the spending transaction in the block the coinbase matures.
 	bMaturity := BlockMeta{
@@ -1013,7 +1005,6 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks mining coinbase spending transaction")
 	}
 
-
 	// Create another spending transaction which spends the credit from the
 
 	// first spender.  This will be used to test removing the entire
@@ -1053,7 +1044,6 @@ func TestCoinbases(
 		t.Fatal("Failed balance checks mining second spending transaction")
 	}
 
-
 	// Reorg out the block that matured the coinbase and check balances
 
 	// again.
@@ -1075,7 +1065,6 @@ func TestCoinbases(
 
 		t.Fatal("Failed balance checks after reorging maturity block")
 	}
-
 
 	// Reorg out the block which contained the coinbase.  There should be no
 
@@ -1165,7 +1154,6 @@ func TestMoveMultipleToSameBlock(
 		t.Fatal(err)
 	}
 
-
 	// Insert coinbase and mark both outputs as credits.
 	err = s.InsertTx(ns, cbRec, &b100)
 	if err != nil {
@@ -1179,7 +1167,6 @@ func TestMoveMultipleToSameBlock(
 	if err != nil {
 		t.Fatal(err)
 	}
-
 
 	// Create and insert two unmined transactions which spend both coinbase
 
@@ -1223,7 +1210,6 @@ func TestMoveMultipleToSameBlock(
 
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 
-
 	// Mine both transactions in the block that matures the coinbase.
 	bMaturity := BlockMeta{
 		Block: Block{Height: b100.Height + coinbaseMaturity},
@@ -1237,7 +1223,6 @@ func TestMoveMultipleToSameBlock(
 	if err != nil {
 		t.Fatal(err)
 	}
-
 
 	// Check that both transactions can be queried at the maturity block.
 	detailsA, err := s.UniqueTxDetails(ns, &spenderARec.Hash, &bMaturity.Block)
@@ -1254,7 +1239,6 @@ func TestMoveMultipleToSameBlock(
 	if detailsB == nil {
 		t.Fatal("No details found for second spender")
 	}
-
 
 	// Verify that the balance was correctly updated on the block record
 
@@ -1352,7 +1336,6 @@ func TestInsertUnserializedTx(
 		t.Fatalf("Insert for stripped TxRecord failed: %v", err)
 	}
 
-
 	// Ensure it can be retreived successfully.
 	details, err := s.UniqueTxDetails(ns, &rec.Hash, &b100.Block)
 	if err != nil {
@@ -1366,7 +1349,6 @@ func TestInsertUnserializedTx(
 
 		t.Fatal("Serialized txs for coinbase do not match")
 	}
-
 
 	// Now test that path with an unmined transaction.
 	tx = spendOutput(&rec.Hash, 0, 50e8)
@@ -1407,7 +1389,6 @@ func TestRemoveUnminedTx(
 	}
 	defer teardown()
 
-
 	// In order to reproduce real-world scenarios, we'll use a new database
 
 	// transaction for each interaction with the wallet.
@@ -1438,11 +1419,9 @@ func TestRemoveUnminedTx(
 		}
 	})
 
-
 	// Determine the maturity height for the coinbase output created.
 	coinbaseMaturity := int32(chaincfg.TestNet3Params.CoinbaseMaturity)
 	maturityHeight := b100.Block.Height + coinbaseMaturity
-
 
 	// checkBalance is a helper function that compares the balance of the
 
@@ -1476,7 +1455,6 @@ func TestRemoveUnminedTx(
 		})
 	}
 
-
 	// Since we don't have any unconfirmed transactions within the store,
 
 	// the total balance reflecting confirmed and unconfirmed outputs should
@@ -1484,7 +1462,6 @@ func TestRemoveUnminedTx(
 	// match the initial balance.
 	checkBalance(util.Amount(initialBalance), false)
 	checkBalance(util.Amount(initialBalance), true)
-
 
 	// Then, we'll create an unconfirmed spend for the coinbase output and
 
@@ -1510,7 +1487,6 @@ func TestRemoveUnminedTx(
 		}
 	})
 
-
 	// With the unconfirmed spend inserted into the store, we'll query it
 
 	// for its unconfirmed tranasctions to ensure it was properly added.
@@ -1533,7 +1509,6 @@ func TestRemoveUnminedTx(
 		}
 	})
 
-
 	// Now that an unconfirmed spend exists, there should no longer be any
 
 	// confirmed balance. The total balance should now all be unconfirmed
@@ -1544,7 +1519,6 @@ func TestRemoveUnminedTx(
 	checkBalance(0, false)
 	checkBalance(util.Amount(changeAmount), true)
 
-
 	// Now, we'll remove the unconfirmed spend tranaction from the store.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -1552,7 +1526,6 @@ func TestRemoveUnminedTx(
 			t.Fatal(err)
 		}
 	})
-
 
 	// We'll query the store one last time for its unconfirmed transactions
 
@@ -1568,7 +1541,6 @@ func TestRemoveUnminedTx(
 				len(unminedTxs))
 		}
 	})
-
 
 	// Finally, the total balance (including confirmed and unconfirmed)
 
@@ -1613,7 +1585,6 @@ func testInsertMempoolDoubleSpendTx(
 	}
 	defer teardown()
 
-
 	// In order to reproduce real-world scenarios, we'll use a new database
 
 	// transaction for each interaction with the wallet.
@@ -1643,7 +1614,6 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
-
 	// Then, we'll create two spends from the same coinbase output, in order
 
 	// to replicate a double spend scenario.
@@ -1657,7 +1627,6 @@ func testInsertMempoolDoubleSpendTx(
 	if err != nil {
 		t.Fatal(err)
 	}
-
 
 	// We'll insert both of them into the store without confirming them.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
@@ -1681,7 +1650,6 @@ func testInsertMempoolDoubleSpendTx(
 		}
 	})
 
-
 	// Ensure that both spends are found within the unconfirmed transactions
 
 	// in the wallet's store.
@@ -1696,7 +1664,6 @@ func testInsertMempoolDoubleSpendTx(
 				len(unminedTxs))
 		}
 	})
-
 
 	// Then, we'll confirm either the first or second spend, depending on
 
@@ -1728,7 +1695,6 @@ func testInsertMempoolDoubleSpendTx(
 			t.Fatal(err)
 		}
 	})
-
 
 	// This should now trigger the store to remove any other pending double
 
@@ -1802,7 +1768,6 @@ func TestInsertConfirmedDoubleSpendTx(
 	}
 	defer teardown()
 
-
 	// In order to reproduce real-world scenarios, we'll use a new database
 
 	// transaction for each interaction with the wallet.
@@ -1831,7 +1796,6 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 	})
-
 
 	// Then, we'll create three spends from the same coinbase output. The
 
@@ -1870,7 +1834,6 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
-
 	// We'll also create another output and have one unconfirmed and one
 
 	// confirmed spending transaction also spend it.
@@ -1906,7 +1869,6 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 	})
 
-
 	// At this point, we should see all unconfirmed transactions within the
 
 	// store.
@@ -1921,7 +1883,6 @@ func TestInsertConfirmedDoubleSpendTx(
 				len(unminedTxs))
 		}
 	})
-
 
 	// Then, we'll insert the confirmed spend at a height deep enough that
 
@@ -1955,7 +1916,6 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 	})
-
 
 	// Now that the confirmed spend exists within the store, we should no
 
@@ -2005,7 +1965,6 @@ func TestAddDuplicateCreditAfterConfirm(
 	}
 	defer teardown()
 
-
 	// In order to reproduce real-world scenarios, we'll use a new database
 
 	// transaction for each interaction with the wallet.
@@ -2035,7 +1994,6 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
-
 	// We'll confirm that there is one unspent output in the store, which
 
 	// should be the coinbase output created above.
@@ -2054,7 +2012,6 @@ func TestAddDuplicateCreditAfterConfirm(
 				minedTxs[0].Hash)
 		}
 	})
-
 
 	// Then, we'll create an unconfirmed spend for the coinbase output.
 	b101 := &BlockMeta{
@@ -2077,7 +2034,6 @@ func TestAddDuplicateCreditAfterConfirm(
 		}
 	})
 
-
 	// Confirm the spending transaction at the next height.
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
@@ -2089,7 +2045,6 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 	})
-
 
 	// We should see one unspent output within the store once again, this
 
@@ -2109,7 +2064,6 @@ func TestAddDuplicateCreditAfterConfirm(
 				minedTxs[0].Hash)
 		}
 	})
-
 
 	// Now, we'll insert the spending transaction once again, this time as
 
@@ -2134,7 +2088,6 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 	})
-
 
 	// Finally, we'll ensure the change output is still the only unspent
 

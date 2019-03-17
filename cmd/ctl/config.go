@@ -202,7 +202,7 @@ func loadConfig() (*Config, []string, error) {
 		}
 	}
 
-	
+
 	// Parse command line options again to ensure they take precedence.
 	remainingArgs, err := parser.Parse()
 	if err != nil {

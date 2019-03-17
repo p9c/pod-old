@@ -24,7 +24,6 @@ func isOdd(
 func decompressPoint(
 	curve *KoblitzCurve, x *big.Int, ybit bool) (*big.Int, error) {
 
-
 	// TODO: This will probably only work for secp256k1 due to
 
 	// optimizations.

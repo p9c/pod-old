@@ -78,7 +78,6 @@ const minSigLen = 8
 func parseSig(
 	sigStr []byte, curve elliptic.Curve, der bool) (*Signature, error) {
 
-
 	// Originally this code used encoding/asn1 in order to parse the signature, but a number of problems were found with this approach. Despite the fact that signatures are stored as DER, the difference between go's idea of a bignum (and that they have sign) doesn't agree with the openssl one (where they do not). The above is true as of Go 1.1. In the end it was simpler to rewrite the code to explicitly understand the format which is this:
 
 	// 0x30 <length of whole message> <0x02> <length of R> <R> 0x2
@@ -250,7 +249,6 @@ func hashToInt(
 func recoverKeyFromSignature(
 	curve *KoblitzCurve, sig *Signature, msg []byte,
 	iter int, doChecks bool) (*PublicKey, error) {
-
 
 	// 1.1 x = (n * i) + r
 	Rx := new(big.Int).Mul(curve.Params().N,

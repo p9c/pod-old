@@ -8,14 +8,14 @@ import (
 	"testing"
 
 	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/chain/fullblocktests"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/dev/pod/pkg/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 const (

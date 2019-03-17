@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -166,7 +166,6 @@ func TestBlock(
 func TestNewBlockFromBytes(
 	t *testing.T) {
 
-
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -207,7 +206,6 @@ func TestNewBlockFromBytes(
 func TestNewBlockFromBlockAndBytes(
 	t *testing.T) {
 
-
 	// Serialize the test block.
 	var block100000Buf bytes.Buffer
 	err := Block100000.Serialize(&block100000Buf)
@@ -241,7 +239,6 @@ func TestNewBlockFromBlockAndBytes(
 // TestBlockErrors tests the error paths for the Block API.
 func TestBlockErrors(
 	t *testing.T) {
-
 
 	// Ensure out of range errors are as expected.
 	wantErr := "transaction index -1 is out of range - max 3"

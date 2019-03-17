@@ -2,7 +2,7 @@
 
 package wtxmgr
 
-import "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+import chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 
 type graphNode struct {
 	value    *TxRecord
@@ -85,7 +85,6 @@ func dependencySort(
 	txs map[chainhash.Hash]*TxRecord) []*TxRecord {
 	graph := makeGraph(txs)
 	s := graphRoots(graph)
-
 
 	// If there are no edges (no transactions from the map reference each
 

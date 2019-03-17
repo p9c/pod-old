@@ -1,9 +1,9 @@
 package util
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/dev/pod/pkg/util/base58"
 	"git.parallelcoin.io/dev/pod/pkg/util/bech32"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"golang.org/x/crypto/ripemd160"
 )
 

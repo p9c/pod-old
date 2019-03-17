@@ -3,7 +3,7 @@ package blockchain
 import (
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 // ThresholdState define the various threshold states used when voting on consensus changes.
@@ -101,7 +101,6 @@ func newThresholdCaches(
 
 // thresholdState returns the current rule change threshold state for the block AFTER the given node and deployment ID.  The cache is used to ensure the threshold states for previous windows are only calculated once. This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) thresholdState(prevNode *blockNode, checker thresholdConditionChecker, cache *thresholdStateCache) (ThresholdState, error) {
-
 
 	// The threshold state for the window that contains the genesis block is defined by definition.
 	confirmationWindow := int32(checker.MinerConfirmationWindow())

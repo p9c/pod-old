@@ -15,7 +15,6 @@ import (
 func TestAppDataDir(
 	t *testing.T) {
 
-
 	// App name plus upper and lowercase variants.
 	appName := "myapp"
 	appNameUpper := string(unicode.ToUpper(rune(appName[0]))) + appName[1:]

@@ -2,12 +2,12 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestPongLatest tests the MsgPong API against the latest protocol version.
 func TestPongLatest(
@@ -61,11 +61,9 @@ func TestPongLatest(
 	}
 }
 
-
 // TestPongBIP0031 tests the MsgPong API against the protocol version BIP0031Version.
 func TestPongBIP0031(
 	t *testing.T) {
-
 
 	// Use the protocol version just prior to BIP0031Version changes.
 	pver := BIP0031Version
@@ -108,7 +106,6 @@ func TestPongBIP0031(
 	}
 }
 
-
 // TestPongCrossProtocol tests the MsgPong API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestPongCrossProtocol(
 	t *testing.T) {
@@ -142,7 +139,6 @@ func TestPongCrossProtocol(
 		t.Error("Should not get same nonce for cross protocol")
 	}
 }
-
 
 // TestPongWire tests the MsgPong wire encode and decode for various protocol versions.
 func TestPongWire(
@@ -207,7 +203,6 @@ func TestPongWire(
 		}
 	}
 }
-
 
 // TestPongWireErrors performs negative tests against wire encode and decode of MsgPong to confirm error paths work correctly.
 func TestPongWireErrors(

@@ -185,7 +185,6 @@ func recycleBuffer(
 func itoa(
 	buf *[]byte, i int, wid int) {
 
-
 	// Assemble decimal in reverse order.
 	var b [20]byte
 	bp := len(b) - 1

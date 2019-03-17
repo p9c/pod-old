@@ -8,13 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/peer"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/peer"
 	"github.com/btcsuite/go-socks/socks"
 )
-
 
 // conn mocks a network connection by implementing the net.Conn interface.  It is used to test peer connection without actually opening a network connection.
 type conn struct {
@@ -32,12 +31,10 @@ type conn struct {
 	proxy bool
 }
 
-
 // LocalAddr returns the local address for the connection.
 func (c conn) LocalAddr() net.Addr {
 	return &addr{c.lnet, c.laddr}
 }
-
 
 // Remote returns the remote address for the connection.
 func (c conn) RemoteAddr() net.Addr {
@@ -53,7 +50,6 @@ func (c conn) RemoteAddr() net.Addr {
 	}
 }
 
-
 // Close handles closing the connection.
 func (c conn) Close() error {
 	if c.Closer == nil {
@@ -65,7 +61,6 @@ func (c conn) SetDeadline(t time.Time) error      { return nil }
 func (c conn) SetReadDeadline(t time.Time) error  { return nil }
 func (c conn) SetWriteDeadline(t time.Time) error { return nil }
 
-
 // addr mocks a network address
 type addr struct {
 	net, address string
@@ -73,7 +68,6 @@ type addr struct {
 
 func (m addr) Network() string { return m.net }
 func (m addr) String() string  { return m.address }
-
 
 // pipe turns two mock connections into a full-duplex connection similar to net.Pipe to allow pipe's with (fake) addresses.
 func pipe(
@@ -89,7 +83,6 @@ func pipe(
 	c2.Closer = w2
 	return c1, c2
 }
-
 
 // peerStats holds the expected peer stats used for testing peer.
 type peerStats struct {
@@ -109,7 +102,6 @@ type peerStats struct {
 	wantBytesReceived   uint64
 	wantWitnessEnabled  bool
 }
-
 
 // testPeer tests the given peer's flags and stats
 func testPeer(
@@ -198,7 +190,6 @@ func testPeer(
 		return
 	}
 }
-
 
 // TestPeerConnection tests connection between inbound and outbound peers.
 func TestPeerConnection(
@@ -336,7 +327,6 @@ func TestPeerConnection(
 		outPeer.WaitForDisconnect()
 	}
 }
-
 
 // TestPeerListeners tests that the peer listeners are called as expected.
 func TestPeerListeners(
@@ -622,7 +612,6 @@ func TestPeerListeners(
 	outPeer.Disconnect()
 }
 
-
 // TestOutboundPeer tests that the outbound peer works as expected.
 func TestOutboundPeer(
 	t *testing.T) {
@@ -763,7 +752,6 @@ func TestOutboundPeer(
 	p2.Disconnect()
 }
 
-
 // Tests that the node disconnects from peers with an unsupported protocol version.
 func TestUnsupportedVersionPeer(
 	t *testing.T) {
@@ -866,11 +854,9 @@ func TestUnsupportedVersionPeer(
 	}
 }
 
-
 // TestDuplicateVersionMsg ensures that receiving a version message after one has already been received results in the peer being disconnected.
 func TestDuplicateVersionMsg(
 	t *testing.T) {
-
 
 	// Create a pair of peers that are connected to each other using a fake connection.
 	verack := make(chan struct{})
@@ -930,7 +916,6 @@ func TestDuplicateVersionMsg(
 	}
 }
 func init() {
-
 
 	// Allow self connection when running the tests.
 	peer.TstAllowSelfConns()

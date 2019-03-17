@@ -117,7 +117,6 @@ func resultStructHelp(
 func reflectTypeToJSONExample(
 	xT descLookupFunc, rt reflect.Type, indentLevel int, fieldDescKey string) ([]string, bool) {
 
-
 	// Indirect pointer if needed.
 	if rt.Kind() == reflect.Ptr {
 		rt = rt.Elem()
@@ -399,7 +398,6 @@ func isValidResultType(
 //   "help--result1":    "Help for specified command"
 func GenerateHelp(
 	method string, descs map[string]string, resultTypes ...interface{}) (string, error) {
-
 
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()

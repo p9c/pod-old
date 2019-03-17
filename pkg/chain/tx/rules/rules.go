@@ -7,9 +7,9 @@ package txrules
 import (
 	"errors"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // DefaultRelayFeePerKb is the default minimum relay fee policy for a mempool.
@@ -57,7 +57,6 @@ func IsDustOutput(
 	if txscript.GetScriptClass(output.PkScript) == txscript.NullDataTy {
 		return false
 	}
-
 
 	// All other unspendable outputs are considered dust.
 	if txscript.IsUnspendable(output.PkScript) {

@@ -39,14 +39,12 @@ const (
 	// set to the underlying error returned from the database.
 	ErrDatabase ErrorCode = iota
 
-
 	// ErrUpgrade indicates the manager needs to be upgraded.  This should
 
 	// not happen in practice unless the version number has been increased
 
 	// and there is not yet any code written to upgrade.
 	ErrUpgrade
-
 
 	// ErrKeyChain indicates an error with the key chain typically either
 
@@ -56,7 +54,6 @@ const (
 
 	// ManagerError will be set to the underlying error.
 	ErrKeyChain
-
 
 	// ErrCrypto indicates an error with the cryptography related operations
 
@@ -69,20 +66,16 @@ const (
 	// error.
 	ErrCrypto
 
-
 	// ErrInvalidKeyType indicates an error where an invalid crypto
 
 	// key type has been selected.
 	ErrInvalidKeyType
 
-
 	// ErrNoExist indicates that the specified database does not exist.
 	ErrNoExist
 
-
 	// ErrAlreadyExists indicates that the specified database already exists.
 	ErrAlreadyExists
-
 
 	// ErrCoinTypeTooHigh indicates that the coin type specified in the provided
 
@@ -91,18 +84,15 @@ const (
 	// by the maxCoinType constant.
 	ErrCoinTypeTooHigh
 
-
 	// ErrAccountNumTooHigh indicates that the specified account number is higher
 
 	// than the max allowed value as defined by the MaxAccountNum constant.
 	ErrAccountNumTooHigh
 
-
 	// ErrLocked indicates that an operation, which requires the account
 
 	// manager to be unlocked, was requested on a locked account manager.
 	ErrLocked
-
 
 	// ErrWatchingOnly indicates that an operation, which requires the
 
@@ -111,60 +101,49 @@ const (
 	// a watching-only account manager.
 	ErrWatchingOnly
 
-
 	// ErrInvalidAccount indicates that the requested account is not valid.
 	ErrInvalidAccount
-
 
 	// ErrAddressNotFound indicates that the requested address is not known to
 
 	// the account manager.
 	ErrAddressNotFound
 
-
 	// ErrAccountNotFound indicates that the requested account is not known to
 
 	// the account manager.
 	ErrAccountNotFound
 
-
 	// ErrDuplicateAddress indicates an address already exists.
 	ErrDuplicateAddress
 
-
 	// ErrDuplicateAccount indicates an account already exists.
 	ErrDuplicateAccount
-
 
 	// ErrTooManyAddresses indicates that more than the maximum allowed number of
 
 	// addresses per account have been requested.
 	ErrTooManyAddresses
 
-
 	// ErrWrongPassphrase indicates that the specified passphrase is incorrect.
 
 	// This could be for either public or private master keys.
 	ErrWrongPassphrase
-
 
 	// ErrWrongNet indicates that the private key to be imported is not for the
 
 	// the same network the account manager is configured for.
 	ErrWrongNet
 
-
 	// ErrCallBackBreak is used to break from a callback function passed
 
 	// down to the manager.
 	ErrCallBackBreak
 
-
 	// ErrEmptyPassphrase indicates that the private passphrase was refused
 
 	// due to being empty.
 	ErrEmptyPassphrase
-
 
 	// ErrScopeNotFound is returned when a target scope cannot be found
 
@@ -177,7 +156,6 @@ const (
 var Break = managerError(ErrCallBackBreak, "callback break", nil)
 
 var (
-
 
 	// errAcctTooHigh is the common error description used for the
 
@@ -196,7 +174,6 @@ var (
 
 var (
 
-
 	// errCoinTypeTooHigh is the common error description used for the
 
 	// ErrCoinTypeTooHigh error code.
@@ -206,7 +183,6 @@ var (
 
 var (
 
-
 	// errLocked is the common error description used for the ErrLocked
 
 	// error code.
@@ -214,7 +190,6 @@ var (
 )
 
 var (
-
 
 	// errWatchingOnly is the common error description used for the
 

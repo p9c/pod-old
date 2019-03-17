@@ -1,9 +1,9 @@
 package mining
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 const (

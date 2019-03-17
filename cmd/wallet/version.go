@@ -6,10 +6,8 @@ import (
 	"strings"
 )
 
-
 // semanticAlphabet
 const semanticAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
-
 
 // These constants define the application version and follow the semantic
 
@@ -19,13 +17,11 @@ const (
 	appMinor uint = 8
 	appPatch uint = 0
 
-
 	// appPreRelease MUST only contain characters from semanticAlphabet
 
 	// per the semantic versioning spec.
 	appPreRelease = "beta"
 )
-
 
 // appBuild is defined as a variable so it can be overridden during the build
 
@@ -34,7 +30,6 @@ const (
 // contain characters from semanticAlphabet per the semantic versioning spec.
 var appBuild string
 
-
 // Version returns the application version as a properly formed string per the
 
 // semantic versioning 2.0.0 spec (http://semver.org/).
@@ -42,7 +37,6 @@ func Version() string {
 
 	// Start with the major, minor, and path versions.
 	version := fmt.Sprintf("%d.%d.%d", appMajor, appMinor, appPatch)
-
 
 	// Append pre-release version if there is one.  The hyphen called for
 
@@ -55,7 +49,6 @@ func Version() string {
 	if preRelease != "" {
 		version = fmt.Sprintf("%s-%s", version, preRelease)
 	}
-
 
 	// Append build metadata if there is any.  The plus called for
 
@@ -71,7 +64,6 @@ func Version() string {
 
 	return version
 }
-
 
 // normalizeVerString returns the passed string stripped of all characters which
 

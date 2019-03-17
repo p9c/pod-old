@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 const (
@@ -16,7 +16,6 @@ const (
 	MaxCFHeadersPerMsg = 2000
 )
 
-
 // MsgCFHeaders implements the Message interface and represents a bitcoin cfheaders message.  It is used to deliver committed filter header information in response to a getcfheaders message (MsgGetCFHeaders). The maximum number of committed filter headers per message is currently 2000. See MsgGetCFHeaders for details on requesting the headers.
 type MsgCFHeaders struct {
 	FilterType       FilterType
@@ -24,7 +23,6 @@ type MsgCFHeaders struct {
 	PrevFilterHeader chainhash.Hash
 	FilterHashes     []*chainhash.Hash
 }
-
 
 // AddCFHash adds a new filter hash to the message.
 func (msg *MsgCFHeaders) AddCFHash(hash *chainhash.Hash) error {
@@ -36,7 +34,6 @@ func (msg *MsgCFHeaders) AddCFHash(hash *chainhash.Hash) error {
 	msg.FilterHashes = append(msg.FilterHashes, hash)
 	return nil
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
@@ -86,7 +83,6 @@ func (msg *MsgCFHeaders) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 
@@ -129,7 +125,6 @@ func (msg *MsgCFHeaders) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 	return nil
 }
 
-
 // Deserialize decodes a filter header from r into the receiver using a format that is suitable for long-term storage such as a database. This function differs from BtcDecode in that BtcDecode decodes from the bitcoin wire protocol as it was sent across the network.  The wire encoding can technically differ depending on the protocol version and doesn't even really need to match the format of a stored filter header at all. As of the time this comment was written, the encoded filter header is the same in both instances, but there is a distinct difference and separating the two allows the API to be flexible enough to deal with changes.
 func (msg *MsgCFHeaders) Deserialize(r io.Reader) error {
 
@@ -137,12 +132,10 @@ func (msg *MsgCFHeaders) Deserialize(r io.Reader) error {
 	return msg.BtcDecode(r, 0, BaseEncoding)
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgCFHeaders) Command() string {
 	return CmdCFHeaders
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver. This is part of the Message interface implementation.
 func (msg *MsgCFHeaders) MaxPayloadLength(pver uint32) uint32 {
@@ -151,7 +144,6 @@ func (msg *MsgCFHeaders) MaxPayloadLength(pver uint32) uint32 {
 	return 1 + chainhash.HashSize + chainhash.HashSize + MaxVarIntPayload +
 		(MaxCFHeaderPayload * MaxCFHeadersPerMsg)
 }
-
 
 // NewMsgCFHeaders returns a new bitcoin cfheaders message that conforms to the Message interface. See MsgCFHeaders for details.
 func NewMsgCFHeaders() *MsgCFHeaders {

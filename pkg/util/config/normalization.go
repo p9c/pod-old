@@ -1,10 +1,8 @@
-
 // Copyright (c) 2015 The btcsuite developers
 
 package cfgutil
 
 import "net"
-
 
 // NormalizeAddress returns the normalized form of the address, adding a default
 
@@ -13,7 +11,6 @@ import "net"
 // is not valid.
 func NormalizeAddress(
 	addr string, defaultPort string) (hostport string, err error) {
-
 
 	// If the first SplitHostPort errors because of a missing port and not
 
@@ -33,7 +30,6 @@ func NormalizeAddress(
 	}
 	return addr, nil
 }
-
 
 // NormalizeAddresses returns a new slice with all the passed peer addresses
 

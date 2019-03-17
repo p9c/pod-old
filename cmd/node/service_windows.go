@@ -45,7 +45,6 @@ type podService struct{}
 // Execute is the main entry point the winsvc package calls when receiving information from the Windows service control manager.  It launches the long-running podMain (which is the real meat of pod), handles service change requests, and notifies the service control manager of changes.
 func (s *podService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
 
-
 	// Service start is pending.
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
@@ -244,7 +243,6 @@ func performServiceCommand(
 
 // serviceMain checks whether we're being invoked as a service, and if so uses the service control manager to start the long-running server.  A flag is returned to the caller so the application can determine whether to exit (when running as a service) or launch in normal interactive mode.
 func serviceMain() (bool, error) {
-
 
 	// Don't run as a service if we're running interactively (or that can't be determined due to an error).
 	isInteractive, err := svc.IsAnInteractiveSession()

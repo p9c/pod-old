@@ -2,11 +2,11 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestGetAddr tests the MsgGetAddr API.
 func TestGetAddr(
@@ -31,7 +31,6 @@ func TestGetAddr(
 			maxPayload, wantPayload)
 	}
 }
-
 
 // TestGetAddrWire tests the MsgGetAddr wire encode and decode for various protocol versions.
 func TestGetAddrWire(

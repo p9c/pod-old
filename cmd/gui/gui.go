@@ -23,12 +23,10 @@ type VDATA struct {
 	Imgs   map[string][]byte `json:"imgs"`
 }
 
-
 // GUI is the main entry point for the GUI interface
 func GUI(
 	sh *shell.Config,
 ) {
-
 
 	// wlt =
 	var err error
@@ -49,7 +47,6 @@ func GUI(
 	// Here we need to check for and create wallet :
 
 	// Next start up shell
-
 
 	//  Now start as normal with something in `wlt`
 	apps.InitApps()

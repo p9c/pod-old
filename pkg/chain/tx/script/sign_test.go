@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 type addressToKey struct {

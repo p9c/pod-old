@@ -32,7 +32,6 @@ func makeParams(
 func MarshalCmd(
 	id interface{}, cmd interface{}) ([]byte, error) {
 
-
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -83,7 +82,6 @@ func checkNumParams(
 // populateDefaults populates default values into any remaining optional struct fields that did not have parameters explicitly provided. The caller should have previously checked that the number of parameters being passed is at least the required number of parameters to avoid unnecessary work in this function, but since required fields never have default values, it will work properly even without the check.
 func populateDefaults(
 	numParams int, info *methodInfo, rv reflect.Value) {
-
 
 	// When there are no more parameters left in the supplied parameters, any remaining struct fields must be optional.  Thus, populate them with their associated default value as needed.
 	for i := numParams; i < info.maxParams; i++ {
@@ -256,7 +254,6 @@ func assignField(
 
 	// Perform supported type conversions.
 	switch src.Kind() {
-
 
 	// Source value is a signed integer of various magnitude.
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
@@ -451,7 +448,6 @@ func assignField(
 //   - Conversion from string to arrays, slices, structs, and maps by treating the string as marshalled JSON and calling json.Unmarshal into the destination field
 func NewCmd(
 	method string, args ...interface{}) (interface{}, error) {
-
 
 	// Look up details about the provided method.  Any methods that aren't registered are an error.
 	registerLock.RLock()

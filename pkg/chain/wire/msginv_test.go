@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -66,7 +66,6 @@ func TestInv(
 // TestInvWire tests the MsgInv wire encode and decode for various numbers of inventory vectors and protocol versions.
 func TestInvWire(
 	t *testing.T) {
-
 
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"

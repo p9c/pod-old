@@ -88,7 +88,6 @@ func NewRenameAccountCmd(
 }
 func init() {
 
-
 	// The commands in this file are only usable with a wallet server.
 	flags := UFWalletOnly
 	MustRegisterCmd("createnewaccount", (*CreateNewAccountCmd)(nil), flags)

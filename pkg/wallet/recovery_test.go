@@ -7,7 +7,6 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/wallet"
 )
 
-
 // Harness holds the BranchRecoveryState being tested, the recovery window being
 
 // used, provides access to the test object, and tracks the expected horizon
@@ -36,14 +35,12 @@ type (
 		Apply(step int, harness *Harness)
 	}
 
-
 	// InitialiDelta is a Step that verifies our first attempt to expand the
 
 	// branch recovery state's horizons tells us to derive a number of
 
 	// adddresses equal to the recovery window.
 	InitialDelta struct{}
-
 
 	// CheckDelta is a Step that expands the branch recovery state's
 
@@ -54,14 +51,12 @@ type (
 		delta uint32
 	}
 
-
 	// CheckNumInvalid is a Step that asserts that the branch recovery
 
 	// state reports `total` invalid children with the current horizon.
 	CheckNumInvalid struct {
 		total uint32
 	}
-
 
 	// MarkInvalid is a Step that marks the `child` as invalid in the branch
 
@@ -70,7 +65,6 @@ type (
 		child uint32
 	}
 
-
 	// ReportFound is a Step that reports `child` as being found to the
 
 	// branch recovery state.
@@ -78,7 +72,6 @@ type (
 		child uint32
 	}
 )
-
 
 // Apply extends the current horizon of the branch recovery state, and checks
 
@@ -99,7 +92,6 @@ func (_ InitialDelta) Apply(i int, h *Harness) {
 	h.expHorizon += delta
 }
 
-
 // Apply extends the current horizon of the branch recovery state, and checks
 
 // that the returned delta is equal to the CheckDelta's child value.
@@ -111,7 +103,6 @@ func (d CheckDelta) Apply(i int, h *Harness) {
 	h.expHorizon += delta
 }
 
-
 // Apply queries the branch recovery state for the number of invalid children
 
 // that lie between the last found address and the current horizon, and compares
@@ -122,7 +113,6 @@ func (m CheckNumInvalid) Apply(i int, h *Harness) {
 	assertNumInvalid(h.t, i, h.brs.NumInvalidInHorizon(), m.total)
 }
 
-
 // Apply marks the MarkInvalid's child index as invalid in the branch recovery
 
 // state, and increments the harness's expected horizon.
@@ -131,7 +121,6 @@ func (m MarkInvalid) Apply(i int, h *Harness) {
 	h.brs.MarkInvalidChild(m.child)
 	h.expHorizon++
 }
-
 
 // Apply reports the ReportFound's child index as found in the branch recovery
 
@@ -151,14 +140,12 @@ func (r ReportFound) Apply(i int, h *Harness) {
 	assertNextUnfound(h.t, i, h.brs.NextUnfound(), h.expNextUnfound)
 }
 
-
 // Compile-time checks to ensure our steps implement the Step interface.
 var _ Stepper = InitialDelta{}
 var _ Stepper = CheckDelta{}
 var _ Stepper = CheckNumInvalid{}
 var _ Stepper = MarkInvalid{}
 var _ Stepper = ReportFound{}
-
 
 // TestBranchRecoveryState walks the BranchRecoveryState through a sequence of
 
@@ -181,9 +168,7 @@ func TestBranchRecoveryState(
 		// recovery window (10).
 		InitialDelta{},
 
-
 		// Expected horizon: 10.
-
 
 		// Report finding the 2nd addr, this should cause our horizon
 
@@ -191,15 +176,12 @@ func TestBranchRecoveryState(
 		ReportFound{1},
 		CheckDelta{2},
 
-
 		// Expected horizon: 12.
-
 
 		// Sanity check that expanding again reports zero delta, as
 
 		// nothing has changed.
 		CheckDelta{0},
-
 
 		// Now, report finding the 6th addr, which should expand our
 
@@ -207,20 +189,16 @@ func TestBranchRecoveryState(
 		ReportFound{5},
 		CheckDelta{4},
 
-
 		// Expected horizon: 16.
-
 
 		// Sanity check that expanding again reports zero delta, as
 
 		// nothing has changed.
 		CheckDelta{0},
 
-
 		// Report finding child index 5 again, nothing should change.
 		ReportFound{5},
 		CheckDelta{0},
-
 
 		// Report finding a lower index that what was last found,
 
@@ -228,16 +206,13 @@ func TestBranchRecoveryState(
 		ReportFound{4},
 		CheckDelta{0},
 
-
 		// Moving on, report finding the 11th addr, which should extend
 
 		// our horizon to 21.
 		ReportFound{10},
 		CheckDelta{5},
 
-
 		// Expected horizon: 21.
-
 
 		// Before testing the lookahead expansion when encountering
 
@@ -245,7 +220,6 @@ func TestBranchRecoveryState(
 
 		// no invalid keys.
 		CheckNumInvalid{0},
-
 
 		// Now that the window has been expanded, simulate deriving
 
@@ -260,9 +234,7 @@ func TestBranchRecoveryState(
 		CheckNumInvalid{1},
 		CheckDelta{0},
 
-
 		// Expected horizon: 22.
-
 
 		// Check that deriving a second invalid key shows both invalid
 
@@ -271,9 +243,7 @@ func TestBranchRecoveryState(
 		CheckNumInvalid{2},
 		CheckDelta{0},
 
-
 		// Expected horizon: 23.
-
 
 		// Lastly, report finding the addr immediately after our two
 
@@ -283,7 +253,6 @@ func TestBranchRecoveryState(
 		ReportFound{19},
 		CheckNumInvalid{0},
 
-
 		// As the 20-th key was just marked found, our horizon will need
 
 		// to expand to 30. With the horizon at 23, the delta returned
@@ -291,7 +260,6 @@ func TestBranchRecoveryState(
 		// should be 7.
 		CheckDelta{7},
 		CheckDelta{0},
-
 
 		// Expected horizon: 30.
 	}

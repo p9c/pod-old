@@ -14,7 +14,6 @@ type ReadTx interface {
 	// described by the key does not exist, nil is returned.
 	ReadBucket(key []byte) ReadBucket
 
-
 	// Rollback closes the transaction, discarding changes (if any) if the
 
 	// database was modified by a write transaction.
@@ -26,18 +25,15 @@ type ReadTx interface {
 type ReadWriteTx interface {
 	ReadTx
 
-
 	// ReadWriteBucket opens the root bucket for read/write access.  If the
 
 	// bucket described by the key does not exist, nil is returned.
 	ReadWriteBucket(key []byte) ReadWriteBucket
 
-
 	// CreateTopLevelBucket creates the top level bucket for a key if it
 
 	// does not exist.  The newly-created bucket it returned.
 	CreateTopLevelBucket(key []byte) (ReadWriteBucket, error)
-
 
 	// DeleteTopLevelBucket deletes the top level bucket for a key.  This
 
@@ -45,7 +41,6 @@ type ReadWriteTx interface {
 
 	// instead of a bucket.
 	DeleteTopLevelBucket(key []byte) error
-
 
 	// Commit commits all changes that have been on the transaction's root
 
@@ -61,7 +56,6 @@ type ReadBucket interface {
 
 	// Returns nil if the bucket does not exist.
 	NestedReadBucket(key []byte) ReadBucket
-
 
 	// ForEach invokes the passed function with every key/value pair in
 
@@ -83,7 +77,6 @@ type ReadBucket interface {
 
 	// implementations.
 	ForEach(func(k, v []byte) error) error
-
 
 	// Get returns the value for the given key.  Returns nil if the key does
 
@@ -110,12 +103,10 @@ type ReadBucket interface {
 type ReadWriteBucket interface {
 	ReadBucket
 
-
 	// NestedReadWriteBucket retrieves a nested bucket with the given key.
 
 	// Returns nil if the bucket does not exist.
 	NestedReadWriteBucket(key []byte) ReadWriteBucket
-
 
 	// CreateBucket creates and returns a new nested bucket with the given
 
@@ -130,7 +121,6 @@ type ReadWriteBucket interface {
 	// implementation.
 	CreateBucket(key []byte) (ReadWriteBucket, error)
 
-
 	// CreateBucketIfNotExists creates and returns a new nested bucket with
 
 	// the given key if it does not already exist.  Returns
@@ -142,14 +132,12 @@ type ReadWriteBucket interface {
 	// backend.  Other errors are possible depending on the implementation.
 	CreateBucketIfNotExists(key []byte) (ReadWriteBucket, error)
 
-
 	// DeleteNestedBucket removes a nested bucket with the given key.
 
 	// Returns ErrTxNotWritable if attempted against a read-only transaction
 
 	// and ErrBucketNotFound if the specified bucket does not exist.
 	DeleteNestedBucket(key []byte) error
-
 
 	// Put saves the specified key/value pair to the bucket.  Keys that do
 
@@ -160,14 +148,12 @@ type ReadWriteBucket interface {
 	// read-only transaction.
 	Put(key, value []byte) error
 
-
 	// Delete removes the specified key from the bucket.  Deleting a key
 
 	// that does not exist does not return an error.  Returns
 
 	// ErrTxNotWritable if attempted against a read-only transaction.
 	Delete(key []byte) error
-
 
 	// Cursor returns a new cursor, allowing for iteration over the bucket's
 
@@ -185,24 +171,20 @@ type ReadCursor interface {
 	// the pair.
 	First() (key, value []byte)
 
-
 	// Last positions the cursor at the last key/value pair and returns the
 
 	// pair.
 	Last() (key, value []byte)
-
 
 	// Next moves the cursor one key/value pair forward and returns the new
 
 	// pair.
 	Next() (key, value []byte)
 
-
 	// Prev moves the cursor one key/value pair backward and returns the new
 
 	// pair.
 	Prev() (key, value []byte)
-
 
 	// Seek positions the cursor at the passed seek key.  If the key does
 
@@ -218,7 +200,6 @@ type ReadCursor interface {
 // operations.
 type ReadWriteCursor interface {
 	ReadCursor
-
 
 	// Delete removes the current key/value pair the cursor is at without
 
@@ -243,16 +224,13 @@ type DB interface {
 	// BeginReadTx opens a database read transaction.
 	BeginReadTx() (ReadTx, error)
 
-
 	// BeginReadWriteTx opens a database read+write transaction.
 	BeginReadWriteTx() (ReadWriteTx, error)
-
 
 	// Copy writes a copy of the database to the provided writer.  This
 
 	// call will start a read-only transaction to perform all operations.
 	Copy(w io.Writer) error
-
 
 	// Close cleanly shuts down the database and syncs all data.
 	Close() error
@@ -310,14 +288,12 @@ type Driver struct {
 	// database driver.  There can be only one driver with the same name.
 	DbType string
 
-
 	// Create is the function that will be invoked with all user-specified
 
 	// arguments to create the database.  This function must return
 
 	// ErrDbExists if the database already exists.
 	Create func(args ...interface{}) (DB, error)
-
 
 	// Open is the function that will be invoked with all user-specified
 

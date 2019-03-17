@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // RawTxInWitnessSignature returns the serialized ECDA signature for the input idx of the given transaction, with the hashType appended to it. This function is identical to RawTxInSignature, however the signature generated signs a new sighash digest defined in BIP0143.
@@ -102,7 +102,6 @@ func p2pkSignatureScript(
 func signMultiSig(
 	tx *wire.MsgTx, idx int, subScript []byte, hashType SigHashType,
 	addresses []util.Address, nRequired int, kdb KeyDB) ([]byte, bool) {
-
 
 	// We start with a single OP_FALSE to work around the (now standard) but in the reference implementation that causes a spurious pop at the end of OP_CHECKMULTISIG.
 	builder := NewScriptBuilder().AddOp(OP_FALSE)

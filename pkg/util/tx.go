@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
@@ -96,7 +96,6 @@ func NewTxFromBytes(
 // NewTxFromReader returns a new instance of a bitcoin transaction given a Reader to deserialize the transaction.  See Tx.
 func NewTxFromReader(
 	r io.Reader) (*Tx, error) {
-
 
 	// Deserialize the bytes into a MsgTx.
 	var msgTx wire.MsgTx

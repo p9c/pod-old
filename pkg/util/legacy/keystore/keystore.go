@@ -20,12 +20,12 @@ import (
 
 	"golang.org/x/crypto/ripemd160"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/dev/pod/pkg/util/legacy/rename"
 )
 

@@ -1,6 +1,5 @@
 package sub
 
-
 // Reed Solomon 9/3 forward error correction, intended to be sent as 9 pieces where 3 uncorrupted parts allows assembly of the message
 import (
 	"encoding/binary"
@@ -21,7 +20,6 @@ var (
 		return fec
 	}()
 )
-
 
 // padData appends a 2 byte length prefix, and pads to a multiple of rsTotal. An empty slice will be returned if the total length is greater than maxMessageSize.
 func padData(
@@ -47,7 +45,6 @@ func padData(
 
 func rsEncode(
 	data []byte) (chunks [][]byte) {
-
 
 	// First we must pad the data
 	data = padData(data)

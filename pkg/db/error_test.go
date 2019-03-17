@@ -7,7 +7,6 @@ import (
 	database "git.parallelcoin.io/dev/pod/pkg/db"
 )
 
-
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.
 func TestErrorCodeStringer(
 	t *testing.T) {
@@ -56,7 +55,6 @@ func TestErrorCodeStringer(
 		}
 	}
 }
-
 
 // TestError tests the error output for the Error type.
 func TestError(

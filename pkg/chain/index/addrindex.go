@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"sync"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 const (

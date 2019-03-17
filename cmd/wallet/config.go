@@ -1,8 +1,9 @@
 package walletmain
 
 import (
-	"gopkg.in/urfave/cli.v1"
 	"time"
+
+	"gopkg.in/urfave/cli.v1"
 )
 
 type Config struct {

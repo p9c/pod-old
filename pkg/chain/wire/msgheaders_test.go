@@ -2,12 +2,12 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestHeaders tests the MsgHeaders API.
 func TestHeaders(
@@ -53,7 +53,6 @@ func TestHeaders(
 			"not received")
 	}
 }
-
 
 // TestHeadersWire tests the MsgHeaders wire encode and decode for various numbers of headers and protocol versions.
 func TestHeadersWire(
@@ -223,7 +222,6 @@ func TestHeadersWire(
 		}
 	}
 }
-
 
 // TestHeadersWireErrors performs negative tests against wire encode and decode of MsgHeaders to confirm error paths work correctly.
 func TestHeadersWireErrors(

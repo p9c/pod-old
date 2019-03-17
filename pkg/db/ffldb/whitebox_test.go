@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/database"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"github.com/btcsuite/goleveldb/leveldb"
 	ldberrors "github.com/btcsuite/goleveldb/leveldb/errors"
 )
@@ -34,7 +34,6 @@ var (
 // loadBlocks loads the blocks contained in the testdata directory and returns a slice of them.
 func loadBlocks(
 	t *testing.T, dataFile string, network wire.BitcoinNet) ([]*util.Block, error) {
-
 
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
@@ -569,7 +568,6 @@ func testCorruption(
 // TestFailureScenarios ensures several failure scenarios such as database corruption, block file write failures, and rollback failures are handled correctly.
 func TestFailureScenarios(
 	t *testing.T) {
-
 
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-failurescenarios")

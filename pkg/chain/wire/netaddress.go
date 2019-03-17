@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 // maxNetAddressPayload returns the max payload size for a bitcoin NetAddress based on the protocol version.
 func maxNetAddressPayload(
 	pver uint32) uint32 {
@@ -23,7 +22,6 @@ func maxNetAddressPayload(
 	}
 	return plen
 }
-
 
 // NetAddress defines information about a peer on the network including the time it was last seen, the services it supports, its IP address, and port.
 type NetAddress struct {
@@ -41,12 +39,10 @@ type NetAddress struct {
 	Port uint16
 }
 
-
 // HasService returns whether the specified service is supported by the address.
 func (na *NetAddress) HasService(service ServiceFlag) bool {
 	return na.Services&service == service
 }
-
 
 // AddService adds service as a supported service by the peer generating the message.
 func (na *NetAddress) AddService(service ServiceFlag) {
@@ -54,13 +50,11 @@ func (na *NetAddress) AddService(service ServiceFlag) {
 	na.Services |= service
 }
 
-
 // NewNetAddressIPPort returns a new NetAddress using the provided IP, port, and supported services with defaults for the remaining fields.
 func NewNetAddressIPPort(
 	ip net.IP, port uint16, services ServiceFlag) *NetAddress {
 	return NewNetAddressTimestamp(time.Now(), services, ip, port)
 }
-
 
 // NewNetAddressTimestamp returns a new NetAddress using the provided timestamp, IP, port, and supported services. The timestamp is rounded to single second precision.
 func NewNetAddressTimestamp(
@@ -76,13 +70,11 @@ func NewNetAddressTimestamp(
 	return &na
 }
 
-
 // NewNetAddress returns a new NetAddress using the provided TCP address and supported services with defaults for the remaining fields.
 func NewNetAddress(
 	addr *net.TCPAddr, services ServiceFlag) *NetAddress {
 	return NewNetAddressIPPort(addr.IP, uint16(addr.Port), services)
 }
-
 
 // readNetAddress reads an encoded NetAddress from r depending on the protocol version and whether or not the timestamp is included per ts.  Some messages like version do not include the timestamp.
 func readNetAddress(
@@ -114,7 +106,6 @@ func readNetAddress(
 	}
 	return nil
 }
-
 
 // writeNetAddress serializes a NetAddress to w depending on the protocol version and whether or not the timestamp is included per ts.  Some messages like version do not include the timestamp.
 func writeNetAddress(

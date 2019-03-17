@@ -3,8 +3,8 @@ package waddrmgr
 import (
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // BlockStamp defines a block (by height and a unique hash) and is used to mark
@@ -26,7 +26,6 @@ type syncState struct {
 
 	// earliest block provided with imported addresses or scripts.
 	startBlock BlockStamp
-
 
 	// syncedTo is the current block the addresses in the manager are known
 
@@ -54,7 +53,6 @@ func (m *Manager) SetSyncedTo(ns walletdb.ReadWriteBucket, bs *BlockStamp) error
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
-
 	// Use the stored start blockstamp and reset recent hashes and height
 
 	// when the provided blockstamp is nil.
@@ -62,13 +60,11 @@ func (m *Manager) SetSyncedTo(ns walletdb.ReadWriteBucket, bs *BlockStamp) error
 		bs = &m.syncState.startBlock
 	}
 
-
 	// Update the database.
 	err := putSyncedTo(ns, bs)
 	if err != nil {
 		return err
 	}
-
 
 	// Update memory now that the database is updated.
 	m.syncState.syncedTo = *bs

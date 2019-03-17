@@ -14,18 +14,15 @@ type Chain interface {
 	// be as if the chain was just newly created.
 	ResetHeaderState(Node)
 
-
 	// Back returns the end of the chain. If the chain is empty, then this
 
 	// return a pointer to a nil node.
 	Back() *Node
 
-
 	// Front returns the head of the chain. If the chain is empty, then
 
 	// this returns a  pointer to a nil node.
 	Front() *Node
-
 
 	// PushBack will push a new entry to the end of the chain. The entry
 
@@ -40,7 +37,6 @@ type Node struct {
 
 	// Height is the height of this node within the main chain.
 	Height int32
-
 
 	// Header is the header that this node represents.
 	Header wire.BlockHeader

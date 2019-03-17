@@ -6,10 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestGetHeaders tests the MsgGetHeader API.
 func TestGetHeaders(
@@ -63,11 +62,9 @@ func TestGetHeaders(
 	}
 }
 
-
 // TestGetHeadersWire tests the MsgGetHeaders wire encode and decode for various numbers of block locator hashes and protocol versions.
 func TestGetHeadersWire(
 	t *testing.T) {
-
 
 	// Set protocol inside getheaders message.  Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
@@ -259,11 +256,9 @@ func TestGetHeadersWire(
 	}
 }
 
-
 // TestGetHeadersWireErrors performs negative tests against wire encode and decode of MsgGetHeaders to confirm error paths work correctly.
 func TestGetHeadersWireErrors(
 	t *testing.T) {
-
 
 	// Set protocol inside getheaders message.  Use protocol version 60002 specifically here instead of the latest because the test data is
 

@@ -2,14 +2,14 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net"
 	"reflect"
 	"testing"
 	"time"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestNetAddress tests the NetAddress API.
 func TestNetAddress(
@@ -72,11 +72,9 @@ func TestNetAddress(
 	}
 }
 
-
 // TestNetAddressWire tests the NetAddress wire encode and decode for various protocol versions and timestamp flag combinations.
 func TestNetAddressWire(
 	t *testing.T) {
-
 
 	// baseNetAddr is used in the various tests as a baseline NetAddress.
 	baseNetAddr := NetAddress{
@@ -203,7 +201,6 @@ func TestNetAddressWire(
 		}
 	}
 }
-
 
 // TestNetAddressWireErrors performs negative tests against wire encode and decode NetAddress to confirm error paths work correctly.
 func TestNetAddressWireErrors(

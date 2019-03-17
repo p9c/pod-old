@@ -1,10 +1,9 @@
 package database
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 )
-
 
 // Cursor represents a cursor over key/value pairs and nested buckets of a
 
@@ -76,7 +75,6 @@ type Cursor interface {
 	// be nil for nested buckets.
 	Value() []byte
 }
-
 
 // Bucket represents a collection of key/value pairs.
 type Bucket interface {
@@ -307,7 +305,6 @@ type Bucket interface {
 	Delete(key []byte) error
 }
 
-
 // BlockRegion specifies a particular region of a block identified by the
 
 // specified hash, given an offset and length.
@@ -316,7 +313,6 @@ type BlockRegion struct {
 	Offset uint32
 	Len    uint32
 }
-
 
 // Tx represents a database transaction.  It can either by read-only or
 
@@ -685,7 +681,6 @@ type Tx interface {
 	// result in a panic.
 	Rollback() error
 }
-
 
 // DB provides a generic interface that is used to store bitcoin blocks and
 

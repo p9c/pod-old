@@ -5,7 +5,6 @@ import (
 	"io"
 )
 
-
 // BloomUpdateType specifies how the filter is updated when a match is found
 type BloomUpdateType uint8
 
@@ -29,7 +28,6 @@ const (
 	MaxFilterLoadFilterSize = 36000
 )
 
-
 // MsgFilterLoad implements the Message interface and represents a bitcoin filterload message which is used to reset a Bloom filter. This message was not added until protocol version BIP0037Version.
 type MsgFilterLoad struct {
 	Filter    []byte
@@ -37,7 +35,6 @@ type MsgFilterLoad struct {
 	Tweak     uint32
 	Flags     BloomUpdateType
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgFilterLoad) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
@@ -64,7 +61,6 @@ func (msg *MsgFilterLoad) BtcDecode(r io.Reader, pver uint32, enc MessageEncodin
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgFilterLoad) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if pver < BIP0037Version {
@@ -90,12 +86,10 @@ func (msg *MsgFilterLoad) BtcEncode(w io.Writer, pver uint32, enc MessageEncodin
 	return writeElements(w, msg.HashFuncs, msg.Tweak, msg.Flags)
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgFilterLoad) Command() string {
 	return CmdFilterLoad
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgFilterLoad) MaxPayloadLength(pver uint32) uint32 {
@@ -104,7 +98,6 @@ func (msg *MsgFilterLoad) MaxPayloadLength(pver uint32) uint32 {
 	return uint32(VarIntSerializeSize(MaxFilterLoadFilterSize)) +
 		MaxFilterLoadFilterSize + 9
 }
-
 
 // NewMsgFilterLoad returns a new bitcoin filterload message that conforms to the Message interface.  See MsgFilterLoad for details.
 func NewMsgFilterLoad(

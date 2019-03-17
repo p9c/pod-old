@@ -5,11 +5,10 @@ import (
 	"net"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/peer"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/peer"
 )
-
 
 // mockRemotePeer creates a basic inbound peer listening on the simnet port for use with Example_peerConnection.  It does not return until the listner is active.
 func mockRemotePeer() error {
@@ -42,10 +41,8 @@ func mockRemotePeer() error {
 	return nil
 }
 
-
 // This example demonstrates the basic process for initializing and creating an outbound peer.  Peers negotiate by exchanging version and verack messages. For demonstration, a simple handler for version message is attached to the peer.
 func Example_newOutboundPeer() {
-
 
 	// Ordinarily this will not be needed since the outbound peer will be connecting to a remote peer, however, since this example is executed and tested, a mock remote peer is needed to listen for the outbound peer.
 	if err := mockRemotePeer(); err != nil {

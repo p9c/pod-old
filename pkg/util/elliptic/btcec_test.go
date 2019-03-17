@@ -636,7 +636,6 @@ func TestScalarMult(
 func TestScalarMultRand(
 	t *testing.T) {
 
-
 	// Strategy for this test:
 
 	// Get a random exponent from the generator point at first This creates a new point which is used in the next iteration Use another random exponent on the new point. We use BaseMult to verify by multiplying the previous exponent and the new random exponent together (mod N)

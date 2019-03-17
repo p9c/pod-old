@@ -5,16 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // TestHaveBlock tests the HaveBlock API to ensure proper functionality.
 func TestHaveBlock(
 	t *testing.T) {
-
 
 	// Load up blocks such that there is a side chain.
 
@@ -402,7 +401,6 @@ func nodeHeaders(
 func TestLocateInventory(
 	t *testing.T) {
 
-
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
@@ -666,7 +664,6 @@ func TestLocateInventory(
 func TestHeightToHashRange(
 	t *testing.T) {
 
-
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 
 	// 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
@@ -763,7 +760,6 @@ func TestHeightToHashRange(
 // TestIntervalBlockHashes ensures that fetching block hashes at specified intervals by end hash works as expected.
 func TestIntervalBlockHashes(
 	t *testing.T) {
-
 
 	// Construct a synthetic block chain with a block index consisting of the following structure.
 

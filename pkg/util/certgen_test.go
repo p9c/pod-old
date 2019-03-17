@@ -8,14 +8,12 @@ import (
 	"time"
 
 	"git.parallelcoin.io/dev/pod/pkg/util"
-
 	//"github.com/davecgh/go-spew/spew"
 )
 
 // TestNewTLSCertPair ensures the NewTLSCertPair function works as expected.
 func TestNewTLSCertPair(
 	t *testing.T) {
-
 
 	// Certs don't support sub-second precision, so truncate it now to ensure the checks later don't fail due to nanosecond precision differences.
 	validUntil := time.Unix(time.Now().Add(10*365*24*time.Hour).Unix(), 0)

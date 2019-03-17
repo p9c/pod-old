@@ -573,7 +573,6 @@ func TestRecoverCompact(
 func TestRFC6979(
 	t *testing.T) {
 
-
 	// Test vectors matching Trezor and CoreBitcoin implementations.
 
 	// - https://github.com/trezor/trezor-crypto/blob/9fea8f8ab377dc514e40c6fd1f7c89a74c1d8dc6/tests.c#L432-L453

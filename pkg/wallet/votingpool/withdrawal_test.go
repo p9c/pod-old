@@ -56,7 +56,6 @@ func TestStartWithdrawal(
 		t.Fatal(err)
 	}
 
-
 	// Check that all outputs were successfully fulfilled.
 	checkWithdrawalOutputs(t, status, map[string]util.Amount{address1: 4e6, address2: 1e6})
 
@@ -64,7 +63,6 @@ func TestStartWithdrawal(
 
 		t.Fatalf("Wrong amount for fees; got %v, want %v", status.Fees(), util.Amount(1e3))
 	}
-
 
 	// This withdrawal generated a single transaction with just one change
 
@@ -82,7 +80,6 @@ func TestStartWithdrawal(
 			changeStart.Index()+1)
 	}
 
-
 	// NOTE: The ntxid is deterministic so we hardcode it here, but if the test
 
 	// or the code is changed in a way that causes the generated transaction to
@@ -92,7 +89,6 @@ func TestStartWithdrawal(
 	// this will have to be updated.
 	ntxid := vp.Ntxid("eb753083db55bd0ad2eb184bfd196a7ea8b90eaa000d9293e892999695af2519")
 	txSigs := status.Sigs()[ntxid]
-
 
 	// Finally we use SignTx() to construct the SignatureScripts (using the raw
 
@@ -106,7 +102,6 @@ func TestStartWithdrawal(
 			t.Fatal(err)
 		}
 	})
-
 
 	// Any subsequent StartWithdrawal() calls with the same parameters will
 

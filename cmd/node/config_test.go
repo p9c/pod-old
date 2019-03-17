@@ -21,7 +21,6 @@ func TestCreateDefaultConfigFile(
 	t *testing.T,
 ) {
 
-
 	// find out where the sample config lives
 	_, path, _, ok := runtime.Caller(0)
 	if !ok {

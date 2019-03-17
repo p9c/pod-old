@@ -215,7 +215,6 @@ func NewRelevantTxAcceptedNtfn(
 }
 func init() {
 
-
 	// The commands in this file are only usable by websockets and are notifications.
 	flags := UFWebsocketOnly | UFNotification
 	MustRegisterCmd(BlockConnectedNtfnMethod, (*BlockConnectedNtfn)(nil), flags)

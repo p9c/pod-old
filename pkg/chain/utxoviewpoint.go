@@ -3,11 +3,11 @@ package blockchain
 import (
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	database "git.parallelcoin.io/dev/pod/pkg/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	database "git.parallelcoin.io/dev/pod/pkg/db"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // txoFlags is a bitmask defining additional information and state for a
@@ -84,7 +84,6 @@ func (entry *UtxoEntry) IsSpent() bool {
 // has no effect.
 func (entry *UtxoEntry) Spend() {
 
-
 	// Nothing to do if the output is already spent.
 	if entry.IsSpent() {
 
@@ -156,7 +155,6 @@ func (view *UtxoViewpoint) LookupEntry(outpoint wire.OutPoint) *UtxoEntry {
 // possible it has changed during a reorg.
 func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, isCoinBase bool, blockHeight int32) {
 
-
 	// Don't add provably unspendable outputs.
 	if txscript.IsUnspendable(txOut.PkScript) {
 
@@ -190,7 +188,6 @@ func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, i
 // for existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight int32) {
 
-
 	// Can't add an output for an out of bounds index.
 	if txOutIdx >= uint32(len(tx.MsgTx().TxOut)) {
 
@@ -214,7 +211,6 @@ func (view *UtxoViewpoint) AddTxOut(tx *util.Tx, txOutIdx uint32, blockHeight in
 // outputs, they are simply marked unspent.  All fields will be updated for
 // existing entries since it's possible it has changed during a reorg.
 func (view *UtxoViewpoint) AddTxOuts(tx *util.Tx, blockHeight int32) {
-
 
 	// Loop all of the transaction outputs and add those which are not
 
@@ -307,7 +303,6 @@ func (view *UtxoViewpoint) connectTransactions(block *util.Block, stxos *[]Spent
 // searching the entire set of possible outputs for the given hash.  It checks
 // the view first and then falls back to the database if needed.
 func (view *UtxoViewpoint) fetchEntryByHash(db database.DB, hash *chainhash.Hash) (*UtxoEntry, error) {
-
 
 	// First attempt to find a utxo with the provided hash in the view.
 	prevOut := wire.OutPoint{Hash: *hash}
@@ -622,7 +617,6 @@ func NewUtxoViewpoint() *UtxoViewpoint {
 // so the returned view can be examined for duplicate transactions.
 // This function is safe for concurrent access however the returned view is NOT.
 func (b *BlockChain) FetchUtxoView(tx *util.Tx) (*UtxoViewpoint, error) {
-
 
 	// Create a set of needed outputs based on those referenced by the
 

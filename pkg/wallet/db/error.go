@@ -21,30 +21,25 @@ var (
 	// the specified database type.
 	ErrDbUnknownType = errors.New("unknown database type")
 
-
 	// ErrDbDoesNotExist is returned when open is called for a database that
 
 	// does not exist.
 	ErrDbDoesNotExist = errors.New("database does not exist")
-
 
 	// ErrDbExists is returned when create is called for a database that
 
 	// already exists.
 	ErrDbExists = errors.New("database already exists")
 
-
 	// ErrDbNotOpen is returned when a database instance is accessed before
 
 	// it is opened or after it is closed.
 	ErrDbNotOpen = errors.New("database not open")
 
-
 	// ErrDbAlreadyOpen is returned when open is called on a database that
 
 	// is already open.
 	ErrDbAlreadyOpen = errors.New("database already open")
-
 
 	// ErrInvalid is returned if the specified database is not valid.
 	ErrInvalid = errors.New("invalid database")
@@ -57,7 +52,6 @@ var (
 
 	// transaction that has already had one of those operations performed.
 	ErrTxClosed = errors.New("tx closed")
-
 
 	// ErrTxNotWritable is returned when an operation that requires write
 
@@ -73,26 +67,20 @@ var (
 	// not been created yet.
 	ErrBucketNotFound = errors.New("bucket not found")
 
-
 	// ErrBucketExists is returned when creating a bucket that already exists.
 	ErrBucketExists = errors.New("bucket already exists")
-
 
 	// ErrBucketNameRequired is returned when creating a bucket with a blank name.
 	ErrBucketNameRequired = errors.New("bucket name required")
 
-
 	// ErrKeyRequired is returned when inserting a zero-length key.
 	ErrKeyRequired = errors.New("key required")
-
 
 	// ErrKeyTooLarge is returned when inserting a key that is larger than MaxKeySize.
 	ErrKeyTooLarge = errors.New("key too large")
 
-
 	// ErrValueTooLarge is returned when inserting a value that is larger than MaxValueSize.
 	ErrValueTooLarge = errors.New("value too large")
-
 
 	// ErrIncompatibleValue is returned when trying create or delete a
 

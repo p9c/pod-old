@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-
 // TestFilterCLearLatest tests the MsgFilterLoad API against the latest protocol version.
 func TestFilterLoadLatest(
 	t *testing.T) {
@@ -48,7 +47,6 @@ func TestFilterLoadLatest(
 	}
 }
 
-
 // TestFilterLoadCrossProtocol tests the MsgFilterLoad API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterLoadCrossProtocol(
 	t *testing.T) {
@@ -73,7 +71,6 @@ func TestFilterLoadCrossProtocol(
 	}
 }
 
-
 // TestFilterLoadMaxFilterSize tests the MsgFilterLoad API maximum filter size.
 func TestFilterLoadMaxFilterSize(
 	t *testing.T) {
@@ -97,7 +94,6 @@ func TestFilterLoadMaxFilterSize(
 			"have %v", msg)
 	}
 }
-
 
 // TestFilterLoadMaxHashFuncsSize tests the MsgFilterLoad API maximum hash functions.
 func TestFilterLoadMaxHashFuncsSize(
@@ -129,7 +125,6 @@ func TestFilterLoadMaxHashFuncsSize(
 			msg)
 	}
 }
-
 
 // TestFilterLoadWireErrors performs negative tests against wire encode and decode of MsgFilterLoad to confirm error paths work correctly.
 func TestFilterLoadWireErrors(

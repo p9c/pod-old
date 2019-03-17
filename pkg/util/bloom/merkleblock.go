@@ -1,10 +1,10 @@
 package bloom
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // merkleBlock is used to house intermediate information needed to generate a wire.MsgMerkleBlock according to a filter.

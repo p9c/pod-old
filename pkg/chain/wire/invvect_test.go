@@ -5,10 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestInvVectStringer tests the stringized output for inventory vector types.
 func TestInvTypeStringer(
@@ -34,7 +33,6 @@ func TestInvTypeStringer(
 	}
 }
 
-
 // TestInvVect tests the InvVect API.
 func TestInvVect(
 	t *testing.T) {
@@ -55,11 +53,9 @@ func TestInvVect(
 	}
 }
 
-
 // TestInvVectWire tests the InvVect wire encode and decode for various protocol versions and supported inventory vector types.
 func TestInvVectWire(
 	t *testing.T) {
-
 
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"

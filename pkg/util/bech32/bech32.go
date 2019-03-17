@@ -13,7 +13,6 @@ var gen = []int{0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3}
 func Decode(
 	bech string) (string, []byte, error) {
 
-
 	// The maximum allowed length for a bech32 string is 90. It must also be at least 8 characters, since it needs a non-empty HRP, a separator, and a 6 character checksum.
 	if len(bech) < 8 || len(bech) > 90 {
 		return "", nil, fmt.Errorf("invalid bech32 string length %d",
@@ -76,7 +75,6 @@ func Decode(
 // Encode encodes a byte slice into a bech32 string with the human-readable part hrb. Note that the bytes must each encode 5 bits (base32).
 func Encode(
 	hrp string, data []byte) (string, error) {
-
 
 	// Calculate the checksum of the data and append it at the end.
 	checksum := bech32Checksum(hrp, data)

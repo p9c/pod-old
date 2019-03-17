@@ -2,11 +2,11 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestFilterCLearLatest tests the MsgFilterClear API against the latest protocol version.
 func TestFilterClearLatest(
@@ -32,7 +32,6 @@ func TestFilterClearLatest(
 	}
 }
 
-
 // TestFilterClearCrossProtocol tests the MsgFilterClear API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterClearCrossProtocol(
 	t *testing.T) {
@@ -54,7 +53,6 @@ func TestFilterClearCrossProtocol(
 			"shouldn't have %v", msg)
 	}
 }
-
 
 // TestFilterClearWire tests the MsgFilterClear wire encode and decode for various protocol versions.
 func TestFilterClearWire(
@@ -130,7 +128,6 @@ func TestFilterClearWire(
 		}
 	}
 }
-
 
 // TestFilterClearWireErrors performs negative tests against wire encode and decode of MsgFilterClear to confirm error paths work correctly.
 func TestFilterClearWireErrors(

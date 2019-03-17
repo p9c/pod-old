@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	"git.parallelcoin.io/dev/pod/pkg/util/zero"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 const (
@@ -634,7 +634,6 @@ func (p *Pool) ChangeAddress(seriesID uint32, index Index) (*ChangeAddress, erro
 func (p *Pool) WithdrawalAddress(ns, addrmgrNs walletdb.ReadBucket, seriesID uint32, branch Branch, index Index) (
 	*WithdrawalAddress, error) {
 
-
 	// TODO: Ensure the given series is hot.
 	addr, err := p.getUsedAddr(ns, addrmgrNs, seriesID, branch, index)
 	if err != nil {
@@ -685,7 +684,6 @@ func (p *Pool) EmpowerSeries(ns walletdb.ReadWriteBucket, seriesID uint32, rawPr
 		return newError(ErrSeriesNotExists, str, nil)
 	}
 
-
 	// Check that the private key is valid.
 	privKey, err := hdkeychain.NewKeyFromString(rawPrivKey)
 	if err != nil {
@@ -709,7 +707,6 @@ func (p *Pool) EmpowerSeries(ns walletdb.ReadWriteBucket, seriesID uint32, rawPr
 
 	lookingFor := pubKey.String()
 	found := false
-
 
 	// Make sure the private key has the corresponding public key in the series,
 
@@ -768,7 +765,6 @@ func (p *Pool) addUsedAddr(ns, addrmgrNs walletdb.ReadWriteBucket, seriesID uint
 	if err != nil {
 		return err
 	}
-
 
 	// First ensure the address manager has our script. That way there's no way
 

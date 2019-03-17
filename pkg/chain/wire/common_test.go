@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -723,7 +723,6 @@ func TestRandomUint64(
 // TestRandomUint64Errors uses a fake reader to force error paths to be executed and checks the results accordingly.
 func TestRandomUint64Errors(
 	t *testing.T) {
-
 
 	// Test short reads.
 	fr := &fakeRandReader{n: 2, err: io.EOF}

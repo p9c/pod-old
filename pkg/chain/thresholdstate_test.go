@@ -3,7 +3,7 @@ package blockchain
 import (
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 // TestThresholdStateStringer tests the stringized output for the ThresholdState type.

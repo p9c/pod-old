@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 var Block100000 = wire.MsgBlock{
@@ -268,13 +268,11 @@ var Block100000 = wire.MsgBlock{
 func TestBlockFiltererOneInOneOut(
 	t *testing.T) {
 
-
 	// Watch for spend from prev in in first and last tx, both of which are
 
 	// single input/single output.
 	firstTx := Block100000.Transactions[1]
 	lastTx := Block100000.Transactions[3]
-
 
 	// Add each of their single previous outpoints to the set of watched
 
@@ -282,7 +280,6 @@ func TestBlockFiltererOneInOneOut(
 	watchedOutPoints := make(map[wire.OutPoint]util.Address)
 	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
 	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &util.AddressWitnessPubKeyHash{}
-
 
 	// Construct a filter request, watching only for the outpoints above,
 
@@ -292,7 +289,6 @@ func TestBlockFiltererOneInOneOut(
 	}
 	blockFilterer := chain.NewBlockFilterer(&chaincfg.SimNetParams, req)
 
-
 	// Filter block 100000, which should find matches for the watched
 
 	// outpoints.
@@ -301,7 +297,6 @@ func TestBlockFiltererOneInOneOut(
 		t.Fatalf("failed to find matches when filtering for " +
 			"1-in-1-out txns")
 	}
-
 
 	// We should find exactly two relevant transactions added to the block
 

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"golang.org/x/crypto/ripemd160"
 )

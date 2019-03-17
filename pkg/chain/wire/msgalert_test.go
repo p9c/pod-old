@@ -2,12 +2,12 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestMsgAlert tests the MsgAlert API.
 func TestMsgAlert(
@@ -82,7 +82,6 @@ func TestMsgAlert(
 			spew.Sdump(buf.Bytes()), spew.Sdump(expectedBuf))
 	}
 }
-
 
 // TestMsgAlertWire tests the MsgAlert wire encode and decode for various protocol versions.
 func TestMsgAlertWire(
@@ -182,7 +181,6 @@ func TestMsgAlertWire(
 		}
 	}
 }
-
 
 // TestMsgAlertWireErrors performs negative tests against wire encode and decode of MsgAlert to confirm error paths work correctly.
 func TestMsgAlertWireErrors(
@@ -293,7 +291,6 @@ func TestMsgAlertWireErrors(
 	}
 }
 
-
 // TestAlert tests serialization and deserialization of the payload to Alert
 func TestAlert(
 	t *testing.T) {
@@ -381,7 +378,6 @@ func TestAlert(
 			alert.Reserved, newAlert.Reserved)
 	}
 }
-
 
 // TestAlertErrors performs negative tests against payload serialization, deserialization of Alert to confirm error paths work correctly.
 func TestAlertErrors(

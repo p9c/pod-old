@@ -3,11 +3,11 @@ package chain
 import (
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 // BackEnds returns a list of the available back ends.
@@ -52,12 +52,10 @@ type (
 	// opened or reestablished to the chain server.
 	ClientConnected struct{}
 
-
 	// BlockConnected is a notification for a newly-attached block to the
 
 	// best chain.
 	BlockConnected wtxmgr.BlockMeta
-
 
 	// FilteredBlockConnected is an alternate notification that contains
 
@@ -68,7 +66,6 @@ type (
 		Block       *wtxmgr.BlockMeta
 		RelevantTxs []*wtxmgr.TxRecord
 	}
-
 
 	// FilterBlocksRequest specifies a range of blocks and the set of
 
@@ -83,7 +80,6 @@ type (
 		InternalAddrs    map[waddrmgr.ScopedIndex]util.Address
 		WatchedOutPoints map[wire.OutPoint]util.Address
 	}
-
 
 	// FilterBlocksResponse reports the set of all internal and external
 
@@ -107,12 +103,10 @@ type (
 		RelevantTxns       []*wire.MsgTx
 	}
 
-
 	// BlockDisconnected is a notifcation that the block described by the
 
 	// BlockStamp was reorganized out of the best chain.
 	BlockDisconnected wtxmgr.BlockMeta
-
 
 	// RelevantTx is a notification for a transaction which spends wallet
 
@@ -122,7 +116,6 @@ type (
 		Block    *wtxmgr.BlockMeta // nil if unmined
 	}
 
-
 	// RescanProgress is a notification describing the current status
 
 	// of an in-progress rescan.
@@ -131,7 +124,6 @@ type (
 		Height int32
 		Time   time.Time
 	}
-
 
 	// RescanFinished is a notification that a previous rescan request
 

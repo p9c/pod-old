@@ -7,12 +7,12 @@ import (
 	"runtime"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // solveBlock attempts to find a nonce which makes the passed block header hash to a value less than the target difficulty. When a successful solution is found true is returned and the nonce field of the passed header is updated with the solution. False is returned if no solution exists.

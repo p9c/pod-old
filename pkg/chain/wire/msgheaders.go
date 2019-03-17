@@ -5,16 +5,13 @@ import (
 	"io"
 )
 
-
 // MaxBlockHeadersPerMsg is the maximum number of block headers that can be in a single bitcoin headers message.
 const MaxBlockHeadersPerMsg = 2000
-
 
 // MsgHeaders implements the Message interface and represents a bitcoin headers message.  It is used to deliver block header information in response to a getheaders message (MsgGetHeaders).  The maximum number of block headers per message is currently 2000.  See MsgGetHeaders for details on requesting the headers.
 type MsgHeaders struct {
 	Headers []*BlockHeader
 }
-
 
 // AddBlockHeader adds a new block header to the message.
 func (msg *MsgHeaders) AddBlockHeader(bh *BlockHeader) error {
@@ -26,7 +23,6 @@ func (msg *MsgHeaders) AddBlockHeader(bh *BlockHeader) error {
 	msg.Headers = append(msg.Headers, bh)
 	return nil
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
@@ -67,7 +63,6 @@ func (msg *MsgHeaders) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 
@@ -97,12 +92,10 @@ func (msg *MsgHeaders) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 	return nil
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgHeaders) Command() string {
 	return CmdHeaders
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgHeaders) MaxPayloadLength(pver uint32) uint32 {
@@ -111,7 +104,6 @@ func (msg *MsgHeaders) MaxPayloadLength(pver uint32) uint32 {
 	return MaxVarIntPayload + ((MaxBlockHeaderPayload + 1) *
 		MaxBlockHeadersPerMsg)
 }
-
 
 // NewMsgHeaders returns a new bitcoin headers message that conforms to the Message interface.  See MsgHeaders for details.
 func NewMsgHeaders() *MsgHeaders {

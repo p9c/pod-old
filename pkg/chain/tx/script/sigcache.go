@@ -3,8 +3,8 @@ package txscript
 import (
 	"sync"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // sigCacheEntry represents an entry in the SigCache. Entries within the SigCache are keyed according to the sigHash of the signature. In the scenario of a cache-hit (according to the sigHash), an additional comparison of the signature, and public key will be executed in order to ensure a complete match. In the occasion that two sigHashes collide, the newer sigHash will simply overwrite the existing entry.

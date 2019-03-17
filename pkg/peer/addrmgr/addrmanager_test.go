@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/peer/addrmgr"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/peer/addrmgr"
 )
 
 // naTest is used to describe a test to be performed against the NetAddressKey method.
@@ -26,7 +26,6 @@ var someIP = "173.194.115.66"
 
 // addNaTests
 func addNaTests() {
-
 
 	// IPv4
 

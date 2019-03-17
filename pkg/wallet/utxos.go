@@ -4,9 +4,9 @@
 package wallet
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // OutputSelectionPolicy describes the rules for selecting an output from the

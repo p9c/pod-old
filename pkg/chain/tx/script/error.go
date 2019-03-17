@@ -13,9 +13,7 @@ const (
 	// ErrInternal is returned if internal consistency checks fail.  In practice this error should never be seen as it would mean there is an error in the engine logic.
 	ErrInternal ErrorCode = iota
 
-
 	// Failures related to improper API usage.
-
 
 	// ErrInvalidFlags is returned when the passed flags to NewEngine contain an invalid combination.
 	ErrInvalidFlags
@@ -35,9 +33,7 @@ const (
 	// ErrTooMuchNullData is returned from NullDataScript when the length of the provided data exceeds MaxDataCarrierSize.
 	ErrTooMuchNullData
 
-
 	// Failures related to final execution state.
-
 
 	// ErrEarlyReturn is returned when OP_RETURN is executed in the script.
 	ErrEarlyReturn
@@ -54,9 +50,7 @@ const (
 	// ErrScriptDone is returned when an attempt to execute an opcode is made once all of them have already been executed.  This can happen due to things such as a second call to Execute or calling Step after all opcodes have already been executed.
 	ErrInvalidProgramCounter
 
-
 	// Failures related to exceeding maximum allowed limits.
-
 
 	// ErrScriptTooBig is returned if a script is larger than MaxScriptSize.
 	ErrScriptTooBig
@@ -79,9 +73,7 @@ const (
 	// ErrNumberTooBig is returned when the argument for an opcode that expects numeric input is larger than the expected maximum number of bytes.  For the most part, opcodes that deal with stack manipulation via offsets, arithmetic, numeric comparison, and boolean logic are those that this applies to.  However, any opcode that expects numeric input may fail with this code.
 	ErrNumberTooBig
 
-
 	// Failures related to verification operations.
-
 
 	// ErrVerify is returned when OP_VERIFY is encountered in a script and the top item on the data stack does not evaluate to true.
 	ErrVerify
@@ -100,9 +92,7 @@ const (
 	// ErrCheckSigVerify is returned when OP_CHECKMULTISIGVERIFY is encountered in a script and the top item on the data stack does not evaluate to true.
 	ErrCheckMultiSigVerify
 
-
 	// Failures related to improper use of opcodes.
-
 
 	// ErrDisabledOpcode is returned when a disabled opcode is encountered in a script.
 	ErrDisabledOpcode
@@ -119,9 +109,7 @@ const (
 	// ErrUnbalancedConditional is returned when an OP_ELSE or OP_ENDIF is encountered in a script without first having an OP_IF or OP_NOTIF or the end of script is reached without encountering an OP_ENDIF when an OP_IF or OP_NOTIF was previously encountered.
 	ErrUnbalancedConditional
 
-
 	// Failures related to malleability.
-
 
 	// ErrMinimalData is returned when the ScriptVerifyMinimalData flag is set and the script contains push operations that do not use the minimal opcode required.
 	ErrMinimalData
@@ -200,9 +188,7 @@ const (
 	// ErrWitnessMalleatedP2SH is returned if ScriptVerifyWitness if set and the validation logic for nested p2sh encounters a sigScript which isn't *exactyl* a datapush of the witness program.
 	ErrWitnessMalleatedP2SH
 
-
 	// Failures related to soft forks.
-
 
 	// ErrDiscourageUpgradableNOPs is returned when the ScriptDiscourageUpgradableNops flag is set and a NOP opcode is encountered in a script.
 	ErrDiscourageUpgradableNOPs
@@ -219,9 +205,7 @@ const (
 	// ErrDiscourageUpgradableWitnessProgram is returned if ScriptVerifyWitness is set and the versino of an executing witness program is outside the set of currently defined witness program vesions.
 	ErrDiscourageUpgradableWitnessProgram
 
-
 	// Failures related to segregated witness.
-
 
 	// ErrWitnessProgramEmpty is returned if ScriptVerifyWitness is set and the witness stack itself is empty.
 	ErrWitnessProgramEmpty

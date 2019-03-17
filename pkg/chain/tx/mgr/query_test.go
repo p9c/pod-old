@@ -1,4 +1,3 @@
-
 // Copyright (c) 2015-2017 The btcsuite developers
 
 package wtxmgr_test
@@ -11,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	. "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 type queryState struct {
@@ -135,7 +134,6 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 			}
 		}
 
-
 		// For the most recent tx with this hash, check that
 
 		// TxDetails (not looking up a tx at any particular
@@ -228,12 +226,10 @@ func equalTxs(
 	return nil
 }
 
-
 // Returns time.Now() with seconds resolution, this is what Store saves.
 func timeNow() time.Time {
 	return time.Unix(time.Now().Unix(), 0)
 }
-
 
 // Returns a copy of a TxRecord without the serialized tx.
 func stripSerializedTx(
@@ -272,7 +268,6 @@ func TestStoreQueries(
 	}
 	var tests []queryTest
 
-
 	// Create the store and test initial state.
 	s, db, teardown, err := testStore()
 	defer teardown()
@@ -285,7 +280,6 @@ func TestStoreQueries(
 		updates: func(walletdb.ReadWriteBucket) error { return nil },
 		state:   lastState,
 	})
-
 
 	// Insert an unmined transaction.  Mark no credits yet.
 	txA := spendOutput(&chainhash.Hash{}, 0, 100e8)
@@ -314,7 +308,6 @@ func TestStoreQueries(
 		state: newState,
 	})
 
-
 	// Add txA:0 as a change credit.
 	newState = lastState.deepCopy()
 	newState.blocks[0][0].Credits = []CreditRecord{
@@ -334,7 +327,6 @@ func TestStoreQueries(
 		},
 		state: newState,
 	})
-
 
 	// Insert another unmined transaction which spends txA:0, splitting the
 
@@ -385,7 +377,6 @@ func TestStoreQueries(
 		state: newState,
 	})
 
-
 	// Mine tx A at block 100.  Leave tx B unmined.
 	b100 := makeBlockMeta(100)
 	newState = lastState.deepCopy()
@@ -401,7 +392,6 @@ func TestStoreQueries(
 		},
 		state: newState,
 	})
-
 
 	// Mine tx B at block 101.
 	b101 := makeBlockMeta(101)
@@ -429,7 +419,6 @@ func TestStoreQueries(
 			t.Fatal(err)
 		}
 	}
-
 
 	// Run some additional query tests with the current store's state:
 
@@ -521,7 +510,6 @@ func TestStoreQueries(
 		t.Fatal(err)
 	}
 
-
 	// None of the above tests have tested RangeTransactions with multiple
 
 	// txs per block, so do that now.  Start by moving tx B to block 100
@@ -581,7 +569,6 @@ func TestPreviousPkScripts(
 		t.Fatal(err)
 	}
 
-
 	// Invalid scripts but sufficient for testing.
 	var (
 		scriptA0 = []byte("tx A output 0")
@@ -591,7 +578,6 @@ func TestPreviousPkScripts(
 		scriptC0 = []byte("tx C output 0")
 		scriptC1 = []byte("tx C output 1")
 	)
-
 
 	// Create a transaction spending two prevous outputs and generating two
 
@@ -621,7 +607,6 @@ func TestPreviousPkScripts(
 		}
 		return rec
 	}
-
 
 	// Create transactions with the fake output scripts.
 	var (
@@ -674,7 +659,6 @@ func TestPreviousPkScripts(
 		for i := range scripts {
 			if !bytes.Equal(scripts[i], tst.scripts[i]) {
 
-
 				// Format scripts with %s since they are (should be) ascii.
 				t.Errorf("Transaction %v height %d script %d: got '%s' expected '%s'",
 					tst.rec.Hash, height, i, scripts[i], tst.scripts[i])
@@ -688,7 +672,6 @@ func TestPreviousPkScripts(
 	}
 	defer dbtx.Commit()
 	ns := dbtx.ReadWriteBucket(namespaceKey)
-
 
 	// Insert transactions A-C unmined, but mark no credits yet.  Until
 
@@ -718,7 +701,6 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after unmined tx inserts")
 	}
 
-
 	// Mark credits.  Tx C output 1 not marked as a credit: tx D will spend
 
 	// both later but when C is mined, output 1's script should not be
@@ -745,7 +727,6 @@ func TestPreviousPkScripts(
 		t.Fatal("Failed after marking unmined credits")
 	}
 
-
 	// Mine tx A in block 100.  Test results should be identical.
 	insertTx(ns, recA, &b100)
 	for _, tst := range tests {
@@ -755,7 +736,6 @@ func TestPreviousPkScripts(
 
 		t.Fatal("Failed after mining tx A")
 	}
-
 
 	// Mine tx B in block 101.
 	insertTx(ns, recB, &b101)
@@ -774,7 +754,6 @@ func TestPreviousPkScripts(
 
 		t.Fatal("Failed after mining tx B")
 	}
-
 
 	// Mine tx C in block 101 (same block as tx B) to test debits from the
 
@@ -795,7 +774,6 @@ func TestPreviousPkScripts(
 
 		t.Fatal("Failed after mining tx C")
 	}
-
 
 	// Insert tx D, which spends C:0 and C:1.  However, only C:0 is marked
 

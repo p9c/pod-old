@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"strings"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/util/base58"
 	"git.parallelcoin.io/dev/pod/pkg/util/bech32"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"golang.org/x/crypto/ripemd160"
 )
 

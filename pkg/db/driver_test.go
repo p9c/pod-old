@@ -14,7 +14,6 @@ var (
 	ignoreDbTypes = map[string]bool{"createopenfail": true}
 )
 
-
 // checkDbError ensures the passed error is a database.Error with an error code that matches the passed  error code.
 func checkDbError(
 	t *testing.T, testName string, gotErr error, wantErrCode database.ErrorCode) bool {
@@ -32,7 +31,6 @@ func checkDbError(
 	}
 	return true
 }
-
 
 // TestAddDuplicateDriver ensures that adding a duplicate driver does not overwrite an existing one.
 func TestAddDuplicateDriver(
@@ -68,11 +66,9 @@ func TestAddDuplicateDriver(
 	}
 }
 
-
 // TestCreateOpenFail ensures that errors which occur while opening or closing a database are handled properly.
 func TestCreateOpenFail(
 	t *testing.T) {
-
 
 	// bogusCreateDB is a function which acts as a bogus create and open driver function that intentionally returns a failure which can be detected.
 	dbType := "createopenfail"
@@ -108,11 +104,9 @@ func TestCreateOpenFail(
 	}
 }
 
-
 // TestCreateOpenUnsupported ensures that attempting to create or open an unsupported database type is handled properly.
 func TestCreateOpenUnsupported(
 	t *testing.T) {
-
 
 	// Ensure creating a database with an unsupported type fails with the expected error.
 	testName := "create with unsupported database type"

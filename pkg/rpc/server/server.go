@@ -24,19 +24,19 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
 	pb "git.parallelcoin.io/dev/pod/pkg/rpc/wallet"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/util/config"
+	cfgutil "git.parallelcoin.io/dev/pod/pkg/util/config"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/dev/pod/pkg/util/zero"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 	chain "git.parallelcoin.io/dev/pod/pkg/wallet/chain"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // Public API version constants

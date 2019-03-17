@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 type transaction struct {

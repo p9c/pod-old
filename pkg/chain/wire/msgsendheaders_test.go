@@ -2,11 +2,11 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestSendHeaders tests the MsgSendHeaders API against the latest protocol version.
 func TestSendHeaders(
@@ -66,11 +66,9 @@ func TestSendHeaders(
 	}
 }
 
-
 // TestSendHeadersBIP0130 tests the MsgSendHeaders API against the protocol prior to version SendHeadersVersion.
 func TestSendHeadersBIP0130(
 	t *testing.T) {
-
 
 	// Use the protocol version just prior to SendHeadersVersion changes.
 	pver := SendHeadersVersion - 1
@@ -93,7 +91,6 @@ func TestSendHeadersBIP0130(
 			"have failed")
 	}
 }
-
 
 // TestSendHeadersCrossProtocol tests the MsgSendHeaders API when encoding with the latest protocol version and decoding with SendHeadersVersion.
 func TestSendHeadersCrossProtocol(
@@ -118,7 +115,6 @@ func TestSendHeadersCrossProtocol(
 			err)
 	}
 }
-
 
 // TestSendHeadersWire tests the MsgSendHeaders wire encode and decode for various protocol versions.
 func TestSendHeadersWire(

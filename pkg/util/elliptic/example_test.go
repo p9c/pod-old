@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // This example demonstrates decrypting a message using a private key that is

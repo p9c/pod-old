@@ -119,7 +119,6 @@ func BenchmarkSigVerify(
 func BenchmarkFieldNormalize(
 	b *testing.B) {
 
-
 	// The normalize function is constant time so default value is fine.
 	f := new(fieldVal)
 	for i := 0; i < b.N; i++ {

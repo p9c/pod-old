@@ -1,4 +1,3 @@
-
 // Copyright (c) 2016 The Decred developers
 
 // Copyright (c) 2017 The btcsuite developers
@@ -8,18 +7,16 @@ package wallet
 import (
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
-
 
 // Note: The following common types should never reference the Wallet type.
 
 // Long term goal is to move these to their own package so that the database
 
 // access APIs can create them directly for the wallet to return.
-
 
 // BlockIdentity identifies a block, or the lack of one (used to describe an
 
@@ -28,7 +25,6 @@ type BlockIdentity struct {
 	Hash   chainhash.Hash
 	Height int32
 }
-
 
 // None returns whether there is no block described by the instance.  When
 
@@ -43,19 +39,16 @@ func (b *BlockIdentity) None() bool {
 	return *b == BlockIdentity{Height: -1} || *b == BlockIdentity{}
 }
 
-
 // OutputKind describes a kind of transaction output.  This is used to
 
 // differentiate between coinbase, stakebase, and normal outputs.
 type OutputKind byte
-
 
 // Defined OutputKind constants
 const (
 	OutputKindNormal OutputKind = iota
 	OutputKindCoinbase
 )
-
 
 // TransactionOutput describes an output that was or is at least partially
 
@@ -78,13 +71,11 @@ type TransactionOutput struct {
 	ReceiveTime     time.Time
 }
 
-
 // OutputRedeemer identifies the transaction input which redeems an output.
 type OutputRedeemer struct {
 	TxHash     chainhash.Hash
 	InputIndex uint32
 }
-
 
 // P2SHMultiSigOutput describes a transaction output with a pay-to-script-hash
 

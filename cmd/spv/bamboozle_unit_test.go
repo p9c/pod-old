@@ -7,12 +7,12 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/dev/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 func decodeHashNoError(
@@ -96,7 +96,6 @@ var (
 		0x3f, 0xc4, 0x45, 0x05, 0xf2, 0x16, 0x10, 0xe5,
 		0x5b, 0x4c, 0x6f, 0x4d,
 	}
-
 
 	// For the purpose of the cfheader mismatch test, we actually only need
 

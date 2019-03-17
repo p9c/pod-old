@@ -1,4 +1,3 @@
-
 // Copyright (c) 2017 The btcsuite developers
 
 // Copyright (c) 2016 The Decred developers
@@ -8,12 +7,11 @@ package wallet
 import (
 	"errors"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
-
 
 // MakeMultiSigScript creates a multi-signature script that can be redeemed with
 
@@ -38,7 +36,6 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 			dbtx.Rollback()
 		}
 	}()
-
 
 	// The address list will made up either of addreseses (pubkey hash), for
 
@@ -83,7 +80,6 @@ func (w *Wallet) MakeMultiSigScript(addrs []util.Address, nRequired int) ([]byte
 	return txscript.MultiSigScript(pubKeys, nRequired)
 }
 
-
 // ImportP2SHRedeemScript adds a P2SH redeem script to the wallet.
 func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash, error) {
 
@@ -91,13 +87,11 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 	err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 		addrmgrNs := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
-
 		// TODO(oga) blockstamp current block?
 		bs := &waddrmgr.BlockStamp{
 			Hash:   *w.ChainParams().GenesisHash,
 			Height: 0,
 		}
-
 
 		// As this is a regular P2SH script, we'll import this into the
 
@@ -118,7 +112,6 @@ func (w *Wallet) ImportP2SHRedeemScript(script []byte) (*util.AddressScriptHash,
 
 			// return anything useful.
 			if waddrmgr.IsError(err, waddrmgr.ErrDuplicateAddress) {
-
 
 				// This function will never error as it always
 

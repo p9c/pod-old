@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // newHashFromStr converts the passed big-endian hex string into a chainhash.Hash.  It only differs from the one available in chainhash in that it panics on an error since it will only (and must only) be called with hard-coded, and therefore known good, hashes.
@@ -47,7 +47,6 @@ func newUtxoViewpoint(
 // TestCalcPriority ensures the priority calculations work as intended.
 func TestCalcPriority(
 	t *testing.T) {
-
 
 	// commonSourceTx1 is a valid transaction used in the tests below as an input to transactions that are having their priority calculated.
 

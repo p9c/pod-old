@@ -12,7 +12,6 @@ import (
 func TestTxFeePrioHeap(
 	t *testing.T) {
 
-
 	// Create some fake priority items that exercise the expected sort edge conditions.
 	testItems := []*txPrioItem{
 		{feePerKB: 5678, priority: 3},

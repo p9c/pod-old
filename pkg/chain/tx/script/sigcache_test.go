@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // genRandomSig returns a random message, a signature of the message under the public key and the public key. This function is used to generate randomized test data.
@@ -53,7 +53,6 @@ func TestSigCacheAddExists(
 // TestSigCacheAddEvictEntry tests the eviction case where a new signature triplet is added to a full signature cache which should trigger randomized eviction, followed by adding the new element to the cache.
 func TestSigCacheAddEvictEntry(
 	t *testing.T) {
-
 
 	// Create a sigcache that can hold up to 100 entries.
 	sigCacheSize := uint(100)
@@ -106,7 +105,6 @@ func TestSigCacheAddEvictEntry(
 // TestSigCacheAddMaxEntriesZeroOrNegative tests that if a sigCache is created with a max size <= 0, then no entries are added to the sigcache at all.
 func TestSigCacheAddMaxEntriesZeroOrNegative(
 	t *testing.T) {
-
 
 	// Create a sigcache that can hold up to 0 entries.
 	sigCache := NewSigCache(0)

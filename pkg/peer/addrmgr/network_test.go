@@ -4,8 +4,8 @@ import (
 	"net"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/peer/addrmgr"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/peer/addrmgr"
 )
 
 // TestIPTypes ensures the various functions which determine the type of an IP

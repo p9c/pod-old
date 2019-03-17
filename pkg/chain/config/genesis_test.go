@@ -2,14 +2,14 @@ package chaincfg
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // TestGenesisBlock tests the genesis block of the main network for validity by checking the encoded bytes and hashes.
 func TestGenesisBlock(
 	t *testing.T) {
-
 
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
@@ -39,7 +39,6 @@ func TestGenesisBlock(
 // TestRegTestGenesisBlock tests the genesis block of the regression test network for validity by checking the encoded bytes and hashes.
 func TestRegTestGenesisBlock(
 	t *testing.T) {
-
 
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
@@ -71,7 +70,6 @@ func TestRegTestGenesisBlock(
 func TestTestNet3GenesisBlock(
 	t *testing.T) {
 
-
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer
 	err := TestNet3Params.GenesisBlock.Serialize(&buf)
@@ -101,7 +99,6 @@ func TestTestNet3GenesisBlock(
 // TestSimNetGenesisBlock tests the genesis block of the simulation test network for validity by checking the encoded bytes and hashes.
 func TestSimNetGenesisBlock(
 	t *testing.T) {
-
 
 	// Encode the genesis block to raw bytes.
 	var buf bytes.Buffer

@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-
 // XXX pedro: we will probably need to bump this.
 const (
 
@@ -41,7 +40,6 @@ const (
 	FeeFilterVersion uint32 = 70013
 )
 
-
 // ServiceFlag identifies services supported by a bitcoin peer.
 type ServiceFlag uint64
 
@@ -72,7 +70,6 @@ const (
 	SFNode2X
 )
 
-
 // Map of service flags back to their constant names for pretty printing.
 var sfStrings = map[ServiceFlag]string{
 	SFNodeNetwork: "SFNodeNetwork",
@@ -85,7 +82,6 @@ var sfStrings = map[ServiceFlag]string{
 	SFNode2X:      "SFNode2X",
 }
 
-
 // orderedSFStrings is an ordered list of service flags from highest to lowest.
 var orderedSFStrings = []ServiceFlag{
 	SFNodeNetwork,
@@ -97,7 +93,6 @@ var orderedSFStrings = []ServiceFlag{
 	SFNodeCF,
 	SFNode2X,
 }
-
 
 // String returns the ServiceFlag in human-readable form.
 func (f ServiceFlag) String() string {
@@ -125,10 +120,8 @@ func (f ServiceFlag) String() string {
 	return s
 }
 
-
 // BitcoinNet represents which bitcoin network a message belongs to.
 type BitcoinNet uint32
-
 
 // Constants used to indicate the message bitcoin network.  They can also be used to seek to the next message when a stream's state is unknown, but this package does not provide that functionality since it's generally a better idea to simply disconnect clients that are misbehaving over TCP.
 const (
@@ -146,7 +139,6 @@ const (
 	SimNet BitcoinNet = 0x8899b208 //0x12141c16
 )
 
-
 // bnStrings is a map of bitcoin networks back to their constant names for pretty printing.
 var bnStrings = map[BitcoinNet]string{
 	MainNet:  "MainNet",
@@ -154,7 +146,6 @@ var bnStrings = map[BitcoinNet]string{
 	TestNet3: "TestNet3",
 	SimNet:   "SimNet",
 }
-
 
 // String returns the BitcoinNet in human-readable form.
 func (n BitcoinNet) String() string {

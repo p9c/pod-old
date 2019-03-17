@@ -11,15 +11,14 @@ import (
 	"strings"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // scriptTestName returns a descriptive test name for the given reference script test data.
 func scriptTestName(
 	test []interface{}) (string, error) {
-
 
 	// Account for any optional leading witness data.
 	var witnessOffset int
@@ -81,7 +80,6 @@ var shortFormOps map[string]byte
 //   - Anything else is an error
 func parseShortForm(
 	script string) ([]byte, error) {
-
 
 	// Only create the short form opcode map once.
 	if shortFormOps == nil {
@@ -304,7 +302,6 @@ type scriptWithInputVal struct {
 // testScripts ensures all of the passed script tests execute with the expected results with or without using a signature cache, as specified by the parameter.
 func testScripts(
 	t *testing.T, tests [][]interface{}, useSigCache bool) {
-
 
 	// Create a signature cache to use only if requested.
 	var sigCache *SigCache

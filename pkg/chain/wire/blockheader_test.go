@@ -2,12 +2,12 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"reflect"
 	"testing"
 	"time"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestBlockHeader tests the BlockHeader API.
 func TestBlockHeader(
@@ -43,7 +43,6 @@ func TestBlockHeader(
 			bh.Nonce, nonce)
 	}
 }
-
 
 // TestBlockHeaderWire tests the BlockHeader wire encode and decode for various protocol versions.
 func TestBlockHeaderWire(
@@ -188,7 +187,6 @@ func TestBlockHeaderWire(
 		}
 	}
 }
-
 
 // TestBlockHeaderSerialize tests BlockHeader serialize and deserialize.
 func TestBlockHeaderSerialize(

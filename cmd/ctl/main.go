@@ -18,7 +18,6 @@ const (
 	listCmdMessage  = "Specify -l to list available commands"
 )
 
-
 // Main is the entry point for the pod.Ctl component
 func Main(
 	args []string,
@@ -127,7 +126,6 @@ func Main(
 	}
 }
 
-
 // commandUsage display the usage for a specific command.
 func commandUsage(
 	method string,
@@ -143,7 +141,6 @@ func commandUsage(
 	fmt.Fprintln(os.Stderr, "Usage:")
 	fmt.Fprintf(os.Stderr, "  %s\n", usage)
 }
-
 
 // usage displays the general usage when the help flag is not displayed and and an invalid command was specified.  The commandUsage function is used instead when a valid command was specified.
 func usage(

@@ -10,7 +10,6 @@ import (
 func CmdMethod(
 	cmd interface{}) (string, error) {
 
-
 	// Look up the cmd type and error out if not registered.
 	rt := reflect.TypeOf(cmd)
 	registerLock.RLock()
@@ -26,7 +25,6 @@ func CmdMethod(
 // MethodUsageFlags returns the usage flags for the passed command method.  The provided method must be associated with a registered type.  All commands provided by this package are registered by default.
 func MethodUsageFlags(
 	method string) (UsageFlag, error) {
-
 
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()
@@ -191,7 +189,6 @@ func methodUsageText(
 // MethodUsageText returns a one-line usage string for the provided method.  The provided method must be associated with a registered type.  All commands provided by this package are registered by default.
 func MethodUsageText(
 	method string) (string, error) {
-
 
 	// Look up details about the provided method and error out if not registered.
 	registerLock.RLock()

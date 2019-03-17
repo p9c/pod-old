@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/dev/pod/integration/rpctest"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 )
 
 func testGetBestBlock(

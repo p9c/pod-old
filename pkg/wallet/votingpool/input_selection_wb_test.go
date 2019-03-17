@@ -6,11 +6,11 @@ import (
 	"sort"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 var (
@@ -41,7 +41,6 @@ func TestGetEligibleInputs(
 		getPKScriptsForAddressRange(t, dbtx, pool, 1, 0, 2, 0, 4),
 		getPKScriptsForAddressRange(t, dbtx, pool, 2, 0, 2, 0, 6)...)
 
-
 	// Create two eligible inputs locked to each of the PKScripts above.
 	expNoEligibleInputs := 2 * len(scripts)
 	eligibleAmounts := []int64{int64(dustThreshold + 1), int64(dustThreshold + 1)}
@@ -66,20 +65,17 @@ func TestGetEligibleInputs(
 		t.Fatal("InputSelection failed:", err)
 	}
 
-
 	// Check we got the expected number of eligible inputs.
 	if len(eligibles) != expNoEligibleInputs {
 		t.Fatalf("Wrong number of eligible inputs returned. Got: %d, want: %d.",
 			len(eligibles), expNoEligibleInputs)
 	}
 
-
 	// Check that the returned eligibles are reverse sorted by address.
 	if !sort.IsSorted(sort.Reverse(byAddress(eligibles))) {
 
 		t.Fatal("Eligible inputs are not sorted.")
 	}
-
 
 	// Check that all credits are unique
 	checkUniqueness(t, eligibles)
@@ -104,18 +100,14 @@ func TestNextAddrWithVaryingHighestIndices(
 	TstCreateSeries(t, dbtx, pool, series)
 	stopSeriesID := uint32(2)
 
-
 	// Populate the used addr DB for branch 0 and indices ranging from 0 to 2.
 	TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(0), 2)
-
 
 	// Populate the used addr DB for branch 1 and indices ranging from 0 to 1.
 	TstEnsureUsedAddr(t, dbtx, pool, 1, Branch(1), 1)
 
-
 	// Start with the address for branch==0, index==1.
 	addr := TstNewWithdrawalAddress(t, dbtx, pool, 1, 0, 1)
-
 
 	// The first call to nextAddr() should give us the address for branch==1
 
@@ -129,7 +121,6 @@ func TestNextAddrWithVaryingHighestIndices(
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(1), 1)
 
-
 	// The next call should give us the address for branch==0, index==2 since
 
 	// there are no used addresses for branch==2.
@@ -141,7 +132,6 @@ func TestNextAddrWithVaryingHighestIndices(
 		t.Fatalf("Failed to get next address: %v", err)
 	}
 	checkWithdrawalAddressMatches(t, addr, 1, Branch(0), 2)
-
 
 	// Since the last addr for branch==1 was the one with index==1, a subsequent
 
@@ -202,7 +192,6 @@ func TestNextAddr(
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx-1)
 	}
 
-
 	// The last nextAddr() above gave us the addr with branch=3,
 
 	// idx=lastIdx-1, so the next 4 calls should give us the addresses with
@@ -218,7 +207,6 @@ func TestNextAddr(
 		}
 		checkWithdrawalAddressMatches(t, addr, 1, Branch(i), lastIdx)
 	}
-
 
 	// Populate used addresses DB with entries for seriesID==2, branch==0..3,
 
@@ -240,7 +228,6 @@ func TestNextAddr(
 		}
 		checkWithdrawalAddressMatches(t, addr, 2, Branch(i), 0)
 	}
-
 
 	// Finally check that nextAddr() returns nil when we've reached the last
 
@@ -302,13 +289,11 @@ func TestNonEligibleInputsAreNotEligible(
 	// Make sure credit is old enough to pass the minConf check.
 	c.BlockMeta.Height = int32(eligibleInputMinConfirmations)
 
-
 	// Check that credit below dustThreshold is rejected.
 	if pool.isCreditEligible(c, eligibleInputMinConfirmations, chainHeight, dustThreshold) {
 
 		t.Errorf("Input is eligible and it should not be.")
 	}
-
 
 	// Check that a credit with not enough confirmations is rejected.
 	_, credits = TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{int64(dustThreshold)})

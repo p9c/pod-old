@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs"
 	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 

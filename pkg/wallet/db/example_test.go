@@ -6,13 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
 // This example demonstrates creating a new database.
 func ExampleCreate() {
-
 
 	// This example assumes the bdb (bolt db) driver is imported.
 
@@ -25,7 +24,6 @@ func ExampleCreate() {
 	// 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 
 	// )
-
 
 	// Create a database and schedule it to be closed and removed on exit.
 
@@ -42,7 +40,6 @@ func ExampleCreate() {
 	}
 	defer os.Remove(dbPath)
 	defer db.Close()
-
 
 	// Output:
 }
@@ -73,7 +70,6 @@ func exampleLoadDB() (walletdb.DB, func(), error) {
 // This example demonstrates creating a new top level bucket.
 func ExampleDB_createTopLevelBucket() {
 
-
 	// Load a database for the purposes of this example and schedule it to
 
 	// be closed and removed on exit. See the Create example for more
@@ -93,7 +89,6 @@ func ExampleDB_createTopLevelBucket() {
 	}
 	defer dbtx.Commit()
 
-
 	// Get or create a bucket in the database as needed.  This bucket
 
 	// is what is typically passed to specific sub-packages so they have
@@ -106,10 +101,8 @@ func ExampleDB_createTopLevelBucket() {
 		return
 	}
 
-
 	// Prevent unused error.
 	_ = bucket
-
 
 	// Output:
 }
@@ -118,7 +111,6 @@ func ExampleDB_createTopLevelBucket() {
 // it, and using a managed read-write transaction against the namespace to store
 // and retrieve data.
 func Example_basicUsage() {
-
 
 	// This example assumes the bdb (bolt db) driver is imported.
 
@@ -131,7 +123,6 @@ func Example_basicUsage() {
 	// 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 
 	// )
-
 
 	// Create a database and schedule it to be closed and removed on exit.
 
@@ -148,7 +139,6 @@ func Example_basicUsage() {
 	}
 	defer os.Remove(dbPath)
 	defer db.Close()
-
 
 	// Get or create a bucket in the database as needed.  This bucket
 
@@ -170,7 +160,6 @@ func Example_basicUsage() {
 		fmt.Println(err)
 		return
 	}
-
 
 	// Use the Update function of the namespace to perform a managed
 
@@ -217,7 +206,6 @@ func Example_basicUsage() {
 		fmt.Println(err)
 		return
 	}
-
 
 	// Output:
 }

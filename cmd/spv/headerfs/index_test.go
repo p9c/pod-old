@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 

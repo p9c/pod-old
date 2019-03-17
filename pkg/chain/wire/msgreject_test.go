@@ -2,12 +2,12 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"reflect"
 	"testing"
-)
 
+	"github.com/davecgh/go-spew/spew"
+)
 
 // TestRejectCodeStringer tests the stringized output for the reject code type.
 func TestRejectCodeStringer(
@@ -37,7 +37,6 @@ func TestRejectCodeStringer(
 		}
 	}
 }
-
 
 // TestRejectLatest tests the MsgPong API against the latest protocol version.
 func TestRejectLatest(
@@ -118,11 +117,9 @@ func TestRejectLatest(
 	}
 }
 
-
 // TestRejectBeforeAdded tests the MsgReject API against a protocol version before the version which introduced it (RejectVersion).
 func TestRejectBeforeAdded(
 	t *testing.T) {
-
 
 	// Use the protocol version just prior to RejectVersion.
 	pver := RejectVersion - 1
@@ -178,11 +175,9 @@ func TestRejectBeforeAdded(
 	}
 }
 
-
 // TestRejectCrossProtocol tests the MsgReject API when encoding with the latest protocol version and decoded with a version before the version which introduced it (RejectVersion).
 func TestRejectCrossProtocol(
 	t *testing.T) {
-
 
 	// Create reject message data.
 	rejCommand := (&MsgBlock{}).Command()
@@ -221,7 +216,6 @@ func TestRejectCrossProtocol(
 		t.Errorf("Should not get same reject hash for cross protocol")
 	}
 }
-
 
 // TestRejectWire tests the MsgReject wire encode and decode for various protocol versions.
 func TestRejectWire(
@@ -307,7 +301,6 @@ func TestRejectWire(
 		}
 	}
 }
-
 
 // TestRejectWireErrors performs negative tests against wire encode and decode of MsgReject to confirm error paths work correctly.
 func TestRejectWireErrors(

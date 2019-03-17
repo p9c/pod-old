@@ -412,7 +412,6 @@ func (f *fieldVal) Normalize() *fieldVal {
 // result.
 func (f *fieldVal) PutBytes(b *[32]byte) {
 
-
 	// Unpack the 256 total bits from the 10 uint32 words with a max of
 
 	// 26-bits per word.  This could be done with a couple of for loops,

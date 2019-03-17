@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	database "git.parallelcoin.io/dev/pod/pkg/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/db/ffldb"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	flags "github.com/jessevdk/go-flags"
 )
 

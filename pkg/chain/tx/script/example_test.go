@@ -4,17 +4,16 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 // This example demonstrates creating a script which pays to a bitcoin address. It also prints the created script hex and uses the DisasmString function to display the disassembled script.
 func ExamplePayToAddrScript() {
-
 
 	// Parse the address to send the coins to into a util.Address which is useful to ensure the accuracy of the address and determine the address type.  It is also required for the upcoming call to
 
@@ -50,7 +49,6 @@ func ExamplePayToAddrScript() {
 // This example demonstrates extracting information from a standard public key script.
 func ExampleExtractPkScriptAddrs() {
 
-
 	// Start with a standard pay-to-pubkey-hash script.
 	scriptHex := "76a914128004ff2fcaf13b2b91eb654b1dc2b674f7ec6188ac"
 	script, err := hex.DecodeString(scriptHex)
@@ -81,7 +79,6 @@ func ExampleExtractPkScriptAddrs() {
 
 // This example demonstrates manually creating and signing a redeem transaction.
 func ExampleSignTxOutput() {
-
 
 	// Ordinarily the private key would come from whatever storage mechanism is being used, but for this example just hard code it.
 	privKeyBytes, err := hex.DecodeString("22a47fa09a223f2aa079edf85a7c2" +

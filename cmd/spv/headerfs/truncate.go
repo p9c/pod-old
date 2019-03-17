@@ -21,7 +21,6 @@ func (h *headerStore) singleTruncate() error {
 	}
 	fileSize := fileInfo.Size()
 
-
 	// Next, we'll determine the number of bytes we need to truncate from
 
 	// the end of the file.
@@ -34,7 +33,6 @@ func (h *headerStore) singleTruncate() error {
 	default:
 		return fmt.Errorf("unknown index type: %v", h.indexType)
 	}
-
 
 	// Finally, we'll use both of these values to calculate the new size of
 

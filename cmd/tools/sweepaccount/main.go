@@ -10,16 +10,16 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"git.parallelcoin.io/dev/pod/pkg/util/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config/params"
-	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/author"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
+	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txauthor "git.parallelcoin.io/dev/pod/pkg/chain/tx/author"
+	txrules "git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	cfgutil "git.parallelcoin.io/dev/pod/pkg/util/config"
 	"github.com/jessevdk/go-flags"
 )
 

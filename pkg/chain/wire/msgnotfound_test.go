@@ -6,10 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestNotFound tests the MsgNotFound API.
 func TestNotFound(
@@ -56,11 +55,9 @@ func TestNotFound(
 	}
 }
 
-
 // TestNotFoundWire tests the MsgNotFound wire encode and decode for various numbers of inventory vectors and protocol versions.
 func TestNotFoundWire(
 	t *testing.T) {
-
 
 	// Block 203707 hash.
 	hashStr := "3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc"
@@ -232,7 +229,6 @@ func TestNotFoundWire(
 		}
 	}
 }
-
 
 // TestNotFoundWireErrors performs negative tests against wire encode and decode of MsgNotFound to confirm error paths work correctly.
 func TestNotFoundWireErrors(

@@ -696,7 +696,6 @@ func NewVerifyTxOutProofCmd(
 }
 func init() {
 
-
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)
 	MustRegisterCmd("addnode", (*AddNodeCmd)(nil), flags)

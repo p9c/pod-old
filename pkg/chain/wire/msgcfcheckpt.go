@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 const (
@@ -17,11 +17,9 @@ const (
 	maxCFHeadersLen = 100000
 )
 
-
 // ErrInsaneCFHeaderCount signals that we were asked to decode an unreasonable number of cfilter headers.
 var ErrInsaneCFHeaderCount = errors.New(
 	"refusing to decode unreasonable number of filter headers")
-
 
 // MsgCFCheckpt implements the Message interface and represents a bitcoin cfcheckpt message.  It is used to deliver committed filter header information in response to a getcfcheckpt message (MsgGetCFCheckpt). See MsgGetCFCheckpt for details on requesting the headers.
 type MsgCFCheckpt struct {
@@ -29,7 +27,6 @@ type MsgCFCheckpt struct {
 	StopHash      chainhash.Hash
 	FilterHeaders []*chainhash.Hash
 }
-
 
 // AddCFHeader adds a new committed filter header to the message.
 func (msg *MsgCFCheckpt) AddCFHeader(header *chainhash.Hash) error {
@@ -42,7 +39,6 @@ func (msg *MsgCFCheckpt) AddCFHeader(header *chainhash.Hash) error {
 	msg.FilterHeaders = append(msg.FilterHeaders, header)
 	return nil
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgCFCheckpt) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
@@ -83,7 +79,6 @@ func (msg *MsgCFCheckpt) BtcDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgCFCheckpt) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 
@@ -114,7 +109,6 @@ func (msg *MsgCFCheckpt) BtcEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 	return nil
 }
 
-
 // Deserialize decodes a filter header from r into the receiver using a format that is suitable for long-term storage such as a database. This function differs from BtcDecode in that BtcDecode decodes from the bitcoin wire protocol as it was sent across the network.  The wire encoding can technically differ depending on the protocol version and doesn't even really need to match the format of a stored filter header at all. As of the time this comment was written, the encoded filter header is the same in both instances, but there is a distinct difference and separating the two allows the API to be flexible enough to deal with changes.
 func (msg *MsgCFCheckpt) Deserialize(r io.Reader) error {
 
@@ -122,12 +116,10 @@ func (msg *MsgCFCheckpt) Deserialize(r io.Reader) error {
 	return msg.BtcDecode(r, 0, BaseEncoding)
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgCFCheckpt) Command() string {
 	return CmdCFCheckpt
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver. This is part of the Message interface implementation.
 func (msg *MsgCFCheckpt) MaxPayloadLength(pver uint32) uint32 {
@@ -135,7 +127,6 @@ func (msg *MsgCFCheckpt) MaxPayloadLength(pver uint32) uint32 {
 	// Message size depends on the blockchain height, so return general limit for all messages.
 	return MaxMessagePayload
 }
-
 
 // NewMsgCFCheckpt returns a new bitcoin cfheaders message that conforms to the Message interface. See MsgCFCheckpt for details.
 func NewMsgCFCheckpt(

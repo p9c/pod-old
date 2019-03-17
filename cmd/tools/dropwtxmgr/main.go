@@ -9,10 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
 	flags "github.com/jessevdk/go-flags"
 )
 

@@ -4,9 +4,9 @@ import (
 	"sync/atomic"
 
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/chain/sync"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	netsync "git.parallelcoin.io/dev/pod/pkg/chain/sync"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/peer"
 	"git.parallelcoin.io/dev/pod/pkg/util"

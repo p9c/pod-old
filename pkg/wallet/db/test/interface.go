@@ -7,7 +7,7 @@ import (
 	"os"
 	"reflect"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // errSubTestFail is used to signal that a sub test returned false.
@@ -134,7 +134,6 @@ func testReadWriteBucketInterface(
 		return false
 	}
 
-
 	// Iterate all of the keys using ForEach while making sure the
 
 	// stored values are the expected values.
@@ -162,7 +161,6 @@ func testReadWriteBucketInterface(
 		return false
 	}
 
-
 	// Ensure all keys were iterated.
 	for k := range keyValues {
 		if _, ok := keysFound[k]; !ok {
@@ -171,7 +169,6 @@ func testReadWriteBucketInterface(
 			return false
 		}
 	}
-
 
 	// Delete the keys and ensure they were deleted.
 	if !testDeleteValues(tc, bucket, keyValues) {
@@ -182,7 +179,6 @@ func testReadWriteBucketInterface(
 
 		return false
 	}
-
 
 	// Ensure creating a new bucket works as expected.
 	testBucketName := []byte("testbucket")
@@ -196,7 +192,6 @@ func testReadWriteBucketInterface(
 		return false
 	}
 
-
 	// Ensure creating a bucket that already exists fails with the
 
 	// expected error.
@@ -206,7 +201,6 @@ func testReadWriteBucketInterface(
 			"want %v", err, wantErr)
 		return false
 	}
-
 
 	// Ensure CreateBucketIfNotExists returns an existing bucket.
 	testBucket, err = bucket.CreateBucketIfNotExists(testBucketName)
@@ -220,14 +214,12 @@ func testReadWriteBucketInterface(
 		return false
 	}
 
-
 	// Ensure retrieving and existing bucket works as expected.
 	testBucket = bucket.NestedReadWriteBucket(testBucketName)
 	if !testNestedReadWriteBucket(tc, testBucket) {
 
 		return false
 	}
-
 
 	// Ensure deleting a bucket works as intended.
 	if err := bucket.DeleteNestedBucket(testBucketName); err != nil {
@@ -240,7 +232,6 @@ func testReadWriteBucketInterface(
 		return false
 	}
 
-
 	// Ensure deleting a bucket that doesn't exist returns the
 
 	// expected error.
@@ -250,7 +241,6 @@ func testReadWriteBucketInterface(
 			"want %v", err, wantErr)
 		return false
 	}
-
 
 	// Ensure CreateBucketIfNotExists creates a new bucket when
 
@@ -265,7 +255,6 @@ func testReadWriteBucketInterface(
 
 		return false
 	}
-
 
 	// Delete the test bucket to avoid leaving it around for future
 
@@ -286,7 +275,6 @@ func testReadWriteBucketInterface(
 func testManualTxInterface(
 	tc *testContext, bucketKey []byte) bool {
 	db := tc.db
-
 
 	// populateValues tests that populating values works as expected.
 
@@ -374,7 +362,6 @@ func testManualTxInterface(
 		return true
 	}
 
-
 	// checkValues starts a read-only transaction and checks that all of
 
 	// the key/value pairs specified in the expectedValues parameter match
@@ -409,7 +396,6 @@ func testManualTxInterface(
 
 		return true
 	}
-
 
 	// deleteValues starts a read-write transaction and deletes the keys
 
@@ -450,7 +436,6 @@ func testManualTxInterface(
 		return true
 	}
 
-
 	// keyValues holds the keys and values to use when putting values
 
 	// into a bucket.
@@ -459,7 +444,6 @@ func testManualTxInterface(
 		"umtxkey2": "foo2",
 		"umtxkey3": "foo3",
 	}
-
 
 	// Ensure that attempting populating the values using a read-only
 
@@ -473,7 +457,6 @@ func testManualTxInterface(
 		return false
 	}
 
-
 	// Ensure that attempting populating the values using a read-write
 
 	// transaction and then rolling it back yields the expected values.
@@ -486,7 +469,6 @@ func testManualTxInterface(
 		return false
 	}
 
-
 	// Ensure that attempting populating the values using a read-write
 
 	// transaction and then committing it stores the expected values.
@@ -498,7 +480,6 @@ func testManualTxInterface(
 
 		return false
 	}
-
 
 	// Clean up the keys.
 	if !deleteValues(keyValues) {
@@ -540,7 +521,6 @@ func testNamespaceAndTxInterfaces(
 		return false
 	}
 
-
 	// keyValues holds the keys and values to use when putting values
 
 	// into a bucket.
@@ -549,7 +529,6 @@ func testNamespaceAndTxInterfaces(
 		"mtxkey2": "foo2",
 		"mtxkey3": "foo3",
 	}
-
 
 	// Test the bucket interface via a managed read-only transaction.
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
@@ -566,7 +545,6 @@ func testNamespaceAndTxInterfaces(
 		}
 		return false
 	}
-
 
 	// Test the bucket interface via a managed read-write transaction.
 
@@ -604,7 +582,6 @@ func testNamespaceAndTxInterfaces(
 		return false
 	}
 
-
 	// Ensure the values that should have not been stored due to the forced
 
 	// rollback above were not actually stored.
@@ -628,7 +605,6 @@ func testNamespaceAndTxInterfaces(
 		return false
 	}
 
-
 	// Store a series of values via a managed read-write transaction.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
 		rootBucket := tx.ReadWriteBucket(namespaceKeyBytes)
@@ -650,7 +626,6 @@ func testNamespaceAndTxInterfaces(
 		return false
 	}
 
-
 	// Ensure the values stored above were committed as expected.
 	err = walletdb.View(tc.db, func(tx walletdb.ReadTx) error {
 		rootBucket := tx.ReadBucket(namespaceKeyBytes)
@@ -671,7 +646,6 @@ func testNamespaceAndTxInterfaces(
 		}
 		return false
 	}
-
 
 	// Clean up the values stored above in a managed read-write transaction.
 	err = walletdb.Update(tc.db, func(tx walletdb.ReadWriteTx) error {
@@ -743,7 +717,6 @@ func testAdditionalErrors(
 		return false
 	}
 
-
 	// Ensure that attempting to rollback or commit a transaction that is
 
 	// already closed returns the expected error.
@@ -783,12 +756,10 @@ func TestInterface(
 	defer os.Remove(dbPath)
 	defer db.Close()
 
-
 	// Run all of the interface tests against the database.
 
 	// Create a test context to pass around.
 	context := testContext{t: t, db: db}
-
 
 	// Create a namespace and test the interface for it.
 	if !testNamespaceAndTxInterfaces(&context, "ns1") {
@@ -796,13 +767,11 @@ func TestInterface(
 		return
 	}
 
-
 	// Create a second namespace and test the interface for it.
 	if !testNamespaceAndTxInterfaces(&context, "ns2") {
 
 		return
 	}
-
 
 	// Check a few more error conditions not covered elsewhere.
 	if !testAdditionalErrors(&context) {

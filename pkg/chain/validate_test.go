@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
 // TestSequenceLocksActive tests the SequenceLockActive function to ensure it
@@ -57,7 +57,6 @@ func TestSequenceLocksActive(
 // ensure it fails.
 func TestCheckConnectBlockTemplate(
 	t *testing.T) {
-
 
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("checkconnectblocktemplate",
@@ -171,7 +170,6 @@ func TestCheckBlockSanity(
 // and handled properly.
 func TestCheckSerializedHeight(
 	t *testing.T) {
-
 
 	// Create an empty coinbase template to be used in the tests below.
 	coinbaseOutpoint := wire.NewOutPoint(&chainhash.Hash{}, math.MaxUint32)

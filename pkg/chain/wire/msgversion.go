@@ -8,14 +8,11 @@ import (
 	"time"
 )
 
-
 // MaxUserAgentLen is the maximum allowed length for the user agent field in a version message (MsgVersion).
 const MaxUserAgentLen = 256
 
-
 // DefaultUserAgent for wire in the stack
 const DefaultUserAgent = "/btcwire:0.5.0/"
-
 
 // MsgVersion implements the Message interface and represents a bitcoin version message.  It is used for a peer to advertise itself as soon as an outbound connection is made.  The remote peer then uses this information along with its own to negotiate.  The remote peer must then respond with a version message of its own containing the negotiated values followed by a verack message (MsgVerAck).  This exchange must take place before any further communication is allowed to proceed.
 type MsgVersion struct {
@@ -48,19 +45,16 @@ type MsgVersion struct {
 	DisableRelayTx bool
 }
 
-
 // HasService returns whether the specified service is supported by the peer that generated the message.
 func (msg *MsgVersion) HasService(service ServiceFlag) bool {
 	return msg.Services&service == service
 }
-
 
 // AddService adds service as a supported service by the peer generating the message.
 func (msg *MsgVersion) AddService(service ServiceFlag) {
 
 	msg.Services |= service
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. The version message is special in that the protocol version hasn't been negotiated yet.  As a result, the pver field is ignored and any fields which are added in new versions are optional.  This also mean that r must be a *bytes.Buffer so the number of remaining bytes can be ascertained. This is part of the Message interface implementation.
 func (msg *MsgVersion) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
@@ -123,7 +117,6 @@ func (msg *MsgVersion) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) 
 	return nil
 }
 
-
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgVersion) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	err := validateUserAgent(msg.UserAgent)
@@ -166,12 +159,10 @@ func (msg *MsgVersion) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) 
 	return nil
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgVersion) Command() string {
 	return CmdVersion
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgVersion) MaxPayloadLength(pver uint32) uint32 {
@@ -188,7 +179,6 @@ func (msg *MsgVersion) MaxPayloadLength(pver uint32) uint32 {
 	return 33 + (maxNetAddressPayload(pver) * 2) + MaxVarIntPayload +
 		MaxUserAgentLen
 }
-
 
 // NewMsgVersion returns a new bitcoin version message that conforms to the Message interface using the passed parameters and defaults for the remaining fields.
 func NewMsgVersion(
@@ -209,7 +199,6 @@ func NewMsgVersion(
 	}
 }
 
-
 // validateUserAgent checks userAgent length against MaxUserAgentLen
 func validateUserAgent(
 	userAgent string) error {
@@ -220,7 +209,6 @@ func validateUserAgent(
 	}
 	return nil
 }
-
 
 // AddUserAgent adds a user agent to the user agent string for the version message.  The version string is not defined to any strict format, although it is recommended to use the form "major.minor.revision" e.g. "2.6.41".
 func (msg *MsgVersion) AddUserAgent(name string, version string,

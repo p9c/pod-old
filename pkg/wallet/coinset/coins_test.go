@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/coinset"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
 type TestCoin struct {

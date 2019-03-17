@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
-	vp "git.parallelcoin.io/dev/pod/pkg/wallet/votingpool"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
+	vp "git.parallelcoin.io/dev/pod/pkg/wallet/votingpool"
 )
 
 func TestLoadPoolAndDepositScript(
@@ -27,7 +27,6 @@ func TestLoadPoolAndDepositScript(
 	defer dbtx.Commit()
 	ns, _ := vp.TstRWNamespaces(dbtx)
 
-
 	// setup
 	poolID := "test"
 	pubKeys := vp.TstPubKeys[0:3]
@@ -36,13 +35,11 @@ func TestLoadPoolAndDepositScript(
 		t.Fatalf("Failed to create voting pool and series: %v", err)
 	}
 
-
 	// execute
 	script, err := vp.LoadAndGetDepositScript(ns, pool.Manager(), poolID, 1, 0, 0)
 	if err != nil {
 		t.Fatalf("Failed to get deposit script: %v", err)
 	}
-
 
 	// validate
 	strScript := hex.EncodeToString(script)
@@ -68,14 +65,12 @@ func TestLoadPoolAndCreateSeries(
 
 	poolID := "test"
 
-
 	// first time, the voting pool is created
 	pubKeys := vp.TstPubKeys[0:3]
 	err = vp.LoadAndCreateSeries(ns, pool.Manager(), 1, poolID, 1, 2, pubKeys)
 	if err != nil {
 		t.Fatalf("Creating voting pool and Creating series failed: %v", err)
 	}
-
 
 	// create another series where the voting pool is loaded this time
 	pubKeys = vp.TstPubKeys[3:6]
@@ -98,7 +93,6 @@ func TestLoadPoolAndReplaceSeries(
 	}
 	defer dbtx.Commit()
 	ns, _ := vp.TstRWNamespaces(dbtx)
-
 
 	// setup
 	poolID := "test"
@@ -127,7 +121,6 @@ func TestLoadPoolAndEmpowerSeries(
 	}
 	defer dbtx.Commit()
 	ns, addrmgrNs := vp.TstRWNamespaces(dbtx)
-
 
 	// setup
 	poolID := "test"
@@ -227,7 +220,6 @@ func TestDepositScriptAddressForHardenedPubKey(
 	if err := pool.CreateSeries(ns, 1, 1, 2, vp.TstPubKeys[0:3]); err != nil {
 		t.Fatalf("Cannot creates series")
 	}
-
 
 	// Ask for a DepositScriptAddress using an index for a hardened child, which should
 
@@ -637,14 +629,12 @@ func validateReplaceSeries(
 			testID, seriesID, pubKeys, replacedWith.pubKeys)
 	}
 
-
 	// Check number of required sigs.
 	if replacedWith.reqSigs != series.TstGetReqSigs() {
 
 		t.Errorf("Test #%d, series #%d: required signatures mismatch. Got %d, want %d",
 			testID, seriesID, series.TstGetReqSigs(), replacedWith.reqSigs)
 	}
-
 
 	// Check that the series is not empowered.
 	if series.IsEmpowered() {
@@ -881,12 +871,10 @@ func validateLoadAllSeries(
 
 	series := pool.Series(seriesData.id)
 
-
 	// Check that the series exists.
 	if series == nil {
 		t.Errorf("Test #%d, series #%d: series not found", testID, seriesData.id)
 	}
-
 
 	// Check that reqSigs is what we inserted.
 	if seriesData.reqSigs != series.TstGetReqSigs() {
@@ -894,7 +882,6 @@ func validateLoadAllSeries(
 		t.Errorf("Test #%d, series #%d: required sigs are different. Got %d, want %d",
 			testID, seriesData.id, series.TstGetReqSigs(), seriesData.reqSigs)
 	}
-
 
 	// Check that pubkeys and privkeys have the same length.
 	publicKeys := series.TstGetRawPublicKeys()
@@ -911,7 +898,6 @@ func validateLoadAllSeries(
 		t.Errorf("Test #%d, series #%d: public keys mismatch. Got %v, want %v",
 			testID, seriesData.id, sortedKeys, publicKeys)
 	}
-
 
 	// Check that privkeys are what we inserted (length and content).
 	foundPrivKeys := make([]string, 0, len(seriesData.pubKeys))
@@ -941,7 +927,6 @@ func reverse(
 
 func TestBranchOrderZero(
 	t *testing.T) {
-
 
 	// test change address branch (0) for 0-10 keys
 	for i := 0; i < 10; i++ {
@@ -1071,7 +1056,6 @@ func createTestPubKeys(
 func TestReverse(
 	t *testing.T) {
 
-
 	// Test the utility function that reverses a list of public keys.
 
 	// 11 is arbitrary.
@@ -1112,7 +1096,6 @@ func TestEmpowerSeriesNeuterFailed(
 		t.Fatalf("Failed to create series: %v", err)
 	}
 
-
 	// A private key with bad version (0xffffffff) will trigger an
 
 	// error in (k *ExtendedKey).Neuter and the associated error path
@@ -1129,7 +1112,6 @@ func TestDecryptExtendedKeyCannotCreateResultKey(
 
 	tearDown, _, pool := vp.TstCreatePool(t)
 	defer tearDown()
-
 
 	// the plaintext not being base58 encoded triggers the error
 	cipherText, err := pool.Manager().Encrypt(waddrmgr.CKTPublic, []byte("not-base58-encoded"))
@@ -1171,7 +1153,6 @@ func TestPoolChangeAddress(
 	addr := vp.TstNewChangeAddress(t, pool, 1, 0)
 	checkPoolAddress(t, addr, 1, 0, 0)
 
-
 	// When the series is not active, we should get an error.
 	pubKeys = vp.TstPubKeys[3:6]
 	vp.TstCreateSeries(t, dbtx, pool,
@@ -1197,7 +1178,6 @@ func TestPoolWithdrawalAddress(
 	vp.TstCreateSeries(t, dbtx, pool, []vp.TstSeriesDef{{ReqSigs: 2, PubKeys: pubKeys, SeriesID: 1}})
 	addr := vp.TstNewWithdrawalAddress(t, dbtx, pool, 1, 0, 0)
 	checkPoolAddress(t, addr, 1, 0, 0)
-
 
 	// When the requested address is not present in the set of used addresses
 

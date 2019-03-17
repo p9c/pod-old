@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/obsilp/rmnp"
 	"net"
 	"time"
+
+	"github.com/obsilp/rmnp"
 )
 
 var (

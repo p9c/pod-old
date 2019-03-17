@@ -7,10 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestBlock tests the MsgBlock API.
 func TestBlock(
@@ -67,11 +66,9 @@ func TestBlock(
 	}
 }
 
-
 // TestBlockTxHashes tests the ability to generate a slice of all transaction hashes from a block accurately.
 func TestBlockTxHashes(
 	t *testing.T) {
-
 
 	// Block 1, transaction 1 hash.
 	hashStr := "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098"
@@ -92,11 +89,9 @@ func TestBlockTxHashes(
 	}
 }
 
-
 // TestBlockHash tests the ability to generate the hash of a block accurately.
 func TestBlockHash(
 	t *testing.T) {
-
 
 	// Block 1 hash.
 	hashStr := "839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048"
@@ -113,7 +108,6 @@ func TestBlockHash(
 			spew.Sprint(blockHash), spew.Sprint(wantHash))
 	}
 }
-
 
 // TestBlockWire tests the MsgBlock wire encode and decode for various numbers of transaction inputs and outputs and protocol versions.
 func TestBlockWire(
@@ -214,11 +208,9 @@ func TestBlockWire(
 	}
 }
 
-
 // TestBlockWireErrors performs negative tests against wire encode and decode of MsgBlock to confirm error paths work correctly.
 func TestBlockWireErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 60002 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(60002)
@@ -279,7 +271,6 @@ func TestBlockWireErrors(
 		}
 	}
 }
-
 
 // TestBlockSerialize tests MsgBlock serialize and deserialize.
 func TestBlockSerialize(
@@ -353,7 +344,6 @@ func TestBlockSerialize(
 	}
 }
 
-
 // TestBlockSerializeErrors performs negative tests against wire encode and decode of MsgBlock to confirm error paths work correctly.
 func TestBlockSerializeErrors(
 	t *testing.T) {
@@ -422,11 +412,9 @@ func TestBlockSerializeErrors(
 	}
 }
 
-
 // TestBlockOverflowErrors  performs tests to ensure deserializing blocks, which are intentionally crafted to use large values for the number of transactions are handled properly.  This could otherwise potentially be used as an attack vector.
 func TestBlockOverflowErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 70001 specifically here instead of the latest protocol version because the test data is using bytes encoded with that version.
 	pver := uint32(70001)
@@ -493,11 +481,9 @@ func TestBlockOverflowErrors(
 	}
 }
 
-
 // TestBlockSerializeSize performs tests to ensure the serialize size for various blocks is accurate.
 func TestBlockSerializeSize(
 	t *testing.T) {
-
 
 	// Block with no transactions.
 	noTxBlock := NewMsgBlock(&blockOne.Header)
@@ -522,7 +508,6 @@ func TestBlockSerializeSize(
 		}
 	}
 }
-
 
 // blockOne is the first block in the mainnet block chain.
 var blockOne = MsgBlock{
@@ -582,7 +567,6 @@ var blockOne = MsgBlock{
 	},
 }
 
-
 // Block one serialized bytes.
 var blockOneBytes = []byte{
 	0x01, 0x00, 0x00, 0x00, // Version 1
@@ -624,7 +608,6 @@ var blockOneBytes = []byte{
 	0xac,                   // OP_CHECKSIG
 	0x00, 0x00, 0x00, 0x00, // Lock time
 }
-
 
 // Transaction location information for block one transactions.
 var blockOneTxLocs = []TxLoc{

@@ -5,12 +5,12 @@ package txauthor_test
 import (
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/util"
 	. "git.parallelcoin.io/dev/pod/pkg/chain/tx/author"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
+	txrules "git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/sizes"
+	txsizes "git.parallelcoin.io/dev/pod/pkg/chain/tx/sizes"
 )
 
 func p2pkhOutputs(

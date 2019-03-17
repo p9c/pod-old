@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"git.parallelcoin.io/dev/pod/pkg/chain/fork"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 

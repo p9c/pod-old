@@ -6,11 +6,11 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"git.parallelcoin.io/dev/pod/pkg/util/snacl"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	"git.parallelcoin.io/dev/pod/pkg/util/snacl"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // These constants define the serialized length for a given encrypted extended
@@ -290,7 +290,6 @@ func putSeriesRow(
 func deserializeSeriesRow(
 	serializedSeries []byte) (*dbSeriesRow, error) {
 
-
 	// The serialized series format is:
 
 	// <version><active><reqSigs><nKeys><pubKey1><privKey1>...<pubkeyN><privKeyN>
@@ -301,7 +300,6 @@ func deserializeSeriesRow(
 
 	// + seriesKeyLength * 2 * nKeys (1 for priv, 1 for pub)
 
-
 	// Given the above, the length of the serialized series should be
 
 	// at minimum the length of the constants.
@@ -310,7 +308,6 @@ func deserializeSeriesRow(
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
 
-
 	// Maximum number of public keys is 15 and the same for public keys
 
 	// this gives us an upper bound.
@@ -318,7 +315,6 @@ func deserializeSeriesRow(
 		str := fmt.Sprintf("serialized series is too long: %v", serializedSeries)
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
-
 
 	// Keeps track of the position of the next set of bytes to deserialize.
 	current := 0
@@ -341,7 +337,6 @@ func deserializeSeriesRow(
 	nKeys := bytesToUint32(serializedSeries[current : current+4])
 	current += 4
 
-
 	// Check to see if we have the right number of bytes to consume.
 	if len(serializedSeries) < current+int(nKeys)*seriesKeyLength*2 {
 		str := fmt.Sprintf("serialized series has not enough data: %v", serializedSeries)
@@ -350,7 +345,6 @@ func deserializeSeriesRow(
 		str := fmt.Sprintf("serialized series has too much data: %v", serializedSeries)
 		return nil, newError(ErrSeriesSerialization, str, nil)
 	}
-
 
 	// Deserialize the pubkey/privkey pairs.
 	row.pubKeysEncrypted = make([][]byte, nKeys)
@@ -375,7 +369,6 @@ func deserializeSeriesRow(
 // serializeSeriesRow serializes a dbSeriesRow struct into storage format.
 func serializeSeriesRow(
 	row *dbSeriesRow) ([]byte, error) {
-
 
 	// The serialized series format is:
 
@@ -575,7 +568,6 @@ func deserializeWithdrawal(
 		return nil, newError(ErrWithdrawalStorage, "cannot deserialize changeStart", err)
 	}
 	wInfo.changeStart = *cAddr
-
 
 	// TODO: Copy over row.Status.nextInputAddr. Not done because StartWithdrawal
 

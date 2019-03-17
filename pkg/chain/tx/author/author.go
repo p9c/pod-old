@@ -6,13 +6,13 @@ package txauthor
 import (
 	"errors"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	txrules "git.parallelcoin.io/dev/pod/pkg/chain/tx/rules"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/sizes"
+	txsizes "git.parallelcoin.io/dev/pod/pkg/chain/tx/sizes"
 	h "git.parallelcoin.io/dev/pod/pkg/util/helpers"
 )
 

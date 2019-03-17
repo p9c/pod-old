@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"strings"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 )
 
 // String returns the hostname of the DNS seed in human-readable form.
@@ -87,7 +87,6 @@ func newHashFromStr(
 	return hash
 }
 func init() {
-
 
 	// Register all default networks when the package is initialized.
 	mustRegister(&MainNetParams)

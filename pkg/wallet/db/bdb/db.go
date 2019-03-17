@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	bolt "github.com/coreos/bbolt"
 )
 
@@ -19,13 +19,11 @@ func convertErr(
 	case bolt.ErrInvalid:
 		return walletdb.ErrInvalid
 
-
 	// Transaction errors.
 	case bolt.ErrTxNotWritable:
 		return walletdb.ErrTxNotWritable
 	case bolt.ErrTxClosed:
 		return walletdb.ErrTxClosed
-
 
 	// Value/bucket errors.
 	case bolt.ErrBucketNotFound:
@@ -43,7 +41,6 @@ func convertErr(
 	case bolt.ErrIncompatibleValue:
 		return walletdb.ErrIncompatibleValue
 	}
-
 
 	// Return the original error if none of the above applies.
 	return err

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
@@ -18,7 +18,6 @@ const dbType = "bdb"
 func TestCreateOpenFail(
 	t *testing.T) {
 
-
 	// Ensure that attempting to open a database that doesn't exist returns
 
 	// the expected error.
@@ -28,7 +27,6 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
-
 
 	// Ensure that attempting to open a database with the wrong number of
 
@@ -42,7 +40,6 @@ func TestCreateOpenFail(
 		return
 	}
 
-
 	// Ensure that attempting to open a database with an invalid type for
 
 	// the first parameter returns the expected error.
@@ -54,7 +51,6 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
-
 
 	// Ensure that attempting to create a database with the wrong number of
 
@@ -68,7 +64,6 @@ func TestCreateOpenFail(
 		return
 	}
 
-
 	// Ensure that attempting to open a database with an invalid type for
 
 	// the first parameter returns the expected error.
@@ -80,7 +75,6 @@ func TestCreateOpenFail(
 			"want %v", err, wantErr)
 		return
 	}
-
 
 	// Ensure operations against a closed database return the expected
 
@@ -107,7 +101,6 @@ func TestCreateOpenFail(
 func TestPersistence(
 	t *testing.T) {
 
-
 	// Create a new database to run tests against.
 	dbPath := "persistencetest.db"
 	db, err := walletdb.Create(dbType, dbPath)
@@ -117,7 +110,6 @@ func TestPersistence(
 	}
 	defer os.Remove(dbPath)
 	defer db.Close()
-
 
 	// Create a namespace and put some values into it so they can be tested
 
@@ -147,7 +139,6 @@ func TestPersistence(
 		return
 	}
 
-
 	// Close and reopen the database to ensure the values persist.
 	db.Close()
 	db, err = walletdb.Open(dbType, dbPath)
@@ -156,7 +147,6 @@ func TestPersistence(
 		return
 	}
 	defer db.Close()
-
 
 	// Ensure the values previously stored in the 3rd namespace still exist
 

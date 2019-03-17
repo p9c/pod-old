@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"github.com/davecgh/go-spew/spew"
 )
@@ -55,7 +55,6 @@ func TestTx(
 func TestNewTxFromBytes(
 	t *testing.T) {
 
-
 	// Serialize the test transaction.
 	testTx := Block100000.Transactions[0]
 	var testTxBuf bytes.Buffer
@@ -83,7 +82,6 @@ func TestNewTxFromBytes(
 // TestTxErrors tests the error paths for the Tx API.
 func TestTxErrors(
 	t *testing.T) {
-
 
 	// Serialize the test transaction.
 	testTx := Block100000.Transactions[0]

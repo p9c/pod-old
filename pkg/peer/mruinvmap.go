@@ -9,7 +9,6 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
-
 // mruInventoryMap provides a concurrency safe map that is limited to a maximum number of items with eviction for the oldest entry when the limit is exceeded.
 type mruInventoryMap struct {
 	invMtx  sync.Mutex
@@ -17,7 +16,6 @@ type mruInventoryMap struct {
 	invList *list.List                     // O(1) insert, update, delete
 	limit   uint
 }
-
 
 // String returns the map as a human-readable string. This function is safe for concurrent access.
 func (m *mruInventoryMap) String() string {
@@ -37,7 +35,6 @@ func (m *mruInventoryMap) String() string {
 	return fmt.Sprintf("<%d>%s", m.limit, buf.String())
 }
 
-
 // Exists returns whether or not the passed inventory item is in the map. This function is safe for concurrent access.
 func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 	m.invMtx.Lock()
@@ -45,7 +42,6 @@ func (m *mruInventoryMap) Exists(iv *wire.InvVect) bool {
 	m.invMtx.Unlock()
 	return exists
 }
-
 
 // Add adds the passed inventory to the map and handles eviction of the oldest item if adding the new item would exceed the max limit.  Adding an existing item makes it the most recently used item. This function is safe for concurrent access.
 func (m *mruInventoryMap) Add(iv *wire.InvVect) {
@@ -84,7 +80,6 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 	m.invMap[*iv] = node
 }
 
-
 // Delete deletes the passed inventory item from the map (if it exists). This function is safe for concurrent access.
 func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 
@@ -95,7 +90,6 @@ func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 	}
 	m.invMtx.Unlock()
 }
-
 
 // newMruInventoryMap returns a new inventory map that is limited to the number of entries specified by limit.  When the number of entries exceeds the limit, the oldest (least recently used) entry will be removed to make room for the new entry.
 func newMruInventoryMap(

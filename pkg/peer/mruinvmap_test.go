@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
-
 
 // TestMruInventoryMap ensures the MruInventoryMap behaves as expected including limiting, eviction of least-recently used entries, specific entry removal, and existence tests.
 func TestMruInventoryMap(
 	t *testing.T) {
-
 
 	// Create a bunch of fake inventory vectors to use in testing the mru inventory code.
 	numInvVects := 10
@@ -104,11 +102,9 @@ testLoop:
 	}
 }
 
-
 // TestMruInventoryMapStringer tests the stringized output for the MruInventoryMap type.
 func TestMruInventoryMapStringer(
 	t *testing.T) {
-
 
 	// Create a couple of fake inventory vectors to use in testing the mru inventory stringer code.
 	hash1 := &chainhash.Hash{0x01}
@@ -131,11 +127,9 @@ func TestMruInventoryMapStringer(
 	}
 }
 
-
 // BenchmarkMruInventoryList performs basic benchmarks on the most recently used inventory handling.
 func BenchmarkMruInventoryList(
 	b *testing.B) {
-
 
 	// Create a bunch of fake inventory vectors to use in benchmarking the mru inventory code.
 	b.StopTimer()

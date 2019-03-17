@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 )
 
@@ -117,7 +117,6 @@ func BuildMerkleTreeStore(
 // ExtractWitnessCommitment attempts to locate, and return the witness commitment for a block. The witness commitment is of the form: SHA256(witness root || witness nonce). The function additionally returns a boolean indicating if the witness root was located within any of the txOut's in the passed transaction. The witness commitment is stored as the data push for an OP_RETURN with special magic bytes to aide in location.
 func ExtractWitnessCommitment(
 	tx *util.Tx) ([]byte, bool) {
-
 
 	// The witness commitment *must* be located within one of the coinbase transaction's outputs.
 	if !IsCoinBase(tx) {

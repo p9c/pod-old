@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
@@ -85,7 +85,6 @@ var (
 
 	// TargetTimespan is the base for adjustment
 	TargetTimespan = Interval * TargetTimePerBlock
-
 
 	// TestnetInterval is the number of blocks in the averaging window
 	TestnetInterval int64 = 100

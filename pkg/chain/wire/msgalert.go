@@ -6,7 +6,6 @@ import (
 	"io"
 )
 
-
 // MsgAlert contains a payload and a signature:
 
 //        ===============================================
@@ -106,14 +105,11 @@ import (
 // Now we can define bounds on Alert size, SetCancel and SetSubVer Fixed size of the alert payload
 const fixedAlertSize = 45
 
-
 // maxSignatureSize is the max size of an ECDSA signature. NOTE: Since this size is fixed and < 255, the size of VarInt required = 1.
 const maxSignatureSize = 72
 
-
 // maxAlertSize is the maximum size an alert. MessagePayload = VarInt(Alert) + Alert + VarInt(Signature) + Signature MaxMessagePayload = maxAlertSize + max(VarInt) + maxSignatureSize + 1
 const maxAlertSize = MaxMessagePayload - maxSignatureSize - MaxVarIntPayload - 1
-
 
 // maxCountSetCancel is the maximum number of cancel IDs that could possibly fit into a maximum size alert.
 
@@ -123,7 +119,6 @@ const maxAlertSize = MaxMessagePayload - maxSignatureSize - MaxVarIntPayload - 1
 
 // x = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1) / 4
 const maxCountSetCancel = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1) / 4
-
 
 // maxCountSetSubVer is the maximum number of subversions that could possibly fit into a maximum size alert.
 
@@ -137,7 +132,6 @@ const maxCountSetCancel = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1)
 
 // subversion would typically be something like "/Satoshi:0.7.2/" (15 bytes) so assuming < 255 bytes, sizeOf(string) = sizeOf(uint8) + 255 = 256
 const maxCountSetSubVer = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1) / 256
-
 
 // Alert contains the data deserialized from the MsgAlert payload.
 type Alert struct {
@@ -181,7 +175,6 @@ type Alert struct {
 	// Reserved
 	Reserved string
 }
-
 
 // Serialize encodes the alert to w using the alert protocol encoding format.
 func (alert *Alert) Serialize(w io.Writer, pver uint32) error {
@@ -240,7 +233,6 @@ func (alert *Alert) Serialize(w io.Writer, pver uint32) error {
 	}
 	return WriteVarString(w, pver, alert.Reserved)
 }
-
 
 // Deserialize decodes from r into the receiver using the alert protocol encoding format.
 func (alert *Alert) Deserialize(r io.Reader, pver uint32) error {
@@ -307,7 +299,6 @@ func (alert *Alert) Deserialize(r io.Reader, pver uint32) error {
 	return err
 }
 
-
 // NewAlert returns an new Alert with values provided.
 func NewAlert(
 	version int32, relayUntil int64, expiration int64,
@@ -331,7 +322,6 @@ func NewAlert(
 	}
 }
 
-
 // NewAlertFromPayload returns an Alert with values deserialized from the serialized payload.
 func NewAlertFromPayload(
 	serializedPayload []byte, pver uint32) (*Alert, error) {
@@ -345,7 +335,6 @@ func NewAlertFromPayload(
 	return &alert, nil
 }
 
-
 // MsgAlert  implements the Message interface and defines a bitcoin alert message. This is a signed message that provides notifications that the client should display if the signature matches the key.  bitcoind/bitcoin-qt only checks against a signature from the core developers.
 type MsgAlert struct {
 
@@ -358,7 +347,6 @@ type MsgAlert struct {
 	// Deserialized Payload
 	Payload *Alert
 }
-
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.
 func (msg *MsgAlert) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
@@ -376,7 +364,6 @@ func (msg *MsgAlert) BtcDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 		"alert signature")
 	return err
 }
-
 
 // BtcEncode encodes the receiver to w using the bitcoin protocol encoding. This is part of the Message interface implementation.
 func (msg *MsgAlert) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
@@ -408,12 +395,10 @@ func (msg *MsgAlert) BtcEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 	return WriteVarBytes(w, pver, msg.Signature)
 }
 
-
 // Command returns the protocol command string for the message.  This is part of the Message interface implementation.
 func (msg *MsgAlert) Command() string {
 	return CmdAlert
 }
-
 
 // MaxPayloadLength returns the maximum length the payload can be for the receiver.  This is part of the Message interface implementation.
 func (msg *MsgAlert) MaxPayloadLength(pver uint32) uint32 {
@@ -421,7 +406,6 @@ func (msg *MsgAlert) MaxPayloadLength(pver uint32) uint32 {
 	// Since this can vary depending on the message, make it the max size allowed.
 	return MaxMessagePayload
 }
-
 
 // NewMsgAlert returns a new bitcoin alert message that conforms to the Message interface.  See MsgAlert for details.
 func NewMsgAlert(

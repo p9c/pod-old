@@ -1,7 +1,7 @@
 package mempool
 
 import (
-	"git.parallelcoin.io/dev/pod/pkg/chain"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 )
 
@@ -373,7 +373,6 @@ func calcHashOutputs(
 func calcWitnessSignatureHash(
 	subScript []parsedOpcode, sigHashes *TxSigHashes,
 	hashType SigHashType, tx *wire.MsgTx, idx int, amt int64) ([]byte, error) {
-
 
 	// As a sanity check, ensure the passed input index for the transaction is valid.
 	if idx > len(tx.TxIn)-1 {

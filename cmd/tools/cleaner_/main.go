@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
 	// "regexp"
 	"sort"
 	"strings"
@@ -20,8 +21,8 @@ type alias int
 
 var fset = token.NewFileSet()
 
-func (*alias) String(p1, p2 int,bb string) string {
-return ""
+func (*alias) String(p1, p2 int, bb string) string {
+	return ""
 }
 
 // func liner(

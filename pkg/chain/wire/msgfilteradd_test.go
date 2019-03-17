@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-
 // TestFilterAddLatest tests the MsgFilterAdd API against the latest protocol version.
 func TestFilterAddLatest(
 	t *testing.T) {
@@ -48,7 +47,6 @@ func TestFilterAddLatest(
 	}
 }
 
-
 // TestFilterAddCrossProtocol tests the MsgFilterAdd API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestFilterAddCrossProtocol(
 	t *testing.T) {
@@ -82,7 +80,6 @@ func TestFilterAddCrossProtocol(
 	}
 }
 
-
 // TestFilterAddMaxDataSize tests the MsgFilterAdd API maximum data size.
 func TestFilterAddMaxDataSize(
 	t *testing.T) {
@@ -106,7 +103,6 @@ func TestFilterAddMaxDataSize(
 			"have %v", msg)
 	}
 }
-
 
 // TestFilterAddWireErrors performs negative tests against wire encode and decode of MsgFilterAdd to confirm error paths work correctly.
 func TestFilterAddWireErrors(

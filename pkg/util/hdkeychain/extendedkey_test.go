@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 )
 
 // TestBIP0032Vectors tests the vectors provided by [BIP32] to ensure the derivation works as intended.

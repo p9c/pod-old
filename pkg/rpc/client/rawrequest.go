@@ -7,17 +7,14 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
-
 // FutureRawResult is a future promise to deliver the result of a RawRequest RPC invocation (or an applicable error).
 type FutureRawResult chan *response
-
 
 // Receive waits for the response promised by the future and returns the raw response, or an error if the request was unsuccessful.
 func (r FutureRawResult) Receive() (js.RawMessage, error) {
 
 	return receiveFuture(r)
 }
-
 
 // RawRequestAsync returns an instance of a type that can be used to get the result of a custom RPC request at some future time by invoking the Receive function on the returned instance. See RawRequest for the blocking version and more details.
 func (c *Client) RawRequestAsync(method string, params []js.RawMessage) FutureRawResult {
@@ -57,7 +54,6 @@ func (c *Client) RawRequestAsync(method string, params []js.RawMessage) FutureRa
 	c.sendRequest(jReq)
 	return responseChan
 }
-
 
 // RawRequest allows the caller to send a raw or custom request to the server. This method may be used to send and receive requests and responses for requests that are not handled by this client package, or to proxy partially unmarshaled requests to another JSON-RPC server if a request cannot be handled directly.
 func (c *Client) RawRequest(method string, params []js.RawMessage) (js.RawMessage, error) {

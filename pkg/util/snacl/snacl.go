@@ -1,4 +1,3 @@
-
 // Copyright (c) 2014-2017 The btcsuite developers
 
 package snacl
@@ -21,14 +20,12 @@ var (
 	prng = rand.Reader
 )
 
-
 // Error types and messages.
 var (
 	ErrInvalidPassword = errors.New("invalid password")
 	ErrMalformed       = errors.New("malformed data")
 	ErrDecryptFailed   = errors.New("unable to decrypt")
 )
-
 
 // Various constants needed for encryption scheme.
 const (
@@ -42,12 +39,10 @@ const (
 	DefaultP  = 1
 )
 
-
 // CryptoKey represents a secret key which can be used to encrypt and decrypt
 
 // data.
 type CryptoKey [KeySize]byte
-
 
 // Encrypt encrypts the passed data.
 func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
@@ -60,7 +55,6 @@ func (ck *CryptoKey) Encrypt(in []byte) ([]byte, error) {
 	blob := secretbox.Seal(nil, in, &nonce, (*[KeySize]byte)(ck))
 	return append(nonce[:], blob...), nil
 }
-
 
 // Decrypt decrypts the passed data.  The must be the output of the Encrypt
 
@@ -83,7 +77,6 @@ func (ck *CryptoKey) Decrypt(in []byte) ([]byte, error) {
 	return opened, nil
 }
 
-
 // Zero clears the key by manually zeroing all memory.  This is for security
 
 // conscience application which wish to zero the memory after they've used it
@@ -95,7 +88,6 @@ func (ck *CryptoKey) Zero() {
 
 	zero.Bytea32((*[KeySize]byte)(ck))
 }
-
 
 // GenerateCryptoKey generates a new crypotgraphically random key.
 func GenerateCryptoKey() (*CryptoKey, error) {
@@ -109,7 +101,6 @@ func GenerateCryptoKey() (*CryptoKey, error) {
 	return &key, nil
 }
 
-
 // Parameters are not secret and can be stored in plain text.
 type Parameters struct {
 	Salt   [KeySize]byte
@@ -119,7 +110,6 @@ type Parameters struct {
 	P      int
 }
 
-
 // SecretKey houses a crypto key and the parameters needed to derive it from a
 
 // passphrase.  It should only be used in memory.
@@ -127,7 +117,6 @@ type SecretKey struct {
 	Key        *CryptoKey
 	Parameters Parameters
 }
-
 
 // deriveKey fills out the Key field.
 func (sk *SecretKey) deriveKey(password *[]byte) error {
@@ -141,7 +130,6 @@ func (sk *SecretKey) deriveKey(password *[]byte) error {
 	}
 	copy(sk.Key[:], key)
 	zero.Bytes(key)
-
 
 	// I'm not a fan of forced garbage collections, but scrypt allocates a
 
@@ -159,13 +147,11 @@ func (sk *SecretKey) deriveKey(password *[]byte) error {
 	return nil
 }
 
-
 // Marshal returns the Parameters field marshalled into a format suitable for
 
 // storage.  This result of this can be stored in clear text.
 func (sk *SecretKey) Marshal() []byte {
 	params := &sk.Parameters
-
 
 	// The marshalled format for the the params is as follows:
 
@@ -190,7 +176,6 @@ func (sk *SecretKey) Marshal() []byte {
 	return marshalled
 }
 
-
 // Unmarshal unmarshalls the parameters needed to derive the secret key from a
 
 // passphrase into sk.
@@ -198,7 +183,6 @@ func (sk *SecretKey) Unmarshal(marshalled []byte) error {
 	if sk.Key == nil {
 		sk.Key = (*CryptoKey)(&[KeySize]byte{})
 	}
-
 
 	// The marshalled format for the the params is as follows:
 
@@ -225,7 +209,6 @@ func (sk *SecretKey) Unmarshal(marshalled []byte) error {
 	return nil
 }
 
-
 // Zero zeroes the underlying secret key while leaving the parameters intact.
 
 // This effectively makes the key unusable until it is derived again via the
@@ -235,7 +218,6 @@ func (sk *SecretKey) Zero() {
 
 	sk.Key.Zero()
 }
-
 
 // DeriveKey derives the underlying secret key and ensures it matches the
 
@@ -247,7 +229,6 @@ func (sk *SecretKey) DeriveKey(password *[]byte) error {
 		return err
 	}
 
-
 	// verify password
 	digest := sha256.Sum256(sk.Key[:])
 	if subtle.ConstantTimeCompare(digest[:], sk.Parameters.Digest[:]) != 1 {
@@ -257,20 +238,17 @@ func (sk *SecretKey) DeriveKey(password *[]byte) error {
 	return nil
 }
 
-
 // Encrypt encrypts in bytes and returns a JSON blob.
 func (sk *SecretKey) Encrypt(in []byte) ([]byte, error) {
 
 	return sk.Key.Encrypt(in)
 }
 
-
 // Decrypt takes in a JSON blob and returns it's decrypted form.
 func (sk *SecretKey) Decrypt(in []byte) ([]byte, error) {
 
 	return sk.Key.Decrypt(in)
 }
-
 
 // NewSecretKey returns a SecretKey structure based on the passed parameters.
 func NewSecretKey(
@@ -289,13 +267,11 @@ func NewSecretKey(
 		return nil, err
 	}
 
-
 	// derive key
 	err = sk.deriveKey(password)
 	if err != nil {
 		return nil, err
 	}
-
 
 	// store digest
 	sk.Parameters.Digest = sha256.Sum256(sk.Key[:])

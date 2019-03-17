@@ -12,11 +12,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/base58"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 )
 
 const (
@@ -141,7 +141,6 @@ func (k *ExtendedKey) ParentFingerprint() uint32 {
 // When the index is greater to or equal than the HardenedKeyStart constant, the derived extended key will be a hardened extended key.  It is only possible to derive a hardended extended key from a private extended key.  Consequently, this function will return ErrDeriveHardFromPublic if a hardened child extended key is requested from a public extended key.
 // A hardened extended key is useful since, as previously mentioned, it requires a parent private extended key to derive.  In other words, normal child extended public keys can be derived from a parent public extended key (no knowledge of the parent private key) whereas hardened extended keys may not be. NOTE: There is an extremely small chance (< 1 in 2^127) the specific child index does not derive to a usable child.  The ErrInvalidChild error will be returned if this should occur, and the caller is expected to ignore the invalid child and simply increment to the next index.
 func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
-
 
 	// Prevent derivation of children beyond the max allowed depth.
 	if k.depth == maxUint8 {

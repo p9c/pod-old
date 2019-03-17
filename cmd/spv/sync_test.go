@@ -15,20 +15,20 @@ import (
 	"time"
 
 	"git.parallelcoin.io/dev/pod/cmd/node/integration/rpctest"
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
-	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
-	"git.parallelcoin.io/dev/pod/pkg/log"
-	"git.parallelcoin.io/dev/pod/pkg/rpc/client"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
-	"git.parallelcoin.io/dev/pod/pkg/util"
-	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/author"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	txauthor "git.parallelcoin.io/dev/pod/pkg/chain/tx/author"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/log"
+	rpcclient "git.parallelcoin.io/dev/pod/pkg/rpc/client"
+	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
+	"git.parallelcoin.io/dev/pod/pkg/util"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	"git.parallelcoin.io/dev/pod/pkg/util/gcs/builder"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	_ "git.parallelcoin.io/dev/pod/pkg/wallet/db/bdb"
 )
 
 var (
@@ -46,7 +46,6 @@ var (
 	syncTimeout = 30 * time.Second
 	syncUpdate  = time.Second
 
-
 	// Don't set this too high for your platform, or the tests will miss
 
 	// messages.
@@ -58,7 +57,6 @@ var (
 	// messages.
 	numQueryThreads = 20
 	queryOptions    = []neutrino.QueryOption{}
-
 
 	// The logged sequence of events we want to see. The value of i
 
@@ -192,12 +190,10 @@ var (
 		return log
 	}()
 
-
 	// rescanMtx locks all the variables to which the rescan goroutine's
 
 	// notifications write.
 	rescanMtx sync.RWMutex
-
 
 	// gotLog is where we accumulate the event log from the rescan. Then we
 
@@ -206,12 +202,10 @@ var (
 	// happened as expected.
 	gotLog []byte
 
-
 	// curBlockHeight lets the rescan goroutine track where it thinks the
 
 	// chain is based on OnBlockConnected and OnBlockDisconnected.
 	curBlockHeight int32
-
 
 	// curFilteredBlockHeight lets the rescan goroutine track where it
 
@@ -219,7 +213,6 @@ var (
 
 	// OnFilteredBlockDisconnected.
 	curFilteredBlockHeight int32
-
 
 	// ourKnownTxsByBlock lets the rescan goroutine keep track of
 
@@ -230,7 +223,6 @@ var (
 	// OnRecvTx, and OnRedeemingTx.
 	ourKnownTxsByBlock = make(map[chainhash.Hash][]*util.Tx)
 
-
 	// ourKnownTxsByFilteredBlock lets the rescan goroutine keep track of
 
 	// transactions we're interested in that are in the blockchain we're
@@ -240,7 +232,6 @@ var (
 	// OnFilteredBlockDisconnected.
 	ourKnownTxsByFilteredBlock = make(map[chainhash.Hash][]*util.Tx)
 )
-
 
 // secSource is an implementation of btcwallet/txauthor/SecretsSource that
 
@@ -276,7 +267,6 @@ func (s *secSource) add(privKey *ec.PrivateKey) (util.Address, error) {
 	return addr, nil
 }
 
-
 // GetKey is required by the txscript.KeyDB interface
 func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 	error) {
@@ -288,7 +278,6 @@ func (s *secSource) GetKey(addr util.Address) (*ec.PrivateKey, bool,
 	return privKey, true, nil
 }
 
-
 // GetScript is required by the txscript.ScriptDB interface
 func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 
@@ -298,7 +287,6 @@ func (s *secSource) GetScript(addr util.Address) ([]byte, error) {
 	}
 	return *script, nil
 }
-
 
 // ChainParams is required by the SecretsSource interface
 func (s *secSource) ChainParams() *chaincfg.Params {
@@ -351,7 +339,6 @@ var testCases = []*syncTestCase{
 	},
 }
 
-
 // Make sure the client synchronizes with the correct node.
 func testInitialSync(
 	harness *neutrinoHarness, t *testing.T) {
@@ -361,7 +348,6 @@ func testInitialSync(
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 }
-
 
 // Variables used to track state between multiple rescan tests.
 var (
@@ -376,13 +362,11 @@ var (
 	ourOutPoint               wire.OutPoint
 )
 
-
 // testRescan tests several rescan modes. This should be broken up into
 
 // smaller tests.
 func testRescan(
 	harness *neutrinoHarness, t *testing.T) {
-
 
 	// Generate an address and send it some coins on the h1 chain. We use
 
@@ -454,7 +438,6 @@ func testRescan(
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
-
 	// Call GetUtxo for our output in tx1 to see if it's spent.
 	ourIndex := 1 << 30 // Should work on 32-bit systems
 	for i, txo := range tx1.TxOut {
@@ -493,7 +476,6 @@ func testRescan(
 func testStartRescan(
 	harness *neutrinoHarness, t *testing.T) {
 
-
 	// Start a rescan with notifications in another goroutine. We'll kill
 
 	// it with a quit channel at the end and make sure we got the expected
@@ -518,7 +500,6 @@ func testStartRescan(
 			" %d", numTXs)
 	}
 
-
 	// Generate 124 blocks on h1 to make sure it reorgs the other nodes.
 
 	// Ensure the ChainService instance stays caught up.
@@ -529,14 +510,12 @@ func testStartRescan(
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
-
 	// Connect/sync/disconnect h2 to make it reorg to the h1 chain.
 	err = csd([]*rpctest.Harness{harness.h1, harness.h2})
 	if err != nil {
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync h2 to h1: %s", err)
 	}
-
 
 	// Spend the outputs we sent ourselves over two blocks.
 	inSrc := func(tx wire.MsgTx) func(target util.Amount) (
@@ -576,7 +555,6 @@ func testStartRescan(
 			return
 		}
 	}
-
 
 	// Create another address to send to so we don't trip the rescan with
 
@@ -688,7 +666,6 @@ func testStartRescan(
 			" %d", numTXs)
 	}
 
-
 	// Update the filter with the second address, and we should have 2 more
 
 	// relevant transactions.
@@ -707,7 +684,6 @@ func testStartRescan(
 			" %d", numTXs)
 	}
 
-
 	// Generate a block with a nonstandard coinbase to generate a basic
 
 	// filter with 0 entries.
@@ -725,7 +701,6 @@ func testStartRescan(
 		checkErrChan(t, errChan)
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
-
 
 	// Check and make sure the previous UTXO is now spent.
 	spendReport, err := harness.svc.GetUtxo(
@@ -779,7 +754,6 @@ func fetchPrevInputScripts(
 func testRescanResults(
 	harness *neutrinoHarness, t *testing.T) {
 
-
 	// Generate 5 blocks on h2 and wait for ChainService to sync to the
 
 	// newly-best chain on h2. This includes the transactions sent via
@@ -801,7 +775,6 @@ func testRescanResults(
 		t.Fatalf("Wrong number of relevant transactions. Want: 2, got:"+
 			" %d", numTXs)
 	}
-
 
 	// Generate 7 blocks on h1 and wait for ChainService to sync to the
 
@@ -840,7 +813,6 @@ func testRescanResults(
 			gotLog[diffIndex:])
 	}
 
-
 	// Connect h1 and h2, wait for them to synchronize and check for the
 
 	// ChainService synchronization status.
@@ -860,7 +832,6 @@ func testRescanResults(
 		t.Fatalf("Couldn't sync ChainService: %s", err)
 	}
 
-
 	// Now generate a bunch of blocks on each while they're connected,
 
 	// triggering many tiny reorgs, and wait for sync again. The end result
@@ -879,7 +850,6 @@ func testRescanResults(
 		t.Fatalf("Couldn't sync h1 and h2: %s", err)
 	}
 
-
 	// We increase the timeout because running on Travis with race
 
 	// detection enabled can make this pretty slow.
@@ -897,7 +867,6 @@ func testRescanResults(
 		t.Fatalf("Rescan ended with error: %s", err)
 	}
 
-
 	// Immediately try to add a new update to to the rescan that was just
 
 	// shut down. This should fail as it is no longer running.
@@ -907,7 +876,6 @@ func testRescanResults(
 		t.Fatalf("Expected update call to fail, it did not")
 	}
 }
-
 
 // testRandomBlocks goes through all blocks in random order and ensures we can
 
@@ -942,7 +910,6 @@ func testRandomBlocks(
 		// Wait until there's room in the worker queue.
 		workerQueue <- struct{}{}
 		go func() {
-
 
 			// On exit, open a spot in workerQueue and tell the
 
@@ -1058,7 +1025,6 @@ func testRandomBlocks(
 				return
 			}
 
-
 			// Calculate basic filter from block.
 			calcFilter, err := builder.BuildBasicFilter(
 				haveBlock.MsgBlock(), inputScripts,
@@ -1156,7 +1122,6 @@ func testRandomBlocks(
 func TestNeutrinoSync(
 	t *testing.T) {
 
-
 	// Set up logging.
 	logger := log.NewBackend(os.Stdout)
 	chainLogger := logger.Logger("CHAIN")
@@ -1165,7 +1130,6 @@ func TestNeutrinoSync(
 	rpcLogger := logger.Logger("RPCC")
 	rpcLogger.SetLevel(logLevel)
 	rpcclient.UseLogger(rpcLogger)
-
 
 	// Create a btcd SimNet node and generate 800 blocks
 	h1, err := rpctest.New(
@@ -1184,7 +1148,6 @@ func TestNeutrinoSync(
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
-
 	// Create a second btcd SimNet node
 	h2, err := rpctest.New(
 		&chaincfg.SimNetParams, nil, []string{"--txindex"},
@@ -1197,7 +1160,6 @@ func TestNeutrinoSync(
 	if err != nil {
 		t.Fatalf("Couldn't set up harness: %s", err)
 	}
-
 
 	// Create a third btcd SimNet node and generate 1200 blocks
 	h3, err := rpctest.New(
@@ -1216,13 +1178,11 @@ func TestNeutrinoSync(
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
 
-
 	// Connect, sync, and disconnect h1 and h2
 	err = csd([]*rpctest.Harness{h1, h2})
 	if err != nil {
 		t.Fatalf("Couldn't connect/sync/disconnect h1 and h2: %s", err)
 	}
-
 
 	// Generate 300 blocks on the first node and 350 on the second
 	_, err = h1.Node.Generate(300)
@@ -1233,7 +1193,6 @@ func TestNeutrinoSync(
 	if err != nil {
 		t.Fatalf("Couldn't generate blocks: %s", err)
 	}
-
 
 	// Now we have a node with 1100 blocks (h1), 1150 blocks (h2), and
 
@@ -1255,7 +1214,6 @@ func TestNeutrinoSync(
 
 	// test.
 
-
 	// Copy parameters and insert checkpoints
 	modParams := chaincfg.SimNetParams
 	for _, height := range []int64{111, 333, 555, 777, 999} {
@@ -1270,7 +1228,6 @@ func TestNeutrinoSync(
 				Height: int32(height),
 			})
 	}
-
 
 	// Create a temporary directory, initialize an empty walletdb with an
 
@@ -1306,7 +1263,6 @@ func TestNeutrinoSync(
 	svc.Start()
 	defer svc.Stop()
 
-
 	// Create a test harness with the three nodes and the neutrino instance.
 	testHarness := &neutrinoHarness{h1, h2, h3, svc}
 
@@ -1317,7 +1273,6 @@ func TestNeutrinoSync(
 		})
 	}
 }
-
 
 // csd does a connect-sync-disconnect between nodes in order to support
 
@@ -1346,7 +1301,6 @@ func csd(
 	return rpctest.JoinNodes(harnesses, rpctest.Blocks)
 }
 
-
 // checkErrChan tries to read the passed error channel if possible and logs the
 
 // error it found, if any. This is useful to help troubleshoot any timeouts
@@ -1361,7 +1315,6 @@ func checkErrChan(
 	default:
 	}
 }
-
 
 // waitForSync waits for the ChainService to sync to the current chain state.
 func waitForSync(
@@ -1400,14 +1353,12 @@ func waitForSync(
 		}
 	}
 
-
 	// Check if we're current.
 	if !svc.IsCurrent() {
 
 		return fmt.Errorf("the ChainService doesn't see itself as " +
 			"current")
 	}
-
 
 	// Check if we have all of the cfheaders.
 	knownBasicHeader, err := correctSyncNode.Node.GetCFilterHeader(
@@ -1443,7 +1394,6 @@ func waitForSync(
 		t.Logf("Synced cfheaders to %d (%s)", haveBest.Height,
 			haveBest.Hash)
 	}
-
 
 	// At this point, we know we have good cfheaders. Now we wait for the
 
@@ -1485,7 +1435,6 @@ func waitForSync(
 		}
 		rescanMtx.RUnlock()
 	}
-
 
 	// At this point, we know the latest cfheader is stored in the
 
@@ -1546,7 +1495,6 @@ func waitForSync(
 	}
 	return nil
 }
-
 
 // startRescan starts a rescan in another goroutine, and logs all notifications
 
@@ -1665,7 +1613,6 @@ func startRescan(
 	return rescan, errChan
 }
 
-
 // checkRescanStatus returns the number of relevant transactions we currently
 
 // know about and the currently known height.
@@ -1697,7 +1644,6 @@ func checkRescanStatus() (int, int32, error) {
 	return txCount[0], curBlockHeight, nil
 }
 
-
 // banPeer bans and disconnects the requested harness from the ChainService
 
 // instance for BanDuration seconds.
@@ -1713,7 +1659,6 @@ func banPeer(
 		}
 	}
 }
-
 
 // goroutineDump returns a string with the current goroutine dump in order to
 

@@ -2,12 +2,13 @@ package wire
 
 import (
 	"bytes"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // TestAddr tests the MsgAddr API.
@@ -91,7 +92,6 @@ func TestAddr(
 // TestAddrWire tests the MsgAddr wire encode and decode for various numbers of addresses and protocol versions.
 func TestAddrWire(
 	t *testing.T) {
-
 
 	// A couple of NetAddresses to use for testing.
 	na := &NetAddress{

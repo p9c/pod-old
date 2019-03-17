@@ -2,11 +2,12 @@ package controller
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/dogeerf/rpcx"
 	"github.com/xtaci/kcp-go"
 	"golang.org/x/crypto/argon2"
-	"testing"
-	"time"
 )
 
 const cryptKey = "rpcx-key"

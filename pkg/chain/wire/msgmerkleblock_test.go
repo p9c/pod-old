@@ -8,10 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // TestMerkleBlock tests the MsgMerkleBlock API.
 func TestMerkleBlock(
@@ -105,11 +104,9 @@ func TestMerkleBlock(
 	}
 }
 
-
 // TestMerkleBlockCrossProtocol tests the MsgMerkleBlock API when encoding with the latest protocol version and decoding with BIP0031Version.
 func TestMerkleBlockCrossProtocol(
 	t *testing.T) {
-
 
 	// Block 1 header.
 	prevHash := &blockOne.Header.PrevBlock
@@ -135,7 +132,6 @@ func TestMerkleBlockCrossProtocol(
 			msg)
 	}
 }
-
 
 // TestMerkleBlockWire tests the MsgMerkleBlock wire encode and decode for various numbers of transaction hashes and protocol versions.
 func TestMerkleBlockWire(
@@ -195,11 +191,9 @@ func TestMerkleBlockWire(
 	}
 }
 
-
 // TestMerkleBlockWireErrors performs negative tests against wire encode and decode of MsgBlock to confirm error paths work correctly.
 func TestMerkleBlockWireErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 70001 specifically here instead of the latest because the test data is using bytes encoded with that protocol version.
 	pver := uint32(70001)
@@ -331,11 +325,9 @@ func TestMerkleBlockWireErrors(
 	}
 }
 
-
 // TestMerkleBlockOverflowErrors performs tests to ensure encoding and decoding merkle blocks that are intentionally crafted to use large values for the number of hashes and flags are handled properly.  This could otherwise potentially be used as an attack vector.
 func TestMerkleBlockOverflowErrors(
 	t *testing.T) {
-
 
 	// Use protocol version 70001 specifically here instead of the latest protocol version because the test data is using bytes encoded with that version.
 	pver := uint32(70001)
@@ -384,7 +376,6 @@ func TestMerkleBlockOverflowErrors(
 	}
 }
 
-
 // merkleBlockOne is a merkle block created from block one of the block chain where the first transaction matches.
 var merkleBlockOne = MsgMerkleBlock{
 	Header: BlockHeader{
@@ -416,7 +407,6 @@ var merkleBlockOne = MsgMerkleBlock{
 	},
 	Flags: []byte{0x80},
 }
-
 
 // merkleBlockOneBytes is the serialized bytes for a merkle block created from block one of the block chain where the first transaction matches.
 var merkleBlockOneBytes = []byte{

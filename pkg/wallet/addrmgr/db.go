@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 const (
@@ -143,9 +143,7 @@ var (
 	// nullVall is null byte used as a flag value in a bucket entry
 	nullVal = []byte{0}
 
-
 	// Bucket names.
-
 
 	// scopeSchemaBucket is the name of the bucket that maps a particular
 
@@ -153,7 +151,6 @@ var (
 
 	// particular branches during key derivation.
 	scopeSchemaBucketName = []byte("scope-schema")
-
 
 	// scopeBucketNme is the name of the top-level bucket within the
 
@@ -186,14 +183,12 @@ var (
 	// scopeBucket -> scope -> coinTypePubKey
 	scopeBucketName = []byte("scope")
 
-
 	// coinTypePrivKeyName is the name of the key within a particular scope
 
 	// bucket that stores the encrypted cointype private keys. Each scope
 
 	// within the database will have its own set of coin type keys.
 	coinTypePrivKeyName = []byte("ctpriv")
-
 
 	// coinTypePrivKeyName is the name of the key within a particular scope
 
@@ -202,7 +197,6 @@ var (
 	// will have its own set of coin type public keys.
 	coinTypePubKeyName = []byte("ctpub")
 
-
 	// acctBucketName is the bucket directly below the scope bucket in the
 
 	// hierarchy. This bucket stores all the information and indexes
@@ -210,14 +204,12 @@ var (
 	// relevant to an account.
 	acctBucketName = []byte("acct")
 
-
 	// addrBucketName is the name of the bucket that stores a mapping of
 
 	// pubkey hash to address type. This will be used to quickly determine
 
 	// if a given address is under our control.
 	addrBucketName = []byte("addr")
-
 
 	// addrAcctIdxBucketName is used to index account addresses Entries in
 
@@ -248,7 +240,6 @@ var (
 	// NewAddress
 	addrAcctIdxBucketName = []byte("addracctidx")
 
-
 	// acctNameIdxBucketName is used to create an index mapping an account
 
 	// name string to the corresponding account id.  The index needs to be
@@ -259,7 +250,6 @@ var (
 
 	// string => account_id
 	acctNameIdxBucketName = []byte("acctnameidx")
-
 
 	// acctIDIdxBucketName is used to create an index mapping an account id
 
@@ -272,24 +262,20 @@ var (
 	// account_id => string
 	acctIDIdxBucketName = []byte("acctididx")
 
-
 	// usedAddrBucketName is the name of the bucket that stores an
 
 	// addresses hash if the address has been used or not.
 	usedAddrBucketName = []byte("usedaddrs")
-
 
 	// meta is used to store meta-data about the address manager
 
 	// e.g. last account number
 	metaBucketName = []byte("meta")
 
-
 	// lastAccountName is used to store the metadata - last account
 
 	// in the manager
 	lastAccountName = []byte("lastaccount")
-
 
 	// mainBucketName is the name of the bucket that stores the encrypted
 
@@ -300,14 +286,12 @@ var (
 	// (encrypted), and also versioning information.
 	mainBucketName = []byte("main")
 
-
 	// masterHDPrivName is the name of the key that stores the master HD
 
 	// private key. This key is encrypted with the master private crypto
 
 	// encryption key. This resides under the main bucket.
 	masterHDPrivName = []byte("mhdpriv")
-
 
 	// masterHDPubName is the name of the key that stores the master HD
 
@@ -316,17 +300,14 @@ var (
 	// encryption key. This reside under the main bucket.
 	masterHDPubName = []byte("mhdpub")
 
-
 	// syncBucketName is the name of the bucket that stores the current
 
 	// sync state of the root manager.
 	syncBucketName = []byte("sync")
 
-
 	// Db related key names (main bucket).
 	mgrVersionName    = []byte("mgrver")
 	mgrCreateDateName = []byte("mgrcreated")
-
 
 	// Crypto related key names (main bucket).
 	masterPrivKeyName   = []byte("mpriv")
@@ -335,7 +316,6 @@ var (
 	cryptoPubKeyName    = []byte("cpub")
 	cryptoScriptKeyName = []byte("cscript")
 	watchingOnlyName    = []byte("watchonly")
-
 
 	// Sync related key names (sync bucket).
 	syncedToName   = []byte("syncedto")
@@ -534,7 +514,6 @@ func fetchMasterKeyParams(
 
 	bucket := ns.NestedReadBucket(mainBucketName)
 
-
 	// Load the master public key parameters.  Required.
 	val := bucket.Get(masterPubKeyName)
 	if val == nil {
@@ -544,7 +523,6 @@ func fetchMasterKeyParams(
 	}
 	pubParams := make([]byte, len(val))
 	copy(pubParams, val)
-
 
 	// Load the master private key parameters if they were stored.
 	var privParams []byte
@@ -652,7 +630,6 @@ func putMasterHDKeys(
 	// particular scope, and can insert directly within the main bucket.
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
-
 	// Now that we have the main bucket, we can directly store each of the
 
 	// relevant keys. If we're in watch only mode, then some or all of
@@ -687,7 +664,6 @@ func fetchMasterHDKeys(
 
 	var masterHDPrivEnc, masterHDPubEnc []byte
 
-
 	// First, we'll try to fetch the master private key. If this database
 
 	// is watch only, or the master has been neutered, then this won't be
@@ -717,7 +693,6 @@ func fetchCryptoKeys(
 
 	bucket := ns.NestedReadBucket(mainBucketName)
 
-
 	// Load the crypto public key parameters.  Required.
 	val := bucket.Get(cryptoPubKeyName)
 	if val == nil {
@@ -727,7 +702,6 @@ func fetchCryptoKeys(
 	pubKey := make([]byte, len(val))
 	copy(pubKey, val)
 
-
 	// Load the crypto private key parameters if they were stored.
 	var privKey []byte
 	val = bucket.Get(cryptoPrivKeyName)
@@ -735,7 +709,6 @@ func fetchCryptoKeys(
 		privKey = make([]byte, len(val))
 		copy(privKey, val)
 	}
-
 
 	// Load the crypto script key parameters if they were stored.
 	var scriptKey []byte
@@ -822,7 +795,6 @@ func putWatchingOnly(
 func deserializeAccountRow(
 	accountID []byte, serializedAccount []byte) (*dbAccountRow, error) {
 
-
 	// The serialized account format is:
 
 	//   <acctType><rdlen><rawdata>
@@ -830,7 +802,6 @@ func deserializeAccountRow(
 	//
 
 	// 1 byte acctType + 4 bytes raw data length + raw data
-
 
 	// Given the above, the length of the entry must be at a minimum
 
@@ -874,7 +845,6 @@ func serializeAccountRow(
 func deserializeDefaultAccountRow(
 	accountID []byte, row *dbAccountRow) (*dbDefaultAccountRow, error) {
 
-
 	// The serialized BIP0044 account raw data format is:
 
 	//   <encpubkeylen><encpubkey><encprivkeylen><encprivkey><nextextidx>
@@ -888,7 +858,6 @@ func deserializeDefaultAccountRow(
 	// privkey len + encrypted privkey + 4 bytes next external index +
 
 	// 4 bytes next internal index + 4 bytes name len + name
-
 
 	// Given the above, the length of the entry must be at a minimum
 
@@ -928,7 +897,6 @@ func deserializeDefaultAccountRow(
 func serializeDefaultAccountRow(
 	encryptedPubKey, encryptedPrivKey []byte,
 	nextExternalIndex, nextInternalIndex uint32, name string) []byte {
-
 
 	// The serialized BIP0044 account raw data format is:
 
@@ -1123,7 +1091,6 @@ func deleteAccountNameIndex(
 
 	bucket := scopedBucket.NestedReadWriteBucket(acctNameIdxBucketName)
 
-
 	// Delete the account name key
 	err = bucket.Delete(stringToBytes(name))
 	if err != nil {
@@ -1144,7 +1111,6 @@ func deleteAccountIDIndex(
 	}
 
 	bucket := scopedBucket.NestedReadWriteBucket(acctIDIdxBucketName)
-
 
 	// Delete the account id key
 	err = bucket.Delete(uint32ToBytes(account))
@@ -1168,7 +1134,6 @@ func putAccountNameIndex(
 
 	bucket := scopedBucket.NestedReadWriteBucket(acctNameIdxBucketName)
 
-
 	// Write the account number keyed by the account name.
 	err = bucket.Put(stringToBytes(name), uint32ToBytes(account))
 	if err != nil {
@@ -1189,7 +1154,6 @@ func putAccountIDIndex(
 	}
 
 	bucket := scopedBucket.NestedReadWriteBucket(acctIDIdxBucketName)
-
 
 	// Write the account number keyed by the account id.
 	err = bucket.Put(uint32ToBytes(account), stringToBytes(name))
@@ -1213,7 +1177,6 @@ func putAddrAccountIndex(
 
 	bucket := scopedBucket.NestedReadWriteBucket(addrAcctIdxBucketName)
 
-
 	// Write account keyed by address hash
 	err = bucket.Put(addrHash, uint32ToBytes(account))
 	if err != nil {
@@ -1224,7 +1187,6 @@ func putAddrAccountIndex(
 	if err != nil {
 		return err
 	}
-
 
 	// In account bucket, write a null value keyed by the address hash
 	err = bucket.Put(addrHash, nullVal)
@@ -1248,7 +1210,6 @@ func putAccountRow(
 
 	bucket := scopedBucket.NestedReadWriteBucket(acctBucketName)
 
-
 	// Write the serialized value keyed by the account number.
 	err = bucket.Put(uint32ToBytes(account), serializeAccountRow(row))
 	if err != nil {
@@ -1269,7 +1230,6 @@ func putAccountInfo(
 		nextInternalIndex, name,
 	)
 
-
 	// TODO(roasbeef): pass scope bucket directly??
 
 	acctRow := dbAccountRow{
@@ -1280,12 +1240,10 @@ func putAccountInfo(
 		return err
 	}
 
-
 	// Update account id index.
 	if err := putAccountIDIndex(ns, scope, account, name); err != nil {
 		return err
 	}
-
 
 	// Update account name index.
 	if err := putAccountNameIndex(ns, scope, account, name); err != nil {
@@ -1322,7 +1280,6 @@ func putLastAccount(
 func deserializeAddressRow(
 	serializedAddress []byte) (*dbAddressRow, error) {
 
-
 	// The serialized address format is:
 
 	//   <addrType><account><addedTime><syncStatus><rawdata>
@@ -1332,7 +1289,6 @@ func deserializeAddressRow(
 	// 1 byte addrType + 4 bytes account + 8 bytes addTime + 1 byte
 
 	// syncStatus + 4 bytes raw data length + raw data
-
 
 	// Given the above, the length of the entry must be at a minimum
 
@@ -1385,7 +1341,6 @@ func serializeAddressRow(
 func deserializeChainedAddress(
 	row *dbAddressRow) (*dbChainAddressRow, error) {
 
-
 	// The serialized chain address raw data format is:
 
 	//   <branch><index>
@@ -1431,7 +1386,6 @@ func serializeChainedAddress(
 func deserializeImportedAddress(
 	row *dbAddressRow) (*dbImportedAddressRow, error) {
 
-
 	// The serialized imported address raw data format is:
 
 	//   <encpubkeylen><encpubkey><encprivkeylen><encprivkey>
@@ -1441,7 +1395,6 @@ func deserializeImportedAddress(
 	// 4 bytes encrypted pubkey len + encrypted pubkey + 4 bytes encrypted
 
 	// privkey len + encrypted privkey
-
 
 	// Given the above, the length of the entry must be at a minimum
 
@@ -1498,7 +1451,6 @@ func serializeImportedAddress(
 func deserializeScriptAddress(
 	row *dbAddressRow) (*dbScriptAddressRow, error) {
 
-
 	// The serialized script address raw data format is:
 
 	//   <encscripthashlen><encscripthash><encscriptlen><encscript>
@@ -1508,7 +1460,6 @@ func deserializeScriptAddress(
 	// 4 bytes encrypted script hash len + encrypted script hash + 4 bytes
 
 	// encrypted script len + encrypted script
-
 
 	// Given the above, the length of the entry must be at a minimum
 
@@ -1670,7 +1621,6 @@ func putAddress(
 
 	bucket := scopedBucket.NestedReadWriteBucket(addrBucketName)
 
-
 	// Write the serialized value keyed by the hash of the address.  The
 
 	// additional hash is used to conceal the actual address while still
@@ -1682,7 +1632,6 @@ func putAddress(
 		str := fmt.Sprintf("failed to store address %x", addressID)
 		return managerError(ErrDatabase, str, err)
 	}
-
 
 	// Update address account index
 	return putAddrAccountIndex(ns, scope, row.account, addrHash[:])
@@ -1711,14 +1660,12 @@ func putChainedAddress(
 		return err
 	}
 
-
 	// Update the next index for the appropriate internal or external
 
 	// branch.
 	accountID := uint32ToBytes(account)
 	bucket := scopedBucket.NestedReadWriteBucket(acctBucketName)
 	serializedAccount := bucket.Get(accountID)
-
 
 	// Deserialize the account row.
 	row, err := deserializeAccountRow(accountID, serializedAccount)
@@ -1730,7 +1677,6 @@ func putChainedAddress(
 		return err
 	}
 
-
 	// Increment the appropriate next index depending on whether the branch
 
 	// is internal or external.
@@ -1741,7 +1687,6 @@ func putChainedAddress(
 	} else {
 		nextExternalIndex = index + 1
 	}
-
 
 	// Reserialize the account with the updated index and store it.
 	row.rawData = serializeDefaultAccountRow(
@@ -1848,7 +1793,6 @@ func forEachAccountAddress(
 	bucket := scopedBucket.NestedReadBucket(addrAcctIdxBucketName).
 		NestedReadBucket(uint32ToBytes(account))
 
-
 	// If index bucket is missing the account, there hasn't been any
 
 	// address entries yet
@@ -1932,7 +1876,6 @@ func deletePrivateKeys(
 	ns walletdb.ReadWriteBucket) error {
 	bucket := ns.NestedReadWriteBucket(mainBucketName)
 
-
 	// Delete the master private key params and the crypto private and
 
 	// script keys.
@@ -1952,7 +1895,6 @@ func deletePrivateKeys(
 		str := "failed to delete master HD priv key"
 		return managerError(ErrDatabase, str, err)
 	}
-
 
 	// With the master key and meta encryption keys deleted, we'll need to
 
@@ -2082,7 +2024,6 @@ func fetchSyncedTo(
 
 	bucket := ns.NestedReadBucket(syncBucketName)
 
-
 	// The serialized synced to format is:
 
 	//   <blockheight><blockhash><timestamp>
@@ -2115,7 +2056,6 @@ func putSyncedTo(
 	bucket := ns.NestedReadWriteBucket(syncBucketName)
 	errStr := fmt.Sprintf("failed to store sync information %v", bs.Hash)
 
-
 	// If the block height is greater than zero, check that the previous
 
 	// block height exists. This prevents reorg issues in the future.
@@ -2129,7 +2069,6 @@ func putSyncedTo(
 		}
 	}
 
-
 	// Store the block hash by block height.
 	height := make([]byte, 4)
 	binary.BigEndian.PutUint32(height, uint32(bs.Height))
@@ -2137,7 +2076,6 @@ func putSyncedTo(
 	if err != nil {
 		return managerError(ErrDatabase, errStr, err)
 	}
-
 
 	// The serialized synced to format is:
 
@@ -2187,7 +2125,6 @@ func fetchStartBlock(
 
 	bucket := ns.NestedReadBucket(syncBucketName)
 
-
 	// The serialized start block format is:
 
 	//   <blockheight><blockhash>
@@ -2211,7 +2148,6 @@ func fetchStartBlock(
 func putStartBlock(
 	ns walletdb.ReadWriteBucket, bs *BlockStamp) error {
 	bucket := ns.NestedReadWriteBucket(syncBucketName)
-
 
 	// The serialized start block format is:
 
@@ -2305,7 +2241,6 @@ func createScopedManagerNS(
 		return managerError(ErrDatabase, str, err)
 	}
 
-
 	// usedAddrBucketName bucket was added after manager version 1 release
 	_, err = scopeBucket.CreateBucket(usedAddrBucketName)
 	if err != nil {
@@ -2349,7 +2284,6 @@ func createManagerNS(
 	ns walletdb.ReadWriteBucket,
 	defaultScopes map[KeyScope]ScopeAddrSchema) error {
 
-
 	// First, we'll create all the relevant buckets that stem off of the
 
 	// main bucket.
@@ -2364,7 +2298,6 @@ func createManagerNS(
 		return managerError(ErrDatabase, str, err)
 	}
 
-
 	// We'll also create the two top-level scope related buckets as
 
 	// preparation for the operations below.
@@ -2378,7 +2311,6 @@ func createManagerNS(
 		str := "failed to create scope schema bucket"
 		return managerError(ErrDatabase, str, err)
 	}
-
 
 	// Next, we'll create the namespace for each of the relevant default
 
@@ -2468,7 +2400,6 @@ func upgradeManager(
 		version = 5
 	}
 
-
 	// Ensure the manager is upraded to the latest version.  This check is
 
 	// to intentionally cause a failure if the manager version is updated
@@ -2514,12 +2445,10 @@ func upgradeToVersion5(
 		return err
 	}
 
-
 	// Next, we'll write out the new database version.
 	if err := putManagerVersion(ns, 5); err != nil {
 		return err
 	}
-
 
 	// First, we'll need to create the new buckets that are used in the new
 
@@ -2534,7 +2463,6 @@ func upgradeToVersion5(
 		str := "failed to create scope schema bucket"
 		return managerError(ErrDatabase, str, err)
 	}
-
 
 	// With the buckets created, we can now create the default BIP0044
 
@@ -2553,12 +2481,10 @@ func upgradeToVersion5(
 
 	bip44Bucket := scopeBucket.NestedReadWriteBucket(scopeKey[:])
 
-
 	// With the buckets created, we now need to port over *each* item in
 
 	// the prior main bucket, into the new default scope.
 	mainBucket := ns.NestedReadWriteBucket(mainBucketName)
-
 
 	// First, we'll move over the encrypted coin type private and public
 
@@ -2582,7 +2508,6 @@ func upgradeToVersion5(
 		return err
 	}
 
-
 	// Next, we'll move over everything that was in the meta bucket to the
 
 	// meta bucket within the new scope.
@@ -2598,7 +2523,6 @@ func upgradeToVersion5(
 		return err
 	}
 
-
 	// Finally, we'll recursively move over a set of keys which were
 
 	// formerly under the main bucket, into the new scoped buckets. We'll
@@ -2612,7 +2536,6 @@ func upgradeToVersion5(
 		acctBucketName, addrBucketName, usedAddrBucketName,
 		addrAcctIdxBucketName, acctNameIdxBucketName, acctIDIdxBucketName,
 	}
-
 
 	// Migrate each bucket recursively.
 	for _, bucketKey := range keysToMigrate {

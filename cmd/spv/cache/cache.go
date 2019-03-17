@@ -16,10 +16,8 @@ type Cache interface {
 	// key already exists.
 	Put(key interface{}, value Value) error
 
-
 	// Get returns the value for a given key.
 	Get(key interface{}) (Value, error)
-
 
 	// Len returns number of elements in the cache.
 	Len() int

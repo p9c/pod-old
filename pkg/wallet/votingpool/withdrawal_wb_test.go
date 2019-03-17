@@ -6,14 +6,14 @@ import (
 	"sort"
 	"testing"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // TestOutputSplittingNotEnoughInputs checks that an output will get split if we
@@ -63,13 +63,11 @@ func TestOutputSplittingNotEnoughInputs(
 		t.Fatalf("Wrong number of outputs; got %d, want 2", len(tx.outputs))
 	}
 
-
 	// The first output should've been left untouched.
 	if tx.outputs[0].amount != output1Amount {
 		t.Fatalf("Wrong amount for first tx output; got %v, want %v",
 			tx.outputs[0].amount, output1Amount)
 	}
-
 
 	// The last output should have had its amount updated to whatever we had
 
@@ -183,7 +181,6 @@ func TestWithdrawalTxOutputs(
 
 	net := pool.Manager().ChainParams()
 
-
 	// Create eligible inputs and the list of outputs we need to fulfil.
 	seriesID, eligible := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{2e6, 4e6})
 	outputs := []OutputRequest{
@@ -270,7 +267,6 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 
 	net := pool.Manager().ChainParams()
 
-
 	// Create eligible inputs and the list of outputs we need to fulfil.
 	seriesID, eligible := TstCreateCreditsOnNewSeries(t, dbtx, pool, []int64{2e6, 4e6})
 	out1 := TstNewOutputRequest(
@@ -304,7 +300,6 @@ func TestFulfillRequestsNotEnoughCreditsForAllRequests(
 		expectedOutputs, TstNewOutputRequest(t, 4, changeStart.addr.String(), change, net))
 	msgtx := tx.toMsgTx()
 	checkMsgTxOutputs(t, msgtx, expectedOutputs)
-
 
 	// withdrawal.status should state that outputs 1 and 2 were successfully fulfilled,
 
@@ -345,7 +340,6 @@ func TestRollbackLastOutput(
 		t.Fatal("Unexpected error:", err)
 	}
 
-
 	// The above rollBackLastOutput() call should have removed the last output
 
 	// and the last input.
@@ -361,7 +355,6 @@ func TestRollbackLastOutput(
 
 		t.Fatalf("Wrong rolled back input; got %v want %v", removedInputs[0], lastInput)
 	}
-
 
 	// Now check that the inputs and outputs left in the tx match what we
 
@@ -381,7 +374,6 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 		t.Fatal(err)
 	}
 	defer dbtx.Commit()
-
 
 	// This tx will need the 3 last inputs to fulfill the second output, so they
 
@@ -404,7 +396,6 @@ func TestRollbackLastOutputMultipleInputsRolledBack(
 			t.Fatalf("Unexpected input amount; got %v, want %v", removedInputs[i].Amount, amount)
 		}
 	}
-
 
 	// Now check that the inputs and outputs left in the tx match what we
 
@@ -437,7 +428,6 @@ func TestRollbackLastOutputNoInputsRolledBack(
 		t.Fatal("Unexpected error:", err)
 	}
 
-
 	// The above rollBackLastOutput() call should have removed the
 
 	// last output but no inputs.
@@ -448,7 +438,6 @@ func TestRollbackLastOutputNoInputsRolledBack(
 	if len(removedInputs) != 0 {
 		t.Fatalf("Expected no removed inputs, but got %d inputs", len(removedInputs))
 	}
-
 
 	// Now check that the inputs and outputs left in the tx match what we
 
@@ -514,12 +503,10 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 		t.Fatal("Unexpected error:", err)
 	}
 
-
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
-
 
 	// First tx should have one output with 1 and one change output with 4
 
@@ -529,7 +516,6 @@ func TestRollbackLastOutputWhenNewOutputAdded(
 	checkTxOutputs(t, firstTx,
 		[]*withdrawalTxOut{{request: req1, amount: req1.Amount}})
 	checkTxChangeAmount(t, firstTx, util.Amount(4))
-
 
 	// Second tx should have one output with 2 and one changeoutput with 3 satoshis.
 	secondTx := w.transactions[1]
@@ -577,7 +563,6 @@ func TestRollbackLastOutputWhenNewInputAdded(
 		}
 	}
 
-
 	// The rollback should be triggered right after the 4th input is added in
 
 	// order to fulfill the second request.
@@ -585,12 +570,10 @@ func TestRollbackLastOutputWhenNewInputAdded(
 		t.Fatal("Unexpected error:", err)
 	}
 
-
 	// At this point we should have two finalized transactions.
 	if len(w.transactions) != 2 {
 		t.Fatalf("Wrong number of finalized transactions; got %d, want 2", len(w.transactions))
 	}
-
 
 	// First tx should have one output with amount of 1, the first input from
 
@@ -600,7 +583,6 @@ func TestRollbackLastOutputWhenNewInputAdded(
 	checkTxOutputs(t, firstTx,
 		[]*withdrawalTxOut{{request: req1, amount: req1.Amount}})
 	checkTxInputs(t, firstTx, eligible[5:6])
-
 
 	// Second tx should have outputs for the two last requests (in the same
 
@@ -643,7 +625,6 @@ func TestWithdrawalTxRemoveOutput(
 
 	gotRemovedOutput := tx.removeOutput()
 
-
 	// Check the popped output looks correct.
 	if gotRemovedOutput != wantRemovedOutput {
 		t.Fatalf("Removed output wrong; got %v, want %v", gotRemovedOutput, wantRemovedOutput)
@@ -651,7 +632,6 @@ func TestWithdrawalTxRemoveOutput(
 
 	// And that the remaining output is correct.
 	checkTxOutputs(t, tx, []*withdrawalTxOut{remainingOutput})
-
 
 	// Make sure that the remaining output is really the right one.
 	if tx.outputs[0] != remainingOutput {
@@ -682,14 +662,12 @@ func TestWithdrawalTxRemoveInput(
 
 	gotRemovedInput := tx.removeInput()
 
-
 	// Check the popped input looks correct.
 	if !reflect.DeepEqual(gotRemovedInput, wantRemovedInput) {
 
 		t.Fatalf("Popped input wrong; got %v, want %v", gotRemovedInput, wantRemovedInput)
 	}
 	checkTxInputs(t, tx, inputs[0:1])
-
 
 	// Make sure that the remaining input is really the right one.
 	if !reflect.DeepEqual(tx.inputs[0], remainingInput) {
@@ -896,7 +874,6 @@ func TestWithdrawalInfoMatch(
 	roundID := uint32(0)
 	wi := createAndFulfillWithdrawalRequests(t, dbtx, pool, roundID)
 
-
 	// Use freshly created values for requests, startAddress and changeStart
 
 	// to simulate what would happen if we had recreated them from the
@@ -908,13 +885,11 @@ func TestWithdrawalInfoMatch(
 		wi.startAddress.index)
 	changeStart := TstNewChangeAddress(t, pool, wi.changeStart.seriesID, wi.changeStart.index)
 
-
 	// First check that it matches when all fields are identical.
 	matches := wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold)
 	if !matches {
 		t.Fatal("Should match when everything is identical.")
 	}
-
 
 	// It also matches if the OutputRequests are not in the same order.
 	diffOrderRequests := make([]OutputRequest, len(requestsCopy))
@@ -926,7 +901,6 @@ func TestWithdrawalInfoMatch(
 		t.Fatal("Should match when requests are in different order.")
 	}
 
-
 	// It should not match when the OutputRequests are not the same.
 	diffRequests := diffOrderRequests
 	diffRequests[0] = OutputRequest{}
@@ -935,20 +909,17 @@ func TestWithdrawalInfoMatch(
 		t.Fatal("Should not match as requests is not equal.")
 	}
 
-
 	// It should not match when lastSeriesID is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID+1, *changeStart, wi.dustThreshold)
 	if matches {
 		t.Fatal("Should not match as lastSeriesID is not equal.")
 	}
 
-
 	// It should not match when dustThreshold is not equal.
 	matches = wi.match(requestsCopy, *startAddr, wi.lastSeriesID, *changeStart, wi.dustThreshold+1)
 	if matches {
 		t.Fatal("Should not match as dustThreshold is not equal.")
 	}
-
 
 	// It should not match when startAddress is not equal.
 	diffStartAddr := TstNewWithdrawalAddress(t, dbtx, pool, startAddr.seriesID, startAddr.branch+1,
@@ -958,7 +929,6 @@ func TestWithdrawalInfoMatch(
 	if matches {
 		t.Fatal("Should not match as startAddress is not equal.")
 	}
-
 
 	// It should not match when changeStart is not equal.
 	diffChangeStart := TstNewChangeAddress(t, pool, changeStart.seriesID, changeStart.index+1)
@@ -995,7 +965,6 @@ func TestGetWithdrawalStatus(
 		t.Fatal(err)
 	}
 
-
 	// Here we should get a WithdrawalStatus that matches wi.status.
 	var status *WithdrawalStatus
 	TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -1007,7 +976,6 @@ func TestGetWithdrawalStatus(
 		t.Fatal(err)
 	}
 	TstCheckWithdrawalStatusMatches(t, wi.status, *status)
-
 
 	// Here we should get a nil WithdrawalStatus because the parameters are not
 
@@ -1038,7 +1006,6 @@ func TestSignMultiSigUTXO(
 	}
 	defer dbtx.Commit()
 	_, addrmgrNs := TstRWNamespaces(dbtx)
-
 
 	// Create a new tx with a single input that we're going to sign.
 	mgr := pool.Manager()
@@ -1230,7 +1197,6 @@ func TestGetRawSigs(
 
 	checkNonEmptySigsForPrivKeys(t, txSigs, tx.inputs[0].addr.series().privateKeys)
 
-
 	// Since we have all the necessary signatures (m-of-n), we construct the
 
 	// sigsnature scripts and execute them to make sure the raw signatures are
@@ -1363,7 +1329,6 @@ func TestTxTooBig(
 			tx.calculateSize(), txMaxSize)
 	}
 
-
 	// A tx whose size is equal to txMaxSize should be considered too big.
 	tx.calculateSize = func() int { return txMaxSize }
 	if !tx.isTooBig() {
@@ -1397,7 +1362,6 @@ func TestTxSizeCalculation(
 
 	size := tx.calculateSize()
 
-
 	// Now add a change output, get a msgtx, sign it and get its SerializedSize
 
 	// to compare with the value above. We need to replace the calculateFee
@@ -1414,7 +1378,6 @@ func TestTxSizeCalculation(
 		t.Fatal(err)
 	}
 	signTxAndValidate(t, pool.Manager(), addrmgrNs, msgtx, sigs[tx.ntxid()], tx.inputs)
-
 
 	// ECDSA signatures have variable length (71-73 bytes) but in
 
@@ -1454,7 +1417,6 @@ func TestTxFeeEstimationForSmallTx(
 
 	tx := newWithdrawalTx(defaultTxOptions)
 
-
 	// A tx that is smaller than 1000 bytes in size should have a fee of 10000
 
 	// satoshis.
@@ -1471,7 +1433,6 @@ func TestTxFeeEstimationForLargeTx(
 	t *testing.T) {
 
 	tx := newWithdrawalTx(defaultTxOptions)
-
 
 	// A tx that is larger than 1000 bytes in size should have a fee of 1e3
 
@@ -1754,7 +1715,6 @@ func compareMsgTxAndWithdrawalTxOutputs(
 		}
 	}
 
-
 	// Finally check the change output if it exists
 	if tx.changeOutput != nil {
 		msgTxChange := msgtx.TxOut[len(msgtx.TxOut)-1]
@@ -1797,7 +1757,6 @@ func checkLastOutputWasSplit(
 		t.Fatalf("Wrong amount in split output; got %v, want %v", splitRequest.Amount,
 			wantSplitAmount)
 	}
-
 
 	// Check that the split request is identical (except for its amount) to the
 

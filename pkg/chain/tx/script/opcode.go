@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"hash"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -879,7 +879,6 @@ func opcodeNop(
 // popIfBool enforces the "minimal if" policy during script execution if the particular flag is set.  If so, in order to eliminate an additional source of nuisance malleability, post-segwit for version 0 witness programs, we now require the following: for OP_IF and OP_NOT_IF, the top stack item MUST either be an empty byte slice, or [0x01]. Otherwise, the item at the top of the stack will be popped and interpreted as a boolean.
 func popIfBool(
 	vm *Engine) (bool, error) {
-
 
 	// When not in witness execution mode, not executing a v0 witness program, or the minimal if flag isn't set pop the top stack item as a normal bool.
 	if !vm.isWitnessVersionActive(0) || !vm.hasFlag(ScriptVerifyMinimalIf) {
@@ -2128,7 +2127,6 @@ func opcodeCheckMultiSigVerify(
 var OpcodeByName = make(map[string]byte)
 
 func init() {
-
 
 	// Initialize the opcode name to value map using the contents of the opcode array.  Also add entries for "OP_FALSE", "OP_TRUE", and "OP_NOP2" since they are aliases for "OP_0", "OP_1", and "OP_CHECKLOCKTIMEVERIFY" respectively.
 	for _, op := range opcodeArray {

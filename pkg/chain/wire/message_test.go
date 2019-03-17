@@ -9,10 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"github.com/davecgh/go-spew/spew"
 )
-
 
 // makeHeader is a convenience function to make a message header in the form of a byte slice.  It is used to force errors when reading messages.
 func makeHeader(
@@ -31,7 +30,6 @@ func makeHeader(
 	binary.LittleEndian.PutUint32(buf[20:], checksum)
 	return buf
 }
-
 
 // TestMessage tests the Read/WriteMessage and Read/WriteMessageN API.
 func TestMessage(
@@ -181,7 +179,6 @@ func TestMessage(
 		}
 	}
 }
-
 
 // TestReadMessageWireErrors performs negative tests against wire decoding into
 
@@ -397,7 +394,6 @@ func TestReadMessageWireErrors(
 		}
 	}
 }
-
 
 // TestWriteMessageWireErrors performs negative tests against wire encoding from
 

@@ -107,7 +107,6 @@ func (n scriptNum) Int32() int32 {
 func makeScriptNum(
 	v []byte, requireMinimal bool, scriptNumLen int) (scriptNum, error) {
 
-
 	// Interpreting data requires that it is not larger than the the passed scriptNumLen value.
 	if len(v) > scriptNumLen {
 		str := fmt.Sprintf("numeric value encoded as %x is %d bytes "+

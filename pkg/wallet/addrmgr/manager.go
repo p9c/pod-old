@@ -9,12 +9,12 @@ import (
 	"sync"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
 	"git.parallelcoin.io/dev/pod/pkg/util/snacl"
 	"git.parallelcoin.io/dev/pod/pkg/util/zero"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 const (

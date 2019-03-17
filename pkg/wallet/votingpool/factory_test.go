@@ -27,15 +27,15 @@ import (
 	"testing"
 	"time"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
+	wtxmgr "git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
+	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
-	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/chain/tx/mgr"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 var (
@@ -352,14 +352,12 @@ var (
 func TstCreatePool(
 	t *testing.T) (tearDownFunc func(), db walletdb.DB, pool *Pool) {
 
-
 	// This should be moved somewhere else eventually as not all of our tests
 
 	// call this function, but right now the only option would be to have the
 
 	// t.Parallel() call in each of our tests.
 	t.Parallel()
-
 
 	// Create a new wallet DB and addr manager.
 	dir, err := ioutil.TempDir("", "pool_test")

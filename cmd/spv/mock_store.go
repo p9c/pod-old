@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"git.parallelcoin.io/dev/pod/cmd/spv/headerfs"
-	"git.parallelcoin.io/dev/pod/pkg/chain"
-	"git.parallelcoin.io/dev/pod/pkg/chain/hash"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
+	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
+	chainhash "git.parallelcoin.io/dev/pod/pkg/chain/hash"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	waddrmgr "git.parallelcoin.io/dev/pod/pkg/wallet/addrmgr"
 )
 
 // mockBlockHeaderStore is an implementation of the BlockHeaderStore backed by

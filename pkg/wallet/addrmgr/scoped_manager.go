@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sync"
 
-	"git.parallelcoin.io/dev/pod/pkg/chain/config"
-	"git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	"git.parallelcoin.io/dev/pod/pkg/util"
+	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"git.parallelcoin.io/dev/pod/pkg/util/hdkeychain"
-	"git.parallelcoin.io/dev/pod/pkg/wallet/db"
 	"git.parallelcoin.io/dev/pod/pkg/util/zero"
+	walletdb "git.parallelcoin.io/dev/pod/pkg/wallet/db"
 )
 
 // DerivationPath represents a derivation path from a particular key manager's
@@ -28,7 +28,6 @@ type DerivationPath struct {
 	// manager's hardened coin type key.
 	Account uint32
 
-
 	// Branch is the branch to be derived from the account index above. For
 
 	// BIP0044-like derivation, this is either 0 (external) or 1
@@ -37,7 +36,6 @@ type DerivationPath struct {
 
 	// its size range.
 	Branch uint32
-
 
 	// Index is the final child in the derivation path. This denotes the
 
@@ -57,7 +55,6 @@ type KeyScope struct {
 	// the master HD key.
 	Purpose uint32
 
-
 	// Coin is a value that represents the particular coin which is the
 
 	// child of the purpose key. With this key, any accounts, or other
@@ -73,7 +70,6 @@ type ScopedIndex struct {
 
 	// Scope is the BIP44 account' used to derive the child key.
 	Scope KeyScope
-
 
 	// Index is the BIP44 address_index used to derive the child key.
 	Index uint32
@@ -93,7 +89,6 @@ type ScopeAddrSchema struct {
 	// ExternalAddrType is the address type for all keys within branch 0.
 	ExternalAddrType AddressType
 
-
 	// InternalAddrType is the address type for all keys within branch 1
 
 	// (change addresses).
@@ -112,7 +107,6 @@ var (
 		Coin:    0,
 	}
 
-
 	// KeyScopeBIP0084 is the key scope for BIP0084 derivation. BIP0084
 
 	// will be used to derive all p2wkh addresses.
@@ -120,7 +114,6 @@ var (
 		Purpose: 84,
 		Coin:    0,
 	}
-
 
 	// KeyScopeBIP0044 is the key scope for BIP0044 derivation. Legacy
 
@@ -132,7 +125,6 @@ var (
 		Coin:    0,
 	}
 
-
 	// DefaultKeyScopes is the set of default key scopes that will be
 
 	// created by the root manager upon initial creation.
@@ -141,7 +133,6 @@ var (
 		KeyScopeBIP0084,
 		KeyScopeBIP0044,
 	}
-
 
 	// ScopeAddrMap is a map from the default key scopes to the scope
 
@@ -178,12 +169,10 @@ type ScopedKeyManager struct {
 	// that are direct children of this scope.
 	scope KeyScope
 
-
 	// addrSchema is the address schema for this sub manager. This will be
 
 	// consulted when encoding addresses from derived keys.
 	addrSchema ScopeAddrSchema
-
 
 	// rootManager is a pointer to the root key manager. We'll maintain
 
@@ -192,18 +181,15 @@ type ScopedKeyManager struct {
 	// derive any new accounts of child keys of accounts.
 	rootManager *Manager
 
-
 	// addrs is a cached map of all the addresses that we currently
 
 	// manager.
 	addrs map[addrKey]ManagedAddress
 
-
 	// acctInfo houses information about accounts including what is needed
 
 	// to generate deterministic chained keys for each created account.
 	acctInfo map[uint32]*accountInfo
-
 
 	// deriveOnUnlock is a list of private keys which needs to be derived
 
@@ -234,7 +220,6 @@ func (s *ScopedKeyManager) AddrSchema() ScopeAddrSchema {
 // hierarchical deterministic extended public keys and the crypto public keys.
 func (s *ScopedKeyManager) zeroSensitivePublicData() {
 
-
 	// Clear all of the account private keys.
 	for _, acctInfo := range s.acctInfo {
 		acctInfo.acctKeyPub.Zero()
@@ -249,7 +234,6 @@ func (s *ScopedKeyManager) Close() {
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
-
 
 	// Attempt to clear sensitive public key material from memory too.
 	s.zeroSensitivePublicData()
@@ -277,7 +261,6 @@ func (s *ScopedKeyManager) keyToManaged(derivedKey *hdkeychain.ExtendedKey,
 		Branch:  branch,
 		Index:   index,
 	}
-
 
 	// Create a new managed address based on the public or private key
 
@@ -317,7 +300,6 @@ func (s *ScopedKeyManager) keyToManaged(derivedKey *hdkeychain.ExtendedKey,
 func (s *ScopedKeyManager) deriveKey(acctInfo *accountInfo, branch,
 	index uint32, private bool) (*hdkeychain.ExtendedKey, error) {
 
-
 	// Choose the public or private extended key based on whether or not
 
 	// the private flag was specified.  This, in turn, allows for public or
@@ -327,7 +309,6 @@ func (s *ScopedKeyManager) deriveKey(acctInfo *accountInfo, branch,
 	if private {
 		acctKey = acctInfo.acctKeyPriv
 	}
-
 
 	// Derive and return the key.
 	branchKey, err := acctKey.Child(branch)
@@ -357,12 +338,10 @@ func (s *ScopedKeyManager) deriveKey(acctInfo *accountInfo, branch,
 func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 	account uint32) (*accountInfo, error) {
 
-
 	// Return the account info from cache if it's available.
 	if acctInfo, ok := s.acctInfo[account]; ok {
 		return acctInfo, nil
 	}
-
 
 	// The account is either invalid or just wasn't cached, so attempt to
 
@@ -372,14 +351,12 @@ func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 		return nil, maybeConvertDbError(err)
 	}
 
-
 	// Ensure the account type is a default account.
 	row, ok := rowInterface.(*dbDefaultAccountRow)
 	if !ok {
 		str := fmt.Sprintf("unsupported account type %T", row)
 		return nil, managerError(ErrDatabase, str, nil)
 	}
-
 
 	// Use the crypto public key to decrypt the account public extended
 
@@ -396,7 +373,6 @@ func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 			"account %d", account)
 		return nil, managerError(ErrKeyChain, str, err)
 	}
-
 
 	// Create the new account info with the known information.  The rest of
 
@@ -429,7 +405,6 @@ func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 		acctInfo.acctKeyPriv = acctKeyPriv
 	}
 
-
 	// Derive and cache the managed address for the last external address.
 	branch, index := ExternalBranch, row.nextExternalIndex
 	if index > 0 {
@@ -446,7 +421,6 @@ func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 		return nil, err
 	}
 	acctInfo.lastExternalAddr = lastExtAddr
-
 
 	// Derive and cache the managed address for the last internal address.
 	branch, index = InternalBranch, row.nextInternalIndex
@@ -465,7 +439,6 @@ func (s *ScopedKeyManager) loadAccountInfo(ns walletdb.ReadBucket,
 	}
 	acctInfo.lastInternalAddr = lastIntAddr
 
-
 	// Add it to the cache and return it when everything is successful.
 	s.acctInfo[account] = acctInfo
 	return acctInfo, nil
@@ -480,7 +453,6 @@ func (s *ScopedKeyManager) AccountProperties(ns walletdb.ReadBucket,
 	s.mtx.RLock()
 
 	props := &AccountProperties{AccountNumber: account}
-
 
 	// Until keys can be imported into any account, special handling is
 
@@ -556,7 +528,6 @@ func (s *ScopedKeyManager) DeriveFromKeyPath(ns walletdb.ReadBucket,
 func (s *ScopedKeyManager) deriveKeyFromPath(ns walletdb.ReadBucket, account, branch,
 	index uint32, private bool) (*hdkeychain.ExtendedKey, error) {
 
-
 	// Look up the account key information.
 	acctInfo, err := s.loadAccountInfo(ns, account)
 	if err != nil {
@@ -572,7 +543,6 @@ func (s *ScopedKeyManager) deriveKeyFromPath(ns walletdb.ReadBucket, account, br
 // This function MUST be called with the manager lock held for writes.
 func (s *ScopedKeyManager) chainAddressRowToManaged(ns walletdb.ReadBucket,
 	row *dbChainAddressRow) (ManagedAddress, error) {
-
 
 	// Since the manger's mutex is assumed to held when invoking this
 
@@ -593,7 +563,6 @@ func (s *ScopedKeyManager) chainAddressRowToManaged(ns walletdb.ReadBucket,
 // address data loaded from the database.
 func (s *ScopedKeyManager) importedAddressRowToManaged(row *dbImportedAddressRow) (ManagedAddress, error) {
 
-
 	// Use the crypto public key to decrypt the imported public key.
 	pubBytes, err := s.rootManager.cryptoKeyPub.Decrypt(row.encryptedPubKey)
 	if err != nil {
@@ -606,7 +575,6 @@ func (s *ScopedKeyManager) importedAddressRowToManaged(row *dbImportedAddressRow
 		str := "invalid public key for imported address"
 		return nil, managerError(ErrCrypto, str, err)
 	}
-
 
 	// Since this is an imported address, we won't populate the full
 
@@ -632,7 +600,6 @@ func (s *ScopedKeyManager) importedAddressRowToManaged(row *dbImportedAddressRow
 // scriptAddressRowToManaged returns a new managed address based on script
 // address data loaded from the database.
 func (s *ScopedKeyManager) scriptAddressRowToManaged(row *dbScriptAddressRow) (ManagedAddress, error) {
-
 
 	// Use the crypto public key to decrypt the imported script hash.
 	scriptHash, err := s.rootManager.cryptoKeyPub.Decrypt(row.encryptedHash)
@@ -675,7 +642,6 @@ func (s *ScopedKeyManager) rowInterfaceToManaged(ns walletdb.ReadBucket,
 func (s *ScopedKeyManager) loadAndCacheAddress(ns walletdb.ReadBucket,
 	address util.Address) (ManagedAddress, error) {
 
-
 	// Attempt to load the raw address information from the database.
 	rowInterface, err := fetchAddress(ns, &s.scope, address.ScriptAddress())
 	if err != nil {
@@ -688,7 +654,6 @@ func (s *ScopedKeyManager) loadAndCacheAddress(ns walletdb.ReadBucket,
 		return nil, maybeConvertDbError(err)
 	}
 
-
 	// Create a new managed address for the specific type of address based
 
 	// on type.
@@ -696,7 +661,6 @@ func (s *ScopedKeyManager) loadAndCacheAddress(ns walletdb.ReadBucket,
 	if err != nil {
 		return nil, err
 	}
-
 
 	// Cache and return the new managed address.
 	s.addrs[addrKey(managedAddr.Address().ScriptAddress())] = managedAddr
@@ -715,7 +679,6 @@ func (s *ScopedKeyManager) existsAddress(ns walletdb.ReadBucket, addressID []byt
 		return true
 	}
 
-
 	// Check the database if not already found above.
 	return existsAddress(ns, &s.scope, addressID)
 }
@@ -729,7 +692,6 @@ func (s *ScopedKeyManager) existsAddress(ns walletdb.ReadBucket, addressID []byt
 func (s *ScopedKeyManager) Address(ns walletdb.ReadBucket,
 	address util.Address) (ManagedAddress, error) {
 
-
 	// ScriptAddress will only return a script hash if we're accessing an
 
 	// address that is either PKH or SH. In the event we're passed a PK
@@ -740,7 +702,6 @@ func (s *ScopedKeyManager) Address(ns walletdb.ReadBucket,
 	if pka, ok := address.(*util.AddressPubKey); ok {
 		address = pka.AddressPubKeyHash()
 	}
-
 
 	// Return the address from cache if it's available.
 
@@ -758,7 +719,6 @@ func (s *ScopedKeyManager) Address(ns walletdb.ReadBucket,
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
-
 
 	// Attempt to load the address from the database.
 	return s.loadAndCacheAddress(ns, address)
@@ -783,7 +743,6 @@ func (s *ScopedKeyManager) AddrAccount(ns walletdb.ReadBucket,
 func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 	account uint32, numAddresses uint32, internal bool) ([]ManagedAddress, error) {
 
-
 	// The next address can only be generated for accounts that have
 
 	// already been created.
@@ -791,7 +750,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return nil, err
 	}
-
 
 	// Choose the account key to used based on whether the address manager
 
@@ -801,7 +759,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 
 		acctKey = acctInfo.acctKeyPriv
 	}
-
 
 	// Choose the branch key and index depending on whether or not this is
 
@@ -817,7 +774,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 		addrType = s.addrSchema.InternalAddrType
 	}
 
-
 	// Ensure the requested number of addresses doesn't exceed the maximum
 
 	// allowed for this account.
@@ -829,7 +785,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 		return nil, managerError(ErrTooManyAddresses, str, nil)
 	}
 
-
 	// Derive the appropriate branch key and ensure it is zeroed when done.
 	branchKey, err := acctKey.Child(branchNum)
 	if err != nil {
@@ -838,7 +793,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 		return nil, managerError(ErrKeyChain, str, err)
 	}
 	defer branchKey.Zero() // Ensure branch key is zeroed when done.
-
 
 	// Create the requested number of addresses and keep track of the index
 
@@ -903,7 +857,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 		addressInfo = append(addressInfo, &info)
 	}
 
-
 	// Now that all addresses have been successfully generated, update the
 
 	// database in a single transaction.
@@ -939,7 +892,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// Finally update the next address tracking and add the addresses to
 
 	// the cache after the newly generated addresses have been successfully
@@ -960,7 +912,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 
 		managedAddresses = append(managedAddresses, ma)
 	}
-
 
 	// Set the last address and next address for tracking.
 	ma := addressInfo[len(addressInfo)-1].managedAddr
@@ -985,7 +936,6 @@ func (s *ScopedKeyManager) nextAddresses(ns walletdb.ReadWriteBucket,
 func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 	account uint32, lastIndex uint32, internal bool) error {
 
-
 	// The next address can only be generated for accounts that have
 
 	// already been created.
@@ -993,7 +943,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return err
 	}
-
 
 	// Choose the account key to used based on whether the address manager
 
@@ -1003,7 +952,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 
 		acctKey = acctInfo.acctKeyPriv
 	}
-
 
 	// Choose the branch key and index depending on whether or not this is
 
@@ -1019,14 +967,12 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 		addrType = s.addrSchema.InternalAddrType
 	}
 
-
 	// If the last index requested is already lower than the next index, we
 
 	// can return early.
 	if lastIndex < nextIndex {
 		return nil
 	}
-
 
 	// Ensure the requested number of addresses doesn't exceed the maximum
 
@@ -1038,7 +984,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 		return managerError(ErrTooManyAddresses, str, nil)
 	}
 
-
 	// Derive the appropriate branch key and ensure it is zeroed when done.
 	branchKey, err := acctKey.Child(branchNum)
 	if err != nil {
@@ -1047,7 +992,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 		return managerError(ErrKeyChain, str, err)
 	}
 	defer branchKey.Zero() // Ensure branch key is zeroed when done.
-
 
 	// Starting from this branch's nextIndex, derive all child indexes up to
 
@@ -1116,7 +1060,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 		addressInfo = append(addressInfo, &info)
 	}
 
-
 	// Now that all addresses have been successfully generated, update the
 
 	// database in a single transaction.
@@ -1152,7 +1095,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// Finally update the next address tracking and add the addresses to
 
 	// the cache after the newly generated addresses have been successfully
@@ -1170,7 +1112,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 			s.deriveOnUnlock = append(s.deriveOnUnlock, info)
 		}
 	}
-
 
 	// Set the last address and next address for tracking.
 	ma := addressInfo[len(addressInfo)-1].managedAddr
@@ -1190,7 +1131,6 @@ func (s *ScopedKeyManager) extendAddresses(ns walletdb.ReadWriteBucket,
 func (s *ScopedKeyManager) NextExternalAddresses(ns walletdb.ReadWriteBucket,
 	account uint32, numAddresses uint32) ([]ManagedAddress, error) {
 
-
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
 		err := managerError(ErrAccountNumTooHigh, errAcctTooHigh, nil)
@@ -1207,7 +1147,6 @@ func (s *ScopedKeyManager) NextExternalAddresses(ns walletdb.ReadWriteBucket,
 // that are intended for internal use such as change from the address manager.
 func (s *ScopedKeyManager) NextInternalAddresses(ns walletdb.ReadWriteBucket,
 	account uint32, numAddresses uint32) ([]ManagedAddress, error) {
-
 
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
@@ -1268,7 +1207,6 @@ func (s *ScopedKeyManager) ExtendInternalAddresses(ns walletdb.ReadWriteBucket,
 func (s *ScopedKeyManager) LastExternalAddress(ns walletdb.ReadBucket,
 	account uint32) (ManagedAddress, error) {
 
-
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
 		err := managerError(ErrAccountNumTooHigh, errAcctTooHigh, nil)
@@ -1277,7 +1215,6 @@ func (s *ScopedKeyManager) LastExternalAddress(ns walletdb.ReadBucket,
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
-
 
 	// Load account information for the passed account.  It is typically
 
@@ -1305,7 +1242,6 @@ func (s *ScopedKeyManager) LastExternalAddress(ns walletdb.ReadBucket,
 func (s *ScopedKeyManager) LastInternalAddress(ns walletdb.ReadBucket,
 	account uint32) (ManagedAddress, error) {
 
-
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
 		err := managerError(ErrAccountNumTooHigh, errAcctTooHigh, nil)
@@ -1314,7 +1250,6 @@ func (s *ScopedKeyManager) LastInternalAddress(ns walletdb.ReadBucket,
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
-
 
 	// Load account information for the passed account.  It is typically
 
@@ -1349,7 +1284,6 @@ func (s *ScopedKeyManager) NewRawAccount(ns walletdb.ReadWriteBucket, number uin
 		return managerError(ErrLocked, errLocked, nil)
 	}
 
-
 	// As this is an ad hoc account that may not follow our normal linear
 
 	// derivation, we'll create a new name for this account based off of
@@ -1379,7 +1313,6 @@ func (s *ScopedKeyManager) NewAccount(ns walletdb.ReadWriteBucket, name string) 
 		return 0, managerError(ErrLocked, errLocked, nil)
 	}
 
-
 	// Fetch latest account, and create a new account in the same
 
 	// transaction Fetch the latest account number to generate the next
@@ -1390,7 +1323,6 @@ func (s *ScopedKeyManager) NewAccount(ns walletdb.ReadWriteBucket, name string) 
 		return 0, err
 	}
 	account++
-
 
 	// With the name validated, we'll create a new account for the new
 
@@ -1410,12 +1342,10 @@ func (s *ScopedKeyManager) NewAccount(ns walletdb.ReadWriteBucket, name string) 
 func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 	account uint32, name string) error {
 
-
 	// Validate the account name.
 	if err := ValidateAccountName(name); err != nil {
 		return err
 	}
-
 
 	// Check that account with the same name does not exist
 	_, err := s.lookupAccount(ns, name)
@@ -1424,7 +1354,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 		return managerError(ErrDuplicateAccount, str, err)
 	}
 
-
 	// Fetch the cointype key which will be used to derive the next account
 
 	// extended keys
@@ -1432,7 +1361,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return err
 	}
-
 
 	// Decrypt the cointype key.
 	serializedKeyPriv, err := s.rootManager.cryptoKeyPriv.Decrypt(coinTypePrivEnc)
@@ -1447,7 +1375,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 		return managerError(ErrKeyChain, str, err)
 	}
 
-
 	// Derive the account key using the cointype key
 	acctKeyPriv, err := deriveAccountKey(coinTypeKeyPriv, account)
 	coinTypeKeyPriv.Zero()
@@ -1460,7 +1387,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 		str := "failed to convert public key for account"
 		return managerError(ErrKeyChain, str, err)
 	}
-
 
 	// Encrypt the default account keys with the associated crypto keys.
 	acctPubEnc, err := s.rootManager.cryptoKeyPub.Encrypt(
@@ -1478,7 +1404,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 		return managerError(ErrCrypto, str, err)
 	}
 
-
 	// We have the encrypted account extended keys, so save them to the
 
 	// database
@@ -1488,7 +1413,6 @@ func (s *ScopedKeyManager) newAccount(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return err
 	}
-
 
 	// Save last account metadata
 	return putLastAccount(ns, &s.scope, account)
@@ -1503,7 +1427,6 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
-
 	// Ensure that a reserved account is not being renamed.
 	if isReservedAccountNum(account) {
 
@@ -1511,14 +1434,12 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 		return managerError(ErrInvalidAccount, str, nil)
 	}
 
-
 	// Check that account with the new name does not exist
 	_, err := s.lookupAccount(ns, name)
 	if err == nil {
 		str := fmt.Sprintf("account with the same name already exists")
 		return managerError(ErrDuplicateAccount, str, err)
 	}
-
 
 	// Validate account name
 	if err := ValidateAccountName(name); err != nil {
@@ -1530,7 +1451,6 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 		return err
 	}
 
-
 	// Ensure the account type is a default account.
 	row, ok := rowInterface.(*dbDefaultAccountRow)
 	if !ok {
@@ -1538,12 +1458,10 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 		err = managerError(ErrDatabase, str, nil)
 	}
 
-
 	// Remove the old name key from the account id index.
 	if err = deleteAccountIDIndex(ns, &s.scope, account); err != nil {
 		return err
 	}
-
 
 	// Remove the old name key from the account name index.
 	if err = deleteAccountNameIndex(ns, &s.scope, row.name); err != nil {
@@ -1557,7 +1475,6 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return err
 	}
-
 
 	// Update in-memory account info with new name if cached and the db
 
@@ -1591,7 +1508,6 @@ func (s *ScopedKeyManager) RenameAccount(ns walletdb.ReadWriteBucket,
 func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 	wif *util.WIF, bs *BlockStamp) (ManagedPubKeyAddress, error) {
 
-
 	// Ensure the address is intended for network the address manager is
 
 	// associated with.
@@ -1606,13 +1522,11 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
-
 	// The manager must be unlocked to encrypt the imported private key.
 	if s.rootManager.IsLocked() && !s.rootManager.WatchOnly() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
-
 
 	// Prevent duplicates.
 	serializedPubKey := wif.SerializePubKey()
@@ -1624,7 +1538,6 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 		return nil, managerError(ErrDuplicateAddress, str, nil)
 	}
 
-
 	// Encrypt public key.
 	encryptedPubKey, err := s.rootManager.cryptoKeyPub.Encrypt(
 		serializedPubKey,
@@ -1634,7 +1547,6 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 			serializedPubKey)
 		return nil, managerError(ErrCrypto, str, err)
 	}
-
 
 	// Encrypt the private key when not a watching-only address manager.
 	var encryptedPrivKey []byte
@@ -1650,14 +1562,12 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// The start block needs to be updated when the newly imported address
 
 	// is before the current one.
 	s.rootManager.mtx.Lock()
 	updateStartBlock := bs.Height < s.rootManager.syncState.startBlock.Height
 	s.rootManager.mtx.Unlock()
-
 
 	// Save the new imported address to the db and update start block (if
 
@@ -1677,7 +1587,6 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// Now that the database has been updated, update the start block in
 
 	// memory too if needed.
@@ -1687,14 +1596,12 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 		s.rootManager.mtx.Unlock()
 	}
 
-
 	// The full derivation path for an imported key is incomplete as we
 
 	// don't know exactly how it was derived.
 	importedDerivationPath := DerivationPath{
 		Account: ImportedAddrAccount,
 	}
-
 
 	// Create a new managed address based on the imported address.
 	var managedAddr *managedAddress
@@ -1715,7 +1622,6 @@ func (s *ScopedKeyManager) ImportPrivateKey(ns walletdb.ReadWriteBucket,
 		return nil, err
 	}
 	managedAddr.imported = true
-
 
 	// Add the new managed address to the cache of recent addresses and
 
@@ -1742,13 +1648,11 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
-
 	// The manager must be unlocked to encrypt the imported script.
 	if s.rootManager.IsLocked() && !s.rootManager.WatchOnly() {
 
 		return nil, managerError(ErrLocked, errLocked, nil)
 	}
-
 
 	// Prevent duplicates.
 	scriptHash := util.Hash160(script)
@@ -1759,7 +1663,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		return nil, managerError(ErrDuplicateAddress, str, nil)
 	}
 
-
 	// Encrypt the script hash using the crypto public key so it is
 
 	// accessible when the address manager is locked or watching-only.
@@ -1769,7 +1672,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 			scriptHash)
 		return nil, managerError(ErrCrypto, str, err)
 	}
-
 
 	// Encrypt the script for storage in database using the crypto script
 
@@ -1787,7 +1689,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// The start block needs to be updated when the newly imported address
 
 	// is before the current one.
@@ -1797,7 +1698,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		updateStartBlock = true
 	}
 	s.rootManager.mtx.Unlock()
-
 
 	// Save the new imported address to the db and update start block (if
 
@@ -1817,7 +1717,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		}
 	}
 
-
 	// Now that the database has been updated, update the start block in
 
 	// memory too if needed.
@@ -1826,7 +1725,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		s.rootManager.syncState.startBlock = *bs
 		s.rootManager.mtx.Unlock()
 	}
-
 
 	// Create a new managed address based on the imported script.  Also,
 
@@ -1846,7 +1744,6 @@ func (s *ScopedKeyManager) ImportScript(ns walletdb.ReadWriteBucket,
 		scriptAddr.scriptCT = make([]byte, len(script))
 		copy(scriptAddr.scriptCT, script)
 	}
-
 
 	// Add the new managed address to the cache of recent addresses and
 
@@ -1890,7 +1787,6 @@ func (s *ScopedKeyManager) MarkUsed(ns walletdb.ReadWriteBucket,
 	if err != nil {
 		return maybeConvertDbError(err)
 	}
-
 
 	// Clear caches which might have stale entries for used addresses
 	s.mtx.Lock()
