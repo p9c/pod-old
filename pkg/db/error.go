@@ -3,6 +3,7 @@ package database
 import "fmt"
 
 // ErrorCode identifies a kind of error.
+
 type ErrorCode int
 
 // These constants are used to identify a specific database Error.

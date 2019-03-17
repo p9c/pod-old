@@ -289,6 +289,7 @@ func configWallet(
 		case "testnet":
 
 			fork.IsTestnet = true
+
 			wc.TestNet3, wc.SimNet = true, false
 			WalletConfig.activeNet = &netparams.TestNet3Params
 		case "simnet":

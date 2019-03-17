@@ -3,6 +3,7 @@ package votingpool
 import "fmt"
 
 // ErrorCode identifies a kind of error
+
 type ErrorCode int
 
 const (
@@ -229,6 +230,7 @@ func (e ErrorCode) String() string {
 
 // Error is a typed error for all errors arising during the
 // operation of the voting pool.
+
 type Error struct {
 	ErrorCode   ErrorCode // Describes the kind of error
 	Description string    // Human readable description of the issue

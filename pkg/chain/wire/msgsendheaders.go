@@ -6,6 +6,7 @@ import (
 )
 
 // MsgSendHeaders implements the Message interface and represents a bitcoin sendheaders message.  It is used to request the peer send block headers rather than inventory vectors. This message has no payload and was not added until protocol versions starting with SendHeadersVersion.
+
 type MsgSendHeaders struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.

@@ -32,6 +32,7 @@ var (
 
 // BitcoindClient represents a persistent client connection to a bitcoind server
 // for information regarding the current best block chain.
+
 type BitcoindClient struct {
 	started int32 // To be used atomically.
 	stopped int32 // To be used atomically.

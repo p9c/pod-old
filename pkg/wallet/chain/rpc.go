@@ -20,6 +20,7 @@ import (
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server
 // for information regarding the current best block chain.
+
 type RPCClient struct {
 	*rpcclient.Client
 	connConfig        *rpcclient.ConnConfig // Work around unexported field

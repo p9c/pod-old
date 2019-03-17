@@ -24,6 +24,7 @@ import (
 )
 
 // AddrManager provides a concurrency safe address manager for caching potential peers on the bitcoin network.
+
 type AddrManager struct {
 	mtx            sync.Mutex
 	peersFile      string
@@ -42,6 +43,7 @@ type AddrManager struct {
 	lamtx          sync.Mutex
 	localAddresses map[string]*localAddress
 }
+
 type serializedKnownAddress struct {
 	Addr        string
 	Src         string
@@ -52,6 +54,7 @@ type serializedKnownAddress struct {
 
 	// no refcount or tried, that is available from context.
 }
+
 type serializedAddrManager struct {
 	Version      int
 	Key          [32]byte
@@ -59,12 +62,14 @@ type serializedAddrManager struct {
 	NewBuckets   [newBucketCount][]string // string is NetAddressKey
 	TriedBuckets [triedBucketCount][]string
 }
+
 type localAddress struct {
 	na    *wire.NetAddress
 	score AddressPriority
 }
 
 // AddressPriority type is used to describe the hierarchy of local address discovery methods.
+
 type AddressPriority int
 
 const (
@@ -149,7 +154,9 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 
 		// TODO: only update addresses periodically.
 		// Update the last seen time and services. note that to prevent causing excess garbage on getaddr messages the netaddresses in addrmaanger are *immutable*, if we need to change them then we replace the pointer with a new copy so that we don't have to copy every na for getaddr.
+
 		if netAddr.Timestamp.After(ka.na.Timestamp) ||
+
 			(ka.na.Services&netAddr.Services) !=
 				netAddr.Services {
 
@@ -159,17 +166,20 @@ func (a *AddrManager) updateAddress(netAddr, srcAddr *wire.NetAddress) {
 			ka.na = &naCopy
 		}
 		// If already in tried, we have nothing to do here.
+
 		if ka.tried {
 
 			return
 		}
 		// Already at our max?
+
 		if ka.refs == newBucketsPerAddress {
 
 			return
 		}
 		// The more entries we have, the less likely we are to add more. likelihood is 2N.
 		factor := int32(2 * ka.refs)
+
 		if a.rand.Int31n(factor) != 0 {
 
 			return
@@ -219,6 +229,7 @@ func (a *AddrManager) expireNew(bucket int) {
 
 			delete(a.addrNew[bucket], k)
 			v.refs--
+
 			if v.refs == 0 {
 
 				a.nNew--
@@ -226,6 +237,7 @@ func (a *AddrManager) expireNew(bucket int) {
 			}
 			continue
 		}
+
 		if oldest == nil {
 
 			oldest = v
@@ -242,6 +254,7 @@ func (a *AddrManager) expireNew(bucket int) {
 
 		delete(a.addrNew[bucket], key)
 		oldest.refs--
+
 		if oldest.refs == 0 {
 
 			a.nNew--
@@ -259,6 +272,7 @@ func (a *AddrManager) pickTried(bucket int) *list.Element {
 	for e := a.addrTried[bucket].Front(); e != nil; e = e.Next() {
 
 		ka := e.Value.(*KnownAddress)
+
 		if oldest == nil || oldest.na.Timestamp.After(ka.na.Timestamp) {
 
 			oldestElem = e
@@ -421,6 +435,7 @@ func (a *AddrManager) loadPeers() {
 		}
 		// if it is invalid we nuke the old one unconditionally.
 		err = os.Remove(a.peersFile)
+
 		if err != nil {
 
 			log <- cl.Warnf{
@@ -472,12 +487,14 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 
 		ka := new(KnownAddress)
 		ka.na, err = a.DeserializeNetAddress(v.Addr)
+
 		if err != nil {
 
 			return fmt.Errorf("failed to deserialize netaddress "+
 				"%s: %v", v.Addr, err)
 		}
 		ka.srcAddr, err = a.DeserializeNetAddress(v.Src)
+
 		if err != nil {
 
 			return fmt.Errorf("failed to deserialize netaddress "+
@@ -494,11 +511,13 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 		for _, val := range sam.NewBuckets[i] {
 
 			ka, ok := a.addrIndex[val]
+
 			if !ok {
 
 				return fmt.Errorf("newbucket contains %s but "+
 					"none in address list", val)
 			}
+
 			if ka.refs == 0 {
 
 				a.nNew++
@@ -513,6 +532,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 		for _, val := range sam.TriedBuckets[i] {
 
 			ka, ok := a.addrIndex[val]
+
 			if !ok {
 
 				return fmt.Errorf(
@@ -535,6 +555,7 @@ func (a *AddrManager) deserializePeers(filePath string) error {
 			return fmt.Errorf("address %s after serialisation "+
 				"with no references", k)
 		}
+
 		if v.refs > 0 && v.tried {
 
 			return fmt.Errorf("address %s after serialisation "+
@@ -728,6 +749,7 @@ func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.S
 		// go base32 encoding uses capitals (as does the rfc but Tor and bitcoind tend to user lowercase, so we switch case here.
 		data, err := base32.StdEncoding.DecodeString(
 			strings.ToUpper(host[:16]))
+
 		if err != nil {
 
 			return nil, err
@@ -737,10 +759,12 @@ func (a *AddrManager) HostToNetAddress(host string, port uint16, services wire.S
 	} else if ip = net.ParseIP(host); ip == nil {
 
 		ips, err := a.lookupFunc(host)
+
 		if err != nil {
 
 			return nil, err
 		}
+
 		if len(ips) == 0 {
 
 			return nil, fmt.Errorf("no addresses found for %s", host)
@@ -791,6 +815,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 
 			// pick a random bucket.
 			bucket := a.rand.Intn(len(a.addrTried))
+
 			if a.addrTried[bucket].Len() == 0 {
 
 				continue
@@ -799,12 +824,14 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 			e := a.addrTried[bucket].Front()
 
 			for i :=
+
 				a.rand.Int63n(int64(a.addrTried[bucket].Len())); i > 0; i-- {
 
 				e = e.Next()
 			}
 			ka := e.Value.(*KnownAddress)
 			randval := a.rand.Intn(large)
+
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
 
 				Log.Trcc(func() string {
@@ -826,6 +853,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 
 			// Pick a random bucket.
 			bucket := a.rand.Intn(len(a.addrNew))
+
 			if len(a.addrNew[bucket]) == 0 {
 
 				continue
@@ -843,6 +871,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 				nth--
 			}
 			randval := a.rand.Intn(large)
+
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
 
 				Log.Trcc(func() string {
@@ -930,10 +959,12 @@ func (a *AddrManager) Good(addr *wire.NetAddress) {
 	for i := range a.addrNew {
 
 		// we check for existence so we can record the first one
+
 		if _, ok := a.addrNew[i][addrKey]; ok {
 
 			delete(a.addrNew[i], addrKey)
 			ka.refs--
+
 			if oldBucket == -1 {
 
 				oldBucket = i
@@ -1057,6 +1088,7 @@ func getReachabilityFrom(
 
 			return Private
 		}
+
 		if IsRoutable(localAddr) && IsIPv4(localAddr) {
 
 			return Ipv4
@@ -1069,10 +1101,12 @@ func getReachabilityFrom(
 
 			return Default
 		}
+
 		if IsRFC4380(localAddr) {
 
 			return Teredo
 		}
+
 		if IsIPv4(localAddr) {
 
 			return Ipv4
@@ -1127,7 +1161,9 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 	for _, la := range a.localAddresses {
 
 		reach := getReachabilityFrom(la.na, remoteAddr)
+
 		if reach > bestreach ||
+
 			(reach == bestreach && la.score > bestscore) {
 
 			bestreach = reach
@@ -1145,6 +1181,7 @@ func (a *AddrManager) GetBestLocalAddress(remoteAddr *wire.NetAddress) *wire.Net
 
 		// Send something unroutable if nothing suitable.
 		var ip net.IP
+
 		if !IsIPv4(remoteAddr) && !IsOnionCatTor(remoteAddr) {
 
 			ip = net.IPv6zero

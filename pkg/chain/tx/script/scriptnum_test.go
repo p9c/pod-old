@@ -72,6 +72,7 @@ func TestScriptNumBytes(
 	for _, test := range tests {
 
 		gotBytes := test.num.Bytes()
+
 		if !bytes.Equal(gotBytes, test.serialized) {
 
 			t.Errorf("Bytes: did not get expected bytes for %d - "+
@@ -182,11 +183,13 @@ func TestMakeScriptNum(
 		// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
 		gotNum, err := makeScriptNum(test.serialized, test.minimalEncoding,
 			test.numLen)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("makeScriptNum(%#x): %v", test.serialized, e)
 			continue
 		}
+
 		if gotNum != test.num {
 
 			t.Errorf("makeScriptNum(%#x): did not get expected "+
@@ -249,6 +252,7 @@ func TestScriptNumInt32(
 	for _, test := range tests {
 
 		got := test.in.Int32()
+
 		if got != test.want {
 
 			t.Errorf("Int32: did not get expected value for %d - "+

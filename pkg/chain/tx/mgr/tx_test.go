@@ -89,11 +89,13 @@ func testStore() (*Store, walletdb.DB, func(), error) {
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 		ns, err := tx.CreateTopLevelBucket(namespaceKey)
+
 		if err != nil {
 
 			return err
 		}
 		err = Create(ns)
+
 		if err != nil {
 
 			return err
@@ -173,11 +175,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, nil)
+
 				if err != nil {
 
 					return nil, err
@@ -203,11 +207,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, nil)
+
 				if err != nil {
 
 					return nil, err
@@ -233,11 +239,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, TstRecvTxBlockDetails)
+
 				if err != nil {
 
 					return nil, err
@@ -261,11 +269,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, TstRecvTxBlockDetails)
+
 				if err != nil {
 
 					return nil, err
@@ -308,11 +318,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstDoubleSpendSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, TstRecvTxBlockDetails)
+
 				if err != nil {
 
 					return nil, err
@@ -336,6 +348,7 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
@@ -355,6 +368,7 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstDoubleSpendSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
@@ -374,11 +388,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, nil)
+
 				if err != nil {
 
 					return nil, err
@@ -404,11 +420,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, nil)
+
 				if err != nil {
 
 					return nil, err
@@ -437,6 +455,7 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstSpendingSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
@@ -525,11 +544,13 @@ func TestInsertsCreditsDebitsRollbacks(
 			f: func(s *Store, ns walletdb.ReadWriteBucket) (*Store, error) {
 
 				rec, err := NewTxRecord(TstRecvSerializedTx, time.Now())
+
 				if err != nil {
 
 					return nil, err
 				}
 				err = s.InsertTx(ns, rec, TstRecvTxBlockDetails)
+
 				if err != nil {
 
 					return nil, err
@@ -559,26 +580,31 @@ func TestInsertsCreditsDebitsRollbacks(
 
 			ns := tx.ReadWriteBucket(namespaceKey)
 			tmpStore, err := test.f(s, ns)
+
 			if err != nil {
 
 				t.Fatalf("%s: got error: %v", test.name, err)
 			}
 			s = tmpStore
 			bal, err := s.Balance(ns, 1, TstRecvCurrentHeight)
+
 			if err != nil {
 
 				t.Fatalf("%s: Confirmed Balance failed: %v", test.name, err)
 			}
+
 			if bal != test.bal {
 
 				t.Fatalf("%s: balance mismatch: expected: %d, got: %d", test.name, test.bal, bal)
 			}
 			unc, err := s.Balance(ns, 0, TstRecvCurrentHeight)
+
 			if err != nil {
 
 				t.Fatalf("%s: Unconfirmed Balance failed: %v", test.name, err)
 			}
 			unc -= bal
+
 			if unc != test.unc {
 
 				t.Fatalf("%s: unconfirmed balance mismatch: expected %d, got %d", test.name, test.unc, unc)
@@ -586,6 +612,7 @@ func TestInsertsCreditsDebitsRollbacks(
 
 			// Check that unspent outputs match expected.
 			unspent, err := s.UnspentOutputs(ns)
+
 			if err != nil {
 
 				t.Fatalf("%s: failed to fetch unspent outputs: %v", test.name, err)
@@ -599,6 +626,7 @@ func TestInsertsCreditsDebitsRollbacks(
 				}
 				delete(test.unspents, cred.OutPoint)
 			}
+
 			if len(test.unspents) != 0 {
 
 				t.Fatalf("%s: missing expected unspent output(s)", test.name)
@@ -606,6 +634,7 @@ func TestInsertsCreditsDebitsRollbacks(
 
 			// Check that unmined txs match expected.
 			unmined, err := s.UnminedTxs(ns)
+
 			if err != nil {
 
 				t.Fatalf("%s: cannot load unmined transactions: %v", test.name, err)
@@ -614,18 +643,21 @@ func TestInsertsCreditsDebitsRollbacks(
 			for _, tx := range unmined {
 
 				txHash := tx.TxHash()
+
 				if _, ok := test.unmined[txHash]; !ok {
 
 					t.Fatalf("%s: unexpected unmined tx: %v", test.name, txHash)
 				}
 				delete(test.unmined, txHash)
 			}
+
 			if len(test.unmined) != 0 {
 
 				t.Fatalf("%s: missing expected unmined tx(s)", test.name)
 			}
 			return nil
 		})
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -831,6 +863,7 @@ func TestCoinbases(
 	// the required number of confirmations.  Matured outputs which have
 
 	// greater depth than minConf are still excluded.
+
 	type balTest struct {
 		height  int32
 		minConf int32
@@ -907,10 +940,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -997,10 +1032,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1086,10 +1123,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1132,10 +1171,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1159,10 +1200,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1214,10 +1257,12 @@ func TestCoinbases(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1420,10 +1465,12 @@ func TestMoveMultipleToSameBlock(
 	for i, tst := range balTests {
 
 		bal, err := s.Balance(ns, tst.minConf, tst.height)
+
 		if err != nil {
 
 			t.Fatalf("Balance test %d: Store.Balance failed: %v", i, err)
 		}
+
 		if bal != tst.bal {
 
 			t.Errorf("Balance test %d: Got %v Expected %v", i, bal, tst.bal)
@@ -1567,6 +1614,7 @@ func TestRemoveUnminedTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, cbRec, b100, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1590,6 +1638,7 @@ func TestRemoveUnminedTx(
 		t.Helper()
 
 		minConfs := int32(1)
+
 		if includeUnconfirmed {
 
 			minConfs = 0
@@ -1600,10 +1649,12 @@ func TestRemoveUnminedTx(
 			t.Helper()
 
 			b, err := store.Balance(ns, minConfs, maturityHeight)
+
 			if err != nil {
 
 				t.Fatalf("unable to retrieve balance: %v", err)
 			}
+
 			if b != expectedBalance {
 
 				t.Fatalf("expected balance of %d, got %d",
@@ -1641,6 +1692,7 @@ func TestRemoveUnminedTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, spendTxRec, nil, 1, true)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1653,10 +1705,12 @@ func TestRemoveUnminedTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatalf("unable to query for unmined txs: %v", err)
 		}
+
 		if len(unminedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined tx, instead got %v",
@@ -1664,6 +1718,7 @@ func TestRemoveUnminedTx(
 		}
 		unminedTxHash := unminedTxs[0].TxHash()
 		spendTxHash := spendTx.TxHash()
+
 		if !unminedTxHash.IsEqual(&spendTxHash) {
 
 			t.Fatalf("mismatch tx hashes: expected %v, got %v",
@@ -1696,10 +1751,12 @@ func TestRemoveUnminedTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatalf("unable to query for unmined txs: %v", err)
 		}
+
 		if len(unminedTxs) != 0 {
 
 			t.Fatalf("expected 0 mined txs, instead got %v",
@@ -1778,6 +1835,7 @@ func testInsertMempoolDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, cbRec, &b100, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1808,6 +1866,7 @@ func testInsertMempoolDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, firstSpendRec, nil, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1820,6 +1879,7 @@ func testInsertMempoolDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, secondSpendRec, nil, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1832,10 +1892,12 @@ func testInsertMempoolDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(unminedTxs) != 2 {
 
 			t.Fatalf("expected 2 unmined txs, got %v",
@@ -1865,6 +1927,7 @@ func testInsertMempoolDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		err := store.InsertTx(ns, confirmedSpendRec, &bMaturity)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1872,6 +1935,7 @@ func testInsertMempoolDoubleSpendTx(
 		err = store.AddCredit(
 			ns, confirmedSpendRec, &bMaturity, 0, false,
 		)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -1890,10 +1954,12 @@ func testInsertMempoolDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(unminedTxs) != 0 {
 
 			t.Fatalf("expected 0 unmined txs, got %v",
@@ -1901,14 +1967,17 @@ func testInsertMempoolDoubleSpendTx(
 		}
 
 		minedTxs, err := store.UnspentOutputs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(minedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined tx, got %v", len(minedTxs))
 		}
+
 		if !minedTxs[0].Hash.IsEqual(&confirmedSpendRec.Hash) {
 
 			t.Fatalf("expected confirmed tx hash %v, got %v",
@@ -1981,6 +2050,7 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, cbRec1, &b100, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2005,6 +2075,7 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, firstSpendRec1, nil, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2024,6 +2095,7 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, secondSpendRec1, nil, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2046,6 +2118,7 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, cbRec2, &b100, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2065,6 +2138,7 @@ func TestInsertConfirmedDoubleSpendTx(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, firstSpendRec2, nil, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2077,10 +2151,12 @@ func TestInsertConfirmedDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(unminedTxs) != 3 {
 
 			t.Fatalf("expected 3 unmined txs, got %d",
@@ -2111,6 +2187,7 @@ func TestInsertConfirmedDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		err := store.InsertTx(ns, confirmedSpendRec, &bMaturity)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2118,6 +2195,7 @@ func TestInsertConfirmedDoubleSpendTx(
 		err = store.AddCredit(
 			ns, confirmedSpendRec, &bMaturity, 0, false,
 		)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2134,10 +2212,12 @@ func TestInsertConfirmedDoubleSpendTx(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		unminedTxs, err := store.UnminedTxs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(unminedTxs) != 0 {
 
 			t.Fatalf("expected 0 unmined txs, got %v",
@@ -2145,14 +2225,17 @@ func TestInsertConfirmedDoubleSpendTx(
 		}
 
 		minedTxs, err := store.UnspentOutputs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(minedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined tx, got %v", len(minedTxs))
 		}
+
 		if !minedTxs[0].Hash.IsEqual(&confirmedSpendRec.Hash) {
 
 			t.Fatalf("expected confirmed tx hash %v, got %v",
@@ -2203,6 +2286,7 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, cbRec, b100, 0, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2215,14 +2299,17 @@ func TestAddDuplicateCreditAfterConfirm(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		minedTxs, err := store.UnspentOutputs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(minedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined tx, got %v", len(minedTxs))
 		}
+
 		if !minedTxs[0].Hash.IsEqual(&cbRec.Hash) {
 
 			t.Fatalf("expected tx hash %v, got %v", cbRec.Hash,
@@ -2248,6 +2335,7 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, spendTxRec, nil, 1, true)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2262,6 +2350,7 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, spendTxRec, b101, 1, true)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2274,14 +2363,17 @@ func TestAddDuplicateCreditAfterConfirm(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		minedTxs, err := store.UnspentOutputs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(minedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined txs, got %v", len(minedTxs))
 		}
+
 		if !minedTxs[0].Hash.IsEqual(&spendTxRec.Hash) {
 
 			t.Fatalf("expected tx hash %v, got %v", spendTxRec.Hash,
@@ -2309,6 +2401,7 @@ func TestAddDuplicateCreditAfterConfirm(
 			t.Fatal(err)
 		}
 		err := store.AddCredit(ns, spendTxRec, nil, 1, true)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -2321,14 +2414,17 @@ func TestAddDuplicateCreditAfterConfirm(
 	commitDBTx(t, store, db, func(ns walletdb.ReadWriteBucket) {
 
 		minedTxs, err := store.UnspentOutputs(ns)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
+
 		if len(minedTxs) != 1 {
 
 			t.Fatalf("expected 1 mined txs, got %v", len(minedTxs))
 		}
+
 		if !minedTxs[0].Hash.IsEqual(&spendTxRec.Hash) {
 
 			t.Fatalf("expected tx hash %v, got %v", spendTxRec.Hash,

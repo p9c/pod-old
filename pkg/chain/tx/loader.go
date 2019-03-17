@@ -49,6 +49,7 @@ var (
 //
 
 // Loader is safe for concurrent access.
+
 type Loader struct {
 	callbacks      []func(*Wallet)
 	chainParams    *chaincfg.Params

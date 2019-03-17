@@ -16,6 +16,7 @@ import (
 )
 
 // blockStatus is a bit field representing the validation state of the block.
+
 type blockStatus byte
 
 const (

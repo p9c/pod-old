@@ -338,6 +338,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Txid string
 				}
+
 				type s struct {
 					Capabilities []s2
 				}
@@ -365,6 +366,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Test string `jsonrpcusage:"testusage"`
 				}
+
 				type s struct {
 					Test s2
 				}
@@ -380,6 +382,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Txid string
 				}
+
 				type s struct {
 					Test s2
 				}
@@ -395,6 +398,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Vout int
 				}
+
 				type s struct {
 					Test s2
 				}
@@ -410,6 +414,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Amount float64
 				}
+
 				type s struct {
 					Test s2
 				}
@@ -425,9 +430,11 @@ func TestFieldUsage(
 				type s3 struct {
 					Amount float64
 				}
+
 				type s2 struct {
 					Template s3
 				}
+
 				type s struct {
 					Test s2
 				}
@@ -443,6 +450,7 @@ func TestFieldUsage(
 				type s2 struct {
 					Capabilities []string
 				}
+
 				type s struct {
 					Test s2
 				}

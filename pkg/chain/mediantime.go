@@ -40,6 +40,7 @@ type MedianTimeSource interface {
 }
 
 // int64Sorter implements sort.Interface to allow a slice of 64-bit integers to be sorted.
+
 type int64Sorter []int64
 
 // Len returns the number of 64-bit integers in the slice.  It is part of the sort.Interface implementation.

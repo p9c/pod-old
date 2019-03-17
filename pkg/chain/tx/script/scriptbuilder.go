@@ -12,6 +12,7 @@ const (
 )
 
 // ErrScriptNotCanonical identifies a non-canonical script.  The caller can use a type assertion to detect this error type.
+
 type ErrScriptNotCanonical string
 
 // Error implements the error interface.
@@ -33,6 +34,7 @@ func (e ErrScriptNotCanonical) Error() string {
 // 		return
 // 	}
 // 	fmt.Printf("Final multi-sig script: %x\n", script)
+
 type ScriptBuilder struct {
 	script []byte
 	err    error

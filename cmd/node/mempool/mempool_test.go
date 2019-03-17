@@ -18,6 +18,7 @@ import (
 )
 
 // fakeChain is used by the pool harness to provide generated test utxos and a current faked chain height to the pool callbacks.  This, in turn, allows transactions to appear as though they are spending completely valid utxos.
+
 type fakeChain struct {
 	sync.RWMutex
 	utxos          *blockchain.UtxoViewpoint
@@ -50,6 +51,7 @@ func (s *fakeChain) FetchUtxoView(tx *util.Tx) (*blockchain.UtxoViewpoint, error
 
 // BestHeight returns the current height associated with the fake chain instance.
 func (s *fakeChain) BestHeight() int32 {
+
 	s.RLock()
 	height := s.currentHeight
 	s.RUnlock()
@@ -66,6 +68,7 @@ func (s *fakeChain) SetHeight(height int32) {
 
 // MedianTimePast returns the current median time past associated with the fake chain instance.
 func (s *fakeChain) MedianTimePast() time.Time {
+
 	s.RLock()
 	mtp := s.medianTimePast
 	s.RUnlock()
@@ -91,6 +94,7 @@ func (s *fakeChain) CalcSequenceLock(tx *util.Tx,
 }
 
 // spendableOutput is a convenience type that houses a particular utxo and the amount associated with it.
+
 type spendableOutput struct {
 	outPoint wire.OutPoint
 	amount   util.Amount
@@ -106,7 +110,9 @@ func txOutToSpendableOut(
 }
 
 // poolHarness provides a harness that includes functionality for creating and signing transactions as well as a fake chain that provides utxos for use in generating valid transactions.
+
 type poolHarness struct {
+
 	// signKey is the signing key used for creating transactions throughout the tests. payAddr is the p2sh address for the signing key and is used for the payment address throughout the tests.
 	signKey     *ec.PrivateKey
 	payAddr     util.Address
@@ -144,6 +150,7 @@ func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*u
 		amount := amountPerOutput
 
 		if i == numOutputs-1 {
+
 			amount = amountPerOutput + remainder
 		}
 		tx.AddTxOut(&wire.TxOut{
@@ -180,6 +187,7 @@ func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32
 		amount := amountPerOutput
 
 		if i == numOutputs-1 {
+
 			amount = amountPerOutput + remainder
 		}
 		tx.AddTxOut(&wire.TxOut{
@@ -194,6 +202,7 @@ func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32
 			txscript.SigHashAll, p.signKey, true)
 
 		if err != nil {
+
 			return nil, err
 		}
 		tx.TxIn[i].SignatureScript = sigScript
@@ -225,6 +234,7 @@ func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32)
 			txscript.SigHashAll, p.signKey, true)
 
 		if err != nil {
+
 			return nil, err
 		}
 		tx.TxIn[0].SignatureScript = sigScript
@@ -307,6 +317,7 @@ func newPoolHarness(
 }
 
 // testContext houses a test-related state that is useful to pass to helper functions as a single argument.
+
 type testContext struct {
 	t       *testing.T
 	harness *poolHarness
@@ -366,12 +377,14 @@ func TestSimpleOrphanChain(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept valid "+
 				"orphan %v", err)
 		}
 		// Ensure no transactions were reported as accepted.
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatalf("ProcessTransaction: reported %d accepted "+
 				"transactions from what should be an orphan",
 				len(acceptedTxns))
@@ -426,6 +439,7 @@ func TestOrphanReject(
 			false, 0)
 
 		if err == nil {
+
 			t.Fatalf("ProcessTransaction: did not fail on orphan "+
 				"%v when allow orphans flag is false", tx.Hash())
 		}
@@ -439,17 +453,20 @@ func TestOrphanReject(
 		code, extracted := extractRejectCode(err)
 
 		if !extracted {
+
 			t.Fatalf("ProcessTransaction: failed to extract reject "+
 				"code from error %q", err)
 		}
 
 		if code != wire.RejectDuplicate {
+
 			t.Fatalf("ProcessTransaction: unexpected reject code "+
 				"-- got %v, want %v", code, wire.RejectDuplicate)
 		}
 		// Ensure no transactions were reported as accepted.
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatal("ProcessTransaction: reported %d accepted "+
 				"transactions from failed orphan attempt",
 				len(acceptedTxns))
@@ -484,12 +501,14 @@ func TestOrphanEviction(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept valid "+
 				"orphan %v", err)
 		}
 		// Ensure no transactions were reported as accepted.
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatalf("ProcessTransaction: reported %d accepted "+
 				"transactions from what should be an orphan",
 				len(acceptedTxns))
@@ -546,12 +565,14 @@ func TestBasicOrphanRemoval(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept valid "+
 				"orphan %v", err)
 		}
 		// Ensure no transactions were reported as accepted.
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatalf("ProcessTransaction: reported %d accepted "+
 				"transactions from what should be an orphan",
 				len(acceptedTxns))
@@ -615,12 +636,14 @@ func TestOrphanChainRemoval(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept valid "+
 				"orphan %v", err)
 		}
 		// Ensure no transactions were reported as accepted.
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatalf("ProcessTransaction: reported %d accepted "+
 				"transactions from what should be an orphan",
 				len(acceptedTxns))
@@ -673,11 +696,13 @@ func TestMultiInputOrphanDoubleSpend(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept valid "+
 				"orphan %v", err)
 		}
 
 		if len(acceptedTxns) != 0 {
+
 			t.Fatalf("ProcessTransaction: reported %d accepted transactions "+
 				"from what should be an orphan", len(acceptedTxns))
 		}
@@ -744,6 +769,7 @@ func TestCheckSpend(
 		spend := harness.txPool.CheckSpend(op.outPoint)
 
 		if spend != nil {
+
 			t.Fatalf("Unexpeced spend found in pool: %v", spend)
 		}
 	}
@@ -760,6 +786,7 @@ func TestCheckSpend(
 			false, 0)
 
 		if err != nil {
+
 			t.Fatalf("ProcessTransaction: failed to accept "+
 				"tx: %v", err)
 		}
@@ -783,6 +810,7 @@ func TestCheckSpend(
 		spend = harness.txPool.CheckSpend(op)
 
 		if spend != expSpend {
+
 			t.Fatalf("expected %v to be spent by %v, instead "+
 				"got %v", op, expSpend, spend)
 		}

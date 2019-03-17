@@ -5,6 +5,7 @@ import (
 )
 
 // Params is used to group parameters for various networks such as the main network and test networks.
+
 type Params struct {
 	*chaincfg.Params
 	RPCClientPort string

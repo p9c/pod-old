@@ -7,6 +7,7 @@ import (
 )
 
 // ThresholdState define the various threshold states used when voting on consensus changes.
+
 type ThresholdState byte
 
 // These constants are used to identify specific threshold states.

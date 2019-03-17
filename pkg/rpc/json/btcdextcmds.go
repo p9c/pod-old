@@ -1,6 +1,7 @@
 package json
 
 // NodeSubCmd defines the type used in the addnode JSON-RPC command for the sub command field.
+
 type NodeSubCmd string
 
 const (
@@ -16,6 +17,7 @@ const (
 )
 
 // NodeCmd defines the dropnode JSON-RPC command.
+
 type NodeCmd struct {
 	SubCmd        NodeSubCmd `jsonrpcusage:"\"connect|remove|disconnect\""`
 	Target        string
@@ -35,6 +37,7 @@ func NewNodeCmd(
 }
 
 // DebugLevelCmd defines the debuglevel JSON-RPC command.  This command is not a standard Bitcoin command.  It is an extension for pod.
+
 type DebugLevelCmd struct {
 	LevelSpec string
 }
@@ -49,6 +52,7 @@ func NewDebugLevelCmd(
 }
 
 // GenerateCmd defines the generate JSON-RPC command.
+
 type GenerateCmd struct {
 	NumBlocks uint32
 }
@@ -63,6 +67,7 @@ func NewGenerateCmd(
 }
 
 // GetBestBlockCmd defines the getbestblock JSON-RPC command.
+
 type GetBestBlockCmd struct{}
 
 // NewGetBestBlockCmd returns a new instance which can be used to issue a getbestblock JSON-RPC command.
@@ -72,6 +77,7 @@ func NewGetBestBlockCmd() *GetBestBlockCmd {
 }
 
 // GetCurrentNetCmd defines the getcurrentnet JSON-RPC command.
+
 type GetCurrentNetCmd struct{}
 
 // NewGetCurrentNetCmd returns a new instance which can be used to issue a getcurrentnet JSON-RPC command.
@@ -81,6 +87,7 @@ func NewGetCurrentNetCmd() *GetCurrentNetCmd {
 }
 
 // GetHeadersCmd defines the getheaders JSON-RPC command. NOTE: This is a btcsuite extension ported from github.com/decred/dcrd/dcrjson.
+
 type GetHeadersCmd struct {
 	BlockLocators []string `json:"blocklocators"`
 	HashStop      string   `json:"hashstop"`
@@ -98,6 +105,7 @@ func NewGetHeadersCmd(
 }
 
 // VersionCmd defines the version JSON-RPC command. NOTE: This is a btcsuite extension ported from github.com/decred/dcrd/dcrjson.
+
 type VersionCmd struct{}
 
 // NewVersionCmd returns a new instance which can be used to issue a JSON-RPC version command. NOTE: This is a btcsuite extension ported from

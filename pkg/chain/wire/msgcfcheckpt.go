@@ -22,6 +22,7 @@ var ErrInsaneCFHeaderCount = errors.New(
 	"refusing to decode unreasonable number of filter headers")
 
 // MsgCFCheckpt implements the Message interface and represents a bitcoin cfcheckpt message.  It is used to deliver committed filter header information in response to a getcfcheckpt message (MsgGetCFCheckpt). See MsgGetCFCheckpt for details on requesting the headers.
+
 type MsgCFCheckpt struct {
 	FilterType    FilterType
 	StopHash      chainhash.Hash

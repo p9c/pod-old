@@ -13,6 +13,7 @@ import (
 )
 
 // rpcPeer provides a peer for use with the RPC server and implements the rpcserverPeer interface.
+
 type rpcPeer serverPeer
 
 // Ensure rpcPeer implements the rpcserverPeer interface.

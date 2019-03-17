@@ -21,6 +21,7 @@ import (
 )
 
 // SyncManager is used to communicate block related messages with peers. The SyncManager is started as by executing Start() in a goroutine. Once started, it selects peers to sync from and starts the initial block download. Once the chain is in sync, the SyncManager handles incoming block and header notifications and relays announcements of new blocks to peers.
+
 type SyncManager struct {
 	peerNotifier   PeerNotifier
 	started        int32
@@ -51,6 +52,7 @@ type SyncManager struct {
 }
 
 // blockMsg packages a bitcoin block message and the peer it came from together so the block handler has access to that information.
+
 type blockMsg struct {
 	block *util.Block
 	peer  *peerpkg.Peer
@@ -58,49 +60,58 @@ type blockMsg struct {
 }
 
 // donePeerMsg signifies a newly disconnected peer to the block handler.
+
 type donePeerMsg struct {
 	peer *peerpkg.Peer
 }
 
 // getSyncPeerMsg is a message type to be sent across the message channel for retrieving the current sync peer.
+
 type getSyncPeerMsg struct {
 	reply chan int32
 }
 
 // headerNode is used as a node in a list of headers that are linked together between checkpoints.
+
 type headerNode struct {
 	height int32
 	hash   *chainhash.Hash
 }
 
 // headersMsg packages a bitcoin headers message and the peer it came from together so the block handler has access to that information.
+
 type headersMsg struct {
 	headers *wire.MsgHeaders
 	peer    *peerpkg.Peer
 }
 
 // invMsg packages a bitcoin inv message and the peer it came from together so the block handler has access to that information.
+
 type invMsg struct {
 	inv  *wire.MsgInv
 	peer *peerpkg.Peer
 }
 
 // isCurrentMsg is a message type to be sent across the message channel for requesting whether or not the sync manager believes it is synced with the currently connected peers.
+
 type isCurrentMsg struct {
 	reply chan bool
 }
 
 // newPeerMsg signifies a newly connected peer to the block handler.
+
 type newPeerMsg struct {
 	peer *peerpkg.Peer
 }
 
 // pauseMsg is a message type to be sent across the message channel for pausing the sync manager.  This effectively provides the caller with exclusive access over the manager until a receive is performed on the unpause channel.
+
 type pauseMsg struct {
 	unpause <-chan struct{}
 }
 
 // peerSyncState stores additional information that the SyncManager tracks about a peer.
+
 type peerSyncState struct {
 	syncCandidate   bool
 	requestQueue    []*wire.InvVect
@@ -109,6 +120,7 @@ type peerSyncState struct {
 }
 
 // processBlockMsg is a message type to be sent across the message channel for requested a block is processed.  Note this call differs from blockMsg above in that blockMsg is intended for blocks that came from peers and have extra handling whereas this message essentially is just a concurrent safe way to call ProcessBlock on the internal block chain instance.
+
 type processBlockMsg struct {
 	block *util.Block
 	flags blockchain.BehaviorFlags
@@ -116,12 +128,14 @@ type processBlockMsg struct {
 }
 
 // processBlockResponse is a response sent to the reply channel of a processBlockMsg.
+
 type processBlockResponse struct {
 	isOrphan bool
 	err      error
 }
 
 // txMsg packages a bitcoin tx message and the peer it came from together so the block handler has access to that information.
+
 type txMsg struct {
 	tx    *util.Tx
 	peer  *peerpkg.Peer
@@ -653,6 +667,7 @@ func (
 		}
 
 		if dbErr, ok := err.(database.Error); ok && dbErr.ErrorCode ==
+
 			database.ErrCorruption {
 
 			panic(dbErr)
@@ -735,6 +750,7 @@ func (
 	if !isCheckpointBlock {
 
 		if sm.startHeader != nil &&
+
 			len(state.requestedBlocks) < minInFlightBlocks {
 
 			sm.fetchHeaderBlocks()
@@ -1493,6 +1509,7 @@ func (
 		nodeServices := peer.Services()
 
 		if nodeServices&wire.SFNodeNetwork != wire.SFNodeNetwork ||
+
 			(segwitActive && !peer.IsWitnessEnabled()) {
 
 			return false
@@ -1617,6 +1634,7 @@ func (
 		// Once we have passed the final checkpoint, or checkpoints are disabled, use standard inv messages learn about the blocks and fully validate them.  Finally, regression test mode does not support the headers-first approach so do normal block downloads when in regression test mode.
 
 		if sm.nextCheckpoint != nil &&
+
 			best.Height < sm.nextCheckpoint.Height &&
 			sm.chainParams != &chaincfg.RegressionNetParams {
 

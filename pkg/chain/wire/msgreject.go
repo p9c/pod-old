@@ -8,6 +8,7 @@ import (
 )
 
 // RejectCode represents a numeric value by which a remote peer indicates why a message was rejected.
+
 type RejectCode uint8
 
 // These constants define the various supported reject codes.
@@ -45,6 +46,7 @@ func (code RejectCode) String() string {
 }
 
 // MsgReject implements the Message interface and represents a bitcoin reject message. This message was not added until protocol version RejectVersion.
+
 type MsgReject struct {
 
 	// Cmd is the command for the message which was rejected such as as CmdBlock or CmdTx.  This can be obtained from the Command function of a Message.

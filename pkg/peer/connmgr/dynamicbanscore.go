@@ -48,6 +48,7 @@ func decayFactor(
 // DynamicBanScore provides dynamic ban scores consisting of a persistent and a decaying component. The persistent score could be utilized to create simple additive banning policies similar to those found in other bitcoin node implementations.
 
 // The decaying score enables the creation of evasive logic which handles misbehaving peers (especially application layer DoS attacks) gracefully by disconnecting and banning peers attempting various kinds of flooding. DynamicBanScore allows these two approaches to be used in tandem. Zero value: Values of type DynamicBanScore are immediately ready for use upon declaration.
+
 type DynamicBanScore struct {
 	lastUnix   int64
 	transient  float64

@@ -38,6 +38,7 @@ const (
 )
 
 // BlockConnectedNtfn defines the blockconnected JSON-RPC notification. NOTE: Deprecated. Use FilteredBlockConnectedNtfn instead.
+
 type BlockConnectedNtfn struct {
 	Hash   string
 	Height int32
@@ -56,6 +57,7 @@ func NewBlockConnectedNtfn(
 }
 
 // BlockDisconnectedNtfn defines the blockdisconnected JSON-RPC notification. NOTE: Deprecated. Use FilteredBlockDisconnectedNtfn instead.
+
 type BlockDisconnectedNtfn struct {
 	Hash   string
 	Height int32
@@ -74,6 +76,7 @@ func NewBlockDisconnectedNtfn(
 }
 
 // FilteredBlockConnectedNtfn defines the filteredblockconnected JSON-RPC notification.
+
 type FilteredBlockConnectedNtfn struct {
 	Height        int32
 	Header        string
@@ -92,6 +95,7 @@ func NewFilteredBlockConnectedNtfn(
 }
 
 // FilteredBlockDisconnectedNtfn defines the filteredblockdisconnected JSON-RPC notification.
+
 type FilteredBlockDisconnectedNtfn struct {
 	Height int32
 	Header string
@@ -108,6 +112,7 @@ func NewFilteredBlockDisconnectedNtfn(
 }
 
 // BlockDetails describes details of a tx in a block.
+
 type BlockDetails struct {
 	Height int32  `json:"height"`
 	Hash   string `json:"hash"`
@@ -116,6 +121,7 @@ type BlockDetails struct {
 }
 
 // RecvTxNtfn defines the recvtx JSON-RPC notification. NOTE: Deprecated. Use RelevantTxAcceptedNtfn and FilteredBlockConnectedNtfn instead.
+
 type RecvTxNtfn struct {
 	HexTx string
 	Block *BlockDetails
@@ -132,6 +138,7 @@ func NewRecvTxNtfn(
 }
 
 // RedeemingTxNtfn defines the redeemingtx JSON-RPC notification. NOTE: Deprecated. Use RelevantTxAcceptedNtfn and FilteredBlockConnectedNtfn instead.
+
 type RedeemingTxNtfn struct {
 	HexTx string
 	Block *BlockDetails
@@ -148,6 +155,7 @@ func NewRedeemingTxNtfn(
 }
 
 // RescanFinishedNtfn defines the rescanfinished JSON-RPC notification. NOTE: Deprecated. Not used with rescanblocks command.
+
 type RescanFinishedNtfn struct {
 	Hash   string
 	Height int32
@@ -166,6 +174,7 @@ func NewRescanFinishedNtfn(
 }
 
 // RescanProgressNtfn defines the rescanprogress JSON-RPC notification. NOTE: Deprecated. Not used with rescanblocks command.
+
 type RescanProgressNtfn struct {
 	Hash   string
 	Height int32
@@ -184,6 +193,7 @@ func NewRescanProgressNtfn(
 }
 
 // TxAcceptedNtfn defines the txaccepted JSON-RPC notification.
+
 type TxAcceptedNtfn struct {
 	TxID   string
 	Amount float64
@@ -200,6 +210,7 @@ func NewTxAcceptedNtfn(
 }
 
 // TxAcceptedVerboseNtfn defines the txacceptedverbose JSON-RPC notification.
+
 type TxAcceptedVerboseNtfn struct {
 	RawTx TxRawResult
 }
@@ -214,6 +225,7 @@ func NewTxAcceptedVerboseNtfn(
 }
 
 // RelevantTxAcceptedNtfn defines the parameters to the relevanttxaccepted JSON-RPC notification.
+
 type RelevantTxAcceptedNtfn struct {
 	Transaction string `json:"transaction"`
 }

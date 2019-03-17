@@ -11,6 +11,7 @@ import (
 // specifically due to a rule violation and use the Err field to access the
 // underlying error, which will be either a TxRuleError or a
 // blockchain.RuleError.
+
 type RuleError struct {
 	Err error
 }
@@ -29,6 +30,7 @@ func (e RuleError) Error() string {
 // rules.  The caller can use type assertions to determine if a failure was
 // specifically due to a rule violation and access the ErrorCode field to
 // ascertain the specific reason for the rule violation.
+
 type TxRuleError struct {
 	RejectCode  wire.RejectCode // The code to send with reject messages
 	Description string          // Human readable description of the issue
@@ -36,6 +38,7 @@ type TxRuleError struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e TxRuleError) Error() string {
+
 	return e.Description
 }
 

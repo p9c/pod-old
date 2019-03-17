@@ -7,6 +7,7 @@ import (
 )
 
 // AmountUnit describes a method of converting an Amount to something other than the base unit of a bitcoin.  The value of the AmountUnit is the exponent component of the decadic multiple to convert from an amount in bitcoin to an amount counted in units.
+
 type AmountUnit int
 
 // These constants define various units used when describing a bitcoin monetary amount.
@@ -44,6 +45,7 @@ func (u AmountUnit) String() string {
 }
 
 // Amount represents the base bitcoin monetary unit (colloquially referred to as a `Satoshi').  A single Amount is equal to 1e-8 of a bitcoin.
+
 type Amount int64
 
 // round converts a floating point number, which may or may not be representable as an integer, to the Amount integer type by rounding to the nearest integer. This is performed by adding or subtracting 0.5 depending on the sign, and relying on integer truncation to round the value to the nearest Amount.

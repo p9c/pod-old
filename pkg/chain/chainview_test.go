@@ -114,6 +114,7 @@ func TestChainView(
 		// expected fork node
 
 		fork *blockNode
+
 		// expected nodes in active view
 		contains []*blockNode
 		// expected nodes NOT in active view
@@ -136,7 +137,8 @@ func TestChainView(
 			side:    newChainView(tip(branch1Nodes)),
 			sideTip: tip(branch1Nodes),
 
-			fork:       branch0Nodes[1],
+			fork: branch0Nodes[1],
+
 			contains:   branch0Nodes,
 			noContains: branch1Nodes,
 			equal:      newChainView(tip(branch0Nodes)),
@@ -154,7 +156,8 @@ func TestChainView(
 			side:    newChainView(tip(branch2Nodes)),
 			sideTip: tip(branch2Nodes),
 
-			fork:       branch1Nodes[0],
+			fork: branch1Nodes[0],
+
 			contains:   branch1Nodes,
 			noContains: branch2Nodes,
 			equal:      newChainView(tip(branch1Nodes)),
@@ -175,7 +178,8 @@ func TestChainView(
 			side:    newChainView(tip(branch0Nodes)),
 			sideTip: tip(branch0Nodes),
 
-			fork:       branch0Nodes[1],
+			fork: branch0Nodes[1],
+
 			contains:   branch2Nodes,
 			noContains: branch0Nodes[2:],
 			equal:      newChainView(tip(branch2Nodes)),
@@ -409,6 +413,7 @@ func TestChainViewForkCorners(
 			t.Fatalf("FindFork: unexpected fork -- got %v, want nil",
 
 				fork)
+
 		}
 
 	}
@@ -420,6 +425,7 @@ func TestChainViewForkCorners(
 			t.Fatalf("FindFork: unexpected fork -- got %v, want nil",
 
 				fork)
+
 		}
 
 	}

@@ -114,12 +114,14 @@ var (
 )
 
 // Checkpoint identifies a known good point in the block chain.  Using checkpoints allows a few optimizations for old blocks during initial download and also prevents forks from old blocks. Each checkpoint is selected based upon several factors.  See the documentation for blockchain.IsCheckpointCandidate for details on the selection criteria.
+
 type Checkpoint struct {
 	Height int32
 	Hash   *chainhash.Hash
 }
 
 // DNSSeed identifies a DNS seed.
+
 type DNSSeed struct {
 
 	// Host defines the hostname of the seed.
@@ -130,6 +132,7 @@ type DNSSeed struct {
 }
 
 // ConsensusDeployment defines details related to a specific consensus rule change that is voted in.  This is part of BIP0009.
+
 type ConsensusDeployment struct {
 
 	// BitNumber defines the specific bit number within the block version this particular soft-fork deployment refers to.
@@ -159,6 +162,7 @@ const (
 )
 
 // Params defines a Bitcoin network by its parameters.  These parameters may be used by Bitcoin applications to differentiate networks as well as addresses and keys for one network from those intended for use on another network.
+
 type Params struct {
 
 	// Name defines a human-readable identifier for the network.

@@ -1,9 +1,11 @@
 package cl
 
 // StringClosure is a function that returns a string, used to defer execution of expensive logging operations
+
 type StringClosure func() string
 
 // Value is the generic list of things processed by the log chan
+
 type Value []interface{}
 
 type (
@@ -22,6 +24,7 @@ type (
 )
 
 type (
+
 	// Error is a log value that indicates level and how to interpret the interface slice
 	Error Value
 

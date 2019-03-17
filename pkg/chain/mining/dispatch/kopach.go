@@ -8,14 +8,17 @@ import (
 )
 
 // Address is the parameter and reply type for subscriptions
+
 type Address struct {
 	Address string
 }
 
 // Kopach is the protocol root for the kopach work protocol, a list of addresses of subscribed miner workers
+
 type Kopach []Address
 
 // Work is the data required to construct a valid block to solve given the option of version number and corresponding hash algorithm
+
 type Work struct {
 	PrevBlockHash *chainhash.Hash
 	MerkleRoot    *chainhash.Hash
@@ -55,6 +58,7 @@ func (k *Kopach) Unsubscribe(args *Address, reply *Address) (err error) {
 		if (*k)[i].Address == (*args).Address {
 
 			err = nil
+
 			if len(*k)-1 > i {
 
 				*k = append((*k)[:i], (*k)[i+1:]...)

@@ -41,10 +41,13 @@ var (
 )
 
 // HarnessTestCase represents a test-case which utilizes an instance of the Harness to exercise functionality.
+
 type HarnessTestCase func(r *Harness, t *testing.T)
 
 // Harness fully encapsulates an active pod process to provide a unified platform for creating rpc driven integration tests involving pod. The active pod node will typically be run in simnet mode in order to allow for easy generation of test blockchains.  The active pod process is fully managed by Harness, which handles the necessary initialization, and teardown of the process along with any temporary directories created as a result. Multiple Harness instances may be run concurrently, in order to allow for testing complex scenarios involving multiple nodes. The harness also includes an in-memory wallet to streamline various classes of tests.
+
 type Harness struct {
+
 	// ActiveNet is the parameters of the blockchain the Harness belongs to.
 	ActiveNet      *chaincfg.Params
 	Node           *rpcclient.Client
@@ -153,6 +156,7 @@ func New(
 
 // SetUp initializes the rpc test state. Initialization includes: starting up a simnet node, creating a websockets client and connecting to the started node, and finally: optionally generating and submitting a testchain with a configurable number of mature coinbase outputs coinbase outputs. NOTE: This method and TearDown should always be called from the same goroutine as they are not concurrent safe.
 func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
+
 	// Start the pod node itself. This spawns a new process which will be managed
 	if err := h.node.start(); err != nil {
 		return err
@@ -175,7 +179,9 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 		numToGenerate := (uint32(h.ActiveNet.CoinbaseMaturity) +
 			numMatureOutputs)
 		_, err := h.Node.Generate(numToGenerate)
+
 		if err != nil {
+
 			return err
 		}
 	}
@@ -188,7 +194,9 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 
 	for range ticker.C {
 		walletHeight := h.wallet.SyncedHeight()
+
 		if walletHeight == height {
+
 			break
 		}
 	}
@@ -198,6 +206,7 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 
 // tearDown stops the running rpc test instance.  All created processes are killed, and temporary directories removed. This function MUST be called with the harness state mutex held (for writes).
 func (h *Harness) tearDown() error {
+
 	if h.Node != nil {
 		h.Node.Shutdown()
 	}
@@ -214,6 +223,7 @@ func (h *Harness) tearDown() error {
 // TearDown stops the running rpc test instance. All created processes are killed, and temporary directories removed.
 // NOTE: This method and SetUp should always be called from the same goroutine as they are not concurrent safe.
 func (h *Harness) TearDown() error {
+
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 	return h.tearDown()
@@ -221,12 +231,15 @@ func (h *Harness) TearDown() error {
 
 // connectRPCClient attempts to establish an RPC connection to the created pod process belonging to this Harness instance. If the initial connection attempt fails, this function will retry h.maxConnRetries times, backing off the time between subsequent attempts. If after h.maxConnRetries attempts, we're not able to establish a connection, this function returns with an error.
 func (h *Harness) connectRPCClient() error {
+
 	var client *rpcclient.Client
 	var err error
 	rpcConf := h.node.config.rpcConnConfig()
 
 	for i := 0; i < h.maxConnRetries; i++ {
+
 		if client, err = rpcclient.New(&rpcConf, h.handlers); err != nil {
+
 			time.Sleep(time.Duration(i) * 50 * time.Millisecond)
 			continue
 		}
@@ -248,6 +261,7 @@ func (h *Harness) NewAddress() (util.Address, error) {
 
 // ConfirmedBalance returns the confirmed balance of the Harness' internal wallet. This function is safe for concurrent access.
 func (h *Harness) ConfirmedBalance() util.Amount {
+
 	return h.wallet.ConfirmedBalance()
 }
 
@@ -280,11 +294,13 @@ func (h *Harness) UnlockOutputs(inputs []*wire.TxIn) {
 
 // RPCConfig returns the harnesses current rpc configuration. This allows other potential RPC clients created within tests to connect to a given test harness instance.
 func (h *Harness) RPCConfig() rpcclient.ConnConfig {
+
 	return h.node.config.rpcConnConfig()
 }
 
 // P2PAddress returns the harness' P2P listening address. This allows potential peers (such as SPV peers) created within tests to connect to a given test harness instance.
 func (h *Harness) P2PAddress() string {
+
 	return h.node.config.listen
 }
 

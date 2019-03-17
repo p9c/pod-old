@@ -14,6 +14,7 @@ import (
 var Bip16Activation = time.Unix(1333238400, 0)
 
 // SigHashType represents hash type bits at the end of a signature.
+
 type SigHashType uint32
 
 // Hash type bits from the end of a signature.
@@ -167,6 +168,7 @@ func isPushOnly(
 	for _, pop := range pops {
 
 		// All opcodes up to OP_16 are data push instructions. NOTE: This does consider OP_RESERVED to be a data push instruction, but execution of OP_RESERVED will fail anyways and matches the behavior required by consensus.
+
 		if pop.opcode.value > OP_16 {
 
 			return false
@@ -207,6 +209,7 @@ func parseScriptTemplate(
 			i++
 		// Data pushes of specific lengths -- OP_DATA_[1-75].
 		case op.length > 1:
+
 			if len(script[i:]) < op.length {
 
 				str := fmt.Sprintf("opcode %s requires %d "+
@@ -222,6 +225,7 @@ func parseScriptTemplate(
 		case op.length < 0:
 			var l uint
 			off := i + 1
+
 			if len(script[off:]) < -op.length {
 
 				str := fmt.Sprintf("opcode %s requires %d "+
@@ -253,6 +257,7 @@ func parseScriptTemplate(
 			// Move offset to beginning of the data.
 			off += -op.length
 			// Disallow entries that do not fit script or were sign extended.
+
 			if int(l) > len(script[off:]) || int(l) < 0 {
 
 				str := fmt.Sprintf("opcode %s pushes %d bytes, "+
@@ -285,6 +290,7 @@ func unparseScript(
 	for _, pop := range pops {
 
 		b, err := pop.bytes()
+
 		if err != nil {
 
 			return nil, err
@@ -694,7 +700,9 @@ func getSigOpCount(
 			fallthrough
 		case OP_CHECKMULTISIGVERIFY:
 			// If we are being precise then look for familiar patterns for multisig, for now all we recognize is OP_1 - OP_16 to signify the number of pubkeys. Otherwise, we use the max of 20.
+
 			if precise && i > 0 &&
+
 				pops[i-1].opcode.value >= OP_1 &&
 				pops[i-1].opcode.value <= OP_16 {
 

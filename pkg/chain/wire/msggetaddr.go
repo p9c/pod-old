@@ -5,6 +5,7 @@ import (
 )
 
 // MsgGetAddr implements the Message interface and represents a bitcoin getaddr message.  It is used to request a list of known active peers on the network from a peer to help identify potential nodes.  The list is returned via one or more addr messages (MsgAddr). This message has no payload.
+
 type MsgGetAddr struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.

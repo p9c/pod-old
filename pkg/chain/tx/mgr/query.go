@@ -14,6 +14,7 @@ import (
 // CreditRecord contains metadata regarding a transaction credit for a known
 // transaction.  Further details may be looked up by indexing a wire.MsgTx.TxOut
 // with the Index field.
+
 type CreditRecord struct {
 	Amount util.Amount
 	Index  uint32
@@ -24,6 +25,7 @@ type CreditRecord struct {
 // DebitRecord contains metadata regarding a transaction debit for a known
 // transaction.  Further details may be looked up by indexing a wire.MsgTx.TxIn
 // with the Index field.
+
 type DebitRecord struct {
 	Amount util.Amount
 	Index  uint32
@@ -32,6 +34,7 @@ type DebitRecord struct {
 // TxDetails is intended to provide callers with access to rich details
 // regarding a relevant transaction and which inputs and outputs are credit or
 // debits.
+
 type TxDetails struct {
 	TxRecord
 	Block   BlockMeta
@@ -76,6 +79,7 @@ func (s *Store) minedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash, r
 
 		// The credit iterator does not record whether this credit was
 		// spent by an unmined transaction, so check that here.
+
 		if !credIter.elem.Spent {
 
 			k := canonicalOutPoint(txHash, credIter.elem.Index)
@@ -153,10 +157,12 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 		opKey := canonicalOutPoint(&output.PreviousOutPoint.Hash,
 			output.PreviousOutPoint.Index)
 		credKey := existsRawUnspent(ns, opKey)
+
 		if credKey != nil {
 
 			v := existsRawCredit(ns, credKey)
 			amount, err := fetchRawCreditAmount(v)
+
 			if err != nil {
 
 				return nil, err
@@ -170,12 +176,14 @@ func (s *Store) unminedTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 		}
 
 		v := existsRawUnminedCredit(ns, opKey)
+
 		if v == nil {
 
 			continue
 		}
 
 		amount, err := fetchRawCreditAmount(v)
+
 		if err != nil {
 
 			return nil, err
@@ -229,6 +237,7 @@ func (s *Store) UniqueTxDetails(ns walletdb.ReadBucket, txHash *chainhash.Hash,
 	if block == nil {
 
 		v := existsRawUnmined(ns, txHash[:])
+
 		if v == nil {
 
 			return nil, nil
@@ -264,6 +273,7 @@ func (s *Store) rangeUnminedTransactions(ns walletdb.ReadBucket, f func([]TxDeta
 		var txHash chainhash.Hash
 		copy(txHash[:], k)
 		detail, err := s.unminedTxDetails(ns, &txHash, v)
+
 		if err != nil {
 
 			return err
@@ -345,6 +355,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 
 			k := keyTxRecord(&txHash, &block.Block)
 			v := existsRawTxRecord(ns, k)
+
 			if v == nil {
 
 				str := fmt.Sprintf("missing transaction %v for "+
@@ -358,6 +369,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 				},
 			}
 			err := readRawTxRecord(&txHash, v, &detail.TxRecord)
+
 			if err != nil {
 
 				return false, err
@@ -376,6 +388,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 				// The credit iterator does not record whether
 				// this credit was spent by an unmined
 				// transaction, so check that here.
+
 				if !credIter.elem.Spent {
 
 					k := canonicalOutPoint(&txHash, credIter.elem.Index)
@@ -384,6 +397,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 				}
 				detail.Credits = append(detail.Credits, credIter.elem)
 			}
+
 			if credIter.err != nil {
 
 				return false, credIter.err
@@ -401,6 +415,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 
 				detail.Debits = append(detail.Debits, debIter.elem)
 			}
+
 			if debIter.err != nil {
 
 				return false, debIter.err
@@ -412,6 +427,7 @@ func (s *Store) rangeBlockTransactions(ns walletdb.ReadBucket, begin, end int32,
 		// Every block record must have at least one transaction, so it
 		// is safe to call f.
 		brk, err := f(details)
+
 		if err != nil || brk {
 
 			return brk, err
@@ -440,6 +456,7 @@ func (s *Store) RangeTransactions(ns walletdb.ReadBucket, begin, end int32,
 	if begin < 0 {
 
 		brk, err := s.rangeUnminedTransactions(ns, f)
+
 		if err != nil || brk {
 
 			return err
@@ -472,12 +489,14 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 			// unspent), or neither.
 
 			v := existsRawUnmined(ns, prevOut.Hash[:])
+
 			if v != nil {
 
 				// Ensure a credit exists for this
 				// unmined transaction before including
 				// the output script.
 				k := canonicalOutPoint(&prevOut.Hash, prevOut.Index)
+
 				if existsRawUnminedCredit(ns, k) == nil {
 
 					continue
@@ -485,6 +504,7 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 
 				pkScript, err := fetchRawTxRecordPkScript(
 					prevOut.Hash[:], v, prevOut.Index)
+
 				if err != nil {
 
 					return nil, err
@@ -494,12 +514,14 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 			}
 
 			_, credKey := existsUnspent(ns, prevOut)
+
 			if credKey != nil {
 
 				k := extractRawCreditTxRecordKey(credKey)
 				v = existsRawTxRecord(ns, k)
 				pkScript, err := fetchRawTxRecordPkScript(k, v,
 					prevOut.Index)
+
 				if err != nil {
 
 					return nil, err
@@ -521,6 +543,7 @@ func (s *Store) PreviousPkScripts(ns walletdb.ReadBucket, rec *TxRecord, block *
 		k := extractRawCreditTxRecordKey(credKey)
 		v := existsRawTxRecord(ns, k)
 		pkScript, err := fetchRawTxRecordPkScript(k, v, index)
+
 		if err != nil {
 
 			return nil, err

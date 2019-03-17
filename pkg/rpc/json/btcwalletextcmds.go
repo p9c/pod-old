@@ -2,6 +2,7 @@
 package json
 
 // CreateNewAccountCmd defines the createnewaccount JSON-RPC command.
+
 type CreateNewAccountCmd struct {
 	Account string
 }
@@ -16,6 +17,7 @@ func NewCreateNewAccountCmd(
 }
 
 // DumpWalletCmd defines the dumpwallet JSON-RPC command.
+
 type DumpWalletCmd struct {
 	Filename string
 }
@@ -30,6 +32,7 @@ func NewDumpWalletCmd(
 }
 
 // ImportAddressCmd defines the importaddress JSON-RPC command.
+
 type ImportAddressCmd struct {
 	Address string
 	Account string
@@ -48,6 +51,7 @@ func NewImportAddressCmd(
 }
 
 // ImportPubKeyCmd defines the importpubkey JSON-RPC command.
+
 type ImportPubKeyCmd struct {
 	PubKey string
 	Rescan *bool `jsonrpcdefault:"true"`
@@ -64,6 +68,7 @@ func NewImportPubKeyCmd(
 }
 
 // ImportWalletCmd defines the importwallet JSON-RPC command.
+
 type ImportWalletCmd struct {
 	Filename string
 }
@@ -78,6 +83,7 @@ func NewImportWalletCmd(
 }
 
 // RenameAccountCmd defines the renameaccount JSON-RPC command.
+
 type RenameAccountCmd struct {
 	OldAccount string
 	NewAccount string

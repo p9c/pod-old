@@ -10,6 +10,7 @@ import (
 )
 
 // blockProgressLogger provides periodic logging for other services in order to show users progress of certain "actions" involving some or all current blocks. Ex: syncing to best chain, indexing all blocks, etc.
+
 type blockProgressLogger struct {
 	receivedLogBlocks int64
 	receivedLogTx     int64

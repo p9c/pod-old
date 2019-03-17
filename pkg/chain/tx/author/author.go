@@ -21,7 +21,9 @@ import (
 // can not be satisified, this can be signaled by returning a total amount less
 // than the target or by returning a more detailed error implementing
 // InputSourceError.
+
 type InputSource func(target util.Amount) (total util.Amount, inputs []*wire.TxIn,
+
 	inputValues []util.Amount, scripts [][]byte, err error)
 
 // InputSourceError describes the failure to provide enough input value from
@@ -29,12 +31,14 @@ type InputSource func(target util.Amount) (total util.Amount, inputs []*wire.TxI
 // so input sources can provide their own implementations describing the reason
 // for the error, for example, due to spendable policies or locked coins rather
 // than the wallet not having enough available input value.
+
 type InputSourceError interface {
 	error
 	InputSourceError()
 }
 
 // Default implementation of InputSourceError.
+
 type insufficientFundsError struct{}
 
 func (insufficientFundsError) InputSourceError() {
@@ -47,6 +51,7 @@ func (insufficientFundsError) Error() string {
 
 // AuthoredTx holds the state of a newly-created transaction and the change
 // output (if one was added).
+
 type AuthoredTx struct {
 	Tx              *wire.MsgTx
 	PrevScripts     [][]byte
@@ -56,6 +61,7 @@ type AuthoredTx struct {
 }
 
 // ChangeSource provides P2PKH change output scripts for transaction creation.
+
 type ChangeSource func() ([]byte, error)
 
 // NewUnsignedTransaction creates an unsigned transaction paying to one or more
@@ -89,10 +95,12 @@ func NewUnsignedTransaction(
 	for {
 
 		inputAmount, inputs, inputValues, scripts, err := fetchInputs(targetAmount + targetFee)
+
 		if err != nil {
 
 			return nil, err
 		}
+
 		if inputAmount < targetAmount+targetFee {
 
 			return nil, insufficientFundsError{}
@@ -121,6 +129,7 @@ func NewUnsignedTransaction(
 			nested, outputs, true)
 		maxRequiredFee := txrules.FeeForSerializeSize(relayFeePerKb, maxSignedSize)
 		remainingAmount := inputAmount - targetAmount
+
 		if remainingAmount < maxRequiredFee {
 
 			targetFee = maxRequiredFee
@@ -135,14 +144,18 @@ func NewUnsignedTransaction(
 		}
 		changeIndex := -1
 		changeAmount := inputAmount - targetAmount - maxRequiredFee
+
 		if changeAmount != 0 && !txrules.IsDustAmount(changeAmount,
+
 			txsizes.P2WPKHPkScriptSize, relayFeePerKb) {
 
 			changeScript, err := fetchChange()
+
 			if err != nil {
 
 				return nil, err
 			}
+
 			if len(changeScript) > txsizes.P2WPKHPkScriptSize {
 
 				return nil, errors.New("fee estimation requires change " +
@@ -193,6 +206,7 @@ func (tx *AuthoredTx) RandomizeChangePosition() {
 // This would remove the ChainParams requirement of the interface and could
 // avoid unnecessary conversions from previous output scripts to Addresses.
 // This can not be done without modifications to the txscript package.
+
 type SecretsSource interface {
 	txscript.KeyDB
 	txscript.ScriptDB
@@ -232,6 +246,7 @@ func AddAllInputScripts(
 			err := spendNestedWitnessPubKeyHash(inputs[i], pkScript,
 				int64(inputValues[i]), chainParams, secrets,
 				tx, hashCache, i)
+
 			if err != nil {
 
 				return err
@@ -240,6 +255,7 @@ func AddAllInputScripts(
 			err := spendWitnessKeyHash(inputs[i], pkScript,
 				int64(inputValues[i]), chainParams, secrets,
 				tx, hashCache, i)
+
 			if err != nil {
 
 				return err
@@ -249,6 +265,7 @@ func AddAllInputScripts(
 			script, err := txscript.SignTxOutput(chainParams, tx, i,
 				pkScript, txscript.SigHashAll, secrets, secrets,
 				sigScript)
+
 			if err != nil {
 
 				return err

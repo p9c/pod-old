@@ -48,6 +48,7 @@ var (
 )
 
 // filer is an interface which acts very similar to a *os.File and is typically implemented by it.  It exists so the test code can provide mock files for properly testing corruption and file system issues.
+
 type filer interface {
 	io.Closer
 	io.WriterAt
@@ -57,12 +58,14 @@ type filer interface {
 }
 
 // lockableFile represents a block file on disk that has been opened for either read or read/write access.  It also contains a read-write mutex to support multiple concurrent readers.
+
 type lockableFile struct {
 	sync.RWMutex
 	file filer
 }
 
 // writeCursor represents the current file and offset of the block file on disk for performing all writes. It also contains a read-write mutex to support multiple concurrent readers which can reuse the file handle.
+
 type writeCursor struct {
 	sync.RWMutex
 
@@ -77,6 +80,7 @@ type writeCursor struct {
 }
 
 // blockStore houses information used to handle reading and writing blocks (and part of blocks) into flat files with support for multiple concurrent readers.
+
 type blockStore struct {
 
 	// network is the specific network to use in the flat files for each block.
@@ -132,6 +136,7 @@ type blockStore struct {
 }
 
 // blockLocation identifies a particular block file and location.
+
 type blockLocation struct {
 	blockFileNum uint32
 	fileOffset   uint32

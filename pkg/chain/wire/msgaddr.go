@@ -9,6 +9,7 @@ import (
 const MaxAddrPerMsg = 1000
 
 // MsgAddr implements the Message interface and represents a bitcoin addr message.  It is used to provide a list of known active peers on the network.  An active peer is considered one that has transmitted a message within the last 3 hours.  Nodes which have not transmitted in that time frame should be forgotten.  Each message is limited to a maximum number of addresses, which is currently 1000.  As a result, multiple messages must be used to relay the full list. Use the AddAddress function to build up the list of known addresses when sending an addr message to another peer.
+
 type MsgAddr struct {
 	AddrList []*NetAddress
 }

@@ -20,6 +20,7 @@ import (
 )
 
 // CPUMiner provides facilities for solving blocks (mining) using the CPU in a concurrency-safe manner.  It consists of two main goroutines -- a speed monitor and a controller for worker goroutines which generate and solve blocks.  The number of goroutines can be set via the SetMaxGoRoutines function, but the default is based on the number of processor cores in the system which is typically sufficient.
+
 type CPUMiner struct {
 	sync.Mutex
 	b                 *blockchain.BlockChain
@@ -39,6 +40,7 @@ type CPUMiner struct {
 }
 
 // Config is a descriptor containing the cpu miner configuration.
+
 type Config struct {
 
 	// Blockchain gives access for the miner to information about the chain
@@ -145,6 +147,7 @@ func (
 		// Create a new block template using the available transactions in the memory pool as a source of transactions to potentially include in the block.
 		template, err := m.g.NewBlockTemplate(payToAddr, algo)
 		m.submitBlockLock.Unlock()
+
 		if err != nil {
 
 			log <- cl.Error{"failed to create new block template:", err}
@@ -153,12 +156,14 @@ func (
 		}
 
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
+
 		if m.solveBlock(template.Block, curHeight+1, m.cfg.ChainParams.Name == "testnet", ticker, nil) {
 
 			block := util.NewBlock(template.Block)
 			m.submitBlock(block)
 			blockHashes[i] = block.Hash()
 			i++
+
 			if i == n {
 
 				log <- cl.Tracef{"Generated %d blocks", i}
@@ -333,6 +338,7 @@ out:
 		}
 
 		// Wait until there is a connection to at least one other peer since there is no way to relay a found block or receive transactions to work on when there are no connected peers.
+
 		if m.cfg.ConnectedCount() == 0 {
 
 			time.Sleep(time.Second)
@@ -342,6 +348,7 @@ out:
 		// No point in searching for a solution before the chain is synced.  Also, grab the same lock as used for block submission, since the current block will be changing and this would otherwise end up building a new block template on a block that is in the process of becoming stale.
 		m.submitBlockLock.Lock()
 		curHeight := m.g.BestSnapshot().Height
+
 		if curHeight != 0 && !m.cfg.IsCurrent() {
 
 			m.submitBlockLock.Unlock()
@@ -359,6 +366,7 @@ out:
 		template, err := m.g.NewBlockTemplate(payToAddr, algoname)
 
 		m.submitBlockLock.Unlock()
+
 		if err != nil {
 
 			log <- cl.Error{"Failed to create new block template:", err}
@@ -367,6 +375,7 @@ out:
 		}
 
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
+
 		if m.solveBlock(template.Block, curHeight+1, m.cfg.ChainParams.Name == "testnet", ticker, quit) {
 
 			block := util.NewBlock(template.Block)
@@ -424,12 +433,14 @@ out:
 
 			// No change.
 			numRunning := uint32(len(runningWorkers))
+
 			if m.numWorkers == numRunning {
 
 				continue
 			}
 
 			// Add new workers.
+
 			if m.numWorkers > numRunning {
 
 				launchWorkers(m.numWorkers - numRunning)
@@ -503,6 +514,7 @@ func (
 		// Do more rounds the more the difficulty will adjust down
 		mn := uint32(
 			float64(maxNonce)*m.b.DifficultyAdjustments[algoName]) + 27
+
 		if blockHeight < 20 {
 
 			mn = 27
@@ -526,13 +538,16 @@ func (
 
 				// The current block is stale if the best block has changed.
 				best := m.g.BestSnapshot()
+
 				if !header.PrevBlock.IsEqual(&best.Hash) {
 
 					return false
 				}
 
 				// The current block is stale if the memory pool has been updated since the block template was generated and it has been at least one minute.
+
 				if lastTxUpdate != m.g.TxSource().LastUpdated() &&
+
 					time.Now().After(lastGenerated.Add(time.Minute)) {
 
 					return false
@@ -548,6 +563,7 @@ func (
 			hashesCompleted += incr
 
 			// The block is solved when the new block hash is less than the target difficulty.  Yay!
+
 			if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
 
 				m.updateHashes <- hashesCompleted
@@ -582,12 +598,14 @@ out:
 		// Time to update the hashes per second.
 		case <-ticker.C:
 			curHashesPerSec := float64(totalHashes) / hpsUpdateSecs
+
 			if hashesPerSec == 0 {
 
 				hashesPerSec = curHashesPerSec
 			}
 			hashesPerSec = (hashesPerSec + curHashesPerSec) / 2
 			totalHashes = 0
+
 			if hashesPerSec != 0 {
 
 				log <- cl.Infof{
@@ -642,6 +660,7 @@ func (
 	if err != nil {
 
 		// Anything other than a rule violation is an unexpected error, so log that error as an internal error.
+
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			log <- cl.Warn{
@@ -679,6 +698,7 @@ func (
 			util.Amount(coinbaseTx.Value),
 
 			fork.GetAlgoName(block.MsgBlock().Header.Version, block.Height()),
+
 			since,
 		)
 	},
@@ -690,6 +710,7 @@ func (
 			"Block submitted via CPU miner accepted (algo %s, hash %s, amount %v)",
 
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
+
 				block.Height()),
 			block.MsgBlock().BlockHashWithAlgos(block.Height()),
 			util.Amount(coinbaseTx.Value),

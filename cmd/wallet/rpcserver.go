@@ -22,6 +22,7 @@ import (
 )
 
 type listenFunc func(
+
 	net string, laddr string) (net.Listener, error)
 
 // generateRPCKeyPair generates a new RPC TLS keypair and writes the cert and

@@ -22,6 +22,7 @@ var (
 
 // FilterType is a enum-like type that represents the various filter types
 // currently defined.
+
 type FilterType uint8
 
 const (
@@ -41,7 +42,9 @@ var (
 // also their filter type.
 //
 // TODO(roasbeef): similar interface for headerfs?
+
 type FilterDatabase interface {
+
 	// PutFilter stores a filter with the given hash and type to persistent
 	// storage.
 	PutFilter(*chainhash.Hash, *gcs.Filter, FilterType) error
@@ -55,6 +58,7 @@ type FilterDatabase interface {
 
 // FilterStore is an implementation of the FilterDatabase interface which is
 // backed by boltdb.
+
 type FilterStore struct {
 	db walletdb.DB
 
@@ -77,6 +81,7 @@ func New(
 		filters, err := tx.CreateTopLevelBucket(filterBucket)
 
 		if err != nil {
+
 			return err
 		}
 
@@ -90,6 +95,7 @@ func New(
 		regFilters, err := filters.CreateBucketIfNotExists(regBucket)
 
 		if err != nil {
+
 			return err
 		}
 
@@ -98,6 +104,7 @@ func New(
 		basicFilter, err := builder.BuildBasicFilter(genesisBlock, nil)
 
 		if err != nil {
+
 			return err
 		}
 
@@ -154,12 +161,14 @@ func (f *FilterStore) PutFilter(hash *chainhash.Hash,
 		}
 
 		if filter == nil {
+
 			return targetBucket.Put(hash[:], nil)
 		}
 
 		bytes, err := filter.NBytes()
 
 		if err != nil {
+
 			return err
 		}
 
@@ -192,10 +201,12 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		filterBytes := targetBucket.Get(blockHash[:])
 
 		if filterBytes == nil {
+
 			return ErrFilterNotFound
 		}
 
 		if len(filterBytes) == 0 {
+
 			return nil
 		}
 
@@ -204,6 +215,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		)
 
 		if err != nil {
+
 			return err
 		}
 

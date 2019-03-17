@@ -17,6 +17,7 @@ const eligibleInputMinConfirmations = 100
 
 // credit is an abstraction over wtxmgr.Credit used in the construction of
 // voting pool withdrawal transactions.
+
 type credit struct {
 	wtxmgr.Credit
 	addr WithdrawalAddress
@@ -35,6 +36,7 @@ func (c *credit) String() string {
 
 // byAddress defines the methods needed to satisify sort.Interface to sort a
 // slice of credits by their address.
+
 type byAddress []credit
 
 func (c byAddress) Len() int { return len(c) }

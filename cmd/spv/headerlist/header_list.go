@@ -7,6 +7,7 @@ import "git.parallelcoin.io/dev/pod/pkg/chain/wire"
 // meant to serve as a replacement to list.List which provides similar
 // functionality, but allows implementations to use custom storage backends and
 // semantics.
+
 type Chain interface {
 
 	// ResetHeaderState resets the state of all nodes. After this method, it will
@@ -33,6 +34,7 @@ type Chain interface {
 // Node is a node within the Chain. Each node stores a header as well as a
 // height. Nodes can also be used to traverse the chain backwards via their
 // Prev() method.
+
 type Node struct {
 
 	// Height is the height of this node within the main chain.
@@ -48,5 +50,6 @@ type Node struct {
 // this node. If this is the start of the chain, then this method will return
 // nil.
 func (n *Node) Prev() *Node {
+
 	return n.prev
 }

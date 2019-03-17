@@ -5,6 +5,7 @@ import (
 )
 
 // ErrorCode identifies a kind of script error.
+
 type ErrorCode int
 
 // These constants are used to identify a specific Error.
@@ -309,6 +310,7 @@ func (e ErrorCode) String() string {
 // 2) Improper API usage by callers
 // 3) Internal consistency check failures
 // The caller can use type assertions on the returned errors to access the ErrorCode field to ascertain the specific reason for the error.  As an additional convenience, the caller may make use of the IsErrorCode function to check for a specific error code.
+
 type Error struct {
 	ErrorCode   ErrorCode
 	Description string

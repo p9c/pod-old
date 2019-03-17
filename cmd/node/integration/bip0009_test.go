@@ -145,6 +145,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}
@@ -176,6 +177,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}
@@ -185,6 +187,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}
@@ -198,6 +201,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}
@@ -207,6 +211,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}
@@ -220,6 +225,7 @@ func testBIP0009(
 			time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("failed to generated block %d: %v", i, err)
 		}
 	}

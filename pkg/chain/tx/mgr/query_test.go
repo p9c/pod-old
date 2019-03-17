@@ -98,6 +98,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 					"when no more details expected")
 			}
 			exp := blocks[0]
+
 			if len(got) != len(exp) {
 
 				return false, fmt.Errorf("got len(details)=%d "+
@@ -108,6 +109,7 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 			for i := range got {
 
 				err := equalTxDetails(&got[i], &exp[i])
+
 				if err != nil {
 
 					return false, fmt.Errorf("failed "+
@@ -137,21 +139,25 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 		for _, detail := range details {
 
 			blk := &detail.Block.Block
+
 			if blk.Height == -1 {
 
 				blk = nil
 			}
 			d, err := s.UniqueTxDetails(ns, &txHash, blk)
+
 			if err != nil {
 
 				return err
 			}
+
 			if d == nil {
 
 				return fmt.Errorf("found no matching "+
 					"transaction at height %d",
 					detail.Block.Height)
 			}
+
 			if err := equalTxDetails(d, &detail); err != nil {
 
 				return fmt.Errorf("%s: failed querying latest "+
@@ -167,10 +173,12 @@ func (q *queryState) compare(s *Store, ns walletdb.ReadBucket,
 		// height) matches the last.
 		detail := &details[len(details)-1]
 		d, err := s.TxDetails(ns, &txHash)
+
 		if err != nil {
 
 			return err
 		}
+
 		if err := equalTxDetails(d, detail); err != nil {
 
 			return fmt.Errorf("%s: failed querying latest details "+
@@ -466,12 +474,14 @@ func TestStoreQueries(
 		err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 			ns := tx.ReadWriteBucket(namespaceKey)
+
 			if err := tst.updates(ns); err != nil {
 
 				return err
 			}
 			return tst.state.compare(s, ns, tst.desc)
 		})
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -498,16 +508,19 @@ func TestStoreQueries(
 
 		missingTx := spendOutput(&recB.Hash, 0, 40e8)
 		missingRec, err := NewTxRecordFromMsgTx(missingTx, timeNow())
+
 		if err != nil {
 
 			return err
 		}
 		missingBlock := makeBlockMeta(102)
 		missingDetails, err := s.TxDetails(ns, &missingRec.Hash)
+
 		if err != nil {
 
 			return err
 		}
+
 		if missingDetails != nil {
 
 			return fmt.Errorf("Expected no details, found details "+
@@ -528,10 +541,12 @@ func TestStoreQueries(
 		for _, tst := range missingUniqueTests {
 
 			missingDetails, err = s.UniqueTxDetails(ns, tst.hash, tst.block)
+
 			if err != nil {
 
 				t.Fatal(err)
 			}
+
 			if missingDetails != nil {
 
 				t.Errorf("Expected no details, found details for tx %v", missingDetails.Hash)
@@ -544,6 +559,7 @@ func TestStoreQueries(
 			iterations++
 			return true, nil
 		})
+
 		if iterations != 1 {
 
 			t.Errorf("RangeTransactions (forwards) ran func %d times", iterations)
@@ -554,12 +570,14 @@ func TestStoreQueries(
 			iterations++
 			return true, nil
 		})
+
 		if iterations != 1 {
 
 			t.Errorf("RangeTransactions (reverse) ran func %d times", iterations)
 		}
 
 		// Make sure it also breaks early after one iteration through unmined transactions.
+
 		if err := s.Rollback(ns, b101.Height); err != nil {
 
 			return err
@@ -570,6 +588,7 @@ func TestStoreQueries(
 			iterations++
 			return true, nil
 		})
+
 		if iterations != 1 {
 
 			t.Errorf("RangeTransactions (reverse) ran func %d times", iterations)
@@ -622,12 +641,14 @@ func TestStoreQueries(
 		err := walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
 
 			ns := tx.ReadWriteBucket(namespaceKey)
+
 			if err := tst.updates(ns); err != nil {
 
 				return err
 			}
 			return tst.state.compare(s, ns, tst.desc)
 		})
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -682,6 +703,7 @@ func TestPreviousPkScripts(
 	newTxRecordFromMsgTx := func(tx *wire.MsgTx) *TxRecord {
 
 		rec, err := NewTxRecordFromMsgTx(tx, timeNow())
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -704,6 +726,7 @@ func TestPreviousPkScripts(
 	insertTx := func(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta) {
 
 		err := s.InsertTx(ns, rec, block)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -712,6 +735,7 @@ func TestPreviousPkScripts(
 	addCredit := func(ns walletdb.ReadWriteBucket, rec *TxRecord, block *BlockMeta, index uint32) {
 
 		err := s.AddCredit(ns, rec, block, index, false)
+
 		if err != nil {
 
 			t.Fatal(err)
@@ -726,15 +750,18 @@ func TestPreviousPkScripts(
 	runTest := func(ns walletdb.ReadWriteBucket, tst *scriptTest) {
 
 		scripts, err := s.PreviousPkScripts(ns, tst.rec, tst.block)
+
 		if err != nil {
 
 			t.Fatal(err)
 		}
 		height := int32(-1)
+
 		if tst.block != nil {
 
 			height = tst.block.Height
 		}
+
 		if len(scripts) != len(tst.scripts) {
 
 			t.Errorf("Transaction %v height %d: got len(scripts)=%d, expected %d",

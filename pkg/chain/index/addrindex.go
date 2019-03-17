@@ -67,7 +67,9 @@ var (
 //   -----
 //   Total: 12 bytes per indexed tx
 // fetchBlockHashFunc defines a callback function to use in order to convert a serialized block ID to an associated block hash.
+
 type fetchBlockHashFunc func(
+
 	serializedID []byte) (*chainhash.Hash, error)
 
 // serializeAddrIndexEntry serializes the provided block id and transaction location according to the format described in detail above.
@@ -497,6 +499,7 @@ func addrToKey(
 }
 
 // AddrIndex implements a transaction by address index.  That is to say, it supports querying all transactions that reference a given address because they are either crediting or debiting the address.  The returned transactions are ordered according to their order of appearance in the blockchain.  In other words, first by block height and then by offset inside the block. In addition, support is provided for a memory-only index of unconfirmed transactions such as those which are kept in the memory pool before inclusion in a block.
+
 type AddrIndex struct {
 
 	// The following fields are set when the instance is created and can't be changed afterwards, so there is no need to protect them with a separate mutex.
@@ -549,6 +552,7 @@ func (idx *AddrIndex) Create(dbTx database.Tx) error {
 }
 
 // writeIndexData represents the address index data to be written for one block. It consists of the address mapped to an ordered list of the transactions that involve the address in block.  It is ordered so the transactions can be stored in the order they appear in the block.
+
 type writeIndexData map[[addrKeySize]byte][]int
 
 // indexPkScript extracts all standard addresses from the passed public key script and maps each of them to the associated transaction using the passed

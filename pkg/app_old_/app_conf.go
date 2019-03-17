@@ -130,6 +130,7 @@ var ConfCommand = climax.Command{
 			testportbase := 21047
 
 			if err := ParseInteger(
+
 				ct, "createtest", &testnum,
 			); err != nil {
 
@@ -145,6 +146,7 @@ var ConfCommand = climax.Command{
 			if tpb, ok = ctx.Get("testportbase"); ok {
 
 				if err := ParseInteger(
+
 					tpb, "testportbase", &testportbase,
 				); err != nil {
 

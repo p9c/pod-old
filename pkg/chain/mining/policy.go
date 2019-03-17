@@ -13,6 +13,7 @@ const (
 )
 
 // Policy houses the policy (configuration parameters) which is used to control the generation of block templates.  See the documentation for NewBlockTemplate for more details on each of these parameters are used.
+
 type Policy struct {
 
 	// BlockMinWeight is the minimum block weight to be used when generating a block template.

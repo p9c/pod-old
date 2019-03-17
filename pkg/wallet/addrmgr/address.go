@@ -18,6 +18,7 @@ import (
 //
 // NOTE: These MUST be stable as they're used for scope address schema
 // recognition within the database.
+
 type AddressType uint8
 
 const (
@@ -58,6 +59,7 @@ const (
 // an address managed by an address manager. Concrete implementations of this
 // type may provide further fields to provide information specific to that type
 // of address.
+
 type ManagedAddress interface {
 
 	// Account returns the account the address is associated with.
@@ -95,6 +97,7 @@ type ManagedAddress interface {
 
 // ManagedPubKeyAddress extends ManagedAddress and additionally provides the
 // public and private keys for pubkey-based addresses.
+
 type ManagedPubKeyAddress interface {
 	ManagedAddress
 
@@ -131,6 +134,7 @@ type ManagedPubKeyAddress interface {
 // ManagedScriptAddress extends ManagedAddress and represents a pay-to-script-hash
 // style of bitcoin addresses.  It additionally provides information about the
 // script.
+
 type ManagedScriptAddress interface {
 	ManagedAddress
 
@@ -140,6 +144,7 @@ type ManagedScriptAddress interface {
 
 // managedAddress represents a public key address.  It also may or may not have
 // the private key associated with the public key.
+
 type managedAddress struct {
 	manager          *ScopedKeyManager
 	derivationPath   DerivationPath
@@ -585,6 +590,7 @@ func newManagedAddressFromExtKey(
 }
 
 // scriptAddress represents a pay-to-script-hash address.
+
 type scriptAddress struct {
 	manager         *ScopedKeyManager
 	account         uint32

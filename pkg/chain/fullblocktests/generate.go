@@ -40,11 +40,13 @@ var (
 )
 
 // TestInstance is an interface that describes a specific test instance returned by the tests generated in this package.  It should be type asserted to one of the concrete test instance types in order to test accordingly.
+
 type TestInstance interface {
 	FullBlockTestInstance()
 }
 
 // AcceptedBlock defines a test instance that expects a block to be accepted to the blockchain either by extending the main chain, on a side chain, or as an orphan.
+
 type AcceptedBlock struct {
 	Name        string
 	Block       *wire.MsgBlock
@@ -64,6 +66,7 @@ func (b AcceptedBlock) FullBlockTestInstance() {
 }
 
 // RejectedBlock defines a test instance that expects a block to be rejected by the blockchain consensus rules.
+
 type RejectedBlock struct {
 	Name       string
 	Block      *wire.MsgBlock
@@ -82,6 +85,7 @@ func (b RejectedBlock) FullBlockTestInstance() {
 }
 
 // OrphanOrRejectedBlock defines a test instance that expects a block to either be accepted as an orphan or rejected.  This is useful since some implementations might optimize the immediate rejection of orphan blocks when their parent was previously rejected, while others might accept it as an orphan that eventually gets flushed (since the parent can never be accepted to ultimately link it).
+
 type OrphanOrRejectedBlock struct {
 	Name   string
 	Block  *wire.MsgBlock
@@ -98,6 +102,7 @@ func (b OrphanOrRejectedBlock) FullBlockTestInstance() {
 }
 
 // ExpectedTip defines a test instance that expects a block to be the current tip of the main chain.
+
 type ExpectedTip struct {
 	Name   string
 	Block  *wire.MsgBlock
@@ -114,6 +119,7 @@ func (b ExpectedTip) FullBlockTestInstance() {
 }
 
 // RejectedNonCanonicalBlock defines a test instance that expects a serialized block that is not canonical and therefore should be rejected.
+
 type RejectedNonCanonicalBlock struct {
 	Name     string
 	RawBlock []byte
@@ -127,6 +133,7 @@ func (b RejectedNonCanonicalBlock) FullBlockTestInstance() {
 }
 
 // spendableOut represents a transaction output that is spendable along with additional metadata such as the block its in and how much it pays.
+
 type spendableOut struct {
 	prevOut wire.OutPoint
 	amount  util.Amount
@@ -153,6 +160,7 @@ func makeSpendableOut(
 }
 
 // testGenerator houses state used to easy the process of generating test blocks that build from one another along with housing other useful things such as available spendable outputs used throughout the tests.
+
 type testGenerator struct {
 	params       *chaincfg.Params
 	tip          *wire.MsgBlock
@@ -307,6 +315,7 @@ func solveBlock(
 	header *wire.BlockHeader, height int32) bool {
 
 	// sbResult is used by the solver goroutines to send results.
+
 	type sbResult struct {
 		found bool
 		nonce uint32
@@ -330,6 +339,7 @@ func solveBlock(
 				hash := hdr.BlockHashWithAlgos(height)
 
 				if blockchain.HashToBig(&hash).Cmp(
+
 					targetDifficulty) <= 0 {
 
 					results <- sbResult{true, i}

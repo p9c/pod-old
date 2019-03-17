@@ -46,6 +46,7 @@ const (
 )
 
 // filterStoreLookup
+
 type filterStoreLookup func(*ChainService) *headerfs.FilterHeaderStore
 
 var (
@@ -917,6 +918,7 @@ waitForHeaders:
 		// headers to fetch, so we'll grab them now.
 
 		if err = b.getUncheckpointedCFHeaders(
+
 			store, fType,
 		); err != nil {
 

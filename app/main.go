@@ -32,6 +32,7 @@ func Main() int {
 			EnsureDir(configfilepath)
 
 			if e := ioutil.WriteFile(
+
 				configfilepath, []byte{'\n'}, 0600,
 			); e != nil {
 

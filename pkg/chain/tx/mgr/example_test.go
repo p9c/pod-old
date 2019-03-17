@@ -65,6 +65,7 @@ func ExampleStore_Balance() {
 	printBalances := func(syncHeight int32) {
 
 		dbtx, err := db.BeginReadTx()
+
 		if err != nil {
 
 			fmt.Println(err)
@@ -73,18 +74,21 @@ func ExampleStore_Balance() {
 		defer dbtx.Rollback()
 		ns := dbtx.ReadBucket(namespaceKey)
 		zeroConfBal, err := s.Balance(ns, 0, syncHeight)
+
 		if err != nil {
 
 			fmt.Println(err)
 			return
 		}
 		oneConfBal, err := s.Balance(ns, 1, syncHeight)
+
 		if err != nil {
 
 			fmt.Println(err)
 			return
 		}
 		sixConfBal, err := s.Balance(ns, 6, syncHeight)
+
 		if err != nil {
 
 			fmt.Println(err)
@@ -100,6 +104,7 @@ func ExampleStore_Balance() {
 
 		ns := tx.ReadWriteBucket(namespaceKey)
 		err := s.InsertTx(ns, exampleTxRecordA, nil)
+
 		if err != nil {
 
 			return err
@@ -154,6 +159,7 @@ func ExampleStore_Rollback() {
 
 		// Insert a transaction which outputs 10 DUO in a block at height 100.
 		err := s.InsertTx(ns, exampleTxRecordA, &exampleBlock100)
+
 		if err != nil {
 
 			return err
@@ -161,6 +167,7 @@ func ExampleStore_Rollback() {
 
 		// Rollback everything from block 100 onwards.
 		err = s.Rollback(ns, 100)
+
 		if err != nil {
 
 			return err
@@ -168,10 +175,12 @@ func ExampleStore_Rollback() {
 
 		// Assert that the transaction is now unmined.
 		details, err := s.TxDetails(ns, &exampleTxRecordA.Hash)
+
 		if err != nil {
 
 			return err
 		}
+
 		if details == nil {
 
 			return fmt.Errorf("no details found")

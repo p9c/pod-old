@@ -12,6 +12,7 @@ import (
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be done when executing a script pair.
+
 type ScriptFlags uint32
 
 const (
@@ -85,6 +86,7 @@ const (
 var halfOrder = new(big.Int).Rsh(ec.S256().N, 1)
 
 // Engine is the virtual machine that executes scripts.
+
 type Engine struct {
 	scripts         [][]parsedOpcode
 	scriptIdx       int
@@ -145,6 +147,7 @@ func (vm *Engine) executeOpcode(pop *parsedOpcode) error {
 	if pop.opcode.value > OP_16 {
 
 		vm.numOps++
+
 		if vm.numOps > MaxOpsPerScript {
 
 			str := fmt.Sprintf("exceeded max operation limit of %d",
@@ -243,6 +246,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 
 		case payToWitnessPubKeyHashDataSize: // P2WKH
 			// The witness stack should consist of exactly two items: the signature, and the pubkey.
+
 			if len(witness) != 2 {
 
 				err := fmt.Sprintf("should have exactly two "+
@@ -251,11 +255,13 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			}
 			// Now we'll resume execution as if it were a regular p2pkh transaction.
 			pkScript, err := payToPubKeyHashScript(vm.witnessProgram)
+
 			if err != nil {
 
 				return err
 			}
 			pops, err := parseScript(pkScript)
+
 			if err != nil {
 
 				return err
@@ -265,6 +271,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			vm.SetStack(witness)
 		case payToWitnessScriptHashDataSize: // P2WSH
 			// Additionally, The witness stack MUST NOT be empty at this point.
+
 			if len(witness) == 0 {
 
 				return scriptError(ErrWitnessProgramEmpty, "witness "+
@@ -272,6 +279,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			}
 			// Obtain the witness script which should be the last element in the passed stack. The size of the script MUST NOT exceed the max script size.
 			witnessScript := witness[len(witness)-1]
+
 			if len(witnessScript) > MaxScriptSize {
 
 				str := fmt.Sprintf("witnessScript size %d "+
@@ -281,6 +289,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			}
 			// Ensure that the serialized pkScript at the end of the witness stack matches the witness program.
 			witnessHash := sha256.Sum256(witnessScript)
+
 			if !bytes.Equal(witnessHash[:], vm.witnessProgram) {
 
 				return scriptError(ErrWitnessProgramMismatch,
@@ -288,6 +297,7 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 			}
 			// With all the validity checks passed, parse the script into individual op-codes so w can execute it as the next script.
 			pops, err := parseScript(witnessScript)
+
 			if err != nil {
 
 				return err
@@ -440,6 +450,7 @@ func (vm *Engine) Step() (done bool, err error) {
 	if vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
 
 		// Illegal to have an `if' that straddles two scripts.
+
 		if err == nil && len(vm.condStack) != 0 {
 
 			return false, scriptError(ErrUnbalancedConditional,
@@ -449,6 +460,7 @@ func (vm *Engine) Step() (done bool, err error) {
 		_ = vm.astack.DropN(vm.astack.Depth())
 		vm.numOps = 0 // number of ops is per script.
 		vm.scriptOff = 0
+
 		if vm.scriptIdx == 0 && vm.bip16 {
 
 			vm.scriptIdx++
@@ -459,12 +471,14 @@ func (vm *Engine) Step() (done bool, err error) {
 			vm.scriptIdx++
 			// Check script ran successfully and pull the script out of the first stack and execute that.
 			err := vm.CheckErrorCondition(false)
+
 			if err != nil {
 
 				return false, err
 			}
 			script := vm.savedFirstStack[len(vm.savedFirstStack)-1]
 			pops, err := parseScript(script)
+
 			if err != nil {
 
 				return false, err
@@ -478,6 +492,7 @@ func (vm *Engine) Step() (done bool, err error) {
 			// Nested P2SH.
 			vm.scriptIdx++
 			witness := vm.tx.TxIn[vm.txIdx].Witness
+
 			if err := vm.verifyWitnessProgram(witness); err != nil {
 
 				return false, err
@@ -487,11 +502,13 @@ func (vm *Engine) Step() (done bool, err error) {
 			vm.scriptIdx++
 		}
 		// there are zero length scripts in the wild
+
 		if vm.scriptIdx < len(vm.scripts) && vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
 
 			vm.scriptIdx++
 		}
 		vm.lastCodeSep = 0
+
 		if vm.scriptIdx >= len(vm.scripts) {
 
 			return true, nil
@@ -508,6 +525,7 @@ func (vm *Engine) Execute() (err error) {
 	for !done {
 
 		done, err = vm.Step()
+
 		if err != nil {
 
 			return err
@@ -516,6 +534,7 @@ func (vm *Engine) Execute() (err error) {
 
 			var o string
 			dis, err := vm.DisasmPC()
+
 			if err != nil {
 
 				log <- cl.Debug{"stepping (", err, ")"}
@@ -525,10 +544,12 @@ func (vm *Engine) Execute() (err error) {
 			o = fmt.Sprint("stepping ", dis)
 			var dstr, astr string
 			// if we're tracing, dump the stacks.
+
 			if vm.dstack.Depth() != 0 {
 
 				dstr = "Stack:\n" + vm.dstack.String()
 			}
+
 			if vm.astack.Depth() != 0 {
 
 				astr = "AltStack:\n" + vm.astack.String()
@@ -764,6 +785,7 @@ func (vm *Engine) checkSignatureEncoding(sig []byte) error {
 	if vm.hasFlag(ScriptVerifyLowS) {
 
 		sValue := new(big.Int).SetBytes(sig[sOffset : sOffset+sLen])
+
 		if sValue.Cmp(halfOrder) > 0 {
 
 			return scriptError(ErrSigHighS, "signature is not canonical due "+
@@ -878,6 +900,7 @@ func NewEngine(
 		}
 		var err error
 		vm.scripts[i], err = parseScript(scr)
+
 		if err != nil {
 
 			return nil, err
@@ -892,6 +915,7 @@ func NewEngine(
 	if vm.hasFlag(ScriptBip16) && isScriptHash(vm.scripts[1]) {
 
 		// Only accept input scripts that push data for P2SH.
+
 		if !isPushOnly(vm.scripts[0]) {
 
 			return nil, scriptError(ErrNotPushOnly,
@@ -909,6 +933,7 @@ func NewEngine(
 	if vm.hasFlag(ScriptVerifyWitness) {
 
 		// If witness evaluation is enabled, then P2SH MUST also be active.
+
 		if !vm.hasFlag(ScriptBip16) {
 
 			errStr := "P2SH must be enabled to do witness verification"
@@ -920,6 +945,7 @@ func NewEngine(
 
 		case isWitnessProgram(vm.scripts[1]):
 			// The scriptSig must be *empty* for all native witness programs, otherwise we introduce malleability.
+
 			if len(scriptSig) != 0 {
 
 				errStr := "native witness program cannot " +
@@ -930,7 +956,9 @@ func NewEngine(
 		case len(tx.TxIn[txIdx].Witness) != 0 && vm.bip16:
 			// The sigScript MUST be *exactly* a single canonical data push of the witness program, otherwise we reintroduce malleability.
 			sigPops := vm.scripts[0]
+
 			if len(sigPops) == 1 && canonicalPush(sigPops[0]) &&
+
 				IsWitnessProgram(sigPops[0].data) {
 
 				witProgram = sigPops[0].data
@@ -941,10 +969,12 @@ func NewEngine(
 				return nil, scriptError(ErrWitnessMalleatedP2SH, errStr)
 			}
 		}
+
 		if witProgram != nil {
 
 			var err error
 			vm.witnessVersion, vm.witnessProgram, err = ExtractWitnessProgramInfo(witProgram)
+
 			if err != nil {
 
 				return nil, err
@@ -952,6 +982,7 @@ func NewEngine(
 		} else {
 
 			// If we didn't find a witness program in either the pkScript or as a datapush within the sigScript, then there MUST NOT be any witness data associated with the input being validated.
+
 			if vm.witnessProgram == nil && len(tx.TxIn[txIdx].Witness) != 0 {
 
 				errStr := "non-witness inputs cannot have a witness"

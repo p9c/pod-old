@@ -45,12 +45,14 @@ func TestScriptBuilderAddOp(
 			builder.AddOp(opcode)
 		}
 		result, err := builder.Script()
+
 		if err != nil {
 
 			t.Errorf("ScriptBuilder.AddOp #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(result, test.expected) {
 
 			t.Errorf("ScriptBuilder.AddOp #%d (%s) wrong result\n"+
@@ -67,12 +69,14 @@ func TestScriptBuilderAddOp(
 
 		builder.Reset()
 		result, err := builder.AddOps(test.opcodes).Script()
+
 		if err != nil {
 
 			t.Errorf("ScriptBuilder.AddOps #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(result, test.expected) {
 
 			t.Errorf("ScriptBuilder.AddOps #%d (%s) wrong result\n"+
@@ -139,12 +143,14 @@ func TestScriptBuilderAddInt64(
 
 		builder.Reset().AddInt64(test.val)
 		result, err := builder.Script()
+
 		if err != nil {
 
 			t.Errorf("ScriptBuilder.AddInt64 #%d (%s) unexpected "+
 				"error: %v", i, test.name, err)
 			continue
 		}
+
 		if !bytes.Equal(result, test.expected) {
 
 			t.Errorf("ScriptBuilder.AddInt64 #%d (%s) wrong result\n"+
@@ -269,6 +275,7 @@ func TestScriptBuilderAddData(
 			builder.Reset().AddFullData(test.data)
 		}
 		result, _ := builder.Script()
+
 		if !bytes.Equal(result, test.expected) {
 
 			t.Errorf("ScriptBuilder.AddData #%d (%s) wrong result\n"+

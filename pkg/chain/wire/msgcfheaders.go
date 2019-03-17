@@ -17,6 +17,7 @@ const (
 )
 
 // MsgCFHeaders implements the Message interface and represents a bitcoin cfheaders message.  It is used to deliver committed filter header information in response to a getcfheaders message (MsgGetCFHeaders). The maximum number of committed filter headers per message is currently 2000. See MsgGetCFHeaders for details on requesting the headers.
+
 type MsgCFHeaders struct {
 	FilterType       FilterType
 	StopHash         chainhash.Hash

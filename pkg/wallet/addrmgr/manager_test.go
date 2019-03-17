@@ -53,6 +53,7 @@ func failingSecretKeyGen(
 // none of the outputs can be spent yet.  However, on subsequent runs, all
 // blocks have been inserted and therefore some of the transaction outputs are
 // spent.
+
 type testContext struct {
 	t            *testing.T
 	db           walletdb.DB
@@ -65,6 +66,7 @@ type testContext struct {
 }
 
 // addrType is the type of address being tested
+
 type addrType byte
 
 const (
@@ -74,6 +76,7 @@ const (
 
 // expectedAddr is used to house the expected return values from a managed
 // address.  Not all fields for used for all managed address types.
+
 type expectedAddr struct {
 	address        string
 	addressHash    []byte
@@ -1006,6 +1009,7 @@ func testImportPrivateKey(
 			}
 
 			if !testAddress(tc, prefix+" ImportPrivateKey", addr,
+
 				&test.expected) {
 
 				continue
@@ -1628,6 +1632,7 @@ func testNewAccount(
 		})
 
 		if !checkManagerError(tc.t, "Create account in watching-only mode", err,
+
 			waddrmgr.ErrWatchingOnly) {
 
 			tc.manager.Close()

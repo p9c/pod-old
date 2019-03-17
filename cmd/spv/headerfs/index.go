@@ -46,6 +46,7 @@ var (
 
 // HeaderType is an enum-like type which defines the various header types that
 // are stored within the index.
+
 type HeaderType uint8
 
 const (
@@ -63,6 +64,7 @@ const (
 // of headers consists of header database. The keys have been specifically
 // crafted in order to ensure maximum write performance during IBD, and also to
 // provide the necessary indexing properties required.
+
 type headerIndex struct {
 	db walletdb.DB
 
@@ -96,6 +98,7 @@ func newHeaderIndex(
 
 // headerEntry is an internal type that's used to quickly map a (height, hash)
 // pair into the proper key that'll be stored within the database.
+
 type headerEntry struct {
 	hash   chainhash.Hash
 	height uint32
@@ -105,12 +108,14 @@ type headerEntry struct {
 //
 // NOTE: The entries within a batch SHOULD be properly sorted by hash in
 // order to ensure the batch is written in a sequential write.
+
 type headerBatch []headerEntry
 
 // Len returns the number of routes in the collection.
 //
 // NOTE: This is part of the sort.Interface implementation.
 func (h headerBatch) Len() int {
+
 	return len(h)
 }
 
@@ -120,6 +125,7 @@ func (h headerBatch) Len() int {
 //
 // NOTE: This is part of the sort.Interface implementation.
 func (h headerBatch) Less(i, j int) bool {
+
 	return bytes.Compare(h[i].hash[:], h[j].hash[:]) < 0
 }
 
@@ -133,6 +139,7 @@ func (h headerBatch) Swap(i, j int) {
 
 // addHeaders writes a batch of header entries in a single atomic batch
 func (h *headerIndex) addHeaders(batch headerBatch) error {
+
 	// If we're writing a 0-length batch, make no changes and return.
 
 	if len(batch) == 0 {
@@ -169,11 +176,13 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 		)
 
 		for _, header := range batch {
+
 			var heightBytes [4]byte
 			binary.BigEndian.PutUint32(heightBytes[:], header.height)
 			err := rootBucket.Put(header.hash[:], heightBytes[:])
 
 			if err != nil {
+
 				return err
 			}
 
@@ -181,6 +190,7 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 			// tracking added
 
 			if header.height >= chainTipHeight {
+
 				chainTipHash = header.hash
 				chainTipHeight = header.height
 			}
@@ -204,6 +214,7 @@ func (h *headerIndex) heightFromHash(hash *chainhash.Hash) (uint32, error) {
 		heightBytes := rootBucket.Get(hash[:])
 
 		if heightBytes == nil {
+
 			// If the hash wasn't found, then we don't know of this
 			// hash within the index.
 			return ErrHashNotFound
@@ -253,6 +264,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		tipHeightBytes := rootBucket.Get(tipHashBytes)
 
 		if len(tipHeightBytes) != 4 {
+
 			return ErrHeightNotFound
 		}
 
@@ -261,6 +273,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		h, err := chainhash.NewHash(tipHashBytes)
 
 		if err != nil {
+
 			return err
 		}
 
@@ -282,6 +295,7 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 // chain tip. Optionally, if the entry is to be deleted as well, then the
 // delete flag should be set to true.
 func (h *headerIndex) truncateIndex(newTip *chainhash.Hash, delete bool) error {
+
 	return walletdb.Update(h.db, func(tx walletdb.ReadWriteTx) error {
 		rootBucket := tx.ReadWriteBucket(indexBucket)
 
@@ -305,9 +319,11 @@ func (h *headerIndex) truncateIndex(newTip *chainhash.Hash, delete bool) error {
 		// being rolled back.
 
 		if delete {
+
 			prevTipHash := rootBucket.Get(tipKey)
 
 			if err := rootBucket.Delete(prevTipHash); err != nil {
+
 				return err
 			}
 

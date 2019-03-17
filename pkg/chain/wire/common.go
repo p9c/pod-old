@@ -34,6 +34,7 @@ var (
 )
 
 // binaryFreeList defines a concurrent safe free list of byte slices (up to the maximum number defined by the binaryFreeListMaxItems constant) that have a cap of 8 (thus it supports up to a uint64).  It is used to provide temporary buffers for  deserializing primitive numbers to and from their binary encoding in order to greatly reduce the number of allocations required. For convenience, functions are provided for each of the primitive unsigned integers that automatically obtain a buffer from the free list, perform the necessary binary conversion, read from or write to the given io.Reader or io.Writer, and return the buffer to the free list.
+
 type binaryFreeList chan []byte
 
 // Borrow returns a byte slice from the free list with a length of 8.  A new buffer is allocated if there are not any available on the free list.
@@ -185,9 +186,11 @@ var errNonCanonicalVarInt = "non-canonical varint %x - discriminant %x must " +
 	"encode a value greater than %x"
 
 // uint32Time represents a unix timestamp encoded with a uint32.  It is used as a way to signal the readElement function how to decode a timestamp into a Go time.Time since it is otherwise ambiguous.
+
 type uint32Time time.Time
 
 // int64Time represents a unix timestamp encoded with an int64.  It is used as a way to signal the readElement function how to decode a timestamp into a Go time.Time since it is otherwise ambiguous.
+
 type int64Time time.Time
 
 // readElement reads the next sequence of bytes from r using little endian depending on the concrete type of element pointed to.

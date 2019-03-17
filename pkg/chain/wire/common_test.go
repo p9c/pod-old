@@ -29,6 +29,7 @@ var mainNetGenesisMerkleRoot = chainhash.Hash([chainhash.HashSize]byte{
 })
 
 // fakeRandReader implements the io.Reader interface and is used to force errors in the RandomUint64 function.
+
 type fakeRandReader struct {
 	n   int
 	err error
@@ -51,6 +52,7 @@ func TestElementWire(
 	t *testing.T) {
 
 	type writeElementReflect int32
+
 	tests := []struct {
 		in  interface{} // Value to encode
 		buf []byte      // Wire encoding

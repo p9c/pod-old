@@ -59,6 +59,7 @@ func checkInputsStandard(
 				txIn.SignatureScript, originPkScript, true)
 
 			if numSigOps > maxStandardP2SHSigOps {
+
 				str := fmt.Sprintf("transaction input #%d has "+
 					"%d signature operations which is more "+
 					"than the allowed max amount of %d",
@@ -83,6 +84,7 @@ func checkPkScriptStandard(
 		numPubKeys, numSigs, err := txscript.CalcMultiSigStats(pkScript)
 
 		if err != nil {
+
 			str := fmt.Sprintf("multi-signature script parse "+
 				"failure: %v", err)
 			return txRuleError(wire.RejectNonstandard, str)
@@ -90,11 +92,13 @@ func checkPkScriptStandard(
 		// A standard multi-signature public key script must contain from 1 to maxStandardMultiSigKeys public keys.
 
 		if numPubKeys < 1 {
+
 			str := "multi-signature script with no pubkeys"
 			return txRuleError(wire.RejectNonstandard, str)
 		}
 
 		if numPubKeys > maxStandardMultiSigKeys {
+
 			str := fmt.Sprintf("multi-signature script with %d "+
 				"public keys which is more than the allowed "+
 				"max of %d", numPubKeys, maxStandardMultiSigKeys)
@@ -103,11 +107,13 @@ func checkPkScriptStandard(
 		// A standard multi-signature public key script must have at least 1 signature and no more signatures than available public keys.
 
 		if numSigs < 1 {
+
 			return txRuleError(wire.RejectNonstandard,
 				"multi-signature script with no signatures")
 		}
 
 		if numSigs > numPubKeys {
+
 			str := fmt.Sprintf("multi-signature script with %d "+
 				"signatures which is more than the available "+
 				"%d public keys", numSigs, numPubKeys)
@@ -211,6 +217,7 @@ func checkTransactionStandard(
 		sigScriptLen := len(txIn.SignatureScript)
 
 		if sigScriptLen > maxStandardSigScriptSize {
+
 			str := fmt.Sprintf("transaction input %d: signature "+
 				"script size of %d bytes is large than max "+
 				"allowed size of %d bytes", i, sigScriptLen,
@@ -234,10 +241,12 @@ func checkTransactionStandard(
 		err := checkPkScriptStandard(txOut.PkScript, scriptClass)
 
 		if err != nil {
+
 			// Attempt to extract a reject code from the error so it can be retained.  When not possible, fall back to a non standard error.
 			rejectCode := wire.RejectNonstandard
 
 			if rejCode, found := extractRejectCode(err); found {
+
 				rejectCode = rejCode
 			}
 			str := fmt.Sprintf("transaction output %d: %v", i, err)
@@ -246,6 +255,7 @@ func checkTransactionStandard(
 		// Accumulate the number of outputs which only carry data.  For all other script types, ensure the output value is not "dust".
 
 		if scriptClass == txscript.NullDataTy {
+
 			numNullDataOutputs++
 		} else if isDust(txOut, minRelayTxFee) {
 

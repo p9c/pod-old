@@ -106,16 +106,19 @@ func errorCode(
 
 // versionServer provides RPC clients with the ability to query the RPC server
 // version.
+
 type versionServer struct {
 }
 
 // walletServer provides wallet services for RPC clients.
+
 type walletServer struct {
 	wallet *wallet.Wallet
 }
 
 // loaderServer provides RPC clients with the ability to load and close wallets,
 // as well as establishing a RPC connection to a pod consensus server.
+
 type loaderServer struct {
 	loader    *wallet.Loader
 	activeNet *netparams.Params

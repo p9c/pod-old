@@ -5,6 +5,7 @@ import (
 )
 
 // MsgVerAck defines a bitcoin verack message which is used for a peer to acknowledge a version message (MsgVersion) after it has used the information to negotiate parameters.  It implements the Message interface. This message has no payload.
+
 type MsgVerAck struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.

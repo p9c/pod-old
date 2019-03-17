@@ -6,6 +6,7 @@ import (
 )
 
 // fixedWriter implements the io.Writer interface and intentially allows testing of error paths by forcing short writes.
+
 type fixedWriter struct {
 	b   []byte
 	pos int
@@ -41,6 +42,7 @@ func newFixedWriter(
 }
 
 // fixedReader implements the io.Reader interface and intentially allows testing of error paths by forcing short reads.
+
 type fixedReader struct {
 	buf   []byte
 	pos   int

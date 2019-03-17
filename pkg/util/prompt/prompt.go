@@ -35,6 +35,7 @@ func ProvideSeed() ([]byte, error) {
 		seedStr = strings.TrimSpace(strings.ToLower(seedStr))
 
 		seed, err := hex.DecodeString(seedStr)
+
 		if err != nil || len(seed) < hdkeychain.MinSeedBytes ||
 
 			len(seed) > hdkeychain.MaxSeedBytes {
@@ -418,6 +419,7 @@ func Seed(
 		seedStr = strings.TrimSpace(strings.ToLower(seedStr))
 
 		seed, err := hex.DecodeString(seedStr)
+
 		if err != nil || len(seed) < hdkeychain.MinSeedBytes ||
 
 			len(seed) > hdkeychain.MaxSeedBytes {

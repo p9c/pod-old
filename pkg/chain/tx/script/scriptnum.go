@@ -16,6 +16,7 @@ const (
 // For example, it is possible for OP_ADD to have 2^31 - 1 for its two operands resulting 2^32 - 2, which overflows, but is still pushed to the stack as the result of the addition.  That value can then be used as input to OP_VERIFY which will succeed because the data is being interpreted as a boolean. However, if that same value were to be used as input to another numeric opcode, such as OP_SUB, it must fail.
 // This type handles the aforementioned requirements by storing all numeric operation results as an int64 to handle overflow and provides the Bytes method to get the serialized representation (including values that overflow).
 // Then, whenever data is interpreted as an integer, it is converted to this type by using the makeScriptNum function which will return an error if the number is out of range or not minimally encoded depending on parameters. Since all numeric opcodes involve pulling data from the stack and interpreting it as an integer, it provides the required behavior.
+
 type scriptNum int64
 
 // checkMinimalDataEncoding returns whether or not the passed byte array adheres to the minimal encoding requirements.
@@ -33,6 +34,7 @@ func checkMinimalDataEncoding(
 	if v[len(v)-1]&0x7f == 0 {
 
 		// One exception: if there's more than one byte and the most significant bit of the second-most-significant-byte is set it would conflict with the sign bit.  An example of this case is +-255, which encode to 0xff00 and 0xff80 respectively. (big-endian).
+
 		if len(v) == 1 || v[len(v)-2]&0x80 == 0 {
 
 			str := fmt.Sprintf("numeric value encoded as %x is "+
@@ -87,6 +89,7 @@ func (n scriptNum) Bytes() []byte {
 	if result[len(result)-1]&0x80 != 0 {
 
 		extraByte := byte(0x00)
+
 		if isNegative {
 
 			extraByte = 0x80

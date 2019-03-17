@@ -35,6 +35,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 	for i := range rec.MsgTx.TxOut {
 
 		k := canonicalOutPoint(&rec.Hash, uint32(i))
+
 		if existsRawUnspent(ns, k) != nil {
 
 			return nil
@@ -59,6 +60,7 @@ func (s *Store) insertMemPoolTx(ns walletdb.ReadWriteBucket, rec *TxRecord) erro
 		prevOut := &input.PreviousOutPoint
 		k := canonicalOutPoint(&prevOut.Hash, prevOut.Index)
 		err = putRawUnminedInput(ns, k, rec.Hash[:])
+
 		if err != nil {
 
 			return err
@@ -94,6 +96,7 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 			// entries within the store, so it's possible we're
 			// unable to find it if the conflicts have already been
 			// removed in a previous iteration.
+
 			if doubleSpendVal == nil {
 
 				continue
@@ -104,6 +107,7 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 			err := readRawTxRecord(
 				&doubleSpend.Hash, doubleSpendVal, &doubleSpend,
 			)
+
 			if err != nil {
 
 				return err
@@ -113,6 +117,7 @@ func (s *Store) removeDoubleSpends(ns walletdb.ReadWriteBucket, rec *TxRecord) e
 
 				"removing double spending transaction", doubleSpend.Hash,
 			}
+
 			if err := s.removeConflict(ns, &doubleSpend); err != nil {
 
 				return err
@@ -149,6 +154,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 			// entries within the store, so it's possible we're
 			// unable to find it if the conflicts have already been
 			// removed in a previous iteration.
+
 			if spenderVal == nil {
 
 				continue
@@ -157,6 +163,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 			var spender TxRecord
 			spender.Hash = spenderHash
 			err := readRawTxRecord(&spender.Hash, spenderVal, &spender)
+
 			if err != nil {
 
 				return err
@@ -167,11 +174,13 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 				"transaction %v is part of a removed conflict chain -- removing as well",
 				spender.Hash,
 			}
+
 			if err := s.removeConflict(ns, &spender); err != nil {
 
 				return err
 			}
 		}
+
 		if err := deleteRawUnminedCredit(ns, k); err != nil {
 
 			return err
@@ -188,6 +197,7 @@ func (s *Store) removeConflict(ns walletdb.ReadWriteBucket, rec *TxRecord) error
 
 		prevOut := &input.PreviousOutPoint
 		k := canonicalOutPoint(&prevOut.Hash, prevOut.Index)
+
 		if err := deleteRawUnminedInput(ns, k); err != nil {
 
 			return err
@@ -225,6 +235,7 @@ func (s *Store) unminedTxRecords(ns walletdb.ReadBucket) (map[chainhash.Hash]*Tx
 
 		var txHash chainhash.Hash
 		err := readRawUnminedHash(k, &txHash)
+
 		if err != nil {
 
 			return err
@@ -232,6 +243,7 @@ func (s *Store) unminedTxRecords(ns walletdb.ReadBucket) (map[chainhash.Hash]*Tx
 
 		rec := new(TxRecord)
 		err = readRawTxRecord(&txHash, v, rec)
+
 		if err != nil {
 
 			return err
@@ -256,6 +268,7 @@ func (s *Store) unminedTxHashes(ns walletdb.ReadBucket) ([]*chainhash.Hash, erro
 
 		hash := new(chainhash.Hash)
 		err := readRawUnminedHash(k, hash)
+
 		if err == nil {
 
 			hashes = append(hashes, hash)

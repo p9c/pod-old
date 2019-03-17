@@ -28,14 +28,17 @@ func TestRegister(
 		params *Params
 		err    error
 	}
+
 	type magicTest struct {
 		magic byte
 		valid bool
 	}
+
 	type prefixTest struct {
 		prefix string
 		valid  bool
 	}
+
 	type hdTest struct {
 		priv []byte
 		want []byte

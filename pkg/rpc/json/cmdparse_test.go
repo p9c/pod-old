@@ -136,6 +136,7 @@ func TestAssignField(
 			src: func() interface{} {
 
 				type foo string
+
 				return foo("foo")
 			}(),
 			expected: "foo",

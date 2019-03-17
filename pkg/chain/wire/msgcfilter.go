@@ -8,6 +8,7 @@ import (
 )
 
 // FilterType is used to represent a filter type.
+
 type FilterType uint8
 
 const (
@@ -22,6 +23,7 @@ const (
 )
 
 // MsgCFilter implements the Message interface and represents a bitcoin cfilter message. It is used to deliver a committed filter in response to a getcfilters (MsgGetCFilters) message.
+
 type MsgCFilter struct {
 	FilterType FilterType
 	BlockHash  chainhash.Hash

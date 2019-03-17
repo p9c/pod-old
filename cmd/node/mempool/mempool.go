@@ -21,7 +21,9 @@ import (
 )
 
 // Config is a descriptor containing the memory pool configuration.
+
 type Config struct {
+
 	// Policy defines the various mempool configuration options related to policy.
 	Policy Policy
 	// ChainParams identifies which chain parameters the txpool is associated with.
@@ -47,7 +49,9 @@ type Config struct {
 }
 
 // Policy houses the policy (configuration parameters) which is used to control the mempool.
+
 type Policy struct {
+
 	// MaxTxVersion is the transaction version that the mempool should accept.  All transactions above this version are rejected as
 	// non-standard.
 	MaxTxVersion int32
@@ -68,9 +72,11 @@ type Policy struct {
 }
 
 // Tag represents an identifier to use for tagging orphan transactions.  The caller may choose any scheme it desires, however it is common to use peer IDs so that orphans can be identified by which peer first relayed them.
+
 type Tag uint64
 
 // TxDesc is a descriptor containing a transaction in the mempool along with additional metadata.
+
 type TxDesc struct {
 	mining.TxDesc
 	// StartingPriority is the priority of the transaction when it was added to the pool.
@@ -78,7 +84,9 @@ type TxDesc struct {
 }
 
 // TxPool is used as a source of transactions that need to be mined into blocks and relayed to other peers.  It is safe for concurrent access from multiple peers.
+
 type TxPool struct {
+
 	// The following variables must only be used atomically.
 	lastUpdated   int64 // last time pool was updated
 	mtx           sync.RWMutex
@@ -94,6 +102,7 @@ type TxPool struct {
 }
 
 // orphanTx is normal transaction that references an ancestor transaction that is not yet available.  It also contains additional information related to it such as an expiration time to help prevent caching the orphan forever.
+
 type orphanTx struct {
 	tx         *util.Tx
 	tag        Tag

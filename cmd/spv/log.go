@@ -6,6 +6,7 @@ import (
 
 // logClosure is used to provide a closure over expensive logging operations so
 // don't have to be performed when the logging level doesn't warrant it.
+
 type logClosure func() string
 
 // Log is the logger for node

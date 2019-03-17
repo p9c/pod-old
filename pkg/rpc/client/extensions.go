@@ -14,6 +14,7 @@ import (
 )
 
 // FutureDebugLevelResult is a future promise to deliver the result of a DebugLevelAsync RPC invocation (or an applicable error).
+
 type FutureDebugLevelResult chan *response
 
 // Receive waits for the response promised by the future and returns the result of setting the debug logging level to the passed level specification or the list of of the available subsystems for the special keyword 'show'.
@@ -59,6 +60,7 @@ func (c *Client) DebugLevel(levelSpec string) (string, error) {
 }
 
 // FutureCreateEncryptedWalletResult is a future promise to deliver the error result of a CreateEncryptedWalletAsync RPC invocation.
+
 type FutureCreateEncryptedWalletResult chan *response
 
 // Receive waits for and returns the error response promised by the future.
@@ -82,6 +84,7 @@ func (c *Client) CreateEncryptedWallet(passphrase string) error {
 }
 
 // FutureListAddressTransactionsResult is a future promise to deliver the result of a ListAddressTransactionsAsync RPC invocation (or an applicable error).
+
 type FutureListAddressTransactionsResult chan *response
 
 // Receive waits for the response promised by the future and returns information about all transactions associated with the provided addresses.
@@ -126,6 +129,7 @@ func (c *Client) ListAddressTransactions(addresses []util.Address, account strin
 }
 
 // FutureGetBestBlockResult is a future promise to deliver the result of a GetBestBlockAsync RPC invocation (or an applicable error).
+
 type FutureGetBestBlockResult chan *response
 
 // Receive waits for the response promised by the future and returns the hash and height of the block in the longest (best) chain.
@@ -171,6 +175,7 @@ func (c *Client) GetBestBlock() (*chainhash.Hash, int32, error) {
 }
 
 // FutureGetCurrentNetResult is a future promise to deliver the result of a GetCurrentNetAsync RPC invocation (or an applicable error).
+
 type FutureGetCurrentNetResult chan *response
 
 // Receive waits for the response promised by the future and returns the network the server is running on.
@@ -208,6 +213,7 @@ func (c *Client) GetCurrentNet() (wire.BitcoinNet, error) {
 }
 
 // FutureGetHeadersResult is a future promise to deliver the result of a getheaders RPC invocation (or an applicable error). NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
+
 type FutureGetHeadersResult chan *response
 
 // Receive waits for the response promised by the future and returns the getheaders result. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
@@ -276,6 +282,7 @@ func (c *Client) GetHeaders(blockLocators []chainhash.Hash, hashStop *chainhash.
 }
 
 // FutureExportWatchingWalletResult is a future promise to deliver the result of an ExportWatchingWalletAsync RPC invocation (or an applicable error).
+
 type FutureExportWatchingWalletResult chan *response
 
 // Receive waits for the response promised by the future and returns the exported wallet.
@@ -343,6 +350,7 @@ func (c *Client) ExportWatchingWallet(account string) ([]byte, []byte, error) {
 }
 
 // FutureSessionResult is a future promise to deliver the result of a SessionAsync RPC invocation (or an applicable error).
+
 type FutureSessionResult chan *response
 
 // Receive waits for the response promised by the future and returns the session result.
@@ -386,6 +394,7 @@ func (c *Client) Session() (*json.SessionResult, error) {
 }
 
 // FutureVersionResult is a future promise to deliver the result of a version RPC invocation (or an applicable error). NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.
+
 type FutureVersionResult chan *response
 
 // Receive waits for the response promised by the future and returns the version result. NOTE: This is a btcsuite extension ported from github.com/decred/dcrrpcclient.

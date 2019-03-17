@@ -215,7 +215,8 @@ var pubKeyTests = []pubKeyTest{
 			0x10, 0xd4, 0xb8,
 		},
 
-		format:  pubkeyHybrid,
+		format: pubkeyHybrid,
+
 		isValid: true,
 	},
 }

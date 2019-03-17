@@ -31,6 +31,7 @@ var (
 // ObtainUserInputFunc is a function that reads a user input and returns it as
 // a byte stream. It is used to accept data required during upgrades, for e.g.
 // wallet seed and private passphrase.
+
 type ObtainUserInputFunc func() ([]byte, error)
 
 // maybeConvertDbError converts the passed error to a ManagerError with an
@@ -52,6 +53,7 @@ func maybeConvertDbError(
 
 // syncStatus represents a address synchronization status stored in the
 // database.
+
 type syncStatus uint8
 
 // These constants define the various supported sync status types.
@@ -65,6 +67,7 @@ const (
 )
 
 // addressType represents a type of address stored in the database.
+
 type addressType uint8
 
 // These constants define the various supported address types.
@@ -75,6 +78,7 @@ const (
 )
 
 // accountType represents a type of address stored in the database.
+
 type accountType uint8
 
 // These constants define the various supported account types.
@@ -89,6 +93,7 @@ const (
 )
 
 // dbAccountRow houses information stored about an account in the database.
+
 type dbAccountRow struct {
 	acctType accountType
 	rawData  []byte // Varies based on account type field.
@@ -96,6 +101,7 @@ type dbAccountRow struct {
 
 // dbDefaultAccountRow houses additional information stored about a default
 // BIP0044-like account in the database.
+
 type dbDefaultAccountRow struct {
 	dbAccountRow
 	pubKeyEncrypted   []byte
@@ -107,6 +113,7 @@ type dbDefaultAccountRow struct {
 
 // dbAddressRow houses common information stored about an address in the
 // database.
+
 type dbAddressRow struct {
 	addrType   addressType
 	account    uint32
@@ -117,6 +124,7 @@ type dbAddressRow struct {
 
 // dbChainAddressRow houses additional information stored about a chained
 // address in the database.
+
 type dbChainAddressRow struct {
 	dbAddressRow
 	branch uint32
@@ -125,6 +133,7 @@ type dbChainAddressRow struct {
 
 // dbImportedAddressRow houses additional information stored about an imported
 // public key address in the database.
+
 type dbImportedAddressRow struct {
 	dbAddressRow
 	encryptedPubKey  []byte
@@ -133,6 +142,7 @@ type dbImportedAddressRow struct {
 
 // dbImportedAddressRow houses additional information stored about a script
 // address in the database.
+
 type dbScriptAddressRow struct {
 	dbAddressRow
 	encryptedHash   []byte

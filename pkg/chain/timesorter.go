@@ -2,6 +2,7 @@ package blockchain
 
 // timeSorter implements sort.Interface to allow a slice of timestamps to
 // be sorted.
+
 type timeSorter []int64
 
 // Len returns the number of timestamps in the slice.  It is part of the

@@ -52,6 +52,7 @@ func TestBadPC(
 	for _, test := range tests {
 
 		vm, err := NewEngine(pkScript, tx, 0, 0, nil, nil, -1)
+
 		if err != nil {
 
 			t.Errorf("Failed to create script: %v", err)
@@ -60,12 +61,14 @@ func TestBadPC(
 		vm.scriptIdx = test.script
 		vm.scriptOff = test.off
 		_, err = vm.Step()
+
 		if err == nil {
 
 			t.Errorf("Step with invalid pc (%v) succeeds!", test)
 			continue
 		}
 		_, err = vm.DisasmPC()
+
 		if err == nil {
 
 			t.Errorf("DisasmPC with invalid pc (%v) succeeds!",
@@ -117,15 +120,18 @@ func TestCheckErrorCondition(
 	for i := 0; i < len(pkScript)-1; i++ {
 
 		done, err := vm.Step()
+
 		if err != nil {
 
 			t.Fatalf("failed to step %dth time: %v", i, err)
 		}
+
 		if done {
 
 			t.Fatalf("finshed early on %dth time", i)
 		}
 		err = vm.CheckErrorCondition(false)
+
 		if !IsErrorCode(err, ErrScriptUnfinished) {
 
 			t.Fatalf("got unexepected error %v on %dth iteration",
@@ -192,6 +198,7 @@ func TestInvalidFlagCombinations(
 	for i, test := range tests {
 
 		_, err := NewEngine(pkScript, tx, 0, test, nil, nil, -1)
+
 		if !IsErrorCode(err, ErrInvalidFlags) {
 
 			t.Fatalf("TestInvalidFlagCombinations #%d unexpected "+
@@ -249,6 +256,7 @@ func TestCheckPubKeyEncoding(
 	for _, test := range tests {
 
 		err := vm.checkPubKeyEncoding(test.key)
+
 		if err != nil && test.isValid {
 
 			t.Errorf("checkSignatureEncoding test '%s' failed "+
@@ -423,6 +431,7 @@ func TestCheckSignatureEncoding(
 	for _, test := range tests {
 
 		err := vm.checkSignatureEncoding(test.sig)
+
 		if err != nil && test.isValid {
 
 			t.Errorf("checkSignatureEncoding test '%s' failed "+

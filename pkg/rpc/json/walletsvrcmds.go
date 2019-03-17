@@ -2,6 +2,7 @@
 package json
 
 // AddMultisigAddressCmd defines the addmutisigaddress JSON-RPC command.
+
 type AddMultisigAddressCmd struct {
 	NRequired int
 	Keys      []string
@@ -20,6 +21,7 @@ func NewAddMultisigAddressCmd(
 }
 
 // AddWitnessAddressCmd defines the addwitnessaddress JSON-RPC command.
+
 type AddWitnessAddressCmd struct {
 	Address string
 }
@@ -34,6 +36,7 @@ func NewAddWitnessAddressCmd(
 }
 
 // CreateMultisigCmd defines the createmultisig JSON-RPC command.
+
 type CreateMultisigCmd struct {
 	NRequired int
 	Keys      []string
@@ -50,6 +53,7 @@ func NewCreateMultisigCmd(
 }
 
 // DumpPrivKeyCmd defines the dumpprivkey JSON-RPC command.
+
 type DumpPrivKeyCmd struct {
 	Address string
 }
@@ -64,6 +68,7 @@ func NewDumpPrivKeyCmd(
 }
 
 // EncryptWalletCmd defines the encryptwallet JSON-RPC command.
+
 type EncryptWalletCmd struct {
 	Passphrase string
 }
@@ -78,6 +83,7 @@ func NewEncryptWalletCmd(
 }
 
 // EstimateFeeCmd defines the estimatefee JSON-RPC command.
+
 type EstimateFeeCmd struct {
 	NumBlocks int64
 }
@@ -92,6 +98,7 @@ func NewEstimateFeeCmd(
 }
 
 // EstimatePriorityCmd defines the estimatepriority JSON-RPC command.
+
 type EstimatePriorityCmd struct {
 	NumBlocks int64
 }
@@ -106,6 +113,7 @@ func NewEstimatePriorityCmd(
 }
 
 // GetAccountCmd defines the getaccount JSON-RPC command.
+
 type GetAccountCmd struct {
 	Address string
 }
@@ -120,6 +128,7 @@ func NewGetAccountCmd(
 }
 
 // GetAccountAddressCmd defines the getaccountaddress JSON-RPC command.
+
 type GetAccountAddressCmd struct {
 	Account string
 }
@@ -134,6 +143,7 @@ func NewGetAccountAddressCmd(
 }
 
 // GetAddressesByAccountCmd defines the getaddressesbyaccount JSON-RPC command.
+
 type GetAddressesByAccountCmd struct {
 	Account string
 }
@@ -148,6 +158,7 @@ func NewGetAddressesByAccountCmd(
 }
 
 // GetBalanceCmd defines the getbalance JSON-RPC command.
+
 type GetBalanceCmd struct {
 	Account *string
 	MinConf *int `jsonrpcdefault:"1"`
@@ -164,6 +175,7 @@ func NewGetBalanceCmd(
 }
 
 // GetNewAddressCmd defines the getnewaddress JSON-RPC command.
+
 type GetNewAddressCmd struct {
 	Account *string
 }
@@ -178,6 +190,7 @@ func NewGetNewAddressCmd(
 }
 
 // GetRawChangeAddressCmd defines the getrawchangeaddress JSON-RPC command.
+
 type GetRawChangeAddressCmd struct {
 	Account *string
 }
@@ -192,6 +205,7 @@ func NewGetRawChangeAddressCmd(
 }
 
 // GetReceivedByAccountCmd defines the getreceivedbyaccount JSON-RPC command.
+
 type GetReceivedByAccountCmd struct {
 	Account string
 	MinConf *int `jsonrpcdefault:"1"`
@@ -208,6 +222,7 @@ func NewGetReceivedByAccountCmd(
 }
 
 // GetReceivedByAddressCmd defines the getreceivedbyaddress JSON-RPC command.
+
 type GetReceivedByAddressCmd struct {
 	Address string
 	MinConf *int `jsonrpcdefault:"1"`
@@ -224,6 +239,7 @@ func NewGetReceivedByAddressCmd(
 }
 
 // GetTransactionCmd defines the gettransaction JSON-RPC command.
+
 type GetTransactionCmd struct {
 	Txid             string
 	IncludeWatchOnly *bool `jsonrpcdefault:"false"`
@@ -240,6 +256,7 @@ func NewGetTransactionCmd(
 }
 
 // GetWalletInfoCmd defines the getwalletinfo JSON-RPC command.
+
 type GetWalletInfoCmd struct{}
 
 // NewGetWalletInfoCmd returns a new instance which can be used to issue a getwalletinfo JSON-RPC command.
@@ -249,6 +266,7 @@ func NewGetWalletInfoCmd() *GetWalletInfoCmd {
 }
 
 // ImportPrivKeyCmd defines the importprivkey JSON-RPC command.
+
 type ImportPrivKeyCmd struct {
 	PrivKey string
 	Label   *string
@@ -267,6 +285,7 @@ func NewImportPrivKeyCmd(
 }
 
 // KeyPoolRefillCmd defines the keypoolrefill JSON-RPC command.
+
 type KeyPoolRefillCmd struct {
 	NewSize *uint `jsonrpcdefault:"100"`
 }
@@ -281,6 +300,7 @@ func NewKeyPoolRefillCmd(
 }
 
 // ListAccountsCmd defines the listaccounts JSON-RPC command.
+
 type ListAccountsCmd struct {
 	MinConf *int `jsonrpcdefault:"1"`
 }
@@ -295,6 +315,7 @@ func NewListAccountsCmd(
 }
 
 // ListAddressGroupingsCmd defines the listaddressgroupings JSON-RPC command.
+
 type ListAddressGroupingsCmd struct{}
 
 // NewListAddressGroupingsCmd returns a new instance which can be used to issue a listaddressgroupoings JSON-RPC command.
@@ -304,6 +325,7 @@ func NewListAddressGroupingsCmd() *ListAddressGroupingsCmd {
 }
 
 // ListLockUnspentCmd defines the listlockunspent JSON-RPC command.
+
 type ListLockUnspentCmd struct{}
 
 // NewListLockUnspentCmd returns a new instance which can be used to issue a listlockunspent JSON-RPC command.
@@ -313,6 +335,7 @@ func NewListLockUnspentCmd() *ListLockUnspentCmd {
 }
 
 // ListReceivedByAccountCmd defines the listreceivedbyaccount JSON-RPC command.
+
 type ListReceivedByAccountCmd struct {
 	MinConf          *int  `jsonrpcdefault:"1"`
 	IncludeEmpty     *bool `jsonrpcdefault:"false"`
@@ -331,6 +354,7 @@ func NewListReceivedByAccountCmd(
 }
 
 // ListReceivedByAddressCmd defines the listreceivedbyaddress JSON-RPC command.
+
 type ListReceivedByAddressCmd struct {
 	MinConf          *int  `jsonrpcdefault:"1"`
 	IncludeEmpty     *bool `jsonrpcdefault:"false"`
@@ -349,6 +373,7 @@ func NewListReceivedByAddressCmd(
 }
 
 // ListSinceBlockCmd defines the listsinceblock JSON-RPC command.
+
 type ListSinceBlockCmd struct {
 	BlockHash           *string
 	TargetConfirmations *int  `jsonrpcdefault:"1"`
@@ -367,6 +392,7 @@ func NewListSinceBlockCmd(
 }
 
 // ListTransactionsCmd defines the listtransactions JSON-RPC command.
+
 type ListTransactionsCmd struct {
 	Account          *string
 	Count            *int  `jsonrpcdefault:"10"`
@@ -387,6 +413,7 @@ func NewListTransactionsCmd(
 }
 
 // ListUnspentCmd defines the listunspent JSON-RPC command.
+
 type ListUnspentCmd struct {
 	MinConf   *int `jsonrpcdefault:"1"`
 	MaxConf   *int `jsonrpcdefault:"9999999"`
@@ -405,6 +432,7 @@ func NewListUnspentCmd(
 }
 
 // LockUnspentCmd defines the lockunspent JSON-RPC command.
+
 type LockUnspentCmd struct {
 	Unlock       bool
 	Transactions []TransactionInput
@@ -421,6 +449,7 @@ func NewLockUnspentCmd(
 }
 
 // MoveCmd defines the move JSON-RPC command.
+
 type MoveCmd struct {
 	FromAccount string
 	ToAccount   string
@@ -443,6 +472,7 @@ func NewMoveCmd(
 }
 
 // SendFromCmd defines the sendfrom JSON-RPC command.
+
 type SendFromCmd struct {
 	FromAccount string
 	ToAddress   string
@@ -467,6 +497,7 @@ func NewSendFromCmd(
 }
 
 // SendManyCmd defines the sendmany JSON-RPC command.
+
 type SendManyCmd struct {
 	FromAccount string
 	Amounts     map[string]float64 `jsonrpcusage:"{\"address\":amount,...}"` // In DUO
@@ -487,6 +518,7 @@ func NewSendManyCmd(
 }
 
 // SendToAddressCmd defines the sendtoaddress JSON-RPC command.
+
 type SendToAddressCmd struct {
 	Address   string
 	Amount    float64
@@ -507,6 +539,7 @@ func NewSendToAddressCmd(
 }
 
 // SetAccountCmd defines the setaccount JSON-RPC command.
+
 type SetAccountCmd struct {
 	Address string
 	Account string
@@ -523,6 +556,7 @@ func NewSetAccountCmd(
 }
 
 // SetTxFeeCmd defines the settxfee JSON-RPC command.
+
 type SetTxFeeCmd struct {
 	Amount float64 // In DUO
 }
@@ -537,6 +571,7 @@ func NewSetTxFeeCmd(
 }
 
 // SignMessageCmd defines the signmessage JSON-RPC command.
+
 type SignMessageCmd struct {
 	Address string
 	Message string
@@ -553,6 +588,7 @@ func NewSignMessageCmd(
 }
 
 // RawTxInput models the data needed for raw transaction input that is used in the SignRawTransactionCmd struct.
+
 type RawTxInput struct {
 	Txid         string `json:"txid"`
 	Vout         uint32 `json:"vout"`
@@ -561,6 +597,7 @@ type RawTxInput struct {
 }
 
 // SignRawTransactionCmd defines the signrawtransaction JSON-RPC command.
+
 type SignRawTransactionCmd struct {
 	RawTx    string
 	Inputs   *[]RawTxInput
@@ -581,6 +618,7 @@ func NewSignRawTransactionCmd(
 }
 
 // WalletLockCmd defines the walletlock JSON-RPC command.
+
 type WalletLockCmd struct{}
 
 // NewWalletLockCmd returns a new instance which can be used to issue a walletlock JSON-RPC command.
@@ -590,6 +628,7 @@ func NewWalletLockCmd() *WalletLockCmd {
 }
 
 // WalletPassphraseCmd defines the walletpassphrase JSON-RPC command.
+
 type WalletPassphraseCmd struct {
 	Passphrase string
 	Timeout    int64
@@ -606,6 +645,7 @@ func NewWalletPassphraseCmd(
 }
 
 // WalletPassphraseChangeCmd defines the walletpassphrase JSON-RPC command.
+
 type WalletPassphraseChangeCmd struct {
 	OldPassphrase string
 	NewPassphrase string

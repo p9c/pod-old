@@ -22,6 +22,7 @@ func makeGraph(
 		// Add a node for every transaction record.  The output edges
 		// and input degree are set by iterating over each record's
 		// inputs below.
+
 		if _, ok := graph[rec.Hash]; !ok {
 
 			graph[rec.Hash] = graphNode{value: rec}
@@ -34,6 +35,7 @@ func makeGraph(
 			// Transaction inputs that reference transactions not
 			// included in the set do not create any (local) graph
 			// edges.
+
 			if _, ok := set[input.PreviousOutPoint.Hash]; !ok {
 
 				continue
@@ -55,6 +57,7 @@ func makeGraph(
 			// hash to this transaction record and increase the
 			// input degree for this record's node.
 			inputRec := inputNode.value
+
 			if inputRec == nil {
 
 				inputRec = set[input.PreviousOutPoint.Hash]
@@ -122,10 +125,12 @@ func dependencySort(
 		for _, mHash := range n.outEdges {
 
 			m := graph[*mHash]
+
 			if m.inDegree != 0 {
 
 				m.inDegree--
 				graph[*mHash] = m
+
 				if m.inDegree == 0 {
 
 					s = append(s, m.value)

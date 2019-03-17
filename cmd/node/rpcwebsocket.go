@@ -29,7 +29,9 @@ import (
 )
 
 // Notification types
+
 type notificationBlockConnected util.Block
+
 type notificationBlockDisconnected util.Block
 
 type notificationRegisterAddr struct {
@@ -40,7 +42,9 @@ type notificationRegisterAddr struct {
 type notificationRegisterBlocks wsClient
 
 // Notification control requests
+
 type notificationRegisterClient wsClient
+
 type notificationRegisterNewMempoolTxs wsClient
 
 type notificationRegisterSpent struct {
@@ -59,7 +63,9 @@ type notificationUnregisterAddr struct {
 }
 
 type notificationUnregisterBlocks wsClient
+
 type notificationUnregisterClient wsClient
+
 type notificationUnregisterNewMempoolTxs wsClient
 
 type notificationUnregisterSpent struct {
@@ -133,6 +139,7 @@ type wsClientFilter struct {
 }
 
 // wsCommandHandler describes a callback function used to handle a specific command.
+
 type wsCommandHandler func(*wsClient, interface{}) (interface{}, error)
 
 // wsNotificationManager is a connection and notification manager used for websockets.  It allows websocket clients to register for notifications they are interested in.  When an event happens elsewhere in the code such as transactions being added to the memory pool or block connects/disconnects, the notification manager is provided with the relevant details needed to figure out which websocket clients need to be notified based on what they have registered for and notifies them accordingly.  It is also used to keep track of all connected websocket clients.

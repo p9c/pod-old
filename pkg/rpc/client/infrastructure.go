@@ -66,12 +66,14 @@ const (
 )
 
 // sendPostDetails houses an HTTP POST request to send to an RPC server as well as the original JSON-RPC command and a channel to reply on when the server responds with the result.
+
 type sendPostDetails struct {
 	httpRequest *http.Request
 	jsonRequest *jsonRequest
 }
 
 // jsonRequest holds information about a json request that is used to properly detect, interpret, and deliver a reply to it.
+
 type jsonRequest struct {
 	id             uint64
 	method         string
@@ -82,6 +84,7 @@ type jsonRequest struct {
 
 // Client represents a Bitcoin RPC client which allows easy access to the various RPC methods available on a Bitcoin RPC server.  Each of the wrapper functions handle the details of converting the passed and return types to and from the underlying JSON types which are required for the JSON-RPC invocations
 // The client provides each RPC in both synchronous (blocking) and asynchronous (non-blocking) forms.  The asynchronous forms are based on the concept of futures where they return an instance of a type that promises to deliver the result of the invocation at some future time.  Invoking the Receive method on the returned future will block until the result is available if it's not already.
+
 type Client struct {
 	id uint64 // atomic, so must stay 64-bit aligned
 
@@ -233,6 +236,7 @@ type (
 )
 
 // response is the raw bytes of a JSON-RPC result, or the error if the response error object was non-null.
+
 type response struct {
 	result []byte
 	err    error
@@ -1069,6 +1073,7 @@ func (c *Client) WaitForShutdown() {
 }
 
 // ConnConfig describes the connection configuration parameters for the client.
+
 type ConnConfig struct {
 
 	// Host is the IP address and port of the RPC server you want to connect to.
@@ -1212,6 +1217,7 @@ func dial(
 		// Detect HTTP authentication error status codes.
 
 		if resp.StatusCode == http.StatusUnauthorized ||
+
 			resp.StatusCode == http.StatusForbidden {
 
 			return nil, ErrInvalidAuth

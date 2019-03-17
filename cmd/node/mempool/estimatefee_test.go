@@ -13,6 +13,7 @@ import (
 )
 
 // estimateFeeTester interacts with the FeeEstimator to keep track of its expected state.
+
 type estimateFeeTester struct {
 	ef      *FeeEstimator
 	t       *testing.T
@@ -22,6 +23,7 @@ type estimateFeeTester struct {
 }
 
 // lastBlock is a linked list of the block hashes which have been processed by the test FeeEstimator.
+
 type lastBlock struct {
 	hash *chainhash.Hash
 	prev *lastBlock

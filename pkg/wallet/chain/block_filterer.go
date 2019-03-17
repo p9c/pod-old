@@ -28,6 +28,7 @@ import (
 // address of interest by not storing the full derivation paths, and instead
 // opting to allow the caller to contextually infer the account (DefaultAccount)
 // and branch (Internal or External).
+
 type BlockFilterer struct {
 
 	// Params specifies the chain params of the current network.

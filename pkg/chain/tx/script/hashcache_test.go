@@ -25,6 +25,7 @@ func genTestTx() (*wire.MsgTx, error) {
 			Sequence: uint32(rand.Int31()),
 		}
 		_, err := rand.Read(randTxIn.PreviousOutPoint.Hash[:])
+
 		if err != nil {
 
 			return nil, err
@@ -39,6 +40,7 @@ func genTestTx() (*wire.MsgTx, error) {
 			Value:    rand.Int63(),
 			PkScript: make([]byte, rand.Intn(30)),
 		}
+
 		if _, err := rand.Read(randTxOut.PkScript); err != nil {
 
 			return nil, err
@@ -64,6 +66,7 @@ func TestHashCacheAddContainsHashes(
 	for i := 0; i < numTxns; i++ {
 
 		txns[i], err = genTestTx()
+
 		if err != nil {
 
 			t.Fatalf("unable to generate test tx: %v", err)
@@ -82,6 +85,7 @@ func TestHashCacheAddContainsHashes(
 	for _, tx := range txns {
 
 		txid := tx.TxHash()
+
 		if ok := cache.ContainsHashes(&txid); !ok {
 
 			t.Fatalf("txid %v not found in cache but should be: ",
@@ -154,6 +158,7 @@ func TestHashCachePurge(
 	for i := 0; i < numTxns; i++ {
 
 		txns[i], err = genTestTx()
+
 		if err != nil {
 
 			t.Fatalf("unable to generate test tx: %v", err)
@@ -178,6 +183,7 @@ func TestHashCachePurge(
 	for _, tx := range txns {
 
 		txid := tx.TxHash()
+
 		if ok := cache.ContainsHashes(&txid); ok {
 
 			t.Fatalf("tx %v found in cache but should have "+

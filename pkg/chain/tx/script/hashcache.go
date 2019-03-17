@@ -8,6 +8,7 @@ import (
 )
 
 // TxSigHashes houses the partial set of sighashes introduced within BIP0143. This partial set of sighashes may be re-used within each input across a transaction when validating all inputs. As a result, validation complexity for SigHashAll can be reduced by a polynomial factor.
+
 type TxSigHashes struct {
 	HashPrevOuts chainhash.Hash
 	HashSequence chainhash.Hash
@@ -26,6 +27,7 @@ func NewTxSigHashes(
 }
 
 // HashCache houses a set of partial sighashes keyed by txid. The set of partial sighashes are those introduced within BIP0143 by the new more efficient sighash digest calculation algorithm. Using this threadsafe shared cache, multiple goroutines can safely re-use the pre-computed partial sighashes speeding up validation time amongst all inputs found within a block.
+
 type HashCache struct {
 	sigHashes map[chainhash.Hash]*TxSigHashes
 	sync.RWMutex

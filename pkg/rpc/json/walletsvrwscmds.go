@@ -1,6 +1,7 @@
 package json
 
 // NOTE: This file is intended to house the RPC commands that are supported by a wallet server, but are only available via websockets. CreateEncryptedWalletCmd defines the createencryptedwallet JSON-RPC command.
+
 type CreateEncryptedWalletCmd struct {
 	Passphrase string
 }
@@ -15,6 +16,7 @@ func NewCreateEncryptedWalletCmd(
 }
 
 // ExportWatchingWalletCmd defines the exportwatchingwallet JSON-RPC command.
+
 type ExportWatchingWalletCmd struct {
 	Account  *string
 	Download *bool `jsonrpcdefault:"false"`
@@ -31,6 +33,7 @@ func NewExportWatchingWalletCmd(
 }
 
 // GetUnconfirmedBalanceCmd defines the getunconfirmedbalance JSON-RPC command.
+
 type GetUnconfirmedBalanceCmd struct {
 	Account *string
 }
@@ -45,6 +48,7 @@ func NewGetUnconfirmedBalanceCmd(
 }
 
 // ListAddressTransactionsCmd defines the listaddresstransactions JSON-RPC command.
+
 type ListAddressTransactionsCmd struct {
 	Addresses []string
 	Account   *string
@@ -61,6 +65,7 @@ func NewListAddressTransactionsCmd(
 }
 
 // ListAllTransactionsCmd defines the listalltransactions JSON-RPC command.
+
 type ListAllTransactionsCmd struct {
 	Account *string
 }
@@ -75,6 +80,7 @@ func NewListAllTransactionsCmd(
 }
 
 // RecoverAddressesCmd defines the recoveraddresses JSON-RPC command.
+
 type RecoverAddressesCmd struct {
 	Account string
 	N       int
@@ -91,6 +97,7 @@ func NewRecoverAddressesCmd(
 }
 
 // WalletIsLockedCmd defines the walletislocked JSON-RPC command.
+
 type WalletIsLockedCmd struct{}
 
 // NewWalletIsLockedCmd returns a new instance which can be used to issue a walletislocked JSON-RPC command.

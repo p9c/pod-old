@@ -66,6 +66,7 @@ func parseWitnessStack(
 	for i, e := range elements {
 
 		witElement, err := hex.DecodeString(e.(string))
+
 		if err != nil {
 
 			return nil, err
@@ -101,7 +102,9 @@ func parseShortForm(
 			}
 			ops[opcodeName] = opcodeValue
 			// The opcodes named OP_# can't have the OP_ prefix stripped or they would conflict with the plain numbers.  Also, since OP_FALSE and OP_TRUE are aliases for the OP_0, and OP_1, respectively, they have the same value, so detect those by name and allow them.
+
 			if (opcodeName == "OP_FALSE" || opcodeName == "OP_TRUE") ||
+
 				(opcodeValue != OP_0 && (opcodeValue < OP_1 ||
 					opcodeValue > OP_16)) {
 
@@ -124,6 +127,7 @@ func parseShortForm(
 			continue
 		}
 		// if parses as a plain number
+
 		if num, err := strconv.ParseInt(tok, 10, 64); err == nil {
 
 			builder.AddInt64(num)
@@ -131,6 +135,7 @@ func parseShortForm(
 		} else if bts, err := parseHex(tok); err == nil {
 
 			// Concatenate the bytes manually since the test code intentionally creates scripts that are too large and would cause the builder to error otherwise.
+
 			if builder.err == nil {
 
 				builder.script = append(builder.script, bts...)
@@ -318,6 +323,7 @@ func createSpendingTx(
 }
 
 // scriptWithInputVal wraps a target pkScript with the value of the output in which it is contained. The inputVal is necessary in order to properly validate inputs which spend nested, or native witness programs.
+
 type scriptWithInputVal struct {
 	inputVal int64
 	pkScript []byte
@@ -339,12 +345,14 @@ func testScripts(
 		// "Format is: [[wit..., amount]?, scriptSig, scriptPubKey,
 		//    flags, expected_scripterror, ... comments]"
 		// Skip single line comments.
+
 		if len(test) == 1 {
 
 			continue
 		}
 		// Construct a name for the test based on the comment and test data.
 		name, err := scriptTestName(test)
+
 		if err != nil {
 
 			t.Errorf("TestScripts: invalid test #%d: %v", i, err)
@@ -356,18 +364,21 @@ func testScripts(
 		)
 		// When the first field of the test data is a slice it contains witness data and everything else is offset by 1 as a result.
 		witnessOffset := 0
+
 		if witnessData, ok := test[0].([]interface{}); ok {
 
 			witnessOffset++
 			// If this is a witness test, then the final element within the slice is the input amount, so we ignore all but the last element in order to parse the witness stack.
 			strWitnesses := witnessData[:len(witnessData)-1]
 			witness, err = parseWitnessStack(strWitnesses)
+
 			if err != nil {
 
 				t.Errorf("%s: can't parse witness; %v", name, err)
 				continue
 			}
 			inputAmt, err = util.NewAmount(witnessData[len(witnessData)-1].(float64))
+
 			if err != nil {
 
 				t.Errorf("%s: can't parse input amt: %v",
@@ -377,12 +388,14 @@ func testScripts(
 		}
 		// Extract and parse the signature script from the test fields.
 		scriptSigStr, ok := test[witnessOffset].(string)
+
 		if !ok {
 
 			t.Errorf("%s: signature script is not a string", name)
 			continue
 		}
 		scriptSig, err := parseShortForm(scriptSigStr)
+
 		if err != nil {
 
 			t.Errorf("%s: can't parse signature script: %v", name,
@@ -391,12 +404,14 @@ func testScripts(
 		}
 		// Extract and parse the public key script from the test fields.
 		scriptPubKeyStr, ok := test[witnessOffset+1].(string)
+
 		if !ok {
 
 			t.Errorf("%s: public key script is not a string", name)
 			continue
 		}
 		scriptPubKey, err := parseShortForm(scriptPubKeyStr)
+
 		if err != nil {
 
 			t.Errorf("%s: can't parse public key script: %v", name,
@@ -405,12 +420,14 @@ func testScripts(
 		}
 		// Extract and parse the script flags from the test fields.
 		flagsStr, ok := test[witnessOffset+2].(string)
+
 		if !ok {
 
 			t.Errorf("%s: flags field is not a string", name)
 			continue
 		}
 		flags, err := parseScriptFlags(flagsStr)
+
 		if err != nil {
 
 			t.Errorf("%s: %v", name, err)
@@ -419,12 +436,14 @@ func testScripts(
 		// Extract and parse the expected result from the test fields.
 		// Convert the expected result string into the allowed script error codes.  This is necessary because txscript is more fine grained with its errors than the reference test data, so some of the reference test data errors map to more than one possibility.
 		resultStr, ok := test[witnessOffset+3].(string)
+
 		if !ok {
 
 			t.Errorf("%s: result field is not a string", name)
 			continue
 		}
 		allowedErrorCodes, err := parseExpectedResult(resultStr)
+
 		if err != nil {
 
 			t.Errorf("%s: %v", name, err)
@@ -435,11 +454,13 @@ func testScripts(
 			int64(inputAmt))
 		vm, err := NewEngine(scriptPubKey, tx, 0, flags, sigCache, nil,
 			int64(inputAmt))
+
 		if err == nil {
 
 			err = vm.Execute()
 		}
 		// Ensure there were no errors when the expected result is OK.
+
 		if resultStr == "OK" {
 
 			if err != nil {
@@ -459,6 +480,7 @@ func testScripts(
 				break
 			}
 		}
+
 		if !success {
 
 			if serr, ok := err.(Error); ok {
@@ -532,22 +554,26 @@ testloop:
 	for i, test := range tests {
 
 		inputs, ok := test[0].([]interface{})
+
 		if !ok {
 
 			continue
 		}
+
 		if len(test) != 3 {
 
 			t.Errorf("bad test (bad length) %d: %v", i, test)
 			continue
 		}
 		serializedhex, ok := test[1].(string)
+
 		if !ok {
 
 			t.Errorf("bad test (arg 2 not string) %d: %v", i, test)
 			continue
 		}
 		serializedTx, err := hex.DecodeString(serializedhex)
+
 		if err != nil {
 
 			t.Errorf("bad test (arg 2 not hex %v) %d: %v", err, i,
@@ -555,6 +581,7 @@ testloop:
 			continue
 		}
 		tx, err := util.NewTxFromBytes(serializedTx)
+
 		if err != nil {
 
 			t.Errorf("bad test (arg 2 not msgtx %v) %d: %v", err,
@@ -562,12 +589,14 @@ testloop:
 			continue
 		}
 		verifyFlags, ok := test[2].(string)
+
 		if !ok {
 
 			t.Errorf("bad test (arg 3 not string) %d: %v", i, test)
 			continue
 		}
 		flags, err := parseScriptFlags(verifyFlags)
+
 		if err != nil {
 
 			t.Errorf("bad test %d: %v", i, err)
@@ -578,12 +607,14 @@ testloop:
 		for j, iinput := range inputs {
 
 			input, ok := iinput.([]interface{})
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input not array)"+
 					"%d: %v", j, i, test)
 				continue testloop
 			}
+
 			if len(input) < 3 || len(input) > 4 {
 
 				t.Errorf("bad test (%dth input wrong length)"+
@@ -591,6 +622,7 @@ testloop:
 				continue testloop
 			}
 			previoustx, ok := input[0].(string)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input hash not string)"+
@@ -598,6 +630,7 @@ testloop:
 				continue testloop
 			}
 			prevhash, err := chainhash.NewHashFromStr(previoustx)
+
 			if err != nil {
 
 				t.Errorf("bad test (%dth input hash not hash %v)"+
@@ -605,6 +638,7 @@ testloop:
 				continue testloop
 			}
 			idxf, ok := input[1].(float64)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input idx not number)"+
@@ -613,6 +647,7 @@ testloop:
 			}
 			idx := testVecF64ToUint32(idxf)
 			oscript, ok := input[2].(string)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input script not "+
@@ -620,6 +655,7 @@ testloop:
 				continue testloop
 			}
 			script, err := parseShortForm(oscript)
+
 			if err != nil {
 
 				t.Errorf("bad test (%dth input script doesn't "+
@@ -627,9 +663,11 @@ testloop:
 				continue testloop
 			}
 			var inputValue float64
+
 			if len(input) == 4 {
 
 				inputValue, ok = input[3].(float64)
+
 				if !ok {
 
 					t.Errorf("bad test (%dth input value not int) "+
@@ -647,6 +685,7 @@ testloop:
 		for k, txin := range tx.MsgTx().TxIn {
 
 			prevOut, ok := prevOuts[txin.PreviousOutPoint]
+
 			if !ok {
 
 				t.Errorf("bad test (missing %dth input) %d:%v",
@@ -656,11 +695,13 @@ testloop:
 			// These are meant to fail, so as soon as the first input fails the transaction has failed. (some of the test txns have good inputs, too..
 			vm, err := NewEngine(prevOut.pkScript, tx.MsgTx(), k,
 				flags, nil, nil, prevOut.inputVal)
+
 			if err != nil {
 
 				continue testloop
 			}
 			err = vm.Execute()
+
 			if err != nil {
 
 				continue testloop
@@ -701,22 +742,26 @@ testloop:
 	for i, test := range tests {
 
 		inputs, ok := test[0].([]interface{})
+
 		if !ok {
 
 			continue
 		}
+
 		if len(test) != 3 {
 
 			t.Errorf("bad test (bad length) %d: %v", i, test)
 			continue
 		}
 		serializedhex, ok := test[1].(string)
+
 		if !ok {
 
 			t.Errorf("bad test (arg 2 not string) %d: %v", i, test)
 			continue
 		}
 		serializedTx, err := hex.DecodeString(serializedhex)
+
 		if err != nil {
 
 			t.Errorf("bad test (arg 2 not hex %v) %d: %v", err, i,
@@ -724,6 +769,7 @@ testloop:
 			continue
 		}
 		tx, err := util.NewTxFromBytes(serializedTx)
+
 		if err != nil {
 
 			t.Errorf("bad test (arg 2 not msgtx %v) %d: %v", err,
@@ -731,12 +777,14 @@ testloop:
 			continue
 		}
 		verifyFlags, ok := test[2].(string)
+
 		if !ok {
 
 			t.Errorf("bad test (arg 3 not string) %d: %v", i, test)
 			continue
 		}
 		flags, err := parseScriptFlags(verifyFlags)
+
 		if err != nil {
 
 			t.Errorf("bad test %d: %v", i, err)
@@ -747,12 +795,14 @@ testloop:
 		for j, iinput := range inputs {
 
 			input, ok := iinput.([]interface{})
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input not array)"+
 					"%d: %v", j, i, test)
 				continue
 			}
+
 			if len(input) < 3 || len(input) > 4 {
 
 				t.Errorf("bad test (%dth input wrong length)"+
@@ -760,6 +810,7 @@ testloop:
 				continue
 			}
 			previoustx, ok := input[0].(string)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input hash not string)"+
@@ -767,6 +818,7 @@ testloop:
 				continue
 			}
 			prevhash, err := chainhash.NewHashFromStr(previoustx)
+
 			if err != nil {
 
 				t.Errorf("bad test (%dth input hash not hash %v)"+
@@ -774,6 +826,7 @@ testloop:
 				continue
 			}
 			idxf, ok := input[1].(float64)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input idx not number)"+
@@ -782,6 +835,7 @@ testloop:
 			}
 			idx := testVecF64ToUint32(idxf)
 			oscript, ok := input[2].(string)
+
 			if !ok {
 
 				t.Errorf("bad test (%dth input script not "+
@@ -789,6 +843,7 @@ testloop:
 				continue
 			}
 			script, err := parseShortForm(oscript)
+
 			if err != nil {
 
 				t.Errorf("bad test (%dth input script doesn't "+
@@ -796,9 +851,11 @@ testloop:
 				continue
 			}
 			var inputValue float64
+
 			if len(input) == 4 {
 
 				inputValue, ok = input[3].(float64)
+
 				if !ok {
 
 					t.Errorf("bad test (%dth input value not int) "+
@@ -816,6 +873,7 @@ testloop:
 		for k, txin := range tx.MsgTx().TxIn {
 
 			prevOut, ok := prevOuts[txin.PreviousOutPoint]
+
 			if !ok {
 
 				t.Errorf("bad test (missing %dth input) %d:%v",
@@ -824,6 +882,7 @@ testloop:
 			}
 			vm, err := NewEngine(prevOut.pkScript, tx.MsgTx(), k,
 				flags, nil, nil, prevOut.inputVal)
+
 			if err != nil {
 
 				t.Errorf("test (%d:%v:%d) failed to create "+
@@ -831,6 +890,7 @@ testloop:
 				continue
 			}
 			err = vm.Execute()
+
 			if err != nil {
 
 				t.Errorf("test (%d:%v:%d) failed to execute: "+
@@ -866,6 +926,7 @@ func TestCalcSignatureHash(
 			// Skip first line -- contains comments only.
 			continue
 		}
+
 		if len(test) != 5 {
 
 			t.Fatalf("TestCalcSignatureHash: Test #%d has "+
@@ -874,6 +935,7 @@ func TestCalcSignatureHash(
 		var tx wire.MsgTx
 		rawTx, _ := hex.DecodeString(test[0].(string))
 		err := tx.Deserialize(bytes.NewReader(rawTx))
+
 		if err != nil {
 
 			t.Errorf("TestCalcSignatureHash failed test #%d: "+
@@ -882,6 +944,7 @@ func TestCalcSignatureHash(
 		}
 		subScript, _ := hex.DecodeString(test[1].(string))
 		parsedScript, err := parseScript(subScript)
+
 		if err != nil {
 
 			t.Errorf("TestCalcSignatureHash failed test #%d: "+
@@ -892,6 +955,7 @@ func TestCalcSignatureHash(
 		hash := calcSignatureHash(parsedScript, hashType, &tx,
 			int(test[2].(float64)))
 		expectedHash, _ := chainhash.NewHashFromStr(test[4].(string))
+
 		if !bytes.Equal(hash, expectedHash[:]) {
 
 			t.Errorf("TestCalcSignatureHash failed test #%d: "+

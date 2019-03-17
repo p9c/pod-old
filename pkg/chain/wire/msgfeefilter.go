@@ -6,6 +6,7 @@ import (
 )
 
 // MsgFeeFilter implements the Message interface and represents a bitcoin feefilter message.  It is used to request the receiving peer does not announce any transactions below the specified minimum fee rate. This message was not added until protocol versions starting with FeeFilterVersion.
+
 type MsgFeeFilter struct {
 	MinFee int64
 }

@@ -15,6 +15,7 @@ import (
 // RescanProgressMsg reports the current progress made by a rescan for a
 
 // set of wallet addresses.
+
 type RescanProgressMsg struct {
 	Addresses    []util.Address
 	Notification *chain.RescanProgress
@@ -23,6 +24,7 @@ type RescanProgressMsg struct {
 // RescanFinishedMsg reports the addresses that were rescanned when a
 
 // rescanfinished message was received rescanning a batch of addresses.
+
 type RescanFinishedMsg struct {
 	Addresses    []util.Address
 	Notification *chain.RescanFinished
@@ -37,6 +39,7 @@ type RescanFinishedMsg struct {
 // rescan completes, the error result of the rescan RPC is sent on the Err
 
 // channel.
+
 type RescanJob struct {
 	InitialSync bool
 	Addrs       []util.Address
@@ -48,6 +51,7 @@ type RescanJob struct {
 // rescanBatch is a collection of one or more RescanJobs that were merged
 
 // together before a rescan is performed.
+
 type rescanBatch struct {
 	initialSync bool
 	addrs       []util.Address

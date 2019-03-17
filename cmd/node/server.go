@@ -39,9 +39,11 @@ import (
 )
 
 // broadcastInventoryAdd is a type used to declare that the InvVect it contains needs to be added to the rebroadcast map
+
 type broadcastInventoryAdd relayMsg
 
 // broadcastInventoryDel is a type used to declare that the InvVect it contains needs to be removed from the rebroadcast map
+
 type broadcastInventoryDel *wire.InvVect
 
 // broadcastMsg provides the ability to house a bitcoin message to be broadcast to all connected peers except specified excluded peers.
@@ -59,6 +61,7 @@ type cfHeaderKV struct {
 }
 
 // checkpointSorter implements sort.Interface to allow a slice of checkpoints to be sorted.
+
 type checkpointSorter []chaincfg.Checkpoint
 
 type connectNodeMsg struct {

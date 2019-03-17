@@ -571,7 +571,9 @@ func loadConfig() (
 
 
 
+
 		if e, ok := err.(*flags.Error); ok && e.Type == flags.ErrHelp {
+
 
 
 			fmt.Fprintln(os.Stderr, err)
@@ -610,7 +612,9 @@ func loadConfig() (
 
 
 
+
 		if err != nil {
+
 
 
 			fmt.Fprintln(os.Stderr, err)
@@ -632,7 +636,9 @@ func loadConfig() (
 
 
 
+
 		if _, err := os.Stat(preCfg.ConfigFile); os.IsNotExist(err) {
+
 
 
 
@@ -641,7 +647,9 @@ func loadConfig() (
 
 
 
+
 			if err != nil {
+
 
 
 				fmt.Fprintf(os.Stderr, "Error creating a "+
@@ -655,6 +663,7 @@ func loadConfig() (
 
 
 
+
 		if err != nil {
 
 
@@ -662,7 +671,10 @@ func loadConfig() (
 
 
 
+
+
 			if _, ok := err.(*os.PathError); !ok {
+
 
 
 				fmt.Fprintf(os.Stderr, "Error parsing config "+
@@ -702,7 +714,9 @@ func loadConfig() (
 
 
 
+
 		if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
+
 
 
 			fmt.Fprintln(os.Stderr, usageMessage)
@@ -727,6 +741,7 @@ func loadConfig() (
 
 
 
+
 		if e, ok := err.(*os.PathError); ok && os.IsExist(err) {
 
 
@@ -735,7 +750,10 @@ func loadConfig() (
 
 
 
+
+
 			if link, lerr := os.Readlink(e.Path); lerr == nil {
+
 
 
 				str := "is symlink %s -> %s mounted?"
@@ -765,7 +783,9 @@ func loadConfig() (
 		numNets++
 		ActiveNetParams = &TestNet3Params
 
+
 		fork.IsTestnet = true
+
 	}
 
 
@@ -778,7 +798,9 @@ func loadConfig() (
 		numNets++
 		ActiveNetParams = &RegressionNetParams
 
+
 		fork.IsTestnet = true
+
 	}
 
 
@@ -793,7 +815,9 @@ func loadConfig() (
 		ActiveNetParams = &SimNetParams
 		cfg.DisableDNSSeed = true
 
+
 		fork.IsTestnet = true
+
 	}
 
 
@@ -897,7 +921,9 @@ func loadConfig() (
 
 
 
+
 		if err != nil || profilePort < 1024 || profilePort > 65535 {
+
 
 
 			str := "%s: The profile port must be between 1024 and 65535"
@@ -940,7 +966,9 @@ func loadConfig() (
 
 
 
+
 		for _, addr := range cfg.Whitelists {
+
 
 
 			_, ipnet, err := net.ParseCIDR(addr)
@@ -948,7 +976,9 @@ func loadConfig() (
 
 
 
+
 			if err != nil {
+
 
 
 				ip = net.ParseIP(addr)
@@ -956,7 +986,9 @@ func loadConfig() (
 
 
 
+
 				if ip == nil {
+
 
 
 					str := "%s: The whitelist value of '%s' is invalid"
@@ -971,7 +1003,9 @@ func loadConfig() (
 
 
 
+
 				if ip.To4() == nil {
+
 
 
 					// IPv6
@@ -1122,7 +1156,9 @@ func loadConfig() (
 
 
 
+
 		if !cfg.DisableRPC && len(cfg.RPCListeners) == 0 {
+
 
 
 			addrs, err := net.LookupHost("127.0.0.1:11048")
@@ -1130,7 +1166,9 @@ func loadConfig() (
 
 
 
+
 			if err != nil {
+
 
 
 				return nil, nil, err
@@ -1141,7 +1179,9 @@ func loadConfig() (
 
 
 
+
 			for _, addr := range addrs {
+
 
 
 				addr = net.JoinHostPort(addr, ActiveNetParams.RPCPort)
@@ -1154,7 +1194,9 @@ func loadConfig() (
 
 
 
+
 		if cfg.RPCMaxConcurrentReqs < 0 {
+
 
 
 			str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
@@ -1272,7 +1314,9 @@ func loadConfig() (
 
 
 
+
 		if strings.ContainsAny(uaComment, "/:()") {
+
 
 
 
@@ -1350,7 +1394,9 @@ func loadConfig() (
 
 
 
+
 		if err != nil {
+
 
 
 			str := "%s: mining address '%s' failed to decode: %v"
@@ -1364,7 +1410,9 @@ func loadConfig() (
 
 
 
+
 		if !addr.IsForNet(ActiveNetParams.Params) {
+
 
 
 
@@ -1423,6 +1471,7 @@ func loadConfig() (
 
 
 
+
 		for _, addr := range cfg.RPCListeners {
 
 
@@ -1430,7 +1479,10 @@ func loadConfig() (
 
 
 
+
+
 			if err != nil {
+
 
 
 				str := "%s: RPC listen interface '%s' is invalid: %v"
@@ -1514,7 +1566,9 @@ func loadConfig() (
 
 
 
+
 		if err != nil {
+
 
 
 			str := "%s: Proxy address '%s' is invalid: %v"
@@ -1527,7 +1581,9 @@ func loadConfig() (
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
 
+
 		if cfg.TorIsolation && cfg.OnionProxy == "" &&
+
 
 
 
@@ -1553,7 +1609,9 @@ func loadConfig() (
 
 
 
+
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
+
 
 
 
@@ -1583,7 +1641,9 @@ func loadConfig() (
 
 
 
+
 		if err != nil {
+
 
 
 			str := "%s: Onion proxy address '%s' is invalid: %v"
@@ -1595,7 +1655,9 @@ func loadConfig() (
 
 		// Tor isolation flag means onion proxy credentials will be overridden.
 
+
 		if cfg.TorIsolation &&
+
 
 
 
@@ -1630,7 +1692,9 @@ func loadConfig() (
 
 
 
+
 		if cfg.Proxy != "" {
+
 
 
 
@@ -1707,7 +1771,9 @@ func minUint32(
 
 
 
+
 		if a < b {
+
 
 
 			return a

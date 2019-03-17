@@ -330,9 +330,11 @@ func TestExtractPkScriptAddrs(
 
 		class, addrs, reqSigs, err := ExtractPkScriptAddrs(
 			test.script, &chaincfg.MainNetParams)
+
 		if err != nil {
 
 		}
+
 		if !reflect.DeepEqual(addrs, test.addrs) {
 
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
@@ -340,6 +342,7 @@ func TestExtractPkScriptAddrs(
 				addrs, test.addrs)
 			continue
 		}
+
 		if reqSigs != test.reqSigs {
 
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
@@ -347,6 +350,7 @@ func TestExtractPkScriptAddrs(
 				"want %d", i, test.name, reqSigs, test.reqSigs)
 			continue
 		}
+
 		if class != test.class {
 
 			t.Errorf("ExtractPkScriptAddrs #%d (%s) unexpected "+
@@ -519,6 +523,7 @@ func TestCalcScriptInfo(
 		for _, witElement := range test.witness {
 
 			wit, err := hex.DecodeString(witElement)
+
 			if err != nil {
 
 				t.Fatalf("unable to decode witness "+
@@ -528,15 +533,18 @@ func TestCalcScriptInfo(
 		}
 		si, err := CalcScriptInfo(sigScript, pkScript, witness,
 			test.bip16, test.segwit)
+
 		if e := tstCheckScriptError(err, test.scriptInfoErr); e != nil {
 
 			t.Errorf("scriptinfo test %q: %v", test.name, e)
 			continue
 		}
+
 		if err != nil {
 
 			continue
 		}
+
 		if *si != test.scriptInfo {
 
 			t.Errorf("%s: scriptinfo doesn't match expected. "+
@@ -548,6 +556,7 @@ func TestCalcScriptInfo(
 }
 
 // bogusAddress implements the util.Address interface so the tests can ensure unsupported address types are handled properly.
+
 type bogusAddress struct{}
 
 // EncodeAddress simply returns an empty string.  It exists to satisfy the util.Address interface.
@@ -679,6 +688,7 @@ func TestPayToAddrScript(
 	for i, test := range tests {
 
 		pkScript, err := PayToAddrScript(test.in)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("PayToAddrScript #%d unexpected error - "+
@@ -686,6 +696,7 @@ func TestPayToAddrScript(
 			continue
 		}
 		expected := mustParseShortForm(test.expected)
+
 		if !bytes.Equal(pkScript, expected) {
 
 			t.Errorf("PayToAddrScript #%d got: %x\nwant: %x",
@@ -791,12 +802,14 @@ func TestMultiSigScript(
 	for i, test := range tests {
 
 		script, err := MultiSigScript(test.keys, test.nrequired)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("MultiSigScript #%d: %v", i, e)
 			continue
 		}
 		expected := mustParseShortForm(test.expected)
+
 		if !bytes.Equal(script, expected) {
 
 			t.Errorf("MultiSigScript #%d got: %x\nwant: %x",
@@ -845,6 +858,7 @@ func TestCalcMultiSigStats(
 
 		script := mustParseShortForm(test.script)
 		_, _, err := CalcMultiSigStats(script)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("CalcMultiSigStats #%d (%s): %v", i, test.name,
@@ -1041,6 +1055,7 @@ func TestScriptClass(
 
 		script := mustParseShortForm(test.script)
 		class := GetScriptClass(script)
+
 		if class != test.class {
 
 			t.Errorf("%s: expected %s got %s (script %x)", test.name,
@@ -1110,6 +1125,7 @@ func TestStringifyClass(
 	for _, test := range tests {
 
 		typeString := test.class.String()
+
 		if typeString != test.stringed {
 
 			t.Errorf("%s: got %#q, want %#q", test.name,
@@ -1181,6 +1197,7 @@ func TestNullDataScript(
 	for i, test := range tests {
 
 		script, err := NullDataScript(test.data)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("NullDataScript: #%d (%s): %v", i, test.name,
@@ -1188,6 +1205,7 @@ func TestNullDataScript(
 			continue
 		}
 		// Check that the expected result was returned.
+
 		if !bytes.Equal(script, test.expected) {
 
 			t.Errorf("NullDataScript: #%d (%s) wrong result\n"+
@@ -1197,6 +1215,7 @@ func TestNullDataScript(
 		}
 		// Check that the script has the correct type.
 		scriptType := GetScriptClass(script)
+
 		if scriptType != test.class {
 
 			t.Errorf("GetScriptClass: #%d (%s) wrong result -- "+

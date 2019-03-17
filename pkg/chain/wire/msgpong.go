@@ -6,6 +6,7 @@ import (
 )
 
 // MsgPong implements the Message interface and represents a bitcoin pong message which is used primarily to confirm that a connection is still valid in response to a bitcoin ping message (MsgPing). This message was not added until protocol versions AFTER BIP0031Version.
+
 type MsgPong struct {
 
 	// Unique value associated with message that is used to identify specific ping message.

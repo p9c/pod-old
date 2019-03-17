@@ -27,6 +27,7 @@ const (
 )
 
 // Config is a descriptor containing the controller configuration.
+
 type Config struct {
 
 	// Blockchain gives access for the miner to information about the chain
@@ -58,6 +59,7 @@ type Config struct {
 }
 
 // Controller delivers new work to miner clients
+
 type Controller struct {
 	sync.Mutex
 	b                *blockchain.BlockChain
@@ -96,6 +98,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 	if err != nil {
 
 		// Anything other than a rule violation is an unexpected error, so log that error as an internal error.
+
 		if _, ok := err.(blockchain.RuleError); !ok {
 
 			log <- cl.Error{
@@ -135,6 +138,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 			util.Amount(coinbaseTx.Value),
 
 			fork.GetAlgoName(block.MsgBlock().Header.Version,
+
 				block.Height()),
 			since,
 		)
@@ -177,12 +181,15 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 				// fmt.Println("chan:<-ticker.C")
 				// The current block is stale if the best block has changed.
 				best := c.g.BestSnapshot()
+
 				if !header.PrevBlock.IsEqual(&best.Hash) {
 
 					return false
 				}
 				// The current block is stale if the memory pool has been updated since the block template was generated and it has been at least one minute.
+
 				if lastTxUpdate != c.g.TxSource().LastUpdated() &&
+
 					time.Now().After(lastGenerated.Add(time.Minute)) {
 
 					return false
@@ -198,6 +205,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 			header.Nonce = i
 			hash := header.BlockHashWithAlgos(int32(fork.GetCurrent(blockHeight)))
 			// The block is solved when the new block hash is less than the target difficulty.  Yay!
+
 			if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
 
 				return true
@@ -228,6 +236,7 @@ out:
 		default: // Non-blocking select to fall through
 		}
 		// Wait until there is a connection to at least one other peer since there is no way to relay a found block or receive transactions to work on when there are no connected peers.
+
 		if c.cfg.ConnectedCount() == 0 {
 
 			time.Sleep(time.Second)
@@ -236,6 +245,7 @@ out:
 		// No point in searching for a solution before the chain is synced.  Also, grab the same lock as used for block submission, since the current block will be changing and this would otherwise end up building a new block template on a block that is in the process of becoming stale.
 		c.submitBlockLock.Lock()
 		curHeight := c.g.BestSnapshot().Height
+
 		if curHeight != 0 && !c.cfg.IsCurrent() {
 
 			c.submitBlockLock.Unlock()
@@ -248,6 +258,7 @@ out:
 		// Create a new block template using the available transactions in the memory pool as a source of transactions to potentially include in the block.
 		template, err := c.g.NewBlockTemplate(payToAddr, "")
 		c.submitBlockLock.Unlock()
+
 		if err != nil {
 
 			log <- cl.Error{"Failed to create new block template: %v", err}
@@ -255,6 +266,7 @@ out:
 			continue
 		}
 		// Attempt to solve the block.  The function will exit early with false when conditions that trigger a stale block, so a new block template can be generated.  When the return is true a solution was found, so submit the solved block.
+
 		if c.solveBlock(template.Block, curHeight+1, c.cfg.ChainParams.Name == "testnet", ticker, submission, quit) {
 
 			block := util.NewBlock(template.Block)

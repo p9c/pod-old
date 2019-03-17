@@ -34,6 +34,7 @@ func Main(
 	if ActiveNet.Name == "testnet" {
 
 		fork.IsTestnet = true
+
 	}
 
 	if *cfg.Profile != "" {

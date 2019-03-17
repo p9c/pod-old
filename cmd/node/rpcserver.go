@@ -2942,12 +2942,15 @@ func handleGetBlockChainInfo(
 		case chaincfg.DeploymentTestDummy:
 
 			forkName = "dummy"
+
 		case chaincfg.DeploymentCSV:
 
 			forkName = "csv"
+
 		case chaincfg.DeploymentSegwit:
 
 			forkName = "segwit"
+
 		default:
 
 			return nil, &json.RPCError{
@@ -5842,6 +5845,7 @@ func verifyChain(
 
 
 func handleDebugLevel(	s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, error) {
+
 
 
 

@@ -8,6 +8,7 @@ import (
 )
 
 // ErrorCode identifies a kind of error.
+
 type ErrorCode int
 
 // ManagerError provides a single type for errors that can happen during address
@@ -23,6 +24,7 @@ type ErrorCode int
 //
 // The ErrDatabase, ErrKeyChain, and ErrCrypto error codes will also have the
 // Err field set with the underlying error.
+
 type ManagerError struct {
 	ErrorCode   ErrorCode // Describes the kind of error
 	Description string    // Human readable description of the issue

@@ -17,6 +17,7 @@ func init() {
 }
 
 // mockAddr mocks a network address
+
 type mockAddr struct {
 	net, address string
 }
@@ -25,6 +26,7 @@ func (m mockAddr) Network() string { return m.net }
 func (m mockAddr) String() string  { return m.address }
 
 // mockConn mocks a network connection by implementing the net.Conn interface.
+
 type mockConn struct {
 	io.Reader
 	io.Writer
@@ -619,6 +621,7 @@ func TestCancelIgnoreDelayedConnection(
 }
 
 // mockListener implements the net.Listener interface and is used to test code that deals with net.Listeners without having to actually make any real connections.
+
 type mockListener struct {
 	localAddr   string
 	provideConn chan net.Conn

@@ -59,6 +59,7 @@ var (
 )
 
 // errNotInMainChain signifies that a block hash or height that is not in the main chain was requested.
+
 type errNotInMainChain string
 
 // Error implements the error interface.
@@ -78,6 +79,7 @@ func isNotInMainChainErr(
 }
 
 // errDeserialize signifies that a problem was encountered when deserializing data.
+
 type errDeserialize string
 
 func (e errDeserialize) Error() string {

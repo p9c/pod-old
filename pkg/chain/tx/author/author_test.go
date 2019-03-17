@@ -210,6 +210,7 @@ func TestNewUnsignedTransaction(
 
 		case nil:
 		case InputSourceError:
+
 			if !test.InputSourceError {
 
 				t.Errorf("Test %d: Returned InputSourceError but expected "+
@@ -220,6 +221,7 @@ func TestNewUnsignedTransaction(
 			t.Errorf("Test %d: Unexpected error: %v", i, e)
 			continue
 		}
+
 		if tx.ChangeIndex < 0 {
 
 			if test.ChangeAmount != 0 {
@@ -231,12 +233,14 @@ func TestNewUnsignedTransaction(
 		} else {
 
 			changeAmount := util.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
+
 			if test.ChangeAmount == 0 {
 
 				t.Errorf("Test %d: Included change output with value %v but expected no change",
 					i, changeAmount)
 				continue
 			}
+
 			if changeAmount != test.ChangeAmount {
 
 				t.Errorf("Test %d: Got change amount %v, Expected %v",
@@ -244,6 +248,7 @@ func TestNewUnsignedTransaction(
 				continue
 			}
 		}
+
 		if len(tx.Tx.TxIn) != test.InputCount {
 
 			t.Errorf("Test %d: Used %d outputs from input source, Expected %d",

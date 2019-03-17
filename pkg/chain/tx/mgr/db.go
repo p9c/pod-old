@@ -371,6 +371,7 @@ func (it *blockIterator) prev() bool {
 		// key, but this doesn't need to be considered when dealing with
 		// block records since the key (and seek prefix) is just the
 		// block height.
+
 		if !bytes.HasPrefix(it.ck, it.seek) {
 
 			it.ck, it.cv = it.c.Prev()
@@ -454,6 +455,7 @@ func valueTxRecord(
 		txSize := rec.MsgTx.SerializeSize()
 		v = make([]byte, 8, 8+txSize)
 		err := rec.MsgTx.Serialize(bytes.NewBuffer(v[8:]))
+
 		if err != nil {
 
 			str := fmt.Sprintf("unable to serialize transaction %v", rec.Hash)
@@ -838,6 +840,7 @@ func deleteRawCredit(
 //
 //   k := canonicalOutPoint(&txHash, it.elem.Index)
 //   it.elem.Spent = existsRawUnminedInput(ns, k) != nil
+
 type creditIterator struct {
 	c      walletdb.ReadWriteCursor // Set to nil after final iteration
 	prefix []byte
@@ -1121,6 +1124,7 @@ func deleteRawDebit(
 
 //           // Handle error
 //   }
+
 type debitIterator struct {
 	c      walletdb.ReadWriteCursor // Set to nil after final iteration
 	prefix []byte
@@ -1351,6 +1355,7 @@ func deleteRawUnminedCredit(
 // is needed, it may be checked like this:
 //
 //   spent := existsRawUnminedInput(ns, it.ck) != nil
+
 type unminedCreditIterator struct {
 	c      walletdb.ReadWriteCursor
 	prefix []byte
@@ -1694,10 +1699,12 @@ func scopedUpdate(
 	if err != nil {
 
 		rollbackErr := tx.Rollback()
+
 		if rollbackErr != nil {
 
 			const desc = "rollback failed"
 			serr, ok := err.(Error)
+
 			if !ok {
 
 				// This really shouldn't happen.

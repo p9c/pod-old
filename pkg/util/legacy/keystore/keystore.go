@@ -550,6 +550,7 @@ func (v *varEntries) ReadFrom(r io.Reader) (n int64, err error) {
 // erroring on unknown key store networks must happen on the read itself and not
 // after the fact.  This is admitidly a hack, but with a bip32 keystore on the
 // horizon I'm not too motivated to clean this up.
+
 type netParams chaincfg.Params
 
 func (net *netParams) ReadFrom(r io.Reader) (int64, error) {
@@ -591,7 +592,9 @@ func (net *netParams) WriteTo(w io.Writer) (int64, error) {
 }
 
 // Stringified byte slices for use as map lookup keys.
+
 type addressKey string
+
 type transactionHashKey string
 
 type comment []byte
@@ -1596,6 +1599,7 @@ func (s *Store) SetSyncedWith(bs *BlockStamp) {
 	if bs.Height < s.recent.lastHeight {
 
 		maybeIdx := len(s.recent.hashes) - 1 - int(s.recent.lastHeight-bs.Height)
+
 		if maybeIdx >= 0 && maybeIdx < len(s.recent.hashes) &&
 
 			*s.recent.hashes[maybeIdx] == *bs.Hash {
@@ -1911,6 +1915,7 @@ type SyncStatus interface {
 }
 
 type (
+
 	// Unsynced is a type representing an unsynced address.  When this is
 	// returned by a key store method, the value is the recorded first seen
 	// block height.
@@ -3327,6 +3332,7 @@ func (sf *scriptFlags) WriteTo(w io.Writer) (int64, error) {
 }
 
 // p2SHScript represents the variable length script entry in a key store.
+
 type p2SHScript []byte
 
 // ReadFrom implements the ReaderFrom interface by reading the P2SH script from

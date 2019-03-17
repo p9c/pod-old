@@ -22,6 +22,7 @@ func assertEqual(
 
 // sizeable is a simple struct that represents an element of arbitrary size
 // which holds a simple integer.
+
 type sizeable struct {
 	value int
 	size  uint64
@@ -243,7 +244,9 @@ func TestConcurrencySimple(
 
 			defer wg.Done()
 			err := c.Put(i, &sizeable{value: i, size: 1})
+
 			if err != nil {
+
 				t.Fatal(err)
 			}
 		}(i)
@@ -255,7 +258,9 @@ func TestConcurrencySimple(
 
 			defer wg.Done()
 			_, err := c.Get(i)
+
 			if err != nil && err != cache.ErrElementNotFound {
+
 				t.Fatal(err)
 			}
 		}(i)
@@ -281,7 +286,9 @@ func TestConcurrencySmallCache(
 
 			defer wg.Done()
 			err := c.Put(i, &sizeable{value: i, size: 1})
+
 			if err != nil {
+
 				t.Fatal(err)
 			}
 		}(i)
@@ -293,7 +300,9 @@ func TestConcurrencySmallCache(
 
 			defer wg.Done()
 			_, err := c.Get(i)
+
 			if err != nil && err != cache.ErrElementNotFound {
+
 				t.Fatal(err)
 			}
 		}(i)
@@ -319,7 +328,9 @@ func TestConcurrencyBigCache(
 
 			defer wg.Done()
 			err := c.Put(i, &sizeable{value: i, size: 1})
+
 			if err != nil {
+
 				t.Fatal(err)
 			}
 		}(i)
@@ -331,7 +342,9 @@ func TestConcurrencyBigCache(
 
 			defer wg.Done()
 			_, err := c.Get(i)
+
 			if err != nil && err != cache.ErrElementNotFound {
+
 				t.Fatal(err)
 			}
 		}(i)

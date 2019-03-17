@@ -15,6 +15,7 @@ import (
 )
 
 // UnsupportedWitnessVerError describes an error where a segwit address being decoded has an unsupported witness version.
+
 type UnsupportedWitnessVerError byte
 
 func (e UnsupportedWitnessVerError) Error() string {
@@ -23,6 +24,7 @@ func (e UnsupportedWitnessVerError) Error() string {
 }
 
 // UnsupportedWitnessProgLenError describes an error where a segwit address being decoded has an unsupported witness program length.
+
 type UnsupportedWitnessProgLenError int
 
 func (e UnsupportedWitnessProgLenError) Error() string {
@@ -406,6 +408,7 @@ func (a *AddressScriptHash) Hash160() *[ripemd160.Size]byte {
 }
 
 // PubKeyFormat describes what format to use for a pay-to-pubkey address.
+
 type PubKeyFormat int
 
 const (

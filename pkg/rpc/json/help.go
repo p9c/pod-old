@@ -36,7 +36,9 @@ var baseHelpDescs = map[string]string{
 }
 
 // descLookupFunc is a function which is used to lookup a description given a key.
+
 type descLookupFunc func(
+
 	string) string
 
 // reflectTypeToJSONType returns a string that represents the JSON type associated with the provided Go type.

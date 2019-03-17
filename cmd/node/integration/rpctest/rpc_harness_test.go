@@ -39,6 +39,7 @@ func testSendOutputs(
 
 		output := wire.NewTxOut(int64(amt), addrScript)
 		txid, err := r.SendOutputs([]*wire.TxOut{output}, 10)
+
 		if err != nil {
 
 			t.Fatalf("coinbase spend failed: %v", err)
@@ -65,6 +66,7 @@ func testSendOutputs(
 		}
 		minedTx := block.Transactions[1]
 		txHash := minedTx.TxHash()
+
 		if txHash != *txid {
 
 			t.Fatalf("txid's don't match, %v vs %v", txHash, txid)
@@ -172,6 +174,7 @@ func testTearDownAll(t *testing.T) {
 	for _, harness := range initialActiveHarnesses {
 
 		// Ensure all test directories have been deleted.
+
 		if _, err := os.Stat(harness.testNodeDir); err == nil {
 
 			t.Errorf("created test datadir was not deleted.")
@@ -495,7 +498,9 @@ func testGenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 
 	for i := 0; i < numTxns; i++ {
 		tx, err := r.CreateTransaction([]*wire.TxOut{output}, 10, true)
+
 		if err != nil {
+
 			t.Fatalf("unable to create tx: %v", err)
 		}
 		txns = append(txns, util.NewTx(tx))
@@ -652,7 +657,9 @@ func TestMain(
 	exitCode := m.Run()
 	// Clean up any active harnesses that are still currently running.
 	if len(ActiveHarnesses()) > 0 {
+
 		if err := TearDownAll(); err != nil {
+
 			fmt.Println("unable to tear down chain: ", err)
 			os.Exit(1)
 		}

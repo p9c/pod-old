@@ -24,6 +24,7 @@ const (
 )
 
 // InvType represents the allowed types of inventory vectors.  See InvVect.
+
 type InvType uint32
 
 // These constants define the various supported inventory vector types.
@@ -59,6 +60,7 @@ func (invtype InvType) String() string {
 }
 
 // InvVect defines a bitcoin inventory vector which is used to describe data, as specified by the Type field, that a peer wants, has, or does not have to another peer.
+
 type InvVect struct {
 	Type InvType        // Type of data
 	Hash chainhash.Hash // Hash of the data

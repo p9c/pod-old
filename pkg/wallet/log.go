@@ -7,6 +7,7 @@ import (
 // LogClosure is a closure that can be printed with %v to be used to
 // generate expensive-to-create data for a detailed log level and avoid doing
 // the work if the data isn't printed.
+
 type logClosure func() string
 
 // Log is the logger for the peer package

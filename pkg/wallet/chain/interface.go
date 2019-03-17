@@ -24,6 +24,7 @@ func BackEnds() []string {
 // Interface allows more than one backing blockchain source, such as a
 // pod RPC chain server, or an SPV library, as long as we write a driver for
 // it.
+
 type Interface interface {
 	Start() error
 	Stop()
@@ -46,6 +47,7 @@ type Interface interface {
 // a notificationChan to avoid handling these notifications directly in
 // rpcclient callbacks, which isn't very Go-like and doesn't allow
 // blocking client calls.
+
 type (
 
 	// ClientConnected is a notification for when a client connection is

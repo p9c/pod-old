@@ -41,6 +41,7 @@ func logServiceStartOfDay(
 }
 
 // podService houses the main service handler which handles all service updates and launching podMain.
+
 type podService struct{}
 
 // Execute is the main entry point the winsvc package calls when receiving information from the Windows service control manager.  It launches the long-running podMain (which is the real meat of pod), handles service change requests, and notifies the service control manager of changes.

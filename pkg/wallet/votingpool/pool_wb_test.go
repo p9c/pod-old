@@ -70,6 +70,7 @@ func TestPoolEnsureUsedAddr(
 		addr, err = pool.getUsedAddr(ns, addrmgrNs, 1, 0, Index(i))
 
 		if err != nil {
+
 			t.Fatalf("Failed to get addr from used addresses set: %v", err)
 		}
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -78,6 +79,7 @@ func TestPoolEnsureUsedAddr(
 		})
 
 		if err != nil {
+
 			t.Fatalf("Failed to get script: %v", err)
 		}
 		wantScript, _ := pool.DepositScript(1, 0, Index(i))
@@ -202,6 +204,7 @@ func TestSerializationErrors(
 		encryptedPubs, err := encryptKeys(test.pubKeys, pool.Manager(), waddrmgr.CKTPublic)
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Error encrypting pubkeys: %v", testNum, err)
 		}
 		var encryptedPrivs [][]byte
@@ -211,6 +214,7 @@ func TestSerializationErrors(
 		})
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Error encrypting privkeys: %v", testNum, err)
 		}
 
@@ -282,6 +286,7 @@ func TestSerialization(
 		encryptedPubs, err := encryptKeys(test.pubKeys, pool.Manager(), waddrmgr.CKTPublic)
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Error encrypting pubkeys: %v", testNum, err)
 		}
 		TstRunWithManagerUnlocked(t, pool.Manager(), addrmgrNs, func() {
@@ -290,6 +295,7 @@ func TestSerialization(
 		})
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Error encrypting privkeys: %v", testNum, err)
 		}
 
@@ -303,26 +309,31 @@ func TestSerialization(
 		serialized, err := serializeSeriesRow(row)
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Error in serialization %v", testNum, err)
 		}
 
 		row, err = deserializeSeriesRow(serialized)
 
 		if err != nil {
+
 			t.Fatalf("Test #%d - Failed to deserialize %v %v", testNum, serialized, err)
 		}
 
 		if row.version != test.version {
+
 			t.Errorf("Serialization #%d - version mismatch: got %d want %d",
 				testNum, row.version, test.version)
 		}
 
 		if row.active != test.active {
+
 			t.Errorf("Serialization #%d - active mismatch: got %v want %v",
 				testNum, row.active, test.active)
 		}
 
 		if row.reqSigs != test.reqSigs {
+
 			t.Errorf("Serialization #%d - row reqSigs off. Got %d, want %d",
 				testNum, row.reqSigs, test.reqSigs)
 		}
@@ -334,6 +345,7 @@ func TestSerialization(
 		}
 
 		for i, encryptedPub := range encryptedPubs {
+
 			got := string(row.pubKeysEncrypted[i])
 
 			if got != string(encryptedPub) {
@@ -350,6 +362,7 @@ func TestSerialization(
 		}
 
 		for i, encryptedPriv := range encryptedPrivs {
+
 			got := string(row.privKeysEncrypted[i])
 
 			if got != string(encryptedPriv) {
@@ -552,12 +565,14 @@ func encryptKeys(
 	for i, key := range keys {
 
 		if key == "" {
+
 			encryptedKeys[i] = nil
 		} else {
 			encryptedKeys[i], err = mgr.Encrypt(keyType, []byte(key))
 		}
 
 		if err != nil {
+
 			return nil, err
 		}
 	}

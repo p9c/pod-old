@@ -13,6 +13,7 @@ import (
 )
 
 // naTest is used to describe a test to be performed against the NetAddressKey method.
+
 type naTest struct {
 	in   wire.NetAddress
 	want string
@@ -509,12 +510,16 @@ func TestGetBestLocalAddress(
 				amgr.AddLocalAddress(&localAddr, addrmgr.ManualPrio)
 				// Test against want3
 
+
 				for x, test := range tests {
+
 
 
 		got := amgr.GetBestLocalAddress(&test.remoteAddr)
 
+
 					if !test.want3.IP.Equal(got.IP) {
+
 
 
 

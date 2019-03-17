@@ -12,6 +12,7 @@ import (
 
 // txoFlags is a bitmask defining additional information and state for a
 // transaction output in a utxo view.
+
 type txoFlags uint8
 
 const (

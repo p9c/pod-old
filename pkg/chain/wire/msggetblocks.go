@@ -11,6 +11,7 @@ import (
 const MaxBlockLocatorsPerMsg = 500
 
 // MsgGetBlocks implements the Message interface and represents a bitcoin getblocks message.  It is used to request a list of blocks starting after the last known hash in the slice of block locator hashes.  The list is returned via an inv message (MsgInv) and is limited by a specific hash to stop at or the maximum number of blocks per message, which is currently 500. the HashStop field to the hash at which to stop and use AddBlockLocatorHash to build up the list of block locator hashes. The algorithm for building the block locator hashes should be to add the hashes in reverse order until you reach the genesis block.  In order to keep the list of locator hashes to a reasonable number of entries, first add the most recent 10 block hashes, then double the step each loop iteration to decrease the number of hashes the further away from head and closer to the genesis block you get.
+
 type MsgGetBlocks struct {
 	ProtocolVersion    uint32
 	BlockLocatorHashes []*chainhash.Hash

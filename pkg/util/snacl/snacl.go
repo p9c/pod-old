@@ -42,6 +42,7 @@ const (
 // CryptoKey represents a secret key which can be used to encrypt and decrypt
 
 // data.
+
 type CryptoKey [KeySize]byte
 
 // Encrypt encrypts the passed data.

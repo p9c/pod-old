@@ -41,6 +41,7 @@ const (
 )
 
 // ServiceFlag identifies services supported by a bitcoin peer.
+
 type ServiceFlag uint64
 
 const (
@@ -128,6 +129,7 @@ func (f ServiceFlag) String() string {
 }
 
 // BitcoinNet represents which bitcoin network a message belongs to.
+
 type BitcoinNet uint32
 
 // Constants used to indicate the message bitcoin network.  They can also be used to seek to the next message when a stream's state is unknown, but this package does not provide that functionality since it's generally a better idea to simply disconnect clients that are misbehaving over TCP.

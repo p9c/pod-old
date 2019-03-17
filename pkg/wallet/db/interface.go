@@ -7,6 +7,7 @@ import "io"
 
 // ReadTx represents a database transaction that can only be used for reads.  If
 // a database update must occur, use a ReadWriteTx.
+
 type ReadTx interface {
 
 	// ReadBucket opens the root bucket for read only access.  If the bucket
@@ -22,6 +23,7 @@ type ReadTx interface {
 
 // ReadWriteTx represents a database transaction that can be used for both reads
 // and writes.  When only reads are necessary, consider using a ReadTx instead.
+
 type ReadWriteTx interface {
 	ReadTx
 
@@ -50,6 +52,7 @@ type ReadWriteTx interface {
 
 // ReadBucket represents a bucket (a hierarchical structure within the database)
 // that is only allowed to perform read operations.
+
 type ReadBucket interface {
 
 	// NestedReadBucket retrieves a nested bucket with the given key.
@@ -100,6 +103,7 @@ type ReadBucket interface {
 
 // ReadWriteBucket represents a bucket (a hierarchical structure within the
 // database) that is allowed to perform both read and write operations.
+
 type ReadWriteBucket interface {
 	ReadBucket
 
@@ -164,6 +168,7 @@ type ReadWriteBucket interface {
 // ReadCursor represents a bucket cursor that can be positioned at the start or
 // end of the bucket's key/value pairs and iterate over pairs in the bucket.
 // This type is only allowed to perform database read operations.
+
 type ReadCursor interface {
 
 	// First positions the cursor at the first key/value pair and returns
@@ -198,6 +203,7 @@ type ReadCursor interface {
 // start or end of the bucket's key/value pairs and iterate over pairs in the
 // bucket.  This abstraction is allowed to perform both database read and write
 // operations.
+
 type ReadWriteCursor interface {
 	ReadCursor
 
@@ -220,6 +226,7 @@ func BucketIsEmpty(
 
 // DB represents an ACID database.  All database access is performed through
 // read or read+write transactions.
+
 type DB interface {
 
 	// BeginReadTx opens a database read transaction.
@@ -294,6 +301,7 @@ func Update(
 
 // Driver defines a structure for backend drivers to use when they registered
 // themselves as a backend which implements the Db interface.
+
 type Driver struct {
 
 	// DbType is the identifier used to uniquely identify a specific

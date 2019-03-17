@@ -60,6 +60,7 @@ func TestAddHeadersIndexRetrieve(
 		var header headerEntry
 
 		if _, err := rand.Read(header.hash[:]); err != nil {
+
 			t.Fatalf("unable to read header: %v", err)
 		}
 
@@ -104,10 +105,12 @@ func TestAddHeadersIndexRetrieve(
 		height, err := hIndex.heightFromHash(&headerEntry.hash)
 
 		if err != nil {
+
 			t.Fatalf("unable to retreive height(%v): %v", i, err)
 		}
 
 		if height != headerEntry.height {
+
 			t.Fatalf("height doesn't match: expected %v, got %v",
 				headerEntry.height, height)
 		}

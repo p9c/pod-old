@@ -101,10 +101,12 @@ func TestStack(
 			func(s *stack) error {
 
 				val, err := s.PopByteArray()
+
 				if err != nil {
 
 					return err
 				}
+
 				if !bytes.Equal(val, []byte{5}) {
 
 					return errors.New("not equal")
@@ -122,6 +124,7 @@ func TestStack(
 				for i := 0; i < 5; i++ {
 
 					_, err := s.PopByteArray()
+
 					if err != nil {
 
 						return err
@@ -140,6 +143,7 @@ func TestStack(
 				for i := 0; i < 6; i++ {
 
 					_, err := s.PopByteArray()
+
 					if err != nil {
 
 						return err
@@ -156,10 +160,12 @@ func TestStack(
 			func(s *stack) error {
 
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if val {
 
 					return errors.New("unexpected value")
@@ -175,10 +181,12 @@ func TestStack(
 			func(s *stack) error {
 
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if !val {
 
 					return errors.New("unexpected value")
@@ -205,10 +213,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != 0 {
 
 					return errors.New("0 != 0 on popInt")
@@ -224,10 +234,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != 0 {
 
 					return errors.New("-0 != 0 on popInt")
@@ -243,10 +255,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != 1 {
 
 					return errors.New("1 != 1 on popInt")
@@ -262,10 +276,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != 1 {
 
 					fmt.Printf("%v != %v\n", v, 1)
@@ -282,10 +298,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != -1 {
 
 					return errors.New("-1 != -1 on popInt")
@@ -301,10 +319,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != -1 {
 
 					fmt.Printf("%v != %v\n", v, -1)
@@ -322,10 +342,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != -513 {
 
 					fmt.Printf("%v != %v\n", v, -513)
@@ -343,10 +365,12 @@ func TestStack(
 			func(s *stack) error {
 
 				v, err := s.PeekInt(0)
+
 				if err != nil {
 
 					return err
 				}
+
 				if v != -1 {
 
 					fmt.Printf("%v != %v\n", v, -1)
@@ -503,10 +527,12 @@ func TestStack(
 
 				s.PushBool(true)
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if !val {
 
 					return errors.New("unexpected value")
@@ -523,10 +549,12 @@ func TestStack(
 
 				s.PushBool(false)
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if val {
 
 					return errors.New("unexpected value")
@@ -543,10 +571,12 @@ func TestStack(
 
 				s.PushInt(scriptNum(1))
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if !val {
 
 					return errors.New("unexpected value")
@@ -563,10 +593,12 @@ func TestStack(
 
 				s.PushInt(scriptNum(0))
 				val, err := s.PopBool()
+
 				if err != nil {
 
 					return err
 				}
+
 				if val {
 
 					return errors.New("unexpected value")
@@ -894,10 +926,12 @@ func TestStack(
 
 				// Peek bool is otherwise pretty well tested, just check it works.
 				val, err := s.PeekBool(0)
+
 				if err != nil {
 
 					return err
 				}
+
 				if !val {
 
 					return errors.New("invalid result")
@@ -914,10 +948,12 @@ func TestStack(
 
 				// Peek bool is otherwise pretty well tested, just check it works.
 				val, err := s.PeekBool(0)
+
 				if err != nil {
 
 					return err
 				}
+
 				if val {
 
 					return errors.New("invalid result")
@@ -934,10 +970,12 @@ func TestStack(
 
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PeekInt(0)
+
 				if err != nil {
 
 					return err
 				}
+
 				if val != 1 {
 
 					return errors.New("invalid result")
@@ -954,10 +992,12 @@ func TestStack(
 
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PeekInt(0)
+
 				if err != nil {
 
 					return err
 				}
+
 				if val != 0 {
 
 					return errors.New("invalid result")
@@ -975,10 +1015,12 @@ func TestStack(
 				s.PushInt(scriptNum(1))
 				// Peek int is otherwise pretty well tested, just check it works.
 				val, err := s.PopInt()
+
 				if err != nil {
 
 					return err
 				}
+
 				if val != 1 {
 
 					return errors.New("invalid result")
@@ -1013,16 +1055,19 @@ func TestStack(
 		}
 		err := test.operation(&s)
 		// Ensure the error code is of the expected type and the error code matches the value specified in the test instance.
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
+
 		if err != nil {
 
 			continue
 		}
 		// Ensure the resulting stack is the expected length.
+
 		if int32(len(test.after)) != s.Depth() {
 
 			t.Errorf("%s: stack depth doesn't match expected: %v "+
@@ -1035,12 +1080,14 @@ func TestStack(
 		for i := range test.after {
 
 			val, err := s.PeekByteArray(s.Depth() - int32(i) - 1)
+
 			if err != nil {
 
 				t.Errorf("%s: can't peek %dth stack entry: %v",
 					test.name, i, err)
 				break
 			}
+
 			if !bytes.Equal(val, test.after[i]) {
 
 				t.Errorf("%s: %dth stack entry doesn't match "+

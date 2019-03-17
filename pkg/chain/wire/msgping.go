@@ -5,6 +5,7 @@ import (
 )
 
 // MsgPing implements the Message interface and represents a bitcoin ping message. For versions BIP0031Version and earlier, it is used primarily to confirm that a connection is still valid.  A transmission error is typically interpreted as a closed connection and that the peer should be removed. For versions AFTER BIP0031Version it contains an identifier which can be returned in the pong message to determine network timing. The payload for this message just consists of a nonce used for identifying it later.
+
 type MsgPing struct {
 
 	// Unique value associated with message that is used to identify specific ping message.

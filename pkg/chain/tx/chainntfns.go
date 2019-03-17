@@ -222,6 +222,7 @@ func (w *Wallet) handleChainNotifications() {
 					"notification (name: `%s`, detail: `%v`)"
 
 				if notificationName == "blockconnected" &&
+
 					strings.Contains(err.Error(),
 						"couldn't get hash from database") {
 

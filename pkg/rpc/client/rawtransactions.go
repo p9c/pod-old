@@ -12,6 +12,7 @@ import (
 )
 
 // SigHashType enumerates the available signature hashing types that the function accepts.
+
 type SigHashType string
 
 // Constants used to indicate the signature hash type for SignRawTransaction.
@@ -43,6 +44,7 @@ func (s SigHashType) String() string {
 }
 
 // FutureGetRawTransactionResult is a future promise to deliver the result of a GetRawTransactionAsync RPC invocation (or an applicable error).
+
 type FutureGetRawTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns a transaction given its hash.
@@ -102,6 +104,7 @@ func (c *Client) GetRawTransaction(txHash *chainhash.Hash) (*util.Tx, error) {
 }
 
 // FutureGetRawTransactionVerboseResult is a future promise to deliver the result of a GetRawTransactionVerboseAsync RPC invocation (or an applicable error).
+
 type FutureGetRawTransactionVerboseResult chan *response
 
 // Receive waits for the response promised by the future and returns information about a transaction given its hash.
@@ -145,6 +148,7 @@ func (c *Client) GetRawTransactionVerbose(txHash *chainhash.Hash) (*json.TxRawRe
 }
 
 // FutureDecodeRawTransactionResult is a future promise to deliver the result of a DecodeRawTransactionAsync RPC invocation (or an applicable error).
+
 type FutureDecodeRawTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns information about a transaction given its serialized bytes.
@@ -183,6 +187,7 @@ func (c *Client) DecodeRawTransaction(serializedTx []byte) (*json.TxRawResult, e
 }
 
 // FutureCreateRawTransactionResult is a future promise to deliver the result of a CreateRawTransactionAsync RPC invocation (or an applicable error).
+
 type FutureCreateRawTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns a new transaction spending the provided inputs and sending to the provided addresses.
@@ -244,6 +249,7 @@ func (c *Client) CreateRawTransaction(inputs []json.TransactionInput,
 }
 
 // FutureSendRawTransactionResult is a future promise to deliver the result of a SendRawTransactionAsync RPC invocation (or an applicable error).
+
 type FutureSendRawTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns the result of submitting the encoded transaction to the server which then relays it to the network.
@@ -294,6 +300,7 @@ func (c *Client) SendRawTransaction(tx *wire.MsgTx, allowHighFees bool) (*chainh
 }
 
 // FutureSignRawTransactionResult is a future promise to deliver the result of one of the SignRawTransactionAsync family of RPC invocations (or an applicable error).
+
 type FutureSignRawTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns the signed transaction as well as whether or not all inputs are now signed.
@@ -449,6 +456,7 @@ func (c *Client) SignRawTransaction4(tx *wire.MsgTx,
 }
 
 // FutureSearchRawTransactionsResult is a future promise to deliver the result of the SearchRawTransactionsAsync RPC invocation (or an applicable error).
+
 type FutureSearchRawTransactionsResult chan *response
 
 // Receive waits for the response promised by the future and returns the found raw transactions.
@@ -513,6 +521,7 @@ func (c *Client) SearchRawTransactions(address util.Address, skip, count int, re
 }
 
 // FutureSearchRawTransactionsVerboseResult is a future promise to deliver the result of the SearchRawTransactionsVerboseAsync RPC invocation (or an applicable error).
+
 type FutureSearchRawTransactionsVerboseResult chan *response
 
 // Receive waits for the response promised by the future and returns the found raw transactions.
@@ -562,6 +571,7 @@ func (c *Client) SearchRawTransactionsVerbose(address util.Address, skip,
 }
 
 // FutureDecodeScriptResult is a future promise to deliver the result of a DecodeScriptAsync RPC invocation (or an applicable error).
+
 type FutureDecodeScriptResult chan *response
 
 // Receive waits for the response promised by the future and returns information about a script given its serialized bytes.

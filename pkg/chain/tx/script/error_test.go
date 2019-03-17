@@ -91,6 +91,7 @@ func TestErrorCodeStringer(
 	for i, test := range tests {
 
 		result := test.in.String()
+
 		if result != test.want {
 
 			t.Errorf("String #%d\n got: %s want: %s", i, result,
@@ -123,6 +124,7 @@ func TestError(
 	for i, test := range tests {
 
 		result := test.in.Error()
+
 		if result != test.want {
 
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,

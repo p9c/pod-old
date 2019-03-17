@@ -11,6 +11,7 @@ import (
 )
 
 // PeerNotifier exposes methods to notify peers of status changes to transactions, blocks, etc. Currently server (in the main package) implements this interface.
+
 type PeerNotifier interface {
 	AnnounceNewTransactions(newTxs []*mempool.TxDesc)
 	UpdatePeerHeights(latestBlkHash *chainhash.Hash, latestHeight int32, updateSource *peer.Peer)
@@ -19,6 +20,7 @@ type PeerNotifier interface {
 }
 
 // Config is a configuration struct used to initialize a new SyncManager.
+
 type Config struct {
 	PeerNotifier       PeerNotifier
 	Chain              *blockchain.BlockChain

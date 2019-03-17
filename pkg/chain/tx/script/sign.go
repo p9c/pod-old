@@ -122,17 +122,20 @@ func signMultiSig(
 	for _, addr := range addresses {
 
 		key, _, err := kdb.GetKey(addr)
+
 		if err != nil {
 
 			continue
 		}
 		sig, err := RawTxInSignature(tx, idx, subScript, hashType, key)
+
 		if err != nil {
 
 			continue
 		}
 		builder.AddData(sig)
 		signed++
+
 		if signed == nRequired {
 
 			break
@@ -158,12 +161,14 @@ func sign(
 	case PubKeyTy:
 		// look up key for address
 		key, _, err := kdb.GetKey(addresses[0])
+
 		if err != nil {
 
 			return nil, class, nil, 0, err
 		}
 		script, err := p2pkSignatureScript(tx, idx, subScript, hashType,
 			key)
+
 		if err != nil {
 
 			return nil, class, nil, 0, err
@@ -172,12 +177,14 @@ func sign(
 	case PubKeyHashTy:
 		// look up key for address
 		key, compressed, err := kdb.GetKey(addresses[0])
+
 		if err != nil {
 
 			return nil, class, nil, 0, err
 		}
 		script, err := SignatureScript(tx, idx, subScript, hashType,
 			key, compressed)
+
 		if err != nil {
 
 			return nil, class, nil, 0, err
@@ -185,6 +192,7 @@ func sign(
 		return script, class, addresses, nrequired, nil
 	case ScriptHashTy:
 		script, err := sdb.GetScript(addresses[0])
+
 		if err != nil {
 
 			return nil, class, nil, 0, err
@@ -216,11 +224,13 @@ func mergeScripts(
 	case ScriptHashTy:
 		// Remove the last push in the script and then recurse. this could be a lot less inefficient.
 		sigPops, err := parseScript(sigScript)
+
 		if err != nil || len(sigPops) == 0 {
 
 			return prevScript
 		}
 		prevPops, err := parseScript(prevScript)
+
 		if err != nil || len(prevPops) == 0 {
 
 			return sigScript
@@ -248,6 +258,7 @@ func mergeScripts(
 
 	// It doesn't actually make sense to merge anything other than multiig and scripthash (because it could contain multisig). Everything else has either zero signature, can't be spent, or has a single signature which is either present or not. The other two cases are handled above. In the conflict case here we just assume the longest is correct (this matches behaviour of the reference implementation).
 	default:
+
 		if len(sigScript) > len(prevScript) {
 
 			return sigScript
@@ -297,6 +308,7 @@ sigLoop:
 	for _, sig := range possibleSigs {
 
 		// can't have a valid signature that doesn't at least have a hashtype, in practise it is even longer than this. but that'll be checked next.
+
 		if len(sig) < 1 {
 
 			continue
@@ -304,6 +316,7 @@ sigLoop:
 		tSig := sig[:len(sig)-1]
 		hashType := SigHashType(sig[len(sig)-1])
 		pSig, err := ec.ParseDERSignature(tSig, ec.S256())
+
 		if err != nil {
 
 			continue
@@ -317,9 +330,11 @@ sigLoop:
 			pkaddr := addr.(*util.AddressPubKey)
 			pubKey := pkaddr.PubKey()
 			// If it matches we put it in the map. We only can take one signature per public key so if we already have one, we can throw this away.
+
 			if pSig.Verify(hash, pubKey) {
 
 				aStr := addr.EncodeAddress()
+
 				if _, ok := addrToSig[aStr]; !ok {
 
 					addrToSig[aStr] = sig
@@ -338,12 +353,14 @@ sigLoop:
 	for _, addr := range addresses {
 
 		sig, ok := addrToSig[addr.EncodeAddress()]
+
 		if !ok {
 
 			continue
 		}
 		builder.AddData(sig)
 		doneSigs++
+
 		if doneSigs == nRequired {
 
 			break
@@ -361,11 +378,13 @@ sigLoop:
 }
 
 // KeyDB is an interface type provided to SignTxOutput, it encapsulates any user state required to get the private keys for an address.
+
 type KeyDB interface {
 	GetKey(util.Address) (*ec.PrivateKey, bool, error)
 }
 
 // KeyClosure implements KeyDB with a closure.
+
 type KeyClosure func(util.Address) (*ec.PrivateKey, bool, error)
 
 // GetKey implements KeyDB by returning the result of calling the closure.
@@ -376,11 +395,13 @@ func (kc KeyClosure) GetKey(address util.Address) (*ec.PrivateKey,
 }
 
 // ScriptDB is an interface type provided to SignTxOutput, it encapsulates any user state required to get the scripts for an pay-to-script-hash address.
+
 type ScriptDB interface {
 	GetScript(util.Address) ([]byte, error)
 }
 
 // ScriptClosure implements ScriptDB with a closure.
+
 type ScriptClosure func(util.Address) ([]byte, error)
 
 // GetScript implements ScriptDB by returning the result of calling the closure.
@@ -406,6 +427,7 @@ func SignTxOutput(
 		// TODO keep the sub addressed and pass down to merge.
 		realSigScript, _, _, _, err := sign(chainParams, tx, idx,
 			sigScript, hashType, kdb, sdb)
+
 		if err != nil {
 
 			return nil, err

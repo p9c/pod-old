@@ -31,6 +31,7 @@ const (
 )
 
 // LogClosure is a closure that can be printed with %v to be used to generate expensive-to-create data for a detailed log level and avoid doing the work if the data isn't printed.
+
 type logClosure func() string
 
 func (c logClosure) String() string {
@@ -193,6 +194,7 @@ func messageSummary(
 			msg.TxHash(), len(msg.TxIn), len(msg.TxOut),
 
 			formatLockTime(msg.LockTime))
+
 	case *wire.MsgBlock:
 		header := &msg.Header
 		return fmt.Sprintf("hash %s, ver %d, %d tx, %s", msg.BlockHash(),

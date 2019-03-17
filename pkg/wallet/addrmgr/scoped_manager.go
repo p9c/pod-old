@@ -21,6 +21,7 @@ import (
 // beyond the cointype key. The key derived using this path will be exactly:
 // m/purpose'/cointype'/account/branch/index, where purpose' and cointype' are
 // bound by the scope of a particular manager.
+
 type DerivationPath struct {
 
 	// Account is the account, or the first immediate child from the scoped
@@ -48,6 +49,7 @@ type DerivationPath struct {
 // number of ScopedKeyManagers of key derivation path: m/purpose'/cointype'.
 // These scoped managers can then me managed indecently, as they house the
 // encrypted cointype key and can derive any child keys from there on.
+
 type KeyScope struct {
 
 	// Purpose is the purpose of this key scope. This is the first child of
@@ -66,6 +68,7 @@ type KeyScope struct {
 // ScopedIndex is a tuple of KeyScope and child Index. This is used to compactly
 // identify a particular child key, when the account and branch can be inferred
 // from context.
+
 type ScopedIndex struct {
 
 	// Scope is the BIP44 account' used to derive the child key.
@@ -85,6 +88,7 @@ func (k *KeyScope) String() string {
 // ScopeAddrSchema is the address schema of a particular KeyScope. This will be
 // persisted within the database, and will be consulted when deriving any keys
 // for a particular scope to know how to encode the public keys as addresses.
+
 type ScopeAddrSchema struct {
 
 	// ExternalAddrType is the address type for all keys within branch 0.
@@ -166,6 +170,7 @@ var (
 // built upon the root key manager to perform their own arbitrary key
 // derivation, while still being protected under the encryption of the root key
 // manager.
+
 type ScopedKeyManager struct {
 
 	// scope is the scope of this key manager. We can only generate keys

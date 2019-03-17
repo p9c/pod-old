@@ -108,6 +108,7 @@ type filterCacheKey struct {
 // query). These are always processed in order, with later options overriding
 
 // earlier ones.
+
 type QueryOption func(*queryOptions)
 
 // defaultQueryOptions returns a queryOptions set to package-level defaults.
@@ -236,6 +237,7 @@ func PersistToDisk() QueryOption {
 //   response
 
 // * queryWaitResponse->queryAnswered - acceptable response to query received
+
 type queryState uint32
 
 const (
@@ -399,6 +401,7 @@ func queryChainServiceBatch(
 				// firstUnfinished, update firstUnfinished.
 
 				if i == firstUnfinished &&
+
 					atomic.LoadUint32(&queryStates[i]) ==
 
 						uint32(queryAnswered) {
@@ -420,6 +423,7 @@ func queryChainServiceBatch(
 				// handled. If not, we move to the next one.
 
 				if !atomic.CompareAndSwapUint32(
+
 					&queryStates[i],
 					uint32(queryWaitSubmit),
 					uint32(queryWaitResponse),
@@ -1386,6 +1390,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				// bamboozle us. Disconnect it.
 
 				if err := blockchain.CheckBlockSanity(
+
 					block,
 
 					// We don't need to check PoW because by the time we get here, it's been checked during header synchronization

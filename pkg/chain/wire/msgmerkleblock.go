@@ -11,6 +11,7 @@ import (
 const maxFlagsPerMerkleBlock = maxTxPerBlock / 8
 
 // MsgMerkleBlock implements the Message interface and represents a bitcoin merkleblock message which is used to reset a Bloom filter. This message was not added until protocol version BIP0037Version.
+
 type MsgMerkleBlock struct {
 	Header       BlockHeader
 	Transactions uint32

@@ -82,6 +82,7 @@ func genRandFilter(
 		var elem [20]byte
 
 		if _, err := rand.Read(elem[:]); err != nil {
+
 			return nil, err
 		}
 

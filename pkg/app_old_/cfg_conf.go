@@ -463,6 +463,7 @@ func configConf(
 		case "testnet":
 
 			fork.IsTestnet = true
+
 			cs.Ctl.TestNet3 = true
 			cs.Ctl.SimNet = false
 			cs.Node.Node.TestNet3 = true

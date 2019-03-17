@@ -148,6 +148,7 @@ func checkDbError(
 }
 
 // testContext is used to store context information about a running test which is passed into helper functions.
+
 type testContext struct {
 	t            *testing.T
 	db           database.DB

@@ -28,6 +28,7 @@ var (
 )
 
 // utxo represents an unspent output spendable by the memWallet. The maturity height of the transaction is recorded in order to properly observe the maturity period of direct coinbase outputs.
+
 type utxo struct {
 	pkScript       []byte
 	value          util.Amount
@@ -38,10 +39,12 @@ type utxo struct {
 
 // isMature returns true if the target utxo is considered "mature" at the passed block height. Otherwise, false is returned.
 func (u *utxo) isMature(height int32) bool {
+
 	return height >= u.maturityHeight
 }
 
 // chainUpdate encapsulates an update to the current main chain. This struct is used to sync up the memWallet each time a new block is connected to the main chain.
+
 type chainUpdate struct {
 	blockHeight  int32
 	filteredTxns []*util.Tx
@@ -49,12 +52,14 @@ type chainUpdate struct {
 }
 
 // undoEntry is functionally the opposite of a chainUpdate. An undoEntry is created for each new block received, then stored in a log in order to properly handle block re-orgs.
+
 type undoEntry struct {
 	utxosDestroyed map[wire.OutPoint]*utxo
 	utxosCreated   []wire.OutPoint
 }
 
 // memWallet is a simple in-memory wallet whose purpose is to provide basic wallet functionality to the harness. The wallet uses a hard-coded HD key hierarchy which promotes reproducibility between harness test runs.
+
 type memWallet struct {
 	coinbaseKey  *ec.PrivateKey
 	coinbaseAddr util.Address
@@ -130,6 +135,7 @@ func (m *memWallet) Start() {
 //
 // This function is safe for concurrent access.
 func (m *memWallet) SyncedHeight() int32 {
+
 	m.RLock()
 	defer m.RUnlock()
 	return m.currentHeight
@@ -204,7 +210,9 @@ func (m *memWallet) chainSyncer() {
 		m.chainUpdates = m.chainUpdates[1:]
 		m.chainMtx.Unlock()
 		m.Lock()
+
 		if update.isConnect {
+
 			m.ingestBlock(update)
 		} else {
 			m.unwindBlock(update)
@@ -224,7 +232,9 @@ func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 		// output is paying to us.
 
 		for keyIndex, addr := range m.addrs {
+
 			pkHash := addr.ScriptAddress()
+
 			if !bytes.Contains(pkScript, pkHash) {
 
 				continue
@@ -233,7 +243,9 @@ func (m *memWallet) evalOutputs(outputs []*wire.TxOut, txHash *chainhash.Hash,
 			// maturity height at the proper block height in the
 			// future.
 			var maturityHeight int32
+
 			if isCoinbase {
+
 				maturityHeight = m.currentHeight + int32(m.net.CoinbaseMaturity)
 			}
 			op := wire.OutPoint{Hash: *txHash, Index: uint32(i)}
@@ -255,7 +267,9 @@ func (m *memWallet) evalInputs(inputs []*wire.TxIn, undo *undoEntry) {
 	for _, txIn := range inputs {
 		op := txIn.PreviousOutPoint
 		oldUtxo, ok := m.utxos[op]
+
 		if !ok {
+
 			continue
 		}
 		undo.utxosDestroyed[op] = oldUtxo
@@ -358,7 +372,9 @@ func (m *memWallet) fundTx(tx *wire.MsgTx, amt util.Amount,
 	for outPoint, utxo := range m.utxos {
 		// Skip any outputs that are still currently immature or are
 		// currently locked.
+
 		if !utxo.isMature(m.currentHeight) || utxo.isLocked {
+
 			continue
 		}
 		amtSelected += utxo.value
@@ -372,20 +388,28 @@ func (m *memWallet) fundTx(tx *wire.MsgTx, amt util.Amount,
 		// coins from he current amount selected to pay the fee, then
 		// continue to grab more coins.
 		reqFee := util.Amount(txSize * int(feeRate))
+
 		if amtSelected-reqFee < amt {
+
 			continue
 		}
 		// If we have any change left over and we should create a change
 		// output, then add an additional output to the transaction
 		// reserved for it.
 		changeVal := amtSelected - amt - reqFee
+
 		if changeVal > 0 && change {
+
 			addr, err := m.newAddress()
+
 			if err != nil {
+
 				return err
 			}
 			pkScript, err := txscript.PayToAddrScript(addr)
+
 			if err != nil {
+
 				return err
 			}
 			changeOutput := &wire.TxOut{
@@ -460,16 +484,22 @@ func (m *memWallet) CreateTransaction(outputs []*wire.TxOut,
 		outPoint := txIn.PreviousOutPoint
 		utxo := m.utxos[outPoint]
 		extendedKey, err := m.hdRoot.Child(utxo.keyIndex)
+
 		if err != nil {
+
 			return nil, err
 		}
 		privKey, err := extendedKey.ECPrivKey()
+
 		if err != nil {
+
 			return nil, err
 		}
 		sigScript, err := txscript.SignatureScript(tx, i, utxo.pkScript,
 			txscript.SigHashAll, privKey, true)
+
 		if err != nil {
+
 			return nil, err
 		}
 		txIn.SignatureScript = sigScript
@@ -497,7 +527,9 @@ func (m *memWallet) UnlockOutputs(inputs []*wire.TxIn) {
 
 	for _, input := range inputs {
 		utxo, ok := m.utxos[input.PreviousOutPoint]
+
 		if !ok {
+
 			continue
 		}
 		utxo.isLocked = false
@@ -508,6 +540,7 @@ func (m *memWallet) UnlockOutputs(inputs []*wire.TxIn) {
 //
 // This function is safe for concurrent access.
 func (m *memWallet) ConfirmedBalance() util.Amount {
+
 	m.RLock()
 	defer m.RUnlock()
 	var balance util.Amount
@@ -515,7 +548,9 @@ func (m *memWallet) ConfirmedBalance() util.Amount {
 	for _, utxo := range m.utxos {
 		// Prevent any immature or locked outputs from contributing to
 		// the wallet's total confirmed balance.
+
 		if !utxo.isMature(m.currentHeight) || utxo.isLocked {
+
 			continue
 		}
 		balance += utxo.value

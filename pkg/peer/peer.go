@@ -290,6 +290,7 @@ type outMsg struct {
 }
 
 // stallControlCmd represents the command of a stall control message.
+
 type stallControlCmd uint8
 
 // Constants for the command of a stall control message.
@@ -338,14 +339,19 @@ type StatsSnap struct {
 }
 
 // HashFunc is a function which returns a block hash, height and error It is used as a callback to get newest block details.
+
 type HashFunc func() (hash *chainhash.Hash, height int32, err error)
 
 // AddrFunc is a func which takes an address and returns a related address.
+
 type AddrFunc func(
+
 	remoteAddr *wire.NetAddress) *wire.NetAddress
 
 // HostToNetAddrFunc is a func which takes a host, port, services and returns the netaddress.
+
 type HostToNetAddrFunc func(
+
 	host string, port uint16,
 	services wire.ServiceFlag) (*wire.NetAddress, error)
 

@@ -67,6 +67,7 @@ const (
 var witessMarkerBytes = []byte{0x00, 0x01}
 
 // scriptFreeList defines a free list of byte slices (up to the maximum number defined by the freeListMaxItems constant) that have a cap according to the freeListMaxScriptSize constant.  It is used to provide temporary buffers for deserializing scripts in order to greatly reduce the number of allocations required. The caller can obtain a buffer from the free list by calling the Borrow function and should return it via the Return function when done using it.
+
 type scriptFreeList chan []byte
 
 // Borrow returns a byte slice from the free list with a length according the provided size.  A new buffer is allocated if there are any items available. When the size is larger than the max size allowed for items on the free list a new buffer of the appropriate size is allocated and returned.  It is safe to attempt to return said buffer via the Return function as it will be ignored and allowed to go the garbage collector.
@@ -114,6 +115,7 @@ func (c scriptFreeList) Return(buf []byte) {
 var scriptPool scriptFreeList = make(chan []byte, freeListMaxItems)
 
 // OutPoint defines a bitcoin data type that is used to track previous transaction outputs.
+
 type OutPoint struct {
 	Hash  chainhash.Hash
 	Index uint32
@@ -141,6 +143,7 @@ func (o OutPoint) String() string {
 }
 
 // TxIn defines a bitcoin transaction input.
+
 type TxIn struct {
 	PreviousOutPoint OutPoint
 	SignatureScript  []byte
@@ -169,6 +172,7 @@ func NewTxIn(
 }
 
 // TxWitness defines the witness for a TxIn. A witness is to be interpreted as a slice of byte slices, or a stack with one or many elements.
+
 type TxWitness [][]byte
 
 // SerializeSize returns the number of bytes it would take to serialize the the transaction input's witness.
@@ -188,6 +192,7 @@ func (t TxWitness) SerializeSize() int {
 }
 
 // TxOut defines a bitcoin transaction output.
+
 type TxOut struct {
 	Value    int64
 	PkScript []byte
@@ -211,6 +216,7 @@ func NewTxOut(
 }
 
 // MsgTx implements the Message interface and represents a bitcoin tx message. It is used to deliver transaction information in response to a getdata message (MsgGetData) for a given transaction. Use the AddTxIn and AddTxOut functions to build up the list of transaction inputs and outputs.
+
 type MsgTx struct {
 	Version  int32
 	TxIn     []*TxIn

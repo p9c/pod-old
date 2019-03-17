@@ -183,6 +183,7 @@ func TestBIP0113Activation(
 		chainInfo, err = r.Node.GetBlockChainInfo()
 
 		if err != nil {
+
 			t.Fatalf("unable to query for chain info: %v", err)
 		}
 		medianTimePast := chainInfo.MedianTime
@@ -191,6 +192,7 @@ func TestBIP0113Activation(
 			outputValue)
 
 		if err != nil {
+
 			t.Fatalf("unable to create test output: %v", err)
 		}
 		// Create a new transaction with a lock-time past the current known
@@ -208,6 +210,7 @@ func TestBIP0113Activation(
 			txscript.SigHashAll, outputKey, true)
 
 		if err != nil {
+
 			t.Fatalf("unable to generate sig: %v", err)
 		}
 		tx.TxIn[0].SignatureScript = sigScript
@@ -219,6 +222,7 @@ func TestBIP0113Activation(
 		_, err = r.Node.SendRawTransaction(tx, true)
 
 		if err == nil && timeLockDelta >= 0 {
+
 			t.Fatal("transaction was accepted into the mempool " +
 				"but should be rejected!")
 		} else if err != nil && !strings.Contains(err.Error(), "not finalized") {
@@ -230,6 +234,7 @@ func TestBIP0113Activation(
 		_, err := r.GenerateAndSubmitBlock(txns, ^uint32(0), time.Time{})
 
 		if err == nil && timeLockDelta >= 0 {
+
 			t.Fatal("block should be rejected due to non-final " +
 				"txn, but was accepted")
 		} else if err != nil && !strings.Contains(err.Error(), "unfinalized") {
@@ -343,6 +348,7 @@ func assertTxInBlock(
 		txHash := txn.TxHash()
 
 		if txn.TxHash() == txHash {
+
 			return
 		}
 	}
@@ -410,17 +416,20 @@ func TestBIP0068AndBIP0112Activation(
 			relativeBlockLock, false)
 
 		if err != nil {
+
 			t.Fatalf("unable to create CSV encumbered output: %v", err)
 		}
 		// As the transaction is p2sh it should be accepted into the
 		// mempool and found within the next generated block.
 
 		if _, err := r.Node.SendRawTransaction(tx, true); err != nil {
+
 			t.Fatalf("unable to broadcast tx: %v", err)
 		}
 		blocks, err := r.Node.Generate(1)
 
 		if err != nil {
+
 			t.Fatalf("unable to generate blocks: %v", err)
 		}
 		txid := tx.TxHash()
@@ -431,6 +440,7 @@ func TestBIP0068AndBIP0112Activation(
 			sequenceNum, sweepOutput, txVersion)
 
 		if err != nil {
+
 			t.Fatalf("unable to spend csv output: %v", err)
 		}
 		// This transaction should be rejected from the mempool since
@@ -438,6 +448,7 @@ func TestBIP0068AndBIP0112Activation(
 		_, err = r.Node.SendRawTransaction(spendingTx, true)
 
 		if err == nil {
+
 			t.Fatalf("transaction should have been rejected, but was " +
 				"instead accepted")
 		}
@@ -448,6 +459,7 @@ func TestBIP0068AndBIP0112Activation(
 		block, err := r.GenerateAndSubmitBlock(txns, ^uint32(0), time.Time{})
 
 		if err != nil {
+
 			t.Fatalf("unable to submit block: %v", err)
 		}
 		txid = spendingTx.TxHash()
@@ -471,6 +483,7 @@ func TestBIP0068AndBIP0112Activation(
 	// fresh output for use within each of the test-cases below.
 	const relativeTimeLock = 512
 	const numTests = 8
+
 	type csvOutput struct {
 		RedeemScript []byte
 		Utxo         *wire.OutPoint
@@ -485,6 +498,7 @@ func TestBIP0068AndBIP0112Activation(
 		isSeconds := true
 
 		if i < 7 {
+
 			timeLock = relativeBlockLock
 			isSeconds = false
 		}
@@ -492,10 +506,12 @@ func TestBIP0068AndBIP0112Activation(
 			int32(timeLock), isSeconds)
 
 		if err != nil {
+
 			t.Fatalf("unable to create CSV output: %v", err)
 		}
 
 		if _, err := r.Node.SendRawTransaction(tx, true); err != nil {
+
 			t.Fatalf("unable to broadcast transaction: %v", err)
 		}
 		spendableInputs[i] = csvOutput{
@@ -527,6 +543,7 @@ func TestBIP0068AndBIP0112Activation(
 		b, err := r.GenerateAndSubmitBlock(nil, ^uint32(0), timeStamp)
 
 		if err != nil {
+
 			t.Fatalf("unable to generate block: %v", err)
 		}
 		prevBlock = b.MsgBlock()
@@ -540,6 +557,7 @@ func TestBIP0068AndBIP0112Activation(
 			sequenceNum, sweepOutput, txVersion)
 
 		if err != nil {
+
 			t.Fatalf("unable to spend CSV output: %v", err)
 		}
 		inputIndex++
@@ -636,10 +654,12 @@ func TestBIP0068AndBIP0112Activation(
 		// with the non-final transaction. It should be rejected.
 
 		if !test.accept {
+
 			txns := []*util.Tx{util.NewTx(test.tx)}
 			_, err := r.GenerateAndSubmitBlock(txns, ^uint32(0), time.Time{})
 
 			if err == nil {
+
 				t.Fatalf("test #%d, invalid block accepted", i)
 			}
 			continue
@@ -649,6 +669,7 @@ func TestBIP0068AndBIP0112Activation(
 		blockHashes, err := r.Node.Generate(1)
 
 		if err != nil {
+
 			t.Fatalf("unable to mine block: %v", err)
 		}
 		assertTxInBlock(r, t, blockHashes[0], txid)

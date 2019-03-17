@@ -15,6 +15,7 @@ import (
 )
 
 // nodeConfig contains all the args, and data required to launch a pod process and connect the rpc client to it.
+
 type nodeConfig struct {
 	rpcUser      string
 	rpcPass      string
@@ -62,6 +63,7 @@ func newConfig(
 
 // setDefaults sets the default values of the config. It also creates the temporary data, and log directories which must be cleaned up with a call to cleanup().
 func (n *nodeConfig) setDefaults() error {
+
 	datadir, err := ioutil.TempDir("", n.prefix+"-data")
 	if err != nil {
 		return err
@@ -82,6 +84,7 @@ func (n *nodeConfig) setDefaults() error {
 
 // arguments returns an array of arguments that be used to launch the pod process.
 func (n *nodeConfig) arguments() []string {
+
 	args := []string{}
 	if n.rpcUser != "" {
 		// --rpcuser
@@ -129,11 +132,13 @@ func (n *nodeConfig) arguments() []string {
 
 // command returns the exec.Cmd which will be used to start the pod process.
 func (n *nodeConfig) command() *exec.Cmd {
+
 	return exec.Command(n.exe, n.arguments()...)
 }
 
 // rpcConnConfig returns the rpc connection config that can be used to connect to the pod process that is launched via Start().
 func (n *nodeConfig) rpcConnConfig() rpc.ConnConfig {
+
 	return rpc.ConnConfig{
 		Host:                 n.rpcListen,
 		Endpoint:             n.endpoint,
@@ -146,11 +151,13 @@ func (n *nodeConfig) rpcConnConfig() rpc.ConnConfig {
 
 // String returns the string representation of this nodeConfig.
 func (n *nodeConfig) String() string {
+
 	return n.prefix
 }
 
 // cleanup removes the tmp data and log directories.
 func (n *nodeConfig) cleanup() error {
+
 	dirs := []string{
 		n.logDir,
 		n.dataDir,
@@ -158,7 +165,9 @@ func (n *nodeConfig) cleanup() error {
 	var err error
 
 	for _, dir := range dirs {
+
 		if err = os.RemoveAll(dir); err != nil {
+
 			log.Printf("Cannot remove dir %s: %v", dir, err)
 		}
 	}
@@ -166,6 +175,7 @@ func (n *nodeConfig) cleanup() error {
 }
 
 // node houses the necessary state required to configure, launch, and manage a pod process.
+
 type node struct {
 	config  *nodeConfig
 	cmd     *exec.Cmd
@@ -186,6 +196,7 @@ func newNode(
 
 // start creates a new pod process, and writes its pid in a file reserved for recording the pid of the launched process. This file can be used to terminate the process in case of a hang, or panic. In the case of a failing test case, or panic, it is important that the process be stopped via stop(), otherwise, it will persist unless explicitly killed.
 func (n *node) start() error {
+
 	if err := n.cmd.Start(); err != nil {
 		return err
 	}
@@ -206,6 +217,7 @@ func (n *node) start() error {
 
 // stop interrupts the running pod process process, and waits until it exits properly. On windows, interrupt is not supported, so a kill signal is used instead
 func (n *node) stop() error {
+
 	if n.cmd == nil || n.cmd.Process == nil {
 		// return if not properly initialized or error starting the process
 		return nil
@@ -220,8 +232,11 @@ func (n *node) stop() error {
 // cleanup cleanups process and args files. The file housing the pid of the created process will be deleted, as well as any directories created by the
 // process.
 func (n *node) cleanup() error {
+
 	if n.pidFile != "" {
+
 		if err := os.Remove(n.pidFile); err != nil {
+
 			log.Printf("unable to remove file %s: %v", n.pidFile,
 				err)
 		}
@@ -232,6 +247,7 @@ func (n *node) cleanup() error {
 // shutdown terminates the running pod process, and cleans up all
 // file/directories created by node.
 func (n *node) shutdown() error {
+
 	if err := n.stop(); err != nil {
 		return err
 	}

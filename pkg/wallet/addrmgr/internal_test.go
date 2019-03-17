@@ -29,6 +29,7 @@ func (m *Manager) TstCheckPublicPassphrase(pubPassphrase []byte) bool {
 
 // failingCryptoKey is an implementation of the EncryptorDecryptor interface
 // with intentionally fails when attempting to encrypt or decrypt with it.
+
 type failingCryptoKey struct {
 	cryptoKey
 }

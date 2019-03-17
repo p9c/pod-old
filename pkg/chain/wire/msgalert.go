@@ -134,6 +134,7 @@ const maxCountSetCancel = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1)
 const maxCountSetSubVer = (maxAlertSize - fixedAlertSize - MaxVarIntPayload + 1) / 256
 
 // Alert contains the data deserialized from the MsgAlert payload.
+
 type Alert struct {
 
 	// Alert format version
@@ -393,6 +394,7 @@ func NewAlertFromPayload(
 }
 
 // MsgAlert  implements the Message interface and defines a bitcoin alert message. This is a signed message that provides notifications that the client should display if the signature matches the key.  bitcoind/bitcoin-qt only checks against a signature from the core developers.
+
 type MsgAlert struct {
 
 	// SerializedPayload is the alert payload serialized as a string so that the version can change but the Alert can still be passed on by older clients.

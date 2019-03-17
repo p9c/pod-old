@@ -12,6 +12,7 @@ const (
 )
 
 // MsgFilterAdd implements the Message interface and represents a bitcoin filteradd message.  It is used to add a data element to an existing Bloom filter. This message was not added until protocol version BIP0037Version.
+
 type MsgFilterAdd struct {
 	Data []byte
 }

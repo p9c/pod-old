@@ -60,6 +60,7 @@ func (c *websocketClient) send(b []byte) error {
 
 // Server holds the items the RPC server may need to access (auth,
 // config, shutdown, etc.)
+
 type Server struct {
 	httpServer    http.Server
 	wallet        *wallet.Wallet

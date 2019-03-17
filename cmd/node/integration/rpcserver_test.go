@@ -144,9 +144,11 @@ func TestRpcServer(
 		// If one of the integration tests caused a panic within the main goroutine, then tear down all the harnesses in order to avoid any leaked pod processes.
 
 		if r := recover(); r != nil {
+
 			fmt.Println("recovering from test panic: ", r)
 
 			if err := rpctest.TearDownAll(); err != nil {
+
 				fmt.Println("unable to tear down all harnesses: ", err)
 			}
 			t.Fatalf("test #%v panicked: %s", currentTestNum, debug.Stack())

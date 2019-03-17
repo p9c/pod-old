@@ -82,6 +82,7 @@ var (
 // complete wallet.  It contains the Armory-style key store
 
 // addresses and keys),
+
 type Wallet struct {
 	publicPassphrase []byte
 
@@ -1917,6 +1918,7 @@ func (w *Wallet) CalculateBalance(confirms int32) (util.Amount, error) {
 // Balances records total, spendable (by policy), and immature coinbase
 
 // reward balance amounts.
+
 type Balances struct {
 	Total          util.Amount
 	Spendable      util.Amount
@@ -1975,6 +1977,7 @@ func (w *Wallet) CalculateAccountBalances(account uint32, confirms int32) (Balan
 			bals.Total += output.Amount
 
 			if output.FromCoinBase && !confirmed(int32(w.chainParams.CoinbaseMaturity),
+
 				output.Height, syncBlock.Height) {
 
 				bals.ImmatureReward += output.Amount
@@ -2338,6 +2341,7 @@ func (w *Wallet) NextAccount(scope waddrmgr.KeyScope, name string) (uint32, erro
 //
 
 // TODO: This is a requirement of the RPC server and should be moved.
+
 type CreditCategory byte
 
 // These constants define the possible credit categories.
@@ -2384,6 +2388,7 @@ func RecvCategory(
 	if blockchain.IsCoinBaseTx(&details.MsgTx) {
 
 		if confirmed(int32(net.CoinbaseMaturity), details.Block.Height,
+
 			syncHeight) {
 
 			return CreditGenerate
@@ -2780,6 +2785,7 @@ func (w *Wallet) ListAllTransactions() ([]json.ListTransactionsResult, error) {
 }
 
 // BlockIdentifier identifies a block by either a height or a hash.
+
 type BlockIdentifier struct {
 	height int32
 	hash   *chainhash.Hash
@@ -2802,6 +2808,7 @@ func NewBlockIdentifierFromHash(
 // GetTransactionsResult is the result of the wallet's GetTransactions method.
 
 // See GetTransactions for more details.
+
 type GetTransactionsResult struct {
 	MinedTransactions   []Block
 	UnminedTransactions []TransactionSummary
@@ -2979,6 +2986,7 @@ func (w *Wallet) GetTransactions(startBlock, endBlock *BlockIdentifier, cancel <
 }
 
 // AccountResult is a single account result for the AccountsResult type.
+
 type AccountResult struct {
 	waddrmgr.AccountProperties
 	TotalBalance util.Amount
@@ -2987,6 +2995,7 @@ type AccountResult struct {
 // AccountsResult is the resutl of the wallet's Accounts method.  See that
 
 // method for more details.
+
 type AccountsResult struct {
 	Accounts           []AccountResult
 	CurrentBlockHash   *chainhash.Hash
@@ -3091,6 +3100,7 @@ func (w *Wallet) Accounts(scope waddrmgr.KeyScope) (*AccountsResult, error) {
 }
 
 // AccountBalanceResult is a single result for the Wallet.AccountBalances method.
+
 type AccountBalanceResult struct {
 	AccountNumber  uint32
 	AccountName    string
@@ -3165,6 +3175,7 @@ func (w *Wallet) AccountBalances(scope waddrmgr.KeyScope,
 			}
 
 			if output.FromCoinBase && !confirmed(int32(w.ChainParams().CoinbaseMaturity),
+
 				output.Height, syncBlock.Height) {
 
 				continue
@@ -3207,6 +3218,7 @@ func (w *Wallet) AccountBalances(scope waddrmgr.KeyScope,
 // they appear in the block.  Credits from the same transaction are sorted by
 
 // output index.
+
 type creditSlice []wtxmgr.Credit
 
 func (s creditSlice) Len() int {
@@ -4018,6 +4030,7 @@ func confirms(
 // AccountTotalReceivedResult is a single result for the
 
 // Wallet.TotalReceivedForAccounts method.
+
 type AccountTotalReceivedResult struct {
 	AccountNumber    uint32
 	AccountName      string
@@ -4217,6 +4230,7 @@ func (w *Wallet) SendOutputs(outputs []*wire.TxOut, account uint32,
 // SignatureError records the underlying error when validating a transaction
 
 // input signature.
+
 type SignatureError struct {
 	InputIndex uint32
 	Error      error
@@ -4356,6 +4370,7 @@ func (w *Wallet) SignTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 			// so we always verify the output.
 
 			if (hashType&txscript.SigHashSingle) !=
+
 				txscript.SigHashSingle || i < len(tx.TxOut) {
 
 				script, err := txscript.SignTxOutput(w.ChainParams(),

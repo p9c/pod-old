@@ -202,6 +202,7 @@ func (b *Base) processBundles() {
 			data, err := rsDecode(bundle.packets)
 
 			if err == nil &&
+
 				bundle.uuid != uuid {
 
 				rand.Seed(time.Now().Unix())

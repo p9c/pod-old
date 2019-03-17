@@ -84,6 +84,7 @@ func TestCalcMinRequiredTxRelayFee(
 		got := calcMinRequiredTxRelayFee(test.size, test.relayFee)
 
 		if got != test.want {
+
 			t.Errorf("TestCalcMinRequiredTxRelayFee test '%s' "+
 				"failed: got %v want %v", test.name, got,
 				test.want)
@@ -102,6 +103,7 @@ func TestCheckPkScriptStandard(
 		pk, err := ec.NewPrivateKey(ec.S256())
 
 		if err != nil {
+
 			t.Fatalf("TestCheckPkScriptStandard NewPrivateKey failed: %v",
 				err)
 			return
@@ -190,6 +192,7 @@ func TestCheckPkScriptStandard(
 		script, err := test.script.Script()
 
 		if err != nil {
+
 			t.Fatalf("TestCheckPkScriptStandard test '%s' "+
 				"failed: %v", test.name, err)
 			continue
@@ -198,6 +201,7 @@ func TestCheckPkScriptStandard(
 		got := checkPkScriptStandard(script, scriptClass)
 
 		if (test.isStandard && got != nil) ||
+
 			(!test.isStandard && got == nil) {
 
 			t.Fatalf("TestCheckPkScriptStandard test '%s' failed",
@@ -275,6 +279,7 @@ func TestDust(
 		res := isDust(&test.txOut, test.relayFee)
 
 		if res != test.isDust {
+
 			t.Fatalf("Dust test '%s' failed: want %v got %v",
 				test.name, test.isDust, res)
 			continue
@@ -482,17 +487,20 @@ func TestCheckTransactionStandard(
 			test.height, pastMedianTime, DefaultMinRelayTxFee, 1)
 
 		if err == nil && test.isStandard {
+
 			// Test passes since function returned standard for a transaction which is intended to be standard.
 			continue
 		}
 
 		if err == nil && !test.isStandard {
+
 			t.Errorf("checkTransactionStandard (%s): standard when "+
 				"it should not be", test.name)
 			continue
 		}
 
 		if err != nil && test.isStandard {
+
 			t.Errorf("checkTransactionStandard (%s): nonstandard "+
 				"when it should not be: %v", test.name, err)
 			continue
@@ -501,6 +509,7 @@ func TestCheckTransactionStandard(
 		rerr, ok := err.(RuleError)
 
 		if !ok {
+
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error type - got %T", test.name, err)
 			continue
@@ -508,6 +517,7 @@ func TestCheckTransactionStandard(
 		txrerr, ok := rerr.Err.(TxRuleError)
 
 		if !ok {
+
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error type - got %T", test.name, rerr.Err)
 			continue
@@ -515,6 +525,7 @@ func TestCheckTransactionStandard(
 		// Ensure the reject code is the expected one.
 
 		if txrerr.RejectCode != test.code {
+
 			t.Errorf("checkTransactionStandard (%s): unexpected "+
 				"error code - got %v, want %v", test.name,
 				txrerr.RejectCode, test.code)

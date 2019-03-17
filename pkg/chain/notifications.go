@@ -5,9 +5,11 @@ import (
 )
 
 // NotificationType represents the type of a notification message.
+
 type NotificationType int
 
 // NotificationCallback is used for a caller to provide a callback for notifications about various chain events.
+
 type NotificationCallback func(*Notification)
 
 // Constants for the type of a notification message.

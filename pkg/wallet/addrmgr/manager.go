@@ -127,6 +127,7 @@ func isReservedAccountNum(
 
 // ScryptOptions is used to hold the scrypt parameters needed when deriving new
 // passphrase keys.
+
 type ScryptOptions struct {
 	N, R, P int
 }
@@ -134,6 +135,7 @@ type ScryptOptions struct {
 // OpenCallbacks houses caller-provided callbacks that may be called when
 // opening an existing manager.  The open blocks on the execution of these
 // functions.
+
 type OpenCallbacks struct {
 
 	// ObtainSeed is a callback function that is potentially invoked during
@@ -163,6 +165,7 @@ var DefaultScryptOptions = ScryptOptions{
 // addrKey is used to uniquely identify an address even when those addresses
 // would end up being the same bitcoin address (as is the case for
 // pay-to-pubkey and pay-to-pubkey-hash style of addresses).
+
 type addrKey string
 
 // accountInfo houses the current state of the internal and external branches
@@ -170,6 +173,7 @@ type addrKey string
 // also handles locking by keeping an encrypted version of the serialized
 // private extended key so the unencrypted versions can be cleared from memory
 // when the address manager is locked.
+
 type accountInfo struct {
 	acctName string
 
@@ -197,6 +201,7 @@ type accountInfo struct {
 
 // AccountProperties contains properties associated with each account, such as
 // the account name, number, and the nubmer of derived and imported keys.
+
 type AccountProperties struct {
 	AccountNumber    uint32
 	AccountName      string
@@ -209,6 +214,7 @@ type AccountProperties struct {
 // managed address when the address manager is unlocked.  See the
 // deriveOnUnlock field in the Manager struct for more details on how this is
 // used.
+
 type unlockDeriveInfo struct {
 	managedAddr ManagedAddress
 	branch      uint32
@@ -217,7 +223,9 @@ type unlockDeriveInfo struct {
 
 // SecretKeyGenerator is the function signature of a method that can generate
 // secret keys for the address manager.
+
 type SecretKeyGenerator func(
+
 	passphrase *[]byte, config *ScryptOptions) (*snacl.SecretKey, error)
 
 // defaultNewSecretKey returns a new secret key.  See newSecretKey.
@@ -266,6 +274,7 @@ func newSecretKey(
 
 // EncryptorDecryptor provides an abstraction on top of snacl.CryptoKey so that
 // our tests can use dependency injection to force the behaviour they need.
+
 type EncryptorDecryptor interface {
 	Encrypt(in []byte) ([]byte, error)
 	Decrypt(in []byte) ([]byte, error)
@@ -275,6 +284,7 @@ type EncryptorDecryptor interface {
 }
 
 // cryptoKey extends snacl.CryptoKey to implement EncryptorDecryptor.
+
 type cryptoKey struct {
 	snacl.CryptoKey
 }
@@ -305,6 +315,7 @@ func defaultNewCryptoKey() (EncryptorDecryptor, error) {
 
 // CryptoKeyType is used to differentiate between different kinds of
 // crypto keys.
+
 type CryptoKeyType byte
 
 // Crypto key types.
@@ -335,6 +346,7 @@ var newCryptoKey = defaultNewCryptoKey
 
 // Manager represents a concurrency safe crypto currency address manager and
 // key store.
+
 type Manager struct {
 	mtx sync.RWMutex
 

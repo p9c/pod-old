@@ -44,6 +44,7 @@ func Main(
 	case "testnet", "testnet3", "t":
 
 		fork.IsTestnet = true
+
 		ActiveNetParams = &TestNet3Params
 	case "simnet", "s":
 		ActiveNetParams = &SimNetParams
@@ -345,6 +346,7 @@ func PreMain() {
 
 
 
+
 	// Use all processor cores.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -379,7 +381,9 @@ func PreMain() {
 
 
 
+
 		if err != nil {
+
 
 
 
@@ -391,7 +395,9 @@ func PreMain() {
 
 
 
+
 		if isService {
+
 
 
 

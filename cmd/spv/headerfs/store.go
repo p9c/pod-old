@@ -19,7 +19,9 @@ import (
 
 // BlockHeaderStore is an interface that provides an abstraction for a generic
 // store for block headers.
+
 type BlockHeaderStore interface {
+
 	// ChainTip returns the best known block header and height for the
 	// BlockHeaderStore.
 	ChainTip() (*wire.BlockHeader, uint32, error)
@@ -78,6 +80,7 @@ var headerBufPool = sync.Pool{
 // interpret those raw bytes accordingly.
 //
 // TODO(roasbeef): quickcheck coverage
+
 type headerStore struct {
 	mtx sync.RWMutex
 
@@ -137,6 +140,7 @@ func newHeaderStore(
 // fully fledged database for Bitcoin block headers. The blockHeaderStore
 // combines a flat file to store the block headers with a database instance for
 // managing the index into the set of flat files.
+
 type blockHeaderStore struct {
 	*headerStore
 }
@@ -182,6 +186,7 @@ func NewBlockHeaderStore(
 		}
 
 		if err := bhs.WriteHeaders(genesisHeader); err != nil {
+
 			return nil, err
 		}
 
@@ -227,6 +232,7 @@ func NewBlockHeaderStore(
 	for fileHeight > tipHeight {
 
 		if bhs.singleTruncate(); err != nil {
+
 			return nil, err
 		}
 
@@ -375,6 +381,7 @@ func (h *blockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp, error) {
 }
 
 // BlockHeader is a Bitcoin block header that also has its height included.
+
 type BlockHeader struct {
 	*wire.BlockHeader
 
@@ -386,6 +393,7 @@ type BlockHeader struct {
 // toIndexEntry converts the BlockHeader into a matching headerEntry. This
 // method is used when a header is to be written to disk.
 func (b *BlockHeader) toIndexEntry() headerEntry {
+
 	return headerEntry{
 		hash:   b.BlockHash(),
 		height: b.Height,
@@ -398,6 +406,7 @@ func (b *BlockHeader) toIndexEntry() headerEntry {
 //
 // NOTE: Part of the BlockHeaderStore interface.
 func (h *blockHeaderStore) WriteHeaders(hdrs ...BlockHeader) error {
+
 	// Lock store for write.
 	h.mtx.Lock()
 	defer h.mtx.Unlock()
@@ -415,6 +424,7 @@ func (h *blockHeaderStore) WriteHeaders(hdrs ...BlockHeader) error {
 	for _, header := range hdrs {
 
 		if err := header.Serialize(headerBuf); err != nil {
+
 			return err
 		}
 
@@ -468,10 +478,12 @@ func (h *blockHeaderStore) blockLocatorFromHash(hash *chainhash.Hash) (
 		// until we get to the genesis hash
 
 		if len(locator) > 10 {
+
 			decrement *= 2
 		}
 
 		if decrement > height {
+
 			height = 0
 		} else {
 			height -= decrement
@@ -480,6 +492,7 @@ func (h *blockHeaderStore) blockLocatorFromHash(hash *chainhash.Hash) (
 		blockHeader, err := h.FetchHeaderByHeight(height)
 
 		if err != nil {
+
 			return locator, err
 		}
 
@@ -529,6 +542,7 @@ func (h *blockHeaderStore) BlockLocatorFromHash(hash *chainhash.Hash) (
 // each block header, we also ensure that the index entry for that height and
 // hash also match up properly.
 func (h *blockHeaderStore) CheckConnectivity() error {
+
 	// Lock store for read.
 	h.mtx.RLock()
 	defer h.mtx.RUnlock()
@@ -550,6 +564,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 		header, err := h.readHeader(tipHeight)
 
 		if err != nil {
+
 			return err
 		}
 
@@ -560,11 +575,13 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 		var newHeader wire.BlockHeader
 
 		for height := tipHeight - 1; height > 0; height-- {
+
 			// First, read the block header for this block height,
 			// and also compute the block hash for it.
 			newHeader, err = h.readHeader(height)
 
 			if err != nil {
+
 				return fmt.Errorf("Couldn't retrieve header %s:"+
 					" %s", header.PrevBlock, err)
 			}
@@ -577,6 +594,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 			indexHeightBytes := rootBucket.Get(newHeaderHash[:])
 
 			if indexHeightBytes == nil {
+
 				return fmt.Errorf("index and on-disk file out of sync "+
 					"at height: %v", height)
 			}
@@ -588,6 +606,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 			// in this backwards walk.
 
 			if indexHeight != height {
+
 				return fmt.Errorf("index height isn't monotonically " +
 					"increasing")
 			}
@@ -597,6 +616,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 			// the last loop. This ensures connectivity.
 
 			if newHeader.BlockHash() != header.PrevBlock {
+
 				return fmt.Errorf("Block %s doesn't match "+
 					"block %s's PrevBlock (%s)",
 					newHeader.BlockHash(),
@@ -643,6 +663,7 @@ func (h *blockHeaderStore) ChainTip() (*wire.BlockHeader, uint32, error) {
 // variant of filter headers.  The FilterHeaderStore combines a flat file to
 // store the block headers with a database instance for managing the index into
 // the set of flat files.
+
 type FilterHeaderStore struct {
 	*headerStore
 }
@@ -691,6 +712,7 @@ func NewFilterHeaderStore(
 			)
 
 			if err != nil {
+
 				return nil, err
 			}
 
@@ -700,6 +722,7 @@ func NewFilterHeaderStore(
 			)
 
 			if err != nil {
+
 				return nil, err
 			}
 
@@ -714,6 +737,7 @@ func NewFilterHeaderStore(
 		}
 
 		if err := fhs.WriteHeaders(genesisHeader); err != nil {
+
 			return nil, err
 		}
 
@@ -753,6 +777,7 @@ func NewFilterHeaderStore(
 	for fileHeight > tipHeight {
 
 		if fhs.singleTruncate(); err != nil {
+
 			return nil, err
 		}
 
@@ -794,7 +819,9 @@ func (f *FilterHeaderStore) FetchHeaderByHeight(height uint32) (*chainhash.Hash,
 // FilterHeader represents a filter header (basic or extended). The filter
 // header itself is coupled with the block height and hash of the filter's
 // block.
+
 type FilterHeader struct {
+
 	// HeaderHash is the hash of the block header that this filter header
 	// corresponds to.
 	HeaderHash chainhash.Hash
@@ -809,6 +836,7 @@ type FilterHeader struct {
 // toIndexEntry converts the filter header into a index entry to be stored
 // within the database.
 func (f *FilterHeader) toIndexEntry() headerEntry {
+
 	return headerEntry{
 		hash:   f.HeaderHash,
 		height: f.Height,
@@ -820,6 +848,7 @@ func (f *FilterHeader) toIndexEntry() headerEntry {
 // headers themselves are appended to the flat file, and then the index updated
 // to reflect the new entires.
 func (f *FilterHeaderStore) WriteHeaders(hdrs ...FilterHeader) error {
+
 	// Lock store for write.
 	f.mtx.Lock()
 	defer f.mtx.Unlock()
@@ -845,6 +874,7 @@ func (f *FilterHeaderStore) WriteHeaders(hdrs ...FilterHeader) error {
 	for _, header := range hdrs {
 
 		if _, err := headerBuf.Write(header.FilterHash[:]); err != nil {
+
 			return err
 		}
 

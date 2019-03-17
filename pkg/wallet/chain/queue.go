@@ -9,6 +9,7 @@ import (
 // popping items from the out channel. There is a goroutine that manages moving
 // items from the in channel to the out channel in the correct order that must
 // be started by calling Start().
+
 type ConcurrentQueue struct {
 	chanIn   chan interface{}
 	chanOut  chan interface{}

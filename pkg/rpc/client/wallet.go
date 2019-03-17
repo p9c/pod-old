@@ -20,6 +20,7 @@ import (
 // FutureGetTransactionResult is a future promise to deliver the result
 
 // of a GetTransactionAsync RPC invocation (or an applicable error).
+
 type FutureGetTransactionResult chan *response
 
 // Receive waits for the response promised by the future and returns detailed
@@ -77,6 +78,7 @@ func (c *Client) GetTransaction(txHash *chainhash.Hash) (*json.GetTransactionRes
 // ListTransactionsAsync, ListTransactionsCountAsync, or
 
 // ListTransactionsCountFromAsync RPC invocation (or an applicable error).
+
 type FutureListTransactionsResult chan *response
 
 // Receive waits for the response promised by the future and returns a list of
@@ -178,6 +180,7 @@ func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]j
 // ListUnspentAsync, ListUnspentMinAsync, ListUnspentMinMaxAsync, or
 
 // ListUnspentMinMaxAddressesAsync RPC invocation (or an applicable error).
+
 type FutureListUnspentResult chan *response
 
 // Receive waits for the response promised by the future and returns all
@@ -312,6 +315,7 @@ func (c *Client) ListUnspentMinMaxAddresses(minConf, maxConf int, addrs []util.A
 // ListSinceBlockAsync or ListSinceBlockMinConfAsync RPC invocation (or an
 
 // applicable error).
+
 type FutureListSinceBlockResult chan *response
 
 // Receive waits for the response promised by the future and returns all
@@ -410,6 +414,7 @@ func (c *Client) ListSinceBlockMinConf(blockHash *chainhash.Hash, minConfirms in
 // FutureLockUnspentResult is a future promise to deliver the error result of a
 
 // LockUnspentAsync RPC invocation.
+
 type FutureLockUnspentResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -478,6 +483,7 @@ func (c *Client) LockUnspent(unlock bool, ops []*wire.OutPoint) error {
 // FutureListLockUnspentResult is a future promise to deliver the result of a
 
 // ListLockUnspentAsync RPC invocation (or an applicable error).
+
 type FutureListLockUnspentResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -543,6 +549,7 @@ func (c *Client) ListLockUnspent() ([]*wire.OutPoint, error) {
 // FutureSetTxFeeResult is a future promise to deliver the result of a
 
 // SetTxFeeAsync RPC invocation (or an applicable error).
+
 type FutureSetTxFeeResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -580,6 +587,7 @@ func (c *Client) SetTxFee(fee util.Amount) error {
 // FutureSendToAddressResult is a future promise to deliver the result of a
 
 // SendToAddressAsync RPC invocation (or an applicable error).
+
 type FutureSendToAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the hash
@@ -680,6 +688,7 @@ func (c *Client) SendToAddressComment(address util.Address, amount util.Amount, 
 // SendFromAsync, SendFromMinConfAsync, or SendFromCommentAsync RPC invocation
 
 // (or an applicable error).
+
 type FutureSendFromResult chan *response
 
 // Receive waits for the response promised by the future and returns the hash
@@ -819,6 +828,7 @@ func (c *Client) SendFromComment(fromAccount string, toAddress util.Address,
 // SendManyAsync, SendManyMinConfAsync, or SendManyCommentAsync RPC invocation
 
 // (or an applicable error).
+
 type FutureSendManyResult chan *response
 
 // Receive waits for the response promised by the future and returns the hash
@@ -977,6 +987,7 @@ func (c *Client) SendManyComment(fromAccount string,
 // FutureAddMultisigAddressResult is a future promise to deliver the result of a
 
 // AddMultisigAddressAsync RPC invocation (or an applicable error).
+
 type FutureAddMultisigAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1035,6 +1046,7 @@ func (c *Client) AddMultisigAddress(requiredSigs int, addresses []util.Address, 
 // FutureCreateMultisigResult is a future promise to deliver the result of a
 
 // CreateMultisigAsync RPC invocation (or an applicable error).
+
 type FutureCreateMultisigResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1092,6 +1104,7 @@ func (c *Client) CreateMultisig(requiredSigs int, addresses []util.Address) (*js
 // FutureCreateNewAccountResult is a future promise to deliver the result of a
 
 // CreateNewAccountAsync RPC invocation (or an applicable error).
+
 type FutureCreateNewAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1125,6 +1138,7 @@ func (c *Client) CreateNewAccount(account string) error {
 // FutureGetNewAddressResult is a future promise to deliver the result of a
 
 // GetNewAddressAsync RPC invocation (or an applicable error).
+
 type FutureGetNewAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns a new
@@ -1172,6 +1186,7 @@ func (c *Client) GetNewAddress(account string) (util.Address, error) {
 // FutureGetRawChangeAddressResult is a future promise to deliver the result of
 
 // a GetRawChangeAddressAsync RPC invocation (or an applicable error).
+
 type FutureGetRawChangeAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns a new
@@ -1225,6 +1240,7 @@ func (c *Client) GetRawChangeAddress(account string) (util.Address, error) {
 // FutureAddWitnessAddressResult is a future promise to deliver the result of
 
 // a AddWitnessAddressAsync RPC invocation (or an applicable error).
+
 type FutureAddWitnessAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the new
@@ -1274,6 +1290,7 @@ func (c *Client) AddWitnessAddress(address string) (util.Address, error) {
 // FutureGetAccountAddressResult is a future promise to deliver the result of a
 
 // GetAccountAddressAsync RPC invocation (or an applicable error).
+
 type FutureGetAccountAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the current
@@ -1323,6 +1340,7 @@ func (c *Client) GetAccountAddress(account string) (util.Address, error) {
 // FutureGetAccountResult is a future promise to deliver the result of a
 
 // GetAccountAsync RPC invocation (or an applicable error).
+
 type FutureGetAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the account
@@ -1371,6 +1389,7 @@ func (c *Client) GetAccount(address util.Address) (string, error) {
 // FutureSetAccountResult is a future promise to deliver the result of a
 
 // SetAccountAsync RPC invocation (or an applicable error).
+
 type FutureSetAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -1405,6 +1424,7 @@ func (c *Client) SetAccount(address util.Address, account string) error {
 // FutureGetAddressesByAccountResult is a future promise to deliver the result
 
 // of a GetAddressesByAccountAsync RPC invocation (or an applicable error).
+
 type FutureGetAddressesByAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the list of
@@ -1469,6 +1489,7 @@ func (c *Client) GetAddressesByAccount(account string) ([]util.Address, error) {
 // MoveMinConfAsync, or MoveCommentAsync RPC invocation (or an applicable
 
 // error).
+
 type FutureMoveResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -1581,6 +1602,7 @@ func (c *Client) MoveComment(fromAccount, toAccount string, amount util.Amount,
 // FutureRenameAccountResult is a future promise to deliver the result of a
 
 // RenameAccountAsync RPC invocation (or an applicable error).
+
 type FutureRenameAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1614,6 +1636,7 @@ func (c *Client) RenameAccount(oldAccount, newAccount string) error {
 // FutureValidateAddressResult is a future promise to deliver the result of a
 
 // ValidateAddressAsync RPC invocation (or an applicable error).
+
 type FutureValidateAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns information
@@ -1662,6 +1685,7 @@ func (c *Client) ValidateAddress(address util.Address) (*json.ValidateAddressWal
 // FutureKeyPoolRefillResult is a future promise to deliver the result of a
 
 // KeyPoolRefillAsync RPC invocation (or an applicable error).
+
 type FutureKeyPoolRefillResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -1726,6 +1750,7 @@ func (c *Client) KeyPoolRefillSize(newSize uint) error {
 // ListAccountsAsync or ListAccountsMinConfAsync RPC invocation (or an
 
 // applicable error).
+
 type FutureListAccountsResult chan *response
 
 // Receive waits for the response promised by the future and returns returns a
@@ -1814,6 +1839,7 @@ func (c *Client) ListAccountsMinConf(minConfirms int) (map[string]util.Amount, e
 // GetBalanceAsync or GetBalanceMinConfAsync RPC invocation (or an applicable
 
 // error).
+
 type FutureGetBalanceResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1852,6 +1878,7 @@ func (r FutureGetBalanceResult) Receive() (util.Amount, error) {
 // a float64 value
 
 // This is required for compatibility with servers like blockchain.info
+
 type FutureGetBalanceParseResult chan *response
 
 // Receive waits for the response promised by the future and returns the
@@ -1949,6 +1976,7 @@ func (c *Client) GetBalanceMinConf(account string, minConfirms int) (util.Amount
 // a GetReceivedByAccountAsync or GetReceivedByAccountMinConfAsync RPC
 
 // invocation (or an applicable error).
+
 type FutureGetReceivedByAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns the total
@@ -2033,6 +2061,7 @@ func (c *Client) GetReceivedByAccountMinConf(account string, minConfirms int) (u
 // FutureGetUnconfirmedBalanceResult is a future promise to deliver the result
 
 // of a GetUnconfirmedBalanceAsync RPC invocation (or an applicable error).
+
 type FutureGetUnconfirmedBalanceResult chan *response
 
 // Receive waits for the response promised by the future and returns returns the
@@ -2090,6 +2119,7 @@ func (c *Client) GetUnconfirmedBalance(account string) (util.Amount, error) {
 // a GetReceivedByAddressAsync or GetReceivedByAddressMinConfAsync RPC
 
 // invocation (or an applicable error).
+
 type FutureGetReceivedByAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the total
@@ -2178,6 +2208,7 @@ func (c *Client) GetReceivedByAddressMinConf(address util.Address, minConfirms i
 // ListReceivedByAccountIncludeEmptyAsync RPC invocation (or an applicable
 
 // error).
+
 type FutureListReceivedByAccountResult chan *response
 
 // Receive waits for the response promised by the future and returns a list of
@@ -2295,6 +2326,7 @@ func (c *Client) ListReceivedByAccountIncludeEmpty(minConfirms int, includeEmpty
 // ListReceivedByAddressIncludeEmptyAsync RPC invocation (or an applicable
 
 // error).
+
 type FutureListReceivedByAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns a list of
@@ -2414,6 +2446,7 @@ func (c *Client) ListReceivedByAddressIncludeEmpty(minConfirms int, includeEmpty
 // FutureWalletLockResult is a future promise to deliver the result of a
 
 // WalletLockAsync RPC invocation (or an applicable error).
+
 type FutureWalletLockResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -2465,6 +2498,7 @@ func (c *Client) WalletPassphrase(passphrase string, timeoutSecs int64) error {
 // FutureWalletPassphraseChangeResult is a future promise to deliver the result
 
 // of a WalletPassphraseChangeAsync RPC invocation (or an applicable error).
+
 type FutureWalletPassphraseChangeResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -2506,6 +2540,7 @@ func (c *Client) WalletPassphraseChange(old, new string) error {
 // FutureSignMessageResult is a future promise to deliver the result of a
 
 // SignMessageAsync RPC invocation (or an applicable error).
+
 type FutureSignMessageResult chan *response
 
 // Receive waits for the response promised by the future and returns the message
@@ -2558,6 +2593,7 @@ func (c *Client) SignMessage(address util.Address, message string) (string, erro
 // FutureVerifyMessageResult is a future promise to deliver the result of a
 
 // VerifyMessageAsync RPC invocation (or an applicable error).
+
 type FutureVerifyMessageResult chan *response
 
 // Receive waits for the response promised by the future and returns whether or
@@ -2616,6 +2652,7 @@ func (c *Client) VerifyMessage(address util.Address, signature, message string) 
 // FutureDumpPrivKeyResult is a future promise to deliver the result of a
 
 // DumpPrivKeyAsync RPC invocation (or an applicable error).
+
 type FutureDumpPrivKeyResult chan *response
 
 // Receive waits for the response promised by the future and returns the private
@@ -2672,6 +2709,7 @@ func (c *Client) DumpPrivKey(address util.Address) (*util.WIF, error) {
 // FutureImportAddressResult is a future promise to deliver the result of an
 
 // ImportAddressAsync RPC invocation (or an applicable error).
+
 type FutureImportAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -2726,6 +2764,7 @@ func (c *Client) ImportAddressRescan(address string, account string, rescan bool
 // FutureImportPrivKeyResult is a future promise to deliver the result of an
 
 // ImportPrivKeyAsync RPC invocation (or an applicable error).
+
 type FutureImportPrivKeyResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -2825,6 +2864,7 @@ func (c *Client) ImportPrivKeyRescan(privKeyWIF *util.WIF, label string, rescan 
 // FutureImportPubKeyResult is a future promise to deliver the result of an
 
 // ImportPubKeyAsync RPC invocation (or an applicable error).
+
 type FutureImportPubKeyResult chan *response
 
 // Receive waits for the response promised by the future and returns the result
@@ -2889,6 +2929,7 @@ func (c *Client) ImportPubKeyRescan(pubKey string, rescan bool) error {
 // FutureGetInfoResult is a future promise to deliver the result of a
 
 // GetInfoAsync RPC invocation (or an applicable error).
+
 type FutureGetInfoResult chan *response
 
 // Receive waits for the response promised by the future and returns the info

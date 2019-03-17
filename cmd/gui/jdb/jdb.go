@@ -16,6 +16,7 @@ var VueImgs map[string]string
 func init() {
 
 
+
 	dir := "./gui/jdb/"
 	db, err := scribble.New(dir, nil)
 

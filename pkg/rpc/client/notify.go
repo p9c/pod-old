@@ -24,6 +24,7 @@ var (
 )
 
 // notificationState is used to track the current state of successfully registered notification so the state can be automatically re-established on reconnect.
+
 type notificationState struct {
 	notifyBlocks       bool
 	notifyNewTx        bool
@@ -74,6 +75,7 @@ func newNilFutureResult() chan *response {
 // NotificationHandlers defines callback function pointers to invoke with notifications.  Since all of the functions are nil by default, all notifications are effectively ignored until their handlers are set to a concrete callback.
 
 // NOTE: Unless otherwise documented, these handlers must NOT directly call any blocking calls on the client instance since the input reader goroutine blocks until the callback has completed.  Doing so will result in a deadlock situation.
+
 type NotificationHandlers struct {
 
 	// OnClientConnected is invoked when the client connects or reconnects to the RPC server.  This callback is run async with the rest of the notification handlers, and is safe for blocking client requests.
@@ -151,11 +153,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.BlockConnectedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnBlockConnected == nil {
 
 			return
 		}
 		blockHash, blockHeight, blockTime, err := parseChainNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid block connected notification:", err}
@@ -168,12 +172,14 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.FilteredBlockConnectedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnFilteredBlockConnected == nil {
 
 			return
 		}
 		blockHeight, blockHeader, transactions, err :=
 			parseFilteredBlockConnectedParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid filtered block connected notification:", err}
@@ -187,11 +193,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.BlockDisconnectedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnBlockDisconnected == nil {
 
 			return
 		}
 		blockHash, blockHeight, blockTime, err := parseChainNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid block connected notification:", err}
@@ -204,12 +212,14 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.FilteredBlockDisconnectedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnFilteredBlockDisconnected == nil {
 
 			return
 		}
 		blockHeight, blockHeader, err :=
 			parseFilteredBlockDisconnectedParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid filtered block disconnected notification:", err}
@@ -223,11 +233,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.RecvTxNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnRecvTx == nil {
 
 			return
 		}
 		tx, block, err := parseChainTxNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid recvtx notification:", err}
@@ -240,11 +252,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.RedeemingTxNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnRedeemingTx == nil {
 
 			return
 		}
 		tx, block, err := parseChainTxNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid redeemingtx notification:", err}
@@ -257,11 +271,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.RelevantTxAcceptedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnRelevantTxAccepted == nil {
 
 			return
 		}
 		transaction, err := parseRelevantTxAcceptedParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid relevanttxaccepted notification:", err}
@@ -274,11 +290,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.RescanFinishedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnRescanFinished == nil {
 
 			return
 		}
 		hash, height, blkTime, err := parseRescanProgressParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid rescanfinished notification:", err}
@@ -291,11 +309,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.RescanProgressNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnRescanProgress == nil {
 
 			return
 		}
 		hash, height, blkTime, err := parseRescanProgressParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid rescanprogress notification:", err}
@@ -308,11 +328,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.TxAcceptedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnTxAccepted == nil {
 
 			return
 		}
 		hash, amt, err := parseTxAcceptedNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid tx accepted notification:", err}
@@ -325,11 +347,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.TxAcceptedVerboseNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnTxAcceptedVerbose == nil {
 
 			return
 		}
 		rawTx, err := parseTxAcceptedVerboseNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid tx accepted verbose notification:", err}
@@ -342,11 +366,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.PodConnectedNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnPodConnected == nil {
 
 			return
 		}
 		connected, err := parsePodConnectedNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid pod connected notification:", err}
@@ -359,11 +385,13 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.AccountBalanceNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnAccountBalance == nil {
 
 			return
 		}
 		account, bal, conf, err := parseAccountBalanceNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid account balance notification:", err}
@@ -376,6 +404,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	case json.WalletLockStateNtfnMethod:
 
 		// Ignore the notification if the client is not interested in it.
+
 		if c.ntfnHandlers.OnWalletLockState == nil {
 
 			return
@@ -383,6 +412,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 
 		// The account name is not notified, so the return value is discarded.
 		_, locked, err := parseWalletLockStateNtfnParams(ntfn.Params)
+
 		if err != nil {
 
 			log <- cl.Warn{"received invalid wallet lock state notification:", err}
@@ -393,6 +423,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 
 	// OnUnknownNotification
 	default:
+
 		if c.ntfnHandlers.OnUnknownNotification == nil {
 
 			return
@@ -402,6 +433,7 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 }
 
 // wrongNumParams is an error type describing an unparseable JSON-RPC notificiation due to an incorrect number of parameters for the expected notification type.  The value is the number of parameters of the invalid notification.
+
 type wrongNumParams int
 
 // Error satisifies the builtin error interface.
@@ -503,11 +535,13 @@ func parseFilteredBlockConnectedParams(
 	for i, hexTx := range hexTransactions {
 
 		transaction, err := hex.DecodeString(hexTx)
+
 		if err != nil {
 
 			return 0, nil, nil, err
 		}
 		transactions[i], err = util.NewTxFromBytes(transaction)
+
 		if err != nil {
 
 			return 0, nil, nil, err
@@ -596,6 +630,7 @@ func parseChainTxNtfnParams(
 	if len(params) > 1 {
 
 		err = js.Unmarshal(params[1], &block)
+
 		if err != nil {
 
 			return nil, nil, err
@@ -812,6 +847,7 @@ func parseWalletLockStateNtfnParams(
 }
 
 // FutureNotifyBlocksResult is a future promise to deliver the result of a NotifyBlocksAsync RPC invocation (or an applicable error).
+
 type FutureNotifyBlocksResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
@@ -846,6 +882,7 @@ func (c *Client) NotifyBlocks() error {
 }
 
 // FutureNotifySpentResult is a future promise to deliver the result of a NotifySpentAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureLoadTxFilterResult instead.
+
 type FutureNotifySpentResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
@@ -914,6 +951,7 @@ func (c *Client) NotifySpent(outpoints []*wire.OutPoint) error {
 }
 
 // FutureNotifyNewTransactionsResult is a future promise to deliver the result of a NotifyNewTransactionsAsync RPC invocation (or an applicable error).
+
 type FutureNotifyNewTransactionsResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
@@ -948,6 +986,7 @@ func (c *Client) NotifyNewTransactions(verbose bool) error {
 }
 
 // FutureNotifyReceivedResult is a future promise to deliver the result of a NotifyReceivedAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureLoadTxFilterResult instead.
+
 type FutureNotifyReceivedResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful.
@@ -1010,6 +1049,7 @@ func (c *Client) NotifyReceived(addresses []util.Address) error {
 }
 
 // FutureRescanResult is a future promise to deliver the result of a RescanAsync or RescanEndHeightAsync RPC invocation (or an applicable error). NOTE: Deprecated. Use FutureRescanBlocksResult instead.
+
 type FutureRescanResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the rescan was not successful.
@@ -1132,6 +1172,7 @@ func (c *Client) RescanEndHeight(startBlock *chainhash.Hash,
 }
 
 // FutureLoadTxFilterResult is a future promise to deliver the result of a LoadTxFilterAsync RPC invocation (or an applicable error). NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.
+
 type FutureLoadTxFilterResult chan *response
 
 // Receive waits for the response promised by the future and returns an error if the registration was not successful. NOTE: This is a pod extension ported from github.com/decred/dcrrpcclient and requires a websocket connection.

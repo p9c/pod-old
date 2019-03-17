@@ -310,6 +310,7 @@ func TestResultStructHelp(
 			reflectType: func() reflect.Type {
 
 				type s struct{}
+
 				return reflect.TypeOf(s{})
 			}(),
 			expected: nil,
@@ -360,6 +361,7 @@ func TestResultStructHelp(
 				type s2 struct {
 					subField int
 				}
+
 				type s struct {
 					field s2
 				}
@@ -379,6 +381,7 @@ func TestResultStructHelp(
 				type s2 struct {
 					subField int
 				}
+
 				type s struct {
 					field *s2
 				}
@@ -398,6 +401,7 @@ func TestResultStructHelp(
 				type s2 struct {
 					subField int
 				}
+
 				type s struct {
 					field []s2
 				}
@@ -460,6 +464,7 @@ func TestHelpArgInternals(
 			reflectType: func() reflect.Type {
 
 				type s struct{}
+
 				return reflect.TypeOf((*s)(nil))
 			}(),
 			defaults: nil,
@@ -518,6 +523,7 @@ func TestHelpArgInternals(
 				type s2 struct {
 					F int8
 				}
+
 				type s struct {
 					Field s2
 				}
@@ -567,6 +573,7 @@ func TestHelpArgInternals(
 				type s2 struct {
 					F int64
 				}
+
 				type s struct {
 					Field []s2
 				}
@@ -618,6 +625,7 @@ func TestMethodHelp(
 			reflectType: func() reflect.Type {
 
 				type s struct{}
+
 				return reflect.TypeOf((*s)(nil))
 			}(),
 			help: "test\n\ntest--synopsis\n\n" +
@@ -630,6 +638,7 @@ func TestMethodHelp(
 			reflectType: func() reflect.Type {
 
 				type s struct{}
+
 				return reflect.TypeOf((*s)(nil))
 			}(),
 			resultTypes: []interface{}{(*int64)(nil)},
@@ -643,6 +652,7 @@ func TestMethodHelp(
 			reflectType: func() reflect.Type {
 
 				type s struct{}
+
 				return reflect.TypeOf((*s)(nil))
 			}(),
 			resultTypes: []interface{}{(*int64)(nil), nil},

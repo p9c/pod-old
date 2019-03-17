@@ -83,6 +83,7 @@ type bulkFetchData struct {
 }
 
 // bulkFetchDataSorter implements sort.Interface to allow a slice of bulkFetchData to be sorted.  In particular it sorts by file and then offset so that reads from files are grouped and linear.
+
 type bulkFetchDataSorter []bulkFetchData
 
 // Len returns the number of items in the slice.  It is part of the sort.Interface implementation.
@@ -499,6 +500,7 @@ func (c *cursor) Value() []byte {
 }
 
 // cursorType defines the type of cursor to create.
+
 type cursorType int
 
 // The following constants define the allowed cursor types.

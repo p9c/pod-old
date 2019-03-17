@@ -11,6 +11,7 @@ import (
 
 // OutputSelectionPolicy describes the rules for selecting an output from the
 // wallet.
+
 type OutputSelectionPolicy struct {
 	Account               uint32
 	RequiredConfirmations int32

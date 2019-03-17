@@ -21,6 +21,7 @@ import (
 // BlockIdentity identifies a block, or the lack of one (used to describe an
 
 // unmined transaction).
+
 type BlockIdentity struct {
 	Hash   chainhash.Hash
 	Height int32
@@ -42,6 +43,7 @@ func (b *BlockIdentity) None() bool {
 // OutputKind describes a kind of transaction output.  This is used to
 
 // differentiate between coinbase, stakebase, and normal outputs.
+
 type OutputKind byte
 
 // Defined OutputKind constants
@@ -55,6 +57,7 @@ const (
 // controlled by the wallet.  Depending on context, this could refer to an
 
 // unspent output, or a spent one.
+
 type TransactionOutput struct {
 	OutPoint   wire.OutPoint
 	Output     wire.TxOut
@@ -72,6 +75,7 @@ type TransactionOutput struct {
 }
 
 // OutputRedeemer identifies the transaction input which redeems an output.
+
 type OutputRedeemer struct {
 	TxHash     chainhash.Hash
 	InputIndex uint32
@@ -90,6 +94,7 @@ type OutputRedeemer struct {
 // TODO: Could be useful to return how many of the required signatures can be
 
 // created by this wallet.
+
 type P2SHMultiSigOutput struct {
 
 	// TODO: Add a TransactionOutput member to this struct and remove these

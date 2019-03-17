@@ -21,12 +21,14 @@ const MaxBlockPayload = 4000000
 const maxTxPerBlock = (MaxBlockPayload / minTxPayload) + 1
 
 // TxLoc holds locator data for the offset and length of where a transaction is located within a MsgBlock data buffer.
+
 type TxLoc struct {
 	TxStart int
 	TxLen   int
 }
 
 // MsgBlock implements the Message interface and represents a bitcoin block message.  It is used to deliver block and transaction information in response to a getdata message (MsgGetData) for a given block hash.
+
 type MsgBlock struct {
 	Header       BlockHeader
 	Transactions []*MsgTx

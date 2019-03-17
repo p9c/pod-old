@@ -6,7 +6,9 @@ package headerlist
 // even as the primary header store. If an element inserted to the end of the
 // chain exceeds the size limit, then the head of the chain will be moved
 // forward removing a single entry from the head of the chain.
+
 type BoundedMemoryChain struct {
+
 	// headPtr points to the "front" of the chain. If the tailPtr is less
 	// than this value, then we've wrapped around once. This value can
 	// never exceed the maxSize value.
@@ -93,6 +95,7 @@ func (b *BoundedMemoryChain) Front() *Node {
 //
 // NOTE: Part of the Chain interface.
 func (b *BoundedMemoryChain) PushBack(n Node) *Node {
+
 	// Before we do any insertion, we'll fetch the prior element to be able
 	// to easily set the prev pointer of the new entry.
 	var prevElem *Node

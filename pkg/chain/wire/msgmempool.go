@@ -6,6 +6,7 @@ import (
 )
 
 // MsgMemPool implements the Message interface and represents a bitcoin mempool message.  It is used to request a list of transactions still in the active memory pool of a relay. This message has no payload and was not added until protocol versions starting with BIP0035Version.
+
 type MsgMemPool struct{}
 
 // BtcDecode decodes r using the bitcoin protocol encoding into the receiver. This is part of the Message interface implementation.

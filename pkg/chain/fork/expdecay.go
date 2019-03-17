@@ -6,6 +6,7 @@ import "math/big"
 // Root is a high precision arbitrary fractional root function used for the post p9 hardfork reward calculation
 func Root(a *big.Float, n float64) *big.Float {
 
+
 limit := Exp(New(2), 256)
 	n1 := n - 1
 	n1f, rn := New(float64(n1)), Div(New(1.0), New(float64(n)))
@@ -16,7 +17,9 @@ limit := Exp(New(2), 256)
 
 potx, t2 := Div(New(1.0), x), a
 
+
 		for b := n1; b > 0; b >>= 1 {
+
 
 if b&1 == 1 {
 
@@ -26,7 +29,9 @@ t2 = Mul(t2, potx)
 		}
 		x0, x = x, Mul(rn, Add(Mul(n1f, x), t2))
 
+
 		if Lesser(Mul(Abs(Sub(x, x0)), limit), x) {
+
 
 
 			break
@@ -37,10 +42,12 @@ t2 = Mul(t2, potx)
 
 func Abs(a *big.Float) *big.Float {
 
+
 return Zero().Abs(a)
 }
 
 func Exp(a *big.Float, e uint64) *big.Float {
+
 
 result := Zero().Copy(a)
 
@@ -53,6 +60,7 @@ result = Mul(result, a)
 
 func New(f float64) *big.Float {
 
+
 r := big.NewFloat(f)
 	r.SetPrec(256)
 	return r
@@ -60,10 +68,12 @@ r := big.NewFloat(f)
 
 func Div(a, b *big.Float) *big.Float {
 
+
 return Zero().Quo(a, b)
 }
 
 func Zero() *big.Float {
+
 
 r := big.NewFloat(0.0)
 	r.SetPrec(256)
@@ -72,20 +82,24 @@ r := big.NewFloat(0.0)
 
 func Mul(a, b *big.Float) *big.Float {
 
+
 return Zero().Mul(a, b)
 }
 
 func Add(a, b *big.Float) *big.Float {
+
 
 return Zero().Add(a, b)
 }
 
 func Sub(a, b *big.Float) *big.Float {
 
+
 return Zero().Sub(a, b)
 }
 
 func Lesser(x, y *big.Float) bool {
+
 
 return x.Cmp(y) == -1
 }

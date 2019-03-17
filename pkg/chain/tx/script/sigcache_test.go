@@ -67,6 +67,7 @@ func TestSigCacheAddEvictEntry(
 	for i := uint(0); i < sigCacheSize; i++ {
 
 		msg, sig, key, err := genRandomSig()
+
 		if err != nil {
 
 			t.Fatalf("unable to generate random signature test data")
@@ -74,6 +75,7 @@ func TestSigCacheAddEvictEntry(
 		sigCache.Add(*msg, sig, key)
 		sigCopy, _ := ec.ParseSignature(sig.Serialize(), ec.S256())
 		keyCopy, _ := ec.ParsePubKey(key.SerializeCompressed(), ec.S256())
+
 		if !sigCache.Exists(*msg, sigCopy, keyCopy) {
 
 			t.Errorf("previously added item not found in signature" +

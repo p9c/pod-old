@@ -15,6 +15,7 @@ import (
 )
 
 // An opcode defines the information related to a txscript opcode.  opfunc, if present, is the function to call to perform the opcode on the script.  The current script is passed in as a slice with the first member being the opcode itself.
+
 type opcode struct {
 	value  byte
 	name   string
@@ -597,6 +598,7 @@ var opcodeOnelineRepls = map[string]string{
 }
 
 // parsedOpcode represents an opcode that has been parsed and includes any potential data associated with it.
+
 type parsedOpcode struct {
 	opcode *opcode
 	data   []byte
@@ -748,6 +750,7 @@ func (pop *parsedOpcode) print(oneline bool) string {
 			opcodeName = replName
 		}
 		// Nothing more to do for non-data push opcodes.
+
 		if pop.opcode.length == 1 {
 
 			return opcodeName
@@ -906,6 +909,7 @@ func opcodeNop(
 
 	case OP_NOP1, OP_NOP4, OP_NOP5,
 		OP_NOP6, OP_NOP7, OP_NOP8, OP_NOP9, OP_NOP10:
+
 		if vm.hasFlag(ScriptDiscourageUpgradableNops) {
 
 			str := fmt.Sprintf("OP_NOP%d reserved for soft-fork "+
@@ -963,10 +967,12 @@ func opcodeIf(
 	if vm.isBranchExecuting() {
 
 		ok, err := popIfBool(vm)
+
 		if err != nil {
 
 			return err
 		}
+
 		if ok {
 
 			condVal = OpCondTrue
@@ -990,10 +996,12 @@ func opcodeNotIf(
 	if vm.isBranchExecuting() {
 
 		ok, err := popIfBool(vm)
+
 		if err != nil {
 
 			return err
 		}
+
 		if !ok {
 
 			condVal = OpCondTrue
@@ -2047,6 +2055,7 @@ func opcodeCheckSig(
 	if vm.isWitnessVersionActive(0) {
 
 		var sigHashes *TxSigHashes
+
 		if vm.hashCache != nil {
 
 			sigHashes = vm.hashCache
@@ -2056,6 +2065,7 @@ func opcodeCheckSig(
 		}
 		hash, err = calcWitnessSignatureHash(subScript, sigHashes, hashType,
 			&vm.tx, vm.txIdx, vm.inputAmount)
+
 		if err != nil {
 
 			return err
@@ -2092,6 +2102,7 @@ func opcodeCheckSig(
 		var sigHash chainhash.Hash
 		copy(sigHash[:], hash)
 		valid = vm.sigCache.Exists(sigHash, signature, pubKey)
+
 		if !valid && signature.Verify(hash, pubKey) {
 
 			vm.sigCache.Add(sigHash, signature, pubKey)
@@ -2124,6 +2135,7 @@ func opcodeCheckSigVerify(
 }
 
 // parsedSigInfo houses a raw signature along with its parsed form and a flag for whether or not it has already been parsed.  It is used to prevent parsing the same signature multiple times when verifying a multisig.
+
 type parsedSigInfo struct {
 	signature       []byte
 	parsedSignature *ec.Signature
@@ -2167,6 +2179,7 @@ func opcodeCheckMultiSig(
 	for i := 0; i < numPubKeys; i++ {
 
 		pubKey, err := vm.dstack.PopByteArray()
+
 		if err != nil {
 
 			return err
@@ -2196,6 +2209,7 @@ func opcodeCheckMultiSig(
 	for i := 0; i < numSignatures; i++ {
 
 		signature, err := vm.dstack.PopByteArray()
+
 		if err != nil {
 
 			return err
@@ -2240,6 +2254,7 @@ func opcodeCheckMultiSig(
 		// When there are more signatures than public keys remaining, there is no way to succeed since too many signatures are invalid, so exit early.
 		pubKeyIdx++
 		numPubKeys--
+
 		if numSignatures > numPubKeys {
 
 			success = false
@@ -2249,6 +2264,7 @@ func opcodeCheckMultiSig(
 		pubKey := pubKeys[pubKeyIdx]
 		// The order of the signature and public key evaluation is important here since it can be distinguished by an OP_CHECKMULTISIG NOT when the strict encoding flag is set.
 		rawSig := sigInfo.signature
+
 		if len(rawSig) == 0 {
 
 			// Skip to the next pubkey if signature is empty.
@@ -2259,19 +2275,23 @@ func opcodeCheckMultiSig(
 		signature := rawSig[:len(rawSig)-1]
 		// Only parse and check the signature encoding once.
 		var parsedSig *ec.Signature
+
 		if !sigInfo.parsed {
 
 			if err := vm.checkHashTypeEncoding(hashType); err != nil {
 
 				return err
 			}
+
 			if err := vm.checkSignatureEncoding(signature); err != nil {
 
 				return err
 			}
 			// Parse the signature.
 			var err error
+
 			if vm.hasFlag(ScriptVerifyStrictEncoding) ||
+
 				vm.hasFlag(ScriptVerifyDERSignatures) {
 
 				parsedSig, err = ec.ParseDERSignature(signature,
@@ -2282,6 +2302,7 @@ func opcodeCheckMultiSig(
 					ec.S256())
 			}
 			sigInfo.parsed = true
+
 			if err != nil {
 
 				continue
@@ -2290,6 +2311,7 @@ func opcodeCheckMultiSig(
 		} else {
 
 			// Skip to the next pubkey if the signature is invalid.
+
 			if sigInfo.parsedSignature == nil {
 
 				continue
@@ -2297,21 +2319,25 @@ func opcodeCheckMultiSig(
 			// Use the already parsed signature.
 			parsedSig = sigInfo.parsedSignature
 		}
+
 		if err := vm.checkPubKeyEncoding(pubKey); err != nil {
 
 			return err
 		}
 		// Parse the pubkey.
 		parsedPubKey, err := ec.ParsePubKey(pubKey, ec.S256())
+
 		if err != nil {
 
 			continue
 		}
 		// Generate the signature hash based on the signature hash type.
 		var hash []byte
+
 		if vm.isWitnessVersionActive(0) {
 
 			var sigHashes *TxSigHashes
+
 			if vm.hashCache != nil {
 
 				sigHashes = vm.hashCache
@@ -2321,6 +2347,7 @@ func opcodeCheckMultiSig(
 			}
 			hash, err = calcWitnessSignatureHash(script, sigHashes, hashType,
 				&vm.tx, vm.txIdx, vm.inputAmount)
+
 			if err != nil {
 
 				return err
@@ -2330,11 +2357,13 @@ func opcodeCheckMultiSig(
 			hash = calcSignatureHash(script, hashType, &vm.tx, vm.txIdx)
 		}
 		var valid bool
+
 		if vm.sigCache != nil {
 
 			var sigHash chainhash.Hash
 			copy(sigHash[:], hash)
 			valid = vm.sigCache.Exists(sigHash, parsedSig, parsedPubKey)
+
 			if !valid && parsedSig.Verify(hash, parsedPubKey) {
 
 				vm.sigCache.Add(sigHash, parsedSig, parsedPubKey)
@@ -2344,6 +2373,7 @@ func opcodeCheckMultiSig(
 
 			valid = parsedSig.Verify(hash, parsedPubKey)
 		}
+
 		if valid {
 
 			// PubKey verified, move on to the next signature.

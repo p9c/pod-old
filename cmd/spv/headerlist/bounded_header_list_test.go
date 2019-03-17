@@ -157,6 +157,7 @@ func TestBoundedMemoryChainSizeLimit(
 	for i, node := range memChain.chain {
 
 		if node.Height != totalElems[15+i].Height {
+
 			t.Fatalf("wrong node: expected %v, got %v",
 				spew.Sdump(node),
 				spew.Sdump(totalElems[15+i]))
@@ -165,6 +166,7 @@ func TestBoundedMemoryChainSizeLimit(
 		if i == 0 {
 
 			if node.Prev() != nil {
+
 				t.Fatalf("prev of first elem should be nil")
 			}
 
@@ -172,6 +174,7 @@ func TestBoundedMemoryChainSizeLimit(
 			expectedPrevElem := memChain.chain[i-1]
 
 			if node.Prev().Height != expectedPrevElem.Height {
+
 				t.Fatalf("wrong node: expected %v, got %v",
 					spew.Sdump(expectedPrevElem),
 					spew.Sdump(node.Prev()))
@@ -218,6 +221,7 @@ func TestBoundedMemoryChainPrevIteration(
 		iterNode = iterNode.Prev()
 
 		if iterNode != nil && nextNode.Prev().Height != iterNode.Height {
+
 			t.Fatalf("expected %v, got %v",
 				spew.Sdump(nextNode.Prev()),
 				spew.Sdump(iterNode))

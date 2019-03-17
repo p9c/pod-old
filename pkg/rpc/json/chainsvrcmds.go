@@ -8,6 +8,7 @@ import (
 )
 
 // AddNodeSubCmd defines the type used in the addnode JSON-RPC command for the sub command field.
+
 type AddNodeSubCmd string
 
 const (
@@ -23,6 +24,7 @@ const (
 )
 
 // AddNodeCmd defines the addnode JSON-RPC command.
+
 type AddNodeCmd struct {
 	Addr   string
 	SubCmd AddNodeSubCmd `jsonrpcusage:"\"add|remove|onetry\""`
@@ -39,12 +41,14 @@ func NewAddNodeCmd(
 }
 
 // TransactionInput represents the inputs to a transaction.  Specifically a transaction hash and output number pair.
+
 type TransactionInput struct {
 	Txid string `json:"txid"`
 	Vout uint32 `json:"vout"`
 }
 
 // CreateRawTransactionCmd defines the createrawtransaction JSON-RPC command.
+
 type CreateRawTransactionCmd struct {
 	Inputs   []TransactionInput
 	Amounts  map[string]float64 `jsonrpcusage:"{\"address\":amount,...}"` // In DUO
@@ -64,6 +68,7 @@ func NewCreateRawTransactionCmd(
 }
 
 // DecodeRawTransactionCmd defines the decoderawtransaction JSON-RPC command.
+
 type DecodeRawTransactionCmd struct {
 	HexTx string
 }
@@ -78,6 +83,7 @@ func NewDecodeRawTransactionCmd(
 }
 
 // DecodeScriptCmd defines the decodescript JSON-RPC command.
+
 type DecodeScriptCmd struct {
 	HexScript string
 }
@@ -92,6 +98,7 @@ func NewDecodeScriptCmd(
 }
 
 // GetAddedNodeInfoCmd defines the getaddednodeinfo JSON-RPC command.
+
 type GetAddedNodeInfoCmd struct {
 	DNS  bool
 	Node *string
@@ -108,6 +115,7 @@ func NewGetAddedNodeInfoCmd(
 }
 
 // GetBestBlockHashCmd defines the getbestblockhash JSON-RPC command.
+
 type GetBestBlockHashCmd struct{}
 
 // NewGetBestBlockHashCmd returns a new instance which can be used to issue a getbestblockhash JSON-RPC command.
@@ -117,6 +125,7 @@ func NewGetBestBlockHashCmd() *GetBestBlockHashCmd {
 }
 
 // GetBlockCmd defines the getblock JSON-RPC command.
+
 type GetBlockCmd struct {
 	Hash      string
 	Verbose   *bool `jsonrpcdefault:"true"`
@@ -135,6 +144,7 @@ func NewGetBlockCmd(
 }
 
 // GetBlockChainInfoCmd defines the getblockchaininfo JSON-RPC command.
+
 type GetBlockChainInfoCmd struct{}
 
 // NewGetBlockChainInfoCmd returns a new instance which can be used to issue a getblockchaininfo JSON-RPC command.
@@ -144,6 +154,7 @@ func NewGetBlockChainInfoCmd() *GetBlockChainInfoCmd {
 }
 
 // GetBlockCountCmd defines the getblockcount JSON-RPC command.
+
 type GetBlockCountCmd struct{}
 
 // NewGetBlockCountCmd returns a new instance which can be used to issue a getblockcount JSON-RPC command.
@@ -153,6 +164,7 @@ func NewGetBlockCountCmd() *GetBlockCountCmd {
 }
 
 // GetBlockHashCmd defines the getblockhash JSON-RPC command.
+
 type GetBlockHashCmd struct {
 	Index int64
 }
@@ -167,6 +179,7 @@ func NewGetBlockHashCmd(
 }
 
 // GetBlockHeaderCmd defines the getblockheader JSON-RPC command.
+
 type GetBlockHeaderCmd struct {
 	Hash    string
 	Verbose *bool `jsonrpcdefault:"true"`
@@ -183,6 +196,7 @@ func NewGetBlockHeaderCmd(
 }
 
 // TemplateRequest is a request object as defined in BIP22 (https://en.bitcoin.it/wiki/BIP_0022), it is optionally provided as an pointer argument to GetBlockTemplateCmd.
+
 type TemplateRequest struct {
 	Mode         string   `json:"mode,omitempty"`
 	Capabilities []string `json:"capabilities,omitempty"`
@@ -230,6 +244,7 @@ func convertTemplateRequestField(
 func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 
 	type templateRequest TemplateRequest
+
 	request := (*templateRequest)(t)
 
 	if err := json.Unmarshal(data, &request); err != nil {
@@ -258,6 +273,7 @@ func (t *TemplateRequest) UnmarshalJSON(data []byte) error {
 }
 
 // GetBlockTemplateCmd defines the getblocktemplate JSON-RPC command.
+
 type GetBlockTemplateCmd struct {
 	Request *TemplateRequest
 }
@@ -272,6 +288,7 @@ func NewGetBlockTemplateCmd(
 }
 
 // GetCFilterCmd defines the getcfilter JSON-RPC command.
+
 type GetCFilterCmd struct {
 	Hash       string
 	FilterType wire.FilterType
@@ -288,6 +305,7 @@ func NewGetCFilterCmd(
 }
 
 // GetCFilterHeaderCmd defines the getcfilterheader JSON-RPC command.
+
 type GetCFilterHeaderCmd struct {
 	Hash       string
 	FilterType wire.FilterType
@@ -305,6 +323,7 @@ func NewGetCFilterHeaderCmd(
 }
 
 // GetChainTipsCmd defines the getchaintips JSON-RPC command.
+
 type GetChainTipsCmd struct{}
 
 // NewGetChainTipsCmd returns a new instance which can be used to issue a getchaintips JSON-RPC command.
@@ -314,6 +333,7 @@ func NewGetChainTipsCmd() *GetChainTipsCmd {
 }
 
 // GetConnectionCountCmd defines the getconnectioncount JSON-RPC command.
+
 type GetConnectionCountCmd struct{}
 
 // NewGetConnectionCountCmd returns a new instance which can be used to issue a getconnectioncount JSON-RPC command.
@@ -323,6 +343,7 @@ func NewGetConnectionCountCmd() *GetConnectionCountCmd {
 }
 
 // GetDifficultyCmd defines the getdifficulty JSON-RPC command.
+
 type GetDifficultyCmd struct {
 	Algo string
 }
@@ -337,6 +358,7 @@ func NewGetDifficultyCmd(
 }
 
 // GetGenerateCmd defines the getgenerate JSON-RPC command.
+
 type GetGenerateCmd struct{}
 
 // NewGetGenerateCmd returns a new instance which can be used to issue a getgenerate JSON-RPC command.
@@ -346,6 +368,7 @@ func NewGetGenerateCmd() *GetGenerateCmd {
 }
 
 // GetHashesPerSecCmd defines the gethashespersec JSON-RPC command.
+
 type GetHashesPerSecCmd struct{}
 
 // NewGetHashesPerSecCmd returns a new instance which can be used to issue a gethashespersec JSON-RPC command.
@@ -355,6 +378,7 @@ func NewGetHashesPerSecCmd() *GetHashesPerSecCmd {
 }
 
 // GetInfoCmd defines the getinfo JSON-RPC command.
+
 type GetInfoCmd struct{}
 
 // NewGetInfoCmd returns a new instance which can be used to issue a getinfo JSON-RPC command.
@@ -364,6 +388,7 @@ func NewGetInfoCmd() *GetInfoCmd {
 }
 
 // GetMempoolEntryCmd defines the getmempoolentry JSON-RPC command.
+
 type GetMempoolEntryCmd struct {
 	TxID string
 }
@@ -378,6 +403,7 @@ func NewGetMempoolEntryCmd(
 }
 
 // GetMempoolInfoCmd defines the getmempoolinfo JSON-RPC command.
+
 type GetMempoolInfoCmd struct{}
 
 // NewGetMempoolInfoCmd returns a new instance which can be used to issue a getmempool JSON-RPC command.
@@ -387,6 +413,7 @@ func NewGetMempoolInfoCmd() *GetMempoolInfoCmd {
 }
 
 // GetMiningInfoCmd defines the getmininginfo JSON-RPC command.
+
 type GetMiningInfoCmd struct{}
 
 // NewGetMiningInfoCmd returns a new instance which can be used to issue a getmininginfo JSON-RPC command.
@@ -396,6 +423,7 @@ func NewGetMiningInfoCmd() *GetMiningInfoCmd {
 }
 
 // GetNetworkInfoCmd defines the getnetworkinfo JSON-RPC command.
+
 type GetNetworkInfoCmd struct{}
 
 // NewGetNetworkInfoCmd returns a new instance which can be used to issue a getnetworkinfo JSON-RPC command.
@@ -405,6 +433,7 @@ func NewGetNetworkInfoCmd() *GetNetworkInfoCmd {
 }
 
 // GetNetTotalsCmd defines the getnettotals JSON-RPC command.
+
 type GetNetTotalsCmd struct{}
 
 // NewGetNetTotalsCmd returns a new instance which can be used to issue a getnettotals JSON-RPC command.
@@ -414,6 +443,7 @@ func NewGetNetTotalsCmd() *GetNetTotalsCmd {
 }
 
 // GetNetworkHashPSCmd defines the getnetworkhashps JSON-RPC command.
+
 type GetNetworkHashPSCmd struct {
 	Blocks *int `jsonrpcdefault:"120"`
 	Height *int `jsonrpcdefault:"-1"`
@@ -430,6 +460,7 @@ func NewGetNetworkHashPSCmd(
 }
 
 // GetPeerInfoCmd defines the getpeerinfo JSON-RPC command.
+
 type GetPeerInfoCmd struct{}
 
 // NewGetPeerInfoCmd returns a new instance which can be used to issue a getpeer JSON-RPC command.
@@ -439,6 +470,7 @@ func NewGetPeerInfoCmd() *GetPeerInfoCmd {
 }
 
 // GetRawMempoolCmd defines the getmempool JSON-RPC command.
+
 type GetRawMempoolCmd struct {
 	Verbose *bool `jsonrpcdefault:"false"`
 }
@@ -453,6 +485,7 @@ func NewGetRawMempoolCmd(
 }
 
 // GetRawTransactionCmd defines the getrawtransaction JSON-RPC command. NOTE: This field is an int versus a bool to remain compatible with Bitcoin Core even though it really should be a bool.
+
 type GetRawTransactionCmd struct {
 	Txid    string
 	Verbose *int `jsonrpcdefault:"0"`
@@ -469,6 +502,7 @@ func NewGetRawTransactionCmd(
 }
 
 // GetTxOutCmd defines the gettxout JSON-RPC command.
+
 type GetTxOutCmd struct {
 	Txid           string
 	Vout           uint32
@@ -487,6 +521,7 @@ func NewGetTxOutCmd(
 }
 
 // GetTxOutProofCmd defines the gettxoutproof JSON-RPC command.
+
 type GetTxOutProofCmd struct {
 	TxIDs     []string
 	BlockHash *string
@@ -503,6 +538,7 @@ func NewGetTxOutProofCmd(
 }
 
 // GetTxOutSetInfoCmd defines the gettxoutsetinfo JSON-RPC command.
+
 type GetTxOutSetInfoCmd struct{}
 
 // NewGetTxOutSetInfoCmd returns a new instance which can be used to issue a gettxoutsetinfo JSON-RPC command.
@@ -512,6 +548,7 @@ func NewGetTxOutSetInfoCmd() *GetTxOutSetInfoCmd {
 }
 
 // GetWorkCmd defines the getwork JSON-RPC command.
+
 type GetWorkCmd struct {
 	Data *string
 }
@@ -526,6 +563,7 @@ func NewGetWorkCmd(
 }
 
 // HelpCmd defines the help JSON-RPC command.
+
 type HelpCmd struct {
 	Command *string
 }
@@ -540,6 +578,7 @@ func NewHelpCmd(
 }
 
 // InvalidateBlockCmd defines the invalidateblock JSON-RPC command.
+
 type InvalidateBlockCmd struct {
 	BlockHash string
 }
@@ -554,6 +593,7 @@ func NewInvalidateBlockCmd(
 }
 
 // PingCmd defines the ping JSON-RPC command.
+
 type PingCmd struct{}
 
 // NewPingCmd returns a new instance which can be used to issue a ping JSON-RPC command.
@@ -563,6 +603,7 @@ func NewPingCmd() *PingCmd {
 }
 
 // PreciousBlockCmd defines the preciousblock JSON-RPC command.
+
 type PreciousBlockCmd struct {
 	BlockHash string
 }
@@ -577,6 +618,7 @@ func NewPreciousBlockCmd(
 }
 
 // ReconsiderBlockCmd defines the reconsiderblock JSON-RPC command.
+
 type ReconsiderBlockCmd struct {
 	BlockHash string
 }
@@ -591,6 +633,7 @@ func NewReconsiderBlockCmd(
 }
 
 // SearchRawTransactionsCmd defines the searchrawtransactions JSON-RPC command.
+
 type SearchRawTransactionsCmd struct {
 	Address     string
 	Verbose     *int  `jsonrpcdefault:"1"`
@@ -617,6 +660,7 @@ func NewSearchRawTransactionsCmd(
 }
 
 // SendRawTransactionCmd defines the sendrawtransaction JSON-RPC command.
+
 type SendRawTransactionCmd struct {
 	HexTx         string
 	AllowHighFees *bool `jsonrpcdefault:"false"`
@@ -633,6 +677,7 @@ func NewSendRawTransactionCmd(
 }
 
 // SetGenerateCmd defines the setgenerate JSON-RPC command.
+
 type SetGenerateCmd struct {
 	Generate     bool
 	GenProcLimit *int `jsonrpcdefault:"-1"`
@@ -649,6 +694,7 @@ func NewSetGenerateCmd(
 }
 
 // StopCmd defines the stop JSON-RPC command.
+
 type StopCmd struct{}
 
 // NewStopCmd returns a new instance which can be used to issue a stop JSON-RPC command.
@@ -658,6 +704,7 @@ func NewStopCmd() *StopCmd {
 }
 
 // SubmitBlockOptions represents the optional options struct provided with a SubmitBlockCmd command.
+
 type SubmitBlockOptions struct {
 
 	// must be provided if server provided a workid with template.
@@ -665,6 +712,7 @@ type SubmitBlockOptions struct {
 }
 
 // SubmitBlockCmd defines the submitblock JSON-RPC command.
+
 type SubmitBlockCmd struct {
 	HexBlock string
 	Options  *SubmitBlockOptions
@@ -681,6 +729,7 @@ func NewSubmitBlockCmd(
 }
 
 // UptimeCmd defines the uptime JSON-RPC command.
+
 type UptimeCmd struct{}
 
 // NewUptimeCmd returns a new instance which can be used to issue an uptime JSON-RPC command.
@@ -690,6 +739,7 @@ func NewUptimeCmd() *UptimeCmd {
 }
 
 // ValidateAddressCmd defines the validateaddress JSON-RPC command.
+
 type ValidateAddressCmd struct {
 	Address string
 }
@@ -704,6 +754,7 @@ func NewValidateAddressCmd(
 }
 
 // VerifyChainCmd defines the verifychain JSON-RPC command.
+
 type VerifyChainCmd struct {
 	CheckLevel *int32 `jsonrpcdefault:"3"`
 	CheckDepth *int32 `jsonrpcdefault:"288"` // 0 = all
@@ -720,6 +771,7 @@ func NewVerifyChainCmd(
 }
 
 // VerifyMessageCmd defines the verifymessage JSON-RPC command.
+
 type VerifyMessageCmd struct {
 	Address   string
 	Signature string
@@ -738,6 +790,7 @@ func NewVerifyMessageCmd(
 }
 
 // VerifyTxOutProofCmd defines the verifytxoutproof JSON-RPC command.
+
 type VerifyTxOutProofCmd struct {
 	Proof string
 }

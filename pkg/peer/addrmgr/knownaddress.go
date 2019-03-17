@@ -8,6 +8,7 @@ import (
 
 // KnownAddress tracks information about a known network address that is used
 // to determine how viable an address is.
+
 type KnownAddress struct {
 	na          *wire.NetAddress
 	srcAddr     *wire.NetAddress

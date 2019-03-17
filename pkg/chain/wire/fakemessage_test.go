@@ -3,6 +3,7 @@ package wire
 import "io"
 
 // fakeMessage implements the Message interface and is used to force encode errors in messages.
+
 type fakeMessage struct {
 	command string
 	payload []byte

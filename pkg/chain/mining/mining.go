@@ -30,6 +30,7 @@ const (
 )
 
 // TxDesc is a descriptor about a transaction in a transaction source along with additional metadata.
+
 type TxDesc struct {
 
 	// Tx is the transaction associated with the entry.
@@ -49,6 +50,7 @@ type TxDesc struct {
 }
 
 // TxSource represents a source of transactions to consider for inclusion in new blocks. The interface contract requires that all of these methods are safe for concurrent access with respect to the source.
+
 type TxSource interface {
 
 	// LastUpdated returns the last time a transaction was added to or removed from the source pool.
@@ -62,6 +64,7 @@ type TxSource interface {
 }
 
 // txPrioItem houses a transaction along with extra information that allows the transaction to be prioritized and track dependencies on other transactions which have not been mined into a block yet.
+
 type txPrioItem struct {
 	tx       *util.Tx
 	fee      int64
@@ -73,10 +76,13 @@ type txPrioItem struct {
 }
 
 // txPriorityQueueLessFunc describes a function that can be used as a compare function for a transaction priority queue (txPriorityQueue).
+
 type txPriorityQueueLessFunc func(
+
 	*txPriorityQueue, int, int) bool
 
 // txPriorityQueue implements a priority queue of txPrioItem elements that supports an arbitrary compare function as defined by txPriorityQueueLessFunc.
+
 type txPriorityQueue struct {
 	lessFunc txPriorityQueueLessFunc
 	items    []*txPrioItem
@@ -168,6 +174,7 @@ func newTxPriorityQueue(
 }
 
 // BlockTemplate houses a block that has yet to be solved along with additional details about the fees and the number of signature operations for each transaction in the block.
+
 type BlockTemplate struct {
 
 	// Block is a block that is ready to be solved by miners.  Thus, it is completely valid with the exception of satisfying the proof-of-work requirement.
@@ -198,6 +205,7 @@ func mergeUtxoView(
 	for outpoint, entryB := range viewB.Entries() {
 
 		if entryA, exists := viewAEntries[outpoint]; !exists ||
+
 			entryA == nil || entryA.IsSpent() {
 
 			viewAEntries[outpoint] = entryB
@@ -316,6 +324,7 @@ func medianAdjustedTime(
 }
 
 // BlkTmplGenerator provides a type that can be used to generate block templates based on a given mining policy and source of transactions to choose from. It also houses additional state required in order to ensure the templates are built on top of the current best chain and adhere to the consensus rules.
+
 type BlkTmplGenerator struct {
 	policy      *Policy
 	chainParams *chaincfg.Params
@@ -447,6 +456,7 @@ mempoolLoop:
 		}
 
 		if !blockchain.IsFinalizedTransaction(tx, nextBlockHeight,
+
 			g.timeSource.AdjustedTime()) {
 
 			Log.Trcc(func() string {
@@ -584,6 +594,7 @@ mempoolLoop:
 		blockPlusTxWeight := blockWeight + txWeight
 
 		if blockPlusTxWeight < blockWeight ||
+
 			blockPlusTxWeight >= g.policy.BlockMaxWeight {
 
 			log <- cl.Tracef{
@@ -609,6 +620,7 @@ mempoolLoop:
 		}
 
 		if blockSigOpCost+int64(sigOpCost) < blockSigOpCost ||
+
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
 
 			Log.Trcc(func() string {
@@ -622,6 +634,7 @@ mempoolLoop:
 		// Skip free transactions once the block is larger than the minimum block size.
 
 		if sortedByFee &&
+
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
 
@@ -641,6 +654,7 @@ mempoolLoop:
 		// Prioritize by fee per kilobyte once the block is larger than the priority size or there are no more high-priority transactions.
 
 		if !sortedByFee && (blockPlusTxWeight >= g.policy.BlockPrioritySize ||
+
 			prioItem.priority <= MinHighPriority) {
 
 			log <- cl.Tracef{
@@ -658,6 +672,7 @@ mempoolLoop:
 			// Put the transaction back into the priority queue and skip it so it is re-priortized by fees if it won't fit into the high-priority section or the priority is too low.  Otherwise this transaction will be the final one in the high-priority section, so just fall though to the code below so it is added now.
 
 			if blockPlusTxWeight > g.policy.BlockPrioritySize ||
+
 				prioItem.priority < MinHighPriority {
 
 				heap.Push(priorityQueue, prioItem)

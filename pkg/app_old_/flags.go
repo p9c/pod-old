@@ -21,6 +21,7 @@ func GetFlags(
 		usage := strings.Split(cmd.Flags[i].Usage, " ")
 
 		if cmd.Flags[i].Usage == `""` ||
+
 			len(cmd.Flags[i].Usage) < 2 ||
 
 			len(usage) < 2 {

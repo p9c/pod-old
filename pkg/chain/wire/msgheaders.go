@@ -9,6 +9,7 @@ import (
 const MaxBlockHeadersPerMsg = 2000
 
 // MsgHeaders implements the Message interface and represents a bitcoin headers message.  It is used to deliver block header information in response to a getheaders message (MsgGetHeaders).  The maximum number of block headers per message is currently 2000.  See MsgGetHeaders for details on requesting the headers.
+
 type MsgHeaders struct {
 	Headers []*BlockHeader
 }

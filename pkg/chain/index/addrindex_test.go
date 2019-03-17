@@ -9,6 +9,7 @@ import (
 )
 
 // addrIndexBucket provides a mock address index database bucket by implementing the internalBucket interface.
+
 type addrIndexBucket struct {
 	levels map[[levelKeySize]byte][]byte
 }
@@ -133,6 +134,7 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 		if level == 0 {
 
 			if (highestLevel != 0 && numEntries == 0) ||
+
 				numEntries > maxEntries {
 
 				return fmt.Errorf("level %d has %d entries",

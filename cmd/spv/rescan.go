@@ -57,6 +57,7 @@ type rescanOptions struct {
 // notification subscription methods. These are always processed in order, with
 
 // later options overriding earlier ones.
+
 type RescanOption func(ro *rescanOptions)
 
 func defaultRescanOptions() *rescanOptions {
@@ -620,6 +621,7 @@ rescanLoop:
 		// then we'll exit.
 
 		if curStamp.Hash == ro.endBlock.Hash ||
+
 			(ro.endBlock.Height > 0 &&
 
 				curStamp.Height == ro.endBlock.Height) {
@@ -1605,6 +1607,7 @@ type updateOptions struct {
 }
 
 // UpdateOption is a functional option argument for the Rescan.Update method.
+
 type UpdateOption func(uo *updateOptions)
 
 func defaultUpdateOptions() *updateOptions {

@@ -10,6 +10,7 @@ import (
 )
 
 // AlgoParams are the identifying block version number and their minimum target bits
+
 type AlgoParams struct {
 	Version int32
 	MinBits uint32
@@ -18,6 +19,7 @@ type AlgoParams struct {
 }
 
 // HardForks is the details related to a hard fork, number, name and activation height
+
 type HardForks struct {
 	Number             uint32
 	Name               string

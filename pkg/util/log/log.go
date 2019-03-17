@@ -70,6 +70,7 @@ func init() {
 
 // Level is the level at which a logger is configured.  All messages sent
 // to a level which is below the current level are filtered.
+
 type Level uint32
 
 // Level constants.
@@ -151,6 +152,7 @@ type Backend struct {
 }
 
 // BackendOption is a function used to modify the behavior of a Backend.
+
 type BackendOption func(b *Backend)
 
 // WithFlags configures a Backend to use the specified flags rather than using

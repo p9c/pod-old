@@ -27,6 +27,7 @@ const (
 // 	                              \-> 16a -> 17a
 // The block locator for block 17a would be the hashes of blocks:
 // [17a 16a 15 14 13 12 11 10 9 8 7 6 4 genesis]
+
 type BlockLocator []*chainhash.Hash
 
 // orphanBlock represents a block that we don't yet have the parent for.  It is a normal block plus an expiration time to prevent caching the orphan forever.
@@ -905,6 +906,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 	if attachNodes.Len() > 0 {
 
 		forkNode = newBest
+
 	}
 
 	// Perform several checks to verify each block that needs to be attached to the main chain can be connected without violating any rules and without actually connecting the block.

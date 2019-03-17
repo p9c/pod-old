@@ -20,9 +20,11 @@ import (
 )
 
 // BtcPerKilobyte is number with units of bitcoins per kilobyte.
+
 type BtcPerKilobyte float64
 
 // FeeEstimator manages the data necessary to create fee estimations. It is safe for concurrent access.
+
 type FeeEstimator struct {
 	maxRollback uint32
 	binSize     int32
@@ -44,19 +46,24 @@ type FeeEstimator struct {
 }
 
 // FeeEstimatorState represents a saved FeeEstimator that can be restored with data from an earlier session of the program.
+
 type FeeEstimatorState []byte
 
 // SatoshiPerByte is number with units of satoshis per byte.
+
 type SatoshiPerByte float64
 
 // estimateFeeSet is a set of txs that can that is sorted by the fee per kb rate.
+
 type estimateFeeSet struct {
 	feeRate []SatoshiPerByte
 	bin     [estimateFeeDepth]uint32
 }
 
 // observedTransaction represents an observed transaction and some additional data required for the fee estimation algorithm.
+
 type observedTransaction struct {
+
 	// A transaction hash.
 	hash chainhash.Hash
 	// The fee per byte of the transaction in satoshis.
@@ -68,9 +75,11 @@ type observedTransaction struct {
 }
 
 // observedTxSet is a set of txs that can that is sorted by hash. It exists for serialization purposes so that a serialized state always comes out the same.
+
 type observedTxSet []*observedTransaction
 
 // registeredBlock has the hash of a block and the list of transactions it mined which had been previously observed by the FeeEstimator. It is used if Rollback is called to reverse the effect of registering a block.
+
 type registeredBlock struct {
 	hash         chainhash.Hash
 	transactions []*observedTransaction

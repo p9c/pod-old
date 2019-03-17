@@ -3672,6 +3672,7 @@ func TestUnparsingInvalidOpcodes(
 	for _, test := range tests {
 
 		_, err := test.pop.bytes()
+
 		if e := tstCheckScriptError(err, test.expectedErr); e != nil {
 
 			t.Errorf("Parsed opcode test '%s': %v", test.name, e)
@@ -3727,6 +3728,7 @@ func TestPushedData(
 
 		script := mustParseShortForm(test.script)
 		data, err := PushedData(script)
+
 		if test.valid && err != nil {
 
 			t.Errorf("TestPushedData failed test #%d: %v\n", i, err)
@@ -3737,6 +3739,7 @@ func TestPushedData(
 				"be invalid\n", i)
 			continue
 		}
+
 		if !reflect.DeepEqual(data, test.out) {
 
 			t.Errorf("TestPushedData failed test #%d: want: %x "+
@@ -3754,12 +3757,14 @@ func TestHasCanonicalPush(
 	for i := 0; i < 65535; i++ {
 
 		script, err := NewScriptBuilder().AddInt64(int64(i)).Script()
+
 		if err != nil {
 
 			t.Errorf("Script: test #%d unexpected error: %v\n", i,
 				err)
 			continue
 		}
+
 		if result := IsPushOnlyScript(script); !result {
 
 			t.Errorf("IsPushOnlyScript: test #%d failed: %x\n", i,
@@ -3767,6 +3772,7 @@ func TestHasCanonicalPush(
 			continue
 		}
 		pops, err := parseScript(script)
+
 		if err != nil {
 
 			t.Errorf("parseScript: #%d failed: %v", i, err)
@@ -3789,17 +3795,20 @@ func TestHasCanonicalPush(
 		builder := NewScriptBuilder()
 		builder.AddData(bytes.Repeat([]byte{0x49}, i))
 		script, err := builder.Script()
+
 		if err != nil {
 
 			t.Errorf("StandardPushesTests test #%d unexpected error: %v\n", i, err)
 			continue
 		}
+
 		if result := IsPushOnlyScript(script); !result {
 
 			t.Errorf("StandardPushesTests IsPushOnlyScript test #%d failed: %x\n", i, script)
 			continue
 		}
 		pops, err := parseScript(script)
+
 		if err != nil {
 
 			t.Errorf("StandardPushesTests #%d failed to TstParseScript: %v", i, err)
@@ -3860,6 +3869,7 @@ func TestGetPreciseSigOps(
 	for _, test := range tests {
 
 		count := GetPreciseSigOpCount(test.scriptSig, pkScript, true)
+
 		if count != test.nSigOps {
 
 			t.Errorf("%s: expected count of %d, got %d", test.name,
@@ -3943,6 +3953,7 @@ func TestGetWitnessSigOpCount(
 
 		count := GetWitnessSigOpCount(test.sigScript, test.pkScript,
 			test.witness)
+
 		if count != test.numSigOps {
 
 			t.Errorf("%s: expected count of %d, got %d", test.name,
@@ -4008,6 +4019,7 @@ func TestRemoveOpcodes(
 	tstRemoveOpcode := func(script []byte, opcode byte) ([]byte, error) {
 
 		pops, err := parseScript(script)
+
 		if err != nil {
 
 			return nil, err
@@ -4021,11 +4033,13 @@ func TestRemoveOpcodes(
 		before := mustParseShortForm(test.before)
 		after := mustParseShortForm(test.after)
 		result, err := tstRemoveOpcode(before, test.remove)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
+
 		if !bytes.Equal(after, result) {
 
 			t.Errorf("%s: value does not equal expected: exp: %q"+
@@ -4161,6 +4175,7 @@ func TestRemoveOpcodeByData(
 	tstRemoveOpcodeByData := func(script []byte, data []byte) ([]byte, error) {
 
 		pops, err := parseScript(script)
+
 		if err != nil {
 
 			return nil, err
@@ -4172,11 +4187,13 @@ func TestRemoveOpcodeByData(
 	for _, test := range tests {
 
 		result, err := tstRemoveOpcodeByData(test.before, test.remove)
+
 		if e := tstCheckScriptError(err, test.err); e != nil {
 
 			t.Errorf("%s: %v", test.name, e)
 			continue
 		}
+
 		if !bytes.Equal(test.after, result) {
 
 			t.Errorf("%s: value does not equal expected: exp: %q"+
@@ -4196,6 +4213,7 @@ func TestIsPayToScriptHash(
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == ScriptHashTy)
 		p2sh := IsPayToScriptHash(script)
+
 		if p2sh != shouldBe {
 
 			t.Errorf("%s: expected p2sh %v, got %v", test.name,
@@ -4215,6 +4233,7 @@ func TestIsPayToWitnessScriptHash(
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == WitnessV0ScriptHashTy)
 		p2wsh := IsPayToWitnessScriptHash(script)
+
 		if p2wsh != shouldBe {
 
 			t.Errorf("%s: expected p2wsh %v, got %v", test.name,
@@ -4234,6 +4253,7 @@ func TestIsPayToWitnessPubKeyHash(
 		script := mustParseShortForm(test.script)
 		shouldBe := (test.class == WitnessV0PubKeyHashTy)
 		p2wkh := IsPayToWitnessPubKeyHash(script)
+
 		if p2wkh != shouldBe {
 
 			t.Errorf("%s: expected p2wkh %v, got %v", test.name,
@@ -4269,6 +4289,7 @@ func TestHasCanonicalPushes(
 
 		script := mustParseShortForm(test.script)
 		pops, err := parseScript(script)
+
 		if err != nil {
 
 			if test.expected {
@@ -4341,6 +4362,7 @@ func TestIsUnspendable(
 	for i, test := range tests {
 
 		res := IsUnspendable(test.pkScript)
+
 		if res != test.expected {
 
 			t.Errorf("TestIsUnspendable #%d failed: got %v want %v",

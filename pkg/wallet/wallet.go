@@ -2505,6 +2505,7 @@ func (w *Wallet) NextAccount(scope waddrmgr.KeyScope, name string) (uint32, erro
 //
 
 // TODO: This is a requirement of the RPC server and should be moved.
+
 type CreditCategory byte
 
 // These constants define the possible credit categories.
@@ -3457,6 +3458,7 @@ func (w *Wallet) AccountBalances(scope waddrmgr.KeyScope,
 // they appear in the block.  Credits from the same transaction are sorted by
 
 // output index.
+
 type creditSlice []wtxmgr.Credit
 
 func (s creditSlice) Len() int {

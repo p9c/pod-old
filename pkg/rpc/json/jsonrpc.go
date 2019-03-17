@@ -6,15 +6,18 @@ import (
 )
 
 // RPCError represents an error that is used as a part of a JSON-RPC Response object.
+
 type RPCError struct {
 	Code    RPCErrorCode `json:"code,omitempty"`
 	Message string       `json:"message,omitempty"`
 }
 
 // RPCErrorCode represents an error code to be used as a part of an RPCError which is in turn used in a JSON-RPC Response object. A specific type is used to help ensure the wrong errors aren't used.
+
 type RPCErrorCode int
 
 // Request is a type for raw JSON-RPC 1.0 requests.  The Method field identifies the specific command type which in turns leads to different parameters. Callers typically will not use this directly since this package provides a statically typed command infrastructure which handles creation of these requests, however this struct it being exported in case the caller wants to construct raw requests for some reason.
+
 type Request struct {
 	Jsonrpc string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
@@ -23,6 +26,7 @@ type Request struct {
 }
 
 // Response is the general form of a JSON-RPC response.  The type of the Result field varies from one command to the next, so it is implemented as an interface.  The ID field has to be a pointer for Go to put a null in it when empty.
+
 type Response struct {
 	Result json.RawMessage `json:"result"`
 	Error  *RPCError       `json:"error"`

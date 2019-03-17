@@ -17,6 +17,7 @@ const (
 )
 
 // AccountBalanceNtfn defines the accountbalance JSON-RPC notification.
+
 type AccountBalanceNtfn struct {
 	Account   string
 	Balance   float64 // In DUO
@@ -35,6 +36,7 @@ func NewAccountBalanceNtfn(
 }
 
 // PodConnectedNtfn defines the podconnected JSON-RPC notification.
+
 type PodConnectedNtfn struct {
 	Connected bool
 }
@@ -49,6 +51,7 @@ func NewPodConnectedNtfn(
 }
 
 // WalletLockStateNtfn defines the walletlockstate JSON-RPC notification.
+
 type WalletLockStateNtfn struct {
 	Locked bool
 }
@@ -63,6 +66,7 @@ func NewWalletLockStateNtfn(
 }
 
 // NewTxNtfn defines the newtx JSON-RPC notification.
+
 type NewTxNtfn struct {
 	Account string
 	Details ListTransactionsResult

@@ -19,6 +19,7 @@ import (
 func solveBlock(
 	header *wire.BlockHeader, targetDifficulty *big.Int) bool {
 	// sbResult is used by the solver goroutines to send results.
+
 	type sbResult struct {
 		found bool
 		nonce uint32
@@ -40,6 +41,7 @@ func solveBlock(
 			default:
 				hdr.Nonce = i
 				hash := hdr.BlockHash()
+
 				if blockchain.HashToBig(&hash).Cmp(targetDifficulty) <= 0 {
 
 					select {
@@ -69,6 +71,7 @@ func solveBlock(
 
 		rangeStart := startNonce + (noncesPerCore * i)
 		rangeStop := startNonce + (noncesPerCore * (i + 1)) - 1
+
 		if i == numCores-1 {
 
 			rangeStop = stopNonce

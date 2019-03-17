@@ -13,7 +13,9 @@ import (
 
 // Error types to simplify the reporting of specific categories of
 // errors, and their *json.RPCError creation.
+
 type (
+
 	// DeserializationError describes a failed deserializaion due to bad
 	// user input.  It corresponds to json.ErrRPCDeserialization.
 	DeserializationError struct {

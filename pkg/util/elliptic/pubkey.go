@@ -166,6 +166,7 @@ func ParsePubKey(
 
 // PublicKey is an ecdsa.PublicKey with additional functions to
 // serialize in uncompressed, compressed, and hybrid formats.
+
 type PublicKey ecdsa.PublicKey
 
 // ToECDSA returns the public key as a *ecdsa.PublicKey.
@@ -197,6 +198,7 @@ func (p *PublicKey) SerializeCompressed() []byte {
 	if isOdd(p.Y) {
 
 		format |= 0x1
+
 	}
 	b = append(b, format)
 	return paddedAppend(32, b, p.X.Bytes())
@@ -213,6 +215,7 @@ func (p *PublicKey) SerializeHybrid() []byte {
 	if isOdd(p.Y) {
 
 		format |= 0x1
+
 	}
 	b = append(b, format)
 	b = paddedAppend(32, b, p.X.Bytes())

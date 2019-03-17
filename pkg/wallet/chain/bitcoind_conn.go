@@ -18,6 +18,7 @@ import (
 
 // BitcoindConn represents a persistent client connection to a bitcoind node
 // that listens for events read from a ZMQ connection.
+
 type BitcoindConn struct {
 	started int32 // To be used atomically.
 	stopped int32 // To be used atomically.

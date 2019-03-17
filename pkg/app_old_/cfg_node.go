@@ -345,6 +345,7 @@ func configNode(
 		case "testnet":
 
 			fork.IsTestnet = true
+
 			nc.TestNet3, nc.RegressionTest, nc.SimNet = true, false, false
 			NodeConfig.params = &node.TestNet3Params
 		case "regtest":

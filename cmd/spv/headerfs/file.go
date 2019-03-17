@@ -103,6 +103,7 @@ func (h *blockHeaderStore) readHeaderRange(startHeight uint32,
 		var nextHeader wire.BlockHeader
 
 		if err := nextHeader.Deserialize(headerReader); err != nil {
+
 			return nil, err
 		}
 

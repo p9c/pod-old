@@ -15,6 +15,7 @@ const MaxUserAgentLen = 256
 const DefaultUserAgent = "/btcwire:0.5.0/"
 
 // MsgVersion implements the Message interface and represents a bitcoin version message.  It is used for a peer to advertise itself as soon as an outbound connection is made.  The remote peer then uses this information along with its own to negotiate.  The remote peer must then respond with a version message of its own containing the negotiated values followed by a verack message (MsgVerAck).  This exchange must take place before any further communication is allowed to proceed.
+
 type MsgVersion struct {
 
 	// Version of the protocol the node is using.

@@ -10,6 +10,7 @@ import (
 )
 
 // OutOfRangeError describes an error due to accessing an element that is out of range.
+
 type OutOfRangeError string
 
 // BlockHeightUnknown is the value returned for a block height that is unknown. This is typically because the block has not been inserted into the main chain  yet.

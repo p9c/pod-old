@@ -112,6 +112,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ int }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrEmbeddedType},
@@ -122,6 +123,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ a int }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnexportedField},
@@ -132,6 +134,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A **int }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},
@@ -142,6 +145,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A chan int }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},
@@ -152,6 +156,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A complex64 }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},
@@ -162,6 +167,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A complex128 }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},
@@ -172,6 +178,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A func() }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},
@@ -182,6 +189,7 @@ func TestRegisterCmdErrors(
 			cmdFunc: func() interface{} {
 
 				type test struct{ A interface{} }
+
 				return (*test)(nil)
 			},
 			err: json.Error{ErrorCode: json.ErrUnsupportedFieldType},

@@ -35,6 +35,7 @@ type blockSubscription struct {
 }
 
 // messageType describes the type of blockMessage.
+
 type messageType int
 
 const (

@@ -162,6 +162,7 @@ func loadConfig() (*Config, []string, error) {
 
 
 
+
 	// Default config.
 
 	cfg := Config{
@@ -244,7 +245,11 @@ ListCommands()
 
 
 
+
+
 		if preCfg.Wallet != "" {
+
+
 
 
 serverConfigPath = filepath.Join(SPVHomeDir, "sac.conf")
@@ -263,7 +268,11 @@ serverConfigPath = filepath.Join(NodeHomeDir, "pod.conf")
 
 
 
+
+
 		if err != nil {
+
+
 
 
 fmt.Fprintf(os.Stderr, "Error creating a default config file: %v\n", err)

@@ -39,6 +39,7 @@ import (
 // order wallet created them, but there is no guaranteed synchronization between
 
 // different clients.
+
 type NotificationServer struct {
 	transactions   []chan *TransactionNotifications
 	currentTxNtfn  *TransactionNotifications // coalesce this since wallet does not add mined txs together
@@ -497,6 +498,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 // TODO: Because this includes stuff about blocks and can be fired without any
 
 // changes to transactions, it needs a better name.
+
 type TransactionNotifications struct {
 	AttachedBlocks           []Block
 	DetachedBlocks           []*chainhash.Hash
@@ -508,6 +510,7 @@ type TransactionNotifications struct {
 // Block contains the properties and all relevant transactions of an attached
 
 // block.
+
 type Block struct {
 	Hash         *chainhash.Hash
 	Height       int32
@@ -518,6 +521,7 @@ type Block struct {
 // TransactionSummary contains a transaction relevant to the wallet and marks
 
 // which inputs and outputs were relevant.
+
 type TransactionSummary struct {
 	Hash        *chainhash.Hash
 	Transaction []byte
@@ -534,6 +538,7 @@ type TransactionSummary struct {
 // (not included here).  The PreviousAccount and PreviousAmount fields describe
 
 // how much this input debits from a wallet account.
+
 type TransactionSummaryInput struct {
 	Index           uint32
 	PreviousAccount uint32
@@ -545,6 +550,7 @@ type TransactionSummaryInput struct {
 // controlled by the wallet.  The Index field marks the transaction output index
 
 // of the transaction (not included here).
+
 type TransactionSummaryOutput struct {
 	Index    uint32
 	Account  uint32
@@ -558,6 +564,7 @@ type TransactionSummaryOutput struct {
 // expensive logic and it is not clear which minimums a client is interested in,
 
 // so they are not included.
+
 type AccountBalance struct {
 	Account      uint32
 	TotalBalance util.Amount
@@ -566,6 +573,7 @@ type AccountBalance struct {
 // TransactionNotificationsClient receives TransactionNotifications from the
 
 // NotificationServer over the channel C.
+
 type TransactionNotificationsClient struct {
 	C      <-chan *TransactionNotifications
 	server *NotificationServer
@@ -640,6 +648,7 @@ func (c *TransactionNotificationsClient) Done() {
 // now spent.  When spent, the notification includes the spending transaction's
 
 // hash and input index.
+
 type SpentnessNotifications struct {
 	hash         *chainhash.Hash
 	spenderHash  *chainhash.Hash
@@ -722,6 +731,7 @@ func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint
 // SpentnessNotificationsClient receives SpentnessNotifications from the
 
 // NotificationServer over the channel C.
+
 type SpentnessNotificationsClient struct {
 	C       <-chan *SpentnessNotifications
 	account uint32
@@ -786,6 +796,7 @@ func (c *SpentnessNotificationsClient) Done() {
 // name and the number of derived and imported keys.  When any of these
 
 // properties change, the notification is fired.
+
 type AccountNotification struct {
 	AccountNumber    uint32
 	AccountName      string
@@ -819,6 +830,7 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 }
 
 // AccountNotificationsClient receives AccountNotifications over the channel C.
+
 type AccountNotificationsClient struct {
 	C      chan *AccountNotification
 	server *NotificationServer

@@ -40,14 +40,17 @@ const (
 // OutBailmentID is the unique ID of a user's outbailment, comprising the
 // name of the server the user connected to, and the transaction number,
 // internal to that server.
+
 type OutBailmentID string
 
 // Ntxid is the normalized ID of a given bitcoin transaction, which is generated
 // by hashing the serialized tx with blank sig scripts on all inputs.
+
 type Ntxid string
 
 // OutputRequest represents one of the outputs (address/amount) requested by a
 // withdrawal, and includes information about the user's outbailment request.
+
 type OutputRequest struct {
 	Address  util.Address
 	Amount   util.Amount
@@ -66,6 +69,7 @@ type OutputRequest struct {
 }
 
 // WithdrawalOutput represents a possibly fulfilled OutputRequest.
+
 type WithdrawalOutput struct {
 	request OutputRequest
 	status  outputStatus
@@ -77,6 +81,7 @@ type WithdrawalOutput struct {
 }
 
 // OutBailmentOutpoint represents one of the outpoints created to fulfill an OutputRequest.
+
 type OutBailmentOutpoint struct {
 	ntxid  Ntxid
 	index  uint32
@@ -85,6 +90,7 @@ type OutBailmentOutpoint struct {
 
 // changeAwareTx is just a wrapper around wire.MsgTx that knows about its change
 // output, if any.
+
 type changeAwareTx struct {
 	*wire.MsgTx
 	changeIdx int32 // -1 if there's no change output.
@@ -93,6 +99,7 @@ type changeAwareTx struct {
 // WithdrawalStatus contains the details of a processed withdrawal, including
 // the status of each requested output, the total amount of network fees and the
 // next input and change addresses to use in a subsequent withdrawal request.
+
 type WithdrawalStatus struct {
 	nextInputAddr  WithdrawalAddress
 	nextChangeAddr ChangeAddress
@@ -105,6 +112,7 @@ type WithdrawalStatus struct {
 // withdrawalInfo contains all the details of an existing withdrawal, including
 // the original request parameters and the WithdrawalStatus returned by
 // StartWithdrawal.
+
 type withdrawalInfo struct {
 	requests      []OutputRequest
 	startAddress  WithdrawalAddress
@@ -118,14 +126,17 @@ type withdrawalInfo struct {
 // script) for a given transaction input. They should match the order of pubkeys
 // in the script and an empty RawSig should be used when the private key for a
 // pubkey is not known.
+
 type TxSigs [][]RawSig
 
 // RawSig represents one of the signatures included in the unlocking script of
 // inputs spending from P2SH UTXOs.
+
 type RawSig []byte
 
 // byAmount defines the methods needed to satisify sort.Interface to
 // sort a slice of OutputRequests by their amount.
+
 type byAmount []OutputRequest
 
 func (u byAmount) Len() int           { return len(u) }
@@ -134,6 +145,7 @@ func (u byAmount) Swap(i, j int)      { u[i], u[j] = u[j], u[i] }
 
 // byOutBailmentID defines the methods needed to satisify sort.Interface to sort
 // a slice of OutputRequests by their outBailmentIDHash.
+
 type byOutBailmentID []OutputRequest
 
 func (s byOutBailmentID) Len() int { return len(s) }
@@ -280,6 +292,7 @@ func (o OutBailmentOutpoint) Amount() util.Amount {
 }
 
 // withdrawal holds all the state needed for Pool.Withdrawal() to do its job.
+
 type withdrawal struct {
 	roundID         uint32
 	status          *WithdrawalStatus
@@ -299,6 +312,7 @@ type withdrawal struct {
 // withdrawalTxOut wraps an OutputRequest and provides a separate amount field.
 // It is necessary because some requests may be partially fulfilled or split
 // across transactions.
+
 type withdrawalTxOut struct {
 
 	// Notice that in the case of a split output, the OutputRequest here will
@@ -326,6 +340,7 @@ func (o *withdrawalTxOut) pkScript() []byte {
 }
 
 // withdrawalTx represents a transaction constructed by the withdrawal process.
+
 type withdrawalTx struct {
 	inputs  []credit
 	outputs []*withdrawalTxOut

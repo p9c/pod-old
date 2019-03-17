@@ -9,10 +9,12 @@ import (
 )
 
 // elementMap is an alias for a map from a generic interface to a list.Element.
+
 type elementMap map[interface{}]*list.Element
 
 // entry represents a (key,value) pair entry in the Cache. The Cache's list
 // stores entries which let us get the cache key when an entry is evicted.
+
 type entry struct {
 	key   interface{}
 	value cache.Value
@@ -20,7 +22,9 @@ type entry struct {
 
 // Cache provides a generic thread-safe lru cache that can be used for
 // storing filters, blocks, etc.
+
 type Cache struct {
+
 	// capacity represents how much this cache can hold. It could be number
 	// of elements or a number of bytes, decided by the cache.Value's Size.
 	capacity uint64
@@ -54,6 +58,7 @@ func NewCache(
 // evict will evict as many elements as necessary to make enough space for a new
 // element with size needed to be inserted.
 func (c *Cache) evict(needed uint64) error {
+
 	if needed > c.capacity {
 		return fmt.Errorf("can't evict %v elements in size, since"+
 			"capacity is %v", needed, c.capacity)
@@ -61,7 +66,9 @@ func (c *Cache) evict(needed uint64) error {
 
 	for c.capacity-c.size < needed {
 		// We still need to evict some more elements.
+
 		if c.ll.Len() == 0 {
+
 			// We should never reach here.
 			return fmt.Errorf("all elements got evicted, yet "+
 				"still need to evict %v, likelihood of error "+
@@ -70,11 +77,15 @@ func (c *Cache) evict(needed uint64) error {
 		}
 
 		// Find the least recently used item.
+
 		if elr := c.ll.Back(); elr != nil {
+
 			// Determine lru item's size.
 			ce := elr.Value.(*entry)
 			es, err := ce.value.Size()
+
 			if err != nil {
+
 				return fmt.Errorf("couldn't determine size of "+
 					"existing cache value %v", err)
 			}
@@ -95,6 +106,7 @@ func (c *Cache) evict(needed uint64) error {
 // Put inserts a given (key,value) pair into the cache, if the key already
 // exists, it will replace value and update it to be most recent item in cache.
 func (c *Cache) Put(key interface{}, value cache.Value) error {
+
 	vs, err := value.Size()
 	if err != nil {
 		return fmt.Errorf("couldn't determine size of cache value: %v",
@@ -113,7 +125,9 @@ func (c *Cache) Put(key interface{}, value cache.Value) error {
 	el, ok := c.cache[key]
 	if ok {
 		es, err := el.Value.(*entry).value.Size()
+
 		if err != nil {
+
 			return fmt.Errorf("couldn't determine size of existing"+
 				"cache value %v", err)
 		}
@@ -157,6 +171,7 @@ func (c *Cache) Get(key interface{}) (cache.Value, error) {
 
 // Len returns number of elements in the cache.
 func (c *Cache) Len() int {
+
 	c.mtx.RLock()
 	defer c.mtx.RUnlock()
 

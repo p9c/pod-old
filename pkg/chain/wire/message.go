@@ -53,6 +53,7 @@ const (
 )
 
 // MessageEncoding represents the wire message encoding format to be used.
+
 type MessageEncoding uint32
 
 const (
@@ -74,6 +75,7 @@ const (
 var LatestEncoding = WitnessEncoding
 
 // Message is an interface that describes a bitcoin message.  A type that implements Message has complete control over the representation of its data and may therefore contain additional or fewer fields than those which are used directly in the protocol encoded message.
+
 type Message interface {
 	BtcDecode(io.Reader, uint32, MessageEncoding) error
 	BtcEncode(io.Writer, uint32, MessageEncoding) error
@@ -154,6 +156,7 @@ func makeEmptyMessage(
 }
 
 // messageHeader defines the header structure for all bitcoin protocol messages.
+
 type messageHeader struct {
 	magic    BitcoinNet // 4 bytes
 	command  string     // 12 bytes

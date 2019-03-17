@@ -136,6 +136,7 @@ func TestBlockHeaderStoreOperations(
 		dbHeader, err := bhs.FetchHeaderByHeight(header.Height)
 
 		if err != nil {
+
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
 
@@ -150,6 +151,7 @@ func TestBlockHeaderStoreOperations(
 		dbHeader, _, err = bhs.FetchHeader(&blockHash)
 
 		if err != nil {
+
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
 
@@ -238,6 +240,7 @@ func TestBlockHeaderStoreRecovery(
 		newTip := blockHeaders[len(blockHeaders)-i-1].PrevBlock
 
 		if err := bhs.truncateIndex(&newTip, true); err != nil {
+
 			t.Fatalf("unable to truncate index: %v", err)
 		}
 
@@ -350,11 +353,13 @@ func TestFilterHeaderStoreOperations(
 		rootBucket := tx.ReadWriteBucket(indexBucket)
 
 		for _, header := range blockHeaders {
+
 			var heightBytes [4]byte
 			binary.BigEndian.PutUint32(heightBytes[:], header.Height)
 			err := rootBucket.Put(header.HeaderHash[:], heightBytes[:])
 
 			if err != nil {
+
 				return err
 			}
 
@@ -399,6 +404,7 @@ func TestFilterHeaderStoreOperations(
 		dbHeader, err := fhs.FetchHeaderByHeight(header.Height)
 
 		if err != nil {
+
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
 
@@ -413,6 +419,7 @@ func TestFilterHeaderStoreOperations(
 		dbHeader, err = fhs.FetchHeader(&blockHash)
 
 		if err != nil {
+
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
 
@@ -493,11 +500,13 @@ func TestFilterHeaderStoreRecovery(
 		rootBucket := tx.ReadWriteBucket(indexBucket)
 
 		for _, header := range blockHeaders {
+
 			var heightBytes [4]byte
 			binary.BigEndian.PutUint32(heightBytes[:], header.Height)
 			err := rootBucket.Put(header.HeaderHash[:], heightBytes[:])
 
 			if err != nil {
+
 				return err
 			}
 
@@ -522,6 +531,7 @@ func TestFilterHeaderStoreRecovery(
 		newTip := blockHeaders[len(blockHeaders)-i-2].HeaderHash
 
 		if err := fhs.truncateIndex(&newTip, true); err != nil {
+
 			t.Fatalf("unable to truncate index: %v", err)
 		}
 

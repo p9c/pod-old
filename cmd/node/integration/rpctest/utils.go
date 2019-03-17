@@ -9,6 +9,7 @@ import (
 )
 
 // JoinType is an enum representing a particular type of "node join". A node join is a synchronization tool used to wait until a subset of nodes have a consistent state with respect to an attribute.
+
 type JoinType uint8
 
 const (
@@ -39,16 +40,22 @@ retry:
 
 	for !poolsMatch {
 		firstPool, err := nodes[0].Node.GetRawMempool()
+
 		if err != nil {
+
 			return err
 		}
 		// If all nodes have an identical mempool with respect to the first node, then we're done. Otherwise, drop back to the top of the loop and retry after a short wait period.
 
 		for _, node := range nodes[1:] {
+
 			nodePool, err := node.Node.GetRawMempool()
+
 			if err != nil {
+
 				return err
 			}
+
 			if !reflect.DeepEqual(firstPool, nodePool) {
 
 				time.Sleep(time.Millisecond * 100)
@@ -71,11 +78,16 @@ retry:
 		var prevHeight int32
 
 		for _, node := range nodes {
+
 			blockHash, blockHeight, err := node.Node.GetBestBlock()
+
 			if err != nil {
+
 				return err
 			}
+
 			if prevHash != nil && (*blockHash != *prevHash ||
+
 				blockHeight != prevHeight) {
 
 				time.Sleep(time.Millisecond * 100)
@@ -108,7 +120,9 @@ func ConnectNode(
 
 	for len(peerInfo) <= numPeers {
 		peerInfo, err = from.Node.GetPeerInfo()
+
 		if err != nil {
+
 			return err
 		}
 	}
@@ -117,11 +131,14 @@ func ConnectNode(
 
 // TearDownAll tears down all active test harnesses.
 func TearDownAll() error {
+
 	harnessStateMtx.Lock()
 	defer harnessStateMtx.Unlock()
 
 	for _, harness := range testInstances {
+
 		if err := harness.tearDown(); err != nil {
+
 			return err
 		}
 	}
@@ -130,6 +147,7 @@ func TearDownAll() error {
 
 // ActiveHarnesses returns a slice of all currently active test harnesses. A test harness if considered "active" if it has been created, but not yet torn down.
 func ActiveHarnesses() []*Harness {
+
 	harnessStateMtx.RLock()
 	defer harnessStateMtx.RUnlock()
 	activeNodes := make([]*Harness, 0, len(testInstances))

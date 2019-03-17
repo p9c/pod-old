@@ -11,6 +11,7 @@ import (
 type VPages map[string]string
 
 type aPP map[string][]byte
+
 type jSL map[string][]byte
 
 type vJS map[string][]byte

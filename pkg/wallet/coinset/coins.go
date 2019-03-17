@@ -11,6 +11,7 @@ import (
 )
 
 // Coin represents a spendable transaction outpoint
+
 type Coin interface {
 	Hash() *chainhash.Hash
 	Index() uint32
@@ -21,11 +22,13 @@ type Coin interface {
 }
 
 // Coins represents a set of Coins
+
 type Coins interface {
 	Coins() []Coin
 }
 
 // CoinSet is a utility struct for the modifications of a set of Coins that implements the Coins interface.  To create a CoinSet, you must call NewCoinSet with nil for an empty set or a slice of coins as the initial contents. It is important to note that the all the Coins being added or removed from a CoinSet must have a constant ValueAge() during the use of the CoinSet, otherwise the cached values will be incorrect.
+
 type CoinSet struct {
 	coinList      *list.List
 	totalValue    util.Amount
@@ -161,11 +164,13 @@ func satisfiesTargetValue(
 
 // CoinSelector is an interface that wraps the CoinSelect method. CoinSelect will attempt to select a subset of the coins which has at least the targetValue amount.  CoinSelect is not guaranteed to return a selection of coins even if the total value of coins given is greater than the target value.
 // The exact choice of coins in the subset will be implementation specific. It is important to note that the Coins being used as inputs need to have a constant ValueAge() during the execution of CoinSelect.
+
 type CoinSelector interface {
 	CoinSelect(targetValue util.Amount, coins []Coin) (Coins, error)
 }
 
 // MinIndexCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue and prefers any number of lower indexes (as in the ordered array) over higher ones.
+
 type MinIndexCoinSelector struct {
 	MaxInputs       int
 	MinChangeAmount util.Amount
@@ -189,6 +194,7 @@ func (s MinIndexCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin) 
 }
 
 // MinNumberCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue that uses as few of the inputs as possible.
+
 type MinNumberCoinSelector struct {
 	MaxInputs       int
 	MinChangeAmount util.Amount
@@ -204,6 +210,7 @@ func (s MinNumberCoinSelector) CoinSelect(targetValue util.Amount, coins []Coin)
 }
 
 // MaxValueAgeCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue that has as much input value-age as possible. This would be useful in the case where you want to maximize likelihood of the inclusion of your transaction in the next mined block.
+
 type MaxValueAgeCoinSelector struct {
 	MaxInputs       int
 	MinChangeAmount util.Amount
@@ -219,6 +226,7 @@ func (s MaxValueAgeCoinSelector) CoinSelect(targetValue util.Amount, coins []Coi
 }
 
 // MinPriorityCoinSelector is a CoinSelector that attempts to construct a selection of coins whose total value is at least targetValue and whose average value-age per input is greater than MinAvgValueAgePerInput. If there is change, it must exceed MinChangeAmount to be a valid selection. When possible, MinPriorityCoinSelector will attempt to reduce the average input priority over the threshold, but no guarantees will be made as to minimality of the selection.  The selection below is almost certainly suboptimal.
+
 type MinPriorityCoinSelector struct {
 	MaxInputs              int
 	MinChangeAmount        util.Amount
@@ -337,6 +345,7 @@ func (a byAmount) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byAmount) Less(i, j int) bool { return a[i].Value() < a[j].Value() }
 
 // SimpleCoin defines a concrete instance of Coin that is backed by a util.Tx, a specific outpoint index, and the number of confirmations that transaction has had.
+
 type SimpleCoin struct {
 	Tx         *util.Tx
 	TxIndex    uint32

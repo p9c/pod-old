@@ -57,9 +57,11 @@ func confirms(
 // or any of the above special error classes, the server will respond with
 // the JSON-RPC appropiate error code.  All other errors use the wallet
 // catch-all error code, json.ErrRPCWallet.
+
 type requestHandler func(interface{}, *wallet.Wallet) (interface{}, error)
 
 // requestHandlerChain is a requestHandler that also takes a parameter for
+
 type requestHandlerChainRequired func(interface{}, *wallet.Wallet, *chain.RPCClient) (interface{}, error)
 
 var rpcHandlers = map[string]struct {
@@ -167,6 +169,7 @@ func unsupported(
 // lazyHandler is a closure over a requestHandler or passthrough request with
 // the RPC server's wallet and chain server variables as part of the closure
 // context.
+
 type lazyHandler func() (interface{}, *json.RPCError)
 
 // lazyApplyHandler looks up the best request handler func for the method,
@@ -1381,6 +1384,7 @@ func listReceivedByAddress(
 	cmd := icmd.(*json.ListReceivedByAddressCmd)
 
 	// Intermediate data for each address.
+
 	type AddrData struct {
 
 		// Total amount received.

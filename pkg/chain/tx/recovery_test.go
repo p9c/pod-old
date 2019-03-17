@@ -12,6 +12,7 @@ import (
 // used, provides access to the test object, and tracks the expected horizon
 
 // and next unfound values.
+
 type Harness struct {
 	t              *testing.T
 	brs            *wallet.BranchRecoveryState

@@ -204,6 +204,7 @@ func TestDepositScriptAddress(
 	for i, test := range tests {
 
 		if err := pool.CreateSeries(ns, test.version, test.series,
+
 			test.reqSigs, test.pubKeys); err != nil {
 
 			t.Fatalf("Cannot creates series %v", test.series)
@@ -683,6 +684,7 @@ func TestReplaceExistingSeries(
 		}
 
 		if err := pool.ReplaceSeries(ns, data.replaceWith.version, seriesID,
+
 			data.replaceWith.reqSigs, data.replaceWith.pubKeys); err != nil {
 
 			t.Errorf("Test #%d: replaceSeries failed: %v", testID, err)

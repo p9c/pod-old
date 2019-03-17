@@ -47,6 +47,7 @@ type GetUtxoRequest struct {
 // the least starting height. This allows us to add new GetUtxo requests to
 
 // an already running batch.
+
 type GetUtxoRequestPQ []*GetUtxoRequest
 
 // UtxoScanner batches calls to GetUtxo so that a single scan can search for

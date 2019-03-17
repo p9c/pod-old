@@ -35,6 +35,7 @@ const (
 )
 
 // ScriptClass is an enumeration for the list of standard types of script.
+
 type ScriptClass byte
 
 // Classes of script payment known about in the blockchain.
@@ -127,6 +128,7 @@ func isMultiSig(
 	for _, pop := range pops[1 : l-2] {
 
 		// Valid pubkeys are either 33 or 65 bytes.
+
 		if len(pop.data) != 33 && len(pop.data) != 65 {
 
 			return false
@@ -222,6 +224,7 @@ func expectedInputs(
 }
 
 // ScriptInfo houses information about a script pair that is determined by CalcScriptInfo.
+
 type ScriptInfo struct {
 
 	// PkScriptClass is the class of the public key script and is equivalent to calling GetScriptClass on it.
@@ -272,11 +275,13 @@ func CalcScriptInfo(
 		// The pay-to-hash-script is the final data push of the signature script.
 		script := sigPops[len(sigPops)-1].data
 		shPops, err := parseScript(script)
+
 		if err != nil {
 
 			return nil, err
 		}
 		shInputs := expectedInputs(shPops, typeOfScript(shPops))
+
 		if shInputs == -1 {
 
 			si.ExpectedInputs = -1
@@ -299,6 +304,7 @@ func CalcScriptInfo(
 		// Extract the pushed witness program from the sigScript so we can determine the number of expected inputs.
 		pkPops, _ := parseScript(sigScript[1:])
 		shInputs := expectedInputs(pkPops, typeOfScript(pkPops))
+
 		if shInputs == -1 {
 
 			si.ExpectedInputs = -1
@@ -316,6 +322,7 @@ func CalcScriptInfo(
 		witnessScript := witness[len(witness)-1]
 		pops, _ := parseScript(witnessScript)
 		shInputs := expectedInputs(pops, typeOfScript(pops))
+
 		if shInputs == -1 {
 
 			si.ExpectedInputs = -1
@@ -402,6 +409,7 @@ func PayToAddrScript(
 	switch addr := addr.(type) {
 
 	case *util.AddressPubKeyHash:
+
 		if addr == nil {
 
 			return nil, scriptError(ErrUnsupportedAddress,
@@ -409,6 +417,7 @@ func PayToAddrScript(
 		}
 		return payToPubKeyHashScript(addr.ScriptAddress())
 	case *util.AddressScriptHash:
+
 		if addr == nil {
 
 			return nil, scriptError(ErrUnsupportedAddress,
@@ -416,6 +425,7 @@ func PayToAddrScript(
 		}
 		return payToScriptHashScript(addr.ScriptAddress())
 	case *util.AddressPubKey:
+
 		if addr == nil {
 
 			return nil, scriptError(ErrUnsupportedAddress,
@@ -423,6 +433,7 @@ func PayToAddrScript(
 		}
 		return payToPubKeyScript(addr.ScriptAddress())
 	case *util.AddressWitnessPubKeyHash:
+
 		if addr == nil {
 
 			return nil, scriptError(ErrUnsupportedAddress,
@@ -430,6 +441,7 @@ func PayToAddrScript(
 		}
 		return payToWitnessPubKeyHashScript(addr.ScriptAddress())
 	case *util.AddressWitnessScriptHash:
+
 		if addr == nil {
 
 			return nil, scriptError(ErrUnsupportedAddress,
@@ -523,6 +535,7 @@ func ExtractPkScriptAddrs(
 		requiredSigs = 1
 		addr, err := util.NewAddressPubKeyHash(pops[2].data,
 			chainParams)
+
 		if err == nil {
 
 			addrs = append(addrs, addr)
@@ -532,6 +545,7 @@ func ExtractPkScriptAddrs(
 		requiredSigs = 1
 		addr, err := util.NewAddressWitnessPubKeyHash(pops[1].data,
 			chainParams)
+
 		if err == nil {
 
 			addrs = append(addrs, addr)
@@ -540,6 +554,7 @@ func ExtractPkScriptAddrs(
 		// A pay-to-pubkey script is of the form:  <pubkey> OP_CHECKSIG Therefore the pubkey is the first item on the stack. Skip the pubkey if it's invalid for some reason.
 		requiredSigs = 1
 		addr, err := util.NewAddressPubKey(pops[0].data, chainParams)
+
 		if err == nil {
 
 			addrs = append(addrs, addr)
@@ -549,6 +564,7 @@ func ExtractPkScriptAddrs(
 		requiredSigs = 1
 		addr, err := util.NewAddressScriptHashFromHash(pops[1].data,
 			chainParams)
+
 		if err == nil {
 
 			addrs = append(addrs, addr)
@@ -558,6 +574,7 @@ func ExtractPkScriptAddrs(
 		requiredSigs = 1
 		addr, err := util.NewAddressWitnessScriptHash(pops[1].data,
 			chainParams)
+
 		if err == nil {
 
 			addrs = append(addrs, addr)
@@ -573,6 +590,7 @@ func ExtractPkScriptAddrs(
 
 			addr, err := util.NewAddressPubKey(pops[i+1].data,
 				chainParams)
+
 			if err == nil {
 
 				addrs = append(addrs, addr)
@@ -587,6 +605,7 @@ func ExtractPkScriptAddrs(
 }
 
 // AtomicSwapDataPushes houses the data pushes found in atomic swap contracts.
+
 type AtomicSwapDataPushes struct {
 	RecipientHash160 [20]byte
 	RefundHash160    [20]byte
@@ -641,6 +660,7 @@ func ExtractAtomicSwapDataPushes(
 	if pops[2].data != nil {
 
 		locktime, err := makeScriptNum(pops[2].data, true, 5)
+
 		if err != nil {
 
 			return nil, nil
@@ -656,6 +676,7 @@ func ExtractAtomicSwapDataPushes(
 	if pops[11].data != nil {
 
 		locktime, err := makeScriptNum(pops[11].data, true, 5)
+
 		if err != nil {
 
 			return nil, nil

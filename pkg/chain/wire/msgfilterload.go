@@ -6,6 +6,7 @@ import (
 )
 
 // BloomUpdateType specifies how the filter is updated when a match is found
+
 type BloomUpdateType uint8
 
 const (
@@ -29,6 +30,7 @@ const (
 )
 
 // MsgFilterLoad implements the Message interface and represents a bitcoin filterload message which is used to reset a Bloom filter. This message was not added until protocol version BIP0037Version.
+
 type MsgFilterLoad struct {
 	Filter    []byte
 	HashFuncs uint32

@@ -7,6 +7,7 @@ package wtxmgr
 import "fmt"
 
 // ErrorCode identifies a category of error.
+
 type ErrorCode uint8
 
 // These constants are used to identify a specific Error.
@@ -91,6 +92,7 @@ func (e ErrorCode) String() string {
 // Error provides a single type for errors that can happen during Store
 
 // operation.
+
 type Error struct {
 	Code ErrorCode // Describes the kind of error
 	Desc string    // Human readable description of the issue

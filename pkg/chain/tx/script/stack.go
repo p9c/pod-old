@@ -14,6 +14,7 @@ func asBool(
 		if t[i] != 0 {
 
 			// Negative 0 is also considered false.
+
 			if i == len(t)-1 && t[i] == 0x80 {
 
 				return false
@@ -36,6 +37,7 @@ func fromBool(
 }
 
 // stack represents a stack of immutable objects to be used with bitcoin scripts.  Objects may be shared, therefore in usage if a value is to be changed it *must* be deep-copied first to avoid changing other values on the stack.
+
 type stack struct {
 	stk               [][]byte
 	verifyMinimalData bool
@@ -210,6 +212,7 @@ func (s *stack) DropN(n int32) error {
 	for ; n > 0; n-- {
 
 		_, err := s.PopByteArray()
+
 		if err != nil {
 
 			return err
@@ -235,6 +238,7 @@ func (s *stack) DupN(n int32) error {
 	for i := n; i > 0; i-- {
 
 		so, err := s.PeekByteArray(n - 1)
+
 		if err != nil {
 
 			return err
@@ -262,6 +266,7 @@ func (s *stack) RotN(n int32) error {
 	for i := n; i > 0; i-- {
 
 		so, err := s.nipN(entry)
+
 		if err != nil {
 
 			return err
@@ -288,6 +293,7 @@ func (s *stack) SwapN(n int32) error {
 
 		// Swap 2n-1th entry to top.
 		so, err := s.nipN(entry)
+
 		if err != nil {
 
 			return err
@@ -316,6 +322,7 @@ func (s *stack) OverN(n int32) error {
 	for ; n > 0; n-- {
 
 		so, err := s.PeekByteArray(entry)
+
 		if err != nil {
 
 			return err

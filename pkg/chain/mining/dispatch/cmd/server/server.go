@@ -43,6 +43,7 @@ func serverConnect(
 
 			returnAddr := clientsMap[originAddr]
 			time.Sleep(heartbeat)
+
 			if i == returnAddr {
 
 				fmt.Println("ping", conn.Addr)
@@ -157,6 +158,7 @@ func handleServerPacket(
 
 	case str[:9] == "subscribe":
 		addr := string(str[10:])
+
 		if _, ok := clients[addr]; ok {
 
 			// conn.Disconnect([]byte("already subscribed"))

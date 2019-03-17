@@ -22,6 +22,7 @@ import (
 // byAmount defines the methods needed to satisify sort.Interface to
 
 // sort credits by their output amount.
+
 type byAmount []wtxmgr.Credit
 
 func (s byAmount) Len() int           { return len(s) }
@@ -64,6 +65,7 @@ func makeInputSource(
 // secretSource is an implementation of txauthor.SecretSource for the wallet's
 
 // address manager.
+
 type secretSource struct {
 	*waddrmgr.Manager
 	addrmgrNs walletdb.ReadBucket

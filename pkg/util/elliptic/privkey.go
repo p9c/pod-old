@@ -10,6 +10,7 @@ import (
 // PrivateKey wraps an ecdsa.PrivateKey as a convenience mainly for signing
 // things with the the private key without having to directly import the ecdsa
 // package.
+
 type PrivateKey ecdsa.PrivateKey
 
 // PrivKeyFromBytes returns a private and public key for `curve' based on the

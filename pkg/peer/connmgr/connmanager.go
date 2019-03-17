@@ -30,6 +30,7 @@ var defaultRetryDuration = time.Second * 9
 var defaultTargetOutbound = uint32(18)
 
 // ConnState represents the state of the requested connection.
+
 type ConnState uint8
 
 // ConnState can be either pending, established, disconnected or failed.  When a new connection is requested, it is attempted and categorized as established or failed depending on the connection result.  An established connection which was disconnected is categorized as disconnected.
@@ -42,6 +43,7 @@ const (
 )
 
 // ConnReq is the connection request to a network address. If permanent, the connection will be retried on disconnection.
+
 type ConnReq struct {
 
 	// The following variables must only be used atomically.
@@ -88,6 +90,7 @@ func (c *ConnReq) String() string {
 }
 
 // Config holds the configuration options related to the connection manager.
+
 type Config struct {
 
 	// Listeners defines a slice of listeners for which the connection manager will take ownership of and accept connections.  When a connection is accepted, the OnAccept handler will be invoked with the connection.  Since the connection manager takes ownership of these listeners, they will be closed when the connection manager is stopped.
@@ -124,30 +127,35 @@ type Config struct {
 }
 
 // registerPending is used to register a pending connection attempt. By registering pending connection attempts we allow callers to cancel pending connection attempts before their successful or in the case they're not longer wanted.
+
 type registerPending struct {
 	c    *ConnReq
 	done chan struct{}
 }
 
 // handleConnected is used to queue a successful connection.
+
 type handleConnected struct {
 	c    *ConnReq
 	conn net.Conn
 }
 
 // handleDisconnected is used to remove a connection.
+
 type handleDisconnected struct {
 	id    uint64
 	retry bool
 }
 
 // handleFailed is used to remove a pending connection.
+
 type handleFailed struct {
 	c   *ConnReq
 	err error
 }
 
 // ConnManager provides a manager to handle network connections.
+
 type ConnManager struct {
 
 	// The following variables must only be used atomically.
@@ -314,6 +322,7 @@ out:
 				// Otherwise, we will attempt a reconnection if we do not have enough peers, or if this is a persistent peer. The connection request is re added to the pending map, so that subsequent processing of connections and failures do not ignore the request.
 
 				if uint32(len(conns)) < cm.cfg.TargetOutbound ||
+
 					connReq.Permanent {
 
 					connReq.updateState(ConnPending)

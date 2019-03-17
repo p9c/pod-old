@@ -50,6 +50,7 @@ func convertErr(
 // transaction represents a database transaction.  It can either by read-only or
 // read-write and implements the walletdb Tx interfaces.  The transaction
 // provides a root bucket against which all read and writes occur.
+
 type transaction struct {
 	boltTx *bolt.Tx
 }
@@ -112,6 +113,7 @@ func (tx *transaction) Rollback() error {
 
 // bucket is an internal type used to represent a collection of key/value pairs
 // and implements the walletdb Bucket interfaces.
+
 type bucket bolt.Bucket
 
 // Enforce bucket implements the walletdb Bucket interfaces.
@@ -250,6 +252,7 @@ func (b *bucket) ReadWriteCursor() walletdb.ReadWriteCursor {
 // modifications to the bucket, with the exception of cursor.Delete, invalidate
 // the cursor. After invalidation, the cursor must be repositioned, or the keys
 // and values returned may be unpredictable.
+
 type cursor bolt.Cursor
 
 // Delete removes the current key/value pair the cursor is at without
@@ -307,6 +310,7 @@ func (c *cursor) Seek(seek []byte) (key, value []byte) {
 // db represents a collection of namespaces which are persisted and implements
 // the walletdb.Db interface.  All database access is performed through
 // transactions which are obtained through the specific Namespace.
+
 type db bolt.DB
 
 // Enforce db implements the walletdb.Db interface.

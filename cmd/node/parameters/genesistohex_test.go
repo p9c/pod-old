@@ -40,6 +40,7 @@ func printGoHexes(
 	for i := range in {
 
 		if i%8 == 0 && i != 0 {
+
 			fmt.Println()
 			fmt.Print("\t")
 		}

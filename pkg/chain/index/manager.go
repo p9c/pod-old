@@ -120,6 +120,7 @@ func dbIndexDisconnectBlock(
 }
 
 // Manager defines an index manager that manages multiple optional indexes and implements the blockchain.IndexManager interface so it can be seamlessly plugged into normal chain processing.
+
 type Manager struct {
 	db             database.DB
 	enabledIndexes []Indexer
@@ -689,6 +690,7 @@ func dropIndex(
 				cursor := subBucket.Cursor()
 
 				for ok := cursor.First(); ok; ok = cursor.Next() &&
+
 					numDeleted < maxDeletions {
 
 					if err := cursor.Delete(); err != nil {

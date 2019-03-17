@@ -21,6 +21,7 @@ import (
 )
 
 // NeutrinoClient is an implementation of the btcwalet chain.Interface interface.
+
 type NeutrinoClient struct {
 	CS *sac.ChainService
 

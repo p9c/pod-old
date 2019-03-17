@@ -18,6 +18,7 @@ import (
 // RecoveryManager maintains the state required to recover previously used
 
 // addresses, and coordinates batched processing of the blocks to search.
+
 type RecoveryManager struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when
@@ -268,6 +269,7 @@ func (rm *RecoveryManager) State() *RecoveryState {
 //       of the first address used in any block and the last address used in the
 
 //       same block.
+
 type RecoveryState struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when
@@ -352,6 +354,7 @@ func (rs *RecoveryState) AddWatchedOutPoint(outPoint *wire.OutPoint,
 // under a particular BIP32 account. Each account tracks both an external and
 
 // internal branch recovery state, both of which use the same recovery window.
+
 type ScopeRecoveryState struct {
 
 	// ExternalBranch is the recovery state of addresses generated for
@@ -398,6 +401,7 @@ func NewScopeRecoveryState(
 //  - Retrieving all currently derived addresses for the branch.
 
 //  - Looking up a particular address by its child index.
+
 type BranchRecoveryState struct {
 
 	// recoveryWindow defines the key-derivation lookahead used when

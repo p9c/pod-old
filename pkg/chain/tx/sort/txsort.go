@@ -46,6 +46,7 @@ func IsSorted(
 }
 
 type sortableInputSlice []*wire.TxIn
+
 type sortableOutputSlice []*wire.TxOut
 
 // For SortableInputSlice and SortableOutputSlice, three functions are needed to make it sortable with sort.Sort() -- Len, Less, and Swap Len and Swap are trivial.  Less is BIP 69 specific.

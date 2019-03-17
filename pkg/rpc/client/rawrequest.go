@@ -8,6 +8,7 @@ import (
 )
 
 // FutureRawResult is a future promise to deliver the result of a RawRequest RPC invocation (or an applicable error).
+
 type FutureRawResult chan *response
 
 // Receive waits for the response promised by the future and returns the raw response, or an error if the request was unsuccessful.

@@ -44,6 +44,7 @@ func (b *BlockIdentity) None() bool {
 // OutputKind describes a kind of transaction output.  This is used to
 
 // differentiate between coinbase, stakebase, and normal outputs.
+
 type OutputKind byte
 
 // Defined OutputKind constants
