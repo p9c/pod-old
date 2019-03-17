@@ -21,10 +21,13 @@ func GetFlags(
 			len(usage) < 2 {
 			out[cmd.Flags[i].Name] = ""
 		}
+
 		if len(usage) > 1 {
 			u := usage[1][1 : len(usage)-2]
 			out[cmd.Flags[i].Name] = u
 		}
+
 	}
+
 	return
 }

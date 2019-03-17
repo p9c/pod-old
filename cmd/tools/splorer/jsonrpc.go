@@ -26,6 +26,7 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
+
 	req.SetBasicAuth(c.User, c.Password)
 	req.Header.Add("Content-Type", "text/plain")
 	args := make(map[string]interface{})
@@ -38,12 +39,14 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+
 	req.Body = ioutil.NopCloser(strings.NewReader(string(j)))
 	req.ContentLength = int64(len(string(j)))
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
+
 	defer resp.Body.Close()
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	var data map[string]interface{}
@@ -52,9 +55,11 @@ func (c *JSONRPC) Call(method string, params interface{}) (interface{}, error) {
 		str, _ := json.Marshal(err)
 		return nil, errors.New(string(str))
 	}
+
 	if result, found := data["result"]; found {
 		return result, nil
 	}
+
 	return nil, errors.New("no result")
 }
 

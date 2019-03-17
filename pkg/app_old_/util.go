@@ -29,15 +29,19 @@ func CheckCreateDir(
 
 				return fmt.Errorf("cannot create directory: %s", err)
 			}
+
 		} else {
 			return fmt.Errorf("error checking directory: %s", err)
 		}
+
 	} else {
 		if !fi.IsDir() {
 
 			return fmt.Errorf("path '%s' is not a directory", path)
 		}
+
 	}
+
 	return nil
 }
 
@@ -54,7 +58,9 @@ func EnsureDir(
 
 			panic(merr)
 		}
+
 	}
+
 }
 
 // FileExists reports whether the named file or directory exists.
@@ -67,8 +73,10 @@ func FileExists(filePath string) (bool, error) {
 
 			return false, nil
 		}
+
 		return false, err
 	}
+
 	return true, nil
 }
 
@@ -84,6 +92,7 @@ func GenFlag(
 		Help:     help,
 		Variable: true,
 	}
+
 }
 
 // GenKey gets a crypto-random number and encodes it in hex for generated shared credentials
@@ -103,6 +112,7 @@ func GenLog(
 		Usage:    "--" + name + `="info"`,
 		Variable: true,
 	}
+
 }
 
 // GenShort is a short declaration for a variable with a short version
@@ -119,6 +129,7 @@ func GenShort(
 		Help:     help,
 		Variable: true,
 	}
+
 }
 
 // GenTrig is a short declaration for a trigger type
@@ -133,6 +144,7 @@ func GenTrig(
 		Help:     help,
 		Variable: false,
 	}
+
 }
 
 // NormalizeAddress reads and corrects an address if it is missing pieces
@@ -151,9 +163,11 @@ func NormalizeAddress(
 
 			*out = o
 		}
+
 	} else {
 		*out = o
 	}
+
 }
 
 // NormalizeAddresses reads and collects a space separated list of addresses contained in a string
@@ -175,6 +189,7 @@ func NormalizeAddresses(
 
 			*O = append(*O, a)
 		}
+
 	}
 
 	// atomically switch out if there was valid addresses
@@ -182,6 +197,7 @@ func NormalizeAddresses(
 
 		*out = *O
 	}
+
 }
 
 // ParseDuration takes a string of the format `Xd/h/m/s` and returns a time.Duration corresponding with that specification
@@ -208,12 +224,14 @@ func ParseDuration(
 		t, err = strconv.Atoi(d[:len(d)-1])
 		ti = time.Duration(t) * 24 * time.Hour
 	}
+
 	if err != nil {
 
 		err = fmt.Errorf("malformed %s `%s` leaving set at `%s` err: %s", name, d, *out, err.Error())
 	} else {
 		*out = ti
 	}
+
 	return
 }
 
@@ -233,6 +251,7 @@ func ParseFloat(
 	} else {
 		*original = out
 	}
+
 	return
 }
 
@@ -253,6 +272,7 @@ func ParseInteger(
 	} else {
 		*original = out
 	}
+
 	return
 }
 
@@ -273,6 +293,7 @@ func ParseUint32(
 	} else {
 		*original = uint32(out)
 	}
+
 	return
 }
 
@@ -288,6 +309,7 @@ func getIfIs(
 
 		return ctx.Get(name)
 	}
+
 	return
 }
 
@@ -300,5 +322,6 @@ func minUint32(
 
 		return a
 	}
+
 	return b
 }

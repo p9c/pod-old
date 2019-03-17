@@ -16,6 +16,7 @@ func dirEmpty(
 	if err != nil {
 		return false, err
 	}
+
 	defer f.Close()
 
 	// Read the names of a max of one entry from the directory.  When the directory is empty, an io.EOF error will be returned, so allow it.
@@ -23,6 +24,7 @@ func dirEmpty(
 	if err != nil && err != io.EOF {
 		return false, err
 	}
+
 	return len(names) == 0, nil
 }
 
@@ -32,6 +34,7 @@ func doUpgrades() error {
 	if err != nil {
 		return err
 	}
+
 	return upgradeDataPaths()
 }
 
@@ -66,24 +69,29 @@ func upgradeDBPathNet(
 
 			oldDbType = "leveldb"
 		}
+
 		// The new database name is based on the database type and resides in a directory named after the network type.
 		newDbRoot := filepath.Join(filepath.Dir(*cfg.DataDir), netName)
 		newDbName := blockDbNamePrefix + "_" + oldDbType
 		if oldDbType == "sqlite" {
 			newDbName = newDbName + ".db"
 		}
+
 		newDbPath := filepath.Join(newDbRoot, newDbName)
 		// Create the new path if needed.
 		err = os.MkdirAll(newDbRoot, 0700)
 		if err != nil {
 			return err
 		}
+
 		// Move and rename the old database.
 		err := os.Rename(oldDbPath, newDbPath)
 		if err != nil {
 			return err
 		}
+
 	}
+
 	return nil
 }
 
@@ -118,10 +126,12 @@ func upgradeDataPaths() error {
 			"migrating application home path from '%s' to '%s'",
 			oldHomePath, newHomePath,
 		}
+
 		err := os.MkdirAll(newHomePath, 0700)
 		if err != nil {
 			return err
 		}
+
 		// Move old pod.conf into new location if needed.
 		oldConfPath := filepath.Join(oldHomePath, DefaultConfigFilename)
 		newConfPath := filepath.Join(newHomePath, DefaultConfigFilename)
@@ -131,7 +141,9 @@ func upgradeDataPaths() error {
 			if err != nil {
 				return err
 			}
+
 		}
+
 		// Move old data directory into new location if needed.
 		oldDataPath := filepath.Join(oldHomePath, DefaultDataDirname)
 		newDataPath := filepath.Join(newHomePath, DefaultDataDirname)
@@ -141,22 +153,28 @@ func upgradeDataPaths() error {
 			if err != nil {
 				return err
 			}
+
 		}
+
 		// Remove the old home if it is empty or show a warning if not.
 		ohpEmpty, err := dirEmpty(oldHomePath)
 		if err != nil {
 			return err
 		}
+
 		if ohpEmpty {
 			err := os.Remove(oldHomePath)
 			if err != nil {
 				return err
 			}
+
 		} else {
 			log <- cl.Warnf{
 				"not removing '%s' since it contains files not created by this application," +
 					"you may want to manually move them or delete them.", oldHomePath}
 		}
+
 	}
+
 	return nil
 }

@@ -23,6 +23,7 @@ func (p *rpcPeer) ToPeer() *peer.Peer {
 	if p == nil {
 		return nil
 	}
+
 	return (*serverPeer)(p).Peer
 }
 
@@ -57,6 +58,7 @@ func (cm *rpcConnManager) Connect(addr string, permanent bool) error {
 		permanent: permanent,
 		reply:     replyChan,
 	}
+
 	return <-replyChan
 }
 
@@ -67,6 +69,7 @@ func (cm *rpcConnManager) RemoveByID(id int32) error {
 		cmp:   func(sp *serverPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}
+
 	return <-replyChan
 }
 
@@ -77,6 +80,7 @@ func (cm *rpcConnManager) RemoveByAddr(addr string) error {
 		cmp:   func(sp *serverPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}
+
 	return <-replyChan
 }
 
@@ -87,6 +91,7 @@ func (cm *rpcConnManager) DisconnectByID(id int32) error {
 		cmp:   func(sp *serverPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}
+
 	return <-replyChan
 }
 
@@ -97,6 +102,7 @@ func (cm *rpcConnManager) DisconnectByAddr(addr string) error {
 		cmp:   func(sp *serverPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}
+
 	return <-replyChan
 }
 
@@ -122,6 +128,7 @@ func (cm *rpcConnManager) ConnectedPeers() []rpcserverPeer {
 	for _, sp := range serverPeers {
 		peers = append(peers, (*rpcPeer)(sp))
 	}
+
 	return peers
 }
 
@@ -136,6 +143,7 @@ func (cm *rpcConnManager) PersistentPeers() []rpcserverPeer {
 	for _, sp := range serverPeers {
 		peers = append(peers, (*rpcPeer)(sp))
 	}
+
 	return peers
 }
 

@@ -34,10 +34,13 @@ func (
 		if err := json.Unmarshal([]byte(f), &addressbook); err != nil {
 			fmt.Println("Error", err)
 		}
+
 		ab.AddressBookLabel = append(ab.AddressBookLabel, addressbook)
 	}
+
 	// fmt.Println("Ersssssssssssssssssssssssssssror", ab.AddressBookLabel)
 }
+
 func (
 	ab *AddressBookLabel,
 ) AddressBookLabelDelete(
@@ -47,8 +50,10 @@ func (
 	if err := jdb.JDB.Delete("addressbook", label); err != nil {
 		fmt.Println("Error", err)
 	}
+
 	fmt.Println("Ersssssssssssssssssssssssssssror", ab)
 }
+
 func (
 	ab *AddressBookLabel,
 ) AddressBookLabelWrite(

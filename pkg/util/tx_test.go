@@ -48,7 +48,9 @@ func TestTx(
 			t.Errorf("Hash #%d mismatched hash - got %v, want %v", i,
 				hash, wantHash)
 		}
+
 	}
+
 }
 
 // TestNewTxFromBytes tests creation of a Tx from serialized bytes.
@@ -62,6 +64,7 @@ func TestNewTxFromBytes(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	testTxBytes := testTxBuf.Bytes()
 
 	// Create a new transaction from the serialized bytes.
@@ -77,6 +80,7 @@ func TestNewTxFromBytes(
 		t.Errorf("MsgTx: mismatched MsgTx - got %v, want %v",
 			spew.Sdump(msgTx), spew.Sdump(testTx))
 	}
+
 }
 
 // TestTxErrors tests the error paths for the Tx API.
@@ -90,6 +94,7 @@ func TestTxErrors(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	testTxBytes := testTxBuf.Bytes()
 
 	// Truncate the transaction byte buffer to force errors.
@@ -99,4 +104,5 @@ func TestTxErrors(
 		t.Errorf("NewTxFromBytes: did not get expected error - "+
 			"got %v, want %v", err, io.EOF)
 	}
+
 }

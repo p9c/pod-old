@@ -77,6 +77,7 @@ func DefaultShellConfig(
 			AddrIndex:            n.DefaultAddrIndex,
 			Algo:                 n.DefaultAlgo,
 		},
+
 		Wallet: &w.Config{
 			PodUsername:        u,
 			PodPassword:        p,
@@ -98,8 +99,10 @@ func DefaultShellConfig(
 			LegacyRPCMaxClients:    w.DefaultRPCMaxClients,
 			LegacyRPCMaxWebsockets: w.DefaultRPCMaxWebsockets,
 		},
+
 		Levels: GetDefaultLogLevelsConfig(),
 	}
+
 }
 
 // WriteDefaultShellConfig creates and writes a default config to the requested location
@@ -113,6 +116,7 @@ func WriteDefaultShellConfig(
 		log <- cl.Error{"marshalling configuration", err}
 		panic(err)
 	}
+
 	j = append(j, '\n')
 	log <- cl.Trace{"JSON formatted config file\n", string(j)}
 	EnsureDir(defCfg.ConfigFile)
@@ -136,12 +140,14 @@ func WriteShellConfig(
 	if err != nil {
 		panic(err.Error())
 	}
+
 	j = append(j, '\n')
 	EnsureDir(c.ConfigFile)
 	err = ioutil.WriteFile(c.ConfigFile, j, 0600)
 	if err != nil {
 		panic(err.Error())
 	}
+
 }
 
 func configShell(
@@ -156,12 +162,14 @@ func configShell(
 	if dd, ok = ctx.Get("datadir"); ok {
 		datadir = dd
 	}
+
 	ShellConfig.Node.DataDir = datadir
 	ShellConfig.Wallet.DataDir = datadir
 	ShellConfig.Wallet.AppDataDir = ShellConfig.Wallet.DataDir
 	if r, ok := getIfIs(ctx, "appdatadir"); ok {
 		ShellConfig.Wallet.AppDataDir = r
 	}
+
 	time.Sleep(time.Second * 9)
 	ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 	ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
@@ -184,6 +192,7 @@ func configShell(
 			ShellConfig.SetNodeActiveNet(&node.MainNetParams)
 			ShellConfig.SetWalletActiveNet(&netparams.MainNetParams)
 		}
+
 		// if ShellConfig.Node.TestNet3 {
 		// 	ShellConfig.SetNodeActiveNet(&node.TestNet3Params)
 		// 	ShellConfig.SetWalletActiveNet(&netparams.TestNet3Params)
@@ -198,29 +207,35 @@ func configShell(
 
 		ShellConfig.Wallet.CreateTemp = true
 	}
+
 	if r, ok := getIfIs(ctx, "walletpass"); ok {
 		ShellConfig.Wallet.WalletPass = r
 	}
+
 	if r, ok := getIfIs(ctx, "listeners"); ok {
 		NormalizeAddresses(
 			r, ShellConfig.GetNodeActiveNet().DefaultPort,
 			&ShellConfig.Node.Listeners)
 		log <- cl.Debug{"node listeners", ShellConfig.Node.Listeners}
 	}
+
 	if r, ok := getIfIs(ctx, "externalips"); ok {
 		NormalizeAddresses(
 			r, ShellConfig.GetNodeActiveNet().DefaultPort,
 			&ShellConfig.Node.ExternalIPs)
 		log <- cl.Debug{ShellConfig.Node.Listeners}
 	}
+
 	if r, ok := getIfIs(ctx, "disablelisten"); ok {
 		ShellConfig.Node.DisableListen = strings.ToLower(r) == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "rpclisteners"); ok {
 		NormalizeAddresses(
 			r, ShellConfig.GetWalletActiveNet().RPCServerPort,
 			&ShellConfig.Wallet.LegacyRPCListeners)
 	}
+
 	if r, ok := getIfIs(ctx, "rpcmaxclients"); ok {
 		var bt int
 		if err := ParseInteger(r, "legacyrpcmaxclients", &bt); err != nil {
@@ -228,7 +243,9 @@ func configShell(
 		} else {
 			ShellConfig.Wallet.LegacyRPCMaxClients = int64(bt)
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "rpcmaxwebsockets"); ok {
 		_, err := fmt.Sscanf(r, "%d", ShellConfig.Wallet.LegacyRPCMaxWebsockets)
 		if err != nil {
@@ -236,100 +253,130 @@ func configShell(
 				"malformed legacyrpcmaxwebsockets: `%s` leaving set at `%d`",
 				r, ShellConfig.Wallet.LegacyRPCMaxWebsockets,
 			}
+
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "username"); ok {
 		ShellConfig.Wallet.Username = r
 		ShellConfig.Wallet.PodPassword = r
 		ShellConfig.Node.RPCUser = r
 	}
+
 	if r, ok := getIfIs(ctx, "password"); ok {
 		ShellConfig.Wallet.Password = r
 		ShellConfig.Wallet.PodPassword = r
 		ShellConfig.Node.RPCPass = r
 	}
+
 	if r, ok := getIfIs(ctx, "rpccert"); ok {
 		ShellConfig.Wallet.RPCCert = n.CleanAndExpandPath(r)
 		ShellConfig.Node.RPCCert = ShellConfig.Wallet.RPCCert
 	}
+
 	if r, ok := getIfIs(ctx, "rpckey"); ok {
 		ShellConfig.Wallet.RPCKey = n.CleanAndExpandPath(r)
 		ShellConfig.Node.RPCKey = ShellConfig.Wallet.RPCKey
 	}
+
 	if r, ok := getIfIs(ctx, "onetimetlskey"); ok {
 		ShellConfig.Wallet.OneTimeTLSKey = strings.ToLower(r) == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "cafile"); ok {
 		ShellConfig.Wallet.CAFile = n.CleanAndExpandPath(r)
 	}
+
 	if r, ok := getIfIs(ctx, "tls"); ok {
 		ShellConfig.Wallet.EnableServerTLS = strings.ToLower(r) == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "txindex"); ok {
 		ShellConfig.Node.TxIndex = strings.ToLower(r) == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "addrindex"); ok {
 		ShellConfig.Node.AddrIndex = strings.ToLower(r) == "true"
 	}
+
 	if ctx.Is("dropcfindex") {
 
 		ShellConfig.Node.DropCfIndex = true
 	}
+
 	if ctx.Is("droptxindex") {
 
 		ShellConfig.Node.DropTxIndex = true
 	}
+
 	if ctx.Is("dropaddrindex") {
 
 		ShellConfig.Node.DropAddrIndex = true
 	}
+
 	if r, ok := getIfIs(ctx, "proxy"); ok {
 		NormalizeAddress(r, "9050", &ShellConfig.Node.Proxy)
 		ShellConfig.Wallet.Proxy = ShellConfig.Node.Proxy
 	}
+
 	if r, ok := getIfIs(ctx, "proxyuser"); ok {
 		ShellConfig.Node.ProxyUser = r
 		ShellConfig.Wallet.ProxyUser = r
 	}
+
 	if r, ok := getIfIs(ctx, "proxypass"); ok {
 		ShellConfig.Node.ProxyPass = r
 		ShellConfig.Node.ProxyPass = r
 	}
+
 	if r, ok := getIfIs(ctx, "onion"); ok {
 		NormalizeAddress(r, "9050", &ShellConfig.Node.OnionProxy)
 	}
+
 	if r, ok := getIfIs(ctx, "onionuser"); ok {
 		ShellConfig.Node.OnionProxyUser = r
 	}
+
 	if r, ok := getIfIs(ctx, "onionpass"); ok {
 		ShellConfig.Node.OnionProxyPass = r
 	}
+
 	if r, ok := getIfIs(ctx, "noonion"); ok {
 		ShellConfig.Node.NoOnion = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "torisolation"); ok {
 		ShellConfig.Node.TorIsolation = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "addpeers"); ok {
 		NormalizeAddresses(r, n.DefaultPort, &ShellConfig.Node.AddPeers)
 	}
+
 	if r, ok := getIfIs(ctx, "connectpeers"); ok {
 		NormalizeAddresses(r, n.DefaultPort, &ShellConfig.Node.ConnectPeers)
 	}
+
 	if r, ok := getIfIs(ctx, "maxpeers"); ok {
 		if err := ParseInteger(
 			r, "maxpeers", &ShellConfig.Node.MaxPeers); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "disablebanning"); ok {
 		ShellConfig.Node.DisableBanning = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "banduration"); ok {
 		if err := ParseDuration(r, "banduration", &ShellConfig.Node.BanDuration); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "banthreshold"); ok {
 		var bt int
 		if err := ParseInteger(r, "banthtreshold", &bt); err != nil {
@@ -337,16 +384,21 @@ func configShell(
 		} else {
 			ShellConfig.Node.BanThreshold = uint32(bt)
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "whitelists"); ok {
 		NormalizeAddresses(r, n.DefaultPort, &ShellConfig.Node.Whitelists)
 	}
+
 	if r, ok := getIfIs(ctx, "trickleinterval"); ok {
 		if err := ParseDuration(
 			r, "trickleinterval", &ShellConfig.Node.TrickleInterval); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "minrelaytxfee"); ok {
 		if err := ParseFloat(
 			r, "minrelaytxfee", &ShellConfig.Node.MinRelayTxFee); err != nil {
@@ -354,35 +406,46 @@ func configShell(
 		}
 
 	}
+
 	if r, ok := getIfIs(ctx, "freetxrelaylimit"); ok {
 		if err := ParseFloat(
 			r, "freetxrelaylimit", &ShellConfig.Node.FreeTxRelayLimit); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "norelaypriority"); ok {
 		ShellConfig.Node.NoRelayPriority = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "nopeerbloomfilters"); ok {
 		ShellConfig.Node.NoPeerBloomFilters = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "nocfilters"); ok {
 		ShellConfig.Node.NoCFilters = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "blocksonly"); ok {
 		ShellConfig.Node.BlocksOnly = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "relaynonstd"); ok {
 		ShellConfig.Node.RelayNonStd = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "rejectnonstd"); ok {
 		ShellConfig.Node.RejectNonStd = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "maxorphantxs"); ok {
 		if err := ParseInteger(r, "maxorphantxs", &ShellConfig.Node.MaxOrphanTxs); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "sigcachemaxsize"); ok {
 		var scms int
 		if err := ParseInteger(r, "sigcachemaxsize", &scms); err != nil {
@@ -390,10 +453,13 @@ func configShell(
 		} else {
 			ShellConfig.Node.SigCacheMaxSize = uint(scms)
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "generate"); ok {
 		ShellConfig.Node.Generate = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "genthreads"); ok {
 		var gt int
 		if err := ParseInteger(r, "genthreads", &gt); err != nil {
@@ -401,70 +467,94 @@ func configShell(
 		} else {
 			ShellConfig.Node.GenThreads = int32(gt)
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "algo"); ok {
 		ShellConfig.Node.Algo = r
 	}
+
 	if r, ok := getIfIs(ctx, "miningaddrs"); ok {
 		ShellConfig.Node.MiningAddrs = strings.Split(r, " ")
 	}
+
 	if r, ok := getIfIs(ctx, "minerlistener"); ok {
 		NormalizeAddress(r, n.DefaultRPCPort, &ShellConfig.Node.MinerListener)
 	}
+
 	if r, ok := getIfIs(ctx, "minerpass"); ok {
 		ShellConfig.Node.MinerPass = r
 	}
+
 	if r, ok := getIfIs(ctx, "addcheckpoints"); ok {
 		ShellConfig.Node.AddCheckpoints = strings.Split(r, " ")
 	}
+
 	if r, ok := getIfIs(ctx, "disablecheckpoints"); ok {
 		ShellConfig.Node.DisableCheckpoints = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "blockminsize"); ok {
 		if err := ParseUint32(r, "blockminsize", &ShellConfig.Node.BlockMinSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "blockmaxsize"); ok {
 		if err := ParseUint32(r, "blockmaxsize", &ShellConfig.Node.BlockMaxSize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "blockminweight"); ok {
 		if err := ParseUint32(r, "blockminweight", &ShellConfig.Node.BlockMinWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "blockmaxweight"); ok {
 		if err := ParseUint32(
 			r, "blockmaxweight", &ShellConfig.Node.BlockMaxWeight); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "blockprioritysize"); ok {
 		if err := ParseUint32(
 			r, "blockmaxweight", &ShellConfig.Node.BlockPrioritySize); err != nil {
 			log <- cl.Wrn(err.Error())
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "uacomment"); ok {
 		ShellConfig.Node.UserAgentComments = strings.Split(r, " ")
 	}
+
 	if r, ok := getIfIs(ctx, "upnp"); ok {
 		ShellConfig.Node.Upnp = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "dbtype"); ok {
 		ShellConfig.Node.DbType = r
 	}
+
 	if r, ok := getIfIs(ctx, "disablednsseed"); ok {
 		ShellConfig.Node.DisableDNSSeed = r == "true"
 	}
+
 	if r, ok := getIfIs(ctx, "profile"); ok {
 		var p int
 		if err := ParseInteger(r, "profile", &p); err == nil {
 			ShellConfig.Node.Profile = fmt.Sprint(p)
 		}
+
 	}
+
 	if r, ok := getIfIs(ctx, "cpuprofile"); ok {
 		ShellConfig.Node.CPUProfile = r
 	}
@@ -483,6 +573,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
+
 		return 0
 	}
 
@@ -497,6 +588,7 @@ func configShell(
 	default:
 		ShellConfig.Node.Algo = "random"
 	}
+
 	relayNonStd := n.ActiveNetParams.RelayNonStdTxs
 	funcName := "loadConfig"
 	switch {
@@ -511,6 +603,7 @@ func configShell(
 	case ShellConfig.Node.RelayNonStd:
 		relayNonStd = true
 	}
+
 	ShellConfig.Node.RelayNonStd = relayNonStd
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
@@ -541,6 +634,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 	}
 
 	// Don't allow ban durations that are too short.
@@ -567,6 +661,7 @@ func configShell(
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return 1
 				}
+
 				var bits int
 				if ip.To4() == nil {
 
@@ -575,13 +670,17 @@ func configShell(
 				} else {
 					bits = 32
 				}
+
 				ipnet = &net.IPNet{
 					IP:   ip,
 					Mask: net.CIDRMask(bits, bits),
 				}
+
 			}
+
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
+
 	}
 
 	// --addPeer and --connect do not mix.
@@ -609,6 +708,7 @@ func configShell(
 		ShellConfig.Node.Listeners = []string{
 			net.JoinHostPort("localhost", ShellConfig.GetNodeActiveNet().DefaultPort),
 		}
+
 	}
 
 	// Check to make sure limited and admin users don't have the same username
@@ -635,6 +735,7 @@ func configShell(
 
 		ShellConfig.Node.DisableRPC = true
 	}
+
 	if ShellConfig.Node.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
 	}
@@ -646,12 +747,15 @@ func configShell(
 			log <- cl.Err(err.Error())
 			return 1
 		}
+
 		ShellConfig.Node.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
 			addr = net.JoinHostPort(addr, n.ActiveNetParams.RPCPort)
 			ShellConfig.Node.RPCListeners = append(ShellConfig.Node.RPCListeners, addr)
 		}
+
 	}
+
 	if ShellConfig.Node.RPCMaxConcurrentReqs < 0 {
 		str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
 		err := fmt.Errorf(str, funcName, ShellConfig.Node.RPCMaxConcurrentReqs)
@@ -659,6 +763,7 @@ func configShell(
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return 1
 	}
+
 	var err error
 
 	// Validate the the minrelaytxfee.
@@ -731,6 +836,7 @@ func configShell(
 			return 1
 
 		}
+
 	}
 
 	// --txindex and --droptxindex do not mix.
@@ -775,6 +881,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		if !addr.IsForNet(ShellConfig.GetNodeActiveNet().Params) {
 
 			str := "%s: mining address '%s' is on the wrong network"
@@ -783,6 +890,7 @@ func configShell(
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return 1
 		}
+
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 
@@ -795,6 +903,7 @@ func configShell(
 		os.Exit(1)
 
 	}
+
 	if ShellConfig.Node.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(ShellConfig.Node.MinerPass))
 	}
@@ -815,7 +924,9 @@ func configShell(
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return 1
 			}
+
 		}
+
 	}
 
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
@@ -873,12 +984,14 @@ func configShell(
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- "+
 				"overriding specified proxy user credentials")
 		}
+
 		proxy := &socks.Proxy{
 			Addr:         ShellConfig.Node.Proxy,
 			Username:     ShellConfig.Node.ProxyUser,
 			Password:     ShellConfig.Node.ProxyPass,
 			TorIsolation: torIsolation,
 		}
+
 		StateCfg.Dial = proxy.DialTimeout
 
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
@@ -887,7 +1000,9 @@ func configShell(
 
 				return connmgr.TorLookupIP(host, ShellConfig.Node.Proxy)
 			}
+
 		}
+
 	}
 
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
@@ -909,6 +1024,7 @@ func configShell(
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
+
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 
 			proxy := &socks.Proxy{
@@ -917,6 +1033,7 @@ func configShell(
 				Password:     ShellConfig.Node.OnionProxyPass,
 				TorIsolation: ShellConfig.Node.TorIsolation,
 			}
+
 			return proxy.DialTimeout(network, addr, timeout)
 		}
 
@@ -926,7 +1043,9 @@ func configShell(
 
 				return connmgr.TorLookupIP(host, ShellConfig.Node.OnionProxy)
 			}
+
 		}
+
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
@@ -937,6 +1056,7 @@ func configShell(
 
 			return nil, errors.New("tor has been disabled")
 		}
+
 	}
 
 	ShellConfig.Wallet.PodUsername = ShellConfig.Node.RPCUser
@@ -949,13 +1069,16 @@ func configShell(
 		if err != nil {
 			log <- cl.Error{"writing app config file", err}
 		}
+
 		j = append(j, '\n')
 		log <- cl.Trace{"JSON formatted config file\n", string(j)}
 		e := ioutil.WriteFile(cfgFile, j, 0600)
 		log <- cl.Error{
 			"error writing configuration file:", e,
 		}
+
 	}
+
 	return 0
 }
 
@@ -973,7 +1096,9 @@ func shellHandle(
 		for i := range ll {
 			ll[i].SetLevel(dl)
 		}
+
 	}
+
 	if ctx.Is("version") {
 
 		fmt.Println("pod/shell version", Version(),
@@ -981,6 +1106,7 @@ func shellHandle(
 			"pod/wallet version", w.Version())
 		return 0
 	}
+
 	var datadir, dd, cfgFile string
 	datadir = util.AppDataDir("pod", false)
 	if dd, ok = ctx.Get("datadir"); ok {
@@ -989,12 +1115,14 @@ func shellHandle(
 		ShellConfig.Wallet.DataDir = dd
 		datadir = dd
 	}
+
 	cfgFile = filepath.Join(datadir, "shell/conf.json")
 	if r, ok := ctx.Get("configfile"); ok {
 
 		ShellConfig.ConfigFile = r
 		cfgFile = r
 	}
+
 	if ctx.Is("init") {
 
 		log <- cl.Debug{"writing default configuration to", cfgFile}
@@ -1020,9 +1148,13 @@ func shellHandle(
 					log <- cl.Error{"parsing app config file", err.Error()}
 					WriteDefaultShellConfig(datadir)
 				}
+
 			}
+
 		}
+
 	}
+
 	j, _ := json.MarshalIndent(ShellConfig, "", "  ")
 	log <- cl.Tracef{"parsed configuration:\n%s", string(j)}
 	configShell(&ctx, cfgFile)

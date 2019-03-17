@@ -18,6 +18,7 @@ func InitApps() {
 		fmt.Print(err)
 		os.Exit(1)
 	}
+
 	for _, jsLib := range jsLibs {
 		_, fn := filepath.Split(jsLib)
 		fl, _ := ioutil.ReadFile(jsLib)
@@ -41,6 +42,7 @@ func InitApps() {
 		fmt.Print(err)
 		os.Exit(1)
 	}
+
 	for _, libHTML := range libHTMLs {
 		_, fn := filepath.Split(libHTML)
 		fl, _ := ioutil.ReadFile(libHTML)

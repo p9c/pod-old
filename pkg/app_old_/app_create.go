@@ -41,6 +41,7 @@ var CreateCommand = climax.Command{
 		t("cli", "c", "use commandline interface interactive input"),
 		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
+
 	Handle: func(ctx climax.Context) int {
 		if ctx.Is("help") {
 
@@ -67,11 +68,13 @@ Available options:
 `)
 			return 0
 		}
+
 		argsGiven := false
 		CreateConfig.DataDir = w.DefaultDataDir
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			CreateConfig.DataDir = r
 		}
+
 		var cfgFile string
 		var ok bool
 		if cfgFile, ok = ctx.Get("configfile"); !ok {
@@ -80,6 +83,7 @@ Available options:
 				w.DefaultConfigFilename)
 			argsGiven = true
 		}
+
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 			fmt.Println("configuration file does not exist, creating new one")
@@ -91,13 +95,16 @@ Available options:
 				fmt.Println("reading app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
+
 			log <- cl.Tracef{"parsing app configuration\n%s", cfgData}
 			err = json.Unmarshal(cfgData, &WalletConfig)
 			if err != nil {
 				fmt.Println("parsing app config file", err.Error())
 				WriteDefaultWalletConfig(CreateConfig.DataDir)
 			}
+
 		}
+
 		CreateConfig.Config = WalletConfig.Wallet
 		activeNet := walletmain.ActiveNet
 		CreateConfig.Config.TestNet3 = false
@@ -115,6 +122,7 @@ Available options:
 			default:
 				activeNet = &netparams.MainNetParams
 			}
+
 			CreateConfig.Network = r
 			argsGiven = true
 		}
@@ -124,11 +132,13 @@ Available options:
 			CreateConfig.Config.TestNet3 = true
 			CreateConfig.Config.SimNet = false
 		}
+
 		if CreateConfig.Config.SimNet {
 			activeNet = &netparams.SimNetParams
 			CreateConfig.Config.TestNet3 = false
 			CreateConfig.Config.SimNet = true
 		}
+
 		CreateConfig.Config.AppDataDir = filepath.Join(
 			CreateConfig.DataDir, "wallet")
 		// spew.Dump(CreateConfig)
@@ -141,6 +151,7 @@ Available options:
 			fmt.Println("ERROR", err)
 			return 1
 		}
+
 		if !exists {
 
 		} else {
@@ -148,44 +159,53 @@ Available options:
 			fmt.Println("if you are sure it isn't valuable you can delete it before running this again")
 			return 1
 		}
+
 		if ctx.Is("cli") {
 
 			e := walletmain.CreateWallet(CreateConfig.Config, activeNet)
 			if e != nil {
 				fmt.Println("\nerror creating wallet:", e)
 			}
+
 			fmt.Print("\nYou can now open the wallet\n")
 			return 0
 		}
+
 		if r, ok := getIfIs(&ctx, "seed"); ok {
 			CreateConfig.Seed = []byte(r)
 			argsGiven = true
 		}
+
 		if r, ok := getIfIs(&ctx, "password"); ok {
 			CreateConfig.Password = r
 			argsGiven = true
 		}
+
 		if r, ok := getIfIs(&ctx, "publicpass"); ok {
 			CreateConfig.PublicPass = r
 			argsGiven = true
 		}
+
 		if argsGiven {
 			if CreateConfig.Password == "" {
 				fmt.Println("no password given")
 				return 1
 			}
+
 			if CreateConfig.Seed == nil {
 				seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
 				if err != nil {
 					fmt.Println("failed to generate new seed")
 					return 1
 				}
+
 				fmt.Println("Your wallet generation seed is:")
 				fmt.Printf("\n%x\n\n", seed)
 				fmt.Print("IMPORTANT: Keep the seed in a safe place as you will NOT be able to restore your wallet without it.\n\n")
 				fmt.Print("Please keep in mind that anyone who has access to the seed can also restore your wallet thereby giving them access to all your funds, so it is imperative that you keep it in a secure location.\n\n")
 				CreateConfig.Seed = []byte(seed)
 			}
+
 			w, err := loader.CreateNewWallet(
 				[]byte(CreateConfig.PublicPass),
 				[]byte(CreateConfig.Password),
@@ -195,6 +215,7 @@ Available options:
 				fmt.Println(err)
 				return 1
 			}
+
 			fmt.Println("Wallet creation completed")
 			fmt.Println("Seed:", string(CreateConfig.Seed))
 			fmt.Println("Password: '" + string(CreateConfig.Password) + "'")
@@ -203,6 +224,7 @@ Available options:
 			return 0
 
 		}
+
 		return 0
 	},
 }

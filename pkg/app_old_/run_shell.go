@@ -22,6 +22,7 @@ func runShell() (
 		out = runNode(ShellConfig.Node, ShellConfig.GetNodeActiveNet())
 		wg.Done()
 	}()
+
 	time.Sleep(time.Second * 2)
 	wg.Add(1)
 	go func() {
@@ -29,6 +30,7 @@ func runShell() (
 		out = runWallet(ShellConfig.Wallet, ShellConfig.GetWalletActiveNet())
 		wg.Done()
 	}()
+
 	wg.Wait()
 	<-interrupt.HandlersDone
 	return 0

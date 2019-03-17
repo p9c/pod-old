@@ -144,16 +144,19 @@ var NodeCommand = climax.Command{
 
 		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
+
 	Examples: []climax.Example{
 		{
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},
+
 		{
 			Usecase:     " -D test -d trace",
 			Description: "run using the configuration in the 'test' directory with trace logging",
 		},
 	},
+
 	Handle: func(ctx climax.Context) int {
 		var dl string
 		var ok bool
@@ -165,22 +168,27 @@ var NodeCommand = climax.Command{
 			for i := range ll {
 				ll[i].SetLevel(dl)
 			}
+
 		}
+
 		if ctx.Is("version") {
 			fmt.Println("pod/node version", node.Version())
 			return 0
 		}
+
 		var datadir, cfgFile string
 		if datadir, ok = ctx.Get("datadir"); !ok {
 
 			datadir = util.AppDataDir("pod", false)
 		}
+
 		cfgFile = filepath.Join(filepath.Join(datadir, "node"), "conf.json")
 		log <- cl.Debug{"DataDir", datadir, "cfgFile", cfgFile}
 		if r, ok := getIfIs(&ctx, "configfile"); ok {
 
 			cfgFile = r
 		}
+
 		if ctx.Is("init") {
 
 			log <- cl.Debugf{"writing default configuration to %s", cfgFile}
@@ -209,8 +217,11 @@ var NodeCommand = climax.Command{
 						log <- cl.Error{"parsing app config file:", err.Error()}
 						WriteDefaultNodeConfig(datadir)
 					}
+
 				}
+
 			}
+
 			switch {
 			case NodeConfig.Node.TestNet3:
 				log <- cl.Info{"running on testnet"}
@@ -222,7 +233,9 @@ var NodeCommand = climax.Command{
 				log <- cl.Info{"running on mainnet"}
 				NodeConfig.params = &node.MainNetParams
 			}
+
 		}
+
 		configNode(NodeConfig.Node, &ctx, cfgFile)
 		runNode(NodeConfig.Node, NodeConfig.params)
 		return 0

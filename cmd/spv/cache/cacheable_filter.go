@@ -15,5 +15,6 @@ func (c *CacheableFilter) Size() (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return uint64(len(f)), nil
 }

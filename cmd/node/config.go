@@ -211,7 +211,9 @@ func FileExists(
 
 			return false
 		}
+
 	}
+
 	return true
 }
 
@@ -230,27 +232,32 @@ func NewCheckpointFromStr(
 			"checkpoint %q -- use the syntax <height>:<hash>",
 			checkpoint)
 	}
+
 	height, err := strconv.ParseInt(parts[0], 10, 32)
 	if err != nil {
 
 		return chaincfg.Checkpoint{}, fmt.Errorf("unable to parse "+
 			"checkpoint %q due to malformed height", checkpoint)
 	}
+
 	if len(parts[1]) == 0 {
 
 		return chaincfg.Checkpoint{}, fmt.Errorf("unable to parse "+
 			"checkpoint %q due to missing hash", checkpoint)
 	}
+
 	hash, err := chainhash.NewHashFromStr(parts[1])
 	if err != nil {
 
 		return chaincfg.Checkpoint{}, fmt.Errorf("unable to parse "+
 			"checkpoint %q due to malformed hash", checkpoint)
 	}
+
 	return chaincfg.Checkpoint{
-		Height: int32(height),
-		Hash:   hash,
-	}, nil
+			Height: int32(height),
+			Hash:   hash,
+		},
+		nil
 }
 
 // NewConfigParser returns a new command line flags parser.
@@ -267,7 +274,9 @@ func NewConfigParser(
 
 			panic(e)
 		}
+
 	}
+
 	return parser
 }
 
@@ -281,6 +290,7 @@ func NormalizeAddress(
 
 		return net.JoinHostPort(addr, defaultPort)
 	}
+
 	return addr
 }
 
@@ -293,6 +303,7 @@ func NormalizeAddresses(
 
 		addrs[i] = NormalizeAddress(addr, defaultPort)
 	}
+
 	return RemoveDuplicateAddresses(addrs)
 }
 
@@ -308,6 +319,7 @@ func ParseCheckpoints(
 
 		return nil, nil
 	}
+
 	checkpoints := make([]chaincfg.Checkpoint, len(checkpointStrings))
 	for i, cpString := range checkpointStrings {
 
@@ -316,8 +328,10 @@ func ParseCheckpoints(
 
 			return nil, err
 		}
+
 		checkpoints[i] = checkpoint
 	}
+
 	return checkpoints, nil
 }
 
@@ -334,7 +348,9 @@ func RemoveDuplicateAddresses(
 			result = append(result, val)
 			seen[val] = struct{}{}
 		}
+
 	}
+
 	return result
 }
 
@@ -348,7 +364,9 @@ func ValidDbType(
 
 			return true
 		}
+
 	}
+
 	return false
 }
 
@@ -370,6 +388,7 @@ func ValidLogLevel(
 	case "critical":
 		return true
 	}
+
 	return false
 }
 
@@ -392,12 +411,14 @@ func createDefaultConfigFile(
 
 		return err
 	}
+
 	generatedRPCUser := base64.StdEncoding.EncodeToString(randomBytes)
 	_, err = rand.Read(randomBytes)
 	if err != nil {
 
 		return err
 	}
+
 	generatedRPCPass := base64.StdEncoding.EncodeToString(randomBytes)
 	var bb bytes.Buffer
 	bb.Write(samplePodConf)
@@ -407,6 +428,7 @@ func createDefaultConfigFile(
 
 		return err
 	}
+
 	defer dest.Close()
 	reader := bufio.NewReader(&bb)
 	for err != io.EOF {
@@ -417,6 +439,7 @@ func createDefaultConfigFile(
 
 			return err
 		}
+
 		if strings.Contains(line, "rpcuser=") {
 
 			line = "rpcuser=" + generatedRPCUser + "\n"
@@ -424,11 +447,14 @@ func createDefaultConfigFile(
 
 			line = "rpcpass=" + generatedRPCPass + "\n"
 		}
+
 		if _, err := dest.WriteString(line); err != nil {
 
 			return err
 		}
+
 	}
+
 	return nil
 }
 
@@ -480,6 +506,7 @@ func loadConfig() (
 	}
 
 
+
 	// Service options which are only added on Windows.
 	serviceOpts := serviceOptions{}
 
@@ -494,7 +521,9 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, err)
 			return nil, nil, err
 		}
+
 	}
+
 
 	// Show the version and exit if the version flag was specified.
 	appName := filepath.Base(os.Args[0])
@@ -506,6 +535,7 @@ func loadConfig() (
 		os.Exit(0)
 	}
 
+
 	// Perform service command and exit if specified.  Invalid service commands show an appropriate error.  Only runs on Windows since the runServiceCommand function will be nil when not on Windows.
 	if serviceOpts.ServiceCommand != "" && runServiceCommand != nil {
 
@@ -514,8 +544,10 @@ func loadConfig() (
 
 			fmt.Fprintln(os.Stderr, err)
 		}
+
 		os.Exit(0)
 	}
+
 
 	// Load additional config from file.
 	var configFileError error
@@ -531,7 +563,9 @@ func loadConfig() (
 				fmt.Fprintf(os.Stderr, "Error creating a "+
 					"default config file: %v\n", err)
 			}
+
 		}
+
 		err := flags.NewIniParser(parser).ParseFile(preCfg.ConfigFile)
 		if err != nil {
 
@@ -542,15 +576,19 @@ func loadConfig() (
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return nil, nil, err
 			}
+
 			configFileError = err
 		}
+
 	}
+
 
 	// Don't add peers from the config file when in regression test mode.
 	if preCfg.RegressionTest && len(cfg.AddPeers) > 0 {
 
 		cfg.AddPeers = nil
 	}
+
 
 	// Parse command line options again to ensure they take precedence.
 	remainingArgs, err := parser.Parse()
@@ -560,8 +598,10 @@ func loadConfig() (
 
 			fmt.Fprintln(os.Stderr, usageMessage)
 		}
+
 		return nil, nil, err
 	}
+
 
 	// Create the home directory if it doesn't already exist.
 	funcName := "loadConfig"
@@ -577,12 +617,15 @@ func loadConfig() (
 				str := "is symlink %s -> %s mounted?"
 				err = fmt.Errorf(str, e.Path, link)
 			}
+
 		}
+
 		str := "%s: Failed to create home directory: %v"
 		err := fmt.Errorf(str, funcName, err)
 		fmt.Fprintln(os.Stderr, err)
 		return nil, nil, err
 	}
+
 
 	// Multiple networks can't be selected simultaneously.
 	numNets := 0
@@ -594,12 +637,14 @@ func loadConfig() (
 		ActiveNetParams = &TestNet3Params
 		fork.IsTestnet = true
 	}
+
 	if cfg.RegressionTest {
 
 		numNets++
 		ActiveNetParams = &RegressionNetParams
 		fork.IsTestnet = true
 	}
+
 	if cfg.SimNet {
 
 		numNets++
@@ -608,6 +653,7 @@ func loadConfig() (
 		cfg.DisableDNSSeed = true
 		fork.IsTestnet = true
 	}
+
 	if numNets > 1 {
 
 		str := "%s: The testnet, regtest, segnet, and simnet params " +
@@ -618,12 +664,14 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Set the mining algorithm correctly, default to sha256d if unrecognised
 	switch cfg.Algo {
 	case "blake14lr", "cryptonight7v2", "keccak", "lyra2rev2", "scrypt", "skein", "x11", "stribog", "random", "easy":
 	default:
 		cfg.Algo = "sha256d"
 	}
+
 
 	// Set the default policy for relaying non-standard transactions according to the default of the active network. The set configuration value takes precedence over the default value for the selected network.
 	relayNonStd := ActiveNetParams.RelayNonStdTxs
@@ -640,6 +688,7 @@ func loadConfig() (
 	case cfg.RelayNonStd:
 		relayNonStd = true
 	}
+
 	cfg.RelayNonStd = relayNonStd
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
@@ -665,6 +714,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Validate profile port number
 	if cfg.Profile != "" {
 
@@ -678,7 +728,9 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 	}
+
 
 	// Don't allow ban durations that are too short.
 	if cfg.BanDuration < time.Second {
@@ -689,6 +741,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 
 	// Validate any given whitelisted IP addresses and networks.
 	if len(StateCfg.ActiveWhitelists) > 0 {
@@ -709,6 +762,7 @@ func loadConfig() (
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return nil, nil, err
 				}
+
 				var bits int
 				if ip.To4() == nil {
 
@@ -717,14 +771,19 @@ func loadConfig() (
 				} else {
 					bits = 32
 				}
+
 				ipnet = &net.IPNet{
 					IP:   ip,
 					Mask: net.CIDRMask(bits, bits),
 				}
+
 			}
+
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
+
 	}
+
 
 	// --addPeer and --connect do not mix.
 	if len(cfg.AddPeers) > 0 && len(cfg.ConnectPeers) > 0 {
@@ -737,11 +796,13 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// --proxy or --connect without --listen disables listening.
 	if (cfg.Proxy != "" || len(cfg.ConnectPeers) > 0) &&
 		len(cfg.Listeners) == 0 {
 		cfg.DisableListen = true
 	}
+
 
 	// Connect means no DNS seeding.
 	if len(cfg.ConnectPeers) > 0 {
@@ -749,13 +810,16 @@ func loadConfig() (
 		cfg.DisableDNSSeed = true
 	}
 
+
 	// Add the default listener if none were specified. The default listener is all addresses on the listen port for the network we are to connect to.
 	if len(cfg.Listeners) == 0 {
 
 		cfg.Listeners = []string{
 			net.JoinHostPort("", ActiveNetParams.DefaultPort),
 		}
+
 	}
+
 
 	// Check to make sure limited and admin users don't have the same username
 	if cfg.RPCUser == cfg.RPCLimitUser && cfg.RPCUser != "" {
@@ -768,6 +832,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Check to make sure limited and admin users don't have the same password
 	if cfg.RPCPass == cfg.RPCLimitPass && cfg.RPCPass != "" {
 
@@ -779,12 +844,14 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// The RPC server is disabled if no username or password is provided.
 	if (cfg.RPCUser == "" || cfg.RPCPass == "") &&
 		(cfg.RPCLimitUser == "" || cfg.RPCLimitPass == "") {
 
 		cfg.DisableRPC = true
 	}
+
 	if cfg.DisableRPC {
 
 		log <- cl.Inf("RPC service is disabled")
@@ -796,13 +863,16 @@ func loadConfig() (
 
 				return nil, nil, err
 			}
+
 			cfg.RPCListeners = make([]string, 0, len(addrs))
 			for _, addr := range addrs {
 
 				addr = net.JoinHostPort(addr, ActiveNetParams.RPCPort)
 				cfg.RPCListeners = append(cfg.RPCListeners, addr)
 			}
+
 		}
+
 		if cfg.RPCMaxConcurrentReqs < 0 {
 
 			str := "%s: The rpcmaxwebsocketconcurrentrequests option may not be less than 0 -- parsed [%d]"
@@ -811,7 +881,9 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 	}
+
 
 	// Validate the the minrelaytxfee.
 	StateCfg.ActiveMinRelayTxFee, err = util.NewAmount(cfg.MinRelayTxFee)
@@ -823,6 +895,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 
 	// Limit the max block size to a sane value.
 	if cfg.BlockMaxSize < BlockMaxSizeMin || cfg.BlockMaxSize >
@@ -836,6 +909,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Limit the max block weight to a sane value.
 	if cfg.BlockMaxWeight < BlockMaxWeightMin ||
 		cfg.BlockMaxWeight > BlockMaxWeightMax {
@@ -848,6 +922,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Limit the max orphan count to a sane vlue.
 	if cfg.MaxOrphanTxs < 0 {
 
@@ -858,6 +933,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 
 	// Limit the block priority and minimum block sizes to max block size.
 	cfg.BlockPrioritySize = minUint32(cfg.BlockPrioritySize, cfg.BlockMaxSize)
@@ -876,6 +952,7 @@ func loadConfig() (
 		cfg.BlockMaxWeight = cfg.BlockMaxSize * blockchain.WitnessScaleFactor
 	}
 
+
 	// Look for illegal characters in the user agent comments.
 	for _, uaComment := range cfg.UserAgentComments {
 
@@ -889,7 +966,9 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 	}
+
 
 	// --txindex and --droptxindex do not mix.
 	if cfg.TxIndex && cfg.DropTxIndex {
@@ -902,6 +981,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// --addrindex and --dropaddrindex do not mix.
 	if cfg.AddrIndex && cfg.DropAddrIndex {
 
@@ -913,6 +993,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// --addrindex and --droptxindex do not mix.
 	if cfg.AddrIndex && cfg.DropTxIndex {
 
@@ -921,6 +1002,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 
 	// Check mining addresses are valid and saved parsed versions.
 	StateCfg.ActiveMiningAddrs = make([]util.Address, 0, len(cfg.MiningAddrs))
@@ -935,6 +1017,7 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 		if !addr.IsForNet(ActiveNetParams.Params) {
 
 
@@ -944,8 +1027,10 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
+
 
 	// Ensure there is at least one mining address when the generate flag is set.
 	if (cfg.Generate || cfg.MinerListener != "") && len(cfg.MiningAddrs) == 0 {
@@ -956,10 +1041,12 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 	if cfg.MinerPass != "" {
 
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(cfg.MinerPass))
 	}
+
 
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
 	cfg.Listeners = NormalizeAddresses(cfg.Listeners,
@@ -980,8 +1067,11 @@ func loadConfig() (
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return nil, nil, err
 			}
+
 		}
+
 	}
+
 
 	// Add default port to all added peer addresses if needed and remove duplicate addresses.
 	cfg.AddPeers = NormalizeAddresses(cfg.AddPeers,
@@ -998,6 +1088,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Check the checkpoints for syntax errors.
 	StateCfg.AddedCheckpoints, err = ParseCheckpoints(cfg.AddCheckpoints)
 	if err != nil {
@@ -1009,6 +1100,7 @@ func loadConfig() (
 		return nil, nil, err
 	}
 
+
 	// Tor stream isolation requires either proxy or onion proxy to be set.
 	if cfg.TorIsolation && cfg.Proxy == "" && cfg.OnionProxy == "" {
 
@@ -1018,6 +1110,7 @@ func loadConfig() (
 		fmt.Fprintln(os.Stderr, usageMessage)
 		return nil, nil, err
 	}
+
 
 	// Setup dial and DNS resolution (lookup) functions depending on the specified options.  The default is to use the standard net.DialTimeout function as well as the system DNS resolver.  When a proxy is specified, the dial function is set to the proxy specific dial function and the lookup is set to use tor (unless --noonion is specified in which case the system DNS resolver is used).
 	StateCfg.Dial = net.DialTimeout
@@ -1033,6 +1126,7 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 		// Tor isolation flag means proxy credentials will be overridden unless there is also an onion proxy configured in which case that one will be overridden.
 		torIsolation := false
 		if cfg.TorIsolation && cfg.OnionProxy == "" &&
@@ -1041,12 +1135,14 @@ func loadConfig() (
 			torIsolation = true
 			fmt.Fprintln(os.Stderr, "Tor isolation set -- overriding specified proxy user credentials")
 		}
+
 		proxy := &socks.Proxy{
 			Addr:         cfg.Proxy,
 			Username:     cfg.ProxyUser,
 			Password:     cfg.ProxyPass,
 			TorIsolation: torIsolation,
 		}
+
 		StateCfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if !cfg.NoOnion && cfg.OnionProxy == "" {
@@ -1055,8 +1151,11 @@ func loadConfig() (
 
 				return connmgr.TorLookupIP(host, cfg.Proxy)
 			}
+
 		}
+
 	}
+
 
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
 	if cfg.OnionProxy != "" {
@@ -1070,6 +1169,7 @@ func loadConfig() (
 			fmt.Fprintln(os.Stderr, usageMessage)
 			return nil, nil, err
 		}
+
 		// Tor isolation flag means onion proxy credentials will be overridden.
 		if cfg.TorIsolation &&
 			(cfg.OnionProxyUser != "" || cfg.OnionProxyPass != "") {
@@ -1078,6 +1178,7 @@ func loadConfig() (
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
+
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 
 			proxy := &socks.Proxy{
@@ -1086,8 +1187,10 @@ func loadConfig() (
 				Password:     cfg.OnionProxyPass,
 				TorIsolation: cfg.TorIsolation,
 			}
+
 			return proxy.DialTimeout(network, addr, timeout)
 		}
+
 		// When configured in bridge mode (both --onion and --proxy are configured), it means that the proxy configured by --proxy is not a tor proxy, so override the DNS resolution to use the onion-specific proxy.
 		if cfg.Proxy != "" {
 
@@ -1095,10 +1198,13 @@ func loadConfig() (
 
 				return connmgr.TorLookupIP(host, cfg.OnionProxy)
 			}
+
 		}
+
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
+
 
 	// Specifying --noonion means the onion address dial function results in an error.
 	if cfg.NoOnion {
@@ -1107,15 +1213,19 @@ func loadConfig() (
 
 			return nil, errors.New("tor has been disabled")
 		}
+
 	}
+
 
 	// Warn about missing config file only after all other configuration is done.  This prevents the warning on help messages and invalid options.  Note this should go directly before the return.
 	if configFileError != nil {
 
 		log <- cl.Warn{configFileError}
 	}
+
 	return &cfg, remainingArgs, nil
 }
+
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
 func minUint32(
@@ -1126,8 +1236,10 @@ func minUint32(
 
 			return a
 		}
+
 		return b
 	}
+
 */
 
 // podDial connects to the address on the named network using the appropriate dial function depending on the address and configuration options.  For example, .onion addresses will be dialed using the onion specific proxy if one was specified, but will otherwise use the normal dial function (which could itself use a proxy or not).
@@ -1149,6 +1261,7 @@ func podDial(
 	if er != nil {
 		log <- cl.Trace{con, er}
 	}
+
 	return con, er
 }
 
@@ -1163,5 +1276,6 @@ func podLookup(
 
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)
 	}
+
 	return StateCfg.Lookup(host)
 }

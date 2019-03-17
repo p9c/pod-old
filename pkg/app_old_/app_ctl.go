@@ -48,12 +48,14 @@ var CtlCommand = climax.Command{
 
 		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
+
 	Examples: []climax.Example{
 		{
 			Usecase:     "-l",
 			Description: "lists available commands",
 		},
 	},
+
 	Handle: func(ctx climax.Context) int {
 		Log.SetLevel("off")
 		if dl, ok := ctx.Get("debuglevel"); ok {
@@ -61,16 +63,20 @@ var CtlCommand = climax.Command{
 			log <- cl.Trace{
 				"setting debug level", dl,
 			}
+
 			Log.SetLevel(dl)
 		}
+
 		log <- cl.Debug{
 			"pod/ctl version", ctl.Version(),
 		}
+
 		if ctx.Is("version") {
 
 			fmt.Println("pod/ctl version", ctl.Version())
 			return 0
 		}
+
 		if ctx.Is("listcommands") {
 
 			ctl.ListCommands()
@@ -81,22 +87,26 @@ var CtlCommand = climax.Command{
 
 				cfgFile = ctl.DefaultConfigFile
 			}
+
 			if datadir, ok = ctx.Get("datadir"); ok {
 				cfgFile = filepath.Join(filepath.Join(datadir, "ctl"), "conf.json")
 				CtlCfg.ConfigFile = cfgFile
 			} else {
 				datadir = w.DefaultDataDir
 			}
+
 			if ctx.Is("init") {
 
 				log <- cl.Debug{
 					"writing default configuration to", cfgFile,
 				}
+
 				WriteDefaultCtlConfig(datadir)
 			} else {
 				log <- cl.Info{
 					"loading configuration from", cfgFile,
 				}
+
 				if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 
 					log <- cl.Wrn("configuration file does not exist, creating new one")
@@ -111,6 +121,7 @@ var CtlCommand = climax.Command{
 						WriteDefaultCtlConfig(datadir)
 						log <- cl.Error{err}
 					}
+
 					log <- cl.Trace{"read in config file\n", string(cfgData)}
 					err = json.Unmarshal(cfgData, CtlCfg)
 					if err != nil {
@@ -118,11 +129,15 @@ var CtlCommand = climax.Command{
 						log <- cl.Err(err.Error())
 						return 1
 					}
+
 				}
+
 				// then run from this config
 				configCtl(&ctx, cfgFile)
 			}
+
 		}
+
 		log <- cl.Trace{ctx.Args}
 		runCtl(ctx.Args, CtlCfg)
 		return 0

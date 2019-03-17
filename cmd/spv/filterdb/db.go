@@ -100,13 +100,15 @@ func New(
 
 		return putFilter(regFilters, genesisHash, basicFilter)
 	})
+
 	if err != nil && err != walletdb.ErrBucketExists {
 		return nil, err
 	}
 
 	return &FilterStore{
-		db: db,
-	}, nil
+			db: db,
+		},
+		nil
 }
 
 // putFilter stores a filter in the database according to the corresponding
@@ -157,6 +159,7 @@ func (f *FilterStore) PutFilter(hash *chainhash.Hash,
 
 		return targetBucket.Put(hash[:], bytes)
 	})
+
 }
 
 // FetchFilter attempts to fetch a filter with the given hash and type from
@@ -183,6 +186,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		if filterBytes == nil {
 			return ErrFilterNotFound
 		}
+
 		if len(filterBytes) == 0 {
 			return nil
 		}
@@ -197,6 +201,7 @@ func (f *FilterStore) FetchFilter(blockHash *chainhash.Hash,
 		filter = dbFilter
 		return nil
 	})
+
 	if err != nil {
 		return nil, err
 	}

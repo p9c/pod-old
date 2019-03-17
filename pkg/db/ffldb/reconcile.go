@@ -37,6 +37,7 @@ func deserializeWriteRow(
 			wantChecksum)
 		return 0, 0, makeDbErr(database.ErrCorruption, str, nil)
 	}
+
 	fileNum := byteOrder.Uint32(writeRow[0:4])
 	fileOffset := byteOrder.Uint32(writeRow[4:8])
 	return fileNum, fileOffset, nil
@@ -51,6 +52,7 @@ func reconcileDB(
 		if err := initDB(pdb.cache.ldb); err != nil {
 			return nil, err
 		}
+
 	}
 
 	// Load the current write cursor position from the metadata.
@@ -61,10 +63,12 @@ func reconcileDB(
 			str := "write cursor does not exist"
 			return makeDbErr(database.ErrCorruption, str, nil)
 		}
+
 		var err error
 		curFileNum, curOffset, err = deserializeWriteRow(writeRow)
 		return err
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -82,6 +86,7 @@ func reconcileDB(
 			wc.curFileNum,
 			wc.curOffset,
 		}
+
 		pdb.store.handleRollback(curFileNum, curOffset)
 		log <- cl.Inf("Database sync complete")
 	}
@@ -96,5 +101,6 @@ func reconcileDB(
 		log <- cl.Warn{"***Database corruption detected***:", str}
 		return nil, makeDbErr(database.ErrCorruption, str, nil)
 	}
+
 	return pdb, nil
 }

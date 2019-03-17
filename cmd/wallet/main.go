@@ -31,6 +31,7 @@ func Main(
 	if ActiveNet.Name == "testnet" {
 		fork.IsTestnet = true
 	}
+
 	if *cfg.Profile != "" {
 		go func() {
 
@@ -38,11 +39,13 @@ func Main(
 			log <- cl.Info{
 				"profile server listening on", listenAddr,
 			}
+
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
 			log <- cl.Error{http.ListenAndServe(listenAddr, nil)}
 		}()
+
 	}
 
 	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
@@ -53,6 +56,7 @@ func Main(
 			log <- cl.Error{"failed to create wallet", err}
 			return err
 		}
+
 	}
 
 	// Create and start HTTP server to serve wallet client connections.
@@ -66,6 +70,7 @@ func Main(
 		log <- cl.Error{
 			"unable to create RPC servers:", err,
 		}
+
 		return err
 	}
 
@@ -95,7 +100,9 @@ func Main(
 			log <- cl.Error{err}
 			return err
 		}
+
 	}
+
 	log <- cl.Trc("adding interrupt handler to unload wallet")
 
 	// Add interrupt handlers to shutdown the various process components
@@ -110,8 +117,11 @@ func Main(
 			log <- cl.Error{
 				"failed to close wallet:", err,
 			}
+
 		}
+
 	})
+
 	if rpcs != nil {
 		log <- cl.Trc("starting rpc server")
 		interrupt.AddHandler(func() {
@@ -123,7 +133,9 @@ func Main(
 			rpcs.Stop()
 			log <- cl.Inf("RPC server shutdown")
 		})
+
 	}
+
 	if legacyRPCServer != nil {
 		interrupt.AddHandler(func() {
 
@@ -131,12 +143,15 @@ func Main(
 			legacyRPCServer.Stop()
 			log <- cl.Inf("legacy RPC server shutdown")
 		})
+
 		go func() {
 
 			<-legacyRPCServer.RequestProcessShutdown()
 			interrupt.Request()
 		}()
+
 	}
+
 	<-interrupt.HandlersDone
 	log <- cl.Inf("shutdown complete")
 	return nil
@@ -159,6 +174,7 @@ func readCAFile() []byte {
 			// with nil certs and without the client connection.
 			certs = nil
 		}
+
 	} else {
 		log <- cl.Inf("chain server RPC TLS is disabled")
 	}
@@ -278,7 +294,9 @@ func rpcClientConnectLoop(
 			if legacyRPCServer != nil {
 				legacyRPCServer.SetChainServer(chainClient)
 			}
+
 		}
+
 		mu := new(sync.Mutex)
 		loader.RunAfterLoad(func(w *wallet.Wallet) {
 
@@ -288,6 +306,7 @@ func rpcClientConnectLoop(
 			if associate != nil {
 				associate(w)
 			}
+
 		})
 
 		chainClient.WaitForShutdown()
@@ -312,7 +331,9 @@ func rpcClientConnectLoop(
 			loadedWallet.WaitForShutdown()
 			loadedWallet.Start()
 		}
+
 	}
+
 }
 
 // startChainRPC opens a RPC client connection to a pod server for blockchain
@@ -329,11 +350,13 @@ func startChainRPC(
 		"attempting RPC client connection to %v, TLS: %s",
 		cfg.RPCConnect, fmt.Sprint(*cfg.EnableClientTLS),
 	}
+
 	rpcc, err := chain.NewRPCClient(ActiveNet.Params, *cfg.RPCConnect,
 		*cfg.PodUsername, *cfg.PodPassword, certs, !*cfg.EnableClientTLS, 0)
 	if err != nil {
 		return nil, err
 	}
+
 	err = rpcc.Start()
 	return rpcc, err
 }

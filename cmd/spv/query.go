@@ -116,6 +116,7 @@ func defaultQueryOptions() *queryOptions {
 		peerConnectTimeout: QueryPeerConnectTimeout,
 		encoding:           QueryEncoding,
 	}
+
 }
 
 // applyQueryOptions updates a queryOptions set with functional options.
@@ -124,6 +125,7 @@ func (qo *queryOptions) applyQueryOptions(options ...QueryOption) {
 	for _, option := range options {
 		option(qo)
 	}
+
 }
 
 // Timeout is a query option that lets the query know how long to wait for each
@@ -135,6 +137,7 @@ func Timeout(
 
 		qo.timeout = timeout
 	}
+
 }
 
 // NumRetries is a query option that lets the query know the maximum number of
@@ -146,6 +149,7 @@ func NumRetries(
 
 		qo.numRetries = numRetries
 	}
+
 }
 
 // PeerConnectTimeout is a query option that lets the query know how long to
@@ -159,6 +163,7 @@ func PeerConnectTimeout(
 
 		qo.peerConnectTimeout = timeout
 	}
+
 }
 
 // Encoding is a query option that allows the caller to set a message encoding
@@ -170,6 +175,7 @@ func Encoding(
 
 		qo.encoding = encoding
 	}
+
 }
 
 // DoneChan allows the caller to pass a channel that will get closed when the
@@ -181,6 +187,7 @@ func DoneChan(
 
 		qo.doneChan = doneChan
 	}
+
 }
 
 // PersistToDisk allows the caller to tell that the filter should be kept
@@ -191,6 +198,7 @@ func PersistToDisk() QueryOption {
 
 		qo.persistToDisk = true
 	}
+
 }
 
 // queryState is an atomically updated per-query state for each query in a
@@ -319,6 +327,7 @@ func queryChainServiceBatch(
 		msgChan:  msgChan,
 		quitChan: subQuit,
 	}
+
 	defer close(subQuit)
 
 	// peerStates and its companion mutex allow the peer goroutines to
@@ -375,6 +384,7 @@ func queryChainServiceBatch(
 					log <- cl.Tracef{
 						"query #%v already answered, skipping", i,
 					}
+
 					continue
 				}
 
@@ -392,6 +402,7 @@ func queryChainServiceBatch(
 					log <- cl.Tracef{
 						"query #%v already being queried for, skipping", i,
 					}
+
 					continue
 				}
 
@@ -436,7 +447,9 @@ func queryChainServiceBatch(
 					} else {
 						return
 					}
+
 				}
+
 			}
 
 			// We have a query we're working on.
@@ -469,6 +482,7 @@ func queryChainServiceBatch(
 						spew.Sdump(queryMsgs[handleQuery]),
 					)
 				})
+
 			case <-matchSignal:
 
 				// We got a match signal so we can mark this
@@ -480,8 +494,11 @@ func queryChainServiceBatch(
 				log <- cl.Tracef{
 					"query #%v answered, updating state", handleQuery,
 				}
+
 			}
+
 		}
+
 	}
 
 	// peerQuits holds per-peer quit channels so we can kill the goroutines
@@ -504,6 +521,7 @@ func queryChainServiceBatch(
 		for _, quitChan := range peerQuits {
 			close(quitChan)
 		}
+
 	}()
 
 	for {
@@ -534,6 +552,7 @@ func queryChainServiceBatch(
 				delete(peerQuits, peer)
 				delete(matchSignals, peer)
 			}
+
 		}
 
 		select {
@@ -550,7 +569,9 @@ func queryChainServiceBatch(
 					return
 				case matchSignals[msg.sp.Addr()] <- struct{}{}:
 				}
+
 			}
+
 		case <-time.After(qo.timeout):
 
 			// Check if we're done; if so, quit.
@@ -561,17 +582,22 @@ func queryChainServiceBatch(
 
 					allDone = false
 				}
+
 			}
+
 			if allDone {
 				return
 			}
+
 		case <-queryQuit:
 			return
 
 		case <-s.quit:
 			return
 		}
+
 	}
+
 }
 
 // queryAllPeers is a helper function that sends a query to all peers and waits
@@ -658,8 +684,11 @@ func (s *ChainService) queryAllPeers(
 					return
 				case <-timeout:
 				}
+
 			}
-		}(sp, peerQuits[sp.Addr()])
+
+		}(sp,
+			peerQuits[sp.Addr()])
 	}
 
 	// This goroutine will wait until all of the peer-query goroutines have
@@ -678,6 +707,7 @@ func (s *ChainService) queryAllPeers(
 		if qo.doneChan != nil {
 			close(qo.doneChan)
 		}
+
 	}()
 
 	// Loop for any messages sent to us via our subscription channel and
@@ -715,8 +745,11 @@ checkResponses:
 				checkResponse(sm.sp, sm.msg, queryQuit,
 					peerQuits[sm.sp.Addr()])
 			}
+
 		}
+
 	}
+
 }
 
 // queryChainServicePeers is a helper function that sends a query to one or
@@ -788,6 +821,7 @@ func queryChainServicePeers(
 		queryPeer.subscribeRecvMsg(subscription)
 		queryPeer.QueueMessageWithEncoding(queryMsg, nil, qo.encoding)
 	}
+
 checkResponses:
 	for {
 		select {
@@ -797,6 +831,7 @@ checkResponses:
 			if queryPeer != nil {
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
+
 			break checkResponses
 
 		case <-queryQuit:
@@ -805,6 +840,7 @@ checkResponses:
 			if queryPeer != nil {
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
+
 			break checkResponses
 
 		case <-s.quit:
@@ -813,6 +849,7 @@ checkResponses:
 			if queryPeer != nil {
 				queryPeer.unsubscribeRecvMsgs(subscription)
 			}
+
 			break checkResponses
 
 		// A message has arrived over the subscription channel, so we
@@ -854,6 +891,7 @@ checkResponses:
 					)
 					break
 				}
+
 			}
 
 			// If at this point, we don't yet have a query peer,
@@ -862,7 +900,9 @@ checkResponses:
 			if queryPeer == nil {
 				break checkResponses
 			}
+
 		}
+
 	}
 
 	// Close the subscription quit channel and the done channel, if any.
@@ -871,6 +911,7 @@ checkResponses:
 	if qo.doneChan != nil {
 		close(qo.doneChan)
 	}
+
 }
 
 // getFilterFromCache returns a filter from ChainService's FilterCache if it
@@ -933,6 +974,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	if err == nil && filter != nil {
 		return filter, nil
 	}
+
 	if err != nil && err != cache.ErrElementNotFound {
 		return nil, err
 	}
@@ -942,6 +984,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	if err == nil && filter != nil {
 		return filter, nil
 	}
+
 	if err != nil && err != filterdb.ErrFilterNotFound {
 		return nil, err
 	}
@@ -960,6 +1003,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 	if err != nil {
 		return nil, err
 	}
+
 	if block.BlockHash() != blockHash {
 		str := "couldn't get header for block %s from database"
 		log <- cl.Debug{str, blockHash}
@@ -981,6 +1025,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 		return nil, fmt.Errorf("Couldn't get cfheader for block %s "+
 			"from database", blockHash)
 	}
+
 	prevHeader, err := getHeader(&block.PrevBlock)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't get cfheader for block %s "+
@@ -1061,7 +1106,9 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				close(quit)
 			default:
 			}
+
 		},
+
 		options...,
 	)
 
@@ -1075,6 +1122,7 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 			log <- cl.Warn{
 				"couldn't write filter to cache:", err,
 			}
+
 		}
 
 		qo := defaultQueryOptions()
@@ -1089,7 +1137,9 @@ func (s *ChainService) GetCFilter(blockHash chainhash.Hash,
 				"Wrote filter for block %s, type %d",
 				blockHash, filterType,
 			}
+
 		}
+
 	}
 
 	return filter, nil
@@ -1130,6 +1180,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 	if err == nil && blockValue != nil {
 		return blockValue.(*cache.CacheableBlock).Block, err
 	}
+
 	if err != nil && err != cache.ErrElementNotFound {
 		return nil, err
 	}
@@ -1175,6 +1226,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				if response.BlockHash() != blockHash {
 					return
 				}
+
 				block := util.NewBlock(response)
 
 				// Only set height if util hasn't
@@ -1203,6 +1255,7 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 						"Invalid block for %s received from %s -- disconnecting peer",
 						blockHash, sp.Addr(),
 					}
+
 					sp.Disconnect()
 					return
 				}
@@ -1222,7 +1275,9 @@ func (s *ChainService) GetBlock(blockHash chainhash.Hash,
 				close(quit)
 			default:
 			}
+
 		},
+
 		options...,
 	)
 	if foundBlock == nil {
@@ -1285,7 +1340,9 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 						sp.QueueMessageWithEncoding(
 							tx, nil, qo.encoding)
 					}
+
 				}
+
 			case *wire.MsgReject:
 				if response.Hash == txHash {
 					err = fmt.Errorf("Transaction %s "+
@@ -1295,7 +1352,9 @@ func (s *ChainService) SendTransaction(tx *wire.MsgTx, options ...QueryOption) e
 					log <- cl.Error{err}
 					close(quit)
 				}
+
 			}
+
 		},
 
 		// Default to 500ms timeout. Default for queryAllPeers is a

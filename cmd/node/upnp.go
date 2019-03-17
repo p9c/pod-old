@@ -49,6 +49,7 @@ type NAT interface {
 	// Remove a previously added port mapping from external port to internal port.
 	DeletePortMapping(protocol string, externalPort, internalPort int) (err error)
 }
+
 type upnpNAT struct {
 	serviceURL string
 	ourIP      string
@@ -61,16 +62,19 @@ func Discover() (nat NAT, err error) {
 	if err != nil {
 		return
 	}
+
 	conn, err := net.ListenPacket("udp4", ":0")
 	if err != nil {
 		return
 	}
+
 	socket := conn.(*net.UDPConn)
 	defer socket.Close()
 	err = socket.SetDeadline(time.Now().Add(3 * time.Second))
 	if err != nil {
 		return
 	}
+
 	st := "ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1\r\n"
 	buf := bytes.NewBufferString(
 		"M-SEARCH * HTTP/1.1\r\n" +
@@ -85,6 +89,7 @@ func Discover() (nat NAT, err error) {
 		if err != nil {
 			return
 		}
+
 		var n int
 		n, _, err = socket.ReadFromUDP(answerBytes)
 		if err != nil {
@@ -92,36 +97,43 @@ func Discover() (nat NAT, err error) {
 			// socket.Close()
 			// return
 		}
+
 		answer := string(answerBytes[0:n])
 		if !strings.Contains(answer, "\r\n"+st) {
 
 			continue
 		}
+
 		// HTTP header field names are case-insensitive. http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
 		locString := "\r\nlocation: "
 		locIndex := strings.Index(strings.ToLower(answer), locString)
 		if locIndex < 0 {
 			continue
 		}
+
 		loc := answer[locIndex+len(locString):]
 		endIndex := strings.Index(loc, "\r\n")
 		if endIndex < 0 {
 			continue
 		}
+
 		locURL := loc[0:endIndex]
 		var serviceURL string
 		serviceURL, err = getServiceURL(locURL)
 		if err != nil {
 			return
 		}
+
 		var ourIP string
 		ourIP, err = getOurIP()
 		if err != nil {
 			return
 		}
+
 		nat = &upnpNAT{serviceURL: serviceURL, ourIP: ourIP}
 		return
 	}
+
 	err = errors.New("UPnP port discovery failed")
 	return
 }
@@ -173,7 +185,9 @@ func getChildDevice(
 		if d.DeviceList.Device[i].DeviceType == deviceType {
 			return &d.DeviceList.Device[i]
 		}
+
 	}
+
 	return nil
 }
 
@@ -184,7 +198,9 @@ func getChildService(
 		if d.ServiceList.Service[i].ServiceType == serviceType {
 			return &d.ServiceList.Service[i]
 		}
+
 	}
+
 	return nil
 }
 
@@ -195,6 +211,7 @@ func getOurIP() (ip string, err error) {
 	if err != nil {
 		return
 	}
+
 	return net.LookupCNAME(hostname)
 }
 
@@ -206,36 +223,43 @@ func getServiceURL(
 	if err != nil {
 		return
 	}
+
 	defer r.Body.Close()
 	if r.StatusCode >= 400 {
 		err = errors.New(string(r.StatusCode))
 		return
 	}
+
 	var root root
 	err = xml.NewDecoder(r.Body).Decode(&root)
 	if err != nil {
 		return
 	}
+
 	a := &root.Device
 	if a.DeviceType != "urn:schemas-upnp-org:device:InternetGatewayDevice:1" {
 		err = errors.New("no InternetGatewayDevice")
 		return
 	}
+
 	b := getChildDevice(a, "urn:schemas-upnp-org:device:WANDevice:1")
 	if b == nil {
 		err = errors.New("no WANDevice")
 		return
 	}
+
 	c := getChildDevice(b, "urn:schemas-upnp-org:device:WANConnectionDevice:1")
 	if c == nil {
 		err = errors.New("no WANConnectionDevice")
 		return
 	}
+
 	d := getChildService(c, "urn:schemas-upnp-org:service:WANIPConnection:1")
 	if d == nil {
 		err = errors.New("no WANIPConnection")
 		return
 	}
+
 	url = combineURL(rootURL, d.ControlURL)
 	return
 }
@@ -273,6 +297,7 @@ func soapRequest(
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "text/xml ; charset=\"utf-8\"")
 	req.Header.Set("User-Agent", "Darwin/10.0.0, UPnP/1.0, MiniUPnPc/1.3")
 
@@ -285,20 +310,24 @@ func soapRequest(
 	if err != nil {
 		return nil, err
 	}
+
 	if r.Body != nil {
 		defer r.Body.Close()
 	}
+
 	if r.StatusCode >= 400 {
 		// log.Stderr(function, r.StatusCode)
 		err = errors.New("Error " + strconv.Itoa(r.StatusCode) + " for " + function)
 		r = nil
 		return
 	}
+
 	var reply soapEnvelope
 	err = xml.NewDecoder(r.Body).Decode(&reply)
 	if err != nil {
 		return nil, err
 	}
+
 	return reply.Body.Data, nil
 }
 
@@ -316,15 +345,18 @@ func (n *upnpNAT) GetExternalAddress() (addr net.IP, err error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var reply getExternalIPAddressResponse
 	err = xml.Unmarshal(response, &reply)
 	if err != nil {
 		return nil, err
 	}
+
 	addr = net.ParseIP(reply.ExternalIPAddress)
 	if addr == nil {
 		return nil, errors.New("unable to parse ip address")
 	}
+
 	return addr, nil
 }
 

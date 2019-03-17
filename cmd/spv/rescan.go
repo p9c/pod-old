@@ -69,6 +69,7 @@ func QueryOptions(
 
 		ro.queryOptions = options
 	}
+
 }
 
 // NotificationHandlers specifies notification handlers for the rescan. These
@@ -80,6 +81,7 @@ func NotificationHandlers(
 
 		ro.ntfn = ntfn
 	}
+
 }
 
 // StartBlock specifies the start block. The hash is checked first; if there's
@@ -99,6 +101,7 @@ func StartBlock(
 
 		ro.startBlock = startBlock
 	}
+
 }
 
 // StartTime specifies the start time. The time is compared to the timestamp of
@@ -116,6 +119,7 @@ func StartTime(
 
 		ro.startTime = startTime
 	}
+
 }
 
 // EndBlock specifies the end block. The hash is checked first; if there's no
@@ -135,6 +139,7 @@ func EndBlock(
 
 		ro.endBlock = endBlock
 	}
+
 }
 
 // WatchAddrs specifies the addresses to watch/filter for. Each call to this
@@ -150,6 +155,7 @@ func WatchAddrs(
 
 		ro.watchAddrs = append(ro.watchAddrs, watchAddrs...)
 	}
+
 }
 
 // InputWithScript couples an previous outpoint along with its input script.
@@ -179,6 +185,7 @@ func WatchInputs(
 
 		ro.watchInputs = append(ro.watchInputs, watchInputs...)
 	}
+
 }
 
 // TxIdx specifies a hint transaction index into the block in which the UTXO is
@@ -190,6 +197,7 @@ func TxIdx(
 
 		ro.txIdx = txIdx
 	}
+
 }
 
 // QuitChan specifies the quit channel. This can be used by the caller to let
@@ -205,6 +213,7 @@ func QuitChan(
 
 		ro.quit = quit
 	}
+
 }
 
 // updateChan specifies an update channel. This is for internal use by the
@@ -216,6 +225,7 @@ func updateChan(
 
 		ro.update = update
 	}
+
 }
 
 // rescan is a single-threaded function that uses headers from the database and
@@ -231,9 +241,11 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		Hash:   chainhash.Hash{},
 		Height: 0,
 	}
+
 	for _, option := range options {
 		option(ro)
 	}
+
 	ro.chain = s
 
 	// If we have something to watch, create a watch list. The watch list
@@ -247,6 +259,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 
 		ro.watchList = append(ro.watchList, script)
 	}
+
 	for _, input := range ro.watchInputs {
 		ro.watchList = append(ro.watchList, input.PkScript)
 	}
@@ -267,6 +280,7 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 			} else {
 				ro.endBlock.Height = int32(height)
 			}
+
 		}
 
 		// If the ending hash it nil, then check to see if the target
@@ -284,8 +298,11 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 				} else {
 					ro.endBlock = &waddrmgr.BlockStamp{}
 				}
+
 			}
+
 		}
+
 	} else {
 		ro.endBlock = &waddrmgr.BlockStamp{}
 	}
@@ -312,8 +329,10 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		if err != nil {
 			return err
 		}
+
 		ro.startBlock = bs
 	}
+
 	curStamp = *ro.startBlock
 
 	// To find our starting block, either the start hash should be set, or
@@ -330,7 +349,9 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 		} else {
 			curStamp.Hash = chainhash.Hash{}
 		}
+
 	}
+
 	if (curStamp.Hash == chainhash.Hash{}) {
 
 		if curStamp.Height == 0 {
@@ -346,7 +367,9 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 				curStamp.Hash = *s.chainParams.GenesisHash
 				curStamp.Height = 0
 			}
+
 		}
+
 	}
 
 	s.blockManager.newFilterHeadersMtx.RLock()
@@ -380,7 +403,9 @@ func (s *ChainService) rescan(options ...RescanOption) error {
 				return
 			default:
 			}
+
 		}
+
 		s.blockManager.newFilterHeadersMtx.Unlock()
 		close(done)
 	}()
@@ -408,6 +433,7 @@ filterHeaderWaitLoop:
 			s.blockManager.newFilterHeadersSignal.Broadcast()
 			return ErrRescanExit
 		}
+
 	}
 
 	// If any updates were queued while waiting for the filter headers to
@@ -418,6 +444,7 @@ filterHeaderWaitLoop:
 		if err != nil {
 			return err
 		}
+
 	}
 
 	log <- cl.Debugf{
@@ -493,7 +520,9 @@ filterHeaderWaitLoop:
 			case blockConnected <- headerTip:
 			case <-ro.quit:
 			}
+
 		})
+
 	}
 
 	// Loop through blocks, one at a time. This relies on the underlying
@@ -564,6 +593,7 @@ rescanLoop:
 						"rewound to block %d (%s), no longer current",
 						curStamp.Height, curStamp.Hash,
 					}
+
 					current = false
 					s.unsubscribeBlockMsgs(subscription)
 					subscription = nil
@@ -601,6 +631,7 @@ rescanLoop:
 						header.PrevBlock,
 						curStamp.Hash,
 					}
+
 					current = false
 					continue rescanLoop
 				}
@@ -623,6 +654,7 @@ rescanLoop:
 						"missing filter header for height=%v, skipping",
 						curStamp.Height + 1,
 					}
+
 					continue rescanLoop
 				}
 
@@ -731,6 +763,7 @@ rescanLoop:
 							curStamp.Height,
 							&curHeader)
 					}
+
 					if ro.ntfn.OnBlockDisconnected != nil {
 						ro.ntfn.OnBlockDisconnected(
 							&curStamp.Hash,
@@ -753,7 +786,9 @@ rescanLoop:
 							*header, curStamp.Height,
 						)
 					}
+
 				}
+
 			}
 
 		// If we're not yet current, then we'll walk down the chain
@@ -778,6 +813,7 @@ rescanLoop:
 				default:
 					break updateFilterLoop
 				}
+
 			}
 
 			bestBlock, err := s.BestBlock()
@@ -798,6 +834,7 @@ rescanLoop:
 					"rescan became current at %d (%s), subscribing to block notifications",
 					curStamp.Height, curStamp.Hash,
 				}
+
 				current = true
 
 				// Ensure we cancel the old subscroption if we're going back to scan for missed blocks.
@@ -815,12 +852,14 @@ rescanLoop:
 						"unable to register block subscription: %v", err,
 					)
 				}
+
 				defer func() {
 
 					if subscription != nil {
 						s.unsubscribeBlockMsgs(subscription)
 						subscription = nil
 					}
+
 				}()
 
 				continue rescanLoop
@@ -847,12 +886,16 @@ rescanLoop:
 			if !scanning {
 				scanning = ro.startTime.Before(curHeader.Timestamp)
 			}
+
 			err = s.notifyBlock(ro, curHeader, curStamp, scanning)
 			if err != nil {
 				return err
 			}
+
 		}
+
 	}
+
 }
 
 // notifyBlock calls appropriate listeners based on the block filter.
@@ -881,7 +924,9 @@ func (s *ChainService) notifyBlock(ro *rescanOptions,
 			if err != nil {
 				return err
 			}
+
 		}
+
 	}
 
 	if ro.ntfn.OnFilteredBlockConnected != nil {
@@ -910,6 +955,7 @@ func (s *ChainService) extractBlockMatches(ro *rescanOptions,
 	if err != nil {
 		return nil, err
 	}
+
 	if block == nil {
 		return nil, fmt.Errorf("Couldn't get block %d (%s) from "+
 			"network", curStamp.Height, curStamp.Hash)
@@ -936,6 +982,7 @@ func (s *ChainService) extractBlockMatches(ro *rescanOptions,
 			if ro.ntfn.OnRedeemingTx != nil {
 				ro.ntfn.OnRedeemingTx(tx, &txDetails)
 			}
+
 		}
 
 		// Even though the transaction may already be known as relevant
@@ -955,11 +1002,13 @@ func (s *ChainService) extractBlockMatches(ro *rescanOptions,
 			if ro.ntfn.OnRecvTx != nil {
 				ro.ntfn.OnRecvTx(tx, &txDetails)
 			}
+
 		}
 
 		if relevant {
 			relevantTxs = append(relevantTxs, tx)
 		}
+
 	}
 
 	return relevantTxs, nil
@@ -997,7 +1046,9 @@ func (s *ChainService) notifyBlockWithFilter(ro *rescanOptions,
 			if err != nil {
 				return err
 			}
+
 		}
+
 	}
 
 	if ro.ntfn.OnFilteredBlockConnected != nil {
@@ -1057,6 +1108,7 @@ func (s *ChainService) blockFilterMatches(ro *rescanOptions,
 			// Block has been reorged out from under us.
 			return false, nil
 		}
+
 		return false, err
 	}
 
@@ -1072,6 +1124,7 @@ func (s *ChainService) blockFilterMatches(ro *rescanOptions,
 		if matched || err != nil {
 			return matched, err
 		}
+
 	}
 
 	// We don't need the extended filter, since all of the things a rescan
@@ -1113,9 +1166,11 @@ func (ro *rescanOptions) updateFilter(update *updateOptions,
 
 		ro.watchList = append(ro.watchList, script)
 	}
+
 	for _, input := range update.inputs {
 		ro.watchList = append(ro.watchList, input.PkScript)
 	}
+
 	for _, txid := range update.txIDs {
 		ro.watchList = append(ro.watchList, txid[:])
 	}
@@ -1142,6 +1197,7 @@ func (ro *rescanOptions) updateFilter(update *updateOptions,
 			ro.ntfn.OnBlockDisconnected(&curStamp.Hash,
 				curStamp.Height, curHeader.Timestamp)
 		}
+
 		if ro.ntfn.OnFilteredBlockDisconnected != nil &&
 			!update.disableDisconnectedNtfns {
 			ro.ntfn.OnFilteredBlockDisconnected(curStamp.Height,
@@ -1180,8 +1236,11 @@ func (ro *rescanOptions) spendsWatchedInput(tx *util.Tx) bool {
 			if in.PreviousOutPoint == input.OutPoint {
 				return true
 			}
+
 		}
+
 	}
+
 	return false
 }
 
@@ -1231,14 +1290,17 @@ txOutLoop:
 				Hash:  *hash,
 				Index: uint32(outIdx),
 			}
+
 			ro.watchInputs = append(ro.watchInputs, InputWithScript{
 				PkScript: pkScript,
 				OutPoint: outPoint,
 			})
+
 			ro.watchList = append(ro.watchList, pkScript)
 
 			continue txOutLoop
 		}
+
 	}
 
 	return anyMatchingOutputs, nil
@@ -1279,6 +1341,7 @@ func (s *ChainService) NewRescan(options ...RescanOption) *Rescan {
 		updateChan: make(chan *updateOptions),
 		chain:      s,
 	}
+
 }
 
 // WaitForShutdown waits until all goroutines associated with the rescan have
@@ -1346,6 +1409,7 @@ func AddAddrs(
 
 		uo.addrs = append(uo.addrs, addrs...)
 	}
+
 }
 
 // AddInputs adds inputs to watch to the filter.
@@ -1355,6 +1419,7 @@ func AddInputs(
 
 		uo.inputs = append(uo.inputs, inputs...)
 	}
+
 }
 
 // Rewind rewinds the rescan to the specified height (meaning, disconnects down
@@ -1370,6 +1435,7 @@ func Rewind(
 
 		uo.rewind = height
 	}
+
 }
 
 // DisableDisconnectedNtfns tells the rescan not to send `OnBlockDisconnected`
@@ -1381,6 +1447,7 @@ func DisableDisconnectedNtfns(
 
 		uo.disableDisconnectedNtfns = disabled
 	}
+
 }
 
 // Update sends an update to a long-running rescan/notification goroutine.
@@ -1407,6 +1474,7 @@ func (r *Rescan) Update(options ...UpdateOption) error {
 		if r.err != nil {
 			errStr += fmt.Sprintf(" It returned error: %s", r.err)
 		}
+
 		r.errMtx.Unlock()
 		return fmt.Errorf(errStr)
 	}
@@ -1489,6 +1557,7 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 		Hash:   *s.chainParams.GenesisHash,
 		Height: 0,
 	}
+
 	for _, option := range options {
 		option(ro)
 	}
@@ -1517,6 +1586,7 @@ func (s *ChainService) GetUtxo(options ...RescanOption) (*SpendReport, error) {
 			ro.watchInputs[0].OutPoint.String(),
 			err,
 		}
+
 		return nil, err
 	}
 

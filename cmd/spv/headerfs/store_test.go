@@ -77,6 +77,7 @@ func TestBlockHeaderStoreOperations(
 	if cleanUp != nil {
 		defer cleanUp()
 	}
+
 	if err != nil {
 		t.Fatalf("unable to create new block header store: %v", err)
 	}
@@ -101,12 +102,14 @@ func TestBlockHeaderStoreOperations(
 	if err != nil {
 		t.Fatalf("unable to fetch chain tip")
 	}
+
 	if !reflect.DeepEqual(lastHeader.BlockHeader, tipHeader) {
 
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(lastHeader),
 			spew.Sdump(tipHeader))
 	}
+
 	if tipHeight != lastHeader.Height {
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			lastHeader.Height, tipHeight)
@@ -125,6 +128,7 @@ func TestBlockHeaderStoreOperations(
 		if err != nil {
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
+
 		if !reflect.DeepEqual(*header.BlockHeader, *dbHeader) {
 
 			t.Fatalf("retrieved by height headers don't match up: "+
@@ -137,12 +141,14 @@ func TestBlockHeaderStoreOperations(
 		if err != nil {
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
+
 		if !reflect.DeepEqual(*dbHeader, *header.BlockHeader) {
 
 			t.Fatalf("retrieved by hash headers don't match up: "+
 				"expected %v, got %v", spew.Sdump(header),
 				spew.Sdump(dbHeader))
 		}
+
 	}
 
 	// Finally, we'll test the roll back scenario. Roll back the chain by a
@@ -154,31 +160,37 @@ func TestBlockHeaderStoreOperations(
 	if err != nil {
 		t.Fatalf("unable to rollback chain: %v", err)
 	}
+
 	if secondToLastHeader.Height != uint32(blockStamp.Height) {
 
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, blockStamp.Height)
 	}
+
 	headerHash := secondToLastHeader.BlockHash()
 	if !bytes.Equal(headerHash[:], blockStamp.Hash[:]) {
 
 		t.Fatalf("header hashes don't match: expected %v, got %v",
 			headerHash, blockStamp.Hash)
 	}
+
 	tipHeader, tipHeight, err = bhs.ChainTip()
 	if err != nil {
 		t.Fatalf("unable to fetch chain tip")
 	}
+
 	if !reflect.DeepEqual(secondToLastHeader.BlockHeader, tipHeader) {
 
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(secondToLastHeader),
 			spew.Sdump(tipHeader))
 	}
+
 	if tipHeight != secondToLastHeader.Height {
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, tipHeight)
 	}
+
 }
 
 func TestBlockHeaderStoreRecovery(
@@ -191,6 +203,7 @@ func TestBlockHeaderStoreRecovery(
 	if cleanUp != nil {
 		defer cleanUp()
 	}
+
 	if err != nil {
 		t.Fatalf("unable to create new block header store: %v", err)
 	}
@@ -209,6 +222,7 @@ func TestBlockHeaderStoreRecovery(
 		if err := bhs.truncateIndex(&newTip, true); err != nil {
 			t.Fatalf("unable to truncate index: %v", err)
 		}
+
 	}
 
 	// Next, we'll re-create the block header store in order to trigger the
@@ -217,6 +231,7 @@ func TestBlockHeaderStoreRecovery(
 	if err != nil {
 		t.Fatalf("unable to re-create bhs: %v", err)
 	}
+
 	bhs = hs.(*blockHeaderStore)
 
 	// The chain tip of this new instance should be of height 5, and match
@@ -225,9 +240,11 @@ func TestBlockHeaderStoreRecovery(
 	if err != nil {
 		t.Fatalf("unable to get chain tip: %v", err)
 	}
+
 	if tipHeight != 5 {
 		t.Fatalf("tip height mismatch: expected %v, got %v", 5, tipHeight)
 	}
+
 	prevHeaderHash := blockHeaders[5].BlockHash()
 	tipBlockHash := tipHash.BlockHash()
 	if bytes.Equal(prevHeaderHash[:], tipBlockHash[:]) {
@@ -235,6 +252,7 @@ func TestBlockHeaderStoreRecovery(
 		t.Fatalf("block hash mismatch: expected %v, got %v",
 			prevHeaderHash, tipBlockHash)
 	}
+
 }
 
 func createTestFilterHeaderStore() (func(), walletdb.DB, string, *FilterHeaderStore, error) {
@@ -274,6 +292,7 @@ func createTestFilterHeaderChain(
 			FilterHash: sha256.Sum256([]byte{byte(i)}),
 			Height:     i,
 		}
+
 	}
 
 	return filterHeaders
@@ -286,6 +305,7 @@ func TestFilterHeaderStoreOperations(
 	if cleanUp != nil {
 		defer cleanUp()
 	}
+
 	if err != nil {
 		t.Fatalf("unable to create new block header store: %v", err)
 	}
@@ -309,6 +329,7 @@ func TestFilterHeaderStoreOperations(
 			if err != nil {
 				return err
 			}
+
 		}
 
 		return nil
@@ -329,11 +350,13 @@ func TestFilterHeaderStoreOperations(
 	if err != nil {
 		t.Fatalf("unable to fetch chain tip")
 	}
+
 	if !bytes.Equal(lastHeader.FilterHash[:], tipHeader[:]) {
 
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", lastHeader, tipHeader)
 	}
+
 	if tipHeight != lastHeader.Height {
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			lastHeader.Height, tipHeight)
@@ -346,6 +369,7 @@ func TestFilterHeaderStoreOperations(
 		if err != nil {
 			t.Fatalf("unable to fetch header by height: %v", err)
 		}
+
 		if !bytes.Equal(header.FilterHash[:], dbHeader[:]) {
 
 			t.Fatalf("retrieved by height headers don't match up: "+
@@ -358,12 +382,14 @@ func TestFilterHeaderStoreOperations(
 		if err != nil {
 			t.Fatalf("unable to fetch header by hash: %v", err)
 		}
+
 		if !bytes.Equal(dbHeader[:], header.FilterHash[:]) {
 
 			t.Fatalf("retrieved by hash headers don't match up: "+
 				"expected %v, got %v", spew.Sdump(header),
 				spew.Sdump(dbHeader))
 		}
+
 	}
 
 	// Finally, we'll test the roll back scenario. Roll back the chain by a
@@ -375,30 +401,36 @@ func TestFilterHeaderStoreOperations(
 	if err != nil {
 		t.Fatalf("unable to rollback chain: %v", err)
 	}
+
 	if secondToLastHeader.Height != uint32(blockStamp.Height) {
 
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, blockStamp.Height)
 	}
+
 	if !bytes.Equal(secondToLastHeader.FilterHash[:], blockStamp.Hash[:]) {
 
 		t.Fatalf("header hashes don't match: expected %v, got %v",
 			secondToLastHeader.FilterHash, blockStamp.Hash)
 	}
+
 	tipHeader, tipHeight, err = fhs.ChainTip()
 	if err != nil {
 		t.Fatalf("unable to fetch chain tip")
 	}
+
 	if !bytes.Equal(secondToLastHeader.FilterHash[:], tipHeader[:]) {
 
 		t.Fatalf("tip height headers don't match up: "+
 			"expected %v, got %v", spew.Sdump(secondToLastHeader),
 			spew.Sdump(tipHeader))
 	}
+
 	if tipHeight != secondToLastHeader.Height {
 		t.Fatalf("chain tip doesn't match: expected %v, got %v",
 			secondToLastHeader.Height, tipHeight)
 	}
+
 }
 
 func TestFilterHeaderStoreRecovery(
@@ -411,6 +443,7 @@ func TestFilterHeaderStoreRecovery(
 	if cleanUp != nil {
 		defer cleanUp()
 	}
+
 	if err != nil {
 		t.Fatalf("unable to create new block header store: %v", err)
 	}
@@ -429,6 +462,7 @@ func TestFilterHeaderStoreRecovery(
 			if err != nil {
 				return err
 			}
+
 		}
 
 		return nil
@@ -449,6 +483,7 @@ func TestFilterHeaderStoreRecovery(
 		if err := fhs.truncateIndex(&newTip, true); err != nil {
 			t.Fatalf("unable to truncate index: %v", err)
 		}
+
 	}
 
 	// Next, we'll re-create the block header store in order to trigger the
@@ -464,15 +499,18 @@ func TestFilterHeaderStoreRecovery(
 	if err != nil {
 		t.Fatalf("unable to get chain tip: %v", err)
 	}
+
 	if tipHeight != 5 {
 		t.Fatalf("tip height mismatch: expected %v, got %v", 5, tipHeight)
 	}
+
 	prevHeaderHash := blockHeaders[5].FilterHash
 	if bytes.Equal(prevHeaderHash[:], tipHash[:]) {
 
 		t.Fatalf("block hash mismatch: expected %v, got %v",
 			prevHeaderHash, tipHash[:])
 	}
+
 }
 
 // TestBlockHeadersFetchHeaderAncestors tests that we're able to properly fetch
@@ -487,6 +525,7 @@ func TestBlockHeadersFetchHeaderAncestors(
 	if cleanUp != nil {
 		defer cleanUp()
 	}
+
 	if err != nil {
 		t.Fatalf("unable to create new block header store: %v", err)
 	}
@@ -538,7 +577,9 @@ func TestBlockHeadersFetchHeaderAncestors(
 			t.Fatalf("header mismatch, expected %v got %v",
 				spew.Sdump(blockHeader), spew.Sdump(diskHeader))
 		}
+
 	}
+
 }
 
 // TODO(roasbeef): combined re-org scenarios

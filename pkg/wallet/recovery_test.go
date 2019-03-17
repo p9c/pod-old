@@ -137,6 +137,7 @@ func (r ReportFound) Apply(i int, h *Harness) {
 	if r.child >= h.expNextUnfound {
 		h.expNextUnfound = r.child + 1
 	}
+
 	assertNextUnfound(h.t, i, h.brs.NextUnfound(), h.expNextUnfound)
 }
 
@@ -274,6 +275,7 @@ func TestBranchRecoveryState(
 	for i, step := range recoverySteps {
 		step.Apply(i, harness)
 	}
+
 }
 
 func assertHorizon(
@@ -308,4 +310,5 @@ func assertHaveWant(
 		t.Fatalf("[line: %d, step: %d] %s: got %d, want %d",
 			line, i, msg, have, want)
 	}
+
 }

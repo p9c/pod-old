@@ -10,9 +10,11 @@ This package is a driver to the database package and provides the database type 
 	if err != nil {
 		// Handle error
 	}
+
 	db, err := database.Create("ffldb", "path/to/database", wire.MainNet)
 	if err != nil {
 		// Handle error
 	}
+
 */
 package ffldb

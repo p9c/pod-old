@@ -45,7 +45,9 @@ func validDbType(
 		if dbType == knownType {
 			return true
 		}
+
 	}
+
 	return false
 }
 
@@ -58,6 +60,7 @@ func netName(
 	default:
 		return chainParams.Name
 	}
+
 }
 
 // loadConfig initializes and parses the config using command line options.
@@ -69,6 +72,7 @@ func loadConfig() (*config, []string, error) {
 		DbType:        defaultDbType,
 		NumCandidates: defaultNumCandidates,
 	}
+
 	// Parse command line options.
 	parser := flags.NewParser(&cfg, flags.Default)
 	remainingArgs, err := parser.Parse()
@@ -76,8 +80,10 @@ func loadConfig() (*config, []string, error) {
 		if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
 			parser.WriteHelp(os.Stderr)
 		}
+
 		return nil, nil, err
 	}
+
 	// Multiple networks can't be selected simultaneously.
 	funcName := "loadConfig"
 	numNets := 0
@@ -86,14 +92,17 @@ func loadConfig() (*config, []string, error) {
 		numNets++
 		activeNetParams = &chaincfg.TestNet3Params
 	}
+
 	if cfg.RegressionTest {
 		numNets++
 		activeNetParams = &chaincfg.RegressionNetParams
 	}
+
 	if cfg.SimNet {
 		numNets++
 		activeNetParams = &chaincfg.SimNetParams
 	}
+
 	if numNets > 1 {
 		str := "%s: The testnet, regtest, and simnet params can't be " +
 			"used together -- choose one of the three"
@@ -102,6 +111,7 @@ func loadConfig() (*config, []string, error) {
 		parser.WriteHelp(os.Stderr)
 		return nil, nil, err
 	}
+
 	// Validate database type.
 	if !validDbType(cfg.DbType) {
 
@@ -112,6 +122,7 @@ func loadConfig() (*config, []string, error) {
 		parser.WriteHelp(os.Stderr)
 		return nil, nil, err
 	}
+
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
 	cfg.DataDir = filepath.Join(cfg.DataDir, netName(activeNetParams))
 	// Validate the number of candidates.
@@ -123,5 +134,6 @@ func loadConfig() (*config, []string, error) {
 		parser.WriteHelp(os.Stderr)
 		return nil, nil, err
 	}
+
 	return &cfg, remainingArgs, nil
 }

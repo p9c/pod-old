@@ -24,56 +24,78 @@ func TestHaveBlock(
 		"blk_0_to_4.dat.bz2",
 		"blk_3A.dat.bz2",
 	}
+
 	var blocks []*util.Block
+
 	for _, file := range testFiles {
+
 		blockTmp, err := loadBlocks(file)
+
 		if err != nil {
+
 			t.Errorf("Error loading file: %v\n", err)
 			return
 		}
+
 		blocks = append(blocks, blockTmp...)
 	}
 
 	// Create a new database and chain instance to run tests against.
 	chain, teardownFunc, err := chainSetup("haveblock",
 		&chaincfg.MainNetParams)
+
 	if err != nil {
+
 		t.Errorf("Failed to setup chain instance: %v", err)
 		return
 	}
+
 	defer teardownFunc()
 
 	// Since we're not dealing with the real block chain, set the coinbase maturity to 1.
 	chain.TstSetCoinbaseMaturity(1)
+
 	for i := 1; i < len(blocks); i++ {
+
 		_, isOrphan, err := chain.ProcessBlock(blocks[i], BFNone, blocks[i].Height())
+
 		if err != nil {
+
 			t.Errorf("ProcessBlock fail on block %v: %v\n", i, err)
 			return
 		}
+
 		if isOrphan {
+
 			t.Errorf("ProcessBlock incorrectly returned block %v "+
 				"is an orphan\n", i)
 			return
 		}
+
 	}
 
 	// Insert an orphan block.
 	_, isOrphan, err := chain.ProcessBlock(util.NewBlock(&Block100000),
 		BFNone, 100000)
+
 	if err != nil {
+
 		t.Errorf("Unable to process block: %v", err)
 		return
 	}
+
 	if !isOrphan {
+
 		t.Errorf("ProcessBlock indicated block is an not orphan when " +
 			"it should be\n")
 		return
 	}
+
 	tests := []struct {
 		hash string
 		want bool
 	}{
+
 		// Genesis block should be present (in the main chain).
 		{hash: chaincfg.MainNetParams.GenesisHash.String(), want: true},
 		// Block 3a should be present (on a side chain).
@@ -83,23 +105,34 @@ func TestHaveBlock(
 		// Random hashes should not be available.
 		{hash: "123", want: false},
 	}
+
 	for i, test := range tests {
+
 		hash, err := chainhash.NewHashFromStr(test.hash)
+
 		if err != nil {
+
 			t.Errorf("NewHashFromStr: %v", err)
 			continue
 		}
+
 		result, err := chain.HaveBlock(hash)
+
 		if err != nil {
+
 			t.Errorf("HaveBlock #%d unexpected error: %v", i, err)
 			return
 		}
+
 		if result != test.want {
+
 			t.Errorf("HaveBlock #%d got %v want %v", i, result,
 				test.want)
 			continue
 		}
+
 	}
+
 }
 
 // TestCalcSequenceLock tests the LockTimeToSequence function, and the CalcSequenceLock method of a Chain instance. The tests exercise several combinations of inputs to the CalcSequenceLock function in order to ensure the returned SequenceLocks are correct for each test instance.
@@ -117,7 +150,9 @@ func TestCalcSequenceLock(
 	node := chain.bestChain.Tip()
 	blockTime := node.Header().Timestamp
 	numBlocksToActivate := (netParams.MinerConfirmationWindow * 3)
+
 	for i := uint32(0); i < numBlocksToActivate; i++ {
+
 		blockTime = blockTime.Add(time.Second)
 		node = newFakeNode(node, blockVersion, 0, blockTime)
 		chain.Index.AddNode(node)
@@ -131,6 +166,7 @@ func TestCalcSequenceLock(
 			Value:    10,
 		}},
 	})
+
 	utxoView := NewUtxoViewpoint()
 	utxoView.AddTxOuts(targetTx, int32(numBlocksToActivate)-4)
 	utxoView.SetBestHash(&node.hash)
@@ -140,6 +176,7 @@ func TestCalcSequenceLock(
 		Hash:  *targetTx.Hash(),
 		Index: 0,
 	}
+
 	prevUtxoHeight := int32(numBlocksToActivate) - 4
 
 	// Obtain the median time past from the PoV of the input created above. The MTP for the input is the MTP from the PoV of the block *prior* to the one that included it.
@@ -156,6 +193,7 @@ func TestCalcSequenceLock(
 			Value:    5,
 		}},
 	}
+
 	unConfUtxo := wire.OutPoint{
 		Hash:  unConfTx.TxHash(),
 		Index: 0,
@@ -169,6 +207,7 @@ func TestCalcSequenceLock(
 		mempool bool
 		want    *SequenceLock
 	}{
+
 		// A transaction of version one should disable sequence locks as the new sequence number semantics only apply to transactions version 2 or higher.
 		{
 			tx: &wire.MsgTx{
@@ -178,12 +217,14 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(false, 3),
 				}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     -1,
 				BlockHeight: -1,
 			},
 		},
+
 		// A transaction with a single input with max sequence number. This sequence number has the high bit set, so sequence locks should be disabled.
 		{
 			tx: &wire.MsgTx{
@@ -193,12 +234,14 @@ func TestCalcSequenceLock(
 					Sequence:         wire.MaxTxInSequenceNum,
 				}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     -1,
 				BlockHeight: -1,
 			},
 		},
+
 		// A transaction with a single input whose lock time is expressed in seconds.  However, the specified lock time is below the required floor for time based lock times since they have time granularity of 512 seconds.  As a result, the seconds lock-time should be just before the median time of the targeted block.
 		{
 			tx: &wire.MsgTx{
@@ -208,12 +251,14 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(true, 2),
 				}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     medianTime - 1,
 				BlockHeight: -1,
 			},
 		},
+
 		// A transaction with a single input whose lock time is expressed in seconds.  The number of seconds should be 1023 seconds after the median past time of the last block in the chain.
 		{
 			tx: &wire.MsgTx{
@@ -223,12 +268,14 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(true, 1024),
 				}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     medianTime + 1023,
 				BlockHeight: -1,
 			},
 		},
+
 		// A transaction with multiple inputs.  The first input has a lock time expressed in seconds.  The second input has a sequence lock in blocks with a value of 4.  The last input has a sequence number with a value of 5, but has the disable bit set.  So the first lock should be selected as it's the latest lock that isn't disabled.
 		{
 			tx: &wire.MsgTx{
@@ -236,21 +283,25 @@ func TestCalcSequenceLock(
 				TxIn: []*wire.TxIn{{
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 2560),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(false, 4),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence: LockTimeToSequence(false, 5) |
-						wire.SequenceLockTimeDisabled,
-				}},
+				},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(false, 4),
+					},
+					{
+						PreviousOutPoint: utxo,
+						Sequence: LockTimeToSequence(false, 5) |
+							wire.SequenceLockTimeDisabled,
+					}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     medianTime + (5 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: prevUtxoHeight + 3,
 			},
 		},
+
 		// Transaction with a single input.  The input's sequence number encodes a relative lock-time in blocks (3 blocks).  The sequence lock should  have a value of -1 for seconds, but a height of 2 meaning it can be included at height 3.
 		{
 			tx: &wire.MsgTx{
@@ -260,12 +311,14 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(false, 3),
 				}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     -1,
 				BlockHeight: prevUtxoHeight + 2,
 			},
 		},
+
 		// A transaction with two inputs with lock times expressed in seconds.  The selected sequence lock value for seconds should be the time further in the future.
 		{
 			tx: &wire.MsgTx{
@@ -273,17 +326,20 @@ func TestCalcSequenceLock(
 				TxIn: []*wire.TxIn{{
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 5120),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(true, 2560),
-				}},
+				},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(true, 2560),
+					}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     medianTime + (10 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: -1,
 			},
 		},
+
 		// A transaction with two inputs with lock times expressed in blocks.  The selected sequence lock value for blocks should be the height further in the future, so a height of 10 indicating it can be included at height 11.
 		{
 			tx: &wire.MsgTx{
@@ -291,17 +347,20 @@ func TestCalcSequenceLock(
 				TxIn: []*wire.TxIn{{
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(false, 1),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(false, 11),
-				}},
+				},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(false, 11),
+					}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     -1,
 				BlockHeight: prevUtxoHeight + 10,
 			},
 		},
+
 		// A transaction with multiple inputs.  Two inputs are time based, and the other two are block based. The lock lying further into the future for both inputs should be chosen.
 		{
 			tx: &wire.MsgTx{
@@ -309,23 +368,28 @@ func TestCalcSequenceLock(
 				TxIn: []*wire.TxIn{{
 					PreviousOutPoint: utxo,
 					Sequence:         LockTimeToSequence(true, 2560),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(true, 6656),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(false, 3),
-				}, {
-					PreviousOutPoint: utxo,
-					Sequence:         LockTimeToSequence(false, 9),
-				}},
+				},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(true, 6656),
+					},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(false, 3),
+					},
+					{
+						PreviousOutPoint: utxo,
+						Sequence:         LockTimeToSequence(false, 9),
+					}},
 			},
+
 			view: utxoView,
 			want: &SequenceLock{
 				Seconds:     medianTime + (13 << wire.SequenceLockTimeGranularity) - 1,
 				BlockHeight: prevUtxoHeight + 8,
 			},
 		},
+
 		// A transaction with a single unconfirmed input.  As the input is confirmed, the height of the input should be interpreted as the height of the *next* block.  So, a 2 block relative lock means the sequence lock should be for 1 block after the *next* block height, indicating it can be included 2 blocks after that.
 		{
 			tx: &wire.MsgTx{
@@ -335,6 +399,7 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(false, 2),
 				}},
 			},
+
 			view:    utxoView,
 			mempool: true,
 			want: &SequenceLock{
@@ -342,6 +407,7 @@ func TestCalcSequenceLock(
 				BlockHeight: nextBlockHeight + 1,
 			},
 		},
+
 		// A transaction with a single unconfirmed input.  The input has a time based lock, so the lock time should be based off the MTP of the *next* block.
 		{
 			tx: &wire.MsgTx{
@@ -351,6 +417,7 @@ func TestCalcSequenceLock(
 					Sequence:         LockTimeToSequence(true, 1024),
 				}},
 			},
+
 			view:    utxoView,
 			mempool: true,
 			want: &SequenceLock{
@@ -359,31 +426,45 @@ func TestCalcSequenceLock(
 			},
 		},
 	}
+
 	t.Logf("Running %v SequenceLock tests", len(tests))
+
 	for i, test := range tests {
+
 		utilTx := util.NewTx(test.tx)
 		seqLock, err := chain.CalcSequenceLock(utilTx, test.view, test.mempool)
+
 		if err != nil {
+
 			t.Fatalf("test #%d, unable to calc sequence lock: %v", i, err)
 		}
+
 		if seqLock.Seconds != test.want.Seconds {
+
 			t.Fatalf("test #%d got %v seconds want %v seconds",
 				i, seqLock.Seconds, test.want.Seconds)
 		}
+
 		if seqLock.BlockHeight != test.want.BlockHeight {
+
 			t.Fatalf("test #%d got height of %v want height of %v ",
 				i, seqLock.BlockHeight, test.want.BlockHeight)
 		}
+
 	}
+
 }
 
 // nodeHashes is a convenience function that returns the hashes for all of the passed indexes of the provided nodes.  It is used to construct expected hash slices in the tests.
 func nodeHashes(
 	nodes []*blockNode, indexes ...int) []chainhash.Hash {
 	hashes := make([]chainhash.Hash, 0, len(indexes))
+
 	for _, idx := range indexes {
+
 		hashes = append(hashes, nodes[idx].hash)
 	}
+
 	return hashes
 }
 
@@ -391,9 +472,12 @@ func nodeHashes(
 func nodeHeaders(
 	nodes []*blockNode, indexes ...int) []wire.BlockHeader {
 	headers := make([]wire.BlockHeader, 0, len(indexes))
+
 	for _, idx := range indexes {
+
 		headers = append(headers, nodes[idx].Header())
 	}
+
 	return headers
 }
 
@@ -410,12 +494,17 @@ func TestLocateInventory(
 	chain := newFakeChain(&chaincfg.MainNetParams)
 	branch0Nodes := chainedNodes(chain.bestChain.Genesis(), 18)
 	branch1Nodes := chainedNodes(branch0Nodes[14], 2)
+
 	for _, node := range branch0Nodes {
+
 		chain.Index.AddNode(node)
 	}
+
 	for _, node := range branch1Nodes {
+
 		chain.Index.AddNode(node)
 	}
+
 	chain.bestChain.SetTip(tip(branch0Nodes))
 
 	// Create chain views for different branches of the overall chain to simulate a local and remote node on different parts of the chain.
@@ -438,6 +527,7 @@ func TestLocateInventory(
 		// expected located hashes
 		hashes []chainhash.Hash
 	}{
+
 		{
 			// Empty block locators and unknown stop hash.  No inventory should be located.
 			name:     "no locators, no stop",
@@ -446,6 +536,7 @@ func TestLocateInventory(
 			headers:  nil,
 			hashes:   nil,
 		},
+
 		{
 			// Empty block locators and stop hash in side chain. The expected result is the requested block.
 			name:     "no locators, stop in side",
@@ -454,6 +545,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch1Nodes, 1),
 			hashes:   nodeHashes(branch1Nodes, 1),
 		},
+
 		{
 			// Empty block locators and stop hash in main chain. The expected result is the requested block.
 			name:     "no locators, stop in main",
@@ -462,6 +554,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 12),
 			hashes:   nodeHashes(branch0Nodes, 12),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash local node doesn't know about.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, unknown stop",
@@ -470,6 +563,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash in side chain.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in side",
@@ -478,6 +572,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash in main chain, but before fork point. The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in main before",
@@ -486,6 +581,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash in main chain, but exactly at the fork point.  The expected result is the blocks after the fork point in the main chain and the stop hash has no effect.
 			name:     "remote side chain, stop in main exact",
@@ -494,6 +590,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash in main chain just after the fork point. The expected result is the blocks after the fork point in the main chain up to and including the stop hash.
 			name:     "remote side chain, stop in main after",
@@ -502,6 +599,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15),
 			hashes:   nodeHashes(branch0Nodes, 15),
 		},
+
 		{
 			// Locators based on remote being on side chain and a stop hash in main chain some time after the fork point.  The expected result is the blocks after the fork point in the main chain up to and including the stop hash.
 			name:     "remote side chain, stop in main after more",
@@ -510,6 +608,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 15, 16),
 			hashes:   nodeHashes(branch0Nodes, 15, 16),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash local node doesn't know about. The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, unknown stop",
@@ -518,6 +617,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13, 14, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash in a side chain.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in side",
@@ -526,6 +626,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13, 14, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain before that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main before",
@@ -534,6 +635,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13, 14, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain exactly at that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main exact",
@@ -542,6 +644,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13, 14, 15, 16, 17),
 			hashes:   nodeHashes(branch0Nodes, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain just after that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main after",
@@ -550,6 +653,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13),
 			hashes:   nodeHashes(branch0Nodes, 13),
 		},
+
 		{
 			// Locators based on remote being on main chain in the past and a stop hash in the main chain some time after that point.  The expected result is the blocks after the known point in the main chain and the stop hash has no effect.
 			name:     "remote main chain past, stop in main after more",
@@ -558,6 +662,7 @@ func TestLocateInventory(
 			headers:  nodeHeaders(branch0Nodes, 13, 14, 15),
 			hashes:   nodeHashes(branch0Nodes, 13, 14, 15),
 		},
+
 		{
 			// Locators based on remote being at exactly the same point in the main chain and a stop hash local node doesn't know about.  The expected result is no located inventory.
 			name:     "remote main chain same, unknown stop",
@@ -566,6 +671,7 @@ func TestLocateInventory(
 			headers:  nil,
 			hashes:   nil,
 		},
+
 		{
 			// Locators based on remote being at exactly the same point in the main chain and a stop hash at exactly the same point.  The expected result is no located inventory.
 			name:     "remote main chain same, stop same point",
@@ -574,6 +680,7 @@ func TestLocateInventory(
 			headers:  nil,
 			hashes:   nil,
 		},
+
 		{
 			// Locators from remote that don't include any blocks the local node knows.  This would happen if the remote node is on a completely separate chain that isn't rooted with the same genesis block.  The expected result is the blocks after the genesis block.
 			name:     "remote unrelated chain",
@@ -584,6 +691,7 @@ func TestLocateInventory(
 			hashes: nodeHashes(branch0Nodes, 0, 1, 2, 3, 4, 5, 6,
 				7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Locators from remote for second block in main chain and no stop hash, but with an overridden max limit. The expected result is the blocks after the second block limited by the max.
 			name:       "remote genesis",
@@ -593,6 +701,7 @@ func TestLocateInventory(
 			headers:    nodeHeaders(branch0Nodes, 1, 2, 3),
 			hashes:     nodeHashes(branch0Nodes, 1, 2, 3),
 		},
+
 		{
 			// Poorly formed locator.
 			// Locator from remote that only includes a single block on a side chain the local node knows.  The expected result is the blocks after the genesis block since even though the block is known, it is on a side chain and there are no more locators to find the fork point.
@@ -604,6 +713,7 @@ func TestLocateInventory(
 			hashes: nodeHashes(branch0Nodes, 0, 1, 2, 3, 4, 5, 6,
 				7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Poorly formed locator.
 			// Locator from remote that only includes multiple blocks on a side chain the local node knows however none in the main chain.  The expected result is the blocks after the genesis block since even though the blocks are known, they are all on a side chain and there are no more locators to find the fork point.
@@ -615,6 +725,7 @@ func TestLocateInventory(
 			hashes: nodeHashes(branch0Nodes, 0, 1, 2, 3, 4, 5, 6,
 				7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17),
 		},
+
 		{
 			// Poorly formed locator.
 			// Locator from remote that only includes multiple blocks on a side chain the local node knows however none in the main chain but includes a stop hash in the main chain.  The expected result is the blocks after the genesis block up to the stop hash since even though the blocks are known, they are all on a side chain and there are no more locators to find the fork point.
@@ -625,10 +736,14 @@ func TestLocateInventory(
 			hashes:   nodeHashes(branch0Nodes, 0, 1, 2, 3, 4, 5),
 		},
 	}
+
 	for _, test := range tests {
+
 		// Ensure the expected headers are located.
 		var headers []wire.BlockHeader
+
 		if test.maxAllowed != 0 {
+
 			// Need to use the unexported function to override the max allowed for headers.
 			chain.chainLock.RLock()
 			headers = chain.locateHeaders(test.locator,
@@ -638,26 +753,34 @@ func TestLocateInventory(
 			headers = chain.LocateHeaders(test.locator,
 				&test.hashStop)
 		}
+
 		if !reflect.DeepEqual(headers, test.headers) {
 
 			t.Errorf("%s: unxpected headers -- got %v, want %v",
 				test.name, headers, test.headers)
 			continue
 		}
+
 		// Ensure the expected block hashes are located.
 		maxAllowed := uint32(wire.MaxBlocksPerMsg)
+
 		if test.maxAllowed != 0 {
+
 			maxAllowed = test.maxAllowed
 		}
+
 		hashes := chain.LocateBlocks(test.locator, &test.hashStop,
 			maxAllowed)
+
 		if !reflect.DeepEqual(hashes, test.hashes) {
 
 			t.Errorf("%s: unxpected hashes -- got %v, want %v",
 				test.name, hashes, test.hashes)
 			continue
 		}
+
 	}
+
 }
 
 // TestHeightToHashRange ensures that fetching a range of block hashes by start height and end hash works as expected.
@@ -673,16 +796,23 @@ func TestHeightToHashRange(
 	chain := newFakeChain(&chaincfg.MainNetParams)
 	branch0Nodes := chainedNodes(chain.bestChain.Genesis(), 18)
 	branch1Nodes := chainedNodes(branch0Nodes[14], 3)
+
 	for _, node := range branch0Nodes {
+
 		chain.Index.SetStatusFlags(node, statusValid)
 		chain.Index.AddNode(node)
 	}
+
 	for _, node := range branch1Nodes {
+
 		if node.height < 18 {
+
 			chain.Index.SetStatusFlags(node, statusValid)
 		}
+
 		chain.Index.AddNode(node)
 	}
+
 	chain.bestChain.SetTip(tip(branch0Nodes))
 	tests := []struct {
 		name string
@@ -696,6 +826,7 @@ func TestHeightToHashRange(
 		hashes      []chainhash.Hash
 		expectError bool
 	}{
+
 		{
 			name:        "blocks below tip",
 			startHeight: 11,
@@ -703,6 +834,7 @@ func TestHeightToHashRange(
 			maxResults:  10,
 			hashes:      nodeHashes(branch0Nodes, 10, 11, 12, 13, 14),
 		},
+
 		{
 			name:        "blocks on main chain",
 			startHeight: 15,
@@ -710,6 +842,7 @@ func TestHeightToHashRange(
 			maxResults:  10,
 			hashes:      nodeHashes(branch0Nodes, 14, 15, 16, 17),
 		},
+
 		{
 			name:        "blocks on stale chain",
 			startHeight: 15,
@@ -718,6 +851,7 @@ func TestHeightToHashRange(
 			hashes: append(nodeHashes(branch0Nodes, 14),
 				nodeHashes(branch1Nodes, 0, 1)...),
 		},
+
 		{
 			name:        "invalid start height",
 			startHeight: 19,
@@ -725,6 +859,7 @@ func TestHeightToHashRange(
 			maxResults:  10,
 			expectError: true,
 		},
+
 		{
 			name:        "too many results",
 			startHeight: 1,
@@ -732,6 +867,7 @@ func TestHeightToHashRange(
 			maxResults:  10,
 			expectError: true,
 		},
+
 		{
 			name:        "unvalidated block",
 			startHeight: 15,
@@ -740,21 +876,30 @@ func TestHeightToHashRange(
 			expectError: true,
 		},
 	}
+
 	for _, test := range tests {
+
 		hashes, err := chain.HeightToHashRange(test.startHeight, &test.endHash,
 			test.maxResults)
+
 		if err != nil {
+
 			if !test.expectError {
+
 				t.Errorf("%s: unexpected error: %v", test.name, err)
 			}
+
 			continue
 		}
+
 		if !reflect.DeepEqual(hashes, test.hashes) {
 
 			t.Errorf("%s: unxpected hashes -- got %v, want %v",
 				test.name, hashes, test.hashes)
 		}
+
 	}
+
 }
 
 // TestIntervalBlockHashes ensures that fetching block hashes at specified intervals by end hash works as expected.
@@ -770,16 +915,23 @@ func TestIntervalBlockHashes(
 	chain := newFakeChain(&chaincfg.MainNetParams)
 	branch0Nodes := chainedNodes(chain.bestChain.Genesis(), 18)
 	branch1Nodes := chainedNodes(branch0Nodes[14], 3)
+
 	for _, node := range branch0Nodes {
+
 		chain.Index.SetStatusFlags(node, statusValid)
 		chain.Index.AddNode(node)
 	}
+
 	for _, node := range branch1Nodes {
+
 		if node.height < 18 {
+
 			chain.Index.SetStatusFlags(node, statusValid)
 		}
+
 		chain.Index.AddNode(node)
 	}
+
 	chain.bestChain.SetTip(tip(branch0Nodes))
 	tests := []struct {
 		name        string
@@ -788,12 +940,14 @@ func TestIntervalBlockHashes(
 		hashes      []chainhash.Hash
 		expectError bool
 	}{
+
 		{
 			name:     "blocks on main chain",
 			endHash:  branch0Nodes[17].hash,
 			interval: 8,
 			hashes:   nodeHashes(branch0Nodes, 7, 15),
 		},
+
 		{
 			name:     "blocks on stale chain",
 			endHash:  branch1Nodes[1].hash,
@@ -801,12 +955,14 @@ func TestIntervalBlockHashes(
 			hashes: append(nodeHashes(branch0Nodes, 7),
 				nodeHashes(branch1Nodes, 0)...),
 		},
+
 		{
 			name:     "no results",
 			endHash:  branch0Nodes[17].hash,
 			interval: 20,
 			hashes:   []chainhash.Hash{},
 		},
+
 		{
 			name:        "unvalidated block",
 			endHash:     branch1Nodes[2].hash,
@@ -814,18 +970,27 @@ func TestIntervalBlockHashes(
 			expectError: true,
 		},
 	}
+
 	for _, test := range tests {
+
 		hashes, err := chain.IntervalBlockHashes(&test.endHash, test.interval)
+
 		if err != nil {
+
 			if !test.expectError {
+
 				t.Errorf("%s: unexpected error: %v", test.name, err)
 			}
+
 			continue
 		}
+
 		if !reflect.DeepEqual(hashes, test.hashes) {
 
 			t.Errorf("%s: unxpected hashes -- got %v, want %v",
 				test.name, hashes, test.hashes)
 		}
+
 	}
+
 }

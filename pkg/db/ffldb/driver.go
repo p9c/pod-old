@@ -20,16 +20,19 @@ func parseArgs(
 			"expected database path and block network", dbType,
 			funcName)
 	}
+
 	dbPath, ok := args[0].(string)
 	if !ok {
 		return "", 0, fmt.Errorf("first argument to %s.%s is invalid -- "+
 			"expected database path string", dbType, funcName)
 	}
+
 	network, ok := args[1].(wire.BitcoinNet)
 	if !ok {
 		return "", 0, fmt.Errorf("second argument to %s.%s is invalid -- "+
 			"expected block network", dbType, funcName)
 	}
+
 	return dbPath, network, nil
 }
 
@@ -41,6 +44,7 @@ func openDBDriver(
 	if err != nil {
 		return nil, err
 	}
+
 	return openDB(dbPath, network, false)
 }
 
@@ -52,6 +56,7 @@ func createDBDriver(
 	if err != nil {
 		return nil, err
 	}
+
 	return openDB(dbPath, network, true)
 }
 
@@ -63,8 +68,10 @@ func init() {
 		Create: createDBDriver,
 		Open:   openDBDriver,
 	}
+
 	if err := database.RegisterDriver(driver); err != nil {
 		panic(fmt.Sprintf("Failed to regiser database driver '%s': %v",
 			dbType, err))
 	}
+
 }

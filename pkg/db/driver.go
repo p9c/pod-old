@@ -30,10 +30,13 @@ func Create(
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
+
 	if !exists {
+
 		str := fmt.Sprintf("driver %q is not registered", dbType)
 		return nil, makeError(ErrDbUnknownType, str, nil)
 	}
+
 	return drv.Create(args...)
 }
 
@@ -42,21 +45,27 @@ func Open(
 	dbType string, args ...interface{}) (DB, error) {
 
 	drv, exists := drivers[dbType]
+
 	if !exists {
+
 		str := fmt.Sprintf("driver %q is not registered", dbType)
 		return nil, makeError(ErrDbUnknownType, str, nil)
 	}
+
 	return drv.Open(args...)
 }
 
 // RegisterDriver adds a backend database driver to available interfaces. ErrDbTypeRegistered will be returned if the database type for the driver has already been registered.
 func RegisterDriver(
 	driver Driver) error {
+
 	if _, exists := drivers[driver.DbType]; exists {
+
 		str := fmt.Sprintf("driver %q is already registered",
 			driver.DbType)
 		return makeError(ErrDbTypeRegistered, str, nil)
 	}
+
 	drivers[driver.DbType] = &driver
 	return nil
 }
@@ -64,8 +73,11 @@ func RegisterDriver(
 // SupportedDrivers returns a slice of strings that represent the database drivers that have been registered and are therefore supported.
 func SupportedDrivers() []string {
 	supportedDBs := make([]string, 0, len(drivers))
+
 	for _, drv := range drivers {
+
 		supportedDBs = append(supportedDBs, drv.DbType)
 	}
+
 	return supportedDBs
 }

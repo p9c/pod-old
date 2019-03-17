@@ -49,6 +49,7 @@ func TestBlock(
 			t.Errorf("Hash #%d mismatched hash - got %v, want %v",
 				i, hash, wantHash)
 		}
+
 	}
 
 	// Hashes for the transactions in Block100000.
@@ -68,6 +69,7 @@ func TestBlock(
 		if err != nil {
 			t.Errorf("NewHashFromStr: %v", err)
 		}
+
 		// Request the hash multiple times to test generation and
 		// caching.
 		for j := 0; j < 2; j++ {
@@ -76,6 +78,7 @@ func TestBlock(
 				t.Errorf("Tx #%d: %v", i, err)
 				continue
 			}
+
 			hash := tx.Hash()
 			if !hash.IsEqual(wantHash) {
 
@@ -83,7 +86,9 @@ func TestBlock(
 					"want %v", j, hash, wantHash)
 				continue
 			}
+
 		}
+
 	}
 
 	// Create a new block to nuke all cached data.
@@ -100,12 +105,14 @@ func TestBlock(
 				len(transactions), len(wantTxHashes))
 			continue
 		}
+
 		// Ensure all of the hashes match.
 		for j, tx := range transactions {
 			wantHash, err := chainhash.NewHashFromStr(wantTxHashes[j])
 			if err != nil {
 				t.Errorf("NewHashFromStr: %v", err)
 			}
+
 			hash := tx.Hash()
 			if !hash.IsEqual(wantHash) {
 
@@ -113,7 +120,9 @@ func TestBlock(
 					"- got %v, want %v", j, hash, wantHash)
 				continue
 			}
+
 		}
+
 	}
 
 	// Serialize the test block.
@@ -122,6 +131,7 @@ func TestBlock(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	block100000Bytes := block100000Buf.Bytes()
 
 	// Request serialized bytes multiple times to test generation and caching.
@@ -131,6 +141,7 @@ func TestBlock(
 			t.Errorf("Bytes: %v", err)
 			continue
 		}
+
 		if !bytes.Equal(serializedBytes, block100000Bytes) {
 
 			t.Errorf("Bytes #%d wrong bytes - got %v, want %v", i,
@@ -138,6 +149,7 @@ func TestBlock(
 				spew.Sdump(block100000Bytes))
 			continue
 		}
+
 	}
 
 	// Transaction offsets and length for the transaction in Block100000.
@@ -154,12 +166,14 @@ func TestBlock(
 		t.Errorf("TxLoc: %v", err)
 		return
 	}
+
 	if !reflect.DeepEqual(txLocs, wantTxLocs) {
 
 		t.Errorf("TxLoc: mismatched transaction location information "+
 			"- got %v, want %v", spew.Sdump(txLocs),
 			spew.Sdump(wantTxLocs))
 	}
+
 }
 
 // TestNewBlockFromBytes tests creation of a Block from serialized bytes.
@@ -172,6 +186,7 @@ func TestNewBlockFromBytes(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	block100000Bytes := block100000Buf.Bytes()
 
 	// Create a new block from the serialized bytes.
@@ -187,6 +202,7 @@ func TestNewBlockFromBytes(
 		t.Errorf("Bytes: %v", err)
 		return
 	}
+
 	if !bytes.Equal(serializedBytes, block100000Bytes) {
 
 		t.Errorf("Bytes: wrong bytes - got %v, want %v",
@@ -200,6 +216,7 @@ func TestNewBlockFromBytes(
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
+
 }
 
 // TestNewBlockFromBlockAndBytes tests creation of a Block from a MsgBlock and raw bytes.
@@ -212,6 +229,7 @@ func TestNewBlockFromBlockAndBytes(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	block100000Bytes := block100000Buf.Bytes()
 
 	// Create a new block from the serialized bytes.
@@ -223,17 +241,20 @@ func TestNewBlockFromBlockAndBytes(
 		t.Errorf("Bytes: %v", err)
 		return
 	}
+
 	if !bytes.Equal(serializedBytes, block100000Bytes) {
 
 		t.Errorf("Bytes: wrong bytes - got %v, want %v",
 			spew.Sdump(serializedBytes),
 			spew.Sdump(block100000Bytes))
 	}
+
 	if msgBlock := b.MsgBlock(); !reflect.DeepEqual(msgBlock, &Block100000) {
 
 		t.Errorf("MsgBlock: mismatched MsgBlock - got %v, want %v",
 			spew.Sdump(msgBlock), spew.Sdump(&Block100000))
 	}
+
 }
 
 // TestBlockErrors tests the error paths for the Block API.
@@ -254,6 +275,7 @@ func TestBlockErrors(
 	if err != nil {
 		t.Errorf("Serialize: %v", err)
 	}
+
 	block100000Bytes := block100000Buf.Bytes()
 
 	// Create a new block from the serialized bytes.
@@ -277,6 +299,7 @@ func TestBlockErrors(
 		t.Errorf("TxHash: wrong error - got: %v <%T>, "+
 			"want: <%T>", err, err, util.OutOfRangeError(""))
 	}
+
 	_, err = b.TxHash(len(Block100000.Transactions) + 1)
 	if _, ok := err.(util.OutOfRangeError); !ok {
 		t.Errorf("TxHash: wrong error - got: %v <%T>, "+
@@ -289,6 +312,7 @@ func TestBlockErrors(
 		t.Errorf("Tx: wrong error - got: %v <%T>, "+
 			"want: <%T>", err, err, util.OutOfRangeError(""))
 	}
+
 	_, err = b.Tx(len(Block100000.Transactions) + 1)
 	if _, ok := err.(util.OutOfRangeError); !ok {
 		t.Errorf("Tx: wrong error - got: %v <%T>, "+
@@ -302,6 +326,7 @@ func TestBlockErrors(
 		t.Errorf("TxLoc: did not get expected error - "+
 			"got %v, want %v", err, io.EOF)
 	}
+
 }
 
 // Block100000 defines block 100,000 of the block chain.  It is used to test Block operations.
@@ -313,17 +338,20 @@ var Block100000 = wire.MsgBlock{
 			0x21, 0xa6, 0xc3, 0x01, 0x1d, 0xd3, 0x30, 0xd9,
 			0xdf, 0x07, 0xb6, 0x36, 0x16, 0xc2, 0xcc, 0x1f,
 			0x1c, 0xd0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
-		}), // 000000000002d01c1fccc21636b607dfd930d31d01c3a62104612a1719011250
+		}),
+		// 000000000002d01c1fccc21636b607dfd930d31d01c3a62104612a1719011250
 		MerkleRoot: chainhash.Hash([32]byte{ // Make go vet happy.
 			0x66, 0x57, 0xa9, 0x25, 0x2a, 0xac, 0xd5, 0xc0,
 			0xb2, 0x94, 0x09, 0x96, 0xec, 0xff, 0x95, 0x22,
 			0x28, 0xc3, 0x06, 0x7c, 0xc3, 0x8d, 0x48, 0x85,
 			0xef, 0xb5, 0xa4, 0xac, 0x42, 0x47, 0xe9, 0xf3,
-		}), // f3e94742aca4b5ef85488dc37c06c3282295ffec960994b2c0d5ac2a25a95766
+		}),
+		// f3e94742aca4b5ef85488dc37c06c3282295ffec960994b2c0d5ac2a25a95766
 		Timestamp: time.Unix(1293623863, 0), // 2010-12-29 11:57:43 +0000 UTC
 		Bits:      0x1b04864c,               // 453281356
 		Nonce:     0x10572b0f,               // 274148111
 	},
+
 	Transactions: []*wire.MsgTx{
 		{
 			Version: 1,
@@ -333,12 +361,15 @@ var Block100000 = wire.MsgBlock{
 						Hash:  chainhash.Hash{},
 						Index: 0xffffffff,
 					},
+
 					SignatureScript: []byte{
 						0x04, 0x4c, 0x86, 0x04, 0x1b, 0x02, 0x06, 0x02,
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0x12a05f200, // 5000000000
@@ -357,8 +388,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -369,9 +402,11 @@ var Block100000 = wire.MsgBlock{
 							0x46, 0xd6, 0x87, 0xd1, 0x05, 0x56, 0xdc, 0xac,
 							0xc4, 0x1d, 0x27, 0x5e, 0xc5, 0x5f, 0xc0, 0x07,
 							0x79, 0xac, 0x88, 0xfd, 0xf3, 0x57, 0xa1, 0x87,
-						}), // 87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03
+						}),
+						// 87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xc3, 0x52, 0xd3,
@@ -395,9 +430,11 @@ var Block100000 = wire.MsgBlock{
 						0xc6, 0xf8, 0xa6, 0x30, 0x12, 0x1d, 0xf2, 0xb3,
 						0xd3, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0x2123e300, // 556000000
@@ -412,6 +449,7 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
 					Value: 0x108e20f00, // 4444000000
 					PkScript: []byte{
@@ -426,8 +464,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -438,9 +478,11 @@ var Block100000 = wire.MsgBlock{
 							0x9f, 0x9a, 0x75, 0x69, 0xab, 0x16, 0xa3, 0x27,
 							0x86, 0xaf, 0x7d, 0x7e, 0x2d, 0xe0, 0x92, 0x65,
 							0xe4, 0x1c, 0x61, 0xd0, 0x78, 0x29, 0x4e, 0xcf,
-						}), // cf4e2978d0611ce46592e02d7e7daf8627a316ab69759a9f3df109a7f2bf3ec3
+						}),
+						// cf4e2978d0611ce46592e02d7e7daf8627a316ab69759a9f3df109a7f2bf3ec3
 						Index: 1,
 					},
+
 					SignatureScript: []byte{
 						0x47, // OP_DATA_71
 						0x30, 0x44, 0x02, 0x20, 0x03, 0x2d, 0x30, 0xdf,
@@ -463,9 +505,11 @@ var Block100000 = wire.MsgBlock{
 						0x60, 0x63, 0x9d, 0xb4, 0x62, 0xe9, 0xcb, 0x85,
 						0x0f, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0xf4240, // 1000000
@@ -480,6 +524,7 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
 					Value: 0x11d260c0, // 299000000
 					PkScript: []byte{
@@ -494,8 +539,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -506,9 +553,11 @@ var Block100000 = wire.MsgBlock{
 							0x23, 0x52, 0x37, 0xf6, 0x4c, 0x11, 0x26, 0xac,
 							0x3b, 0x24, 0x0c, 0x84, 0xb9, 0x17, 0xa3, 0x90,
 							0x9b, 0xa1, 0xc4, 0x3d, 0xed, 0x5f, 0x51, 0xf4,
-						}), // f4515fed3dc4a19b90a317b9840c243bac26114cf637522373a7d486b372600b
+						}),
+						// f4515fed3dc4a19b90a317b9840c243bac26114cf637522373a7d486b372600b
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xbb, 0x1a, 0xd2,
@@ -532,9 +581,11 @@ var Block100000 = wire.MsgBlock{
 						0x6a, 0xf4, 0xcf, 0xaa, 0xea, 0x4e, 0xa1, 0x4f,
 						0xbb, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0xf4240, // 1000000
@@ -550,6 +601,7 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
 	},

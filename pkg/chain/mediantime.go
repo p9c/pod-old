@@ -89,6 +89,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	if _, exists := m.knownIDs[sourceID]; exists {
 		return
 	}
+
 	m.knownIDs[sourceID] = struct{}{}
 
 	// Truncate the provided offset to seconds and append it to the slice of offsets while respecting the maximum number of allowed entries by replacing the oldest entry with the new entry once the maximum number of entries is reached.
@@ -99,6 +100,7 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 		m.offsets = m.offsets[1:]
 		numOffsets--
 	}
+
 	m.offsets = append(m.offsets, offsetSecs)
 	numOffsets++
 
@@ -136,15 +138,20 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 					remoteHasCloseTime = true
 					break
 				}
+
 			}
+
 			// Warn if none of the time samples are close.
 			if !remoteHasCloseTime {
 				log <- cl.Wrn(
 					"Please check your date and time are correct!  pod will not work properly with an invalid time",
 				)
 			}
+
 		}
+
 	}
+
 	medianDuration := time.Duration(m.offsetSecs) * time.Second
 	log <- cl.Debug{"new time offset:", medianDuration}
 }
@@ -162,4 +169,5 @@ func NewMedianTime() MedianTimeSource {
 		knownIDs: make(map[string]struct{}),
 		offsets:  make([]int64, 0, maxMedianTimeEntries),
 	}
+
 }

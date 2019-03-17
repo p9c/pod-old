@@ -22,6 +22,7 @@ type BlockChain struct {
 	UnConfirmed             float64                       `json:"unconfirmed"`
 	// GetInfo interface{} `json:"getinfo"`
 }
+
 type SendToAddress struct {
 	Address string  `json:"address"`
 	Label   string  `json:"label"`
@@ -44,7 +45,9 @@ func (k *BlockChain) GetInfoData() {
 		if sent.Category == "send" {
 			listallsendtransactions = append(listallsendtransactions, sent)
 		}
+
 	}
+
 	k.ListAllSendTransactions = listallsendtransactions
 
 	// // Balance
@@ -62,9 +65,11 @@ func (k *BlockChain) GetInfoData() {
 	account, err := WLT.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
 	if err != nil {
 	}
+
 	bals, err := WLT.CalculateAccountBalances(account, 1)
 	if err != nil {
 	}
+
 	unconfirmed := (bals.Total - bals.Spendable).ToDUO()
 
 	k.UnConfirmed = unconfirmed

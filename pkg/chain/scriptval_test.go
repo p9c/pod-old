@@ -20,24 +20,29 @@ func TestCheckBlockScripts(
 		t.Errorf("Error loading file: %v\n", err)
 		return
 	}
+
 	if len(blocks) > 1 {
 		t.Errorf("The test block file must only have one block in it")
 		return
 	}
+
 	if len(blocks) == 0 {
 		t.Errorf("The test block file may not be empty")
 		return
 	}
+
 	storeDataFile := fmt.Sprintf("%d.utxostore.bz2", testBlockNum)
 	view, err := loadUtxoView(storeDataFile)
 	if err != nil {
 		t.Errorf("Error loading txstore: %v\n", err)
 		return
 	}
+
 	scriptFlags := txscript.ScriptBip16
 	err = checkBlockScripts(blocks[0], view, scriptFlags, nil, nil)
 	if err != nil {
 		t.Errorf("Transaction script validation failed: %v\n", err)
 		return
 	}
+
 }

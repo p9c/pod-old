@@ -15,6 +15,7 @@ func TestMedianTime(
 		wantOffset int64
 		useDupID   bool
 	}{
+
 		// Not enough samples must result in an offset of 0.
 		{in: []int64{1}, wantOffset: 0},
 		{in: []int64{1, 2}, wantOffset: 0},
@@ -43,6 +44,7 @@ func TestMedianTime(
 	defer func() {
 		maxMedianTimeEntries = 200
 	}()
+
 	for i, test := range tests {
 		filter := NewMedianTime()
 		for j, offset := range test.in {
@@ -57,7 +59,9 @@ func TestMedianTime(
 					time.Second)
 				filter.AddTimeSample(id, tOffset)
 			}
+
 		}
+
 		// Since it is possible that the time.Now call in AddTimeSample and the time.Now calls here in the tests will be off by one second, allow a fudge factor to compensate.
 		gotOffset := filter.Offset()
 		wantOffset := time.Duration(test.wantOffset) * time.Second
@@ -68,6 +72,7 @@ func TestMedianTime(
 				wantOffset2)
 			continue
 		}
+
 		// Since it is possible that the time.Now call in AdjustedTime and the time.Now call here in the tests will be off by one second, allow a fudge factor to compensate.
 		adjustedTime := filter.AdjustedTime()
 		now := time.Unix(time.Now().Unix(), 0)
@@ -80,5 +85,7 @@ func TestMedianTime(
 				wantTime2)
 			continue
 		}
+
 	}
+
 }

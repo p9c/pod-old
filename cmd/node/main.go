@@ -74,6 +74,7 @@ func Main(
 			http.Handle("/", profileRedirect)
 			log <- cl.Error{"profile server", http.ListenAndServe(listenAddr, nil)}
 		}()
+
 	}
 
 	// Write cpu profile if requested.
@@ -86,11 +87,13 @@ func Main(
 			log <- cl.Error{"unable to create cpu profile:", err}
 			return
 		}
+
 		e := pprof.StartCPUProfile(f)
 		if e != nil {
 
 			log <- cl.Warn{"failed to start up cpu profiler:", e}
 		}
+
 		defer f.Close()
 		defer pprof.StopCPUProfile()
 	}
@@ -117,6 +120,7 @@ func Main(
 		log <- cl.Error{err}
 		return
 	}
+
 	defer func() {
 
 		// Ensure the database is sync'd and closed on shutdown.
@@ -138,8 +142,10 @@ func Main(
 			log <- cl.Error{err}
 			return
 		}
+
 		return nil
 	}
+
 	if *cfg.DropTxIndex {
 
 		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
@@ -147,8 +153,10 @@ func Main(
 			log <- cl.Error{err}
 			return
 		}
+
 		return nil
 	}
+
 	if *cfg.DropCfIndex {
 
 		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
@@ -156,6 +164,7 @@ func Main(
 			log <- cl.Error{err}
 			return err
 		}
+
 		return nil
 	}
 
@@ -167,6 +176,7 @@ func Main(
 		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
 		return err
 	}
+
 	interrupt.AddHandler(
 		func() {
 			log <- cl.Inf("gracefully shutting down the server...")
@@ -175,6 +185,7 @@ func Main(
 
 				log <- cl.Warn{"failed to stop server", e}
 			}
+
 			server.WaitForShutdown()
 			log <- cl.Inf("server shutdown complete")
 		},
@@ -201,6 +212,7 @@ func blockDbPath(
 
 		dbName += ".db"
 	}
+
 	dbPath := filepath.Join(*cfg.DataDir, dbName)
 	return dbPath
 }
@@ -219,8 +231,10 @@ func loadBlockDB() (
 
 			return nil, err
 		}
+
 		return db, nil
 	}
+
 	warnMultipleDBs()
 
 	// The database name is based on the database type.
@@ -232,6 +246,7 @@ func loadBlockDB() (
 
 		log <- cl.Debug{"failed to remove regression db:", e}
 	}
+
 	log <- cl.Infof{"loading block database from '%s'", dbPath}
 	db, err := database.Open(*cfg.DbType, dbPath, ActiveNetParams.Net)
 	if err != nil {
@@ -241,18 +256,22 @@ func loadBlockDB() (
 			database.ErrDbDoesNotExist {
 			return nil, err
 		}
+
 		// Create the db if it does not exist.
 		err = os.MkdirAll(*cfg.DataDir, 0700)
 		if err != nil {
 
 			return nil, err
 		}
+
 		db, err = database.Create(*cfg.DbType, dbPath, ActiveNetParams.Net)
 		if err != nil {
 
 			return nil, err
 		}
+
 	}
+
 	log <- cl.Inf("block database loaded")
 	return db, nil
 }
@@ -274,6 +293,7 @@ func PreMain() {
 		os.Exit(1)
 	}
 
+
 	// Call serviceMain on Windows to handle running as a service.  When the return isService flag is true, exit now since we ran as a service.  Otherwise, just fall through to normal operation.
 	if runtime.GOOS == "windows" {
 
@@ -283,18 +303,23 @@ func PreMain() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
 		if isService {
 
 			os.Exit(0)
 		}
+
 	}
+
 
 	// Work around defer not working after os.Exit()
 	if err := Main(nil); err != nil {
 
 		os.Exit(1)
 	}
+
 }
+
 */
 // removeRegressionDB removes the existing regression test database if running in regression test mode and it already exists.
 func removeRegressionDB(
@@ -319,14 +344,18 @@ func removeRegressionDB(
 
 				return err
 			}
+
 		} else {
 			err := os.Remove(dbPath)
 			if err != nil {
 
 				return err
 			}
+
 		}
+
 	}
+
 	return nil
 }
 
@@ -341,12 +370,14 @@ func warnMultipleDBs() {
 
 			continue
 		}
+
 		// Store db path as a duplicate db if it exists.
 		dbPath := blockDbPath(dbType)
 		if FileExists(dbPath) {
 
 			duplicateDbPaths = append(duplicateDbPaths, dbPath)
 		}
+
 	}
 
 	// Warn if there are extra databases.
@@ -361,5 +392,7 @@ func warnMultipleDBs() {
 			selectedDbPath,
 			duplicateDbPaths,
 		}
+
 	}
+
 }

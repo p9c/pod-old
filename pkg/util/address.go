@@ -72,10 +72,12 @@ func encodeSegWitAddress(
 	if err != nil {
 		return "", fmt.Errorf("invalid segwit address: %v", err)
 	}
+
 	if version != witnessVersion || !bytes.Equal(program, witnessProgram) {
 
 		return "", fmt.Errorf("invalid segwit address")
 	}
+
 	return bech, nil
 }
 
@@ -113,10 +115,12 @@ func DecodeAddress(
 			if err != nil {
 				return nil, err
 			}
+
 			// We currently only support P2WPKH and P2WSH, which is witness version 0.
 			if witnessVer != 0 {
 				return nil, UnsupportedWitnessVerError(witnessVer)
 			}
+
 			// The HRP is everything before the found '1'.
 			hrp := prefix[:len(prefix)-1]
 			switch len(witnessProg) {
@@ -128,7 +132,9 @@ func DecodeAddress(
 			default:
 				return nil, UnsupportedWitnessProgLenError(len(witnessProg))
 			}
+
 		}
+
 	}
 
 	// Serialized public keys are either 65 bytes (130 hex chars) if uncompressed/hybrid or 33 bytes (66 hex chars) if compressed.
@@ -137,6 +143,7 @@ func DecodeAddress(
 		if err != nil {
 			return nil, err
 		}
+
 		return NewAddressPubKey(serializedPubKey, defaultNet)
 	}
 
@@ -146,8 +153,10 @@ func DecodeAddress(
 		if err == base58.ErrChecksum {
 			return nil, ErrChecksumMismatch
 		}
+
 		return nil, errors.New("decoded address is of unknown format")
 	}
+
 	switch len(decoded) {
 
 	case ripemd160.Size: // P2PKH or P2SH
@@ -163,9 +172,11 @@ func DecodeAddress(
 		default:
 			return nil, ErrUnknownAddressType
 		}
+
 	default:
 		return nil, errors.New("decoded address is of unknown size")
 	}
+
 }
 
 // decodeSegWitAddress parses a bech32 encoded segwit address string and returns the witness version and witness program byte representation.
@@ -205,6 +216,7 @@ func decodeSegWitAddress(
 		return 0, nil, fmt.Errorf("invalid data length for witness "+
 			"version 0: %v", len(regrouped))
 	}
+
 	return version, regrouped, nil
 }
 
@@ -229,6 +241,7 @@ func newAddressPubKeyHash(
 	if len(pkHash) != ripemd160.Size {
 		return nil, errors.New("pkHash must be 20 bytes")
 	}
+
 	addr := &AddressPubKeyHash{netID: netID}
 	copy(addr.hash[:], pkHash)
 	return addr, nil
@@ -288,6 +301,7 @@ func newAddressScriptHashFromHash(
 	if len(scriptHash) != ripemd160.Size {
 		return nil, errors.New("scriptHash must be 20 bytes")
 	}
+
 	addr := &AddressScriptHash{netID: netID}
 	copy(addr.hash[:], scriptHash)
 	return addr, nil
@@ -357,11 +371,13 @@ func NewAddressPubKey(
 	case 0x06, 0x07:
 		pkFormat = PKFHybrid
 	}
+
 	return &AddressPubKey{
-		pubKeyFormat: pkFormat,
-		pubKey:       pubKey,
-		pubKeyHashID: net.PubKeyHashAddrID,
-	}, nil
+			pubKeyFormat: pkFormat,
+			pubKey:       pubKey,
+			pubKeyHashID: net.PubKeyHashAddrID,
+		},
+		nil
 }
 
 // serialize returns the serialization of the public key according to the format associated with the address.
@@ -376,6 +392,7 @@ func (a *AddressPubKey) serialize() []byte {
 	case PKFHybrid:
 		return a.pubKey.SerializeHybrid()
 	}
+
 }
 
 // EncodeAddress returns the string encoding of the public key as a pay-to-pubkey-hash.  Note that the public key format (uncompressed, compressed, etc) will change the resulting address.  This is expected since pay-to-pubkey-hash is a hash of the serialized public key which obviously differs with the format.  At the time of this writing, most Bitcoin addresses are pay-to-pubkey-hash constructed from the uncompressed public key. Part of the Address interface.
@@ -444,10 +461,12 @@ func newAddressWitnessPubKeyHash(
 		return nil, errors.New("witness program must be 20 " +
 			"bytes for p2wpkh")
 	}
+
 	addr := &AddressWitnessPubKeyHash{
 		hrp:            strings.ToLower(hrp),
 		witnessVersion: 0x00,
 	}
+
 	copy(addr.witnessProgram[:], witnessProg)
 	return addr, nil
 }
@@ -459,6 +478,7 @@ func (a *AddressWitnessPubKeyHash) EncodeAddress() string {
 	if err != nil {
 		return ""
 	}
+
 	return str
 }
 
@@ -520,10 +540,12 @@ func newAddressWitnessScriptHash(
 		return nil, errors.New("witness program must be 32 " +
 			"bytes for p2wsh")
 	}
+
 	addr := &AddressWitnessScriptHash{
 		hrp:            strings.ToLower(hrp),
 		witnessVersion: 0x00,
 	}
+
 	copy(addr.witnessProgram[:], witnessProg)
 	return addr, nil
 }
@@ -535,6 +557,7 @@ func (a *AddressWitnessScriptHash) EncodeAddress() string {
 	if err != nil {
 		return ""
 	}
+
 	return str
 }
 

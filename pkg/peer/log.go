@@ -35,6 +35,7 @@ type logClosure func() string
 func (c logClosure) String() string {
 	return c()
 }
+
 func newLogClosure(
 	c func() string) logClosure {
 	return logClosure(c)
@@ -43,9 +44,12 @@ func newLogClosure(
 // directionString is a helper function that returns a string that represents the direction of a connection (inbound or outbound).
 func directionString(
 	inbound bool) string {
+
 	if inbound {
+
 		return "inbound"
 	}
+
 	return "outbound"
 }
 
@@ -54,9 +58,12 @@ func formatLockTime(
 	lockTime uint32) string {
 
 	// The lock time field of a transaction is either a block height at which the transaction is finalized or a timestamp depending on if the value is before the lockTimeThreshold.  When it is under the threshold it is a block height.
+
 	if lockTime < txscript.LockTimeThreshold {
+
 		return fmt.Sprintf("height %d", lockTime)
 	}
+
 	return time.Unix(int64(lockTime), 0).String()
 }
 
@@ -66,14 +73,20 @@ func invSummary(
 
 	// No inventory.
 	invLen := len(invList)
+
 	if invLen == 0 {
+
 		return "empty"
 	}
 
 	// One inventory item.
+
 	if invLen == 1 {
+
 		iv := invList[0]
+
 		switch iv.Type {
+
 		case wire.InvTypeError:
 			return fmt.Sprintf("error %s", iv.Hash)
 		case wire.InvTypeWitnessBlock:
@@ -85,6 +98,7 @@ func invSummary(
 		case wire.InvTypeTx:
 			return fmt.Sprintf("tx %s", iv.Hash)
 		}
+
 		return fmt.Sprintf("unknown (%d) %s", uint32(iv.Type), iv.Hash)
 	}
 
@@ -95,9 +109,12 @@ func invSummary(
 // locatorSummary returns a block locator as a human-readable string.
 func locatorSummary(
 	locator []*chainhash.Hash, stopHash *chainhash.Hash) string {
+
 	if len(locator) > 0 {
+
 		return fmt.Sprintf("locator %s, stop %s", locator[0], stopHash)
 	}
+
 	return fmt.Sprintf("no locator, stop %s", stopHash)
 }
 
@@ -109,24 +126,31 @@ func sanitizeString(
 
 	// Strip any characters not in the safeChars string removed.
 	str = strings.Map(func(r rune) rune {
+
 		if strings.ContainsRune(safeChars, r) {
 
 			return r
 		}
+
 		return -1
-	}, str)
+	},
+		str)
 
 	// Limit the string to the max allowed length.
+
 	if maxLength > 0 && uint(len(str)) > maxLength {
+
 		str = str[:maxLength]
 		str = str + "..."
 	}
+
 	return str
 }
 
 // messageSummary returns a human-readable string which summarizes a message. Not all messages have or need a summary.  This is used for debug logging.
 func messageSummary(
 	msg wire.Message) string {
+
 	switch msg := msg.(type) {
 
 	case *wire.MsgVersion:
@@ -185,9 +209,12 @@ func messageSummary(
 		rejReason := sanitizeString(msg.Reason, maxRejectReasonLen)
 		summary := fmt.Sprintf("cmd %v, code %v, reason %v", rejCommand,
 			msg.Code, rejReason)
+
 		if rejCommand == wire.CmdBlock || rejCommand == wire.CmdTx {
+
 			summary += fmt.Sprintf(", hash %v", msg.Hash)
 		}
+
 		return summary
 	}
 

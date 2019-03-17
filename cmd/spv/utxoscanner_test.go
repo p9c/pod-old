@@ -28,6 +28,7 @@ func NewMockChainClient() *MockChainClient {
 		getBlockHashResponse: make(map[int64]*chainhash.Hash),
 		getCFilterResponse:   make(map[chainhash.Hash]*gcs.Filter),
 	}
+
 }
 
 func (c *MockChainClient) SetBlock(hash *chainhash.Hash, block *util.Block) {
@@ -60,9 +61,10 @@ func (c *MockChainClient) SetBestSnapshot(hash *chainhash.Hash, height int32) {
 func (c *MockChainClient) BestSnapshot() (*waddrmgr.BlockStamp, error) {
 
 	return &waddrmgr.BlockStamp{
-		Hash:   *c.getBestBlockHash,
-		Height: c.getBestBlockHeight,
-	}, nil
+			Hash:   *c.getBestBlockHash,
+			Height: c.getBestBlockHeight,
+		},
+		nil
 }
 
 func (c *MockChainClient) blockFilterMatches(ro *rescanOptions,
@@ -80,6 +82,7 @@ func makeTestInputWithScript() *InputWithScript {
 			Hash:  *hash,
 			Index: 0,
 		},
+
 		PkScript: pkScript,
 	}
 
@@ -117,6 +120,7 @@ func TestFindSpends(
 		t.Fatalf("unexpected number of spend reports -- "+
 			"want %d, got %d", 1, len(spends))
 	}
+
 }
 
 // TestFindInitialTransactions tests that findInitialTransactions properly
@@ -138,6 +142,7 @@ func TestFindInitialTransactions(
 				OutPoint: *outpoint,
 				PkScript: pkScript,
 			},
+
 			BirthHeight: height,
 		},
 	}
@@ -192,6 +197,7 @@ func TestFindInitialTransactions(
 		t.Fatalf("Expected spend report to be nil since the txid "+
 			"is not in block, got %v", output)
 	}
+
 }
 
 // TestDequeueAtHeight asserts the correct behavior of various orderings of
@@ -219,6 +225,7 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
+
 	req100001, err := scanner.Enqueue(makeTestInputWithScript(), 100001)
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -233,6 +240,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100000) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -245,6 +253,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100001) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -256,6 +265,7 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
+
 	req100001, err = scanner.Enqueue(makeTestInputWithScript(), 100001)
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -267,6 +277,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100001) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -287,6 +298,7 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
+
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -301,6 +313,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100000) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -312,6 +325,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100001) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -323,6 +337,7 @@ func TestDequeueAtHeight(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
+
 	req100000, err = scanner.Enqueue(makeTestInputWithScript(), 100000)
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -334,6 +349,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 1, len(reqs))
 	}
+
 	if !reflect.DeepEqual(reqs[0], req100001) {
 
 		t.Fatalf("Unexpected request returned -- "+
@@ -348,6 +364,7 @@ func TestDequeueAtHeight(
 		t.Fatalf("Unexpected number of requests returned -- "+
 			"want %v, got %v", 0, len(reqs))
 	}
+
 }
 
 // TestUtxoScannerScanBasic tests that enqueueing a spend request at the height
@@ -369,6 +386,7 @@ func TestUtxoScannerScanBasic(
 		BestSnapshot:       mockChainClient.BestSnapshot,
 		BlockFilterMatches: mockChainClient.blockFilterMatches,
 	})
+
 	scanner.Start()
 	defer scanner.Stop()
 
@@ -391,6 +409,7 @@ func TestUtxoScannerScanBasic(
 		t.Fatalf("Expected scanned output to be spent -- "+
 			"scan report: %v", spendReport)
 	}
+
 }
 
 // TestUtxoScannerScanAddBlocks tests that adding new blocks to neutrino's view
@@ -428,8 +447,10 @@ func TestUtxoScannerScanAddBlocks(
 
 			return mockChainClient.BestSnapshot()
 		},
+
 		BlockFilterMatches: mockChainClient.blockFilterMatches,
 	})
+
 	scanner.Start()
 	defer scanner.Stop()
 
@@ -474,6 +495,7 @@ func TestUtxoScannerScanAddBlocks(
 		t.Fatalf("Expected scanned output to be spent -- "+
 			"scan report: %v", spendReport)
 	}
+
 }
 
 // TestUtxoScannerCancelRequest tests the ability to cancel pending GetUtxo
@@ -506,6 +528,7 @@ func TestUtxoScannerCancelRequest(
 			<-block
 			return nil, fetchErr
 		},
+
 		GetBlockHash:       mockChainClient.GetBlockHash,
 		BestSnapshot:       mockChainClient.BestSnapshot,
 		BlockFilterMatches: mockChainClient.blockFilterMatches,
@@ -519,6 +542,7 @@ func TestUtxoScannerCancelRequest(
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
 	}
+
 	req100001, err := scanner.Enqueue(makeTestInputWithScript(), 100001)
 	if err != nil {
 		t.Fatalf("unable to enqueue scan request: %v", err)
@@ -570,6 +594,7 @@ func TestUtxoScannerCancelRequest(
 				"from Result, want: %v, got %v",
 				ErrGetUtxoCancelled, err)
 		}
+
 	case <-time.After(50 * time.Millisecond):
 		t.Fatalf("getutxo should have been cancelled")
 	}
@@ -604,6 +629,7 @@ func TestUtxoScannerCancelRequest(
 				"from Result, want: %v, got %v",
 				ErrShuttingDown, err)
 		}
+
 	case <-time.After(50 * time.Millisecond):
 		t.Fatalf("getutxo should have been cancelled")
 	}
@@ -631,17 +657,20 @@ var Block99999 = wire.MsgBlock{
 			0xc2, 0x34, 0xd0, 0x88, 0x59, 0x0b, 0xf7, 0x86,
 			0x69, 0x90, 0x91, 0x76, 0x2d, 0x01, 0x97, 0x36,
 			0x30, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		}), // 0000000000002103637910d267190996687fb095880d432c6531a527c8ec53d1
+		}),
+		// 0000000000002103637910d267190996687fb095880d432c6531a527c8ec53d1
 		MerkleRoot: chainhash.Hash([32]byte{
 			0x09, 0xa7, 0x45, 0x1a, 0x7d, 0x41, 0xca, 0x75,
 			0x8d, 0x4c, 0xc3, 0xc8, 0x5c, 0x5b, 0x07, 0x60,
 			0x30, 0xf2, 0x3c, 0x5a, 0xed, 0xd6, 0x79, 0x49,
 			0xa3, 0xe1, 0xa8, 0x55, 0xf2, 0x9d, 0xe0, 0x11,
-		}), // 110ed92f558a1e3a94976ddea5c32f030670b5c58c3cc4d857ac14d7a1547a90
+		}),
+		// 110ed92f558a1e3a94976ddea5c32f030670b5c58c3cc4d857ac14d7a1547a90
 		Timestamp: time.Unix(1293623731, 0), // 2010-12-29 11:55:31
 		Bits:      0x1b04864c,               // 453281356
 		Nonce:     0xe80388b2,               // 3892545714
 	},
+
 	Transactions: []*wire.MsgTx{
 		{
 			Version: 1,
@@ -651,12 +680,15 @@ var Block99999 = wire.MsgBlock{
 						Hash:  chainhash.Hash{},
 						Index: 0xffffffff,
 					},
+
 					SignatureScript: []byte{
 						0x04, 0x4c, 0x86, 0x04, 0x1b, 0x01, 0x3e,
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0x12a05f200, // 5000000000
@@ -675,6 +707,7 @@ var Block99999 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
 	},
@@ -693,17 +726,20 @@ var Block100000 = wire.MsgBlock{
 			0x21, 0xa6, 0xc3, 0x01, 0x1d, 0xd3, 0x30, 0xd9,
 			0xdf, 0x07, 0xb6, 0x36, 0x16, 0xc2, 0xcc, 0x1f,
 			0x1c, 0xd0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
-		}), // 000000000002d01c1fccc21636b607dfd930d31d01c3a62104612a1719011250
+		}),
+		// 000000000002d01c1fccc21636b607dfd930d31d01c3a62104612a1719011250
 		MerkleRoot: chainhash.Hash([32]byte{ // Make go vet happy.
 			0x66, 0x57, 0xa9, 0x25, 0x2a, 0xac, 0xd5, 0xc0,
 			0xb2, 0x94, 0x09, 0x96, 0xec, 0xff, 0x95, 0x22,
 			0x28, 0xc3, 0x06, 0x7c, 0xc3, 0x8d, 0x48, 0x85,
 			0xef, 0xb5, 0xa4, 0xac, 0x42, 0x47, 0xe9, 0xf3,
-		}), // f3e94742aca4b5ef85488dc37c06c3282295ffec960994b2c0d5ac2a25a95766
+		}),
+		// f3e94742aca4b5ef85488dc37c06c3282295ffec960994b2c0d5ac2a25a95766
 		Timestamp: time.Unix(1293623863, 0), // 2010-12-29 11:57:43 +0000 UTC
 		Bits:      0x1b04864c,               // 453281356
 		Nonce:     0x10572b0f,               // 274148111
 	},
+
 	Transactions: []*wire.MsgTx{
 		{
 			Version: 1,
@@ -713,12 +749,15 @@ var Block100000 = wire.MsgBlock{
 						Hash:  chainhash.Hash{},
 						Index: 0xffffffff,
 					},
+
 					SignatureScript: []byte{
 						0x04, 0x4c, 0x86, 0x04, 0x1b, 0x02, 0x06, 0x02,
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0x12a05f200, // 5000000000
@@ -737,8 +776,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -749,9 +790,11 @@ var Block100000 = wire.MsgBlock{
 							0x46, 0xd6, 0x87, 0xd1, 0x05, 0x56, 0xdc, 0xac,
 							0xc4, 0x1d, 0x27, 0x5e, 0xc5, 0x5f, 0xc0, 0x07,
 							0x79, 0xac, 0x88, 0xfd, 0xf3, 0x57, 0xa1, 0x87,
-						}), // 87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03
+						}),
+						// 87a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xc3, 0x52, 0xd3,
@@ -775,9 +818,11 @@ var Block100000 = wire.MsgBlock{
 						0xc6, 0xf8, 0xa6, 0x30, 0x12, 0x1d, 0xf2, 0xb3,
 						0xd3, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0x2123e300, // 556000000
@@ -792,6 +837,7 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
 					Value: 0x108e20f00, // 4444000000
 					PkScript: []byte{
@@ -806,8 +852,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -818,9 +866,11 @@ var Block100000 = wire.MsgBlock{
 							0x9f, 0x9a, 0x75, 0x69, 0xab, 0x16, 0xa3, 0x27,
 							0x86, 0xaf, 0x7d, 0x7e, 0x2d, 0xe0, 0x92, 0x65,
 							0xe4, 0x1c, 0x61, 0xd0, 0x78, 0x29, 0x4e, 0xcf,
-						}), // cf4e2978d0611ce46592e02d7e7daf8627a316ab69759a9f3df109a7f2bf3ec3
+						}),
+						// cf4e2978d0611ce46592e02d7e7daf8627a316ab69759a9f3df109a7f2bf3ec3
 						Index: 1,
 					},
+
 					SignatureScript: []byte{
 						0x47, // OP_DATA_71
 						0x30, 0x44, 0x02, 0x20, 0x03, 0x2d, 0x30, 0xdf,
@@ -843,9 +893,11 @@ var Block100000 = wire.MsgBlock{
 						0x60, 0x63, 0x9d, 0xb4, 0x62, 0xe9, 0xcb, 0x85,
 						0x0f, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0xf4240, // 1000000
@@ -860,6 +912,7 @@ var Block100000 = wire.MsgBlock{
 						0xac, // OP_CHECKSIG
 					},
 				},
+
 				{
 					Value: 0x11d260c0, // 299000000
 					PkScript: []byte{
@@ -874,8 +927,10 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
+
 		{
 			Version: 1,
 			TxIn: []*wire.TxIn{
@@ -886,9 +941,11 @@ var Block100000 = wire.MsgBlock{
 							0x23, 0x52, 0x37, 0xf6, 0x4c, 0x11, 0x26, 0xac,
 							0x3b, 0x24, 0x0c, 0x84, 0xb9, 0x17, 0xa3, 0x90,
 							0x9b, 0xa1, 0xc4, 0x3d, 0xed, 0x5f, 0x51, 0xf4,
-						}), // f4515fed3dc4a19b90a317b9840c243bac26114cf637522373a7d486b372600b
+						}),
+						// f4515fed3dc4a19b90a317b9840c243bac26114cf637522373a7d486b372600b
 						Index: 0,
 					},
+
 					SignatureScript: []byte{
 						0x49, // OP_DATA_73
 						0x30, 0x46, 0x02, 0x21, 0x00, 0xbb, 0x1a, 0xd2,
@@ -912,9 +969,11 @@ var Block100000 = wire.MsgBlock{
 						0x6a, 0xf4, 0xcf, 0xaa, 0xea, 0x4e, 0xa1, 0x4f,
 						0xbb, // 65-byte pubkey
 					},
+
 					Sequence: 0xffffffff,
 				},
 			},
+
 			TxOut: []*wire.TxOut{
 				{
 					Value: 0xf4240, // 1000000
@@ -930,6 +989,7 @@ var Block100000 = wire.MsgBlock{
 					},
 				},
 			},
+
 			LockTime: 0,
 		},
 	},

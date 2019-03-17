@@ -67,8 +67,11 @@ func TestBlockManagerInitialInterval(
 					partialInterval: part,
 					repeat:          rep,
 				})
+
 			}
+
 		}
+
 	}
 
 	for _, test := range testCases {
@@ -81,6 +84,7 @@ func TestBlockManagerInitialInterval(
 
 			t.Fatalf("unable to set up ChainService: %v", err)
 		}
+
 		defer cleanUp()
 
 		// Keep track of the filter headers and block headers. Since
@@ -128,6 +132,7 @@ func TestBlockManagerInitialInterval(
 				t.Fatalf("Error writing batch of headers: %s",
 					err)
 			}
+
 		}
 
 		// We set up a custom query batch method for this test, as we
@@ -190,6 +195,7 @@ func TestBlockManagerInitialInterval(
 				}
 
 			}
+
 		}
 
 		// Call the get checkpointed cf headers method with the
@@ -218,7 +224,9 @@ func TestBlockManagerInitialInterval(
 			t.Fatalf("expected tip to be %v, was %v",
 				lastCheckpoint, tip)
 		}
+
 	}
+
 }
 
 // TestBlockManagerInvalidInterval tests that the block manager is able to
@@ -315,6 +323,7 @@ func TestBlockManagerInvalidInterval(
 
 			t.Fatalf("unable to set up ChainService: %v", err)
 		}
+
 		defer cleanUp()
 
 		// Keep track of the filter headers and block headers. Since
@@ -359,7 +368,9 @@ func TestBlockManagerInvalidInterval(
 
 					currentCFHeader[0] ^= 1
 				}
+
 			})
+
 		if err != nil {
 
 			t.Fatalf("unable to generate headers: %v", err)
@@ -386,6 +397,7 @@ func TestBlockManagerInvalidInterval(
 				t.Fatalf("Error writing batch of headers: %s",
 					err)
 			}
+
 		}
 
 		bm.server.queryBatch = func(msgs []wire.Message,
@@ -416,8 +428,10 @@ func TestBlockManagerInvalidInterval(
 
 						continue
 					}
+
 					responses[i].PrevFilterHeader[0] ^= 1
 				}
+
 			}
 
 			// If we are testing for intervals with invalid prev
@@ -433,8 +447,10 @@ func TestBlockManagerInvalidInterval(
 
 						continue
 					}
+
 					responses[i].PrevFilterHeader[1] ^= 1
 				}
+
 			}
 
 			// Check that the success of the callback match what we
@@ -450,6 +466,7 @@ func TestBlockManagerInvalidInterval(
 						t.Fatalf("expected interval "+
 							"%d to be invalid", i)
 					}
+
 					break
 				}
 
@@ -458,7 +475,9 @@ func TestBlockManagerInvalidInterval(
 					t.Fatalf("expected interval %d to be "+
 						"valid", i)
 				}
+
 			}
+
 		}
 
 		// Start the test by calling the get checkpointed cf headers
@@ -468,6 +487,7 @@ func TestBlockManagerInvalidInterval(
 			headers.checkpoints, cfStore, wire.GCSFilterRegular,
 		)
 	}
+
 }
 
 // generateHeaders generates block headers, filter header and hashes, and
@@ -575,15 +595,18 @@ func generateHeaders(
 
 				onCheckpoint(&currentCFHeader)
 			}
+
 		}
+
 	}
 
 	return &headers{
-		blockHeaders: blockHeaders,
-		cfHeaders:    cfHeaders,
-		checkpoints:  checkpoints,
-		filterHashes: filterHashes,
-	}, nil
+			blockHeaders: blockHeaders,
+			cfHeaders:    cfHeaders,
+			checkpoints:  checkpoints,
+			filterHashes: filterHashes,
+		},
+		nil
 }
 
 // generateResponses generates the MsgCFHeaders messages from the given queries
@@ -646,6 +669,7 @@ func generateResponses(
 
 				break
 			}
+
 		}
 
 		responses = append(responses, resp)

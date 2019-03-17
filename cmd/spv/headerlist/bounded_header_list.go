@@ -40,6 +40,7 @@ func NewBoundedMemoryChain(
 		maxSize: int32(maxNodes),
 		chain:   make([]Node, maxNodes),
 	}
+
 }
 
 // A compile time constant to ensure that BoundedMemoryChain meets the Chain

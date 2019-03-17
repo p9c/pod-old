@@ -58,6 +58,7 @@ func GetAllSubSystems() map[string]*cl.SubSystem {
 		"wallet-wallet":       wallet.Log,
 		"wallet-wtxmgr":       wtxmgr.Log,
 	}
+
 }
 
 // GetDefaultLogLevelsConfig returns a fresh shiny new default levels map
@@ -88,6 +89,7 @@ func GetDefaultLogLevelsConfig() map[string]string {
 		"wallet-wallet":       "info",
 		"wallet-wtxmgr":       "info",
 	}
+
 }
 
 // SetAllLogging sets all the logging to a particular level
@@ -100,6 +102,7 @@ func SetAllLogging(
 
 		ss[i].SetLevel(level)
 	}
+
 }
 
 // SetLogging sets the logging settings according to the provided context
@@ -113,6 +116,7 @@ func SetLogging(
 
 		baselevel = r
 	}
+
 	for i := range ss {
 
 		if lvl, ok := ctx.Get(i); ok {
@@ -121,5 +125,7 @@ func SetLogging(
 		} else {
 			ss[i].SetLevel(baselevel)
 		}
+
 	}
+
 }

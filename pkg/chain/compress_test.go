@@ -13,6 +13,7 @@ func hexToBytes(
 	if err != nil {
 		panic("invalid hex in source file: " + s)
 	}
+
 	return b
 }
 
@@ -25,6 +26,7 @@ func TestVLQ(
 		val        uint64
 		serialized []byte
 	}{
+
 		{0, hexToBytes("00")},
 		{1, hexToBytes("01")},
 		{127, hexToBytes("7f")},
@@ -49,6 +51,7 @@ func TestVLQ(
 		// Max uint64, 10 bytes
 		{18446744073709551615, hexToBytes("80fefefefefefefefe7f")},
 	}
+
 	for _, test := range tests {
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := serializeSizeVLQ(test.val)
@@ -59,6 +62,7 @@ func TestVLQ(
 				len(test.serialized))
 			continue
 		}
+
 		// Ensure the value serializes to the expected bytes.
 		gotBytes := make([]byte, gotSize)
 		gotBytesWritten := putVLQ(gotBytes, test.val)
@@ -69,6 +73,7 @@ func TestVLQ(
 				test.serialized)
 			continue
 		}
+
 		if gotBytesWritten != len(test.serialized) {
 
 			t.Errorf("putVLQUnchecked: did not get expected number "+
@@ -76,6 +81,7 @@ func TestVLQ(
 				test.val, gotBytesWritten, len(test.serialized))
 			continue
 		}
+
 		// Ensure the serialized bytes deserialize to the expected value.
 		gotVal, gotBytesRead := deserializeVLQ(test.serialized)
 		if gotVal != test.val {
@@ -84,6 +90,7 @@ func TestVLQ(
 				gotVal, test.val)
 			continue
 		}
+
 		if gotBytesRead != len(test.serialized) {
 
 			t.Errorf("deserializeVLQ: did not get expected number "+
@@ -92,7 +99,9 @@ func TestVLQ(
 				len(test.serialized))
 			continue
 		}
+
 	}
+
 }
 
 // TestScriptCompression ensures the domain-specific script compression and decompression works as expected.
@@ -105,61 +114,73 @@ func TestScriptCompression(
 		uncompressed []byte
 		compressed   []byte
 	}{
+
 		{
 			name:         "nil",
 			uncompressed: nil,
 			compressed:   hexToBytes("06"),
 		},
+
 		{
 			name:         "pay-to-pubkey-hash 1",
 			uncompressed: hexToBytes("76a9141018853670f9f3b0582c5b9ee8ce93764ac32b9388ac"),
 			compressed:   hexToBytes("001018853670f9f3b0582c5b9ee8ce93764ac32b93"),
 		},
+
 		{
 			name:         "pay-to-pubkey-hash 2",
 			uncompressed: hexToBytes("76a914e34cce70c86373273efcc54ce7d2a491bb4a0e8488ac"),
 			compressed:   hexToBytes("00e34cce70c86373273efcc54ce7d2a491bb4a0e84"),
 		},
+
 		{
 			name:         "pay-to-script-hash 1",
 			uncompressed: hexToBytes("a914da1745e9b549bd0bfa1a569971c77eba30cd5a4b87"),
 			compressed:   hexToBytes("01da1745e9b549bd0bfa1a569971c77eba30cd5a4b"),
 		},
+
 		{
 			name:         "pay-to-script-hash 2",
 			uncompressed: hexToBytes("a914f815b036d9bbbce5e9f2a00abd1bf3dc91e9551087"),
 			compressed:   hexToBytes("01f815b036d9bbbce5e9f2a00abd1bf3dc91e95510"),
 		},
+
 		{
 			name:         "pay-to-pubkey compressed 0x02",
 			uncompressed: hexToBytes("2102192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4ac"),
 			compressed:   hexToBytes("02192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
 		},
+
 		{
 			name:         "pay-to-pubkey compressed 0x03",
 			uncompressed: hexToBytes("2103b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65ac"),
 			compressed:   hexToBytes("03b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65"),
 		},
+
 		{
 			name:         "pay-to-pubkey uncompressed 0x04 even",
 			uncompressed: hexToBytes("4104192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b40d45264838c0bd96852662ce6a847b197376830160c6d2eb5e6a4c44d33f453eac"),
 			compressed:   hexToBytes("04192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
 		},
+
 		{
 			name:         "pay-to-pubkey uncompressed 0x04 odd",
 			uncompressed: hexToBytes("410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"),
 			compressed:   hexToBytes("0511db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5c"),
 		},
+
 		{
 			name:         "pay-to-pubkey invalid pubkey",
 			uncompressed: hexToBytes("3302aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac"),
 			compressed:   hexToBytes("293302aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac"),
 		},
+
 		{
 			name:         "null data",
 			uncompressed: hexToBytes("6a200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"),
 			compressed:   hexToBytes("286a200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"),
 		},
+
 		{
 			name:         "requires 2 size bytes - data push 200 bytes",
 			uncompressed: append(hexToBytes("4cc8"), bytes.Repeat([]byte{0x00}, 200)...),
@@ -168,6 +189,7 @@ func TestScriptCompression(
 			compressed: append(hexToBytes("80504cc8"), bytes.Repeat([]byte{0x00}, 200)...),
 		},
 	}
+
 	for _, test := range tests {
 		// Ensure the function to calculate the serialized size without actually serializing the value is calculated properly.
 		gotSize := compressedScriptSize(test.uncompressed)
@@ -178,6 +200,7 @@ func TestScriptCompression(
 				gotSize, len(test.compressed))
 			continue
 		}
+
 		// Ensure the script compresses to the expected bytes.
 		gotCompressed := make([]byte, gotSize)
 		gotBytesWritten := putCompressedScript(gotCompressed,
@@ -189,6 +212,7 @@ func TestScriptCompression(
 				gotCompressed, test.compressed)
 			continue
 		}
+
 		if gotBytesWritten != len(test.compressed) {
 
 			t.Errorf("putCompressedScript (%s): did not get "+
@@ -197,6 +221,7 @@ func TestScriptCompression(
 				len(test.compressed))
 			continue
 		}
+
 		// Ensure the compressed script size is properly decoded from the compressed script.
 		gotDecodedSize := decodeCompressedScriptSize(test.compressed)
 		if gotDecodedSize != len(test.compressed) {
@@ -206,6 +231,7 @@ func TestScriptCompression(
 				gotDecodedSize, len(test.compressed))
 			continue
 		}
+
 		// Ensure the script decompresses to the expected bytes.
 		gotDecompressed := decompressScript(test.compressed)
 		if !bytes.Equal(gotDecompressed, test.uncompressed) {
@@ -215,7 +241,9 @@ func TestScriptCompression(
 				gotDecompressed, test.uncompressed)
 			continue
 		}
+
 	}
+
 }
 
 // TestScriptCompressionErrors ensures calling various functions related to script compression with incorrect data returns the expected results.
@@ -244,6 +272,7 @@ func TestScriptCompressionErrors(
 			"uncompressed-pubkey that is invalid did not return "+
 			"nil decompressed script - got %x", gotScript)
 	}
+
 }
 
 // TestAmountCompression ensures the domain-specific transaction output amount compression and decompression works as expected.
@@ -256,52 +285,62 @@ func TestAmountCompression(
 		uncompressed uint64
 		compressed   uint64
 	}{
+
 		{
 			name:         "0 DUO (sometimes used in nulldata)",
 			uncompressed: 0,
 			compressed:   0,
 		},
+
 		{
 			name:         "546 Satoshi (current network dust value)",
 			uncompressed: 546,
 			compressed:   4911,
 		},
+
 		{
 			name:         "0.00001 DUO (typical transaction fee)",
 			uncompressed: 1000,
 			compressed:   4,
 		},
+
 		{
 			name:         "0.0001 DUO (typical transaction fee)",
 			uncompressed: 10000,
 			compressed:   5,
 		},
+
 		{
 			name:         "0.12345678 DUO",
 			uncompressed: 12345678,
 			compressed:   111111101,
 		},
+
 		{
 			name:         "0.5 DUO",
 			uncompressed: 50000000,
 			compressed:   48,
 		},
+
 		{
 			name:         "1 DUO",
 			uncompressed: 100000000,
 			compressed:   9,
 		},
+
 		{
 			name:         "5 DUO",
 			uncompressed: 500000000,
 			compressed:   49,
 		},
+
 		{
 			name:         "21000000 DUO (max minted coins)",
 			uncompressed: 2100000000000000,
 			compressed:   21000000,
 		},
 	}
+
 	for _, test := range tests {
 		// Ensure the amount compresses to the expected value.
 		gotCompressed := compressTxOutAmount(test.uncompressed)
@@ -311,6 +350,7 @@ func TestAmountCompression(
 				gotCompressed, test.compressed)
 			continue
 		}
+
 		// Ensure the value decompresses to the expected value.
 		gotDecompressed := decompressTxOutAmount(test.compressed)
 		if gotDecompressed != test.uncompressed {
@@ -319,7 +359,9 @@ func TestAmountCompression(
 				gotDecompressed, test.uncompressed)
 			continue
 		}
+
 	}
+
 }
 
 // TestCompressedTxOut ensures the transaction output serialization and deserialization works as expected.
@@ -333,18 +375,21 @@ func TestCompressedTxOut(
 		pkScript   []byte
 		compressed []byte
 	}{
+
 		{
 			name:       "nulldata with 0 DUO",
 			amount:     0,
 			pkScript:   hexToBytes("6a200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"),
 			compressed: hexToBytes("00286a200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"),
 		},
+
 		{
 			name:       "pay-to-pubkey-hash dust",
 			amount:     546,
 			pkScript:   hexToBytes("76a9141018853670f9f3b0582c5b9ee8ce93764ac32b9388ac"),
 			compressed: hexToBytes("a52f001018853670f9f3b0582c5b9ee8ce93764ac32b93"),
 		},
+
 		{
 			name:       "pay-to-pubkey uncompressed 1 DUO",
 			amount:     100000000,
@@ -352,6 +397,7 @@ func TestCompressedTxOut(
 			compressed: hexToBytes("0904192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4"),
 		},
 	}
+
 	for _, test := range tests {
 		// Ensure the function to calculate the serialized size without actually serializing the txout is calculated properly.
 		gotSize := compressedTxOutSize(test.amount, test.pkScript)
@@ -362,6 +408,7 @@ func TestCompressedTxOut(
 				gotSize, len(test.compressed))
 			continue
 		}
+
 		// Ensure the txout compresses to the expected value.
 		gotCompressed := make([]byte, gotSize)
 		gotBytesWritten := putCompressedTxOut(gotCompressed,
@@ -373,6 +420,7 @@ func TestCompressedTxOut(
 				gotCompressed, test.compressed)
 			continue
 		}
+
 		if gotBytesWritten != len(test.compressed) {
 
 			t.Errorf("compressTxOut (%s): did not get expected "+
@@ -381,6 +429,7 @@ func TestCompressedTxOut(
 				len(test.compressed))
 			continue
 		}
+
 		// Ensure the serialized bytes are decoded back to the expected uncompressed values.
 		gotAmount, gotScript, gotBytesRead, err := decodeCompressedTxOut(
 			test.compressed)
@@ -389,12 +438,14 @@ func TestCompressedTxOut(
 				"error: %v", test.name, err)
 			continue
 		}
+
 		if gotAmount != test.amount {
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
 				"expected amount - got %d, want %d",
 				test.name, gotAmount, test.amount)
 			continue
 		}
+
 		if !bytes.Equal(gotScript, test.pkScript) {
 
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
@@ -402,6 +453,7 @@ func TestCompressedTxOut(
 				test.name, gotScript, test.pkScript)
 			continue
 		}
+
 		if gotBytesRead != len(test.compressed) {
 
 			t.Errorf("decodeCompressedTxOut (%s): did not get "+
@@ -409,7 +461,9 @@ func TestCompressedTxOut(
 				test.name, gotBytesRead, len(test.compressed))
 			continue
 		}
+
 	}
+
 }
 
 // TestTxOutCompressionErrors ensures calling various functions related to txout compression with incorrect data returns the expected results.
@@ -437,4 +491,5 @@ func TestTxOutCompressionErrors(
 			"did not return expected error type - got %T, want "+
 			"errDeserialize", err)
 	}
+
 }

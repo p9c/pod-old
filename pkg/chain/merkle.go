@@ -91,6 +91,7 @@ func BuildMerkleTreeStore(
 		default:
 			merkles[i] = tx.Hash()
 		}
+
 	}
 
 	// Start the array offset after the last transaction and adjusted to the next power of two.
@@ -109,8 +110,10 @@ func BuildMerkleTreeStore(
 			newHash := HashMerkleBranches(merkles[i], merkles[i+1])
 			merkles[offset] = newHash
 		}
+
 		offset++
 	}
+
 	return merkles
 }
 
@@ -123,6 +126,7 @@ func ExtractWitnessCommitment(
 
 		return nil, false
 	}
+
 	msgTx := tx.MsgTx()
 	for i := len(msgTx.TxOut) - 1; i >= 0; i-- {
 		// The public key script that contains the witness commitment must shared a prefix with the WitnessMagicBytes, and be at least 38 bytes.
@@ -135,7 +139,9 @@ func ExtractWitnessCommitment(
 			end := CoinbaseWitnessPkScriptLength
 			return msgTx.TxOut[i].PkScript[start:end], true
 		}
+
 	}
+
 	return nil, false
 }
 
@@ -149,10 +155,12 @@ func ValidateWitnessCommitment(
 			"transactions"
 		return ruleError(ErrNoTransactions, str)
 	}
+
 	coinbaseTx := blk.Transactions()[0]
 	if len(coinbaseTx.MsgTx().TxIn) == 0 {
 		return ruleError(ErrNoTxInputs, "transaction has no inputs")
 	}
+
 	witnessCommitment, witnessFound := ExtractWitnessCommitment(coinbaseTx)
 
 	// If we can't find a witness commitment in any of the coinbase's outputs, then the block MUST NOT contain any transactions with witness data.
@@ -166,7 +174,9 @@ func ValidateWitnessCommitment(
 					" data, yet no witness commitment present")
 				return ruleError(ErrUnexpectedWitness, str)
 			}
+
 		}
+
 		return nil
 	}
 
@@ -178,6 +188,7 @@ func ValidateWitnessCommitment(
 			len(coinbaseWitness))
 		return ruleError(ErrInvalidWitnessCommitment, str)
 	}
+
 	witnessNonce := coinbaseWitness[0]
 	if len(witnessNonce) != CoinbaseWitnessDataLen {
 		str := fmt.Sprintf("the coinbase transaction witness nonce "+
@@ -200,5 +211,6 @@ func ValidateWitnessCommitment(
 			witnessCommitment)
 		return ruleError(ErrWitnessCommitmentMismatch, str)
 	}
+
 	return nil
 }

@@ -42,6 +42,7 @@ func TestBoundedMemoryChainEmptyList(
 		t.Fatalf("back and front of chain of length 1 should be " +
 			"identical")
 	}
+
 }
 
 // TestBoundedMemoryChainResetHeaderState tests that if we insert a number of
@@ -60,6 +61,7 @@ func TestBoundedMemoryChainResetHeaderState(
 		memChain.PushBack(Node{
 			Height: int32(i),
 		})
+
 	}
 
 	// With the set of elements inserted, we'll now pick a new element to
@@ -67,6 +69,7 @@ func TestBoundedMemoryChainResetHeaderState(
 	newNode := Node{
 		Height: 4,
 	}
+
 	memChain.ResetHeaderState(newNode)
 
 	// At this point, the front and back of the chain should be identical.
@@ -82,10 +85,12 @@ func TestBoundedMemoryChainResetHeaderState(
 		t.Fatalf("wrong node, expected %v, got %v", newNode,
 			memChain.Front())
 	}
+
 	if *memChain.Back() != newNode {
 		t.Fatalf("wrong node, expected %v, got %v", newNode,
 			memChain.Back())
 	}
+
 }
 
 // TestBoundedMemoryChainSizeLimit tests that if we add elements until the size
@@ -106,6 +111,7 @@ func TestBoundedMemoryChainSizeLimit(
 		node := Node{
 			Height: int32(i),
 		}
+
 		memChain.PushBack(node)
 
 		totalElems = append(totalElems, node)
@@ -145,6 +151,7 @@ func TestBoundedMemoryChainSizeLimit(
 			if node.Prev() != nil {
 				t.Fatalf("prev of first elem should be nil")
 			}
+
 		} else {
 			expectedPrevElem := memChain.chain[i-1]
 			if node.Prev().Height != expectedPrevElem.Height {
@@ -152,7 +159,9 @@ func TestBoundedMemoryChainSizeLimit(
 					spew.Sdump(expectedPrevElem),
 					spew.Sdump(node.Prev()))
 			}
+
 		}
+
 	}
 
 }
@@ -173,6 +182,7 @@ func TestBoundedMemoryChainPrevIteration(
 		memChain.PushBack(Node{
 			Height: int32(i),
 		})
+
 	}
 
 	// We'll now add an additional element to the chain.
@@ -195,4 +205,5 @@ func TestBoundedMemoryChainPrevIteration(
 
 		numIters++
 	}
+
 }

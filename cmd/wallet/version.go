@@ -86,7 +86,10 @@ func normalizeVerString(
 			if err != nil {
 				panic(err)
 			}
+
 		}
+
 	}
+
 	return result.String()
 }

@@ -33,6 +33,7 @@ func (u unstableAPI) TxDetails(txHash *chainhash.Hash) (*wtxmgr.TxDetails, error
 		details, err = u.w.TxStore.TxDetails(txmgrNs, txHash)
 		return err
 	})
+
 	return details, err
 }
 
@@ -43,4 +44,5 @@ func (u unstableAPI) RangeTransactions(begin, end int32, f func([]wtxmgr.TxDetai
 		txmgrNs := dbtx.ReadBucket(wtxmgrNamespaceKey)
 		return u.w.TxStore.RangeTransactions(txmgrNs, begin, end, f)
 	})
+
 }

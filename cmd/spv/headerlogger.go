@@ -43,6 +43,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	if duration < time.Second*10 {
 		return
 	}
+
 	// Truncate the duration to 10s of milliseconds.
 	durationMillis := int64(duration / time.Millisecond)
 	tDuration := 10 * time.Millisecond * time.Duration(durationMillis/10)
@@ -51,6 +52,7 @@ func (b *headerProgressLogger) LogBlockHeight(timestamp time.Time, height int32)
 	if b.receivedLogBlocks > 1 {
 		entityStr += "s"
 	}
+
 	b.subsystemLogger.Ch <- cl.Infof{
 		"%s %d %s in the last %s (height %d, %s)",
 		b.progressAction, b.receivedLogBlocks, entityStr, tDuration,
@@ -82,4 +84,5 @@ func newBlockProgressLogger(
 		progressAction:   progressMessage,
 		subsystemLogger:  logger,
 	}
+
 }

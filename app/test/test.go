@@ -21,6 +21,7 @@ func main() {
 				return nil
 			},
 		},
+
 		{
 			Name:    "complete",
 			Aliases: []string{"c"},
@@ -30,6 +31,7 @@ func main() {
 				return nil
 			},
 		},
+
 		{
 			Name:    "template",
 			Aliases: []string{"t"},
@@ -43,6 +45,7 @@ func main() {
 						return nil
 					},
 				},
+
 				{
 					Name:  "remove",
 					Usage: "remove an existing template",
@@ -59,4 +62,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }

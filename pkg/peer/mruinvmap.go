@@ -24,13 +24,19 @@ func (m *mruInventoryMap) String() string {
 	lastEntryNum := len(m.invMap) - 1
 	curEntry := 0
 	buf := bytes.NewBufferString("[")
+
 	for iv := range m.invMap {
+
 		buf.WriteString(fmt.Sprintf("%v", iv))
+
 		if curEntry < lastEntryNum {
+
 			buf.WriteString(", ")
 		}
+
 		curEntry++
 	}
+
 	buf.WriteString("]")
 	return fmt.Sprintf("<%d>%s", m.limit, buf.String())
 }
@@ -50,18 +56,24 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 	defer m.invMtx.Unlock()
 
 	// When the limit is zero, nothing can be added to the map, so just return.
+
 	if m.limit == 0 {
+
 		return
 	}
 
 	// When the entry already exists move it to the front of the list thereby marking it most recently used.
+
 	if node, exists := m.invMap[*iv]; exists {
+
 		m.invList.MoveToFront(node)
 		return
 	}
 
 	// Evict the least recently used entry (back of the list) if the the new entry would exceed the size limit for the map.  Also reuse the list node so a new one doesn't have to be allocated.
+
 	if uint(len(m.invMap))+1 > m.limit {
+
 		node := m.invList.Back()
 		lru := node.Value.(*wire.InvVect)
 
@@ -84,10 +96,13 @@ func (m *mruInventoryMap) Add(iv *wire.InvVect) {
 func (m *mruInventoryMap) Delete(iv *wire.InvVect) {
 
 	m.invMtx.Lock()
+
 	if node, exists := m.invMap[*iv]; exists {
+
 		m.invList.Remove(node)
 		delete(m.invMap, *iv)
 	}
+
 	m.invMtx.Unlock()
 }
 
@@ -99,5 +114,6 @@ func newMruInventoryMap(
 		invList: list.New(),
 		limit:   limit,
 	}
+
 	return &m
 }

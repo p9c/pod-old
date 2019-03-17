@@ -38,7 +38,9 @@ func fileExists(
 
 			return false
 		}
+
 	}
+
 	return true
 }
 
@@ -50,7 +52,9 @@ func isSupportedDbType(
 		if dbType == driver {
 			return true
 		}
+
 	}
+
 	return false
 }
 
@@ -71,12 +75,14 @@ func chainSetup(
 		if err != nil {
 			return nil, nil, fmt.Errorf("error creating db: %v", err)
 		}
+
 		db = ndb
 		// Setup a teardown function for cleaning up.  This function is returned to the caller to be invoked when it is done testing.
 		teardown = func() {
 
 			db.Close()
 		}
+
 	} else {
 		// Create the root directory for test databases.
 		if !fileExists(testDbRoot) {
@@ -86,7 +92,9 @@ func chainSetup(
 					"root: %v", err)
 				return nil, nil, err
 			}
+
 		}
+
 		// Create a new database to store the accepted blocks into.
 		dbPath := filepath.Join(testDbRoot, dbName)
 		_ = os.RemoveAll(dbPath)
@@ -94,6 +102,7 @@ func chainSetup(
 		if err != nil {
 			return nil, nil, fmt.Errorf("error creating db: %v", err)
 		}
+
 		db = ndb
 		// Setup a teardown function for cleaning up.  This function is returned to the caller to be invoked when it is done testing.
 		teardown = func() {
@@ -102,6 +111,7 @@ func chainSetup(
 			os.RemoveAll(dbPath)
 			os.RemoveAll(testDbRoot)
 		}
+
 	}
 
 	// Copy the chain params to ensure any modifications the tests do to the chain parameters do not affect the global instance.
@@ -115,11 +125,13 @@ func chainSetup(
 		TimeSource:  blockchain.NewMedianTime(),
 		SigCache:    txscript.NewSigCache(1000),
 	})
+
 	if err != nil {
 		teardown()
 		err := fmt.Errorf("failed to create chain instance: %v", err)
 		return nil, nil, err
 	}
+
 	return chain, teardown, nil
 }
 
@@ -139,6 +151,7 @@ func TestFullBlocks(
 		t.Errorf("Failed to setup chain instance: %v", err)
 		return
 	}
+
 	defer teardownFunc()
 
 	// testAcceptedBlock attempts to process the block in the provided test instance and ensures that it was accepted according to the flags specified in the test.
@@ -156,6 +169,7 @@ func TestFullBlocks(
 				"have been accepted: %v", item.Name,
 				block.Hash(), blockHeight, err)
 		}
+
 		// Ensure the main chain and orphan flags match the values specified in the test.
 		if isMainChain != item.IsMainChain {
 			t.Fatalf("block %q (hash %s, height %d) unexpected main "+
@@ -163,12 +177,14 @@ func TestFullBlocks(
 				block.Hash(), blockHeight, isMainChain,
 				item.IsMainChain)
 		}
+
 		if isOrphan != item.IsOrphan {
 			t.Fatalf("block %q (hash %s, height %d) unexpected "+
 				"orphan flag -- got %v, want %v", item.Name,
 				block.Hash(), blockHeight, isOrphan,
 				item.IsOrphan)
 		}
+
 	}
 
 	// testRejectedBlock attempts to process the block in the provided test instance and ensures that it was rejected with the reject code specified in the test.
@@ -186,6 +202,7 @@ func TestFullBlocks(
 				"have been accepted", item.Name, block.Hash(),
 				blockHeight)
 		}
+
 		// Ensure the error code is of the expected type and the reject code matches the value specified in the test instance.
 		rerr, ok := err.(blockchain.RuleError)
 		if !ok {
@@ -194,12 +211,14 @@ func TestFullBlocks(
 				"blockchain.RuleError", item.Name, block.Hash(),
 				blockHeight, err)
 		}
+
 		if rerr.ErrorCode != item.RejectCode {
 			t.Fatalf("block %q (hash %s, height %d) does not have "+
 				"expected reject code -- got %v, want %v",
 				item.Name, block.Hash(), blockHeight,
 				rerr.ErrorCode, item.RejectCode)
 		}
+
 	}
 
 	// testRejectedNonCanonicalBlock attempts to decode the block in the provided test instance and ensures that it failed to decode with a message error.
@@ -209,6 +228,7 @@ func TestFullBlocks(
 		if headerLen > 80 {
 			headerLen = 80
 		}
+
 		blockHash := chainhash.DoubleHashH(item.RawBlock[0:headerLen])
 		blockHeight := item.Height
 		t.Logf("Testing block %s (hash %s, height %d)", item.Name,
@@ -221,6 +241,7 @@ func TestFullBlocks(
 				"failed to decode", item.Name, blockHash,
 				blockHeight)
 		}
+
 	}
 
 	// testOrphanOrRejectedBlock attempts to process the block in the provided test instance and ensures that it was either accepted as an orphan or rejected with a rule violation.

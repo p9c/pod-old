@@ -29,6 +29,7 @@ func TestAppDataDir(
 		if localAppData == "" {
 			localAppData = roamingAppData
 		}
+
 		winLocal = filepath.Join(localAppData, appNameUpper)
 		winRoaming = filepath.Join(roamingAppData, appNameUpper)
 	}
@@ -40,6 +41,7 @@ func TestAppDataDir(
 		t.Errorf("user.Current: %v", err)
 		return
 	}
+
 	homeDir = usr.HomeDir
 
 	// Mac app data directory.
@@ -50,6 +52,7 @@ func TestAppDataDir(
 		roaming bool
 		want    string
 	}{
+
 		// Various combinations of application name casing, leading period, operating system, and roaming flags.
 		{"windows", appNameLower, false, winLocal},
 		{"windows", appNameUpper, false, winLocal},
@@ -109,6 +112,7 @@ func TestAppDataDir(
 		{"plan9", ".", false, "."},
 		{"unrecognized", ".", false, "."},
 	}
+
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		ret := util.TstAppDataDir(test.goos, test.appName, test.roaming)
@@ -118,5 +122,7 @@ func TestAppDataDir(
 				test.want)
 			continue
 		}
+
 	}
+
 }

@@ -37,6 +37,7 @@ func (u AmountUnit) String() string {
 	default:
 		return "1e" + strconv.FormatInt(int64(u), 10) + " DUO"
 	}
+
 }
 
 // Amount represents the base bitcoin monetary unit (colloquially referred to as a `Satoshi').  A single Amount is equal to 1e-8 of a bitcoin.
@@ -48,6 +49,7 @@ func round(
 	if f < 0 {
 		return Amount(f - 0.5)
 	}
+
 	return Amount(f + 0.5)
 }
 
@@ -64,6 +66,7 @@ func NewAmount(
 	case math.IsInf(f, -1):
 		return 0, errors.New("invalid bitcoin amount")
 	}
+
 	return round(f * SatoshiPerBitcoin), nil
 }
 

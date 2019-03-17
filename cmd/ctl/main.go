@@ -37,6 +37,7 @@ func Main(
 		fmt.Fprintln(os.Stderr, listCmdMessage)
 		os.Exit(1)
 	}
+
 	if usageFlags&unusableFlags != 0 {
 		fmt.Fprintf(
 			os.Stderr,
@@ -58,14 +59,17 @@ func Main(
 					"Failed to read data from stdin: %v\n", err)
 				os.Exit(1)
 			}
+
 			if err == io.EOF && len(param) == 0 {
 				fmt.Fprintln(os.Stderr, "Not enough lines provided on stdin")
 				os.Exit(1)
 			}
+
 			param = strings.TrimRight(param, "\r\n")
 			params = append(params, param)
 			continue
 		}
+
 		params = append(params, arg)
 	}
 
@@ -111,6 +115,7 @@ func Main(
 				err)
 			os.Exit(1)
 		}
+
 		fmt.Println(dst.String())
 	} else if strings.HasPrefix(strResult, `"`) {
 
@@ -120,10 +125,12 @@ func Main(
 				err)
 			os.Exit(1)
 		}
+
 		fmt.Println(str)
 	} else if strResult != "null" {
 		fmt.Println(strResult)
 	}
+
 }
 
 // commandUsage display the usage for a specific command.
@@ -138,6 +145,7 @@ func commandUsage(
 		fmt.Fprintln(os.Stderr, "Failed to obtain command usage:", err)
 		return
 	}
+
 	fmt.Fprintln(os.Stderr, "Usage:")
 	fmt.Fprintf(os.Stderr, "  %s\n", usage)
 }

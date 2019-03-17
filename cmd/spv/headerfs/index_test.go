@@ -56,6 +56,7 @@ func TestAddHeadersIndexRetrieve(
 		if _, err := rand.Read(header.hash[:]); err != nil {
 			t.Fatalf("unable to read header: %v", err)
 		}
+
 		header.height = i
 
 		headerEntries[i] = header
@@ -74,11 +75,13 @@ func TestAddHeadersIndexRetrieve(
 	if err != nil {
 		t.Fatalf("unable to obtain chain tip: %v", err)
 	}
+
 	lastEntry := headerIndex[numHeaders-1]
 	if dbHeight != lastEntry.height {
 		t.Fatalf("height doesn't match: expected %v, got %v",
 			lastEntry.height, dbHeight)
 	}
+
 	if !bytes.Equal(dbTip[:], lastEntry.hash[:]) {
 
 		t.Fatalf("tip doesn't match: expected %x, got %x",
@@ -92,10 +95,12 @@ func TestAddHeadersIndexRetrieve(
 		if err != nil {
 			t.Fatalf("unable to retreive height(%v): %v", i, err)
 		}
+
 		if height != headerEntry.height {
 			t.Fatalf("height doesn't match: expected %v, got %v",
 				headerEntry.height, height)
 		}
+
 	}
 
 	// Next if we truncate the index by one, then we should end up at the
@@ -111,14 +116,17 @@ func TestAddHeadersIndexRetrieve(
 	if err != nil {
 		t.Fatalf("unable to obtain chain tip: %v", err)
 	}
+
 	lastEntry = headerIndex[numHeaders-2]
 	if dbHeight != lastEntry.height {
 		t.Fatalf("height doesn't match: expected %v, got %v",
 			lastEntry.height, dbHeight)
 	}
+
 	if !bytes.Equal(dbTip[:], lastEntry.hash[:]) {
 
 		t.Fatalf("tip doesn't match: expected %x, got %x",
 			lastEntry.hash[:], dbTip[:])
 	}
+
 }

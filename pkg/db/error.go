@@ -114,9 +114,12 @@ var errorCodeStrings = map[ErrorCode]string{
 
 // String returns the ErrorCode as a human-readable name.
 func (e ErrorCode) String() string {
+
 	if s := errorCodeStrings[e]; s != "" {
+
 		return s
 	}
+
 	return fmt.Sprintf("Unknown ErrorCode (%d)", int(e))
 }
 
@@ -131,9 +134,12 @@ type Error struct {
 
 // Error satisfies the error interface and prints human-readable errors.
 func (e Error) Error() string {
+
 	if e.Err != nil {
+
 		return e.Description + ": " + e.Err.Error()
 	}
+
 	return e.Description
 }
 

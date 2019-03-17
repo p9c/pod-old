@@ -64,6 +64,7 @@ func TestGenesisFilterCreation(
 	if regGenesisFilter == nil {
 		t.Fatalf("regular genesis filter is nil")
 	}
+
 }
 
 func genRandFilter(
@@ -117,6 +118,7 @@ func TestFilterStorage(
 	if err != nil {
 		t.Fatalf("unable to create random filter: %v", err)
 	}
+
 	err = database.PutFilter(&randHash, regFilter, RegularFilter)
 	if err != nil {
 		t.Fatalf("unable to store regular filter: %v", err)
@@ -128,8 +130,10 @@ func TestFilterStorage(
 	if err != nil {
 		t.Fatalf("unable to retrieve reg filter: %v", err)
 	}
+
 	if !reflect.DeepEqual(regFilter, regFilterDB) {
 
 		t.Fatalf("regular filter doesn't match!")
 	}
+
 }

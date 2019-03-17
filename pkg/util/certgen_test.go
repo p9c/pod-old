@@ -55,6 +55,7 @@ func TestNewTLSCertPair(
 		if len(x509Orgs) > 0 {
 			x509Org = x509Orgs[0]
 		}
+
 		t.Fatalf("generated cert organization field mismatch, got "+
 			"'%v', want '%v'", x509Org, org)
 	}
@@ -71,6 +72,7 @@ func TestNewTLSCertPair(
 		if err := x509Cert.VerifyHostname(host); err != nil {
 			t.Fatalf("failed to verify extra host '%s'", host)
 		}
+
 	}
 
 	// Ensure that the Common Name is also the first SAN DNS name.
@@ -85,35 +87,45 @@ func TestNewTLSCertPair(
 	for _, host := range x509Cert.DNSNames {
 		hostCounts[host]++
 	}
+
 	ipCounts := make(map[string]int)
 	for _, ip := range x509Cert.IPAddresses {
 		ipCounts[string(ip)]++
 	}
+
 	for host, count := range hostCounts {
 		if count != 1 {
 			t.Errorf("host %s appears %d times in certificate", host, count)
 		}
+
 	}
+
 	for ipStr, count := range ipCounts {
 		if count != 1 {
 			t.Errorf("ip %s appears %d times in certificate", net.IP(ipStr), count)
 		}
+
 	}
 
 	// Ensure the cert can be use for the intended purposes.
 	if !x509Cert.IsCA {
 		t.Fatal("generated cert is not a certificate authority")
 	}
+
 	if x509Cert.KeyUsage&x509.KeyUsageKeyEncipherment == 0 {
 		t.Fatal("generated cert can't be used for key encipherment")
 	}
+
 	if x509Cert.KeyUsage&x509.KeyUsageDigitalSignature == 0 {
 		t.Fatal("generated cert can't be used for digital signatures")
 	}
+
 	if x509Cert.KeyUsage&x509.KeyUsageCertSign == 0 {
 		t.Fatal("generated cert can't be used for signing other certs")
 	}
+
 	if !x509Cert.BasicConstraintsValid {
 		t.Fatal("generated cert does not have valid basic constraints")
 	}
+
 }

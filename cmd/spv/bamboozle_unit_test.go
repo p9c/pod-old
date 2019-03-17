@@ -21,6 +21,7 @@ func decodeHashNoError(
 	if err != nil {
 		panic("Got error decoding hash: " + err.Error())
 	}
+
 	return hash
 }
 
@@ -51,17 +52,21 @@ var (
 	checkpoints1 = []*chainhash.Hash{
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 	}
+
 	checkpoints2 = []*chainhash.Hash{
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 	}
+
 	checkpoints3 = []*chainhash.Hash{
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 	}
+
 	checkpoints4 = []*chainhash.Hash{
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 	}
+
 	checkpoints5 = []*chainhash.Hash{
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		decodeHashNoError("fedcba09f7654321001234567890abcdef"),
@@ -80,6 +85,7 @@ var (
 		0xa6, // 65-byte signature
 		0xac, // OP_CHECKSIG
 	}
+
 	script2 = []byte{
 		0x00, // Version 0 witness program
 		0x14, // OP_DATA_20
@@ -87,6 +93,7 @@ var (
 		0x8e, 0x53, 0x2a, 0x22, 0xc4, 0x1b, 0xa1, 0x89,
 		0x40, 0x6a, 0x85, 0x23, // 20-byte pub key hash
 	}
+
 	script3 = []byte{
 		0x6a, // OP_RETURN
 		0x24, // OP_PUSH_DATA_36
@@ -109,6 +116,7 @@ var (
 					},
 				},
 			},
+
 			{
 				TxOut: []*wire.TxOut{
 					{
@@ -116,6 +124,7 @@ var (
 					},
 				},
 			},
+
 			{
 				TxOut: []*wire.TxOut{
 					{
@@ -125,6 +134,7 @@ var (
 			},
 		},
 	}
+
 	correctFilter, _ = builder.BuildBasicFilter(block, nil)
 
 	fakeFilter1, _ = gcs.FromBytes(2, builder.DefaultP, builder.DefaultM, []byte{
@@ -138,6 +148,7 @@ var (
 		0x91, 0x4a, 0x48, 0xb0, 0xe1, 0x87, 0xc5, 0xe7,
 		0x56, 0x9a, 0x18, 0x19, 0x70, 0x01,
 	})
+
 	fakeFilter2, _ = gcs.FromBytes(2, builder.DefaultP, builder.DefaultM, []byte{
 		0x03, 0x07, 0xea, 0xd0, 0x84, 0x80, 0x7e, 0xb7,
 		0x63, 0x46, 0xdf, 0x69, 0x77, 0x00, 0x0c, 0x89,
@@ -152,23 +163,27 @@ var (
 			decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 		},
 	}
+
 	headers2 = &wire.MsgCFHeaders{
 		FilterHashes: []*chainhash.Hash{
 			decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		},
 	}
+
 	headers3 = &wire.MsgCFHeaders{
 		FilterHashes: []*chainhash.Hash{
 			decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 			decodeHashNoError("01234567890abcdeffedcba09f76543210"),
 		},
 	}
+
 	headers4 = func() *wire.MsgCFHeaders {
 		cfh := &wire.MsgCFHeaders{
 			FilterHashes: []*chainhash.Hash{
 				decodeHashNoError("fedcba09f7654321001234567890abcdef"),
 			},
 		}
+
 		filter, _ := builder.BuildBasicFilter(block, nil)
 		filterHash, _ := builder.GetFilterHash(filter)
 		cfh.FilterHashes = append(cfh.FilterHashes, &filterHash)
@@ -182,86 +197,103 @@ var (
 				"1": checkpoints1,
 				"2": checkpoints1,
 			},
+
 			storepoints:    checkpoints1,
 			storeAddHeight: 0,
 			heightDiff:     -1,
 		},
+
 		{
 			name: "all match 2",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints2,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints2,
 			storeAddHeight: 0,
 			heightDiff:     -1,
 		},
+
 		{
 			name: "all match 3",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints1,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints1,
 			storeAddHeight: 0,
 			heightDiff:     -1,
 		},
+
 		{
 			name: "mismatch 1",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints2,
 			storeAddHeight: 0,
 			heightDiff:     0,
 		},
+
 		{
 			name: "mismatch 2",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints4,
 			storeAddHeight: 0,
 			heightDiff:     0,
 		},
+
 		{
 			name: "mismatch 3",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints1,
 			storeAddHeight: 0,
 			heightDiff:     0,
 		},
+
 		{
 			name: "mismatch 4",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints4,
 				"2": checkpoints2,
 			},
+
 			storepoints:    checkpoints3,
 			storeAddHeight: 0,
 			heightDiff:     0,
 		},
+
 		{
 			name: "mismatch 5",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints4,
 				"2": checkpoints5,
 			},
+
 			storepoints:    checkpoints4,
 			storeAddHeight: 0,
 			heightDiff:     1,
 		},
+
 		{
 			name: "mismatch 6",
 			checkpoints: map[string][]*chainhash.Hash{
 				"1": checkpoints2,
 				"2": checkpoints4,
 			},
+
 			storepoints:    checkpoints3,
 			storeAddHeight: 0,
 			heightDiff:     0,
@@ -275,60 +307,73 @@ var (
 				"a": headers1,
 				"b": headers1,
 			},
+
 			idx:      0,
 			mismatch: false,
 		},
+
 		{
 			name: "match 2",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers1,
 				"b": headers2,
 			},
+
 			idx:      0,
 			mismatch: false,
 		},
+
 		{
 			name: "match 3",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers1,
 				"b": headers2,
 			},
+
 			idx:      1,
 			mismatch: false,
 		},
+
 		{
 			name: "match 4",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers2,
 				"b": headers3,
 			},
+
 			idx:      1,
 			mismatch: false,
 		},
+
 		{
 			name: "mismatch 1",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers1,
 				"b": headers3,
 			},
+
 			idx:      0,
 			mismatch: true,
 		},
+
 		{
 			name: "mismatch 2",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers1,
 				"b": headers3,
 			},
+
 			idx:      1,
 			mismatch: true,
 		},
+
 		{
 			name: "mismatch 3",
 			headers: map[string]*wire.MsgCFHeaders{
 				"a": headers2,
 				"b": headers3,
 			},
+
 			idx:      0,
 			mismatch: true,
 		},
@@ -342,9 +387,11 @@ var (
 				"a": fakeFilter1,
 				"b": fakeFilter1,
 			},
+
 			idx:      0,
 			badPeers: []string{"a", "b"},
 		},
+
 		{
 			name:  "all bad 2",
 			block: block,
@@ -352,9 +399,11 @@ var (
 				"a": fakeFilter2,
 				"b": fakeFilter2,
 			},
+
 			idx:      0,
 			badPeers: []string{"a", "b"},
 		},
+
 		{
 			name:  "all bad 3",
 			block: block,
@@ -362,9 +411,11 @@ var (
 				"a": fakeFilter2,
 				"b": fakeFilter2,
 			},
+
 			idx:      0,
 			badPeers: []string{"a", "b"},
 		},
+
 		{
 			name:  "all bad 4",
 			block: block,
@@ -372,9 +423,11 @@ var (
 				"a": fakeFilter1,
 				"b": fakeFilter2,
 			},
+
 			idx:      0,
 			badPeers: []string{"a", "b"},
 		},
+
 		{
 			name:  "all bad 5",
 			block: block,
@@ -382,9 +435,11 @@ var (
 				"a": fakeFilter2,
 				"b": fakeFilter1,
 			},
+
 			idx:      1,
 			badPeers: []string{"a", "b"},
 		},
+
 		{
 			name:  "one good",
 			block: block,
@@ -393,9 +448,11 @@ var (
 				"b": fakeFilter1,
 				"c": fakeFilter2,
 			},
+
 			idx:      1,
 			badPeers: []string{"b", "c"},
 		},
+
 		{
 			name:  "all good",
 			block: block,
@@ -403,6 +460,7 @@ var (
 				"a": correctFilter,
 				"b": correctFilter,
 			},
+
 			idx:      1,
 			badPeers: []string{},
 		},
@@ -422,12 +480,14 @@ func runCheckCFCheckptSanityTestCase(
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %s", err)
 	}
+
 	defer os.RemoveAll(tempDir)
 
 	db, err := walletdb.Create("bdb", tempDir+"/weks.db")
 	if err != nil {
 		t.Fatalf("Error opening DB: %s", err)
 	}
+
 	defer db.Close()
 
 	hdrStore, err := headerfs.NewBlockHeaderStore(
@@ -466,6 +526,7 @@ func runCheckCFCheckptSanityTestCase(
 				HeaderHash: header.BlockHash(),
 				Height:     height,
 			})
+
 		}
 
 		height := uint32((i + 1) * wire.CFCheckptInterval)
@@ -489,6 +550,7 @@ func runCheckCFCheckptSanityTestCase(
 		if err = cfStore.WriteHeaders(cfBatch...); err != nil {
 			t.Fatalf("Error writing batch of cfheaders: %s", err)
 		}
+
 	}
 
 	for i := 0; i < testCase.storeAddHeight; i++ {
@@ -510,6 +572,7 @@ func runCheckCFCheckptSanityTestCase(
 		}); err != nil {
 			t.Fatalf("Error writing single cfheader: %s", err)
 		}
+
 	}
 
 	heightDiff, err := checkCFCheckptSanity(testCase.checkpoints, cfStore)
@@ -521,6 +584,7 @@ func runCheckCFCheckptSanityTestCase(
 		t.Fatalf("Height difference mismatch. Expected: %d, got: %d",
 			testCase.heightDiff, heightDiff)
 	}
+
 }
 
 func TestCheckCFCheckptSanity(
@@ -533,7 +597,9 @@ func TestCheckCFCheckptSanity(
 
 			runCheckCFCheckptSanityTestCase(t, testCase)
 		})
+
 	}
+
 }
 
 func TestCheckForCFHeadersMismatch(
@@ -552,8 +618,11 @@ func TestCheckForCFHeadersMismatch(
 					"%t, got: %t", testCase.mismatch,
 					mismatch)
 			}
+
 		})
+
 	}
+
 }
 
 func TestResolveCFHeadersMismatch(
@@ -586,7 +655,11 @@ func TestResolveCFHeadersMismatch(
 						"Expected: %#v\nGot: %#v",
 						testCase.badPeers, badPeers)
 				}
+
 			}
+
 		})
+
 	}
+
 }

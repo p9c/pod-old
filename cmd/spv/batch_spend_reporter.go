@@ -56,6 +56,7 @@ func (b *batchSpendReporter) FailRemaining(err error) error {
 	for outpoint, requests := range b.requests {
 		b.notifyRequests(&outpoint, requests, nil, err)
 	}
+
 	return err
 }
 
@@ -80,10 +81,12 @@ func (b *batchSpendReporter) NotifyUnspentAndUnfound() {
 			log <- cl.Warnf{
 				"unknown initial txn for getuxo request %v", outpoint,
 			}
+
 		}
 
 		b.notifyRequests(&outpoint, requests, tx, nil)
 	}
+
 }
 
 // ProcessBlock accepts a block, block height, and any new requests whose start
@@ -106,6 +109,7 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 		b.addNewRequests(newReqs)
 		b.findInitialTransactions(blk, newReqs, height)
 	}
+
 	// Next, filter the block for any spends using the current set of
 
 	// watched outpoints. This will include any new requests added above.
@@ -121,7 +125,9 @@ func (b *batchSpendReporter) ProcessBlock(blk *wire.MsgBlock,
 		for _, entry := range b.outpoints {
 			b.filterEntries = append(b.filterEntries, entry)
 		}
+
 	}
+
 }
 
 // addNewRequests adds a set of new GetUtxoRequests to the spend reporter's
@@ -147,7 +153,9 @@ func (b *batchSpendReporter) addNewRequests(reqs []*GetUtxoRequest) {
 			b.outpoints[outpoint] = entry
 			b.filterEntries = append(b.filterEntries, entry)
 		}
+
 	}
+
 }
 
 // findInitialTransactions searches the given block for the creation of the
@@ -172,6 +180,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			txidReverseIndex[req.Input.OutPoint.Hash], req,
 		)
 	}
+
 	// Iterate over the transactions in this block, hashing each and
 
 	// querying our reverse index to see if any requests depend on the txn.
@@ -188,6 +197,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 		if !ok {
 			continue
 		}
+
 		delete(txidReverseIndex, hash)
 		// For all requests that are watching this txid, use the output
 
@@ -205,6 +215,7 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 				log <- cl.Errorf{
 					"failed to find outpoint %s -- invalid output index", op,
 				}
+
 				initialTxns[op] = nil
 				continue
 			}
@@ -212,8 +223,11 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 			initialTxns[op] = &SpendReport{
 				Output: txOuts[op.Index],
 			}
+
 		}
+
 	}
+
 	// Finally, we must reconcile any requests for which the txid did not
 
 	// exist in this block. A nil spend report is saved for every initial
@@ -231,11 +245,13 @@ func (b *batchSpendReporter) findInitialTransactions(block *wire.MsgBlock,
 				"failed to find outpoint %s -- txid not found in block",
 				req.Input.OutPoint,
 			}
+
 			initialTxns[req.Input.OutPoint] = nil
 		case tx != nil:
 			log <- cl.Tracef{
 				"block %d creates output %s", height, req.Input.OutPoint,
 			}
+
 		default:
 		}
 
@@ -265,6 +281,7 @@ func (b *batchSpendReporter) notifyRequests(
 	for _, request := range requests {
 		request.deliver(report, err)
 	}
+
 }
 
 // notifySpends finds any transactions in the block that spend from our watched
@@ -309,6 +326,7 @@ func (b *batchSpendReporter) notifySpends(block *wire.MsgBlock,
 			// this outpoint.
 			b.notifyRequests(&outpoint, requests, spend, nil)
 		}
+
 	}
 
 	return spends
@@ -321,4 +339,5 @@ func newBatchSpendReporter() *batchSpendReporter {
 		initialTxns: make(map[wire.OutPoint]*SpendReport),
 		outpoints:   make(map[wire.OutPoint][]byte),
 	}
+
 }

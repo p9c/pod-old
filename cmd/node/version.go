@@ -39,6 +39,7 @@ func Version() string {
 	if build != "" {
 		version = fmt.Sprintf("%s+%s", version, build)
 	}
+
 	return version
 }
 
@@ -51,6 +52,8 @@ func normalizeVerString(
 
 			result.WriteRune(r)
 		}
+
 	}
+
 	return result.String()
 }

@@ -444,6 +444,7 @@ func (
 		defer state.Unlock()
 		state.notifyLongPollers(blockHash, state.lastTxUpdate)
 	}()
+
 }
 
 // NotifyMempoolTx uses the new last updated time for the transaction memory pool to notify any long poll clients with a new block template when their existing block template is stale due to enough time passing and the contents of the memory pool changing.
@@ -462,11 +463,14 @@ func (
 
 			return
 		}
+
 		if time.Now().After(state.lastGenerated.Add(time.Second * gbtRegenerateSeconds)) {
 
 			state.notifyLongPollers(state.prevHash, lastUpdated)
 		}
+
 	}()
+
 }
 
 // blockTemplateResult returns the current block template associated with the state as a json.GetBlockTemplateResult that is ready to be encoded to JSON and returned to the caller. This function MUST be called with the state locked.
@@ -495,6 +499,7 @@ func (
 				"time %v, maximum time %v", adjustedTime,
 				maxTime),
 		}
+
 	}
 
 	// Convert each transaction in the block template to a template result transaction.  The result does not include the coinbase, so notice the adjustments to the various lengths and indices.
@@ -510,6 +515,7 @@ func (
 
 			continue
 		}
+
 		// Create an array of 1-based indices to transactions that come before this one in the transactions list which this one depends on.  This is necessary since the created block must ensure proper ordering of the dependencies.  A map is used before creating the final array to prevent duplicate entries when multiple inputs reference the same transaction.
 		dependsMap := make(map[int64]struct{})
 		for _, txIn := range tx.TxIn {
@@ -518,12 +524,15 @@ func (
 
 				dependsMap[idx] = struct{}{}
 			}
+
 		}
+
 		depends := make([]int64, 0, len(dependsMap))
 		for idx := range dependsMap {
 
 			depends = append(depends, idx)
 		}
+
 		// Serialize the transaction for later conversion to hex.
 		txBuf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
 		if err := tx.Serialize(txBuf); err != nil {
@@ -531,6 +540,7 @@ func (
 			context := "Failed to serialize transaction"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		bTx := util.NewTx(tx)
 		resultTx := json.GetBlockTemplateResultTx{
 			Data:    hex.EncodeToString(txBuf.Bytes()),
@@ -540,6 +550,7 @@ func (
 			SigOps:  template.SigOpCosts[i],
 			Weight:  blockchain.GetTransactionWeight(bTx),
 		}
+
 		transactions = append(transactions, resultTx)
 	}
 
@@ -571,6 +582,7 @@ func (
 
 		reply.DefaultWitnessCommitment = hex.EncodeToString(template.WitnessCommitment)
 	}
+
 	if useCoinbaseValue {
 
 		reply.CoinbaseAux = gbtCoinbaseAux
@@ -586,7 +598,9 @@ func (
 					"been configured with any payment " +
 					"addresses via --miningaddr",
 			}
+
 		}
+
 		// Serialize the transaction for conversion to hex.
 		tx := msgBlock.Transactions[0]
 		txBuf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSize()))
@@ -595,6 +609,7 @@ func (
 			context := "Failed to serialize transaction"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		resultTx := json.GetBlockTemplateResultTx{
 			Data:    hex.EncodeToString(txBuf.Bytes()),
 			Hash:    tx.TxHash().String(),
@@ -602,8 +617,10 @@ func (
 			Fee:     template.Fees[0],
 			SigOps:  template.SigOpCosts[0],
 		}
+
 		reply.CoinbaseTxn = &resultTx
 	}
+
 	return &reply, nil
 }
 
@@ -624,8 +641,10 @@ func (
 
 				close(c)
 			}
+
 			delete(state.notifyMap, hash)
 		}
+
 	}
 
 	// Return now if the provided last generated timestamp has not been initialized.
@@ -650,6 +669,7 @@ func (
 			close(c)
 			delete(channels, lastGen)
 		}
+
 	}
 
 	// Remove the entry altogether if there are no more registered channels.
@@ -657,6 +677,7 @@ func (
 
 		delete(state.notifyMap, *latestHash)
 	}
+
 }
 
 // templateUpdateChan returns a channel that will be closed once the block template associated with the passed previous hash and last generated time is stale.  The function will return existing channels for duplicate parameters which allows  to wait for the same block template without requiring a different channel for each client. This function MUST be called with the state locked.
@@ -683,6 +704,7 @@ func (
 		c = make(chan struct{})
 		channels[lastGenerated] = c
 	}
+
 	return c
 }
 
@@ -719,6 +741,7 @@ func (
 
 			payAddr = StateCfg.ActiveMiningAddrs[rand.Intn(len(StateCfg.ActiveMiningAddrs))]
 		}
+
 		// Create a new block template that has a coinbase which anyone can redeem.  This is only acceptable because the returned block template doesn't include the coinbase, so the caller will ultimately create their own coinbase which pays to the appropriate address(es).
 		blkTemplate, err := generator.NewBlockTemplate(payAddr, state.algo)
 		if err != nil {
@@ -726,6 +749,7 @@ func (
 			return internalRPCError("(rpcserver.go) Failed to create new block "+
 				"template: "+err.Error(), "")
 		}
+
 		template = blkTemplate
 		msgBlock = template.Block
 		targetDifficulty = fmt.Sprintf("%064x",
@@ -745,6 +769,7 @@ func (
 			targetDifficulty,
 			msgBlock.Header.MerkleRoot,
 		}
+
 		// Notify any clients that are long polling about the new template.
 		state.notifyLongPollers(latestHash, lastTxUpdate)
 	} else {
@@ -760,6 +785,7 @@ func (
 				context := "Failed to create pay-to-addr script"
 				return internalRPCError(err.Error(), context)
 			}
+
 			template.Block.Transactions[0].TxOut[0].PkScript = pkScript
 			template.ValidPayAddress = true
 			// Update the merkle root.
@@ -767,6 +793,7 @@ func (
 			merkles := blockchain.BuildMerkleTreeStore(block.Transactions(), false)
 			template.Block.Header.MerkleRoot = *merkles[len(merkles)-1]
 		}
+
 		// Set locals for convenience.
 		msgBlock = template.Block
 		targetDifficulty = fmt.Sprintf("%064x",
@@ -779,7 +806,9 @@ func (
 			msgBlock.Header.Timestamp,
 			targetDifficulty,
 		}
+
 	}
+
 	return nil
 }
 
@@ -797,6 +826,7 @@ func (
 		// Potentially notify any getblocktemplate long poll clients about stale block templates due to the new transaction.
 		s.gbtWorkState.NotifyMempoolTx(s.cfg.TxMemPool.LastUpdated())
 	}
+
 }
 
 // RequestedProcessShutdown returns a channel that is sent to when an authorized RPC client requests the process to shutdown.  If the request can not be read immediately, it is dropped.
@@ -816,12 +846,14 @@ func (
 
 		return
 	}
+
 	rpcServeMux := http.NewServeMux()
 	httpServer := &http.Server{
 		Handler: rpcServeMux,
 		// Timeout connections which don't complete the initial handshake within the allowed timeframe.
 		ReadTimeout: time.Second * rpcAuthTimeoutSeconds,
 	}
+
 	rpcServeMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Connection", "close")
@@ -832,6 +864,7 @@ func (
 
 			return
 		}
+
 		// Keep track of the number of connected clients.
 		s.incrementClients()
 		defer s.decrementClients()
@@ -841,6 +874,7 @@ func (
 			jsonAuthFail(w)
 			return
 		}
+
 		// Read and respond to the request.
 		s.jsonRPCRead(w, r, isAdmin)
 	})
@@ -854,6 +888,7 @@ func (
 			jsonAuthFail(w)
 			return
 		}
+
 		// Attempt to upgrade the connection to a websocket connection using the default size for read/write buffers.
 		ws, err := websocket.Upgrade(w, r, nil, 0, 0)
 		if err != nil {
@@ -862,11 +897,14 @@ func (
 
 				log <- cl.Error{"unexpected websocket error:", err}
 			}
+
 			http.Error(w, "400 Bad Request.", http.StatusBadRequest)
 			return
 		}
+
 		s.WebsocketHandler(ws, r.RemoteAddr, authenticated, isAdmin)
 	})
+
 	for _, listener := range s.cfg.Listeners {
 
 		s.wg.Add(1)
@@ -877,7 +915,9 @@ func (
 			log <- cl.Trace{"RPC listener done for", listener.Addr()}
 			s.wg.Done()
 		}(listener)
+
 	}
+
 	s.ntfnMgr.Start()
 }
 
@@ -891,6 +931,7 @@ func (
 		log <- cl.Inf("RPC server is already in the process of shutting down")
 		return nil
 	}
+
 	log <- cl.Wrn("RPC server shutting down")
 	for _, listener := range s.cfg.Listeners {
 
@@ -900,7 +941,9 @@ func (
 			log <- cl.Error{"problem shutting down RPC:", err}
 			return err
 		}
+
 	}
+
 	s.ntfnMgr.Shutdown()
 	s.ntfnMgr.WaitForShutdown()
 	close(s.quit)
@@ -928,8 +971,10 @@ func (
 			log <- cl.Warn{"RPC authentication failure from", r.RemoteAddr}
 			return false, false, errors.New("auth failure")
 		}
+
 		return false, false, nil
 	}
+
 	authsha := sha256.Sum256([]byte(authhdr[0]))
 
 	// Check for limited auth first as in environments with limited users, those are probably expected to have a higher volume of calls
@@ -974,6 +1019,7 @@ func (
 			log <- cl.Wrn("chain accepted notification is not a block")
 			break
 		}
+
 		// Allow any clients performing long polling via the getblocktemplate RPC to be notified when the new block causes their old block template to become stale.
 		s.gbtWorkState.NotifyBlockConnected(block.Hash())
 	case blockchain.NTBlockConnected:
@@ -983,6 +1029,7 @@ func (
 			log <- cl.Wrn("chain connected notification is not a block")
 			break
 		}
+
 		// Notify registered websocket clients of incoming block.
 		s.ntfnMgr.NotifyBlockConnected(block)
 	case blockchain.NTBlockDisconnected:
@@ -992,9 +1039,11 @@ func (
 			log <- cl.Wrn("chain disconnected notification is not a block.")
 			break
 		}
+
 		// Notify registered websocket clients.
 		s.ntfnMgr.NotifyBlockDisconnected(block)
 	}
+
 }
 
 // httpStatusLine returns a response Status-Line (RFC 2616 Section 6.1) for the given request and response status code.  This function was lifted and adapted from the standard library HTTP server code since it's not exported.
@@ -1012,6 +1061,7 @@ func (
 
 		key = -key
 	}
+
 	s.statusLock.RLock()
 	line, ok := s.statusLines[key]
 	s.statusLock.RUnlock()
@@ -1026,6 +1076,7 @@ func (
 
 		proto = "HTTP/1.1"
 	}
+
 	codeStr := strconv.Itoa(code)
 	text := http.StatusText(code)
 	if text != "" {
@@ -1038,6 +1089,7 @@ func (
 		text = "status code " + codeStr
 		line = proto + " " + codeStr + " " + text + "\r\n"
 	}
+
 	return line
 }
 
@@ -1084,6 +1136,7 @@ func (
 		http.Error(w, strconv.Itoa(errCode)+" "+errMsg, errCode)
 		return
 	}
+
 	conn, buf, err := hj.Hijack()
 	if err != nil {
 
@@ -1092,6 +1145,7 @@ func (
 		http.Error(w, strconv.Itoa(errCode)+" "+err.Error(), errCode)
 		return
 	}
+
 	defer conn.Close()
 	defer buf.Flush()
 	conn.SetReadDeadline(timeZeroVal)
@@ -1107,7 +1161,9 @@ func (
 			Code:    json.ErrRPCParse.Code,
 			Message: "Failed to parse request: " + err.Error(),
 		}
+
 	}
+
 	if jsonErr == nil {
 
 		/* The JSON-RPC 1.0 spec defines that notifications must have their "id" set to null and states that notifications do not have a response. A JSON-RPC 2.0 notification is a request with "json-rpc":"2.0", and without an "id" member.
@@ -1135,6 +1191,7 @@ func (
 
 				close(closeChan)
 			}
+
 		}()
 
 		// Check if the user is limited and set error if method unauthorized
@@ -1146,8 +1203,11 @@ func (
 					Code:    json.ErrRPCInvalidParams.Code,
 					Message: "limited user not authorized for this method",
 				}
+
 			}
+
 		}
+
 		if jsonErr == nil {
 
 			// Attempt to parse the JSON-RPC request into a known concrete command.
@@ -1158,7 +1218,9 @@ func (
 			} else {
 				result, jsonErr = s.standardCmdResult(parsedCmd, closeChan)
 			}
+
 		}
+
 	}
 
 	// Marshal the response.
@@ -1176,6 +1238,7 @@ func (
 		log <- cl.Error{err.Error()}
 		return
 	}
+
 	if _, err := buf.Write(msg); err != nil {
 
 		log <- cl.Error{"failed to write marshalled reply:", err}
@@ -1186,6 +1249,7 @@ func (
 
 		log <- cl.Error{"failed to append terminating newline to reply:", err}
 	}
+
 }
 
 // limitConnections responds with a 503 service unavailable and returns true if adding another client would exceed the maximum allow RPC clients. This function is safe for concurrent access.
@@ -1204,6 +1268,7 @@ func (
 			http.StatusServiceUnavailable)
 		return true
 	}
+
 	return false
 }
 
@@ -1223,18 +1288,21 @@ func (
 
 		goto handled
 	}
+
 	_, ok = rpcAskWallet[cmd.method]
 	if ok {
 
 		handler = handleAskWallet
 		goto handled
 	}
+
 	_, ok = rpcUnimplemented[cmd.method]
 	if ok {
 
 		handler = handleUnimplemented
 		goto handled
 	}
+
 	return nil, json.ErrRPCMethodNotFound
 handled:
 	return handler(s, cmd.cmd, closeChan)
@@ -1254,11 +1322,13 @@ func (
 
 		return err
 	}
+
 	err = headers.Write(w)
 	if err != nil {
 
 		return err
 	}
+
 	_, err = io.WriteString(w, "\r\n")
 	return err
 }
@@ -1272,6 +1342,7 @@ func builderScript(
 
 		panic(err)
 	}
+
 	return script
 }
 
@@ -1286,6 +1357,7 @@ func chainErrToGBTErrString(
 
 		return "rejected: " + err.Error()
 	}
+
 	switch ruleErr.ErrorCode {
 	case blockchain.ErrDuplicateBlock:
 		return "duplicate"
@@ -1374,6 +1446,7 @@ func chainErrToGBTErrString(
 	case blockchain.ErrPrevBlockNotBest:
 		return "inconclusive-not-best-prvblk"
 	}
+
 	return "rejected: " + err.Error()
 }
 
@@ -1396,7 +1469,9 @@ func createMarshalledReply(
 		} else {
 			jsonErr = internalRPCError(replyErr.Error(), "")
 		}
+
 	}
+
 	return json.MarshalResponse(id, result, jsonErr)
 }
 
@@ -1419,6 +1494,7 @@ func createTxRawResult(
 
 		return nil, err
 	}
+
 	txReply := &json.TxRawResult{
 		Hex:      mtxHex,
 		Txid:     txHash,
@@ -1430,6 +1506,7 @@ func createTxRawResult(
 		Version:  mtx.Version,
 		LockTime: mtx.LockTime,
 	}
+
 	if blkHeader != nil {
 
 		// This is not a typo, they are identical in bitcoind as well.
@@ -1438,6 +1515,7 @@ func createTxRawResult(
 		txReply.BlockHash = blkHash
 		txReply.Confirmations = uint64(1 + chainHeight - blkHeight)
 	}
+
 	return txReply, nil
 }
 
@@ -1456,6 +1534,7 @@ func createVinList(
 		vinList[0].Witness = witnessToHex(txIn.Witness)
 		return vinList
 	}
+
 	for i, txIn := range mtx.TxIn {
 
 		// The disassembled string will contain [error] inline if the script doesn't fully parse, so ignore the error here.
@@ -1468,11 +1547,14 @@ func createVinList(
 			Asm: disbuf,
 			Hex: hex.EncodeToString(txIn.SignatureScript),
 		}
+
 		if mtx.HasWitness() {
 
 			vinEntry.Witness = witnessToHex(txIn.Witness)
 		}
+
 	}
+
 	return vinList
 }
 
@@ -1496,6 +1578,7 @@ func createVinListPrevOut(
 
 			return nil, nil
 		}
+
 		txIn := mtx.TxIn[0]
 		vinList := make([]json.VinPrevOut, 1)
 		vinList[0].Coinbase = hex.EncodeToString(txIn.SignatureScript)
@@ -1516,7 +1599,9 @@ func createVinListPrevOut(
 
 			return nil, err
 		}
+
 	}
+
 	for _, txIn := range mtx.TxIn {
 
 		// The disassembled string will contain [error] inline if the script doesn't fully parse, so ignore the error here.
@@ -1532,26 +1617,31 @@ func createVinListPrevOut(
 				Hex: hex.EncodeToString(txIn.SignatureScript),
 			},
 		}
+
 		if len(txIn.Witness) != 0 {
 
 			vinEntry.Witness = witnessToHex(txIn.Witness)
 		}
+
 		// Add the entry to the list now if it already passed the filter since the previous output might not be available.
 		passesFilter := len(filterAddrMap) == 0
 		if passesFilter {
 
 			vinList = append(vinList, vinEntry)
 		}
+
 		// Only populate previous output information if requested and available.
 		if len(originOutputs) == 0 {
 
 			continue
 		}
+
 		originTxOut, ok := originOutputs[*prevOut]
 		if !ok {
 
 			continue
 		}
+
 		// Ignore the error here since an error means the script couldn't parse and there is no additional information about it anyways.
 		_, addrs, _, _ := txscript.ExtractPkScriptAddrs(originTxOut.PkScript, chainParams)
 		// Encode the addresses while checking if the address passes the filter when needed.
@@ -1565,21 +1655,26 @@ func createVinListPrevOut(
 
 				continue
 			}
+
 			if _, exists := filterAddrMap[encodedAddr]; exists {
 
 				passesFilter = true
 			}
+
 		}
+
 		// Ignore the entry if it doesn't pass the filter.
 		if !passesFilter {
 
 			continue
 		}
+
 		// Add entry to the list if it wasn't already done above.
 		if len(filterAddrMap) != 0 {
 
 			vinList = append(vinList, vinEntry)
 		}
+
 		// Update the entry with previous output information if requested.
 		if vinExtra {
 
@@ -1588,8 +1683,11 @@ func createVinListPrevOut(
 				Addresses: encodedAddrs,
 				Value:     util.Amount(originTxOut.Value).ToDUO(),
 			}
+
 		}
+
 	}
+
 	return vinList, nil
 }
 
@@ -1618,15 +1716,19 @@ func createVoutList(
 
 				continue
 			}
+
 			if _, exists := filterAddrMap[encodedAddr]; exists {
 
 				passesFilter = true
 			}
+
 		}
+
 		if !passesFilter {
 
 			continue
 		}
+
 		var vout json.Vout
 		vout.N = uint32(i)
 		vout.Value = util.Amount(v.Value).ToDUO()
@@ -1637,6 +1739,7 @@ func createVoutList(
 		vout.ScriptPubKey.ReqSigs = int32(reqSigs)
 		voutList = append(voutList, vout)
 	}
+
 	return voutList
 }
 
@@ -1654,16 +1757,19 @@ func decodeTemplateID(
 
 		return nil, 0, errors.New("invalid longpollid format")
 	}
+
 	prevHash, err := chainhash.NewHashFromStr(fields[0])
 	if err != nil {
 
 		return nil, 0, errors.New("invalid longpollid format")
 	}
+
 	lastGenerated, err := strconv.ParseInt(fields[1], 10, 64)
 	if err != nil {
 
 		return nil, 0, errors.New("invalid longpollid format")
 	}
+
 	return prevHash, lastGenerated, nil
 }
 
@@ -1699,9 +1805,11 @@ func fetchInputTxos(
 				errStr := fmt.Sprintf("unable to find output %v referenced from transaction %s:%d", origin, tx.TxHash(), txInIndex)
 				return nil, internalRPCError(errStr, "")
 			}
+
 			originOutputs[*origin] = *txOuts[origin.Index]
 			continue
 		}
+
 		// Look up the location of the transaction.
 		blockRegion, err := s.cfg.TxIndex.TxBlockRegion(&origin.Hash)
 		if err != nil {
@@ -1709,10 +1817,12 @@ func fetchInputTxos(
 			context := "Failed to retrieve transaction location"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		if blockRegion == nil {
 
 			return nil, rpcNoTxInfoError(&origin.Hash)
 		}
+
 		// Load the raw transaction bytes from the database.
 		var txBytes []byte
 		err = s.cfg.DB.View(func(dbTx database.Tx) error {
@@ -1720,10 +1830,12 @@ func fetchInputTxos(
 			txBytes, err = dbTx.FetchBlockRegion(blockRegion)
 			return err
 		})
+
 		if err != nil {
 
 			return nil, rpcNoTxInfoError(&origin.Hash)
 		}
+
 		// Deserialize the transaction
 		var msgTx wire.MsgTx
 		err = msgTx.Deserialize(bytes.NewReader(txBytes))
@@ -1732,6 +1844,7 @@ func fetchInputTxos(
 			context := "Failed to deserialize transaction"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		// Add the referenced output to the map.
 		if origin.Index >= uint32(len(msgTx.TxOut)) {
 
@@ -1740,8 +1853,10 @@ func fetchInputTxos(
 				tx.TxHash(), txInIndex)
 			return nil, internalRPCError(errStr, "")
 		}
+
 		originOutputs[*origin] = *msgTx.TxOut[origin.Index]
 	}
+
 	return originOutputs, nil
 }
 
@@ -1769,6 +1884,7 @@ func fetchMempoolTxnsForAddress(
 
 		rangeEnd = numAvailable
 	}
+
 	return mpTxns[numToSkip:rangeEnd], numToSkip
 }
 
@@ -1791,11 +1907,13 @@ func genCertPair(
 
 		return err
 	}
+
 	if err = ioutil.WriteFile(keyFile, key, 0600); err != nil {
 
 		os.Remove(certFile)
 		return err
 	}
+
 	log <- cl.Inf("Done generating TLS certificates")
 	return nil
 }
@@ -1818,6 +1936,7 @@ func getDifficultyRatio(
 		log <- cl.Error{"cannot get difficulty:", err}
 		return 0
 	}
+
 	return diff
 }
 
@@ -1846,13 +1965,16 @@ func handleAddNode(
 			Code:    json.ErrRPCInvalidParameter,
 			Message: "invalid subcommand for addnode",
 		}
+
 	}
+
 	if err != nil {
 
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInvalidParameter,
 			Message: err.Error(),
 		}
+
 	}
 
 	// no data returned unless an error.
@@ -1892,6 +2014,7 @@ func handleCreateRawTransaction(
 			Code:    json.ErrRPCInvalidParameter,
 			Message: "Locktime out of range",
 		}
+
 	}
 
 	// Add all transaction inputs to a new transaction after performing some validity checks.
@@ -1903,12 +2026,14 @@ func handleCreateRawTransaction(
 
 			return nil, rpcDecodeHexError(input.Txid)
 		}
+
 		prevOut := wire.NewOutPoint(txHash, input.Vout)
 		txIn := wire.NewTxIn(prevOut, []byte{}, nil)
 		if c.LockTime != nil && *c.LockTime != 0 {
 
 			txIn.Sequence = wire.MaxTxInSequenceNum - 1
 		}
+
 		mtx.AddTxIn(txIn)
 	}
 
@@ -1923,7 +2048,9 @@ func handleCreateRawTransaction(
 				Code:    json.ErrRPCType,
 				Message: "Invalid amount",
 			}
+
 		}
+
 		// Decode the provided address.
 		addr, err := util.DecodeAddress(encodedAddr, params)
 		if err != nil {
@@ -1932,7 +2059,9 @@ func handleCreateRawTransaction(
 				Code:    json.ErrRPCInvalidAddressOrKey,
 				Message: "Invalid address or key: " + err.Error(),
 			}
+
 		}
+
 		// Ensure the address is one of the supported types and that the network encoded with the address matches the network the server is currently on.
 		switch addr.(type) {
 
@@ -1943,7 +2072,9 @@ func handleCreateRawTransaction(
 				Code:    json.ErrRPCInvalidAddressOrKey,
 				Message: "Invalid address or key",
 			}
+
 		}
+
 		if !addr.IsForNet(params) {
 
 			return nil, &json.RPCError{
@@ -1951,7 +2082,9 @@ func handleCreateRawTransaction(
 				Message: "Invalid address: " + encodedAddr +
 					" is for the wrong network",
 			}
+
 		}
+
 		// Create a new script which pays to the provided address.
 		pkScript, err := txscript.PayToAddrScript(addr)
 		if err != nil {
@@ -1959,6 +2092,7 @@ func handleCreateRawTransaction(
 			context := "Failed to generate pay-to-address script"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		// Convert the amount to satoshi.
 		satoshi, err := util.NewAmount(amount)
 		if err != nil {
@@ -1966,6 +2100,7 @@ func handleCreateRawTransaction(
 			context := "Failed to convert amount"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		txOut := wire.NewTxOut(int64(satoshi), pkScript)
 		mtx.AddTxOut(txOut)
 	}
@@ -1982,6 +2117,7 @@ func handleCreateRawTransaction(
 
 		return nil, err
 	}
+
 	return mtxHex, nil
 }
 
@@ -1997,11 +2133,13 @@ func handleDecodeRawTransaction(
 
 		hexStr = "0" + hexStr
 	}
+
 	serializedTx, err := hex.DecodeString(hexStr)
 	if err != nil {
 
 		return nil, rpcDecodeHexError(hexStr)
 	}
+
 	var mtx wire.MsgTx
 	err = mtx.Deserialize(bytes.NewReader(serializedTx))
 	if err != nil {
@@ -2010,6 +2148,7 @@ func handleDecodeRawTransaction(
 			Code:    json.ErrRPCDeserialization,
 			Message: "TX decode failed: " + err.Error(),
 		}
+
 	}
 
 	// Create and return the result.
@@ -2020,6 +2159,7 @@ func handleDecodeRawTransaction(
 		Vin:      createVinList(&mtx),
 		Vout:     createVoutList(&mtx, s.cfg.ChainParams, nil),
 	}
+
 	return txReply, nil
 }
 
@@ -2035,6 +2175,7 @@ func handleDecodeScript(
 
 		hexStr = "0" + hexStr
 	}
+
 	script, err := hex.DecodeString(hexStr)
 	if err != nil {
 
@@ -2067,10 +2208,12 @@ func handleDecodeScript(
 		Type:      scriptClass.String(),
 		Addresses: addresses,
 	}
+
 	if scriptClass != txscript.ScriptHashTy {
 
 		reply.P2sh = p2sh.EncodeAddress()
 	}
+
 	return reply, nil
 }
 
@@ -2083,10 +2226,12 @@ func handleEstimateFee(
 
 		return nil, errors.New("Fee estimation disabled")
 	}
+
 	if c.NumBlocks <= 0 {
 
 		return -1.0, errors.New("Parameter NumBlocks must be positive")
 	}
+
 	feeRate, err := s.cfg.FeeEstimator.EstimateFee(uint32(c.NumBlocks))
 	if err != nil {
 
@@ -2108,6 +2253,7 @@ func handleGenerate(
 			Code:    json.ErrRPCInternal.Code,
 			Message: "No payment addresses specified via --miningaddr",
 		}
+
 	}
 
 	// Respond with an error if there's virtually 0 chance of mining a block with the CPU.
@@ -2117,6 +2263,7 @@ func handleGenerate(
 			Code:    json.ErrRPCDifficulty,
 			Message: fmt.Sprintf("No support for `generate` on the current network, %s, as it's unlikely to be possible to mine a block with the CPU.", s.cfg.ChainParams.Net),
 		}
+
 	}
 
 	// Set the algorithm according to the port we were called on
@@ -2130,6 +2277,7 @@ func handleGenerate(
 			Code:    json.ErrRPCInternal.Code,
 			Message: "Please request a nonzero number of blocks to generate.",
 		}
+
 	}
 
 	// Create a reply
@@ -2142,6 +2290,7 @@ func handleGenerate(
 			Code:    json.ErrRPCInternal.Code,
 			Message: err.Error(),
 		}
+
 	}
 
 	// Mine the correct number of blocks, assigning the hex representation of the hash of each one to its place in the reply.
@@ -2149,6 +2298,7 @@ func handleGenerate(
 
 		reply[i] = hash.String()
 	}
+
 	return reply, nil
 }
 
@@ -2171,14 +2321,18 @@ func handleGetAddedNodeInfo(
 				peers = peers[i : i+1]
 				found = true
 			}
+
 		}
+
 		if !found {
 
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCClientNodeNotAdded,
 				Message: "Node has not been added",
 			}
+
 		}
+
 	}
 
 	// Without the dns flag, the result is just a slice of the addresses as strings.
@@ -2189,6 +2343,7 @@ func handleGetAddedNodeInfo(
 
 			results = append(results, peer.ToPeer().Addr())
 		}
+
 		return results, nil
 	}
 
@@ -2207,6 +2362,7 @@ func handleGetAddedNodeInfo(
 
 			host = peer.Addr()
 		}
+
 		var ipList []string
 		switch {
 		case net.ParseIP(host) != nil, strings.HasSuffix(host, ".onion"):
@@ -2221,12 +2377,15 @@ func handleGetAddedNodeInfo(
 				ipList[0] = host
 				break
 			}
+
 			ipList = make([]string, 0, len(ips))
 			for _, ip := range ips {
 
 				ipList = append(ipList, ip.String())
 			}
+
 		}
+
 		// Add the addresses and connection info to the result.
 		addrs := make([]json.GetAddedNodeInfoResultAddr, 0, len(ipList))
 		for _, ip := range ipList {
@@ -2238,11 +2397,14 @@ func handleGetAddedNodeInfo(
 
 				addr.Connected = directionString(peer.Inbound())
 			}
+
 			addrs = append(addrs, addr)
 		}
+
 		result.Addresses = &addrs
 		results = append(results, &result)
 	}
+
 	return results, nil
 }
 
@@ -2256,6 +2418,7 @@ func handleGetBestBlock(
 		Hash:   best.Hash.String(),
 		Height: best.Height,
 	}
+
 	return result, nil
 }
 
@@ -2279,18 +2442,21 @@ func handleGetBlock(
 
 		return nil, rpcDecodeHexError(c.Hash)
 	}
+
 	var blkBytes []byte
 	err = s.cfg.DB.View(func(dbTx database.Tx) error {
 		var err error
 		blkBytes, err = dbTx.FetchBlock(hash)
 		return err
 	})
+
 	if err != nil {
 
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCBlockNotFound,
 			Message: "Block not found",
 		}
+
 	}
 
 	// When the verbose flag isn't set, simply return the serialized block as a hex-encoded string.
@@ -2314,6 +2480,7 @@ func handleGetBlock(
 		context := "Failed to obtain block height"
 		return nil, internalRPCError(err.Error(), context)
 	}
+
 	blk.SetHeight(blockHeight)
 	best := s.cfg.Chain.BestSnapshot()
 
@@ -2327,8 +2494,10 @@ func handleGetBlock(
 			context := "No next block"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		nextHashString = nextHash.String()
 	}
+
 	params := s.cfg.ChainParams
 	blockHeader := &blk.MsgBlock().Header
 	algoname := fork.GetAlgoName(blockHeader.Version, blockHeight)
@@ -2354,6 +2523,7 @@ func handleGetBlock(
 		Difficulty:    getDifficultyRatio(blockHeader.Bits, params, a),
 		NextHash:      nextHashString,
 	}
+
 	if c.VerboseTx == nil || !*c.VerboseTx {
 
 		transactions := blk.Transactions()
@@ -2362,6 +2532,7 @@ func handleGetBlock(
 
 			txNames[i] = tx.Hash().String()
 		}
+
 		blockReply.Tx = txNames
 	} else {
 		txns := blk.Transactions()
@@ -2375,10 +2546,13 @@ func handleGetBlock(
 
 				return nil, err
 			}
+
 			rawTxns[i] = *rawTxn
 		}
+
 		blockReply.RawTx = rawTxns
 	}
+
 	return blockReply, nil
 }
 
@@ -2410,24 +2584,29 @@ func handleGetBlockChainInfo(
 			Reject: struct {
 				Status bool `json:"status"`
 			}{
+
 				Status: height >= params.BIP0034Height,
 			},
 		},
+
 		{
 			ID:      "bip66",
 			Version: 3,
 			Reject: struct {
 				Status bool `json:"status"`
 			}{
+
 				Status: height >= params.BIP0066Height,
 			},
 		},
+
 		{
 			ID:      "bip65",
 			Version: 4,
 			Reject: struct {
 				Status bool `json:"status"`
 			}{
+
 				Status: height >= params.BIP0065Height,
 			},
 		},
@@ -2451,7 +2630,9 @@ func handleGetBlockChainInfo(
 				Message: fmt.Sprintf("Unknown deployment %v "+
 					"detected", deployment),
 			}
+
 		}
+
 		// Query the chain for the current status of the deployment as identified by its deployment ID.
 		deploymentStatus, err := chain.ThresholdState(uint32(deployment))
 		if err != nil {
@@ -2459,6 +2640,7 @@ func handleGetBlockChainInfo(
 			context := "Failed to obtain deployment status"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		// Attempt to convert the current deployment status into a human readable string. If the status is unrecognized, then a non-nil error is returned.
 		statusString, err := softForkStatus(deploymentStatus)
 		if err != nil {
@@ -2468,7 +2650,9 @@ func handleGetBlockChainInfo(
 				Message: fmt.Sprintf("unknown deployment status: %v",
 					deploymentStatus),
 			}
+
 		}
+
 		// Finally, populate the soft-fork description with all the information gathered above.
 		chainInfo.Bip9SoftForks[forkName] = &json.Bip9SoftForkDescription{
 			Status:    strings.ToLower(statusString),
@@ -2476,7 +2660,9 @@ func handleGetBlockChainInfo(
 			StartTime: int64(deploymentDetails.StartTime),
 			Timeout:   int64(deploymentDetails.ExpireTime),
 		}
+
 	}
+
 	return chainInfo, nil
 }
 
@@ -2500,7 +2686,9 @@ func handleGetBlockHash(
 			Code:    json.ErrRPCOutOfRange,
 			Message: "Block number out of range",
 		}
+
 	}
+
 	return hash.String(), nil
 }
 
@@ -2516,6 +2704,7 @@ func handleGetBlockHeader(
 
 		return nil, rpcDecodeHexError(c.Hash)
 	}
+
 	blockHeader, err := s.cfg.Chain.HeaderByHash(hash)
 	if err != nil {
 
@@ -2523,6 +2712,7 @@ func handleGetBlockHeader(
 			Code:    json.ErrRPCBlockNotFound,
 			Message: "Block not found",
 		}
+
 	}
 
 	// When the verbose flag isn't set, simply return the serialized block header as a hex-encoded string.
@@ -2535,6 +2725,7 @@ func handleGetBlockHeader(
 			context := "Failed to serialize block header"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		return hex.EncodeToString(headerBuf.Bytes()), nil
 	}
 
@@ -2545,6 +2736,7 @@ func handleGetBlockHeader(
 		context := "Failed to obtain block height"
 		return nil, internalRPCError(err.Error(), context)
 	}
+
 	best := s.cfg.Chain.BestSnapshot()
 
 	// Get next block hash unless there are none.
@@ -2557,13 +2749,16 @@ func handleGetBlockHeader(
 			context := "No next block"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		nextHashString = nextHash.String()
 	}
+
 	var a int32 = 2
 	if blockHeader.Version == 514 {
 
 		a = 514
 	}
+
 	params := s.cfg.ChainParams
 	blockHeaderReply := json.GetBlockHeaderVerboseResult{
 		Hash:          c.Hash,
@@ -2579,6 +2774,7 @@ func handleGetBlockHeader(
 		Bits:          strconv.FormatInt(int64(blockHeader.Bits), 16),
 		Difficulty:    getDifficultyRatio(blockHeader.Bits, params, a),
 	}
+
 	return blockHeaderReply, nil
 }
 
@@ -2595,16 +2791,19 @@ func handleGetBlockTemplate(
 
 		mode = request.Mode
 	}
+
 	switch mode {
 	case "template":
 		return handleGetBlockTemplateRequest(s, request, closeChan)
 	case "proposal":
 		return handleGetBlockTemplateProposal(s, request)
 	}
+
 	return nil, &json.RPCError{
 		Code:    json.ErrRPCInvalidParameter,
 		Message: "Invalid mode",
 	}
+
 }
 
 // handleGetBlockTemplateLongPoll is a helper for handleGetBlockTemplateRequest which deals with handling long polling for block templates.  When a caller sends a request with a long poll ID that was previously returned, a response is not sent until the caller should stop working on the previous block template in favor of the new one.  In particular, this is the case when the old block template is no longer valid due to a solution already being found and added to the block chain, or new transactions have shown up and some time has passed without finding a solution. See https://en.bitcoin.it/wiki/BIP_0022 for more details.
@@ -2631,6 +2830,7 @@ func handleGetBlockTemplateLongPoll(
 			state.Unlock()
 			return nil, err
 		}
+
 		state.Unlock()
 		return result, nil
 	}
@@ -2649,6 +2849,7 @@ func handleGetBlockTemplateLongPoll(
 			state.Unlock()
 			return nil, err
 		}
+
 		state.Unlock()
 		return result, nil
 	}
@@ -2684,6 +2885,7 @@ func handleGetBlockTemplateLongPoll(
 
 		return nil, err
 	}
+
 	return result, nil
 }
 
@@ -2700,6 +2902,7 @@ func handleGetBlockTemplateProposal(
 				"hex-encoded serialized block that is being " +
 				"proposed"),
 		}
+
 	}
 
 	// Ensure the provided data is sane and deserialize the proposed block.
@@ -2707,6 +2910,7 @@ func handleGetBlockTemplateProposal(
 
 		hexData = "0" + hexData
 	}
+
 	dataBytes, err := hex.DecodeString(hexData)
 	if err != nil {
 
@@ -2714,7 +2918,9 @@ func handleGetBlockTemplateProposal(
 			Code:    json.ErrRPCDeserialization,
 			Message: fmt.Sprintf("data must be hexadecimal string (not %q)", hexData),
 		}
+
 	}
+
 	var msgBlock wire.MsgBlock
 	if err := msgBlock.Deserialize(bytes.NewReader(dataBytes)); err != nil {
 
@@ -2722,7 +2928,9 @@ func handleGetBlockTemplateProposal(
 			Code:    json.ErrRPCDeserialization,
 			Message: "block decode failed: " + err.Error(),
 		}
+
 	}
+
 	block := util.NewBlock(&msgBlock)
 
 	// Ensure the block is building from the expected previous block.
@@ -2732,6 +2940,7 @@ func handleGetBlockTemplateProposal(
 
 		return "bad-prevblk", nil
 	}
+
 	if err := s.cfg.Chain.CheckConnectBlockTemplate(block); err != nil {
 
 		if _, ok := err.(blockchain.RuleError); !ok {
@@ -2742,10 +2951,13 @@ func handleGetBlockTemplateProposal(
 				Code:    json.ErrRPCVerify,
 				Message: errStr,
 			}
+
 		}
+
 		log <- cl.Info{"rejected block proposal:", err}
 		return chainErrToGBTErrString(err), nil
 	}
+
 	return nil, nil
 }
 
@@ -2766,11 +2978,14 @@ func handleGetBlockTemplateRequest(
 			case "coinbasevalue":
 				hasCoinbaseValue = true
 			}
+
 		}
+
 		if hasCoinbaseTxn && !hasCoinbaseValue {
 
 			useCoinbaseValue = false
 		}
+
 	}
 
 	// When a coinbase transaction has been requested, respond with an error if there are no addresses to pay the created block template to.
@@ -2782,6 +2997,7 @@ func handleGetBlockTemplateRequest(
 				"but the server has not been configured with " +
 				"any payment addresses via --miningaddr",
 		}
+
 	}
 
 	// Return an error if there are no peers connected since there is no way to relay a found block or receive transactions to work on. However, allow this state when running in the regression test or simulation test mode.
@@ -2791,6 +3007,7 @@ func handleGetBlockTemplateRequest(
 			Code:    json.ErrRPCClientNotConnected,
 			Message: "Pod is not connected to network",
 		}
+
 	}
 
 	// No point in generating or accepting work before the chain is synced.
@@ -2801,6 +3018,7 @@ func handleGetBlockTemplateRequest(
 			Code:    json.ErrRPCClientInInitialDownload,
 			Message: "Pod is not yet synchronised...",
 		}
+
 	}
 
 	// When a long poll ID was provided, this is a long poll request by the client to be notified when block template referenced by the ID should be replaced with a new one.
@@ -2820,6 +3038,7 @@ func handleGetBlockTemplateRequest(
 
 		return nil, err
 	}
+
 	return state.blockTemplateResult(useCoinbaseValue, nil)
 }
 
@@ -2833,13 +3052,16 @@ func handleGetCFilter(
 			Code:    json.ErrRPCNoCFIndex,
 			Message: "The CF index must be enabled for this command",
 		}
+
 	}
+
 	c := cmd.(*json.GetCFilterCmd)
 	hash, err := chainhash.NewHashFromStr(c.Hash)
 	if err != nil {
 
 		return nil, rpcDecodeHexError(c.Hash)
 	}
+
 	filterBytes, err := s.cfg.CfIndex.FilterByBlockHash(hash, c.FilterType)
 	if err != nil {
 
@@ -2848,11 +3070,14 @@ func handleGetCFilter(
 			hash,
 			err,
 		}
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCBlockNotFound,
 			Message: "block not found",
 		}
+
 	}
+
 	log <- cl.Debug{"found committed filter for", hash}
 	return hex.EncodeToString(filterBytes), nil
 }
@@ -2867,13 +3092,16 @@ func handleGetCFilterHeader(
 			Code:    json.ErrRPCNoCFIndex,
 			Message: "The CF index must be enabled for this command",
 		}
+
 	}
+
 	c := cmd.(*json.GetCFilterHeaderCmd)
 	hash, err := chainhash.NewHashFromStr(c.Hash)
 	if err != nil {
 
 		return nil, rpcDecodeHexError(c.Hash)
 	}
+
 	headerBytes, err := s.cfg.CfIndex.FilterHeaderByBlockHash(hash, c.FilterType)
 	if len(headerBytes) > 0 {
 
@@ -2884,11 +3112,14 @@ func handleGetCFilterHeader(
 			hash,
 			err,
 		}
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCBlockNotFound,
 			Message: "Block not found",
 		}
+
 	}
+
 	hash.SetBytes(headerBytes)
 	return hash.String(), nil
 }
@@ -2918,11 +3149,13 @@ func handleGetDifficulty(
 
 		fmt.Println("ERROR", err)
 	}
+
 	var algo = prev.MsgBlock().Header.Version
 	if algo != 514 {
 
 		algo = 2
 	}
+
 	bestbits := best.Bits
 	if c.Algo == "scrypt" && algo != 514 {
 
@@ -2937,12 +3170,16 @@ func handleGetDifficulty(
 
 					fmt.Println("ERROR", err)
 				}
+
 				continue
 			}
+
 			bestbits = uint32(prev.MsgBlock().Header.Bits)
 			break
 		}
+
 	}
+
 	if c.Algo == "sha256d" && algo != 2 {
 
 		algo = 2
@@ -2956,12 +3193,16 @@ func handleGetDifficulty(
 
 					fmt.Println("ERROR", err)
 				}
+
 				continue
 			}
+
 			bestbits = uint32(prev.MsgBlock().Header.Bits)
 			break
 		}
+
 	}
+
 	return getDifficultyRatio(bestbits, s.cfg.ChainParams, algo), nil
 }
 
@@ -2994,8 +3235,10 @@ func handleGetHeaders(
 
 			return nil, rpcDecodeHexError(c.BlockLocators[i])
 		}
+
 		blockLocators[i] = blockLocator
 	}
+
 	var hashStop chainhash.Hash
 	if c.HashStop != "" {
 
@@ -3004,7 +3247,9 @@ func handleGetHeaders(
 
 			return nil, rpcDecodeHexError(c.HashStop)
 		}
+
 	}
+
 	headers := s.cfg.SyncMgr.LocateHeaders(blockLocators, &hashStop)
 
 	// Return the serialized block headers as hex-encoded strings.
@@ -3017,9 +3262,11 @@ func handleGetHeaders(
 
 			return nil, internalRPCError(err.Error(), "Failed to serialize block header")
 		}
+
 		hexBlockHeaders[i] = hex.EncodeToString(buf.Bytes())
 		buf.Reset()
 	}
+
 	return hexBlockHeaders, nil
 }
 
@@ -3046,6 +3293,7 @@ func handleGetInfo(
 					lastbitsSHA256D = v.Header().Bits
 					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "scrypt":
 				if lastbitsScrypt == 0 {
 
@@ -3053,11 +3301,14 @@ func handleGetInfo(
 					lastbitsScrypt = v.Header().Bits
 					dScrypt = getDifficultyRatio(lastbitsScrypt, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			default:
 			}
+
 			v = v.RelativeAncestor(1)
 			height--
 		}
+
 		switch s.cfg.Algo {
 		case "sha256d":
 			Difficulty = dSHA256D
@@ -3065,6 +3316,7 @@ func handleGetInfo(
 			Difficulty = dScrypt
 		default:
 		}
+
 		ret = &json.InfoChainResult0{
 			Version:           int32(1000000*appMajor + 10000*appMinor + 100*appPatch),
 			ProtocolVersion:   int32(maxProtocolVersion),
@@ -3080,6 +3332,7 @@ func handleGetInfo(
 			TestNet:           *cfg.TestNet3,
 			RelayFee:          StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
+
 	case 1:
 		foundcount, height := 0, best.Height
 		for foundcount < 9 &&
@@ -3093,6 +3346,7 @@ func handleGetInfo(
 					lastbitsBlake2b = v.Header().Bits
 					dBlake2b = getDifficultyRatio(lastbitsBlake2b, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "blake14lr":
 				if lastbitsBlake14lr == 0 {
 
@@ -3100,6 +3354,7 @@ func handleGetInfo(
 					lastbitsBlake14lr = v.Header().Bits
 					dBlake14lr = getDifficultyRatio(lastbitsBlake14lr, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "blake2s":
 				if lastbitsBlake2s == 0 {
 
@@ -3107,6 +3362,7 @@ func handleGetInfo(
 					lastbitsBlake2s = v.Header().Bits
 					dBlake2s = getDifficultyRatio(lastbitsBlake2s, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "keccak":
 				if lastbitsKeccak == 0 {
 
@@ -3114,6 +3370,7 @@ func handleGetInfo(
 					lastbitsKeccak = v.Header().Bits
 					dKeccak = getDifficultyRatio(lastbitsKeccak, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "scrypt":
 				if lastbitsScrypt == 0 {
 
@@ -3121,6 +3378,7 @@ func handleGetInfo(
 					lastbitsScrypt = v.Header().Bits
 					dScrypt = getDifficultyRatio(lastbitsScrypt, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "sha256d":
 				if lastbitsSHA256D == 0 {
 
@@ -3128,6 +3386,7 @@ func handleGetInfo(
 					lastbitsSHA256D = v.Header().Bits
 					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "skein":
 				if lastbitsSkein == 0 {
 
@@ -3135,6 +3394,7 @@ func handleGetInfo(
 					lastbitsSkein = v.Header().Bits
 					dSkein = getDifficultyRatio(lastbitsSkein, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "stribog":
 				if lastbitsStribog == 0 {
 
@@ -3142,6 +3402,7 @@ func handleGetInfo(
 					lastbitsStribog = v.Header().Bits
 					dStribog = getDifficultyRatio(lastbitsStribog, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "x11":
 				if lastbitsX11 == 0 {
 
@@ -3149,11 +3410,14 @@ func handleGetInfo(
 					lastbitsX11 = v.Header().Bits
 					dX11 = getDifficultyRatio(lastbitsX11, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			default:
 			}
+
 			v = v.RelativeAncestor(1)
 			height--
 		}
+
 		switch s.cfg.Algo {
 		case "blake2b":
 			Difficulty = dBlake2b
@@ -3175,6 +3439,7 @@ func handleGetInfo(
 			Difficulty = dX11
 		default:
 		}
+
 		ret = &json.InfoChainResult{
 			Version:             int32(1000000*appMajor + 10000*appMinor + 100*appPatch),
 			ProtocolVersion:     int32(maxProtocolVersion),
@@ -3197,7 +3462,9 @@ func handleGetInfo(
 			TestNet:             *cfg.TestNet3,
 			RelayFee:            StateCfg.ActiveMinRelayTxFee.ToDUO(),
 		}
+
 	}
+
 	return ret, nil
 }
 
@@ -3211,10 +3478,12 @@ func handleGetMempoolInfo(
 
 		numBytes += int64(txD.Tx.MsgTx().SerializeSize())
 	}
+
 	ret := &json.GetMempoolInfoResult{
 		Size:  int64(len(mempoolTxns)),
 		Bytes: numBytes,
 	}
+
 	return ret, nil
 }
 
@@ -3229,6 +3498,7 @@ func handleGetMiningInfo(
 
 		return nil, err
 	}
+
 	networkHashesPerSec, ok := networkHashesPerSecIface.(int64)
 	if !ok {
 
@@ -3236,7 +3506,9 @@ func handleGetMiningInfo(
 			Code:    json.ErrRPCInternal.Code,
 			Message: "networkHashesPerSec is not an int64",
 		}
+
 	}
+
 	var Difficulty, dBlake2b, dBlake14lr, dBlake2s, dKeccak, dScrypt, dSHA256D, dSkein, dStribog, dX11 float64
 	var lastbitsBlake2b, lastbitsBlake14lr, lastbitsBlake2s, lastbitsKeccak, lastbitsScrypt, lastbitsSHA256D, lastbitsSkein, lastbitsStribog, lastbitsX11 uint32
 	best := s.cfg.Chain.BestSnapshot()
@@ -3256,6 +3528,7 @@ func handleGetMiningInfo(
 					lastbitsSHA256D = v.Header().Bits
 					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "scrypt":
 				if lastbitsScrypt == 0 {
 
@@ -3263,11 +3536,14 @@ func handleGetMiningInfo(
 					lastbitsScrypt = v.Header().Bits
 					dScrypt = getDifficultyRatio(lastbitsScrypt, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			default:
 			}
+
 			v = v.RelativeAncestor(1)
 			height--
 		}
+
 		switch s.cfg.Algo {
 		case "sha256d":
 			Difficulty = dSHA256D
@@ -3275,6 +3551,7 @@ func handleGetMiningInfo(
 			Difficulty = dScrypt
 		default:
 		}
+
 		ret = &json.GetMiningInfoResult0{
 			Blocks:             int64(best.Height),
 			CurrentBlockSize:   best.BlockSize,
@@ -3292,6 +3569,7 @@ func handleGetMiningInfo(
 			PooledTx:           uint64(s.cfg.TxMemPool.Count()),
 			TestNet:            *cfg.TestNet3,
 		}
+
 	case 1:
 		foundcount, height := 0, best.Height
 		for foundcount < 9 && height > fork.List[fork.GetCurrent(height)].ActivationHeight-512 {
@@ -3305,6 +3583,7 @@ func handleGetMiningInfo(
 					lastbitsBlake2b = v.Header().Bits
 					dBlake2b = getDifficultyRatio(lastbitsBlake2b, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "blake14lr":
 				if lastbitsBlake14lr == 0 {
 
@@ -3312,6 +3591,7 @@ func handleGetMiningInfo(
 					lastbitsBlake14lr = v.Header().Bits
 					dBlake14lr = getDifficultyRatio(lastbitsBlake14lr, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "blake2s":
 				if lastbitsBlake2s == 0 {
 
@@ -3319,6 +3599,7 @@ func handleGetMiningInfo(
 					lastbitsBlake2s = v.Header().Bits
 					dBlake2s = getDifficultyRatio(lastbitsBlake2s, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "keccak":
 				if lastbitsKeccak == 0 {
 
@@ -3326,6 +3607,7 @@ func handleGetMiningInfo(
 					lastbitsKeccak = v.Header().Bits
 					dKeccak = getDifficultyRatio(lastbitsKeccak, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "scrypt":
 				if lastbitsScrypt == 0 {
 
@@ -3333,6 +3615,7 @@ func handleGetMiningInfo(
 					lastbitsScrypt = v.Header().Bits
 					dScrypt = getDifficultyRatio(lastbitsScrypt, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "sha256d":
 				if lastbitsSHA256D == 0 {
 
@@ -3340,6 +3623,7 @@ func handleGetMiningInfo(
 					lastbitsSHA256D = v.Header().Bits
 					dSHA256D = getDifficultyRatio(lastbitsSHA256D, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "skein":
 				if lastbitsSkein == 0 {
 
@@ -3347,6 +3631,7 @@ func handleGetMiningInfo(
 					lastbitsSkein = v.Header().Bits
 					dSkein = getDifficultyRatio(lastbitsSkein, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "stribog":
 				if lastbitsStribog == 0 {
 
@@ -3354,6 +3639,7 @@ func handleGetMiningInfo(
 					lastbitsStribog = v.Header().Bits
 					dStribog = getDifficultyRatio(lastbitsStribog, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			case "x11":
 				if lastbitsX11 == 0 {
 
@@ -3361,11 +3647,14 @@ func handleGetMiningInfo(
 					lastbitsX11 = v.Header().Bits
 					dX11 = getDifficultyRatio(lastbitsX11, s.cfg.ChainParams, v.Header().Version)
 				}
+
 			default:
 			}
+
 			v = v.RelativeAncestor(1)
 			height--
 		}
+
 		switch s.cfg.Algo {
 		case "blake2b":
 			Difficulty = dBlake2b
@@ -3387,6 +3676,7 @@ func handleGetMiningInfo(
 			Difficulty = dX11
 		default:
 		}
+
 		ret = &json.GetMiningInfoResult{
 			Blocks:              int64(best.Height),
 			CurrentBlockSize:    best.BlockSize,
@@ -3412,7 +3702,9 @@ func handleGetMiningInfo(
 			PooledTx:            uint64(s.cfg.TxMemPool.Count()),
 			TestNet:             *cfg.TestNet3,
 		}
+
 	}
+
 	return ret, nil
 }
 
@@ -3426,6 +3718,7 @@ func handleGetNetTotals(
 		TotalBytesSent: totalBytesSent,
 		TimeMillis:     time.Now().UTC().UnixNano() / int64(time.Millisecond),
 	}
+
 	return reply, nil
 }
 
@@ -3443,10 +3736,12 @@ func handleGetNetworkHashPS(
 
 		endHeight = int32(*c.Height)
 	}
+
 	if endHeight > best.Height || endHeight == 0 {
 
 		return int64(0), nil
 	}
+
 	if endHeight < 0 {
 
 		endHeight = best.Height
@@ -3461,6 +3756,7 @@ func handleGetNetworkHashPS(
 
 		numBlocks = int32(*c.Blocks)
 	}
+
 	var startHeight int32
 	if numBlocks <= 0 {
 
@@ -3468,10 +3764,12 @@ func handleGetNetworkHashPS(
 	} else {
 		startHeight = endHeight - numBlocks
 	}
+
 	if startHeight < 0 {
 
 		startHeight = 0
 	}
+
 	log <- cl.Debugf{
 		"calculating network hashes per second from %d to %d",
 		startHeight,
@@ -3489,6 +3787,7 @@ func handleGetNetworkHashPS(
 			context := "Failed to fetch block hash"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		// Fetch the header from chain.
 		header, err := s.cfg.Chain.HeaderByHash(hash)
 		if err != nil {
@@ -3496,6 +3795,7 @@ func handleGetNetworkHashPS(
 			context := "Failed to fetch block header"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		if curHeight == startHeight {
 
 			minTimestamp = header.Timestamp
@@ -3506,11 +3806,14 @@ func handleGetNetworkHashPS(
 
 				minTimestamp = header.Timestamp
 			}
+
 			if maxTimestamp.Before(header.Timestamp) {
 
 				maxTimestamp = header.Timestamp
 			}
+
 		}
+
 	}
 
 	// Calculate the difference in seconds between the min and max block timestamps and avoid division by zero in the case where there is no time difference.
@@ -3519,6 +3822,7 @@ func handleGetNetworkHashPS(
 
 		return int64(0), nil
 	}
+
 	hashesPerSec := new(big.Int).Div(totalWork, big.NewInt(timeDiff))
 	return hashesPerSec.Int64(), nil
 }
@@ -3555,14 +3859,17 @@ func handleGetPeerInfo(
 			FeeFilter:      p.FeeFilter(),
 			SyncNode:       statsSnap.ID == syncPeerID,
 		}
+
 		if p.ToPeer().LastPingNonce() != 0 {
 
 			wait := float64(time.Since(statsSnap.LastPingTime).Nanoseconds())
 			// We actually want microseconds.
 			info.PingWait = wait / 1000
 		}
+
 		infos = append(infos, info)
 	}
+
 	return infos, nil
 }
 
@@ -3584,6 +3891,7 @@ func handleGetRawMempool(
 
 		hashStrings[i] = descs[i].Tx.Hash().String()
 	}
+
 	return hashStrings, nil
 }
 
@@ -3599,6 +3907,7 @@ func handleGetRawTransaction(
 
 		return nil, rpcDecodeHexError(c.Txid)
 	}
+
 	verbose := false
 	if c.Verbose != nil {
 
@@ -3620,7 +3929,9 @@ func handleGetRawTransaction(
 					"enabled to query the blockchain " +
 					"(specify --txindex)",
 			}
+
 		}
+
 		// Look up the location of the transaction.
 		blockRegion, err := s.cfg.TxIndex.TxBlockRegion(txHash)
 		if err != nil {
@@ -3628,10 +3939,12 @@ func handleGetRawTransaction(
 			context := "Failed to retrieve transaction location"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		if blockRegion == nil {
 
 			return nil, rpcNoTxInfoError(txHash)
 		}
+
 		// Load the raw transaction bytes from the database.
 		var txBytes []byte
 		err = s.cfg.DB.View(func(dbTx database.Tx) error {
@@ -3639,15 +3952,18 @@ func handleGetRawTransaction(
 			txBytes, err = dbTx.FetchBlockRegion(blockRegion)
 			return err
 		})
+
 		if err != nil {
 
 			return nil, rpcNoTxInfoError(txHash)
 		}
+
 		// When the verbose flag isn't set, simply return the serialized transaction as a hex-encoded string.  This is done here to avoid deserializing it only to reserialize it again later.
 		if !verbose {
 
 			return hex.EncodeToString(txBytes), nil
 		}
+
 		// Grab the block height.
 		blkHash = blockRegion.Hash
 		blkHeight, err = s.cfg.Chain.BlockHeightByHash(blkHash)
@@ -3656,6 +3972,7 @@ func handleGetRawTransaction(
 			context := "Failed to retrieve block height"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		// Deserialize the transaction
 		var msgTx wire.MsgTx
 		err = msgTx.Deserialize(bytes.NewReader(txBytes))
@@ -3664,6 +3981,7 @@ func handleGetRawTransaction(
 			context := "Failed to deserialize transaction"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		mtx = &msgTx
 	} else {
 		// When the verbose flag isn't set, simply return the network-serialized transaction as a hex-encoded string.
@@ -3675,8 +3993,10 @@ func handleGetRawTransaction(
 
 				return nil, err
 			}
+
 			return mtxHex, nil
 		}
+
 		mtx = tx.MsgTx()
 	}
 
@@ -3693,16 +4013,19 @@ func handleGetRawTransaction(
 			context := "Failed to fetch block header"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		blkHeader = &header
 		blkHashStr = blkHash.String()
 		chainHeight = s.cfg.Chain.BestSnapshot().Height
 	}
+
 	rawTxn, err := createTxRawResult(s.cfg.ChainParams, mtx, txHash.String(),
 		blkHeader, blkHashStr, blkHeight, chainHeight)
 	if err != nil {
 
 		return nil, err
 	}
+
 	return *rawTxn, nil
 }
 
@@ -3739,6 +4062,7 @@ func handleGetTxOut(
 
 			return nil, rpcNoTxInfoError(txHash)
 		}
+
 		mtx := tx.MsgTx()
 		if c.Vout > uint32(len(mtx.TxOut)-1) {
 
@@ -3747,7 +4071,9 @@ func handleGetTxOut(
 				Message: "Output index number (vout) does not " +
 					"exist for transaction.",
 			}
+
 		}
+
 		txOut := mtx.TxOut[c.Vout]
 		if txOut == nil {
 
@@ -3755,6 +4081,7 @@ func handleGetTxOut(
 				"does not exist", c.Vout, txHash)
 			return nil, internalRPCError(errStr, "")
 		}
+
 		best := s.cfg.Chain.BestSnapshot()
 		bestBlockHash = best.Hash.String()
 		confirmations = 0
@@ -3768,11 +4095,13 @@ func handleGetTxOut(
 
 			return nil, rpcNoTxInfoError(txHash)
 		}
+
 		// To match the behavior of the reference client, return nil (JSON null) if the transaction output is spent by another transaction already in the main chain.  Mined transactions that are spent by a mempool transaction are not affected by this.
 		if entry == nil || entry.IsSpent() {
 
 			return nil, nil
 		}
+
 		best := s.cfg.Chain.BestSnapshot()
 		bestBlockHash = best.Hash.String()
 		confirmations = 1 + best.Height - entry.BlockHeight()
@@ -3791,6 +4120,7 @@ func handleGetTxOut(
 
 		addresses[i] = addr.EncodeAddress()
 	}
+
 	txOutReply := &json.GetTxOutResult{
 		BestBlock:     bestBlockHash,
 		Confirmations: int64(confirmations),
@@ -3802,8 +4132,10 @@ func handleGetTxOut(
 			Type:      scriptClass.String(),
 			Addresses: addresses,
 		},
+
 		Coinbase: isCoinbase,
 	}
+
 	return txOutReply, nil
 }
 
@@ -3819,6 +4151,7 @@ func handleHelp(
 
 		command = *c.Command
 	}
+
 	if command == "" {
 
 		usage, err := s.helpCacher.rpcUsage(false)
@@ -3827,6 +4160,7 @@ func handleHelp(
 			context := "Failed to generate RPC usage"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 		return usage, nil
 	}
 
@@ -3837,6 +4171,7 @@ func handleHelp(
 			Code:    json.ErrRPCInvalidParameter,
 			Message: "Unknown command: " + command,
 		}
+
 	}
 
 	// Get the help for the command.
@@ -3846,6 +4181,7 @@ func handleHelp(
 		context := "Failed to generate help"
 		return nil, internalRPCError(err.Error(), context)
 	}
+
 	return help, nil
 }
 
@@ -3874,15 +4210,20 @@ func handleNode(
 					Code:    json.ErrRPCInvalidParameter,
 					Message: "invalid address or node ID",
 				}
+
 			}
+
 		}
+
 		if err != nil && peerExists(s.cfg.ConnMgr, addr, int32(nodeID)) {
 
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCMisc,
 				Message: "can't disconnect a permanent peer, use remove",
 			}
+
 		}
+
 	case "remove":
 		// If we have a valid uint disconnect by node id. Otherwise, attempt to disconnect by address, returning an error if a valid IP address is not supplied.
 		if nodeID, errN = strconv.ParseUint(c.Target, 10, 32); errN == nil {
@@ -3898,15 +4239,20 @@ func handleNode(
 					Code:    json.ErrRPCInvalidParameter,
 					Message: "invalid address or node ID",
 				}
+
 			}
+
 		}
+
 		if err != nil && peerExists(s.cfg.ConnMgr, addr, int32(nodeID)) {
 
 			return nil, &json.RPCError{
 				Code:    json.ErrRPCMisc,
 				Message: "can't remove a temporary peer, use disconnect",
 			}
+
 		}
+
 	case "connect":
 		addr = NormalizeAddress(c.Target, params.DefaultPort)
 		// Default to temporary connections.
@@ -3915,6 +4261,7 @@ func handleNode(
 
 			subCmd = *c.ConnectSubCmd
 		}
+
 		switch subCmd {
 		case "perm", "temp":
 			err = s.cfg.ConnMgr.Connect(addr, subCmd == "perm")
@@ -3923,19 +4270,24 @@ func handleNode(
 				Code:    json.ErrRPCInvalidParameter,
 				Message: "invalid subcommand for node connect",
 			}
+
 		}
+
 	default:
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInvalidParameter,
 			Message: "invalid subcommand for node",
 		}
+
 	}
+
 	if err != nil {
 
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCInvalidParameter,
 			Message: err.Error(),
 		}
+
 	}
 
 	// no data returned unless an error.
@@ -3952,6 +4304,7 @@ func handlePing(
 
 		return nil, internalRPCError("Not sending ping - failed to generate nonce: "+err.Error(), "")
 	}
+
 	s.cfg.ConnMgr.BroadcastMessage(wire.NewMsgPing(nonce))
 	return nil, nil
 }
@@ -3968,6 +4321,7 @@ func handleSearchRawTransactions(
 			Code:    json.ErrRPCMisc,
 			Message: "Address index must be enabled (--addrindex)",
 		}
+
 	}
 
 	// Override the flag for including extra previous output information in each input if needed.
@@ -3985,6 +4339,7 @@ func handleSearchRawTransactions(
 			Code:    json.ErrRPCMisc,
 			Message: "Transaction index must be enabled (--txindex)",
 		}
+
 	}
 
 	// Attempt to decode the supplied address.
@@ -3996,6 +4351,7 @@ func handleSearchRawTransactions(
 			Code:    json.ErrRPCInvalidAddressOrKey,
 			Message: "Invalid address or key: " + err.Error(),
 		}
+
 	}
 
 	// Override the default number of requested entries if needed.  Also, just return now if the number of requested entries is zero to avoid extra work.
@@ -4007,7 +4363,9 @@ func handleSearchRawTransactions(
 
 			numRequested = 1
 		}
+
 	}
+
 	if numRequested == 0 {
 
 		return nil, nil
@@ -4022,6 +4380,7 @@ func handleSearchRawTransactions(
 
 			numToSkip = 0
 		}
+
 	}
 
 	// Override the reverse flag if needed.
@@ -4043,6 +4402,7 @@ func handleSearchRawTransactions(
 
 			addressTxns = append(addressTxns, retrievedTx{tx: tx})
 		}
+
 	}
 
 	// Fetch transactions from the database in the desired order if more are needed.
@@ -4054,12 +4414,14 @@ func handleSearchRawTransactions(
 
 				return err
 			}
+
 			// Load the raw transaction bytes from the database.
 			serializedTxns, err := dbTx.FetchBlockRegions(regions)
 			if err != nil {
 
 				return err
 			}
+
 			// Add the transaction and the hash of the block it is contained in to the list.  Note that the transaction is left serialized here since the caller might have requested non-verbose output and hence there would be/ no point in deserializing it just to reserialize it later.
 			for i, serializedTx := range serializedTxns {
 
@@ -4067,15 +4429,19 @@ func handleSearchRawTransactions(
 					txBytes: serializedTx,
 					blkHash: regions[i].Hash,
 				})
+
 			}
+
 			numSkipped += dbSkipped
 			return nil
 		})
+
 		if err != nil {
 
 			context := "Failed to load address index entries"
 			return nil, internalRPCError(err.Error(), context)
 		}
+
 	}
 
 	// Add transactions from mempool last if client did not request reverse order and the number of results is still under the number requested.
@@ -4088,6 +4454,7 @@ func handleSearchRawTransactions(
 
 			addressTxns = append(addressTxns, retrievedTx{tx: tx})
 		}
+
 	}
 
 	// Address has never been used if neither source yielded any results.
@@ -4097,6 +4464,7 @@ func handleSearchRawTransactions(
 			Code:    json.ErrRPCNoTxInfo,
 			Message: "No information available about address",
 		}
+
 	}
 
 	// Serialize all of the transactions to hex.
@@ -4110,12 +4478,14 @@ func handleSearchRawTransactions(
 			hexTxns[i] = hex.EncodeToString(rtx.txBytes)
 			continue
 		}
+
 		// Serialize the transaction first and convert to hex when the retrieved transaction is the deserialized structure.
 		hexTxns[i], err = messageToHex(rtx.tx.MsgTx())
 		if err != nil {
 
 			return nil, err
 		}
+
 	}
 
 	// When not in verbose mode, simply return a list of serialized txns.
@@ -4132,6 +4502,7 @@ func handleSearchRawTransactions(
 
 			filterAddrMap[addr] = struct{}{}
 		}
+
 	}
 
 	// The verbose flag is set, so generate the JSON object and return it.
@@ -4152,9 +4523,11 @@ func handleSearchRawTransactions(
 				context := "Failed to deserialize transaction"
 				return nil, internalRPCError(err.Error(), context)
 			}
+
 		} else {
 			mtx = rtx.tx.MsgTx()
 		}
+
 		result := &srtList[i]
 		result.Hex = hexTxns[i]
 		result.Txid = mtx.TxHash().String()
@@ -4163,6 +4536,7 @@ func handleSearchRawTransactions(
 
 			return nil, err
 		}
+
 		result.Vout = createVoutList(mtx, params, filterAddrMap)
 		result.Version = mtx.Version
 		result.LockTime = mtx.LockTime
@@ -4180,7 +4554,9 @@ func handleSearchRawTransactions(
 					Code:    json.ErrRPCBlockNotFound,
 					Message: "Block not found",
 				}
+
 			}
+
 			// Get the block height from chain.
 			height, err := s.cfg.Chain.BlockHeightByHash(blkHash)
 			if err != nil {
@@ -4188,10 +4564,12 @@ func handleSearchRawTransactions(
 				context := "Failed to obtain block height"
 				return nil, internalRPCError(err.Error(), context)
 			}
+
 			blkHeader = &header
 			blkHashStr = blkHash.String()
 			blkHeight = height
 		}
+
 		// Add the block information to the result if there is any.
 		if blkHeader != nil {
 
@@ -4201,7 +4579,9 @@ func handleSearchRawTransactions(
 			result.BlockHash = blkHashStr
 			result.Confirmations = uint64(1 + best.Height - blkHeight)
 		}
+
 	}
+
 	return srtList, nil
 }
 
@@ -4217,11 +4597,13 @@ func handleSendRawTransaction(
 
 		hexStr = "0" + hexStr
 	}
+
 	serializedTx, err := hex.DecodeString(hexStr)
 	if err != nil {
 
 		return nil, rpcDecodeHexError(hexStr)
 	}
+
 	var msgTx wire.MsgTx
 	err = msgTx.Deserialize(bytes.NewReader(serializedTx))
 	if err != nil {
@@ -4230,6 +4612,7 @@ func handleSendRawTransaction(
 			Code:    json.ErrRPCDeserialization,
 			Message: "TX decode failed: " + err.Error(),
 		}
+
 	}
 
 	// Use 0 for the tag to represent local node.
@@ -4243,15 +4626,19 @@ func handleSendRawTransaction(
 			log <- cl.Debugf{
 				"rejected transaction %v: %v", tx.Hash(), err,
 			}
+
 		} else {
 			log <- cl.Errorf{
 				"failed to process transaction %v: %v", tx.Hash(), err,
 			}
+
 		}
+
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCDeserialization,
 			Message: "TX rejected: " + err.Error(),
 		}
+
 	}
 
 	// When the transaction was accepted it should be the first item in the returned array of accepted transactions.  The only way this will not be true is if the API for ProcessTransaction changes and this code is not properly updated, but ensure the condition holds as a safeguard. Also, since an error is being returned to the caller, ensure the transaction is removed from the memory pool.
@@ -4289,10 +4676,12 @@ func handleSetGenerate(
 
 		genProcLimit = *c.GenProcLimit
 	}
+
 	if genProcLimit == 0 {
 
 		generate = false
 	}
+
 	if s.cfg.CPUMiner.IsMining() {
 
 		// if s.cfg.CPUMiner.GetAlgo() != s.cfg.Algo {
@@ -4300,6 +4689,7 @@ func handleSetGenerate(
 		generate = true
 		// }
 	}
+
 	if !generate {
 
 		s.cfg.CPUMiner.Stop()
@@ -4311,13 +4701,16 @@ func handleSetGenerate(
 				Code:    json.ErrRPCInternal.Code,
 				Message: "no payment addresses specified via --miningaddr",
 			}
+
 		}
+
 		// fmt.Println("generating with algo", s.cfg.Algo)
 		// s.cfg.CPUMiner.SetAlgo(s.cfg.Algo)
 		// It's safe to call start even if it's already started.
 		s.cfg.CPUMiner.SetNumWorkers(int32(genProcLimit))
 		s.cfg.CPUMiner.Start()
 	}
+
 	return nil, nil
 }
 
@@ -4330,6 +4723,7 @@ func handleStop(
 		// fmt.Println("chan:s.requestProcessShutdown <- struct{}{}")
 	default:
 	}
+
 	return "node stopping", nil
 }
 
@@ -4345,11 +4739,13 @@ func handleSubmitBlock(
 
 		hexStr = "0" + c.HexBlock
 	}
+
 	serializedBlock, err := hex.DecodeString(hexStr)
 	if err != nil {
 
 		return nil, rpcDecodeHexError(hexStr)
 	}
+
 	block, err := util.NewBlockFromBytes(serializedBlock)
 	if err != nil {
 
@@ -4357,6 +4753,7 @@ func handleSubmitBlock(
 			Code:    json.ErrRPCDeserialization,
 			Message: "Block decode failed: " + err.Error(),
 		}
+
 	}
 
 	// Process this block using the same rules as blocks coming from other nodes.  This will in turn relay it to the network like normal.
@@ -4365,9 +4762,11 @@ func handleSubmitBlock(
 
 		return fmt.Sprintf("rejected: %s", err.Error()), nil
 	}
+
 	log <- cl.Infof{
 		"accepted block %s via submitblock", block.Hash(),
 	}
+
 	return nil, nil
 }
 
@@ -4397,6 +4796,7 @@ func handleValidateAddress(
 		// Return the default value (false) for IsValid.
 		return result, nil
 	}
+
 	result.Address = addr.EncodeAddress()
 	result.IsValid = true
 	return result, nil
@@ -4412,10 +4812,12 @@ func handleVerifyChain(
 
 		checkLevel = *c.CheckLevel
 	}
+
 	if c.CheckDepth != nil {
 
 		checkDepth = *c.CheckDepth
 	}
+
 	err := verifyChain(s, checkLevel, checkDepth)
 	return err == nil, nil
 }
@@ -4435,6 +4837,7 @@ func handleVerifyMessage(
 			Code:    json.ErrRPCInvalidAddressOrKey,
 			Message: "Invalid address or key: " + err.Error(),
 		}
+
 	}
 
 	// Only P2PKH addresses are valid for signing.
@@ -4444,6 +4847,7 @@ func handleVerifyMessage(
 			Code:    json.ErrRPCType,
 			Message: "Address is not a pay-to-pubkey-hash address",
 		}
+
 	}
 
 	// Decode base64 signature.
@@ -4454,6 +4858,7 @@ func handleVerifyMessage(
 			Code:    json.ErrRPCParse.Code,
 			Message: "Malformed base64 encoding: " + err.Error(),
 		}
+
 	}
 
 	// Validate the signature - this just shows that it was valid at all. we will compare it with the key next.
@@ -4477,6 +4882,7 @@ func handleVerifyMessage(
 	} else {
 		serializedPK = pk.SerializeUncompressed()
 	}
+
 	address, err := util.NewAddressPubKey(serializedPK, params)
 	if err != nil {
 
@@ -4506,6 +4912,7 @@ func handleVersion(
 			Patch:         jsonrpcSemverPatch,
 		},
 	}
+
 	return result, nil
 }
 
@@ -4523,6 +4930,7 @@ func internalRPCError(
 
 		logStr = context + ": " + errStr
 	}
+
 	log <- cl.Err(logStr)
 	return json.NewRPCError(json.ErrRPCInternal.Code, errStr)
 }
@@ -4550,6 +4958,7 @@ func messageToHex(
 		context := fmt.Sprintf("Failed to encode msg of type %T", msg)
 		return "", internalRPCError(err.Error(), context)
 	}
+
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
@@ -4563,6 +4972,7 @@ func newGbtWorkState(
 		timeSource: timeSource,
 		algo:       algoname,
 	}
+
 }
 
 // newRPCServer returns a new instance of the rpcServer struct.
@@ -4581,18 +4991,21 @@ func newRPCServer(
 		requestProcessShutdown: make(chan struct{}),
 		quit:                   make(chan int),
 	}
+
 	if *cfg.RPCUser != "" && *cfg.RPCPass != "" {
 
 		login := *cfg.RPCUser + ":" + *cfg.RPCPass
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.authsha = sha256.Sum256([]byte(auth))
 	}
+
 	if *cfg.RPCLimitUser != "" && *cfg.RPCLimitPass != "" {
 
 		login := *cfg.RPCLimitUser + ":" + *cfg.RPCLimitPass
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.limitauthsha = sha256.Sum256([]byte(auth))
 	}
+
 	rpc.ntfnMgr = newWsNotificationManager(&rpc)
 	rpc.cfg.Chain.Subscribe(rpc.handleBlockchainNotification)
 	return &rpc, nil
@@ -4614,11 +5027,13 @@ func parseCmd(
 			parsedCmd.err = json.ErrRPCMethodNotFound
 			return &parsedCmd
 		}
+
 		// Otherwise, some type of invalid parameters is the cause, so produce the equivalent RPC error.
 		parsedCmd.err = json.NewRPCError(
 			json.ErrRPCInvalidParams.Code, err.Error())
 		return &parsedCmd
 	}
+
 	parsedCmd.cmd = cmd
 	return &parsedCmd
 }
@@ -4635,7 +5050,9 @@ func peerExists(
 
 			return true
 		}
+
 	}
+
 	return false
 }
 
@@ -4679,6 +5096,7 @@ func softForkStatus(
 	default:
 		return "", fmt.Errorf("unknown deployment state: %v", state)
 	}
+
 }
 
 func verifyChain(
@@ -4692,11 +5110,13 @@ func verifyChain(
 
 		finishHeight = 0
 	}
+
 	log <- cl.Infof{
 		"verifying chain for %d blocks at level %d",
 		best.Height - finishHeight,
 		level,
 	}
+
 	for height := best.Height; height > finishHeight; height-- {
 
 		// Level 0 just looks up the block.
@@ -4708,8 +5128,10 @@ func verifyChain(
 				height,
 				err,
 			}
+
 			return err
 		}
+
 		powLimit := fork.GetMinDiff(fork.GetAlgoName(block.MsgBlock().Header.Version, height), height)
 		// Level 1 does basic chain sanity checks.
 		if level > 0 {
@@ -4722,8 +5144,11 @@ func verifyChain(
 					block.Hash(), height, err}
 				return err
 			}
+
 		}
+
 	}
+
 	log <- cl.Inf("chain verify completed successfully")
 	return nil
 }
@@ -4740,6 +5165,7 @@ func handleDebugLevel(	s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 		return fmt.Sprintf("Supported subsystems %v",
 			supportedSubsystems()), nil
 	}
+
 	err := parseAndSetDebugLevels(c.LevelSpec)
 	if err != nil {
 
@@ -4747,9 +5173,12 @@ func handleDebugLevel(	s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 			Code:    json.ErrRPCInvalidParams.Code,
 			Message: err.Error(),
 		}
+
 	}
+
 	return "Done.", nil
 }
+
 */
 
 // witnessToHex formats the passed witness stack as a slice of hex-encoded strings to be used in a JSON response.
@@ -4761,10 +5190,12 @@ func witnessToHex(
 
 		return nil
 	}
+
 	result := make([]string, 0, len(witness))
 	for _, wit := range witness {
 
 		result = append(result, hex.EncodeToString(wit))
 	}
+
 	return result
 }

@@ -61,7 +61,9 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 				nconnected++
 			}
+
 		})
+
 		msg.reply <- nconnected
 
 	case getPeersMsg:
@@ -72,8 +74,10 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 				return
 			}
+
 			peers = append(peers, sp)
 		})
+
 		msg.reply <- peers
 
 	case connectNodeMsg:
@@ -84,6 +88,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			msg.reply <- errors.New("max peers reached")
 			return
 		}
+
 		for _, peer := range state.persistentPeers {
 			if peer.Addr() == msg.addr {
 				if msg.permanent {
@@ -91,8 +96,10 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 				} else {
 					msg.reply <- errors.New("peer exists as a permanent peer")
 				}
+
 				return
 			}
+
 		}
 
 		netAddr, err := s.addrStringToNetAddr(msg.addr)
@@ -106,6 +113,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			Addr:      netAddr,
 			Permanent: msg.permanent,
 		})
+
 		msg.reply <- nil
 
 	case removeNodeMsg:
@@ -139,6 +147,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 		for _, sp := range state.persistentPeers {
 			peers = append(peers, sp)
 		}
+
 		msg.reply <- peers
 
 	case disconnectNodeMsg:
@@ -151,6 +160,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 			// the list now.
 			state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
 		})
+
 		if found {
 
 			// If there are multiple outbound connections to the same
@@ -163,7 +173,9 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 					state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
 				})
+
 			}
+
 			msg.reply <- nil
 			return
 		}
@@ -185,6 +197,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 		// useful in the future.
 	}
+
 }
 
 // ConnectedCount returns the number of currently connected peers.
@@ -218,6 +231,7 @@ func (s *ChainService) OutboundGroupCount(key string) int {
 	case <-s.quit:
 		return 0
 	}
+
 }
 
 // AddedNodeInfo returns an array of btcjson.GetAddedNodeInfoResult structures
@@ -232,6 +246,7 @@ func (s *ChainService) AddedNodeInfo() []*ServerPeer {
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // Peers returns an array of all connected peers.
@@ -244,6 +259,7 @@ func (s *ChainService) Peers() []*ServerPeer {
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // DisconnectNodeByAddr disconnects a peer by target address. Both outbound and
@@ -259,10 +275,12 @@ func (s *ChainService) DisconnectNodeByAddr(addr string) error {
 		cmp:   func(sp *ServerPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}:
+
 		return <-replyChan
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // DisconnectNodeByID disconnects a peer by target node id. Both outbound and
@@ -278,10 +296,12 @@ func (s *ChainService) DisconnectNodeByID(id int32) error {
 		cmp:   func(sp *ServerPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}:
+
 		return <-replyChan
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // RemoveNodeByAddr removes a peer from the list of persistent peers if
@@ -295,10 +315,12 @@ func (s *ChainService) RemoveNodeByAddr(addr string) error {
 		cmp:   func(sp *ServerPeer) bool { return sp.Addr() == addr },
 		reply: replyChan,
 	}:
+
 		return <-replyChan
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // RemoveNodeByID removes a peer by node ID from the list of persistent peers
@@ -312,10 +334,12 @@ func (s *ChainService) RemoveNodeByID(id int32) error {
 		cmp:   func(sp *ServerPeer) bool { return sp.ID() == id },
 		reply: replyChan,
 	}:
+
 		return <-replyChan
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // ConnectNode adds `addr' as a new outbound peer. If permanent is true then the
@@ -332,10 +356,12 @@ func (s *ChainService) ConnectNode(addr string, permanent bool) error {
 		permanent: permanent,
 		reply:     replyChan,
 	}:
+
 		return <-replyChan
 	case <-s.quit:
 		return nil
 	}
+
 }
 
 // ForAllPeers runs a closure over all peers (outbound and persistent) to which
@@ -351,4 +377,5 @@ func (s *ChainService) ForAllPeers(closure func(sp *ServerPeer)) {
 	case s.query <- forAllPeersMsg{closure: closure}:
 	case <-s.quit:
 	}
+
 }

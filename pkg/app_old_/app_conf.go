@@ -84,12 +84,14 @@ var ConfCommand = climax.Command{
 		f("network", "mainnet", "connect to [mainnet|testnet|regtestnet|simnet]"),
 		s("debuglevel", "d", "info", "sets log level for those unspecified below"),
 	},
+
 	Examples: []climax.Example{
 		{
 			Usecase:     "--D test --init",
 			Description: "creates a new data directory at test",
 		},
 	},
+
 	Handle: func(ctx climax.Context) int {
 		var dl, ct, tpb string
 		var ok bool
@@ -99,12 +101,14 @@ var ConfCommand = climax.Command{
 				"setting debug level %s",
 				dl,
 			}
+
 			Log.SetLevel(dl)
 			ll := GetAllSubSystems()
 			for i := range ll {
 
 				ll[i].SetLevel(dl)
 			}
+
 		}
 
 		if ct, ok = ctx.Get("createtest"); ok {
@@ -117,10 +121,12 @@ var ConfCommand = climax.Command{
 			); err != nil {
 				log <- cl.Wrn(err.Error())
 			}
+
 			if tn, ok := ctx.Get("testname"); ok {
 
 				testname = tn
 			}
+
 			if tpb, ok = ctx.Get("testportbase"); ok {
 
 				if err := ParseInteger(
@@ -128,6 +134,7 @@ var ConfCommand = climax.Command{
 				); err != nil {
 					log <- cl.Wrn(err.Error())
 				}
+
 			}
 
 			// Generate a full set of default configs first
@@ -139,6 +146,7 @@ var ConfCommand = climax.Command{
 				SyncToConfs(cs)
 				testConfigSet = append(testConfigSet, *cs)
 			}
+
 			var ps []PortSet
 			for i := 0; i < testnum; i++ {
 
@@ -154,12 +162,15 @@ var ConfCommand = climax.Command{
 				tc.NodeListeners = []string{
 					lH + ps[i].P2P,
 				}
+
 				tc.NodeRPCListeners = []string{
 					lH + ps[i].NodeRPC,
 				}
+
 				tc.WalletListeners = []string{
 					lH + ps[i].WalletRPC,
 				}
+
 				tc.TLS = false
 				tc.Network = "testnet"
 
@@ -183,7 +194,9 @@ var ConfCommand = climax.Command{
 							lH+ps[j].P2P,
 						)
 					}
+
 				}
+
 				tnn.Listeners = tc.NodeListeners
 				tnn.RPCListeners = tc.NodeRPCListeners
 				tnn.SimNet = false
@@ -219,7 +232,9 @@ var ConfCommand = climax.Command{
 							lH+ps[j].P2P,
 						)
 					}
+
 				}
+
 				tsn.SimNet = false
 				tsn.TestNet3 = true
 				tsn.RegressionTest = false
@@ -237,6 +252,7 @@ var ConfCommand = climax.Command{
 				// write to disk
 				WriteConfigSet(&ts)
 			}
+
 			os.Exit(0)
 		}
 
@@ -246,16 +262,19 @@ var ConfCommand = climax.Command{
 			DefaultDataDir = r
 			confFile = DefaultDataDir + "/conf.json"
 		}
+
 		confs = []string{
 			DefaultDataDir + "/ctl/conf.json",
 			DefaultDataDir + "/node/conf.json",
 			DefaultDataDir + "/wallet/conf.json",
 			DefaultDataDir + "/shell/conf.json",
 		}
+
 		for i := range confs {
 
 			EnsureDir(confs[i])
 		}
+
 		EnsureDir(confFile)
 		if ctx.Is("init") {
 
@@ -274,13 +293,17 @@ var ConfCommand = climax.Command{
 
 					WriteDefaultConfConfig(DefaultDataDir)
 				}
+
 				err = json.Unmarshal(cfgData, &ConfConfig)
 				if err != nil {
 
 					WriteDefaultConfConfig(DefaultDataDir)
 				}
+
 			}
+
 		}
+
 		configConf(&ctx, DefaultDataDir, node.DefaultPort)
 		runConf()
 		return 0

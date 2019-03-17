@@ -33,6 +33,7 @@ func (iter *ldbTreapIter) Release() {
 		iter.tx.removeActiveIter(iter.Iterator)
 		iter.released = true
 	}
+
 }
 
 // newLdbTreapIter creates a new treap iterator for the given slice against the pending keys for the passed transaction and returns it wrapped in an ldbTreapIter so it can be used as a leveldb iterator.  It also adds the new iterator to the list of active iterators for the transaction.

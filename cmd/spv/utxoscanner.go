@@ -117,6 +117,7 @@ func (r *GetUtxoRequest) Result(cancel <-chan struct{}) (*SpendReport, error) {
 	case <-r.quit:
 		return nil, ErrShuttingDown
 	}
+
 }
 
 // deliver tries to deliver the report or error to any subscribers. If
@@ -131,7 +132,9 @@ func (r *GetUtxoRequest) deliver(report *SpendReport, err error) {
 			"duplicate getutxo result delivered for outpoint=%v, spend=%v, err=%v",
 			r.Input.OutPoint, report, err,
 		}
+
 	}
+
 }
 
 // IsEmpty returns true if the queue has no elements.
@@ -191,6 +194,7 @@ func (s *UtxoScanner) Enqueue(input *InputWithScript,
 		return nil, ErrShuttingDown
 	default:
 	}
+
 	// Insert the request into the queue and signal any threads that might be
 
 	// waiting for new elements.
@@ -232,7 +236,9 @@ batchShutdown:
 		case <-time.After(50 * time.Millisecond):
 			s.cv.Signal()
 		}
+
 	}
+
 	// Cancel all pending get utxo requests that were not pulled into the
 
 	// batchManager's main goroutine.
@@ -265,6 +271,7 @@ func (s *UtxoScanner) batchManager() {
 		for _, request := range s.nextBatch {
 			heap.Push(&s.pq, request)
 		}
+
 		s.nextBatch = nil
 		// Wait for the queue to be non-empty.
 		for s.pq.IsEmpty() {
@@ -277,6 +284,7 @@ func (s *UtxoScanner) batchManager() {
 				return
 			default:
 			}
+
 		}
 
 		req := s.pq.Peek()
@@ -289,6 +297,7 @@ func (s *UtxoScanner) batchManager() {
 			return
 		default:
 		}
+
 		// Initiate a scan, starting from the birth height of the
 
 		// least-height request currently in the queue.
@@ -297,8 +306,11 @@ func (s *UtxoScanner) batchManager() {
 			log <- cl.Errorf{
 				"UXTO scan failed: %v", err,
 			}
+
 		}
+
 	}
+
 }
 
 // dequeueAtHeight returns all GetUtxoRequests that have starting height of the
@@ -376,6 +388,7 @@ scanToEnd:
 		if err != nil {
 			return reporter.FailRemaining(err)
 		}
+
 		// If there are any new requests that can safely be added to this batch,
 
 		// then try and fetch them.
@@ -395,13 +408,16 @@ scanToEnd:
 			if err != nil {
 				return reporter.FailRemaining(err)
 			}
+
 			// If still no match is found, we have no reason to
 
 			// fetch this block, and can continue to next height.
 			if !match {
 				continue
 			}
+
 		}
+
 		// At this point, we've determined that we either (1) have new
 
 		// requests which we need the block to scan for originating
@@ -427,6 +443,7 @@ scanToEnd:
 		if err != nil {
 			return reporter.FailRemaining(err)
 		}
+
 		// Check again to see if the utxoscanner has been signaled to exit.
 		select {
 		case <-s.quit:
@@ -438,6 +455,7 @@ scanToEnd:
 
 		reporter.ProcessBlock(block.MsgBlock(), newReqs, height)
 	}
+
 	// We've scanned up to the end height, now perform a check to see if we
 
 	// still have any new blocks to process. If this is the first time
@@ -449,6 +467,7 @@ scanToEnd:
 	if err != nil {
 		return reporter.FailRemaining(err)
 	}
+
 	// If the returned height is higher, we still have more blocks to go.
 
 	// Shift the start and end heights and continue scanning.
@@ -486,6 +505,7 @@ func NewUtxoScanner(
 		quit:     make(chan struct{}),
 		shutdown: make(chan struct{}),
 	}
+
 	scanner.cv = sync.NewCond(&scanner.mu)
 
 	return scanner

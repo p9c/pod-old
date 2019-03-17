@@ -23,13 +23,18 @@ func mockRemotePeer() error {
 
 	// Accept connections on the simnet port.
 	listener, err := net.Listen("tcp", "127.0.0.1:18555")
+
 	if err != nil {
+
 		return err
 	}
+
 	go func() {
 
 		conn, err := listener.Accept()
+
 		if err != nil {
+
 			fmt.Printf("Accept: error %v\n", err)
 			return
 		}
@@ -38,6 +43,7 @@ func mockRemotePeer() error {
 		p := peer.NewInboundPeer(peerCfg)
 		p.AssociateConnection(conn)
 	}()
+
 	return nil
 }
 
@@ -45,7 +51,9 @@ func mockRemotePeer() error {
 func Example_newOutboundPeer() {
 
 	// Ordinarily this will not be needed since the outbound peer will be connecting to a remote peer, however, since this example is executed and tested, a mock remote peer is needed to listen for the outbound peer.
+
 	if err := mockRemotePeer(); err != nil {
+
 		fmt.Printf("mockRemotePeer: unexpected error %v\n", err)
 		return
 	}
@@ -63,24 +71,31 @@ func Example_newOutboundPeer() {
 				fmt.Println("outbound: received version")
 				return nil
 			},
+
 			OnVerAck: func(p *peer.Peer, msg *wire.MsgVerAck) {
 
 				verack <- struct{}{}
 			},
 		},
 	}
+
 	p, err := peer.NewOutboundPeer(peerCfg, "127.0.0.1:18555")
+
 	if err != nil {
+
 		fmt.Printf("NewOutboundPeer: error %v\n", err)
 		return
 	}
 
 	// Establish the connection to the peer address and mark it connected.
 	conn, err := net.Dial("tcp", p.Addr())
+
 	if err != nil {
+
 		fmt.Printf("net.Dial: error %v\n", err)
 		return
 	}
+
 	p.AssociateConnection(conn)
 
 	// Wait for the verack message or timeout in case of failure.

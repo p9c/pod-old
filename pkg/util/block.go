@@ -52,6 +52,7 @@ func (b *Block) Bytes() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	serializedBlock := w.Bytes()
 
 	// Cache the serialized bytes and return them.
@@ -73,6 +74,7 @@ func (b *Block) BytesNoWitness() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	serializedBlock := w.Bytes()
 
 	// Cache the serialized bytes and return them.
@@ -142,7 +144,9 @@ func (b *Block) Transactions() []*Tx {
 			newTx.SetIndex(i)
 			b.transactions[i] = newTx
 		}
+
 	}
+
 	b.txnsGenerated = true
 	return b.transactions
 }
@@ -167,12 +171,14 @@ func (b *Block) TxLoc() ([]wire.TxLoc, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	rbuf := bytes.NewBuffer(rawMsg)
 	var mblock wire.MsgBlock
 	txLocs, err := mblock.DeserializeTxLoc(rbuf)
 	if err != nil {
 		return nil, err
 	}
+
 	return txLocs, err
 }
 
@@ -194,6 +200,7 @@ func NewBlock(
 		msgBlock:    msgBlock,
 		blockHeight: BlockHeightUnknown,
 	}
+
 }
 
 // NewBlockFromBytes returns a new instance of a bitcoin block given the serialized bytes.  See Block.
@@ -205,6 +212,7 @@ func NewBlockFromBytes(
 	if err != nil {
 		return nil, err
 	}
+
 	b.serializedBlock = serializedBlock
 	return b, nil
 }
@@ -219,10 +227,12 @@ func NewBlockFromReader(
 	if err != nil {
 		return nil, err
 	}
+
 	b := Block{
 		msgBlock:    &msgBlock,
 		blockHeight: BlockHeightUnknown,
 	}
+
 	return &b, nil
 }
 
@@ -234,4 +244,5 @@ func NewBlockFromBlockAndBytes(
 		serializedBlock: serializedBlock,
 		blockHeight:     BlockHeightUnknown,
 	}
+
 }

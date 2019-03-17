@@ -212,7 +212,9 @@ func (c *AccountNotificationsClient) Done() {
 
 		for range c.C {
 		}
+
 	}()
+
 	go func() {
 
 		s := c.server
@@ -225,9 +227,12 @@ func (c *AccountNotificationsClient) Done() {
 				close(ch)
 				break
 			}
+
 		}
+
 		s.mu.Unlock()
 	}()
+
 }
 
 // AccountNotifications returns a client for receiving AccountNotifications over
@@ -244,6 +249,7 @@ func (s *NotificationServer) AccountNotifications() AccountNotificationsClient {
 		C:      c,
 		server: s,
 	}
+
 }
 
 // AccountSpentnessNotifications registers a client for spentness changes of
@@ -259,6 +265,7 @@ func (s *NotificationServer) AccountSpentnessNotifications(account uint32) Spent
 		account: account,
 		server:  s,
 	}
+
 }
 
 // TransactionNotifications returns a client for receiving
@@ -281,6 +288,7 @@ func (s *NotificationServer) TransactionNotifications() TransactionNotifications
 		C:      c,
 		server: s,
 	}
+
 }
 
 func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProperties) {
@@ -291,6 +299,7 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 	if len(clients) == 0 {
 		return
 	}
+
 	n := &AccountNotification{
 		AccountNumber:    props.AccountNumber,
 		AccountName:      props.AccountName,
@@ -298,9 +307,11 @@ func (s *NotificationServer) notifyAccountProperties(props *waddrmgr.AccountProp
 		InternalKeyCount: props.InternalKeyCount,
 		ImportedKeyCount: props.ImportedKeyCount,
 	}
+
 	for _, c := range clients {
 		c <- n
 	}
+
 }
 
 func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wtxmgr.BlockMeta) {
@@ -308,6 +319,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
+
 	// Add block details if it wasn't already included for previously
 
 	// notified mined transactions.
@@ -318,7 +330,9 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 			Height:    block.Height,
 			Timestamp: block.Time.Unix(),
 		})
+
 	}
+
 	// For now (until notification coalescing isn't necessary) just use
 
 	// chain length to determine if this is the new best block.
@@ -328,6 +342,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 
 			return
 		}
+
 	}
 
 	defer s.mu.Unlock()
@@ -337,6 +352,7 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 		s.currentTxNtfn = nil
 		return
 	}
+
 	// The UnminedTransactions field is intentionally not set.  Since the
 
 	// hashes of all detached blocks are reported, and all transactions
@@ -355,26 +371,32 @@ func (s *NotificationServer) notifyAttachedBlock(dbtx walletdb.ReadTx, block *wt
 		log <- cl.Error{
 			"cannot fetch unmined transaction hashes:", err,
 		}
+
 		return
 	}
+
 	s.currentTxNtfn.UnminedTransactionHashes = unminedHashes
 
 	bals := make(map[uint32]util.Amount)
 	for _, b := range s.currentTxNtfn.AttachedBlocks {
 		relevantAccounts(s.wallet, bals, b.Transactions)
 	}
+
 	err = totalBalances(dbtx, s.wallet, bals)
 	if err != nil {
 		log <- cl.Error{
 			"cannot determine balances for relevant accounts:", err,
 		}
+
 		return
 	}
+
 	s.currentTxNtfn.NewBalances = flattenBalanceMap(bals)
 
 	for _, c := range clients {
 		c <- s.currentTxNtfn
 	}
+
 	s.currentTxNtfn = nil
 }
 
@@ -383,6 +405,7 @@ func (s *NotificationServer) notifyDetachedBlock(hash *chainhash.Hash) {
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
+
 	s.currentTxNtfn.DetachedBlocks = append(s.currentTxNtfn.DetachedBlocks, hash)
 }
 
@@ -391,6 +414,7 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 	if s.currentTxNtfn == nil {
 		s.currentTxNtfn = &TransactionNotifications{}
 	}
+
 	n := len(s.currentTxNtfn.AttachedBlocks)
 	if n == 0 || *s.currentTxNtfn.AttachedBlocks[n-1].Hash != block.Hash {
 		s.currentTxNtfn.AttachedBlocks = append(s.currentTxNtfn.AttachedBlocks, Block{
@@ -398,8 +422,10 @@ func (s *NotificationServer) notifyMinedTransaction(dbtx walletdb.ReadTx, detail
 			Height:    block.Height,
 			Timestamp: block.Time.Unix(),
 		})
+
 		n++
 	}
+
 	txs := s.currentTxNtfn.AttachedBlocks[n-1].Transactions
 	s.currentTxNtfn.AttachedBlocks[n-1].Transactions =
 		append(txs, makeTxSummary(dbtx, s.wallet, details))
@@ -418,15 +444,18 @@ func (s *NotificationServer) notifySpentOutput(account uint32, op *wire.OutPoint
 	if len(clients) == 0 {
 		return
 	}
+
 	n := &SpentnessNotifications{
 		hash:         &op.Hash,
 		index:        op.Index,
 		spenderHash:  spenderHash,
 		spenderIndex: spenderIndex,
 	}
+
 	for _, c := range clients {
 		c <- n
 	}
+
 }
 
 func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, details *wtxmgr.TxDetails) {
@@ -439,6 +468,7 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 			details.Hash.String(),
 			") while creating notification for blocks",
 		}
+
 	}
 
 	defer s.mu.Unlock()
@@ -454,8 +484,10 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 		log <- cl.Error{
 			"cannot fetch unmined transaction hashes:", err,
 		}
+
 		return
 	}
+
 	bals := make(map[uint32]util.Amount)
 	relevantAccounts(s.wallet, bals, unminedTxs)
 	err = totalBalances(dbtx, s.wallet, bals)
@@ -463,16 +495,20 @@ func (s *NotificationServer) notifyUnminedTransaction(dbtx walletdb.ReadTx, deta
 		log <- cl.Error{
 			"cannot determine balances for relevant accounts:", err,
 		}
+
 		return
 	}
+
 	n := &TransactionNotifications{
 		UnminedTransactions:      unminedTxs,
 		UnminedTransactionHashes: unminedHashes,
 		NewBalances:              flattenBalanceMap(bals),
 	}
+
 	for _, c := range clients {
 		c <- n
 	}
+
 }
 
 // notifyUnspentOutput notifies registered clients of a new unspent output that
@@ -486,13 +522,16 @@ func (s *NotificationServer) notifyUnspentOutput(account uint32, hash *chainhash
 	if len(clients) == 0 {
 		return
 	}
+
 	n := &SpentnessNotifications{
 		hash:  hash,
 		index: index,
 	}
+
 	for _, c := range clients {
 		c <- n
 	}
+
 }
 
 // Hash returns the transaction hash of the spent output.
@@ -526,7 +565,9 @@ func (c *SpentnessNotificationsClient) Done() {
 		// the server and closed.
 		for range c.C {
 		}
+
 	}()
+
 	go func() {
 
 		s := c.server
@@ -539,9 +580,12 @@ func (c *SpentnessNotificationsClient) Done() {
 				close(ch)
 				break
 			}
+
 		}
+
 		s.mu.Unlock()
 	}()
+
 }
 
 // Done deregisters the client from the server and drains any remaining
@@ -557,7 +601,9 @@ func (c *TransactionNotificationsClient) Done() {
 		// the server and closed.
 		for range c.C {
 		}
+
 	}()
+
 	go func() {
 
 		s := c.server
@@ -570,9 +616,12 @@ func (c *TransactionNotificationsClient) Done() {
 				close(ch)
 				break
 			}
+
 		}
+
 		s.mu.Unlock()
 	}()
+
 }
 
 func flattenBalanceMap(
@@ -581,6 +630,7 @@ func flattenBalanceMap(
 	for k, v := range m {
 		s = append(s, AccountBalance{Account: k, TotalBalance: v})
 	}
+
 	return s
 }
 
@@ -597,26 +647,33 @@ func lookupInputAccount(
 		log <- cl.Errorf{
 			"cannot query previous transaction details for %v: %v", prevOP.Hash, err,
 		}
+
 		return 0
 	}
+
 	if prev == nil {
 		log <- cl.Error{
 			"missing previous transaction", prevOP.Hash,
 		}
+
 		return 0
 	}
+
 	prevOut := prev.MsgTx.TxOut[prevOP.Index]
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(prevOut.PkScript, w.chainParams)
 	var inputAcct uint32
 	if err == nil && len(addrs) > 0 {
 		_, inputAcct, err = w.Manager.AddrAccount(addrmgrNs, addrs[0])
 	}
+
 	if err != nil {
 		log <- cl.Errorf{
 			"cannot fetch account for previous output %v: %v", prevOP, err,
 		}
+
 		inputAcct = 0
 	}
+
 	return inputAcct
 }
 
@@ -632,6 +689,7 @@ func lookupOutputChain(
 	if err == nil && len(addrs) > 0 {
 		ma, err = w.Manager.Address(addrmgrNs, addrs[0])
 	}
+
 	if err != nil {
 		log <- cl.Error{
 			"cannot fetch account for wallet output:", err}
@@ -639,6 +697,7 @@ func lookupOutputChain(
 		account = ma.Account()
 		internal = ma.Internal()
 	}
+
 	return
 }
 
@@ -651,18 +710,23 @@ func makeTxSummary(
 		if err != nil {
 			log <- cl.Error{"transaction serialization:", err}
 		}
+
 		serializedTx = buf.Bytes()
 	}
+
 	var fee util.Amount
 	if len(details.Debits) == len(details.MsgTx.TxIn) {
 
 		for _, deb := range details.Debits {
 			fee += deb.Amount
 		}
+
 		for _, txOut := range details.MsgTx.TxOut {
 			fee -= util.Amount(txOut.Value)
 		}
+
 	}
+
 	var inputs []TransactionSummaryInput
 	if len(details.Debits) != 0 {
 		inputs = make([]TransactionSummaryInput, len(details.Debits))
@@ -672,8 +736,11 @@ func makeTxSummary(
 				PreviousAccount: lookupInputAccount(dbtx, w, details, d),
 				PreviousAmount:  d.Amount,
 			}
+
 		}
+
 	}
+
 	outputs := make([]TransactionSummaryOutput, 0, len(details.MsgTx.TxOut))
 	for i := range details.MsgTx.TxOut {
 		credIndex := len(outputs)
@@ -681,14 +748,17 @@ func makeTxSummary(
 		if !mine {
 			continue
 		}
+
 		acct, internal := lookupOutputChain(dbtx, w, details, details.Credits[credIndex])
 		output := TransactionSummaryOutput{
 			Index:    uint32(i),
 			Account:  acct,
 			Internal: internal,
 		}
+
 		outputs = append(outputs, output)
 	}
+
 	return TransactionSummary{
 		Hash:        &details.Hash,
 		Transaction: serializedTx,
@@ -697,6 +767,7 @@ func makeTxSummary(
 		Fee:         fee,
 		Timestamp:   details.Received.Unix(),
 	}
+
 }
 
 func newNotificationServer(
@@ -705,6 +776,7 @@ func newNotificationServer(
 		spentness: make(map[uint32][]chan *SpentnessNotifications),
 		wallet:    wallet,
 	}
+
 }
 
 func relevantAccounts(
@@ -714,10 +786,13 @@ func relevantAccounts(
 		for _, d := range tx.MyInputs {
 			m[d.PreviousAccount] = 0
 		}
+
 		for _, c := range tx.MyOutputs {
 			m[c.Account] = 0
 		}
+
 	}
+
 }
 
 func totalBalances(
@@ -727,6 +802,7 @@ func totalBalances(
 	if err != nil {
 		return err
 	}
+
 	for i := range unspent {
 		output := &unspent[i]
 		var outputAcct uint32
@@ -735,12 +811,16 @@ func totalBalances(
 		if err == nil && len(addrs) > 0 {
 			_, outputAcct, err = w.Manager.AddrAccount(addrmgrNs, addrs[0])
 		}
+
 		if err == nil {
 			_, ok := m[outputAcct]
 			if ok {
 				m[outputAcct] += output.Amount
 			}
+
 		}
+
 	}
+
 	return nil
 }

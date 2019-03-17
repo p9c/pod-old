@@ -37,7 +37,9 @@ func normalizeVerString(
 			// Ignoring the error here since it can only fail if the the system is out of memory and there are much bigger issues at that point.
 			_, _ = result.WriteRune(r)
 		}
+
 	}
+
 	return result.String()
 }
 
@@ -58,5 +60,6 @@ func version() string {
 	if build != "" {
 		version = fmt.Sprintf("%s+%s", version, build)
 	}
+
 	return version
 }

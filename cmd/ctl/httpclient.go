@@ -24,14 +24,17 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 			Username: *cfg.ProxyUser,
 			Password: *cfg.ProxyPass,
 		}
+
 		dial = func(network, addr string) (net.Conn, error) {
 
 			c, err := proxy.Dial(network, addr)
 			if err != nil {
 				return nil, err
 			}
+
 			return c, nil
 		}
+
 	}
 
 	// Configure TLS if needed.
@@ -41,12 +44,14 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		pool := x509.NewCertPool()
 		pool.AppendCertsFromPEM(pem)
 		tlsConfig = &tls.Config{
 			RootCAs:            pool,
 			InsecureSkipVerify: *cfg.TLSSkipVerify,
 		}
+
 	}
 
 	// Create and return the new HTTP client potentially configured with a proxy and TLS.
@@ -56,6 +61,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 			TLSClientConfig: tlsConfig,
 		},
 	}
+
 	return &client, nil
 }
 
@@ -66,12 +72,14 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	if *cfg.TLS {
 		protocol = "https"
 	}
+
 	url := protocol + "://" + *cfg.RPCServer
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
 	if err != nil {
 		return nil, err
 	}
+
 	httpRequest.Close = true
 	httpRequest.Header.Set("Content-Type", "application/json")
 
@@ -83,6 +91,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	httpResponse, err := httpClient.Do(httpRequest)
 	if err != nil {
 		return nil, err
@@ -104,6 +113,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 			return nil, fmt.Errorf("%d %s", httpResponse.StatusCode,
 				http.StatusText(httpResponse.StatusCode))
 		}
+
 		return nil, fmt.Errorf("%s", respBytes)
 	}
 
@@ -112,8 +122,10 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	if err := js.Unmarshal(respBytes, &resp); err != nil {
 		return nil, err
 	}
+
 	if resp.Error != nil {
 		return nil, resp.Error
 	}
+
 	return resp.Result, nil
 }

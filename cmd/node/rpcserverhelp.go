@@ -762,6 +762,7 @@ func (c *helpCacher) rpcMethodHelp(method string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	c.methodHelp[method] = help
 	return help, nil
 }
@@ -784,6 +785,7 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
 		usageTexts = append(usageTexts, usage)
 	}
 
@@ -794,8 +796,10 @@ func (c *helpCacher) rpcUsage(includeWebsockets bool) (string, error) {
 			if err != nil {
 				return "", err
 			}
+
 			usageTexts = append(usageTexts, usage)
 		}
+
 	}
 
 	sort.Sort(sort.StringSlice(usageTexts))
@@ -808,4 +812,5 @@ func newHelpCacher() *helpCacher {
 	return &helpCacher{
 		methodHelp: make(map[string]string),
 	}
+
 }

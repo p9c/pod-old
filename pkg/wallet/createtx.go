@@ -56,8 +56,10 @@ func makeInputSource(
 			currentScripts = append(currentScripts, nextCredit.PkScript)
 			currentInputValues = append(currentInputValues, nextCredit.Amount)
 		}
+
 		return currentTotal, currentInputs, currentInputValues, currentScripts, nil
 	}
+
 }
 
 // secretSource is an implementation of txauthor.SecretSource for the wallet's
@@ -81,10 +83,12 @@ func (s secretSource) GetKey(addr util.Address) (*ec.PrivateKey, bool, error) {
 			"want waddrmgr.ManagedPubKeyAddress", addr, ma)
 		return nil, false, e
 	}
+
 	privKey, err := mpka.PrivKey()
 	if err != nil {
 		return nil, false, err
 	}
+
 	return privKey, ma.Compressed(), nil
 }
 
@@ -101,6 +105,7 @@ func (s secretSource) GetScript(addr util.Address) ([]byte, error) {
 			"want waddrmgr.ManagedScriptAddress", addr, ma)
 		return nil, e
 	}
+
 	return msa.Script()
 }
 
@@ -150,11 +155,14 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 			} else {
 				changeAddr, err = w.newChangeAddress(addrmgrNs, account)
 			}
+
 			if err != nil {
 				return nil, err
 			}
+
 			return txscript.PayToAddrScript(changeAddr)
 		}
+
 		tx, err = txauthor.NewUnsignedTransaction(outputs, feeSatPerKb,
 			inputSource, changeSource)
 		if err != nil {
@@ -172,6 +180,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 
 		return tx.AddAllInputScripts(secretSource{w.Manager, addrmgrNs})
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +197,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 				"moving %v from imported account into default account.",
 			changeAmount,
 		}
+
 	}
 
 	return tx, nil
@@ -225,12 +235,14 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 
 			continue
 		}
+
 		if output.FromCoinBase {
 			target := int32(w.chainParams.CoinbaseMaturity)
 			if !confirmed(target, output.Height, bs.Height) {
 
 				continue
 			}
+
 		}
 
 		// Locked unspent outputs are skipped.
@@ -253,12 +265,15 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 		if err != nil || len(addrs) != 1 {
 			continue
 		}
+
 		_, addrAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
 		if err != nil || addrAcct != account {
 			continue
 		}
+
 		eligible = append(eligible, *output)
 	}
+
 	return eligible, nil
 }
 
@@ -276,10 +291,13 @@ func validateMsgTx(
 		if err != nil {
 			return fmt.Errorf("cannot create script engine: %s", err)
 		}
+
 		err = vm.Execute()
 		if err != nil {
 			return fmt.Errorf("cannot validate transaction: %s", err)
 		}
+
 	}
+
 	return nil
 }

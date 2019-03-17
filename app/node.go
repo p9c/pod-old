@@ -28,6 +28,7 @@ import (
 var StateCfg = node.StateCfg
 
 func nodeHandleSave() {
+
 	appConfigCommon.Save = false
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	yn, e := yaml.Marshal(nodeConfig)
@@ -38,12 +39,15 @@ func nodeHandleSave() {
 		if e != nil {
 			panic(e)
 		}
+
 	} else {
 		panic(e)
 	}
+
 }
 
 func nodeHandle(c *cli.Context) error {
+
 	Log.SetLevel("trace")
 	log <- cl.Debug{"running node"}
 
@@ -58,25 +62,30 @@ func nodeHandle(c *cli.Context) error {
 		if e != nil {
 			panic(e)
 		}
+
 		ncf := &node.Config{}
 		e = yaml.Unmarshal(ncb, ncf)
 		if e != nil {
 			panic(e)
 		}
+
 		nodeConfig = ncf
 	} else {
 		appConfigCommon.Save = true
 	}
+
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 	if !c.Parent().Bool("useproxy") {
 		*nodeConfig.Proxy = ""
 	}
+
 	loglevel := c.Parent().String("loglevel")
 	switch loglevel {
 	case "trace", "debug", "info", "warn", "error", "fatal":
 	default:
 		*nodeConfig.DebugLevel = "info"
 	}
+
 	network := c.Parent().String("network")
 	switch network {
 	case "testnet", "testnet3", "t":
@@ -98,15 +107,18 @@ func nodeHandle(c *cli.Context) error {
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for node")
 		}
+
 		nodeConfig.TestNet3 = &False
 		nodeConfig.SimNet = &False
 		nodeConfig.RegressionTest = &False
 		activeNetParams = &netparams.MainNetParams
 
 	}
+
 	if !*nodeConfig.Onion {
 		*nodeConfig.OnionProxy = ""
 	}
+
 	// TODO: now to sanitize the rest
 	port := node.DefaultPort
 	NormalizeStringSliceAddresses(nodeConfig.AddPeers, port)
@@ -145,6 +157,7 @@ func nodeHandle(c *cli.Context) error {
 			log <- cl.Error{err}
 			return err
 		}
+
 		return nil
 	}
 
@@ -159,6 +172,7 @@ func nodeHandle(c *cli.Context) error {
 	default:
 		*nodeConfig.Algo = "random"
 	}
+
 	relayNonStd := *nodeConfig.RelayNonStd
 	funcName := "loadConfig"
 	switch {
@@ -174,6 +188,7 @@ func nodeHandle(c *cli.Context) error {
 	case *nodeConfig.RelayNonStd:
 		relayNonStd = true
 	}
+
 	*nodeConfig.RelayNonStd = relayNonStd
 
 	// Append the network type to the data directory so it is "namespaced" per network.  In addition to the block database, there are other pieces of data that are saved to disk such as address manager state. All data is specific to a network, so namespacing the data directory means each individual piece of serialized data does not have to worry about changing names per network and such.
@@ -204,6 +219,7 @@ func nodeHandle(c *cli.Context) error {
 			log <- cl.Error{err}
 			return err
 		}
+
 	}
 
 	// Don't allow ban durations that are too short.
@@ -229,6 +245,7 @@ func nodeHandle(c *cli.Context) error {
 					fmt.Fprintln(os.Stderr, usageMessage)
 					return err
 				}
+
 				var bits int
 				if ip.To4() == nil {
 
@@ -237,13 +254,17 @@ func nodeHandle(c *cli.Context) error {
 				} else {
 					bits = 32
 				}
+
 				ipnet = &net.IPNet{
 					IP:   ip,
 					Mask: net.CIDRMask(bits, bits),
 				}
+
 			}
+
 			StateCfg.ActiveWhitelists = append(StateCfg.ActiveWhitelists, ipnet)
 		}
+
 	}
 
 	// --addPeer and --connect do not mix.
@@ -271,6 +292,7 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.Listeners = []string{
 			net.JoinHostPort("127.0.0.1", activeNetParams.DefaultPort),
 		}
+
 	}
 
 	// Check to make sure limited and admin users don't have the same username
@@ -297,6 +319,7 @@ func nodeHandle(c *cli.Context) error {
 		(*nodeConfig.RPCLimitUser == "" || *nodeConfig.RPCLimitPass == "") {
 		*nodeConfig.DisableRPC = true
 	}
+
 	if *nodeConfig.DisableRPC {
 		log <- cl.Inf("RPC service is disabled")
 	}
@@ -308,11 +331,13 @@ func nodeHandle(c *cli.Context) error {
 			log <- cl.Error{err}
 			return err
 		}
+
 		*nodeConfig.RPCListeners = make([]string, 0, len(addrs))
 		for _, addr := range addrs {
 			addr = net.JoinHostPort(addr, activeNetParams.RPCClientPort)
 			*nodeConfig.RPCListeners = append(*nodeConfig.RPCListeners, addr)
 		}
+
 	}
 
 	if *nodeConfig.RPCMaxConcurrentReqs < 0 {
@@ -398,7 +423,9 @@ func nodeHandle(c *cli.Context) error {
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
+
 	}
+
 	// --addrindex and --dropaddrindex do not mix.
 	if *nodeConfig.AddrIndex && *nodeConfig.DropAddrIndex {
 		err := fmt.Errorf("%s: the --addrindex and --dropaddrindex options may not be activated at the same time",
@@ -419,6 +446,7 @@ func nodeHandle(c *cli.Context) error {
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
+
 		if !addr.IsForNet(activeNetParams.Params) {
 			str := "%s: mining address '%s' is on the wrong network"
 			err := fmt.Errorf(str, funcName, strAddr)
@@ -426,6 +454,7 @@ func nodeHandle(c *cli.Context) error {
 			// fmt.Fprintln(os.Stderr, usageMessage)
 			return err
 		}
+
 		StateCfg.ActiveMiningAddrs = append(StateCfg.ActiveMiningAddrs, addr)
 	}
 
@@ -437,6 +466,7 @@ func nodeHandle(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, usageMessage)
 		os.Exit(1)
 	}
+
 	if *nodeConfig.MinerPass != "" {
 		StateCfg.ActiveMinerKey = fork.Argon2i([]byte(*nodeConfig.MinerPass))
 	}
@@ -453,7 +483,9 @@ func nodeHandle(c *cli.Context) error {
 				// fmt.Fprintln(os.Stderr, usageMessage)
 				return err
 			}
+
 		}
+
 	}
 
 	// Add default port to all listener addresses if needed and remove duplicate addresses.
@@ -519,12 +551,14 @@ func nodeHandle(c *cli.Context) error {
 			log <- cl.Warn{
 				"Tor isolation set -- overriding specified proxy user credentials"}
 		}
+
 		proxy := &socks.Proxy{
 			Addr:         *nodeConfig.Proxy,
 			Username:     *nodeConfig.ProxyUser,
 			Password:     *nodeConfig.ProxyPass,
 			TorIsolation: torIsolation,
 		}
+
 		StateCfg.Dial = proxy.DialTimeout
 		// Treat the proxy as tor and perform DNS resolution through it unless the --noonion flag is set or there is an onion-specific proxy configured.
 		if *nodeConfig.Onion &&
@@ -532,7 +566,9 @@ func nodeHandle(c *cli.Context) error {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, *nodeConfig.Proxy)
 			}
+
 		}
+
 	}
 
 	// Setup onion address dial function depending on the specified options. The default is to use the same dial function selected above.  However, when an onion-specific proxy is specified, the onion address dial function is set to use the onion-specific proxy while leaving the normal dial function as selected above.  This allows .onion address traffic to be routed through a different proxy than normal traffic.
@@ -553,6 +589,7 @@ func nodeHandle(c *cli.Context) error {
 				"overriding specified onionproxy user "+
 				"credentials ")
 		}
+
 		StateCfg.Oniondial = func(network, addr string, timeout time.Duration) (net.Conn, error) {
 			proxy := &socks.Proxy{
 				Addr:         *nodeConfig.OnionProxy,
@@ -560,6 +597,7 @@ func nodeHandle(c *cli.Context) error {
 				Password:     *nodeConfig.OnionProxyPass,
 				TorIsolation: *nodeConfig.TorIsolation,
 			}
+
 			return proxy.DialTimeout(network, addr, timeout)
 		}
 
@@ -568,7 +606,9 @@ func nodeHandle(c *cli.Context) error {
 			StateCfg.Lookup = func(host string) ([]net.IP, error) {
 				return connmgr.TorLookupIP(host, *nodeConfig.OnionProxy)
 			}
+
 		}
+
 	} else {
 		StateCfg.Oniondial = StateCfg.Dial
 	}
@@ -578,6 +618,7 @@ func nodeHandle(c *cli.Context) error {
 		StateCfg.Oniondial = func(a, b string, t time.Duration) (net.Conn, error) {
 			return nil, errors.New("tor has been disabled")
 		}
+
 	}
 
 	if appConfigCommon.Save {
@@ -591,6 +632,7 @@ func nodeHandle(c *cli.Context) error {
 }
 
 func NormalizeStringSliceAddresses(a *cli.StringSlice, port string) {
+
 	variable := []string(*a)
 	NormalizeAddresses(
 		strings.Join(variable, " "),

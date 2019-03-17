@@ -24,6 +24,7 @@ func ExampleAmount() {
 
 	// 100,000 Satoshis: 0.001 DUO
 }
+
 func ExampleNewAmount() {
 
 	amountOne, err := util.NewAmount(1)
@@ -31,24 +32,28 @@ func ExampleNewAmount() {
 		fmt.Println(err)
 		return
 	}
+
 	fmt.Println(amountOne) //Output 1
 	amountFraction, err := util.NewAmount(0.01234567)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 	fmt.Println(amountFraction) //Output 2
 	amountZero, err := util.NewAmount(0)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 	fmt.Println(amountZero) //Output 3
 	amountNaN, err := util.NewAmount(math.NaN())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 	fmt.Println(amountNaN) //Output 4
 
 	// Output: 1 DUO
@@ -59,6 +64,7 @@ func ExampleNewAmount() {
 
 	// invalid bitcoin amount
 }
+
 func ExampleAmount_unitConversions() {
 
 	amount := util.Amount(44433322211100)

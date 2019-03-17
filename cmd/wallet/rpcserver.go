@@ -41,6 +41,7 @@ func generateRPCKeyPair(
 	if err != nil {
 		return tls.Certificate{}, err
 	}
+
 	err = os.MkdirAll(keyDir, 0700)
 	if err != nil {
 		return tls.Certificate{}, err
@@ -53,6 +54,7 @@ func generateRPCKeyPair(
 	if err != nil {
 		return tls.Certificate{}, err
 	}
+
 	keyPair, err := tls.X509KeyPair(cert, key)
 	if err != nil {
 		return tls.Certificate{}, err
@@ -63,6 +65,7 @@ func generateRPCKeyPair(
 	if err != nil {
 		return tls.Certificate{}, err
 	}
+
 	if writeKey {
 		err = ioutil.WriteFile(*cfg.RPCKey, key, 0600)
 		if err != nil {
@@ -70,8 +73,10 @@ func generateRPCKeyPair(
 			if rmErr != nil {
 				log <- cl.Warn{"cannot remove written certificates:", rmErr}
 			}
+
 			return tls.Certificate{}, err
 		}
+
 	}
 
 	log <- cl.Inf("done generating TLS certificates")
@@ -95,6 +100,7 @@ func makeListeners(
 			log <- cl.Errorf{
 				"`%s` is not a normalized listener address", addr,
 			}
+
 			continue
 		}
 
@@ -129,7 +135,9 @@ func makeListeners(
 		default:
 			ipv4Addrs = append(ipv4Addrs, addr)
 		}
+
 	}
+
 	listeners := make([]net.Listener, 0, len(ipv6Addrs)+len(ipv4Addrs))
 	for _, addr := range ipv4Addrs {
 		listener, err := listen("tcp4", addr)
@@ -137,20 +145,26 @@ func makeListeners(
 			log <- cl.Warnf{
 				"Can't listen on %s: %v", addr, err,
 			}
+
 			continue
 		}
+
 		listeners = append(listeners, listener)
 	}
+
 	for _, addr := range ipv6Addrs {
 		listener, err := listen("tcp6", addr)
 		if err != nil {
 			log <- cl.Warnf{
 				"Can't listen on %s: %v", addr, err,
 			}
+
 			continue
 		}
+
 		listeners = append(listeners, listener)
 	}
+
 	return listeners
 }
 
@@ -179,6 +193,7 @@ func openRPCKeyPair() (tls.Certificate, error) {
 	default:
 		return tls.LoadX509KeyPair(*cfg.RPCCert, *cfg.RPCKey)
 	}
+
 }
 
 func startRPCServers(
@@ -206,6 +221,7 @@ func startRPCServers(
 			MinVersion:   tls.VersionTLS12,
 			NextProtos:   []string{"h2"}, // HTTP/2 over TLS
 		}
+
 		legacyListen = func(net string, laddr string) (net.Listener, error) {
 
 			return tls.Listen(net, laddr, tlsConfig)
@@ -217,6 +233,7 @@ func startRPCServers(
 				err := errors.New("failed to create listeners for RPC server")
 				return nil, nil, err
 			}
+
 			creds := credentials.NewServerTLSFromCert(&keyPair)
 			server = grpc.NewServer(grpc.Creds(creds))
 			rpcserver.StartVersionService(server)
@@ -229,8 +246,11 @@ func startRPCServers(
 					err = server.Serve(lis)
 					log <- cl.Trace{"finished serving expimental RPC:", err}
 				}()
+
 			}
+
 		}
+
 	}
 
 	if *cfg.Username == "" || *cfg.Password == "" {
@@ -243,12 +263,14 @@ func startRPCServers(
 			err := errors.New("failed to create listeners for legacy RPC server")
 			return nil, nil, err
 		}
+
 		opts := legacyrpc.Options{
 			Username:            *cfg.Username,
 			Password:            *cfg.Password,
 			MaxPOSTClients:      int64(*cfg.LegacyRPCMaxClients),
 			MaxWebsocketClients: int64(*cfg.LegacyRPCMaxWebsockets),
 		}
+
 		legacyServer = legacyrpc.NewServer(&opts, walletLoader, listeners)
 	}
 
@@ -273,7 +295,9 @@ func startWalletRPCServices(
 	if server != nil {
 		rpcserver.StartWalletService(server, wallet)
 	}
+
 	if legacyServer != nil {
 		legacyServer.RegisterWallet(wallet)
 	}
+
 }

@@ -44,4 +44,5 @@ func (l *Language) LanguageData(lang string) {
 	if err := jdb.JDB.Read("lang", lang, &l); err != nil {
 		fmt.Println("Error", err)
 	}
+
 }

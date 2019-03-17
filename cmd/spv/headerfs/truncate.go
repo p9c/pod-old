@@ -19,6 +19,7 @@ func (h *headerStore) singleTruncate() error {
 	if err != nil {
 		return err
 	}
+
 	fileSize := fileInfo.Size()
 
 	// Next, we'll determine the number of bytes we need to truncate from

@@ -13,9 +13,11 @@ func TestBigToCompact(
 		in  int64
 		out uint32
 	}{
+
 		{0, 0},
 		{-1, 25231360},
 	}
+
 	for x, test := range tests {
 		n := big.NewInt(test.in)
 		r := BigToCompact(n)
@@ -24,7 +26,9 @@ func TestBigToCompact(
 				x, r, test.out)
 			return
 		}
+
 	}
+
 }
 
 // TestCompactToBig ensures CompactToBig converts numbers using the compact representation to the expected big intergers.
@@ -35,8 +39,10 @@ func TestCompactToBig(
 		in  uint32
 		out int64
 	}{
+
 		{10000000, 0},
 	}
+
 	for x, test := range tests {
 		n := CompactToBig(test.in)
 		want := big.NewInt(test.out)
@@ -45,7 +51,9 @@ func TestCompactToBig(
 				x, n.Int64(), want.Int64())
 			return
 		}
+
 	}
+
 }
 
 // TestCalcWork ensures CalcWork calculates the expected work value from values in compact representation.
@@ -56,8 +64,10 @@ func TestCalcWork(
 		in  uint32
 		out int64
 	}{
+
 		{10000000, 0},
 	}
+
 	for x, test := range tests {
 		bits := uint32(test.in)
 		r := CalcWork(bits, 0, 2)
@@ -66,5 +76,7 @@ func TestCalcWork(
 				x, r.Int64(), test.out)
 			return
 		}
+
 	}
+
 }

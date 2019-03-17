@@ -15,6 +15,7 @@ func TestErrorCodeStringer(
 		in   database.ErrorCode
 		want string
 	}{
+
 		{database.ErrDbTypeRegistered, "ErrDbTypeRegistered"},
 		{database.ErrDbUnknownType, "ErrDbUnknownType"},
 		{database.ErrDbDoesNotExist, "ErrDbDoesNotExist"},
@@ -40,20 +41,28 @@ func TestErrorCodeStringer(
 	}
 
 	// Detect additional error codes that don't have the stringer added.
+
 	if len(tests)-1 != int(database.TstNumErrorCodes) {
 
 		t.Errorf("It appears an error code was added without adding " +
 			"an associated stringer test")
 	}
+
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
+
 		result := test.in.String()
+
 		if result != test.want {
+
 			t.Errorf("String #%d\ngot: %s\nwant: %s", i, result,
 				test.want)
 			continue
 		}
+
 	}
+
 }
 
 // TestError tests the error output for the Error type.
@@ -65,30 +74,41 @@ func TestError(
 		in   database.Error
 		want string
 	}{
+
 		{
 			database.Error{Description: "some error"},
 			"some error",
 		},
+
 		{
 			database.Error{Description: "human-readable error"},
 			"human-readable error",
 		},
+
 		{
 			database.Error{
 				ErrorCode:   database.ErrDriverSpecific,
 				Description: "some error",
 				Err:         errors.New("driver-specific error"),
 			},
+
 			"some error: driver-specific error",
 		},
 	}
+
 	t.Logf("Running %d tests", len(tests))
+
 	for i, test := range tests {
+
 		result := test.in.Error()
+
 		if result != test.want {
+
 			t.Errorf("Error #%d\n got: %s want: %s", i, result,
 				test.want)
 			continue
 		}
+
 	}
+
 }

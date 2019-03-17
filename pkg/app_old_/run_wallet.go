@@ -23,5 +23,6 @@ func runWallet(
 		fmt.Print(err)
 		return 1
 	}
+
 	return 0
 }

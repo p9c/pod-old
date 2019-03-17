@@ -37,10 +37,13 @@ func ExampleCreate() {
 	// the example cleans up after itself.
 	dbPath := filepath.Join(os.TempDir(), "examplecreate")
 	db, err := database.Create("ffldb", dbPath, wire.MainNet)
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -73,10 +76,13 @@ func Example_basicUsage() {
 	// the example cleans up after itself.
 	dbPath := filepath.Join(os.TempDir(), "exampleusage")
 	db, err := database.Create("ffldb", dbPath, wire.MainNet)
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -96,11 +102,14 @@ func Example_basicUsage() {
 		// simplicity.
 		key := []byte("mykey")
 		value := []byte("myvalue")
+
 		if err := tx.Metadata().Put(key, value); err != nil {
+
 			return err
 		}
 
 		// Read the key back and ensure it matches.
+
 		if !bytes.Equal(tx.Metadata().Get(key), value) {
 
 			return fmt.Errorf("unexpected value for key '%s'", key)
@@ -109,19 +118,26 @@ func Example_basicUsage() {
 		// Create a new nested bucket under the metadata bucket.
 		nestedBucketKey := []byte("mybucket")
 		nestedBucket, err := tx.Metadata().CreateBucket(nestedBucketKey)
+
 		if err != nil {
+
 			return err
 		}
 
 		// The key from above that was set in the metadata bucket does
 
 		// not exist in this new nested bucket.
+
 		if nestedBucket.Get(key) != nil {
+
 			return fmt.Errorf("key '%s' is not expected nil", key)
 		}
+
 		return nil
 	})
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -157,10 +173,13 @@ func Example_blockStorageAndRetrieval() {
 	// the example cleans up after itself.
 	dbPath := filepath.Join(os.TempDir(), "exampleblkstorage")
 	db, err := database.Create("ffldb", dbPath, wire.MainNet)
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -173,7 +192,9 @@ func Example_blockStorageAndRetrieval() {
 		genesisBlock := chaincfg.MainNetParams.GenesisBlock
 		return tx.StoreBlock(util.NewBlock(genesisBlock))
 	})
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
@@ -185,7 +206,9 @@ func Example_blockStorageAndRetrieval() {
 	err = db.Update(func(tx database.Tx) error {
 		genesisHash := chaincfg.MainNetParams.GenesisHash
 		blockBytes, err := tx.FetchBlock(genesisHash)
+
 		if err != nil {
+
 			return err
 		}
 
@@ -200,7 +223,9 @@ func Example_blockStorageAndRetrieval() {
 		copy(loadedBlockBytes, blockBytes)
 		return nil
 	})
+
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}

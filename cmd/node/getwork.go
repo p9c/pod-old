@@ -43,6 +43,7 @@ func bigToLEUint256(
 	} else {
 		start = nlen - uint256Size
 	}
+
 	var buf [uint256Size]byte
 	copy(buf[pad:], nBytes[start:])
 
@@ -51,6 +52,7 @@ func bigToLEUint256(
 
 		buf[i], buf[uint256Size-1-i] = buf[uint256Size-1-i], buf[i]
 	}
+
 	return buf
 }
 
@@ -60,6 +62,7 @@ func handleGetWork(
 	closeChan <-chan struct{},
 ) (interface {
 },
+
 	error,
 ) {
 
@@ -71,13 +74,16 @@ func handleGetWork(
 			Message: "No payment addresses specified " +
 				"via --miningaddr",
 		}
+
 	}
+
 	if !(*cfg.RegressionTest || *cfg.SimNet) &&
 		s.cfg.ConnMgr.ConnectedCount() == 0 {
 		return nil, &json.RPCError{
 			Code:    json.ErrRPCClientNotConnected,
 			Message: "Pod is not connected to network",
 		}
+
 	}
 
 	// No point in generating or accepting work before the chain is synced.
@@ -88,7 +94,9 @@ func handleGetWork(
 			Code:    json.ErrRPCClientInInitialDownload,
 			Message: "Pod is not yet synchronised...",
 		}
+
 	}
+
 	state := s.gbtWorkState
 	state.Lock()
 	defer state.Unlock()
@@ -111,7 +119,9 @@ func handleGetWork(
 
 			return nil, err
 		}
+
 	}
+
 	msgBlock := state.template.Block
 	if msgBlock == nil || state.prevHash == nil ||
 		!state.prevHash.IsEqual(latestHash) ||
@@ -127,7 +137,9 @@ func handleGetWork(
 
 				log <- cl.Warn{"failed to update block template", e}
 			}
+
 		}
+
 		/*	Reset the previous best hash the block template was generated
 			against so any errors below cause the next invocation to try
 			again. */
@@ -142,7 +154,9 @@ func handleGetWork(
 				Code:    json.ErrRPCInternal.Code,
 				Message: errStr,
 			}
+
 		}
+
 		msgBlock = state.template.Block
 		// Update work state to ensure another block template isn't generated until needed.
 		state.template.Block = msgBlock
@@ -158,6 +172,7 @@ func handleGetWork(
 				msgBlock.Transactions[0].TxIn[0].SignatureScript,
 			)
 		})
+
 	} else {
 
 		//	At this point, there is a saved block template and a new request for work was made, but either the available transactions haven't change or it hasn't been long enough to trigger a new block template to be generated.
@@ -167,6 +182,7 @@ func handleGetWork(
 
 			log <- cl.Warn{"failed to update block time", e}
 		}
+
 		// Increment the extra nonce and update the block template with the new value by regenerating the coinbase script and setting the merkle root to the new value.
 		log <- cl.Debugf{
 			"updated block template (timestamp %v, target %064x, merkle root %s, signature script %x)",
@@ -175,6 +191,7 @@ func handleGetWork(
 			msgBlock.Header.MerkleRoot,
 			msgBlock.Transactions[0].TxIn[0].SignatureScript,
 		}
+
 	}
 
 	//	In order to efficiently store the variations of block templates that have been provided to callers, save a pointer to the block as well as the modified signature script keyed by the merkle root.  This information, along with the data that is included in a work submission, is used to rebuild the block before checking the submitted solution.
@@ -184,6 +201,7 @@ func handleGetWork(
 			msgBlock:        msgBlock,
 			signatureScript: coinbaseTx.TxIn[0].SignatureScript,
 		}
+
 	*/
 
 	// Serialize the block header into a buffer large enough to hold the the block header and the internal sha256 padding that is added and returned as part of the data below.
@@ -198,6 +216,7 @@ func handleGetWork(
 			Code:    json.ErrRPCInternal.Code,
 			Message: errStr,
 		}
+
 	}
 
 	// Calculate the midstate for the block header.  The midstate here is the internal state of the sha256 algorithm for the first chunk of the block header (sha256 operates on 64-byte chunks) which is before the nonce.  This allows sophisticated callers to avoid hashing the first chunk over and over while iterating the nonce range.
@@ -226,6 +245,7 @@ func handleGetWork(
 		Midstate: hex.EncodeToString(midstate[:]),
 		Target:   hex.EncodeToString(target[:]),
 	}
+
 	return reply, nil
 }
 
@@ -243,6 +263,7 @@ func handleGetWorkSubmission(
 
 		hexData = "0" + hexData
 	}
+
 	data, err := hex.DecodeString(hexData)
 	if err != nil {
 
@@ -251,7 +272,9 @@ func handleGetWorkSubmission(
 			Message: fmt.Sprintf("argument must be "+
 				"hexadecimal string (not %q)", hexData),
 		}
+
 	}
+
 	if len(data) != getworkDataLen {
 
 		return false, &json.RPCError{
@@ -260,6 +283,7 @@ func handleGetWorkSubmission(
 				"%d bytes (not %d)", getworkDataLen,
 				len(data)),
 		}
+
 	}
 
 	// Reverse the data as if it were an array of 32-bit unsigned integers. The fact the getwork request and submission data is reversed in this way is rather odd and likey an artifact of some legacy internal state in the reference implementation, but it is required for compatibility.
@@ -276,6 +300,7 @@ func handleGetWorkSubmission(
 			Message: fmt.Sprintf("argument does not "+
 				"contain a valid block header: %v", err),
 		}
+
 	}
 
 	// Look up the full block for the provided data based on the merkle root.  Return false to indicate the solve failed if it's not available.
@@ -286,6 +311,7 @@ func handleGetWorkSubmission(
 			"Block submitted via getwork has no matching template for merkle root",
 			submittedHeader.MerkleRoot,
 		}
+
 		return false, nil
 	}
 
@@ -311,12 +337,16 @@ func handleGetWorkSubmission(
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while checking proof of work: %v", err),
 			}
+
 		}
+
 		log <- cl.Debug{
 			"block submitted via getwork does not meet the required proof of work:", err,
 		}
+
 		return false, nil
 	}
+
 	latestHash := &s.cfg.Chain.BestSnapshot().Hash
 	if !msgBlock.Header.PrevBlock.IsEqual(latestHash) {
 
@@ -324,6 +354,7 @@ func handleGetWorkSubmission(
 			"block submitted via getwork with previous block %s is stale",
 			msgBlock.Header.PrevBlock,
 		}
+
 		return false, nil
 	}
 
@@ -338,7 +369,9 @@ func handleGetWorkSubmission(
 				Code:    json.ErrRPCInternal.Code,
 				Message: fmt.Sprintf("Unexpected error while processing block: %v", err),
 			}
+
 		}
+
 		log <- cl.Info{"block submitted via getwork rejected:", err}
 		return false, nil
 	}
@@ -360,4 +393,5 @@ func reverseUint32Array(
 		b[i], b[i+3] = b[i+3], b[i]
 		b[i+1], b[i+2] = b[i+2], b[i+1]
 	}
+
 }

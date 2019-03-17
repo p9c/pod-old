@@ -74,10 +74,12 @@ func main() {
 
 		panic(e)
 	}
+
 	bb = sorter(bb)
 	if e := ioutil.WriteFile(os.Args[1], bb, 0644); e != nil {
 		panic(e)
 	}
+
 }
 
 func sorter(
@@ -98,8 +100,11 @@ func sorter(
 
 					goto imported
 				}
+
 			}
+
 		}
+
 	}
 
 imported:
@@ -125,12 +130,14 @@ imported:
 					if decl == x {
 						already = true
 					}
+
 				}
 
 				if already {
 
 					continue
 				}
+
 				unsortedDecls["2const"+fmt.Sprint(constcounter)] = decl
 				constcounter++
 
@@ -158,10 +165,12 @@ imported:
 								d.Specs = append(d.Specs, x)
 								break
 							}
+
 						}
 
 						unsortedDecls[key] = d
 					}
+
 				}
 
 			case token.TYPE:
@@ -183,10 +192,14 @@ imported:
 								d.Specs = append(d.Specs, x)
 								break
 							}
+
 						}
+
 						unsortedDecls[key] = d
 					}
+
 				}
+
 			}
 
 		case *dst.FuncDecl:
@@ -205,18 +218,25 @@ imported:
 
 							typename = fmt.Sprint(x.Type)
 						}
+
 						for range x.Names {
 
 							unsortedDecls[fmt.Sprintf("4:(%s%s) %s", star, typename, fun.Name.Name)] = decl
 						}
+
 					}
+
 				} else {
 
 					unsortedDecls[fmt.Sprint("4:", fun.Name.Name)] = decl
 				}
+
 			}
+
 		}
+
 	}
+
 	var sortedDecls []string
 	for i := range unsortedDecls {
 
@@ -241,6 +261,7 @@ imported:
 
 		packagefound = true
 	}
+
 	for _, x := range splitted {
 
 		splitout = append(splitout, x)
@@ -253,8 +274,11 @@ imported:
 
 				splitout = append(splitout, imports...)
 			}
+
 		}
+
 	}
+
 	joined := []byte(strings.Join(splitout, "\n"))
 	return joined
 }

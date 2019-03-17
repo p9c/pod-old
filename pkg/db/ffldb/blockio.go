@@ -154,6 +154,7 @@ func deserializeBlockLoc(
 		fileOffset:   byteOrder.Uint32(serializedLoc[4:8]),
 		blockLen:     byteOrder.Uint32(serializedLoc[8:12]),
 	}
+
 }
 
 // serializeBlockLoc returns the serialization of the passed block location. This is data to be stored into the block index metadata for each block.
@@ -191,6 +192,7 @@ func (s *blockStore) openWriteFile(fileNum uint32) (filer, error) {
 		str := fmt.Sprintf("failed to open file %q: %v", filePath, err)
 		return nil, makeDbErr(database.ErrDriverSpecific, str, err)
 	}
+
 	return file, nil
 }
 
@@ -205,6 +207,7 @@ func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
 		return nil, makeDbErr(database.ErrDriverSpecific, err.Error(),
 			err)
 	}
+
 	blockFile := &lockableFile{file: file}
 
 	// Close the least recently used file if the file exceeds the max allowed open files.  This is not done until after the file open in case the file fails to open, there is no need to close any files.
@@ -224,6 +227,7 @@ func (s *blockStore) openFile(fileNum uint32) (*lockableFile, error) {
 		delete(s.openBlockFiles, lruFileNum)
 		delete(s.fileNumToLRUElem, lruFileNum)
 	}
+
 	s.fileNumToLRUElem[fileNum] = lruList.PushFront(fileNum)
 	s.lruMutex.Unlock()
 
@@ -238,6 +242,7 @@ func (s *blockStore) deleteFile(fileNum uint32) error {
 	if err := os.Remove(filePath); err != nil {
 		return makeDbErr(database.ErrDriverSpecific, err.Error(), err)
 	}
+
 	return nil
 }
 
@@ -254,6 +259,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 		wc.RUnlock()
 		return obf, nil
 	}
+
 	wc.RUnlock()
 
 	// Try to return an open file under the overall files read lock.
@@ -266,6 +272,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 		s.obfMutex.RUnlock()
 		return obf, nil
 	}
+
 	s.obfMutex.RUnlock()
 
 	// Since the file isn't open already, need to check the open block files map again under write lock in case multiple readers got here and a separate one is already opening the file.
@@ -282,6 +289,7 @@ func (s *blockStore) blockFile(fileNum uint32) (*lockableFile, error) {
 		s.obfMutex.Unlock()
 		return nil, err
 	}
+
 	obf.RLock()
 	s.obfMutex.Unlock()
 	return obf, nil
@@ -300,6 +308,7 @@ func (s *blockStore) writeData(data []byte, fieldName string) error {
 			wc.curOffset-uint32(n), err)
 		return makeDbErr(database.ErrDriverSpecific, str, err)
 	}
+
 	return nil
 }
 
@@ -329,6 +338,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 			_ = wc.curFile.file.Close()
 			wc.curFile.file = nil
 		}
+
 		wc.curFile.Unlock()
 		// Start writes into next file.
 		wc.curFileNum++
@@ -346,6 +356,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 		if err != nil {
 			return blockLocation{}, err
 		}
+
 		wc.curFile.file = file
 	}
 
@@ -357,6 +368,7 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	if err := s.writeData(scratch[:], "network"); err != nil {
 		return blockLocation{}, err
 	}
+
 	_, _ = hasher.Write(scratch[:])
 
 	// Block length.
@@ -364,23 +376,27 @@ func (s *blockStore) writeBlock(rawBlock []byte) (blockLocation, error) {
 	if err := s.writeData(scratch[:], "block length"); err != nil {
 		return blockLocation{}, err
 	}
+
 	_, _ = hasher.Write(scratch[:])
 
 	// Serialized block.
 	if err := s.writeData(rawBlock[:], "block"); err != nil {
 		return blockLocation{}, err
 	}
+
 	_, _ = hasher.Write(rawBlock)
 
 	// Castagnoli CRC-32 as a checksum of all the previous.
 	if err := s.writeData(hasher.Sum(nil), "checksum"); err != nil {
 		return blockLocation{}, err
 	}
+
 	loc := blockLocation{
 		blockFileNum: wc.curFileNum,
 		fileOffset:   origOffset,
 		blockLen:     fullLen,
 	}
+
 	return loc, nil
 }
 
@@ -393,6 +409,7 @@ func (s *blockStore) readBlock(hash *chainhash.Hash, loc blockLocation) ([]byte,
 	if err != nil {
 		return nil, err
 	}
+
 	serializedData := make([]byte, loc.blockLen)
 	n, err := blockFile.file.ReadAt(serializedData, int64(loc.fileOffset))
 	blockFile.RUnlock()
@@ -447,6 +464,7 @@ func (s *blockStore) readBlockRegion(loc blockLocation, offset, numBytes uint32)
 			numBytes, err)
 		return nil, makeDbErr(database.ErrDriverSpecific, str, err)
 	}
+
 	return serializedData, nil
 }
 
@@ -470,6 +488,7 @@ func (s *blockStore) syncBlocks() error {
 			err)
 		return makeDbErr(database.ErrDriverSpecific, str, err)
 	}
+
 	return nil
 }
 
@@ -499,6 +518,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 		wc.curFileNum = oldBlockFileNum
 		wc.curOffset = oldBlockOffset
 	}()
+
 	log <- cl.Debugf{
 		"ROLLBACK: Rolling back to file %d, offset %d",
 		oldBlockFileNum,
@@ -512,8 +532,10 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 			_ = wc.curFile.file.Close()
 			wc.curFile.file = nil
 		}
+
 		wc.curFile.Unlock()
 	}
+
 	for ; wc.curFileNum > oldBlockFileNum; wc.curFileNum-- {
 		if err := s.deleteFileFunc(wc.curFileNum); err != nil {
 			log <- cl.Warnf{
@@ -521,8 +543,10 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 				wc.curFileNum,
 				err,
 			}
+
 			return
 		}
+
 	}
 
 	// Open the file for the current write cursor if needed.
@@ -534,6 +558,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 			log <- cl.Warn{"ROLLBACK:", err}
 			return
 		}
+
 		wc.curFile.file = obf
 	}
 
@@ -545,6 +570,7 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 			wc.curFileNum,
 			err,
 		}
+
 		return
 	}
 
@@ -557,8 +583,10 @@ func (s *blockStore) handleRollback(oldBlockFileNum, oldBlockOffset uint32) {
 			wc.curFileNum,
 			err,
 		}
+
 		return
 	}
+
 }
 
 // scanBlockFiles searches the database directory for all flat block files to find the end of the most recent file.  This position is considered the current write cursor which is also stored in the metadata.  Thus, it is used to detect unexpected shutdowns in the middle of writes so the block files can be reconciled.
@@ -573,14 +601,17 @@ func scanBlockFiles(
 		if err != nil {
 			break
 		}
+
 		lastFile = i
 		fileLen = uint32(st.Size())
 	}
+
 	log <- cl.Tracef{
 		"Scan found latest block file #%d with length %d",
 		lastFile,
 		fileLen,
 	}
+
 	return lastFile, fileLen
 }
 
@@ -596,6 +627,7 @@ func newBlockStore(
 		fileNum = 0
 		fileOff = 0
 	}
+
 	store := &blockStore{
 		network:          network,
 		basePath:         basePath,
@@ -609,6 +641,7 @@ func newBlockStore(
 			curOffset:  fileOff,
 		},
 	}
+
 	store.openFileFunc = store.openFile
 	store.openWriteFileFunc = store.openWriteFile
 	store.deleteFileFunc = store.deleteFile

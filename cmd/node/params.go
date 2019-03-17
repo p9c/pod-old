@@ -49,4 +49,5 @@ func NetName(
 	default:
 		return chainParams.Name
 	}
+
 }

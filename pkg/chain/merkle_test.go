@@ -18,4 +18,5 @@ func TestMerkle(
 
 		t.Errorf("BuildMerkleTreeStore: merkle root mismatch - got %v, want %v", calculatedMerkleRoot, wantMerkle)
 	}
+
 }

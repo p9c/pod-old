@@ -100,9 +100,11 @@ func (s bulkFetchDataSorter) Less(i, j int) bool {
 	if s[i].blockFileNum < s[j].blockFileNum {
 		return true
 	}
+
 	if s[i].blockFileNum > s[j].blockFileNum {
 		return false
 	}
+
 	return s[i].fileOffset < s[j].fileOffset
 }
 
@@ -134,6 +136,7 @@ func convertErr(
 	case ldbErr == leveldb.ErrIterReleased:
 		code = database.ErrTxClosed
 	}
+
 	return database.Error{ErrorCode: code, Description: desc, Err: ldbErr}
 }
 
@@ -163,6 +166,7 @@ func (c *cursor) Bucket() database.Bucket {
 	if err := c.bucket.tx.checkClosed(); err != nil {
 		return nil
 	}
+
 	return c.bucket
 }
 
@@ -193,6 +197,7 @@ func (c *cursor) Delete() error {
 		str := "buckets may not be deleted from a cursor"
 		return makeDbErr(database.ErrIncompatibleValue, str, nil)
 	}
+
 	c.bucket.tx.deleteKey(copySlice(key), true)
 	return nil
 }
@@ -211,15 +216,19 @@ func (c *cursor) skipPendingUpdates(forwards bool) {
 
 			skip = true
 		}
+
 		if !skip {
 			break
 		}
+
 		if forwards {
 			c.dbIter.Next()
 		} else {
 			c.dbIter.Prev()
 		}
+
 	}
+
 }
 
 // chooseIterator first skips any entries in the database iterator that are being updated by the transaction and sets the current iterator to the appropriate iterator depending on their validity and the order they compare in while taking into account the direction flag.  When the cursor is being moved forwards and both iterators are valid, the iterator with the smaller key is chosen and vice versa when the cursor is being moved backwards.
@@ -257,6 +266,7 @@ func (c *cursor) chooseIterator(forwards bool) bool {
 	} else {
 		c.currentIter = c.dbIter
 	}
+
 	return true
 }
 
@@ -346,6 +356,7 @@ func (c *cursor) rawKey() []byte {
 	if c.currentIter == nil {
 		return nil
 	}
+
 	return copySlice(c.currentIter.Key())
 }
 
@@ -384,6 +395,7 @@ func (c *cursor) rawValue() []byte {
 	if c.currentIter == nil {
 		return nil
 	}
+
 	return copySlice(c.currentIter.Value())
 }
 
@@ -407,6 +419,7 @@ func (c *cursor) Value() []byte {
 
 		return nil
 	}
+
 	return copySlice(c.currentIter.Value())
 }
 
@@ -533,6 +546,7 @@ func (b *bucket) Bucket(key []byte) database.Bucket {
 	if childID == nil {
 		return nil
 	}
+
 	childBucket := &bucket{tx: b.tx}
 	copy(childBucket.id[:], childID)
 	return childBucket
@@ -584,6 +598,7 @@ func (b *bucket) CreateBucket(key []byte) (database.Bucket, error) {
 		if err != nil {
 			return nil, err
 		}
+
 	}
 
 	// Add the new bucket to the bucket index.
@@ -591,6 +606,7 @@ func (b *bucket) CreateBucket(key []byte) (database.Bucket, error) {
 		str := fmt.Sprintf("failed to create bucket with key %q", key)
 		return nil, convertErr(str, err)
 	}
+
 	return &bucket{tx: b.tx, id: childID}, nil
 }
 
@@ -619,6 +635,7 @@ func (b *bucket) CreateBucketIfNotExists(key []byte) (database.Bucket, error) {
 	if bucket := b.Bucket(key); bucket != nil {
 		return bucket, nil
 	}
+
 	return b.CreateBucket(key)
 }
 
@@ -660,6 +677,7 @@ func (b *bucket) DeleteBucket(key []byte) error {
 
 			b.tx.deleteKey(keyCursor.rawKey(), false)
 		}
+
 		cursorFinalizer(keyCursor)
 		// Iterate through all nested buckets.
 		bucketCursor := newCursor(b, childID, ctBuckets)
@@ -671,6 +689,7 @@ func (b *bucket) DeleteBucket(key []byte) error {
 			// Remove the nested bucket from the bucket index.
 			b.tx.deleteKey(bucketCursor.rawKey(), false)
 		}
+
 		cursorFinalizer(bucketCursor)
 	}
 
@@ -716,7 +735,9 @@ func (b *bucket) ForEach(fn func(k, v []byte) error) error {
 		if err != nil {
 			return err
 		}
+
 	}
+
 	return nil
 }
 
@@ -741,7 +762,9 @@ func (b *bucket) ForEachBucket(fn func(k []byte) error) error {
 		if err != nil {
 			return err
 		}
+
 	}
+
 	return nil
 }
 
@@ -775,6 +798,7 @@ func (b *bucket) Put(key, value []byte) error {
 		str := "put requires a key"
 		return makeDbErr(database.ErrKeyRequired, str, nil)
 	}
+
 	return b.tx.putKey(bucketizedKey(b.id, key), value)
 }
 
@@ -791,6 +815,7 @@ func (b *bucket) Get(key []byte) []byte {
 	if len(key) == 0 {
 		return nil
 	}
+
 	return b.tx.fetchKey(bucketizedKey(b.id, key))
 }
 
@@ -818,6 +843,7 @@ func (b *bucket) Delete(key []byte) error {
 	if len(key) == 0 {
 		return nil
 	}
+
 	b.tx.deleteKey(bucketizedKey(b.id, key), true)
 	return nil
 }
@@ -867,7 +893,9 @@ func (tx *transaction) removeActiveIter(iter *treap.Iterator) {
 			tx.activeIters[len(tx.activeIters)-1] = nil
 			tx.activeIters = tx.activeIters[:len(tx.activeIters)-1]
 		}
+
 	}
+
 	tx.activeIterLock.Unlock()
 }
 
@@ -886,6 +914,7 @@ func (tx *transaction) notifyActiveIters() {
 	for _, iter := range tx.activeIters {
 		iter.ForceReseek()
 	}
+
 	tx.activeIterLock.RUnlock()
 }
 
@@ -896,6 +925,7 @@ func (tx *transaction) checkClosed() error {
 	if tx.closed {
 		return makeDbErr(database.ErrTxClosed, errTxClosedStr, nil)
 	}
+
 	return nil
 }
 
@@ -908,10 +938,12 @@ func (tx *transaction) hasKey(key []byte) bool {
 
 			return false
 		}
+
 		if tx.pendingKeys.Has(key) {
 
 			return true
 		}
+
 	}
 
 	// Consult the database cache and underlying database.
@@ -939,9 +971,11 @@ func (tx *transaction) fetchKey(key []byte) []byte {
 
 			return nil
 		}
+
 		if value := tx.pendingKeys.Get(key); value != nil {
 			return value
 		}
+
 	}
 
 	// Consult the database cache and underlying database.
@@ -961,6 +995,7 @@ func (tx *transaction) deleteKey(key []byte, notifyIterators bool) {
 	if notifyIterators {
 		tx.notifyActiveIters()
 	}
+
 }
 
 // nextBucketID returns the next bucket ID to use for creating a new bucket. NOTE: This function must only be called on a writable transaction.  Since it is an internal helper function, it does not check.
@@ -976,6 +1011,7 @@ func (tx *transaction) nextBucketID() ([4]byte, error) {
 	if err := tx.putKey(curBucketIDKeyName, nextBucketID[:]); err != nil {
 		return [4]byte{}, err
 	}
+
 	return nextBucketID, nil
 }
 
@@ -991,6 +1027,7 @@ func (tx *transaction) hasBlock(hash *chainhash.Hash) bool {
 	if _, exists := tx.pendingBlocks[*hash]; exists {
 		return true
 	}
+
 	return tx.hasKey(bucketizedKey(blockIdxBucketID, hash[:]))
 }
 
@@ -1020,6 +1057,7 @@ func (tx *transaction) StoreBlock(block *u.Block) error {
 		str := fmt.Sprintf("block %s already exists", blockHash)
 		return makeDbErr(database.ErrBlockExists, str, nil)
 	}
+
 	blockBytes, err := block.Bytes()
 	if err != nil {
 		str := fmt.Sprintf("failed to get serialized bytes for block %s",
@@ -1031,11 +1069,13 @@ func (tx *transaction) StoreBlock(block *u.Block) error {
 	if tx.pendingBlocks == nil {
 		tx.pendingBlocks = make(map[chainhash.Hash]int)
 	}
+
 	tx.pendingBlocks[*blockHash] = len(tx.pendingBlockData)
 	tx.pendingBlockData = append(tx.pendingBlockData, pendingBlock{
 		hash:  blockHash,
 		bytes: blockBytes,
 	})
+
 	log <- cl.Tracef{"Added block %s to pending blocks", blockHash}
 	return nil
 }
@@ -1050,6 +1090,7 @@ func (tx *transaction) HasBlock(hash *chainhash.Hash) (bool, error) {
 	if err := tx.checkClosed(); err != nil {
 		return false, err
 	}
+
 	return tx.hasBlock(hash), nil
 }
 
@@ -1063,10 +1104,12 @@ func (tx *transaction) HasBlocks(hashes []chainhash.Hash) ([]bool, error) {
 	if err := tx.checkClosed(); err != nil {
 		return nil, err
 	}
+
 	results := make([]bool, len(hashes))
 	for i := range hashes {
 		results[i] = tx.hasBlock(&hashes[i])
 	}
+
 	return results, nil
 }
 
@@ -1078,6 +1121,7 @@ func (tx *transaction) fetchBlockRow(hash *chainhash.Hash) ([]byte, error) {
 		str := fmt.Sprintf("block %s does not exist", hash)
 		return nil, makeDbErr(database.ErrBlockNotFound, str, nil)
 	}
+
 	return blockRow, nil
 }
 
@@ -1094,6 +1138,7 @@ func (tx *transaction) FetchBlockHeader(hash *chainhash.Hash) ([]byte, error) {
 		Offset: 0,
 		Len:    blockHdrSize,
 	})
+
 }
 
 // FetchBlockHeaders returns the raw serialized bytes for the block headers identified by the given hashes.  The raw bytes are in the format returned by Serialize on a wire.BlockHeader.
@@ -1110,6 +1155,7 @@ func (tx *transaction) FetchBlockHeaders(hashes []chainhash.Hash) ([][]byte, err
 		regions[i].Offset = 0
 		regions[i].Len = blockHdrSize
 	}
+
 	return tx.FetchBlockRegions(regions)
 }
 
@@ -1137,6 +1183,7 @@ func (tx *transaction) FetchBlock(hash *chainhash.Hash) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	location := deserializeBlockLoc(blockRow)
 
 	// Read the block from the appropriate location.  The function also performs a checksum over the data to detect data corruption.
@@ -1144,6 +1191,7 @@ func (tx *transaction) FetchBlock(hash *chainhash.Hash) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return blockBytes, nil
 }
 
@@ -1169,7 +1217,9 @@ func (tx *transaction) FetchBlocks(hashes []chainhash.Hash) ([][]byte, error) {
 		if err != nil {
 			return nil, err
 		}
+
 	}
+
 	return blocks, nil
 }
 
@@ -1220,9 +1270,11 @@ func (tx *transaction) FetchBlockRegion(region *database.BlockRegion) ([]byte, e
 		if err != nil {
 			return nil, err
 		}
+
 		if regionBytes != nil {
 			return regionBytes, nil
 		}
+
 	}
 
 	// Lookup the location of the block in the files from the block index.
@@ -1230,6 +1282,7 @@ func (tx *transaction) FetchBlockRegion(region *database.BlockRegion) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
+
 	location := deserializeBlockLoc(blockRow)
 
 	// Ensure the region is within the bounds of the block.
@@ -1247,6 +1300,7 @@ func (tx *transaction) FetchBlockRegion(region *database.BlockRegion) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
+
 	return regionBytes, nil
 }
 
@@ -1281,17 +1335,21 @@ func (tx *transaction) FetchBlockRegions(regions []database.BlockRegion) ([][]by
 			if err != nil {
 				return nil, err
 			}
+
 			if regionBytes != nil {
 				blockRegions[i] = regionBytes
 				continue
 			}
+
 		}
+
 		// Lookup the location of the block in the files from the block
 		// index.
 		blockRow, err := tx.fetchBlockRow(region.Hash)
 		if err != nil {
 			return nil, err
 		}
+
 		location := deserializeBlockLoc(blockRow)
 		// Ensure the region is within the bounds of the block.
 		endOffset := region.Offset + region.Len
@@ -1301,8 +1359,10 @@ func (tx *transaction) FetchBlockRegions(regions []database.BlockRegion) ([][]by
 				region.Offset, region.Len, location.blockLen)
 			return nil, makeDbErr(database.ErrBlockRegionInvalid, str, nil)
 		}
+
 		fetchList = append(fetchList, bulkFetchData{&location, i})
 	}
+
 	sort.Sort(bulkFetchDataSorter(fetchList))
 
 	// Read all of the regions in the fetch list and set the results.
@@ -1316,8 +1376,10 @@ func (tx *transaction) FetchBlockRegions(regions []database.BlockRegion) ([][]by
 		if err != nil {
 			return nil, err
 		}
+
 		blockRegions[ri] = regionBytes
 	}
+
 	return blockRegions, nil
 }
 
@@ -1339,12 +1401,14 @@ func (tx *transaction) close() {
 		tx.snapshot.Release()
 		tx.snapshot = nil
 	}
+
 	tx.db.closeLock.RUnlock()
 
 	// Release the writer lock for writable transactions to unblock any other write transaction which are possibly waiting.
 	if tx.writable {
 		tx.db.writeLock.Unlock()
 	}
+
 }
 
 // writePendingAndCommit writes pending block data to the flat block files, updates the metadata with their locations as well as the new current write location, and commits the metadata to the memory database cache.  It also properly handles rollback in the case of failures. This function MUST only be called when there is pending data to be written.
@@ -1374,6 +1438,7 @@ func (tx *transaction) writePendingAndCommit() error {
 			rollback()
 			return err
 		}
+
 		// Add a record in the block index for the block.  The record includes the location information needed to locate the block on the filesystem as well as the block header since they are so commonly needed.
 		blockRow := serializeBlockLoc(location)
 		err = tx.blockIdxBucket.Put(blockData.hash[:], blockRow)
@@ -1381,6 +1446,7 @@ func (tx *transaction) writePendingAndCommit() error {
 			rollback()
 			return err
 		}
+
 	}
 
 	// Update the metadata for the current write file and offset.
@@ -1434,6 +1500,7 @@ func (tx *transaction) Rollback() error {
 	if err := tx.checkClosed(); err != nil {
 		return err
 	}
+
 	tx.close()
 	return nil
 }
@@ -1470,6 +1537,7 @@ func (db *db) begin(writable bool) (*transaction, error) {
 		if writable {
 			db.writeLock.Unlock()
 		}
+
 		return nil, makeDbErr(database.ErrDbNotOpen, errDbNotOpenStr,
 			nil)
 	}
@@ -1481,6 +1549,7 @@ func (db *db) begin(writable bool) (*transaction, error) {
 		if writable {
 			db.writeLock.Unlock()
 		}
+
 		return nil, err
 	}
 
@@ -1492,6 +1561,7 @@ func (db *db) begin(writable bool) (*transaction, error) {
 		pendingKeys:   treap.NewMutable(),
 		pendingRemove: treap.NewMutable(),
 	}
+
 	tx.metaBucket = &bucket{tx: tx, id: metadataBucketID}
 	tx.blockIdxBucket = &bucket{tx: tx, id: blockIdxBucketID}
 	return tx, nil
@@ -1514,6 +1584,7 @@ func rollbackOnPanic(
 		_ = tx.Rollback()
 		panic(err)
 	}
+
 }
 
 // View invokes the passed function in the context of a managed read-only transaction with the root bucket for the namespace.  Any errors returned from the user-supplied function are returned from this function. This function is part of the database.DB interface implementation.
@@ -1535,6 +1606,7 @@ func (db *db) View(fn func(database.Tx) error) error {
 		_ = tx.Rollback()
 		return err
 	}
+
 	return tx.Rollback()
 }
 
@@ -1557,6 +1629,7 @@ func (db *db) Update(fn func(database.Tx) error) error {
 		_ = tx.Rollback()
 		return err
 	}
+
 	return tx.Commit()
 }
 
@@ -1569,6 +1642,7 @@ func (db *db) Close() error {
 	if db.closed {
 		return makeDbErr(database.ErrDbNotOpen, errDbNotOpenStr, nil)
 	}
+
 	db.closed = true
 
 	// NOTE: Since the above lock waits for all transactions to finish and prevents any new ones from being started, it is safe to flush the cache and clear all state without the individual locks. Close the database cache which will flush any existing entries to disk and close the underlying leveldb database.  Any error is saved and returned at the end after the remaining cleanup since the database will be marked closed even if this fails given there is no good way for the caller to recover from a failure here anyways.
@@ -1580,9 +1654,11 @@ func (db *db) Close() error {
 		_ = wc.curFile.file.Close()
 		wc.curFile.file = nil
 	}
+
 	for _, blockFile := range db.store.openBlockFiles {
 		_ = blockFile.file.Close()
 	}
+
 	db.store.openBlockFiles = nil
 	db.store.openBlocksLRU.Init()
 	db.store.fileNumToLRUElem = nil
@@ -1597,7 +1673,9 @@ func fileExists(
 
 			return false
 		}
+
 	}
+
 	return true
 }
 
@@ -1623,6 +1701,7 @@ func initDB(
 			err)
 		return convertErr(str, err)
 	}
+
 	return nil
 }
 
@@ -1651,6 +1730,7 @@ func openDB(
 		Compression:  opt.NoCompression,
 		Filter:       filter.NewBloomFilter(10),
 	}
+
 	ldb, err := leveldb.OpenFile(metadataDbPath, &opts)
 	if err != nil {
 		return nil, convertErr(err.Error(), err)

@@ -21,6 +21,7 @@ func TestNotifications(
 	if err != nil {
 		t.Fatalf("Failed to setup chain instance: %v", err)
 	}
+
 	defer teardownFunc()
 	notificationCount := 0
 	callback := func(notification *Notification) {
@@ -28,6 +29,7 @@ func TestNotifications(
 		if notification.Type == NTBlockAccepted {
 			notificationCount++
 		}
+
 	}
 
 	// Register callback multiple times then assert it is called that many times.
@@ -35,12 +37,15 @@ func TestNotifications(
 	for i := 0; i < numSubscribers; i++ {
 		chain.Subscribe(callback)
 	}
+
 	_, _, err = chain.ProcessBlock(blocks[1], BFNone, blocks[1].Height())
 	if err != nil {
 		t.Fatalf("ProcessBlock fail on block 1: %v\n", err)
 	}
+
 	if notificationCount != numSubscribers {
 		t.Fatalf("Expected notification callback to be executed %d "+
 			"times, found %d", numSubscribers, notificationCount)
 	}
+
 }

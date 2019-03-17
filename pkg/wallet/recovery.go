@@ -59,6 +59,7 @@ func NewRecoveryManager(
 		chainParams:    chainParams,
 		state:          NewRecoveryState(recoveryWindow),
 	}
+
 }
 
 // Resurrect restores all known addresses for the provided scopes that can be
@@ -148,9 +149,11 @@ func (rm *RecoveryManager) Resurrect(ns walletdb.ReadBucket,
 		if externalCount > 0 {
 			scopeState.ExternalBranch.ReportFound(externalCount - 1)
 		}
+
 		if internalCount > 0 {
 			scopeState.InternalBranch.ReportFound(internalCount - 1)
 		}
+
 	}
 
 	// In addition, we will re-add any outpoints that are known the wallet
@@ -183,6 +186,7 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 			"Seed birthday surpassed, starting recovery of wallet from height=%d hash=%v with recovery-window=%d",
 			height, *hash, rm.recoveryWindow,
 		}
+
 		rm.started = true
 	}
 
@@ -191,8 +195,10 @@ func (rm *RecoveryManager) AddToBlockBatch(hash *chainhash.Hash, height int32,
 			Hash:   *hash,
 			Height: height,
 		},
+
 		Time: timestamp,
 	}
+
 	rm.blockBatch = append(rm.blockBatch, block)
 }
 
@@ -275,6 +281,7 @@ func NewRecoveryState(
 		scopes:           scopes,
 		watchedOutPoints: make(map[wire.OutPoint]util.Address),
 	}
+
 }
 
 // StateForScope returns a ScopeRecoveryState for the provided key scope. If one
@@ -341,6 +348,7 @@ func NewScopeRecoveryState(
 		ExternalBranch: NewBranchRecoveryState(recoveryWindow),
 		InternalBranch: NewBranchRecoveryState(recoveryWindow),
 	}
+
 }
 
 // BranchRecoveryState maintains the required state in-order to properly
@@ -400,6 +408,7 @@ func NewBranchRecoveryState(
 		addresses:       make(map[uint32]util.Address),
 		invalidChildren: make(map[uint32]struct{}),
 	}
+
 }
 
 // ExtendHorizon returns the current horizon and the number of addresses that
@@ -461,8 +470,11 @@ func (brs *BranchRecoveryState) ReportFound(index uint32) {
 			if childIndex < index {
 				delete(brs.invalidChildren, childIndex)
 			}
+
 		}
+
 	}
+
 }
 
 // MarkInvalidChild records that a particular child index results in deriving an
@@ -507,6 +519,7 @@ func (brs *BranchRecoveryState) NumInvalidInHorizon() uint32 {
 		if brs.nextUnfound <= childIndex && childIndex < brs.horizon {
 			nInvalid++
 		}
+
 	}
 
 	return nInvalid

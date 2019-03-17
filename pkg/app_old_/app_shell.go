@@ -154,12 +154,14 @@ var ShellCommand = climax.Command{
 
 		l("lib-addrmgr"), l("lib-blockchain"), l("lib-connmgr"), l("lib-database-ffldb"), l("lib-database"), l("lib-mining-cpuminer"), l("lib-mining"), l("lib-netsync"), l("lib-peer"), l("lib-rpcclient"), l("lib-txscript"), l("node"), l("node-mempool"), l("spv"), l("wallet"), l("wallet-chain"), l("wallet-legacyrpc"), l("wallet-rpcserver"), l("wallet-tx"), l("wallet-votingpool"), l("wallet-waddrmgr"), l("wallet-wallet"), l("wallet-wtxmgr"),
 	},
+
 	Examples: []climax.Example{
 		{
 			Usecase:     "--init --rpcuser=user --rpcpass=pa55word --save",
 			Description: "resets the configuration file to default, sets rpc username and password and saves the changes to config after parsing",
 		},
 	},
+
 	Handle: shellHandle,
 }
 

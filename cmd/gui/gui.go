@@ -34,6 +34,7 @@ func GUI(
 	if err != nil {
 		panic(err)
 	}
+
 	w := webview.New(webview.Settings{
 		Title:     "ParallelCoin - DUO - True Story",
 		Width:     1800,
@@ -42,6 +43,7 @@ func GUI(
 		Debug:     true,
 		Resizable: false,
 	})
+
 	defer w.Exit()
 
 	// Here we need to check for and create wallet :
@@ -64,6 +66,7 @@ func GUI(
 			w.Bind(mn, &md)
 			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwwwwww", mn)
 		}
+
 		fmt.Println("vue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODSvue.MODS", vue.MODS)
 
 		w.Bind("reqpays", &vue.RequestedPaymentHistory{})
@@ -87,6 +90,7 @@ func GUI(
 		for _, j := range libs.JSL {
 			w.Eval(string(j))
 		}
+
 		for _, v := range libs.VJS {
 			w.Eval(string(v))
 		}

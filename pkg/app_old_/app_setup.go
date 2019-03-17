@@ -28,6 +28,7 @@ var SetupCommand = climax.Command{
 		s("datadir", "D", walletmain.DefaultAppDataDir, "specify where the wallet will be created"),
 		f("network", "mainnet", "connect to (mainnet|testnet|simnet)"),
 	},
+
 	Handle: func(ctx climax.Context) int {
 		fmt.Println("pod wallet setup")
 		if ctx.Is("help") {
@@ -48,10 +49,12 @@ Available options:
 `)
 			return 0
 		}
+
 		SetupConfig.DataDir = w.DefaultDataDir
 		if r, ok := getIfIs(&ctx, "datadir"); ok {
 			SetupConfig.DataDir = r
 		}
+
 		activeNet := walletmain.ActiveNet
 		wc := DefaultWalletConfig(SetupConfig.DataDir)
 		SetupConfig.Config = wc.Wallet
@@ -70,8 +73,10 @@ Available options:
 			default:
 				activeNet = &netparams.MainNetParams
 			}
+
 			SetupConfig.Network = r
 		}
+
 		dbDir := walletmain.NetworkDir(
 			filepath.Join(SetupConfig.DataDir, "wallet"), activeNet.Params)
 		loader := wallet.NewLoader(
@@ -81,6 +86,7 @@ Available options:
 			fmt.Println("ERROR", err)
 			return 1
 		}
+
 		if exists {
 			fmt.Print("\n!!! A wallet already exists at '" + dbDir + "/wallet.db' !!! \n")
 			fmt.Println(`if you are sure it isn't valuable you can delete it before running this again:
@@ -89,6 +95,7 @@ Available options:
 `)
 			return 1
 		}
+
 		SetupConfig.Config.AppDataDir = filepath.Join(
 			SetupConfig.DataDir, "wallet")
 		WriteDefaultConfConfig(SetupConfig.DataDir)
@@ -100,6 +107,7 @@ Available options:
 		if e != nil {
 			panic(e)
 		}
+
 		fmt.Print("\nYou can now open the wallet\n")
 		return 0
 	},

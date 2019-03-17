@@ -56,10 +56,12 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 				// per output.
 				continue
 			}
+
 			_, outputAcct, err := w.Manager.AddrAccount(addrmgrNs, addrs[0])
 			if err != nil {
 				return err
 			}
+
 			if outputAcct != policy.Account {
 				continue
 			}
@@ -77,14 +79,17 @@ func (w *Wallet) UnspentOutputs(policy OutputSelectionPolicy) ([]*TransactionOut
 					Value:    int64(output.Amount),
 					PkScript: output.PkScript,
 				},
+
 				OutputKind:      outputSource,
 				ContainingBlock: BlockIdentity(output.Block),
 				ReceiveTime:     output.Received,
 			}
+
 			outputResults = append(outputResults, result)
 		}
 
 		return nil
 	})
+
 	return outputResults, err
 }

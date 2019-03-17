@@ -60,6 +60,7 @@ func (t *Tx) HasWitness() bool {
 	if t.txHashWitness != nil {
 		return *t.txHasWitness
 	}
+
 	hasWitness := t.msgTx.HasWitness()
 	t.txHasWitness = &hasWitness
 	return hasWitness
@@ -83,6 +84,7 @@ func NewTx(
 		msgTx:   msgTx,
 		txIndex: TxIndexUnknown,
 	}
+
 }
 
 // NewTxFromBytes returns a new instance of a bitcoin transaction given the serialized bytes.  See Tx.
@@ -103,9 +105,11 @@ func NewTxFromReader(
 	if err != nil {
 		return nil, err
 	}
+
 	t := Tx{
 		msgTx:   &msgTx,
 		txIndex: TxIndexUnknown,
 	}
+
 	return &t, nil
 }

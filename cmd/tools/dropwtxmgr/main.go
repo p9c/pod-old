@@ -25,6 +25,7 @@ var opts = struct {
 	Force  bool   `short:"f" description:"Force removal without prompt"`
 	DbPath string `long:"db" description:"Path to wallet database"`
 }{
+
 	Force:  false,
 	DbPath: filepath.Join(datadir, defaultNet, "wallet.db"),
 }
@@ -35,6 +36,7 @@ func init() {
 	if err != nil {
 		os.Exit(1)
 	}
+
 }
 
 var (
@@ -57,6 +59,7 @@ func yes(
 	default:
 		return false
 	}
+
 }
 
 func no(
@@ -67,6 +70,7 @@ func no(
 	default:
 		return false
 	}
+
 }
 
 func main() {
@@ -92,17 +96,20 @@ func mainInt() int {
 			// Exit on EOF.
 			return 0
 		}
+
 		err := scanner.Err()
 		if err != nil {
 			fmt.Println()
 			fmt.Println(err)
 			return 1
 		}
+
 		resp := scanner.Text()
 		if yes(resp) {
 
 			break
 		}
+
 		if no(resp) || resp == "" {
 			return 0
 		}
@@ -115,6 +122,7 @@ func mainInt() int {
 		fmt.Println("failed to open database:", err)
 		return 1
 	}
+
 	defer db.Close()
 	fmt.Println("dropping wtxmgr namespace")
 	err = walletdb.Update(db, func(tx walletdb.ReadWriteTx) error {
@@ -122,26 +130,31 @@ func mainInt() int {
 		if err != nil && err != walletdb.ErrBucketNotFound {
 			return err
 		}
+
 		ns, err := tx.CreateTopLevelBucket(wtxmgrNamespace)
 		if err != nil {
 			return err
 		}
+
 		err = wtxmgr.Create(ns)
 		if err != nil {
 			return err
 		}
+
 		ns = tx.ReadWriteBucket(waddrmgrNamespace).NestedReadWriteBucket(syncBucketName)
 		startBlock := ns.Get(startBlockName)
 		err = ns.Put(syncedToName, startBlock)
 		if err != nil {
 			return err
 		}
+
 		recentBlocks := make([]byte, 40)
 		copy(recentBlocks[0:4], startBlock[0:4])
 		copy(recentBlocks[8:], startBlock[4:])
 		binary.LittleEndian.PutUint32(recentBlocks[4:8], uint32(1))
 		return ns.Put(recentBlocksName, recentBlocks)
 	})
+
 	if err != nil {
 		fmt.Println("Failed to drop and re-create namespace:", err)
 		return 1

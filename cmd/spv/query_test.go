@@ -111,6 +111,7 @@ func TestBlockCache(
 			BlockHeader: &b.MsgBlock().Header,
 			Height:      uint32(i),
 		}
+
 		headers.WriteHeaders(header)
 
 		sz, _ := (&cache.CacheableBlock{b}).Size()
@@ -118,6 +119,7 @@ func TestBlockCache(
 
 			size += sz
 		}
+
 	}
 
 	// Set up a ChainService with a BlockCache that can fit the first half
@@ -129,6 +131,7 @@ func TestBlockCache(
 		chainParams: chaincfg.Params{
 			PowLimit: maxPowLimit,
 		},
+
 		timeSource: blockchain.NewMedianTime(),
 	}
 
@@ -185,6 +188,7 @@ func TestBlockCache(
 
 				return
 			}
+
 		}
 
 		t.Fatalf("queried for unknown block: %v", inv.Hash)
@@ -214,9 +218,11 @@ func TestBlockCache(
 				t.Fatalf("expected hash %v to be queried, "+
 					"got %v", hash, q)
 			}
+
 		case <-time.After(1 * time.Second):
 			t.Fatalf("did not query peers for block")
 		}
+
 	}
 
 	// fetchAndAssertInCache calls GetBlock and makes sure the block is not
@@ -242,6 +248,7 @@ func TestBlockCache(
 			t.Fatalf("did not expect query for block %v", q)
 		default:
 		}
+
 	}
 
 	// Get the first half of the blocks. Since this is the first time we
@@ -322,10 +329,12 @@ func assertEqual(
 
 		return
 	}
+
 	if len(message) == 0 {
 
 		message = fmt.Sprintf("%v != %v", a, b)
 	}
+
 	t.Fatal(message)
 }
 
@@ -386,6 +395,7 @@ func genRandFilter(
 
 // genRandomBlockHash generates a random block hash using math/rand.
 func genRandomBlockHash() *chainhash.Hash {
+
 	var seed [32]byte
 	rand.Read(seed[:])
 	hash := chainhash.Hash(seed)
@@ -402,6 +412,7 @@ func getFilter(
 
 		t.Fatal(err)
 	}
+
 	return val
 }
 
@@ -423,6 +434,7 @@ func loadBlocks(
 		t.Errorf("failed to open file %v, err %v", dataFile, err)
 		return nil, err
 	}
+
 	defer func() {
 
 		if err := fi.Close(); err != nil {
@@ -430,7 +442,9 @@ func loadBlocks(
 			t.Errorf("failed to close file %v %v", dataFile,
 				err)
 		}
+
 	}()
+
 	dr := bzip2.NewReader(fi)
 
 	// Set the first block as the genesis block.
@@ -448,12 +462,14 @@ func loadBlocks(
 			// Hit end of file at the expected offset.  No error.
 			break
 		}
+
 		if err != nil {
 
 			t.Errorf("Failed to load network type for block %d: %v",
 				height, err)
 			return nil, err
 		}
+
 		if net != uint32(network) {
 
 			t.Errorf("Block doesn't match network: %v expects %v",
@@ -486,6 +502,7 @@ func loadBlocks(
 			t.Errorf("Failed to parse block %v: %v", height, err)
 			return nil, err
 		}
+
 		blocks = append(blocks, block)
 	}
 

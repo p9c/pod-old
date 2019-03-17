@@ -36,6 +36,7 @@ func (f *mockFile) Close() error {
 	if f.closed {
 		return errMockFileClosed
 	}
+
 	f.closed = true
 	return nil
 }
@@ -48,10 +49,12 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	if f.closed {
 		return 0, errMockFileClosed
 	}
+
 	maxSize := int64(len(f.data))
 	if f.maxSize > -1 && maxSize > f.maxSize {
 		maxSize = f.maxSize
 	}
+
 	if off < 0 || off > maxSize {
 		return 0, errInvalidOffset
 	}
@@ -62,11 +65,13 @@ func (f *mockFile) ReadAt(b []byte, off int64) (int, error) {
 	if endOffset > maxSize {
 		numToRead = maxSize - off
 	}
+
 	copy(b, f.data[off:off+numToRead])
 	if numToRead < int64(len(b)) {
 
 		return int(numToRead), io.EOF
 	}
+
 	return int(numToRead), nil
 }
 
@@ -77,13 +82,16 @@ func (f *mockFile) Truncate(size int64) error {
 	if f.closed {
 		return errMockFileClosed
 	}
+
 	maxSize := int64(len(f.data))
 	if f.maxSize > -1 && maxSize > f.maxSize {
 		maxSize = f.maxSize
 	}
+
 	if size > maxSize {
 		return errInvalidOffset
 	}
+
 	f.data = f.data[:size]
 	return nil
 }
@@ -96,10 +104,12 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 	if f.closed {
 		return 0, errMockFileClosed
 	}
+
 	maxSize := f.maxSize
 	if maxSize < 0 {
 		maxSize = 100 * 1024 // 100KiB
 	}
+
 	if off < 0 || off > maxSize {
 		return 0, errInvalidOffset
 	}
@@ -109,17 +119,20 @@ func (f *mockFile) WriteAt(b []byte, off int64) (int, error) {
 	if off+numToWrite > maxSize {
 		numToWrite = maxSize - off
 	}
+
 	if off+numToWrite > int64(len(f.data)) {
 
 		newData := make([]byte, off+numToWrite)
 		copy(newData, f.data)
 		f.data = newData
 	}
+
 	copy(f.data[off:], b[:numToWrite])
 	if numToWrite < int64(len(b)) {
 
 		return int(numToWrite), io.EOF
 	}
+
 	return int(numToWrite), nil
 }
 
@@ -129,6 +142,7 @@ func (f *mockFile) Sync() error {
 	if f.forceSyncErr {
 		return errSyncFail
 	}
+
 	return nil
 }
 

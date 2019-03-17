@@ -11,6 +11,7 @@ import (
 )
 
 func ctlHandleSave() {
+
 	appConfigCommon.Save = false
 	yn, e := yaml.Marshal(ctlConfig)
 	if e == nil {
@@ -20,12 +21,15 @@ func ctlHandleSave() {
 		if e != nil {
 			panic(e)
 		}
+
 	} else {
 		panic(e)
 	}
+
 }
 
 func ctlHandle(c *cli.Context) error {
+
 	datadir := filepath.Join(
 		appConfigCommon.Datadir,
 		ctlAppName)
@@ -35,12 +39,14 @@ func ctlHandle(c *cli.Context) error {
 	if !c.Parent().Bool("useproxy") {
 		*ctlConfig.Proxy = ""
 	}
+
 	loglevel := c.Parent().String("loglevel")
 	switch loglevel {
 	case "trace", "debug", "info", "warn", "error", "fatal":
 	default:
 		*ctlConfig.DebugLevel = "warn"
 	}
+
 	network := c.Parent().String("network")
 	switch network {
 	case "testnet", "testnet3", "t":
@@ -55,10 +61,12 @@ func ctlHandle(c *cli.Context) error {
 		if network != "mainnet" && network != "m" {
 			fmt.Println("using mainnet for ctl")
 		}
+
 		*ctlConfig.TestNet3 = false
 		*ctlConfig.SimNet = false
 		activeNetParams = &netparams.MainNetParams
 	}
+
 	_ = podHandle(c)
 	if appConfigCommon.Save {
 		appConfigCommon.Save = false
@@ -66,5 +74,6 @@ func ctlHandle(c *cli.Context) error {
 		ctlHandleSave()
 		return nil
 	}
+
 	return launchCtl(c)
 }

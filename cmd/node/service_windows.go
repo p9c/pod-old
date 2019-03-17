@@ -80,6 +80,7 @@ loop:
 					"Unexpected control request #%d.", c,
 				))
 			}
+
 		case srvr := <-serverChan:
 			// fmt.Println("chan:srvr := <-serverChan")
 
@@ -91,8 +92,10 @@ loop:
 			if err != nil {
 				elog.Error(1, err.Error())
 			}
+
 			break loop
 		}
+
 	}
 
 	// Service is now stopped.
@@ -108,6 +111,7 @@ func installService() error {
 	if err != nil {
 		return err
 	}
+
 	if filepath.Ext(exePath) == "" {
 		exePath += ".exe"
 	}
@@ -117,6 +121,7 @@ func installService() error {
 	if err != nil {
 		return err
 	}
+
 	defer serviceManager.Disconnect()
 
 	// Ensure the service doesn't already exist.
@@ -131,9 +136,11 @@ func installService() error {
 		DisplayName: svcDisplayName,
 		Description: svcDesc,
 	})
+
 	if err != nil {
 		return err
 	}
+
 	defer service.Close()
 
 	// Support events to the event log using the standard "standard" Windows EventCreate.exe message file.  This allows easy logging of custom messges instead of needing to create our own message catalog.
@@ -150,6 +157,7 @@ func removeService() error {
 	if err != nil {
 		return err
 	}
+
 	defer serviceManager.Disconnect()
 
 	// Ensure the service exists.
@@ -157,6 +165,7 @@ func removeService() error {
 	if err != nil {
 		return fmt.Errorf("service %s is not installed", svcName)
 	}
+
 	defer service.Close()
 
 	// Remove the service.
@@ -171,16 +180,19 @@ func startService() error {
 	if err != nil {
 		return err
 	}
+
 	defer serviceManager.Disconnect()
 	service, err := serviceManager.OpenService(svcName)
 	if err != nil {
 		return fmt.Errorf("could not access service: %v", err)
 	}
+
 	defer service.Close()
 	err = service.Start(os.Args)
 	if err != nil {
 		return fmt.Errorf("could not start service: %v", err)
 	}
+
 	return nil
 }
 
@@ -193,11 +205,13 @@ func controlService(
 	if err != nil {
 		return err
 	}
+
 	defer serviceManager.Disconnect()
 	service, err := serviceManager.OpenService(svcName)
 	if err != nil {
 		return fmt.Errorf("could not access service: %v", err)
 	}
+
 	defer service.Close()
 	status, err := service.Control(c)
 	if err != nil {
@@ -212,13 +226,16 @@ func controlService(
 			return fmt.Errorf("timeout waiting for service to go "+
 				"to state=%d", to)
 		}
+
 		time.Sleep(300 * time.Millisecond)
 		status, err = service.Query()
 		if err != nil {
 			return fmt.Errorf("could not retrieve service "+
 				"status: %v", err)
 		}
+
 	}
+
 	return nil
 }
 
@@ -238,6 +255,7 @@ func performServiceCommand(
 	default:
 		err = fmt.Errorf("invalid service command [%s]", command)
 	}
+
 	return err
 }
 
@@ -249,19 +267,23 @@ func serviceMain() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	if isInteractive {
 		return false, nil
 	}
+
 	elog, err = eventlog.Open(svcName)
 	if err != nil {
 		return false, err
 	}
+
 	defer elog.Close()
 	err = svc.Run(svcName, &podService{})
 	if err != nil {
 		elog.Error(1, fmt.Sprintf("Service start failed: %v", err))
 		return true, err
 	}
+
 	return true, nil
 }
 

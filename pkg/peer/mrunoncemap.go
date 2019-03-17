@@ -22,13 +22,19 @@ func (m *mruNonceMap) String() string {
 	lastEntryNum := len(m.nonceMap) - 1
 	curEntry := 0
 	buf := bytes.NewBufferString("[")
+
 	for nonce := range m.nonceMap {
+
 		buf.WriteString(fmt.Sprintf("%d", nonce))
+
 		if curEntry < lastEntryNum {
+
 			buf.WriteString(", ")
 		}
+
 		curEntry++
 	}
+
 	buf.WriteString("]")
 	return fmt.Sprintf("<%d>%s", m.limit, buf.String())
 }
@@ -48,18 +54,24 @@ func (m *mruNonceMap) Add(nonce uint64) {
 	defer m.mtx.Unlock()
 
 	// When the limit is zero, nothing can be added to the map, so just return.
+
 	if m.limit == 0 {
+
 		return
 	}
 
 	// When the entry already exists move it to the front of the list thereby marking it most recently used.
+
 	if node, exists := m.nonceMap[nonce]; exists {
+
 		m.nonceList.MoveToFront(node)
 		return
 	}
 
 	// Evict the least recently used entry (back of the list) if the the new entry would exceed the size limit for the map.  Also reuse the list node so a new one doesn't have to be allocated.
+
 	if uint(len(m.nonceMap))+1 > m.limit {
+
 		node := m.nonceList.Back()
 		lru := node.Value.(uint64)
 
@@ -82,10 +94,13 @@ func (m *mruNonceMap) Add(nonce uint64) {
 func (m *mruNonceMap) Delete(nonce uint64) {
 
 	m.mtx.Lock()
+
 	if node, exists := m.nonceMap[nonce]; exists {
+
 		m.nonceList.Remove(node)
 		delete(m.nonceMap, nonce)
 	}
+
 	m.mtx.Unlock()
 }
 
@@ -97,5 +112,6 @@ func newMruNonceMap(
 		nonceList: list.New(),
 		limit:     limit,
 	}
+
 	return &m
 }

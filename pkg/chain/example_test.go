@@ -20,10 +20,13 @@ func ExampleBlockChain_ProcessBlock() {
 	dbPath := filepath.Join(os.TempDir(), "exampleprocessblock")
 	_ = os.RemoveAll(dbPath)
 	db, err := database.Create("ffldb", dbPath, chaincfg.MainNetParams.Net)
+
 	if err != nil {
+
 		fmt.Printf("Failed to create database: %v\n", err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -33,7 +36,9 @@ func ExampleBlockChain_ProcessBlock() {
 		ChainParams: &chaincfg.MainNetParams,
 		TimeSource:  blockchain.NewMedianTime(),
 	})
+
 	if err != nil {
+
 		fmt.Printf("Failed to create chain instance: %v\n", err)
 		return
 	}
@@ -42,10 +47,13 @@ func ExampleBlockChain_ProcessBlock() {
 	genesisBlock := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	isMainChain, isOrphan, err := chain.ProcessBlock(genesisBlock,
 		blockchain.BFNone, 0)
+
 	if err != nil {
+
 		fmt.Printf("Failed to process block: %v\n", err)
 		return
 	}
+
 	fmt.Printf("Block accepted. Is it on the main chain?: %v", isMainChain)
 	fmt.Printf("Block accepted. Is it an orphan?: %v", isOrphan)
 
@@ -77,10 +85,13 @@ func ExampleBigToCompact() {
 	// chain to compact form.
 	t := "0000000000000000896c00000000000000000000000000000000000000000000"
 	targetDifficulty, success := new(big.Int).SetString(t, 16)
+
 	if !success {
+
 		fmt.Println("invalid target difficulty")
 		return
 	}
+
 	bits := blockchain.BigToCompact(targetDifficulty)
 	fmt.Println(bits)
 

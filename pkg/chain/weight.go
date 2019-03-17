@@ -61,8 +61,10 @@ func GetSigOpCost(
 		if err != nil {
 			return 0, nil
 		}
+
 		numSigOps += (numP2SHSigOps * WitnessScaleFactor)
 	}
+
 	if segWit && !isCoinBaseTx {
 		msgTx := tx.MsgTx()
 		for txInIndex, txIn := range msgTx.TxIn {
@@ -77,11 +79,14 @@ func GetSigOpCost(
 					txInIndex)
 				return 0, ruleError(ErrMissingTxOut, str)
 			}
+
 			witness := txIn.Witness
 			sigScript := txIn.SignatureScript
 			pkScript := utxo.PkScript()
 			numSigOps += txscript.GetWitnessSigOpCount(sigScript, pkScript, witness)
 		}
+
 	}
+
 	return numSigOps, nil
 }

@@ -82,14 +82,16 @@ func newHeaderIndex(
 		return err
 
 	})
+
 	if err != nil && err != walletdb.ErrBucketExists {
 		return nil, err
 	}
 
 	return &headerIndex{
-		db:        db,
-		indexType: indexType,
-	}, nil
+			db:        db,
+			indexType: indexType,
+		},
+		nil
 }
 
 // headerEntry is an internal type that's used to quickly map a (height, hash)
@@ -178,10 +180,12 @@ func (h *headerIndex) addHeaders(batch headerBatch) error {
 				chainTipHash = header.hash
 				chainTipHeight = header.height
 			}
+
 		}
 
 		return rootBucket.Put(tipKey, chainTipHash[:])
 	})
+
 }
 
 // heightFromHash returns the height of the entry that matches the specified
@@ -203,6 +207,7 @@ func (h *headerIndex) heightFromHash(hash *chainhash.Hash) (uint32, error) {
 		height = binary.BigEndian.Uint32(heightBytes)
 		return nil
 	})
+
 	if err != nil {
 		return 0, err
 	}
@@ -250,11 +255,13 @@ func (h *headerIndex) chainTip() (*chainhash.Hash, uint32, error) {
 		if err != nil {
 			return err
 		}
+
 		tipHash = h
 		tipHeight = binary.BigEndian.Uint32(tipHeightBytes)
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, 0, err
 	}
@@ -292,10 +299,12 @@ func (h *headerIndex) truncateIndex(newTip *chainhash.Hash, delete bool) error {
 			if err := rootBucket.Delete(prevTipHash); err != nil {
 				return err
 			}
+
 		}
 
 		// With the now stale entry deleted, we'll update the chain tip
 		// to point to the new hash.
 		return rootBucket.Put(tipKey, newTip[:])
 	})
+
 }

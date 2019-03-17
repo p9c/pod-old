@@ -58,15 +58,20 @@ func (
 
 	// Since easier difficulty equates to higher numbers, the easiest difficulty for a given duration is the largest value possible given the number of retargets for the duration and starting difficulty multiplied by the max adjustment factor.
 	newTarget := CompactToBig(bits)
+
 	for durationVal > 0 && newTarget.Cmp(b.chainParams.PowLimit) < 0 {
+
 		newTarget.Mul(newTarget, adjustmentFactor)
 		durationVal -= b.maxRetargetTimespan
 	}
 
 	// Limit new value to the proof of work limit.
+
 	if newTarget.Cmp(b.chainParams.PowLimit) > 0 {
+
 		newTarget.Set(b.chainParams.PowLimit)
 	}
+
 	return BigToCompact(newTarget)
 }
 
@@ -83,6 +88,7 @@ func (
 	err error,
 ) {
 	nH := lastNode.height + 1
+
 	switch fork.GetCurrent(nH) {
 
 	// Legacy difficulty adjustment
@@ -134,7 +140,9 @@ func (
 			prevNode.version, prevversion, prevNode.height, prevNode.bits}
 		firstNode := prevNode // .GetPrevWithAlgo(algo)
 		i := int64(1)
+
 		for ; firstNode != nil && i < fork.GetAveragingInterval(nH); i++ {
+
 			firstNode = firstNode.RelativeAncestor(1).GetLastWithAlgo(algo)
 
 			if firstNode == nil {
@@ -153,6 +161,7 @@ func (
 
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
 		adjustedTimespan := actualTimespan
+
 		if actualTimespan < b.chainParams.MinActualTimespan {
 
 			adjustedTimespan = b.chainParams.MinActualTimespan
@@ -160,14 +169,18 @@ func (
 
 			adjustedTimespan = b.chainParams.MaxActualTimespan
 		}
+
 		oldTarget := CompactToBig(prevNode.bits)
 		newTarget := new(big.Int).
 			Mul(oldTarget, big.NewInt(adjustedTimespan))
 		newTarget = newTarget.
 			Div(newTarget, big.NewInt(b.chainParams.AveragingTargetTimespan))
+
 		if newTarget.Cmp(CompactToBig(newTargetBits)) > 0 {
+
 			newTarget.Set(CompactToBig(newTargetBits))
 		}
+
 		newTargetBits = BigToCompact(newTarget)
 		log <- cl.Debugf{
 			"difficulty retarget at block height %d, old %08x new %08x",
@@ -175,6 +188,7 @@ func (
 			prevNode.bits,
 			newTargetBits,
 		}
+
 		Log.Trcc(func() string {
 			return fmt.Sprintf(
 				"actual timespan %v, adjusted timespan %v, target timespan %v"+
@@ -186,6 +200,7 @@ func (
 				CompactToBig(newTargetBits),
 			)
 		})
+
 		return newTargetBits, nil
 
 	case 1: // Plan 9 from Crypto Space
@@ -193,40 +208,55 @@ func (
 		log <- cl.Debug{"on plan 9 hardfork"}
 
 		if lastNode.height == 0 {
+
 			return fork.FirstPowLimitBits, nil
 		}
+
 		nH := lastNode.height + 1
 		algo := fork.GetAlgoVer(algoname, nH)
 		newTargetBits = fork.GetMinBits(algoname, nH)
 		last := lastNode
 
 		// find the most recent block of the same algo
+
 		if last.version != algo {
+
 			l := last.RelativeAncestor(1)
 			l = l.GetLastWithAlgo(algo)
 
 			// ignore the first block as its time is not a normal timestamp
+
 			if l.height < 1 {
+
 				break
 			}
+
 			last = l
 		}
+
 		counter := 1
 		var timestamps []float64
 		timestamps = append(timestamps, float64(last.timestamp))
 		pb := last
 
 		// collect the timestamps of all the blocks of the same algo until we pass genesis block or get AveragingInterval blocks
+
 		for ; counter < int(fork.GetAveragingInterval(nH)) && pb.height > 2; counter++ {
+
 			p := pb.RelativeAncestor(1)
+
 			if p != nil {
+
 				if p.height == 0 {
+
 					return fork.SecondPowLimitBits, nil
 				}
+
 				pb = p.GetLastWithAlgo(algo)
 			} else {
 				break
 			}
+
 			if pb != nil && pb.height > 0 {
 
 				// only add the timestamp if is not the same as the previous
@@ -234,59 +264,88 @@ func (
 			} else {
 				break
 			}
+
 		}
+
 		allTimeAverage, trailTimeAverage := float64(fork.GetTargetTimePerBlock(nH)), float64(fork.GetTargetTimePerBlock(nH))
 		startHeight := fork.List[1].ActivationHeight
+
 		if b.chainParams.Name == "testnet" {
+
 			startHeight = 1
 		}
+
 		trailHeight := int32(int64(lastNode.height) -
 			fork.GetAveragingInterval(nH)*int64(len(fork.List[1].Algos)))
+
 		if trailHeight < 0 {
+
 			trailHeight = 1
 		}
+
 		firstBlock, _ := b.BlockByHeight(startHeight)
 		trailBlock, _ := b.BlockByHeight(trailHeight)
 		lastTime := lastNode.timestamp
+
 		if firstBlock != nil {
+
 			firstTime := firstBlock.MsgBlock().Header.Timestamp.Unix()
 			allTimeAverage = (float64(lastTime) - float64(firstTime)) / (float64(lastNode.height) - float64(firstBlock.Height()))
 		}
+
 		if trailBlock != nil {
+
 			trailTime := trailBlock.MsgBlock().Header.Timestamp.Unix()
 			trailTimeAverage = (float64(lastTime) - float64(trailTime)) / (float64(lastNode.height) - float64(trailBlock.Height()))
 		}
+
 		if len(timestamps) < 2 {
+
 			return fork.SecondPowLimitBits, nil
 		}
+
 		var adjusted, targetAdjusted, adjustment float64
+
 		if len(timestamps) > 1 {
+
 			numalgos := int64(len(fork.List[1].Algos))
 			target := fork.GetTargetTimePerBlock(nH) * numalgos
 			counter = 0
+
 			for i := 0; i < len(timestamps)-1; i++ {
+
 				factor := 0.75
+
 				if i == 0 {
+
 					f := factor
+
 					for j := 0; j < i; j++ {
+
 						f *= factor
 					}
+
 					factor = f
 				} else {
 					factor = 1.0
 				}
+
 				adjustment = timestamps[i] - timestamps[i+1]
 				adjustment *= factor
+
 				switch {
+
 				case math.IsNaN(adjustment):
 					break
 				case adjustment == 0.0:
 					break
 				}
+
 				adjusted += adjustment
 				targetAdjusted += float64(target) * factor
 				counter++
 			}
+
 		} else {
 			targetAdjusted = 100
 			adjusted = 100
@@ -309,32 +368,46 @@ func (
 		var trailingAdjusted,
 			trailingTargetAdjusted,
 			trailingAdjustment float64
+
 		if len(trailingTimestamps) > 1 {
+
 			target := fork.GetTargetTimePerBlock(nH)
 			counter = 0
+
 			for i := 0; i < len(trailingTimestamps)-1; i++ {
+
 				factor := 0.81
+
 				if i == 0 {
+
 					f := factor
+
 					for j := 0; j < i; j++ {
+
 						f *= factor
 					}
+
 					factor = f
 				} else {
 					factor = 1.0
 				}
+
 				trailingAdjustment = trailingTimestamps[i] - trailingTimestamps[i+1]
 				trailingAdjustment *= factor
+
 				switch {
+
 				case math.IsNaN(trailingAdjustment):
 					break
 				case trailingAdjustment == 0.0:
 					break
 				}
+
 				trailingAdjusted += trailingAdjustment
 				trailingTargetAdjusted += float64(target) * factor
 				counter++
 			}
+
 		} else {
 			trailingTargetAdjusted = 100
 			trailingAdjusted = 100
@@ -354,17 +427,22 @@ func (
 			trailingTimeDivergence*trailingTimeDivergence*trailingTimeDivergence +
 			trailTimeDivergence*trailTimeDivergence*trailTimeDivergence +
 			allTimeDivergence*allTimeDivergence*allTimeDivergence) / 4.0
+
 		if adjustment < 0 {
+
 			fmt.Println("negative weight adjustment")
 			adjustment = allTimeDivergence
 		}
 
 		if math.IsNaN(adjustment) {
+
 			return lastNode.bits, nil
 		}
 
 		// Bias adjustment for difficulty reductions to reduce incidence of sub 1 second blocks
+
 		if adjustment < 0 {
+
 			adjustment = (1 - adjustment) * adjustment
 		}
 
@@ -372,14 +450,21 @@ func (
 		bigoldtarget := big.NewFloat(1.0).SetInt(CompactToBig(last.bits))
 		bigfnewtarget := big.NewFloat(1.0).Mul(bigadjustment, bigoldtarget)
 		newtarget, _ := bigfnewtarget.Int(nil)
+
 		if newtarget == nil {
+
 			return newTargetBits, nil
 		}
+
 		mintarget := CompactToBig(newTargetBits)
+
 		if newtarget.Cmp(mintarget) < 0 {
+
 			newTargetBits = BigToCompact(newtarget)
 			b.DifficultyAdjustments[algoname] = adjustment
+
 			if l {
+
 				log <- cl.Infof{
 					"%d: old %08x, new %08x, av %3.2f, tr %3.2f, tr wgtd %3.2f, alg wgtd %3.2f, blks %d, adj %0.1f%%, alg %s",
 					lastNode.height + 1, last.bits,
@@ -392,8 +477,11 @@ func (
 					(1 - adjustment) * 100,
 					fork.List[1].AlgoVers[algo],
 				}
+
 			}
+
 		}
+
 		return newTargetBits, nil
 	}
 
@@ -407,14 +495,18 @@ func (
 func BigToCompact(n *big.Int) uint32 {
 
 	// No need to do any work if it's zero.
+
 	if n.Sign() == 0 {
+
 		return 0
 	}
 
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes.  So, shift the number right or left accordingly.  This is equivalent to: mantissa = mantissa / 256^(exponent-3)
 	var mantissa uint32
 	exponent := uint(len(n.Bytes()))
+
 	if exponent <= 3 {
+
 		mantissa = uint32(n.Bits()[0])
 		mantissa <<= 8 * (3 - exponent)
 	} else {
@@ -425,16 +517,21 @@ func BigToCompact(n *big.Int) uint32 {
 	}
 
 	// When the mantissa already has the sign bit set, the number is too large to fit into the available 23-bits, so divide the number by 256 and increment the exponent accordingly.
+
 	if mantissa&0x00800000 != 0 {
+
 		mantissa >>= 8
 		exponent++
 	}
 
 	// Pack the exponent, sign bit, and mantissa into an unsigned 32-bit int and return it.
 	compact := uint32(exponent<<24) | mantissa
+
 	if n.Sign() < 0 {
+
 		compact |= 0x00800000
 	}
+
 	return compact
 }
 
@@ -449,9 +546,12 @@ func CalcWork(bits uint32, height int32, algover int32) *big.Int {
 	algoname := fork.List[current].AlgoVers[algover]
 	difficultyNum = new(big.Int).Mul(difficultyNum, big.NewInt(fork.List[current].Algos[algoname].NSperOp))
 	difficultyNum = new(big.Int).Quo(difficultyNum, big.NewInt(fork.List[current].WorkBase))
+
 	if difficultyNum.Sign() <= 0 {
+
 		return big.NewInt(0)
 	}
+
 	denominator := new(big.Int).Add(difficultyNum, bigOne)
 	r := new(big.Int).Div(oneLsh256, denominator)
 	return r
@@ -486,7 +586,9 @@ func CompactToBig(compact uint32) *big.Int {
 
 	// Since the base for the exponent is 256, the exponent can be treated as the number of bytes to represent the full 256-bit number.  So, treat the exponent as the number of bytes and shift the mantissa right or left accordingly.  This is equivalent to: N = mantissa * 256^(exponent-3)
 	var bn *big.Int
+
 	if exponent <= 3 {
+
 		mantissa >>= 8 * (3 - exponent)
 		bn = big.NewInt(int64(mantissa))
 	} else {
@@ -495,9 +597,12 @@ func CompactToBig(compact uint32) *big.Int {
 	}
 
 	// Make it negative if the sign bit is set.
+
 	if isNegative {
+
 		bn = bn.Neg(bn)
 	}
+
 	return bn
 }
 
@@ -507,8 +612,11 @@ func HashToBig(hash *chainhash.Hash) *big.Int {
 	// A Hash is in little-endian, but the big package wants the bytes in big-endian, so reverse them.
 	buf := *hash
 	blen := len(buf)
+
 	for i := 0; i < blen/2; i++ {
+
 		buf[i], buf[blen-1-i] = buf[blen-1-i], buf[i]
 	}
+
 	return new(big.Int).SetBytes(buf[:])
 }

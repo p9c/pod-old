@@ -25,23 +25,28 @@ func TestEncodeDecodeWIF(
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	wif2, err := NewWIF(priv2, &chaincfg.TestNet3Params, true)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	tests := []struct {
 		wif     *WIF
 		encoded string
 	}{
+
 		{
 			wif1,
 			"5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ",
 		},
+
 		{
 			wif2,
 			"cV1Y7ARUr9Yx7BR55nTdnR7ZXNJphZtCCMBTEZBJe1hXt2kB684q",
 		},
 	}
+
 	for _, test := range tests {
 		// Test that encoding the WIF structure matches the expected string.
 		s := test.wif.String()
@@ -50,6 +55,7 @@ func TestEncodeDecodeWIF(
 				test.encoded, s)
 			continue
 		}
+
 		// Test that decoding the expected string results in the original WIF
 		// structure.
 		w, err := DecodeWIF(test.encoded)
@@ -57,8 +63,11 @@ func TestEncodeDecodeWIF(
 			t.Error(err)
 			continue
 		}
+
 		if got := w.String(); got != test.encoded {
 			t.Errorf("NewWIF failed: want '%v', got '%v'", test.wif, got)
 		}
+
 	}
+
 }

@@ -44,6 +44,7 @@ func CreateSimulationWallet(
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	// Create the wallet.
@@ -84,6 +85,7 @@ func CreateWallet(
 		if err != nil {
 			return err
 		}
+
 	}
 
 	// Start by prompting for the private passphrase.  When there is an existing keystore, the user will be promped for that passphrase, otherwise they will be prompted for a new one.
@@ -114,6 +116,7 @@ func CreateWallet(
 
 				lockChan <- time.Time{}
 			}()
+
 			err := w.Unlock(privPass, lockChan)
 			if err != nil {
 				fmt.Printf("ERR: Failed to unlock new wallet "+
@@ -134,7 +137,9 @@ func CreateWallet(
 				fmt.Printf("WARN: Failed to remove legacy wallet "+
 					"from'%s'\n", keystorePath)
 			}
+
 		})
+
 	}
 
 	// Ascertain the public passphrase.  This will either be a value specified by the user or the default hard-coded public passphrase if the user does not want the additional public data encryption.
@@ -196,14 +201,17 @@ func checkCreateDir(
 			if err = os.MkdirAll(path, 0700); err != nil {
 				return fmt.Errorf("cannot create directory: %s", err)
 			}
+
 		} else {
 			return fmt.Errorf("error checking directory: %s", err)
 		}
+
 	} else {
 		if !fi.IsDir() {
 
 			return fmt.Errorf("path '%s' is not a directory", path)
 		}
+
 	}
 
 	return nil
@@ -217,6 +225,7 @@ func convertLegacyKeystore(
 		Height: 0,
 		Hash:   *netParams.GenesisHash,
 	}
+
 	for _, walletAddr := range legacyKeyStore.ActiveAddresses() {
 
 		switch addr := walletAddr.(type) {
@@ -262,6 +271,7 @@ func convertLegacyKeystore(
 				"keystore type: %T\n", addr)
 			continue
 		}
+
 	}
 
 	return nil

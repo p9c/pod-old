@@ -62,16 +62,24 @@ func (c bitConditionChecker) Condition(node *blockNode) (bool, error) {
 
 	conditionMask := uint32(1) << c.bit
 	version := uint32(node.version)
+
 	if version&vbTopMask != vbTopBits {
+
 		return false, nil
 	}
+
 	if version&conditionMask == 0 {
+
 		return false, nil
 	}
+
 	expectedVersion, err := c.chain.calcNextBlockVersion(node.parent)
+
 	if err != nil {
+
 		return false, err
 	}
+
 	return uint32(expectedVersion)&conditionMask == 0, nil
 }
 
@@ -118,18 +126,26 @@ func (b *BlockChain) calcNextBlockVersion(prevNode *blockNode) (uint32, error) {
 
 	// Set the appropriate bits for each actively defined rule deployment that is either in the process of being voted on, or locked in for the/ activation at the next threshold window change.
 	expectedVersion := uint32(vbTopBits)
+
 	for id := 0; id < len(b.chainParams.Deployments); id++ {
+
 		deployment := &b.chainParams.Deployments[id]
 		cache := &b.deploymentCaches[id]
 		checker := deploymentChecker{deployment: deployment, chain: b}
 		state, err := b.thresholdState(prevNode, checker, cache)
+
 		if err != nil {
+
 			return 0, err
 		}
+
 		if state == ThresholdStarted || state == ThresholdLockedIn {
+
 			expectedVersion |= uint32(1) << deployment.BitNumber
 		}
+
 	}
+
 	return expectedVersion, nil
 }
 
@@ -146,19 +162,28 @@ func (b *BlockChain) CalcNextBlockVersion() (uint32, error) {
 func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 
 	// Warn if any unknown new rules are either about to activate or have already been activated.
+
 	for bit := uint32(0); bit < vbNumBits; bit++ {
+
 		checker := bitConditionChecker{bit: bit, chain: b}
 		cache := &b.warningCaches[bit]
 		state, err := b.thresholdState(node.parent, checker, cache)
+
 		if err != nil {
+
 			return err
 		}
+
 		switch state {
+
 		case ThresholdActive:
+
 			if !b.unknownRulesWarned {
+
 				log <- cl.Warnf{"Unknown new rules activated (bit %d)", bit}
 				b.unknownRulesWarned = true
 			}
+
 		case ThresholdLockedIn:
 			window := int32(checker.MinerConfirmationWindow())
 			activationHeight := window - (node.height % window)
@@ -167,8 +192,11 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 				activationHeight,
 				bit,
 			}
+
 		}
+
 	}
+
 	return nil
 }
 

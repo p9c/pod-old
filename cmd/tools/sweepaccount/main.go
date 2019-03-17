@@ -53,6 +53,7 @@ var opts = struct {
 	DestinationAccount    string              `long:"destacct" description:"Account to send sweeped outputs to"`
 	RequiredConfirmations int64               `long:"minconf" description:"Required confirmations to include an output"`
 }{
+
 	TestNet3:              false,
 	SimNet:                false,
 	RPCConnect:            "localhost",
@@ -72,6 +73,7 @@ func init() {
 	if err != nil {
 		fatalf("%v", err)
 	}
+
 	if !certFileExists {
 		opts.RPCConnect = ""
 		opts.RPCCertificateFile = ""
@@ -85,6 +87,7 @@ func init() {
 	if opts.TestNet3 && opts.SimNet {
 		fatalf("Multiple bitcoin networks may not be used simultaneously")
 	}
+
 	var activeNet = &netparams.MainNetParams
 	if opts.TestNet3 {
 		activeNet = &netparams.TestNet3Params
@@ -95,10 +98,12 @@ func init() {
 	if opts.RPCConnect == "" {
 		fatalf("RPC hostname[:port] is required")
 	}
+
 	rpcConnect, err := cfgutil.NormalizeAddress(opts.RPCConnect, activeNet.RPCServerPort)
 	if err != nil {
 		fatalf("Invalid RPC network address `%v`: %v", opts.RPCConnect, err)
 	}
+
 	opts.RPCConnect = rpcConnect
 
 	if opts.RPCUsername == "" {
@@ -109,6 +114,7 @@ func init() {
 	if err != nil {
 		fatalf("%v", err)
 	}
+
 	if !certFileExists {
 		fatalf("RPC certificate file `%s` not found", opts.RPCCertificateFile)
 	}
@@ -116,15 +122,19 @@ func init() {
 	if opts.FeeRate.Amount > 1e6 {
 		fatalf("Fee rate `%v/kB` is exceptionally high", opts.FeeRate.Amount)
 	}
+
 	if opts.FeeRate.Amount < 1e2 {
 		fatalf("Fee rate `%v/kB` is exceptionally low", opts.FeeRate.Amount)
 	}
+
 	if opts.SourceAccount == opts.DestinationAccount {
 		fatalf("Source and destination accounts should not be equal")
 	}
+
 	if opts.RequiredConfirmations < 0 {
 		fatalf("Required confirmations must be non-negative")
 	}
+
 }
 
 // noInputValue describes an error returned by the input source when no inputs
@@ -156,9 +166,11 @@ func makeInputSource(
 				output.Amount)
 			break
 		}
+
 		if outputAmount == 0 {
 			continue
 		}
+
 		if !saneOutputValue(outputAmount) {
 
 			sourceErr = fmt.Errorf(
@@ -166,6 +178,7 @@ func makeInputSource(
 				outputAmount)
 			break
 		}
+
 		totalInputValue += outputAmount
 
 		previousOutPoint, err := parseOutPoint(&output)
@@ -188,6 +201,7 @@ func makeInputSource(
 
 		return totalInputValue, inputs, inputValues, nil, sourceErr
 	}
+
 }
 
 // makeDestinationScriptSource creates a ChangeSource which is used to receive
@@ -201,8 +215,10 @@ func makeDestinationScriptSource(
 		if err != nil {
 			return nil, err
 		}
+
 		return txscript.PayToAddrScript(destinationAddress)
 	}
+
 }
 
 func main() {
@@ -211,6 +227,7 @@ func main() {
 	if err != nil {
 		fatalf("%v", err)
 	}
+
 }
 
 func sweep() error {
@@ -224,16 +241,19 @@ func sweep() error {
 	if err != nil {
 		return errContext(err, "failed to read RPC certificate")
 	}
+
 	rpcClient, err := rpcclient.New(&rpcclient.ConnConfig{
 		Host:         opts.RPCConnect,
 		User:         opts.RPCUsername,
 		Pass:         rpcPassword,
 		Certificates: rpcCertificate,
 		HTTPPostMode: true,
-	}, nil)
+	},
+		nil)
 	if err != nil {
 		return errContext(err, "failed to create RPC client")
 	}
+
 	defer rpcClient.Shutdown()
 
 	// Fetch all unspent outputs, ignore those not from the source
@@ -244,17 +264,21 @@ func sweep() error {
 	if err != nil {
 		return errContext(err, "failed to fetch unspent outputs")
 	}
+
 	sourceOutputs := make(map[string][]json.ListUnspentResult)
 	for _, unspentOutput := range unspentOutputs {
 		if !unspentOutput.Spendable {
 			continue
 		}
+
 		if unspentOutput.Confirmations < opts.RequiredConfirmations {
 			continue
 		}
+
 		if unspentOutput.Account != opts.SourceAccount {
 			continue
 		}
+
 		sourceAddressOutputs := sourceOutputs[unspentOutput.Address]
 		sourceOutputs[unspentOutput.Address] = append(sourceAddressOutputs, unspentOutput)
 	}
@@ -265,6 +289,7 @@ func sweep() error {
 		if err != nil {
 			return errContext(err, "failed to read private passphrase")
 		}
+
 	}
 
 	var totalSwept util.Amount
@@ -275,6 +300,7 @@ func sweep() error {
 		os.Stderr.Write(newlineBytes)
 		numErrors++
 	}
+
 	for _, previousOutputs := range sourceOutputs {
 		inputSource := makeInputSource(previousOutputs)
 		destinationSource := makeDestinationScriptSource(rpcClient, opts.DestinationAccount)
@@ -285,6 +311,7 @@ func sweep() error {
 
 				reportError("Failed to create unsigned transaction: %v", err)
 			}
+
 			continue
 		}
 
@@ -294,12 +321,14 @@ func sweep() error {
 			reportError("Failed to unlock wallet: %v", err)
 			continue
 		}
+
 		signedTransaction, complete, err := rpcClient.SignRawTransaction(tx.Tx)
 		_ = rpcClient.WalletLock()
 		if err != nil {
 			reportError("Failed to sign transaction: %v", err)
 			continue
 		}
+
 		if !complete {
 			reportError("Failed to sign every input")
 			continue
@@ -324,6 +353,7 @@ func sweep() error {
 		fmt.Printf("Swept %v to destination account across %d %s\n",
 			totalSwept, numPublished, transactionNoun)
 	}
+
 	if numErrors > 0 {
 		return fmt.Errorf("Failed to publish %d %s", numErrors, transactionNoun)
 	}
@@ -341,6 +371,7 @@ func promptSecret(
 	if err != nil {
 		return "", err
 	}
+
 	return string(input), nil
 }
 
@@ -356,6 +387,7 @@ func parseOutPoint(
 	if err != nil {
 		return wire.OutPoint{}, err
 	}
+
 	return wire.OutPoint{Hash: *txHash, Index: input.Vout}, nil
 }
 
@@ -364,5 +396,6 @@ func pickNoun(
 	if n == 1 {
 		return singularForm
 	}
+
 	return pluralForm
 }

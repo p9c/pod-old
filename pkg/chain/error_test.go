@@ -12,6 +12,7 @@ func TestErrorCodeStringer(
 		in   ErrorCode
 		want string
 	}{
+
 		{ErrDuplicateBlock, "ErrDuplicateBlock"},
 		{ErrBlockTooBig, "ErrBlockTooBig"},
 		{ErrBlockWeightTooHigh, "ErrBlockWeightTooHigh"},
@@ -58,6 +59,7 @@ func TestErrorCodeStringer(
 		{ErrPrevBlockNotBest, "ErrPrevBlockNotBest"},
 		{0xffff, "Unknown ErrorCode (65535)"},
 	}
+
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		result := test.in.String()
@@ -66,7 +68,9 @@ func TestErrorCodeStringer(
 				test.want)
 			continue
 		}
+
 	}
+
 }
 
 // TestRuleError tests the error output for the RuleError type.
@@ -77,15 +81,18 @@ func TestRuleError(
 		in   RuleError
 		want string
 	}{
+
 		{
 			RuleError{Description: "duplicate block"},
 			"duplicate block",
 		},
+
 		{
 			RuleError{Description: "human-readable error"},
 			"human-readable error",
 		},
 	}
+
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		result := test.in.Error()
@@ -94,7 +101,9 @@ func TestRuleError(
 				test.want)
 			continue
 		}
+
 	}
+
 }
 
 // TestDeploymentError tests the stringized output for the DeploymentError type.
@@ -106,19 +115,23 @@ func TestDeploymentError(
 		in   DeploymentError
 		want string
 	}{
+
 		{
 			DeploymentError(0),
 			"deployment ID 0 does not exist",
 		},
+
 		{
 			DeploymentError(10),
 			"deployment ID 10 does not exist",
 		},
+
 		{
 			DeploymentError(123),
 			"deployment ID 123 does not exist",
 		},
 	}
+
 	t.Logf("Running %d tests", len(tests))
 	for i, test := range tests {
 		result := test.in.Error()
@@ -127,5 +140,7 @@ func TestDeploymentError(
 				test.want)
 			continue
 		}
+
 	}
+
 }

@@ -46,7 +46,9 @@ func byteswap(
 	for i := 0; i < length/2; i++ {
 		buf[i], buf[length-i-1] = buf[length-i-1], buf[i]
 	}
+
 }
+
 func initTransaction() (t transaction) {
 
 	t.version = 1
@@ -59,6 +61,7 @@ func initTransaction() (t transaction) {
 	t.prevOutput = make([]byte, 32, 32)
 	return
 }
+
 func main() {
 
 	args := os.Args
@@ -75,7 +78,9 @@ func main() {
 			"“All rational action is in the first place individual action. Only the individual thinks. Only the individual reasons. Only the individual acts.” - Ludwig von Mises, Socialism: An Economic and Sociological Analysis",
 			"486604799",
 		}
+
 	}
+
 	var pubkey []byte
 	if args[1] == "" {
 		pubkey = make([]byte, 65)
@@ -84,33 +89,40 @@ func main() {
 			fmt.Println("error: ", err)
 			os.Exit(1)
 		}
+
 		if n != 65 {
 			fmt.Println("For some reason did not get 65 random bytes")
 			os.Exit(1)
 		}
+
 		fmt.Printf("\nGenerated random public key:\n0x%x\n", pubkey)
 	} else {
 		if len(args[1]) != 130 {
 			fmt.Println("Invalid public key length. Should be 130 hex digits,")
 			os.Exit(1)
 		}
+
 		var err error
 		pubkey, err = hex.DecodeString(args[1])
 		if err != nil {
 			fmt.Println("Public key had invalid characters")
 		}
+
 	}
+
 	timestamp := args[2]
 	if len(timestamp) > 254 || len(timestamp) < 1 {
 		fmt.Println("Timestamp was either longer than 254 characters or zero length")
 		os.Exit(1)
 	}
+
 	tx := initTransaction()
 	nbits, err := strconv.ParseInt(args[3], 10, 32)
 	if err != nil {
 		fmt.Println("nBits was not a decimal number or exceeded the precision of 32 bits")
 		os.Exit(0)
 	}
+
 	nBits := uint32(nbits)
 	tx.pubkeyScript = joinBytes([]byte{0x41}, pubkey, []byte{op_checksig})
 	switch {
@@ -123,12 +135,15 @@ func main() {
 		for i := uint(1); i < 3; i++ {
 			tx.scriptSig = append(tx.scriptSig, byte(nBits>>(8*i)))
 		}
+
 	default:
 		tx.scriptSig = append([]byte{4}, byte(nBits))
 		for i := uint(1); i < 4; i++ {
 			tx.scriptSig = append(tx.scriptSig, byte(nBits>>(8*i)))
 		}
+
 	}
+
 	tx.scriptSig = joinBytes([]byte{0x01, 0x04, byte(len(timestamp))}, []byte(timestamp))
 	tx.serializedData = joinBytes(
 		uint32tobytes(tx.version),
@@ -170,20 +185,25 @@ func main() {
 		if body<<bits == 0 {
 			break
 		}
+
 	}
+
 	bits = 32 - bits
 	if bits < 31 {
 		bytes = bytes - bits/8
 		bits = bits % 8
 	}
+
 	fmt.Printf("\nSearching for nonce/unixtime combination that satisfies minimum target %d with %d threads on %d cores...\nPlease wait... ", nBits, runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	start := time.Now()
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go findNonce(blockHeader, bytes, bits, start)
 		time.Sleep(time.Second)
 	}
+
 	time.Sleep(time.Hour)
 }
+
 func findNonce(
 	b []byte, bytes, bits uint32, start time.Time) []byte {
 	blockHeader := append([]byte(nil), b...)
@@ -203,6 +223,7 @@ func findNonce(
 			fmt.Println("\nTime for nonce search:", time.Since(start))
 			os.Exit(1)
 		}
+
 		startNonce++
 		if startNonce < maxNonce {
 			blockHeader[76] = byte(startNonce)
@@ -217,8 +238,11 @@ func findNonce(
 			blockHeader[70] = byte(unixtime >> 16)
 			blockHeader[71] = byte(unixtime >> 24)
 		}
+
 	}
+
 }
+
 func joinBytes(
 	segment ...[]byte) (joined []byte) {
 
@@ -226,8 +250,10 @@ func joinBytes(
 	for i := range segment {
 		joined = append(joined, segment[i]...)
 	}
+
 	return
 }
+
 func undertarget(
 	hash []byte, bits uint32) bool {
 	// for i:=len(hash)-1; i>0; i-- { hash[i]=0 }
@@ -237,15 +263,20 @@ func undertarget(
 		if hash[i] != 0 {
 			return false
 		}
+
 	}
+
 	// hash[0] = 0
 	for i := bits; i > 0; i-- {
 		if hash[0]<<i != 0 {
 			return false
 		}
+
 	}
+
 	return true
 }
+
 func uint32tobytes(
 	u uint32) []byte {
 	b := make([]byte, 4)
@@ -253,19 +284,24 @@ func uint32tobytes(
 	for i := uint(1); i < 4; i++ {
 		b[i] = byte(u >> (i * 8))
 	}
+
 	return b
 }
+
 func bytestouint32(
 	b []byte) uint32 {
 	if len(b) > 4 {
 		return 0
 	}
+
 	var u uint32
 	for i := uint32(3); i > 0; i-- {
 		u += uint32(b[i]) << (i * 8)
 	}
+
 	return u
 }
+
 func uint64tobytes(
 	u uint64) []byte {
 	b := make([]byte, 8)
@@ -273,5 +309,6 @@ func uint64tobytes(
 	for i := uint(1); i < 8; i++ {
 		b[i] = byte(u >> (i * 8))
 	}
+
 	return b
 }

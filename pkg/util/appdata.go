@@ -32,6 +32,7 @@ func appDataDir(
 	if err != nil || homeDir == "" {
 		homeDir = os.Getenv("HOME")
 	}
+
 	switch goos {
 
 	// Attempt to use the LOCALAPPDATA or APPDATA environment variable on Windows.
@@ -41,22 +42,27 @@ func appDataDir(
 		if roaming || appData == "" {
 			appData = os.Getenv("APPDATA")
 		}
+
 		if appData != "" {
 			return filepath.Join(appData, appNameUpper)
 		}
+
 	case "darwin":
 		if homeDir != "" {
 			return filepath.Join(homeDir, "Library",
 				"Application Support", appNameUpper)
 		}
+
 	case "plan9":
 		if homeDir != "" {
 			return filepath.Join(homeDir, appNameLower)
 		}
+
 	default:
 		if homeDir != "" {
 			return filepath.Join(homeDir, "."+appNameLower)
 		}
+
 	}
 
 	// Fall back to the current directory if all else fails.

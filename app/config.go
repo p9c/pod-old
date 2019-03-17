@@ -86,6 +86,7 @@ var ctlConfig = ctl.Config{
 	ProxyUser:     &appConfigCommon.Proxyuser,
 	ProxyPass:     &appConfigCommon.Proxypass,
 }
+
 var ctlDatadir = "ctl"
 
 var defaultDatadir = "~/.pod"
@@ -230,7 +231,10 @@ func NewSourceFromFlagAndBase(c *cli.Context, confName, flagFileName string,
 			if err != nil {
 				panic(err)
 			}
+
 		}
+
 		return altsrc.NewYamlSourceFromFile(filePath)
 	}
+
 }

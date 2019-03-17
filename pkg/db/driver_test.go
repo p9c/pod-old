@@ -18,17 +18,22 @@ var (
 func checkDbError(
 	t *testing.T, testName string, gotErr error, wantErrCode database.ErrorCode) bool {
 	dbErr, ok := gotErr.(database.Error)
+
 	if !ok {
+
 		t.Errorf("%s: unexpected error type - got %T, want %T",
 			testName, gotErr, database.Error{})
 		return false
 	}
+
 	if dbErr.ErrorCode != wantErrCode {
+
 		t.Errorf("%s: unexpected error code - got %s (%s), want %s",
 			testName, dbErr.ErrorCode, dbErr.Description,
 			wantErrCode)
 		return false
 	}
+
 	return true
 }
 
@@ -37,10 +42,13 @@ func TestAddDuplicateDriver(
 	t *testing.T) {
 
 	supportedDrivers := database.SupportedDrivers()
+
 	if len(supportedDrivers) == 0 {
+
 		t.Errorf("no backends to test")
 		return
 	}
+
 	dbType := supportedDrivers[0]
 
 	// bogusCreateDB is a function which acts as a bogus create and open driver function and intentionally returns a failure that can be detected if the interface allows a duplicate driver to overwrite an
@@ -58,12 +66,15 @@ func TestAddDuplicateDriver(
 		Create: bogusCreateDB,
 		Open:   bogusCreateDB,
 	}
+
 	testName := "duplicate driver registration"
 	err := database.RegisterDriver(driver)
+
 	if !checkDbError(t, testName, err, database.ErrDbTypeRegistered) {
 
 		return
 	}
+
 }
 
 // TestCreateOpenFail ensures that errors which occur while opening or closing a database are handled properly.
@@ -85,11 +96,14 @@ func TestCreateOpenFail(
 		Create: bogusCreateDB,
 		Open:   bogusCreateDB,
 	}
+
 	database.RegisterDriver(driver)
 
 	// Ensure creating a database with the new type fails with the expected error.
 	_, err := database.Create(dbType)
+
 	if err != openError {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			openError)
 		return
@@ -97,11 +111,14 @@ func TestCreateOpenFail(
 
 	// Ensure opening a database with the new type fails with the expected error.
 	_, err = database.Open(dbType)
+
 	if err != openError {
+
 		t.Errorf("expected error not received - got: %v, want %v", err,
 			openError)
 		return
 	}
+
 }
 
 // TestCreateOpenUnsupported ensures that attempting to create or open an unsupported database type is handled properly.
@@ -112,6 +129,7 @@ func TestCreateOpenUnsupported(
 	testName := "create with unsupported database type"
 	dbType := "unsupported"
 	_, err := database.Create(dbType)
+
 	if !checkDbError(t, testName, err, database.ErrDbUnknownType) {
 
 		return
@@ -120,8 +138,10 @@ func TestCreateOpenUnsupported(
 	// Ensure opening a database with the an unsupported type fails with the expected error.
 	testName = "open with unsupported database type"
 	_, err = database.Open(dbType)
+
 	if !checkDbError(t, testName, err, database.ErrDbUnknownType) {
 
 		return
 	}
+
 }

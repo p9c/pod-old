@@ -17,6 +17,7 @@ func main() {
 	http.HandleFunc("/getallblocks", getallblocksHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
 func getinfoHandler(
 	w http.ResponseWriter, r *http.Request) {
 
@@ -24,14 +25,17 @@ func getinfoHandler(
 	if err != nil {
 		fmt.Println("ERROR", err.Error())
 	}
+
 	jsonResponse, err := json.MarshalIndent(response, "  ", "")
 	fmt.Fprintf(w, string(jsonResponse))
 }
+
 func rootHandler(
 	w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "This is the root")
 }
+
 func getallblocksHandler(
 	w http.ResponseWriter, r *http.Request) {
 
@@ -40,20 +44,25 @@ func getallblocksHandler(
 	if err != nil {
 		fmt.Println("ERROR", err.Error())
 	}
+
 	var i uint32
 	for i = 0; i < height; i++ {
 		response, err = jsonrpc.Call("getblockhash", []uint32{i})
 		if err != nil {
 			fmt.Println("ERROR", err.Error())
 		}
+
 		response, err = jsonrpc.Call("getblock", []string{response.(string)})
 		if err != nil {
 			fmt.Println("ERROR", err.Error())
 		}
+
 		jsonResponse, err := json.MarshalIndent(response, "  ", "")
 		if err != nil {
 			fmt.Println("ERROR", err.Error())
 		}
+
 		fmt.Fprintf(w, "%s\n", jsonResponse)
 	}
+
 }

@@ -27,6 +27,7 @@ func TstAddressPubKeyHash(
 		hash:  hash,
 		netID: netID,
 	}
+
 }
 
 // TstAddressScriptHash makes an AddressScriptHash, setting the unexported fields with the parameters hash and netID.
@@ -37,6 +38,7 @@ func TstAddressScriptHash(
 		hash:  hash,
 		netID: netID,
 	}
+
 }
 
 // TstAddressWitnessPubKeyHash creates an AddressWitnessPubKeyHash, initiating the fields as given.
@@ -48,6 +50,7 @@ func TstAddressWitnessPubKeyHash(
 		witnessVersion: version,
 		witnessProgram: program,
 	}
+
 }
 
 // TstAddressWitnessScriptHash creates an AddressWitnessScriptHash, initiating the fields as given.
@@ -59,6 +62,7 @@ func TstAddressWitnessScriptHash(
 		witnessVersion: version,
 		witnessProgram: program,
 	}
+
 }
 
 // TstAddressPubKey makes an AddressPubKey, setting the unexported fields with the parameters.
@@ -71,6 +75,7 @@ func TstAddressPubKey(
 		pubKey:       (*ec.PublicKey)(pubKey),
 		pubKeyHashID: netID,
 	}
+
 }
 
 // TstAddressSAddr returns the expected script address bytes for P2PKH and P2SH bitcoin addresses.
@@ -93,5 +98,6 @@ func TstAddressSegwitSAddr(
 	if err != nil {
 		return []byte{}
 	}
+
 	return data
 }

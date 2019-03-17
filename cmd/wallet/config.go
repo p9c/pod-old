@@ -86,6 +86,7 @@ func cleanAndExpandPath(path string) string {
 	if !strings.HasPrefix(path, "~") {
 		return filepath.Clean(path)
 	}
+
 	// Expand initial ~ to the current user's home directory, or ~otheruser to otheruser's home directory.  On Windows, both forward and backward slashes can be used.
 	path = path[1:]
 	var pathSeparators string
@@ -94,11 +95,13 @@ func cleanAndExpandPath(path string) string {
 	} else {
 		pathSeparators = string(os.PathSeparator)
 	}
+
 	userName := ""
 	if i := strings.IndexAny(path, pathSeparators); i != -1 {
 		userName = path[:i]
 		path = path[i:]
 	}
+
 	homeDir := ""
 	var u *user.User
 	var err error
@@ -107,15 +110,19 @@ func cleanAndExpandPath(path string) string {
 	} else {
 		u, err = user.Lookup(userName)
 	}
+
 	if err == nil {
 		homeDir = u.HomeDir
 	}
+
 	// Fallback to CWD if user lookup fails or user has no home directory.
 	if homeDir == "" {
 		homeDir = "."
 	}
+
 	return filepath.Join(homeDir, path)
 }
+
 
 // createDefaultConfig creates a basic config file at the given destination path.
 // For this it tries to read the config file for the RPC server (either pod or
@@ -128,43 +135,51 @@ func createDefaultConfigFile(destinationPath, serverConfigPath,
 	if err != nil {
 		return err
 	}
+
 	defer serverConfigFile.Close()
 	content, err := ioutil.ReadAll(serverConfigFile)
 	if err != nil {
 		return err
 	}
+
 	// content := []byte(samplePodCtlConf)
 	// Extract the rpcuser
 	rpcUserRegexp, err := regexp.Compile(`(?m)^\s*rpcuser=([^\s]+)`)
 	if err != nil {
 		return err
 	}
+
 	userSubmatches := rpcUserRegexp.FindSubmatch(content)
 	if userSubmatches == nil {
 		// No user found, nothing to do
 		return nil
 	}
+
 	// Extract the rpcpass
 	rpcPassRegexp, err := regexp.Compile(`(?m)^\s*rpcpass=([^\s]+)`)
 	if err != nil {
 		return err
 	}
+
 	passSubmatches := rpcPassRegexp.FindSubmatch(content)
 	if passSubmatches == nil {
 		// No password found, nothing to do
 		return nil
 	}
+
 	// Extract the TLS
 	TLSRegexp, err := regexp.Compile(`(?m)^\s*tls=(0|1)(?:\s|$)`)
 	if err != nil {
 		return err
 	}
+
 	TLSSubmatches := TLSRegexp.FindSubmatch(content)
 	// Create the destination directory if it does not exists
 	err = os.MkdirAll(filepath.Dir(destinationPath), 0700)
 	if err != nil {
 		return err
 	}
+
 	// fmt.Println("config path", destinationPath)
 	// Create the destination file and write the rpcuser and rpcpass to it
 	dest, err := os.OpenFile(destinationPath,
@@ -173,6 +188,7 @@ func createDefaultConfigFile(destinationPath, serverConfigPath,
 		fmt.Println("ERROR", err)
 		return err
 	}
+
 	defer dest.Close()
 	destString := fmt.Sprintf("username=%s\npassword=%s\n",
 		string(userSubmatches[1]), string(passSubmatches[1]))
@@ -180,10 +196,12 @@ func createDefaultConfigFile(destinationPath, serverConfigPath,
 		fmt.Println("TLS is enabled but more than likely the certificates will fail verification because of the CA. Currently there is no adequate tool for this, but will be soon.")
 		destString += fmt.Sprintf("clienttls=%s\n", TLSSubmatches[1])
 	}
+
 	output := ";;; Defaults created from local pod/sac configuration:\n" + destString + "\n" + string(sampleModConf)
 	dest.WriteString(output)
 	return nil
 }
+
 
 func copy(src, dst string) (int64, error) {
 	// fmt.Println(src, dst)
@@ -191,22 +209,27 @@ func copy(src, dst string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	if !sourceFileStat.Mode().IsRegular() {
 		return 0, fmt.Errorf("%s is not a regular file", src)
 	}
+
 	source, err := os.Open(src)
 	if err != nil {
 		return 0, err
 	}
+
 	defer source.Close()
 	destination, err := os.Create(dst)
 	if err != nil {
 		return 0, err
 	}
+
 	defer destination.Close()
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
 }
+
 
 // supportedSubsystems returns a sorted slice of the supported subsystems for
 // logging purposes.
@@ -216,10 +239,12 @@ func supportedSubsystems() []string {
 	for subsysID := range subsystemLoggers {
 		subsystems = append(subsystems, subsysID)
 	}
+
 	// Sort the subsytems for stable display.
 	sort.Strings(subsystems)
 	return subsystems
 }
+
 // parseAndSetDebugLevels attempts to parse the specified debug level and set
 // the levels accordingly.  An appropriate error is returned if anything is
 // invalid.
@@ -232,10 +257,12 @@ func parseAndSetDebugLevels(debugLevel string) error {
 		str := "The specified debug level [%v] is invalid"
 		return fmt.Errorf(str, debugLevel)
 	}
+
 	// Change the logging level for all subsystems.
 	setLogLevels(debugLevel)
 	return nil
 }
+
 
 // Split the specified string into subsystem/level pairs while detecting
 // issues and update the log levels accordingly.
@@ -245,6 +272,7 @@ for _, logLevelPair := range strings.Split(debugLevel, ",") {
 		"subsystem/level pair [%v]"
 		return fmt.Errorf(str, logLevelPair)
 	}
+
 	// Extract the specified subsystem and log level.
 	fields := strings.Split(logLevelPair, "=")
 	subsysID, logLevel := fields[0], fields[1]
@@ -254,15 +282,19 @@ for _, logLevelPair := range strings.Split(debugLevel, ",") {
 		"supported subsytems %v"
 		return fmt.Errorf(str, subsysID, supportedSubsystems())
 	}
+
 	// Validate log level.
 	if !validLogLevel(logLevel) {
 		str := "The specified debug level [%v] is invalid"
 		return fmt.Errorf(str, logLevel)
 	}
+
 	setLogLevel(subsysID, logLevel)
 	}
+
 	return nil
 }
+
 
 
 // loadConfig initializes and parses the config using a config file and command
@@ -293,6 +325,7 @@ func loadConfig(
 			// AddPeers:               []string{},
 			// ConnectPeers:           []string{},
 		}
+
 		// Pre-parse the command line options to see if an alternative config
 		// file or the version flag was specified.
 		preCfg := cfg
@@ -302,8 +335,10 @@ func loadConfig(
 				if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
 						preParser.WriteHelp(os.Stderr)
 					}
+
 			return nil, nil, err
 		}
+
 		// Show the version and exit if the version flag was specified.
 		funcName := "loadConfig"
 		appName := filepath.Base(os.Args[0])
@@ -313,6 +348,7 @@ func loadConfig(
 				fmt.Println(appName, "version", version())
 				os.Exit(0)
 		}
+
 		// Load additional config from file.
 		var configFileError error
 		parser := flags.NewParser(&cfg, flags.Default)
@@ -324,10 +360,13 @@ func loadConfig(
 					if !preCfg.AppDataDir.ExplicitlySet() && preCfg.DataDir.ExplicitlySet() {
 							appDataDir = cleanAndExpandPath(preCfg.DataDir.Value)
 						}
+
 						if appDataDir != DefaultAppDataDir {
 								configFilePath = filepath.Join(appDataDir, DefaultConfigFilename)
 							}
+
 						}
+
 		err = flags.NewIniParser(parser).ParseFile(configFilePath)
 		if err != nil {
 			if _, ok := err.(*os.PathError); !ok {
@@ -335,16 +374,20 @@ func loadConfig(
 				parser.WriteHelp(os.Stderr)
 				return nil, nil, err
 			}
+
 			configFileError = err
 		}
+
 		// Parse command line options again to ensure they take precedence.
 		remainingArgs, err := parser.Parse()
 		if err != nil {
 				if e, ok := err.(*flags.Error); !ok || e.Type != flags.ErrHelp {
 				parser.WriteHelp(os.Stderr)
 			}
+
 		return nil, nil, err
 		}
+
 		// Check deprecated aliases.  The new options receive priority when both
 		// are changed from the default.
 		if cfg.DataDir.ExplicitlySet() {
@@ -353,7 +396,9 @@ func loadConfig(
 				if !cfg.AppDataDir.ExplicitlySet() {
 						cfg.AppDataDir.Value = cfg.DataDir.Value
 					}
+
 				}
+
 				// If an alternate data directory was specified, and paths with defaults
 				// relative to the data dir are unchanged, modify each path to be
 				// relative to the new data dir.
@@ -362,10 +407,13 @@ func loadConfig(
 						if !cfg.RPCKey.ExplicitlySet() {
 								cfg.RPCKey.Value = filepath.Join(cfg.AppDataDir.Value, "rpc.key")
 							}
+
 							if !cfg.RPCCert.ExplicitlySet() {
 									cfg.RPCCert.Value = filepath.Join(cfg.AppDataDir.Value, "rpc.cert")
 								}
+
 							}
+
 							if _, err := os.Stat(cfg.DataDir.Value); os.IsNotExist(err) {
 									// Create the destination directory if it does not exists
 									err = os.MkdirAll(cfg.DataDir.Value, 0700)
@@ -373,7 +421,9 @@ func loadConfig(
 											fmt.Println("ERROR", err)
 											return nil, nil, err
 										}
+
 									}
+
 									var generatedRPCPass, generatedRPCUser string
 		if _, err := os.Stat(cfg.ConfigFile.Value); os.IsNotExist(err) {
 				// If we can find a pod.conf in the standard location, copy
@@ -397,6 +447,7 @@ func loadConfig(
 							fmt.Println("ERROR", err)
 							return nil, nil, err
 						}
+
 						defer dest.Close()
 						// We generate a random user and password
 						randomBytes := make([]byte, 20)
@@ -404,11 +455,13 @@ func loadConfig(
 				if err != nil {
 						return nil, nil, err
 					}
+
 					generatedRPCUser = base64.StdEncoding.EncodeToString(randomBytes)
 					_, err = rand.Read(randomBytes)
 				if err != nil {
 						return nil, nil, err
 					}
+
 				generatedRPCPass = base64.StdEncoding.EncodeToString(randomBytes)
 				// We copy every line from the sample config file to the destination,
 				// only replacing the two lines for rpcuser and rpcpass
@@ -420,20 +473,27 @@ func loadConfig(
 						if err != nil && err != io.EOF {
 								return nil, nil, err
 							}
+
 							if !strings.Contains(line, "podusername=") && !strings.Contains(line, "podpassword=") {
 									if strings.Contains(line, "username=") {
 											line = "username=" + generatedRPCUser + "\n"
 										} else if strings.Contains(line, "password=") {
 												line = "password=" + generatedRPCPass + "\n"
 											}
+
 										}
+
 										_, _ = generatedRPCPass, generatedRPCUser
 										if _, err := dest.WriteString(line); err != nil {
 												return nil, nil, err
 											}
+
 										}
+
 									}
+
 								}
+
 								// Choose the active network params based on the selected network.
 								// Multiple networks can't be selected simultaneously.
 								numNets := 0
@@ -441,10 +501,12 @@ func loadConfig(
 										activeNet = &netparams.TestNet3Params
 										numNets++
 									}
+
 									if cfg.SimNet {
 			activeNet = &netparams.SimNetParams
 			numNets++
 		}
+
 		if numNets > 1 {
 			str := "%s: The testnet and simnet params can't be used " +
 				"together -- choose one"
@@ -453,6 +515,7 @@ func loadConfig(
 			parser.WriteHelp(os.Stderr)
 			return nil, nil, err
 		}
+
 		// Append the network type to the log directory so it is "namespaced"
 		// per network.
 		cfg.LogDir = cleanAndExpandPath(cfg.LogDir)
@@ -462,6 +525,7 @@ func loadConfig(
 				fmt.Println("Supported subsystems", supportedSubsystems())
 				os.Exit(0)
 			}
+
 			// Initialize log rotation.  After log rotation has been initialized, the
 			// logger variables may be used.
 			initLogRotator(filepath.Join(cfg.LogDir, DefaultLogFilename))
@@ -472,6 +536,7 @@ func loadConfig(
 			parser.WriteHelp(os.Stderr)
 			return nil, nil, err
 		}
+
 		// Exit if you try to use a simulation wallet with a standard
 		// data directory.
 		if !(cfg.AppDataDir.ExplicitlySet() || cfg.DataDir.ExplicitlySet()) && cfg.CreateTemp {
@@ -479,6 +544,7 @@ func loadConfig(
 					"wallet, but failed to specify data directory!")
 				os.Exit(0)
 			}
+
 			// Exit if you try to use a simulation wallet on anything other than
 			// simnet or testnet3.
 		if !cfg.SimNet && cfg.CreateTemp {
@@ -486,6 +552,7 @@ func loadConfig(
 				"wallet for network other than simnet!")
 			os.Exit(0)
 		}
+
 		// Ensure the wallet exists or create it when the create flag is set.
 		netDir := NetworkDir(cfg.AppDataDir, ActiveNet.Params)
 		dbPath := filepath.Join(netDir, WalletDbName)
@@ -495,11 +562,13 @@ func loadConfig(
 				fmt.Fprintln(os.Stderr, err)
 				return nil, nil, err
 			}
+
 			dbFileExists, err := cfgutil.FileExists(dbPath)
 			if err != nil {
 					log <- cl.Error{err}
 					return nil, nil, err
 				}
+
 				if cfg.CreateTemp {
 						tempWalletExists := false
 						if dbFileExists {
@@ -508,18 +577,22 @@ func loadConfig(
 								fmt.Fprintln(os.Stdout, str)
 								tempWalletExists = true
 							}
+
 							// Ensure the data directory for the network exists.
 							if err := checkCreateDir(netDir); err != nil {
 									fmt.Fprintln(os.Stderr, err)
 									return nil, nil, err
 								}
+
 								if !tempWalletExists {
 										// Perform the initial wallet creation wizard.
 										if err := createSimulationWallet(&cfg); err != nil {
 												fmt.Fprintln(os.Stderr, "Unable to create wallet:", err)
 												return nil, nil, err
 											}
+
 										}
+
 		} else if cfg.Create {
 			// Error if the create flag is set and the wallet already
 			// exists.
@@ -529,16 +602,19 @@ func loadConfig(
 					fmt.Fprintln(os.Stderr, err)
 					return nil, nil, err
 			}
+
 			// Ensure the data directory for the network exists.
 			if err := checkCreateDir(netDir); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				return nil, nil, err
 			}
+
 			// Perform the initial wallet creation wizard.
 			if err := createWallet(&cfg); err != nil {
 					fmt.Fprintln(os.Stderr, "Unable to create wallet:", err)
 					return nil, nil, err
 				}
+
 				// Created successfully, so exit now with success.
 				os.Exit(0)
 			} else if !dbFileExists && !cfg.NoInitialLoad {
@@ -548,6 +624,7 @@ func loadConfig(
 							fmt.Fprintln(os.Stderr, err)
 							return nil, nil, err
 			}
+
 			if !keystoreExists {
 					// err = fmt.Errorf("The wallet does not exist.  Run with the " +
 				// "--create option to initialize and create it...")
@@ -557,20 +634,24 @@ func loadConfig(
 						fmt.Fprintln(os.Stderr, err)
 						return nil, nil, err
 					}
+
 					// Perform the initial wallet creation wizard.
 					if err := createWallet(&cfg); err != nil {
 					fmt.Fprintln(os.Stderr, "Unable to create wallet:", err)
 					return nil, nil, err
 				}
+
 				// Created successfully, so exit now with success.
 				os.Exit(0)
 			} else {
 					err = fmt.Errorf("The wallet is in legacy format.  Run with the " +
 						"--create option to import it.")
 				}
+
 				fmt.Fprintln(os.Stderr, err)
 				return nil, nil, err
 			}
+
 			// localhostListeners := map[string]struct{}{
 				// 	"localhost": {},
 		// 	"127.0.0.1": {},
@@ -584,6 +665,7 @@ func loadConfig(
 				if cfg.RPCConnect == "" {
 						cfg.RPCConnect = net.JoinHostPort("localhost", activeNet.RPCClientPort)
 					}
+
 					// Add default port to connect flag if missing.
 					cfg.RPCConnect, err = cfgutil.NormalizeAddress(cfg.RPCConnect,
 							activeNet.RPCClientPort)
@@ -592,6 +674,7 @@ func loadConfig(
 										"Invalid rpcconnect network address: %v\n", err)
 									return nil, nil, err
 								}
+
 		// RPCHost, _, err := net.SplitHostPort(cfg.RPCConnect)
 		// if err != nil {
 			// 	return nil, nil, err
@@ -617,6 +700,7 @@ func loadConfig(
 						fmt.Fprintln(os.Stderr, err)
 						return nil, nil, err
 				}
+
 				if !certExists {
 						// if _, ok := localhostListeners[RPCHost]; ok {
 							podCertExists, err := cfgutil.FileExists(
@@ -625,13 +709,18 @@ func loadConfig(
 										fmt.Fprintln(os.Stderr, err)
 										return nil, nil, err
 					}
+
 					if podCertExists {
 							cfg.CAFile.Value = DefaultCAFile
 						}
+
 						// }
 					}
+
 				}
+
 			}
+
 			// }
 			// Only set default RPC listeners when there are no listeners set for
 			// the experimental RPC server.  This is required to prevent the old RPC
@@ -643,12 +732,15 @@ func loadConfig(
 			if err != nil {
 					return nil, nil, err
 				}
+
 				cfg.LegacyRPCListeners = make([]string, 0, len(addrs))
 				for _, addr := range addrs {
 						addr = net.JoinHostPort(addr, activeNet.RPCServerPort)
 						cfg.LegacyRPCListeners = append(cfg.LegacyRPCListeners, addr)
 					}
+
 				}
+
 				// Add default port to all rpc listener addresses if needed and remove
 				// duplicate addresses.
 		cfg.LegacyRPCListeners, err = cfgutil.NormalizeAddresses(
@@ -658,6 +750,7 @@ func loadConfig(
 							"Invalid network address in legacy RPC listeners: %v\n", err)
 						return nil, nil, err
 					}
+
 					cfg.ExperimentalRPCListeners, err = cfgutil.NormalizeAddresses(
 			cfg.ExperimentalRPCListeners, activeNet.RPCServerPort)
 		if err != nil {
@@ -665,12 +758,14 @@ func loadConfig(
 						"Invalid network address in RPC listeners: %v\n", err)
 					return nil, nil, err
 				}
+
 				// Both RPC servers may not listen on the same interface/port.
 				if len(cfg.LegacyRPCListeners) > 0 && len(cfg.ExperimentalRPCListeners) > 0 {
 			seenAddresses := make(map[string]struct{}, len(cfg.LegacyRPCListeners))
 			for _, addr := range cfg.LegacyRPCListeners {
 					seenAddresses[addr] = struct{}{}
 			}
+
 			for _, addr := range cfg.ExperimentalRPCListeners {
 					_, seen := seenAddresses[addr]
 					if seen {
@@ -680,8 +775,11 @@ func loadConfig(
 					fmt.Fprintln(os.Stderr, err)
 					return nil, nil, err
 				}
+
 			}
+
 		}
+
 		// Only allow server TLS to be disabled if the RPC server is bound to
 		// localhost addresses.
 		if !cfg.EnableServerTLS {
@@ -696,6 +794,7 @@ func loadConfig(
 									fmt.Fprintln(os.Stderr, usageMessage)
 									return nil, nil, err
 								}
+
 				// host, _, err := net.SplitHostPort(addr)
 				// if _, ok := localhostListeners[host]; !ok {
 					// 	str := "%s: the --noservertls option may not be used " +
@@ -707,7 +806,9 @@ func loadConfig(
 				// 	return nil, nil, err
 				// }
 			}
+
 		}
+
 		// Expand environment variable and leading ~ for filepaths.
 		cfg.CAFile.Value = cleanAndExpandPath(cfg.CAFile.Value)
 		cfg.RPCCert.Value = cleanAndExpandPath(cfg.RPCCert.Value)
@@ -719,17 +820,21 @@ func loadConfig(
 		if cfg.PodUsername == "" {
 				cfg.PodUsername = cfg.Username
 			}
+
 		if cfg.PodPassword == "" {
 				cfg.PodPassword = cfg.Password
 			}
+
 			// Warn about missing config file after the final command line parse
 			// succeeds.  This prevents the warning on help messages and invalid
 			// options.
 			if configFileError != nil {
 					Log.Warnf.Print("%v", configFileError)
 				}
+
 				return cfg, nil, nil
 			}
+
 			// validLogLevel returns whether or not logLevel is a valid debug log level.
 			func validLogLevel(
 				logLevel string) bool {
@@ -747,7 +852,9 @@ func loadConfig(
 					case "critical":
 						return true
 					}
+
 					return false
 				}
+
 
 */

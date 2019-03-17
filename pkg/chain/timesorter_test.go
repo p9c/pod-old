@@ -14,6 +14,7 @@ func TestTimeSorter(
 		in   []int64
 		want []int64
 	}{
+
 		{
 			in: []int64{
 				1351228575, // Fri Oct 26 05:16:15 UTC 2012 (Block #205000)
@@ -22,6 +23,7 @@ func TestTimeSorter(
 				1347777156, // Sun Sep 16 06:32:36 UTC 2012 (Block #199000)
 				1349492104, // Sat Oct  6 02:55:04 UTC 2012 (Block #202000)
 			},
+
 			want: []int64{
 				1305758502, // Wed May 18 22:41:42 UTC 2011 (Block #125000)
 				1347777156, // Sun Sep 16 06:32:36 UTC 2012 (Block #199000)
@@ -31,15 +33,20 @@ func TestTimeSorter(
 			},
 		},
 	}
+
 	for i, test := range tests {
+
 		result := make([]int64, len(test.in))
 		copy(result, test.in)
 		sort.Sort(timeSorter(result))
+
 		if !reflect.DeepEqual(result, test.want) {
 
 			t.Errorf("timeSorter #%d got %v want %v", i, result,
 				test.want)
 			continue
 		}
+
 	}
+
 }

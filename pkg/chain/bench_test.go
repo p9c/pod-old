@@ -15,6 +15,7 @@ func BenchmarkIsCoinBase(
 	for i := 0; i < b.N; i++ {
 		IsCoinBase(tx)
 	}
+
 }
 
 // BenchmarkIsCoinBaseTx performs a simple benchmark against the IsCoinBaseTx function.
@@ -26,4 +27,5 @@ func BenchmarkIsCoinBaseTx(
 	for i := 0; i < b.N; i++ {
 		IsCoinBaseTx(tx)
 	}
+
 }

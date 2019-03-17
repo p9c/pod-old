@@ -22,15 +22,18 @@ func BenchmarkBlockHeader(
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 	err = db.Update(func(tx database.Tx) error {
 		block := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 		return tx.StoreBlock(block)
 	})
+
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 	err = db.View(func(tx database.Tx) error {
@@ -40,9 +43,12 @@ func BenchmarkBlockHeader(
 			if err != nil {
 				return err
 			}
+
 		}
+
 		return nil
 	})
+
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -62,15 +68,18 @@ func BenchmarkBlock(
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 	err = db.Update(func(tx database.Tx) error {
 		block := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 		return tx.StoreBlock(block)
 	})
+
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 	err = db.View(func(tx database.Tx) error {
@@ -80,9 +89,12 @@ func BenchmarkBlock(
 			if err != nil {
 				return err
 			}
+
 		}
+
 		return nil
 	})
+
 	if err != nil {
 		b.Fatal(err)
 	}

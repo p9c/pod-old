@@ -123,10 +123,11 @@ func newHeaderStore(
 	}
 
 	return &headerStore{
-		filePath:    filePath,
-		file:        headerFile,
-		headerIndex: index,
-	}, nil
+			filePath:    filePath,
+			file:        headerFile,
+			headerIndex: index,
+		},
+		nil
 }
 
 // blockHeaderStore is an implementation of the BlockHeaderStore interface, a
@@ -173,6 +174,7 @@ func NewBlockHeaderStore(
 			BlockHeader: &netParams.GenesisBlock.Header,
 			Height:      0,
 		}
+
 		if err := bhs.WriteHeaders(genesisHeader); err != nil {
 			return nil, err
 		}
@@ -287,6 +289,7 @@ func (h *blockHeaderStore) FetchHeaderAncestors(numHeaders uint32,
 	if err != nil {
 		return nil, 0, err
 	}
+
 	startHeight := endHeight - numHeaders
 
 	headers, err := h.readHeaderRange(startHeight, endHeight)
@@ -331,6 +334,7 @@ func (h *blockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	prevHeaderHash := bestHeader.PrevBlock
 
 	// Now that we have the information we need to return from this
@@ -339,14 +343,16 @@ func (h *blockHeaderStore) RollbackLastBlock() (*waddrmgr.BlockStamp, error) {
 	if err := h.singleTruncate(); err != nil {
 		return nil, err
 	}
+
 	if err := h.truncateIndex(&prevHeaderHash, true); err != nil {
 		return nil, err
 	}
 
 	return &waddrmgr.BlockStamp{
-		Height: int32(chainTipHeight) - 1,
-		Hash:   prevHeaderHash,
-	}, nil
+			Height: int32(chainTipHeight) - 1,
+			Hash:   prevHeaderHash,
+		},
+		nil
 }
 
 // BlockHeader is a Bitcoin block header that also has its height included.
@@ -365,6 +371,7 @@ func (b *BlockHeader) toIndexEntry() headerEntry {
 		hash:   b.BlockHash(),
 		height: b.Height,
 	}
+
 }
 
 // WriteHeaders writes a set of headers to disk and updates the index in a
@@ -389,6 +396,7 @@ func (h *blockHeaderStore) WriteHeaders(hdrs ...BlockHeader) error {
 		if err := header.Serialize(headerBuf); err != nil {
 			return err
 		}
+
 	}
 
 	// With all the headers written to the buffer, we'll now write out the
@@ -447,6 +455,7 @@ func (h *blockHeaderStore) blockLocatorFromHash(hash *chainhash.Hash) (
 		if err != nil {
 			return locator, err
 		}
+
 		headerHash := blockHeader.BlockHash()
 
 		locator = append(locator, &headerHash)
@@ -528,6 +537,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 				return fmt.Errorf("Couldn't retrieve header %s:"+
 					" %s", header.PrevBlock, err)
 			}
+
 			newHeaderHash := newHeader.BlockHash()
 
 			// With the header retrieved, we'll now fetch the
@@ -538,6 +548,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 				return fmt.Errorf("index and on-disk file out of sync "+
 					"at height: %v", height)
 			}
+
 			indexHeight := binary.BigEndian.Uint32(indexHeightBytes)
 
 			// With the index entry retrieved, we'll now assert
@@ -566,6 +577,7 @@ func (h *blockHeaderStore) CheckConnectivity() error {
 
 		return nil
 	})
+
 }
 
 // ChainTip returns the best known block header and height for the
@@ -658,6 +670,7 @@ func NewFilterHeaderStore(
 			FilterHash: genesisFilterHash,
 			Height:     0,
 		}
+
 		if err := fhs.WriteHeaders(genesisHeader); err != nil {
 			return nil, err
 		}
@@ -752,6 +765,7 @@ func (f *FilterHeader) toIndexEntry() headerEntry {
 		hash:   f.HeaderHash,
 		height: f.Height,
 	}
+
 }
 
 // WriteHeaders writes a batch of filter headers to persistent storage. The
@@ -782,6 +796,7 @@ func (f *FilterHeaderStore) WriteHeaders(hdrs ...FilterHeader) error {
 		if _, err := headerBuf.Write(header.FilterHash[:]); err != nil {
 			return err
 		}
+
 	}
 
 	// With all the headers written to the buffer, we'll now write out the
@@ -847,13 +862,15 @@ func (f *FilterHeaderStore) RollbackLastBlock(newTip *chainhash.Hash) (*waddrmgr
 	if err := f.singleTruncate(); err != nil {
 		return nil, err
 	}
+
 	if err := f.truncateIndex(newTip, false); err != nil {
 		return nil, err
 	}
 
 	// TODO(roasbeef): return chain hash also?
 	return &waddrmgr.BlockStamp{
-		Height: int32(newHeightTip),
-		Hash:   *newHeaderTip,
-	}, nil
+			Height: int32(newHeightTip),
+			Hash:   *newHeaderTip,
+		},
+		nil
 }

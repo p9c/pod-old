@@ -37,6 +37,7 @@ func (w *Wallet) handleChainNotifications() {
 
 			log <- cl.Warn{"unable to synchronize wallet to chain:", err}
 		}
+
 	}
 
 	catchUpHashes := func(w *Wallet, client chain.Interface,
@@ -64,6 +65,7 @@ func (w *Wallet) handleChainNotifications() {
 		log <- cl.Info{
 			"catching up block hashes to height %d, this might take a while", height,
 		}
+
 		err := walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 			ns := tx.ReadWriteBucket(waddrmgrNamespaceKey)
 
@@ -74,6 +76,7 @@ func (w *Wallet) handleChainNotifications() {
 				if err != nil {
 					return err
 				}
+
 				header, err := chainClient.GetBlockHeader(hash)
 				if err != nil {
 					return err
@@ -84,18 +87,23 @@ func (w *Wallet) handleChainNotifications() {
 					Hash:      *hash,
 					Timestamp: header.Timestamp,
 				}
+
 				err = w.Manager.SetSyncedTo(ns, &bs)
 				if err != nil {
 					return err
 				}
+
 			}
+
 			return nil
 		})
+
 		if err != nil {
 			log <- cl.Errorf{
 				"failed to update address manager sync state for height %d: %v",
 				height, err,
 			}
+
 		}
 
 		log <- cl.Inf("done catching up block hashes")
@@ -119,16 +127,19 @@ func (w *Wallet) handleChainNotifications() {
 				err = walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 					return w.connectBlock(tx, wtxmgr.BlockMeta(n))
 				})
+
 				notificationName = "blockconnected"
 			case chain.BlockDisconnected:
 				err = walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 					return w.disconnectBlock(tx, wtxmgr.BlockMeta(n))
 				})
+
 				notificationName = "blockdisconnected"
 			case chain.RelevantTx:
 				err = walletdb.Update(w.db, func(tx walletdb.ReadWriteTx) error {
 					return w.addRelevantTx(tx, n.TxRecord, n.Block)
 				})
+
 				notificationName = "recvtx/redeemingtx"
 			case chain.FilteredBlockConnected:
 
@@ -143,10 +154,14 @@ func (w *Wallet) handleChainNotifications() {
 							if err != nil {
 								return err
 							}
+
 						}
+
 						return nil
 					})
+
 				}
+
 				notificationName = "filteredblockconnected"
 
 			// The following require some database maintenance, but also
@@ -160,6 +175,7 @@ func (w *Wallet) handleChainNotifications() {
 				case <-w.quitChan():
 					return
 				}
+
 			case *chain.RescanFinished:
 				err = catchUpHashes(w, chainClient, n.Height)
 				notificationName = "rescanprogress"
@@ -169,7 +185,9 @@ func (w *Wallet) handleChainNotifications() {
 				case <-w.quitChan():
 					return
 				}
+
 			}
+
 			if err != nil {
 
 				// On out-of-sync blockconnected notifications, only
@@ -185,11 +203,15 @@ func (w *Wallet) handleChainNotifications() {
 				} else {
 					log <- cl.Errorf{errStr, notificationName, err}
 				}
+
 			}
+
 		case <-w.quit:
 			return
 		}
+
 	}
+
 }
 
 // connectBlock handles a chain server notification by marking a wallet
@@ -205,6 +227,7 @@ func (w *Wallet) connectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) err
 		Hash:      b.Hash,
 		Timestamp: b.Time,
 	}
+
 	err := w.Manager.SetSyncedTo(addrmgrNs, &bs)
 	if err != nil {
 		return err
@@ -241,15 +264,18 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 		if err != nil {
 			return err
 		}
+
 		if bytes.Equal(hash[:], b.Hash[:]) {
 
 			bs := waddrmgr.BlockStamp{
 				Height: b.Height - 1,
 			}
+
 			hash, err = w.Manager.BlockHash(addrmgrNs, bs.Height)
 			if err != nil {
 				return err
 			}
+
 			b.Hash = *hash
 
 			client := w.ChainClient()
@@ -268,7 +294,9 @@ func (w *Wallet) disconnectBlock(dbtx walletdb.ReadWriteTx, b wtxmgr.BlockMeta) 
 			if err != nil {
 				return err
 			}
+
 		}
+
 	}
 
 	// Notify interested clients of the disconnected block.
@@ -304,6 +332,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 			// Non-standard outputs are skipped.
 			continue
 		}
+
 		for _, addr := range addrs {
 			ma, err := w.Manager.Address(addrmgrNs, addr)
 			if err == nil {
@@ -318,10 +347,12 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 				if err != nil {
 					return err
 				}
+
 				err = w.Manager.MarkUsed(addrmgrNs, addr)
 				if err != nil {
 					return err
 				}
+
 				log <- cl.Debug{"marked address used:", addr}
 				continue
 			}
@@ -333,7 +364,9 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 
 				return err
 			}
+
 		}
+
 	}
 
 	// Send notification of mined or unmined transaction to any interested
@@ -365,6 +398,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if details != nil {
 			w.NtfnServer.notifyUnminedTransaction(dbtx, details)
 		}
+
 	} else {
 		details, err := w.TxStore.UniqueTxDetails(txmgrNs, &rec.Hash, &block.Block)
 		if err != nil {
@@ -377,6 +411,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 		if details != nil {
 			w.NtfnServer.notifyMinedTransaction(dbtx, details, block)
 		}
+
 	}
 
 	return nil

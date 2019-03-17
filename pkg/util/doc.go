@@ -25,6 +25,7 @@ pay-to-script-hash address types. To decode/encode an address:
 		fmt.Println(err)
 		return
 	}
+
 	fmt.Println(addr.EncodeAddress())
 */
 package util

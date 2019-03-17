@@ -32,9 +32,12 @@ var notificationTypeStrings = map[NotificationType]string{
 
 // String returns the NotificationType in human-readable form.
 func (n NotificationType) String() string {
+
 	if s, ok := notificationTypeStrings[n]; ok {
+
 		return s
 	}
+
 	return fmt.Sprintf("Unknown Notification Type (%d)", int(n))
 }
 
@@ -63,7 +66,9 @@ func (b *BlockChain) sendNotification(typ NotificationType, data interface{}) {
 	// Generate and send the notification.
 	n := Notification{Type: typ, Data: data}
 	b.notificationsLock.RLock()
+
 	for _, callback := range b.notifications {
+
 		// Log.Debug <- "sending callback"
 		callback(&n)
 		// Log.Debug <- "sent callback"

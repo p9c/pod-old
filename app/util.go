@@ -37,23 +37,30 @@ import (
 func EnsureDir(fileName string) {
 
 	dirName := filepath.Dir(fileName)
+
 	if _, serr := os.Stat(dirName); serr != nil {
 
 		merr := os.MkdirAll(dirName, os.ModePerm)
+
 		if merr != nil {
 
 			panic(merr)
 		}
+
 	}
+
 }
 
 // FileExists reports whether the named file or directory exists.
 func FileExists(filePath string) bool {
 
 	_, err := os.Stat(filePath)
+
 	if err != nil {
+
 		return false
 	}
+
 	return true
 }
 
@@ -62,16 +69,20 @@ func NormalizeAddress(addr, defaultPort string, out *string) {
 
 	o := node.NormalizeAddress(addr, defaultPort)
 	_, _, err := net.ParseCIDR(o)
+
 	if err != nil {
 
 		ip := net.ParseIP(addr)
+
 		if ip != nil {
 
 			*out = o
 		}
+
 	} else {
 		*out = o
 	}
+
 }
 
 // NormalizeAddresses reads and collects a space separated list of addresses contained in a string
@@ -79,23 +90,28 @@ func NormalizeAddresses(addrs string, defaultPort string, out *[]string) {
 
 	O := new([]string)
 	addrS := strings.Split(addrs, " ")
+
 	for i := range addrS {
 
 		a := addrS[i]
 
 		// o := ""
 		NormalizeAddress(a, defaultPort, &a)
+
 		if a != "" {
 
 			*O = append(*O, a)
 		}
+
 	}
 
 	// atomically switch out if there was valid addresses
+
 	if len(*O) > 0 {
 
 		*out = *O
 	}
+
 }
 
 // minUint32 is a helper function to return the minimum of two uint32s. This avoids a math import and the need to cast to floats.
@@ -105,6 +121,7 @@ func minUint32(a, b uint32) uint32 {
 
 		return a
 	}
+
 	return b
 }
 
@@ -112,6 +129,7 @@ func minUint32(a, b uint32) uint32 {
 func CleanAndExpandPath(path string) string {
 
 	// Expand initial ~ to OS specific home directory.
+
 	if strings.HasPrefix(path, "~") {
 
 		homeDir := filepath.Dir(DefaultHomeDir)

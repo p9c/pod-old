@@ -25,6 +25,7 @@ func TestAddresses(
 		f       func() (util.Address, error)
 		net     *chaincfg.Params
 	}{
+
 		// Positive P2PKH tests.
 		{
 			name:    "mainnet p2pkh",
@@ -43,8 +44,10 @@ func TestAddresses(
 					0xc5, 0x4c, 0xe7, 0xd2, 0xa4, 0x91, 0xbb, 0x4a, 0x0e, 0x84}
 				return util.NewAddressPubKeyHash(pkHash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "mainnet p2pkh 2",
 			addr:    "12MzCDwodF9G1e7jfwLXfR164RNtx4BRVG",
@@ -62,8 +65,10 @@ func TestAddresses(
 					0x05, 0x12, 0xbc, 0xa2, 0xce, 0xb1, 0xdd, 0x80, 0xad, 0xaa}
 				return util.NewAddressPubKeyHash(pkHash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "testnet p2pkh",
 			addr:    "mrX9vMRYLfVy1BnZbc5gZjuyaqH3ZW2ZHz",
@@ -81,8 +86,10 @@ func TestAddresses(
 					0xe5, 0x12, 0xd3, 0x60, 0x3f, 0x1f, 0x1c, 0x8d, 0xe6, 0x8f}
 				return util.NewAddressPubKeyHash(pkHash, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		// Negative P2PKH tests.
 		{
 			name:  "p2pkh wrong hash length",
@@ -96,14 +103,17 @@ func TestAddresses(
 					0xaa}
 				return util.NewAddressPubKeyHash(pkHash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "p2pkh bad checksum",
 			addr:  "1MirQ9bwyQcGVJPwKUgapu5ouK2E2Ey4gY",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		// Positive P2SH tests.
 		{
 			// Taken from transactions:
@@ -144,8 +154,10 @@ func TestAddresses(
 					0xae}
 				return util.NewAddressScriptHash(script, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			// Taken from transactions:
 			// output: b0539a45de13b3e0403909b8bd1a555b8cbe45fd4e3f3fda76f3a5f52835c29d
@@ -166,8 +178,10 @@ func TestAddresses(
 					0xc0, 0x51, 0x99, 0x29, 0x01, 0x9e, 0xf8, 0x6e, 0xb5, 0xb4}
 				return util.NewAddressScriptHashFromHash(hash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			// Taken from bitcoind base58_keys_valid.
 			name:    "testnet p2sh",
@@ -186,8 +200,10 @@ func TestAddresses(
 					0x2c, 0xdc, 0x28, 0x56, 0x17, 0x04, 0x0c, 0x92, 0x4a, 0x0a}
 				return util.NewAddressScriptHashFromHash(hash, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		// Negative P2SH tests.
 		{
 			name:  "p2sh wrong hash length",
@@ -201,8 +217,10 @@ func TestAddresses(
 					0x10}
 				return util.NewAddressScriptHashFromHash(hash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		// Positive P2PK tests.
 		{
 			name:    "mainnet p2pk compressed (0x02)",
@@ -225,8 +243,10 @@ func TestAddresses(
 					0x52, 0xc6, 0xb4}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "mainnet p2pk compressed (0x03)",
 			addr:    "03b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65",
@@ -248,8 +268,10 @@ func TestAddresses(
 					0xb1, 0x6e, 0x65}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name: "mainnet p2pk uncompressed (0x04)",
 			addr: "0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2" +
@@ -278,8 +300,10 @@ func TestAddresses(
 					0xf6, 0x56, 0xb4, 0x12, 0xa3}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name: "mainnet p2pk hybrid (0x06)",
 			addr: "06192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4" +
@@ -308,8 +332,10 @@ func TestAddresses(
 					0x44, 0xd3, 0x3f, 0x45, 0x3e}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name: "mainnet p2pk hybrid (0x07)",
 			addr: "07b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65" +
@@ -338,8 +364,10 @@ func TestAddresses(
 					0x1e, 0x09, 0x08, 0xef, 0x7b}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "testnet p2pk compressed (0x02)",
 			addr:    "02192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b4",
@@ -361,8 +389,10 @@ func TestAddresses(
 					0x52, 0xc6, 0xb4}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:    "testnet p2pk compressed (0x03)",
 			addr:    "03b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e65",
@@ -384,8 +414,10 @@ func TestAddresses(
 					0xb1, 0x6e, 0x65}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name: "testnet p2pk uncompressed (0x04)",
 			addr: "0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5" +
@@ -414,8 +446,10 @@ func TestAddresses(
 					0xf6, 0x56, 0xb4, 0x12, 0xa3}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name: "testnet p2pk hybrid (0x06)",
 			addr: "06192d74d0cb94344c9569c2e77901573d8d7903c3ebec3a957724895dca52c6b" +
@@ -444,8 +478,10 @@ func TestAddresses(
 					0x44, 0xd3, 0x3f, 0x45, 0x3e}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name: "testnet p2pk hybrid (0x07)",
 			addr: "07b0bd634234abbb1ba1e986e884185c61cf43e001f9137f23c2c409273eb16e6" +
@@ -474,8 +510,10 @@ func TestAddresses(
 					0x1e, 0x09, 0x08, 0xef, 0x7b}
 				return util.NewAddressPubKey(serializedPubKey, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		// Segwit address tests.
 		{
 			name:    "segwit mainnet p2wpkh v0",
@@ -495,8 +533,10 @@ func TestAddresses(
 					0x1c, 0x45, 0xd1, 0xb3, 0xa3, 0x23, 0xf1, 0x43, 0x3b, 0xd6}
 				return util.NewAddressWitnessPubKeyHash(pkHash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "segwit mainnet p2wsh v0",
 			addr:    "bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3",
@@ -519,8 +559,10 @@ func TestAddresses(
 					0xb8, 0xc6, 0x32, 0x96, 0x04, 0x90, 0x32, 0x62}
 				return util.NewAddressWitnessScriptHash(scriptHash, &chaincfg.MainNetParams)
 			},
+
 			net: &chaincfg.MainNetParams,
 		},
+
 		{
 			name:    "segwit testnet p2wpkh v0",
 			addr:    "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx",
@@ -539,8 +581,10 @@ func TestAddresses(
 					0x1c, 0x45, 0xd1, 0xb3, 0xa3, 0x23, 0xf1, 0x43, 0x3b, 0xd6}
 				return util.NewAddressWitnessPubKeyHash(pkHash, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:    "segwit testnet p2wsh v0",
 			addr:    "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
@@ -563,8 +607,10 @@ func TestAddresses(
 					0xb8, 0xc6, 0x32, 0x96, 0x04, 0x90, 0x32, 0x62}
 				return util.NewAddressWitnessScriptHash(scriptHash, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:    "segwit testnet p2wsh witness v0",
 			addr:    "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
@@ -587,8 +633,10 @@ func TestAddresses(
 					0x4d, 0x16, 0x5d, 0xab, 0x93, 0xe8, 0x64, 0x33}
 				return util.NewAddressWitnessScriptHash(scriptHash, &chaincfg.TestNet3Params)
 			},
+
 			net: &chaincfg.TestNet3Params,
 		},
+
 		// Unsupported witness versions (version 0 only supported at this point)
 		{
 			name:  "segwit mainnet witness v1",
@@ -596,18 +644,21 @@ func TestAddresses(
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit mainnet witness v16",
 			addr:  "BC1SW50QA3JX3S",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit mainnet witness v2",
 			addr:  "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		// Invalid segwit addresses
 		{
 			name:  "segwit invalid hrp",
@@ -615,48 +666,56 @@ func TestAddresses(
 			valid: false,
 			net:   &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:  "segwit invalid checksum",
 			addr:  "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit invalid witness version",
 			addr:  "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit invalid program length",
 			addr:  "bc1rw5uspcuh",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit invalid program length",
 			addr:  "bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit invalid program length for witness version 0 (per BIP141)",
 			addr:  "BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P",
 			valid: false,
 			net:   &chaincfg.MainNetParams,
 		},
+
 		{
 			name:  "segwit mixed case",
 			addr:  "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7",
 			valid: false,
 			net:   &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:  "segwit zero padding of more than 4 bits",
 			addr:  "tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
 			valid: false,
 			net:   &chaincfg.TestNet3Params,
 		},
+
 		{
 			name:  "segwit non-zero padding in 8-to-5 conversion",
 			addr:  "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
@@ -664,6 +723,7 @@ func TestAddresses(
 			net:   &chaincfg.TestNet3Params,
 		},
 	}
+
 	for _, test := range tests {
 		// Decode addr and compare error against valid.
 		decoded, err := util.DecodeAddress(test.addr, test.net)
@@ -671,6 +731,7 @@ func TestAddresses(
 			t.Errorf("%v: decoding test failed: %v", test.name, err)
 			return
 		}
+
 		if err == nil {
 			// Ensure the stringer returns the same address as the
 			// original.
@@ -683,13 +744,16 @@ func TestAddresses(
 
 					addr = strings.ToLower(addr)
 				}
+
 				if addr != decodedStringer.String() {
 
 					t.Errorf("%v: String on decoded value does not match expected value: %v != %v",
 						test.name, test.addr, decodedStringer.String())
 					return
 				}
+
 			}
+
 			// Encode again and compare against the original.
 			encoded := decoded.EncodeAddress()
 			if test.encoded != encoded {
@@ -697,6 +761,7 @@ func TestAddresses(
 					test.name, test.encoded, encoded)
 				return
 			}
+
 			// Perform type-specific calculations.
 			var saddr []byte
 			switch d := decoded.(type) {
@@ -714,6 +779,7 @@ func TestAddresses(
 			case *util.AddressWitnessScriptHash:
 				saddr = util.TstAddressSegwitSAddr(encoded)
 			}
+
 			// Check script address, as well as the Hash160 method for P2PKH and
 			// P2SH addresses.
 			if !bytes.Equal(saddr, decoded.ScriptAddress()) {
@@ -722,6 +788,7 @@ func TestAddresses(
 					test.name, saddr, decoded.ScriptAddress())
 				return
 			}
+
 			switch a := decoded.(type) {
 
 			case *util.AddressPubKeyHash:
@@ -731,6 +798,7 @@ func TestAddresses(
 						test.name, saddr, h)
 					return
 				}
+
 			case *util.AddressScriptHash:
 				if h := a.Hash160()[:]; !bytes.Equal(saddr, h) {
 
@@ -738,43 +806,51 @@ func TestAddresses(
 						test.name, saddr, h)
 					return
 				}
+
 			case *util.AddressWitnessPubKeyHash:
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
 						test.name, test.net.Bech32HRPSegwit, hrp)
 					return
 				}
+
 				expVer := test.result.(*util.AddressWitnessPubKeyHash).WitnessVersion()
 				if v := a.WitnessVersion(); v != expVer {
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
 						test.name, expVer, v)
 					return
 				}
+
 				if p := a.WitnessProgram(); !bytes.Equal(saddr, p) {
 
 					t.Errorf("%v: witness programs do not match:\n%x != \n%x",
 						test.name, saddr, p)
 					return
 				}
+
 			case *util.AddressWitnessScriptHash:
 				if hrp := a.Hrp(); test.net.Bech32HRPSegwit != hrp {
 					t.Errorf("%v: hrps do not match:\n%x != \n%x",
 						test.name, test.net.Bech32HRPSegwit, hrp)
 					return
 				}
+
 				expVer := test.result.(*util.AddressWitnessScriptHash).WitnessVersion()
 				if v := a.WitnessVersion(); v != expVer {
 					t.Errorf("%v: witness versions do not match:\n%x != \n%x",
 						test.name, expVer, v)
 					return
 				}
+
 				if p := a.WitnessProgram(); !bytes.Equal(saddr, p) {
 
 					t.Errorf("%v: witness programs do not match:\n%x != \n%x",
 						test.name, saddr, p)
 					return
 				}
+
 			}
+
 			// Ensure the address is for the expected network.
 			if !decoded.IsForNet(test.net) {
 
@@ -782,7 +858,9 @@ func TestAddresses(
 					test.name)
 				return
 			}
+
 		}
+
 		if !test.valid {
 			// If address is invalid, but a creation function exists,
 			// verify that it returns a nil addr and non-nil error.
@@ -793,9 +871,12 @@ func TestAddresses(
 						test.name)
 					return
 				}
+
 			}
+
 			continue
 		}
+
 		// Valid test, compare address created with f against expected result.
 		addr, err := test.f()
 		if err != nil {
@@ -803,11 +884,14 @@ func TestAddresses(
 				test.name, err)
 			return
 		}
+
 		if !reflect.DeepEqual(addr, test.result) {
 
 			t.Errorf("%v: created address does not match expected result",
 				test.name)
 			return
 		}
+
 	}
+
 }

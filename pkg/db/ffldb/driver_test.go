@@ -105,42 +105,50 @@ func TestCreateOpenFail(
 		t.Errorf("Create: unexpected error: %v", err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	db.Close()
 	wantErrCode = database.ErrDbNotOpen
 	err = db.View(func(tx database.Tx) error {
 		return nil
 	})
+
 	if !checkDbError(t, "View", err, wantErrCode) {
 
 		return
 	}
+
 	wantErrCode = database.ErrDbNotOpen
 	err = db.Update(func(tx database.Tx) error {
 		return nil
 	})
+
 	if !checkDbError(t, "Update", err, wantErrCode) {
 
 		return
 	}
+
 	wantErrCode = database.ErrDbNotOpen
 	_, err = db.Begin(false)
 	if !checkDbError(t, "Begin(false)", err, wantErrCode) {
 
 		return
 	}
+
 	wantErrCode = database.ErrDbNotOpen
 	_, err = db.Begin(true)
 	if !checkDbError(t, "Begin(true)", err, wantErrCode) {
 
 		return
 	}
+
 	wantErrCode = database.ErrDbNotOpen
 	err = db.Close()
 	if !checkDbError(t, "Close", err, wantErrCode) {
 
 		return
 	}
+
 }
 
 // TestPersistence ensures that values stored are still valid after closing and reopening the database.
@@ -157,6 +165,7 @@ func TestPersistence(
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -167,6 +176,7 @@ func TestPersistence(
 		"b1key2": "foo2",
 		"b1key3": "foo3",
 	}
+
 	genesisBlock := util.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	genesisHash := chaincfg.MainNetParams.GenesisHash
 	err = db.Update(func(tx database.Tx) error {
@@ -174,24 +184,30 @@ func TestPersistence(
 		if metadataBucket == nil {
 			return fmt.Errorf("Metadata: unexpected nil bucket")
 		}
+
 		bucket1, err := metadataBucket.CreateBucket(bucket1Key)
 		if err != nil {
 			return fmt.Errorf("CreateBucket: unexpected error: %v",
 				err)
 		}
+
 		for k, v := range storeValues {
 			err := bucket1.Put([]byte(k), []byte(v))
 			if err != nil {
 				return fmt.Errorf("Put: unexpected error: %v",
 					err)
 			}
+
 		}
+
 		if err := tx.StoreBlock(genesisBlock); err != nil {
 			return fmt.Errorf("StoreBlock: unexpected error: %v",
 				err)
 		}
+
 		return nil
 	})
+
 	if err != nil {
 		t.Errorf("Update: unexpected error: %v", err)
 		return
@@ -204,6 +220,7 @@ func TestPersistence(
 		t.Errorf("Failed to open test database (%s) %v", dbType, err)
 		return
 	}
+
 	defer db.Close()
 
 	// Ensure the values previously stored in the 3rd namespace still exist and are correct.
@@ -212,10 +229,12 @@ func TestPersistence(
 		if metadataBucket == nil {
 			return fmt.Errorf("Metadata: unexpected nil bucket")
 		}
+
 		bucket1 := metadataBucket.Bucket(bucket1Key)
 		if bucket1 == nil {
 			return fmt.Errorf("Bucket1: unexpected nil bucket")
 		}
+
 		for k, v := range storeValues {
 			gotVal := bucket1.Get([]byte(k))
 			if !reflect.DeepEqual(gotVal, []byte(v)) {
@@ -224,23 +243,29 @@ func TestPersistence(
 					"match expected value - got %s, want %s",
 					k, gotVal, v)
 			}
+
 		}
+
 		genesisBlockBytes, _ := genesisBlock.Bytes()
 		gotBytes, err := tx.FetchBlock(genesisHash)
 		if err != nil {
 			return fmt.Errorf("FetchBlock: unexpected error: %v",
 				err)
 		}
+
 		if !reflect.DeepEqual(gotBytes, genesisBlockBytes) {
 
 			return fmt.Errorf("FetchBlock: stored block mismatch")
 		}
+
 		return nil
 	})
+
 	if err != nil {
 		t.Errorf("View: unexpected error: %v", err)
 		return
 	}
+
 }
 
 // TestInterface performs all interfaces tests for this database driver.
@@ -257,6 +282,7 @@ func TestInterface(
 		t.Errorf("Failed to create test database (%s) %v", dbType, err)
 		return
 	}
+
 	defer os.RemoveAll(dbPath)
 	defer db.Close()
 
@@ -276,4 +302,5 @@ func TestInterface(
 
 		testInterface(t, db)
 	})
+
 }

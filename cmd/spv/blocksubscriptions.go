@@ -66,6 +66,7 @@ func (
 
 		sendMsgToSubscriber(sub, bm)
 	}
+
 	s.mtxSubscribers.RUnlock()
 }
 
@@ -96,6 +97,7 @@ func (
 		notifyBlock:    make(chan *blockMessage),
 		intQuit:        make(chan struct{}),
 	}
+
 	// At this point, we'll now check to see if we need to deliver any
 
 	// backlog notifications as its possible that while the caller is
@@ -119,6 +121,7 @@ func (
 			"delivering backlog block notifications from height=%v, to height=%v",
 			bestHeight, filterHeaderTip,
 		}
+
 		// Otherwise, we need to read block headers from disk to
 
 		// deliver a backlog to the caller before we proceed. We'll use
@@ -145,10 +148,12 @@ func (
 				msgType: connectBasic,
 				header:  blockHeader,
 			})
+
 		}
 
 		return nil
 	})
+
 	if err != nil {
 
 		return nil, err
@@ -190,7 +195,9 @@ cleanup:
 		default:
 			break cleanup
 		}
+
 	}
+
 }
 
 // subscriptionHandler must be run as a goroutine and queues notification
@@ -223,6 +230,7 @@ func (
 			default:
 				return true
 			}
+
 		}
 
 		select {
@@ -252,7 +260,9 @@ func (
 
 			return false
 		}
+
 	}
+
 	// Loop until we get a signal on s.quit or s.intQuit.
 	for {
 
@@ -273,7 +283,9 @@ func (
 
 					return
 				}
+
 			}
+
 		} else {
 
 			// Next notification is nil, so see if we can get a
@@ -301,9 +313,13 @@ func (
 					// fmt.Println("chan:<-s.intQuit")
 					return
 				}
+
 			}
+
 		}
+
 	}
+
 }
 
 // sendMsgToSubscriber is a helper function that sends the target message to
@@ -328,6 +344,7 @@ func sendMsgToSubscriber(
 		// package.
 		panic("invalid message type")
 	}
+
 	// If the subscription channel was found for this subscription based on
 
 	// the new update, then we'll wait to either send this notification, or
@@ -348,5 +365,7 @@ func sendMsgToSubscriber(
 
 			// fmt.Println("chan:<-sub.intQuit")
 		}
+
 	}
+
 }

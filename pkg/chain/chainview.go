@@ -20,8 +20,10 @@ func fastLog2Floor(
 			rv += exponent
 			n >>= exponent
 		}
+
 		exponent >>= 1
 	}
+
 	return rv
 }
 
@@ -52,6 +54,7 @@ func (c *chainView) genesis() *blockNode {
 	if len(c.nodes) == 0 {
 		return nil
 	}
+
 	return c.nodes[0]
 }
 
@@ -68,6 +71,7 @@ func (c *chainView) tip() *blockNode {
 	if len(c.nodes) == 0 {
 		return nil
 	}
+
 	return c.nodes[len(c.nodes)-1]
 }
 
@@ -100,11 +104,14 @@ func (c *chainView) setTip(node *blockNode) {
 		for i := prevLen; i < needed; i++ {
 			c.nodes[i] = nil
 		}
+
 	}
+
 	for node != nil && c.nodes[node.height] != node {
 		c.nodes[node.height] = node
 		node = node.parent
 	}
+
 }
 
 // SetTip sets the chain view to use the provided block node as the current tip and ensures the view is consistent by populating it with the nodes obtained by walking backwards all the way to genesis block as necessary.  Further calls will only perform the minimum work needed, so switching between chain tips is efficient. This function is safe for concurrent access.
@@ -134,6 +141,7 @@ func (c *chainView) nodeByHeight(height int32) *blockNode {
 
 		return nil
 	}
+
 	return c.nodes[height]
 }
 
@@ -174,6 +182,7 @@ func (c *chainView) next(node *blockNode) *blockNode {
 
 		return nil
 	}
+
 	return c.nodeByHeight(node.height + 1)
 }
 
@@ -213,6 +222,7 @@ func (c *chainView) findFork(node *blockNode) *blockNode {
 
 		node = node.parent
 	}
+
 	return node
 }
 
@@ -237,6 +247,7 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 	if node == nil {
 		node = c.tip()
 	}
+
 	if node == nil {
 		return nil
 	}
@@ -250,6 +261,7 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 		adjustedHeight := uint32(node.height) - 10
 		maxEntries = 12 + fastLog2Floor(adjustedHeight)
 	}
+
 	locator := make(BlockLocator, 0, maxEntries)
 	step := int32(1)
 	for node != nil {
@@ -258,11 +270,13 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 		if node.height == 0 {
 			break
 		}
+
 		// Calculate height of previous node to include ensuring thefinal node is the genesis block.
 		height := node.height - step
 		if height < 0 {
 			height = 0
 		}
+
 		// When the node is in the current chain view, all of its ancestors must be too, so use a much faster O(1) lookup in that case.  Otherwise, fall back to walking backwards through the nodes of the other chain to the correct ancestor.
 		if c.contains(node) {
 
@@ -270,11 +284,14 @@ func (c *chainView) blockLocator(node *blockNode) BlockLocator {
 		} else {
 			node = node.Ancestor(height)
 		}
+
 		// Once 11 entries have been included, start doubling the distance between included hashes.
 		if len(locator) > 10 {
 			step *= 2
 		}
+
 	}
+
 	return locator
 }
 

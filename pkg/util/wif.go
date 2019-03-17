@@ -36,6 +36,7 @@ func NewWIF(
 	if net == nil {
 		return nil, errors.New("no network")
 	}
+
 	return &WIF{privKey, compress, net.PrivateKeyID}, nil
 }
 
@@ -65,6 +66,7 @@ func DecodeWIF(
 		if decoded[33] != compressMagic {
 			return nil, ErrMalformedPrivateKey
 		}
+
 		compress = true
 	case 1 + ec.PrivKeyBytesLen + 4:
 		compress = false
@@ -79,11 +81,13 @@ func DecodeWIF(
 	} else {
 		tosum = decoded[:1+ec.PrivKeyBytesLen]
 	}
+
 	cksum := chainhash.DoubleHashB(tosum)[:4]
 	if !bytes.Equal(cksum, decoded[decodedLen-4:]) {
 
 		return nil, ErrChecksumMismatch
 	}
+
 	netID := decoded[0]
 	privKeyBytes := decoded[1 : 1+ec.PrivKeyBytesLen]
 	privKey, _ := ec.PrivKeyFromBytes(ec.S256(), privKeyBytes)
@@ -98,6 +102,7 @@ func (w *WIF) String() string {
 	if w.CompressPubKey {
 		encodeLen++
 	}
+
 	a := make([]byte, 0, encodeLen)
 	a = append(a, w.netID)
 
@@ -106,6 +111,7 @@ func (w *WIF) String() string {
 	if w.CompressPubKey {
 		a = append(a, compressMagic)
 	}
+
 	cksum := chainhash.DoubleHashB(a)[:4]
 	a = append(a, cksum...)
 	return base58.Encode(a)
@@ -117,6 +123,7 @@ func (w *WIF) SerializePubKey() []byte {
 	if w.CompressPubKey {
 		return pk.SerializeCompressed()
 	}
+
 	return pk.SerializeUncompressed()
 }
 
@@ -126,5 +133,6 @@ func paddedAppend(
 	for i := 0; i < int(size)-len(src); i++ {
 		dst = append(dst, 0)
 	}
+
 	return append(dst, src...)
 }

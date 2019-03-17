@@ -38,8 +38,11 @@ func newLogClosure(
 // on the count n.
 func pickNoun(
 	n int, singular, plural string) string {
+
 	if n == 1 {
+
 		return singular
 	}
+
 	return plural
 }

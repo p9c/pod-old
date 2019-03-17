@@ -59,6 +59,7 @@ func DefaultConfConfig(
 		ProxyPass:  "",
 		Network:    "mainnet",
 	}
+
 }
 
 // GenPortSet creates a set of ports for testnet configuration
@@ -86,6 +87,7 @@ func GenPortSet(
 		NodeRPC:   fmt.Sprint(t + 1),
 		WalletRPC: fmt.Sprint(t - 1),
 	}
+
 	return
 }
 
@@ -113,6 +115,7 @@ func SyncToConfs(
 	if in == nil {
 		panic("received nil configset")
 	}
+
 	if in.Conf == nil ||
 		in.Ctl == nil ||
 		in.Node == nil ||
@@ -206,6 +209,7 @@ func WriteConfConfig(
 
 		panic(err.Error())
 	}
+
 	j = append(j, '\n')
 	EnsureDir(cfg.ConfigFile)
 	err = ioutil.WriteFile(cfg.ConfigFile, j, 0600)
@@ -213,6 +217,7 @@ func WriteConfConfig(
 
 		panic(err.Error())
 	}
+
 }
 
 // WriteConfigSet writes a set of configurations to disk
@@ -238,6 +243,7 @@ func WriteDefaultConfConfig(
 
 		panic(err.Error())
 	}
+
 	j = append(j, '\n')
 	EnsureDir(defCfg.ConfigFile)
 	err = ioutil.WriteFile(defCfg.ConfigFile, j, 0600)
@@ -273,6 +279,7 @@ func configConf(
 		cs.Node.Node.Listeners = listeners
 		cs.Shell.Node.Listeners = listeners
 	}
+
 	if r, ok = getIfIs(ctx, "noderpclistener"); ok {
 
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
@@ -284,6 +291,7 @@ func configConf(
 		cs.Shell.Wallet.RPCConnect = r
 		cs.Ctl.RPCServer = r
 	}
+
 	if r, ok = getIfIs(ctx, "walletlistener"); ok {
 
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
@@ -293,6 +301,7 @@ func configConf(
 		cs.Ctl.Wallet = r
 		cs.Shell.Wallet.LegacyRPCListeners = listeners
 	}
+
 	if r, ok = getIfIs(ctx, "user"); ok {
 
 		ConfConfig.NodeUser = r
@@ -304,6 +313,7 @@ func configConf(
 		cs.Shell.Wallet.Username = r
 		cs.Ctl.RPCUser = r
 	}
+
 	if r, ok = getIfIs(ctx, "pass"); ok {
 
 		ConfConfig.NodePass = r
@@ -315,6 +325,7 @@ func configConf(
 		cs.Shell.Wallet.Password = r
 		cs.Ctl.RPCPass = r
 	}
+
 	if r, ok = getIfIs(ctx, "walletpass"); ok {
 
 		ConfConfig.WalletPass = r
@@ -331,6 +342,7 @@ func configConf(
 		cs.Shell.Node.RPCKey = r
 		cs.Shell.Wallet.RPCKey = r
 	}
+
 	if r, ok = getIfIs(ctx, "rpccert"); ok {
 
 		r = node.CleanAndExpandPath(r)
@@ -340,6 +352,7 @@ func configConf(
 		cs.Shell.Node.RPCCert = r
 		cs.Shell.Wallet.RPCCert = r
 	}
+
 	if r, ok = getIfIs(ctx, "cafile"); ok {
 
 		r = node.CleanAndExpandPath(r)
@@ -347,6 +360,7 @@ func configConf(
 		cs.Wallet.Wallet.CAFile = r
 		cs.Shell.Wallet.CAFile = r
 	}
+
 	if r, ok = getIfIs(ctx, "tls"); ok {
 
 		ConfConfig.TLS = r == "true"
@@ -357,11 +371,13 @@ func configConf(
 		cs.Wallet.Wallet.EnableServerTLS = ConfConfig.TLS
 		cs.Shell.Wallet.EnableServerTLS = ConfConfig.TLS
 	}
+
 	if r, ok = getIfIs(ctx, "skipverify"); ok {
 
 		ConfConfig.SkipVerify = r == "true"
 		cs.Ctl.TLSSkipVerify = r == "true"
 	}
+
 	if r, ok = getIfIs(ctx, "proxy"); ok {
 
 		NormalizeAddresses(r, node.DefaultRPCPort, &listeners)
@@ -372,6 +388,7 @@ func configConf(
 		cs.Shell.Node.Proxy = ConfConfig.Proxy
 		cs.Shell.Wallet.Proxy = ConfConfig.Proxy
 	}
+
 	if r, ok = getIfIs(ctx, "proxyuser"); ok {
 
 		ConfConfig.ProxyUser = r
@@ -381,6 +398,7 @@ func configConf(
 		cs.Shell.Node.ProxyUser = ConfConfig.ProxyUser
 		cs.Shell.Wallet.ProxyUser = ConfConfig.ProxyUser
 	}
+
 	if r, ok = getIfIs(ctx, "proxypass"); ok {
 
 		ConfConfig.ProxyPass = r
@@ -390,6 +408,7 @@ func configConf(
 		cs.Shell.Node.ProxyPass = ConfConfig.ProxyPass
 		cs.Shell.Wallet.ProxyPass = ConfConfig.ProxyPass
 	}
+
 	if r, ok = getIfIs(ctx, "network"); ok {
 
 		r = strings.ToLower(r)
@@ -398,6 +417,7 @@ func configConf(
 		default:
 			r = "mainnet"
 		}
+
 		ConfConfig.Network = r
 		fmt.Println("configured for", r, "network")
 		switch r {
@@ -455,6 +475,7 @@ func configConf(
 			cs.Shell.Wallet.TestNet3 = false
 			cs.Shell.Wallet.SimNet = true
 		}
+
 	}
 
 	WriteConfConfig(cs.Conf)
@@ -471,8 +492,10 @@ func configConf(
 
 			panic(err.Error())
 		}
+
 		fmt.Println(string(j))
 	}
+
 }
 
 /*
@@ -486,5 +509,7 @@ func getConfs(
 		datadir + "/wallet/conf.json",
 		datadir + "/shell/conf.json",
 	}
+
 }
+
 */
