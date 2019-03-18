@@ -1,5 +1,7 @@
 package cl
 
+import "sync"
+
 // StringClosure is a function that returns a string, used to defer execution of expensive logging operations
 
 type StringClosure func() string
@@ -106,6 +108,7 @@ type SubSystem struct {
 	Level       int
 	LevelString string
 	MaxLen      int
+	mutex       sync.Mutex
 }
 
 type Registry map[string]*SubSystem

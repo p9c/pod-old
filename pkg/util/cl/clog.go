@@ -19,12 +19,14 @@ func (s *SubSystem) Close() {
 func (s *SubSystem) SetLevel(level string) {
 
 	if i, ok := Levels[level]; ok {
-
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
 		s.Level = i
 		s.LevelString = level
 
 	} else {
-
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
 		s.Level = _off
 		s.LevelString = "off"
 	}
@@ -74,47 +76,51 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				n += ":"
 			}
 
+			ss.mutex.Lock()
+			sslevel := ss.Level
+			ss.mutex.Unlock()
+
 			switch I := i.(type) {
 
 			case Ftl:
 
-				if ss.Level > _off {
+				if sslevel > _off {
 
 					Og <- Ftl(n+" ") + I
 				}
 			case Err:
 
-				if ss.Level > _fatal {
+				if sslevel > _fatal {
 
 					Og <- Err(n+" ") + I
 				}
 			case Wrn:
 
-				if ss.Level > _error {
+				if sslevel > _error {
 
 					Og <- Wrn(n+" ") + I
 				}
 			case Inf:
 
-				if ss.Level > _warn {
+				if sslevel > _warn {
 
 					Og <- Inf(n+" ") + I
 				}
 			case Dbg:
 
-				if ss.Level > _info {
+				if sslevel > _info {
 
 					Og <- Dbg(n+" ") + I
 				}
 			case Trc:
 
-				if ss.Level > _debug {
+				if sslevel > _debug {
 
 					Og <- Trc(n+" ") + I
 				}
 			case Fatalc:
 
-				if ss.Level > _off {
+				if sslevel > _off {
 
 					fn := func() string {
 
@@ -126,7 +132,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Errorc:
 
-				if ss.Level > _fatal {
+				if sslevel > _fatal {
 
 					fn := func() string {
 
@@ -138,7 +144,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Warnc:
 
-				if ss.Level > _error {
+				if sslevel > _error {
 
 					fn := func() string {
 
@@ -150,7 +156,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Infoc:
 
-				if ss.Level > _warn {
+				if sslevel > _warn {
 
 					fn := func() string {
 
@@ -162,7 +168,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Debugc:
 
-				if ss.Level > _info {
+				if sslevel > _info {
 
 					fn := func() string {
 
@@ -174,7 +180,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Tracec:
 
-				if ss.Level > _debug {
+				if sslevel > _debug {
 
 					fn := func() string {
 
@@ -186,73 +192,73 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 				}
 			case Fatal:
 
-				if ss.Level > _off {
+				if sslevel > _off {
 
 					Og <- append(Fatal{n}, i.(Fatal)...)
 				}
 			case Error:
 
-				if ss.Level > _fatal {
+				if sslevel > _fatal {
 
 					Og <- append(Error{n}, i.(Error)...)
 				}
 			case Warn:
 
-				if ss.Level > _error {
+				if sslevel > _error {
 
 					Og <- append(Warn{n}, i.(Warn)...)
 				}
 			case Info:
 
-				if ss.Level > _warn {
+				if sslevel > _warn {
 
 					Og <- append(Info{n}, i.(Info)...)
 				}
 			case Debug:
 
-				if ss.Level > _info {
+				if sslevel > _info {
 
 					Og <- append(Debug{n}, i.(Debug)...)
 				}
 			case Trace:
 
-				if ss.Level > _debug {
+				if sslevel > _debug {
 
 					Og <- append(Trace{n}, i.(Trace)...)
 				}
 			case Fatalf:
 
-				if ss.Level > _off {
+				if sslevel > _off {
 
 					Og <- append(Fatalf{n + " " + i.(Fatalf)[0].(string)}, i.(Fatalf)[1:]...)
 				}
 			case Errorf:
 
-				if ss.Level > _fatal {
+				if sslevel > _fatal {
 
 					Og <- append(Errorf{n + " " + i.(Errorf)[0].(string)}, i.(Errorf)[1:]...)
 				}
 			case Warnf:
 
-				if ss.Level > _error {
+				if sslevel > _error {
 
 					Og <- append(Warnf{n + " " + i.(Warnf)[0].(string)}, i.(Warnf)[1:]...)
 				}
 			case Infof:
 
-				if ss.Level > _warn {
+				if sslevel > _warn {
 
 					Og <- append(Infof{n + " " + i.(Infof)[0].(string)}, i.(Infof)[1:]...)
 				}
 			case Debugf:
 
-				if ss.Level > _info {
+				if sslevel > _info {
 
 					Og <- append(Debugf{n + " " + i.(Debugf)[0].(string)}, i.(Debugf)[1:]...)
 				}
 			case Tracef:
 
-				if ss.Level > _debug {
+				if sslevel > _debug {
 
 					Og <- append(Tracef{n + " " + i.(Tracef)[0].(string)}, i.(Tracef)[1:]...)
 				}
@@ -262,6 +268,7 @@ func NewSubSystem(name, level string) (ss *SubSystem) {
 	wg.Done()
 	return
 }
+
 func init() {
 
 	wg.Add(1)

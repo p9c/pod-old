@@ -1159,10 +1159,7 @@ func (
 }
 
 // Start starts the goroutines required for the manager to queue and process websocket client notifications.
-func (
-	m *wsNotificationManager,
-
-) Start() {
+func (m *wsNotificationManager) Start() {
 
 	go m.queueHandler()
 	go m.notificationHandler()
