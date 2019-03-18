@@ -212,7 +212,8 @@ func (vm *Engine) validPC() (E error) {
 		E = scriptError(ErrInvalidProgramCounter, str)
 	}
 
-	if int(vm.scriptOff.Load()) >= len(vm.scripts[vm.scriptIdx.Load()]) {
+	if len(vm.scripts) < int(vm.scriptIdx.Load()) &&
+		int(vm.scriptOff.Load()) >= len(vm.scripts[vm.scriptIdx.Load()]) {
 
 		str := fmt.Sprintf("past input scripts %v:%v %v:%04d",
 			vm.scriptIdx.Load(), vm.scriptOff.Load(), vm.scriptIdx.Load(),
@@ -555,32 +556,37 @@ func (vm *Engine) Execute() (err error) {
 			return err
 		}
 
-		log <- cl.Tracec(func() string {
+		log <- cl.Trace{
+			func() string {
 
-			var o string
-			dis, err := vm.DisasmPC()
+				var o string
+				dis, err := vm.DisasmPC()
 
-			if err != nil {
+				if err != nil {
 
-				log <- cl.Debug{"c stepping (", err, ")"}
+					log <- cl.Debug{"c stepping (", err, ")"}
 
-			}
-			o = fmt.Sprint("oo stepping ", dis)
-			var dstr, astr string
-			// if we're tracing, dump the stacks.
+				}
 
-			if vm.dstack.Depth() != 0 {
+				o = fmt.Sprint("oo stepping ", dis)
+				var dstr, astr string
+				// if we're tracing, dump the stacks.
 
-				dstr = "\nStack:\n" + vm.dstack.String()
-			}
+				if vm.dstack.Depth() != 0 {
 
-			if vm.astack.Depth() != 0 {
+					dstr = "\nStack:\n" + vm.dstack.String()
+				}
 
-				astr = "\nAltStack:\n" + vm.astack.String()
-			}
-			log <- cl.Debug{"finished trace func"}
-			return o + dstr + astr
-		})
+				if vm.astack.Depth() != 0 {
+
+					astr = "\nAltStack:\n" + vm.astack.String()
+				}
+
+				log <- cl.Debug{"finished trace func"}
+				return o + dstr + astr
+
+			}(),
+		}
 	}
 	return vm.CheckErrorCondition(true)
 }

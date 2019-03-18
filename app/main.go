@@ -146,6 +146,7 @@ func Main() int {
 	}
 	return 0
 }
+
 func init() {
 
 	*App = cli.App{
