@@ -39,6 +39,8 @@ require (
 	github.com/programmer10110/gostreebog v0.0.0-20170704145444-a3e1d28291b2
 	github.com/smallnest/rpcx v0.0.0-20190301092119-bb0446484b2b // indirect
 	github.com/spacemonkeygo/errors v0.0.0-20171212215202-9064522e9fd1 // indirect
+	github.com/spf13/cobra v0.0.3
+	github.com/spf13/viper v1.3.2 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect

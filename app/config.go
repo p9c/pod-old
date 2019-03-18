@@ -38,7 +38,7 @@ type ConfigCommon struct {
 	Datadir      string
 	Save         bool
 	Loglevel     string
-	Subsystems   cli.StringSlice
+	Subsystem    cli.StringSlice
 	Network      string
 	ServerUser   string
 	ServerPass   string
