@@ -48,6 +48,7 @@ require (
 	github.com/xtaci/kcp-go v5.0.7+incompatible
 	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb
 	go.etcd.io/bbolt v1.3.2 // indirect
+	go.uber.org/atomic v1.3.2
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a
 	golang.org/x/net v0.0.0-20190313082753-5c2c250b6a70
 	google.golang.org/grpc v1.19.0

@@ -516,7 +516,7 @@ func (b *BlockChain) connectBlock(node *blockNode, block *util.Block,
 
 		if err := b.warnUnknownRuleActivations(node); err != nil {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return "warnUnknownRuleActivations " + err.Error()
 			})

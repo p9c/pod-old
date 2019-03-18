@@ -2001,7 +2001,7 @@ func opcodeHash256(
 func opcodeCodeSeparator(
 	op *parsedOpcode, vm *Engine) error {
 
-	vm.lastCodeSep = vm.scriptOff
+	vm.lastCodeSep = int(vm.scriptOff.Load())
 	return nil
 }
 

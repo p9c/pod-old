@@ -60,7 +60,7 @@ func (
 		return block.MsgBlock().BlockHashWithAlgos(height).String()
 	}
 
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		return "processing block" + blockHashWithAlgo()
 	})

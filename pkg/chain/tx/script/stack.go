@@ -3,6 +3,7 @@ package txscript
 import (
 	"encoding/hex"
 	"fmt"
+	"sync"
 )
 
 // asBool gets the boolean value of the byte array.
@@ -40,11 +41,15 @@ func fromBool(
 
 type stack struct {
 	stk               [][]byte
+	stkMutex          sync.Mutex
 	verifyMinimalData bool
 }
 
 // Depth returns the number of items on the stack.
 func (s *stack) Depth() int32 {
+
+	s.stkMutex.Lock()
+	defer s.stkMutex.Unlock()
 
 	return int32(len(s.stk))
 }
@@ -53,6 +58,8 @@ func (s *stack) Depth() int32 {
 // Stack transformation: [... x1 x2] -> [... x1 x2 data]
 func (s *stack) PushByteArray(so []byte) {
 
+	s.stkMutex.Lock()
+	defer s.stkMutex.Unlock()
 	s.stk = append(s.stk, so)
 }
 

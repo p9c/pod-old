@@ -9,6 +9,7 @@ import (
 	txscript "git.parallelcoin.io/dev/pod/pkg/chain/tx/script"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 )
 
 // txValidateItem holds a transaction along with which input to validate.
@@ -348,7 +349,7 @@ func checkBlockScripts(
 
 	elapsed := time.Since(start)
 
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		return fmt.Sprintf("block %v took %v to verify", block.Hash(), elapsed)
 	})

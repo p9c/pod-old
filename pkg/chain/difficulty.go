@@ -177,7 +177,7 @@ func (
 			newTargetBits,
 		}
 
-		Log.Trcc(func() string {
+		log <- cl.Tracec(func() string {
 
 			return fmt.Sprintf(
 				"actual timespan %v, adjusted timespan %v, target timespan %v"+

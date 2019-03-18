@@ -9,6 +9,7 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
 	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
+	"go.uber.org/atomic"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be done when executing a script pair.
@@ -89,8 +90,8 @@ var halfOrder = new(big.Int).Rsh(ec.S256().N, 1)
 
 type Engine struct {
 	scripts         [][]parsedOpcode
-	scriptIdx       int
-	scriptOff       int
+	scriptIdx       atomic.Int64
+	scriptOff       atomic.Int64
 	lastCodeSep     int
 	dstack          stack // data stack
 	astack          stack // alt stack
@@ -202,21 +203,23 @@ func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
 }
 
 // validPC returns an error if the current script position is valid for execution, nil otherwise.
-func (vm *Engine) validPC() error {
+func (vm *Engine) validPC() (E error) {
 
-	if vm.scriptIdx >= len(vm.scripts) {
+	if int(vm.scriptIdx.Load()) >= len(vm.scripts) {
 
 		str := fmt.Sprintf("past input scripts %v:%v %v:xxxx",
-			vm.scriptIdx, vm.scriptOff, len(vm.scripts))
-		return scriptError(ErrInvalidProgramCounter, str)
+			vm.scriptIdx.Load(), vm.scriptOff.Load(), len(vm.scripts))
+		E = scriptError(ErrInvalidProgramCounter, str)
 	}
-	if vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+
+	if int(vm.scriptOff.Load()) >= len(vm.scripts[vm.scriptIdx.Load()]) {
 
 		str := fmt.Sprintf("past input scripts %v:%v %v:%04d",
-			vm.scriptIdx, vm.scriptOff, vm.scriptIdx,
-			len(vm.scripts[vm.scriptIdx]))
-		return scriptError(ErrInvalidProgramCounter, str)
+			vm.scriptIdx.Load(), vm.scriptOff.Load(), vm.scriptIdx.Load(),
+			len(vm.scripts[vm.scriptIdx.Load()]))
+		E = scriptError(ErrInvalidProgramCounter, str)
 	}
+
 	return nil
 }
 
@@ -228,7 +231,7 @@ func (vm *Engine) curPC() (script int, off int, err error) {
 
 		return 0, 0, err
 	}
-	return vm.scriptIdx, vm.scriptOff, nil
+	return int(vm.scriptIdx.Load()), int(vm.scriptOff.Load()), nil
 }
 
 // isWitnessVersionActive returns true if a witness program was extracted during the initialization of the Engine, and the program's version matches the specified version.
@@ -374,7 +377,7 @@ func (vm *Engine) DisasmScript(idx int) (string, error) {
 func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 
 	// Check execution is actually done.  When pc is past the end of script array there are no more scripts to run.
-	if vm.scriptIdx < len(vm.scripts) {
+	if int(vm.scriptIdx.Load()) < len(vm.scripts) {
 
 		return scriptError(ErrScriptUnfinished,
 			"error check when script unfinished")
@@ -405,7 +408,7 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 	if !v {
 
 		// Log interesting data.
-		Log.Trcc(func() string {
+		log <- cl.Tracec(func() string {
 
 			dis0, _ := vm.DisasmScript(0)
 			dis1, _ := vm.DisasmScript(1)
@@ -419,22 +422,26 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 }
 
 // Step will execute the next instruction and move the program counter to the next opcode in the script, or the next script if the current has ended.  Step will return true in the case that the last opcode was successfully executed. The result of calling Step or any other method is undefined if an error is returned.
-func (vm *Engine) Step() (done bool, err error) {
+func (vm *Engine) Step() (done bool, e error) {
 
 	// Verify that it is pointing to a valid script address.
-	err = vm.validPC()
-	if err != nil {
+	e = vm.validPC()
+	if e != nil {
 
-		return true, err
+		return true, e
 	}
-	opcode := &vm.scripts[vm.scriptIdx][vm.scriptOff]
-	vm.scriptOff++
+
+	var opcode *parsedOpcode
+
+	opcode = &vm.scripts[vm.scriptIdx.Load()][vm.scriptOff.Load()]
+	vm.scriptOff.Inc()
 
 	// Execute the opcode while taking into account several things such as disabled opcodes, illegal opcodes, maximum allowed operations per script, maximum script element sizes, and conditionals.
-	err = vm.executeOpcode(opcode)
-	if err != nil {
+	e = vm.executeOpcode(opcode)
 
-		return true, err
+	if e != nil {
+
+		return true, e
 	}
 
 	// The number of elements in the combination of the data and alt stacks must not exceed the maximum number of stack elements allowed.
@@ -443,78 +450,95 @@ func (vm *Engine) Step() (done bool, err error) {
 
 		str := fmt.Sprintf("combined stack size %d > max allowed %d",
 			combinedStackSize, MaxStackSize)
-		return false, scriptError(ErrStackOverflow, str)
+		done, e = false, scriptError(ErrStackOverflow, str)
+	}
+
+	if e != nil {
+		return
 	}
 
 	// Prepare for next instruction.
-	if vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+	if int(vm.scriptOff.Load()) >= len(vm.scripts[vm.scriptIdx.Load()]) {
 
 		// Illegal to have an `if' that straddles two scripts.
 
-		if err == nil && len(vm.condStack) != 0 {
+		if len(vm.condStack) != 0 {
 
-			return false, scriptError(ErrUnbalancedConditional,
-				"end of script reached in conditional execution")
+			done, e =
+				false,
+				scriptError(ErrUnbalancedConditional,
+					"end of script reached in conditional execution")
+			return
 		}
 		// Alt stack doesn't persist.
 		_ = vm.astack.DropN(vm.astack.Depth())
 		vm.numOps = 0 // number of ops is per script.
-		vm.scriptOff = 0
 
-		if vm.scriptIdx == 0 && vm.bip16 {
+		vm.scriptOff.Store(0)
 
-			vm.scriptIdx++
+		if vm.scriptIdx.Load() == 0 && vm.bip16 {
+
+			vm.scriptIdx.Inc()
 			vm.savedFirstStack = vm.GetStack()
-		} else if vm.scriptIdx == 1 && vm.bip16 {
+		} else if vm.scriptIdx.Load() == 1 && vm.bip16 {
 
 			// Put us past the end for CheckErrorCondition()
-			vm.scriptIdx++
+			vm.scriptIdx.Inc()
 			// Check script ran successfully and pull the script out of the first stack and execute that.
 			err := vm.CheckErrorCondition(false)
 
 			if err != nil {
 
-				return false, err
+				done, e = false, err
+				return
 			}
+
 			script := vm.savedFirstStack[len(vm.savedFirstStack)-1]
 			pops, err := parseScript(script)
 
 			if err != nil {
 
-				return false, err
+				done, e = false, err
+				return
 			}
 			vm.scripts = append(vm.scripts, pops)
 			// Set stack to be the stack from first script minus the script itself
 			vm.SetStack(vm.savedFirstStack[:len(vm.savedFirstStack)-1])
-		} else if (vm.scriptIdx == 1 && vm.witnessProgram != nil) ||
-			(vm.scriptIdx == 2 && vm.witnessProgram != nil && vm.bip16) {
+		} else if (vm.scriptIdx.Load() == 1 && vm.witnessProgram != nil) ||
+			(vm.scriptIdx.Load() == 2 && vm.witnessProgram != nil && vm.bip16) {
 
 			// Nested P2SH.
-			vm.scriptIdx++
+			vm.scriptIdx.Inc()
 			witness := vm.tx.TxIn[vm.txIdx].Witness
 
 			if err := vm.verifyWitnessProgram(witness); err != nil {
 
-				return false, err
+				done, e = false, err
+				return
 			}
+
 		} else {
 
-			vm.scriptIdx++
+			vm.scriptIdx.Inc()
+
 		}
 		// there are zero length scripts in the wild
 
-		if vm.scriptIdx < len(vm.scripts) && vm.scriptOff >= len(vm.scripts[vm.scriptIdx]) {
+		if int(vm.scriptIdx.Load()) < len(vm.scripts) &&
+			int(vm.scriptOff.Load()) >= len(vm.scripts[vm.scriptIdx.Load()]) {
 
-			vm.scriptIdx++
+			vm.scriptIdx.Inc()
 		}
 		vm.lastCodeSep = 0
 
-		if vm.scriptIdx >= len(vm.scripts) {
+		if int(vm.scriptIdx.Load()) >= len(vm.scripts) {
 
-			return true, nil
+			done, e = true, nil
+			return
 		}
 	}
-	return false, nil
+
+	return
 }
 
 // Execute will execute all scripts in the script engine and return either nil for successful validation or an error if one occurred.
@@ -530,30 +554,31 @@ func (vm *Engine) Execute() (err error) {
 
 			return err
 		}
-		Log.Trcc(func() string {
+
+		log <- cl.Tracec(func() string {
 
 			var o string
 			dis, err := vm.DisasmPC()
 
 			if err != nil {
 
-				log <- cl.Debug{"stepping (", err, ")"}
+				log <- cl.Debug{"c stepping (", err, ")"}
 
-				o = fmt.Sprint("stepping (", err, ")")
 			}
-			o = fmt.Sprint("stepping ", dis)
+			o = fmt.Sprint("oo stepping ", dis)
 			var dstr, astr string
 			// if we're tracing, dump the stacks.
 
 			if vm.dstack.Depth() != 0 {
 
-				dstr = "Stack:\n" + vm.dstack.String()
+				dstr = "\nStack:\n" + vm.dstack.String()
 			}
 
 			if vm.astack.Depth() != 0 {
 
-				astr = "AltStack:\n" + vm.astack.String()
+				astr = "\nAltStack:\n" + vm.astack.String()
 			}
+			log <- cl.Debug{"finished trace func"}
 			return o + dstr + astr
 		})
 	}
@@ -563,7 +588,7 @@ func (vm *Engine) Execute() (err error) {
 // subScript returns the script since the last OP_CODESEPARATOR.
 func (vm *Engine) subScript() []parsedOpcode {
 
-	return vm.scripts[vm.scriptIdx][vm.lastCodeSep:]
+	return vm.scripts[vm.scriptIdx.Load()][vm.lastCodeSep:]
 }
 
 // checkHashTypeEncoding returns whether or not the passed hashtype adheres to the strict encoding requirements if enabled.
@@ -870,8 +895,12 @@ func NewEngine(
 	// The clean stack flag (ScriptVerifyCleanStack) is not allowed without either the pay-to-script-hash (P2SH) evaluation (ScriptBip16) flag or the Segregated Witness (ScriptVerifyWitness) flag.
 
 	// Recall that evaluating a P2SH script without the flag set results in non-P2SH evaluation which leaves the P2SH inputs on the stack. Thus, allowing the clean stack flag without the P2SH flag would make it possible to have a situation where P2SH would not be a soft fork when it should be. The same goes for segwit which will pull in additional scripts for execution from the witness stack.
-	vm := Engine{flags: flags, sigCache: sigCache, hashCache: hashCache,
-		inputAmount: inputAmount}
+	vm := Engine{
+		flags:       flags,
+		sigCache:    sigCache,
+		hashCache:   hashCache,
+		inputAmount: inputAmount,
+	}
 	if vm.hasFlag(ScriptVerifyCleanStack) && (!vm.hasFlag(ScriptBip16) &&
 		!vm.hasFlag(ScriptVerifyWitness)) {
 
@@ -910,7 +939,7 @@ func NewEngine(
 	// Advance the program counter to the public key script if the signature script is empty since there is nothing to execute for it in that case.
 	if len(scripts[0]) == 0 {
 
-		vm.scriptIdx++
+		vm.scriptIdx.Inc()
 	}
 	if vm.hasFlag(ScriptBip16) && isScriptHash(vm.scripts[1]) {
 

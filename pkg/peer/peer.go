@@ -940,7 +940,7 @@ func (p *Peer) readMessage(encoding wire.MessageEncoding) (wire.Message, []byte,
 
 	// Use closures to log expensive operations so they are only run when the logging level requires it.
 
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		// Debug summary of message.
 		summary := messageSummary(msg)
@@ -973,7 +973,7 @@ func (p *Peer) writeMessage(msg wire.Message, enc wire.MessageEncoding) error {
 
 	// Use closures to log expensive operations so they are only run when the logging level requires it.
 
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		// Debug summary of message.
 		summary := messageSummary(msg)

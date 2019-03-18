@@ -1002,6 +1002,7 @@ func (
 
 	}
 
+	s.ntfnMgr.wg.Add(2)
 	s.ntfnMgr.Start()
 }
 

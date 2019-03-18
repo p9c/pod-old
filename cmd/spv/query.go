@@ -513,7 +513,7 @@ func queryChainServiceBatch(
 					return
 				}
 
-				Log.Trcc(func() string {
+				log <- cl.Tracec(func() string {
 
 					return fmt.Sprintf(
 						"query for #%v failed, moving on: %v",

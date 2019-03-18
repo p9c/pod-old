@@ -1164,7 +1164,6 @@ func (
 
 ) Start() {
 
-	m.wg.Add(2)
 	go m.queueHandler()
 	go m.notificationHandler()
 }

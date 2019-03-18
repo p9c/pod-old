@@ -448,7 +448,7 @@ mempoolLoop:
 
 		if blockchain.IsCoinBase(tx) {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return fmt.Sprintf("skipping coinbase tx %s", tx.Hash())
 			})
@@ -459,7 +459,7 @@ mempoolLoop:
 
 			g.timeSource.AdjustedTime()) {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return "skipping non-finalized tx " + tx.Hash().String()
 			})
@@ -488,7 +488,7 @@ mempoolLoop:
 
 				if !g.txSource.HaveTransaction(originHash) {
 
-					Log.Trcc(func() string {
+					log <- cl.Tracec(func() string {
 
 						return "skipping tx %s because it references unspent output %s which is not available" +
 							tx.Hash().String() +
@@ -531,7 +531,7 @@ mempoolLoop:
 		// Merge the referenced outputs from the input transactions to this transaction into the block utxo view.  This allows the code below to avoid a second lookup.
 		mergeUtxoView(blockUtxos, utxos)
 	}
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		return fmt.Sprintf(
 			"priority queue len %d, dependers len %d",
@@ -610,7 +610,7 @@ mempoolLoop:
 
 		if err != nil {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return "skipping tx " + tx.Hash().String() +
 					"due to error in GetSigOpCost: " + err.Error()
@@ -623,7 +623,7 @@ mempoolLoop:
 
 			blockSigOpCost+int64(sigOpCost) > blockchain.MaxBlockSigOpsCost {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return "skipping tx " + tx.Hash().String() +
 					" because it would exceed the maximum sigops per block"
@@ -638,7 +638,7 @@ mempoolLoop:
 			prioItem.feePerKB < int64(g.policy.TxMinFreeFee) &&
 			blockPlusTxWeight >= g.policy.BlockMinWeight {
 
-			Log.Trcc(func() string {
+			log <- cl.Tracec(func() string {
 
 				return fmt.Sprint(
 					"skipping tx ", tx.Hash(),

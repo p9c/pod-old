@@ -549,7 +549,7 @@ func (cm *ConnManager) listenHandler(listener net.Listener) {
 		go cm.cfg.OnAccept(conn)
 	}
 	cm.wg.Done()
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		return fmt.Sprint("listener handler done for ", listener.Addr())
 	})

@@ -834,7 +834,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
 
-				Log.Trcc(func() string {
+				log <- cl.Tracec(func() string {
 
 					return fmt.Sprintf("selected %v from tried bucket", NetAddressKey(ka.na))
 				})
@@ -874,7 +874,7 @@ func (a *AddrManager) GetAddress() *KnownAddress {
 
 			if float64(randval) < (factor * ka.chance() * float64(large)) {
 
-				Log.Trcc(func() string {
+				log <- cl.Tracec(func() string {
 
 					return fmt.Sprintf("Selected %v from new bucket", NetAddressKey(ka.na))
 				})

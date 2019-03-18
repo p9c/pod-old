@@ -1007,7 +1007,7 @@ func (b *BlockChain) createChainState() error {
 	// Create a new node from the genesis block and set it as the best node.
 	genesisBlock := util.NewBlock(b.chainParams.GenesisBlock)
 
-	Log.Trcc(func() string {
+	log <- cl.Tracec(func() string {
 
 		xx, _ := genesisBlock.Bytes()
 		return hex.EncodeToString(xx)

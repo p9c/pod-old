@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	fileLimitWant = 2048
+	fileLimitWant = 8192
 	fileLimitMin  = 1024
 )
 
