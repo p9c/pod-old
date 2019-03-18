@@ -110,8 +110,10 @@ func (
 		algoName := fork.GetAlgoName(algo, nH)
 		newTargetBits = fork.GetMinBits(algoName, nH)
 
-		log <- cl.Debugf{"last %d %d %8x",
-			lastNode.height, lastNode.version, lastNode.bits}
+		log <- cl.Debugc(func() string {
+			return fmt.Sprintf("last %d %d %8x",
+				lastNode.height, lastNode.version, lastNode.bits)
+		})
 
 		prevNode := lastNode.GetLastWithAlgo(algo)
 
@@ -125,8 +127,10 @@ func (
 		for i := int64(0); firstNode != nil &&
 			i < fork.GetAveragingInterval(nH)-1; i++ {
 
-			log <- cl.Debugf{"%d: prev %d %d %8x",
-				i, firstNode.height, firstNode.version, firstNode.bits}
+			log <- cl.Debugc(func() string {
+				return fmt.Sprintf("%d: prev %d %d %8x",
+					i, firstNode.height, firstNode.version, firstNode.bits)
+			})
 
 			firstNode = firstNode.RelativeAncestor(1)
 			firstNode = firstNode.GetLastWithAlgo(algo)
@@ -136,9 +140,10 @@ func (
 
 			return newTargetBits, nil
 		}
-
-		log <- cl.Debugf{"9: first %d %d %8x",
-			firstNode.height, firstNode.version, firstNode.bits}
+		log <- cl.Debugc(func() string {
+			return fmt.Sprintf("9: first %d %d %8x",
+				firstNode.height, firstNode.version, firstNode.bits)
+		})
 
 		actualTimespan := prevNode.timestamp - firstNode.timestamp
 		adjustedTimespan := actualTimespan
@@ -169,16 +174,13 @@ func (
 
 		newTargetBits = BigToCompact(newTarget)
 
-		log <- cl.Debugf{
-
-			"difficulty retarget at block height %d, old %08x new %08x",
-			lastNode.height + 1,
-			prevNode.bits,
-			newTargetBits,
-		}
+		log <- cl.Debugc(func() string {
+			return fmt.Sprintf(
+				"difficulty retarget at block height %d, old %08x new %08x",
+				lastNode.height+1, prevNode.bits, newTargetBits)
+		})
 
 		log <- cl.Tracec(func() string {
-
 			return fmt.Sprintf(
 				"actual timespan %v, adjusted timespan %v, target timespan %v"+
 					"\nOld %064x\nNew %064x",

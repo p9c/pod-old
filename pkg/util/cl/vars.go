@@ -42,7 +42,7 @@ var ShuttingDown bool
 var Writer = io.MultiWriter(os.Stdout)
 
 // Og is the root channel that processes logging messages, so, cl.Og <- Fatalf{"format string %s %d", stringy, inty} sends to the root
-var Og = make(chan interface{})
+var Og = make(chan interface{}, 27)
 
 var wg sync.WaitGroup
 

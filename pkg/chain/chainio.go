@@ -1012,6 +1012,7 @@ func (b *BlockChain) createChainState() error {
 		xx, _ := genesisBlock.Bytes()
 		return hex.EncodeToString(xx)
 	})
+
 	genesisBlock.SetHeight(0)
 	header := &genesisBlock.MsgBlock().Header
 	node := newBlockNode(header, nil)

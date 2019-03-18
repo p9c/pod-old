@@ -185,18 +185,19 @@ func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
 
 	if scriptIdx >= len(vm.scripts) {
 
-		log <- cl.Warn{"disasm array index out of bounds"}
+		fmt.Println("disasm array index out of bounds")
+		fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 
 		return ""
-		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
 	if scriptOff >= len(vm.scripts[scriptIdx]) {
 
-		log <- cl.Warn{"disasm array index out of bounds"}
+		fmt.Println("disasm array index out of bounds")
+		fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 
 		return ""
-		// fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
+	fmt.Println("disassembling")
 	return fmt.Sprintf(
 		"%02x:%04x: %s", scriptIdx, scriptOff,
 		vm.scripts[scriptIdx][scriptOff].print(false))
@@ -348,11 +349,15 @@ func (vm *Engine) verifyWitnessProgram(witness [][]byte) error {
 // DisasmPC returns the string for the disassembly of the opcode that will be next to execute when Step() is called.
 func (vm *Engine) DisasmPC() (string, error) {
 
+	fmt.Println("before vm.curPC()")
 	scriptIdx, scriptOff, err := vm.curPC()
+	fmt.Println("after vm.curPC()")
+
 	if err != nil {
 
 		return "", err
 	}
+	fmt.Println("calling vm.disasm()")
 	return vm.disasm(scriptIdx, scriptOff), nil
 }
 
@@ -556,37 +561,35 @@ func (vm *Engine) Execute() (err error) {
 			return err
 		}
 
-		log <- cl.Trace{
-			func() string {
+		log <- cl.Tracec(func() string {
 
-				var o string
-				dis, err := vm.DisasmPC()
+			var o string
+			fmt.Println("before vm.DisasmPC()")
+			dis, err := vm.DisasmPC()
+			fmt.Println("after vm.DisasmPC()")
 
-				if err != nil {
+			if err != nil {
 
-					log <- cl.Debug{"c stepping (", err, ")"}
+				o += "c stepping (" + err.Error() + ")"
 
-				}
+			}
 
-				o = fmt.Sprint("oo stepping ", dis)
-				var dstr, astr string
-				// if we're tracing, dump the stacks.
+			o += "oo stepping " + dis
+			var dstr, astr string
 
-				if vm.dstack.Depth() != 0 {
+			// if we're tracing, dump the stacks.
+			if vm.dstack.Depth() != 0 {
 
-					dstr = "\nStack:\n" + vm.dstack.String()
-				}
+				dstr = "\nStack:\n" + vm.dstack.String()
+			}
 
-				if vm.astack.Depth() != 0 {
+			if vm.astack.Depth() != 0 {
 
-					astr = "\nAltStack:\n" + vm.astack.String()
-				}
+				astr = "\nAltStack:\n" + vm.astack.String()
+			}
 
-				log <- cl.Debug{"finished trace func"}
-				return o + dstr + astr
-
-			}(),
-		}
+			return o + dstr + astr
+		})
 	}
 	return vm.CheckErrorCondition(true)
 }

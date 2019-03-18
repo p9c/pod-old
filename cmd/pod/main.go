@@ -16,7 +16,7 @@ import (
 func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	debug.SetGCPercent(10)
+	debug.SetGCPercent(100)
 
 	if err := limits.SetLimits(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
