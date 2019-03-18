@@ -465,8 +465,9 @@ func (
 	go func() {
 
 		state.Lock()
-		defer state.Unlock()
-		state.notifyLongPollers(blockHash, state.lastTxUpdate)
+		statelasttxupdate := state.lastTxUpdate
+		state.Unlock()
+		state.notifyLongPollers(blockHash, statelasttxupdate)
 	}()
 
 }

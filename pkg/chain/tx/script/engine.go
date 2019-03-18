@@ -7,7 +7,7 @@ import (
 	"math/big"
 
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
-	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	// "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
 	"go.uber.org/atomic"
 )
@@ -185,19 +185,15 @@ func (vm *Engine) disasm(scriptIdx int, scriptOff int) string {
 
 	if scriptIdx >= len(vm.scripts) {
 
-		fmt.Println("disasm array index out of bounds")
-		fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
-
-		return ""
+		return fmt.Sprintf("disasm array index out of bounds ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
+
 	if scriptOff >= len(vm.scripts[scriptIdx]) {
 
-		fmt.Println("disasm array index out of bounds")
-		fmt.Sprintf("ERR: %02x:%04x", scriptIdx, scriptOff)
-
-		return ""
+		return fmt.Sprintf(
+			"disasm scriptoff array index out of bounds ERR: %02x:%04x", scriptIdx, scriptOff)
 	}
-	fmt.Println("disassembling")
+
 	return fmt.Sprintf(
 		"%02x:%04x: %s", scriptIdx, scriptOff,
 		vm.scripts[scriptIdx][scriptOff].print(false))
@@ -413,14 +409,14 @@ func (vm *Engine) CheckErrorCondition(finalScript bool) error {
 	}
 	if !v {
 
-		// Log interesting data.
-		log <- cl.Tracec(func() string {
+		// // Log interesting data.
+		// log <- cl.Tracec(func() string {
 
-			dis0, _ := vm.DisasmScript(0)
-			dis1, _ := vm.DisasmScript(1)
-			return fmt.Sprintf("scripts failed: script0: %s\n"+
-				"script1: %s", dis0, dis1)
-		})
+		// 	dis0, _ := vm.DisasmScript(0)
+		// 	dis1, _ := vm.DisasmScript(1)
+		// 	return fmt.Sprintf("scripts failed: script0: %s\n"+
+		// 		"script1: %s", dis0, dis1)
+		// })
 		return scriptError(ErrEvalFalse,
 			"false stack entry at end of script execution")
 	}
@@ -561,35 +557,35 @@ func (vm *Engine) Execute() (err error) {
 			return err
 		}
 
-		log <- cl.Tracec(func() string {
+		// log <- cl.Tracec(func() string {
 
-			var o string
-			fmt.Println("before vm.DisasmPC()")
-			dis, err := vm.DisasmPC()
-			fmt.Println("after vm.DisasmPC()")
+		// 	var o string
+		// 	fmt.Println("before vm.DisasmPC()")
+		// 	dis, err := vm.DisasmPC()
+		// 	fmt.Println("after vm.DisasmPC()")
 
-			if err != nil {
+		// 	if err != nil {
 
-				o += "c stepping (" + err.Error() + ")"
+		// 		o += "c stepping (" + err.Error() + ")"
 
-			}
+		// 	}
 
-			o += "oo stepping " + dis
-			var dstr, astr string
+		// 	o += "oo stepping " + dis
+		// 	var dstr, astr string
 
-			// if we're tracing, dump the stacks.
-			if vm.dstack.Depth() != 0 {
+		// 	// if we're tracing, dump the stacks.
+		// 	if vm.dstack.Depth() != 0 {
 
-				dstr = "\nStack:\n" + vm.dstack.String()
-			}
+		// 		dstr = "\nStack:\n" + vm.dstack.String()
+		// 	}
 
-			if vm.astack.Depth() != 0 {
+		// 	if vm.astack.Depth() != 0 {
 
-				astr = "\nAltStack:\n" + vm.astack.String()
-			}
+		// 		astr = "\nAltStack:\n" + vm.astack.String()
+		// 	}
 
-			return o + dstr + astr
-		})
+		// 	return o + dstr + astr
+		// })
 	}
 	return vm.CheckErrorCondition(true)
 }

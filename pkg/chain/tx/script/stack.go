@@ -59,8 +59,10 @@ func (s *stack) Depth() int32 {
 func (s *stack) PushByteArray(so []byte) {
 
 	s.stkMutex.Lock()
-	defer s.stkMutex.Unlock()
-	s.stk = append(s.stk, so)
+	{
+		s.stk = append(s.stk, so)
+		s.stkMutex.Unlock()
+	}
 }
 
 // PushInt converts the provided scriptNum to a suitable byte array then pushes it onto the top of the stack. Stack transformation: [... x1 x2] -> [... x1 x2 int]
@@ -148,29 +150,35 @@ func (s *stack) PeekBool(idx int32) (bool, error) {
 // nipN(2): [... x1 x2 x3] -> [... x2 x3]
 func (s *stack) nipN(idx int32) ([]byte, error) {
 
-	sz := int32(len(s.stk))
-	if idx < 0 || idx > sz-1 {
+	s.stkMutex.Lock()
+	{
+		sz := int32(len(s.stk))
+		if idx < 0 || idx > sz-1 {
 
-		str := fmt.Sprintf("index %d is invalid for stack size %d", idx,
-			sz)
-		return nil, scriptError(ErrInvalidStackOperation, str)
+			str := fmt.Sprintf("index %d is invalid for stack size %d", idx,
+				sz)
+			return nil, scriptError(ErrInvalidStackOperation, str)
+		}
+		so := s.stk[sz-idx-1]
+		if idx == 0 {
+
+			s.stk = s.stk[:sz-1]
+		} else if idx == sz-1 {
+
+			s1 := make([][]byte, sz-1)
+			copy(s1, s.stk[1:])
+			s.stk = s1
+		} else {
+
+			s1 := s.stk[sz-idx : sz]
+			s.stk = s.stk[:sz-idx-1]
+			s.stk = append(s.stk, s1...)
+		}
+
+		s.stkMutex.Unlock()
+
+		return so, nil
 	}
-	so := s.stk[sz-idx-1]
-	if idx == 0 {
-
-		s.stk = s.stk[:sz-1]
-	} else if idx == sz-1 {
-
-		s1 := make([][]byte, sz-1)
-		copy(s1, s.stk[1:])
-		s.stk = s1
-	} else {
-
-		s1 := s.stk[sz-idx : sz]
-		s.stk = s.stk[:sz-idx-1]
-		s.stk = append(s.stk, s1...)
-	}
-	return so, nil
 }
 
 // NipN removes the Nth object on the stack
@@ -373,16 +381,19 @@ func (s *stack) RollN(n int32) error {
 
 // String returns the stack in a readable format.
 func (s *stack) String() string {
+	s.stkMutex.Lock()
+	{
+		var result string
 
-	var result string
+		for _, stack := range s.stk {
 
-	for _, stack := range s.stk {
+			if len(stack) == 0 {
 
-		if len(stack) == 0 {
-
-			result += "00000000  <empty>\n"
+				result += "00000000  <empty>\n"
+			}
+			result += hex.Dump(stack)
 		}
-		result += hex.Dump(stack)
+		s.stkMutex.Unlock()
+		return result
 	}
-	return result
 }
