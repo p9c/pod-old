@@ -2,51 +2,54 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"runtime"
 	"runtime/debug"
-	"runtime/pprof"
-	"runtime/trace"
 
 	"git.parallelcoin.io/dev/pod/app"
-	"git.parallelcoin.io/dev/pod/pkg/util/interrupt"
 	"git.parallelcoin.io/dev/pod/pkg/util/limits"
 )
 
 func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	debug.SetGCPercent(100)
+	debug.SetGCPercent(10)
 
 	if err := limits.SetLimits(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to set limits: %v\n", err)
 		os.Exit(1)
 	}
-	f, err := os.Create("trace.out")
+	/*
+	_=func() {
 
-	if err != nil {
-		panic(err)
+		f, err := os.Create("trace.out")
+		
+		if err != nil {
+			panic(err)
+		}
+		err = trace.Start(f)
+		
+		if err != nil {
+			panic(err)
+		}
+		
+		mf, err := os.Create("mem.prof")
+		
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
 	}
-	defer f.Close()
-	err = trace.Start(f)
 
-	if err != nil {
-		panic(err)
-	}
+	go func() {
 
-	mf, err := os.Create("mem.prof")
+		time.Sleep(time.Minute)
+		runtime.GC() // get up-to-date statistics
 
-	if err != nil {
-		log.Fatal("could not create memory profile: ", err)
-	}
-	runtime.GC() // get up-to-date statistics
-
-	if err := pprof.WriteHeapProfile(mf); err != nil {
-		log.Fatal("could not write memory profile: ", err)
-	}
+		if err := pprof.WriteHeapProfile(mf); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+	}()
 
 	cf, err := os.Create("cpu.prof")
 
@@ -72,9 +75,11 @@ func main() {
 
 			pprof.StopCPUProfile()
 			f.Close()
+			mf.Close()
+
 		},
 	)
-
+	*/
 	os.Exit(app.Main())
 
 }
