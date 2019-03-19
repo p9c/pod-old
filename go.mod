@@ -23,14 +23,13 @@ require (
 	github.com/dogeerf/rpcx v0.0.0-20170210022235-46193ffbf85c
 	github.com/ebfe/keccak v0.0.0-20150115210727-5cc570678d1b
 	github.com/gogo/protobuf v1.2.1 // indirect
-	github.com/golang/protobuf v1.3.0
+	github.com/golang/protobuf v1.3.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/martian v2.1.0+incompatible
 	github.com/hashicorp/net-rpc-msgpackrpc v0.0.0-20151116020338-a14192a58a69 // indirect
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kkdai/bstream v0.0.0-20181106074824-b3251f7901ec
-	github.com/klauspost/cpuid v1.2.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.1 // indirect
 	github.com/lightninglabs/gozmq v0.0.0-20180324010646-462a8a753885
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
@@ -38,7 +37,7 @@ require (
 	github.com/obsilp/rmnp v0.0.0-20181020095946-f937c1003aae
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/programmer10110/gostreebog v0.0.0-20170704145444-a3e1d28291b2
-	github.com/smallnest/rpcx v0.0.0-20190301092119-bb0446484b2b // indirect
+	github.com/smallnest/rpcx v0.0.0-20190314105900-7f0308df0c1f // indirect
 	github.com/spacemonkeygo/errors v0.0.0-20171212215202-9064522e9fd1 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
@@ -51,7 +50,7 @@ require (
 	go.etcd.io/bbolt v1.3.2 // indirect
 	go.uber.org/atomic v1.3.2
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a
-	golang.org/x/net v0.0.0-20190313082753-5c2c250b6a70
+	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b
 	google.golang.org/grpc v1.19.0
 	gopkg.in/urfave/cli.v1 v1.20.0
 	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0

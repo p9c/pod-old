@@ -9,8 +9,8 @@ import (
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
+	"git.parallelcoin.io/dev/pod/pkg/altsrc"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
-	"git.parallelcoin.io/pod/pkg/altsrc"
 	"gopkg.in/urfave/cli.v1"
 )
 
