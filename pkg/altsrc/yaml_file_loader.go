@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -39,6 +40,15 @@ func NewYamlSourceFromFile(file string) (InputSourceContext, error) {
 func NewYamlSourceFromFlagFunc(flagFileName string) func(context *cli.Context) (InputSourceContext, error) {
 	return func(context *cli.Context) (InputSourceContext, error) {
 		filePath := context.String(flagFileName)
+		return NewYamlSourceFromFile(filePath)
+	}
+}
+
+// NewYamlSourceFromFlagFuncWithName creates a new input source that takes a path from a flag and joins a filename to the end to define the file it opens and reads from
+func NewYamlSourceFromFlagFuncWithName(flagPath, fileName string) func(context *cli.Context) (InputSourceContext, error) {
+	return func(context *cli.Context) (InputSourceContext, error) {
+		filePath := context.String(
+			filepath.Join(flagPath, fileName))
 		return NewYamlSourceFromFile(filePath)
 	}
 }
