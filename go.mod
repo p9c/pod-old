@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	ekyu.moe/cryptonight v0.3.0
+	github.com/BurntSushi/toml v0.3.1
 	github.com/DataDog/zstd v1.3.5 // indirect
 	github.com/aead/siphash v1.0.1
 	github.com/aead/skein v0.0.0-20160722084837-9365ae6e95d2
@@ -39,8 +40,6 @@ require (
 	github.com/programmer10110/gostreebog v0.0.0-20170704145444-a3e1d28291b2
 	github.com/smallnest/rpcx v0.0.0-20190301092119-bb0446484b2b // indirect
 	github.com/spacemonkeygo/errors v0.0.0-20171212215202-9064522e9fd1 // indirect
-	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.3.2 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect
@@ -56,5 +55,6 @@ require (
 	google.golang.org/grpc v1.19.0
 	gopkg.in/urfave/cli.v1 v1.20.0
 	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
+	gopkg.in/yaml.v2 v2.2.2
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

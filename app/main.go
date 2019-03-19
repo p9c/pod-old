@@ -10,8 +10,8 @@ import (
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"git.parallelcoin.io/pod/pkg/altsrc"
 	"gopkg.in/urfave/cli.v1"
-	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 var (
@@ -690,8 +690,8 @@ func Main() int {
 				cli.StringFlag{
 
 					Name:        "loglevel, l",
-					Value:       "info",
 					Usage:       "sets the base for all subsystem logging",
+					Value:       "info",
 					EnvVar:      "POD_LOGLEVEL",
 					Destination: &appConfigCommon.Loglevel,
 				},
@@ -996,8 +996,8 @@ func Main() int {
 			return err
 		}
 
+		log <- cl.Info{"applying input source values", configfilepath}
 		return altsrc.ApplyInputSourceValues(c, src, App.Flags)
-
 	}
 
 	ctlCommand.Before = func(c *cli.Context) error {
@@ -1025,6 +1025,7 @@ func Main() int {
 			return err
 		}
 
+		log <- cl.Info{"applying input source values", configfilepath}
 		return altsrc.ApplyInputSourceValues(c, src, ctlCommand.Flags)
 	}
 
@@ -1053,6 +1054,7 @@ func Main() int {
 			return err
 		}
 
+		log <- cl.Info{"applying input source values", configfilepath}
 		return altsrc.ApplyInputSourceValues(c, src, nodeCommand.Flags)
 	}
 
@@ -1085,6 +1087,7 @@ func Main() int {
 			return err
 		}
 
+		log <- cl.Info{"applying input source values", configfilepath}
 		return altsrc.ApplyInputSourceValues(c, src, walletCommand.Flags)
 	}
 

@@ -54,6 +54,9 @@ func nodeHandle(c *cli.Context) error {
 
 	log <- cl.Info{"nodeHandle()"}
 
+	App.Before(c)
+	nodeCommand.Before(c)
+
 	*nodeConfig.DataDir = filepath.Join(
 		appConfigCommon.Datadir,
 		nodeAppName)
@@ -77,6 +80,8 @@ func nodeHandle(c *cli.Context) error {
 		log <- cl.Info{"unrecognised loglevel", loglevel, "setting default info"}
 		*nodeConfig.DebugLevel = "info"
 	}
+
+	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 
 	network := c.Parent().String("network")
 
@@ -123,9 +128,6 @@ func nodeHandle(c *cli.Context) error {
 	NormalizeStringSliceAddresses(nodeConfig.Listeners, port)
 	NormalizeStringSliceAddresses(nodeConfig.Whitelists, port)
 	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
-	_ = podHandle(c)
-
-	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 
 	// serviceOptions defines the configuration options for the daemon as a service on Windows.
 
