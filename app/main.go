@@ -2,17 +2,17 @@ package app
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
-	"gopkg.in/urfave/cli.v1/altsrc"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 var (
@@ -26,47 +26,8 @@ func Main() int {
 
 	App = GetApp()
 
-	datadir := ""
-	App.Before = func(c *cli.Context) error {
+	log <- cl.Debug{"running App"}
 
-		datadir = c.String("datadir")
-
-		log <- cl.Info{"running App.Before()"}
-
-		configfilepath := filepath.Join(datadir, podConfigFilename)
-
-		if !FileExists(configfilepath) {
-
-			log <- cl.Info{"file", configfilepath, "does not exist"}
-			EnsureDir(configfilepath)
-
-			if e := ioutil.WriteFile(
-				configfilepath, []byte{'\n'}, 0600,
-			); e != nil {
-
-				panic(e)
-			}
-		}
-
-		src, err := altsrc.NewYamlSourceFromFile(configfilepath)
-		if err != nil {
-			return err
-		}
-		// log <- cl.Info{spew.Sdump(src)}
-
-		log <- cl.Info{"applying input source values", configfilepath}
-		e := altsrc.ApplyInputSourceValues(c, src, App.Flags)
-
-		if e != nil {
-
-			panic(e)
-		}
-		// log <- cl.Info{spew.Sdump(App.Flags)}
-
-		return e
-	}
-
-	log <- cl.Info{"running App"}
 	e := App.Run(os.Args)
 
 	if e != nil {
@@ -155,6 +116,17 @@ func GetApp() (a *cli.App) {
 		Version:     "v0.0.1",
 		Description: "Parallelcoin Pod Suite -- All-in-one everything for Parallelcoin!",
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
+		Action: func(c *cli.Context) error {
+
+			Configure(&podConfig)
+
+			fmt.Println("no subcommand requested")
+			if *podConfig.Save {
+				podHandleSave()
+			}
+			spew.Dump(podConfig)
+			return nil
+		},
 		Commands: []cli.Command{
 			{
 				Name:    "version",
@@ -206,7 +178,7 @@ func GetApp() (a *cli.App) {
 		},
 		Flags: []cli.Flag{cli.StringFlag{
 			Name:        "datadir, D",
-			Value:       appDatadir,
+			Value:       DefaultDataDir,
 			Usage:       "sets the data directory base for a pod instance",
 			EnvVar:      "POD_DATADIR",
 			Destination: podConfig.DataDir,
@@ -217,6 +189,7 @@ func GetApp() (a *cli.App) {
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "loglevel, l",
+			Value:       "info",
 			Usage:       "sets the base for all subsystem logging",
 			EnvVar:      "POD_LOGLEVEL",
 			Destination: podConfig.LogLevel,
@@ -225,8 +198,7 @@ func GetApp() (a *cli.App) {
 			Name:  "subsystem",
 			Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available",
 			Value: podConfig.Subsystems,
-		},
-		), altsrc.NewStringFlag(cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "network, n",
 			Value:       "mainnet",
 			Usage:       "connect to mainnet/testnet3/simnet",
@@ -252,25 +224,33 @@ func GetApp() (a *cli.App) {
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "serverpass",
-			Value:       "pa55word1",
 			Usage:       "sets the password for clients of services",
 			Destination: podConfig.ServerPass,
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
+			Name:        "limituser",
+			Value:       "limit",
+			Usage:       "sets the limited rpc username",
+			Destination: podConfig.LimitUser,
+		},
+		), altsrc.NewStringFlag(cli.StringFlag{
+			Name:        "limitpass",
+			Usage:       "sets the password for clients of services",
+			Destination: podConfig.LimitPass,
+		},
+		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpccert",
-			Value:       DefaultDataDir + "/rpc.cert",
 			Usage:       "File containing the certificate file",
 			Destination: podConfig.RPCCert,
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpckey",
-			Value:       DefaultDataDir + "/rpc.key",
 			Usage:       "File containing the certificate key",
 			Destination: podConfig.RPCKey,
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "cafile",
-			Value:       DefaultDataDir + "/cafile",
+			Value:       filepath.Join(DefaultDataDir, "cafile"),
 			Usage:       "File containing root certificates to authenticate a TLS connections with pod",
 			Destination: podConfig.CAFile,
 		},
@@ -286,7 +266,6 @@ func GetApp() (a *cli.App) {
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "proxy",
-			Value:       "127.0.0.1:9050",
 			Usage:       "Connect via SOCKS5 proxy",
 			Destination: podConfig.Proxy,
 		},
@@ -332,13 +311,8 @@ func GetApp() (a *cli.App) {
 		},
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "walletserver, ws",
-			Value:       "127.0.0.1:11046",
-			Usage:       "set wallet connect to",
+			Usage:       "set wallet server to connect to",
 			Destination: podConfig.Wallet,
-		},
-		), altsrc.NewBoolFlag(cli.BoolFlag{
-			Name:  "wallet, w",
-			Usage: "use configured wallet rpc address",
 		},
 		), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "addpeer",
@@ -391,6 +365,7 @@ func GetApp() (a *cli.App) {
 		), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpcconnect",
 			Usage:       "Hostname/IP and port of pod RPC server to connect to (default 127.0.0.1:11048, testnet: 127.0.0.1:21048, simnet: 127.0.0.1:41048)",
+			Value:       "127.0.0.1:11048",
 			Destination: podConfig.RPCConnect,
 		},
 		), altsrc.NewStringSliceFlag(cli.StringSliceFlag{

@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"gopkg.in/urfave/cli.v1/altsrc"
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 const appName = "pod"
@@ -28,14 +28,13 @@ var App = cli.NewApp()
 var DefaultDataDir = util.AppDataDir(appName, false)
 
 var activeNetParams *netparams.Params
-var appDatadir = util.AppDataDir(appName, false)
 var podConfig = podDefConfig()
 
 func podDefConfig() pod.Config {
 
 	return pod.Config{
-		ShowVersion:              new(bool),
 		ConfigFile:               new(string),
+		Save:                     new(bool),
 		DataDir:                  new(string),
 		LogDir:                   new(string),
 		LogLevel:                 new(string),
@@ -109,7 +108,6 @@ func podDefConfig() pod.Config {
 		AddrIndex:                new(bool),
 		RelayNonStd:              new(bool),
 		RejectNonStd:             new(bool),
-		ListCommands:             new(bool),
 		TLSSkipVerify:            new(bool),
 		Wallet:                   new(string),
 		NoInitialLoad:            new(bool),

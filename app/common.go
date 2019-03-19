@@ -7,23 +7,48 @@ import (
 	"path/filepath"
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/yaml.v1"
 )
 
+func Configure(c *pod.Config) {
+
+	if *c.LogDir == "" {
+
+		*c.LogDir = *c.DataDir
+	}
+
+	if len(*c.Listeners) < 1 {
+
+		*c.Listeners = append(*c.Listeners, "127.0.0.1:11047")
+	}
+
+	if *c.RPCCert == "" {
+
+		*c.RPCCert = filepath.Join(*c.DataDir, "rpc.cert")
+	}
+
+	if *c.RPCKey == "" {
+
+		*c.RPCKey = filepath.Join(*c.DataDir, "rpc.key")
+	}
+
+}
+
 func podHandleSave() {
 
-	podCfg :=
+	*podConfig.ConfigFile =
 		filepath.Join(
 			node.CleanAndExpandPath(*podConfig.DataDir),
 			podConfigFilename,
 		)
 
-	if yp, e := yaml.Marshal(podCfg); e == nil {
+	if yp, e := yaml.Marshal(podConfig); e == nil {
 
-		EnsureDir(podCfg)
+		EnsureDir(*podConfig.ConfigFile)
 
-		if e := ioutil.WriteFile(podCfg, yp, 0600); e != nil {
+		if e := ioutil.WriteFile(*podConfig.ConfigFile, yp, 0600); e != nil {
 
 			panic(e)
 		}
@@ -40,6 +65,7 @@ func podHandle(c *cli.Context) error {
 	*podConfig.RPCCert = node.CleanAndExpandPath(*podConfig.RPCCert)
 	*podConfig.RPCKey = node.CleanAndExpandPath(*podConfig.RPCKey)
 	*podConfig.CAFile = node.CleanAndExpandPath(*podConfig.CAFile)
+
 	NormalizeAddress(
 		*podConfig.Proxy, "9050", podConfig.Proxy)
 	NormalizeAddress(
