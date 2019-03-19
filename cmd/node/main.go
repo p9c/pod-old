@@ -28,14 +28,7 @@ var cfg *Config
 var winServiceMain func() (bool, error)
 
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
-func Main(
-	c *Config,
-	activeNet *netparams.Params,
-	serverChan chan<- *server,
-) (
-	err error,
-
-) {
+func Main(c *Config, activeNet *netparams.Params, serverChan chan<- *server) (err error) {
 
 	cfg = c
 
@@ -46,31 +39,31 @@ func Main(
 		fork.IsTestnet = true
 
 		ActiveNetParams = &TestNet3Params
+
 	case "simnet", "s":
 		ActiveNetParams = &SimNetParams
+
 	case "regressiontest", "regtestnet", "r":
 		ActiveNetParams = &RegressionNetParams
+
 	default:
 		ActiveNetParams = &MainNetParams
 	}
 
 	shutdownChan := make(chan struct{})
 	interrupt.AddHandler(
-
 		func() {
 
-			log <- cl.Inf("shutdown complete")
+			log <- cl.Inf("closing shutdown channel")
 
 			close(shutdownChan)
 		},
 	)
 
 	// Show version at startup.
-
 	log <- cl.Info{"version", Version()}
 
 	// Enable http profiling server if requested.
-
 	if *cfg.Profile != "" {
 
 		log <- cl.Dbg("profiling requested")
@@ -110,7 +103,6 @@ func Main(
 		if e != nil {
 
 			log <- cl.Warn{"failed to start up cpu profiler:", e}
-
 		}
 
 		defer f.Close()
@@ -118,7 +110,6 @@ func Main(
 	}
 
 	// Perform upgrades to pod as new versions require it.
-
 	if err = doUpgrades(); err != nil {
 
 		log <- cl.Error{err}
@@ -127,7 +118,6 @@ func Main(
 	}
 
 	// Return now if an interrupt signal was triggered.
-
 	if interrupt.Requested() {
 
 		return nil
@@ -150,21 +140,18 @@ func Main(
 	defer func() {
 
 		// Ensure the database is sync'd and closed on shutdown.
-
 		log <- cl.Inf("gracefully shutting down the database...")
 
 		db.Close()
 	}()
 
 	// Return now if an interrupt signal was triggered.
-
 	if interrupt.Requested() {
 
 		return nil
 	}
 
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
-
 	if *cfg.DropAddrIndex {
 
 		if err = indexers.DropAddrIndex(db, interrupt.ShutdownRequestChan); err != nil {
@@ -182,7 +169,6 @@ func Main(
 		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
-
 			return
 		}
 
@@ -194,7 +180,6 @@ func Main(
 		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
-
 			return err
 		}
 
@@ -207,9 +192,7 @@ func Main(
 	if err != nil {
 
 		// TODO: this logging could do with some beautifying.
-
 		log <- cl.Errorf{"unable to start server on %v: %v", *cfg.Listeners, err}
-
 		return err
 	}
 

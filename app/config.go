@@ -65,7 +65,7 @@ var True, False = true, false
 
 var appConfigCommon = &ConfigCommon{
 
-	Subsystems: cli.StringSlice{},
+	Subsystem: cli.StringSlice{},
 }
 
 var ctlConfig = ctl.Config{

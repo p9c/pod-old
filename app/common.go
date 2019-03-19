@@ -35,6 +35,7 @@ func podHandleSave() {
 	}
 
 }
+
 func podHandle(c *cli.Context) error {
 
 	appConfigCommon.RPCcert = node.CleanAndExpandPath(appConfigCommon.RPCcert)
@@ -46,6 +47,7 @@ func podHandle(c *cli.Context) error {
 		appConfigCommon.OnionProxy, "9050", &appConfigCommon.OnionProxy)
 	return nil
 }
+
 func confHandle(c *cli.Context) error {
 
 	appendNum := false

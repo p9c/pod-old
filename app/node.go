@@ -52,9 +52,7 @@ func nodeHandleSave() {
 }
 func nodeHandle(c *cli.Context) error {
 
-	Log.SetLevel("trace")
-
-	log <- cl.Debug{"running node"}
+	log <- cl.Info{"nodeHandle()"}
 
 	*nodeConfig.DataDir = filepath.Join(
 		appConfigCommon.Datadir,
@@ -63,43 +61,20 @@ func nodeHandle(c *cli.Context) error {
 		*nodeConfig.DataDir,
 		nodeConfigFilename)
 
-	if FileExists(*nodeConfig.ConfigFile) {
-
-		ncb, e := ioutil.ReadFile(*nodeConfig.ConfigFile)
-
-		if e != nil {
-
-			panic(e)
-		}
-
-		ncf := &node.Config{}
-		e = yaml.Unmarshal(ncb, ncf)
-
-		if e != nil {
-
-			panic(e)
-		}
-
-		nodeConfig = ncf
-
-	} else {
-
-		appConfigCommon.Save = true
-	}
-
 	*nodeConfig.LogDir = *nodeConfig.DataDir
 
 	if !c.Parent().Bool("useproxy") {
 
 		*nodeConfig.Proxy = ""
 	}
-
 	loglevel := c.Parent().String("loglevel")
 
 	switch loglevel {
 
 	case "trace", "debug", "info", "warn", "error", "fatal":
+		log <- cl.Info{"log level", loglevel}
 	default:
+		log <- cl.Info{"unrecognised loglevel", loglevel, "setting default info"}
 		*nodeConfig.DebugLevel = "info"
 	}
 
@@ -148,19 +123,9 @@ func nodeHandle(c *cli.Context) error {
 	NormalizeStringSliceAddresses(nodeConfig.Listeners, port)
 	NormalizeStringSliceAddresses(nodeConfig.Whitelists, port)
 	NormalizeStringSliceAddresses(nodeConfig.RPCListeners, port)
-
-	log <- cl.Debug{spew.Sdump(nodeConfig)}
-
-	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 	_ = podHandle(c)
 
-	if appConfigCommon.Save {
-
-		appConfigCommon.Save = false
-		podHandleSave()
-		nodeHandleSave()
-		return nil
-	}
+	cl.Register.SetAllLevels(*nodeConfig.DebugLevel)
 
 	// serviceOptions defines the configuration options for the daemon as a service on Windows.
 
@@ -795,6 +760,8 @@ func nodeHandle(c *cli.Context) error {
 		nodeHandleSave()
 		return nil
 	}
+
+	log <- cl.Warn{spew.Sdump(nodeConfig)}
 
 	return launchNode(c)
 }

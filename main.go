@@ -3,13 +3,12 @@
 // It slices, it dices
 //
 // This is currently just a probe to see the godoc changes.
-package pod
+package main
 
-import "fmt"
+import (
+	pod "git.parallelcoin.io/dev/pod/cmd"
+)
 
-var podded = true
-
-func init() {
-
-	fmt.Println("initialising")
+func main() {
+	pod.Main()
 }

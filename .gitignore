@@ -24,3 +24,4 @@ pod.log
 docker/legacy-2/data/*
 *.o
 cmd/test/*
+test/*
