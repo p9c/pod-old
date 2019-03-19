@@ -10,12 +10,13 @@ import (
 	"net"
 	"net/http"
 
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 	"github.com/btcsuite/go-socks/socks"
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the proxy and TLS settings in the associated connection configuration.
-func newHTTPClient(cfg *Config) (*http.Client, error) {
+func newHTTPClient(cfg *pod.Config) (*http.Client, error) {
 
 	// Configure proxy if needed.
 	var dial func(network, addr string) (net.Conn, error)
@@ -81,7 +82,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 }
 
 // sendPostRequest sends the marshalled JSON-RPC command using HTTP-POST mode to the server described in the passed config struct.  It also attempts to unmarshal the response as a JSON-RPC response and returns either the result field or the error field depending on whether or not there is an error.
-func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
+func sendPostRequest(marshalledJSON []byte, cfg *pod.Config) ([]byte, error) {
 
 	// Generate a request to the configured RPC server.
 	protocol := "http"
@@ -91,7 +92,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 		protocol = "https"
 	}
 
-	url := protocol + "://" + *cfg.RPCServer
+	url := protocol + "://" + *cfg.RPCConnect
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
 
@@ -104,7 +105,7 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	httpRequest.Header.Set("Content-Type", "application/json")
 
 	// Configure basic access authorization.
-	httpRequest.SetBasicAuth(*cfg.RPCUser, *cfg.RPCPass)
+	httpRequest.SetBasicAuth(*cfg.Username, *cfg.Password)
 
 	// Create the new HTTP client that is configured according to the user- specified options and submit the request.
 	httpClient, err := newHTTPClient(cfg)

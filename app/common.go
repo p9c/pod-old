@@ -13,18 +13,17 @@ import (
 
 func podHandleSave() {
 
-	podconfig :=
+	podCfg :=
 		filepath.Join(
-			node.CleanAndExpandPath(appConfigCommon.Datadir),
+			node.CleanAndExpandPath(*podConfig.DataDir),
 			podConfigFilename,
 		)
-	// fmt.Println("saving to", podconfig)
 
-	if yp, e := yaml.Marshal(appConfigCommon); e == nil {
+	if yp, e := yaml.Marshal(podCfg); e == nil {
 
-		EnsureDir(podconfig)
+		EnsureDir(podCfg)
 
-		if e := ioutil.WriteFile(podconfig, yp, 0600); e != nil {
+		if e := ioutil.WriteFile(podCfg, yp, 0600); e != nil {
 
 			panic(e)
 		}
@@ -38,13 +37,13 @@ func podHandleSave() {
 
 func podHandle(c *cli.Context) error {
 
-	appConfigCommon.RPCcert = node.CleanAndExpandPath(appConfigCommon.RPCcert)
-	appConfigCommon.RPCkey = node.CleanAndExpandPath(appConfigCommon.RPCkey)
-	appConfigCommon.CAfile = node.CleanAndExpandPath(appConfigCommon.CAfile)
+	*podConfig.RPCCert = node.CleanAndExpandPath(*podConfig.RPCCert)
+	*podConfig.RPCKey = node.CleanAndExpandPath(*podConfig.RPCKey)
+	*podConfig.CAFile = node.CleanAndExpandPath(*podConfig.CAFile)
 	NormalizeAddress(
-		appConfigCommon.Proxy, "9050", &appConfigCommon.Proxy)
+		*podConfig.Proxy, "9050", podConfig.Proxy)
 	NormalizeAddress(
-		appConfigCommon.OnionProxy, "9050", &appConfigCommon.OnionProxy)
+		*podConfig.OnionProxy, "9050", podConfig.OnionProxy)
 	return nil
 }
 
@@ -78,18 +77,10 @@ func confHandle(c *cli.Context) error {
 			working += fmt.Sprintf("%02d", i)
 		}
 
-		apps := []string{"c", "n", "w", "s", "g"}
+		// if e != nil {
 
-		for _, x := range apps {
-
-			e := App.Run([]string{"pod", "-i", "-D", working, x})
-
-			if e != nil {
-
-				panic(e)
-			}
-
-		}
+		// 	panic(e)
+		// }
 
 	}
 

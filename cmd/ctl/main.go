@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
@@ -21,7 +22,7 @@ const (
 // Main is the entry point for the pod.Ctl component
 func Main(
 	args []string,
-	cfg *Config,
+	cfg *pod.Config,
 
 ) {
 

@@ -102,7 +102,7 @@ func CleanAndExpandPath(path string) string {
 	// Expand initial ~ to OS specific home directory.
 	if strings.HasPrefix(path, "~") {
 
-		homeDir := filepath.Dir(DefaultHomeDir)
+		homeDir := filepath.Dir(DefaultDataDir)
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
 

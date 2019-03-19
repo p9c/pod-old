@@ -10,6 +10,7 @@ require (
 	github.com/aead/skein v0.0.0-20160722084837-9365ae6e95d2
 	github.com/bitbandi/go-x11 v0.0.0-20171024232457-5fddbc9b2b09
 	github.com/bitgoin/lyra2rev2 v0.0.0-20161212102046-bae9ad2043bb
+	github.com/btcsuite/btcd v0.0.0-20190315201642-aa6e0f35703c
 	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
 	github.com/btcsuite/golangcrypto v0.0.0-20150304025918-53f62d9b43e8
 	github.com/btcsuite/goleveldb v1.0.0
@@ -44,6 +45,7 @@ require (
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect
 	github.com/tjfoc/gmsm v1.0.1 // indirect
 	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
+	github.com/urfave/cli v1.20.0
 	github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b
 	github.com/xtaci/kcp-go v5.0.7+incompatible
 	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb
