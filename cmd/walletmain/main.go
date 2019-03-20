@@ -10,6 +10,7 @@ import (
 
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/chain/fork"
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	legacyrpc "git.parallelcoin.io/dev/pod/pkg/rpc/legacy"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"git.parallelcoin.io/dev/pod/pkg/util/interrupt"
@@ -18,16 +19,15 @@ import (
 )
 
 var (
-	cfg *Config
+	cfg *pod.Config
 )
 
 // Main is a work-around main function that is required since deferred functions (such as log flushing) are not called with calls to os.Exit.
 
 // Instead, main runs this function and checks for a non-nil error, at point any defers have already run, and if the error is non-nil, the program can be exited with an error exit status.
-func Main(
+func Main(c *pod.Config, activeNet *netparams.Params) error {
 
-	c *Config, activeNet *netparams.Params) error {
-
+	fmt.Println("wallet Main")
 	cfg = c
 	ActiveNet = activeNet
 
@@ -58,27 +58,14 @@ func Main(
 
 	}
 
-	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
+	dbDir := NetworkDir(*cfg.DataDir, activeNet.Params)
 
-	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.AppDataDir, activeNet.Params.Name}
+	log <- cl.Debug{"dbDir", dbDir, *cfg.DataDir, *cfg.DataDir, activeNet.Params.Name}
 
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
-	if *cfg.Create {
-
-		if err := CreateWallet(cfg, ActiveNet); err != nil {
-
-			log <- cl.Error{"failed to create wallet", err}
-
-			return err
-		}
-
-	}
-
 	// Create and start HTTP server to serve wallet client connections.
-
 	// This will be updated with the wallet and chain server RPC client
-
 	// created below after each is created.
 
 	log <- cl.Trc("startRPCServers loader")
@@ -207,7 +194,7 @@ func readCAFile() []byte {
 	// Read certificate file if TLS is not disabled.
 	var certs []byte
 
-	if *cfg.EnableClientTLS {
+	if *cfg.TLS {
 
 		var err error
 		certs, err = ioutil.ReadFile(*cfg.CAFile)
@@ -417,11 +404,11 @@ func startChainRPC(
 	log <- cl.Infof{
 
 		"attempting RPC client connection to %v, TLS: %s",
-		cfg.RPCConnect, fmt.Sprint(*cfg.EnableClientTLS),
+		cfg.RPCConnect, fmt.Sprint(*cfg.TLS),
 	}
 
 	rpcc, err := chain.NewRPCClient(ActiveNet.Params, *cfg.RPCConnect,
-		*cfg.PodUsername, *cfg.PodPassword, certs, !*cfg.EnableClientTLS, 0)
+		*cfg.Username, *cfg.Password, certs, !*cfg.TLS, 0)
 
 	if err != nil {
 

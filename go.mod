@@ -3,6 +3,7 @@ module git.parallelcoin.io/dev/pod
 go 1.12
 
 require (
+<<<<<<< Updated upstream
 	ekyu.moe/cryptonight v0.3.0
 	github.com/BurntSushi/toml v0.3.1
 	github.com/DataDog/zstd v1.3.5 // indirect
@@ -59,4 +60,9 @@ require (
 	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
 	gopkg.in/yaml.v2 v2.2.2
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
+=======
+	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
+	github.com/jessevdk/go-flags v1.4.0
+	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
+>>>>>>> Stashed changes
 )

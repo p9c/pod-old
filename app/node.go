@@ -12,7 +12,6 @@ import (
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
-	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/chain/fork"
 	"git.parallelcoin.io/dev/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/dev/pod/pkg/util"
@@ -26,73 +25,9 @@ var StateCfg = node.StateCfg
 
 func nodeHandle(c *cli.Context) error {
 
-	Configure(&podConfig)
-
-	loglevel := *podConfig.LogLevel
-
-	switch loglevel {
-
-	case "trace", "debug", "info", "warn", "error", "fatal":
-		log <- cl.Info{"log level", loglevel}
-	default:
-		log <- cl.Info{"unrecognised loglevel", loglevel, "setting default info"}
-		*podConfig.LogLevel = "info"
-	}
-
-	cl.Register.SetAllLevels(*podConfig.LogLevel)
-
-	network := c.Parent().String("network")
-
-	switch network {
-
-	case "testnet", "testnet3", "t":
-		log <- cl.Debug{"on testnet"}
-		*podConfig.TestNet3 = true
-		*podConfig.SimNet = false
-		*podConfig.RegressionTest = false
-		activeNetParams = &netparams.TestNet3Params
-	case "regtestnet", "regressiontest", "r":
-		log <- cl.Debug{"on regression testnet"}
-		*podConfig.TestNet3 = false
-		*podConfig.SimNet = false
-		*podConfig.RegressionTest = true
-		activeNetParams = &netparams.RegressionTestParams
-	case "simnet", "s":
-		log <- cl.Debug{"on simnet"}
-		*podConfig.TestNet3 = false
-		*podConfig.SimNet = true
-		*podConfig.RegressionTest = false
-		activeNetParams = &netparams.SimNetParams
-	default:
-
-		if network != "mainnet" && network != "m" {
-
-			log <- cl.Warn{"using mainnet for node"}
-		}
-
-		log <- cl.Debug{"on mainnet"}
-		*podConfig.TestNet3 = false
-		*podConfig.SimNet = false
-		*podConfig.RegressionTest = false
-		activeNetParams = &netparams.MainNetParams
-
-	}
-
-	if !*podConfig.Onion {
-
-		*podConfig.OnionProxy = ""
-	}
-
-	log <- cl.Debug{"normalising addresses"}
-	port := node.DefaultPort
-	NormalizeStringSliceAddresses(podConfig.AddPeers, port)
-	NormalizeStringSliceAddresses(podConfig.ConnectPeers, port)
-	NormalizeStringSliceAddresses(podConfig.Listeners, port)
-	NormalizeStringSliceAddresses(podConfig.Whitelists, port)
-	NormalizeStringSliceAddresses(podConfig.RPCListeners, port)
+	Configure()
 
 	// serviceOptions defines the configuration options for the daemon as a service on Windows.
-
 	type serviceOptions struct {
 		ServiceCommand string `short:"s" long:"service" description:"Service command {install, remove, start, stop}"`
 	}

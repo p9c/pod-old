@@ -2,7 +2,7 @@ package shell
 
 import (
 	"git.parallelcoin.io/dev/pod/cmd/node"
-	walletmain "git.parallelcoin.io/dev/pod/cmd/wallet"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/walletmain"
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 )
 
