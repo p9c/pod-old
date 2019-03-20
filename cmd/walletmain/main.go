@@ -83,9 +83,7 @@ func Main(c *pod.Config, activeNet *netparams.Params) error {
 	}
 
 	// Create and start chain RPC client so it's ready to connect to
-
 	// the wallet when loaded later.
-
 	if !*cfg.NoInitialLoad {
 
 		log <- cl.Trc("starting rpcClientConnectLoop")
@@ -221,18 +219,14 @@ func readCAFile() []byte {
 	return certs
 }
 
-// rpcClientConnectLoop continuously attempts a connection to the consensus RPC server.  When a connection is established, the client is used to sync the loaded wallet, either immediately or when loaded at a later time.
-
+// rpcClientConnectLoop continuously attempts a connection to the consensus RPC server.
+// When a connection is established, the client is used to sync the loaded wallet, either
+// immediately or when loaded at a later time.
 //
-
 // The legacy RPC is optional.  If set, the connected RPC client will be
-
 // associated with the server for RPC passthrough and to enable additional
-
 // methods.
-func rpcClientConnectLoop(
-
-	legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
+func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
 
 	var certs []byte
 
