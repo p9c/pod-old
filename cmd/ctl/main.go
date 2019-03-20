@@ -14,10 +14,9 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/rpc/json"
 )
 
-const (
-	showHelpMessage = "Specify -h to show available options"
-	listCmdMessage  = "Specify -l to list available commands"
-)
+var HelpPrint = func() {
+	fmt.Println("help has not been overridden")
+}
 
 // Main is the entry point for the pod.Ctl component
 func Main(
@@ -26,12 +25,6 @@ func Main(
 
 ) {
 
-	if len(args) < 1 {
-
-		usage("No command specified")
-		os.Exit(1)
-	}
-
 	// Ensure the specified method identifies a valid registered command and is one of the usable types.
 	method := args[0]
 	usageFlags, err := json.MethodUsageFlags(method)
@@ -39,7 +32,7 @@ func Main(
 	if err != nil {
 
 		fmt.Fprintf(os.Stderr, "Unrecognized command '%s'\n", method)
-		fmt.Fprintln(os.Stderr, listCmdMessage)
+		HelpPrint()
 		os.Exit(1)
 	}
 
@@ -48,12 +41,12 @@ func Main(
 		fmt.Fprintf(
 			os.Stderr,
 			"The '%s' command can only be used via websockets\n", method)
-		fmt.Fprintln(os.Stderr, listCmdMessage)
+		HelpPrint()
 		os.Exit(1)
 	}
 
 	// Convert remaining command line args to a slice of interface values to be passed along as parameters to new command creation function.
-
+	//
 	// Since some commands, such as submitblock, can involve data which is too large for the Operating System to allow as a normal command line parameter, support using '-' as an argument to allow the argument to be read from a stdin pipe.
 	bio := bufio.NewReader(os.Stdin)
 	params := make([]interface{}, 0, len(args[1:]))
@@ -188,9 +181,5 @@ func usage(
 	appName := filepath.Base(os.Args[0])
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
 	fmt.Fprintln(os.Stderr, errorMessage)
-	fmt.Fprintln(os.Stderr, "Usage:")
-	fmt.Fprintf(os.Stderr, "  %s [OPTIONS] <command> <args...>\n\n",
-		appName)
-	fmt.Fprintln(os.Stderr, showHelpMessage)
-	fmt.Fprintln(os.Stderr, listCmdMessage)
+	HelpPrint()
 }

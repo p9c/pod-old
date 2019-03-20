@@ -29,7 +29,7 @@ func Main() int {
 
 	if e != nil {
 
-		fmt.Println("App ERROR:", e)
+		fmt.Println("Pod ERROR:", e)
 		return 1
 	}
 	return 0
@@ -56,7 +56,6 @@ func GetApp() (a *cli.App) {
 		},
 		Before: func(c *cli.Context) error {
 
-			fmt.Println("loading configuration")
 			Configure(&podConfig)
 			if FileExists(*podConfig.ConfigFile) {
 
@@ -351,6 +350,7 @@ func GetApp() (a *cli.App) {
 			Value: podConfig.Whitelists,
 		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpcconnect",
+			Value:       "127.0.0.1:11048",
 			Usage:       "Hostname/IP and port of pod RPC server to connect to (default 127.0.0.1:11048, testnet: 127.0.0.1:21048, simnet: 127.0.0.1:41048)",
 			Destination: podConfig.RPCConnect,
 		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
