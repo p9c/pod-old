@@ -10,7 +10,6 @@ import (
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/util/cl"
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -28,7 +27,7 @@ func Main() int {
 
 	if e != nil {
 
-		fmt.Println("ERROR:", e)
+		fmt.Println("App ERROR:", e)
 		return 1
 	}
 	return 0
@@ -50,7 +49,7 @@ func GetApp() (a *cli.App) {
 			if *podConfig.Save {
 				podHandleSave()
 			}
-			spew.Dump(podConfig)
+			cli.ShowAppHelpAndExit(c, 1)
 			return nil
 		},
 		Commands: []cli.Command{
@@ -92,27 +91,11 @@ func GetApp() (a *cli.App) {
 			},
 			cli.Command{
 
-				Name:    "node",
-				Aliases: []string{"n"},
-				Usage:   "start parallelcoin full node",
-				Action:  nodeHandle,
-				Subcommands: []cli.Command{
-
-					{
-						Name:  "droptxindex",
-						Usage: "Deletes the hash-based transaction index from the database on start up and exits.",
-					},
-
-					{
-						Name:  "dropaddrindex",
-						Usage: "Deletes the address-based transaction index from the database on start up and exits.",
-					},
-
-					{
-						Name:  "dropcfindex",
-						Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and exits.",
-					},
-				},
+				Name:        "node",
+				Aliases:     []string{"n"},
+				Usage:       "start parallelcoin full node",
+				Action:      nodeHandle,
+				Subcommands: []cli.Command{},
 			},
 			cli.Command{
 
@@ -325,7 +308,6 @@ func GetApp() (a *cli.App) {
 		}, cli.StringFlag{
 			Name:        "rpcconnect",
 			Usage:       "Hostname/IP and port of pod RPC server to connect to (default 127.0.0.1:11048, testnet: 127.0.0.1:21048, simnet: 127.0.0.1:41048)",
-			Value:       "127.0.0.1:11048",
 			Destination: podConfig.RPCConnect,
 		}, cli.StringSliceFlag{
 			Name:  "rpclisten",
@@ -528,6 +510,15 @@ func GetApp() (a *cli.App) {
 			Name:  "experimentalrpclisten",
 			Usage: "Listen for RPC connections on this interface/port",
 			Value: podConfig.ExperimentalRPCListeners,
+		}, cli.StringSliceFlag{
+			Name:  "droptxindex",
+			Usage: "Deletes the hash-based transaction index from the database on start up and exits.",
+		}, cli.StringSliceFlag{
+			Name:  "dropaddrindex",
+			Usage: "Deletes the address-based transaction index from the database on start up and exits.",
+		}, cli.StringSliceFlag{
+			Name:  "dropcfindex",
+			Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and exits.",
 		},
 		},
 	}

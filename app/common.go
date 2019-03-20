@@ -38,6 +38,7 @@ func Configure(c *pod.Config) {
 
 func podHandleSave() {
 
+	*podConfig.Save = false
 	*podConfig.ConfigFile =
 		filepath.Join(
 			node.CleanAndExpandPath(*podConfig.DataDir),

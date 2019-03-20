@@ -10,6 +10,7 @@ import (
 
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/chain/fork"
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"git.parallelcoin.io/dev/pod/pkg/util/interrupt"
 
@@ -22,13 +23,13 @@ const blockDbNamePrefix = "blocks"
 
 var StateCfg = new(StateConfig)
 
-var cfg *Config
+var cfg *pod.Config
 
 // winServiceMain is only invoked on Windows.  It detects when pod is running as a service and reacts accordingly.
 var winServiceMain func() (bool, error)
 
 // Main is the real main function for pod.  It is necessary to work around the fact that deferred functions do not run when os.Exit() is called.  The optional serverChan parameter is mainly used by the service code to be notified with the server once it is setup so it can gracefully stop it when requested from the service control manager.
-func Main(c *Config, activeNet *netparams.Params, serverChan chan<- *server) (err error) {
+func Main(c *pod.Config, activeNet *netparams.Params, serverChan chan<- *server) (err error) {
 
 	cfg = c
 

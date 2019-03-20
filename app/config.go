@@ -119,6 +119,9 @@ func podDefConfig() pod.Config {
 		LegacyRPCMaxClients:      new(int),
 		LegacyRPCMaxWebsockets:   new(int),
 		ExperimentalRPCListeners: new(cli.StringSlice),
+		DropAddrIndex:            new(bool),
+		DropTxIndex:              new(bool),
+		DropCfIndex:              new(bool),
 	}
 }
 

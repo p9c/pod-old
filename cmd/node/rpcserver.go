@@ -5655,16 +5655,16 @@ func newRPCServer(
 		quit:                   make(chan int),
 	}
 
-	if *cfg.RPCUser != "" && *cfg.RPCPass != "" {
+	if *cfg.Username != "" && *cfg.Password != "" {
 
-		login := *cfg.RPCUser + ":" + *cfg.RPCPass
+		login := *cfg.Username + ":" + *cfg.Password
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.authsha = sha256.Sum256([]byte(auth))
 	}
 
-	if *cfg.RPCLimitUser != "" && *cfg.RPCLimitPass != "" {
+	if *cfg.LimitUser != "" && *cfg.LimitPass != "" {
 
-		login := *cfg.RPCLimitUser + ":" + *cfg.RPCLimitPass
+		login := *cfg.LimitUser + ":" + *cfg.LimitPass
 		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(login))
 		rpc.limitauthsha = sha256.Sum256([]byte(auth))
 	}

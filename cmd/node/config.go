@@ -138,7 +138,7 @@ const (
 	DefalutRPCAddr               = "127.0.0.1"
 	DefaultRPCServer             = "127.0.0.1:11048"
 	DefaultListener              = "127.0.0.1:11047"
-	DefaultRPCListener           = "127.0.0.1:11048"
+	DefaultRPCListener           = "127.0.0.1"
 	DefaultMaxPeers              = 125
 	DefaultBanDuration           = time.Hour * 24
 	DefaultBanThreshold          = 100
