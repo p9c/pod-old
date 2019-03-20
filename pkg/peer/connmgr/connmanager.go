@@ -21,13 +21,13 @@ var ErrDialNil = errors.New("config: Dial cannot be nil")
 // connection is allowed to grow to.  This is necessary since the retry logic
 // uses a backoff mechanism which increases the interval base times
 // the number of retries that have been done.
-var maxRetryDuration = time.Minute * 1
+var maxRetryDuration = time.Minute * 27
 
 // defaultRetryDuration is the default duration of time for retrying persistent connections.
 var defaultRetryDuration = time.Second * 9
 
 // defaultTargetOutbound is the default number of outbound connections to maintain.
-var defaultTargetOutbound = uint32(18)
+var defaultTargetOutbound = uint32(9)
 
 // ConnState represents the state of the requested connection.
 
