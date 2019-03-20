@@ -11,5 +11,5 @@ import (
 func walletHandle(c *cli.Context) error {
 	fmt.Println("starting wallet")
 	Configure()
-	return walletmain.Main(&podConfig, activeNetParams)
+	return walletmain.Main(podConfig, activeNetParams)
 }

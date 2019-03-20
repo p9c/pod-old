@@ -123,13 +123,15 @@ func Configure() {
 func podHandleSave() {
 
 	StateCfg.Save = false
+	t, s, r := podConfig.TestNet3, podConfig.SimNet, podConfig.RegressionTest
+	podConfig.TestNet3, podConfig.SimNet, podConfig.RegressionTest = nil, nil, nil
 	*podConfig.ConfigFile =
 		filepath.Join(
 			node.CleanAndExpandPath(*podConfig.DataDir),
 			podConfigFilename,
 		)
 
-	if yp, e := toml.Marshal(podConfig); e == nil {
+	if yp, e := toml.Marshal(*podConfig); e == nil {
 
 		EnsureDir(*podConfig.ConfigFile)
 
@@ -142,6 +144,7 @@ func podHandleSave() {
 
 		panic(e)
 	}
+	podConfig.TestNet3, podConfig.SimNet, podConfig.RegressionTest = t, s, r
 
 }
 

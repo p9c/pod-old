@@ -19,7 +19,7 @@ func ctlHandle(c *cli.Context) error {
 		cli.ShowSubcommandHelp(c)
 	}
 
-	ctl.Main(args, &podConfig)
+	ctl.Main(args, podConfig)
 
 	return nil
 }

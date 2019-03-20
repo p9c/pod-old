@@ -149,7 +149,7 @@ func GetApp() (a *cli.App) {
 						Action: func(c *cli.Context) error {
 
 							Configure()
-							if err := walletmain.CreateWallet(&podConfig, activeNetParams); err != nil {
+							if err := walletmain.CreateWallet(podConfig, activeNetParams); err != nil {
 
 								log <- cl.Error{"failed to create wallet", err}
 

@@ -655,7 +655,7 @@ func nodeHandle(c *cli.Context) error {
 	}
 
 	log <- cl.Debug{"finished nodeHandle"}
-	node.Main(&podConfig, activeNetParams, nil)
+	node.Main(podConfig, activeNetParams, nil)
 	return nil
 }
 

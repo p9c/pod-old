@@ -27,14 +27,15 @@ var DefaultDataDir = util.AppDataDir(appName, false)
 var activeNetParams *netparams.Params
 var podConfig = podDefConfig()
 
-func podDefConfig() pod.Config {
+func podDefConfig() *pod.Config {
 
-	return pod.Config{
+	return &pod.Config{
 		ConfigFile:               new(string),
 		DataDir:                  new(string),
 		LogDir:                   new(string),
 		LogLevel:                 new(string),
 		Subsystems:               new(cli.StringSlice),
+		Network:                  new(string),
 		AddPeers:                 new(cli.StringSlice),
 		ConnectPeers:             new(cli.StringSlice),
 		MaxPeers:                 new(int),
