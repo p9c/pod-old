@@ -190,7 +190,7 @@ func (b *BlockChain) warnUnknownRuleActivations(node *blockNode) error {
 
 			if !b.unknownRulesWarned {
 
-				log <- cl.Warnf{"Unknown new rules activated (bit %d)", bit}
+				log <- cl.Warnf{"unknown new rules activated (bit %d)", bit}
 
 				b.unknownRulesWarned = true
 			}

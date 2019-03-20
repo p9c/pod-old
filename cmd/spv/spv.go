@@ -796,7 +796,7 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 
 		delete(list, sp.ID())
 
-		log <- cl.Debug{"Removed peer", sp}
+		log <- cl.Debug{"removed peer", sp}
 
 		return
 	}

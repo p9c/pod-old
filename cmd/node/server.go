@@ -467,7 +467,7 @@ func (
 		return
 	}
 
-	log <- cl.Warnf{"Server shutdown in %v", duration}
+	log <- cl.Warnf{"server shutdown in %v", duration}
 
 	go func() {
 
@@ -506,7 +506,7 @@ func (
 					ticker = time.NewTicker(tickDuration)
 				}
 
-				log <- cl.Warnf{"Server shutdown in %v", remaining}
+				log <- cl.Warnf{"server shutdown in %v", remaining}
 
 			}
 
@@ -532,7 +532,7 @@ func (
 		return
 	}
 
-	log <- cl.Trace{"Starting server"}
+	log <- cl.Trace{"starting server"}
 
 	// Server startup time. Used for the uptime command for uptime calculation.
 	s.startupTime = time.Now().Unix()
@@ -588,7 +588,7 @@ func (
 
 	if atomic.AddInt32(&s.shutdown, 1) != 1 {
 
-		log <- cl.Infof{"Server is already in the process of shutting down"}
+		log <- cl.Infof{"server is already in the process of shutting down"}
 
 		return nil
 	}
@@ -868,7 +868,7 @@ func (
 
 		delete(list, sp.ID())
 
-		log <- cl.Debug{"Removed peer", sp}
+		log <- cl.Debug{"removed peer", sp}
 
 		return
 	}
@@ -1196,7 +1196,7 @@ func (
 
 	if err != nil {
 
-		log <- cl.Debugf{"Cannot create outbound peer %s: %v", c.Addr, err}
+		log <- cl.Debugf{"cannot create outbound peer %s: %v", c.Addr, err}
 
 		s.connManager.Disconnect(c.ID())
 	}
@@ -1321,7 +1321,7 @@ out:
 
 			state.forAllPeers(func(sp *serverPeer) {
 
-				log <- cl.Tracef{"Shutdown peer %s", sp}
+				log <- cl.Tracef{"shutdown peer %s", sp}
 
 				sp.Disconnect()
 			})
@@ -1356,7 +1356,7 @@ cleanup:
 
 	s.wg.Done()
 
-	log <- cl.Tracef{"Peer handler done"}
+	log <- cl.Tracef{"peer handler done"}
 
 }
 
@@ -1715,7 +1715,7 @@ out:
 					// XXX DeletePortMapping?
 				}
 
-				log <- cl.Warnf{"Successfully bound via UPnP to %s", addrmgr.NetAddressKey(na)}
+				log <- cl.Warnf{"successfully bound via UPnP to %s", addrmgr.NetAddressKey(na)}
 
 				first = false
 			}
@@ -3283,7 +3283,7 @@ func initListeners(
 
 		if err != nil {
 
-			log <- cl.Warnf{"Can't listen on %s: %v", addr, err}
+			log <- cl.Warnf{"can't listen on %s: %v", addr, err}
 
 			continue
 		}
@@ -3299,7 +3299,7 @@ func initListeners(
 
 		if err != nil {
 
-			log <- cl.Errorf{"Can not parse default port %s for active chain: %v",
+			log <- cl.Errorf{"can not parse default port %s for active chain: %v",
 
 				ActiveNetParams.DefaultPort, err}
 			return nil, nil, err
@@ -3321,7 +3321,7 @@ func initListeners(
 
 				if err != nil {
 
-					log <- cl.Warnf{"Can not parse port from %s for " +
+					log <- cl.Warnf{"can not parse port from %s for " +
 
 						"externalip: %v", sip, err}
 					continue
@@ -3334,7 +3334,7 @@ func initListeners(
 
 			if err != nil {
 
-				log <- cl.Warnf{"Not adding %s as externalip: %v", sip, err}
+				log <- cl.Warnf{"not adding %s as externalip: %v", sip, err}
 
 				continue
 			}
@@ -3343,7 +3343,7 @@ func initListeners(
 
 			if err != nil {
 
-				log <- cl.Warnf{"Skipping specified external IP: %v", err}
+				log <- cl.Warnf{"skipping specified external IP: %v", err}
 
 			}
 
@@ -3358,7 +3358,7 @@ func initListeners(
 
 			if err != nil {
 
-				log <- cl.Warnf{"Can't discover upnp: %v", err}
+				log <- cl.Warnf{"can't discover upnp: %v", err}
 
 			}
 
@@ -3374,7 +3374,7 @@ func initListeners(
 
 			if err != nil {
 
-				log <- cl.Warnf{"Skipping bound address %s: %v", addr, err}
+				log <- cl.Warnf{"skipping bound address %s: %v", addr, err}
 
 			}
 
@@ -3400,7 +3400,7 @@ func isWhitelisted(
 
 	if err != nil {
 
-		log <- cl.Warnf{"Unable to SplitHostPort on '%s': %v", addr, err}
+		log <- cl.Warnf{"unable to SplitHostPort on '%s': %v", addr, err}
 
 		return false
 	}
@@ -3409,7 +3409,7 @@ func isWhitelisted(
 
 	if ip == nil {
 
-		log <- cl.Warnf{"Unable to parse IP '%s'", addr}
+		log <- cl.Warnf{"unable to parse IP '%s'", addr}
 
 		return false
 	}
@@ -4168,7 +4168,7 @@ func setupRPCListeners(
 
 		if err != nil {
 
-			log <- cl.Warnf{"Can't listen on %s: %v", addr, err}
+			log <- cl.Warnf{"can't listen on %s: %v", addr, err}
 
 			continue
 		}

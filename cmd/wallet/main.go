@@ -282,7 +282,7 @@ func rpcClientConnectLoop(
 
 		// 	if err != nil {
 
-		// 		log<-cl.Errorf{"Unable to create Neutrino DB: %s", err)
+		// 		log<-cl.Errorf{"unable to create Neutrino DB: %s", err)
 
 		// 		continue
 
@@ -306,7 +306,7 @@ func rpcClientConnectLoop(
 
 		// 	if err != nil {
 
-		// 		log<-cl.Errorf{"Couldn't create Neutrino ChainService: %s", err)
+		// 		log<-cl.Errorf{"couldn't create Neutrino ChainService: %s", err)
 
 		// 		continue
 
@@ -318,7 +318,7 @@ func rpcClientConnectLoop(
 
 		// 	if err != nil {
 
-		// 		log<-cl.Errorf{"Couldn't start Neutrino client: %s", err)
+		// 		log<-cl.Errorf{"couldn't start Neutrino client: %s", err)
 
 		// 	}
 

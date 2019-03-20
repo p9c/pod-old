@@ -713,9 +713,9 @@ func nodeHandle(c *cli.Context) error {
 
 	}
 
-	if *podConfig.Save {
+	if StateCfg.Save {
 
-		*podConfig.Save = false
+		StateCfg.Save = false
 		podHandleSave()
 	}
 

@@ -1362,7 +1362,7 @@ out:
 
 			if p.verAckReceived {
 
-				log <- cl.Infof{"Already received 'verack' from peer %v -- disconnecting", p}
+				log <- cl.Infof{"already received 'verack' from peer %v -- disconnecting", p}
 
 				break out
 			}

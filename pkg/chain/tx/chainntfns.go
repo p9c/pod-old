@@ -449,7 +449,7 @@ func (w *Wallet) addRelevantTx(dbtx walletdb.ReadWriteTx, rec *wtxmgr.TxRecord, 
 
 		if err != nil {
 
-			log <- cl.Error{"Cannot query transaction details for notification:", err}
+			log <- cl.Error{"cannot query transaction details for notification:", err}
 
 		}
 

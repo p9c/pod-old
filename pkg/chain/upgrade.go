@@ -650,7 +650,7 @@ func upgradeUtxoSetToV2(
 		}
 		totalUtxos += uint64(numUtxos)
 
-		log <- cl.Infof{"Migrated %d utxos (%d total)", numUtxos, totalUtxos}
+		log <- cl.Infof{"migrated %d utxos (%d total)", numUtxos, totalUtxos}
 
 	}
 

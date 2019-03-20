@@ -128,7 +128,7 @@ func (
 
 	if err != nil {
 
-		log <- cl.Debug{"ERROR", err}
+		log <- cl.Debug{"block processing error:", err}
 
 		return false, false, err
 	}

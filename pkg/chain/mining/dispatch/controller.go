@@ -109,7 +109,7 @@ func (c *Controller) submitBlock(block *util.Block) bool {
 			return false
 		}
 
-		log <- cl.Debug{"Block submitted via miner rejected:", err}
+		log <- cl.Debug{"block submitted via miner rejected:", err}
 
 		return false
 	}
@@ -153,7 +153,7 @@ func (c *Controller) solveBlock(msgBlock *wire.MsgBlock, blockHeight int32, test
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
 
-		log <- cl.Error{"Unexpected error while generating random extra nonce offset:", err}
+		log <- cl.Error{"unexpected error while generating random extra nonce offset:", err}
 
 		enOffset = 0
 	}
@@ -261,7 +261,7 @@ out:
 
 		if err != nil {
 
-			log <- cl.Error{"Failed to create new block template: %v", err}
+			log <- cl.Error{"failed to create new block template: %v", err}
 
 			continue
 		}

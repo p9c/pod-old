@@ -152,38 +152,46 @@ func Main(c *pod.Config, activeNet *netparams.Params, serverChan chan<- *server)
 	}
 
 	// Drop indexes and exit if requested. NOTE: The order is important here because dropping the tx index also drops the address index since it relies on it.
-	if *cfg.DropAddrIndex {
+	if StateCfg.DropAddrIndex {
+
+		log <- cl.Warn{"dropping address index"}
 
 		if err = indexers.DropAddrIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
+			if err != nil {
 
-			return
+				return
+			}
 		}
-
-		return nil
 	}
 
-	if *cfg.DropTxIndex {
+	if StateCfg.DropTxIndex {
+
+		log <- cl.Warn{"dropping transaction index"}
 
 		if err = indexers.DropTxIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
-			return
-		}
+			if err != nil {
 
-		return nil
+				return
+			}
+		}
 	}
 
-	if *cfg.DropCfIndex {
+	if StateCfg.DropCfIndex {
 
-		if err := indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
+		log <- cl.Warn{"dropping cfilter index"}
+
+		if err = indexers.DropCfIndex(db, interrupt.ShutdownRequestChan); err != nil {
 
 			log <- cl.Error{err}
-			return err
-		}
+			if err != nil {
 
-		return nil
+				return
+			}
+		}
 	}
 
 	// Create server and start it.

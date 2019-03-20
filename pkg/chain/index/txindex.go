@@ -340,7 +340,7 @@ func (idx *TxIndex) Init() error {
 		return err
 	}
 
-	log <- cl.Debug{"Current internal block ID:", idx.curBlockID}
+	log <- cl.Debug{"current internal block ID:", idx.curBlockID}
 
 	return nil
 }

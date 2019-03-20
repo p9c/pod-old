@@ -369,7 +369,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 
 			log <- cl.Infof{
 
-				"Removed %d orphaned blocks from %s (heights %d to %d)",
+				"removed %d orphaned blocks from %s (heights %d to %d)",
 				initialHeight - height,
 				indexer.Name(),
 				height + 1,
@@ -395,7 +395,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 
 			log <- cl.Debugf{
 
-				"Current %s tip (height %d, hash %v)",
+				"current %s tip (height %d, hash %v)",
 				indexer.Name(),
 				height,
 				hash,
@@ -426,7 +426,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 
 	log <- cl.Infof{
 
-		"Catching up indexes from height %d to %d",
+		"catching up indexes from height %d to %d",
 		lowestHeight,
 		bestHeight,
 	}
@@ -489,7 +489,7 @@ func (m *Manager) Init(chain *blockchain.BlockChain, interrupt <-chan struct{}) 
 		}
 	}
 
-	log <- cl.Info{"Indexes caught up to height", bestHeight}
+	log <- cl.Info{"indexes caught up to height", bestHeight}
 
 	return nil
 }
@@ -609,13 +609,13 @@ func dropIndex(
 
 	if !needsDelete {
 
-		log <- cl.Info{"Not dropping %s because it does not exist", idxName}
+		log <- cl.Warnf{"not dropping %s because it does not exist", idxName}
 
 		return nil
 	}
 	// Mark that the index is in the process of being dropped so that it can be resumed on the next start if interrupted before the process is complete.
 
-	log <- cl.Info{"Dropping all %s entries.  This might take a while...", idxName}
+	log <- cl.Infof{"dropping all %s entries.  This might take a while...", idxName}
 
 	err = db.Update(func(dbTx database.Tx) error {
 
@@ -711,7 +711,7 @@ func dropIndex(
 
 				totalDeleted += uint64(numDeleted)
 
-				log <- cl.Infof{"Deleted %d keys (%d total) from %s", numDeleted, totalDeleted, idxName}
+				log <- cl.Infof{"deleted %d keys (%d total) from %s", numDeleted, totalDeleted, idxName}
 
 			}
 		}
@@ -759,7 +759,7 @@ func dropIndex(
 		return err
 	}
 
-	log <- cl.Info{"Dropped", idxName}
+	log <- cl.Info{"dropped", idxName}
 
 	return nil
 }

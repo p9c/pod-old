@@ -118,6 +118,10 @@ type StateConfig struct {
 	ActiveMinerKey      []byte
 	ActiveMinRelayTxFee util.Amount
 	ActiveWhitelists    []*net.IPNet
+	DropAddrIndex       bool
+	DropTxIndex         bool
+	DropCfIndex         bool
+	Save                bool
 }
 
 // serviceOptions defines the configuration options for the daemon as a service on Windows.

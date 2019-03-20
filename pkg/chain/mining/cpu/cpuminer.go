@@ -100,13 +100,13 @@ func (
 
 	m.Lock()
 
-	log <- cl.Infof{"Generating %s blocks...", m.cfg.Algo}
+	log <- cl.Infof{"generating %s blocks...", m.cfg.Algo}
 
 	// Respond with an error if server is already mining.
 	if m.started || m.discreteMining {
 
 		m.Unlock()
-		return nil, errors.New("Server is already CPU mining. Please call " +
+		return nil, errors.New("server is already CPU mining; call " +
 			"`setgenerate 0` before calling discrete `generate` commands.")
 	}
 	m.started = true
@@ -116,7 +116,7 @@ func (
 	go m.speedMonitor()
 	m.Unlock()
 
-	log <- cl.Tracef{"Generating %d blocks", n}
+	log <- cl.Tracef{"generating %d blocks", n}
 
 	i := uint32(0)
 	blockHashes := make([]*chainhash.Hash, n)
@@ -166,7 +166,7 @@ func (
 
 			if i == n {
 
-				log <- cl.Tracef{"Generated %d blocks", i}
+				log <- cl.Tracef{"generated %d blocks", i}
 
 				m.Lock()
 				close(m.speedMonitorQuit)
@@ -369,7 +369,7 @@ out:
 
 		if err != nil {
 
-			log <- cl.Error{"Failed to create new block template:", err}
+			log <- cl.Error{"failed to create new block template:", err}
 
 			continue
 		}
@@ -415,7 +415,7 @@ func (
 		}
 	}
 
-	log <- cl.Debugf{"Spawning %d worker(s)", m.numWorkers}
+	log <- cl.Debugf{"spawning %d worker(s)", m.numWorkers}
 
 	// Launch the current number of workers by default.
 	runningWorkers = make([]chan struct{}, 0, m.numWorkers)
@@ -485,7 +485,7 @@ func (
 	enOffset, err := wire.RandomUint64()
 	if err != nil {
 
-		log <- cl.Error{"Unexpected error while generating random extra nonce offset:", err}
+		log <- cl.Error{"unexpected error while generating random extra nonce offset:", err}
 
 		enOffset = 0
 	}
@@ -670,7 +670,7 @@ func (
 			return false
 		}
 
-		log <- cl.Warn{"Block submitted via CPU miner rejected:", err}
+		log <- cl.Warn{"block submitted via CPU miner rejected:", err}
 
 		return false
 	}

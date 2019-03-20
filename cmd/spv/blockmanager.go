@@ -3274,7 +3274,7 @@ func (b *blockManager) handleHeadersMsg(hmsg *headersMsg) {
 				)
 			}
 
-			log <- cl.Trace{"Total work from known chain:", knownWork}
+			log <- cl.Trace{"total work from known chain:", knownWork}
 
 			// Compare the two work totals and reject the new chain
 

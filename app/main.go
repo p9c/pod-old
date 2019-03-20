@@ -48,7 +48,7 @@ func GetApp() (a *cli.App) {
 			Configure(&podConfig)
 
 			fmt.Println("no subcommand requested")
-			if *podConfig.Save {
+			if StateCfg.Save {
 				podHandleSave()
 			}
 			cli.ShowAppHelpAndExit(c, 1)
@@ -92,7 +92,7 @@ func GetApp() (a *cli.App) {
 					return nil
 				},
 			},
-			cli.Command{
+			{
 
 				Name:    "ctl",
 				Aliases: []string{"c"},
@@ -108,15 +108,40 @@ func GetApp() (a *cli.App) {
 					},
 				},
 			},
-			cli.Command{
+			{
 
-				Name:        "node",
-				Aliases:     []string{"n"},
-				Usage:       "start parallelcoin full node",
-				Action:      nodeHandle,
-				Subcommands: []cli.Command{},
+				Name:    "node",
+				Aliases: []string{"n"},
+				Usage:   "start parallelcoin full node",
+				Action:  nodeHandle,
+				Subcommands: []cli.Command{
+					{
+						Name:  "dropaddrindex",
+						Usage: "drop the address search index",
+						Action: func(c *cli.Context) error {
+							StateCfg.DropAddrIndex = true
+							return nodeHandle(c)
+						},
+					},
+					{
+						Name:  "droptxindex",
+						Usage: "drop the address search index",
+						Action: func(c *cli.Context) error {
+							StateCfg.DropTxIndex = true
+							return nodeHandle(c)
+						},
+					},
+					{
+						Name:  "dropcfindex",
+						Usage: "drop the address search index",
+						Action: func(c *cli.Context) error {
+							StateCfg.DropCfIndex = true
+							return nodeHandle(c)
+						},
+					},
+				},
 			},
-			cli.Command{
+			{
 
 				Name:    "wallet",
 				Aliases: []string{"w"},
@@ -176,11 +201,11 @@ func GetApp() (a *cli.App) {
 			Usage:       "sets the data directory base for a pod instance",
 			EnvVar:      "POD_DATADIR",
 			Destination: podConfig.DataDir,
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
+		}), cli.BoolFlag{
 			Name:        "save, i",
 			Usage:       "save settings as effective from invocation",
-			Destination: podConfig.Save,
-		}), altsrc.NewStringFlag(cli.StringFlag{
+			Destination: &StateCfg.Save,
+		}, altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "loglevel, l",
 			Value:       "info",
 			Usage:       "sets the base for all subsystem logging",
@@ -483,11 +508,11 @@ func GetApp() (a *cli.App) {
 			Name:        "blocksonly",
 			Usage:       "Do not accept transactions from remote peers.",
 			Destination: podConfig.BlocksOnly,
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
+		}), altsrc.NewBoolTFlag(cli.BoolTFlag{
 			Name:        "notxindex",
 			Usage:       "Disable the transaction index which makes all transactions available via the getrawtransaction RPC",
 			Destination: podConfig.TxIndex,
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
+		}), altsrc.NewBoolTFlag(cli.BoolTFlag{
 			Name:        "noaddrindex",
 			Usage:       "Disable address-based transaction index which makes the searchrawtransactions RPC available",
 			Destination: podConfig.AddrIndex,
@@ -529,15 +554,6 @@ func GetApp() (a *cli.App) {
 			Name:  "experimentalrpclisten",
 			Usage: "Listen for RPC connections on this interface/port",
 			Value: podConfig.ExperimentalRPCListeners,
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
-			Name:  "droptxindex",
-			Usage: "Deletes the hash-based transaction index from the database on start up and exits.",
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
-			Name:  "dropaddrindex",
-			Usage: "Deletes the address-based transaction index from the database on start up and exits.",
-		}), altsrc.NewBoolFlag(cli.BoolFlag{
-			Name:  "dropcfindex",
-			Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and exits.",
 		}),
 		},
 	}

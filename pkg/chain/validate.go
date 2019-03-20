@@ -63,7 +63,6 @@ func (
 
 	block *util.Block) error {
 
-	// log <- cl.Info{"CheckConnectBlockTemplate"}
 	b.chainLock.Lock()
 	defer b.chainLock.Unlock()
 	algo := block.MsgBlock().Header.Version
@@ -95,7 +94,7 @@ func (
 
 	if err != nil {
 
-		log <- cl.Error{"ERROR", err}
+		log <- cl.Error{"block processing error:", err}
 
 		return err
 	}
@@ -1129,7 +1128,7 @@ func checkBlockSanity(
 
 	if err != nil {
 
-		log <- cl.Debug{"ERROR", err}
+		log <- cl.Debug{"block processing error:", err}
 
 		return err
 	}
