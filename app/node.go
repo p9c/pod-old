@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
@@ -25,6 +27,10 @@ import (
 var StateCfg = node.StateCfg
 
 func nodeHandle(c *cli.Context) error {
+
+	Configure(&podConfig)
+	fmt.Println("nodeHandle")
+	spew.Dump(podConfig)
 
 	log <- cl.Info{"nodeHandle()"}
 
