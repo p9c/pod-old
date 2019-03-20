@@ -8,11 +8,18 @@ import (
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
+	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"github.com/pelletier/go-toml"
 	"gopkg.in/urfave/cli.v1"
-	"gopkg.in/yaml.v1"
 )
 
 func Configure(c *pod.Config) {
+
+	log <- cl.Debug{"checking configurations"}
+
+	if *c.ConfigFile == "" {
+		*c.ConfigFile = filepath.Join(*c.DataDir, podConfigFilename)
+	}
 
 	if *c.LogDir == "" {
 
@@ -45,7 +52,7 @@ func podHandleSave() {
 			podConfigFilename,
 		)
 
-	if yp, e := yaml.Marshal(podConfig); e == nil {
+	if yp, e := toml.Marshal(podConfig); e == nil {
 
 		EnsureDir(*podConfig.ConfigFile)
 

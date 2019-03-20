@@ -798,7 +798,7 @@ func (
 
 	log <- cl.Infof{
 
-		"banned peer %s (%s) for %v", host, direction, cfg.BanDuration,
+		"banned peer %s (%s) for %v", host, direction, *cfg.BanDuration,
 	}
 
 	state.banned[host] = time.Now().Add(*cfg.BanDuration)

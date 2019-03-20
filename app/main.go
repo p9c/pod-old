@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"gopkg.in/urfave/cli.v1/altsrc"
+
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
@@ -52,6 +54,23 @@ func GetApp() (a *cli.App) {
 			cli.ShowAppHelpAndExit(c, 1)
 			return nil
 		},
+		Before: func(c *cli.Context) error {
+
+			fmt.Println("loading configuration")
+			Configure(&podConfig)
+			if FileExists(*podConfig.ConfigFile) {
+
+				inputSource, err := altsrc.NewTomlSourceFromFile(*podConfig.ConfigFile)
+
+				if err != nil {
+					fmt.Println("error -", err)
+					panic(err)
+				}
+				return altsrc.ApplyInputSourceValues(c, inputSource, c.App.Flags)
+			}
+			return nil
+		},
+
 		Commands: []cli.Command{
 			{
 				Name:    "version",
@@ -151,375 +170,375 @@ func GetApp() (a *cli.App) {
 				},
 			},
 		},
-		Flags: []cli.Flag{cli.StringFlag{
+		Flags: []cli.Flag{altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "datadir, D",
 			Value:       DefaultDataDir,
 			Usage:       "sets the data directory base for a pod instance",
 			EnvVar:      "POD_DATADIR",
 			Destination: podConfig.DataDir,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "save, i",
 			Usage:       "save settings as effective from invocation",
 			Destination: podConfig.Save,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "loglevel, l",
 			Value:       "info",
 			Usage:       "sets the base for all subsystem logging",
 			EnvVar:      "POD_LOGLEVEL",
 			Destination: podConfig.LogLevel,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "subsystem",
 			Usage: "sets individual subsystems log levels, use 'listsubsystems' to list available",
 			Value: podConfig.Subsystems,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "network, n",
 			Value:       "mainnet",
 			Usage:       "connect to mainnet/testnet3/simnet",
 			Destination: podConfig.Network,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "username",
 			Value:       "server",
 			Usage:       "sets the username for services",
 			Destination: podConfig.Username,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "password",
 			Value:       "pa55word",
 			Usage:       "sets the password for services",
 			Destination: podConfig.Password,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "serveruser",
 			Value:       "client",
 			Usage:       "sets the username for clients of services",
 			Destination: podConfig.ServerUser,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "serverpass",
 			Usage:       "sets the password for clients of services",
 			Destination: podConfig.ServerPass,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "limituser",
 			Value:       "limit",
 			Usage:       "sets the limited rpc username",
 			Destination: podConfig.LimitUser,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "limitpass",
 			Usage:       "sets the password for clients of services",
 			Destination: podConfig.LimitPass,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpccert",
 			Usage:       "File containing the certificate file",
 			Destination: podConfig.RPCCert,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpckey",
 			Usage:       "File containing the certificate key",
 			Destination: podConfig.RPCKey,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "cafile",
 			Value:       filepath.Join(DefaultDataDir, "cafile"),
 			Usage:       "File containing root certificates to authenticate a TLS connections with pod",
 			Destination: podConfig.CAFile,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "tls, clienttls",
 			Usage:       "Enable TLS for client connections",
 			Destination: podConfig.TLS,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "servertls",
 			Usage:       "Enable TLS for server connections",
 			Destination: podConfig.ServerTLS,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "proxy",
 			Usage:       "Connect via SOCKS5 proxy",
 			Destination: podConfig.Proxy,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "proxyuser",
 			Value:       "user",
 			Usage:       "Username for proxy server",
 			Destination: podConfig.ProxyUser,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "proxypass",
 			Value:       "pa55word",
 			Usage:       "Password for proxy server",
 			Destination: podConfig.ProxyPass,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "onion",
 			Usage:       "Enable connecting to tor hidden services",
 			Destination: podConfig.Onion,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "onionproxy",
 			Value:       "127.0.0.1:9050",
 			Usage:       "Connect to tor hidden services via SOCKS5 proxy (eg. 127.0.0.1:9050)",
 			Destination: podConfig.OnionProxy,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "onionuser",
 			Value:       "user",
 			Usage:       "Username for onion proxy server",
 			Destination: podConfig.OnionProxyUser,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "onionpass",
 			Value:       "pa55word",
 			Usage:       "Password for onion proxy server",
 			Destination: podConfig.OnionProxyPass,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "torisolation",
 			Usage:       "Enable Tor stream isolation by randomizing user credentials for each connection.",
 			Destination: podConfig.TorIsolation,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "walletserver, ws",
 			Usage:       "set wallet server to connect to",
 			Destination: podConfig.Wallet,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "addpeer",
 			Value: podConfig.AddPeers,
 			Usage: "Add a peer to connect with at startup",
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "connect",
 			Value: podConfig.ConnectPeers,
 			Usage: "Connect only to the specified peers at startup",
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nolisten",
 			Usage:       "Disable listening for incoming connections -- NOTE: Listening is automatically disabled if the --connect or --proxy options are used without also specifying listen interfaces via --listen",
 			Destination: podConfig.DisableListen,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "listen",
 			Value: podConfig.Listeners,
 			Usage: "Add an interface/port to listen for connections",
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "maxpeers",
 			Value:       node.DefaultMaxPeers,
 			Usage:       "Max number of inbound and outbound peers",
 			Destination: podConfig.MaxPeers,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nobanning",
 			Usage:       "Disable banning of misbehaving peers",
 			Destination: podConfig.DisableBanning,
-		}, cli.DurationFlag{
+		}), altsrc.NewDurationFlag(cli.DurationFlag{
 			Name:        "banduration",
 			Value:       time.Hour * 24,
 			Usage:       "How long to ban misbehaving peers",
 			Destination: podConfig.BanDuration,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "banthreshold",
 			Value:       node.DefaultBanThreshold,
 			Usage:       "Maximum allowed ban score before disconnecting and banning misbehaving peers.",
 			Destination: podConfig.BanThreshold,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "whitelist",
 			Usage: "Add an IP network or IP that will not be banned. (eg. 192.168.1.0/24 or ::1)",
 			Value: podConfig.Whitelists,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "rpcconnect",
 			Usage:       "Hostname/IP and port of pod RPC server to connect to (default 127.0.0.1:11048, testnet: 127.0.0.1:21048, simnet: 127.0.0.1:41048)",
 			Destination: podConfig.RPCConnect,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "rpclisten",
 			Value: podConfig.RPCListeners,
 			Usage: "Add an interface/port to listen for RPC connections (default port: 11048, testnet: 21048) gives sha256d block templates",
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "rpcmaxclients",
 			Value:       node.DefaultMaxRPCClients,
 			Usage:       "Max number of RPC clients for standard connections",
 			Destination: podConfig.RPCMaxClients,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "rpcmaxwebsockets",
 			Value:       node.DefaultMaxRPCWebsockets,
 			Usage:       "Max number of RPC websocket connections",
 			Destination: podConfig.RPCMaxWebsockets,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "rpcmaxconcurrentreqs",
 			Value:       node.DefaultMaxRPCConcurrentReqs,
 			Usage:       "Max number of concurrent RPC requests that may be processed concurrently",
 			Destination: podConfig.RPCMaxConcurrentReqs,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "rpcquirks",
 			Usage:       "Mirror some JSON-RPC quirks of Bitcoin Core -- NOTE: Discouraged unless interoperability issues need to be worked around",
 			Destination: podConfig.RPCQuirks,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "norpc",
 			Usage:       "Disable built-in RPC server -- NOTE: The RPC server is disabled by default if no rpcuser/rpcpass or rpclimituser/rpclimitpass is specified",
 			Destination: podConfig.DisableRPC,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nodnsseed",
 			Usage:       "Disable DNS seeding for peers",
 			Destination: podConfig.DisableDNSSeed,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "externalip",
 			Value: podConfig.ExternalIPs,
 			Usage: "Add an ip to the list of local addresses we claim to listen on to peers",
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "addcheckpoint",
 			Value: podConfig.AddCheckpoints,
 			Usage: "Add a custom checkpoint.  Format: '<height>:<hash>'",
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nocheckpoints",
 			Usage:       "Disable built-in checkpoints.  Don't do this unless you know what you're doing.",
 			Destination: podConfig.DisableCheckpoints,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "dbtype",
 			Value:       node.DefaultDbType,
 			Usage:       "Database backend to use for the Block Chain",
 			Destination: podConfig.DbType,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "profile",
 			Usage:       "Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536",
 			Destination: podConfig.Profile,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "cpuprofile",
 			Usage:       "Write CPU profile to the specified file",
 			Destination: podConfig.CPUProfile,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "upnp",
 			Usage:       "Use UPnP to map our listening port outside of NAT",
 			Destination: podConfig.Upnp,
-		}, cli.Float64Flag{
+		}), altsrc.NewFloat64Flag(cli.Float64Flag{
 			Name:        "minrelaytxfee",
 			Value:       mempool.DefaultMinRelayTxFee.ToDUO(),
 			Usage:       "The minimum transaction fee in DUO/kB to be considered a non-zero fee.",
 			Destination: podConfig.MinRelayTxFee,
-		}, cli.Float64Flag{
+		}), altsrc.NewFloat64Flag(cli.Float64Flag{
 			Name:        "limitfreerelay",
 			Value:       node.DefaultFreeTxRelayLimit,
 			Usage:       "Limit relay of transactions with no transaction fee to the given amount in thousands of bytes per minute",
 			Destination: podConfig.FreeTxRelayLimit,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "norelaypriority",
 			Usage:       "Do not require free or low-fee transactions to have high priority for relaying",
 			Destination: podConfig.NoRelayPriority,
-		}, cli.DurationFlag{
+		}), altsrc.NewDurationFlag(cli.DurationFlag{
 			Name:        "trickleinterval",
 			Value:       node.DefaultTrickleInterval,
 			Usage:       "Minimum time between attempts to send new inventory to a connected peer",
 			Destination: podConfig.TrickleInterval,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "maxorphantx",
 			Value:       node.DefaultMaxOrphanTransactions,
 			Usage:       "Max number of orphan transactions to keep in memory",
 			Destination: podConfig.MaxOrphanTxs,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "algo",
 			Value:       "random",
 			Usage:       "Sets the algorithm for the CPU miner ( blake14lr, cryptonight7v2, keccak, lyra2rev2, scrypt, sha256d, stribog, skein, x11 default is 'random')",
 			Destination: podConfig.Algo,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "generate",
 			Usage:       "Generate (mine) DUO using the CPU",
 			Destination: podConfig.Generate,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "genthreads",
 			Value:       -1,
 			Usage:       "Number of CPU threads to use with CPU miner -1 = all cores",
 			Destination: podConfig.GenThreads,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "miningaddr",
 			Value: podConfig.MiningAddrs,
 			Usage: "Add the specified payment address to the list of addresses to use for generated blocks, at least one is required if generate or minerlistener are set",
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "minerlistener",
 			Usage:       "listen address for miner controller",
 			Destination: podConfig.MinerListener,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "minerpass",
 			Usage:       "Encryption password required for miner clients to subscribe to work updates, for use over insecure connections",
 			Destination: podConfig.MinerPass,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "blockminsize",
 			Value:       node.BlockMaxSizeMin,
 			Usage:       "Mininum block size in bytes to be used when creating a block",
 			Destination: podConfig.BlockMinSize,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "blockmaxsize",
 			Value:       node.BlockMaxSizeMax,
 			Usage:       "Maximum block size in bytes to be used when creating a block",
 			Destination: podConfig.BlockMaxSize,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "blockminweight",
 			Value:       node.BlockMaxWeightMin,
 			Usage:       "Mininum block weight to be used when creating a block",
 			Destination: podConfig.BlockMinWeight,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "blockmaxweight",
 			Value:       node.BlockMaxWeightMax,
 			Usage:       "Maximum block weight to be used when creating a block",
 			Destination: podConfig.BlockMaxWeight,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "blockprioritysize",
 			Usage:       "Size in bytes for high-priority/low-fee transactions when creating a block",
 			Destination: podConfig.BlockPrioritySize,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "uacomment",
 			Usage: "Comment to add to the user agent -- See BIP 14 for more information.",
 			Value: podConfig.UserAgentComments,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nopeerbloomfilters",
 			Usage:       "Disable bloom filtering support",
 			Destination: podConfig.NoPeerBloomFilters,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "nocfilters",
 			Usage:       "Disable committed filtering (CF) support",
 			Destination: podConfig.NoCFilters,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "sigcachemaxsize",
 			Value:       node.DefaultSigCacheMaxSize,
 			Usage:       "The maximum number of entries in the signature verification cache",
 			Destination: podConfig.SigCacheMaxSize,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "blocksonly",
 			Usage:       "Do not accept transactions from remote peers.",
 			Destination: podConfig.BlocksOnly,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "notxindex",
 			Usage:       "Disable the transaction index which makes all transactions available via the getrawtransaction RPC",
 			Destination: podConfig.TxIndex,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "noaddrindex",
 			Usage:       "Disable address-based transaction index which makes the searchrawtransactions RPC available",
 			Destination: podConfig.AddrIndex,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "relaynonstd",
 			Usage:       "Relay non-standard transactions regardless of the default settings for the active network.",
 			Destination: podConfig.RelayNonStd,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "rejectnonstd",
 			Usage:       "Reject non-standard transactions regardless of the default settings for the active network.",
 			Destination: podConfig.RejectNonStd,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "noinitialload",
 			Usage:       "Defer wallet creation/opening on startup and enable loading wallets over RPC",
 			Destination: podConfig.NoInitialLoad,
-		}, cli.StringFlag{
+		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "walletpass",
 			Usage:       "The public wallet password -- Only required if the wallet was created with one",
 			Destination: podConfig.WalletPass,
-		}, cli.BoolFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:        "onetimetlskey",
 			Usage:       "Generate a new TLS certpair at startup, but only write the certificate to disk",
 			Destination: podConfig.OneTimeTLSKey,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "walletrpclisten",
 			Usage: "Listen for wallet RPC connections on this interface/port (default port: 11046, testnet: 21046, simnet: 41046)",
 			Value: podConfig.LegacyRPCListeners,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "walletrpcmaxclients",
 			Value:       8,
 			Usage:       "Max number of legacy RPC clients for standard connections",
 			Destination: podConfig.LegacyRPCMaxClients,
-		}, cli.IntFlag{
+		}), altsrc.NewIntFlag(cli.IntFlag{
 			Name:        "walletrpcmaxwebsockets",
 			Value:       8,
 			Usage:       "Max number of legacy RPC websocket connections",
 			Destination: podConfig.LegacyRPCMaxWebsockets,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "experimentalrpclisten",
 			Usage: "Listen for RPC connections on this interface/port",
 			Value: podConfig.ExperimentalRPCListeners,
-		}, cli.StringSliceFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:  "droptxindex",
 			Usage: "Deletes the hash-based transaction index from the database on start up and exits.",
-		}, cli.StringSliceFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:  "dropaddrindex",
 			Usage: "Deletes the address-based transaction index from the database on start up and exits.",
-		}, cli.StringSliceFlag{
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
 			Name:  "dropcfindex",
 			Usage: "Deletes the index used for committed filtering (CF) support from the database on start up and exits.",
-		},
+		}),
 		},
 	}
 	return

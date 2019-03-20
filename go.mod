@@ -36,6 +36,7 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/obsilp/rmnp v0.0.0-20181020095946-f937c1003aae
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/programmer10110/gostreebog v0.0.0-20170704145444-a3e1d28291b2
 	github.com/smallnest/rpcx v0.0.0-20190314105900-7f0308df0c1f // indirect

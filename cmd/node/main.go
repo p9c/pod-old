@@ -86,7 +86,6 @@ func Main(c *pod.Config, activeNet *netparams.Params, serverChan chan<- *server)
 	}
 
 	// Write cpu profile if requested.
-
 	if *cfg.CPUProfile != "" {
 
 		var f *os.File

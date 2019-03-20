@@ -3,14 +3,13 @@ package app
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	blockchain "git.parallelcoin.io/dev/pod/pkg/chain"
@@ -19,6 +18,7 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
+	"github.com/BurntSushi/toml"
 	"github.com/btcsuite/go-socks/socks"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -29,19 +29,31 @@ var StateCfg = node.StateCfg
 func nodeHandle(c *cli.Context) error {
 
 	Configure(&podConfig)
-	log <- cl.Debug{"nodeHandle"}
-	spew.Dump(podConfig)
 
-	log <- cl.Debug{"nodeHandle()"}
+	if *podConfig.Save {
+		podHandleSave()
+		fmt.Println(os.Args)
+		return nil
+	}
+
+	if !FileExists(*podConfig.ConfigFile) {
+		*podConfig.Save = true
+	} else {
+		b, e := ioutil.ReadFile(*podConfig.ConfigFile)
+		if e != nil {
+			panic(e)
+		}
+		toml.Unmarshal(b, &podConfig)
+	}
 
 	loglevel := *podConfig.LogLevel
 
 	switch loglevel {
 
 	case "trace", "debug", "info", "warn", "error", "fatal":
-		log <- cl.Debug{"log level", loglevel}
+		log <- cl.Info{"log level", loglevel}
 	default:
-		log <- cl.Debug{"unrecognised loglevel", loglevel, "setting default info"}
+		log <- cl.Info{"unrecognised loglevel", loglevel, "setting default info"}
 		*podConfig.LogLevel = "info"
 	}
 

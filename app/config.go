@@ -1,19 +1,16 @@
 package app
 
 import (
-	"io/ioutil"
-	"path/filepath"
 	"time"
 
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	"gopkg.in/urfave/cli.v1"
-	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 const appName = "pod"
-const confExt = ".yaml"
+const confExt = ".toml"
 const podConfigFilename = appName + confExt
 const ctlAppName = "ctl"
 const ctlConfigFilename = ctlAppName + confExt
@@ -123,33 +120,4 @@ func podDefConfig() pod.Config {
 		DropTxIndex:              new(bool),
 		DropCfIndex:              new(bool),
 	}
-}
-
-// NewSourceFromFlagAndBase creates a new Yaml
-// InputSourceContext from a provided flag name and source context.
-// If file doesn't exist, make one, empty is same as whatever is default
-func NewSourceFromFlagAndBase(
-	c *cli.Context, confName, flagFileName string,
-) func(context *cli.Context) (altsrc.InputSourceContext, error) {
-
-	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
-
-		filePath := c.String(flagFileName)
-		filePath = filepath.Join(filePath, confName)
-		EnsureDir(filePath)
-
-		if !FileExists(filePath) {
-
-			err := ioutil.WriteFile(filePath, []byte{'\n'}, 0600)
-
-			if err != nil {
-
-				panic(err)
-			}
-
-		}
-
-		return altsrc.NewYamlSourceFromFile(filePath)
-	}
-
 }
