@@ -10,6 +10,7 @@ import (
 	chaincfg "git.parallelcoin.io/dev/pod/pkg/chain/config"
 	netparams "git.parallelcoin.io/dev/pod/pkg/chain/config/params"
 	"git.parallelcoin.io/dev/pod/pkg/chain/wire"
+	"git.parallelcoin.io/dev/pod/pkg/pod"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
 	ec "git.parallelcoin.io/dev/pod/pkg/util/elliptic"
@@ -65,9 +66,9 @@ func CreateSimulationWallet(
 // CreateWallet prompts the user for information needed to generate a new wallet and generates the wallet accordingly.  The new wallet will reside at the provided path.
 func CreateWallet(
 
-	cfg *Config, activeNet *netparams.Params) error {
+	cfg *pod.Config, activeNet *netparams.Params) error {
 
-	dbDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
+	dbDir := NetworkDir(*cfg.DataDir, activeNet.Params)
 	loader := wallet.NewLoader(activeNet.Params, dbDir, 250)
 
 	// When there is a legacy keystore, open it now to ensure any errors
@@ -75,7 +76,7 @@ func CreateWallet(
 	// don't end up exiting the process after the user has spent time
 
 	// entering a bunch of information.
-	netDir := NetworkDir(*cfg.AppDataDir, activeNet.Params)
+	netDir := NetworkDir(*cfg.DataDir, activeNet.Params)
 	keystorePath := filepath.Join(netDir, keystore.Filename)
 	var legacyKeyStore *keystore.Store
 	_, err := os.Stat(keystorePath)

@@ -10,13 +10,9 @@ import (
 
 	"git.parallelcoin.io/dev/pod/cmd/node"
 	"git.parallelcoin.io/dev/pod/cmd/node/mempool"
-	"git.parallelcoin.io/dev/pod/pkg/pod"
+	walletmain "git.parallelcoin.io/dev/pod/cmd/walletmain"
 	"git.parallelcoin.io/dev/pod/pkg/util/cl"
 	"gopkg.in/urfave/cli.v1"
-)
-
-var (
-	podCfg pod.Config
 )
 
 func Main() int {
@@ -45,7 +41,7 @@ func GetApp() (a *cli.App) {
 		Copyright:   "Legacy portions derived from btcsuite/btcd under ISC licence. The remainder is already in your possession. Use it wisely.",
 		Action: func(c *cli.Context) error {
 
-			Configure(&podConfig)
+			Configure()
 
 			fmt.Println("no subcommand requested")
 			if StateCfg.Save {
@@ -56,7 +52,6 @@ func GetApp() (a *cli.App) {
 		},
 		Before: func(c *cli.Context) error {
 
-			Configure(&podConfig)
 			if FileExists(*podConfig.ConfigFile) {
 
 				inputSource, err := altsrc.NewTomlSourceFromFile(*podConfig.ConfigFile)
@@ -153,18 +148,32 @@ func GetApp() (a *cli.App) {
 						Usage: "Create the wallet if it does not exist",
 						Action: func(c *cli.Context) error {
 
+							Configure()
+							if err := walletmain.CreateWallet(&podConfig, activeNetParams); err != nil {
+
+								log <- cl.Error{"failed to create wallet", err}
+
+								return err
+							}
+
 							return nil
 						},
 					},
 
-					{
-						Name:  "createtemp",
-						Usage: "Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir",
-						Action: func(c *cli.Context) error {
+					// {
+					// 	Name:  "createtemp",
+					// 	Usage: "Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir",
+					// 	Action: func(c *cli.Context) error {
+					// 		Configure()
+					// 		if err := walletmain.CreateWallet(&podConfig, activeNetParams); err != nil {
 
-							return nil
-						},
-					},
+					// 			log <- cl.Error{"failed to create wallet", err}
+					// 			return err
+					// 		}
+					// 		return nil
+					// 	},
+					// },
+
 				},
 			},
 			{
@@ -175,7 +184,7 @@ func GetApp() (a *cli.App) {
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "base, b",
-						Usage: "base name to extend with one number character for testnet configurations",
+						Usage: "base name to extend with two number characters for testnet configurations",
 						Value: "./test",
 					}, cli.IntFlag{
 						Name:  "number, n",

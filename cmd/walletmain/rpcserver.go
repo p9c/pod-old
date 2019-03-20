@@ -253,7 +253,7 @@ func startRPCServers(
 		err          error
 	)
 
-	if !*cfg.EnableServerTLS {
+	if !*cfg.TLS {
 
 		log <- cl.Inf("server TLS is disabled - only legacy RPC may be used")
 
