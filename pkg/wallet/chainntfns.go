@@ -69,7 +69,7 @@ func (w *Wallet) handleChainNotifications() {
 
 		// rescan.
 
-		log <- cl.Info{
+		log <- cl.Infof{
 
 			"catching up block hashes to height %d, this might take a while", height,
 		}

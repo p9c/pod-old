@@ -36,6 +36,9 @@ func Configure() {
 		*podConfig.LegacyRPCListeners = append(*podConfig.LegacyRPCListeners, "127.0.0.1:11046")
 	}
 
+	if len(*podConfig.RPCListeners) < 1 {
+		*podConfig.RPCListeners = append(*podConfig.RPCListeners, "127.0.0.1:11048")
+	}
 	if *podConfig.RPCCert == "" {
 
 		*podConfig.RPCCert = filepath.Join(*podConfig.DataDir, "rppodConfig.cert")

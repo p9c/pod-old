@@ -45,9 +45,12 @@ func Main(
 		os.Exit(1)
 	}
 
-	// Convert remaining command line args to a slice of interface values to be passed along as parameters to new command creation function.
+	// Convert remaining command line args to a slice of interface values to be passed along
+	// as parameters to new command creation function.
 	//
-	// Since some commands, such as submitblock, can involve data which is too large for the Operating System to allow as a normal command line parameter, support using '-' as an argument to allow the argument to be read from a stdin pipe.
+	// Since some commands, such as submitblock, can involve data which is too large for the
+	// Operating System to allow as a normal command line parameter, support using '-' as an
+	// argument to allow the argument to be read from a stdin pipe.
 	bio := bufio.NewReader(os.Stdin)
 	params := make([]interface{}, 0, len(args[1:]))
 
@@ -83,8 +86,8 @@ func Main(
 
 	if err != nil {
 
-		// Show the error along with its error code when it's a json.Error as it realistically will always be since the NewCmd function is only supposed to return errors of that type.
-
+		// Show the error along with its error code when it's a json.Error as it realistically
+		// will always be since the NewCmd function is only supposed to return errors of that type.
 		if jerr, ok := err.(json.Error); ok {
 
 			fmt.Fprintf(os.Stderr, "%s command: %v (code: %s)\n",
