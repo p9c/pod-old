@@ -10,7 +10,6 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-./.vscode
 
 \.vscode/
 docker/legacy/data/*
@@ -24,4 +23,6 @@ pod.log
 docker/legacy-2/data/*
 *.o
 cmd/test/*
-test/*
+test*
+
+test/mainnet/peers.json
