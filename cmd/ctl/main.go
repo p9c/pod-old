@@ -22,7 +22,6 @@ var HelpPrint = func() {
 func Main(
 	args []string,
 	cfg *pod.Config,
-
 ) {
 
 	// Ensure the specified method identifies a valid registered command and is one of the usable types.

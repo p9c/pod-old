@@ -92,7 +92,12 @@ func sendPostRequest(marshalledJSON []byte, cfg *pod.Config) ([]byte, error) {
 		protocol = "https"
 	}
 
-	url := protocol + "://" + *cfg.RPCConnect
+	serverAddr := *cfg.RPCConnect
+	if *cfg.Wallet {
+		serverAddr = *cfg.WalletServer
+	}
+
+	url := protocol + "://" + serverAddr
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
 
