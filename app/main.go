@@ -314,10 +314,6 @@ func GetApp() (a *cli.App) {
 			Name:        "torisolation",
 			Usage:       "Enable Tor stream isolation by randomizing user credentials for each connection.",
 			Destination: podConfig.TorIsolation,
-		}), altsrc.NewStringFlag(cli.StringFlag{
-			Name:        "walletserver, ws",
-			Usage:       "set wallet server to connect to",
-			Destination: podConfig.Wallet,
 		}), altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 			Name:  "addpeer",
 			Value: podConfig.AddPeers,
@@ -537,6 +533,15 @@ func GetApp() (a *cli.App) {
 			Name:        "noinitialload",
 			Usage:       "Defer wallet creation/opening on startup and enable loading wallets over RPC",
 			Destination: podConfig.NoInitialLoad,
+		}), altsrc.NewBoolFlag(cli.BoolFlag{
+			Name:        "wallet, w",
+			Usage:       "connect to wallet instead of full node",
+			Destination: podConfig.Wallet,
+		}), altsrc.NewStringFlag(cli.StringFlag{
+			Name:        "walletserver, ws",
+			Value:       "127.0.0.1:11046",
+			Usage:       "set wallet server to connect to",
+			Destination: podConfig.WalletServer,
 		}), altsrc.NewStringFlag(cli.StringFlag{
 			Name:        "walletpass",
 			Usage:       "The public wallet password -- Only required if the wallet was created with one",

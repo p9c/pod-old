@@ -66,6 +66,7 @@ func Configure() {
 
 	network := "mainnet"
 	if podConfig.Network != nil {
+
 		network = *podConfig.Network
 	}
 	switch network {

@@ -19,7 +19,7 @@ test/docker/legacy/data/
 bin/pod
 bin/bld
 test*/*
-pod
+
 pod.log
 docker/legacy-2/data/*
 *.o

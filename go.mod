@@ -3,15 +3,12 @@ module git.parallelcoin.io/dev/pod
 go 1.12
 
 require (
-<<<<<<< Updated upstream
 	ekyu.moe/cryptonight v0.3.0
-	github.com/BurntSushi/toml v0.3.1
 	github.com/DataDog/zstd v1.3.5 // indirect
 	github.com/aead/siphash v1.0.1
 	github.com/aead/skein v0.0.0-20160722084837-9365ae6e95d2
 	github.com/bitbandi/go-x11 v0.0.0-20171024232457-5fddbc9b2b09
 	github.com/bitgoin/lyra2rev2 v0.0.0-20161212102046-bae9ad2043bb
-	github.com/btcsuite/btcd v0.0.0-20190315201642-aa6e0f35703c
 	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
 	github.com/btcsuite/golangcrypto v0.0.0-20150304025918-53f62d9b43e8
 	github.com/btcsuite/goleveldb v1.0.0
@@ -46,23 +43,14 @@ require (
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b // indirect
 	github.com/tjfoc/gmsm v1.0.1 // indirect
-	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
-	github.com/urfave/cli v1.20.0
 	github.com/vivint/infectious v0.0.0-20190108171102-2455b059135b
 	github.com/xtaci/kcp-go v5.0.7+incompatible
 	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb
 	go.etcd.io/bbolt v1.3.2 // indirect
 	go.uber.org/atomic v1.3.2
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a
-	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b
+	golang.org/x/net v0.0.0-20190320064053-1272bf9dcd53
 	google.golang.org/grpc v1.19.0
 	gopkg.in/urfave/cli.v1 v1.20.0
-	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
-	gopkg.in/yaml.v2 v2.2.2
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
-=======
-	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
-	github.com/jessevdk/go-flags v1.4.0
-	github.com/tucnak/climax v0.0.0-20180716104603-da4c02f3b1f8
->>>>>>> Stashed changes
 )

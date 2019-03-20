@@ -1,0 +1,97 @@
+package pod
+
+import (
+	"time"
+
+	"gopkg.in/urfave/cli.v1"
+)
+
+type Config struct {
+	ConfigFile               *string
+	DataDir                  *string
+	LogDir                   *string
+	LogLevel                 *string
+	Subsystems               *cli.StringSlice
+	Network                  *string
+	AddPeers                 *cli.StringSlice
+	ConnectPeers             *cli.StringSlice
+	MaxPeers                 *int
+	Listeners                *cli.StringSlice
+	DisableListen            *bool
+	DisableBanning           *bool
+	BanDuration              *time.Duration
+	BanThreshold             *int
+	Whitelists               *cli.StringSlice
+	Username                 *string
+	Password                 *string
+	ServerUser               *string
+	ServerPass               *string
+	LimitUser                *string
+	LimitPass                *string
+	RPCConnect               *string
+	RPCListeners             *cli.StringSlice
+	RPCCert                  *string
+	RPCKey                   *string
+	RPCMaxClients            *int
+	RPCMaxWebsockets         *int
+	RPCMaxConcurrentReqs     *int
+	RPCQuirks                *bool
+	DisableRPC               *bool
+	TLS                      *bool
+	DisableDNSSeed           *bool
+	ExternalIPs              *cli.StringSlice
+	Proxy                    *string
+	ProxyUser                *string
+	ProxyPass                *string
+	OnionProxy               *string
+	OnionProxyUser           *string
+	OnionProxyPass           *string
+	Onion                    *bool
+	TorIsolation             *bool
+	TestNet3                 *bool
+	RegressionTest           *bool
+	SimNet                   *bool
+	AddCheckpoints           *cli.StringSlice
+	DisableCheckpoints       *bool
+	DbType                   *string
+	Profile                  *string
+	CPUProfile               *string
+	Upnp                     *bool
+	MinRelayTxFee            *float64
+	FreeTxRelayLimit         *float64
+	NoRelayPriority          *bool
+	TrickleInterval          *time.Duration
+	MaxOrphanTxs             *int
+	Algo                     *string
+	Generate                 *bool
+	GenThreads               *int
+	MiningAddrs              *cli.StringSlice
+	MinerListener            *string
+	MinerPass                *string
+	BlockMinSize             *int
+	BlockMaxSize             *int
+	BlockMinWeight           *int
+	BlockMaxWeight           *int
+	BlockPrioritySize        *int
+	UserAgentComments        *cli.StringSlice
+	NoPeerBloomFilters       *bool
+	NoCFilters               *bool
+	SigCacheMaxSize          *int
+	BlocksOnly               *bool
+	TxIndex                  *bool
+	AddrIndex                *bool
+	RelayNonStd              *bool
+	RejectNonStd             *bool
+	TLSSkipVerify            *bool
+	Wallet                   *bool
+	NoInitialLoad            *bool
+	WalletPass               *string
+	WalletServer             *string
+	CAFile                   *string
+	OneTimeTLSKey            *bool
+	ServerTLS                *bool
+	LegacyRPCListeners       *cli.StringSlice
+	LegacyRPCMaxClients      *int
+	LegacyRPCMaxWebsockets   *int
+	ExperimentalRPCListeners *cli.StringSlice
+}
