@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -18,7 +17,6 @@ import (
 	"git.parallelcoin.io/dev/pod/pkg/peer/connmgr"
 	"git.parallelcoin.io/dev/pod/pkg/util"
 	cl "git.parallelcoin.io/dev/pod/pkg/util/cl"
-	"github.com/BurntSushi/toml"
 	"github.com/btcsuite/go-socks/socks"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -29,22 +27,6 @@ var StateCfg = node.StateCfg
 func nodeHandle(c *cli.Context) error {
 
 	Configure(&podConfig)
-
-	if *podConfig.Save {
-		podHandleSave()
-		fmt.Println(os.Args)
-		return nil
-	}
-
-	if !FileExists(*podConfig.ConfigFile) {
-		*podConfig.Save = true
-	} else {
-		b, e := ioutil.ReadFile(*podConfig.ConfigFile)
-		if e != nil {
-			panic(e)
-		}
-		toml.Unmarshal(b, &podConfig)
-	}
 
 	loglevel := *podConfig.LogLevel
 
@@ -735,7 +717,6 @@ func nodeHandle(c *cli.Context) error {
 
 		*podConfig.Save = false
 		podHandleSave()
-		return nil
 	}
 
 	log <- cl.Debug{"finished nodeHandle"}
