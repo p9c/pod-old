@@ -11,7 +11,7 @@ Get them from here: [https://git.parallelcoin.io/dev/parallelcoin-binaries](http
 
 > ## IMPORTANT
 > 
-> **Development branch** can be found [here](https://seed1.parallelcoin.io/dev/pod/src/branch/dev), where the current work is located.
+> **Development branch** can be found [here](https://git.parallelcoin.io/dev/pod/src/branch/dev), where the current work is located.
 > 
 > here's our own godoc server documentation for this package: [here](https://doc.parallelcoin.io/pkg/git.parallelcoin.io/dev/pod/)
 > 
